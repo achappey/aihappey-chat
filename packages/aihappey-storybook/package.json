@@ -1,0 +1,33 @@
+{
+  "name": "aihappey-storybook",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "aihappey-types": "*",
+    "aihappey-theme-fluent": "*",
+    "aihappey-theme-bootstrap": "*",
+    "aihappey-components": "*"
+  },
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build": "storybook build --output-dir ../../docs/storybook-chat",
+    "serve": "serve ../../docs/storybook-chat -l 3051"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-router": "^7.6.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@storybook/react-webpack5": "^10.1.8",
+    "@types/mime": "^3.0.4",
+    "react-dom": "^18.3.1",
+    "storybook": "^10.1.8",
+    "typescript": "^5.9.3"
+  }
+}

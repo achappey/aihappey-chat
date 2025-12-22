@@ -1,0 +1,57 @@
+import type { JSX } from "react";
+import {
+  Chat as FluentChat,
+  ChatMessage,
+  ChatMyMessage,
+} from "@fluentui-contrib/react-chat";
+import { ChatMessage as Message } from "aihappey-types";
+import { Badge, Button, Tooltip } from "@fluentui/react-components";
+import {
+  ArrowDownloadRegular,
+  AttachRegular,
+  BrainRegular,
+  ChevronLeftRegular,
+  ChevronRightRegular,
+  CloudLinkRegular,
+  CodeTextRegular,
+  CopyRegular,
+  TemperatureRegular,
+  ToolboxRegular,
+} from "@fluentui/react-icons";
+import { iconMap } from "./Button";
+import React from "react";
+import { useMediaQuery } from "usehooks-ts";
+import { format } from "timeago.js";
+
+export type ChatProps = {
+  messages?: Message[];
+  renderMessage: (msg: Message) => React.ReactElement;
+  renderReactions?: (msg: Message) => React.ReactElement;
+};
+
+export const Chat = ({ messages, renderMessage, renderReactions }: ChatProps): JSX.Element => {
+  return (
+    <FluentChat>
+      {messages?.map((msg) => {
+        const MessageComponent =
+          msg.role === "user" ? ChatMyMessage : ChatMessage;
+
+        const reactions = renderReactions ? renderReactions(msg) : undefined;
+        const icon = msg.messageIcon ? React.createElement(iconMap[msg.messageIcon]) : undefined;
+
+        return (
+          <MessageComponent
+            key={msg.id}
+            author={msg.author}
+            timestamp={format(msg.createdAt)}
+            reactions={reactions}
+            decorationIcon={icon}
+            decorationLabel={msg.messageLabel}
+          >
+            {renderMessage(msg)}
+          </MessageComponent>
+        );
+      })}
+    </FluentChat>
+  );
+};

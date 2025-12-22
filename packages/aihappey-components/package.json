@@ -1,0 +1,31 @@
+{
+  "name": "aihappey-components",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "aihappey-types": "*",
+    "react-chartjs-2": "^5.3.0",
+    "usehooks-ts": "^3.1.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-router": "^7.6.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/mime": "^3.0.4",
+    "@types/react": "^18.3.11",
+    "@modelcontextprotocol/sdk": "^1.21.2",
+    "aihappey-ai": "*",
+    "typescript": "^5.9.3"
+  }
+}

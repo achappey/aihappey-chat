@@ -1,0 +1,28 @@
+{
+  "name": "aihappey-theme-bootstrap",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "bootstrap": "^5.3.6",
+    "aihappey-types": "*"
+  },
+  "dependencies": {
+    "react-bootstrap": "^2.10.9",
+    "aihappey-components": "*",
+    "react-bootstrap-icons": "^1.11.6"
+  },
+  "license": "MIT",
+  "devDependencies": {
+      "typescript": "^5.9.3"
+  }
+}

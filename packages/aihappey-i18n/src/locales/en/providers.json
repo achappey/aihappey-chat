@@ -1,0 +1,80 @@
+{
+  "perplexity": {
+    "academic": "Academic",
+    "web": "Web",
+    "improveImageRelevance": "Improve image relevance",
+    "enableSearchClassifier": "Search classifier",
+    "dateSearchSettings": "Date filters",
+    "searchRecencyFilter": "Recency filter",
+    "searchAfterDateFilter": "Published after date",
+    "searchBeforeDateFilter": "Published before date",
+    "lastUpdatedAfterFilter": "Last updated after date",
+    "lastUpdatedBeforeFilter": "Last updated before date",
+    "sonarDeepResearch": "Sonar Deep Research",
+    "returnImages": "Return images",
+    "returnVideos": "Return videos",
+    "returnRelatedQuestions": "Return related quesions"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "anthropic": {
+    "maxUses": "Maximum uses",
+    "customSkills": "Custom skills",
+    "allowedDomains": "Allowed domains",
+    "blockedDomains": "Blocked domains"
+  },
+  "cohere": {
+    "citationOptions": "Citations"
+  },
+  "xSearch": "Search on X",
+  "xai": {
+    "imageUnderstanding": "Image understanding",
+    "videoUnderstanding": "Video understanding",
+    "allowedDomains": "Allowed domains",
+    "excludedDomains": "Excluded domains",
+    "allowed_x_handles": "Allowed X handles",
+    "excluded_x_handles": "Excluded X handles"
+  },
+  "openai": {
+    "container": "Container",
+    "includeOutputs": "Include outputs",
+    "includeSources": "Include sources",
+    "includeSearchResults": "Include search results",
+    "encryptedContent": "Include encryption",
+    "instructions": "Instructions",
+    "instructionsPlaceholder": "A system (or developer) message inserted into the model's context.",
+    "max_num_results": "Maximum number of results",
+    "vector_store_ids": "Ids of the vector stores",
+    "file_search": "File search"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Enhanced civic answers",
+    "unspecified": "Unspecified",
+    "mediaResolution": "Image quality",
+    "url_context": "URL context",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Include thoughts",
+    "dynamicThinking": "Dynamic thinking",
+    "intervalStart": "Start date",
+    "intervalEnd": "End date",
+    "blockingConfidence": {
+      "label": "Blocking confidence",
+      "unspecified": "Unspecified",
+      "lowAndAbove": "Block low and above",
+      "mediumAndAbove": "Block medium and above",
+      "highAndAbove": "Block high and above",
+      "higherAndAbove": "Block higher and above",
+      "veryHighAndAbove": "Block very high and above",
+      "onlyExtremelyHigh": "Block only extremely high"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Max returned URLs",
+    "search_provider": "Arxiv pptimized search",
+    "team_size": "Agentic team size",
+    "goodDomains": "Boosted domains",
+    "badDomains": "Bad domains",
+    "onlyDomains": "Restrict search to these domains"
+  }
+}

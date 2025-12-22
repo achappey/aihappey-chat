@@ -1,0 +1,32 @@
+{
+  "name": "aihappey-theme-fluent",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.9.3",
+    "aihappey-components": "*"
+  },
+  "peerDependencies": {
+    "aihappey-types": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "dependencies": {
+    "@fluentui-contrib/react-chat": "^0.1.11",
+    "@fluentui/react-components": "^9.64.0",
+    "@fluentui/react-icons": "^2.0.301",
+    "usehooks-ts": "^3.1.1",
+    "timeago.js": "^4.0.2"
+  },
+  "license": "MIT"
+}

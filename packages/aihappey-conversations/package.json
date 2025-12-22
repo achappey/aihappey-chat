@@ -1,0 +1,30 @@
+{
+  "name": "aihappey-conversations",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "aihappey-ai": "*",
+    "aihappey-types": "*",
+    "aihappey-state": "*",
+    "aihappey-auth": "*",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "aihappey-ai": "*",
+       "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "idb-keyval": "^6.2.2"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "cohere": {
+    "citationOptions": "Citaten"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "perplexity": {
+    "academic": "Academisch",
+    "web": "Web",
+    "improveImageRelevance": "Verbeter afbeelding relevantie",
+    "enableSearchClassifier": "Zoek classificatie",
+    "searchRecencyFilter": "Tijdfilter",
+    "searchAfterDateFilter": "Gepubliceerd na datum",
+    "searchBeforeDateFilter": "Gepubliceerd vóór datum",
+    "lastUpdatedAfterFilter": "Laatst bijgewerkt na datum",
+    "lastUpdatedBeforeFilter": "Laatst bijgewerkt vóór datum",
+    "dateSearchSettings": "Datum filters",
+    "sonarDeepResearch": "Sonar Deep Research",
+    "returnImages": "Afbeeldingen retourneren",
+    "returnVideos": "Videos retourneren",
+    "returnRelatedQuestions": "Gerelateerde vragen retourneren"
+  },
+  "openai": {
+    "container": "Container",
+    "includeOutputs": "Inclusief uitvoer",
+    "includeSources": "Inclusief bronnen",
+    "includeSearchResults": "Inclusief zoekresultaten",
+    "encryptedContent": "Inclusief encryptie",
+    "instructions": "Instructies",
+    "instructionsPlaceholder": "Een systeem bericht dat wordt toegevoegd aan de context.",
+    "max_num_results": "Maximaal aantal resultaten",
+    "vector_store_ids": "Ids van de documentenhubs",
+    "file_search": "Documentenhub"
+  },
+  "jina": {
+    "max_returned_urls": "Maximaal aantal geretourneerde URLs",
+    "search_provider": "Arxiv-geoptimaliseerde zoekopdracht",
+    "team_size": "Aantal AI-agents",
+    "goodDomains": "Versterkte domeinen",
+    "badDomains": "Geblokkeerde domeinen",
+    "onlyDomains": "Beperk zoekopdracht tot deze domeinen"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Verbeterde maatschappelijke antwoorden",
+    "unspecified": "Niet gespecificeerd",
+    "mediaResolution": "Beeldkwaliteit",
+    "googleMaps": "Google Maps",
+    "url_context": "URL context",
+    "includeThoughts": "Toon gedachten",
+    "dynamicThinking": "Dynamisch denken",
+    "intervalStart": "Startdatum",
+    "intervalEnd": "Einddatum",
+    "blockingConfidence": {
+      "label": "Blokkeringsniveau",
+      "unspecified": "Niet gespecificeerd",
+      "lowAndAbove": "Blokkeer laag en hoger",
+      "mediumAndAbove": "Blokkeer middel en hoger",
+      "highAndAbove": "Blokkeer hoog en hoger",
+      "higherAndAbove": "Blokkeer hoger en hoger",
+      "veryHighAndAbove": "Blokkeer zeer hoog en hoger",
+      "onlyExtremelyHigh": "Blokkeer alleen extreem hoog"
+    }
+  },
+  "xSearch": "Zoeken op X",
+  "xai": {
+    "imageUnderstanding": "Begrip van afbeeldingen",
+    "videoUnderstanding": "Begrip van video's",
+    "allowedDomains": "Toegestane domeinen",
+    "excludedDomains": "Uitgesloten domeinen",
+    "allowed_x_handles": "Toegestane X-handles",
+    "excluded_x_handles": "Uitgesloten X-handles"
+  },
+  "anthropic": {
+    "maxUses": "Maximaal aantal keer",
+    "customSkills": "Aangepaste vaardigheden",
+    "allowedDomains": "Toegestane domeinen",
+    "blockedDomains": "Geblokkeerde domeinen"
+  }
+}

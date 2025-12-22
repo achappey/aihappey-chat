@@ -1,0 +1,21 @@
+{
+  "name": "aihappey-a2a",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@a2a-js/sdk": "^0.3.1",
+    "aihappey-auth": "*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "peerDependencies": {
+    "aihappey-types": "*"
+  },
+  "devDependencies": {
+      "typescript": "^5.9.3"
+  }
+}

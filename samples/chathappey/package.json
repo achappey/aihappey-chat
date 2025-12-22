@@ -1,0 +1,26 @@
+{
+  "name": "aihappey-chathappey",
+  "private": true,
+  "version": "0.1.0",
+  "description": "chathappey app using aihappey-core",
+  "scripts": {
+    "build:dev": "node esbuild.config.js",
+    "build": "cross-env NODE_ENV=production node esbuild.config.js",
+    "dev": "node esbuild.config.js --watch",
+    "serve": "npx serve public --single -l 3032"
+  },
+  "dependencies": {
+    "@types/react-dom": "^18.1.5",
+    "aihappey-auth": "*",
+    "aihappey-core": "*",
+    "aihappey-theme-fluent": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router": "^7.6.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.5.0",
+    "typescript": "^5.9.3"
+  }
+}
