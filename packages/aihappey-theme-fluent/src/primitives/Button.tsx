@@ -66,6 +66,7 @@ import {
   WrenchRegular,
   ChevronRightRegular,
   ChevronLeftRegular,
+  CloudLinkRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -130,6 +131,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   logout: DoorArrowRightRegular,
   copyClipboard: CopyRegular,
   settings: SettingsRegular,
+  sources: CloudLinkRegular,
   chevronDown: ChevronDownRegular,
   chevronUp: ChevronUpRegular,
   chevronLeft: ChevronLeftRegular,

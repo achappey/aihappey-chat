@@ -181,6 +181,8 @@ export const extractTextFromZip = async (a: any) => {
     else if (ext === "docx") text = await docxFileToText(f);
     else if (["xlsx", "xls", "csv"].includes(ext || "")) text = await excelFileToText(f);
     else if (["txt", "md", "log"].includes(ext || "")) text = await f.text();
+    else if (["pptx"].includes(ext || "")) text = await pptxFileToText(f);
+    else if (["msg"].includes(ext || "")) text = await msgFileToPlainText(f);
 
     if (text) {
       textParts.push({

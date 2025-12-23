@@ -6,14 +6,12 @@ import { CancelButton } from "../../ui/buttons/CancelButton";
 type Props = {
   prompt: PromptWithSource;
   onHide: () => void;
-  model?: string;
   onPromptExecute?: any;
 };
 
 export const PromptArgumentsModal = ({
   prompt,
   onHide,
-  model,
   onPromptExecute,
 }: Props) => {
   const { Modal, Button, Input, Spinner, Alert, Select } = useTheme();
@@ -28,7 +26,7 @@ export const PromptArgumentsModal = ({
     missingRequired,
     handleOk,
     onFilter,
-  } = usePromptArguments({ prompt, onPromptExecute, model });
+  } = usePromptArguments({ prompt, onPromptExecute });
 
   return (
     <Modal

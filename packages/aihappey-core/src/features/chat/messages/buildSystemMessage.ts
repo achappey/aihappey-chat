@@ -1,6 +1,7 @@
-import type { UIMessage } from "aihappey-types";
+import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { ServerItem, type Resource, type ResourceTemplate } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
+import { chatAppInstructions } from "../../../runtime/chat-app/chatAppInstructions";
 
 const getSystemInfo = (appName?: string) => {
     const now = new Date();
@@ -137,18 +138,11 @@ export const buildSystemMessage = (
         });
     }
 
-    // Chat instructions block
+    const instructions = chatAppInstructions()
     parts.push({
         type: "text",
         text: JSON.stringify({
-            chatBotInstructions: [
-                "Use markdown formatting for your responses, including tables and lists, unless specifically instructed to output CSV.",
-                "When outputting chartjs, always put a valid JSON data object inside a ```chartjs code block.",
-                "When outputting CSV, always return raw CSV text inside a ```csv code block.",
-                "When outputting LaTeX/math, return a single formula inside ```latex without delimiters.",
-                "Do not include base64 images; images are handled by the client.",
-                "Always respond in the user's preferred language."
-            ]
+            chatBotInstructions: instructions?.replaceAll("\\n", "\n")
         })
     });
 
@@ -162,20 +156,11 @@ export const buildSystemMessage = (
 
     // Account block
     if (account) {
-        /*    const mcpSettings: any = {
-                toolPolicy: { ...toolAnnotations }
-            };
-    
-            if (disabledTools && Object.keys(disabledTools).length > 0) {
-                mcpSettings.toolsDisabledByPolicy = disabledTools;
-            }*/
-
         parts.push({
             type: "text",
             text: JSON.stringify({
                 ...account,
                 ...(accountLocation ? { location: accountLocation } : {}),
-             //   mcpSettings
             })
         });
     }
@@ -190,11 +175,11 @@ export const buildSystemMessage = (
 
     return {
         id: crypto.randomUUID(),
-        role: "system",
+        role: SYSTEM_ROLE,
         parts,
         metadata: {
             timestamp: new Date().toISOString(),
-            author: "system"
+            author: SYSTEM_ROLE
         }
     };
 };

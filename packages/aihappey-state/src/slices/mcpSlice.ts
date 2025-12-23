@@ -7,6 +7,7 @@ import {
   Resource, ResourceTemplate, type ElicitResult,
 } from "aihappey-mcp";
 import { connectServerPersistent, mcpRuntime } from "./uiSlice";
+import { AGENT_RESOURCE_TYPE, AGENTS_RESOURCE_TYPE, CONVERSATION_RESOURCE_TYPE, CONVERSATIONS_RESOURCE_TYPE } from "aihappey-types";
 
 type LogLevel = "error" | "debug" | "info" | "notice" | "warning" | "critical" | "alert" | "emergency";
 
@@ -149,8 +150,8 @@ export const createMcpSlice: StateCreator<
     if (enableConversationImport && conversationImport && safeHosts?.includes(new URL(url).host)) {
       const agentResources =
         resources?.filter(r =>
-          r.mimeType === "application/vnd.conversation+json" ||
-          r.mimeType === "application/vnd.conversations+json"
+          r.mimeType === CONVERSATION_RESOURCE_TYPE ||
+          r.mimeType === CONVERSATIONS_RESOURCE_TYPE
         ) ?? [];
 
       for (const res of agentResources) {
@@ -158,9 +159,9 @@ export const createMcpSlice: StateCreator<
 
         for (const c of result.contents) {
           // CASE 1: single agent entries
-          if (c.mimeType === "application/vnd.conversation+json"
+          if (c.mimeType === CONVERSATION_RESOURCE_TYPE
             || (c.mimeType === "application/json"
-              && res.mimeType === "application/vnd.conversation+json")
+              && res.mimeType === CONVERSATION_RESOURCE_TYPE)
           ) {
             discoveredConversations.push(JSON.parse((c as any).text));
             continue;
@@ -168,9 +169,9 @@ export const createMcpSlice: StateCreator<
 
           // CASE 2: list of agents
           if (
-            c.mimeType === "application/vnd.conversations+json"
+            c.mimeType === CONVERSATIONS_RESOURCE_TYPE
             || (c.mimeType === "application/json" &&
-              res.mimeType === "application/vnd.conversations+json"
+              res.mimeType === CONVERSATIONS_RESOURCE_TYPE
             )
           ) {
             const parsed = JSON.parse((c as any).text ?? "[]");
@@ -197,8 +198,8 @@ export const createMcpSlice: StateCreator<
       //  try {
       const agentResources =
         resources?.filter(r =>
-          r.mimeType === "application/vnd.agent+json" ||
-          r.mimeType === "application/vnd.agents+json"
+          r.mimeType === AGENT_RESOURCE_TYPE ||
+          r.mimeType === AGENTS_RESOURCE_TYPE
         ) ?? [];
 
       for (const res of agentResources) {
@@ -206,9 +207,9 @@ export const createMcpSlice: StateCreator<
 
         for (const c of result.contents) {
           // CASE 1: single agent entries
-          if (c.mimeType === "application/vnd.agent+json"
+          if (c.mimeType === AGENT_RESOURCE_TYPE
             || (c.mimeType === "application/json"
-              && res.mimeType === "application/vnd.agent+json")
+              && res.mimeType === AGENT_RESOURCE_TYPE)
           ) {
             discoveredAgents.push(JSON.parse((c as any).text));
             continue;
@@ -216,9 +217,9 @@ export const createMcpSlice: StateCreator<
 
           // CASE 2: list of agents
           if (
-            c.mimeType === "application/vnd.agents+json"
+            c.mimeType === AGENTS_RESOURCE_TYPE
             || (c.mimeType === "application/json" &&
-              res.mimeType === "application/vnd.agents+json"
+              res.mimeType === AGENTS_RESOURCE_TYPE
             )
           ) {
             const parsed = JSON.parse((c as any).text ?? "[]");
@@ -283,7 +284,7 @@ export const createMcpSlice: StateCreator<
       return { tokens: newTokens };
     });
   },
- 
+
   /*getToolIcon: (toolName: string) => {
     const { tools, clients } = get();
 

@@ -18,6 +18,7 @@ import { toMarkdownLinkSmart } from "./files/markdown";
 import { useChatContext } from "./context/ChatContext";
 import { mcpResourceRuntime, useSelectedResources } from "../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
+import { useTools } from "../tools/useTools";
 
 export function NewChatPage() {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ export function NewChatPage() {
   const { config } = useChatContext();
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
+  const toolAnnotations = useAppStore(a => a.toolAnnotations)
+  const { disabledTools} = useTools()
   const agents = useAppStore(a => a.agents)
   const selectedAgents = selectedAgentNames
     .filter(a => agents.some(z => z.name == a))

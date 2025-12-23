@@ -28,7 +28,7 @@ export function useMcpRuntimeBinding({
     const customHeaders = useAppStore((s) => s.customHeaders);
     const clearMcpContent = useAppStore((s) => s.clearMcpContent);
     const addProgress = useAppStore((s) => s.addProgress);
-  //  const conversations = useConversations()
+    const conversations = useConversations()
     const addSampling = useAppStore((s) => s.addSampling);
     const onElicit = (server: string, params: ElicitRequest) => elicitRuntime.onElicit(server, params);
     const onProgress = async (notif: ProgressNotification) => addProgress(notif);
@@ -75,12 +75,12 @@ export function useMcpRuntimeBinding({
     };
 
     const conversationImport = async (conversation: any) => {
-      /*  var current = await conversations.list();
+        var current = await conversations.list();
         if (!current.find(a => a.id === conversation.id)) {
             await conversations.import(conversation)
 
             conversations.refresh();
-        }*/
+        }
     }
 
     const onLogging = (server: any, req: any) => logRuntime.append({

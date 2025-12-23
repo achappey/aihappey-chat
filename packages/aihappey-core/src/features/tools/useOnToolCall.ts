@@ -3,7 +3,7 @@ import { useAppStore } from "aihappey-state";
 import { CallToolResult } from "aihappey-mcp";
 import { useTranslation } from "aihappey-i18n";
 import { memoryStore } from "../../runtime/memory/memoryStore";
-import { ConversationsContextType } from "aihappey-conversations";
+import { ConversationsContextType, useConversations } from "aihappey-conversations";
 import { readResource } from "../../runtime/mcp/readResource";
 import { Agent } from "aihappey-types";
 
@@ -16,8 +16,8 @@ function isValidAbsoluteUri(uri: string): boolean {
   }
 }
 
-export function useOnToolCall({ callTool, conversations }: {
-  conversations?: ConversationsContextType,
+export function useOnToolCall({ callTool }: {
+  //  conversations?: ConversationsContextType,
   callTool: (toolCallId: string, toolName: string, input: any, locale?: string, signal?: AbortSignal) => Promise<any>
 }) {
   const enableApps = useAppStore(a => a.enableApps)
@@ -27,6 +27,7 @@ export function useOnToolCall({ callTool, conversations }: {
   const setMcpTimeout = useAppStore(a => a.setMcpTimeout)
   const toolTimeout = useAppStore(a => a.toolTimeout)
   const deleteAgent = useAppStore(a => a.deleteAgent)
+  const conversations = useConversations();
   const mcpServerContent = useAppStore(a => a.mcpServerContent)
   const resetTimeoutOnProgress = useAppStore(a => a.resetTimeoutOnProgress)
   const mcpServers = useAppStore(a => a.mcpServers)

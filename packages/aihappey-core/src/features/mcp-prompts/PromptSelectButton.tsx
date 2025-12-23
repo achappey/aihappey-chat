@@ -8,19 +8,14 @@ import { PromptSelectModal } from "./PromptSelectModal";
 import { useAutoPromptExecution } from "./useAutoPromptExecution";
 
 export type PromptWithSource = Prompt & {
-  // _url: string;
-  //_serverName: string;
-  // text?: string;
   _serverName?: string;
 };
 
 type PromptSelectButtonProps = {
-  model?: string;
   onPromptExecute?: any;
 };
 
 export const PromptSelectButton = ({
-  model,
   onPromptExecute,
 }: PromptSelectButtonProps) => {
   const { Button } = useTheme();
@@ -93,7 +88,6 @@ export const PromptSelectButton = ({
             setOpen(false);
             await onPromptExecute(prompt, args);
           }}
-          model={model}
           onHide={() => setArgumentPrompt(null)}
         />
       )}

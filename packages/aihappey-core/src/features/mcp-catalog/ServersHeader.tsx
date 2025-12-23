@@ -1,7 +1,6 @@
 import { useTheme } from "aihappey-components";
 
 import { useTranslation } from "aihappey-i18n";
-import { useAppStore } from "aihappey-state";
 import { useDarkMode } from "usehooks-ts";
 
 interface ServersHeaderProps {

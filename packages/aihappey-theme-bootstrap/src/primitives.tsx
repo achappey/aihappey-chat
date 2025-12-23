@@ -81,6 +81,7 @@ import {
   Wrench,
   ChevronLeft,
   ChevronRight,
+  Cloud,
 } from "react-bootstrap-icons";
 import React from "react";
 
@@ -146,6 +147,7 @@ const iconMap: Record<IconToken, JSX.Element> = {
   chatSettings: <Sliders />,
   search: <Search />,
   menu: <List />,
+  sources: <Cloud />,
   server: <Server />,
   databaseGear: <DatabaseGear />,
   personalization: <PersonHeart />,

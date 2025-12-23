@@ -1,16 +1,16 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import type { NavigationItem } from "aihappey-types/src/theme";
 import { useConversations } from "aihappey-conversations";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, useParams } from "react-router";
 import { useTranslation } from "aihappey-i18n";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useIsDesktop } from "../responsive/useIsDesktop";
 
 export const ConversationSidebar = () => {
-  const selectedConversationId = useAppStore((s) => s.selectedConversationId);
+  //const selectedConversationId = useAppStore((s) => s.selectedConversationId);
   const selectConversation = useAppStore((s) => s.selectConversation);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
@@ -26,7 +26,7 @@ export const ConversationSidebar = () => {
   const setConversationStorage = useAppStore((a) => a.setConversationStorage);
   const isDesktop = useIsDesktop();
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
-
+  const { conversationId } = useParams<{ conversationId?: string }>();
   const startEdit = (id: string, name: string) => {
     setEditingId(id);
     setEditValue(name);
@@ -50,7 +50,7 @@ export const ConversationSidebar = () => {
     await conversations.remove(id);
     conversations.refresh();
 
-    if (selectedConversationId == id) {
+    if (conversationId == id) {
       await navigate("/");
     }
   };
@@ -159,9 +159,6 @@ export const ConversationSidebar = () => {
 
   const navItems: NavigationItem[] = [...staticNavItems, ...chatNavItems];
 
-  // Show the "new chat" button on any page except the root "/" (which already starts a new chat).
-  const showAdd = location.pathname !== "/";
-
   // Determine active key: highlight "servers" if on /servers, else selected chat
   const activeKey =
     location.pathname === "/model-context-catalog"
@@ -170,7 +167,7 @@ export const ConversationSidebar = () => {
         ? "agents"
         : location.pathname === "/models"
           ? "models"
-          : selectedConversationId ?? undefined;
+          : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {

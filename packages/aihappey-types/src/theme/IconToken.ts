@@ -61,6 +61,7 @@ export type IconToken =
   | "tool"
   | "personalization"
   | "settings"
+  | "sources"
   | "chevronDown"
   | "chevronUp"
   | "chevronLeft"

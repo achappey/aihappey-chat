@@ -12,7 +12,7 @@ import { useChatFileDrop } from "../input/useChatFileDrop";
 import { useOnToolCall } from "../../tools/useOnToolCall";
 import { useResourceParts } from "../messages/useResourceParts";
 import { MessageList } from "../messages/MessageList";
-import type { UIMessage } from "aihappey-types";
+import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { useChatActions } from "./useChatActions";
 import { useSystemMessage } from "../messages/useSystemMessage";
 import { useChatContext } from "../context/ChatContext";
@@ -114,7 +114,7 @@ export function VercelChatInner({
 
   const systemMessage = useSystemMessage();
   const seededMessages = useMemo(() => {
-    const nonSystem = initial.filter((a) => a.role !== "system");
+    const nonSystem = initial.filter((a) => a.role !== SYSTEM_ROLE);
     return includeSystem ? [systemMessage, ...nonSystem] : nonSystem;
   }, [includeSystem, systemMessage, initial]);
 
@@ -181,28 +181,6 @@ export function VercelChatInner({
     };
   }, []); // <-- stable forever, reads refs at call time
 
-
-  /* auth‑aware fetch (optional) */
-  const authFetch2 = useMemo(() => {
-    if (!getAccessToken && !headers && !customFetch && !customHeaders && !refreshToken) return undefined;
-    return async (input: RequestInfo | URL, init?: RequestInit) => {
-      let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
-      if (chatMode == "chat" && getAccessToken) {
-        try {
-          merged.Authorization = `Bearer ${await getAccessToken()}`;
-        } catch { }
-      }
-
-      if (chatMode == "agent" && refreshToken) {
-        try {
-          merged.Authorization = `Bearer ${await refreshToken()}`;
-        } catch { }
-      }
-      if (init?.headers) merged = { ...merged, ...(init.headers as any) };
-      return (customFetch ?? fetch)(input, { ...init, headers: merged });
-    };
-  }, [getAccessToken, headers, customFetch, customHeaders, refreshToken, chatMode]);
-
   const startRun = () => {
     abortRef.current?.abort();         // kill previous run
     abortRef.current = new AbortController();
@@ -211,10 +189,8 @@ export function VercelChatInner({
   const api = chatMode == "agent" ? config?.agentEndpoint + "/api/chat"
     : config?.api || "/api/chat";
 
-  //const conversations = useConversations();
   const abortRef = useRef<AbortController | null>(null);
   const toolUse = useOnToolCall({
-    //null,
     callTool,
   });
 
@@ -245,10 +221,6 @@ export function VercelChatInner({
       }),
     [authFetch]
   );
-
-  // const initialMessages = chatMode == "chat"
-  //    ? [systemMessage, ...initial.filter((a) => a.role != "system")]
-  //   : [...initial.filter((a) => a.role != "system")];
 
   const { messages, sendMessage, status, addToolOutput, stop } = useChat({
     id: conversationId,
@@ -300,7 +272,6 @@ export function VercelChatInner({
   }
 
   const getAttachmentParts = useAttachmentParts();
-  //const resourceParts = useResourceParts();
   const { tools } = useTools();
   const lastPart = useMemo(() => {
     const lastMsg =
@@ -345,17 +316,17 @@ export function VercelChatInner({
           providerMetadata,
           response_format: location.state.responseFormat,
           workflowMetadata: {
-            "groupchat": {
-              "maximumIterationCount": maximumIterationCount
+            groupchat: {
+              maximumIterationCount
             },
-            "handoff": {
-              "handoffs": handoffs
+            handoff: {
+              handoffs
             },
           },
-          temperature:
-            location.state?.temperature != undefined
-              ? location.state?.temperature
-              : temperature,
+          temperature: location.state?.temperature ?? temperature
+           // location.state?.temperature != undefined
+           //   ? location.state?.temperature
+           //   : temperature,
         },
       });
       // router state wissen
@@ -439,7 +410,6 @@ export function VercelChatInner({
             showActivity={setMessageActivity}
             conversationId={conversationId}
             showToolsDrawer={setUsedTool}
-            status={status}
           />}
         {status === "submitted" || status === "streaming" || lastPart ? (
           <Spinner
@@ -453,13 +423,6 @@ export function VercelChatInner({
             onSend={async (msg: any) => {
               startRun()
               await handleSend(msg)
-              const conv11 = await get(conversationId!);
-              console.log("AFTER WRITE", conv11?.messages.map(m => ({
-                role: m.role,
-                id: m.id,
-                ts: m.metadata?.timestamp,
-                createdAt: (m as any).createdAt
-              })));
             }}
             onStop={cancelRun}
             temperature={temperature}

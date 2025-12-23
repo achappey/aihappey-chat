@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAppStore } from "aihappey-state";
 import { toMarkdownLinkSmart } from "../chat/files/markdown";
 
-export function usePromptArguments({ prompt, onPromptExecute, model }: any) {
+export function usePromptArguments({ prompt, onPromptExecute }: any) {
   // Build initial form state with empty strings
   const initialValues = Object.fromEntries(
     (prompt.arguments ?? []).map((a: any) => [a.name, ""])
@@ -22,21 +22,6 @@ export function usePromptArguments({ prompt, onPromptExecute, model }: any) {
     Object.fromEntries(
       Object.entries(vals).filter(([k, v]) => k !== excludeName && v.trim() !== "")
     );
-
-  // Append prompt messages
-  const appendPromptMessages = async (messages: any[]) => {
-    const parts: any[] = messages.map((m) => ({
-      type: "text",
-      text:
-        m.content.text ??
-        toMarkdownLinkSmart(
-          m.content.resource.uri,
-          m.content.resource.text as string,
-          m.content.resource.mimeType
-        ),
-    }));
-    await onPromptExecute(parts, model);
-  };
 
   // Fetch completions for blanks on mount
   useEffect(() => {

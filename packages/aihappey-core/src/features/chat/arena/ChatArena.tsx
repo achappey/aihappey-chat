@@ -48,10 +48,9 @@ export function ChatArena({
      config.getAccessToken
    );*/
   const { Spinner } = useTheme();
-  const conversations = useConversations()
   const models = useAppStore((s) => s.models);
   const callTool = useAppStore((a) => a.callTool);
-  const { onToolCall } = useOnToolCall({ conversations, callTool });
+  const { onToolCall } = useOnToolCall({ callTool });
 
   const { transcribe } = useTranscription(
     config.transcriptionApi!,
@@ -266,7 +265,6 @@ export function ChatArena({
           >
             <MessageList
               messages={chatA.messages}
-              status={chatA.status}
               showCitations={function (items: any[]): void {
                 throw new Error("Function not implemented.");
               }}
@@ -299,7 +297,6 @@ export function ChatArena({
           >
             <MessageList
               messages={chatB.messages}
-              status={chatB.status}
               showCitations={function (items: any[]): void {
                 throw new Error("Function not implemented.");
               }}

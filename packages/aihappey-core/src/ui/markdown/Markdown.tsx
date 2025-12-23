@@ -3,8 +3,6 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { useTheme } from "aihappey-components";
-
-import React from "react";
 import { CodeBlock } from "./Codeblock";
 import rehypeHighlight from "rehype-highlight";
 import "@google/model-viewer";
@@ -113,5 +111,3 @@ export const Markdown = ({ text, status }: { text: string, status?: string }) =>
     </ReactMarkdown>
   );
 };
-
-export const MemoMarkdown = React.memo(Markdown);

@@ -3,9 +3,9 @@ import { SamplingRequest, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { OpenAIAppWidget } from "../../../ui/widgets/OpenAIAppWidget";
 import { ElicitationForm } from "../../elicitation/ElicitationForm";
-import { copyMarkdownToClipboard, downloadBase64Image } from "../files/file";
+import { copyMarkdownToClipboard } from "../files/file";
 import { elicitRuntime, useOpenElicits } from "../../../runtime/mcp/elicitRuntime";
-import { useTheme, MessageList as MessageListComponent, SamplingCard } from "aihappey-components";
+import { MessageList as MessageListComponent, SamplingCard } from "aihappey-components";
 import type { CreateMessageRequest, CreateMessageResult, ElicitResult } from "@modelcontextprotocol/sdk/types";
 import type { UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
@@ -19,7 +19,6 @@ interface MessageListProps {
   showAttachments?: (attachments: any[]) => void;
   showActivity?: (content: UIMessagePart<any, any>[]) => void;
   conversationId?: string;
-  status: "submitted" | "streaming" | "ready" | "error";
   messages: UIMessage[];
   sendMessage?: any;
 }
@@ -37,7 +36,6 @@ export const MessageList = ({
   showAttachments,
   messages,
   sendMessage,
-  status,
 }: MessageListProps) => {
   const { t } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
@@ -168,6 +166,7 @@ export const MessageList = ({
       onCopyMessage={copyClipboard}
       translations={translations}
       onShowActivity={showActivity}
+      onShowSources={(i) => console.log(i)}
       onShowAttachments={showAttachments}
       onRenderMarkdown={(text) => <Markdown text={text} />}
       renderBlock={({ block }: any) => {
@@ -187,20 +186,10 @@ export const MessageList = ({
               text={((block.request?.params?.messages?.[0] as any).content as any)?.text}
             />
           );
-
-          return (
-            <SamplingCard
-              request={block.request}
-              result={block.result}
-            />
-          );
         }
 
-        // 2) "OpenAI App" widget (HTML payload)
-        // Supports either:
-        // - block.mimeType === "text/html+skybridge"
-        // - or block.type === "openai-app"
-        if (block.type?.startsWith("tool-") && block.output?._meta?.["chat/html"]) {
+        if (block.type?.startsWith("tool-")
+          && block.output?._meta?.["chat/html"]) {
           const html = block.output._meta["chat/html"];
 
           return (
@@ -224,174 +213,3 @@ export const MessageList = ({
     />
   );
 };
-
-
-interface MessageListProps2 {
-  showCitations: (items: any[]) => void;
-  showToolsDrawer?: (tools: any[]) => void;
-  showAttachments?: (attachments: any[]) => void;
-  conversationId?: string
-  status: "submitted" | "streaming" | "ready" | "error";
-  messages: UIMessage[];
-  sendMessage?: any
-}
-
-export const MessageList2 = ({
-  showCitations,
-  showToolsDrawer,
-  showAttachments,
-  messages,
-  sendMessage,
-  status,
-}: MessageListProps2) => {
-  const { Chat } = useTheme();
-  //const chatMessageData = useChatMessages(messages);
-  const { t } = useTranslation();
-  const callTool = useAppStore((s) => s.callTool);
-  //const elicitationRequests = elicitRuntime.getOpenElicits()
-  const elicitationRequests = useOpenElicits(elicitRuntime);
-  var elicitMessages: any[] = elicitationRequests
-    .map((a) => ({
-      id: a.id,
-      role: "assistant",
-      author: a.id,
-      isImage: false,
-      elicit: a.request.params,
-      onRespond: (r: ElicitResult) => elicitRuntime.respond(a.id, r),
-      text: JSON.stringify(a.request.params),
-    }));
-  /*
-    const chatMessages = chatMessageData.map((m) => ({
-      ...m,
-      // content: <MemoMarkdown text={m.contentText} />,
-      text: m.contentText,
-      copyToClipboard: m.isImage
-        ? undefined
-        : async () => await copyMarkdownToClipboard(m.contentText),
-      download: m.isImage
-        ? () => {
-          // Heuristically find a file extension (data-url or url)
-          let url = "";
-          let ext = "png";
-          if (m.contentText.startsWith("![")) {
-            // Try to extract URL from markdown image
-            const match = /\]\((.*?)\)/.exec(m.contentText);
-            if (match) url = match[1];
-            if (url.startsWith("data:")) {
-              const mime = url.split(";")[0].split(":")[1];
-              ext = mime?.split("/")[1] || "png";
-            }
-          }
-          downloadBase64Image(url, `${m.id}.${ext}`);
-        }
-        : undefined,
-    }));*/
-
-  const translations = {
-    generatedByAi: t("generatedByAi")
-  }
-
-  return <MessageListComponent messages={[]}
-    translations={translations}
-    onCopyMessage={async (msg) => await copyMarkdownToClipboard("")}
-    onRenderMarkdown={
-      (msg) => <Markdown text={msg} />
-    } />
-};
-
-/*
-export const MessageList2 = ({
-  showCitations,
-  showToolsDrawer,
-  showAttachments,
-  messages,
-  sendMessage,
-  status,
-}: MessageListProps) => {
-  const { Chat } = useTheme();
-  const chatMessageData = useChatMessages(messages);
-  const { t } = useTranslation();
-  const callTool = useAppStore((s) => s.callTool);
-  //const elicitationRequests = elicitRuntime.getOpenElicits()
-  const elicitationRequests = useOpenElicits(elicitRuntime);
-  var elicitMessages: any[] = elicitationRequests
-    .map((a) => ({
-      id: a.id,
-      role: "assistant",
-      author: a.id,
-      isImage: false,
-      elicit: a.request.params,
-      onRespond: (r: ElicitResult) => elicitRuntime.respond(a.id, r),
-      text: JSON.stringify(a.request.params),
-    }));
-
-  const chatMessages = chatMessageData.map((m) => ({
-    ...m,
-    // content: <MemoMarkdown text={m.contentText} />,
-    text: m.contentText,
-    copyToClipboard: m.isImage
-      ? undefined
-      : async () => await copyMarkdownToClipboard(m.contentText),
-    download: m.isImage
-      ? () => {
-        // Heuristically find a file extension (data-url or url)
-        let url = "";
-        let ext = "png";
-        if (m.contentText.startsWith("![")) {
-          // Try to extract URL from markdown image
-          const match = /\]\((.*?)\)/.exec(m.contentText);
-          if (match) url = match[1];
-          if (url.startsWith("data:")) {
-            const mime = url.split(";")[0].split(":")[1];
-            ext = mime?.split("/")[1] || "png";
-          }
-        }
-        downloadBase64Image(url, `${m.id}.${ext}`);
-      }
-      : undefined,
-  }));
-
-  return (
-    <div id="chat-container"
-      style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: 12 }}
-    >
-      {chatMessages.length > 0 && (
-        <Chat
-          onShowSources={showCitations}
-          onShowAttachments={showAttachments}
-          generatedByAiLabel={t("generatedByAi")}
-          renderMessage={(msg) => {
-            if (msg?.elicit) {
-              return (
-                <ElicitationForm
-                  params={msg?.elicit}
-                  onRespond={msg.onRespond}
-                />
-              );
-            }
-
-            // 🧠 Widget message
-            if (msg?.id?.indexOf("-widget-") > -1) {
-              return (
-                <OpenAIAppWidget
-                  resourceHtml={msg.text}
-                  toolInput={msg.tools?.[0]?.input}
-                  sendFollowupTurn={sendMessage}
-                  onCallTool={(name, args) => callTool(undefined, name, args)}
-                  meta={msg.tools?.[0]?.output?._meta}
-                  toolOutput={msg.tools?.[0]?.output?.structuredContent}
-                />
-              );
-            }
-
-            // 🧾 Regular text
-            return <MemoMarkdown text={msg.text} status={status} />;
-          }}
-          generatedByAiWarning={t("generatedByAiWarning")}
-          messages={[...chatMessages, ...elicitMessages]}
-          onShowTools={showToolsDrawer}
-        />
-      )}
-    </div>
-  );
-};*/

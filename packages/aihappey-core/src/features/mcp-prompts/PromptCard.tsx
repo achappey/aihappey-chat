@@ -1,5 +1,5 @@
 import { useCopyToClipboard, useDarkMode } from "usehooks-ts";
-import { useTheme } from "aihappey-components";
+import { OpenLinkButton, useTheme } from "aihappey-components";
 
 import type { Prompt } from "aihappey-mcp";
 import { useTranslation } from "aihappey-i18n";
@@ -42,11 +42,10 @@ export const PromptCard = ({ prompt, onSelect }: PromptCardProps) => {
             icon="add"
             size="small"
           />
-          <Button
-            onClick={() => window.open(customUrl, "_blank")}
+          <OpenLinkButton
+            url={customUrl}
             variant="transparent"
             title={t("newWindow")}
-            icon="openLink"
             size="small"
           />
           <Button

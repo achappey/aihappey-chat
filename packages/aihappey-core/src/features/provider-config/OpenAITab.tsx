@@ -595,7 +595,7 @@ export const OpenAITab = ({
 
       <theme.Card
         size="small"
-        title={t("openai.file_search")}
+        title={t("providers:openai.file_search")}
         headerActions={
           <theme.Switch
             id="fileSearch"
@@ -613,9 +613,9 @@ export const OpenAITab = ({
           <theme.Slider
             label={
               openai.file_search?.max_num_results
-                ? t("openai.max_num_results") +
+                ? t("providers:openai.max_num_results") +
                 ` (${openai.file_search?.max_num_results})`
-                : t("openai.max_num_results")
+                : t("providers:openai.max_num_results")
             }
             disabled={!fileSearchOn}
             min={1}
@@ -632,7 +632,7 @@ export const OpenAITab = ({
             }
           />
           <theme.Input
-            label={t("openai.vector_store_ids")}
+            label={t("providers:openai.vector_store_ids")}
             placeholder="vs_xxx, vs_zzz"
             disabled={!fileSearchOn}
             value={(openai.file_search?.vector_store_ids || []).join(", ")}
@@ -654,7 +654,7 @@ export const OpenAITab = ({
             id="includeSearchResults"
             checked={openai?.include?.includes("file_search_call.results")}
             disabled={!fileSearchOn}
-            label={t("openai.includeSearchResults")}
+            label={t("providers:openai.includeSearchResults")}
             onChange={(value) => {
               updateOpenAI({
                 ...openai,
@@ -696,8 +696,8 @@ export const OpenAITab = ({
       />
 
       <theme.TextArea
-        label={t("openai.instructions")}
-        placeholder={t("openai.instructionsPlaceholder")}
+        label={t("providers:openai.instructions")}
+        placeholder={t("providers:openai.instructionsPlaceholder")}
         rows={5}
         value={openai?.instructions}
         onChange={(value) => {

@@ -1,4 +1,4 @@
-import { useTheme } from "aihappey-components";
+import { OpenLinkButton, useTheme } from "aihappey-components";
 
 
 interface CitationCardProps {
@@ -7,9 +7,8 @@ interface CitationCardProps {
 }
 
 export const CitationCard = ({ title, url }: CitationCardProps) => {
-  const { Card, Button, Paragraph, Badge } = useTheme();
-  //const displayTitle = title || url;
-  const { host, hostname, port } = url ? new URL(url) : {};
+  const { Card, Button, Badge } = useTheme();
+  const { hostname } = url ? new URL(url) : {};
 
   return (
     <Card
@@ -27,12 +26,11 @@ export const CitationCard = ({ title, url }: CitationCardProps) => {
             ></Button>
           )}
           {url && (
-            <Button
-              icon="openLink"
+            <OpenLinkButton
               size="small"
               variant="subtle"
-              onClick={() => window.open(url)}
-            ></Button>
+              url={url}
+            />
           )}
         </>
       }

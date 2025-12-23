@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTheme } from "aihappey-components";
+import { OpenLinkButton, useTheme } from "aihappey-components";
 
 import { Markdown } from "../../../../ui/markdown/Markdown";
 import { useTranslation } from "aihappey-i18n";
@@ -67,11 +67,10 @@ export const CanvasCard = ({ uri, versions }: { uri: string; versions: any[] }) 
             variant="transparent"
             onClick={async () => await copyMarkdownToClipboard(current.text)}
           />
-          <Button
-            icon="openLink"
+          <OpenLinkButton
             size="small"
+            url={uri}
             variant="transparent"
-            onClick={() => window.open(uri, "_blank")}
           />
         </>
 

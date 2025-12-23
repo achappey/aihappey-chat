@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { getDomain, getRepositoryUrl } from "../../messages/buildSystemMessage";
-import { MimeTypeBadge, PriorityBadge, useTheme } from "aihappey-components";
+import { MimeTypeBadge, OpenLinkButton, PriorityBadge, useTheme } from "aihappey-components";
 
 
 export const McpServerDetails = ({ parsed }: any) => {
@@ -85,12 +85,13 @@ export const McpServerDetails = ({ parsed }: any) => {
                     <MimeTypeBadge mimeType={res?.mimeType} />
                     <PriorityBadge priority={res.annotations?.priority} />
                   </>}
-                  headerActions={<> <Button
-                    size="small"
-                    variant="transparent"
-                    icon="openLink"
-                    onClick={() => window.open(res.uri, "_blank")}
-                  /></>}
+                  headerActions={
+                    <OpenLinkButton
+                      size="small"
+                      url={res.uri}
+                      variant="transparent"
+                    />
+                  }
                   title={res.title ?? res.name ?? t("resource")}
                 >
                   <div>{res.description}</div>

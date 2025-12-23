@@ -3,7 +3,6 @@ import { toMarkdownLinkSmart } from "../files/markdown";
 import { mcpResourceRuntime, useSelectedResources } from "../../../runtime/mcp/mcpResourceRuntime";
 
 export function useResourceParts() {
-  //const resourceResults = useAppStore((s) => s.resourceResults);
   var resourceResults = useSelectedResources(mcpResourceRuntime)
   return useMemo(() => {
     return [

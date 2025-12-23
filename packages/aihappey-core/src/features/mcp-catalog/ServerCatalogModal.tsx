@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useAppStore } from "aihappey-state";
 import { AuthorBadges, RegistryServerCard, useTheme } from "aihappey-components";
-
 import { useTranslation } from "aihappey-i18n";
 import { useRecentlyUsed } from "./useRecentlyUsed";
 import { useDarkMode } from "usehooks-ts";
@@ -37,7 +36,6 @@ export const ServerCatalogModal = ({ show, onHide,
   const [activeTab, setActiveTab] = useState<"all" | "recent" | "my">("all");
   const recently = useRecentlyUsed(); // string[] of remote URLs
   const recentlySet = useMemo(() => new Set(recently), [recently]);
-  //const quickSearchTags = ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"];
   const servers = Object.keys(mcpRegistries).flatMap(z => mcpRegistries[z])
 
   useEffect(() => {
@@ -57,7 +55,7 @@ export const ServerCatalogModal = ({ show, onHide,
   );
 
   const baseDomain = getBaseDomain(window.location.hostname);
-  //const baseDomain = useMemo(() => getBaseDomain(window.location.hostname), []);
+
   const filterAndSort = useCallback(
     (list: McpRegistryServerResponse[]) => {
       const terms = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -120,11 +118,6 @@ export const ServerCatalogModal = ({ show, onHide,
   );
 
   const { isDarkMode } = useDarkMode();
-  //  const visibleServers =
-  //    activeTab === "all" ? allFiltered
-  //     : activeTab === "recent" ? recentFiltered
-  //      : myFiltered;
-
   const renderServerList = (list: McpRegistryServerResponse[]) => {
     if (!list || list.length === 0) {
       return <div style={{ color: "#888", marginTop: 8 }}>{t("serverSelectModal.noServers")}</div>;
@@ -146,18 +139,7 @@ export const ServerCatalogModal = ({ show, onHide,
         const exists222 = url && installedServerKeys
           .map(a => a.toLowerCase())
           .includes(url.toLowerCase());
-        /*  const onInstall = mcpServers[server.server.name.toLocaleLowerCase()] ?
-            undefined : () => {
-              addMcpServer(server.server.name, {
-                config: {
-                  type: "streamable-http",
-                  url: server.server.remotes?.find(a => a.type == "streamable-http")?.url!,
-                  disabled: true
-                },
-                registry: server
-              })
-            }
-  */
+   
         const renderDescription = () => <AuthorBadges authors={ownerNames} />;
 
         return <div key={server.server.name} style={{ marginBottom: 12 }}>
@@ -175,9 +157,6 @@ export const ServerCatalogModal = ({ show, onHide,
         </div>
       })}
     </div>);
-  };
-  const removeQuickSearchTag = (id: string) => {
-    // setQuickSearchTags(tags => tags.filter(t => t !== id));
   };
 
   return (

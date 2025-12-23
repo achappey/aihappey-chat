@@ -1,5 +1,5 @@
 import { useTranslation } from "aihappey-i18n";
-import { useTheme } from "aihappey-components";
+import { OpenLinkButton, useTheme } from "aihappey-components";
 
 import { EmbeddedResourceContent } from "./EmbeddedResourceContent";
 
@@ -50,14 +50,12 @@ export const EmbeddedResourceView = ({ block }: EmbeddedResourceViewProps) => {
 
   // Build optional open link button
   const openButton = uri ? (
-    <Button
+    <OpenLinkButton
       size="small"
-      icon="openLink"
+      url={uri}
+      text={buttonLabel}
       variant="transparent"
-      onClick={() => window.open(uri, "_blank")}
-    >
-      {buttonLabel}
-    </Button>
+    />
   ) : null;
 
   return (

@@ -1,6 +1,7 @@
 import { FileUIPart } from "aihappey-ai";
 import mime from 'mime'; // <-- default import
 import { useTheme } from "../theme/ThemeContext";
+import { OpenLinkButton } from "../buttons";
 
 interface FileAttachmentCardProps {
   file: FileUIPart;
@@ -81,17 +82,16 @@ export const FileAttachmentCard = ({ file }: FileAttachmentCardProps) => {
           {url
             && url.startsWith("http")
             && (
-              <Button
-                icon="openLink"
+              <OpenLinkButton
                 size="small"
+                url={url}
                 variant="subtle"
-                onClick={() => window.open(url)}
-              ></Button>
+              />
             )}
         </>
       }
     >
-      {mediaType.startsWith("image/") && <Image fit="contain" src={url} />}
+      {mediaType?.startsWith("image/") && <Image fit="contain" src={url} />}
     </Card>
   );
 };

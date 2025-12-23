@@ -34,13 +34,13 @@ export const GoogleTab = ({
 
 
   const blockingConfidenceOptions = [
-    { value: BlockingConfidence.PhishBlockThresholdUnspecified, label: t("google.blockingConfidence.unspecified") },
-    { value: BlockingConfidence.BlockLowAndAbove, label: t("google.blockingConfidence.lowAndAbove") },
-    { value: BlockingConfidence.BlockMediumAndAbove, label: t("google.blockingConfidence.mediumAndAbove") },
-    { value: BlockingConfidence.BlockHighAndAbove, label: t("google.blockingConfidence.highAndAbove") },
-    { value: BlockingConfidence.BlockHigherAndAbove, label: t("google.blockingConfidence.higherAndAbove") },
-    { value: BlockingConfidence.BlockVeryHighAndAbove, label: t("google.blockingConfidence.veryHighAndAbove") },
-    { value: BlockingConfidence.BlockOnlyExtremelyHigh, label: t("google.blockingConfidence.onlyExtremelyHigh") },
+    { value: BlockingConfidence.PhishBlockThresholdUnspecified, label: t("providers:google.blockingConfidence.unspecified") },
+    { value: BlockingConfidence.BlockLowAndAbove, label: t("providers:google.blockingConfidence.lowAndAbove") },
+    { value: BlockingConfidence.BlockMediumAndAbove, label: t("providers:google.blockingConfidence.mediumAndAbove") },
+    { value: BlockingConfidence.BlockHighAndAbove, label: t("providers:google.blockingConfidence.highAndAbove") },
+    { value: BlockingConfidence.BlockHigherAndAbove, label: t("providers:google.blockingConfidence.higherAndAbove") },
+    { value: BlockingConfidence.BlockVeryHighAndAbove, label: t("providers:google.blockingConfidence.veryHighAndAbove") },
+    { value: BlockingConfidence.BlockOnlyExtremelyHigh, label: t("providers:google.blockingConfidence.onlyExtremelyHigh") },
   ];
   const searchOn = !!google?.google_search; // when ON it's an empty object
   const thinkingOn = google?.thinkingConfig != null; // null/undefined = OFF
@@ -55,14 +55,14 @@ export const GoogleTab = ({
 
 
   const mediaResolution = [
-    { value: "MediaResolutionUnspecified", label: t("google.unspecified") },
+    { value: "MediaResolutionUnspecified", label: t("providers:google.unspecified") },
     { value: "MediaResolutionLow", label: t("low") },
     { value: "MediaResolutionMedium", label: t("medium") },
     { value: "MediaResolutionHigh", label: t("high") },
   ];
 
   const thinkingLevel = [
-    { value: "ThinkingLevelUnspecified", label: t("google.unspecified") },
+    { value: "ThinkingLevelUnspecified", label: t("providers:google.unspecified") },
     { value: "Low", label: t("low") },
     { value: "High", label: t("high") },
   ];
@@ -122,7 +122,7 @@ export const GoogleTab = ({
 
           <theme.Switch
             id="googleIncludeThoughts"
-            label={t("google.includeThoughts")}
+            label={t("providers:google.includeThoughts")}
             disabled={!thinkingOn}
             checked={!!google?.thinkingConfig?.includeThoughts}
             onChange={() =>
@@ -224,7 +224,7 @@ export const GoogleTab = ({
           >
             <theme.Input
               type="datetime-local"
-              label={t("google.intervalStart")}
+              label={t("providers:google.intervalStart")}
               disabled={!searchOn}
               value={timeRangeFilter.startTime}
               onChange={(e: any) =>
@@ -242,7 +242,7 @@ export const GoogleTab = ({
             />
             <theme.Input
               type="datetime-local"
-              label={t("google.intervalEnd")}
+              label={t("providers:google.intervalEnd")}
               value={timeRangeFilter.endTime}
               disabled={!searchOn}
               onChange={(e: any) =>
@@ -280,7 +280,7 @@ export const GoogleTab = ({
           />}
 
           {false && <theme.Select
-            label={t("google.blockingConfidence.label")}
+            label={t("providers:google.blockingConfidence.label")}
             value={google.google_search?.blockingConfidence || ""}
             disabled={!searchOn}
             valueTitle={
@@ -309,7 +309,7 @@ export const GoogleTab = ({
 
       <theme.Card
         size="small"
-        title={t("google.googleMaps")}
+        title={t("providers:google.googleMaps")}
         headerActions={
           <theme.Switch
             id="googleMaps"
@@ -326,7 +326,7 @@ export const GoogleTab = ({
 
       <theme.Card
         size="small"
-        title={t("google.url_context")}
+        title={t("providers:google.url_context")}
         headerActions={
           <theme.Switch
             id="urlContext"
@@ -361,7 +361,7 @@ export const GoogleTab = ({
       ></theme.Card>
 
       <theme.Select
-        label={t("google.mediaResolution")}
+        label={t("providers:google.mediaResolution")}
         style={{ maxWidth: "100%" }}
         values={[google.mediaResolution || ""]}
         disabled={!thinkingOn}
@@ -387,7 +387,7 @@ export const GoogleTab = ({
       <theme.Switch
         id="enableEnhancedCivicAnswers"
         checked={google?.enableEnhancedCivicAnswers}
-        label={t("google.enableEnhancedCivicAnswers")}
+        label={t("providers:google.enableEnhancedCivicAnswers")}
         onChange={(value) => {
           updateGoogle({
             ...google,
@@ -403,7 +403,7 @@ export const GoogleTab = ({
 /*
    {false && <theme.Switch
               id="googleDynamicThinking"
-              label={t("google.dynamicThinking")}
+              label={t("providers:google.dynamicThinking")}
               disabled={!thinkingOn}
               checked={google?.thinkingConfig?.thinkingBudget == -1}
               onChange={(value) =>

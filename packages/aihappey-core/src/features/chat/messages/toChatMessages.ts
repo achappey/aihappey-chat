@@ -1,4 +1,4 @@
-import { ChatMessage } from "aihappey-types";
+import { ChatMessage, SYSTEM_ROLE } from "aihappey-types";
 import type { FileUIPart, ToolUIPart, UIMessage } from "aihappey-ai";
 
 export function toChatMessages(
@@ -8,7 +8,7 @@ export function toChatMessages(
   const out: ChatMessage[] = [];
 
   for (const z of messages) {
-    if (z.role === "system") continue;
+    if (z.role === SYSTEM_ROLE) continue;
 
     const meta = (z.metadata ?? {}) as any;
     const createdAt = meta?.timestamp;
@@ -101,6 +101,7 @@ export function toChatMessages(
           role: z.role,
           content: [p],
           attachments: parts?.filter(a => a.type == "file"),
+          sources: parts?.filter(a => a.type == "source-url" || a.type == "source-document"),
           createdAt,
           author,
           temperature,
@@ -110,7 +111,7 @@ export function toChatMessages(
       }
 
       if (p.type.startsWith("tool-") && ((p as ToolUIPart).output as any)?._meta?.["chat/html"]) {
-       // activityRun.push(p);
+        // activityRun.push(p);
         // activity happened before this text -> show it between messages
         flushActivity();
 
@@ -132,129 +133,11 @@ export function toChatMessages(
       // any non-text is "activity" (reasoning/tool/other) and gets grouped,
       // but ordering stays exactly as in parts[]
       if (activityRunStartIndex === null) activityRunStartIndex = i;
-      if (t !== "file")
+      if (t !== "file" && t !== "source-url" && t !== "source-document")
         activityRun.push(p);
     }
 
     flushActivity();
-  }
-
-  return out;
-}
-
-
-export function toChatMessages2(
-  messages: UIMessage[],
-  translations?: any
-): ChatMessage[] {
-  const out: ChatMessage[] = [];
-
-  for (const z of messages) {
-    if (z.role === "system") continue;
-
-    const meta = (z.metadata ?? {}) as any;
-    const createdAt = meta?.timestamp;
-    const author = meta?.author ?? meta?.model;
-    const temperature = meta?.temperature;
-
-    const parts = (z.parts ?? []) as any[];
-
-    // assistant: merge all reasoning parts into ONE message, positioned where the first reasoning part occurs
-    if (z.role === "assistant") {
-      const reasoningParts: any[] = [];
-      const toolParts: any[] = [];
-      let reasoningInsertAt: number | null = null;
-      let toolInsertAt: number | null = null;
-
-      for (let i = 0; i < parts.length; i++) {
-
-        const p = parts[i];
-        const t = p?.type;
-        if (t === "step-start") continue;
-
-        const isText = t === "text";
-        const isReasoning = t === "reasoning";
-        const isTool = t.startsWith("tool-");
-
-        if (isReasoning) {
-          if (reasoningInsertAt === null) reasoningInsertAt = out.length;
-          reasoningParts.push(p);
-          continue;
-        }
-
-        if (isTool) {
-          if (toolInsertAt === null) toolInsertAt = out.length;
-          toolParts.push(p);
-          continue;
-        }
-
-        if (isText) {
-          out.push({
-            id: `${z.id}:text:${i}`,
-            role: z.role,
-            content: [p],
-            createdAt,
-            author,
-            temperature
-          });
-          continue;
-        }
-
-        // all other part types become their own message (keeps exact ordering)
-        out.push({
-          id: `${z.id}:part:${i}`,
-          role: z.role,
-          content: [p],
-          createdAt,
-          author,
-        });
-      }
-
-      if (reasoningParts.length > 0) {
-        const reasoningMsg: ChatMessage = {
-          id: `${z.id}:reasoning`,
-          role: z.role,
-          content: reasoningParts,
-          messageIcon: "brain",
-          messageLabel: translations?.reasoning ?? "reasoning",
-          createdAt,
-          author,
-          temperature
-        };
-        out.splice(reasoningInsertAt ?? out.length, 0, reasoningMsg);
-      }
-
-      if (toolParts.length > 0) {
-        const toolMsg: ChatMessage = {
-          id: `${z.id}:tools`,
-          role: z.role,
-          content: toolParts,
-          messageIcon: "tool",
-          messageLabel: translations?.tools ?? "tools",
-          createdAt,
-          author,
-          temperature
-        };
-
-        out.splice(toolInsertAt ?? out.length, 0, toolMsg);
-      }
-
-      continue;
-    }
-
-    // non-assistant: split text parts; keep everything else as single-part messages
-    for (let i = 0; i < parts.length; i++) {
-      const p = parts[i];
-      const t = p?.type;
-
-      out.push({
-        id: `${z.id}:${t === "text" ? "text" : "part"}:${i}`,
-        role: z.role,
-        content: [p],
-        createdAt,
-        author,
-      });
-    }
   }
 
   return out;

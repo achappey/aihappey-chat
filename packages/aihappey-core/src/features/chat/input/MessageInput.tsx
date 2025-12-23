@@ -103,7 +103,6 @@ export const MessageInput = (props: UseMessageInputOptions) => {
             <ServerSelectButton />
             <PromptSelectButton
               onPromptExecute={props.onPromptExecute}
-              model={props.model}
             />
             <ResourceSelectButton />
             <ChatSettingsButton

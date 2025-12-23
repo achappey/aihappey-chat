@@ -8,6 +8,8 @@ import { useTools } from "../../../tools/useTools";
 import { useTheme } from "aihappey-components";
 
 import { useChatContext } from "../../context/ChatContext";
+import { Markdown } from "../../../../ui/markdown/Markdown";
+import { chatAppInstructions } from "../../../../runtime/chat-app/chatAppInstructions";
 
 /**
  * Opens a modal showing system message parts.
@@ -20,9 +22,7 @@ export const SystemMessageButton = () => {
   const { config } = useChatContext();
   // const [activeMcpTab, setActiveMcpTab] = useState("0");
   const systemMsg = useSystemMessage();
-  const { tools } = useTools();
   const appName = config.appName ?? "";
-
   // Optional override renderer (plug-and-play)
   const renderPart = useCallback((part: any, idx: number, active: boolean) => {
     if (!active) return null;
@@ -47,9 +47,7 @@ export const SystemMessageButton = () => {
       if (parsed.chatBotInstructions)
         return (
           <Card title={appName}>
-            <ul style={{ maxWidth: "90%" }}>
-              {parsed.chatBotInstructions.map((a: any) => <li key={a}>{a}</li>)}
-            </ul>
+            <Markdown text={parsed.chatBotInstructions} />
           </Card>
         );
 
@@ -62,7 +60,7 @@ export const SystemMessageButton = () => {
       // Non-JSON fallback
       return <TextArea value={part.text} readOnly />;
     }
-  }, [tools, config, t]);
+  }, [config, t]);
 
   return (
     <>
@@ -76,7 +74,6 @@ export const SystemMessageButton = () => {
       />
       <SystemMessageModal
         open={open}
-        tools={tools}
         appName={appName}
         systemMsg={systemMsg}
         onClose={() => {

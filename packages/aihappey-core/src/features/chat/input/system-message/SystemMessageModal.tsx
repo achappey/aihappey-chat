@@ -5,13 +5,14 @@ import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "aihappey-components";
 
 import { useChatContext } from "../../context/ChatContext";
+import { useTools } from "../../../tools/useTools";
 
 export interface SystemMessageModalProps {
   open: boolean;
   systemMsg: any
   appName: string
   onClose: () => void;
-  tools: any[],
+ // tools: any[],
   /** Optional override for rendering each part */
   renderPart?: (part: any, index: number, active: boolean) => React.ReactNode;
 }
@@ -30,10 +31,12 @@ export const SystemMessageModal = ({
   onClose,
   appName,
   systemMsg,
-  tools = [],
+ // tools = [],
   renderPart,
 }: SystemMessageModalProps) => {
   const { t } = useTranslation();
+    const { tools } = useTools();
+
   const { Modal, Tabs, Tab, TextArea, JsonViewer, Card, Badge, Button } = useTheme();
   const hasTools = Array.isArray(tools) && tools.length > 0;
   const defaultTab = hasTools ? "tools" : "0";

@@ -5,22 +5,8 @@ import {
   ChatMyMessage,
 } from "@fluentui-contrib/react-chat";
 import { ChatMessage as Message } from "aihappey-types";
-import { Badge, Button, Tooltip } from "@fluentui/react-components";
-import {
-  ArrowDownloadRegular,
-  AttachRegular,
-  BrainRegular,
-  ChevronLeftRegular,
-  ChevronRightRegular,
-  CloudLinkRegular,
-  CodeTextRegular,
-  CopyRegular,
-  TemperatureRegular,
-  ToolboxRegular,
-} from "@fluentui/react-icons";
 import { iconMap } from "./Button";
 import React from "react";
-import { useMediaQuery } from "usehooks-ts";
 import { format } from "timeago.js";
 
 export type ChatProps = {

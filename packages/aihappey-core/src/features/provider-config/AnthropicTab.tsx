@@ -6,7 +6,6 @@ const DEFAULT_THINKING = {
   budget_tokens: 16768,
 };
 
-//const DEFAULT_CODE_EXECUTION = undefined;
 
 const DEFAULT_WEB_SEARCH = {
   max_uses: 5,

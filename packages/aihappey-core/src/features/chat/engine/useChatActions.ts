@@ -116,39 +116,7 @@ export function useChatActions({
   const handleSend = useCallback(
     async (text: string) => {
       const userMsg = await buildFromText(text);
-
-      /*   var urls = Object.keys(clients ?? {});
-         const metadata = {
-           ...providerMetadata,
-           anthropic: {
-             ...providerMetadata.anthropic,
-             mcp_servers: urls.map(r => ({
-               url: r.replace("http://localhost:3001", "https://mcp.fakton.com"),
-               name: clients![r].getServerVersion()?.name,
-               authorization_token: getMcpAccessToken(r),
-               tool_configuration: {
-                 enabled: true,
-                 allowed_tools: tools[r].map(r => r.name)
-               }
-             }))
-           }
-         }
-         const mcpToolNames = new Set(
-           metadata?.anthropic?.mcp_servers?.flatMap((s: any) =>
-             s?.tool_configuration?.enabled
-               ? (s.tool_configuration?.allowed_tools ?? [])
-               : []
-           ) ?? []
-         );
-   
-         // If your tool specs sometimes nest the name (e.g. OpenAI function tools), normalize it
-         const finalToolsFiltered = (finalTools ?? []).filter(t => {
-           const name = t?.function?.name ?? t?.name;
-           return name && !mcpToolNames.has(name);
-         });*/
-
       if (userMsg) {
-        //const toolsMcp = useAnthropicNativeMcp()
         await addMessage(conversationId!, userMsg);
         await sendMessage(userMsg, {
           body: {
@@ -169,14 +137,12 @@ export function useChatActions({
             }
           },
         });
-        //clearAttachments();
         fileAttachmentRuntime.clear()
         mcpResourceRuntime.clear();
 
       }
     },
     [
-      //  attachments,
       getAttachmentParts,
       addMessage,
       sendMessage,
@@ -184,7 +150,6 @@ export function useChatActions({
       selectedAgents,
       workflowType,
       providerMetadata,
-      //   clearAttachments,
       selectedModel,
       conversationId,
       finalTools,

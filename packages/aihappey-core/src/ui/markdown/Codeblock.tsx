@@ -90,7 +90,7 @@ export const CodeBlock = ({
         icon: string;
         component: () => JSX.Element;
       }[],
-    [showChartJs, code, status]
+    [showChartJs, showCsvTable, showLatex, code]
   );
 
   // Figure out initial tab

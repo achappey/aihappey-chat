@@ -4,6 +4,7 @@ import { useConversations } from "aihappey-conversations";
 import { useSystemMessage } from "../messages/useSystemMessage";
 import { VercelChatInner } from "./VercelChatInner";
 import { useTheme } from "aihappey-components";
+import { SYSTEM_ROLE } from "aihappey-types";
 
 export function VercelChatPanel(props: {
   model?: string;
@@ -63,7 +64,7 @@ export function VercelChatPanel(props: {
     if (!systemMsg) return bootMsgs;
 
     // If there is a system message at [0], replace it. Otherwise, insert at 0.
-    if (bootMsgs[0]?.role === "system") {
+    if (bootMsgs[0]?.role === SYSTEM_ROLE) {
       // Only replace if different (optional, avoids unnecessary rerender)
       if (JSON.stringify(bootMsgs[0]) !== JSON.stringify(systemMsg)) {
         return [systemMsg, ...bootMsgs.slice(1)];

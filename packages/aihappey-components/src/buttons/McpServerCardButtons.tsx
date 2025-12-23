@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useTheme } from "../theme/ThemeContext";
+import { OpenLinkButton } from "./OpenLinkButton";
 
 type McpServerCardButtonsProps = {
   url: string;
@@ -46,11 +47,9 @@ export const McpServerCardButtons = ({ websiteUrl,
       />
     )}
     {websiteUrl && (
-      <Button
-        onClick={() => window.open(websiteUrl, "_blank")}
+      <OpenLinkButton
+        url={websiteUrl}
         variant="transparent"
-        icon="openLink"
-        title={translations?.website ?? "website"}
         size="small"
       />
     )}
