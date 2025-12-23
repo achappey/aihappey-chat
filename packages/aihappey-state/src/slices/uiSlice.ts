@@ -139,6 +139,7 @@ export type UiSlice = {
 
   enabledProviders: string[];
   toggleEnabledProvider: (provider: string) => void;
+  setEnabledProviders: (providers: string[]) => void;
 
   userPreferredModel?: string;
   setUserPreferredModel: (model: string) => void;
@@ -238,6 +239,14 @@ export const createUiSlice: StateCreator<
         activitiesSize: value,
       }
     }),
+
+  setEnabledProviders: (providers: string[]) =>
+    set((state: any) => {
+      return {
+        enabledProviders: providers,
+      }
+    }),
+
   toggleEnabledProvider: (provider?: string) =>
     set((state: any) => {
       if (!provider) return state

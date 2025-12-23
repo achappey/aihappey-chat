@@ -19,10 +19,12 @@
   "dependencies": {
     "react-bootstrap": "^2.10.9",
     "aihappey-components": "*",
-    "react-bootstrap-icons": "^1.11.6"
+    "react-bootstrap-icons": "^1.11.6",
+    "usehooks-ts": "^3.1.1",
+    "timeago.js": "^4.0.2"
   },
   "license": "MIT",
   "devDependencies": {
-      "typescript": "^5.9.3"
+    "typescript": "^5.9.3"
   }
 }

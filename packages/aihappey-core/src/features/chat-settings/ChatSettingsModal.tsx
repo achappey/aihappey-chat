@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useTheme } from "aihappey-components";
-
 import { GeneralTab } from "./GeneralTab";
 import { AnthropicTab } from "../provider-config/AnthropicTab";
 import { CohereTab } from "../provider-config/CohereTab";
@@ -23,6 +22,7 @@ export interface ProviderSettingsModalProps {
   providerMetadata: any;
   resetDefaults?: any;
   setProviderMetadata: (meta: any) => void;
+  onEditProviderKeys?: () => void
   onClose: () => void;
 }
 
@@ -33,6 +33,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   resetDefaults,
   setTemperature,
   setProviderMetadata,
+  onEditProviderKeys,
   onClose,
 }) => {
   const theme = useTheme();
@@ -68,6 +69,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         <theme.Tab eventKey="general" title={t("general")}>
           <GeneralTab
             temperature={temperature}
+            onEditProviderKeys={onEditProviderKeys}
             setTemperature={setTemperature}
           />
         </theme.Tab>

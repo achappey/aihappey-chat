@@ -1,6 +1,5 @@
 import type { ImageModel } from 'aihappey-ai';
 
-
 export function createImageProvider(config: {
     baseUrl: string;
     apiKey?: string;

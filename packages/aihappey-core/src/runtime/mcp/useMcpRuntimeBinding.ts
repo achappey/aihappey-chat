@@ -111,26 +111,29 @@ export function useMcpRuntimeBinding({
             if (!existing) {
 
                 var safeHeaders = {}
-                let token;
-                if (
-                    cfg.config?.url &&
-                    new URL(cfg.config.url).host === new URL(samplingApi).host
-                ) {
-                    token = await acquireAccessToken();
-                } else if (
-                    cfg.config?.url &&
-                    agentScopes &&
-                    agentScopes.length > 0 &&
-                    new URL(cfg.config.url).host === new URL(agentApi).host
-                ) {
-                    token = await acquireAccessToken(agentScopes);
-                }
 
-                if (token)
-                    safeHeaders = {
-                        "Authorization": `Bearer ${token}`
+                if (authenticated) {
+                    let token;
+                    if (
+                        cfg.config?.url &&
+                        new URL(cfg.config.url).host === new URL(samplingApi).host
+                    ) {
+                        token = await acquireAccessToken();
+                    } else if (
+                        cfg.config?.url &&
+                        agentScopes &&
+                        agentScopes.length > 0 &&
+                        new URL(cfg.config.url).host === new URL(agentApi).host
+                    ) {
+                        token = await acquireAccessToken(agentScopes);
                     }
 
+                    if (token)
+                        safeHeaders = {
+                            "Authorization": `Bearer ${token}`
+                        }
+                }
+                
                 // Create persistent SSE/streamable client
                 connectMcpServer(name, cfg.config.url, {
                     type: cfg.config.type,

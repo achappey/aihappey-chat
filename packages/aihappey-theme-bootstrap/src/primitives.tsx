@@ -21,68 +21,6 @@ import { Drawer } from "./primitives/Drawer";
 import { Image } from "./primitives/Image";
 import { Slider } from "./primitives/Slider";
 import { Carousel } from "./primitives/Carousel";
-import {
-  Plus,
-  Pencil,
-  Trash,
-  Send,
-  Gear,
-  ChevronDown,
-  ChevronUp,
-  File,
-  Plug,
-  Chat as BSChatIcon,
-  Robot,
-  Table as BSTableIcon,
-  Sliders,
-  PersonHeart,
-  Server,
-  DatabaseGear,
-  Plugin,
-  Paperclip,
-  Link,
-  BoxArrowUpRight,
-  Copy,
-  List,
-  Eye,
-  StopFill,
-  UiChecks,
-  Globe,
-  JournalText,
-  Images,
-  Cpu,
-  CpuFill,
-  Code,
-  BarChart,
-  Calculator,
-  Download,
-  Printer,
-  UsbPlugFill,
-  UsbPlug,
-  Columns,
-  ChatQuote,
-  ThermometerHalf,
-  GraphUpArrow,
-  CardList,
-  Exclamation,
-  Search,
-  ArrowLeft,
-  ArrowRight,
-  Mailbox,
-  ArrowRepeat,
-  PeopleFill,
-  Shuffle,
-  SignpostSplit,
-  ArrowUp,
-  ArrowDown,
-  Shop,
-  Check,
-  ExclamationCircle,
-  Wrench,
-  ChevronLeft,
-  ChevronRight,
-  Cloud,
-} from "react-bootstrap-icons";
 import React from "react";
 
 // Typography primitives
@@ -107,75 +45,6 @@ const Paragraph = ({
   children: React.ReactNode;
 }) => <p className={className}>{children}</p>;
 
-const iconMap: Record<IconToken, JSX.Element> = {
-  add: <Plus />,
-  edit: <Pencil />,
-  customize: <Sliders />,
-  copyClipboard: <Copy />,
-  delete: <Trash />,
-  prompts: <BSChatIcon />,
-  preview: <Eye />,
-  code: <Code />,
-  globe: <Globe />,
-  download: <Download />,
-  brain: <CpuFill />,
-  bookOpen: <JournalText />,
-  arena: <Columns />,
-  formula: <Calculator />,
-  table: <BSTableIcon />,
-  chart: <BarChart />,
-  library: <Images />,
-  agentSettings: <Sliders />,
-  link: <Link />,
-  temperature: <ThermometerHalf />,
-  completed: <Check />,
-  attachment: <Paperclip />,
-  connector: <Plugin />,
-  stop: <StopFill />,
-  cardList: <CardList />,
-  openLink: <BoxArrowUpRight />,
-  concurrent: <Shuffle />,
-  sequential: <SignpostSplit />,
-  groupchat: <PeopleFill />,
-  handoff: <ArrowRepeat />,
-  toolResult: <UiChecks />,
-  trending: <GraphUpArrow />,
-  up: <ArrowUp />,
-  down: <ArrowDown />,
-  resources: <File />,
-  eye: <Eye />,
-  chatSettings: <Sliders />,
-  search: <Search />,
-  menu: <List />,
-  sources: <Cloud />,
-  server: <Server />,
-  databaseGear: <DatabaseGear />,
-  personalization: <PersonHeart />,
-  explainTool: <ChatQuote />,
-  mcpServer: <Plug />,
-  tool: <Wrench />,
-  catalog: <Shop />,
-  mail: <Mailbox />,
-  panelContract: <ArrowLeft />,
-  panelExpand: <ArrowRight />,
-  dismiss: <CloseButton />,
-  check: <Check />,
-  send: <Send />,
-  chevronLeft: <ChevronLeft />,
-  chevronRight: <ChevronRight />,
-  priority: <ExclamationCircle />,
-  chat: <Chat />,
-  settings: <Gear />,
-  warning: <Exclamation />,
-  connect: <UsbPlug />,
-  disconnect: <UsbPlugFill />,
-  print: <Printer />,
-  robot: <Robot />,
-  chevronDown: <ChevronDown />,
-  chevronUp: <ChevronUp />,
-  logout: <Trash />, // You may want to use a better icon, e.g. BoxArrowRight, but Trash is a placeholder
-};
-
 import { UserMenu } from "./primitives/UserMenu";
 import { Toolbar, ToolbarButton, ToolbarDivider } from "./primitives/Toolbar";
 import { Navigation } from "./primitives/Navigation";
@@ -187,6 +56,7 @@ import { Breadcrumb } from "./primitives/Breadcrumb";
 import { DataGrid } from "./primitives/DataGrid";
 import { JsonViewer } from "./primitives/JsonViewer";
 import { Toaster } from "./primitives/Toaster";
+import { iconMap } from "./primitives/IconMap";
 
 export const bootstrapTheme: AihUiTheme = {
   Header,
@@ -391,9 +261,13 @@ export const bootstrapTheme: AihUiTheme = {
   Drawer,
   Toolbar: Toolbar as any,
 
-  Input: (props: ComponentProps<"input">): JSX.Element => {
+  Input: (props: ComponentProps<"input"> & {
+    label?: string;
+    orientation?: "horizontal" | "vertical";
+    hint?: string;
+  }): JSX.Element => {
     // Only pass string size ("sm" | "lg") if present, not number
-    const { size, value, ...rest } = props;
+    const { size, value, label, hint, ...rest } = props;
     const sizeProp =
       typeof size === "string" && (size === "sm" || size === "lg")
         ? size
@@ -408,11 +282,17 @@ export const bootstrapTheme: AihUiTheme = {
       return <Form.Control {...(rest as any)} size={sizeProp} />;
     }
     return (
-      <Form.Control
-        {...(rest as any)}
-        size={sizeProp}
-        value={valueProp as string | number | string[] | undefined}
-      />
+      <Form.Group controlId={label}>
+        <Form.Label>{label}</Form.Label>
+        <Form.Control
+          {...(rest as any)}
+          size={sizeProp}
+          value={valueProp as string | number | string[] | undefined}
+        />
+        <Form.Text id="emailHelp" muted>
+          {hint}
+        </Form.Text>
+      </Form.Group>
     );
   },
   Carousel,

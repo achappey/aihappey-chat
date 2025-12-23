@@ -1,5 +1,6 @@
 import { Agent } from "aihappey-types";
 import type { StateCreator } from "zustand";
+import { defaultAgents } from "./defaultAgents";
 
 export type AgentSlice = {
     agents: Agent[];
@@ -20,13 +21,14 @@ export type AgentSlice = {
     updateAgentClientCapabilities: (agentName: string, key: string, value: any) => void
 };
 
+
 export const createAgentSlice: StateCreator<
     any,
     [],
     [],
     AgentSlice
 > = (set, get, store) => ({
-    agents: [],
+    agents: defaultAgents,
     selectedAgentNames: [],
     maximumIterationCount: 5,
     handoffs: [],

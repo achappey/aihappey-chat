@@ -36,3 +36,5 @@ export const AGENT_RESOURCE_TYPE = "application/vnd.agent+json"
 export const AGENTS_RESOURCE_TYPE = "application/vnd.agents+json"
 export const CONVERSATION_RESOURCE_TYPE = "application/vnd.conversation+json"
 export const CONVERSATIONS_RESOURCE_TYPE = "application/vnd.conversations+json"
+export const OPENAI_OUTPUT_TEMPLATE = "openai/outputTemplate"
+

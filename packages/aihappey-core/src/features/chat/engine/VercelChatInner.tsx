@@ -9,7 +9,7 @@ import { SimpleActivityDrawer } from "../activity/drawer/SimpleActivityDrawer";
 import { MessageInput } from "../input/MessageInput";
 import { useAttachmentParts } from "../messages/useAttachmentParts";
 import { useChatFileDrop } from "../input/useChatFileDrop";
-import { useOnToolCall } from "../../tools/useOnToolCall";
+import { useOnToolCall } from "../../tools/toolcalls/useOnToolCall";
 import { useResourceParts } from "../messages/useResourceParts";
 import { MessageList } from "../messages/MessageList";
 import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";

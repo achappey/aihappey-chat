@@ -1,15 +1,9 @@
 import { useMemo } from "react";
 import { useAppStore } from "aihappey-state";
-import {
-  localAgentsCreateTool,
-  localAgentsDeleteTool,
-  localAgentsListTool,
-  localConversationsGetTool,
-  localConversationsListTool,
-  localSettingsGetTool,
-  localSettingsSetTool,
-  resourceTool
-} from "../../runtime/tools/localTools";
+import { localAgentsCreateTool, localAgentsDeleteTool, localAgentsListTool } from "./toolcalls/useLocalAgentsToolCall";
+import { localConversationsGetTool, localConversationsListTool, localConversationsSearchTextTool } from "./toolcalls/useLocalConversationsToolCall";
+import { localSettingsGetTool, localSettingsSetTool } from "./toolcalls/useLocalSettingsToolCall";
+import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 
 export function useTools() {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
@@ -37,7 +31,7 @@ export function useTools() {
         ? [localAgentsCreateTool, localAgentsListTool, localAgentsDeleteTool]
         : []),
       ...(enableLocalConversationTools
-        ? [localConversationsListTool, localConversationsGetTool]
+        ? [localConversationsListTool, localConversationsGetTool, localConversationsSearchTextTool]
         : []),
       ...(localSettingsTools
         ? [localSettingsGetTool, localSettingsSetTool]

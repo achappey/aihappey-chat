@@ -8,3 +8,4 @@ export { Toaster } from "./Toaster";
 export { Breadcrumb } from "./Breadcrumb";
 export { DataGrid } from "./DataGrid";
 export { Slider } from "./Slider";
+export { iconMap } from "./IconMap";

@@ -42,7 +42,7 @@ export const MessageActions = ({
     ) : undefined;
 
   return (
-    <div style={{ height: 16, paddingTop: 8, display: "flex", alignItems: "center" }}>
+    <>
       {msg.role === "assistant" && (
         <AiWarningBadge label={translations?.generatedByAi ?? "generatedByAi"} size={size} />
       )}
@@ -114,6 +114,6 @@ export const MessageActions = ({
             icon={"cardList"}
           />
         )}
-    </div>
+    </>
   );
 };

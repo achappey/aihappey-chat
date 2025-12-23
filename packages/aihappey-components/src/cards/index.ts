@@ -11,3 +11,4 @@ export * from "./TextCard";
 export * from "./ReasoningCard";
 export * from "./FileAttachmentCard";
 export * from "./StructuredOutputCard";
+export * from "./ContentCard";

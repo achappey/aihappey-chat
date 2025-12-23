@@ -297,66 +297,70 @@ export const ServersPage = () => {
     }));
   }, [registryUrls, mcpRegistries, normalizedSearch]);
 
+  const renderGrid = (entries: EntryView[]) => {
+    const visibleItems = activeTab == "all"
+      ? entries
+      : entries.filter(a => a.displayName.indexOf("ai.smithery") == -1);
 
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 16,
+          width: "100%",
+          maxWidth: 700,
+          marginBottom: 24,
+          justifyItems: "center",
+        }}
+      >
+        {visibleItems.length === 0 ? (
+          <div
+            style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}
+          >
+            {t("serverSelectModal.noServers")}
+          </div>
+        ) : (
+          visibleItems.map(({ displayName, cfg, canRemove, storeName }) => {
+            //   (cfg as McpRegistryServerResponse).server.name
+            const remote = cfg.server.remotes?.find((a: any) => a.type == "streamable-http");
 
-  const renderGrid = (entries: EntryView[]) => (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 16,
-        width: "100%",
-        maxWidth: 700,
-        marginBottom: 24,
-        justifyItems: "center",
-      }}
-    >
-      {entries.length === 0 ? (
-        <div
-          style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}
-        >
-          {t("serverSelectModal.noServers")}
-        </div>
-      ) : (
-        entries.map(({ displayName, cfg, canRemove, storeName }) => {
-          //   (cfg as McpRegistryServerResponse).server.name
-          const remote = cfg.server.remotes?.find((a: any) => a.type == "streamable-http");
+            const onInstall = mcpServers[cfg.server.name.toLowerCase()] ?
+              undefined : () => {
+                addMcpServer(cfg.server.name.toLowerCase(), {
+                  config: {
+                    type: "http",
+                    url: cfg.server.remotes?.find((a: any) => a.type == "streamable-http")?.url!,
+                    disabled: true
+                  },
+                  registry: cfg
+                })
+              }
 
-          const onInstall = mcpServers[cfg.server.name.toLowerCase()] ?
-            undefined : () => {
-              addMcpServer(cfg.server.name.toLowerCase(), {
-                config: {
-                  type: "http",
-                  url: cfg.server.remotes?.find((a: any) => a.type == "streamable-http")?.url!,
-                  disabled: true
-                },
-                registry: cfg
-              })
-            }
+            return (
+              <div key={displayName}
+                style={{
+                  maxWidth: 320,
+                  width: "100%"
+                }}>
 
-          return (
-            <div key={displayName}
-              style={{
-                maxWidth: 320,
-                width: "100%"
-              }}>
-
-              <RegistryServerCard serverItem={cfg}
-                onInstall={onInstall}
-                translations={{
-                  install: t('install'),
-                  uninstall: t('uninstall'),
-                  sourceCode: t('sourceCode')
-                }}
-                onRemove={mcpServers[cfg.server.name.toLowerCase()]
-                  ? () => removeMcpServer(cfg.server.name)
-                  : undefined} />
-            </div>
-          )
-        })
-      )}
-    </div>
-  )
+                <RegistryServerCard serverItem={cfg}
+                  onInstall={onInstall}
+                  translations={{
+                    install: t('install'),
+                    uninstall: t('uninstall'),
+                    sourceCode: t('sourceCode')
+                  }}
+                  onRemove={mcpServers[cfg.server.name.toLowerCase()]
+                    ? () => removeMcpServer(cfg.server.name)
+                    : undefined} />
+              </div>
+            )
+          })
+        )}
+      </div>
+    )
+  };
 
   return (
     <>

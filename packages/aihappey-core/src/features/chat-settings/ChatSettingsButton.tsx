@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useTheme } from "aihappey-components";
-
 import { useTranslation } from "aihappey-i18n";
 import { ChatSettingsModal } from "./ChatSettingsModal";
+import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 
 export interface ChatSettingsButtonOptions {
   temperature?: number;
@@ -23,6 +23,7 @@ export const ChatSettingsButton = (props: ChatSettingsButtonOptions) => {
   const { Button } = useTheme();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [showProviderKeys, setShowProviderKeys] = useState(false);
 
   return (
     <>
@@ -35,14 +36,16 @@ export const ChatSettingsButton = (props: ChatSettingsButtonOptions) => {
         title={t("chatSettings")}
       />
       <ChatSettingsModal
-        open={open}
+        open={open && !showProviderKeys}
         onClose={() => setOpen(false)}
         setTemperature={temperatureChanged}
         temperature={temperature}
+        onEditProviderKeys={() => setShowProviderKeys(true)}
         resetDefaults={resetDefaults}
         providerMetadata={providerMetadata}
         setProviderMetadata={setProviderMetadata}
       />
+      <ProviderKeysModal open={showProviderKeys} onClose={() => setShowProviderKeys(false)} />
     </>
   );
 };

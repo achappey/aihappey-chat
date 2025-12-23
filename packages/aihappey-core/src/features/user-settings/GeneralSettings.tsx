@@ -1,13 +1,12 @@
-import React from "react";
 import { useTheme, UserGeneralSettings as GeneralSettingsComp } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 
 export const GeneralSettings = () => {
   const { t, i18n } = useTranslation();
-
+  const languages = ["en", "nl"]
   const translations = {
-    "locales.enUS": t("locales.enUS"),
-    "locales.nlNL": t("locales.nlNL"),
+    "en": t("locales.enUS"),
+    "nl": t("locales.nlNL"),
     "settingsModal.languageLabel": t("settingsModal.languageLabel"),
     "settingsModal.deleteAllChats": t("settingsModal.deleteAllChats"),
     "settingsModal.deleteAll": t("settingsModal.deleteAll"),
@@ -19,7 +18,8 @@ export const GeneralSettings = () => {
     <GeneralSettingsComp
       translations={translations}
       language={i18n.language}
-      onLanguageChange={(lang) => i18n.changeLanguage(lang)}
+      languages={languages}
+      onLanguageChange={i18n.changeLanguage}
       onDeleteAllChats={() => {
         // TODO: clear chats
       }}

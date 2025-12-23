@@ -4,6 +4,7 @@ import { useTheme } from "../theme/ThemeContext";
 type Props = {
   translations?: any;
   language: string;
+  languages: string[];
   onLanguageChange?: (lang: string) => void;
   onDeleteAllChats?: () => void;
   onLogout?: () => void;
@@ -12,18 +13,17 @@ type Props = {
 export const UserGeneralSettings: React.FC<Props> = ({
   translations,
   language,
+  languages,
   onLanguageChange,
   onDeleteAllChats,
   onLogout,
 }) => {
   const { Select, Button } = useTheme();
 
-  const t = (key: string) => translations?.[key] ?? key;
+  const t = (key: string) => translations?.[key] ?? key?.split(".");
 
-  const languageOptions = [
-    { value: "en", label: t("locales.enUS") },
-    { value: "nl", label: t("locales.nlNL") },
-  ];
+  const languageOptions = languages
+    .map(z => ({ value: z, label: translations?.[z] ?? z }));
 
   return (
     <div

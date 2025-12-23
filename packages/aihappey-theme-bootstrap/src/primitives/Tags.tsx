@@ -1,12 +1,9 @@
-import { TagItem } from "aihappey-types";
-import React, { useState } from "react";
+import { TagGroup } from "aihappey-types";
+import React from "react";
 import Badge from "react-bootstrap/Badge";
 import CloseButton from "react-bootstrap/CloseButton";
 
-function Tags(
-  tags: TagItem[],
-  onRemove?: (id: any) => Promise<void>
-): React.ReactNode {
+function Tags({ items, onRemove }: TagGroup): React.ReactNode {
   return (
     <div>
       <div
@@ -17,7 +14,7 @@ function Tags(
           marginBottom: 8,
         }}
       >
-        {tags.map((tag) => (
+        {items?.map((tag) => (
           <Badge pill bg="primary" key={tag.key}>
             {tag.label}
             {onRemove && (

@@ -5,12 +5,11 @@ import {
   useState,
   useEffect,
   useCallback,
-  useRef,
 } from "react";
 import type { ReactNode } from "react";
 import type { ConversationStore } from "./types";
 import { RemoteConversationStore } from "./stores/RemoteConversationStore";
-import { useAppStore, useRemoteStorageConnected } from "aihappey-state";
+import { useAppStore } from "aihappey-state";
 import { useAccessToken } from "aihappey-auth";
 import { Conversation, UIMessage } from "aihappey-types";
 import { IndexedDBConversationStore } from "./stores/IndexedDBConversationStore";

@@ -10,7 +10,7 @@ import { useParams } from "react-router";
 import { useConversations } from "aihappey-conversations";
 import { useAttachmentParts } from "../messages/useAttachmentParts";
 import { useResourceParts } from "../messages/useResourceParts";
-import { useOnToolCall } from "../../tools/useOnToolCall";
+import { useOnToolCall } from "../../tools/toolcalls/useOnToolCall";
 import { ModelSelect } from "../../models/ModelSelect";
 import { useChatContext } from "../context/ChatContext";
 import { useSystemMessage } from "../messages/useSystemMessage";

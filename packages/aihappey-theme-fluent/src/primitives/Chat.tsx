@@ -24,13 +24,18 @@ export const Chat = ({ messages, renderMessage, renderReactions }: ChatProps): J
 
         const reactions = renderReactions ? renderReactions(msg) : undefined;
         const icon = msg.messageIcon ? React.createElement(iconMap[msg.messageIcon]) : undefined;
+        const reactionBlock = reactions ? <div
+          style={{ height: 16, paddingTop: 8, display: "flex", alignItems: "center" }}>
+          {reactions}
+        </div>
+          : undefined;
 
         return (
           <MessageComponent
             key={msg.id}
             author={msg.author}
             timestamp={format(msg.createdAt)}
-            reactions={reactions}
+            reactions={reactionBlock}
             decorationIcon={icon}
             decorationLabel={msg.messageLabel}
           >
