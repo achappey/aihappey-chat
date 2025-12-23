@@ -1,6 +1,6 @@
 # aihappey-chat
 
-![aihappey-chat](https://achappey.github.io/aihappey-chat/images/screenshot1.png) 
+[![aihappey-chat](https://achappey.github.io/aihappey-chat/images/screenshot1.png)](https://chat.aihappey.com)
 
  A modular, client-side AI chat [app](https://chat.aihappey.com) featuring rich content support and integration with the Model Context Protocol (MCP).
 
@@ -28,26 +28,25 @@ Explore our component libraries and themes via our Storybook documentation:
 
 ```mermaid
 flowchart TB
-  repo[aihappey-chat\n(monorepo)]
+  repo[aihappey-chat<br/>monorepo]
 
-  repo --> docs[docs/\nGitHub Pages]
-  docs --> sbChat[storybook-chat\n(Chat components docs)]
-  docs --> sbThemes[storybook-themes\n(Theme docs)]
+  repo --> docs[docs<br/>GitHub Pages]
+  docs --> sbChat[storybook-chat<br/>Chat components docs]
+  docs --> sbThemes[storybook-themes<br/>Theme docs]
 
-  repo --> packages[packages/\nReusable libraries]
-  packages --> core[aihappey-core\nstate + logic + rich content]
-  packages --> components[aihappey-components\nUI components]
-  packages --> mcp[aihappey-mcp\nMCP client]
-  packages --> themes[aihappey-theme-*\nBootstrap / Fluent / Storybook]
-  packages --> utils[aihappey-*(ai, http, i18n, state, auth, types, conversations, …)]
+  repo --> packages[packages<br/>Reusable libraries]
+  packages --> core[aihappey-core<br/>state + logic + rich content]
+  packages --> components[aihappey-components<br/>UI components]
+  packages --> mcp[aihappey-mcp<br/>MCP client]
+  packages --> themes[aihappey-theme<br/>Bootstrap / Fluent / Storybook]
+  packages --> utils[aihappey utils<br/>ai, http, i18n, state, auth, types, conversations]
 
-  repo --> samples[samples/\nRunnable apps]
-  samples --> chathappey[samples/chathappey\nreference chat app]
-  samples --> bootstrapSample[samples/bootstrap-sample\nBootstrap theme demo]
-  samples --> fluentSample[samples/fluent-sample\nFluent theme demo]
-  samples --> fakton[samples/fakton\nadditional sample]
+  repo --> samples[samples<br/>Runnable apps]
+  samples --> chathappey[chathappey<br/>reference chat app]
+  samples --> bootstrapSample[bootstrap-sample<br/>Bootstrap theme demo]
+  samples --> fluentSample[fluent-sample<br/>Fluent theme demo]
+  samples --> fakton[fakton<br/>additional sample]
 
-  %% Relationships
   chathappey --> packages
   bootstrapSample --> packages
   fluentSample --> packages
