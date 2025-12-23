@@ -45,12 +45,10 @@ flowchart TB
   samples --> chathappey[chathappey<br/>reference chat app]
   samples --> bootstrapSample[bootstrap-sample<br/>Bootstrap theme demo]
   samples --> fluentSample[fluent-sample<br/>Fluent theme demo]
-  samples --> fakton[fakton<br/>additional sample]
 
   chathappey --> packages
   bootstrapSample --> packages
   fluentSample --> packages
-  fakton --> packages
 
   sbChat --> packages
   sbThemes --> packages
