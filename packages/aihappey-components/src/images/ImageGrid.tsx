@@ -1,14 +1,8 @@
-import { useTheme } from "aihappey-components";
-
-
-type ImageItem = {
-  data: string;
-  mimeType: string;
-  type: "image";
-};
+import type { ImageContent } from "@modelcontextprotocol/sdk/types";
+import { useTheme } from "../theme/ThemeContext";
 
 type ImageGridProps = {
-  items: ImageItem[];
+  items: ImageContent[];
   columns?: number;
   gap?: number | string;
   fit?: "contain" | "cover";
@@ -34,7 +28,7 @@ export const ImageGrid = ({
       : "repeat(auto-fill, minmax(200px, 1fr))";
   const gridGap = gap ?? "1rem";
   // 1) Robust downloader (works for data URLs, raw base64, svg, webp, etc.)
-  const handleDownload = async (item: ImageItem, index: number) => {
+  const handleDownload = async (item: ImageContent, index: number) => {
     try {
       // Normalize to a data URL we can fetch()
       const href = item.data.startsWith("data:")

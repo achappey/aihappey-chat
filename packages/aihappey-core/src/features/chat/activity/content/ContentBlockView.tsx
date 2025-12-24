@@ -1,8 +1,7 @@
-import { TextContentView } from "./TextContentView";
 import { ImageContentView } from "./ImageContentView";
-import { ResourceLinkView } from "./ResourceLinkView";
 import { EmbeddedResourceView } from "./EmbeddedResourceView";
-import { AudioCard } from "aihappey-components";
+import { AudioCard, ResourceLinkCard, TextCard } from "aihappey-components";
+import { Markdown } from "../../../../ui/markdown/Markdown";
 
 interface ContentBlockViewProps {
   block: any;
@@ -14,13 +13,16 @@ export const ContentBlockView = ({ block }: ContentBlockViewProps) => {
   }
   switch (block.type) {
     case "text":
-      return <TextContentView block={block} />;
+      return <TextCard
+        block={block}
+        renderText={text => <Markdown text={text} />}
+      />;
     case "image":
       return <ImageContentView block={block} />;
     case "audio":
       return <AudioCard block={block} />;
     case "resource_link":
-      return <ResourceLinkView block={block} />;
+      return <ResourceLinkCard block={block} />;
     case "resource":
       return <EmbeddedResourceView block={block} />;
     default:

@@ -5,7 +5,6 @@ import { useTranslation } from "aihappey-i18n";
 
 interface UserMenuButtonProps {
   email?: string;
-  onCustomize: () => void;
   onSettings: () => void;
   onLogout: () => void;
   className?: string;
@@ -14,7 +13,6 @@ interface UserMenuButtonProps {
 
 export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
   email,
-  onCustomize,
   onSettings,
   onLogout,
   className,
@@ -28,7 +26,6 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
       onSettings={onSettings}
       onLogout={onLogout}
       labels={{
-        customize: t("userMenu.personalization"),
         settings: t("userMenu.settings"),
         logout: t("userMenu.logout"),
       }}

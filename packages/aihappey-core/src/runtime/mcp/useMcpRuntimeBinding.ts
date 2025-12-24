@@ -45,12 +45,6 @@ export function useMcpRuntimeBinding({
             reqId: (params as any)?.id ?? (params as any)?._meta?.id ?? null,
         });
 
-        console.log("[SAMPLE] onSample ENTER", {
-            now: Date.now(),
-            sig,
-            params,
-        });
-
         const { id, createdAt } = samplingRuntime.startSampling(server, params)
         const accessToken = authenticated ? await acquireAccessToken() : null;
         const res = await fetch(samplingApi, {
@@ -155,7 +149,7 @@ export function useMcpRuntimeBinding({
                     }));
             }
         });
-        console.log(mcpRuntime)
+
         return () => {
             items.forEach((i) => {
                 try {

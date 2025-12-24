@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTheme } from "aihappey-components";
-
 import { useTranslation } from "aihappey-i18n";
 import { ServerManagementModal } from "./ServerManagementModal";
 import { useAppStore } from "aihappey-state";
@@ -13,8 +12,6 @@ export const ServerSelectButton = () => {
   const mcpServers = useAppStore((s) => s.mcpServers);
   const onHide = (enabledServers: Set<string>) => {
     setOpen(false)
-
-    //const patches: Record<string, Partial<ServerItem>> = { ...mcpServers };
     var updates: any = {
 
     }
@@ -40,6 +37,7 @@ export const ServerSelectButton = () => {
         onClick={() => setOpen(true)}
         title={t("mcpPage.title")}
       ></Button>
+
       <ServerManagementModal show={open} onHide={onHide} />
     </>
   );

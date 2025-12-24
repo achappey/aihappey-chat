@@ -6,4 +6,6 @@ export * from "./AiSettingsForm";
 export * from "./ChatSettingsForm";
 export * from "./ProviderSettingsForm";
 export * from "./LocalToolsSettingsForm";
-
+export * from "./ModelContextCatalogSettingsForm";
+export * from "./ModelContextClientSettingsForm";
+export * from "./ModelContextExtensionsSettingsForm";

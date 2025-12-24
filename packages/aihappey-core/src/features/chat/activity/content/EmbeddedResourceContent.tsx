@@ -1,5 +1,5 @@
 import { useTheme } from "aihappey-components";
-
+import { Markdown } from "../../../../ui/markdown/Markdown";
 
 interface EmbeddedResourceContentProps {
   resource: {
@@ -52,6 +52,9 @@ export const EmbeddedResourceContent: React.FC<EmbeddedResourceContentProps> = (
 
   // Plain text
   if (mimeType?.startsWith("text/") && text) {
+    return (
+      <Markdown text={text} />
+    );
     return (
       <pre style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }}>
         {text}

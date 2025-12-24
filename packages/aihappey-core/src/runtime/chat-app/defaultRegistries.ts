@@ -25,17 +25,23 @@ export const defaultRegistries = async (
             for (const content of resource.contents ?? []) {
                 if (!("text" in content)) continue;
 
-                const result = JSON.parse(content.text as string);
+                try {
+                    const result = JSON.parse(content.text as string);
 
-                if (Array.isArray(result.servers)) {
-                    allServers.push(
-                        ...result.servers.filter((a: any) =>
-                            a.server.remotes?.some((z: any) => z.type === "streamable-http")
-                        )
-                    );
+                    if (Array.isArray(result.servers)) {
+                        allServers.push(
+                            ...result.servers.filter((a: any) =>
+                                a.server.remotes?.some((z: any) => z.type === "streamable-http")
+                            )
+                        );
+                    }
+
+                    cursor = result?.metadata?.next_cursor;
+
                 }
-
-                cursor = result?.metadata?.next_cursor;
+                catch (err) { 
+                    cursor = undefined
+                }
             }
 
             if (!cursor) break;

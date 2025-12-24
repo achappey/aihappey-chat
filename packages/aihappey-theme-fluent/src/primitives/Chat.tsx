@@ -23,7 +23,8 @@ export const Chat = ({ messages, renderMessage, renderReactions }: ChatProps): J
           msg.role === "user" ? ChatMyMessage : ChatMessage;
 
         const reactions = renderReactions ? renderReactions(msg) : undefined;
-        const icon = msg.messageIcon ? React.createElement(iconMap[msg.messageIcon]) : undefined;
+        const IconCmp = msg.messageIcon ? iconMap[msg.messageIcon] : undefined;
+        const icon = IconCmp ? <IconCmp /> : undefined;
         const reactionBlock = reactions ? <div
           style={{ height: 16, paddingTop: 8, display: "flex", alignItems: "center" }}>
           {reactions}

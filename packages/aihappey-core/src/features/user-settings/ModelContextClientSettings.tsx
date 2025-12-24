@@ -1,16 +1,17 @@
-import { useTheme } from "aihappey-components";
+import { useEffect } from "react";
 import { mcpRuntime, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
-import { useEffect } from "react";
+import { ModelContextClientSettingsForm } from "aihappey-components";
 
 export const ModelContextClientSettings = () => {
-  const { Select, Slider, Switch } = useTheme();
   const { t } = useTranslation();
 
   const logLevel = useAppStore(s => s.logLevel);
   const setLogLevel = useAppStore(s => s.setLogLevel);
 
   const toolTimeout = useAppStore(s => s.toolTimeout);
+  const resetTimeoutOnProgress = useAppStore(s => s.resetTimeoutOnProgress);
+  const setMcpTimeout = useAppStore(s => s.setMcpTimeout);
 
   useEffect(() => {
     for (const client of mcpRuntime.values()) {
@@ -18,54 +19,36 @@ export const ModelContextClientSettings = () => {
     }
   }, [logLevel]);
 
-  const resetTimeoutOnProgress = useAppStore(s => s.resetTimeoutOnProgress);
-  const setMcpTimeout = useAppStore(s => s.setMcpTimeout);
-
-  const logLevelOptions = [
-    "debug",
-    "info",
-    "notice",
-    "warning",
-    "error",
-    "critical",
-    "alert",
-    "emergency",
-  ].map(v => ({ value: v, label: t(`logLevels.${v}`) }));
-
   return (
-    <>
-      <Select
-        values={[logLevel]}
-        label={t("settingsModal.logLevel")}
-        valueTitle={t(`logLevels.${logLevel}`)}
-        options={logLevelOptions}
-        onChange={(v: any) => setLogLevel(v)}
-      >
-        {logLevelOptions.map(o => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </Select>
-
-      <Slider
-        label={t("mcpPage.toolTimeout", {
-          minutes: toolTimeout / 60000,
-        })}
-        min={1}
-        max={15}
-        step={1}
-        value={toolTimeout / 60000}
-        onChange={v => setMcpTimeout(v * 60000, resetTimeoutOnProgress)}
-      />
-
-      <Switch
-        id="reset-timeout-toggle"
-        size="small"
-        checked={resetTimeoutOnProgress}
-        label={t("mcpPage.resetTimeoutOnProgress")}
-        onChange={v => setMcpTimeout(toolTimeout, v)}
-      />
-    </>
+    <ModelContextClientSettingsForm
+      value={{
+        logLevel,
+        toolTimeoutMinutes: toolTimeout / 60000,
+        resetTimeoutOnProgress,
+      }}
+      onChangeLogLevel={setLogLevel}
+      onChangeTimeout={(minutes, reset) =>
+        setMcpTimeout(minutes * 60000, reset)
+      }
+      onToggleResetOnProgress={(enabled) =>
+        setMcpTimeout(toolTimeout, enabled)
+      }
+      translations={{
+        logLevelLabel: t("settingsModal.logLevel"),
+        logLevelTitles: {
+          debug: t("logLevels.debug"),
+          info: t("logLevels.info"),
+          notice: t("logLevels.notice"),
+          warning: t("logLevels.warning"),
+          error: t("logLevels.error"),
+          critical: t("logLevels.critical"),
+          alert: t("logLevels.alert"),
+          emergency: t("logLevels.emergency"),
+        },
+        timeoutLabel: (m) =>
+          t("mcpPage.toolTimeout", { minutes: m }),
+        resetTimeoutLabel: t("mcpPage.resetTimeoutOnProgress"),
+      }}
+    />
   );
 };

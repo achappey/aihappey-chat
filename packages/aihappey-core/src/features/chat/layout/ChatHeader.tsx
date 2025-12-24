@@ -78,7 +78,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         <div style={{ paddingLeft: 16 }}>
           <UserMenuButton
             email={account?.username}
-            onCustomize={() => console.log("Customize clicked")}
             onSettings={() => setSettingsOpen(true)}
             onLogout={() => console.log("Logout clicked")}
           />

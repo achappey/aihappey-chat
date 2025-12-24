@@ -1,20 +1,20 @@
 import React from "react";
 import { useTheme } from "../theme/ThemeContext";
+import type { DataUIPart } from "aihappey-ai";
 
 export interface DataCardProps {
-  type: string;
-  data: any;
+  block: DataUIPart<any>
 }
 
 export const DataCard: React.FC<DataCardProps> = ({
-  type,
-  data
+  block
+
 }) => {
   const { Card, JsonViewer } = useTheme();
 
   return (
-    <Card title={type}>
-      <JsonViewer value={JSON.stringify(data)} />
+    <Card title={block.type}>
+      <JsonViewer value={block?.data} />
     </Card>
   );
 };

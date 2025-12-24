@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useTheme } from "aihappey-components";
-
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { ModelContextSettings } from "./ModelContextSettings";
@@ -31,7 +30,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   );
 
   return (
-    <Modal show={open} onHide={onClose} title={t("settingsModal.title")}>
+    <Modal show={open}
+      onHide={onClose}
+      title={t("settingsModal.title")}>
       <div
         style={{
           borderRadius: 12,
@@ -62,34 +63,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               title={t("settingsModal.tabGeneral")}
             >
               <GeneralSettings />
-
             </theme.Tab>
-            {false && (
-              <>
-                <theme.Tab
-                  eventKey="personalization"
-                  icon={"personalization"}
-                  title={t("settingsModal.tabPersonalization")}
-                >
-                  <div
-                    style={{ color: "#888", fontSize: 16, padding: "32px 0" }}
-                  >
-                    {t("settingsModal.personalizationComingSoon")}
-                  </div>
-                </theme.Tab>
-                <theme.Tab
-                  eventKey="data"
-                  icon={"databaseGear"}
-                  title={t("settingsModal.tabData")}
-                >
-                  <div
-                    style={{ color: "#888", fontSize: 16, padding: "32px 0" }}
-                  >
-                    {t("settingsModal.dataControlsComingSoon")}
-                  </div>
-                </theme.Tab>
-              </>
-            )}
+
             <theme.Tab
               eventKey="mcp"
               icon={"mcpServer"}
@@ -118,15 +93,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     setRemoteStorageConnected(!remoteStorageConnected)
                   }
                 />
-
-
               </div>
             </theme.Tab>
             <theme.Tab
               eventKey="attachments"
               icon={"attachment"}
-              title={t("attachments")}
-            >
+              title={t("attachments")}>
               <div>
                 <h4>{t("images")}</h4>
                 <Switch

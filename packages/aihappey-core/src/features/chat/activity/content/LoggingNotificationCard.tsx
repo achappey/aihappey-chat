@@ -1,24 +1,26 @@
 
 
 import React from "react";
-import { useTheme } from "aihappey-components";
-
+import { LoggingMessageCard } from "aihappey-components";
 import { Markdown } from "../../../../ui/markdown/Markdown";
 import { useTranslation } from "react-i18next";
+import type { LoggingMessageNotificationParams } from "@modelcontextprotocol/sdk/types";
 
 export interface LoggingNotificationCardProps {
-  notif: any;
+  notif: LoggingMessageNotificationParams
 }
 
 export const LoggingNotificationCard: React.FC<
   LoggingNotificationCardProps
 > = ({ notif }) => {
-  const { Card } = useTheme();
   const { t } = useTranslation();
-  const message = String(notif.data || "");
+  const translations = {
+    [notif.level]: t(`logLevels.${notif.level}`)
+  }
   return (
-    <Card title={t(`logLevels.${notif.level}`)}>
-      <Markdown text={message} />
-    </Card>
+    <LoggingMessageCard notif={notif}
+      translations={translations}
+      onRenderMarkdown={(text) => <Markdown text={text} />}
+    />
   );
 };

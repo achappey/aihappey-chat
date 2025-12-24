@@ -1,5 +1,4 @@
 import { useTheme } from "aihappey-components";
-
 import { useTranslation } from "aihappey-i18n";
 import { ToolInvocationCard } from "../chat/activity/content/ToolInvocationCard";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";

@@ -84,7 +84,7 @@ export const resourceTool: Tool = {
     name: "read_resource",
     title: "Read an MCP resource",
     description:
-        "Reads a resource by URI from a MCP server. Use this to read MCP resources. The serverUrl and the resource uri can be from completely different domains. If the resource has a markdown (text/markdown) mime type, do not include its full content in your response; users can already view markdown files in the Canvas tab.",
+        "Reads a resource by URI from a MCP server. Use this to read MCP resources. The serverUrl and the resource uri can be from completely different domains. If the resource has a markdown (text/markdown) mime type, do not include its full content in your response. The markdown files are visible in the in the Canvas tab.",
     inputSchema: {
         type: "object",
         properties: {

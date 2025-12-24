@@ -1,49 +1,36 @@
-import { useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
+import { ModelContextExtensionsSettingsForm } from "aihappey-components";
 
 export const ModelContextExtensionsSettings = () => {
-  const { Switch } = useTheme();
-  const setEnableApps = useAppStore((s) => s.setEnableApps);
-  const enableApps = useAppStore((s) => s.enableApps);
-  const toggleAgentImport = useAppStore((s) => s.toggleAgentImport);
-  const enableAgentImport = useAppStore((s) => s.enableAgentImport);
-  const toggleConversationImport = useAppStore((s) => s.toggleConversationImport);
-  const enableConversationImport = useAppStore((s) => s.enableConversationImport);
-  const { t } = useTranslation(); // Uncomment when i18n is ready
+  const { t } = useTranslation();
+
+  const enableApps = useAppStore(s => s.enableApps);
+  const setEnableApps = useAppStore(s => s.setEnableApps);
+
+  const enableAgentImport = useAppStore(s => s.enableAgentImport);
+  const toggleAgentImport = useAppStore(s => s.toggleAgentImport);
+
+  const enableConversationImport = useAppStore(s => s.enableConversationImport);
+  const toggleConversationImport = useAppStore(s => s.toggleConversationImport);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 16,
-        padding: "24px 0 0 0",
+    <ModelContextExtensionsSettingsForm
+      value={{
+        enableApps,
+        enableAgentImport,
+        enableConversationImport,
       }}
-    >
-      <Switch
-        id="enableApps"
-        checked={enableApps}
-        size="small"
-        label={t("settingsModal.apps")}
-        onChange={setEnableApps}
-      />
-      <Switch
-        id="enableAgentImport"
-        checked={enableAgentImport}
-        size="small"
-        hint={t("settingsModal.agentImportHint")}
-        label={t("settingsModal.agentImport")}
-        onChange={toggleAgentImport}
-      />
-      <Switch
-        id="enableConversationImport"
-        checked={enableConversationImport}
-        size="small"
-        hint={t("settingsModal.conversationImportHint")}
-        label={t("settingsModal.conversationImport")}
-        onChange={toggleConversationImport}
-      />
-    </div>
+      onToggleApps={setEnableApps}
+      onToggleAgentImport={toggleAgentImport}
+      onToggleConversationImport={toggleConversationImport}
+      translations={{
+        appsLabel: t("settingsModal.apps"),
+        agentImportLabel: t("settingsModal.agentImport"),
+        agentImportHint: t("settingsModal.agentImportHint"),
+        conversationImportLabel: t("settingsModal.conversationImport"),
+        conversationImportHint: t("settingsModal.conversationImportHint"),
+      }}
+    />
   );
 };

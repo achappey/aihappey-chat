@@ -140,6 +140,8 @@
   "createdAt": "Gemaakt op",
   "sampling": "Generatie",
   "preview": "Preview",
+  "export": "Exporteren",
+  "rename": "Naam wijzigen",
   "arena": "Arena",
   "connecting": "Verbinden...",
   "formula": "Formule",
@@ -282,10 +284,6 @@
     "deleteAll": "Alles verwijderen",
     "deleteAllChats": "Alle chats verwijderen",
     "remoteStorage": "Cloud"
-  },
-  "locales": {
-    "enUS": "Engels",
-    "nlNL": "Nederlands"
   },
   "ok": "Ok",
   "storage": {

@@ -13,6 +13,8 @@
   "apiKeys": "API keys",
   "sourceCode": "Source code",
   "chart": "Chart",
+  "export": "Export",
+  "rename": "Rename",
   "models": "Models",
   "website": "Website",
   "quickSearch": "Quick search",
@@ -256,10 +258,6 @@
     "deleteAll": "Delete all",
     "deleteAllChats": "Delete all chats",
     "remoteStorage": "Cloud"
-  },
-  "locales": {
-    "enUS": "English",
-    "nlNL": "Nederlands"
   },
   "ok": "Ok",
   "save": "Save",

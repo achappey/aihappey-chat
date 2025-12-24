@@ -11,4 +11,8 @@ export * from "./TextCard";
 export * from "./ReasoningCard";
 export * from "./FileAttachmentCard";
 export * from "./StructuredOutputCard";
-export * from "./ContentCard";
+export * from "./UIMessagePartCard";
+export * from "./ResourceLinkCard";
+export * from "./LoggingMessageCard";
+
+

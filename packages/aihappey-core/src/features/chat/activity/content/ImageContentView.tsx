@@ -1,3 +1,4 @@
+import { ImageContent } from "@modelcontextprotocol/sdk/types";
 import { useTheme } from "aihappey-components";
 
 

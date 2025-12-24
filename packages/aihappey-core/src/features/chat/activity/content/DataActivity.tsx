@@ -1,3 +1,4 @@
+import { DataUIPart } from "aihappey-ai";
 import { DataCard } from "aihappey-components";
 import React from "react";
 
@@ -6,7 +7,7 @@ import React from "react";
  */
 export const DataActivity: React.FC<{
   dataCards?: any[];
-}> = (props: { dataCards?: any[] }) => {
+}> = (props: { dataCards?: DataUIPart<any>[] }) => {
   const { dataCards } = props;
   var values = dataCards?.reverse();
   return (
@@ -16,8 +17,7 @@ export const DataActivity: React.FC<{
       {values?.map((inv, i) => (
         <DataCard
           key={(inv.type + i) + "-inv"}
-          type={inv.type}
-          data={inv.data}
+          block={inv}
         />
       ))}
     </div>

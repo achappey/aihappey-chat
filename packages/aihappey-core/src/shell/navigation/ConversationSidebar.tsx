@@ -10,7 +10,6 @@ import { NativeTypes } from "react-dnd-html5-backend";
 import { useIsDesktop } from "../responsive/useIsDesktop";
 
 export const ConversationSidebar = () => {
-  //const selectedConversationId = useAppStore((s) => s.selectedConversationId);
   const selectConversation = useAppStore((s) => s.selectConversation);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
@@ -19,27 +18,13 @@ export const ConversationSidebar = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { Navigation } = useTheme();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState("");
   const conversationStorage = useAppStore((a) => a.conversationStorage);
   const remoteStorageConnected = useAppStore((a) => a.remoteStorageConnected);
   const setConversationStorage = useAppStore((a) => a.setConversationStorage);
   const isDesktop = useIsDesktop();
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
   const { conversationId } = useParams<{ conversationId?: string }>();
-  const startEdit = (id: string, name: string) => {
-    setEditingId(id);
-    setEditValue(name);
-  };
-
-  const handleEditSubmit = async (id: string) => {
-    if (editValue.trim()) {
-      await conversations.rename(id, editValue.trim());
-      conversations.refresh();
-    }
-    setEditingId(null);
-  };
-
+ 
   const handleCreate = async () => {
     // Reset current selection *before* navigating so ChatPage starts blank
     selectConversation(null);
@@ -241,6 +226,11 @@ export const ConversationSidebar = () => {
     e.preventDefault();
   }, []);
 
+  const translations = {
+    export: t('export'),
+    delete: t('delete'),
+    rename: t('rename')
+  }
   return (
     <div ref={dropRef}
       onDrop={handleFileDrop}
@@ -251,6 +241,7 @@ export const ConversationSidebar = () => {
       onDragOver={handleDragOver}>
       <Navigation
         items={navItems}
+        translations={translations}
         onClose={() => setSidebarOpen(false)}
         isOpen={sidebarOpen}
         onDelete={handleRemove}

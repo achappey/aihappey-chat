@@ -30,7 +30,11 @@ export const ToolContent: React.FC<ToolContentProps> = ({
         {toolTitle}
       </strong>
     </p>
-
+    {tool?.description &&
+      <p>
+        {tool?.description}
+      </p>
+    }
     <JsonViewer title={translations?.input ?? "input"} value={argsPreview} />
   </>
 };

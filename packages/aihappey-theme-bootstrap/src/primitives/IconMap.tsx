@@ -59,12 +59,13 @@ import {
   Printer,
   ChevronDown,
   ChevronUp,
+  Plus,
 } from "react-bootstrap-icons";
 
 export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   robot: <Robot />,
   warning: <ExclamationTriangle />,
-  add: <ChatDots />, // Default fallback or specific mapping
+  add: <Plus />, // Default fallback or specific mapping
   edit: <Pencil />,
   delete: <Trash />,
   prompts: <BSChatIcon />,

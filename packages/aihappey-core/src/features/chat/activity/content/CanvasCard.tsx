@@ -42,18 +42,6 @@ export const CanvasCard = ({ uri, versions }: { uri: string; versions: any[] }) 
     onClick: () => setCurrent(v),
   }));
 
-  const actions2 = [
-    {
-      key: "versions",
-      label: t("versions"),
-      children: versions.map((v, i) => ({
-        key: v._msgId + ":" + v._partIndex,
-        label: formatShort(v._ts), // 👈 short date label (never "Invalid Date")
-        onClick: () => setCurrent(v),
-      })),
-    },
-  ];
-
   return (
     <>
       <Card
@@ -73,13 +61,10 @@ export const CanvasCard = ({ uri, versions }: { uri: string; versions: any[] }) 
             variant="transparent"
           />
         </>
-
         }
       >
         <Markdown text={current.text} />
       </Card >
-
     </>
-
   );
 };

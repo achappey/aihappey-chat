@@ -31,6 +31,7 @@ export interface NavigationProps {
   onExport?: (id: string) => Promise<void>;
   onRename?: (id: string, newName: string) => Promise<void>;
   style?: React.CSSProperties;
+  translations?: any
 }
 
 export type NavigationComponent = (props: NavigationProps) => JSX.Element;

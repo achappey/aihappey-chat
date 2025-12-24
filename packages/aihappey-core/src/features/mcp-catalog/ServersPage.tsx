@@ -153,7 +153,7 @@ export const ServersPage = () => {
         const stats = await serverStats();
         const parsed = parseStatsFromText(stats);
         if (!cancelled && parsed) {
-          console.log(parsed)
+
           setLocalRankingsStats(parsed);
         }
       } catch (e) {

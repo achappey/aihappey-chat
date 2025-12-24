@@ -32,8 +32,8 @@ export function toChatMessages(
         createdAt,
         author,
         temperature,
-        messageIcon: "tool", // or "dots" if you have it
-        messageLabel: translations?.activity ?? "activity",
+    //    messageIcon: "tool", // or "dots" if you have it
+       // messageLabel: translations?.activity ?? "activity",
       } as any);
 
       activityRun = [];

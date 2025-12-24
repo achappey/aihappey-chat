@@ -1,9 +1,9 @@
 import React from "react";
-import { ContentCard } from "aihappey-components";
+import { UIMessagePartCard } from "aihappey-components";
 
 export default {
-  title: "Cards/ContentCard",
-  component: ContentCard,
+  title: "Cards/UIMessagePartCard",
+  component: UIMessagePartCard,
 };
 
 const textContent = {
@@ -26,19 +26,19 @@ const toolInvocationContent = {
 };
 
 export const Text = () =>
-  React.createElement(ContentCard, {
+  React.createElement(UIMessagePartCard, {
     content: textContent,
     onRenderMarkdown: (text) => React.createElement("div", null, text),
   });
 
 export const Reasoning = () =>
-  React.createElement(ContentCard, {
+  React.createElement(UIMessagePartCard, {
     content: reasoningContent,
     onRenderMarkdown: (text) => React.createElement("div", null, text),
   });
 
 export const ToolInvocation = () =>
-  React.createElement(ContentCard, {
+  React.createElement(UIMessagePartCard, {
     content: toolInvocationContent,
     onRenderMarkdown: (text) => React.createElement("div", null, text),
     onShowToolCallResult: (toolCall) => console.log("Show tool call", toolCall),

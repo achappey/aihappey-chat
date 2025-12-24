@@ -1,0 +1,80 @@
+{
+  "perplexity": {
+    "academic": "Académico",
+    "web": "Web",
+    "improveImageRelevance": "Mejorar relevancia de imágenes",
+    "enableSearchClassifier": "Clasificador de búsqueda",
+    "dateSearchSettings": "Filtros de fecha",
+    "searchRecencyFilter": "Filtro de recencia",
+    "searchAfterDateFilter": "Publicado después de",
+    "searchBeforeDateFilter": "Publicado antes de",
+    "lastUpdatedAfterFilter": "Última actualización después de",
+    "lastUpdatedBeforeFilter": "Última actualización antes de",
+    "sonarDeepResearch": "Sonar investigación profunda",
+    "returnImages": "Devolver imágenes",
+    "returnVideos": "Devolver vídeos",
+    "returnRelatedQuestions": "Devolver preguntas relacionadas"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "anthropic": {
+    "maxUses": "Usos máximos",
+    "customSkills": "Habilidades personalizadas",
+    "allowedDomains": "Dominios permitidos",
+    "blockedDomains": "Dominios bloqueados"
+  },
+  "cohere": {
+    "citationOptions": "Citas"
+  },
+  "xSearch": "Buscar en X",
+  "xai": {
+    "imageUnderstanding": "Comprensión de imágenes",
+    "videoUnderstanding": "Comprensión de vídeo",
+    "allowedDomains": "Dominios permitidos",
+    "excludedDomains": "Dominios excluidos",
+    "allowed_x_handles": "Cuentas de X permitidas",
+    "excluded_x_handles": "Cuentas de X excluidas"
+  },
+  "openai": {
+    "container": "Contenedor",
+    "includeOutputs": "Incluir salidas",
+    "includeSources": "Incluir fuentes",
+    "includeSearchResults": "Incluir resultados de búsqueda",
+    "encryptedContent": "Incluir cifrado",
+    "instructions": "Instrucciones",
+    "instructionsPlaceholder": "Mensaje de sistema (o desarrollador) insertado en el contexto del modelo.",
+    "max_num_results": "Número máximo de resultados",
+    "vector_store_ids": "IDs de los almacenes vectoriales",
+    "file_search": "Búsqueda de archivos"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Respuestas cívicas mejoradas",
+    "unspecified": "No especificado",
+    "mediaResolution": "Calidad de imagen",
+    "url_context": "Contexto de URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Incluir razonamiento",
+    "dynamicThinking": "Pensamiento dinámico",
+    "intervalStart": "Fecha de inicio",
+    "intervalEnd": "Fecha de fin",
+    "blockingConfidence": {
+      "label": "Nivel de bloqueo",
+      "unspecified": "No especificado",
+      "lowAndAbove": "Bloquear bajo y superior",
+      "mediumAndAbove": "Bloquear medio y superior",
+      "highAndAbove": "Bloquear alto y superior",
+      "higherAndAbove": "Bloquear muy alto y superior",
+      "veryHighAndAbove": "Bloquear muy alto en adelante",
+      "onlyExtremelyHigh": "Bloquear solo extremadamente alto"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Máx. URLs devueltas",
+    "search_provider": "Búsqueda optimizada en arXiv",
+    "team_size": "Tamaño del equipo agéntico",
+    "goodDomains": "Dominios potenciados",
+    "badDomains": "Dominios negativos",
+    "onlyDomains": "Restringir búsqueda a estos dominios"
+  }
+}

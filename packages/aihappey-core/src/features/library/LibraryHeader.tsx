@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTheme } from "aihappey-components";
-
 import { UserMenuButton } from "../../features/user-settings/UserMenuButton";
 import { useAccount } from "aihappey-auth";
 import SettingsModal from "../../features/user-settings/SettingsModal";
@@ -47,7 +46,6 @@ export const LibraryHeader: React.FC<LibraryHeaderProps> = ({}) => {
         <div style={{ flex: 1 }} />
         <UserMenuButton
           email={email}
-          onCustomize={() => console.log("Customize clicked")}
           onSettings={() => setSettingsOpen(true)}
           onLogout={() => console.log("Logout clicked")}
         />

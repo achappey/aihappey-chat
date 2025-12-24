@@ -4,6 +4,7 @@ import { localAgentsCreateTool, localAgentsDeleteTool, localAgentsListTool } fro
 import { localConversationsGetTool, localConversationsListTool, localConversationsSearchTextTool } from "./toolcalls/useLocalConversationsToolCall";
 import { localSettingsGetTool, localSettingsSetTool } from "./toolcalls/useLocalSettingsToolCall";
 import { resourceTool } from "./toolcalls/useReadResourceToolCall";
+import type { Tool } from "@modelcontextprotocol/sdk/types";
 
 export function useTools() {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
@@ -44,7 +45,7 @@ export function useTools() {
     const allowDestructive = !!toolAnnotations?.destructiveHint;
     const allowOpenWorld = !!toolAnnotations?.openWorldHint;
 
-    const enabledTools: any[] = [];
+    const enabledTools: Tool[] = [];
     const disabledMap: Record<string, string[]> = {};
 
     for (const t of allTools) {

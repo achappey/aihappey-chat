@@ -5,13 +5,14 @@ import { OpenAIAppWidget } from "../../../ui/widgets/OpenAIAppWidget";
 import { ElicitationForm } from "../../elicitation/ElicitationForm";
 import { copyMarkdownToClipboard } from "../files/file";
 import { elicitRuntime, useOpenElicits } from "../../../runtime/mcp/elicitRuntime";
-import { MessageList as MessageListComponent, SamplingCard } from "aihappey-components";
+import { MessageList as MessageListComponent } from "aihappey-components";
 import type { CreateMessageRequest, CreateMessageResult, ElicitResult } from "@modelcontextprotocol/sdk/types";
 import type { UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
 import { useMemo } from "react";
 import { toChatMessages } from "./toChatMessages";
 import { samplingRuntime, useOpenSamplings } from "../../../runtime/mcp/samplingRuntime";
+import { useTools } from "../../tools/useTools";
 
 interface MessageListProps {
   showCitations: (items: any[]) => void;
@@ -40,7 +41,7 @@ export const MessageList = ({
   const { t } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
   const sampling = useAppStore((a) => a.sampling);
-
+  const tools = useTools()
   // ✅ This hook should output ChatMessage[] (your app adapter layer).
   // If your current hook returns another shape, swap this line to:
   //   const chatMessages = toChatMessages(messages);
@@ -153,7 +154,8 @@ export const MessageList = ({
   const translations = useMemo(
     () => ({
       generatedByAi: t("generatedByAi"),
-      input: t("input")
+      input: t("input"),
+      reasoning: t("reasoning")
     }),
     [t]
   );
@@ -165,6 +167,7 @@ export const MessageList = ({
       messages={merged}
       onCopyMessage={copyClipboard}
       translations={translations}
+      tools={tools?.tools ?? []}
       onShowActivity={showActivity}
       onShowSources={(i) => console.log(i)}
       onShowAttachments={showAttachments}

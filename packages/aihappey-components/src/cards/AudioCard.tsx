@@ -1,7 +1,8 @@
+import type { AudioContent } from "@modelcontextprotocol/sdk/types";
 import { useTheme } from "../theme/ThemeContext";
 
 interface AudioCardProps {
-  block: { type: "audio"; data: string; mimeType: string };
+  block: AudioContent
 }
 
 export const AudioCard = ({ block }: AudioCardProps) => {

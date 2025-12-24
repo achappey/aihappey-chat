@@ -115,8 +115,6 @@ export const ModelsPage = () => {
               </Tab>
             ))}
           </Tabs>
-
-
         </div>
       </div>
     </>

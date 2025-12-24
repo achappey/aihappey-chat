@@ -1,29 +1,19 @@
-import { useTheme } from "../theme/ThemeContext";
-import type { ChatMessage } from "aihappey-types";
-import type { FileUIPart, ToolUIPart, UIMessagePart } from "aihappey-ai";
-import { AiWarningBadge } from "../badges";
-import { CopyToClipboardButton } from "../buttons";
-import { TemperatureBadge } from "../badges/TemperatureBadge";
-import { useMemo, useState } from "react";
-import { ToolContent } from "../fields/ToolContent";
-import { ReasoningCard, TextCard, ToolInvocationCard } from "../cards";
+import type { ToolUIPart, UIMessagePart } from "aihappey-ai";
+import { ReasoningCard, TextCard, ToolInvocationCard } from ".";
 
-interface ContentCardProps {
+interface UIMessagePartCardProps {
   content: UIMessagePart<any, any>;
   onRenderMarkdown: (text: string) => React.ReactElement;
   translations?: any;
   onShowToolCallResult?: (toolCall: ToolUIPart<any>) => void;
 }
 
-
-export const ContentCard = ({
+export const UIMessagePartCard = ({
   content,
   onRenderMarkdown,
   onShowToolCallResult,
   translations,
-}: ContentCardProps) => {
-  const { Chat, Button, Image, Badge } = useTheme();
-
+}: UIMessagePartCardProps) => {
   switch (content.type) {
     case "text":
       return <TextCard

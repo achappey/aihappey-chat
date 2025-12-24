@@ -1,7 +1,8 @@
+import type { ReasoningUIPart } from "aihappey-ai";
 import { useTheme } from "../theme/ThemeContext";
 
 interface ReasoningCardProps {
-  block: { type: "reasoning"; text: string };
+  block: ReasoningUIPart;
   translations?: any
   renderText?: (text: string) => React.ReactNode;
 }

@@ -8,7 +8,15 @@ import { useTranslation } from "react-i18next";
 export const ModelContextSettings = () => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState("client");
-const {t} = useTranslation();
+  const { t } = useTranslation();
+
+  const formStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+    padding: "12px 0 0 0",
+  };
+
   return (
     <div
       style={{
@@ -20,24 +28,21 @@ const {t} = useTranslation();
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
         <theme.Tab eventKey="client" title={t('manageServersModal.client')}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 32,
-              padding: "24px 0 0 0",
-            }}
-          >
+          <div style={formStyle}>
             <ModelContextClientSettings />
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="catalog"  title={t('manageServersModal.catalog')}>
-          <ModelContextCatalogSettings />
+        <theme.Tab eventKey="catalog" title={t('manageServersModal.catalog')}>
+          <div style={formStyle}>
+            <ModelContextCatalogSettings />
+          </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="extensions"  title={t('manageServersModal.extensions')}>
-          <ModelContextExtensionsSettings />
+        <theme.Tab eventKey="extensions" title={t('manageServersModal.extensions')}>
+          <div style={formStyle}>
+            <ModelContextExtensionsSettings />
+          </div>
         </theme.Tab>
       </theme.Tabs>
     </div>

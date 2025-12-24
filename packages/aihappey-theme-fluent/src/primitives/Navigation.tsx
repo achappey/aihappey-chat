@@ -1,7 +1,10 @@
 import * as React from "react";
 import {
+  ArrowExportRegular,
   Cloud24Regular,
   Database24Regular,
+  DeleteRegular,
+  EditRegular,
   MoreHorizontalRegular,
 } from "@fluentui/react-icons";
 import {
@@ -25,6 +28,7 @@ import {
   NavItem,
   NavSectionHeader,
   Tooltip,
+  MenuDivider,
 } from "@fluentui/react-components";
 import { makeStyles } from "@fluentui/react-components";
 import { IconToken, NavigationProps } from "aihappey-types";
@@ -70,6 +74,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onExport,
   onClose,
   isOpen,
+  translations,
   onRename,
   multiple = false,
   drawerType = "inline",
@@ -108,7 +113,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             {/* Hamburger left */}
             <Tooltip relationship="label" content="Close navigation">
               <span>
-                <Hamburger onClick={onClose ? () => onClose() : undefined} />
+                <Hamburger onClick={onClose} />
               </span>
             </Tooltip>
             {/* Right icon buttons */}
@@ -254,32 +259,36 @@ export const Navigation: React.FC<NavigationProps> = ({
                         <MenuPopover>
                           <MenuList>
                             <MenuItem
-                              onClick={() => {
+                              icon={<EditRegular />}
+                              onClick={(e) => {
                                 setEditingId(item.key)
                                 setEditValue(item.label as string)
+                                e.stopPropagation();
                               }}
                             >
-                              Bewerken
+                              {translations?.rename ?? "rename"}
                             </MenuItem>
                             {onExport && (
                               <MenuItem
+                                icon={<ArrowExportRegular />}
                                 onClick={async (e) => {
                                   e.stopPropagation();
                                   await onExport(item.key);
                                 }}
                               >
-                                Exporteren
+                                {translations?.export ?? "export"}
                               </MenuItem>
                             )}
-
+                            <MenuDivider />
                             {onDelete && (
                               <MenuItem
+                                icon={<DeleteRegular />}
                                 onClick={async (e) => {
                                   e.stopPropagation();
                                   await onDelete(item.key);
                                 }}
                               >
-                                Verwijderen
+                                {translations?.delete ?? "delete"}
                               </MenuItem>
                             )}
                           </MenuList>

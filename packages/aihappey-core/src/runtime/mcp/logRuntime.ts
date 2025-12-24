@@ -1,3 +1,4 @@
+import type { LoggingMessageNotificationParams } from "@modelcontextprotocol/sdk/types";
 import { useSyncExternalStore } from "react";
 
 class McpLogRuntime {
@@ -5,7 +6,7 @@ class McpLogRuntime {
         id: string;
         timestamp: number;
         data: any;
-        level: string;
+        level:  "error" | "debug" | "info" | "notice" | "warning" | "critical" | "alert" | "emergency";
         server?: string;
     }[] = [];
 
@@ -20,11 +21,8 @@ class McpLogRuntime {
         this.listeners.forEach(l => l());
     }
 
-    append(item: {
-        data: any;
-        level: string;
-        server?: string;
-    }) {
+    append(item: LoggingMessageNotificationParams) {
+        console.log(item)
         this.items.push({
             id: crypto.randomUUID(),
             timestamp: Date.now(),

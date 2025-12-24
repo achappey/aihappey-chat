@@ -20,10 +20,13 @@ export const UserGeneralSettings: React.FC<Props> = ({
 }) => {
   const { Select, Button } = useTheme();
 
-  const t = (key: string) => translations?.[key] ?? key?.split(".");
+  const t = (key: string) => translations?.[key] ?? key;
 
   const languageOptions = languages
-    .map(z => ({ value: z, label: translations?.[z] ?? z }));
+    .map(z => ({ value: z, label: translations?.[z] ?? z }))
+    .sort((a, b) =>
+      a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+    );
 
   return (
     <div
@@ -45,9 +48,7 @@ export const UserGeneralSettings: React.FC<Props> = ({
         <Select
           values={[language]}
           label={t("settingsModal.languageLabel")}
-          valueTitle={
-            languageOptions.find(l => l.value === language)?.label
-          }
+          valueTitle={languageOptions.find(l => l.value === language)?.label}
           options={languageOptions}
           onChange={(v: string) => onLanguageChange?.(v)}
         >

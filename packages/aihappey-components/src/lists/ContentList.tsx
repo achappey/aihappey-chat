@@ -7,7 +7,7 @@ import { TemperatureBadge } from "../badges/TemperatureBadge";
 import { useMemo, useState } from "react";
 import { ToolContent } from "../fields/ToolContent";
 import { TextCard } from "../cards";
-import { ContentCard } from "../cards/ContentCard";
+import { UIMessagePartCard } from "../cards/UIMessagePartCard";
 
 interface ContentListProps {
   content: UIMessagePart<any, any>[];
@@ -34,7 +34,7 @@ export const ContentList = ({
         gap: 12
       }}>
       {content.map(z =>
-        <ContentCard
+        <UIMessagePartCard
           content={z}
           translations={translations}
           onShowToolCallResult={onShowToolCallResult}
