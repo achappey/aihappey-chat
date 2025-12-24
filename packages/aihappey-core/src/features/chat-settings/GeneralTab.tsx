@@ -1,4 +1,7 @@
-import { AiSettingsForm, ChatSettingsForm, LocalToolsSettingsForm, ProviderSettingsForm, useTheme } from "aihappey-components";
+import {
+  AiChatSettingsForm, ChatSettingsForm, LocalToolsSettingsForm,
+  ProviderSettingsForm, useTheme
+} from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -54,7 +57,7 @@ export const GeneralTab = ({
   return (
     <>
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        <AiSettingsForm
+        <AiChatSettingsForm
           value={aiSettings}
           translations={aiSettingTranslations}
           formTitle={t("ai.title")}
@@ -120,7 +123,7 @@ export const GeneralTab = ({
             } : undefined);
           }}></theme.TextArea>
       </div>
-   
+
     </>
   );
 };

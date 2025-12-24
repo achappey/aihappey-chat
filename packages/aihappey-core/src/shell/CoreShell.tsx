@@ -5,7 +5,7 @@ import { ChatAppConnector } from "./connectors/ChatAppConnector";
 import { I18nProvider } from "aihappey-i18n";
 import { ConversationsProvider } from "aihappey-conversations";
 import { useEffect } from "react";
-import { useRemoteStorageConnected, useAppStore } from "aihappey-state";
+import { useRemoteStorageConnected, useAppStore, defaultAgents } from "aihappey-state";
 import { useAccessToken } from "aihappey-auth/src/msal/useAccessToken";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -36,12 +36,14 @@ export const CoreShell: React.FC<Props> = ({
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
   const setSelectedModel = useAppStore((s) => s.setSelectedModel);
+  const setAgents = useAppStore((s) => s.setAgents);
+  const agents = useAppStore((s) => s.agents);
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
   useDefaultProviders(chatConfig?.defaultProviders)
-  const [searchParams, setSearchParams] = useSearchParams();
+  /*const [searchParams, setSearchParams] = useSearchParams();
 
   // lezen
   const model = searchParams.get("model");
@@ -50,7 +52,13 @@ export const CoreShell: React.FC<Props> = ({
     if (model)
       setSelectedModel(model);
   }, [model]);
+*/
 
+  useEffect(() => {
+    if (agents.length == 0)
+      setAgents(defaultAgents);
+  }, []);
+  
   useEffect(() => {
     setSidebarOpen(isDesktop);
   }, []);

@@ -1,6 +1,15 @@
 import { UserGeneralSettings as GeneralSettingsComp } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 
+export const languageNames: any = {
+  en: "English",
+  nl: "Nederlands",
+  de: "Deutsch",
+  es: "Español",
+  pt: "Português",
+  fr: "Français",
+}
+
 export const GeneralSettings = () => {
   const { t, i18n } = useTranslation();
   const languages = ["en", "nl", "es", "de", "fr", "pt"]

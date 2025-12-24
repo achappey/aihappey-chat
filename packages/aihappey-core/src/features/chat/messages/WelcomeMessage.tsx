@@ -4,6 +4,7 @@ import { useAccount } from "aihappey-auth";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { useTheme } from "aihappey-components";
 import { fetchWelcomeMessage } from "../../../runtime/chat-app/welcomeMessage";
+import { languageNames } from "../../user-settings/GeneralSettings";
 
 interface WelcomeMessageProps { }
 
@@ -17,7 +18,7 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const isDesktop = useIsDesktop();
 
   useEffect(() => {
-    fetchWelcomeMessage(i18n.language,
+    fetchWelcomeMessage(languageNames[i18n.language],
       account?.name)
       .then(a =>
         setWelcomeMessage(a)

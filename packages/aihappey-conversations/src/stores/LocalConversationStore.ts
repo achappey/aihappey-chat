@@ -11,6 +11,7 @@ function load(): Conversation[] {
     return [];
   }
 }
+
 function save(list: Conversation[]) {
   if (typeof window !== "undefined")
     localStorage.setItem(LS_KEY, JSON.stringify(list));

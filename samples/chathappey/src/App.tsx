@@ -1,5 +1,6 @@
 import CoreRoot from "aihappey-core";
 import { ThemeProvider } from "aihappey-theme-fluent";
+
 declare const __CHAT_API__: string;
 declare const __AGENT_ENDPOINT__: string;
 declare const __MODELS_API__: string;

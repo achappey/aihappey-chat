@@ -1,23 +1,23 @@
 import { TemperatureField } from "../fields";
 import { useTheme } from "../theme/ThemeContext";
 
-type AiSettings = {
+type AiChatSettings = {
     temperature: number
 };
 
-type AiSettingsFormProps = {
-    value: AiSettings
-    onChange: (settings: AiSettings) => void
+type AiChatSettingsFormProps = {
+    value: AiChatSettings
+    onChange: (settings: AiChatSettings) => void
     translations?: any
     formTitle?: string
 };
 
-export const AiSettingsForm = ({
+export const AiChatSettingsForm = ({
     value,
     onChange,
     formTitle,
     translations
-}: AiSettingsFormProps) => {
+}: AiChatSettingsFormProps) => {
     const { Card } = useTheme();
 
     return (<Card size="small" title={formTitle}>

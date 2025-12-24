@@ -4,6 +4,8 @@ import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { ModelContextSettings } from "./ModelContextSettings";
 import { GeneralSettings } from "./GeneralSettings";
+import { AiDefaultSettings } from "./AiDefaultSettings";
+import { useChatContext } from "../chat/context/ChatContext";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -22,6 +24,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const setEnableUserLocation = useAppStore((s) => s.setEnableUserLocation);
   const extractExif = useAppStore((s) => s.extractExif);
+  const chat = useChatContext()
   const setRemoteStorageConnected = useAppStore(
     (s) => s.setRemoteStorageConnected
   );
@@ -66,12 +69,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </theme.Tab>
 
             <theme.Tab
+              eventKey="ai"
+              icon={"brain"}
+              title={t("ai.title")}
+            >
+              <AiDefaultSettings />
+            </theme.Tab>
+
+            <theme.Tab
               eventKey="mcp"
               icon={"mcpServer"}
               title={t("mcpPage.title")}
             >
               <ModelContextSettings />
             </theme.Tab>
+
             <theme.Tab
               eventKey="connectors"
               icon={"connector"}
@@ -85,14 +97,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onChange={setEnableUserLocation}
                 />
 
-                <Switch
+                {chat.config.getAccessToken && <Switch
                   id="remote-storage-toggle"
                   checked={remoteStorageConnected}
                   label={t("settingsModal.remoteStorage")}
                   onChange={() =>
                     setRemoteStorageConnected(!remoteStorageConnected)
                   }
-                />
+                />}
               </div>
             </theme.Tab>
             <theme.Tab

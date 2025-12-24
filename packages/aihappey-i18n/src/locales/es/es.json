@@ -241,6 +241,7 @@
     },
     "settingsModal": {
         "title": "Configuración",
+        "defaultModel": "Modelo predeterminado",
         "agentImport": "Agentes",
         "agentImportHint": "Importar recursos como agentes.",
         "conversationImport": "Conversaciones",

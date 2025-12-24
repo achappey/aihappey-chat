@@ -24,7 +24,7 @@ export const ConversationSidebar = () => {
   const isDesktop = useIsDesktop();
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
   const { conversationId } = useParams<{ conversationId?: string }>();
- 
+
   const handleCreate = async () => {
     // Reset current selection *before* navigating so ChatPage starts blank
     selectConversation(null);
@@ -235,6 +235,7 @@ export const ConversationSidebar = () => {
     <div ref={dropRef}
       onDrop={handleFileDrop}
       style={{
+        height: "100%",
         border: isOver ? "2px dotted" : undefined,
         borderColor: isOver ? "#888" : "transparent",
       }}

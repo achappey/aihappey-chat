@@ -268,6 +268,7 @@
   "settingsModal": {
     "title": "Instellingen",
     "agentImport": "Agents",
+    "defaultModel": "Standaard model",
     "agentImportHint": "Importeer bronnen als Agents.",
     "conversationImport": "Conversaties",
     "conversationImportHint": "Importeer bronnen als chat conversaties.",

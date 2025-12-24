@@ -242,6 +242,7 @@
   "settingsModal": {
     "title": "Settings",
     "agentImport": "Agents",
+    "defaultModel": "Default model",
     "agentImportHint": "Import resources as Agents.",
     "conversationImport": "Conversations",
     "conversationImportHint": "Import resources as conversations.",

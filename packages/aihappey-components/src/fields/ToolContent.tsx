@@ -14,7 +14,6 @@ export interface ToolContentProps {
   translations?: any
 }
 
-
 export const ToolContent: React.FC<ToolContentProps> = ({
   invocation,
   translations,
@@ -23,15 +22,19 @@ export const ToolContent: React.FC<ToolContentProps> = ({
   const { JsonViewer } = useTheme();
   const argsPreview = JSON.stringify(invocation.input, null, 2);
   const toolTitle = tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
+  const contentStyle: React.CSSProperties = {
+    margin: "0.5em 0px"
+  }
 
   return <>
-    <p style={{ margin: "0.5em 0px" }}>
+    <p style={contentStyle}>
       <strong>
         {toolTitle}
       </strong>
     </p>
+
     {tool?.description &&
-      <p>
+      <p style={contentStyle}>
         {tool?.description}
       </p>
     }

@@ -1,16 +1,14 @@
 import { DefaultChatTransport, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
-import { useAppStore, UiAttachment } from "aihappey-state";
-import { useMemo, useEffect, useState, useRef } from "react";
+import { useAppStore } from "aihappey-state";
+import { useMemo, useState, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { useTheme } from "aihappey-components";
-
 import { SimpleActivityDrawer } from "../activity/drawer/SimpleActivityDrawer";
 import { MessageInput } from "../input/MessageInput";
 import { useAttachmentParts } from "../messages/useAttachmentParts";
 import { useChatFileDrop } from "../input/useChatFileDrop";
 import { useOnToolCall } from "../../tools/toolcalls/useOnToolCall";
-import { useResourceParts } from "../messages/useResourceParts";
 import { MessageList } from "../messages/MessageList";
 import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { useChatActions } from "./useChatActions";
@@ -29,6 +27,10 @@ import { conversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
 import { MessageActivityDrawer } from "../activity/drawer/MessageActivityDrawer";
 import { ToolCallResultModal } from "../activity/content/ToolCallResultModal";
+import { useAuthFetch } from "./useAuthFetch";
+import { usePendingMessageAutoSend } from "./usePendingMessageAutoSend";
+import { useAbortRun } from "./useAbortRun";
+import { useApiRef } from "./useApiRef";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -50,34 +52,21 @@ export function VercelChatInner({
 }) {
   const { conversationId } = useParams<{ conversationId: string }>();
   const location = useLocation();
-  const { errors, dismissError, addChatError } = useChatErrors();
-  const [sources, setSources] = useState<any[] | undefined>(
-    undefined
-  );
-  const [messageActivity, setMessageActivity] = useState<any[] | undefined>(
-    undefined
-  );
-  const [showToolCall, setShowToolCall] = useState<any | undefined>(
-    undefined
-  );
-
-  const [messageAttachments, setMessageAttachments] = useState<any[] | undefined>(
-    undefined
-  );
-  const [usedTools, setUsedTool] = useState<any[] | undefined>(
-    undefined
-  );
+  const { addChatError } = useChatErrors();
+  const [sources, setSources] = useState<any[] | undefined>(undefined);
+  const [messageActivity, setMessageActivity] = useState<any[] | undefined>(undefined);
+  const [showToolCall, setShowToolCall] = useState<any | undefined>(undefined);
+  const [messageAttachments, setMessageAttachments] = useState<any[] | undefined>(undefined);
+  const [usedTools, setUsedTool] = useState<any[] | undefined>(undefined);
   const { addMessage, rename, updateMessage, get } = useConversations();
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
   const customHeaders = useAppStore((s) => s.customHeaders);
   const navigate = useNavigate();
-  // const conv = useConversations();
   const debugMode = useAppStore((a) => a.debugMode);
   const chatMode = useAppStore((a) => a.chatMode);
   const callTool = useAppStore((a) => a.callTool);
   const providerMetadata = useActiveProviderMetadata();
   const model = useAppStore((s) => s.selectedModel);
-  const didAutoSendRef = useRef(false);
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer } = useTheme();
   const { config } = useChatContext();
@@ -85,6 +74,7 @@ export function VercelChatInner({
     config.transcriptionApi!,
     config.getAccessToken
   );
+
   const handoffs = useAppStore(a => a.handoffs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
 
@@ -120,84 +110,24 @@ export function VercelChatInner({
 
   const [, , , refreshToken] = useAccessToken(config.agentScopes ?? []);
 
-  // keep latest values in refs (no stale closures)
-  const chatModeRef = useRef(chatMode);
-  useEffect(() => { chatModeRef.current = chatMode; }, [chatMode]);
+  const authFetch = useAuthFetch({
+    chatMode,
+    getAccessToken,
+    refreshToken,
+    headers,
+    customHeaders,
+    customFetch,
+  });
 
-  const getAccessTokenRef = useRef(getAccessToken);
-  useEffect(() => { getAccessTokenRef.current = getAccessToken; }, [getAccessToken]);
-
-  const refreshTokenRef = useRef(refreshToken);
-  useEffect(() => { refreshTokenRef.current = refreshToken; }, [refreshToken]);
-
-  const headersRef = useRef(headers);
-  useEffect(() => { headersRef.current = headers; }, [headers]);
-
-  const customHeadersRef = useRef(customHeaders);
-  useEffect(() => { customHeadersRef.current = customHeaders; }, [customHeaders]);
-
-  const customFetchRef = useRef(customFetch);
-  useEffect(() => { customFetchRef.current = customFetch; }, [customFetch]);
-
-  /* auth-aware fetch that always uses CURRENT chatMode + token callbacks */
-  const authFetch = useMemo(() => {
-    // if literally nothing is provided, skip
-    if (
-      !getAccessTokenRef.current &&
-      !headersRef.current &&
-      !customFetchRef.current &&
-      !customHeadersRef.current &&
-      !refreshTokenRef.current
-    ) return undefined;
-
-    return async (input: RequestInfo | URL, init?: RequestInit) => {
-      const mode = chatModeRef.current;
-
-      // start with base headers
-      const h = new Headers();
-      const base = { ...(headersRef.current ?? {}), ...(customHeadersRef.current ?? {}) };
-      Object.entries(base).forEach(([k, v]) => { if (v != null) h.set(k, String(v)); });
-
-      // merge init headers next (so caller can set stuff)
-      if (init?.headers) {
-        new Headers(init.headers as any).forEach((v, k) => h.set(k, v));
-      }
-
-      // now set Authorization last (so it wins)
-      try {
-        if (mode === "chat" && getAccessTokenRef.current) {
-          const token = await getAccessTokenRef.current();
-          if (token) h.set("Authorization", `Bearer ${token}`);
-        } else if (mode === "agent" && refreshTokenRef.current) {
-          const token = await refreshTokenRef.current();
-          if (token) h.set("Authorization", `Bearer ${token}`);
-        }
-      } catch {
-        // swallow: keep whatever Authorization (if any) was already there
-      }
-
-      const f = customFetchRef.current ?? fetch;
-      return f(input, { ...init, headers: h });
-    };
-  }, []); // <-- stable forever, reads refs at call time
-
-  const startRun = () => {
-    abortRef.current?.abort();         // kill previous run
-    abortRef.current = new AbortController();
-  };
-
-  const api = chatMode == "agent" ? config?.agentEndpoint + "/api/chat"
-    : config?.api || "/api/chat";
-
-  const abortRef = useRef<AbortController | null>(null);
   const toolUse = useOnToolCall({
     callTool,
   });
 
-  const apiRef = useRef(api);
-  useEffect(() => {
-    apiRef.current = api;
-  }, [api]);
+  const api = chatMode === "agent"
+    ? config?.agentEndpoint + "/api/chat"
+    : config?.api || "/api/chat";
+
+  const apiRef = useApiRef(api);
 
   const transport = useMemo(
     () =>
@@ -266,10 +196,7 @@ export function VercelChatInner({
     },
   });
 
-  const cancelRun = async () => {
-    abortRef?.current?.abort()
-    await stop();
-  }
+  const { abortRef, startRun, cancelRun } = useAbortRun(stop);
 
   const getAttachmentParts = useAttachmentParts();
   const { tools } = useTools();
@@ -294,61 +221,31 @@ export function VercelChatInner({
     return undefined;
   }, [messages]);
 
-  useEffect(() => {
-    const pending = location.state?.pendingMessage;
-    if (!pending) return;
-    if (!conversationId) return;
-
-    // IMPORTANT: React StrictMode runs effects twice in dev
-    if (didAutoSendRef.current) return;
-    didAutoSendRef.current = true;
-
-    const handleData = async () => {
-      //if (pending && messages.length === 1) {
-      await addMessage(conversationId!, pending);
-      startRun()
-      await sendMessage(pending, {
-        body: {
-          model: model ?? "openai/gpt-5.2",
-          tools,
-          agents: location.state.agents,
-          workflowType: location.state.workflowType,
-          providerMetadata,
-          response_format: location.state.responseFormat,
-          workflowMetadata: {
-            groupchat: {
-              maximumIterationCount
-            },
-            handoff: {
-              handoffs
-            },
-          },
-          temperature: location.state?.temperature ?? temperature
-           // location.state?.temperature != undefined
-           //   ? location.state?.temperature
-           //   : temperature,
-        },
-      });
-      // router state wissen
-      await navigate(`/${conversationId}`, { replace: true, state: {} });
-
-      const name = await conversationName(
-        pending?.parts
-          .filter((a: any) => a.type == "text")
-          .map((z: any) => z.text)
-          .join("\n\n"),
-      )
-      if (name) {
-        document.title = name;
-        rename(conversationId!, name)
-      }
-    }
-    handleData()
-
-
-    //  }
-  }, [conversationId, location.state, messages, addMessage, rename, tools, providerMetadata,
-    sendMessage, model, conversationId, navigate]);
+  usePendingMessageAutoSend({
+    conversationId,
+    locationState: location.state,
+    messages,
+    addMessage,
+    sendMessage,
+    startRun,
+    navigate,
+    rename,
+    getConversation: get,
+    conversationName,
+    body: {
+      model: model ?? "openai/gpt-5.2",
+      tools,
+      agents: location.state?.agents,
+      workflowType: location.state?.workflowType,
+      providerMetadata,
+      response_format: location.state?.responseFormat,
+      workflowMetadata: {
+        groupchat: { maximumIterationCount },
+        handoff: { handoffs },
+      },
+      temperature: location.state?.temperature ?? temperature,
+    },
+  });
 
   const { onPromptExecute, handleSend } = useChatActions({
     getAttachmentParts,
@@ -362,7 +259,6 @@ export function VercelChatInner({
   });
 
   const toolName = lastPart ? tools.find(a => a.name == lastPart?.type.replace("tool-", ""))?.annotations?.title : undefined;
-
 
   /* very bare‑bones UI */
   return (
@@ -391,6 +287,7 @@ export function VercelChatInner({
         onDragOver={handleDragOver}
       >
         <ChatErrors />
+
         {debugMode ? <JsonViewer value={JSON.stringify(messages)} />
           : <MessageList
             messages={messages}

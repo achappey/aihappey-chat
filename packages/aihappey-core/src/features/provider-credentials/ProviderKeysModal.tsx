@@ -1,16 +1,25 @@
-import React, { useMemo } from "react";
-import { useTheme } from "aihappey-components";
+import React, { useCallback, useMemo } from "react";
+import { ProviderKeysForm, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 
-export interface ProviderKeysModalProps {
-  open: boolean;
-  onClose: () => void;
+function downloadJson(filename: string, data: unknown) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
 
-// Keep behavior identical: same 10 headers as before (no Pollinations here).
+
 const API_KEY_PROVIDER_IDS = [
   "openai",
   "mistral",
@@ -26,18 +35,22 @@ const API_KEY_PROVIDER_IDS = [
 
 type ApiKeyProviderId = (typeof API_KEY_PROVIDER_IDS)[number];
 
-function headerFor(id: ApiKeyProviderId): string {
-  // matches your existing header names exactly, e.g. X-xAI-Key
+function headerFor(id: ApiKeyProviderId) {
   return `X-${PROVIDERS[id].name}-Key`;
 }
 
 function pickIconSrc(
   icons: readonly { src: string; theme?: "light" | "dark" }[] | undefined,
-  isDarkMode: boolean
+  isDark: boolean
 ) {
   if (!icons?.length) return undefined;
-  const desired = isDarkMode ? "dark" : "light";
-  return icons.find((i) => i.theme === desired)?.src ?? icons[0].src;
+  const wanted = isDark ? "dark" : "light";
+  return icons.find((i) => i.theme === wanted)?.src ?? icons[0].src;
+}
+
+export interface ProviderKeysModalProps {
+  open: boolean;
+  onClose: () => void;
 }
 
 export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
@@ -52,13 +65,53 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   const addCustomHeader = useAppStore((s) => s.addCustomHeader);
   const removeCustomHeader = useAppStore((s) => s.removeCustomHeader);
 
-  const providers = useMemo(() => {
-    return API_KEY_PROVIDER_IDS.map((id) => ({
-      id,
-      provider: PROVIDERS[id],
-      header: headerFor(id),
-    })).sort((a, b) => a.provider.name.localeCompare(b.provider.name));
-  }, []);
+  const handleDrop = useCallback(
+    async (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const files = e.dataTransfer.files;
+      if (!files || files.length === 0) return;
+
+      for (const file of Array.from(files)) {
+        if (!file.name.toLowerCase().endsWith(".json")) continue;
+
+        try {
+          const text = await file.text();
+          const json = JSON.parse(text);
+
+          // Expecting: { "X-OpenAI-Key": "...", ... }
+          if (typeof json !== "object" || json === null) continue;
+
+          Object.entries(json).forEach(([header, value]) => {
+            if (typeof value === "string") {
+              addCustomHeader(header, value);
+            }
+          });
+        } catch (err) {
+          console.error("Failed to import API keys:", err);
+        }
+      }
+    },
+    [addCustomHeader]
+  );
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const items = useMemo(() => {
+    return API_KEY_PROVIDER_IDS.map((id) => {
+      const provider = PROVIDERS[id];
+      return {
+        id,
+        name: provider.name,
+        header: headerFor(id),
+        iconSrc: pickIconSrc(provider.icons, isDarkMode),
+      };
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }, [isDarkMode]);
 
   return (
     <theme.Modal
@@ -66,52 +119,36 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
       onHide={onClose}
       title={t("apiKeys")}
       actions={
-        <theme.Button variant="secondary" onClick={onClose}>
-          {t("close")}
-        </theme.Button>
+        <>
+          <theme.Button
+            variant="informative"
+            icon="download"
+            onClick={() =>
+              downloadJson("provider_config.json", customHeaders ?? {})
+            }
+          />
+
+          <theme.Button variant="secondary" onClick={onClose}>
+            {t("close")}
+          </theme.Button>
+        </>
       }
+
     >
-      <theme.Card size="small" title={t("providers")}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {providers.map(({ header, provider }) => {
-            const current = customHeaders?.[header] ?? "";
-            const iconSrc = pickIconSrc(provider.icons, isDarkMode);
-
-            return (
-              <div
-                key={header}
-                style={{
-                  display: "flex",
-                  gap: "0.5rem",
-                  width: "100%",
-                  alignItems: "center",
-                }}
-              >
-                {iconSrc ? <theme.Image width={24} src={iconSrc} /> : null}
-
-                <div style={{ width: "120px", fontWeight: 600 }}>
-                  {provider.name}
-                </div>
-
-                <theme.Input
-                  value={current}
-                  style={{ flexGrow: 1 }}
-                  placeholder={`${provider.name} ${t("apiKey")}...`}
-                  onChange={(e: any) => addCustomHeader(header, e.target.value)}
-                />
-
-                <theme.Button
-                  icon="delete"
-                  disabled={!current}
-                  variant="danger"
-                  size="small"
-                  onClick={() => removeCustomHeader(header)}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </theme.Card>
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        style={{ width: "100%" }}
+      >
+        <ProviderKeysForm
+          title={t("providers")}
+          apiKeyLabel={t("apiKey")}
+          items={items}
+          values={customHeaders ?? {}}
+          onChange={addCustomHeader}
+          onRemove={removeCustomHeader}
+        />
+      </div>
     </theme.Modal>
   );
 };

@@ -23,6 +23,7 @@ export const withPersist = (
       debugMode: s.debugMode,
       structuredOutputs: s.structuredOutputs,
       quickSearches: s.quickSearches,
+      userPreferredModel: s.userPreferredModel,
       enableAgentImport: s.enableAgentImport,
       enableConversationImport: s.enableConversationImport,
       extractExif: s.extractExif,

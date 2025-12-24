@@ -1,6 +1,6 @@
 # aihappey-chat
 
-[![aihappey-chat](https://achappey.github.io/aihappey-chat/images/screenshot1.png)](https://chat.aihappey.com)
+[![aihappey-chat](https://achappey.github.io/aihappey-chat/images/screenshot_chat.png)](https://chat.aihappey.com)
 
  A modular, client-side AI chat [app](https://chat.aihappey.com) featuring rich content support and integration with the Model Context Protocol (MCP).
 
