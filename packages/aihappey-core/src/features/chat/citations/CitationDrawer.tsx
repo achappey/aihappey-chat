@@ -5,6 +5,7 @@ import { CitationCard } from "./CitationCard";
 import { useTranslation } from "aihappey-i18n";
 import { useMediaQuery } from "usehooks-ts";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
+import { SourceDocumentUIPart, SourceUrlUIPart } from "aihappey-ai";
 
 interface Source {
   title?: string;
@@ -13,7 +14,7 @@ interface Source {
 
 interface CitationDrawerProps {
   open: boolean;
-  sources: Source[];
+  sources: (SourceUrlUIPart)[];
   onClose: () => void;
 }
 
@@ -89,7 +90,7 @@ export const CitationDrawer = ({
       title={t('sources')}>
       <Tabs activeKey={activeTab}
         onSelect={setActiveTab}>
-        <Tab eventKey="all" title={`All (${unique.length})`}>
+        <Tab eventKey="all" title={t('all') + ` (${unique.length})`}>
           {renderList("all", unique)}
         </Tab>
         {Array.from(hostBuckets, ([host, list]) => (

@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { AiSettingsForm } from "aihappey-components";
+import { AiChatSettingsForm } from "aihappey-components";
 
 export default {
-  title: "Forms/AiSettingsForm",
-  component: AiSettingsForm,
+  title: "Forms/AiChatSettingsForm",
+  component: AiChatSettingsForm,
 };
 
 const Wrapper = (props) => {
   const [value, setValue] = useState(props.value || { temperature: 0.7 });
-  return React.createElement(AiSettingsForm, {
+  return React.createElement(AiChatSettingsForm, {
     ...props,
     value: value,
     onChange: setValue,

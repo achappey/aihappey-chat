@@ -1,4 +1,4 @@
-import { DefaultChatTransport, useChat } from "aihappey-ai";
+import { DefaultChatTransport, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
 import { useMemo, useState, useRef } from "react";
@@ -53,7 +53,7 @@ export function VercelChatInner({
   const { conversationId } = useParams<{ conversationId: string }>();
   const location = useLocation();
   const { addChatError } = useChatErrors();
-  const [sources, setSources] = useState<any[] | undefined>(undefined);
+  const [sources, setSources] = useState<(SourceUrlUIPart)[] | undefined>(undefined);
   const [messageActivity, setMessageActivity] = useState<any[] | undefined>(undefined);
   const [showToolCall, setShowToolCall] = useState<any | undefined>(undefined);
   const [messageAttachments, setMessageAttachments] = useState<any[] | undefined>(undefined);
@@ -294,13 +294,6 @@ export function VercelChatInner({
             sendMessage={async (msg: any) => {
               startRun()
               await handleSend(msg.prompt)
-              const conv11 = await get(conversationId!);
-              console.log("AFTER WRITE", conv11?.messages.map(m => ({
-                role: m.role,
-                id: m.id,
-                ts: m.metadata?.timestamp,
-                createdAt: (m as any).createdAt
-              })));
             }}
             showAttachments={setMessageAttachments}
             showCitations={setSources}

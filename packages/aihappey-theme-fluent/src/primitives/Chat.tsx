@@ -11,11 +11,12 @@ import { format } from "timeago.js";
 
 export type ChatProps = {
   messages?: Message[];
+  locale?: string
   renderMessage: (msg: Message) => React.ReactElement;
   renderReactions?: (msg: Message) => React.ReactElement;
 };
 
-export const Chat = ({ messages, renderMessage, renderReactions }: ChatProps): JSX.Element => {
+export const Chat = ({ messages, renderMessage, renderReactions, locale }: ChatProps): JSX.Element => {
   return (
     <FluentChat>
       {messages?.map((msg) => {
@@ -35,7 +36,7 @@ export const Chat = ({ messages, renderMessage, renderReactions }: ChatProps): J
           <MessageComponent
             key={msg.id}
             author={msg.author}
-            timestamp={format(msg.createdAt)}
+            timestamp={format(msg.createdAt, locale)}
             reactions={reactionBlock}
             decorationIcon={icon}
             decorationLabel={msg.messageLabel}

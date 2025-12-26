@@ -38,7 +38,7 @@ export const MessageList = ({
   messages,
   sendMessage,
 }: MessageListProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
   const sampling = useAppStore((a) => a.sampling);
   const tools = useTools()
@@ -166,10 +166,11 @@ export const MessageList = ({
     <MessageListComponent
       messages={merged}
       onCopyMessage={copyClipboard}
+      locale={i18n.language}
       translations={translations}
       tools={tools?.tools ?? []}
       onShowActivity={showActivity}
-      onShowSources={(i) => console.log(i)}
+      onShowSources={showCitations}
       onShowAttachments={showAttachments}
       onRenderMarkdown={(text) => <Markdown text={text} />}
       renderBlock={({ block }: any) => {

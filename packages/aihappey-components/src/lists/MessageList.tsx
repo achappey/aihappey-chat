@@ -17,6 +17,7 @@ interface MessageListProps {
   tools?: Tool[]
   translations?: any;
   size?: string;
+  locale?: string
 
   /**
    * Optional hook to override rendering for a specific block.
@@ -44,6 +45,7 @@ export const MessageList = ({
   onCopyMessage,
   tools,
   translations,
+  locale,
   onRenderMarkdown,
   onShowSources,
   onShowActivity,
@@ -187,6 +189,7 @@ export const MessageList = ({
           renderReactions={renderActions}
           renderMessage={onRenderMessage}
           messages={messagesWithMeta}
+          locale={locale}
         />
       )}
     </div>

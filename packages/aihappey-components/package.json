@@ -10,7 +10,8 @@
   "dependencies": {
     "aihappey-types": "*",
     "react-chartjs-2": "^5.3.0",
-    "usehooks-ts": "^3.1.1"
+    "usehooks-ts": "^3.1.1",
+    "timeago.js": "^4.0.2"
   },
   "scripts": {
     "build": "tsc",

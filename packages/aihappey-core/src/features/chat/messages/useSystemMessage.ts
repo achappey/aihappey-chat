@@ -29,25 +29,27 @@ export function useSystemMessage() {
   );
 
   const systemMsg = useMemo(() => {
+    const userContext = account
+      ? {
+        username: account.username,
+        name: account.name,
+        id: account.localAccountId,
+        tenantId: account.tenantId,
+        preferredLanguage: i18n.language,
+        darkMode: isDarkMode,
+      }
+      : {
+        preferredLanguage: i18n.language,
+        darkMode: isDarkMode,
+      };
+
     return buildSystemMessage(
       mcpServerContent,
-      //   clients,
       records,
-      //  resources,
-      //    resourceTemplates,
       systemInstructions,
       accountLocation,
       config.appName,
-      account
-        ? {
-          username: account?.username,
-          name: account?.name,
-          id: account?.localAccountId,
-          tenantId: account?.tenantId,
-          preferredLanguage: i18n.language,
-          darkMode: isDarkMode
-        }
-        : undefined
+      userContext
     );
   }, [
     mcpServerContent,

@@ -19,8 +19,10 @@ import frProviders from './locales/fr/providers.json';
 
 import ptCommon from './locales/pt/pt.json';
 import ptProviders from './locales/pt/providers.json';
+import { registerTimeagoLocales } from './timeago';
 
 export const initI18n = () => {
+  registerTimeagoLocales();
   if (i18n.isInitialized) return i18n;
 
   i18n

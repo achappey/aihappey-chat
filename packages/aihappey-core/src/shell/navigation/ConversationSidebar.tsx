@@ -8,6 +8,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useIsDesktop } from "../responsive/useIsDesktop";
+import { ConversationSearchModal } from "../../features/conversation-search";
 
 export const ConversationSidebar = () => {
   const selectConversation = useAppStore((s) => s.selectConversation);
@@ -24,6 +25,8 @@ export const ConversationSidebar = () => {
   const isDesktop = useIsDesktop();
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
   const { conversationId } = useParams<{ conversationId?: string }>();
+
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const handleCreate = async () => {
     // Reset current selection *before* navigating so ChatPage starts blank
@@ -48,6 +51,12 @@ export const ConversationSidebar = () => {
       href: "/",
       icon: "add",
       onClick: handleCreate,
+    },
+    {
+      key: "search-conversations",
+      label: t("conversationSearch"),
+      icon: "search",
+      onClick: () => setSearchOpen(true),
     },
     {
       key: "library",
@@ -104,7 +113,7 @@ export const ConversationSidebar = () => {
 
   if (conversations.items.length > 0) {
     staticNavItems.push({ key: "divider", label: "" });
-    staticNavItems.push({ key: "section:chats", label: t("chats") });
+    staticNavItems.push({ key: "section:chats", label: t("yourChats") });
   }
 
   const handleExport = async (id: string) => {
@@ -240,6 +249,14 @@ export const ConversationSidebar = () => {
         borderColor: isOver ? "#888" : "transparent",
       }}
       onDragOver={handleDragOver}>
+      <ConversationSearchModal
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelectConversation={async (id) => {
+          await navigate(`/${id}`);
+          setSearchOpen(false);
+        }}
+      />
       <Navigation
         items={navItems}
         translations={translations}

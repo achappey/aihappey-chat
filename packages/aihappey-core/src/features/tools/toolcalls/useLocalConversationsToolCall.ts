@@ -38,6 +38,83 @@ function extractTextParts(msg: UIMessage): string[] {
   return textsFromParts.length ? textsFromParts : [];
 }
 
+export type LocalConversationTextSearchHit = {
+  conversationId: string;
+  messageId: string | null;
+  messageIndex: number;
+  role: string;
+  partIndex: number;
+  matchIndex: number;
+  snippet: string;
+};
+
+export type LocalConversationTextSearchResult = {
+  query: string;
+  total: number;
+  limit: number;
+  results: LocalConversationTextSearchHit[];
+};
+
+/**
+ * Shared implementation for local conversation text search.
+ *
+ * Kept in this file to ensure the UI and the tool have identical behavior.
+ */
+export async function searchLocalConversationsText(
+  conversations: ConversationsContextType,
+  query: string,
+  limit = 20
+): Promise<LocalConversationTextSearchResult> {
+  const q = (query ?? "").trim();
+  if (!q) throw new Error("Missing query.");
+
+  const cappedLimit = Math.max(1, Math.min(50, Number(limit ?? 20)));
+
+  const results: LocalConversationTextSearchHit[] = [];
+  const conversationItems = await conversations.list();
+
+  for (const convo of conversationItems) {
+    const messages = convo?.messages ?? [];
+
+    for (let messageIndex = 0; messageIndex < messages.length; messageIndex++) {
+      const msg = messages[messageIndex];
+      const role = msg?.role ?? msg?.metadata?.author ?? "unknown";
+      const msgId = msg?.id ?? msg?.id ?? null;
+
+      const textParts = extractTextParts(msg as any);
+      for (let partIndex = 0; partIndex < textParts.length; partIndex++) {
+        const text = textParts[partIndex];
+        const hay = text.toLowerCase();
+        const idx = hay.indexOf(q.toLowerCase());
+        if (idx === -1) continue;
+
+        results.push({
+          conversationId: convo.id,
+          messageId: msgId,
+          messageIndex,
+          role,
+          partIndex,
+          matchIndex: idx,
+          snippet: text,
+        });
+
+        if (results.length >= cappedLimit) break;
+      }
+
+      if (results.length >= cappedLimit) break;
+    }
+
+    if (results.length >= cappedLimit) break;
+  }
+
+  return {
+    query: q,
+    total: results.length,
+    limit: cappedLimit,
+    results,
+  };
+}
+
 export function useLocalConversationsToolCall(conversations?: ConversationsContextType | null) {
   const handleLocalConversationsToolCall = useCallback(
     async (toolCall: LocalConversationsToolCall): Promise<ToolTextResult> => {
@@ -67,52 +144,14 @@ export function useLocalConversationsToolCall(conversations?: ConversationsConte
 
           case "local_conversations_search_text": {
             const { query } = toolCall.input ?? {};
-            if (!query.trim()) throw new Error("Missing query.");
-            const limit = Math.max(1, Math.min(50, Number(toolCall.input?.limit ?? 20)));
 
-            const results: any[] = [];
-            const conversationItems = await conversations.list()
-            for (const convo of conversationItems) {
-              const messages = convo?.messages;
-              for (let messageIndex = 0; messageIndex < messages.length; messageIndex++) {
-                const msg = messages[messageIndex];
-                const role = msg?.role ?? msg?.metadata?.author ?? "unknown";
-                const msgId = msg?.id ?? msg?.id ?? null;
-
-                const textParts = extractTextParts(msg);
-                for (let partIndex = 0; partIndex < textParts.length; partIndex++) {
-                  const text = textParts[partIndex];
-                  const hay = text.toLowerCase();
-                  const idx = hay.indexOf(query.toLowerCase());
-                  if (idx === -1) continue;
-
-                  results.push({
-                    conversationId: convo.id,
-                    messageId: msgId,
-                    messageIndex,
-                    role,
-                    partIndex,
-                    matchIndex: idx,
-                    snippet: text,
-                  });
-                  if (results.length >= limit) break;
-
-                }
-
-                if (results.length >= limit) break;
-              }
-
-              if (results.length >= limit) break;
-            }
-
-            return ok(
-              JSON.stringify({
-                query,
-                total: results.length,
-                limit,
-                results,
-              })
+            const payload = await searchLocalConversationsText(
+              conversations,
+              query,
+              toolCall.input?.limit
             );
+
+            return ok(JSON.stringify(payload));
           }
 
 

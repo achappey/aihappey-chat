@@ -7,6 +7,7 @@ import { format } from "timeago.js";
 
 export type ChatProps = {
   messages?: ChatMessage[];
+  locale?: string
   renderMessage: (msg: ChatMessage) => React.ReactElement;
   renderReactions?: (msg: ChatMessage) => React.ReactElement;
 };
@@ -14,6 +15,7 @@ export type ChatProps = {
 export const Chat = ({
   messages,
   renderMessage,
+  locale,
   renderReactions,
 }: ChatProps): JSX.Element => {
   const { isDarkMode } = useDarkMode();
@@ -30,7 +32,7 @@ export const Chat = ({
           ? "light"
           : (isDarkMode ? "light" : "dark")
         // Date formatting
-        const dateStr = format(m.createdAt)
+        const dateStr = format(m.createdAt, locale)
 
         return (
           <Card

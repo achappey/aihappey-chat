@@ -15,19 +15,13 @@ export function getSystemMessagePartLabel(chatAppName: string, t: any,
     }
 
     if (parsed && typeof parsed === "object") {
-
         if (parsed.modelContextProtocolServer) {
             return parsed.modelContextProtocolServer?.name;
-            /*
-            const pathname = new URL(parsed.modelContextProtocolServer.mcpServerUrl).pathname;
-            const lastSegment = pathname.split("/").filter(Boolean).pop();
-
-            return `${lastSegment}`*/
         };
 
         if (parsed.chatBotInstructions) return chatAppName;
         if (parsed.systemInformation) return t('systemContext');
-        if (parsed.username || parsed.name || parsed.id) return parsed.name;
+        if (parsed.username || parsed.name || parsed.id || parsed.preferredLanguage) return parsed.name ?? "User";
     }
 
     return `Part ${index + 1}`;
