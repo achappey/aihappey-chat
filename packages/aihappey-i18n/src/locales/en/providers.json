@@ -15,6 +15,12 @@
     "returnVideos": "Return videos",
     "returnRelatedQuestions": "Return related quesions"
   },
+  "pollinations": {
+    "enhance": "Enhance",
+    "enhanceHint": "Let AI improve your prompt for better results",
+    "private": "Private",
+    "privateHint": "Hide the image from public feeds"
+  },
   "mistral": {
     "webSearchPremium": "Premium"
   },
@@ -76,5 +82,15 @@
     "goodDomains": "Boosted domains",
     "badDomains": "Bad domains",
     "onlyDomains": "Restrict search to these domains"
+  },
+  "together": {
+    "guidanceScale": "Guidance scale",
+    "steps": "Steps",
+    "negativePrompt": "Negative prompt",
+    "disableSafetyChecker": "Disable safety checker"
+  },
+  "runway": {
+    "contentModeration": "Content moderation",
+    "publicFigureThreshold": "Public figure threshold"
   }
 }

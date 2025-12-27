@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AiChatSettingsForm } from "aihappey-components";
 
 export default {
-  title: "Forms/AiChatSettingsForm",
+  title: "Forms/Chat/AiChatSettingsForm",
   component: AiChatSettingsForm,
 };
 

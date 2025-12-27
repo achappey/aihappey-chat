@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FileTags } from "aihappey-components";
 
 export default {
-  title: "Forms/FileTags",
+  title: "Forms/Chat/FileTags",
   component: FileTags,
 };
 
@@ -56,4 +56,3 @@ export const Medium = () =>
       new File(["world"], "notes.md"),
     ],
   });
-

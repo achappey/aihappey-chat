@@ -13,7 +13,15 @@ export const PROVIDERS: Record<string, any> = {
         ],
         url: "https://openai.com"
     },
-
+    runway: {
+        name: "Runway",
+        icons: [
+            {
+                src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQE01cLcJx7cJONWLVmk5tRBhGB0LIJ8SqSQ&s"
+            }
+        ],
+        url: "https://runwayml.com"
+    },
     anthropic: {
         name: "Anthropic",
         icons: [

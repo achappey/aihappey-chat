@@ -76,5 +76,15 @@
     "goodDomains": "Dominios potenciados",
     "badDomains": "Dominios negativos",
     "onlyDomains": "Restringir búsqueda a estos dominios"
+  },
+  "together": {
+    "guidanceScale": "Escala de guía",
+    "steps": "Pasos",
+    "negativePrompt": "Prompt negativo",
+    "disableSafetyChecker": "Desactivar comprobación de seguridad"
+  },
+   "runway": {
+    "contentModeration": "Moderación de contenido",
+    "publicFigureThreshold": "Umbral de figuras públicas"
   }
 }

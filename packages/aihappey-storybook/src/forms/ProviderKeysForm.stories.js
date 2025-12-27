@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ProviderKeysForm } from "aihappey-components";
 
 export default {
-  title: "Forms/ProviderKeysForm",
+  title: "Forms/Providers/ProviderKeysForm",
   component: ProviderKeysForm,
 };
 
@@ -79,4 +79,3 @@ export const ManyProviders = () =>
       "X-Local-Key": "",
     },
   });
-

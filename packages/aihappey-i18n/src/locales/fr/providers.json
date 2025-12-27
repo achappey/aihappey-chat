@@ -76,5 +76,15 @@
     "goodDomains": "Domaines favorisés",
     "badDomains": "Domaines indésirables",
     "onlyDomains": "Restreindre la recherche à ces domaines"
+  },
+  "together": {
+    "guidanceScale": "Facteur de guidage",
+    "steps": "Étapes",
+    "negativePrompt": "Invite négative",
+    "disableSafetyChecker": "Désactiver le contrôle de sécurité"
+  },
+  "runway": {
+    "contentModeration": "Modération du contenu",
+    "publicFigureThreshold": "Seuil des personnalités publiques"
   }
 }

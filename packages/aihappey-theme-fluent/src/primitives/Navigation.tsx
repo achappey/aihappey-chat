@@ -29,6 +29,7 @@ import {
   NavSectionHeader,
   Tooltip,
   MenuDivider,
+  Badge,
 } from "@fluentui/react-components";
 import { makeStyles } from "@fluentui/react-components";
 import { IconToken, NavigationProps } from "aihappey-types";
@@ -244,7 +245,13 @@ export const Navigation: React.FC<NavigationProps> = ({
                         }}
                       >
                         {item.label}
+                        {item.new && <>{" "}<Badge
+                          color="informative"
+                          appearance={"outline"}>
+                          {translations?.new ?? "new"}
+                        </Badge></>}
                       </span>
+
                     </Tooltip>
                     {item.conversationItem && (
                       <Menu>

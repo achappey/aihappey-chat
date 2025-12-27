@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ModelContextClientSettingsForm } from "aihappey-components";
 
 export default {
-  title: "Forms/ModelContextClientSettingsForm",
+  title: "Forms/Model Context/ModelContextClientSettingsForm",
   component: ModelContextClientSettingsForm,
 };
 
@@ -135,4 +135,3 @@ export const AllLogLevels = () => {
     )
   );
 };
-

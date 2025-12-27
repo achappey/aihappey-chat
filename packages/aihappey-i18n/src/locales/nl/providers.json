@@ -5,6 +5,12 @@
   "mistral": {
     "webSearchPremium": "Premium"
   },
+  "pollinations": {
+    "enhance": "Verbeteren",
+    "enhanceHint": "Laat AI je prompt verbeteren voor betere resultaten",
+    "private": "Privé",
+    "privateHint": "Verberg de afbeelding in openbare feeds"
+  },
   "perplexity": {
     "academic": "Academisch",
     "web": "Web",
@@ -76,5 +82,15 @@
     "customSkills": "Aangepaste vaardigheden",
     "allowedDomains": "Toegestane domeinen",
     "blockedDomains": "Geblokkeerde domeinen"
+  },
+  "together": {
+    "guidanceScale": "Sturingsfactor",
+    "steps": "Stappen",
+    "negativePrompt": "Negatieve prompt",
+    "disableSafetyChecker": "Veiligheidscontrole uitschakelen"
+  },
+  "runway": {
+    "contentModeration": "Moderatie",
+    "publicFigureThreshold": "Drempel voor publieke figuren"
   }
 }

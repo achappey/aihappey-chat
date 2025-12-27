@@ -1,36 +1,42 @@
-import {
-  Skeleton as FluentSkeleton,
-  SkeletonItem,
-} from "@fluentui/react-components";
+import { Skeleton as FluentSkeleton, SkeletonItem } from "@fluentui/react-components";
 
 type SkeletonProps = {
   width?: number | string;
   height?: number | string;
   animation?: "pulse" | "wave";
   className?: string;
-   style?: React.CSSProperties;
+  style?: React.CSSProperties;
 };
 
-/**
- * Themed Skeleton placeholder for Fluent UI.
- * Uses Fluent's Skeleton component.
- */
+const cssSize = (v?: number | string) => (typeof v === "number" ? `${v}px` : v);
+
 export const Skeleton = ({
   width,
   height,
   animation = "pulse",
   className,
   style,
-}: SkeletonProps) => (
-  <FluentSkeleton
-    animation={animation}
-    style={{
-      width,
-      maxWidth: "100%",
-      ...style
-    }}
-    className={className}
-  >
-    <SkeletonItem size={height as any} />
-  </FluentSkeleton>
-);
+}: SkeletonProps) => {
+  const w = cssSize(width);
+  const h = cssSize(height);
+
+  return (
+    <FluentSkeleton
+      animation={animation}
+      className={className}
+      style={{
+        width: w,
+        height: h, // <- important if parent doesn't constrain height
+        maxWidth: "100%",
+        ...style,
+      }}
+    >
+      <SkeletonItem
+        style={{
+          width: "100%",
+          height: h ?? "100%",
+        }}
+      />
+    </FluentSkeleton>
+  );
+};

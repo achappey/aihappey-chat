@@ -28,6 +28,7 @@ const API_KEY_PROVIDER_IDS = [
   "perplexity",
   "cohere",
   "jina",
+  "runway",
   "xai",
   "groq",
   "together",

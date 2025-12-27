@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ResourceTags } from "aihappey-components";
 
 export default {
-    title: "Forms/ResourceTags",
+    title: "Forms/Model Context/ResourceTags",
     component: ResourceTags,
 };
 

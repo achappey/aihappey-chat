@@ -9,6 +9,7 @@ export interface NavigationItem {
   icon?: IconToken;
   href?: string;
   disabled?: boolean;
+  new?: boolean;
   conversationItem?: boolean;
   onClick?: any;
   eventKey?: string;

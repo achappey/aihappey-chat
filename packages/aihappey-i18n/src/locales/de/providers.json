@@ -76,5 +76,15 @@
     "goodDomains": "Bevorzugte Domains",
     "badDomains": "Unerwünschte Domains",
     "onlyDomains": "Suche auf diese Domains beschränken"
+  },
+  "together": {
+    "guidanceScale": "Leitfaktor",
+    "steps": "Schritte",
+    "negativePrompt": "Negativer Prompt",
+    "disableSafetyChecker": "Sicherheitsprüfung deaktivieren"
+  },
+  "runway": {
+    "contentModeration": "Inhaltsmoderation",
+    "publicFigureThreshold": "Schwellenwert für öffentliche Personen"
   }
 }

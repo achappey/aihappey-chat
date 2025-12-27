@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ProviderSettingsForm } from "aihappey-components";
 
 export default {
-  title: "Forms/ProviderSettingsForm",
+  title: "Forms/Providers/ProviderSettingsForm",
   component: ProviderSettingsForm,
 };
 

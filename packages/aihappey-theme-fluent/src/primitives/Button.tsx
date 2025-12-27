@@ -67,6 +67,8 @@ import {
   ChevronRightRegular,
   ChevronLeftRegular,
   CloudLinkRegular,
+  ImageSparkleRegular,
+  ImageRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -125,6 +127,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   dismiss: DismissRegular,
   agentSettings: SettingsChatRegular,
   eye: EyeRegular,
+  image: ImageRegular,
   databaseGear: DatabasePersonRegular,
   personalization: PersonHeartRegular,
   customize: PeopleSettingsRegular,

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { UserGeneralSettings } from "aihappey-components";
 
 export default {
-  title: "Forms/UserGeneralSettings",
+  title: "Forms/Settings/User/UserGeneralSettings",
   component: UserGeneralSettings,
 };
 

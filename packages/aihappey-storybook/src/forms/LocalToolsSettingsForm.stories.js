@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { LocalToolsSettingsForm } from "aihappey-components";
 
 export default {
-  title: "Forms/LocalToolsSettingsForm",
+  title: "Forms/Settings/Tools/LocalToolsSettingsForm",
   component: LocalToolsSettingsForm,
 };
 

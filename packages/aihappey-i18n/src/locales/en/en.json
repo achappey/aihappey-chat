@@ -4,7 +4,8 @@
   "toggleSidebar": "Sidebar",
   "welcome": "How can I help?",
   "chats": "Chats",
-  "yourChats": "Your chats",
+  "imagePromptPlaceholder": "Describe a new image",
+  "myImages": "My images",
   "context": "Context",
   "table": "Table",
   "language": "Language",
@@ -52,7 +53,23 @@
   "size": "Size",
   "image_generation": "Image generation",
   "transparent": "Transparent",
+  "moderation": "Moderation",
   "opaque": "Opaque",
+  "ratio": "Ratio",
+  "imageSettings": {
+    "size": "Image size",
+    "title": "Image settings",
+    "aspectRatio": "Aspect ratio",
+    "maxImagesPerCall": "Maximum images per call",
+    "width": "Width",
+    "height": "Height",
+    "other": "Other",
+    "output": "Output",
+    "n": "Number of images",
+    "seed": "Seed"
+  },
+  "providerDefault": "Provider default",
+  "custom": "Custom",
   "mimeTypes": {
     "text/plain": "Text",
     "image/png": "Image (Portable Network Graphic)",
@@ -150,6 +167,7 @@
   "data": "Data",
   "timezone": "Timezone",
   "auto": "Auto",
+  "new": "New",
   "general": "General",
   "reasoning": "Reasoning",
   "reasoningEffort": "Effort",
@@ -240,9 +258,6 @@
     "resetTimeoutOnProgress": "Reset timeout on progress",
     "toolTimeout": "Tool timeout ({{minutes}} minutes)",
     "description": "Model Context Protocol gives you one structured way to work with prompts, resources and tools, no matter where the information comes from. You always work clearly, transparently and in the same way."
-  },
-  "library": {
-    "title": "Library"
   },
   "settingsModal": {
     "title": "Settings",

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ModelContextExtensionsSettingsForm } from "aihappey-components";
 
 export default {
-  title: "Forms/ModelContextExtensionsSettingsForm",
+  title: "Forms/Model Context/ModelContextExtensionsSettingsForm",
   component: ModelContextExtensionsSettingsForm,
 };
 
@@ -85,4 +85,3 @@ export const Interactive = () =>
       enableConversationImport: false,
     },
   });
-

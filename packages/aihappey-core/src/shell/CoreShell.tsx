@@ -15,6 +15,7 @@ import { ChatConfig, ChatProvider } from "../features/chat/context/ChatProvider"
 import { useIsDesktop } from "./responsive/useIsDesktop";
 import { useDefaultModel } from "./bootstrap/useDefaultModel";
 import { useDefaultProviders } from "./bootstrap/useDefaultProviders";
+import { ImagesProvider } from "aihappey-images";
 
 type Props = {
   chatConfig?: ChatConfig;
@@ -35,7 +36,6 @@ export const CoreShell: React.FC<Props> = ({
   const [, token, error, refresh] = useAccessToken(conversationScopes ?? []);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
-  const setSelectedModel = useAppStore((s) => s.setSelectedModel);
   const setAgents = useAppStore((s) => s.setAgents);
   const agents = useAppStore((s) => s.agents);
   const isDesktop = useIsDesktop();
@@ -43,22 +43,12 @@ export const CoreShell: React.FC<Props> = ({
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
   useDefaultProviders(chatConfig?.defaultProviders)
-  /*const [searchParams, setSearchParams] = useSearchParams();
-
-  // lezen
-  const model = searchParams.get("model");
-
-  useEffect(() => {
-    if (model)
-      setSelectedModel(model);
-  }, [model]);
-*/
-
+  
   useEffect(() => {
     if (agents.length == 0)
       setAgents(defaultAgents);
   }, []);
-  
+
   useEffect(() => {
     setSidebarOpen(isDesktop);
   }, []);
@@ -106,18 +96,20 @@ export const CoreShell: React.FC<Props> = ({
           clientVersion={chatConfig?.appVersion}
           samplingApi={chatConfig?.samplingApi}
         >
-          <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-            <McpConnectionsProvider
-              clientName={chatConfig?.appName}
-              agentScopes={agentScopes ?? []}
-              agentApi={chatConfig?.agentEndpoint!}
-              authenticated={chatConfig?.getAccessToken != null}
-              clientVersion={chatConfig?.appVersion}
-              samplingApi={chatConfig?.samplingApi!}
-            >
-              {ui}
-            </McpConnectionsProvider>
-          </ConversationsProvider>
+          <ImagesProvider storageKind={"indexeddb"}>
+            <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+              <McpConnectionsProvider
+                clientName={chatConfig?.appName}
+                agentScopes={agentScopes ?? []}
+                agentApi={chatConfig?.agentEndpoint!}
+                authenticated={chatConfig?.getAccessToken != null}
+                clientVersion={chatConfig?.appVersion}
+                samplingApi={chatConfig?.samplingApi!}
+              >
+                {ui}
+              </McpConnectionsProvider>
+            </ConversationsProvider>
+          </ImagesProvider>
         </ChatAppConnector>
       </DndProvider>
     </I18nProvider>

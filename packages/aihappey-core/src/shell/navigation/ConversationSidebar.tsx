@@ -56,12 +56,14 @@ export const ConversationSidebar = () => {
       key: "search-conversations",
       label: t("conversationSearch"),
       icon: "search",
+      new: true,
       onClick: () => setSearchOpen(true),
     },
     {
-      key: "library",
-      label: t("library.title"),
-      href: "/library",
+      key: "images",
+      new: true,
+      label: t("images"),
+      href: "/images",
       icon: "library",
     },
     {
@@ -113,7 +115,7 @@ export const ConversationSidebar = () => {
 
   if (conversations.items.length > 0) {
     staticNavItems.push({ key: "divider", label: "" });
-    staticNavItems.push({ key: "section:chats", label: t("yourChats") });
+    staticNavItems.push({ key: "section:chats", label: t("chats") });
   }
 
   const handleExport = async (id: string) => {
@@ -238,6 +240,7 @@ export const ConversationSidebar = () => {
   const translations = {
     export: t('export'),
     delete: t('delete'),
+    new: t('new'),
     rename: t('rename')
   }
   return (

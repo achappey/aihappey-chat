@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { McpPolicySettings } from "aihappey-components";
 
 export default {
-    title: "Forms/McpPolicySettings",
+    title: "Forms/Model Context/McpPolicySettings",
 };
 
 const translations = {

@@ -4,9 +4,10 @@
     "toggleSidebar": "Barra lateral",
     "welcome": "¿En qué puedo ayudar?",
     "chats": "Chats",
-    "yourChats": "Tus chats",
     "context": "Contexto",
     "table": "Tabla",
+    "imagePromptPlaceholder": "Describir una nueva imagen",
+    "myImages": "Mis imágenes",
     "language": "Idioma",
     "video": "Vídeo",
     "noResults": "Sin resultados",
@@ -240,9 +241,6 @@
         "resetTimeoutOnProgress": "Reiniciar tiempo de espera al progreso",
         "toolTimeout": "Tiempo de espera de herramienta ({{minutes}} minutos)",
         "description": "Model Context Protocol proporciona una forma estructurada y coherente de trabajar con prompts, recursos y herramientas."
-    },
-    "library": {
-        "title": "Biblioteca"
     },
     "settingsModal": {
         "title": "Configuración",

@@ -8,8 +8,9 @@ import { UiSlice } from "./slices/uiSlice";
 import { AgentSlice } from "./slices/agentSlice";
 import { McpServersSlice } from "./slices/mcpServersSlice";
 import { McpRegistrySlice } from "./slices/mcpRegistrySlice";
+import { ImageSlice } from "./slices/imageSlice";
 
-type RootState = ChatSlice & McpSlice
+type RootState = ChatSlice & McpSlice & ImageSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice;
 
 export const withPersist = (

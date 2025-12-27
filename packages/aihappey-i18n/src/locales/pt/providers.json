@@ -76,5 +76,15 @@
     "goodDomains": "Domínios favorecidos",
     "badDomains": "Domínios indesejados",
     "onlyDomains": "Restringir pesquisa a estes domínios"
+  },
+  "together": {
+    "guidanceScale": "Escala de orientação",
+    "steps": "Passos",
+    "negativePrompt": "Prompt negativo",
+    "disableSafetyChecker": "Desativar verificação de segurança"
+  },
+  "runway": {
+    "contentModeration": "Moderação de conteúdo",
+    "publicFigureThreshold": "Limite de figuras públicas"
   }
 }

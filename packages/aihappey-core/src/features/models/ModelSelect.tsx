@@ -12,6 +12,7 @@ interface ModelSelectProps {
   label?: string;
   onChange: (id: string) => void;
   disabled?: boolean;
+  modelType?: string
 }
 
 export const ModelSelect: React.FC<ModelSelectProps> = ({
@@ -20,6 +21,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = ({
   onChange,
   label,
   disabled,
+  modelType = "language"
 }) => {
   const { Select } = useTheme();
   const isDesktop = useIsDesktop();
@@ -42,7 +44,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = ({
 
   const visibleModels = models.filter(
     (m) =>
-      m.type === "language" &&
+      m.type === modelType &&
       enabledProviderKeys.has(m.id.split("/")[0])
   );
 
@@ -67,7 +69,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = ({
     <SelectComponent
       values={[value]}
       valueTitle={displayValue}
-      icon="brain"
+      icon={"brain"}
       required
       label={label}
       style={{ minWidth: isDesktop ? 260 : 200 }}

@@ -18,7 +18,7 @@ import { NewChatPage } from "../features/chat/NewChatPage";
 import { ChatArenaPage } from "../features/chat/arena/ChatArenaPage";
 import { ChatPage } from "../features/chat";
 import { AgentsPage } from "../features/agents/AgentsPage";
-import { LibraryPage } from "../features/library/LibraryPage";
+import { ImagesPage } from "../features/images/ImagesPage";
 import { useTheme } from "aihappey-components";
 import { ModelsPage } from "../features/models/ModelsPage";
 
@@ -101,7 +101,7 @@ export const CoreRoot = ({
             { path: "models", element: <ModelsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },
-            { path: "library", element: <LibraryPage /> }
+            { path: "images", element: <ImagesPage /> }
           ],
         },
       ],

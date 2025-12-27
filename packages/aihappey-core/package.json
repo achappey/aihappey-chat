@@ -15,6 +15,7 @@
     "aihappey-auth": "*",
     "aihappey-components": "*",
     "aihappey-conversations": "*",
+    "aihappey-images": "*",
     "aihappey-http": "*",
     "aihappey-state": "*",
     "chart.js": "^4.5.0",

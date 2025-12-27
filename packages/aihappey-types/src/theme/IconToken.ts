@@ -14,6 +14,7 @@ export type IconToken =
   | "check"
   | "eye"
   | "completed"
+  | "image"
   | "cardList"
   | "chat"
   | "table"

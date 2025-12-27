@@ -1,8 +1,8 @@
 import type { JSX } from "react";
 import { IconToken } from "aihappey-types";
-import { 
-  Robot, 
-  ChatDots, 
+import {
+  Robot,
+  ChatDots,
   ExclamationTriangle,
   Pencil,
   Trash,
@@ -60,7 +60,9 @@ import {
   ChevronDown,
   ChevronUp,
   Plus,
+  Camera,
 } from "react-bootstrap-icons";
+import { Image } from "react-bootstrap";
 
 export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   robot: <Robot />,
@@ -120,9 +122,11 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   chevronRight: <ChevronRight />,
   priority: <ExclamationCircle />,
   chat: <BSChatIcon />,
+  image: <Image />,
   settings: <Gear />,
   connect: <UsbPlug />,
   disconnect: <UsbPlugFill />,
+
   print: <Printer />,
   chevronDown: <ChevronDown />,
   chevronUp: <ChevronUp />,

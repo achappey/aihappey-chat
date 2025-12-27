@@ -4,8 +4,10 @@
   "delete": "Verwijderen",
   "toggleSidebar": "Zijpaneel",
   "chats": "Chats",
-  "yourChats": "Je chats",
+  "imagePromptPlaceholder": "Beschrijf een nieuwe afbeelding",
+  "myImages": "Mijn afbeeldingen",
   "text": "Tekst",
+  "new": "Nieuw",
   "sourceCode": "Broncode",
   "apiKey": "API sleutel",
   "selectModelPlaceholder": "Selecteer AI-model...",
@@ -40,6 +42,22 @@
   "save": "Opslaan",
   "sources": "Bronnen",
   "noSources": "Geen bronnen",
+  "ratio": "Verhouding",
+  "moderation": "Moderatie",
+  "imageSettings": {
+    "size": "Afbeeldingsgrootte",
+    "title": "Afbeeldingsinstellingen",
+    "aspectRatio": "Beeldverhouding",
+    "maxImagesPerCall": "Maximaal aantal afbeeldingen per aanvraag",
+    "width": "Breedte",
+    "height": "Hoogte",
+    "output": "Uitvoer",
+    "other": "Overig",
+    "n": "Aantal afbeeldingen",
+    "seed": "Seed"
+  },
+  "providerDefault": "Standaard",
+  "custom": "Aangepast",
   "mimeTypes": {
     "text/plain": "Tekst",
     "image/png": "Afbeelding (Portable Network Graphic)",
@@ -243,9 +261,6 @@
     "personalization": "Personalisatie",
     "settings": "Instellingen",
     "logout": "Uitloggen"
-  },
-  "library": {
-    "title": "Bibliotheek"
   },
   "logLevels": {
     "error": "Fout",

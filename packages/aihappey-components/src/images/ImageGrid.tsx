@@ -9,6 +9,7 @@ type ImageGridProps = {
   shape?: "square" | "rounded" | "circular";
   shadow?: boolean;
   style?: React.CSSProperties;
+  shimmers?: number;
 };
 
 export const ImageGrid = ({
@@ -18,15 +19,30 @@ export const ImageGrid = ({
   fit,
   shape,
   shadow,
+  shimmers,
   style,
 }: ImageGridProps) => {
-  const { Image, Button } = useTheme();
+  const { Image, Button, Skeleton } = useTheme();
+
   const colCount = columns && columns > 0 ? columns : undefined;
   const gridTemplate =
     colCount != null
       ? `repeat(${colCount}, 1fr)`
       : "repeat(auto-fill, minmax(200px, 1fr))";
   const gridGap = gap ?? "1rem";
+
+  const shimmerCount = shimmers && shimmers > 0 ? shimmers : 0;
+
+  const cellStyle: React.CSSProperties = {
+    width: "100%",
+    aspectRatio: "1 / 1",
+    position: "relative",
+    overflow: "hidden",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
   // 1) Robust downloader (works for data URLs, raw base64, svg, webp, etc.)
   const handleDownload = async (item: ImageContent, index: number) => {
     try {
@@ -69,7 +85,7 @@ export const ImageGrid = ({
           ? item.data
           : `data:${item.mimeType};base64,${item.data}`;
         window.open(fallback, "_blank");
-      } catch { }
+      } catch {}
     }
   };
 
@@ -82,19 +98,14 @@ export const ImageGrid = ({
         ...style,
       }}
     >
+      {Array.from({ length: shimmerCount }).map((_, i) => (
+        <div key={`shimmer-${i}`} style={cellStyle}>
+          <Skeleton style={{ width: "100%", height: "100%" }} />
+        </div>
+      ))}
+
       {items.map((item, idx) => (
-        <div
-          key={idx}
-          style={{
-            width: "100%",
-            aspectRatio: "1 / 1",
-            position: "relative",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div key={idx} style={cellStyle}>
           <Image
             src={
               item.data?.startsWith("data:")

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ServerManagement } from "aihappey-components";
 
 export default {
-  title: "Forms/ServerManagement",
+  title: "Forms/Model Context/ServerManagement",
   component: ServerManagement,
 };
 

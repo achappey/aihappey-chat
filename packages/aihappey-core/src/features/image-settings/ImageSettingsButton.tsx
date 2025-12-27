@@ -1,0 +1,51 @@
+import { useState } from "react";
+import { useTheme } from "aihappey-components";
+import { useTranslation } from "aihappey-i18n";
+import { ImageSettingsModal } from "./ImageSettingsModal";
+import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
+
+export interface ImageSettingsButtonOptions {
+  temperature?: number;
+  temperatureChanged?: any;
+  resetDefaults?: any;
+  providerMetadata: any;
+  setProviderMetadata: (meta: any) => void;
+}
+
+export const ImageSettingsButton = (props: ImageSettingsButtonOptions) => {
+  const {
+    temperature,
+    temperatureChanged,
+    providerMetadata,
+    resetDefaults,
+    setProviderMetadata,
+  } = props;
+  const { Button } = useTheme();
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [showProviderKeys, setShowProviderKeys] = useState(false);
+
+  return (
+    <>
+      <Button
+        type="button"
+        icon="chatSettings"
+        size="large"
+        variant="transparent"
+        onClick={() => setOpen(true)}
+        title={t("chatSettings")}
+      />
+      <ImageSettingsModal
+        open={open && !showProviderKeys}
+        onClose={() => setOpen(false)}
+        setTemperature={temperatureChanged}
+        temperature={temperature}
+        onEditProviderKeys={() => setShowProviderKeys(true)}
+        resetDefaults={resetDefaults}
+        providerMetadata={providerMetadata}
+        setProviderMetadata={setProviderMetadata}
+      />
+      <ProviderKeysModal open={showProviderKeys} onClose={() => setShowProviderKeys(false)} />
+    </>
+  );
+};

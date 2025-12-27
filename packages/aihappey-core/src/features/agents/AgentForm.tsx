@@ -5,22 +5,22 @@ import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { useAppStore } from "aihappey-state";
 import { ModelSelect } from "../models/ModelSelect";
 import { useState } from "react";
-import { AnthropicTab } from "../provider-config/AnthropicTab";
-import { OpenAITab } from "../provider-config/OpenAITab";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
-import { CohereTab } from "../provider-config/CohereTab";
-import { GoogleTab } from "../provider-config/GoogleTab";
-import { GroqTab } from "../provider-config/GroqTab";
-import { JinaTab } from "../provider-config/JinaTab";
-import { MistralTab } from "../provider-config/MistralTab";
-import { PerplexityTab } from "../provider-config/PerplexityTab";
-import { PollinationsTab } from "../provider-config/PollinationsTab";
-import { TogetherTab } from "../provider-config/TogetherTab";
-import { XAITab } from "../provider-config/XAITab";
+import { PollinationsChatConfig } from "../provider-config/pollinations/PollinationsChatConfig";
 import { McpPolicySettings } from "../mcp-client/McpPolicySettings";
 import { McpClientCapabilitiesCard } from "../mcp-client/McpClientCapabilitiesCard";
 import { useAgent } from "./useAgentMcpServers";
+import { GroqChatConfig } from "../provider-config/groq/GroqChatConfig";
+import { XAIChatConfig } from "../provider-config/xai/XAIChatConfig";
+import { TogetherChatConfig } from "../provider-config/together/TogetherChatConfig";
+import { MistralChatConfig } from "../provider-config/mistral/MistralChatConfig";
+import { JinaChatConfig } from "../provider-config/jina/JinaChatConfig";
+import { CohereChatConfig } from "../provider-config/cohere/CohereChatConfig";
+import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
+import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
+import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
+import { OpenAIChatConfig } from "../provider-config/openai/OpenAIChatConfig";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -104,7 +104,6 @@ export const AgentForm = ({
             mcpServers: rest
         })
     }
-
 
     const providerKey = agent?.model?.id?.split("/")?.[0];
     const providerMeta = agent?.model?.providerMetadata ?? {};
@@ -265,101 +264,79 @@ export const AgentForm = ({
                 <Tab eventKey="providers"
                     title={agent?.model?.id?.split("/")?.[0]}>
                     {providerKey === "openai" && (
-                        <OpenAITab
+                        <OpenAIChatConfig
                             openai={providerMeta}
-                            updateOpenAI={(openai) =>
-                                updateProviderMetadata(openai)
-                            }
+                            updateOpenAI={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "anthropic" && (
-                        <AnthropicTab
+                        <AnthropicChatConfig
                             anthropic={providerMeta}
-                            updateAnthropic={(anthropic) =>
-                                updateProviderMetadata(anthropic)
-                            }
+                            updateAnthropic={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "cohere" && (
-                        <CohereTab
+                        <CohereChatConfig
                             cohere={providerMeta}
-                            updateCohere={(cohere) =>
-                                updateProviderMetadata(cohere)
-                            }
+                            updateCohere={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "google" && (
-                        <GoogleTab
+                        <GoogleChatConfig
                             google={providerMeta}
-                            updateGoogle={(google) =>
-                                updateProviderMetadata(google)
-                            }
+                            updateGoogle={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "groq" && (
-                        <GroqTab
+                        <GroqChatConfig
                             groq={providerMeta}
-                            updateGroq={(groq) =>
-                                updateProviderMetadata(groq)
-                            }
+                            updateGroq={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "jina" && (
-                        <JinaTab
+                        <JinaChatConfig
                             jina={providerMeta}
-                            updateJina={(jina) =>
-                                updateProviderMetadata(jina)
-                            }
+                            updateJina={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "mistral" && (
-                        <MistralTab
+                        <MistralChatConfig
                             mistral={providerMeta}
-                            updateMistral={(mistral) =>
-                                updateProviderMetadata(mistral)
-                            }
+                            updateMistral={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "perplexity" && (
-                        <PerplexityTab
+                        <PerplexityChatConfig
                             perplexity={providerMeta}
-                            updatePerplexity={(perplexity) =>
-                                updateProviderMetadata(perplexity)
-                            }
+                            updatePerplexity={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "pollinations" && (
-                        <PollinationsTab
+                        <PollinationsChatConfig
                             pollinations={providerMeta}
-                            updatePollinations={(pollinations) =>
-                                updateProviderMetadata(pollinations)
-                            }
+                            updatePollinations={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "together" && (
-                        <TogetherTab
+                        <TogetherChatConfig
                             together={providerMeta}
-                            updateTogether={(together) =>
-                                updateProviderMetadata(together)
-                            }
+                            updateTogether={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "xai" && (
-                        <XAITab
+                        <XAIChatConfig
                             xAI={providerMeta}
-                            updateXAI={(xai) =>
-                                updateProviderMetadata(xai)
-                            }
+                            updateXAI={updateProviderMetadata}
                         />
                     )}
                 </Tab>

@@ -3,11 +3,12 @@
   "loaded": "Carregado",
   "toggleSidebar": "Barra lateral",
   "welcome": "Como posso ajudar?",
-  "chats": "Conversas",
-  "yourChats": "As suas conversas",
+  "chats": "Chats",
   "context": "Contexto",
   "table": "Tabela",
   "language": "Idioma",
+  "imagePromptPlaceholder": "Descrever uma nova imagem",
+  "myImages": "Minhas imagens",
   "video": "Vídeo",
   "priority": "Prioridade",
   "apiKey": "Chave API",
@@ -240,9 +241,6 @@
     "resetTimeoutOnProgress": "Repor tempo limite com progresso",
     "toolTimeout": "Tempo limite da ferramenta ({{minutes}} minutos)",
     "description": "O Model Context Protocol fornece uma forma estruturada e consistente de trabalhar com prompts, recursos e ferramentas."
-  },
-  "library": {
-    "title": "Biblioteca"
   },
   "settingsModal": {
     "title": "Definições",

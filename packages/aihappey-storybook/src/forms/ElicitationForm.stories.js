@@ -2,7 +2,7 @@ import React from "react";
 import { ElicitationForm } from "aihappey-components";
 
 export default {
-    title: "Forms/ElicitationForm",
+    title: "Forms/Model Context/ElicitationForm",
 };
 
 const onRespond = (r) => {

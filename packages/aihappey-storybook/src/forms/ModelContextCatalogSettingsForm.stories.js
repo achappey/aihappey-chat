@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ModelContextCatalogSettingsForm } from "aihappey-components";
 
 export default {
-  title: "Forms/ModelContextCatalogSettingsForm",
+  title: "Forms/Model Context/ModelContextCatalogSettingsForm",
   component: ModelContextCatalogSettingsForm,
 };
 
@@ -95,4 +95,3 @@ export const Interactive = () =>
       quickSearches: ["example"],
     },
   });
-
