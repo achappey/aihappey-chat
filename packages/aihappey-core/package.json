@@ -14,9 +14,10 @@
     "aihappey-ai": "*",
     "aihappey-auth": "*",
     "aihappey-components": "*",
+    "aihappey-tools": "*",
     "aihappey-conversations": "*",
-    "aihappey-images": "*",
     "aihappey-http": "*",
+    "aihappey-images": "*",
     "aihappey-state": "*",
     "chart.js": "^4.5.0",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -28,6 +29,7 @@
     "exifr": "^7.1.3",
     "fflate": "^0.8.2",
     "html2canvas": "^1.4.1",
+    "json-schema-to-zod": "^2.7.0",
     "jsonc-parser": "^3.3.1",
     "mammoth": "^1.9.1",
     "marked": "^16.2.0",
@@ -59,8 +61,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/mime": "^3.0.4",
     "@modelcontextprotocol/sdk": "^1.21.2",
+    "@types/mime": "^3.0.4",
     "typescript": "^5.9.3"
   }
 }

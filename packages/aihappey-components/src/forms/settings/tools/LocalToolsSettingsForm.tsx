@@ -6,6 +6,8 @@ export type LocalToolsSettings = {
   localSettingsTools?: boolean;
   localAgentTools?: boolean;
   localMcpTools?: boolean;
+  customTools?: boolean;
+  vercelAiTools?: boolean;
 };
 
 export type LocalToolsSettingsFormProps = {
@@ -60,6 +62,16 @@ export const LocalToolsSettingsForm = ({
           key: "localMcpTools",
           id: "localMcps",
           label: translations?.localMcps ?? "localMcps",
+        },
+        {
+          key: "customTools",
+          id: "customTools",
+          label: translations?.customTools ?? "customTools",
+        },
+        {
+          key: "vercelAiTools",
+          id: "vercelAiTools",
+          label: translations?.vercelAiTools ?? "vercelAiTools",
         },
       ] as Array<{ key: keyof LocalToolsSettings; id: string; label: string }>,
     [translations]

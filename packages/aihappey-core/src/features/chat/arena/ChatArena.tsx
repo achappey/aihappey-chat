@@ -50,7 +50,13 @@ export function ChatArena({
   const { Spinner } = useTheme();
   const models = useAppStore((s) => s.models);
   const callTool = useAppStore((a) => a.callTool);
-  const { onToolCall } = useOnToolCall({ callTool });
+  const { onToolCall } = useOnToolCall({
+    callTool, 
+    api: api ?? "",
+    getAccessToken,
+    headers,
+    customFetch,
+  });
 
   const { transcribe } = useTranscription(
     config.transcriptionApi!,

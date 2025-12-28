@@ -35,6 +35,10 @@ export const GeneralTab = ({
   const setToolAnnotations = useAppStore((s) => s.setToolAnnotations);
   const enabledProviders = useAppStore(s => s.enabledProviders)
   const setEnabledProviders = useAppStore(s => s.setEnabledProviders)
+  const localToolsTools = useAppStore(s => s.localToolsTools)
+  const setLocalToolsTools = useAppStore(s => s.setLocalToolsTools)
+  const vercelAiTools = useAppStore(s => s.vercelAiTools)
+  const setVercelAiTools = useAppStore(s => s.setVercelAiTools)
 
   const onToggle = (key: keyof ToolAnnotations) =>
     setToolAnnotations({
@@ -95,20 +99,26 @@ export const GeneralTab = ({
           translations={{
             localConversations: t("localConversations"),
             localSettings: t("localSettings"),
-            localAgents: t("localAgents"),
+            localAgents: t("agents.framework"),
             localMcps: t("localMcps"),
+            customTools: t("customTools"),
+            vercelAiTools: "Vercel AI",
           }}
           value={{
             localConversationTools,
             localSettingsTools,
             localAgentTools,
             localMcpTools,
+            vercelAiTools,
+            customTools: localToolsTools
           }}
           onChange={(next) => {
             setLocalConversationTools(next.localConversationTools ?? false);
             setLocalSettingsTools(next.localSettingsTools ?? false);
             setLocalAgentTools(next.localAgentTools ?? false);
             setLocalMcpTools(next.localMcpTools ?? false);
+            setVercelAiTools(next.vercelAiTools ?? false);
+            setLocalToolsTools(next.customTools ?? false);
           }}
         />
 

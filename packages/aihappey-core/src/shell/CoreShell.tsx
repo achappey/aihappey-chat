@@ -16,6 +16,7 @@ import { useIsDesktop } from "./responsive/useIsDesktop";
 import { useDefaultModel } from "./bootstrap/useDefaultModel";
 import { useDefaultProviders } from "./bootstrap/useDefaultProviders";
 import { ImagesProvider } from "aihappey-images";
+import { ToolsProvider } from "aihappey-tools";
 
 type Props = {
   chatConfig?: ChatConfig;
@@ -43,7 +44,7 @@ export const CoreShell: React.FC<Props> = ({
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
   useDefaultProviders(chatConfig?.defaultProviders)
-  
+
   useEffect(() => {
     if (agents.length == 0)
       setAgents(defaultAgents);
@@ -97,18 +98,20 @@ export const CoreShell: React.FC<Props> = ({
           samplingApi={chatConfig?.samplingApi}
         >
           <ImagesProvider storageKind={"indexeddb"}>
-            <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-              <McpConnectionsProvider
-                clientName={chatConfig?.appName}
-                agentScopes={agentScopes ?? []}
-                agentApi={chatConfig?.agentEndpoint!}
-                authenticated={chatConfig?.getAccessToken != null}
-                clientVersion={chatConfig?.appVersion}
-                samplingApi={chatConfig?.samplingApi!}
-              >
-                {ui}
-              </McpConnectionsProvider>
-            </ConversationsProvider>
+            <ToolsProvider storageKind={"indexeddb"}>
+              <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+                <McpConnectionsProvider
+                  clientName={chatConfig?.appName}
+                  agentScopes={agentScopes ?? []}
+                  agentApi={chatConfig?.agentEndpoint!}
+                  authenticated={chatConfig?.getAccessToken != null}
+                  clientVersion={chatConfig?.appVersion}
+                  samplingApi={chatConfig?.samplingApi!}
+                >
+                  {ui}
+                </McpConnectionsProvider>
+              </ConversationsProvider>
+            </ToolsProvider>
           </ImagesProvider>
         </ChatAppConnector>
       </DndProvider>

@@ -6,6 +6,7 @@ import { VercelChatPanel } from "./engine/VercelChatPanel";
 import { ChatHeader } from "./layout/ChatHeader";
 import { DisclaimerBar } from "./layout/DisclaimerBar";
 import { useAppStore } from "aihappey-state";
+import { useTheme } from "aihappey-components";
 
 export function ChatPage() {
   const { conversationId } = useParams<{ conversationId?: string }>();
@@ -29,6 +30,10 @@ export function ChatPage() {
   const getAccessToken = config?.getAccessToken;
   const headers = config?.headers;
   const customFetch = config?.fetch;
+
+  const theme = useTheme()
+
+
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>

@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useAppStore } from "aihappey-state";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
+import { useLocalTools } from "aihappey-tools";
 
 type ToolTextResult = {
   isError: boolean;
@@ -25,7 +26,6 @@ type LocalSettingsToolCall = {
 export function useLocalSettingsToolCall() {
   const enableUserLocation = useAppStore(a => a.enableUserLocation);
   const setEnableUserLocation = useAppStore(a => a.setEnableUserLocation);
-
   const experimentalThrottle = useAppStore(a => a.experimentalThrottle);
   const setThrottle = useAppStore(a => a.setThrottle);
 
@@ -114,57 +114,57 @@ export function useLocalSettingsToolCall() {
 
 
 export const localSettingsGetTool: Tool = {
-    name: "local_settings_get",
-    title: "Get local settings",
-    description: "Returns all local user settings such as enableUserLocation and MCP timeout settings.",
-    inputSchema: {
-        type: "object",
-        properties: {},
-        required: []
-    },
-    annotations: {
-        readOnlyHint: true,
-        destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: false
-    }
+  name: "local_settings_get",
+  title: "Get local settings",
+  description: "Returns all local user settings such as enableUserLocation and MCP timeout settings.",
+  inputSchema: {
+    type: "object",
+    properties: {},
+    required: []
+  },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false
+  }
 };
 
 export const localSettingsSetTool: Tool = {
-    name: "local_settings_set",
-    title: "Update local settings",
-    description:
-        "Updates local user settings such as enableUserLocation and MCP timeout configuration.",
-    inputSchema: {
-        type: "object",
-        properties: {
-            enableUserLocation: {
-                type: "boolean",
-                description: "Enable or disable access to the user's location."
-            },
-            temperature: {
-                type: "number",
-                description: "AI temperature."
-            },
-            throttle: {
-                type: "number",
-                description: "Custom throttle wait in ms for the chat messages and data updates."
-            },
-            mcpToolTimeout: {
-                type: "number",
-                description: "Timeout (in milliseconds) applied to all MCP tool calls."
-            },
-            mcpResetTimeoutOnProgress: {
-                type: "boolean",
-                description: "Whether the MCP tool timeout resets when progress events arrive."
-            }
-        },
-        required: []
+  name: "local_settings_set",
+  title: "Update local settings",
+  description:
+    "Updates local user settings such as enableUserLocation and MCP timeout configuration.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      enableUserLocation: {
+        type: "boolean",
+        description: "Enable or disable access to the user's location."
+      },
+      temperature: {
+        type: "number",
+        description: "AI temperature."
+      },
+      throttle: {
+        type: "number",
+        description: "Custom throttle wait in ms for the chat messages and data updates."
+      },
+      mcpToolTimeout: {
+        type: "number",
+        description: "Timeout (in milliseconds) applied to all MCP tool calls."
+      },
+      mcpResetTimeoutOnProgress: {
+        type: "boolean",
+        description: "Whether the MCP tool timeout resets when progress events arrive."
+      }
     },
-    annotations: {
-        readOnlyHint: false,
-        destructiveHint: false,
-        idempotentHint: false,
-        openWorldHint: false
-    }
+    required: []
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: false
+  }
 };

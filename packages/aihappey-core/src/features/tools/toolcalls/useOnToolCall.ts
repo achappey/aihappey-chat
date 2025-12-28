@@ -8,8 +8,14 @@ import { useLocalAgentsToolCall } from "./useLocalAgentsToolCall";
 import { useLocalConversationsToolCall } from "./useLocalConversationsToolCall";
 import { useReadResourceToolCall } from "./useReadResourceToolCall";
 import { useMcpPassthroughToolCall } from "./useMcpPassthroughToolCall";
+import { useLocalToolsToolCall } from "./useLocalToolsToolCall";
+import { useVercalAIToolCall } from "./useVercelAIToolCall";
 
-export function useOnToolCall({ callTool }: {
+export function useOnToolCall({ callTool, api, getAccessToken, headers, customFetch }: {
+  api: string,
+  getAccessToken?: any,
+  headers?: any,
+  customFetch?: any,
   callTool: (toolCallId: string, toolName: string, input: any, locale?: string, signal?: AbortSignal) => Promise<any>
 }) {
   const enableApps = useAppStore(a => a.enableApps)
@@ -18,6 +24,8 @@ export function useOnToolCall({ callTool }: {
   const mcpServers = useAppStore(a => a.mcpServers)
   const { handleLocalAgentsToolCall } = useLocalAgentsToolCall();
   const { handleMemoryToolCall } = useMemoryToolCall();
+  const { handleLocalToolsToolCall } = useLocalToolsToolCall();
+  const { handleVercelAIToolCall } = useVercalAIToolCall(api, getAccessToken, headers, customFetch);
   const { handleLocalSettingsToolCall } = useLocalSettingsToolCall();
   const { handleLocalConversationsToolCall } = useLocalConversationsToolCall(conversations);
   const { i18n } = useTranslation(); // Uncomment when i18n is ready
@@ -46,6 +54,15 @@ export function useOnToolCall({ callTool }: {
           case "local_settings_get":
           case "local_settings_set":
             return await handleLocalSettingsToolCall(toolCall);
+
+          case "local_tools_create":
+          case "local_tools_list":
+          case "local_tools_delete":
+            return await handleLocalToolsToolCall(toolCall);
+
+          case "vercel_ai_tool_loop_agent":
+          case "vercel_ai_generate_text":
+            return await handleVercelAIToolCall(toolCall);
 
           case "memory":
             return await handleMemoryToolCall(toolCall);

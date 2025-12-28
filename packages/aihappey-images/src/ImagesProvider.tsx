@@ -21,7 +21,7 @@ export type ImagesContextType = ImageStore & {
 const ImagesContext = createContext<ImagesContextType | null>(null);
 
 export const indexedDbImageStore = new IndexedDBImageStore();
-export const localImageStore = new LocalImageStore();
+//export const localImageStore = new LocalImageStore();
 
 /**
  * Provides access to locally stored image generations.
@@ -46,7 +46,7 @@ export const ImagesProvider = ({
   useAppStore((s) => s.conversationStorage);
 
   const store = useMemo<ImageStore>(() => {
-    if (storageKind === "local") return localImageStore;
+    if (storageKind === "local") return indexedDbImageStore;
     return indexedDbImageStore;
   }, [storageKind]);
 

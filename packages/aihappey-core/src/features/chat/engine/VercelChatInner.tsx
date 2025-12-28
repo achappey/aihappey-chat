@@ -1,4 +1,4 @@
-import { DefaultChatTransport, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
+import { DefaultChatTransport, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
 import { useMemo, useState, useRef } from "react";
@@ -119,13 +119,19 @@ export function VercelChatInner({
     customFetch,
   });
 
-  const toolUse = useOnToolCall({
-    callTool,
-  });
 
   const api = chatMode === "agent"
     ? config?.agentEndpoint + "/api/chat"
     : config?.api || "/api/chat";
+
+  const toolUse = useOnToolCall({
+    api,
+    getAccessToken,
+    headers,
+    customFetch,
+    callTool,
+  });
+
 
   const apiRef = useApiRef(api);
 

@@ -5,14 +5,17 @@ import { localConversationsGetTool, localConversationsListTool, localConversatio
 import { localSettingsGetTool, localSettingsSetTool } from "./toolcalls/useLocalSettingsToolCall";
 import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
+import { listLocalTools, localToolsCreate, localToolsDelete } from "./toolcalls/useLocalToolsToolCall";
+import { vercelAiGenerateText, vercelAiToolLoopAgent } from "./toolcalls/useVercelAIToolCall";
 
 export function useTools() {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
-
   const enableLocalConversationTools = useAppStore(s => s.localConversationTools);
   const enableLocalAgentTools = useAppStore(s => s.localAgentTools);
   const localSettingsTools = useAppStore(s => s.localSettingsTools);
+  const vercelAiTools = useAppStore(s => s.vercelAiTools);
+  const localToolsTools = useAppStore(s => s.localToolsTools);
 
   return useMemo(() => {
     /* -------------------- flatten MCP tools -------------------- */
@@ -28,6 +31,12 @@ export function useTools() {
     /* -------------------- inject local tools -------------------- */
     const allTools = [
       ...baseTools,
+      ...(vercelAiTools
+        ? [vercelAiToolLoopAgent, vercelAiGenerateText]
+        : []),
+      ...(localToolsTools
+        ? [listLocalTools, localToolsCreate, localToolsDelete]
+        : []),
       ...(enableLocalAgentTools
         ? [localAgentsCreateTool, localAgentsListTool, localAgentsDeleteTool]
         : []),
@@ -90,6 +99,8 @@ export function useTools() {
     toolAnnotations,
     enableLocalAgentTools,
     enableLocalConversationTools,
+    localToolsTools,
+    vercelAiTools,
     localSettingsTools
   ]);
 }

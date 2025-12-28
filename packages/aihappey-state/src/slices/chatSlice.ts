@@ -15,6 +15,10 @@ export type ChatSlice = {
   chatErrors?: string[]
   structuredOutputs?: any
   setStructuredOutputs: (structuredOutputs?: any) => void;
+  vercelAiTools?: boolean
+  setVercelAiTools: (value: boolean) => void;
+  localToolsTools?: boolean
+  setLocalToolsTools: (value: boolean) => void;
   localAgentTools?: boolean
   setLocalAgentTools: (value: boolean) => void;
   localConversationTools?: boolean
@@ -65,6 +69,16 @@ export const createChatSlice: StateCreator<
   structuredOutputs: undefined,
   toolAnnotations: DEFAULT_ANNOTATIONS,
   chatErrors: [],
+  setLocalToolsTools: (value) => {
+    set((state: any) => ({
+      localToolsTools: value,
+    }));
+  },
+  setVercelAiTools: (value) => {
+    set((state: any) => ({
+      vercelAiTools: value,
+    }));
+  },
   setSelectedModel: (model) =>
     set((state: any) => {
       return {
