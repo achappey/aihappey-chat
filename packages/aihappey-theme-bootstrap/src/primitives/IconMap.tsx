@@ -126,7 +126,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   settings: <Gear />,
   connect: <UsbPlug />,
   disconnect: <UsbPlugFill />,
-
+  aiImage: <Image />,
   print: <Printer />,
   chevronDown: <ChevronDown />,
   chevronUp: <ChevronUp />,

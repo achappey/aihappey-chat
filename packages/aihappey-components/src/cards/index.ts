@@ -14,5 +14,5 @@ export * from "./StructuredOutputCard";
 export * from "./UIMessagePartCard";
 export * from "./ResourceLinkCard";
 export * from "./LoggingMessageCard";
-
+export * from "./ImageCard";
 export * from "./ConversationCard";

@@ -17,6 +17,7 @@ export type IconToken =
   | "image"
   | "cardList"
   | "chat"
+  | "aiImage"
   | "table"
   | "catalog"
   | "brain"

@@ -3,14 +3,17 @@ import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 
 import { ModelSelect } from "../models/ModelSelect";
+import { useTheme } from "aihappey-components";
 
 export const AiDefaultSettings: React.FC = () => {
   const { t } = useTranslation();
-
+  const { Switch } = useTheme()
   const models = useAppStore((s) => s.models);
   const selectedModel = useAppStore((s) => s.selectedModel);
   const userPreferredModel = useAppStore((s) => s.userPreferredModel);
   const setUserPreferredModel = useAppStore((s) => s.setUserPreferredModel);
+  const toggleChatWithImageModels = useAppStore((s) => s.toggleChatWithImageModels);
+  const chatWithImageModels = useAppStore((s) => s.chatWithImageModels);
 
   // If the user has not yet chosen a preferred model, we display the currently
   // selected model as a reasonable default. Only userPreferredModel is updated
@@ -32,6 +35,13 @@ export const AiDefaultSettings: React.FC = () => {
         label={t("settingsModal.defaultModel")}
         onChange={setUserPreferredModel}
       />
+
+      <Switch id={"chatWithImageModels"}
+        label={t('chatWithImageModels')}
+        checked={chatWithImageModels ?? false}
+        onChange={toggleChatWithImageModels} >
+
+      </Switch>
     </div>
   );
 };

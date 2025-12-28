@@ -10,6 +10,17 @@ export type LibraryImageItem = {
     mimeType: string;
 };
 
+const parseImageData = (input: string) => {
+    // data:<mime>;base64,<payload>
+    const m = /^data:([^;]+);base64,(.*)$/i.exec(input);
+    if (m) {
+        return { mimeType: m[1], data: m[2] }; // ✅ base64 only (no prefix)
+    }
+
+    // fallback: assume already base64 payload
+    return { mimeType: "", data: input };
+};
+
 export function useLibraryImages(): LibraryImageItem[] {
     const conversations = useConversations();
     const images = useImages();
@@ -18,12 +29,15 @@ export function useLibraryImages(): LibraryImageItem[] {
 
         images.items.forEach((c) => {
             c.imageResponse.images.forEach((d) => {
+                const raw = d.toString();
+                const { mimeType, data } = parseImageData(raw);
+
                 out.push({
                     conversationId: c.id,
                     messageId: c.id,
                     createdAt: c.imageResponse.response.timestamp.toString(),
-                    data: d.toString(),
-                    mimeType: d.toString().match(/^data:(.*?);/)?.[1]!,
+                    data,
+                    mimeType,
                 })
             });
         });

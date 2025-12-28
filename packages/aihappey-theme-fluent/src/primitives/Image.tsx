@@ -7,9 +7,11 @@ export const Image = ({
   src?: string;
   fit?: "none" | "center" | "contain" | "cover" | "default";
   shadow?: boolean;
-  width?:string | number | undefined
-  height?:string | number | undefined
+  width?: string | number | undefined
+  height?: string | number | undefined
   block?: boolean;
   bordered?: boolean;
+  onClick?: React.MouseEventHandler<HTMLImageElement>;
+  style?: React.CSSProperties
   shape?: "circular" | "rounded" | "square";
 }): JSX.Element => <FluentImage loading="lazy" src={src} {...rest} />;

@@ -13,6 +13,9 @@ import { useImageErrors } from "./useImageErrors";
 import { ImageErrors } from "./ImageErrors";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
+import { ImageModal } from "./ImageModal";
+import { ImageWarnings } from "./ImageWarnings";
+import { ImageContent } from "@modelcontextprotocol/sdk/types";
 
 export const fileToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -45,8 +48,25 @@ export const ImagePage = () => {
   const [selectedModel, setSelectedModel] = useState<string>(getAccessToken ?
     "openai/chatgpt-image-latest" : "pollinations/flux");
   const headers = config?.headers;
-  const { errors, addChatError, dismissError } = useImageErrors();
+  const {
+    errors,
+    warnings,
+    addChatError,
+    addWarnings,
+    clearWarnings,
+    dismissError,
+    dismissWarning,
+  } = useImageErrors();
 
+  const [modalImage, setModalImage] = useState<ImageContent | undefined>(undefined);
+
+  const openImage = (src: ImageContent) => {
+    setModalImage(src);
+  };
+
+  const closeImage = () => {
+    setModalImage(undefined);
+  };
   const attachments = useFileAttachments(fileAttachmentRuntime);
   const addAttachment = async (file: File) => {
 
@@ -59,7 +79,7 @@ export const ImagePage = () => {
   );
 
   const onSend = async (content: string) => {
-
+    clearWarnings();
     try {
       let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
       if (getAccessToken) {
@@ -97,7 +117,7 @@ export const ImagePage = () => {
         files: files,
         providerOptions: providerImageMetadata
       })
-
+      addWarnings(imageResult.warnings);
       await storageImages.add(imageResult)
       storageImages.refresh()
     } catch (err: any) {
@@ -106,6 +126,80 @@ export const ImagePage = () => {
       setItemsLoading((prev) => prev - n);
     }
   }
+
+  const downloadImage = async (data: ImageContent) => {
+    // data can be:
+    // - full data URL: data:image/png;base64,...
+    // - raw base64 (assumed image/png)
+
+    const isDataUrl = data.data.startsWith("data:");
+
+    const mimeType = isDataUrl
+      ? data.data.substring(5, data.data.indexOf(";"))
+      : "image/png";
+
+    const src = isDataUrl
+      ? data.data
+      : `data:${mimeType};base64,${data.data}`;
+
+    const res = await fetch(src);
+    const blob = await res.blob();
+
+    const ext =
+      ({
+        "image/png": "png",
+        "image/jpeg": "jpg",
+        "image/webp": "webp",
+        "image/gif": "gif",
+        "image/svg+xml": "svg",
+        "image/bmp": "bmp",
+        "image/avif": "avif",
+      } as Record<string, string>)[mimeType] ?? "bin";
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `image.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+
+  const extFromMime = (mimeType: string) =>
+    ({
+      "image/png": "png",
+      "image/jpeg": "jpg",
+      "image/webp": "webp",
+      "image/gif": "gif",
+      "image/svg+xml": "svg",
+      "image/bmp": "bmp",
+      "image/avif": "avif",
+    } as Record<string, string>)[mimeType] ?? "bin";
+
+  const addImageToPrompt = (data: ImageContent) => {
+    void (async () => {
+      // data = data URL OR raw base64
+      const isDataUrl = data.data.startsWith("data:");
+      const mimeType = isDataUrl
+        ? data.data.substring(5, data.data.indexOf(";"))
+        : "image/png";
+
+      const src = isDataUrl ? data.data : `data:${mimeType};base64,${data.data}`;
+
+      // safest conversion: dataURL -> blob via fetch
+      const blob = await (await fetch(src)).blob();
+
+      const ext = extFromMime(mimeType);
+      const file = new File([blob], `image_${Date.now()}.${ext}`, {
+        type: mimeType,
+      });
+
+      fileAttachmentRuntime.add(file);
+    })();
+  };
+
 
   //imageModel
   return (
@@ -117,7 +211,7 @@ export const ImagePage = () => {
     >
       <ModelSelect
         models={models ?? []}
-        modelType="image"
+        modelTypes={["image"]}
         value={selectedModel ?? ""}
         onChange={setSelectedModel}
       />
@@ -126,6 +220,8 @@ export const ImagePage = () => {
         errors={errors}
         dismissError={dismissError}
       />
+
+      <ImageWarnings warnings={warnings} dismissWarning={dismissWarning} />
 
       <div style={{
         marginTop: 44,
@@ -156,6 +252,8 @@ export const ImagePage = () => {
             type: "image",
           }))}
           shimmers={itemsLoading}
+          onImageClick={openImage}
+          onImageDownload={downloadImage}
           columns={isDesktop ? 5 : 2}
           gap="1rem"
           fit="cover"
@@ -164,6 +262,21 @@ export const ImagePage = () => {
           style={{ width: "100%" }}
         />
       </div>
+      {modalImage && (
+        <ImageModal
+          open={modalImage != undefined}
+          image={modalImage}
+          onDownload={() =>
+            downloadImage(modalImage!)
+          }
+          onAddToPrompt={() => {
+            addImageToPrompt(modalImage!);
+            closeImage();
+          }}
+          onClose={closeImage}
+        />
+      )}
+
     </div>
   );
 };

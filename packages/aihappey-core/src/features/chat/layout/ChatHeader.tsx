@@ -26,6 +26,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const allAgents = useAppStore((a) => a.agents);
   const switchChatMode = useAppStore((a) => a.switchChatMode);
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
+  const chatWithImageModels = useAppStore((a) => a.chatWithImageModels);
   const { Switch, ToggleButton } = useTheme();
   const account = useAccount();
   const { pathname } = useLocation();
@@ -64,6 +65,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         />}
         {chatMode == "chat" && <ModelSelect
           models={models ?? []}
+          modelTypes={chatWithImageModels ? ["language", "image"] : ["language"]}
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />}

@@ -5,9 +5,9 @@ import { OpenAIAppWidget } from "../../../ui/widgets/OpenAIAppWidget";
 import { ElicitationForm } from "../../elicitation/ElicitationForm";
 import { copyMarkdownToClipboard } from "../files/file";
 import { elicitRuntime, useOpenElicits } from "../../../runtime/mcp/elicitRuntime";
-import { MessageList as MessageListComponent } from "aihappey-components";
-import type { CreateMessageRequest, CreateMessageResult, ElicitResult } from "@modelcontextprotocol/sdk/types";
-import type { UIMessage, UIMessagePart } from "aihappey-ai";
+import { ImageGrid, MessageList as MessageListComponent, useTheme } from "aihappey-components";
+import type { CreateMessageRequest, CreateMessageResult, ElicitResult, ImageContent } from "@modelcontextprotocol/sdk/types";
+import type { FileUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
 import { useMemo } from "react";
 import { toChatMessages } from "./toChatMessages";
@@ -23,6 +23,21 @@ interface MessageListProps {
   messages: UIMessage[];
   sendMessage?: any;
 }
+
+const fileToImageContent = (f: FileUIPart): ImageContent => {
+  const url = f?.url ?? "";
+  const mt = f?.mediaType ?? "image/png";
+
+  // If FileUIPart.url is a data-url, convert to MCP ImageContent (base64 payload)
+  const m = /^data:([^;]+);base64,(.*)$/i.exec(url);
+  if (m) {
+    return { type: "image", mimeType: m[1], data: m[2] } as any;
+  }
+
+  // If url is already base64 without prefix, pass through
+  return { type: "image", mimeType: mt, data: url } as any;
+};
+
 
 /**
  * App-layer MessageList:
@@ -42,6 +57,7 @@ export const MessageList = ({
   const callTool = useAppStore((s) => s.callTool);
   const sampling = useAppStore((a) => a.sampling);
   const tools = useTools()
+  const { Image } = useTheme()
   // ✅ This hook should output ChatMessage[] (your app adapter layer).
   // If your current hook returns another shape, swap this line to:
   //   const chatMessages = toChatMessages(messages);
@@ -162,6 +178,28 @@ export const MessageList = ({
   const copyClipboard = async (msg: ChatMessage) =>
     await copyMarkdownToClipboard(msg.content?.[0].type == "text" ? msg.content?.[0]?.text : JSON.stringify(msg));
 
+  const imageContentToSrc = (img: any) => {
+    if (!img) return "";
+
+    // MCP style: { type:"image", mimeType, data }
+    if (img.type === "image") {
+      const mime = img.mimeType ?? "image/png";
+      const data = img.data ?? "";
+
+      // if already data-url, keep it
+      if (typeof data === "string" && data.startsWith("data:")) return data;
+
+      // base64 payload -> data-url
+      return `data:${mime};base64,${data}`;
+    }
+
+    // fallback: if something already passed a string
+    if (typeof img === "string") return img;
+
+    return "";
+  };
+
+
   return (
     <MessageListComponent
       messages={merged}
@@ -182,6 +220,22 @@ export const MessageList = ({
               onRespond={block.onRespond}
             />
           );
+        }
+
+        if (block?.type === "image-grid") {
+          const items = (block.items ?? []).map(fileToImageContent);
+
+          if (items.length <= 1) {
+            const src = imageContentToSrc(items[0]);
+            return src ? (
+              <div><Image
+                src={src}
+                fit="cover"
+              /></div>
+            ) : null;
+          }
+
+          return <ImageGrid items={items} columns={3} fit="cover" gap={8} />;
         }
 
         if (block?.type === "sampling") {

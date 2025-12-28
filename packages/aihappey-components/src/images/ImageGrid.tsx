@@ -10,6 +10,8 @@ type ImageGridProps = {
   shadow?: boolean;
   style?: React.CSSProperties;
   shimmers?: number;
+  onImageClick?: (src: ImageContent) => void;
+  onImageDownload?: (src: ImageContent) => void;
 };
 
 export const ImageGrid = ({
@@ -18,6 +20,8 @@ export const ImageGrid = ({
   gap,
   fit,
   shape,
+  onImageClick,
+  onImageDownload,
   shadow,
   shimmers,
   style,
@@ -85,7 +89,7 @@ export const ImageGrid = ({
           ? item.data
           : `data:${item.mimeType};base64,${item.data}`;
         window.open(fallback, "_blank");
-      } catch {}
+      } catch { }
     }
   };
 
@@ -104,30 +108,36 @@ export const ImageGrid = ({
         </div>
       ))}
 
-      {items.map((item, idx) => (
-        <div key={idx} style={cellStyle}>
-          <Image
-            src={
-              item.data?.startsWith("data:")
-                ? item.data
-                : `data:${item.mimeType};base64,${item.data}`
-            }
-            fit={fit}
-            shape={shape}
-            shadow={shadow}
-          />
-          <Button
-            icon="download"
-            variant="primary"
-            style={{
-              position: "absolute",
-              bottom: "0.5rem",
-              right: "0.5rem",
-            }}
-            onClick={() => handleDownload(item, idx)}
-          />
-        </div>
-      ))}
+      {items.map((item, idx) => {
+        const src = item.data.startsWith("data:")
+          ? item.data
+          : `data:${item.mimeType};base64,${item.data}`;
+
+        return (
+          <div key={idx} style={cellStyle}>
+            <Image
+              src={src}
+              fit={fit}
+              shape={shape}
+              shadow={shadow}
+              style={{ cursor: onImageClick ? "pointer" : undefined }}
+              onClick={() => onImageClick?.(item)}
+            />
+
+            <Button
+              icon="download"
+              variant="primary"
+              style={{
+                position: "absolute",
+                bottom: "0.5rem",
+                right: "0.5rem",
+              }}
+              onClick={() => onImageDownload?.(item)}
+            />
+          </div>
+        );
+      })}
+
     </div>
   );
 };

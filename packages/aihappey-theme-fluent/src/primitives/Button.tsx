@@ -117,6 +117,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   attachment: AttachRegular,
   concurrent: ArrowSplitRegular,
   sequential: ArrowRoutingRegular,
+  aiImage: ImageSparkleRegular,
   groupchat: PeopleChatRegular,
   handoff: PeopleSwapRegular,
   catalog: BuildingShopRegular,

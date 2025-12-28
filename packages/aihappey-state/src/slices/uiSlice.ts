@@ -98,6 +98,7 @@ export type UiSlice = {
   showActivities: boolean;
   enableAgentImport: boolean
   enableConversationImport: boolean
+  chatWithImageModels?: boolean
   sampling?: any
   elicitation?: any
   debugMode?: boolean
@@ -109,6 +110,7 @@ export type UiSlice = {
   activitiesSize: string;
   setActivitiesSize: (value: string) => void;
   toggleSampling: () => void;
+  toggleChatWithImageModels: () => void;
   toggleEliciation: () => void;
   toggleAgentImport: () => void;
   toggleConversationImport: () => void;
@@ -179,8 +181,13 @@ export const createUiSlice: StateCreator<
   elicitation: {},
   accountLocation: undefined,
   enabledProviders: [],
+  chatWithImageModels: false,
   activitiesSize: "medium",
   quickSearches: ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"],
+  toggleChatWithImageModels: () =>
+    set((s: any) => ({
+      chatWithImageModels: !s.chatWithImageModels,
+    })),
   toggleEliciation: () =>
     set((s: any) => ({
       eliciation: s.eliciation ? undefined : {},

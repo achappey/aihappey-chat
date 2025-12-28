@@ -9,6 +9,8 @@ export type ImageProps = {
   width?: any;
   height?: any;
   bordered?: boolean;
+  onClick?: React.MouseEventHandler<HTMLImageElement>;
+  style?: React.CSSProperties
   shape?: "circular" | "rounded" | "square";
 };
 

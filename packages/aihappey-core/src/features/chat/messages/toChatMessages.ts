@@ -1,5 +1,5 @@
 import { ChatMessage, SYSTEM_ROLE } from "aihappey-types";
-import type { FileUIPart, ToolUIPart, UIMessage } from "aihappey-ai";
+import type { FileUIPart, ToolUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 
 export function toChatMessages(
   messages: UIMessage[],
@@ -11,132 +11,146 @@ export function toChatMessages(
     if (z.role === SYSTEM_ROLE) continue;
 
     const meta = (z.metadata ?? {}) as any;
-    const createdAt = meta?.timestamp;
+    const createdAtRaw = meta?.timestamp;
     const author = meta?.author ?? meta?.model;
     const temperature = meta?.temperature;
     const totalTokens = meta?.totalTokens;
 
-    const parts = ((z.parts ?? [])).filter(p => p?.type !== "step-start");
+    const parts = ((z.parts ?? [])).filter((p) => p?.type !== "step-start");
 
-    // Helper: push one buffered activity message
-    let activityRun: any[] = [];
+    const nonImageFiles = parts.filter(
+      (p): p is FileUIPart =>
+        p?.type === "file" && !p?.mediaType?.startsWith("image/")
+    );
+
+    const sources = parts.filter(
+      (p) => p?.type === "source-url" || p?.type === "source-document"
+    );
+
+    const baseTime = createdAtRaw ? Date.parse(createdAtRaw) : Date.now();
+    const ts = (offsetMs: number) => new Date(baseTime + offsetMs).toISOString();
+
+    // --- Buffers ---
+    let activityRun: UIMessagePart<any, any>[] = [];
     let activityRunStartIndex: number | null = null;
 
-    const flushActivity: any = () => {
+    let imageRun: FileUIPart[] = [];
+    let imageRunStartIndex: number | null = null;
+
+    const flushActivity = () => {
       if (!activityRun.length) return;
 
       out.push({
         id: `${z.id}:activity:${activityRunStartIndex ?? 0}`,
         role: z.role,
-        content: activityRun, // IMPORTANT: keep original parts separate + ordered
-        createdAt,
+        content: activityRun,
+        createdAt: ts(activityRunStartIndex ?? 0),
         author,
         temperature,
-    //    messageIcon: "tool", // or "dots" if you have it
-       // messageLabel: translations?.activity ?? "activity",
+        totalTokens,
       } as any);
 
       activityRun = [];
       activityRunStartIndex = null;
     };
 
-    // Non-assistant: keep exact ordering too
-    // (same rule: text stands alone, everything else grouped between texts)
-    if (z.role !== "assistant") {
-      for (let i = 0; i < parts.length; i++) {
-        const p = parts[i];
-        const t = p?.type;
+    const flushImages = () => {
+      if (!imageRun.length) return;
 
-        if (t === "text") {
-          flushActivity();
-          out.push({
-            id: `${z.id}:text:${i}`,
-            role: z.role,
-            content: [p],
-            attachments: parts?.filter(a => a.type == "file"),
-            createdAt,
-            author,
-          });
-          continue;
-        }
+      out.push({
+        id: `${z.id}:images:${imageRunStartIndex ?? 0}`,
+        role: z.role,
+        content: [
+          {
+            type: "image-grid",
+            items: imageRun,
+          } as any,
+        ],
+        createdAt: ts(imageRunStartIndex ?? 0),
+        author,
+        temperature,
+        totalTokens,
+      } as any);
 
-        if (activityRunStartIndex === null) activityRunStartIndex = i;
+      imageRun = [];
+      imageRunStartIndex = null;
+    };
 
-        if (t !== "file")
-          activityRun.push(p);
-      }
+    const startImageRunIfNeeded = (i: number) => {
+      if (imageRunStartIndex === null) imageRunStartIndex = i;
+    };
 
-      flushActivity();
-      continue;
-    }
+    const startActivityRunIfNeeded = (i: number) => {
+      if (activityRunStartIndex === null) activityRunStartIndex = i;
+    };
 
-    // Assistant: same grouping logic
+    // --- Iterate parts, preserving exact order via flushes ---
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i];
       const t = p?.type;
 
+      // 1) Images: buffer consecutive image files
+      if (t === "file" && (p as FileUIPart)?.mediaType?.startsWith("image/")) {
+        startImageRunIfNeeded(i);
+        imageRun.push(p as FileUIPart);
+        continue;
+      }
+
+      // Any non-image part breaks the image run
+      flushImages();
+
+      // 2) Text: flush activity, then push text message
       if (t === "text") {
-        // activity happened before this text -> show it between messages
         flushActivity();
-
-        // let content = [p]
-        if (p.type == "text"
-          && p.text == ''
-          && parts?.some(a => a.type == "file"
-            && a.mediaType.startsWith("image/"))) {
-
-          const imagesHtml =
-            parts
-              ?.filter((p): p is FileUIPart =>
-                p.type === "file" && !!p.mediaType?.startsWith("image/")
-              )
-              .map(a => `<img src="${a.url}" alt="image" />`)
-              .join("\n") ?? "";
-
-          p.text = imagesHtml
-        }
 
         out.push({
           id: `${z.id}:text:${i}`,
           role: z.role,
-          content: [p],
-          attachments: parts?.filter(a => a.type == "file"),
-          sources: parts?.filter(a => a.type == "source-url" || a.type == "source-document"),
-          createdAt,
+          content: [p as any],
+          attachments: nonImageFiles,
+          sources,
+          createdAt: ts(i),
           author,
           temperature,
-          totalTokens
-        });
+          totalTokens,
+        } as any);
+
         continue;
       }
 
-      if (p.type.startsWith("tool-") && ((p as ToolUIPart).output as any)?._meta?.["chat/html"]) {
-        // activityRun.push(p);
-        // activity happened before this text -> show it between messages
+      // 3) Special tool widget block: flush activity, then push widget message
+      if (
+        typeof t === "string" &&
+        t.startsWith("tool-") &&
+        ((p as ToolUIPart).output as any)?._meta?.["chat/html"]
+      ) {
         flushActivity();
 
         out.push({
           id: `${z.id}:widget:${i}`,
           role: z.role,
           content: [p as any],
-          //attachments: parts?.filter(a => a.type == "file"),
-          createdAt,
+          createdAt: ts(i),
           author,
           temperature,
-          totalTokens
-        });
+          totalTokens,
+        } as any);
 
         continue;
       }
 
+      // 4) Ignore files/sources as "activity" (files become attachments, sources become sources)
+      if (t === "file" || t === "source-url" || t === "source-document") {
+        continue;
+      }
 
-      // any non-text is "activity" (reasoning/tool/other) and gets grouped,
-      // but ordering stays exactly as in parts[]
-      if (activityRunStartIndex === null) activityRunStartIndex = i;
-      if (t !== "file" && t !== "source-url" && t !== "source-document")
-        activityRun.push(p);
+      // 5) Everything else becomes "activity" and stays grouped
+      startActivityRunIfNeeded(i);
+      activityRun.push(p as any);
     }
 
+    // Flush any trailing buffers
+    flushImages();
     flushActivity();
   }
 
