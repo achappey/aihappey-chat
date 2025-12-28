@@ -22,6 +22,20 @@ export const PROVIDERS: Record<string, any> = {
         ],
         url: "https://runwayml.com"
     },
+    aiml: {
+        name: "AIML",
+        "icons": [
+            {
+                "src": "https://media.licdn.com/dms/image/v2/D560BAQFF5cVF9c_cOw/company-logo_200_200/company-logo_200_200/0/1709201452469/aimlapi_logo?e=2147483647&v=beta&t=l2fmaW9qdhOZ9wR3sukZpFYETyNGEA5jatU66ECxdFQ",
+                "theme": "dark"
+            },
+            {
+                "src": "https://cdn.prod.website-files.com/65b8f36fa600366bc7cf9a67/67600ef9b7e887578cc772f0_aimlapi_logo_square_vector.png",
+                "theme": "light"
+            }
+        ],
+        url: "https://aimlapi.com"
+    },
     anthropic: {
         name: "Anthropic",
         icons: [

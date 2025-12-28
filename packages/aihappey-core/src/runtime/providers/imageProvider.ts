@@ -1,4 +1,4 @@
-import type { ImageModel, ImageModelV3 } from 'aihappey-ai';
+import type { ImageModelV3 } from 'aihappey-ai';
 
 export function createImageProvider(config: {
     baseUrl: string;
@@ -13,51 +13,67 @@ export function createImageProvider(config: {
                 modelId,
 
                 async doGenerate(options) {
-                    const { prompt, size, n, aspectRatio, seed,
-                        files, mask, providerOptions } = options;
+                    const {
+                        prompt,
+                        size,
+                        n = 1,
+                        aspectRatio,
+                        seed,
+                        files,
+                        mask,
+                        providerOptions
+                    } = options;
 
-                    const res = await fetch(`${config.baseUrl}/v1/images/generations`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...(config.headers
-                                ? { ...config.headers }
-                                : {})
-                        },
-                        body: JSON.stringify({
-                            model: modelId,
-                            prompt,
-                            files,
-                            mask,
-                            seed,
-                            aspectRatio,
-                            n,
-                            providerOptions,
-                            size
-                        })
+                    const max = maxImagesPerCall ?? n;
+                    const batches = Math.ceil(n / max);
+
+                    const requests = Array.from({ length: batches }, (_, i) => {
+                        const batchN = Math.min(max, n - i * max);
+
+                        return fetch(`${config.baseUrl}/v1/images/generations`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                ...(config.headers ?? {})
+                            },
+                            body: JSON.stringify({
+                                model: modelId,
+                                prompt,
+                                files,
+                                mask,
+                                seed,
+                                aspectRatio,
+                                n: batchN,
+                                providerOptions,
+                                size
+                            })
+                        }).then(async res => {
+                            if (!res.ok) {
+                                throw new Error(`Image generation failed (${await res.text()})`);
+                            }
+                            return res.json();
+                        });
                     });
 
-                    if (!res.ok) {
-                        throw new Error(`Image generation failed (${await res.text()})`);
-                    }
+                    const results = await Promise.all(requests);
+                    const images = results.flatMap(r => r.images ?? []);
+                    const warnings = results.flatMap(r => r.warnings ?? []);
+                    const timestamp =
+                        results.find(r => r?.response?.timestamp)?.response?.timestamp ??
+                        new Date().toString();
 
-                    const json = await res.json();
-
-                    //  const warnings: SharedV3Warning[] = [];
-                    return json;
-
-                    /*          return {
-                                  images: json.images as string[],
-          
-                                  warnings: [],
-          
-                                  response: {
-                                      timestamp: new Date(),
-                                      modelId,
-                                      headers: undefined
-                                  }
-                              };*/
+                    return {
+                        images,
+                        warnings,
+                        response: {
+                            timestamp,
+                            modelId,
+                            headers: undefined
+                        }
+                    };
                 }
+
+
             };
         }
     };

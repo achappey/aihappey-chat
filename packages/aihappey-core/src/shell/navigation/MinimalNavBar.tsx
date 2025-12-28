@@ -16,7 +16,7 @@ const MinimalNavBar = (): JSX.Element => {
   };
 
   const handleLibrary = () => {
-    navigate("/library");
+    navigate("/images");
   };
 
   return (

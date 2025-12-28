@@ -26,7 +26,7 @@ export const fileToBase64 = (file: File): Promise<string> =>
   });
 
 
-export const ImagesPage = () => {
+export const ImagePage = () => {
   const images = useLibraryImages();
   const isDesktop = useIsDesktop();
   const models = useAppStore((a) => a.models);

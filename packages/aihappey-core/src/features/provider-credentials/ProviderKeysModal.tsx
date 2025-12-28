@@ -18,21 +18,7 @@ function downloadJson(filename: string, data: unknown) {
 
   URL.revokeObjectURL(url);
 }
-
-
-const API_KEY_PROVIDER_IDS = [
-  "openai",
-  "mistral",
-  "anthropic",
-  "google",
-  "perplexity",
-  "cohere",
-  "jina",
-  "runway",
-  "xai",
-  "groq",
-  "together",
-] as const;
+const API_KEY_PROVIDER_IDS = Object.keys(PROVIDERS).filter(a => a !== "pollinations")
 
 type ApiKeyProviderId = (typeof API_KEY_PROVIDER_IDS)[number];
 

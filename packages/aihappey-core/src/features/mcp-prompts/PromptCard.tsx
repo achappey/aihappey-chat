@@ -1,6 +1,5 @@
 import { useCopyToClipboard, useDarkMode } from "usehooks-ts";
 import { OpenLinkButton, useTheme } from "aihappey-components";
-
 import type { Prompt } from "aihappey-mcp";
 import { useTranslation } from "aihappey-i18n";
 
@@ -13,7 +12,7 @@ export const PromptCard = ({ prompt, onSelect }: PromptCardProps) => {
   const { Card, Button, Image } = useTheme();
   const [, copyToClipboard] = useCopyToClipboard();
   const { t } = useTranslation();
-  const rootUrl = window.location.origin; // e.g. "https://fakton.crm4.dynamics.com"
+  const rootUrl = window.location.origin; 
   const params = new URLSearchParams({
     mcpServer: encodeURI(prompt._url!),
     promptName: prompt.name,
