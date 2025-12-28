@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Akademik",
+    "web": "Web",
+    "improveImageRelevance": "Meningkatkan relevansi gambar",
+    "enableSearchClassifier": "Pengklasifikasi pencarian",
+    "dateSearchSettings": "Filter tanggal",
+    "searchRecencyFilter": "Filter kebaruan",
+    "searchAfterDateFilter": "Dipublikasikan setelah tanggal",
+    "searchBeforeDateFilter": "Dipublikasikan sebelum tanggal",
+    "lastUpdatedAfterFilter": "Terakhir diperbarui setelah tanggal",
+    "lastUpdatedBeforeFilter": "Terakhir diperbarui sebelum tanggal",
+    "sonarDeepResearch": "Riset Mendalam Sonar",
+    "returnImages": "Kembalikan gambar",
+    "returnVideos": "Kembalikan video",
+    "returnRelatedQuestions": "Kembalikan pertanyaan terkait"
+  },
+  "pollinations": {
+    "enhance": "Tingkatkan",
+    "enhanceHint": "Biarkan AI meningkatkan prompt Anda untuk hasil yang lebih baik",
+    "private": "Pribadi",
+    "privateHint": "Sembunyikan gambar dari feed publik"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "anthropic": {
+    "maxUses": "Jumlah penggunaan maksimum",
+    "customSkills": "Keterampilan khusus",
+    "allowedDomains": "Domain yang diizinkan",
+    "blockedDomains": "Domain yang diblokir"
+  },
+  "cohere": {
+    "citationOptions": "Sitasi"
+  },
+  "xSearch": "Cari di X",
+  "xai": {
+    "imageUnderstanding": "Pemahaman gambar",
+    "videoUnderstanding": "Pemahaman video",
+    "allowedDomains": "Domain yang diizinkan",
+    "excludedDomains": "Domain yang dikecualikan",
+    "allowed_x_handles": "Akun X yang diizinkan",
+    "excluded_x_handles": "Akun X yang dikecualikan"
+  },
+  "openai": {
+    "container": "Kontainer",
+    "includeOutputs": "Sertakan keluaran",
+    "includeSources": "Sertakan sumber",
+    "includeSearchResults": "Sertakan hasil pencarian",
+    "encryptedContent": "Sertakan enkripsi",
+    "instructions": "Instruksi",
+    "instructionsPlaceholder": "Pesan sistem (atau pengembang) yang disisipkan ke dalam konteks model.",
+    "max_num_results": "Jumlah hasil maksimum",
+    "vector_store_ids": "ID penyimpanan vektor",
+    "file_search": "Pencarian file"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Jawaban sipil yang ditingkatkan",
+    "unspecified": "Tidak ditentukan",
+    "mediaResolution": "Kualitas gambar",
+    "url_context": "Konteks URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Sertakan pemikiran",
+    "dynamicThinking": "Pemikiran dinamis",
+    "intervalStart": "Tanggal mulai",
+    "intervalEnd": "Tanggal selesai",
+    "blockingConfidence": {
+      "label": "Tingkat pemblokiran",
+      "unspecified": "Tidak ditentukan",
+      "lowAndAbove": "Blokir tingkat rendah ke atas",
+      "mediumAndAbove": "Blokir tingkat menengah ke atas",
+      "highAndAbove": "Blokir tingkat tinggi ke atas",
+      "higherAndAbove": "Blokir tingkat sangat tinggi ke atas",
+      "veryHighAndAbove": "Blokir tingkat paling tinggi ke atas",
+      "onlyExtremelyHigh": "Blokir hanya tingkat paling ekstrem"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Jumlah URL yang dikembalikan maksimum",
+    "search_provider": "Pencarian Arxiv yang dioptimalkan",
+    "team_size": "Ukuran tim agen",
+    "goodDomains": "Domain yang diprioritaskan",
+    "badDomains": "Domain buruk",
+    "onlyDomains": "Batasi pencarian ke domain ini"
+  },
+  "together": {
+    "guidanceScale": "Skala panduan",
+    "steps": "Langkah",
+    "negativePrompt": "Prompt negatif",
+    "disableSafetyChecker": "Nonaktifkan pemeriksa keamanan"
+  },
+  "runway": {
+    "contentModeration": "Moderasi konten",
+    "publicFigureThreshold": "Ambang batas figur publik"
+  }
+}

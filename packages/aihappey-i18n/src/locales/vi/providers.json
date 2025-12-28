@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Học thuật",
+    "web": "Web",
+    "improveImageRelevance": "Cải thiện mức độ liên quan của hình ảnh",
+    "enableSearchClassifier": "Bộ phân loại tìm kiếm",
+    "dateSearchSettings": "Bộ lọc ngày",
+    "searchRecencyFilter": "Bộ lọc độ mới",
+    "searchAfterDateFilter": "Xuất bản sau ngày",
+    "searchBeforeDateFilter": "Xuất bản trước ngày",
+    "lastUpdatedAfterFilter": "Cập nhật lần cuối sau ngày",
+    "lastUpdatedBeforeFilter": "Cập nhật lần cuối trước ngày",
+    "sonarDeepResearch": "Nghiên cứu chuyên sâu Sonar",
+    "returnImages": "Trả về hình ảnh",
+    "returnVideos": "Trả về video",
+    "returnRelatedQuestions": "Trả về câu hỏi liên quan"
+  },
+  "pollinations": {
+    "enhance": "Cải thiện",
+    "enhanceHint": "Cho phép AI cải thiện prompt để có kết quả tốt hơn",
+    "private": "Riêng tư",
+    "privateHint": "Ẩn hình ảnh khỏi nguồn cấp công khai"
+  },
+  "mistral": {
+    "webSearchPremium": "Cao cấp"
+  },
+  "anthropic": {
+    "maxUses": "Số lần sử dụng tối đa",
+    "customSkills": "Kỹ năng tùy chỉnh",
+    "allowedDomains": "Tên miền được phép",
+    "blockedDomains": "Tên miền bị chặn"
+  },
+  "cohere": {
+    "citationOptions": "Trích dẫn"
+  },
+  "xSearch": "Tìm kiếm trên X",
+  "xai": {
+    "imageUnderstanding": "Hiểu hình ảnh",
+    "videoUnderstanding": "Hiểu video",
+    "allowedDomains": "Tên miền được phép",
+    "excludedDomains": "Tên miền bị loại trừ",
+    "allowed_x_handles": "Tài khoản X được phép",
+    "excluded_x_handles": "Tài khoản X bị loại trừ"
+  },
+  "openai": {
+    "container": "Vùng chứa",
+    "includeOutputs": "Bao gồm đầu ra",
+    "includeSources": "Bao gồm nguồn",
+    "includeSearchResults": "Bao gồm kết quả tìm kiếm",
+    "encryptedContent": "Bao gồm mã hóa",
+    "instructions": "Hướng dẫn",
+    "instructionsPlaceholder": "Thông điệp hệ thống (hoặc nhà phát triển) được chèn vào ngữ cảnh của mô hình.",
+    "max_num_results": "Số kết quả tối đa",
+    "vector_store_ids": "ID của các kho vector",
+    "file_search": "Tìm kiếm tệp"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Câu trả lời công dân nâng cao",
+    "unspecified": "Không xác định",
+    "mediaResolution": "Chất lượng hình ảnh",
+    "url_context": "Ngữ cảnh URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Bao gồm suy nghĩ",
+    "dynamicThinking": "Tư duy động",
+    "intervalStart": "Ngày bắt đầu",
+    "intervalEnd": "Ngày kết thúc",
+    "blockingConfidence": {
+      "label": "Mức độ chặn",
+      "unspecified": "Không xác định",
+      "lowAndAbove": "Chặn từ mức thấp trở lên",
+      "mediumAndAbove": "Chặn từ mức trung bình trở lên",
+      "highAndAbove": "Chặn từ mức cao trở lên",
+      "higherAndAbove": "Chặn từ mức rất cao trở lên",
+      "veryHighAndAbove": "Chặn từ mức cực cao trở lên",
+      "onlyExtremelyHigh": "Chỉ chặn mức cực kỳ cao"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Số URL trả về tối đa",
+    "search_provider": "Tìm kiếm Arxiv tối ưu",
+    "team_size": "Quy mô nhóm agent",
+    "goodDomains": "Tên miền được ưu tiên",
+    "badDomains": "Tên miền xấu",
+    "onlyDomains": "Giới hạn tìm kiếm trong các tên miền này"
+  },
+  "together": {
+    "guidanceScale": "Thang hướng dẫn",
+    "steps": "Số bước",
+    "negativePrompt": "Prompt phủ định",
+    "disableSafetyChecker": "Tắt kiểm tra an toàn"
+  },
+  "runway": {
+    "contentModeration": "Kiểm duyệt nội dung",
+    "publicFigureThreshold": "Ngưỡng nhân vật công chúng"
+  }
+}

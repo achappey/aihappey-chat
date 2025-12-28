@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "शैक्षणिक",
+    "web": "वेब",
+    "improveImageRelevance": "छवि प्रासंगिकता सुधारें",
+    "enableSearchClassifier": "सर्च क्लासिफ़ायर",
+    "dateSearchSettings": "तारीख फ़िल्टर",
+    "searchRecencyFilter": "हालिया फ़िल्टर",
+    "searchAfterDateFilter": "इस तारीख के बाद प्रकाशित",
+    "searchBeforeDateFilter": "इस तारीख से पहले प्रकाशित",
+    "lastUpdatedAfterFilter": "इस तारीख के बाद अपडेट किया गया",
+    "lastUpdatedBeforeFilter": "इस तारीख से पहले अपडेट किया गया",
+    "sonarDeepResearch": "सोनार डीप रिसर्च",
+    "returnImages": "छवियाँ लौटाएँ",
+    "returnVideos": "वीडियो लौटाएँ",
+    "returnRelatedQuestions": "संबंधित प्रश्न लौटाएँ"
+  },
+  "pollinations": {
+    "enhance": "बेहतर बनाएँ",
+    "enhanceHint": "बेहतर परिणामों के लिए AI को आपके प्रॉम्प्ट को सुधारने दें",
+    "private": "निजी",
+    "privateHint": "छवि को सार्वजनिक फ़ीड से छिपाएँ"
+  },
+  "mistral": {
+    "webSearchPremium": "प्रीमियम"
+  },
+  "anthropic": {
+    "maxUses": "अधिकतम उपयोग",
+    "customSkills": "कस्टम कौशल",
+    "allowedDomains": "अनुमत डोमेन",
+    "blockedDomains": "अवरोधित डोमेन"
+  },
+  "cohere": {
+    "citationOptions": "उद्धरण"
+  },
+  "xSearch": "X पर खोजें",
+  "xai": {
+    "imageUnderstanding": "छवि समझ",
+    "videoUnderstanding": "वीडियो समझ",
+    "allowedDomains": "अनुमत डोमेन",
+    "excludedDomains": "बहिष्कृत डोमेन",
+    "allowed_x_handles": "अनुमत X हैंडल",
+    "excluded_x_handles": "बहिष्कृत X हैंडल"
+  },
+  "openai": {
+    "container": "कंटेनर",
+    "includeOutputs": "आउटपुट शामिल करें",
+    "includeSources": "स्रोत शामिल करें",
+    "includeSearchResults": "खोज परिणाम शामिल करें",
+    "encryptedContent": "एन्क्रिप्शन शामिल करें",
+    "instructions": "निर्देश",
+    "instructionsPlaceholder": "मॉडल के संदर्भ में जोड़ा गया सिस्टम (या डेवलपर) संदेश।",
+    "max_num_results": "परिणामों की अधिकतम संख्या",
+    "vector_store_ids": "वेक्टर स्टोर्स के ID",
+    "file_search": "फ़ाइल खोज"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "उन्नत नागरिक उत्तर",
+    "unspecified": "निर्दिष्ट नहीं",
+    "mediaResolution": "छवि गुणवत्ता",
+    "url_context": "URL संदर्भ",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "विचार शामिल करें",
+    "dynamicThinking": "गतिशील सोच",
+    "intervalStart": "प्रारंभ तिथि",
+    "intervalEnd": "समाप्ति तिथि",
+    "blockingConfidence": {
+      "label": "अवरोधन विश्वास स्तर",
+      "unspecified": "निर्दिष्ट नहीं",
+      "lowAndAbove": "कम और उससे ऊपर अवरुद्ध करें",
+      "mediumAndAbove": "मध्यम और उससे ऊपर अवरुद्ध करें",
+      "highAndAbove": "उच्च और उससे ऊपर अवरुद्ध करें",
+      "higherAndAbove": "और अधिक तथा उससे ऊपर अवरुद्ध करें",
+      "veryHighAndAbove": "बहुत उच्च और उससे ऊपर अवरुद्ध करें",
+      "onlyExtremelyHigh": "केवल अत्यंत उच्च अवरुद्ध करें"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "अधिकतम लौटाए गए URL",
+    "search_provider": "Arxiv अनुकूलित खोज",
+    "team_size": "एजेंटिक टीम आकार",
+    "goodDomains": "बूस्ट किए गए डोमेन",
+    "badDomains": "खराब डोमेन",
+    "onlyDomains": "खोज को केवल इन डोमेनों तक सीमित करें"
+  },
+  "together": {
+    "guidanceScale": "मार्गदर्शन स्केल",
+    "steps": "कदम",
+    "negativePrompt": "नकारात्मक प्रॉम्प्ट",
+    "disableSafetyChecker": "सुरक्षा जाँच अक्षम करें"
+  },
+  "runway": {
+    "contentModeration": "सामग्री मॉडरेशन",
+    "publicFigureThreshold": "सार्वजनिक व्यक्ति सीमा"
+  }
+}

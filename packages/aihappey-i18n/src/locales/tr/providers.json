@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Akademik",
+    "web": "Web",
+    "improveImageRelevance": "Görsel alaka düzeyini iyileştir",
+    "enableSearchClassifier": "Arama sınıflandırıcısı",
+    "dateSearchSettings": "Tarih filtreleri",
+    "searchRecencyFilter": "Güncellik filtresi",
+    "searchAfterDateFilter": "Tarihten sonra yayımlandı",
+    "searchBeforeDateFilter": "Tarihten önce yayımlandı",
+    "lastUpdatedAfterFilter": "Tarihten sonra güncellendi",
+    "lastUpdatedBeforeFilter": "Tarihten önce güncellendi",
+    "sonarDeepResearch": "Sonar Derin Araştırma",
+    "returnImages": "Görselleri döndür",
+    "returnVideos": "Videoları döndür",
+    "returnRelatedQuestions": "İlgili soruları döndür"
+  },
+  "pollinations": {
+    "enhance": "Geliştir",
+    "enhanceHint": "Daha iyi sonuçlar için AI’nın istemi geliştirmesine izin ver",
+    "private": "Özel",
+    "privateHint": "Görseli herkese açık akışlardan gizle"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "anthropic": {
+    "maxUses": "Maksimum kullanım sayısı",
+    "customSkills": "Özel beceriler",
+    "allowedDomains": "İzin verilen alan adları",
+    "blockedDomains": "Engellenen alan adları"
+  },
+  "cohere": {
+    "citationOptions": "Atıflar"
+  },
+  "xSearch": "X’te ara",
+  "xai": {
+    "imageUnderstanding": "Görsel anlama",
+    "videoUnderstanding": "Video anlama",
+    "allowedDomains": "İzin verilen alan adları",
+    "excludedDomains": "Hariç tutulan alan adları",
+    "allowed_x_handles": "İzin verilen X hesapları",
+    "excluded_x_handles": "Hariç tutulan X hesapları"
+  },
+  "openai": {
+    "container": "Kapsayıcı",
+    "includeOutputs": "Çıktıları dahil et",
+    "includeSources": "Kaynakları dahil et",
+    "includeSearchResults": "Arama sonuçlarını dahil et",
+    "encryptedContent": "Şifrelemeyi dahil et",
+    "instructions": "Talimatlar",
+    "instructionsPlaceholder": "Model bağlamına eklenen bir sistem (veya geliştirici) mesajı.",
+    "max_num_results": "Maksimum sonuç sayısı",
+    "vector_store_ids": "Vektör depolarının kimlikleri",
+    "file_search": "Dosya arama"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Gelişmiş yurttaşlık yanıtları",
+    "unspecified": "Belirtilmemiş",
+    "mediaResolution": "Görsel kalitesi",
+    "url_context": "URL bağlamı",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Düşünceleri dahil et",
+    "dynamicThinking": "Dinamik düşünme",
+    "intervalStart": "Başlangıç tarihi",
+    "intervalEnd": "Bitiş tarihi",
+    "blockingConfidence": {
+      "label": "Engelleme seviyesi",
+      "unspecified": "Belirtilmemiş",
+      "lowAndAbove": "Düşük ve üzerini engelle",
+      "mediumAndAbove": "Orta ve üzerini engelle",
+      "highAndAbove": "Yüksek ve üzerini engelle",
+      "higherAndAbove": "Çok yüksek ve üzerini engelle",
+      "veryHighAndAbove": "Çok yüksek ve üzerini engelle",
+      "onlyExtremelyHigh": "Yalnızca aşırı yüksekleri engelle"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Maksimum döndürülen URL sayısı",
+    "search_provider": "Arxiv optimize edilmiş arama",
+    "team_size": "Ajan ekip boyutu",
+    "goodDomains": "Güçlendirilmiş alan adları",
+    "badDomains": "Olumsuz alan adları",
+    "onlyDomains": "Aramayı bu alan adlarıyla sınırla"
+  },
+  "together": {
+    "guidanceScale": "Yönlendirme ölçeği",
+    "steps": "Adımlar",
+    "negativePrompt": "Negatif istem",
+    "disableSafetyChecker": "Güvenlik denetimini devre dışı bırak"
+  },
+  "runway": {
+    "contentModeration": "İçerik moderasyonu",
+    "publicFigureThreshold": "Kamuya mal olmuş kişi eşiği"
+  }
+}

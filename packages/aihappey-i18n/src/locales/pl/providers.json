@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Akademickie",
+    "web": "Web",
+    "improveImageRelevance": "Popraw trafność obrazów",
+    "enableSearchClassifier": "Klasyfikator wyszukiwania",
+    "dateSearchSettings": "Filtry daty",
+    "searchRecencyFilter": "Filtr świeżości",
+    "searchAfterDateFilter": "Opublikowane po dacie",
+    "searchBeforeDateFilter": "Opublikowane przed datą",
+    "lastUpdatedAfterFilter": "Ostatnia aktualizacja po dacie",
+    "lastUpdatedBeforeFilter": "Ostatnia aktualizacja przed datą",
+    "sonarDeepResearch": "Dogłębne badania Sonar",
+    "returnImages": "Zwracaj obrazy",
+    "returnVideos": "Zwracaj wideo",
+    "returnRelatedQuestions": "Zwracaj powiązane pytania"
+  },
+  "pollinations": {
+    "enhance": "Ulepsz",
+    "enhanceHint": "Pozwól AI ulepszyć prompt, aby uzyskać lepsze wyniki",
+    "private": "Prywatne",
+    "privateHint": "Ukryj obraz z publicznych kanałów"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "anthropic": {
+    "maxUses": "Maksymalna liczba użyć",
+    "customSkills": "Niestandardowe umiejętności",
+    "allowedDomains": "Dozwolone domeny",
+    "blockedDomains": "Zablokowane domeny"
+  },
+  "cohere": {
+    "citationOptions": "Cytowania"
+  },
+  "xSearch": "Szukaj na X",
+  "xai": {
+    "imageUnderstanding": "Rozumienie obrazów",
+    "videoUnderstanding": "Rozumienie wideo",
+    "allowedDomains": "Dozwolone domeny",
+    "excludedDomains": "Wykluczone domeny",
+    "allowed_x_handles": "Dozwolone konta X",
+    "excluded_x_handles": "Wykluczone konta X"
+  },
+  "openai": {
+    "container": "Kontener",
+    "includeOutputs": "Uwzględnij wyniki",
+    "includeSources": "Uwzględnij źródła",
+    "includeSearchResults": "Uwzględnij wyniki wyszukiwania",
+    "encryptedContent": "Uwzględnij szyfrowanie",
+    "instructions": "Instrukcje",
+    "instructionsPlaceholder": "Wiadomość systemowa (lub deweloperska) wstawiona do kontekstu modelu.",
+    "max_num_results": "Maksymalna liczba wyników",
+    "vector_store_ids": "Identyfikatory magazynów wektorowych",
+    "file_search": "Wyszukiwanie plików"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Rozszerzone odpowiedzi obywatelskie",
+    "unspecified": "Nieokreślone",
+    "mediaResolution": "Jakość obrazu",
+    "url_context": "Kontekst URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Uwzględnij myśli",
+    "dynamicThinking": "Dynamiczne myślenie",
+    "intervalStart": "Data początkowa",
+    "intervalEnd": "Data końcowa",
+    "blockingConfidence": {
+      "label": "Poziom blokowania",
+      "unspecified": "Nieokreślony",
+      "lowAndAbove": "Blokuj od niskiego wzwyż",
+      "mediumAndAbove": "Blokuj od średniego wzwyż",
+      "highAndAbove": "Blokuj od wysokiego wzwyż",
+      "higherAndAbove": "Blokuj od bardzo wysokiego wzwyż",
+      "veryHighAndAbove": "Blokuj od bardzo wysokiego wzwyż",
+      "onlyExtremelyHigh": "Blokuj tylko ekstremalnie wysokie"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Maksymalna liczba zwróconych URL-i",
+    "search_provider": "Zoptymalizowane wyszukiwanie Arxiv",
+    "team_size": "Rozmiar zespołu agentowego",
+    "goodDomains": "Wzmocnione domeny",
+    "badDomains": "Negatywne domeny",
+    "onlyDomains": "Ogranicz wyszukiwanie do tych domen"
+  },
+  "together": {
+    "guidanceScale": "Skala prowadzenia",
+    "steps": "Kroki",
+    "negativePrompt": "Negatywny prompt",
+    "disableSafetyChecker": "Wyłącz kontrolę bezpieczeństwa"
+  },
+  "runway": {
+    "contentModeration": "Moderacja treści",
+    "publicFigureThreshold": "Próg dla postaci publicznych"
+  }
+}

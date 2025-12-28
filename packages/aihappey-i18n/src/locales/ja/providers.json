@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "アカデミック",
+    "web": "ウェブ",
+    "improveImageRelevance": "画像の関連性を向上",
+    "enableSearchClassifier": "検索分類器を有効化",
+    "dateSearchSettings": "日付フィルター",
+    "searchRecencyFilter": "最新度フィルター",
+    "searchAfterDateFilter": "指定日以降に公開",
+    "searchBeforeDateFilter": "指定日以前に公開",
+    "lastUpdatedAfterFilter": "指定日以降に更新",
+    "lastUpdatedBeforeFilter": "指定日以前に更新",
+    "sonarDeepResearch": "Sonar ディープリサーチ",
+    "returnImages": "画像を返す",
+    "returnVideos": "動画を返す",
+    "returnRelatedQuestions": "関連質問を返す"
+  },
+  "pollinations": {
+    "enhance": "強化",
+    "enhanceHint": "AI がプロンプトを改善し、より良い結果を生成します",
+    "private": "非公開",
+    "privateHint": "画像を公開フィードから非表示にします"
+  },
+  "mistral": {
+    "webSearchPremium": "プレミアム"
+  },
+  "anthropic": {
+    "maxUses": "最大使用回数",
+    "customSkills": "カスタムスキル",
+    "allowedDomains": "許可されたドメイン",
+    "blockedDomains": "ブロックされたドメイン"
+  },
+  "cohere": {
+    "citationOptions": "引用"
+  },
+  "xSearch": "X で検索",
+  "xai": {
+    "imageUnderstanding": "画像理解",
+    "videoUnderstanding": "動画理解",
+    "allowedDomains": "許可されたドメイン",
+    "excludedDomains": "除外されたドメイン",
+    "allowed_x_handles": "許可された X アカウント",
+    "excluded_x_handles": "除外された X アカウント"
+  },
+  "openai": {
+    "container": "コンテナ",
+    "includeOutputs": "出力を含める",
+    "includeSources": "ソースを含める",
+    "includeSearchResults": "検索結果を含める",
+    "encryptedContent": "暗号化を含める",
+    "instructions": "指示",
+    "instructionsPlaceholder": "モデルのコンテキストに挿入されるシステム（または開発者）メッセージ。",
+    "max_num_results": "最大結果数",
+    "vector_store_ids": "ベクターストア ID",
+    "file_search": "ファイル検索"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "強化された公共回答",
+    "unspecified": "未指定",
+    "mediaResolution": "画像品質",
+    "url_context": "URL コンテキスト",
+    "googleMaps": "Google マップ",
+    "includeThoughts": "思考を含める",
+    "dynamicThinking": "動的思考",
+    "intervalStart": "開始日",
+    "intervalEnd": "終了日",
+    "blockingConfidence": {
+      "label": "ブロック信頼度",
+      "unspecified": "未指定",
+      "lowAndAbove": "低以上をブロック",
+      "mediumAndAbove": "中以上をブロック",
+      "highAndAbove": "高以上をブロック",
+      "higherAndAbove": "より高以上をブロック",
+      "veryHighAndAbove": "非常に高以上をブロック",
+      "onlyExtremelyHigh": "極めて高のみブロック"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "最大返却 URL 数",
+    "search_provider": "arXiv 最適化検索",
+    "team_size": "エージェントチーム規模",
+    "goodDomains": "強化ドメイン",
+    "badDomains": "不正ドメイン",
+    "onlyDomains": "検索対象ドメインを制限"
+  },
+  "together": {
+    "guidanceScale": "ガイダンススケール",
+    "steps": "ステップ",
+    "negativePrompt": "ネガティブプロンプト",
+    "disableSafetyChecker": "セーフティチェッカーを無効化"
+  },
+  "runway": {
+    "contentModeration": "コンテンツモデレーション",
+    "publicFigureThreshold": "著名人物しきい値"
+  }
+}

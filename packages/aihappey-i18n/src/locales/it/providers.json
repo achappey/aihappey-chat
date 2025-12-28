@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Accademico",
+    "web": "Web",
+    "improveImageRelevance": "Migliora la rilevanza delle immagini",
+    "enableSearchClassifier": "Classificatore di ricerca",
+    "dateSearchSettings": "Filtri per data",
+    "searchRecencyFilter": "Filtro di recentità",
+    "searchAfterDateFilter": "Pubblicato dopo la data",
+    "searchBeforeDateFilter": "Pubblicato prima della data",
+    "lastUpdatedAfterFilter": "Ultimo aggiornamento dopo la data",
+    "lastUpdatedBeforeFilter": "Ultimo aggiornamento prima della data",
+    "sonarDeepResearch": "Ricerca approfondita Sonar",
+    "returnImages": "Restituisci immagini",
+    "returnVideos": "Restituisci video",
+    "returnRelatedQuestions": "Restituisci domande correlate"
+  },
+  "pollinations": {
+    "enhance": "Migliora",
+    "enhanceHint": "Lascia che l’AI migliori il prompt per risultati migliori",
+    "private": "Privato",
+    "privateHint": "Nascondi l’immagine dai feed pubblici"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "anthropic": {
+    "maxUses": "Numero massimo di utilizzi",
+    "customSkills": "Competenze personalizzate",
+    "allowedDomains": "Domini consentiti",
+    "blockedDomains": "Domini bloccati"
+  },
+  "cohere": {
+    "citationOptions": "Citazioni"
+  },
+  "xSearch": "Cerca su X",
+  "xai": {
+    "imageUnderstanding": "Comprensione delle immagini",
+    "videoUnderstanding": "Comprensione dei video",
+    "allowedDomains": "Domini consentiti",
+    "excludedDomains": "Domini esclusi",
+    "allowed_x_handles": "Account X consentiti",
+    "excluded_x_handles": "Account X esclusi"
+  },
+  "openai": {
+    "container": "Contenitore",
+    "includeOutputs": "Includi output",
+    "includeSources": "Includi fonti",
+    "includeSearchResults": "Includi risultati di ricerca",
+    "encryptedContent": "Includi crittografia",
+    "instructions": "Istruzioni",
+    "instructionsPlaceholder": "Messaggio di sistema (o sviluppatore) inserito nel contesto del modello.",
+    "max_num_results": "Numero massimo di risultati",
+    "vector_store_ids": "ID degli archivi vettoriali",
+    "file_search": "Ricerca file"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Risposte civiche avanzate",
+    "unspecified": "Non specificato",
+    "mediaResolution": "Qualità dell’immagine",
+    "url_context": "Contesto URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Includi pensieri",
+    "dynamicThinking": "Pensiero dinamico",
+    "intervalStart": "Data di inizio",
+    "intervalEnd": "Data di fine",
+    "blockingConfidence": {
+      "label": "Livello di blocco",
+      "unspecified": "Non specificato",
+      "lowAndAbove": "Blocca da basso in su",
+      "mediumAndAbove": "Blocca da medio in su",
+      "highAndAbove": "Blocca da alto in su",
+      "higherAndAbove": "Blocca da molto alto in su",
+      "veryHighAndAbove": "Blocca da molto alto in su",
+      "onlyExtremelyHigh": "Blocca solo estremamente alto"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Numero massimo di URL restituiti",
+    "search_provider": "Ricerca ottimizzata Arxiv",
+    "team_size": "Dimensione del team agentico",
+    "goodDomains": "Domini potenziati",
+    "badDomains": "Domini negativi",
+    "onlyDomains": "Limita la ricerca a questi domini"
+  },
+  "together": {
+    "guidanceScale": "Scala di guida",
+    "steps": "Passaggi",
+    "negativePrompt": "Prompt negativo",
+    "disableSafetyChecker": "Disabilita il controllo di sicurezza"
+  },
+  "runway": {
+    "contentModeration": "Moderazione dei contenuti",
+    "publicFigureThreshold": "Soglia per figure pubbliche"
+  }
+}

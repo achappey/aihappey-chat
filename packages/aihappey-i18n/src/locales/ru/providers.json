@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Академический",
+    "web": "Веб",
+    "improveImageRelevance": "Улучшить релевантность изображений",
+    "enableSearchClassifier": "Классификатор поиска",
+    "dateSearchSettings": "Фильтры по дате",
+    "searchRecencyFilter": "Фильтр по давности",
+    "searchAfterDateFilter": "Опубликовано после даты",
+    "searchBeforeDateFilter": "Опубликовано до даты",
+    "lastUpdatedAfterFilter": "Обновлено после даты",
+    "lastUpdatedBeforeFilter": "Обновлено до даты",
+    "sonarDeepResearch": "Глубокое исследование Sonar",
+    "returnImages": "Возвращать изображения",
+    "returnVideos": "Возвращать видео",
+    "returnRelatedQuestions": "Возвращать связанные вопросы"
+  },
+  "pollinations": {
+    "enhance": "Улучшить",
+    "enhanceHint": "Позволить AI улучшить промпт для лучших результатов",
+    "private": "Приватный",
+    "privateHint": "Скрыть изображение из публичных лент"
+  },
+  "mistral": {
+    "webSearchPremium": "Премиум"
+  },
+  "anthropic": {
+    "maxUses": "Максимальное количество использований",
+    "customSkills": "Пользовательские навыки",
+    "allowedDomains": "Разрешённые домены",
+    "blockedDomains": "Заблокированные домены"
+  },
+  "cohere": {
+    "citationOptions": "Цитирования"
+  },
+  "xSearch": "Поиск в X",
+  "xai": {
+    "imageUnderstanding": "Понимание изображений",
+    "videoUnderstanding": "Понимание видео",
+    "allowedDomains": "Разрешённые домены",
+    "excludedDomains": "Исключённые домены",
+    "allowed_x_handles": "Разрешённые аккаунты X",
+    "excluded_x_handles": "Исключённые аккаунты X"
+  },
+  "openai": {
+    "container": "Контейнер",
+    "includeOutputs": "Включить выходные данные",
+    "includeSources": "Включить источники",
+    "includeSearchResults": "Включить результаты поиска",
+    "encryptedContent": "Включить шифрование",
+    "instructions": "Инструкции",
+    "instructionsPlaceholder": "Системное (или разработческое) сообщение, вставляемое в контекст модели.",
+    "max_num_results": "Максимальное количество результатов",
+    "vector_store_ids": "Идентификаторы векторных хранилищ",
+    "file_search": "Поиск файлов"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Расширенные гражданские ответы",
+    "unspecified": "Не указано",
+    "mediaResolution": "Качество изображения",
+    "url_context": "Контекст URL",
+    "googleMaps": "Google Карты",
+    "includeThoughts": "Включить мысли",
+    "dynamicThinking": "Динамическое мышление",
+    "intervalStart": "Дата начала",
+    "intervalEnd": "Дата окончания",
+    "blockingConfidence": {
+      "label": "Уровень блокировки",
+      "unspecified": "Не указано",
+      "lowAndAbove": "Блокировать низкий и выше",
+      "mediumAndAbove": "Блокировать средний и выше",
+      "highAndAbove": "Блокировать высокий и выше",
+      "higherAndAbove": "Блокировать очень высокий и выше",
+      "veryHighAndAbove": "Блокировать чрезвычайно высокий и выше",
+      "onlyExtremelyHigh": "Блокировать только чрезвычайно высокий"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Максимальное количество возвращаемых URL",
+    "search_provider": "Оптимизированный поиск Arxiv",
+    "team_size": "Размер агентной команды",
+    "goodDomains": "Продвигаемые домены",
+    "badDomains": "Нежелательные домены",
+    "onlyDomains": "Ограничить поиск этими доменами"
+  },
+  "together": {
+    "guidanceScale": "Шкала направляющих",
+    "steps": "Шаги",
+    "negativePrompt": "Негативный промпт",
+    "disableSafetyChecker": "Отключить проверку безопасности"
+  },
+  "runway": {
+    "contentModeration": "Модерация контента",
+    "publicFigureThreshold": "Порог публичной фигуры"
+  }
+}

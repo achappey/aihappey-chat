@@ -83,8 +83,14 @@
     "negativePrompt": "Prompt negativo",
     "disableSafetyChecker": "Desactivar comprobación de seguridad"
   },
-   "runway": {
+  "runway": {
     "contentModeration": "Moderación de contenido",
     "publicFigureThreshold": "Umbral de figuras públicas"
+  },
+  "pollinations": {
+    "enhance": "Mejorar",
+    "enhanceHint": "Deja que la IA mejore tu prompt para obtener mejores resultados",
+    "private": "Privado",
+    "privateHint": "Ocultar la imagen de los feeds públicos"
   }
 }

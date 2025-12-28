@@ -6,8 +6,11 @@
   "chats": "Chats",
   "context": "Contexte",
   "imagePromptPlaceholder": "Décrire une nouvelle image",
+  "chatWithImageModels": "Discuter avec des modèles d’image",
   "myImages": "Mes images",
   "table": "Tableau",
+  "variation": "Variation",
+  "download": "Télécharger",
   "language": "Langue",
   "video": "Vidéo",
   "noResults": "Aucun résultat",
@@ -297,5 +300,17 @@
     "nameExists": "Un serveur avec ce nom existe déjà.",
     "type": "Type",
     "http": "HTTP"
+  },
+  "imageSettings": {
+    "size": "Taille de l’image",
+    "title": "Paramètres de l’image",
+    "aspectRatio": "Ratio d’aspect",
+    "maxImagesPerCall": "Nombre maximal d’images par appel",
+    "width": "Largeur",
+    "height": "Hauteur",
+    "other": "Autres",
+    "output": "Sortie",
+    "n": "Nombre d’images",
+    "seed": "Graine"
   }
 }

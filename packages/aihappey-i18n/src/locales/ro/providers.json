@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Academic",
+    "web": "Web",
+    "improveImageRelevance": "Îmbunătățește relevanța imaginilor",
+    "enableSearchClassifier": "Clasificator de căutare",
+    "dateSearchSettings": "Filtre de dată",
+    "searchRecencyFilter": "Filtru de recență",
+    "searchAfterDateFilter": "Publicat după data",
+    "searchBeforeDateFilter": "Publicat înainte de data",
+    "lastUpdatedAfterFilter": "Ultima actualizare după data",
+    "lastUpdatedBeforeFilter": "Ultima actualizare înainte de data",
+    "sonarDeepResearch": "Cercetare aprofundată Sonar",
+    "returnImages": "Returnează imagini",
+    "returnVideos": "Returnează videoclipuri",
+    "returnRelatedQuestions": "Returnează întrebări conexe"
+  },
+  "pollinations": {
+    "enhance": "Îmbunătățește",
+    "enhanceHint": "Permite AI să îmbunătățească promptul pentru rezultate mai bune",
+    "private": "Privat",
+    "privateHint": "Ascunde imaginea din fluxurile publice"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium"
+  },
+  "anthropic": {
+    "maxUses": "Număr maxim de utilizări",
+    "customSkills": "Abilități personalizate",
+    "allowedDomains": "Domenii permise",
+    "blockedDomains": "Domenii blocate"
+  },
+  "cohere": {
+    "citationOptions": "Citații"
+  },
+  "xSearch": "Caută pe X",
+  "xai": {
+    "imageUnderstanding": "Înțelegerea imaginilor",
+    "videoUnderstanding": "Înțelegerea videoclipurilor",
+    "allowedDomains": "Domenii permise",
+    "excludedDomains": "Domenii excluse",
+    "allowed_x_handles": "Conturi X permise",
+    "excluded_x_handles": "Conturi X excluse"
+  },
+  "openai": {
+    "container": "Container",
+    "includeOutputs": "Include ieșirile",
+    "includeSources": "Include sursele",
+    "includeSearchResults": "Include rezultatele căutării",
+    "encryptedContent": "Include criptarea",
+    "instructions": "Instrucțiuni",
+    "instructionsPlaceholder": "Mesaj de sistem (sau dezvoltator) inserat în contextul modelului.",
+    "max_num_results": "Număr maxim de rezultate",
+    "vector_store_ids": "ID-uri ale stocărilor vectoriale",
+    "file_search": "Căutare fișiere"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Răspunsuri civice îmbunătățite",
+    "unspecified": "Nespecificat",
+    "mediaResolution": "Calitatea imaginii",
+    "url_context": "Context URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Include gânduri",
+    "dynamicThinking": "Gândire dinamică",
+    "intervalStart": "Data de început",
+    "intervalEnd": "Data de sfârșit",
+    "blockingConfidence": {
+      "label": "Nivel de blocare",
+      "unspecified": "Nespecificat",
+      "lowAndAbove": "Blochează nivel scăzut și peste",
+      "mediumAndAbove": "Blochează nivel mediu și peste",
+      "highAndAbove": "Blochează nivel ridicat și peste",
+      "higherAndAbove": "Blochează nivel foarte ridicat și peste",
+      "veryHighAndAbove": "Blochează nivel extrem de ridicat și peste",
+      "onlyExtremelyHigh": "Blochează doar nivel extrem de ridicat"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Număr maxim de URL-uri returnate",
+    "search_provider": "Căutare Arxiv optimizată",
+    "team_size": "Dimensiunea echipei de agenți",
+    "goodDomains": "Domenii promovate",
+    "badDomains": "Domenii nefavorabile",
+    "onlyDomains": "Restricționează căutarea la aceste domenii"
+  },
+  "together": {
+    "guidanceScale": "Scală de ghidare",
+    "steps": "Pași",
+    "negativePrompt": "Prompt negativ",
+    "disableSafetyChecker": "Dezactivează verificarea de siguranță"
+  },
+  "runway": {
+    "contentModeration": "Moderare conținut",
+    "publicFigureThreshold": "Prag pentru persoane publice"
+  }
+}

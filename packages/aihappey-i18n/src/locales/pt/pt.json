@@ -8,7 +8,10 @@
   "table": "Tabela",
   "language": "Idioma",
   "imagePromptPlaceholder": "Descrever uma nova imagem",
+  "chatWithImageModels": "Chat com modelos de imagem",
   "myImages": "Minhas imagens",
+  "variation": "Variação",
+  "download": "Download",
   "video": "Vídeo",
   "priority": "Prioridade",
   "apiKey": "Chave API",
@@ -297,5 +300,17 @@
     "nameExists": "Já existe um servidor com este nome.",
     "type": "Tipo",
     "http": "HTTP"
+  },
+  "imageSettings": {
+    "size": "Tamanho da imagem",
+    "title": "Configurações de imagem",
+    "aspectRatio": "Proporção",
+    "maxImagesPerCall": "Máximo de imagens por chamada",
+    "width": "Largura",
+    "height": "Altura",
+    "other": "Outros",
+    "output": "Saída",
+    "n": "Número de imagens",
+    "seed": "Semente"
   }
 }

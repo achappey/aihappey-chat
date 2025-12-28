@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "Akadémiai",
+    "web": "Web",
+    "improveImageRelevance": "Képek relevanciájának javítása",
+    "enableSearchClassifier": "Keresési osztályozó",
+    "dateSearchSettings": "Dátumszűrők",
+    "searchRecencyFilter": "Frissességi szűrő",
+    "searchAfterDateFilter": "Közzétéve dátum után",
+    "searchBeforeDateFilter": "Közzétéve dátum előtt",
+    "lastUpdatedAfterFilter": "Utoljára frissítve dátum után",
+    "lastUpdatedBeforeFilter": "Utoljára frissítve dátum előtt",
+    "sonarDeepResearch": "Sonar mélyreható kutatás",
+    "returnImages": "Képek visszaadása",
+    "returnVideos": "Videók visszaadása",
+    "returnRelatedQuestions": "Kapcsolódó kérdések visszaadása"
+  },
+  "pollinations": {
+    "enhance": "Javítás",
+    "enhanceHint": "Engedd, hogy az AI javítsa a promptot a jobb eredményekért",
+    "private": "Privát",
+    "privateHint": "A kép elrejtése a nyilvános feedekből"
+  },
+  "mistral": {
+    "webSearchPremium": "Prémium"
+  },
+  "anthropic": {
+    "maxUses": "Felhasználások maximális száma",
+    "customSkills": "Egyedi készségek",
+    "allowedDomains": "Engedélyezett domainek",
+    "blockedDomains": "Tiltott domainek"
+  },
+  "cohere": {
+    "citationOptions": "Hivatkozások"
+  },
+  "xSearch": "Keresés az X-en",
+  "xai": {
+    "imageUnderstanding": "Képfelismerés",
+    "videoUnderstanding": "Videófelismerés",
+    "allowedDomains": "Engedélyezett domainek",
+    "excludedDomains": "Kizárt domainek",
+    "allowed_x_handles": "Engedélyezett X-fiókok",
+    "excluded_x_handles": "Kizárt X-fiókok"
+  },
+  "openai": {
+    "container": "Konténer",
+    "includeOutputs": "Kimenetek belefoglalása",
+    "includeSources": "Források belefoglalása",
+    "includeSearchResults": "Keresési eredmények belefoglalása",
+    "encryptedContent": "Titkosítás belefoglalása",
+    "instructions": "Utasítások",
+    "instructionsPlaceholder": "A modell kontextusába beszúrt rendszer- (vagy fejlesztői) üzenet.",
+    "max_num_results": "Eredmények maximális száma",
+    "vector_store_ids": "Vektortárak azonosítói",
+    "file_search": "Fájlkeresés"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Továbbfejlesztett állampolgári válaszok",
+    "unspecified": "Nincs megadva",
+    "mediaResolution": "Képminőség",
+    "url_context": "URL-kontekstus",
+    "googleMaps": "Google Térkép",
+    "includeThoughts": "Gondolatok belefoglalása",
+    "dynamicThinking": "Dinamikus gondolkodás",
+    "intervalStart": "Kezdő dátum",
+    "intervalEnd": "Záró dátum",
+    "blockingConfidence": {
+      "label": "Blokkolási szint",
+      "unspecified": "Nincs megadva",
+      "lowAndAbove": "Alacsonytól felfelé blokkol",
+      "mediumAndAbove": "Közepestől felfelé blokkol",
+      "highAndAbove": "Magastól felfelé blokkol",
+      "higherAndAbove": "Nagyon magastól felfelé blokkol",
+      "veryHighAndAbove": "Rendkívül magastól felfelé blokkol",
+      "onlyExtremelyHigh": "Csak rendkívül magasat blokkol"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Visszaadott URL-ek maximális száma",
+    "search_provider": "Optimalizált Arxiv keresés",
+    "team_size": "Agentikus csapat mérete",
+    "goodDomains": "Erősített domainek",
+    "badDomains": "Rossz domainek",
+    "onlyDomains": "Keresés korlátozása ezekre a domainekre"
+  },
+  "together": {
+    "guidanceScale": "Irányítási skála",
+    "steps": "Lépések",
+    "negativePrompt": "Negatív prompt",
+    "disableSafetyChecker": "Biztonsági ellenőrző kikapcsolása"
+  },
+  "runway": {
+    "contentModeration": "Tartalommoderálás",
+    "publicFigureThreshold": "Közszereplő küszöbérték"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "perplexity": {
+    "academic": "একাডেমিক",
+    "web": "ওয়েব",
+    "improveImageRelevance": "ছবির প্রাসঙ্গিকতা উন্নত করুন",
+    "enableSearchClassifier": "অনুসন্ধান শ্রেণিবিন্যাসকারী",
+    "dateSearchSettings": "তারিখ ফিল্টার",
+    "searchRecencyFilter": "সাম্প্রতিকতার ফিল্টার",
+    "searchAfterDateFilter": "এই তারিখের পরে প্রকাশিত",
+    "searchBeforeDateFilter": "এই তারিখের আগে প্রকাশিত",
+    "lastUpdatedAfterFilter": "এই তারিখের পরে আপডেট করা হয়েছে",
+    "lastUpdatedBeforeFilter": "এই তারিখের আগে আপডেট করা হয়েছে",
+    "sonarDeepResearch": "Sonar গভীর গবেষণা",
+    "returnImages": "ছবি ফেরত দিন",
+    "returnVideos": "ভিডিও ফেরত দিন",
+    "returnRelatedQuestions": "সম্পর্কিত প্রশ্ন ফেরত দিন"
+  },
+  "pollinations": {
+    "enhance": "উন্নত করুন",
+    "enhanceHint": "ভালো ফলাফলের জন্য AI-কে আপনার প্রম্পট উন্নত করতে দিন",
+    "private": "ব্যক্তিগত",
+    "privateHint": "পাবলিক ফিড থেকে ছবিটি লুকান"
+  },
+  "mistral": {
+    "webSearchPremium": "প্রিমিয়াম"
+  },
+  "anthropic": {
+    "maxUses": "সর্বোচ্চ ব্যবহার সংখ্যা",
+    "customSkills": "কাস্টম দক্ষতা",
+    "allowedDomains": "অনুমোদিত ডোমেইন",
+    "blockedDomains": "অবরুদ্ধ ডোমেইন"
+  },
+  "cohere": {
+    "citationOptions": "উদ্ধৃতি"
+  },
+  "xSearch": "X-এ অনুসন্ধান করুন",
+  "xai": {
+    "imageUnderstanding": "ছবি বোঝা",
+    "videoUnderstanding": "ভিডিও বোঝা",
+    "allowedDomains": "অনুমোদিত ডোমেইন",
+    "excludedDomains": "বর্জিত ডোমেইন",
+    "allowed_x_handles": "অনুমোদিত X হ্যান্ডেল",
+    "excluded_x_handles": "বর্জিত X হ্যান্ডেল"
+  },
+  "openai": {
+    "container": "কনটেইনার",
+    "includeOutputs": "আউটপুট অন্তর্ভুক্ত করুন",
+    "includeSources": "উৎস অন্তর্ভুক্ত করুন",
+    "includeSearchResults": "অনুসন্ধান ফলাফল অন্তর্ভুক্ত করুন",
+    "encryptedContent": "এনক্রিপশন অন্তর্ভুক্ত করুন",
+    "instructions": "নির্দেশনা",
+    "instructionsPlaceholder": "মডেলের কনটেক্সটে যুক্ত একটি সিস্টেম (বা ডেভেলপার) বার্তা।",
+    "max_num_results": "সর্বোচ্চ ফলাফলের সংখ্যা",
+    "vector_store_ids": "ভেক্টর স্টোরের আইডি",
+    "file_search": "ফাইল অনুসন্ধান"
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "উন্নত নাগরিক উত্তর",
+    "unspecified": "নির্দিষ্ট নয়",
+    "mediaResolution": "ছবির গুণমান",
+    "url_context": "URL কনটেক্সট",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "চিন্তা অন্তর্ভুক্ত করুন",
+    "dynamicThinking": "ডাইনামিক চিন্তা",
+    "intervalStart": "শুরুর তারিখ",
+    "intervalEnd": "শেষ তারিখ",
+    "blockingConfidence": {
+      "label": "ব্লকিং স্তর",
+      "unspecified": "নির্দিষ্ট নয়",
+      "lowAndAbove": "নিম্ন ও তার ঊর্ধ্বে ব্লক করুন",
+      "mediumAndAbove": "মাঝারি ও তার ঊর্ধ্বে ব্লক করুন",
+      "highAndAbove": "উচ্চ ও তার ঊর্ধ্বে ব্লক করুন",
+      "higherAndAbove": "অত্যন্ত উচ্চ ও তার ঊর্ধ্বে ব্লক করুন",
+      "veryHighAndAbove": "খুব উচ্চ ও তার ঊর্ধ্বে ব্লক করুন",
+      "onlyExtremelyHigh": "শুধুমাত্র অত্যন্ত উচ্চ ব্লক করুন"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "সর্বোচ্চ ফেরত দেওয়া URL সংখ্যা",
+    "search_provider": "Arxiv অপ্টিমাইজড অনুসন্ধান",
+    "team_size": "এজেন্টিক দলের আকার",
+    "goodDomains": "বুস্ট করা ডোমেইন",
+    "badDomains": "খারাপ ডোমেইন",
+    "onlyDomains": "এই ডোমেইনগুলোর মধ্যেই অনুসন্ধান সীমাবদ্ধ করুন"
+  },
+  "together": {
+    "guidanceScale": "গাইডেন্স স্কেল",
+    "steps": "ধাপসমূহ",
+    "negativePrompt": "নেগেটিভ প্রম্পট",
+    "disableSafetyChecker": "সেফটি চেকার নিষ্ক্রিয় করুন"
+  },
+  "runway": {
+    "contentModeration": "কনটেন্ট মডারেশন",
+    "publicFigureThreshold": "পাবলিক ফিগার থ্রেশহোল্ড"
+  }
+}
