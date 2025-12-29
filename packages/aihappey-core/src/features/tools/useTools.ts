@@ -1,54 +1,57 @@
+// useTools.ts
 import { useMemo } from "react";
 import { useAppStore } from "aihappey-state";
-import { localAgentsCreateTool, localAgentsDeleteTool, localAgentsListTool } from "./toolcalls/useLocalAgentsToolCall";
-import { localConversationsGetTool, localConversationsListTool, localConversationsSearchTextTool } from "./toolcalls/useLocalConversationsToolCall";
-import { localSettingsGetTool, localSettingsSetTool } from "./toolcalls/useLocalSettingsToolCall";
-import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
-import { listLocalTools, localToolsCreate, localToolsDelete } from "./toolcalls/useLocalToolsToolCall";
-import { vercelAiGenerateText, vercelAiToolLoopAgent } from "./toolcalls/useVercelAIToolCall";
+import { localAgentsPluginDef } from "./toolcalls/useLocalAgentsToolCall";
+import { localCanvasPluginDef } from "./toolcalls/useLocalCanvasToolCall";
+import { localConversationsPluginDef } from "./toolcalls/useLocalConversationsToolCall";
+import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
+import { localSettingsPluginDef } from "./toolcalls/useLocalSettingsToolCall";
+import { localToolsPluginDef } from "./toolcalls/useLocalToolsToolCall";
+import { usePlugins } from "./toolcalls/usePlugins";
+import { resourceTool } from "./toolcalls/useReadResourceToolCall";
+import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
 
 export function useTools() {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
-  const enableLocalConversationTools = useAppStore(s => s.localConversationTools);
-  const enableLocalAgentTools = useAppStore(s => s.localAgentTools);
-  const localSettingsTools = useAppStore(s => s.localSettingsTools);
-  const vercelAiTools = useAppStore(s => s.vercelAiTools);
-  const localToolsTools = useAppStore(s => s.localToolsTools);
+  const enabledPlugins = useAppStore(s => s.activePlugins);
+
+  const defsAll = useMemo(
+    () => [
+      localFilesPluginDef,
+      localAgentsPluginDef,
+      localConversationsPluginDef,
+      localCanvasPluginDef,
+      localSettingsPluginDef,
+      localToolsPluginDef,
+      vercelAIPluginDef,
+    ],
+    []
+  );
+
+  // We don't need runtimes here; pass empty objects.
+  const { defs } = usePlugins(enabledPlugins, defsAll, {}, {});
+
+  const injectedLocalTools = useMemo(
+    () => defs.flatMap((d: any) => d.tools ?? []),
+    [defs]
+  );
 
   return useMemo(() => {
-    /* -------------------- flatten MCP tools -------------------- */
-    const baseTools =
-      Object.values(mcpServerContent)
-        .flatMap(s => s.tools ?? []);
+    const baseTools = Object.values(mcpServerContent).flatMap(s => s.tools ?? []);
 
-    /* -------------------- detect resources -------------------- */
     const hasResources = Object.values(mcpServerContent).some(
       s => (s.resources?.length ?? 0) > 0 || (s.resourceTemplates?.length ?? 0) > 0
     );
 
-    /* -------------------- inject local tools -------------------- */
-    const allTools = [
+    const allTools: Tool[] = [
       ...baseTools,
-      ...(vercelAiTools
-        ? [vercelAiToolLoopAgent, vercelAiGenerateText]
-        : []),
-      ...(localToolsTools
-        ? [listLocalTools, localToolsCreate, localToolsDelete]
-        : []),
-      ...(enableLocalAgentTools
-        ? [localAgentsCreateTool, localAgentsListTool, localAgentsDeleteTool]
-        : []),
-      ...(enableLocalConversationTools
-        ? [localConversationsListTool, localConversationsGetTool, localConversationsSearchTextTool]
-        : []),
-      ...(localSettingsTools
-        ? [localSettingsGetTool, localSettingsSetTool]
-        : [])
+      ...injectedLocalTools,
+      ...(hasResources ? [resourceTool] : []), // ✅ conditional injection
     ];
 
-    /* -------------------- annotation gates -------------------- */
+    // annotation gates (unchanged)
     const needsReadOnly = !!toolAnnotations?.readOnlyHint;
     const needsIdempotent = !!toolAnnotations?.idempotentHint;
     const allowDestructive = !!toolAnnotations?.destructiveHint;
@@ -85,22 +88,9 @@ export function useTools() {
         allowed = false;
       }
 
-      if (allowed) {
-        enabledTools.push(t);
-      }
+      if (allowed) enabledTools.push(t);
     }
 
-    return {
-      tools: hasResources ? [resourceTool, ...enabledTools] : enabledTools,
-      disabledTools: disabledMap
-    };
-  }, [
-    mcpServerContent,
-    toolAnnotations,
-    enableLocalAgentTools,
-    enableLocalConversationTools,
-    localToolsTools,
-    vercelAiTools,
-    localSettingsTools
-  ]);
+    return { tools: enabledTools, disabledTools: disabledMap };
+  }, [mcpServerContent, injectedLocalTools, toolAnnotations]);
 }

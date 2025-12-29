@@ -5,7 +5,7 @@ import type { PromptWithSource } from "./PromptSelectButton";
 type UseAutoPromptExecutionProps = {
     //allPrompts: PromptWithSource[];
     onPromptExecute: (prompt: PromptWithSource, args?: Record<string, string>) => void;
-    setArgumentPrompt: (prompt: PromptWithSource | null) => void;
+    setArgumentPrompt?: (prompt: PromptWithSource | undefined) => void;
     setOpen: (open: boolean) => void;
 };
 
@@ -38,7 +38,8 @@ export const useAutoPromptExecution = ({
                 const prompt = prompts.find(a => a.name == pendingPromptName);
 
                 if (prompt?.arguments?.length
-                    && prompt.arguments?.length > 0) {
+                    && prompt.arguments?.length > 0
+                && setArgumentPrompt) {
                     setArgumentPrompt({
                         ...prompt,
                         _serverName: key?.[0]!

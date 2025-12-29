@@ -129,7 +129,7 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
   const handleOk = async (onHide: () => void) => {
     if (missingRequired || pending) return;
     await onPromptExecute(prompt, values);
-    onHide();
+   // onHide();
   };
 
   return {

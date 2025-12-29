@@ -14,19 +14,9 @@ export type ChatSlice = {
   experimentalThrottle?: number
   chatErrors?: string[]
   structuredOutputs?: any
+  activePlugins: string[]
+  setActivePlugins: (names: string[]) => void;
   setStructuredOutputs: (structuredOutputs?: any) => void;
-  vercelAiTools?: boolean
-  setVercelAiTools: (value: boolean) => void;
-  localToolsTools?: boolean
-  setLocalToolsTools: (value: boolean) => void;
-  localAgentTools?: boolean
-  setLocalAgentTools: (value: boolean) => void;
-  localConversationTools?: boolean
-  setLocalConversationTools: (value: boolean) => void;
-  localSettingsTools?: boolean
-  setLocalSettingsTools: (value: boolean) => void;
-  localMcpTools?: boolean
-  setLocalMcpTools: (value: boolean) => void;
   models?: ModelOption[]
   setModels: (models: ModelOption[]) => void;
   setThrottle: (throttle: number) => void;
@@ -69,14 +59,10 @@ export const createChatSlice: StateCreator<
   structuredOutputs: undefined,
   toolAnnotations: DEFAULT_ANNOTATIONS,
   chatErrors: [],
-  setLocalToolsTools: (value) => {
+  activePlugins: [],
+  setActivePlugins: (value) => {
     set((state: any) => ({
-      localToolsTools: value,
-    }));
-  },
-  setVercelAiTools: (value) => {
-    set((state: any) => ({
-      vercelAiTools: value,
+      activePlugins: value,
     }));
   },
   setSelectedModel: (model) =>
@@ -85,29 +71,9 @@ export const createChatSlice: StateCreator<
         selectedModel: model
       }
     }),
-  setLocalMcpTools: (value) => {
-    set((state: any) => ({
-      localMcpTools: value,
-    }));
-  },
-  setLocalSettingsTools: (value) => {
-    set((state: any) => ({
-      localSettingsTools: value,
-    }));
-  },
   setStructuredOutputs: (value) => {
     set((state: any) => ({
       structuredOutputs: value,
-    }));
-  },
-  setLocalAgentTools: (value) => {
-    set((state: any) => ({
-      localAgentTools: value,
-    }));
-  },
-  setLocalConversationTools: (value) => {
-    set((state: any) => ({
-      localConversationTools: value,
     }));
   },
   switchChatMode: () => {

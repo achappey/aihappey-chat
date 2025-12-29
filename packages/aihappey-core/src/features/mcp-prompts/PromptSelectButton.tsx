@@ -9,6 +9,7 @@ import { useAutoPromptExecution } from "./useAutoPromptExecution";
 
 export type PromptWithSource = Prompt & {
   _serverName?: string;
+  _url?: string;
 };
 
 type PromptSelectButtonProps = {
@@ -25,7 +26,7 @@ export const PromptSelectButton = ({
   const mcpServers = useAppStore((s) => s.mcpServers);
   const [prompts, setPrompts] = useState<PromptWithSource[]>([]);
   const [open, setOpen] = useState(false);
-  const [argumentPrompt, setArgumentPrompt] = useState<PromptWithSource | null>(null);
+  const [argumentPrompt, setArgumentPrompt] = useState<PromptWithSource | undefined>(undefined);
   const hasPrompts = Object.keys(mcpServerContent)
     .filter(a => mcpServerContent[a].capabilities?.prompts)
     .length > 0;
@@ -43,7 +44,7 @@ export const PromptSelectButton = ({
           }))])))
     }
     else {
-      setPrompts([])
+      //setPrompts([])
     }
   }, [open]);
 
@@ -80,17 +81,21 @@ export const PromptSelectButton = ({
         onHide={() => setOpen(false)}
       />
 
-      {argumentPrompt && (
-        <PromptArgumentsModal
-          prompt={argumentPrompt}
-          onPromptExecute={async (prompt: any, args: any) => {
-            setArgumentPrompt(null);
-            setOpen(false);
-            await onPromptExecute(prompt, args);
-          }}
-          onHide={() => setArgumentPrompt(null)}
-        />
-      )}
+      {argumentPrompt && <PromptArgumentsModal
+        open={argumentPrompt != undefined}
+        prompt={argumentPrompt}
+        onPromptExecute={async (prompt: any, args: any) => {
+          setArgumentPrompt(undefined);
+//          setOpen(false);
+
+          await onPromptExecute(prompt, args);
+        }}
+        onHide={() => {
+          setArgumentPrompt(undefined)
+          setOpen(true)
+        }
+        }
+      />}
     </>
   );
 };

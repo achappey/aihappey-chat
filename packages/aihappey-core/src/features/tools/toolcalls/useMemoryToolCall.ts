@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { memoryStore as defaultMemoryStore } from "../../../runtime/memory/memoryStore";
+import { ToolPlugin } from "./usePlugins";
 
 type ToolTextResult = {
   isError: boolean;
@@ -104,5 +105,12 @@ export function useMemoryToolCall(opts?: {
     [normalize, store]
   );
 
-  return { handleMemoryToolCall };
+  const memoryPlugin: ToolPlugin = {
+    name: "memory",
+    match: (n) => n === "memory",
+    handle: handleMemoryToolCall,
+  };
+
+
+  return { memoryPlugin };
 }

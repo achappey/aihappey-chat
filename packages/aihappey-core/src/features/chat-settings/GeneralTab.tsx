@@ -8,6 +8,15 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { McpPolicySettings } from "../mcp-client/McpPolicySettings";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
+import { usePlugins } from "../tools/toolcalls/usePlugins";
+import { useMemo } from "react";
+import { localAgentsPluginDef } from "../tools/toolcalls/useLocalAgentsToolCall";
+import { localCanvasPluginDef } from "../tools/toolcalls/useLocalCanvasToolCall";
+import { localConversationsPluginDef } from "../tools/toolcalls/useLocalConversationsToolCall";
+import { localFilesPluginDef } from "../tools/toolcalls/useLocalFileToolCall";
+import { localSettingsPluginDef } from "../tools/toolcalls/useLocalSettingsToolCall";
+import { localToolsPluginDef } from "../tools/toolcalls/useLocalToolsToolCall";
+import { vercelAIPluginDef } from "../tools/toolcalls/useVercelAIToolCall";
 
 // --- General Tab ---
 export const GeneralTab = ({
@@ -22,23 +31,30 @@ export const GeneralTab = ({
   const publishers = Object.entries(PROVIDERS).map(a => a[1].name).sort();
   const setThrottle = useAppStore((s) => s.setThrottle);
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
-  const localAgentTools = useAppStore((s) => s.localAgentTools);
-  const localConversationTools = useAppStore((s) => s.localConversationTools);
-  const localSettingsTools = useAppStore((s) => s.localSettingsTools);
-  const localMcpTools = useAppStore((s) => s.localMcpTools);
-  const setLocalAgentTools = useAppStore((s) => s.setLocalAgentTools);
-  const setLocalConversationTools = useAppStore((s) => s.setLocalConversationTools);
-  const setLocalSettingsTools = useAppStore((s) => s.setLocalSettingsTools);
-  const setLocalMcpTools = useAppStore((s) => s.setLocalMcpTools);
   const appConfig = useChatContext();
   const toolAnnotations = useAppStore((s) => s.toolAnnotations);
   const setToolAnnotations = useAppStore((s) => s.setToolAnnotations);
   const enabledProviders = useAppStore(s => s.enabledProviders)
   const setEnabledProviders = useAppStore(s => s.setEnabledProviders)
-  const localToolsTools = useAppStore(s => s.localToolsTools)
-  const setLocalToolsTools = useAppStore(s => s.setLocalToolsTools)
-  const vercelAiTools = useAppStore(s => s.vercelAiTools)
-  const setVercelAiTools = useAppStore(s => s.setVercelAiTools)
+  const activePlugins = useAppStore(s => s.activePlugins)
+  const setActivePlugins = useAppStore(s => s.setActivePlugins)
+  const enabledPlugins = useAppStore(s => s.activePlugins);
+
+  const defsAll = useMemo(
+    () => [
+      localFilesPluginDef,
+      localAgentsPluginDef,
+      localConversationsPluginDef,
+      localCanvasPluginDef,
+      localSettingsPluginDef,
+      localToolsPluginDef,
+      vercelAIPluginDef,
+    ],
+    []
+  );
+
+  // We don't need runtimes here; pass empty objects.
+  const { defs } = usePlugins(enabledPlugins, defsAll, {}, {});
 
   const onToggle = (key: keyof ToolAnnotations) =>
     setToolAnnotations({
@@ -57,6 +73,17 @@ export const GeneralTab = ({
   const chatSettingTranslations = {
     throttle: t("throttle")
   };
+
+  const items = useMemo(
+    () =>
+      defsAll
+        .map(d => ({
+          id: d.name,
+          label: t("plugins." + d.name),
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [defs, t]
+  );
 
   return (
     <>
@@ -96,30 +123,9 @@ export const GeneralTab = ({
 
         <LocalToolsSettingsForm
           formTitle={t("localTools")}
-          translations={{
-            localConversations: t("localConversations"),
-            localSettings: t("localSettings"),
-            localAgents: t("agents.framework"),
-            localMcps: t("localMcps"),
-            customTools: t("customTools"),
-            vercelAiTools: "Vercel AI",
-          }}
-          value={{
-            localConversationTools,
-            localSettingsTools,
-            localAgentTools,
-            localMcpTools,
-            vercelAiTools,
-            customTools: localToolsTools
-          }}
-          onChange={(next) => {
-            setLocalConversationTools(next.localConversationTools ?? false);
-            setLocalSettingsTools(next.localSettingsTools ?? false);
-            setLocalAgentTools(next.localAgentTools ?? false);
-            setLocalMcpTools(next.localMcpTools ?? false);
-            setVercelAiTools(next.vercelAiTools ?? false);
-            setLocalToolsTools(next.customTools ?? false);
-          }}
+          items={items}
+          value={activePlugins}
+          onChange={setActivePlugins}
         />
 
         <theme.TextArea

@@ -1,98 +1,158 @@
-import { useCallback } from "react";
+// useOnToolCall.ts
+import { useCallback, useMemo } from "react";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { useConversations } from "aihappey-conversations";
-import { useMemoryToolCall } from "./useMemoryToolCall";
-import { useLocalSettingsToolCall } from "./useLocalSettingsToolCall";
-import { useLocalAgentsToolCall } from "./useLocalAgentsToolCall";
-import { useLocalConversationsToolCall } from "./useLocalConversationsToolCall";
-import { useReadResourceToolCall } from "./useReadResourceToolCall";
-import { useMcpPassthroughToolCall } from "./useMcpPassthroughToolCall";
-import { useLocalToolsToolCall } from "./useLocalToolsToolCall";
-import { useVercalAIToolCall } from "./useVercelAIToolCall";
+import { useFiles } from "aihappey-files";
 
-export function useOnToolCall({ callTool, api, getAccessToken, headers, customFetch }: {
-  api: string,
-  getAccessToken?: any,
-  headers?: any,
-  customFetch?: any,
-  callTool: (toolCallId: string, toolName: string, input: any, locale?: string, signal?: AbortSignal) => Promise<any>
+import { useMcpPassthroughToolCall } from "./useMcpPassthroughToolCall";
+
+import { useMemoryToolCall } from "./useMemoryToolCall";
+import { useReadResourceToolCall } from "./useReadResourceToolCall";
+
+import { useLocalFilesRuntime } from "./useLocalFileToolCall";
+import { useLocalAgentsRuntime } from "./useLocalAgentsToolCall";
+import { useLocalConversationsRuntime } from "./useLocalConversationsToolCall";
+import { useLocalCanvasRuntime } from "./useLocalCanvasToolCall";
+import { useLocalSettingsRuntime } from "./useLocalSettingsToolCall";
+import { useLocalToolsRuntime } from "./useLocalToolsToolCall";
+import { useVercalAIToolCall, vercelAIPluginDef } from "./useVercelAIToolCall";
+
+import { usePlugins } from "./usePlugins";
+
+// import *defs* for normal plugins
+import { localFilesPluginDef } from "./useLocalFileToolCall";
+import { localAgentsPluginDef } from "./useLocalAgentsToolCall";
+import { localConversationsPluginDef } from "./useLocalConversationsToolCall";
+import { localCanvasPluginDef } from "./useLocalCanvasToolCall";
+import { localSettingsPluginDef } from "./useLocalSettingsToolCall";
+import { localToolsPluginDef } from "./useLocalToolsToolCall";
+
+export function useOnToolCall({
+  callTool,
+  api,
+  getAccessToken,
+  headers,
+  customFetch,
+}: {
+  api: string;
+  getAccessToken?: any;
+  headers?: any;
+  customFetch?: any;
+  callTool: (
+    toolCallId: string,
+    toolName: string,
+    input: any,
+    locale?: string,
+    signal?: AbortSignal
+  ) => Promise<any>;
 }) {
-  const enableApps = useAppStore(a => a.enableApps)
+  const enableApps = useAppStore(a => a.enableApps);
+  const mcpServerContent = useAppStore(a => a.mcpServerContent);
+  const mcpServers = useAppStore(a => a.mcpServers);
+  const enabledPlugins = useAppStore(a => a.activePlugins); // string list
+
   const conversations = useConversations();
-  const mcpServerContent = useAppStore(a => a.mcpServerContent)
-  const mcpServers = useAppStore(a => a.mcpServers)
-  const { handleLocalAgentsToolCall } = useLocalAgentsToolCall();
-  const { handleMemoryToolCall } = useMemoryToolCall();
-  const { handleLocalToolsToolCall } = useLocalToolsToolCall();
-  const { handleVercelAIToolCall } = useVercalAIToolCall(api, getAccessToken, headers, customFetch);
-  const { handleLocalSettingsToolCall } = useLocalSettingsToolCall();
-  const { handleLocalConversationsToolCall } = useLocalConversationsToolCall(conversations);
-  const { i18n } = useTranslation(); // Uncomment when i18n is ready
-  const { handleReadResourceToolCall } = useReadResourceToolCall({ mcpServers });
+  const files = useFiles();
+  const { i18n } = useTranslation();
+
+  // runtimes
+  const localFilesRuntime = useLocalFilesRuntime(files);
+  const localAgentsRuntime = useLocalAgentsRuntime();
+  const localConversationsRuntime = useLocalConversationsRuntime(conversations);
+  const localCanvasRuntime = useLocalCanvasRuntime(files);
+  const localSettingsRuntime = useLocalSettingsRuntime();
+  const localToolsRuntime = useLocalToolsRuntime();
+  const vercelAIRuntime = useVercalAIToolCall(api, getAccessToken, headers, customFetch);
+
+  // specials (runtime-only or conditional exposure)
+  const { memoryPlugin } = useMemoryToolCall(); // runtime only
+  const { readResourcePlugin } = useReadResourceToolCall({ mcpServers }); // runtime exists always
+
+  const runtimes = useMemo(
+    () => ({
+      [localFilesRuntime.name]: localFilesRuntime,
+      [localAgentsRuntime.name]: localAgentsRuntime,
+      [localConversationsRuntime.name]: localConversationsRuntime,
+      [localCanvasRuntime.name]: localCanvasRuntime,
+      [localSettingsRuntime.name]: localSettingsRuntime,
+      [localToolsRuntime.name]: localToolsRuntime,
+      [vercelAIRuntime.name]: vercelAIRuntime,
+    }),
+    [
+      localFilesRuntime,
+      localAgentsRuntime,
+      localConversationsRuntime,
+      localCanvasRuntime,
+      localSettingsRuntime,
+      localToolsRuntime,
+      vercelAIRuntime,
+    ]
+  );
+
+  const defsAll = useMemo(
+    () => [
+      localFilesPluginDef,
+      localAgentsPluginDef,
+      localConversationsPluginDef,
+      localCanvasPluginDef,
+      localSettingsPluginDef,
+      localToolsPluginDef,
+      vercelAIPluginDef,
+    ],
+    []
+  );
+
+  const specialRuntimes = useMemo(
+    () => ({
+      // memory: runtime only, no tools
+      [memoryPlugin.name]: memoryPlugin,
+      // read-resource: runtime exists, tools injected elsewhere conditionally
+      [readResourcePlugin.name]: readResourcePlugin,
+    }),
+    [memoryPlugin, readResourcePlugin]
+  );
+
+  const { plugins } = usePlugins(enabledPlugins, defsAll, runtimes, specialRuntimes);
+
   const { handleMcpPassthroughToolCall } = useMcpPassthroughToolCall({
     callTool,
     enableApps,
     mcpServerContent,
     locale: i18n.language,
   });
-  // callback die altijd dezelfde is (dependencies alleen bij init)
+
   const onToolCall = useCallback(
     async ({ toolCall, signal }: any) => {
       try {
+        // 1) normal enabled plugins
+        const p = plugins.find(x => x.match(toolCall.toolName));
+        if (p) return await p.handle(toolCall, signal);
 
-        switch (toolCall.toolName) {
-          case "local_conversations_list_all":
-          case "local_conversations_get_conversation":
-          case "local_conversations_search_text":
-            return await handleLocalConversationsToolCall(toolCall);
-          case "local_agents_list":
-          case "local_agents_create":
-          case "local_agents_delete":
-            return await handleLocalAgentsToolCall(toolCall);
-
-          case "local_settings_get":
-          case "local_settings_set":
-            return await handleLocalSettingsToolCall(toolCall);
-
-          case "local_tools_create":
-          case "local_tools_list":
-          case "local_tools_delete":
-            return await handleLocalToolsToolCall(toolCall);
-
-          case "vercel_ai_tool_loop_agent":
-          case "vercel_ai_generate_text":
-            return await handleVercelAIToolCall(toolCall);
-
-          case "memory":
-            return await handleMemoryToolCall(toolCall);
-
-          case "read_resource":
-            return await handleReadResourceToolCall(toolCall);
-
-          default:
-            return await handleMcpPassthroughToolCall(toolCall, signal);
+        // 2) specials that are NOT gated by enabledPlugins
+        // memory + read_resource
+        for (const key of Object.keys(specialRuntimes)) {
+          const sp = specialRuntimes[key as any];
+          // both specials already have match() in their plugin objects, so easiest:
         }
 
+        if (toolCall.toolName === "memory") {
+          return await memoryPlugin.handle(toolCall, signal);
+        }
+        if (toolCall.toolName === "read_resource") {
+          return await readResourcePlugin.handle(toolCall, signal);
+        }
 
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : String(error);
-
+        // 3) fallback
+        return await handleMcpPassthroughToolCall(toolCall, signal);
+      } catch (e) {
         return {
           isError: true,
-          content: [
-            {
-              type: "text",
-              text: message,
-            },
-          ],
+          content: [{ type: "text", text: e instanceof Error ? e.message : String(e) }],
         };
       }
     },
-    [callTool, enableApps]
+    [plugins, specialRuntimes, memoryPlugin, readResourcePlugin, handleMcpPassthroughToolCall]
   );
 
   return { onToolCall };

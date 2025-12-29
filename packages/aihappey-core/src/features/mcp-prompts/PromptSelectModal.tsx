@@ -1,9 +1,6 @@
 import { useTranslation } from "aihappey-i18n";
 import { useMemo, useState, useEffect } from "react";
-import { useTheme } from "aihappey-components";
-
-import { CancelButton } from "../../ui/buttons/CancelButton";
-import { PromptCard } from "./PromptCard";
+import { PromptCard, useTheme } from "aihappey-components";
 import { PromptWithSource } from "./PromptSelectButton";
 
 type PromptSelectModalProps = {
@@ -21,6 +18,15 @@ export const PromptSelectModal = ({
 }: PromptSelectModalProps) => {
   const { Modal, Tabs, Tab, Button } = useTheme();
   const { t } = useTranslation();
+
+  const getPromptUrl = (prompt: PromptWithSource) => {
+    const rootUrl = window.location.origin;
+    const params = new URLSearchParams({
+      mcpServer: encodeURI(prompt._url!),
+      promptName: prompt.name,
+    }).toString();
+    return `${rootUrl}/?${params}`;
+  };
 
   const serverNames = useMemo(() => {
     const seen = new Set<string>();
@@ -81,6 +87,11 @@ export const PromptSelectModal = ({
                     key={prompt.name + idx}
                     prompt={prompt}
                     onSelect={() => onPromptClick(prompt)}
+                    getPromptUrl={getPromptUrl}
+                    translations={{
+                      newWindow: t("newWindow"),
+                      copyLink: t("copyLink"),
+                    }}
                   />
                 ))}
 

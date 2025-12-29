@@ -1,89 +1,42 @@
 import { useMemo } from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 
-export type LocalToolsSettings = {
-  localConversationTools?: boolean;
-  localSettingsTools?: boolean;
-  localAgentTools?: boolean;
-  localMcpTools?: boolean;
-  customTools?: boolean;
-  vercelAiTools?: boolean;
+export type PluginToggleItem = {
+  id: string;      // plugin id, e.g. "local-files"
+  label: string;   // UI label
 };
 
 export type LocalToolsSettingsFormProps = {
-  value: LocalToolsSettings;
-  onChange: (value: LocalToolsSettings) => void;
+  value: string[]; // enabled plugin ids
+  onChange: (next: string[]) => void;
 
-  translations?: any;
   formTitle?: string;
-
   columns?: number;
-  size?: string;
 
   /**
-   * Optional: override order/ids/labels.
+   * The toggles to show (order = display order).
    */
-  items?: Array<{
-    key: keyof LocalToolsSettings;
-    id: string;
-    label: string;
-  }>;
+  items?: PluginToggleItem[];
 };
 
 export const LocalToolsSettingsForm = ({
   value,
   onChange,
-  translations,
   formTitle,
   columns = 2,
   items,
 }: LocalToolsSettingsFormProps) => {
   const { Card, Switch } = useTheme();
 
-  const defaultItems = useMemo(
-    () =>
-      [
-        {
-          key: "localConversationTools",
-          id: "localConversations",
-          label: translations?.localConversations ?? "localConversations",
-        },
-        {
-          key: "localSettingsTools",
-          id: "localSettings",
-          label: translations?.localSettings ?? "localSettings",
-        },
-        {
-          key: "localAgentTools",
-          id: "localAgents",
-          label: translations?.localAgents ?? "localAgents",
-        },
-        {
-          key: "localMcpTools",
-          id: "localMcps",
-          label: translations?.localMcps ?? "localMcps",
-        },
-        {
-          key: "customTools",
-          id: "customTools",
-          label: translations?.customTools ?? "customTools",
-        },
-        {
-          key: "vercelAiTools",
-          id: "vercelAiTools",
-          label: translations?.vercelAiTools ?? "vercelAiTools",
-        },
-      ] as Array<{ key: keyof LocalToolsSettings; id: string; label: string }>,
-    [translations]
-  );
+  const enabled = value ?? [];
 
-  const list = items ?? defaultItems;
+  const list = useMemo(() => items ?? [], [items]);
 
-  const set = (key: keyof LocalToolsSettings, next: boolean) =>
-    onChange({
-      ...(value ?? {}),
-      [key]: next,
-    });
+  const toggle = (id: string) => {
+    const has = enabled.includes(id);
+    const next = has ? enabled.filter(x => x !== id) : [...enabled, id];
+    onChange(next);
+  };
 
   return (
     <Card size={"small"} title={formTitle}>
@@ -95,14 +48,14 @@ export const LocalToolsSettingsForm = ({
         }}
       >
         {list.map((item) => {
-          const checked = (value?.[item.key] ?? false) as boolean;
+          const checked = enabled.includes(item.id);
           return (
             <Switch
-              key={String(item.key)}
+              key={item.id}
               id={item.id}
               label={item.label}
               checked={checked}
-              onChange={() => set(item.key, !checked)}
+              onChange={() => toggle(item.id)}
             />
           );
         })}

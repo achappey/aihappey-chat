@@ -4,3 +4,5 @@ export * from "./ServerManagement";
 export * from "./ModelContextCatalogSettingsForm";
 export * from "./ModelContextClientSettingsForm";
 export * from "./ModelContextExtensionsSettingsForm";
+export * from "./PromptArgumentsForm";
+

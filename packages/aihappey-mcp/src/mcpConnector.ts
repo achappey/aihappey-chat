@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
-    CreateMessageRequestSchema, ElicitRequestSchema, LoggingMessageNotificationSchema,
+    CreateMessageRequestSchema, ElicitRequestSchema, ListRootsRequestSchema, LoggingMessageNotificationSchema,
     ProgressNotificationSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
@@ -75,6 +75,7 @@ async function _connectMcpBase(
         clearMcpAccessToken(url);
         token = null;
     }
+
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
     const client = new Client({
@@ -83,7 +84,7 @@ async function _connectMcpBase(
     }, {
         capabilities: {
             sampling: opts.onSample ? {} : undefined,
-            elicitation: opts.onElicit ? {} : undefined,
+            elicitation: opts.onElicit ? {} : undefined
         }
     });
 
@@ -165,6 +166,6 @@ export async function connectMcpServer(
 
     return {
         client,
-        
+
     };
 }

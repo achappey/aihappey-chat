@@ -1,43 +1,132 @@
 import { useCallback } from "react";
 import { useAppStore } from "aihappey-state";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
-import { useLocalTools } from "aihappey-tools";
+
+/* ============================================================
+   Result helpers
+============================================================ */
 
 type ToolTextResult = {
   isError: boolean;
   content: { type: "text"; text: string }[];
 };
 
-function ok(text: string): ToolTextResult {
-  return { isError: false, content: [{ type: "text", text }] };
-}
+const ok = (text: string): ToolTextResult => ({
+  isError: false,
+  content: [{ type: "text", text }],
+});
 
-function fail(err: unknown): ToolTextResult {
-  const message = err instanceof Error ? err.message : String(err);
-  return { isError: true, content: [{ type: "text", text: message }] };
-}
+const fail = (err: unknown): ToolTextResult => ({
+  isError: true,
+  content: [
+    {
+      type: "text",
+      text: err instanceof Error ? err.message : String(err),
+    },
+  ],
+});
 
-type LocalSettingsToolName = "local_settings_get" | "local_settings_set";
-type LocalSettingsToolCall = {
-  toolName: LocalSettingsToolName;
-  input: any;
+/* ============================================================
+   Tool definitions (STATIC)
+============================================================ */
+
+export const localSettingsGetTool: Tool = {
+  name: "local_settings_get",
+  title: "Get local settings",
+  description:
+    "Returns all local user settings such as enableUserLocation and MCP timeout settings.",
+  inputSchema: {
+    type: "object",
+    properties: {},
+    required: [],
+  },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
 };
 
-export function useLocalSettingsToolCall() {
+export const localSettingsSetTool: Tool = {
+  name: "local_settings_set",
+  title: "Update local settings",
+  description:
+    "Updates local user settings such as enableUserLocation and MCP timeout configuration.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      enableUserLocation: {
+        type: "boolean",
+        description: "Enable or disable access to the user's location.",
+      },
+      temperature: {
+        type: "number",
+        description: "AI temperature.",
+      },
+      throttle: {
+        type: "number",
+        description: "Custom throttle wait in ms for the chat messages and data updates.",
+      },
+      mcpToolTimeout: {
+        type: "number",
+        description: "Timeout (in milliseconds) applied to all MCP tool calls.",
+      },
+      mcpResetTimeoutOnProgress: {
+        type: "boolean",
+        description: "Whether the MCP tool timeout resets when progress events arrive.",
+      },
+    },
+    required: [],
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: false,
+  },
+};
+
+/* ============================================================
+   Plugin DEFINITION (STATIC)
+============================================================ */
+
+export const localSettingsPluginDef = {
+  name: "local-settings",
+  match: (toolName: string) => toolName.startsWith("local_settings_"),
+  tools: [localSettingsGetTool, localSettingsSetTool],
+};
+
+/* ============================================================
+   Runtime types
+============================================================ */
+
+type LocalSettingsToolName = "local_settings_get" | "local_settings_set";
+
+type LocalSettingsToolCall = {
+  toolName: LocalSettingsToolName;
+  input?: any;
+};
+
+/* ============================================================
+   Plugin RUNTIME (execution only)
+============================================================ */
+
+export function useLocalSettingsRuntime() {
   const enableUserLocation = useAppStore(a => a.enableUserLocation);
   const setEnableUserLocation = useAppStore(a => a.setEnableUserLocation);
+
   const experimentalThrottle = useAppStore(a => a.experimentalThrottle);
   const setThrottle = useAppStore(a => a.setThrottle);
 
   const temperature = useAppStore(a => a.temperature);
-  // If your store uses a different setter name, change this selector.
   const setTemperature = useAppStore(a => (a as any).setTemperature);
 
   const toolTimeout = useAppStore(a => a.toolTimeout);
   const resetTimeoutOnProgress = useAppStore(a => a.resetTimeoutOnProgress);
   const setMcpTimeout = useAppStore(a => a.setMcpTimeout);
 
-  const handleLocalSettingsToolCall = useCallback(
+  const handle = useCallback(
     async (toolCall: LocalSettingsToolCall): Promise<ToolTextResult> => {
       try {
         switch (toolCall.toolName) {
@@ -71,7 +160,9 @@ export function useLocalSettingsToolCall() {
 
             if (input.temperature !== undefined) {
               if (typeof setTemperature !== "function") {
-                throw new Error("setTemperature missing in store (expected a.setTemperature).");
+                throw new Error(
+                  "setTemperature missing in store (expected a.setTemperature)."
+                );
               }
               setTemperature(input.temperature);
             }
@@ -108,63 +199,8 @@ export function useLocalSettingsToolCall() {
     ]
   );
 
-  return { handleLocalSettingsToolCall };
+  return {
+    name: localSettingsPluginDef.name,
+    handle,
+  };
 }
-
-
-
-export const localSettingsGetTool: Tool = {
-  name: "local_settings_get",
-  title: "Get local settings",
-  description: "Returns all local user settings such as enableUserLocation and MCP timeout settings.",
-  inputSchema: {
-    type: "object",
-    properties: {},
-    required: []
-  },
-  annotations: {
-    readOnlyHint: true,
-    destructiveHint: false,
-    idempotentHint: true,
-    openWorldHint: false
-  }
-};
-
-export const localSettingsSetTool: Tool = {
-  name: "local_settings_set",
-  title: "Update local settings",
-  description:
-    "Updates local user settings such as enableUserLocation and MCP timeout configuration.",
-  inputSchema: {
-    type: "object",
-    properties: {
-      enableUserLocation: {
-        type: "boolean",
-        description: "Enable or disable access to the user's location."
-      },
-      temperature: {
-        type: "number",
-        description: "AI temperature."
-      },
-      throttle: {
-        type: "number",
-        description: "Custom throttle wait in ms for the chat messages and data updates."
-      },
-      mcpToolTimeout: {
-        type: "number",
-        description: "Timeout (in milliseconds) applied to all MCP tool calls."
-      },
-      mcpResetTimeoutOnProgress: {
-        type: "boolean",
-        description: "Whether the MCP tool timeout resets when progress events arrive."
-      }
-    },
-    required: []
-  },
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: false,
-    idempotentHint: false,
-    openWorldHint: false
-  }
-};
