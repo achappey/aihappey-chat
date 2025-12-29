@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { ToolInvocationsActivity } from "../content/ToolInvocationsActivity";
-import { ProgressNotificationsActivity } from "../tabs/ProgressNotificationsActivity";
 import { SamplingActivity } from "../tabs/SamplingActivity";
 import { UIMessage } from "aihappey-ai";
 import { useTranslation } from "aihappey-i18n";
@@ -122,11 +121,6 @@ export const SimpleActivityDrawer = (props: { messages?: UIMessage[] }) => {
       key: "mcpSampling",
       label: t("sampling"),
       component: SamplingActivity,
-    },
-    {
-      key: "mcpProgress",
-      label: t("progress"),
-      component: ProgressNotificationsActivity,
     },
     {
       key: "mcpLogging",

@@ -51,9 +51,6 @@ export type McpSlice = {
   safeHosts: string[]
   setSafeHosts: (safeHosts: string[]) => void;
   resetTimeoutOnProgress: boolean
-  progress: ProgressNotification[];
-  addProgress: (notif: ProgressNotification) => void;
-  clearProgress: () => void;
   sampling: Record<string, SamplingRequest>;
   addSampling: (id: string, createdAt: string, server: string, request: CreateMessageRequest, result?: CreateMessageResult) => void;
   clearSampling: () => void;
@@ -263,14 +260,6 @@ export const createMcpSlice: StateCreator<
     set((state: any) => ({
       sampling: {}
     })),
-  addProgress: (notif) =>
-    set((state: any) => ({
-      progress: [...state.progress, notif]
-    })),
-  clearProgress: () =>
-    set((state: any) => {
-      return { progress: [] };
-    }),
   tokens: {},
   setToken: (url, token) => {
     set((state: any) => ({

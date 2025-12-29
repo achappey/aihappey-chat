@@ -1,76 +1,48 @@
-import { useState } from "react";
-import { useTheme } from "../../theme/ThemeContext";
+import { useEffect, useState } from "react";
 import { ElicitationField } from "../../fields";
-import type { ElicitRequest, ElicitResult } from "@modelcontextprotocol/sdk/types";
+import type { ElicitRequest } from "@modelcontextprotocol/sdk/types";
 
-const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-
-type Props = {
-  params: ElicitRequest["params"];
-  onRespond: (r: ElicitResult) => void;
-  translations?: any
-};
+const isValidEmail = (v: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 function coerceValueBySchema(schema: any, value: any) {
   if (value === undefined || value === null) return value;
 
   switch (schema.type) {
     case "boolean":
-      if (typeof value === "boolean") return value;
-      if (typeof value === "string")
-        return value === "true" || value === "1";
-      return Boolean(value);
-
+      return value === true || value === "true" || value === "1";
     case "integer":
-      if (typeof value === "number") return Math.trunc(value);
-      if (typeof value === "string" && value !== "")
-        return parseInt(value, 10);
-      return value;
-
+      return value === "" ? value : Math.trunc(Number(value));
     case "number":
-      if (typeof value === "number") return value;
-      if (typeof value === "string" && value !== "")
-        return Number(value);
-      return value;
-
-    case "string":
+      return value === "" ? value : Number(value);
     default:
       return String(value);
   }
 }
 
+type Props = {
+  params: ElicitRequest["params"];
+  onChange?: (s: {
+    values: Record<string, any>;
+    isValid: boolean;
+  }) => void;
+};
 
-export const ElicitationForm = ({
-  params,
-  onRespond,
-  translations
-}: Props) => {
-  const { Card, Button } = useTheme();
+export const ElicitationForm = ({ params, onChange }: Props) => {
   const { requestedSchema, message }: any = params;
   const { properties, required }: any = requestedSchema;
 
   const [values, setValues] = useState<Record<string, any>>(() => {
     const v: Record<string, any> = {};
-
     Object.entries(properties).forEach(([k, s]: any) => {
-      if (s.default !== undefined || s.defaultValue !== undefined) {
+      if (s.default ?? s.defaultValue) {
         v[k] = coerceValueBySchema(s, s.default ?? s.defaultValue);
-        return;
-      }
-
-      switch (s.type) {
-        case "boolean":
-          v[k] = false;
-          break;
-        case "number":
-        case "integer":
-          v[k] = undefined;
-          break;
-        default:
-          v[k] = "";
+      } else if (s.type === "boolean") {
+        v[k] = false;
+      } else {
+        v[k] = "";
       }
     });
-
     return v;
   });
 
@@ -78,61 +50,18 @@ export const ElicitationForm = ({
     required?.every((k: string) => {
       const field = properties[k];
       const value = values[k];
-
       if (value === "" || value === undefined) return false;
-
-      if (field?.format === "email") {
-        return typeof value === "string" && isValidEmail(value);
-      }
-
+      if (field?.format === "email")
+        return isValidEmail(value);
       return true;
     }) ?? true;
 
-
-  const submit = (action: "cancel" | "accept" | "decline") =>
-    onRespond(
-      action === "accept"
-        ? { action, content: values }
-        : { action }
-    );
-
-
-
-  const actions = (
-    <>
-      <Button
-        type="button"
-        variant="primary"
-        disabled={!isValid}
-        onClick={() => submit("accept")}
-
-      >
-        {translations?.accept ?? "accept"}
-      </Button>
-      <Button
-        type="button"
-        variant="informative"
-        onClick={() => submit("decline")}
-      >
-        {translations?.decline ?? "decline"}
-      </Button>
-      <Button
-        type="button"
-        variant="subtle"
-        onClick={() => submit("cancel")}
-
-      >
-        {translations?.cancel ?? "cancel"}
-      </Button>
-    </>
-  );
+  useEffect(() => {
+    onChange?.({ values, isValid });
+  }, [values, isValid, onChange]);
 
   return (
-    <Card
-      title=""
-      style={{ backgroundColor: "transparent" }}
-      actions={actions}
-    >
+    <>
       {message}
 
       {Object.entries(properties).map(([k, s]: any) => (
@@ -147,6 +76,6 @@ export const ElicitationForm = ({
           }
         />
       ))}
-    </Card>
+    </>
   );
 };

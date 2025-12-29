@@ -11,6 +11,7 @@ import { elicitRuntime } from "./elicitRuntime";
 import { samplingRuntime } from "./samplingRuntime";
 import { logRuntime } from "./logRuntime";
 import { useConversations } from "aihappey-conversations";
+import { progressRuntime } from "./progressRuntime";
 
 /**
  * Keeps the MCP Runtime in sync with the enabled mcpServers from Zustand.
@@ -27,11 +28,14 @@ export function useMcpRuntimeBinding({
     const connectMcpServer = useAppStore((s) => s.connectMcpServer);
     const customHeaders = useAppStore((s) => s.customHeaders);
     const clearMcpContent = useAppStore((s) => s.clearMcpContent);
-    const addProgress = useAppStore((s) => s.addProgress);
     const conversations = useConversations()
     const addSampling = useAppStore((s) => s.addSampling);
     const onElicit = (server: string, params: ElicitRequest) => elicitRuntime.onElicit(server, params);
-    const onProgress = async (notif: ProgressNotification) => addProgress(notif);
+    const onProgress = async (notif: any) => {
+        progressRuntime.update(notif);
+    };
+
+    // const onProgress = async (notif: ProgressNotification) => addProgress(notif);
 
     const onSample = async (server: string, params: CreateMessageRequest) => {
         const msg0 = (params as any)?.params?.messages?.[0];
@@ -127,7 +131,7 @@ export function useMcpRuntimeBinding({
                             "Authorization": `Bearer ${token}`
                         }
                 }
-                
+
                 // Create persistent SSE/streamable client
                 connectMcpServer(name, cfg.config.url, {
                     type: cfg.config.type,

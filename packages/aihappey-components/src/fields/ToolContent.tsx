@@ -1,6 +1,6 @@
 import React from "react";
 import { useTheme } from "../theme/ThemeContext";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { ProgressNotificationParams, Tool } from "@modelcontextprotocol/sdk/types";
 
 export interface ToolContentProps {
   invocation: {
@@ -11,15 +11,17 @@ export interface ToolContentProps {
     toolCallId?: string;
   };
   tool?: Tool;
-  translations?: any
+  translations?: any,
+  progress?: ProgressNotificationParams
 }
 
 export const ToolContent: React.FC<ToolContentProps> = ({
   invocation,
   translations,
+  progress,
   tool
 }) => {
-  const { JsonViewer } = useTheme();
+  const { JsonViewer, ProgressBar } = useTheme();
   const argsPreview = JSON.stringify(invocation.input, null, 2);
   const toolTitle = tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
   const contentStyle: React.CSSProperties = {
@@ -39,5 +41,8 @@ export const ToolContent: React.FC<ToolContentProps> = ({
       </p>
     }
     <JsonViewer title={translations?.input ?? "input"} value={argsPreview} />
+
+    {progress && <ProgressBar label={progress.message}
+      value={progress?.total ? progress.progress / progress.total : progress.progress} />}
   </>
 };

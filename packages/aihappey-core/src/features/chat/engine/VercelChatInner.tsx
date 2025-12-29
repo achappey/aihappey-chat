@@ -31,6 +31,7 @@ import { useAuthFetch } from "./useAuthFetch";
 import { usePendingMessageAutoSend } from "./usePendingMessageAutoSend";
 import { useAbortRun } from "./useAbortRun";
 import { useApiRef } from "./useApiRef";
+import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -348,6 +349,7 @@ export function VercelChatInner({
         result={showToolCall?.output}
         onClose={() => setShowToolCall(undefined)}
       />
+      <ElicitationModalHost />
     </div>
   );
 }

@@ -2,17 +2,16 @@ import { Markdown } from "../../../ui/markdown/Markdown";
 import { SamplingRequest, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { OpenAIAppWidget } from "../../../ui/widgets/OpenAIAppWidget";
-import { ElicitationForm } from "../../elicitation/ElicitationForm";
 import { copyMarkdownToClipboard } from "../files/file";
-import { elicitRuntime, useOpenElicits } from "../../../runtime/mcp/elicitRuntime";
-import { ImageGrid, MessageList as MessageListComponent, useTheme } from "aihappey-components";
-import type { CreateMessageRequest, CreateMessageResult, ElicitResult, ImageContent } from "@modelcontextprotocol/sdk/types";
+import { ImageGrid, MessageList as MessageListComponent, ToolContent, useTheme } from "aihappey-components";
+import type { CreateMessageRequest, CreateMessageResult, ImageContent } from "@modelcontextprotocol/sdk/types";
 import type { FileUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
 import { useMemo } from "react";
 import { toChatMessages } from "./toChatMessages";
 import { samplingRuntime, useOpenSamplings } from "../../../runtime/mcp/samplingRuntime";
 import { useTools } from "../../tools/useTools";
+import { McpProgressItem, progressRuntime, useMcpProgress } from "../../../runtime/mcp/progressRuntime";
 
 interface MessageListProps {
   showCitations: (items: any[]) => void;
@@ -58,6 +57,13 @@ export const MessageList = ({
   const sampling = useAppStore((a) => a.sampling);
   const tools = useTools()
   const { Image } = useTheme()
+  const progress = useMcpProgress(progressRuntime);
+  const progressByToken = useMemo(() => {
+    const m = new Map<string | number, McpProgressItem>();
+    for (const p of progress) m.set(p.progressToken, p);
+    return m;
+  }, [progress]);
+
   // ✅ This hook should output ChatMessage[] (your app adapter layer).
   // If your current hook returns another shape, swap this line to:
   //   const chatMessages = toChatMessages(messages);
@@ -89,83 +95,33 @@ export const MessageList = ({
 
     return [...byId.values()].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   }, [openSampling, sampling]);
-
-
-  const mergedSampling2 = useMemo<SamplingRequest[]>(() => {
-    const running: SamplingRequest[] =
-      openSampling.map(s => ([
-        s.createdAt,
-        s.serverUrl,
-        s.request,
-        null as any, // running
-      ]));
-
-    const completed: SamplingRequest[] =
-      Object.values(sampling);
-
-    // runtime items are always the newest → place them first
-    return [...running, ...completed.slice(running.length)];
-  }, [sampling]);
-
-  const samplingMessages: ChatMessage[] = mergedSampling.map((a, i) => ({
-    id: a.id,
-    role: "assistant",
-    createdAt: new Date(a.createdAt).toString(),
-    messageIcon: "chat",
-    messageLabel: t('sampling') ?? "sampling",
-    // Inject as a synthetic block type that the renderer can catch
-    content: a.result ? [
-      {
-        type: "text",
-        // request: a.request,
-        text: ((a.request?.params?.messages?.[0] as any).content as any)?.text,
-      },
-      {
-        type: "text",
-        //request: a.request,
-        text: (a.result.content as any)?.text
-      }
-    ] : [
-      {
-        type: "text",
-        request: a.request,
-        text: ((a.request?.params?.messages?.[0] as any).content as any)?.text,
-      },
-    ],
-  })) as any;
-
-
-  // --- Elicitation injection (local UI messages)
-  const elicitationRequests = useOpenElicits(elicitRuntime);
-  const elicitMessages: ChatMessage[] = elicitationRequests.map((a, i) => ({
-    id: a.id,
-    role: "assistant",
-    createdAt: new Date(a.createdAt).toString(),
-
-    // Inject as a synthetic block type that the renderer can catch
-    content: [
-      {
-        type: "elicitation",
-        params: a.request.params,
-        onRespond: (r: ElicitResult) => elicitRuntime.respond(a.id, r),
-      },
-    ],
-  })) as any;
-
-  //const all = [...chatMessages, ...elicitMessages, ...samplingMessages];
-  const all = [...chatMessages, ...elicitMessages];
-  const merged2: ChatMessage[] =
-    // stable-ish ordering
-    [...all].sort(
-      (x: any, y: any) => (Date.parse(x.createdAt) ?? 0) - (Date.parse(y.createdAt) ?? 0)
-    );
-
-  const merged: ChatMessage[] = useMemo(() => {
-    // stable-ish ordering
-    return [...all].sort(
-      (x: any, y: any) => (Date.parse(x.createdAt) ?? 0) - (Date.parse(y.createdAt) ?? 0)
-    );
-  }, [chatMessages, elicitMessages, samplingMessages]);
+  /*
+    const samplingMessages: ChatMessage[] = mergedSampling.map((a, i) => ({
+      id: a.id,
+      role: "assistant",
+      createdAt: new Date(a.createdAt).toString(),
+      messageIcon: "chat",
+      messageLabel: t('sampling') ?? "sampling",
+      // Inject as a synthetic block type that the renderer can catch
+      content: a.result ? [
+        {
+          type: "text",
+          // request: a.request,
+          text: ((a.request?.params?.messages?.[0] as any).content as any)?.text,
+        },
+        {
+          type: "text",
+          //request: a.request,
+          text: (a.result.content as any)?.text
+        }
+      ] : [
+        {
+          type: "text",
+          request: a.request,
+          text: ((a.request?.params?.messages?.[0] as any).content as any)?.text,
+        },
+      ],
+    })) as any;*/
 
   const translations = useMemo(
     () => ({
@@ -202,7 +158,7 @@ export const MessageList = ({
 
   return (
     <MessageListComponent
-      messages={merged}
+      messages={chatMessages}
       onCopyMessage={copyClipboard}
       locale={i18n.language}
       translations={translations}
@@ -212,15 +168,24 @@ export const MessageList = ({
       onShowAttachments={showAttachments}
       onRenderMarkdown={(text) => <Markdown text={text} />}
       renderBlock={({ block }: any) => {
-        // 1) Elicitation form injection
-        if (block?.type === "elicitation") {
-          return (
-            <ElicitationForm
-              params={block.params}
-              onRespond={block.onRespond}
-            />
-          );
+        if (block.type.startsWith("tool-")) {
+          const progress = progressByToken.get(block.toolCallId);
+          const toolItem = tools?.tools?.find(a => a.name == block.type.replace("tool-", ""))
+          return <ToolContent tool={toolItem}
+            translations={translations}
+            progress={progress}
+            invocation={block} />;
         }
+
+        // 1) Elicitation form injection
+        /*     if (block?.type === "elicitation") {
+               return (
+                 <ElicitationForm
+                   params={block.params}
+                   onRespond={block.onRespond}
+                 />
+               );
+             }*/
 
         if (block?.type === "image-grid") {
           const items = (block.items ?? []).map(fileToImageContent);
