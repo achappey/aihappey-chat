@@ -4,6 +4,7 @@ import { useTheme } from "aihappey-components";
 import { ResourceSelectModal } from "./ResourceSelectModal";
 import { readResource } from "../../runtime/mcp/readResource";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
+import { useTranslation } from "aihappey-i18n";
 
 type ResourceSelectButtonProps = {};
 
@@ -11,6 +12,7 @@ export const ResourceSelectButton = ({ }: ResourceSelectButtonProps) => {
   const { Button } = useTheme();
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation()
   const allResources = Object.keys(mcpServerContent)
     .flatMap(z => mcpServerContent[z].resources ?? [])
     .filter(z => !z.annotations
@@ -34,7 +36,7 @@ export const ResourceSelectButton = ({ }: ResourceSelectButtonProps) => {
         size="large"
         variant="transparent"
         onClick={() => setOpen(true)}
-        title="Insert Resource"
+        title={t('mcp.resources')}
       />
 
       <ResourceSelectModal

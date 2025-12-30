@@ -7,4 +7,5 @@ export * from "./badges";
 export * from "./buttons";
 export * from "./forms";
 export * from "./lists";
+export * from "./alerts";
 export * from "./images";

@@ -209,12 +209,15 @@ export const ImagePage = () => {
         width: "100%",
       }}
     >
-      <ModelSelect
-        models={models ?? []}
-        modelTypes={["image"]}
-        value={selectedModel ?? ""}
-        onChange={setSelectedModel}
-      />
+      <div style={{ paddingLeft: 12, paddingRight: 12 }}>
+
+        <ModelSelect
+          models={models ?? []}
+          modelTypes={["image"]}
+          value={selectedModel ?? ""}
+          onChange={setSelectedModel}
+        />
+      </div>
 
       <ImageErrors
         errors={errors}
@@ -231,6 +234,7 @@ export const ImagePage = () => {
         ref={dropRef}
         onDrop={handleDrop}
         onDragOver={handleDragOver}>
+          
         <ImageInput onSend={onSend} />
 
       </div>

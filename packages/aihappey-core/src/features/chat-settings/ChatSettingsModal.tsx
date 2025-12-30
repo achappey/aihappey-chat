@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { useTheme } from "aihappey-components";
+import { SettingsActionButtons, useTheme } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { PollinationsChatConfig } from "../provider-config/pollinations/PollinationsChatConfig";
 import { GroqChatConfig } from "../provider-config/groq/GroqChatConfig";
@@ -55,14 +55,14 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       onHide={close}
       title={t("chatSettings")}
       actions={
-        <>
-          <theme.Button variant="subtle" onClick={resetDefaults}>
-            {t("resetDefaults")}
-          </theme.Button>
-          <theme.Button variant="secondary" onClick={close}>
-            {t("close")}
-          </theme.Button>
-        </>
+        <SettingsActionButtons
+          onClose={close}
+          onRestoreDefaults={resetDefaults}
+          translations={{
+            close: t("close"),
+            restoreDefaults: t("resetDefaults")
+          }}
+        />
       }
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>

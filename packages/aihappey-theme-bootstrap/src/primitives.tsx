@@ -57,6 +57,8 @@ import { DataGrid } from "./primitives/DataGrid";
 import { JsonViewer } from "./primitives/JsonViewer";
 import { Toaster } from "./primitives/Toaster";
 import { iconMap } from "./primitives/IconMap";
+import { SplitButton } from "./primitives/SplitButton";
+import { X } from "react-bootstrap-icons";
 
 export const bootstrapTheme: AihUiTheme = {
   Header,
@@ -90,6 +92,7 @@ export const bootstrapTheme: AihUiTheme = {
     />
   ),
   Toast,
+  SplitButton,
   Toaster,
   ToggleButton: ({
     checked = false,
@@ -142,10 +145,20 @@ export const bootstrapTheme: AihUiTheme = {
   ToolbarDivider: ToolbarDivider as any,
   Menu: Menu as any,
   Image,
-  Alert: ({ variant, className, children }): JSX.Element => (
-    <RBAlert variant={variant as any} className={className}>
-      {children}
-    </RBAlert>
+  Alert: ({ variant, className, title, onDismiss, children }): JSX.Element => (
+    <>
+      <RBAlert variant={variant as any} className={className}>
+        <RBAlert.Heading>{title}</RBAlert.Heading>
+        {children}
+
+        {onDismiss && <div className="d-flex justify-content-end">
+          <RBButton onClick={onDismiss} variant="outline-warning">
+            <X />
+          </RBButton>
+        </div>}
+
+      </RBAlert>
+    </>
   ),
 
   Spinner: ({ size = "sm", className }): JSX.Element => (

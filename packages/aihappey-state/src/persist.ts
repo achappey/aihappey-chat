@@ -32,6 +32,7 @@ export const withPersist = (
       providerImageMetadata: s.providerImageMetadata,
       //n: s.n,
       seed: s.seed,
+      allowedToolList: s.allowedToolList,
       size: s.size,
       maxImagesPerCall: s.maxImagesPerCall,
       aspectRatio: s.aspectRatio,

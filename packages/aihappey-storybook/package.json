@@ -8,10 +8,10 @@
     "dist"
   ],
   "dependencies": {
-    "aihappey-types": "*",
-    "aihappey-theme-fluent": "*",
+    "aihappey-components": "*",
     "aihappey-theme-bootstrap": "*",
-    "aihappey-components": "*"
+    "aihappey-theme-fluent": "*",
+    "aihappey-types": "*"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",
@@ -24,6 +24,10 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@storybook/addon-webpack5-compiler-swc": "^4.0.2",
+    "@modelcontextprotocol/sdk": "^1.21.2",
+    "aihappey-ai": "*",
+    "@swc/core": "^1.15.8",
     "@storybook/react-webpack5": "^10.1.8",
     "@types/mime": "^3.0.4",
     "react-dom": "^18.3.1",

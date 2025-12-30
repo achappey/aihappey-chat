@@ -28,6 +28,8 @@ export const ToolDrawer = ({ open, tools, onClose }: ToolDrawerProps) => {
               input: tool.input,
               state: tool.state,
               output: tool.output,
+              approval: tool.approval,
+              title: tool.title,
               toolCallId: tool.toolCallId,
             }}
           />

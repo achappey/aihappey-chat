@@ -1,6 +1,7 @@
 import React from "react";
-import { useTheme } from "aihappey-components";
+import { SharedWarnings, useTheme } from "aihappey-components";
 import type { ImageWarning } from "./useImageErrors";
+import { SharedV3Warning } from "aihappey-ai";
 
 type ImageWarningsProps = {
   warnings: ImageWarning[];
@@ -8,24 +9,16 @@ type ImageWarningsProps = {
 };
 
 export function ImageWarnings({ warnings, dismissWarning }: ImageWarningsProps) {
-  const { Alert } = useTheme();
-
   if (!warnings.length) return null;
 
-  return (
-    <>
-      {warnings.map((w) => (
-        <Alert
-          key={w.id}
-          // if your Alert supports "warning", use it.
-          // if not, change this to whatever your theme supports (e.g. "info").
-          variant="warning"
-          onDismiss={() => dismissWarning(w.id)}
-          title="Warning"
-        >
-          {w.message}
-        </Alert>
-      ))}
-    </>
-  );
+  return <SharedWarnings warnings={warnings.map(z => z.raw)}
+    dismiss={(incoming) => {
+      const match = warnings.find(w =>
+        JSON.stringify(w.raw) === JSON.stringify(incoming)
+      );
+
+      if (match) {
+        dismissWarning(match.id);
+      }
+    }} />
 }

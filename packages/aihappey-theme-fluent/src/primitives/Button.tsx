@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { ComponentProps, JSX } from "react";
-import { Button as FluentButton, Hamburger } from "@fluentui/react-components";
+import { Button as FluentButton, Hamburger, Tooltip } from "@fluentui/react-components";
 import type { IconToken } from "aihappey-types";
 import {
   AddRegular,
@@ -147,41 +147,46 @@ export const Button = ({
   size = "medium",
   icon,
   iconPosition = "left",
+  title,
   children,
   ...rest
 }: ComponentProps<"button"> & {
   variant?: string;
   size?: string;
+  title?: string;
   icon?: IconToken;
   iconPosition?: "left" | "right";
   children?: React.ReactNode;
 }): JSX.Element => {
   const IconElem = icon ? iconMap[icon] : undefined;
-  return (
-    <FluentButton
-      appearance={
-        variant === "primary"
-          ? "primary"
-          : variant === "secondary"
-            ? "secondary"
-            : variant === "outline"
-              ? "outline"
-              : "transparent"
-      }
-      size={
-        size === "sm" || size === "small"
-          ? "small"
-          : size === "lg" || size === "large"
-            ? "large"
-            : "medium"
-      }
-      icon={IconElem && iconPosition === "left" ? <IconElem /> : undefined}
-      iconAfter={
-        IconElem && iconPosition === "right" ? <IconElem /> : undefined
-      }
-      {...(rest as any)}
-    >
-      {children}
-    </FluentButton>
-  );
+  
+  const appearance = variant === "primary"
+    ? "primary"
+    : variant === "secondary"
+      ? "secondary"
+      : variant === "outline"
+        ? "outline"
+        : "transparent";
+
+  const sizeValue = size === "sm" || size === "small"
+    ? "small"
+    : size === "lg" || size === "large"
+      ? "large"
+      : "medium";
+
+  const button = <FluentButton
+    appearance={appearance}
+    size={sizeValue}
+    icon={IconElem && iconPosition === "left" ? <IconElem /> : undefined}
+    iconAfter={
+      IconElem && iconPosition === "right" ? <IconElem /> : undefined
+    }
+    {...(rest as any)}
+  >
+    {children}
+  </FluentButton>;
+
+  return title ? <Tooltip relationship="label" content={title}>
+    {button}
+  </Tooltip> : button;
 };

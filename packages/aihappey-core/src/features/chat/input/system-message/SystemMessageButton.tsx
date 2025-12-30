@@ -5,7 +5,7 @@ import { useTranslation } from "aihappey-i18n";
 import { McpServerDetails } from "./McpServerDetails";
 import { useSystemMessage } from "../../messages/useSystemMessage";
 import { useTools } from "../../../tools/useTools";
-import { useTheme } from "aihappey-components";
+import { useTheme, ViewButton } from "aihappey-components";
 
 import { useChatContext } from "../../context/ChatContext";
 import { Markdown } from "../../../../ui/markdown/Markdown";
@@ -64,14 +64,11 @@ export const SystemMessageButton = () => {
 
   return (
     <>
-      <Button
-        type="button"
-        icon="eye"
-        size="large"
+      <ViewButton size="large"
         variant="transparent"
         onClick={() => setOpen(true)}
-        title={t("context")}
-      />
+        title={t("context")} />
+
       <SystemMessageModal
         open={open}
         appName={appName}

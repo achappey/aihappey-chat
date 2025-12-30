@@ -35,6 +35,7 @@ import type { ToolbarButtonComponent } from "./ToolbarButton";
 import type { ToolbarComponent } from "./Toolbar";
 import type { ToolbarDividerComponent } from "./ToolbarDivider";
 import type { UserMenuComponent } from "./UserMenu";
+import type { SplitButtonComponent } from "./SplitButton";
 
 /**
  * Split-out theme contract (recomposed from per-component types).
@@ -71,6 +72,7 @@ export interface AihUiTheme {
   ToolbarButton: ToolbarButtonComponent;
   ToolbarDivider: ToolbarDividerComponent;
   Chat: ChatComponent;
+  SplitButton: SplitButtonComponent;
   Drawer: DrawerComponent;
   Navigation: NavigationComponent;
   Menu: MenuComponent;

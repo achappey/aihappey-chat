@@ -7,6 +7,7 @@ import { useDarkMode } from "usehooks-ts";
 import { useAccount } from "aihappey-auth";
 import { McpRegistryServerResponse, TagItem } from "aihappey-types";
 import { useDefaultRegistries } from "../../shell/connectors/useDefaultRegistries";
+import { useChatContext } from "../chat/context/ChatContext";
 
 type Props = {
   show: boolean;
@@ -31,7 +32,8 @@ export const ServerCatalogModal = ({ show, onHide,
   const getRegistries = useDefaultRegistries()
   const mcpRegistries = useAppStore((s) => s.mcpRegistries);
   const quickSearches = useAppStore((s) => s.quickSearches);
-  const [showBaseDomain, setShowBaseDomain] = useState(true);
+  const chat = useChatContext()
+  const [showBaseDomain, setShowBaseDomain] = useState(chat.config.getAccessToken ? true : false);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "recent" | "my">("all");
   const recently = useRecentlyUsed(); // string[] of remote URLs
@@ -139,7 +141,7 @@ export const ServerCatalogModal = ({ show, onHide,
         const exists222 = url && installedServerKeys
           .map(a => a.toLowerCase())
           .includes(url.toLowerCase());
-   
+
         const renderDescription = () => <AuthorBadges authors={ownerNames} />;
 
         return <div key={server.server.name} style={{ marginBottom: 12 }}>
@@ -192,12 +194,13 @@ export const ServerCatalogModal = ({ show, onHide,
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <SearchBox value={search} onChange={setSearch} placeholder={t("searchPlaceholder")} autoFocus />
-            <Switch
-              id={"base-domain"}
-              label={baseDomain}
-              checked={showBaseDomain}
-              onChange={() => setShowBaseDomain((v) => !v)}
-            />
+            {chat.config.getAccessToken
+              && <Switch
+                id={"base-domain"}
+                label={baseDomain}
+                checked={showBaseDomain}
+                onChange={() => setShowBaseDomain((v) => !v)}
+              />}
           </div>
 
           {quickSearches && quickSearches?.length > 0 && (

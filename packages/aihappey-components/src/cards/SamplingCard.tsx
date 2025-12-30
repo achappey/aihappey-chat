@@ -1,7 +1,7 @@
 import React from "react";
 import { useTheme } from "../theme/ThemeContext";
 import type { CreateMessageRequest, CreateMessageResult } from "@modelcontextprotocol/sdk/types";
-import { ViewOutputButton } from "../buttons";
+import { ViewButton } from "../buttons";
 
 export interface SamplingCardProps {
   result?: CreateMessageResult
@@ -17,7 +17,7 @@ export const SamplingCard: React.FC<SamplingCardProps> = ({
   const { Card, JsonViewer } = useTheme();
 
   const actions = result
-    && <ViewOutputButton />
+    && <ViewButton />
 
   return (
     <Card

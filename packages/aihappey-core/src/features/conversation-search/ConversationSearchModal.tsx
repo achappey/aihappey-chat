@@ -21,7 +21,6 @@ export const ConversationSearchModal = ({
 
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [hits, setHits] = useState<
     { conversationId: string; snippet?: string; messageIndex: number }[]
   >([]);
@@ -30,7 +29,6 @@ export const ConversationSearchModal = ({
     if (!open) {
       setQuery("");
       setHits([]);
-      setError(null);
       setLoading(false);
     }
   }, [open]);
@@ -40,14 +38,12 @@ export const ConversationSearchModal = ({
     const q = query.trim();
     if (!q) {
       setHits([]);
-      setError(null);
       setLoading(false);
       return;
     }
 
     let cancelled = false;
     setLoading(true);
-    setError(null);
 
     const handle = window.setTimeout(async () => {
       try {
@@ -63,7 +59,6 @@ export const ConversationSearchModal = ({
       } catch (e) {
         if (cancelled) return;
         setHits([]);
-        setError(e instanceof Error ? e.message : String(e));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -198,8 +193,6 @@ export const ConversationSearchModal = ({
             <Spinner size="small" />
           </div>
         )}
-
-        {error && <div style={{ color: "#c00", padding: 8 }}>{error}</div>}
 
         <ConversationSearchResults
           items={query.trim() ? resultItems : recentItems}

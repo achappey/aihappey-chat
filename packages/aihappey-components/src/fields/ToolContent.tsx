@@ -7,6 +7,7 @@ export interface ToolContentProps {
     type: string;
     input?: any;
     state?: string;
+    title?: string;
     output?: any;
     toolCallId?: string;
   };
@@ -23,7 +24,7 @@ export const ToolContent: React.FC<ToolContentProps> = ({
 }) => {
   const { JsonViewer, ProgressBar } = useTheme();
   const argsPreview = JSON.stringify(invocation.input, null, 2);
-  const toolTitle = tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
+  const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
   const contentStyle: React.CSSProperties = {
     margin: "0.5em 0px"
   }

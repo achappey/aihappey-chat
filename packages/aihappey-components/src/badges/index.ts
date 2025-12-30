@@ -5,3 +5,5 @@ export * from "./PriorityBadge";
 export * from "./AiWarningBadge";
 export * from "./TemperatureBadge";
 export * from "./ToolInvocationStateBadge";
+export * from "./ToolApprovalBadge";
+

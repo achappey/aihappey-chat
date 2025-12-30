@@ -1,4 +1,4 @@
-import { DefaultChatTransport, SourceUrlUIPart, useChat } from "aihappey-ai";
+import { DefaultChatTransport, lastAssistantMessageIsCompleteWithApprovalResponses, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
 import { useMemo, useState, useRef } from "react";
@@ -32,6 +32,45 @@ import { usePendingMessageAutoSend } from "./usePendingMessageAutoSend";
 import { useAbortRun } from "./useAbortRun";
 import { useApiRef } from "./useApiRef";
 import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
+import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
+import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
+
+
+function lastAssistantMessageIsCompleteWithApprovalResponsesLoose(options: any) {
+  const messages = (options?.messages ?? []) as any[];
+
+  // Scan from newest -> oldest for the most recent assistant message that has approval-requested tool parts
+  for (let ai = messages.length - 1; ai >= 0; ai--) {
+    const m = messages[ai];
+    if (m?.role !== "assistant") continue;
+
+    const approvalIds = (m.parts ?? [])
+      .filter((p: any) =>
+        typeof p?.type === "string" &&
+        p.type.startsWith("tool-") &&
+        p.state === "approval-requested" &&
+        p.approval?.id
+      )
+      .map((p: any) => p.approval.id);
+
+    if (approvalIds.length === 0) continue;
+
+    // Collect ALL approval responses that appear AFTER that assistant message (not only the next message)
+    const responded = new Set<string>();
+    for (let j = ai + 1; j < messages.length; j++) {
+      for (const p of (messages[j]?.parts ?? [])) {
+        if (p?.type === "tool-approval-response") {
+          responded.add(p.approvalId ?? p.id); // support either shape
+        }
+      }
+    }
+
+    return approvalIds.every((id: string) => responded.has(id));
+  }
+
+  return false;
+}
+
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -135,6 +174,31 @@ export function VercelChatInner({
 
 
   const apiRef = useApiRef(api);
+  const { tools } = useTools();
+  const baseBody = useMemo(() => ({
+    model: model ?? "openai/gpt-5.2",
+    tools,
+    agents: location.state?.agents,
+    workflowType: location.state?.workflowType,
+    providerMetadata,
+    response_format: location.state?.responseFormat,
+    workflowMetadata: {
+      groupchat: { maximumIterationCount },
+      handoff: { handoffs },
+    },
+    temperature: location.state?.temperature ?? temperature,
+  }), [
+    model,
+    tools,
+    location.state?.agents,
+    location.state?.workflowType,
+    location.state?.responseFormat,
+    providerMetadata,
+    maximumIterationCount,
+    handoffs,
+    temperature,
+    location.state?.temperature,
+  ]);
 
   const transport = useMemo(
     () =>
@@ -146,7 +210,8 @@ export function VercelChatInner({
           headers: opts.headers,
           credentials: opts.credentials,
           body: {
-            ...(opts.body ?? {}),              // <- body MUST be object
+            ...baseBody,              // ✅ always present (model included)
+            ...(opts.body ?? {}),     // per-call overrides/additions
             id: opts.id,
             messages: opts.messages,           // <- keep core payload
             // optioneel (meestal harmless):
@@ -159,7 +224,7 @@ export function VercelChatInner({
     [authFetch]
   );
 
-  const { messages, sendMessage, status, addToolOutput, stop } = useChat({
+  const { messages, sendMessage, status, addToolOutput, stop, addToolApprovalResponse } = useChat({
     id: conversationId,
     transport,
     experimental_throttle: experimentalThrottle,
@@ -178,13 +243,52 @@ export function VercelChatInner({
 
       return result;
     },
-    sendAutomaticallyWhen: (options) => {
-      const messages = options?.messages || [];
-      const lastMessage = messages[messages.length - 1];
-      if (!lastMessage || lastMessage.role !== "assistant") return false;
-      const parts = lastMessage.parts || [];
-      return parts[parts.length - 1]?.state === "output-available" && !parts[parts.length - 1]?.providerExecuted;
-    },
+    sendAutomaticallyWhen,
+    /*    sendAutomaticallyWhen: (options) => {
+          const messages = (options?.messages ?? []) as any[];
+          const lastMessage = messages[messages.length - 1];
+          if (!lastMessage || lastMessage.role !== "assistant") return false;
+    
+          const parts = (lastMessage.parts ?? []) as any[];
+          if (parts.length === 0) return false;
+    
+          const lastPart = parts[parts.length - 1];
+    
+          // ✅ HARD STOP: zodra assistant eindigt in text => niet opnieuw submitten (voorkomt endless loop)
+          if (lastPart?.type === "text") return false;
+    
+          // ✅ blokkeer zolang er nog approvals openstaan in dit assistant bericht
+          if (parts.some((p) => p?.type?.startsWith("tool-") && p.state === "approval-requested")) return false;
+    
+          // ✅ stuur alleen als laatste part een tool-part is die "ready" is, en nog niet providerExecuted
+          return (
+            typeof lastPart?.type === "string" &&
+            lastPart.type.startsWith("tool-") &&
+            (lastPart.state === "output-available" || lastPart.state === "approval-responded") &&
+            !lastPart.providerExecuted
+          );
+        },*/
+
+
+    /*    sendAutomaticallyWhen: (options) => {
+          //if (lastAssistantMessageIsCompleteWithApprovalResponses(options)) return true;
+          if (lastAssistantMessageIsCompleteWithApprovalResponsesLoose(options)) return true;
+    
+          const messages = options?.messages || [];
+          const lastMessage = messages[messages.length - 1];
+          if (!lastMessage || lastMessage.role !== "assistant") return false;
+          const parts = lastMessage.parts || [];
+          return (parts[parts.length - 1]?.state === "output-available"
+            || parts[parts.length - 1]?.state === "approval-responded")
+            && !parts[parts.length - 1]?.providerExecuted;
+    
+          /*
+          const messages = options?.messages || [];
+          const lastMessage = messages[messages.length - 1];
+          if (!lastMessage || lastMessage.role !== "assistant") return false;
+          const parts = lastMessage.parts || [];
+          return parts[parts.length - 1]?.state === "output-available" && !parts[parts.length - 1]?.providerExecuted;*/
+    //},
     messages: seededMessages,
     onFinish: async ({ message, isDisconnect, isAbort }) => {
       if (!isAbort) {
@@ -206,7 +310,7 @@ export function VercelChatInner({
   const { abortRef, startRun, cancelRun } = useAbortRun(stop);
 
   const getAttachmentParts = useAttachmentParts();
-  const { tools } = useTools();
+
   const lastPart = useMemo(() => {
     const lastMsg =
       messages.length > 0 ? messages[messages.length - 1] : undefined;
@@ -349,6 +453,14 @@ export function VercelChatInner({
         result={showToolCall?.output}
         onClose={() => setShowToolCall(undefined)}
       />
+
+      <ToolApprovalModalHost
+        messages={messages}
+        tools={tools}
+        status={status}
+        addToolApprovalResponse={addToolApprovalResponse}
+      />
+
       <ElicitationModalHost />
     </div>
   );

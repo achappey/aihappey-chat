@@ -56,6 +56,7 @@ import { ToolbarDivider } from "./primitives/Toolbar";
 import { JsonViewer } from "./primitives/JsonViewer";
 import { Toaster } from "./primitives/Toaster";
 import { ToggleButton } from "./primitives/ToggleButton";
+import { SplitButton } from "./primitives/SplitButton";
 
 export const fluentTheme: AihUiTheme = {
   DataGrid,
@@ -65,6 +66,7 @@ export const fluentTheme: AihUiTheme = {
   Button,
   JsonViewer,
   Input,
+  SplitButton,
   Toast,
   Card,
   UserMenu,

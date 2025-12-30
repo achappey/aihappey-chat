@@ -4,5 +4,6 @@ export * from "./Menu";
 export * from "./Tags";
 export * from "./Drawer";
 export * from "./DataGrid";
+export * from "./SplitButton";
 export * from "./JsonViewer";
 export * from "./Navigation";

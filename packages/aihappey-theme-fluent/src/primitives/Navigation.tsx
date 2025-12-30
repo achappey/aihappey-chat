@@ -112,7 +112,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         <NavDrawerHeader>
           <div className={styles.headerBar}>
             {/* Hamburger left */}
-            <Tooltip relationship="label" content="Close navigation">
+            <Tooltip relationship="label" content={translations?.closeNavigation ?? "closeNavigation"}>
               <span>
                 <Hamburger onClick={onClose} />
               </span>

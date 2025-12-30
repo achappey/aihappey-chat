@@ -1,14 +1,10 @@
 import {
-  AiChatSettingsForm, ChatSettingsForm,
   ImageSettings,
-  ImageSettingsForm,
-  ProviderSettingsForm, useTheme
-} from "aihappey-components";
+  ImageSettingsForm} from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
-import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 
 // --- General Tab ---
 export const ImageSettingsGeneralTab = ({
@@ -31,18 +27,6 @@ export const ImageSettingsGeneralTab = ({
   const setSize = useAppStore(s => s.setSize)
   const setN = useAppStore(s => s.setN)
 
-  const aiSettings = {
-    temperature: temperature
-  };
-
-  const aiSettingTranslations = {
-    temperature: t("temperature")
-  };
-
-  const chatSettingTranslations = {
-    throttle: t("throttle")
-  };
-
   const onChange = (next: ImageSettings) => {
     if (next.size !== size) setSize(next.size);
     if (next.aspectRatio !== aspectRatio) setAspectRatio(next.aspectRatio);
@@ -58,6 +42,7 @@ export const ImageSettingsGeneralTab = ({
     maxImagesPerCall: maxImagesPerCall,
     seed: seed
   };
+
   const imageSettingsFormTranslations = {
     sizeFormTitle: t("imageSettings.size"),
     size: t("size"),
@@ -80,22 +65,3 @@ export const ImageSettingsGeneralTab = ({
       onChange={onChange} />
   );
 };
-
-/*
-  {false && <ProviderSettingsForm
-          providers={publishers}
-          enabledProviders={enabledProviders}
-          onChange={setEnabledProviders} // or your own setter
-          formTitle={t("providers")}
-          headerActions={
-            !appConfig.config.getAccessToken ? (
-              <theme.Button
-                size="small"
-                variant="transparent"
-                onClick={onEditProviderKeys}
-                icon="edit"
-              />
-            ) : undefined
-          }
-        />}
-*/

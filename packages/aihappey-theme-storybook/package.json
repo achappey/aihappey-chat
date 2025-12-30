@@ -24,6 +24,8 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@storybook/addon-webpack5-compiler-swc": "^4.0.2",
+    "@swc/core": "^1.15.8",
     "@storybook/react-webpack5": "^10.1.8",
     "@types/mime": "^3.0.4",
     "react-dom": "^18.3.1",

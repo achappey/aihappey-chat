@@ -168,6 +168,27 @@ export const MessageList = ({
       onShowAttachments={showAttachments}
       onRenderMarkdown={(text) => <Markdown text={text} />}
       renderBlock={({ block }: any) => {
+
+        if (block.type?.startsWith("tool-")
+          && block.output?._meta?.["chat/html"]) {
+          const html = block.output._meta["chat/html"];
+
+          return (
+            <OpenAIAppWidget
+              resourceHtml={html}
+              toolInput={block?.input}
+              sendFollowupTurn={sendMessage}
+              onCallTool={(name, args) => callTool(undefined, name, args)}
+              meta={block?.output?._meta}
+              toolOutput={
+                block?.output?.structuredContent ??
+                block?.output
+              }
+            />
+          );
+        }
+
+
         if (block.type.startsWith("tool-")) {
           const progress = progressByToken.get(block.toolCallId);
           const toolItem = tools?.tools?.find(a => a.name == block.type.replace("tool-", ""))
@@ -176,16 +197,6 @@ export const MessageList = ({
             progress={progress}
             invocation={block} />;
         }
-
-        // 1) Elicitation form injection
-        /*     if (block?.type === "elicitation") {
-               return (
-                 <ElicitationForm
-                   params={block.params}
-                   onRespond={block.onRespond}
-                 />
-               );
-             }*/
 
         if (block?.type === "image-grid") {
           const items = (block.items ?? []).map(fileToImageContent);
@@ -207,25 +218,6 @@ export const MessageList = ({
           return (
             <Markdown
               text={((block.request?.params?.messages?.[0] as any).content as any)?.text}
-            />
-          );
-        }
-
-        if (block.type?.startsWith("tool-")
-          && block.output?._meta?.["chat/html"]) {
-          const html = block.output._meta["chat/html"];
-
-          return (
-            <OpenAIAppWidget
-              resourceHtml={html}
-              toolInput={block?.input}
-              sendFollowupTurn={sendMessage}
-              onCallTool={(name, args) => callTool(undefined, name, args)}
-              meta={block?.output?._meta}
-              toolOutput={
-                block?.output?.structuredContent ??
-                block?.output
-              }
             />
           );
         }

@@ -15,6 +15,10 @@ export type ChatSlice = {
   chatErrors?: string[]
   structuredOutputs?: any
   activePlugins: string[]
+  approveAll: boolean;
+  allowedToolList: string[];
+  toggleApproveAll: () => void;
+  addAllowedTool: (name: string) => void;
   setActivePlugins: (names: string[]) => void;
   setStructuredOutputs: (structuredOutputs?: any) => void;
   models?: ModelOption[]
@@ -59,7 +63,19 @@ export const createChatSlice: StateCreator<
   structuredOutputs: undefined,
   toolAnnotations: DEFAULT_ANNOTATIONS,
   chatErrors: [],
+  approveAll: false,
+  allowedToolList: [],
   activePlugins: [],
+  toggleApproveAll: () => {
+    set((state: any) => ({
+      approveAll: !state.approveAll,
+    }));
+  },
+  addAllowedTool: (value) => {
+    set((state: any) => ({
+      allowedToolList: [...state.allowedToolList, value],
+    }));
+  },
   setActivePlugins: (value) => {
     set((state: any) => ({
       activePlugins: value,

@@ -6,3 +6,5 @@ export * from "./ToolContent";
 export * from "./TemperatureField";
 export * from "./ProviderToggleField";
 export * from "./ThrottlingField";
+export * from "./ModelSelectField";
+

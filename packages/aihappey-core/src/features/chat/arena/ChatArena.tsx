@@ -1,10 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 import { MessageList } from "../messages/MessageList";
 import { useTheme } from "aihappey-components";
-
 import { DefaultChatTransport, useChat } from "aihappey-ai";
 import { MessageInput } from "../input/MessageInput";
-import { mcpRuntime, UiAttachment, useAppStore } from "aihappey-state";
+import { useAppStore } from "aihappey-state";
 import { useChatFileDrop } from "../input/useChatFileDrop";
 import { useParams } from "react-router";
 import { useConversations } from "aihappey-conversations";
@@ -20,6 +19,7 @@ import { useTools } from "../../tools/useTools";
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
+import { sendAutomaticallyWhen } from "../engine/sendAutomaticallyWhen";
 
 export function ChatArena({
   api,
@@ -35,11 +35,11 @@ export function ChatArena({
   const { conversationId } = useParams<{ conversationId: string }>();
   const { addMessage } = useConversations();
   const [selectedModelA, setSelectedModelA] = useState<string | undefined>(
-    "openai/gpt-5.2"
+    "openai/gpt-5-nano"
   );
 
   const [selectedModelB, setSelectedModelB] = useState<string | undefined>(
-    "anthropic/claude-sonnet-4-20250514"
+    "openai/gpt-4.1-nano"
   );
 
   const { config } = useChatContext();
@@ -49,9 +49,10 @@ export function ChatArena({
    );*/
   const { Spinner } = useTheme();
   const models = useAppStore((s) => s.models);
+  const customHeaders = useAppStore((s) => s.customHeaders);
   const callTool = useAppStore((a) => a.callTool);
   const { onToolCall } = useOnToolCall({
-    callTool, 
+    callTool,
     api: api ?? "",
     getAccessToken,
     headers,
@@ -88,9 +89,9 @@ export function ChatArena({
   );
 
   const authFetch = useMemo(() => {
-    if (!getAccessToken && !headers && !customFetch) return undefined;
+    if (!getAccessToken && !headers && !customFetch && !customHeaders) return undefined;
     return async (input: RequestInfo | URL, init?: RequestInit) => {
-      let merged = { ...(headers ?? {}) };
+      let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
       if (getAccessToken) {
         try {
           merged.Authorization = `Bearer ${await getAccessToken()}`;
@@ -99,7 +100,7 @@ export function ChatArena({
       if (init?.headers) merged = { ...merged, ...(init.headers as any) };
       return (customFetch ?? fetch)(input, { ...init, headers: merged });
     };
-  }, [getAccessToken, headers, customFetch]);
+  }, [getAccessToken, headers, customFetch, customHeaders]);
 
   const transport = useMemo(
     () => new DefaultChatTransport({ api, fetch: authFetch }),
@@ -122,13 +123,14 @@ export function ChatArena({
 
       return result;
     },
-    sendAutomaticallyWhen: (options) => {
-      const messages = options?.messages || [];
-      const lastMessage = messages[messages.length - 1];
-      if (!lastMessage || lastMessage.role !== "assistant") return false;
-      const parts = lastMessage.parts || [];
-      return parts[parts.length - 1]?.state === "output-available";
-    },
+    sendAutomaticallyWhen
+    /*   sendAutomaticallyWhen: (options) => {
+         const messages = options?.messages || [];
+         const lastMessage = messages[messages.length - 1];
+         if (!lastMessage || lastMessage.role !== "assistant") return false;
+         const parts = lastMessage.parts || [];
+         return parts[parts.length - 1]?.state === "output-available";
+       },*/
   });
 
   const chatB = useChat({
@@ -145,13 +147,14 @@ export function ChatArena({
 
       return result;
     },
-    sendAutomaticallyWhen: (options) => {
+    sendAutomaticallyWhen,
+    /*sendAutomaticallyWhen: (options) => {
       const messages = options?.messages || [];
       const lastMessage = messages[messages.length - 1];
       if (!lastMessage || lastMessage.role !== "assistant") return false;
       const parts = lastMessage.parts || [];
       return parts[parts.length - 1]?.state === "output-available";
-    },
+    },*/
   });
 
   const { tools } = useTools();

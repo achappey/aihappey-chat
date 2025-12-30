@@ -3,7 +3,12 @@ import { useNavigate } from "react-router";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 
-const MinimalNavBar = (): JSX.Element => {
+const MinimalNavBar = ({
+  onSearch,
+}: {
+  onSearch: () => void;
+}) => {
+  //const MinimalNavBar = (): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const selectConversation = useAppStore((s) => s.selectConversation);
@@ -37,7 +42,8 @@ const MinimalNavBar = (): JSX.Element => {
         icon="menu"
         size="small"
         variant="transparent"
-        aria-label={t("toggleSidebar")}
+        aria-label={t("openNavigation")}
+        title={t("openNavigation")}
         onClick={toggleSidebar}
         style={{ marginBottom: 8 }}
       />
@@ -45,15 +51,26 @@ const MinimalNavBar = (): JSX.Element => {
         icon="add"
         size="small"
         variant="transparent"
-        aria-label={t("chat.newChat")}
+        aria-label={t("newChat")}
+        title={t("newChat")}
         onClick={handleNewChat}
+        style={{ marginBottom: 8 }}
+      />
+      <Button
+        icon="search"
+        size="small"
+        variant="transparent"
+        aria-label={t("conversationSearch")}
+        title={t("conversationSearch")}
+        onClick={onSearch}
         style={{ marginBottom: 8 }}
       />
       <Button
         icon="library"
         size="small"
         variant="transparent"
-        aria-label={t("library.title")}
+        title={t("images")}
+        aria-label={t("images")}
         onClick={handleLibrary}
       />
     </nav>

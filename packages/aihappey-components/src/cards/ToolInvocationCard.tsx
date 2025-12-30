@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import { CapabilityIcon } from "../images/CapabilityIcon";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
-import { ViewOutputButton } from "../buttons/ViewOutputButton";
+import { ViewButton } from "../buttons/ViewButton";
 import { ToolInvocationStateBadge } from "../badges/ToolInvocationStateBadge";
+import { ToolApprovalBadge } from "../badges";
 
 export interface ToolInvocationCardProps {
   invocation: {
@@ -12,6 +13,12 @@ export interface ToolInvocationCardProps {
     state?: string;
     output?: any;
     toolCallId?: string;
+    title?: string;
+    approval?: {
+      id: string,
+      approved?: boolean,
+      reason?: string
+    }
   };
   tool?: Tool;
   getToolExplanation?: any;
@@ -38,16 +45,26 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   const [explanation, setExplanation] = useState<string | undefined>(undefined);
   const { Card, Button, Spinner, JsonViewer, Badge, Image } = useTheme();
   const [loadingExplanation, setLoadingExplanation] = useState(false);
-  const argsPreview = JSON.stringify(invocation.input, null, 2);
-  const toolTitle = tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
-  const cardDescription = <>
+  const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
+
+  const isCompleted = invocation.state === 'approval-responded'
+    || invocation.state === 'output-available';
+
+  const cardDescription = <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
     <ToolInvocationStateBadge
       state={invocation.state!}
-      output={invocation.output}
+      approved={invocation.approval?.approved}
+      isError={invocation.output?.isError}
       translations={translations} />
-    {invocation.state === 'output-available' && !invocation.output?.isError
+
+    <ToolApprovalBadge
+      state={invocation.state!}
+      approval={invocation.approval}
+      translations={translations} />
+
+    {isCompleted && !invocation.output?.isError
       && <Badge bg="informative">{prettySize(invocation.output)}</Badge>}
-  </>;
+  </div>;
 
   return (
     <Card
@@ -61,10 +78,11 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
       }
       actions={
         <>
-          {invocation.state == "output-available"
+          {isCompleted
             && onShowOutput
-            && <ViewOutputButton
+            && <ViewButton
               disabled={loadingExplanation}
+              size="small"
               onClick={() => onShowOutput(invocation?.output)}
             />}
           {getToolExplanation && renderToolExplanation && (
@@ -95,7 +113,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
             ) : explanation ? (
               renderToolExplanation(explanation)
             ) : (
-              <JsonViewer value={argsPreview} />
+              <JsonViewer value={invocation.input} />
             )}
           </div>
 

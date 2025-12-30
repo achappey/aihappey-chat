@@ -15,10 +15,11 @@ import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/file
 import { useTranslation } from "aihappey-i18n";
 
 export const MessageInput = (props: UseMessageInputOptions) => {
-  const { Button, Tags, TextArea } = useTheme();
+  const { Button, Tags, TextArea, Badge } = useTheme();
   const { t } = useTranslation();
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
+  const approveAll = useAppStore((s) => s.approveAll);
   const chatMode = useAppStore((s) => s.chatMode);
   const agents = useAppStore((s) => s.agents);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
@@ -73,11 +74,28 @@ export const MessageInput = (props: UseMessageInputOptions) => {
       </div>
     ) : null;
 
+  const yoloElement = approveAll ? (
+    <div style={styles.yoloRow}>
+      <Badge icon="warning" bg="danger" appearance="filled" >YOLO </Badge>
+    </div>
+  ) : null;
+
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
       {/* TAG ROW  */}
-      {attachmentsElement}
-      {serverElements}
+      {(attachmentsElement || serverElements || approveAll) && (
+        <div style={styles.metaRow}>
+          <div style={styles.metaLeft}>
+            {attachmentsElement}
+            {serverElements}
+          </div>
+
+          <div style={styles.metaRight}>
+            {approveAll && <Badge icon="warning" bg="danger" appearance="filled" >YOLO </Badge>}
+          </div>
+        </div>
+      )}
+
       {/* FIRST ROW – TEXT INPUT */}
       <TextArea
         ref={textareaRef}
@@ -160,6 +178,30 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: "column",
     gap: 8,
     width: "100%",
+  },
+  yoloRow: {
+    display: "flex",
+    justifyContent: "flex-end",
+    width: "100%",
+  },
+  metaRow: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 8,
+    width: "100%",
+  },
+
+  metaLeft: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+    flex: 1,
+  },
+
+  metaRight: {
+    display: "flex",
+    alignItems: "flex-start",
   },
   tagRow: {
     display: "flex",

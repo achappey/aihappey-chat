@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { ProviderKeysForm, useTheme } from "aihappey-components";
+import { ProviderKeysForm, SettingsActionButtons, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useDarkMode } from "usehooks-ts";
@@ -106,19 +106,14 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
       onHide={onClose}
       title={t("apiKeys")}
       actions={
-        <>
-          <theme.Button
-            variant="informative"
-            icon="download"
-            onClick={() =>
-              downloadJson("provider_config.json", customHeaders ?? {})
-            }
-          />
-
-          <theme.Button variant="secondary" onClick={onClose}>
-            {t("close")}
-          </theme.Button>
-        </>
+        <SettingsActionButtons
+          onClose={onClose}
+          onDownload={() => downloadJson("provider_config.json", customHeaders ?? {})}
+          translations={{
+            close: t("close"),
+            download: t("download")
+          }}
+        />
       }
 
     >

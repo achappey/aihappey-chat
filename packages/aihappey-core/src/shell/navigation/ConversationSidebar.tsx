@@ -8,9 +8,13 @@ import { useTranslation } from "aihappey-i18n";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useIsDesktop } from "../responsive/useIsDesktop";
-import { ConversationSearchModal } from "../../features/conversation-search";
 
-export const ConversationSidebar = () => {
+export const ConversationSidebar = ({
+  onSearch,
+}: {
+  onSearch: () => void;
+}) => {
+
   const selectConversation = useAppStore((s) => s.selectConversation);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
@@ -26,7 +30,7 @@ export const ConversationSidebar = () => {
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
   const { conversationId } = useParams<{ conversationId?: string }>();
 
-  const [searchOpen, setSearchOpen] = useState(false);
+ // const [searchOpen, setSearchOpen] = useState(false);
 
   const handleCreate = async () => {
     // Reset current selection *before* navigating so ChatPage starts blank
@@ -57,7 +61,7 @@ export const ConversationSidebar = () => {
       label: t("conversationSearch"),
       icon: "search",
       new: true,
-      onClick: () => setSearchOpen(true),
+      onClick: onSearch,
     },
     {
       key: "images",
@@ -241,8 +245,10 @@ export const ConversationSidebar = () => {
     export: t('export'),
     delete: t('delete'),
     new: t('new'),
+    closeNavigation: t('closeNavigation'),
     rename: t('rename')
   }
+
   return (
     <div ref={dropRef}
       onDrop={handleFileDrop}
@@ -252,14 +258,7 @@ export const ConversationSidebar = () => {
         borderColor: isOver ? "#888" : "transparent",
       }}
       onDragOver={handleDragOver}>
-      <ConversationSearchModal
-        open={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        onSelectConversation={async (id) => {
-          await navigate(`/${id}`);
-          setSearchOpen(false);
-        }}
-      />
+    
       <Navigation
         items={navItems}
         translations={translations}
