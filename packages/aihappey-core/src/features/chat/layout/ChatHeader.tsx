@@ -8,6 +8,7 @@ import SettingsModal from "../../user-settings/SettingsModal";
 import { useLocation } from "react-router";
 import { useDarkMode } from "usehooks-ts";
 import { AgentSelect } from "../../agents/AgentSelect";
+import { useTranslation } from "aihappey-i18n";
 
 interface ChatHeaderProps {
   agentValues?: string[];
@@ -23,6 +24,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const toggleActivities = useAppStore((a) => a.toggleActivities);
   const models = useAppStore((a) => a.models);
   const chatMode = useAppStore((a) => a.chatMode);
+  const { t } = useTranslation()
   const allAgents = useAppStore((a) => a.agents);
   const switchChatMode = useAppStore((a) => a.switchChatMode);
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
@@ -52,10 +54,12 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
       >
         <ToggleButton icon="brain"
           variant="subtle"
+          title={t('aiChat')}
           checked={chatMode == "chat"}
           onClick={() => toggleMode("chat")} />
         <ToggleButton icon="robot"
           variant="subtle"
+          title={t('aiAgents')}
           checked={chatMode == "agent"}
           onClick={() => toggleMode("agent")} />
         {chatMode == "agent" && <AgentSelect

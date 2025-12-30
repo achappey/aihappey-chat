@@ -236,23 +236,20 @@ export const Navigation: React.FC<NavigationProps> = ({
                   </>
                 ) : (
                   <span className={styles.navItemContent}>
-                    <Tooltip relationship="label" content={<>{item.label}</>}>
-                      <span
-                        style={{
-                          whiteSpace: "nowrap",
-                          textOverflow: "ellipsis",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {item.label}
-                        {item.new && <>{" "}<Badge
-                          color="informative"
-                          appearance={"outline"}>
-                          {translations?.new ?? "new"}
-                        </Badge></>}
-                      </span>
-
-                    </Tooltip>
+                    <span
+                      style={{
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {item.label}
+                      {item.new && <>{" "}<Badge
+                        color="informative"
+                        appearance={"outline"}>
+                        {translations?.new ?? "new"}
+                      </Badge></>}
+                    </span>
                     {item.conversationItem && (
                       <Menu>
                         <MenuTrigger disableButtonEnhancement>
