@@ -1,11 +1,11 @@
 import {
   AiChatSettingsForm, ChatSettingsForm, LocalToolsSettingsForm,
+  McpPolicySettings,
   ProviderSettingsForm, useTheme
 } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
-import { McpPolicySettings } from "../mcp-client/McpPolicySettings";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { usePlugins } from "../tools/toolcalls/usePlugins";

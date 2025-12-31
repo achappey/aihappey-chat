@@ -1,30 +1,18 @@
 import { useTheme } from "../theme/ThemeContext";
-import type { ChatMessage } from "aihappey-types";
-import type { FileUIPart, ToolUIPart, UIMessagePart } from "aihappey-ai";
-import { AiWarningBadge } from "../badges";
-import { CopyToClipboardButton } from "../buttons";
-import { TemperatureBadge } from "../badges/TemperatureBadge";
-import { useMemo, useState } from "react";
-import { ToolContent } from "../fields/ToolContent";
-import { TextCard } from "../cards";
+import type { ToolUIPart, UIMessagePart } from "aihappey-ai";
 import { UIMessagePartCard } from "../cards/UIMessagePartCard";
 
 interface ContentListProps {
   content: UIMessagePart<any, any>[];
   onRenderMarkdown: (text: string) => React.ReactElement;
   onShowToolCallResult?: (toolCall: ToolUIPart<any>) => void;
-  translations?: any;
 }
-
 
 export const ContentList = ({
   content,
   onRenderMarkdown,
   onShowToolCallResult,
-  translations,
 }: ContentListProps) => {
-  const { Chat, Button, Image, Badge } = useTheme();
-
   return (
     <div
       style={{
@@ -36,7 +24,6 @@ export const ContentList = ({
       {content.map(z =>
         <UIMessagePartCard
           content={z}
-          translations={translations}
           onShowToolCallResult={onShowToolCallResult}
           onRenderMarkdown={onRenderMarkdown}
         />)}

@@ -9,3 +9,4 @@ export * from "./forms";
 export * from "./lists";
 export * from "./alerts";
 export * from "./images";
+export * from "./modals";

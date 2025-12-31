@@ -21,11 +21,6 @@ export const MessageActivityDrawer = ({
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
 
-  const translations = {
-    reasoning: t('reasoning'),
-    text: t('text')
-  }
-
   return (
     <Drawer open={open} overlay
       size={isDesktop ? "medium" : "small"}
@@ -33,7 +28,6 @@ export const MessageActivityDrawer = ({
       title={t('activity')}>
       <ContentList
         content={content}
-        translations={translations}
         onShowToolCallResult={onShowToolCallResult}
         onRenderMarkdown={(msg) => <Markdown text={msg} />} />
     </Drawer>

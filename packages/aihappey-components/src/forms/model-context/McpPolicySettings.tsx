@@ -1,28 +1,21 @@
 import React from "react";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { useTheme } from "../../theme/ThemeContext";
-
-export type McpPolicyTranslations = {
-  openWorld: string;
-  destructive: string;
-  readOnly: string;
-  idempotent: string;
-};
+import { useTranslation } from "aihappey-i18n";
 
 export interface McpPolicySettingsProps {
   policySettings?: Partial<ToolAnnotations>;
   toggle: (meta: keyof ToolAnnotations) => void;
-  translations?: McpPolicyTranslations;
-  cardTitle?: string;
 }
 
 export const McpPolicySettings: React.FC<
   McpPolicySettingsProps
-> = ({ policySettings, toggle, translations, cardTitle }) => {
+> = ({ policySettings, toggle }) => {
   const { Card, Switch } = useTheme();
+  const { t } = useTranslation();
 
   return (
-    <Card size="small" title={cardTitle ?? "policy"}>
+    <Card size="small" title={t("mcpPage.policy")}>
       <div
         style={{
           display: "grid",
@@ -32,28 +25,28 @@ export const McpPolicySettings: React.FC<
       >
         <Switch
           id="openWorld"
-          label={translations?.openWorld ?? "openWorld"}
+          label={t("annotations.openWorld")}
           checked={!!policySettings?.openWorldHint}
           onChange={() => toggle("openWorldHint")}
         />
 
         <Switch
           id="destructive"
-          label={translations?.destructive ?? "destructive"}
+          label={t("annotations.destructive")}
           checked={!!policySettings?.destructiveHint}
           onChange={() => toggle("destructiveHint")}
         />
 
         <Switch
           id="readOnly"
-          label={translations?.readOnly ?? "readOnly"}
+          label={t("annotations.readOnly")}
           checked={!!policySettings?.readOnlyHint}
           onChange={() => toggle("readOnlyHint")}
         />
 
         <Switch
           id="idempotent"
-          label={translations?.idempotent ?? "idempotent"}
+          label={t("annotations.idempotent")}
           checked={!!policySettings?.idempotentHint}
           onChange={() => toggle("idempotentHint")}
         />

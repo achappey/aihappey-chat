@@ -26,6 +26,6 @@ export const defaultProviderImageMetadata = {
     },
   },
   "xai": {
-    "quality": "medium",
+   
   }
 };

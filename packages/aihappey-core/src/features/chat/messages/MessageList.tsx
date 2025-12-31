@@ -161,7 +161,6 @@ export const MessageList = ({
       messages={chatMessages}
       onCopyMessage={copyClipboard}
       locale={i18n.language}
-      translations={translations}
       tools={tools?.tools ?? []}
       onShowActivity={showActivity}
       onShowSources={showCitations}
@@ -193,7 +192,6 @@ export const MessageList = ({
           const progress = progressByToken.get(block.toolCallId);
           const toolItem = tools?.tools?.find(a => a.name == block.type.replace("tool-", ""))
           return <ToolContent tool={toolItem}
-            translations={translations}
             progress={progress}
             invocation={block} />;
         }

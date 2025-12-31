@@ -1,6 +1,7 @@
 import {
   ImageSettings,
-  ImageSettingsForm} from "aihappey-components";
+  ImageSettingsForm
+} from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -43,25 +44,9 @@ export const ImageSettingsGeneralTab = ({
     seed: seed
   };
 
-  const imageSettingsFormTranslations = {
-    sizeFormTitle: t("imageSettings.size"),
-    size: t("size"),
-    aspectRatio: t("ratio"),
-    aspectFormTitle: t("imageSettings.aspectRatio"),
-    n: t("imageSettings.n"),
-    maxImagesPerCall: t("imageSettings.maxImagesPerCall"),
-    seed: t("imageSettings.seed"),
-    outputTitle: t("imageSettings.output"),
-    otherTitle: t("imageSettings.other"),
-    providerDefault: t("providerDefault"),
-    custom: t("custom"),
-    width: t("imageSettings.width"),
-    height: t("imageSettings.height"),
-  };
 
   return (
     <ImageSettingsForm value={settings}
-      translations={imageSettingsFormTranslations}
       onChange={onChange} />
   );
 };

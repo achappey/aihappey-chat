@@ -1,39 +1,39 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 interface ToolInvocationStateBadgeProps {
   state: string
   isError?: boolean
   approved?: boolean
-  translations?: any
 }
 
 export const ToolInvocationStateBadge: React.FC<ToolInvocationStateBadgeProps> = ({
   state,
   isError,
-  approved,
-  translations
+  approved
 }) => {
   const { Badge } = useTheme();
+  const { t } = useTranslation();
 
   return <>
     {state === 'output-available' && (
       isError ? (
-        <Badge bg="severe">{translations?.error ?? "error"}</Badge>
+        <Badge bg="severe">{t("error")}</Badge>
       ) : (
-        <Badge bg="success">{translations?.success ?? "success"}</Badge>
+        <Badge bg="success">{t("success")}</Badge>
       )
     )}
     {state === 'approval-responded' && (
       isError ? (
-        <Badge bg="severe">{translations?.error ?? "error"}</Badge>
+        <Badge bg="severe">{t("error")}</Badge>
       ) : approved ? (
-        <Badge bg="success">{translations?.approved ?? "approved"}</Badge>
+        <Badge bg="success">{t("approved")}</Badge>
       ) : (
-        <Badge bg="warning">{translations?.denied ?? "denied"}</Badge>
+        <Badge bg="warning">{t("denied")}</Badge>
       )
     )}
-    {state === 'output-error' && <Badge bg="severe">{translations?.outputError ?? state}</Badge>}
-    {state === 'input-streaming' && <Badge bg="subtle">{translations?.inputStreaming ?? state}</Badge>}
-    {state === 'input-available' && <Badge bg="subtle">{translations?.inputAvailable ?? state}</Badge>}
+    {state === 'output-error' && <Badge bg="severe">{t("error")}</Badge>}
+    {state === 'input-streaming' && <Badge bg="subtle">{t("streaming")}</Badge>}
+    {state === 'input-available' && <Badge bg="subtle">{t("running")}</Badge>}
   </>;
 };

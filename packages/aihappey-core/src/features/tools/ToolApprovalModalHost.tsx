@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { UIMessage } from "aihappey-types";
-import { ToolContent, useTheme, ViewButton } from "aihappey-components";
+import { ToolApprovalButtons, ToolContent, ToolDenyConfirmModal, useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { ToolCallResultModal } from "../chat/activity/content/ToolCallResultModal";
@@ -75,7 +75,7 @@ export function ToolApprovalModalHost({
         reason?: string;
     }) => void;
 }) {
-    const { Modal, Button, TextArea, SplitButton } = useTheme();
+    const { Modal } = useTheme();
     const { t } = useTranslation();
 
     const approveAll = useAppStore((a) => a.approveAll);
@@ -99,13 +99,11 @@ export function ToolApprovalModalHost({
 
     // ✅ Deny-with-reason modal state
     const [showDenyReason, setShowDenyReason] = useState(false);
-    const [denyReason, setDenyReason] = useState("");
 
     // Reset small UI state when switching to a new approval id
     useEffect(() => {
         setShowOutput(false);
         setShowDenyReason(false);
-        setDenyReason("");
     }, [active?.approvalId]);
 
     // 🔁 AUTO APPROVAL (with reason)
@@ -137,50 +135,9 @@ export function ToolApprovalModalHost({
     const respondDeny = () => {
         if (!active?.approvalId) return;
 
-        // Continue flow immediately
-        /* addToolApprovalResponse({
-           id: active.approvalId,
-           approved: false,
-         });
-     */
-        // Optional: ask for reason AFTER decline
         setShowDenyReason(true);
     };
 
-    const submitDenyReason = () => {
-        if (!active?.approvalId) return;
-
-        const r = (denyReason ?? "").trim();
-        /*  if (!r) {
-            setShowDenyReason(false);
-            return;
-          }*/
-
-        addToolApprovalResponse({
-            id: active.approvalId,
-            approved: false,
-            reason: r,
-        });
-
-        // Send a *second* response carrying the reason (safe if backend treats as metadata / last-write-wins)
-        /*  addToolApprovalResponse({
-            id: active.approvalId,
-            approved: false,
-            reason: r,
-          });*/
-
-        setShowDenyReason(false);
-    };
-
-    const closeDenyReason = () => {
-        // user skipped reason; just close and continue
-
-        setShowDenyReason(false);
-        /* addToolApprovalResponse({
-             id: active.approvalId,
-             approved: false,
-         });*/
-    };
 
     const allowThisTool = () => {
         if (!active?.approvalId) return;
@@ -219,42 +176,28 @@ export function ToolApprovalModalHost({
                 onHide={() => { }}
                 title={t("toolApproval")}
                 actions={
-                    <div style={{ display: "flex", gap: 8 }}>
-                        <ViewButton variant="subtle"
-                            onClick={() => setShowOutput(true)}
-                            disabled={!active?.tool?.output} />
-
-                        <SplitButton
-                            label={t("automatic")}
-                            variant="secondary"
-                            onClick={allowThisTool}
-                            menuItems={[
-                                {
-                                    key: "allow-this-tool",
-                                    label: t('thisTool', { toolName: toolTitle ?? toolName }),
-                                    onClick: allowThisTool,
-                                },
-                                {
-                                    key: "allow-all-tools",
-                                    icon: 'warning',
-                                    label: t('allTools') + " (YOLO)",
-                                    onClick: allowAllToolsYolo,
-                                },
-                            ]}
-                        />
-
-
-                        <Button variant="primary" onClick={respondAllow}>
-                            {t("allow")}
-                        </Button>
-
-                        <Button variant="informative" onClick={respondDeny}>
-                            {t("deny")}
-                        </Button>
-                    </div>
+                    <ToolApprovalButtons
+                        size="small"
+                        toolName={toolName}
+                        toolTitle={toolTitle}
+                        canViewOutput={!!active?.tool?.output}
+                        translations={{
+                            automatic: t("automatic"),
+                            allow: t("allow"),
+                            deny: t("deny"),
+                            allTools: t("allTools"),
+                            thisTool: ({ toolName }) =>
+                                t("thisTool", { toolName }),
+                        }}
+                        onViewOutput={() => setShowOutput(true)}
+                        onAllow={respondAllow}
+                        onDeny={respondDeny}
+                        onAllowThisTool={allowThisTool}
+                        onAllowAllTools={allowAllToolsYolo}
+                    />
                 }
             >
-                <ToolContent invocation={active.tool as any} />
+                <ToolContent invocation={active.tool} />
             </Modal>
 
             {/* NEW: OUTPUT MODAL (reuse existing component) */}
@@ -264,33 +207,19 @@ export function ToolApprovalModalHost({
                 result={active?.tool?.output}
             />
 
-            {/* NEW: OPTIONAL REASON MODAL AFTER DENY */}
-            <Modal
-                show={showDenyReason}
-                onHide={closeDenyReason}
-                title={t("toolDeny")}
-                actions={
-                    <div style={{ display: "flex", gap: 8 }}>
-                        <Button variant="primary"
-                            disabled={!denyReason || denyReason.length == 0}
-                            onClick={submitDenyReason}>
-                            {t("deny")}
-                        </Button>
-                        <Button variant="subtle" onClick={closeDenyReason}>
-                            {t("cancel")}
-                        </Button>
-                    </div>
-                }
-            >
-                <TextArea
-                    value={denyReason}
-                    required
-                    label={t("reason")}
-                    // keep your existing behavior if your TextArea gives value directly
-                    onChange={(e: any) => setDenyReason(e)}
-                    rows={3}
-                />
-            </Modal>
+            <ToolDenyConfirmModal
+                open={showDenyReason}
+                size="small"
+                onConfirm={(reason) => {
+                    addToolApprovalResponse({
+                        id: active.approvalId,
+                        approved: false,
+                        reason,
+                    });
+                    setShowDenyReason(false);
+                }}
+                onCancel={() => setShowDenyReason(false)}
+            />
         </>
     );
 }

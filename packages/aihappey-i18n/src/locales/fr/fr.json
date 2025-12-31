@@ -332,7 +332,7 @@
     "height": "Hauteur",
     "other": "Autres",
     "output": "Sortie",
-    "n": "Nombre d’images",
+    "n": "Nombre d’images ({{n}})",
     "seed": "Graine"
   }
 }

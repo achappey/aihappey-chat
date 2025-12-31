@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useTheme } from "../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 type Preset = { w: number; h: number; label?: string };
 
@@ -8,19 +9,9 @@ export type ImageSizeSettings = {
   size?: string;
 };
 
-export type ImageSizeSettingsTranslations = {
-  formTitle?: string;
-  size?: string;
-  width?: string;
-  height?: string;
-  providerDefault?: string;
-  custom?: string;
-};
-
 export type ImageSizeSettingsFormProps = {
   value: ImageSizeSettings;
   onChange: (next: ImageSizeSettings) => void;
-  translations?: ImageSizeSettingsTranslations;
   sizePresets?: Preset[];
 };
 
@@ -53,13 +44,10 @@ const toPositiveInt = (val: any): number | undefined => {
 export const ImageSizeSettingsForm: React.FC<ImageSizeSettingsFormProps> = ({
   value,
   onChange,
-  translations,
   sizePresets,
 }) => {
   const theme = useTheme();
-
-  const t = (key: keyof ImageSizeSettingsTranslations, fallback: string) =>
-    (translations as any)?.[key] ?? fallback;
+  const { t } = useTranslation();
 
   const sizes = sizePresets ?? DEFAULT_SIZE_PRESETS;
   const parsed = useMemo(() => parseSize(value.size), [value.size]);
@@ -73,8 +61,8 @@ export const ImageSizeSettingsForm: React.FC<ImageSizeSettingsFormProps> = ({
     value.size === undefined
       ? DEFAULT_VALUE
       : isPreset
-      ? value.size
-      : CUSTOM_VALUE;
+        ? value.size
+        : CUSTOM_VALUE;
 
   const setFromParts = (w?: number, h?: number) => {
     if (!w || !h) return;
@@ -90,7 +78,7 @@ export const ImageSizeSettingsForm: React.FC<ImageSizeSettingsFormProps> = ({
   return (
     <theme.Card
       size="small"
-      title={translations?.formTitle ?? "Image size"}
+      title={t("imageSettings.size")}
     >
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
         <theme.Select
@@ -98,10 +86,10 @@ export const ImageSizeSettingsForm: React.FC<ImageSizeSettingsFormProps> = ({
           values={[mode]}
           valueTitle={
             mode === DEFAULT_VALUE
-              ? t("providerDefault", "provider default")
+              ? t("providerDefault")
               : mode === CUSTOM_VALUE
-              ? t("custom", "custom")
-              : mode
+                ? t("custom")
+                : mode
           }
           onChange={(val: string) => {
             if (val === DEFAULT_VALUE) {
@@ -116,17 +104,17 @@ export const ImageSizeSettingsForm: React.FC<ImageSizeSettingsFormProps> = ({
           }}
           style={{ minWidth: 220 }}
         >
-          <option value={DEFAULT_VALUE}>{t("providerDefault", "provider default")}</option>
+          <option value={DEFAULT_VALUE}>{t("providerDefault")}</option>
           {sizes.map(p => (
             <option key={`${p.w}x${p.h}`} value={`${p.w}x${p.h}`}>
               {p.label ?? `${p.w}x${p.h}`}
             </option>
           ))}
-          <option value={CUSTOM_VALUE}>{t("custom", "custom")}</option>
+          <option value={CUSTOM_VALUE}>{t("custom")}</option>
         </theme.Select>
 
         <theme.Input
-          label={t("width", "width")}
+          label={t("imageSettings.width")}
           type="number"
           style={{ width: 120 }}
           disabled={value.size === undefined}
@@ -138,7 +126,7 @@ export const ImageSizeSettingsForm: React.FC<ImageSizeSettingsFormProps> = ({
         />
 
         <theme.Input
-          label={t("height", "height")}
+          label={t("imageSettings.height")}
           type="number"
           style={{ width: 120 }}
           disabled={value.size === undefined}

@@ -3,8 +3,6 @@ import { useTranslation } from "aihappey-i18n";
 import { ModelContextExtensionsSettingsForm } from "aihappey-components";
 
 export const ModelContextExtensionsSettings = () => {
-  const { t } = useTranslation();
-
   const enableApps = useAppStore(s => s.enableApps);
   const setEnableApps = useAppStore(s => s.setEnableApps);
 
@@ -24,13 +22,6 @@ export const ModelContextExtensionsSettings = () => {
       onToggleApps={setEnableApps}
       onToggleAgentImport={toggleAgentImport}
       onToggleConversationImport={toggleConversationImport}
-      translations={{
-        appsLabel: t("settingsModal.apps"),
-        agentImportLabel: t("settingsModal.agentImport"),
-        agentImportHint: t("settingsModal.agentImportHint"),
-        conversationImportLabel: t("settingsModal.conversationImport"),
-        conversationImportHint: t("settingsModal.conversationImportHint"),
-      }}
     />
   );
 };

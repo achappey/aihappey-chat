@@ -1,3 +1,4 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../theme/ThemeContext";
 
 type ModelContextExtensionsSettings = {
@@ -11,13 +12,6 @@ type ModelContextExtensionsSettingsFormProps = {
   onToggleApps: (enabled: boolean) => void;
   onToggleAgentImport: (enabled: boolean) => void;
   onToggleConversationImport: (enabled: boolean) => void;
-  translations?: {
-    appsLabel?: string;
-    agentImportLabel?: string;
-    agentImportHint?: string;
-    conversationImportLabel?: string;
-    conversationImportHint?: string;
-  };
 };
 
 export const ModelContextExtensionsSettingsForm = ({
@@ -25,9 +19,9 @@ export const ModelContextExtensionsSettingsForm = ({
   onToggleApps,
   onToggleAgentImport,
   onToggleConversationImport,
-  translations,
 }: ModelContextExtensionsSettingsFormProps) => {
   const { Switch } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -35,7 +29,7 @@ export const ModelContextExtensionsSettingsForm = ({
         id="enableApps"
         size="small"
         checked={value.enableApps}
-        label={translations?.appsLabel ?? "apps"}
+        label={t("settingsModal.apps")}
         onChange={onToggleApps}
       />
 
@@ -43,8 +37,8 @@ export const ModelContextExtensionsSettingsForm = ({
         id="enableAgentImport"
         size="small"
         checked={value.enableAgentImport}
-        label={translations?.agentImportLabel ?? "agentImport"}
-        hint={translations?.agentImportHint}
+        label={t("settingsModal.agentImport")}
+        hint={t("settingsModal.agentImportHint")}
         onChange={onToggleAgentImport}
       />
 
@@ -52,8 +46,8 @@ export const ModelContextExtensionsSettingsForm = ({
         id="enableConversationImport"
         size="small"
         checked={value.enableConversationImport}
-        label={translations?.conversationImportLabel ?? "conversationImport"}
-        hint={translations?.conversationImportHint}
+        label={t("settingsModal.conversationImport")}
+        hint={t("settingsModal.conversationImportHint")}
         onChange={onToggleConversationImport}
       />
     </>

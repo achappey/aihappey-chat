@@ -1,16 +1,18 @@
 import type { ReasoningUIPart } from "aihappey-ai";
 import { useTheme } from "../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 interface ReasoningCardProps {
   block: ReasoningUIPart;
-  translations?: any
   renderText?: (text: string) => React.ReactNode;
 }
 
-export const ReasoningCard = ({ block, renderText, translations }: ReasoningCardProps) => {
+export const ReasoningCard = ({ block, renderText }: ReasoningCardProps) => {
   const { Card } = useTheme();
+  const { t } = useTranslation();
+
   return (
-    <Card title={translations?.reasoning ?? "reasoning"} size="small">
+    <Card title={t("reasoning")} size="small">
       {renderText ? renderText(block.text) : block.text}
     </Card>
   );

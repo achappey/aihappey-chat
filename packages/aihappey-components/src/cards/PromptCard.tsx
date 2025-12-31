@@ -1,5 +1,6 @@
-import { useCopyToClipboard, useDarkMode } from "usehooks-ts";
+import { useCopyToClipboard } from "usehooks-ts";
 import { useTheme } from "../theme/ThemeContext";
+import { CapabilityIcon } from "../images";
 
 export type PromptIcon = { theme?: string; src: string };
 
@@ -30,25 +31,15 @@ export const PromptCard = <TPrompt extends PromptCardBasePrompt = PromptCardBase
     getPromptUrl,
     translations,
 }: PromptCardProps<TPrompt>) => {
-    const { Card, Button, Image } = useTheme();
+    const { Card, Button } = useTheme();
     const [, copyToClipboard] = useCopyToClipboard();
-    const isDarkMode = useDarkMode();
-
-    const icon =
-        prompt?.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))?.src ??
-        prompt?.icons?.[0]?.src;
-
-    const image = icon ? (
-        <Image src={icon} height={32} shape="square" />
-    ) : undefined;
-
     const url = getPromptUrl ? getPromptUrl(prompt) : undefined;
     const showLinkActions = !!url;
 
     return (
         <Card
             title={prompt.title ?? prompt.name}
-            image={image}
+            image={<CapabilityIcon icons={prompt?.icons} />}
             size="small"
             actions={
                 <>

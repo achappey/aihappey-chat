@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useTheme } from "aihappey-components";
+import { McpPolicySettings, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { McpPolicySettings } from "../mcp-client/McpPolicySettings";
 import { IconToken } from "aihappey-types";
 import { Handoff, HandoffsEditor } from "../agents/HandoffsEditor";
 import { McpClientCapabilitiesCard } from "../mcp-client/McpClientCapabilitiesCard";

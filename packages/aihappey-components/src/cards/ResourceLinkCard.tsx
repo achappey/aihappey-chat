@@ -1,14 +1,16 @@
-import type { ResourceLink } from "@modelcontextprotocol/sdk/types";
+import type { ResourceLink } from "aihappey-mcp";
 import { OpenLinkButton } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 interface ResourceLinkCardProps {
   block: ResourceLink;
-  translations?: any
 }
 
-export const ResourceLinkCard = ({ block, translations }: ResourceLinkCardProps) => {
+export const ResourceLinkCard = ({ block }: ResourceLinkCardProps) => {
   const { Card, Image } = useTheme();
+  const { t } = useTranslation();
+  
   return (
     <Card
       title={block.name ?? block.uri}
@@ -26,7 +28,7 @@ export const ResourceLinkCard = ({ block, translations }: ResourceLinkCardProps)
         &&
         <audio controls style={{ width: "100%", height: 50 }}>
           <source src={block.uri} type={block.mimeType} />
-          {translations?.noAudioSupport ?? 'noAudioSupport'}
+          {t('noAudioSupport')}
         </audio>
       }
 
@@ -34,7 +36,7 @@ export const ResourceLinkCard = ({ block, translations }: ResourceLinkCardProps)
         && <video autoPlay muted playsInline controls
           style={{ maxWidth: "100%" }}>
           <source src={block.uri} type={block.mimeType} />
-          {translations?.noVideoSupport ?? 'noVideoSupport'}
+          {t('noVideoSupport')}
         </video>
       }
       {block.mimeType?.startsWith("image/") && <Image src={block.uri} fit="contain">

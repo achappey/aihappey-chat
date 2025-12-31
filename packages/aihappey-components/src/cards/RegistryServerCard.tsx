@@ -2,12 +2,12 @@ import { McpRegistryServerResponse } from "aihappey-types";
 import { useTheme } from "../theme/ThemeContext";
 import { McpServerCardButtons } from "../buttons/McpServerCardButtons";
 import { LimitedTextField } from "../fields/LimitedTextField";
-import { useMcpServer } from "./useMcpServer";
 import { CapabilityIcon } from "../images/CapabilityIcon";
+import { useTranslation } from "aihappey-i18n";
+import { getRepositoryUrl } from "./getRepositoryUrl";
 
 type RegistryServerCardProps = {
   serverItem: McpRegistryServerResponse;
-  translations?: any
   renderDescription?: () => React.ReactElement
   onInstall?: () => void;
   onRemove?: () => void;
@@ -15,25 +15,24 @@ type RegistryServerCardProps = {
 
 export const RegistryServerCard = ({ serverItem,
   onRemove,
-  translations,
   renderDescription,
   onInstall }: RegistryServerCardProps) => {
   const { name, websiteUrl, remotes,
     description, title } = serverItem.server;
   const url = remotes?.find(a => a.type == "streamable-http")?.url;
   const { Card, Button } = useTheme();
-
-  const mcpServer = useMcpServer(serverItem.server)
+  const { t } = useTranslation();
+  
   const headerActions = onRemove ? <Button
     size="small"
     variant="outline"
     onClick={onRemove}
-  >{translations?.uninstall ?? "uninstall"}
+  >{t("uninstall")}
   </Button>
     : onInstall ? <Button
       size="small"
       onClick={onInstall}
-    >{translations?.install ?? "install"}
+    >{t("install")}
     </Button>
       : undefined
 
@@ -47,9 +46,8 @@ export const RegistryServerCard = ({ serverItem,
       headerActions={headerActions}
       actions={
         <McpServerCardButtons url={url!}
-          translations={translations}
           websiteUrl={websiteUrl}
-          respositoryUrl={mcpServer.repositoryUrl}
+          respositoryUrl={getRepositoryUrl(serverItem.server)}
         />
       }
     >

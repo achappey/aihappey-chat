@@ -346,11 +346,6 @@ export const ServersPage = () => {
 
                 <RegistryServerCard serverItem={cfg}
                   onInstall={onInstall}
-                  translations={{
-                    install: t('install'),
-                    uninstall: t('uninstall'),
-                    sourceCode: t('sourceCode')
-                  }}
                   onRemove={mcpServers[cfg.server.name.toLowerCase()]
                     ? () => removeMcpServer(cfg.server.name)
                     : undefined} />

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import { CapabilityIcon } from "../images/CapabilityIcon";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { Tool } from "aihappey-mcp";
 import { ViewButton } from "../buttons/ViewButton";
 import { ToolInvocationStateBadge } from "../badges/ToolInvocationStateBadge";
 import { ToolApprovalBadge } from "../badges";
@@ -24,7 +24,6 @@ export interface ToolInvocationCardProps {
   getToolExplanation?: any;
   renderToolExplanation?: any;
   onShowOutput?: any
-  translations?: any
 }
 
 function prettySize(obj: any) {
@@ -38,14 +37,15 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   invocation,
   tool,
   onShowOutput,
-  translations,
   renderToolExplanation,
   getToolExplanation,
 }) => {
   const [explanation, setExplanation] = useState<string | undefined>(undefined);
   const { Card, Button, Spinner, JsonViewer, Badge, Image } = useTheme();
   const [loadingExplanation, setLoadingExplanation] = useState(false);
-  const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
+  const toolName = invocation.type.replace("tool-", "");
+
+  const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? toolName;
 
   const isCompleted = invocation.state === 'approval-responded'
     || invocation.state === 'output-available';
@@ -54,13 +54,12 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
     <ToolInvocationStateBadge
       state={invocation.state!}
       approved={invocation.approval?.approved}
-      isError={invocation.output?.isError}
-      translations={translations} />
+      isError={invocation.output?.isError} />
 
     <ToolApprovalBadge
       state={invocation.state!}
-      approval={invocation.approval}
-      translations={translations} />
+      toolName={toolName}
+      approval={invocation.approval} />
 
     {isCompleted && !invocation.output?.isError
       && <Badge bg="informative">{prettySize(invocation.output)}</Badge>}

@@ -1,17 +1,16 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 interface AiWarningBadgeProps {
-  label?: string;
   size?: string
 }
 
 export const AiWarningBadge: React.FC<AiWarningBadgeProps> = ({
-  label,
   size
 }) => {
   const { Badge } = useTheme();
-
+  const { t } = useTranslation();
   return <Badge size={size} bg="warning" appearance="ghost">
-    {label}
+    {t('generatedByAi')}
   </Badge>;
 };

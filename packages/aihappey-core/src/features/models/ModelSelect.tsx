@@ -40,7 +40,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
       providers={providerOptions}
       enabledProviderKeys={enabledProviderKeys}
       placeholder={t("selectModelPlaceholder")}
-      minWidth={isDesktop ? 260 : 200}
+      minWidth={isDesktop ? 260 : 170}
     />
   );
 };

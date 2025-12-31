@@ -89,7 +89,7 @@
     "height": "Wysokość",
     "other": "Inne",
     "output": "Wyjście",
-    "n": "Liczba obrazów",
+    "n": "Liczba obrazów ({{n}})",
     "seed": "Ziarno"
   },
   "providerDefault": "Domyślne dostawcy",

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ToolContent } from "../fields/ToolContent";
 import { MessageActions } from "../buttons/MessageActions";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
+import { useTranslation } from "aihappey-i18n";
 
 interface MessageListProps {
   messages: ChatMessage[];
@@ -15,7 +16,6 @@ interface MessageListProps {
   onShowSources?: (sources: (SourceDocumentUIPart | SourceUrlUIPart)[]) => void;
   onShowActivity?: (content: UIMessagePart<any, any>[]) => void;
   tools?: Tool[]
-  translations?: any;
   size?: string;
   locale?: string
 
@@ -44,7 +44,6 @@ export const MessageList = ({
   size,
   onCopyMessage,
   tools,
-  translations,
   locale,
   onRenderMarkdown,
   onShowSources,
@@ -53,7 +52,7 @@ export const MessageList = ({
   renderBlock,
 }: MessageListProps) => {
   const { Chat, Image } = useTheme();
-
+  const { t } = useTranslation()
   // Per-message paging state (for messages with multiple blocks/pages)
   const [pageById, setPageById] = useState<Record<string, number>>({});
 
@@ -104,7 +103,6 @@ export const MessageList = ({
     if (typeof block.type === "string" && block.type.startsWith("tool-")) {
       const toolItem = tools?.find(a => a.name == block.type.replace("tool-", ""))
       return <ToolContent tool={toolItem}
-        translations={translations}
         invocation={block} />;
     }
 
@@ -144,7 +142,6 @@ export const MessageList = ({
         page={page}
         max={max}
         size={size}
-        translations={translations}
         onCopyMessage={onCopyMessage}
         onShowSources={onShowSources}
         onShowAttachments={onShowAttachments}
@@ -174,7 +171,7 @@ export const MessageList = ({
     return {
       ...msg,
       messageIcon: meta.icon ?? msg.messageIcon,
-      messageLabel: translations?.[label] ?? label,
+      messageLabel: t(label),
     };
   });
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "../../theme/ThemeContext";
 import { TagItem } from "aihappey-types";
+import { useTranslation } from "aihappey-i18n";
 
 type ModelContextCatalogSettings = {
     quickSearches: string[];
@@ -10,21 +11,16 @@ type ModelContextCatalogSettingsFormProps = {
     value: ModelContextCatalogSettings;
     onAdd: (tag: string) => void;
     onRemove: (tag: string) => void;
-    translations?: {
-        label?: string;
-        placeholder?: string;
-        add?: string;
-    };
 };
 
 export const ModelContextCatalogSettingsForm = ({
     value,
     onAdd,
     onRemove,
-    translations,
 }: ModelContextCatalogSettingsFormProps) => {
     const { Tags, Input, Button } = useTheme();
     const [newTag, setNewTag] = useState<string>("");
+    const { t } = useTranslation()
 
     const items: TagItem[] =
         value.quickSearches?.map(q => ({ key: q, label: q })) ?? [];
@@ -34,13 +30,14 @@ export const ModelContextCatalogSettingsForm = ({
             <div>
                 <Input
                     value={newTag}
-                    label={translations?.label}
-                    placeholder={translations?.placeholder}
+                    label={t("quickSearch")}
+                    placeholder={t("addQuickSearch")}
                     onChange={(e) => setNewTag(e.target.value)}
                 />
                 <Button
                     icon="add"
                     size="small"
+                    title={t("add")}
                     variant="informative"
                     disabled={!newTag}
                     onClick={() => {

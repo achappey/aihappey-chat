@@ -11,7 +11,8 @@
     "aihappey-components": "*",
     "aihappey-theme-bootstrap": "*",
     "aihappey-theme-fluent": "*",
-    "aihappey-types": "*"
+    "aihappey-types": "*",
+    "aihappey-i18n": "*"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",

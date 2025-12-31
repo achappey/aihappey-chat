@@ -1,22 +1,22 @@
 import { useCallback } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import { OpenLinkButton } from "./OpenLinkButton";
+import { useTranslation } from "aihappey-i18n";
 
 type McpServerCardButtonsProps = {
   url: string;
   websiteUrl?: string;
   respositoryUrl?: string;
-  translations?: any
   onDelete?: () => void
 };
 
 export const McpServerCardButtons = ({ websiteUrl,
   url,
   respositoryUrl,
-  translations,
   onDelete
 }: McpServerCardButtonsProps) => {
   const { Button } = useTheme();
+  const { t } = useTranslation();
   const copyToClipboard = useCallback(() => {
     if (url) navigator.clipboard.writeText(url);
   }, [url]);
@@ -33,7 +33,7 @@ export const McpServerCardButtons = ({ websiteUrl,
         onClick={onDelete}
         variant="transparent"
         icon="delete"
-        title={translations?.delete ?? "delete"}
+        title={t("delete")}
         size="small"
       />
     )}
@@ -42,7 +42,7 @@ export const McpServerCardButtons = ({ websiteUrl,
         onClick={() => window.open(respositoryUrl, "_blank")}
         variant="transparent"
         icon="code"
-        title={translations?.sourceCode ?? "sourceCode"}
+        title={t("sourceCode")}
         size="small"
       />
     )}

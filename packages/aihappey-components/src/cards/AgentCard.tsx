@@ -1,19 +1,20 @@
 import { useTheme } from "../theme/ThemeContext";
 import { Agent, MenuItemProps, ModelOption } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
+import { useTranslation } from "aihappey-i18n";
 
 type AgentCardProps = {
   agent: Agent;
-  translations?: any;
   onEdit?: () => void
   onDelete?: () => void
 };
 
-export const AgentCard = ({ agent, onEdit, onDelete, translations }: AgentCardProps) => {
+export const AgentCard = ({ agent, onEdit, onDelete }: AgentCardProps) => {
   const { Card, Button, Menu } = useTheme();
+  const { t } = useTranslation();
   const menuItems: MenuItemProps[] = [{
     key: 'delete',
-    label: translations?.delete ?? "delete",
+    label: t("delete"),
     onClick: onDelete
   }]
 

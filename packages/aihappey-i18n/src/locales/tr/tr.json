@@ -89,7 +89,7 @@
     "height": "Yükseklik",
     "other": "Diğer",
     "output": "Çıktı",
-    "n": "Görsel sayısı",
+    "n": "Görsel sayısı ({{n}})",
     "seed": "Tohum"
   },
   "providerDefault": "Sağlayıcı varsayılanı",

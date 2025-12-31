@@ -89,7 +89,7 @@
     "height": "Altezza",
     "other": "Altro",
     "output": "Output",
-    "n": "Numero di immagini",
+    "n": "Numero di immagini ({{n}})",
     "seed": "Seed"
   },
   "providerDefault": "Predefinito del provider",

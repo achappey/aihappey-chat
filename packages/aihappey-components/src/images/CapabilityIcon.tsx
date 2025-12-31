@@ -3,7 +3,10 @@ import { useDarkMode } from "usehooks-ts";
 import { useTheme } from "../theme/ThemeContext";
 
 export interface CapabilityIconProps {
-  icons?: any[]
+  icons?: {
+    src: string,
+    theme?: string
+  }[]
 }
 
 export const CapabilityIcon: React.FC<CapabilityIconProps> = ({

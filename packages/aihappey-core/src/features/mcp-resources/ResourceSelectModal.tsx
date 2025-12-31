@@ -40,10 +40,6 @@ export const ResourceSelectModal = ({
           <ResourceCard
             key={resource.name + idx}
             resource={resource}
-            translations={resource?.mimeType
-              && t(`mimeTypes.${resource?.mimeType}`) !== `mimeTypes.${resource?.mimeType}` ? {
-              [resource?.mimeType]: t(`mimeTypes.${resource?.mimeType}`)
-            } : undefined}
             onSelect={() => onSelect(resource.uri)}
           />
         ))}

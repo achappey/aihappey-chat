@@ -1,19 +1,20 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 interface MimeTypeBadgeProps {
   mimeType?: string;
-  translations?: any
 }
 
 export const MimeTypeBadge: React.FC<MimeTypeBadgeProps> = ({
   mimeType,
-  translations
 }) => {
   const { Badge } = useTheme();
+  const { t } = useTranslation('mimeTypes');
+
   return mimeType ? <Badge
     bg="informative"
     appearance={"outline"}
   >
-    {translations && translations[mimeType] ? translations[mimeType] : mimeType}
+    {t(mimeType)}
   </Badge> : undefined;
 };

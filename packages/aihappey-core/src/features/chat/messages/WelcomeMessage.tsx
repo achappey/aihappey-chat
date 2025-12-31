@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "aihappey-i18n";
+import { languageNames, useTranslation } from "aihappey-i18n";
 import { useAccount } from "aihappey-auth";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { useTheme } from "aihappey-components";
 import { fetchWelcomeMessage } from "../../../runtime/chat-app/welcomeMessage";
-import { languageNames } from "../../user-settings/GeneralSettings";
 
 interface WelcomeMessageProps { }
 
@@ -15,10 +14,11 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const [welcomeMessage, setWelcomeMessage] = useState<string | undefined>(
     undefined
   );
+  
   const isDesktop = useIsDesktop();
 
   useEffect(() => {
-    fetchWelcomeMessage(languageNames[i18n.language],
+    fetchWelcomeMessage((languageNames as any)[i18n.language as any],
       account?.name)
       .then(a =>
         setWelcomeMessage(a)

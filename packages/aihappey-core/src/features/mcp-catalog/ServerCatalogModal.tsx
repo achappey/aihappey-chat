@@ -147,11 +147,6 @@ export const ServerCatalogModal = ({ show, onHide,
         return <div key={server.server.name} style={{ marginBottom: 12 }}>
           <RegistryServerCard
             serverItem={server}
-            translations={{
-              install: t('install'),
-              uninstall: t('uninstall'),
-              sourceCode: t('sourceCode')
-            }}
             renderDescription={renderDescription}
             onRemove={exists ? () => removeMcpServer(server) : undefined}
             onInstall={exists ? undefined : () => addMcpServer(server)}

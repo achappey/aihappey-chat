@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useTheme } from "../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 type Preset = { w: number; h: number; label?: string };
 
@@ -8,19 +9,9 @@ export type ImageAspectRatioSettings = {
   aspectRatio?: string;
 };
 
-export type ImageAspectRatioSettingsTranslations = {
-  formTitle?: string;
-  aspectRatio?: string;
-  width?: string;
-  height?: string;
-  providerDefault?: string;
-  custom?: string;
-};
-
 export type ImageAspectRatioSettingsFormProps = {
   value: ImageAspectRatioSettings;
   onChange: (next: ImageAspectRatioSettings) => void;
-  translations?: ImageAspectRatioSettingsTranslations;
   aspectPresets?: Preset[];
 };
 
@@ -53,12 +44,9 @@ const toPositiveInt = (val: any): number | undefined => {
 
 export const ImageAspectRatioSettingsForm: React.FC<
   ImageAspectRatioSettingsFormProps
-> = ({ value, onChange, translations, aspectPresets }) => {
+> = ({ value, onChange, aspectPresets }) => {
   const theme = useTheme();
-
-  const t = (key: keyof ImageAspectRatioSettingsTranslations, fallback: string) =>
-    (translations as any)?.[key] ?? fallback;
-
+  const { t } = useTranslation();
   const aspects = aspectPresets ?? DEFAULT_ASPECT_PRESETS;
   const parsed = useMemo(() => parseAspect(value.aspectRatio), [value.aspectRatio]);
 
@@ -88,17 +76,17 @@ export const ImageAspectRatioSettingsForm: React.FC<
   return (
     <theme.Card
       size="small"
-      title={translations?.formTitle ?? "Aspect ratio"}
+      title={t('imageSettings.aspectRatio')}
     >
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
         <theme.Select
-          label={t("aspectRatio", "aspect ratio")}
+          label={t("ratio")}
           values={[mode]}
           valueTitle={
             mode === DEFAULT_VALUE
-              ? t("providerDefault", "provider default")
+              ? t("providerDefault")
               : mode === CUSTOM_VALUE
-              ? t("custom", "custom")
+              ? t("custom")
               : mode
           }
           onChange={(val: string) => {
@@ -114,17 +102,17 @@ export const ImageAspectRatioSettingsForm: React.FC<
           }}
           style={{ minWidth: 220 }}
         >
-          <option value={DEFAULT_VALUE}>{t("providerDefault", "provider default")}</option>
+          <option value={DEFAULT_VALUE}>{t("providerDefault")}</option>
           {aspects.map(p => (
             <option key={`${p.w}:${p.h}`} value={`${p.w}:${p.h}`}>
               {p.label ?? `${p.w}:${p.h}`}
             </option>
           ))}
-          <option value={CUSTOM_VALUE}>{t("custom", "custom")}</option>
+          <option value={CUSTOM_VALUE}>{t("custom")}</option>
         </theme.Select>
 
         <theme.Input
-          label={t("width", "width")}
+          label={t("imageSettings.width")}
           type="number"
           style={{ width: 120 }}
           disabled={value.aspectRatio === undefined}
@@ -136,7 +124,7 @@ export const ImageAspectRatioSettingsForm: React.FC<
         />
 
         <theme.Input
-          label={t("height", "height")}
+          label={t("imageSettings.height")}
           type="number"
           style={{ width: 120 }}
           disabled={value.aspectRatio === undefined}

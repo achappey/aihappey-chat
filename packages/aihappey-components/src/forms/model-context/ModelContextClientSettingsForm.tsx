@@ -1,3 +1,4 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../theme/ThemeContext";
 
 type LogLevel =
@@ -21,12 +22,6 @@ type ModelContextClientSettingsFormProps = {
     onChangeLogLevel: (level: LogLevel) => void;
     onChangeTimeout: (minutes: number, resetOnProgress: boolean) => void;
     onToggleResetOnProgress: (enabled: boolean) => void;
-    translations?: {
-        logLevelLabel?: string;
-        logLevelTitles?: Record<LogLevel, string>;
-        timeoutLabel?: (minutes: number) => string;
-        resetTimeoutLabel?: string;
-    };
 };
 
 export const ModelContextClientSettingsForm = ({
@@ -34,9 +29,9 @@ export const ModelContextClientSettingsForm = ({
     onChangeLogLevel,
     onChangeTimeout,
     onToggleResetOnProgress,
-    translations,
 }: ModelContextClientSettingsFormProps) => {
     const { Select, Slider, Switch } = useTheme();
+    const { t } = useTranslation();
 
     const logLevels: LogLevel[] = [
         "debug",
@@ -53,17 +48,17 @@ export const ModelContextClientSettingsForm = ({
         <>
             <Select
                 values={[value.logLevel]}
-                label={translations?.logLevelLabel ?? "logLevel"}
-                valueTitle={translations?.logLevelTitles?.[value.logLevel]}
+                label={t("settingsModal.logLevel")}
+                valueTitle={t(`logLevels.${value.logLevel}`)}
                 options={logLevels.map(v => ({
                     value: v,
-                    label: translations?.logLevelTitles?.[v] ?? v,
+                    label: t(`logLevels.${v}`),
                 }))}
                 onChange={onChangeLogLevel}
             >
                 {logLevels.map(v => (
                     <option key={v} value={v}>
-                        {translations?.logLevelTitles?.[v] ?? v}
+                        {t(`logLevels.${v}`)}
                     </option>
                 ))}
             </Select>
@@ -73,8 +68,7 @@ export const ModelContextClientSettingsForm = ({
                 max={15}
                 step={1}
                 value={value.toolTimeoutMinutes}
-                label={translations?.timeoutLabel ?
-                    translations?.timeoutLabel?.(value.toolTimeoutMinutes) : "toolTimeout"}
+                label={t("mcpPage.toolTimeout", { minutes: value.toolTimeoutMinutes })}
                 onChange={v =>
                     onChangeTimeout(v, value.resetTimeoutOnProgress)
                 }
@@ -84,7 +78,7 @@ export const ModelContextClientSettingsForm = ({
                 size="small"
                 id="resetTimeoutOnProgress"
                 checked={value.resetTimeoutOnProgress}
-                label={translations?.resetTimeoutLabel ?? "resetTimeout"}
+                label={t("mcpPage.resetTimeoutOnProgress")}
                 onChange={onToggleResetOnProgress}
             />
         </>

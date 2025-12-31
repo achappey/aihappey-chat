@@ -29,13 +29,6 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
         getToolExplanation={getToolExplanation}
         renderToolExplanation={(expl: any) => <Markdown text={expl} />}
         onShowOutput={(result: any) => setOutput(result)}
-        translations={{
-          error: t("error"),
-          success: t("success"),
-          outputError: t("outputError"),
-          inputStreaming: t("streaming"),
-          inputAvailable: t("running"),
-        }}
       />
 
       {output && (

@@ -89,7 +89,7 @@
     "height": "Magasság",
     "other": "Egyéb",
     "output": "Kimenet",
-    "n": "Képek száma",
+    "n": "Képek száma ({{n}})",
     "seed": "Seed"
   },
   "providerDefault": "Szolgáltató alapértelmezett",

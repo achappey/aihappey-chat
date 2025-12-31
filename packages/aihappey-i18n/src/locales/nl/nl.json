@@ -58,7 +58,7 @@
     "height": "Hoogte",
     "output": "Uitvoer",
     "other": "Overig",
-    "n": "Aantal afbeeldingen",
+    "n": "Aantal afbeeldingen ({{n}})",
     "seed": "Seed"
   },
   "providerDefault": "Standaard",

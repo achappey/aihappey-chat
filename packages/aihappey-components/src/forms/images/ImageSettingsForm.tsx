@@ -3,6 +3,7 @@ import { useTheme } from "../../theme/ThemeContext";
 
 import { ImageSizeSettingsForm } from "./ImageSizeSettingsForm";
 import { ImageAspectRatioSettingsForm } from "./ImageAspectRatioSettingsForm";
+import { useTranslation } from "aihappey-i18n";
 
 export type ImageSettings = {
     size?: string;
@@ -12,42 +13,21 @@ export type ImageSettings = {
     maxImagesPerCall?: number
 };
 
-export type ImageSettingsFormTranslations = {
-    formTitle?: string;
-
-    sizeFormTitle?: string;
-    aspectFormTitle?: string;
-    maxImagesPerCall?: string
-    outputTitle?: string
-    otherTitle?: string
-    n?: string;
-    seed?: string;
-};
-
 export type ImageSettingsFormProps = {
     value: ImageSettings;
     onChange: (next: ImageSettings) => void;
-    translations?: ImageSettingsFormTranslations;
-
     sizePresets?: { w: number; h: number; label?: string }[];
     aspectPresets?: { w: number; h: number; label?: string }[];
-};
-
-const toPositiveInt = (val: any): number | undefined => {
-    const n = Number(String(val ?? "").trim());
-    if (!Number.isFinite(n)) return undefined;
-    const i = Math.floor(n);
-    return i > 0 ? i : undefined;
 };
 
 export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
     value,
     onChange,
-    translations,
     sizePresets,
     aspectPresets,
 }) => {
     const theme = useTheme();
+    const { t } = useTranslation();
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -55,10 +35,6 @@ export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
             <ImageSizeSettingsForm
                 value={{ size: value.size }}
                 sizePresets={sizePresets}
-                translations={{
-                    ...translations,
-                    formTitle: translations?.sizeFormTitle
-                }}
                 onChange={(next) =>
                     onChange({ ...value, size: next.size })
                 }
@@ -66,10 +42,6 @@ export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
 
             <ImageAspectRatioSettingsForm
                 value={{ aspectRatio: value.aspectRatio }}
-                translations={{
-                    ...translations,
-                    formTitle: translations?.aspectFormTitle
-                }}
                 aspectPresets={aspectPresets}
                 onChange={(next) =>
                     onChange({ ...value, aspectRatio: next.aspectRatio })
@@ -77,10 +49,10 @@ export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
             />
 
             {/* Output */}
-            <theme.Card size="small" title={translations?.outputTitle ?? "output"}>
+            <theme.Card size="small" title={t("imageSettings.output")}>
                 <div>
                     <theme.Slider
-                        label={(translations?.n ?? "n") + " (" + value.n + ")"}
+                        label={t("imageSettings.n", { n: value.n })}
                         min={1}
                         max={20}
                         value={value.n ?? 1}
@@ -90,7 +62,7 @@ export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
                     />
 
                     <theme.Input
-                        label={translations?.maxImagesPerCall ?? "maxImagesPerCall"}
+                        label={t("imageSettings.maxImagesPerCall")}
                         type="number"
                         value={String(value.maxImagesPerCall ?? "")}
                         onChange={(e: any) => {
@@ -102,10 +74,11 @@ export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
                 </div>
             </theme.Card>
 
-            <theme.Card size="small" title={translations?.otherTitle ?? "other"}>
+            <theme.Card size="small"
+                title={t("imageSettings.other")}>
                 <div>
                     <theme.Input
-                        label={translations?.seed ?? "seed"}
+                        label={t("imageSettings.seed")}
                         type="number"
                         value={value.seed === undefined ? "" : String(value.seed)}
                         onChange={(e: any) => {

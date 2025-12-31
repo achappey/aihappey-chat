@@ -89,7 +89,7 @@
     "height": "Tinggi",
     "other": "Lainnya",
     "output": "Keluaran",
-    "n": "Jumlah gambar",
+    "n": "Jumlah gambar ({{n}})",
     "seed": "Seed"
   },
   "providerDefault": "Default penyedia",

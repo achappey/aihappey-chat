@@ -70,7 +70,7 @@
     "height": "Height",
     "other": "Other",
     "output": "Output",
-    "n": "Number of images",
+    "n": "Number of images ({{n}})",
     "seed": "Seed"
   },
   "providerDefault": "Provider default",

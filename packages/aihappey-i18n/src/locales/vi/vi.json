@@ -89,7 +89,7 @@
     "height": "Chiều cao",
     "other": "Khác",
     "output": "Đầu ra",
-    "n": "Số lượng hình ảnh",
+    "n": "Số lượng hình ảnh ({{n}})",
     "seed": "Seed"
   },
   "providerDefault": "Mặc định của nhà cung cấp",

@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, useParams, useSearchParams } from "react-router";
+import { Outlet, useSearchParams } from "react-router";
 import { McpConnectionsProvider } from "../runtime/mcp/McpConnectionsProvider";
 import { ChatAppConnector } from "./connectors/ChatAppConnector";
 import { I18nProvider } from "aihappey-i18n";

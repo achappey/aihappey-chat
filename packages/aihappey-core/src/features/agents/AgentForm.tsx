@@ -1,4 +1,4 @@
-import { useTheme } from "aihappey-components";
+import { McpPolicySettings, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -8,7 +8,6 @@ import { useState } from "react";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { PollinationsChatConfig } from "../provider-config/pollinations/PollinationsChatConfig";
-import { McpPolicySettings } from "../mcp-client/McpPolicySettings";
 import { McpClientCapabilitiesCard } from "../mcp-client/McpClientCapabilitiesCard";
 import { useAgent } from "./useAgentMcpServers";
 import { GroqChatConfig } from "../provider-config/groq/GroqChatConfig";

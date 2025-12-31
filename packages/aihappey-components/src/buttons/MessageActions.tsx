@@ -11,7 +11,6 @@ interface MessageActionsProps {
   page: number;
   max: number;
   size?: string;
-  translations?: any;
 
   onCopyMessage?: (msg: ChatMessage) => Promise<void>;
   onShowAttachments?: (files: FileUIPart[]) => void;
@@ -25,7 +24,6 @@ export const MessageActions = ({
   page,
   max,
   size,
-  translations,
   onCopyMessage,
   onShowAttachments,
   onShowActivity,
@@ -44,7 +42,7 @@ export const MessageActions = ({
   return (
     <>
       {msg.role === "assistant" && (
-        <AiWarningBadge label={translations?.generatedByAi ?? "generatedByAi"} size={size} />
+        <AiWarningBadge size={size} />
       )}
 
       {onCopyMessage && (

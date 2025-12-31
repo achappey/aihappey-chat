@@ -89,7 +89,7 @@
     "height": "Înălțime",
     "other": "Altele",
     "output": "Ieșire",
-    "n": "Număr de imagini",
+    "n": "Număr de imagini ({{n}})",
     "seed": "Seed"
   },
   "providerDefault": "Implicit furnizor",

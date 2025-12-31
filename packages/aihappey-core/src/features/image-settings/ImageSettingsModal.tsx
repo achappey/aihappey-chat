@@ -5,7 +5,6 @@ import { SettingsActionButtons, useTheme } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 import { PollinationsImageConfig } from "../provider-config/pollinations/PollinationsImageConfig";
 import { OpenAIImageConfig } from "../provider-config/openai/OpenAIImageConfig";
-import { XAIImageConfig } from "../provider-config/xai/XAIImageConfig";
 import { TogetherImageConfig } from "../provider-config/together/TogetherImageConfig";
 import { RunwayImageConfig } from "../provider-config/runway/TogetherImageConfig";
 
@@ -112,131 +111,7 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
           </theme.Tab>
         }
 
-        {enabledProviders.includes("xAI") &&
-          <theme.Tab eventKey="xAI" title="xAI">
-            <XAIImageConfig
-              xai={providerMetadata.xai ?? {}}
-              updateXAI={(xai: any) =>
-                setProviderMetadata({ ...providerMetadata, xai })
-              }
-            />
-          </theme.Tab>
-        }
-
       </theme.Tabs>
     </theme.Modal>
   );
 };
-
-
-/*
-   {enabledProviders.includes("Anthropic") &&
-          <theme.Tab eventKey="anthropic" title="Anthropic">
-            <AnthropicTab
-              anthropic={providerMetadata.anthropic ?? {}}
-              updateAnthropic={(anthropic) =>
-                setProviderMetadata({ ...providerMetadata, anthropic })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Cohere") &&
-          <theme.Tab eventKey="cohere" title="Cohere">
-            <CohereTab
-              cohere={providerMetadata.cohere ?? {}}
-              updateCohere={(cohere) =>
-                setProviderMetadata({ ...providerMetadata, cohere })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Google") &&
-          <theme.Tab eventKey="google" title="Google">
-            <GoogleTab
-              google={providerMetadata.google ?? {}}
-              updateGoogle={(google) =>
-                setProviderMetadata({ ...providerMetadata, google })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Groq") &&
-          <theme.Tab eventKey="groq" title="Groq">
-            <GroqTab
-              groq={providerMetadata.groq ?? {}}
-              updateGroq={(groq) =>
-                setProviderMetadata({ ...providerMetadata, groq })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Jina") &&
-          <theme.Tab eventKey="jina" title="Jina">
-            <JinaTab
-              jina={providerMetadata.jina ?? {}}
-              updateJina={(jina) =>
-                setProviderMetadata({ ...providerMetadata, jina })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Mistral") &&
-          <theme.Tab eventKey="mistral" title="Mistral">
-            <MistralTab
-              mistral={providerMetadata.mistral ?? {}}
-              updateMistral={(mistral) =>
-                setProviderMetadata({ ...providerMetadata, mistral })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("OpenAI") &&
-          <theme.Tab eventKey="openai" title="OpenAI">
-            <OpenAITab
-              openai={providerMetadata.openai ?? {}}
-              updateOpenAI={(openai) =>
-                setProviderMetadata({ ...providerMetadata, openai })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Pollinations") &&
-          <theme.Tab eventKey="pollinations" title="Pollinations">
-            <PollinationsTab
-              pollinations={providerMetadata.pollinations ?? {}}
-              updatePollinations={(pollinations) =>
-                setProviderMetadata({ ...providerMetadata, pollinations })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Perplexity") &&
-          <theme.Tab eventKey="perplexity" title="Perplexity">
-            <PerplexityTab
-              perplexity={providerMetadata.perplexity ?? {}}
-              updatePerplexity={(perplexity) =>
-                setProviderMetadata({ ...providerMetadata, perplexity })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Together") &&
-          <theme.Tab eventKey="together" title="Together">
-            <TogetherTab
-              together={providerMetadata.together ?? {}}
-              updateTogether={(together) =>
-                setProviderMetadata({ ...providerMetadata, together })
-              }
-            />
-          </theme.Tab>
-        }
-        {enabledProviders.includes("xAI") &&
-          <theme.Tab eventKey="xai" title="xAI">
-            <XAITab
-              xAI={providerMetadata.xai ?? {}}
-              updateXAI={(xai) =>
-                setProviderMetadata({ ...providerMetadata, xai })
-              }
-            />
-          </theme.Tab>
-        }*/

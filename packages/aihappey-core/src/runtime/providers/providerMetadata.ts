@@ -154,5 +154,15 @@ export const PROVIDERS: Record<string, any> = {
             }
         ],
         url: "https://jina.ai"
+    },
+
+    nscale: {
+        name: "Nscale",
+        icons: [
+            {
+                src: "https://startuprise.co.uk/wp-content/uploads/2025/04/nscale_cloud_logo.jpg",
+            }
+        ],
+        url: "https://www.nscale.com"
     }
 } as const;

@@ -14,11 +14,6 @@ export const ModelContextCatalogSettings = () => {
       value={{ quickSearches: quickSearches ?? [] }}
       onAdd={addQuickSearch}
       onRemove={removeQuickSearch}
-      translations={{
-        label: t("quickSearch"),
-        placeholder: t("addQuickSearch"),
-        add: t("add"),
-      }}
     />
   );
 };

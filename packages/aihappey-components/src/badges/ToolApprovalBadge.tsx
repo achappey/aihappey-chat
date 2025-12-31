@@ -1,21 +1,26 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 interface ToolApprovalBadgeProps {
   state: string
+  toolName: string
   approval?: any
-  translations?: any
 }
 
 export const ToolApprovalBadge: React.FC<ToolApprovalBadgeProps> = ({
   state,
   approval,
-  translations
+  toolName,
 }) => {
   const { Badge } = useTheme();
+  const { t } = useTranslation();
 
   return <>
     {state === 'approval-responded' &&
       approval?.approved && approval?.reason === 'YOLO'
-      && <Badge icon="warning" bg="danger">{translations?.yolo ?? 'YOLO'}</Badge>}
+      && <Badge icon="warning" bg="danger">{approval?.reason}</Badge>}
+    {state === 'approval-responded' &&
+      approval?.approved && approval?.reason === toolName
+      && <Badge bg="warning">{t('tool')}</Badge>}
   </>;
 };
