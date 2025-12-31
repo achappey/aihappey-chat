@@ -13,6 +13,7 @@ type ApprovalToolPart = {
     input?: any;
     output?: any;
     errorText?: string;
+    providerExecuted?: boolean
 };
 
 function findPendingApproval(messages: UIMessage[]) {
@@ -116,11 +117,12 @@ export function ToolApprovalModalHost({
         addToolApprovalResponse({
             id: active.approvalId,
             approved: true,
-            reason: approveAll ? "YOLO" : "allowList",
+            reason: approveAll ? "YOLO" : toolName,
         });
     }, [active, autoApprove, approveAll, addToolApprovalResponse]);
 
     const showModal = (!!active && !autoApprove);
+  //  if (!showModal) return null;
     if (!showModal || status == "streaming") return null;
 
     const respondAllow = () => {
@@ -145,11 +147,10 @@ export function ToolApprovalModalHost({
         addToolApprovalResponse({
             id: active.approvalId,
             approved: true,
-            reason: "allowTool",
+            reason: toolName,
         });
 
         // voeg tool toe aan allowlist
-        const toolName = active?.tool?.type?.replace("tool-", "");
         if (toolName) {
             addAllowedTool(toolName)
         }
@@ -177,18 +178,9 @@ export function ToolApprovalModalHost({
                 title={t("toolApproval")}
                 actions={
                     <ToolApprovalButtons
-                        size="small"
                         toolName={toolName}
                         toolTitle={toolTitle}
                         canViewOutput={!!active?.tool?.output}
-                        translations={{
-                            automatic: t("automatic"),
-                            allow: t("allow"),
-                            deny: t("deny"),
-                            allTools: t("allTools"),
-                            thisTool: ({ toolName }) =>
-                                t("thisTool", { toolName }),
-                        }}
                         onViewOutput={() => setShowOutput(true)}
                         onAllow={respondAllow}
                         onDeny={respondDeny}

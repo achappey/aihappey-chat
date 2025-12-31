@@ -1,22 +1,12 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { ViewButton } from "./ViewButton";
-
-export type ToolApprovalButtonTranslations = {
-  automatic: string;
-  allow: string;
-  deny: string;
-  thisTool: (args: { toolName?: string }) => string;
-  allTools: string;
-};
 
 type ToolApprovalButtonsProps = {
   size?: "small" | "medium";
   toolName?: string;
   toolTitle?: string;
   canViewOutput?: boolean;
-
-  translations: ToolApprovalButtonTranslations;
-
   onViewOutput?: () => void;
   onAllow: () => void;
   onDeny: () => void;
@@ -25,11 +15,10 @@ type ToolApprovalButtonsProps = {
 };
 
 export const ToolApprovalButtons = ({
-  size = "small",
+  size = "medium",
   toolName,
   toolTitle,
   canViewOutput,
-  translations,
   onViewOutput,
   onAllow,
   onDeny,
@@ -37,6 +26,7 @@ export const ToolApprovalButtons = ({
   onAllowAllTools,
 }: ToolApprovalButtonsProps) => {
   const { Button, SplitButton } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <div style={{ display: "flex", gap: 8 }}>
@@ -49,32 +39,34 @@ export const ToolApprovalButtons = ({
 
       <SplitButton
         size={size}
-        label={translations.automatic}
+        label={t('automatic')}
         variant="secondary"
         onClick={onAllowThisTool}
         menuItems={[
           {
             key: "allow-this-tool",
-            label: translations.thisTool({
-              toolName: toolTitle ?? toolName,
-            }),
+            label: toolTitle ?? toolName ?? t('thisTool'),
             onClick: onAllowThisTool,
           },
           {
             key: "allow-all-tools",
             icon: "warning",
-            label: `${translations.allTools} (YOLO)`,
+            label: `${t('allTools')} (YOLO)`,
             onClick: onAllowAllTools,
           },
         ]}
       />
 
-      <Button size={size} variant="primary" onClick={onAllow}>
-        {translations.allow}
+      <Button size={size}
+        variant="primary"
+        onClick={onAllow}>
+        {t('allow')}
       </Button>
 
-      <Button size={size} variant="informative" onClick={onDeny}>
-        {translations.deny}
+      <Button size={size}
+        variant="informative"
+        onClick={onDeny}>
+        {t('deny')}
       </Button>
     </div>
   );

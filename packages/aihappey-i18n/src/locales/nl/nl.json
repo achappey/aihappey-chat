@@ -307,6 +307,7 @@
   },
   "settingsModal": {
     "title": "Instellingen",
+    "tabTheme": "Thema",
     "agentImport": "Agents",
     "defaultModel": "Standaard model",
     "agentImportHint": "Importeer bronnen als Agents.",

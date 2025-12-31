@@ -82,4 +82,5 @@ export interface AihUiTheme {
   Skeleton: SkeletonComponent;
   Carousel: CarouselComponent;
   Slider: SliderComponent;
+  ThemeSettings: (props: any) => React.JSX.Element
 }

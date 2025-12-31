@@ -1,7 +1,7 @@
 import { DefaultChatTransport, lastAssistantMessageIsCompleteWithApprovalResponses, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { useTheme } from "aihappey-components";
 import { SimpleActivityDrawer } from "../activity/drawer/SimpleActivityDrawer";
@@ -34,7 +34,7 @@ import { useApiRef } from "./useApiRef";
 import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
 import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
-
+import { toolApprovalGate } from "./toolApprovalGate";
 
 function lastAssistantMessageIsCompleteWithApprovalResponsesLoose(options: any) {
   const messages = (options?.messages ?? []) as any[];
@@ -223,12 +223,99 @@ export function VercelChatInner({
       }),
     [authFetch]
   );
+  //const approveAll = useAppStore((a) => a.approveAll);
+  //const allowedToolList = useAppStore((a) => a.allowedToolList);
+
+  //const shouldAutoApproveTool = (toolName: string) =>
+//    approveAll || allowedToolList.includes(toolName);
 
   const { messages, sendMessage, status, addToolOutput, stop, addToolApprovalResponse } = useChat({
     id: conversationId,
     transport,
     experimental_throttle: experimentalThrottle,
     onError: addChatError,
+
+    /*  onToolCall: async ({ toolCall }) => {
+        const toolCallId = toolCall.toolCallId;
+        const toolName = toolCall.toolName;
+  
+        // ⛔ wacht op approval als niet auto-approved
+        if (!shouldAutoApproveTool(toolName)) {
+          const decision = await toolApprovalGate.wait(toolCallId, abortRef.current?.signal);
+  
+          if (!decision.approved) {
+            const denied = { ok: false, denied: true, reason: decision.reason ?? "User denied" };
+  
+            addToolOutput({ tool: toolName, toolCallId, output: denied });
+            return denied;
+          }
+        }
+  
+        // ✅ approved: voer tool uit en return output
+        const result = await (toolUse.onToolCall as any)({
+          toolCall,
+          signal: abortRef.current?.signal,
+        });
+  
+        addToolOutput({ tool: toolName, toolCallId, output: result });
+        return result;
+      },*/
+    /*   onToolCall: async ({ toolCall }) => {
+         // probeer approvalId te vinden bij dit toolCallId
+         const approvalId = (() => {
+           const msgs = messagesRef.current as any[];
+           for (let mi = msgs.length - 1; mi >= 0; mi--) {
+             const m = msgs[mi];
+             if (m?.role !== "assistant") continue;
+             for (const p of (m.parts ?? [])) {
+               if (
+                 p?.toolCallId === toolCall.toolCallId &&
+                 typeof p?.type === "string" &&
+                 p.type.startsWith("tool-") &&
+                 p.state === "approval-requested" &&
+                 p.approval?.id
+               ) {
+                 return p.approval.id as string;
+               }
+             }
+           }
+           return undefined;
+         })();
+   
+         if (approvalId) {
+           // ⛔ wacht op user decision (approve/deny)
+           const decision = await toolApprovalGate.wait(approvalId, abortRef.current?.signal);
+   
+           if (!decision.approved) {
+             const denied = { ok: false, denied: true, reason: decision.reason ?? "User denied" };
+   
+             addToolOutput({
+               tool: toolCall.toolName,
+               toolCallId: toolCall.toolCallId,
+               output: denied,
+             });
+   
+             // return tool output (zodat de LLM kan doorpraten)
+             return denied;
+           }
+         }
+   
+         // ✅ approved (of geen approval nodig): execute normaal
+         const result = await (toolUse.onToolCall as any)({
+           toolCall,
+           signal: abortRef.current?.signal,
+         });
+   
+         addToolOutput({
+           tool: toolCall.toolName,
+           toolCallId: toolCall.toolCallId,
+           output: result,
+         });
+   
+         return result;
+       },
+   */
+
     onToolCall: async ({ toolCall }) => {
       const result = await (toolUse.onToolCall as any)({
         toolCall,
@@ -244,51 +331,6 @@ export function VercelChatInner({
       return result;
     },
     sendAutomaticallyWhen,
-    /*    sendAutomaticallyWhen: (options) => {
-          const messages = (options?.messages ?? []) as any[];
-          const lastMessage = messages[messages.length - 1];
-          if (!lastMessage || lastMessage.role !== "assistant") return false;
-    
-          const parts = (lastMessage.parts ?? []) as any[];
-          if (parts.length === 0) return false;
-    
-          const lastPart = parts[parts.length - 1];
-    
-          // ✅ HARD STOP: zodra assistant eindigt in text => niet opnieuw submitten (voorkomt endless loop)
-          if (lastPart?.type === "text") return false;
-    
-          // ✅ blokkeer zolang er nog approvals openstaan in dit assistant bericht
-          if (parts.some((p) => p?.type?.startsWith("tool-") && p.state === "approval-requested")) return false;
-    
-          // ✅ stuur alleen als laatste part een tool-part is die "ready" is, en nog niet providerExecuted
-          return (
-            typeof lastPart?.type === "string" &&
-            lastPart.type.startsWith("tool-") &&
-            (lastPart.state === "output-available" || lastPart.state === "approval-responded") &&
-            !lastPart.providerExecuted
-          );
-        },*/
-
-
-    /*    sendAutomaticallyWhen: (options) => {
-          //if (lastAssistantMessageIsCompleteWithApprovalResponses(options)) return true;
-          if (lastAssistantMessageIsCompleteWithApprovalResponsesLoose(options)) return true;
-    
-          const messages = options?.messages || [];
-          const lastMessage = messages[messages.length - 1];
-          if (!lastMessage || lastMessage.role !== "assistant") return false;
-          const parts = lastMessage.parts || [];
-          return (parts[parts.length - 1]?.state === "output-available"
-            || parts[parts.length - 1]?.state === "approval-responded")
-            && !parts[parts.length - 1]?.providerExecuted;
-    
-          /*
-          const messages = options?.messages || [];
-          const lastMessage = messages[messages.length - 1];
-          if (!lastMessage || lastMessage.role !== "assistant") return false;
-          const parts = lastMessage.parts || [];
-          return parts[parts.length - 1]?.state === "output-available" && !parts[parts.length - 1]?.providerExecuted;*/
-    //},
     messages: seededMessages,
     onFinish: async ({ message, isDisconnect, isAbort }) => {
       if (!isAbort) {
@@ -306,6 +348,19 @@ export function VercelChatInner({
       }
     },
   });
+
+  // keep latest messages for lookup inside onToolCall
+  const messagesRef = useRef<UIMessage[]>(seededMessages);
+  useEffect(() => {
+    messagesRef.current = messages as any;
+  }, [messages]);
+  /*
+    const addToolApprovalResponseWithGate = (x: { id: string; approved: boolean; reason?: string }) => {
+      // id == toolCallId
+      toolApprovalGate.resolve(x.id, { approved: x.approved, reason: x.reason });
+      addToolApprovalResponse(x);
+    };*/
+
 
   const { abortRef, startRun, cancelRun } = useAbortRun(stop);
 
@@ -459,6 +514,7 @@ export function VercelChatInner({
         tools={tools}
         status={status}
         addToolApprovalResponse={addToolApprovalResponse}
+
       />
 
       <ElicitationModalHost />

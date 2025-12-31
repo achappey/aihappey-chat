@@ -25,6 +25,7 @@ export type IconToken =
   | "print"
   | "explainTool"
   | "mail"
+  | "theme"
   | "formula"
   | "chatSettings"
   | "databaseGear"

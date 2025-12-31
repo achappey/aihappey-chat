@@ -59,6 +59,7 @@ import { Toaster } from "./primitives/Toaster";
 import { iconMap } from "./primitives/IconMap";
 import { SplitButton } from "./primitives/SplitButton";
 import { X } from "react-bootstrap-icons";
+import { BootstrapSettings } from "./primitives/BootstrapSettings";
 
 export const bootstrapTheme: AihUiTheme = {
   Header,
@@ -145,6 +146,7 @@ export const bootstrapTheme: AihUiTheme = {
   ToolbarDivider: ToolbarDivider as any,
   Menu: Menu as any,
   Image,
+  ThemeSettings: BootstrapSettings,
   Alert: ({ variant, className, title, onDismiss, children }): JSX.Element => (
     <>
       <RBAlert variant={variant as any} className={className}>

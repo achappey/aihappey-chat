@@ -61,6 +61,7 @@ import {
   ChevronUp,
   Plus,
   Camera,
+  Palette,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -124,6 +125,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   chat: <BSChatIcon />,
   image: <Image />,
   settings: <Gear />,
+  theme: <Palette />,
   connect: <UsbPlug />,
   disconnect: <UsbPlugFill />,
   aiImage: <Image />,

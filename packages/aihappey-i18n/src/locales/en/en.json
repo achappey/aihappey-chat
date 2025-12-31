@@ -290,6 +290,7 @@
     "extractExif": "Extract EXIF",
     "tabGeneral": "General",
     "userLocation": "Location",
+    "tabTheme": "Theme",
     "logLevel": "Log level",
     "tabPersonalization": "Personalization",
     "tabData": "Data controls",

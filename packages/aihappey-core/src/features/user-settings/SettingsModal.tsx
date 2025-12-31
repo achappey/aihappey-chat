@@ -69,6 +69,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </theme.Tab>
 
             <theme.Tab
+              eventKey="theme"
+              icon={"theme"}
+              title={t("settingsModal.tabTheme")}
+            >
+              <theme.ThemeSettings />
+            </theme.Tab>
+
+            <theme.Tab
               eventKey="ai"
               icon={"brain"}
               title={t("ai.title")}

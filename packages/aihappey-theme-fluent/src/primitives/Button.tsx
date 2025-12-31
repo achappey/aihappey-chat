@@ -69,6 +69,7 @@ import {
   CloudLinkRegular,
   ImageSparkleRegular,
   ImageRegular,
+  ColorRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -94,6 +95,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   formula: MathFormulaRegular,
   table: TableRegular,
   mail: MailRegular,
+  theme: ColorRegular,
   warning: WarningRegular,
   search: SearchRegular,
   chat: ChatRegular,
@@ -159,7 +161,7 @@ export const Button = ({
   children?: React.ReactNode;
 }): JSX.Element => {
   const IconElem = icon ? iconMap[icon] : undefined;
-  
+
   const appearance = variant === "primary"
     ? "primary"
     : variant === "secondary"
