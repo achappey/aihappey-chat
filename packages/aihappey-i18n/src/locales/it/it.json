@@ -94,18 +94,6 @@
   },
   "providerDefault": "Predefinito del provider",
   "custom": "Personalizzato",
-  "mimeTypes": {
-    "text/plain": "Testo",
-    "image/png": "Immagine (Portable Network Graphic)",
-    "application/pdf": "Portable Document Format (PDF)",
-    "application/zip": "Archivio (ZIP)",
-    "text/markdown": "Markdown",
-    "application/xml": "Extensible Markup Language (XML)",
-    "application/json": "JavaScript Object Notation (JSON)",
-    "application/vnd.agents+json": "Agenti",
-    "application/vnd.agent+json": "Agente",
-    "text/html+skybridge": "App OpenAI"
-  },
   "agents": {
     "title": "Agenti",
     "framework": "Agent Framework",

@@ -1,6 +1,5 @@
-import { ImageContentView } from "./ImageContentView";
 import { EmbeddedResourceView } from "./EmbeddedResourceView";
-import { AudioCard, ResourceLinkCard, TextCard } from "aihappey-components";
+import { AudioCard, ImageCard, ResourceLinkCard, TextCard } from "aihappey-components";
 import { Markdown } from "../../../../ui/markdown/Markdown";
 
 interface ContentBlockViewProps {
@@ -18,7 +17,7 @@ export const ContentBlockView = ({ block }: ContentBlockViewProps) => {
         renderText={text => <Markdown text={text} />}
       />;
     case "image":
-      return <ImageContentView block={block} />;
+      return <ImageCard fit="cover" image={block} size="small" />;
     case "audio":
       return <AudioCard block={block} />;
     case "resource_link":

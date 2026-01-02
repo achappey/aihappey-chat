@@ -83,18 +83,6 @@
   "image_generation": "Geração de imagens",
   "transparent": "Transparente",
   "opaque": "Opaco",
-  "mimeTypes": {
-    "text/plain": "Texto",
-    "image/png": "Imagem (PNG)",
-    "application/pdf": "Documento PDF",
-    "application/zip": "Arquivo ZIP",
-    "text/markdown": "Markdown",
-    "application/xml": "XML",
-    "application/json": "JSON",
-    "application/vnd.agents+json": "Agentes",
-    "application/vnd.agent+json": "Agente",
-    "text/html+skybridge": "Aplicação OpenAI"
-  },
   "agents": {
     "title": "Agentes",
     "framework": "Framework de Agentes",

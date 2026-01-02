@@ -33,7 +33,6 @@ export function useMessageInput({
 }: UseMessageInputOptions) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const resetChatSettings = useAppStore((s) => s.resetChatSettings);
@@ -77,14 +76,6 @@ export function useMessageInput({
       image: selectedIcon,
     };
   });
-
-  // Handlers
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      Array.from(e.target.files).forEach((file) => fileAttachmentRuntime.add(file));
-      e.target.value = "";
-    }
-  };
 
   const chatReset = () => {
     resetChatSettings();
@@ -149,11 +140,9 @@ export function useMessageInput({
     value,
     setValue,
     textareaRef,
-    fileInputRef,
     handleChange,
     handleKeyDown,
     handlePaste,
-    handleFileChange,
     handleSubmit,
     handleSend,
     setProviderMetadata,

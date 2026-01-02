@@ -8,14 +8,13 @@ type ChatSettings = {
 type ChatSettingsFormProps = {
   value: ChatSettings;
   onChange: (settings: ChatSettings) => void;
-  translations?: any;
+  
   formTitle?: string;
 };
 
 export const ChatSettingsForm = ({
   value,
   onChange,
-  translations,
   formTitle,
 }: ChatSettingsFormProps) => {
   const { Card } = useTheme();
@@ -25,7 +24,6 @@ export const ChatSettingsForm = ({
       <div>
         <ThrottlingField
           value={value.throttle}
-          translations={translations}
           onChange={(throttle) =>
             onChange({
               ...value,

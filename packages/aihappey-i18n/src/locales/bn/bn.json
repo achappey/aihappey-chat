@@ -94,18 +94,6 @@
   },
   "providerDefault": "প্রোভাইডারের ডিফল্ট",
   "custom": "কাস্টম",
-  "mimeTypes": {
-    "text/plain": "টেক্সট",
-    "image/png": "ছবি (PNG)",
-    "application/pdf": "PDF ডকুমেন্ট",
-    "application/zip": "ZIP আর্কাইভ",
-    "text/markdown": "Markdown",
-    "application/xml": "XML",
-    "application/json": "JSON",
-    "application/vnd.agents+json": "এজেন্টসমূহ",
-    "application/vnd.agent+json": "এজেন্ট",
-    "text/html+skybridge": "OpenAI অ্যাপ"
-  },
   "agents": {
     "title": "এজেন্টসমূহ",
     "framework": "Agent Framework",

@@ -14,7 +14,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   invocation,
   tool,
 }) => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const [output, setOutput] = useState<any | null>(null);
   const getToolExplanation = async (invocation: any, tool: any) => await explainToolCall(
     JSON.stringify({ toolcall: invocation, tool }),

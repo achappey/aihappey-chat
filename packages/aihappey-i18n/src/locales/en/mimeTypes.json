@@ -1,0 +1,12 @@
+{
+    "text/plain": "Text",
+    "image/png": "Image (Portable Network Graphic)",
+    "application/pdf": "Portable Document Format (PDF)",
+    "application/zip": "Archive (ZIP)",
+    "text/markdown": "Markdown",
+    "application/xml": "Extensible Markup Language (XML)",
+    "application/json": "JavaScript Object Notation (JSON)",
+    "application/vnd.agents+json": "Agents",
+    "application/vnd.agent+json": "Agent",
+    "text/html+skybridge": "OpenAI App"
+}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { OpenLinkButton, useTheme } from "aihappey-components";
-
 import { Markdown } from "../../../../ui/markdown/Markdown";
 import { useTranslation } from "aihappey-i18n";
 import { IconToken } from "aihappey-types";

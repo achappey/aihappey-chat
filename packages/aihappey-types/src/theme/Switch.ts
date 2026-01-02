@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 
 export type SwitchProps = {
-  id: string;
+  id?: string;
   label?: string;
   hint?: string;
   required?: boolean;

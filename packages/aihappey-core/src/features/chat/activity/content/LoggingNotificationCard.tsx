@@ -14,12 +14,9 @@ export const LoggingNotificationCard: React.FC<
   LoggingNotificationCardProps
 > = ({ notif }) => {
   const { t } = useTranslation();
-  const translations = {
-    [notif.level]: t(`logLevels.${notif.level}`)
-  }
+
   return (
     <LoggingMessageCard notif={notif}
-      translations={translations}
       onRenderMarkdown={(text) => <Markdown text={text} />}
     />
   );

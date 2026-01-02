@@ -9,6 +9,7 @@ export * from "./SamplingCard";
 export * from "./AudioCard";
 export * from "./TextCard";
 export * from "./ReasoningCard";
+export * from "./SourceUrlCard";
 export * from "./FileAttachmentCard";
 export * from "./StructuredOutputCard";
 export * from "./UIMessagePartCard";

@@ -1,4 +1,4 @@
-import { McpPolicySettings, useTheme } from "aihappey-components";
+import { McpPolicySettings, OpenAIChatConfigForm, PollinationsChatConfigForm, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -7,7 +7,6 @@ import { ModelSelect } from "../models/ModelSelect";
 import { useState } from "react";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
-import { PollinationsChatConfig } from "../provider-config/pollinations/PollinationsChatConfig";
 import { McpClientCapabilitiesCard } from "../mcp-client/McpClientCapabilitiesCard";
 import { useAgent } from "./useAgentMcpServers";
 import { GroqChatConfig } from "../provider-config/groq/GroqChatConfig";
@@ -19,7 +18,6 @@ import { CohereChatConfig } from "../provider-config/cohere/CohereChatConfig";
 import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
-import { OpenAIChatConfig } from "../provider-config/openai/OpenAIChatConfig";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -263,9 +261,9 @@ export const AgentForm = ({
                 <Tab eventKey="providers"
                     title={agent?.model?.id?.split("/")?.[0]}>
                     {providerKey === "openai" && (
-                        <OpenAIChatConfig
-                            openai={providerMeta}
-                            updateOpenAI={updateProviderMetadata}
+                        <OpenAIChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 
@@ -319,9 +317,9 @@ export const AgentForm = ({
                     )}
 
                     {providerKey === "pollinations" && (
-                        <PollinationsChatConfig
-                            pollinations={providerMeta}
-                            updatePollinations={updateProviderMetadata}
+                        <PollinationsChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 

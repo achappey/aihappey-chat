@@ -3,7 +3,6 @@ import type { FileUIPart, ToolUIPart, UIMessage, UIMessagePart } from "aihappey-
 
 export function toChatMessages(
   messages: UIMessage[],
-  translations?: any
 ): ChatMessage[] {
   const out: ChatMessage[] = [];
 
@@ -15,7 +14,6 @@ export function toChatMessages(
     const author = meta?.author ?? meta?.model;
     const temperature = meta?.temperature;
     const totalTokens = meta?.totalTokens;
-
     const parts = ((z.parts ?? [])).filter((p) => p?.type !== "step-start");
 
     const nonImageFiles = parts.filter(

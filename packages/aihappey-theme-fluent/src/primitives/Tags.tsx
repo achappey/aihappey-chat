@@ -4,7 +4,8 @@ import {
   TagGroup as FTagGroup, Tag, Image,
   InteractionTag,
   InteractionTagPrimary,
-  InteractionTagSecondary
+  InteractionTagSecondary,
+  Tooltip
 } from "@fluentui/react-components";
 import { iconMap } from "./Button";
 
@@ -45,20 +46,37 @@ export const Tags = ({ items, onRemove, size }: TagGroup): React.ReactNode => (
       style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
     >
       {items?.map((tag) => (
-        <Tag
-          key={tag.key}
-          value={tag.key}
-          icon={
-            tag.icon && iconMap[tag.icon]
-              ? React.createElement(iconMap[tag.icon])
-              : tag.image ? <Image width={size == "small" ? 16 : 20} src={tag.image} /> : undefined
-          }
-          size={size}
-          dismissible={!!onRemove}
-          dismissIcon={onRemove ? { "aria-label": "Remove" } : undefined}
-        >
-          {tag.label}
-        </Tag>
+        tag?.description ?
+          <Tooltip relationship="label" content={tag?.description}>
+            <Tag
+              key={tag.key}
+              value={tag.key}
+              icon={
+                tag.icon && iconMap[tag.icon]
+                  ? React.createElement(iconMap[tag.icon])
+                  : tag.image ? <Image width={size == "small" ? 16 : 20} src={tag.image} /> : undefined
+              }
+              size={size}
+              dismissible={!!onRemove}
+              dismissIcon={onRemove ? { "aria-label": "Remove" } : undefined}
+            >
+              {tag.label}
+            </Tag>
+          </Tooltip> :
+          <Tag
+            key={tag.key}
+            value={tag.key}
+            icon={
+              tag.icon && iconMap[tag.icon]
+                ? React.createElement(iconMap[tag.icon])
+                : tag.image ? <Image width={size == "small" ? 16 : 20} src={tag.image} /> : undefined
+            }
+            size={size}
+            dismissible={!!onRemove}
+            dismissIcon={onRemove ? { "aria-label": "Remove" } : undefined}
+          >
+            {tag.label}
+          </Tag>
       ))}
     </FTagGroup>
   </div>

@@ -1,10 +1,10 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 type OpenLinkButtonProps = {
   disabled?: boolean;
   size?: string
   variant?: string
-  title?: string
   text?: string
   url: string
 };
@@ -12,17 +12,17 @@ type OpenLinkButtonProps = {
 export const OpenLinkButton = ({ disabled,
   url,
   variant,
-  title,
   text,
   size
 }: OpenLinkButtonProps) => {
   const { Button } = useTheme();
+  const { t } = useTranslation();
 
   return <Button
     icon="openLink"
     variant={variant}
     disabled={disabled}
-    title={title ?? url}
+    title={t('newWindow')}
     size={size}
     onClick={() => window.open(url, "_blank")}
   >{text}</Button>;

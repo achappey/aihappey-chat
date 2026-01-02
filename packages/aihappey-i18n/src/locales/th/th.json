@@ -94,18 +94,6 @@
   },
   "providerDefault": "ค่าเริ่มต้นของผู้ให้บริการ",
   "custom": "กำหนดเอง",
-  "mimeTypes": {
-    "text/plain": "ข้อความ",
-    "image/png": "รูปภาพ (PNG)",
-    "application/pdf": "PDF",
-    "application/zip": "ไฟล์บีบอัด (ZIP)",
-    "text/markdown": "Markdown",
-    "application/xml": "XML",
-    "application/json": "JSON",
-    "application/vnd.agents+json": "เอเจนต์",
-    "application/vnd.agent+json": "เอเจนต์",
-    "text/html+skybridge": "แอป OpenAI"
-  },
   "agents": {
     "title": "เอเจนต์",
     "framework": "เฟรมเวิร์กเอเจนต์",

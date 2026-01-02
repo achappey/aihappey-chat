@@ -11,7 +11,7 @@ import { AGENT_RESOURCE_TYPE, AGENTS_RESOURCE_TYPE, CONVERSATION_RESOURCE_TYPE, 
 
 type LogLevel = "error" | "debug" | "info" | "notice" | "warning" | "critical" | "alert" | "emergency";
 
-type McoContents = {
+type McpContents = {
   tools: Tool[];
   instructions?: string
   resources: Resource[];
@@ -56,9 +56,8 @@ export type McpSlice = {
   clearSampling: () => void;
 
   tokens: Record<string, string>;
-  mcpServerContent: Record<string, McoContents>;
+  mcpServerContent: Record<string, McpContents>;
   setToken: (url: string, token: string) => void;
-  //getToolIcon: (toolName: string) => any[] | undefined
   clearToken: (url: string) => void;
   callTool: (toolCallId: string | undefined, name: string, parameters: any, locale?: string, signal?: AbortSignal)
     => Promise<any | undefined>;
@@ -273,40 +272,6 @@ export const createMcpSlice: StateCreator<
       return { tokens: newTokens };
     });
   },
-
-  /*getToolIcon: (toolName: string) => {
-    const { tools, clients } = get();
-
-    // Find the server URL that owns this tool
-    const serverUrl = Object.keys(tools).find(url => {
-      const toolList = tools[url];
-      if (!Array.isArray(toolList)) return false;
-      return toolList.some((t: any) => t.name === toolName);
-    });
-
-    if (!serverUrl) {
-      console.warn(`⚠️ No server found for tool '${toolName}'`);
-      return undefined;
-    }
-    const client: McpConnectResult["client"] = clients[serverUrl];
-    return client.getServerVersion()?.icons;
-  },*/
-  /* readServerResource: async (serverUrl: string, uri: string) => {
-     // Find the server URL that owns this resource
-     const { mcpServers } = get();
-     const serverName = Object.keys(mcpServers)
-       .find(z => mcpServers[z].config?.url == serverUrl)
- 
-     if (!serverName || !mcpRuntime.has(serverName))
-       throw new Error("Server not found or not connected")
- 
-     const client = mcpRuntime.get(serverName);
-     if (!client)
-       throw new Error("Client not found or not connected")
- 
-     return await client.readResource({ uri });
-   },*/
-
   setMcpTimeout: async (timeout: number, resetTimeoutOnProgress: boolean) => {
 
     set((state: any) => ({

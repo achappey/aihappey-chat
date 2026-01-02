@@ -1,5 +1,4 @@
-import { FileTags, ResourceTags, useTheme } from "aihappey-components";
-import { ResourceSelectButton } from "../../mcp-resources/ResourceSelectButton";
+import { AttachmentButton, FileTags, ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme } from "aihappey-components";
 import { ServerSelectButton } from "../../mcp-servers/ServerSelectButton";
 import {
   useMessageInput,
@@ -13,6 +12,13 @@ import { SystemMessageButton } from "./system-message/SystemMessageButton";
 import { mcpResourceRuntime, useSelectedResources } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/files/fileAttachmentRuntime";
 import { useTranslation } from "aihappey-i18n";
+import { useResourceSelect } from "./useResourceSelect";
+import { readResource } from "../../../runtime/mcp/readResource";
+
+export const addFilesToRuntime = (files: File[]) => {
+  files.forEach(file => fileAttachmentRuntime.add(file));
+};
+
 
 export const MessageInput = (props: UseMessageInputOptions) => {
   const { Button, Tags, TextArea, Badge } = useTheme();
@@ -27,17 +33,15 @@ export const MessageInput = (props: UseMessageInputOptions) => {
     && selectedAgentNames?.length == 1
     ? agents?.find(a => a.name == selectedAgentNames[0])?.argumentHint : undefined;
   const promptPlaceholder = agentHint ?? t("promptPlaceholder");
-
+  const resourceSelect = useResourceSelect();
   const {
     value,
     setValue,
     textareaRef,
-    fileInputRef,
     handleChange,
     handleKeyDown,
     handlePaste,
     serverTags,
-    handleFileChange,
     handleSubmit,
     disconnectServer,
     canSend,
@@ -74,15 +78,8 @@ export const MessageInput = (props: UseMessageInputOptions) => {
       </div>
     ) : null;
 
-  const yoloElement = approveAll ? (
-    <div style={styles.yoloRow}>
-      <Badge icon="warning" bg="danger" appearance="filled" >YOLO </Badge>
-    </div>
-  ) : null;
-
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      {/* TAG ROW  */}
       {(attachmentsElement || serverElements || approveAll) && (
         <div style={styles.metaRow}>
           <div style={styles.metaLeft}>
@@ -91,12 +88,13 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           </div>
 
           <div style={styles.metaRight}>
-            {approveAll && <Badge icon="warning" bg="danger" appearance="filled" >YOLO </Badge>}
+            {approveAll && <Badge icon="warning"
+              bg="danger"
+              appearance="filled" >YOLO</Badge>}
           </div>
         </div>
       )}
 
-      {/* FIRST ROW – TEXT INPUT */}
       <TextArea
         ref={textareaRef}
         value={value}
@@ -122,7 +120,26 @@ export const MessageInput = (props: UseMessageInputOptions) => {
             <PromptSelectButton
               onPromptExecute={props.onPromptExecute}
             />
-            <ResourceSelectButton />
+
+            <ResourceSelectButton
+              onClick={() => resourceSelect.setOpen(true)}
+            />
+
+            <ResourceSelectModal
+              open={resourceSelect.open}
+              resources={resourceSelect.resources}
+              onHide={() => resourceSelect.setOpen(false)}
+              onSelect={async (uri) => {
+                resourceSelect.setOpen(false);
+
+                const hit = resourceSelect.resolve(uri);
+                if (!hit) return;
+
+                const result = await readResource(hit.serverKey, uri);
+                mcpResourceRuntime.add(hit.resource, result);
+              }}
+            />
+            
             <ChatSettingsButton
               providerMetadata={providerMetadata}
               temperature={props.temperature}
@@ -130,21 +147,9 @@ export const MessageInput = (props: UseMessageInputOptions) => {
               temperatureChanged={props.temperatureChanged}
               setProviderMetadata={setProviderMetadata}
             />
-            <Button
-              type="button"
-              icon="attachment"
-              variant="transparent"
-              size="large"
-              title={t("attachments")}
+            <AttachmentButton
               disabled={props.disabled}
-              onClick={() => fileInputRef.current?.click()}
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              style={{ display: "none" }}
-              onChange={handleFileChange}
+              onFilesSelected={addFilesToRuntime}
             />
           </>}
         </div>

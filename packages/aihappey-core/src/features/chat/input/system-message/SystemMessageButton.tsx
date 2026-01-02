@@ -16,7 +16,7 @@ import { chatAppInstructions } from "../../../../runtime/chat-app/chatAppInstruc
  * You can optionally override how each part is rendered (JSON, user context, etc.)
  */
 export const SystemMessageButton = () => {
-  const { Button, JsonViewer, TextArea, Card } = useTheme();
+  const { JsonViewer, TextArea, Card } = useTheme();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { config } = useChatContext();
@@ -33,14 +33,13 @@ export const SystemMessageButton = () => {
       if (parsed.systemInformation)
         return (
           <Card title={t("systemContext")}>
-
-            <pre>{JSON.stringify(parsed.systemInformation, null, 2)}</pre>
+            <JsonViewer value={parsed.systemInformation} />
           </Card>
         );
       if (parsed.username)
         return (
           <Card title={parsed.username}>
-            <pre>{JSON.stringify(parsed, null, 2)}</pre>
+            <JsonViewer title={t("user")} value={parsed} />
           </Card>
         );
 

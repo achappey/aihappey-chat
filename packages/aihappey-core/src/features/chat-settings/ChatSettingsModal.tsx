@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { SettingsActionButtons, useTheme } from "aihappey-components";
+import { OpenAIChatConfigForm, PollinationsChatConfigForm, SettingsActionButtons, useTheme } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
-import { PollinationsChatConfig } from "../provider-config/pollinations/PollinationsChatConfig";
 import { GroqChatConfig } from "../provider-config/groq/GroqChatConfig";
 import { XAIChatConfig } from "../provider-config/xai/XAIChatConfig";
 import { TogetherChatConfig } from "../provider-config/together/TogetherChatConfig";
@@ -13,7 +12,6 @@ import { CohereChatConfig } from "../provider-config/cohere/CohereChatConfig";
 import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
-import { OpenAIChatConfig } from "../provider-config/openai/OpenAIChatConfig";
 
 export interface ProviderSettingsModalProps {
   open: boolean;
@@ -135,22 +133,22 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         }
         {enabledProviders.includes("OpenAI") &&
           <theme.Tab eventKey="openai" title="OpenAI">
-            <OpenAIChatConfig
-              openai={providerMetadata.openai ?? {}}
-              updateOpenAI={(openai) =>
-                setProviderMetadata({ ...providerMetadata, openai })
-              }
+            <OpenAIChatConfigForm
+              config={providerMetadata.openai ?? {}}
+              updateConfig={(openai) =>
+                setProviderMetadata({ ...providerMetadata, openai })}
             />
+
           </theme.Tab>
         }
         {enabledProviders.includes("Pollinations") &&
           <theme.Tab eventKey="pollinations" title="Pollinations">
-            <PollinationsChatConfig
-              pollinations={providerMetadata.pollinations ?? {}}
-              updatePollinations={(pollinations) =>
+            <PollinationsChatConfigForm
+              config={providerMetadata.pollinations ?? {}}
+              updateConfig={(pollinations) =>
                 setProviderMetadata({ ...providerMetadata, pollinations })
-              }
-            />
+              } />
+
           </theme.Tab>
         }
         {enabledProviders.includes("Perplexity") &&

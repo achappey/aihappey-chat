@@ -23,7 +23,7 @@ export interface ToolInvocationCardProps {
   tool?: Tool;
   getToolExplanation?: any;
   renderToolExplanation?: any;
-  onShowOutput?: any
+  onShowOutput?: (data: any) => void
 }
 
 function prettySize(obj: any) {

@@ -66,13 +66,6 @@ export const GeneralTab = ({
     temperature: temperature
   };
 
-  const aiSettingTranslations = {
-    temperature: t("temperature")
-  };
-
-  const chatSettingTranslations = {
-    throttle: t("throttle")
-  };
 
   const items = useMemo(
     () =>
@@ -90,13 +83,11 @@ export const GeneralTab = ({
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         <AiChatSettingsForm
           value={aiSettings}
-          translations={aiSettingTranslations}
           formTitle={t("ai.title")}
           onChange={(val) => setTemperature(val.temperature)} />
 
         <ChatSettingsForm
           value={{ throttle: experimentalThrottle ?? 100 }}
-          translations={chatSettingTranslations}
           formTitle={t("chat")}
           onChange={(val) => setThrottle(val.throttle)} />
 

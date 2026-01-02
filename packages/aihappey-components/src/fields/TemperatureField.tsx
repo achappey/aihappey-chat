@@ -1,20 +1,20 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 type TemperatureFieldProps = {
     value: number
     onChange: (temperature: number) => void
-    translations?: any
 };
 
 export const TemperatureField = ({
     value,
     onChange,
-    translations
 }: TemperatureFieldProps) => {
     const { Slider } = useTheme();
+    const { t } = useTranslation();
 
     return (<Slider
-        label={(translations?.temperature ?? 'temperature') + ` (${value})`}
+        label={t("temperature", { temperature: value })}
         min={0}
         max={1}
         step={0.01}

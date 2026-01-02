@@ -1,9 +1,9 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 type ThrottlingFieldProps = {
   value: number;
   onChange: (throttle: number) => void;
-  translations?: any;
   min?: number;
   max?: number;
   step?: number;
@@ -12,16 +12,16 @@ type ThrottlingFieldProps = {
 export const ThrottlingField = ({
   value,
   onChange,
-  translations,
   min = 0,
   max = 1000,
   step = 10,
 }: ThrottlingFieldProps) => {
   const { Slider } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Slider
-      label={(translations?.throttle ?? "throttle") + ` (${value} ms)`}
+      label={t("throttle", { throttle: value })}
       min={min}
       max={max}
       step={step}

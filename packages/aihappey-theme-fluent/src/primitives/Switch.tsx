@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Field, Switch as FluentSwitch } from "@fluentui/react-components";
 
 export const Switch = ({
@@ -12,7 +11,7 @@ export const Switch = ({
   hint,
   className,
 }: {
-  id: string;
+  id?: string;
   label?: string;
   hint?: string;
   size?: string;

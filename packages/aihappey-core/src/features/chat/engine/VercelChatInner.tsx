@@ -1,10 +1,10 @@
-import { DefaultChatTransport, lastAssistantMessageIsCompleteWithApprovalResponses, SourceUrlUIPart, useChat } from "aihappey-ai";
+import { DefaultChatTransport, FileUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
-import { useTheme } from "aihappey-components";
-import { SimpleActivityDrawer } from "../activity/drawer/SimpleActivityDrawer";
+import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
+import { ActivityDrawer } from "../activity/drawer/ActivityDrawer";
 import { MessageInput } from "../input/MessageInput";
 import { useAttachmentParts } from "../messages/useAttachmentParts";
 import { useChatFileDrop } from "../input/useChatFileDrop";
@@ -18,10 +18,8 @@ import { useTranscription } from "../../transcription/useTranscription";
 import { useChatErrors } from "../layout/useChatErrors";
 import { ChatErrors } from "../layout/ChatErrors";
 import { useAccessToken } from "aihappey-auth";
-import { CitationDrawer } from "../citations/CitationDrawer";
 import { ToolDrawer } from "../../tools";
 import { useTools } from "../../tools/useTools";
-import { AttachmentsDrawer } from "../attachments/AttachmentsDrawer";
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
 import { conversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
@@ -34,43 +32,7 @@ import { useApiRef } from "./useApiRef";
 import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
 import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
-import { toolApprovalGate } from "./toolApprovalGate";
-
-function lastAssistantMessageIsCompleteWithApprovalResponsesLoose(options: any) {
-  const messages = (options?.messages ?? []) as any[];
-
-  // Scan from newest -> oldest for the most recent assistant message that has approval-requested tool parts
-  for (let ai = messages.length - 1; ai >= 0; ai--) {
-    const m = messages[ai];
-    if (m?.role !== "assistant") continue;
-
-    const approvalIds = (m.parts ?? [])
-      .filter((p: any) =>
-        typeof p?.type === "string" &&
-        p.type.startsWith("tool-") &&
-        p.state === "approval-requested" &&
-        p.approval?.id
-      )
-      .map((p: any) => p.approval.id);
-
-    if (approvalIds.length === 0) continue;
-
-    // Collect ALL approval responses that appear AFTER that assistant message (not only the next message)
-    const responded = new Set<string>();
-    for (let j = ai + 1; j < messages.length; j++) {
-      for (const p of (messages[j]?.parts ?? [])) {
-        if (p?.type === "tool-approval-response") {
-          responded.add(p.approvalId ?? p.id); // support either shape
-        }
-      }
-    }
-
-    return approvalIds.every((id: string) => responded.has(id));
-  }
-
-  return false;
-}
-
+import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -96,7 +58,7 @@ export function VercelChatInner({
   const [sources, setSources] = useState<(SourceUrlUIPart)[] | undefined>(undefined);
   const [messageActivity, setMessageActivity] = useState<any[] | undefined>(undefined);
   const [showToolCall, setShowToolCall] = useState<any | undefined>(undefined);
-  const [messageAttachments, setMessageAttachments] = useState<any[] | undefined>(undefined);
+  const [messageAttachments, setMessageAttachments] = useState<FileUIPart[] | undefined>(undefined);
   const [usedTools, setUsedTool] = useState<any[] | undefined>(undefined);
   const { addMessage, rename, updateMessage, get } = useConversations();
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
@@ -114,7 +76,7 @@ export function VercelChatInner({
     config.transcriptionApi!,
     config.getAccessToken
   );
-
+  const isDesktop = useIsDesktop();
   const handoffs = useAppStore(a => a.handoffs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
 
@@ -227,7 +189,7 @@ export function VercelChatInner({
   //const allowedToolList = useAppStore((a) => a.allowedToolList);
 
   //const shouldAutoApproveTool = (toolName: string) =>
-//    approveAll || allowedToolList.includes(toolName);
+  //    approveAll || allowedToolList.includes(toolName);
 
   const { messages, sendMessage, status, addToolOutput, stop, addToolApprovalResponse } = useChat({
     id: conversationId,
@@ -350,11 +312,11 @@ export function VercelChatInner({
   });
 
   // keep latest messages for lookup inside onToolCall
-  const messagesRef = useRef<UIMessage[]>(seededMessages);
+  /*const messagesRef = useRef<UIMessage[]>(seededMessages);
   useEffect(() => {
     messagesRef.current = messages as any;
   }, [messages]);
-  /*
+  
     const addToolApprovalResponseWithGate = (x: { id: string; approved: boolean; reason?: string }) => {
       // id == toolCallId
       toolApprovalGate.resolve(x.id, { approved: x.approved, reason: x.reason });
@@ -425,7 +387,7 @@ export function VercelChatInner({
   });
 
   const toolName = lastPart ? tools.find(a => a.name == lastPart?.type.replace("tool-", ""))?.annotations?.title : undefined;
-
+  const drawerSize = isDesktop ? "medium" : "small"
   /* very bare‑bones UI */
   return (
     <div
@@ -489,20 +451,30 @@ export function VercelChatInner({
           />
         </div>
       </div>
-      <CitationDrawer open={sources != undefined}
+
+      <MessageSourcesDrawer
+        open={sources != undefined}
         sources={sources ?? []}
+        size={drawerSize}
         onClose={() => setSources(undefined)} />
+
       <ToolDrawer open={usedTools != undefined}
         tools={usedTools ?? []}
         onClose={() => setUsedTool(undefined)} />
-      <AttachmentsDrawer open={messageAttachments != undefined}
+
+      <AttachmentsDrawer
+        open={messageAttachments != undefined}
+        size={drawerSize}
         attachments={messageAttachments ?? []}
         onClose={() => setMessageAttachments(undefined)} />
-      <SimpleActivityDrawer messages={messages} />
+
+      <ActivityDrawer messages={messages} />
+
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}
         onShowToolCallResult={(a) => setShowToolCall(a)}
         onClose={() => setMessageActivity(undefined)} />
+
       <ToolCallResultModal
         open={showToolCall != undefined}
         result={showToolCall?.output}

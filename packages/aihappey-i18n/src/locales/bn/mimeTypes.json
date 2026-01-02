@@ -1,0 +1,12 @@
+{
+    "text/plain": "টেক্সট",
+    "image/png": "ছবি (PNG)",
+    "application/pdf": "PDF ডকুমেন্ট",
+    "application/zip": "ZIP আর্কাইভ",
+    "text/markdown": "Markdown",
+    "application/xml": "XML",
+    "application/json": "JSON",
+    "application/vnd.agents+json": "এজেন্টসমূহ",
+    "application/vnd.agent+json": "এজেন্ট",
+    "text/html+skybridge": "OpenAI অ্যাপ"
+  }

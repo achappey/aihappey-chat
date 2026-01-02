@@ -94,18 +94,6 @@
   },
   "providerDefault": "По умолчанию у провайдера",
   "custom": "Пользовательский",
-  "mimeTypes": {
-    "text/plain": "Текст",
-    "image/png": "Изображение (PNG)",
-    "application/pdf": "Документ PDF",
-    "application/zip": "Архив ZIP",
-    "text/markdown": "Markdown",
-    "application/xml": "XML",
-    "application/json": "JSON",
-    "application/vnd.agents+json": "Агенты",
-    "application/vnd.agent+json": "Агент",
-    "text/html+skybridge": "Приложение OpenAI"
-  },
   "agents": {
     "title": "Агенты",
     "framework": "Agent Framework",

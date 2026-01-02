@@ -1,3 +1,4 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
 
 const EFFORTS = ["minimal", "low", "medium", "high"] as const;
@@ -5,16 +6,13 @@ type Effort = (typeof EFFORTS)[number];
 
 export const PollinationsChatConfigForm = ({
   config,
-  translations,
   updateConfig,
 }: {
   config: any;
-  translations?: any,
   updateConfig: (val: any) => void;
 }) => {
   const theme = useTheme();
-
-  // Reasoning block on/off
+  const { t } = useTranslation();
   const effortToIndex = (e?: Effort) =>
     Math.max(0, EFFORTS.indexOf((e ?? "minimal") as Effort));
 
@@ -22,10 +20,14 @@ export const PollinationsChatConfigForm = ({
     EFFORTS[Math.min(EFFORTS.length - 1, Math.max(0, i))];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 18
+    }}>
       <theme.Card
         size="small"
-        title={translations?.reasoning ?? "reasoning"}>
+        title={t('reasoning')}>
         <div
           style={{
             display: "flex",
@@ -33,8 +35,9 @@ export const PollinationsChatConfigForm = ({
           }}
         >
           <theme.Slider
-            label={`${translations?.reasoningEffort ?? "reasoningEffort"} (${translations?.[config.reasoning_effort]
-              ?? config.reasoning_effort})`}
+            label={t('reasoningEffort', {
+              reasoningEffort: t(config.reasoning_effort)
+            })}
             min={0}
             max={EFFORTS.length - 1}
             step={1}

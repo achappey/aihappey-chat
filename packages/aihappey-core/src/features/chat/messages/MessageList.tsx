@@ -52,7 +52,7 @@ export const MessageList = ({
   messages,
   sendMessage,
 }: MessageListProps) => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
   const sampling = useAppStore((a) => a.sampling);
   const tools = useTools()
@@ -123,14 +123,6 @@ export const MessageList = ({
       ],
     })) as any;*/
 
-  const translations = useMemo(
-    () => ({
-      generatedByAi: t("generatedByAi"),
-      input: t("input"),
-      reasoning: t("reasoning")
-    }),
-    [t]
-  );
   const copyClipboard = async (msg: ChatMessage) =>
     await copyMarkdownToClipboard(msg.content?.[0].type == "text" ? msg.content?.[0]?.text : JSON.stringify(msg));
 

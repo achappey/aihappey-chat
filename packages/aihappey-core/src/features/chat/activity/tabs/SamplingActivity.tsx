@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { SamplingCard } from "../content/SamplingCard";
+//import { SamplingCard } from "../content/SamplingCard";
 import { SamplingRequest, useAppStore } from "aihappey-state";
 import { samplingRuntime, useOpenSamplings } from "../../../../runtime/mcp/samplingRuntime";
+import { SamplingCard } from "aihappey-components";
 
 export const SamplingActivity: React.FC = () => {
   const sampling = useAppStore((a) => a.sampling);
@@ -33,7 +34,7 @@ export const SamplingActivity: React.FC = () => {
       style={{ display: "flex", flexDirection: "column", gap: 8 }}
     >
       {mergedSampling.map((n, i: number) => (
-        <SamplingCard key={i} notif={n} />
+        <SamplingCard key={i} request={n[2]} result={n[3]} />
       ))}
     </div>
   );

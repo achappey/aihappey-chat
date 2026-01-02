@@ -94,18 +94,6 @@
     },
     "providerDefault": "प्रदाता का डिफ़ॉल्ट",
     "custom": "कस्टम",
-    "mimeTypes": {
-        "text/plain": "पाठ",
-        "image/png": "छवि (PNG)",
-        "application/pdf": "पोर्टेबल डॉक्यूमेंट फ़ॉर्मेट (PDF)",
-        "application/zip": "आर्काइव (ZIP)",
-        "text/markdown": "मार्कडाउन",
-        "application/xml": "एक्स्टेंसिबल मार्कअप लैंग्वेज (XML)",
-        "application/json": "जावास्क्रिप्ट ऑब्जेक्ट नोटेशन (JSON)",
-        "application/vnd.agents+json": "एजेंट्स",
-        "application/vnd.agent+json": "एजेंट",
-        "text/html+skybridge": "OpenAI ऐप"
-    },
     "agents": {
         "title": "एजेंट्स",
         "framework": "एजेंट फ़्रेमवर्क",

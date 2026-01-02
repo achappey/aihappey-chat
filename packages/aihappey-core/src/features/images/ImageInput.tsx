@@ -1,10 +1,11 @@
-import { FileTags, useTheme } from "aihappey-components";
+import { AttachmentButton, FileTags, useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { UseMessageInputOptions } from "../chat/input/useMessageInput";
 import { useFileAttachments, fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { useImageInput } from "./useImageInput";
 import { ImageSettingsButton } from "../image-settings/ImageSettingsButton";
+import { addFilesToRuntime } from "../chat/input/MessageInput";
 
 export const ImageInput = (props: UseMessageInputOptions) => {
   const { Button, TextArea } = useTheme();
@@ -15,11 +16,9 @@ export const ImageInput = (props: UseMessageInputOptions) => {
   const {
     value,
     textareaRef,
-    fileInputRef,
     handleChange,
     handleKeyDown,
     handlePaste,
-    handleFileChange,
     handleSubmit,
     canSend,
   } = useImageInput(props);
@@ -57,27 +56,16 @@ export const ImageInput = (props: UseMessageInputOptions) => {
         style={styles.textArea}
       />
 
-      {/* SECOND ROW – CONTROLS */}
       <div style={styles.buttonRow}>
         <div style={styles.leftGroup}>
           <ImageSettingsButton
             providerMetadata={providerImageMetadata}
             setProviderMetadata={setProviderImageMetadata} />
-          <Button
-            type="button"
-            icon="image"
-            variant="transparent"
-            size="large"
-            title={t("attachments")}
+
+          <AttachmentButton
             disabled={props.disabled}
-            onClick={() => fileInputRef.current?.click()}
-          />
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            style={{ display: "none" }}
-            onChange={handleFileChange}
+            icon="image"
+            onFilesSelected={addFilesToRuntime}
           />
         </div>
 

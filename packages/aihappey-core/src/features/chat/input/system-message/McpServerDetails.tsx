@@ -60,7 +60,8 @@ export const McpServerDetails = ({ parsed }: any) => {
       </Tab>
 
       {parsed.instructions?.length > 0 && (
-        <Tab eventKey={"1"} title={t("mcp.instructions")}>
+        <Tab eventKey={"1"}
+          title={t("mcp.instructions")}>
           <Card title={t("mcp.instructions")}>
             <p>{parsed.instructions}</p>
           </Card>
@@ -68,15 +69,20 @@ export const McpServerDetails = ({ parsed }: any) => {
 
 
       {parsed.modelContextProtocolServer.meta && (
-        <Tab eventKey={"2"} title={t("mcp.meta")}>
+        <Tab eventKey={"2"}
+          title={t("mcp.meta")}>
           <Card title={t("mcp.meta")}>
             <JsonViewer value={parsed.modelContextProtocolServer.meta} />
           </Card>
         </Tab>)}
 
       {parsed.resources?.length > 0 && (
-        <Tab eventKey={"3"} title={t("mcp.resources") + " (" + parsed.resources?.length + ")"}>
-          <div style={{ display: "grid", gap: 12 }}>
+        <Tab eventKey={"3"}
+          title={t("mcp.resources") + " (" + parsed.resources?.length + ")"}>
+          <div style={{
+            display: "grid",
+            gap: 12
+          }}>
             {parsed.resources.map((res: any, i: number) => {
               return (
                 <Card
@@ -103,11 +109,11 @@ export const McpServerDetails = ({ parsed }: any) => {
       )}
 
       {parsed.resourceTemplates?.length > 0 && (
-        <Tab eventKey={"4"} title={t("mcp.resourceTemplates") + " (" + parsed.resourceTemplates?.length + ")"}>
+        <Tab eventKey={"4"}
+          title={t("mcp.resourceTemplates") + " (" + parsed.resourceTemplates?.length + ")"}>
 
           <div style={{ display: "grid", gap: 12 }}>
             {parsed.resourceTemplates.map((tpl: any, i: number) => {
-              const hasPriority = !!tpl.annotations?.priority;
               return (
                 <Card
                   key={i}

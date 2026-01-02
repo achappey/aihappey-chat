@@ -14,6 +14,7 @@ export interface TagItem {
   icon?: IconToken;
   image?: string;
   label: string | React.ReactNode;
+  description?: string
 }
 
 export type TagsComponent = (props: TagGroup) => JSX.Element;
