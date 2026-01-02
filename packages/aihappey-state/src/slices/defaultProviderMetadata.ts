@@ -1,5 +1,3 @@
-//export const defaultProviders = ["OpenAI", "Anthropic", "Google", "xAI"];
-
 export const defaultProviderMetadata = {
   "pollinations": {
     "reasoning_effort": "low"

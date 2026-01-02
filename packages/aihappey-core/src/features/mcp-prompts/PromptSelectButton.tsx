@@ -6,6 +6,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useAppStore, Prompt } from "aihappey-state";
 import { PromptSelectModal } from "./PromptSelectModal";
 import { useAutoPromptExecution } from "./useAutoPromptExecution";
+import { getPrompts } from "../../runtime/mcp/mcpPrompts";
 
 export type PromptWithSource = Prompt & {
   _serverName?: string;
@@ -21,7 +22,7 @@ export const PromptSelectButton = ({
 }: PromptSelectButtonProps) => {
   const { Button } = useTheme();
   const { t } = useTranslation();
-  const getPrompts = useAppStore((s) => s.getPrompts);
+ // const getPrompts = useAppStore((s) => s.getPrompts);
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
   const mcpServers = useAppStore((s) => s.mcpServers);
   const [prompts, setPrompts] = useState<PromptWithSource[]>([]);
@@ -44,7 +45,7 @@ export const PromptSelectButton = ({
           }))])))
     }
     else {
-      //setPrompts([])
+      setPrompts([])
     }
   }, [open]);
 
@@ -86,7 +87,7 @@ export const PromptSelectButton = ({
         prompt={argumentPrompt}
         onPromptExecute={async (prompt: any, args: any) => {
           setArgumentPrompt(undefined);
-//          setOpen(false);
+          //          setOpen(false);
 
           await onPromptExecute(prompt, args);
         }}

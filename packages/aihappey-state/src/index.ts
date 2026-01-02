@@ -14,6 +14,7 @@ export { createAppStore, useAppStore, store };
 
 export type { Resource, ResourceTemplate, Prompt } from "aihappey-mcp";
 export { SamplingRequest } from "./slices/mcpSlice";
+export type { McpContents } from "./slices/mcpSlice";
 export type { UiAttachment } from "./slices/uiSlice";
 export { defaultAgents } from "./slices/defaultAgents";
 

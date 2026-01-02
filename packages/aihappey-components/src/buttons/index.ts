@@ -6,4 +6,5 @@ export * from "./MessageActions";
 export * from "./ToolApprovalButtons";
 export * from "./AttachmentButton";
 export * from "./SettingsActionButtons";
+export * from "./ElicitationActionButtons";
 export * from "./ResourceSelectButton";

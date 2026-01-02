@@ -3,15 +3,14 @@ import {
   CreateMessageRequest, CreateMessageResult,
   type ReadResourceResult,
   type ServerCapabilities, type LoggingMessageNotification,
-  ProgressNotification, Prompt, type ElicitRequest, type Tool,
+  ProgressNotification, type ElicitRequest, type Tool,
   Resource, ResourceTemplate, type ElicitResult,
+  type LoggingLevel,
 } from "aihappey-mcp";
 import { connectServerPersistent, mcpRuntime } from "./uiSlice";
 import { AGENT_RESOURCE_TYPE, AGENTS_RESOURCE_TYPE, CONVERSATION_RESOURCE_TYPE, CONVERSATIONS_RESOURCE_TYPE } from "aihappey-types";
 
-type LogLevel = "error" | "debug" | "info" | "notice" | "warning" | "critical" | "alert" | "emergency";
-
-type McpContents = {
+export type McpContents = {
   tools: Tool[];
   instructions?: string
   resources: Resource[];
@@ -46,7 +45,7 @@ export type ElicitRequestItem = [string, ElicitRequest, ElicitResult];
 
 export type McpSlice = {
   mcpErrors: Record<string, string | null>;
-  logLevel: LogLevel;
+  logLevel: LoggingLevel;
   toolTimeout: number
   safeHosts: string[]
   setSafeHosts: (safeHosts: string[]) => void;
@@ -62,12 +61,8 @@ export type McpSlice = {
   callTool: (toolCallId: string | undefined, name: string, parameters: any, locale?: string, signal?: AbortSignal)
     => Promise<any | undefined>;
   clearMcpContent: (name: string) => void;
-  refreshPrompts: (url: string) => Promise<void>;
-  getPrompts: (name: string) => Promise<Prompt[]>;
-  getPrompt: (serverName: string, name: string, args: any) => Promise<any | undefined>;
-  getCompletion: (name: string, ref: any, arg: any, context: any) => Promise<any | undefined>;
 
-  setLogLevel: (logLevel: LogLevel) => Promise<void>;
+  setLogLevel: (logLevel: LoggingLevel) => Promise<void>;
   setMcpTimeout: (timeout: number, resetTimeoutOnProgress: boolean) => void;
   connectMcpServer: (name: string, url: string, opts: any, conversationImport?: any) => Promise<any>;
 };
@@ -124,22 +119,21 @@ export const createMcpSlice: StateCreator<
     var capabilities = client.getServerCapabilities();
     var version = client.getServerVersion();
     var instructions = client.getInstructions();
-    let tools: any[] = []
-    let resources: any[] = []
-    let resourceTemplates: any[] = []
 
-    if (capabilities?.tools) {
-      var toolList = capabilities?.tools ? await client.listTools() : undefined;
-      tools.push(...toolList?.tools ?? []);
-    }
+    const tools = capabilities?.tools
+      ? ((await client.listTools())?.tools ?? []).map(t => ({ ...t }))
+      : [];
 
-    if (capabilities?.resources) {
-      var resourceList = await client.listResources();
-      resources.push(...resourceList?.resources);
+    const resources = capabilities?.resources
+      ? ((await client.listResources())?.resources ?? []).map(r => ({
+        ...r,
+        annotations: r.annotations ? { ...(r.annotations as any) } : undefined,
+      }))
+      : [];
 
-      var resourceTemplateList = await client.listResourceTemplates();
-      resourceTemplates.push(...resourceTemplateList?.resourceTemplates);
-    }
+    const resourceTemplates = capabilities?.resources
+      ? ((await client.listResourceTemplates())?.resourceTemplates ?? []).map(rt => ({ ...rt }))
+      : [];
 
     const discoveredConversations: any[] = [];
 
@@ -184,8 +178,6 @@ export const createMcpSlice: StateCreator<
         await conversationImport(item)
       }
     }
-
-
 
     const discoveredAgents: any[] = [];
 
@@ -239,9 +231,9 @@ export const createMcpSlice: StateCreator<
           capabilities,
           version,
           instructions,
-          tools,
-          resources,
-          resourceTemplates,
+          tools: [...tools],
+          resources: [...resources],
+          resourceTemplates: [...resourceTemplates],
         }
       }
     }))
@@ -316,82 +308,4 @@ export const createMcpSlice: StateCreator<
       resetTimeoutOnProgress,
     });
   },
-
-  refreshPrompts: async (url) => {
-    const { clients, capabilities } = get();
-    const client = clients[url];
-    if (!client) return;
-
-    // Only refresh if server has prompts capability (optional, for robustness)
-    const hasPromptsCapability = capabilities[url]?.prompts !== undefined;
-    if (!hasPromptsCapability) return;
-
-    try {
-      const res = await client.listPrompts();
-      set((state: any) => ({
-        prompts: { ...state.prompts, [url]: res.prompts },
-      }));
-    } catch (e) {
-      set((state: any) => ({
-        mcpErrors: { ...state.mcpErrors, [url]: "Failed to fetch prompts" },
-      }));
-    }
-  },
-  getCompletion: async (name, ref, args, context) => {
-    const { mcpServerContent } = get();
-    const client = mcpRuntime.get(name);
-
-    if (!client) {
-      throw new Error("ChatApp MCP is not connected");
-    }
-
-    if (!mcpServerContent[name]?.capabilities?.completions) {
-      throw new Error("MCP does not support completion");
-    }
-
-    try {
-      return await client.complete({
-        ref: ref,
-        argument: args,
-        context: context,
-      });
-    } catch (e) {
-      return undefined;
-    }
-  },
-  getPrompt: async (serverName, name, args) => {
-    const client = mcpRuntime.get(serverName.toLowerCase())
-
-    if (!client) {
-      throw new Error("MCP is not connected");
-    }
-
-    try {
-      return await client.getPrompt({ name, arguments: args });
-      // set((state: any) => ({
-      //   prompts: { ...state.prompts, [url]: res.prompts },
-      // }));
-    } catch (e) {
-      //   set((state: any) => ({
-      //    mcpErrors: { ...state.mcpErrors, [url]: "Failed to fetch prompts" },
-      // }));
-      return undefined;
-    }
-  },
-  getPrompts: async (name) => {
-    const { mcpServerContent } = get();
-    const client = mcpRuntime.get(name.toLowerCase());
-
-    if (!client) {
-      throw new Error("MCP is not connected");
-    }
-
-    try {
-      const res = await client.listPrompts();
-      return [...res.prompts]
-    } catch (e) {
-    }
-
-    return [];
-  }
 });

@@ -19,7 +19,7 @@ export type ResourceAudience = "assistant" | "user";
 export type {
     ResourceLink, Tool, ServerCapabilities,
     Prompt, ElicitResult, CallToolResult,
-    ReadResourceResult, ElicitRequest,
+    ReadResourceResult, ElicitRequest, ToolAnnotations,
     ResourceTemplate, ResourceTemplateSchema,
-    ImplementationSchema,
+    ImplementationSchema, LoggingLevel,
 } from "@modelcontextprotocol/sdk/types";

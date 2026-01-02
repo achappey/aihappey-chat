@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "aihappey-state";
 import type { PromptWithSource } from "./PromptSelectButton";
+import { getPrompts } from "../../runtime/mcp/mcpPrompts";
 
 type UseAutoPromptExecutionProps = {
     //allPrompts: PromptWithSource[];
@@ -15,14 +16,10 @@ export const useAutoPromptExecution = ({
     setArgumentPrompt,
     setOpen,
 }: UseAutoPromptExecutionProps) => {
-    //  const refreshPrompts = useAppStore((s) => s.refreshPrompts);
-    // const prompts = useAppStore((s) => s.prompts);
     const [isLoading, setIsLoading] = useState(false);
 
-    const getPrompts = useAppStore((s) => s.getPrompts);
     const mcpServerContent = useAppStore((s) => s.mcpServerContent);
     const mcpServers = useAppStore((s) => s.mcpServers);
-    // var urls = Object.entries(mcpServers)?.map(z => z[1].config.url);
 
     useEffect(() => {
         const executeAutoPrompt = async () => {
@@ -39,7 +36,7 @@ export const useAutoPromptExecution = ({
 
                 if (prompt?.arguments?.length
                     && prompt.arguments?.length > 0
-                && setArgumentPrompt) {
+                    && setArgumentPrompt) {
                     setArgumentPrompt({
                         ...prompt,
                         _serverName: key?.[0]!
@@ -66,24 +63,24 @@ export const useAutoPromptExecution = ({
                  }*/
 
             // Find and execute prompt
-        /*    const pendingPrompt = allPrompts.find(
-                (p) => p.name === pendingPromptName
-                //&& p._url === pendingServerUrl
-            );
-
-            if (pendingPrompt) {
-                if (pendingPrompt.arguments?.length
-                    && pendingPrompt.arguments?.length > 0) {
-                    setArgumentPrompt(pendingPrompt);
-                } else {
-                    onPromptExecute(pendingPrompt);
-                }
-                setOpen(false);
-
-                // Clean up
-                localStorage.removeItem("aihappey:pendingPromptName");
-                localStorage.removeItem("aihappey:pendingMcpServer");
-            }*/
+            /*    const pendingPrompt = allPrompts.find(
+                    (p) => p.name === pendingPromptName
+                    //&& p._url === pendingServerUrl
+                );
+    
+                if (pendingPrompt) {
+                    if (pendingPrompt.arguments?.length
+                        && pendingPrompt.arguments?.length > 0) {
+                        setArgumentPrompt(pendingPrompt);
+                    } else {
+                        onPromptExecute(pendingPrompt);
+                    }
+                    setOpen(false);
+    
+                    // Clean up
+                    localStorage.removeItem("aihappey:pendingPromptName");
+                    localStorage.removeItem("aihappey:pendingMcpServer");
+                }*/
         };
 
         void executeAutoPrompt();

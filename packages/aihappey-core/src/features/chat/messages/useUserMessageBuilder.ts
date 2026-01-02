@@ -7,6 +7,7 @@ import { toMarkdownLinkSmart } from "../files/markdown";
 import { fileToDataUrl } from "../files/file";
 import { useResourceParts } from "./useResourceParts";
 import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/files/fileAttachmentRuntime";
+import { getPrompt } from "../../../runtime/mcp/mcpPrompts";
 
 type AttachmentPart = {
   type: "file";
@@ -37,7 +38,6 @@ export function useUserMessageBuilder({
   //clients,
   extractExif
 }: UseUserMessageBuilderProps) {
-  const getPrompt = useAppStore((s) => s.getPrompt);
   const resourceParts = useResourceParts();
   const attachments = useFileAttachments(fileAttachmentRuntime)
   // Shared logic: builds message parts from args, plus (optional) promptParts
@@ -110,8 +110,6 @@ export function useUserMessageBuilder({
       prompt: PromptWithSource,
       args?: Record<string, string>
     ): Promise<UIMessage | undefined> => {
-      //  const client = clients?.[prompt._url];
-      // if (!client || typeof client.getPrompt !== "function") return undefined;
       const result = await getPrompt(prompt._serverName!, prompt.name, args ?? {});
       const messages = result.messages ?? [];
       const promptParts: TextPart[] = messages.map((m: any) => ({

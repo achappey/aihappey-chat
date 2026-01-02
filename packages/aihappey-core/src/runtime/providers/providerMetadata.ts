@@ -164,5 +164,15 @@ export const PROVIDERS: Record<string, any> = {
             }
         ],
         url: "https://www.nscale.com"
+    },
+
+    stabilityai: {
+        name: "StabilityAI",
+        icons: [
+            {
+                src: "https://media.licdn.com/dms/image/v2/D560BAQGCth_DU2z1Fg/company-logo_200_200/B56Zh18sPOHMAU-/0/1754325501246/stability_ai_logo?e=2147483647&v=beta&t=K2vnKQAZRmg2Nqe0fJY7sYHDbLA752NOG1E45JbZC5s",
+            }
+        ],
+        url: "https://stability.ai"
     }
 } as const;

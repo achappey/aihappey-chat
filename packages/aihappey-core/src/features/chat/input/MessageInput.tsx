@@ -117,11 +117,12 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           }
           {chatMode == "chat" && <>
             <ServerSelectButton />
+
             <PromptSelectButton
               onPromptExecute={props.onPromptExecute}
             />
 
-            <ResourceSelectButton
+            <ResourceSelectButton disabled={resourceSelect.resources.length == 0}
               onClick={() => resourceSelect.setOpen(true)}
             />
 
@@ -139,7 +140,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
                 mcpResourceRuntime.add(hit.resource, result);
               }}
             />
-            
+
             <ChatSettingsButton
               providerMetadata={providerMetadata}
               temperature={props.temperature}

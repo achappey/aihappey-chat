@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
 import { defaultProviderMetadata } from "./defaultProviderMetadata";
-import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import type { ModelOption } from "aihappey-types";
+import { ToolAnnotations } from "aihappey-mcp";
 
 export type ChatSlice = {
   selectedConversationId: string | null;

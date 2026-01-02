@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAppStore } from "aihappey-state";
-import { toMarkdownLinkSmart } from "../chat/files/markdown";
+import { getCompletion } from "../../runtime/mcp/mcpPrompts";
 
 export function usePromptArguments({ prompt, onPromptExecute }: any) {
   // Build initial form state with empty strings
@@ -14,7 +14,6 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
   const [loadingCompletions, setLoadingCompletions] = useState<boolean>(false);
   const [completions, setCompletions] = useState<Record<string, string[]>>({});
   const mcpServerContent = useAppStore((a) => a.mcpServerContent)
-  const getCompletion = useAppStore((a) => a.getCompletion)
   const supportsCompletions = mcpServerContent[prompt._serverName]?.capabilities?.completions;
 
   // Utility to build the context for server calls
@@ -129,7 +128,7 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
   const handleOk = async (onHide: () => void) => {
     if (missingRequired || pending) return;
     await onPromptExecute(prompt, values);
-   // onHide();
+    // onHide();
   };
 
   return {

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import { useTheme } from "aihappey-components";
+import { ElicitationActionButtons, useTheme } from "aihappey-components";
 import type { ElicitResult } from "@modelcontextprotocol/sdk/types";
 
 import { ElicitationForm, useElicitMeta } from "./ElicitationForm";
 import { elicitRuntime, useOpenElicits } from "../../runtime/mcp/elicitRuntime";
 
 export const ElicitationModalHost = () => {
-  const { Modal, Button } = useTheme();
+  const { Modal } = useTheme();
   const { t } = useTranslation();
   const { withMeta } = useElicitMeta();
 
@@ -32,32 +32,13 @@ export const ElicitationModalHost = () => {
   return (
     <Modal
       show={open}
-      onHide={() => {}}
+      onHide={() => { }}
       title={t("input") ?? "Input required"}
       actions={
-        <div style={{ display: "flex", gap: 8 }}>
-          <Button
-            variant="primary"
-            disabled={!isValid}
-            onClick={() => respond("accept")}
-          >
-            {t("mcp.accept")}
-          </Button>
-
-          <Button
-            variant="informative"
-            onClick={() => respond("decline")}
-          >
-            {t("mcp.decline")}
-          </Button>
-
-          <Button
-            variant="subtle"
-            onClick={() => respond("cancel")}
-          >
-            {t("mcp.cancel")}
-          </Button>
-        </div>
+        <ElicitationActionButtons
+          isValid={isValid}
+          onAction={respond}
+        />
       }
     >
       {active && (
