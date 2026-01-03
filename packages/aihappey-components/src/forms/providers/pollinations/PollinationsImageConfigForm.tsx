@@ -1,39 +1,37 @@
 import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 export type PollinationsImageConfig = {
   enhance?: boolean;
   private?: boolean;
 };
 
-export type PollinationsImageConfigFormTranslations = {
-  formTitle?: string;
-  enhance?: string;
-  enhanceHint?: string;
-  private?: string;
-  privateHint?: string;
-};
-
 export const PollinationsImageConfigForm: React.FC<{
   config: PollinationsImageConfig;
   updateConfig: (val: PollinationsImageConfig) => void;
-  translations?: PollinationsImageConfigFormTranslations;
-  formTitle?: string;
-}> = ({ config, updateConfig, translations, formTitle }) => {
+}> = ({ config, updateConfig }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card
-        size="small"
-        title={formTitle ?? translations?.formTitle ?? "Pollinations image config"}
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 18
+    }}>
+      <theme.Card size="small"
+        title={t("general")}>
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 12
+        }}>
           <theme.Switch
             id="pollinations-enhance"
             checked={!!config?.enhance}
-            hint={translations?.enhanceHint}
-            label={translations?.enhance ?? "enhance"}
+            label={t("providers:pollinations.enhance")}
+            hint={t("providers:pollinations.enhanceHint")}
             onChange={(val: boolean) =>
               updateConfig({
                 ...config,
@@ -45,8 +43,8 @@ export const PollinationsImageConfigForm: React.FC<{
           <theme.Switch
             id="pollinations-private"
             checked={!!config?.private}
-            hint={translations?.privateHint}
-            label={translations?.private ?? "private"}
+            label={t("providers:pollinations.private")}
+            hint={t("providers:pollinations.privateHint")}
             onChange={(val: boolean) =>
               updateConfig({
                 ...config,
@@ -59,4 +57,3 @@ export const PollinationsImageConfigForm: React.FC<{
     </div>
   );
 };
-

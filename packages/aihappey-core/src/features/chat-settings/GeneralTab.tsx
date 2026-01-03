@@ -97,8 +97,9 @@ export const GeneralTab = ({
 
         <ProviderSettingsForm
           providers={publishers}
+          columns={3}
           enabledProviders={enabledProviders}
-          onChange={setEnabledProviders} // or your own setter
+          onChange={setEnabledProviders} 
           formTitle={t("providers")}
           headerActions={
             !appConfig.config.getAccessToken ? (

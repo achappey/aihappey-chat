@@ -1,45 +1,40 @@
-import React, { ChangeEvent } from "react";
+import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 export type RunwayImageConfig = {
   contentModeration?: {
-    publicFigureThreshold: string
+    publicFigureThreshold: string;
   };
-};
-
-export type RunwayImageConfigFormTranslations = {
-  formTitle?: string;
-  publicFigureThreshold?: string;
-  low?: string
-  auto?: string
 };
 
 export const RunwayImageConfigForm: React.FC<{
   config: RunwayImageConfig;
   updateConfig: (val: RunwayImageConfig) => void;
-  translations?: RunwayImageConfigFormTranslations;
-  formTitle?: string;
-}> = ({ config, updateConfig, translations, formTitle }) => {
+}> = ({ config, updateConfig }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const publicFigureThresholdOptions = [
-    { value: "low", label: translations?.low ?? "low" },
-    { value: "auto", label: translations?.auto ?? "auto" }
+    { value: "low", label: t("low") },
+    { value: "auto", label: t("auto") },
   ];
+
+  const current =
+    config?.contentModeration?.publicFigureThreshold ?? "auto";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <theme.Card
         size="small"
-        title={formTitle ?? translations?.formTitle ?? "Together image config"}
+        title={t("providers:runway.contentModeration")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
-            label={translations?.publicFigureThreshold ?? "publicFigureThreshold"}
-            values={[config?.contentModeration?.publicFigureThreshold ?? "auto"]}
+            label={t("providers:runway.publicFigureThreshold")}
+            values={[current]}
             valueTitle={
-              publicFigureThresholdOptions
-                .find((o) => o.value === (config?.contentModeration?.publicFigureThreshold ?? "auto"))
+              publicFigureThresholdOptions.find((o) => o.value === current)
                 ?.label
             }
             options={publicFigureThresholdOptions}
@@ -47,7 +42,7 @@ export const RunwayImageConfigForm: React.FC<{
               updateConfig({
                 ...config,
                 contentModeration: {
-                  publicFigureThreshold: val
+                  publicFigureThreshold: val,
                 },
               })
             }
@@ -59,10 +54,8 @@ export const RunwayImageConfigForm: React.FC<{
               </option>
             ))}
           </theme.Select>
-
         </div>
       </theme.Card>
     </div>
   );
 };
-

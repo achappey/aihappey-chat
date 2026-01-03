@@ -31,24 +31,3 @@ export const Populated: Story = {
     />
   ),
 };
-
-export const WithTranslations: Story = {
-  render: () => (
-    <Wrapper
-      config={{
-        steps: 15,
-        guidance_scale: 4,
-        disable_safety_checker: false,
-        negative_prompt: "watermark",
-      }}
-      translations={{
-        formTitle: "Together image settings",
-        steps: "Steps",
-        guidanceScale: "Guidance scale",
-        disableSafetyChecker: "Disable safety checker",
-        negativePrompt: "Negative prompt",
-      }}
-    />
-  ),
-};
-

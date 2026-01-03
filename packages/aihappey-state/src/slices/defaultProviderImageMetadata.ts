@@ -14,6 +14,10 @@ export const defaultProviderImageMetadata = {
   "mistral": {
 
   },
+  "stabilityai": {
+    "negative_prompt": undefined,
+    "style_preset": undefined
+  },
   "together": {
     "steps": 20,
     "disable_safety_checker": true,
@@ -26,6 +30,6 @@ export const defaultProviderImageMetadata = {
     },
   },
   "xai": {
-   
+
   }
 };

@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { SettingsActionButtons, useTheme } from "aihappey-components";
+import { OpenAIImageConfigForm, PollinationsImageConfigForm, RunwayImageConfigForm, SettingsActionButtons, StabilityAIImageForm, TogetherImageConfigForm, useTheme } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
-import { PollinationsImageConfig } from "../provider-config/pollinations/PollinationsImageConfig";
-import { OpenAIImageConfig } from "../provider-config/openai/OpenAIImageConfig";
-import { TogetherImageConfig } from "../provider-config/together/TogetherImageConfig";
-import { RunwayImageConfig } from "../provider-config/runway/TogetherImageConfig";
 
 export interface ImageSettingsModalProps {
   open: boolean;
@@ -58,8 +54,10 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
         />
       }
     >
-      <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-        <theme.Tab eventKey="general" title={t("general")}>
+      <theme.Tabs activeKey={activeTab}
+        onSelect={setActiveTab}>
+        <theme.Tab eventKey="general"
+          title={t("general")}>
           <ImageSettingsGeneralTab
             temperature={temperature}
             onEditProviderKeys={onEditProviderKeys}
@@ -68,10 +66,11 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
         </theme.Tab>
 
         {enabledProviders.includes("OpenAI") &&
-          <theme.Tab eventKey="openai" title="OpenAI">
-            <OpenAIImageConfig
-              openai={providerMetadata.openai ?? {}}
-              updateOpenAI={(openai) =>
+          <theme.Tab eventKey="openai"
+            title="OpenAI">
+            <OpenAIImageConfigForm
+              config={providerMetadata.openai ?? {}}
+              updateConfig={(openai) =>
                 setProviderMetadata({ ...providerMetadata, openai })
               }
             />
@@ -79,10 +78,11 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
         }
 
         {enabledProviders.includes("Pollinations") &&
-          <theme.Tab eventKey="pollinations" title="Pollinations">
-            <PollinationsImageConfig
-              pollinations={providerMetadata.pollinations ?? {}}
-              updatePollinations={(pollinations: any) =>
+          <theme.Tab eventKey="pollinations"
+            title="Pollinations">
+            <PollinationsImageConfigForm
+              config={providerMetadata.pollinations ?? {}}
+              updateConfig={(pollinations) =>
                 setProviderMetadata({ ...providerMetadata, pollinations })
               }
             />
@@ -90,21 +90,35 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
         }
 
         {enabledProviders.includes("Runway") &&
-          <theme.Tab eventKey="Runway" title="Runway">
-            <RunwayImageConfig
-              runway={providerMetadata.runway ?? {}}
-              updateRunway={(runway: any) =>
+          <theme.Tab eventKey="Runway"
+            title="Runway">
+            <RunwayImageConfigForm
+              config={providerMetadata.runway ?? {}}
+              updateConfig={(runway) =>
                 setProviderMetadata({ ...providerMetadata, runway })
               }
             />
           </theme.Tab>
         }
 
+        {enabledProviders.includes("StabilityAI") &&
+          <theme.Tab eventKey="stabilityai"
+            title="StabilityAI">
+            <StabilityAIImageForm
+              config={providerMetadata.stabilityai ?? {}}
+              updateConfig={(stabilityai) =>
+                setProviderMetadata({ ...providerMetadata, stabilityai })
+              }
+            />
+          </theme.Tab>
+        }
+
         {enabledProviders.includes("Together") &&
-          <theme.Tab eventKey="together" title="Together">
-            <TogetherImageConfig
-              together={providerMetadata.together ?? {}}
-              updateTogether={(together: any) =>
+          <theme.Tab eventKey="together"
+            title="Together">
+            <TogetherImageConfigForm
+              config={providerMetadata.together ?? {}}
+              updateConfig={(together) =>
                 setProviderMetadata({ ...providerMetadata, together })
               }
             />

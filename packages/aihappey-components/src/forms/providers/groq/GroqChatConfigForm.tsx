@@ -1,36 +1,16 @@
 import { useTheme } from "../../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 const EFFORTS = ["low", "medium", "high"] as const;
 type Effort = (typeof EFFORTS)[number];
 
-export type GroqChatConfigFormTranslations = {
-  reasoning?: string;
-  reasoningEffort?: string;
-  webSearch?: string;
-  code_execution?: string;
-  parallelToolCalls?: string;
-  instructionsLabel?: string;
-  instructionsPlaceholder?: string;
-  low?: string;
-  medium?: string;
-  high?: string;
-};
-
-export type GroqChatConfigFormProps = {
-  config: any;
-  updateConfig: (val: any) => void;
-  translations?: GroqChatConfigFormTranslations;
-};
-
 const DEFAULT_REASONING = {
-  effort: "medium",
+  effort: "medium" as Effort,
 };
 
 const DEFAULT_CODE_INTERPRETER = {
   type: "code_interpreter",
-  container: {
-    type: "auto",
-  },
+  container: { type: "auto" },
 };
 
 const DEFAULT_BROWSER_SEARCH = {
@@ -40,9 +20,12 @@ const DEFAULT_BROWSER_SEARCH = {
 export const GroqChatConfigForm = ({
   config,
   updateConfig,
-  translations,
-}: GroqChatConfigFormProps) => {
+}: {
+  config: any;
+  updateConfig: (val: any) => void;
+}) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const reasoningOn = !!config?.reasoning;
   const browserSearchOn = !!config?.browser_search;
@@ -54,39 +37,36 @@ export const GroqChatConfigForm = ({
   const indexToEffort = (i: number): Effort =>
     EFFORTS[Math.min(EFFORTS.length - 1, Math.max(0, i))];
 
-  const tEffort = (e: string) => {
-    return (translations as any)?.[e] ?? e;
-  };
+  const tEffort = (e: Effort) => t(e);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <theme.Card
         size="small"
-        title={translations?.reasoning ?? "reasoning"}
+        title={t("reasoning")}
         headerActions={
           <theme.Switch
             id="reasoning"
             checked={reasoningOn}
-            onChange={() => {
+            onChange={() =>
               updateConfig({
                 ...config,
                 reasoning: reasoningOn ? undefined : { ...DEFAULT_REASONING },
-              });
-            }}
+              })
+            }
           />
         }
       >
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div>
           <theme.Slider
-            label={`${translations?.reasoningEffort ?? "reasoningEffort"} (${tEffort(
-              config?.reasoning?.effort ?? "medium"
-            )})`}
+            label={`${t("reasoningEffort", {
+              reasoningEffort: t(config?.reasoning?.effort ?? "none")
+            })}`}
             disabled={!reasoningOn}
             min={0}
             max={EFFORTS.length - 1}
             step={1}
-            style={{ flex: "1 1 0" }}
-            value={effortToIndex(config?.reasoning?.effort as Effort)}
+            value={effortToIndex(config?.reasoning?.effort)}
             onChange={(i: number) =>
               updateConfig({
                 ...config,
@@ -102,24 +82,24 @@ export const GroqChatConfigForm = ({
 
       <theme.Card
         size="small"
-        title={translations?.webSearch ?? "webSearch"}
+        title={t("webSearch")}
         headerActions={
           <theme.Switch
             id="webSearch"
             checked={browserSearchOn}
-            onChange={(val) => {
+            onChange={(val) =>
               updateConfig({
                 ...config,
                 browser_search: !val ? undefined : { ...DEFAULT_BROWSER_SEARCH },
-              });
-            }}
+              })
+            }
           />
         }
       />
 
       <theme.Card
         size="small"
-        title={translations?.code_execution ?? "code_execution"}
+        title={t("code_execution")}
         headerActions={
           <theme.Switch
             id="codeInterpreter"
@@ -127,7 +107,9 @@ export const GroqChatConfigForm = ({
             onChange={(val) =>
               updateConfig({
                 ...config,
-                code_interpreter: !val ? undefined : { ...DEFAULT_CODE_INTERPRETER },
+                code_interpreter: !val
+                  ? undefined
+                  : { ...DEFAULT_CODE_INTERPRETER },
               })
             }
           />
@@ -137,28 +119,27 @@ export const GroqChatConfigForm = ({
       <theme.Switch
         id="parallelToolCalls"
         checked={!!config?.parallel_tool_calls}
-        label={translations?.parallelToolCalls ?? "parallelToolCalls"}
-        onChange={(value) => {
+        label={t("parallelToolCalls")}
+        onChange={(value) =>
           updateConfig({
             ...config,
             parallel_tool_calls: value,
-          });
-        }}
+          })
+        }
       />
 
       <theme.TextArea
-        label={translations?.instructionsLabel ?? "instructions"}
-        placeholder={translations?.instructionsPlaceholder ?? "instructions"}
+        label={t("providers:openai.instructions")}
+        placeholder={t("providers:openai.instructionsPlaceholder")}
         rows={5}
         value={config?.instructions}
-        onChange={(value) => {
+        onChange={(value) =>
           updateConfig({
             ...config,
             instructions: value,
-          });
-        }}
+          })
+        }
       />
     </div>
   );
 };
-

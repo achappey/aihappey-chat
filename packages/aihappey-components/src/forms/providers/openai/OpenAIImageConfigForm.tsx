@@ -1,5 +1,6 @@
 import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 export type OpenAIImageConfig = {
   quality?: string;
@@ -7,61 +8,42 @@ export type OpenAIImageConfig = {
   moderation?: string;
 };
 
-export type OpenAIImageConfigFormTranslations = {
-  formTitle?: string;
-
-  quality?: string;
-  background?: string;
-  moderation?: string;
-
-  auto?: string;
-  low?: string;
-  medium?: string;
-  high?: string;
-
-  transparent?: string;
-  opaque?: string;
-};
-
 export const OpenAIImageConfigForm: React.FC<{
   config: OpenAIImageConfig;
   updateConfig: (val: OpenAIImageConfig) => void;
-  translations?: OpenAIImageConfigFormTranslations;
-  formTitle?: string;
-}> = ({ config, updateConfig, translations, formTitle }) => {
+}> = ({ config, updateConfig }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const qualityOptions = [
-    { value: "auto", label: translations?.auto ?? "auto" },
-    { value: "low", label: translations?.low ?? "low" },
-    { value: "medium", label: translations?.medium ?? "medium" },
-    { value: "high", label: translations?.high ?? "high" },
+    { value: "auto", label: t("auto") },
+    { value: "low", label: t("low") },
+    { value: "medium", label: t("medium") },
+    { value: "high", label: t("high") },
   ];
 
   const backgroundOptions = [
-    { value: "auto", label: translations?.auto ?? "auto" },
-    { value: "transparent", label: translations?.transparent ?? "transparent" },
-    { value: "opaque", label: translations?.opaque ?? "opaque" },
+    { value: "auto", label: t("auto") },
+    { value: "transparent", label: t("transparent") },
+    { value: "opaque", label: t("opaque") },
   ];
 
   const moderationOptions = [
-    { value: "low", label: translations?.low ?? "low" },
-    { value: "auto", label: translations?.auto ?? "auto" }
+    { value: "low", label: t("low") },
+    { value: "auto", label: t("auto") },
   ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card
-        size="small"
-        title={formTitle ?? translations?.formTitle ?? "OpenAI image config"}
-      >
-        <div >
+      <theme.Card size="small" title={t("general")}>
+        <div>
           <theme.Select
-            label={translations?.quality ?? "quality"}
+            label={t("quality")}
             values={[config?.quality ?? "auto"]}
             valueTitle={
-              qualityOptions.find((o) => o.value === (config?.quality ?? "auto"))
-                ?.label
+              qualityOptions.find(
+                (o) => o.value === (config?.quality ?? "auto")
+              )?.label
             }
             options={qualityOptions}
             onChange={(val: string) =>
@@ -80,7 +62,7 @@ export const OpenAIImageConfigForm: React.FC<{
           </theme.Select>
 
           <theme.Select
-            label={translations?.background ?? "background"}
+            label={t("background")}
             values={[config?.background ?? "auto"]}
             valueTitle={
               backgroundOptions.find(
@@ -104,7 +86,7 @@ export const OpenAIImageConfigForm: React.FC<{
           </theme.Select>
 
           <theme.Select
-            label={translations?.moderation ?? "moderation"}
+            label={t("moderation")}
             values={[config?.moderation ?? "low"]}
             valueTitle={
               moderationOptions.find(
@@ -131,4 +113,3 @@ export const OpenAIImageConfigForm: React.FC<{
     </div>
   );
 };
-

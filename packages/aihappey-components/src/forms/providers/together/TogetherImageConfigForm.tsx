@@ -1,5 +1,6 @@
 import React, { ChangeEvent } from "react";
 import { useTheme } from "../../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 export type TogetherImageConfig = {
   steps?: number;
@@ -8,61 +9,46 @@ export type TogetherImageConfig = {
   negative_prompt?: string;
 };
 
-export type TogetherImageConfigFormTranslations = {
-  formTitle?: string;
-  steps?: string;
-  stepsHint?: string;
-  disableSafetyChecker?: string;
-  disableSafetyCheckerHint?: string;
-  negativePrompt?: string;
-  negativePromptHint?: string;
-  guidanceScale?: string;
-  guidanceScaleHint?: string;
-
-};
-
 export const TogetherImageConfigForm: React.FC<{
   config: TogetherImageConfig;
   updateConfig: (val: TogetherImageConfig) => void;
-  translations?: TogetherImageConfigFormTranslations;
-  formTitle?: string;
-}> = ({ config, updateConfig, translations, formTitle }) => {
+}> = ({ config, updateConfig }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card
-        size="small"
-        title={formTitle ?? translations?.formTitle ?? "Together image config"}
-      >
+      <theme.Card size="small" title={t("general")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Input
             id="together-steps"
-            type={"number"}
+            type="number"
             max={100}
             value={config?.steps}
-            label={translations?.steps ?? "steps"}
-            onChange={(val: ChangeEvent<HTMLInputElement>) =>
+            label={t("providers:together.steps")}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               updateConfig({
                 ...config,
-                steps: val.target.value ?
-                  Number(val.target.value) : undefined,
+                steps: e.target.value
+                  ? Number(e.target.value)
+                  : undefined,
               })
             }
           />
 
           <theme.Input
             id="together-guidance-scale"
-            type={"number"}
-            value={config?.guidance_scale}
+            type="number"
             step={0.5}
             max={10}
-            label={translations?.guidanceScale ?? "guidanceScale"}
-            onChange={(val: ChangeEvent<HTMLInputElement>) =>
+            value={config?.guidance_scale}
+            label={t("providers:together.guidanceScale")}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               updateConfig({
                 ...config,
-                guidance_scale: val.target.value ?
-                  Number(val.target.value) : undefined,
+                guidance_scale: e.target.value
+                  ? Number(e.target.value)
+                  : undefined,
               })
             }
           />
@@ -70,7 +56,7 @@ export const TogetherImageConfigForm: React.FC<{
           <theme.Switch
             id="together-disable-safety-checker"
             checked={!!config?.disable_safety_checker}
-            label={translations?.disableSafetyChecker ?? "disableSafetyChecker"}
+            label={t("providers:together.disableSafetyChecker")}
             onChange={(val: boolean) =>
               updateConfig({
                 ...config,
@@ -81,7 +67,7 @@ export const TogetherImageConfigForm: React.FC<{
 
           <theme.TextArea
             value={config?.negative_prompt ?? ""}
-            label={translations?.negativePrompt ?? "negativePrompt"}
+            label={t("providers:together.negativePrompt")}
             onChange={(val: string) =>
               updateConfig({
                 ...config,
@@ -94,4 +80,3 @@ export const TogetherImageConfigForm: React.FC<{
     </div>
   );
 };
-

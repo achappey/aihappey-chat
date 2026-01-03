@@ -2,9 +2,10 @@
 import type { ChatMessage } from "aihappey-types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessagePart } from "aihappey-ai";
 import { useTheme } from "../theme/ThemeContext";
-import { AiWarningBadge } from "../badges";
+import { AiWarningBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { TemperatureBadge } from "../badges/TemperatureBadge";
+import { useTranslation } from "aihappey-i18n";
 
 interface MessageActionsProps {
   msg: ChatMessage;
@@ -31,13 +32,7 @@ export const MessageActions = ({
   onSetPage,
 }: MessageActionsProps) => {
   const { Button, Badge } = useTheme();
-
-  const tokenBadge =
-    msg.totalTokens && msg.totalTokens > 0 ? (
-      <Badge icon={"code"} size="large" bg="subtle" appearance="ghost">
-        {msg.totalTokens}
-      </Badge>
-    ) : undefined;
+  const { t } = useTranslation();
 
   return (
     <>
@@ -46,14 +41,16 @@ export const MessageActions = ({
       )}
 
       {onCopyMessage && (
-        <CopyToClipboardButton onClick={() => onCopyMessage(msg)} size={size} />
+        <CopyToClipboardButton
+          onClick={() => onCopyMessage(msg)}
+          size={size} />
       )}
 
       {msg.role === "assistant" && (msg as any).temperature != undefined && (
         <TemperatureBadge temperature={(msg as any).temperature} />
       )}
 
-      {tokenBadge}
+      <TokenBadge totalTokens={msg.totalTokens} />
 
       {onShowAttachments && msg?.attachments && msg?.attachments?.length > 0 && (
         <Button

@@ -32,6 +32,7 @@
   "temperature": "Temperature ({{temperature}})",
   "systemContext": "System",
   "user": "User",
+  "totalTokens": "Total tokens",
   "conversationSearch": "Search chats",
   "conversationSearchPlaceholder": "Search chats...",
   "preview": "Preview",

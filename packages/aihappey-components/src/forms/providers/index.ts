@@ -13,4 +13,5 @@ export * from "./perplexity";
 export * from "./openai";
 export * from "./anthropic";
 export * from "./runway";
+export * from "./stabilityai";
 

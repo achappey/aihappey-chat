@@ -131,6 +131,13 @@ export const defaultProviderMetadata = {
   "jina": {
     "reasoning_effort": "medium"
   },
+  "nscale": {
+    "reasoning_effort": "medium"
+  },
+  "novita": {
+    "separate_reasoning": undefined,
+    "enable_thinking": true
+  },
   "xai": {
     "web_search": {
       "allowed_domains": [],

@@ -1,4 +1,5 @@
 import { useTheme } from "../../../theme/ThemeContext";
+import { useTranslation } from "aihappey-i18n";
 
 const DEFAULT_WEB_SEARCH = { type: "web_search" };
 const DEFAULT_WEB_SEARCH_PREMIUM = { type: "web_search_premium" };
@@ -6,31 +7,15 @@ const DEFAULT_IMAGE_GENERATION = { type: "image_generation" };
 const DEFAULT_CODE_EXECUTION = { type: "code_interpreter" };
 const DEFAULT_DOCUMENT_LIBRARY = { type: "document_library", library_ids: [] };
 
-export type MistralChatConfigFormTranslations = {
-  webSearch?: string;
-  webSearchPremium?: string;
-
-  image_generation?: string;
-  code_execution?: string;
-
-  file_search?: string;
-  vector_store_ids?: string;
-
-  parallelToolCalls?: string;
-  instructionsLabel?: string;
-  instructionsPlaceholder?: string;
-};
-
 export const MistralChatConfigForm = ({
   config,
   updateConfig,
-  translations,
 }: {
   config: any;
   updateConfig: (val: any) => void;
-  translations?: MistralChatConfigFormTranslations;
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const fileSearchOn = !!config?.document_library;
   const codeExecutionOn = !!config?.code_interpreter;
@@ -42,7 +27,7 @@ export const MistralChatConfigForm = ({
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <theme.Card
         size="small"
-        title={translations?.webSearch ?? "webSearch"}
+        title={t("webSearch")}
         headerActions={
           <theme.Switch
             id="webSearch"
@@ -57,27 +42,25 @@ export const MistralChatConfigForm = ({
           />
         }
       >
-        <div>
-          <theme.Switch
-            id="webSearchPremium"
-            label={translations?.webSearchPremium ?? "webSearchPremium"}
-            checked={webSearchPremiumOn}
-            disabled={!webSearchOn}
-            onChange={(val) =>
-              updateConfig({
-                ...config,
-                web_search_premium: !val
-                  ? undefined
-                  : { ...DEFAULT_WEB_SEARCH_PREMIUM },
-              })
-            }
-          />
-        </div>
+        <theme.Switch
+          id="webSearchPremium"
+          label={t("providers:mistral.webSearchPremium")}
+          checked={webSearchPremiumOn}
+          disabled={!webSearchOn}
+          onChange={(val) =>
+            updateConfig({
+              ...config,
+              web_search_premium: !val
+                ? undefined
+                : { ...DEFAULT_WEB_SEARCH_PREMIUM },
+            })
+          }
+        />
       </theme.Card>
 
       <theme.Card
         size="small"
-        title={translations?.image_generation ?? "image_generation"}
+        title={t("image_generation")}
         headerActions={
           <theme.Switch
             id="imageGeneration"
@@ -96,7 +79,7 @@ export const MistralChatConfigForm = ({
 
       <theme.Card
         size="small"
-        title={translations?.code_execution ?? "code_execution"}
+        title={t("code_execution")}
         headerActions={
           <theme.Switch
             id="codeExecution"
@@ -115,7 +98,7 @@ export const MistralChatConfigForm = ({
 
       <theme.Card
         size="small"
-        title={translations?.file_search ?? "file_search"}
+        title={t("providers:openai.file_search")}
         headerActions={
           <theme.Switch
             id="fileSearch"
@@ -133,7 +116,7 @@ export const MistralChatConfigForm = ({
       >
         <div>
           <theme.Input
-            label={translations?.vector_store_ids ?? "vector_store_ids"}
+            label={t("providers:openai.vector_store_ids")}
             placeholder="xxx, zzz"
             disabled={!fileSearchOn}
             value={(config?.document_library?.library_ids || []).join(", ")}

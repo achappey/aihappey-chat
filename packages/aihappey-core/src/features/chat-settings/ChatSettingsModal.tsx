@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { OpenAIChatConfigForm, PollinationsChatConfigForm, SettingsActionButtons, useTheme } from "aihappey-components";
+import {
+  CohereChatConfigForm, GroqChatConfigForm,
+  JinaChatConfigForm,
+  MistralChatConfigForm, OpenAIChatConfigForm,
+  PollinationsChatConfigForm,
+  SettingsActionButtons, TogetherChatConfigForm,
+  useTheme, XAIChatConfigForm
+} from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
-import { GroqChatConfig } from "../provider-config/groq/GroqChatConfig";
-import { XAIChatConfig } from "../provider-config/xai/XAIChatConfig";
-import { TogetherChatConfig } from "../provider-config/together/TogetherChatConfig";
-import { MistralChatConfig } from "../provider-config/mistral/MistralChatConfig";
-import { JinaChatConfig } from "../provider-config/jina/JinaChatConfig";
-import { CohereChatConfig } from "../provider-config/cohere/CohereChatConfig";
 import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
@@ -83,9 +84,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         }
         {enabledProviders.includes("Cohere") &&
           <theme.Tab eventKey="cohere" title="Cohere">
-            <CohereChatConfig
-              cohere={providerMetadata.cohere ?? {}}
-              updateCohere={(cohere) =>
+            <CohereChatConfigForm
+              config={providerMetadata.cohere ?? {}}
+              updateConfig={(cohere) =>
                 setProviderMetadata({ ...providerMetadata, cohere })
               }
             />
@@ -103,9 +104,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         }
         {enabledProviders.includes("Groq") &&
           <theme.Tab eventKey="groq" title="Groq">
-            <GroqChatConfig
-              groq={providerMetadata.groq ?? {}}
-              updateGroq={(groq) =>
+            <GroqChatConfigForm
+              config={providerMetadata.groq ?? {}}
+              updateConfig={(groq) =>
                 setProviderMetadata({ ...providerMetadata, groq })
               }
             />
@@ -113,9 +114,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         }
         {enabledProviders.includes("Jina") &&
           <theme.Tab eventKey="jina" title="Jina">
-            <JinaChatConfig
-              jina={providerMetadata.jina ?? {}}
-              updateJina={(jina) =>
+            <JinaChatConfigForm
+              config={providerMetadata.jina ?? {}}
+              updateConfig={(jina) =>
                 setProviderMetadata({ ...providerMetadata, jina })
               }
             />
@@ -123,9 +124,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         }
         {enabledProviders.includes("Mistral") &&
           <theme.Tab eventKey="mistral" title="Mistral">
-            <MistralChatConfig
-              mistral={providerMetadata.mistral ?? {}}
-              updateMistral={(mistral) =>
+            <MistralChatConfigForm
+              config={providerMetadata.mistral ?? {}}
+              updateConfig={(mistral) =>
                 setProviderMetadata({ ...providerMetadata, mistral })
               }
             />
@@ -152,7 +153,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
           </theme.Tab>
         }
         {enabledProviders.includes("Perplexity") &&
-          <theme.Tab eventKey="perplexity" title="Perplexity">
+          <theme.Tab eventKey="perplexity"
+            title="Perplexity">
             <PerplexityChatConfig
               perplexity={providerMetadata.perplexity ?? {}}
               updatePerplexity={(perplexity) =>
@@ -162,20 +164,22 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
           </theme.Tab>
         }
         {enabledProviders.includes("Together") &&
-          <theme.Tab eventKey="together" title="Together">
-            <TogetherChatConfig
-              together={providerMetadata.together ?? {}}
-              updateTogether={(together) =>
+          <theme.Tab eventKey="together"
+            title="Together">
+            <TogetherChatConfigForm
+              config={providerMetadata.together ?? {}}
+              updateConfig={(together) =>
                 setProviderMetadata({ ...providerMetadata, together })
               }
             />
           </theme.Tab>
         }
         {enabledProviders.includes("xAI") &&
-          <theme.Tab eventKey="xai" title="xAI">
-            <XAIChatConfig
-              xAI={providerMetadata.xai ?? {}}
-              updateXAI={(xai) =>
+          <theme.Tab eventKey="xai"
+            title="xAI">
+            <XAIChatConfigForm
+              config={providerMetadata.xai ?? {}}
+              updateConfig={(xai) =>
                 setProviderMetadata({ ...providerMetadata, xai })
               }
             />

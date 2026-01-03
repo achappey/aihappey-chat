@@ -9,6 +9,7 @@ export type BadgeProps = {
   size?: any;
   icon?: IconToken | undefined;
   text?: string;
+  title?: string;
   children: React.ReactNode;
 };
 

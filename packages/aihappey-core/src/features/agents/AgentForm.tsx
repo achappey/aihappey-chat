@@ -1,4 +1,4 @@
-import { McpPolicySettings, OpenAIChatConfigForm, PollinationsChatConfigForm, useTheme } from "aihappey-components";
+import { CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PollinationsChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -9,12 +9,6 @@ import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { McpClientCapabilitiesCard } from "../mcp-client/McpClientCapabilitiesCard";
 import { useAgent } from "./useAgentMcpServers";
-import { GroqChatConfig } from "../provider-config/groq/GroqChatConfig";
-import { XAIChatConfig } from "../provider-config/xai/XAIChatConfig";
-import { TogetherChatConfig } from "../provider-config/together/TogetherChatConfig";
-import { MistralChatConfig } from "../provider-config/mistral/MistralChatConfig";
-import { JinaChatConfig } from "../provider-config/jina/JinaChatConfig";
-import { CohereChatConfig } from "../provider-config/cohere/CohereChatConfig";
 import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
@@ -275,9 +269,9 @@ export const AgentForm = ({
                     )}
 
                     {providerKey === "cohere" && (
-                        <CohereChatConfig
-                            cohere={providerMeta}
-                            updateCohere={updateProviderMetadata}
+                        <CohereChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 
@@ -289,23 +283,23 @@ export const AgentForm = ({
                     )}
 
                     {providerKey === "groq" && (
-                        <GroqChatConfig
-                            groq={providerMeta}
-                            updateGroq={updateProviderMetadata}
+                        <GroqChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "jina" && (
-                        <JinaChatConfig
-                            jina={providerMeta}
-                            updateJina={updateProviderMetadata}
+                        <JinaChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "mistral" && (
-                        <MistralChatConfig
-                            mistral={providerMeta}
-                            updateMistral={updateProviderMetadata}
+                        <MistralChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 
@@ -324,16 +318,16 @@ export const AgentForm = ({
                     )}
 
                     {providerKey === "together" && (
-                        <TogetherChatConfig
-                            together={providerMeta}
-                            updateTogether={updateProviderMetadata}
+                        <TogetherChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 
                     {providerKey === "xai" && (
-                        <XAIChatConfig
-                            xAI={providerMeta}
-                            updateXAI={updateProviderMetadata}
+                        <XAIChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
                 </Tab>
