@@ -5,7 +5,6 @@ import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
 import { useState } from "react";
-import { createImageProvider } from "../../runtime/providers/imageProvider";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useTranslation } from "aihappey-i18n";
 import { useImages } from "aihappey-images";
@@ -16,6 +15,7 @@ import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/f
 import { ImageModal } from "./ImageModal";
 import { ImageWarnings } from "./ImageWarnings";
 import { ImageContent } from "@modelcontextprotocol/sdk/types";
+import { createImageProvider } from "aihappey-ai";
 
 export const fileToBase64 = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {

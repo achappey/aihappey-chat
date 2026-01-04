@@ -53,6 +53,16 @@ export const extractTextFromFile = async (a: File): Promise<string | undefined> 
     return await pptxFileToText(a); // this function uses PptxParser as shown previously
   }
 
+  // Any other text/* types (e.g. text/markdown, text/csv when not handled above)
+  if (type.startsWith("text/")) {
+    return await a.text();
+  }
+
+  // Common text extensions without reliable mime types
+  if (/\.(md|log)$/i.test(name)) {
+    return await a.text();
+  }
+
   if (type === "text/plain" || /\.txt$/i.test(name)) {
     // Plain text file, just read as string
     return await a.text();

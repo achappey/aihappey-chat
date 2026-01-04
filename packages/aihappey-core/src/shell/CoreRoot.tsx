@@ -21,6 +21,8 @@ import { AgentsPage } from "../features/agents/AgentsPage";
 import { ImagePage } from "../features/images/ImagePage";
 import { useTheme } from "aihappey-components";
 import { ModelsPage } from "../features/models/ModelsPage";
+import { TranscriptionsPage } from "../features/transcriptions/TranscriptionsPage";
+import { SpeechPage } from "../features/speech/SpeechPage";
 
 type CoreRootProps = {
   appName?: string;
@@ -101,7 +103,9 @@ export const CoreRoot = ({
             { path: "models", element: <ModelsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },
-            { path: "images", element: <ImagePage /> }
+            { path: "images", element: <ImagePage /> },
+            { path: "transcriptions", element: <TranscriptionsPage /> },
+            { path: "speech", element: <SpeechPage /> }
           ],
         },
       ],

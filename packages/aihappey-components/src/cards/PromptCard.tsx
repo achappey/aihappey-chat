@@ -1,6 +1,7 @@
 import { useCopyToClipboard } from "usehooks-ts";
 import { useTheme } from "../theme/ThemeContext";
 import { CapabilityIcon } from "../images";
+import { useTranslation } from "aihappey-i18n";
 
 export type PromptIcon = { theme?: string; src: string };
 
@@ -12,29 +13,23 @@ export type PromptCardBasePrompt = {
     icons?: PromptIcon[];
 };
 
-export type PromptCardTranslations = {
-    newWindow?: string;
-    copyLink?: string;
-};
-
 export type PromptCardProps<TPrompt extends PromptCardBasePrompt = PromptCardBasePrompt> = {
     prompt: TPrompt;
     onSelect?: () => void;
     /** If provided, enables Open/Copy actions. */
     getPromptUrl?: (prompt: TPrompt) => string;
-    translations?: PromptCardTranslations;
 };
 
 export const PromptCard = <TPrompt extends PromptCardBasePrompt = PromptCardBasePrompt>({
     prompt,
     onSelect,
     getPromptUrl,
-    translations,
 }: PromptCardProps<TPrompt>) => {
     const { Card, Button } = useTheme();
     const [, copyToClipboard] = useCopyToClipboard();
     const url = getPromptUrl ? getPromptUrl(prompt) : undefined;
     const showLinkActions = !!url;
+    const { t } = useTranslation();
 
     return (
         <Card
@@ -58,14 +53,14 @@ export const PromptCard = <TPrompt extends PromptCardBasePrompt = PromptCardBase
                                 rel="noopener noreferrer"
                                 variant="transparent"
                                 onClick={() => window.open(url!, "_blank")}
-                                title={translations?.newWindow}
+                                title={t("newWindow")}
                                 icon="openLink"
                                 size="small"
                             />
                             <Button
                                 onClick={() => copyToClipboard(url!)}
                                 variant="transparent"
-                                title={translations?.copyLink}
+                                title={t("copyClipboard")}
                                 icon="copyClipboard"
                                 size="small"
                             />

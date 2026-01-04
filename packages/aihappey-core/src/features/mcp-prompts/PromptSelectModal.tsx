@@ -28,17 +28,25 @@ export const PromptSelectModal = ({
     return `${rootUrl}/?${params}`;
   };
 
-  const serverNames = useMemo(() => {
-    const seen = new Set<string>();
-    return prompts
-      .map((p) => p._serverName)
-      .filter((name): name is string => !!name && !seen.has(name) && (seen.add(name), true));
+  const servers = useMemo(() => {
+    const map = new Map<string, string>();
+
+    for (const p of prompts) {
+      if (!p._serverName) continue;
+      if (!map.has(p._serverName)) {
+        map.set(p._serverName, p._serverTitle ?? p._serverName);
+      }
+    }
+
+    return Array.from(map.entries()).map(([key, title]) => ({
+      key,
+      title,
+    }));
   }, [prompts]);
 
-  const defaultTab = serverNames[0] ?? "";
+  const defaultTab = servers[0]?.key ?? "";
   const [activeTab, setActiveTab] = useState<string>("");
 
-  // 👇 ensure a tab is selected once serverNames arrives
   useEffect(() => {
     if (!open) {
       setActiveTab("");
@@ -50,10 +58,11 @@ export const PromptSelectModal = ({
       return;
     }
 
-    if (activeTab && !serverNames.includes(activeTab) && defaultTab) {
+    if (activeTab && !servers.some(s => s.key === activeTab) && defaultTab) {
       setActiveTab(defaultTab);
     }
-  }, [open, defaultTab, serverNames, activeTab]);
+  }, [open, defaultTab, servers, activeTab]);
+
 
   const close = () => {
     onHide();
@@ -77,25 +86,21 @@ export const PromptSelectModal = ({
           if (k) setActiveTab(k);
         }}
       >
-        {serverNames.map((name) => (
-          <Tab key={name} eventKey={name} title={name}>
+        {servers.map(({ key, title }) => (
+          <Tab key={key} eventKey={key} title={title}>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 8 }}>
               {prompts
-                .filter((p) => p._serverName === name)
+                .filter(p => p._serverName === key)
                 .map((prompt, idx) => (
                   <PromptCard
                     key={prompt.name + idx}
                     prompt={prompt}
                     onSelect={() => onPromptClick(prompt)}
                     getPromptUrl={getPromptUrl}
-                    translations={{
-                      newWindow: t("newWindow"),
-                      copyLink: t("copyLink"),
-                    }}
                   />
                 ))}
 
-              {prompts.filter((p) => p._serverName === name).length === 0 && (
+              {prompts.filter(p => p._serverName === key).length === 0 && (
                 <div style={{ opacity: 0.6, fontStyle: "italic" }}>
                   {t("mcp.noPrompts")}
                 </div>
@@ -104,6 +109,7 @@ export const PromptSelectModal = ({
           </Tab>
         ))}
       </Tabs>
+
     </Modal>
   );
 };

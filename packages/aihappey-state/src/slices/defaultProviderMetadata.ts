@@ -138,6 +138,13 @@ export const defaultProviderMetadata = {
     "separate_reasoning": undefined,
     "enable_thinking": true
   },
+  "sambanova": {
+    "reasoning_effort": "medium",
+    "parallel_tool_calls": true,
+    "chat_template_kwargs": {
+      "enable_thinking": true
+    }
+  },
   "xai": {
     "web_search": {
       "allowed_domains": [],

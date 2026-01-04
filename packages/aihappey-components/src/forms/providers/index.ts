@@ -12,6 +12,8 @@ export * from "./google";
 export * from "./perplexity";
 export * from "./openai";
 export * from "./anthropic";
+export * from "./sambanova";
 export * from "./runway";
 export * from "./stabilityai";
+export * from "./novita";
 

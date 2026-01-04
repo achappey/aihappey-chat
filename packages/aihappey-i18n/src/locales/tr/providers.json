@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "İçerik moderasyonu",
     "publicFigureThreshold": "Kamuya mal olmuş kişi eşiği"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Stil ön ayarı",
+    "negativePrompt": "Negatif istem",
+    "no_style_preset": "Stil ön ayarı yok",
+    "style_presetHint": "Görsel modelini belirli bir stile yönlendirir.",
+    "style_preset": {
+      "3d-model": "3D model",
+      "analog-film": "Analog film",
+      "anime": "Anime",
+      "cinematic": "Sinematik",
+      "comic-book": "Çizgi roman",
+      "digital-art": "Dijital sanat",
+      "enhance": "Geliştir",
+      "fantasy-art": "Fantastik sanat",
+      "isometric": "İzometrik",
+      "line-art": "Çizgi çizim",
+      "low-poly": "Low poly",
+      "modeling-compound": "Modelleme hamuru",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Fotoğrafik",
+      "pixel-art": "Piksel sanatı",
+      "tile-texture": "Karo dokusu"
+    }
   }
 }

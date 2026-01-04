@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "การกลั่นกรองเนื้อหา",
     "publicFigureThreshold": "เกณฑ์บุคคลสาธารณะ"
+  },
+  "stabilityai": {
+    "style_presetLabel": "พรีเซ็ตสไตล์",
+    "negativePrompt": "พรอมต์เชิงลบ",
+    "no_style_preset": "ไม่มีพรีเซ็ตสไตล์",
+    "style_presetHint": "ช่วยชี้นำโมเดลภาพไปยังสไตล์ที่ต้องการ",
+    "style_preset": {
+      "3d-model": "โมเดล 3 มิติ",
+      "analog-film": "ฟิล์มอนาล็อก",
+      "anime": "อนิเมะ",
+      "cinematic": "สไตล์ภาพยนตร์",
+      "comic-book": "หนังสือการ์ตูน",
+      "digital-art": "ศิลปะดิจิทัล",
+      "enhance": "ปรับปรุง",
+      "fantasy-art": "ศิลปะแฟนตาซี",
+      "isometric": "ไอโซเมตริก",
+      "line-art": "ลายเส้น",
+      "low-poly": "โลว์โพลี",
+      "modeling-compound": "ดินน้ำมัน",
+      "neon-punk": "นีออนพังก์",
+      "origami": "โอริกามิ",
+      "photographic": "ภาพถ่าย",
+      "pixel-art": "พิกเซลอาร์ต",
+      "tile-texture": "พื้นผิวกระเบื้อง"
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 type SettingsActionButtonsProps = {
@@ -5,20 +6,15 @@ type SettingsActionButtonsProps = {
     onRestoreDefaults?: () => void;
     onClose?: () => void;
 
-    translations?: {
-        download?: string;
-        restoreDefaults?: string;
-        close?: string;
-    };
 };
 
 export const SettingsActionButtons = ({
     onDownload,
     onRestoreDefaults,
     onClose,
-    translations,
 }: SettingsActionButtonsProps) => {
     const { Button } = useTheme();
+    const { t } = useTranslation();
 
     return (
         <>
@@ -27,7 +23,7 @@ export const SettingsActionButtons = ({
                     variant="informative"
                     icon="download"
                     onClick={onDownload}
-                    title={translations?.download ?? "download"}
+                    title={t("download")}
                 />
             )}
 
@@ -36,13 +32,13 @@ export const SettingsActionButtons = ({
                     variant="subtle"
                     onClick={onRestoreDefaults}
                 >
-                    {translations?.restoreDefaults ?? "restoreDefaults"}
+                    {t("resetDefaults")}
                 </Button>
             )}
 
             {onClose && (
                 <Button variant="secondary" onClick={onClose}>
-                    {translations?.close ?? "close"}
+                    {t("close")}
                 </Button>
             )}
         </>

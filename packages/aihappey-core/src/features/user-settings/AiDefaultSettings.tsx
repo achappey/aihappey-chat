@@ -26,7 +26,6 @@ export const AiDefaultSettings: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         gap: 12,
-        padding: "0 32px 32px 32px",
       }}
     >
       <ModelSelect

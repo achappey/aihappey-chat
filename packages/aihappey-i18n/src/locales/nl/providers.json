@@ -29,8 +29,12 @@
   },
   "openai": {
     "container": "Container",
+    "customVoice": "Aangepaste stem",
     "includeOutputs": "Inclusief uitvoer",
     "includeSources": "Inclusief bronnen",
+    "prompt": "Prompt",
+    "transcriptionLanguagePlaceholder": "De taal van de audio in ISO-639-1-formaat (bijv. nl of en)",
+    "speechPromptPlaceholder": "Optionele tekst om de stijl van het model te sturen of een eerder audiofragment te laten doorlopen",
     "includeSearchResults": "Inclusief zoekresultaten",
     "encryptedContent": "Inclusief encryptie",
     "instructions": "Instructies",
@@ -92,5 +96,33 @@
   "runway": {
     "contentModeration": "Moderatie",
     "publicFigureThreshold": "Drempel voor publieke figuren"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Stijl",
+    "negativePrompt": "Negatieve prompt",
+    "no_style_preset": "Geen stijl-instructie",
+    "style_presetHint": "Stuurt het afbeeldingsmodel richting een bepaalde stijl.",
+    "style_preset": {
+      "3d-model": "3D-model",
+      "analog-film": "Analoog film",
+      "anime": "Anime",
+      "cinematic": "Filmisch",
+      "comic-book": "Stripboek",
+      "digital-art": "Digitale kunst",
+      "enhance": "Verbeteren",
+      "fantasy-art": "Fantasykunst",
+      "isometric": "Isometrisch",
+      "line-art": "Lijntekening",
+      "low-poly": "Low poly",
+      "modeling-compound": "Boetseerklei",
+      "neon-punk": "Neonpunk",
+      "origami": "Origami",
+      "photographic": "Fotografisch",
+      "pixel-art": "Pixelart",
+      "tile-texture": "Tegeltextuur"
+    }
+  },
+  "novita": {
+    "pitch": "Toonhoogte ({{pitch}})"
   }
 }

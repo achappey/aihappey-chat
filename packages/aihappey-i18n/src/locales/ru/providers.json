@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "Модерация контента",
     "publicFigureThreshold": "Порог публичной фигуры"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Пресет стиля",
+    "negativePrompt": "Негативный промпт",
+    "no_style_preset": "Без пресета стиля",
+    "style_presetHint": "Направляет модель изображений к определённому стилю.",
+    "style_preset": {
+      "3d-model": "3D-модель",
+      "analog-film": "Аналоговая плёнка",
+      "anime": "Аниме",
+      "cinematic": "Кинематографичный",
+      "comic-book": "Комикс",
+      "digital-art": "Цифровое искусство",
+      "enhance": "Улучшить",
+      "fantasy-art": "Фэнтези-арт",
+      "isometric": "Изометрия",
+      "line-art": "Лайн-арт",
+      "low-poly": "Лоу-поли",
+      "modeling-compound": "Пластилин",
+      "neon-punk": "Неон-панк",
+      "origami": "Оригами",
+      "photographic": "Фотографический",
+      "pixel-art": "Пиксель-арт",
+      "tile-texture": "Плиточная текстура"
+    }
   }
 }

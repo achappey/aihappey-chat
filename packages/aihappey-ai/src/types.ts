@@ -20,3 +20,36 @@ export interface ImageResponse {
 }
 
 
+export interface TranscriptionResponse {
+  text: string;
+  segments: Array<{
+    text: string;
+    startSecond: number;
+    endSecond: number;
+  }>;
+  language: string | undefined;
+  durationInSeconds: number | undefined;
+  warnings: Array<SharedV3Warning>;
+  request?: {
+    body?: string;
+  };
+  response: {
+    timestamp: Date;
+    modelId: string;
+    body?: unknown;
+  };
+}
+
+export interface SpeechResponse {
+  audio: any;
+  warnings: Array<SharedV3Warning>;
+  request?: {
+    body?: unknown;
+  };
+  response: {
+    timestamp: Date;
+    modelId: string;
+    body?: unknown;
+  };
+}
+

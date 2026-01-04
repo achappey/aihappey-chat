@@ -34,12 +34,7 @@ export const FullWithTranslations: Story = {
   args: {
     onDownload: () => console.log("Download"),
     onRestoreDefaults: () => console.log("Restore defaults"),
-    onClose: () => console.log("Close"),
-    translations: {
-      download: "Download settings",
-      restoreDefaults: "Reset",
-      close: "Done",
-    },
+    onClose: () => console.log("Close")
   },
 };
 

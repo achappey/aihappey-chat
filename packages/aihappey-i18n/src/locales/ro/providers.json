@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "Moderare conținut",
     "publicFigureThreshold": "Prag pentru persoane publice"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Preset de stil",
+    "negativePrompt": "Prompt negativ",
+    "no_style_preset": "Fără preset de stil",
+    "style_presetHint": "Ghidează modelul de imagine către un anumit stil.",
+    "style_preset": {
+      "3d-model": "Model 3D",
+      "analog-film": "Film analogic",
+      "anime": "Anime",
+      "cinematic": "Cinematografic",
+      "comic-book": "Bandă desenată",
+      "digital-art": "Artă digitală",
+      "enhance": "Îmbunătățește",
+      "fantasy-art": "Artă fantastică",
+      "isometric": "Izometric",
+      "line-art": "Desen liniar",
+      "low-poly": "Low poly",
+      "modeling-compound": "Pastă de modelaj",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Fotografic",
+      "pixel-art": "Pixel art",
+      "tile-texture": "Textură de plăci"
+    }
   }
 }

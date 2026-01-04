@@ -11,7 +11,6 @@ import type { ImageResponse } from "aihappey-ai";
 import { useAppStore } from "aihappey-state";
 import type { ImageItem, ImageStore, ImageStorageKind } from "./types";
 import { IndexedDBImageStore } from "./stores/IndexedDBImageStore";
-import { LocalImageStore } from "./stores/LocalImageStore";
 
 export type ImagesContextType = ImageStore & {
   items: ImageItem[];

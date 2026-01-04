@@ -56,11 +56,6 @@ export const WithToggleAndRemove: Story = {
     registryItem: fullRegistryItem,
     onToggle: () => {},
     onRemove: () => {},
-    translations: {
-      delete: "Delete",
-      sourceCode: "Source code",
-      website: "Website",
-    },
   },
 };
 

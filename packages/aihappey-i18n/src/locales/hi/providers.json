@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "सामग्री मॉडरेशन",
     "publicFigureThreshold": "सार्वजनिक व्यक्ति सीमा"
+  },
+  "stabilityai": {
+    "style_presetLabel": "स्टाइल प्रीसेट",
+    "negativePrompt": "नकारात्मक प्रॉम्प्ट",
+    "no_style_preset": "कोई स्टाइल प्रीसेट नहीं",
+    "style_presetHint": "इमेज मॉडल को किसी खास शैली की ओर निर्देशित करता है।",
+    "style_preset": {
+      "3d-model": "3D मॉडल",
+      "analog-film": "एनालॉग फ़िल्म",
+      "anime": "एनीमे",
+      "cinematic": "सिनेमैटिक",
+      "comic-book": "कॉमिक बुक",
+      "digital-art": "डिजिटल आर्ट",
+      "enhance": "बेहतर बनाएँ",
+      "fantasy-art": "फैंटेसी आर्ट",
+      "isometric": "आइसोमेट्रिक",
+      "line-art": "लाइन आर्ट",
+      "low-poly": "लो पॉली",
+      "modeling-compound": "मॉडलिंग क्ले",
+      "neon-punk": "नियोन पंक",
+      "origami": "ओरिगामी",
+      "photographic": "फोटोग्राफिक",
+      "pixel-art": "पिक्सेल आर्ट",
+      "tile-texture": "टाइल टेक्सचर"
+    }
   }
 }

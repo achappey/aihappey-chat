@@ -70,6 +70,12 @@ import {
   ImageSparkleRegular,
   ImageRegular,
   ColorRegular,
+  ContentSettingsRegular,
+  MicSettingsRegular,
+  MicRegular,
+  BoxRegular,
+  SpeakerSettingsRegular,
+  SpeakerBoxRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -81,6 +87,11 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   mcpServer: UsbPlugFilled,
   send: SendRegular,
   connect: PlugConnectedAddRegular,
+  speech: SpeakerBoxRegular,
+  speechSettings: SpeakerSettingsRegular,
+  transcriptions: MicRegular,
+  transcriptionSettings: MicSettingsRegular,
+  imageSettings: ContentSettingsRegular,
   disconnect: PlugConnectedCheckmarkRegular,
   library: ImageStackRegular,
   server: ServerRegular,

@@ -7,8 +7,10 @@ import { AgentSlice, createAgentSlice } from "./slices/agentSlice";
 import { createMcpServersSlice, McpServersSlice } from "./slices/mcpServersSlice";
 import { createMcpRegistrySlice, McpRegistrySlice } from "./slices/mcpRegistrySlice";
 import { createImageSlice, ImageSlice } from "./slices/imageSlice";
+import { createTranscriptionSlice, TranscriptionSlice } from "./slices/transcriptionSlice";
+import { createSpeechSlice, SpeechSlice } from "./slices/speechSlice";
 
-export type RootState = ChatSlice & McpSlice & ImageSlice
+export type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice;
 
 export const createAppStore = () =>
@@ -19,6 +21,8 @@ export const createAppStore = () =>
         ...createAgentSlice(set, get, store),
         ...createImageSlice(set, get, store),
         ...createMcpServersSlice(set, get, store),
+        ...createSpeechSlice(set, get, store),
+        ...createTranscriptionSlice(set, get, store),
         ...createMcpRegistrySlice(set, get, store),
         ...createMcpSlice(set, get, store),
         ...createUiSlice(set, get, store),

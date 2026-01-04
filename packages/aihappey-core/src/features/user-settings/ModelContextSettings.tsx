@@ -22,8 +22,7 @@ export const ModelContextSettings = () => {
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: 24,
-        padding: "0 32px 32px 32px",
+        gap: 24
       }}
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>

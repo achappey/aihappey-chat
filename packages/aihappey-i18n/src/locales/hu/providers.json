@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "Tartalommoderálás",
     "publicFigureThreshold": "Közszereplő küszöbérték"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Stílus-előbeállítás",
+    "negativePrompt": "Negatív prompt",
+    "no_style_preset": "Nincs stílus-előbeállítás",
+    "style_presetHint": "A képmodellt egy adott stílus felé tereli.",
+    "style_preset": {
+      "3d-model": "3D modell",
+      "analog-film": "Analóg film",
+      "anime": "Anime",
+      "cinematic": "Filmes",
+      "comic-book": "Képregény",
+      "digital-art": "Digitális művészet",
+      "enhance": "Javítás",
+      "fantasy-art": "Fantasy művészet",
+      "isometric": "Izometrikus",
+      "line-art": "Vonalrajz",
+      "low-poly": "Low poly",
+      "modeling-compound": "Gyurma",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Fotografikus",
+      "pixel-art": "Pixel art",
+      "tile-texture": "Csempe textúra"
+    }
   }
 }

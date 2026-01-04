@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "কনটেন্ট মডারেশন",
     "publicFigureThreshold": "পাবলিক ফিগার থ্রেশহোল্ড"
+  },
+  "stabilityai": {
+    "style_presetLabel": "স্টাইল প্রিসেট",
+    "negativePrompt": "নেগেটিভ প্রম্পট",
+    "no_style_preset": "কোনও স্টাইল প্রিসেট নেই",
+    "style_presetHint": "ইমেজ মডেলকে একটি নির্দিষ্ট স্টাইলের দিকে নির্দেশ করে।",
+    "style_preset": {
+      "3d-model": "3D মডেল",
+      "analog-film": "অ্যানালগ ফিল্ম",
+      "anime": "অ্যানিমে",
+      "cinematic": "সিনেমাটিক",
+      "comic-book": "কমিক বই",
+      "digital-art": "ডিজিটাল আর্ট",
+      "enhance": "উন্নত করুন",
+      "fantasy-art": "ফ্যান্টাসি আর্ট",
+      "isometric": "আইসোমেট্রিক",
+      "line-art": "লাইন আর্ট",
+      "low-poly": "লো পলি",
+      "modeling-compound": "মডেলিং ক্লে",
+      "neon-punk": "নিয়ন পাঙ্ক",
+      "origami": "অরিগামি",
+      "photographic": "ফটোগ্রাফিক",
+      "pixel-art": "পিক্সেল আর্ট",
+      "tile-texture": "টাইল টেক্সচার"
+    }
   }
 }

@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "Moderasi konten",
     "publicFigureThreshold": "Ambang batas figur publik"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Preset gaya",
+    "negativePrompt": "Prompt negatif",
+    "no_style_preset": "Tanpa preset gaya",
+    "style_presetHint": "Mengarahkan model gambar ke gaya tertentu.",
+    "style_preset": {
+      "3d-model": "Model 3D",
+      "analog-film": "Film analog",
+      "anime": "Anime",
+      "cinematic": "Sinematik",
+      "comic-book": "Komik",
+      "digital-art": "Seni digital",
+      "enhance": "Tingkatkan",
+      "fantasy-art": "Seni fantasi",
+      "isometric": "Isometrik",
+      "line-art": "Seni garis",
+      "low-poly": "Low poly",
+      "modeling-compound": "Plastisin",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Fotografis",
+      "pixel-art": "Seni piksel",
+      "tile-texture": "Tekstur ubin"
+    }
   }
 }

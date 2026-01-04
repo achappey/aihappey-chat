@@ -44,6 +44,10 @@
   },
   "openai": {
     "container": "Container",
+    "customVoice": "Custom voice",
+    "prompt": "Prompt",
+    "transcriptionLanguagePlaceholder": "The language of the input audio in ISO-639-1 (e.g. en)",
+    "speechPromptPlaceholder": "An optional text to guide the model's style or continue a previous audio segment",
     "includeOutputs": "Include outputs",
     "includeSources": "Include sources",
     "includeSearchResults": "Include search results",
@@ -117,5 +121,13 @@
       "pixel-art": "Pixel art",
       "tile-texture": "Tile texture"
     }
+  },
+  "sambanova": {
+    "chat_template_kwargs": "Chat template kwargs",
+    "chat_template_kwargs_placeholder": "{\n  \"enable_thinking\": true\n}",
+    "invalid_json": "Invalid JSON"
+  },
+  "novita": {
+    "pitch": "Pitch ({{pitch}})"
   }
 }

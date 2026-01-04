@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "Moderacja treści",
     "publicFigureThreshold": "Próg dla postaci publicznych"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Predefiniowany styl",
+    "negativePrompt": "Negatywny prompt",
+    "no_style_preset": "Brak predefiniowanego stylu",
+    "style_presetHint": "Kieruje model obrazu w stronę określonego stylu.",
+    "style_preset": {
+      "3d-model": "Model 3D",
+      "analog-film": "Film analogowy",
+      "anime": "Anime",
+      "cinematic": "Filmowy",
+      "comic-book": "Komiks",
+      "digital-art": "Sztuka cyfrowa",
+      "enhance": "Ulepsz",
+      "fantasy-art": "Sztuka fantasy",
+      "isometric": "Izometryczny",
+      "line-art": "Rysunek liniowy",
+      "low-poly": "Low poly",
+      "modeling-compound": "Masa plastyczna",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Fotograficzny",
+      "pixel-art": "Pixel art",
+      "tile-texture": "Tekstura płytek"
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PollinationsChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
+import { ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -7,7 +7,6 @@ import { ModelSelect } from "../models/ModelSelect";
 import { useState } from "react";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
-import { McpClientCapabilitiesCard } from "../mcp-client/McpClientCapabilitiesCard";
 import { useAgent } from "./useAgentMcpServers";
 import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
@@ -177,7 +176,7 @@ export const AgentForm = ({
                             })
                         }
                     />
-                    <TextArea label={t('agentEdit.instructions')}
+                    <TextArea label={t('instructions')}
                         placeholder={t('agentEdit.instructionsPlaceholder')}
                         value={agent.instructions}
                         required
@@ -214,7 +213,7 @@ export const AgentForm = ({
                         />
                     </div>
                     <div style={{ marginTop: 12 }}>
-                        <McpClientCapabilitiesCard
+                        <ClientCapabilitiesForm
                             capabilities={agent.mcpClient?.capabilities}
                             onChange={(key, value) => {
                                 onChange({
@@ -319,6 +318,13 @@ export const AgentForm = ({
 
                     {providerKey === "together" && (
                         <TogetherChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "sambanova" && (
+                        <SambanovaChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

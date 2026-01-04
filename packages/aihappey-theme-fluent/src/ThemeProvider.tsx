@@ -28,6 +28,7 @@ import { brandVariantsFromBaseColor } from "./brandVariantsFromBaseColor";
  */
 export type FluentThemePresetId =
   | "web"
+  | "azure"
   | "teams"
   | "teamsv21"
   | `custom:${string}`
@@ -190,11 +191,20 @@ export function ThemeProvider({
     return out;
   }, [customPresets]);
 
-  // ✅ merged presets shown in UI and used by ThemeProvider
-  const presets: FluentThemePresetMap = useMemo(
-    () => ({ ...basePresets, ...customPresetEntries }),
-    [basePresets, customPresetEntries]
-  );
+  // ✅ merged presets ordered by preset.title
+  const presets: FluentThemePresetMap = useMemo(() => {
+    const merged = { ...basePresets, ...customPresetEntries };
+
+    return Object.entries(merged)
+      .sort(([, a], [, b]) =>
+        a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
+      )
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {} as FluentThemePresetMap);
+  }, [basePresets, customPresetEntries]);
+
 
   const theme: Theme = useMemo(() => {
     const preset = presets[presetId] ?? presets.web ?? Object.values(presets)[0];

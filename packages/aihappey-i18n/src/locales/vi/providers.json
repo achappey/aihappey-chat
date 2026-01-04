@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "Kiểm duyệt nội dung",
     "publicFigureThreshold": "Ngưỡng nhân vật công chúng"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Preset kiểu",
+    "negativePrompt": "Prompt phủ định",
+    "no_style_preset": "Không có preset kiểu",
+    "style_presetHint": "Hướng mô hình hình ảnh theo một phong cách cụ thể.",
+    "style_preset": {
+      "3d-model": "Mô hình 3D",
+      "analog-film": "Phim analog",
+      "anime": "Anime",
+      "cinematic": "Điện ảnh",
+      "comic-book": "Truyện tranh",
+      "digital-art": "Nghệ thuật số",
+      "enhance": "Cải thiện",
+      "fantasy-art": "Nghệ thuật giả tưởng",
+      "isometric": "Đẳng phối",
+      "line-art": "Nét vẽ",
+      "low-poly": "Low poly",
+      "modeling-compound": "Đất nặn",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Chụp ảnh",
+      "pixel-art": "Nghệ thuật pixel",
+      "tile-texture": "Kết cấu gạch"
+    }
   }
 }

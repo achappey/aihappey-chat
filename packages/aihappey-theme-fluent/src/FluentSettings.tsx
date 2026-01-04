@@ -57,7 +57,7 @@ export const FluentSettings = () => {
             </Select>
 
             {/* ✅ Custom Brand section */}
-            <div className={styles.block}>
+            {false && <div className={styles.block}>
                 <div className={styles.row}>
                     <div style={{ minWidth: 220 }}>
                         <Field
@@ -132,7 +132,7 @@ export const FluentSettings = () => {
                         </div>
                     </div>
                 )}
-            </div>
+            </div>}
         </div>
     );
 };

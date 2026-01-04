@@ -42,10 +42,6 @@ export const WithLinkActions: Story = {
       description: "Has link actions (open in new window / copy link).",
     },
     getPromptUrl: (p) => `https://example.com/prompts/${encodeURIComponent(p.name)}`,
-    translations: {
-      newWindow: "Open in new window",
-      copyLink: "Copy link",
-    },
   },
 };
 
@@ -63,10 +59,6 @@ export const WithIcons: Story = {
       description: "Card with themed icons (L/D).",
     },
     getPromptUrl: (p) => `https://example.com/prompts/${encodeURIComponent(p.name)}`,
-    translations: {
-      newWindow: "Open",
-      copyLink: "Copy",
-    },
   },
 };
 

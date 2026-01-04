@@ -18,6 +18,8 @@ import { useDefaultProviders } from "./bootstrap/useDefaultProviders";
 import { ImagesProvider } from "aihappey-images";
 import { ToolsProvider } from "aihappey-tools";
 import { FilesProvider } from "aihappey-files";
+import { TranscriptionsProvider } from "aihappey-transcriptions";
+import { SpeechProvider } from "aihappey-speech";
 
 type Props = {
   chatConfig?: ChatConfig;
@@ -101,24 +103,28 @@ export const CoreShell: React.FC<Props> = ({
           <ImagesProvider storageKind={"indexeddb"}>
             <ToolsProvider storageKind={"indexeddb"}>
               <FilesProvider>
-                <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-                  <McpConnectionsProvider
-                    clientName={chatConfig?.appName}
-                    agentScopes={agentScopes ?? []}
-                    agentApi={chatConfig?.agentEndpoint!}
-                    authenticated={chatConfig?.getAccessToken != null}
-                    clientVersion={chatConfig?.appVersion}
-                    samplingApi={chatConfig?.samplingApi!}
-                  >
-                    {ui}
-                  </McpConnectionsProvider>
-                </ConversationsProvider>
+                <TranscriptionsProvider>
+                  <SpeechProvider storageKind={"indexeddb"}>
+                    <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+                      <McpConnectionsProvider
+                        clientName={chatConfig?.appName}
+                        agentScopes={agentScopes ?? []}
+                        agentApi={chatConfig?.agentEndpoint!}
+                        authenticated={chatConfig?.getAccessToken != null}
+                        clientVersion={chatConfig?.appVersion}
+                        samplingApi={chatConfig?.samplingApi!}
+                      >
+                        {ui}
+                      </McpConnectionsProvider>
+                    </ConversationsProvider>
+                  </SpeechProvider>
+                </TranscriptionsProvider>
               </FilesProvider>
             </ToolsProvider>
 
           </ImagesProvider>
         </ChatAppConnector>
       </DndProvider>
-    </I18nProvider>
+    </I18nProvider >
   );
 };

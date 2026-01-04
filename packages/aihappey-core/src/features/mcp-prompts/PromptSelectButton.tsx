@@ -10,6 +10,7 @@ import { getPrompts } from "../../runtime/mcp/mcpPrompts";
 
 export type PromptWithSource = Prompt & {
   _serverName?: string;
+  _serverTitle?: string;
   _url?: string;
 };
 
@@ -22,7 +23,6 @@ export const PromptSelectButton = ({
 }: PromptSelectButtonProps) => {
   const { Button } = useTheme();
   const { t } = useTranslation();
- // const getPrompts = useAppStore((s) => s.getPrompts);
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
   const mcpServers = useAppStore((s) => s.mcpServers);
   const [prompts, setPrompts] = useState<PromptWithSource[]>([]);
@@ -41,6 +41,7 @@ export const PromptSelectButton = ({
           .then(z => setPrompts(l => [...l, ...z.map(y => ({
             ...y,
             _serverName: a,
+            _serverTitle: mcpServers[a]?.registry?.server.title,
             _url: mcpServers[a]?.config?.url
           }))])))
     }
@@ -87,7 +88,6 @@ export const PromptSelectButton = ({
         prompt={argumentPrompt}
         onPromptExecute={async (prompt: any, args: any) => {
           setArgumentPrompt(undefined);
-          //          setOpen(false);
 
           await onPromptExecute(prompt, args);
         }}

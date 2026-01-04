@@ -17,4 +17,6 @@ export * from "./ResourceLinkCard";
 export * from "./LoggingMessageCard";
 export * from "./ImageCard";
 export * from "./ConversationCard";
+export * from "./TranscriptionCard";
 export * from "./PromptCard";
+export * from "./SpeechCard";

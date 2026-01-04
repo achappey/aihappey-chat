@@ -53,8 +53,7 @@ export const UserGeneralSettings: React.FC<Props> = ({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: 32,
-        padding: "0 32px 32px 32px",
+        gap: 32
       }}
     >
       {/* Language */}

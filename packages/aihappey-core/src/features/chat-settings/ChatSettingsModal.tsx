@@ -6,6 +6,7 @@ import {
   JinaChatConfigForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
   PollinationsChatConfigForm,
+  SambanovaChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
   useTheme, XAIChatConfigForm
 } from "aihappey-components";
@@ -57,10 +58,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         <SettingsActionButtons
           onClose={close}
           onRestoreDefaults={resetDefaults}
-          translations={{
-            close: t("close"),
-            restoreDefaults: t("resetDefaults")
-          }}
         />
       }
     >
@@ -170,6 +167,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               config={providerMetadata.together ?? {}}
               updateConfig={(together) =>
                 setProviderMetadata({ ...providerMetadata, together })
+              }
+            />
+          </theme.Tab>
+        }
+        {enabledProviders.includes("SambaNova") &&
+          <theme.Tab eventKey="sambanova" title="SambaNova">
+            <SambanovaChatConfigForm
+              config={providerMetadata.sambanova ?? {}}
+              updateConfig={(sambanova) =>
+                setProviderMetadata({ ...providerMetadata, sambanova })
               }
             />
           </theme.Tab>

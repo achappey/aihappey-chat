@@ -11,7 +11,6 @@ import { useUserMessageBuilder } from "./messages/useUserMessageBuilder";
 import { useResourceParts } from "./messages/useResourceParts";
 import { ChatErrors } from "./layout/ChatErrors";
 import { PromptWithSource } from "../mcp-prompts/PromptSelectButton";
-import { useTranscription } from "../transcription/useTranscription";
 import { extractTextFromZip } from "./files/fileConverters";
 import { extractTextFromFile } from "./files/file";
 import { toMarkdownLinkSmart } from "./files/markdown";
@@ -27,41 +26,19 @@ export function NewChatPage() {
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
   const toolAnnotations = useAppStore(a => a.toolAnnotations)
-  const { disabledTools} = useTools()
+  const { disabledTools } = useTools()
   const agents = useAppStore(a => a.agents)
   const selectedAgents = selectedAgentNames
     .filter(a => agents.some(z => z.name == a))
     .map(a => agents.find(z => z.name == a)!)
-  //const addAttachment = useAppStore((s) => s.addAttachment);
   const temperature = useAppStore((s) => s.temperature);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
   const selectedModel = useAppStore((s) => s.selectedModel);
   const setTemperature = useAppStore((s) => s.setTemperature);
-  // const attachments = useAppStore((s) => s.attachments as UiAttachment[]);
-  // const clearAttachments = useAppStore((s) => s.clearAttachments);
   const workflowType = useAppStore((s) => s.workflowType);
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
-  const { transcribe } = useTranscription(
-    config.transcriptionApi!,
-    config.getAccessToken
-  );
-
   const addAttachmentWithTranscription = async (file: File) => {
-    if (file.type.startsWith("audio/")) {
-      // Optionally show spinner/loading in your UI
-      const transcript = await transcribe(file);
-      if (transcript) {
-        const transcriptFile = new File(
-          [transcript], // Blob parts
-          file.name.replace(/\.[^.]+$/, ".txt"), // New name
-          { type: "text/plain" } // MIME type
-        );
-        // Now add as file (same as regular attachment)
-        fileAttachmentRuntime.add(transcriptFile);
-
-        return; // If you ONLY want the transcript, otherwise remove this
-      }
-    }
+   
     // Fallback: just add as normal file attachment
     fileAttachmentRuntime.add(file);
   };

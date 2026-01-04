@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { OpenAIImageConfigForm, PollinationsImageConfigForm, RunwayImageConfigForm, SettingsActionButtons, StabilityAIImageForm, TogetherImageConfigForm, useTheme } from "aihappey-components";
+import {
+  OpenAIImageConfigForm, PollinationsImageConfigForm,
+  RunwayImageConfigForm, SettingsActionButtons,
+  StabilityAIImageForm, TogetherImageConfigForm, useTheme
+} from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
 export interface ImageSettingsModalProps {
@@ -47,10 +51,6 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
         <SettingsActionButtons
           onClose={close}
           onRestoreDefaults={resetDefaults}
-          translations={{
-            close: t("close"),
-            restoreDefaults: t("resetDefaults")
-          }}
         />
       }
     >

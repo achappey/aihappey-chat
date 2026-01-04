@@ -30,7 +30,7 @@ export const ConversationSidebar = ({
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
   const { conversationId } = useParams<{ conversationId?: string }>();
 
- // const [searchOpen, setSearchOpen] = useState(false);
+  // const [searchOpen, setSearchOpen] = useState(false);
 
   const handleCreate = async () => {
     // Reset current selection *before* navigating so ChatPage starts blank
@@ -60,15 +60,27 @@ export const ConversationSidebar = ({
       key: "search-conversations",
       label: t("conversationSearch"),
       icon: "search",
-      new: true,
       onClick: onSearch,
     },
     {
       key: "images",
-      new: true,
       label: t("images"),
       href: "/images",
       icon: "library",
+    },
+    {
+      key: "transcriptions",
+      new: true,
+      label: t("transcriptions"),
+      href: "/transcriptions",
+      icon: "transcriptions",
+    },
+    {
+      key: "speech",
+      new: true,
+      label: t("speech"),
+      href: "/speech",
+      icon: "speech",
     },
     {
       key: "arena",
@@ -258,7 +270,7 @@ export const ConversationSidebar = ({
         borderColor: isOver ? "#888" : "transparent",
       }}
       onDragOver={handleDragOver}>
-    
+
       <Navigation
         items={navItems}
         translations={translations}

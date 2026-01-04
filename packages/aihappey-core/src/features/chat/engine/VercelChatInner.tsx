@@ -14,7 +14,6 @@ import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { useChatActions } from "./useChatActions";
 import { useSystemMessage } from "../messages/useSystemMessage";
 import { useChatContext } from "../context/ChatContext";
-import { useTranscription } from "../../transcription/useTranscription";
 import { useChatErrors } from "../layout/useChatErrors";
 import { ChatErrors } from "../layout/ChatErrors";
 import { useAccessToken } from "aihappey-auth";
@@ -72,30 +71,13 @@ export function VercelChatInner({
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer } = useTheme();
   const { config } = useChatContext();
-  const { transcribe } = useTranscription(
-    config.transcriptionApi!,
-    config.getAccessToken
-  );
+
   const isDesktop = useIsDesktop();
   const handoffs = useAppStore(a => a.handoffs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
 
   const addAttachmentWithTranscription = async (file: File) => {
-    if (file.type.startsWith("audio/")) {
-      // Optionally show spinner/loading in your UI
-      const transcript = await transcribe(file);
-      if (transcript) {
-        const transcriptFile = new File(
-          [transcript], // Blob parts
-          file.name.replace(/\.[^.]+$/, ".txt"), // New name
-          { type: "text/plain" } // MIME type
-        );
-        // Now add as file (same as regular attachment)
-        fileAttachmentRuntime.add(transcriptFile);
-
-        return; // If you ONLY want the transcript, otherwise remove this
-      }
-    }
+   
     // Fallback: just add as normal file attachment
     fileAttachmentRuntime.add(file);
   };

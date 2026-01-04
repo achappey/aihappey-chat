@@ -9,8 +9,10 @@ import { AgentSlice } from "./slices/agentSlice";
 import { McpServersSlice } from "./slices/mcpServersSlice";
 import { McpRegistrySlice } from "./slices/mcpRegistrySlice";
 import { ImageSlice } from "./slices/imageSlice";
+import { TranscriptionSlice } from "./slices/transcriptionSlice";
+import { SpeechSlice } from "./slices/speechSlice";
 
-type RootState = ChatSlice & McpSlice & ImageSlice
+type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice;
 
 export const withPersist = (
@@ -30,6 +32,14 @@ export const withPersist = (
       extractExif: s.extractExif,
       providerMetadata: s.providerMetadata,
       providerImageMetadata: s.providerImageMetadata,
+      providerSpeechMetadata: s.providerSpeechMetadata,
+
+      // Speech (general)
+      voice: s.voice,
+      speechOutputFormat: s.speechOutputFormat,
+      speechInstructions: s.speechInstructions,
+      speed: s.speed,
+      speechLanguage: s.speechLanguage,
       //n: s.n,
       seed: s.seed,
       allowedToolList: s.allowedToolList,

@@ -14,7 +14,6 @@ import { ModelSelect } from "../../models/ModelSelect";
 import { useChatContext } from "../context/ChatContext";
 import { useSystemMessage } from "../messages/useSystemMessage";
 import { useUserMessageBuilder } from "../messages/useUserMessageBuilder";
-import { useTranscription } from "../../transcription/useTranscription";
 import { useTools } from "../../tools/useTools";
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
@@ -59,27 +58,7 @@ export function ChatArena({
     customFetch,
   });
 
-  const { transcribe } = useTranscription(
-    config.transcriptionApi!,
-    config.getAccessToken
-  );
-
   const addAttachmentWithTranscription = async (file: File) => {
-    if (file.type.startsWith("audio/")) {
-      // Optionally show spinner/loading in your UI
-      const transcript = await transcribe(file);
-      if (transcript) {
-        const transcriptFile = new File(
-          [transcript], // Blob parts
-          file.name.replace(/\.[^.]+$/, ".txt"), // New name
-          { type: "text/plain" } // MIME type
-        );
-        // Now add as file (same as regular attachment)
-        fileAttachmentRuntime.add(transcriptFile);
-
-        return; // If you ONLY want the transcript, otherwise remove this
-      }
-    }
     // Fallback: just add as normal file attachment
     fileAttachmentRuntime.add(file);
   };

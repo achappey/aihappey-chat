@@ -92,5 +92,30 @@
     "enhanceHint": "Deja que la IA mejore tu prompt para obtener mejores resultados",
     "private": "Privado",
     "privateHint": "Ocultar la imagen de los feeds públicos"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Preajuste de estilo",
+    "negativePrompt": "Prompt negativo",
+    "no_style_preset": "Sin preajuste de estilo",
+    "style_presetHint": "Guía al modelo de imagen hacia un estilo en particular.",
+    "style_preset": {
+      "3d-model": "Modelo 3D",
+      "analog-film": "Película analógica",
+      "anime": "Anime",
+      "cinematic": "Cinemático",
+      "comic-book": "Cómic",
+      "digital-art": "Arte digital",
+      "enhance": "Mejorar",
+      "fantasy-art": "Arte fantástico",
+      "isometric": "Isométrico",
+      "line-art": "Dibujo lineal",
+      "low-poly": "Low poly",
+      "modeling-compound": "Plastilina",
+      "neon-punk": "Neón punk",
+      "origami": "Origami",
+      "photographic": "Fotográfico",
+      "pixel-art": "Arte píxel",
+      "tile-texture": "Textura de baldosas"
+    }
   }
 }

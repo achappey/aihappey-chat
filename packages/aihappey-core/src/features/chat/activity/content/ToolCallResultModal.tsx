@@ -33,11 +33,19 @@ export const ToolCallResultModal = ({
       title={t("mcp.toolCallResult")}
     >
       <div>
-        {result.structuredContent ? (
+        {result.structuredContent && contentArr.length == 0 ? (
           <StructuredOutputView result={result} />
         ) : null}
-        {!result.structuredContent && contentArr.length > 0 ? (
+        {contentArr.length > 0 ? (
           <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
+
+            {result.structuredContent && <Tab
+              eventKey={"structuredContent"}
+              title={t(`mcp.structuredContent`)}
+            >
+              <StructuredOutputView result={result} />
+            </Tab>
+            }
             {contentArr.map((block: any, i: number) => (
               <Tab
                 key={String(i)}

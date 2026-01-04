@@ -109,10 +109,6 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
         <SettingsActionButtons
           onClose={onClose}
           onDownload={() => downloadJson("provider_config.json", customHeaders ?? {})}
-          translations={{
-            close: t("close"),
-            download: t("download")
-          }}
         />
       }
 

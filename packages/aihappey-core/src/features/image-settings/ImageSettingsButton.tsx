@@ -29,11 +29,11 @@ export const ImageSettingsButton = (props: ImageSettingsButtonOptions) => {
     <>
       <Button
         type="button"
-        icon="chatSettings"
+        icon="imageSettings"
         size="large"
         variant="transparent"
         onClick={() => setOpen(true)}
-        title={t("chatSettings")}
+        title={t("imageSettings.title")}
       />
       <ImageSettingsModal
         open={open && !showProviderKeys}

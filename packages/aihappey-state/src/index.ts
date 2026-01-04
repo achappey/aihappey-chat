@@ -17,6 +17,8 @@ export { SamplingRequest } from "./slices/mcpSlice";
 export type { McpContents } from "./slices/mcpSlice";
 export type { UiAttachment } from "./slices/uiSlice";
 export { defaultAgents } from "./slices/defaultAgents";
+export * from "./slices/defaultProviderTranscriptionMetadata";
+export * from "./slices/defaultProviderSpeechMetadata";
 
 export type { ServerItem } from './slices/mcpServersSlice';
 export { mcpRuntime, connectPersistent, connectServerPersistent } from "./slices/uiSlice";

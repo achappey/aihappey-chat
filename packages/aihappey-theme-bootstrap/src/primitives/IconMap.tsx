@@ -62,6 +62,8 @@ import {
   Plus,
   Camera,
   Palette,
+  Mic,
+  Speaker,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -79,12 +81,17 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   brain: <CpuFill />,
   bookOpen: <JournalText />,
   arena: <Columns />,
+  transcriptions: <Mic />,
+  transcriptionSettings: <Sliders />,
+  imageSettings: <Palette />,
   formula: <Calculator />,
   table: <BarChart />, // Approximate
   chart: <BarChart />,
   library: <Images />,
   agentSettings: <Sliders />,
   link: <Link />,
+  speech: <Speaker />,
+  speechSettings: <Sliders />,
   temperature: <ThermometerHalf />,
   completed: <Check />,
   attachment: <Paperclip />,

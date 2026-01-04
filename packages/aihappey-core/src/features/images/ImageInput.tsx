@@ -64,7 +64,7 @@ export const ImageInput = (props: UseMessageInputOptions) => {
 
           <AttachmentButton
             disabled={props.disabled}
-            icon="image"
+            icon="attachment"
             onFilesSelected={addFilesToRuntime}
           />
         </div>

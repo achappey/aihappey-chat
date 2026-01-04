@@ -92,5 +92,30 @@
     "enhanceHint": "Lass die KI deinen Prompt für bessere Ergebnisse verbessern",
     "private": "Privat",
     "privateHint": "Bild aus öffentlichen Feeds ausblenden"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Stilvorgabe",
+    "negativePrompt": "Negativer Prompt",
+    "no_style_preset": "Keine Stilvorgabe",
+    "style_presetHint": "Leitet das Bildmodell zu einem bestimmten Stil an.",
+    "style_preset": {
+      "3d-model": "3D-Modell",
+      "analog-film": "Analogfilm",
+      "anime": "Anime",
+      "cinematic": "Kinematisch",
+      "comic-book": "Comic",
+      "digital-art": "Digitale Kunst",
+      "enhance": "Verbessern",
+      "fantasy-art": "Fantasy-Kunst",
+      "isometric": "Isometrisch",
+      "line-art": "Linienzeichnung",
+      "low-poly": "Low-Poly",
+      "modeling-compound": "Modelliermasse",
+      "neon-punk": "Neon-Punk",
+      "origami": "Origami",
+      "photographic": "Fotografisch",
+      "pixel-art": "Pixelkunst",
+      "tile-texture": "Kacheltextur"
+    }
   }
 }

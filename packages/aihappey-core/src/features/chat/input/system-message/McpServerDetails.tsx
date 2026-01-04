@@ -61,8 +61,8 @@ export const McpServerDetails = ({ parsed }: any) => {
 
       {parsed.instructions?.length > 0 && (
         <Tab eventKey={"1"}
-          title={t("mcp.instructions")}>
-          <Card title={t("mcp.instructions")}>
+          title={t("instructions")}>
+          <Card title={t("instructions")}>
             <p>{parsed.instructions}</p>
           </Card>
         </Tab>)}

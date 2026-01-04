@@ -92,5 +92,30 @@
   "runway": {
     "contentModeration": "コンテンツモデレーション",
     "publicFigureThreshold": "著名人物しきい値"
+  },
+  "stabilityai": {
+    "style_presetLabel": "スタイルプリセット",
+    "negativePrompt": "ネガティブプロンプト",
+    "no_style_preset": "スタイルプリセットなし",
+    "style_presetHint": "画像モデルを特定のスタイルに寄せます。",
+    "style_preset": {
+      "3d-model": "3Dモデル",
+      "analog-film": "アナログフィルム",
+      "anime": "アニメ",
+      "cinematic": "シネマティック",
+      "comic-book": "コミック",
+      "digital-art": "デジタルアート",
+      "enhance": "強化",
+      "fantasy-art": "ファンタジーアート",
+      "isometric": "アイソメトリック",
+      "line-art": "ラインアート",
+      "low-poly": "ローポリ",
+      "modeling-compound": "粘土",
+      "neon-punk": "ネオンパンク",
+      "origami": "折り紙",
+      "photographic": "写真",
+      "pixel-art": "ピクセルアート",
+      "tile-texture": "タイルテクスチャ"
+    }
   }
 }
