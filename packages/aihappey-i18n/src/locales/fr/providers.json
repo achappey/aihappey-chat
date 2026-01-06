@@ -46,7 +46,16 @@
     "instructionsPlaceholder": "Message système (ou développeur) inséré dans le contexte du modèle.",
     "max_num_results": "Nombre maximal de résultats",
     "vector_store_ids": "Identifiants des stockages vectoriels",
-    "file_search": "Recherche de fichiers"
+    "file_search": "Recherche de fichiers",
+    "knownSpeakersTitle": "Locuteurs connus",
+    "knownSpeakersDescription": "Ajoutez jusqu’à 4 noms de locuteur et, si vous le souhaitez, téléversez un court échantillon vocal par locuteur pour améliorer la diarisation.",
+    "knownSpeakersAdd": "Ajouter un locuteur",
+    "knownSpeakersNamePlaceholder": "ex. Alice",
+    "knownSpeakersSampleMissing": "Aucun échantillon téléversé",
+    "knownSpeakersNameExists": "Ce nom existe déjà.",
+    "knownSpeakersMax": "Vous pouvez ajouter jusqu’à 4 locuteurs.",
+    "knownSpeakersDeleteConfirm": "Ce locuteur a un échantillon enregistré. Supprimer le locuteur et son échantillon ?",
+    "knownSpeakersSampleDuration": "L’enregistrement doit durer entre 2 et 10 secondes."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Réponses civiques améliorées",

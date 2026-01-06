@@ -46,7 +46,16 @@
     "instructionsPlaceholder": "Mensaje de sistema (o desarrollador) insertado en el contexto del modelo.",
     "max_num_results": "Número máximo de resultados",
     "vector_store_ids": "IDs de los almacenes vectoriales",
-    "file_search": "Búsqueda de archivos"
+    "file_search": "Búsqueda de archivos",
+    "knownSpeakersTitle": "Oradores conocidos",
+    "knownSpeakersDescription": "Añade hasta 4 nombres de orador y, opcionalmente, sube una muestra de voz corta por orador para mejorar la diarización.",
+    "knownSpeakersAdd": "Añadir orador",
+    "knownSpeakersNamePlaceholder": "p. ej., Alicia",
+    "knownSpeakersSampleMissing": "No hay muestra subida",
+    "knownSpeakersNameExists": "Este nombre ya existe.",
+    "knownSpeakersMax": "Puedes añadir hasta 4 oradores.",
+    "knownSpeakersDeleteConfirm": "Este orador tiene una muestra guardada. ¿Eliminar el orador y su muestra?",
+    "knownSpeakersSampleDuration": "La grabación debe durar entre 2 y 10 segundos."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Respuestas cívicas mejoradas",

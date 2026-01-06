@@ -14,6 +14,8 @@ export * from "./openai";
 export * from "./anthropic";
 export * from "./sambanova";
 export * from "./runway";
+export * from "./scaleway";
 export * from "./stabilityai";
 export * from "./novita";
+export * from "./fireworks";
 

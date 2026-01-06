@@ -10,18 +10,6 @@ import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime
 import { useSpeech } from "aihappey-speech";
 import { speechFilesToPromptText } from "./speechFilesToPromptText";
 
-export const fileToBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      resolve(result.split(",")[1]);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
-
 export const SpeechPage = () => {
   const models = useAppStore((a) => a.models);
   const customHeaders = useAppStore((a) => a.customHeaders);
@@ -33,11 +21,8 @@ export const SpeechPage = () => {
   const language = useAppStore((a) => a.speechLanguage);
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
-  const [prompt, setPrompt] = useState<string>(
-    ""
-  );
+  const [prompt, setPrompt] = useState<string>("");
   const [dropError, setDropError] = useState<string | undefined>(undefined);
-
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(getAccessToken ?
     "openai/gpt-4o-mini-tts" : "pollinations/openai");

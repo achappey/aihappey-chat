@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "মডেলের কনটেক্সটে যুক্ত একটি সিস্টেম (বা ডেভেলপার) বার্তা।",
     "max_num_results": "সর্বোচ্চ ফলাফলের সংখ্যা",
     "vector_store_ids": "ভেক্টর স্টোরের আইডি",
-    "file_search": "ফাইল অনুসন্ধান"
+    "file_search": "ফাইল অনুসন্ধান",
+    "knownSpeakersTitle": "পরিচিত বক্তা",
+    "knownSpeakersDescription": "সর্বোচ্চ ৪ জন বক্তার নাম যোগ করুন এবং ডায়ারাইজেশন উন্নত করতে প্রতিটি বক্তার জন্য ঐচ্ছিকভাবে একটি ছোট ভয়েস স্যাম্পল আপলোড করুন।",
+    "knownSpeakersAdd": "বক্তা যোগ করুন",
+    "knownSpeakersNamePlaceholder": "যেমন: এলিস",
+    "knownSpeakersSampleMissing": "কোনও স্যাম্পল আপলোড করা নেই",
+    "knownSpeakersNameExists": "এই নামটি ইতিমধ্যে আছে।",
+    "knownSpeakersMax": "আপনি সর্বোচ্চ ৪ জন বক্তা যোগ করতে পারেন।",
+    "knownSpeakersDeleteConfirm": "এই বক্তার একটি সেভ করা স্যাম্পল আছে। বক্তা ও স্যাম্পল মুছবেন?",
+    "knownSpeakersSampleDuration": "রেকর্ডিং ২ থেকে ১০ সেকেন্ডের মধ্যে হতে হবে।"
   },
   "google": {
     "enableEnhancedCivicAnswers": "উন্নত নাগরিক উত্তর",

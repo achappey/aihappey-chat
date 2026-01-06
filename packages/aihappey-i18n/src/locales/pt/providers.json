@@ -46,7 +46,16 @@
     "instructionsPlaceholder": "Mensagem de sistema (ou programador) inserida no contexto do modelo.",
     "max_num_results": "Número máximo de resultados",
     "vector_store_ids": "IDs dos armazenamentos vetoriais",
-    "file_search": "Pesquisa de ficheiros"
+    "file_search": "Pesquisa de ficheiros",
+    "knownSpeakersTitle": "Locutores conhecidos",
+    "knownSpeakersDescription": "Adicione até 4 nomes de locutor e, opcionalmente, carregue uma amostra de voz curta por locutor para melhorar a diarização.",
+    "knownSpeakersAdd": "Adicionar locutor",
+    "knownSpeakersNamePlaceholder": "ex.: Alice",
+    "knownSpeakersSampleMissing": "Nenhuma amostra carregada",
+    "knownSpeakersNameExists": "Este nome já existe.",
+    "knownSpeakersMax": "Pode adicionar até 4 locutores.",
+    "knownSpeakersDeleteConfirm": "Este locutor tem uma amostra guardada. Eliminar o locutor e a amostra?",
+    "knownSpeakersSampleDuration": "A gravação deve ter entre 2 e 10 segundos."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Respostas cívicas melhoradas",

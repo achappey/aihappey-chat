@@ -33,6 +33,9 @@
     "includeOutputs": "Inclusief uitvoer",
     "includeSources": "Inclusief bronnen",
     "prompt": "Prompt",
+    "timestampGranularities": "Tijdstempel-granulariteit",
+    "timestampGranularitiesSegment": "Segment",
+    "timestampGranularitiesWord": "Woord",
     "transcriptionLanguagePlaceholder": "De taal van de audio in ISO-639-1-formaat (bijv. nl of en)",
     "speechPromptPlaceholder": "Optionele tekst om de stijl van het model te sturen of een eerder audiofragment te laten doorlopen",
     "includeSearchResults": "Inclusief zoekresultaten",
@@ -41,7 +44,16 @@
     "instructionsPlaceholder": "Een systeem bericht dat wordt toegevoegd aan de context.",
     "max_num_results": "Maximaal aantal resultaten",
     "vector_store_ids": "Ids van de documentenhubs",
-    "file_search": "Documentenhub"
+    "file_search": "Documentenhub",
+    "knownSpeakersTitle": "Bekende sprekers",
+    "knownSpeakersDescription": "Voeg maximaal 4 sprekersnamen toe en upload een korte stem-voorbeeld per spreker om herkenning te verbeteren.",
+    "knownSpeakersAdd": "Spreker toevoegen",
+    "knownSpeakersNamePlaceholder": "bijv. Alice",
+    "knownSpeakersSampleMissing": "Geen sample geüpload",
+    "knownSpeakersNameExists": "Deze naam bestaat al.",
+    "knownSpeakersMax": "Je kunt maximaal 4 sprekers toevoegen.",
+    "knownSpeakersDeleteConfirm": "Deze spreker heeft een opgeslagen sample. Spreker en sample verwijderen?",
+    "knownSpeakersSampleDuration": "Opname moet tussen 2 en 10 seconden zijn."
   },
   "jina": {
     "max_returned_urls": "Maximaal aantal geretourneerde URLs",
@@ -124,5 +136,14 @@
   },
   "novita": {
     "pitch": "Toonhoogte ({{pitch}})"
+  },
+  "fireworks": {
+    "audioProcessing": "Audiobewerking",
+    "alignmentModel": "Uitlijnmodel",
+    "preprocessing": "Voorbewerking",
+    "diarization": "Sprekersegmentatie",
+    "vadModel": "Spraakactiviteitsdetectie",
+    "minSpeakers": "Minimum aantal sprekers",
+    "maxSpeakers": "Maximum aantal sprekers"
   }
 }

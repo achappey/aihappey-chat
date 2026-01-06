@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "モデルのコンテキストに挿入されるシステム（または開発者）メッセージ。",
     "max_num_results": "最大結果数",
     "vector_store_ids": "ベクターストア ID",
-    "file_search": "ファイル検索"
+    "file_search": "ファイル検索",
+    "knownSpeakersTitle": "既知の話者",
+    "knownSpeakersDescription": "最大4人まで話者名を追加し、必要に応じて各話者の短い音声サンプルをアップロードして話者分離の精度を向上させます。",
+    "knownSpeakersAdd": "話者を追加",
+    "knownSpeakersNamePlaceholder": "例: アリス",
+    "knownSpeakersSampleMissing": "サンプルがアップロードされていません",
+    "knownSpeakersNameExists": "この名前は既に存在します。",
+    "knownSpeakersMax": "追加できる話者は最大4人です。",
+    "knownSpeakersDeleteConfirm": "この話者には保存済みサンプルがあります。話者とサンプルを削除しますか？",
+    "knownSpeakersSampleDuration": "録音は2〜10秒にしてください。"
   },
   "google": {
     "enableEnhancedCivicAnswers": "強化された公共回答",

@@ -48,6 +48,10 @@
     "prompt": "Prompt",
     "transcriptionLanguagePlaceholder": "The language of the input audio in ISO-639-1 (e.g. en)",
     "speechPromptPlaceholder": "An optional text to guide the model's style or continue a previous audio segment",
+    "transcriptionTemperature": "Temperature",
+    "timestampGranularities": "Timestamp granularities",
+    "timestampGranularitiesSegment": "Segment",
+    "timestampGranularitiesWord": "Word",
     "includeOutputs": "Include outputs",
     "includeSources": "Include sources",
     "includeSearchResults": "Include search results",
@@ -56,7 +60,16 @@
     "instructionsPlaceholder": "A system (or developer) message inserted into the model's context.",
     "max_num_results": "Maximum number of results",
     "vector_store_ids": "Ids of the vector stores",
-    "file_search": "File search"
+    "file_search": "File search",
+    "knownSpeakersTitle": "Known speakers",
+    "knownSpeakersDescription": "Add up to 4 speaker names and upload a short voice sample per speaker to improve diarization.",
+    "knownSpeakersAdd": "Add speaker",
+    "knownSpeakersNamePlaceholder": "e.g. Alice",
+    "knownSpeakersSampleMissing": "No sample uploaded",
+    "knownSpeakersNameExists": "This name already exists.",
+    "knownSpeakersMax": "You can add up to 4 speakers.",
+    "knownSpeakersDeleteConfirm": "This speaker has a saved sample. Delete the speaker and its sample?",
+    "knownSpeakersSampleDuration": "Recording must be between 2 and 10 seconds."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Enhanced civic answers",
@@ -129,5 +142,14 @@
   },
   "novita": {
     "pitch": "Pitch ({{pitch}})"
+  },
+  "fireworks": {
+    "audioProcessing": "Audio processing",
+    "alignmentModel": "Alignment model",
+    "preprocessing": "Preprocessing",
+    "diarization": "Diarization",
+    "vadModel": "Voice activity detection model",
+    "minSpeakers": "Minimum number of speakers",
+    "maxSpeakers": "Maximum number of speakers"
   }
 }

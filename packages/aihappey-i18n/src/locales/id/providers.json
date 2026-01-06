@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "Pesan sistem (atau pengembang) yang disisipkan ke dalam konteks model.",
     "max_num_results": "Jumlah hasil maksimum",
     "vector_store_ids": "ID penyimpanan vektor",
-    "file_search": "Pencarian file"
+    "file_search": "Pencarian file",
+    "knownSpeakersTitle": "Pembicara dikenal",
+    "knownSpeakersDescription": "Tambahkan hingga 4 nama pembicara dan, opsional, unggah sampel suara singkat untuk tiap pembicara untuk meningkatkan diarization.",
+    "knownSpeakersAdd": "Tambah pembicara",
+    "knownSpeakersNamePlaceholder": "mis. Alice",
+    "knownSpeakersSampleMissing": "Belum ada sampel yang diunggah",
+    "knownSpeakersNameExists": "Nama ini sudah ada.",
+    "knownSpeakersMax": "Anda dapat menambahkan hingga 4 pembicara.",
+    "knownSpeakersDeleteConfirm": "Pembicara ini memiliki sampel tersimpan. Hapus pembicara dan sampelnya?",
+    "knownSpeakersSampleDuration": "Rekaman harus berdurasi antara 2 dan 10 detik."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Jawaban sipil yang ditingkatkan",

@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "ข้อความของระบบ (หรือผู้พัฒนา) ที่ถูกแทรกในบริบทของโมเดล",
     "max_num_results": "จำนวนผลลัพธ์สูงสุด",
     "vector_store_ids": "ID ของคลังเวกเตอร์",
-    "file_search": "ค้นหาไฟล์"
+    "file_search": "ค้นหาไฟล์",
+    "knownSpeakersTitle": "ผู้พูดที่รู้จัก",
+    "knownSpeakersDescription": "เพิ่มชื่อผู้พูดได้สูงสุด 4 คน และอัปโหลดตัวอย่างเสียงสั้น ๆ ต่อผู้พูด (ไม่บังคับ) เพื่อช่วยปรับปรุงการแยกผู้พูด",
+    "knownSpeakersAdd": "เพิ่มผู้พูด",
+    "knownSpeakersNamePlaceholder": "เช่น อลิซ",
+    "knownSpeakersSampleMissing": "ยังไม่มีการอัปโหลดตัวอย่าง",
+    "knownSpeakersNameExists": "ชื่อนี้มีอยู่แล้ว",
+    "knownSpeakersMax": "คุณสามารถเพิ่มผู้พูดได้สูงสุด 4 คน",
+    "knownSpeakersDeleteConfirm": "ผู้พูดนี้มีตัวอย่างที่บันทึกไว้ ลบผู้พูดและตัวอย่างหรือไม่?",
+    "knownSpeakersSampleDuration": "การบันทึกต้องยาวระหว่าง 2 ถึง 10 วินาที"
   },
   "google": {
     "enableEnhancedCivicAnswers": "คำตอบด้านพลเมืองแบบปรับปรุง",

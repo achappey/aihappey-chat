@@ -10,6 +10,15 @@ export interface TranscriptionSettingsButtonProps {
   setProviderMetadata: (meta: any) => void;
 
   resetDefaults?: () => void;
+
+  /** Optional known-speaker sample binding (implemented in aihappey-core). */
+  knownSpeakerSamples?: {
+    getSampleInfo?: (speakerName: string) => { exists: boolean; tagLabel?: string };
+    onUploadSample?: (speakerName: string, files: File[]) => Promise<void> | void;
+    onClearSample?: (speakerName: string) => Promise<void> | void;
+    onRenameSample?: (fromSpeakerName: string, toSpeakerName: string) => Promise<void> | void;
+    onPreviewSample?: (speakerName: string) => Promise<void> | void;
+  };
 }
 
 export const TranscriptionSettingsButton: React.FC<
@@ -19,6 +28,7 @@ export const TranscriptionSettingsButton: React.FC<
   providerMetadata,
   setProviderMetadata,
   resetDefaults,
+  knownSpeakerSamples,
 }) => {
   const { Button } = useTheme();
   const { t } = useTranslation();
@@ -43,6 +53,7 @@ export const TranscriptionSettingsButton: React.FC<
         providerMetadata={providerMetadata}
         setProviderMetadata={setProviderMetadata}
         resetDefaults={resetDefaults}
+        knownSpeakerSamples={knownSpeakerSamples}
         onEditProviderKeys={() => setShowProviderKeys(true)}
         onClose={() => setOpen(false)}
       />

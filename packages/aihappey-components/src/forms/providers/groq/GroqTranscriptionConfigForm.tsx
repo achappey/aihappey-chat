@@ -1,11 +1,9 @@
 import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import { KnownSpeakersCard } from "./known-speakers";
-import type { KnownSpeakerSampleHandlers } from "./known-speakers/KnownSpeakersCard";
 import { TemperatureField } from "../../../fields";
 
-export type OpenAIITranscriptionConfig = {
+export type GroqTranscriptionConfig = {
   language?: string;
   prompt?: string;
 
@@ -22,30 +20,18 @@ export type OpenAIITranscriptionConfig = {
    */
   timestamp_granularities?: Array<"word" | "segment">;
 
-  /**
-   * Optional list of speaker names used for known speaker diarization.
-   * Samples are stored in FILES by name mapping (no IDs stored here).
-   */
-  known_speaker_names?: string[];
-
 };
 
-export const OpenAIITranscriptionConfigForm: React.FC<{
-  config: OpenAIITranscriptionConfig;
-  updateConfig: (val: OpenAIITranscriptionConfig) => void;
-} & KnownSpeakerSampleHandlers> = ({
+export const GroqTranscriptionConfigForm: React.FC<{
+  config: GroqTranscriptionConfig;
+  updateConfig: (val: GroqTranscriptionConfig) => void;
+}> = ({
   config,
   updateConfig,
-  getSampleInfo,
-  onUploadSample,
-  onClearSample,
-  onRenameSample,
-  onPreviewSample,
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
 
-    const temperatureEnabled = config?.temperature != null;
     const timestampGranularitiesEnabled = config?.timestamp_granularities != null;
 
     const normalizeGranularities = (val: unknown): Array<"segment" | "word"> => {
@@ -165,16 +151,6 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
           </div>
 
         </theme.Card>
-
-        <KnownSpeakersCard
-          config={config}
-          updateConfig={updateConfig}
-          getSampleInfo={getSampleInfo}
-          onUploadSample={onUploadSample}
-          onClearSample={onClearSample}
-          onRenameSample={onRenameSample}
-          onPreviewSample={onPreviewSample}
-        />
       </div>
     );
   };

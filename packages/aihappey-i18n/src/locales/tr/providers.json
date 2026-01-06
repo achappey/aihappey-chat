@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "Model bağlamına eklenen bir sistem (veya geliştirici) mesajı.",
     "max_num_results": "Maksimum sonuç sayısı",
     "vector_store_ids": "Vektör depolarının kimlikleri",
-    "file_search": "Dosya arama"
+    "file_search": "Dosya arama",
+    "knownSpeakersTitle": "Bilinen konuşmacılar",
+    "knownSpeakersDescription": "En fazla 4 konuşmacı adı ekleyin ve isteğe bağlı olarak her konuşmacı için kısa bir ses örneği yükleyerek konuşmacı ayrımını iyileştirin.",
+    "knownSpeakersAdd": "Konuşmacı ekle",
+    "knownSpeakersNamePlaceholder": "örn. Ayşe",
+    "knownSpeakersSampleMissing": "Örnek yüklenmedi",
+    "knownSpeakersNameExists": "Bu ad zaten var.",
+    "knownSpeakersMax": "En fazla 4 konuşmacı ekleyebilirsiniz.",
+    "knownSpeakersDeleteConfirm": "Bu konuşmacının kayıtlı bir örneği var. Konuşmacıyı ve örneğini silmek istiyor musunuz?",
+    "knownSpeakersSampleDuration": "Kayıt 2 ila 10 saniye arasında olmalıdır."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Gelişmiş yurttaşlık yanıtları",

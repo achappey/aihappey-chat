@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import { OpenAIITranscriptionConfigForm } from "../forms";
+import {
+    FireworksTranscriptionConfigForm,
+    GroqTranscriptionConfigForm,
+    OpenAIITranscriptionConfigForm,
+    ScalewayTranscriptionConfigForm,
+} from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
 
@@ -15,6 +20,15 @@ export interface TranscriptionSettingsModalProps {
     resetDefaults?: () => void;
     onEditProviderKeys?: () => void;
     onClose: () => void;
+
+    /** Optional known-speaker sample binding (implemented in aihappey-core). */
+    knownSpeakerSamples?: {
+        getSampleInfo?: (speakerName: string) => { exists: boolean; tagLabel?: string };
+        onUploadSample?: (speakerName: string, files: File[]) => Promise<void> | void;
+        onClearSample?: (speakerName: string) => Promise<void> | void;
+        onRenameSample?: (fromSpeakerName: string, toSpeakerName: string) => Promise<void> | void;
+        onPreviewSample?: (speakerName: string) => Promise<void> | void;
+    };
 }
 
 export const TranscriptionSettingsModal: React.FC<
@@ -25,13 +39,18 @@ export const TranscriptionSettingsModal: React.FC<
     setProviderMetadata,
     enabledProviders,
     resetDefaults,
+    knownSpeakerSamples,
     onClose,
 }) => {
         const theme = useTheme();
         const { t } = useTranslation();
 
-        const defaultTab = "general";
+        const defaultTab = enabledProviders?.[0].toLocaleLowerCase();
         const [activeTab, setActiveTab] = useState(defaultTab);
+
+        useEffect(() => {
+            setActiveTab(enabledProviders?.[0].toLocaleLowerCase())
+        }, [enabledProviders]);
 
         const close = () => {
             onClose();
@@ -59,6 +78,53 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         openai,
+                                    })
+                                }
+                                getSampleInfo={knownSpeakerSamples?.getSampleInfo}
+                                onUploadSample={knownSpeakerSamples?.onUploadSample}
+                                onClearSample={knownSpeakerSamples?.onClearSample}
+                                onRenameSample={knownSpeakerSamples?.onRenameSample}
+                                onPreviewSample={knownSpeakerSamples?.onPreviewSample}
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Groq") && (
+                        <theme.Tab eventKey="groq" title="Groq">
+                            <GroqTranscriptionConfigForm
+                                config={providerMetadata.groq ?? {}}
+                                updateConfig={(groq) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        groq,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Scaleway") && (
+                        <theme.Tab eventKey="scaleway" title="Scaleway">
+                            <ScalewayTranscriptionConfigForm
+                                config={providerMetadata.scaleway ?? {}}
+                                updateConfig={(scaleway) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        scaleway,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Fireworks") && (
+                        <theme.Tab eventKey="fireworks" title="Fireworks">
+                            <FireworksTranscriptionConfigForm
+                                config={providerMetadata.fireworks ?? {}}
+                                updateConfig={(fireworks) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        fireworks,
                                     })
                                 }
                             />

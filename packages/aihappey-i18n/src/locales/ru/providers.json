@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "Системное (или разработческое) сообщение, вставляемое в контекст модели.",
     "max_num_results": "Максимальное количество результатов",
     "vector_store_ids": "Идентификаторы векторных хранилищ",
-    "file_search": "Поиск файлов"
+    "file_search": "Поиск файлов",
+    "knownSpeakersTitle": "Известные спикеры",
+    "knownSpeakersDescription": "Добавьте до 4 имён спикеров и при желании загрузите короткий голосовой образец для каждого, чтобы улучшить диаризацию.",
+    "knownSpeakersAdd": "Добавить спикера",
+    "knownSpeakersNamePlaceholder": "например, Алиса",
+    "knownSpeakersSampleMissing": "Образец не загружен",
+    "knownSpeakersNameExists": "Это имя уже существует.",
+    "knownSpeakersMax": "Можно добавить до 4 спикеров.",
+    "knownSpeakersDeleteConfirm": "У этого спикера есть сохранённый образец. Удалить спикера и образец?",
+    "knownSpeakersSampleDuration": "Запись должна длиться от 2 до 10 секунд."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Расширенные гражданские ответы",

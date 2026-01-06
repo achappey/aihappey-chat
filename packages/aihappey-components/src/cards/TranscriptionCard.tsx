@@ -28,10 +28,9 @@ export const TranscriptionCard = ({ transcription, file, filename, onDelete }: T
     ];
 
     const headerActions = onDelete ? <Menu items={menuItems} /> : undefined;
-
     const actions = (
         <ViewButton
-            title="View transcription"
+            title={t("viewTranscription")}
             variant="transparent"
             size="small"
             onClick={() => setDetailsOpen(true)}
@@ -40,7 +39,10 @@ export const TranscriptionCard = ({ transcription, file, filename, onDelete }: T
 
     return (
         <>
-            <Card title={filename} size="small" actions={actions} headerActions={headerActions}>
+            <Card title={filename}
+                size="small"
+                actions={actions}
+                headerActions={headerActions}>
                 <LimitedTextField text={transcription.text} />
             </Card>
 

@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "Wiadomość systemowa (lub deweloperska) wstawiona do kontekstu modelu.",
     "max_num_results": "Maksymalna liczba wyników",
     "vector_store_ids": "Identyfikatory magazynów wektorowych",
-    "file_search": "Wyszukiwanie plików"
+    "file_search": "Wyszukiwanie plików",
+    "knownSpeakersTitle": "Znani mówcy",
+    "knownSpeakersDescription": "Dodaj maksymalnie 4 nazwy mówców i opcjonalnie prześlij krótką próbkę głosu dla każdego, aby poprawić diarizację.",
+    "knownSpeakersAdd": "Dodaj mówcę",
+    "knownSpeakersNamePlaceholder": "np. Alicja",
+    "knownSpeakersSampleMissing": "Brak przesłanej próbki",
+    "knownSpeakersNameExists": "Ta nazwa już istnieje.",
+    "knownSpeakersMax": "Możesz dodać maksymalnie 4 mówców.",
+    "knownSpeakersDeleteConfirm": "Ten mówca ma zapisaną próbkę. Usunąć mówcę i jego próbkę?",
+    "knownSpeakersSampleDuration": "Nagranie musi trwać od 2 do 10 sekund."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Rozszerzone odpowiedzi obywatelskie",

@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "Mesaj de sistem (sau dezvoltator) inserat în contextul modelului.",
     "max_num_results": "Număr maxim de rezultate",
     "vector_store_ids": "ID-uri ale stocărilor vectoriale",
-    "file_search": "Căutare fișiere"
+    "file_search": "Căutare fișiere",
+    "knownSpeakersTitle": "Vorbitori cunoscuți",
+    "knownSpeakersDescription": "Adaugă până la 4 nume de vorbitor și, opțional, încarcă o mostră scurtă de voce pentru fiecare vorbitor pentru a îmbunătăți diarizarea.",
+    "knownSpeakersAdd": "Adaugă vorbitor",
+    "knownSpeakersNamePlaceholder": "de ex. Alice",
+    "knownSpeakersSampleMissing": "Nicio mostră încărcată",
+    "knownSpeakersNameExists": "Acest nume există deja.",
+    "knownSpeakersMax": "Poți adăuga până la 4 vorbitori.",
+    "knownSpeakersDeleteConfirm": "Acest vorbitor are o mostră salvată. Ștergi vorbitorul și mostra?",
+    "knownSpeakersSampleDuration": "Înregistrarea trebuie să aibă între 2 și 10 secunde."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Răspunsuri civice îmbunătățite",

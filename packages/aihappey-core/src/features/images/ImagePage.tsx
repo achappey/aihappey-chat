@@ -16,18 +16,7 @@ import { ImageModal } from "./ImageModal";
 import { ImageWarnings } from "./ImageWarnings";
 import { ImageContent } from "@modelcontextprotocol/sdk/types";
 import { createImageProvider } from "aihappey-ai";
-
-export const fileToBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      resolve(result.split(",")[1]); // strip data:...;base64,
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
+import { fileToBase64 } from "../chat/files/file";
 
 export const ImagePage = () => {
   const images = useLibraryImages();

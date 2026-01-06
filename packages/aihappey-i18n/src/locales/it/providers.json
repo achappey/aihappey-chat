@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "Messaggio di sistema (o sviluppatore) inserito nel contesto del modello.",
     "max_num_results": "Numero massimo di risultati",
     "vector_store_ids": "ID degli archivi vettoriali",
-    "file_search": "Ricerca file"
+    "file_search": "Ricerca file",
+    "knownSpeakersTitle": "Speaker noti",
+    "knownSpeakersDescription": "Aggiungi fino a 4 nomi di speaker e, facoltativamente, carica un breve campione vocale per ogni speaker per migliorare la diarizzazione.",
+    "knownSpeakersAdd": "Aggiungi speaker",
+    "knownSpeakersNamePlaceholder": "es. Alice",
+    "knownSpeakersSampleMissing": "Nessun campione caricato",
+    "knownSpeakersNameExists": "Questo nome esiste già.",
+    "knownSpeakersMax": "Puoi aggiungere fino a 4 speaker.",
+    "knownSpeakersDeleteConfirm": "Questo speaker ha un campione salvato. Eliminare lo speaker e il campione?",
+    "knownSpeakersSampleDuration": "La registrazione deve durare tra 2 e 10 secondi."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Risposte civiche avanzate",

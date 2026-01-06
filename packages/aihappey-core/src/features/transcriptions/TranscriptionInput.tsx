@@ -5,9 +5,18 @@ import { useFileAttachments, fileAttachmentRuntime } from "../../runtime/files/f
 import { addFilesToRuntime } from "../chat/input/MessageInput";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+export type KnownSpeakerSamplesBinding = {
+  getSampleInfo?: (speakerName: string) => { exists: boolean; tagLabel?: string };
+  onUploadSample?: (speakerName: string, files: File[]) => Promise<void> | void;
+  onClearSample?: (speakerName: string) => Promise<void> | void;
+  onRenameSample?: (fromSpeakerName: string, toSpeakerName: string) => Promise<void> | void;
+  onPreviewSample?: (speakerName: string) => Promise<void> | void;
+};
+
 type TranscriptionInputProps = {
   disabled?: boolean;
   onFilesSelected?: (files: File[]) => Promise<void> | void;
+  knownSpeakerSamples?: KnownSpeakerSamplesBinding;
 };
 
 export const TranscriptionInput = (props: TranscriptionInputProps) => {
@@ -201,6 +210,7 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
             providerMetadata={providerTranscriptionMetadata}
             setProviderMetadata={setProviderTranscriptionMetadata}
             resetDefaults={() => setProviderTranscriptionMetadata(defaultProviderTranscriptionMetadata)}
+            knownSpeakerSamples={props.knownSpeakerSamples}
           />
 
           <AttachmentButton

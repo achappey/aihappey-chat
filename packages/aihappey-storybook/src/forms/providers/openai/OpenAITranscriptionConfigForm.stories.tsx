@@ -22,6 +22,12 @@ const Template: React.FC<{ initial: OpenAIITranscriptionConfig }> = ({
     <OpenAIITranscriptionConfigForm
       config={config}
       updateConfig={setConfig}
+      // Storybook: no persistence layer, so Known Speakers sample ops are disabled.
+      getSampleInfo={undefined}
+      onUploadSample={undefined}
+      onClearSample={undefined}
+      onRenameSample={undefined}
+      onPreviewSample={undefined}
     />
   );
 };
@@ -57,6 +63,18 @@ export const PromptOnly: Story = {
       initial={{
         prompt:
           "This audio contains technical terminology. Prefer literal transcription.",
+      }}
+    />
+  ),
+};
+
+export const WithTemperatureAndGranularities: Story = {
+  render: () => (
+    <Template
+      initial={{
+        language: "en",
+        temperature: 0.2,
+        timestamp_granularities: ["segment", "word"],
       }}
     />
   ),

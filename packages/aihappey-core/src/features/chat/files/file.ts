@@ -17,6 +17,10 @@ export const fileToDataUrl = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
+export const fileToBase64 = async (file: File) => btoa(
+  String.fromCharCode(...new Uint8Array(await file.arrayBuffer()))
+);
+
 // Utility to extract text from supported file types
 export const extractTextFromFile = async (a: File): Promise<string | undefined> => {
   //const file = a.file as File;

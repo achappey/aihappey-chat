@@ -33,14 +33,13 @@ export const withPersist = (
       providerMetadata: s.providerMetadata,
       providerImageMetadata: s.providerImageMetadata,
       providerSpeechMetadata: s.providerSpeechMetadata,
-
+      providerTranscriptionMetadata: s.providerTranscriptionMetadata,
       // Speech (general)
       voice: s.voice,
       speechOutputFormat: s.speechOutputFormat,
       speechInstructions: s.speechInstructions,
       speed: s.speed,
       speechLanguage: s.speechLanguage,
-      //n: s.n,
       seed: s.seed,
       allowedToolList: s.allowedToolList,
       size: s.size,

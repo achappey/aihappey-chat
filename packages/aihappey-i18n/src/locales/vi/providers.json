@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "Thông điệp hệ thống (hoặc nhà phát triển) được chèn vào ngữ cảnh của mô hình.",
     "max_num_results": "Số kết quả tối đa",
     "vector_store_ids": "ID của các kho vector",
-    "file_search": "Tìm kiếm tệp"
+    "file_search": "Tìm kiếm tệp",
+    "knownSpeakersTitle": "Người nói đã biết",
+    "knownSpeakersDescription": "Thêm tối đa 4 tên người nói và (tuỳ chọn) tải lên một mẫu giọng nói ngắn cho mỗi người nói để cải thiện phân tách người nói.",
+    "knownSpeakersAdd": "Thêm người nói",
+    "knownSpeakersNamePlaceholder": "ví dụ: Alice",
+    "knownSpeakersSampleMissing": "Chưa tải lên mẫu",
+    "knownSpeakersNameExists": "Tên này đã tồn tại.",
+    "knownSpeakersMax": "Bạn có thể thêm tối đa 4 người nói.",
+    "knownSpeakersDeleteConfirm": "Người nói này có mẫu đã lưu. Xóa người nói và mẫu?",
+    "knownSpeakersSampleDuration": "Bản ghi phải dài từ 2 đến 10 giây."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Câu trả lời công dân nâng cao",

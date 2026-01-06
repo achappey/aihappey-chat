@@ -28,6 +28,7 @@
   },
   "reranking": "Reranking",
   "transcription": "Transcription",
+  "viewTranscription": "View transcription",
   "transcriptionSettings": "Transcription settings",
   "transcriptions": "Transcriptions",
   "myTranscriptions": "My transcriptions",

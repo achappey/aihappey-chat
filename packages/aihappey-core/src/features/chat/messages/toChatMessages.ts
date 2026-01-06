@@ -1,5 +1,14 @@
 import { ChatMessage, SYSTEM_ROLE } from "aihappey-types";
 import type { FileUIPart, ToolUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
+import { CallToolResult } from "aihappey-mcp";
+
+function isCallToolResult(output: unknown): output is CallToolResult {
+  return (
+    typeof output === "object" &&
+    output !== null &&
+    Array.isArray((output as any).content)
+  );
+}
 
 export function toChatMessages(
   messages: UIMessage[],
@@ -95,7 +104,7 @@ export function toChatMessages(
       }
 
       // Any non-image part breaks the image run
-      flushImages();
+      // flushImages();
 
       // 2) Text: flush activity, then push text message
       if (t === "text") {
@@ -115,6 +124,24 @@ export function toChatMessages(
 
         continue;
       }
+
+      const part = p as ToolUIPart;
+
+      if (
+        typeof t === "string" &&
+        t.startsWith("tool-") &&
+        isCallToolResult(part.output)
+      ) {
+        part.output.content.filter(a => a.type == "image").forEach((item) => {
+          imageRun.push({
+            type: "file",
+            mediaType: item.mimeType,
+            url: item.data
+          });
+          // item is correctly typed from CallToolResult["content"]
+        });
+      }
+
 
       // 3) Special tool widget block: flush activity, then push widget message
       if (
@@ -148,8 +175,8 @@ export function toChatMessages(
     }
 
     // Flush any trailing buffers
-    flushImages();
     flushActivity();
+    flushImages();
   }
 
   return out;

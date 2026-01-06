@@ -52,7 +52,16 @@
     "instructionsPlaceholder": "A modell kontextusába beszúrt rendszer- (vagy fejlesztői) üzenet.",
     "max_num_results": "Eredmények maximális száma",
     "vector_store_ids": "Vektortárak azonosítói",
-    "file_search": "Fájlkeresés"
+    "file_search": "Fájlkeresés",
+    "knownSpeakersTitle": "Ismert beszélők",
+    "knownSpeakersDescription": "Adj hozzá legfeljebb 4 beszélőnevet, és opcionálisan tölts fel rövid hangmintát minden beszélőhöz a diarizáció javításához.",
+    "knownSpeakersAdd": "Beszélő hozzáadása",
+    "knownSpeakersNamePlaceholder": "pl. Alice",
+    "knownSpeakersSampleMissing": "Nincs feltöltött minta",
+    "knownSpeakersNameExists": "Ez a név már létezik.",
+    "knownSpeakersMax": "Legfeljebb 4 beszélőt adhatsz hozzá.",
+    "knownSpeakersDeleteConfirm": "Ennek a beszélőnek van mentett mintája. Törlöd a beszélőt és a mintát?",
+    "knownSpeakersSampleDuration": "A felvételnek 2 és 10 másodperc között kell lennie."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Továbbfejlesztett állampolgári válaszok",

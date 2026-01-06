@@ -46,7 +46,16 @@
     "instructionsPlaceholder": "System- (oder Entwickler-)Nachricht, die in den Modellkontext eingefügt wird.",
     "max_num_results": "Maximale Anzahl an Ergebnissen",
     "vector_store_ids": "IDs der Vektorspeicher",
-    "file_search": "Dateisuche"
+    "file_search": "Dateisuche",
+    "knownSpeakersTitle": "Bekannte Sprecher",
+    "knownSpeakersDescription": "Füge bis zu 4 Sprechernamen hinzu und lade optional pro Sprecher eine kurze Sprachprobe hoch, um die Sprechertrennung zu verbessern.",
+    "knownSpeakersAdd": "Sprecher hinzufügen",
+    "knownSpeakersNamePlaceholder": "z. B. Alice",
+    "knownSpeakersSampleMissing": "Keine Probe hochgeladen",
+    "knownSpeakersNameExists": "Dieser Name existiert bereits.",
+    "knownSpeakersMax": "Du kannst bis zu 4 Sprecher hinzufügen.",
+    "knownSpeakersDeleteConfirm": "Dieser Sprecher hat eine gespeicherte Probe. Sprecher und Probe löschen?",
+    "knownSpeakersSampleDuration": "Die Aufnahme muss zwischen 2 und 10 Sekunden lang sein."
   },
   "google": {
     "enableEnhancedCivicAnswers": "Erweiterte zivilgesellschaftliche Antworten",

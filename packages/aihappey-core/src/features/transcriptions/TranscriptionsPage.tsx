@@ -7,23 +7,30 @@ import { createTranscriptionProvider } from "aihappey-ai";
 import { useTranscriptions } from "aihappey-transcriptions";
 import { TranscriptionCard, useTheme } from "aihappey-components";
 import { TranscriptionInput } from "./TranscriptionInput";
+import { fileToBase64 } from "../chat/files/file";
+import { resolveKnownSpeakerReferenceDataUrls, useFiles } from "aihappey-files";
+import {
+  deleteKnownSpeakerReferenceSamples,
+  getLatestKnownSpeakerReferenceItem,
+  readStoredFileOrThrow,
+  migrateKnownSpeakerReferenceSample,
+  saveKnownSpeakerReferenceSample,
+} from "aihappey-files";
 
-export const fileToBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      resolve(result.split(",")[1]);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+export function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(r.error ?? new Error("Failed to read blob"));
+    r.readAsDataURL(blob);
   });
+}
 
 
 export const TranscriptionsPage = () => {
   const models = useAppStore((a) => a.models);
   const customHeaders = useAppStore((a) => a.customHeaders);
-  const providerImageMetadata = useAppStore((a) => a.providerImageMetadata);
+  const providerTranscriptionMetadata = useAppStore((a) => a.providerTranscriptionMetadata);
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const getAccessToken = config?.getAccessToken;
@@ -32,6 +39,43 @@ export const TranscriptionsPage = () => {
   const headers = config?.headers;
   const { Skeleton } = useTheme()
   const storageTranscriptions = useTranscriptions()
+  const files = useFiles();
+
+  const knownSpeakerSamples = {
+    getSampleInfo: (speakerName: string) => {
+      const item = getLatestKnownSpeakerReferenceItem(files.items, speakerName);
+      return {
+        exists: !!item,
+        tagLabel: item?.name,
+      };
+    },
+    onUploadSample: async (speakerName: string, selected: File[]) => {
+      if (!selected.length) return;
+      const file = selected[0];
+      await saveKnownSpeakerReferenceSample(files, speakerName, file);
+      files.refresh();
+    },
+    onClearSample: async (speakerName: string) => {
+      await deleteKnownSpeakerReferenceSamples(files, speakerName);
+      files.refresh();
+    },
+    onRenameSample: async (fromName: string, toName: string) => {
+      await migrateKnownSpeakerReferenceSample(files, fromName, toName);
+      files.refresh();
+    },
+    onPreviewSample: async (speakerName: string) => {
+      const item = getLatestKnownSpeakerReferenceItem(files.items, speakerName);
+      if (!item) return;
+      const stored = await files.read(item.id);
+      if (!stored) return;
+
+      const url = URL.createObjectURL(stored.data);
+      const audio = new Audio(url);
+      audio.onended = () => URL.revokeObjectURL(url);
+      audio.onerror = () => URL.revokeObjectURL(url);
+      void audio.play();
+    },
+  };
 
   //const attachments = useFileAttachments(fileAttachmentRuntime);
   const addAttachment = async (file: File) => {
@@ -40,13 +84,16 @@ export const TranscriptionsPage = () => {
 
   const { isOver, dropRef, handleDrop, handleDragOver } =
     useChatFileDrop(addAttachment);
-    
+
   const [processing, setProcessing] = useState(false);
-  const transcribeFiles = async (files: File[]) => {
-    if (!files.length) return;
+
+  const knownSpeakerNames = providerTranscriptionMetadata?.openai?.known_speaker_names;
+
+  const transcribeFiles = async (inputFiles: File[]) => {
+    if (!inputFiles.length) return;
 
     setProcessing(true);
-    setItemsLoading(files.length);
+    setItemsLoading(inputFiles.length);
 
     try {
       let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
@@ -62,14 +109,30 @@ export const TranscriptionsPage = () => {
 
       const model = provider.transcriptionModel(selectedModel);
 
+      const knownSpeakerReferences =
+        knownSpeakerNames?.length
+          ? await resolveKnownSpeakerReferenceDataUrls(
+            files.items,
+            knownSpeakerNames,
+            (id) => readStoredFileOrThrow(files, id)
+          )
+          : undefined;
+
+
       await Promise.all(
-        files.map(async (file) => {
+        inputFiles.map(async (file) => {
           const audioBase64 = await fileToBase64(file);
 
           const result = await model.doGenerate({
             audio: audioBase64,
             mediaType: file.type,
-            providerOptions: providerImageMetadata,
+            providerOptions: {
+              ...providerTranscriptionMetadata,
+              openai: {
+                ...providerTranscriptionMetadata.openai,
+                known_speaker_references: knownSpeakerReferences,
+              }
+            },
           });
 
           await storageTranscriptions.add(file.name, file, result);
@@ -123,6 +186,7 @@ export const TranscriptionsPage = () => {
         <TranscriptionInput
           disabled={processing}
           onFilesSelected={transcribeFiles}
+          knownSpeakerSamples={knownSpeakerSamples}
         />
 
       </div>
