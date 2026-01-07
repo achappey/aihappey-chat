@@ -99,6 +99,9 @@ export type UiSlice = {
   enableAgentImport: boolean
   enableConversationImport: boolean
   chatWithImageModels?: boolean
+  chatWithTranscriptionModels?: boolean
+  chatWithSpeechModels?: boolean
+  chatWithRerankModels?: boolean
   sampling?: any
   elicitation?: any
   debugMode?: boolean
@@ -111,6 +114,8 @@ export type UiSlice = {
   setActivitiesSize: (value: string) => void;
   toggleSampling: () => void;
   toggleChatWithImageModels: () => void;
+  toggleChatWithSpeechModels: () => void;
+  toggleChatWithTranscriptionModels: () => void;
   toggleEliciation: () => void;
   toggleAgentImport: () => void;
   toggleConversationImport: () => void;
@@ -145,6 +150,15 @@ export type UiSlice = {
 
   userPreferredModel?: string;
   setUserPreferredModel: (model: string) => void;
+
+  userPreferredImageModel?: string;
+  setUserPreferredImageModel: (model: string) => void;
+
+  userPreferredTranscriptionModel?: string;
+  setUserPreferredTranscriptionModel: (model: string) => void;
+
+  userPreferredSpeechModel?: string;
+  setUserPreferredSpeechModel: (model: string) => void;
 
   accountLocation?: any
   setAccountLocation: (location?: any) => void
@@ -182,11 +196,22 @@ export const createUiSlice: StateCreator<
   accountLocation: undefined,
   enabledProviders: [],
   chatWithImageModels: false,
+  chatWithRerankModels: false,
+  chatWithSpeechModels: false,
+  chatWithTranscriptionModels: false,
   activitiesSize: "medium",
   quickSearches: ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"],
   toggleChatWithImageModels: () =>
     set((s: any) => ({
       chatWithImageModels: !s.chatWithImageModels,
+    })),
+  toggleChatWithSpeechModels: () =>
+    set((s: any) => ({
+      chatWithSpeechModels: !s.chatWithSpeechModels,
+    })),
+  toggleChatWithTranscriptionModels: () =>
+    set((s: any) => ({
+      chatWithTranscriptionModels: !s.chatWithTranscriptionModels,
     })),
   toggleEliciation: () =>
     set((s: any) => ({
@@ -223,16 +248,37 @@ export const createUiSlice: StateCreator<
         userPreferredModel: model
       }
     }),
+
+  setUserPreferredImageModel: (model) =>
+    set((state: any) => {
+      return {
+        userPreferredImageModel: model
+      }
+    }),
+
+  setUserPreferredSpeechModel: (model) =>
+    set((state: any) => {
+      return {
+        userPreferredSpeechModel: model
+      }
+    }),
+
+  setUserPreferredTranscriptionModel: (model) =>
+    set((state: any) => {
+      return {
+        userPreferredTranscriptionModel: model
+      }
+    }),
   /*  toggleExcludedModel: (model) =>
-      set((state: any) => {
-        if (!model) return state
-        const exists = state.exludedModels.includes(model)
-        return {
-          exludedModels: exists
-            ? state.exludedModels.filter((p: any) => p !== model)
-            : [...state.exludedModels, model],
-        }
-      }),*/
+    set((state: any) => {
+      if (!model) return state
+      const exists = state.exludedModels.includes(model)
+      return {
+        exludedModels: exists
+          ? state.exludedModels.filter((p: any) => p !== model)
+          : [...state.exludedModels, model],
+      }
+    }),*/
   toggleDebugMode: () =>
     set((state: any) => {
       return {
@@ -267,6 +313,7 @@ export const createUiSlice: StateCreator<
 
   setAccountLocation: (location?: any) =>
     set(() => ({ accountLocation: location })),
+
   toggleEnableUserLocation: () =>
     set((s: any) => ({
       enableUserLocation: !s.enableUserLocation,
@@ -276,6 +323,7 @@ export const createUiSlice: StateCreator<
     set(() => ({
       enableUserLocation: enableUserLocation,
     })),
+
   connectChatApp: async (name, version, url, opts) => {
     return connectPersistent("chatapp", url, {
       ...opts,

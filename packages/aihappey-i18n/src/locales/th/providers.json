@@ -22,7 +22,11 @@
     "privateHint": "ซ่อนรูปภาพจากฟีดสาธารณะ"
   },
   "mistral": {
-    "webSearchPremium": "พรีเมียม"
+    "webSearchPremium": "พรีเมียม",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "หมายเหตุ",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: ไทม์สแตมป์ (timestamp_granularities) ไม่เข้ากันกับภาษา กรุณาใช้ไทม์สแตมป์ หรือ ภาษาอย่างใดอย่างหนึ่ง",
+    "transcriptionTimestampsEnabledHint": "เปิดไทม์สแตมป์แล้ว (เฉพาะ segment) ภาษาได้ถูกล้างอัตโนมัติ",
+    "transcriptionLanguageEnabledHint": "ตั้งค่าภาษาแล้ว หากเปิดไทม์สแตมป์ ระบบจะล้างภาษาอัตโนมัติ"
   },
   "anthropic": {
     "maxUses": "จำนวนการใช้งานสูงสุด",

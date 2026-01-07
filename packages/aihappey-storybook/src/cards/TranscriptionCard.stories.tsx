@@ -40,3 +40,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const WithModalOpen: Story = {
+  args: {
+    // This story exists to show the modal actions (Download SplitButton + Close).
+    // Note: The modal opens via the view action button.
+  },
+};
+

@@ -22,7 +22,11 @@
     "privateHint": "画像を公開フィードから非表示にします"
   },
   "mistral": {
-    "webSearchPremium": "プレミアム"
+    "webSearchPremium": "プレミアム",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "注意",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: タイムスタンプ（timestamp_granularities）は言語指定と併用できません。タイムスタンプまたは言語のどちらかを使用してください。",
+    "transcriptionTimestampsEnabledHint": "タイムスタンプが有効です（segment のみ）。言語指定は自動的にクリアされました。",
+    "transcriptionLanguageEnabledHint": "言語が設定されています。タイムスタンプを有効にすると、言語は自動的にクリアされます。"
   },
   "anthropic": {
     "maxUses": "最大使用回数",

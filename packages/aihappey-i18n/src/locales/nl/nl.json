@@ -46,7 +46,7 @@
   "webSearch": "Zoeken op internet",
   "webFetch": "Web lezen",
   "speech": "Spraak",
-  "mySpeechFiles": "Mijn spraak bestanden",
+  "mySpeechFiles": "Mijn spraakbestanden",
   "speechPromptPlaceholder": "Voer tekst in om audio te genereren",
   "speechSettings": {
     "title": "Spraakinstellingen",
@@ -357,6 +357,8 @@
     "noServers": "Geen model context.",
     "manage": "Wijzigen"
   },
+  "chatWithSpeechModels": "Chat met spraakmodellen",
+  "chatWithTranscriptionModels": "Chat met transcriptiemodellen",
   "manageServersModal": {
     "current": "Huidige servers",
     "client": "Client",
@@ -372,7 +374,6 @@
     "validate": "Valideer",
     "headers": "Headers",
     "nameExists": "Er bestaat al een server met deze naam.",
-    "type": "Type",
-    "http": "HTTP"
+    "type": "Type"
   }
 }

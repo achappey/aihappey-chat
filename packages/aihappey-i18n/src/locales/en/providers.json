@@ -22,7 +22,11 @@
     "privateHint": "Hide the image from public feeds"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Note",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: timestamps (timestamp_granularities) are not compatible with language. Use either timestamps OR language.",
+    "transcriptionTimestampsEnabledHint": "Timestamps are enabled (segment only). Language has been cleared automatically.",
+    "transcriptionLanguageEnabledHint": "Language is set. If you enable timestamps, language will be cleared automatically."
   },
   "anthropic": {
     "maxUses": "Maximum uses",
@@ -141,7 +145,13 @@
     "invalid_json": "Invalid JSON"
   },
   "novita": {
-    "pitch": "Pitch ({{pitch}})"
+    "pitch": "Pitch ({{pitch}})",
+    "transcriptionPrompt": "Prompt",
+    "transcriptionPromptPlaceholder": "For long text scenarios, you can provide previous transcription results as context. Recommended to be less than 8000 characters.",
+    "hotwords": "Hotwords",
+    "hotwordsHint": "Hotword list to improve recognition accuracy for domain-specific vocabulary.",
+    "addHotword": "Add hotword",
+    "addHotwordPlaceholder": "e.g. product name"
   },
   "fireworks": {
     "audioProcessing": "Audio processing",

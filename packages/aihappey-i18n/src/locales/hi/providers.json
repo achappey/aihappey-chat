@@ -22,7 +22,11 @@
     "privateHint": "छवि को सार्वजनिक फ़ीड से छिपाएँ"
   },
   "mistral": {
-    "webSearchPremium": "प्रीमियम"
+    "webSearchPremium": "प्रीमियम",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "नोट",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: टाइमस्टैम्प (timestamp_granularities) भाषा के साथ संगत नहीं हैं। टाइमस्टैम्प या भाषा में से किसी एक का उपयोग करें।",
+    "transcriptionTimestampsEnabledHint": "टाइमस्टैम्प सक्षम हैं (केवल segment)। भाषा स्वचालित रूप से साफ़ कर दी गई है।",
+    "transcriptionLanguageEnabledHint": "भाषा सेट है। यदि आप टाइमस्टैम्प सक्षम करेंगे, तो भाषा स्वचालित रूप से साफ़ हो जाएगी।"
   },
   "anthropic": {
     "maxUses": "अधिकतम उपयोग",

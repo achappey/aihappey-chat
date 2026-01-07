@@ -4,6 +4,7 @@ import { useTranslation } from "aihappey-i18n";
 import type { OpenAIITranscriptionConfig } from "../OpenAIITranscriptionConfigForm";
 import { KnownSpeakerEditor } from "./KnownSpeakerEditor";
 import { KnownSpeakerRow } from "./KnownSpeakerRow";
+import { AttachmentButton } from "../../../../buttons";
 
 export type KnownSpeakerSampleInfo = {
   exists: boolean;
@@ -151,6 +152,18 @@ export const KnownSpeakersCard: React.FC<{
     return { ok: true as const, value: normalized, err: null };
   };
 
+  const isAdding = editingIndex != null && editingIndex >= speakerNames.length;
+  const draftValidation = isAdding ? validateAndNormalizeName(draftName) : null;
+  const normalizedDraftName =
+    draftValidation && draftValidation.ok ? draftValidation.value : "";
+  const draftSample = normalizedDraftName
+    ? getSampleInfo?.(normalizedDraftName)
+    : undefined;
+  const draftSampleExists = !!draftSample?.exists;
+  const draftSampleBusy = normalizedDraftName
+    ? !!speakerBusy[`sample:${normalizedDraftName}`]
+    : false;
+
   const beginAdd = () => {
     setSpeakerError(null);
     setEditingIndex(speakerNames.length);
@@ -179,6 +192,16 @@ export const KnownSpeakersCard: React.FC<{
     if (!v.ok) {
       setSpeakerError(v.err);
       return;
+    }
+
+    // New requirement: do not add a speaker unless a sample exists.
+    // (UI-only enforcement; no config shape changes)
+    if (isNew) {
+      const hasSample = !!getSampleInfo?.(v.value)?.exists;
+      if (!hasSample) {
+        setSpeakerError(t("providers:openai.knownSpeakersSampleMissing"));
+        return;
+      }
     }
 
     const next = [...speakerNames];
@@ -247,6 +270,9 @@ export const KnownSpeakersCard: React.FC<{
     setRecordError(null);
     try {
       await onUploadSample?.(speakerName, selected);
+      // If user previously attempted to save without a sample, clear the error
+      // once a sample has been successfully uploaded/recorded.
+      setSpeakerError(null);
     } finally {
       setBusy(busyKey, false);
     }
@@ -402,11 +428,99 @@ export const KnownSpeakersCard: React.FC<{
         {editingIndex != null && (
           <KnownSpeakerEditor
             draftName={draftName}
-            setDraftName={setDraftName}
+            setDraftName={(val) => {
+              // During Add flow, samples are stored/mapped by name.
+              // Once a sample exists for the normalized name, lock the name
+              // to prevent orphan samples.
+              if (isAdding && draftSampleExists) return;
+              setDraftName(val);
+            }}
             onSave={() => void commitEdit()}
             onCancel={cancelEdit}
+            saveDisabled={
+              recordingKey != null ||
+              (isAdding && (!draftValidation?.ok || !draftSampleExists))
+            }
+            nameDisabled={isAdding && draftSampleExists}
             t={t}
-          />
+          >
+            {isAdding && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {!draftValidation?.ok ? (
+                  <div style={{ color: "rgba(0,0,0,0.6)" }}>
+                    {t("providers:openai.knownSpeakersSampleMissing")}
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <AttachmentButton
+                      disabled={
+                        draftSampleBusy || recordingKey != null || !onUploadSample
+                      }
+                      icon="attachment"
+                      onFilesSelected={(fs) =>
+                        void saveSampleFiles(normalizedDraftName, fs)
+                      }
+                    />
+
+                    <theme.Button
+                      type="button"
+                      size="small"
+                      variant={
+                        recordingKey === normalizedDraftName
+                          ? "primary"
+                          : "transparent"
+                      }
+                      icon={
+                        recordingKey === normalizedDraftName
+                          ? "stop"
+                          : "transcriptions"
+                      }
+                      title={t("transcriptionRecord")}
+                      disabled={
+                        draftSampleBusy ||
+                        (!recordingSupported &&
+                          recordingKey !== normalizedDraftName) ||
+                        (!(
+                          recordingKey === normalizedDraftName || recordingKey == null
+                        ))
+                      }
+                      onClick={() => {
+                        if (!normalizedDraftName) return;
+                        if (recordingKey === normalizedDraftName) {
+                          stopRecording();
+                        } else {
+                          void startRecording(normalizedDraftName);
+                        }
+                      }}
+                    >
+                      {recordingKey === normalizedDraftName
+                        ? formatTime(elapsedMs)
+                        : undefined}
+                    </theme.Button>
+
+                    {draftSampleExists && draftSample?.tagLabel && (
+                      <div style={{ color: "rgba(0,0,0,0.6)" }}>
+                        {draftSample.tagLabel}
+                      </div>
+                    )}
+
+                    {!draftSampleExists && (
+                      <div style={{ color: "rgba(0,0,0,0.6)" }}>
+                        {t("providers:openai.knownSpeakersSampleMissing")}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </KnownSpeakerEditor>
         )}
 
         {recordError && <div style={{ color: "#b00020" }}>{recordError}</div>}

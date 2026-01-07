@@ -22,7 +22,11 @@
     "privateHint": "Скрыть изображение из публичных лент"
   },
   "mistral": {
-    "webSearchPremium": "Премиум"
+    "webSearchPremium": "Премиум",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Примечание",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: таймстемпы (timestamp_granularities) несовместимы с языком. Используйте либо таймстемпы, либо язык.",
+    "transcriptionTimestampsEnabledHint": "Таймстемпы включены (только сегменты). Язык был автоматически очищен.",
+    "transcriptionLanguageEnabledHint": "Язык задан. Если включить таймстемпы, язык будет автоматически очищен."
   },
   "anthropic": {
     "maxUses": "Максимальное количество использований",

@@ -16,7 +16,11 @@
     "returnRelatedQuestions": "Retourner les questions associées"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Remarque",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral : les horodatages (timestamp_granularities) ne sont pas compatibles avec la langue. Utilisez soit les horodatages, soit la langue.",
+    "transcriptionTimestampsEnabledHint": "Horodatages activés (segment uniquement). La langue a été effacée automatiquement.",
+    "transcriptionLanguageEnabledHint": "Langue définie. Si vous activez les horodatages, la langue sera effacée automatiquement."
   },
   "anthropic": {
     "maxUses": "Utilisations maximales",

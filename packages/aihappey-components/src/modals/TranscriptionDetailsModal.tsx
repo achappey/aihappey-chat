@@ -31,6 +31,29 @@ const downloadBlob = (blob: Blob, filename: string) => {
     }
 };
 
+const toTextFilename = (audioFilename: string) => {
+    // Replace the last extension with .txt (e.g. "sample.wav" -> "sample.txt").
+    if (!audioFilename) return "transcription.txt";
+    return audioFilename.replace(/\.[^./\\]+$/, "") + ".txt";
+};
+
+const getFlattenedTranscriptionText = (transcription: TranscriptionResponse) => {
+    const hasSegments = (transcription.segments?.length ?? 0) > 0;
+    if (!hasSegments) return transcription.text ?? "";
+
+    const flattened = transcription.segments
+        .map((s) => {
+            const text = (s.text ?? "").trim();
+            if (!text) return "";
+            // Match the UI: time range line, then segment text, then a blank line.
+            return `${s.startSecond}s – ${s.endSecond}s\n${text}`;
+        })
+        .filter((s) => s.length > 0)
+        .join("\n\n");
+
+    return flattened.length > 0 ? flattened : (transcription.text ?? "");
+};
+
 export const TranscriptionDetailsModal: React.FC<
     TranscriptionDetailsModalProps
 > = ({
@@ -63,6 +86,12 @@ export const TranscriptionDetailsModal: React.FC<
 
         const rawOutput = useMemo(() => transcription.response?.body, [transcription]);
 
+        const downloadText = () => {
+            const text = getFlattenedTranscriptionText(transcription);
+            const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+            downloadBlob(blob, toTextFilename(audioFilename));
+        };
+
         return (
             <theme.Modal
                 show={open}
@@ -71,14 +100,37 @@ export const TranscriptionDetailsModal: React.FC<
                 title={t("transcription")}
                 actions={
                     <div style={{ display: "flex", gap: 8 }}>
-                        <theme.Button
-                            variant="secondary"
-                            onClick={() => downloadBlob(audio, audioFilename)}
-                        >
-                            {t("download")}
-                        </theme.Button>
+                        <theme.SplitButton
+                            size="small"
+                            variant="transparent"
+                            icon="download"
+                            label={t("download")}
 
-                        <theme.Button variant="subtle" onClick={onClose}>
+                            onClick={() => {
+                                // Intentionally no-op: user must choose Text or Audio from the dropdown.
+                            }}
+                            menuItems={[
+                                {
+                                    key: "download-text",
+                                    label: t("text"),
+                                    onClick: (e) => {
+                                        e?.stopPropagation?.();
+                                        downloadText();
+                                    },
+                                },
+                                {
+                                    key: "download-audio",
+                                    label: t("audio"),
+                                    onClick: (e) => {
+                                        e?.stopPropagation?.();
+                                        downloadBlob(audio, audioFilename);
+                                    },
+                                },
+                            ]}
+                        />
+
+                        <theme.Button variant="secondary"
+                            onClick={onClose}>
                             {t("close")}
                         </theme.Button>
                     </div>

@@ -16,7 +16,11 @@
     "returnRelatedQuestions": "Devolver perguntas relacionadas"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Nota",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: os carimbos de tempo (timestamp_granularities) não são compatíveis com a língua. Use carimbos de tempo OU língua.",
+    "transcriptionTimestampsEnabledHint": "Carimbos de tempo ativados (apenas segmento). A língua foi limpa automaticamente.",
+    "transcriptionLanguageEnabledHint": "Língua definida. Se ativar carimbos de tempo, a língua será limpa automaticamente."
   },
   "anthropic": {
     "maxUses": "Utilizações máximas",

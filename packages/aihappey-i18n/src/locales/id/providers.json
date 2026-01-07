@@ -22,7 +22,11 @@
     "privateHint": "Sembunyikan gambar dari feed publik"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Catatan",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: timestamp (timestamp_granularities) tidak kompatibel dengan bahasa. Gunakan timestamp ATAU bahasa.",
+    "transcriptionTimestampsEnabledHint": "Timestamp diaktifkan (hanya segment). Bahasa telah dihapus otomatis.",
+    "transcriptionLanguageEnabledHint": "Bahasa disetel. Jika mengaktifkan timestamp, bahasa akan dihapus otomatis."
   },
   "anthropic": {
     "maxUses": "Jumlah penggunaan maksimum",

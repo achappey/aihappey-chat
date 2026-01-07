@@ -3,7 +3,11 @@
     "citationOptions": "Citaten"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Let op",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: tijdstempels (timestamp_granularities) zijn niet compatibel met taal. Gebruik óf tijdstempels óf taal.",
+    "transcriptionTimestampsEnabledHint": "Tijdstempels staan aan (alleen segment). Taal is automatisch gewist.",
+    "transcriptionLanguageEnabledHint": "Taal is ingesteld. Als je tijdstempels inschakelt, wordt de taal automatisch gewist."
   },
   "pollinations": {
     "enhance": "Verbeteren",
@@ -135,7 +139,13 @@
     }
   },
   "novita": {
-    "pitch": "Toonhoogte ({{pitch}})"
+    "pitch": "Toonhoogte ({{pitch}})",
+    "transcriptionPrompt": "Prompt",
+    "transcriptionPromptPlaceholder": "Voor lange tekstscenario's kun je eerdere transcriptieresultaten als context meegeven. Aanbevolen: minder dan 8000 tekens.",
+    "hotwords": "Woordenlijst",
+    "hotwordsHint": "Woordenlijst om herkenningsnauwkeurigheid te verbeteren voor domeinspecifieke woordenschat.",
+    "addHotword": "Woord toevoegen",
+    "addHotwordPlaceholder": "bijv. productnaam"
   },
   "fireworks": {
     "audioProcessing": "Audiobewerking",

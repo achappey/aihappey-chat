@@ -16,7 +16,11 @@
     "returnRelatedQuestions": "Verwandte Fragen zurückgeben"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Hinweis",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: Zeitstempel (timestamp_granularities) sind nicht kompatibel mit Sprache. Verwende entweder Zeitstempel ODER Sprache.",
+    "transcriptionTimestampsEnabledHint": "Zeitstempel sind aktiviert (nur Segment). Sprache wurde automatisch entfernt.",
+    "transcriptionLanguageEnabledHint": "Sprache ist gesetzt. Wenn du Zeitstempel aktivierst, wird die Sprache automatisch entfernt."
   },
   "anthropic": {
     "maxUses": "Maximale Nutzung",

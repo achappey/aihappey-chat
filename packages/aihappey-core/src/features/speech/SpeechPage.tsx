@@ -23,21 +23,14 @@ export const SpeechPage = () => {
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const [prompt, setPrompt] = useState<string>("");
   const [dropError, setDropError] = useState<string | undefined>(undefined);
+
+  const userPreferredSpeechModel = useAppStore((a) => a.userPreferredSpeechModel);
   const getAccessToken = config?.getAccessToken;
-  const [selectedModel, setSelectedModel] = useState<string>(getAccessToken ?
-    "openai/gpt-4o-mini-tts" : "pollinations/openai");
+  const [selectedModel, setSelectedModel] = useState<string>(userPreferredSpeechModel ?? (getAccessToken ?
+    "openai/gpt-4o-mini-tts" : ""));
   const headers = config?.headers;
   const { Skeleton } = useTheme()
   const speech = useSpeech();
-  const [modalImage, setModalImage] = useState<SpeechResponse | undefined>(undefined);
-
-  const openImage = (src: SpeechResponse) => {
-    setModalImage(src);
-  };
-
-  const closeImage = () => {
-    setModalImage(undefined);
-  };
 
   // Speech page file->prompt behavior.
   // No auto-send and no keeping files as attachments/tags.

@@ -22,7 +22,11 @@
     "privateHint": "A kép elrejtése a nyilvános feedekből"
   },
   "mistral": {
-    "webSearchPremium": "Prémium"
+    "webSearchPremium": "Prémium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Megjegyzés",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: az időbélyegek (timestamp_granularities) nem kompatibilisek a nyelvvel. Használj időbélyegeket VAGY nyelvet.",
+    "transcriptionTimestampsEnabledHint": "Az időbélyegek engedélyezve (csak segment). A nyelv automatikusan törölve lett.",
+    "transcriptionLanguageEnabledHint": "A nyelv be van állítva. Ha engedélyezed az időbélyegeket, a nyelv automatikusan törlődik."
   },
   "anthropic": {
     "maxUses": "Felhasználások maximális száma",

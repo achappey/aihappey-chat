@@ -31,11 +31,12 @@ export const TranscriptionsPage = () => {
   const models = useAppStore((a) => a.models);
   const customHeaders = useAppStore((a) => a.customHeaders);
   const providerTranscriptionMetadata = useAppStore((a) => a.providerTranscriptionMetadata);
+  const userPreferredTranscriptionModel = useAppStore((a) => a.userPreferredTranscriptionModel);
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const getAccessToken = config?.getAccessToken;
-  const [selectedModel, setSelectedModel] = useState<string>(getAccessToken ?
-    "openai/gpt-4o-transcribe-diarize" : "pollinations/openai");
+  const [selectedModel, setSelectedModel] = useState<string>(userPreferredTranscriptionModel
+    ?? (getAccessToken ? "openai/gpt-4o-transcribe-diarize" : ""));
   const headers = config?.headers;
   const { Skeleton } = useTheme()
   const storageTranscriptions = useTranscriptions()

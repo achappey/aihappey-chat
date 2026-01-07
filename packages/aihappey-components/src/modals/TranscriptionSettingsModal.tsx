@@ -3,8 +3,12 @@ import { useTranslation } from "aihappey-i18n";
 import {
     FireworksTranscriptionConfigForm,
     GroqTranscriptionConfigForm,
+    MistralTranscriptionConfigForm,
+    NovitaTranscriptionConfigForm,
     OpenAIITranscriptionConfigForm,
+    SambanovaTranscriptionConfigForm,
     ScalewayTranscriptionConfigForm,
+    ZaiTranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
@@ -103,6 +107,20 @@ export const TranscriptionSettingsModal: React.FC<
                         </theme.Tab>
                     )}
 
+                    {enabledProviders.includes("Mistral") && (
+                        <theme.Tab eventKey="mistral" title="Mistral">
+                            <MistralTranscriptionConfigForm
+                                config={providerMetadata.mistral ?? {}}
+                                updateConfig={(mistral) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        mistral,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
                     {enabledProviders.includes("Scaleway") && (
                         <theme.Tab eventKey="scaleway" title="Scaleway">
                             <ScalewayTranscriptionConfigForm
@@ -117,6 +135,34 @@ export const TranscriptionSettingsModal: React.FC<
                         </theme.Tab>
                     )}
 
+                    {enabledProviders.includes("Novita") && (
+                        <theme.Tab eventKey="novita" title="Novita">
+                            <NovitaTranscriptionConfigForm
+                                config={providerMetadata.novita ?? {}}
+                                updateConfig={(novita) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        novita,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Zai") && (
+                        <theme.Tab eventKey="zai" title="Zai">
+                            <ZaiTranscriptionConfigForm
+                                config={providerMetadata.zai ?? {}}
+                                updateConfig={(zai) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        zai,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
                     {enabledProviders.includes("Fireworks") && (
                         <theme.Tab eventKey="fireworks" title="Fireworks">
                             <FireworksTranscriptionConfigForm
@@ -125,6 +171,20 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         fireworks,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("SambaNova") && (
+                        <theme.Tab eventKey="sambanova" title="SambaNova">
+                            <SambanovaTranscriptionConfigForm
+                                config={providerMetadata.sambanova ?? {}}
+                                updateConfig={(sambanova) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        sambanova,
                                     })
                                 }
                             />

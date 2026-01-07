@@ -22,7 +22,11 @@
     "privateHint": "Ascunde imaginea din fluxurile publice"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Notă",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: marcajele de timp (timestamp_granularities) nu sunt compatibile cu limba. Folosește marcaje de timp SAU limbă.",
+    "transcriptionTimestampsEnabledHint": "Marcajele de timp sunt activate (doar segment). Limba a fost ștearsă automat.",
+    "transcriptionLanguageEnabledHint": "Limba este setată. Dacă activezi marcajele de timp, limba va fi ștearsă automat."
   },
   "anthropic": {
     "maxUses": "Număr maxim de utilizări",

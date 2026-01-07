@@ -22,7 +22,11 @@
     "privateHint": "Görseli herkese açık akışlardan gizle"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Not",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: zaman damgaları (timestamp_granularities) dil ile uyumlu değil. Zaman damgaları VEYA dil kullanın.",
+    "transcriptionTimestampsEnabledHint": "Zaman damgaları etkin (yalnızca segment). Dil otomatik olarak temizlendi.",
+    "transcriptionLanguageEnabledHint": "Dil ayarlı. Zaman damgalarını etkinleştirirseniz dil otomatik olarak temizlenir."
   },
   "anthropic": {
     "maxUses": "Maksimum kullanım sayısı",

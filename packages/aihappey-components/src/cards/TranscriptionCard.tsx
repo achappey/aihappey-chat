@@ -28,6 +28,7 @@ export const TranscriptionCard = ({ transcription, file, filename, onDelete }: T
     ];
 
     const headerActions = onDelete ? <Menu items={menuItems} /> : undefined;
+
     const actions = (
         <ViewButton
             title={t("viewTranscription")}

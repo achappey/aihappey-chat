@@ -6,7 +6,6 @@ import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
 import { useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
-import { useTranslation } from "aihappey-i18n";
 import { useImages } from "aihappey-images";
 import { useImageErrors } from "./useImageErrors";
 import { ImageErrors } from "./ImageErrors";
@@ -31,11 +30,14 @@ export const ImagePage = () => {
   const providerImageMetadata = useAppStore((a) => a.providerImageMetadata);
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
-  const { t } = useTranslation()
   const storageImages = useImages()
+  const userPreferredImageModel = useAppStore((a) => a.userPreferredImageModel);
+
   const getAccessToken = config?.getAccessToken;
-  const [selectedModel, setSelectedModel] = useState<string>(getAccessToken ?
-    "openai/chatgpt-image-latest" : "pollinations/flux");
+  const [selectedModel, setSelectedModel] = useState<string>(
+    userPreferredImageModel ??
+    (getAccessToken ?
+      "openai/chatgpt-image-latest" : "pollinations/flux"));
   const headers = config?.headers;
   const {
     errors,
@@ -223,7 +225,7 @@ export const ImagePage = () => {
         ref={dropRef}
         onDrop={handleDrop}
         onDragOver={handleDragOver}>
-          
+
         <ImageInput onSend={onSend} />
 
       </div>

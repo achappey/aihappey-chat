@@ -2,6 +2,7 @@ import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 import { TemperatureField } from "../../../fields";
+import { TimestampGranularitiesForm } from "../../settings/transcriptions/TimestampGranularitiesForm";
 
 export type GroqTranscriptionConfig = {
   language?: string;
@@ -31,43 +32,6 @@ export const GroqTranscriptionConfigForm: React.FC<{
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
-
-    const timestampGranularitiesEnabled = config?.timestamp_granularities != null;
-
-    const normalizeGranularities = (val: unknown): Array<"segment" | "word"> => {
-      const raw = Array.isArray(val) ? val : [];
-      const set = new Set<"segment" | "word">();
-      for (const v of raw) {
-        if (v === "segment" || v === "word") set.add(v);
-      }
-      // keep a stable order in UI + persisted config
-      const ordered: Array<"segment" | "word"> = [];
-      if (set.has("segment")) ordered.push("segment");
-      if (set.has("word")) ordered.push("word");
-      return ordered;
-    };
-
-    const effectiveGranularities: Array<"segment" | "word"> = timestampGranularitiesEnabled
-      ? (() => {
-        const normalized = normalizeGranularities(config?.timestamp_granularities);
-        return normalized.length ? normalized : ["segment"];
-      })()
-      : [];
-
-    const toggleGranularity = (g: "segment" | "word", enabled: boolean) => {
-      const current = normalizeGranularities(config?.timestamp_granularities);
-      const next = enabled
-        ? normalizeGranularities([...current, g])
-        : normalizeGranularities(current.filter((x) => x !== g));
-
-      // enforce at least one selection when custom is enabled
-      updateConfig({
-        ...config,
-        timestamp_granularities: (next.length ? next : ["segment"]) as Array<
-          "segment" | "word"
-        >,
-      });
-    };
 
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -115,42 +79,17 @@ export const GroqTranscriptionConfigForm: React.FC<{
           </div>
         </theme.Card>
 
-        <theme.Card title={t("providers:openai.timestampGranularities")}
-          headerActions={<theme.Switch
-            id="openai-transcription-timestamp-granularities"
-            checked={timestampGranularitiesEnabled}
-            onChange={(enabled) =>
-              updateConfig({
-                ...config,
-                timestamp_granularities: enabled
-                  ? ((normalizeGranularities(config?.timestamp_granularities)
-                    .length
-                    ? normalizeGranularities(config?.timestamp_granularities)
-                    : ["segment"]) as Array<"segment" | "word">)
-                  : undefined,
-              })
-            }
-          />}>
-
-          <div>
-            <theme.Switch
-              id="openai-transcription-timestamp-segment"
-              disabled={!timestampGranularitiesEnabled}
-              checked={effectiveGranularities.includes("segment")}
-              label={t("providers:openai.timestampGranularitiesSegment")}
-              onChange={(enabled) => toggleGranularity("segment", enabled)}
-            />
-
-            <theme.Switch
-              id="openai-transcription-timestamp-word"
-              disabled={!timestampGranularitiesEnabled}
-              checked={effectiveGranularities.includes("word")}
-              label={t("providers:openai.timestampGranularitiesWord")}
-              onChange={(enabled) => toggleGranularity("word", enabled)}
-            />
-          </div>
-
-        </theme.Card>
+        <TimestampGranularitiesForm
+          // keep stable ids (historically copied from OpenAI form)
+          idPrefix="openai-transcription-timestamp"
+          value={config?.timestamp_granularities}
+          onChange={(timestamp_granularities) =>
+            updateConfig({
+              ...config,
+              timestamp_granularities,
+            })
+          }
+        />
       </div>
     );
   };

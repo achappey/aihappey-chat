@@ -22,7 +22,11 @@
     "privateHint": "Ẩn hình ảnh khỏi nguồn cấp công khai"
   },
   "mistral": {
-    "webSearchPremium": "Cao cấp"
+    "webSearchPremium": "Cao cấp",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Lưu ý",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: dấu thời gian (timestamp_granularities) không tương thích với ngôn ngữ. Hãy dùng dấu thời gian HOẶC ngôn ngữ.",
+    "transcriptionTimestampsEnabledHint": "Đã bật dấu thời gian (chỉ segment). Ngôn ngữ đã được xoá tự động.",
+    "transcriptionLanguageEnabledHint": "Đã đặt ngôn ngữ. Nếu bật dấu thời gian, ngôn ngữ sẽ được xoá tự động."
   },
   "anthropic": {
     "maxUses": "Số lần sử dụng tối đa",

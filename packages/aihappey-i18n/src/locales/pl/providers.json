@@ -22,7 +22,11 @@
     "privateHint": "Ukryj obraz z publicznych kanałów"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Uwaga",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: znaczniki czasu (timestamp_granularities) nie są kompatybilne z językiem. Użyj znaczników czasu LUB języka.",
+    "transcriptionTimestampsEnabledHint": "Znaczniki czasu włączone (tylko segment). Język został automatycznie wyczyszczony.",
+    "transcriptionLanguageEnabledHint": "Język jest ustawiony. Jeśli włączysz znaczniki czasu, język zostanie automatycznie wyczyszczony."
   },
   "anthropic": {
     "maxUses": "Maksymalna liczba użyć",

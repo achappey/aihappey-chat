@@ -18,4 +18,6 @@ export * from "./scaleway";
 export * from "./stabilityai";
 export * from "./novita";
 export * from "./fireworks";
+export * from "./zai";
+
 

@@ -6,8 +6,20 @@ export const KnownSpeakerEditor: React.FC<{
   setDraftName: (val: string) => void;
   onSave: () => void;
   onCancel: () => void;
+  saveDisabled?: boolean;
+  nameDisabled?: boolean;
+  children?: React.ReactNode;
   t: (key: string, params?: any) => string;
-}> = ({ draftName, setDraftName, onSave, onCancel, t }) => {
+}> = ({
+  draftName,
+  setDraftName,
+  onSave,
+  onCancel,
+  saveDisabled,
+  nameDisabled,
+  children,
+  t,
+}) => {
   const theme = useTheme();
 
   return (
@@ -17,7 +29,10 @@ export const KnownSpeakerEditor: React.FC<{
         value={draftName}
         onChange={(e) => setDraftName(e.target.value)}
         placeholder={t("providers:openai.knownSpeakersNamePlaceholder")}
+        disabled={!!nameDisabled}
       />
+
+      {children}
 
       <div style={{ display: "flex", gap: 8 }}>
         <theme.Button
@@ -25,6 +40,7 @@ export const KnownSpeakerEditor: React.FC<{
           variant="primary"
           icon="check"
           onClick={onSave}
+          disabled={!!saveDisabled}
         >
           {t("save")}
         </theme.Button>

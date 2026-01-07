@@ -22,7 +22,11 @@
     "privateHint": "পাবলিক ফিড থেকে ছবিটি লুকান"
   },
   "mistral": {
-    "webSearchPremium": "প্রিমিয়াম"
+    "webSearchPremium": "প্রিমিয়াম",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "নোট",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: টাইমস্ট্যাম্প (timestamp_granularities) ভাষার সাথে সামঞ্জস্যপূর্ণ নয়। টাইমস্ট্যাম্প অথবা ভাষা ব্যবহার করুন।",
+    "transcriptionTimestampsEnabledHint": "টাইমস্ট্যাম্প চালু আছে (শুধু segment)। ভাষা স্বয়ংক্রিয়ভাবে মুছে ফেলা হয়েছে।",
+    "transcriptionLanguageEnabledHint": "ভাষা সেট করা আছে। টাইমস্ট্যাম্প চালু করলে ভাষা স্বয়ংক্রিয়ভাবে মুছে যাবে।"
   },
   "anthropic": {
     "maxUses": "সর্বোচ্চ ব্যবহার সংখ্যা",

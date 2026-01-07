@@ -22,7 +22,11 @@
     "privateHint": "Nascondi l’immagine dai feed pubblici"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Nota",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: i timestamp (timestamp_granularities) non sono compatibili con la lingua. Usa timestamp O lingua.",
+    "transcriptionTimestampsEnabledHint": "Timestamp abilitati (solo segmento). La lingua è stata rimossa automaticamente.",
+    "transcriptionLanguageEnabledHint": "Lingua impostata. Se abiliti i timestamp, la lingua verrà rimossa automaticamente."
   },
   "anthropic": {
     "maxUses": "Numero massimo di utilizzi",

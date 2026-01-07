@@ -118,7 +118,13 @@
   "ai": {
     "title": "Artificial Intelligence",
     "models": "AI Models",
-    "description": "An overview of all available AI models. For each model, you can see its capabilities, intended use, and how it compares to other models. This helps you choose the right model per task, use case, or workflow in a transparent and consistent way."
+    "description": "An overview of all available AI models. For each model, you can see its capabilities, intended use, and how it compares to other models. This helps you choose the right model per task, use case, or workflow in a transparent and consistent way.",
+    "tabs": {
+      "language": "Language",
+      "image": "Image",
+      "speech": "Speech",
+      "transcription": "Transcription"
+    }
   },
   "workflows": {
     "concurrent": "Concurrent",
@@ -320,6 +326,8 @@
     "deleteAllChats": "Delete all chats",
     "remoteStorage": "Cloud"
   },
+  "chatWithSpeechModels": "Chat with speech models",
+  "chatWithTranscriptionModels": "Chat with transcription models",
   "ok": "Ok",
   "save": "Save",
   "storage": {
@@ -352,7 +360,6 @@
     "validate": "Validate",
     "url": "URL",
     "nameExists": "A server with this name already exists.",
-    "type": "Type",
-    "http": "HTTP"
+    "type": "Type"
   }
 }

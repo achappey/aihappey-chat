@@ -16,7 +16,11 @@
     "returnRelatedQuestions": "Devolver preguntas relacionadas"
   },
   "mistral": {
-    "webSearchPremium": "Premium"
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Nota",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: las marcas de tiempo (timestamp_granularities) no son compatibles con el idioma. Usa marcas de tiempo O idioma.",
+    "transcriptionTimestampsEnabledHint": "Marcas de tiempo activadas (solo segmento). El idioma se ha borrado automáticamente.",
+    "transcriptionLanguageEnabledHint": "Idioma establecido. Si activas las marcas de tiempo, el idioma se borrará automáticamente."
   },
   "anthropic": {
     "maxUses": "Usos máximos",

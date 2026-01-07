@@ -82,7 +82,6 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
       values={[value]}
       valueTitle={displayValue}
       icon={icon}
-      required
       label={label}
       size={size}
       placeholder={placeholder}

@@ -2,6 +2,7 @@ import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 import { TemperatureField } from "../../../fields";
+import { TimestampGranularitiesForm } from "../../settings/transcriptions/TimestampGranularitiesForm";
 
 export type FireworksTranscriptionConfig = {
     language?: string;
@@ -122,19 +123,19 @@ export const FireworksTranscriptionConfigForm: React.FC<{
     };
 
     const vadModelOptions = [
-        { value: "", label: t("providerDefault", "Provider default") },
+        { value: "", label: t("providerDefault") },
         { value: "silero", label: "silero" },
         { value: "whisperx-pyannet", label: "whisperx-pyannet" },
     ];
 
     const alignmentModelOptions = [
-        { value: "", label: t("providerDefault", "Provider default") },
+        { value: "", label: t("providerDefault") },
         { value: "mms_fa", label: "mms_fa" },
         { value: "tdnn_ffn", label: "tdnn_ffn" },
     ];
 
     const preprocessingOptions = [
-        { value: "", label: t("providerDefault", "Provider default") },
+        { value: "", label: t("providerDefault") },
         { value: "none", label: "none" },
         { value: "dynamic", label: "dynamic" },
         { value: "soft_dynamic", label: "soft_dynamic" },
@@ -185,46 +186,34 @@ export const FireworksTranscriptionConfigForm: React.FC<{
                 </div>
             </theme.Card>
 
-            <theme.Card
-                title={t("providers:openai.timestampGranularities")}
-                headerActions={
-                    <theme.Switch
-                        id="fireworks-transcription-timestamp-granularities"
-                        disabled={diarizeEnabled}
-                        checked={timestampGranularitiesEnabled || diarizeEnabled}
-                        onChange={(enabled) => {
-                            if (diarizeEnabled) return;
-                            updateConfig({
-                                ...config,
-                                timestamp_granularities: enabled
-                                    ? ((normalizeGranularities(config?.timestamp_granularities)
-                                        .length
-                                        ? normalizeGranularities(config?.timestamp_granularities)
-                                        : ["segment"]) as Array<"segment" | "word">)
-                                    : undefined,
-                            });
-                        }}
-                    />
+            <TimestampGranularitiesForm
+                idPrefix="fireworks-transcription-timestamp"
+                // Fireworks keeps diarization/timestamp enforcement outside; this component is UI-only here.
+                value={config?.timestamp_granularities}
+                enabled={timestampGranularitiesEnabled || diarizeEnabled}
+                selected={effectiveGranularities}
+                disableEnableToggle={diarizeEnabled}
+                disableSegmentToggle={!(timestampGranularitiesEnabled || diarizeEnabled)}
+                disableWordToggle={!(timestampGranularitiesEnabled || diarizeEnabled) || diarizeEnabled}
+                onChange={(timestamp_granularities) =>
+                    updateConfig({
+                        ...config,
+                        timestamp_granularities,
+                    })
                 }
-            >
-                <div>
-                    <theme.Switch
-                        id="fireworks-transcription-timestamp-segment"
-                        disabled={!(timestampGranularitiesEnabled || diarizeEnabled)}
-                        checked={effectiveGranularities.includes("segment")}
-                        label={t("providers:openai.timestampGranularitiesSegment")}
-                        onChange={(enabled) => toggleGranularity("segment", enabled)}
-                    />
-
-                    <theme.Switch
-                        id="fireworks-transcription-timestamp-word"
-                        disabled={!(timestampGranularitiesEnabled || diarizeEnabled) || diarizeEnabled}
-                        checked={effectiveGranularities.includes("word")}
-                        label={t("providers:openai.timestampGranularitiesWord")}
-                        onChange={(enabled) => toggleGranularity("word", enabled)}
-                    />
-                </div>
-            </theme.Card>
+                onToggleEnabled={(enabled) => {
+                    if (diarizeEnabled) return;
+                    updateConfig({
+                        ...config,
+                        timestamp_granularities: enabled
+                            ? ((normalizeGranularities(config?.timestamp_granularities).length
+                                ? normalizeGranularities(config?.timestamp_granularities)
+                                : ["segment"]) as Array<"segment" | "word">)
+                            : undefined,
+                    });
+                }}
+                onToggleGranularity={(g, enabled) => toggleGranularity(g, enabled)}
+            />
 
             <theme.Card title={t("providers:fireworks.audioProcessing")}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
