@@ -108,7 +108,7 @@
   "ai": {
     "title": "Artificial Intelligence",
     "models": "AI-modellen",
-    "description": "Een overzicht van alle beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier."
+    "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier."
   },
   "workflows": {
     "concurrent": "Tegelijkertijd",

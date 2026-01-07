@@ -32,7 +32,7 @@ export const ZaiTranscriptionConfigForm: React.FC<{
 
   const hotwords = useMemo(() => {
     const raw = Array.isArray(config?.hotwords) ? config.hotwords : [];
-    // normalize + de-dupe (case-insensitive) while preserving order
+    // normalize    + de-dupe (case-insensitive) while preserving order
     const seen = new Set<string>();
     const out: string[] = [];
     for (const w of raw) {

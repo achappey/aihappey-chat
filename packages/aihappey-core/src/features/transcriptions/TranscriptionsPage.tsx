@@ -16,6 +16,7 @@ import {
   migrateKnownSpeakerReferenceSample,
   saveKnownSpeakerReferenceSample,
 } from "aihappey-files";
+import { UserMenuInline } from "../user-settings/UserMenuInline";
 
 export function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -165,14 +166,24 @@ export const TranscriptionsPage = () => {
         width: "100%",
       }}
     >
-      <div style={{ paddingLeft: 12, paddingRight: 12 }}>
-
+      <div
+        style={{
+          paddingLeft: 12,
+          paddingRight: 12,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
         <ModelSelect
           models={models ?? []}
           modelTypes={["transcription"]}
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />
+        <div style={{ flex: 1 }} />
+        <div style={{ paddingLeft: 16 }}>
+          <UserMenuInline />
+        </div>
       </div>
 
       <div style={{

@@ -9,6 +9,7 @@ import { SpeechInput } from "./SpeechInput";
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { useSpeech } from "aihappey-speech";
 import { speechFilesToPromptText } from "./speechFilesToPromptText";
+import { UserMenuInline } from "../user-settings/UserMenuInline";
 
 export const SpeechPage = () => {
   const models = useAppStore((a) => a.models);
@@ -127,14 +128,24 @@ export const SpeechPage = () => {
         width: "100%",
       }}
     >
-      <div style={{ paddingLeft: 12, paddingRight: 12 }}>
-
+      <div
+        style={{
+          paddingLeft: 12,
+          paddingRight: 12,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
         <ModelSelect
           models={models ?? []}
           modelTypes={["speech"]}
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />
+        <div style={{ flex: 1 }} />
+        <div style={{ paddingLeft: 16 }}>
+          <UserMenuInline />
+        </div>
       </div>
 
       <div style={{

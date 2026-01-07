@@ -64,6 +64,7 @@ import {
   Palette,
   Mic,
   Speaker,
+  Boxes,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -129,6 +130,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   chevronLeft: <ChevronLeft />,
   chevronRight: <ChevronRight />,
   priority: <ExclamationCircle />,
+  providers: <Boxes />,
   chat: <BSChatIcon />,
   image: <Image />,
   settings: <Gear />,

@@ -216,7 +216,7 @@ export const ServersPage = () => {
         storeName: server.server.name,
       }));
   }, [servers, normalizedSearch]);
-  console.log(allEntries)
+
   const topEntries = useMemo<EntryView[]>(() => {
     if (!topNames.length) return [];
     const items: EntryView[] = [];
@@ -297,10 +297,22 @@ export const ServersPage = () => {
     }));
   }, [registryUrls, mcpRegistries, normalizedSearch]);
 
+  function excludeSmithery(entries: EntryView[]): EntryView[] {
+    return entries.filter((a) => a.displayName.indexOf("ai.smithery") === -1);
+  }
+
+  const trendingVisibleEntries = useMemo(
+    () => excludeSmithery(topEntries),
+    [topEntries]
+  );
+
+  const allVisibleEntries = useMemo(
+    () => allEntries,
+    [allEntries]
+  );
+
   const renderGrid = (entries: EntryView[]) => {
-    const visibleItems = activeTab == "all"
-      ? entries
-      : entries.filter(a => a.displayName.indexOf("ai.smithery") == -1);
+    const visibleItems = entries;
 
     return (
       <div
@@ -399,18 +411,26 @@ export const ServersPage = () => {
           </div>
 
           <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
-            <Tab eventKey="top" icon="trending" title={t("mcpPage.trending")}>
-              <div style={{ paddingTop: 12 }}>{renderGrid(topEntries)}</div>
+            <Tab
+              eventKey="top"
+              icon="trending"
+              title={t("mcpPage.trending") + " (" + trendingVisibleEntries.length + ")"}
+            >
+              <div style={{ paddingTop: 12 }}>{renderGrid(trendingVisibleEntries)}</div>
             </Tab>
-            <Tab eventKey="all" icon="cardList" title={t("all")}>
-              <div style={{ paddingTop: 12 }}>{renderGrid(allEntries)}</div>
+            <Tab
+              eventKey="all"
+              icon="cardList"
+              title={t("all") + " (" + allVisibleEntries.length + ")"}
+            >
+              <div style={{ paddingTop: 12 }}>{renderGrid(allVisibleEntries)}</div>
             </Tab>
 
             {registryTabs.map((rt) => (
               <Tab
                 key={rt.registryUrl}
                 eventKey={`reg:${rt.registryUrl}`}
-                title={rt.title}
+                title={rt.title + " (" + rt.entries.length + ")"}
               >
                 <div style={{ paddingTop: 12 }}>{renderGrid(rt.entries)}</div>
               </Tab>

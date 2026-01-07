@@ -17,10 +17,14 @@ export const Default = {
     onCustomize: () => alert("Customize"),
     onSettings: () => alert("Settings"),
     onLogout: () => alert("Logout"),
+    providers: ["OpenAI", "Anthropic", "Google"],
+    enabledProviders: ["OpenAI"],
+    onToggleProvider: (p) => alert(`Toggle provider: ${p}`),
     labels: {
         customize: "Customize",
         settings: "Settings",
         logout: "Logout",
+        providers: "Providers",
         theme: "Theme"
     }
   })

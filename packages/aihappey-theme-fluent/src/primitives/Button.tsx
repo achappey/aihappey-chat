@@ -76,6 +76,7 @@ import {
   BoxRegular,
   SpeakerSettingsRegular,
   SpeakerBoxRegular,
+  PlugConnectedRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -129,6 +130,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   menu: Hamburger,
   attachment: AttachRegular,
   concurrent: ArrowSplitRegular,
+  providers: PlugConnectedRegular,
   sequential: ArrowRoutingRegular,
   aiImage: ImageSparkleRegular,
   groupchat: PeopleChatRegular,

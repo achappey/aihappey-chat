@@ -16,6 +16,7 @@ import { ImageWarnings } from "./ImageWarnings";
 import { ImageContent } from "@modelcontextprotocol/sdk/types";
 import { createImageProvider } from "aihappey-ai";
 import { fileToBase64 } from "../chat/files/file";
+import { UserMenuInline } from "../user-settings/UserMenuInline";
 
 export const ImagePage = () => {
   const images = useLibraryImages();
@@ -200,14 +201,24 @@ export const ImagePage = () => {
         width: "100%",
       }}
     >
-      <div style={{ paddingLeft: 12, paddingRight: 12 }}>
-
+      <div
+        style={{
+          paddingLeft: 12,
+          paddingRight: 12,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
         <ModelSelect
           models={models ?? []}
           modelTypes={["image"]}
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />
+        <div style={{ flex: 1 }} />
+        <div style={{ paddingLeft: 16 }}>
+          <UserMenuInline />
+        </div>
       </div>
 
       <ImageErrors

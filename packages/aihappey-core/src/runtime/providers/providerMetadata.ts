@@ -165,7 +165,24 @@ export const PROVIDERS: Record<string, any> = {
         ],
         url: "https://www.nscale.com"
     },
-
+    alibaba: {
+        name: "Alibaba",
+        icons: [
+            {
+                src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREXxWppPgNoDOukU_2RHGUnoU-_i664iBN5w&s",
+            }
+        ],
+        url: "https://www.alibaba.com"
+    },
+    telnyx: {
+        name: "Telnyx",
+        icons: [
+            {
+                src: "https://media.glassdoor.com/sqll/841349/telnyx-squareLogo-1692104355572.png",
+            }
+        ],
+        url: "https://telnyx.com"
+    },
     stabilityai: {
         name: "StabilityAI",
         icons: [
@@ -239,5 +256,14 @@ export const PROVIDERS: Record<string, any> = {
             }
         ],
         url: "https://www.hyperbolic.ai"
-    }
+    },
+    elevenlabs: {
+        name: "ElevenLabs",
+        icons: [
+            {
+                src: "https://help.elevenlabs.io/hc/theming_assets/01HZQ08B6SDY5X53YN9ABG4B99",
+            }
+        ],
+        url: "https://elevenlabs.io"
+    },
 } as const;

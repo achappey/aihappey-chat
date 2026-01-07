@@ -5,6 +5,7 @@ import {
   Gear,
   BoxArrowRight,
   Sliders,
+  Key,
 } from "react-bootstrap-icons";
 
 import { UserMenuLabels } from "aihappey-types/src/i18n";
@@ -14,6 +15,8 @@ export interface UserMenuProps {
   onCustomize?: () => void;
   onSettings: () => void;
   onLogout: () => void;
+  showApiKeysItem?: boolean;
+  onApiKeys?: () => void;
   className?: string;
   style?: React.CSSProperties;
   labels?: UserMenuLabels;
@@ -24,6 +27,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   onCustomize,
   onSettings,
   onLogout,
+  showApiKeysItem,
+  onApiKeys,
   className,
   style,
   labels = {},
@@ -70,9 +75,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             <Dropdown.Divider />
           </>
         )}
-        <Dropdown.Item onClick={onCustomize}>
-          <Sliders className="me-2" /> {labels.customize ?? "Customize"}
-        </Dropdown.Item>
+        {onCustomize && (
+          <Dropdown.Item onClick={onCustomize}>
+            <Sliders className="me-2" /> {labels.customize ?? "Customize"}
+          </Dropdown.Item>
+        )}
+
+        {!!showApiKeysItem && !!onApiKeys && (
+          <Dropdown.Item onClick={onApiKeys}>
+            <Key className="me-2" /> {labels.apiKeys ?? "API keys"}
+          </Dropdown.Item>
+        )}
         <Dropdown.Item onClick={onSettings}>
           <Gear className="me-2" /> {labels.settings ?? "Settings"}
         </Dropdown.Item>

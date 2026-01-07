@@ -5,6 +5,7 @@ import {
   MenuPopover,
   MenuList,
   MenuItem,
+  MenuItemCheckbox,
   MenuDivider,
   MenuGroup,
   MenuGroupHeader,
@@ -15,6 +16,8 @@ import {
   SignOutRegular,
   PanelLeftRegular,
   PersonSettingsRegular,
+  KeyRegular,
+  PlugConnectedRegular,
 } from "@fluentui/react-icons";
 
 import { UserMenuLabels } from "aihappey-types/src/i18n";
@@ -24,6 +27,14 @@ export interface UserMenuProps {
   onCustomize?: () => void;
   onSettings: () => void;
   onLogout: () => void;
+
+  showApiKeysItem?: boolean;
+  onApiKeys?: () => void;
+
+  providers?: string[];
+  enabledProviders?: string[];
+  onToggleProvider?: (provider: string) => void;
+
   className?: string;
   style?: React.CSSProperties;
   labels?: UserMenuLabels;
@@ -34,10 +45,32 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   onCustomize,
   onSettings,
   onLogout,
+  showApiKeysItem,
+  onApiKeys,
+  providers,
+  enabledProviders,
+  onToggleProvider,
   className,
   style,
   labels = {},
 }) => {
+  const handleProvidersCheckedChange = React.useCallback(
+    (_e: any, data: any) => {
+      // Fluent Menu selection is managed via Menu.checkedValues.
+      // We keep app state in sync using a toggle API.
+      const nextChecked: string[] = data?.checkedItems ?? [];
+      const prevChecked: string[] = enabledProviders ?? [];
+
+      const changed = new Set<string>([...prevChecked, ...nextChecked]);
+      for (const p of changed) {
+        const wasOn = prevChecked.includes(p);
+        const isOn = nextChecked.includes(p);
+        if (wasOn !== isOn) onToggleProvider?.(p);
+      }
+    },
+    [enabledProviders, onToggleProvider]
+  );
+
   const trigger = (
     <Avatar
       name={email || "User"}
@@ -55,7 +88,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         </span>
       </MenuTrigger>
       <MenuPopover style={style}>
-        <MenuList>
+        <MenuList hasCheckmarks>
           {email && (
             <>
               <MenuGroup>
@@ -63,12 +96,53 @@ export const UserMenu: React.FC<UserMenuProps> = ({
               </MenuGroup>
             </>
           )}
+
+
+
           {onCustomize && <MenuItem icon={<PersonSettingsRegular />} onClick={onCustomize}>
             {labels.customize ?? "Customize"}
           </MenuItem>}
+
+
           <MenuItem icon={<SettingsRegular />} onClick={onSettings}>
             {labels.settings ?? "Settings"}
           </MenuItem>
+
+          {!!providers?.length && !!onToggleProvider && (
+            <Menu
+              persistOnItemClick
+              checkedValues={{ providers: enabledProviders ?? [] }}
+              onCheckedValueChange={handleProvidersCheckedChange}
+            >
+              <MenuTrigger disableButtonEnhancement>
+                <MenuItem icon={<PlugConnectedRegular />}>{labels.providers ?? "Providers"}</MenuItem>
+              </MenuTrigger>
+              <MenuPopover>
+                <MenuList hasCheckmarks>
+                  {!!showApiKeysItem && !!onApiKeys && (
+                    <>
+                      <MenuItem icon={<KeyRegular />}
+                        onClick={onApiKeys}>
+                        {labels.apiKeys ?? "API keys"}
+                      </MenuItem>
+                      <MenuDivider />
+                    </>
+                  )}
+
+                  {providers.map((p) => (
+                    <MenuItemCheckbox
+                      key={p}
+                      name="providers"
+                      value={p}
+                    >
+                      {p}
+                    </MenuItemCheckbox>
+                  ))}
+                </MenuList>
+              </MenuPopover>
+            </Menu>
+          )}
+
           <MenuDivider />
           <MenuItem icon={<SignOutRegular />} onClick={onLogout}>
             {labels.logout ?? "Log out"}
