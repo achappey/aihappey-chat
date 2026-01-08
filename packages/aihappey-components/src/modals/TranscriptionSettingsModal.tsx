@@ -9,6 +9,7 @@ import {
     OpenAIITranscriptionConfigForm,
     SambanovaTranscriptionConfigForm,
     ScalewayTranscriptionConfigForm,
+    TelnyxTranscriptionConfigForm,
     ZaiTranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
@@ -208,6 +209,21 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         zai,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+
+                    {enabledProviders.includes("Telnyx") && (
+                        <theme.Tab eventKey="telnyx" title="Telnyx">
+                            <TelnyxTranscriptionConfigForm
+                                config={providerMetadata.telnyx ?? {}}
+                                updateConfig={(telnyx) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        telnyx,
                                     })
                                 }
                             />

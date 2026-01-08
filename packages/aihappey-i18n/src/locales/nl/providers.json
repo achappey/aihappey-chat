@@ -177,6 +177,13 @@
     "textNormalization": "Tekstnormalisatie",
     "applyTextNormalization": "Tekstnormalisatie toepassen",
     "applyLanguageTextNormalization": "Taalspecifieke tekstnormalisatie toepassen",
+
+    "music": "Muziek",
+    "musicLengthMs": "Muzieklengte (ms)",
+    "forceInstrumental": "Instrumentaal afdwingen",
+    "respectSectionsDurations": "Sectieduur respecteren",
+    "storeForInpainting": "Opslaan voor inpainting",
+    "signWithC2pa": "Ondertekenen met C2PA",
     "fileFormat": "Bestandsformaat",
     "temperature": "Temperatuur ({{value}})",
     "tagAudioEvents": "Audio-events taggen",

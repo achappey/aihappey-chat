@@ -192,6 +192,13 @@
     "applyTextNormalization": "Apply text normalization",
     "applyLanguageTextNormalization": "Apply language text normalization",
 
+    "music": "Music",
+    "musicLengthMs": "Music length (ms)",
+    "forceInstrumental": "Force instrumental",
+    "respectSectionsDurations": "Respect sections durations",
+    "storeForInpainting": "Store for inpainting",
+    "signWithC2pa": "Sign with C2PA",
+
     "fileFormat": "File format",
     "temperature": "Temperature ({{value}})",
     "tagAudioEvents": "Tag audio events",

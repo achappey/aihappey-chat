@@ -165,6 +165,33 @@ export const PROVIDERS: Record<string, any> = {
         ],
         url: "https://www.nscale.com"
     },
+    deepinfra: {
+        name: "DeepInfra",
+        icons: [
+            {
+                src: "https://avatars.githubusercontent.com/u/116928265?s=280&v=4",
+            }
+        ],
+        url: "https://deepinfra.com"
+    },
+    nvidia: {
+        name: "NVIDIA",
+        icons: [
+            {
+                src: "https://www.citypng.com/public/uploads/preview/hd-nvidia-eye-logo-icon-png-701751694965655t2lbe7yugk.png",
+            }
+        ],
+        url: "https://www.nvidia.com"
+    },
+    runware: {
+        name: "Runware",
+        icons: [
+            {
+                src: "https://media.licdn.com/dms/image/v2/D4E0BAQFzsJTSfpkCbQ/company-logo_200_200/B4EZfR3QUwGcAQ-/0/1751572612962/runware_logo?e=2147483647&v=beta&t=HvfRm7Kk85KGMPVDzoiTBWuFN9v5bnyFSRvPuie2BBQ",
+            }
+        ],
+        url: "https://runware.ai"
+    },
     canopywave: {
         name: "CanopyWave",
         icons: [

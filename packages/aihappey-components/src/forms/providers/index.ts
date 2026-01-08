@@ -18,6 +18,7 @@ export * from "./stabilityai";
 export * from "./novita";
 export * from "./fireworks";
 export * from "./zai";
+export * from "./telnyx";
 
 export * from "./hyperbolic";
 
