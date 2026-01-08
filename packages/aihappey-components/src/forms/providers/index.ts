@@ -19,4 +19,8 @@ export * from "./novita";
 export * from "./fireworks";
 export * from "./zai";
 
+export * from "./hyperbolic";
+
+export * from "./elevenlabs";
+
 

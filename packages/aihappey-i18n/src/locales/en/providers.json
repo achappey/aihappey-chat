@@ -94,6 +94,13 @@
       "higherAndAbove": "Block higher and above",
       "veryHighAndAbove": "Block very high and above",
       "onlyExtremelyHigh": "Block only extremely high"
+    },
+    "speech": {
+      "seed": "Seed",
+      "multiSpeaker": "Multi-speaker",
+      "speakers": "Speakers",
+      "addSpeaker": "Add speaker",
+      "speakerNamePlaceholder": "e.g. Alice"
     }
   },
   "jina": {
@@ -109,6 +116,11 @@
     "steps": "Steps",
     "negativePrompt": "Negative prompt",
     "disableSafetyChecker": "Disable safety checker"
+  },
+  "hyperbolic": {
+    "guidanceScale": "Guidance scale",
+    "steps": "Steps",
+    "negativePrompt": "Negative prompt"
   },
   "runway": {
     "contentModeration": "Content moderation",
@@ -161,5 +173,35 @@
     "vadModel": "Voice activity detection model",
     "minSpeakers": "Minimum number of speakers",
     "maxSpeakers": "Maximum number of speakers"
+  },
+  "elevenlabs": {
+    "enableLogging": "Enable logging",
+    "seed": "Seed",
+
+    "voiceSettings": "Voice settings",
+    "stability": "Stability ({{value}})",
+    "similarityBoost": "Similarity boost ({{value}})",
+    "style": "Style ({{value}})",
+    "useSpeakerBoost": "Use speaker boost",
+
+    "continuity": "Continuity",
+    "previousText": "Previous text",
+    "nextText": "Next text",
+
+    "textNormalization": "Text normalization",
+    "applyTextNormalization": "Apply text normalization",
+    "applyLanguageTextNormalization": "Apply language text normalization",
+
+    "fileFormat": "File format",
+    "temperature": "Temperature ({{value}})",
+    "tagAudioEvents": "Tag audio events",
+    "useMultiChannel": "Use multi-channel",
+
+    "timestamps": "Timestamps",
+    "timestampsGranularity": "Timestamps granularity",
+
+    "diarization": "Diarization",
+    "numSpeakers": "Number of speakers",
+    "diarizationThreshold": "Diarization threshold ({{value}})"
   }
 }

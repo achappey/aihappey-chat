@@ -80,6 +80,13 @@
       "higherAndAbove": "Bloquear muy alto y superior",
       "veryHighAndAbove": "Bloquear muy alto en adelante",
       "onlyExtremelyHigh": "Bloquear solo extremadamente alto"
+    },
+    "speech": {
+      "seed": "Seed",
+      "multiSpeaker": "Varios oradores",
+      "speakers": "Oradores",
+      "addSpeaker": "Añadir orador",
+      "speakerNamePlaceholder": "p. ej., Alicia"
     }
   },
   "jina": {

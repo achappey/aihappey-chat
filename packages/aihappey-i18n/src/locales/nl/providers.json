@@ -86,6 +86,13 @@
       "higherAndAbove": "Blokkeer hoger en hoger",
       "veryHighAndAbove": "Blokkeer zeer hoog en hoger",
       "onlyExtremelyHigh": "Blokkeer alleen extreem hoog"
+    },
+    "speech": {
+      "seed": "Seed",
+      "multiSpeaker": "Multi-speaker",
+      "speakers": "Sprekers",
+      "addSpeaker": "Spreker toevoegen",
+      "speakerNamePlaceholder": "bijv. Alice"
     }
   },
   "xSearch": "Zoeken op X",
@@ -155,5 +162,29 @@
     "vadModel": "Spraakactiviteitsdetectie",
     "minSpeakers": "Minimum aantal sprekers",
     "maxSpeakers": "Maximum aantal sprekers"
+  },
+  "elevenlabs": {
+    "enableLogging": "Loggen inschakelen",
+    "seed": "Seed",
+    "voiceSettings": "Spraakinstellingen",
+    "stability": "Stabiliteit ({{value}})",
+    "similarityBoost": "Overeenkomstboost ({{value}})",
+    "style": "Stijl ({{value}})",
+    "useSpeakerBoost": "Sprekerboost gebruiken",
+    "continuity": "Continuïteit",
+    "previousText": "Vorige tekst",
+    "nextText": "Volgende tekst",
+    "textNormalization": "Tekstnormalisatie",
+    "applyTextNormalization": "Tekstnormalisatie toepassen",
+    "applyLanguageTextNormalization": "Taalspecifieke tekstnormalisatie toepassen",
+    "fileFormat": "Bestandsformaat",
+    "temperature": "Temperatuur ({{value}})",
+    "tagAudioEvents": "Audio-events taggen",
+    "useMultiChannel": "Meerkanaals gebruiken",
+    "timestamps": "Tijdstempels",
+    "timestampsGranularity": "Tijdstempel-nauwkeurigheid",
+    "diarization": "Sprekersherkenning",
+    "numSpeakers": "Aantal sprekers",
+    "diarizationThreshold": "Sprekersherkenningsdrempel ({{value}})"
   }
 }

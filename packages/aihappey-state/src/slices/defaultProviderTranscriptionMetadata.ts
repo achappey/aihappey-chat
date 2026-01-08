@@ -3,4 +3,6 @@ export const defaultProviderTranscriptionMetadata = {
   },
   "fireworks": {
   },
+  "elevenlabs": {
+  },
 };

@@ -7,9 +7,13 @@ import {
   OpenAISpeechConfigForm,
   GroqSpeechConfigForm,
   NovitaSpeechConfigForm,
+  ElevenLabsSpeechConfigForm,
+  GoogleSpeechConfigForm,
+  type ElevenLabsSpeechConfig,
   type OpenAISpeechConfig,
   type GroqSpeechConfig,
   type NovitaSpeechConfig,
+  type GoogleSpeechConfig,
 } from "aihappey-components";
 
 export interface SpeechSettingsModalProps {
@@ -53,16 +57,28 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
       }
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-        <theme.Tab eventKey="general" title={t("general")}> 
+        <theme.Tab eventKey="general" title={t("general")}>
           <SpeechSettingsGeneralTab onEditProviderKeys={onEditProviderKeys} />
         </theme.Tab>
 
-        {enabledProviders.includes("OpenAI") && (
-          <theme.Tab eventKey="openai" title="OpenAI">
-            <OpenAISpeechConfigForm
-              config={providerMetadata.openai ?? {}}
-              updateConfig={(openai: OpenAISpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, openai })
+
+        {enabledProviders.includes("ElevenLabs") && (
+          <theme.Tab eventKey="elevenlabs" title="ElevenLabs">
+            <ElevenLabsSpeechConfigForm
+              config={providerMetadata.elevenlabs ?? {}}
+              updateConfig={(elevenlabs: ElevenLabsSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, elevenlabs })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("Google") && (
+          <theme.Tab eventKey="google" title="Google">
+            <GoogleSpeechConfigForm
+              config={providerMetadata.google ?? {}}
+              updateConfig={(google: GoogleSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, google })
               }
             />
           </theme.Tab>
@@ -89,6 +105,20 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
             />
           </theme.Tab>
         )}
+
+
+        {enabledProviders.includes("OpenAI") && (
+          <theme.Tab eventKey="openai" title="OpenAI">
+            <OpenAISpeechConfigForm
+              config={providerMetadata.openai ?? {}}
+              updateConfig={(openai: OpenAISpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, openai })
+              }
+            />
+          </theme.Tab>
+        )}
+
+
       </theme.Tabs>
     </theme.Modal>
   );

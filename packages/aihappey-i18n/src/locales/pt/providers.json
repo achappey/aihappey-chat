@@ -80,6 +80,13 @@
       "higherAndAbove": "Bloquear muito alto e superior",
       "veryHighAndAbove": "Bloquear muito alto em diante",
       "onlyExtremelyHigh": "Bloquear apenas extremamente alto"
+    },
+    "speech": {
+      "seed": "Seed",
+      "multiSpeaker": "Vários locutores",
+      "speakers": "Locutores",
+      "addSpeaker": "Adicionar locutor",
+      "speakerNamePlaceholder": "ex.: Alice"
     }
   },
   "jina": {
@@ -95,6 +102,11 @@
     "steps": "Passos",
     "negativePrompt": "Prompt negativo",
     "disableSafetyChecker": "Desativar verificação de segurança"
+  },
+  "hyperbolic": {
+    "guidanceScale": "Escala de orientação",
+    "steps": "Passos",
+    "negativePrompt": "Prompt negativo"
   },
   "runway": {
     "contentModeration": "Moderação de conteúdo",

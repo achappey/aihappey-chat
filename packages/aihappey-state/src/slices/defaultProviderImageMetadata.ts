@@ -18,6 +18,11 @@ export const defaultProviderImageMetadata = {
     "negative_prompt": undefined,
     "style_preset": undefined
   },
+  "hyperbolic": {
+    "steps": 20,
+    "cfg_scale": 3.5,
+    "negative_prompt": "",
+  },
   "together": {
     "steps": 20,
     "disable_safety_checker": true,

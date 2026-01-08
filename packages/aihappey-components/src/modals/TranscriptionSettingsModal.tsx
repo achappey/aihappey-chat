@@ -3,6 +3,7 @@ import { useTranslation } from "aihappey-i18n";
 import {
     FireworksTranscriptionConfigForm,
     GroqTranscriptionConfigForm,
+    ElevenLabsTranscriptionConfigForm,
     MistralTranscriptionConfigForm,
     NovitaTranscriptionConfigForm,
     OpenAIITranscriptionConfigForm,
@@ -74,89 +75,16 @@ export const TranscriptionSettingsModal: React.FC<
                 }
             >
                 <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-                    {enabledProviders.includes("OpenAI") && (
-                        <theme.Tab eventKey="openai" title="OpenAI">
-                            <OpenAIITranscriptionConfigForm
-                                config={providerMetadata.openai ?? {}}
-                                updateConfig={(openai) =>
-                                    setProviderMetadata({
-                                        ...providerMetadata,
-                                        openai,
-                                    })
-                                }
-                                getSampleInfo={knownSpeakerSamples?.getSampleInfo}
-                                onUploadSample={knownSpeakerSamples?.onUploadSample}
-                                onClearSample={knownSpeakerSamples?.onClearSample}
-                                onRenameSample={knownSpeakerSamples?.onRenameSample}
-                                onPreviewSample={knownSpeakerSamples?.onPreviewSample}
-                            />
-                        </theme.Tab>
-                    )}
 
-                    {enabledProviders.includes("Groq") && (
-                        <theme.Tab eventKey="groq" title="Groq">
-                            <GroqTranscriptionConfigForm
-                                config={providerMetadata.groq ?? {}}
-                                updateConfig={(groq) =>
-                                    setProviderMetadata({
-                                        ...providerMetadata,
-                                        groq,
-                                    })
-                                }
-                            />
-                        </theme.Tab>
-                    )}
 
-                    {enabledProviders.includes("Mistral") && (
-                        <theme.Tab eventKey="mistral" title="Mistral">
-                            <MistralTranscriptionConfigForm
-                                config={providerMetadata.mistral ?? {}}
-                                updateConfig={(mistral) =>
+                    {enabledProviders.includes("ElevenLabs") && (
+                        <theme.Tab eventKey="elevenlabs" title="ElevenLabs">
+                            <ElevenLabsTranscriptionConfigForm
+                                config={providerMetadata.elevenlabs ?? {}}
+                                updateConfig={(elevenlabs) =>
                                     setProviderMetadata({
                                         ...providerMetadata,
-                                        mistral,
-                                    })
-                                }
-                            />
-                        </theme.Tab>
-                    )}
-
-                    {enabledProviders.includes("Scaleway") && (
-                        <theme.Tab eventKey="scaleway" title="Scaleway">
-                            <ScalewayTranscriptionConfigForm
-                                config={providerMetadata.scaleway ?? {}}
-                                updateConfig={(scaleway) =>
-                                    setProviderMetadata({
-                                        ...providerMetadata,
-                                        scaleway,
-                                    })
-                                }
-                            />
-                        </theme.Tab>
-                    )}
-
-                    {enabledProviders.includes("Novita") && (
-                        <theme.Tab eventKey="novita" title="Novita">
-                            <NovitaTranscriptionConfigForm
-                                config={providerMetadata.novita ?? {}}
-                                updateConfig={(novita) =>
-                                    setProviderMetadata({
-                                        ...providerMetadata,
-                                        novita,
-                                    })
-                                }
-                            />
-                        </theme.Tab>
-                    )}
-
-                    {enabledProviders.includes("Zai") && (
-                        <theme.Tab eventKey="zai" title="Zai">
-                            <ZaiTranscriptionConfigForm
-                                config={providerMetadata.zai ?? {}}
-                                updateConfig={(zai) =>
-                                    setProviderMetadata({
-                                        ...providerMetadata,
-                                        zai,
+                                        elevenlabs,
                                     })
                                 }
                             />
@@ -177,6 +105,71 @@ export const TranscriptionSettingsModal: React.FC<
                         </theme.Tab>
                     )}
 
+
+                    {enabledProviders.includes("Groq") && (
+                        <theme.Tab eventKey="groq" title="Groq">
+                            <GroqTranscriptionConfigForm
+                                config={providerMetadata.groq ?? {}}
+                                updateConfig={(groq) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        groq,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+
+                    {enabledProviders.includes("Mistral") && (
+                        <theme.Tab eventKey="mistral" title="Mistral">
+                            <MistralTranscriptionConfigForm
+                                config={providerMetadata.mistral ?? {}}
+                                updateConfig={(mistral) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        mistral,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Novita") && (
+                        <theme.Tab eventKey="novita" title="Novita">
+                            <NovitaTranscriptionConfigForm
+                                config={providerMetadata.novita ?? {}}
+                                updateConfig={(novita) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        novita,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+
+                    {enabledProviders.includes("OpenAI") && (
+                        <theme.Tab eventKey="openai" title="OpenAI">
+                            <OpenAIITranscriptionConfigForm
+                                config={providerMetadata.openai ?? {}}
+                                updateConfig={(openai) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        openai,
+                                    })
+                                }
+                                getSampleInfo={knownSpeakerSamples?.getSampleInfo}
+                                onUploadSample={knownSpeakerSamples?.onUploadSample}
+                                onClearSample={knownSpeakerSamples?.onClearSample}
+                                onRenameSample={knownSpeakerSamples?.onRenameSample}
+                                onPreviewSample={knownSpeakerSamples?.onPreviewSample}
+                            />
+                        </theme.Tab>
+                    )}
+
+
                     {enabledProviders.includes("SambaNova") && (
                         <theme.Tab eventKey="sambanova" title="SambaNova">
                             <SambanovaTranscriptionConfigForm
@@ -190,6 +183,39 @@ export const TranscriptionSettingsModal: React.FC<
                             />
                         </theme.Tab>
                     )}
+
+
+                    {enabledProviders.includes("Scaleway") && (
+                        <theme.Tab eventKey="scaleway" title="Scaleway">
+                            <ScalewayTranscriptionConfigForm
+                                config={providerMetadata.scaleway ?? {}}
+                                updateConfig={(scaleway) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        scaleway,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+
+                    {enabledProviders.includes("Zai") && (
+                        <theme.Tab eventKey="zai" title="Zai">
+                            <ZaiTranscriptionConfigForm
+                                config={providerMetadata.zai ?? {}}
+                                updateConfig={(zai) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        zai,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+
+
                 </theme.Tabs>
             </theme.Modal>
         );

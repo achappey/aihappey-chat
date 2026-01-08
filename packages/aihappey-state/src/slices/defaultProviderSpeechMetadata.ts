@@ -5,6 +5,8 @@ export const defaultProviderSpeechMetadata = {
   },
   "groq": {
   },
+  "elevenlabs": {
+  },
   "novita": {
     "minimax": {
       "voice": "Wise_Woman",
