@@ -28,6 +28,7 @@ export function useMcpRuntimeBinding({
     const connectMcpServer = useAppStore((s) => s.connectMcpServer);
     const customHeaders = useAppStore((s) => s.customHeaders);
     const clearMcpContent = useAppStore((s) => s.clearMcpContent);
+    const enabledProviders = useAppStore((s) => s.enabledProviders);
     const conversations = useConversations()
     const addSampling = useAppStore((s) => s.addSampling);
     const onElicit = (server: string, params: ElicitRequest) => elicitRuntime.onElicit(server, params);
@@ -38,17 +39,10 @@ export function useMcpRuntimeBinding({
     // const onProgress = async (notif: ProgressNotification) => addProgress(notif);
 
     const onSample = async (server: string, params: CreateMessageRequest) => {
-        const msg0 = (params as any)?.params?.messages?.[0];
-        const sig = JSON.stringify({
-            server,
-            // whatever is stable in your request:
-            model: (params as any)?.params?.model,
-            firstRole: msg0?.role,
-            firstText: typeof msg0?.content === "string" ? msg0?.content : msg0?.content?.text,
-            // if your CreateMessageRequest has an id somewhere:
-            reqId: (params as any)?.id ?? (params as any)?._meta?.id ?? null,
-        });
-
+        const apiKeyHeaders: Record<string, string> = Object.fromEntries(
+            Object.entries(customHeaders)
+                .filter(([key]) => enabledProviders.includes(key.split("-")[1]))
+        );
         const { id, createdAt } = samplingRuntime.startSampling(server, params)
         const accessToken = authenticated ? await acquireAccessToken() : null;
         const res = await fetch(samplingApi, {
@@ -56,7 +50,7 @@ export function useMcpRuntimeBinding({
             headers: {
                 "Content-Type": "application/json",
                 ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-                ...customHeaders,
+                ...apiKeyHeaders,
             },
             body: JSON.stringify(params.params),
         });

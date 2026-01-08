@@ -27,6 +27,10 @@ export type UserMenuProps = {
   enabledProviders?: string[];
   onToggleProvider?: (provider: string) => void;
 
+  /** When true, provider toggles are disabled (e.g. while models are still loading). */
+  providersDisabled?: boolean;
+  /** Providers (by display name) that should be disabled (e.g. because they returned 0 models). */
+  disabledProviders?: string[];
   className?: string;
   labels?: UserMenuLabels;
   style?: React.CSSProperties;

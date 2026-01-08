@@ -1,7 +1,7 @@
 import {
   AiChatSettingsForm, ChatSettingsForm, LocalToolsSettingsForm,
   McpPolicySettings,
-  ProviderSettingsForm, useTheme
+  useTheme
 } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
@@ -21,21 +21,15 @@ import { vercelAIPluginDef } from "../tools/toolcalls/useVercelAIToolCall";
 // --- General Tab ---
 export const GeneralTab = ({
   temperature,
-  setTemperature,
-  onEditProviderKeys
-}: any) => {
+  setTemperature}: any) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const setStructuredOutputs = useAppStore(a => a.setStructuredOutputs)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
-  const publishers = Object.entries(PROVIDERS).map(a => a[1].name).sort();
   const setThrottle = useAppStore((s) => s.setThrottle);
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
-  const appConfig = useChatContext();
   const toolAnnotations = useAppStore((s) => s.toolAnnotations);
   const setToolAnnotations = useAppStore((s) => s.setToolAnnotations);
-  const enabledProviders = useAppStore(s => s.enabledProviders)
-  const setEnabledProviders = useAppStore(s => s.setEnabledProviders)
   const activePlugins = useAppStore(s => s.activePlugins)
   const setActivePlugins = useAppStore(s => s.setActivePlugins)
   const enabledPlugins = useAppStore(s => s.activePlugins);
@@ -94,24 +88,6 @@ export const GeneralTab = ({
         <McpPolicySettings
           policySettings={toolAnnotations}
           toggle={onToggle} />
-
-        <ProviderSettingsForm
-          providers={publishers}
-          columns={3}
-          enabledProviders={enabledProviders}
-          onChange={setEnabledProviders} 
-          formTitle={t("providers")}
-          headerActions={
-            !appConfig.config.getAccessToken ? (
-              <theme.Button
-                size="small"
-                variant="transparent"
-                onClick={onEditProviderKeys}
-                icon="edit"
-              />
-            ) : undefined
-          }
-        />
 
         <LocalToolsSettingsForm
           formTitle={t("localTools")}

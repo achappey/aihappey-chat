@@ -1,18 +1,66 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useAppStore } from "aihappey-state";
+import { useFiles } from "aihappey-files";
+import type { ModelOption } from "aihappey-types";
+import { useProviderMetadataForSelectedModelType } from "./useProviderMetadataForSelectedModelType";
+import { withOpenAiKnownSpeakerReferences } from "../../transcriptions/knownSpeakersProviderMetadata";
 
-export function useActiveProviderMetadata<T extends Record<string, any> = Record<string, any>>() {
+type ModelType = ModelOption["type"] | "chat";
+
+/**
+ * Backwards-compatible alias.
+ *
+ * Historically this only used `chatSlice.providerMetadata`.
+ * It now delegates to [`useProviderMetadataForSelectedModelType()`](packages/aihappey-core/src/features/chat/engine/useProviderMetadataForSelectedModelType.ts:1)
+ * so chat-with-image/speech/transcription models send the correct provider options.
+ */
+export function useActiveProviderMetadata<
+  T extends Record<string, any> = Record<string, any>,
+>() {
+  const base = useProviderMetadataForSelectedModelType<T>();
+
   const selectedModel = useAppStore((s) => s.selectedModel);
-  const providerMetadata = useAppStore((s) => s.providerMetadata);
+  const models = useAppStore((s) => s.models);
+  const files = useFiles();
 
-  return useMemo<T | undefined>(() => {
-    if (!selectedModel || !providerMetadata) return undefined;
+  const [hydrated, setHydrated] = useState<T | undefined>(base);
 
-    const providerKey = selectedModel.split("/")[0];
-    const value = providerMetadata[providerKey];
+  // Determine selected model type (mirrors `useProviderMetadataForSelectedModelType()`)
+  const modelType: ModelType | undefined = (() => {
+    if (!selectedModel) return undefined;
+    return models?.find((m) => m.id === selectedModel)?.type as ModelType | undefined;
+  })();
 
-    if (value === undefined) return undefined;
+  useEffect(() => {
+    let cancelled = false;
 
-    return { [providerKey]: value } as T;
-  }, [selectedModel, providerMetadata]);
+    const run = async () => {
+      // Default: passthrough
+      let next: T | undefined = base;
+
+      // Only hydrate for OpenAI transcription models.
+      if (
+        base &&
+        modelType === "transcription" &&
+        selectedModel?.startsWith("openai/")
+      ) {
+        const names: string[] | undefined = (base as any)?.openai?.known_speaker_names;
+
+        next = (await withOpenAiKnownSpeakerReferences(base, {
+          items: files.items,
+          files,
+          knownSpeakerNames: names,
+        })) as T | undefined;
+      }
+
+      if (!cancelled) setHydrated(next);
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [base, files, files.items, modelType, selectedModel]);
+
+  return hydrated;
 }

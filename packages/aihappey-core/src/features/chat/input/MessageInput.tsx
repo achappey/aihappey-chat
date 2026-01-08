@@ -14,6 +14,7 @@ import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/file
 import { useTranslation } from "aihappey-i18n";
 import { useResourceSelect } from "./useResourceSelect";
 import { readResource } from "../../../runtime/mcp/readResource";
+import { useDictation } from "./useDictation";
 
 export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
@@ -47,6 +48,29 @@ export const MessageInput = (props: UseMessageInputOptions) => {
     canSend,
     resetChatSettings,
   } = useMessageInput(props);
+
+  const dictation = useDictation({
+    disabled: props.disabled || props.streaming,
+    onTranscript: (text) => {
+      setValue((prev) => {
+        const sep = prev && !/\s$/.test(prev) ? " " : "";
+        return `${prev}${sep}${text}`;
+      });
+
+      // Keep focus in the input and move cursor to end.
+      window.setTimeout(() => {
+        const el = textareaRef.current;
+        if (!el) return;
+        el.focus();
+        try {
+          const end = el.value.length;
+          el.setSelectionRange(end, end);
+        } catch {
+          // ignore
+        }
+      }, 0);
+    },
+  });
 
   const resources = useSelectedResources(mcpResourceRuntime)
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
@@ -156,6 +180,25 @@ export const MessageInput = (props: UseMessageInputOptions) => {
         </div>
         {chatMode == "chat" && <SystemMessageButton />}
 
+        {/* Dictation button (left of send/stop) */}
+        <Button
+          type="button"
+          size="large"
+          title={t("transcriptionRecord")}
+          variant={dictation.recording ? "primary" : "transparent"}
+          icon={dictation.recording ? "stop" : "transcriptions"}
+          disabled={dictation.recording
+            ? false
+            : props.disabled
+              || props.streaming
+              || !dictation.recordingSupported
+              || !dictation.transcriptionEnabled
+              || dictation.transcribing}
+          onClick={dictation.recording ? dictation.stopRecording : dictation.startRecording}
+        >
+          {dictation.recording ? dictation.elapsedLabel : undefined}
+        </Button>
+
         {props.streaming ? (
           <Button
             type="button"
@@ -172,6 +215,12 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           />
         )}
       </div>
+
+      {dictation.error && (
+        <div style={{ marginTop: 8, color: "#b00020" }}>
+          {dictation.error}
+        </div>
+      )}
     </form>
   );
 };

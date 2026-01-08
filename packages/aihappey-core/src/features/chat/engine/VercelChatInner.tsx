@@ -1,9 +1,10 @@
-import { DefaultChatTransport, FileUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
+import { DefaultChatTransport, FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
+import { useFiles } from "aihappey-files";
 import { ActivityDrawer } from "../activity/drawer/ActivityDrawer";
 import { MessageInput } from "../input/MessageInput";
 import { useAttachmentParts } from "../messages/useAttachmentParts";
@@ -18,7 +19,7 @@ import { useChatErrors } from "../layout/useChatErrors";
 import { ChatErrors } from "../layout/ChatErrors";
 import { useAccessToken } from "aihappey-auth";
 import { ToolDrawer } from "../../tools";
-import { useTools } from "../../tools/useTools";
+import { getToolName, useTools } from "../../tools/useTools";
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
 import { conversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
@@ -54,7 +55,7 @@ export function VercelChatInner({
   const { conversationId } = useParams<{ conversationId: string }>();
   const location = useLocation();
   const { addChatError } = useChatErrors();
-  const [sources, setSources] = useState<(SourceUrlUIPart)[] | undefined>(undefined);
+  const [sources, setSources] = useState<(SourceUrlUIPart | SourceDocumentUIPart)[] | undefined>(undefined);
   const [messageActivity, setMessageActivity] = useState<any[] | undefined>(undefined);
   const [showToolCall, setShowToolCall] = useState<any | undefined>(undefined);
   const [messageAttachments, setMessageAttachments] = useState<FileUIPart[] | undefined>(undefined);
@@ -62,11 +63,13 @@ export function VercelChatInner({
   const { addMessage, rename, updateMessage, get } = useConversations();
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
   const customHeaders = useAppStore((s) => s.customHeaders);
+  // const selectedModel = useAppStore((s) => s.selectedModel);
   const navigate = useNavigate();
   const debugMode = useAppStore((a) => a.debugMode);
   const chatMode = useAppStore((a) => a.chatMode);
   const callTool = useAppStore((a) => a.callTool);
   const providerMetadata = useActiveProviderMetadata();
+  const files = useFiles();
   const model = useAppStore((s) => s.selectedModel);
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer } = useTheme();
@@ -77,7 +80,7 @@ export function VercelChatInner({
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
 
   const addAttachmentWithTranscription = async (file: File) => {
-   
+
     // Fallback: just add as normal file attachment
     fileAttachmentRuntime.add(file);
   };
@@ -94,12 +97,17 @@ export function VercelChatInner({
 
   const [, , , refreshToken] = useAccessToken(config.agentScopes ?? []);
 
+  const apiKeyHeaders: any = Object.fromEntries(
+    Object.entries(customHeaders)
+      .filter(([key]) => model && key.toLocaleLowerCase().indexOf(model.split("/")[0]) > -1)
+  );
+
   const authFetch = useAuthFetch({
     chatMode,
     getAccessToken,
     refreshToken,
     headers,
-    customHeaders,
+    customHeaders: apiKeyHeaders,
     customFetch,
   });
 
@@ -167,98 +175,12 @@ export function VercelChatInner({
       }),
     [authFetch]
   );
-  //const approveAll = useAppStore((a) => a.approveAll);
-  //const allowedToolList = useAppStore((a) => a.allowedToolList);
-
-  //const shouldAutoApproveTool = (toolName: string) =>
-  //    approveAll || allowedToolList.includes(toolName);
 
   const { messages, sendMessage, status, addToolOutput, stop, addToolApprovalResponse } = useChat({
     id: conversationId,
     transport,
     experimental_throttle: experimentalThrottle,
     onError: addChatError,
-
-    /*  onToolCall: async ({ toolCall }) => {
-        const toolCallId = toolCall.toolCallId;
-        const toolName = toolCall.toolName;
-  
-        // ⛔ wacht op approval als niet auto-approved
-        if (!shouldAutoApproveTool(toolName)) {
-          const decision = await toolApprovalGate.wait(toolCallId, abortRef.current?.signal);
-  
-          if (!decision.approved) {
-            const denied = { ok: false, denied: true, reason: decision.reason ?? "User denied" };
-  
-            addToolOutput({ tool: toolName, toolCallId, output: denied });
-            return denied;
-          }
-        }
-  
-        // ✅ approved: voer tool uit en return output
-        const result = await (toolUse.onToolCall as any)({
-          toolCall,
-          signal: abortRef.current?.signal,
-        });
-  
-        addToolOutput({ tool: toolName, toolCallId, output: result });
-        return result;
-      },*/
-    /*   onToolCall: async ({ toolCall }) => {
-         // probeer approvalId te vinden bij dit toolCallId
-         const approvalId = (() => {
-           const msgs = messagesRef.current as any[];
-           for (let mi = msgs.length - 1; mi >= 0; mi--) {
-             const m = msgs[mi];
-             if (m?.role !== "assistant") continue;
-             for (const p of (m.parts ?? [])) {
-               if (
-                 p?.toolCallId === toolCall.toolCallId &&
-                 typeof p?.type === "string" &&
-                 p.type.startsWith("tool-") &&
-                 p.state === "approval-requested" &&
-                 p.approval?.id
-               ) {
-                 return p.approval.id as string;
-               }
-             }
-           }
-           return undefined;
-         })();
-   
-         if (approvalId) {
-           // ⛔ wacht op user decision (approve/deny)
-           const decision = await toolApprovalGate.wait(approvalId, abortRef.current?.signal);
-   
-           if (!decision.approved) {
-             const denied = { ok: false, denied: true, reason: decision.reason ?? "User denied" };
-   
-             addToolOutput({
-               tool: toolCall.toolName,
-               toolCallId: toolCall.toolCallId,
-               output: denied,
-             });
-   
-             // return tool output (zodat de LLM kan doorpraten)
-             return denied;
-           }
-         }
-   
-         // ✅ approved (of geen approval nodig): execute normaal
-         const result = await (toolUse.onToolCall as any)({
-           toolCall,
-           signal: abortRef.current?.signal,
-         });
-   
-         addToolOutput({
-           tool: toolCall.toolName,
-           toolCallId: toolCall.toolCallId,
-           output: result,
-         });
-   
-         return result;
-       },
-   */
 
     onToolCall: async ({ toolCall }) => {
       const result = await (toolUse.onToolCall as any)({
@@ -293,21 +215,7 @@ export function VercelChatInner({
     },
   });
 
-  // keep latest messages for lookup inside onToolCall
-  /*const messagesRef = useRef<UIMessage[]>(seededMessages);
-  useEffect(() => {
-    messagesRef.current = messages as any;
-  }, [messages]);
-  
-    const addToolApprovalResponseWithGate = (x: { id: string; approved: boolean; reason?: string }) => {
-      // id == toolCallId
-      toolApprovalGate.resolve(x.id, { approved: x.approved, reason: x.reason });
-      addToolApprovalResponse(x);
-    };*/
-
-
   const { abortRef, startRun, cancelRun } = useAbortRun(stop);
-
   const getAttachmentParts = useAttachmentParts();
 
   const lastPart = useMemo(() => {
@@ -355,6 +263,7 @@ export function VercelChatInner({
       },
       temperature: location.state?.temperature ?? temperature,
     },
+    files,
   });
 
   const { onPromptExecute, handleSend } = useChatActions({
@@ -368,9 +277,13 @@ export function VercelChatInner({
     rename,
   });
 
-  const toolName = lastPart ? tools.find(a => a.name == lastPart?.type.replace("tool-", ""))?.annotations?.title : undefined;
+  const toolName = lastPart ?
+    (tools.find(a => a.name == getToolName(lastPart?.type))?.annotations?.title
+      ?? getToolName(lastPart?.type))
+    : undefined;
+
   const drawerSize = isDesktop ? "medium" : "small"
-  /* very bare‑bones UI */
+
   return (
     <div
       style={{
@@ -409,18 +322,16 @@ export function VercelChatInner({
             showCitations={setSources}
             showActivity={setMessageActivity}
             conversationId={conversationId}
-            showToolsDrawer={setUsedTool}
           />}
+
         {status === "submitted" || status === "streaming" || lastPart ? (
           <Spinner
-            label={
-              toolName
-            }
+            label={toolName}
           />
         ) : undefined}
         <div style={{ paddingRight: 24, paddingTop: 8, boxSizing: "border-box" }}>
           <MessageInput
-            onSend={async (msg: any) => {
+            onSend={async (msg) => {
               startRun()
               await handleSend(msg)
             }}
@@ -436,7 +347,7 @@ export function VercelChatInner({
 
       <MessageSourcesDrawer
         open={sources != undefined}
-        sources={sources ?? []}
+        sources={sources?.filter(a => a.type == "source-url") ?? []}
         size={drawerSize}
         onClose={() => setSources(undefined)} />
 

@@ -35,6 +35,11 @@ export interface UserMenuProps {
   enabledProviders?: string[];
   onToggleProvider?: (provider: string) => void;
 
+  /** When true, provider toggles are disabled (e.g. while models are still loading). */
+  providersDisabled?: boolean;
+  /** Providers (by display name) that should be disabled (e.g. because they returned 0 models). */
+  disabledProviders?: string[];
+
   className?: string;
   style?: React.CSSProperties;
   labels?: UserMenuLabels;
@@ -50,6 +55,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   providers,
   enabledProviders,
   onToggleProvider,
+  providersDisabled,
+  disabledProviders,
   className,
   style,
   labels = {},
@@ -98,7 +105,6 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           )}
 
 
-
           {onCustomize && <MenuItem icon={<PersonSettingsRegular />} onClick={onCustomize}>
             {labels.customize ?? "Customize"}
           </MenuItem>}
@@ -115,7 +121,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
               onCheckedValueChange={handleProvidersCheckedChange}
             >
               <MenuTrigger disableButtonEnhancement>
-                <MenuItem icon={<PlugConnectedRegular />}>{labels.providers ?? "Providers"}</MenuItem>
+                <MenuItem icon={<PlugConnectedRegular />}>{(labels.providers ?? "Providers")
+                  + (enabledProviders != undefined ? " (" + enabledProviders?.length + "/" + providers.length + ")" : "")} </MenuItem>
               </MenuTrigger>
               <MenuPopover>
                 <MenuList hasCheckmarks>
@@ -134,6 +141,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                       key={p}
                       name="providers"
                       value={p}
+                      disabled={!!providersDisabled || !!disabledProviders?.includes(p)}
                     >
                       {p}
                     </MenuItemCheckbox>

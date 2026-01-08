@@ -165,6 +165,15 @@ export const PROVIDERS: Record<string, any> = {
         ],
         url: "https://www.nscale.com"
     },
+    canopywave: {
+        name: "CanopyWave",
+        icons: [
+            {
+                src: "https://canopywave.com/canopy.png",
+            }
+        ],
+        url: "https://canopywave.com"
+    },
     alibaba: {
         name: "Alibaba",
         icons: [
@@ -173,6 +182,15 @@ export const PROVIDERS: Record<string, any> = {
             }
         ],
         url: "https://www.alibaba.com"
+    },
+    inferencenet: {
+        name: "Inferencenet",
+        icons: [
+            {
+                src: "https://media.licdn.com/dms/image/v2/D560BAQGxl6yWZL2F7w/company-logo_200_200/B56ZT34NF3GQAM-/0/1739325493857/kuzco_xyz_logo?e=2147483647&v=beta&t=80Ojsf4X0HWDwKBt9Hfz4q0mRkD7BaNP34GaazC3nQQ",
+            }
+        ],
+        url: "https://inference.net"
     },
     telnyx: {
         name: "Telnyx",

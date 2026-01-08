@@ -7,7 +7,7 @@ export type OpenAIAppWidgetProps = {
   toolOutput?: any;
   meta?: any;
   onCallTool?: (toolName: string, args: any) => Promise<any>;
-  sendFollowupTurn?: ({ prompt }: any) => Promise<void>;
+  sendFollowupTurn?: ({ prompt }: { prompt: string }) => Promise<void>;
 
 };
 

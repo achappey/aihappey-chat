@@ -59,16 +59,6 @@ export const SpeechPage = () => {
 
   const [processing, setProcessing] = useState(false);
 
-  const cellStyle: React.CSSProperties = {
-    width: "100%",
-    aspectRatio: "1 / 1",
-    position: "relative",
-    overflow: "hidden",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 76
-  };
 
   const sendSpeech = async (text: string) => {
     if (!text) return;
@@ -203,4 +193,16 @@ export const SpeechPage = () => {
 
     </div>
   );
+};
+
+
+const cellStyle: React.CSSProperties = {
+  width: "100%",
+  aspectRatio: "1 / 1",
+  position: "relative",
+  overflow: "hidden",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  height: 99
 };

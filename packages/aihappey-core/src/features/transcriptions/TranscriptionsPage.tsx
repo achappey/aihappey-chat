@@ -8,14 +8,14 @@ import { useTranscriptions } from "aihappey-transcriptions";
 import { TranscriptionCard, useTheme } from "aihappey-components";
 import { TranscriptionInput } from "./TranscriptionInput";
 import { fileToBase64 } from "../chat/files/file";
-import { resolveKnownSpeakerReferenceDataUrls, useFiles } from "aihappey-files";
+import { useFiles } from "aihappey-files";
 import {
   deleteKnownSpeakerReferenceSamples,
   getLatestKnownSpeakerReferenceItem,
-  readStoredFileOrThrow,
   migrateKnownSpeakerReferenceSample,
   saveKnownSpeakerReferenceSample,
 } from "aihappey-files";
+import { withOpenAiKnownSpeakerReferences } from "./knownSpeakersProviderMetadata";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 
 export function blobToDataUrl(blob: Blob): Promise<string> {
@@ -111,14 +111,14 @@ export const TranscriptionsPage = () => {
 
       const model = provider.transcriptionModel(selectedModel);
 
-      const knownSpeakerReferences =
-        knownSpeakerNames?.length
-          ? await resolveKnownSpeakerReferenceDataUrls(
-            files.items,
-            knownSpeakerNames,
-            (id) => readStoredFileOrThrow(files, id)
-          )
-          : undefined;
+      const hydratedProviderOptions = await withOpenAiKnownSpeakerReferences(
+        providerTranscriptionMetadata,
+        {
+          items: files.items,
+          files,
+          knownSpeakerNames,
+        }
+      );
 
 
       await Promise.all(
@@ -129,11 +129,7 @@ export const TranscriptionsPage = () => {
             audio: audioBase64,
             mediaType: file.type,
             providerOptions: {
-              ...providerTranscriptionMetadata,
-              openai: {
-                ...providerTranscriptionMetadata.openai,
-                known_speaker_references: knownSpeakerReferences,
-              }
+              ...(hydratedProviderOptions ?? providerTranscriptionMetadata),
             },
           });
 
@@ -146,17 +142,6 @@ export const TranscriptionsPage = () => {
       setProcessing(false);
       setItemsLoading(0);
     }
-  };
-
-  const cellStyle: React.CSSProperties = {
-    width: "100%",
-    aspectRatio: "1 / 1",
-    position: "relative",
-    overflow: "hidden",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 76
   };
 
   return (
@@ -235,4 +220,15 @@ export const TranscriptionsPage = () => {
 
     </div>
   );
+};
+
+const cellStyle: React.CSSProperties = {
+  width: "100%",
+  aspectRatio: "1 / 1",
+  position: "relative",
+  overflow: "hidden",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  height: 100
 };

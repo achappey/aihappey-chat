@@ -5,18 +5,17 @@ import { OpenAIAppWidget } from "../../../ui/widgets/OpenAIAppWidget";
 import { copyMarkdownToClipboard } from "../files/file";
 import { ImageGrid, MessageList as MessageListComponent, ToolContent, useTheme } from "aihappey-components";
 import type { CreateMessageRequest, CreateMessageResult, ImageContent } from "@modelcontextprotocol/sdk/types";
-import type { FileUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
+import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
 import { useMemo } from "react";
 import { toChatMessages } from "./toChatMessages";
 import { samplingRuntime, useOpenSamplings } from "../../../runtime/mcp/samplingRuntime";
-import { useTools } from "../../tools/useTools";
+import { getToolName, useTools } from "../../tools/useTools";
 import { McpProgressItem, progressRuntime, useMcpProgress } from "../../../runtime/mcp/progressRuntime";
 
 interface MessageListProps {
-  showCitations: (items: any[]) => void;
-  showToolsDrawer?: (tools: any[]) => void;
-  showAttachments?: (attachments: any[]) => void;
+  showCitations: (items: (SourceUrlUIPart | SourceDocumentUIPart)[]) => void;
+  showAttachments?: (attachments: FileUIPart[]) => void;
   showActivity?: (content: UIMessagePart<any, any>[]) => void;
   conversationId?: string;
   messages: UIMessage[];
@@ -46,7 +45,6 @@ const fileToImageContent = (f: FileUIPart): ImageContent => {
  */
 export const MessageList = ({
   showCitations,
-  showToolsDrawer,
   showActivity,
   showAttachments,
   messages,
@@ -95,34 +93,7 @@ export const MessageList = ({
 
     return [...byId.values()].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   }, [openSampling, sampling]);
-  /*
-    const samplingMessages: ChatMessage[] = mergedSampling.map((a, i) => ({
-      id: a.id,
-      role: "assistant",
-      createdAt: new Date(a.createdAt).toString(),
-      messageIcon: "chat",
-      messageLabel: t('sampling') ?? "sampling",
-      // Inject as a synthetic block type that the renderer can catch
-      content: a.result ? [
-        {
-          type: "text",
-          // request: a.request,
-          text: ((a.request?.params?.messages?.[0] as any).content as any)?.text,
-        },
-        {
-          type: "text",
-          //request: a.request,
-          text: (a.result.content as any)?.text
-        }
-      ] : [
-        {
-          type: "text",
-          request: a.request,
-          text: ((a.request?.params?.messages?.[0] as any).content as any)?.text,
-        },
-      ],
-    })) as any;*/
-
+ 
   const copyClipboard = async (msg: ChatMessage) =>
     await copyMarkdownToClipboard(msg.content?.[0].type == "text" ? msg.content?.[0]?.text : JSON.stringify(msg));
 
@@ -182,7 +153,7 @@ export const MessageList = ({
 
         if (block.type.startsWith("tool-")) {
           const progress = progressByToken.get(block.toolCallId);
-          const toolItem = tools?.tools?.find(a => a.name == block.type.replace("tool-", ""))
+          const toolItem = tools?.tools?.find(a => a.name == getToolName(block?.type))
           return <ToolContent tool={toolItem}
             progress={progress}
             invocation={block} />;

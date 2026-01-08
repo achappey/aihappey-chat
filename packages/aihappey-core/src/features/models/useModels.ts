@@ -9,6 +9,7 @@ export const useModels = (
   getAccessToken?: () => Promise<string>
 ) => {
   const models = useAppStore(a => a.models);
+  const modelsLoaded = useAppStore(a => a.modelsLoaded);
   const setModels = useAppStore(a => a.setModels)
   const customHeaders = useAppStore(a => a.customHeaders)
   const setSelectedModel = useAppStore(a => a.setSelectedModel)
@@ -16,9 +17,8 @@ export const useModels = (
   const [searchParams] = useSearchParams();
 
   const model = searchParams.get("model");
-
   useEffect(() => {
-    if (models?.length == 0) {
+    if (!modelsLoaded) {
       const client = createHttpClient({ getAccessToken, headers: customHeaders });
       client
         .get<ModelResponse>(modelsApi)
@@ -29,5 +29,5 @@ export const useModels = (
             setSelectedModel(defaultModel)
         })
     }
-  }, [modelsApi, getAccessToken, customHeaders]);
+  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded]);
 };

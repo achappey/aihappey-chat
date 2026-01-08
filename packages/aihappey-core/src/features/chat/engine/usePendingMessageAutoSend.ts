@@ -1,5 +1,7 @@
 // usePendingMessageAutoSend.ts
 import { useEffect, useRef } from "react";
+import type { FileItem, FileStore } from "aihappey-files";
+import { withOpenAiKnownSpeakerReferences } from "../../transcriptions/knownSpeakersProviderMetadata";
 
 type Args = {
     conversationId?: string;
@@ -13,6 +15,7 @@ type Args = {
     getConversation: (cid: string) => Promise<any>;
     conversationName: (text: string) => Promise<string | undefined>;
     body: any;
+    files?: FileStore & { items?: FileItem[] };
 };
 
 export function usePendingMessageAutoSend({
@@ -27,6 +30,7 @@ export function usePendingMessageAutoSend({
     getConversation,
     conversationName,
     body,
+    files,
 }: Args) {
     const didRef = useRef(false);
 
@@ -41,7 +45,33 @@ export function usePendingMessageAutoSend({
             await addMessage(conversationId, pending);
             startRun();
 
-            await sendMessage(pending, { body });
+            // Important for the "new chat first message" flow:
+            // `useActiveProviderMetadata()` hydrates known speaker references asynchronously
+            // (needs files IndexedDB listing). When we auto-send immediately after navigation,
+            // that hydration can still be pending.
+            //
+            // So we ensure OpenAI transcription metadata is hydrated right before sending.
+            const baseProviderMetadata = body?.providerMetadata;
+            let hydratedProviderMetadata = baseProviderMetadata;
+
+            if (files && baseProviderMetadata) {
+                const items = Array.isArray((files as any).items) && (files as any).items.length
+                    ? (files as any).items
+                    : await files.list();
+
+                const knownSpeakerNames: string[] | undefined = (baseProviderMetadata as any)?.openai?.known_speaker_names;
+                hydratedProviderMetadata = await withOpenAiKnownSpeakerReferences(baseProviderMetadata, {
+                    items,
+                    files,
+                    knownSpeakerNames,
+                });
+            }
+
+            const nextBody = hydratedProviderMetadata === baseProviderMetadata
+                ? body
+                : { ...body, providerMetadata: hydratedProviderMetadata };
+
+            await sendMessage(pending, { body: nextBody });
 
             await navigate(`/${conversationId}`, { replace: true, state: {} });
 
@@ -62,5 +92,6 @@ export function usePendingMessageAutoSend({
         };
 
         run();
-    }, [conversationId, locationState, messages, addMessage, sendMessage, startRun, navigate, rename, getConversation, conversationName, body]);
+    }, [conversationId, locationState, messages, addMessage,
+        sendMessage, startRun, navigate, rename, getConversation, conversationName, body, files]);
 }

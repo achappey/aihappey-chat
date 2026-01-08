@@ -24,8 +24,9 @@ export const ChatAppConnector = ({
   samplingApi?: string;
 }) => {
   const connectChatApp = useAppStore((s) => s.connectChatApp);
- // const chatAppMcp = useAppStore((s) => s.chatAppMcp);
+  // const chatAppMcp = useAppStore((s) => s.chatAppMcp);
   const customHeaders = useAppStore((s) => s.customHeaders);
+  const enabledProviders = useAppStore((s) => s.enabledProviders);
   const { t } = useTranslation();
   const { Spinner } = useTheme();
   const [connected, setConnected] = useState<boolean>(false)
@@ -47,6 +48,11 @@ export const ChatAppConnector = ({
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
         };
+        
+        const apiKeyHeaders: Record<string, string> = Object.fromEntries(
+          Object.entries(customHeaders)
+            .filter(([key]) => enabledProviders.includes(key.split("-")[1]))
+        );
 
         // ONLY add Authorization if token exists
         if (accessToken) {
@@ -57,7 +63,7 @@ export const ChatAppConnector = ({
           method: "POST",
           headers: {
             ...headers,
-            ...customHeaders
+            ...apiKeyHeaders
           },
           body: JSON.stringify(params.params),
         });

@@ -12,6 +12,8 @@ import { usePlugins } from "./toolcalls/usePlugins";
 import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
 
+export const getToolName = (type: string) => type.replace("tool-", "")
+
 export function useTools() {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);

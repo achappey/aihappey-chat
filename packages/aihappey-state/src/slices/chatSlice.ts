@@ -22,6 +22,8 @@ export type ChatSlice = {
   setActivePlugins: (names: string[]) => void;
   setStructuredOutputs: (structuredOutputs?: any) => void;
   models?: ModelOption[]
+  /** True once we have attempted to load models from the backend (even if the list is empty). */
+  modelsLoaded: boolean;
   setModels: (models: ModelOption[]) => void;
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
@@ -58,6 +60,7 @@ export const createChatSlice: StateCreator<
   temperature: 1,
   experimentalThrottle: 100,
   models: [],
+  modelsLoaded: false,
   chatMode: "chat",
   customHeaders: {},
   structuredOutputs: undefined,
@@ -117,6 +120,7 @@ export const createChatSlice: StateCreator<
   setModels: (models) => {
     set((state: any) => ({
       models: models,
+      modelsLoaded: true,
     }));
   },
   setThrottle: (throttle) => {

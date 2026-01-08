@@ -31,12 +31,43 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
 
   const enabledProviders = useAppStore((s) => s.enabledProviders ?? []);
   const toggleEnabledProvider = useAppStore((s) => s.toggleEnabledProvider);
+  const models = useAppStore((s) => s.models ?? []);
+  const modelsLoaded = useAppStore((s) => s.modelsLoaded);
 
   // Today enabledProviders in state is stored as *display names* (e.g. "OpenAI").
   const providers = React.useMemo(
     () => Object.entries(PROVIDERS).map(([, meta]: any) => meta.name).sort(),
     []
   );
+
+  // For disabling providers that didn't return any models.
+  const providerNameToKey = React.useMemo(
+    () =>
+      Object.entries(PROVIDERS).reduce((acc, [key, meta]: any) => {
+        acc[meta.name] = key;
+        return acc;
+      }, {} as Record<string, string>),
+    []
+  );
+
+  const providersWithModels = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const m of models ?? []) {
+      const providerKey = m.id?.split("/")?.[0]?.toLowerCase();
+      if (providerKey) set.add(providerKey);
+    }
+    return set;
+  }, [models]);
+
+  const disabledProviders = React.useMemo(() => {
+    // While loading, we disable everything via `providersDisabled`.
+    // Once loaded, disable providers that returned 0 models.
+    if (!modelsLoaded) return [];
+    return providers.filter((name) => {
+      const key = providerNameToKey[name];
+      return !key || !providersWithModels.has(key);
+    });
+  }, [modelsLoaded, providers, providerNameToKey, providersWithModels]);
 
   return (
     <>
@@ -49,6 +80,8 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         providers={providers}
         enabledProviders={enabledProviders}
         onToggleProvider={toggleEnabledProvider}
+        providersDisabled={!modelsLoaded}
+        disabledProviders={disabledProviders}
         labels={{
           providers: t("providers"),
           apiKeys: t("apiKeys"),

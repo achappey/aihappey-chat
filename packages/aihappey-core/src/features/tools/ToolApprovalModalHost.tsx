@@ -4,6 +4,7 @@ import { ToolApprovalButtons, ToolContent, ToolDenyConfirmModal, useTheme } from
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { ToolCallResultModal } from "../chat/activity/content/ToolCallResultModal";
+import { getToolName } from "./useTools";
 
 type ApprovalToolPart = {
     type: string;
@@ -57,7 +58,7 @@ function shouldAutoApprove(
 ) {
     if (approveAll) return true;
 
-    const toolName = tool.type.replace("tool-", "");
+    const toolName = getToolName(tool.type);
     return allowedToolList.includes(toolName);
 }
 
