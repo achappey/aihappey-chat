@@ -176,6 +176,7 @@
     "vercel-ai": "Vercel AI"
   },
   "localTools": "Lokale tools",
+  "localToolsEmpty": "Geen lokale tools gevonden. Gebruik de Tools plugin om lokale tools te maken.",
   "localPlugins": "Lokale plugins",
   "disabled": "Uitgeschakeld",
   "structuredOutputs": "Gestructureerde uitvoer",

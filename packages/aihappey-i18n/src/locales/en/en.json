@@ -191,6 +191,7 @@
     "vercel-ai": "Vercel AI"
   },
   "localTools": "Local tools",
+  "localToolsEmpty": "No custom local tools found. Create one using the Tools plugin.",
   "localPlugins": "Local plugins",
   "structuredOutputs": "Structured outputs",
   "structuredOutputsPlaceholder": "JSON schema...",

@@ -17,9 +17,26 @@ export const fileToDataUrl = (file: File): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
-export const fileToBase64 = async (file: File) => btoa(
-  String.fromCharCode(...new Uint8Array(await file.arrayBuffer()))
-);
+/**
+ * Converts a File to a base64 string (NO data-url prefix).
+ *
+ * IMPORTANT: do not use `String.fromCharCode(...bytes)` on large arrays:
+ * it can throw "Maximum call stack size exceeded" (observed in dictation).
+ * Convert in chunks to keep argument/stack usage bounded.
+ */
+export const fileToBase64 = async (file: File) => {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const chunkSize = 0x8000; // 32KB; safe for Function.apply arg limits in browsers
+
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    binary += String.fromCharCode.apply(null, chunk as any);
+  }
+
+  return btoa(binary);
+};
 
 // Utility to extract text from supported file types
 export const extractTextFromFile = async (a: File): Promise<string | undefined> => {

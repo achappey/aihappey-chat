@@ -43,6 +43,18 @@ const getTranscriptText = (result: unknown): string | undefined => {
   return undefined;
 };
 
+const describeError = (e: unknown) => {
+  if (!e) return "unknown";
+  if (e instanceof Error) return e.message || e.name;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return String(e);
+  }
+};
+
+const safeBool = (v: any) => !!v;
+
 export function useDictation(options: UseDictationOptions) {
   const { t } = useTranslation();
   const { config } = useChatContext();
@@ -82,10 +94,39 @@ export function useDictation(options: UseDictationOptions) {
     }
 
     setTranscribing(true);
+
+    const requestId = `dictation_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     try {
+      // DIAGNOSTIC LOGGING (to investigate random failures)
+      // Note: do NOT log tokens. Only log presence/absence.
+      console.info("[dictation] transcribe start", {
+        requestId,
+        resolvedModelId,
+        blobSize: blob.size,
+        blobType: blob.type,
+        recorderMimeType: mimeType,
+        transcriptionEnabled,
+        hasGetAccessToken: safeBool(config?.getAccessToken),
+        baseUrl: (config?.api?.replace("/api/chat", "") ?? "") || "(empty)",
+      });
+
       let merged = { ...(config?.headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
       if (config?.getAccessToken) {
-        merged.Authorization = `Bearer ${await config.getAccessToken()}`;
+        try {
+          const token = await config.getAccessToken();
+          merged.Authorization = `Bearer ${token}`;
+          console.info("[dictation] token acquired", {
+            requestId,
+            tokenPresent: !!token,
+            tokenLength: token?.length,
+          });
+        } catch (e) {
+          console.error("[dictation] token acquisition failed", {
+            requestId,
+            error: describeError(e),
+          });
+          throw e;
+        }
       }
 
       const provider = createTranscriptionProvider({
@@ -96,7 +137,22 @@ export function useDictation(options: UseDictationOptions) {
       const model = provider.transcriptionModel(resolvedModelId);
 
       const file = new File([blob], `recording-${Date.now()}.webm`, { type: "audio/webm" });
-      const audioBase64 = await fileToBase64(file);
+      let audioBase64: string;
+      try {
+        audioBase64 = await fileToBase64(file);
+        console.info("[dictation] base64 encoded", {
+          requestId,
+          base64Length: audioBase64.length,
+        });
+      } catch (e) {
+        console.error("[dictation] base64 encoding failed", {
+          requestId,
+          fileSize: file.size,
+          fileType: file.type,
+          error: describeError(e),
+        });
+        throw e;
+      }
 
       const result = await model.doGenerate({
         audio: audioBase64,
@@ -107,8 +163,19 @@ export function useDictation(options: UseDictationOptions) {
 
       const text = getTranscriptText(result)?.trim();
       if (text) options.onTranscript?.(text);
-    } catch {
-      setError(t("transcriptionRecordingSendFailed"));
+      console.info("[dictation] transcribe success", {
+        requestId,
+        transcriptChars: text?.length ?? 0,
+      });
+    } catch (e) {
+      console.error("[dictation] transcribe failed", {
+        requestId,
+        error: describeError(e),
+      });
+
+      // Keep user-facing message but include a short diagnostic tail.
+      const detail = describeError(e);
+      setError(`${t("transcriptionRecordingSendFailed")} (${detail})`);
     } finally {
       setTranscribing(false);
     }

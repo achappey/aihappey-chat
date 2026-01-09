@@ -77,7 +77,7 @@ export const ToolsTab = () => {
 
       {localToolItems.length > 0 ? (
         <LocalToolsSettingsForm
-          formTitle={t("localTools") ?? "Custom local tools"}
+          formTitle={t("localTools")}
           items={localToolItems}
           value={enabledLocalTools}
           onChange={setEnabledLocalTools}
@@ -86,10 +86,9 @@ export const ToolsTab = () => {
       ) : (
         <theme.Card
           size={"small"}
-          title={t("localTools") ?? "Custom local tools"}
+          title={t("localTools")}
         >
-          {t("localTools.customEmpty") ??
-            "No custom local tools found. Create one using the local_tools_create tool."}
+          {t("localToolsEmpty")}
         </theme.Card>
       )}
     </div>
