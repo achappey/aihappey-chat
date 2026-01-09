@@ -11,6 +11,8 @@ import { localToolsPluginDef } from "./toolcalls/useLocalToolsToolCall";
 import { usePlugins } from "./toolcalls/usePlugins";
 import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
+import { useLocalTools } from "aihappey-tools";
+import { storedToolToMcpTool } from "./localStoredTools";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -18,6 +20,9 @@ export function useTools() {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
   const enabledPlugins = useAppStore(s => s.activePlugins);
+  const enabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);
+
+  const localTools = useLocalTools();
 
   const defsAll = useMemo(
     () => [
@@ -40,6 +45,25 @@ export function useTools() {
     [defs]
   );
 
+  const injectedStoredLocalTools = useMemo<Tool[]>(() => {
+    const enabled = Array.isArray(enabledLocalTools) ? enabledLocalTools : [];
+    if (enabled.length === 0) return [];
+
+    const byId = new Map((localTools.items ?? []).map(t => [t.id, t] as const));
+
+    const result: Tool[] = [];
+    for (const id of enabled) {
+      const stored = byId.get(id);
+      if (!stored) continue;
+      try {
+        result.push(storedToolToMcpTool(stored));
+      } catch {
+        // ignore invalid stored tools (bad schema, etc.)
+      }
+    }
+    return result;
+  }, [enabledLocalTools, localTools.items]);
+
   return useMemo(() => {
     const baseTools = Object.values(mcpServerContent).flatMap(s => s.tools ?? []);
 
@@ -47,11 +71,28 @@ export function useTools() {
       s => (s.resources?.length ?? 0) > 0 || (s.resourceTemplates?.length ?? 0) > 0
     );
 
-    const allTools: Tool[] = [
-      ...baseTools,
-      ...injectedLocalTools,
-      ...(hasResources ? [resourceTool] : []), // ✅ conditional injection
-    ];
+    // De-dupe by name with precedence: MCP/server tools > injected plugin tools > stored local tools
+    const seen = new Set<string>();
+    const allTools: Tool[] = [];
+
+    for (const t of baseTools) {
+      if (seen.has(t.name)) continue;
+      seen.add(t.name);
+      allTools.push(t);
+    }
+    for (const t of injectedLocalTools) {
+      if (seen.has(t.name)) continue;
+      seen.add(t.name);
+      allTools.push(t);
+    }
+    for (const t of injectedStoredLocalTools) {
+      if (seen.has(t.name)) continue;
+      seen.add(t.name);
+      allTools.push(t);
+    }
+    if (hasResources && !seen.has(resourceTool.name)) {
+      allTools.push(resourceTool);
+    }
 
     // annotation gates (unchanged)
     const needsReadOnly = !!toolAnnotations?.readOnlyHint;
@@ -94,5 +135,5 @@ export function useTools() {
     }
 
     return { tools: enabledTools, disabledTools: disabledMap };
-  }, [mcpServerContent, injectedLocalTools, toolAnnotations]);
+  }, [mcpServerContent, injectedLocalTools, injectedStoredLocalTools, toolAnnotations]);
 }

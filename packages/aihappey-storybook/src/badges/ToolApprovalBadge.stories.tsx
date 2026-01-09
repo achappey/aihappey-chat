@@ -19,7 +19,7 @@ export const YoloApproved: Story = {
       toolName="example-tool"
       approval={{
         approved: true,
-        reason: "YOLO",
+        reason: "BRRR",
       }}
     />
   ),
@@ -67,7 +67,7 @@ export const NotApproved: Story = {
       toolName="example-tool"
       approval={{
         approved: false,
-        reason: "YOLO",
+        reason: "BRRR",
       }}
     />
   ),
@@ -83,7 +83,7 @@ export const WrongState: Story = {
       toolName="example-tool"
       approval={{
         approved: true,
-        reason: "YOLO",
+        reason: "BRRR",
       }}
     />
   ),

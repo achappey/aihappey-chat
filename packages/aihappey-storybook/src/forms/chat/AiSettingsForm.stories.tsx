@@ -6,6 +6,10 @@ type WrapperProps = {
   formTitle?: string;
   initialValue?: {
     temperature: number;
+    maxOutputTokens?: number;
+    stopTools?: string[];
+    maxToolCalls?: number;
+    toolChoice?: string;
   };
 };
 
@@ -13,15 +17,29 @@ const Wrapper: React.FC<WrapperProps> = ({
   formTitle,
   initialValue,
 }) => {
-  const [value, setValue] = useState<{ temperature: number }>(
-    initialValue ?? { temperature: 0.7 }
+  const [value, setValue] = useState<{
+    temperature: number;
+    maxOutputTokens?: number;
+    stopTools?: string[];
+    maxToolCalls?: number;
+    toolChoice?: string;
+  }>(
+    initialValue ?? { temperature: 0.7, toolChoice: undefined, stopTools: [] }
   );
+
+  const availableTools = [
+    "local_tools_list",
+    "local_tools_create",
+    "local_tools_delete",
+    "local_agents_list",
+  ];
 
   return (
     <AiChatSettingsForm
       value={value}
       onChange={setValue}
       formTitle={formTitle}
+      availableTools={availableTools}
     />
   );
 };

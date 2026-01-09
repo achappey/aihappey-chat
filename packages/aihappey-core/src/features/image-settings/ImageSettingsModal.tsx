@@ -4,7 +4,7 @@ import { useAppStore } from "aihappey-state";
 import {
   OpenAIImageConfigForm, PollinationsImageConfigForm,
   RunwayImageConfigForm, SettingsActionButtons,
-  StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, useTheme
+  StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme
 } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
@@ -132,6 +132,18 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
               config={providerMetadata.hyperbolic ?? {}}
               updateConfig={(hyperbolic) =>
                 setProviderMetadata({ ...providerMetadata, hyperbolic })
+              }
+            />
+          </theme.Tab>
+        }
+
+        {enabledProviders.includes("Nebius") &&
+          <theme.Tab eventKey="nebius"
+            title="Nebius">
+            <NebiusImageConfigForm
+              config={providerMetadata.nebius ?? {}}
+              updateConfig={(nebius) =>
+                setProviderMetadata({ ...providerMetadata, nebius })
               }
             />
           </theme.Tab>

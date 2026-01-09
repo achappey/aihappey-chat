@@ -15,11 +15,22 @@ export type ChatSlice = {
   chatErrors?: string[]
   structuredOutputs?: any
   activePlugins: string[]
+  /** Enabled user-defined local tools (stored in IndexedDB via aihappey-tools). */
+  enabledLocalTools: string[]
   approveAll: boolean;
+  maxOutputTokens?: number
+  setMaxOutputTokens: (maxOutputTokens?: number) => void;
+  stopTools?: string[]
+  setStopTools: (stopTools?: string[]) => void;
+  maxToolCalls?: number
+  setMaxToolCalls: (maxToolCalls?: number) => void;
+  toolChoice?: string
+  setToolChoice: (toolChoice?: string) => void;
   allowedToolList: string[];
   toggleApproveAll: () => void;
   addAllowedTool: (name: string) => void;
   setActivePlugins: (names: string[]) => void;
+  setEnabledLocalTools: (names: string[]) => void;
   setStructuredOutputs: (structuredOutputs?: any) => void;
   models?: ModelOption[]
   /** True once we have attempted to load models from the backend (even if the list is empty). */
@@ -69,6 +80,28 @@ export const createChatSlice: StateCreator<
   approveAll: false,
   allowedToolList: [],
   activePlugins: [],
+  enabledLocalTools: [],
+  stopTools: [],
+  setStopTools: (value) => {
+    set((state: ChatSlice) => ({
+      stopTools: value
+    }));
+  },
+  setMaxOutputTokens: (value) => {
+    set((state: ChatSlice) => ({
+      maxOutputTokens: value
+    }));
+  },
+  setMaxToolCalls: (value) => {
+    set((state: ChatSlice) => ({
+      maxToolCalls: value,
+    }));
+  },
+  setToolChoice: (value) => {
+    set((state: any) => ({
+      toolChoice: value,
+    }));
+  },
   toggleApproveAll: () => {
     set((state: any) => ({
       approveAll: !state.approveAll,
@@ -82,6 +115,11 @@ export const createChatSlice: StateCreator<
   setActivePlugins: (value) => {
     set((state: any) => ({
       activePlugins: value,
+    }));
+  },
+  setEnabledLocalTools: (value) => {
+    set(() => ({
+      enabledLocalTools: Array.isArray(value) ? value : [],
     }));
   },
   setSelectedModel: (model) =>

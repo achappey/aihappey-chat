@@ -11,6 +11,7 @@ import {
   useTheme, XAIChatConfigForm
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
+import { ToolsTab } from "./ToolsTab";
 import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
@@ -68,6 +69,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
             onEditProviderKeys={onEditProviderKeys}
             setTemperature={setTemperature}
           />
+        </theme.Tab>
+        <theme.Tab eventKey="tools" title={t("tools") ?? "Tools"}>
+          <ToolsTab />
         </theme.Tab>
         {enabledProviders.includes("Anthropic") &&
           <theme.Tab eventKey="anthropic" title="Anthropic">

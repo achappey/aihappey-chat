@@ -72,7 +72,7 @@ export const SystemMessageModal = ({
         {hasTools && (
           <Tab eventKey="tools"
             key="tools"
-            title={t("mcp.tools") + " (" + tools?.length + ")"}>
+            title={t("tools") + " (" + tools?.length + ")"}>
             <div style={{ display: "grid", gap: 12 }}>
               {tools.map((tool, i) => {
                 const ro = !!tool.annotations?.readOnlyHint;

@@ -165,6 +165,34 @@ export const PROVIDERS: Record<string, any> = {
         ],
         url: "https://www.nscale.com"
     },
+    tinfoil: {
+        name: "Tinfoil",
+        icons: [
+            {
+                src: "https://mintcdn.com/tinfoil/0ViQTbwRCR_TUpT7/logo/dark.png?fit=max&auto=format&n=0ViQTbwRCR_TUpT7&q=85&s=4286f60f42762cf23a4354c8e52f888b",
+                theme: "dark"
+            },
+            {
+                src: "https://tinfoil.sh/icon.png",
+                theme: "light"
+            }
+        ],
+        url: "https://tinfoil.sh"
+    },
+     nebius: {
+        name: "Nebius",
+        icons: [
+            {
+                src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKRoO9XCNhc_7_DVpQm8BsTL_oVF6q57IZPA&s",
+                theme: "dark"
+            },
+            {
+                src: "https://tinfoil.sh/icon.png",
+                theme: "light"
+            }
+        ],
+        url: "https://nebius.com"
+    },
     deepinfra: {
         name: "DeepInfra",
         icons: [

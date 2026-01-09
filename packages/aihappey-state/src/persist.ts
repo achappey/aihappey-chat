@@ -26,6 +26,7 @@ export const withPersist = (
       debugMode: s.debugMode,
       structuredOutputs: s.structuredOutputs,
       quickSearches: s.quickSearches,
+      maxToolCalls: s.maxToolCalls,
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,

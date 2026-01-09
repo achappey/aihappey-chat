@@ -103,6 +103,12 @@
     "negativePrompt": "Invite négative",
     "disableSafetyChecker": "Désactiver le contrôle de sécurité"
   },
+  "nebius": {
+    "numInferenceSteps": "Étapes d’inférence",
+    "guidanceScale": "Facteur de guidage",
+    "negativePrompt": "Invite négative",
+    "responseExtension": "Format de sortie"
+  },
   "runway": {
     "contentModeration": "Modération du contenu",
     "publicFigureThreshold": "Seuil des personnalités publiques"

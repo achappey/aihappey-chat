@@ -22,6 +22,8 @@ export * from "./telnyx";
 
 export * from "./hyperbolic";
 
+export * from "./nebius";
+
 export * from "./elevenlabs";
 
 

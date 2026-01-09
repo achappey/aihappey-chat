@@ -1,7 +1,7 @@
 import { DefaultChatTransport, FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
 import { useFiles } from "aihappey-files";
@@ -33,13 +33,14 @@ import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
 import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
+import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsLastAssistant";
+import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
   getAccessToken,
   headers,
   temperature,
-  // model,
   temperatureChanged,
   customFetch,
   initial,
@@ -63,10 +64,13 @@ export function VercelChatInner({
   const { addMessage, rename, updateMessage, get } = useConversations();
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
   const customHeaders = useAppStore((s) => s.customHeaders);
-  // const selectedModel = useAppStore((s) => s.selectedModel);
   const navigate = useNavigate();
   const debugMode = useAppStore((a) => a.debugMode);
   const chatMode = useAppStore((a) => a.chatMode);
+  const stopTools = useAppStore((a) => a.stopTools);
+  const toolChoice = useAppStore((a) => a.toolChoice);
+  const maxToolCalls = useAppStore((a) => a.maxToolCalls);
+  const maxOutputTokens = useAppStore((a) => a.maxOutputTokens);
   const callTool = useAppStore((a) => a.callTool);
   const providerMetadata = useActiveProviderMetadata();
   const files = useFiles();
@@ -111,7 +115,6 @@ export function VercelChatInner({
     customFetch,
   });
 
-
   const api = chatMode === "agent"
     ? config?.agentEndpoint + "/api/chat"
     : config?.api || "/api/chat";
@@ -124,7 +127,6 @@ export function VercelChatInner({
     callTool,
   });
 
-
   const apiRef = useApiRef(api);
   const { tools } = useTools();
   const baseBody = useMemo(() => ({
@@ -132,6 +134,9 @@ export function VercelChatInner({
     tools,
     agents: location.state?.agents,
     workflowType: location.state?.workflowType,
+    maxOutputTokens,
+    toolChoice,
+    maxToolCalls,
     providerMetadata,
     response_format: location.state?.responseFormat,
     workflowMetadata: {
@@ -142,6 +147,9 @@ export function VercelChatInner({
   }), [
     model,
     tools,
+    maxOutputTokens,
+    toolChoice,
+    maxToolCalls,
     location.state?.agents,
     location.state?.workflowType,
     location.state?.responseFormat,
@@ -157,21 +165,37 @@ export function VercelChatInner({
       new DefaultChatTransport({
         api: "/api/chat", // just a fallback; we override per-request below
         fetch: authFetch,
-        prepareSendMessagesRequest: (opts) => ({
-          // force the CURRENT endpoint at request time:
-          headers: opts.headers,
-          credentials: opts.credentials,
-          body: {
-            ...baseBody,              // ✅ always present (model included)
-            ...(opts.body ?? {}),     // per-call overrides/additions
+        prepareSendMessagesRequest: (opts) => {
+          const mergedBody: any = {
+            ...baseBody,          // default body (includes toolChoice)
+            ...(opts.body ?? {}), // per-call overrides
             id: opts.id,
-            messages: opts.messages,           // <- keep core payload
-            // optioneel (meestal harmless):
+            messages: opts.messages,
             trigger: opts.trigger,
             messageId: opts.messageId,
-          },
-          api: apiRef.current,
-        }),
+          };
+
+          const completedToolCalls =
+            typeof maxToolCalls === "number"
+              ? countCompletedToolCallsLastAssistant(opts.messages as any[])
+              : 0;
+
+          const forceNone =
+            shouldForceToolChoiceNone(opts.messages as any[], stopTools) ||
+            (typeof maxToolCalls === "number" && completedToolCalls >= maxToolCalls);
+
+          const effectiveToolChoice = forceNone ? "none" : mergedBody.toolChoice;
+
+          return {
+            headers: opts.headers,
+            credentials: opts.credentials,
+            body: {
+              ...mergedBody,
+              toolChoice: effectiveToolChoice,
+            },
+            api: apiRef.current,
+          };
+        },
       }),
     [authFetch]
   );
@@ -253,6 +277,9 @@ export function VercelChatInner({
     body: {
       model: model ?? "openai/gpt-5.2",
       tools,
+      maxOutputTokens,
+      toolChoice,
+      maxToolCalls,
       agents: location.state?.agents,
       workflowType: location.state?.workflowType,
       providerMetadata,

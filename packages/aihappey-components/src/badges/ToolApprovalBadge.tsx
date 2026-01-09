@@ -17,7 +17,7 @@ export const ToolApprovalBadge: React.FC<ToolApprovalBadgeProps> = ({
 
   return <>
     {state === 'approval-responded' &&
-      approval?.approved && approval?.reason === 'YOLO'
+      approval?.approved && (approval?.reason === 'YOLO' || approval?.reason === 'BRRR')
       && <Badge icon="warning" bg="danger">{approval?.reason}</Badge>}
     {state === 'approval-responded' &&
       approval?.approved && approval?.reason === toolName

@@ -51,7 +51,7 @@ export const ToolApprovalButtons = ({
           {
             key: "allow-all-tools",
             icon: "warning",
-            label: `${t('allTools')} (YOLO)`,
+            label: `${t('allTools')} (BRRR)`,
             onClick: onAllowAllTools,
           },
         ]}

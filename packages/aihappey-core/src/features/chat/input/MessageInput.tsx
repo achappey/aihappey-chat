@@ -114,7 +114,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           <div style={styles.metaRight}>
             {approveAll && <Badge icon="warning"
               bg="danger"
-              appearance="filled" >YOLO</Badge>}
+              appearance="filled" >BRRR</Badge>}
           </div>
         </div>
       )}

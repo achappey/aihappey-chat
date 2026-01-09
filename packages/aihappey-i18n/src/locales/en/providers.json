@@ -122,6 +122,12 @@
     "steps": "Steps",
     "negativePrompt": "Negative prompt"
   },
+  "nebius": {
+    "numInferenceSteps": "Inference steps",
+    "guidanceScale": "Guidance scale",
+    "negativePrompt": "Negative prompt",
+    "responseExtension": "Output format"
+  },
   "runway": {
     "contentModeration": "Content moderation",
     "publicFigureThreshold": "Public figure threshold"

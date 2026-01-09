@@ -18,7 +18,7 @@ export const ToolDrawer = ({ open, tools, onClose }: ToolDrawerProps) => {
     <Drawer open={open}
       size={isDesktop ? "medium" : "small"}
       overlay
-      title={t("mcp.tools")}
+      title={t("tools")}
       onClose={onClose}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {tools.map((tool, i) => (

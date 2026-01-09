@@ -17,6 +17,13 @@ import { useLocalCanvasRuntime } from "./useLocalCanvasToolCall";
 import { useLocalSettingsRuntime } from "./useLocalSettingsToolCall";
 import { useLocalToolsRuntime } from "./useLocalToolsToolCall";
 import { useVercalAIToolCall, vercelAIPluginDef } from "./useVercelAIToolCall";
+import { useLocalTools } from "aihappey-tools";
+import {
+  compileStoredToolExecute,
+  compileZodFromStoredTool,
+  normalizeToolResult,
+  toolErrorResult,
+} from "../localStoredTools";
 
 import { usePlugins } from "./usePlugins";
 
@@ -51,10 +58,13 @@ export function useOnToolCall({
   const mcpServerContent = useAppStore(a => a.mcpServerContent);
   const mcpServers = useAppStore(a => a.mcpServers);
   const enabledPlugins = useAppStore(a => a.activePlugins); // string list
+  const enabledLocalTools = useAppStore(a => (a as any).enabledLocalTools as string[]);
 
   const conversations = useConversations();
   const files = useFiles();
   const { i18n } = useTranslation();
+
+  const localToolsStore = useLocalTools();
 
   // runtimes
   const localFilesRuntime = useLocalFilesRuntime(files);
@@ -125,6 +135,22 @@ export function useOnToolCall({
   const onToolCall = useCallback(
     async ({ toolCall, signal }: any) => {
       try {
+        // 0) user-defined stored local tools (enabled by user)
+        const enabled = Array.isArray(enabledLocalTools) ? enabledLocalTools : [];
+        if (enabled.includes(toolCall.toolName)) {
+          const stored = (localToolsStore.items ?? []).find(t => t.id === toolCall.toolName);
+          if (!stored) throw new Error(`Local tool not found: ${toolCall.toolName}`);
+
+          // validate input
+          const schema = compileZodFromStoredTool(stored);
+          const parsed = schema.parse(toolCall.input ?? {});
+
+          // execute
+          const fn = compileStoredToolExecute(stored);
+          const output = await fn(parsed);
+          return normalizeToolResult(output);
+        }
+
         // 1) normal enabled plugins
         const p = plugins.find(x => x.match(toolCall.toolName));
         if (p) return await p.handle(toolCall, signal);
@@ -146,13 +172,18 @@ export function useOnToolCall({
         // 3) fallback
         return await handleMcpPassthroughToolCall(toolCall, signal);
       } catch (e) {
-        return {
-          isError: true,
-          content: [{ type: "text", text: e instanceof Error ? e.message : String(e) }],
-        };
+        return toolErrorResult(e);
       }
     },
-    [plugins, specialRuntimes, memoryPlugin, readResourcePlugin, handleMcpPassthroughToolCall]
+    [
+      enabledLocalTools,
+      localToolsStore.items,
+      plugins,
+      specialRuntimes,
+      memoryPlugin,
+      readResourcePlugin,
+      handleMcpPassthroughToolCall,
+    ]
   );
 
   return { onToolCall };

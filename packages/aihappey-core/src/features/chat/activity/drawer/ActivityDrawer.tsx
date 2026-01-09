@@ -100,7 +100,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[] }) => {
   const baseTabs = [
     {
       key: "toolInvocations",
-      label: t("mcp.tools"),
+      label: t("tools"),
       component: ToolInvocationsActivity,
       getProps: () => ({ invocations: toolInvocations }),
     },

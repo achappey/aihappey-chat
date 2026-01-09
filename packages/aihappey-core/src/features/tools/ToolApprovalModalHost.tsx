@@ -118,7 +118,7 @@ export function ToolApprovalModalHost({
         addToolApprovalResponse({
             id: active.approvalId,
             approved: true,
-            reason: approveAll ? "YOLO" : toolName,
+            reason: approveAll ? "BRRR" : toolName,
         });
     }, [active, autoApprove, approveAll, addToolApprovalResponse]);
 
@@ -163,7 +163,7 @@ export function ToolApprovalModalHost({
         addToolApprovalResponse({
             id: active.approvalId,
             approved: true,
-            reason: "YOLO",
+            reason: "BRRR",
         });
 
         // zet approveAll aan

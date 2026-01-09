@@ -11,6 +11,10 @@
   "myImages": "Mijn afbeeldingen",
   "text": "Tekst",
   "new": "Nieuw",
+  "maxOutputTokens": "Maximaal aantal uitvoertokens",
+  "maxToolCalls": "Maximaal aantal tool-aanroepen",
+  "stopTools": "Tools die de chatbeurt beëindigen",
+  "toolChoice": "Toolkeuze",
   "sourceCode": "Broncode",
   "apiKey": "API sleutel",
   "selectModelPlaceholder": "Selecteer AI-model...",
@@ -171,7 +175,8 @@
     "local-settings": "Chat instellingen",
     "vercel-ai": "Vercel AI"
   },
-  "localTools": "Lokale plugins",
+  "localTools": "Lokale tools",
+  "localPlugins": "Lokale plugins",
   "disabled": "Uitgeschakeld",
   "structuredOutputs": "Gestructureerde uitvoer",
   "structuredOutputsPlaceholder": "JSON schema...",
@@ -271,6 +276,7 @@
     "returnVideos": "Videos retourneren",
     "returnRelatedQuestions": "Gerelateerde vragen retourneren"
   },
+  "tools": "Tools",
   "mcp": {
     "accept": "Accepteer",
     "decline": "Afwijzen",
@@ -281,7 +287,6 @@
     "cancel": "Annuleer",
     "audio": "Audio",
     "toolCallResult": "Toolresultaat",
-    "tools": "Tools",
     "image": "Afbeelding",
     "prompts": "Prompts",
     "prompt": "Prompt",
