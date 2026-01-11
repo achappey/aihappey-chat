@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { RerankingInput } from "./RerankingInput";
-import { ErrorAlerts, RerankingDocumentCard, WarningAlerts } from "aihappey-components";
+import { ErrorAlerts, RerankingCard, RerankingDocumentCard, useTheme, WarningAlerts } from "aihappey-components";
 import { RerankingWarnings } from "./RerankingWarnings";
 import { useRerankingController } from "./useRerankingController";
+import { useReranking } from "aihappey-reranking";
+import { T } from "react-router/dist/development/index-react-server-client-gGyf-7Xp";
+import { useTranslation } from "aihappey-i18n";
 
 function downloadFile(file: File, downloadName?: string) {
     const url = URL.createObjectURL(file);
@@ -18,6 +21,12 @@ function downloadFile(file: File, downloadName?: string) {
 }
 
 export const RerankingPage = () => {
+    const { Tabs, Tab } = useTheme();
+    const { t } = useTranslation();
+    const [activeTab, setActiveTab] = useState<string>("current");
+
+    const rerankingStore = useReranking();
+
     const {
         models,
         prompt,
@@ -41,6 +50,19 @@ export const RerankingPage = () => {
         handleDrop,
         handleDragOver,
     } = useRerankingController();
+
+    const persistFiles = useMemo(() => {
+        // Never persist blobs.
+        return docs.map((d) => ({ name: d.fileName, text: d.text }));
+    }, [docs]);
+
+    const handleSend = useCallback(async () => {
+        const res = await onSend();
+        if (!res) return;
+        await rerankingStore.add(prompt, persistFiles, res as any);
+        // optimistic update already happens in provider; still safe to refresh in case store is out-of-sync
+        rerankingStore.refresh();
+    }, [onSend, persistFiles, prompt, rerankingStore]);
 
     return (
         <div
@@ -85,7 +107,7 @@ export const RerankingPage = () => {
                 <RerankingInput
                     value={prompt}
                     onChange={setPrompt}
-                    onSend={onSend}
+                    onSend={handleSend}
                     onFilesSelected={(files) => {
                         void addFilesToLocalState(files);
                     }}
@@ -97,26 +119,46 @@ export const RerankingPage = () => {
             </div>
 
             <div style={{ maxWidth: 1056, margin: "0 auto", padding: "0 12px" }}>
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                        gap: 16,
-                        alignItems: "stretch",
-                        marginTop: 16,
-                    }}
-                >
-                    {docs.map((d) => (
-                        <RerankingDocumentCard
-                            key={d.id}
-                            fileName={d.fileName}
-                            text={d.text}
-                            rank={d.rank}
-                            relevanceScore={d.relevanceScore}
-                            onDownload={() => downloadFile(d.file, d.fileName)}
-                        />
-                    ))}
-                </div>
+                <Tabs activeKey={activeTab} onSelect={setActiveTab}>
+                    <Tab eventKey="current" title={t('current')}>
+                        <div
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                                gap: 16,
+                                alignItems: "stretch",
+                                marginTop: 16,
+                            }}
+                        >
+                            {docs.map((d) => (
+                                <RerankingDocumentCard
+                                    key={d.id}
+                                    fileName={d.fileName}
+                                    text={d.text}
+                                    rank={d.rank}
+                                    relevanceScore={d.relevanceScore}
+                                    onDownload={() => downloadFile(d.file, d.fileName)}
+                                />
+                            ))}
+                        </div>
+                    </Tab>
+
+                    <Tab eventKey="history" title={t('saved', { total: rerankingStore.items.length })}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 16 }}>
+                            {rerankingStore.items.map((item) => (
+                                <RerankingCard
+                                    key={item.id}
+                                    query={item.query}
+                                    files={item.files}
+                                    reranking={item.reranking}
+                                    onDelete={() => {
+                                        void rerankingStore.delete(item.id);
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </Tab>
+                </Tabs>
             </div>
         </div>
     );

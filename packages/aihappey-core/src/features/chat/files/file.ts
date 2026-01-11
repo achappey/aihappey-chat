@@ -45,7 +45,7 @@ export const extractTextFromFile = async (a: File): Promise<string | undefined> 
   const type = a.type || "";
 
   // Prefer mimetype, fallback to extension
-  if (type === "application/pdf" || /\.pdf$/i.test(name)) {
+  if (type === "application/pdf" || (/\.pdf$/i.test(name) && !type.startsWith("text"))) {
     return await pdfFileToText(a);
   }
   if (

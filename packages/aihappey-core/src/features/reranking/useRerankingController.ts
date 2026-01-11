@@ -112,8 +112,8 @@ export function useRerankingController() {
 
   const { isOver, dropRef, handleDrop, handleDragOver } = useChatFileDrop(addAttachment, addAttachments);
 
-  const onSend = useCallback(async () => {
-    if (!canSend) return;
+  const onSend = useCallback(async (): Promise<RerankingResponse | undefined> => {
+    if (!canSend) return undefined;
     setProcessing(true);
     clearWarnings();
     try {
@@ -129,11 +129,15 @@ export function useRerankingController() {
       const provider = createRerankProvider({ baseUrl, headers: merged });
       const model = provider.rerankingModel(selectedModel);
 
+      // Always send documents in stable original-index order.
+      // The UI may have the docs array sorted by rank from a previous rerank.
+      const requestDocs = docs.slice().sort((a, b) => a.index - b.index);
+
       const result = (await model.doRerank({
         query: prompt,
         documents: {
           type: "text",
-          values: docs.map((d) => d.text),
+          values: requestDocs.map((d) => d.text),
         },
         topN: topN,
         providerOptions: providerRerankingMetadata,
@@ -164,8 +168,11 @@ export function useRerankingController() {
             return ra - rb;
           })
       );
+
+      return result;
     } catch (err) {
       addError(getRerankingErrorMessage(err));
+      return undefined;
     } finally {
       setProcessing(false);
     }

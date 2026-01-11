@@ -1,9 +1,9 @@
-// stores/IndexedDBTranscriptionStore.ts
+// stores/IndexedDBRerankingStore.ts
 import { get, set } from "idb-keyval";
 import type { RerankingResponse } from "aihappey-ai";
 import { RerankingFileItem, RerankingItem, RerankingStore } from "../types";
 
-const DB_KEY = "aihappey_transcriptions_v1";
+const DB_KEY = "aihappey_reranking_v1";
 
 async function load(): Promise<RerankingItem[]> {
   if (typeof window === "undefined") return [];

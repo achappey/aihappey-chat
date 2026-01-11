@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { createTranscriptionProvider } from "aihappey-ai";
+import type { SharedV3Warning } from "aihappey-ai";
 import { useTranscriptions } from "aihappey-transcriptions";
-import { TranscriptionCard, useTheme } from "aihappey-components";
+import { ErrorAlerts, TranscriptionCard, useTheme, WarningAlerts } from "aihappey-components";
 import { TranscriptionInput } from "./TranscriptionInput";
 import { fileToBase64 } from "../chat/files/file";
 import { useFiles } from "aihappey-files";
@@ -17,6 +18,14 @@ import {
 } from "aihappey-files";
 import { withOpenAiKnownSpeakerReferences } from "./knownSpeakersProviderMetadata";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
+import { useTranscriptionErrors } from "./useTranscriptionErrors";
+import { getTranscriptionErrorMessage } from "./transcriptionErrors";
+import { TranscriptionWarnings } from "./TranscriptionWarnings";
+
+const isTranscribableMedia = (file: File) => {
+  const t = file.type;
+  return t.startsWith("audio/") || t.startsWith("video/");
+};
 
 export function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -42,6 +51,19 @@ export const TranscriptionsPage = () => {
   const { Skeleton } = useTheme()
   const storageTranscriptions = useTranscriptions()
   const files = useFiles();
+
+  const {
+    errors,
+    warnings,
+    sharedWarnings,
+    addError,
+    addWarning,
+    clearSharedWarnings,
+    addSharedWarnings,
+    dismissError,
+    dismissWarning,
+    dismissSharedWarning,
+  } = useTranscriptionErrors();
 
   const knownSpeakerSamples = {
     getSampleInfo: (speakerName: string) => {
@@ -94,8 +116,21 @@ export const TranscriptionsPage = () => {
   const transcribeFiles = async (inputFiles: File[]) => {
     if (!inputFiles.length) return;
 
+    const accepted = inputFiles.filter(isTranscribableMedia);
+    const rejected = inputFiles.filter((f) => !isTranscribableMedia(f));
+
+    if (rejected.length) {
+      addWarning(`Only audio/video files are accepted for transcription. Rejected: ${rejected.map((f) => f.name).join(", ")}`);
+    }
+
+    if (!accepted.length) {
+      return;
+    }
+
+    clearSharedWarnings();
+
     setProcessing(true);
-    setItemsLoading(inputFiles.length);
+    setItemsLoading(accepted.length);
 
     try {
       let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
@@ -122,7 +157,7 @@ export const TranscriptionsPage = () => {
 
 
       await Promise.all(
-        inputFiles.map(async (file) => {
+        accepted.map(async (file) => {
           const audioBase64 = await fileToBase64(file);
 
           const result = await model.doGenerate({
@@ -133,11 +168,29 @@ export const TranscriptionsPage = () => {
             },
           });
 
+          addSharedWarnings(result?.warnings as any);
+
           await storageTranscriptions.add(file.name, file, result);
         })
       );
 
       storageTranscriptions.refresh();
+    } catch (err) {
+      // Bubble up backend errors into page-level errors
+      addError(getTranscriptionErrorMessage(err));
+
+      // If backend error includes warnings, surface them too
+      const anyErr: any = err;
+      const extraWarnings = anyErr?.warnings as SharedV3Warning[] | undefined;
+      if (extraWarnings?.length) {
+        addSharedWarnings(extraWarnings);
+      }
+
+      // Some providers include warnings nested in response metadata
+      const nested = anyErr?.response?.warnings as SharedV3Warning[] | undefined;
+      if (nested?.length) {
+        addSharedWarnings(nested);
+      }
     } finally {
       setProcessing(false);
       setItemsLoading(0);
@@ -170,6 +223,10 @@ export const TranscriptionsPage = () => {
           <UserMenuInline />
         </div>
       </div>
+
+      <ErrorAlerts errors={errors} dismissError={dismissError} />
+      <WarningAlerts warnings={warnings} dismissWarning={dismissWarning} />
+      <TranscriptionWarnings warnings={sharedWarnings} dismissWarning={dismissSharedWarning} />
 
       <div style={{
         marginTop: 44,

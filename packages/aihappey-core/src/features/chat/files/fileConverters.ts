@@ -36,8 +36,16 @@ export const pdfFileToText = async (file: File): Promise<string> => {
  */
 
 export const zipFileToFiles = async (
-  file: File
+  file: Blob
 ): Promise<Record<string, Uint8Array>> => {
+  if (!file || typeof (file as any).arrayBuffer !== "function") {
+    // Keep this explicit: callers sometimes pass the attachment wrapper instead of the actual File/Blob.
+    // Returning a clearer error makes the root cause obvious in the console.
+    throw new TypeError(
+      "zipFileToFiles(file): expected a File/Blob with arrayBuffer(); got " +
+        Object.prototype.toString.call(file)
+    );
+  }
   const arrayBuffer = await file.arrayBuffer();
   const files = unzipSync(new Uint8Array(arrayBuffer));
   return files;
@@ -159,11 +167,34 @@ export const emlToPlainText = (emlText: string): string => {
 
 // Extracts all supported files in a ZIP and returns array of text parts
 export const extractTextFromZip = async (a: any) => {
-  const file = a.file as File;
-  const files = await zipFileToFiles(file);
+  // Historically some call sites passed `{ file }`, while chat attachments are raw `File` objects.
+  // Accept both shapes to avoid runtime crashes.
+  const candidate = (a && (a.file ?? a)) as unknown;
+  const file =
+    typeof Blob !== "undefined" && candidate instanceof Blob
+      ? candidate
+      : undefined;
+
+  if (!file) {
+    console.warn(
+      "extractTextFromZip(): expected File/Blob or {file: File/Blob}; got",
+      a
+    );
+    return [];
+  }
+
+  let files: Record<string, Uint8Array>;
+  try {
+    files = await zipFileToFiles(file);
+  } catch (e) {
+    console.error("extractTextFromZip(): failed to unzip", e);
+    return [];
+  }
   const textParts: any[] = [];
 
   for (const [filename, data] of Object.entries(files)) {
+    // fflate includes directory entries like "folder/"; skip them.
+    if (filename.endsWith("/")) continue;
     const ext = filename.split('.').pop()?.toLowerCase();
 
     // Maak altijd een echte Uint8Array, zodat File in browser werkt:
@@ -177,12 +208,17 @@ export const extractTextFromZip = async (a: any) => {
     const f = new File([blobPart], filename);
 
     let text: string | undefined;
-    if (ext === "pdf") text = await pdfFileToText(f);
-    else if (ext === "docx") text = await docxFileToText(f);
-    else if (["xlsx", "xls", "csv"].includes(ext || "")) text = await excelFileToText(f);
-    else if (["txt", "md", "log"].includes(ext || "")) text = await f.text();
-    else if (["pptx"].includes(ext || "")) text = await pptxFileToText(f);
-    else if (["msg"].includes(ext || "")) text = await msgFileToPlainText(f);
+    try {
+      if (ext === "pdf") text = await pdfFileToText(f);
+      else if (ext === "docx") text = await docxFileToText(f);
+      else if (["xlsx", "xls", "csv"].includes(ext || "")) text = await excelFileToText(f);
+      else if (["txt", "md", "log"].includes(ext || "")) text = await f.text();
+      else if (["pptx"].includes(ext || "")) text = await pptxFileToText(f);
+      else if (["msg"].includes(ext || "")) text = await msgFileToPlainText(f);
+    } catch (e) {
+      console.warn(`extractTextFromZip(): failed to convert ${filename} to text`, e);
+      text = undefined;
+    }
 
     if (text) {
       textParts.push({

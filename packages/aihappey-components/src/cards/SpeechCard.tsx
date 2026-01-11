@@ -3,6 +3,7 @@ import { SpeechResponse } from "aihappey-ai";
 import { useTranslation } from "aihappey-i18n";
 import type { MenuItemProps } from "aihappey-types";
 import { useEffect, useState } from "react";
+import { format } from "timeago.js";
 
 interface SpeechCardProps {
   speech: SpeechResponse;
@@ -76,7 +77,9 @@ export const SpeechCard = ({ speech, onDelete }: SpeechCardProps) => {
     : [];
 
   return (
-    <Card title="" headerActions={onDelete ? <Menu items={menuItems} /> : undefined}>
+    <Card title={speech?.response?.modelId}
+      description={<>{format(speech?.response?.timestamp)}</>}
+      headerActions={onDelete ? <Menu items={menuItems} /> : undefined}>
       {src && (
         <audio
           controls

@@ -24,3 +24,4 @@ export * from "./SpeechCard";
 export * from "./ToolCard";
 export * from "./FileCard";
 export * from "./RerankingDocumentCard";
+export * from "./RerankingCard";
