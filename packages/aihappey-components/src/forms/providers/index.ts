@@ -24,6 +24,8 @@ export * from "./zai";
 export * from "./telnyx";
 export * from "./deepinfra";
 
+export * from "./deepgram";
+
 export * from "./hyperbolic";
 
 export * from "./nebius";

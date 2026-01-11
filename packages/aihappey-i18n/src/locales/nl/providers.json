@@ -257,5 +257,33 @@
       "overrideStability": "Stabiliteit overschrijven",
       "stability": "Stabiliteit"
     }
+  },
+  "deepgram": {
+    "language": "Taal",
+    "punctuate": "Interpunctie",
+    "smartFormat": "Slimme opmaak",
+    "paragraphs": "Paragrafen",
+    "utterances": "Uitspraken",
+    "diarize": "Sprekersherkenning",
+    "multichannel": "Meerkanaals",
+    "detectEntities": "Entiteiten detecteren",
+    "topics": "Onderwerpen",
+    "intents": "Intenties",
+    "sentiment": "Sentiment",
+    "mipOptOut": "Model Improvement Program uitschakelen",
+    "detectLanguage": "Taal detecteren",
+    "tags": "Tags",
+    "addTag": "Tag toevoegen",
+    "addTagPlaceholder": "bijv. klant-123",
+    "speech": {
+      "encoding": "Encodering",
+      "container": "Container",
+      "sampleRate": "Samplerate",
+      "bitRate": "Bitrate (bps)",
+      "mipOptOut": "Model Improvement Program uitschakelen",
+      "callback": "Callback-URL",
+      "callbackMethod": "Callback-methode",
+      "singleTagDetected": "Bestaande enkele tag gevonden: {{tag}}. Voeg tags toe of verwijder tags om dit naar een lijst om te zetten."
+    }
   }
 }

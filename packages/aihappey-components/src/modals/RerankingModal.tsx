@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import type { RerankingResponse } from "aihappey-ai";
 import { useTranslation } from "aihappey-i18n";
-import { format } from "timeago.js";
-
 import { useTheme } from "../theme/ThemeContext";
 
 export type RerankingModalFile = {
@@ -18,23 +16,6 @@ export type RerankingModalProps = {
     reranking: RerankingResponse;
 
     size?: "small" | "medium" | "large";
-};
-
-const toDateForTimeago = (timestamp: any): Date | undefined => {
-    if (timestamp == null) return undefined;
-
-    if (timestamp instanceof Date) return timestamp;
-
-    if (typeof timestamp === "number") {
-        // Heuristic: seconds vs ms.
-        const ms = timestamp > 1e12 ? timestamp : timestamp * 1000;
-        return new Date(ms);
-    }
-
-    // ISO string or other Date-parsable input.
-    const d = new Date(timestamp);
-    if (Number.isNaN(d.getTime())) return undefined;
-    return d;
 };
 
 export const RerankingModal: React.FC<RerankingModalProps> = ({
@@ -55,15 +36,6 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
         if (!open) return;
         setActiveTab(defaultTab);
     }, [open]);
-
-    const modelId = reranking?.response?.modelId;
-    const timestampDate = useMemo(
-        () => toDateForTimeago(reranking?.response?.timestamp),
-        [reranking?.response?.timestamp]
-    );
-
-    const timestampLabel = timestampDate ? format(timestampDate) : "";
-    const timestampTitle = timestampDate ? timestampDate.toLocaleString() : "";
 
     const documentRows = useMemo(() => {
         const ranking = Array.isArray(reranking?.ranking) ? reranking.ranking : [];
@@ -103,7 +75,7 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
             show={open}
             size={size}
             onHide={onClose}
-            title={"Reranking"}
+            title={t("rerank")}
             actions={
                 <div style={{ display: "flex", gap: 8 }}>
                     <theme.Button variant="secondary" onClick={onClose}>
@@ -113,30 +85,13 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
             }
         >
             <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-                <theme.Tab eventKey="general" title={t("general") ?? "General"}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10, paddingTop: 12 }}>
-                        <div>
-                            <div style={{ opacity: 0.7, fontSize: 12, marginBottom: 4 }}>{t("query") ?? "Query"}</div>
-                            <div style={{ whiteSpace: "pre-wrap" }}>{query}</div>
-                        </div>
-
-                        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                            <div>
-                                <div style={{ opacity: 0.7, fontSize: 12, marginBottom: 4 }}>{t("model") ?? "Model"}</div>
-                                <div>{modelId || <span style={{ opacity: 0.6 }}>{t("none") ?? "None"}</span>}</div>
-                            </div>
-
-                            <div>
-                                <div style={{ opacity: 0.7, fontSize: 12, marginBottom: 4 }}>{t("timestamp") ?? "Timestamp"}</div>
-                                <div title={timestampTitle} style={{ whiteSpace: "nowrap" }}>
-                                    {timestampLabel || <span style={{ opacity: 0.6 }}>{t("none") ?? "None"}</span>}
-                                </div>
-                            </div>
-                        </div>
+                <theme.Tab eventKey="general" title={t("input")}>
+                    <div>
+                        {query}
                     </div>
                 </theme.Tab>
 
-                <theme.Tab eventKey="documents" title={"Documents"}>
+                <theme.Tab eventKey="documents" title={t("result")}>
                     <div style={{ paddingTop: 12 }}>
                         <div
                             style={{
@@ -176,7 +131,7 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
                     </div>
                 </theme.Tab>
 
-                <theme.Tab eventKey="raw" title={"Raw"}>
+                <theme.Tab eventKey="raw" title={t("output")}>
                     <theme.JsonViewer value={reranking} />
                 </theme.Tab>
             </theme.Tabs>

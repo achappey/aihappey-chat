@@ -274,5 +274,33 @@
       "overrideStability": "Override stability",
       "stability": "Stability"
     }
+  },
+  "deepgram": {
+    "language": "Language",
+    "punctuate": "Punctuate",
+    "smartFormat": "Smart format",
+    "paragraphs": "Paragraphs",
+    "utterances": "Utterances",
+    "diarize": "Diarize",
+    "multichannel": "Multichannel",
+    "detectEntities": "Detect entities",
+    "topics": "Topics",
+    "intents": "Intents",
+    "sentiment": "Sentiment",
+    "mipOptOut": "Model Improvement Program opt-out",
+    "detectLanguage": "Detect language",
+    "tags": "Tags",
+    "addTag": "Add tag",
+    "addTagPlaceholder": "e.g. customer-123",
+    "speech": {
+      "encoding": "Encoding",
+      "container": "Container",
+      "sampleRate": "Sample rate",
+      "bitRate": "Bit rate (bps)",
+      "mipOptOut": "Model Improvement Program opt-out",
+      "callback": "Callback URL",
+      "callbackMethod": "Callback method",
+      "singleTagDetected": "Existing single tag detected: {{tag}}. Add/remove tags to convert it to a list."
+    }
   }
 }

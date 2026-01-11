@@ -3,6 +3,7 @@ import { useTranslation } from "aihappey-i18n";
 import {
     FireworksTranscriptionConfigForm,
     GroqTranscriptionConfigForm,
+    DeepgramTranscriptionConfigForm,
     ElevenLabsTranscriptionConfigForm,
     MistralTranscriptionConfigForm,
     NovitaTranscriptionConfigForm,
@@ -86,6 +87,20 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         azure,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Deepgram") && (
+                        <theme.Tab eventKey="deepgram" title="Deepgram">
+                            <DeepgramTranscriptionConfigForm
+                                config={providerMetadata.deepgram ?? {}}
+                                updateConfig={(deepgram) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        deepgram,
                                     })
                                 }
                             />

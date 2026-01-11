@@ -3,7 +3,8 @@ import { useTranslation } from "aihappey-i18n";
 import { SettingsActionButtons, useTheme } from "aihappey-components";
 import { SpeechSettingsGeneralTab } from "./SpeechSettingsGeneralTab";
 import { useAppStore } from "aihappey-state";
-import {
+  import {
+  DeepgramSpeechConfigForm,
   OpenAISpeechConfigForm,
   GroqSpeechConfigForm,
   NovitaSpeechConfigForm,
@@ -13,6 +14,7 @@ import {
   AsyncAISpeechConfigForm,
   TogetherSpeechConfigForm,
   type ElevenLabsSpeechConfig,
+  type DeepgramSpeechConfig,
   type OpenAISpeechConfig,
   type GroqSpeechConfig,
   type NovitaSpeechConfig,
@@ -73,6 +75,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
               config={providerMetadata.asyncai ?? {}}
               updateConfig={(asyncai: AsyncAISpeechConfig) =>
                 setProviderMetadata({ ...providerMetadata, asyncai })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("Deepgram") && (
+          <theme.Tab eventKey="deepgram" title="Deepgram">
+            <DeepgramSpeechConfigForm
+              config={providerMetadata.deepgram ?? {}}
+              updateConfig={(deepgram: DeepgramSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, deepgram })
               }
             />
           </theme.Tab>

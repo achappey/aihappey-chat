@@ -7,6 +7,9 @@ export const defaultProviderSpeechMetadata = {
   },
   "elevenlabs": {
   },
+  "sarvam": {
+    "target_language_code": "en-IN"
+  },
   "novita": {
     "minimax": {
       "voice": "Wise_Woman",
