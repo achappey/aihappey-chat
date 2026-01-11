@@ -24,6 +24,16 @@ export type UserMenuProps = {
    * (e.g. "OpenAI", "Anthropic"), not provider ids.
    */
   providers?: string[];
+
+  /**
+   * Optional provider groups for capability-based menus.
+   *
+   * Key is the capability / model type (e.g. "language", "image", "speech",
+   * "transcription", "reranking"). Values are provider display names.
+   *
+   * Providers may appear in multiple groups if they support multiple capabilities.
+   */
+  providerGroups?: Record<string, string[]>;
   enabledProviders?: string[];
   onToggleProvider?: (provider: string) => void;
 

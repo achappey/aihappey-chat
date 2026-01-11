@@ -48,57 +48,71 @@ export const AiChatToolsSettingsForm = ({
     return (
         <theme.Card size="small" title={formTitle ?? (t("tools") ?? "Tools")}>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <theme.Select
-                    label={t("toolChoice") ?? "toolChoice"}
-                    values={[toolChoiceValue]}
-                    valueTitle={t(toolChoiceValue)}
-                    onChange={(choice: string) => {
-                        // enforce: required only when stopTools OR maxToolCalls is set
-                        const nextChoice = choice === "required" && !canRequireTools(safeValue)
-                            ? "auto"
-                            : choice;
-                        onChange(
-                            normalizeToolChoice({
-                                ...safeValue,
-                                toolChoice: nextChoice === "auto" ? undefined : nextChoice,
-                            })
-                        );
-                    }}
-                >
-                    <option value="none">{t("none")}</option>
-                    <option value="auto">{t("auto")}</option>
-                    {requiredEnabled && <option value="required">{t("required")}</option>}
-                </theme.Select>
-                <theme.Input
-                    type="number"
-                    min={1}
-                    step={1}
-                    label={t("maxToolCalls") ?? "maxToolCalls"}
-                    placeholder={t("optional") ?? "optional"}
-                    value={safeValue?.maxToolCalls ?? ""}
-                    onChange={(e: any) => {
-                        const raw = String(e?.target?.value ?? "");
-                        const parsed = raw.trim() ? parseInt(raw, 10) : NaN;
-                        const maxToolCalls = Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-                        onChange(
-                            normalizeToolChoice({
-                                ...safeValue,
-                                maxToolCalls,
-                            })
-                        );
-                    }}
-                />
 
+                {/* ROW 1 */}
+                <div style={{ display: "flex", gap: 8 }}>
+                    <div style={{ flex: 1 }}>
+                        <theme.Select
+                            label={t("toolChoice") ?? "toolChoice"}
+                            values={[toolChoiceValue]}
+                            valueTitle={t(toolChoiceValue)}
+                            onChange={(choice: string) => {
+                                const nextChoice =
+                                    choice === "required" && !canRequireTools(safeValue)
+                                        ? "auto"
+                                        : choice;
+
+                                onChange(
+                                    normalizeToolChoice({
+                                        ...safeValue,
+                                        toolChoice: nextChoice === "auto" ? undefined : nextChoice,
+                                    })
+                                );
+                            }}
+                        >
+                            <option value="none">{t("none")}</option>
+                            <option value="auto">{t("auto")}</option>
+                            {requiredEnabled && <option value="required">{t("required")}</option>}
+                        </theme.Select>
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                        <theme.Input
+                            type="number"
+                            min={1}
+                            step={1}
+                            label={t("maxToolCalls") ?? "maxToolCalls"}
+                            placeholder={t("optional") ?? "optional"}
+                            value={safeValue?.maxToolCalls ?? ""}
+                            onChange={(e: any) => {
+                                const raw = String(e?.target?.value ?? "");
+                                const parsed = raw.trim() ? parseInt(raw, 10) : NaN;
+                                const maxToolCalls =
+                                    Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+
+                                onChange(
+                                    normalizeToolChoice({
+                                        ...safeValue,
+                                        maxToolCalls,
+                                    })
+                                );
+                            }}
+                        />
+                    </div>
+                </div>
+
+                {/* ROW 2 */}
                 <theme.Select
                     label={t("stopTools") ?? "stopTools"}
                     values={stopTools}
-                    multiselect={true}
+                    multiselect
                     valueTitle={stopTools.length ? stopTools.join(", ") : undefined}
                     onChange={(toolName: string) => {
                         const prev = safeValue?.stopTools ?? [];
                         const next = prev.includes(toolName)
                             ? prev.filter((t) => t !== toolName)
                             : [...prev, toolName];
+
                         onChange(
                             normalizeToolChoice({
                                 ...safeValue,
@@ -114,9 +128,9 @@ export const AiChatToolsSettingsForm = ({
                     ))}
                 </theme.Select>
 
-
             </div>
         </theme.Card>
     );
+
 };
 

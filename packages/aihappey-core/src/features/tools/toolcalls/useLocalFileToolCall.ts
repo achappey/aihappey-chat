@@ -72,10 +72,10 @@ export const localFileCreateTool: Tool = {
     type: "object",
     properties: {
       name: { type: "string", description: "File name." },
-      mimeType: { type: "string", description: "MIME type (optional)." },
+      mimeType: { type: "string", description: "MIME type." },
       data: { type: "string", description: "File contents as string." },
     },
-    required: ["name", "data"],
+    required: ["name", "data", "mimeType"],
   },
   annotations: {
     readOnlyHint: false,

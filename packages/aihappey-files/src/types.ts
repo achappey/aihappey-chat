@@ -10,12 +10,12 @@ export type StoredFile = FileItem & {
 
 export interface FileStore {
   readonly kind: "indexeddb";
-  list(): Promise<FileItem[]>;
+  list(): Promise<StoredFile[]>;
   read(id: string): Promise<StoredFile | undefined>;
   create(file: {
     name: string;
     mimeType: string;
     data: Blob;
-  }): Promise<FileItem>;
+  }): Promise<StoredFile>;
   delete(id: string): Promise<void>;
 }

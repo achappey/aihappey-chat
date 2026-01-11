@@ -10,11 +10,15 @@ export const MimeTypeBadge: React.FC<MimeTypeBadgeProps> = ({
 }) => {
   const { Badge } = useTheme();
   const { t } = useTranslation('mimeTypes');
+  const visibleType = mimeType?.split(';')[0]
+  const icon = mimeType?.startsWith("image/") ? "image" : undefined;
 
-  return mimeType ? <Badge
+  return visibleType ? <Badge
     bg="informative"
+    icon={icon}
+    title={t('mimeType')}
     appearance={"outline"}
   >
-    {t(mimeType)}
+    {t(visibleType)}
   </Badge> : undefined;
 };

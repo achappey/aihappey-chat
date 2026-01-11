@@ -9,9 +9,10 @@ import { createMcpRegistrySlice, McpRegistrySlice } from "./slices/mcpRegistrySl
 import { createImageSlice, ImageSlice } from "./slices/imageSlice";
 import { createTranscriptionSlice, TranscriptionSlice } from "./slices/transcriptionSlice";
 import { createSpeechSlice, SpeechSlice } from "./slices/speechSlice";
+import { createRerankingSlice, RerankingSlice } from "./slices/rerankingSlice";
 
 export type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & SpeechSlice
-  & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice;
+  & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice;
 
 export const createAppStore = () =>
   createStore<RootState, [["zustand/persist", unknown]]>(
@@ -21,6 +22,7 @@ export const createAppStore = () =>
         ...createAgentSlice(set, get, store),
         ...createImageSlice(set, get, store),
         ...createMcpServersSlice(set, get, store),
+        ...createRerankingSlice(set, get, store),
         ...createSpeechSlice(set, get, store),
         ...createTranscriptionSlice(set, get, store),
         ...createMcpRegistrySlice(set, get, store),

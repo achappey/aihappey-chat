@@ -42,10 +42,6 @@ export function ChatArena({
   );
 
   const { config } = useChatContext();
-  /* const { models, loading } = useModels(
-     config.modelsApi!,
-     config.getAccessToken
-   );*/
   const { Spinner } = useTheme();
   const models = useAppStore((s) => s.models);
   const customHeaders = useAppStore((s) => s.customHeaders);

@@ -83,6 +83,7 @@ export const localToolsCreate: Tool = {
         description:
           "Stringified javascript function. Example: 'async ({ a, b }) => { return { sum: a + b }; }'",
       },
+      title: { type: "string", description: "Human-readable tool display name" },
     },
     required: ["toolName", "description", "inputSchema", "execute"],
   },
@@ -182,6 +183,7 @@ export function useLocalToolsRuntime() {
             await localTools.add({
               id: toolName,
               description,
+              title: input.title,
               inputSchema: input.inputSchema,
               execute: input.execute,
             });

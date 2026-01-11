@@ -1,12 +1,17 @@
 {
+    "mimeType": "File type",
     "text/plain": "Text",
-    "image/png": "Image (Portable Network Graphic)",
-    "application/pdf": "Portable Document Format (PDF)",
-    "application/zip": "Archive (ZIP)",
+    "audio/webm": "Web Movie",
+    "audio/mpeg": "MPEG Audio Layer 3",
+    "image/png": "Portable Network Graphic",
+    "application/pdf": "Portable Document Format",
+    "application/zip": "ZIP",
     "text/markdown": "Markdown",
-    "application/xml": "Extensible Markup Language (XML)",
-    "application/json": "JavaScript Object Notation (JSON)",
+    "text/html": "Hypertext Markup Language",
+    "application/xml": "Extensible Markup Language",
+    "application/json": "JavaScript Object Notation",
     "application/vnd.agents+json": "Agents",
     "application/vnd.agent+json": "Agent",
-    "text/html+skybridge": "OpenAI App"
+    "text/html+skybridge": "OpenAI App",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint"
 }

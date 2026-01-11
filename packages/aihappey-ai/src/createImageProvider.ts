@@ -32,7 +32,7 @@ export function createImageProvider(config: {
                     const requests = Array.from({ length: batches }, (_, i) => {
                         const batchN = Math.min(max, n - i * max);
 
-                        return fetch(`${config.baseUrl}/v1/images/generations`, {
+                        return fetch(config.baseUrl, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

@@ -18,6 +18,7 @@
     "aihappey-http": "*",
     "aihappey-images": "*",
     "aihappey-transcriptions": "*",
+    "aihappey-reranking": "*",
     "aihappey-files": "*",
     "aihappey-state": "*",
     "chart.js": "^4.5.0",

@@ -1,12 +1,8 @@
 {
-    "text/plain": "Tekst",
-    "image/png": "Afbeelding (Portable Network Graphic)",
-    "application/pdf": "Portable Document Format (PDF)",
-    "application/zip": "Archief (ZIP)",
-    "text/markdown": "Opmaak (Markdown)",
-    "application/json": "JavaScript Object Notatie (JSON)",
-    "application/xml": "Extensible Markup Language (XML)",
-    "application/vnd.agents+json": "Agents",
-    "application/vnd.agent+json": "Agent",
-    "text/html+skybridge": "OpenAI App"
-  }
+  "mimeType": "Bestandstype",
+  "text/plain": "Tekst",
+  "text/markdown": "Opmaak",
+  "application/json": "JavaScript Object Notatie",
+  "application/vnd.agents+json": "Agents",
+  "application/vnd.agent+json": "Agent"
+}

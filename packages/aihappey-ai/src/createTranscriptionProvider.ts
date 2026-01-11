@@ -20,7 +20,7 @@ export function createTranscriptionProvider(config: {
                         providerOptions
                     } = options;
 
-                    const result = await fetch(`${config.baseUrl}/v1/audio/transcriptions`, {
+                    const result = await fetch(config.baseUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

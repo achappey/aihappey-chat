@@ -74,7 +74,7 @@ export const SpeechPage = () => {
       }
 
       const provider = createSpeechProvider({
-        baseUrl: config.api?.replace("/api/chat", "") ?? "",
+        baseUrl: config.baseUrl + config.endpoints.speech,
         headers: merged,
       });
 

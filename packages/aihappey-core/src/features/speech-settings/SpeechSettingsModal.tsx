@@ -9,11 +9,16 @@ import {
   NovitaSpeechConfigForm,
   ElevenLabsSpeechConfigForm,
   GoogleSpeechConfigForm,
+  StabilityAISpeechConfigForm,
+  AsyncAISpeechConfigForm,
+  TogetherSpeechConfigForm,
   type ElevenLabsSpeechConfig,
   type OpenAISpeechConfig,
   type GroqSpeechConfig,
   type NovitaSpeechConfig,
   type GoogleSpeechConfig,
+  type StabilityAISpeechConfig,
+  type AsyncAISpeechConfig,
 } from "aihappey-components";
 
 export interface SpeechSettingsModalProps {
@@ -61,6 +66,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
           <SpeechSettingsGeneralTab onEditProviderKeys={onEditProviderKeys} />
         </theme.Tab>
 
+
+        {enabledProviders.includes("AsyncAI") && (
+          <theme.Tab eventKey="asyncai" title="AsyncAI">
+            <AsyncAISpeechConfigForm
+              config={providerMetadata.asyncai ?? {}}
+              updateConfig={(asyncai: AsyncAISpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, asyncai })
+              }
+            />
+          </theme.Tab>
+        )}
 
         {enabledProviders.includes("ElevenLabs") && (
           <theme.Tab eventKey="elevenlabs" title="ElevenLabs">
@@ -118,9 +134,33 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
           </theme.Tab>
         )}
 
+        {enabledProviders.includes("StabilityAI") && (
+          <theme.Tab eventKey="stabilityai" title="StabilityAI">
+            <StabilityAISpeechConfigForm
+              config={providerMetadata.stabilityai ?? {}}
+              updateConfig={(stabilityai: StabilityAISpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, stabilityai })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("Together") && (
+          <theme.Tab eventKey="together" title="Together">
+            <TogetherSpeechConfigForm
+              config={providerMetadata.together ?? {}}
+              updateConfig={(together: any) =>
+                setProviderMetadata({ ...providerMetadata, together })
+              }
+            />
+          </theme.Tab>
+        )}
+
+
 
       </theme.Tabs>
     </theme.Modal>
   );
 };
+
 

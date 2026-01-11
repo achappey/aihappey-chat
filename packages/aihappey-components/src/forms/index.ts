@@ -4,3 +4,5 @@ export * from "./providers";
 export * from "./model-context";
 export * from "./images";
 export * from "./settings/speech";
+export * from "./settings/reranking";
+export * from "./tools";

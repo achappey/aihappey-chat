@@ -66,27 +66,53 @@ export const ConversationSidebar = ({
       key: "images",
       label: t("images"),
       href: "/images",
-      icon: "library",
+      icon: "images",
     },
     {
       key: "transcriptions",
-      new: true,
       label: t("transcriptions"),
       href: "/transcriptions",
       icon: "transcriptions",
     },
     {
       key: "speech",
-      new: true,
       label: t("speech"),
       href: "/speech",
       icon: "speech",
+    },
+    {
+      key: "reranking",
+      new: true,
+      label: t("reranking"),
+      href: "/reranking",
+      icon: "reranking",
     },
     {
       key: "arena",
       label: t("arena"),
       href: "/arena",
       icon: "arena",
+    },
+    { key: "divider", label: "" },
+    {
+      key: "agents",
+      label: t("agents.title"),
+      href: "/agents",
+      icon: "robot",
+    },
+    {
+      key: "files",
+      new: true,
+      label: t("files"),
+      href: "/files",
+      icon: "folder",
+    },
+    {
+      key: "tools",
+      new: true,
+      label: t("tools"),
+      href: "/tools",
+      icon: "tool",
     },
     { key: "divider", label: "" },
     {
@@ -99,6 +125,12 @@ export const ConversationSidebar = ({
           label: t("models"),
           href: "/models",
           icon: "brain",
+        },
+        {
+          key: "providers",
+          label: t("providers"),
+          href: "/providers",
+          icon: "providers",
         },
       ],
     },
@@ -114,19 +146,7 @@ export const ConversationSidebar = ({
           icon: "server",
         },
       ],
-    },
-    {
-      key: "category",
-      label: t("agents.framework"),
-      icon: "robot",
-      children: [
-        {
-          key: "agents",
-          label: t("agents.title"),
-          href: "/agents",
-        }
-      ],
-    },
+    }
   ];
 
   if (conversations.items.length > 0) {
@@ -179,7 +199,15 @@ export const ConversationSidebar = ({
         ? "agents"
         : location.pathname === "/models"
           ? "models"
-          : conversationId ?? undefined
+          : location.pathname === "/providers"
+            ? "providers"
+      : location.pathname === "/tools"
+        ? "tools"
+        : location.pathname === "/files"
+          ? "files"
+          : location.pathname === "/reranking"
+            ? "reranking"
+            : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -189,6 +217,14 @@ export const ConversationSidebar = ({
       await navigate("/agents");
     } else if (id === "models") {
       await navigate("/models");
+    } else if (id === "providers") {
+      await navigate("/providers");
+    } else if (id === "tools") {
+      await navigate("/tools");
+    } else if (id === "files") {
+      await navigate("/files");
+    } else if (id === "reranking") {
+      await navigate("/reranking");
     } else {
       await navigate(`/${id}`);
 

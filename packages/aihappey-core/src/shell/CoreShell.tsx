@@ -19,10 +19,12 @@ import { ImagesProvider } from "aihappey-images";
 import { ToolsProvider } from "aihappey-tools";
 import { FilesProvider } from "aihappey-files";
 import { TranscriptionsProvider } from "aihappey-transcriptions";
+import { RerankingProvider } from "aihappey-reranking";
 import { SpeechProvider } from "aihappey-speech";
+import { ErrorLog } from "./bootstrap/ErrorLog";
 
 type Props = {
-  chatConfig?: ChatConfig;
+  chatConfig: ChatConfig;
   apiUrl?: string;
   chatAppMcp?: string;
   conversationScopes?: string[];
@@ -57,8 +59,10 @@ export const CoreShell: React.FC<Props> = ({
     setSidebarOpen(isDesktop);
   }, []);
 
+  const modelsApi = chatConfig.baseUrl + chatConfig.endpoints.models;
+
   useModels(
-    chatConfig?.modelsApi!,
+    modelsApi,
     chatConfig?.getAccessToken
   );
 
@@ -90,35 +94,40 @@ export const CoreShell: React.FC<Props> = ({
     <Outlet />
   );
 
+  const samplingEndpoint = chatConfig.baseUrl + chatConfig.endpoints.sampling;
+
   return (
     <I18nProvider>
+      <ErrorLog />
       <DndProvider backend={HTML5Backend}>
         <McpServerBootstrap />
         <ChatAppConnector
           mcpUrl={chatAppMcp}
           clientName={chatConfig?.appName}
           clientVersion={chatConfig?.appVersion}
-          samplingApi={chatConfig?.samplingApi}
+          samplingApi={samplingEndpoint}
         >
           <ImagesProvider storageKind={"indexeddb"}>
             <ToolsProvider storageKind={"indexeddb"}>
               <FilesProvider>
-                <TranscriptionsProvider>
-                  <SpeechProvider storageKind={"indexeddb"}>
-                    <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-                      <McpConnectionsProvider
-                        clientName={chatConfig?.appName}
-                        agentScopes={agentScopes ?? []}
-                        agentApi={chatConfig?.agentEndpoint!}
-                        authenticated={chatConfig?.getAccessToken != null}
-                        clientVersion={chatConfig?.appVersion}
-                        samplingApi={chatConfig?.samplingApi!}
-                      >
-                        {ui}
-                      </McpConnectionsProvider>
-                    </ConversationsProvider>
-                  </SpeechProvider>
-                </TranscriptionsProvider>
+                <RerankingProvider>
+                  <TranscriptionsProvider>
+                    <SpeechProvider storageKind={"indexeddb"}>
+                      <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+                        <McpConnectionsProvider
+                          clientName={chatConfig?.appName}
+                          agentScopes={agentScopes ?? []}
+                          agentApi={chatConfig?.agentEndpoint!}
+                          authenticated={chatConfig?.getAccessToken != null}
+                          clientVersion={chatConfig?.appVersion}
+                          samplingApi={samplingEndpoint}
+                        >
+                          {ui}
+                        </McpConnectionsProvider>
+                      </ConversationsProvider>
+                    </SpeechProvider>
+                  </TranscriptionsProvider>
+                </RerankingProvider>
               </FilesProvider>
             </ToolsProvider>
 

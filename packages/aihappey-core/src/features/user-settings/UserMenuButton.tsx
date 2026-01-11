@@ -7,6 +7,8 @@ import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useChatContext } from "../chat/context/ChatContext";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 
+type ProviderCapability = "language" | "image" | "speech" | "transcription" | "reranking";
+
 interface UserMenuButtonProps {
   email?: string;
   onSettings: () => void;
@@ -69,6 +71,50 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
     });
   }, [modelsLoaded, providers, providerNameToKey, providersWithModels]);
 
+  const providerGroups = React.useMemo(() => {
+    // Group provider toggles by capability, derived from loaded models.
+    // Only include groups that have at least 1 provider.
+    const keyToName = Object.entries(PROVIDERS).reduce((acc, [key, meta]: any) => {
+      acc[key.toLowerCase()] = meta.name;
+      return acc;
+    }, {} as Record<string, string>);
+
+    const allowed: ProviderCapability[] = [
+      "language",
+      "image",
+      "speech",
+      "transcription",
+      "reranking",
+    ];
+
+    const byCap: Record<ProviderCapability, Set<string>> = {
+      language: new Set<string>(),
+      image: new Set<string>(),
+      speech: new Set<string>(),
+      transcription: new Set<string>(),
+      reranking: new Set<string>(),
+    };
+
+    for (const m of models ?? []) {
+      const cap = m.type as ProviderCapability;
+      if (!allowed.includes(cap)) continue;
+
+      const providerKey = m.id?.split("/")?.[0]?.toLowerCase();
+      const name = providerKey ? keyToName[providerKey] : undefined;
+      if (!name) continue;
+
+      byCap[cap].add(name);
+    }
+
+    const result: Record<string, string[]> = {};
+    for (const cap of allowed) {
+      const list = Array.from(byCap[cap]).sort();
+      if (list.length) result[cap] = list;
+    }
+
+    return result;
+  }, [models]);
+
   return (
     <>
       <UserMenu
@@ -78,6 +124,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         showApiKeysItem={!isEntraAuth}
         onApiKeys={() => setProviderKeysOpen(true)}
         providers={providers}
+        providerGroups={providerGroups}
         enabledProviders={enabledProviders}
         onToggleProvider={toggleEnabledProvider}
         providersDisabled={!modelsLoaded}
@@ -87,6 +134,12 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
           apiKeys: t("apiKeys"),
           settings: t("userMenu.settings"),
           logout: t("userMenu.logout"),
+          // Capability submenu labels (translated in the parent).
+          language: t("language"),
+          image: t("image"),
+          speech: t("speech"),
+          transcription: t("transcription"),
+          reranking: t("reranking"),
         }}
         className={className}
         style={style}

@@ -35,7 +35,22 @@
     "blockedDomains": "Blocked domains"
   },
   "cohere": {
-    "citationOptions": "Citations"
+    "citationOptions": "Citations",
+    "reranking": {
+      "priority": "Priority",
+      "maxTokensPerDoc": "Maximum tokens per document"
+    }
+  },
+  "contextualai": {
+    "reranking": {
+      "instruction": "Instruction"
+    }
+  },
+  "deepinfra": {
+    "reranking": {
+      "instruction": "Instruction",
+      "serviceTier": "Service tier"
+    }
   },
   "xSearch": "Search on X",
   "xai": {
@@ -109,13 +124,34 @@
     "team_size": "Agentic team size",
     "goodDomains": "Boosted domains",
     "badDomains": "Bad domains",
-    "onlyDomains": "Restrict search to these domains"
+    "onlyDomains": "Restrict search to these domains",
+    "reranking": {
+      "returnDocuments": "Return documents",
+      "truncation": "Truncation",
+      "maxDocLength": "Maximum document length",
+      "returnEmbeddings": "Return embeddings"
+    }
   },
   "together": {
     "guidanceScale": "Guidance scale",
     "steps": "Steps",
     "negativePrompt": "Negative prompt",
-    "disableSafetyChecker": "Disable safety checker"
+    "disableSafetyChecker": "Disable safety checker",
+    "reranking": {
+      "returnDocuments": "Return documents",
+      "rankFields": "Rank fields",
+      "addRankField": "Add rank field"
+    },
+    "speech": {
+      "encoding": "Encoding",
+      "sampleRate": "Sample rate"
+    }
+  },
+  "voyageai": {
+    "reranking": {
+      "returnDocuments": "Return documents",
+      "truncation": "Truncation"
+    }
   },
   "hyperbolic": {
     "guidanceScale": "Guidance scale",
@@ -137,6 +173,17 @@
     "negativePrompt": "Negative prompt",
     "no_style_preset": "No style preset",
     "style_presetHint": "Guides the image model towards a particular style.",
+    "speech": {
+      "outputFormat": "Output format",
+      "duration": "Duration (seconds)",
+      "durationHint": "Controls the duration in seconds of the generated audio.",
+      "seed": "Seed",
+      "seedHint": "A specific value that is used to guide the 'randomness' of the generation. (Omit this parameter or pass 0 to use a random seed.)",
+      "steps": "Steps",
+      "stepsHint": "Controls the number of sampling steps.",
+      "cfgScale": "Classifier-Free Guidance scale",
+      "cfgScaleHint": "How strictly the diffusion process adheres to the prompt text (higher values make your audio closer to your prompt)."
+    },
     "style_preset": {
       "3d-model": "3D model",
       "analog-film": "Analog film",
@@ -178,43 +225,54 @@
     "diarization": "Diarization",
     "vadModel": "Voice activity detection model",
     "minSpeakers": "Minimum number of speakers",
-    "maxSpeakers": "Maximum number of speakers"
+    "maxSpeakers": "Maximum number of speakers",
+    "reranking": {
+      "task": "Task",
+      "taskPlaceholder": "Example: 'Given a web search query, retrieve relevant passages that answer the query'",
+      "taskHint": "Optional task description to guide the reranking process.",
+      "returnDocuments": "Return documents"
+    }
   },
   "elevenlabs": {
     "enableLogging": "Enable logging",
     "seed": "Seed",
-
     "voiceSettings": "Voice settings",
     "stability": "Stability ({{value}})",
     "similarityBoost": "Similarity boost ({{value}})",
     "style": "Style ({{value}})",
     "useSpeakerBoost": "Use speaker boost",
-
     "continuity": "Continuity",
     "previousText": "Previous text",
     "nextText": "Next text",
-
     "textNormalization": "Text normalization",
     "applyTextNormalization": "Apply text normalization",
     "applyLanguageTextNormalization": "Apply language text normalization",
-
     "music": "Music",
     "musicLengthMs": "Music length (ms)",
     "forceInstrumental": "Force instrumental",
     "respectSectionsDurations": "Respect sections durations",
     "storeForInpainting": "Store for inpainting",
     "signWithC2pa": "Sign with C2PA",
-
     "fileFormat": "File format",
     "temperature": "Temperature ({{value}})",
     "tagAudioEvents": "Tag audio events",
     "useMultiChannel": "Use multi-channel",
-
     "timestamps": "Timestamps",
     "timestampsGranularity": "Timestamps granularity",
-
     "diarization": "Diarization",
     "numSpeakers": "Number of speakers",
     "diarizationThreshold": "Diarization threshold ({{value}})"
+  },
+  "asyncai": {
+    "speech": {
+      "encoding": "Encoding",
+      "sampleRate": "Sample rate",
+      "bitRateMp3Only": "Bit rate (mp3 only)",
+      "experimental": "Experimental",
+      "overrideSpeedControl": "Override speed control",
+      "speedControl": "Speed control",
+      "overrideStability": "Override stability",
+      "stability": "Stability"
+    }
   }
 }

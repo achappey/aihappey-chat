@@ -37,9 +37,9 @@ export class IndexedDBFileStore implements FileStore {
     await save(this.data);
   }
 
-  list = async (): Promise<FileItem[]> => {
+  list = async (): Promise<StoredFile[]> => {
     await this.ensureLoaded();
-    return this.data.map(({ data, ...meta }) => meta);
+    return this.data//.map(({ data, ...meta }) => meta);
   };
 
   read = async (id: string): Promise<StoredFile | undefined> => {
@@ -51,21 +51,27 @@ export class IndexedDBFileStore implements FileStore {
     name: string;
     mimeType: string;
     data: Blob;
-  }): Promise<FileItem> => {
+  }): Promise<StoredFile> => {
     await this.ensureLoaded();
+
+    // Single source of truth: blob carries the MIME type + size.
+    // If incoming blob has an empty type, create a typed clone using the provided mimeType.
+    const normalizedData =
+      file.data?.type || !file.mimeType
+        ? file.data
+        : new Blob([file.data], { type: file.mimeType });
 
     const item: InternalFile = {
       id: crypto.randomUUID(),
       name: file.name,
       createdAt: Date.now(),
-      data: file.data,
+      data: normalizedData,
     };
 
     this.data = [item, ...this.data];
     await this.commit();
 
-    const { data, ...meta } = item;
-    return meta;
+    return item;
   };
 
   delete = async (id: string): Promise<void> => {

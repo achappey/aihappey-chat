@@ -3,9 +3,10 @@
 import { useMemo, useRef } from "react";
 import { ChatContext } from "./ChatContext";
 import type { ReactNode, FC } from "react";
+import { defaultEndpoints } from "aihappey-ai";
 
 export interface AiChatConfig {
-  api?: string;
+ // api?: string;
   getAccessToken?: () => Promise<string>;
   headers?: Record<string, string>;
   fetch?: typeof fetch;
@@ -20,6 +21,8 @@ export interface ChatConfig extends AiChatConfig {
   agentScopes?: string[];
   appVersion?: string;
   defaultProviders?: string[];
+  endpoints: typeof defaultEndpoints
+  baseUrl: string
 }
 
 export const ChatProvider: FC<{ config: ChatConfig; children: ReactNode }> = ({

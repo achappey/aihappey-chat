@@ -24,7 +24,7 @@ export function createSpeechProvider(config: {
                         providerOptions
                     } = options;
 
-                    const result = await fetch(`${config.baseUrl}/v1/audio/speech`, {
+                    const result = await fetch(config.baseUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

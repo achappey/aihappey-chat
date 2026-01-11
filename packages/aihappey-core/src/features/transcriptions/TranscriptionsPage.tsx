@@ -105,7 +105,7 @@ export const TranscriptionsPage = () => {
       }
 
       const provider = createTranscriptionProvider({
-        baseUrl: config.api?.replace("/api/chat", "") ?? "",
+        baseUrl: config.baseUrl + config.endpoints.transcriptions,
         headers: merged,
       });
 

@@ -7,7 +7,7 @@ export const ChatArenaPage = () => {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <ChatArena
-        api={config.api}
+        api={config.baseUrl + config.endpoints.chat}
         getAccessToken={config?.getAccessToken}
         headers={config?.headers}
         customFetch={config?.fetch}

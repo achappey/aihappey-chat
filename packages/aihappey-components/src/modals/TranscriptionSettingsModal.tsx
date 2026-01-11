@@ -14,6 +14,7 @@ import {
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
+import { AzureTranscriptionConfigForm } from "../forms/providers/azure/AzureTranscriptionConfigForm";
 
 export interface TranscriptionSettingsModalProps {
     open: boolean;
@@ -77,6 +78,19 @@ export const TranscriptionSettingsModal: React.FC<
             >
                 <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
 
+                    {enabledProviders.includes("Azure") && (
+                        <theme.Tab eventKey="azure" title="Azure">
+                            <AzureTranscriptionConfigForm
+                                config={providerMetadata.azure ?? {}}
+                                updateConfig={(azure) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        azure,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
 
                     {enabledProviders.includes("ElevenLabs") && (
                         <theme.Tab eventKey="elevenlabs" title="ElevenLabs">

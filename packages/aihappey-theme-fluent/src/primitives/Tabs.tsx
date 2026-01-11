@@ -108,12 +108,13 @@ export const Tabs: React.FC<TabsProps> = ({
   const tabMeta: {
     eventKey: string;
     title: React.ReactNode;
+    disabled?: boolean
     icon?: React.ReactNode;
   }[] = [];
 
   React.Children.forEach(children, (child) => {
     if (!React.isValidElement(child)) return;
-    const { eventKey, title, icon, children: tabContent } = child.props;
+    const { eventKey, title, icon, disabled, children: tabContent } = child.props;
     const IconElement = icon ? iconMap[icon as IconToken] : undefined;
 
     headers.push(
@@ -122,14 +123,16 @@ export const Tabs: React.FC<TabsProps> = ({
         id={eventKey}
         priority={eventKey === activeKey ? 2 : 1}
       >
-        <FluentTab value={eventKey} icon={IconElement && <IconElement />}>
+        <FluentTab disabled={disabled} value={eventKey} icon={IconElement && <IconElement />}>
           {title}
         </FluentTab>
       </OverflowItem>
     );
+
     tabMeta.push({
       eventKey,
       title,
+      disabled,
       icon: IconElement && <IconElement />,
     });
     //padding: "0 0 0 1em"

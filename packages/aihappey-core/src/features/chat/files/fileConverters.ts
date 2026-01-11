@@ -186,6 +186,7 @@ export const extractTextFromZip = async (a: any) => {
 
     if (text) {
       textParts.push({
+        name: filename,
         type: "text",
         text: toMarkdownLinkSmart(filename, text)
       });

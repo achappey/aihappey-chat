@@ -8,11 +8,11 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import { useAppStore } from "aihappey-state";
-import type { FileItem, FileStore } from "./types";
+import type { FileStore, StoredFile } from "./types";
 import { IndexedDBFileStore } from "./stores/IndexedDBFileStore";
 
 export type FilesContextType = FileStore & {
-  items: FileItem[];
+  items: StoredFile[];
   refresh: () => void;
 };
 
@@ -35,9 +35,7 @@ export const FilesProvider = ({
   useAppStore((s) => s.conversationStorage);
 
   const store = useMemo<FileStore>(() => indexedDbFileStore, []);
-
-  const [items, setItems] = useState<FileItem[]>([]);
-
+  const [items, setItems] = useState<StoredFile[]>([]);
   const refresh = useCallback(() => {
     store.list().then(setItems);
   }, [store]);

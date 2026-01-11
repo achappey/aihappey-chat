@@ -1,6 +1,15 @@
 {
   "cohere": {
-    "citationOptions": "Citaten"
+    "citationOptions": "Citaten",
+    "reranking": {
+      "priority": "Prioriteit",
+      "maxTokensPerDoc": "Maximaal aantal tokens per document"
+    }
+  },
+  "contextualai": {
+    "reranking": {
+      "instruction": "Instructie"
+    }
   },
   "mistral": {
     "webSearchPremium": "Premium",
@@ -65,7 +74,13 @@
     "team_size": "Aantal AI-agents",
     "goodDomains": "Versterkte domeinen",
     "badDomains": "Geblokkeerde domeinen",
-    "onlyDomains": "Beperk zoekopdracht tot deze domeinen"
+    "onlyDomains": "Beperk zoekopdracht tot deze domeinen",
+    "reranking": {
+      "returnDocuments": "Documenten retourneren",
+      "truncation": "Tekst inkorten",
+      "maxDocLength": "Maximale documentlengte",
+      "returnEmbeddings": "Embeddings retourneren"
+    }
   },
   "google": {
     "enableEnhancedCivicAnswers": "Verbeterde maatschappelijke antwoorden",
@@ -114,17 +129,49 @@
     "guidanceScale": "Sturingsfactor",
     "steps": "Stappen",
     "negativePrompt": "Negatieve prompt",
-    "disableSafetyChecker": "Veiligheidscontrole uitschakelen"
+    "disableSafetyChecker": "Veiligheidscontrole uitschakelen",
+    "reranking": {
+      "returnDocuments": "Documenten retourneren",
+      "rankFields": "Rangschikkingsvelden",
+      "addRankField": "Veld toevoegen"
+    },
+    "speech": {
+      "encoding": "Encodering",
+      "sampleRate": "Samplerate"
+    }
+  },
+  "voyageai": {
+    "reranking": {
+      "returnDocuments": "Documenten retourneren",
+      "truncation": "Tekst inkorten"
+    }
   },
   "runway": {
     "contentModeration": "Moderatie",
     "publicFigureThreshold": "Drempel voor publieke figuren"
+  },
+  "nebius": {
+    "numInferenceSteps": "Inferentiestappen",
+    "guidanceScale": "Guidance-schaal",
+    "negativePrompt": "Negatieve prompt",
+    "responseExtension": "Uitvoerformaat"
   },
   "stabilityai": {
     "style_presetLabel": "Stijl",
     "negativePrompt": "Negatieve prompt",
     "no_style_preset": "Geen stijl-instructie",
     "style_presetHint": "Stuurt het afbeeldingsmodel richting een bepaalde stijl.",
+    "speech": {
+      "outputFormat": "Uitvoerformaat",
+      "duration": "Duur (seconden)",
+      "durationHint": "Bepaalt de duur in seconden van de gegenereerde audio.",
+      "seed": "Seed",
+      "seedHint": "Een specifieke waarde die wordt gebruikt om de ‘willekeur’ van de generatie te sturen. (Laat deze parameter weg of gebruik 0 om een willekeurige seed te gebruiken.)",
+      "steps": "Stappen",
+      "stepsHint": "Bepaalt het aantal samplingstappen.",
+      "cfgScale": "Classifier-Free Guidance-schaal",
+      "cfgScaleHint": "Hoe strikt het diffusieproces de prompttekst volgt (hogere waarden zorgen dat de audio dichter bij je prompt blijft)."
+    },
     "style_preset": {
       "3d-model": "3D-model",
       "analog-film": "Analoog film",
@@ -161,7 +208,13 @@
     "diarization": "Sprekersegmentatie",
     "vadModel": "Spraakactiviteitsdetectie",
     "minSpeakers": "Minimum aantal sprekers",
-    "maxSpeakers": "Maximum aantal sprekers"
+    "maxSpeakers": "Maximum aantal sprekers",
+    "reranking": {
+      "task": "Taak",
+      "taskPlaceholder": "Voorbeeld: 'Gegeven een webzoekopdracht, haal relevante passages op die de vraag beantwoorden'",
+      "taskHint": "Optionele taakomschrijving om het rangschikken te sturen.",
+      "returnDocuments": "Documenten retourneren"
+    }
   },
   "elevenlabs": {
     "enableLogging": "Loggen inschakelen",
@@ -177,7 +230,6 @@
     "textNormalization": "Tekstnormalisatie",
     "applyTextNormalization": "Tekstnormalisatie toepassen",
     "applyLanguageTextNormalization": "Taalspecifieke tekstnormalisatie toepassen",
-
     "music": "Muziek",
     "musicLengthMs": "Muzieklengte (ms)",
     "forceInstrumental": "Instrumentaal afdwingen",
@@ -193,5 +245,17 @@
     "diarization": "Sprekersherkenning",
     "numSpeakers": "Aantal sprekers",
     "diarizationThreshold": "Sprekersherkenningsdrempel ({{value}})"
+  },
+  "asyncai": {
+    "speech": {
+      "encoding": "Encodering",
+      "sampleRate": "Samplerate",
+      "bitRateMp3Only": "Bitrate (alleen mp3)",
+      "experimental": "Experimenteel",
+      "overrideSpeedControl": "Snelheidsregeling overschrijven",
+      "speedControl": "Snelheidsregeling",
+      "overrideStability": "Stabiliteit overschrijven",
+      "stability": "Stabiliteit"
+    }
   }
 }

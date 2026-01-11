@@ -13,14 +13,33 @@ export default {
 
 export const Default = {
   render: () => {
-    // Assuming it behaves somewhat like a select
-    return React.createElement(SelectView, {
-        defaultValue: "1",
-        placeholder: "Select an option",
-        children: [
-            React.createElement("option", { key: "1", value: "1" }, "Option 1"),
-            React.createElement("option", { key: "2", value: "2" }, "Option 2")
-        ]
-    });
+    const Controlled = () => {
+      const [values, setValues] = useState(["1"]);
+      return React.createElement(
+        SelectView,
+        {
+          values,
+          valueTitle: `Selected: ${values.join(", ")}`,
+          placeholder: "Select an option",
+          label: "Demo select",
+          hint: "Toggle value and verify the current selection is visible",
+          onChange: (v) => setValues([v]),
+          children: [
+            React.createElement(
+              "option",
+              { key: "1", value: "1" },
+              "Option 1"
+            ),
+            React.createElement(
+              "option",
+              { key: "2", value: "2" },
+              "Option 2"
+            ),
+          ],
+        }
+      );
+    };
+
+    return React.createElement(Controlled);
   }
 };

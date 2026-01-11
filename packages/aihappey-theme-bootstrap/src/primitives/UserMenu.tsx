@@ -17,6 +17,18 @@ export interface UserMenuProps {
   onLogout: () => void;
   showApiKeysItem?: boolean;
   onApiKeys?: () => void;
+
+  /**
+   * Optional provider toggles (implemented in Fluent theme). Accepted here so the
+   * theme contract stays compatible across themes.
+   */
+  providers?: string[];
+  providerGroups?: Record<string, string[]>;
+  enabledProviders?: string[];
+  onToggleProvider?: (provider: string) => void;
+  providersDisabled?: boolean;
+  disabledProviders?: string[];
+
   className?: string;
   style?: React.CSSProperties;
   labels?: UserMenuLabels;

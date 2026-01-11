@@ -1,1 +1,2 @@
-export * from "./StabilityAIImageForm"
+export * from "./StabilityAIImageForm";
+export * from "./StabilityAISpeechConfigForm";

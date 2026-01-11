@@ -19,6 +19,7 @@ export type { UiAttachment } from "./slices/uiSlice";
 export { defaultAgents } from "./slices/defaultAgents";
 export * from "./slices/defaultProviderTranscriptionMetadata";
 export * from "./slices/defaultProviderSpeechMetadata";
+export * from "./slices/defaultProviderRerankingMetadata";
 
 export type { ServerItem } from './slices/mcpServersSlice';
 export { mcpRuntime, connectPersistent, connectServerPersistent } from "./slices/uiSlice";

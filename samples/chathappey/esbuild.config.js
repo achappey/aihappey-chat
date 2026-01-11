@@ -16,20 +16,11 @@ function safeParseJSON(str, fallback) {
   }
 }
 
-const defaultA2AUrlsEnv = process.env.DEFAULT_A2A_AGENT_LIST_URLS_JSON;
-
-let defaultA2AUrls = safeParseJSON(defaultA2AUrlsEnv, ["http://localhost:3025/agents.json"]);
-
-const chatApi = process.env.CHAT_API_URL || "http://localhost:3010/api/chat";
 const agentEndpoint = process.env.AGENT_ENDPOINT || "http://localhost:3036";
 const appName = process.env.APP_NAME || "YACB";
-const modelsApi = process.env.MODELS_API_URL || "http://localhost:3010/models";
-const samplingApi = process.env.SAMPLING_API_URL || "http://localhost:3010/sampling";
 const conversationsApi = process.env.CONVERSATIONS_API_URL || "http://localhost:3021/conversations";
-const transcriptionApi = process.env.TRANSCRIPTION_API || "http://localhost:3010/transcription";
-
+const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3010";
 const chatAppMcp = process.env.CHAT_APP_MCP || "http://localhost:3001/chatapp";
-const a2aAppMcp = process.env.A2A_APP_MCP || "http://localhost:3001/agent2agent";
 
 // Deze kunnen JSON of string zijn, dus altijd even JSON.stringify voor define
 const conversationScopes = safeParseJSON(process.env.CONVERSATIONS_SCOPES, []);
@@ -57,16 +48,11 @@ const buildOptions = {
   minify: !isWatch, // Alleen minify bij production build
   define: {
     "process.env.NODE_ENV": isWatch ? '"development"' : '"production"',
-    "__DEFAULT_A2A_AGENT_LIST_URLS__": JSON.stringify(defaultA2AUrls),
-    "__CHAT_API__": JSON.stringify(chatApi),
     "__AGENT_ENDPOINT__": JSON.stringify(agentEndpoint),    
     "__APP_VERSION__": JSON.stringify(`${buildDateVersion}.chathappey`),
-    "__MODELS_API__": JSON.stringify(modelsApi),
     "__APP_NAME__": JSON.stringify(appName),
+     "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
     "__CHAT_APP_MCP__": JSON.stringify(chatAppMcp),
-    "__A2A_APP_MCP__": JSON.stringify(a2aAppMcp),
-    "__SAMPLING_API__": JSON.stringify(samplingApi),
-    "__TRANSCRIPTION_API__": JSON.stringify(transcriptionApi),
     "__MSAL_CLIENT_ID__": JSON.stringify(msalClientId),
     "__CONVERSATIONS_API_URL__": JSON.stringify(conversationsApi),
     "__CONVERSATIONS_SCOPES__": JSON.stringify(conversationScopes),

@@ -31,6 +31,9 @@
     "speedWithValue": "Speed ({{speed}}x)"
   },
   "reranking": "Reranking",
+  "rerankingSettings": "Reranking settings",
+  "topN": "Maximum number of results",
+  "rerankingPlaceholder": "Add files and ask your question to rerank your files...",
   "transcription": "Transcription",
   "viewTranscription": "View transcription",
   "transcriptionSettings": "Transcription settings",
@@ -113,8 +116,7 @@
   "custom": "Custom",
   "agents": {
     "title": "Agents",
-    "framework": "Agent Framework",
-    "description": "Agent Framework provides a unified runtime for building and orchestrating agents. Capabilities, context, and execution flow follow one consistent model, ensuring agents behave predictably, scale cleanly, and integrate seamlessly across any environment.",
+    "description": "Agents are autonomous units that combine capabilities, context, and execution flow into a single model. This ensures predictable behavior, easy scaling, and consistent integration across different environments.",
     "mcpClientCapabilities": "Model Context capabilities",
     "settings": "Settings",
     "mcpServers": "Model Context servers"
@@ -122,13 +124,8 @@
   "ai": {
     "title": "Artificial Intelligence",
     "models": "AI Models",
-    "description": "An overview of all available AI models. For each model, you can see its capabilities, intended use, and how it compares to other models. This helps you choose the right model per task, use case, or workflow in a transparent and consistent way.",
-    "tabs": {
-      "language": "Language",
-      "image": "Image",
-      "speech": "Speech",
-      "transcription": "Transcription"
-    }
+    "description": "An overview of all {{total}} available AI models. For each model, you can see its capabilities, intended use, and how it compares to other models. This helps you choose the right model per task, use case, or workflow in a transparent and consistent way.",
+    "providers": "An overview of all {{total}} available AI providers. For each provider, you can see what it offers, how it fits into different use cases, and when it makes sense to use it. This helps you select the right provider per task or workflow in a clear and consistent way."
   },
   "workflows": {
     "concurrent": "Concurrent",
@@ -190,9 +187,9 @@
     "local-settings": "Chat settings",
     "vercel-ai": "Vercel AI"
   },
-  "localTools": "Local tools",
-  "localToolsEmpty": "No custom local tools found. Create one using the Tools plugin.",
-  "localPlugins": "Local plugins",
+  "localTools": "Custom tools",
+  "localToolsEmpty": "No custom tools found. Create one using the Tools plugin.",
+  "localPlugins": "Plugins",
   "structuredOutputs": "Structured outputs",
   "structuredOutputsPlaceholder": "JSON schema...",
   "medium": "Medium",
@@ -226,6 +223,7 @@
   "reasoningSummary": "Reasoning detail",
   "image": "Image",
   "images": "Images",
+  "files": "Files",
   "audio": "Audio",
   "name": "Name",
   "instructions": "Instructions",
@@ -260,8 +258,20 @@
     "openWorld": "Open world"
   },
   "all": "All",
+  "pluginTools": "Plugin tools",
   "recentlyUsed": "Previously used",
   "tools": "Tools",
+  "toolSources": {
+    "plugin": "Plugin tool",
+    "local": "Custom tool",
+    "modelContext": "Model Context tool"
+  },
+  "toolsPage": {
+    "description": "An overview of all available tools: built-in plugin tools, your own custom tools, and tools coming from connected Model Context."
+  },
+  "filesPage": {
+    "description": "An overview of all locally available files. Drag and drop files onto this page to add them and allow AI to read and create files through plugins."
+  },
   "mcp": {
     "accept": "Accept",
     "image": "Image",
@@ -335,6 +345,7 @@
   "chatWithSpeechModels": "Chat with speech models",
   "chatWithTranscriptionModels": "Chat with transcription models",
   "ok": "Ok",
+  "execute": "Execute",
   "save": "Save",
   "storage": {
     "local": "Local Storage",

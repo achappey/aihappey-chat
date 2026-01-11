@@ -1,6 +1,8 @@
-import type { FileItem, FileStore, StoredFile } from "./types";
+import type { FileStore, StoredFile } from "./types";
 
 export const KNOWN_SPEAKER_REFERENCE_PREFIX = "known_speaker_reference_";
+
+type FileMeta = Pick<StoredFile, "id" | "name" | "createdAt">;
 
 /**
  * Keep mapping stable and human readable.
@@ -18,7 +20,7 @@ export function sanitizeKnownSpeakerName(name: string): string {
 }
 
 export async function resolveKnownSpeakerReferenceDataUrls(
-  items: FileItem[],
+  items: FileMeta[],
   speakerNames: string[],
   read: (id: string) => Promise<StoredFile>
 ): Promise<string[] | undefined> {
@@ -62,17 +64,17 @@ export function knownSpeakerReferenceFilename(
 }
 
 export function listKnownSpeakerReferenceItems(
-  items: FileItem[],
+  items: FileMeta[],
   speakerName: string
-): FileItem[] {
+): FileMeta[] {
   const prefix = knownSpeakerReferenceNamePrefix(speakerName);
   return items.filter((i) => i.name.startsWith(prefix));
 }
 
 export function getLatestKnownSpeakerReferenceItem(
-  items: FileItem[],
+  items: FileMeta[],
   speakerName: string
-): FileItem | undefined {
+): FileMeta | undefined {
   const matches = listKnownSpeakerReferenceItems(items, speakerName);
   matches.sort((a, b) => b.createdAt - a.createdAt);
   return matches[0];
@@ -88,7 +90,7 @@ export async function readStoredFileOrThrow(
 }
 
 export async function deleteKnownSpeakerReferenceSamples(
-  store: FileStore & { items?: FileItem[] },
+  store: FileStore & { items?: FileMeta[] },
   speakerName: string
 ): Promise<void> {
   const items = store.items ?? (await store.list());
@@ -100,10 +102,10 @@ export async function deleteKnownSpeakerReferenceSamples(
  * Save/replace: delete all previous samples for that speaker, then create a new one.
  */
 export async function saveKnownSpeakerReferenceSample(
-  store: FileStore & { items?: FileItem[] },
+  store: FileStore & { items?: FileMeta[] },
   speakerName: string,
   file: File
-): Promise<FileItem> {
+): Promise<StoredFile> {
   const ext = extFromFilename(file.name) ?? "webm";
   const name = knownSpeakerReferenceFilename(speakerName, ext);
 
@@ -120,7 +122,7 @@ export async function saveKnownSpeakerReferenceSample(
  * (Files store has no rename; we copy blob -> create new -> delete old files.)
  */
 export async function migrateKnownSpeakerReferenceSample(
-  store: FileStore & { items?: FileItem[] },
+  store: FileStore & { items?: FileMeta[] },
   fromSpeakerName: string,
   toSpeakerName: string
 ): Promise<void> {

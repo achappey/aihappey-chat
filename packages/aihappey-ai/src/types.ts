@@ -40,6 +40,20 @@ export interface TranscriptionResponse {
   };
 }
 
+export interface RerankingResponse {
+  ranking: Array<{
+    index: number;
+    relevanceScore: number;
+  }>;
+  warnings: Array<SharedV3Warning>;
+  response: {
+    timestamp: Date;
+    modelId: string;
+    body?: unknown;
+  };
+}
+
+
 export interface SpeechResponse {
   audio: any;
   warnings: Array<SharedV3Warning>;
@@ -51,5 +65,17 @@ export interface SpeechResponse {
     modelId: string;
     body?: unknown;
   };
+}
+
+
+export const defaultEndpoints = {
+  chat: "/api/chat",
+  images: "/v1/images/generations",
+  transcriptions: "/v1/audio/transcriptions",
+  speech: "/v1/audio/speech",
+  sampling: "/sampling",
+  models: "/v1/models",
+  reranking: "/api/rerank",
+  chatCompletions: "/chat/completions"
 }
 

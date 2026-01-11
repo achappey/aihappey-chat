@@ -24,6 +24,10 @@ const MinimalNavBar = ({
     navigate("/images");
   };
 
+  const handleReranking = () => {
+    navigate("/reranking");
+  };
+
   return (
     <nav
       style={{
@@ -66,12 +70,45 @@ const MinimalNavBar = ({
         style={{ marginBottom: 8 }}
       />
       <Button
-        icon="library"
+        icon="images"
         size="small"
         variant="transparent"
         title={t("images")}
         aria-label={t("images")}
+        style={{ marginBottom: 8 }}
         onClick={handleLibrary}
+      />
+      <Button
+        icon="transcriptions"
+        size="small"
+        variant="transparent"
+        title={t("transcriptions")}
+        style={{ marginBottom: 8 }}
+        aria-label={t("transcriptions")}
+        onClick={() =>
+          navigate("/transcriptions")
+        }
+      />
+      <Button
+        icon="speech"
+        size="small"
+        variant="transparent"
+        title={t("speech")}
+        aria-label={t("speech")}
+        style={{ marginBottom: 8 }}
+        onClick={() =>
+          navigate("/speech")
+        }
+      />
+
+      <Button
+        icon="reranking"
+        size="small"
+        variant="transparent"
+        title={t("reranking")}
+        aria-label={t("reranking")}
+        style={{ marginBottom: 8 }}
+        onClick={handleReranking}
       />
     </nav>
   );

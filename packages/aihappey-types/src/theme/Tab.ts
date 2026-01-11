@@ -6,6 +6,7 @@ import type { IconToken } from "./IconToken";
 export type TabProps = {
   eventKey: string;
   icon?: IconToken;
+  disabled?: boolean
   title: React.ReactNode;
   children: React.ReactNode;
 };

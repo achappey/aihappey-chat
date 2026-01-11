@@ -38,13 +38,17 @@
   "uninstall": "Verwijderen",
   "throttle": "Vertraging ({{throttle}} ms)",
   "all": "Alles",
+  "pluginTools": "Plugin tools",
   "recentlyUsed": "Eerder gebruikt",
   "totalTokens": "Totaal tokens",
   "images": "Afbeeldingen",
+  "files": "Bestanden",
   "general": "Algemeen",
   "systemContext": "Systeem",
   "user": "Gebruiker",
   "reranking": "Rangschikken",
+  "rerankingSettings": "Rangschikkingsinstellingen",
+  "topN": "Maximaal aantal resultaten",
   "segments": "Segmenten",
   "output": "Uitvoer",
   "webSearch": "Zoeken op internet",
@@ -111,6 +115,7 @@
   },
   "ai": {
     "title": "Artificial Intelligence",
+    "providers": "Een overzicht van alle {{total}} beschikbare AI-providers. Per provider zie je wat deze biedt, voor welke toepassingen hij geschikt is en wanneer het logisch is om hem te gebruiken. Dit helpt je om per taak of workflow de juiste provider te kiezen op een duidelijke en consistente manier.",
     "models": "AI-modellen",
     "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier."
   },
@@ -129,8 +134,7 @@
   },
   "agents": {
     "title": "Agents",
-    "framework": "Agent Framework",
-    "description": "Agent Framework biedt één uniforme runtime voor het bouwen en orkestreren van agents. Capaciteiten, context en uitvoerlogica volgen hetzelfde consistente model, waardoor agents voorspelbaar werken, strak schalen en naadloos integreren in elke omgeving.",
+    "description": "Agents zijn autonome eenheden die capaciteiten, context en uitvoeringslogica combineren in één model. Dit zorgt voor voorspelbaar gedrag, eenvoudige schaalbaarheid en consistente integratie in verschillende omgevingen.",
     "mcpClientCapabilities": "Model Context mogelijkheden",
     "settings": "Instellingen",
     "mcpServers": "Model Context"
@@ -175,9 +179,9 @@
     "local-settings": "Chat instellingen",
     "vercel-ai": "Vercel AI"
   },
-  "localTools": "Lokale tools",
-  "localToolsEmpty": "Geen lokale tools gevonden. Gebruik de Tools plugin om lokale tools te maken.",
-  "localPlugins": "Lokale plugins",
+  "localTools": "Aangepaste tools",
+  "localToolsEmpty": "Geen aangepaste tools gevonden. Gebruik de Tools plugin om aangepaste tools te maken.",
+  "localPlugins": "Plugins",
   "disabled": "Uitgeschakeld",
   "structuredOutputs": "Gestructureerde uitvoer",
   "structuredOutputsPlaceholder": "JSON schema...",
@@ -278,6 +282,17 @@
     "returnRelatedQuestions": "Gerelateerde vragen retourneren"
   },
   "tools": "Tools",
+  "toolSources": {
+    "plugin": "Plugin tool",
+    "local": "Aangepaste tool",
+    "modelContext": "Model Context tool"
+  },
+  "toolsPage": {
+    "description": "Een overzicht van alle beschikbare tools: ingebouwde plugin-tools, je eigen aangepaste tools en tools van verbonden Model Context."
+  },
+  "filesPage": {
+    "description": "Een overzicht van alle lokaal beschikbare bestanden. Sleep bestanden naar deze pagina om ze toe te voegen en laat AI bestanden lezen en aanmaken via plugins."
+  },
   "mcp": {
     "accept": "Accepteer",
     "decline": "Afwijzen",
@@ -351,6 +366,7 @@
     "remoteStorage": "Cloud"
   },
   "ok": "Ok",
+  "execute": "Uitvoeren",
   "storage": {
     "local": "Lokale opslag",
     "remote": "Remote Storage"
@@ -363,6 +379,7 @@
     "noServers": "Geen model context.",
     "manage": "Wijzigen"
   },
+  "rerankingPlaceholder": "Voeg bestanden toe en stel een vraag om de bestanden te rangschikken...",
   "chatWithSpeechModels": "Chat met spraakmodellen",
   "chatWithTranscriptionModels": "Chat met transcriptiemodellen",
   "manageServersModal": {

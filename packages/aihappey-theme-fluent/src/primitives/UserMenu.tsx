@@ -14,7 +14,6 @@ import {
 import {
   SettingsRegular,
   SignOutRegular,
-  PanelLeftRegular,
   PersonSettingsRegular,
   KeyRegular,
   PlugConnectedRegular,
@@ -32,6 +31,7 @@ export interface UserMenuProps {
   onApiKeys?: () => void;
 
   providers?: string[];
+  providerGroups?: Record<string, string[]>;
   enabledProviders?: string[];
   onToggleProvider?: (provider: string) => void;
 
@@ -53,6 +53,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   showApiKeysItem,
   onApiKeys,
   providers,
+  providerGroups,
   enabledProviders,
   onToggleProvider,
   providersDisabled,
@@ -86,6 +87,42 @@ export const UserMenu: React.FC<UserMenuProps> = ({
       style={{ fontWeight: 600, fontSize: 18 }}
     />
   );
+
+  const capabilityMenus = React.useMemo(() => {
+    const g = providerGroups ?? {};
+    const defs: Array<{ key: string; label: string; providers: string[] }> = [
+      {
+        key: "language",
+        label: labels.language ?? "Language",
+        providers: g.language ?? [],
+      },
+      { key: "image", label: labels.image ?? "Image", providers: g.image ?? [] },
+      {
+        key: "transcription",
+        label: labels.transcription ?? "Transcription",
+        providers: g.transcription ?? [],
+      },
+      { key: "speech", label: labels.speech ?? "Speech", providers: g.speech ?? [] },
+      {
+        key: "reranking",
+        label: labels.reranking ?? "Reranking",
+        providers: g.reranking ?? [],
+      },
+    ];
+
+    return defs
+      .map((d) => {
+        const total = d.providers?.length ?? 0;
+        const enabled = (enabledProviders ?? []).filter((p) =>
+          (d.providers ?? []).includes(p)
+        ).length;
+        return {
+          ...d,
+          label: `${d.label} (${enabled}/${total})`,
+        };
+      })
+      .filter((d) => (d.providers?.length ?? 0) > 0);
+  }, [providerGroups, labels, enabledProviders]);
 
   return (
     <Menu>
@@ -136,16 +173,51 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                     </>
                   )}
 
-                  {providers.map((p) => (
-                    <MenuItemCheckbox
-                      key={p}
-                      name="providers"
-                      value={p}
-                      disabled={!!providersDisabled || !!disabledProviders?.includes(p)}
-                    >
-                      {p}
-                    </MenuItemCheckbox>
-                  ))}
+                  {capabilityMenus.length > 0 ? (
+                    <>
+                      {capabilityMenus.map((cap) => (
+                        <Menu
+                          key={cap.key}
+                          persistOnItemClick
+                          // Important: MenuItemCheckbox state is scoped to the nearest <Menu>.
+                          // Without wiring checkedValues here, checkmarks won't reflect app state,
+                          // and toggles won't call our handler.
+                          checkedValues={{ providers: enabledProviders ?? [] }}
+                          onCheckedValueChange={handleProvidersCheckedChange}
+                        >
+                          <MenuTrigger disableButtonEnhancement>
+                            <MenuItem>{cap.label}</MenuItem>
+                          </MenuTrigger>
+                          <MenuPopover>
+                            <MenuList hasCheckmarks>
+                              {cap.providers.map((p) => (
+                                <MenuItemCheckbox
+                                  key={`${cap.key}:${p}`}
+                                  name="providers"
+                                  value={p}
+                                  disabled={!!providersDisabled || !!disabledProviders?.includes(p)}
+                                >
+                                  {p}
+                                </MenuItemCheckbox>
+                              ))}
+                            </MenuList>
+                          </MenuPopover>
+                        </Menu>
+                      ))}
+                    </>
+                  ) : (
+                    // Fallback: legacy flat list
+                    providers.map((p) => (
+                      <MenuItemCheckbox
+                        key={p}
+                        name="providers"
+                        value={p}
+                        disabled={!!providersDisabled || !!disabledProviders?.includes(p)}
+                      >
+                        {p}
+                      </MenuItemCheckbox>
+                    ))
+                  )}
                 </MenuList>
               </MenuPopover>
             </Menu>

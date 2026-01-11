@@ -149,12 +149,12 @@ export const bootstrapTheme: AihUiTheme = {
   ThemeSettings: BootstrapSettings,
   Alert: ({ variant, className, title, onDismiss, children }): JSX.Element => (
     <>
-      <RBAlert variant={variant as any} className={className}>
+      <RBAlert variant={variant == "error" ? "danger" : variant as any} className={className}>
         <RBAlert.Heading>{title}</RBAlert.Heading>
         {children}
 
         {onDismiss && <div className="d-flex justify-content-end">
-          <RBButton onClick={onDismiss} variant="outline-warning">
+          <RBButton onClick={onDismiss} variant="light">
             <X />
           </RBButton>
         </div>}
@@ -256,20 +256,23 @@ export const bootstrapTheme: AihUiTheme = {
   Card: ({
     title,
     text,
+    headerActions,
     children,
     actions,
   }: {
     title: string;
     text?: string;
+    headerActions?: JSX.Element,
     children?: React.ReactNode;
     actions?: JSX.Element;
   }): JSX.Element => (
     <RBCard>
+      {headerActions && <RBCard.Header>{headerActions}</RBCard.Header>}
       <RBCard.Body>
         <RBCard.Title>{title}</RBCard.Title>
         <RBCard.Text>{children ?? text}</RBCard.Text>
-        {actions && <div className="d-flex gap-2 mt-2">{actions}</div>}
       </RBCard.Body>
+      {actions && <RBCard.Footer className="text-muted">{actions}</RBCard.Footer>}
     </RBCard>
   ),
 

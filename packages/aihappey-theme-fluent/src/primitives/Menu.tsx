@@ -10,7 +10,7 @@ import {
   MenuItem,
   Button,
 } from "@fluentui/react-components";
-import { MoreHorizontalRegular, MoreVerticalRegular } from "@fluentui/react-icons";
+import { MoreVerticalRegular } from "@fluentui/react-icons";
 import { MenuItemProps } from "aihappey-types";
 import React from "react";
 import { iconMap } from "./Button";

@@ -11,9 +11,10 @@ import { McpRegistrySlice } from "./slices/mcpRegistrySlice";
 import { ImageSlice } from "./slices/imageSlice";
 import { TranscriptionSlice } from "./slices/transcriptionSlice";
 import { SpeechSlice } from "./slices/speechSlice";
+import { RerankingSlice } from "./slices/rerankingSlice";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & SpeechSlice
-  & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice;
+  & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice;
 
 export const withPersist = (
   creator: StateCreator<RootState, PersistMutators, [], RootState>
@@ -38,6 +39,8 @@ export const withPersist = (
       providerImageMetadata: s.providerImageMetadata,
       providerSpeechMetadata: s.providerSpeechMetadata,
       providerTranscriptionMetadata: s.providerTranscriptionMetadata,
+      providerRerankingMetadata: s.providerRerankingMetadata,
+      topN: s.topN,
       // Speech (general)
       voice: s.voice,
       speechOutputFormat: s.speechOutputFormat,

@@ -52,6 +52,7 @@ export const LocalToolsSettingsForm = ({
           return (
             <Switch
               key={item.id}
+              size="small"
               id={item.id}
               label={item.label}
               checked={checked}

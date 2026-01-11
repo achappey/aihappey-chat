@@ -81,7 +81,7 @@ export const ImagePage = () => {
       }
 
       const imageProvider = createImageProvider({
-        baseUrl: config.api?.replace("/api/chat", "") ?? "",
+        baseUrl: config.baseUrl + config.endpoints.images,
         headers: merged
       })
 

@@ -121,9 +121,7 @@ export const AgentsPage = () => {
           }}
         >
           <OverviewPageHeader
-            title={t("agents.framework")}
-            officialUrl={"https://learn.microsoft.com/en-us/agent-framework/overview/agent-framework-overview"}
-            docsUrl={"https://github.com/microsoft/agent-framework"}
+            title={t("agents.title")}
           />
 
           <Paragraph style={{ textAlign: "center" }}>
@@ -154,6 +152,7 @@ export const AgentsPage = () => {
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
                   gap: 16,
+                  paddingTop: 12,
                   width: "100%",
                   maxWidth: 700,
                   marginBottom: 24,

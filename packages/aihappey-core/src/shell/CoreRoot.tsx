@@ -21,11 +21,17 @@ import { AgentsPage } from "../features/agents/AgentsPage";
 import { ImagePage } from "../features/images/ImagePage";
 import { useTheme } from "aihappey-components";
 import { ModelsPage } from "../features/models/ModelsPage";
+import { ProvidersPage } from "../features/providers/ProvidersPage";
 import { TranscriptionsPage } from "../features/transcriptions/TranscriptionsPage";
 import { SpeechPage } from "../features/speech/SpeechPage";
+import { ToolsPage } from "../features/tools/ToolsPage";
+import { FilesPage } from "../features/files/FilesPage";
+import { RerankingPage } from "../features/reranking/RerankingPage";
+import { defaultEndpoints } from "aihappey-ai";
 
 type CoreRootProps = {
-  appName?: string;
+  appName: string;
+  baseUrl: string;
   appVersion?: string;
   agentEndpoint?: string
   conversationsApi?: string;
@@ -37,11 +43,35 @@ type CoreRootProps = {
   authConfig?: AuthConfig;
 };
 
+/*
+export type inferenceEndpoints = {
+  chat: string,
+  images: string,
+  transcriptions: string,
+  speech: string,
+  sampling: string,
+  models: string,
+  reranking: string,
+  chatCompletions: string,
+}
+
+const defaultEndpoints: inferenceEndpoints = {
+  chat: "/api/chat",
+  images: "/v1/images/generations",
+  transcriptions: "/v1/audio/transcriptions",
+  speech: "/v1/audio/speech",
+  sampling: "/sampling",
+  models: "/v1/models",
+  reranking: "/api/rerank",
+  chatCompletions: "/chat/completions"
+}*/
+
 export const CoreRoot = ({
   chatConfig,
   conversationsApi,
   conversationsScopes,
   appName,
+  baseUrl,
   agentScopes,
   agentEndpoint,
   appVersion,
@@ -63,14 +93,16 @@ export const CoreRoot = ({
   const mergedChatConfig = useMemo(() => {
     // if (!authConfig) return chatConfig;
     // Ensure api is always present (required by AiChatConfig)
-    const api = chatConfig?.api ?? "/api/chat";
+   // const api = chatConfig?.api ?? "/api/chat";
     return {
       ...chatConfig,
       appName,
       appVersion,
       agentEndpoint,
-      api,
+    //  api,
       agentScopes,
+      baseUrl: baseUrl,
+      endpoints: defaultEndpoints,
       getAccessToken: authConfig != null ?
         () => acquireAccessToken(authConfig.msal.scopes) : undefined,
     };
@@ -101,11 +133,15 @@ export const CoreRoot = ({
             { path: ":conversationId", element: <ChatPage /> },
             { path: "model-context-catalog", element: <ServersPage /> },
             { path: "models", element: <ModelsPage /> },
+            { path: "providers", element: <ProvidersPage /> },
+            { path: "tools", element: <ToolsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },
             { path: "images", element: <ImagePage /> },
+            { path: "files", element: <FilesPage /> },
             { path: "transcriptions", element: <TranscriptionsPage /> },
-            { path: "speech", element: <SpeechPage /> }
+            { path: "speech", element: <SpeechPage /> },
+            { path: "reranking", element: <RerankingPage /> }
           ],
         },
       ],

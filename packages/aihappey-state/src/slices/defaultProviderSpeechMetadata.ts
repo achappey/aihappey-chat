@@ -23,5 +23,16 @@ export const defaultProviderSpeechMetadata = {
       "volume": 1.0,
       "speed": 1.0
     }
+  },
+  "together": {
+    "cartesia": {
+      "voice": "john"
+    },
+    "hexgrad": {
+      "voice": "af_alloy"
+    },
+    "canopylabs": {
+      "voice": "tara"
+    }
   }
 };

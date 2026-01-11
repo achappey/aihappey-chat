@@ -208,6 +208,7 @@ export const ModelsPage = () => {
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
                         gap: 16,
+                        paddingTop: 12,
                         width: "100%",
                         maxWidth: 700,
                         marginBottom: 24,

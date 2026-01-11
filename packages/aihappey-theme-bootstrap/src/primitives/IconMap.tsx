@@ -65,6 +65,8 @@ import {
   Mic,
   Speaker,
   Boxes,
+  Folder,
+  SortDown,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -88,7 +90,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   formula: <Calculator />,
   table: <BarChart />, // Approximate
   chart: <BarChart />,
-  library: <Images />,
+  images: <Images />,
+  folder: <Folder />,
   agentSettings: <Sliders />,
   link: <Link />,
   speech: <Speaker />,
@@ -129,6 +132,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   send: <Send />,
   chevronLeft: <ChevronLeft />,
   chevronRight: <ChevronRight />,
+  reranking: <SortDown />,
+  rerankingSettings: <Sliders />,
   priority: <ExclamationCircle />,
   providers: <Boxes />,
   chat: <BSChatIcon />,

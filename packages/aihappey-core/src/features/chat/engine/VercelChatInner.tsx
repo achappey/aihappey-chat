@@ -117,7 +117,7 @@ export function VercelChatInner({
 
   const api = chatMode === "agent"
     ? config?.agentEndpoint + "/api/chat"
-    : config?.api || "/api/chat";
+    : config.baseUrl + config.endpoints.chat;
 
   const toolUse = useOnToolCall({
     api,

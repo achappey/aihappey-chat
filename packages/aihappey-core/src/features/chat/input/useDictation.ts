@@ -97,40 +97,18 @@ export function useDictation(options: UseDictationOptions) {
 
     const requestId = `dictation_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     try {
-      // DIAGNOSTIC LOGGING (to investigate random failures)
-      // Note: do NOT log tokens. Only log presence/absence.
-      console.info("[dictation] transcribe start", {
-        requestId,
-        resolvedModelId,
-        blobSize: blob.size,
-        blobType: blob.type,
-        recorderMimeType: mimeType,
-        transcriptionEnabled,
-        hasGetAccessToken: safeBool(config?.getAccessToken),
-        baseUrl: (config?.api?.replace("/api/chat", "") ?? "") || "(empty)",
-      });
-
       let merged = { ...(config?.headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
       if (config?.getAccessToken) {
         try {
           const token = await config.getAccessToken();
           merged.Authorization = `Bearer ${token}`;
-          console.info("[dictation] token acquired", {
-            requestId,
-            tokenPresent: !!token,
-            tokenLength: token?.length,
-          });
         } catch (e) {
-          console.error("[dictation] token acquisition failed", {
-            requestId,
-            error: describeError(e),
-          });
           throw e;
         }
       }
 
       const provider = createTranscriptionProvider({
-        baseUrl: config?.api?.replace("/api/chat", "") ?? "",
+        baseUrl: config.baseUrl + config.endpoints.transcriptions,
         headers: merged,
       });
 
