@@ -189,6 +189,17 @@ export const PROVIDERS: Record<string, Provider> = {
         ],
         url: "https://www.nscale.com"
     },
+    
+    minimax: {
+        name: "MiniMax",
+        description: "Building AGI with our mission Intelligence with Everyone. Global leader in multi-modal models and AI-native products with over 150 million users.",
+        icons: [
+            {
+                src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/minimax-color.png",
+            }
+        ],
+        url: "https://www.minimax.io"
+    },
     sarvam: {
         name: "Sarvam",
         description: "At Sarvam, we're on a mission to create a sovereign AI ecosystem for India that empowers governments, enterprises, and nonprofits to use GenAI solutions.",
