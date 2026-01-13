@@ -3,7 +3,7 @@ import { useTranslation } from "aihappey-i18n";
 import { SettingsActionButtons, useTheme } from "aihappey-components";
 import { SpeechSettingsGeneralTab } from "./SpeechSettingsGeneralTab";
 import { useAppStore } from "aihappey-state";
-  import {
+import {
   DeepgramSpeechConfigForm,
   OpenAISpeechConfigForm,
   GroqSpeechConfigForm,
@@ -13,6 +13,7 @@ import { useAppStore } from "aihappey-state";
   StabilityAISpeechConfigForm,
   AsyncAISpeechConfigForm,
   TogetherSpeechConfigForm,
+  MiniMaxSpeechConfigForm,
   type ElevenLabsSpeechConfig,
   type DeepgramSpeechConfig,
   type OpenAISpeechConfig,
@@ -21,6 +22,7 @@ import { useAppStore } from "aihappey-state";
   type GoogleSpeechConfig,
   type StabilityAISpeechConfig,
   type AsyncAISpeechConfig,
+  type MiniMaxSpeechConfig,
 } from "aihappey-components";
 
 export interface SpeechSettingsModalProps {
@@ -124,6 +126,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
           </theme.Tab>
         )}
 
+        {enabledProviders.includes("MiniMax") && (
+          <theme.Tab eventKey="minimax" title="MiniMax">
+            <MiniMaxSpeechConfigForm
+              config={providerMetadata.minimax ?? {}}
+              updateConfig={(minimax: MiniMaxSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, minimax })
+              }
+            />
+          </theme.Tab>
+        )}
+
         {enabledProviders.includes("Novita") && (
           <theme.Tab eventKey="novita" title="Novita">
             <NovitaSpeechConfigForm
@@ -168,6 +181,7 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
             />
           </theme.Tab>
         )}
+
 
 
 

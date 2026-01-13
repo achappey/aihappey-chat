@@ -7,6 +7,21 @@ export const defaultProviderSpeechMetadata = {
   },
   "elevenlabs": {
   },
+  "minimax": {
+    "language_boost": "auto",
+    "voice_setting": {
+      "voice_id": "English_Graceful_Lady",
+      "speed": 1,
+      "vol": 1,
+      "pitch": 0
+    },
+    "audio_setting": {
+      "format": "mp3",
+      "sample_rate": 32000,
+      "bitrate": 128000,
+      "channel": 1
+    }
+  },
   "sarvam": {
     "target_language_code": "en-IN"
   },

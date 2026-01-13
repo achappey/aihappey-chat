@@ -34,4 +34,6 @@ export * from "./elevenlabs";
 
 export * from "./asyncai";
 
+export * from "./minimax";
+
 

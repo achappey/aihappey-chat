@@ -6,6 +6,7 @@ import { AiWarningBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { TemperatureBadge } from "../badges/TemperatureBadge";
 import { useTranslation } from "aihappey-i18n";
+import { useMediaQuery } from "usehooks-ts";
 
 interface MessageActionsProps {
   msg: ChatMessage;
@@ -33,11 +34,12 @@ export const MessageActions = ({
 }: MessageActionsProps) => {
   const { Button, Badge } = useTheme();
   const { t } = useTranslation();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
     <>
       {msg.role === "assistant" && (
-        <AiWarningBadge size={size} />
+        <AiWarningBadge size={size ?? isDesktop ? undefined : "small"} />
       )}
 
       {onCopyMessage && (
@@ -46,11 +48,13 @@ export const MessageActions = ({
           size={size} />
       )}
 
-      {msg.role === "assistant" && (msg as any).temperature != undefined && (
-        <TemperatureBadge temperature={(msg as any).temperature} />
-      )}
+      {isDesktop
+        && msg.role === "assistant"
+        && msg.temperature != undefined && (
+          <TemperatureBadge temperature={msg.temperature} />
+        )}
 
-      <TokenBadge totalTokens={msg.totalTokens} />
+      {isDesktop && <TokenBadge totalTokens={msg.totalTokens} />}
 
       {onShowAttachments && msg?.attachments && msg?.attachments?.length > 0 && (
         <Button

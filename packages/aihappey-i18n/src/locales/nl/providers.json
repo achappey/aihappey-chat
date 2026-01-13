@@ -286,4 +286,35 @@
       "singleTagDetected": "Bestaande enkele tag gevonden: {{tag}}. Voeg tags toe of verwijder tags om dit naar een lijst om te zetten."
     }
   }
+  ,
+  "minimax": {
+    "languageBoost": "Taalboost",
+    "subtitleEnable": "Ondertiteling inschakelen",
+    "voiceSetting": "Steminstellingen",
+    "voiceId": "Stem",
+    "speedWithValue": "Snelheid ({{value}}x)",
+    "volumeWithValue": "Volume ({{value}}x)",
+    "pitchWithValue": "Toonhoogte ({{value}})",
+    "emotion": "Emotie",
+    "textNormalization": "Tekstnormalisatie",
+    "latexRead": "LaTeX voorlezen",
+    "audioSetting": "Audio-instellingen",
+    "audioFormat": "Audioformaat",
+    "sampleRate": "Samplerate",
+    "bitrate": "Bitrate",
+    "channel": "Kanaal",
+    "forceCbr": "Constante bitrate afdwingen",
+    "pronunciationDict": "Uitspraak",
+    "toneHint": "Voeg tone-mappings toe in de vorm: token/vervanging",
+    "addTone": "Tone toevoegen",
+    "addTonePlaceholder": "bijv. omg/oh my god",
+    "weight": "Gewicht",
+    "voiceModify": "Stemeffecten",
+    "voiceModifyPitchWithValue": "Pitch ({{value}})",
+    "voiceModifyIntensityWithValue": "Intensiteit ({{value}})",
+    "voiceModifyTimbreWithValue": "Timbre ({{value}})",
+    "soundEffects": "Geluidseffecten",
+    "music": "Muziek",
+    "lyrics": "Songtekst"
+  }
 }

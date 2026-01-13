@@ -39,6 +39,7 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale }: ChatP
             timestamp={format(msg.createdAt, locale)}
             reactions={reactionBlock}
             decorationIcon={icon}
+            root={{ style: { marginLeft: 0 } }}
             decorationLabel={msg.messageLabel}
           >
             {renderMessage(msg)}

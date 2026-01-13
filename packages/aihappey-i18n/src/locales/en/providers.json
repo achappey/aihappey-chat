@@ -303,4 +303,35 @@
       "singleTagDetected": "Existing single tag detected: {{tag}}. Add/remove tags to convert it to a list."
     }
   }
+  ,
+  "minimax": {
+    "languageBoost": "Language boost",
+    "subtitleEnable": "Enable subtitles",
+    "voiceSetting": "Voice settings",
+    "voiceId": "Voice",
+    "speedWithValue": "Speed ({{value}}x)",
+    "volumeWithValue": "Volume ({{value}}x)",
+    "pitchWithValue": "Pitch ({{value}})",
+    "emotion": "Emotion",
+    "textNormalization": "Text normalization",
+    "latexRead": "LaTeX read",
+    "audioSetting": "Audio settings",
+    "audioFormat": "Audio format",
+    "sampleRate": "Sample rate",
+    "bitrate": "Bitrate",
+    "channel": "Channel",
+    "forceCbr": "Force constant bitrate",
+    "pronunciationDict": "Pronunciation",
+    "toneHint": "Add tone mappings in the form: token/replacement",
+    "addTone": "Add tone",
+    "addTonePlaceholder": "e.g. omg/oh my god",
+    "weight": "Weight",
+    "voiceModify": "Voice effects",
+    "voiceModifyPitchWithValue": "Pitch ({{value}})",
+    "voiceModifyIntensityWithValue": "Intensity ({{value}})",
+    "voiceModifyTimbreWithValue": "Timbre ({{value}})",
+    "soundEffects": "Sound effects",
+    "music": "Music",
+    "lyrics": "Lyrics"
+  }
 }
