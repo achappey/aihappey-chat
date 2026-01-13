@@ -69,7 +69,7 @@ export const StabilityAIImageForm: React.FC<{
           </theme.Select>
 
           <theme.TextArea
-            label={t("providers:stabilityai.negativePrompt")}
+            label={t("negativePrompt")}
             value={config?.negative_prompt ?? ""}
             onChange={(val: string) =>
               updateConfig({

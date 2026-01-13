@@ -106,7 +106,7 @@ export const StabilityAISpeechConfigForm: React.FC<{
             step={1}
             min={4}
             max={100}
-            label={t("providers:stabilityai.speech.steps")}
+            label={t("steps")}
             hint={t("providers:stabilityai.speech.stepsHint")}
             value={config?.steps ?? ""}
             onChange={(e: any) => {

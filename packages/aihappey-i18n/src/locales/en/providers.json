@@ -133,9 +133,6 @@
     }
   },
   "together": {
-    "guidanceScale": "Guidance scale",
-    "steps": "Steps",
-    "negativePrompt": "Negative prompt",
     "disableSafetyChecker": "Disable safety checker",
     "reranking": {
       "returnDocuments": "Return documents",
@@ -153,15 +150,8 @@
       "truncation": "Truncation"
     }
   },
-  "hyperbolic": {
-    "guidanceScale": "Guidance scale",
-    "steps": "Steps",
-    "negativePrompt": "Negative prompt"
-  },
+  "hyperbolic": {},
   "nebius": {
-    "numInferenceSteps": "Inference steps",
-    "guidanceScale": "Guidance scale",
-    "negativePrompt": "Negative prompt",
     "responseExtension": "Output format"
   },
   "runway": {
@@ -170,7 +160,6 @@
   },
   "stabilityai": {
     "style_presetLabel": "Style preset",
-    "negativePrompt": "Negative prompt",
     "no_style_preset": "No style preset",
     "style_presetHint": "Guides the image model towards a particular style.",
     "speech": {
@@ -179,7 +168,6 @@
       "durationHint": "Controls the duration in seconds of the generated audio.",
       "seed": "Seed",
       "seedHint": "A specific value that is used to guide the 'randomness' of the generation. (Omit this parameter or pass 0 to use a random seed.)",
-      "steps": "Steps",
       "stepsHint": "Controls the number of sampling steps.",
       "cfgScale": "Classifier-Free Guidance scale",
       "cfgScaleHint": "How strictly the diffusion process adheres to the prompt text (higher values make your audio closer to your prompt)."

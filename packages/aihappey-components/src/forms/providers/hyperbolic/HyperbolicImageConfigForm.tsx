@@ -24,7 +24,7 @@ export const HyperbolicImageConfigForm: React.FC<{
             type="number"
             max={100}
             value={config?.steps}
-            label={t("providers:hyperbolic.steps")}
+            label={t("steps")}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               updateConfig({
                 ...config,
@@ -39,7 +39,7 @@ export const HyperbolicImageConfigForm: React.FC<{
             step={0.5}
             max={10}
             value={config?.cfg_scale}
-            label={t("providers:hyperbolic.guidanceScale")}
+            label={t("guidanceScale")}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               updateConfig({
                 ...config,
@@ -50,7 +50,7 @@ export const HyperbolicImageConfigForm: React.FC<{
 
           <theme.TextArea
             value={config?.negative_prompt ?? ""}
-            label={t("providers:hyperbolic.negativePrompt")}
+            label={t("negativePrompt")}
             onChange={(val: string) =>
               updateConfig({
                 ...config,

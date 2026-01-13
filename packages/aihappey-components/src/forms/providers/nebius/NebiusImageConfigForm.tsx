@@ -49,7 +49,7 @@ export const NebiusImageConfigForm: React.FC<{
             max={80}
             step={1}
             value={config?.num_inference_steps}
-            label={t("providers:nebius.numInferenceSteps")}
+            label={t("steps")}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const raw = e.target.value;
               updateConfig({
@@ -68,7 +68,7 @@ export const NebiusImageConfigForm: React.FC<{
             max={100}
             step={0.1}
             value={config?.guidance_scale}
-            label={t("providers:nebius.guidanceScale")}
+            label={t("guidanceScale")}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const raw = e.target.value;
               updateConfig({
@@ -106,7 +106,7 @@ export const NebiusImageConfigForm: React.FC<{
 
           <theme.TextArea
             value={config?.negative_prompt ?? ""}
-            label={t("providers:nebius.negativePrompt")}
+            label={t("negativePrompt")}
             onChange={(val: string) => {
               const next = (val ?? "").slice(0, 2000);
               updateConfig({

@@ -25,7 +25,7 @@ export const TogetherImageConfigForm: React.FC<{
             type="number"
             max={100}
             value={config?.steps}
-            label={t("providers:together.steps")}
+            label={t("steps")}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               updateConfig({
                 ...config,
@@ -42,7 +42,7 @@ export const TogetherImageConfigForm: React.FC<{
             step={0.5}
             max={10}
             value={config?.guidance_scale}
-            label={t("providers:together.guidanceScale")}
+            label={t("guidanceScale")}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               updateConfig({
                 ...config,
@@ -67,7 +67,7 @@ export const TogetherImageConfigForm: React.FC<{
 
           <theme.TextArea
             value={config?.negative_prompt ?? ""}
-            label={t("providers:together.negativePrompt")}
+            label={t("negativePrompt")}
             onChange={(val: string) =>
               updateConfig({
                 ...config,

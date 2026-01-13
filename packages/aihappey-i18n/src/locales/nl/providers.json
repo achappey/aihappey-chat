@@ -125,10 +125,9 @@
     "allowedDomains": "Toegestane domeinen",
     "blockedDomains": "Geblokkeerde domeinen"
   },
+  "hyperbolic": {
+  },
   "together": {
-    "guidanceScale": "Sturingsfactor",
-    "steps": "Stappen",
-    "negativePrompt": "Negatieve prompt",
     "disableSafetyChecker": "Veiligheidscontrole uitschakelen",
     "reranking": {
       "returnDocuments": "Documenten retourneren",
@@ -151,14 +150,10 @@
     "publicFigureThreshold": "Drempel voor publieke figuren"
   },
   "nebius": {
-    "numInferenceSteps": "Inferentiestappen",
-    "guidanceScale": "Guidance-schaal",
-    "negativePrompt": "Negatieve prompt",
     "responseExtension": "Uitvoerformaat"
   },
   "stabilityai": {
     "style_presetLabel": "Stijl",
-    "negativePrompt": "Negatieve prompt",
     "no_style_preset": "Geen stijl-instructie",
     "style_presetHint": "Stuurt het afbeeldingsmodel richting een bepaalde stijl.",
     "speech": {
@@ -167,7 +162,6 @@
       "durationHint": "Bepaalt de duur in seconden van de gegenereerde audio.",
       "seed": "Seed",
       "seedHint": "Een specifieke waarde die wordt gebruikt om de ‘willekeur’ van de generatie te sturen. (Laat deze parameter weg of gebruik 0 om een willekeurige seed te gebruiken.)",
-      "steps": "Stappen",
       "stepsHint": "Bepaalt het aantal samplingstappen.",
       "cfgScale": "Classifier-Free Guidance-schaal",
       "cfgScaleHint": "Hoe strikt het diffusieproces de prompttekst volgt (hogere waarden zorgen dat de audio dichter bij je prompt blijft)."
