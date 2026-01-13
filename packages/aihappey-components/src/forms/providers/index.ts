@@ -36,4 +36,6 @@ export * from "./asyncai";
 
 export * from "./minimax";
 
+export * from "./resembleai";
+
 

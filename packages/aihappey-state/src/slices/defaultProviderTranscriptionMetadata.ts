@@ -7,4 +7,6 @@ export const defaultProviderTranscriptionMetadata = {
   },
   "deepgram": {
   },
+  "resembleai": {
+  },
 };

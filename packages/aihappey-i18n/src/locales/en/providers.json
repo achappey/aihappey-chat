@@ -302,8 +302,26 @@
       "callbackMethod": "Callback method",
       "singleTagDetected": "Existing single tag detected: {{tag}}. Add/remove tags to convert it to a list."
     }
-  }
-  ,
+  },
+  "resembleai": {
+    "queryLabel": "Query",
+    "queryHint": "Optional intelligence question to evaluate after transcription.",
+    "queryPlaceholder": "e.g. What action items were discussed?",
+    "speech": {
+      "voiceUuid": "Voice",
+      "voiceUuidPlaceholder": "e.g. 55592656",
+      "projectUuid": "Project",
+      "projectUuidHint": "Optional project id to store the generated clip.",
+      "projectUuidPlaceholder": "e.g. 7df0c0c2-5b9c-4f3d-9b6c-7d4b3f5d1a2b",
+      "title": "Title",
+      "titleHint": "Optional title for the generated clip.",
+      "titlePlaceholder": "e.g. Welcome message",
+      "precision": "Precision (WAV)",
+      "outputFormat": "Output format",
+      "sampleRate": "Sample rate",
+      "useHd": "Use HD"
+    }
+  },
   "minimax": {
     "languageBoost": "Language boost",
     "subtitleEnable": "Enable subtitles",

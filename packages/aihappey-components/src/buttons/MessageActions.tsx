@@ -32,7 +32,7 @@ export const MessageActions = ({
   onShowSources,
   onSetPage,
 }: MessageActionsProps) => {
-  const { Button, Badge } = useTheme();
+  const { Button } = useTheme();
   const { t } = useTranslation();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 

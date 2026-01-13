@@ -1,0 +1,19 @@
+import type { Provider } from "../providerMetadata";
+
+export const echo: Provider = {
+  name: "Echo",
+  experimental: true,
+  description: "The server sends back an identical copy of the data it received.",
+  icons: [
+    {
+      src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=",
+      theme: "dark",
+    },
+    {
+      src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=",
+      theme: "light",
+    },
+  ],
+  url: "https://en.wikipedia.org/wiki/Echo_Protocol",
+};
+

@@ -349,7 +349,9 @@
   },
   "chatWithSpeechModels": "Chat with speech models",
   "chatWithTranscriptionModels": "Chat with transcription models",
+  "transcriptionInputFilesNotSupported": "Only audio/video files are accepted. Rejected: {{rejected}}",
   "ok": "Ok",
+  "experimental": "Experimental",
   "execute": "Execute",
   "save": "Save",
   "storage": {

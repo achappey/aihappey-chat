@@ -14,6 +14,7 @@ import {
   AsyncAISpeechConfigForm,
   TogetherSpeechConfigForm,
   MiniMaxSpeechConfigForm,
+  ResembleAISpeechConfigForm,
   type ElevenLabsSpeechConfig,
   type DeepgramSpeechConfig,
   type OpenAISpeechConfig,
@@ -23,6 +24,7 @@ import {
   type StabilityAISpeechConfig,
   type AsyncAISpeechConfig,
   type MiniMaxSpeechConfig,
+  type ResembleAISpeechConfig,
 } from "aihappey-components";
 
 export interface SpeechSettingsModalProps {
@@ -182,6 +184,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
           </theme.Tab>
         )}
 
+        {enabledProviders.includes("ResembleAI") && (
+          <theme.Tab eventKey="resembleai" title="ResembleAI">
+            <ResembleAISpeechConfigForm
+              config={providerMetadata.resembleai ?? {}}
+              updateConfig={(resembleai: ResembleAISpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, resembleai })
+              }
+            />
+          </theme.Tab>
+        )}
+
 
 
 
@@ -189,5 +202,6 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
     </theme.Modal>
   );
 };
+
 
 

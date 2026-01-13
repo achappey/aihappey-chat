@@ -27,6 +27,7 @@ export const ProvidersPage = () => {
                 key: m.id,
                 name: m?.name ?? key,
                 description: m?.description,
+                experimental: m?.experimental,
                 url: m?.url ?? "",
                 icons: m?.icons,
             } satisfies ProviderListItem;
@@ -106,6 +107,7 @@ export const ProvidersPage = () => {
                                 <div key={p.key} style={{ maxWidth: 320, width: "100%" }}>
                                     <ProviderCard
                                         name={p.name}
+                                        experimental={p.experimental}
                                         url={p.url}
                                         image={image}
                                         description={p.description ?? p.key}

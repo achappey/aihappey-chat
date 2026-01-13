@@ -7,4 +7,5 @@ export * from "./TemperatureBadge";
 export * from "./ToolInvocationStateBadge";
 export * from "./ToolApprovalBadge";
 export * from "./TokenBadge";
+export * from "./ExperimentalBadge";
 

@@ -285,8 +285,7 @@
       "callbackMethod": "Callback-methode",
       "singleTagDetected": "Bestaande enkele tag gevonden: {{tag}}. Voeg tags toe of verwijder tags om dit naar een lijst om te zetten."
     }
-  }
-  ,
+  },
   "minimax": {
     "languageBoost": "Taalboost",
     "subtitleEnable": "Ondertiteling inschakelen",
@@ -316,5 +315,24 @@
     "soundEffects": "Geluidseffecten",
     "music": "Muziek",
     "lyrics": "Songtekst"
+  },
+  "resembleai": {
+    "queryLabel": "Vraag",
+    "queryHint": "Optionele intelligente vraag om na de transcriptie te evalueren.",
+    "queryPlaceholder": "bijv. Welke actiepunten zijn besproken?",
+    "speech": {
+      "voiceUuid": "Stem",
+      "voiceUuidPlaceholder": "bijv. 55592656",
+      "projectUuid": "Project",
+      "projectUuidHint": "Optionele project id om de gegenereerde clip op te slaan.",
+      "projectUuidPlaceholder": "bijv. 7df0c0c2-5b9c-4f3d-9b6c-7d4b3f5d1a2b",
+      "title": "Titel",
+      "titleHint": "Optionele titel voor de gegenereerde clip.",
+      "titlePlaceholder": "bijv. Welkomstbericht",
+      "precision": "Precisie (WAV)",
+      "outputFormat": "Uitvoerformaat",
+      "sampleRate": "Samplerate",
+      "useHd": "HD gebruiken"
+    }
   }
 }

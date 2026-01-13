@@ -56,8 +56,10 @@
   "webSearch": "Zoeken op internet",
   "webFetch": "Web lezen",
   "speech": "Spraak",
+  "experimental": "Experimenteel",
   "mySpeechFiles": "Mijn spraakbestanden",
   "speechPromptPlaceholder": "Voer tekst in om audio te genereren",
+  "transcriptionInputFilesNotSupported": "Alleen audio/video bestanden worden ondersteund. Afgewezen: {{rejected}}",
   "speechSettings": {
     "title": "Spraakinstellingen",
     "voice": "Stem",

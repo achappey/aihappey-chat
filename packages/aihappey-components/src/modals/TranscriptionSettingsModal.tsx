@@ -12,6 +12,7 @@ import {
     ScalewayTranscriptionConfigForm,
     TelnyxTranscriptionConfigForm,
     ZaiTranscriptionConfigForm,
+    ResembleAITranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
@@ -253,6 +254,20 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         telnyx,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("ResembleAI") && (
+                        <theme.Tab eventKey="resembleai" title="ResembleAI">
+                            <ResembleAITranscriptionConfigForm
+                                config={providerMetadata.resembleai ?? {}}
+                                updateConfig={(resembleai) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        resembleai,
                                     })
                                 }
                             />

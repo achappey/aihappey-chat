@@ -21,6 +21,7 @@ import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useTranscriptionErrors } from "./useTranscriptionErrors";
 import { getTranscriptionErrorMessage } from "./transcriptionErrors";
 import { TranscriptionWarnings } from "./TranscriptionWarnings";
+import { useTranslation } from "aihappey-i18n";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -49,6 +50,7 @@ export const TranscriptionsPage = () => {
     ?? (getAccessToken ? "openai/gpt-4o-transcribe-diarize" : ""));
   const headers = config?.headers;
   const { Skeleton } = useTheme()
+  const { t } = useTranslation()
   const storageTranscriptions = useTranscriptions()
   const files = useFiles();
 
@@ -120,7 +122,7 @@ export const TranscriptionsPage = () => {
     const rejected = inputFiles.filter((f) => !isTranscribableMedia(f));
 
     if (rejected.length) {
-      addWarning(`Only audio/video files are accepted for transcription. Rejected: ${rejected.map((f) => f.name).join(", ")}`);
+      addWarning(t('transcriptionInputFilesNotSupported', { rejected: rejected.map((f) => f.name).join(", ") }))
     }
 
     if (!accepted.length) {
