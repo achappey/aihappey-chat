@@ -4,7 +4,6 @@ import { CapabilityIcon } from "../images/CapabilityIcon";
 import type { Tool } from "aihappey-mcp";
 import { ViewButton } from "../buttons/ViewButton";
 import { ToolInvocationStateBadge } from "../badges/ToolInvocationStateBadge";
-import { ToolApprovalBadge } from "../badges";
 
 export interface ToolInvocationCardProps {
   invocation: {
@@ -53,13 +52,10 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   const cardDescription = <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
     <ToolInvocationStateBadge
       state={invocation.state!}
-      approved={invocation.approval?.approved}
-      isError={invocation.output?.isError} />
-
-    <ToolApprovalBadge
-      state={invocation.state!}
       toolName={toolName}
-      approval={invocation.approval} />
+      toolTitle={invocation?.title}
+      approval={invocation.approval}
+      isError={invocation.output?.isError} />
 
     {isCompleted && !invocation.output?.isError
       && <Badge bg="informative">{prettySize(invocation.output)}</Badge>}

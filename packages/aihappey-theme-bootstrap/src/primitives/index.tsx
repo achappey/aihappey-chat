@@ -11,3 +11,4 @@ export { Slider } from "./Slider";
 export { iconMap } from "./IconMap";
 export { SplitButton } from "./SplitButton";
 export { BootstrapSettings } from "./BootstrapSettings";
+export { AudioPlayer } from "./AudioPlayer";

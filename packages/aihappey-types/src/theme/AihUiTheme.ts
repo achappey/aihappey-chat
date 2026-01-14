@@ -36,6 +36,7 @@ import type { ToolbarComponent } from "./Toolbar";
 import type { ToolbarDividerComponent } from "./ToolbarDivider";
 import type { UserMenuComponent } from "./UserMenu";
 import type { SplitButtonComponent } from "./SplitButton";
+import type { AudioPlayerComponent } from "./AudioPlayer";
 
 /**
  * Split-out theme contract (recomposed from per-component types).
@@ -68,6 +69,7 @@ export interface AihUiTheme {
   ProgressBar: ProgressBarComponent;
   Switch: SwitchComponent;
   TextArea: TextAreaComponent;
+  AudioPlayer: AudioPlayerComponent;
   Toolbar: ToolbarComponent;
   ToolbarButton: ToolbarButtonComponent;
   ToolbarDivider: ToolbarDividerComponent;

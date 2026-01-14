@@ -38,4 +38,6 @@ export * from "./minimax";
 
 export * from "./resembleai";
 
+export * from "./speechify";
+
 

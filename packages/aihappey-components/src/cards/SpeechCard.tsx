@@ -55,12 +55,14 @@ const pcmDataUriToWavUrl = (dataUri: string): string => {
 };
 
 export const SpeechCard = ({ speech, onDelete }: SpeechCardProps) => {
-  const { Card, Menu } = useTheme();
+  const { Card, Menu, AudioPlayer } = useTheme();
   const { t } = useTranslation();
   const [src, setSrc] = useState<string>();
 
   useEffect(() => {
     if (!speech.audio) return;
+
+    if (typeof speech?.audio !== "string") return;
 
     if (isPcmDataUri(speech.audio)) {
       const wavUrl = pcmDataUriToWavUrl(speech.audio);
@@ -80,14 +82,13 @@ export const SpeechCard = ({ speech, onDelete }: SpeechCardProps) => {
     <Card title={speech?.response?.modelId}
       description={<>{format(speech?.response?.timestamp)}</>}
       headerActions={onDelete ? <Menu items={menuItems} /> : undefined}>
-      {src && (
-        <audio
-          controls
-          preload="metadata"
-          style={{ width: "100%", height: 50 }}
-          src={src}
-        />
-      )}
+      <div>
+        {src && (
+          <AudioPlayer
+            src={src}
+          />
+        )}
+      </div>
     </Card>
   );
 };

@@ -1,4 +1,4 @@
-import { AttachmentButton, FileTags, ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme } from "aihappey-components";
+import { AttachmentButton, BrrrBadge, FileTags, ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme } from "aihappey-components";
 import { ServerSelectButton } from "../../mcp-servers/ServerSelectButton";
 import {
   useMessageInput,
@@ -22,7 +22,7 @@ export const addFilesToRuntime = (files: File[]) => {
 
 
 export const MessageInput = (props: UseMessageInputOptions) => {
-  const { Button, Tags, TextArea, Badge } = useTheme();
+  const { Button, Tags, TextArea } = useTheme();
   const { t } = useTranslation();
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
@@ -112,9 +112,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           </div>
 
           <div style={styles.metaRight}>
-            {approveAll && <Badge icon="warning"
-              bg="danger"
-              appearance="filled" >BRRR</Badge>}
+            {approveAll && <BrrrBadge />}
           </div>
         </div>
       )}
@@ -190,10 +188,10 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           disabled={dictation.recording
             ? false
             : props.disabled
-              || props.streaming
-              || !dictation.recordingSupported
-              || !dictation.transcriptionEnabled
-              || dictation.transcribing}
+            || props.streaming
+            || !dictation.recordingSupported
+            || !dictation.transcriptionEnabled
+            || dictation.transcribing}
           onClick={dictation.recording ? dictation.stopRecording : dictation.startRecording}
         >
           {dictation.recording ? dictation.elapsedLabel : undefined}

@@ -125,8 +125,7 @@
     "allowedDomains": "Toegestane domeinen",
     "blockedDomains": "Geblokkeerde domeinen"
   },
-  "hyperbolic": {
-  },
+  "hyperbolic": {},
   "together": {
     "disableSafetyChecker": "Veiligheidscontrole uitschakelen",
     "reranking": {
@@ -327,6 +326,17 @@
       "outputFormat": "Uitvoerformaat",
       "sampleRate": "Samplerate",
       "useHd": "HD gebruiken"
+    }
+  },
+  "speechify": {
+    "speech": {
+      "voiceIdPlaceholder": "bijv. 2e19b1e2-...",
+      "audioFormat": "Audioformaat",
+      "options": "Opties",
+      "loudnessNormalization": "Luidheidsnormalisatie",
+      "loudnessNormalizationHint": "Normaliseer de luidheid naar een standaardniveau (-14 LUFS / -2 dBTP). Kan de snelheid verlagen.",
+      "textNormalization": "Tekstnormalisatie",
+      "textNormalizationHint": "Normaliseer tekst (getallen, datums, enz.) naar woorden. Kan de snelheid verlagen."
     }
   }
 }

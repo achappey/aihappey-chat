@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import { SettingsActionButtons, useTheme } from "aihappey-components";
+import { SettingsActionButtons, SpeechifySpeechConfig, SpeechifySpeechConfigForm, useTheme } from "aihappey-components";
 import { SpeechSettingsGeneralTab } from "./SpeechSettingsGeneralTab";
 import { useAppStore } from "aihappey-state";
 import {
@@ -161,6 +161,18 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
             />
           </theme.Tab>
         )}
+
+        {enabledProviders.includes("Speechify") && (
+          <theme.Tab eventKey="speechify" title="Speechify">
+            <SpeechifySpeechConfigForm
+              config={providerMetadata.minimax ?? {}}
+              updateConfig={(speechify: SpeechifySpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, speechify })
+              }
+            />
+          </theme.Tab>
+        )}
+
 
         {enabledProviders.includes("StabilityAI") && (
           <theme.Tab eventKey="stabilityai" title="StabilityAI">

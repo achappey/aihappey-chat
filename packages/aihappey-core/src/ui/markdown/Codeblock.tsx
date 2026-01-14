@@ -99,7 +99,7 @@ export const CodeBlock = ({
   const [activeTab, setActiveTab] = useState(initialTab);
   const highlighted = useMemo(() => (
     <SyntaxHighlighter
-      language={language}
+      language={language === "chartjs" ? "json" : language}
       style={isDarkMode ? oneDark : oneLight}
       wrapLongLines={true}
       showLineNumbers={showLines}

@@ -1,8 +1,12 @@
 import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import { TemperatureField } from "../../../fields";
 import { TimestampGranularitiesForm } from "../../settings/transcriptions/TimestampGranularitiesForm";
+import {
+    FireworksTranscriptionGeneralCard,
+    FireworksTranscriptionAudioProcessingCard,
+    FireworksTranscriptionDiarizationCard,
+} from "./transcriptioncards";
 
 export type FireworksTranscriptionConfig = {
     language?: string;
@@ -144,47 +148,7 @@ export const FireworksTranscriptionConfigForm: React.FC<{
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <theme.Card size="small" title={t("general")}>
-                <div>
-                    <theme.Input
-                        label={t("language")}
-                        placeholder={t("providers:openai.transcriptionLanguagePlaceholder")}
-                        value={config?.language ?? ""}
-                        onChange={(val) =>
-                            updateConfig({
-                                ...config,
-                                language:
-                                    val.target.value && val.target.value.length > 0
-                                        ? val.target.value
-                                        : undefined,
-                            })
-                        }
-                    />
-
-                    <TemperatureField
-                        value={config?.temperature ?? 0}
-                        onChange={(temperature) =>
-                            updateConfig({
-                                ...config,
-                                temperature,
-                            })
-                        }
-                    />
-
-                    <theme.TextArea
-                        label={t("providers:openai.prompt")}
-                        placeholder={t("providers:openai.speechPromptPlaceholder")}
-                        rows={5}
-                        value={config?.prompt ?? ""}
-                        onChange={(value) =>
-                            updateConfig({
-                                ...config,
-                                prompt: value,
-                            })
-                        }
-                    />
-                </div>
-            </theme.Card>
+            <FireworksTranscriptionGeneralCard config={config} updateConfig={updateConfig} />
 
             <TimestampGranularitiesForm
                 idPrefix="fireworks-transcription-timestamp"
@@ -215,131 +179,14 @@ export const FireworksTranscriptionConfigForm: React.FC<{
                 onToggleGranularity={(g, enabled) => toggleGranularity(g, enabled)}
             />
 
-            <theme.Card title={t("providers:fireworks.audioProcessing")}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <theme.Select
-                        label={t("providers:fireworks.vadModel")}
-                        values={[config?.vad_model ?? ""]}
-                        valueTitle={
-                            vadModelOptions.find((o) => o.value === (config?.vad_model ?? ""))
-                                ?.label
-                        }
-                        options={vadModelOptions}
-                        onChange={(val: string) =>
-                            updateConfig({
-                                ...config,
-                                vad_model: (val?.trim() ? val : undefined) as
-                                    | FireworksTranscriptionConfig["vad_model"]
-                                    | undefined,
-                            })
-                        }
-                        style={{ minWidth: 220 }}
-                    >
-                        {vadModelOptions.map((o) => (
-                            <option key={o.value} value={o.value}>
-                                {o.label}
-                            </option>
-                        ))}
-                    </theme.Select>
+            <FireworksTranscriptionAudioProcessingCard config={config} updateConfig={updateConfig} />
 
-                    <theme.Select
-                        label={t("providers:fireworks.alignmentModel")}
-                        values={[config?.alignment_model ?? ""]}
-                        valueTitle={
-                            alignmentModelOptions.find(
-                                (o) => o.value === (config?.alignment_model ?? "")
-                            )?.label
-                        }
-                        options={alignmentModelOptions}
-                        onChange={(val: string) =>
-                            updateConfig({
-                                ...config,
-                                alignment_model: (val?.trim() ? val : undefined) as
-                                    | FireworksTranscriptionConfig["alignment_model"]
-                                    | undefined,
-                            })
-                        }
-                        style={{ minWidth: 220 }}
-                    >
-                        {alignmentModelOptions.map((o) => (
-                            <option key={o.value} value={o.value}>
-                                {o.label}
-                            </option>
-                        ))}
-                    </theme.Select>
-
-                    <theme.Select
-                        label={t("providers:fireworks.preprocessing")}
-                        values={[config?.preprocessing ?? ""]}
-                        valueTitle={
-                            preprocessingOptions.find(
-                                (o) => o.value === (config?.preprocessing ?? "")
-                            )?.label
-                        }
-                        options={preprocessingOptions}
-                        onChange={(val: string) =>
-                            updateConfig({
-                                ...config,
-                                preprocessing: (val?.trim() ? val : undefined) as
-                                    | FireworksTranscriptionConfig["preprocessing"]
-                                    | undefined,
-                            })
-                        }
-                        style={{ minWidth: 220 }}
-                    >
-                        {preprocessingOptions.map((o) => (
-                            <option key={o.value} value={o.value}>
-                                {o.label}
-                            </option>
-                        ))}
-                    </theme.Select>
-                </div>
-            </theme.Card>
-
-            <theme.Card
-                title={t("providers:fireworks.diarization")}
-                headerActions={
-                    <theme.Switch
-                        id="fireworks-transcription-diarize"
-                        checked={diarizeEnabled}
-                        onChange={setDiarize}
-                    />
-                }
-            >
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <theme.Input
-                        id="fireworks-transcription-min-speakers"
-                        type="number"
-                        min={1}
-                        disabled={!diarizeEnabled}
-                        step={1}
-                        label={t("providers:fireworks.minSpeakers")}
-                        value={config?.min_speakers ?? ""}
-                        onChange={(e: any) =>
-                            updateConfig({
-                                ...config,
-                                min_speakers: e.target.value ? Number(e.target.value) : undefined,
-                            })
-                        }
-                    />
-
-                    <theme.Input
-                        id="fireworks-transcription-max-speakers"
-                        type="number"
-                        disabled={!diarizeEnabled}
-                        min={1}
-                        step={1}
-                        label={t("providers:fireworks.maxSpeakers")}
-                        value={config?.max_speakers ?? ""}
-                        onChange={(e: any) =>
-                            updateConfig({
-                                ...config,
-                                max_speakers: e.target.value ? Number(e.target.value) : undefined,
-                            })
-                        }
-                    />
-                </div>
-            </theme.Card>
+            <FireworksTranscriptionDiarizationCard
+                config={config}
+                updateConfig={updateConfig}
+                diarizeEnabled={diarizeEnabled}
+                setDiarize={setDiarize}
+            />
         </div>
     );
 };

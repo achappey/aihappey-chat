@@ -310,6 +310,17 @@
       "useHd": "Use HD"
     }
   },
+  "speechify": {
+    "speech": {
+      "voiceIdPlaceholder": "e.g. 2e19b1e2-...",
+      "audioFormat": "Audio format",
+      "options": "Options",
+      "loudnessNormalization": "Loudness normalization",
+      "loudnessNormalizationHint": "Normalize audio loudness to a standard level (-14 LUFS / -2 dBTP). May increase latency.",
+      "textNormalization": "Text normalization",
+      "textNormalizationHint": "Normalize text (numbers, dates, etc.) into words. May increase latency."
+    }
+  },
   "minimax": {
     "languageBoost": "Language boost",
     "subtitleEnable": "Enable subtitles",

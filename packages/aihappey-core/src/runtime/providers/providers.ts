@@ -28,6 +28,7 @@ import { azure } from "./catalog/azure";
 import { deepseek } from "./catalog/deepseek";
 import { cloudrift } from "./catalog/cloudrift";
 import { baseten } from "./catalog/baseten";
+import { speechify } from "./catalog/speechify";
 import { echo } from "./catalog/echo";
 import { tinfoil } from "./catalog/tinfoil";
 import { nebius } from "./catalog/nebius";
@@ -94,6 +95,7 @@ export const PROVIDERS: Record<string, Provider> = {
   telnyx,
   stabilityai,
   novita,
+  speechify,
   scaleway,
   sambanova,
   fireworks,

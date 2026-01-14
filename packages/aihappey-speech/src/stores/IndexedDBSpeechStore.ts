@@ -65,4 +65,3 @@ export class IndexedDBSpeechStore implements SpeechStore {
     await this.commit();
   };
 }
-

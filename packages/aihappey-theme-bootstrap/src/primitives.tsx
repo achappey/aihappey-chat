@@ -60,12 +60,14 @@ import { iconMap } from "./primitives/IconMap";
 import { SplitButton } from "./primitives/SplitButton";
 import { X } from "react-bootstrap-icons";
 import { BootstrapSettings } from "./primitives/BootstrapSettings";
+import { AudioPlayer } from "./primitives/AudioPlayer";
 
 export const bootstrapTheme: AihUiTheme = {
   Header,
   DataGrid,
   JsonViewer,
   Paragraph,
+  AudioPlayer,
   Breadcrumb,
   Skeleton: ({
     width,

@@ -51,31 +51,7 @@ export function useChatActions({
     getAttachmentParts,
     extractExif
   });
-  /*
-    const { metadata: anthropicData, filteredTools: anthropicTools } = useAnthropicNativeMcp({
-      clients: undefined,
-      tools,
-      providerMetadata,
-      finalTools,
-      getMcpAccessToken,
-    });
-  
-    const { metadata: openAiData, filteredTools: openAiTools } = useOpenAiNativeMcp({
-      clients: undefined,
-      tools,
-      providerMetadata,
-      finalTools,
-      getMcpAccessToken,
-    });*/
-  /*
-    const finalMetadata = currentModel?.publisher == "OpenAI"
-      ? openAiData : currentModel?.publisher == "Anthropic" ?
-        anthropicData : providerMetadata;
-  
-    const allFinalTools = currentModel?.publisher == "OpenAI"
-      ? openAiTools : currentModel?.publisher == "Anthropic" ?
-        anthropicTools : finalTools;*/
-
+ 
   const onPromptExecute = useCallback(
     async (prompt: PromptWithSource, args?: Record<string, string>) => {
       const userMsg = await buildFromPrompt(prompt, args);

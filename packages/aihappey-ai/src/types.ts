@@ -53,9 +53,8 @@ export interface RerankingResponse {
   };
 }
 
-
 export interface SpeechResponse {
-  audio: any;
+  audio: string | Uint8Array<ArrayBufferLike>;
   warnings: Array<SharedV3Warning>;
   request?: {
     body?: unknown;

@@ -58,12 +58,14 @@ import { Toaster } from "./primitives/Toaster";
 import { ToggleButton } from "./primitives/ToggleButton";
 import { SplitButton } from "./primitives/SplitButton";
 import { FluentSettings } from "./FluentSettings";
+import { AudioPlayer } from "./primitives/AudioPlayer";
 
 export const fluentTheme: AihUiTheme = {
   DataGrid,
   Header,
   Paragraph,
   ToggleButton,
+  AudioPlayer,
   Button,
   JsonViewer,
   Input,

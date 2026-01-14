@@ -46,7 +46,12 @@ export function createSpeechProvider(config: {
                         throw new Error(`Speech failed (${await result.text()})`);
                     }
 
-                    return result.json();
+                    const resultJson: any = result.json();
+
+                    return {
+                        ...resultJson,
+                        audio: `data:${resultJson.audio.mimeType};base64,${resultJson.audio.base64}`
+                    }
                 }
             };
         }
