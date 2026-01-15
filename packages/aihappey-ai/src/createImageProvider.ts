@@ -1,6 +1,32 @@
 import type {
-        ImageModelV3
+    ImageModelV3,
+    ImageModelV3Usage
 } from "@ai-sdk/provider"
+
+const sumUsage = (results: any[]): ImageModelV3Usage => {
+    return results.reduce<ImageModelV3Usage>(
+        (acc, r) => {
+            const u = r?.usage;
+            if (!u) return acc;
+
+            acc.inputTokens =
+                (acc.inputTokens ?? 0) + (u.inputTokens ?? 0);
+
+            acc.outputTokens =
+                (acc.outputTokens ?? 0) + (u.outputTokens ?? 0);
+
+            acc.totalTokens =
+                (acc.totalTokens ?? 0) + (u.totalTokens ?? 0);
+
+            return acc;
+        },
+        {
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0,
+        }
+    );
+};
 
 export function createImageProvider(config: {
     baseUrl: string;
@@ -64,6 +90,8 @@ export function createImageProvider(config: {
                         results.find(r => r?.response?.timestamp)?.response?.timestamp ??
                         new Date().toString();
 
+                    const usage = sumUsage(results);
+
                     return {
                         images,
                         warnings,
@@ -71,11 +99,10 @@ export function createImageProvider(config: {
                             timestamp,
                             modelId,
                             headers: undefined
-                        }
+                        },
+                        usage
                     };
                 }
-
-
             };
         }
     };

@@ -4,6 +4,7 @@ import type { Tool } from "@modelcontextprotocol/sdk/types";
 import {
   createBackendProvider,
   generateText,
+  Output,
   stepCountIs,
   tool,
   ToolLoopAgent,
@@ -58,6 +59,25 @@ export const vercelAiGenerateText: Tool = {
   },
 };
 
+export const vercelAiGenerateLasagnaRecipe: Tool = {
+  name: "vercel_ai_generate_lasagna_recipe",
+  title: "Generate lasagna recipe",
+  description: "Generate a delicous lasagna recipe.",
+  inputSchema: {
+    type: "object",
+    properties: {
+    },
+    required: [],
+  },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
+};
+
+
 export const vercelAiToolLoopAgent: Tool = {
   name: "vercel_ai_tool_loop_agent",
   title: "Run Tool Loop Agent",
@@ -105,14 +125,14 @@ export const vercelAiToolLoopAgent: Tool = {
 export const vercelAIPluginDef = {
   name: "vercel-ai",
   match: (toolName: string) => toolName.startsWith("vercel_ai_"),
-  tools: [vercelAiToolLoopAgent, vercelAiGenerateText],
+  tools: [vercelAiToolLoopAgent, vercelAiGenerateText, vercelAiGenerateLasagnaRecipe],
 };
 
 /* ============================================================
    Runtime helpers (PURE)
 ============================================================ */
 
-type VercelAIToolName = "vercel_ai_tool_loop_agent" | "vercel_ai_generate_text";
+type VercelAIToolName = "vercel_ai_tool_loop_agent" | "vercel_ai_generate_text" | "vercel_ai_generate_lasagna_recipe";
 
 type VercelAIToolCall = {
   toolName: VercelAIToolName;
@@ -179,7 +199,7 @@ export async function runToolLoopAgent(
    Plugin RUNTIME (execution only)
 ============================================================ */
 
-export function useVercalAIToolCall(
+export function useVercelAIToolCall(
   api: string,
   getAccessToken?: any,
   headers?: any,
@@ -195,15 +215,15 @@ export function useVercalAIToolCall(
 
         const provider = createBackendProvider(
           new URL(api).hostname,
-          api.replace("/api/chat", ""),
+          api,
           { ...(headers ?? {}), ...(customHeaders ?? {}) },
           getAccessToken
         );
 
         const modelId = toolCall?.input?.model;
-        if (!modelId) throw new Error("Missing input.model.");
+        //  if (!modelId) throw new Error("Missing input.model.");
 
-        const model = provider(modelId);
+        const model = provider(modelId ?? "openai/gpt-5-mini");
 
         switch (toolCall.toolName) {
           case "vercel_ai_tool_loop_agent": {
@@ -244,6 +264,38 @@ export function useVercalAIToolCall(
               "https://ai-sdk.dev/docs/ai-sdk-core/generating-text",
               result
             );
+          }
+
+          case "vercel_ai_generate_lasagna_recipe": {
+            // const prompt = String(toolCall?.input?.prompt ?? "");
+
+            const result = await generateText({
+              model,
+              output: Output.object({
+                schema: z.object({
+                  recipe: z.object({
+                    name: z.string(),
+                    ingredients: z.array(
+                      z.object({ name: z.string(), amount: z.string() }),
+                    ),
+                    steps: z.array(z.string()),
+                  }),
+                }),
+              }),
+              prompt: 'Generate a lasagna recipe.',
+              tools: {},
+            });
+
+            console.log(result.output)
+
+            return {
+              isError: false,
+              structuredContent: result.output
+            }
+            /*  return toJsonResource(
+                "https://ai-sdk.dev/docs/ai-sdk-core/generating-text",
+                result.output
+              );*/
           }
 
           default:

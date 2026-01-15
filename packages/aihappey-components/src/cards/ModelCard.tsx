@@ -3,6 +3,7 @@ import { ModelOption } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { format } from "timeago.js";
 import { useTranslation } from "aihappey-i18n";
+import { ContextWindowBadge, MaxOutputTokensBadge } from "../badges";
 
 type ModelCardProps = {
   model: ModelOption;
@@ -24,6 +25,25 @@ export const ModelCard = ({ model, image, onChat, locale }: ModelCardProps) => {
   const isNew =
     typeof model.created === "number" &&
     Date.now() - model.created * 1000 <= THIRTY_DAYS_MS;
+  //{model?.owned_by}
+  const description = (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      {(model.context_window ?? 0) > 0 && (
+        <ContextWindowBadge context_window={model.context_window!} />
+      )}
+
+      {(model.max_tokens ?? 0) > 0 && (
+        <MaxOutputTokensBadge mex_output_tokens={model.max_tokens!} />
+      )}
+    </span>
+  );
+const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+
+const loadTime = new Date(
+  performance.timeOrigin + nav.loadEventEnd
+);
+
+console.log(loadTime);
 
 
   const actions = onChat && model.type == "language"
@@ -38,8 +58,7 @@ export const ModelCard = ({ model, image, onChat, locale }: ModelCardProps) => {
       image={imageItem}
       actions={actions}
       headerActions={<>{isNew && <>{" "}<Badge>{t("new")}</Badge></>}</>}
-      description={model?.owned_by}
-
+      description={description}
       size="small"
     >
       <LimitedTextField text={model?.description} />

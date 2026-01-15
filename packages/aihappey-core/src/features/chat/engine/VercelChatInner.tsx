@@ -120,7 +120,7 @@ export function VercelChatInner({
     : config.baseUrl + config.endpoints.chat;
 
   const toolUse = useOnToolCall({
-    api,
+    api: config.baseUrl,
     getAccessToken,
     headers,
     customFetch,
@@ -242,26 +242,19 @@ export function VercelChatInner({
   const { abortRef, startRun, cancelRun } = useAbortRun(stop);
   const getAttachmentParts = useAttachmentParts();
 
-  const lastPart = useMemo(() => {
-    const lastMsg =
-      messages.length > 0 ? messages[messages.length - 1] : undefined;
-    if (
-      lastMsg &&
-      lastMsg.role === "assistant" &&
-      Array.isArray(lastMsg.parts) &&
-      lastMsg.parts.length > 0
-    ) {
-      const lastPart = lastMsg.parts[lastMsg.parts.length - 1];
-      if (
-        lastPart.type?.startsWith("tool-") &&
-        typeof lastPart.state === "string" &&
-        lastPart.state.startsWith("input-")
-      ) {
-        return lastPart;
-      }
-    }
-    return undefined;
-  }, [messages]);
+  const lastPart =
+    messages.at(-1)?.role === "assistant"
+      ? messages.at(-1)?.parts?.at(-1)?.type?.startsWith("tool-") &&
+        typeof messages.at(-1)?.parts?.at(-1)?.state === "string" &&
+        messages.at(-1)?.parts?.at(-1)?.state.startsWith("input-")
+        ? messages.at(-1)!.parts!.at(-1)
+        : undefined
+      : undefined;
+
+  const totalTokens = [...messages]
+    .reverse()
+    .find(m => m.role === "assistant" && m.metadata?.totalTokens != null)
+    ?.metadata?.totalTokens;
 
   usePendingMessageAutoSend({
     conversationId,
@@ -363,6 +356,7 @@ export function VercelChatInner({
               await handleSend(msg)
             }}
             onStop={cancelRun}
+            tokenUsage={totalTokens}
             temperature={temperature}
             temperatureChanged={temperatureChanged}
             onPromptExecute={onPromptExecute}

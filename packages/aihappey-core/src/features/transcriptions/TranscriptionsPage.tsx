@@ -289,5 +289,5 @@ const cellStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  height: 100
+  height: 120
 };

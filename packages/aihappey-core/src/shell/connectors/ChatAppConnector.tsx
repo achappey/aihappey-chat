@@ -5,6 +5,8 @@ import { CreateMessageRequest } from "aihappey-mcp";
 import { useTheme } from "aihappey-components";
 
 import { useTranslation } from "aihappey-i18n";
+import { applyModelHintsToParams } from "../../runtime/mcp/useMcpRuntimeBinding";
+import React from "react";
 
 /**
  * ChatAppConnector - Connects the chat-app MCP client on mount.
@@ -30,13 +32,22 @@ export const ChatAppConnector = ({
   const { t } = useTranslation();
   const { Spinner } = useTheme();
   const [connected, setConnected] = useState<boolean>(false)
+  const models = useAppStore((s) => s.models);
+  const modelsRef = React.useRef(models);
 
+  useEffect(() => {
+    modelsRef.current = models;
+  }, [models]);
+  
   useEffect(() => {
     let runtimeConnection: { close: () => void } | null = null;
 
     // Build onSample callback if samplingApi is provided
     const onSample = samplingApi
       ? async (server: string, params: CreateMessageRequest) => {
+
+        const withModels = applyModelHintsToParams(params, modelsRef.current);
+        //if(withModels.params.modelPreferences?.hints?.length == 0) throw new Error("dsadsa")
         let accessToken: string | null = null;
 
         try {
@@ -48,7 +59,7 @@ export const ChatAppConnector = ({
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
         };
-        
+
         const apiKeyHeaders: Record<string, string> = Object.fromEntries(
           Object.entries(customHeaders)
             .filter(([key]) => enabledProviders.includes(key.split("-")[1]))
@@ -65,7 +76,7 @@ export const ChatAppConnector = ({
             ...headers,
             ...apiKeyHeaders
           },
-          body: JSON.stringify(params.params),
+          body: JSON.stringify(withModels.params),
         });
         if (!res.ok) {
           throw new Error(`Sampling failed (${res.status})`);

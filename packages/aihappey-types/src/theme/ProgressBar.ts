@@ -7,6 +7,7 @@ export type ProgressBarProps = {
   striped?: boolean;
   animated?: boolean;
   className?: string;
+  tooltipContent?: React.ReactElement
 };
 
 export type ProgressBarComponent = (props: ProgressBarProps) => JSX.Element;

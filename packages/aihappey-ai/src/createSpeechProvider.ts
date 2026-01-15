@@ -46,8 +46,8 @@ export function createSpeechProvider(config: {
                         throw new Error(`Speech failed (${await result.text()})`);
                     }
 
-                    const resultJson: any = result.json();
-
+                    const resultJson = await result.json();
+                    console.log(resultJson)
                     return {
                         ...resultJson,
                         audio: `data:${resultJson.audio.mimeType};base64,${resultJson.audio.base64}`

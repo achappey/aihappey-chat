@@ -10,12 +10,14 @@ export const SpeechInput = ({
   value,
   onChange,
   onFilesSelected,
+  disabled,
 }: {
   onSend: (text: string) => Promise<void>;
   selectedModel: string;
   value: string;
   onChange: (next: string) => void;
   onFilesSelected: (files: File[]) => void;
+  disabled?: boolean;
 }) => {
   const { t } = useTranslation();
   const providerSpeechMetadata = useAppStore((s) => s.providerSpeechMetadata);
@@ -75,13 +77,14 @@ export const SpeechInput = ({
           <AttachmentButton
             icon="attachment"
             onFilesSelected={onFilesSelected}
+            disabled={disabled}
           />
         </div>
 
         <Button
           type="submit"
           size="large"
-          disabled={value?.length < 1}
+          disabled={disabled || value?.length < 1}
           icon="send"
         />
 

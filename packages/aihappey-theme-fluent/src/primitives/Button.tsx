@@ -79,6 +79,8 @@ import {
   ArrowSortDownRegular,
   ArrowSortDownLinesRegular,
   TextBulletListSquareSettingsRegular,
+  DatabaseRegular,
+  ArrowExportRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -151,6 +153,8 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   image: ImageRegular,
   databaseGear: DatabasePersonRegular,
   personalization: PersonHeartRegular,
+  contextWindow: DatabaseRegular,
+  maxOutputTokens: ArrowExportRegular,
   customize: PeopleSettingsRegular,
   logout: DoorArrowRightRegular,
   copyClipboard: CopyRegular,

@@ -67,6 +67,8 @@ import {
   Boxes,
   Folder,
   SortDown,
+  Hdd,
+  BoxArrowUp,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -120,6 +122,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   server: <Server />,
   databaseGear: <DatabaseGear />,
   personalization: <PersonHeart />,
+  contextWindow: <Hdd />,
+  maxOutputTokens: <BoxArrowUp />,
   explainTool: <ChatQuote />,
   mcpServer: <Plug />,
   tool: <Wrench />,

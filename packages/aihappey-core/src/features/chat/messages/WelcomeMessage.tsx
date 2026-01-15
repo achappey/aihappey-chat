@@ -4,6 +4,7 @@ import { useAccount } from "aihappey-auth";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { useTheme } from "aihappey-components";
 import { fetchWelcomeMessage } from "../../../runtime/chat-app/welcomeMessage";
+import { useAppStore } from "aihappey-state";
 
 interface WelcomeMessageProps { }
 
@@ -11,20 +12,22 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const { Skeleton } = useTheme();
   const { i18n } = useTranslation();
   const account = useAccount()
+  const models = useAppStore((s) => s.models);
   const [welcomeMessage, setWelcomeMessage] = useState<string | undefined>(
     undefined
   );
-  
+
   const isDesktop = useIsDesktop();
 
   useEffect(() => {
-    fetchWelcomeMessage((languageNames as any)[i18n.language as any],
-      account?.name)
-      .then(a =>
-        setWelcomeMessage(a)
-      );
+    if (models && models?.length > 0)
+      fetchWelcomeMessage((languageNames as any)[i18n.language as any],
+        account?.name)
+        .then(a =>
+          setWelcomeMessage(a)
+        );
 
-  }, [i18n.language]);
+  }, [i18n.language, models]);
 
   return (
     <>

@@ -34,11 +34,12 @@ export function NewChatPage() {
   const temperature = useAppStore((s) => s.temperature);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
   const selectedModel = useAppStore((s) => s.selectedModel);
+  const models = useAppStore((s) => s.models);
   const setTemperature = useAppStore((s) => s.setTemperature);
   const workflowType = useAppStore((s) => s.workflowType);
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
   const addAttachmentWithTranscription = async (file: File) => {
-   
+
     // Fallback: just add as normal file attachment
     fileAttachmentRuntime.add(file);
   };

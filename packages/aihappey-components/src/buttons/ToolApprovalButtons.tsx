@@ -33,6 +33,7 @@ export const ToolApprovalButtons = ({
       <ViewButton
         variant="subtle"
         size={size}
+        text={t("output")}
         disabled={!canViewOutput}
         onClick={onViewOutput}
       />

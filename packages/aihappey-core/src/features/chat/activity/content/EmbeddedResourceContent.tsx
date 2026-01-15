@@ -14,7 +14,7 @@ export const EmbeddedResourceContent: React.FC<EmbeddedResourceContentProps> = (
   resource,
 }) => {
   const { mimeType, uri, text, blob } = resource;
-  const { Image, JsonViewer, Button } = useTheme();
+  const { Image, JsonViewer, AudioPlayer } = useTheme();
 
   if (!mimeType && !uri && !text && !blob) return <div>No content</div>;
 
@@ -28,7 +28,7 @@ export const EmbeddedResourceContent: React.FC<EmbeddedResourceContentProps> = (
   if (mimeType?.startsWith("audio/")) {
     const src = uri || (blob ? `data:${mimeType};base64,${blob}` : undefined);
     if (src)
-      return <audio src={src} controls style={{ width: "100%" }} />;
+      return <AudioPlayer src={src} />;
   }
 
   // Video
@@ -55,32 +55,11 @@ export const EmbeddedResourceContent: React.FC<EmbeddedResourceContentProps> = (
     return (
       <Markdown text={text} />
     );
-    return (
-      <pre style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }}>
-        {text}
-      </pre>
-    );
   }
 
   // Base64 blob (binary)
   if (blob && !text) {
-    //  return <span>No displayable content</span>;
     return <></>;
-
-    /* const filename = uri?.split("/").pop() || "download.bin";
-     const downloadUrl = `data:${mimeType || "application/octet-stream"};base64,${blob}`;
-     return (
-       <Button
-         onClick={() => {
-           const a = document.createElement("a");
-           a.href = downloadUrl;
-           a.download = filename;
-           a.click();
-         }}
-       >
-         Download file
-       </Button>
-     );*/
   }
 
   // Fallback link

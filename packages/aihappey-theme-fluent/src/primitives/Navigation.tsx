@@ -83,8 +83,6 @@ export const Navigation: React.FC<NavigationProps> = ({
   style,
 }) => {
   const styles = useStyles();
-  //const [open, setOpen] = React.useState(isOpen);
-
   const appItem = items.length && items[0].key === "app" ? items[0] : null;
   const navItems = appItem ? items.slice(1) : items;
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -253,12 +251,30 @@ export const Navigation: React.FC<NavigationProps> = ({
                     {item.conversationItem && (
                       <Menu>
                         <MenuTrigger disableButtonEnhancement>
+
                           <Button
                             size="small"
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.opacity = "1";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.opacity = "0";
+                            }}
+                            onFocus={(e) => {
+                              e.currentTarget.style.opacity = "1";
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.opacity = "0";
+                            }}
+                            style={{
+                              opacity: 0,
+                              transition: "opacity 120ms ease",
+                            }}
                             appearance="transparent"
                             icon={<MoreHorizontalRegular />}
                             onClick={(e) => e.stopPropagation()}
                           />
+
                         </MenuTrigger>
                         <MenuPopover>
                           <MenuList>
@@ -306,7 +322,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           )}
         </NavDrawerBody>
       </NavDrawer>
-    </div>
+    </div >
   );
 };
 

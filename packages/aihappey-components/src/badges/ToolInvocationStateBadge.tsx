@@ -3,15 +3,17 @@ import { useTheme } from "../theme/ThemeContext";
 import { BrrrBadge } from "./BrrrBadge";
 
 interface ToolInvocationStateBadgeProps {
-  state: string
-  toolName: string
-  toolTitle?: string
-  isError?: boolean
-  approval?: {
+  state: string;
+  toolName: string;
+  toolTitle?: string;
+  isError?: boolean;
+  approval?:
+  | {
     id: string;
     approved?: boolean | undefined;
     reason?: string | undefined;
-  } | undefined
+  }
+  | undefined;
 }
 
 export const ToolInvocationStateBadge: React.FC<ToolInvocationStateBadgeProps> = ({
@@ -19,35 +21,47 @@ export const ToolInvocationStateBadge: React.FC<ToolInvocationStateBadgeProps> =
   toolTitle,
   toolName,
   isError,
-  approval
+  approval,
 }) => {
   const { Badge } = useTheme();
   const { t } = useTranslation();
 
-  return <>
-    {state === 'output-available' && (
-      isError ? (
-        <Badge bg="severe">{t("error")}</Badge>
-      ) : (
-        <Badge bg="success">{t(state)}</Badge>
-      )
-    )}
-    
-    {state === 'approval-responded' &&
-      isError ? (
-      <Badge bg="severe">{t("error")}</Badge>) :
-      approval?.approved && (approval?.reason === 'YOLO' || approval?.reason === 'BRRR')
-        ? <BrrrBadge reason={approval?.reason} /> :
-        approval?.approved && approval?.reason === toolName
-          ? <Badge appearance={"tint"}
-            bg="warning">{toolTitle ?? toolName}
-          </Badge> : approval?.approved
-            ? <Badge bg="success">{t("output-approved")}</Badge> :
-            <Badge bg="warning">{t("output-denied")}</Badge>
-    }
+  const size = "small";
 
-    {state === 'output-error' && <Badge bg="severe">{t("error")}</Badge>}
-    {(state === 'input-streaming' || state === 'input-available')
-      && <Badge bg="subtle">{t(state)}</Badge>}
-  </>;
+  return (
+    <>
+      {state === "output-available" && (
+        isError ? (
+          <Badge size={size} bg="severe">{t("error")}</Badge>
+        ) : (
+          <Badge size={size} bg="success">{t(state)}</Badge>
+        )
+      )}
+
+      {
+        (state === "approval-responded" && isError) ? (
+          <Badge size={size} bg="severe">{t("error")}</Badge>
+        ) : approval?.approved == true &&
+          (approval?.reason === "YOLO" || approval?.reason === "BRRR") ? (
+          <BrrrBadge size={size} reason={approval?.reason} />
+        ) : approval?.approved == true && approval?.reason === toolName ? (
+          <Badge size={size} appearance={"tint"} bg="warning">
+            {t("tool")}
+          </Badge>
+        ) : approval?.approved == true ? (
+          <Badge size={size} bg="success">{t("output-approved")}</Badge>
+        ) : approval?.approved == false ? (
+          <Badge size={size} bg="warning">{t("output-denied")}</Badge>
+        ) : (
+          <Badge size={size} bg="important">{t(state)}</Badge>
+        )
+      }
+
+      {state === "output-error" && <Badge size={size} bg="severe">{t("error")}</Badge>}
+
+      {(state === "input-streaming" || state === "input-available") && (
+        <Badge size={size} bg="subtle">{t(state)}</Badge>
+      )}
+    </>
+  );
 };

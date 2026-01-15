@@ -16,7 +16,7 @@ import { useLocalConversationsRuntime } from "./useLocalConversationsToolCall";
 import { useLocalCanvasRuntime } from "./useLocalCanvasToolCall";
 import { useLocalSettingsRuntime } from "./useLocalSettingsToolCall";
 import { useLocalToolsRuntime } from "./useLocalToolsToolCall";
-import { useVercalAIToolCall, vercelAIPluginDef } from "./useVercelAIToolCall";
+import { useVercelAIToolCall, vercelAIPluginDef } from "./useVercelAIToolCall";
 import { useLocalTools } from "aihappey-tools";
 import {
   compileStoredToolExecute,
@@ -73,7 +73,7 @@ export function useOnToolCall({
   const localCanvasRuntime = useLocalCanvasRuntime(files);
   const localSettingsRuntime = useLocalSettingsRuntime();
   const localToolsRuntime = useLocalToolsRuntime();
-  const vercelAIRuntime = useVercalAIToolCall(api, getAccessToken, headers, customFetch);
+  const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
 
   // specials (runtime-only or conditional exposure)
   const { memoryPlugin } = useMemoryToolCall(); // runtime only

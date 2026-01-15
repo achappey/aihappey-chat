@@ -8,4 +8,5 @@ export * from "./ToolInvocationStateBadge";
 export * from "./TokenBadge";
 export * from "./BrrrBadge";
 export * from "./ExperimentalBadge";
-
+export * from "./ContextWindowBadge";
+export * from "./MaxOutputTokensBadge";

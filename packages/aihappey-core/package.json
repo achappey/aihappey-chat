@@ -12,15 +12,16 @@
     "aihappey-ai": "*",
     "aihappey-auth": "*",
     "aihappey-components": "*",
-    "aihappey-tools": "*",
     "aihappey-conversations": "*",
-    "aihappey-speech": "*",
+    "aihappey-files": "*",
     "aihappey-http": "*",
     "aihappey-images": "*",
-    "aihappey-transcriptions": "*",
     "aihappey-reranking": "*",
-    "aihappey-files": "*",
+    "aihappey-speech": "*",
     "aihappey-state": "*",
+    "aihappey-structured-outputs": "*",
+    "aihappey-tools": "*",
+    "aihappey-transcriptions": "*",
     "chart.js": "^4.5.0",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-chart-matrix": "^3.0.0",
@@ -64,10 +65,10 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/react-katex": "^3.0.4",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "@modelcontextprotocol/sdk": "^1.21.2",
     "@types/mime": "^3.0.4",
+    "@types/react-katex": "^3.0.4",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "typescript": "^5.9.3"
   }
 }

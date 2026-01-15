@@ -12,6 +12,7 @@ export interface UseMessageInputOptions {
   model?: string;
   streaming?: boolean;
   disabled?: boolean;
+  tokenUsage?: number
   temperature?: number
   temperatureChanged?: any
   onSend: (content: string) => void;

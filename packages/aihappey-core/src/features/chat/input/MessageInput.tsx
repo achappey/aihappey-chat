@@ -1,4 +1,7 @@
-import { AttachmentButton, BrrrBadge, FileTags, ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme } from "aihappey-components";
+import {
+  AttachmentButton, BrrrBadge, ContextProgressBar, FileTags,
+  ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme
+} from "aihappey-components";
 import { ServerSelectButton } from "../../mcp-servers/ServerSelectButton";
 import {
   useMessageInput,
@@ -20,13 +23,15 @@ export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
 };
 
-
 export const MessageInput = (props: UseMessageInputOptions) => {
   const { Button, Tags, TextArea } = useTheme();
   const { t } = useTranslation();
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const approveAll = useAppStore((s) => s.approveAll);
+  const selectedModel = useAppStore((s) => s.selectedModel);
+  const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
+  const models = useAppStore((s) => s.models);
   const chatMode = useAppStore((s) => s.chatMode);
   const agents = useAppStore((s) => s.agents);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
@@ -72,6 +77,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
     },
   });
 
+  const currentModel = models?.find(a => a.id == selectedModel);
   const resources = useSelectedResources(mcpResourceRuntime)
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
 
@@ -104,18 +110,23 @@ export const MessageInput = (props: UseMessageInputOptions) => {
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      {(attachmentsElement || serverElements || approveAll) && (
-        <div style={styles.metaRow}>
-          <div style={styles.metaLeft}>
-            {attachmentsElement}
-            {serverElements}
-          </div>
+      {(attachmentsElement || serverElements || approveAll
+        || (currentModel?.context_window && props.tokenUsage)
+      ) && (
+          <div style={styles.metaRow}>
+            <div style={styles.metaLeft}>
+              {attachmentsElement}
+              {serverElements}
+            </div>
 
-          <div style={styles.metaRight}>
-            {approveAll && <BrrrBadge />}
+            <div style={styles.metaRight}>
+              <ContextProgressBar tokenUsage={props.tokenUsage}
+                max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
+                context_window={currentModel?.context_window} />
+              {approveAll && <BrrrBadge size="small" />}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       <TextArea
         ref={textareaRef}
@@ -254,7 +265,9 @@ const styles: Record<string, React.CSSProperties> = {
 
   metaRight: {
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "flex-end",
+    gap: 12,
+    alignSelf: "flex-end"
   },
   tagRow: {
     display: "flex",

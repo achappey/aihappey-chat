@@ -3,13 +3,14 @@ import { useAppStore } from "aihappey-state";
 import { useCallback, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
-import { createSpeechProvider, SpeechResponse } from "aihappey-ai";
-import { SpeechCard, useTheme } from "aihappey-components";
+import { createSpeechProvider } from "aihappey-ai";
+import { ErrorAlerts, SpeechCard, useTheme, WarningAlerts } from "aihappey-components";
 import { SpeechInput } from "./SpeechInput";
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { useSpeech } from "aihappey-speech";
 import { speechFilesToPromptText } from "./speechFilesToPromptText";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
+import { useSpeechErrors } from "./useSpeechErrors";
 
 export const SpeechPage = () => {
   const models = useAppStore((a) => a.models);
@@ -23,7 +24,6 @@ export const SpeechPage = () => {
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const [prompt, setPrompt] = useState<string>("");
-  const [dropError, setDropError] = useState<string | undefined>(undefined);
 
   const userPreferredSpeechModel = useAppStore((a) => a.userPreferredSpeechModel);
   const getAccessToken = config?.getAccessToken;
@@ -32,13 +32,20 @@ export const SpeechPage = () => {
   const headers = config?.headers;
   const { Skeleton } = useTheme()
   const speech = useSpeech();
+  const {
+    errors,
+    warnings,
+    addError,
+    dismissError,
+    addWarnings,
+    dismissWarning,
+  } = useSpeechErrors();
 
   // Speech page file->prompt behavior.
   // No auto-send and no keeping files as attachments/tags.
   const handleFilesSelected = useCallback(async (files: File[]) => {
     // Ensure Speech page doesn't accumulate file tags from earlier actions.
     fileAttachmentRuntime.clear();
-    setDropError(undefined);
 
     const { text, failures } = await speechFilesToPromptText(files);
     if (text) setPrompt(text);
@@ -46,9 +53,14 @@ export const SpeechPage = () => {
     if (failures.length) {
       // Keep message short; prompt is updated only if at least one file extracted.
       const failedNames = failures.map((f) => f.fileName).join(", ");
-      setDropError(`Some files could not be converted: ${failedNames}`);
+      addWarnings([
+        {
+          type: "other",
+          message: `Some files could not be converted: ${failedNames}`,
+        },
+      ]);
     }
-  }, []);
+  }, [addWarnings]);
 
   const addAttachment = useCallback((file: File) => {
     void handleFilesSelected([file]);
@@ -90,6 +102,9 @@ export const SpeechPage = () => {
         providerOptions: providerSpeechMetadata,
       });
 
+      // Surface provider warnings (do NOT clear on new send; user dismisses).
+      addWarnings(result.warnings);
+
       await speech.add(
         {
           text,
@@ -103,6 +118,13 @@ export const SpeechPage = () => {
         result
       );
       speech.refresh();
+    } catch (err: any) {
+      // Bubble up backend errors into page-level errors
+      addError(err?.message ?? "Speech request failed");
+
+      // If backend error includes warnings, surface them too
+      addWarnings(err?.warnings as any);
+      addWarnings(err?.response?.warnings as any);
     } finally {
       setProcessing(false);
       setItemsLoading(0);
@@ -138,6 +160,9 @@ export const SpeechPage = () => {
         </div>
       </div>
 
+      <ErrorAlerts errors={errors} dismissError={dismissError} />
+      <WarningAlerts warnings={warnings} dismissWarning={dismissWarning} />
+
       <div style={{
         marginTop: 44,
         border: isOver ? "2px dotted" : undefined,
@@ -147,18 +172,13 @@ export const SpeechPage = () => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}>
 
-        {dropError ? (
-          <div style={{ padding: "0 12px 8px 12px", color: "#b00020" }}>
-            {dropError}
-          </div>
-        ) : null}
-
         <SpeechInput
           onSend={sendSpeech}
           selectedModel={selectedModel}
           value={prompt}
           onChange={setPrompt}
           onFilesSelected={handleFilesSelected}
+          disabled={processing}
         />
 
       </div>

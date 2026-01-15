@@ -5,6 +5,7 @@ type ViewButtonProps = {
   size?: string;
   variant?: string;
   title?: string;
+  text?: string
   onClick?: () => void
 };
 
@@ -12,6 +13,7 @@ export const ViewButton = ({ disabled,
   onClick,
   size,
   variant,
+  text,
   title
 }: ViewButtonProps) => {
   const { Button } = useTheme();
@@ -23,5 +25,5 @@ export const ViewButton = ({ disabled,
     title={title}
     variant={variant}
     onClick={onClick}
-  ></Button>;
+  >{text}</Button>;
 };

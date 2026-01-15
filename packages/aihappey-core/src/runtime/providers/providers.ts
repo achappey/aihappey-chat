@@ -20,6 +20,7 @@ import { kernelmemory } from "./catalog/kernelmemory";
 import { minimax } from "./catalog/minimax";
 import { sarvam } from "./catalog/sarvam";
 import { deepgram } from "./catalog/deepgram";
+import { speechmatics } from "./catalog/speechmatics";
 import { voyageai } from "./catalog/voyageai";
 import { contextualai } from "./catalog/contextualai";
 import { replicate } from "./catalog/replicate";
@@ -47,6 +48,7 @@ import { fireworks } from "./catalog/fireworks";
 import { cerebras } from "./catalog/cerebras";
 import { zai } from "./catalog/zai";
 import { hyperbolic } from "./catalog/hyperbolic";
+import { ttsreader } from "./catalog/ttsreader";
 import { elevenlabs } from "./catalog/elevenlabs";
 
 /**
@@ -67,6 +69,7 @@ export const PROVIDERS: Record<string, Provider> = {
   together,
   pollinations,
   perplexity,
+  speechmatics,
   jina,
   nscale,
   resembleai,
@@ -98,6 +101,7 @@ export const PROVIDERS: Record<string, Provider> = {
   speechify,
   scaleway,
   sambanova,
+  ttsreader,
   fireworks,
   cerebras,
   zai,

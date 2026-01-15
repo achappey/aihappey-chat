@@ -2,7 +2,7 @@ export { useChat } from "@ai-sdk/react";
 export {
         DefaultChatTransport, stepCountIs, lastAssistantMessageIsCompleteWithApprovalResponses,
         UIMessage, generateText, createAgentUIStream,
-        UIToolInvocation, ToolLoopAgent, tool
+        UIToolInvocation, ToolLoopAgent, tool, Output 
 } from "ai";
 
 export type {

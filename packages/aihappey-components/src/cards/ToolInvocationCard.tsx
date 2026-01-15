@@ -58,7 +58,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
       isError={invocation.output?.isError} />
 
     {isCompleted && !invocation.output?.isError
-      && <Badge bg="informative">{prettySize(invocation.output)}</Badge>}
+      && <Badge size={"small"} bg="informative">{prettySize(invocation.output)}</Badge>}
   </div>;
 
   return (

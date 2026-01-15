@@ -10,4 +10,5 @@ export * from "./lists";
 export * from "./drawers";
 export * from "./alerts";
 export * from "./images";
+export * from "./progressbars";
 export * from "./modals";

@@ -1,4 +1,4 @@
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import type { StoredTool } from "aihappey-tools";
 import { z } from "zod";
 import { jsonSchemaToZod } from "json-schema-to-zod";
@@ -70,15 +70,15 @@ export function compileZodFromStoredTool(tool: Pick<StoredTool, "inputSchema">) 
   }
 }
 
-export function normalizeToolResult(output: any): ToolTextResult {
+export function normalizeToolResult(output: any): CallToolResult {
   // Allow advanced users to return MCP-style tool results directly.
   if (
     output &&
     typeof output === "object" &&
     typeof output.isError === "boolean" &&
-    Array.isArray(output.content)
+    (Array.isArray(output.content) || output.structuredContent != undefined)
   ) {
-    return output as ToolTextResult;
+    return output as CallToolResult;
   }
 
   if (typeof output === "string") {

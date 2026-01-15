@@ -63,6 +63,8 @@ export type IconToken =
   | "groupchat"
   | "handoff"
   | "disconnect"
+  | "contextWindow"
+  | "maxOutputTokens"
   | "panelExpand"
   | "panelContract"
   | "bookOpen"
