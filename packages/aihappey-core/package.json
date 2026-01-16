@@ -9,6 +9,7 @@
   ],
   "dependencies": {
     "@google/model-viewer": "^4.1.0",
+    "@molotochok/msg-viewer": "^1.0.3",
     "aihappey-ai": "*",
     "aihappey-auth": "*",
     "aihappey-components": "*",
@@ -37,7 +38,6 @@
     "mammoth": "^1.9.1",
     "marked": "^17.0.1",
     "mime": "^4.1.0",
-    "msgreader": "^1.0.1",
     "pdfjs-dist": "^5.3.31",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

@@ -13,6 +13,7 @@ import {
     TelnyxTranscriptionConfigForm,
     ZaiTranscriptionConfigForm,
     ResembleAITranscriptionConfigForm,
+    GladiaTranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
@@ -268,6 +269,20 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         resembleai,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Gladia") && (
+                        <theme.Tab eventKey="gladia" title="Gladia">
+                            <GladiaTranscriptionConfigForm
+                                config={providerMetadata.gladia ?? {}}
+                                updateConfig={(gladia) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        gladia,
                                     })
                                 }
                             />

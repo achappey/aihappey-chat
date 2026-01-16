@@ -1,5 +1,5 @@
-export * from "./NovitaSpeechConfigForm";
+export * from "./speech/NovitaSpeechConfigForm";
 export * from "./NovitaTranscriptionConfigForm";
 
-export * from "./speechCards";
+export * from "./speech";
 

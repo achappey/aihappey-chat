@@ -1,12 +1,8 @@
 import React from "react";
-import { useTheme } from "../../../theme/ThemeContext";
+import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import { TimestampGranularitiesForm } from "../../settings/transcriptions/TimestampGranularitiesForm";
-import {
-    FireworksTranscriptionGeneralCard,
-    FireworksTranscriptionAudioProcessingCard,
-    FireworksTranscriptionDiarizationCard,
-} from "./transcriptioncards";
+import { TimestampGranularitiesForm } from "../../../settings/transcriptions/TimestampGranularitiesForm";
+import { FireworksTranscriptionGeneralCard, FireworksTranscriptionAudioProcessingCard, FireworksTranscriptionDiarizationCard } from "./cards";
 
 export type FireworksTranscriptionConfig = {
     language?: string;

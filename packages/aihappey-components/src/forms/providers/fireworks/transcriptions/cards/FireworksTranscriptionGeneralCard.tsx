@@ -1,8 +1,8 @@
 import React from "react";
-import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import { TemperatureField } from "../../../../fields";
-import type { FireworksTranscriptionConfig } from "../FireworksTranscriptionConfigForm";
+import { TemperatureField } from "../../../../../fields";
+import { useTheme } from "../../../../../theme/ThemeContext";
+import { FireworksTranscriptionConfig } from "../FireworksTranscriptionConfigForm";
 
 export const FireworksTranscriptionGeneralCard: React.FC<{
     config: FireworksTranscriptionConfig;

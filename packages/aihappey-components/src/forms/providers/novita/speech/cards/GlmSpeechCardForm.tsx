@@ -1,16 +1,16 @@
 import React from "react";
-import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 import {
   DEFAULT_VALUE,
-  isTxt2SpeechVoice,
-  TXT2SPEECH_VOICES,
+  GLM_SYSTEM_VOICES,
+  isGlmVoice,
+  type NovitaGlmSpeechConfig,
   type NovitaSpeechConfig,
-  type NovitaTxt2SpeechSpeechConfig,
 } from "./novitaSpeechTypes";
+import { useTheme } from "../../../../../theme/ThemeContext";
 
-export const Txt2SpeechSpeechCardForm: React.FC<{
+export const GlmSpeechCardForm: React.FC<{
   config: NovitaSpeechConfig;
   updateConfig: (val: NovitaSpeechConfig) => void;
 }> = ({ config, updateConfig }) => {
@@ -19,47 +19,43 @@ export const Txt2SpeechSpeechCardForm: React.FC<{
 
   const humanize = (s: string) => String(s ?? "").replaceAll("_", " ");
 
-  const txt2speech = config?.txt2speech ?? {};
+  const glm = config?.glm ?? {};
 
-  const txt2speechVoiceValue = isTxt2SpeechVoice(txt2speech?.voice_id)
-    ? (txt2speech.voice_id as string)
-    : DEFAULT_VALUE;
-  const txt2speechVolumeValue = txt2speech?.volume ?? 1.0;
-  const txt2speechSpeedValue = txt2speech?.speed ?? 1.0;
+  const glmVoiceValue = isGlmVoice(glm?.voice) ? (glm.voice as string) : DEFAULT_VALUE;
+  const glmVolumeValue = glm?.volume ?? 1.0;
+  const glmSpeedValue = glm?.speed ?? 1.0;
 
-  const txt2speechVoiceOptions = [
+  const glmVoiceOptions = [
     { value: DEFAULT_VALUE, label: t("providerDefault") },
-    ...TXT2SPEECH_VOICES.map((v) => ({ value: v, label: humanize(v) })),
+    ...GLM_SYSTEM_VOICES.map((v) => ({ value: v, label: humanize(v) })),
   ];
 
-  const updateTxt2Speech = (next: Partial<NovitaTxt2SpeechSpeechConfig>) =>
+  const updateGlm = (next: Partial<NovitaGlmSpeechConfig>) =>
     updateConfig({
       ...config,
-      txt2speech: {
-        ...txt2speech,
+      glm: {
+        ...glm,
         ...next,
       },
     });
 
   return (
-    <theme.Card size="small" title="Text2Speech">
+    <theme.Card size="small" title="GLM">
       <div>
         <theme.Select
           label={t("speechSettings.voice")}
-          values={[txt2speechVoiceValue]}
-          valueTitle={
-            txt2speechVoiceOptions.find((o) => o.value === txt2speechVoiceValue)?.label
-          }
-          options={txt2speechVoiceOptions}
+          values={[glmVoiceValue]}
+          valueTitle={glmVoiceOptions.find((o) => o.value === glmVoiceValue)?.label}
+          options={glmVoiceOptions}
           onChange={(val: string) => {
             const raw = String(val ?? "");
-            updateTxt2Speech({
-              voice_id: raw === DEFAULT_VALUE ? undefined : raw,
+            updateGlm({
+              voice: raw === DEFAULT_VALUE ? undefined : raw,
             });
           }}
           style={{ minWidth: 220 }}
         >
-          {txt2speechVoiceOptions.map((o) => (
+          {glmVoiceOptions.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
@@ -69,15 +65,15 @@ export const Txt2SpeechSpeechCardForm: React.FC<{
         <theme.Slider
           label={
             t("speechSettings.volumeWithValue", {
-              volume: txt2speechVolumeValue.toFixed(1),
+              volume: glmVolumeValue.toFixed(1),
             })
           }
-          min={1.0}
-          max={2.0}
+          min={0.0}
+          max={10.0}
           step={0.1}
-          value={txt2speechVolumeValue}
+          value={glmVolumeValue}
           onChange={(value: number) =>
-            updateTxt2Speech({
+            updateGlm({
               volume: value,
             })
           }
@@ -86,15 +82,15 @@ export const Txt2SpeechSpeechCardForm: React.FC<{
         <theme.Slider
           label={
             t("speechSettings.speedWithValue", {
-              speed: txt2speechSpeedValue.toFixed(1),
+              speed: glmSpeedValue.toFixed(1),
             })
           }
-          min={0.8}
-          max={3.0}
+          min={0.5}
+          max={2.0}
           step={0.1}
-          value={txt2speechSpeedValue}
+          value={glmSpeedValue}
           onChange={(value: number) =>
-            updateTxt2Speech({
+            updateGlm({
               speed: value,
             })
           }

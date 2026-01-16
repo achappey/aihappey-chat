@@ -52,5 +52,12 @@ export const defaultProviderSpeechMetadata = {
     "canopylabs": {
       "voice": "tara"
     }
+  },
+  "audixa": {
+    "voice": "af_bella",
+    "speed": 1,
+    "emotion": "neutral",
+    "temperature": 0.9,
+    "top_p": 0.9
   }
 };

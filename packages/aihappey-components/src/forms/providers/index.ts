@@ -26,6 +26,8 @@ export * from "./deepinfra";
 
 export * from "./deepgram";
 
+export * from "./gladia";
+
 export * from "./hyperbolic";
 
 export * from "./nebius";
@@ -39,5 +41,9 @@ export * from "./minimax";
 export * from "./resembleai";
 
 export * from "./speechify";
+
+export * from "./audixa";
+
+export * from "./verda";
 
 

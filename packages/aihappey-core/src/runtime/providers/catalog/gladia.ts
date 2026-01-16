@@ -1,0 +1,13 @@
+import type { Provider } from "../providerMetadata";
+
+export const gladia: Provider = {
+  name: "Gladia",
+  description: "From async to live streaming, our API empowers your platform with accurate, multilingual speech-to-text and actionable insights.",
+  icons: [
+    {
+      src: "https://pbs.twimg.com/profile_images/1671129329302896640/bX2pGpi0_400x400.jpg"
+    }
+  ],
+  url: "https://www.gladia.io",
+};
+

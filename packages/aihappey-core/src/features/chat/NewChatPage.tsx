@@ -14,19 +14,14 @@ import { PromptWithSource } from "../mcp-prompts/PromptSelectButton";
 import { extractTextFromZip } from "./files/fileConverters";
 import { extractTextFromFile } from "./files/file";
 import { toMarkdownLinkSmart } from "./files/markdown";
-import { useChatContext } from "./context/ChatContext";
-import { mcpResourceRuntime, useSelectedResources } from "../../runtime/mcp/mcpResourceRuntime";
+import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
-import { useTools } from "../tools/useTools";
 
 export function NewChatPage() {
   const navigate = useNavigate();
   const { create } = useConversations();
-  const { config } = useChatContext();
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
-  const toolAnnotations = useAppStore(a => a.toolAnnotations)
-  const { disabledTools } = useTools()
   const agents = useAppStore(a => a.agents)
   const selectedAgents = selectedAgentNames
     .filter(a => agents.some(z => z.name == a))
@@ -34,7 +29,6 @@ export function NewChatPage() {
   const temperature = useAppStore((s) => s.temperature);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
   const selectedModel = useAppStore((s) => s.selectedModel);
-  const models = useAppStore((s) => s.models);
   const setTemperature = useAppStore((s) => s.setTemperature);
   const workflowType = useAppStore((s) => s.workflowType);
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);

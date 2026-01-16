@@ -3,9 +3,7 @@ import * as mammoth from "mammoth";
 import * as XLSX from "xlsx";
 import { strFromU8, unzipSync } from "fflate";
 import { toMarkdownLinkSmart } from "./markdown";
-import MSGReaderRaw from "msgreader";
-
-const MSGReader = (MSGReaderRaw as any).MSGReader || MSGReaderRaw;
+import { msgToPlainText } from "./msgConverter";
 
 // Set up the PDF.js worker source
 GlobalWorkerOptions.workerSrc = `//cdn.jsdelivr.net/npm/pdfjs-dist@${version}/build/pdf.worker.mjs`;
@@ -43,7 +41,7 @@ export const zipFileToFiles = async (
     // Returning a clearer error makes the root cause obvious in the console.
     throw new TypeError(
       "zipFileToFiles(file): expected a File/Blob with arrayBuffer(); got " +
-        Object.prototype.toString.call(file)
+      Object.prototype.toString.call(file)
     );
   }
   const arrayBuffer = await file.arrayBuffer();
@@ -133,20 +131,6 @@ export const epubFileToTextBrute = async (file: File): Promise<string> => {
 };
 
 
-export const msgFileToPlainText = async (file: File): Promise<string> => {
-  const buffer = await file.arrayBuffer();
-  const reader = new MSGReader(buffer);
-  const msg = reader.getFileData();
-
-  if (msg.body) return msg.body;
-  if (msg.bodyHTML) {
-    const div = document.createElement("div");
-    div.innerHTML = msg.bodyHTML;
-    return div.textContent || div.innerText || "";
-  }
-  return "";
-};
-
 export const emlToPlainText = (emlText: string): string => {
   // Zoek alleen text/plain, negeer alle attachments/images
   const plainMatch = emlText.match(/Content-Type:\s*text\/plain[^]*?\r?\n\r?\n([^]*?)(?=\r?\n--|\r?\nContent-Type:|$)/i);
@@ -165,8 +149,12 @@ export const emlToPlainText = (emlText: string): string => {
   return parts.slice(1).join("\n\n").trim();
 };
 
+
+
 // Extracts all supported files in a ZIP and returns array of text parts
-export const extractTextFromZip = async (a: any) => {
+export const extractTextFromZip = async (
+  a: any,
+) => {
   // Historically some call sites passed `{ file }`, while chat attachments are raw `File` objects.
   // Accept both shapes to avoid runtime crashes.
   const candidate = (a && (a.file ?? a)) as unknown;
@@ -214,7 +202,7 @@ export const extractTextFromZip = async (a: any) => {
       else if (["xlsx", "xls", "csv"].includes(ext || "")) text = await excelFileToText(f);
       else if (["txt", "md", "log"].includes(ext || "")) text = await f.text();
       else if (["pptx"].includes(ext || "")) text = await pptxFileToText(f);
-      else if (["msg"].includes(ext || "")) text = await msgFileToPlainText(f);
+      else if (["msg"].includes(ext || "")) text = await msgToPlainText(f)
     } catch (e) {
       console.warn(`extractTextFromZip(): failed to convert ${filename} to text`, e);
       text = undefined;

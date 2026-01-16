@@ -1,7 +1,7 @@
 import React from "react";
-import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import type { FireworksTranscriptionConfig } from "../FireworksTranscriptionConfigForm";
+import { useTheme } from "../../../../../theme/ThemeContext";
+import { FireworksTranscriptionConfig } from "../FireworksTranscriptionConfigForm";
 
 export const FireworksTranscriptionDiarizationCard: React.FC<{
     config: FireworksTranscriptionConfig;

@@ -1,5 +1,4 @@
 import React from "react";
-import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 import {
@@ -9,6 +8,7 @@ import {
   type NovitaMinimaxSpeechConfig,
   type NovitaSpeechConfig,
 } from "./novitaSpeechTypes";
+import { useTheme } from "../../../../../theme/ThemeContext";
 
 export const MinimaxSpeechCardForm: React.FC<{
   config: NovitaSpeechConfig;

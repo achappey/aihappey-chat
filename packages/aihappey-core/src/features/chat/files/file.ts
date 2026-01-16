@@ -1,8 +1,9 @@
 import { marked } from "marked";
 import {
   docxFileToText, emlToPlainText, epubFileToTextBrute,
-  excelFileToText, msgFileToPlainText, pdfFileToText, pptxFileToText
+  excelFileToText, pdfFileToText, pptxFileToText
 } from "./fileConverters";
+import { msgToPlainText } from "./msgConverter";
 
 /**
  * Converts a File to a Data URL string.
@@ -96,7 +97,7 @@ export const extractTextFromFile = async (a: File): Promise<string | undefined> 
   }
 
   if (type === "application/vnd.ms-outlook" || (!type && name.toLowerCase().endsWith(".msg"))) {
-    return await msgFileToPlainText(a);
+    return await msgToPlainText(a);
   }
 
   // Other: not supported, return undefined

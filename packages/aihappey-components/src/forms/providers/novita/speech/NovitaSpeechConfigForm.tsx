@@ -1,17 +1,6 @@
 import React from "react";
+import { NovitaSpeechConfig, MinimaxSpeechCardForm, GlmSpeechCardForm, Txt2SpeechSpeechCardForm } from "./cards";
 
-import { GlmSpeechCardForm } from "./speechCards/GlmSpeechCardForm";
-import { MinimaxSpeechCardForm } from "./speechCards/MinimaxSpeechCardForm";
-import { Txt2SpeechSpeechCardForm } from "./speechCards/Txt2SpeechSpeechCardForm";
-
-import type { NovitaSpeechConfig } from "./speechCards/novitaSpeechTypes";
-
-export type {
-  NovitaGlmSpeechConfig,
-  NovitaMinimaxSpeechConfig,
-  NovitaSpeechConfig,
-  NovitaTxt2SpeechSpeechConfig,
-} from "./speechCards/novitaSpeechTypes";
 
 export const NovitaSpeechConfigForm: React.FC<{
   config: NovitaSpeechConfig;

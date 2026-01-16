@@ -6,7 +6,7 @@ import {
   MiniMaxSpeechPronunciationDictCard,
   MiniMaxSpeechVoiceModifyCard,
   MiniMaxSpeechVoiceSettingCard,
-} from "./speechcards";
+} from "./cards";
 
 /**
  * IMPORTANT: keys must match backend JSON property names.

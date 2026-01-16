@@ -335,6 +335,96 @@
       "useHd": "Use HD"
     }
   },
+  "gladia": {
+    "customVocabulary": "Custom vocabulary",
+    "customVocabularyHint": "Provide vocabulary to improve recognition of domain terms.",
+    "customVocabularyMode": "Vocabulary mode",
+    "customVocabularyModeConfig": "Config (custom_vocabulary_config)",
+    "customVocabularyModeInline": "Inline list (custom_vocabulary array)",
+    "customVocabularyDefaultIntensity": "Default intensity",
+    "customVocabularyList": "Vocabulary list",
+    "customVocabularyAddItem": "Add vocabulary item",
+    "customVocabularyEmpty": "No vocabulary items yet.",
+    "customVocabularyItemType": "Item type",
+    "customVocabularyItemTypeString": "String",
+    "customVocabularyItemTypeObject": "Object",
+    "customVocabularyValue": "Value",
+    "customVocabularyIntensity": "Intensity",
+    "customVocabularyPronunciations": "Pronunciations",
+    "customVocabularyLanguage": "Language",
+
+    "subtitles": "Subtitles",
+    "subtitlesHint": "Generate subtitle files for this transcription.",
+    "subtitlesMinDuration": "Minimum duration (seconds)",
+    "subtitlesMaxDuration": "Maximum duration (seconds)",
+    "subtitlesMaxCharsPerRow": "Maximum characters per row",
+    "subtitlesMaxRowsPerCaption": "Maximum rows per caption",
+    "subtitlesStyle": "Style",
+    "subtitlesStyle.default": "Default",
+    "subtitlesStyle.compliance": "Compliance",
+
+    "diarization": "Diarization",
+    "diarizationHint": "Identify speakers in the audio.",
+    "diarizationNumberOfSpeakers": "Exact number of speakers",
+    "diarizationMinSpeakers": "Minimum speakers",
+    "diarizationMaxSpeakers": "Maximum speakers",
+
+    "translation": "Translation",
+    "translationHint": "Translate the transcription to one or more target languages.",
+    "translationTargetLanguages": "Target languages",
+    "translationModel": "Translation model",
+    "translationModel.base": "Base",
+    "translationModel.enhanced": "Enhanced",
+    "translationMatchOriginalUtterances": "Match original utterances",
+    "translationLipsync": "Enable lipsync",
+    "translationContextAdaptation": "Context adaptation",
+    "translationContext": "Context",
+    "translationContextPlaceholder": "Optional context to improve translation accuracy",
+    "translationInformal": "Use informal language",
+
+    "summarization": "Summarization",
+    "summarizationHint": "Generate a summary of the transcription.",
+    "summarizationType": "Summary type",
+    "summarizationType.general": "General",
+    "summarizationType.bullet_points": "Bullet points",
+    "summarizationType.concise": "Concise",
+
+    "analysis": "Analysis",
+    "moderation": "Moderation",
+    "namedEntityRecognition": "Named entity recognition",
+    "chapterization": "Chapterization",
+    "nameConsistency": "Name consistency",
+    "sentimentAnalysis": "Sentiment analysis",
+
+    "customSpelling": "Custom spelling",
+    "customSpellingHint": "Provide spelling corrections for domain-specific terms.",
+    "customSpellingTerm": "Term",
+    "customSpellingVariants": "Spelling variants",
+    "customSpellingAddEntry": "Add term",
+    "customSpellingEmpty": "No custom spelling entries yet.",
+
+    "structuredDataExtraction": "Structured data extraction",
+    "structuredDataHint": "Extract structured classes from the transcription.",
+    "structuredDataClasses": "Classes to extract",
+    "structuredDataClassesPlaceholder": "e.g. Persons",
+
+    "audioToLlm": "Audio to LLM",
+    "audioToLlmHint": "Run LLM prompts over the transcription.",
+    "audioToLlmPrompts": "Prompts",
+    "audioToLlmAddPrompt": "Add prompt",
+    "audioToLlmEmpty": "No prompts yet.",
+    "audioToLlmPromptLabel": "Prompt {{index}}",
+
+    "output": "Output",
+    "sentences": "Sentences",
+    "displayMode": "Display mode",
+    "punctuationEnhanced": "Enhanced punctuation",
+
+    "languageConfig": "Language configuration",
+    "languageConfigHint": "Specify languages or enable code-switching detection.",
+    "languageConfigLanguages": "Languages",
+    "languageConfigCodeSwitching": "Code switching"
+  },
   "speechify": {
     "speech": {
       "voiceIdPlaceholder": "e.g. 2e19b1e2-...",
@@ -374,5 +464,15 @@
     "soundEffects": "Sound effects",
     "music": "Music",
     "lyrics": "Lyrics"
+  },
+  "audixa": {
+    "speech": {
+      "baseVoices": "Base voices",
+      "advanceVoices": "Advance voices",
+      "customVoiceId": "Custom voice",
+      "customVoicePlaceholder": "e.g. af_bella",
+      "emotion": "Emotion",
+      "topP": "Top P"
+    }
   }
 }

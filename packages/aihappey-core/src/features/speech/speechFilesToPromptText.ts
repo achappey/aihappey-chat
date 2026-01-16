@@ -43,6 +43,7 @@ export async function speechFilesToPromptText(files: File[]): Promise<{
         fileName: file.name,
         reason: "Unsupported file type or empty content",
       });
+
     } catch {
       failures.push({ fileName: file.name, reason: "Failed to extract text" });
     }

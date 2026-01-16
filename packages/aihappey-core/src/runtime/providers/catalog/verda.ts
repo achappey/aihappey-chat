@@ -1,0 +1,13 @@
+import type { Provider } from "../providerMetadata";
+
+export const verda: Provider = {
+  name: "Verda",
+  description: "Discover Verda – European ISO-certified cloud provider offering on-demand GPU clusters, AI model hosting, and autoscaling containers with 100% renewable energy. Optimize your AI projects with our low-cost deployment solutions.",
+  icons: [
+    {
+      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLDvVEuW0laXWa1GuUxB6U9Of-yhQiXJ3bLw&s"
+    }
+  ],
+  url: "https://verda.com",
+};
+

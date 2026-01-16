@@ -47,7 +47,7 @@ export async function extractTextFromFileOrZip(file: File): Promise<ExtractTextR
 
     return { extracted, failedFileNames };
   }
-
+ 
   const text = await extractTextFromFile(file);
   const trimmed = text?.trim();
   if (!trimmed) return { extracted: [], failedFileNames: [file.name] };

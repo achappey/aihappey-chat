@@ -1,5 +1,4 @@
 import type { Provider } from "./providerMetadata";
-
 import { openai } from "./catalog/openai";
 import { runway } from "./catalog/runway";
 import { aiml } from "./catalog/aiml";
@@ -50,6 +49,10 @@ import { zai } from "./catalog/zai";
 import { hyperbolic } from "./catalog/hyperbolic";
 import { ttsreader } from "./catalog/ttsreader";
 import { elevenlabs } from "./catalog/elevenlabs";
+import { hyperstack } from "./catalog/hyperstack";
+import { gladia } from "./catalog/gladia";
+import { verda } from "./catalog/verda";
+import { audixa } from "./catalog/audixa";
 
 /**
  * UI-facing provider catalog.
@@ -68,12 +71,14 @@ export const PROVIDERS: Record<string, Provider> = {
   xai,
   together,
   pollinations,
+  hyperstack,
   perplexity,
   speechmatics,
   jina,
   nscale,
   resembleai,
   assemblyai,
+  gladia,
   kernelmemory,
   minimax,
   sarvam,
@@ -89,6 +94,7 @@ export const PROVIDERS: Record<string, Provider> = {
   echo,
   tinfoil,
   nebius,
+  audixa,
   deepinfra,
   nvidia,
   runware,
@@ -102,6 +108,7 @@ export const PROVIDERS: Record<string, Provider> = {
   scaleway,
   sambanova,
   ttsreader,
+  verda,
   fireworks,
   cerebras,
   zai,

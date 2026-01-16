@@ -5,7 +5,7 @@ import {
   OpenAIImageConfigForm, PollinationsImageConfigForm,
   RunwayImageConfigForm, SettingsActionButtons,
   StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme,
-  FireworksImageConfigForm
+  FireworksImageConfigForm, VerdaImageConfigForm
 } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
@@ -157,6 +157,18 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
               config={providerMetadata.together ?? {}}
               updateConfig={(together) =>
                 setProviderMetadata({ ...providerMetadata, together })
+              }
+            />
+          </theme.Tab>
+        }
+
+        {enabledProviders.includes("Verda") &&
+          <theme.Tab eventKey="verda"
+            title="Verda">
+            <VerdaImageConfigForm
+              config={providerMetadata.verda ?? {}}
+              updateConfig={(verda) =>
+                setProviderMetadata({ ...providerMetadata, verda })
               }
             />
           </theme.Tab>

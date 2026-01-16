@@ -6,6 +6,7 @@ import { useAppStore } from "aihappey-state";
 import {
   DeepInfraSpeechConfigForm,
   DeepgramSpeechConfigForm,
+  AudixaSpeechConfigForm,
   OpenAISpeechConfigForm,
   GroqSpeechConfigForm,
   NovitaSpeechConfigForm,
@@ -19,6 +20,7 @@ import {
   type DeepInfraSpeechConfig,
   type ElevenLabsSpeechConfig,
   type DeepgramSpeechConfig,
+  type AudixaSpeechConfig,
   type OpenAISpeechConfig,
   type GroqSpeechConfig,
   type NovitaSpeechConfig,
@@ -81,6 +83,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
               config={providerMetadata.asyncai ?? {}}
               updateConfig={(asyncai: AsyncAISpeechConfig) =>
                 setProviderMetadata({ ...providerMetadata, asyncai })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("Audixa") && (
+          <theme.Tab eventKey="audixa" title="Audixa">
+            <AudixaSpeechConfigForm
+              config={providerMetadata.audixa ?? {}}
+              updateConfig={(audixa: AudixaSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, audixa })
               }
             />
           </theme.Tab>
