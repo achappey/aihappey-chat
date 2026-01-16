@@ -131,7 +131,7 @@ The voice to use when generating the audio. Supported built-in voices are alloy,
           />
 
           <theme.Select
-            label={t("speechSettings.outputFormat")}
+            label={t("outputFormat")}
             values={config?.response_format ? [config.response_format] : [DEFAULT_VALUE]}
             valueTitle={
               outputFormatOptions.find(

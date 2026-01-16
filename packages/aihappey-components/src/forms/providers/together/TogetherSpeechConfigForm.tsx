@@ -100,7 +100,7 @@ export const TogetherSpeechConfigForm: React.FC<{
             <theme.Card size="small" title={t("general")}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     <theme.Select
-                        label={t("speechSettings.outputFormat")}
+                        label={t("outputFormat")}
                         values={[config?.response_format ?? DEFAULT_VALUE]}
                         valueTitle={
                             responseFormatOptions.find(
@@ -130,7 +130,7 @@ export const TogetherSpeechConfigForm: React.FC<{
                         step={1}
                         min={8000}
                         max={48000}
-                        label={t("providers:together.speech.sampleRate")}
+                        label={t("speechSettings.sampleRate")}
                         placeholder="ex. 24000"
                         value={config?.sample_rate ?? ""}
                         onChange={(e: any) => {

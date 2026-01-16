@@ -39,6 +39,7 @@ export const RerankingInput = ({
   const resourceSelect = useResourceSelect();
 
   const providerRerankingMetadata = useAppStore((s) => s.providerRerankingMetadata);
+  const enabledProviders = useAppStore((s) => s.enabledProviders);
   const setProviderRerankingMetadata = useAppStore((s) => s.setProviderRerankingMetadata);
   const topN = useAppStore((s) => s.topN);
   const setTopN = useAppStore((s) => s.setTopN);
@@ -73,6 +74,7 @@ export const RerankingInput = ({
           <RerankingSettingsButton
             topN={topN}
             setTopN={setTopN}
+            enabledProviders={enabledProviders ?? []}
             providerMetadata={providerRerankingMetadata ?? {}}
             setProviderMetadata={setProviderRerankingMetadata}
             resetDefaults={() => {
@@ -80,8 +82,6 @@ export const RerankingInput = ({
               setProviderRerankingMetadata(defaultProviderRerankingMetadata);
             }}
           />
-
-
 
           <ResourceSelectModal
             open={resourceSelect.open}

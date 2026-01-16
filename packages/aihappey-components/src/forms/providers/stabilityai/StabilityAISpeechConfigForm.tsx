@@ -40,7 +40,7 @@ export const StabilityAISpeechConfigForm: React.FC<{
       <theme.Card size="small" title={t("general")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
-            label={t("providers:stabilityai.speech.outputFormat")}
+            label={t("outputFormat")}
             values={[config?.output_format ?? DEFAULT_VALUE]}
             valueTitle={
               outputFormatOptions.find(

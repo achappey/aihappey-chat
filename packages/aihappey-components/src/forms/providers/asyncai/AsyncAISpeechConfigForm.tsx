@@ -114,7 +114,7 @@ export const AsyncAISpeechConfigForm: React.FC<{
                     />
 
                     <theme.Select
-                        label={t("speechSettings.outputFormat")}
+                        label={t("outputFormat")}
                         values={[outputFormat?.container ?? DEFAULT_VALUE]}
                         valueTitle={
                             containerOptions.find(
@@ -180,7 +180,7 @@ export const AsyncAISpeechConfigForm: React.FC<{
                         step={1}
                         min={8000}
                         max={48000}
-                        label={t("providers:asyncai.speech.sampleRate")}
+                        label={t("speechSettings.sampleRate")}
                         placeholder="ex. 44100"
                         value={outputFormat?.sample_rate ?? ""}
                         onChange={(e: any) => {

@@ -81,6 +81,12 @@ export const ImagesProvider = ({
       setItems((prev) => prev.filter((x) => x.id !== id));
     };
 
+    ctx.update = async (id: string, imageResponse: ImageResponse) => {
+      const updated = await store.update(id, imageResponse);
+      setItems((prev) => prev.map((x) => (x.id === id ? updated : x)));
+      return updated;
+    };
+
     // list() stays as store.list(); consumers can also use ctx.items for reactive UI
 
     return ctx;

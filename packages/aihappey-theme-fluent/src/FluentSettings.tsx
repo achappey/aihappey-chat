@@ -1,138 +1,345 @@
 import { useMemo, useState } from "react";
 import { tinycolor } from "@ctrl/tinycolor";
 import {
-    Button,
-    Input,
-    Label,
-    makeStyles,
-    ColorPicker,
-    ColorArea,
-    ColorSlider,
-    AlphaSlider,
-    Field,
+  ColorArea,
+  ColorPicker,
+  ColorSlider,
+  makeStyles,
 } from "@fluentui/react-components";
 
-import { Select } from "./primitives/Select";
+import { Button, Card, Chat, Input, Select, Slider, Tabs, Tab } from "./primitives";
 import { useFluentThemePreset } from "./ThemeProvider";
+import { brandVariantsFromDesignerParams } from "./brandVariantsFromDesignerParams";
+import type { ChatMessage } from "aihappey-types";
 
 const useStyles = makeStyles({
-    block: { display: "flex", flexDirection: "column", gap: "12px" },
-    row: { display: "flex", gap: "10px", alignItems: "end", flexWrap: "wrap" },
-    picker: { width: "280px" },
-    preview: {
-        width: "32px",
-        height: "32px",
-        borderRadius: "6px",
-        border: "1px solid rgba(255,255,255,0.2)",
-    },
+  block: { display: "flex", flexDirection: "column", gap: "12px" },
+  row: { display: "flex", gap: "10px", alignItems: "end", flexWrap: "wrap" },
+  tabsWrap: { display: "flex", flexDirection: "column", gap: "10px" },
+  section: { display: "flex", flexDirection: "column", gap: "10px" },
+  previewCard: {
+    padding: "12px",
+  },
+  editorGrid: {
+    display: "grid",
+    gridTemplateColumns: "300px 1fr",
+    gap: "14px",
+    alignItems: "start",
+  },
+  picker: { width: "300px" },
+  palette: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(56px, 1fr))",
+    alignContent: "start",
+  },
+  swatch: {
+    width: "56px",
+    height: "44px",
+    borderRadius: "8px",
+    border: "1px solid rgba(255,255,255,0.12)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    padding: "6px",
+    boxSizing: "border-box",
+    fontSize: "11px",
+    lineHeight: 1,
+  },
+  swatchLabel: { fontWeight: 600, textShadow: "0 1px 2px rgba(0,0,0,0.35)" },
+  swatchHex: { opacity: 0.9, textShadow: "0 1px 2px rgba(0,0,0,0.35)" },
+  toolbar: { display: "flex", gap: "10px", flexWrap: "wrap" },
 });
 
-const DEFAULT_HSV = { h: 210, s: 1, v: 1, a: 1 };
+const DEFAULT_HEX = "#2B88D8";
 
 export const FluentSettings = () => {
-    const styles = useStyles();
-    const { presetId, setPresetId, presets, addCustomPreset, customPresets, removeCustomPreset } =
-        useFluentThemePreset();
+  const styles = useStyles();
+  const {
+    presetId,
+    setPresetId,
+    presets,
+    addCustomPreset,
+    updateCustomPreset,
+    getCustomPreset,
+    removeCustomPreset,
+  } = useFluentThemePreset();
 
-    const [name, setName] = useState("");
-    // const [hsv, setHsv] = useState(DEFAULT_HSV);
+  const [tab, setTab] = useState("preview");
 
-    const [hsv, setHsv] = useState({ h: 210, s: 1, v: 1, a: 1 });
-    const hex = useMemo(() => tinycolor(hsv).toHexString().toUpperCase(), [hsv]);
-    const canAdd = name.trim().length > 0 && tinycolor(hex).isValid;
+  // Editor state
+  const activeCustom = presetId.startsWith("custom:") ? getCustomPreset(presetId) : undefined;
+  const [draftName, setDraftName] = useState(activeCustom?.title ?? "");
+  const [draftHex, setDraftHex] = useState(activeCustom?.baseHex ?? DEFAULT_HEX);
+  const [hueTorsion, setHueTorsion] = useState<number>(activeCustom?.hueTorsion ?? 0);
+  const [vibrancy, setVibrancy] = useState<number>(activeCustom?.vibrancy ?? 0);
 
-    return (
-        <div className={styles.block}>
-            <Select
-                label="Variant"
-                valueTitle={Object.entries(presets).find((a) => a[0] === presetId)?.[1].title}
-                onChange={(e: any) => setPresetId(e)}
-                values={[presetId]}
-            >
-                {Object.values(presets).map((p) => (
-                    <option key={p.id} value={p.id}>
-                        {p.title}
-                    </option>
-                ))}
-            </Select>
+  // Keep editor in sync when user selects a different custom theme
+  // (or switches away from custom).
+  useMemo(() => {
+    setDraftName(activeCustom?.title ?? "");
+    setDraftHex(activeCustom?.baseHex ?? DEFAULT_HEX);
+    setHueTorsion(activeCustom?.hueTorsion ?? 0);
+    setVibrancy(activeCustom?.vibrancy ?? 0);
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetId]);
 
-            {/* ✅ Custom Brand section */}
-            {false && <div className={styles.block}>
-                <div className={styles.row}>
-                    <div style={{ minWidth: 220 }}>
-                        <Field
-                            label="Custom variant"
-                            orientation="vertical"
-                        >
-                            <Input
-                                id="custom-brand-name"
-                                value={name}
-                                placeholder="e.g. Green"
-                                onChange={(_, d) => setName(d.value)}
-                            />
-                        </Field>
-                    </div>
+  const normalizedHex = useMemo(() => {
+    try {
+      return tinycolor(draftHex).toHexString().toUpperCase();
+    } catch {
+      return DEFAULT_HEX;
+    }
+  }, [draftHex]);
 
-                    <div className={styles.picker}>
-                        <ColorPicker
-                            color={hsv}
-                            onColorChange={(_, data) =>
-                                setHsv({
-                                    ...data.color,
-                                    a: data.color.a ?? 1,
-                                })
-                            }
-                        >
-                            <ColorArea inputX={{ "aria-label": "Saturation" }} inputY={{ "aria-label": "Brightness" }} />
-                            <ColorSlider aria-label="Hue" />
-                            <AlphaSlider
-                                aria-label="Alpha"
-                                aria-valuetext={`${Math.round((hsv.a ?? 1) * 100)}%`}
-                            />
-                        </ColorPicker>
-                    </div>
+  const canSave = useMemo(() => {
+    const nameOk = (draftName ?? "").trim().length > 0;
+    const hexOk = tinycolor(normalizedHex).isValid;
+    return nameOk && hexOk;
+  }, [draftName, normalizedHex]);
 
-                    <div className={styles.row}>
-                        <div className={styles.preview} style={{ background: tinycolor(hsv).toRgbString() }} title={hex} />
-                        <Input value={hex} readOnly />
-                        <Button
-                            appearance="primary"
-                            disabled={!canAdd}
-                            onClick={() => {
-                                const id = addCustomPreset(name, hex);
-                                setPresetId(id);
-                                setName("");
-                            }}
-                        >
-                            Add
-                        </Button>
-                    </div>
+  const variants = useMemo(() => {
+    if (!tinycolor(normalizedHex).isValid) return null;
+    return brandVariantsFromDesignerParams({
+      baseHex: normalizedHex,
+      hueTorsion,
+      vibrancy,
+      mode: "lch",
+    });
+  }, [normalizedHex, hueTorsion, vibrancy]);
+
+  const paletteStops = useMemo(() => {
+    if (!variants) return [] as { stop: number; hex: string }[];
+    return Object.entries(variants)
+      .map(([k, v]) => ({ stop: Number(k), hex: String(v).toUpperCase() }))
+      .sort((a, b) => a.stop - b.stop);
+  }, [variants]);
+
+  const isCustom = presetId.startsWith("custom:");
+
+  const previewMessages = useMemo((): ChatMessage[] => {
+    const now = new Date();
+    return [
+      {
+        id: "preview-1",
+        role: "assistant",
+        author: "AI",
+        createdAt: new Date(now.getTime() - 1000 * 60 * 5).toISOString(),
+        content: [{ type: "text", text: "This is a themed Fluent Chat preview." } as any],
+      },
+      {
+        id: "preview-2",
+        role: "user",
+        author: "You",
+        createdAt: new Date(now.getTime() - 1000 * 60 * 2).toISOString(),
+        content: [{ type: "text", text: "Looks good — does it support cards too?" } as any],
+      },
+      {
+        id: "preview-3",
+        role: "assistant",
+        author: "AI",
+        createdAt: new Date(now.getTime() - 1000 * 45).toISOString(),
+        messageIcon: "check",
+        messageLabel: "Preview",
+        content: [{ type: "text", text: "Thinking" } as any],
+      },
+      {
+        id: "preview-3",
+        role: "assistant",
+        author: "AI",
+        createdAt: new Date(now.getTime() - 1000 * 45).toISOString(),
+        content: [{ type: "text", text: "Yes. The Card + Chat primitives are now in this preview tab." } as any],
+      },
+    ];
+  }, []);
+
+  return (
+    <div className={styles.block}>
+      <Select
+        label="Variant"
+        valueTitle={Object.entries(presets).find((a) => a[0] === presetId)?.[1].title}
+        onChange={(e: any) => setPresetId(e)}
+        values={[presetId]}
+      >
+        {Object.values(presets).map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.title}
+          </option>
+        ))}
+      </Select>
+
+      <div className={styles.tabsWrap}>
+        <Tabs activeKey={tab} onSelect={setTab}>
+          <Tab eventKey="preview" title="Preview">
+            <div className={styles.previewCard}>
+              <div className={styles.section}>
+
+
+                <Card
+                  title={<div style={{ fontWeight: 600 }}>Card preview</div>}
+                  description="Card description"
+                >
+                  Card content
+                </Card>
+
+                <Chat
+                  locale="en"
+                  messages={previewMessages}
+                  renderMessage={(msg) => {
+                    const text =
+                      (msg as any)?.content?.find?.((p: any) => p?.type === "text")?.text ??
+                      "";
+                    return <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>;
+                  }}
+                />
+
+                <div className={styles.toolbar}>
+                  <Button variant="primary">Primary</Button>
+                  <Button variant="secondary">Secondary</Button>
+                  <Button variant="outline">Outline</Button>
+                </div>
+                <Input label="Example input" placeholder="Type something…" />
+                <Select
+                  label="Example select"
+                  onChange={() => undefined}
+                  values={["a"]}
+                  valueTitle="Option A"
+                >
+                  <option value="a">Option A</option>
+                  <option value="b">Option B</option>
+                  <option value="c">Option C</option>
+                </Select>
+              </div>
+            </div>
+          </Tab>
+
+          <Tab eventKey="editor" title="Editor">
+            <div className={styles.editorGrid}>
+              <div className={styles.section}>
+                <Input
+                  label="Theme name"
+                  value={draftName}
+                  placeholder="e.g. My Brand"
+                  onChange={(e: any) => setDraftName(e.target.value)}
+                />
+
+                <Input
+                  label="Key color value"
+                  value={draftHex}
+                  placeholder={DEFAULT_HEX}
+                  onChange={(e: any) => setDraftHex(e.target.value)}
+                />
+
+                <div className={styles.picker}>
+                  <ColorPicker
+                    color={tinycolor(normalizedHex).toHsv()}
+                    onColorChange={(_, data) => {
+                      const next = tinycolor(data.color).toHexString().toUpperCase();
+                      setDraftHex(next);
+                    }}
+                  >
+                    <ColorArea
+                      inputX={{ "aria-label": "Saturation" }}
+                      inputY={{ "aria-label": "Brightness" }}
+                    />
+                    <ColorSlider aria-label="Hue" />
+                  </ColorPicker>
                 </div>
 
-                {/* optional: quick remove for customs */}
-                {customPresets.length > 0 && (
-                    <div className={styles.block}>
-                        <Label>My custom variants</Label>
-                        <div className={styles.row}>
-                            {customPresets.map((p) => (
-                                <Button
-                                    key={p.id}
-                                    onClick={() => setPresetId(p.id)}
-                                    onContextMenu={(ev) => {
-                                        ev.preventDefault();
-                                        removeCustomPreset(p.id);
-                                    }}
-                                >
-                                    {p.title}
-                                </Button>
-                            ))}
-                        </div>
-                        <div style={{ opacity: 0.7, fontSize: 12 }}>
-                            Tip: right-click a custom button to remove it.
-                        </div>
+                <Slider
+                  label="Hue Torsion"
+                  value={hueTorsion}
+                  min={0}
+                  max={12}
+                  step={1}
+                  showValue
+                  onChange={setHueTorsion}
+                />
+                <Slider
+                  label="Vibrancy"
+                  value={vibrancy}
+                  min={-100}
+                  max={100}
+                  step={1}
+                  showValue
+                  onChange={setVibrancy}
+                />
+
+                <div className={styles.toolbar}>
+                  <Button
+                    variant="primary"
+                    disabled={!canSave}
+                    onClick={() => {
+                      const title = draftName.trim();
+                      const baseHex = normalizedHex;
+                      if (!canSave) return;
+
+                      if (isCustom) {
+                        updateCustomPreset(presetId, { title, baseHex, hueTorsion, vibrancy });
+                      } else {
+                        const id = addCustomPreset(title, baseHex);
+                        updateCustomPreset(id, { hueTorsion, vibrancy });
+                        setPresetId(id);
+                      }
+                    }}
+                  >
+                    Save
+                  </Button>
+
+                  <Button
+                    variant="secondary"
+                    disabled={!canSave}
+                    onClick={() => {
+                      const title = draftName.trim();
+                      const baseHex = normalizedHex;
+                      if (!canSave) return;
+
+                      const id = addCustomPreset(title, baseHex);
+                      updateCustomPreset(id, { hueTorsion, vibrancy });
+                      setPresetId(id);
+                    }}
+                  >
+                    Save as new
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    icon={"delete"}
+                    disabled={!isCustom}
+                    onClick={() => {
+                      if (!isCustom) return;
+
+                      const title = activeCustom?.title ?? "this theme";
+                      const ok = window.confirm(`Delete custom theme "${title}"?`);
+                      if (!ok) return;
+
+                      removeCustomPreset(presetId);
+                    }}
+                  >
+                  </Button>
+                </div>
+              </div>
+
+              <div className={styles.section}>
+                <div style={{ fontWeight: 600 }}>Palette</div>
+                <div className={styles.palette}>
+                  {paletteStops.map(({ stop, hex }) => (
+                    <div
+                      key={stop}
+                      className={styles.swatch}
+                      style={{ background: hex, color: tinycolor(hex).isLight() ? "#111" : "#fff" }}
+                      title={`${stop}: ${hex}`}
+                    >
+                      <div className={styles.swatchLabel}>{stop}</div>
+                      <div className={styles.swatchHex}>{hex.replace("#", "").slice(0, 6)}</div>
                     </div>
-                )}
-            </div>}
-        </div>
-    );
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
+      </div>
+    </div>
+  );
 };

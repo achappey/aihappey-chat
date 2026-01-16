@@ -302,7 +302,7 @@ export const DeepgramSpeechConfigForm: React.FC<{
           </theme.Select>
 
           <theme.Select
-            label={t("providers:deepgram.speech.sampleRate")}
+            label={t("speechSettings.sampleRate")}
             values={[
               typeof config?.sample_rate === "number"
                 ? String(config.sample_rate)

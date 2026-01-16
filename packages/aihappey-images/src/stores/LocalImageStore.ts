@@ -44,6 +44,18 @@ export class LocalImageStore implements ImageStore {
     return this.data;
   };
 
+  update = async (id: string, imageResponse: ImageResponse): Promise<ImageItem> => {
+    const idx = this.data.findIndex((x) => x.id === id);
+    if (idx === -1) {
+      throw new Error(`ImageItem not found: ${id}`);
+    }
+
+    const updated: ImageItem = { ...this.data[idx], imageResponse };
+    this.data = this.data.map((x) => (x.id === id ? updated : x));
+    this.commit();
+    return updated;
+  };
+
   delete = async (id: string): Promise<void> => {
     this.data = this.data.filter((x) => x.id !== id);
     this.commit();

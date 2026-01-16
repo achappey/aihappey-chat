@@ -4,7 +4,8 @@ import { useAppStore } from "aihappey-state";
 import {
   OpenAIImageConfigForm, PollinationsImageConfigForm,
   RunwayImageConfigForm, SettingsActionButtons,
-  StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme
+  StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme,
+  FireworksImageConfigForm
 } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
@@ -64,6 +65,42 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
             setTemperature={setTemperature}
           />
         </theme.Tab>
+
+        {enabledProviders.includes("Fireworks") &&
+          <theme.Tab eventKey="fireworks"
+            title="Fireworks">
+            <FireworksImageConfigForm
+              config={providerMetadata.fireworks ?? {}}
+              updateConfig={(fireworks) =>
+                setProviderMetadata({ ...providerMetadata, fireworks })
+              }
+            />
+          </theme.Tab>
+        }
+
+        {enabledProviders.includes("Hyperbolic") &&
+          <theme.Tab eventKey="hyperbolic"
+            title="Hyperbolic">
+            <HyperbolicImageConfigForm
+              config={providerMetadata.hyperbolic ?? {}}
+              updateConfig={(hyperbolic) =>
+                setProviderMetadata({ ...providerMetadata, hyperbolic })
+              }
+            />
+          </theme.Tab>
+        }
+
+        {enabledProviders.includes("Nebius") &&
+          <theme.Tab eventKey="nebius"
+            title="Nebius">
+            <NebiusImageConfigForm
+              config={providerMetadata.nebius ?? {}}
+              updateConfig={(nebius) =>
+                setProviderMetadata({ ...providerMetadata, nebius })
+              }
+            />
+          </theme.Tab>
+        }
 
         {enabledProviders.includes("OpenAI") &&
           <theme.Tab eventKey="openai"
@@ -125,29 +162,7 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
           </theme.Tab>
         }
 
-        {enabledProviders.includes("Hyperbolic") &&
-          <theme.Tab eventKey="hyperbolic"
-            title="Hyperbolic">
-            <HyperbolicImageConfigForm
-              config={providerMetadata.hyperbolic ?? {}}
-              updateConfig={(hyperbolic) =>
-                setProviderMetadata({ ...providerMetadata, hyperbolic })
-              }
-            />
-          </theme.Tab>
-        }
 
-        {enabledProviders.includes("Nebius") &&
-          <theme.Tab eventKey="nebius"
-            title="Nebius">
-            <NebiusImageConfigForm
-              config={providerMetadata.nebius ?? {}}
-              updateConfig={(nebius) =>
-                setProviderMetadata({ ...providerMetadata, nebius })
-              }
-            />
-          </theme.Tab>
-        }
 
       </theme.Tabs>
     </theme.Modal>

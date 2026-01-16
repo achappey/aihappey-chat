@@ -8,7 +8,7 @@ import { RerankingSettingsModal } from "../modals";
 export interface RerankingSettingsButtonProps {
     topN?: number;
     setTopN: (topN?: number) => void;
-
+    enabledProviders: string[];
     providerMetadata: Record<string, any>;
     setProviderMetadata: (meta: Record<string, any>) => void;
 
@@ -19,6 +19,7 @@ export const RerankingSettingsButton: React.FC<RerankingSettingsButtonProps> = (
     topN,
     setTopN,
     providerMetadata,
+    enabledProviders,
     setProviderMetadata,
     resetDefaults,
 }) => {
@@ -40,6 +41,7 @@ export const RerankingSettingsButton: React.FC<RerankingSettingsButtonProps> = (
 
             <RerankingSettingsModal
                 open={open}
+                enabledProviders={enabledProviders}
                 topN={topN}
                 setTopN={setTopN}
                 providerMetadata={providerMetadata}

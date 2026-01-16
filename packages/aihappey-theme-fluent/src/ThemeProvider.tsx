@@ -18,6 +18,10 @@ import {
 } from "./fluentThemePresets";
 
 import { brandVariantsFromBaseColor } from "./brandVariantsFromBaseColor";
+import {
+  brandVariantsFromDesignerParams,
+  BrandDesignerParams,
+} from "./brandVariantsFromDesignerParams";
 
 /**
  * ✅ IMPORTANT: allow dynamic ids.
@@ -39,6 +43,8 @@ type CustomBrandPreset = {
   id: FluentThemePresetId; // always "custom:..."
   title: string;
   baseHex: string; // "#RRGGBB"
+  hueTorsion?: number;
+  vibrancy?: number;
 };
 
 type CustomBrandPresetMap = Record<string, CustomBrandPreset>;
@@ -53,7 +59,12 @@ type FluentThemePresetContextValue = {
   // ✅ new:
   customPresets: CustomBrandPreset[];
   addCustomPreset: (title: string, baseHex: string) => FluentThemePresetId;
+  updateCustomPreset: (
+    id: FluentThemePresetId,
+    patch: Partial<Pick<CustomBrandPreset, "title" | "baseHex" | "hueTorsion" | "vibrancy">>
+  ) => void;
   removeCustomPreset: (id: FluentThemePresetId) => void;
+  getCustomPreset: (id: FluentThemePresetId) => CustomBrandPreset | undefined;
 };
 
 const FluentThemePresetContext =
@@ -153,10 +164,33 @@ export function ThemeProvider({
         id,
         title: cleanTitle,
         baseHex: cleanHex,
+        hueTorsion: 0,
+        vibrancy: 0,
       };
 
       setCustomMap((prev) => ({ ...prev, [id]: next }));
       return id;
+    },
+    [setCustomMap]
+  );
+
+  const updateCustomPreset = useCallback(
+    (
+      id: FluentThemePresetId,
+      patch: Partial<Pick<CustomBrandPreset, "title" | "baseHex" | "hueTorsion" | "vibrancy">>
+    ) => {
+      if (!id.startsWith("custom:")) return;
+      setCustomMap((prev) => {
+        const existing = prev[id];
+        if (!existing) return prev;
+        const next: CustomBrandPreset = {
+          ...existing,
+          ...patch,
+          title: (patch.title ?? existing.title).trim(),
+          baseHex: (patch.baseHex ?? existing.baseHex).trim().toUpperCase(),
+        };
+        return { ...prev, [id]: next };
+      });
     },
     [setCustomMap]
   );
@@ -175,6 +209,13 @@ export function ThemeProvider({
     [setCustomMap, presetId, setPresetId, defaultPresetId]
   );
 
+  const getCustomPreset = useCallback(
+    (id: FluentThemePresetId) => {
+      return customMap[id];
+    },
+    [customMap]
+  );
+
   // ✅ build base presets (your existing ones)
   const basePresets = useMemo(
     () => buildFluentThemePresets(brandVariants),
@@ -185,7 +226,12 @@ export function ThemeProvider({
   const customPresetEntries = useMemo(() => {
     const out: FluentThemePresetMap = {};
     for (const p of customPresets) {
-      const variants = brandVariantsFromBaseColor(p.baseHex, "lch");
+      const variants = brandVariantsFromDesignerParams({
+        baseHex: p.baseHex,
+        hueTorsion: p.hueTorsion ?? 0,
+        vibrancy: p.vibrancy ?? 0,
+        mode: "lch",
+      } satisfies BrandDesignerParams);
       out[p.id] = makeBrandPreset(p.id, p.title, variants);
     }
     return out;
@@ -218,9 +264,19 @@ export function ThemeProvider({
       presets,
       customPresets,
       addCustomPreset,
+      updateCustomPreset,
       removeCustomPreset,
+      getCustomPreset,
     }),
-    [presetId, presets, customPresets, addCustomPreset, removeCustomPreset]
+    [
+      presetId,
+      presets,
+      customPresets,
+      addCustomPreset,
+      updateCustomPreset,
+      removeCustomPreset,
+      getCustomPreset,
+    ]
   );
 
   return (

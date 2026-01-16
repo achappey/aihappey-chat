@@ -1,6 +1,6 @@
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { ImageGrid } from "aihappey-components";
-import { useLibraryImages } from "./useLibraryImages";
+import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
@@ -51,14 +51,42 @@ export const ImagePage = () => {
   } = useImageErrors();
 
   const [modalImage, setModalImage] = useState<ImageContent | undefined>(undefined);
+  const [modalItem, setModalItem] = useState<LibraryImageItem | undefined>(undefined);
 
-  const openImage = (src: ImageContent) => {
+  const openImage = (src: ImageContent, index: number) => {
+    const item = images[index];
+    setModalItem(item);
     setModalImage(src);
   };
 
   const closeImage = () => {
     setModalImage(undefined);
+    setModalItem(undefined);
   };
+
+  const deleteStoredImage = async (item: LibraryImageItem) => {
+    // Defensive: never delete images coming from conversations
+    if (item.source !== "storage") return;
+    if (!item.storageItemId || item.imageIndex == null) return;
+
+    const stored = storageImages.items.find((x) => x.id === item.storageItemId);
+    if (!stored) return;
+
+    const imagesArr = stored.imageResponse.images;
+    if (!Array.isArray(imagesArr)) return;
+
+    const nextImages = imagesArr.filter((_, idx) => idx !== item.imageIndex);
+
+    if (nextImages.length === 0) {
+      await storageImages.delete(item.storageItemId);
+    } else {
+      await storageImages.update(item.storageItemId, {
+        ...stored.imageResponse,
+        images: nextImages as any,
+      });
+    }
+  };
+  
   const attachments = useFileAttachments(fileAttachmentRuntime);
   const addAttachment = async (file: File) => {
 
@@ -274,6 +302,20 @@ export const ImagePage = () => {
           image={modalImage}
           onDownload={() =>
             downloadImage(modalImage!)
+          }
+          onDelete={
+            modalItem?.source === "storage"
+              ? () => {
+                void (async () => {
+                  try {
+                    await deleteStoredImage(modalItem);
+                    closeImage();
+                  } catch (err: any) {
+                    addChatError(err?.message ?? "Delete failed");
+                  }
+                })();
+              }
+              : undefined
           }
           onAddToPrompt={() => {
             addImageToPrompt(modalImage!);

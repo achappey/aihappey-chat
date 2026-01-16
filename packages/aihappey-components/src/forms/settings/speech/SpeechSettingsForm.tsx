@@ -46,7 +46,7 @@ export const SpeechSettingsForm: React.FC<SpeechSettingsFormProps> = ({
           />
 
           <theme.Input
-            label={t("speechSettings.outputFormat")}
+            label={t("outputFormat")}
             value={value.outputFormat}
             onChange={(val) =>
               onChange({

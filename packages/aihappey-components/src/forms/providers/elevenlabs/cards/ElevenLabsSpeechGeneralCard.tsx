@@ -67,7 +67,7 @@ export const ElevenLabsSpeechGeneralCard: React.FC<{
         />
 
         <theme.Select
-          label={t("speechSettings.outputFormat")}
+          label={t("outputFormat")}
           values={[outputFormatSelectValue]}
           valueTitle={
             outputFormatOptions.find((o) => o.value === outputFormatSelectValue)?.

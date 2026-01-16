@@ -1,6 +1,7 @@
 export { Button } from "./Button";
 export { Input } from "./Input";
 export { Card } from "./Card";
+export { Chat } from "./Chat";
 export { Alert } from "./Alert";
 export { Spinner } from "./Spinner";
 export { Modal } from "./Modal";
@@ -23,3 +24,5 @@ export { DataGrid } from "./DataGrid";
 export { Slider } from "./Slider";
 export { AudioPlayer } from "./AudioPlayer";
 export { Tags } from "./Tags";
+
+

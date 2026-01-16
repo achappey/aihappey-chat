@@ -10,7 +10,7 @@ type ImageGridProps = {
   shadow?: boolean;
   style?: React.CSSProperties;
   shimmers?: number;
-  onImageClick?: (src: ImageContent) => void;
+  onImageClick?: (src: ImageContent, index: number) => void;
   onImageDownload?: (src: ImageContent) => void;
 };
 
@@ -75,19 +75,21 @@ export const ImageGrid = ({
               shape={shape}
               shadow={shadow}
               style={{ cursor: onImageClick ? "pointer" : undefined }}
-              onClick={() => onImageClick?.(item)}
+              onClick={() => onImageClick?.(item, idx)}
             />
 
-            <Button
+            {onImageDownload && <Button
               icon="download"
               variant="primary"
+              shape="square"
               style={{
                 position: "absolute",
                 bottom: "0.5rem",
                 right: "0.5rem",
               }}
-              onClick={() => onImageDownload?.(item)}
-            />
+              onClick={() => onImageDownload(item)}
+            />}
+
           </div>
         );
       })}

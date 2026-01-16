@@ -22,6 +22,12 @@ export interface ImageStore {
   list(): Promise<ImageItem[]>;
 
   /**
+   * Updates an existing stored image response.
+   * Intended to support operations like deleting a single image from a multi-image response.
+   */
+  update(id: string, imageResponse: ImageResponse): Promise<ImageItem>;
+
+  /**
    * Deletes by id.
    * The second parameter exists to match the requested signature but is optional.
    */

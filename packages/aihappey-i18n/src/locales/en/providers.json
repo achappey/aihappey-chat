@@ -50,6 +50,32 @@
     "reranking": {
       "instruction": "Instruction",
       "serviceTier": "Service tier"
+    },
+    "speech": {
+      "serviceTier": "Service tier",
+      "voiceId": "Voice",
+      "voiceIdPlaceholder": "e.g. deepinfra-voice-123",
+      "maxTokens": "Maximum tokens",
+      "languageId": "Language",
+      "speakerAudio": "Speaker audio",
+      "speakerTranscript": "Speaker transcript",
+      "maxAudioLengthMs": "Maximum audio length (ms)",
+      "languageIdPlaceholder": "e.g. en",
+      "presetVoicePlaceholder": "e.g. af_bella",
+      "speed": "Speed",
+      "returnTimestamps": "Return timestamps",
+      "targetMinTokens": "Target min tokens",
+      "targetMaxTokens": "Target max tokens",
+      "absoluteMaxTokens": "Absolute max tokens",
+      "advanced": "Advanced",
+      "speakerRate": "Speaker rate",
+      "exaggeration": "Exaggeration",
+      "cfg": "Classifier-Free Guidance scale",
+      "seed": "Seed",
+      "topP": "Top P",
+      "minP": "Min P",
+      "repetitionPenalty": "Repetition penalty",
+      "topK": "Top K"
     }
   },
   "xSearch": "Search on X",
@@ -140,8 +166,7 @@
       "addRankField": "Add rank field"
     },
     "speech": {
-      "encoding": "Encoding",
-      "sampleRate": "Sample rate"
+      "encoding": "Encoding"
     }
   },
   "voyageai": {
@@ -163,7 +188,6 @@
     "no_style_preset": "No style preset",
     "style_presetHint": "Guides the image model towards a particular style.",
     "speech": {
-      "outputFormat": "Output format",
       "duration": "Duration (seconds)",
       "durationHint": "Controls the duration in seconds of the generated audio.",
       "seed": "Seed",
@@ -214,6 +238,12 @@
     "vadModel": "Voice activity detection model",
     "minSpeakers": "Minimum number of speakers",
     "maxSpeakers": "Maximum number of speakers",
+    "webhookUrl": "Webhook",
+    "webhookUrlHint": "URL to receive webhook notifications.",
+    "promptUpsampling": "Prompt upsampling",
+    "promptUpsamplingHint": "Modify prompt for more creative generation when enabled.",
+    "safetyTolerance": "Safety tolerance",
+    "safetyToleranceHint": "Tolerance level for input and output moderation. Between 0 (strict) and 6 (lenient). Limit of 2 for Image to Image.",
     "reranking": {
       "task": "Task",
       "taskPlaceholder": "Example: 'Given a web search query, retrieve relevant passages that answer the query'",
@@ -242,7 +272,6 @@
     "storeForInpainting": "Store for inpainting",
     "signWithC2pa": "Sign with C2PA",
     "fileFormat": "File format",
-    "temperature": "Temperature ({{value}})",
     "tagAudioEvents": "Tag audio events",
     "useMultiChannel": "Use multi-channel",
     "timestamps": "Timestamps",
@@ -254,7 +283,6 @@
   "asyncai": {
     "speech": {
       "encoding": "Encoding",
-      "sampleRate": "Sample rate",
       "bitRateMp3Only": "Bit rate (mp3 only)",
       "experimental": "Experimental",
       "overrideSpeedControl": "Override speed control",
@@ -283,7 +311,6 @@
     "speech": {
       "encoding": "Encoding",
       "container": "Container",
-      "sampleRate": "Sample rate",
       "bitRate": "Bit rate (bps)",
       "mipOptOut": "Model Improvement Program opt-out",
       "callback": "Callback URL",
@@ -305,8 +332,6 @@
       "titleHint": "Optional title for the generated clip.",
       "titlePlaceholder": "e.g. Welcome message",
       "precision": "Precision (WAV)",
-      "outputFormat": "Output format",
-      "sampleRate": "Sample rate",
       "useHd": "Use HD"
     }
   },
@@ -334,7 +359,6 @@
     "latexRead": "LaTeX read",
     "audioSetting": "Audio settings",
     "audioFormat": "Audio format",
-    "sampleRate": "Sample rate",
     "bitrate": "Bitrate",
     "channel": "Channel",
     "forceCbr": "Force constant bitrate",

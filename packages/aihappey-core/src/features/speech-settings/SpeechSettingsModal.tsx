@@ -4,6 +4,7 @@ import { SettingsActionButtons, SpeechifySpeechConfig, SpeechifySpeechConfigForm
 import { SpeechSettingsGeneralTab } from "./SpeechSettingsGeneralTab";
 import { useAppStore } from "aihappey-state";
 import {
+  DeepInfraSpeechConfigForm,
   DeepgramSpeechConfigForm,
   OpenAISpeechConfigForm,
   GroqSpeechConfigForm,
@@ -15,6 +16,7 @@ import {
   TogetherSpeechConfigForm,
   MiniMaxSpeechConfigForm,
   ResembleAISpeechConfigForm,
+  type DeepInfraSpeechConfig,
   type ElevenLabsSpeechConfig,
   type DeepgramSpeechConfig,
   type OpenAISpeechConfig,
@@ -90,6 +92,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
               config={providerMetadata.deepgram ?? {}}
               updateConfig={(deepgram: DeepgramSpeechConfig) =>
                 setProviderMetadata({ ...providerMetadata, deepgram })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("DeepInfra") && (
+          <theme.Tab eventKey="deepinfra" title="DeepInfra">
+            <DeepInfraSpeechConfigForm
+              config={providerMetadata.deepinfra ?? {}}
+              updateConfig={(deepinfra: DeepInfraSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, deepinfra })
               }
             />
           </theme.Tab>

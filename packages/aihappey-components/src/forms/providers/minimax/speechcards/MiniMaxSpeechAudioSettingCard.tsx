@@ -88,7 +88,7 @@ export const MiniMaxSpeechAudioSettingCard: React.FC<{
         </theme.Select>
 
         <theme.Select
-          label={t("providers:minimax.sampleRate")}
+          label={t("speechSettings.sampleRate")}
           values={[
             typeof config?.audio_setting?.sample_rate === "number"
               ? String(config.audio_setting.sample_rate)

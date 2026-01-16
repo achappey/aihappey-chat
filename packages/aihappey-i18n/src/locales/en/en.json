@@ -26,9 +26,11 @@
   "speech": "Speech",
   "mySpeechFiles": "My speech files",
   "speechPromptPlaceholder": "Enter text to convert to audio",
+  "outputFormat": "Output format",
   "speechSettings": {
     "title": "Speech settings",
     "voice": "Voice",
+    "sampleRate": "Sample rate",
     "outputFormat": "Output format",
     "volume": "Volume",
     "volumeWithValue": "Volume ({{volume}}x)",

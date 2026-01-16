@@ -4,6 +4,7 @@ import type { IconToken } from "./IconToken";
 
 export type ButtonProps = ComponentProps<"button"> & {
   variant?: string;
+  shape?: string;
   size?: string;
   icon?: IconToken;
   iconPosition?: "left" | "right";

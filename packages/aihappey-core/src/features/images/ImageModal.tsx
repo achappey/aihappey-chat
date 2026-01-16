@@ -8,6 +8,7 @@ export interface ImageModalProps {
     image: ImageContent
     onClose: () => void;
     onDownload: () => void;
+    onDelete?: () => void;
     onAddToPrompt: () => void;
 }
 
@@ -15,6 +16,7 @@ export const ImageModal = ({
     open,
     onClose,
     onDownload,
+    onDelete,
     onAddToPrompt,
     image,
 }: ImageModalProps) => {
@@ -26,6 +28,10 @@ export const ImageModal = ({
             size="large"
             actions={
                 <>
+                    {onDelete && <Button variant="ghost"
+                        icon="delete"
+                        onClick={onDelete}>
+                    </Button>}
                     <Button variant="ghost"
                         icon="download"
                         onClick={onDownload}>

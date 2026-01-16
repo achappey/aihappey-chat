@@ -109,7 +109,7 @@ export const ResembleAISpeechConfigForm: React.FC<{
           />
 
           <theme.Select
-            label={t("providers:resembleai.speech.outputFormat")}
+            label={t("outputFormat")}
             values={[config?.output_format ?? DEFAULT_VALUE]}
             valueTitle={
               outputFormatOptions.find(
@@ -158,7 +158,7 @@ export const ResembleAISpeechConfigForm: React.FC<{
           </theme.Select>
 
           <theme.Select
-            label={t("providers:resembleai.speech.sampleRate")}
+            label={t("speechSettings.sampleRate")}
             values={[
               typeof config?.sample_rate === "number"
                 ? String(config.sample_rate)

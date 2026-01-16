@@ -106,8 +106,8 @@ export const ElevenLabsTranscriptionConfigForm: React.FC<{
 
           {/* ElevenLabs temperature range is 0-2 (OpenAI TemperatureField is 0-1), so use slider. */}
           <theme.Slider
-            label={t("providers:elevenlabs.temperature", {
-              value: (config?.temperature ?? 0).toFixed(2),
+            label={t("temperature", {
+              temperature: (config?.temperature ?? 0).toFixed(2),
             })}
             min={0}
             max={2}

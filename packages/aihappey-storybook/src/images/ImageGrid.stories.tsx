@@ -221,8 +221,9 @@ export const Interactions: Story = {
     gap: "1rem",
     shape: "rounded",
     shadow: true,
-    onImageClick: (item) => {
+    onImageClick: (item, index) => {
       console.log("Image clicked", {
+        index,
         mimeType: item.mimeType,
         dataLength: item.data.length,
         isDataUrl: item.data.startsWith("data:"),

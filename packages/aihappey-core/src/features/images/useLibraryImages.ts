@@ -3,11 +3,16 @@ import { useConversations } from "aihappey-conversations";
 import { useImages } from "aihappey-images";
 
 export type LibraryImageItem = {
+    source: "storage" | "conversation";
     conversationId: string;
     messageId: string;
     createdAt: string;
     data: string;
     mimeType: string;
+    /** Present only when source === "storage" */
+    storageItemId?: string;
+    /** Present only when source === "storage" */
+    imageIndex?: number;
 };
 
 const parseImageData = (input: string) => {
@@ -24,20 +29,26 @@ const parseImageData = (input: string) => {
 export function useLibraryImages(): LibraryImageItem[] {
     const conversations = useConversations();
     const images = useImages();
+
     return useMemo(() => {
         const out: LibraryImageItem[] = [];
 
         images.items.forEach((c) => {
-            c.imageResponse.images.forEach((d) => {
+            c.imageResponse.images.forEach((d, imageIndex) => {
                 const raw = d.toString();
                 const { mimeType, data } = parseImageData(raw);
 
                 out.push({
-                    conversationId: c.id,
+                    source: "storage",
+                    // Stored image generations are not tied to a conversation message.
+                    // Keep the fields for UI parity, but do not imply they belong to a conversation.
+                    conversationId: "storage",
                     messageId: c.id,
                     createdAt: c.imageResponse.response.timestamp.toString(),
                     data,
                     mimeType,
+                    storageItemId: c.id,
+                    imageIndex,
                 })
             });
         });
@@ -61,6 +72,7 @@ export function useLibraryImages(): LibraryImageItem[] {
                                 .filter((x: any) => x.type === "image")
                                 .forEach((img: any) =>
                                     out.push({
+                                        source: "conversation",
                                         conversationId: c.id,
                                         messageId: m.id,
                                         createdAt,
@@ -80,6 +92,7 @@ export function useLibraryImages(): LibraryImageItem[] {
                         )
                         .forEach((p: any) =>
                             out.push({
+                                source: "conversation",
                                 conversationId: c.id,
                                 messageId: m.id,
                                 createdAt,

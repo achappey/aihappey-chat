@@ -11,6 +11,38 @@
       "instruction": "Instructie"
     }
   },
+  "deepinfra": {
+    "reranking": {
+      "instruction": "Instructie",
+      "serviceTier": "Servicelaag"
+    },
+    "speech": {
+      "serviceTier": "Servicelaag",
+      "voiceId": "Stem",
+      "voiceIdPlaceholder": "bijv. deepinfra-voice-123",
+      "maxTokens": "Maximum aantal tokens",
+      "languageId": "Taal",
+      "languageIdPlaceholder": "bijv. en",
+      "speakerAudio": "Spreker-audio",
+      "speakerTranscript": "Sprekertranscript",
+      "maxAudioLengthMs": "Maximale audiolengte (ms)",
+      "presetVoicePlaceholder": "bijv. af_bella",
+      "speed": "Snelheid",
+      "returnTimestamps": "Tijdstempels retourneren",
+      "targetMinTokens": "Doel minimum tokens",
+      "targetMaxTokens": "Doel maximum tokens",
+      "absoluteMaxTokens": "Absoluut maximum tokens",
+      "speakerRate": "Spreeksnelheid",
+      "advanced": "Geavanceerd",
+      "exaggeration": "Overdrijving",
+      "cfg": "Classifier-Free Guidance-schaal",
+      "seed": "Seed",
+      "topP": "Top P",
+      "minP": "Min P",
+      "repetitionPenalty": "Herhalingsstraf",
+      "topK": "Top K"
+    }
+  },
   "mistral": {
     "webSearchPremium": "Premium",
     "transcriptionTimestampsLanguageIncompatibleTitle": "Let op",
@@ -134,8 +166,7 @@
       "addRankField": "Veld toevoegen"
     },
     "speech": {
-      "encoding": "Encodering",
-      "sampleRate": "Samplerate"
+      "encoding": "Encodering"
     }
   },
   "voyageai": {
@@ -156,7 +187,6 @@
     "no_style_preset": "Geen stijl-instructie",
     "style_presetHint": "Stuurt het afbeeldingsmodel richting een bepaalde stijl.",
     "speech": {
-      "outputFormat": "Uitvoerformaat",
       "duration": "Duur (seconden)",
       "durationHint": "Bepaalt de duur in seconden van de gegenereerde audio.",
       "seed": "Seed",
@@ -202,6 +232,12 @@
     "vadModel": "Spraakactiviteitsdetectie",
     "minSpeakers": "Minimum aantal sprekers",
     "maxSpeakers": "Maximum aantal sprekers",
+    "webhookUrl": "Webhook",
+    "webhookUrlHint": "URL om webhooknotificaties te ontvangen.",
+    "promptUpsampling": "Prompt-opschaling",
+    "promptUpsamplingHint": "Wijzig de prompt voor creatievere generatie wanneer ingeschakeld.",
+    "safetyTolerance": "Veiligheidstolerantie",
+    "safetyToleranceHint": "Tolerantieniveau voor in- en uitvoermoderatie. Tussen 0 (strikt) en 6 (toegeeflijk).",
     "reranking": {
       "task": "Taak",
       "taskPlaceholder": "Voorbeeld: 'Gegeven een webzoekopdracht, haal relevante passages op die de vraag beantwoorden'",
@@ -230,7 +266,6 @@
     "storeForInpainting": "Opslaan voor inpainting",
     "signWithC2pa": "Ondertekenen met C2PA",
     "fileFormat": "Bestandsformaat",
-    "temperature": "Temperatuur ({{value}})",
     "tagAudioEvents": "Audio-events taggen",
     "useMultiChannel": "Meerkanaals gebruiken",
     "timestamps": "Tijdstempels",
@@ -242,7 +277,6 @@
   "asyncai": {
     "speech": {
       "encoding": "Encodering",
-      "sampleRate": "Samplerate",
       "bitRateMp3Only": "Bitrate (alleen mp3)",
       "experimental": "Experimenteel",
       "overrideSpeedControl": "Snelheidsregeling overschrijven",
@@ -271,7 +305,6 @@
     "speech": {
       "encoding": "Encodering",
       "container": "Container",
-      "sampleRate": "Samplerate",
       "bitRate": "Bitrate (bps)",
       "mipOptOut": "Model Improvement Program uitschakelen",
       "callback": "Callback-URL",
@@ -292,7 +325,6 @@
     "latexRead": "LaTeX voorlezen",
     "audioSetting": "Audio-instellingen",
     "audioFormat": "Audioformaat",
-    "sampleRate": "Samplerate",
     "bitrate": "Bitrate",
     "channel": "Kanaal",
     "forceCbr": "Constante bitrate afdwingen",
@@ -323,8 +355,6 @@
       "titleHint": "Optionele titel voor de gegenereerde clip.",
       "titlePlaceholder": "bijv. Welkomstbericht",
       "precision": "Precisie (WAV)",
-      "outputFormat": "Uitvoerformaat",
-      "sampleRate": "Samplerate",
       "useHd": "HD gebruiken"
     }
   },
