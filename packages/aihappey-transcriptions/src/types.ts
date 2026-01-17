@@ -18,6 +18,16 @@ export interface TranscriptionStore {
     blob: Blob,
     transcription: TranscriptionResponse
   ): Promise<TranscriptionItem>;
+  /**
+   * Update an existing transcription item in storage.
+   *
+   * Intended for long-running / streaming use cases (e.g. Realtime transcription)
+   * where we want to incrementally persist the transcript without creating many items.
+   */
+  update(
+    id: string,
+    patch: Partial<Pick<TranscriptionItem, "name" | "blob" | "transcription">>
+  ): Promise<TranscriptionItem | undefined>;
   list(): Promise<TranscriptionItem[]>;
   delete(id: string): Promise<void>;
 }

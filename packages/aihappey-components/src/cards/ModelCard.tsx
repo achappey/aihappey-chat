@@ -25,7 +25,7 @@ export const ModelCard = ({ model, image, onChat, locale }: ModelCardProps) => {
   const isNew =
     typeof model.created === "number" &&
     Date.now() - model.created * 1000 <= THIRTY_DAYS_MS;
-  //{model?.owned_by}
+
   const description = (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
       {(model.context_window ?? 0) > 0 && (
@@ -35,15 +35,20 @@ export const ModelCard = ({ model, image, onChat, locale }: ModelCardProps) => {
       {(model.max_tokens ?? 0) > 0 && (
         <MaxOutputTokensBadge mex_output_tokens={model.max_tokens!} />
       )}
+
+      {model.tags?.includes("real-time") && (
+        <Badge bg="subtle"
+          size="small"
+          appearance={"tint"}
+          icon="realtime">{t('realtime')}</Badge>
+      )}
     </span>
   );
-const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
-
-const loadTime = new Date(
-  performance.timeOrigin + nav.loadEventEnd
-);
-
-console.log(loadTime);
+  /*  const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+  
+    const loadTime = new Date(
+      performance.timeOrigin + nav.loadEventEnd
+    );*/
 
 
   const actions = onChat && model.type == "language"

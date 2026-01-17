@@ -22,6 +22,9 @@ import { useTranscriptionErrors } from "./useTranscriptionErrors";
 import { getTranscriptionErrorMessage } from "./transcriptionErrors";
 import { TranscriptionWarnings } from "./TranscriptionWarnings";
 import { useTranslation } from "aihappey-i18n";
+import { useEffect } from "react";
+import type { AihUiTheme } from "aihappey-types";
+import { useRealtimeTranscriptionController } from "./realtime/useRealtimeTranscriptionController";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -45,14 +48,23 @@ export const TranscriptionsPage = () => {
   const userPreferredTranscriptionModel = useAppStore((a) => a.userPreferredTranscriptionModel);
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<string>("recorded");
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(userPreferredTranscriptionModel
     ?? (getAccessToken ? "openai/gpt-4o-transcribe-diarize" : ""));
   const headers = config?.headers;
-  const { Skeleton } = useTheme()
+  const { Skeleton, Tabs, Tab } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab">;
   const { t } = useTranslation()
   const storageTranscriptions = useTranscriptions()
   const files = useFiles();
+  const currentModel = models?.find(a => a.id == selectedModel);
+  // Ensure we stop the realtime session when leaving the page.
+  useEffect(() => {
+    return () => {
+      void realtimeController.stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const {
     errors,
@@ -66,6 +78,13 @@ export const TranscriptionsPage = () => {
     dismissWarning,
     dismissSharedWarning,
   } = useTranscriptionErrors();
+
+  const realtimeController = useRealtimeTranscriptionController({
+    config,
+    selectedModel: currentModel,
+    transcriptions: storageTranscriptions as any,
+    onErrorAlert: addError,
+  });
 
   const knownSpeakerSamples = {
     getSampleInfo: (speakerName: string) => {
@@ -243,37 +262,60 @@ export const TranscriptionsPage = () => {
           disabled={processing}
           onFilesSelected={transcribeFiles}
           knownSpeakerSamples={knownSpeakerSamples}
+          realtime={{
+            canStart: realtimeController.canStart,
+            status: realtimeController.realtimeStatus,
+            onStart: () => {
+              setActiveTab("realtime");
+              void realtimeController.start();
+            },
+            onStop: () => void realtimeController.stop(),
+          }}
         />
 
       </div>
 
-      <div style={{
-        maxWidth: 1056,
-        margin: "0 auto",
-        padding: "0 12px",
-      }}>
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-          gap: 16,
-          alignItems: "stretch",
-        }}>
-          {Array.from({ length: itemsLoading }).map((_, i) => (
-            <div key={`shimmer-${i}`} style={cellStyle}>
-              <Skeleton style={{ width: "100%", height: "100%" }} />
-            </div>
-          ))}
+      <div style={{ maxWidth: 1056, margin: "0 auto", padding: "0 12px" }}>
+        <Tabs activeKey={activeTab} onSelect={setActiveTab}>
+          <Tab eventKey="recorded" title={t("myTranscriptions")}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: 16,
+              alignItems: "stretch",
+              marginTop: 12,
+            }}>
+              {Array.from({ length: itemsLoading }).map((_, i) => (
+                <div key={`shimmer-${i}`} style={cellStyle}>
+                  <Skeleton style={{ width: "100%", height: "100%" }} />
+                </div>
+              ))}
 
-          {storageTranscriptions.items.map(a => (
-            <TranscriptionCard
-              key={a.id ?? a.name}
-              transcription={a.transcription}
-              filename={a.name}
-              file={a.blob}
-              onDelete={a.id ? () => storageTranscriptions.delete(a.id) : undefined}
-            />
-          ))}
-        </div>
+              {storageTranscriptions.items.map(a => (
+                <TranscriptionCard
+                  key={a.id ?? a.name}
+                  transcription={a.transcription}
+                  filename={a.name}
+                  file={a.blob}
+                  onDelete={a.id ? () => storageTranscriptions.delete(a.id) : undefined}
+                />
+              ))}
+            </div>
+          </Tab>
+          <Tab eventKey="realtime" title={t('realtime')}>
+            <div style={{ marginTop: 12 }}>
+              <div style={{
+                padding: 12,
+                border: "1px solid rgba(0,0,0,0.12)",
+                borderRadius: 8,
+                minHeight: 120,
+                whiteSpace: "pre-wrap",
+              }}>
+                {realtimeController.realtimeText || ""}
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
       </div>
 
 

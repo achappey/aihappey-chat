@@ -12,8 +12,9 @@ import { ImageSlice } from "./slices/imageSlice";
 import { TranscriptionSlice } from "./slices/transcriptionSlice";
 import { SpeechSlice } from "./slices/speechSlice";
 import { RerankingSlice } from "./slices/rerankingSlice";
+import { RealtimeSlice } from "./slices/realtimeSlice";
 
-type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & SpeechSlice
+type RootState = ChatSlice & McpSlice & ImageSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice;
 
 export const withPersist = (
@@ -28,6 +29,7 @@ export const withPersist = (
       structuredOutputs: s.structuredOutputs,
       quickSearches: s.quickSearches,
       maxToolCalls: s.maxToolCalls,
+      providerRealtimeMetadata: s.providerRealtimeMetadata,
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,

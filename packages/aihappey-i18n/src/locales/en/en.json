@@ -18,6 +18,7 @@
   "rerank": "Reranking",
   "result": "Result",
   "current": "Current",
+  "realtime": "Real-time",
   "maxOutputTokens": "Maximum output tokens",
   "maxToolCalls": "Maximum tool calls",
   "stopTools": "Tools that end the chat turn",

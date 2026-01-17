@@ -10,8 +10,10 @@ import { createImageSlice, ImageSlice } from "./slices/imageSlice";
 import { createTranscriptionSlice, TranscriptionSlice } from "./slices/transcriptionSlice";
 import { createSpeechSlice, SpeechSlice } from "./slices/speechSlice";
 import { createRerankingSlice, RerankingSlice } from "./slices/rerankingSlice";
+import { createRealtimeSlice, RealtimeSlice } from "./slices/realtimeSlice";
 
-export type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & SpeechSlice
+export type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & RealtimeSlice
+  & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice;
 
 export const createAppStore = () =>
@@ -23,6 +25,7 @@ export const createAppStore = () =>
         ...createImageSlice(set, get, store),
         ...createMcpServersSlice(set, get, store),
         ...createRerankingSlice(set, get, store),
+        ...createRealtimeSlice(set, get, store),
         ...createSpeechSlice(set, get, store),
         ...createTranscriptionSlice(set, get, store),
         ...createMcpRegistrySlice(set, get, store),

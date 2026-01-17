@@ -17,6 +17,14 @@ type TranscriptionInputProps = {
   disabled?: boolean;
   onFilesSelected?: (files: File[]) => Promise<void> | void;
   knownSpeakerSamples?: KnownSpeakerSamplesBinding;
+
+  // Realtime transcription controls (optional)
+  realtime?: {
+    canStart?: boolean;
+    status?: "idle" | "starting" | "connected" | "stopping" | "error";
+    onStart?: () => void;
+    onStop?: () => void;
+  };
 };
 
 export const TranscriptionInput = (props: TranscriptionInputProps) => {
@@ -24,6 +32,8 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
   const { Button } = useTheme();
   const providerTranscriptionMetadata = useAppStore((s) => s.providerTranscriptionMetadata);
   const setProviderTranscriptionMetadata = useAppStore((s) => s.setProviderTranscriptionMetadata);
+  const providerRealtimeMetadata = useAppStore((s) => s.providerRealtimeMetadata);
+  const setProviderRealtimeMetadata = useAppStore((s) => s.setProviderRealtimeMetadata);
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
   const enabledProviders = useAppStore(a => a.enabledProviders);
 
@@ -207,6 +217,8 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
 
           <TranscriptionSettingsButton
             enabledProviders={enabledProviders}
+            realtimeProviderMetadata={providerRealtimeMetadata}
+            setRealtimeProviderMetadata={setProviderRealtimeMetadata}
             providerMetadata={providerTranscriptionMetadata}
             setProviderMetadata={setProviderTranscriptionMetadata}
             resetDefaults={() => setProviderTranscriptionMetadata(defaultProviderTranscriptionMetadata)}
@@ -230,6 +242,24 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
           >
             {recording ? elapsedLabel : undefined}
           </Button>
+
+          {props.realtime?.onStart && (
+            <Button
+              type="button"
+              size="large"
+              title={props.realtime.status === "connected" ? t('stop') : t('realtime')}
+              variant={props.realtime.status === "connected" ? "primary" : "transparent"}
+              icon={props.realtime.status === "connected" ? "stop" : "realtime"}
+              disabled={
+                props.disabled
+                || props.realtime.status === "starting"
+                || props.realtime.status === "stopping"
+                || !props.realtime.canStart
+              }
+              onClick={props.realtime.status === "connected" ? props.realtime.onStop : props.realtime.onStart}
+            >
+            </Button>
+          )}
         </div>
       </div>
 

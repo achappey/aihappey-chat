@@ -75,6 +75,16 @@ export const TranscriptionsProvider = ({
       setItems((prev) => prev.filter((x) => x.id !== id));
     };
 
+    ctx.update = async (
+      id: string,
+      patch: Partial<Pick<TranscriptionItem, "name" | "blob" | "transcription">>
+    ) => {
+      const updated = await store.update(id, patch);
+      if (!updated) return undefined;
+      setItems((prev) => prev.map((x) => (x.id === id ? updated : x)));
+      return updated;
+    };
+
     return ctx;
   }, [store, items, refresh]);
 

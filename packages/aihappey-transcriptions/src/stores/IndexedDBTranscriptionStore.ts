@@ -60,6 +60,27 @@ export class IndexedDBTranscriptionStore implements TranscriptionStore {
     return item;
   };
 
+  update = async (
+    id: string,
+    patch: Partial<Pick<TranscriptionItem, "name" | "blob" | "transcription">>
+  ): Promise<TranscriptionItem | undefined> => {
+    await this.ensureLoaded();
+
+    const idx = this.data.findIndex((x) => x.id === id);
+    if (idx < 0) return undefined;
+
+    const current = this.data[idx];
+    const updated: TranscriptionItem = {
+      ...current,
+      ...patch,
+    };
+
+    // Keep ordering stable (do not move item to top); callers may manage ordering.
+    this.data = this.data.map((x, i) => (i === idx ? updated : x));
+    await this.commit();
+    return updated;
+  };
+
   list = async (): Promise<TranscriptionItem[]> => {
     await this.ensureLoaded();
     return this.data;

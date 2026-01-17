@@ -25,6 +25,9 @@ export interface TranscriptionSettingsModalProps {
     providerMetadata: Record<string, any>;
     setProviderMetadata: (meta: Record<string, any>) => void;
 
+    realtimeProviderMetadata: Record<string, any>;
+    setRealtimeProviderMetadata: (meta: Record<string, any>) => void;
+
     enabledProviders: string[];
 
     resetDefaults?: () => void;
@@ -49,6 +52,8 @@ export const TranscriptionSettingsModal: React.FC<
     setProviderMetadata,
     enabledProviders,
     resetDefaults,
+    realtimeProviderMetadata,
+    setRealtimeProviderMetadata,
     knownSpeakerSamples,
     onClose,
 }) => {
@@ -116,6 +121,13 @@ export const TranscriptionSettingsModal: React.FC<
                                 updateConfig={(elevenlabs) =>
                                     setProviderMetadata({
                                         ...providerMetadata,
+                                        elevenlabs,
+                                    })
+                                }
+                                realtimeConfig={realtimeProviderMetadata.elevenlabs ?? {}}
+                                updateRealtimeConfig={(elevenlabs) =>
+                                    setRealtimeProviderMetadata({
+                                        ...realtimeProviderMetadata,
                                         elevenlabs,
                                     })
                                 }
@@ -189,6 +201,13 @@ export const TranscriptionSettingsModal: React.FC<
                                 updateConfig={(openai) =>
                                     setProviderMetadata({
                                         ...providerMetadata,
+                                        openai,
+                                    })
+                                }
+                                realtimeConfig={realtimeProviderMetadata.openai ?? {}}
+                                updateRealtimeConfig={(openai) =>
+                                    setRealtimeProviderMetadata({
+                                        ...realtimeProviderMetadata,
                                         openai,
                                     })
                                 }

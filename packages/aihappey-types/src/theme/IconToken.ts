@@ -27,6 +27,7 @@ export type IconToken =
   | "imageSettings"
   | "reranking"
   | "rerankingSettings"
+  | "realtime"
   | "catalog"
   | "brain"
   | "download"

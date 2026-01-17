@@ -66,6 +66,12 @@ export interface SpeechResponse {
   };
 }
 
+export interface RealtimeResponse {
+  value: string;
+  expires_at: number;
+  providerMetadata: Record<string, any>
+}
+
 
 export const defaultEndpoints = {
   chat: "/api/chat",
@@ -75,6 +81,7 @@ export const defaultEndpoints = {
   sampling: "/sampling",
   models: "/v1/models",
   reranking: "/api/rerank",
-  chatCompletions: "/chat/completions"
+  chatCompletions: "/chat/completions",
+  realtime: "/v1/realtime/client_secrets"
 }
 

@@ -20,6 +20,7 @@
   "selectModelPlaceholder": "Selecteer AI-model...",
   "apiKeys": "API sleutels",
   "search": "Zoeken",
+  "realtime": "Real-time",
   "conversationSearch": "Chats doorzoeken",
   "conversationSearchPlaceholder": "Chats doorzoeken...",
   "context": "Context",

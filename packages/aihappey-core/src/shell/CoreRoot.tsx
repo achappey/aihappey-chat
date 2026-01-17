@@ -43,29 +43,6 @@ type CoreRootProps = {
   authConfig?: AuthConfig;
 };
 
-/*
-export type inferenceEndpoints = {
-  chat: string,
-  images: string,
-  transcriptions: string,
-  speech: string,
-  sampling: string,
-  models: string,
-  reranking: string,
-  chatCompletions: string,
-}
-
-const defaultEndpoints: inferenceEndpoints = {
-  chat: "/api/chat",
-  images: "/v1/images/generations",
-  transcriptions: "/v1/audio/transcriptions",
-  speech: "/v1/audio/speech",
-  sampling: "/sampling",
-  models: "/v1/models",
-  reranking: "/api/rerank",
-  chatCompletions: "/chat/completions"
-}*/
-
 export const CoreRoot = ({
   chatConfig,
   conversationsApi,
@@ -91,15 +68,11 @@ export const CoreRoot = ({
 
   // 2. merge chatConfig with auth if msal present
   const mergedChatConfig = useMemo(() => {
-    // if (!authConfig) return chatConfig;
-    // Ensure api is always present (required by AiChatConfig)
-   // const api = chatConfig?.api ?? "/api/chat";
     return {
       ...chatConfig,
       appName,
       appVersion,
       agentEndpoint,
-    //  api,
       agentScopes,
       baseUrl: baseUrl,
       endpoints: defaultEndpoints,
