@@ -52,7 +52,12 @@ export const ToolInvocationStateBadge: React.FC<ToolInvocationStateBadgeProps> =
           <Badge size={size} bg="success">{t("output-approved")}</Badge>
         ) : approval?.approved == false ? (
           <Badge size={size} bg="warning">{t("output-denied")}</Badge>
-        ) : (
+        ) : state !== "output-error"
+        && state !== "input-streaming"
+        && state !== "input-available"
+        && state !== "output-available"
+        && state !== "approval-responded"
+        && (
           <Badge size={size} bg="important">{t(state)}</Badge>
         )
       }
