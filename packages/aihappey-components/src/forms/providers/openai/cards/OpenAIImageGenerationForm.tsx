@@ -22,6 +22,8 @@ export const OpenAIImageGenerationForm = ({
   const imageGenerationOn = !!config?.image_generation;
 
   const modelOptions = [
+    { value: "chatgpt-image-latest", label: "chatgpt-image-latest" },
+    { value: "gpt-image-1.5", label: "gpt-image-1.5" },
     { value: "gpt-image-1", label: "gpt-image-1" },
     { value: "gpt-image-1-mini", label: "gpt-image-1-mini" },
   ];

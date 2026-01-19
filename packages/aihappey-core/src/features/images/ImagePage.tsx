@@ -17,6 +17,7 @@ import { ImageContent } from "@modelcontextprotocol/sdk/types";
 import { createImageProvider } from "aihappey-ai";
 import { fileToBase64 } from "../chat/files/file";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
+import { useFiles } from "aihappey-files";
 
 export const ImagePage = () => {
   const images = useLibraryImages();
@@ -33,7 +34,8 @@ export const ImagePage = () => {
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const storageImages = useImages()
   const userPreferredImageModel = useAppStore((a) => a.userPreferredImageModel);
-
+  const files = useFiles()
+  
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(
     userPreferredImageModel ??
@@ -86,7 +88,7 @@ export const ImagePage = () => {
       });
     }
   };
-  
+
   const attachments = useFileAttachments(fileAttachmentRuntime);
   const addAttachment = async (file: File) => {
 

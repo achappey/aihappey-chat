@@ -18,7 +18,11 @@ function downloadJson(filename: string, data: unknown) {
 
   URL.revokeObjectURL(url);
 }
-const API_KEY_PROVIDER_IDS = Object.keys(PROVIDERS).filter(a => a !== "pollinations")
+const API_KEY_PROVIDER_IDS = Object.keys(PROVIDERS)
+  .filter(a => a !== "pollinations")
+  .filter(a => a !== "echo")
+  .filter(a => a !== "azure")
+  .filter(a => a !== "kernelmemory")
 
 type ApiKeyProviderId = (typeof API_KEY_PROVIDER_IDS)[number];
 

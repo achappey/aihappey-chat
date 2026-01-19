@@ -29,7 +29,7 @@ export const defaultProviderMetadata = {
       }
     },
     "image_generation": {
-      "model": "gpt-image-1",
+      "model": "gpt-image-1.5",
       "partial_images": 3,
       "quality": "auto",
       "background": "auto",

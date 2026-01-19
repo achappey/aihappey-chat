@@ -113,6 +113,8 @@
   "ratio": "Ratio",
   "imageSettings": {
     "size": "Image size",
+    "mask": "Mask",
+    "maskNone": "No mask",
     "title": "Image settings",
     "aspectRatio": "Aspect ratio",
     "maxImagesPerCall": "Maximum images per call",

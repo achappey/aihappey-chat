@@ -15,6 +15,7 @@ export function useDefaultProviders(defaultProviders?: string[]) {
       }
       else {
         toggleEnabledProvider("Pollinations")
+        toggleEnabledProvider("Echo")
       }
     }
   }, []);
