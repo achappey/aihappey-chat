@@ -5,7 +5,7 @@ import {
   OpenAIImageConfigForm, PollinationsImageConfigForm,
   RunwayImageConfigForm, SettingsActionButtons,
   StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme,
-  FireworksImageConfigForm, VerdaImageConfigForm
+  FireworksImageConfigForm, VerdaImageConfigForm, FreepikImageConfigForm
 } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
@@ -169,6 +169,18 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
               config={providerMetadata.verda ?? {}}
               updateConfig={(verda) =>
                 setProviderMetadata({ ...providerMetadata, verda })
+              }
+            />
+          </theme.Tab>
+        }
+
+        {enabledProviders.includes("Freepik") &&
+          <theme.Tab eventKey="freepik"
+            title="Freepik">
+            <FreepikImageConfigForm
+              config={providerMetadata.freepik ?? {}}
+              updateConfig={(freepik) =>
+                setProviderMetadata({ ...providerMetadata, freepik })
               }
             />
           </theme.Tab>

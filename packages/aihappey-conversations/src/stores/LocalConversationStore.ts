@@ -24,6 +24,9 @@ export class LocalConversationStore implements ConversationStore {
   constructor() {
     this.data = load();
   }
+  removeMessage(cid: string, mid: string): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
 
   private commit = () => {
     save(this.data);

@@ -111,6 +111,18 @@ export const ConversationsProvider = ({
       );
     };
 
+    ctx.removeMessage = async (cid: string, mid: string) => {
+      await store.removeMessage(cid, mid);
+
+      setItems((prev) =>
+        prev.map((c) =>
+          c.id === cid
+            ? { ...c, messages: c.messages.filter((m) => m.id !== mid) }
+            : c
+        )
+      );
+    };
+
     return ctx;
   }, [store, items, refresh]);
 

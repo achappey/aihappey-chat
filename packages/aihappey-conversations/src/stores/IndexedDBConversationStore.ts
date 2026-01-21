@@ -217,4 +217,30 @@ export class IndexedDBConversationStore implements ConversationStore {
 
   };
 
+  removeMessage = async (cid: string, mid: string): Promise<void> => {
+
+    await this.ensureLoaded();
+    let foundConversation = false;
+    let removedMessage = false;
+
+    this.data = this.data.map((c) => {
+      if (c.id !== cid) return c;
+      foundConversation = true;
+      const before = c.messages.length;
+      const messages = c.messages.filter((m) => m.id !== mid);
+      removedMessage = removedMessage || messages.length !== before;
+      return { ...c, messages };
+    });
+
+    if (!foundConversation) {
+      throw new Error(`Conversation ${cid} not found`);
+    }
+    if (!removedMessage) {
+      throw new Error(`Message ${mid} not found in conversation ${cid}`);
+    }
+
+    await this.commit();
+
+  };
+
 }

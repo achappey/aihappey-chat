@@ -4,7 +4,7 @@ import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useImages } from "aihappey-images";
 import { useImageErrors } from "./useImageErrors";
@@ -15,7 +15,7 @@ import { ImageModal } from "./ImageModal";
 import { ImageWarnings } from "./ImageWarnings";
 import { ImageContent } from "@modelcontextprotocol/sdk/types";
 import { createImageProvider } from "aihappey-ai";
-import { fileToBase64 } from "../chat/files/file";
+import { blobToBase64, fileToBase64 } from "../chat/files/file";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useFiles } from "aihappey-files";
 
@@ -35,7 +35,7 @@ export const ImagePage = () => {
   const storageImages = useImages()
   const userPreferredImageModel = useAppStore((a) => a.userPreferredImageModel);
   const files = useFiles()
-  
+
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(
     userPreferredImageModel ??
@@ -100,6 +100,11 @@ export const ImagePage = () => {
     addAttachment
   );
 
+  const maskEntry = useMemo(
+    () => (files.items ?? []).find((f) => f.name === "image_mask"),
+    [files.items]
+  );
+
   const onSend = async (content: string) => {
     clearWarnings();
     try {
@@ -135,7 +140,11 @@ export const ImagePage = () => {
         size: size as any,
         aspectRatio: aspectRatio as any,
         seed: seed,
-        mask: undefined,
+        mask: maskEntry ? {
+          type: "file",
+          mediaType: maskEntry.data.type,
+          data: await blobToBase64(maskEntry.data)
+        } : undefined,
         files: files,
         providerOptions: providerImageMetadata
       })

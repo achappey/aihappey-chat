@@ -3,10 +3,11 @@ import { useTranslation } from "aihappey-i18n";
 import { SettingsActionButtons, SpeechifySpeechConfig, SpeechifySpeechConfigForm, useTheme } from "aihappey-components";
 import { SpeechSettingsGeneralTab } from "./SpeechSettingsGeneralTab";
 import { useAppStore } from "aihappey-state";
-import {
+  import {
   DeepInfraSpeechConfigForm,
   DeepgramSpeechConfigForm,
   AudixaSpeechConfigForm,
+  FreepikSpeechConfigForm,
   OpenAISpeechConfigForm,
   GroqSpeechConfigForm,
   NovitaSpeechConfigForm,
@@ -21,6 +22,7 @@ import {
   type ElevenLabsSpeechConfig,
   type DeepgramSpeechConfig,
   type AudixaSpeechConfig,
+  type FreepikSpeechConfig,
   type OpenAISpeechConfig,
   type GroqSpeechConfig,
   type NovitaSpeechConfig,
@@ -116,6 +118,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
               config={providerMetadata.deepinfra ?? {}}
               updateConfig={(deepinfra: DeepInfraSpeechConfig) =>
                 setProviderMetadata({ ...providerMetadata, deepinfra })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("Freepik") && (
+          <theme.Tab eventKey="freepik" title="Freepik">
+            <FreepikSpeechConfigForm
+              config={providerMetadata.freepik ?? {}}
+              updateConfig={(freepik: FreepikSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, freepik })
               }
             />
           </theme.Tab>

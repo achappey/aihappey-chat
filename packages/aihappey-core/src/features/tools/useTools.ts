@@ -13,6 +13,7 @@ import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
 import { useLocalTools } from "aihappey-tools";
 import { storedToolToMcpTool } from "./localStoredTools";
+import { localImagesPluginDef } from "./toolcalls/useLocalImagesToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -30,6 +31,7 @@ export function useTools() {
       localAgentsPluginDef,
       localConversationsPluginDef,
       localCanvasPluginDef,
+      localImagesPluginDef,
       localSettingsPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,

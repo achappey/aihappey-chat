@@ -491,5 +491,62 @@
       "textNormalization": "Tekstnormalisatie",
       "textNormalizationHint": "Normaliseer tekst (getallen, datums, enz.) naar woorden. Kan de snelheid verlagen."
     }
+  },
+  "freepik": {
+    "speech": {
+      "soundEffects": {
+        "title": "Geluidseffecten",
+        "durationSeconds": "Duur in seconden",
+        "promptInfluence": "Invloed van de prompt",
+        "loop": "Herhalen",
+        "durationSecondsHint": "De duur van het gegenereerde audiofragment.",
+        "promptInfluenceHint": "De mate waarin de prompt het gegenereerde geluid beïnvloedt.",
+        "loopHint": "Of het geluidseffect naadloos moet kunnen worden herhaald."
+      }
+    },
+    "image": {
+      "shared": {
+        "sharpen": "Verscherpen",
+        "ultraDetail": "Ultradetail"
+      },
+      "imageExpand": {
+        "title": "Afbeelding uitbreiden",
+        "left": "Links (px)",
+        "right": "Rechts (px)",
+        "top": "Boven (px)",
+        "bottom": "Onder (px)"
+      },
+      "skinEnhancerCreative": {
+        "title": "Skin Enhancer (Creatief)"
+      },
+      "skinEnhancerFaithful": {
+        "title": "Skin Enhancer (Getrouw)",
+        "skinDetail": "Huiddetail"
+      },
+      "skinEnhancerFlexible": {
+        "title": "Skin Enhancer (Flexibel)",
+        "optimizedFor": "Geoptimaliseerd voor"
+      },
+      "upscalerCreative": {
+        "title": "Upscaler (Creatief)",
+        "scaleFactor": "Schaalfactor",
+        "optimizedFor": "Geoptimaliseerd voor",
+        "prompt": "Prompt",
+        "promptHint": "Prompt om het upscalingproces te sturen.",
+        "creativity": "Creativiteit",
+        "hdr": "HDR",
+        "resemblance": "Gelijkenis",
+        "fractality": "Fractality",
+        "engine": "Engine"
+      },
+      "upscalerPrecision": {
+        "title": "Upscaler (Precisie)"
+      },
+      "upscalerPrecisionV2": {
+        "title": "Upscaler (Precisie V2)",
+        "flavor": "Smaak",
+        "scaleFactor": "Schaalfactor"
+      }
+    }
   }
 }

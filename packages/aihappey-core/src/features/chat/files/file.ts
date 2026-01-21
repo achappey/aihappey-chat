@@ -39,6 +39,28 @@ export const fileToBase64 = async (file: File) => {
   return btoa(binary);
 };
 
+/**
+ * Converts a Blob to a base64 string (NO data-url prefix).
+ *
+ * IMPORTANT: do not use `String.fromCharCode(...bytes)` on large arrays:
+ * it can throw "Maximum call stack size exceeded".
+ * Convert in chunks to keep argument/stack usage bounded.
+ */
+export const blobToBase64 = async (blob: Blob): Promise<string> => {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const chunkSize = 0x8000; // 32KB; safe for Function.apply arg limits in browsers
+
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    binary += String.fromCharCode.apply(null, chunk as any);
+  }
+
+  return btoa(binary);
+};
+
+
 // Utility to extract text from supported file types
 export const extractTextFromFile = async (a: File): Promise<string | undefined> => {
   //const file = a.file as File;

@@ -37,4 +37,8 @@ export const defaultProviderImageMetadata = {
   "xai": {
 
   }
+  ,
+  "freepik": {
+
+  }
 };

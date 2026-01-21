@@ -78,7 +78,7 @@ export const MinimaxSpeechCardForm: React.FC<{
         </theme.Select>
 
         <theme.Input
-          label="Cloned voice ID"
+          label={t('providers:openai.customVoice')}
           value={minimaxClonedVoiceIdValue}
           placeholder="ex. cloned_voice_1234"
           onChange={(e: any) => {

@@ -46,4 +46,6 @@ export * from "./audixa";
 
 export * from "./verda";
 
+export * from "./freepik";
+
 

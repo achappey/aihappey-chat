@@ -12,6 +12,7 @@ interface MessageListProps {
   messages: ChatMessage[];
   onRenderMarkdown: (text: string) => React.ReactElement;
   onCopyMessage?: (msg: ChatMessage) => Promise<void>;
+  onEditMessage?: (msg: ChatMessage) => void;
   onShowAttachments?: (files: FileUIPart[]) => void;
   onShowSources?: (sources: (SourceDocumentUIPart | SourceUrlUIPart)[]) => void;
   onShowActivity?: (content: UIMessagePart<any, any>[]) => void;
@@ -45,6 +46,7 @@ export const MessageList = ({
   messages,
   size,
   onCopyMessage,
+  onEditMessage,
   tools,
   locale,
   showTemperature,
@@ -149,6 +151,7 @@ export const MessageList = ({
         showTokens={showTokens}
         size={size}
         onCopyMessage={onCopyMessage}
+        onEditMessage={onEditMessage}
         onShowSources={onShowSources}
         onShowAttachments={onShowAttachments}
         onShowActivity={onShowActivity}

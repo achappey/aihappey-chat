@@ -507,5 +507,62 @@
       "emotion": "Emotion",
       "topP": "Top P"
     }
+  },
+  "freepik": {
+    "speech": {
+      "soundEffects": {
+        "title": "Sound Effects",
+        "durationSeconds": "Duration in seconds",
+        "promptInfluence": "Prompt influence",
+        "loop": "Loop",
+        "durationSecondsHint": "The duration of the generated audio.",
+        "promptInfluenceHint": "The influence of the prompt on the generated audio.",
+        "loopHint": "Whether to create a sound effect that loops smoothly."
+      }
+    },
+    "image": {
+      "shared": {
+        "sharpen": "Sharpen",
+        "smartGrain": "Smart grain",
+        "ultraDetail": "Ultra detail"
+      },
+      "imageExpand": {
+        "title": "Image expand",
+        "left": "Left (px)",
+        "right": "Right (px)",
+        "top": "Top (px)",
+        "bottom": "Bottom (px)"
+      },
+      "skinEnhancerCreative": {
+        "title": "Skin enhancer (Creative)"
+      },
+      "skinEnhancerFaithful": {
+        "title": "Skin enhancer (Faithful)",
+        "skinDetail": "Skin detail"
+      },
+      "skinEnhancerFlexible": {
+        "title": "Skin enhancer (Flexible)",
+        "optimizedFor": "Optimized for"
+      },
+      "upscalerCreative": {
+        "title": "Upscaler (Creative)",
+        "scaleFactor": "Scale factor",
+        "optimizedFor": "Optimized for",
+        "prompt": "Prompt",
+        "creativity": "Creativity",
+        "hdr": "HDR",
+        "resemblance": "Resemblance",
+        "fractality": "Fractality",
+        "engine": "Engine"
+      },
+      "upscalerPrecision": {
+        "title": "Upscaler (Precision)"
+      },
+      "upscalerPrecisionV2": {
+        "title": "Upscaler (Precision V2)",
+        "flavor": "Flavor",
+        "scaleFactor": "Scale factor"
+      }
+    }
   }
 }

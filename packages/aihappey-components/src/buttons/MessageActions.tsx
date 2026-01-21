@@ -6,6 +6,7 @@ import { AiWarningBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { TemperatureBadge } from "../badges/TemperatureBadge";
 import { useMediaQuery } from "usehooks-ts";
+import { useTranslation } from "aihappey-i18n";
 
 interface MessageActionsProps {
   msg: ChatMessage;
@@ -14,6 +15,8 @@ interface MessageActionsProps {
   size?: string;
   showTemperature?: boolean
   showTokens?: boolean
+
+  onEditMessage?: (msg: ChatMessage) => void;
 
   onCopyMessage?: (msg: ChatMessage) => Promise<void>;
   onShowAttachments?: (files: FileUIPart[]) => void;
@@ -29,6 +32,7 @@ export const MessageActions = ({
   size,
   showTemperature,
   showTokens,
+  onEditMessage,
   onCopyMessage,
   onShowAttachments,
   onShowActivity,
@@ -36,6 +40,7 @@ export const MessageActions = ({
   onSetPage,
 }: MessageActionsProps) => {
   const { Button } = useTheme();
+  const { t } = useTranslation();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
@@ -48,6 +53,16 @@ export const MessageActions = ({
         <CopyToClipboardButton
           onClick={() => onCopyMessage(msg)}
           size={size} />
+      )}
+
+      {onEditMessage && (
+        <Button
+          variant="subtle"
+          style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+          onClick={() => onEditMessage(msg)}
+          icon={"edit"}
+          title={t("editMessage")}
+        />
       )}
 
       {showTemperature
@@ -79,6 +94,7 @@ export const MessageActions = ({
             style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
             onClick={() => onShowAttachments(msg.attachments ?? [])}
             icon={"attachment"}
+            title={t("attachments")}
           >
             {msg.attachments.length}
           </Button>

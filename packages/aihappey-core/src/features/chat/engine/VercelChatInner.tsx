@@ -1,7 +1,7 @@
 import { DefaultChatTransport, FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
 import { useFiles } from "aihappey-files";
@@ -64,7 +64,7 @@ export function VercelChatInner({
   const [showToolCall, setShowToolCall] = useState<any | undefined>(undefined);
   const [messageAttachments, setMessageAttachments] = useState<FileUIPart[] | undefined>(undefined);
   const [usedTools, setUsedTool] = useState<any[] | undefined>(undefined);
-  const { addMessage, rename, updateMessage, get } = useConversations();
+  const { addMessage, rename, updateMessage, get, items } = useConversations();
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
   const customHeaders = useAppStore((s) => s.customHeaders);
   const navigate = useNavigate();
@@ -111,11 +111,12 @@ export function VercelChatInner({
     addAttachmentWithTranscription
   );
 
+  const messageLength = items.find(a => a.id == conversationId)?.messages?.length ?? 0;
   const systemMessage = useSystemMessage();
   const seededMessages = useMemo(() => {
     const nonSystem = initial.filter((a) => a.role !== SYSTEM_ROLE);
     return includeSystem ? [systemMessage, ...nonSystem] : nonSystem;
-  }, [includeSystem, systemMessage, initial]);
+  }, [includeSystem, systemMessage, initial, messageLength]);
 
   const [, , , refreshToken] = useAccessToken(config.agentScopes ?? []);
 
@@ -147,6 +148,25 @@ export function VercelChatInner({
 
   const apiRef = useApiRef(api);
   const { tools } = useTools();
+
+  // Local UI overlay for edits/deletes (since `useChat()` doesn't expose `setMessages`).
+  // We also re-use these overrides when building the next request body so deleted parts
+  // are NOT sent to the backend on subsequent turns.
+  const [uiMessageOverrides, setUiMessageOverrides] = useState<Record<string, UIMessage | null>>({});
+  const uiMessageOverridesRef = useRef<Record<string, UIMessage | null>>({});
+  useEffect(() => {
+    uiMessageOverridesRef.current = uiMessageOverrides;
+  }, [uiMessageOverrides]);
+
+  const applyOverrides = useCallback((list: any[]) => {
+    const ov = uiMessageOverridesRef.current;
+    return (list ?? [])
+      .map((m: any) => {
+        const x = ov[m?.id];
+        return x === undefined ? m : x;
+      })
+      .filter((m: any) => !!m);
+  }, []);
   const baseBody = useMemo(() => ({
     model: model ?? "openai/gpt-5.2",
     tools,
@@ -184,22 +204,23 @@ export function VercelChatInner({
         api: "/api/chat", // just a fallback; we override per-request below
         fetch: authFetch,
         prepareSendMessagesRequest: (opts) => {
+          const patchedMessages = applyOverrides(opts.messages as any);
           const mergedBody: any = {
             ...baseBody,          // default body (includes toolChoice)
             ...(opts.body ?? {}), // per-call overrides
             id: opts.id,
-            messages: opts.messages,
+            messages: patchedMessages,
             trigger: opts.trigger,
             messageId: opts.messageId,
           };
 
           const completedToolCalls =
             typeof maxToolCalls === "number"
-              ? countCompletedToolCallsLastAssistant(opts.messages as any[])
+              ? countCompletedToolCallsLastAssistant(patchedMessages as any[])
               : 0;
 
           const forceNone =
-            shouldForceToolChoiceNone(opts.messages as any[], stopTools) ||
+            shouldForceToolChoiceNone(patchedMessages as any[], stopTools) ||
             (typeof maxToolCalls === "number" && completedToolCalls >= maxToolCalls);
 
           const effectiveToolChoice = forceNone ? "none" : mergedBody.toolChoice;
@@ -215,10 +236,17 @@ export function VercelChatInner({
           };
         },
       }),
-    [authFetch]
+    [authFetch, applyOverrides, baseBody, maxToolCalls, stopTools]
   );
 
-  const { messages, sendMessage, status, addToolOutput, stop, addToolApprovalResponse } = useChat({
+  const {
+    messages,
+    sendMessage,
+    status,
+    addToolOutput,
+    stop,
+    addToolApprovalResponse,
+  } = useChat({
     id: conversationId,
     transport,
     experimental_throttle: experimentalThrottle,
@@ -256,6 +284,15 @@ export function VercelChatInner({
       }
     },
   });
+
+  const uiMessages = useMemo(() => {
+    return (messages ?? [])
+      .map((m) => {
+        const ov = uiMessageOverrides[m.id];
+        return ov === undefined ? (m as any as UIMessage) : ov;
+      })
+      .filter((m): m is UIMessage => !!m);
+  }, [messages, uiMessageOverrides]);
 
   const { abortRef, startRun, cancelRun } = useAbortRun(stop);
   const getAttachmentParts = useAttachmentParts();
@@ -323,102 +360,6 @@ export function VercelChatInner({
   const drawerSize = isDesktop ? "medium" : "small"
   const { toast, closeToast, addAttachmentToFiles } = useAttachmentsToaster();
 
-  /*
-
-const blobFromDataUrl = useCallback((dataUrl: string) => {
-  const [prefix, data] = dataUrl.split(",", 2);
-  if (!data) throw new Error("Invalid data URL");
-
-  const mimeMatch = prefix.match(/data:([^;]+);base64/i);
-  const inferredMime = mimeMatch?.[1];
-
-  const byteChars = atob(data);
-  const byteNumbers = new Array(byteChars.length);
-  for (let i = 0; i < byteChars.length; i++) {
-    byteNumbers[i] = byteChars.charCodeAt(i);
-  }
-  return new Blob([new Uint8Array(byteNumbers)], {
-    type: inferredMime || "application/octet-stream",
-  });
-}, []);
-
-const makeUniqueName = useCallback((name: string) => {
-  const existing = new Set((files.items ?? []).map((f) => f.name));
-  if (!existing.has(name)) return name;
-
-  const dot = name.lastIndexOf(".");
-  const base = dot > 0 ? name.slice(0, dot) : name;
-  const ext = dot > 0 ? name.slice(dot) : "";
-
-  let i = 2;
-  while (existing.has(`${base} (${i})${ext}`)) i++;
-  return `${base} (${i})${ext}`;
-}, [files.items]);
-
-const addAttachmentToFiles = useCallback(
-  async (part: FileUIPart) => {
-    try {
-      const { url, mediaType, providerMetadata } = part;
-      if (!url) return;
-
-      // Prefer server-provided filename when present
-      const suggestedName =
-        providerMetadata?.openai?.filename?.toString() ||
-        `attachment-${Date.now()}`;
-
-      let blob: Blob;
-      if (url.startsWith("data:")) {
-        blob = blobFromDataUrl(url);
-      } else if (url.startsWith("http")) {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Failed to fetch attachment: ${res.status}`);
-        blob = await res.blob();
-      } else {
-        // Some backends may send raw base64 without the data: prefix.
-        // Treat it as base64 payload.
-        const byteChars = atob(url);
-        const byteNumbers = new Array(byteChars.length);
-        for (let i = 0; i < byteChars.length; i++) {
-          byteNumbers[i] = byteChars.charCodeAt(i);
-        }
-        blob = new Blob([new Uint8Array(byteNumbers)], {
-          type: mediaType || "application/octet-stream",
-        });
-      }
-
-      const finalMime = mediaType || blob.type || "application/octet-stream";
-      const finalName = makeUniqueName(suggestedName);
-
-      await files.create({
-        name: finalName,
-        mimeType: finalMime,
-        data: blob,
-      });
-
-      files.refresh();
-
-      setToast({
-        id: `add-to-files-${Date.now()}`,
-        variant: "success",
-        message: t('fileAdded', { filename: finalName }),
-        show: true,
-        autohide: 2500,
-      });
-    } catch (e) {
-      console.error("Add-to-files failed", e);
-
-      setToast({
-        id: `add-to-files-${Date.now()}`,
-        variant: "error",
-        message: "Failed to add file",
-        show: true,
-        autohide: 3500,
-      });
-    }
-  },
-  [blobFromDataUrl, files, makeUniqueName]
-);*/
-
   return (
     <div
       style={{
@@ -454,9 +395,11 @@ const addAttachmentToFiles = useCallback(
       >
         <ChatErrors />
 
-        {debugMode ? <JsonViewer value={JSON.stringify(messages)} />
+        {debugMode ? <JsonViewer value={JSON.stringify(uiMessages)} />
           : <MessageList
-            messages={messages}
+            // NOTE: `useChat()` doesn't expose `setMessages` in this codebase,
+            // so we keep a local overlay for edits/deletes.
+            messages={uiMessages}
             sendMessage={async (msg: any) => {
               startRun()
               await handleSend(msg.prompt)
@@ -465,6 +408,12 @@ const addAttachmentToFiles = useCallback(
             showCitations={setSources}
             showActivity={setMessageActivity}
             conversationId={conversationId}
+            onUiMessagePatched={(uiMessageId, next) => {
+              setUiMessageOverrides((prev) => ({
+                ...prev,
+                [uiMessageId]: (next as any as UIMessage) ?? null,
+              }));
+            }}
           />}
 
         {status === "submitted" || status === "streaming" || lastPart ? (
@@ -506,7 +455,7 @@ const addAttachmentToFiles = useCallback(
         onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
-      <ActivityDrawer messages={messages} />
+      <ActivityDrawer messages={uiMessages} />
 
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}
@@ -520,7 +469,7 @@ const addAttachmentToFiles = useCallback(
       />
 
       <ToolApprovalModalHost
-        messages={messages}
+        messages={uiMessages}
         tools={tools}
         status={status}
         addToolApprovalResponse={addToolApprovalResponse}

@@ -11,6 +11,7 @@ import { localSettingsPluginDef } from "../tools/toolcalls/useLocalSettingsToolC
 import { localToolsPluginDef } from "../tools/toolcalls/useLocalToolsToolCall";
 import { vercelAIPluginDef } from "../tools/toolcalls/useVercelAIToolCall";
 import { isStoredToolValid } from "../tools/localStoredTools";
+import { localImagesPluginDef } from "../tools/toolcalls/useLocalImagesToolCall";
 
 // --- Tools Tab ---
 // Holds the "Lokale plugins" card previously shown in the General tab.
@@ -36,6 +37,7 @@ export const ToolsTab = () => {
       localConversationsPluginDef,
       localCanvasPluginDef,
       localSettingsPluginDef,
+      localImagesPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

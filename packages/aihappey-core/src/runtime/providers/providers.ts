@@ -53,6 +53,8 @@ import { hyperstack } from "./catalog/hyperstack";
 import { gladia } from "./catalog/gladia";
 import { verda } from "./catalog/verda";
 import { audixa } from "./catalog/audixa";
+import { freepik } from "./catalog/freepik";
+import { ai21 } from "./catalog/ai21";
 
 /**
  * UI-facing provider catalog.
@@ -89,6 +91,8 @@ export const PROVIDERS: Record<string, Provider> = {
   asyncai,
   azure,
   deepseek,
+  freepik,
+  ai21,
   cloudrift,
   baseten,
   echo,

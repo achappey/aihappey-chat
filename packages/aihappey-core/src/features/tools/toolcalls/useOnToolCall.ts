@@ -34,6 +34,7 @@ import { localConversationsPluginDef } from "./useLocalConversationsToolCall";
 import { localCanvasPluginDef } from "./useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./useLocalToolsToolCall";
+import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -73,6 +74,7 @@ export function useOnToolCall({
   const localCanvasRuntime = useLocalCanvasRuntime(files);
   const localSettingsRuntime = useLocalSettingsRuntime();
   const localToolsRuntime = useLocalToolsRuntime();
+  const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
 
   // specials (runtime-only or conditional exposure)
@@ -88,6 +90,7 @@ export function useOnToolCall({
       [localSettingsRuntime.name]: localSettingsRuntime,
       [localToolsRuntime.name]: localToolsRuntime,
       [vercelAIRuntime.name]: vercelAIRuntime,
+      [localImagesRuntime.name]: localImagesRuntime,
     }),
     [
       localFilesRuntime,
@@ -96,6 +99,7 @@ export function useOnToolCall({
       localCanvasRuntime,
       localSettingsRuntime,
       localToolsRuntime,
+      localImagesRuntime,
       vercelAIRuntime,
     ]
   );
@@ -105,6 +109,7 @@ export function useOnToolCall({
       localFilesPluginDef,
       localAgentsPluginDef,
       localConversationsPluginDef,
+      localImagesPluginDef,
       localCanvasPluginDef,
       localSettingsPluginDef,
       localToolsPluginDef,

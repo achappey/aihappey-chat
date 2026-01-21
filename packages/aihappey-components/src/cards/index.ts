@@ -25,3 +25,7 @@ export * from "./ToolCard";
 export * from "./FileCard";
 export * from "./RerankingDocumentCard";
 export * from "./RerankingCard";
+
+export * from "./TextEditCard";
+export * from "./ReasoningEditCard";
+export * from "./UIMessagePartEditCard";

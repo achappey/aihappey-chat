@@ -17,4 +17,7 @@ export interface ConversationStore {
 
   addMessage(cid: string, msg: UIMessage): Promise<void>;
   updateMessage(cid: string, mid: string, up: Partial<UIMessage>): Promise<void>;
+
+  /** Remove a single message from the conversation. */
+  removeMessage(cid: string, mid: string): Promise<void>;
 }

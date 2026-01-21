@@ -7,12 +7,15 @@ import { ImageGrid, MessageList as MessageListComponent, ToolContent, useTheme }
 import type { CreateMessageRequest, CreateMessageResult, ImageContent } from "@modelcontextprotocol/sdk/types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { toChatMessages } from "./toChatMessages";
 import { samplingRuntime, useOpenSamplings } from "../../../runtime/mcp/samplingRuntime";
 import { getToolName, useTools } from "../../tools/useTools";
 import { McpProgressItem, progressRuntime, useMcpProgress } from "../../../runtime/mcp/progressRuntime";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
+import { getUiMessageIdFromChatMessageId } from "./getUiMessageIdFromChatMessageId";
+import { EditMessageModal } from "./EditMessageModal";
+import { useConversations } from "aihappey-conversations";
 
 interface MessageListProps {
   showCitations: (items: (SourceUrlUIPart | SourceDocumentUIPart)[]) => void;
@@ -21,6 +24,12 @@ interface MessageListProps {
   conversationId?: string;
   messages: UIMessage[];
   sendMessage?: any;
+
+  /**
+   * Optional: patch the live in-memory chat message list (from `useChat()`).
+   * This enables instant UI updates without requiring a hard refresh.
+   */
+  onUiMessagePatched?: (uiMessageId: string, next: UIMessage | undefined) => void;
 }
 
 const fileToImageContent = (f: FileUIPart): ImageContent => {
@@ -48,8 +57,10 @@ export const MessageList = ({
   showCitations,
   showActivity,
   showAttachments,
+  conversationId,
   messages,
   sendMessage,
+  onUiMessagePatched,
 }: MessageListProps) => {
   const { i18n } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
@@ -64,8 +75,18 @@ export const MessageList = ({
     for (const p of progress) m.set(p.progressToken, p);
     return m;
   }, [progress]);
-
+  const { refresh } = useConversations();
   const isDesktop = useIsDesktop()
+
+  const [editUiMessageId, setEditUiMessageId] = useState<string | undefined>(undefined);
+  const editUiMessage = useMemo(
+    () => messages.find((m) => m.id === editUiMessageId),
+    [editUiMessageId, messages]
+  );
+
+  // Keep the UI responsive without requiring a full page reload.
+  // When parts/messages change, force the chat list to remount.
+  const [uiVersion, setUiVersion] = useState(0);
 
   // ✅ This hook should output ChatMessage[] (your app adapter layer).
   // If your current hook returns another shape, swap this line to:
@@ -125,74 +146,103 @@ export const MessageList = ({
 
 
   return (
-    <MessageListComponent
-      messages={chatMessages}
-      onCopyMessage={copyClipboard}
-      locale={i18n.language}
-      showTemperature={showMessageTemperature && isDesktop}
-      showTokens={showMessageTokens && isDesktop}
-      tools={tools?.tools ?? []}
-      onShowActivity={showActivity}
-      onShowSources={showCitations}
-      onShowAttachments={showAttachments}
-      onRenderMarkdown={(text) => <Markdown text={text} />}
-      renderBlock={({ block }: any) => {
+    <>
+      <MessageListComponent
+        key={uiVersion}
+        messages={chatMessages}
+        onCopyMessage={copyClipboard}
+        locale={i18n.language}
+        showTemperature={showMessageTemperature && isDesktop}
+        showTokens={showMessageTokens && isDesktop}
+        tools={tools?.tools ?? []}
+        onShowActivity={showActivity}
+        onShowSources={showCitations}
+        onShowAttachments={showAttachments}
+        onEditMessage={(msg: ChatMessage) => {
+          const uiMessageId = getUiMessageIdFromChatMessageId(msg.id);
+          setEditUiMessageId(uiMessageId);
+        }}
+        onRenderMarkdown={(text) => <Markdown text={text} />}
+        renderBlock={({ block }: any) => {
 
-        if (block.type?.startsWith("tool-")
-          && block.output?._meta?.["chat/html"]) {
-          const html = block.output._meta["chat/html"];
+          if (block.type?.startsWith("tool-")
+            && block.output?._meta?.["chat/html"]) {
+            const html = block.output._meta["chat/html"];
 
-          return (
-            <OpenAIAppWidget
-              resourceHtml={html}
-              toolInput={block?.input}
-              sendFollowupTurn={sendMessage}
-              onCallTool={(name, args) => callTool(undefined, name, args)}
-              meta={block?.output?._meta}
-              toolOutput={
-                block?.output?.structuredContent ??
-                block?.output
-              }
-            />
-          );
-        }
-
-
-        if (block.type.startsWith("tool-")) {
-          const progress = progressByToken.get(block.toolCallId);
-          const toolItem = tools?.tools?.find(a => a.name == getToolName(block?.type))
-          return <ToolContent tool={toolItem}
-            progress={progress}
-            invocation={block} />;
-        }
-
-        if (block?.type === "image-grid") {
-          const items = (block.items ?? []).map(fileToImageContent);
-
-          if (items.length <= 1) {
-            const src = imageContentToSrc(items[0]);
-            return src ? (
-              <div><Image
-                src={src}
-                fit="cover"
-              /></div>
-            ) : null;
+            return (
+              <OpenAIAppWidget
+                resourceHtml={html}
+                toolInput={block?.input}
+                sendFollowupTurn={sendMessage}
+                onCallTool={(name, args) => callTool(undefined, name, args)}
+                meta={block?.output?._meta}
+                toolOutput={
+                  block?.output?.structuredContent ??
+                  block?.output
+                }
+              />
+            );
           }
 
-          return <ImageGrid items={items} columns={3} fit="cover" gap={8} />;
-        }
 
-        if (block?.type === "sampling") {
-          return (
-            <Markdown
-              text={((block.request?.params?.messages?.[0] as any).content as any)?.text}
-            />
-          );
-        }
+          if (block.type.startsWith("tool-")) {
+            const progress = progressByToken.get(block.toolCallId);
+            const toolItem = tools?.tools?.find(a => a.name == getToolName(block?.type))
+            return <ToolContent tool={toolItem}
+              progress={progress}
+              invocation={block} />;
+          }
 
-        // fall back to MessageListComponent defaults
-        return null;
-      }}
-    />
+          if (block?.type === "image-grid") {
+            const items = (block.items ?? []).map(fileToImageContent);
+
+            if (items.length <= 1) {
+              const src = imageContentToSrc(items[0]);
+              return src ? (
+                <div><Image
+                  src={src}
+                  fit="cover"
+                /></div>
+              ) : null;
+            }
+
+            return <ImageGrid items={items} columns={3} fit="cover" gap={8} />;
+          }
+
+          if (block?.type === "sampling") {
+            return (
+              <Markdown
+                text={((block.request?.params?.messages?.[0] as any).content as any)?.text}
+              />
+            );
+          }
+
+          // fall back to MessageListComponent defaults
+          return null;
+        }}
+      />
+
+      {conversationId && editUiMessageId && editUiMessage ? (
+        <EditMessageModal
+          open={!!editUiMessageId}
+          conversationId={conversationId}
+          message={editUiMessage}
+          onLocalMessageUpdated={(next) => {
+            // Force re-render of the chat UI immediately.
+            setUiVersion(v => v + 1);
+
+            // Patch the live chat state when requested.
+            onUiMessagePatched?.(editUiMessageId, next);
+
+            // If the whole message was deleted, close modal.
+            if (!next) setEditUiMessageId(undefined);
+          }}
+          onClose={() => {
+            setEditUiMessageId(undefined);
+            refresh();
+          }}
+        />
+      ) : null}
+    </>
   );
 };
