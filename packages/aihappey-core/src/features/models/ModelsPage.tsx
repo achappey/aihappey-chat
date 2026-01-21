@@ -7,6 +7,7 @@ import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useNavigate } from "react-router";
 import type { GenericDataGridColumn, ModelOption } from "aihappey-types";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 export const ModelsPage = () => {
   const { SearchBox, Paragraph, Tabs, Tab, ToggleButton, DataGrid, Button, Image } = useTheme();
@@ -19,6 +20,7 @@ export const ModelsPage = () => {
   const types = Array.from(new Set(models?.map(m => m.type))).sort();
   // default tab = first type
   const [activeTab, setActiveTab] = useState<string>(types[0]);
+  const isDesktop = useIsDesktop()
 
   const [viewMode, setViewMode] = useState<"cards" | "grid">("cards");
 
@@ -121,6 +123,9 @@ export const ModelsPage = () => {
             margin: "0 auto",
             display: "flex",
             flexDirection: "column",
+            paddingLeft: 8,
+            paddingRight: 8,
+            boxSizing: "border-box",
             alignItems: "center",
           }}
         >
@@ -141,7 +146,10 @@ export const ModelsPage = () => {
             }}
           >
             <div style={{
-              width: 360,
+              //  width: 360,
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
               maxWidth: "100%"
             }}>
               <SearchBox
@@ -174,6 +182,7 @@ export const ModelsPage = () => {
           </div>}
 
           <Tabs activeKey={activeTab}
+            style={{ width: "100%" }}
             onSelect={(k: string) => setActiveTab(k)}>
             {types.map(type => (
               <Tab key={type}
@@ -206,7 +215,7 @@ export const ModelsPage = () => {
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
+                        gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr",
                         gap: 16,
                         paddingTop: 12,
                         width: "100%",
@@ -228,8 +237,6 @@ export const ModelsPage = () => {
                         return (
                           <div key={r.id}
                             style={{
-                              maxWidth: 320,
-                              minWidth: 320,
                               width: "100%"
                             }}>
                             <ModelCard

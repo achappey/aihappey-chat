@@ -8,6 +8,7 @@ import { EditServerModal } from "../mcp-servers/EditServerModal";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useDefaultRegistries } from "../../shell/connectors/useDefaultRegistries";
 import { serverStats } from "../../runtime/chat-app/serverStats";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 type RankingItem = { url?: string; type?: string; score?: number };
 
@@ -140,6 +141,7 @@ export const ServersPage = () => {
   const handleEdit = (name: string) => setEditingName(name);
   const handleHideEdit = () => setEditingName(null);
   const getRegistries = useDefaultRegistries()
+  const isDesktop = useIsDesktop()
 
   useEffect(() => {
     getRegistries();
@@ -318,7 +320,7 @@ export const ServersPage = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr",
           gap: 16,
           width: "100%",
           maxWidth: 700,
@@ -352,7 +354,6 @@ export const ServersPage = () => {
             return (
               <div key={displayName}
                 style={{
-                  maxWidth: 320,
                   width: "100%"
                 }}>
 
@@ -380,6 +381,9 @@ export const ServersPage = () => {
             margin: "0 auto",
             display: "flex",
             flexDirection: "column",
+            paddingLeft: 8,
+            paddingRight: 8,
+            boxSizing: "border-box",
             alignItems: "center",
           }}
         >

@@ -28,14 +28,6 @@ function formatBytes(bytes?: number): string {
   return `${gb.toFixed(1)} GB`;
 }
 
-function formatCreatedAt(ts: number): string {
-  try {
-    return new Date(ts).toLocaleString();
-  } catch {
-    return "";
-  }
-}
-
 export const FileCard = ({ file, onDelete, onDownload }: FileCardProps) => {
   const { Card, Button, Menu } = useTheme();
   const { t } = useTranslation();

@@ -15,7 +15,7 @@ export const TemperatureBadge: React.FC<TemperatureBadgeProps> = ({
     icon="temperature"
     appearance="ghost"
     size="large"
-    bg="subtle">
+    bg="informative">
     {temperature}
   </Badge>;
 };

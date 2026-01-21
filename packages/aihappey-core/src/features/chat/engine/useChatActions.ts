@@ -11,7 +11,7 @@ import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRunt
 
 type ChatActionsProps = {
   // attachments: UiAttachment[];
-  getAttachmentParts: () => Promise<any[]>;
+  getAttachmentParts: () => Promise<{ parts: any[]; convertedKeys: string[] }>;
   addMessage: (convId: string, msg: UIMessage) => Promise<void>;
   sendMessage: (msg: UIMessage, opts: { body: any }) => Promise<void>;
   // clearAttachments: () => void;

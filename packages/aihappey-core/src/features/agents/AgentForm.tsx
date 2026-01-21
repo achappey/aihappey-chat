@@ -1,4 +1,4 @@
-import { ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
+import { ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -8,7 +8,6 @@ import { useState } from "react";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useAgent } from "./useAgentMcpServers";
-import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
 
@@ -303,9 +302,9 @@ export const AgentForm = ({
                     )}
 
                     {providerKey === "perplexity" && (
-                        <PerplexityChatConfig
-                            perplexity={providerMeta}
-                            updatePerplexity={updateProviderMetadata}
+                        <PerplexityChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 

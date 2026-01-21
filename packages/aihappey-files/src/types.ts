@@ -17,5 +17,6 @@ export interface FileStore {
     mimeType: string;
     data: Blob;
   }): Promise<StoredFile>;
+  rename(id: string, newName: string): Promise<StoredFile>;
   delete(id: string): Promise<void>;
 }

@@ -2,6 +2,11 @@
   "perplexity": {
     "academic": "Academic",
     "web": "Web",
+    "fast": "Fast",
+    "pro": "Pro",
+    "media": "Media",
+    "searchType": "Type",
+    "enableMediaClassifier": "Media classifier",
     "improveImageRelevance": "Improve image relevance",
     "enableSearchClassifier": "Search classifier",
     "dateSearchSettings": "Date filters",
@@ -47,6 +52,17 @@
     }
   },
   "deepinfra": {
+    "transcription": {
+      "task": "Task",
+      "taskTranscribe": "Transcribe",
+      "taskTranslate": "Translate",
+      "initialPrompt": "Initial prompt",
+      "chunkingTitle": "Chunking",
+      "chunkLevel": "Chunk level",
+      "chunkLevelSegment": "Segment",
+      "chunkLevelWord": "Word",
+      "chunkLengthSeconds": "Chunk length (seconds)"
+    },
     "reranking": {
       "instruction": "Instruction",
       "serviceTier": "Service tier"

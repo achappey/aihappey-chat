@@ -8,6 +8,7 @@ interface AttachmentsDrawerProps {
   attachments: FileUIPart[];
   onClose: () => void;
   size?: "medium" | "small"
+  onAddToFiles?: (file: FileUIPart) => void | Promise<void>;
 }
 
 export const AttachmentsDrawer = ({
@@ -15,6 +16,7 @@ export const AttachmentsDrawer = ({
   attachments,
   size,
   onClose,
+  onAddToFiles,
 }: AttachmentsDrawerProps) => {
   const { Drawer } = useTheme();
   const { t } = useTranslation();
@@ -25,9 +27,18 @@ export const AttachmentsDrawer = ({
       size={size}
       onClose={onClose}
       title={t('attachments')}>
-      {attachments.map((s, i) => (
-        <FileAttachmentCard key={i} file={s} />
-      ))}
+      <div
+        style={{
+          padding: 8,
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+        }}
+        >
+        {attachments.map((s, i) => (
+          <FileAttachmentCard key={i} file={s} onAddToFiles={onAddToFiles} />
+        ))}
+      </div>
 
     </Drawer>
   );

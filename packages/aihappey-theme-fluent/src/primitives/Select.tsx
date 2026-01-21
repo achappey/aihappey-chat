@@ -106,7 +106,7 @@ export const Select: React.FC<SelectProps> = ({
       onOptionSelect={handleOptionSelect}
       disabled={disabled}
       onInput={handleInputChange}
-      style={{ backgroundColor: isDarkMode ? "#141414" : undefined, ...style }}
+      style={{ backgroundColor: isDarkMode ? "#141414" : undefined, ...(label ? {} : style) }}
       aria-label={ariaLabel}
       {...(rest as any)}
     >
@@ -115,7 +115,10 @@ export const Select: React.FC<SelectProps> = ({
   );
 
   return label ? (
-    <Field label={label} hint={hint} required={required}>
+    <Field label={label}
+      hint={hint}
+      style={style}
+      required={required}>
       {dropDownElement}
     </Field>
   ) : (

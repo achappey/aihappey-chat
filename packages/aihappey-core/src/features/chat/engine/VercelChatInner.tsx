@@ -1,7 +1,7 @@
 import { DefaultChatTransport, FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
 import { useFiles } from "aihappey-files";
@@ -35,6 +35,9 @@ import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsLastAssistant";
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
+import { T } from "react-router/dist/development/index-react-server-client-gGyf-7Xp";
+import { useTranslation } from "aihappey-i18n";
+import { useAttachmentsToaster } from "./useAttachmentsToaster";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -76,8 +79,23 @@ export function VercelChatInner({
   const files = useFiles();
   const model = useAppStore((s) => s.selectedModel);
   const includeSystem = chatMode !== "agent";
-  const { Spinner, JsonViewer } = useTheme();
+  const { Spinner, JsonViewer, Toast } = useTheme();
   const { config } = useChatContext();
+  const { t } = useTranslation();
+
+  /* const [toast, setToast] = useState<{
+     id: string;
+     variant: "info" | "success" | "error";
+     message: any;
+     show: boolean;
+     autohide?: number;
+   }>({
+     id: "add-to-files",
+     variant: "success",
+     message: "",
+     show: false,
+     autohide: 2500,
+   });*/
 
   const isDesktop = useIsDesktop();
   const handoffs = useAppStore(a => a.handoffs)
@@ -303,6 +321,103 @@ export function VercelChatInner({
     : undefined;
 
   const drawerSize = isDesktop ? "medium" : "small"
+  const { toast, closeToast, addAttachmentToFiles } = useAttachmentsToaster();
+
+  /*
+
+const blobFromDataUrl = useCallback((dataUrl: string) => {
+  const [prefix, data] = dataUrl.split(",", 2);
+  if (!data) throw new Error("Invalid data URL");
+
+  const mimeMatch = prefix.match(/data:([^;]+);base64/i);
+  const inferredMime = mimeMatch?.[1];
+
+  const byteChars = atob(data);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) {
+    byteNumbers[i] = byteChars.charCodeAt(i);
+  }
+  return new Blob([new Uint8Array(byteNumbers)], {
+    type: inferredMime || "application/octet-stream",
+  });
+}, []);
+
+const makeUniqueName = useCallback((name: string) => {
+  const existing = new Set((files.items ?? []).map((f) => f.name));
+  if (!existing.has(name)) return name;
+
+  const dot = name.lastIndexOf(".");
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  const ext = dot > 0 ? name.slice(dot) : "";
+
+  let i = 2;
+  while (existing.has(`${base} (${i})${ext}`)) i++;
+  return `${base} (${i})${ext}`;
+}, [files.items]);
+
+const addAttachmentToFiles = useCallback(
+  async (part: FileUIPart) => {
+    try {
+      const { url, mediaType, providerMetadata } = part;
+      if (!url) return;
+
+      // Prefer server-provided filename when present
+      const suggestedName =
+        providerMetadata?.openai?.filename?.toString() ||
+        `attachment-${Date.now()}`;
+
+      let blob: Blob;
+      if (url.startsWith("data:")) {
+        blob = blobFromDataUrl(url);
+      } else if (url.startsWith("http")) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Failed to fetch attachment: ${res.status}`);
+        blob = await res.blob();
+      } else {
+        // Some backends may send raw base64 without the data: prefix.
+        // Treat it as base64 payload.
+        const byteChars = atob(url);
+        const byteNumbers = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) {
+          byteNumbers[i] = byteChars.charCodeAt(i);
+        }
+        blob = new Blob([new Uint8Array(byteNumbers)], {
+          type: mediaType || "application/octet-stream",
+        });
+      }
+
+      const finalMime = mediaType || blob.type || "application/octet-stream";
+      const finalName = makeUniqueName(suggestedName);
+
+      await files.create({
+        name: finalName,
+        mimeType: finalMime,
+        data: blob,
+      });
+
+      files.refresh();
+
+      setToast({
+        id: `add-to-files-${Date.now()}`,
+        variant: "success",
+        message: t('fileAdded', { filename: finalName }),
+        show: true,
+        autohide: 2500,
+      });
+    } catch (e) {
+      console.error("Add-to-files failed", e);
+
+      setToast({
+        id: `add-to-files-${Date.now()}`,
+        variant: "error",
+        message: "Failed to add file",
+        show: true,
+        autohide: 3500,
+      });
+    }
+  },
+  [blobFromDataUrl, files, makeUniqueName]
+);*/
 
   return (
     <div
@@ -316,6 +431,14 @@ export function VercelChatInner({
         minHeight: 0, // important for flex scroll containers!
       }}
     >
+      <Toast
+        id={toast.id}
+        variant={toast.variant}
+        message={toast.message}
+        show={toast.show}
+        autohide={toast.autohide}
+        onClose={closeToast}
+      />
       <div
         style={{
           display: "flex",
@@ -380,6 +503,7 @@ export function VercelChatInner({
         open={messageAttachments != undefined}
         size={drawerSize}
         attachments={messageAttachments ?? []}
+        onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
       <ActivityDrawer messages={messages} />

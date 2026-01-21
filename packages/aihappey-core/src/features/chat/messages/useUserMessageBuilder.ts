@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { UIMessage, MessageRole } from "aihappey-types";
-import { useAppStore, type UiAttachment } from "aihappey-state";
+import { useAppStore } from "aihappey-state";
 import * as exifr from 'exifr';
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { toMarkdownLinkSmart } from "../files/markdown";
@@ -25,29 +25,40 @@ type UseUserMessageBuilderProps = {
   //attachments: File[];
   // resourceParts: Array<TextPart | AttachmentPart>;
   extractExif?: boolean
-  getAttachmentParts: () => Promise<any[]>;
+  getAttachmentParts: () => Promise<{ parts: any[]; convertedKeys: string[] }>;
   // clients: Record<string, any> | undefined;
 };
 
-const MAX_SIZE = 25 * 1024 * 1024;
-
 export function useUserMessageBuilder({
-  // attachments,
-  // resourceParts,
   getAttachmentParts,
-  //clients,
   extractExif
 }: UseUserMessageBuilderProps) {
   const resourceParts = useResourceParts();
   const attachments = useFileAttachments(fileAttachmentRuntime)
+
+  const sendRawAttachments = useAppStore((s) => s.sendRawAttachments);
+  const maxAttachmentsSize = useAppStore((s) => s.maxAttachmentsSize);
+
+  const maxSize = typeof maxAttachmentsSize === "number" ? maxAttachmentsSize : 25 * 1024 * 1024;
+
   // Shared logic: builds message parts from args, plus (optional) promptParts
   const buildParts = useCallback(
     async (opts: { text?: string; promptParts?: TextPart[] }) => {
       const rawAttachmentParts: (AttachmentPart | TextPart)[] = [];
 
+      const extracted = await getAttachmentParts?.();
+      const extractedTextParts = extracted?.parts ?? [];
+      const convertedKeySet = new Set(extracted?.convertedKeys ?? []);
+
       for (const a of attachments ?? []) {
-        //     if (!a.type.startsWith('image/') || !a.file || a.file.size > MAX_SIZE) continue;
-        if (!a || a.size > MAX_SIZE) continue;
+        if (!a || a.size > maxSize) continue;
+
+        // Hard check: if this attachment was converted to text and raw sending is disabled, omit it.
+        const key = a.name;
+        const wasConverted = convertedKeySet.has(key);
+        if (wasConverted && sendRawAttachments === false) {
+          continue;
+        }
 
         // file part
         const url = await fileToDataUrl(a as File);
@@ -75,8 +86,6 @@ export function useUserMessageBuilder({
         }
       }
 
-      const extractedTextParts = await getAttachmentParts?.();
-
       return [
         ...(resourceParts ?? []),
         ...(extractedTextParts ?? []),
@@ -85,7 +94,7 @@ export function useUserMessageBuilder({
         ...(opts.text && opts.text.trim() ? [{ type: 'text', text: opts.text }] : []),
       ];
     },
-    [attachments, resourceParts, getAttachmentParts, extractExif]
+    [attachments, resourceParts, getAttachmentParts, extractExif, sendRawAttachments, maxSize]
   );
 
 

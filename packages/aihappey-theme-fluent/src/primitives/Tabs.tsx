@@ -153,7 +153,7 @@ export const Tabs: React.FC<TabsProps> = ({
   return (
     <div
       className={className}
-      style={vertical ? { ...style, display: "flex" } : undefined}
+      style={vertical ? { ...style, display: "flex" } : {...style}}
     >
       <Overflow
         minimumVisible={minimumVisible}

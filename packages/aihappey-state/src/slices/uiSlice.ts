@@ -105,6 +105,12 @@ export type UiSlice = {
   sampling?: any
   elicitation?: any
   debugMode?: boolean
+  showMessageTemperature?: boolean
+  showMessageTokens?: boolean
+
+  setShowMessageTemperature: (value: boolean) => void;
+  setShowMessageTokens: (value: boolean) => void;
+
   quickSearches?: string[]
   addQuickSearch: (value: string) => void;
   deleteQuickSearch: (value: string) => void;
@@ -201,6 +207,16 @@ export const createUiSlice: StateCreator<
   chatWithTranscriptionModels: false,
   activitiesSize: "medium",
   quickSearches: ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"],
+
+  setShowMessageTemperature: (value: boolean) =>
+    set((state: any) => ({
+      showMessageTemperature: value
+    })),
+  setShowMessageTokens: (value: boolean) =>
+    set((state: any) => ({
+      showMessageTokens: value
+    })),
+
   toggleChatWithImageModels: () =>
     set((s: any) => ({
       chatWithImageModels: !s.chatWithImageModels,

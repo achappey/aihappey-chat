@@ -12,6 +12,7 @@ import { toChatMessages } from "./toChatMessages";
 import { samplingRuntime, useOpenSamplings } from "../../../runtime/mcp/samplingRuntime";
 import { getToolName, useTools } from "../../tools/useTools";
 import { McpProgressItem, progressRuntime, useMcpProgress } from "../../../runtime/mcp/progressRuntime";
+import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 
 interface MessageListProps {
   showCitations: (items: (SourceUrlUIPart | SourceDocumentUIPart)[]) => void;
@@ -53,6 +54,8 @@ export const MessageList = ({
   const { i18n } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
   const sampling = useAppStore((a) => a.sampling);
+  const showMessageTokens = useAppStore((a) => a.showMessageTokens);
+  const showMessageTemperature = useAppStore((a) => a.showMessageTemperature);
   const tools = useTools()
   const { Image } = useTheme()
   const progress = useMcpProgress(progressRuntime);
@@ -61,6 +64,8 @@ export const MessageList = ({
     for (const p of progress) m.set(p.progressToken, p);
     return m;
   }, [progress]);
+
+  const isDesktop = useIsDesktop()
 
   // ✅ This hook should output ChatMessage[] (your app adapter layer).
   // If your current hook returns another shape, swap this line to:
@@ -93,7 +98,7 @@ export const MessageList = ({
 
     return [...byId.values()].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   }, [openSampling, sampling]);
- 
+
   const copyClipboard = async (msg: ChatMessage) =>
     await copyMarkdownToClipboard(msg.content?.[0].type == "text" ? msg.content?.[0]?.text : JSON.stringify(msg));
 
@@ -124,6 +129,8 @@ export const MessageList = ({
       messages={chatMessages}
       onCopyMessage={copyClipboard}
       locale={i18n.language}
+      showTemperature={showMessageTemperature && isDesktop}
+      showTokens={showMessageTokens && isDesktop}
       tools={tools?.tools ?? []}
       onShowActivity={showActivity}
       onShowSources={showCitations}

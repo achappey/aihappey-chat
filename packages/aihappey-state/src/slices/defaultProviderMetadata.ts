@@ -158,12 +158,15 @@ export const defaultProviderMetadata = {
   },
   "perplexity": {
     "web_search_options": {
+      "search_type": "auto",
       "search_context_size": "medium",
       "image_search_relevance_enhanced": false,
       "user_location": {
         "latitude": null,
         "longitude": null,
-        "country": null
+        "country": null,
+        "region": null,
+        "city": null,
       }
     },
     "search_mode": "web",

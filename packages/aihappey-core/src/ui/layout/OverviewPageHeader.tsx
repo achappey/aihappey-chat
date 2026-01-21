@@ -1,5 +1,6 @@
 import React from "react";
 import { useTheme } from "aihappey-components";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 
 // Props interface
@@ -15,7 +16,8 @@ export const OverviewPageHeader: React.FC<OverviewPageHeaderProps> = ({
   docsUrl,
 }) => {
   const { Header, Button } = useTheme();
-
+  const isDesktop = useIsDesktop()
+  
   return (
     <div
       style={{
@@ -25,9 +27,11 @@ export const OverviewPageHeader: React.FC<OverviewPageHeaderProps> = ({
       }}
     >
       <div style={{ flex: 1 }} />
-      <Header style={{ flex: "none", textAlign: "center", margin: 0 }}>
+      <Header style={{ flex: "none", textAlign: "center", margin: 0 }}
+        level={isDesktop ? 1 : 3}>
         {title}
       </Header>
+
       <div
         style={{
           flex: 1,

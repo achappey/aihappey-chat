@@ -18,6 +18,8 @@ interface MessageListProps {
   tools?: Tool[]
   size?: string;
   locale?: string
+  showTemperature?: boolean
+  showTokens?: boolean
 
   /**
    * Optional hook to override rendering for a specific block.
@@ -45,6 +47,8 @@ export const MessageList = ({
   onCopyMessage,
   tools,
   locale,
+  showTemperature,
+  showTokens,
   onRenderMarkdown,
   onShowSources,
   onShowActivity,
@@ -141,6 +145,8 @@ export const MessageList = ({
         msg={msg}
         page={page}
         max={max}
+        showTemperature={showTemperature}
+        showTokens={showTokens}
         size={size}
         onCopyMessage={onCopyMessage}
         onShowSources={onShowSources}

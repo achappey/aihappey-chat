@@ -74,6 +74,26 @@ export class IndexedDBFileStore implements FileStore {
     return item;
   };
 
+  rename = async (id: string, newName: string): Promise<StoredFile> => {
+    await this.ensureLoaded();
+
+    const normalizedNewName = String(newName ?? "").trim();
+    if (!normalizedNewName) throw new Error("File name is required.");
+
+    const idx = this.data.findIndex((f) => f.id === id);
+    if (idx < 0) throw new Error("File not found.");
+
+    const updated: InternalFile = { ...this.data[idx], name: normalizedNewName };
+    this.data = [
+      ...this.data.slice(0, idx),
+      updated,
+      ...this.data.slice(idx + 1),
+    ];
+    await this.commit();
+
+    return updated;
+  };
+
   delete = async (id: string): Promise<void> => {
     await this.ensureLoaded();
     this.data = this.data.filter((f) => f.id !== id);

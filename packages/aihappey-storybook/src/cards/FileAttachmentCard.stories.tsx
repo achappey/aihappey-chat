@@ -32,18 +32,28 @@ const base64File: FileUIPart = {
 export const Pdf: Story = {
   args: {
     file: pdfFile,
+    onAddToFiles: async (file) => {
+      // Storybook stub: just log so the action is visible in devtools.
+      console.log("onAddToFiles", file);
+    },
   },
 };
 
 export const Image: Story = {
   args: {
     file: imageFile,
+    onAddToFiles: async (file) => {
+      console.log("onAddToFiles", file);
+    },
   },
 };
 
 export const Base64Image: Story = {
   args: {
     file: base64File,
+    onAddToFiles: async (file) => {
+      console.log("onAddToFiles", file);
+    },
   },
 };
 

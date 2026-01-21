@@ -9,11 +9,9 @@ import { useChatFileDrop } from "./input/useChatFileDrop";
 import { DisclaimerBar } from "./layout/DisclaimerBar";
 import { useUserMessageBuilder } from "./messages/useUserMessageBuilder";
 import { useResourceParts } from "./messages/useResourceParts";
+import { useAttachmentParts } from "./messages/useAttachmentParts";
 import { ChatErrors } from "./layout/ChatErrors";
 import { PromptWithSource } from "../mcp-prompts/PromptSelectButton";
-import { extractTextFromZip } from "./files/fileConverters";
-import { extractTextFromFile } from "./files/file";
-import { toMarkdownLinkSmart } from "./files/markdown";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
 
@@ -42,26 +40,8 @@ export function NewChatPage() {
     addAttachmentWithTranscription
   );
 
-  const attachments = useFileAttachments(fileAttachmentRuntime)
-  const getAttachmentParts = async () => {
-    const textAttachments: any[] = [];
-
-    for (const a of attachments) {
-      if (a.type === "application/zip" || /\.zip$/i.test(a.name)) {
-        textAttachments.push(...(await extractTextFromZip(a)));
-      } else {
-        const text = await extractTextFromFile(a);
-        if (text) {
-          textAttachments.push({
-            type: "text",
-            text: toMarkdownLinkSmart(a.name, text, a.type),
-          });
-        }
-      }
-    }
-
-    return textAttachments;
-  };
+  // NewChatPage uses the shared attachment conversion rules via useAttachmentParts
+  const getAttachmentParts = useAttachmentParts();
 
   const resourceParts = useResourceParts();
   const extractExif = useAppStore(a => a.extractExif)
@@ -95,7 +75,7 @@ export function NewChatPage() {
       await startNewConversation(userMsg);
     },
     [creating, temperature, selectedModel, workflowType,
-      selectedAgents, resourceParts, attachments] // minimal deps, don't need attachments/resourceParts (not used)
+      selectedAgents, resourceParts] // minimal deps, don't need attachments/resourceParts (not used)
   );
 
   const onPromptExecute = async (

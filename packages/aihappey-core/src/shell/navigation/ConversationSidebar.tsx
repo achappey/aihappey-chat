@@ -82,7 +82,6 @@ export const ConversationSidebar = ({
     },
     {
       key: "reranking",
-      new: true,
       label: t("reranking"),
       href: "/reranking",
       icon: "reranking",
@@ -102,14 +101,12 @@ export const ConversationSidebar = ({
     },
     {
       key: "files",
-      new: true,
       label: t("files"),
       href: "/files",
       icon: "folder",
     },
     {
       key: "tools",
-      new: true,
       label: t("tools"),
       href: "/tools",
       icon: "tool",

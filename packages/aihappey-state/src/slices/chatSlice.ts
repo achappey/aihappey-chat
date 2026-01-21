@@ -20,6 +20,15 @@ export type ChatSlice = {
   approveAll: boolean;
   maxOutputTokens?: number
   setMaxOutputTokens: (maxOutputTokens?: number) => void;
+
+  convertAttachmentsToText?: boolean
+  sendRawAttachments?: boolean
+  maxAttachmentsSize?: number
+
+  setConvertAttachmentsToText: (value?: boolean) => void;
+  setSendRawAttachments: (value?: boolean) => void;
+  setMaxAttachmentsSize: (value?: number) => void;
+
   stopTools?: string[]
   setStopTools: (stopTools?: string[]) => void;
   maxToolCalls?: number
@@ -82,6 +91,25 @@ export const createChatSlice: StateCreator<
   activePlugins: [],
   enabledLocalTools: [],
   stopTools: [],
+  convertAttachmentsToText: true,
+  maxAttachmentsSize: 25 * 1024 * 1024,
+  sendRawAttachments: true,
+  setConvertAttachmentsToText: (value?: boolean) => {
+    set((state: ChatSlice) => ({
+      convertAttachmentsToText: value
+    }));
+  },
+  setSendRawAttachments: (value?: boolean) => {
+    set((state: ChatSlice) => ({
+      sendRawAttachments: value
+    }));
+  },
+
+  setMaxAttachmentsSize: (value?: number) => {
+    set((state: ChatSlice) => ({
+      maxAttachmentsSize: value
+    }));
+  },
   setStopTools: (value) => {
     set((state: ChatSlice) => ({
       stopTools: value

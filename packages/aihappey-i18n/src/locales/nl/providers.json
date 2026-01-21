@@ -12,6 +12,17 @@
     }
   },
   "deepinfra": {
+    "transcription": {
+      "task": "Taak",
+      "taskTranscribe": "Transcriberen",
+      "taskTranslate": "Vertalen",
+      "initialPrompt": "Initiële prompt",
+      "chunkingTitle": "Chunking",
+      "chunkLevel": "Chunk-niveau",
+      "chunkLevelSegment": "Segment",
+      "chunkLevelWord": "Woord",
+      "chunkLengthSeconds": "Chunklengte (seconden)"
+    },
     "reranking": {
       "instruction": "Instructie",
       "serviceTier": "Servicelaag"
@@ -58,7 +69,12 @@
   },
   "perplexity": {
     "academic": "Academisch",
+    "fast": "Snel",
+    "pro": "Pro",
     "web": "Web",
+    "media": "Media",
+    "searchType": "Type",
+    "enableMediaClassifier": "Media classificatie",
     "improveImageRelevance": "Verbeter afbeelding relevantie",
     "enableSearchClassifier": "Zoek classificatie",
     "searchRecencyFilter": "Tijdfilter",

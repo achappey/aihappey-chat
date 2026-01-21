@@ -5,6 +5,7 @@ import {
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
+  PerplexityChatConfigForm,
   PollinationsChatConfigForm,
   SambanovaChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
@@ -12,7 +13,6 @@ import {
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
-import { PerplexityChatConfig } from "../provider-config/perplexity/PerplexityChatConfig";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
 
@@ -156,9 +156,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         {enabledProviders.includes("Perplexity") &&
           <theme.Tab eventKey="perplexity"
             title="Perplexity">
-            <PerplexityChatConfig
-              perplexity={providerMetadata.perplexity ?? {}}
-              updatePerplexity={(perplexity) =>
+            <PerplexityChatConfigForm
+              config={providerMetadata.perplexity ?? {}}
+              updateConfig={(perplexity) =>
                 setProviderMetadata({ ...providerMetadata, perplexity })
               }
             />

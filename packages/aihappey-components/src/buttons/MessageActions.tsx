@@ -5,7 +5,6 @@ import { useTheme } from "../theme/ThemeContext";
 import { AiWarningBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { TemperatureBadge } from "../badges/TemperatureBadge";
-import { useTranslation } from "aihappey-i18n";
 import { useMediaQuery } from "usehooks-ts";
 
 interface MessageActionsProps {
@@ -13,6 +12,8 @@ interface MessageActionsProps {
   page: number;
   max: number;
   size?: string;
+  showTemperature?: boolean
+  showTokens?: boolean
 
   onCopyMessage?: (msg: ChatMessage) => Promise<void>;
   onShowAttachments?: (files: FileUIPart[]) => void;
@@ -26,6 +27,8 @@ export const MessageActions = ({
   page,
   max,
   size,
+  showTemperature,
+  showTokens,
   onCopyMessage,
   onShowAttachments,
   onShowActivity,
@@ -33,7 +36,6 @@ export const MessageActions = ({
   onSetPage,
 }: MessageActionsProps) => {
   const { Button } = useTheme();
-  const { t } = useTranslation();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
@@ -48,24 +50,13 @@ export const MessageActions = ({
           size={size} />
       )}
 
-      {isDesktop
+      {showTemperature
         && msg.role === "assistant"
         && msg.temperature != undefined && (
           <TemperatureBadge temperature={msg.temperature} />
         )}
 
-      {isDesktop && <TokenBadge totalTokens={msg.totalTokens} />}
-
-      {onShowAttachments && msg?.attachments && msg?.attachments?.length > 0 && (
-        <Button
-          variant="subtle"
-          style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
-          onClick={() => onShowAttachments(msg.attachments ?? [])}
-          icon={"attachment"}
-        >
-          {msg.attachments.length}
-        </Button>
-      )}
+      {showTokens && <TokenBadge totalTokens={msg.totalTokens} />}
 
       {onShowSources
         && msg?.sources
@@ -77,6 +68,19 @@ export const MessageActions = ({
             icon={"sources"}
           >
             {msg.sources.length}
+          </Button>
+        )}
+
+      {onShowAttachments
+        && msg?.attachments
+        && msg?.attachments?.length > 0 && (
+          <Button
+            variant="subtle"
+            style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+            onClick={() => onShowAttachments(msg.attachments ?? [])}
+            icon={"attachment"}
+          >
+            {msg.attachments.length}
           </Button>
         )}
 
@@ -104,7 +108,7 @@ export const MessageActions = ({
 
       {onShowActivity &&
         msg?.messageIcon &&
-        msg?.content?.length > 0 &&
+        msg?.content?.length > 1 &&
         msg?.messageLabel && (
           <Button
             variant="subtle"

@@ -13,5 +13,7 @@
     "application/vnd.agents+json": "Agents",
     "application/vnd.agent+json": "Agent",
     "text/html+skybridge": "OpenAI App",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint"
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel"
 }

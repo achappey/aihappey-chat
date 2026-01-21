@@ -17,13 +17,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const { Modal, Switch } = theme;
+  const { Modal, Switch, Slider } = theme;
   const { t } = useTranslation(); // Uncomment when i18n is ready
   const [activeTab, setActiveTab] = useState("general");
   const remoteStorageConnected = useAppStore((s) => s.remoteStorageConnected);
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const setEnableUserLocation = useAppStore((s) => s.setEnableUserLocation);
   const extractExif = useAppStore((s) => s.extractExif);
+
+  // Chat attachment settings
+  const convertAttachmentsToText = useAppStore((s) => s.convertAttachmentsToText);
+  const setConvertAttachmentsToText = useAppStore(
+    (s) => s.setConvertAttachmentsToText
+  );
+  const sendRawAttachments = useAppStore((s) => s.sendRawAttachments);
+  const setSendRawAttachments = useAppStore((s) => s.setSendRawAttachments);
+  const maxAttachmentsSize = useAppStore((s) => s.maxAttachmentsSize);
+  const setMaxAttachmentsSize = useAppStore((s) => s.setMaxAttachmentsSize);
+
+  const showMessageTemperature = useAppStore((s) => s.showMessageTemperature);
+  const showMessageTokens = useAppStore((s) => s.showMessageTokens);
+
+  const setShowMessageTemperature = useAppStore((s) => s.setShowMessageTemperature);
+  const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
+
+  const ONE_MB = 1024 * 1024;
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, value));
+  const bytesToMb = (bytes?: number) => {
+    if (bytes == null || Number.isNaN(bytes)) return 0;
+    return clamp(Math.round(bytes / ONE_MB), 0, 100);
+  };
+  const mbToBytes = (mb: number) => clamp(mb, 0, 100) * ONE_MB;
   const chat = useChatContext()
   const setRemoteStorageConnected = useAppStore(
     (s) => s.setRemoteStorageConnected
@@ -93,6 +118,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </theme.Tab>
 
             <theme.Tab
+              eventKey="chat"
+              icon={"chat"}
+              title={t("chat")}
+            >
+              <div>
+                <Switch
+                  id="temperature-toggle"
+                  checked={!!showMessageTemperature}
+                  label={t("settingsModal.showTemperature")}
+                  onChange={setShowMessageTemperature}
+                />
+
+                <Switch
+                  id="tokens-toggle"
+                  checked={!!showMessageTokens}
+                  label={t("settingsModal.showTokens")}
+                  onChange={setShowMessageTokens}
+                />
+              </div>
+            </theme.Tab>
+
+            <theme.Tab
               eventKey="connectors"
               icon={"connector"}
               title={t("settingsModal.tabConnectors")}
@@ -120,6 +167,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               icon={"attachment"}
               title={t("attachments")}>
               <div>
+
+                <Switch
+                  id="convertAttachmentsToText-toggle"
+                  checked={convertAttachmentsToText ?? false}
+                  label={t("settingsModal.convertAttachmentsToText")
+                    ?? "Convert attachments to text"}
+                  onChange={() =>
+                    setConvertAttachmentsToText(!(convertAttachmentsToText ?? false))
+                  }
+                />
+
+                <Switch
+                  id="sendRawAttachments-toggle"
+                  checked={sendRawAttachments ?? false}
+                  label={t("settingsModal.sendRawAttachments")
+                    ?? "Send raw attachments"}
+                  onChange={() =>
+                    setSendRawAttachments(!(sendRawAttachments ?? false))
+                  }
+                />
+
+                <div style={{ marginTop: 12 }}>
+                  <Slider
+                    id="maxAttachmentsSize-slider"
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={bytesToMb(maxAttachmentsSize)}
+                    onChange={(mb) => setMaxAttachmentsSize(mbToBytes(mb))}
+                    label={t("settingsModal.maxAttachmentsSize")
+                      ?? "Max attachments size"}
+                    showValue={true}
+                    valueFormat={(mb) => `${mb} MB`}
+                  />
+                </div>
+
                 <h4>{t("images")}</h4>
                 <Switch
                   id="setExtractExif-toggle"
@@ -129,6 +212,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     setExtractExif(!extractExif)
                   }
                 />
+
               </div>
             </theme.Tab>
           </theme.Tabs>

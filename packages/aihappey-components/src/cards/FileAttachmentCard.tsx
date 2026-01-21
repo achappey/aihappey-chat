@@ -2,9 +2,12 @@ import { FileUIPart } from "aihappey-ai";
 import mime from 'mime'; // <-- default import
 import { useTheme } from "../theme/ThemeContext";
 import { OpenLinkButton } from "../buttons";
+import { useTranslation } from "aihappey-i18n";
 
 interface FileAttachmentCardProps {
   file: FileUIPart;
+  /** Optional action: persist this attachment into the app-wide Files runtime. */
+  onAddToFiles?: (file: FileUIPart) => void | Promise<void>;
 }
 
 function base64SizeInKB(base64: string): number {
@@ -21,9 +24,12 @@ function base64SizeInKB(base64: string): number {
   return bytes / 1024;
 }
 
-export const FileAttachmentCard = ({ file }: FileAttachmentCardProps) => {
+export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardProps) => {
   const { Card, Button, Image } = useTheme();
-  const { mediaType, url } = file
+  const { t } = useTranslation();
+  const { mediaType, url, providerMetadata } = file
+
+  const filename = providerMetadata?.openai?.filename?.toString();
 
   // helper to download
   const handleDownload = () => {
@@ -53,7 +59,7 @@ export const FileAttachmentCard = ({ file }: FileAttachmentCardProps) => {
       // We'll compute it similar to C# ticks
       const ticks = BigInt(now.getTime()) * 10000n + 621355968000000000n;
 
-      link.download = `${yymmdd}-attachment-${ticks}.${fileExt || 'bin'}`;
+      link.download = filename ?? `${yymmdd}-attachment-${ticks}.${fileExt || 'bin'}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -66,7 +72,7 @@ export const FileAttachmentCard = ({ file }: FileAttachmentCardProps) => {
 
   return (
     <Card
-      title={mediaType}
+      title={filename ?? t(`mimeTypes:${mediaType}`)}
       description={base64SizeInKB(url!).toFixed(2) + ' KB'}
       size={"small"}
       actions={
@@ -75,8 +81,18 @@ export const FileAttachmentCard = ({ file }: FileAttachmentCardProps) => {
             <Button
               icon="download"
               size="small"
+              title={t('download')}
               variant="subtle"
               onClick={handleDownload}
+            ></Button>
+          )}
+          {url && onAddToFiles && (
+            <Button
+              icon="add"
+              size="small"
+              variant="subtle"
+              title={t('addToFiles')}
+              onClick={() => onAddToFiles(file)}
             ></Button>
           )}
           {url

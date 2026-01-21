@@ -14,6 +14,7 @@ import {
     ZaiTranscriptionConfigForm,
     ResembleAITranscriptionConfigForm,
     GladiaTranscriptionConfigForm,
+    DeepInfraTranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
@@ -108,6 +109,20 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         deepgram,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("DeepInfra") && (
+                        <theme.Tab eventKey="deepinfra" title="DeepInfra">
+                            <DeepInfraTranscriptionConfigForm
+                                config={providerMetadata.deepinfra ?? {}}
+                                updateConfig={(deepinfra) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        deepinfra,
                                     })
                                 }
                             />

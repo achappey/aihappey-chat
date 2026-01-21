@@ -64,6 +64,12 @@ export const FilesProvider = ({
       setItems((prev) => prev.filter((f) => f.id !== id));
     };
 
+    ctx.rename = async (id: string, newName: string) => {
+      const updated = await store.rename(id, newName);
+      setItems((prev) => prev.map((f) => (f.id === id ? updated : f)));
+      return updated;
+    };
+
     // list() and read() stay as-is on the store
 
     return ctx;

@@ -1,6 +1,8 @@
 import { useCallback } from "react";
 import type { FilesContextType } from "aihappey-files";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
+import { extractTextFromFile } from "../../chat/files/file";
+import { extractTextFromZip } from "../../chat/files/fileConverters";
 
 /* ============================================================
    Result helpers
@@ -14,6 +16,11 @@ type ToolTextResult = {
 const ok = (text: string): ToolTextResult => ({
   isError: false,
   content: [{ type: "text", text }],
+});
+
+const okMany = (texts: string[]): ToolTextResult => ({
+  isError: false,
+  content: texts.map(text => ({ type: "text", text })),
 });
 
 const fail = (err: unknown): ToolTextResult => ({
@@ -104,6 +111,26 @@ export const localFileDeleteTool: Tool = {
   },
 };
 
+export const localFileRenameTool: Tool = {
+  name: "local_file_rename",
+  title: "Rename local file",
+  description: "Rename a local file.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      oldName: { type: "string", description: "Current exact file name." },
+      newName: { type: "string", description: "New file name." },
+    },
+    required: ["oldName", "newName"],
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: false,
+  },
+};
+
 /* ============================================================
    Plugin DEFINITION (STATIC)
 ============================================================ */
@@ -116,6 +143,7 @@ export const localFilesPluginDef = {
     localFileReadTool,
     localFileCreateTool,
     localFileDeleteTool,
+    localFileRenameTool,
   ],
 };
 
@@ -128,12 +156,21 @@ async function resolveFileByName(files: FilesContextType, name: string) {
   return files.items.find(f => f.name === name);
 }
 
+function wrapBlobAsFile(blob: Blob, name: string) {
+  // The existing file-to-text pipeline operates on `File` objects.
+  // Wrap the stored Blob into a File to reuse those converters.
+  return new File([blob], name, {
+    type: blob.type || "application/octet-stream",
+  });
+}
+
 type LocalFileToolCall = {
   toolName:
     | "local_file_list"
     | "local_file_read"
     | "local_file_create"
-    | "local_file_delete";
+    | "local_file_delete"
+    | "local_file_rename";
   input?: any;
 };
 
@@ -165,7 +202,22 @@ export function useLocalFilesRuntime(files?: FilesContextType | null) {
             const stored = await files.read(file.id);
             if (!stored) throw new Error("File not found.");
 
-            return ok(await stored.data.text());
+            const asFile = wrapBlobAsFile(stored.data, file.name);
+
+            // Match chat attachment behavior:
+            // - if ZIP, expand to multiple text parts
+            // - else, attempt conversion for supported formats
+            // - if unsupported, fall back to Blob.text() (previous behavior)
+            if (asFile.type === "application/zip" || /\.zip$/i.test(asFile.name)) {
+              const parts = await extractTextFromZip(asFile);
+              const texts = parts
+                .filter(p => p?.type === "text" && typeof p.text === "string")
+                .map(p => p.text);
+              return okMany(texts.length ? texts : [await stored.data.text()]);
+            }
+
+            const converted = await extractTextFromFile(asFile);
+            return ok(converted ?? (await stored.data.text()));
           }
 
           case "local_file_create": {
@@ -197,6 +249,25 @@ export function useLocalFilesRuntime(files?: FilesContextType | null) {
             if (!file) throw new Error("File not found.");
 
             await files.delete(file.id);
+            return ok("OK");
+          }
+
+          case "local_file_rename": {
+            const { oldName, newName } = toolCall.input ?? {};
+            const normalizedOldName = String(oldName ?? "").trim();
+            const normalizedNewName = String(newName ?? "").trim();
+            if (!normalizedOldName) throw new Error("Missing oldName.");
+            if (!normalizedNewName) throw new Error("Missing newName.");
+
+            if (normalizedOldName === normalizedNewName) return ok("OK");
+
+            const file = await resolveFileByName(files, normalizedOldName);
+            if (!file) throw new Error("File not found.");
+
+            const existing = await resolveFileByName(files, normalizedNewName);
+            if (existing) throw new Error("File already exists.");
+
+            await files.rename(file.id, normalizedNewName);
             return ok("OK");
           }
 
