@@ -18,6 +18,7 @@ import { useAppStore } from "aihappey-state";
   TogetherSpeechConfigForm,
   MiniMaxSpeechConfigForm,
   ResembleAISpeechConfigForm,
+  MurfAISpeechConfigForm,
   type DeepInfraSpeechConfig,
   type ElevenLabsSpeechConfig,
   type DeepgramSpeechConfig,
@@ -31,6 +32,7 @@ import { useAppStore } from "aihappey-state";
   type AsyncAISpeechConfig,
   type MiniMaxSpeechConfig,
   type ResembleAISpeechConfig,
+  type MurfAISpeechConfig,
 } from "aihappey-components";
 
 export interface SpeechSettingsModalProps {
@@ -241,6 +243,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
               config={providerMetadata.resembleai ?? {}}
               updateConfig={(resembleai: ResembleAISpeechConfig) =>
                 setProviderMetadata({ ...providerMetadata, resembleai })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("MurfAI") && (
+          <theme.Tab eventKey="murfai" title="MurfAI">
+            <MurfAISpeechConfigForm
+              config={providerMetadata.murfai ?? {}}
+              updateConfig={(murfai: MurfAISpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, murfai })
               }
             />
           </theme.Tab>

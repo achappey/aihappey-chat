@@ -18,13 +18,14 @@ import { useTranslation } from "aihappey-i18n";
 import { useResourceSelect } from "./useResourceSelect";
 import { readResource } from "../../../runtime/mcp/readResource";
 import { useDictation } from "./useDictation";
+import { useState } from "react";
 
 export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
 };
 
 export const MessageInput = (props: UseMessageInputOptions) => {
-  const { Button, Tags, TextArea } = useTheme();
+  const { Button, Tags, TextArea, Spinner } = useTheme();
   const { t } = useTranslation();
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
@@ -40,6 +41,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
     ? agents?.find(a => a.name == selectedAgentNames[0])?.argumentHint : undefined;
   const promptPlaceholder = agentHint ?? t("promptPlaceholder");
   const resourceSelect = useResourceSelect();
+  const [resourceLoading, setResourceLoading] = useState(false);
   const {
     value,
     setValue,
@@ -120,6 +122,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
             </div>
 
             <div style={styles.metaRight}>
+              {resourceLoading && <Spinner />}
               <ContextProgressBar tokenUsage={props.tokenUsage}
                 max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
                 context_window={currentModel?.context_window} />
@@ -169,8 +172,15 @@ export const MessageInput = (props: UseMessageInputOptions) => {
                 const hit = resourceSelect.resolve(uri);
                 if (!hit) return;
 
-                const result = await readResource(hit.serverKey, uri);
-                mcpResourceRuntime.add(hit.resource, result);
+                try {
+                  setResourceLoading(true)
+                  const result = await readResource(hit.serverKey, uri);
+                  mcpResourceRuntime.add(hit.resource, result);
+
+                } finally {
+                  setResourceLoading(false)
+
+                }
               }}
             />
 

@@ -1,17 +1,38 @@
 import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import { ElevenLabsSpeechContinuityCard } from "./cards/ElevenLabsSpeechContinuityCard";
-import { ElevenLabsSpeechGeneralCard } from "./cards/ElevenLabsSpeechGeneralCard";
-import { ElevenLabsSpeechMusicCard } from "./cards/ElevenLabsSpeechMusicCard";
-import { ElevenLabsSpeechTextNormalizationCard } from "./cards/ElevenLabsSpeechTextNormalizationCard";
-import { ElevenLabsSpeechVoiceSettingsCard } from "./cards/ElevenLabsSpeechVoiceSettingsCard";
+import {
+  ElevenLabsSpeechContinuityCard,
+  ElevenLabsSpeechDialogueCard,
+  ElevenLabsSpeechGeneralCard,
+  ElevenLabsSpeechMusicCard,
+  ElevenLabsSpeechTextNormalizationCard,
+  ElevenLabsSpeechVoiceSettingsCard,
+} from "./cards";
 
 export type ElevenLabsVoiceSettings = {
   stability?: number;
   similarity_boost?: number;
   style?: number;
   use_speaker_boost?: boolean;
+};
+
+export type ElevenLabsSpeechDialogueInput = {
+  voice_id: string;
+  text: string;
+};
+
+export type ElevenLabsSpeechDialogueSettings = {
+  /** Range 0..1. Lower values introduce broader emotional range. */
+  stability?: number;
+};
+
+export type ElevenLabsSpeechDialogue = {
+  /** Text-to-Dialogue dialogue lines. */
+  inputs?: ElevenLabsSpeechDialogueInput[];
+
+  /** Text-to-Dialogue generation settings. */
+  settings?: ElevenLabsSpeechDialogueSettings;
 };
 
 export type ElevenLabsSpeechConfig = {
@@ -30,6 +51,10 @@ export type ElevenLabsSpeechConfig = {
   /** auto | on | off */
   apply_text_normalization?: "auto" | "on" | "off";
   apply_language_text_normalization?: boolean;
+
+  // ---- ElevenLabs Text-to-Dialogue ----
+
+  dialogue?: ElevenLabsSpeechDialogue;
 
   // ---- ElevenLabs Music (POST /v1/music) ----
 
@@ -67,6 +92,7 @@ export const ElevenLabsSpeechConfigForm: React.FC<{
         config={config}
         updateConfig={updateConfig}
       />
+      <ElevenLabsSpeechDialogueCard config={config} updateConfig={updateConfig} />
     </div>
   );
 };

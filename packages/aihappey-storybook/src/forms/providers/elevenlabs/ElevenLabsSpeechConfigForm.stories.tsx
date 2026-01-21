@@ -50,3 +50,19 @@ export const WithVoiceSettings: Story = {
   ),
 };
 
+export const WithDialogue: Story = {
+  render: () => (
+    <Template
+      initial={{
+        dialogue: {
+          inputs: [
+            { voice_id: "JBFqnCBsd6RMkjVDRZzb", text: "Hello, welcome." },
+            { voice_id: "21m00Tcm4TlvDq8ikWAM", text: "Thanks! Let’s begin." },
+          ],
+          settings: { stability: 0.5 },
+        },
+      }}
+    />
+  ),
+};
+

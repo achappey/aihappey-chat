@@ -48,4 +48,6 @@ export * from "./verda";
 
 export * from "./freepik";
 
+export * from "./murfai";
+
 

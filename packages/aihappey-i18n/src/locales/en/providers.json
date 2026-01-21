@@ -321,7 +321,14 @@
     "timestampsGranularity": "Timestamps granularity",
     "diarization": "Diarization",
     "numSpeakers": "Number of speakers",
-    "diarizationThreshold": "Diarization threshold ({{value}})"
+    "diarizationThreshold": "Diarization threshold ({{value}})",
+    "dialogue": "Dialogue",
+    "dialogueHint": "Add multiple dialogue lines for Dialogue models.",
+    "dialogueAddLine": "Add line",
+    "dialogueVoiceIdPlaceholder": "e.g. JBFqnCBsd6RMkjVDRZzb",
+    "dialogueText": "Text",
+    "dialogueStability": "Dialogue stability ({{value}})",
+    "dialogueStabilityReset": "Use provider default"
   },
   "asyncai": {
     "speech": {

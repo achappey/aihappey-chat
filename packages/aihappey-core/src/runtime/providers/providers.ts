@@ -55,6 +55,8 @@ import { verda } from "./catalog/verda";
 import { audixa } from "./catalog/audixa";
 import { freepik } from "./catalog/freepik";
 import { ai21 } from "./catalog/ai21";
+import { murfai } from "./catalog/murfai";
+import { lingvanex } from "./catalog/lingvanex";
 
 /**
  * UI-facing provider catalog.
@@ -72,6 +74,7 @@ export const PROVIDERS: Record<string, Provider> = {
   groq,
   xai,
   together,
+  lingvanex,
   pollinations,
   hyperstack,
   perplexity,
@@ -87,6 +90,7 @@ export const PROVIDERS: Record<string, Provider> = {
   deepgram,
   voyageai,
   contextualai,
+  murfai,
   replicate,
   asyncai,
   azure,

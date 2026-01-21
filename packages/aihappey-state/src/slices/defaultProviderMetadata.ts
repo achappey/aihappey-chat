@@ -176,4 +176,6 @@ export const defaultProviderMetadata = {
     "enable_search_classifier": false,
     "disable_search": false
   }
+  ,
+  "murfai": {}
 };

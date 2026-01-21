@@ -305,7 +305,14 @@
     "timestampsGranularity": "Tijdstempel-nauwkeurigheid",
     "diarization": "Sprekersherkenning",
     "numSpeakers": "Aantal sprekers",
-    "diarizationThreshold": "Sprekersherkenningsdrempel ({{value}})"
+    "diarizationThreshold": "Sprekersherkenningsdrempel ({{value}})",
+    "dialogue": "Dialoog",
+    "dialogueHint": "Voeg meerdere dialoogregels toe voor Dialogue modellen.",
+    "dialogueAddLine": "Regel toevoegen",
+    "dialogueVoiceIdPlaceholder": "bijv. JBFqnCBsd6RMkjVDRZzb",
+    "dialogueText": "Tekst",
+    "dialogueStability": "Dialoogstabiliteit ({{value}})",
+    "dialogueStabilityReset": "Provider-standaard gebruiken"
   },
   "asyncai": {
     "speech": {
