@@ -57,6 +57,9 @@ import { freepik } from "./catalog/freepik";
 import { ai21 } from "./catalog/ai21";
 import { murfai } from "./catalog/murfai";
 import { lingvanex } from "./catalog/lingvanex";
+import { googletranslate } from "./catalog/googletranslate";
+import { modernmt } from "./catalog/modernmt";
+import { lectoai } from "./catalog/lectoai";
 
 /**
  * UI-facing provider catalog.
@@ -70,10 +73,13 @@ export const PROVIDERS: Record<string, Provider> = {
   anthropic,
   google,
   mistral,
+  lectoai,
   cohere,
+  modernmt,
   groq,
   xai,
   together,
+  googletranslate,
   lingvanex,
   pollinations,
   hyperstack,
