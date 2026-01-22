@@ -66,4 +66,16 @@ export const defaultProviderRealtimeMetadata = {
     // bit_depth: 16 (not used by the browser WS sender)
     // channels: 1 (browser implementation is mono)
   }
+  ,
+  /**
+   * AssemblyAI realtime (v3/ws WebSocket).
+   *
+   * The only strictly required query params are set in the client even when this config is empty:
+   * - sample_rate (defaulted)
+   * - vad_threshold (defaulted)
+   * - speech_model (derived from selectedModel at runtime)
+   */
+  "assemblyai": {
+    // Intentionally empty.
+  }
 };

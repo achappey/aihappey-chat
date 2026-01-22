@@ -5,6 +5,7 @@ import {
     GroqTranscriptionConfigForm,
     DeepgramTranscriptionConfigForm,
     ElevenLabsTranscriptionConfigForm,
+    AssemblyAITranscriptionConfigForm,
     MistralTranscriptionConfigForm,
     NovitaTranscriptionConfigForm,
     OpenAIITranscriptionConfigForm,
@@ -144,6 +145,27 @@ export const TranscriptionSettingsModal: React.FC<
                                     setRealtimeProviderMetadata({
                                         ...realtimeProviderMetadata,
                                         elevenlabs,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("AssemblyAI") && (
+                        <theme.Tab eventKey="assemblyai" title="AssemblyAI">
+                            <AssemblyAITranscriptionConfigForm
+                                config={providerMetadata.assemblyai ?? {}}
+                                updateConfig={(assemblyai) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        assemblyai,
+                                    })
+                                }
+                                realtimeConfig={realtimeProviderMetadata.assemblyai ?? {}}
+                                updateRealtimeConfig={(assemblyai) =>
+                                    setRealtimeProviderMetadata({
+                                        ...realtimeProviderMetadata,
+                                        assemblyai,
                                     })
                                 }
                             />

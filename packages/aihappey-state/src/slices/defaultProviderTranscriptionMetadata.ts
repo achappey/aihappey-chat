@@ -9,4 +9,6 @@ export const defaultProviderTranscriptionMetadata = {
   },
   "resembleai": {
   },
+  "assemblyai": {
+  },
 };

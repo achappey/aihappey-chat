@@ -53,6 +53,12 @@ export const defaultProviderSpeechMetadata = {
       "voice": "tara"
     }
   },
+  "runway": {
+    "voice": {
+      "type": "runway-preset",
+      "presetId": "Maya"
+    }
+  },
   "audixa": {
     "voice": "af_bella",
     "speed": 1,

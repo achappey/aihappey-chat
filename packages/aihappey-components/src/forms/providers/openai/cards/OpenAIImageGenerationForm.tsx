@@ -2,6 +2,7 @@ import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 const DEFAULT_IMAGE_GENERATION = {
+  model: "gpt-image-1.5",
   size: "auto",
   quality: "auto",
   input_fidelity: "low",
@@ -78,9 +79,9 @@ export const OpenAIImageGenerationForm = ({
           <theme.Select
             label={t("model")}
             style={{ flex: "1 1 0" }}
-            values={[config?.image_generation?.model ?? "gpt-image-1"]}
+            values={[config?.image_generation?.model ?? "gpt-image-1.5"]}
             disabled={!imageGenerationOn}
-            valueTitle={config?.image_generation?.model ?? "gpt-image-1"}
+            valueTitle={config?.image_generation?.model ?? "gpt-image-1.5"}
             options={modelOptions}
             onChange={(val: string) =>
               updateConfig({

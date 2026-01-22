@@ -210,7 +210,15 @@
   },
   "runway": {
     "contentModeration": "Moderatie",
-    "publicFigureThreshold": "Drempel voor publieke figuren"
+    "publicFigureThreshold": "Drempel voor publieke figuren",
+    "speech": {
+      "soundEffects": {
+        "title": "Geluidseffecten",
+        "duration": "Duur (seconden)",
+        "durationHint": "Optioneel. Als je dit weglaat, kiest Runway een passende duur.",
+        "loop": "Herhalen"
+      }
+    }
   },
   "nebius": {
     "responseExtension": "Uitvoerformaat"
@@ -555,5 +563,78 @@
         "scaleFactor": "Schaalfactor"
       }
     }
+  }
+  ,
+  "assemblyai": {
+    "realtime": "Real-time",
+    "realtimeHint": "Streaming (WebSocket) instellingen voor AssemblyAI.",
+    "realtimeSampleRate": "Sample rate",
+    "realtimeEncoding": "Encodering",
+    "realtimeVadThreshold": "VAD-drempel (0.0–1.0)",
+    "realtimeEndOfTurnConfidenceThreshold": "Einde-van-turn vertrouwensdrempel (0.0–1.0)",
+    "realtimeMinEndOfTurnSilence": "Min. stilte voor einde turn (ms-string)",
+    "realtimeMaxTurnSilence": "Max. turn-stilte (ms-string)",
+    "realtimeFormatTurns": "Turns opmaken",
+    "realtimeInactivityTimeout": "Inactiviteitstimeout (seconden)",
+    "realtimeLanguageDetection": "Taaldetectie",
+    "realtimeKeytermsPrompt": "Keyterms prompt",
+
+    "mediaTrimming": "Media bijsnijden",
+    "audioStartFrom": "Audio start (ms)",
+    "audioEndAt": "Audio einde (ms)",
+
+    "language": "Taal",
+    "languageHint": "Selecteer de taal van je audiobestand (of laat standaard).",
+    "languageCode": "Taalcode",
+    "languageDetection": "Automatische taaldetectie",
+    "languageConfidenceThreshold": "Taalvertrouwensdrempel",
+
+    "outputFormatting": "Uitvoeropmaak",
+    "punctuate": "Interpunctie",
+    "formatText": "Tekst opmaken",
+    "disfluencies": "Stopwoorden",
+
+    "channelsAndDiarization": "Kanalen & sprekerherkenning",
+    "channelsAndDiarizationHint": "Meerkanaals transcriptie en sprekerherkenningsinstellingen.",
+    "multichannel": "Meerkanaals",
+    "speakerLabels": "Sprekerlabels",
+    "speakersExpected": "Verwacht aantal sprekers",
+
+    "enrichments": "Verrijkingen",
+    "enrichmentsHint": "Schakel extra inzichten en analyse in.",
+    "autoChapters": "Automatische hoofdstukken",
+    "autoHighlights": "Automatische highlights",
+    "entityDetection": "Entiteiten detecteren",
+    "sentimentAnalysis": "Sentimentanalyse",
+    "iabCategories": "IAB-categorieën",
+
+    "safetyAndPii": "Veiligheid & PII",
+    "safetyAndPiiHint": "Profanity filtering, content moderatie en PII-redactie.",
+    "filterProfanity": "Scheldwoorden filteren",
+    "contentSafety": "Content safety",
+    "contentSafetyConfidence": "Content safety confidence (25–100)",
+    "redactPii": "PII redigeren",
+    "redactPiiSub": "PII vervanging",
+    "redactPiiPolicies": "PII beleid",
+    "redactPiiPoliciesHint": "Selecteer één of meer policies om te redigeren.",
+    "addPolicy": "Policy toevoegen",
+    "redactPiiAudio": "PII-audio redigeren",
+    "redactPiiAudioQuality": "Kwaliteit geredigeerde audio",
+
+    "summarization": "Samenvatting",
+    "summaryModel": "Samenvattingsmodel",
+    "summaryType": "Type samenvatting",
+
+    "accuracy": "Nauwkeurigheid",
+    "accuracyHint": "Verbeter herkenningsnauwkeurigheid met drempels, keyterms en spelling overrides.",
+    "speechThreshold": "Spraakdrempel (0.0–1.0)",
+    "keytermsPrompt": "Keyterms prompt",
+    "keytermsPromptPlaceholder": "bijv. productnaam",
+    "customSpelling": "Aangepaste spelling",
+    "customSpellingTo": "Vervangen door",
+    "customSpellingFrom": "Vervang deze",
+    "customSpellingFromPlaceholder": "bijv. Sequel",
+    "customSpellingAdd": "Vervanging toevoegen",
+    "customSpellingEmpty": "Nog geen aangepaste spellingen."
   }
 }

@@ -69,6 +69,9 @@ export function useRealtimeTranscriptionController(args: {
   // For Gladia we also don't have OpenAI item_ids; use a monotonically increasing counter.
   const gladiaCommitCounterRef = useRef<number>(0);
 
+  // For AssemblyAI we also don't have OpenAI item_ids; use a monotonically increasing counter.
+  const assemblyAiCommitCounterRef = useRef<number>(0);
+
   const sessionInfoRef = useRef<any>(null);
 
   const providerId = useMemo(() => parseProviderIdFromModelId(selectedModel?.id), [selectedModel]);
@@ -265,6 +268,52 @@ export function useRealtimeTranscriptionController(args: {
     return { text, startSecond: 0, endSecond: 0 };
   }, []);
 
+  const parseAssemblyAiTurnSegment = useCallback((event: any) => {
+    // AssemblyAI Turn message (docs):
+    // {
+    //   type: "Turn",
+    //   end_of_turn: boolean,
+    //   transcript: string,
+    //   words: [{ start, end, ... }]
+    // }
+    const text = typeof event?.transcript === "string" ? event.transcript.trim() : "";
+    if (!text) return null;
+
+    const words = Array.isArray(event?.words) ? event.words : [];
+    const asNum = (v: any): number | undefined => {
+      const n = typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN;
+      return Number.isFinite(n) ? n : undefined;
+    };
+
+    const toSeconds = (n: number): number => {
+      // AssemblyAI word timings are commonly integers in milliseconds.
+      // Heuristic:
+      // - integers: treat as ms
+      // - floats: treat as seconds
+      if (Number.isInteger(n)) return n / 1000;
+      return n;
+    };
+
+    const starts: number[] = [];
+    const ends: number[] = [];
+    for (const w of words) {
+      const s = asNum(w?.start);
+      const e = asNum(w?.end);
+      if (typeof s === "number") starts.push(toSeconds(s));
+      if (typeof e === "number") ends.push(toSeconds(e));
+    }
+
+    if (starts.length && ends.length) {
+      return {
+        text,
+        startSecond: Math.max(0, Math.min(...starts)),
+        endSecond: Math.max(0, Math.max(...ends)),
+      };
+    }
+
+    return { text, startSecond: 0, endSecond: 0 };
+  }, []);
+
   const stop = useCallback(async () => {
     if (stopInFlightRef.current) {
       await stopInFlightRef.current;
@@ -291,6 +340,7 @@ export function useRealtimeTranscriptionController(args: {
         elevenCommitCounterRef.current = 0;
         deepgramCommitCounterRef.current = 0;
         gladiaCommitCounterRef.current = 0;
+        assemblyAiCommitCounterRef.current = 0;
         resetRealtimeSessionState();
         stopInFlightRef.current = null;
       }
@@ -347,14 +397,14 @@ export function useRealtimeTranscriptionController(args: {
           selectedModel: selectedModel.id,
           // NOTE: ElevenLabs backend does NOT need providerOptions; OpenAI does.
           getEphemeralToken: () =>
-            tokenClientFactory(
-              providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia"
-                ? { model: selectedModel.id }
-                : {
-                    model: selectedModel.id,
-                    providerOptions: providerRealtimeMetadata,
-                  }
-            ),
+             tokenClientFactory(
+              providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai"
+                 ? { model: selectedModel.id }
+                 : {
+                     model: selectedModel.id,
+                     providerOptions: providerRealtimeMetadata,
+                   }
+             ),
           providerRealtimeMetadata,
           events: {
           // Parse raw events to build segments (start/end from speech events, text from completed transcript)
@@ -458,6 +508,49 @@ export function useRealtimeTranscriptionController(args: {
                 return;
               }
 
+              if (providerId === "assemblyai") {
+                const type = event?.type;
+
+                if (type === "Begin") {
+                  sessionInfoRef.current = event;
+                  if (created.id) {
+                    void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+                  }
+                  return;
+                }
+
+                if (type === "Turn") {
+                  const isFinal = !!event?.end_of_turn;
+                  if (isFinal) {
+                    const seg = parseAssemblyAiTurnSegment(event);
+                    if (seg) {
+                      const idx = ++assemblyAiCommitCounterRef.current;
+                      const key = `assemblyai-${idx}`;
+                      segmentsRef.current.set(key, {
+                        itemId: key,
+                        text: seg.text,
+                        startMs: seg.startSecond * 1000,
+                        endMs: seg.endSecond * 1000,
+                      });
+                      if (created.id) {
+                        void persistUpdateNow(created.id, computeSnapshot({ preferText: bufferRef.current }));
+                      }
+                    }
+                  }
+                  return;
+                }
+
+                if (type === "Termination") {
+                  sessionInfoRef.current = event;
+                  if (created.id) {
+                    void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+                  }
+                  return;
+                }
+
+                return;
+              }
+
               const type = event?.type;
               const itemId = event?.item_id;
               if (!type || !itemId) return;
@@ -494,7 +587,10 @@ export function useRealtimeTranscriptionController(args: {
           },
           onTranscriptText: (deltaText: string) => {
             // OpenAI emits deltas; ElevenLabs/Deepgram emit full-text snapshots (we pass the full text through).
-            const next = providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" ? deltaText : (bufferRef.current + deltaText).trimStart();
+            const next =
+              providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai"
+                ? deltaText
+                : (bufferRef.current + deltaText).trimStart();
             bufferRef.current = next;
             setRealtimeSessionState({ realtimeText: next, realtimeStatus: "connected" });
 

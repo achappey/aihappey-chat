@@ -214,7 +214,15 @@
   },
   "runway": {
     "contentModeration": "Content moderation",
-    "publicFigureThreshold": "Public figure threshold"
+    "publicFigureThreshold": "Public figure threshold",
+    "speech": {
+      "soundEffects": {
+        "title": "Sound Effects",
+        "duration": "Duration (seconds)",
+        "durationHint": "Optional. If omitted, Runway chooses an appropriate duration.",
+        "loop": "Loop"
+      }
+    }
   },
   "stabilityai": {
     "style_presetLabel": "Style preset",
@@ -571,5 +579,69 @@
         "scaleFactor": "Scale factor"
       }
     }
+  },
+  "assemblyai": {
+    "realtime": "Real-time",
+    "realtimeHint": "Streaming (WebSocket) settings for AssemblyAI.",
+    "realtimeSampleRate": "Sample rate",
+    "realtimeEncoding": "Encoding",
+    "realtimeVadThreshold": "VAD threshold (0.0–1.0)",
+    "realtimeEndOfTurnConfidenceThreshold": "End-of-turn confidence threshold (0.0–1.0)",
+    "realtimeMinEndOfTurnSilence": "Min end-of-turn silence (ms string)",
+    "realtimeMaxTurnSilence": "Max turn silence (ms string)",
+    "realtimeFormatTurns": "Format turns",
+    "realtimeInactivityTimeout": "Inactivity timeout (seconds)",
+    "realtimeLanguageDetection": "Language detection",
+    "realtimeKeytermsPrompt": "Keyterms prompt",
+    "mediaTrimming": "Media trimming",
+    "audioStartFrom": "Audio start (ms)",
+    "audioEndAt": "Audio end (ms)",
+    "language": "Language",
+    "languageHint": "Select the language of your audio file (or leave default).",
+    "languageCode": "Language code",
+    "languageDetection": "Automatic language detection",
+    "languageConfidenceThreshold": "Language confidence threshold",
+    "outputFormatting": "Output formatting",
+    "punctuate": "Punctuate",
+    "formatText": "Format text",
+    "disfluencies": "Disfluencies",
+    "channelsAndDiarization": "Channels & diarization",
+    "channelsAndDiarizationHint": "Multichannel transcription and speaker diarization settings.",
+    "multichannel": "Multichannel",
+    "speakerLabels": "Speaker labels",
+    "speakersExpected": "Speakers expected",
+    "enrichments": "Enrichments",
+    "enrichmentsHint": "Enable extra insights and analysis.",
+    "autoChapters": "Auto chapters",
+    "autoHighlights": "Auto highlights",
+    "entityDetection": "Entity detection",
+    "sentimentAnalysis": "Sentiment analysis",
+    "iabCategories": "IAB categories",
+    "safetyAndPii": "Safety & PII",
+    "safetyAndPiiHint": "Profanity filtering, content moderation, and PII redaction.",
+    "filterProfanity": "Filter profanity",
+    "contentSafety": "Content safety",
+    "contentSafetyConfidence": "Content safety confidence (25–100)",
+    "redactPii": "Redact PII",
+    "redactPiiSub": "PII replacement",
+    "redactPiiPolicies": "PII policies",
+    "redactPiiPoliciesHint": "Select one or more policies to redact.",
+    "addPolicy": "Add policy",
+    "redactPiiAudio": "Redact PII audio",
+    "redactPiiAudioQuality": "Redacted audio quality",
+    "summarization": "Summarization",
+    "summaryModel": "Summary model",
+    "summaryType": "Summary type",
+    "accuracy": "Accuracy",
+    "accuracyHint": "Improve recognition accuracy with thresholds, keyterms and spelling overrides.",
+    "speechThreshold": "Speech threshold (0.0–1.0)",
+    "keytermsPrompt": "Keyterms prompt",
+    "keytermsPromptPlaceholder": "e.g. product name",
+    "customSpelling": "Custom spelling",
+    "customSpellingTo": "Replace with",
+    "customSpellingFrom": "Replace these",
+    "customSpellingFromPlaceholder": "e.g. Sequel",
+    "customSpellingAdd": "Add replacement",
+    "customSpellingEmpty": "No custom spelling entries yet."
   }
 }

@@ -23,6 +23,7 @@ export * from "./fireworks";
 export * from "./zai";
 export * from "./telnyx";
 export * from "./deepinfra";
+export * from "./assemblyai";
 
 export * from "./deepgram";
 

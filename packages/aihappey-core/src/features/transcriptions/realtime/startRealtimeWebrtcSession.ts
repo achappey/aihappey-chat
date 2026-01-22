@@ -4,6 +4,7 @@ import type { OpenAiRealtimeWebrtcEvents, OpenAiRealtimeWebrtcSession } from "./
 import { startElevenLabsRealtimeWsSession } from "./startElevenLabsRealtimeWsSession";
 import { startDeepgramRealtimeWsSession } from "./startDeepgramRealtimeWsSession";
 import { startGladiaRealtimeWsSession } from "./startGladiaRealtimeWsSession";
+import { startAssemblyAiRealtimeWsSession } from "./startAssemblyAiRealtimeWsSession";
 
 export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
@@ -76,6 +77,21 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
     const session = await startGladiaRealtimeWsSession({
       getEphemeralToken,
       config: gladiaConfig,
+      events,
+    });
+    return {
+      kind: "ws",
+      stop: session.stop,
+    };
+  }
+
+  if (providerId === "assemblyai") {
+    const assemblyAiConfig = (providerRealtimeMetadata as any)?.assemblyai ?? (providerRealtimeMetadata as any) ?? {};
+    const assemblyAiModelId = stripProviderPrefix(selectedModel);
+    const session = await startAssemblyAiRealtimeWsSession({
+      getEphemeralToken,
+      modelId: assemblyAiModelId,
+      config: assemblyAiConfig,
       events,
     });
     return {

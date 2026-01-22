@@ -8,6 +8,7 @@ import { useAppStore } from "aihappey-state";
   DeepgramSpeechConfigForm,
   AudixaSpeechConfigForm,
   FreepikSpeechConfigForm,
+  RunwaySpeechConfigForm,
   OpenAISpeechConfigForm,
   GroqSpeechConfigForm,
   NovitaSpeechConfigForm,
@@ -24,6 +25,7 @@ import { useAppStore } from "aihappey-state";
   type DeepgramSpeechConfig,
   type AudixaSpeechConfig,
   type FreepikSpeechConfig,
+  type RunwaySpeechConfig,
   type OpenAISpeechConfig,
   type GroqSpeechConfig,
   type NovitaSpeechConfig,
@@ -131,6 +133,17 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
               config={providerMetadata.freepik ?? {}}
               updateConfig={(freepik: FreepikSpeechConfig) =>
                 setProviderMetadata({ ...providerMetadata, freepik })
+              }
+            />
+          </theme.Tab>
+        )}
+
+        {enabledProviders.includes("Runway") && (
+          <theme.Tab eventKey="runway" title="Runway">
+            <RunwaySpeechConfigForm
+              config={providerMetadata.runway ?? {}}
+              updateConfig={(runway: RunwaySpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, runway })
               }
             />
           </theme.Tab>
