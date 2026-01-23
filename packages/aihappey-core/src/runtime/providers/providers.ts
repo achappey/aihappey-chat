@@ -60,6 +60,8 @@ import { lingvanex } from "./catalog/lingvanex";
 import { googletranslate } from "./catalog/googletranslate";
 import { modernmt } from "./catalog/modernmt";
 import { lectoai } from "./catalog/lectoai";
+import { bria } from "./catalog/bria";
+import { friendli } from "./catalog/friendli";
 
 /**
  * UI-facing provider catalog.
@@ -95,6 +97,8 @@ export const PROVIDERS: Record<string, Provider> = {
   sarvam,
   deepgram,
   voyageai,
+  friendli,
+  bria,
   contextualai,
   murfai,
   replicate,
