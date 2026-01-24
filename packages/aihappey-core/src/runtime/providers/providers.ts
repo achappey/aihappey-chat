@@ -68,6 +68,7 @@ import { ovhcloud } from "./catalog/ovhcloud";
 import { gtranslate } from "./catalog/gtranslate";
 import { gmicloud } from "./catalog/gmicloud";
 import { byteplus } from "./catalog/byteplus";
+import { nlpcloud } from "./catalog/nlpcloud";
 
 /**
  * UI-facing provider catalog.
@@ -93,6 +94,7 @@ export const PROVIDERS: Record<string, Provider> = {
   ovhcloud,
   lingvanex,
   pollinations,
+  nlpcloud,
   hyperstack,
   perplexity,
   speechmatics,
