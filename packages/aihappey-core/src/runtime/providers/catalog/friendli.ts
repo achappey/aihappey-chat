@@ -1,4 +1,6 @@
-import type { Provider } from "../providerMetadata";
+//import type { Provider } from "aihappey-types";
+
+import type { Provider } from "aihappey-types";
 
 export const friendli: Provider = {
   name: "Friendli",

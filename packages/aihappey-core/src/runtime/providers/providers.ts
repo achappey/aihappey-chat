@@ -1,4 +1,4 @@
-import type { Provider } from "./providerMetadata";
+import type { Provider } from "aihappey-types";
 import { openai } from "./catalog/openai";
 import { runway } from "./catalog/runway";
 import { aiml } from "./catalog/aiml";
@@ -62,6 +62,12 @@ import { modernmt } from "./catalog/modernmt";
 import { lectoai } from "./catalog/lectoai";
 import { bria } from "./catalog/bria";
 import { friendli } from "./catalog/friendli";
+import { publicai } from "./catalog/publicai";
+import { primeintellect } from "./catalog/primeintellect";
+import { ovhcloud } from "./catalog/ovhcloud";
+import { gtranslate } from "./catalog/gtranslate";
+import { gmicloud } from "./catalog/gmicloud";
+import { byteplus } from "./catalog/byteplus";
 
 /**
  * UI-facing provider catalog.
@@ -76,19 +82,25 @@ export const PROVIDERS: Record<string, Provider> = {
   google,
   mistral,
   lectoai,
+  gmicloud,
+  byteplus,
   cohere,
   modernmt,
   groq,
   xai,
   together,
   googletranslate,
+  ovhcloud,
   lingvanex,
   pollinations,
   hyperstack,
   perplexity,
   speechmatics,
+  gtranslate,
   jina,
+  publicai,
   nscale,
+  primeintellect,
   resembleai,
   assemblyai,
   gladia,

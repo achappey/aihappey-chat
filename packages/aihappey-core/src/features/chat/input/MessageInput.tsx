@@ -114,22 +114,22 @@ export const MessageInput = (props: UseMessageInputOptions) => {
     <form onSubmit={handleSubmit} style={styles.form}>
       {(attachmentsElement || serverElements || approveAll
         || (currentModel?.context_window && props.tokenUsage)
-      ) && (
-          <div style={styles.metaRow}>
-            <div style={styles.metaLeft}>
-              {attachmentsElement}
-              {serverElements}
-            </div>
-
-            <div style={styles.metaRight}>
-              {resourceLoading && <Spinner />}
-              <ContextProgressBar tokenUsage={props.tokenUsage}
-                max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
-                context_window={currentModel?.context_window} />
-              {approveAll && <BrrrBadge size="small" />}
-            </div>
+      ) ? (
+        <div style={styles.metaRow}>
+          <div style={styles.metaLeft}>
+            {attachmentsElement}
+            {serverElements}
           </div>
-        )}
+
+          <div style={styles.metaRight}>
+            {resourceLoading && <Spinner />}
+            <ContextProgressBar tokenUsage={props.tokenUsage}
+              max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
+              context_window={currentModel?.context_window} />
+            {approveAll && <BrrrBadge size="small" />}
+          </div>
+        </div>
+      ) : undefined}
 
       <TextArea
         ref={textareaRef}

@@ -1,14 +1,5 @@
 import type { Icon } from "@modelcontextprotocol/sdk/types";
 
-export type Provider = {
-    name: string;
-    url: string;
-    description?: string
-    experimental?: boolean
-    icons: Icon[];
-    hosting?: "us" | "europe" | "asia" | "unknown";
-};
-
 /**
  * Compatibility re-export.
  *

@@ -42,7 +42,7 @@ import { Drawer } from "./primitives/Drawer";
 import { Image } from "./primitives/Image";
 import { ProgressBar } from "./primitives/ProgressBar";
 import { UserMenu } from "./primitives/UserMenu";
-import Navigation from "./primitives/Navigation";
+import Navigation from "./primitives/navigation/Navigation";
 import { Tags } from "./primitives/Tags";
 import { SearchBox } from "./primitives/SearchBox";
 import { Menu } from "./primitives/Menu";

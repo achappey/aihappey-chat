@@ -35,7 +35,6 @@ import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsLastAssistant";
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
-import { T } from "react-router/dist/development/index-react-server-client-gGyf-7Xp";
 import { useTranslation } from "aihappey-i18n";
 import { useAttachmentsToaster } from "./useAttachmentsToaster";
 

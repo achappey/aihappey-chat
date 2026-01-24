@@ -1,6 +1,3 @@
-import { PROVIDERS } from "../../../runtime/providers/providers";
-import type { Provider } from "../../../runtime/providers/providerMetadata";
-
 export type RealtimeProviderId = string;
 
 export const parseProviderIdFromModelId = (modelId?: string): RealtimeProviderId | null => {

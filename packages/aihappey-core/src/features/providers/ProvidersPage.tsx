@@ -3,7 +3,8 @@ import { ProviderCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useDarkMode } from "usehooks-ts";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
-import { Provider, PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import type { Provider } from "aihappey-types";
 
 type ProviderListItem = {
     key: string;

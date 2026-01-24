@@ -226,14 +226,8 @@ export const ModelsPage = () => {
                     >
                       {tabFiltered?.map(r => {
                         const providerId = r.id.split("/")[0].toLowerCase();
-                        const icons = (PROVIDERS as any)[providerId]?.icons as
-                          | { src: string; theme?: "light" | "dark" }[]
-                          | undefined;
-
-                        const image =
-                          icons?.find(i => i.theme === (isDarkMode ? "dark" : "light"))?.src ??
-                          icons?.[0]?.src;
-
+                        const provider = PROVIDERS[providerId];
+                    
                         return (
                           <div key={r.id}
                             style={{
@@ -241,7 +235,7 @@ export const ModelsPage = () => {
                             }}>
                             <ModelCard
                               model={r}
-                              image={image}
+                              provider={provider}
                               onChat={() => navigate(`/?model=${r.id}`)}
                             />
                           </div>

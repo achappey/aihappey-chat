@@ -6,7 +6,6 @@ import { ErrorAlerts, RerankingCard, RerankingDocumentCard, useTheme, WarningAle
 import { RerankingWarnings } from "./RerankingWarnings";
 import { useRerankingController } from "./useRerankingController";
 import { useReranking } from "aihappey-reranking";
-import { T } from "react-router/dist/development/index-react-server-client-gGyf-7Xp";
 import { useTranslation } from "aihappey-i18n";
 
 function downloadFile(file: File, downloadName?: string) {

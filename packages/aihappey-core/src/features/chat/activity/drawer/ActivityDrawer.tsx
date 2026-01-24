@@ -176,8 +176,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[] }) => {
         />
       </div>}
       size={isDesktop ? (activitiesSize as any) : "small"}
-      onClose={() => setActivities(false)}
-    >
+      onClose={() => setActivities(false)}>
       <Tabs activeKey={activeTab}
         onSelect={setActiveTab}>
         {tabOrder.map((tab) => (

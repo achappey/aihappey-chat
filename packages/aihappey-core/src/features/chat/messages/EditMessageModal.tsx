@@ -3,7 +3,6 @@ import { useTheme, UIMessagePartEditCard } from "aihappey-components";
 import { useConversations, useRemoveMessage } from "aihappey-conversations";
 import { useTranslation } from "aihappey-i18n";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { T } from "react-router/dist/development/index-react-server-client-gGyf-7Xp";
 
 export type EditMessageModalProps = {
   open: boolean;

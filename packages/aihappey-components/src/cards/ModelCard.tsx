@@ -1,24 +1,23 @@
 import { useTheme } from "../theme/ThemeContext";
 import { ModelOption } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
-import { format } from "timeago.js";
 import { useTranslation } from "aihappey-i18n";
 import { ContextWindowBadge, MaxOutputTokensBadge } from "../badges";
+import type { Provider } from "aihappey-types";
+import { useDarkMode } from "usehooks-ts";
 
 type ModelCardProps = {
   model: ModelOption;
-  image?: string
   locale?: string
   onChat?: () => void
+  provider?: Provider
 };
 
-export const ModelCard = ({ model, image, onChat, locale }: ModelCardProps) => {
+export const ModelCard = ({ model, onChat, provider }: ModelCardProps) => {
   const { Card, Image, Badge, Button } = useTheme();
   const { t } = useTranslation();
-  const imageItem = image ? <Image
-    height={32}
-    shape="square"
-    src={image} /> : undefined;
+  const isDarkMode = useDarkMode();
+
 
   const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -44,12 +43,16 @@ export const ModelCard = ({ model, image, onChat, locale }: ModelCardProps) => {
       )}
     </span>
   );
-  /*  const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
-  
-    const loadTime = new Date(
-      performance.timeOrigin + nav.loadEventEnd
-    );*/
 
+  const iconImage =
+    provider?.icons?.find(i => i.theme === (isDarkMode ? "dark" : "light"))?.src ??
+    provider?.icons?.[0]?.src;
+
+  const imageItem = iconImage ? <Image
+    height={32}
+    title={provider?.name}
+    shape="square"
+    src={iconImage} /> : undefined;
 
   const actions = onChat && model.type == "language"
     ? <Button icon="chat"

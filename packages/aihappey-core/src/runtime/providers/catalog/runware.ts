@@ -1,4 +1,4 @@
-import type { Provider } from "../providerMetadata";
+import type { Provider } from "aihappey-types";
 
 export const runware: Provider = {
   name: "Runware",

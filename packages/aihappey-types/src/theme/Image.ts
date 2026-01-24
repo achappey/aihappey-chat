@@ -6,6 +6,7 @@ export type ImageProps = {
   shadow?: boolean;
   block?: boolean;
   src?: string;
+  title?: string;
   width?: any;
   height?: any;
   bordered?: boolean;
