@@ -66,8 +66,13 @@ export const SpeechPage = () => {
     void handleFilesSelected([file]);
   }, [handleFilesSelected]);
 
-  const { isOver, dropRef, handleDrop, handleDragOver } =
+  const { isOver, dropRef: drop, handleDrop, handleDragOver } =
     useChatFileDrop(addAttachment);
+
+
+  const dropRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) drop(node);
+  }, [drop]);
 
   const [processing, setProcessing] = useState(false);
 

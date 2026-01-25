@@ -1,18 +1,29 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { I18nProvider } from "aihappey-i18n";
-import type { ToolCallResult } from "aihappey-types";
 import { StructuredOutputCard } from "aihappey-components";
 
-const exampleResult: ToolCallResult = {
-  content: [],
-  structuredContent: {
-    name: "John Doe",
-    age: 30,
-    address: {
-      city: "New York",
-      zip: "10001",
+const exampleItem = {
+  id: "schema-1",
+  name: "User Profile",
+  json_schema: JSON.stringify(
+    {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        age: { type: "number" },
+        address: {
+          type: "object",
+          properties: {
+            city: { type: "string" },
+            zip: { type: "string" },
+          },
+        },
+      },
+      required: ["name"],
     },
-  },
+    null,
+    2
+  ),
 };
 
 const meta = {
@@ -31,33 +42,46 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    result: exampleResult,
+    item: exampleItem,
   },
 };
 
-export const WithTitle: Story = {
+export const LongSchema: Story = {
   args: {
-    result: exampleResult,
-    title: "User Profile",
-  },
-};
-
-export const NestedStructuredContent: Story = {
-  args: {
-    title: "Complex payload",
-    result: {
-      content: [],
-      structuredContent: {
-        ok: true,
-        user: {
-          id: "u_123",
-          roles: ["admin", "editor"],
+    item: {
+      ...exampleItem,
+      id: "schema-2",
+      name: "Complex payload",
+      json_schema: JSON.stringify(
+        {
+          type: "object",
+          properties: {
+            ok: { type: "boolean" },
+            user: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                roles: { type: "array", items: { type: "string" } },
+              },
+            },
+            metrics: {
+              type: "object",
+              properties: {
+                latencyMs: { type: "number" },
+                tokens: {
+                  type: "object",
+                  properties: {
+                    input: { type: "number" },
+                    output: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
         },
-        metrics: {
-          latencyMs: 123,
-          tokens: { input: 42, output: 128 },
-        },
-      },
+        null,
+        2
+      ),
     },
   },
 };

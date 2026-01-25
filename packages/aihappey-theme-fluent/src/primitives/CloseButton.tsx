@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Button as FluentButton } from "@fluentui/react-components";
 import { Dismiss24Regular } from "@fluentui/react-icons";
+import { JSX } from "react";
 
 export const CloseButton = ({
   onClick,

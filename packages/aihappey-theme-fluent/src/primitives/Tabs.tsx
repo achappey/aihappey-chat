@@ -114,7 +114,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
   React.Children.forEach(children, (child) => {
     if (!React.isValidElement(child)) return;
-    const { eventKey, title, icon, disabled, children: tabContent } = child.props;
+    const { eventKey, title, icon, disabled, children: tabContent } = child.props as any;
     const IconElement = icon ? iconMap[icon as IconToken] : undefined;
 
     headers.push(

@@ -82,6 +82,7 @@ import {
   DatabaseRegular,
   ArrowExportRegular,
   LiveRegular,
+  CodeBlockRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -156,6 +157,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   databaseGear: DatabasePersonRegular,
   personalization: PersonHeartRegular,
   contextWindow: DatabaseRegular,
+  structuredOutputs: CodeBlockRegular,
   maxOutputTokens: ArrowExportRegular,
   customize: PeopleSettingsRegular,
   logout: DoorArrowRightRegular,

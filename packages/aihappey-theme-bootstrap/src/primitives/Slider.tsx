@@ -1,4 +1,5 @@
 // Pure function component, no React import, using Bootstrap Form.Range
+import { JSX } from "react";
 import { Form } from "react-bootstrap";
 
 type SliderProps = {

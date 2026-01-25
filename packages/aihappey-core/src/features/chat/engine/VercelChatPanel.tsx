@@ -75,9 +75,23 @@ export function VercelChatPanel(props: {
     return [systemMsg, ...bootMsgs];
   }, [systemMsg, bootMsgs]);
 
-  if (!booted || currentConversationId !== conversationId) return <Spinner />;
+  if (!booted || currentConversationId !== conversationId) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Spinner />
+      </div>
+    );
+  }
 
-  // Nu forceert React een ECHTE unmount/mount van de inner bij elke switch
   return (
     <VercelChatInner
       key={conversationId}

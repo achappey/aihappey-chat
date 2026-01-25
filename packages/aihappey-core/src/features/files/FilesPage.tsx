@@ -46,13 +46,18 @@ export const FilesPage = () => {
     }, []);
 
     // DnD preview
-    const [{ isOver }, dropRef] = useDrop({
+    const [{ isOver }, drop] = useDrop({
         accept: [NativeTypes.FILE],
         collect: (monitor) => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),
         }),
     });
+
+    const dropRef = useCallback((node: HTMLDivElement | null) => {
+        if (node) drop(node);
+    }, [drop]);
+
 
     const handleFileDrop = useCallback(
         async (item: any) => {

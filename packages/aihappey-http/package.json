@@ -5,7 +5,6 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "zod": "^3.0.0"
   },
   "scripts": {
     "build": "tsc"
@@ -14,6 +13,7 @@
     "aihappey-types": "*"
   },
   "devDependencies": {
-      "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zod": "^4.0.0"
   }
 }

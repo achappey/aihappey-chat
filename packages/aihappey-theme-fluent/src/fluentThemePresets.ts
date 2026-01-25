@@ -12,7 +12,7 @@ import {
     createTeamsDarkTheme,
 } from "@fluentui/react-components";
 import { FluentThemePresetId } from "./ThemeProvider";
-import { AzureDarkTheme, AzureLightTheme } from '@fluentui-contrib/azure-theme';
+//import { AzureDarkTheme, AzureLightTheme } from '@fluentui-contrib/azure-theme';
 
 export type FluentThemePreset = {
     id: FluentThemePresetId;
@@ -20,17 +20,17 @@ export type FluentThemePreset = {
     getTheme: (opts: { mode: "light" | "dark" }) => Theme;
 };
 
-export const baseFluentThemePresets: Record<"web" | "azure" | "teams" | "teamsv21", FluentThemePreset> = {
+export const baseFluentThemePresets: Record<"web" | "teams" | "teamsv21", FluentThemePreset> = {
     web: {
         id: "web",
         title: "Web",
         getTheme: ({ mode }) => (mode === "dark" ? webDarkTheme : webLightTheme),
     },
-    azure: {
+ /*   azure: {
         id: "azure",
         title: "Azure",
         getTheme: ({ mode }) => (mode === "dark" ? AzureDarkTheme : AzureLightTheme),
-    },
+    },*/
     teams: {
         id: "teams",
         title: "Teams",

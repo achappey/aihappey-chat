@@ -1,6 +1,6 @@
 import { useTheme } from "aihappey-components";
 
-import React, { useMemo, useState } from "react";
+import React, { JSX, useMemo, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";

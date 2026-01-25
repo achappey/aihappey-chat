@@ -25,6 +25,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useEffect } from "react";
 import type { AihUiTheme } from "aihappey-types";
 import { useRealtimeTranscriptionController } from "./realtime/useRealtimeTranscriptionController";
+import React from "react";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -127,8 +128,14 @@ export const TranscriptionsPage = () => {
     await transcribeFiles([file]);
   };
 
-  const { isOver, dropRef, handleDrop, handleDragOver } =
+  const { isOver, dropRef: drop, handleDrop, handleDragOver } =
     useChatFileDrop(addAttachment);
+
+
+  const dropRef = React.useCallback((node: HTMLDivElement | null) => {
+    if (node) drop(node);
+  }, [drop]);
+
 
   const [processing, setProcessing] = useState(false);
 

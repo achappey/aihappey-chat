@@ -8,6 +8,7 @@ import { AgentEditModal } from "./AgentEditModal";
 import { Agent } from "aihappey-types";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
+import React from "react";
 
 
 // --- Component ---------------------------------------------------------------
@@ -61,7 +62,7 @@ export const AgentsPage = () => {
 
 
   // DnD preview
-  const [{ isOver }, dropRef] = useDrop({
+  const [{ isOver }, drop] = useDrop({
     accept: [NativeTypes.FILE],
     canDrop: (item: { files: File[] }) =>
       item.files?.every(f => f.name.endsWith(".json")),
@@ -70,6 +71,11 @@ export const AgentsPage = () => {
       canDrop: monitor.canDrop(),
     }),
   });
+
+  const dropRef = React.useCallback((node: HTMLDivElement | null) => {
+    if (node) drop(node);
+  }, [drop]);
+
 
   const handleFileDrop = async (item: any) => {
     const files: FileList | undefined = item?.dataTransfer?.files;

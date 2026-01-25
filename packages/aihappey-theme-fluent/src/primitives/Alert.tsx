@@ -7,6 +7,7 @@ import {
   MessageBarTitle,
 } from "@fluentui/react-components";
 import { DismissRegular } from "@fluentui/react-icons";
+import { JSX } from "react";
 
 export const Alert = ({
   variant,

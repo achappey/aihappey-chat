@@ -59,6 +59,7 @@ import { ToggleButton } from "./primitives/ToggleButton";
 import { SplitButton } from "./primitives/SplitButton";
 import { FluentSettings } from "./FluentSettings";
 import { AudioPlayer } from "./primitives/AudioPlayer";
+import { JSX } from "react";
 
 export const fluentTheme: AihUiTheme = {
   DataGrid,

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Badge as FluentBadge, tokens, Tooltip } from "@fluentui/react-components";
 import { iconMap } from "./Button";
 import { IconToken } from "aihappey-types";
+import { JSX } from "react";
 
 export const Badge = ({
   bg,

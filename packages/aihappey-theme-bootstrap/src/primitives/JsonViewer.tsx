@@ -1,4 +1,5 @@
 import { JsonViewerProps } from "aihappey-types";
+import { JSX } from "react";
 
 // Helper to safely parse JSON (from string or object)
 function parseJson(input: unknown): any | null {

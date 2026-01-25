@@ -9,6 +9,7 @@ import { localConversationsPluginDef } from "../tools/toolcalls/useLocalConversa
 import { localFilesPluginDef } from "../tools/toolcalls/useLocalFileToolCall";
 import { localSettingsPluginDef } from "../tools/toolcalls/useLocalSettingsToolCall";
 import { localToolsPluginDef } from "../tools/toolcalls/useLocalToolsToolCall";
+import { localStructuredOutputsPluginDef } from "../tools/toolcalls/useLocalStructuredOutputsToolCall";
 import { vercelAIPluginDef } from "../tools/toolcalls/useVercelAIToolCall";
 import { isStoredToolValid } from "../tools/localStoredTools";
 import { localImagesPluginDef } from "../tools/toolcalls/useLocalImagesToolCall";
@@ -38,6 +39,7 @@ export const ToolsTab = () => {
       localCanvasPluginDef,
       localSettingsPluginDef,
       localImagesPluginDef,
+      localStructuredOutputsPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

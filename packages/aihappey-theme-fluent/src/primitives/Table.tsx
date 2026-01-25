@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Table as FluentTable } from "@fluentui/react-components";
+import { JSX } from "react";
 
 export const Table = (props: {
   hover?: boolean;

@@ -106,9 +106,13 @@ export function VercelChatInner({
     fileAttachmentRuntime.add(file);
   };
 
-  const { isOver, dropRef, handleDrop, handleDragOver } = useChatFileDrop(
+  const { isOver, dropRef: drop, handleDrop, handleDragOver } = useChatFileDrop(
     addAttachmentWithTranscription
   );
+
+  const dropRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) drop(node);
+  }, [drop]);
 
   const messageLength = items.find(a => a.id == conversationId)?.messages?.length ?? 0;
   const systemMessage = useSystemMessage();

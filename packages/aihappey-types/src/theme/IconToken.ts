@@ -25,6 +25,7 @@ export type IconToken =
   | "speechSettings"
   | "transcriptionSettings"
   | "imageSettings"
+  | "structuredOutputs"
   | "reranking"
   | "rerankingSettings"
   | "realtime"

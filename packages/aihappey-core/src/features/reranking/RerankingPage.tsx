@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { RerankingInput } from "./RerankingInput";
@@ -23,7 +23,6 @@ export const RerankingPage = () => {
     const { Tabs, Tab } = useTheme();
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<string>("current");
-
     const rerankingStore = useReranking();
 
     const {
@@ -45,10 +44,14 @@ export const RerankingPage = () => {
         addFilesToLocalState,
         clearDocs,
         isOver,
-        dropRef,
+        dropRef: drop,
         handleDrop,
         handleDragOver,
     } = useRerankingController();
+
+    const dropRef = useCallback((node: HTMLDivElement | null) => {
+        if (node) drop(node);
+    }, [drop]);
 
     const persistFiles = useMemo(() => {
         // Never persist blobs.
@@ -96,7 +99,7 @@ export const RerankingPage = () => {
             <ErrorAlerts errors={errors} dismissError={dismissError} />
             <WarningAlerts warnings={conversionWarnings} dismissWarning={dismissConversionWarning} />
             <RerankingWarnings warnings={warnings} dismissWarning={dismissWarning} />
-
+        
             <div
                 style={{
                     marginTop: 44,
@@ -162,4 +165,3 @@ export const RerankingPage = () => {
         </div>
     );
 };
-

@@ -210,6 +210,7 @@
     "local-agents": "Agent Framework",
     "local-canvas": "Canvas",
     "local-images": "Images",
+    "local-structured-outputs": "Structured outputs",
     "local-files": "Files",
     "local-tools": "Tools",
     "local-conversations": "Chat history",
@@ -219,6 +220,7 @@
   "localTools": "Custom tools",
   "localToolsEmpty": "No custom tools found. Create one using the Tools plugin.",
   "localPlugins": "Plugins",
+  "structure": "Structure",
   "structuredOutputs": "Structured outputs",
   "structuredOutputsPlaceholder": "JSON schema...",
   "medium": "Medium",
@@ -297,6 +299,9 @@
   },
   "toolsPage": {
     "description": "An overview of all available tools: built-in plugin tools, your own custom tools, and tools coming from connected Model Context."
+  },
+  "structuredOutputsPage": {
+    "description": "An overview of all stored structured output schemas. Use these schemas to guide model outputs and enforce consistent structure."
   },
   "filesPage": {
     "description": "An overview of all locally available files. Drag and drop files onto this page to add them and allow AI to read and create files through plugins."

@@ -36,20 +36,41 @@ export class IndexedDBStructuredOutputsStore implements StructuredOutputsStore {
   }
 
   add = async (
+    name: string,
     schema: string,
-    output: any,
   ): Promise<StructuredOutputsItem> => {
     await this.ensureLoaded();
 
     const item: StructuredOutputsItem = {
       id: crypto.randomUUID(),
+      name,
       json_schema: schema,
-      output,
     };
 
     this.data = [item, ...this.data];
     await this.commit();
     return item;
+  };
+
+  update = async (
+    id: string,
+    name: string,
+    schema: string,
+  ): Promise<StructuredOutputsItem> => {
+    await this.ensureLoaded();
+
+    const index = this.data.findIndex((item) => item.id === id);
+    if (index < 0) throw new Error("Structured output schema not found.");
+
+    const updated: StructuredOutputsItem = {
+      id,
+      name,
+      json_schema: schema,
+    };
+
+    this.data = [updated, ...this.data.filter((item) => item.id !== id)];
+    await this.commit();
+    return updated;
   };
 
   list = async (): Promise<StructuredOutputsItem[]> => {

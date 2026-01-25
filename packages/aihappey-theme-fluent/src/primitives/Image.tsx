@@ -1,5 +1,6 @@
 import { Image as FluentImage } from "@fluentui/react-components";
 import { Tooltip } from "@fluentui/react-components";
+import { JSX } from "react";
 
 export const Image = ({
   src,

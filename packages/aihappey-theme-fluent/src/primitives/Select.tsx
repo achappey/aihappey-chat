@@ -87,7 +87,7 @@ export const Select: React.FC<SelectProps> = ({
   }, [inputValue, freeform]);
 
   const handleOptionSelect = (_: any, data: any) => {
-    if (data.optionValue) {
+    if (data?.optionValue !== undefined) {
       onChange(data.optionValue);
       if (freeform) setInputValue(data.optionText ?? data.optionValue);
     }

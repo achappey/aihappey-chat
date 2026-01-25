@@ -61,12 +61,18 @@ export const StructuredOutputsProvider = ({
     ) as StructuredOutputsContextType;
 
     ctx.add = async (
-      schema: string,
-      output: any[]
+      name: string,
+      schema: string
     ) => {
-      const created = await store.add(schema, output);
+      const created = await store.add(name, schema);
       setItems((prev) => [created, ...prev]);
       return created;
+    };
+
+    ctx.update = async (id: string, name: string, schema: string) => {
+      const updated = await store.update(id, name, schema);
+      setItems((prev) => prev.map((item) => (item.id === id ? updated : item)));
+      return updated;
     };
 
     ctx.delete = async (id: string) => {

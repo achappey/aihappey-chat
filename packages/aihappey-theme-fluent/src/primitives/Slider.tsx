@@ -5,6 +5,7 @@ import {
   Field,
   Label,
 } from "@fluentui/react-components";
+import { JSX } from "react";
 
 type SliderProps = {
   id?: string;

@@ -1,6 +1,7 @@
 // aihappey-types/src/theme/splitButton.ts
 import type * as React from "react";
 import { IconToken } from "./IconToken";
+import { JSX } from "react";
 
 export type SplitButtonShape = "rounded" | "circular" | "square";
 

@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@fluentui/react-components";
+import { JSX } from "react";
 
 export const Modal = ({
   show,

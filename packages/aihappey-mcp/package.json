@@ -12,7 +12,7 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "zod": "^3.25.67",
+    "zod": "^4.0.0",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {

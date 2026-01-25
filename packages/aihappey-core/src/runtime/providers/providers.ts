@@ -69,6 +69,9 @@ import { gtranslate } from "./catalog/gtranslate";
 import { gmicloud } from "./catalog/gmicloud";
 import { byteplus } from "./catalog/byteplus";
 import { nlpcloud } from "./catalog/nlpcloud";
+import { moonshot } from "./catalog/moonshot";
+import { upstage } from "./catalog/upstage";
+import { siliconflow } from "./catalog/siliconflow";
 
 /**
  * UI-facing provider catalog.
@@ -91,14 +94,17 @@ export const PROVIDERS: Record<string, Provider> = {
   xai,
   together,
   googletranslate,
+  siliconflow,
   ovhcloud,
   lingvanex,
+  upstage,
   pollinations,
   nlpcloud,
   hyperstack,
   perplexity,
   speechmatics,
   gtranslate,
+  moonshot,
   jina,
   publicai,
   nscale,

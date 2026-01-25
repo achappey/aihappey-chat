@@ -8,6 +8,7 @@ import { localConversationsPluginDef } from "./toolcalls/useLocalConversationsTo
 import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
 import { localSettingsPluginDef } from "./toolcalls/useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./toolcalls/useLocalToolsToolCall";
+import { localStructuredOutputsPluginDef } from "./toolcalls/useLocalStructuredOutputsToolCall";
 import { usePlugins } from "./toolcalls/usePlugins";
 import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
@@ -33,6 +34,7 @@ export function useTools() {
       localCanvasPluginDef,
       localImagesPluginDef,
       localSettingsPluginDef,
+      localStructuredOutputsPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

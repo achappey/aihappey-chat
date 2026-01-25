@@ -12,18 +12,17 @@
   },
   "devDependencies": {
     "@types/chroma-js": "^3.1.2",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0",
+    "@types/react": "^18.0.0 || ^19.0.0",
+    "@types/react-dom": "^18.0.0 || ^19.0.0",
     "aihappey-components": "*",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "aihappey-types": "*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@fluentui-contrib/azure-theme": "^0.2.0",
     "@fluentui-contrib/react-chat": "^0.2.2",
     "@fluentui/react-components": "^9.64.0",
     "@fluentui/react-icons": "^2.0.301",

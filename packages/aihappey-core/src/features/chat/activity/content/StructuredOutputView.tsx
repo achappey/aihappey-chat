@@ -1,5 +1,5 @@
 import { useTranslation } from "aihappey-i18n";
-import { StructuredOutputCard, useTheme } from "aihappey-components";
+import { StructuredContentCard, useTheme } from "aihappey-components";
 
 import { ToolCallResult } from "aihappey-types";
 
@@ -11,7 +11,7 @@ export const StructuredOutputView = ({ result }: StructuredOutputViewProps) => {
   const { t } = useTranslation();
 
   return (
-    <StructuredOutputCard
+    <StructuredContentCard
       title={t("mcp.structuredContent")}
       result={result}
     />

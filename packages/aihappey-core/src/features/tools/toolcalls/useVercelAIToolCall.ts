@@ -4,6 +4,7 @@ import type { Tool } from "@modelcontextprotocol/sdk/types";
 import {
   createBackendProvider,
   generateText,
+  jsonSchema,
   Output,
   stepCountIs,
   tool,
@@ -237,7 +238,6 @@ export function useVercelAIToolCall(
 
             const stored = await localTools.list();
             const selected = stored.filter(t => requested.includes(t.id));
-
             const toolSet = buildToolSetFromLocalTools(selected);
 
             const result = await runToolLoopAgent(
@@ -268,20 +268,47 @@ export function useVercelAIToolCall(
 
           case "vercel_ai_generate_lasagna_recipe": {
             // const prompt = String(toolCall?.input?.prompt ?? "");
+            const schemaString = `{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "recipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "ingredients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "amount": { "type": "string" }
+            },
+            "required": ["name", "amount"]
+          }
+        },
+        "steps": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["name", "ingredients", "steps"]
+    }
+  },
+  "required": ["recipe"]
+}`;
+
+
+            const parsed = JSON.parse(schemaString);
+            const schema = jsonSchema(parsed);
+
+            //var schema = Output.object({ schema:  })
 
             const result = await generateText({
               model,
-              output: Output.object({
-                schema: z.object({
-                  recipe: z.object({
-                    name: z.string(),
-                    ingredients: z.array(
-                      z.object({ name: z.string(), amount: z.string() }),
-                    ),
-                    steps: z.array(z.string()),
-                  }),
-                }),
-              }),
+              output: Output.object({ schema }),
               prompt: 'Generate a lasagna recipe.',
               tools: {},
             });
@@ -292,10 +319,6 @@ export function useVercelAIToolCall(
               isError: false,
               structuredContent: result.output
             }
-            /*  return toJsonResource(
-                "https://ai-sdk.dev/docs/ai-sdk-core/generating-text",
-                result.output
-              );*/
           }
 
           default:

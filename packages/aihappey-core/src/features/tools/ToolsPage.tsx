@@ -14,6 +14,7 @@ import { localConversationsPluginDef } from "./toolcalls/useLocalConversationsTo
 import { localCanvasPluginDef } from "./toolcalls/useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./toolcalls/useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./toolcalls/useLocalToolsToolCall";
+import { localStructuredOutputsPluginDef } from "./toolcalls/useLocalStructuredOutputsToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
 import { parseStoredToolInputSchema } from "./localStoredTools";
 import { useOnToolCall } from "./toolcalls/useOnToolCall";
@@ -75,6 +76,7 @@ export const ToolsPage = () => {
       localConversationsPluginDef,
       localCanvasPluginDef,
       localSettingsPluginDef,
+      localStructuredOutputsPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

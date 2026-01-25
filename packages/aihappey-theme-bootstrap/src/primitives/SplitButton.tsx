@@ -5,6 +5,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 
 import type { SplitButtonProps, SplitButtonMenuItem } from "aihappey-types";
 import { iconMap } from "./IconMap";
+import { JSX } from "react";
 
 type RenderOpts = { stopPropagation: boolean; depth?: number };
 

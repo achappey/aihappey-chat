@@ -70,6 +70,7 @@ import {
   Hdd,
   BoxArrowUp,
   Broadcast,
+  CodeSlash,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -119,6 +120,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   chatSettings: <Sliders />,
   search: <Search />,
   menu: <List />,
+  structuredOutputs: <CodeSlash />,
   sources: <Cloud />,
   server: <Server />,
   databaseGear: <DatabaseGear />,

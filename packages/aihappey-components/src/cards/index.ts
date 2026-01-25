@@ -12,6 +12,7 @@ export * from "./TextCard";
 export * from "./ReasoningCard";
 export * from "./SourceUrlCard";
 export * from "./FileAttachmentCard";
+export * from "./StructuredContentCard";
 export * from "./StructuredOutputCard";
 export * from "./UIMessagePartCard";
 export * from "./ResourceLinkCard";

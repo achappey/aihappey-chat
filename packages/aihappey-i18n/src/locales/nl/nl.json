@@ -196,9 +196,14 @@
   "tokensAvailable": "Beschikbare ruimte: {{availableSpace}}",
   "closeNavigation": "Zijbalk sluiten",
   "openNavigation": "Zijbalk openen",
+  "structure": "Structuur",
+  "structuredOutputsPage": {
+    "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschema’s. Gebruik deze schema’s om modeluitvoer te sturen en een consistente structuur af te dwingen."
+  },
   "plugins": {
     "local-agents": "Agent Framework",
     "local-canvas": "Canvas",
+    "local-structured-outputs": "Gestructureerde uitvoer",
     "local-files": "Bestanden",
     "local-images": "Afbeeldingen",
     "local-tools": "Tools",

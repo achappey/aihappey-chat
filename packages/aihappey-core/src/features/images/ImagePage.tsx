@@ -4,7 +4,7 @@ import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useImages } from "aihappey-images";
 import { useImageErrors } from "./useImageErrors";
@@ -96,10 +96,14 @@ export const ImagePage = () => {
     fileAttachmentRuntime.add(file);
   };
 
-  const { isOver, dropRef, handleDrop, handleDragOver } = useChatFileDrop(
+  const { isOver, dropRef: drop, handleDrop, handleDragOver } = useChatFileDrop(
     addAttachment
   );
 
+  const dropRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) drop(node);
+  }, [drop]);
+  
   const maskEntry = useMemo(
     () => (files.items ?? []).find((f) => f.name === "image_mask"),
     [files.items]

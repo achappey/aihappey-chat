@@ -106,6 +106,13 @@ export const ConversationSidebar = ({
       icon: "folder",
     },
     {
+      key: "structured-outputs",
+      label: t("structure"),
+      new: true,
+      href: "/structured-outputs",
+      icon: "structuredOutputs",
+    },
+    {
       key: "tools",
       label: t("tools"),
       href: "/tools",
@@ -198,13 +205,15 @@ export const ConversationSidebar = ({
           ? "models"
           : location.pathname === "/providers"
             ? "providers"
-      : location.pathname === "/tools"
-        ? "tools"
-        : location.pathname === "/files"
-          ? "files"
-          : location.pathname === "/reranking"
-            ? "reranking"
-            : conversationId ?? undefined
+            : location.pathname === "/tools"
+              ? "tools"
+              : location.pathname === "/files"
+                ? "files"
+                : location.pathname === "/structured-outputs"
+                  ? "structured-outputs"
+                  : location.pathname === "/reranking"
+                    ? "reranking"
+                    : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -220,6 +229,8 @@ export const ConversationSidebar = ({
       await navigate("/tools");
     } else if (id === "files") {
       await navigate("/files");
+    } else if (id === "structured-outputs") {
+      await navigate("/structured-outputs");
     } else if (id === "reranking") {
       await navigate("/reranking");
     } else {
@@ -233,7 +244,7 @@ export const ConversationSidebar = ({
   };
 
   // DnD preview
-  const [{ isOver }, dropRef] = useDrop({
+  const [{ isOver }, drop] = useDrop({
     accept: [NativeTypes.FILE],
     canDrop: (item: { files: File[] }) =>
       item.files?.every(f => f.name.endsWith(".json")),
@@ -242,6 +253,12 @@ export const ConversationSidebar = ({
       canDrop: monitor.canDrop(),
     }),
   });
+
+
+  const dropRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) drop(node);
+  }, [drop]);
+
 
   const handleFileDrop = async (item: any) => {
     const files: FileList | undefined = item?.dataTransfer?.files;

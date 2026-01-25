@@ -12,6 +12,7 @@ import type { MenuButtonProps } from "@fluentui/react-components";
 
 import type { SplitButtonProps, SplitButtonMenuItem } from "aihappey-types";
 import { iconMap } from "./Button";
+import { JSX } from "react";
 
 function toAppearance(variant?: SplitButtonProps["variant"]) {
   return variant === "primary"

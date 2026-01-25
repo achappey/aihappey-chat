@@ -18,6 +18,7 @@ import { useLocalSettingsRuntime } from "./useLocalSettingsToolCall";
 import { useLocalToolsRuntime } from "./useLocalToolsToolCall";
 import { useVercelAIToolCall, vercelAIPluginDef } from "./useVercelAIToolCall";
 import { useLocalTools } from "aihappey-tools";
+import { localStructuredOutputsPluginDef, useLocalStructuredOutputsRuntime } from "./useLocalStructuredOutputsToolCall";
 import {
   compileStoredToolExecute,
   compileZodFromStoredTool,
@@ -34,6 +35,7 @@ import { localConversationsPluginDef } from "./useLocalConversationsToolCall";
 import { localCanvasPluginDef } from "./useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./useLocalToolsToolCall";
+import { localStructuredOutputsPluginDef as localStructuredOutputsPluginDefStatic } from "./useLocalStructuredOutputsToolCall";
 import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
 
 export function useOnToolCall({
@@ -74,6 +76,7 @@ export function useOnToolCall({
   const localCanvasRuntime = useLocalCanvasRuntime(files);
   const localSettingsRuntime = useLocalSettingsRuntime();
   const localToolsRuntime = useLocalToolsRuntime();
+  const localStructuredOutputsRuntime = useLocalStructuredOutputsRuntime(api, getAccessToken, headers);
   const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
 
@@ -89,6 +92,7 @@ export function useOnToolCall({
       [localCanvasRuntime.name]: localCanvasRuntime,
       [localSettingsRuntime.name]: localSettingsRuntime,
       [localToolsRuntime.name]: localToolsRuntime,
+      [localStructuredOutputsRuntime.name]: localStructuredOutputsRuntime,
       [vercelAIRuntime.name]: vercelAIRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
     }),
@@ -101,6 +105,7 @@ export function useOnToolCall({
       localToolsRuntime,
       localImagesRuntime,
       vercelAIRuntime,
+      localStructuredOutputsRuntime,
     ]
   );
 
@@ -112,6 +117,7 @@ export function useOnToolCall({
       localImagesPluginDef,
       localCanvasPluginDef,
       localSettingsPluginDef,
+      localStructuredOutputsPluginDefStatic,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

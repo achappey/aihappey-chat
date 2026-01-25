@@ -1,4 +1,5 @@
 import { Field, Switch as FluentSwitch } from "@fluentui/react-components";
+import { JSX } from "react";
 
 export const Switch = ({
   id,

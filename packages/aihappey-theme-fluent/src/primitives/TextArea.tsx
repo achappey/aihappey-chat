@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Field, Textarea as FluentTextarea } from "@fluentui/react-components";
 import { useDarkMode } from "usehooks-ts";
+import { JSX } from "react";
 
 export type TextAreaProps = {
   rows?: number;

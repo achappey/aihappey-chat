@@ -8,6 +8,18 @@ import { useAppStore } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { useMemo } from "react";
 import { useTools } from "../tools/useTools";
+import { useStructuredOutputs } from "aihappey-structured-outputs";
+
+function toValidSchemaName(name: string): string {
+  return name
+    .normalize("NFKD")              // normalize unicode
+    .replace(/[\u0300-\u036f]/g, "") // strip accents
+    .replace(/[^a-zA-Z0-9_-]+/g, "_") // replace invalid chars with _
+    .replace(/^_+|_+$/g, "")         // trim leading/trailing _
+    .replace(/_{2,}/g, "_")          // collapse ___ → _
+    .slice(0, 64) || "schema";       // safety fallback
+}
+
 
 // --- General Tab ---
 export const GeneralTab = ({
@@ -32,6 +44,36 @@ export const GeneralTab = ({
   const setToolChoice = useAppStore(s => s.setToolChoice);
   const tools = useTools();
   const availableTools = tools.tools.map(z => z.name)
+  const structuredOutputsStore = useStructuredOutputs();
+
+  const structuredOutputOptions = useMemo(
+    () =>
+      (structuredOutputsStore.items ?? [])
+        .slice()
+        // .map(a => ({key: a.id, label: a.name}))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [structuredOutputsStore.items]
+  );
+
+  const structuredOutputOptionItems =
+    structuredOutputOptions.map(a => ({ key: a.id, label: a.name }))
+
+  const selectedStructuredOutputId = useMemo(() => {
+    if (!structuredOutputs?.json_schema) return "";
+    const currentName = structuredOutputs.json_schema?.name;
+    const currentSchema = structuredOutputs.json_schema?.schema;
+    return (
+      structuredOutputOptions.find((item) => {
+        if (toValidSchemaName(item.name) !== currentName) return false;
+        try {
+          const parsed = JSON.parse(item.json_schema);
+          return JSON.stringify(parsed) === JSON.stringify(currentSchema);
+        } catch {
+          return false;
+        }
+      })?.id ?? ""
+    );
+  }, [structuredOutputOptions, structuredOutputs]);
   const onToggle = (key: keyof ToolAnnotations) =>
     setToolAnnotations({
       ...(toolAnnotations ?? {}),
@@ -56,6 +98,34 @@ export const GeneralTab = ({
         <AiChatSettingsForm
           value={aiSettings}
           formTitle={t("ai.title")}
+          structuredOutputOptions={structuredOutputOptionItems}
+          structuredOutputValueTitle={
+            structuredOutputOptions.find((item) => item.id === selectedStructuredOutputId)
+              ?.name ?? t("providerDefault")
+          }
+          structuredOutputValue={selectedStructuredOutputId || ""}
+          onStructuredOutputChange={(selectedValue) => {
+            if (!selectedValue) {
+              setStructuredOutputs(undefined);
+              return;
+            }
+
+            const selected = structuredOutputOptions.find((item) => item.id === selectedValue);
+            if (!selected) return;
+
+            try {
+              const parsedSchema = JSON.parse(selected.json_schema);
+              setStructuredOutputs({
+                type: "json_schema",
+                json_schema: {
+                  name: toValidSchemaName(selected.name),
+                  schema: parsedSchema,
+                },
+              });
+            } catch {
+              setStructuredOutputs(undefined);
+            }
+          }}
           onChange={(val) => {
             setTemperature(val.temperature);
             setMaxOutputTokens(val.maxOutputTokens);
@@ -81,16 +151,6 @@ export const GeneralTab = ({
           policySettings={toolAnnotations}
           toggle={onToggle} />
 
-        <theme.TextArea
-          label={t("structuredOutputs")}
-          placeholder={t("structuredOutputsPlaceholder")}
-          rows={5}
-          value={structuredOutputs ? JSON.stringify(structuredOutputs) : ""}
-          onChange={(value) => {
-            setStructuredOutputs(value && value.length > 0 ? {
-              ...JSON.parse(value),
-            } : undefined);
-          }}></theme.TextArea>
       </div>
 
     </>
