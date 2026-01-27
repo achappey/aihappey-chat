@@ -50,8 +50,10 @@ export function ChatArena({
     callTool,
     api: api ?? "",
     getAccessToken,
+    conversationId,
     headers,
     customFetch,
+    send: undefined
   });
 
   const addAttachmentWithTranscription = async (file: File) => {

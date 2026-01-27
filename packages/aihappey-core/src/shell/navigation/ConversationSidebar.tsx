@@ -150,7 +150,7 @@ export const ConversationSidebar = ({
           icon: "server",
         },
       ],
-    }
+    },
   ];
 
   if (conversations.items.length > 0) {

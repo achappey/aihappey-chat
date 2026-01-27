@@ -139,6 +139,7 @@ export function useUIStream({
         setError(null);
     }, []);
 
+
     const send = useCallback(
         async (prompt: string, context?: Record<string, unknown>) => {
             // Abort any existing request
@@ -147,10 +148,10 @@ export function useUIStream({
 
             setIsStreaming(true);
             setError(null);
+            let currentTree: UITree = tree ?? { root: "", elements: {} };
+           // if (tree == null)
+          //  setTree(currentTree);
 
-            // Start with an empty tree
-            let currentTree: UITree = { root: "", elements: {} };
-            setTree(currentTree);
             const headers: any = await makeHeaders(getAccessToken);
             try {
                 const response = await fetch(api, {
@@ -161,7 +162,7 @@ export function useUIStream({
                         model,
                         context,
                         catalogPrompt,
-                        currentTree,
+                     //   currentTree: tree ?? currentTree,
                     }),
                     signal: abortControllerRef.current.signal,
                 });
@@ -218,7 +219,7 @@ export function useUIStream({
                 setIsStreaming(false);
             }
         },
-        [api, onComplete, onError],
+        [api, onComplete, onError, tree],
     );
 
     // Cleanup on unmount

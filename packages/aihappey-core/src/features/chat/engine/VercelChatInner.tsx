@@ -37,6 +37,9 @@ import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsL
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
 import { useTranslation } from "aihappey-i18n";
 import { useAttachmentsToaster } from "./useAttachmentsToaster";
+import { generateCatalogPrompt } from "../../json-render/generateCatalogPrompt";
+import { catalog } from "../../json-render/catalog";
+import { useUIStream } from "../../json-render/useUIStream";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -72,6 +75,7 @@ export function VercelChatInner({
   const stopTools = useAppStore((a) => a.stopTools);
   const toolChoice = useAppStore((a) => a.toolChoice);
   const maxToolCalls = useAppStore((a) => a.maxToolCalls);
+  const activeData = useAppStore((a) => a.activeData);
   const maxOutputTokens = useAppStore((a) => a.maxOutputTokens);
   const callTool = useAppStore((a) => a.callTool);
   const providerMetadata = useActiveProviderMetadata();
@@ -141,12 +145,43 @@ export function VercelChatInner({
     ? config?.agentEndpoint + "/api/chat"
     : config.baseUrl + config.endpoints.chat;
 
+
+
+  const systemPrompt = useMemo(() => generateCatalogPrompt(catalog), []);
+  const { tree, send, isStreaming, error: streamError } = useUIStream({
+    api: config.baseUrl + "/api/generate",
+    catalogPrompt: systemPrompt,
+    model: model,
+    getAccessToken: getAccessToken,
+    /*  onComplete: (nextTree: any) => {
+        if (selectedConversationId) {
+          setJsonRenderTree(selectedConversationId, nextTree);
+        }
+      },
+      onError: (err: Error) => {
+        if (selectedConversationId) {
+          setJsonRenderError(selectedConversationId, err.message);
+        }
+      },*/
+  });
+
+  const sendUiRequest = async (prompt: string) => {
+    let promptToSend = prompt;
+    if (tree?.root && Object.keys(tree.elements || {}).length > 0) {
+      promptToSend = `CURRENT UI STATE (already loaded, DO NOT recreate existing elements):\n${JSON.stringify(tree, null, 2)}\n\nUSER REQUEST: ${prompt}\n\nIMPORTANT: The current UI is already loaded. Output ONLY the patches needed to make the requested change:\n- To add a new element: {"op":"add","path":"/elements/new-key","value":{...}}\n- To modify an existing element: {"op":"set","path":"/elements/existing-key","value":{...}}\n- To update the root: {"op":"set","path":"/root","value":"new-root-key"}\n- To remove an element: {"op":"remove","path":"/root"}\n- To add children: update the parent element with new children array\n\nDO NOT output patches for elements that don't need to change. Only output what's necessary for the requested modification.`;
+    }
+
+    await send(promptToSend, activeData ?? {})
+  }
+
   const toolUse = useOnToolCall({
     api: config.baseUrl,
     getAccessToken,
+    conversationId,
     headers,
     customFetch,
     callTool,
+    send: sendUiRequest
   });
 
   const apiRef = useApiRef(api);
@@ -363,6 +398,11 @@ export function VercelChatInner({
   const drawerSize = isDesktop ? "medium" : "small"
   const { toast, closeToast, addAttachmentToFiles } = useAttachmentsToaster();
 
+
+
+
+
+
   return (
     <div
       style={{
@@ -458,7 +498,7 @@ export function VercelChatInner({
         onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
-      <ActivityDrawer messages={uiMessages} />
+      <ActivityDrawer messages={uiMessages} uiTree={tree} />
 
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}

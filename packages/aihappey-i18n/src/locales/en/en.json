@@ -209,6 +209,7 @@
   "plugins": {
     "local-agents": "Agent Framework",
     "local-canvas": "Canvas",
+    "local-json-render": "Dynamic UI",
     "local-images": "Images",
     "local-structured-outputs": "Structured outputs",
     "local-files": "Files",
@@ -296,6 +297,10 @@
     "plugin": "Plugin tool",
     "local": "Custom tool",
     "modelContext": "Model Context tool"
+  },
+  "labsPage": {
+    "title": "Labs",
+    "jsonRender": "json-render"
   },
   "toolsPage": {
     "description": "An overview of all available tools: built-in plugin tools, your own custom tools, and tools coming from connected Model Context."

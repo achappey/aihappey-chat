@@ -74,7 +74,7 @@ export const AiChatSettingsForm = ({
 
                         <SelectComponent
                             values={[structuredOutputValue || ""]}
-                            label={t("output")}
+                            label={t("structuredOutputs")}
                             options={structuredOutputOptions}
                             valueTitle={structuredOutputValueTitle ?? t("providerDefault")}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {

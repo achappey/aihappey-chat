@@ -71,6 +71,7 @@ import {
   BoxArrowUp,
   Broadcast,
   CodeSlash,
+  BeakerFill,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -112,6 +113,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   groupchat: <PeopleFill />,
   handoff: <ArrowRepeat />,
   toolResult: <UiChecks />,
+  labs: <BeakerFill />,
   trending: <GraphUpArrow />,
   up: <ArrowUp />,
   down: <ArrowDown />,

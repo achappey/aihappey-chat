@@ -15,7 +15,7 @@ type CategorySectionProps = {
 
 export const NavigationCategorySection: React.FC<CategorySectionProps> = ({ item, onSelect }) => {
   return (
-    <NavCategory value={item.key}>
+    <NavCategory value={item.label}>
       <NavCategoryItem
         style={{ paddingTop: 4, paddingBottom: 4 }}
         icon={
@@ -36,7 +36,7 @@ export const NavigationCategorySection: React.FC<CategorySectionProps> = ({ item
           <NavSubItem
             key={b.key}
             value={b.key}
-            onClick={() => (b.onClick ? b.onClick() : onSelect?.(b.key))}
+            onClick={() => (b.onClick ? b.onClick() : onSelect?.(b.href))}
           >
             {b.label}
           </NavSubItem>

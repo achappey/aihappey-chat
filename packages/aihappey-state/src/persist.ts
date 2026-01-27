@@ -13,9 +13,10 @@ import { TranscriptionSlice } from "./slices/transcriptionSlice";
 import { SpeechSlice } from "./slices/speechSlice";
 import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
+import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
-  & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice;
+  & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
 
 export const withPersist = (
   creator: StateCreator<RootState, PersistMutators, [], RootState>

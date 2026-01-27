@@ -51,9 +51,11 @@ export const ToolsPage = () => {
   const toolUse = useOnToolCall({
     api,
     getAccessToken: config?.config?.getAccessToken,
+    conversationId: undefined,
     headers: config?.config.headers,
     customFetch: config?.config.fetch,
     callTool,
+    send: undefined
   });
 
   const enabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);

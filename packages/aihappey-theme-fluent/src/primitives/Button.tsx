@@ -83,6 +83,7 @@ import {
   ArrowExportRegular,
   LiveRegular,
   CodeBlockRegular,
+  BeakerRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -113,6 +114,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   download: ArrowDownloadRegular,
   formula: MathFormulaRegular,
   table: TableRegular,
+  labs: BeakerRegular,
   mail: MailRegular,
   theme: ColorRegular,
   warning: WarningRegular,

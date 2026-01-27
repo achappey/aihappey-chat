@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { ToolInvocationsActivity } from "../content/ToolInvocationsActivity";
@@ -37,17 +37,23 @@ const parseIso = (ts?: string) => {
   return isNaN(d.getTime()) ? 0 : d.getTime();
 };
 
-export const ActivityDrawer = (props: { messages?: UIMessage[] }) => {
+export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) => {
   const { Drawer, Tabs, Tab, Button } = useTheme();
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
-  const { messages } = props;
+  const { messages, uiTree } = props;
   const showActivities = useAppStore((s) => s.showActivities);
   const setActivities = useAppStore((s) => s.setActivities);
   const activitiesSize = useAppStore((s) => s.activitiesSize);
   const chatMode = useAppStore((s) => s.chatMode);
   const setActivitiesSize = useAppStore((s) => s.setActivitiesSize);
   const toolInvocations = useToolInvocations(messages);
+  const selectedConversationId = useAppStore(s => (s as any).selectedConversationId as string | null);
+  const jsonRenderState = useAppStore(s => (s as any).jsonRenderByConversation as Record<string, any>);
+  const activeJsonRender = useMemo(() => {
+    if (!selectedConversationId) return undefined;
+    return jsonRenderState?.[selectedConversationId];
+  }, [jsonRenderState, selectedConversationId]);
   const [activeTab, setActiveTab] = useState("toolInvocations");
 
   // 1) flatten resources + attach msg timestamp + ids
@@ -108,7 +114,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[] }) => {
       key: "canvas",
       label: t("canvas"),
       component: CanvasActivity,
-      getProps: () => ({ groups: canvasGroups }),
+      getProps: () => ({ groups: canvasGroups, uiTree }),
     },
     {
       key: "dataParts",

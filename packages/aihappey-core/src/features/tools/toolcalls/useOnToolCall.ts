@@ -37,16 +37,20 @@ import { localSettingsPluginDef } from "./useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./useLocalToolsToolCall";
 import { localStructuredOutputsPluginDef as localStructuredOutputsPluginDefStatic } from "./useLocalStructuredOutputsToolCall";
 import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
+import { localJsonRenderPluginDef, useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
 
 export function useOnToolCall({
   callTool,
   api,
   getAccessToken,
+  conversationId,
   headers,
   customFetch,
+  send,
 }: {
   api: string;
   getAccessToken?: any;
+  conversationId?: any;
   headers?: any;
   customFetch?: any;
   callTool: (
@@ -56,13 +60,16 @@ export function useOnToolCall({
     locale?: string,
     signal?: AbortSignal
   ) => Promise<any>;
+  send: any
 }) {
   const enableApps = useAppStore(a => a.enableApps);
   const mcpServerContent = useAppStore(a => a.mcpServerContent);
   const mcpServers = useAppStore(a => a.mcpServers);
   const enabledPlugins = useAppStore(a => a.activePlugins); // string list
   const enabledLocalTools = useAppStore(a => (a as any).enabledLocalTools as string[]);
-
+  // const selectedConversationId = useAppStore(a => (a as any).selectedConversationId as string | null);
+  const setJsonRenderRequest = useAppStore(a => (a as any).setJsonRenderRequest as any);
+  const setActiveData = useAppStore(a => a.setActiveData);
   const conversations = useConversations();
   const files = useFiles();
   const { i18n } = useTranslation();
@@ -79,6 +86,12 @@ export function useOnToolCall({
   const localStructuredOutputsRuntime = useLocalStructuredOutputsRuntime(api, getAccessToken, headers);
   const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
+  const jsonRenderRuntime = useLocalJsonRenderRuntime({
+    messages: (conversations.items ?? []).find(c => c.id === conversationId)?.messages,
+    conversationId: conversationId,
+    setActiveData,
+    send
+  });
 
   // specials (runtime-only or conditional exposure)
   const { memoryPlugin } = useMemoryToolCall(); // runtime only
@@ -95,6 +108,7 @@ export function useOnToolCall({
       [localStructuredOutputsRuntime.name]: localStructuredOutputsRuntime,
       [vercelAIRuntime.name]: vercelAIRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
+      [jsonRenderRuntime.name]: jsonRenderRuntime,
     }),
     [
       localFilesRuntime,
@@ -104,6 +118,7 @@ export function useOnToolCall({
       localSettingsRuntime,
       localToolsRuntime,
       localImagesRuntime,
+      jsonRenderRuntime,
       vercelAIRuntime,
       localStructuredOutputsRuntime,
     ]
@@ -116,6 +131,7 @@ export function useOnToolCall({
       localConversationsPluginDef,
       localImagesPluginDef,
       localCanvasPluginDef,
+      localJsonRenderPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDefStatic,
       localToolsPluginDef,
