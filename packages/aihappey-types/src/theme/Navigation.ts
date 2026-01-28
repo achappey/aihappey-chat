@@ -10,6 +10,7 @@ export interface NavigationItem {
   href?: string;
   disabled?: boolean;
   new?: boolean;
+  pinned?: boolean;
   conversationItem?: boolean;
   onClick?: any;
   eventKey?: string;
@@ -31,6 +32,7 @@ export interface NavigationProps {
   onDelete?: (id: string) => Promise<void>;
   onExport?: (id: string) => Promise<void>;
   onRename?: (id: string, newName: string) => Promise<void>;
+  onTogglePin?: (id: string) => Promise<void>;
   style?: React.CSSProperties;
   translations?: any
 }

@@ -41,6 +41,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onExport,
   onClose,
   isOpen,
+  onTogglePin,
   translations,
   onRename,
   multiple = false,
@@ -117,6 +118,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 setEditingId={setEditingId}
                 setEditValue={setEditValue}
                 onSelect={onSelect}
+                onTogglePin={onTogglePin}
                 onRename={onRename}
                 onDelete={onDelete}
                 onExport={onExport}

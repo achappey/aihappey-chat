@@ -26,6 +26,8 @@ export const ConversationSidebar = ({
   const conversationStorage = useAppStore((a) => a.conversationStorage);
   const remoteStorageConnected = useAppStore((a) => a.remoteStorageConnected);
   const setConversationStorage = useAppStore((a) => a.setConversationStorage);
+  const togglePinnedConversation = useAppStore((a) => a.togglePinnedConversation);
+  const pinnedConversations = useAppStore((a) => a.pinnedConversations);
   const isDesktop = useIsDesktop();
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
   const { conversationId } = useParams<{ conversationId?: string }>();
@@ -184,14 +186,34 @@ export const ConversationSidebar = ({
     URL.revokeObjectURL(url);
   };
 
+  const chatNavItems: NavigationItem[] = conversations.items
+    .slice()
+    .sort((a, b) => {
+      const aPinned = pinnedConversations?.includes(a.id) ? 1 : 0;
+      const bPinned = pinnedConversations?.includes(b.id) ? 1 : 0;
 
-  const chatNavItems: NavigationItem[] = conversations.items.map(
-    (conv: any) => ({
+      // 1️⃣ pinned always on top
+      if (aPinned !== bPinned) {
+        return bPinned - aPinned;
+      }
+
+      // 2️⃣ within same group → sort by last message timestamp desc
+      const ta = new Date(
+        a.messages?.[a.messages.length - 1]?.metadata?.timestamp ?? 0
+      ).getTime();
+
+      const tb = new Date(
+        b.messages?.[b.messages.length - 1]?.metadata?.timestamp ?? 0
+      ).getTime();
+
+      return tb - ta;
+    })
+    .map((conv) => ({
       key: conv.id,
       label: conv.metadata?.name ?? "New chat",
       conversationItem: true,
-    })
-  );
+      pinned: pinnedConversations?.includes(conv.id),
+    }));
 
   const navItems: NavigationItem[] = [...staticNavItems, ...chatNavItems];
 
@@ -307,6 +329,8 @@ export const ConversationSidebar = ({
     export: t('export'),
     delete: t('delete'),
     new: t('new'),
+    pin: t('pinChat'),
+    unpin: t('unpinChat'),
     closeNavigation: t('closeNavigation'),
     rename: t('rename')
   }
@@ -325,6 +349,9 @@ export const ConversationSidebar = ({
         items={navItems}
         translations={translations}
         onClose={() => setSidebarOpen(false)}
+        onTogglePin={async (a) => {
+          togglePinnedConversation(a);
+        }}
         isOpen={sidebarOpen}
         onDelete={handleRemove}
         onRename={conversations.rename}

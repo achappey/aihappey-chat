@@ -34,6 +34,7 @@ export const withPersist = (
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,
+      pinnedConversations: s.pinnedConversations,
       userPreferredTranscriptionModel: s.userPreferredTranscriptionModel,
       enableAgentImport: s.enableAgentImport,
       enableConversationImport: s.enableConversationImport,

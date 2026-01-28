@@ -197,6 +197,8 @@
   "closeNavigation": "Zijbalk sluiten",
   "openNavigation": "Zijbalk openen",
   "structure": "Structuur",
+  "pinChat": "Chat vastmaken",
+  "unpinChat": "Chat losmaken",
   "structuredOutputsPage": {
     "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschema’s. Gebruik deze schema’s om modeluitvoer te sturen en een consistente structuur af te dwingen."
   },

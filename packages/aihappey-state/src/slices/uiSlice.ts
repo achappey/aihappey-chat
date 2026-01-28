@@ -107,7 +107,8 @@ export type UiSlice = {
   debugMode?: boolean
   showMessageTemperature?: boolean
   showMessageTokens?: boolean
-
+  pinnedConversations?: string[]
+  togglePinnedConversation: (conversationId: string) => void;
   setShowMessageTemperature: (value: boolean) => void;
   setShowMessageTokens: (value: boolean) => void;
 
@@ -207,26 +208,30 @@ export const createUiSlice: StateCreator<
   chatWithTranscriptionModels: false,
   activitiesSize: "medium",
   quickSearches: ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"],
-
+  togglePinnedConversation: (value: string) =>
+    set((state: UiSlice) => ({
+      pinnedConversations: state.pinnedConversations?.includes(value) ?
+        state.pinnedConversations.filter((a: any) => a != value) : [...state.pinnedConversations ?? [], value]
+    })),
   setShowMessageTemperature: (value: boolean) =>
-    set((state: any) => ({
+    set((state: UiSlice) => ({
       showMessageTemperature: value
     })),
   setShowMessageTokens: (value: boolean) =>
-    set((state: any) => ({
+    set((state: UiSlice) => ({
       showMessageTokens: value
     })),
 
   toggleChatWithImageModels: () =>
-    set((s: any) => ({
+    set((s: UiSlice) => ({
       chatWithImageModels: !s.chatWithImageModels,
     })),
   toggleChatWithSpeechModels: () =>
-    set((s: any) => ({
+    set((s: UiSlice) => ({
       chatWithSpeechModels: !s.chatWithSpeechModels,
     })),
   toggleChatWithTranscriptionModels: () =>
-    set((s: any) => ({
+    set((s: UiSlice) => ({
       chatWithTranscriptionModels: !s.chatWithTranscriptionModels,
     })),
   toggleEliciation: () =>

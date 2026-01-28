@@ -4,7 +4,7 @@
 ============================================================ */
 
 import { NavItem, Input, Badge, Menu, MenuTrigger, Button, MenuPopover, MenuList, MenuItem, MenuDivider, makeStyles } from "@fluentui/react-components";
-import { MoreHorizontalRegular, EditRegular, ArrowExportRegular, DeleteRegular } from "@fluentui/react-icons";
+import { MoreHorizontalRegular, EditRegular, ArrowExportRegular, DeleteRegular, PinRegular, PinFilled, PinOffRegular } from "@fluentui/react-icons";
 import { IconToken } from "aihappey-types";
 import React from "react";
 import { iconMap } from "../Button";
@@ -19,6 +19,7 @@ type NavItemRowProps = {
   onRename?: (key: string, value: string) => Promise<void> | void;
   onDelete?: (key: string) => Promise<void> | void;
   onExport?: (key: string) => Promise<void> | void;
+  onTogglePin?: (key: string) => Promise<void> | void;
   translations?: Record<string, string>;
 };
 
@@ -36,6 +37,7 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
   editValue,
   setEditingId,
   setEditValue,
+  onTogglePin,
   onSelect,
   onRename,
   onDelete,
@@ -52,6 +54,8 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
       key={item.key}
       style={{ paddingTop: 4, paddingBottom: 4 }}
       value={item.key}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       disabled={item.disabled}
       icon={
         item.icon && iconMap[item.icon as IconToken] ? (
@@ -86,8 +90,6 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
       ) : (
         <span
           className={styles.navItemContent}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
         >
           <span
             style={{
@@ -113,9 +115,11 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
                 <Button
                   size="small"
                   appearance="transparent"
-                  icon={<MoreHorizontalRegular />}
+                  icon={isHovered ? <MoreHorizontalRegular />
+                    : item.pinned ? <PinFilled />
+                      : <span style={{ width: 24, height: 24 }} />}
                   style={{
-                    opacity: isHovered ? 1 : 0,
+                    opacity: isHovered || item.pinned ? 1 : 0,
                     transition: "opacity 120ms ease",
                   }}
                   onClick={e => e.stopPropagation()}
@@ -148,6 +152,21 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
                   )}
 
                   <MenuDivider />
+
+                  {onTogglePin && (
+                    <MenuItem
+                      icon={item.pinned ? <PinOffRegular /> : <PinRegular />}
+                      onClick={async e => {
+                        e.stopPropagation();
+                        await onTogglePin(item.key);
+                        setIsHovered(false)
+
+                      }}
+                    >
+                      {item.pinned ?
+                        (translations?.unpin ?? "unpin") : (translations?.pin ?? "pin")}
+                    </MenuItem>
+                  )}
 
                   {onDelete && (
                     <MenuItem

@@ -206,6 +206,8 @@
   "allTools": "All tools",
   "closeNavigation": "Close sidebar",
   "openNavigation": "Open sidebar",
+  "pinChat": "Pin chat",
+  "unpinChat": "Unpin chat",
   "plugins": {
     "local-agents": "Agent Framework",
     "local-canvas": "Canvas",
