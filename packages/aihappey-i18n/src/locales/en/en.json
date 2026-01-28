@@ -209,14 +209,14 @@
   "plugins": {
     "local-agents": "Agent Framework",
     "local-canvas": "Canvas",
-    "local-json-render": "Dynamic UI",
+    "local-json-render": "Vercel Apps",
     "local-images": "Images",
     "local-structured-outputs": "Structured outputs",
     "local-files": "Files",
     "local-tools": "Tools",
     "local-conversations": "Chat history",
     "local-settings": "Chat settings",
-    "vercel-ai": "Vercel AI"
+    "vercel-ai": "Vercel Agents"
   },
   "localTools": "Custom tools",
   "localToolsEmpty": "No custom tools found. Create one using the Tools plugin.",

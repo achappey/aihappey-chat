@@ -16,7 +16,7 @@ export const PromptSelectModal = ({
   onPromptClick,
   onHide,
 }: PromptSelectModalProps) => {
-  const { Modal, Tabs, Tab, Button } = useTheme();
+  const { Modal, Tabs, Tab, Button, Spinner } = useTheme();
   const { t } = useTranslation();
 
   const getPromptUrl = (prompt: PromptWithSource) => {
@@ -69,6 +69,7 @@ export const PromptSelectModal = ({
     // optional: reset immediately (or keep it and let effect handle it)
     setActiveTab("");
   };
+
 
   return (
     <Modal

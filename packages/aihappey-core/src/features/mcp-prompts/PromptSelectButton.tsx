@@ -32,8 +32,8 @@ export const PromptSelectButton = ({
     .filter(a => mcpServerContent[a].capabilities?.prompts)
     .length > 0;
 
-  useEffect(() => {
 
+  useEffect(() => {
     if (open) {
       Object.keys(mcpServerContent)
         .filter(a => mcpServerContent[a].capabilities?.prompts)
@@ -44,9 +44,6 @@ export const PromptSelectButton = ({
             _serverTitle: mcpServers[a]?.registry?.server.title,
             _url: mcpServers[a]?.config?.url
           }))])))
-    }
-    else {
-      setPrompts([])
     }
   }, [open]);
 
@@ -72,31 +69,32 @@ export const PromptSelectButton = ({
       <PromptSelectModal
         open={open}
         prompts={prompts}
-        onPromptClick={(p) => {
+        onPromptClick={async (p) => {
           if (p.arguments && p.arguments.length > 0) {
             setArgumentPrompt(p);
           } else {
-            onPromptExecute(p);
+            setOpen(false);
+            await onPromptExecute(p);
           }
-          setOpen(false);
         }}
         onHide={() => setOpen(false)}
       />
 
-      {argumentPrompt && <PromptArgumentsModal
-        open={argumentPrompt != undefined}
-        prompt={argumentPrompt}
-        onPromptExecute={async (prompt: any, args: any) => {
-          setArgumentPrompt(undefined);
-
-          await onPromptExecute(prompt, args);
-        }}
-        onHide={() => {
-          setArgumentPrompt(undefined)
-          setOpen(true)
-        }
-        }
-      />}
+      {argumentPrompt && (
+        <PromptArgumentsModal
+          open={argumentPrompt != undefined}
+          prompt={argumentPrompt}
+          onPromptExecute={async (prompt: any, args: any) => {
+            setArgumentPrompt(undefined);
+            setOpen(false);
+            await onPromptExecute(prompt, args);
+          }}
+          onHide={() => {
+            setArgumentPrompt(undefined);
+            setOpen(true);
+          }}
+        />
+      )}
     </>
   );
 };

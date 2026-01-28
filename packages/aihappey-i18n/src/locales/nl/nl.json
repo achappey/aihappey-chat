@@ -205,12 +205,11 @@
     "local-canvas": "Canvas",
     "local-structured-outputs": "Gestructureerde uitvoer",
     "local-files": "Bestanden",
-    "local-json-render": "Dynamische UI",
     "local-images": "Afbeeldingen",
     "local-tools": "Tools",
     "local-conversations": "Chat geschiedenis",
     "local-settings": "Chat instellingen",
-    "vercel-ai": "Vercel AI"
+    "vercel-ai": "Vercel Agents"
   },
   "localTools": "Aangepaste tools",
   "localToolsEmpty": "Geen aangepaste tools gevonden. Gebruik de Tools plugin om aangepaste tools te maken.",

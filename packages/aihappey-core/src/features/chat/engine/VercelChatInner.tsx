@@ -171,7 +171,7 @@ export function VercelChatInner({
       promptToSend = `CURRENT UI STATE (already loaded, DO NOT recreate existing elements):\n${JSON.stringify(tree, null, 2)}\n\nUSER REQUEST: ${prompt}\n\nIMPORTANT: The current UI is already loaded. Output ONLY the patches needed to make the requested change:\n- To add a new element: {"op":"add","path":"/elements/new-key","value":{...}}\n- To modify an existing element: {"op":"set","path":"/elements/existing-key","value":{...}}\n- To update the root: {"op":"set","path":"/root","value":"new-root-key"}\n- To remove an element: {"op":"remove","path":"/root"}\n- To add children: update the parent element with new children array\n\nDO NOT output patches for elements that don't need to change. Only output what's necessary for the requested modification.`;
     }
 
-    await send(promptToSend, activeData ?? {})
+    return await send(promptToSend, activeData, providerMetadata)
   }
 
   const toolUse = useOnToolCall({

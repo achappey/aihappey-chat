@@ -35,7 +35,7 @@ const formatNumber = (value: unknown, format?: string, precision?: number) => {
   if (format === "currency") {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
-      currency: "USD",
+      currency: "EUR",
       maximumFractionDigits: digits,
     }).format(value);
   }
@@ -83,11 +83,20 @@ const Metric = ({ element }: ComponentRenderProps<any>) => {
 const Container = ({ element, children }: ComponentRenderProps<any>) => {
   const gap = element.props.gap;
   const padding = spacingScale[element.props.padding] ?? undefined;
+
+  const flexDirection =
+    element.props.direction === "vertical"
+      ? "column"
+      : element.props.direction === "horizontal"
+        ? "row"
+        : element.props.direction ?? "row";
+
+
   return (
     <div
       style={{
         display: "flex",
-        flexDirection: element.props.direction ?? "row",
+        flexDirection: flexDirection,
         gap: typeof gap === "number" ? gap : undefined,
         alignItems: element.props.align ?? undefined,
         justifyContent: element.props.justify ?? undefined,
@@ -545,7 +554,7 @@ const SimpleTable = ({ element }: ComponentRenderProps<any>) => {
               const value = readRowValue(row, column.key, column.fieldPath);
               return (
                 <td key={column.key}>
-                  
+                  {value}
                 </td>
               );
             })}

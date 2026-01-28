@@ -100,7 +100,7 @@ export interface UseUIStreamReturn {
     /** Error if any */
     error: Error | null;
     /** Send a prompt to generate UI */
-    send: (prompt: string, context?: Record<string, unknown>) => Promise<void>;
+    send: (prompt: string, context?: Record<string, unknown>, providerMetadata?: any) => Promise<any>;
     /** Clear the current tree */
     clear: () => void;
 }
@@ -141,7 +141,7 @@ export function useUIStream({
 
 
     const send = useCallback(
-        async (prompt: string, context?: Record<string, unknown>) => {
+        async (prompt: string, context?: Record<string, unknown>, providerMetadata?: any) => {
             // Abort any existing request
             abortControllerRef.current?.abort();
             abortControllerRef.current = new AbortController();
@@ -149,8 +149,8 @@ export function useUIStream({
             setIsStreaming(true);
             setError(null);
             let currentTree: UITree = tree ?? { root: "", elements: {} };
-           // if (tree == null)
-          //  setTree(currentTree);
+            // if (tree == null)
+            //  setTree(currentTree);
 
             const headers: any = await makeHeaders(getAccessToken);
             try {
@@ -162,7 +162,7 @@ export function useUIStream({
                         model,
                         context,
                         catalogPrompt,
-                     //   currentTree: tree ?? currentTree,
+                        providerMetadata
                     }),
                     signal: abortControllerRef.current.signal,
                 });
@@ -208,6 +208,8 @@ export function useUIStream({
                 }
 
                 onComplete?.(currentTree);
+
+                return currentTree;
             } catch (err) {
                 if ((err as Error).name === "AbortError") {
                     return;

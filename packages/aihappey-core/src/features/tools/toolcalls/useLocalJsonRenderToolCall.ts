@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import type { UIMessage } from "aihappey-types";
 
 /* ============================================================
@@ -11,9 +11,18 @@ type ToolTextResult = {
     content: { type: "text"; text: string }[];
 };
 
-const ok = (text: string): ToolTextResult => ({
+const ok = (tree: any, uri: string, toolcallId: any): CallToolResult => ({
     isError: false,
-    content: [{ type: "text", text }],
+    _meta: {
+        toolCallId: toolcallId
+    },
+    content: [{
+        type: "resource", resource: {
+            text: JSON.stringify(tree),
+            mimeType: "application/vnd.vercel-app+json",
+            uri: uri
+        }
+    }],
 });
 
 const fail = (err: unknown): ToolTextResult => ({
@@ -28,7 +37,7 @@ const fail = (err: unknown): ToolTextResult => ({
 export const localJsonRenderTool: Tool = {
     name: "local_json_render",
     title: "Render UI from tool output",
-    description: "Render a streaming UI using the output of a previously executed tool call.",
+    description: "Render a streaming UI using the output of a previously executed tool call. The chat app handles the rendering, the component tree is only returned for reference.",
     inputSchema: {
         type: "object",
         properties: {
@@ -83,7 +92,7 @@ function findLatestToolOutput(messages: UIMessage[] | undefined, toolName: strin
             if (!part?.type?.startsWith("tool-")) continue;
             const name = part.toolName ?? part.type?.replace(/^tool-/, "");
             if (name === toolName) {
-                return part.output ?? null;
+                return part;
             }
         }
     }
@@ -97,9 +106,9 @@ export function useLocalJsonRenderRuntime(opts: {
     send: any
 }) {
     const { messages, conversationId, setActiveData, send } = opts;
-    
+
     const handle = useCallback(
-        async (toolCall: LocalJsonRenderToolCall): Promise<ToolTextResult> => {
+        async (toolCall: LocalJsonRenderToolCall): Promise<any> => {
             try {
                 const input = toolCall.input ?? {};
                 const prompt = input.prompt?.trim();
@@ -108,20 +117,15 @@ export function useLocalJsonRenderRuntime(opts: {
                 if (!toolcallname) throw new Error("Missing toolcallname.");
                 if (!conversationId) throw new Error("Missing conversation id.");
 
-                const output = findLatestToolOutput(messages, toolcallname);
-                if (!output) {
+                const part = findLatestToolOutput(messages, toolcallname);
+                if (!part) {
                     throw new Error(`No tool output found for toolcallname: ${toolcallname}`);
                 }
-
+                const output = part.output?.structuredContent ?? part.output ?? null;
                 setActiveData(output)
-                await send(prompt)
-             /*   setJsonRenderRequest(conversationId, {
-                    prompt,
-                    toolcallname,
-                    activeData: output,
-                });*/
+                const tree = await send(prompt)
 
-                return ok("render queued");
+                return ok(tree, "toolcall://" + toolcallname, part.toolCallId);
             } catch (e) {
                 return fail(e);
             }

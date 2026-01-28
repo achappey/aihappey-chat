@@ -32,10 +32,10 @@ export const toMarkdownLinkSmart = (
     case mimeType.startsWith("text/"):
     case mimeType === "text/plain":
       return shouldCollapse
-        ? wrapInDetails(uri, `\`\`\`\n${text}\n\`\`\``)
+        ? wrapInDetails(uri, `\n${text}\n`)
         : `${uri}\n\n${text}`;
 
     default:
-      return wrapInDetails(uri, `\`\`\`\n${text}\n\`\`\``);
+      return wrapInDetails(uri, `\n${text}\n`);
   }
 };

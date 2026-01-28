@@ -78,7 +78,7 @@ export const createChatSlice: StateCreator<
   selectedConversationId: null,
   providerMetadata: defaultProviderMetadata,
   temperature: 1,
-  experimentalThrottle: 100,
+  experimentalThrottle: 500,
   models: [],
   modelsLoaded: false,
   chatMode: "chat",

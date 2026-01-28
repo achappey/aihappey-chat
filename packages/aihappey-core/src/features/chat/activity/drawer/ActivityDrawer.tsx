@@ -48,12 +48,6 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) =
   const chatMode = useAppStore((s) => s.chatMode);
   const setActivitiesSize = useAppStore((s) => s.setActivitiesSize);
   const toolInvocations = useToolInvocations(messages);
-  const selectedConversationId = useAppStore(s => (s as any).selectedConversationId as string | null);
-  const jsonRenderState = useAppStore(s => (s as any).jsonRenderByConversation as Record<string, any>);
-  const activeJsonRender = useMemo(() => {
-    if (!selectedConversationId) return undefined;
-    return jsonRenderState?.[selectedConversationId];
-  }, [jsonRenderState, selectedConversationId]);
   const [activeTab, setActiveTab] = useState("toolInvocations");
 
   // 1) flatten resources + attach msg timestamp + ids
@@ -68,6 +62,22 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) =
           _msgId: z.msgId,                   // for de-dupe per message turn
           _partIndex: z.partIndex,           // last wins within message
           _ts: z?.metadata?.timestamp ?? "", // 👈 timestamp lives here
+        }))
+    ) ?? [];
+
+  const flatVercelResources =
+    toolInvocations?.flatMap((z: any) =>
+      z?.output?.content
+        ?.filter(
+          (a: any) => a.type === "resource" && a.resource?.mimeType === "application/vnd.vercel-app+json"
+        )
+        .map((entry: any) => ({
+          ...entry.resource,
+          output: toolInvocations.find(a => a.toolCallId == z?._meta?.toolCallId)?.output?.structuredContent ??
+            toolInvocations.find(a => a.toolCallId == z?._meta?.toolCallId)?.output,
+          _msgId: z.msgId,
+          _partIndex: z.partIndex,
+          _ts: z?.metadata?.timestamp ?? "",
         }))
     ) ?? [];
 
@@ -87,6 +97,14 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) =
     groupedByUri.set(r.uri, list);
   }
 
+  const vercelGroupedByUri = new Map<string, any[]>();
+  for (const r of flatVercelResources) {
+    if (!r?.uri) continue;
+    const list = vercelGroupedByUri.get(r.uri) ?? [];
+    list.push(r);
+    vercelGroupedByUri.set(r.uri, list);
+  }
+
   // 3) per-URI: de-dupe by message (keep last part), then sort DESC by timestamp
   const canvasGroups = Array.from(groupedByUri.entries()).map(([uri, list]) => {
     // per message keep the highest partIndex (the last read in that turn)
@@ -103,6 +121,20 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) =
     return { uri, versions };
   });
 
+  const vercelGroups = Array.from(vercelGroupedByUri.entries()).map(([uri, list]) => {
+    const byMsg = new Map<string, any>();
+    for (const r of list) {
+      const prev = byMsg.get(r._msgId);
+      if (!prev || r._partIndex > prev._partIndex) byMsg.set(r._msgId, r);
+    }
+
+    const versions = Array.from(byMsg.values()).sort(
+      (a, b) => parseIso(b._ts) - parseIso(a._ts)
+    );
+
+    return { uri, versions };
+  });
+
   const baseTabs = [
     {
       key: "toolInvocations",
@@ -114,7 +146,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) =
       key: "canvas",
       label: t("canvas"),
       component: CanvasActivity,
-      getProps: () => ({ groups: canvasGroups, uiTree }),
+      getProps: () => ({ groups: canvasGroups, vercelGroups, uiTree }),
     },
     {
       key: "dataParts",
