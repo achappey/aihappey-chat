@@ -40,7 +40,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   getToolExplanation,
 }) => {
   const [explanation, setExplanation] = useState<string | undefined>(undefined);
-  const { Card, Button, Spinner, JsonViewer, Badge, Image } = useTheme();
+  const { Card, Button, Spinner, JsonViewer, Badge } = useTheme();
   const [loadingExplanation, setLoadingExplanation] = useState(false);
   const toolName = invocation.type.replace("tool-", "");
 

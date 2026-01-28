@@ -84,6 +84,7 @@ import {
   LiveRegular,
   CodeBlockRegular,
   BeakerRegular,
+  DatabaseWindowRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -118,6 +119,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   mail: MailRegular,
   theme: ColorRegular,
   warning: WarningRegular,
+  storage: DatabaseRegular,
   search: SearchRegular,
   chat: ChatRegular,
   panelContract: PanelRightContractRegular,
@@ -158,7 +160,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   image: ImageRegular,
   databaseGear: DatabasePersonRegular,
   personalization: PersonHeartRegular,
-  contextWindow: DatabaseRegular,
+  contextWindow: DatabaseWindowRegular,
   structuredOutputs: CodeBlockRegular,
   maxOutputTokens: ArrowExportRegular,
   customize: PeopleSettingsRegular,

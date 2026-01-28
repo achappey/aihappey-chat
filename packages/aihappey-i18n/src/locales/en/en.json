@@ -396,6 +396,11 @@
   "execute": "Execute",
   "save": "Save",
   "storage": {
+    "title": "Storage",
+    "unavailable": "Unavailable",
+    "free": "Free",
+    "used": "Used",
+    "quota": "Quota",
     "local": "Local Storage",
     "remote": "Remote Storage"
   },

@@ -6,6 +6,7 @@ import { ModelContextSettings } from "./ModelContextSettings";
 import { GeneralSettings } from "./GeneralSettings";
 import { AiDefaultSettings } from "./AiDefaultSettings";
 import { useChatContext } from "../chat/context/ChatContext";
+import { StorageSettings } from "./StorageSettings";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -137,6 +138,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onChange={setShowMessageTokens}
                 />
               </div>
+            </theme.Tab>
+
+            <theme.Tab
+              eventKey="storage"
+              icon={"storage"}
+              title={t("storage.title") ?? "Storage"}
+            >
+              <StorageSettings />
             </theme.Tab>
 
             <theme.Tab

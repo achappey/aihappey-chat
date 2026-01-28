@@ -411,6 +411,11 @@
   "execute": "Uitvoeren",
   "storage": {
     "local": "Lokale opslag",
+    "unavailable": "Niet beschikbaar",
+    "free": "Vrij",
+    "used": "Gebruikt",
+    "quota": "Quota",
+    "title": "Opslag",
     "remote": "Remote Storage"
   },
   "catalogModal": {

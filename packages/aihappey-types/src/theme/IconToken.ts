@@ -20,6 +20,7 @@ export type IconToken =
   | "aiImage"
   | "table"
   | "transcriptions"
+  | "storage"
   | "providers"
   | "speech"
   | "speechSettings"

@@ -72,6 +72,7 @@ import {
   Broadcast,
   CodeSlash,
   BeakerFill,
+  Database,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -118,6 +119,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   up: <ArrowUp />,
   down: <ArrowDown />,
   resources: <File />,
+  storage: <Database />,
   eye: <Eye />,
   chatSettings: <Sliders />,
   search: <Search />,
