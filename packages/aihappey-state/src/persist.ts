@@ -67,6 +67,8 @@ export const withPersist = (
       toolAnnotations: s.toolAnnotations,
       enableUserLocation: s.enableUserLocation,
       enableApps: s.enableApps,
+      defaultCatalogs: s.defaultCatalogs,
+      defaultRegistries: (s as any).defaultRegistries,
       customHeaders: s.customHeaders,
       experimentalThrottle: s.experimentalThrottle,
       toolTimeout: s.toolTimeout,

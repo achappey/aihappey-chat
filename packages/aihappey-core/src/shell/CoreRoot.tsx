@@ -28,6 +28,9 @@ import { ToolsPage } from "../features/tools/ToolsPage";
 import { FilesPage } from "../features/files/FilesPage";
 import { RerankingPage } from "../features/reranking/RerankingPage";
 import { StructuredOutputsPage } from "../features/structured-outputs/StructuredOutputsPage";
+import { WebAppsPage, WebAppDetailPage } from "../features/web-apps";
+import { CatalogsPage } from "../features/catalogs";
+import { RegistriesPage } from "../features/registries";
 import { defaultEndpoints } from "aihappey-ai";
 
 type CoreRootProps = {
@@ -116,7 +119,11 @@ export const CoreRoot = ({
             { path: "structured-outputs", element: <StructuredOutputsPage /> },
             { path: "transcriptions", element: <TranscriptionsPage /> },
             { path: "speech", element: <SpeechPage /> },
-            { path: "reranking", element: <RerankingPage /> }
+            { path: "reranking", element: <RerankingPage /> },
+            { path: "apps", element: <WebAppsPage /> },
+            { path: "apps/:appId", element: <WebAppDetailPage /> },
+            { path: "catalogs", element: <CatalogsPage /> },
+            { path: "registries", element: <RegistriesPage /> }
           ],
         },
       ],

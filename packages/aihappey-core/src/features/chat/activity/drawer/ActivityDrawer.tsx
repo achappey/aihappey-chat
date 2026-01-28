@@ -73,8 +73,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) =
         )
         .map((entry: any) => ({
           ...entry.resource,
-          output: toolInvocations.find(a => a.toolCallId == z?._meta?.toolCallId)?.output?.structuredContent ??
-            toolInvocations.find(a => a.toolCallId == z?._meta?.toolCallId)?.output,
+          output: toolInvocations.find(a => a.toolCallId == z?.output?._meta?.toolCallId)?.output,
           _msgId: z.msgId,
           _partIndex: z.partIndex,
           _ts: z?.metadata?.timestamp ?? "",

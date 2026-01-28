@@ -1,5 +1,6 @@
 {
   "cancel": "Cancel",
+  "default": "Default",
   "loaded": "Loaded",
   "welcome": "How can I help?",
   "chats": "Chats",
@@ -30,6 +31,11 @@
   "mySpeechFiles": "My speech files",
   "speechPromptPlaceholder": "Enter text to convert to audio",
   "outputFormat": "Output format",
+  "componentsPage": {
+    "title": "Components",
+    "catalogs": "Catalogs",
+    "registries": "Registries"
+  },
   "speechSettings": {
     "title": "Speech settings",
     "voice": "Voice",
@@ -211,8 +217,10 @@
   "plugins": {
     "local-agents": "Agent Framework",
     "local-canvas": "Canvas",
-    "local-json-render": "Vercel Apps",
+    "local-json-render": "Apps",
     "local-images": "Images",
+    "local-catalog": "Component catalogs",
+    "local-registry": "Component registries",
     "local-structured-outputs": "Structured outputs",
     "local-files": "Files",
     "local-tools": "Tools",
@@ -310,6 +318,27 @@
   "structuredOutputsPage": {
     "description": "An overview of all stored structured output schemas. Use these schemas to guide model outputs and enforce consistent structure."
   },
+  "webApps": "Apps",
+  "webAppsPage": {
+    "description": "An overview of all available apps. Create apps via plugins and store them for reuse."
+  },
+  "catalogs": "Catalogs",
+  "catalogsPage": {
+    "description": "Catalogs contain definitions of components and actions that AI uses to assemble apps. They describe which components and actions are available and how they can be used. Catalogs form the foundation for building apps."
+  },
+  "registries": "Registries",
+  "registriesPage": {
+    "description": "Registries contain component implementations used to run apps. This makes it possible to run a single app using multiple implementations."
+  },
+  "components": "Components",
+  "actions": "Actions",
+  "open": "Open",
+  "view": "View",
+  "properties": "Properties",
+  "back": "Back",
+  "loading": "Loading...",
+  "notFound": "Not found",
+  "lastUpdated": "Last updated",
   "filesPage": {
     "description": "An overview of all locally available files. Drag and drop files onto this page to add them and allow AI to read and create files through plugins."
   },
@@ -387,6 +416,11 @@
     "deleteAll": "Delete all",
     "deleteAllChats": "Delete all chats",
     "remoteStorage": "Cloud"
+    ,
+    "tabApps": "Apps",
+    "appsHint": "Choose which UI catalogs are used in prompts (generation) and which registries are used at runtime (rendering). If you select none, all are enabled.",
+    "defaultCatalogs": "Default catalogs",
+    "defaultRegistries": "Default registries"
   },
   "chatWithSpeechModels": "Chat with speech models",
   "chatWithTranscriptionModels": "Chat with transcription models",

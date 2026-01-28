@@ -264,6 +264,25 @@
     "toolTimeout": "Tool-Timeout ({{minutes}} Minuten)",
     "description": "Das Model Context Protocol bietet eine strukturierte und einheitliche Methode zum Arbeiten mit Prompts, Ressourcen und Tools."
   },
+  "webApps": "Web Apps",
+  "webAppsPage": {
+    "description": "Übersicht aller lokal gespeicherten Web Apps."
+  },
+  "catalogs": "Kataloge",
+  "catalogsPage": {
+    "description": "Kataloge durchsuchen. Jede Katalog-Registerkarte zeigt Components und Actions."
+  },
+  "registries": "Registries",
+  "registriesPage": {
+    "description": "Registries durchsuchen. Jede Registry-Registerkarte zeigt die Komponenten dieser Registry."
+  },
+  "components": "Components",
+  "actions": "Actions",
+  "open": "Öffnen",
+  "back": "Zurück",
+  "loading": "Laden...",
+  "notFound": "Nicht gefunden",
+  "lastUpdated": "Zuletzt aktualisiert",
   "settingsModal": {
     "title": "Einstellungen",
     "defaultModel": "Standardmodell",

@@ -85,6 +85,8 @@ import {
   CodeBlockRegular,
   BeakerRegular,
   DatabaseWindowRegular,
+  AppsRegular,
+  PuzzlePieceRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -125,6 +127,8 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   panelContract: PanelRightContractRegular,
   panelExpand: PanelRightExpandRegular,
   chart: ChartMultipleRegular,
+  webApps: AppsRegular,
+  components: PuzzlePieceRegular,
   globe: GlobeRegular,
   check: CheckmarkRegular,
   code: CodeRegular,

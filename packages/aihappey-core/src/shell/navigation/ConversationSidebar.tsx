@@ -102,6 +102,13 @@ export const ConversationSidebar = ({
       icon: "robot",
     },
     {
+      key: "apps",
+      label: t("webApps"),
+      href: "/apps",
+      new: true,
+      icon: "webApps",
+    },
+    {
       key: "files",
       label: t("files"),
       href: "/files",
@@ -120,6 +127,7 @@ export const ConversationSidebar = ({
       href: "/tools",
       icon: "tool",
     },
+
     { key: "divider", label: "" },
     {
       key: "category",
@@ -149,6 +157,25 @@ export const ConversationSidebar = ({
           key: "servers",
           label: t("manageServersModal.catalog"),
           href: "/model-context-catalog",
+          icon: "server",
+        },
+      ],
+    },
+    {
+      key: "category",
+      label: t("componentsPage.title"),
+      icon: "components",
+      children: [
+        {
+          key: "catalogs",
+          label: t("componentsPage.catalogs"),
+          href: "/catalogs",
+          icon: "server",
+        },
+        {
+          key: "registries",
+          label: t("componentsPage.registries"),
+          href: "/registries",
           icon: "server",
         },
       ],
@@ -233,9 +260,15 @@ export const ConversationSidebar = ({
                 ? "files"
                 : location.pathname === "/structured-outputs"
                   ? "structured-outputs"
-                  : location.pathname === "/reranking"
-                    ? "reranking"
-                    : conversationId ?? undefined
+                  : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
+                    ? "web-apps"
+                    : location.pathname === "/catalogs"
+                      ? "catalogs"
+                      : location.pathname === "/registries"
+                        ? "registries"
+                        : location.pathname === "/reranking"
+                          ? "reranking"
+                          : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -253,6 +286,12 @@ export const ConversationSidebar = ({
       await navigate("/files");
     } else if (id === "structured-outputs") {
       await navigate("/structured-outputs");
+    } else if (id === "web-apps") {
+      await navigate("/web-apps");
+    } else if (id === "catalogs") {
+      await navigate("/catalogs");
+    } else if (id === "registries") {
+      await navigate("/registries");
     } else if (id === "reranking") {
       await navigate("/reranking");
     } else {

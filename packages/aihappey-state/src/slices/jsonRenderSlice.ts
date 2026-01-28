@@ -11,7 +11,11 @@ export type JsonRenderCanvasState = {
 
 export type JsonRenderSlice = {
     activeData?: any
+    defaultCatalogs?: string;
+    defaultRegistries?: string;
     setActiveData: (activeData: any) => void;
+    setDefaultCatalogs: (catalogs?: string) => void;
+    setDefaultRegistries: (registries?: string) => void;
 };
 
 export const createJsonRenderSlice: StateCreator<
@@ -23,5 +27,13 @@ export const createJsonRenderSlice: StateCreator<
     setActiveData: (activeData) =>
         set((state: any) => ({
             activeData: activeData,
+        })),
+    setDefaultCatalogs: (catalogs) =>
+        set(() => ({
+            defaultCatalogs: catalogs,
+        })),
+    setDefaultRegistries: (registries) =>
+        set(() => ({
+            defaultRegistries: registries,
         })),
 });

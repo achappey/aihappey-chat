@@ -27,6 +27,11 @@ export * from "./FileCard";
 export * from "./RerankingDocumentCard";
 export * from "./RerankingCard";
 
+export * from "./JsonRenderAppCard";
+export * from "./JsonRenderCatalogComponentCard";
+export * from "./JsonRenderCatalogActionCard";
+export * from "./JsonRenderRegistryComponentCard";
+
 export * from "./TextEditCard";
 export * from "./ReasoningEditCard";
 export * from "./UIMessagePartEditCard";

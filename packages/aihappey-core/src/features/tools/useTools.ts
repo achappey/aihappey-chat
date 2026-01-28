@@ -9,6 +9,9 @@ import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
 import { localSettingsPluginDef } from "./toolcalls/useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./toolcalls/useLocalToolsToolCall";
 import { localStructuredOutputsPluginDef } from "./toolcalls/useLocalStructuredOutputsToolCall";
+import { localActionsPluginDef } from "./toolcalls/useLocalActionsToolCall";
+import { localCatalogPluginDef } from "./toolcalls/useLocalCatalogToolCall";
+import { localRegistryPluginDef } from "./toolcalls/useLocalRegistryToolCall";
 import { usePlugins } from "./toolcalls/usePlugins";
 import { resourceTool } from "./toolcalls/useReadResourceToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
@@ -37,6 +40,9 @@ export function useTools() {
       localImagesPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDef,
+      localCatalogPluginDef,
+      localRegistryPluginDef,
+      localActionsPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

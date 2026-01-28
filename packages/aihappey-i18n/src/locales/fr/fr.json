@@ -149,6 +149,25 @@
   "localTools": "Outils locaux",
   "structuredOutputs": "Sorties structurées",
   "structuredOutputsPlaceholder": "Schéma JSON...",
+  "webApps": "Web Apps",
+  "webAppsPage": {
+    "description": "Vue d’ensemble de toutes les Web Apps enregistrées localement."
+  },
+  "catalogs": "Catalogues",
+  "catalogsPage": {
+    "description": "Parcourez les catalogues. Chaque onglet affiche les Components et les Actions."
+  },
+  "registries": "Registries",
+  "registriesPage": {
+    "description": "Parcourez les registries. Chaque onglet affiche les composants disponibles dans cette registry."
+  },
+  "components": "Components",
+  "actions": "Actions",
+  "open": "Ouvrir",
+  "back": "Retour",
+  "loading": "Chargement...",
+  "notFound": "Introuvable",
+  "lastUpdated": "Dernière mise à jour",
   "medium": "Moyen",
   "budget": "Budget",
   "mode": "Mode",

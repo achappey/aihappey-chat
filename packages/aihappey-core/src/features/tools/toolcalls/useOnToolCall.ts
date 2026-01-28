@@ -16,6 +16,9 @@ import { useLocalConversationsRuntime } from "./useLocalConversationsToolCall";
 import { useLocalCanvasRuntime } from "./useLocalCanvasToolCall";
 import { useLocalSettingsRuntime } from "./useLocalSettingsToolCall";
 import { useLocalToolsRuntime } from "./useLocalToolsToolCall";
+import { useLocalActionsRuntime } from "./useLocalActionsToolCall";
+import { useLocalCatalogRuntime } from "./useLocalCatalogToolCall";
+import { useLocalRegistryRuntime } from "./useLocalRegistryToolCall";
 import { useVercelAIToolCall, vercelAIPluginDef } from "./useVercelAIToolCall";
 import { useLocalTools } from "aihappey-tools";
 import { localStructuredOutputsPluginDef, useLocalStructuredOutputsRuntime } from "./useLocalStructuredOutputsToolCall";
@@ -35,6 +38,9 @@ import { localConversationsPluginDef } from "./useLocalConversationsToolCall";
 import { localCanvasPluginDef } from "./useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./useLocalToolsToolCall";
+import { localActionsPluginDef } from "./useLocalActionsToolCall";
+import { localCatalogPluginDef } from "./useLocalCatalogToolCall";
+import { localRegistryPluginDef } from "./useLocalRegistryToolCall";
 import { localStructuredOutputsPluginDef as localStructuredOutputsPluginDefStatic } from "./useLocalStructuredOutputsToolCall";
 import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
 import { localJsonRenderPluginDef, useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
@@ -83,6 +89,9 @@ export function useOnToolCall({
   const localCanvasRuntime = useLocalCanvasRuntime(files);
   const localSettingsRuntime = useLocalSettingsRuntime();
   const localToolsRuntime = useLocalToolsRuntime();
+  const localActionsRuntime = useLocalActionsRuntime();
+  const localCatalogRuntime = useLocalCatalogRuntime();
+  const localRegistryRuntime = useLocalRegistryRuntime();
   const localStructuredOutputsRuntime = useLocalStructuredOutputsRuntime(api, getAccessToken, headers);
   const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
@@ -105,6 +114,9 @@ export function useOnToolCall({
       [localCanvasRuntime.name]: localCanvasRuntime,
       [localSettingsRuntime.name]: localSettingsRuntime,
       [localToolsRuntime.name]: localToolsRuntime,
+      [localActionsRuntime.name]: localActionsRuntime,
+      [localCatalogRuntime.name]: localCatalogRuntime,
+      [localRegistryRuntime.name]: localRegistryRuntime,
       [localStructuredOutputsRuntime.name]: localStructuredOutputsRuntime,
       [vercelAIRuntime.name]: vercelAIRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
@@ -117,6 +129,9 @@ export function useOnToolCall({
       localCanvasRuntime,
       localSettingsRuntime,
       localToolsRuntime,
+      localActionsRuntime,
+      localCatalogRuntime,
+      localRegistryRuntime,
       localImagesRuntime,
       jsonRenderRuntime,
       vercelAIRuntime,
@@ -134,6 +149,9 @@ export function useOnToolCall({
       localJsonRenderPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDefStatic,
+      localCatalogPluginDef,
+      localRegistryPluginDef,
+      localActionsPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

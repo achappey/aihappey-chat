@@ -66,6 +66,11 @@
   "speechPromptPlaceholder": "Voer tekst in om audio te genereren",
   "transcriptionInputFilesNotSupported": "Alleen audio/video bestanden worden ondersteund. Afgewezen: {{rejected}}",
   "outputFormat": "Uitvoerformaat",
+  "componentsPage": {
+    "title": "Componenten",
+    "catalogs": "Catalogi",
+    "registries": "Registers"
+  },
   "speechSettings": {
     "title": "Spraakinstellingen",
     "voice": "Stem",
@@ -202,8 +207,31 @@
   "structuredOutputsPage": {
     "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschema’s. Gebruik deze schema’s om modeluitvoer te sturen en een consistente structuur af te dwingen."
   },
+  "webApps": "Apps",
+  "webAppsPage": {
+    "description": "Een overzicht van alle beschikbare apps. Maak apps via plugins en sla ze op om ze te hergebruiken."
+  },
+  "catalogs": "Catalogi",
+  "catalogsPage": {
+    "description": "Catalogi bevatten definities van componenten en acties die door AI worden gebruikt om apps samen te stellen. Ze beschrijven welke componenten en acties beschikbaar zijn en hoe ze gebruikt moeten worden. Catalogi vormen de basis voor het maken van apps."
+  },
+  "registries": "Registers",
+  "registriesPage": {
+    "description": "Registers bevatten uitvoeringen van componenten en acties die gebruikt worden om apps te draaien. Dit maakt het mogelijk om één app in meerdere uitvoeringen te gebruiken."
+  },
+  "components": "Components",
+  "actions": "Actions",
+  "open": "Open",
+  "view": "Bekijken",
+  "properties": "Eigenschappen",
+  "back": "Terug",
+  "loading": "Laden...",
+  "notFound": "Niet gevonden",
+  "lastUpdated": "Laatst bijgewerkt",
   "plugins": {
     "local-agents": "Agent Framework",
+    "local-catalog": "Component catalogi",
+    "local-registry": "Component registers",
     "local-canvas": "Canvas",
     "local-structured-outputs": "Gestructureerde uitvoer",
     "local-files": "Bestanden",

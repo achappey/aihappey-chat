@@ -38,6 +38,9 @@ export const Card = ({
       ? { paddingLeft: 8, paddingRight: 8 }
       : { paddingLeft: 12, paddingRight: 12 };
 
+  const hasChildren =
+    Array.isArray(children) ? children.length > 0 : !!children;
+
   return (
     <FluentCard
       size={size}
@@ -55,7 +58,7 @@ export const Card = ({
         description={description}
         action={headerActions}
       />
-      <CardPreview style={previewStyle}>{children ?? text}</CardPreview>
+      <CardPreview style={previewStyle}>{hasChildren ? children : text}</CardPreview>
       {actions && <CardFooter>{actions}</CardFooter>}
     </FluentCard>
   );

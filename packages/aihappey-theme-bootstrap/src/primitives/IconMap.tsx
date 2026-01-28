@@ -73,6 +73,8 @@ import {
   CodeSlash,
   BeakerFill,
   Database,
+  Grid3x3Gap,
+  Puzzle,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -119,6 +121,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   up: <ArrowUp />,
   down: <ArrowDown />,
   resources: <File />,
+  webApps: <Grid3x3Gap />,
+  components: <Puzzle />,
   storage: <Database />,
   eye: <Eye />,
   chatSettings: <Sliders />,

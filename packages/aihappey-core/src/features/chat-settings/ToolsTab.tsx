@@ -14,6 +14,8 @@ import { vercelAIPluginDef } from "../tools/toolcalls/useVercelAIToolCall";
 import { isStoredToolValid } from "../tools/localStoredTools";
 import { localImagesPluginDef } from "../tools/toolcalls/useLocalImagesToolCall";
 import { localJsonRenderPluginDef } from "../tools/toolcalls/useLocalJsonRenderToolCall";
+import { localCatalogPluginDef } from "../tools/toolcalls/useLocalCatalogToolCall";
+import { localRegistryPluginDef } from "../tools/toolcalls/useLocalRegistryToolCall";
 
 // --- Tools Tab ---
 // Holds the "Lokale plugins" card previously shown in the General tab.
@@ -42,6 +44,8 @@ export const ToolsTab = () => {
       localImagesPluginDef,
       localJsonRenderPluginDef,
       localStructuredOutputsPluginDef,
+      localCatalogPluginDef,
+      localRegistryPluginDef,
       localToolsPluginDef,
       vercelAIPluginDef,
     ],

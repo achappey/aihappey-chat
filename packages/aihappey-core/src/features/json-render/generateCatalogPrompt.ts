@@ -19,8 +19,24 @@ export function generateCatalogPrompt<
         const def = catalog.components[name]!;
 
         // Pull JSON Schema from Zod
-        const schema = def.props?.toJSONSchema?.();
-        const props = schema?.properties ?? {};
+        // NOTE: If a generated Zod schema is malformed (eg: has `undefined` in its shape),
+        // Zod's `toJSONSchema()` can throw with errors like "Cannot read properties of undefined (reading '_zod')".
+        // We log the component/action name here to pinpoint the broken entry.
+        let schema: any;
+        let props: Record<string, any> = {};
+        let schemaError: string | undefined;
+        try {
+            schema = def.props?.toJSONSchema?.();
+            props = schema?.properties ?? {};
+        } catch (e) {
+            schemaError = e instanceof Error ? e.message : String(e);
+            // eslint-disable-next-line no-console
+            console.error("[generateCatalogPrompt] Component toJSONSchema failed", {
+                componentName: String(name),
+                description: def.description,
+                error: schemaError,
+            });
+        }
 
         // Convert to loose "LLM signature"
         const propSigs = Object.entries(props).map(([key, value]: any) => {
@@ -39,7 +55,9 @@ export function generateCatalogPrompt<
             ? `{ ${propSigs.join(", ")} }`
             : `{}`;
 
-        lines.push(`- ${String(name)}: ${sig}${def.description ? ` - ${def.description}` : ""}`);
+        const desc = def.description ? ` - ${def.description}` : "";
+        const errNote = schemaError ? ` - SCHEMA ERROR: ${schemaError}` : "";
+        lines.push(`- ${String(name)}: ${sig}${desc}${errNote}`);
     }
 
     // =========================
@@ -52,8 +70,21 @@ export function generateCatalogPrompt<
 
         for (const name of catalog.actionNames) {
             const def = catalog.actions[name]!;
-            const schema = def.params?.toJSONSchema?.();
-            const props = schema?.properties ?? {};
+            let schema: any;
+            let props: Record<string, any> = {};
+            let schemaError: string | undefined;
+            try {
+                schema = def.params?.toJSONSchema?.();
+                props = schema?.properties ?? {};
+            } catch (e) {
+                schemaError = e instanceof Error ? e.message : String(e);
+                // eslint-disable-next-line no-console
+                console.error("[generateCatalogPrompt] Action toJSONSchema failed", {
+                    actionName: String(name),
+                    description: def.description,
+                    error: schemaError,
+                });
+            }
 
             const paramSigs = Object.entries(props).map(([key, value]: any) => {
                 const type =
@@ -71,7 +102,9 @@ export function generateCatalogPrompt<
                 ? `{ ${paramSigs.join(", ")} }`
                 : `{}`;
 
-            lines.push(`- ${String(name)}: ${sig}${def.description ? ` - ${def.description}` : ""}`);
+            const desc = def.description ? ` - ${def.description}` : "";
+            const errNote = schemaError ? ` - SCHEMA ERROR: ${schemaError}` : "";
+            lines.push(`- ${String(name)}: ${sig}${desc}${errNote}`);
         }
     }
 
@@ -96,6 +129,7 @@ export function generateCatalogPrompt<
     lines.push("3. Children array contains string keys, not objects");
     lines.push("4. Parent first, then children");
     lines.push("5. Each element needs: key, type, props");
+    lines.push("6. Use valuePath from the root object and prefer structuredContent if available, fallback to contents array if needed, for example: '/structuredContent/xxx', '/structuredContent/xxx/zzz' '/content/0/text', etc ");
     //lines.push("6. Use className for Tailwind styling when needed");
     lines.push("");
 
@@ -135,91 +169,3 @@ export function generateCatalogPrompt<
 
     return lines.join("\n");
 }
-
-
-/**
- * Generate a prompt for AI that describes the catalog
- */
-export function generateCatalogPrompt2<
-    TComponents extends Record<string, ComponentDefinition>,
-    TActions extends Record<string, ActionDefinition>,
-    TFunctions extends Record<string, ValidationFunction>,
->(catalog: Catalog<TComponents, TActions, TFunctions>): string {
-    const lines: string[] = [
-        `# ${catalog.name} Component Catalog`,
-        "",
-        "## Output Format",
-        "You must generate the UI by outputting a stream of JSON objects (JSONL), where each line is a patch operation to build the component tree.",
-        "Do not output a single large JSON object. Output small patches as you think.",
-        "",
-        "### Patch Operations",
-        "- `add`: Add an element to the tree or add a child to an array",
-        "- `set`: Set a property value or replace an existing value",
-        "",
-        "### Example Patches",
-        '{"op": "add", "path": "/elements/root", "value": {"key": "root", "type": "Card", "props": {}}}',
-        '{"op": "set", "path": "/root", "value": "root"}',
-        '{"op": "add", "path": "/elements/child1", "value": {"key": "child1", "type": "Button", "props": {"label": "Click Me"}}}',
-        '{"op": "add", "path": "/elements/root/children", "value": "child1"}',
-        "",
-        "## Available Components",
-        "",
-    ];
-
-    // Components
-    for (const name of catalog.componentNames) {
-        const def = catalog.components[name]!;
-        console.log(def)
-        console.log(def.props.toJSONSchema().properties)
-        lines.push(`### ${String(name)}`);
-        if (def.description) {
-            lines.push(def.description);
-        }
-        const props = def.props.toJSONSchema().properties
-        if (props) {
-            lines.push("## props");
-            lines.push(JSON.stringify(props));
-        }
-        lines.push("");
-    }
-
-    // Actions
-    if (catalog.actionNames.length > 0) {
-        lines.push("## Available Actions");
-        lines.push("");
-        for (const name of catalog.actionNames) {
-            const def = catalog.actions[name]!;
-            lines.push(
-                `- \`${String(name)}\`${def.description ? `: ${def.description}` : ""}`,
-            );
-        }
-        lines.push("");
-    }
-
-    // Visibility
-    lines.push("## Visibility Conditions");
-    lines.push("");
-    lines.push("Components can have a `visible` property:");
-    lines.push("- `true` / `false` - Always visible/hidden");
-    lines.push('- `{ "path": "/data/path" }` - Visible when path is truthy');
-    lines.push('- `{ "auth": "signedIn" }` - Visible when user is signed in');
-    lines.push('- `{ "and": [...] }` - All conditions must be true');
-    lines.push('- `{ "or": [...] }` - Any condition must be true');
-    lines.push('- `{ "not": {...} }` - Negates a condition');
-    lines.push('- `{ "eq": [a, b] }` - Equality check');
-    lines.push("");
-
-    // Validation
-    lines.push("## Validation Functions");
-    lines.push("");
-    lines.push(
-        "Built-in: `required`, `email`, `minLength`, `maxLength`, `pattern`, `min`, `max`, `url`",
-    );
-    if (catalog.functionNames.length > 0) {
-        lines.push(`Custom: ${catalog.functionNames.map(String).join(", ")}`);
-    }
-    lines.push("");
-
-    return lines.join("\n");
-}
-

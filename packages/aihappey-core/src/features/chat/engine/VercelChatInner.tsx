@@ -38,7 +38,9 @@ import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
 import { useTranslation } from "aihappey-i18n";
 import { useAttachmentsToaster } from "./useAttachmentsToaster";
 import { generateCatalogPrompt } from "../../json-render/generateCatalogPrompt";
-import { catalog } from "../../json-render/catalog";
+import { buildCatalogWithActions, createCatalogFromStored } from "../../json-render/catalog";
+import { useJsonRenderRegistry } from "aihappey-json-render-registry";
+import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useUIStream } from "../../json-render/useUIStream";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
@@ -85,6 +87,9 @@ export function VercelChatInner({
   const { Spinner, JsonViewer, Toast } = useTheme();
   const { config } = useChatContext();
   const { t } = useTranslation();
+  const jsonRenderRegistry = useJsonRenderRegistry();
+  const jsonRenderCatalog = useJsonRenderCatalog();
+  const defaultCatalogs = useAppStore((s) => s.defaultCatalogs);
 
   /* const [toast, setToast] = useState<{
      id: string;
@@ -145,9 +150,48 @@ export function VercelChatInner({
     ? config?.agentEndpoint + "/api/chat"
     : config.baseUrl + config.endpoints.chat;
 
+  const systemPrompt = useMemo(
+    () => {
+      const fallback = buildCatalogWithActions(jsonRenderRegistry.actions, "app");
 
+      // Build a pseudo-catalog list string that includes the built-in default catalog
+      // when the user selected it in settings.
+      // Semantics: when undefined/empty => ALL catalogs (handled by resolveCatalogSelection).
+      const catalogListWithBuiltin = (() => {
+        const raw = String(defaultCatalogs ?? "").trim();
+        if (!raw) return undefined;
+        const tokens = raw
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean);
+        // Settings uses "__default__" to represent the built-in fallback catalog.
+        const hasBuiltin = tokens.includes("__default__");
+        const filtered = tokens.filter((t) => t !== "__default__");
+        // If the user selected only the built-in catalog, keep list empty but force inclusion.
+        const joined = filtered.join(",");
+        return hasBuiltin ? (joined ? `app,${joined}` : "app") : joined;
+      })();
 
-  const systemPrompt = useMemo(() => generateCatalogPrompt(catalog), []);
+      const stored = createCatalogFromStored(
+        jsonRenderCatalog.items,
+        catalogListWithBuiltin,
+        {
+          name: fallback.name,
+          components: fallback.components as any,
+          actions: fallback.actions as any,
+          validationFunctions: fallback.functions as any,
+        },
+      );
+
+      return generateCatalogPrompt(stored);
+    },
+    [
+      defaultCatalogs,
+      jsonRenderCatalog.items,
+      jsonRenderRegistry.actions,
+    ],
+  );
+  
   const { tree, send, isStreaming, error: streamError } = useUIStream({
     api: config.baseUrl + "/api/generate",
     catalogPrompt: systemPrompt,

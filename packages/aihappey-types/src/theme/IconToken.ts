@@ -27,6 +27,8 @@ export type IconToken =
   | "transcriptionSettings"
   | "imageSettings"
   | "structuredOutputs"
+  | "webApps"
+  | "components"
   | "reranking"
   | "labs"
   | "rerankingSettings"

@@ -1,7 +1,30 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getByPath } from "@json-render/core";
-import { useDataBinding, useDataValue } from "@json-render/react";
+import {
+  useAction,
+  useActions,
+  useData,
+  useDataBinding,
+  useDataValue,
+  useFieldValidation,
+  useIsVisible,
+  useValidation,
+} from "@json-render/react";
 import { ChartJsBlock, useTheme } from "aihappey-components";
+import { useDarkMode } from "usehooks-ts";
+import {
+  buildRuntimeActionRegistryForId,
+  buildRuntimeRegistryForId,
+  mergeComponentRegistries,
+  type JsonRenderActionItem,
+  type JsonRenderRegistryItem,
+  useJsonRenderRegistry,
+  type RegistryRuntime,
+  type RuntimeActionError,
+  type RuntimeActionRegistry,
+  type RuntimeRegistryError,
+  type RuntimeComponentRegistry,
+} from "aihappey-json-render-registry";
 import type { ComponentRenderProps } from "./Renderer";
 
 const spacingScale: Record<string, number> = {
@@ -196,7 +219,7 @@ const Badge = ({ element, children }: ComponentRenderProps<any>) => {
     </BadgeComponent>
   );
 };
-
+/*
 const Tags = ({ element }: ComponentRenderProps<any>) => {
   const { Tags: TagsComponent } = useTheme();
   return <TagsComponent items={element.props.items} size={element.props.size} />;
@@ -401,7 +424,7 @@ const SearchBox = ({ element }: ComponentRenderProps<any>) => {
     />
   );
 };
-
+*/
 const ProgressBar = ({ element }: ComponentRenderProps<any>) => {
   const { ProgressBar: ProgressBarComponent } = useTheme();
   const dataValue = useOptionalDataValue<number>(element.props.valuePath);
@@ -464,7 +487,7 @@ const Carousel = ({ element }: ComponentRenderProps<any>) => {
   }));
   return <CarouselComponent slides={slides} />;
 };
-
+/*
 const Tabs = ({ element, children, onAction }: ComponentRenderProps<any>) => {
   const { Tabs: TabsComponent } = useTheme();
   const [activeKey, setActiveKey] = useState<string | undefined>(
@@ -507,7 +530,7 @@ const Tab = ({ element, children }: ComponentRenderProps<any>) => {
     </TabComponent>
   );
 };
-
+*/
 const JsonViewer = ({ element }: ComponentRenderProps<any>) => {
   const { JsonViewer: JsonViewerComponent } = useTheme();
   const valueFromData = useOptionalDataValue(element.props.valuePath);
@@ -601,7 +624,7 @@ const DataGrid = ({ element }: ComponentRenderProps<any>) => {
     />
   );
 };
-
+/*
 const Modal = ({ element, children, onAction }: ComponentRenderProps<any>) => {
   const { Modal: ModalComponent, Button: ButtonComponent } = useTheme();
   const actions = useMemo(() => {
@@ -651,7 +674,7 @@ const Modal = ({ element, children, onAction }: ComponentRenderProps<any>) => {
     </ModalComponent>
   );
 };
-
+*/
 const AudioPlayer = ({ element }: ComponentRenderProps<any>) => {
   const { AudioPlayer: AudioPlayerComponent } = useTheme();
   return <AudioPlayerComponent src={element.props.src} />;
@@ -666,8 +689,8 @@ export const componentRegistry = {
   Header,
   Paragraph,
   Badge,
-  Tags,
-  Breadcrumb,
+  //Tags,
+  /*Breadcrumb,
   Button,
   ToggleButton,
   SplitButton,
@@ -679,20 +702,185 @@ export const componentRegistry = {
   Switch,
   Slider,
   Select,
-  SearchBox,
+  SearchBox,*/
   ProgressBar,
   Skeleton,
   Spinner,
   Image,
   Carousel,
-  Tabs,
-  Tab,
+  // Tabs,
+  //Tab,
   Table: SimpleTable,
   DataGrid,
   JsonViewer,
   Chart,
   Metric,
-  Modal,
+  // Modal,
   AudioPlayer,
+};
+
+export const buildCombinedComponentRegistry = (
+  registryItems: JsonRenderRegistryItem[],
+  runtime: RegistryRuntime,
+  registryId: string,
+): {
+  registry: RuntimeComponentRegistry;
+  errors: RuntimeRegistryError[];
+} => {
+  const { registry: runtimeRegistry, errors } = buildRuntimeRegistryForId(
+    registryItems,
+    runtime,
+    registryId,
+  );
+  return {
+    registry: mergeComponentRegistries(componentRegistry, runtimeRegistry),
+    errors,
+  };
+};
+
+export const buildCombinedComponentRegistryForIds = (
+  registryItems: JsonRenderRegistryItem[],
+  runtime: RegistryRuntime,
+  registryIds: string[],
+): {
+  registry: RuntimeComponentRegistry;
+  errors: RuntimeRegistryError[];
+} => {
+  const ids = (registryIds ?? []).filter(Boolean);
+
+  let runtimeRegistry: RuntimeComponentRegistry = {};
+  const errors: RuntimeRegistryError[] = [];
+
+  for (const rid of ids) {
+    const res = buildRuntimeRegistryForId(registryItems, runtime, rid);
+    runtimeRegistry = mergeComponentRegistries(runtimeRegistry, res.registry);
+    errors.push(
+      ...res.errors.map((e) => ({
+        ...e,
+        message: `[${rid}] ${e.message}`,
+      })),
+    );
+  }
+
+  return {
+    registry: mergeComponentRegistries(componentRegistry, runtimeRegistry),
+    errors,
+  };
+};
+
+export const buildCombinedActionRegistry = (
+  actionItems: JsonRenderActionItem[],
+  runtime: RegistryRuntime,
+  registryId: string,
+): {
+  handlers: RuntimeActionRegistry;
+  errors: RuntimeActionError[];
+} => {
+  const { handlers, errors } = buildRuntimeActionRegistryForId(
+    actionItems,
+    runtime,
+    registryId,
+  );
+  return {
+    handlers,
+    errors,
+  };
+};
+
+export const buildCombinedActionRegistryForIds = (
+  actionItems: JsonRenderActionItem[],
+  runtime: RegistryRuntime,
+  registryIds: string[],
+): {
+  handlers: RuntimeActionRegistry;
+  errors: RuntimeActionError[];
+} => {
+  const ids = (registryIds ?? []).filter(Boolean);
+
+  let handlers: RuntimeActionRegistry = {};
+  const errors: RuntimeActionError[] = [];
+
+  for (const rid of ids) {
+    const res = buildRuntimeActionRegistryForId(actionItems, runtime, rid);
+    handlers = { ...handlers, ...res.handlers };
+    errors.push(
+      ...res.errors.map((e) => ({
+        ...e,
+        message: `[${rid}] ${e.message}`,
+      })),
+    );
+  }
+
+  return { handlers, errors };
+};
+
+export const useCombinedComponentRegistry = (registryId: string) => {
+  const { items, actions } = useJsonRenderRegistry();
+
+  const runtime = useMemo<RegistryRuntime>(
+    () => ({
+      React,
+      useDataBinding,
+      useDataValue,
+      useAction,
+      useActions,
+      useData,
+      useIsVisible,
+      useFieldValidation,
+      useValidation,
+      useTheme,
+      useDarkMode,
+    }),
+    [],
+  );
+
+  return useMemo(
+    () => {
+      const components = buildCombinedComponentRegistry(items, runtime, registryId);
+      const actionRuntime = buildCombinedActionRegistry(actions, runtime, registryId);
+      return {
+        ...components,
+        actionHandlers: actionRuntime.handlers,
+        actionErrors: actionRuntime.errors,
+      };
+    },
+    [actions, items, runtime, registryId],
+  );
+};
+
+export const useCombinedComponentRegistryForIds = (registryIds: string[]) => {
+  const { items, actions } = useJsonRenderRegistry();
+
+  const runtime = useMemo<RegistryRuntime>(
+    () => ({
+      React,
+      useDataBinding,
+      useDataValue,
+      useAction,
+      useActions,
+      useData,
+      useIsVisible,
+      useFieldValidation,
+      useValidation,
+      useTheme,
+      useDarkMode,
+    }),
+    [],
+  );
+
+  const idsKey = (registryIds ?? []).filter(Boolean).slice().sort().join("|");
+
+  return useMemo(
+    () => {
+      const components = buildCombinedComponentRegistryForIds(items, runtime, registryIds);
+      const actionRuntime = buildCombinedActionRegistryForIds(actions, runtime, registryIds);
+      return {
+        ...components,
+        actionHandlers: actionRuntime.handlers,
+        actionErrors: actionRuntime.errors,
+      };
+    },
+    [actions, items, runtime, idsKey],
+  );
 };
 

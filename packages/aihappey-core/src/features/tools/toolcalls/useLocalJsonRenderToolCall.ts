@@ -121,7 +121,7 @@ export function useLocalJsonRenderRuntime(opts: {
                 if (!part) {
                     throw new Error(`No tool output found for toolcallname: ${toolcallname}`);
                 }
-                const output = part.output?.structuredContent ?? part.output ?? null;
+                const output = part.output;
                 setActiveData(output)
                 const tree = await send(prompt)
 

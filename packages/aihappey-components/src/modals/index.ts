@@ -5,4 +5,5 @@ export * from "./RerankingSettingsModal";
 export * from "./RerankingModal";
 export * from "./TranscriptionDetailsModal";
 export * from "./ToolDetailsModal";
+export * from "./AppSaveModal";
 

@@ -23,6 +23,9 @@ import { RerankingProvider } from "aihappey-reranking";
 import { SpeechProvider } from "aihappey-speech";
 import { ErrorLog } from "./bootstrap/ErrorLog";
 import { StructuredOutputsProvider } from "aihappey-structured-outputs";
+import { JsonRenderRegistryProvider } from "aihappey-json-render-registry";
+import { JsonRenderCatalogProvider } from "aihappey-json-render-catalog";
+import { JsonRenderAppsProvider } from "aihappey-json-render-apps";
 
 type Props = {
   chatConfig: ChatConfig;
@@ -114,20 +117,26 @@ export const CoreShell: React.FC<Props> = ({
                 <RerankingProvider>
                   <TranscriptionsProvider>
                     <StructuredOutputsProvider>
-                      <SpeechProvider storageKind={"indexeddb"}>
-                        <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-                          <McpConnectionsProvider
-                            clientName={chatConfig?.appName}
-                            agentScopes={agentScopes ?? []}
-                            agentApi={chatConfig?.agentEndpoint!}
-                            authenticated={chatConfig?.getAccessToken != null}
-                            clientVersion={chatConfig?.appVersion}
-                            samplingApi={samplingEndpoint}
-                          >
-                            {ui}
-                          </McpConnectionsProvider>
-                        </ConversationsProvider>
-                      </SpeechProvider>
+                      <JsonRenderCatalogProvider>
+                        <JsonRenderRegistryProvider>
+                          <JsonRenderAppsProvider>
+                            <SpeechProvider storageKind={"indexeddb"}>
+                              <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+                                <McpConnectionsProvider
+                                  clientName={chatConfig?.appName}
+                                  agentScopes={agentScopes ?? []}
+                                  agentApi={chatConfig?.agentEndpoint!}
+                                  authenticated={chatConfig?.getAccessToken != null}
+                                  clientVersion={chatConfig?.appVersion}
+                                  samplingApi={samplingEndpoint}
+                                >
+                                  {ui}
+                                </McpConnectionsProvider>
+                              </ConversationsProvider>
+                            </SpeechProvider>
+                          </JsonRenderAppsProvider>
+                        </JsonRenderRegistryProvider>
+                      </JsonRenderCatalogProvider>
                     </StructuredOutputsProvider>
                   </TranscriptionsProvider>
                 </RerankingProvider>

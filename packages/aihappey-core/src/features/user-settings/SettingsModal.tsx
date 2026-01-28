@@ -7,6 +7,7 @@ import { GeneralSettings } from "./GeneralSettings";
 import { AiDefaultSettings } from "./AiDefaultSettings";
 import { useChatContext } from "../chat/context/ChatContext";
 import { StorageSettings } from "./StorageSettings";
+import { AppsSettings } from "./AppsSettings";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -108,6 +109,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               title={t("ai.title")}
             >
               <AiDefaultSettings />
+            </theme.Tab>
+
+            <theme.Tab
+              eventKey="apps"
+              icon={"webApps"}
+              title={t("settingsModal.tabApps") ?? t("webApps") ?? "Apps"}
+            >
+              <AppsSettings />
             </theme.Tab>
 
             <theme.Tab
