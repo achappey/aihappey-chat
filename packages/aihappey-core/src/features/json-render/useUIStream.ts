@@ -107,14 +107,16 @@ export interface UseUIStreamReturn {
 
 
 
-export async function makeHeaders(getAccessToken: any) {
+export async function makeHeaders(getAccessToken: any, customHeaders?: any) {
     const tokenHeaders = getAccessToken
         ? { "Authorization": "Bearer " + await getAccessToken() }  // must return an object like { Authorization: "Bearer ..." }
         : {};
 
     return {
         "Content-Type": "application/json",
-        ...tokenHeaders,
+        ...(customHeaders ?? {}),
+        ...tokenHeaders
+
     };
 }
 
@@ -126,6 +128,7 @@ export function useUIStream({
     catalogPrompt,
     model,
     getAccessToken,
+    customHeaders,
     onComplete,
     onError,
 }: any): UseUIStreamReturn {
@@ -152,7 +155,7 @@ export function useUIStream({
             // if (tree == null)
             //  setTree(currentTree);
 
-            const headers: any = await makeHeaders(getAccessToken);
+            const headers: any = await makeHeaders(getAccessToken, customHeaders);
             try {
                 const response = await fetch(api, {
                     method: "POST",
