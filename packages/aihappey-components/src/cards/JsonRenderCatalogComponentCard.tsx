@@ -32,12 +32,12 @@ export const JsonRenderCatalogComponentCard = ({
     () =>
       onDelete
         ? [
-            {
-              key: "delete",
-              label: t("delete"),
-              onClick: onDelete,
-            },
-          ]
+          {
+            key: "delete",
+            label: t("delete"),
+            onClick: onDelete,
+          },
+        ]
         : [],
     [onDelete, t]
   );
@@ -69,7 +69,6 @@ export const JsonRenderCatalogComponentCard = ({
       size="small"
       headerActions={headerActions}
       actions={actions}
-      description={meta}
     >
       {item.description ? <LimitedTextField text={item.description} /> : null}
     </Card>

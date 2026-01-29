@@ -358,27 +358,6 @@ export const componentDefinitions = {
             indicators: z.boolean().optional(),
         }),
     },
-    /*Tabs: {
-        description: "Tabbed content container.",
-        props: z.object({
-            activeKey: z.string().optional(),
-            defaultKey: z.string().optional(),
-            vertical: z.boolean().optional(),
-            size: z.enum(["small", "medium", "large"]).optional(),
-            onSelectAction: ActionSchema.optional(),
-        }),
-        hasChildren: true,
-    },
-    Tab: {
-        description: "Single tab pane. Must be a child of Tabs.",
-        props: z.object({
-            eventKey: z.string(),
-            title: z.string(),
-            icon: z.string().optional(),
-            disabled: z.boolean().optional(),
-        }),
-        hasChildren: true,
-    },*/
     Table: {
         description:
             "Simple data table using columns + data or dataPath. Use for small datasets.",
@@ -411,10 +390,11 @@ export const componentDefinitions = {
         }),
     },
     Chart: {
-        description: "Chart.js block. Provide type and data.",
+        description: "Chart.js block. Provide type and data (or bind via dataPath).",
         props: z.object({
             type: z.string(),
-            data: z.any(),
+            data: z.any().optional(),
+            dataPath: z.string().optional(),
             options: z.any().optional(),
             height: z.number().optional(),
         }),

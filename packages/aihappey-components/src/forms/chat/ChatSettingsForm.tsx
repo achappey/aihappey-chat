@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { ThrottlingField } from "../../fields/ThrottlingField";
 import { useTheme } from "../../theme/ThemeContext";
 
@@ -12,26 +13,30 @@ type ChatSettingsFormProps = {
   formTitle?: string;
 };
 
-export const ChatSettingsForm = ({
+export const ChatSettingsForm = memo(({
   value,
   onChange,
   formTitle,
 }: ChatSettingsFormProps) => {
   const { Card } = useTheme();
 
+  const handleThrottleChange = useCallback(
+    (throttle: number) =>
+      onChange({
+        ...value,
+        throttle,
+      }),
+    [onChange, value]
+  );
+
   return (
     <Card size="small" title={formTitle}>
       <div>
         <ThrottlingField
           value={value.throttle}
-          onChange={(throttle) =>
-            onChange({
-              ...value,
-              throttle,
-            })
-          }
+          onChange={handleThrottleChange}
         />
       </div>
     </Card>
   );
-};
+});

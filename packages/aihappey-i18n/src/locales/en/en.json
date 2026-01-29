@@ -28,6 +28,7 @@
   "toolChoice": "Tool choice",
   "language": "Language",
   "speech": "Speech",
+  "app": "App",
   "mySpeechFiles": "My speech files",
   "speechPromptPlaceholder": "Enter text to convert to audio",
   "outputFormat": "Output format",
@@ -330,7 +331,6 @@
   "registriesPage": {
     "description": "Registries contain component implementations used to run apps. This makes it possible to run a single app using multiple implementations."
   },
-  "components": "Components",
   "actions": "Actions",
   "open": "Open",
   "view": "View",
@@ -415,8 +415,7 @@
     "logoutOnDevice": "Log out on this device",
     "deleteAll": "Delete all",
     "deleteAllChats": "Delete all chats",
-    "remoteStorage": "Cloud"
-    ,
+    "remoteStorage": "Cloud",
     "tabApps": "Apps",
     "appsHint": "Choose which UI catalogs are used in prompts (generation) and which registries are used at runtime (rendering). If you select none, all are enabled.",
     "defaultCatalogs": "Default catalogs",

@@ -219,8 +219,7 @@
   "registriesPage": {
     "description": "Registers bevatten uitvoeringen van componenten en acties die gebruikt worden om apps te draaien. Dit maakt het mogelijk om één app in meerdere uitvoeringen te gebruiken."
   },
-  "components": "Components",
-  "actions": "Actions",
+  "actions": "Acties",
   "open": "Open",
   "view": "Bekijken",
   "properties": "Eigenschappen",

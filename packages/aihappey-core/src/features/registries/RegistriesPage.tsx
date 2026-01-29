@@ -160,7 +160,7 @@ export const RegistriesPage = () => {
         </div>
 
         <Tabs activeKey={effectiveActiveTab} onSelect={(k: string) => setActiveTab(k)}>
-          <Tab key={DEFAULT_TAB_KEY} eventKey={DEFAULT_TAB_KEY} title={t("default")}>
+          <Tab key={DEFAULT_TAB_KEY} eventKey={DEFAULT_TAB_KEY} title={t("providerDefault")}>
             <div
               style={{
                 display: "grid",

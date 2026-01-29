@@ -45,6 +45,9 @@ export const PromptSelectButton = ({
             _url: mcpServers[a]?.config?.url
           }))])))
     }
+    else {
+      setPrompts([])
+    }
   }, [open]);
 
 

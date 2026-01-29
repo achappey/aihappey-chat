@@ -72,13 +72,6 @@ export const WebAppDetailPage = () => {
           alignItems: "center",
         }}
       >
-        <OverviewPageHeader title={title} />
-        <div style={{ width: "100%", display: "flex", justifyContent: "flex-start" }}>
-          <Button variant="transparent" onClick={() => navigate("/web-apps")}>
-            {t("back")}
-          </Button>
-        </div>
-
         {loading ? (
           <Paragraph style={{ textAlign: "center" }}>{t("loading")}</Paragraph>
         ) : error ? (
@@ -87,7 +80,7 @@ export const WebAppDetailPage = () => {
           <Paragraph style={{ textAlign: "center" }}>{t("notFound")}</Paragraph>
         ) : (
           <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
-            <Tab eventKey="preview" title={t("preview") ?? "Preview"}>
+            <Tab eventKey="preview" title={title}>
               <div style={{ width: "100%", paddingTop: 12 }}>
                 {!tree ? (
                   <div style={{ color: "#888", textAlign: "center" }}>{t("noResults")}</div>

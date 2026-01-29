@@ -6,7 +6,7 @@ import {
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useTools } from "../tools/useTools";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 
@@ -74,22 +74,49 @@ export const GeneralTab = ({
       })?.id ?? ""
     );
   }, [structuredOutputOptions, structuredOutputs]);
-  const onToggle = (key: keyof ToolAnnotations) =>
-    setToolAnnotations({
-      ...(toolAnnotations ?? {}),
-      [key]: !toolAnnotations?.[key],
-    });
+  const onToggle = useCallback(
+    (key: keyof ToolAnnotations) =>
+      setToolAnnotations({
+        ...(toolAnnotations ?? {}),
+        [key]: !toolAnnotations?.[key],
+      }),
+    [setToolAnnotations, toolAnnotations]
+  );
 
-  const aiSettings = {
-    temperature: temperature,
-    maxOutputTokens,
-  };
+  const aiSettings = useMemo(
+    () => ({
+      temperature: temperature,
+      maxOutputTokens,
+    }),
+    [temperature, maxOutputTokens]
+  );
 
-  const toolSettings = {
-    stopTools,
-    maxToolCalls,
-    toolChoice,
-  };
+  const toolSettings = useMemo(
+    () => ({
+      stopTools,
+      maxToolCalls,
+      toolChoice,
+    }),
+    [stopTools, maxToolCalls, toolChoice]
+  );
+
+  const chatSettings = useMemo(
+    () => ({ throttle: experimentalThrottle ?? 100 }),
+    [experimentalThrottle]
+  );
+
+  const handleThrottleChange = useCallback(
+    (val: { throttle: number }) => setThrottle(val.throttle),
+    [setThrottle]
+  );
+
+  const handleAiSettingsChange = useCallback(
+    (val: { temperature: number; maxOutputTokens?: number }) => {
+      setTemperature(val.temperature);
+      setMaxOutputTokens(val.maxOutputTokens);
+    },
+    [setTemperature, setMaxOutputTokens]
+  );
 
 
   return (
@@ -126,15 +153,12 @@ export const GeneralTab = ({
               setStructuredOutputs(undefined);
             }
           }}
-          onChange={(val) => {
-            setTemperature(val.temperature);
-            setMaxOutputTokens(val.maxOutputTokens);
-          }} />
+          onChange={handleAiSettingsChange} />
 
         <ChatSettingsForm
-          value={{ throttle: experimentalThrottle ?? 100 }}
+          value={chatSettings}
           formTitle={t("chat")}
-          onChange={(val) => setThrottle(val.throttle)} />
+          onChange={handleThrottleChange} />
 
         <AiChatToolsSettingsForm
           value={toolSettings}

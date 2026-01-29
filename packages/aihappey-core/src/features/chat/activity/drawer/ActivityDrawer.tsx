@@ -37,11 +37,11 @@ const parseIso = (ts?: string) => {
   return isNaN(d.getTime()) ? 0 : d.getTime();
 };
 
-export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) => {
+export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiOutput?: any }) => {
   const { Drawer, Tabs, Tab, Button } = useTheme();
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
-  const { messages, uiTree } = props;
+  const { messages, uiTree, uiOutput } = props;
   const showActivities = useAppStore((s) => s.showActivities);
   const setActivities = useAppStore((s) => s.setActivities);
   const activitiesSize = useAppStore((s) => s.activitiesSize);
@@ -145,7 +145,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any }) =
       key: "canvas",
       label: t("canvas"),
       component: CanvasActivity,
-      getProps: () => ({ groups: canvasGroups, vercelGroups, uiTree }),
+      getProps: () => ({ groups: canvasGroups, vercelGroups, uiTree, uiOutput }),
     },
     {
       key: "dataParts",

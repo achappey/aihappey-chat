@@ -67,7 +67,6 @@ export const JsonRenderRegistryComponentCard = ({
       size="small"
       headerActions={headerActions}
       actions={actions}
-      description={meta}
     />
   );
 };

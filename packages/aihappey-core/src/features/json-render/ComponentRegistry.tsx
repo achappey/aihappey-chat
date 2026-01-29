@@ -36,22 +36,6 @@ const spacingScale: Record<string, number> = {
   xl: 24,
 };
 
-const resolveInputValue = (value: any) =>
-  value?.target?.value ?? value ?? "";
-
-const resolveBooleanValue = (value: any) => {
-  if (typeof value === "boolean") return value;
-  if (value?.target) return !!value.target.checked;
-  return !!value;
-};
-
-const resolveNumberValue = (value: any) => {
-  if (typeof value === "number") return value;
-  if (value?.target?.value) return Number(value.target.value);
-  const parsed = Number(value);
-  return Number.isNaN(parsed) ? 0 : parsed;
-};
-
 const formatNumber = (value: unknown, format?: string, precision?: number) => {
   if (typeof value !== "number") return value;
   const digits = typeof precision === "number" ? precision : undefined;
@@ -219,212 +203,7 @@ const Badge = ({ element, children }: ComponentRenderProps<any>) => {
     </BadgeComponent>
   );
 };
-/*
-const Tags = ({ element }: ComponentRenderProps<any>) => {
-  const { Tags: TagsComponent } = useTheme();
-  return <TagsComponent items={element.props.items} size={element.props.size} />;
-};
 
-const Breadcrumb = ({ element, onAction }: ComponentRenderProps<any>) => {
-  const { Breadcrumb: BreadcrumbComponent } = useTheme();
-  const items = (element.props.items ?? []).map((item: any) => ({
-    ...item,
-    onClick: item.action ? () => onAction?.(item.action) : undefined,
-  }));
-  return <BreadcrumbComponent items={items} />;
-};
-
-const Button = ({ element, onAction }: ComponentRenderProps<any>) => {
-  const { Button: ButtonComponent } = useTheme();
-  return (
-    <ButtonComponent
-      variant={element.props.variant}
-      size={element.props.size}
-      icon={element.props.icon}
-      iconPosition={element.props.iconPosition}
-      disabled={element.props.disabled}
-      onClick={() => element.props.action && onAction?.(element.props.action)}
-    >
-      {element.props.label}
-    </ButtonComponent>
-  );
-};
-
-const ToggleButton = ({ element, onAction }: ComponentRenderProps<any>) => {
-  const { ToggleButton: ToggleButtonComponent } = useTheme();
-  return (
-    <ToggleButtonComponent
-      checked={element.props.checked}
-      variant={element.props.variant}
-      size={element.props.size}
-      icon={element.props.icon}
-      iconPosition={element.props.iconPosition}
-      onClick={() => element.props.action && onAction?.(element.props.action)}
-    >
-      {element.props.label}
-    </ToggleButtonComponent>
-  );
-};
-
-const SplitButton = ({ element, onAction }: ComponentRenderProps<any>) => {
-  const { SplitButton: SplitButtonComponent } = useTheme();
-  const menuItems = (element.props.menuItems ?? []).map((item: any) => ({
-    ...item,
-    onClick: item.action ? () => onAction?.(item.action) : undefined,
-  }));
-  return (
-    <SplitButtonComponent
-      label={element.props.label}
-      icon={element.props.icon}
-      iconPosition={element.props.iconPosition}
-      variant={element.props.variant}
-      size={element.props.size}
-      shape={element.props.shape}
-      align={element.props.align}
-      disabled={element.props.disabled}
-      menuItems={menuItems}
-      onClick={() => element.props.action && onAction?.(element.props.action)}
-    />
-  );
-};
-
-const Toolbar = ({ element, children }: ComponentRenderProps<any>) => {
-  const { Toolbar: ToolbarComponent } = useTheme();
-  return (
-    <ToolbarComponent ariaLabel={element.props.ariaLabel} size={element.props.size}>
-      {children}
-    </ToolbarComponent>
-  );
-};
-
-const ToolbarButton = ({ element, onAction }: ComponentRenderProps<any>) => {
-  const { ToolbarButton: ToolbarButtonComponent } = useTheme();
-  return (
-    <ToolbarButtonComponent
-      icon={element.props.icon}
-      variant={element.props.variant}
-      disabled={element.props.disabled}
-      onClick={() => element.props.action && onAction?.(element.props.action)}
-    >
-      {element.props.label}
-    </ToolbarButtonComponent>
-  );
-};
-
-const ToolbarDivider = () => {
-  const { ToolbarDivider: ToolbarDividerComponent } = useTheme();
-  return <ToolbarDividerComponent />;
-};
-
-const Input = ({ element }: ComponentRenderProps<any>) => {
-  const { Input: InputComponent } = useTheme();
-  const [value, setValue] = useDataBinding<any>(element.props.valuePath);
-  return (
-    <InputComponent
-      type={element.props.type}
-      label={element.props.label}
-      hint={element.props.hint}
-      placeholder={element.props.placeholder}
-      value={value ?? ""}
-      required={element.props.required}
-      disabled={element.props.disabled}
-      onChange={(next: any) => setValue(resolveInputValue(next))}
-    />
-  );
-};
-
-const TextArea = ({ element }: ComponentRenderProps<any>) => {
-  const { TextArea: TextAreaComponent } = useTheme();
-  const [value, setValue] = useDataBinding<any>(element.props.valuePath);
-  return (
-    <TextAreaComponent
-      label={element.props.label}
-      placeholder={element.props.placeholder}
-      rows={element.props.rows}
-      value={value ?? ""}
-      readOnly={element.props.readOnly}
-      required={element.props.required}
-      onChange={(next: any) => setValue(resolveInputValue(next))}
-    />
-  );
-};
-
-const Switch = ({ element }: ComponentRenderProps<any>) => {
-  const { Switch: SwitchComponent } = useTheme();
-  const [value, setValue] = useDataBinding<any>(element.props.valuePath);
-  return (
-    <SwitchComponent
-      label={element.props.label}
-      hint={element.props.hint}
-      required={element.props.required}
-      disabled={element.props.disabled}
-      size={element.props.size}
-      checked={!!value}
-      onChange={(next: any) => setValue(resolveBooleanValue(next))}
-    />
-  );
-};
-
-const Slider = ({ element }: ComponentRenderProps<any>) => {
-  const { Slider: SliderComponent } = useTheme();
-  const [value, setValue] = useDataBinding<any>(element.props.valuePath);
-  return (
-    <SliderComponent
-      label={element.props.label}
-      min={element.props.min}
-      max={element.props.max}
-      step={element.props.step}
-      disabled={element.props.disabled}
-      showValue={element.props.showValue}
-      value={Number(value ?? 0)}
-      onChange={(next: any) => setValue(resolveNumberValue(next))}
-    />
-  );
-};
-
-const Select = ({ element }: ComponentRenderProps<any>) => {
-  const { Select: SelectComponent } = useTheme();
-  const [value, setValue] = useDataBinding<any>(element.props.valuePath);
-  const options = element.props.options ?? [];
-  const SelectControl = SelectComponent || "select";
-  const selectedValue = element.props.multiple
-    ? Array.isArray(value)
-      ? value
-      : []
-    : value ?? "";
-  return (
-    <SelectControl
-      label={element.props.label}
-      placeholder={element.props.placeholder}
-      multiple={element.props.multiple}
-      value={selectedValue}
-      values={Array.isArray(selectedValue) ? selectedValue : [selectedValue]}
-      disabled={element.props.disabled}
-      onChange={(next: any) => setValue(resolveInputValue(next))}
-    >
-      {options.map((option: any) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </SelectControl>
-  );
-};
-
-const SearchBox = ({ element }: ComponentRenderProps<any>) => {
-  const { SearchBox: SearchBoxComponent } = useTheme();
-  const [value, setValue] = useDataBinding<any>(element.props.valuePath);
-  return (
-    <SearchBoxComponent
-      value={value ?? ""}
-      placeholder={element.props.placeholder}
-      disabled={element.props.disabled}
-      autoFocus={element.props.autoFocus}
-      onChange={(next: any) => setValue(resolveInputValue(next))}
-    />
-  );
-};
-*/
 const ProgressBar = ({ element }: ComponentRenderProps<any>) => {
   const { ProgressBar: ProgressBarComponent } = useTheme();
   const dataValue = useOptionalDataValue<number>(element.props.valuePath);
@@ -487,50 +266,7 @@ const Carousel = ({ element }: ComponentRenderProps<any>) => {
   }));
   return <CarouselComponent slides={slides} />;
 };
-/*
-const Tabs = ({ element, children, onAction }: ComponentRenderProps<any>) => {
-  const { Tabs: TabsComponent } = useTheme();
-  const [activeKey, setActiveKey] = useState<string | undefined>(
-    element.props.activeKey ?? element.props.defaultKey,
-  );
 
-  useEffect(() => {
-    if (element.props.activeKey) setActiveKey(element.props.activeKey);
-  }, [element.props.activeKey]);
-
-  const handleSelect = (key: string) => {
-    setActiveKey(key);
-    if (element.props.onSelectAction) {
-      onAction?.(element.props.onSelectAction);
-    }
-  };
-
-  return (
-    <TabsComponent
-      activeKey={activeKey ?? ""}
-      onSelect={handleSelect}
-      vertical={element.props.vertical}
-      size={element.props.size}
-    >
-      {children}
-    </TabsComponent>
-  );
-};
-
-const Tab = ({ element, children }: ComponentRenderProps<any>) => {
-  const { Tab: TabComponent } = useTheme();
-  return (
-    <TabComponent
-      eventKey={element.props.eventKey}
-      title={element.props.title}
-      icon={element.props.icon}
-      disabled={element.props.disabled}
-    >
-      {children}
-    </TabComponent>
-  );
-};
-*/
 const JsonViewer = ({ element }: ComponentRenderProps<any>) => {
   const { JsonViewer: JsonViewerComponent } = useTheme();
   const valueFromData = useOptionalDataValue(element.props.valuePath);
@@ -542,14 +278,17 @@ const JsonViewer = ({ element }: ComponentRenderProps<any>) => {
   );
 };
 
-const Chart = ({ element }: ComponentRenderProps<any>) => (
-  <ChartJsBlock
-    type={element.props.type}
-    data={element.props.data}
-    options={element.props.options}
-    height={element.props.height}
-  />
-);
+const Chart = ({ element }: ComponentRenderProps<any>) => {
+  const dataValue = useOptionalDataValue<any>(element.props.dataPath);
+  return (
+    <ChartJsBlock
+      type={element.props.type}
+      data={dataValue ?? element.props.data}
+      options={element.props.options}
+      height={element.props.height}
+    />
+  );
+};
 
 const SimpleTable = ({ element }: ComponentRenderProps<any>) => {
   const { Table: TableComponent } = useTheme();
@@ -624,57 +363,7 @@ const DataGrid = ({ element }: ComponentRenderProps<any>) => {
     />
   );
 };
-/*
-const Modal = ({ element, children, onAction }: ComponentRenderProps<any>) => {
-  const { Modal: ModalComponent, Button: ButtonComponent } = useTheme();
-  const actions = useMemo(() => {
-    const items = [] as React.ReactNode[];
-    if (element.props.secondaryAction) {
-      items.push(
-        <ButtonComponent
-          key="secondary"
-          variant="secondary"
-          onClick={() => onAction?.(element.props.secondaryAction.action)}
-        >
-          {element.props.secondaryAction.label}
-        </ButtonComponent>,
-      );
-    }
-    if (element.props.primaryAction) {
-      items.push(
-        <ButtonComponent
-          key="primary"
-          variant="primary"
-          onClick={() => onAction?.(element.props.primaryAction.action)}
-        >
-          {element.props.primaryAction.label}
-        </ButtonComponent>,
-      );
-    }
-    if (items.length === 0) return undefined;
-    return (
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-        {items}
-      </div>
-    );
-  }, [element.props.primaryAction, element.props.secondaryAction, onAction]);
 
-  return (
-    <ModalComponent
-      title={element.props.title}
-      show={element.props.show ?? true}
-      size={element.props.size}
-      centered={element.props.centered}
-      onHide={() =>
-        element.props.onCloseAction && onAction?.(element.props.onCloseAction)
-      }
-      actions={actions}
-    >
-      {children}
-    </ModalComponent>
-  );
-};
-*/
 const AudioPlayer = ({ element }: ComponentRenderProps<any>) => {
   const { AudioPlayer: AudioPlayerComponent } = useTheme();
   return <AudioPlayerComponent src={element.props.src} />;
@@ -689,33 +378,16 @@ export const componentRegistry = {
   Header,
   Paragraph,
   Badge,
-  //Tags,
-  /*Breadcrumb,
-  Button,
-  ToggleButton,
-  SplitButton,
-  Toolbar,
-  ToolbarButton,
-  ToolbarDivider,
-  Input,
-  TextArea,
-  Switch,
-  Slider,
-  Select,
-  SearchBox,*/
   ProgressBar,
   Skeleton,
   Spinner,
   Image,
   Carousel,
-  // Tabs,
-  //Tab,
   Table: SimpleTable,
   DataGrid,
   JsonViewer,
   Chart,
   Metric,
-  // Modal,
   AudioPlayer,
 };
 

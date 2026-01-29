@@ -1,5 +1,35 @@
 import { ActionDefinition, Catalog, ComponentDefinition, ValidationFunction } from "@json-render/core";
 
+function renderSchemaType(schema: any): string {
+    if (!schema) return "any";
+
+    if (schema.enum) {
+        return schema.enum.map((v: any) => JSON.stringify(v)).join(" | ");
+    }
+
+    if (schema.type === "array") {
+        return `${renderSchemaType(schema.items)}[]`;
+    }
+
+    if (schema.type === "object") {
+        const props = schema.properties ?? {};
+        const required = schema.required ?? [];
+        const inner = Object.entries(props).map(([k, v]: any) => {
+            const opt = required.includes(k) ? "" : "?";
+            return `${k}${opt}: ${renderSchemaType(v)}`;
+        });
+        return `{ ${inner.join("; ")} }`;
+    }
+
+    if (Array.isArray(schema.type)) {
+        return schema.type.join(" | ");
+    }
+
+    return schema.type ?? "any";
+}
+
+
+
 export function generateCatalogPrompt<
     TComponents extends Record<string, ComponentDefinition>,
     TActions extends Record<string, ActionDefinition>,
@@ -40,12 +70,13 @@ export function generateCatalogPrompt<
 
         // Convert to loose "LLM signature"
         const propSigs = Object.entries(props).map(([key, value]: any) => {
-            const type =
-                value.type === "string" ? "string" :
-                    value.type === "number" ? "number" :
-                        value.type === "boolean" ? "boolean" :
-                            value.enum ? value.enum.map((v: any) => JSON.stringify(v)).join("|") :
-                                "any";
+            /*     const type =
+                     value.type === "string" ? "string" :
+                         value.type === "number" ? "number" :
+                             value.type === "boolean" ? "boolean" :
+                                 value.enum ? value.enum.map((v: any) => JSON.stringify(v)).join("|") :
+                                     "any";*/
+            const type = renderSchemaType(value);
 
             const optional = schema?.required?.includes(key) ? "" : "?";
             return `${key}${optional}: ${type}`;

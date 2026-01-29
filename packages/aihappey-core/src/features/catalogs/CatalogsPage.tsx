@@ -115,8 +115,8 @@ export const CatalogsPage = () => {
     const acts = activeCatalog?.actions ?? [];
     const out = q
       ? acts.filter((a) =>
-          normalizeText(`${a.name} ${a.title ?? ""} ${a.description ?? ""}`).includes(q)
-        )
+        normalizeText(`${a.name} ${a.title ?? ""} ${a.description ?? ""}`).includes(q)
+      )
       : acts;
     return out
       .slice()
@@ -181,10 +181,10 @@ export const CatalogsPage = () => {
           activeKey={effectiveActiveTab}
           onSelect={(k: string) => setActiveTab(k)}
         >
-          <Tab key={DEFAULT_TAB_KEY} eventKey={DEFAULT_TAB_KEY} title={t("default")}>
+          <Tab key={DEFAULT_TAB_KEY} eventKey={DEFAULT_TAB_KEY} title={t("providerDefault")}>
             <div style={{ paddingTop: 12, width: "100%" }}>
               <Paragraph style={{ textAlign: "left", width: "100%" }}>
-                {t("components")}
+                {t("componentsPage.title")}
               </Paragraph>
               {renderGrid(
                 builtInComponents.length === 0 ? (

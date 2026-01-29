@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
@@ -9,7 +10,7 @@ type ThrottlingFieldProps = {
   step?: number;
 };
 
-export const ThrottlingField = ({
+export const ThrottlingField = memo(({
   value,
   onChange,
   min = 0,
@@ -29,4 +30,4 @@ export const ThrottlingField = ({
       onChange={onChange}
     />
   );
-};
+});

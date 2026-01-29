@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { TemperatureField } from "../../fields";
 import { useTheme } from "../../theme/ThemeContext";
@@ -23,7 +24,7 @@ type AiChatSettingsFormProps = {
     onStructuredOutputChange?: (value: string) => void
 };
 
-export const AiChatSettingsForm = ({
+export const AiChatSettingsForm = memo(({
     value,
     onChange,
     formTitle,
@@ -38,18 +39,53 @@ export const AiChatSettingsForm = ({
 
     const safeValue = value;
 
+    const handleTemperatureChange = useCallback(
+        (temperature: number) =>
+            onChange({
+                ...safeValue,
+                temperature,
+            }),
+        [onChange, safeValue]
+    );
+
+    const handleMaxTokensChange = useCallback(
+        (e: any) => {
+            const raw = String(e?.target?.value ?? "");
+            const parsed = raw.trim() ? parseInt(raw, 10) : NaN;
+            const maxOutputTokens = Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+            onChange({
+                ...safeValue,
+                maxOutputTokens,
+            });
+        },
+        [onChange, safeValue]
+    );
+
+    const handleStructuredOutputChange = useCallback(
+        (e: React.ChangeEvent<HTMLSelectElement> | any) => {
+            const selectedValue = e?.target?.value ?? e?.currentTarget?.value ?? e;
+            onStructuredOutputChange?.(selectedValue ?? "");
+        },
+        [onStructuredOutputChange]
+    );
+
+    const structuredOutputOptionsMarkup = useMemo(
+        () =>
+            structuredOutputOptions?.map((item) => (
+                <option key={item.key} value={item.key}>
+                    {item.label}
+                </option>
+            )),
+        [structuredOutputOptions]
+    );
+
     return (
         <>
             <theme.Card size="small" title={formTitle}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     <TemperatureField
                         value={safeValue?.temperature}
-                        onChange={(temperature) =>
-                            onChange({
-                                ...safeValue,
-                                temperature,
-                            })
-                        }
+                        onChange={handleTemperatureChange}
                     />
 
                     <theme.Input
@@ -59,15 +95,7 @@ export const AiChatSettingsForm = ({
                         label={t("maxOutputTokens") ?? "maxOutputTokens"}
                         placeholder={t("optional") ?? "optional"}
                         value={safeValue?.maxOutputTokens ?? ""}
-                        onChange={(e: any) => {
-                            const raw = String(e?.target?.value ?? "");
-                            const parsed = raw.trim() ? parseInt(raw, 10) : NaN;
-                            const maxOutputTokens = Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-                            onChange({
-                                ...safeValue,
-                                maxOutputTokens,
-                            });
-                        }}
+                        onChange={handleMaxTokensChange}
                     />
 
                     {structuredOutputOptions && onStructuredOutputChange && (
@@ -77,18 +105,11 @@ export const AiChatSettingsForm = ({
                             label={t("structuredOutputs")}
                             options={structuredOutputOptions}
                             valueTitle={structuredOutputValueTitle ?? t("providerDefault")}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {
-                                const selectedValue = e?.target?.value ?? e?.currentTarget?.value ?? e;
-                                onStructuredOutputChange(selectedValue ?? "");
-                            }}
+                            onChange={handleStructuredOutputChange}
                             aria-label={t("structuredOutputs")}
                         >
                             <option value="">{t("providerDefault")}</option>
-                            {structuredOutputOptions.map((item) => (
-                                <option key={item.key} value={item.key}>
-                                    {item.label}
-                                </option>
-                            ))}
+                            {structuredOutputOptionsMarkup}
                         </SelectComponent>
 
                     )}
@@ -99,4 +120,4 @@ export const AiChatSettingsForm = ({
 
         </>
     );
-};
+});

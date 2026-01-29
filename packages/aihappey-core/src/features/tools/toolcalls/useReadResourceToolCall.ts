@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { readResource as defaultReadResource } from "../../../runtime/mcp/readResource";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import { CallToolResult, TextResourceContentsSchema, type Tool } from "@modelcontextprotocol/sdk/types";
 import { ToolPlugin } from "./usePlugins";
 
 type ToolResult = {
@@ -31,7 +31,7 @@ export function useReadResourceToolCall(opts: {
   const readResource = opts.readResource ?? defaultReadResource;
 
   const handleReadResourceToolCall = useCallback(
-    async (toolCall: ReadResourceToolCall): Promise<ToolResult> => {
+    async (toolCall: ReadResourceToolCall): Promise<CallToolResult> => {
       const connectedUrls = Object.keys(mcpServers)
         .filter(k => mcpServers[k]?.config?.disabled !== true)
         .map(k => mcpServers[k]?.config?.url);
@@ -66,13 +66,35 @@ export function useReadResourceToolCall(opts: {
 
       const resource = await readResource(serverName, uri);
 
+      const embeddedTextResources =
+        resource?.contents
+          ?.filter(
+            c =>
+              "text" in c &&
+              c.mimeType === "application/json"
+          )
+          .map((c: any) => c.text) ?? [];
+
+      const remainingContents =
+        (resource?.contents ?? []).filter(
+          c =>
+            !("text" in c && c.mimeType === "application/json")
+        );
+
       return {
         isError: false,
-        content: (resource?.contents ?? []).map((z: any) => ({
+        structuredContent:
+          embeddedTextResources.length > 1
+            ? { items: embeddedTextResources.map(a => JSON.parse(a)) }
+            : embeddedTextResources.length === 1
+              ? JSON.parse(embeddedTextResources[0])
+              : undefined,
+        content: remainingContents.map((z: any) => ({
           type: "resource",
           resource: z,
         })),
       };
+
     },
     [mcpServers, readResource]
   );

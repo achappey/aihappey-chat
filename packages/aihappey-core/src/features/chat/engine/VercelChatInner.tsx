@@ -10,6 +10,7 @@ import { MessageInput } from "../input/MessageInput";
 import { useAttachmentParts } from "../messages/useAttachmentParts";
 import { useChatFileDrop } from "../input/useChatFileDrop";
 import { useOnToolCall } from "../../tools/toolcalls/useOnToolCall";
+import { findLatestLocalJsonRenderTree } from "../../tools/toolcalls/useLocalJsonRenderToolCall";
 import { MessageList } from "../messages/MessageList";
 import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { useChatActions } from "./useChatActions";
@@ -191,7 +192,7 @@ export function VercelChatInner({
       jsonRenderRegistry.actions,
     ],
   );
-  
+
   const { tree, send, isStreaming, error: streamError } = useUIStream({
     api: config.baseUrl + "/api/generate",
     catalogPrompt: systemPrompt,
@@ -209,10 +210,12 @@ export function VercelChatInner({
       },*/
   });
 
-  const sendUiRequest = async (prompt: string) => {
+  const sendUiRequest = async (prompt: string, toolCallId: string) => {
     let promptToSend = prompt;
-    if (tree?.root && Object.keys(tree.elements || {}).length > 0) {
-      promptToSend = `CURRENT UI STATE (already loaded, DO NOT recreate existing elements):\n${JSON.stringify(tree, null, 2)}\n\nUSER REQUEST: ${prompt}\n\nIMPORTANT: The current UI is already loaded. Output ONLY the patches needed to make the requested change:\n- To add a new element: {"op":"add","path":"/elements/new-key","value":{...}}\n- To modify an existing element: {"op":"set","path":"/elements/existing-key","value":{...}}\n- To update the root: {"op":"set","path":"/root","value":"new-root-key"}\n- To remove an element: {"op":"remove","path":"/root"}\n- To add children: update the parent element with new children array\n\nDO NOT output patches for elements that don't need to change. Only output what's necessary for the requested modification.`;
+    const storedTree = findLatestLocalJsonRenderTree(uiMessages as any, toolCallId);
+    const effectiveTree = tree ?? storedTree;
+    if (effectiveTree?.root && Object.keys(effectiveTree.elements || {}).length > 0) {
+      promptToSend = `CURRENT UI STATE (already loaded, DO NOT recreate existing elements):\n${JSON.stringify(effectiveTree, null, 2)}\n\nUSER REQUEST: ${prompt}\n\nIMPORTANT: The current UI is already loaded. Output ONLY the patches needed to make the requested change:\n- To add a new element: {"op":"add","path":"/elements/new-key","value":{...}}\n- To modify an existing element: {"op":"set","path":"/elements/existing-key","value":{...}}\n- To update the root: {"op":"set","path":"/root","value":"new-root-key"}\n- To remove an element: {"op":"remove","path":"/root"}\n- To add children: update the parent element with new children array\n\nDO NOT output patches for elements that don't need to change. Only output what's necessary for the requested modification.`;
     }
 
     return await send(promptToSend, activeData, providerMetadata)
@@ -376,6 +379,20 @@ export function VercelChatInner({
       .filter((m): m is UIMessage => !!m);
   }, [messages, uiMessageOverrides]);
 
+  const effectiveUiTree = useMemo(() => {
+    if (tree) return tree;
+    const last = (uiMessages ?? [])
+      .flatMap((m: any) => (m?.parts ?? []) as any[])
+      .filter((p: any) => (p?.type ?? "").startsWith("tool-"))
+      .reverse()
+      .find((p: any) => {
+        const name = p.toolName ?? String(p.type ?? "").replace(/^tool-/, "");
+        return name === "local_json_render" && p?.input?.toolCallId;
+      });
+    const toolCallId = last?.input?.toolCallId as string | undefined;
+    return toolCallId ? findLatestLocalJsonRenderTree(uiMessages as any, toolCallId) : null;
+  }, [tree, uiMessages]);
+
   const { abortRef, startRun, cancelRun } = useAbortRun(stop);
   const getAttachmentParts = useAttachmentParts();
 
@@ -472,6 +489,7 @@ export function VercelChatInner({
           display: "flex",
           flexDirection: "column",
           height: "100%",
+          flex: 1,
           width: "100%",
           border: isOver ? "2px dotted" : undefined,
           borderColor: isOver ? "#888" : "transparent",
@@ -542,7 +560,7 @@ export function VercelChatInner({
         onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
-      <ActivityDrawer messages={uiMessages} uiTree={tree} />
+      <ActivityDrawer messages={uiMessages} uiTree={effectiveUiTree} uiOutput={activeData} />
 
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}
