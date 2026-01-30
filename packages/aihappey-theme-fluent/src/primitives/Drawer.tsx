@@ -48,7 +48,16 @@ export const Drawer = (props: DrawerProps) => {
           <DrawerHeaderTitle>{title}</DrawerHeaderTitle>
         </DrawerHeader>
       )}
-      <DrawerBody>{children}</DrawerBody>
+      <DrawerBody
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 0,
+          height: "100%",
+        }}
+      >
+        {children}
+      </DrawerBody>
     </InlineDrawer>
   ) : (
     <OverlayDrawer
@@ -63,7 +72,16 @@ export const Drawer = (props: DrawerProps) => {
           <DrawerHeaderTitle>{title}</DrawerHeaderTitle>
         </DrawerHeader>
       )}
-      <DrawerBody>{children}</DrawerBody>
+      <DrawerBody
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 0,
+          height: "100%",
+        }}
+      >
+        {children}
+      </DrawerBody>
     </OverlayDrawer>
   );
 };

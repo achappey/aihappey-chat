@@ -63,12 +63,9 @@ export const MessageList = ({
   const [pageById, setPageById] = useState<Record<string, number>>({});
 
   const getMessageKey = (msg: ChatMessage) => {
-    // Adjust if your ChatMessage uses a different field name
-    return (
-      (msg as any).id ??
-      (msg as any).messageId ??
-      `${msg.role}:${(msg as any).createdAt ?? ""}`
-    );
+    const raw = (msg as any).id ?? (msg as any).messageId;
+    if (typeof raw === "string" || typeof raw === "number") return String(raw);
+    return `${msg.role}:${String((msg as any).createdAt ?? "")}`;
   };
 
   const getMaxPage = (msg: ChatMessage) => Math.max(0, (msg.content?.length ?? 1) - 1);
@@ -88,17 +85,19 @@ export const MessageList = ({
   // Keep paging state small and avoid stale keys
   useEffect(() => {
     const keys = new Set(messages.map(getMessageKey));
-    setPageById(prev => {
+    const prevKeys = Object.keys(pageById);
+    const removed = prevKeys.filter((k) => !keys.has(k));
+    if (removed.length === 0) return;
+
+    setPageById((prev) => {
       const next: Record<string, number> = {};
-      let changed = false;
       for (const k of Object.keys(prev)) {
         if (keys.has(k)) next[k] = prev[k];
-        else changed = true;
       }
-      return changed ? next : prev;
+      return next;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
+  }, [messages, pageById]);
 
   const defaultRenderBlock = (block: UIMessagePart<any, any>) => {
     if (!block) return <></>;

@@ -204,12 +204,14 @@
   "structure": "Structuur",
   "pinChat": "Chat vastmaken",
   "unpinChat": "Chat losmaken",
+  "add": "Toevoegen",
+  "newApp": "Nieuwe app",
   "structuredOutputsPage": {
     "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschema’s. Gebruik deze schema’s om modeluitvoer te sturen en een consistente structuur af te dwingen."
   },
   "webApps": "Apps",
   "webAppsPage": {
-    "description": "Een overzicht van alle beschikbare apps. Maak apps via plugins en sla ze op om ze te hergebruiken."
+    "description": "Apps zijn praktische toepassingen die ontstaan uit AI-interactie. Ze zetten vragen, instructies en data om in iets tastbaars, zoals een overzicht, dashboard of hulpmiddel. Je kunt apps opnieuw gebruiken en delen, terwijl AI ze blijft aanpassen en verbeteren op basis van nieuwe input."
   },
   "catalogs": "Catalogi",
   "catalogsPage": {
@@ -227,6 +229,27 @@
   "loading": "Laden...",
   "notFound": "Niet gevonden",
   "lastUpdated": "Laatst bijgewerkt",
+  "dataSource": {
+    "title": "Databron",
+    "none": "Geen",
+    "type": "Type",
+    "url": "Publieke URL (application/json)",
+    "resource": "Model Context bron",
+    "resourceTemplate": "Model Context bronsjabloon",
+    "tool": "Model Context tool",
+    "prompt": "Prompt",
+    "model": "Model",
+    "refresh": "Verversen",
+    "mcpDisconnected": "Verbind met een MCP om bronnen, bronsjablonen en tools te gebruiken.",
+    "structuredOutputMissingSchema": "Select a structured output schema to continue.",
+    "types": {
+      "url": "Publieke URL (application/json)",
+      "resource": "Model Context bron",
+      "resourceTemplate": "Model Context bronsjabloon",
+      "tool": "Model Context tool",
+      "structuredOutput": "Gestructureerde uitvoer"
+    }
+  },
   "plugins": {
     "local-agents": "Agent Framework",
     "local-catalog": "Component catalogi",

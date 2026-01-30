@@ -83,6 +83,8 @@ function applyPatch(tree: UITree, patch: JsonPatch): UITree {
 export interface UseUIStreamOptions {
     /** API endpoint */
     api: string;
+    /** Optional initial UI tree to seed patch application */
+    initialTree?: UITree | null;
     /** Callback when complete */
     onComplete?: (tree: UITree) => void;
     /** Callback on error */
@@ -100,7 +102,12 @@ export interface UseUIStreamReturn {
     /** Error if any */
     error: Error | null;
     /** Send a prompt to generate UI */
-    send: (prompt: string, context?: Record<string, unknown>, providerMetadata?: any) => Promise<any>;
+    send: (
+        prompt: string,
+        context?: Record<string, unknown>,
+        providerMetadata?: any,
+        baseTree?: UITree | null,
+    ) => Promise<any>;
     /** Clear the current tree */
     clear: () => void;
 }
@@ -129,6 +136,7 @@ export function useUIStream({
     model,
     getAccessToken,
     customHeaders,
+    initialTree,
     onComplete,
     onError,
 }: any): UseUIStreamReturn {
@@ -136,6 +144,19 @@ export function useUIStream({
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
+    const treeRef = useRef<UITree | null>(null);
+    const hasSeededRef = useRef(false);
+
+    useEffect(() => {
+        treeRef.current = tree;
+    }, [tree]);
+
+    useEffect(() => {
+        if (!initialTree || isStreaming || hasSeededRef.current) return;
+        hasSeededRef.current = true;
+        treeRef.current = initialTree;
+        setTree(initialTree);
+    }, [initialTree, isStreaming]);
 
     const clear = useCallback(() => {
         setTree(null);
@@ -144,14 +165,24 @@ export function useUIStream({
 
 
     const send = useCallback(
-        async (prompt: string, context?: Record<string, unknown>, providerMetadata?: any) => {
+        async (
+            prompt: string,
+            context?: Record<string, unknown>,
+            providerMetadata?: any,
+            baseTree?: UITree | null,
+        ) => {
             // Abort any existing request
             abortControllerRef.current?.abort();
             abortControllerRef.current = new AbortController();
 
             setIsStreaming(true);
             setError(null);
-            let currentTree: UITree = tree ?? { root: "", elements: {} };
+            let currentTree: UITree =
+                baseTree ?? treeRef.current ?? initialTree ?? { root: "", elements: {} };
+            if (baseTree || (!treeRef.current && initialTree)) {
+                treeRef.current = currentTree;
+                setTree(currentTree);
+            }
             // if (tree == null)
             //  setTree(currentTree);
 
@@ -224,7 +255,7 @@ export function useUIStream({
                 setIsStreaming(false);
             }
         },
-        [api, onComplete, onError, tree],
+        [api, onComplete, onError],
     );
 
     // Cleanup on unmount

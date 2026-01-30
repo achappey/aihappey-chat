@@ -381,14 +381,14 @@ export const componentDefinitions = {
             selectionMode: z.enum(["single", "multiselect", "none"]).optional(),
         }),
     },
-    JsonViewer: {
+   /* JsonViewer: {
         description: "Structured JSON viewer. Use valuePath for data binding.",
         props: z.object({
             title: z.string().optional(),
             value: z.any().optional(),
             valuePath: z.string().optional(),
         }),
-    },
+    },*/
     Chart: {
         description: "Chart.js block. Provide type and data (or bind via dataPath).",
         props: z.object({

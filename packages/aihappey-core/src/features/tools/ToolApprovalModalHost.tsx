@@ -23,6 +23,20 @@ function findPendingApproval(messages: UIMessage[]) {
 
     const parts = (lastAssistant.parts ?? []) as any[];
 
+    const approvalPart = [...parts]
+        .reverse()
+        .find(
+            (p) =>
+                typeof p?.type === "string" &&
+                p.type.startsWith("tool-") &&
+                p.state === "approval-requested" &&
+                p.approval?.id
+        );
+
+    if (approvalPart) {
+        return { tool: approvalPart as ApprovalToolPart, approvalId: approvalPart.approval.id };
+    }
+
     if (
         parts.some(
             (p) =>
@@ -33,19 +47,6 @@ function findPendingApproval(messages: UIMessage[]) {
         )
     ) {
         return undefined;
-    }
-
-    for (let pi = parts.length - 1; pi >= 0; pi--) {
-        const p = parts[pi] as ApprovalToolPart;
-
-        if (
-            typeof p?.type === "string" &&
-            p.type.startsWith("tool-") &&
-            p.state === "approval-requested" &&
-            p.approval?.id
-        ) {
-            return { tool: p, approvalId: p.approval.id };
-        }
     }
 
     return undefined;

@@ -266,7 +266,7 @@ const Carousel = ({ element }: ComponentRenderProps<any>) => {
   }));
   return <CarouselComponent slides={slides} />;
 };
-
+/*
 const JsonViewer = ({ element }: ComponentRenderProps<any>) => {
   const { JsonViewer: JsonViewerComponent } = useTheme();
   const valueFromData = useOptionalDataValue(element.props.valuePath);
@@ -276,7 +276,7 @@ const JsonViewer = ({ element }: ComponentRenderProps<any>) => {
       title={element.props.title}
     />
   );
-};
+};*/
 
 const Chart = ({ element }: ComponentRenderProps<any>) => {
   const dataValue = useOptionalDataValue<any>(element.props.dataPath);
@@ -311,7 +311,10 @@ const SimpleTable = ({ element }: ComponentRenderProps<any>) => {
       </thead>
       <tbody>
         {rows.map((row: any, rowIndex: number) => (
-          <tr key={row?.id ?? rowIndex}>
+          <tr key={row?.id !== null &&
+            typeof row?.id !== "object"
+            ? row.id
+            : rowIndex}>
             {columns.map((column: any) => {
               const value = readRowValue(row, column.key, column.fieldPath);
               return (
@@ -385,7 +388,7 @@ export const componentRegistry = {
   Carousel,
   Table: SimpleTable,
   DataGrid,
-  JsonViewer,
+  //JsonViewer,
   Chart,
   Metric,
   AudioPlayer,

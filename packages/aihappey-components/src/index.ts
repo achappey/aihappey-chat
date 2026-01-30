@@ -12,3 +12,5 @@ export * from "./alerts";
 export * from "./images";
 export * from "./progressbars";
 export * from "./modals";
+export * from "./layout/StickyHeaderActionBar";
+export * from "./layout/StickyHeaderBar";

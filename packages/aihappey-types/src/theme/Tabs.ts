@@ -5,6 +5,7 @@ export type TabsProps = {
   style?: React.CSSProperties;
   activeKey: string;
   vertical?: boolean;
+  fill?: any
   size?: "small" | "medium" | "large";
   onSelect: (k: string) => void;
   className?: string;

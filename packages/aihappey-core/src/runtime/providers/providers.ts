@@ -72,6 +72,8 @@ import { nlpcloud } from "./catalog/nlpcloud";
 import { moonshot } from "./catalog/moonshot";
 import { upstage } from "./catalog/upstage";
 import { siliconflow } from "./catalog/siliconflow";
+import { cirrascale } from "./catalog/cirrascale";
+import { klingai } from "./catalog/klingai";
 
 /**
  * UI-facing provider catalog.
@@ -133,11 +135,13 @@ export const PROVIDERS: Record<string, Provider> = {
   tinfoil,
   nebius,
   audixa,
+  klingai,
   deepinfra,
   nvidia,
   runware,
   canopywave,
   alibaba,
+  cirrascale,
   inferencenet,
   telnyx,
   stabilityai,

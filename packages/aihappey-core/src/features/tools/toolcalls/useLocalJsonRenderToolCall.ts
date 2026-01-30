@@ -5,12 +5,6 @@ import type { UIMessage } from "aihappey-types";
 /* ============================================================
    Result helpers
 ============================================================ */
-
-type ToolTextResult = {
-    isError: boolean;
-    content: { type: "text"; text: string }[];
-};
-
 const ok = (tree: any, uri: string, toolcallId: any): CallToolResult => ({
     isError: false,
     _meta: {
@@ -23,11 +17,6 @@ const ok = (tree: any, uri: string, toolcallId: any): CallToolResult => ({
             uri: uri
         }
     }],
-});
-
-const fail = (err: unknown): ToolTextResult => ({
-    isError: true,
-    content: [{ type: "text", text: err instanceof Error ? err.message : String(err) }],
 });
 
 /* ============================================================
@@ -49,6 +38,10 @@ export const listConversationToolcallsTool: Tool = {
         openWorldHint: false,
     },
 };
+
+/* ============================================================
+   Tool definition
+============================================================ */
 
 
 export const localJsonRenderTool: Tool = {
@@ -77,16 +70,15 @@ export const localJsonRenderTool: Tool = {
     },
 };
 
-export const localJsonRenderPluginDef = {
+export const localJsonRenderPluginDef2 = {
     name: "local-json-render",
-    match: (toolName: string) => toolName === "local_json_render" || toolName == "list_json_render_toolcalls",
+    match: (toolName: string) => toolName === "local_json_render"
+        || toolName == "list_json_render_toolcalls",
     tools: [localJsonRenderTool, listConversationToolcallsTool],
 };
 
-
 type LocalJsonRenderToolCall = {
     toolName: "local_json_render" | "list_json_render_toolcalls";
-    // input?: { prompt?: string; toolcallname?: string };
     input?: any;
 };
 
@@ -119,7 +111,7 @@ function parseJsonRenderTree(output: any) {
 function findLatestToolOutput(messages: UIMessage[] | undefined, toolCallId: string) {
     if (!messages?.length) return null;
 
-   // toolName = toolName.replace("functions.", "");
+    // toolName = toolName.replace("functions.", "");
     for (let i = messages.length - 1; i >= 0; i -= 1) {
         const msg = messages[i];
         const parts = (msg as any)?.parts as ToolInvocationPart[] | undefined;
@@ -127,7 +119,7 @@ function findLatestToolOutput(messages: UIMessage[] | undefined, toolCallId: str
         for (let j = parts.length - 1; j >= 0; j -= 1) {
             const part = parts[j];
             if (!part?.type?.startsWith("tool-")) continue;
-          //  const name = part.toolName ?? part.type?.replace(/^tool-/, "");
+            //  const name = part.toolName ?? part.type?.replace(/^tool-/, "");
             if (part.toolCallId === toolCallId) {
                 return part;
             }
@@ -228,5 +220,5 @@ export function useLocalJsonRenderRuntime(opts: {
         [conversationId, messages, send]
     );
 
-    return { name: localJsonRenderPluginDef.name, handle };
+    return { name: localJsonRenderPluginDef2.name, handle };
 }

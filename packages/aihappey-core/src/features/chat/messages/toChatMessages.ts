@@ -13,10 +13,17 @@ function isCallToolResult(output: unknown): output is CallToolResult {
 export function toChatMessages(
   messages: UIMessage[],
 ): ChatMessage[] {
+  const toolPartCounts = new Map<string, number>();
   const out: ChatMessage[] = [];
 
-  for (const z of messages) {
+  for (let zi = 0; zi < messages.length; zi++) {
+    const z = messages[zi];
     if (z.role === SYSTEM_ROLE) continue;
+    const rawId = (z as any).id ?? (z as any).messageId;
+    const baseId =
+      typeof rawId === "string" || typeof rawId === "number"
+        ? String(rawId)
+        : `${z.role}:${zi}`;
 
     const meta = (z.metadata ?? {}) as any;
     const createdAtRaw = meta?.timestamp;
@@ -47,8 +54,21 @@ export function toChatMessages(
     const flushActivity = () => {
       if (!activityRun.length) return;
 
+      const firstToolPart = activityRun.find(
+        (p: any) => typeof p?.type === "string" && p.type.startsWith("tool-") && p.toolCallId
+      ) as any;
+      const activityKey = (() => {
+        if (!firstToolPart?.toolCallId) {
+          return `${baseId}:activity:${activityRunStartIndex ?? 0}`;
+        }
+        const base = `${baseId}:activity:${firstToolPart.toolCallId}`;
+        const nextCount = (toolPartCounts.get(base) ?? 0) + 1;
+        toolPartCounts.set(base, nextCount);
+        return `${base}:${nextCount}`;
+      })();
+
       out.push({
-        id: `${z.id}:activity:${activityRunStartIndex ?? 0}`,
+        id: activityKey,
         role: z.role,
         content: activityRun,
         createdAt: ts(activityRunStartIndex ?? 0),
@@ -65,7 +85,7 @@ export function toChatMessages(
       if (!imageRun.length) return;
 
       out.push({
-        id: `${z.id}:images:${imageRunStartIndex ?? 0}`,
+        id: `${baseId}:images:${imageRunStartIndex ?? 0}`,
         role: z.role,
         content: [
           {
@@ -111,7 +131,7 @@ export function toChatMessages(
         flushActivity();
 
         out.push({
-          id: `${z.id}:text:${i}`,
+          id: `${baseId}:text:${i}`,
           role: z.role,
           content: [p as any],
           attachments: nonImageFiles,
@@ -152,7 +172,7 @@ export function toChatMessages(
         flushActivity();
 
         out.push({
-          id: `${z.id}:widget:${i}`,
+          id: `${baseId}:widget:${i}:${(p as any)?.toolCallId ?? ""}`,
           role: z.role,
           content: [p as any],
           createdAt: ts(i),

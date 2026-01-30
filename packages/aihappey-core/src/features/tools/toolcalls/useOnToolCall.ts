@@ -43,7 +43,7 @@ import { localCatalogPluginDef } from "./useLocalCatalogToolCall";
 import { localRegistryPluginDef } from "./useLocalRegistryToolCall";
 import { localStructuredOutputsPluginDef as localStructuredOutputsPluginDefStatic } from "./useLocalStructuredOutputsToolCall";
 import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
-import { localJsonRenderPluginDef, useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
+import { useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -146,7 +146,7 @@ export function useOnToolCall({
       localConversationsPluginDef,
       localImagesPluginDef,
       localCanvasPluginDef,
-      localJsonRenderPluginDef,
+    //  localJsonRenderPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDefStatic,
       localCatalogPluginDef,

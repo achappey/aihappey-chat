@@ -257,6 +257,27 @@
   "attachments": "Attachments",
   "input": "Input",
   "data": "Data",
+  "dataSource": {
+    "title": "Data source",
+    "none": "None",
+    "type": "Type",
+    "url": "Public URL (application/json)",
+    "resource": "Model Context resource",
+    "resourceTemplate": "Model Context resource template",
+    "tool": "Model Context tool",
+    "prompt": "Prompt",
+    "model": "Model",
+    "refresh": "Refresh",
+    "mcpDisconnected": "Connect an MCP server to use resources, resource templates or tools.",
+    "structuredOutputMissingSchema": "Select a structured output schema to continue.",
+    "types": {
+      "url": "Public URL (application/json)",
+      "resource": "Model Context resource",
+      "resourceTemplate": "Model Context resource template",
+      "tool": "Model Context tool",
+      "structuredOutput": "Structured output"
+    }
+  },
   "timezone": "Timezone",
   "auto": "Auto",
   "new": "New",
@@ -320,8 +341,9 @@
     "description": "An overview of all stored structured output schemas. Use these schemas to guide model outputs and enforce consistent structure."
   },
   "webApps": "Apps",
+  "newApp": "New app",
   "webAppsPage": {
-    "description": "An overview of all available apps. Create apps via plugins and store them for reuse."
+    "description": "Apps are practical applications that emerge from AI interaction. They turn questions, instructions, and data into something tangible, such as an overview, dashboard, or tool. Apps can be reused and shared, while AI continues to adapt and improve them based on new input."
   },
   "catalogs": "Catalogs",
   "catalogsPage": {
@@ -333,6 +355,7 @@
   },
   "actions": "Actions",
   "open": "Open",
+  "add": "Add",
   "view": "View",
   "properties": "Properties",
   "back": "Back",

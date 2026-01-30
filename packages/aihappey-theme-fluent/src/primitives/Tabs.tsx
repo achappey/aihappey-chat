@@ -25,6 +25,7 @@ interface TabsProps {
   vertical?: boolean;
   size?: "small" | "medium" | "large"
   minimumVisible?: number;
+  fill?: boolean;
   children: React.ReactNode;
 }
 
@@ -99,6 +100,7 @@ export const Tabs: React.FC<TabsProps> = ({
   className,
   children,
   minimumVisible = 2, // default, can be customized
+  fill = false,
 }) => {
   // Gather tab headers & content
   const headers: React.ReactElement[] = [];
@@ -141,7 +143,9 @@ export const Tabs: React.FC<TabsProps> = ({
       activePanel = (
         <div
           style={
-            vertical ? { flex: 1 } : {}
+            vertical || fill
+              ? { flex: 1, minHeight: 0, overflow: "hidden" }
+              : {}
           }
         >
           {tabContent}
