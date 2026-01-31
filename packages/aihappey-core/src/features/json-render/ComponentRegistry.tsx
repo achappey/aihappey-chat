@@ -226,15 +226,6 @@ const Card = withMeta(({ element, children }: ComponentRenderProps<any>) => {
   defaultProps: {},
 });
 
-const Header = ({ element, children }: ComponentRenderProps<any>) => {
-  const { Header: HeaderComponent } = useTheme();
-  return (
-    <HeaderComponent level={element.props.level}>
-      {element.props.text ?? children}
-    </HeaderComponent>
-  );
-};
-
 const Badge = ({ element, children }: ComponentRenderProps<any>) => {
   const { Badge: BadgeComponent } = useTheme();
   return (
@@ -306,17 +297,6 @@ const Carousel = ({ element }: ComponentRenderProps<any>) => {
   }));
   return <CarouselComponent slides={slides} />;
 };
-/*
-const JsonViewer = ({ element }: ComponentRenderProps<any>) => {
-  const { JsonViewer: JsonViewerComponent } = useTheme();
-  const valueFromData = useOptionalDataValue(element.props.valuePath);
-  return (
-    <JsonViewerComponent
-      value={valueFromData ?? element.props.value}
-      title={element.props.title}
-    />
-  );
-};*/
 
 const Chart = withMeta(({ element }: ComponentRenderProps<any>) => {
 
@@ -449,7 +429,6 @@ export const componentRegistry = {
   Row,
   Grid,
   Card,
-  Header,
   Badge,
   Text,
   ProgressBar,
@@ -459,7 +438,6 @@ export const componentRegistry = {
   Carousel,
   Table: SimpleTable,
   DataGrid,
-  //JsonViewer,
   Chart,
   Metric,
   AudioPlayer,

@@ -179,21 +179,6 @@ export const componentDefinitions = {
         }),
         hasChildren: true,
     },
-    Header: {
-        description: "Heading text (h1-h6).",
-        props: z.object({
-            text: z.string().optional(),
-            level: z.number().int().min(1).max(6).optional(),
-        }),
-        hasChildren: true,
-    },
-    Paragraph: {
-        description: "Paragraph/body text.",
-        props: z.object({
-            text: z.string().optional(),
-        }),
-        hasChildren: true,
-    },
     Badge: {
         description: "Small status badge with optional variant.",
         props: z.object({
@@ -203,158 +188,6 @@ export const componentDefinitions = {
         }),
         hasChildren: true,
     },
-    /*  Tags: {
-          description: "Group of tags for labels or filters.",
-          props: z.object({
-              items: z.array(TagItemSchema),
-              size: z.enum(["extra-small", "small", "medium"]).optional(),
-          }),
-      },
-      Breadcrumb: {
-          description:
-              "Breadcrumb navigation for page hierarchy. Use action on items for navigation.",
-          props: z.object({
-              items: z.array(BreadcrumbItemSchema),
-          }),
-      },
-      Button: {
-          description: "Clickable button. Provide label and optional action.",
-          props: z.object({
-              label: z.string(),
-              variant: z.string().optional(),
-              size: z.string().optional(),
-              icon: z.string().optional(),
-              iconPosition: z.enum(["left", "right"]).optional(),
-              disabled: z.boolean().optional(),
-              action: ActionSchema.optional(),
-          }),
-      },
-      ToggleButton: {
-          description: "Toggle button for on/off states.",
-          props: z.object({
-              label: z.string().optional(),
-              checked: z.boolean().optional(),
-              variant: z.string().optional(),
-              size: z.string().optional(),
-              icon: z.string().optional(),
-              iconPosition: z.enum(["left", "right"]).optional(),
-              action: ActionSchema.optional(),
-          }),
-      },
-      SplitButton: {
-          description:
-              "Button with dropdown menu actions. Use menuItems for secondary actions.",
-          props: z.object({
-              label: z.string(),
-              variant: z.string().optional(),
-              size: z.string().optional(),
-              shape: z.enum(["rounded", "circular", "square"]).optional(),
-              align: z.enum(["left", "right"]).optional(),
-              icon: z.string().optional(),
-              iconPosition: z.enum(["left", "right"]).optional(),
-              disabled: z.boolean().optional(),
-              action: ActionSchema.optional(),
-              menuItems: z.array(
-                  z.object({
-                      key: z.string(),
-                      label: z.string(),
-                      icon: z.string().optional(),
-                      danger: z.boolean().optional(),
-                      disabled: z.boolean().optional(),
-                      action: ActionSchema.optional(),
-                  }),
-              ),
-          }),
-      },
-      Toolbar: {
-          description: "Horizontal toolbar for grouping actions.",
-          props: z.object({
-              ariaLabel: z.string().optional(),
-              size: z.enum(["small", "medium", "large"]).optional(),
-          }),
-          hasChildren: true,
-      },
-      ToolbarButton: {
-          description: "Action button intended for toolbar usage.",
-          props: z.object({
-              label: z.string().optional(),
-              icon: z.string().optional(),
-              variant: z.string().optional(),
-              disabled: z.boolean().optional(),
-              action: ActionSchema.optional(),
-          }),
-      },
-      ToolbarDivider: {
-          description: "Visual divider inside a toolbar.",
-          props: z.object({}),
-      },
-      Input: {
-          description: "Text input bound to a data path.",
-          props: z.object({
-              label: z.string().optional(),
-              hint: z.string().optional(),
-              placeholder: z.string().optional(),
-              type: z.string().optional(),
-              required: z.boolean().optional(),
-              disabled: z.boolean().optional(),
-              valuePath: z.string(),
-          }),
-      },
-      TextArea: {
-          description: "Multi-line text input bound to a data path.",
-          props: z.object({
-              label: z.string().optional(),
-              placeholder: z.string().optional(),
-              rows: z.number().int().min(2).max(16).optional(),
-              readOnly: z.boolean().optional(),
-              required: z.boolean().optional(),
-              disabled: z.boolean().optional(),
-              valuePath: z.string(),
-          }),
-      },
-      Switch: {
-          description: "Boolean toggle bound to a data path.",
-          props: z.object({
-              label: z.string().optional(),
-              hint: z.string().optional(),
-              size: z.string().optional(),
-              required: z.boolean().optional(),
-              disabled: z.boolean().optional(),
-              valuePath: z.string(),
-          }),
-      },
-      Slider: {
-          description: "Numeric slider bound to a data path.",
-          props: z.object({
-              label: z.string().optional(),
-              min: z.number().optional(),
-              max: z.number().optional(),
-              step: z.number().optional(),
-              showValue: z.boolean().optional(),
-              disabled: z.boolean().optional(),
-              valuePath: z.string(),
-          }),
-      },
-      Select: {
-          description: "Dropdown select bound to a data path.",
-          props: z.object({
-              label: z.string().optional(),
-              placeholder: z.string().optional(),
-              multiple: z.boolean().optional(),
-              disabled: z.boolean().optional(),
-              valuePath: z.string(),
-              options: z.array(OptionSchema),
-          }),
-      },
-      SearchBox: {
-          description: "Search input bound to a data path.",
-          props: z.object({
-              placeholder: z.string().optional(),
-              disabled: z.boolean().optional(),
-              autoFocus: z.boolean().optional(),
-              valuePath: z.string(),
-          }),
-      },*/
     ProgressBar: {
         description: "Progress indicator. Use value or valuePath.",
         props: z.object({
@@ -428,14 +261,6 @@ export const componentDefinitions = {
             selectionMode: z.enum(["single", "multiselect", "none"]).optional(),
         }),
     },
-    /* JsonViewer: {
-         description: "Structured JSON viewer. Use valuePath for data binding.",
-         props: z.object({
-             title: z.string().optional(),
-             value: z.any().optional(),
-             valuePath: z.string().optional(),
-         }),
-     },*/
     Chart: {
         description: "Chart.js block. Use JSON Pointer (RFC 6901) strings when using datapaths. Prefer datapaths for dynamic charts.",
         props: z.object({
@@ -456,20 +281,6 @@ export const componentDefinitions = {
             precision: z.number().int().min(0).max(6).optional(),
         }),
     },
-    /*Modal: {
-        description:
-            "Modal dialog. Use show=true to display. Provide optional action buttons.",
-        props: z.object({
-            title: z.string(),
-            show: z.boolean().optional(),
-            size: z.string().optional(),
-            centered: z.boolean().optional(),
-            onCloseAction: ActionSchema.optional(),
-            primaryAction: ToolbarActionSchema.optional(),
-            secondaryAction: ToolbarActionSchema.optional(),
-        }),
-        hasChildren: true,
-    },*/
     AudioPlayer: {
         description: "Audio player for a remote or base64 audio source.",
         props: z.object({

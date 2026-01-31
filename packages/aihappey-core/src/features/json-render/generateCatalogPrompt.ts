@@ -28,8 +28,6 @@ function renderSchemaType(schema: any): string {
     return schema.type ?? "any";
 }
 
-
-
 export function generateCatalogPrompt<
     TComponents extends Record<string, ComponentDefinition>,
     TActions extends Record<string, ActionDefinition>,
@@ -70,12 +68,6 @@ export function generateCatalogPrompt<
 
         // Convert to loose "LLM signature"
         const propSigs = Object.entries(props).map(([key, value]: any) => {
-            /*     const type =
-                     value.type === "string" ? "string" :
-                         value.type === "number" ? "number" :
-                             value.type === "boolean" ? "boolean" :
-                                 value.enum ? value.enum.map((v: any) => JSON.stringify(v)).join("|") :
-                                     "any";*/
             const type = renderSchemaType(value);
 
             const optional = schema?.required?.includes(key) ? "" : "?";
@@ -162,23 +154,7 @@ export function generateCatalogPrompt<
     lines.push("5. Each element needs: key, type, props");
     lines.push("6. Use JSON Pointer (RFC 6901) strings for data. Always use datapaths when data is available and component supports it.");
     
-    //lines.push("6. Use the data or data schema from the context for the valuePath mappings.");
-    //lines.push("6. Use valuePath from the root object and prefer structuredContent if available, fallback to contents array if needed, for example: '/structuredContent/xxx', '/structuredContent/xxx/zzz' '/content/0/text', etc ");
-    //lines.push("6. Use className for Tailwind styling when needed");
     lines.push("");
-
-    /*lines.push("FORBIDDEN CLASSES (NEVER USE):");
-    lines.push("- min-h-screen, h-screen, min-h-full, h-full, min-h-dvh, h-dvh");
-    lines.push("- bg-gray-50, bg-slate-50, bg-white, bg-black");
-    lines.push("");
-  
-    lines.push("MOBILE-FIRST RESPONSIVE:");
-    lines.push("- Always design mobile-first");
-    lines.push("- Grids: start with columns:1, expand using className");
-    lines.push("- DO NOT put page headers inside Card");
-    lines.push("- Horizontal stacks that overflow: use className:[\"flex-wrap\"]");
-    lines.push("- Forms: Card should be the root element");
-    lines.push("");*/
 
     // =========================
     // Generic Example (not tied to real components)

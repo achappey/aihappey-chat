@@ -117,7 +117,6 @@ export const ConversationSidebar = ({
     {
       key: "structured-outputs",
       label: t("structure"),
-      new: true,
       href: "/structured-outputs",
       icon: "structuredOutputs",
     },
