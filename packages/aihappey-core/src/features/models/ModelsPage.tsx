@@ -10,7 +10,7 @@ import type { GenericDataGridColumn, ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 export const ModelsPage = () => {
-  const { SearchBox, Paragraph, Tabs, Tab, ToggleButton, DataGrid, Button, Image } = useTheme();
+  const { SearchBox, Text, Tabs, Tab, ToggleButton, DataGrid, Button, Image } = useTheme();
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const { isDarkMode } = useDarkMode();
@@ -133,9 +133,9 @@ export const ModelsPage = () => {
             title={t("ai.title")}
           />
 
-          <Paragraph style={{ textAlign: "center" }}>
+          <Text as="p" align={"center" }>
             {t("ai.description", { total: models?.length })}
-          </Paragraph>
+          </Text>
 
           <div
             style={{

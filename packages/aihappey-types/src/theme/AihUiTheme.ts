@@ -15,7 +15,6 @@ import type { JsonViewerComponent } from "./JsonViewer";
 import type { MenuComponent } from "./Menu";
 import type { ModalComponent } from "./Modal";
 import type { NavigationComponent } from "./Navigation";
-import type { ParagraphComponent } from "./Paragraph";
 import type { ProgressBarComponent } from "./ProgressBar";
 import type { SearchBoxComponent } from "./SearchBox";
 import type { SelectComponent } from "./Select";
@@ -37,6 +36,7 @@ import type { ToolbarDividerComponent } from "./ToolbarDivider";
 import type { UserMenuComponent } from "./UserMenu";
 import type { SplitButtonComponent } from "./SplitButton";
 import type { AudioPlayerComponent } from "./AudioPlayer";
+import type { TextComponent } from "./Text";
 
 /**
  * Split-out theme contract (recomposed from per-component types).
@@ -48,7 +48,6 @@ export interface AihUiTheme {
   DataGrid: DataGridComponent;
   Header: HeaderComponent;
   JsonViewer: JsonViewerComponent;
-  Paragraph: ParagraphComponent;
   Breadcrumb: BreadcrumbComponent;
   Button: ButtonComponent;
   ToggleButton: ToggleButtonComponent;
@@ -74,6 +73,7 @@ export interface AihUiTheme {
   ToolbarButton: ToolbarButtonComponent;
   ToolbarDivider: ToolbarDividerComponent;
   Chat: ChatComponent;
+  Text: TextComponent;
   SplitButton: SplitButtonComponent;
   Drawer: DrawerComponent;
   Navigation: NavigationComponent;

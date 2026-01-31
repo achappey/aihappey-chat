@@ -50,7 +50,7 @@ function parseCommaList(value: string | undefined, all: string[]): string[] {
 }
 
 export const WebAppsPage = () => {
-  const { SearchBox, Paragraph, TextArea, Button, Alert, Spinner, Input } = useTheme();
+  const { SearchBox, Text, TextArea, Button, Alert, Spinner, Input } = useTheme();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const apps = useJsonRenderApps();
@@ -267,9 +267,9 @@ export const WebAppsPage = () => {
       >
         <OverviewPageHeader title={t("webApps")} />
 
-        <Paragraph style={{ textAlign: "center" }}>
+        <Text as="p" align={"center" }>
           {t("webAppsPage.description")}
-        </Paragraph>
+        </Text>
 
         <div
           style={{

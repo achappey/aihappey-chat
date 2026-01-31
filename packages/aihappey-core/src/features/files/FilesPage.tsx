@@ -14,7 +14,7 @@ function normalizeText(v: unknown) {
 }
 
 export const FilesPage = () => {
-    const { SearchBox, Paragraph } = useTheme();
+    const { SearchBox, Text } = useTheme();
     const { t } = useTranslation();
     const files = useFiles();
 
@@ -122,7 +122,7 @@ export const FilesPage = () => {
                 >
                     <OverviewPageHeader title={t("files")} />
 
-                    <Paragraph style={{ textAlign: "center" }}>{t("filesPage.description")}</Paragraph>
+                    <Text as="p" align={"center" }>{t("filesPage.description")}</Text>
 
                     <div
                         style={{

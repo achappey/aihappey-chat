@@ -10,20 +10,16 @@ import type { JsonRenderRegistryItem } from "aihappey-json-render-registry";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { ErrorBoundary } from "react-error-boundary";
 import { ActionProvider, DataProvider, VisibilityProvider, useActions } from "@json-render/react";
-import { Renderer } from "../json-render/Renderer";
-import { useCombinedComponentRegistryForIds } from "../json-render/ComponentRegistry";
+import { builtInRegistryItems, useCombinedComponentRegistryForIds } from "../json-render/ComponentRegistry";
 import { componentRegistry as builtInComponentRegistry } from "../json-render/ComponentRegistry";
-
-// NOTE: The registry preview modal needs to support runtime components that expect direct props
-// (e.g. `props.text`) as well as json-render components that expect ComponentRenderProps
-// (e.g. `props.element.props.text`).
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
 }
 
 export const RegistriesPage = () => {
-  const { Tabs, Tab, Paragraph, SearchBox, Modal, Button, Alert, JsonViewer } = useTheme();
+  const { Tabs, Tab, SearchBox, Text,
+    Modal, Button, Alert, JsonViewer } = useTheme();
   const { t } = useTranslation();
   const registryStore = useJsonRenderRegistry();
 
@@ -98,6 +94,11 @@ export const RegistriesPage = () => {
     []
   );
 
+  const builtInItems = useMemo(() => {
+    const all = builtInRegistryItems ?? [];
+    return q ? all.filter(i => normalizeText(i.name).includes(q)) : all;
+  }, [q]);
+
   const registryIds = useMemo(() => {
     const ids = new Set<string>();
     for (const item of registryStore.items ?? []) {
@@ -144,7 +145,7 @@ export const RegistriesPage = () => {
       >
         <OverviewPageHeader title={t("registries")} />
 
-        <Paragraph style={{ textAlign: "center" }}>{t("registriesPage.description")}</Paragraph>
+        <Text as="p" align={"center" }>{t("registriesPage.description")}</Text>
 
         <div
           style={{
@@ -173,24 +174,19 @@ export const RegistriesPage = () => {
                 justifyItems: "center",
               }}
             >
-              {builtInComponentNames.length === 0 ? (
-                <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
-                  {t("noResults")}
+              {builtInItems.map((item) => (
+                <div key={String(item.id)} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+                  <JsonRenderRegistryComponentCard
+                    item={{
+                      id: item.id,
+                      registryId: item.registryId,
+                      name: item.name,
+                      updatedAt: item.updatedAt,
+                    }}
+                    onOpen={() => setViewItem(item)}
+                  />
                 </div>
-              ) : (
-                builtInComponentNames.map((name) => (
-                  <div key={name} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
-                    <JsonRenderRegistryComponentCard
-                      item={{
-                        id: name,
-                        registryId: "built-in",
-                        name,
-                        updatedAt: undefined,
-                      }}
-                    />
-                  </div>
-                ))
-              )}
+              ))}
             </div>
           </Tab>
 
@@ -240,7 +236,7 @@ export const RegistriesPage = () => {
         <Modal
           show={!!viewItem}
           size="large"
-          title={viewItem ? `${t("view")} - ${viewItem.name}` : t("view")}
+          title={viewItem?.name ?? ""}
           onHide={() => setViewItem(null)}
           actions={
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
@@ -253,7 +249,7 @@ export const RegistriesPage = () => {
           {!viewItem ? null : (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
-                <strong>{t("properties")}</strong>
+                <Text as="strong">{t("properties")}</Text>
 
                 {propsSchemaObject.error ? (
                   <Alert variant="warning">

@@ -41,7 +41,7 @@ function normalizeText(v: unknown) {
 }
 
 export const ToolsPage = () => {
-  const { SearchBox, Paragraph, Tabs, Tab, Header } = useTheme();
+  const { SearchBox, Text, Tabs, Tab, Header } = useTheme();
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -303,7 +303,7 @@ export const ToolsPage = () => {
         >
           <OverviewPageHeader title={t("tools")} />
 
-          <Paragraph style={{ textAlign: "center" }}>{t("toolsPage.description")}</Paragraph>
+           <Text as="p" align={"center" }>{t("toolsPage.description")}</Text>
 
           <div
             style={{

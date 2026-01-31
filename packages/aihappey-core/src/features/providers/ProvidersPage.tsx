@@ -11,7 +11,7 @@ type ProviderListItem = {
 } & Provider;
 
 export const ProvidersPage = () => {
-    const { SearchBox, Paragraph } = useTheme();
+    const { SearchBox, Text } = useTheme();
     const { t } = useTranslation();
     const { isDarkMode } = useDarkMode();
     const [search, setSearch] = useState("");
@@ -63,9 +63,9 @@ export const ProvidersPage = () => {
                 >
                     <OverviewPageHeader title={t("ai.title")} />
 
-                    <Paragraph style={{ textAlign: "center" }}>
+                    <Text as="p" align={"center" }>
                         {t("ai.providers", { total: providers.length })}
-                    </Paragraph>
+                    </Text>
 
                     <div
                         style={{

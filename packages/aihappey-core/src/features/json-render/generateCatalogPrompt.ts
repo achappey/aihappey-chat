@@ -160,7 +160,10 @@ export function generateCatalogPrompt<
     lines.push("3. Children array contains string keys, not objects");
     lines.push("4. Parent first, then children");
     lines.push("5. Each element needs: key, type, props");
-    lines.push("6. Use valuePath from the root object and prefer structuredContent if available, fallback to contents array if needed, for example: '/structuredContent/xxx', '/structuredContent/xxx/zzz' '/content/0/text', etc ");
+    lines.push("6. Use JSON Pointer (RFC 6901) strings for data. Always use datapaths when data is available and component supports it.");
+    
+    //lines.push("6. Use the data or data schema from the context for the valuePath mappings.");
+    //lines.push("6. Use valuePath from the root object and prefer structuredContent if available, fallback to contents array if needed, for example: '/structuredContent/xxx', '/structuredContent/xxx/zzz' '/content/0/text', etc ");
     //lines.push("6. Use className for Tailwind styling when needed");
     lines.push("");
 

@@ -37,14 +37,6 @@ const Header = ({
   return <Tag className={className}>{children}</Tag>;
 };
 
-const Paragraph = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => <p className={className}>{children}</p>;
-
 import { UserMenu } from "./primitives/UserMenu";
 import { Toolbar, ToolbarButton, ToolbarDivider } from "./primitives/Toolbar";
 import { Navigation } from "./primitives/Navigation";
@@ -61,12 +53,12 @@ import { SplitButton } from "./primitives/SplitButton";
 import { X } from "react-bootstrap-icons";
 import { BootstrapSettings } from "./primitives/BootstrapSettings";
 import { AudioPlayer } from "./primitives/AudioPlayer";
+import { Text as TextPrimitive } from "./primitives/Text";
 
 export const bootstrapTheme: AihUiTheme = {
   Header,
   DataGrid,
   JsonViewer,
-  Paragraph,
   AudioPlayer,
   Breadcrumb,
   Skeleton: ({
@@ -164,7 +156,7 @@ export const bootstrapTheme: AihUiTheme = {
       </RBAlert>
     </>
   ),
-
+  Text: TextPrimitive,
   Spinner: ({ size = "sm", className }): JSX.Element => (
     <RBSpinner animation="border" size={size as any} className={className} />
   ),

@@ -36,7 +36,7 @@ function normalizeSelectionToStore(value: string[], all: string[]): string | und
 export const AppsSettings = () => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { Paragraph } = theme;
+  const { Text } = theme;
 
   const catalogs = useJsonRenderCatalog();
   const registryStore = useJsonRenderRegistry();
@@ -89,10 +89,10 @@ export const AppsSettings = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <Paragraph style={{ margin: 0 }}>
+      <Text>
         {t("settingsModal.appsHint") ??
           "Select which catalogs (prompt) and registries (runtime) are enabled for Apps. If you select none, all are enabled."}
-      </Paragraph>
+      </Text>
 
       <LocalToolsSettingsForm
         formTitle={t("settingsModal.defaultCatalogs") ?? "Default catalogs"}

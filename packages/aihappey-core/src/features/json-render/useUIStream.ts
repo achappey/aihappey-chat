@@ -107,6 +107,7 @@ export interface UseUIStreamReturn {
         context?: Record<string, unknown>,
         providerMetadata?: any,
         baseTree?: UITree | null,
+        maxOutputTokens?: number | null
     ) => Promise<any>;
     /** Clear the current tree */
     clear: () => void;
@@ -170,6 +171,7 @@ export function useUIStream({
             context?: Record<string, unknown>,
             providerMetadata?: any,
             baseTree?: UITree | null,
+            maxOutputTokens?: number | null,
         ) => {
             // Abort any existing request
             abortControllerRef.current?.abort();
@@ -196,6 +198,7 @@ export function useUIStream({
                         model,
                         context,
                         catalogPrompt,
+                        maxOutputTokens,
                         providerMetadata
                     }),
                     signal: abortControllerRef.current.signal,

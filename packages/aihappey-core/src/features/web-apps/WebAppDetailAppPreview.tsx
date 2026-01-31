@@ -30,18 +30,18 @@ export const WebAppDetailAppPreview = ({
   actionHandlers,
 }: WebAppDetailAppPreviewProps) => {
   const { t } = useTranslation();
-  const { Paragraph, Alert, Spinner } = useTheme();
+  const { Text, Alert, Spinner } = useTheme();
 
   if (loading) {
-    return <Paragraph style={{ textAlign: "center" }}>{t("loading")}</Paragraph>;
+    return <Text as="p" align={"center" }>{t("loading")}</Text>;
   }
 
   if (error) {
-    return <Paragraph style={{ textAlign: "center" }}>{error}</Paragraph>;
+    return <Text as="p" align={"center" }>{error}</Text>;
   }
 
   if (!app) {
-    return <Paragraph style={{ textAlign: "center" }}>{t("notFound")}</Paragraph>;
+    return <Text as="p" align={"center" }>{t("notFound")}</Text>;
   }
 
   return (

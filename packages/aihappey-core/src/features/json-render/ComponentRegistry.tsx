@@ -27,6 +27,20 @@ import {
 } from "aihappey-json-render-registry";
 import type { ComponentRenderProps } from "./Renderer";
 
+type BuiltInMeta = {
+  propsSchema: any;              // JSON Schema object
+  defaultProps?: Record<string, any>;
+  description?: string;
+};
+
+const withMeta = <T,>(component: T, meta: BuiltInMeta) => {
+  (component as any).__jsonRenderMeta = meta;
+  return component;
+};
+
+export const getBuiltInMeta = (name: string): BuiltInMeta | undefined =>
+  (componentRegistry as any)?.[name]?.__jsonRenderMeta;
+
 const spacingScale: Record<string, number> = {
   none: 0,
   xs: 4,
@@ -98,7 +112,6 @@ const Container = ({ element, children }: ComponentRenderProps<any>) => {
         ? "row"
         : element.props.direction ?? "row";
 
-
   return (
     <div
       style={{
@@ -111,6 +124,7 @@ const Container = ({ element, children }: ComponentRenderProps<any>) => {
         padding,
         width: element.props.width ?? undefined,
         maxWidth: element.props.maxWidth ?? undefined,
+        boxSizing: "border-box"
       }}
     >
       {children}
@@ -163,7 +177,29 @@ const Grid = ({ element, children }: ComponentRenderProps<any>) => {
   );
 };
 
-const Card = ({ element, children }: ComponentRenderProps<any>) => {
+const Text = ({ element, children }: ComponentRenderProps<any>) => {
+  const { Text: TextComponent } = useTheme();
+  const hasChildren = React.Children.count(children) > 0;
+
+  return (
+    <TextComponent
+      as={element.props.as}
+      size={element.props.size}
+      weight={element.props.weight}
+      italic={element.props.italic}
+      underline={element.props.underline}
+      strikethrough={element.props.strikethrough}
+      truncate={element.props.truncate}
+      wrap={element.props.wrap}
+      block={element.props.block}
+      font={element.props.font}
+    >
+      {hasChildren ? children : element.props.text}
+    </TextComponent>
+  );
+};
+
+const Card = withMeta(({ element, children }: ComponentRenderProps<any>) => {
   const { Card: CardComponent } = useTheme();
   return (
     <CardComponent
@@ -175,7 +211,20 @@ const Card = ({ element, children }: ComponentRenderProps<any>) => {
       {children}
     </CardComponent>
   );
-};
+}, {
+  description: "Card",
+  propsSchema: {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      description: { type: "string" },
+      text: { type: "string" },
+      size: { type: "string" },
+    },
+    additionalProperties: false,
+  },
+  defaultProps: {},
+});
 
 const Header = ({ element, children }: ComponentRenderProps<any>) => {
   const { Header: HeaderComponent } = useTheme();
@@ -183,15 +232,6 @@ const Header = ({ element, children }: ComponentRenderProps<any>) => {
     <HeaderComponent level={element.props.level}>
       {element.props.text ?? children}
     </HeaderComponent>
-  );
-};
-
-const Paragraph = ({ element, children }: ComponentRenderProps<any>) => {
-  const { Paragraph: ParagraphComponent } = useTheme();
-  return (
-    <ParagraphComponent>
-      {element.props.text ?? children}
-    </ParagraphComponent>
   );
 };
 
@@ -278,17 +318,48 @@ const JsonViewer = ({ element }: ComponentRenderProps<any>) => {
   );
 };*/
 
-const Chart = ({ element }: ComponentRenderProps<any>) => {
-  const dataValue = useOptionalDataValue<any>(element.props.dataPath);
+const Chart = withMeta(({ element }: ComponentRenderProps<any>) => {
+
+  const labels =
+    typeof element.props.labels === "string"
+      ? useDataValue(element.props.labels)
+      : element.props.labels;
+
+  const datasets =
+    typeof element.props.datasets === "string"
+      ? useDataValue(element.props.datasets)
+      : element.props.datasets;
+
+  const options =
+    typeof element.props.options === "string"
+      ? useDataValue(element.props.options)
+      : element.props.options;
+
   return (
     <ChartJsBlock
       type={element.props.type}
-      data={dataValue ?? element.props.data}
-      options={element.props.options}
+      data={{
+        labels,
+        datasets
+      }}
+      options={options}
       height={element.props.height}
     />
   );
-};
+}, {
+  description: "ChartJS",
+  propsSchema: {
+    type: "object",
+    properties: {
+      type: { type: "string" },
+      height: { type: "number" },
+    },
+    additionalProperties: false,
+  },
+  defaultProps: {},
+});
+
+
 
 const SimpleTable = ({ element }: ComponentRenderProps<any>) => {
   const { Table: TableComponent } = useTheme();
@@ -379,8 +450,8 @@ export const componentRegistry = {
   Grid,
   Card,
   Header,
-  Paragraph,
   Badge,
+  Text,
   ProgressBar,
   Skeleton,
   Spinner,
@@ -559,3 +630,18 @@ export const useCombinedComponentRegistryForIds = (registryIds: string[]) => {
   );
 };
 
+
+const emptySchema = { type: "object", properties: {} };
+
+export const builtInRegistryItems: JsonRenderRegistryItem[] =
+  Object.keys(componentRegistry).map((name) => {
+    const meta = getBuiltInMeta(name);
+    return {
+      id: `built-in:${name}` as any,
+      registryId: "built-in",
+      code: "",
+      name,
+      updatedAt: undefined,
+      propsSchema: JSON.stringify(meta?.propsSchema ?? emptySchema),
+    };
+  });

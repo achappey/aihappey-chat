@@ -14,7 +14,7 @@ import React from "react";
 // --- Component ---------------------------------------------------------------
 
 export const AgentsPage = () => {
-  const { SearchBox, Paragraph, Tabs, Tab } = useTheme();
+  const { SearchBox, Text, Tabs, Tab } = useTheme();
   const { t } = useTranslation();
 
   //const agents = useAppStore((s) => s.agents as Record<string, AgentCardType>);
@@ -130,9 +130,9 @@ export const AgentsPage = () => {
             title={t("agents.title")}
           />
 
-          <Paragraph style={{ textAlign: "center" }}>
+          <Text as="p" align={"center" }>
             {t("agents.description")}
-          </Paragraph>
+          </Text>
 
           <div
             style={{

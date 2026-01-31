@@ -1,4 +1,4 @@
-import { ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -9,7 +9,6 @@ import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useAgent } from "./useAgentMcpServers";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
-import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -260,9 +259,9 @@ export const AgentForm = ({
                     )}
 
                     {providerKey === "anthropic" && (
-                        <AnthropicChatConfig
-                            anthropic={providerMeta}
-                            updateAnthropic={updateProviderMetadata}
+                        <AnthropicChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
                         />
                     )}
 

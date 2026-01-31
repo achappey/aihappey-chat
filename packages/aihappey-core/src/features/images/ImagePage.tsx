@@ -103,7 +103,7 @@ export const ImagePage = () => {
   const dropRef = useCallback((node: HTMLDivElement | null) => {
     if (node) drop(node);
   }, [drop]);
-  
+
   const maskEntry = useMemo(
     () => (files.items ?? []).find((f) => f.name === "image_mask"),
     [files.items]
@@ -299,6 +299,9 @@ export const ImagePage = () => {
             data: item.data,
             mimeType: item.mimeType,
             type: "image",
+            _meta: item.model ? {
+              model: item.model
+            } : undefined
           }))}
           shimmers={itemsLoading}
           onImageClick={openImage}

@@ -28,7 +28,7 @@ import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 
 export const WebAppDetailPage = () => {
   const { t } = useTranslation();
-  const { Paragraph } = useTheme();
+  const { Text } = useTheme();
   const { appId } = useParams<{ appId: string }>();
   const location = useLocation();
   const apps = useJsonRenderApps();
@@ -38,6 +38,7 @@ export const WebAppDetailPage = () => {
   const models = useAppStore((s) => s.models);
   const selectedModel = useAppStore((s) => s.selectedModel);
   const customHeaders = useAppStore((s) => s.customHeaders);
+  const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const defaultCatalogs = useAppStore((s) => (s as any).defaultCatalogs as string | undefined);
   const jsonRenderCatalog = useJsonRenderCatalog();
   const jsonRenderRegistry = useJsonRenderRegistry();
@@ -248,7 +249,8 @@ export const WebAppDetailPage = () => {
             _meta: undefined,
           },
           undefined,
-          tree ?? null
+          tree ?? null,
+          maxOutputTokens
         );
         if (cancelled || !result) return;
         const updated = await apps.update(appId, {
@@ -429,7 +431,7 @@ export const WebAppDetailPage = () => {
           >
             <OverviewPageHeader title={title} />
             {description ? (
-              <Paragraph style={{ textAlign: "center" }}>{description}</Paragraph>
+              <Text as="p" align={"center" }>{description}</Text>
             ) : null}
           </div>
           <WebAppDetailAppPreview

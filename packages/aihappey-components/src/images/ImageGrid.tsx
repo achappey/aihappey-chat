@@ -26,7 +26,7 @@ export const ImageGrid = ({
   shimmers,
   style,
 }: ImageGridProps) => {
-  const { Image, Button, Skeleton } = useTheme();
+  const { Image, Button, Skeleton, Badge } = useTheme();
 
   const colCount = columns && columns > 0 ? columns : undefined;
   const gridTemplate =
@@ -89,6 +89,16 @@ export const ImageGrid = ({
               }}
               onClick={() => onImageDownload(item)}
             />}
+
+            {item._meta?.model != undefined && <div
+              style={{
+                position: "absolute",
+                top: "0.5rem",
+                left: "0.5rem",
+              }}
+            ><Badge
+              icon="brain"
+            >{item._meta?.model as string}</Badge></div>}
 
           </div>
         );

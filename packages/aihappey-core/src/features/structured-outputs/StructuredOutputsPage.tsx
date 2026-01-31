@@ -9,7 +9,7 @@ function normalizeText(v: unknown) {
 }
 
 export const StructuredOutputsPage = () => {
-  const { SearchBox, Paragraph } = useTheme();
+  const { SearchBox, Text } = useTheme();
   const { t } = useTranslation();
   const structuredOutputs = useStructuredOutputs();
 
@@ -52,9 +52,9 @@ export const StructuredOutputsPage = () => {
       >
         <OverviewPageHeader title={t("structuredOutputs")} />
 
-        <Paragraph style={{ textAlign: "center" }}>
+        <Text as="p" align={"center" }>
           {t("structuredOutputsPage.description")}
-        </Paragraph>
+        </Text>
 
         <div
           style={{

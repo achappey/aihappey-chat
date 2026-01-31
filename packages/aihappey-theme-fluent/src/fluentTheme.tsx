@@ -21,7 +21,6 @@ export { Skeleton } from "./primitives/Skeleton";
 import { Slider } from "./primitives/Slider";
 
 import { Header } from "./primitives/Header";
-import { Paragraph } from "./primitives/Paragraph";
 import { Button } from "./primitives/Button";
 import { Input } from "./primitives/Input";
 import { Card } from "./primitives/Card";
@@ -60,13 +59,14 @@ import { SplitButton } from "./primitives/SplitButton";
 import { FluentSettings } from "./FluentSettings";
 import { AudioPlayer } from "./primitives/AudioPlayer";
 import { JSX } from "react";
+import { Text as TextPrimitive } from "./primitives/Text";
 
 export const fluentTheme: AihUiTheme = {
   DataGrid,
   Header,
-  Paragraph,
   ToggleButton,
   AudioPlayer,
+  Text: TextPrimitive,
   Button,
   JsonViewer,
   Input,

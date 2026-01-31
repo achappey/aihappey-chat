@@ -13,6 +13,7 @@ export type LibraryImageItem = {
     storageItemId?: string;
     /** Present only when source === "storage" */
     imageIndex?: number;
+    model?: string;
 };
 
 const parseImageData = (input: string) => {
@@ -49,6 +50,7 @@ export function useLibraryImages(): LibraryImageItem[] {
                     mimeType,
                     storageItemId: c.id,
                     imageIndex,
+                    model: c.imageResponse.response.modelId
                 })
             });
         });

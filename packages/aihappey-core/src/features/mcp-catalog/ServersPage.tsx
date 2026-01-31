@@ -116,7 +116,7 @@ function normalizeUrl(u?: string) {
 // --- Component ---------------------------------------------------------------
 
 export const ServersPage = () => {
-  const { SearchBox, Paragraph, Tabs, Tab } = useTheme();
+  const { SearchBox, Text, Tabs, Tab } = useTheme();
   const { t } = useTranslation();
 
   const mcpRegistries = useAppStore((s) => s.mcpRegistries);
@@ -393,9 +393,9 @@ export const ServersPage = () => {
             docsUrl={"https://github.com/modelcontextprotocol"}
           />
 
-          <Paragraph style={{ textAlign: "center" }}>
+          <Text as="p" align={"center" }>
             {t("mcpPage.description")}
-          </Paragraph>
+          </Text>
 
           <div
             style={{

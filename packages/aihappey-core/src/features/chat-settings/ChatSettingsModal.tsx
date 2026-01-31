@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import {
+  AnthropicChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
@@ -14,7 +15,6 @@ import {
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
-import { AnthropicChatConfig } from "../provider-config/anthropic/AnthropicChatConfig";
 
 export interface ProviderSettingsModalProps {
   open: boolean;
@@ -75,9 +75,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         </theme.Tab>
         {enabledProviders.includes("Anthropic") &&
           <theme.Tab eventKey="anthropic" title="Anthropic">
-            <AnthropicChatConfig
-              anthropic={providerMetadata.anthropic ?? {}}
-              updateAnthropic={(anthropic) =>
+            <AnthropicChatConfigForm
+              config={providerMetadata.anthropic ?? {}}
+              updateConfig={(anthropic) =>
                 setProviderMetadata({ ...providerMetadata, anthropic })
               }
             />

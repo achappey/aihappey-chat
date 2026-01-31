@@ -3,14 +3,14 @@ import { jsonSchemaToZod } from "json-schema-to-zod";
 import z from "zod";
 import type { JsonRenderActionItem } from "aihappey-json-render-registry";
 import type {
-  JsonRenderCatalogItem,
-  RuntimeCatalogDefinitions,
+    JsonRenderCatalogItem,
+    RuntimeCatalogDefinitions,
 } from "aihappey-json-render-catalog";
 import {
-  buildRuntimeCatalogDefinition,
-  mergeRuntimeCatalogDefinitions,
-  createCatalogFromDefinitions,
-  resolveCatalogSelection,
+    buildRuntimeCatalogDefinition,
+    mergeRuntimeCatalogDefinitions,
+    createCatalogFromDefinitions,
+    resolveCatalogSelection,
 } from "aihappey-json-render-catalog";
 
 const SpacingEnum = z.enum(["none", "xs", "sm", "md", "lg", "xl"]);
@@ -123,6 +123,51 @@ export const componentDefinitions = {
         }),
         hasChildren: true,
     },
+    Text: {
+        description: "Inline or block text.",
+        props: z.object({
+            as: z.enum([
+                "b",
+                "em",
+                "h1",
+                "h2",
+                "h3",
+                "h4",
+                "h5",
+                "h6",
+                "i",
+                "p",
+                "pre",
+                "span",
+                "strong",
+            ]).optional(),
+
+            size: z
+                .union([
+                    z.literal(100),
+                    z.literal(200),
+                    z.literal(300),
+                    z.literal(400),
+                    z.literal(500),
+                    z.literal(600),
+                    z.literal(700),
+                    z.literal(800),
+                    z.literal(900),
+                    z.literal(1000),
+                ])
+                .optional(),
+            weight: z.enum(["bold", "medium", "regular", "semibold"]).optional(),
+            italic: z.boolean().optional(),
+            underline: z.boolean().optional(),
+            strikethrough: z.boolean().optional(),
+            truncate: z.boolean().optional(),
+            wrap: z.boolean().optional(),
+            block: z.boolean().optional(),
+            font: z.enum(["base", "numeric", "monospace"]).optional(),
+            text: z.string().optional(), // for simple text-only usage
+        }),
+        hasChildren: true,
+    },
     Card: {
         description:
             "Card container with title and description. Use as primary group container, avoid nesting cards inside cards.",
@@ -158,158 +203,158 @@ export const componentDefinitions = {
         }),
         hasChildren: true,
     },
-  /*  Tags: {
-        description: "Group of tags for labels or filters.",
-        props: z.object({
-            items: z.array(TagItemSchema),
-            size: z.enum(["extra-small", "small", "medium"]).optional(),
-        }),
-    },
-    Breadcrumb: {
-        description:
-            "Breadcrumb navigation for page hierarchy. Use action on items for navigation.",
-        props: z.object({
-            items: z.array(BreadcrumbItemSchema),
-        }),
-    },
-    Button: {
-        description: "Clickable button. Provide label and optional action.",
-        props: z.object({
-            label: z.string(),
-            variant: z.string().optional(),
-            size: z.string().optional(),
-            icon: z.string().optional(),
-            iconPosition: z.enum(["left", "right"]).optional(),
-            disabled: z.boolean().optional(),
-            action: ActionSchema.optional(),
-        }),
-    },
-    ToggleButton: {
-        description: "Toggle button for on/off states.",
-        props: z.object({
-            label: z.string().optional(),
-            checked: z.boolean().optional(),
-            variant: z.string().optional(),
-            size: z.string().optional(),
-            icon: z.string().optional(),
-            iconPosition: z.enum(["left", "right"]).optional(),
-            action: ActionSchema.optional(),
-        }),
-    },
-    SplitButton: {
-        description:
-            "Button with dropdown menu actions. Use menuItems for secondary actions.",
-        props: z.object({
-            label: z.string(),
-            variant: z.string().optional(),
-            size: z.string().optional(),
-            shape: z.enum(["rounded", "circular", "square"]).optional(),
-            align: z.enum(["left", "right"]).optional(),
-            icon: z.string().optional(),
-            iconPosition: z.enum(["left", "right"]).optional(),
-            disabled: z.boolean().optional(),
-            action: ActionSchema.optional(),
-            menuItems: z.array(
-                z.object({
-                    key: z.string(),
-                    label: z.string(),
-                    icon: z.string().optional(),
-                    danger: z.boolean().optional(),
-                    disabled: z.boolean().optional(),
-                    action: ActionSchema.optional(),
-                }),
-            ),
-        }),
-    },
-    Toolbar: {
-        description: "Horizontal toolbar for grouping actions.",
-        props: z.object({
-            ariaLabel: z.string().optional(),
-            size: z.enum(["small", "medium", "large"]).optional(),
-        }),
-        hasChildren: true,
-    },
-    ToolbarButton: {
-        description: "Action button intended for toolbar usage.",
-        props: z.object({
-            label: z.string().optional(),
-            icon: z.string().optional(),
-            variant: z.string().optional(),
-            disabled: z.boolean().optional(),
-            action: ActionSchema.optional(),
-        }),
-    },
-    ToolbarDivider: {
-        description: "Visual divider inside a toolbar.",
-        props: z.object({}),
-    },
-    Input: {
-        description: "Text input bound to a data path.",
-        props: z.object({
-            label: z.string().optional(),
-            hint: z.string().optional(),
-            placeholder: z.string().optional(),
-            type: z.string().optional(),
-            required: z.boolean().optional(),
-            disabled: z.boolean().optional(),
-            valuePath: z.string(),
-        }),
-    },
-    TextArea: {
-        description: "Multi-line text input bound to a data path.",
-        props: z.object({
-            label: z.string().optional(),
-            placeholder: z.string().optional(),
-            rows: z.number().int().min(2).max(16).optional(),
-            readOnly: z.boolean().optional(),
-            required: z.boolean().optional(),
-            disabled: z.boolean().optional(),
-            valuePath: z.string(),
-        }),
-    },
-    Switch: {
-        description: "Boolean toggle bound to a data path.",
-        props: z.object({
-            label: z.string().optional(),
-            hint: z.string().optional(),
-            size: z.string().optional(),
-            required: z.boolean().optional(),
-            disabled: z.boolean().optional(),
-            valuePath: z.string(),
-        }),
-    },
-    Slider: {
-        description: "Numeric slider bound to a data path.",
-        props: z.object({
-            label: z.string().optional(),
-            min: z.number().optional(),
-            max: z.number().optional(),
-            step: z.number().optional(),
-            showValue: z.boolean().optional(),
-            disabled: z.boolean().optional(),
-            valuePath: z.string(),
-        }),
-    },
-    Select: {
-        description: "Dropdown select bound to a data path.",
-        props: z.object({
-            label: z.string().optional(),
-            placeholder: z.string().optional(),
-            multiple: z.boolean().optional(),
-            disabled: z.boolean().optional(),
-            valuePath: z.string(),
-            options: z.array(OptionSchema),
-        }),
-    },
-    SearchBox: {
-        description: "Search input bound to a data path.",
-        props: z.object({
-            placeholder: z.string().optional(),
-            disabled: z.boolean().optional(),
-            autoFocus: z.boolean().optional(),
-            valuePath: z.string(),
-        }),
-    },*/
+    /*  Tags: {
+          description: "Group of tags for labels or filters.",
+          props: z.object({
+              items: z.array(TagItemSchema),
+              size: z.enum(["extra-small", "small", "medium"]).optional(),
+          }),
+      },
+      Breadcrumb: {
+          description:
+              "Breadcrumb navigation for page hierarchy. Use action on items for navigation.",
+          props: z.object({
+              items: z.array(BreadcrumbItemSchema),
+          }),
+      },
+      Button: {
+          description: "Clickable button. Provide label and optional action.",
+          props: z.object({
+              label: z.string(),
+              variant: z.string().optional(),
+              size: z.string().optional(),
+              icon: z.string().optional(),
+              iconPosition: z.enum(["left", "right"]).optional(),
+              disabled: z.boolean().optional(),
+              action: ActionSchema.optional(),
+          }),
+      },
+      ToggleButton: {
+          description: "Toggle button for on/off states.",
+          props: z.object({
+              label: z.string().optional(),
+              checked: z.boolean().optional(),
+              variant: z.string().optional(),
+              size: z.string().optional(),
+              icon: z.string().optional(),
+              iconPosition: z.enum(["left", "right"]).optional(),
+              action: ActionSchema.optional(),
+          }),
+      },
+      SplitButton: {
+          description:
+              "Button with dropdown menu actions. Use menuItems for secondary actions.",
+          props: z.object({
+              label: z.string(),
+              variant: z.string().optional(),
+              size: z.string().optional(),
+              shape: z.enum(["rounded", "circular", "square"]).optional(),
+              align: z.enum(["left", "right"]).optional(),
+              icon: z.string().optional(),
+              iconPosition: z.enum(["left", "right"]).optional(),
+              disabled: z.boolean().optional(),
+              action: ActionSchema.optional(),
+              menuItems: z.array(
+                  z.object({
+                      key: z.string(),
+                      label: z.string(),
+                      icon: z.string().optional(),
+                      danger: z.boolean().optional(),
+                      disabled: z.boolean().optional(),
+                      action: ActionSchema.optional(),
+                  }),
+              ),
+          }),
+      },
+      Toolbar: {
+          description: "Horizontal toolbar for grouping actions.",
+          props: z.object({
+              ariaLabel: z.string().optional(),
+              size: z.enum(["small", "medium", "large"]).optional(),
+          }),
+          hasChildren: true,
+      },
+      ToolbarButton: {
+          description: "Action button intended for toolbar usage.",
+          props: z.object({
+              label: z.string().optional(),
+              icon: z.string().optional(),
+              variant: z.string().optional(),
+              disabled: z.boolean().optional(),
+              action: ActionSchema.optional(),
+          }),
+      },
+      ToolbarDivider: {
+          description: "Visual divider inside a toolbar.",
+          props: z.object({}),
+      },
+      Input: {
+          description: "Text input bound to a data path.",
+          props: z.object({
+              label: z.string().optional(),
+              hint: z.string().optional(),
+              placeholder: z.string().optional(),
+              type: z.string().optional(),
+              required: z.boolean().optional(),
+              disabled: z.boolean().optional(),
+              valuePath: z.string(),
+          }),
+      },
+      TextArea: {
+          description: "Multi-line text input bound to a data path.",
+          props: z.object({
+              label: z.string().optional(),
+              placeholder: z.string().optional(),
+              rows: z.number().int().min(2).max(16).optional(),
+              readOnly: z.boolean().optional(),
+              required: z.boolean().optional(),
+              disabled: z.boolean().optional(),
+              valuePath: z.string(),
+          }),
+      },
+      Switch: {
+          description: "Boolean toggle bound to a data path.",
+          props: z.object({
+              label: z.string().optional(),
+              hint: z.string().optional(),
+              size: z.string().optional(),
+              required: z.boolean().optional(),
+              disabled: z.boolean().optional(),
+              valuePath: z.string(),
+          }),
+      },
+      Slider: {
+          description: "Numeric slider bound to a data path.",
+          props: z.object({
+              label: z.string().optional(),
+              min: z.number().optional(),
+              max: z.number().optional(),
+              step: z.number().optional(),
+              showValue: z.boolean().optional(),
+              disabled: z.boolean().optional(),
+              valuePath: z.string(),
+          }),
+      },
+      Select: {
+          description: "Dropdown select bound to a data path.",
+          props: z.object({
+              label: z.string().optional(),
+              placeholder: z.string().optional(),
+              multiple: z.boolean().optional(),
+              disabled: z.boolean().optional(),
+              valuePath: z.string(),
+              options: z.array(OptionSchema),
+          }),
+      },
+      SearchBox: {
+          description: "Search input bound to a data path.",
+          props: z.object({
+              placeholder: z.string().optional(),
+              disabled: z.boolean().optional(),
+              autoFocus: z.boolean().optional(),
+              valuePath: z.string(),
+          }),
+      },*/
     ProgressBar: {
         description: "Progress indicator. Use value or valuePath.",
         props: z.object({
@@ -363,6 +408,7 @@ export const componentDefinitions = {
             "Simple data table using columns + data or dataPath. Use for small datasets.",
         props: z.object({
             columns: z.array(TableColumnSchema),
+            //data: z.any(),
             data: z.array(z.record(z.string(), z.unknown())).optional(),
             dataPath: z.string().optional(),
             striped: z.boolean().optional(),
@@ -376,25 +422,26 @@ export const componentDefinitions = {
             "Advanced data grid with sortable columns. Use for larger datasets.",
         props: z.object({
             columns: z.array(TableColumnSchema),
+            //data: z.any(),
             data: z.array(z.record(z.string(), z.unknown())).optional(),
             dataPath: z.string().optional(),
             selectionMode: z.enum(["single", "multiselect", "none"]).optional(),
         }),
     },
-   /* JsonViewer: {
-        description: "Structured JSON viewer. Use valuePath for data binding.",
-        props: z.object({
-            title: z.string().optional(),
-            value: z.any().optional(),
-            valuePath: z.string().optional(),
-        }),
-    },*/
+    /* JsonViewer: {
+         description: "Structured JSON viewer. Use valuePath for data binding.",
+         props: z.object({
+             title: z.string().optional(),
+             value: z.any().optional(),
+             valuePath: z.string().optional(),
+         }),
+     },*/
     Chart: {
-        description: "Chart.js block. Provide type and data (or bind via dataPath).",
+        description: "Chart.js block. Use JSON Pointer (RFC 6901) strings when using datapaths. Prefer datapaths for dynamic charts.",
         props: z.object({
             type: z.string(),
-            data: z.any().optional(),
-            dataPath: z.string().optional(),
+            labels: z.any(),
+            datasets: z.any(),
             options: z.any().optional(),
             height: z.number().optional(),
         }),
@@ -432,18 +479,18 @@ export const componentDefinitions = {
 };
 
 export const staticActionDefinitions = {
-  /*  submit_form: {
-        params: z.object({
-            formId: z.string(),
-        }),
-        description: "Submit a form",
-    },
-    export_data: {
-        params: z.object({
-            format: z.enum(["csv", "pdf", "json"]),
-        }),
-        description: "Export data",
-    },*/
+    /*  submit_form: {
+          params: z.object({
+              formId: z.string(),
+          }),
+          description: "Submit a form",
+      },
+      export_data: {
+          params: z.object({
+              format: z.enum(["csv", "pdf", "json"]),
+          }),
+          description: "Export data",
+      },*/
 };
 
 export const catalog = createCatalog({

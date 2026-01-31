@@ -14,7 +14,7 @@ function normalizeText(v: unknown) {
 }
 
 export const CatalogsPage = () => {
-  const { Tabs, Tab, Paragraph, SearchBox, Modal, Button, JsonViewer } = useTheme();
+  const { Tabs, Tab, Text, SearchBox, Modal, Button, JsonViewer } = useTheme();
   const { t } = useTranslation();
   const catalogs = useJsonRenderCatalog();
 
@@ -162,7 +162,7 @@ export const CatalogsPage = () => {
       >
         <OverviewPageHeader title={t("catalogs")} />
 
-        <Paragraph style={{ textAlign: "center" }}>{t("catalogsPage.description")}</Paragraph>
+        <Text as="p" align={"center"}>{t("catalogsPage.description")}</Text>
 
         <div
           style={{
@@ -183,9 +183,9 @@ export const CatalogsPage = () => {
         >
           <Tab key={DEFAULT_TAB_KEY} eventKey={DEFAULT_TAB_KEY} title={t("providerDefault")}>
             <div style={{ paddingTop: 12, width: "100%" }}>
-              <Paragraph style={{ textAlign: "left", width: "100%" }}>
+              <Text as="p" align={"start"}>
                 {t("componentsPage.title")}
-              </Paragraph>
+              </Text>
               {renderGrid(
                 builtInComponents.length === 0 ? (
                   <div
@@ -219,9 +219,9 @@ export const CatalogsPage = () => {
                 )
               )}
 
-              <Paragraph style={{ textAlign: "left", width: "100%" }}>
+              <Text as="p" align={"start"}>
                 {t("actions")}
-              </Paragraph>
+              </Text>
               {renderGrid(
                 builtInActions.length === 0 ? (
                   <div
@@ -266,9 +266,9 @@ export const CatalogsPage = () => {
                 title={catalog.name}
               >
                 <div style={{ paddingTop: 12, width: "100%" }}>
-                  <Paragraph style={{ textAlign: "left", width: "100%" }}>
+                  <Text as="p" align={"start"}>
                     {t("components")}
-                  </Paragraph>
+                  </Text>
                   {renderGrid(
                     filteredComponents.length === 0 ? (
                       <div
@@ -321,9 +321,9 @@ export const CatalogsPage = () => {
                     )
                   )}
 
-                  <Paragraph style={{ textAlign: "left", width: "100%" }}>
+                  <Text as="p" align={"start"}>
                     {t("actions")}
-                  </Paragraph>
+                  </Text>
                   {renderGrid(
                     filteredActions.length === 0 ? (
                       <div

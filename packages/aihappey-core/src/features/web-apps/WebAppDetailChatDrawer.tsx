@@ -57,6 +57,62 @@ type WebAppDetailChatDrawerProps = {
 
 const JSON_RENDER_MIME = "application/vnd.vercel-app+json";
 
+type JsonSchema =
+    | { type: "string" }
+    | { type: "number" }
+    | { type: "boolean" }
+    | { type: "null" }
+    | { type: "array"; items: JsonSchema }
+    | { type: "object"; properties: Record<string, JsonSchema> };
+
+export function inferShapeSchema(
+    value: any,
+    opts?: {
+        maxDepth?: number;
+        maxProps?: number;
+    },
+    depth = 0
+): JsonSchema {
+    const { maxDepth = 4, maxProps = 20 } = opts ?? {};
+
+    if (value === null) return { type: "null" };
+
+    if (Array.isArray(value)) {
+        const first = value.find(v => v !== null && v !== undefined);
+        return {
+            type: "array",
+            items: first
+                ? inferShapeSchema(first, opts, depth + 1)
+                : { type: "string" }
+        };
+    }
+
+    if (typeof value === "object") {
+        if (depth >= maxDepth) {
+            return { type: "object", properties: {} };
+        }
+
+        const entries = Object.entries(value).slice(0, maxProps);
+        const properties: Record<string, JsonSchema> = {};
+
+        for (const [key, val] of entries) {
+            properties[key] = inferShapeSchema(val, opts, depth + 1);
+        }
+
+        return {
+            type: "object",
+            properties
+        };
+    }
+
+    if (typeof value === "string") return { type: "string" };
+    if (typeof value === "number") return { type: "number" };
+    if (typeof value === "boolean") return { type: "boolean" };
+
+    return { type: "string" };
+}
+
+
 const webAppGenerateTool: Tool = {
     name: "generate_web_app_ui",
     title: "Generate web app UI update",
@@ -145,6 +201,7 @@ export const WebAppDetailChatDrawer = ({
     const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
     const toolChoice = useAppStore((s) => s.toolChoice);
     const maxToolCalls = useAppStore((s) => s.maxToolCalls);
+    const temperature = useAppStore((s) => s.temperature);
     const stopTools = useAppStore((s) => s.stopTools);
     const { config } = useChatContext();
     useSystemMessage();
@@ -176,9 +233,12 @@ export const WebAppDetailChatDrawer = ({
             toolChoice,
             maxToolCalls,
             providerMetadata,
+            temperature,
         }),
-        [model, tools, maxOutputTokens, toolChoice, maxToolCalls, providerMetadata]
+        [model, tools, maxOutputTokens, toolChoice, maxToolCalls, providerMetadata, temperature]
     );
+
+    const appDataRef = useRef(app?.data);
 
     const appContextRef = useRef({
         appId,
@@ -190,7 +250,7 @@ export const WebAppDetailChatDrawer = ({
         appContextRef.current = {
             appId,
             name: app?.name,
-            description: app?.description,
+            description: app?.description
         };
     }, [appId, app?.name, app?.description]);
 
@@ -218,7 +278,6 @@ export const WebAppDetailChatDrawer = ({
         initialMessagesRef.current = [systemMessageRef.current];
     }
 
-    const appDataRef = useRef(app?.data);
     const treeRef = useRef(tree);
     const providerMetadataRef = useRef(providerMetadata);
 
@@ -292,7 +351,10 @@ export const WebAppDetailChatDrawer = ({
                     const effectiveToolChoice = forceNone ? "none" : mergedBody.toolChoice;
 
                     return {
-                        headers: opts.headers,
+                        headers: {
+                            ...(opts.headers ?? {}),
+
+                        },
                         credentials: opts.credentials,
                         body: {
                             ...mergedBody,
@@ -401,7 +463,8 @@ export const WebAppDetailChatDrawer = ({
                 promptToSend,
                 appDataRef.current,
                 providerMetadataRef.current,
-                currentTree ?? null
+                currentTree ?? null,
+                maxOutputTokens
             );
             inFlightStreamRef.current = streamPromise;
             inFlightToolCallIdRef.current = toolCall.toolCallId;

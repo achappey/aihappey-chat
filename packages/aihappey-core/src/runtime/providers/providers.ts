@@ -74,6 +74,7 @@ import { upstage } from "./catalog/upstage";
 import { siliconflow } from "./catalog/siliconflow";
 import { cirrascale } from "./catalog/cirrascale";
 import { klingai } from "./catalog/klingai";
+import { euqai } from "./catalog/euqai";
 
 /**
  * UI-facing provider catalog.
@@ -85,6 +86,7 @@ export const PROVIDERS: Record<string, Provider> = {
   runway,
   aiml,
   anthropic,
+  euqai,
   google,
   mistral,
   lectoai,

@@ -35,6 +35,7 @@
   },
   "anthropic": {
     "maxUses": "Maximum uses",
+    "betaHeader": "Beta",
     "customSkills": "Custom skills",
     "allowedDomains": "Allowed domains",
     "blockedDomains": "Blocked domains"

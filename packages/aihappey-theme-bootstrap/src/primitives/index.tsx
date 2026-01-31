@@ -12,3 +12,4 @@ export { iconMap } from "./IconMap";
 export { SplitButton } from "./SplitButton";
 export { BootstrapSettings } from "./BootstrapSettings";
 export { AudioPlayer } from "./AudioPlayer";
+export { Text } from "./Text";
