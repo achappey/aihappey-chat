@@ -9,13 +9,14 @@ import { AgentSlice } from "./slices/agentSlice";
 import { McpServersSlice } from "./slices/mcpServersSlice";
 import { McpRegistrySlice } from "./slices/mcpRegistrySlice";
 import { ImageSlice } from "./slices/imageSlice";
+import { VideoSlice } from "./slices/videoSlice";
 import { TranscriptionSlice } from "./slices/transcriptionSlice";
 import { SpeechSlice } from "./slices/speechSlice";
 import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 
-type RootState = ChatSlice & McpSlice & ImageSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
+type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
 
 export const withPersist = (
@@ -33,6 +34,7 @@ export const withPersist = (
       providerRealtimeMetadata: s.providerRealtimeMetadata,
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
+      userPreferredVideoModel: (s as any).userPreferredVideoModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,
       pinnedConversations: s.pinnedConversations,
       userPreferredTranscriptionModel: s.userPreferredTranscriptionModel,
@@ -46,6 +48,7 @@ export const withPersist = (
       showMessageTokens: s.showMessageTokens,
       providerMetadata: s.providerMetadata,
       providerImageMetadata: s.providerImageMetadata,
+      providerVideoMetadata: (s as any).providerVideoMetadata,
       providerSpeechMetadata: s.providerSpeechMetadata,
       providerTranscriptionMetadata: s.providerTranscriptionMetadata,
       providerRerankingMetadata: s.providerRerankingMetadata,
@@ -57,10 +60,16 @@ export const withPersist = (
       speed: s.speed,
       speechLanguage: s.speechLanguage,
       seed: s.seed,
+      videoSeed: (s as any).seed,
       allowedToolList: s.allowedToolList,
       size: s.size,
       maxImagesPerCall: s.maxImagesPerCall,
       aspectRatio: s.aspectRatio,
+      videoDuration: (s as any).duration,
+      videoResolution: (s as any).resolution,
+      videoFps: (s as any).fps,
+      videoAspectRatio: (s as any).aspectRatio,
+      videoMaxPerCall: (s as any).maxVideosPerCall,
       chatWithImageModels: s.chatWithImageModels,
       chatWithSpeechModels: s.chatWithSpeechModels,
       chatWithTranscriptionModels: s.chatWithTranscriptionModels,

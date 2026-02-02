@@ -19,6 +19,7 @@ import { ChatArenaPage } from "../features/chat/arena/ChatArenaPage";
 import { ChatPage } from "../features/chat";
 import { AgentsPage } from "../features/agents/AgentsPage";
 import { ImagePage } from "../features/images/ImagePage";
+import { VideoPage } from "../features/videos/VideoPage";
 import { useTheme } from "aihappey-components";
 import { ModelsPage } from "../features/models/ModelsPage";
 import { ProvidersPage } from "../features/providers/ProvidersPage";
@@ -115,6 +116,7 @@ export const CoreRoot = ({
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },
             { path: "images", element: <ImagePage /> },
+            { path: "videos", element: <VideoPage /> },
             { path: "files", element: <FilesPage /> },
             { path: "structured-outputs", element: <StructuredOutputsPage /> },
             { path: "transcriptions", element: <TranscriptionsPage /> },

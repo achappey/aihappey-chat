@@ -10,8 +10,10 @@
   "variation": "Variation",
   "download": "Herunterladen",
   "imagePromptPlaceholder": "Neues Bild beschreiben",
+  "videoPromptPlaceholder": "Neues Video beschreiben",
   "chatWithImageModels": "Chat mit Bildmodellen",
   "myImages": "Meine Bilder",
+  "myVideos": "Meine Videos",
   "priority": "Priorität",
   "apiKey": "API-Schlüssel",
   "noResults": "Keine Ergebnisse",
@@ -179,6 +181,7 @@
   "reasoningSummary": "Detailgrad der Begründung",
   "image": "Bild",
   "images": "Bilder",
+  "videos": "Videos",
   "audio": "Audio",
   "name": "Name",
   "createdAt": "Erstellt am",
@@ -350,5 +353,22 @@
     "output": "Ausgabe",
     "n": "Anzahl der Bilder ({{n}})",
     "seed": "Seed"
+  },
+  "videoSettings": {
+    "title": "Video-Einstellungen",
+    "size": "Videogröße",
+    "width": "Breite",
+    "height": "Höhe",
+    "output": "Ausgabe",
+    "n": "Anzahl der Videos ({{n}})",
+    "maxVideosPerCall": "Maximale Videos pro Aufruf",
+    "parameters": "Parameter",
+    "duration": "Dauer (Sekunden)",
+    "resolution": "Auflösung",
+    "fps": "Bilder pro Sekunde",
+    "aspectRatio": "Seitenverhältnis",
+    "other": "Andere",
+    "seed": "Seed",
+    "image": "Bild"
   }
 }

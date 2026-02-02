@@ -161,6 +161,9 @@ export type UiSlice = {
   userPreferredImageModel?: string;
   setUserPreferredImageModel: (model: string) => void;
 
+  userPreferredVideoModel?: string;
+  setUserPreferredVideoModel: (model: string) => void;
+
   userPreferredTranscriptionModel?: string;
   setUserPreferredTranscriptionModel: (model: string) => void;
 
@@ -274,6 +277,13 @@ export const createUiSlice: StateCreator<
     set((state: any) => {
       return {
         userPreferredImageModel: model
+      }
+    }),
+
+  setUserPreferredVideoModel: (model) =>
+    set((state: any) => {
+      return {
+        userPreferredVideoModel: model
       }
     }),
 

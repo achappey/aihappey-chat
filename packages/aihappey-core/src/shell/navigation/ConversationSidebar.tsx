@@ -89,6 +89,13 @@ export const ConversationSidebar = ({
       icon: "reranking",
     },
     {
+      key: "videos",
+      label: t("videos"),
+      new: true,
+      href: "/videos",
+      icon: "videos",
+    },
+    {
       key: "arena",
       label: t("arena"),
       href: "/arena",

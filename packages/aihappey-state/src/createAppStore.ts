@@ -7,13 +7,14 @@ import { AgentSlice, createAgentSlice } from "./slices/agentSlice";
 import { createMcpServersSlice, McpServersSlice } from "./slices/mcpServersSlice";
 import { createMcpRegistrySlice, McpRegistrySlice } from "./slices/mcpRegistrySlice";
 import { createImageSlice, ImageSlice } from "./slices/imageSlice";
+import { createVideoSlice, VideoSlice } from "./slices/videoSlice";
 import { createTranscriptionSlice, TranscriptionSlice } from "./slices/transcriptionSlice";
 import { createSpeechSlice, SpeechSlice } from "./slices/speechSlice";
 import { createRerankingSlice, RerankingSlice } from "./slices/rerankingSlice";
 import { createRealtimeSlice, RealtimeSlice } from "./slices/realtimeSlice";
 import { createJsonRenderSlice, JsonRenderSlice } from "./slices/jsonRenderSlice";
 
-export type RootState = ChatSlice & McpSlice & ImageSlice & TranscriptionSlice & RealtimeSlice
+export type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & TranscriptionSlice & RealtimeSlice
   & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
 
@@ -24,6 +25,7 @@ export const createAppStore = () =>
         ...createChatSlice(set, get, store),
         ...createAgentSlice(set, get, store),
         ...createImageSlice(set, get, store),
+        ...createVideoSlice(set, get, store),
         ...createMcpServersSlice(set, get, store),
         ...createRerankingSlice(set, get, store),
         ...createRealtimeSlice(set, get, store),

@@ -23,6 +23,7 @@
     "aihappey-json-render-catalog": "*",
     "aihappey-json-render-registry": "*",
     "aihappey-reranking": "*",
+    "aihappey-videos": "*",
     "aihappey-speech": "*",
     "aihappey-state": "*",
     "aihappey-structured-outputs": "*",

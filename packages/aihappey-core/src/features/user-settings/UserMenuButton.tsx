@@ -7,7 +7,7 @@ import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useChatContext } from "../chat/context/ChatContext";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 
-type ProviderCapability = "language" | "image" | "speech" | "transcription" | "reranking";
+type ProviderCapability = "language" | "image" | "speech" | "transcription" | "reranking" | "video";
 
 interface UserMenuButtonProps {
   email?: string;
@@ -85,6 +85,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
       "speech",
       "transcription",
       "reranking",
+      "video"
     ];
 
     const byCap: Record<ProviderCapability, Set<string>> = {
@@ -93,6 +94,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
       speech: new Set<string>(),
       transcription: new Set<string>(),
       reranking: new Set<string>(),
+      video: new Set<string>(),
     };
 
     for (const m of models ?? []) {
@@ -140,6 +142,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
           speech: t("speech"),
           transcription: t("transcription"),
           reranking: t("reranking"),
+          video: t("video"),
         }}
         className={className}
         style={style}

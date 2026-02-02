@@ -19,6 +19,22 @@ export interface ImageResponse {
   usage?: ImageModelV3Usage;
 }
 
+export interface VideoResponse {
+  videos: VideoResponseFile[];
+  warnings: Array<SharedV3Warning>;
+  providerMetadata?: Record<string, any>;
+  response: {
+    timestamp: Date;
+    modelId: string;
+    headers: Record<string, string> | undefined;
+  };
+}
+
+export interface VideoResponseFile {
+  type: "base64";
+  data: string
+  mimeType: string
+}
 
 export interface TranscriptionResponse {
   text: string;
@@ -72,10 +88,10 @@ export interface RealtimeResponse {
   providerMetadata: Record<string, any>
 }
 
-
 export const defaultEndpoints = {
   chat: "/api/chat",
   images: "/v1/images/generations",
+  videos: "/v1/videos",
   transcriptions: "/v1/audio/transcriptions",
   speech: "/v1/audio/speech",
   sampling: "/sampling",
@@ -84,4 +100,3 @@ export const defaultEndpoints = {
   chatCompletions: "/chat/completions",
   realtime: "/v1/realtime/client_secrets"
 }
-

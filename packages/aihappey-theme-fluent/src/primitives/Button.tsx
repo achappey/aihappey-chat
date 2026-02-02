@@ -86,7 +86,9 @@ import {
   BeakerRegular,
   DatabaseWindowRegular,
   AppsRegular,
+  VideoRegular,
   PuzzlePieceRegular,
+  VideoSettingsRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -103,8 +105,10 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   transcriptions: MicRegular,
   transcriptionSettings: MicSettingsRegular,
   imageSettings: ContentSettingsRegular,
+  videoSettings: VideoSettingsRegular,
   disconnect: PlugConnectedCheckmarkRegular,
   images: ImageStackRegular,
+  videos: VideoRegular,
   folder: FolderRegular,
   server: ServerRegular,
   connector: ConnectorRegular,
@@ -162,6 +166,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   agentSettings: SettingsChatRegular,
   eye: EyeRegular,
   image: ImageRegular,
+  video: VideoRegular,
   databaseGear: DatabasePersonRegular,
   personalization: PersonHeartRegular,
   contextWindow: DatabaseWindowRegular,

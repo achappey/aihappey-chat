@@ -3,6 +3,7 @@ export * from "./settings";
 export * from "./providers";
 export * from "./model-context";
 export * from "./images";
+export * from "./videos";
 export * from "./settings/speech";
 export * from "./settings/reranking";
 export * from "./tools";

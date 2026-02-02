@@ -1,0 +1,87 @@
+import type {
+    Experimental_VideoModelV3
+} from "@ai-sdk/provider"
+
+export function createVideoProvider(config: {
+    baseUrl: string;
+    headers?: any;
+}) {
+    return {
+        videoModel(modelId: string, maxVideosPerCall?: number | undefined): Experimental_VideoModelV3 {
+            return {
+                specificationVersion: 'v3',
+                provider: modelId.split("/")?.[0],
+                modelId,
+                maxVideosPerCall: maxVideosPerCall,
+                async doGenerate(options) {
+                    const {
+                        prompt,
+                        n,
+                        seed,
+                        duration,
+                        aspectRatio,
+                        resolution,
+                        image,
+                        fps,
+                        providerOptions
+                    } = options;
+
+                    const max = maxVideosPerCall ?? n;
+                    const batches = Math.ceil(n / max);
+                    const requests = Array.from({ length: batches }, (_, i) => {
+                        const batchN = Math.min(max, n - i * max);
+
+                        return fetch(config.baseUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                ...(config.headers ?? {})
+                            },
+                            body: JSON.stringify({
+                                model: modelId,
+                                prompt,
+                                seed,
+                                aspectRatio,
+                                resolution,
+                                image,
+                                duration,
+                                fps,
+                                n: batchN,
+                                providerOptions
+                            })
+                        }).then(async res => {
+                            if (!res.ok) {
+                                throw new Error(`Video generation failed (${await res.text()})`);
+                            }
+                            return res.json();
+                        });
+                    });
+
+                    const results = await Promise.all(requests);
+                    const videos = results.flatMap(r => r.videos ?? []);
+                    const warnings = results.flatMap(r => r.warnings ?? []);
+                    const timestamp =
+                        results.find(r => r?.response?.timestamp)?.response?.timestamp ??
+                        new Date().toString();
+
+
+                    return {
+                        videos,
+                        warnings,
+                        response: {
+                            timestamp,
+                            modelId,
+                            headers: undefined
+                        }
+                    };
+                }
+            };
+        }
+    };
+}
+
+
+
+
+
+
