@@ -16,6 +16,8 @@
   "segments": "Segments",
   "output": "Output",
   "table": "Table",
+  "next": "Next",
+  "previous": "Previous",
   "saved": "Saved ({{total}})",
   "rerankings": "Reranks",
   "rerank": "Reranking",
@@ -238,6 +240,7 @@
   "plugins": {
     "local-agents": "Agent Framework",
     "local-canvas": "Canvas",
+    "local-todo": "Todo list",
     "local-json-render": "Apps",
     "local-images": "Images",
     "local-catalog": "Component catalogs",

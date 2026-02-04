@@ -110,6 +110,18 @@ const MinimalNavBar = ({
         style={{ marginBottom: 8 }}
         onClick={handleReranking}
       />
+
+      <Button
+        icon="video"
+        size="small"
+        variant="transparent"
+        title={t("videos")}
+        aria-label={t("videos")}
+        style={{ marginBottom: 8 }}
+        onClick={() =>
+          navigate("/videos")
+        }
+      />
     </nav>
   );
 };

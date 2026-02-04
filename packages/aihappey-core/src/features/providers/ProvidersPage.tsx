@@ -63,7 +63,7 @@ export const ProvidersPage = () => {
                 >
                     <OverviewPageHeader title={t("ai.title")} />
 
-                    <Text as="p" align={"center" }>
+                    <Text as="p" align={"center"}>
                         {t("ai.providers", { total: providers.length })}
                     </Text>
 

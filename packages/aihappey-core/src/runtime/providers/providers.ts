@@ -75,6 +75,7 @@ import { siliconflow } from "./catalog/siliconflow";
 import { cirrascale } from "./catalog/cirrascale";
 import { klingai } from "./catalog/klingai";
 import { euqai } from "./catalog/euqai";
+import { vidu } from "./catalog/vidu";
 
 /**
  * UI-facing provider catalog.
@@ -138,6 +139,7 @@ export const PROVIDERS: Record<string, Provider> = {
   nebius,
   audixa,
   klingai,
+  vidu,
   deepinfra,
   nvidia,
   runware,

@@ -17,6 +17,10 @@ import {
   PersonSettingsRegular,
   KeyRegular,
   PlugConnectedRegular,
+  PreviousRegular,
+  NextRegular,
+  ChevronLeftRegular,
+  ChevronRightRegular,
 } from "@fluentui/react-icons";
 
 import { UserMenuLabels } from "aihappey-types/src/i18n";
@@ -62,6 +66,9 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   style,
   labels = {},
 }) => {
+  const PAGE_SIZE = 10;
+  const [providerPages, setProviderPages] = React.useState<Record<string, number>>({});
+
   const handleProvidersCheckedChange = React.useCallback(
     (_e: any, data: any) => {
       // Fluent Menu selection is managed via Menu.checkedValues.
@@ -124,6 +131,87 @@ export const UserMenu: React.FC<UserMenuProps> = ({
       })
       .filter((d) => (d.providers?.length ?? 0) > 0);
   }, [providerGroups, labels, enabledProviders]);
+
+  const clampProviderPage = React.useCallback(
+    (key: string, totalItems: number) => {
+      setProviderPages((prev) => {
+        const maxPage = Math.max(0, Math.ceil(totalItems / PAGE_SIZE) - 1);
+        const current = prev[key] ?? 0;
+        const next = Math.min(current, maxPage);
+        if (next === current) return prev;
+        return { ...prev, [key]: next };
+      });
+    },
+    [PAGE_SIZE]
+  );
+
+  React.useEffect(() => {
+    capabilityMenus.forEach((cap) => clampProviderPage(cap.key, cap.providers.length));
+    if (providers) clampProviderPage("flat", providers.length);
+  }, [capabilityMenus, providers, clampProviderPage]);
+
+  const getProviderPage = React.useCallback(
+    (key: string) => providerPages[key] ?? 0,
+    [providerPages]
+  );
+
+  const setProviderPage = React.useCallback((key: string, nextPage: number) => {
+    setProviderPages((prev) => ({ ...prev, [key]: nextPage }));
+  }, []);
+
+  const renderPagedProviders = React.useCallback(
+    (
+      key: string,
+      list: string[],
+      renderItem: (provider: string) => React.ReactNode
+    ) => {
+      const page = getProviderPage(key);
+      const totalPages = Math.ceil(list.length / PAGE_SIZE);
+      const startIndex = page * PAGE_SIZE;
+      const pageItems = list.slice(startIndex, startIndex + PAGE_SIZE);
+      const showPrev = page > 0;
+      const showNext = page < totalPages - 1;
+
+      return (
+        <>
+          {showPrev && (
+            <>
+              <MenuItem
+                key={`${key}:prev`}
+                icon={<ChevronLeftRegular />}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setProviderPage(key, page - 1);
+                }}
+              >
+                {labels.previous ?? "Previous"}
+              </MenuItem>
+              <MenuDivider />
+            </>
+          )}
+          {pageItems.map((provider) => renderItem(provider))}
+          {showNext && (
+            <>
+              <MenuDivider />
+              <MenuItem
+                key={`${key}:next`}
+                icon={<ChevronRightRegular />}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setProviderPage(key, page + 1);
+                }}
+              >
+                {labels.next ?? "Next"}
+              </MenuItem>
+            </>
+          )}
+        </>
+      );
+    },
+    [getProviderPage, labels.next, labels.previous, setProviderPage, PAGE_SIZE]
+  );
 
   return (
     <Menu>
@@ -191,7 +279,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                           </MenuTrigger>
                           <MenuPopover>
                             <MenuList hasCheckmarks>
-                              {cap.providers.map((p) => (
+                              {renderPagedProviders(cap.key, cap.providers, (p) => (
                                 <MenuItemCheckbox
                                   key={`${cap.key}:${p}`}
                                   name="providers"
@@ -208,7 +296,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                     </>
                   ) : (
                     // Fallback: legacy flat list
-                    providers.map((p) => (
+                    renderPagedProviders("flat", providers, (p) => (
                       <MenuItemCheckbox
                         key={p}
                         name="providers"

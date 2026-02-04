@@ -16,7 +16,6 @@ type VideoGridProps = {
   style?: React.CSSProperties;
   shimmers?: number;
   onVideoClick?: (src: VideoContent, index: number) => void;
-  onVideoDownload?: (src: VideoContent) => void;
 };
 
 export const VideoGrid = ({
@@ -25,7 +24,6 @@ export const VideoGrid = ({
   gap,
   shape,
   onVideoClick,
-  onVideoDownload,
   shadow,
   shimmers,
   style,
@@ -89,20 +87,6 @@ export const VideoGrid = ({
               }}
               onClick={() => onVideoClick?.(item, idx)}
             />
-
-            {onVideoDownload && (
-              <Button
-                icon="download"
-                variant="primary"
-                shape="square"
-                style={{
-                  position: "absolute",
-                  bottom: "0.5rem",
-                  right: "0.5rem",
-                }}
-                onClick={() => onVideoDownload(item)}
-              />
-            )}
 
             {item._meta?.model != null && (
               <div

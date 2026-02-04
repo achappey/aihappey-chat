@@ -140,6 +140,8 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
           language: t("language"),
           image: t("image"),
           speech: t("speech"),
+          next: t("next"),
+          previous: t("previous") ,
           transcription: t("transcription"),
           reranking: t("reranking"),
           video: t("video"),

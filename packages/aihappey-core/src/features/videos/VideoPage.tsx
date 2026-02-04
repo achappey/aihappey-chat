@@ -277,7 +277,6 @@ export const VideoPage = () => {
           }))}
           shimmers={itemsLoading}
           onVideoClick={openVideo}
-          onVideoDownload={downloadVideo}
           columns={isDesktop ? 3 : 1}
           gap="1rem"
           shadow
@@ -304,9 +303,6 @@ export const VideoPage = () => {
                 }
               : undefined
           }
-          onAddToPrompt={() => {
-            closeVideo();
-          }}
           onClose={closeVideo}
         />
       )}

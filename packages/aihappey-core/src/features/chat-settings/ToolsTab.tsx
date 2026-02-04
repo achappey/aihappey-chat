@@ -16,6 +16,7 @@ import { localImagesPluginDef } from "../tools/toolcalls/useLocalImagesToolCall"
 //import { localJsonRenderPluginDef } from "../tools/toolcalls/useLocalJsonRenderToolCall";
 import { localCatalogPluginDef } from "../tools/toolcalls/useLocalCatalogToolCall";
 import { localRegistryPluginDef } from "../tools/toolcalls/useLocalRegistryToolCall";
+import { localTodoPluginDef } from "../tools/toolcalls/useLocalTodoListToolCall";
 
 // --- Tools Tab ---
 // Holds the "Lokale plugins" card previously shown in the General tab.
@@ -33,7 +34,6 @@ export const ToolsTab = () => {
   );
 
   const localTools = useLocalTools();
-
   const defsAll = useMemo(
     () => [
       localFilesPluginDef,
@@ -43,6 +43,7 @@ export const ToolsTab = () => {
       localSettingsPluginDef,
       localImagesPluginDef,
       //localJsonRenderPluginDef,
+      localTodoPluginDef,
       localStructuredOutputsPluginDef,
       localCatalogPluginDef,
       localRegistryPluginDef,

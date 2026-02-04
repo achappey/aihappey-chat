@@ -18,6 +18,8 @@
   "stopTools": "Tools die de chatbeurt beëindigen",
   "toolChoice": "Toolkeuze",
   "sourceCode": "Broncode",
+  "next": "Volgende",
+  "previous": "Vorige",
   "apiKey": "API sleutel",
   "selectModelPlaceholder": "Selecteer AI-model...",
   "apiKeys": "API sleutels",
@@ -273,6 +275,7 @@
   "plugins": {
     "local-agents": "Agent Framework",
     "local-catalog": "Component catalogi",
+    "local-todo": "Takenlijst",
     "local-registry": "Component registers",
     "local-canvas": "Canvas",
     "local-structured-outputs": "Gestructureerde uitvoer",

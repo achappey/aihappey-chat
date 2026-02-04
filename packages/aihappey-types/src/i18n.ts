@@ -4,6 +4,8 @@ export interface UserMenuLabels {
   apiKeys?: string;
   settings?: string;
   logout?: string;
+  next?: string;
+  previous?: string;
 
   /** Optional labels for provider capability submenus (Fluent theme). */
   language?: string;

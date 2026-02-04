@@ -21,7 +21,7 @@ import { useLocalCatalogRuntime } from "./useLocalCatalogToolCall";
 import { useLocalRegistryRuntime } from "./useLocalRegistryToolCall";
 import { useVercelAIToolCall, vercelAIPluginDef } from "./useVercelAIToolCall";
 import { useLocalTools } from "aihappey-tools";
-import { localStructuredOutputsPluginDef, useLocalStructuredOutputsRuntime } from "./useLocalStructuredOutputsToolCall";
+import { useLocalStructuredOutputsRuntime } from "./useLocalStructuredOutputsToolCall";
 import {
   compileStoredToolExecute,
   compileZodFromStoredTool,
@@ -44,6 +44,7 @@ import { localRegistryPluginDef } from "./useLocalRegistryToolCall";
 import { localStructuredOutputsPluginDef as localStructuredOutputsPluginDefStatic } from "./useLocalStructuredOutputsToolCall";
 import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
 import { useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
+import { localTodoPluginDef, useLocalTodoRuntime } from "./useLocalTodoListToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -102,6 +103,8 @@ export function useOnToolCall({
     send
   });
 
+  const todoListRuntime = useLocalTodoRuntime(conversationId);
+
   // specials (runtime-only or conditional exposure)
   const { memoryPlugin } = useMemoryToolCall(); // runtime only
   const { readResourcePlugin } = useReadResourceToolCall({ mcpServers }); // runtime exists always
@@ -113,6 +116,7 @@ export function useOnToolCall({
       [localConversationsRuntime.name]: localConversationsRuntime,
       [localCanvasRuntime.name]: localCanvasRuntime,
       [localSettingsRuntime.name]: localSettingsRuntime,
+      [todoListRuntime.name]: todoListRuntime,
       [localToolsRuntime.name]: localToolsRuntime,
       [localActionsRuntime.name]: localActionsRuntime,
       [localCatalogRuntime.name]: localCatalogRuntime,
@@ -129,6 +133,7 @@ export function useOnToolCall({
       localCanvasRuntime,
       localSettingsRuntime,
       localToolsRuntime,
+      todoListRuntime,
       localActionsRuntime,
       localCatalogRuntime,
       localRegistryRuntime,
@@ -146,6 +151,7 @@ export function useOnToolCall({
       localConversationsPluginDef,
       localImagesPluginDef,
       localCanvasPluginDef,
+      localTodoPluginDef,
     //  localJsonRenderPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDefStatic,

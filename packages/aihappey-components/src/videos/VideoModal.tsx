@@ -37,7 +37,7 @@ export const VideoModal = ({
           src={src}
           controls
           playsInline
-          style={{ width: "100%", borderRadius: 12 }}
+          style={{ width: "100%" }}
         />
 
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
@@ -46,16 +46,19 @@ export const VideoModal = ({
               {t("addToPrompt")}
             </Button>
           )}
+          {onDelete && (
+            <Button variant="subtle" icon="delete" onClick={onDelete}>
+            </Button>
+          )}
           {onDownload && (
             <Button variant="subtle" icon="download" onClick={onDownload}>
               {t("download")}
             </Button>
           )}
-          {onDelete && (
-            <Button variant="subtle" icon="dismiss" onClick={onDelete}>
-              {t("delete")}
-            </Button>
-          )}
+
+          <Button variant="secondary" onClick={onClose}>
+            {t("close")}
+          </Button>
         </div>
       </div>
     </Modal>
