@@ -65,6 +65,20 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
         }))
     ) ?? [];
 
+  const htmlFlatResources =
+    toolInvocations?.flatMap((z: any) =>
+      z?.output?.content
+        ?.filter(
+          (a: any) => a.type === "resource" && a.resource?.mimeType === "text/html"
+        )
+        .map((entry: any) => ({
+          ...entry.resource,                 // { uri, text, mimeType, ... }
+          _msgId: z.msgId,                   // for de-dupe per message turn
+          _partIndex: z.partIndex,           // last wins within message
+          _ts: z?.metadata?.timestamp ?? "", // 👈 timestamp lives here
+        }))
+    ) ?? [];
+
   const flatVercelResources =
     toolInvocations?.flatMap((z: any) =>
       z?.output?.content
@@ -104,6 +118,14 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
     vercelGroupedByUri.set(r.uri, list);
   }
 
+    const htmlGroupedByUri = new Map<string, any[]>();
+  for (const r of htmlFlatResources) {
+    if (!r?.uri) continue;
+    const list = htmlGroupedByUri.get(r.uri) ?? [];
+    list.push(r);
+    htmlGroupedByUri.set(r.uri, list);
+  }
+
   // 3) per-URI: de-dupe by message (keep last part), then sort DESC by timestamp
   const canvasGroups = Array.from(groupedByUri.entries()).map(([uri, list]) => {
     // per message keep the highest partIndex (the last read in that turn)
@@ -119,6 +141,24 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
 
     return { uri, versions };
   });
+
+  
+  // 3) per-URI: de-dupe by message (keep last part), then sort DESC by timestamp
+  const htmlCanvasGroups = Array.from(htmlGroupedByUri.entries()).map(([uri, list]) => {
+    // per message keep the highest partIndex (the last read in that turn)
+    const byMsg = new Map<string, any>();
+    for (const r of list) {
+      const prev = byMsg.get(r._msgId);
+      if (!prev || r._partIndex > prev._partIndex) byMsg.set(r._msgId, r);
+    }
+
+    const versions = Array.from(byMsg.values()).sort(
+      (a, b) => parseIso(b._ts) - parseIso(a._ts) // DESC
+    );
+
+    return { uri, versions };
+  });
+
 
   const vercelGroups = Array.from(vercelGroupedByUri.entries()).map(([uri, list]) => {
     const byMsg = new Map<string, any>();
@@ -145,7 +185,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
       key: "canvas",
       label: t("canvas"),
       component: CanvasActivity,
-      getProps: () => ({ groups: canvasGroups, vercelGroups, uiTree, uiOutput }),
+      getProps: () => ({ groups: canvasGroups, htmlGroups: htmlCanvasGroups, vercelGroups, uiTree, uiOutput }),
     },
     {
       key: "dataParts",
