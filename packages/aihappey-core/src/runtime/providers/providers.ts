@@ -76,6 +76,7 @@ import { cirrascale } from "./catalog/cirrascale";
 import { klingai } from "./catalog/klingai";
 import { euqai } from "./catalog/euqai";
 import { vidu } from "./catalog/vidu";
+import { reve } from "./catalog/reve";
 
 /**
  * UI-facing provider catalog.
@@ -130,6 +131,7 @@ export const PROVIDERS: Record<string, Provider> = {
   asyncai,
   azure,
   deepseek,
+  reve,
   freepik,
   ai21,
   cloudrift,

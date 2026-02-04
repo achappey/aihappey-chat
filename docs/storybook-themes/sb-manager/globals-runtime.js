@@ -59642,7 +59642,7 @@ var TITLE_PATH_SEPARATOR = /\s*\/\s*/, denormalizeStoryParameters = ({
 
 // src/manager-api/modules/refs.ts
 var { location: location3, fetch: fetch2 } = scope, getSourceType = (source, refId) => {
-  let { origin: localOrigin, pathname: localPathname } = location3, { origin: sourceOrigin, pathname: sourcePathname } = new URL(source), localFull = `${localOrigin + localPathname}`.replace("/iframe.html", "").replace(/\/$/, ""), sourceFull = `${sourceOrigin + sourcePathname}`.replace("/iframe.html", "").replace(/\/$/, "");
+  let { origin: localOrigin, pathname: localPathname } = location3, { origin: sourceOrigin, pathname: sourcePathname } = new URL(source), localFull = `${localOrigin + localPathname}`.replace(/\/[^\/]*$/, ""), sourceFull = `${sourceOrigin + sourcePathname}`.replace(/\/[^\/]*$/, "");
   return localFull === sourceFull ? ["local", sourceFull] : refId || source ? ["external", sourceFull] : [null, null];
 }, defaultStoryMapper = (b, a3) => ({ ...a3, kind: a3.kind.replace("|", "/") }), addRefIds = (input2, ref) => Object.entries(input2).reduce((acc, [id, item]) => ({ ...acc, [id]: { ...item, refId: ref.id } }), {});
 async function handleRequest(request) {
@@ -62182,7 +62182,7 @@ init_dist();
 var import_memoizerific8 = __toESM(require_memoizerific(), 1), import_semver = __toESM(require_semver2(), 1);
 
 // src/manager-api/version.ts
-var version = "10.2.4";
+var version = "10.2.6";
 
 // src/manager-api/modules/versions.ts
 var { VERSIONCHECK } = scope, getVersionCheckData = (0, import_memoizerific8.default)(1)(() => {

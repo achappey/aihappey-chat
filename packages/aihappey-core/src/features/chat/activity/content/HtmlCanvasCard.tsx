@@ -115,6 +115,7 @@ export const HtmlCanvasCard = ({
         srcDoc={current.text ?? ""}
         style={{
           width: "100%",
+          height: 400,
           border: "none",
           background: isDarkMode ? "white" : "transparent",
         }}
