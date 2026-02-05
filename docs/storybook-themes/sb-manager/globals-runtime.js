@@ -62182,7 +62182,7 @@ init_dist();
 var import_memoizerific8 = __toESM(require_memoizerific(), 1), import_semver = __toESM(require_semver2(), 1);
 
 // src/manager-api/version.ts
-var version = "10.2.6";
+var version = "10.2.7";
 
 // src/manager-api/modules/versions.ts
 var { VERSIONCHECK } = scope, getVersionCheckData = (0, import_memoizerific8.default)(1)(() => {
@@ -72049,6 +72049,7 @@ var StyledButton3 = styled(Button)(
     onChange,
     tooltip,
     ariaLabel,
+    showSelectedOptionTitle = !0,
     ...props
   }, ref) => {
     let [isOpen, setIsOpen] = (0, import_react124.useState)(props.defaultOpen || !1), [shouldRefocusTrigger, setShouldRefocusTrigger] = (0, import_react124.useState)(!1), triggerRef = $df56164dff5785e2$export$4338b53315abf666(ref), id = (0, import_react124.useMemo)(() => "select-" + Math.random().toString(36).substring(2, 15), []), listboxId = `${id}-listbox`, listboxRef = (0, import_react124.useRef)(null), otState = $fc909762b330b746$export$61c6a8c84e605fb6({
@@ -72168,7 +72169,7 @@ var StyledButton3 = styled(Button)(
         "aria-expanded": isOpen,
         "aria-haspopup": "listbox"
       },
-      !multiSelect && import_react124.default.createElement(import_react124.default.Fragment, null, icon, selectedOptions[0]?.title ?? children),
+      !multiSelect && import_react124.default.createElement(import_react124.default.Fragment, null, icon, showSelectedOptionTitle && selectedOptions[0]?.title || children),
       multiSelect && import_react124.default.createElement(import_react124.default.Fragment, null, icon, children, !!selectedOptions.length && import_react124.default.createElement(
         SelectedOptionCount,
         {

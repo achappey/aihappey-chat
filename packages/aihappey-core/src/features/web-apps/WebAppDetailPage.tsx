@@ -23,7 +23,7 @@ import {
 import { useChatContext } from "../chat/context/ChatContext";
 import { useUIStream } from "../json-render/useUIStream";
 import { buildCatalogWithActions, createCatalogFromStored } from "../json-render/catalog";
-import { generateCatalogPrompt } from "../json-render/generateCatalogPrompt";
+//import { generateCatalogPrompt } from "../json-render/generateCatalogPrompt";
 import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 
 export const WebAppDetailPage = () => {
@@ -179,15 +179,9 @@ export const WebAppDetailPage = () => {
     const stored = createCatalogFromStored(
       jsonRenderCatalog.items,
       catalogListWithBuiltin,
-      {
-        name: fallback.name,
-        components: fallback.components as any,
-        actions: fallback.actions as any,
-        validationFunctions: fallback.functions as any,
-      }
+      fallback.data as any
     );
-
-    return generateCatalogPrompt(stored);
+    return stored.prompt();
   }, [defaultCatalogs, jsonRenderCatalog.items, jsonRenderRegistry.actions]);
 
   const effectiveCatalogPrompt = useMemo(() => {
@@ -197,17 +191,12 @@ export const WebAppDetailPage = () => {
     const stored = createCatalogFromStored(
       jsonRenderCatalog.items,
       catalogList,
-      {
-        name: fallback.name,
-        components: fallback.components as any,
-        actions: fallback.actions as any,
-        validationFunctions: fallback.functions as any,
-      }
+      fallback.data as any
     );
-    return generateCatalogPrompt(stored);
+    return stored.prompt();
   }, [streamState?.catalogs, systemPrompt, jsonRenderCatalog.items, jsonRenderRegistry.actions]);
 
-  const { tree: streamedTree, send, isStreaming, error: uiStreamError } = useUIStream({
+  const { spec: streamedTree, send, isStreaming, error: uiStreamError } = useUIStream({
     api: (config?.baseUrl ?? "") + "/api/generate",
     catalogPrompt: effectiveCatalogPrompt,
     model: selectedModel,

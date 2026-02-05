@@ -1,4 +1,6 @@
-import { ActionSchema, createCatalog } from "@json-render/core";
+import { ActionSchema, defineCatalog } from "@json-render/core";
+import type { Catalog as SchemaCatalog, SchemaDefinition } from "@json-render/core";
+import { schema } from "@json-render/react";
 import { jsonSchemaToZod } from "json-schema-to-zod";
 import z from "zod";
 import type { JsonRenderActionItem } from "aihappey-json-render-registry";
@@ -60,7 +62,7 @@ const ToolbarActionSchema = z.object({
 });
 
 export const componentDefinitions = {
-    Container: {
+  Container: {
         description:
             "Generic layout container. Use for vertical or horizontal stacks and spacing between elements.",
         props: z.object({
@@ -82,18 +84,18 @@ export const componentDefinitions = {
             width: z.union([z.string(), z.number()]).optional(),
             maxWidth: z.union([z.string(), z.number()]).optional(),
         }),
-        hasChildren: true,
-    },
-    Stack: {
+        slots: ["default"],
+  },
+  Stack: {
         description: "Vertical layout container with spacing between children.",
         props: z.object({
             gap: z.number().optional(),
             align: z.enum(["flex-start", "center", "flex-end", "stretch"]).optional(),
             padding: SpacingEnum.optional(),
         }),
-        hasChildren: true,
-    },
-    Row: {
+        slots: ["default"],
+  },
+  Row: {
         description: "Horizontal layout container with optional wrapping.",
         props: z.object({
             gap: z.number().optional(),
@@ -110,9 +112,9 @@ export const componentDefinitions = {
                 .optional(),
             wrap: z.boolean().optional(),
         }),
-        hasChildren: true,
-    },
-    Grid: {
+        slots: ["default"],
+  },
+  Grid: {
         description:
             "Grid layout for cards or tiles. Use columns or minColumnWidth for responsive grids.",
         props: z.object({
@@ -121,9 +123,9 @@ export const componentDefinitions = {
             gap: z.number().optional(),
             width: z.union([z.string(), z.number()]).optional(),
         }),
-        hasChildren: true,
-    },
-    Text: {
+        slots: ["default"],
+  },
+  Text: {
         description: "Inline or block text.",
         props: z.object({
             as: z.enum([
@@ -166,9 +168,9 @@ export const componentDefinitions = {
             font: z.enum(["base", "numeric", "monospace"]).optional(),
             text: z.string().optional(), // for simple text-only usage
         }),
-        hasChildren: true,
-    },
-    Card: {
+        slots: ["default"],
+  },
+  Card: {
         description:
             "Card container with title and description. Use as primary group container, avoid nesting cards inside cards.",
         props: z.object({
@@ -177,17 +179,17 @@ export const componentDefinitions = {
             text: z.string().optional(),
             size: z.enum(["small", "medium", "large"]).optional(),
         }),
-        hasChildren: true,
-    },
-    Badge: {
+        slots: ["default"],
+  },
+  Badge: {
         description: "Small status badge with optional variant.",
         props: z.object({
             text: z.string().optional(),
             variant: z.string().optional(),
             appearance: z.string().optional(),
         }),
-        hasChildren: true,
-    },
+        slots: ["default"],
+  },
     ProgressBar: {
         description: "Progress indicator. Use value or valuePath.",
         props: z.object({
@@ -304,7 +306,7 @@ export const staticActionDefinitions = {
       },*/
 };
 
-export const catalog = createCatalog({
+export const catalog = defineCatalog(schema, {
     name: "Aihappey UI",
     components: componentDefinitions,
     actions: staticActionDefinitions,
@@ -340,7 +342,7 @@ export function buildCatalogWithActions(
             {},
         );
 
-    return createCatalog({
+    return defineCatalog(schema, {
         name: "Aihappey UI",
         components: componentDefinitions,
         actions: {
@@ -349,6 +351,13 @@ export function buildCatalogWithActions(
         },
     });
 }
+
+export type RuntimeSchemaCatalog = SchemaCatalog<SchemaDefinition, {
+    name?: string;
+    components: typeof componentDefinitions;
+    actions?: typeof staticActionDefinitions;
+    functions?: Record<string, unknown>;
+}>;
 
 export function createCatalogFromStored(
     catalogs: JsonRenderCatalogItem[],

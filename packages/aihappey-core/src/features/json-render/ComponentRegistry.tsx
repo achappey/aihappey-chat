@@ -208,7 +208,9 @@ const Card = withMeta(({ element, children }: ComponentRenderProps<any>) => {
       text={element.props.text}
       size={element.props.size}
     >
-      {children}
+      <div>
+        {children}
+      </div>
     </CardComponent>
   );
 }, {

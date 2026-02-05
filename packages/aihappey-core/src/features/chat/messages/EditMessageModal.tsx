@@ -22,7 +22,7 @@ export const EditMessageModal = ({
   message,
   onLocalMessageUpdated,
 }: EditMessageModalProps) => {
-  const { Modal, Button} = useTheme();
+  const { Modal, Button } = useTheme();
   const { updateMessage, refresh } = useConversations();
   const { t } = useTranslation();
   const removeMessage = useRemoveMessage();
@@ -44,12 +44,11 @@ export const EditMessageModal = ({
   const deletePartAt = useCallback(
     async (index: number) => {
       const nextParts = parts.filter((_, i) => i !== index);
-
       if (nextParts.length === 0) {
         await removeMessage(conversationId, localMessage.id);
         onLocalMessageUpdated?.(undefined);
         onClose();
-        refresh()
+        refresh();
         return;
       }
 
@@ -59,9 +58,10 @@ export const EditMessageModal = ({
       };
 
       await updateMessage(conversationId, localMessage.id, { parts: nextParts });
+
       setLocalMessage(nextMessage);
       onLocalMessageUpdated?.(nextMessage);
-      refresh()
+      refresh();
     },
     [conversationId, localMessage, onClose, onLocalMessageUpdated, parts, refresh, removeMessage, updateMessage]
   );

@@ -148,7 +148,7 @@ export const JsonRenderCanvasPanel = ({
               <DataProvider initialData={output ?? {}}>
                 <VisibilityProvider>
                   <ActionProvider handlers={actionHandlers}>
-                    <Renderer tree={tree} registry={registry} />
+                    <Renderer spec={tree} registry={registry} />
                   </ActionProvider>
                 </VisibilityProvider>
               </DataProvider>

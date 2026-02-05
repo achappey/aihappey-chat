@@ -38,7 +38,6 @@ import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsL
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
 import { useTranslation } from "aihappey-i18n";
 import { useAttachmentsToaster } from "./useAttachmentsToaster";
-import { generateCatalogPrompt } from "../../json-render/generateCatalogPrompt";
 import { buildCatalogWithActions, createCatalogFromStored } from "../../json-render/catalog";
 import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
@@ -176,15 +175,10 @@ export function VercelChatInner({
       const stored = createCatalogFromStored(
         jsonRenderCatalog.items,
         catalogListWithBuiltin,
-        {
-          name: fallback.name,
-          components: fallback.components as any,
-          actions: fallback.actions as any,
-          validationFunctions: fallback.functions as any,
-        },
+        fallback.data as any,
       );
 
-      return generateCatalogPrompt(stored);
+      return stored.prompt();
     },
     [
       defaultCatalogs,
@@ -193,7 +187,7 @@ export function VercelChatInner({
     ],
   );
 
-  const { tree, send, isStreaming, error: streamError } = useUIStream({
+  const { spec: tree, send, isStreaming, error: streamError } = useUIStream({
     api: config.baseUrl + "/api/generate",
     catalogPrompt: systemPrompt,
     model: model,

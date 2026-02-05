@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import type { UITree, UIElement, JsonPatch } from "@json-render/core";
+import type { Spec, UIElement, JsonPatch } from "@json-render/core";
 import { setByPath } from "@json-render/core";
 
 /**
@@ -20,10 +20,10 @@ function parsePatchLine(line: string): JsonPatch | null {
 }
 
 /**
- * Apply a JSON patch to the current tree
+ * Apply a JSON patch to the current spec
  */
-function applyPatch(tree: UITree, patch: JsonPatch): UITree {
-    const newTree = { ...tree, elements: { ...tree.elements } };
+function applyPatch(spec: Spec, patch: JsonPatch): Spec {
+    const newSpec = { ...spec, elements: { ...spec.elements } };
 
     switch (patch.op) {
         case "set":
@@ -31,8 +31,8 @@ function applyPatch(tree: UITree, patch: JsonPatch): UITree {
         case "replace": {
             // Handle root path
             if (patch.path === "/root") {
-                newTree.root = patch.value as string;
-                return newTree;
+                newSpec.root = patch.value as string;
+                return newSpec;
             }
 
             // Handle elements paths
@@ -40,14 +40,14 @@ function applyPatch(tree: UITree, patch: JsonPatch): UITree {
                 const pathParts = patch.path.slice("/elements/".length).split("/");
                 const elementKey = pathParts[0];
 
-                if (!elementKey) return newTree;
+                if (!elementKey) return newSpec;
 
                 if (pathParts.length === 1) {
                     // Setting entire element
-                    newTree.elements[elementKey] = patch.value as UIElement;
+                    newSpec.elements[elementKey] = patch.value as UIElement;
                 } else {
                     // Setting property of element
-                    const element = newTree.elements[elementKey];
+                    const element = newSpec.elements[elementKey];
                     if (element) {
                         const propPath = "/" + pathParts.slice(1).join("/");
                         const newElement = { ...element };
@@ -56,7 +56,7 @@ function applyPatch(tree: UITree, patch: JsonPatch): UITree {
                             propPath,
                             patch.value,
                         );
-                        newTree.elements[elementKey] = newElement;
+                        newSpec.elements[elementKey] = newElement;
                     }
                 }
             }
@@ -66,15 +66,15 @@ function applyPatch(tree: UITree, patch: JsonPatch): UITree {
             if (patch.path.startsWith("/elements/")) {
                 const elementKey = patch.path.slice("/elements/".length).split("/")[0];
                 if (elementKey) {
-                    const { [elementKey]: _, ...rest } = newTree.elements;
-                    newTree.elements = rest;
+                    const { [elementKey]: _, ...rest } = newSpec.elements;
+                    newSpec.elements = rest;
                 }
             }
             break;
         }
     }
 
-    return newTree;
+    return newSpec;
 }
 
 /**
@@ -83,10 +83,18 @@ function applyPatch(tree: UITree, patch: JsonPatch): UITree {
 export interface UseUIStreamOptions {
     /** API endpoint */
     api: string;
-    /** Optional initial UI tree to seed patch application */
-    initialTree?: UITree | null;
+    /** Prompt describing the catalog/components available */
+    catalogPrompt?: string;
+    /** Model identifier */
+    model?: string;
+    /** Auth helper to fetch access token */
+    getAccessToken?: () => Promise<string>;
+    /** Custom headers to include */
+    customHeaders?: Record<string, string>;
+    /** Optional initial UI spec to seed patch application */
+    initialTree?: Spec | null;
     /** Callback when complete */
-    onComplete?: (tree: UITree) => void;
+    onComplete?: (spec: Spec) => void;
     /** Callback on error */
     onError?: (error: Error) => void;
 }
@@ -95,8 +103,8 @@ export interface UseUIStreamOptions {
  * Return type for useUIStream
  */
 export interface UseUIStreamReturn {
-    /** Current UI tree */
-    tree: UITree | null;
+    /** Current UI spec */
+    spec: Spec | null;
     /** Whether currently streaming */
     isStreaming: boolean;
     /** Error if any */
@@ -106,10 +114,10 @@ export interface UseUIStreamReturn {
         prompt: string,
         context?: Record<string, unknown>,
         providerMetadata?: any,
-        baseTree?: UITree | null,
+        baseTree?: Spec | null,
         maxOutputTokens?: number | null
     ) => Promise<any>;
-    /** Clear the current tree */
+    /** Clear the current spec */
     clear: () => void;
 }
 
@@ -140,27 +148,27 @@ export function useUIStream({
     initialTree,
     onComplete,
     onError,
-}: any): UseUIStreamReturn {
-    const [tree, setTree] = useState<UITree | null>(null);
+}: UseUIStreamOptions): UseUIStreamReturn {
+    const [spec, setSpec] = useState<Spec | null>(null);
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
-    const treeRef = useRef<UITree | null>(null);
+    const specRef = useRef<Spec | null>(null);
     const hasSeededRef = useRef(false);
 
     useEffect(() => {
-        treeRef.current = tree;
-    }, [tree]);
+        specRef.current = spec;
+    }, [spec]);
 
     useEffect(() => {
         if (!initialTree || isStreaming || hasSeededRef.current) return;
         hasSeededRef.current = true;
-        treeRef.current = initialTree;
-        setTree(initialTree);
+        specRef.current = initialTree;
+        setSpec(initialTree);
     }, [initialTree, isStreaming]);
 
     const clear = useCallback(() => {
-        setTree(null);
+        setSpec(null);
         setError(null);
     }, []);
 
@@ -170,7 +178,7 @@ export function useUIStream({
             prompt: string,
             context?: Record<string, unknown>,
             providerMetadata?: any,
-            baseTree?: UITree | null,
+            baseTree?: Spec | null,
             maxOutputTokens?: number | null,
         ) => {
             // Abort any existing request
@@ -179,14 +187,14 @@ export function useUIStream({
 
             setIsStreaming(true);
             setError(null);
-            let currentTree: UITree =
-                baseTree ?? treeRef.current ?? initialTree ?? { root: "", elements: {} };
-            if (baseTree || (!treeRef.current && initialTree)) {
-                treeRef.current = currentTree;
-                setTree(currentTree);
+            let currentSpec: Spec =
+                baseTree ?? specRef.current ?? initialTree ?? { root: "", elements: {} };
+            if (baseTree || (!specRef.current && initialTree)) {
+                specRef.current = currentSpec;
+                setSpec(currentSpec);
             }
-            // if (tree == null)
-            //  setTree(currentTree);
+            // if (spec == null)
+            //  setSpec(currentSpec);
 
             const headers: any = await makeHeaders(getAccessToken, customHeaders);
             try {
@@ -229,8 +237,8 @@ export function useUIStream({
                     for (const line of lines) {
                         const patch = parsePatchLine(line);
                         if (patch) {
-                            currentTree = applyPatch(currentTree, patch);
-                            setTree({ ...currentTree });
+                            currentSpec = applyPatch(currentSpec, patch);
+                            setSpec({ ...currentSpec });
                         }
                     }
                 }
@@ -239,14 +247,14 @@ export function useUIStream({
                 if (buffer.trim()) {
                     const patch = parsePatchLine(buffer);
                     if (patch) {
-                        currentTree = applyPatch(currentTree, patch);
-                        setTree({ ...currentTree });
+                        currentSpec = applyPatch(currentSpec, patch);
+                        setSpec({ ...currentSpec });
                     }
                 }
 
-                onComplete?.(currentTree);
+                onComplete?.(currentSpec);
 
-                return currentTree;
+                return currentSpec;
             } catch (err) {
                 if ((err as Error).name === "AbortError") {
                     return;
@@ -269,7 +277,7 @@ export function useUIStream({
     }, []);
 
     return {
-        tree,
+        spec,
         isStreaming,
         error,
         send,
@@ -282,7 +290,7 @@ export function useUIStream({
  */
 export function flatToTree(
     elements: Array<UIElement & { parentKey?: string | null }>,
-): UITree {
+): Spec {
     const elementMap: Record<string, UIElement> = {};
     let root = "";
 

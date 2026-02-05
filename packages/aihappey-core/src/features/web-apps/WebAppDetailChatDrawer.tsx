@@ -389,7 +389,7 @@ export const WebAppDetailChatDrawer = ({
     }, []);
 
     const {
-        tree: streamingTree,
+        spec: streamingTree,
         send: sendUiRequest,
         isStreaming,
         error: streamError,

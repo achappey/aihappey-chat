@@ -232,13 +232,6 @@ export class IndexedDBConversationStore implements ConversationStore {
       return { ...c, messages };
     });
 
-    if (!foundConversation) {
-      throw new Error(`Conversation ${cid} not found`);
-    }
-    if (!removedMessage) {
-      throw new Error(`Message ${mid} not found in conversation ${cid}`);
-    }
-
     await this.commit();
 
   };

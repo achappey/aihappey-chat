@@ -124,9 +124,8 @@ export class RemoteConversationStore implements ConversationStore {
 
   removeMessage: (cid: string, mid: string) => Promise<void> = async (cid, mid) => {
     const conv = await this._getCached(cid);
-    const before = conv.messages.length;
     conv.messages = conv.messages.filter(m => m.id !== mid);
-    if (conv.messages.length === before) throw new Error("Message not found");
+   
     await this._putConversation(conv);
     this.cache.set(cid, conv);
   };

@@ -1,4 +1,5 @@
-import { createCatalog } from "@json-render/core";
+import { defineCatalog } from "@json-render/core";
+import { schema } from "@json-render/react";
 import { jsonSchemaToZod } from "json-schema-to-zod";
 import z from "zod";
 import type {
@@ -81,7 +82,7 @@ function buildComponentDefs(
       acc[component.name] = {
         props: compileZodFromJsonSchema(component.propsSchema),
         description: component.description,
-        hasChildren: component.hasChildren,
+        slots: component.hasChildren ? ["default"] : [],
       };
       return acc;
     },
@@ -151,7 +152,7 @@ export function mergeRuntimeCatalogDefinitions(
 }
 
 export function createCatalogFromDefinitions(defs: RuntimeCatalogDefinitions) {
-  return createCatalog({
+  return defineCatalog(schema, {
     name: defs.name,
     components: defs.components as any,
     actions: defs.actions as any,

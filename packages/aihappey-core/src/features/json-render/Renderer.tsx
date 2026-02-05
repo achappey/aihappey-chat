@@ -3,10 +3,11 @@
 import React, { type ComponentType, type ReactNode, useMemo } from "react";
 import type {
   UIElement,
-  UITree,
+  Spec,
   Action,
   Catalog,
   ComponentDefinition,
+  SchemaDefinition,
 } from "@json-render/core";
 //import { useIsVisible } from "./contexts/visibility";
 //import { useActions } from "./contexts/actions";
@@ -43,8 +44,8 @@ export type ComponentRegistry = Record<string, ComponentRenderer<any>>;
  * Props for the Renderer component
  */
 export interface RendererProps {
-  /** The UI tree to render */
-  tree: UITree | null;
+  /** The UI spec to render */
+  spec: Spec | null;
   /** Component registry */
   registry: ComponentRegistry;
   /** Whether the tree is currently loading/streaming */
@@ -64,7 +65,7 @@ function ElementRenderer({
   fallback,
 }: {
   element: UIElement;
-  tree: UITree;
+  tree: Spec;
   registry: ComponentRegistry;
   loading?: boolean;
   fallback?: ComponentRenderer;
@@ -86,10 +87,10 @@ function ElementRenderer({
   }
 
   const childKeys = Array.isArray(element.children)
-  ? element.children
-  : typeof element.children === "string"
-    ? [element.children]
-    : [];
+    ? element.children
+    : typeof element.children === "string"
+      ? [element.children]
+      : [];
 
   // Render children
   const children = childKeys?.map((childKey) => {
@@ -119,12 +120,12 @@ function ElementRenderer({
 /**
  * Main renderer component
  */
-export function Renderer({ tree, registry, loading, fallback }: RendererProps) {
-  if (!tree || !tree.root) {
+export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
+  if (!spec || !spec.root) {
     return null;
   }
 
-  const rootElement = tree.elements[tree.root];
+  const rootElement = spec.elements[spec.root];
   if (!rootElement) {
     return null;
   }
@@ -132,7 +133,7 @@ export function Renderer({ tree, registry, loading, fallback }: RendererProps) {
   return (
     <ElementRenderer
       element={rootElement}
-      tree={tree}
+      tree={spec}
       registry={registry}
       loading={loading}
       fallback={fallback}
@@ -224,10 +225,23 @@ function ConfirmationDialogManager() {
   );
 }
 
+export function createRendererFromCatalog<
+  S extends SchemaDefinition<any, any>,
+  C extends Catalog<S>
+>(
+  _catalog: C,
+  registry: ComponentRegistry,
+): ComponentType<Omit<RendererProps, "registry">> {
+  return function CatalogRenderer(props: Omit<RendererProps, "registry">) {
+    return <Renderer {...props} registry={registry} />;
+  };
+}
+
+
 /**
  * Helper to create a renderer component from a catalog
  */
-export function createRendererFromCatalog<
+/*export function createRendererFromCatalog2<
   C extends Catalog<Record<string, ComponentDefinition>>,
 >(
   _catalog: C,
@@ -237,3 +251,4 @@ export function createRendererFromCatalog<
     return <Renderer {...props} registry={registry} />;
   };
 }
+*/

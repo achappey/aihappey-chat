@@ -1,4 +1,4 @@
-import { ActionDefinition, Catalog, ComponentDefinition, ValidationFunction } from "@json-render/core";
+import { ActionDefinition, Catalog, ComponentDefinition, SchemaDefinition, ValidationFunction } from "@json-render/core";
 
 function renderSchemaType(schema: any): string {
     if (!schema) return "any";
@@ -27,13 +27,13 @@ function renderSchemaType(schema: any): string {
 
     return schema.type ?? "any";
 }
-
+/*
 export function generateCatalogPrompt<
-    TComponents extends Record<string, ComponentDefinition>,
-    TActions extends Record<string, ActionDefinition>,
-    TFunctions extends Record<string, ValidationFunction>,
->(catalog: Catalog<TComponents, TActions, TFunctions>): string {
+    TDef extends SchemaDefinition<any, any>,
+    TCat
+>(catalog: Catalog<TDef, TCat>): string {
     const lines: string[] = [];
+
 
     lines.push(`You are a UI generator that outputs JSONL (JSON Lines) patches.`);
     lines.push("");
@@ -146,14 +146,14 @@ export function generateCatalogPrompt<
       lines.push("- className?: string[]  // Tailwind classes for custom styling");
       lines.push("");*/
 
-    lines.push("RULES:");
+ /*   lines.push("RULES:");
     lines.push("1. First line sets /root to root element key");
     lines.push("2. Add elements with /elements/{key}");
     lines.push("3. Children array contains string keys, not objects");
     lines.push("4. Parent first, then children");
     lines.push("5. Each element needs: key, type, props");
     lines.push("6. Use JSON Pointer (RFC 6901) strings for data. Always use datapaths when data is available and component supports it.");
-    
+
     lines.push("");
 
     // =========================
@@ -178,4 +178,4 @@ export function generateCatalogPrompt<
     lines.push("Generate JSONL:");
 
     return lines.join("\n");
-}
+}*/

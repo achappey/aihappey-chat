@@ -61,7 +61,7 @@ export const WebAppDetailAppPreview = ({
           <DataProvider initialData={app?.data ?? {}}>
             <VisibilityProvider>
               <ActionProvider handlers={actionHandlers}>
-                <Renderer tree={effectiveTree} registry={registry} />
+                <Renderer spec={effectiveTree} registry={registry} />
               </ActionProvider>
             </VisibilityProvider>
           </DataProvider>

@@ -54,7 +54,7 @@ export const CatalogsPage = () => {
 
   const builtInComponents = useMemo(() => {
     const list = (builtInCatalog.componentNames ?? []).map((name) => {
-      const def: any = (builtInCatalog.components as any)?.[name];
+      const def: any = (builtInCatalog as any)?.data?.components?.[name];
       let propsSchema: string | undefined;
       try {
         propsSchema = JSON.stringify(def?.props?.toJSONSchema?.() ?? {}, null, 2);
@@ -76,7 +76,7 @@ export const CatalogsPage = () => {
 
   const builtInActions = useMemo(() => {
     const list = (builtInCatalog.actionNames ?? []).map((name) => {
-      const def: any = (builtInCatalog.actions as any)?.[name];
+      const def: any = (builtInCatalog as any)?.data?.actions?.[name];
       let paramsSchema: string | undefined;
       try {
         paramsSchema = JSON.stringify(def?.params?.toJSONSchema?.() ?? {}, null, 2);

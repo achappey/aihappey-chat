@@ -41,7 +41,7 @@ export type JsonRenderCatalogItem = {
 export type RuntimeCatalogComponentDefinition = {
   props: ZodTypeAny;
   description?: string;
-  hasChildren?: boolean;
+  slots?: string[];
 };
 
 export type RuntimeCatalogActionDefinition = {
