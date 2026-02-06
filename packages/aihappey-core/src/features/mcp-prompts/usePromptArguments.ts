@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppStore } from "aihappey-state";
 import { getCompletion } from "../../runtime/mcp/mcpPrompts";
+
+const FILTER_DEBOUNCE_MS = 500;
 
 export function usePromptArguments({ prompt, onPromptExecute }: any) {
   // Build initial form state with empty strings
@@ -15,12 +17,44 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
   const [completions, setCompletions] = useState<Record<string, string[]>>({});
   const mcpServerContent = useAppStore((a) => a.mcpServerContent)
   const supportsCompletions = mcpServerContent[prompt._serverName]?.capabilities?.completions;
+  const valuesRef = useRef<Record<string, string>>(initialValues);
+  const requestSeqRef = useRef<Record<string, number>>({});
+  const filterDebounceTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const activeRequestsRef = useRef(0);
+  const isMountedRef = useRef(true);
+
+  const startLoadingRequest = useCallback(() => {
+    activeRequestsRef.current += 1;
+    setLoadingCompletions(true);
+  }, []);
+
+  const finishLoadingRequest = useCallback(() => {
+    activeRequestsRef.current = Math.max(0, activeRequestsRef.current - 1);
+    if (activeRequestsRef.current === 0) {
+      setLoadingCompletions(false);
+    }
+  }, []);
 
   // Utility to build the context for server calls
   const buildContext = (excludeName: string, vals: Record<string, string>) =>
     Object.fromEntries(
       Object.entries(vals).filter(([k, v]) => k !== excludeName && v.trim() !== "")
     );
+
+  useEffect(() => {
+    valuesRef.current = values;
+  }, [values]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      Object.values(filterDebounceTimersRef.current).forEach(clearTimeout);
+      filterDebounceTimersRef.current = {};
+      activeRequestsRef.current = 0;
+      setLoadingCompletions(false);
+    };
+  }, []);
 
   // Fetch completions for blanks on mount
   useEffect(() => {
@@ -32,9 +66,9 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
       );
       if (blankArgs.length === 0) return;
 
-      setLoadingCompletions(true);
       await Promise.all(
         blankArgs.map(async (arg: any) => {
+          startLoadingRequest();
           try {
             const result = await getCompletion(prompt._serverName,
               { type: "ref/prompt", name: prompt.name },
@@ -46,34 +80,61 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
               setCompletions((c) => ({ ...c, [arg.name]: result.completion.values as string[] }));
             }
           } catch { }
+          finally {
+            if (!cancelled && isMountedRef.current) {
+              finishLoadingRequest();
+            }
+          }
         })
       );
-      if (!cancelled) setLoadingCompletions(false);
     }
     fetchBlankCompletions();
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prompt.name]);
+  }, [prompt.name, supportsCompletions, startLoadingRequest, finishLoadingRequest]);
 
   // Called by the <Select> for filtering completions
   const onFilter = useCallback(
     async (argumentName: string, value: string) => {
       if (!supportsCompletions) return;
-      try {
-        const result = await getCompletion(prompt._serverName,
-          { type: "ref/prompt", name: prompt.name },
-          { name: argumentName, value },
-          { arguments: buildContext(argumentName, values) });
+      if (filterDebounceTimersRef.current[argumentName]) {
+        clearTimeout(filterDebounceTimersRef.current[argumentName]);
+      }
 
-        setCompletions((c) => ({
-          ...c,
-          [argumentName]: result.completion.values as string[],
-        }));
-      } catch { }
+      filterDebounceTimersRef.current[argumentName] = setTimeout(async () => {
+        const requestId = (requestSeqRef.current[argumentName] ?? 0) + 1;
+        requestSeqRef.current[argumentName] = requestId;
+
+        const currentValues = {
+          ...valuesRef.current,
+          [argumentName]: value,
+        };
+
+        startLoadingRequest();
+        try {
+          const result = await getCompletion(prompt._serverName,
+            { type: "ref/prompt", name: prompt.name },
+            { name: argumentName, value },
+            { arguments: buildContext(argumentName, currentValues) });
+
+          const isStale = requestSeqRef.current[argumentName] !== requestId;
+          if (isStale || !isMountedRef.current) return;
+
+          setCompletions((c) => ({
+            ...c,
+            [argumentName]: result?.completion?.values as string[] ?? [],
+          }));
+        } catch { }
+        finally {
+          if (isMountedRef.current) {
+            finishLoadingRequest();
+          }
+        }
+      }, FILTER_DEBOUNCE_MS);
     },
-    [prompt.name, values]
+    [prompt.name, supportsCompletions, startLoadingRequest, finishLoadingRequest]
   );
 
   // Update values and autofill blanks
@@ -90,6 +151,7 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
 
       await Promise.all(
         blanks.map(async (arg: any) => {
+          startLoadingRequest();
           try {
             const result = await getCompletion(prompt._serverName,
               { type: "ref/prompt", name: prompt.name },
@@ -104,10 +166,15 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
               setValues((v) => ({ ...v, [arg.name]: opts[0] }));
             }
           } catch { }
+          finally {
+            if (isMountedRef.current) {
+              finishLoadingRequest();
+            }
+          }
         })
       );
     },
-    [prompt.name]
+    [prompt.name, supportsCompletions, startLoadingRequest, finishLoadingRequest]
   );
 
   const handleChange = useCallback(

@@ -2,6 +2,8 @@ import { PromptArgumentsForm, useTheme } from "aihappey-components";
 import { usePromptArguments } from "./usePromptArguments";
 import { PromptWithSource } from "./PromptSelectButton";
 import { CancelButton } from "../../ui/buttons/CancelButton";
+import { T } from "react-router/dist/development/index-react-server-client-1TI9M9o1";
+import { useTranslation } from "aihappey-i18n";
 
 type Props = {
   open: boolean
@@ -17,12 +19,12 @@ export const PromptArgumentsModal = ({
   onPromptExecute,
 }: Props) => {
   const { Modal, Button, Spinner } = useTheme();
+  const { t } = useTranslation()
 
   const {
     values,
     handleChange,
     completions,
-    loadingCompletions,
     error,
     pending,
     missingRequired,
@@ -42,7 +44,7 @@ export const PromptArgumentsModal = ({
             onClick={() => handleOk(onHide)}
             disabled={pending || missingRequired}
           >
-            {pending ? <Spinner size="sm" /> : "OK"}
+            {pending ? <Spinner size="sm" /> : t('execute')}
           </Button>
         </>
       }
@@ -51,7 +53,6 @@ export const PromptArgumentsModal = ({
         arguments={prompt?.arguments ?? []}
         values={values}
         completions={completions}
-        loadingCompletions={loadingCompletions}
         pending={pending}
         missingRequired={missingRequired}
         error={error}

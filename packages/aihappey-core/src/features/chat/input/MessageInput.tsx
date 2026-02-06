@@ -205,7 +205,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           size="large"
           title={t("transcriptionRecord")}
           variant={dictation.recording ? "primary" : "transparent"}
-          icon={dictation.recording ? "stop" : "transcriptions"}
+          icon={dictation.recording ? "stop" : "transcription"}
           disabled={dictation.recording
             ? false
             : props.disabled

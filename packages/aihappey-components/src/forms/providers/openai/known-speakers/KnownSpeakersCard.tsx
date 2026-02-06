@@ -480,7 +480,7 @@ export const KnownSpeakersCard: React.FC<{
                       icon={
                         recordingKey === normalizedDraftName
                           ? "stop"
-                          : "transcriptions"
+                          : "transcription"
                       }
                       title={t("transcriptionRecord")}
                       disabled={

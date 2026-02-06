@@ -30,7 +30,7 @@ export const McpServerCard = ({ serverConfig,
     onChange={onToggle}
   /> : undefined
 
-  const image = <CapabilityIcon icons={registryItem?.server.icons} />
+  const image = <CapabilityIcon icons={registryItem?.server?.icons} />
 
   return (
     <Card

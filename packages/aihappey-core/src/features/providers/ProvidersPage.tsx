@@ -5,6 +5,7 @@ import { useDarkMode } from "usehooks-ts";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import type { Provider } from "aihappey-types";
+import { useAppStore } from "aihappey-state";
 
 type ProviderListItem = {
     key: string;
@@ -15,7 +16,7 @@ export const ProvidersPage = () => {
     const { t } = useTranslation();
     const { isDarkMode } = useDarkMode();
     const [search, setSearch] = useState("");
-
+    const models = useAppStore((s) => s.models);
     const collator = useMemo(
         () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
         []
@@ -25,7 +26,7 @@ export const ProvidersPage = () => {
         const items = Object.entries(PROVIDERS).map(([key, meta]) => {
             const m = meta as any;
             return {
-                key: m.id,
+                key: key,
                 name: m?.name ?? key,
                 description: m?.description,
                 experimental: m?.experimental,
@@ -104,6 +105,16 @@ export const ProvidersPage = () => {
                                 p.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))
                                     ?.src ?? p.icons?.[0]?.src;
 
+                            // collect unique model types for this provider
+                            const modelTypes = Array.from(
+                                new Set(
+                                    models
+                                        ?.filter(m => m.id.startsWith(p.key + "/"))
+                                        .map(m => m.type)
+                                        .filter(Boolean)
+                                )
+                            );
+
                             return (
                                 <div key={p.key} style={{ maxWidth: 320, width: "100%" }}>
                                     <ProviderCard
@@ -112,10 +123,12 @@ export const ProvidersPage = () => {
                                         url={p.url}
                                         image={image}
                                         description={p.description ?? p.key}
+                                        modelTypes={modelTypes}
                                     />
                                 </div>
                             );
                         })}
+
                     </div>
                 </div>
             </div>

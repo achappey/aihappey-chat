@@ -8,14 +8,17 @@ export const AuthorBadges: React.FC<AuthorBadgesProps> = ({
   authors,
 }) => {
   return (
-    <>
-      {authors
-        ?.map(a =>
-          <AuthorBadge
-            key={a}
-            author={a}
-          />
-        )}
-    </>
+    <div style={{
+      display: "flex",
+      gap: 4,
+      flexWrap: "wrap"
+    }}>
+      {authors?.map(a => (
+        <AuthorBadge
+          key={a}
+          author={a}
+        />
+      ))}
+    </div>
   );
 };

@@ -79,7 +79,7 @@ const MinimalNavBar = ({
         onClick={handleLibrary}
       />
       <Button
-        icon="transcriptions"
+        icon="transcription"
         size="small"
         variant="transparent"
         title={t("transcriptions")}

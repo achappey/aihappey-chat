@@ -77,6 +77,7 @@ import { klingai } from "./catalog/klingai";
 import { euqai } from "./catalog/euqai";
 import { vidu } from "./catalog/vidu";
 import { reve } from "./catalog/reve";
+import { decart } from "./catalog/decart";
 
 /**
  * UI-facing provider catalog.
@@ -111,6 +112,7 @@ export const PROVIDERS: Record<string, Provider> = {
   speechmatics,
   gtranslate,
   moonshot,
+  decart,
   jina,
   publicai,
   nscale,

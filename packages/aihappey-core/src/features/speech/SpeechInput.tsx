@@ -30,7 +30,7 @@ export const SpeechInput = ({
       <div style={styles.tagRow}>
         {fileAttachments.length > 0 && (
           <FileTags
-            icon="transcriptions"
+            icon="transcription"
             files={fileAttachments}
             removeFile={(a) => fileAttachmentRuntime.remove(a)}
           />

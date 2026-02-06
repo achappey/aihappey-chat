@@ -89,6 +89,7 @@ import {
   VideoRegular,
   PuzzlePieceRegular,
   VideoSettingsRegular,
+  TextTRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -102,7 +103,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   connect: PlugConnectedAddRegular,
   speech: SpeakerBoxRegular,
   speechSettings: SpeakerSettingsRegular,
-  transcriptions: MicRegular,
+  transcription: MicRegular,
   transcriptionSettings: MicSettingsRegular,
   imageSettings: ContentSettingsRegular,
   videoSettings: VideoSettingsRegular,
@@ -155,6 +156,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   providers: PlugConnectedRegular,
   sequential: ArrowRoutingRegular,
   aiImage: ImageSparkleRegular,
+  language: TextTRegular,
   groupchat: PeopleChatRegular,
   handoff: PeopleSwapRegular,
   catalog: BuildingShopRegular,

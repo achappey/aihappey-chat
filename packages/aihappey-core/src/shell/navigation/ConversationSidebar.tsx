@@ -74,7 +74,7 @@ export const ConversationSidebar = ({
       key: "transcriptions",
       label: t("transcriptions"),
       href: "/transcriptions",
-      icon: "transcriptions",
+      icon: "transcription",
     },
     {
       key: "speech",

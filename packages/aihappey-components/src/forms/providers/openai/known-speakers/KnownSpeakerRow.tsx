@@ -91,7 +91,7 @@ export const KnownSpeakerRow: React.FC<{
           type="button"
           size="small"
           variant={isRecordingThis ? "primary" : "transparent"}
-          icon={isRecordingThis ? "stop" : "transcriptions"}
+          icon={isRecordingThis ? "stop" : "transcription"}
           title={t("transcriptionRecord")}
           disabled={
             busy ||

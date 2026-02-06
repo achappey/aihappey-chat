@@ -10,3 +10,4 @@ export * from "./BrrrBadge";
 export * from "./ExperimentalBadge";
 export * from "./ContextWindowBadge";
 export * from "./MaxOutputTokensBadge";
+export * from "./ModelTypeBadge";

@@ -11,7 +11,6 @@ export type PromptArgumentsFormProps = {
   arguments: PromptArgument[];
   values: Record<string, string>;
   completions: Record<string, string[]>;
-  loadingCompletions?: boolean;
   pending?: boolean;
   missingRequired?: boolean;
   error?: string | null;
@@ -25,7 +24,6 @@ export const PromptArgumentsForm = ({
   arguments: args,
   values,
   completions,
-  loadingCompletions,
   pending,
   missingRequired,
   error,
@@ -33,15 +31,11 @@ export const PromptArgumentsForm = ({
   onFilter,
   onSubmit,
 }: PromptArgumentsFormProps) => {
-  const { Input, Spinner, Alert, Select } = useTheme();
+  const { Input, Alert, Select } = useTheme();
 
   return (
     <div style={{ minWidth: 320, maxHeight: 400, overflowY: "auto" }}>
-      {loadingCompletions && (
-        <div style={{ marginBottom: 8 }}>
-          <Spinner />
-        </div>
-      )}
+     
 
       {(args ?? []).map((arg) => (
         <div key={arg.name} style={{ marginBottom: 12, marginRight: 12 }}>

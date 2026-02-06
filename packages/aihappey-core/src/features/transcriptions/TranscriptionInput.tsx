@@ -193,7 +193,7 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
       <div style={styles.tagRow}>
         {fileAttachments.length > 0 && (
           <FileTags
-            icon="transcriptions"
+            icon="transcription"
             files={fileAttachments}
             removeFile={(a) => fileAttachmentRuntime.remove(a)}
           />
@@ -236,7 +236,7 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
             size="large"
             title={t('transcriptionRecord')}
             variant={recording ? "primary" : "transparent"}
-            icon={recording ? "stop" : "transcriptions"}
+            icon={recording ? "stop" : "transcription"}
             disabled={recording ? false : props.disabled || !recordingSupported}
             onClick={recording ? stopRecording : startRecording}
           >

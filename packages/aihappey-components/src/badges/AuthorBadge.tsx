@@ -10,6 +10,7 @@ export const AuthorBadge: React.FC<AuthorBadgeProps> = ({
   const { Badge } = useTheme();
   return <Badge
     appearance="outline"
+    size={"small"}
     key={author}
     bg="informative">
     {author}
