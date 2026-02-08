@@ -61,7 +61,7 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
 
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
-  const enabledProviders = useAppStore((a) => a.enabledProviders);
+  const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.speech ?? []);
 
   const close = () => {
     onClose();

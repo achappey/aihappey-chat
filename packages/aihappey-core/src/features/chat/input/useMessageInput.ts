@@ -39,7 +39,7 @@ export function useMessageInput({
   const resetChatSettings = useAppStore((s) => s.resetChatSettings);
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
   const updateMcpServer = useAppStore((s) => s.updateMcpServer);
-  const toggleEnabledProvider = useAppStore((s) => s.toggleEnabledProvider);
+  const setEnabledProvidersForType = useAppStore((s) => s.setEnabledProvidersForType);
   const selectedAgents = useAppStore((s) => s.selectedAgentNames);
   const chatMode = useAppStore((s) => s.chatMode);
   const { isDarkMode } = useDarkMode();
@@ -55,7 +55,7 @@ export function useMessageInput({
 
   const { t } = useTranslation();
   const config = useChatContext();
-  config.config.defaultProviders;
+  config.config.defaultProvidersByType;
 
   const onDisconnectServer = async (url: string) => {
     updateMcpServer(url, {
@@ -80,14 +80,7 @@ export function useMessageInput({
 
   const chatReset = () => {
     resetChatSettings();
-    if (config.config.defaultProviders && config.config.defaultProviders.length > 0) {
-      for (var prov in config.config?.defaultProviders) {
-        toggleEnabledProvider(prov)
-      }
-    }
-    else {
-      toggleEnabledProvider("pollinations")
-    }
+    setEnabledProvidersForType("language", config.config.defaultProvidersByType?.language ?? []);
   };
 
   const handlePaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {

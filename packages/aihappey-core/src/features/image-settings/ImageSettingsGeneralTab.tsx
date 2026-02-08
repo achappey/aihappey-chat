@@ -4,7 +4,6 @@ import {
 } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useFiles } from "aihappey-files";
 import { useEffect, useMemo, useState } from "react";
@@ -17,8 +16,6 @@ export const ImageSettingsGeneralTab = ({
 }: any) => {
   const { t } = useTranslation();
   const publishers = Object.entries(PROVIDERS).map(a => a[1].name).sort();
-  const appConfig = useChatContext();
-  const enabledProviders = useAppStore(s => s.enabledProviders)
   const n = useAppStore(s => s.n)
   const seed = useAppStore(s => s.seed)
   const size = useAppStore(s => s.size)

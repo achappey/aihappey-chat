@@ -4,8 +4,13 @@ import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useJsonRenderRegistry } from "aihappey-json-render-registry";
+import { builtInCatalogLabels, mapLegacyDefaultCatalogSelection } from "../json-render/catalog";
+import {
+  builtInRegistryLabels,
+  mapLegacyDefaultRegistrySelection,
+} from "../json-render/ComponentRegistry";
 
-const BUILTIN_CATALOG_ID = "__default__";
+const BUILTIN_CATALOG_IDS = ["app", "openapi", "adaptive-cards"];
 
 function parseCommaList(value: string | undefined, all: string[]): string[] {
   const trimmed = String(value ?? "").trim();
@@ -50,40 +55,44 @@ export const AppsSettings = () => {
   const setDefaultRegistries = useAppStore((s) => (s as any).setDefaultRegistries as (v?: string) => void);
 
   const catalogItems = useMemo(() => {
+    const builtIns = BUILTIN_CATALOG_IDS.map((id) => ({
+      id,
+      label: builtInCatalogLabels[id as keyof typeof builtInCatalogLabels] ?? id,
+    }));
+
     const stored = (catalogs.items ?? []).map((c) => ({
       id: c.name,
       label: c.name,
     }));
 
-    // Built-in catalog (the default UI component set)
-    const builtIn = {
-      id: BUILTIN_CATALOG_ID,
-      label: t("default") ?? "Default",
-    };
-
-    return [builtIn, ...stored].sort((a, b) => a.label.localeCompare(b.label));
-  }, [catalogs.items, t]);
+    return [...builtIns, ...stored].sort((a, b) => a.label.localeCompare(b.label));
+  }, [catalogs.items]);
 
   const allCatalogIds = useMemo(() => catalogItems.map((x) => x.id), [catalogItems]);
   const selectedCatalogIds = useMemo(
-    () => parseCommaList(defaultCatalogs, allCatalogIds),
+    () => parseCommaList(mapLegacyDefaultCatalogSelection(defaultCatalogs), allCatalogIds),
     [defaultCatalogs, allCatalogIds],
   );
 
   const registryItems = useMemo(() => {
     const ids = new Set<string>();
     ids.add("app");
+    ids.add("openapi");
+    ids.add("adaptive-cards");
     for (const item of registryStore.items ?? []) {
       if (item?.registryId) ids.add(item.registryId);
     }
     return Array.from(ids)
       .sort((a, b) => a.localeCompare(b))
-      .map((id) => ({ id, label: id }));
+      .map((id) => ({
+        id,
+        label: builtInRegistryLabels[id as keyof typeof builtInRegistryLabels] ?? id,
+      }));
   }, [registryStore.items]);
 
   const allRegistryIds = useMemo(() => registryItems.map((x) => x.id), [registryItems]);
   const selectedRegistryIds = useMemo(
-    () => parseCommaList(defaultRegistries, allRegistryIds),
+    () => parseCommaList(mapLegacyDefaultRegistrySelection(defaultRegistries), allRegistryIds),
     [defaultRegistries, allRegistryIds],
   );
 

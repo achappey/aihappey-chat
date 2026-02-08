@@ -2,12 +2,10 @@ import React from "react";
 import { useTheme } from "aihappey-components";
 
 import { useTranslation } from "aihappey-i18n";
-import { useAppStore } from "aihappey-state";
+import { PROVIDER_CAPABILITIES, useAppStore, type ProviderCapability } from "aihappey-state";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useChatContext } from "../chat/context/ChatContext";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
-
-type ProviderCapability = "language" | "image" | "speech" | "transcription" | "reranking" | "video";
 
 interface UserMenuButtonProps {
   email?: string;
@@ -31,8 +29,8 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
   const isEntraAuth = chat?.config?.getAccessToken != null;
   const [providerKeysOpen, setProviderKeysOpen] = React.useState(false);
 
-  const enabledProviders = useAppStore((s) => s.enabledProviders ?? []);
-  const toggleEnabledProvider = useAppStore((s) => s.toggleEnabledProvider);
+  const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
+  const toggleEnabledProviderForType = useAppStore((s) => s.toggleEnabledProviderForType);
   const models = useAppStore((s) => s.models ?? []);
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
 
@@ -79,14 +77,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
       return acc;
     }, {} as Record<string, string>);
 
-    const allowed: ProviderCapability[] = [
-      "language",
-      "image",
-      "speech",
-      "transcription",
-      "reranking",
-      "video"
-    ];
+    const allowed: ProviderCapability[] = [...PROVIDER_CAPABILITIES];
 
     const byCap: Record<ProviderCapability, Set<string>> = {
       language: new Set<string>(),
@@ -127,8 +118,8 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         onApiKeys={() => setProviderKeysOpen(true)}
         providers={providers}
         providerGroups={providerGroups}
-        enabledProviders={enabledProviders}
-        onToggleProvider={toggleEnabledProvider}
+        enabledProvidersByType={enabledProvidersByType}
+        onToggleProviderForType={toggleEnabledProviderForType}
         providersDisabled={!modelsLoaded}
         disabledProviders={disabledProviders}
         labels={{

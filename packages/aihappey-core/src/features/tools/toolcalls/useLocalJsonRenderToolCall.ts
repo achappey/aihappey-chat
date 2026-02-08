@@ -20,34 +20,12 @@ const ok = (tree: any, uri: string, toolcallId: any): CallToolResult => ({
 });
 
 /* ============================================================
-   Tool definition (STATIC)
-============================================================ */
-
-export const listConversationToolcallsTool: Tool = {
-    name: "list_json_render_toolcalls",
-    title: "List available tool calls",
-    description: "Returns tool calls available for json render in the current conversation.",
-    inputSchema: {
-        type: "object",
-        properties: {},
-    },
-    annotations: {
-        readOnlyHint: true,
-        destructiveHint: false,
-        idempotentHint: true,
-        openWorldHint: false,
-    },
-};
-
-/* ============================================================
    Tool definition
 ============================================================ */
-
-
 export const localJsonRenderTool: Tool = {
     name: "local_json_render",
-    title: "Render UI from tool output",
-    description: "Render a streaming UI using the output of a previously executed tool call. The chat app handles the rendering, the component tree is only returned for reference.",
+    title: "Render streaming UI app",
+    description: "Render or update a streaming UI app directly from a prompt. The chat app handles rendering; the component tree is returned for reference.",
     inputSchema: {
         type: "object",
         properties: {
@@ -55,12 +33,18 @@ export const localJsonRenderTool: Tool = {
                 type: "string",
                 description: "Detailed prompt describing the UI to render",
             },
-            toolCallId: {
-                type: "string",
-                description: "Id of the executed tool call to use as data",
+            catalogIds: {
+                type: "array",
+                description: "Optional list of catalog ids to use for this render request",
+                items: { type: "string" },
             },
+           /* registryIds: {
+                type: "array",
+                description: "Optional list of registry ids to use for this render request",
+                items: { type: "string" },
+            },*/
         },
-        required: ["prompt", "toolCallId"],
+        required: ["prompt"],
     },
     annotations: {
         readOnlyHint: true,
@@ -70,15 +54,15 @@ export const localJsonRenderTool: Tool = {
     },
 };
 
-export const localJsonRenderPluginDef2 = {
+export const localJsonRenderPluginDef = {
     name: "local-json-render",
-    match: (toolName: string) => toolName === "local_json_render"
-        || toolName == "list_json_render_toolcalls",
-    tools: [localJsonRenderTool, listConversationToolcallsTool],
+    match: (toolName: string) => toolName === "local_json_render",
+    tools: [localJsonRenderTool],
 };
 
 type LocalJsonRenderToolCall = {
-    toolName: "local_json_render" | "list_json_render_toolcalls";
+    toolName: "local_json_render";
+    toolCallId?: string;
     input?: any;
 };
 
@@ -108,31 +92,17 @@ function parseJsonRenderTree(output: any) {
     }
 }
 
-function findLatestToolOutput(messages: UIMessage[] | undefined, toolCallId: string) {
-    if (!messages?.length) return null;
-
-    // toolName = toolName.replace("functions.", "");
-    for (let i = messages.length - 1; i >= 0; i -= 1) {
-        const msg = messages[i];
-        const parts = (msg as any)?.parts as ToolInvocationPart[] | undefined;
-        if (!Array.isArray(parts)) continue;
-        for (let j = parts.length - 1; j >= 0; j -= 1) {
-            const part = parts[j];
-            if (!part?.type?.startsWith("tool-")) continue;
-            //  const name = part.toolName ?? part.type?.replace(/^tool-/, "");
-            if (part.toolCallId === toolCallId) {
-                return part;
-            }
-        }
-    }
-    return null;
+function sanitizeStringList(input: unknown): string[] | undefined {
+    if (!Array.isArray(input)) return undefined;
+    const cleaned = input
+        .map((value) => String(value ?? "").trim())
+        .filter(Boolean);
+    if (!cleaned.length) return undefined;
+    return Array.from(new Set(cleaned));
 }
 
-export function findLatestLocalJsonRenderTree(messages: UIMessage[] | undefined, toolCallId: string) {
+export function findLatestLocalJsonRenderTree(messages: UIMessage[] | undefined) {
     if (!messages?.length) return null;
-    if (!toolCallId) return null;
-    const matchId = toolCallId.trim();
-    if (!matchId) return null;
 
     for (let i = messages.length - 1; i >= 0; i -= 1) {
         const msg = messages[i];
@@ -143,8 +113,6 @@ export function findLatestLocalJsonRenderTree(messages: UIMessage[] | undefined,
             if (!part?.type?.startsWith("tool-")) continue;
             const name = part.toolName ?? part.type?.replace(/^tool-/, "");
             if (name !== "local_json_render") continue;
-            const inputId = String(part?.input?.toolCallId ?? "").trim();
-            if (!inputId || inputId !== matchId) continue;
             const tree = parseJsonRenderTree(part?.output);
             if (tree) return tree;
         }
@@ -153,72 +121,39 @@ export function findLatestLocalJsonRenderTree(messages: UIMessage[] | undefined,
 }
 
 export function useLocalJsonRenderRuntime(opts: {
-    messages?: UIMessage[];
-    conversationId?: string | null;
-    setActiveData: any
-    send: any
+    setActiveData: any;
+    send: (request: {
+        prompt: string;
+        catalogIds?: string[];
+        registryIds?: string[];
+    }) => Promise<any>;
 }) {
-    const { messages, conversationId, setActiveData, send } = opts;
+    const { setActiveData, send } = opts;
 
     const handle = useCallback(
         async (toolCall: LocalJsonRenderToolCall): Promise<any> => {
             switch (toolCall.toolName) {
                 case "local_json_render": {
                     const input = toolCall.input ?? {};
-                    const prompt = input.prompt?.trim();
-                    const toolCallId = input.toolCallId?.trim();
+                    const prompt = String(input.prompt ?? "").trim();
+                    const catalogIds = sanitizeStringList(input.catalogIds);
+                   // const registryIds = sanitizeStringList(input.registryIds);
                     if (!prompt) throw new Error("Missing prompt.");
-                    if (!toolCallId) throw new Error("Missing toolCallId.");
-                    if (!conversationId) throw new Error("Missing conversation id.");
+                    setActiveData(undefined);
+                    const tree = await send({
+                        prompt,
+                        catalogIds,
+                        //registryIds,
+                    });
 
-                    const part = findLatestToolOutput(messages, toolCallId);
-                    if (!part) {
-                        throw new Error(`No tool output found for toolCallId: ${toolCallId}`);
-                    }
-                    const output = part.output;
-                    setActiveData(output)
-                    const tree = await send(prompt, toolCallId)
-
-                    return ok(tree, "toolcall://" + toolCallId, part.toolCallId);
-
-
-                }
-
-                case "list_json_render_toolcalls": {
-                    if (!messages?.length) {
-                        return ok([], "toolcall://list", undefined);
-                    }
-
-                    const seen = new Map<string, string | undefined>();
-
-                    for (const msg of messages) {
-                        const parts = (msg as any)?.parts as ToolInvocationPart[] | undefined;
-                        if (!Array.isArray(parts)) continue;
-
-                        for (const part of parts) {
-                            if (!part?.type?.startsWith("tool-")) continue;
-                            const name = part.toolName ?? part.type.replace(/^tool-/, "");
-                            if (!seen.has(name)) {
-                                seen.set(name, part.toolCallId);
-                            }
-                        }
-                    }
-
-                    return ok(
-                        Array.from(seen.entries()).map(([name, id]) => ({ name, id })),
-                        "toolcall://conversation",
-                        undefined
-                    );
+                    return ok(tree, `toolcall://local_json_render/${toolCall.toolCallId ?? "latest"}`, toolCall.toolCallId);
                 }
                 default:
                     break;
             }
-
-
-
         },
-        [conversationId, messages, send]
+        [send, setActiveData]
     );
 
-    return { name: localJsonRenderPluginDef2.name, handle };
+    return { name: localJsonRenderPluginDef.name, handle };
 }

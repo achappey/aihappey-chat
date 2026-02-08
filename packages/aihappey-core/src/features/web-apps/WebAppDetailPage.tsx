@@ -8,7 +8,10 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { WebAppDetailHeader } from "./WebAppDetailHeader";
 import { WebAppDetailChatDrawer } from "./WebAppDetailChatDrawer";
 import { WebAppDetailAppPreview } from "./WebAppDetailAppPreview";
-import { useCombinedComponentRegistry } from "../json-render/ComponentRegistry";
+import {
+  mapLegacyDefaultRegistrySelection,
+  useCombinedComponentRegistryForIds,
+} from "../json-render/ComponentRegistry";
 import { useAppStore } from "aihappey-state";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
@@ -22,9 +25,58 @@ import {
 } from "./dataSources";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useUIStream } from "../json-render/useUIStream";
-import { buildCatalogWithActions, createCatalogFromStored } from "../json-render/catalog";
-//import { generateCatalogPrompt } from "../json-render/generateCatalogPrompt";
+import {
+  createCatalogFromStored,
+  getDefaultCatalogDefinitionsWithActions,
+  mapLegacyDefaultCatalogSelection,
+} from "../json-render/catalog";
 import { useJsonRenderRegistry } from "aihappey-json-render-registry";
+
+const BUILTIN_REGISTRY_IDS = ["app", "openapi", "adaptive-cards"];
+
+function inferRegistryIdsFromTree(tree: any): string[] {
+  const elements = tree?.elements ?? {};
+  const types = new Set<string>(
+    Object.values(elements)
+      .map((el: any) => String(el?.type ?? "").trim())
+      .filter(Boolean),
+  );
+
+  const inferred: string[] = [];
+
+  if (types.has("Form") || types.has("StringField") || types.has("NumberField") || types.has("EnumField")) {
+    inferred.push("openapi");
+  }
+
+  const hasAdaptive = Array.from(types).some(
+    (t) =>
+      t === "AdaptiveCard" ||
+      t.startsWith("Input.") ||
+      t.startsWith("Action.") ||
+      ["TextBlock", "ColumnSet", "FactSet", "RichTextBlock", "ImageSet", "ActionSet"].includes(t),
+  );
+  if (hasAdaptive) {
+    inferred.push("adaptive-cards");
+  }
+
+  return Array.from(new Set(inferred));
+}
+
+function parseCommaList(value: string | undefined, all: string[]): string[] {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) return all;
+
+  const tokens = trimmed
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const includeAll = tokens.some((t) => t.toLowerCase() === "all");
+  if (includeAll) return all;
+
+  const allowed = tokens.filter((t) => all.includes(t));
+  return allowed.length ? Array.from(new Set(allowed)) : all;
+}
 
 export const WebAppDetailPage = () => {
   const { t } = useTranslation();
@@ -40,6 +92,7 @@ export const WebAppDetailPage = () => {
   const customHeaders = useAppStore((s) => s.customHeaders);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const defaultCatalogs = useAppStore((s) => (s as any).defaultCatalogs as string | undefined);
+  const defaultRegistries = useAppStore((s) => (s as any).defaultRegistries as string | undefined);
   const jsonRenderCatalog = useJsonRenderCatalog();
   const jsonRenderRegistry = useJsonRenderRegistry();
   const { config } = useChatContext();
@@ -54,17 +107,30 @@ export const WebAppDetailPage = () => {
   const [streaming, setStreaming] = useState(false);
   const [chatStreaming, setChatStreaming] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const { registry, actionHandlers } = useCombinedComponentRegistry("app");
 
   const streamState = (location.state as any)?.stream as
     | {
       prompt: string;
-      dataSource: JsonRenderAppDataSource;
+      dataSource?: JsonRenderAppDataSource;
       data?: any;
       catalogs?: string[];
+      registries?: string[];
     }
     | undefined;
   const [hasStreamed, setHasStreamed] = useState(false);
+
+  const allRegistryIds = useMemo(() => {
+    const ids = new Set<string>(BUILTIN_REGISTRY_IDS);
+    for (const item of jsonRenderRegistry.items ?? []) {
+      if (item?.registryId) ids.add(item.registryId);
+    }
+    return Array.from(ids);
+  }, [jsonRenderRegistry.items]);
+
+  const defaultSelectedRegistryIds = useMemo(
+    () => parseCommaList(mapLegacyDefaultRegistrySelection(defaultRegistries), allRegistryIds),
+    [defaultRegistries, allRegistryIds],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +176,19 @@ export const WebAppDetailPage = () => {
   }, [app]);
 
   const effectiveTree = streamingTree ?? tree;
+
+  const effectiveRegistryIds = useMemo(() => {
+    const inferred = inferRegistryIdsFromTree(effectiveTree);
+
+    if (streamState?.registries?.length) return streamState.registries;
+    if ((app as any)?.registryIds?.length) {
+      return Array.from(new Set([...(app as any).registryIds as string[], ...inferred]));
+    }
+    if (inferred.length) return inferred;
+    return defaultSelectedRegistryIds.length ? defaultSelectedRegistryIds : ["app"];
+  }, [streamState?.registries, app, defaultSelectedRegistryIds, effectiveTree]);
+
+  const { registry, actionHandlers } = useCombinedComponentRegistryForIds(effectiveRegistryIds);
 
   const title = app?.name ?? t("webApps");
   const description = app?.description;
@@ -160,41 +239,36 @@ export const WebAppDetailPage = () => {
     [models]
   );
 
-  const systemPrompt = useMemo(() => {
-    const fallback = buildCatalogWithActions(jsonRenderRegistry.actions, "app");
+  const effectiveCatalogPrompt = useMemo(() => {
+    const fallbackCatalogs = getDefaultCatalogDefinitionsWithActions(
+      jsonRenderRegistry.actions,
+      "app",
+    );
+    const fallbackNames = fallbackCatalogs.map((item) => item.name);
+    const availableCatalogIds = Array.from(
+      new Set([...(jsonRenderCatalog.items ?? []).map((item) => item.name), ...fallbackNames]),
+    );
 
-    const catalogListWithBuiltin = (() => {
-      const raw = String(defaultCatalogs ?? "").trim();
-      if (!raw) return undefined;
-      const tokens = raw
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
-      const hasBuiltin = tokens.includes("__default__");
-      const filtered = tokens.filter((t) => t !== "__default__");
-      const joined = filtered.join(",");
-      return hasBuiltin ? (joined ? `app,${joined}` : "app") : joined;
-    })();
+    const defaultSelectedCatalogIds = parseCommaList(
+      mapLegacyDefaultCatalogSelection(defaultCatalogs),
+      availableCatalogIds,
+    );
+
+    const selectedCatalogIds = streamState?.catalogs?.length
+      ? streamState.catalogs
+      : (app as any)?.catalogIds?.length
+        ? ((app as any).catalogIds as string[])
+        : defaultSelectedCatalogIds;
+
+    const catalogListWithBuiltin = mapLegacyDefaultCatalogSelection(selectedCatalogIds.join(","));
 
     const stored = createCatalogFromStored(
       jsonRenderCatalog.items,
       catalogListWithBuiltin,
-      fallback.data as any
+      fallbackCatalogs,
     );
     return stored.prompt();
-  }, [defaultCatalogs, jsonRenderCatalog.items, jsonRenderRegistry.actions]);
-
-  const effectiveCatalogPrompt = useMemo(() => {
-    if (!streamState?.catalogs?.length) return systemPrompt;
-    const fallback = buildCatalogWithActions(jsonRenderRegistry.actions, "app");
-    const catalogList = streamState.catalogs.join(",");
-    const stored = createCatalogFromStored(
-      jsonRenderCatalog.items,
-      catalogList,
-      fallback.data as any
-    );
-    return stored.prompt();
-  }, [streamState?.catalogs, systemPrompt, jsonRenderCatalog.items, jsonRenderRegistry.actions]);
+  }, [defaultCatalogs, streamState?.catalogs, app, jsonRenderCatalog.items, jsonRenderRegistry.actions]);
 
   const { spec: streamedTree, send, isStreaming, error: uiStreamError } = useUIStream({
     api: (config?.baseUrl ?? "") + "/api/generate",
@@ -247,9 +321,10 @@ export const WebAppDetailPage = () => {
           description: app.description,
           uiTree: result,
           data: streamState.data ?? app.data,
-          registryIds: app.registryIds,
+          catalogIds: ((app as any).catalogIds ?? streamState.catalogs) as any,
+          registryIds: (app.registryIds ?? streamState.registries ?? effectiveRegistryIds) as any,
           dataSource: streamState.dataSource ?? app.dataSource,
-        });
+        } as any);
         if (!cancelled) {
           setApp(updated);
           setStreamingTree(undefined);
@@ -264,7 +339,7 @@ export const WebAppDetailPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [appId, app?.id, streamState?.prompt, send, apps, hasStreamed, tree]);
+  }, [appId, app?.id, streamState?.prompt, send, apps, hasStreamed, tree, effectiveRegistryIds]);
 
   const dataSourceValue = (app?.dataSource ?? null) as JsonRenderAppDataSource | null;
 
@@ -284,9 +359,10 @@ export const WebAppDetailPage = () => {
           description: app.description,
           uiTree: nextTree,
           data: app.data,
+          catalogIds: (app as any).catalogIds,
           registryIds: app.registryIds,
           dataSource: app.dataSource,
-        });
+        } as any);
         setApp(updated);
         setStreamingTree(undefined);
       } catch (e) {
@@ -310,9 +386,10 @@ export const WebAppDetailPage = () => {
           description: app.description,
           uiTree: app.uiTree,
           data: app.data,
+          catalogIds: (app as any).catalogIds,
           registryIds: app.registryIds,
           dataSource: next,
-        });
+        } as any);
         setApp(updated);
       } catch (e) {
         setDataSourceError(e instanceof Error ? e.message : String(e));
@@ -344,9 +421,10 @@ export const WebAppDetailPage = () => {
         description: app.description,
         uiTree: app.uiTree,
         data,
+        catalogIds: (app as any).catalogIds,
         registryIds: app.registryIds,
         dataSource: app.dataSource,
-      });
+      } as any);
       setApp(updated);
     } catch (e) {
       setDataRefreshError(e instanceof Error ? e.message : String(e));

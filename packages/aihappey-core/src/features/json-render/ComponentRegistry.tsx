@@ -1,17 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { getByPath } from "@json-render/core";
-import {
-  useAction,
-  useActions,
-  useData,
-  useDataBinding,
-  useDataValue,
-  useFieldValidation,
-  useIsVisible,
-  useValidation,
-} from "@json-render/react";
-import { ChartJsBlock, useTheme } from "aihappey-components";
-import { useDarkMode } from "usehooks-ts";
+import { useMemo } from "react";
 import {
   buildRuntimeActionRegistryForId,
   buildRuntimeRegistryForId,
@@ -25,425 +12,58 @@ import {
   type RuntimeRegistryError,
   type RuntimeComponentRegistry,
 } from "aihappey-json-render-registry";
-import type { ComponentRenderProps } from "./Renderer";
+import {
+  BUILT_IN_REGISTRY_LABELS,
+  builtInRegistryItems as packageBuiltInRegistryItems,
+  defaultComponentRegistry,
+  defaultRegistryBundles,
+  defaultRegistryBundleIds,
+  defaultRuntimeBindings,
+} from "aihappey-ai-components-default";
 
-type BuiltInMeta = {
-  propsSchema: any;              // JSON Schema object
-  defaultProps?: Record<string, any>;
-  description?: string;
-};
+const LEGACY_DEFAULT_REGISTRY_TOKENS = new Set(["__default__", "built-in"]);
 
-const withMeta = <T,>(component: T, meta: BuiltInMeta) => {
-  (component as any).__jsonRenderMeta = meta;
-  return component;
-};
+export const builtInRegistryLabels = BUILT_IN_REGISTRY_LABELS;
 
-export const getBuiltInMeta = (name: string): BuiltInMeta | undefined =>
-  (componentRegistry as any)?.[name]?.__jsonRenderMeta;
-
-const spacingScale: Record<string, number> = {
-  none: 0,
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
-};
-
-const formatNumber = (value: unknown, format?: string, precision?: number) => {
-  if (typeof value !== "number") return value;
-  const digits = typeof precision === "number" ? precision : undefined;
-  if (format === "currency") {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: "EUR",
-      maximumFractionDigits: digits,
-    }).format(value);
+const mapLegacyRegistryId = (id: string): string[] => {
+  if (LEGACY_DEFAULT_REGISTRY_TOKENS.has(id)) {
+    return ["app"];
   }
-  if (format === "percent") {
-    return new Intl.NumberFormat(undefined, {
-      style: "percent",
-      maximumFractionDigits: digits,
-    }).format(value);
+  return [id];
+};
+
+const normalizeRegistryIds = (registryIds: string[]): string[] => {
+  const ids = (registryIds ?? []).filter(Boolean).flatMap(mapLegacyRegistryId);
+  return Array.from(new Set(ids));
+};
+
+export function mapLegacyDefaultRegistrySelection(registryList?: string): string | undefined {
+  const trimmed = String(registryList ?? "").trim();
+  if (!trimmed) return undefined;
+
+  const tokens = trimmed
+    .split(",")
+    .map((token) => token.trim())
+    .filter(Boolean);
+
+  const normalized = tokens.flatMap((token) => mapLegacyRegistryId(token));
+  return Array.from(new Set(normalized)).join(",");
+}
+
+const buildDefaultRegistryBase = (registryIds: string[]): RuntimeComponentRegistry => {
+  const ids = normalizeRegistryIds(registryIds);
+  let base: RuntimeComponentRegistry = { ...defaultComponentRegistry };
+
+  for (const bundle of defaultRegistryBundles) {
+    if (ids.includes(bundle.id)) {
+      base = mergeComponentRegistries(base, bundle.registry as RuntimeComponentRegistry);
+    }
   }
-  return new Intl.NumberFormat(undefined, {
-    maximumFractionDigits: digits,
-  }).format(value);
+
+  return base;
 };
 
-const useOptionalDataValue = <T,>(path?: string) => {
-  const safePath = path || "__missing__";
-  const value = useDataValue<T>(safePath);
-  return path ? value : undefined;
-};
-
-const readRowValue = (row: any, key?: string, path?: string) => {
-  if (!row) return undefined;
-  const field = path || key;
-  if (!field) return undefined;
-  if (field.startsWith("/")) {
-    return getByPath(row, field);
-  }
-  return field.split(".").reduce((acc: any, part) => acc?.[part], row);
-};
-
-const Metric = ({ element }: ComponentRenderProps<any>) => {
-  const value = useDataValue<any>(element.props.valuePath);
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span style={{ fontSize: 12, opacity: 0.7 }}>{element.props.label}</span>
-      <span style={{ fontSize: 20, fontWeight: 600 }}>
-        {String(
-          formatNumber(value, element.props.format, element.props.precision) ?? "",
-        )}
-      </span>
-    </div>
-  );
-};
-
-const Container = ({ element, children }: ComponentRenderProps<any>) => {
-  const gap = element.props.gap;
-  const padding = spacingScale[element.props.padding] ?? undefined;
-
-  const flexDirection =
-    element.props.direction === "vertical"
-      ? "column"
-      : element.props.direction === "horizontal"
-        ? "row"
-        : element.props.direction ?? "row";
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: flexDirection,
-        gap: typeof gap === "number" ? gap : undefined,
-        alignItems: element.props.align ?? undefined,
-        justifyContent: element.props.justify ?? undefined,
-        flexWrap: element.props.wrap ? "wrap" : undefined,
-        padding,
-        width: element.props.width ?? undefined,
-        maxWidth: element.props.maxWidth ?? undefined,
-        boxSizing: "border-box"
-      }}
-    >
-      {children}
-    </div>
-  );
-};
-
-const Stack = ({ element, children }: ComponentRenderProps<any>) => (
-  <Container
-    element={{
-      ...element,
-      props: { ...element.props, direction: "column" },
-    }}
-  >
-    {children}
-  </Container>
-);
-
-const Row = ({ element, children }: ComponentRenderProps<any>) => (
-  <Container
-    element={{
-      ...element,
-      props: { ...element.props, direction: "row" },
-    }}
-  >
-    {children}
-  </Container>
-);
-
-const Grid = ({ element, children }: ComponentRenderProps<any>) => {
-  const gap = element.props.gap ?? 12;
-  const columns = element.props.columns;
-  const minColumnWidth = element.props.minColumnWidth;
-  const templateColumns = columns
-    ? `repeat(${columns}, minmax(0, 1fr))`
-    : minColumnWidth
-      ? `repeat(auto-fit, minmax(${minColumnWidth}px, 1fr))`
-      : undefined;
-  return (
-    <div
-      style={{
-        display: "grid",
-        gap,
-        gridTemplateColumns: templateColumns,
-        width: element.props.width ?? undefined,
-      }}
-    >
-      {children}
-    </div>
-  );
-};
-
-const Text = ({ element, children }: ComponentRenderProps<any>) => {
-  const { Text: TextComponent } = useTheme();
-  const hasChildren = React.Children.count(children) > 0;
-
-  return (
-    <TextComponent
-      as={element.props.as}
-      size={element.props.size}
-      weight={element.props.weight}
-      italic={element.props.italic}
-      underline={element.props.underline}
-      strikethrough={element.props.strikethrough}
-      truncate={element.props.truncate}
-      wrap={element.props.wrap}
-      block={element.props.block}
-      font={element.props.font}
-    >
-      {hasChildren ? children : element.props.text}
-    </TextComponent>
-  );
-};
-
-const Card = withMeta(({ element, children }: ComponentRenderProps<any>) => {
-  const { Card: CardComponent } = useTheme();
-  return (
-    <CardComponent
-      title={element.props.title}
-      description={element.props.description}
-      text={element.props.text}
-      size={element.props.size}
-    >
-      <div>
-        {children}
-      </div>
-    </CardComponent>
-  );
-}, {
-  description: "Card",
-  propsSchema: {
-    type: "object",
-    properties: {
-      title: { type: "string" },
-      description: { type: "string" },
-      text: { type: "string" },
-      size: { type: "string" },
-    },
-    additionalProperties: false,
-  },
-  defaultProps: {},
-});
-
-const Badge = ({ element, children }: ComponentRenderProps<any>) => {
-  const { Badge: BadgeComponent } = useTheme();
-  return (
-    <BadgeComponent appearance={element.props.appearance} bg={element.props.variant}>
-      {element.props.text ?? children}
-    </BadgeComponent>
-  );
-};
-
-const ProgressBar = ({ element }: ComponentRenderProps<any>) => {
-  const { ProgressBar: ProgressBarComponent } = useTheme();
-  const dataValue = useOptionalDataValue<number>(element.props.valuePath);
-  return (
-    <ProgressBarComponent
-      value={dataValue ?? element.props.value}
-      label={element.props.label}
-      variant={element.props.variant}
-      striped={element.props.striped}
-      animated={element.props.animated}
-    />
-  );
-};
-
-const Skeleton = ({ element }: ComponentRenderProps<any>) => {
-  const { Skeleton: SkeletonComponent } = useTheme();
-  return (
-    <SkeletonComponent
-      width={element.props.width}
-      height={element.props.height}
-      circle={element.props.circle}
-      animation={element.props.animation}
-    />
-  );
-};
-
-const Spinner = ({ element }: ComponentRenderProps<any>) => {
-  const { Spinner: SpinnerComponent } = useTheme();
-  return <SpinnerComponent size={element.props.size} label={element.props.label} />;
-};
-
-const Image = ({ element }: ComponentRenderProps<any>) => {
-  const { Image: ImageComponent } = useTheme();
-  return (
-    <ImageComponent
-      src={element.props.src}
-      title={element.props.title}
-      width={element.props.width}
-      height={element.props.height}
-      fit={element.props.fit}
-      bordered={element.props.bordered}
-      shadow={element.props.shadow}
-    />
-  );
-};
-
-const Carousel = ({ element }: ComponentRenderProps<any>) => {
-  const { Carousel: CarouselComponent } = useTheme();
-  const slides = (element.props.slides ?? []).map((slide: any) => ({
-    key: slide.key,
-    caption: slide.title,
-    content: slide.imageSrc ? (
-      <Image element={{ ...element, props: { src: slide.imageSrc } }} />
-    ) : (
-      <div>
-        {slide.title ? <strong>{slide.title}</strong> : null}
-        {slide.description ? <div>{slide.description}</div> : null}
-      </div>
-    ),
-  }));
-  return <CarouselComponent slides={slides} />;
-};
-
-const Chart = withMeta(({ element }: ComponentRenderProps<any>) => {
-
-  const labels =
-    typeof element.props.labels === "string"
-      ? useDataValue(element.props.labels)
-      : element.props.labels;
-
-  const datasets =
-    typeof element.props.datasets === "string"
-      ? useDataValue(element.props.datasets)
-      : element.props.datasets;
-
-  const options =
-    typeof element.props.options === "string"
-      ? useDataValue(element.props.options)
-      : element.props.options;
-
-  return (
-    <ChartJsBlock
-      type={element.props.type}
-      data={{
-        labels,
-        datasets
-      }}
-      options={options}
-      height={element.props.height}
-    />
-  );
-}, {
-  description: "ChartJS",
-  propsSchema: {
-    type: "object",
-    properties: {
-      type: { type: "string" },
-      height: { type: "number" },
-    },
-    additionalProperties: false,
-  },
-  defaultProps: {},
-});
-
-
-
-const SimpleTable = ({ element }: ComponentRenderProps<any>) => {
-  const { Table: TableComponent } = useTheme();
-  const columns = element.props.columns ?? [];
-  const data = useOptionalDataValue<any[]>(element.props.dataPath) ?? element.props.data;
-  const rows = Array.isArray(data) ? data : [];
-  return (
-    <TableComponent
-      striped={element.props.striped}
-      bordered={element.props.bordered}
-      hover={element.props.hover}
-      size={element.props.size}
-    >
-      <thead>
-        <tr>
-          {columns.map((column: any) => (
-            <th key={column.key}>{column.header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row: any, rowIndex: number) => (
-          <tr key={row?.id !== null &&
-            typeof row?.id !== "object"
-            ? row.id
-            : rowIndex}>
-            {columns.map((column: any) => {
-              const value = readRowValue(row, column.key, column.fieldPath);
-              return (
-                <td key={column.key}>
-                  {value}
-                </td>
-              );
-            })}
-          </tr>
-        ))}
-      </tbody>
-    </TableComponent>
-  );
-};
-//{formatNumber(value, column.format, column.precision) ?? ""}
-
-const DataGrid = ({ element }: ComponentRenderProps<any>) => {
-  const { DataGrid: DataGridComponent } = useTheme();
-  const columns = (element.props.columns ?? []).map((column: any) => ({
-    key: column.key,
-    header: column.header,
-    sortable: column.sortable,
-    width: column.width,
-    render: (row: any) =>
-      formatNumber(
-        readRowValue(row, column.key, column.fieldPath),
-        column.format,
-        column.precision,
-      ),
-  }));
-  const data = useOptionalDataValue<any[]>(element.props.dataPath) ?? element.props.data;
-  const rows = Array.isArray(data) ? data : [];
-  if (!DataGridComponent) {
-    return (
-      <SimpleTable
-        element={{
-          ...element,
-          props: { ...element.props, data: rows },
-        }}
-      />
-    );
-  }
-  return (
-    <DataGridComponent
-      columns={columns}
-      data={rows}
-      rowKey={(row: any) => row?.id}
-      selectionMode={element.props.selectionMode ?? "none"}
-    />
-  );
-};
-
-const AudioPlayer = ({ element }: ComponentRenderProps<any>) => {
-  const { AudioPlayer: AudioPlayerComponent } = useTheme();
-  return <AudioPlayerComponent src={element.props.src} />;
-};
-
-export const componentRegistry = {
-  Container,
-  Stack,
-  Row,
-  Grid,
-  Card,
-  Badge,
-  Text,
-  ProgressBar,
-  Skeleton,
-  Spinner,
-  Image,
-  Carousel,
-  Table: SimpleTable,
-  DataGrid,
-  Chart,
-  Metric,
-  AudioPlayer,
-};
+export const componentRegistry = defaultComponentRegistry;
 
 export const buildCombinedComponentRegistry = (
   registryItems: JsonRenderRegistryItem[],
@@ -458,8 +78,12 @@ export const buildCombinedComponentRegistry = (
     runtime,
     registryId,
   );
+
   return {
-    registry: mergeComponentRegistries(componentRegistry, runtimeRegistry),
+    registry: mergeComponentRegistries(
+      buildDefaultRegistryBase([registryId]),
+      runtimeRegistry,
+    ),
     errors,
   };
 };
@@ -472,7 +96,7 @@ export const buildCombinedComponentRegistryForIds = (
   registry: RuntimeComponentRegistry;
   errors: RuntimeRegistryError[];
 } => {
-  const ids = (registryIds ?? []).filter(Boolean);
+  const ids = normalizeRegistryIds(registryIds);
 
   let runtimeRegistry: RuntimeComponentRegistry = {};
   const errors: RuntimeRegistryError[] = [];
@@ -489,7 +113,7 @@ export const buildCombinedComponentRegistryForIds = (
   }
 
   return {
-    registry: mergeComponentRegistries(componentRegistry, runtimeRegistry),
+    registry: mergeComponentRegistries(buildDefaultRegistryBase(ids), runtimeRegistry),
     errors,
   };
 };
@@ -521,7 +145,7 @@ export const buildCombinedActionRegistryForIds = (
   handlers: RuntimeActionRegistry;
   errors: RuntimeActionError[];
 } => {
-  const ids = (registryIds ?? []).filter(Boolean);
+  const ids = normalizeRegistryIds(registryIds);
 
   let handlers: RuntimeActionRegistry = {};
   const errors: RuntimeActionError[] = [];
@@ -545,18 +169,8 @@ export const useCombinedComponentRegistry = (registryId: string) => {
 
   const runtime = useMemo<RegistryRuntime>(
     () => ({
-      React,
-      useDataBinding,
-      useDataValue,
-      useAction,
-      useActions,
-      useData,
-      useIsVisible,
-      useFieldValidation,
-      useValidation,
-      useTheme,
-      useDarkMode,
-    }),
+      ...(defaultRuntimeBindings as Record<string, unknown>),
+    }) as RegistryRuntime,
     [],
   );
 
@@ -579,22 +193,12 @@ export const useCombinedComponentRegistryForIds = (registryIds: string[]) => {
 
   const runtime = useMemo<RegistryRuntime>(
     () => ({
-      React,
-      useDataBinding,
-      useDataValue,
-      useAction,
-      useActions,
-      useData,
-      useIsVisible,
-      useFieldValidation,
-      useValidation,
-      useTheme,
-      useDarkMode,
-    }),
+      ...(defaultRuntimeBindings as Record<string, unknown>),
+    }) as RegistryRuntime,
     [],
   );
 
-  const idsKey = (registryIds ?? []).filter(Boolean).slice().sort().join("|");
+  const idsKey = normalizeRegistryIds(registryIds).slice().sort().join("|");
 
   return useMemo(
     () => {
@@ -610,18 +214,6 @@ export const useCombinedComponentRegistryForIds = (registryIds: string[]) => {
   );
 };
 
-
-const emptySchema = { type: "object", properties: {} };
-
 export const builtInRegistryItems: JsonRenderRegistryItem[] =
-  Object.keys(componentRegistry).map((name) => {
-    const meta = getBuiltInMeta(name);
-    return {
-      id: `built-in:${name}` as any,
-      registryId: "built-in",
-      code: "",
-      name,
-      updatedAt: undefined,
-      propsSchema: JSON.stringify(meta?.propsSchema ?? emptySchema),
-    };
-  });
+  packageBuiltInRegistryItems as JsonRenderRegistryItem[];
+

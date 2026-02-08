@@ -221,7 +221,14 @@ export const createChatSlice: StateCreator<
     set(() => ({
       providerMetadata: { ...defaultProviderMetadata },
       temperature: 1,
-      enabledProviders: [],
+      enabledProvidersByType: {
+        language: [],
+        image: [],
+        transcription: [],
+        speech: [],
+        reranking: [],
+        video: [],
+      },
       toolAnnotations: DEFAULT_ANNOTATIONS
     })),
   selectConversation: (id) =>

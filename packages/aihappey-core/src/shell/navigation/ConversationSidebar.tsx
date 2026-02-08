@@ -91,7 +91,6 @@ export const ConversationSidebar = ({
     {
       key: "videos",
       label: t("videos"),
-      new: true,
       href: "/videos",
       icon: "videos",
     },
@@ -112,7 +111,6 @@ export const ConversationSidebar = ({
       key: "apps",
       label: t("webApps"),
       href: "/apps",
-      new: true,
       icon: "webApps",
     },
     {

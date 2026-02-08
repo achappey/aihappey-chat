@@ -43,7 +43,7 @@ import { localCatalogPluginDef } from "./useLocalCatalogToolCall";
 import { localRegistryPluginDef } from "./useLocalRegistryToolCall";
 import { localStructuredOutputsPluginDef as localStructuredOutputsPluginDefStatic } from "./useLocalStructuredOutputsToolCall";
 import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
-import { useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
+import { localJsonRenderPluginDef, useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
 import { localTodoPluginDef, useLocalTodoRuntime } from "./useLocalTodoListToolCall";
 
 export function useOnToolCall({
@@ -75,7 +75,6 @@ export function useOnToolCall({
   const enabledPlugins = useAppStore(a => a.activePlugins); // string list
   const enabledLocalTools = useAppStore(a => (a as any).enabledLocalTools as string[]);
   // const selectedConversationId = useAppStore(a => (a as any).selectedConversationId as string | null);
-  const setJsonRenderRequest = useAppStore(a => (a as any).setJsonRenderRequest as any);
   const setActiveData = useAppStore(a => a.setActiveData);
   const conversations = useConversations();
   const files = useFiles();
@@ -97,8 +96,6 @@ export function useOnToolCall({
   const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
   const jsonRenderRuntime = useLocalJsonRenderRuntime({
-    messages: (conversations.items ?? []).find(c => c.id === conversationId)?.messages,
-    conversationId: conversationId,
     setActiveData,
     send
   });
@@ -151,8 +148,8 @@ export function useOnToolCall({
       localConversationsPluginDef,
       localImagesPluginDef,
       localCanvasPluginDef,
+      localJsonRenderPluginDef,
       localTodoPluginDef,
-    //  localJsonRenderPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDefStatic,
       localCatalogPluginDef,

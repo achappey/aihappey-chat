@@ -31,20 +31,13 @@ export function useImageInput({
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const resetChatSettings = useAppStore((s) => s.resetChatSettings);
-  const toggleEnabledProvider = useAppStore((s) => s.toggleEnabledProvider);
+  const setEnabledProvidersForType = useAppStore((s) => s.setEnabledProvidersForType);
   const attachments = useFileAttachments(fileAttachmentRuntime)
   const { t } = useTranslation();
   const config = useChatContext();
   const chatReset = () => {
     resetChatSettings();
-    if (config.config.defaultProviders && config.config.defaultProviders.length > 0) {
-      for (var prov in config.config?.defaultProviders) {
-        toggleEnabledProvider(prov)
-      }
-    }
-    else {
-      toggleEnabledProvider("pollinations")
-    }
+    setEnabledProvidersForType("image", config.config.defaultProvidersByType?.image ?? []);
   };
 
   const handlePaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {

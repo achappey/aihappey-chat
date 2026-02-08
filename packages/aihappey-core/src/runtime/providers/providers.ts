@@ -78,6 +78,12 @@ import { euqai } from "./catalog/euqai";
 import { vidu } from "./catalog/vidu";
 import { reve } from "./catalog/reve";
 import { decart } from "./catalog/decart";
+import { json2video } from "./catalog/json2video";
+import { greenpt } from "./catalog/greenpt";
+import { relaxai } from "./catalog/relaxai";
+import { regoloai } from "./catalog/regoloai";
+import { arklabs } from "./catalog/arklabs";
+import { ionos } from "./catalog/ionos";
 
 /**
  * UI-facing provider catalog.
@@ -103,16 +109,22 @@ export const PROVIDERS: Record<string, Provider> = {
   googletranslate,
   siliconflow,
   ovhcloud,
+  arklabs,
   lingvanex,
   upstage,
+  ionos,
+  regoloai,
   pollinations,
   nlpcloud,
   hyperstack,
   perplexity,
+  json2video,
   speechmatics,
   gtranslate,
   moonshot,
+  greenpt,
   decart,
+  relaxai,
   jina,
   publicai,
   nscale,

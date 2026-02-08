@@ -7,6 +7,7 @@ export type JsonRenderAppItem = {
   uiTree: any;
   data?: any;
   dataSource?: JsonRenderAppDataSource | null;
+  catalogIds?: string[];
   registryIds?: string[];
   createdAt?: string;
   updatedAt?: string;

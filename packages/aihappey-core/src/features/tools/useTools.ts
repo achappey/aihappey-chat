@@ -19,7 +19,7 @@ import { useLocalTools } from "aihappey-tools";
 import { storedToolToMcpTool } from "./localStoredTools";
 import { localImagesPluginDef } from "./toolcalls/useLocalImagesToolCall";
 import { localTodoPluginDef } from "./toolcalls/useLocalTodoListToolCall";
-//import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall";
+import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -37,7 +37,7 @@ export function useTools() {
       localAgentsPluginDef,
       localConversationsPluginDef,
       localCanvasPluginDef,
-    //  localJsonRenderPluginDef,
+      localJsonRenderPluginDef,
       localImagesPluginDef,
       localTodoPluginDef,
       localSettingsPluginDef,

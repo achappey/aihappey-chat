@@ -14,9 +14,15 @@ import type { DataSourceFormValue } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
+import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useNavigate } from "react-router";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { resolveCatalogSelection } from "aihappey-json-render-catalog";
+import { builtInCatalogLabels, mapLegacyDefaultCatalogSelection } from "../json-render/catalog";
+import {
+  builtInRegistryLabels,
+  mapLegacyDefaultRegistrySelection,
+} from "../json-render/ComponentRegistry";
 import {
   buildModelOptions,
   buildResourceOptions,
@@ -31,7 +37,22 @@ function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
 }
 
-const BUILTIN_CATALOG_ID = "__default__";
+const BUILTIN_CATALOG_IDS = ["app", "openapi", "adaptive-cards"];
+const BUILTIN_REGISTRY_IDS = ["app", "openapi", "adaptive-cards"];
+
+function resolveSelection(value: string[], all: string[], fallback: string[] = ["app"]): string[] {
+  const uniq = Array.from(new Set((value ?? []).filter((x) => all.includes(x))));
+  if (uniq.length === 0) {
+    return all.length > 0 ? all : fallback;
+  }
+  return uniq;
+}
+
+function mapCatalogsToRegistryIds(catalogIds: string[], allRegistryIds: string[]): string[] {
+  const unique = Array.from(new Set((catalogIds ?? []).filter(Boolean)));
+  const mapped = unique.filter((id) => allRegistryIds.includes(id));
+  return mapped.length > 0 ? mapped : allRegistryIds;
+}
 
 function parseCommaList(value: string | undefined, all: string[]): string[] {
   const trimmed = String(value ?? "").trim();
@@ -61,7 +82,9 @@ export const WebAppsPage = () => {
   const models = useAppStore((s) => s.models);
   const customHeaders = useAppStore((s) => s.customHeaders);
   const defaultCatalogs = useAppStore((s) => (s as any).defaultCatalogs as string | undefined);
+  const defaultRegistries = useAppStore((s) => (s as any).defaultRegistries as string | undefined);
   const catalogsStore = useJsonRenderCatalog();
+  const registryStore = useJsonRenderRegistry();
 
   const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
@@ -144,27 +167,65 @@ export const WebAppsPage = () => {
   );
 
   const catalogItems = useMemo(() => {
+    const builtIns = BUILTIN_CATALOG_IDS.map((id) => ({
+      id,
+      label: builtInCatalogLabels[id as keyof typeof builtInCatalogLabels] ?? id,
+    }));
+
     const stored = (catalogsStore.items ?? []).map((c) => ({
       id: c.name,
       label: c.name,
     }));
-    const builtIn = {
-      id: BUILTIN_CATALOG_ID,
-      label: t("default") ?? "Default",
-    };
-    return [builtIn, ...stored].sort((a, b) => a.label.localeCompare(b.label));
-  }, [catalogsStore.items, t]);
+    return [...builtIns, ...stored].sort((a, b) => a.label.localeCompare(b.label));
+  }, [catalogsStore.items]);
 
   const allCatalogIds = useMemo(() => catalogItems.map((x) => x.id), [catalogItems]);
   const defaultSelectedCatalogIds = useMemo(
-    () => parseCommaList(defaultCatalogs, allCatalogIds),
+    () => parseCommaList(mapLegacyDefaultCatalogSelection(defaultCatalogs), allCatalogIds),
     [defaultCatalogs, allCatalogIds]
   );
   const [selectedCatalogIds, setSelectedCatalogIds] = useState<string[]>(defaultSelectedCatalogIds);
 
+  const registryItems = useMemo(() => {
+    const builtIns = BUILTIN_REGISTRY_IDS.map((id) => ({
+      id,
+      label: builtInRegistryLabels[id as keyof typeof builtInRegistryLabels] ?? id,
+    }));
+
+    const stored = (registryStore.items ?? [])
+      .map((r) => r?.registryId)
+      .filter((id): id is string => !!id)
+      .map((id) => ({
+        id,
+        label: builtInRegistryLabels[id as keyof typeof builtInRegistryLabels] ?? id,
+      }));
+
+    const byId = new Map<string, { id: string; label: string }>();
+    for (const item of [...builtIns, ...stored]) byId.set(item.id, item);
+    return Array.from(byId.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [registryStore.items]);
+
+  const allRegistryIds = useMemo(() => registryItems.map((x) => x.id), [registryItems]);
+  const defaultSelectedRegistryIds = useMemo(
+    () => parseCommaList(mapLegacyDefaultRegistrySelection(defaultRegistries), allRegistryIds),
+    [defaultRegistries, allRegistryIds]
+  );
+  const [selectedRegistryIds, setSelectedRegistryIds] = useState<string[]>(defaultSelectedRegistryIds);
+  const [registrySelectionTouched, setRegistrySelectionTouched] = useState(false);
+
   useEffect(() => {
     setSelectedCatalogIds(defaultSelectedCatalogIds);
   }, [defaultSelectedCatalogIds]);
+
+  useEffect(() => {
+    setSelectedRegistryIds(defaultSelectedRegistryIds);
+  }, [defaultSelectedRegistryIds]);
+
+  useEffect(() => {
+    if (registrySelectionTouched) return;
+    const next = mapCatalogsToRegistryIds(selectedCatalogIds, allRegistryIds);
+    setSelectedRegistryIds(next);
+  }, [selectedCatalogIds, allRegistryIds, registrySelectionTouched]);
 
   const resetWizard = () => {
     setStep(1);
@@ -177,6 +238,8 @@ export const WebAppsPage = () => {
     setPrompt("");
     setSubmitError(undefined);
     setSelectedCatalogIds(defaultSelectedCatalogIds);
+    setSelectedRegistryIds(defaultSelectedRegistryIds);
+    setRegistrySelectionTouched(false);
   };
 
   const closeWizard = () => {
@@ -185,7 +248,13 @@ export const WebAppsPage = () => {
   };
 
   const handlePrefetch = async () => {
-    if (!dataSource) return;
+    if (!dataSource) {
+      setPrefetchedData(undefined);
+      setPrefetchError(undefined);
+      setSubmitError(undefined);
+      setStep(3);
+      return;
+    }
     setPrefetching(true);
     setPrefetchError(undefined);
     setSubmitError(undefined);
@@ -212,7 +281,6 @@ export const WebAppsPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!dataSource) return;
     setSubmitError(undefined);
     try {
       const trimmedName = name.trim();
@@ -223,24 +291,33 @@ export const WebAppsPage = () => {
         allCatalogIds,
         ["app"]
       );
+      const derivedRegistryIds = registrySelectionTouched
+        ? selectedRegistryIds
+        : mapCatalogsToRegistryIds(effectiveCatalogs, allRegistryIds);
+      const effectiveRegistries = resolveSelection(derivedRegistryIds, allRegistryIds, ["app"]);
       const trimmedDescription = description.trim();
+      const createdData = dataSource ? prefetchedData : undefined;
       const created = await apps.create({
         name: trimmedName,
         description: trimmedDescription.length ? trimmedDescription : undefined,
         uiTree: { root: "", elements: {} },
-        data: prefetchedData,
-        dataSource,
-      });
+        data: createdData,
+        dataSource: dataSource ?? undefined,
+        catalogIds: effectiveCatalogs,
+        registryIds: effectiveRegistries,
+      } as any);
 
       closeWizard();
+      const streamPayload = {
+        prompt: trimmedPrompt,
+        data: createdData,
+        catalogs: effectiveCatalogs,
+        registries: effectiveRegistries,
+        ...(dataSource ? { dataSource } : {}),
+      };
       navigate(`/apps/${created.id}`, {
         state: {
-          stream: {
-            prompt: trimmedPrompt,
-            dataSource,
-            data: prefetchedData,
-            catalogs: effectiveCatalogs,
-          },
+          stream: streamPayload,
         },
       });
     } catch (e) {
@@ -343,7 +420,7 @@ export const WebAppsPage = () => {
             ) : step === 2 ? (
               <Button
                 variant="primary"
-                disabled={!dataSource || prefetching}
+                disabled={prefetching}
                 onClick={handlePrefetch}
               >
                 {prefetching ? t("loading") : t("ok")}
@@ -416,6 +493,16 @@ export const WebAppsPage = () => {
               items={catalogItems}
               value={selectedCatalogIds}
               onChange={setSelectedCatalogIds}
+              columns={2}
+            />
+            <LocalToolsSettingsForm
+              formTitle={t("settingsModal.defaultRegistries") ?? "Registries"}
+              items={registryItems}
+              value={selectedRegistryIds}
+              onChange={(next) => {
+                setRegistrySelectionTouched(true);
+                setSelectedRegistryIds(next);
+              }}
               columns={2}
             />
             {prefetching ? <Spinner label={t("loading")} /> : null}

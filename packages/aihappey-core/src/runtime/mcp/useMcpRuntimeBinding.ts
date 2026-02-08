@@ -59,7 +59,7 @@ export function useMcpRuntimeBinding({
     const connectMcpServer = useAppStore((s) => s.connectMcpServer);
     const customHeaders = useAppStore((s) => s.customHeaders);
     const clearMcpContent = useAppStore((s) => s.clearMcpContent);
-    const enabledProviders = useAppStore((s) => s.enabledProviders);
+    const enabledProviders = useAppStore((s) => s.enabledProvidersByType?.language ?? []);
     const models = useAppStore((s) => s.models);
     const conversations = useConversations()
     const addSampling = useAppStore((s) => s.addSampling);

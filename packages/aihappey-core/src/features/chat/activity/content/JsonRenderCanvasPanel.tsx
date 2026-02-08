@@ -10,6 +10,10 @@ import { useJsonRenderApps } from "aihappey-json-render-apps";
 import type { AppSaveModalValues } from "aihappey-components";
 import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useAppStore } from "aihappey-state";
+import {
+  builtInRegistryLabels,
+  mapLegacyDefaultRegistrySelection,
+} from "../../../json-render/ComponentRegistry";
 
 export type JsonRenderCanvasPanelVersion = {
   tree?: any;
@@ -52,7 +56,7 @@ export const JsonRenderCanvasPanel = ({
   }, [jsonRenderRegistry.items]);
 
   const defaultSelectedRegistryIds = useMemo(() => {
-    const raw = String(defaultRegistries ?? "").trim();
+    const raw = String(mapLegacyDefaultRegistrySelection(defaultRegistries) ?? "").trim();
     if (!raw) return registryIds;
     const tokens = raw
       .split(",")
@@ -85,7 +89,7 @@ export const JsonRenderCanvasPanel = ({
 
   const registryMenuChildren = registryIds.map((rid) => ({
     key: `registry:${rid}`,
-    label: rid,
+    label: builtInRegistryLabels[rid as keyof typeof builtInRegistryLabels] ?? rid,
     icon: (selectedRegistryIds.includes(rid) ? ("check" as IconToken) : undefined),
     onClick: () => toggleRegistry(rid),
   }));

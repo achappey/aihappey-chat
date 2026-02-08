@@ -23,7 +23,7 @@ export const withPersist = (
   creator: StateCreator<RootState, PersistMutators, [], RootState>
 ) =>
   persist(creator, {
-    name: "aihappey_store_v7",
+    name: "aihappey_store_v8",
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       agents: s.agents,
@@ -35,6 +35,7 @@ export const withPersist = (
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
       userPreferredVideoModel: (s as any).userPreferredVideoModel,
+      userPreferredRerankingModel: (s as any).userPreferredRerankingModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,
       pinnedConversations: s.pinnedConversations,
       userPreferredTranscriptionModel: s.userPreferredTranscriptionModel,
@@ -71,6 +72,7 @@ export const withPersist = (
       videoAspectRatio: (s as any).aspectRatio,
       videoMaxPerCall: (s as any).maxVideosPerCall,
       chatWithImageModels: s.chatWithImageModels,
+      chatWithVideoModels: (s as any).chatWithVideoModels,
       chatWithSpeechModels: s.chatWithSpeechModels,
       chatWithTranscriptionModels: s.chatWithTranscriptionModels,
       toolAnnotations: s.toolAnnotations,
@@ -83,7 +85,7 @@ export const withPersist = (
       toolTimeout: s.toolTimeout,
       resetTimeoutOnProgress: s.resetTimeoutOnProgress,
       conversationStorage: s.conversationStorage,
-      enabledProviders: s.enabledProviders,
+      enabledProvidersByType: (s as any).enabledProvidersByType,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
     }),

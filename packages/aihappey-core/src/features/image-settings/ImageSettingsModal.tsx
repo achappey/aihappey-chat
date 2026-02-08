@@ -34,7 +34,7 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
   const { t } = useTranslation();
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
-  const enabledProviders = useAppStore(a => a.enabledProviders)
+  const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.image ?? [])
 
   const close = () => {
     onClose();

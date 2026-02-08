@@ -1,80 +1,32 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import type { Spec, UIElement, JsonPatch } from "@json-render/core";
-import { setByPath } from "@json-render/core";
+import type { Spec, UIElement, FlatElement } from "@json-render/core";
+import { parseSpecStreamLine, applySpecStreamPatch } from "@json-render/core";
 
 /**
  * Parse a single JSON patch line
  */
-function parsePatchLine(line: string): JsonPatch | null {
-    try {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith("//")) {
-            return null;
-        }
-        return JSON.parse(trimmed) as JsonPatch;
-    } catch {
+function parsePatchLine(line: string) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("//")) {
         return null;
     }
+
+    return parseSpecStreamLine(trimmed);
 }
 
 /**
- * Apply a JSON patch to the current spec
+ * Apply a single SpecStream patch operation to the current spec.
  */
-function applyPatch(spec: Spec, patch: JsonPatch): Spec {
-    const newSpec = { ...spec, elements: { ...spec.elements } };
+function applyPatch(spec: Spec, linePatch: NonNullable<ReturnType<typeof parseSpecStreamLine>>): Spec {
+    const next = {
+        ...spec,
+        elements: { ...spec.elements },
+    };
 
-    switch (patch.op) {
-        case "set":
-        case "add":
-        case "replace": {
-            // Handle root path
-            if (patch.path === "/root") {
-                newSpec.root = patch.value as string;
-                return newSpec;
-            }
-
-            // Handle elements paths
-            if (patch.path.startsWith("/elements/")) {
-                const pathParts = patch.path.slice("/elements/".length).split("/");
-                const elementKey = pathParts[0];
-
-                if (!elementKey) return newSpec;
-
-                if (pathParts.length === 1) {
-                    // Setting entire element
-                    newSpec.elements[elementKey] = patch.value as UIElement;
-                } else {
-                    // Setting property of element
-                    const element = newSpec.elements[elementKey];
-                    if (element) {
-                        const propPath = "/" + pathParts.slice(1).join("/");
-                        const newElement = { ...element };
-                        setByPath(
-                            newElement as unknown as Record<string, unknown>,
-                            propPath,
-                            patch.value,
-                        );
-                        newSpec.elements[elementKey] = newElement;
-                    }
-                }
-            }
-            break;
-        }
-        case "remove": {
-            if (patch.path.startsWith("/elements/")) {
-                const elementKey = patch.path.slice("/elements/".length).split("/")[0];
-                if (elementKey) {
-                    const { [elementKey]: _, ...rest } = newSpec.elements;
-                    newSpec.elements = rest;
-                }
-            }
-            break;
-        }
-    }
-
-    return newSpec;
+    applySpecStreamPatch(next as unknown as Record<string, unknown>, linePatch);
+    return next;
 }
 
 /**
@@ -115,7 +67,8 @@ export interface UseUIStreamReturn {
         context?: Record<string, unknown>,
         providerMetadata?: any,
         baseTree?: Spec | null,
-        maxOutputTokens?: number | null
+        maxOutputTokens?: number | null,
+        catalogPromptOverride?: string,
     ) => Promise<any>;
     /** Clear the current spec */
     clear: () => void;
@@ -180,6 +133,7 @@ export function useUIStream({
             providerMetadata?: any,
             baseTree?: Spec | null,
             maxOutputTokens?: number | null,
+            catalogPromptOverride?: string,
         ) => {
             // Abort any existing request
             abortControllerRef.current?.abort();
@@ -205,7 +159,7 @@ export function useUIStream({
                         prompt,
                         model,
                         context,
-                        catalogPrompt,
+                        catalogPrompt: catalogPromptOverride ?? catalogPrompt,
                         maxOutputTokens,
                         providerMetadata
                     }),
@@ -266,7 +220,16 @@ export function useUIStream({
                 setIsStreaming(false);
             }
         },
-        [api, onComplete, onError],
+        [
+            api,
+            catalogPrompt,
+            model,
+            getAccessToken,
+            customHeaders,
+            initialTree,
+            onComplete,
+            onError,
+        ],
     );
 
     // Cleanup on unmount
@@ -289,7 +252,7 @@ export function useUIStream({
  * Convert a flat element list to a UITree
  */
 export function flatToTree(
-    elements: Array<UIElement & { parentKey?: string | null }>,
+    elements: FlatElement[],
 ): Spec {
     const elementMap: Record<string, UIElement> = {};
     let root = "";
@@ -297,7 +260,6 @@ export function flatToTree(
     // First pass: add all elements to map
     for (const element of elements) {
         elementMap[element.key] = {
-            key: element.key,
             type: element.type,
             props: element.props,
             children: [],

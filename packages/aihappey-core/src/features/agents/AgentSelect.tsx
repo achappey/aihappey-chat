@@ -22,7 +22,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   const { Select } = useTheme();
   const isDesktop = useIsDesktop();
   const SelectComponent = Select || "select";
-  const enabledProviders = useAppStore((a) => a.enabledProviders);
+  const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? []);
   const visibleAgents = agents.filter((m) =>
     enabledProviders.map(a => a.toLowerCase()).includes(m.model.id.split("/")[0])
   );

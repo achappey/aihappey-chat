@@ -20,7 +20,14 @@ export interface ChatConfig extends AiChatConfig {
   agentEndpoint?: string;
   agentScopes?: string[];
   appVersion?: string;
-  defaultProviders?: string[];
+  defaultProvidersByType?: Partial<{
+    language: string[];
+    image: string[];
+    transcription: string[];
+    speech: string[];
+    reranking: string[];
+    video: string[];
+  }>;
   endpoints: typeof defaultEndpoints
   baseUrl: string
 }

@@ -3,6 +3,16 @@ import type { ComponentType } from "react";
 
 import type { UserMenuLabels } from "../i18n";
 
+export type ProviderCapability =
+  | "language"
+  | "image"
+  | "transcription"
+  | "speech"
+  | "reranking"
+  | "video";
+
+export type EnabledProvidersByType = Partial<Record<ProviderCapability, string[]>>;
+
 export type UserMenuProps = {
   email?: string;
   onCustomize?: () => void;
@@ -34,8 +44,8 @@ export type UserMenuProps = {
    * Providers may appear in multiple groups if they support multiple capabilities.
    */
   providerGroups?: Record<string, string[]>;
-  enabledProviders?: string[];
-  onToggleProvider?: (provider: string) => void;
+  enabledProvidersByType?: EnabledProvidersByType;
+  onToggleProviderForType?: (capability: ProviderCapability, provider: string) => void;
 
   /** When true, provider toggles are disabled (e.g. while models are still loading). */
   providersDisabled?: boolean;

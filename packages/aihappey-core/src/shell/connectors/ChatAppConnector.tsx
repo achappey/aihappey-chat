@@ -28,7 +28,7 @@ export const ChatAppConnector = ({
   const connectChatApp = useAppStore((s) => s.connectChatApp);
   // const chatAppMcp = useAppStore((s) => s.chatAppMcp);
   const customHeaders = useAppStore((s) => s.customHeaders);
-  const enabledProviders = useAppStore((s) => s.enabledProviders);
+  const enabledProviders = useAppStore((s) => s.enabledProvidersByType?.language ?? []);
   const { t } = useTranslation();
   const { Spinner } = useTheme();
   const [connected, setConnected] = useState<boolean>(false)

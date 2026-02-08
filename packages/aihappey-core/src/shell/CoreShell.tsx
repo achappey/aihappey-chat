@@ -53,7 +53,7 @@ export const CoreShell: React.FC<Props> = ({
   const [] = useSearchParams()
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
-  useDefaultProviders(chatConfig?.defaultProviders)
+  useDefaultProviders(chatConfig?.defaultProvidersByType)
 
   useEffect(() => {
     if (agents.length == 0)

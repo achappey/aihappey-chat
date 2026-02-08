@@ -4,6 +4,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useFileAttachments, fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { addFilesToRuntime } from "../chat/input/MessageInput";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DictateWarningModal } from "./components/DictateWarningModal";
 
 export type KnownSpeakerSamplesBinding = {
   getSampleInfo?: (speakerName: string) => { exists: boolean; tagLabel?: string };
@@ -27,6 +28,8 @@ type TranscriptionInputProps = {
   };
 };
 
+const DICTATE_WARNING_SKIP_STORAGE_KEY = "aihappey:transcription:skipDictateWarning";
+
 export const TranscriptionInput = (props: TranscriptionInputProps) => {
   const { t } = useTranslation();
   const { Button } = useTheme();
@@ -35,12 +38,13 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
   const providerRealtimeMetadata = useAppStore((s) => s.providerRealtimeMetadata);
   const setProviderRealtimeMetadata = useAppStore((s) => s.setProviderRealtimeMetadata);
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
-  const enabledProviders = useAppStore(a => a.enabledProviders);
+  const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.transcription ?? []);
 
   const [recording, setRecording] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
   const [recordError, setRecordError] = useState<string | null>(null);
+  const [showDictateWarning, setShowDictateWarning] = useState(false);
 
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -80,7 +84,7 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
     stream?.getTracks().forEach((t) => t.stop());
   };
 
-  const startRecording = async () => {
+  const startRecordingInternal = async () => {
     setRecordError(null);
 
     if (!recordingSupported) {
@@ -151,6 +155,45 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
       stopTracks(streamRef.current);
       streamRef.current = null;
     }
+  };
+
+  const shouldSkipDictateWarning = () => {
+    if (typeof window === "undefined") return true;
+    try {
+      return window.localStorage.getItem(DICTATE_WARNING_SKIP_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  };
+
+  const persistSkipDictateWarning = (skip: boolean) => {
+    if (typeof window === "undefined") return;
+    try {
+      if (skip) {
+        window.localStorage.setItem(DICTATE_WARNING_SKIP_STORAGE_KEY, "1");
+      } else {
+        window.localStorage.removeItem(DICTATE_WARNING_SKIP_STORAGE_KEY);
+      }
+    } catch {
+      // ignore storage issues
+    }
+  };
+
+  const handleRecordClick = () => {
+    if (recording || props.disabled) return;
+
+    if (shouldSkipDictateWarning()) {
+      void startRecordingInternal();
+      return;
+    }
+
+    setShowDictateWarning(true);
+  };
+
+  const handleConfirmDictateWarning = (dontShowAgain: boolean) => {
+    persistSkipDictateWarning(dontShowAgain);
+    setShowDictateWarning(false);
+    void startRecordingInternal();
   };
 
   const stopRecording = () => {
@@ -238,7 +281,7 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
             variant={recording ? "primary" : "transparent"}
             icon={recording ? "stop" : "transcription"}
             disabled={recording ? false : props.disabled || !recordingSupported}
-            onClick={recording ? stopRecording : startRecording}
+            onClick={recording ? stopRecording : handleRecordClick}
           >
             {recording ? elapsedLabel : undefined}
           </Button>
@@ -262,6 +305,12 @@ export const TranscriptionInput = (props: TranscriptionInputProps) => {
           )}
         </div>
       </div>
+
+      <DictateWarningModal
+        open={showDictateWarning}
+        onClose={() => setShowDictateWarning(false)}
+        onConfirm={handleConfirmDictateWarning}
+      />
 
       <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
         {recordError && (

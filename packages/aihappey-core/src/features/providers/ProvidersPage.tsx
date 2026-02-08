@@ -22,6 +22,14 @@ export const ProvidersPage = () => {
         []
     );
 
+    const orderedModels = useMemo(() => {
+        if (!models) return [];
+
+        return [...models].sort((a, b) =>
+            t(a.type).localeCompare(t(b.type))
+        );
+    }, [models]);
+
     const providers: ProviderListItem[] = useMemo(() => {
         const items = Object.entries(PROVIDERS).map(([key, meta]) => {
             const m = meta as any;
@@ -108,7 +116,7 @@ export const ProvidersPage = () => {
                             // collect unique model types for this provider
                             const modelTypes = Array.from(
                                 new Set(
-                                    models
+                                    orderedModels
                                         ?.filter(m => m.id.startsWith(p.key + "/"))
                                         .map(m => m.type)
                                         .filter(Boolean)

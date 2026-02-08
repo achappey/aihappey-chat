@@ -1,5 +1,3 @@
-// Root component for MCP Happey apps: loads server lists, manages state, renders server list UI.
-// Requires a ThemeProvider (throws if missing).
 import { useEffect, useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { CoreShell } from "./CoreShell";

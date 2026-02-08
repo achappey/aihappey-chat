@@ -41,7 +41,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const { t } = useTranslation();
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
-  const enabledProviders = useAppStore(a => a.enabledProviders)
+  const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? [])
 
   const close = () => {
     onClose();

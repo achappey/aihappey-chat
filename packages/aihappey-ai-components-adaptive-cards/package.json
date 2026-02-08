@@ -1,0 +1,28 @@
+{
+  "name": "aihappey-ai-components-adaptive-cards",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@json-render/core": "^0.4.0",
+    "json-schema-to-zod": "^2.7.0",
+    "aihappey-components": "*",
+    "zod": "^4.3.6"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  }
+}

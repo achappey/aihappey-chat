@@ -45,7 +45,7 @@ export function resolveCatalogSelection(
 
   const allowed = selected.filter((name) => available.includes(name));
   if (allowed.length > 0) {
-    return Array.from(new Set(["app", ...allowed]));
+    return Array.from(new Set(allowed));
   }
   return fallback;
 }

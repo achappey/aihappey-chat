@@ -15,6 +15,7 @@ const genId = (n: number) => `${Date.now()}-${Math.random().toString(16).slice(2
 
 export function useRerankingController() {
   const models = useAppStore((a) => a.models);
+  const userPreferredRerankingModel = useAppStore((a: any) => a.userPreferredRerankingModel);
   const customHeaders = useAppStore((a) => a.customHeaders);
   const providerRerankingMetadata = useAppStore((a) => a.providerRerankingMetadata);
   const topN = useAppStore((a) => a.topN);
@@ -41,7 +42,9 @@ export function useRerankingController() {
 
   const baseUrl = config.baseUrl + config.endpoints.reranking;
   const defaultModel = getAccessToken ? "cohere/rerank-v4.0-fast" : "";
-  const [selectedModel, setSelectedModel] = useState<string>(defaultModel);
+  const [selectedModel, setSelectedModel] = useState<string>(
+    userPreferredRerankingModel ?? defaultModel
+  );
 
   // Safety: ensure this page never uses the shared attachment runtime.
   useEffect(() => {

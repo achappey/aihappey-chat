@@ -38,7 +38,11 @@ import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsL
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
 import { useTranslation } from "aihappey-i18n";
 import { useAttachmentsToaster } from "./useAttachmentsToaster";
-import { buildCatalogWithActions, createCatalogFromStored } from "../../json-render/catalog";
+import {
+  createCatalogFromStored,
+  getDefaultCatalogDefinitionsWithActions,
+  mapLegacyDefaultCatalogSelection,
+} from "../../json-render/catalog";
 import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useUIStream } from "../../json-render/useUIStream";
@@ -152,30 +156,16 @@ export function VercelChatInner({
 
   const systemPrompt = useMemo(
     () => {
-      const fallback = buildCatalogWithActions(jsonRenderRegistry.actions, "app");
-
-      // Build a pseudo-catalog list string that includes the built-in default catalog
-      // when the user selected it in settings.
-      // Semantics: when undefined/empty => ALL catalogs (handled by resolveCatalogSelection).
-      const catalogListWithBuiltin = (() => {
-        const raw = String(defaultCatalogs ?? "").trim();
-        if (!raw) return undefined;
-        const tokens = raw
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean);
-        // Settings uses "__default__" to represent the built-in fallback catalog.
-        const hasBuiltin = tokens.includes("__default__");
-        const filtered = tokens.filter((t) => t !== "__default__");
-        // If the user selected only the built-in catalog, keep list empty but force inclusion.
-        const joined = filtered.join(",");
-        return hasBuiltin ? (joined ? `app,${joined}` : "app") : joined;
-      })();
+      const fallbackCatalogs = getDefaultCatalogDefinitionsWithActions(
+        jsonRenderRegistry.actions,
+        "app",
+      );
+      const catalogListWithBuiltin = mapLegacyDefaultCatalogSelection(defaultCatalogs);
 
       const stored = createCatalogFromStored(
         jsonRenderCatalog.items,
         catalogListWithBuiltin,
-        fallback.data as any,
+        fallbackCatalogs,
       );
 
       return stored.prompt();
@@ -205,18 +195,55 @@ export function VercelChatInner({
       },*/
   });
 
-  const sendUiRequest = async (prompt: string, toolCallId: string) => {
-    let promptToSend = prompt;
-    const storedTree = findLatestLocalJsonRenderTree(uiMessages as any, toolCallId);
-    const effectiveTree = tree ?? storedTree;
-    if (effectiveTree?.root && Object.keys(effectiveTree.elements || {}).length > 0) {
-      promptToSend = `CURRENT UI STATE (already loaded, DO NOT recreate existing elements):\n${JSON.stringify(effectiveTree, null, 2)}\n\nUSER REQUEST: ${prompt}\n\nIMPORTANT: The current UI is already loaded. Output ONLY the patches needed to make the requested change:\n- To add a new element: {"op":"add","path":"/elements/new-key","value":{...}}\n- To modify an existing element: {"op":"set","path":"/elements/existing-key","value":{...}}\n- To update the root: {"op":"set","path":"/root","value":"new-root-key"}\n- To remove an element: {"op":"remove","path":"/root"}\n- To add children: update the parent element with new children array\n\nDO NOT output patches for elements that don't need to change. Only output what's necessary for the requested modification.`;
+  const sendUiRequest = async (request: {
+    prompt: string;
+    catalogIds?: string[];
+    // registryIds?: string[];
+  }) => {
+    const prompt = String(request?.prompt ?? "").trim();
+    if (!prompt) {
+      throw new Error("Missing prompt.");
     }
 
-    return await send(promptToSend, {
+    let promptToSend = prompt;
+    const storedTree = findLatestLocalJsonRenderTree(uiMessages as any);
+    const effectiveTree = tree ?? storedTree;
+    const cleanedCatalogIds = Array.isArray(request?.catalogIds)
+      ? Array.from(new Set(request.catalogIds.map((v) => String(v ?? "").trim()).filter(Boolean)))
+      : undefined;
+    /* const cleanedRegistryIds = Array.isArray(request?.registryIds)
+       ? Array.from(new Set(request.registryIds.map((v) => String(v ?? "").trim()).filter(Boolean)))
+       : undefined;
+ */
+    const fallbackCatalogs = getDefaultCatalogDefinitionsWithActions(
+      jsonRenderRegistry.actions,
+      "app",
+    );
+
+    const catalogPromptOverride = cleanedCatalogIds?.length
+      ? createCatalogFromStored(
+        jsonRenderCatalog.items,
+        mapLegacyDefaultCatalogSelection(cleanedCatalogIds.join(",")),
+        fallbackCatalogs,
+      ).prompt()
+      : undefined;
+
+    // if (cleanedRegistryIds?.length) {
+    //  promptToSend = `Preferred component registries for this request: ${cleanedRegistryIds.join(", ")}\n\n${promptToSend}`;
+    //  }
+
+    if (effectiveTree?.root && Object.keys(effectiveTree.elements || {}).length > 0) {
+      promptToSend = `CURRENT UI STATE (already loaded, DO NOT recreate existing elements):\n${JSON.stringify(effectiveTree, null, 2)}\n\nUSER REQUEST: ${prompt}\n\nIMPORTANT: The current UI is already loaded. Output ONLY the patches needed to make the requested change, one JSON patch per line (JSONL), using RFC 6902 operations:\n- Add a new element: {"op":"add","path":"/elements/new-key","value":{...}}\n- Update existing value: {"op":"replace","path":"/elements/existing-key/props/title","value":"New title"}\n- Update root: {"op":"replace","path":"/root","value":"new-root-key"}\n- Remove: {"op":"remove","path":"/elements/old-key"}\n\nDo not use op \"set\". Use add/replace/remove (and move/copy/test only if truly needed).\nDO NOT output patches for elements that don't need to change. Only output what's necessary for the requested modification.`;
+    }
+
+    return await send(promptToSend, activeData ? {
       ...activeData,
-      _meta: undefined
-    }, providerMetadata)
+      _meta: undefined,
+      /* jsonRender: {
+         catalogIds: cleanedCatalogIds,
+         registryIds: cleanedRegistryIds,
+       }*/
+    } : undefined, providerMetadata, effectiveTree ?? null, maxOutputTokens, catalogPromptOverride)
   }
 
   const toolUse = useOnToolCall({
@@ -385,10 +412,9 @@ export function VercelChatInner({
       .reverse()
       .find((p: any) => {
         const name = p.toolName ?? String(p.type ?? "").replace(/^tool-/, "");
-        return name === "local_json_render" && p?.input?.toolCallId;
+        return name === "local_json_render";
       });
-    const toolCallId = last?.input?.toolCallId as string | undefined;
-    return toolCallId ? findLatestLocalJsonRenderTree(uiMessages as any, toolCallId) : null;
+    return last ? findLatestLocalJsonRenderTree(uiMessages as any) : null;
   }, [tree, uiMessages]);
 
   const { abortRef, startRun, cancelRun } = useAbortRun(stop);

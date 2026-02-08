@@ -29,6 +29,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const switchChatMode = useAppStore((a) => a.switchChatMode);
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
   const chatWithImageModels = useAppStore((a) => a.chatWithImageModels);
+  const chatWithVideoModels = useAppStore((a: any) => a.chatWithVideoModels);
   const chatWithSpeechModels = useAppStore((a) => a.chatWithSpeechModels);
   const chatWithTranscriptionModels = useAppStore((a) => a.chatWithTranscriptionModels);
   const { Switch, ToggleButton } = useTheme();
@@ -38,6 +39,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const modelTypes = [
     "language",
     ...(chatWithImageModels ? ["image"] as const : []),
+    ...(chatWithVideoModels ? ["video"] as const : []),
     ...(chatWithSpeechModels ? ["speech"] as const : []),
     ...(chatWithTranscriptionModels ? ["transcription"] as const : []),
   ];

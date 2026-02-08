@@ -16,6 +16,14 @@ export type { Resource, ResourceTemplate, Prompt } from "aihappey-mcp";
 export { SamplingRequest } from "./slices/mcpSlice";
 export type { McpContents } from "./slices/mcpSlice";
 export type { UiAttachment } from "./slices/uiSlice";
+export type {
+  ProviderCapability,
+  EnabledProvidersByType,
+} from "./slices/uiSlice";
+export {
+  PROVIDER_CAPABILITIES,
+  createEmptyEnabledProvidersByType,
+} from "./slices/uiSlice";
 export { defaultAgents } from "./slices/defaultAgents";
 export * from "./slices/defaultProviderTranscriptionMetadata";
 export * from "./slices/defaultProviderSpeechMetadata";

@@ -24,8 +24,13 @@ export interface UserMenuProps {
    */
   providers?: string[];
   providerGroups?: Record<string, string[]>;
-  enabledProviders?: string[];
-  onToggleProvider?: (provider: string) => void;
+  enabledProvidersByType?: Partial<
+    Record<"language" | "image" | "transcription" | "speech" | "reranking" | "video", string[]>
+  >;
+  onToggleProviderForType?: (
+    capability: "language" | "image" | "transcription" | "speech" | "reranking" | "video",
+    provider: string
+  ) => void;
   providersDisabled?: boolean;
   disabledProviders?: string[];
 

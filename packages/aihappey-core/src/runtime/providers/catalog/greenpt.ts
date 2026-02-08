@@ -1,0 +1,14 @@
+import type { Provider } from "aihappey-types";
+
+export const greenpt: Provider = {
+  name: "GreenPT",
+  description:
+    "GreenPT is a privacy-friendly AI chat platform, hosted in Europe and powered by renewable energy. Get clear answers with full transparency and peace of mind.",
+  icons: [
+    {
+      src: "https://greenpt.ai/content/uploads/2026/01/2993679_brand_brands_logo_logos_opera_icon@2x-800x800.webp",
+    },
+  ],
+  url: "https://greenpt.ai",
+};
+

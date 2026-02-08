@@ -6,11 +6,31 @@ import {
 } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
+import { builtInCatalogDefinitions } from "aihappey-ai-components-default";
+import { z } from "zod";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
-import { catalog as builtInCatalog } from "../json-render/catalog";
+import {
+  builtInCatalogLabels,
+} from "../json-render/catalog";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
+}
+
+function toJsonSchemaString(maybeSchema: any) {
+  try {
+    if (maybeSchema?.toJSONSchema) {
+      return JSON.stringify(maybeSchema.toJSONSchema(), null, 2);
+    }
+  } catch {
+    // fall through
+  }
+  try {
+    const converted = (z as any)?.toJSONSchema?.(maybeSchema);
+    return JSON.stringify(converted ?? {}, null, 2);
+  } catch {
+    return JSON.stringify({}, null, 2);
+  }
 }
 
 export const CatalogsPage = () => {
@@ -18,7 +38,8 @@ export const CatalogsPage = () => {
   const { t } = useTranslation();
   const catalogs = useJsonRenderCatalog();
 
-  const DEFAULT_TAB_KEY = "__default__";
+  const BUILT_IN_TAB_IDS = ["app", "openapi", "adaptive-cards"] as const;
+  const DEFAULT_TAB_KEY = "app";
 
   const [activeTab, setActiveTab] = useState<string>("");
   const [search, setSearch] = useState("");
@@ -35,93 +56,115 @@ export const CatalogsPage = () => {
     []
   );
 
-  const items = useMemo(() => {
+  const customItems = useMemo(() => {
     const list = Array.isArray(catalogs.items) ? catalogs.items : [];
+    const builtInIds = new Set<string>(BUILT_IN_TAB_IDS as readonly string[]);
     const sorted = list
+      .filter((c) => !builtInIds.has(String(c.id ?? "")))
       .slice()
       .sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
     return sorted;
   }, [catalogs.items, collator]);
 
   // Ensure a stable default tab.
-  // We always start on the built-in catalog tab.
+  // We always start on the built-in app tab.
   const effectiveActiveTab = activeTab || DEFAULT_TAB_KEY;
 
-  const activeCatalog = useMemo(
-    () => items.find((c) => c.id === effectiveActiveTab),
-    [items, effectiveActiveTab]
-  );
+  const tabs = useMemo(() => {
+    const builtInTabs: Array<{
+      id: string;
+      title: string;
+      manageable: boolean;
+      components: Array<any>;
+      actions: Array<any>;
+      original?: any;
+    }> = BUILT_IN_TAB_IDS.map((id) => {
+      const builtInDefinition: any = (builtInCatalogDefinitions as any[]).find((d) => d?.name === id);
+      const components = Object.entries(builtInDefinition?.components ?? {}).map(([name, definition]) => {
+        const def: any = definition;
+        const propsSchema: string | undefined = toJsonSchemaString(def?.props);
+        return {
+          id: `${id}:component:${String(name)}`,
+          name: String(name),
+          updatedAt: undefined as string | undefined,
+          description: def?.description,
+          propsSchema,
+        };
+      });
 
-  const builtInComponents = useMemo(() => {
-    const list = (builtInCatalog.componentNames ?? []).map((name) => {
-      const def: any = (builtInCatalog as any)?.data?.components?.[name];
-      let propsSchema: string | undefined;
-      try {
-        propsSchema = JSON.stringify(def?.props?.toJSONSchema?.() ?? {}, null, 2);
-      } catch {
-        propsSchema = JSON.stringify({}, null, 2);
-      }
+      const actions = Object.entries(builtInDefinition?.actions ?? {}).map(([name, definition]) => {
+        const def: any = definition;
+        const paramsSchema: string | undefined = toJsonSchemaString(def?.params);
+        return {
+          id: `${id}:action:${String(name)}`,
+          name: String(name),
+          title: String(name),
+          updatedAt: undefined as string | undefined,
+          description: def?.description,
+          paramsSchema,
+        };
+      });
+
       return {
-        id: `${DEFAULT_TAB_KEY}:component:${String(name)}`,
-        name: String(name),
-        updatedAt: undefined as string | undefined,
-        description: def?.description,
-        propsSchema,
+        id,
+        title: builtInCatalogLabels[id] ?? id,
+        manageable: false,
+        components,
+        actions,
+        original: undefined,
       };
     });
-    return list
-      .filter((c) => (q ? normalizeText(`${c.name} ${c.description ?? ""}`).includes(q) : true))
-      .sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
-  }, [collator, q, DEFAULT_TAB_KEY]);
 
-  const builtInActions = useMemo(() => {
-    const list = (builtInCatalog.actionNames ?? []).map((name) => {
-      const def: any = (builtInCatalog as any)?.data?.actions?.[name];
-      let paramsSchema: string | undefined;
-      try {
-        paramsSchema = JSON.stringify(def?.params?.toJSONSchema?.() ?? {}, null, 2);
-      } catch {
-        paramsSchema = JSON.stringify({}, null, 2);
+    const customTabs: Array<{
+      id: string;
+      title: string;
+      manageable: boolean;
+      components: Array<any>;
+      actions: Array<any>;
+      original?: any;
+    }> = customItems.map((catalog) => ({
+      id: catalog.id,
+      title: catalog.name,
+      manageable: !!catalog.manageable,
+      components: catalog.components ?? [],
+      actions: catalog.actions ?? [],
+      original: catalog,
+    }));
+
+    return [...builtInTabs, ...customTabs];
+  }, [customItems]);
+
+  const filteredByTab = useMemo(() => {
+    const out: Record<
+      string,
+      {
+        components: Array<any>;
+        actions: Array<any>;
       }
-      return {
-        id: `${DEFAULT_TAB_KEY}:action:${String(name)}`,
-        name: String(name),
-        title: String(name),
-        updatedAt: undefined as string | undefined,
-        description: def?.description,
-        paramsSchema,
-      };
-    });
-    return list
-      .filter((a) =>
-        q
-          ? normalizeText(`${a.name} ${a.title ?? ""} ${a.description ?? ""}`).includes(q)
-          : true
-      )
-      .sort((a, b) => collator.compare(a.title ?? a.name ?? "", b.title ?? b.name ?? ""));
-  }, [collator, q, DEFAULT_TAB_KEY]);
+    > = {};
 
-  const filteredComponents = useMemo(() => {
-    const comps = activeCatalog?.components ?? [];
-    const out = q
-      ? comps.filter((c) => normalizeText(`${c.name} ${c.description ?? ""}`).includes(q))
-      : comps;
-    return out
-      .slice()
-      .sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
-  }, [activeCatalog, collator, q]);
+    for (const tab of tabs) {
+      const components = (tab.components ?? [])
+        .filter((c: any) =>
+          q ? normalizeText(`${c.name} ${c.description ?? ""}`).includes(q) : true
+        )
+        .slice()
+        .sort((a: any, b: any) => collator.compare(a.name ?? "", b.name ?? ""));
 
-  const filteredActions = useMemo(() => {
-    const acts = activeCatalog?.actions ?? [];
-    const out = q
-      ? acts.filter((a) =>
-        normalizeText(`${a.name} ${a.title ?? ""} ${a.description ?? ""}`).includes(q)
-      )
-      : acts;
-    return out
-      .slice()
-      .sort((a, b) => collator.compare(a.title ?? a.name ?? "", b.title ?? b.name ?? ""));
-  }, [activeCatalog, collator, q]);
+      const actions = (tab.actions ?? [])
+        .filter((a: any) =>
+          q
+            ? normalizeText(`${a.name} ${a.title ?? ""} ${a.description ?? ""}`).includes(q)
+            : true
+        )
+        .slice()
+        .sort((a: any, b: any) => collator.compare(a.title ?? a.name ?? "", b.title ?? b.name ?? ""));
+
+      out[String(tab.id)] = { components, actions };
+    }
+
+    return out;
+  }, [tabs, q, collator]);
 
   const renderGrid = (children: any) => (
     <div
@@ -181,89 +224,15 @@ export const CatalogsPage = () => {
           activeKey={effectiveActiveTab}
           onSelect={(k: string) => setActiveTab(k)}
         >
-          <Tab key={DEFAULT_TAB_KEY} eventKey={DEFAULT_TAB_KEY} title={t("providerDefault")}>
-            <div style={{ paddingTop: 12, width: "100%" }}>
-              <Text as="p" align={"start"}>
-                {t("componentsPage.title")}
-              </Text>
-              {renderGrid(
-                builtInComponents.length === 0 ? (
-                  <div
-                    style={{
-                      color: "#888",
-                      gridColumn: "1 / -1",
-                      textAlign: "center",
-                    }}
-                  >
-                    {t("noResults")}
-                  </div>
-                ) : (
-                  builtInComponents.map((c) => (
-                    <div
-                      key={c.id}
-                      style={{ maxWidth: 320, minWidth: 320, width: "100%" }}
-                    >
-                      <JsonRenderCatalogComponentCard
-                        item={c}
-                        onOpen={() =>
-                          setOpenItem({
-                            kind: "component",
-                            title: c.name,
-                            schema: parseMaybeJson(c.propsSchema),
-                            raw: c.propsSchema,
-                          })
-                        }
-                      />
-                    </div>
-                  ))
-                )
-              )}
-
-              <Text as="p" align={"start"}>
-                {t("actions")}
-              </Text>
-              {renderGrid(
-                builtInActions.length === 0 ? (
-                  <div
-                    style={{
-                      color: "#888",
-                      gridColumn: "1 / -1",
-                      textAlign: "center",
-                    }}
-                  >
-                    {t("noResults")}
-                  </div>
-                ) : (
-                  builtInActions.map((a) => (
-                    <div
-                      key={a.id}
-                      style={{ maxWidth: 320, minWidth: 320, width: "100%" }}
-                    >
-                      <JsonRenderCatalogActionCard
-                        item={a}
-                        onOpen={() =>
-                          setOpenItem({
-                            kind: "action",
-                            title: a.title ?? a.name,
-                            schema: parseMaybeJson(a.paramsSchema),
-                            raw: a.paramsSchema,
-                          })
-                        }
-                      />
-                    </div>
-                  ))
-                )
-              )}
-            </div>
-          </Tab>
-
-          {items.map((catalog) => {
-            const eventKey = catalog.id;
+          {tabs.map((catalogTab) => {
+            const eventKey = String(catalogTab.id);
+            const filteredComponents = filteredByTab[eventKey]?.components ?? [];
+            const filteredActions = filteredByTab[eventKey]?.actions ?? [];
             return (
               <Tab
                 key={eventKey}
                 eventKey={eventKey}
-                title={catalog.name}
+                title={catalogTab.title}
               >
                 <div style={{ paddingTop: 12, width: "100%" }}>
                   <Text as="p" align={"start"}>
@@ -283,12 +252,12 @@ export const CatalogsPage = () => {
                     ) : (
                       filteredComponents.map((c) => (
                         <div
-                          key={`${catalog.id}:component:${c.name}`}
+                          key={`${eventKey}:component:${c.name}`}
                           style={{ maxWidth: 320, minWidth: 320, width: "100%" }}
                         >
                           <JsonRenderCatalogComponentCard
                             item={{
-                              id: `${catalog.id}:${c.name}`,
+                              id: `${eventKey}:${c.name}`,
                               name: c.name,
                               updatedAt: c.updatedAt,
                               description: c.description,
@@ -302,12 +271,14 @@ export const CatalogsPage = () => {
                                 raw: c.propsSchema,
                               })
                             }
-                            onDelete={catalog.manageable ? async () => {
+                            onDelete={catalogTab.manageable ? async () => {
+                              const source = catalogTab.original;
+                              if (!source) return;
                               const next = {
-                                ...catalog,
-                                components: (catalog.components ?? []).filter((x) => x.name !== c.name),
+                                ...source,
+                                components: (source.components ?? []).filter((x: any) => x.name !== c.name),
                               };
-                              await catalogs.update(catalog.id, {
+                              await catalogs.update(source.id, {
                                 name: next.name,
                                 manageable: next.manageable,
                                 components: next.components,
@@ -338,12 +309,12 @@ export const CatalogsPage = () => {
                     ) : (
                       filteredActions.map((a) => (
                         <div
-                          key={`${catalog.id}:action:${a.name}`}
+                          key={`${eventKey}:action:${a.name}`}
                           style={{ maxWidth: 320, minWidth: 320, width: "100%" }}
                         >
                           <JsonRenderCatalogActionCard
                             item={{
-                              id: `${catalog.id}:${a.name}`,
+                              id: `${eventKey}:${a.name}`,
                               name: a.name,
                               title: a.title,
                               updatedAt: a.updatedAt,
@@ -358,12 +329,14 @@ export const CatalogsPage = () => {
                                 raw: a.paramsSchema,
                               })
                             }
-                            onDelete={catalog.manageable ? async () => {
+                            onDelete={catalogTab.manageable ? async () => {
+                              const source = catalogTab.original;
+                              if (!source) return;
                               const next = {
-                                ...catalog,
-                                actions: (catalog.actions ?? []).filter((x) => x.name !== a.name),
+                                ...source,
+                                actions: (source.actions ?? []).filter((x: any) => x.name !== a.name),
                               };
-                              await catalogs.update(catalog.id, {
+                              await catalogs.update(source.id, {
                                 name: next.name,
                                 manageable: next.manageable,
                                 components: next.components,

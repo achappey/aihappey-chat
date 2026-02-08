@@ -13,7 +13,7 @@ import { localStructuredOutputsPluginDef } from "../tools/toolcalls/useLocalStru
 import { vercelAIPluginDef } from "../tools/toolcalls/useVercelAIToolCall";
 import { isStoredToolValid } from "../tools/localStoredTools";
 import { localImagesPluginDef } from "../tools/toolcalls/useLocalImagesToolCall";
-//import { localJsonRenderPluginDef } from "../tools/toolcalls/useLocalJsonRenderToolCall";
+import { localJsonRenderPluginDef } from "../tools/toolcalls/useLocalJsonRenderToolCall";
 import { localCatalogPluginDef } from "../tools/toolcalls/useLocalCatalogToolCall";
 import { localRegistryPluginDef } from "../tools/toolcalls/useLocalRegistryToolCall";
 import { localTodoPluginDef } from "../tools/toolcalls/useLocalTodoListToolCall";
@@ -42,7 +42,7 @@ export const ToolsTab = () => {
       localCanvasPluginDef,
       localSettingsPluginDef,
       localImagesPluginDef,
-      //localJsonRenderPluginDef,
+      localJsonRenderPluginDef,
       localTodoPluginDef,
       localStructuredOutputsPluginDef,
       localCatalogPluginDef,

@@ -39,7 +39,7 @@ export const RerankingInput = ({
   const resourceSelect = useResourceSelect();
 
   const providerRerankingMetadata = useAppStore((s) => s.providerRerankingMetadata);
-  const enabledProviders = useAppStore((s) => s.enabledProviders);
+  const enabledProviders = useAppStore((s) => s.enabledProvidersByType?.reranking ?? []);
   const setProviderRerankingMetadata = useAppStore((s) => s.setProviderRerankingMetadata);
   const topN = useAppStore((s) => s.topN);
   const setTopN = useAppStore((s) => s.setTopN);

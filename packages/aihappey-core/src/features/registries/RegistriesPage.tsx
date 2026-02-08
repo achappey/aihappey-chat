@@ -10,8 +10,8 @@ import type { JsonRenderRegistryItem } from "aihappey-json-render-registry";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { ErrorBoundary } from "react-error-boundary";
 import { ActionProvider, DataProvider, VisibilityProvider, useActions } from "@json-render/react";
-import { builtInRegistryItems, useCombinedComponentRegistryForIds } from "../json-render/ComponentRegistry";
-import { componentRegistry as builtInComponentRegistry } from "../json-render/ComponentRegistry";
+import { defaultRegistryBundles } from "aihappey-ai-components-default";
+import { builtInRegistryLabels, useCombinedComponentRegistryForIds } from "../json-render/ComponentRegistry";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -23,7 +23,7 @@ export const RegistriesPage = () => {
   const { t } = useTranslation();
   const registryStore = useJsonRenderRegistry();
 
-  const DEFAULT_TAB_KEY = "__default__";
+  const DEFAULT_TAB_KEY = "app";
 
   const [viewItem, setViewItem] = useState<JsonRenderRegistryItem | null>(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
@@ -94,42 +94,49 @@ export const RegistriesPage = () => {
     []
   );
 
-  const builtInItems = useMemo(() => {
-    const all = builtInRegistryItems ?? [];
-    return q ? all.filter(i => normalizeText(i.name).includes(q)) : all;
-  }, [q]);
-
   const registryIds = useMemo(() => {
     const ids = new Set<string>();
+    for (const bundle of defaultRegistryBundles) {
+      ids.add(bundle.id);
+    }
     for (const item of registryStore.items ?? []) {
       if (item?.registryId) ids.add(item.registryId);
     }
-    return Array.from(ids).sort((a, b) => collator.compare(a, b));
+    return Array.from(ids)//.sort((a, b) => collator.compare(a, b));
   }, [registryStore.items, collator]);
 
   // Default tab is always the initial selection.
   const effectiveActiveTab = activeTab || DEFAULT_TAB_KEY;
 
-  const builtInComponentNames = useMemo(() => {
-    const names = Object.keys(builtInComponentRegistry ?? {});
-    const filtered = q ? names.filter((n) => normalizeText(n).includes(q)) : names;
-    return filtered.slice().sort((a, b) => collator.compare(a, b));
-  }, [q, collator]);
+  const itemsByRegistryId = useMemo(() => {
+    const out = new Map<string, JsonRenderRegistryItem[]>();
 
-  const activeItems = useMemo(() => {
-    const all = Array.isArray(registryStore.items) ? registryStore.items : [];
-    const filteredByTab = effectiveActiveTab
-      ? effectiveActiveTab === DEFAULT_TAB_KEY
-        ? []
-        : all.filter((i) => i.registryId === effectiveActiveTab)
-      : all;
-    const filteredBySearch = q
-      ? filteredByTab.filter((i) => normalizeText(`${i.name} ${i.id}`).includes(q))
-      : filteredByTab;
-    return filteredBySearch
-      .slice()
-      .sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
-  }, [registryStore.items, effectiveActiveTab, q, collator, DEFAULT_TAB_KEY]);
+    for (const bundle of defaultRegistryBundles) {
+      out.set(bundle.id, [...((bundle.items ?? []) as JsonRenderRegistryItem[])]);
+    }
+
+    for (const item of registryStore.items ?? []) {
+      const rid = item?.registryId;
+      if (!rid) continue;
+      const next = out.get(rid) ?? [];
+      next.push(item);
+      out.set(rid, next);
+    }
+
+    for (const [rid, items] of out.entries()) {
+      const filtered = q
+        ? items.filter((i) => normalizeText(`${i.name} ${i.id}`).includes(q))
+        : items;
+      out.set(
+        rid,
+        filtered
+          .slice()
+          .sort((a, b) => collator.compare(a.name ?? "", b.name ?? "")),
+      );
+    }
+
+    return out;
+  }, [registryStore.items, q, collator]);
 
   return (
     <div style={{ background: "transparent" }}>
@@ -161,75 +168,53 @@ export const RegistriesPage = () => {
         </div>
 
         <Tabs activeKey={effectiveActiveTab} onSelect={(k: string) => setActiveTab(k)}>
-          <Tab key={DEFAULT_TAB_KEY} eventKey={DEFAULT_TAB_KEY} title={t("providerDefault")}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 16,
-                width: "100%",
-                maxWidth: 700,
-                marginBottom: 24,
-                paddingTop: 12,
-                justifyItems: "center",
-              }}
-            >
-              {builtInItems.map((item) => (
-                <div key={String(item.id)} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
-                  <JsonRenderRegistryComponentCard
-                    item={{
-                      id: item.id,
-                      registryId: item.registryId,
-                      name: item.name,
-                      updatedAt: item.updatedAt,
-                    }}
-                    onOpen={() => setViewItem(item)}
-                  />
-                </div>
-              ))}
-            </div>
-          </Tab>
-
           {registryIds.length === 0 ? null : (
-            registryIds.map((rid) => (
-              <Tab key={rid} eventKey={rid} title={rid}>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: 16,
-                    width: "100%",
-                    maxWidth: 700,
-                    marginBottom: 24,
-                    paddingTop: 12,
-                    justifyItems: "center",
-                  }}
+            registryIds.map((rid) => {
+              const activeItems = itemsByRegistryId.get(rid) ?? [];
+              return (
+                <Tab
+                  key={rid}
+                  eventKey={rid}
+                  title={builtInRegistryLabels[rid as keyof typeof builtInRegistryLabels] ?? rid}
                 >
-                  {activeItems.length === 0 ? (
-                    <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
-                      {t("noResults")}
-                    </div>
-                  ) : (
-                    activeItems.map((item) => (
-                      <div key={item.id} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
-                        <JsonRenderRegistryComponentCard
-                          item={{
-                            id: item.id,
-                            registryId: item.registryId,
-                            name: item.name,
-                            updatedAt: item.updatedAt,
-                          }}
-                          onOpen={() => setViewItem(item)}
-                          onDelete={async () => {
-                            await registryStore.delete(item.id);
-                          }}
-                        />
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 16,
+                      width: "100%",
+                      maxWidth: 700,
+                      marginBottom: 24,
+                      paddingTop: 12,
+                      justifyItems: "center",
+                    }}
+                  >
+                    {activeItems.length === 0 ? (
+                      <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
+                        {t("noResults")}
                       </div>
-                    ))
-                  )}
-                </div>
-              </Tab>
-            ))
+                    ) : (
+                      activeItems.map((item) => (
+                        <div key={item.id} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+                          <JsonRenderRegistryComponentCard
+                            item={{
+                              id: item.id,
+                              registryId: item.registryId,
+                              name: item.name,
+                              updatedAt: item.updatedAt,
+                            }}
+                            onOpen={() => setViewItem(item)}
+                            onDelete={item.id?.startsWith("built-in:") ? undefined : async () => {
+                              await registryStore.delete(item.id);
+                            }}
+                          />
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </Tab>
+              );
+            })
           )}
         </Tabs>
 

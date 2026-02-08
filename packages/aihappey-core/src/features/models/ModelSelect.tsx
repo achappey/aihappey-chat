@@ -31,8 +31,17 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
 
-  const enabledProviders = useAppStore((s) => s.enabledProviders ?? []);
-  const enabledProviderKeys = enabledProviders.map((name) => providerNameToKey[name]).filter(Boolean);
+  const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
+  const enabledProviderKeys = React.useMemo(() => {
+    const types = props.modelTypes ?? ["language"];
+    const names = new Set<string>();
+    for (const type of types) {
+      for (const name of enabledProvidersByType?.[type as keyof typeof enabledProvidersByType] ?? []) {
+        names.add(name);
+      }
+    }
+    return Array.from(names).map((name) => providerNameToKey[name]).filter(Boolean);
+  }, [enabledProvidersByType, props.modelTypes]);
 
   return (
     <ModelSelectField

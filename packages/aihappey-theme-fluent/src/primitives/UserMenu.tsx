@@ -17,13 +17,21 @@ import {
   PersonSettingsRegular,
   KeyRegular,
   PlugConnectedRegular,
-  PreviousRegular,
-  NextRegular,
   ChevronLeftRegular,
   ChevronRightRegular,
 } from "@fluentui/react-icons";
 
 import { UserMenuLabels } from "aihappey-types/src/i18n";
+
+type ProviderCapability =
+  | "language"
+  | "image"
+  | "transcription"
+  | "speech"
+  | "reranking"
+  | "video";
+
+type EnabledProvidersByType = Partial<Record<ProviderCapability, string[]>>;
 
 export interface UserMenuProps {
   email?: string;
@@ -36,8 +44,8 @@ export interface UserMenuProps {
 
   providers?: string[];
   providerGroups?: Record<string, string[]>;
-  enabledProviders?: string[];
-  onToggleProvider?: (provider: string) => void;
+  enabledProvidersByType?: EnabledProvidersByType;
+  onToggleProviderForType?: (capability: ProviderCapability, provider: string) => void;
 
   /** When true, provider toggles are disabled (e.g. while models are still loading). */
   providersDisabled?: boolean;
@@ -58,8 +66,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   onApiKeys,
   providers,
   providerGroups,
-  enabledProviders,
-  onToggleProvider,
+  enabledProvidersByType,
+  onToggleProviderForType,
   providersDisabled,
   disabledProviders,
   className,
@@ -69,21 +77,19 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   const PAGE_SIZE = 10;
   const [providerPages, setProviderPages] = React.useState<Record<string, number>>({});
 
-  const handleProvidersCheckedChange = React.useCallback(
-    (_e: any, data: any) => {
-      // Fluent Menu selection is managed via Menu.checkedValues.
-      // We keep app state in sync using a toggle API.
+  const onCapabilityCheckedChange = React.useCallback(
+    (capability: ProviderCapability) => (_e: any, data: any) => {
       const nextChecked: string[] = data?.checkedItems ?? [];
-      const prevChecked: string[] = enabledProviders ?? [];
+      const prevChecked: string[] = enabledProvidersByType?.[capability] ?? [];
 
       const changed = new Set<string>([...prevChecked, ...nextChecked]);
       for (const p of changed) {
         const wasOn = prevChecked.includes(p);
         const isOn = nextChecked.includes(p);
-        if (wasOn !== isOn) onToggleProvider?.(p);
+        if (wasOn !== isOn) onToggleProviderForType?.(capability, p);
       }
     },
-    [enabledProviders, onToggleProvider]
+    [enabledProvidersByType, onToggleProviderForType]
   );
 
   const trigger = (
@@ -97,7 +103,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
 
   const capabilityMenus = React.useMemo(() => {
     const g = providerGroups ?? {};
-    const defs: Array<{ key: string; label: string; providers: string[] }> = [
+    const defs: Array<{ key: ProviderCapability; label: string; providers: string[] }> = [
       {
         key: "language",
         label: labels.language ?? "Language",
@@ -121,7 +127,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     return defs
       .map((d) => {
         const total = d.providers?.length ?? 0;
-        const enabled = (enabledProviders ?? []).filter((p) =>
+        const enabled = (enabledProvidersByType?.[d.key] ?? []).filter((p) =>
           (d.providers ?? []).includes(p)
         ).length;
         return {
@@ -130,7 +136,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         };
       })
       .filter((d) => (d.providers?.length ?? 0) > 0);
-  }, [providerGroups, labels, enabledProviders]);
+  }, [providerGroups, labels, enabledProvidersByType]);
 
   const clampProviderPage = React.useCallback(
     (key: string, totalItems: number) => {
@@ -240,15 +246,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             {labels.settings ?? "Settings"}
           </MenuItem>
 
-          {!!providers?.length && !!onToggleProvider && (
+          {!!providers?.length && !!onToggleProviderForType && (
             <Menu
               persistOnItemClick
-              checkedValues={{ providers: enabledProviders ?? [] }}
-              onCheckedValueChange={handleProvidersCheckedChange}
+              checkedValues={{ providers: [] }}
             >
               <MenuTrigger disableButtonEnhancement>
                 <MenuItem icon={<PlugConnectedRegular />}>{(labels.providers ?? "Providers")
-                  + (enabledProviders != undefined ? " (" + enabledProviders?.length + "/" + providers.length + ")" : "")} </MenuItem>
+                  + (enabledProvidersByType != undefined
+                    ? " (" + Object.values(enabledProvidersByType).reduce((acc, list) => acc + (list?.length ?? 0), 0)
+                    + "/" + providers.length + ")"
+                    : "")} </MenuItem>
               </MenuTrigger>
               <MenuPopover>
                 <MenuList hasCheckmarks>
@@ -268,11 +276,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                         <Menu
                           key={cap.key}
                           persistOnItemClick
-                          // Important: MenuItemCheckbox state is scoped to the nearest <Menu>.
-                          // Without wiring checkedValues here, checkmarks won't reflect app state,
-                          // and toggles won't call our handler.
-                          checkedValues={{ providers: enabledProviders ?? [] }}
-                          onCheckedValueChange={handleProvidersCheckedChange}
+                          checkedValues={{ providers: enabledProvidersByType?.[cap.key] ?? [] }}
+                          onCheckedValueChange={onCapabilityCheckedChange(cap.key)}
                         >
                           <MenuTrigger disableButtonEnhancement>
                             <MenuItem>{cap.label}</MenuItem>

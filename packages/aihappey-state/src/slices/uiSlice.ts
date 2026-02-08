@@ -94,11 +94,44 @@ export async function connectServerPersistent(id: string, url: string, opts: any
 //client: InstanceType<typeof Client>;
 export const mcpRuntime = new Map<string, Client>();
 
+export const PROVIDER_CAPABILITIES = [
+  "language",
+  "image",
+  "transcription",
+  "speech",
+  "reranking",
+  "video",
+] as const;
+
+export type ProviderCapability = typeof PROVIDER_CAPABILITIES[number];
+export type EnabledProvidersByType = Record<ProviderCapability, string[]>;
+
+export const createEmptyEnabledProvidersByType = (): EnabledProvidersByType => ({
+  language: [],
+  image: [],
+  transcription: [],
+  speech: [],
+  reranking: [],
+  video: [],
+});
+
+const normalizeEnabledProvidersByType = (
+  input?: Partial<Record<ProviderCapability, string[]>>
+): EnabledProvidersByType => {
+  const next = createEmptyEnabledProvidersByType();
+  for (const capability of PROVIDER_CAPABILITIES) {
+    const list = input?.[capability] ?? [];
+    next[capability] = Array.from(new Set((list ?? []).filter(Boolean)));
+  }
+  return next;
+};
+
 export type UiSlice = {
   showActivities: boolean;
   enableAgentImport: boolean
   enableConversationImport: boolean
   chatWithImageModels?: boolean
+  chatWithVideoModels?: boolean
   chatWithTranscriptionModels?: boolean
   chatWithSpeechModels?: boolean
   chatWithRerankModels?: boolean
@@ -121,6 +154,7 @@ export type UiSlice = {
   setActivitiesSize: (value: string) => void;
   toggleSampling: () => void;
   toggleChatWithImageModels: () => void;
+  toggleChatWithVideoModels: () => void;
   toggleChatWithSpeechModels: () => void;
   toggleChatWithTranscriptionModels: () => void;
   toggleEliciation: () => void;
@@ -151,9 +185,12 @@ export type UiSlice = {
   remoteStorageConnected: boolean;
   setRemoteStorageConnected: (connected: boolean) => void;
 
-  enabledProviders: string[];
-  toggleEnabledProvider: (provider: string) => void;
-  setEnabledProviders: (providers: string[]) => void;
+  enabledProvidersByType: EnabledProvidersByType;
+  toggleEnabledProviderForType: (capability: ProviderCapability, provider: string) => void;
+  setEnabledProvidersForType: (capability: ProviderCapability, providers: string[]) => void;
+  setEnabledProvidersByType: (
+    providersByType: Partial<Record<ProviderCapability, string[]>>
+  ) => void;
 
   userPreferredModel?: string;
   setUserPreferredModel: (model: string) => void;
@@ -163,6 +200,9 @@ export type UiSlice = {
 
   userPreferredVideoModel?: string;
   setUserPreferredVideoModel: (model: string) => void;
+
+  userPreferredRerankingModel?: string;
+  setUserPreferredRerankingModel: (model: string) => void;
 
   userPreferredTranscriptionModel?: string;
   setUserPreferredTranscriptionModel: (model: string) => void;
@@ -204,8 +244,9 @@ export const createUiSlice: StateCreator<
   sampling: {},
   elicitation: {},
   accountLocation: undefined,
-  enabledProviders: [],
+  enabledProvidersByType: createEmptyEnabledProvidersByType(),
   chatWithImageModels: false,
+  chatWithVideoModels: false,
   chatWithRerankModels: false,
   chatWithSpeechModels: false,
   chatWithTranscriptionModels: false,
@@ -228,6 +269,10 @@ export const createUiSlice: StateCreator<
   toggleChatWithImageModels: () =>
     set((s: UiSlice) => ({
       chatWithImageModels: !s.chatWithImageModels,
+    })),
+  toggleChatWithVideoModels: () =>
+    set((s: UiSlice) => ({
+      chatWithVideoModels: !s.chatWithVideoModels,
     })),
   toggleChatWithSpeechModels: () =>
     set((s: UiSlice) => ({
@@ -287,6 +332,13 @@ export const createUiSlice: StateCreator<
       }
     }),
 
+  setUserPreferredRerankingModel: (model) =>
+    set((state: any) => {
+      return {
+        userPreferredRerankingModel: model
+      }
+    }),
+
   setUserPreferredSpeechModel: (model) =>
     set((state: any) => {
       return {
@@ -324,21 +376,37 @@ export const createUiSlice: StateCreator<
       }
     }),
 
-  setEnabledProviders: (providers: string[]) =>
+  setEnabledProvidersByType: (providersByType: Partial<Record<ProviderCapability, string[]>>) =>
     set((state: any) => {
       return {
-        enabledProviders: providers,
+        enabledProvidersByType: normalizeEnabledProvidersByType(providersByType),
       }
     }),
 
-  toggleEnabledProvider: (provider?: string) =>
+  setEnabledProvidersForType: (capability: ProviderCapability, providers: string[]) =>
     set((state: any) => {
-      if (!provider) return state
-      const exists = state.enabledProviders.includes(provider)
+      if (!capability) return state;
+      const normalized = Array.from(new Set((providers ?? []).filter(Boolean)));
       return {
-        enabledProviders: exists
-          ? state.enabledProviders.filter((p: any) => p !== provider)
-          : [...state.enabledProviders, provider],
+        enabledProvidersByType: {
+          ...state.enabledProvidersByType,
+          [capability]: normalized,
+        },
+      };
+    }),
+
+  toggleEnabledProviderForType: (capability: ProviderCapability, provider?: string) =>
+    set((state: any) => {
+      if (!capability || !provider) return state
+      const current = state.enabledProvidersByType?.[capability] ?? [];
+      const exists = current.includes(provider)
+      return {
+        enabledProvidersByType: {
+          ...state.enabledProvidersByType,
+          [capability]: exists
+            ? current.filter((p: any) => p !== provider)
+            : [...current, provider],
+        },
       }
     }),
 

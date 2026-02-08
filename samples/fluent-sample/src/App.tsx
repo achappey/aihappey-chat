@@ -2,6 +2,7 @@ import CoreRoot from "aihappey-core";
 import { ThemeProvider } from "aihappey-theme-fluent";
 import { loginRequest, msalConfig } from "./msalConfig";
 declare const __CHAT_API__: string;
+declare const __API_BASE_URL__: string;
 declare const __MODELS_API__: string;
 declare const __SAMPLING_API__: string;
 declare const __TRANSCRIPTION_API__: string;
@@ -15,6 +16,7 @@ const App = () => (
   <ThemeProvider>
     <CoreRoot
       appName={__APP_NAME__}
+      baseUrl={__API_BASE_URL__}
       appVersion={__APP_VERSION__}
       conversationsApi={__CONVERSATIONS_API_URL__}
       conversationsScopes={__CONVERSATIONS_SCOPES__}
@@ -23,7 +25,15 @@ const App = () => (
         api: __CHAT_API__,
         modelsApi: __MODELS_API__,
         samplingApi: __SAMPLING_API__,
-        transcriptionApi: __TRANSCRIPTION_API__
+        transcriptionApi: __TRANSCRIPTION_API__,
+        defaultProvidersByType: {
+          language: ["OpenAI", "Anthropic", "Google", "xAI", "Pollinations"],
+          image: ["OpenAI", "Pollinations"],
+          transcription: ["OpenAI", "ElevenLabs"],
+          speech: ["OpenAI", "ElevenLabs"],
+          reranking: ["Cohere"],
+          video: ["Runway"],
+        },
       }}
       authConfig={{
         msal: {

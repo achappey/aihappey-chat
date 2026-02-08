@@ -20,14 +20,23 @@ export const AiDefaultSettings: React.FC = () => {
   const userPreferredImageModel = useAppStore((s) => s.userPreferredImageModel);
   const setUserPreferredImageModel = useAppStore((s) => s.setUserPreferredImageModel);
 
+  const userPreferredVideoModel = useAppStore((s) => s.userPreferredVideoModel);
+  const setUserPreferredVideoModel = useAppStore((s) => s.setUserPreferredVideoModel);
+
   const userPreferredSpeechModel = useAppStore((s) => s.userPreferredSpeechModel);
   const setUserPreferredSpeechModel = useAppStore((s) => s.setUserPreferredSpeechModel);
 
   const userPreferredTranscriptionModel = useAppStore((s) => s.userPreferredTranscriptionModel);
   const setUserPreferredTranscriptionModel = useAppStore((s) => s.setUserPreferredTranscriptionModel);
 
+  const userPreferredRerankingModel = useAppStore((s) => s.userPreferredRerankingModel);
+  const setUserPreferredRerankingModel = useAppStore((s) => s.setUserPreferredRerankingModel);
+
   const toggleChatWithImageModels = useAppStore((s) => s.toggleChatWithImageModels);
   const chatWithImageModels = useAppStore((s) => s.chatWithImageModels);
+
+  const toggleChatWithVideoModels = useAppStore((s) => s.toggleChatWithVideoModels);
+  const chatWithVideoModels = useAppStore((s) => s.chatWithVideoModels);
 
   const toggleChatWithSpeechModels = useAppStore((s: any) => s.toggleChatWithSpeechModels);
   const chatWithSpeechModels = useAppStore((s) => s.chatWithSpeechModels);
@@ -56,7 +65,7 @@ export const AiDefaultSettings: React.FC = () => {
       }}
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-        <theme.Tab eventKey="language" title={t("language") ?? "Language"}>
+        <theme.Tab eventKey="language" title={t("language")}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -68,7 +77,7 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="image" title={t("image") ?? "Image"}>
+        <theme.Tab eventKey="image" title={t("image")}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -87,7 +96,26 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="speech" title={t("speech") ?? "Speech"}>
+        <theme.Tab eventKey="transcription" title={t("transcription")}>
+          <div style={formStyle}>
+            <ModelSelect
+              models={models ?? []}
+              modelTypes={["transcription"]}
+              value={userPreferredTranscriptionModel ?? ""}
+              label={t("settingsModal.defaultModel")}
+              onChange={setUserPreferredTranscriptionModel}
+            />
+
+            <Switch
+              id={"chatWithTranscriptionModels"}
+              label={t("chatWithTranscriptionModels")}
+              checked={chatWithTranscriptionModels ?? false}
+              onChange={toggleChatWithTranscriptionModels}
+            />
+          </div>
+        </theme.Tab>
+
+        <theme.Tab eventKey="speech" title={t("speech")}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -106,24 +134,39 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="transcription" title={t("transcription") ?? "Transcription"}>
+
+
+        <theme.Tab eventKey="reranking" title={t("reranking")}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
-              modelTypes={["transcription"]}
-              value={userPreferredTranscriptionModel ?? ""}
+              modelTypes={["reranking"]}
+              value={userPreferredRerankingModel ?? ""}
               label={t("settingsModal.defaultModel")}
-              onChange={setUserPreferredTranscriptionModel}
-            />
-
-            <Switch
-              id={"chatWithTranscriptionModels"}
-              label={t("chatWithTranscriptionModels")}
-              checked={chatWithTranscriptionModels ?? false}
-              onChange={toggleChatWithTranscriptionModels}
+              onChange={setUserPreferredRerankingModel}
             />
           </div>
         </theme.Tab>
+
+        <theme.Tab eventKey="video" title={t("video")}>
+          <div style={formStyle}>
+            <ModelSelect
+              models={models ?? []}
+              modelTypes={["video"]}
+              value={userPreferredVideoModel ?? ""}
+              label={t("settingsModal.defaultModel")}
+              onChange={setUserPreferredVideoModel}
+            />
+
+            <Switch
+              id={"chatWithVideoModels"}
+              label={t("chatWithVideoModels")}
+              checked={chatWithVideoModels ?? false}
+              onChange={toggleChatWithVideoModels}
+            />
+          </div>
+        </theme.Tab>
+
       </theme.Tabs>
     </div>
   );
