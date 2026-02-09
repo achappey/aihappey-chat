@@ -1,4 +1,4 @@
-import { ActionProvider, DataProvider, VisibilityProvider } from "@json-render/react";
+import { ActionProvider, StateProvider, VisibilityProvider } from "@json-render/react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "aihappey-components";
@@ -58,13 +58,13 @@ export const WebAppDetailAppPreview = ({
         <div style={{ color: "#888", textAlign: "center" }}>{t("noResults")}</div>
       ) : (
         <ErrorBoundary fallbackRender={(er) => "Something went wrong:" + er.error}>
-          <DataProvider initialData={app?.data ?? {}}>
+          <StateProvider initialState={app?.data ?? {}}>
             <VisibilityProvider>
               <ActionProvider handlers={actionHandlers}>
                 <Renderer spec={effectiveTree} registry={registry} />
               </ActionProvider>
             </VisibilityProvider>
-          </DataProvider>
+          </StateProvider>
         </ErrorBoundary>
       )}
     </div>

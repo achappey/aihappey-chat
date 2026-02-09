@@ -3,7 +3,7 @@ import React from "react";
 import { ComponentRenderProps } from ".";
 import { getByPath } from "@json-render/core";
 import {
-    useDataValue,
+    useStateValue,
 } from "@json-render/react";
 
 const formatNumber = (value: unknown, format?: string, precision?: number) => {
@@ -45,7 +45,7 @@ type BuiltInMeta = {
 
 const useOptionalDataValue = <T,>(path?: string) => {
     const safePath = path || "__missing__";
-    const value = useDataValue<T>(safePath);
+    const value = useStateValue<T>(safePath);
     return path ? value : undefined;
 };
 
@@ -60,7 +60,7 @@ const readRowValue = (row: any, key?: string, path?: string) => {
 };
 
 const Metric = ({ element }: ComponentRenderProps<any>) => {
-    const value = useDataValue<any>(element.props.valuePath);
+    const value = useStateValue<any>(element.props.valuePath);
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={{ fontSize: 12, opacity: 0.7 }}>{element.props.label}</span>
@@ -286,17 +286,17 @@ const Carousel = ({ element }: ComponentRenderProps<any>) => {
 const Chart = withMeta(({ element }: ComponentRenderProps<any>) => {
     const labels =
         typeof element.props.labels === "string"
-            ? useDataValue(element.props.labels)
+            ? useStateValue(element.props.labels)
             : element.props.labels;
 
     const datasets =
         typeof element.props.datasets === "string"
-            ? useDataValue(element.props.datasets)
+            ? useStateValue(element.props.datasets)
             : element.props.datasets;
 
     const options =
         typeof element.props.options === "string"
-            ? useDataValue(element.props.options)
+            ? useStateValue(element.props.options)
             : element.props.options;
 
     return (

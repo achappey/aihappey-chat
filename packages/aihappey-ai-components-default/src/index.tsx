@@ -3,9 +3,9 @@ import { defineCatalog } from "@json-render/core";
 import {
   useAction,
   useActions,
-  useData,
-  useDataBinding,
-  useDataValue,
+  useStateStore,
+  useStateBinding,
+  useStateValue,
   useFieldValidation,
   useIsVisible,
   useValidation,
@@ -61,6 +61,7 @@ export type ComponentRenderProps<P = Record<string, unknown>> = {
     visible?: unknown;
   };
   children?: React.ReactNode;
+  emit?: (event: string) => void;
   onAction?: (action: unknown) => void;
   loading?: boolean;
 };
@@ -274,11 +275,11 @@ export function buildDefaultCatalogDefinitionsWithActions(
 
 export const defaultRuntimeBindings = {
   React,
-  useDataBinding,
-  useDataValue,
+  useStateBinding,
+  useStateValue,
   useAction,
   useActions,
-  useData,
+  useStateStore,
   useIsVisible,
   useFieldValidation,
   useValidation,

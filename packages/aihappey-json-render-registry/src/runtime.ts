@@ -14,11 +14,11 @@ import type {
 
 export const DEFAULT_RUNTIME_BINDINGS = [
   "React",
-  "useDataBinding",
-  "useDataValue",
+  "useStateBinding",
+  "useStateValue",
   "useAction",
   "useActions",
-  "useData",
+  "useStateStore",
   "useIsVisible",
   "useFieldValidation",
   "useValidation",

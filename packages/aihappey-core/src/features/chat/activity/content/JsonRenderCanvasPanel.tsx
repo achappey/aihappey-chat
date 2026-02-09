@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppSaveModal, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { ActionProvider, DataProvider, VisibilityProvider } from "@json-render/react";
+import { ActionProvider, StateProvider, VisibilityProvider } from "@json-render/react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Renderer } from "../../../json-render/Renderer";
 import { useCombinedComponentRegistryForIds } from "../../../json-render/ComponentRegistry";
@@ -149,13 +149,13 @@ export const JsonRenderCanvasPanel = ({
         <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
           <Tab eventKey="app" title={t("app")}>
             <ErrorBoundary fallbackRender={(er) => "Something went wrong:" + er.error}>
-              <DataProvider initialData={output ?? {}}>
+              <StateProvider initialState={output ?? {}}>
                 <VisibilityProvider>
                   <ActionProvider handlers={actionHandlers}>
                     <Renderer spec={tree} registry={registry} />
                   </ActionProvider>
                 </VisibilityProvider>
-              </DataProvider>
+              </StateProvider>
             </ErrorBoundary>
           </Tab>
           <Tab eventKey="structure" title={t("structure")}>

@@ -9,10 +9,16 @@ import type {
   ComponentDefinition,
   SchemaDefinition,
 } from "@json-render/core";
-//import { useIsVisible } from "./contexts/visibility";
-//import { useActions } from "./contexts/actions";
-//import { useData } from "./contexts/data";
-import { DataProvider, VisibilityProvider, ActionProvider, ValidationProvider, ConfirmDialog, useIsVisible, useActions } from "@json-render/react";
+import { validateSpec, autoFixSpec } from "@json-render/core";
+import {
+  Renderer as JsonRenderRenderer,
+  StateProvider,
+  VisibilityProvider,
+  ActionProvider,
+  ValidationProvider,
+  ConfirmDialog,
+  useActions,
+} from "@json-render/react";
 
 /**
  * Props passed to component renderers
@@ -22,6 +28,8 @@ export interface ComponentRenderProps<P = Record<string, unknown>> {
   element: UIElement<string, P>;
   /** Rendered children */
   children?: ReactNode;
+  /** Emit a named event mapped from element.on */
+  emit?: (event: string) => void;
   /** Execute an action */
   onAction?: (action: Action) => void;
   /** Whether the parent is loading */
@@ -54,87 +62,69 @@ export interface RendererProps {
   fallback?: ComponentRenderer;
 }
 
-/**
- * Element renderer component
- */
-function ElementRenderer({
-  element,
-  tree,
-  registry,
-  loading,
-  fallback,
+function LegacyActionBridge({
+  Component,
+  props,
 }: {
-  element: UIElement;
-  tree: Spec;
-  registry: ComponentRegistry;
-  loading?: boolean;
-  fallback?: ComponentRenderer;
+  Component: ComponentRenderer<any>;
+  props: any;
 }) {
-  const isVisible = useIsVisible(element.visible);
   const { execute } = useActions();
 
-  // Don't render if not visible
-  if (!isVisible) {
-    return null;
-  }
-
-  // Get the component renderer
-  const Component = registry[element.type] ?? fallback;
-
-  if (!Component) {
-    console.warn(`No renderer for component type: ${element.type}`);
-    return null;
-  }
-
-  const childKeys = Array.isArray(element.children)
-    ? element.children
-    : typeof element.children === "string"
-      ? [element.children]
-      : [];
-
-  // Render children
-  const children = childKeys?.map((childKey) => {
-    const childElement = tree.elements[childKey];
-    if (!childElement) {
-      return null;
+  const onAction = (action: unknown) => {
+    if (typeof action === "string") {
+      props.emit?.(action);
+      return;
     }
-    return (
-      <ElementRenderer
-        key={childKey}
-        element={childElement}
-        tree={tree}
-        registry={registry}
-        loading={loading}
-        fallback={fallback}
-      />
-    );
-  });
+    if (action && typeof action === "object" && "action" in (action as Record<string, unknown>)) {
+      void execute(action as Action);
+    }
+  };
 
-  return (
-    <Component element={element} onAction={execute} loading={loading}>
-      {children}
-    </Component>
-  );
+  return <Component {...props} onAction={onAction} />;
 }
 
 /**
  * Main renderer component
  */
 export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
-  if (!spec || !spec.root) {
-    return null;
-  }
+  const normalizedSpec = useMemo(() => {
+    if (!spec) return null;
 
-  const rootElement = spec.elements[spec.root];
-  if (!rootElement) {
-    return null;
-  }
+    const validation = validateSpec(spec);
+    if (validation.valid) {
+      return spec;
+    }
+
+    const fixed = autoFixSpec(spec);
+    const recheck = validateSpec(fixed.spec);
+    if (!recheck.valid) {
+      console.warn("json-render spec validation issues", recheck.issues);
+    }
+    if (fixed.fixes.length > 0) {
+      console.info("json-render auto-fixes applied", fixed.fixes);
+    }
+
+    return fixed.spec;
+  }, [spec]);
+
+  const compatibleRegistry = useMemo<ComponentRegistry>(() => {
+    const wrappedEntries = Object.entries(registry).map(([name, Component]) => {
+      const Wrapped: ComponentRenderer<any> = (props) => (
+        <LegacyActionBridge Component={Component} props={props} />
+      );
+      Wrapped.displayName = `Compat(${name})`;
+      return [name, Wrapped];
+    });
+    return Object.fromEntries(wrappedEntries);
+  }, [registry]);
+
+  if (!normalizedSpec) return null;
 
   return (
-    <ElementRenderer
-      element={rootElement}
-      tree={spec}
-      registry={registry}
+    <JsonRenderRenderer
+      spec={normalizedSpec}
+      registry={compatibleRegistry}
       loading={loading}
       fallback={fallback}
     />
@@ -147,6 +137,8 @@ export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
 export interface JSONUIProviderProps {
   /** Component registry */
   registry: ComponentRegistry;
+  /** Initial state model */
+  initialState?: Record<string, unknown>;
   /** Initial data model */
   initialData?: Record<string, unknown>;
   /** Auth state */
@@ -163,6 +155,8 @@ export interface JSONUIProviderProps {
     string,
     (value: unknown, args?: Record<string, unknown>) => boolean
   >;
+  /** Callback when state changes */
+  onStateChange?: (path: string, value: unknown) => void;
   /** Callback when data changes */
   onDataChange?: (path: string, value: unknown) => void;
   children: ReactNode;
@@ -180,19 +174,24 @@ export interface JSONUIProviderProps {
  */
 export function JSONUIProvider({
   registry,
+  initialState,
   initialData,
   authState,
   actionHandlers,
   navigate,
   validationFunctions,
+  onStateChange,
   onDataChange,
   children,
 }: JSONUIProviderProps) {
+  const seededState = initialState ?? initialData;
+  const handleStateChange = onStateChange ?? onDataChange;
+
   return (
-    <DataProvider
-      initialData={initialData}
+    <StateProvider
+      initialState={seededState}
       authState={authState}
-      onDataChange={onDataChange}
+      onStateChange={handleStateChange}
     >
       <VisibilityProvider>
         <ActionProvider handlers={actionHandlers} navigate={navigate}>
@@ -202,7 +201,7 @@ export function JSONUIProvider({
           </ValidationProvider>
         </ActionProvider>
       </VisibilityProvider>
-    </DataProvider>
+    </StateProvider>
   );
 }
 

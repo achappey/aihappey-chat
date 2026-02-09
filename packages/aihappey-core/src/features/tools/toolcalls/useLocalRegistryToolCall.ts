@@ -8,9 +8,9 @@ import {
 import {
   useAction,
   useActions,
-  useData,
-  useDataBinding,
-  useDataValue,
+  useStateStore,
+  useStateBinding,
+  useStateValue,
   useFieldValidation,
   useIsVisible,
   useValidation,
@@ -58,7 +58,7 @@ function formatToolError(err: unknown): string {
     "Component code rules:\n" +
     "- code MUST be a single JS expression that evaluates to a function (e.g. an arrow function).\n" +
     "- NO JSX, NO import/export/require.\n" +
-    "- Only use runtime bindings passed via ctx (React, useDataBinding, useDataValue, etc).\n" +
+    "- Only use runtime bindings passed via ctx (React, useStateBinding, useStateValue, etc).\n" +
     "- Theme helpers are available: useTheme() (from aihappey-components) and useDarkMode() (from usehooks-ts; returns { isDarkMode }).\n\n" +
     "Minimal valid example:\n" +
     CODE_TEMPLATE
@@ -251,11 +251,11 @@ export function useLocalRegistryRuntime() {
 
   const validationRuntime = {
     React,
-    useDataBinding,
-    useDataValue,
+    useStateBinding,
+    useStateValue,
     useAction,
     useActions,
-    useData,
+    useStateStore,
     useIsVisible,
     useFieldValidation,
     useValidation,

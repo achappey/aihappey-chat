@@ -15,6 +15,17 @@ const App = () => (
       agentEndpoint={__AGENT_ENDPOINT__}
       appVersion={__APP_VERSION__}
       chatAppMcp={__CHAT_APP_MCP__}
+      chatConfig={{
+        defaultProvidersByType: {
+          language: ["Pollinations", "GTranslate", "Echo"],
+          image: ["Pollinations"],
+          transcription: [],
+          speech: [],
+          reranking: [],
+          video: [],
+        },
+      }}
+
     />
   </ThemeProvider>
 );

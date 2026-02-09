@@ -9,7 +9,7 @@ import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import type { JsonRenderRegistryItem } from "aihappey-json-render-registry";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { ErrorBoundary } from "react-error-boundary";
-import { ActionProvider, DataProvider, VisibilityProvider, useActions } from "@json-render/react";
+import { ActionProvider, StateProvider, VisibilityProvider, useActions } from "@json-render/react";
 import { defaultRegistryBundles } from "aihappey-ai-components-default";
 import { builtInRegistryLabels, useCombinedComponentRegistryForIds } from "../json-render/ComponentRegistry";
 
@@ -277,7 +277,7 @@ export const RegistriesPage = () => {
                       </Alert>
                     )}
                   >
-                    <DataProvider initialData={{}}>
+                    <StateProvider initialState={{}}>
                       <VisibilityProvider>
                         <ActionProvider handlers={actionHandlers}>
                           {viewItem ? (
@@ -291,7 +291,7 @@ export const RegistriesPage = () => {
                           ) : null}
                         </ActionProvider>
                       </VisibilityProvider>
-                    </DataProvider>
+                    </StateProvider>
                   </ErrorBoundary>
                 </div>
               </div>
