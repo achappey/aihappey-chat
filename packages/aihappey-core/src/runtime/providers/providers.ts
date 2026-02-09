@@ -86,6 +86,7 @@ import { arklabs } from "./catalog/arklabs";
 import { ionos } from "./catalog/ionos";
 import { bergetai } from "./catalog/bergetai";
 import { opperai } from "./catalog/opperai";
+import { cortecs } from "./catalog/cortecs";
 
 /**
  * UI-facing provider catalog.
@@ -113,6 +114,7 @@ export const PROVIDERS: Record<string, Provider> = {
   ovhcloud,
   arklabs,
   lingvanex,
+  cortecs,
   opperai,
   upstage,
   ionos,
