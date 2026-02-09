@@ -2,32 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { Spec, UIElement, FlatElement } from "@json-render/core";
-import { parseSpecStreamLine, applySpecStreamPatch } from "@json-render/core";
-
-/**
- * Parse a single JSON patch line
- */
-function parsePatchLine(line: string) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("//")) {
-        return null;
-    }
-
-    return parseSpecStreamLine(trimmed);
-}
-
-/**
- * Apply a single SpecStream patch operation to the current spec.
- */
-function applyPatch(spec: Spec, linePatch: NonNullable<ReturnType<typeof parseSpecStreamLine>>): Spec {
-    const next = {
-        ...spec,
-        elements: { ...spec.elements },
-    };
-
-    applySpecStreamPatch(next as unknown as Record<string, unknown>, linePatch);
-    return next;
-}
+import { createSpecStreamCompiler } from "@json-render/core";
 
 /**
  * Options for useUIStream
@@ -107,6 +82,7 @@ export function useUIStream({
     const [error, setError] = useState<Error | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
     const specRef = useRef<Spec | null>(null);
+    const compilerRef = useRef<ReturnType<typeof createSpecStreamCompiler<Spec>> | null>(null);
     const hasSeededRef = useRef(false);
 
     useEffect(() => {
@@ -143,6 +119,7 @@ export function useUIStream({
             setError(null);
             let currentSpec: Spec =
                 baseTree ?? specRef.current ?? initialTree ?? { root: "", elements: {} };
+            compilerRef.current = createSpecStreamCompiler<Spec>(currentSpec);
             if (baseTree || (!specRef.current && initialTree)) {
                 specRef.current = currentSpec;
                 setSpec(currentSpec);
@@ -176,34 +153,29 @@ export function useUIStream({
                 }
 
                 const decoder = new TextDecoder();
-                let buffer = "";
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    buffer += decoder.decode(value, { stream: true });
-
-                    // Process complete lines
-                    const lines = buffer.split("\n");
-                    buffer = lines.pop() ?? "";
-
-                    for (const line of lines) {
-                        const patch = parsePatchLine(line);
-                        if (patch) {
-                            currentSpec = applyPatch(currentSpec, patch);
-                            setSpec({ ...currentSpec });
-                        }
+                    const chunk = decoder.decode(value, { stream: true });
+                    if (!chunk) continue;
+                    const compiler = compilerRef.current;
+                    if (!compiler) continue;
+                    const { result, newPatches } = compiler.push(chunk);
+                    if (newPatches.length > 0) {
+                        currentSpec = result;
+                        specRef.current = result;
+                        setSpec({ ...result });
                     }
                 }
 
-                // Process any remaining buffer
-                if (buffer.trim()) {
-                    const patch = parsePatchLine(buffer);
-                    if (patch) {
-                        currentSpec = applyPatch(currentSpec, patch);
-                        setSpec({ ...currentSpec });
-                    }
+                const compiler = compilerRef.current;
+                if (compiler) {
+                    const finalResult = compiler.getResult();
+                    currentSpec = finalResult;
+                    specRef.current = finalResult;
+                    setSpec({ ...finalResult });
                 }
 
                 onComplete?.(currentSpec);

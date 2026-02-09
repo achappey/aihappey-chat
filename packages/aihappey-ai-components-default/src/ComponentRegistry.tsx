@@ -49,6 +49,14 @@ const useOptionalDataValue = <T,>(path?: string) => {
     return path ? value : undefined;
 };
 
+const toStatePath = (value: unknown): string | undefined => {
+    if (typeof value === "string") return value;
+    if (value && typeof value === "object" && typeof (value as any).$path === "string") {
+        return (value as any).$path;
+    }
+    return undefined;
+};
+
 const readRowValue = (row: any, key?: string, path?: string) => {
     if (!row) return undefined;
     const field = path || key;
@@ -284,20 +292,26 @@ const Carousel = ({ element }: ComponentRenderProps<any>) => {
 };
 
 const Chart = withMeta(({ element }: ComponentRenderProps<any>) => {
-    const labels =
-        typeof element.props.labels === "string"
-            ? useStateValue(element.props.labels)
-            : element.props.labels;
+    const labelsFromState = useOptionalDataValue<any[]>(toStatePath(element.props.labels));
+    const datasetsFromState = useOptionalDataValue<any[]>(toStatePath(element.props.datasets));
+    const optionsFromState = useOptionalDataValue<any>(toStatePath(element.props.options));
 
-    const datasets =
-        typeof element.props.datasets === "string"
-            ? useStateValue(element.props.datasets)
-            : element.props.datasets;
+    const labels = Array.isArray(labelsFromState)
+        ? labelsFromState
+        : Array.isArray(element.props.labels)
+            ? element.props.labels
+            : [];
 
-    const options =
-        typeof element.props.options === "string"
-            ? useStateValue(element.props.options)
-            : element.props.options;
+    const datasets = Array.isArray(datasetsFromState)
+        ? datasetsFromState
+        : Array.isArray(element.props.datasets)
+            ? element.props.datasets
+            : [];
+
+    const options = optionsFromState
+        ?? (element.props.options && typeof element.props.options === "object" && !Array.isArray(element.props.options)
+            ? element.props.options
+            : undefined);
 
     return (
         <ChartJsBlock

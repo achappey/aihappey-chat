@@ -62,6 +62,28 @@ export interface RendererProps {
   fallback?: ComponentRenderer;
 }
 
+function resolveRenderableRoot(spec: Spec): string | null {
+  const elements = (spec as any)?.elements ?? {};
+  const root = String((spec as any)?.root ?? "").trim();
+  if (root && elements[root]) return root;
+
+  if (elements.app) return "app";
+
+  const referenced = new Set<string>();
+  for (const key of Object.keys(elements)) {
+    const children = (elements[key] as any)?.children;
+    if (!Array.isArray(children)) continue;
+    for (const childKey of children) {
+      referenced.add(String(childKey));
+    }
+  }
+
+  const candidates = Object.keys(elements).filter((k) => !referenced.has(k));
+  if (candidates.length === 1) return candidates[0];
+
+  return null;
+}
+
 function LegacyActionBridge({
   Component,
   props,
@@ -88,24 +110,38 @@ function LegacyActionBridge({
  * Main renderer component
  */
 export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
+  const issueSignatureRef = React.useRef("");
+
   const normalizedSpec = useMemo(() => {
     if (!spec) return null;
 
     const validation = validateSpec(spec);
     if (validation.valid) {
-      return spec;
+      issueSignatureRef.current = "";
+      const renderRoot = resolveRenderableRoot(spec);
+      if (!renderRoot) return null;
+      return renderRoot === spec.root ? spec : { ...spec, root: renderRoot };
     }
 
     const fixed = autoFixSpec(spec);
     const recheck = validateSpec(fixed.spec);
-    if (!recheck.valid) {
+    const signature = JSON.stringify(recheck.issues.map((i) => `${i.code}:${i.elementKey ?? ""}`));
+    if (!recheck.valid && signature !== issueSignatureRef.current) {
+      issueSignatureRef.current = signature;
       console.warn("json-render spec validation issues", recheck.issues);
     }
     if (fixed.fixes.length > 0) {
       console.info("json-render auto-fixes applied", fixed.fixes);
     }
 
-    return fixed.spec;
+    const renderRoot = resolveRenderableRoot(fixed.spec as Spec);
+    if (!renderRoot) {
+      return null;
+    }
+
+    return renderRoot === (fixed.spec as any)?.root
+      ? fixed.spec
+      : { ...(fixed.spec as any), root: renderRoot };
   }, [spec]);
 
   const compatibleRegistry = useMemo<ComponentRegistry>(() => {

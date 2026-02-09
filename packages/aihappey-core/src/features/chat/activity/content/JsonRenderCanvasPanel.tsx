@@ -149,7 +149,7 @@ export const JsonRenderCanvasPanel = ({
         <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
           <Tab eventKey="app" title={t("app")}>
             <ErrorBoundary fallbackRender={(er) => "Something went wrong:" + er.error}>
-              <StateProvider initialState={output ?? {}}>
+              <StateProvider initialState={{ ...((tree as any)?.state ?? {}), ...(output ?? {}) }}>
                 <VisibilityProvider>
                   <ActionProvider handlers={actionHandlers}>
                     <Renderer spec={tree} registry={registry} />

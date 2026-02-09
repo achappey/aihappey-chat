@@ -31,6 +31,10 @@ export const WebAppDetailAppPreview = ({
 }: WebAppDetailAppPreviewProps) => {
   const { t } = useTranslation();
   const { Text, Alert, Spinner } = useTheme();
+  const mergedState = {
+    ...((effectiveTree as any)?.state ?? {}),
+    ...(app?.data ?? {}),
+  };
 
   if (loading) {
     return <Text as="p" align={"center" }>{t("loading")}</Text>;
@@ -58,7 +62,7 @@ export const WebAppDetailAppPreview = ({
         <div style={{ color: "#888", textAlign: "center" }}>{t("noResults")}</div>
       ) : (
         <ErrorBoundary fallbackRender={(er) => "Something went wrong:" + er.error}>
-          <StateProvider initialState={app?.data ?? {}}>
+          <StateProvider initialState={mergedState}>
             <VisibilityProvider>
               <ActionProvider handlers={actionHandlers}>
                 <Renderer spec={effectiveTree} registry={registry} />
