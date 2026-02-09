@@ -84,6 +84,8 @@ import { relaxai } from "./catalog/relaxai";
 import { regoloai } from "./catalog/regoloai";
 import { arklabs } from "./catalog/arklabs";
 import { ionos } from "./catalog/ionos";
+import { bergetai } from "./catalog/bergetai";
+import { opperai } from "./catalog/opperai";
 
 /**
  * UI-facing provider catalog.
@@ -111,8 +113,10 @@ export const PROVIDERS: Record<string, Provider> = {
   ovhcloud,
   arklabs,
   lingvanex,
+  opperai,
   upstage,
   ionos,
+  bergetai,
   regoloai,
   pollinations,
   nlpcloud,
