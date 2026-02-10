@@ -7,18 +7,15 @@ interface ToolInvocationStateBadgeProps {
   toolName: string;
   toolTitle?: string;
   isError?: boolean;
-  approval?:
-  | {
+  approval?: {
     id: string;
-    approved?: boolean | undefined;
-    reason?: string | undefined;
-  }
-  | undefined;
+    approved?: boolean;
+    reason?: string;
+  };
 }
 
 export const ToolInvocationStateBadge: React.FC<ToolInvocationStateBadgeProps> = ({
   state,
-  toolTitle,
   toolName,
   isError,
   approval,
@@ -28,45 +25,71 @@ export const ToolInvocationStateBadge: React.FC<ToolInvocationStateBadgeProps> =
 
   const size = "small";
 
+  //
+  // ---------------------------
+  // PRIMARY STATUS BADGE
+  // ---------------------------
+  //
+  let statusBadge: React.ReactNode = null;
+
+  if (isError || state === "output-error") {
+    statusBadge = <Badge size={size} bg="severe">{t("error")}</Badge>;
+  }
+  else if (state === "output-available") {
+    statusBadge = <Badge size={size} bg="success">{t(state)}</Badge>;
+  }
+  else if (state === "input-streaming" || state === "input-available") {
+    statusBadge = <Badge size={size} bg="subtle">{t(state)}</Badge>;
+  }
+  else
+    if (
+      state !== "approval-responded"
+    ) {
+      statusBadge = <Badge size={size} bg="important">{t(state)}</Badge>;
+    }
+
+  //
+  // ---------------------------
+  // OPTIONAL APPROVAL BADGE
+  // ---------------------------
+  //
+  let approvalBadge: React.ReactNode = null;
+
+  if (approval?.approved === true) {
+
+    if (approval.reason === "YOLO" || approval.reason === "BRRR") {
+      approvalBadge = (
+        <BrrrBadge size={size} reason={approval.reason} />
+      );
+    }
+    else if (approval.reason === toolName) {
+      // Ayuto/tool-approved
+      approvalBadge = (
+        <Badge size={size} appearance="tint" bg="warning">
+          {t("tool")}
+        </Badge>
+      );
+    }
+    else {
+      approvalBadge = (
+        <Badge size={size} bg="success">
+          {t("output-approved")}
+        </Badge>
+      );
+    }
+  }
+  else if (approval?.approved === false) {
+    approvalBadge = (
+      <Badge size={size} bg="warning">
+        {t("output-denied")}
+      </Badge>
+    );
+  }
+
   return (
     <>
-      {state === "output-available" && (
-        isError ? (
-          <Badge size={size} bg="severe">{t("error")}</Badge>
-        ) : (
-          <Badge size={size} bg="success">{t(state)}</Badge>
-        )
-      )}
-
-      {
-        (state === "approval-responded" && isError) ? (
-          <Badge size={size} bg="severe">{t("error")}</Badge>
-        ) : approval?.approved == true &&
-          (approval?.reason === "YOLO" || approval?.reason === "BRRR") ? (
-          <BrrrBadge size={size} reason={approval?.reason} />
-        ) : approval?.approved == true && approval?.reason === toolName ? (
-          <Badge size={size} appearance={"tint"} bg="warning">
-            {t("tool")}
-          </Badge>
-        ) : approval?.approved == true ? (
-          <Badge size={size} bg="success">{t("output-approved")}</Badge>
-        ) : approval?.approved == false ? (
-          <Badge size={size} bg="warning">{t("output-denied")}</Badge>
-        ) : state !== "output-error"
-        && state !== "input-streaming"
-        && state !== "input-available"
-        && state !== "output-available"
-        && state !== "approval-responded"
-        && (
-          <Badge size={size} bg="important">{t(state)}</Badge>
-        )
-      }
-
-      {state === "output-error" && <Badge size={size} bg="severe">{t("error")}</Badge>}
-
-      {(state === "input-streaming" || state === "input-available") && (
-        <Badge size={size} bg="subtle">{t(state)}</Badge>
-      )}
+      {statusBadge}
+      {approvalBadge}
     </>
   );
 };

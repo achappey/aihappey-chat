@@ -12,7 +12,7 @@ export const ResourceCard = ({ resource, onSelect }: ResourceCardProps) => {
   const { Card, Button } = useTheme();
   const icon = <CapabilityIcon icons={resource?.icons} />;
   const content = resource?.description || resource?.uri;
-  const description = <div>
+  const description = <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
     <MimeTypeBadge
       mimeType={resource?.mimeType}
     />

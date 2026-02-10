@@ -5,4 +5,5 @@ export * from "./ModelContextCatalogSettingsForm";
 export * from "./ModelContextClientSettingsForm";
 export * from "./ModelContextExtensionsSettingsForm";
 export * from "./PromptArgumentsForm";
+export * from "./ResourceTemplateArgumentsForm";
 export * from "./ClientCapabilitiesForm";

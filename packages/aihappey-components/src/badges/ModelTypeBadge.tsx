@@ -15,7 +15,6 @@ export const ModelTypeBadge: React.FC<ModelTypeBadgeProps> = ({
     bg="informative"
     size="small"
     icon={modelType as any}
-    title={t('mimeType')}
     appearance={"outline"}
   >
     {t(modelType)}

@@ -21,6 +21,7 @@
   "sourceCode": "Broncode",
   "next": "Volgende",
   "previous": "Vorige",
+  "template": "Sjabloon",
   "apiKey": "API sleutel",
   "selectModelPlaceholder": "Selecteer AI-model...",
   "apiKeys": "API sleutels",

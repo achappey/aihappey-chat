@@ -1,5 +1,6 @@
 export * from "./DataCard";
 export * from "./ResourceCard";
+export * from "./ResourceTemplateCard";
 export * from "./RegistryServerCard";
 export * from "./McpServerCard";
 export * from "./ModelCard";

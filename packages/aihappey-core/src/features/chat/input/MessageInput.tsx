@@ -19,6 +19,9 @@ import { useResourceSelect } from "./useResourceSelect";
 import { readResource } from "../../../runtime/mcp/readResource";
 import { useDictation } from "./useDictation";
 import { useState } from "react";
+import { ResourceTemplateArgumentsModal } from "./ResourceTemplateArgumentsModal";
+import { applyTemplateParams, extractTemplateParams } from "./resourceTemplateUri";
+import type { ResourceTemplate } from "aihappey-state";
 
 export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
@@ -42,6 +45,11 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const promptPlaceholder = agentHint ?? t("promptPlaceholder");
   const resourceSelect = useResourceSelect();
   const [resourceLoading, setResourceLoading] = useState(false);
+  const [selectedResourceTemplate, setSelectedResourceTemplate] = useState<{
+    serverKey: string;
+    resourceTemplate: ResourceTemplate;
+  } | null>(null);
+  const [resourceTemplateModalOpen, setResourceTemplateModalOpen] = useState(false);
   const {
     value,
     setValue,
@@ -158,13 +166,14 @@ export const MessageInput = (props: UseMessageInputOptions) => {
               onPromptExecute={props.onPromptExecute}
             />
 
-            <ResourceSelectButton disabled={resourceSelect.resources.length == 0}
+            <ResourceSelectButton disabled={!resourceSelect.hasResources}
               onClick={() => resourceSelect.setOpen(true)}
             />
 
             <ResourceSelectModal
               open={resourceSelect.open}
               resources={resourceSelect.resources}
+              resourceTemplates={resourceSelect.resourceTemplates}
               onHide={() => resourceSelect.setOpen(false)}
               onSelect={async (uri) => {
                 resourceSelect.setOpen(false);
@@ -180,6 +189,75 @@ export const MessageInput = (props: UseMessageInputOptions) => {
                 } finally {
                   setResourceLoading(false)
 
+                }
+              }}
+              onSelectTemplate={async (uriTemplate) => {
+                resourceSelect.setOpen(false);
+
+                const hit = resourceSelect.resolveTemplate(uriTemplate);
+                if (!hit) return;
+
+                const argNames = extractTemplateParams(uriTemplate);
+                if (argNames.length === 0) {
+                  try {
+                    setResourceLoading(true);
+                    const resolvedUri = applyTemplateParams(uriTemplate, {});
+                    const result = await readResource(hit.serverKey, resolvedUri);
+                    mcpResourceRuntime.add(
+                      {
+                        uri: resolvedUri,
+                        name: hit.resourceTemplate.name,
+                        title: hit.resourceTemplate.title,
+                        description: hit.resourceTemplate.description,
+                        mimeType: hit.resourceTemplate.mimeType,
+                        annotations: hit.resourceTemplate.annotations,
+                      } as any,
+                      result
+                    );
+                  } finally {
+                    setResourceLoading(false);
+                  }
+                  return;
+                }
+
+                setSelectedResourceTemplate(hit);
+                setResourceTemplateModalOpen(true);
+              }}
+            />
+
+            <ResourceTemplateArgumentsModal
+              open={resourceTemplateModalOpen}
+              serverKey={selectedResourceTemplate?.serverKey}
+              resourceTemplate={selectedResourceTemplate?.resourceTemplate}
+              onHide={() => {
+                setResourceTemplateModalOpen(false);
+                setSelectedResourceTemplate(null);
+                resourceSelect.setOpen(true);
+              }}
+              onExecute={async (argumentsMap) => {
+                if (!selectedResourceTemplate) return;
+
+                const resolvedUri = applyTemplateParams(
+                  selectedResourceTemplate.resourceTemplate.uriTemplate,
+                  argumentsMap
+                );
+
+                try {
+                  setResourceLoading(true);
+                  const result = await readResource(selectedResourceTemplate.serverKey, resolvedUri);
+                  mcpResourceRuntime.add(
+                    {
+                      uri: resolvedUri,
+                      name: selectedResourceTemplate.resourceTemplate.name,
+                      title: selectedResourceTemplate.resourceTemplate.title,
+                      description: selectedResourceTemplate.resourceTemplate.description,
+                      mimeType: selectedResourceTemplate.resourceTemplate.mimeType,
+                      annotations: selectedResourceTemplate.resourceTemplate.annotations,
+                    } as any,
+                    result
+                  );
+                } finally {
+                  setResourceLoading(false);
                 }
               }}
             />

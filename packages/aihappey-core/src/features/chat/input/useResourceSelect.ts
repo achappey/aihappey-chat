@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { useAppStore } from "aihappey-state";
-import type { Resource } from "@modelcontextprotocol/sdk/types";
+import type { Resource, ResourceTemplate } from "@modelcontextprotocol/sdk/types";
 
 export type SelectedResource = {
   serverKey: string;
   resource: Resource;
+};
+
+export type SelectedResourceTemplate = {
+  serverKey: string;
+  resourceTemplate: ResourceTemplate;
 };
 
 export function useResourceSelect() {
@@ -18,8 +23,24 @@ export function useResourceSelect() {
       }))
   );
 
+  const templateIndex = Object.entries(mcpServerContent).flatMap(
+    ([serverKey, content]) =>
+      (content.resourceTemplates ?? []).map((resourceTemplate) => ({
+        resourceTemplate,
+        serverKey,
+      }))
+  );
+
   const resources = index
     .map((x) => x.resource)
+    .filter(
+      (r) =>
+        !r.annotations ||
+        (r.annotations as any)?.audience?.includes("user")
+    );
+
+  const resourceTemplates = templateIndex
+    .map((x) => x.resourceTemplate)
     .filter(
       (r) =>
         !r.annotations ||
@@ -31,9 +52,13 @@ export function useResourceSelect() {
     open,
     setOpen,
     resources,
-    hasResources: resources.length > 0,
+    resourceTemplates,
+    hasResources: resources.length > 0 || resourceTemplates.length > 0,
     resolve(uri: string): SelectedResource | undefined {
       return index.find((x) => x.resource.uri === uri);
+    },
+    resolveTemplate(uriTemplate: string): SelectedResourceTemplate | undefined {
+      return templateIndex.find((x) => x.resourceTemplate.uriTemplate === uriTemplate);
     },
   };
 }

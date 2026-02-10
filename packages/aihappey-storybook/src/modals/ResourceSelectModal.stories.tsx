@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Resource } from "@modelcontextprotocol/sdk/types.js";
+import type { ResourceTemplate } from "aihappey-mcp";
 import type { Meta, StoryObj } from "@storybook/react";
 import { ResourceSelectModal } from "aihappey-components";
 
@@ -35,6 +36,25 @@ const SAMPLE_RESOURCES: Resource[] = [
     },
 ];
 
+const SAMPLE_RESOURCE_TEMPLATES: ResourceTemplate[] = [
+    {
+        uriTemplate: "mcp://customers/{customerId}",
+        name: "Customer by id",
+        title: "Customer by id",
+        description: "Template resource requiring customerId argument",
+        mimeType: "application/json",
+        annotations: { priority: 0.7 },
+    },
+    {
+        uriTemplate: "mcp://products/{sku}/reviews/{locale}",
+        name: "Product reviews",
+        title: "Product reviews",
+        description: "Template resource with two URI variables",
+        mimeType: "application/json",
+        annotations: { priority: 0.5 },
+    },
+];
+
 type ControlledProps = Omit<React.ComponentProps<typeof ResourceSelectModal>, "open" | "onHide"> & {
     initialOpen: boolean;
 };
@@ -54,6 +74,10 @@ const Controlled: React.FC<ControlledProps> = ({ initialOpen, ...args }) => {
                 args.onSelect(uri);
                 setOpen(false);
             }}
+            onSelectTemplate={(uriTemplate) => {
+                (args as any).onSelectTemplate?.(uriTemplate);
+                setOpen(false);
+            }}
         />
     );
 };
@@ -64,14 +88,17 @@ const meta = {
     component: ResourceSelectModal,
     args: {
         resources: SAMPLE_RESOURCES,
+        resourceTemplates: SAMPLE_RESOURCE_TEMPLATES,
         open: true,
         onSelect: (() => { }) as any,
+        onSelectTemplate: (() => { }) as any,
         onHide: (() => { }) as any,
     },
     argTypes: {
         resources: { control: "object" },
         open: { control: false }, // controlled by wrapper
         onSelect: { action: "select", control: false },
+        onSelectTemplate: { action: "selectTemplate", control: false },
         onHide: { action: "hide", control: false },
     },
 } satisfies Meta<typeof ResourceSelectModal>;
