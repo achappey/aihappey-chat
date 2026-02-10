@@ -11,6 +11,8 @@ const BETA_OPTIONS = [
     "fine-grained-tool-streaming-2025-05-14",
     "mcp-client-2025-04-04",
     "skills-2025-10-02",
+    "compact-2026-01-12",
+    "context-1m-2025-08-07"
 ];
 
 export const AnthropicBetaCard = ({

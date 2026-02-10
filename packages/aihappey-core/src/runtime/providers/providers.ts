@@ -87,6 +87,7 @@ import { ionos } from "./catalog/ionos";
 import { bergetai } from "./catalog/bergetai";
 import { opperai } from "./catalog/opperai";
 import { cortecs } from "./catalog/cortecs";
+import { inworld } from "./catalog/inworld";
 
 /**
  * UI-facing provider catalog.
@@ -112,6 +113,7 @@ export const PROVIDERS: Record<string, Provider> = {
   googletranslate,
   siliconflow,
   ovhcloud,
+  inworld,
   arklabs,
   lingvanex,
   cortecs,
