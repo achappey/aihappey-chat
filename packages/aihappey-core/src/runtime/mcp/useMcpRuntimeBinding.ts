@@ -14,12 +14,13 @@ import { useConversations } from "aihappey-conversations";
 import { progressRuntime } from "./progressRuntime";
 import { ModelOption } from "aihappey-types";
 
-
 export const applyModelHintsToParams = (
     params: CreateMessageRequest,
     models: ModelOption[] | undefined
 ): CreateMessageRequest => {
+
     const hints = params?.params?.modelPreferences?.hints;
+    const meta = params?.params?.metadata;
 
     if (!models || !hints) return params;
 
@@ -32,13 +33,27 @@ export const applyModelHintsToParams = (
         return modelName != null && modelNames.includes(modelName);
     });
 
+    // ---- provider preference ----
+    const preferredProviders =
+        meta != null
+            ? new Set(Object.keys(meta))
+            : undefined;
+
+    const orderedModels =
+        preferredProviders && preferredProviders.size > 0
+            ? [
+                ...activeModels.filter(m => preferredProviders.has(m.id.split("/")[0])),
+                ...activeModels.filter(m => !preferredProviders.has(m.id.split("/")[0]))
+            ]
+            : activeModels;
+
     return {
         ...params,
         params: {
             ...params.params,
             modelPreferences: {
                 ...params.params?.modelPreferences,
-                hints: activeModels.map(m => ({ name: m.id }))
+                hints: orderedModels.map(m => ({ name: m.id }))
             }
         }
     };

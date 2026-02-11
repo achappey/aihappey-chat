@@ -88,6 +88,15 @@ import { bergetai } from "./catalog/bergetai";
 import { opperai } from "./catalog/opperai";
 import { cortecs } from "./catalog/cortecs";
 import { inworld } from "./catalog/inworld";
+import { eurouter } from "./catalog/eurouter";
+import { requesty } from "./catalog/requesty";
+import { sudo } from "./catalog/sudo";
+import { portkey } from "./catalog/portkey";
+import { deepl } from "./catalog/deepl";
+import { cometapi } from "./catalog/cometapi";
+import { nextbit } from "./catalog/nextbit";
+import { deepbricks } from "./catalog/deepbricks";
+import { segmind } from "./catalog/segmind";
 
 /**
  * UI-facing provider catalog.
@@ -101,6 +110,7 @@ export const PROVIDERS: Record<string, Provider> = {
   anthropic,
   euqai,
   google,
+  segmind,
   mistral,
   lectoai,
   gmicloud,
@@ -112,12 +122,16 @@ export const PROVIDERS: Record<string, Provider> = {
   together,
   googletranslate,
   siliconflow,
+  deepbricks,
   ovhcloud,
   inworld,
+  cometapi,
   arklabs,
   lingvanex,
+  nextbit,
   cortecs,
   opperai,
+  eurouter,
   upstage,
   ionos,
   bergetai,
@@ -125,8 +139,10 @@ export const PROVIDERS: Record<string, Provider> = {
   pollinations,
   nlpcloud,
   hyperstack,
+  requesty,
   perplexity,
   json2video,
+  deepl,
   speechmatics,
   gtranslate,
   moonshot,
@@ -141,8 +157,10 @@ export const PROVIDERS: Record<string, Provider> = {
   assemblyai,
   gladia,
   kernelmemory,
+  portkey,
   minimax,
   sarvam,
+  sudo,
   deepgram,
   voyageai,
   friendli,
