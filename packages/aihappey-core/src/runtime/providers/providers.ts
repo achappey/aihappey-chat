@@ -97,6 +97,9 @@ import { cometapi } from "./catalog/cometapi";
 import { nextbit } from "./catalog/nextbit";
 import { deepbricks } from "./catalog/deepbricks";
 import { segmind } from "./catalog/segmind";
+import { rekaai } from "./catalog/rekaai";
+import { openrouter } from "./catalog/openrouter";
+import { ai302 } from "./catalog/302ai";
 
 /**
  * UI-facing provider catalog.
@@ -109,6 +112,7 @@ export const PROVIDERS: Record<string, Provider> = {
   aiml,
   anthropic,
   euqai,
+  rekaai,
   google,
   segmind,
   mistral,
@@ -152,6 +156,8 @@ export const PROVIDERS: Record<string, Provider> = {
   jina,
   publicai,
   nscale,
+  openrouter,
+  ai302,
   primeintellect,
   resembleai,
   assemblyai,

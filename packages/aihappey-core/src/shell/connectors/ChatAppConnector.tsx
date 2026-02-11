@@ -47,7 +47,6 @@ export const ChatAppConnector = ({
       ? async (server: string, params: CreateMessageRequest) => {
 
         const withModels = applyModelHintsToParams(params, modelsRef.current);
-        //if(withModels.params.modelPreferences?.hints?.length == 0) throw new Error("dsadsa")
         let accessToken: string | null = null;
 
         try {
