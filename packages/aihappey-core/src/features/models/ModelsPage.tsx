@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppStore } from "aihappey-state";
 import { ModelCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
@@ -10,6 +10,7 @@ import type { GenericDataGridColumn, ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 export const ModelsPage = () => {
+  const PAGE_SIZE = 50;
   const { SearchBox, Text, Tabs, Tab, ToggleButton, DataGrid, Button, Image } = useTheme();
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -23,6 +24,11 @@ export const ModelsPage = () => {
   const isDesktop = useIsDesktop()
 
   const [viewMode, setViewMode] = useState<"cards" | "grid">("cards");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [activeTab, search]);
 
   const collator = useMemo(
     () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
@@ -133,7 +139,7 @@ export const ModelsPage = () => {
             title={t("ai.title")}
           />
 
-          <Text as="p" align={"center" }>
+          <Text as="p" align={"center"}>
             {t("ai.description", { total: models?.length })}
           </Text>
 
@@ -212,35 +218,53 @@ export const ModelsPage = () => {
                   }
 
                   return (
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr",
-                        gap: 16,
-                        paddingTop: 12,
-                        width: "100%",
-                        maxWidth: 700,
-                        marginBottom: 24,
-                        justifyItems: "center",
-                      }}
-                    >
-                      {tabFiltered?.map(r => {
-                        const providerId = r.id.split("/")[0].toLowerCase();
-                        const provider = PROVIDERS[providerId];
-                    
-                        return (
-                          <div key={r.id}
-                            style={{
-                              width: "100%"
-                            }}>
-                            <ModelCard
-                              model={r}
-                              provider={provider}
-                              onChat={() => navigate(`/?model=${r.id}`)}
-                            />
-                          </div>
-                        );
-                      })}
+                    <div style={{ width: "100%", maxWidth: 700, marginBottom: 24 }}>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr",
+                          gap: 16,
+                          paddingTop: 12,
+                          width: "100%",
+                          justifyItems: "center",
+                        }}
+                      >
+                        {tabFiltered?.slice(0, visibleCount).map(r => {
+                          const providerId = r.id.split("/")[0].toLowerCase();
+                          const provider = PROVIDERS[providerId];
+
+                          return (
+                            <div key={r.id}
+                              style={{
+                                width: "100%"
+                              }}>
+                              <ModelCard
+                                model={r}
+                                provider={provider}
+                                onChat={() => navigate(`/?model=${r.id}`)}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {!!tabFiltered && tabFiltered.length > visibleCount && (
+                        <div
+                          style={{
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "center",
+                            marginTop: 16,
+                          }}
+                        >
+                          <Button
+                            variant="subtle"
+                            onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                          >
+                            {t('showMore')}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}

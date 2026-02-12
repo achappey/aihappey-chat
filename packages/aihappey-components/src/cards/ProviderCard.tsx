@@ -1,5 +1,6 @@
 import { useTheme } from "../theme/ThemeContext";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
+import { ViewButton } from "../buttons/ViewButton";
 import { LimitedTextField } from "../fields";
 import { ExperimentalBadge, ModelTypeBadge } from "../badges";
 
@@ -10,6 +11,7 @@ export type ProviderCardProps = {
     description?: string;
     experimental?: boolean;
     modelTypes?: string[];
+    onView?: () => void;
 };
 
 export const ProviderCard = ({
@@ -19,6 +21,7 @@ export const ProviderCard = ({
     description,
     experimental,
     modelTypes,
+    onView,
 }: ProviderCardProps) => {
     const { Card, Image } = useTheme();
 
@@ -48,7 +51,18 @@ export const ProviderCard = ({
             title={name}
             description={descriptionItem}
             image={imageItem}
-            actions={<OpenLinkButton url={url} size="small" variant="subtle" />}
+            actions={
+                <div style={{ display: "flex", gap: 8 }}>
+                    {onView && (
+                        <ViewButton
+                            onClick={onView}
+                            size="small"
+                            variant="subtle"
+                        />
+                    )}
+                    <OpenLinkButton url={url} size="small" variant="subtle" />
+                </div>
+            }
         >
             <LimitedTextField text={description} />
         </Card>

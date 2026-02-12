@@ -32,3 +32,18 @@ export const LongName: Story = {
   },
 };
 
+export const WithViewAction: Story = {
+  args: {
+    name: "Anthropic",
+    url: "https://anthropic.com",
+    image: "https://placehold.co/32x32?text=A",
+    description: "Provider with View + external link actions",
+    experimental: true,
+    modelTypes: ["language", "image"],
+    onView: () => {
+      // Storybook demo action placeholder
+      console.log("ProviderCard view clicked");
+    },
+  },
+};
+

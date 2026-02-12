@@ -8,4 +8,4 @@ export * from "./ToolDetailsModal";
 export * from "./AppSaveModal";
 export * from "./WizardModal";
 export * from "./WizardStepHeader";
-
+export * from "./ProviderDetailModal";

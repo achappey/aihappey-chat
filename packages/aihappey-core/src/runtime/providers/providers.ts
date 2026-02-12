@@ -100,6 +100,7 @@ import { segmind } from "./catalog/segmind";
 import { rekaai } from "./catalog/rekaai";
 import { openrouter } from "./catalog/openrouter";
 import { ai302 } from "./catalog/302ai";
+import { matterai } from "./catalog/matterai";
 
 /**
  * UI-facing provider catalog.
@@ -154,6 +155,7 @@ export const PROVIDERS: Record<string, Provider> = {
   decart,
   relaxai,
   jina,
+  matterai,
   publicai,
   nscale,
   openrouter,

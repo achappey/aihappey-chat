@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ProviderCard, useTheme } from "aihappey-components";
+import { ProviderCard, ProviderDetailModal, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useDarkMode } from "usehooks-ts";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
@@ -16,6 +16,7 @@ export const ProvidersPage = () => {
     const { t } = useTranslation();
     const { isDarkMode } = useDarkMode();
     const [search, setSearch] = useState("");
+    const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(null);
     const models = useAppStore((s) => s.models);
     const collator = useMemo(
         () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
@@ -56,6 +57,31 @@ export const ProvidersPage = () => {
             return haystack.includes(q);
         });
     }, [providers, search]);
+
+    const selectedProvider = useMemo(
+        () => providers.find((p) => p.key === selectedProviderKey) ?? null,
+        [providers, selectedProviderKey]
+    );
+
+    const selectedProviderImage = useMemo(() => {
+        if (!selectedProvider) return undefined;
+        return (
+            selectedProvider.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))?.src ??
+            selectedProvider.icons?.[0]?.src
+        );
+    }, [selectedProvider, isDarkMode]);
+
+    const selectedProviderModelTypes = useMemo(() => {
+        if (!selectedProvider) return [];
+        return Array.from(
+            new Set(
+                orderedModels
+                    ?.filter((m) => m.id.startsWith(selectedProvider.key + "/"))
+                    .map((m) => m.type)
+                    .filter(Boolean)
+            )
+        );
+    }, [orderedModels, selectedProvider]);
 
     return (
         <>
@@ -132,12 +158,29 @@ export const ProvidersPage = () => {
                                         image={image}
                                         description={p.description ?? p.key}
                                         modelTypes={modelTypes}
+                                        onView={() => setSelectedProviderKey(p.key)}
                                     />
                                 </div>
                             );
                         })}
 
                     </div>
+
+                    {selectedProvider && (
+                        <ProviderDetailModal
+                            open={!!selectedProvider}
+                            onClose={() => setSelectedProviderKey(null)}
+                            providerKey={selectedProvider.key}
+                            providerName={selectedProvider.name}
+                            providerUrl={selectedProvider.url}
+                            providerDescription={selectedProvider.description}
+                            providerImage={selectedProviderImage}
+                            providerExperimental={selectedProvider.experimental}
+                            modelTypes={selectedProviderModelTypes}
+                            models={orderedModels}
+                            provider={selectedProvider}
+                        />
+                    )}
                 </div>
             </div>
         </>
