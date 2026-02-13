@@ -101,6 +101,11 @@ import { rekaai } from "./catalog/rekaai";
 import { openrouter } from "./catalog/openrouter";
 import { ai302 } from "./catalog/302ai";
 import { matterai } from "./catalog/matterai";
+import { bytez } from "./catalog/bytez";
+import { sunoapi } from "./catalog/sunoapi";
+import { horayai } from "./catalog/horayai";
+import { synexa } from "./catalog/synexa";
+import { recraft } from "./catalog/recraft";
 
 /**
  * UI-facing provider catalog.
@@ -145,16 +150,21 @@ export const PROVIDERS: Record<string, Provider> = {
   nlpcloud,
   hyperstack,
   requesty,
+  recraft,
   perplexity,
   json2video,
   deepl,
   speechmatics,
   gtranslate,
+  synexa,
   moonshot,
   greenpt,
   decart,
   relaxai,
+  horayai,
   jina,
+  sunoapi,
+  bytez,
   matterai,
   publicai,
   nscale,
