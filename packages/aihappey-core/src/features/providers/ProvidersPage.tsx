@@ -155,6 +155,7 @@ export const ProvidersPage = () => {
                                         name={p.name}
                                         experimental={p.experimental}
                                         url={p.url}
+                                        urls={p.urls}
                                         image={image}
                                         description={p.description ?? p.key}
                                         modelTypes={modelTypes}
@@ -173,6 +174,7 @@ export const ProvidersPage = () => {
                             providerKey={selectedProvider.key}
                             providerName={selectedProvider.name}
                             providerUrl={selectedProvider.url}
+                            providerUrls={selectedProvider.urls}
                             providerDescription={selectedProvider.description}
                             providerImage={selectedProviderImage}
                             providerExperimental={selectedProvider.experimental}

@@ -165,7 +165,16 @@
     "title": "Artificial Intelligence",
     "providers": "Een overzicht van alle {{total}} beschikbare AI-providers. Per provider zie je wat deze biedt, voor welke toepassingen hij geschikt is en wanneer het logisch is om hem te gebruiken. Dit helpt je om per taak of workflow de juiste provider te kiezen op een duidelijke en consistente manier.",
     "models": "AI-modellen",
-    "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier."
+    "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier.",
+    "mesh": {
+      "title": "AI-mesh",
+      "description": "De AI-mesh laat zien hoe de {{total}} modellen, providers en mogelijkheden met elkaar verbonden zijn binnen één netwerk. Je ziet per model waar het vandaan komt, hoe het zich verhoudt tot andere modellen en voor welk type taak het logisch is om het in te zetten. Dit maakt routering, vergelijking en keuze transparant zonder vast te zitten aan één provider.",
+      "network": "Provider-modelnetwerk",
+      "providersPerModel": "Top 20 modellen met de meeste providers",
+      "networkSummary": "{{providers}} providers, {{models}} unieke modellen en {{links}} verbindingen",
+      "stackedByProvider": "Unieke modellen per provider en modeltype",
+      "uniqueModels": "Unieke genormaliseerde modellen"
+    }
   },
   "workflows": {
     "concurrent": "Tegelijkertijd",

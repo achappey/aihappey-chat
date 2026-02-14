@@ -21,6 +21,7 @@ import { VideoPage } from "../features/videos/VideoPage";
 import { useTheme } from "aihappey-components";
 import { ModelsPage } from "../features/models/ModelsPage";
 import { ProvidersPage } from "../features/providers/ProvidersPage";
+import { MeshPage } from "../features/providers/MeshPage";
 import { TranscriptionsPage } from "../features/transcriptions/TranscriptionsPage";
 import { SpeechPage } from "../features/speech/SpeechPage";
 import { ToolsPage } from "../features/tools/ToolsPage";
@@ -110,6 +111,7 @@ export const CoreRoot = ({
             { path: "model-context-catalog", element: <ServersPage /> },
             { path: "models", element: <ModelsPage /> },
             { path: "providers", element: <ProvidersPage /> },
+            { path: "mesh", element: <MeshPage /> },
             { path: "tools", element: <ToolsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },

@@ -9,6 +9,6 @@ export const upstage: Provider = {
       src: "https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/upstage-color.png",
     },
   ],
-  url: "https://www.upstage.ai",
+  urls: { website: "https://www.upstage.ai" },
 };
 

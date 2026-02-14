@@ -166,6 +166,7 @@
   "providerDefault": "Provider default",
   "custom": "Custom",
   "providers": "Providers",
+  "mesh": "Mesh",
   "agents": {
     "title": "Agents",
     "description": "Agents are autonomous units that combine capabilities, context, and execution flow into a single model. This ensures predictable behavior, easy scaling, and consistent integration across different environments.",
@@ -177,7 +178,16 @@
     "title": "Artificial Intelligence",
     "models": "AI Models",
     "description": "An overview of all {{total}} available AI models. For each model, you can see its capabilities, intended use, and how it compares to other models. This helps you choose the right model per task, use case, or workflow in a transparent and consistent way.",
-    "providers": "An overview of all {{total}} available AI providers. For each provider, you can see what it offers, how it fits into different use cases, and when it makes sense to use it. This helps you select the right provider per task or workflow in a clear and consistent way."
+    "providers": "An overview of all {{total}} available AI providers. For each provider, you can see what it offers, how it fits into different use cases, and when it makes sense to use it. This helps you select the right provider per task or workflow in a clear and consistent way.",
+    "mesh": {
+      "title": "AI mesh",
+      "description": "The AI mesh shows how the {{total}} models, providers, and capabilities are connected within a single network. For each model, you can see where it comes from, how it relates to other models, and which types of tasks it is best suited for. This makes routing, comparison, and selection transparent without being tied to a single provider.",
+      "network": "Provider-model network",
+      "providersPerModel": "Top 20 models with most providers",
+      "networkSummary": "{{providers}} providers, {{models}} unique models and {{links}} links",
+      "stackedByProvider": "Unique normalized models per provider and model type",
+      "uniqueModels": "Unique normalized models"
+    }
   },
   "workflows": {
     "concurrent": "Concurrent",

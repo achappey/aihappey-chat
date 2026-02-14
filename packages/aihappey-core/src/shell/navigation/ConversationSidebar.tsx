@@ -150,6 +150,12 @@ export const ConversationSidebar = ({
           href: "/providers",
           icon: "providers",
         },
+        {
+          key: "mesh",
+          label: t("mesh"),
+          href: "/mesh",
+          icon: "chart",
+        },
       ],
     },
     {
@@ -258,6 +264,8 @@ export const ConversationSidebar = ({
           ? "models"
           : location.pathname === "/providers"
             ? "providers"
+            : location.pathname === "/mesh"
+              ? "mesh"
             : location.pathname === "/tools"
               ? "tools"
               : location.pathname === "/files"
@@ -284,6 +292,8 @@ export const ConversationSidebar = ({
       await navigate("/models");
     } else if (id === "providers") {
       await navigate("/providers");
+    } else if (id === "mesh") {
+      await navigate("/mesh");
     } else if (id === "tools") {
       await navigate("/tools");
     } else if (id === "files") {

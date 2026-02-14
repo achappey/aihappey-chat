@@ -8,9 +8,16 @@ export * from "./models";
 
 export type Provider = {
     name: string;
-    url: string;
+    url?: string;
     description?: string
     experimental?: boolean
     icons: Icon[];
     hosting?: "us" | "europe" | "asia" | "unknown";
+    urls?: ProviderUrls;
+};
+
+export type ProviderUrls = {
+    website: string;
+    documentation?: string;
+    portal?: string
 };

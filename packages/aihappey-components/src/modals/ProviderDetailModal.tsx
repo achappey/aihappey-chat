@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import type { ModelOption, Provider } from "aihappey-types";
+import type { ModelOption, Provider, ProviderUrls } from "aihappey-types";
 
 import { ModelCard } from "../cards/ModelCard";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
@@ -12,7 +12,8 @@ export type ProviderDetailModalProps = {
 
     providerKey: string;
     providerName: string;
-    providerUrl: string;
+    providerUrl?: string;
+    providerUrls?: ProviderUrls;
     providerDescription?: string;
     providerImage?: string;
     providerExperimental?: boolean;
@@ -32,6 +33,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     providerKey,
     providerName,
     providerUrl,
+    providerUrls,
     providerDescription,
     providerImage,
     providerExperimental,
@@ -85,11 +87,20 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     const getModelTypeLabel = (type: string, count: number) => {
         const translated = t(type);
         return (translated && translated.trim().length > 0 ? translated : type)
-         + ` (${count})`;
+            + ` (${count})`;
     };
 
     const hasAnyModels = providerModels.length > 0;
     const hasModelTypeTabs = supportedModelTypes.length > 0;
+    const url = providerUrls?.website ?? providerUrl;
+
+    const openLinkButton = url ? <OpenLinkButton
+        url={url}
+        size="small"
+        variant="subtle"
+        text={providerHost}
+        disabled={!providerUrl}
+    /> : undefined;
 
     return (
         <Modal
@@ -112,13 +123,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                             ? <Image height={40} shape="square" src={providerImage} />
                             : undefined}
                             title={providerName}
-                            actions={<OpenLinkButton
-                                url={providerUrl}
-                                size="small"
-                                variant="subtle"
-                                text={providerHost}
-                                disabled={!providerUrl}
-                            />}>
+                            actions={openLinkButton}>
                             <div>{providerDescription}</div>
                         </Card>
                     </div>

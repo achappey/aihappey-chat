@@ -3,10 +3,12 @@ import { OpenLinkButton } from "../buttons/OpenLinkButton";
 import { ViewButton } from "../buttons/ViewButton";
 import { LimitedTextField } from "../fields";
 import { ExperimentalBadge, ModelTypeBadge } from "../badges";
+import { ProviderUrls } from "aihappey-types";
 
 export type ProviderCardProps = {
     name: string;
-    url: string;
+    url?: string;
+    urls?: ProviderUrls;
     image?: string;
     description?: string;
     experimental?: boolean;
@@ -17,6 +19,7 @@ export type ProviderCardProps = {
 export const ProviderCard = ({
     name,
     url,
+    urls,
     image,
     description,
     experimental,
@@ -24,6 +27,7 @@ export const ProviderCard = ({
     onView,
 }: ProviderCardProps) => {
     const { Card, Image } = useTheme();
+    const websiteUrl = urls?.website ?? url;
 
     const imageItem = image ? (
         <Image height={32} shape="square" src={image} />
@@ -60,7 +64,11 @@ export const ProviderCard = ({
                             variant="subtle"
                         />
                     )}
-                    <OpenLinkButton url={url} size="small" variant="subtle" />
+                    {websiteUrl
+                        && <OpenLinkButton
+                            url={websiteUrl}
+                            size="small"
+                            variant="subtle" />}
                 </div>
             }
         >
