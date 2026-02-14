@@ -6,7 +6,7 @@ export const audixa: Provider = {
     "Skip the overpriced APIs. Get blazing-fast, studio-quality speech for a fraction of the cost.",
   icons: [
     {
-      src: "https://cdn.audixa.ai/audixa.jpg",
+      src: "https://cdn.audixa.ai/brand.png",
     },
   ],
   url: "https://audixa.ai",
