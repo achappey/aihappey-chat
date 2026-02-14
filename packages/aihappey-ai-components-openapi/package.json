@@ -17,7 +17,7 @@
     }
   },
   "dependencies": {
-    "@json-render/core": "^0.5.0",
+    "@json-render/core": "^0.6.0",
     "aihappey-components": "*",
     "json-schema-to-zod": "^2.7.0",
     "zod": "^4.3.6"

@@ -2,12 +2,8 @@
 
 import React, { type ComponentType, type ReactNode, useMemo } from "react";
 import type {
-  UIElement,
   Spec,
   Action,
-  Catalog,
-  ComponentDefinition,
-  SchemaDefinition,
 } from "@json-render/core";
 import { validateSpec, autoFixSpec } from "@json-render/core";
 import {
@@ -19,21 +15,24 @@ import {
   ConfirmDialog,
   useActions,
 } from "@json-render/react";
+import type {
+  ComponentRenderProps as JsonRenderComponentRenderProps,
+  ComponentRenderer as JsonRenderComponentRenderer,
+  ComponentRegistry as JsonRenderComponentRegistry,
+} from "@json-render/react";
 
 /**
  * Props passed to component renderers
  */
 export interface ComponentRenderProps<P = Record<string, unknown>> {
-  /** The element being rendered */
-  element: UIElement<string, P>;
-  /** Rendered children */
-  children?: ReactNode;
-  /** Emit a named event mapped from element.on */
-  emit?: (event: string) => void;
+  /** Base json-render props */
+  element: JsonRenderComponentRenderProps<P>["element"];
+  children?: JsonRenderComponentRenderProps<P>["children"];
+  emit: JsonRenderComponentRenderProps<P>["emit"];
+  bindings?: JsonRenderComponentRenderProps<P>["bindings"];
+  loading?: JsonRenderComponentRenderProps<P>["loading"];
   /** Execute an action */
-  onAction?: (action: Action) => void;
-  /** Whether the parent is loading */
-  loading?: boolean;
+  onAction?: (action: Action | string) => void;
 }
 
 /**
@@ -84,18 +83,50 @@ function resolveRenderableRoot(spec: Spec): string | null {
   return null;
 }
 
+function resolveStreamingFallbackRoot(
+  spec: Spec,
+  lastRenderableRoot: string | null,
+  loading?: boolean,
+): string | null {
+  const elements = (spec as any)?.elements ?? {};
+  const keys = Object.keys(elements);
+  if (keys.length === 0) return null;
+
+  const root = String((spec as any)?.root ?? "").trim();
+  const shouldAttemptFallback = Boolean(loading) || !root;
+  if (!shouldAttemptFallback) return null;
+
+  if (lastRenderableRoot && elements[lastRenderableRoot]) {
+    return lastRenderableRoot;
+  }
+
+  const referenced = new Set<string>();
+  for (const key of keys) {
+    const children = (elements[key] as any)?.children;
+    if (!Array.isArray(children)) continue;
+    for (const childKey of children) {
+      referenced.add(String(childKey));
+    }
+  }
+
+  const candidates = keys.filter((k) => !referenced.has(k)).sort();
+  if (candidates.length > 0) return candidates[0];
+
+  return keys.sort()[0] ?? null;
+}
+
 function LegacyActionBridge({
   Component,
   props,
 }: {
   Component: ComponentRenderer<any>;
-  props: any;
+  props: JsonRenderComponentRenderProps<any>;
 }) {
   const { execute } = useActions();
 
   const onAction = (action: unknown) => {
     if (typeof action === "string") {
-      props.emit?.(action);
+      props.emit(action);
       return;
     }
     if (action && typeof action === "object" && "action" in (action as Record<string, unknown>)) {
@@ -111,6 +142,8 @@ function LegacyActionBridge({
  */
 export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
   const issueSignatureRef = React.useRef("");
+  const lastRenderableRootRef = React.useRef<string | null>(null);
+  const lastRenderableSpecRef = React.useRef<Spec | null>(null);
 
   const normalizedSpec = useMemo(() => {
     if (!spec) return null;
@@ -119,8 +152,27 @@ export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
     if (validation.valid) {
       issueSignatureRef.current = "";
       const renderRoot = resolveRenderableRoot(spec);
-      if (!renderRoot) return null;
-      return renderRoot === spec.root ? spec : { ...spec, root: renderRoot };
+      if (!renderRoot) {
+        const fallbackRoot = resolveStreamingFallbackRoot(
+          spec,
+          lastRenderableRootRef.current,
+          loading,
+        );
+        if (!fallbackRoot) {
+          if (loading && lastRenderableSpecRef.current) {
+            return lastRenderableSpecRef.current;
+          }
+          return null;
+        }
+        const nextSpec = fallbackRoot === spec.root ? spec : { ...spec, root: fallbackRoot };
+        lastRenderableRootRef.current = fallbackRoot;
+        lastRenderableSpecRef.current = nextSpec;
+        return nextSpec;
+      }
+      lastRenderableRootRef.current = renderRoot;
+      const nextSpec = renderRoot === spec.root ? spec : { ...spec, root: renderRoot };
+      lastRenderableSpecRef.current = nextSpec;
+      return nextSpec;
     }
 
     const fixed = autoFixSpec(spec);
@@ -136,17 +188,36 @@ export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
 
     const renderRoot = resolveRenderableRoot(fixed.spec as Spec);
     if (!renderRoot) {
-      return null;
+      const fallbackRoot = resolveStreamingFallbackRoot(
+        fixed.spec as Spec,
+        lastRenderableRootRef.current,
+        loading,
+      );
+      if (!fallbackRoot) {
+        if (loading && lastRenderableSpecRef.current) {
+          return lastRenderableSpecRef.current;
+        }
+        return null;
+      }
+      lastRenderableRootRef.current = fallbackRoot;
+      const nextSpec = fallbackRoot === (fixed.spec as any)?.root
+        ? fixed.spec
+        : { ...(fixed.spec as any), root: fallbackRoot };
+      lastRenderableSpecRef.current = nextSpec as Spec;
+      return nextSpec;
     }
 
-    return renderRoot === (fixed.spec as any)?.root
+    lastRenderableRootRef.current = renderRoot;
+    const nextSpec = renderRoot === (fixed.spec as any)?.root
       ? fixed.spec
       : { ...(fixed.spec as any), root: renderRoot };
-  }, [spec]);
+    lastRenderableSpecRef.current = nextSpec as Spec;
+    return nextSpec;
+  }, [spec, loading]);
 
-  const compatibleRegistry = useMemo<ComponentRegistry>(() => {
+  const compatibleRegistry = useMemo<JsonRenderComponentRegistry>(() => {
     const wrappedEntries = Object.entries(registry).map(([name, Component]) => {
-      const Wrapped: ComponentRenderer<any> = (props) => (
+      const Wrapped: JsonRenderComponentRenderer<any> = (props) => (
         <LegacyActionBridge Component={Component} props={props} />
       );
       Wrapped.displayName = `Compat(${name})`;
@@ -155,6 +226,11 @@ export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
     return Object.fromEntries(wrappedEntries);
   }, [registry]);
 
+  const compatibleFallback = useMemo<JsonRenderComponentRenderer<Record<string, unknown>> | undefined>(
+    () => (fallback ? ((props) => <LegacyActionBridge Component={fallback} props={props} />) : undefined),
+    [fallback],
+  );
+
   if (!normalizedSpec) return null;
 
   return (
@@ -162,7 +238,7 @@ export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
       spec={normalizedSpec}
       registry={compatibleRegistry}
       loading={loading}
-      fallback={fallback}
+      fallback={compatibleFallback}
     />
   );
 }
@@ -175,12 +251,8 @@ export interface JSONUIProviderProps {
   registry: ComponentRegistry;
   /** Initial state model */
   initialState?: Record<string, unknown>;
-  /** Initial data model */
-  initialData?: Record<string, unknown>;
-  /** Auth state */
-  authState?: { isSignedIn: boolean; user?: Record<string, unknown> };
   /** Action handlers */
-  actionHandlers?: Record<
+  handlers?: Record<
     string,
     (params: Record<string, unknown>) => Promise<unknown> | unknown
   >;
@@ -193,8 +265,6 @@ export interface JSONUIProviderProps {
   >;
   /** Callback when state changes */
   onStateChange?: (path: string, value: unknown) => void;
-  /** Callback when data changes */
-  onDataChange?: (path: string, value: unknown) => void;
   children: ReactNode;
 }
 
@@ -211,26 +281,19 @@ export interface JSONUIProviderProps {
 export function JSONUIProvider({
   registry,
   initialState,
-  initialData,
-  authState,
-  actionHandlers,
+  handlers,
   navigate,
   validationFunctions,
   onStateChange,
-  onDataChange,
   children,
 }: JSONUIProviderProps) {
-  const seededState = initialState ?? initialData;
-  const handleStateChange = onStateChange ?? onDataChange;
-
   return (
     <StateProvider
-      initialState={seededState}
-      authState={authState}
-      onStateChange={handleStateChange}
+      initialState={initialState}
+      onStateChange={onStateChange}
     >
       <VisibilityProvider>
-        <ActionProvider handlers={actionHandlers} navigate={navigate}>
+        <ActionProvider handlers={handlers} navigate={navigate}>
           <ValidationProvider customFunctions={validationFunctions}>
             {children}
             <ConfirmationDialogManager />
@@ -259,31 +322,3 @@ function ConfirmationDialogManager() {
     />
   );
 }
-
-export function createRendererFromCatalog<
-  S extends SchemaDefinition<any, any>,
-  C extends Catalog<S>
->(
-  _catalog: C,
-  registry: ComponentRegistry,
-): ComponentType<Omit<RendererProps, "registry">> {
-  return function CatalogRenderer(props: Omit<RendererProps, "registry">) {
-    return <Renderer {...props} registry={registry} />;
-  };
-}
-
-
-/**
- * Helper to create a renderer component from a catalog
- */
-/*export function createRendererFromCatalog2<
-  C extends Catalog<Record<string, ComponentDefinition>>,
->(
-  _catalog: C,
-  registry: ComponentRegistry,
-): ComponentType<Omit<RendererProps, "registry">> {
-  return function CatalogRenderer(props: Omit<RendererProps, "registry">) {
-    return <Renderer {...props} registry={registry} />;
-  };
-}
-*/

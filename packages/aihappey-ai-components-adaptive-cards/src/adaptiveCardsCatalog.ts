@@ -1,4 +1,5 @@
-import { createCatalog } from '@json-render/core';
+import { defineCatalog } from '@json-render/core';
+import { schema } from '@json-render/react';
 import { z } from 'zod';
 
 export const ADAPTIVE_CARDS_CATALOG_ID = 'adaptive-cards';
@@ -285,11 +286,12 @@ export const adaptiveCardsComponentDefinitions = {
     },
   };
 
-export const adaptiveCardsCatalog = createCatalog({
-  components: adaptiveCardsComponentDefinitions,
-});
-
 export const adaptiveCardsStaticActionDefinitions = {};
+
+export const adaptiveCardsCatalog = defineCatalog(schema, {
+  components: adaptiveCardsComponentDefinitions,
+  actions: adaptiveCardsStaticActionDefinitions,
+});
 
 export const adaptiveCardsDefaultCatalogDefinitions = [
   {

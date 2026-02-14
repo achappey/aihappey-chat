@@ -1,4 +1,5 @@
-import { createCatalog } from "@json-render/core";
+import { defineCatalog } from "@json-render/core";
+import { schema } from "@json-render/react";
 import { z } from "zod";
 
 export const OPENAPI_CATALOG_ID = "openapi";
@@ -133,7 +134,7 @@ export const openapiComponentDefinitions = {
     },
 };
 
-export const openapiCatalog = createCatalog({
+export const openapiCatalog = defineCatalog(schema, {
     components: openapiComponentDefinitions,
     actions: openapiStaticActionDefinitions,
 });

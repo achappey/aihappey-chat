@@ -17,7 +17,7 @@
     }
   },
   "dependencies": {
-    "@json-render/core": "^0.5.0",
+    "@json-render/core": "^0.6.0",
     "json-schema-to-zod": "^2.7.0",
     "aihappey-ai-components-adaptive-cards": "*",
     "aihappey-ai-components-openapi": "*",
