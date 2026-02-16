@@ -3,7 +3,8 @@ import type { UIMessage } from "aihappey-types";
 import { ToolApprovalButtons, ToolContent, ToolDenyConfirmModal, useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
-import { ToolCallResultModal } from "../chat/activity/content/ToolCallResultModal";
+import { ContentBlockView } from "../chat/activity/content/ContentBlockView";
+import { StructuredOutputView } from "../chat/activity/content/StructuredOutputView";
 import { getToolName } from "./useTools";
 
 type ApprovalToolPart = {
@@ -78,7 +79,7 @@ export function ToolApprovalModalHost({
         reason?: string;
     }) => void;
 }) {
-    const { Modal } = useTheme();
+    const { Modal, Tabs, Tab } = useTheme();
     const { t } = useTranslation();
 
     const approveAll = useAppStore((a) => a.approveAll);
@@ -97,17 +98,25 @@ export function ToolApprovalModalHost({
 
     const lastAutoApprovedId = useRef<string | null>(null);
 
-    // ✅ View Output modal state
-    const [showOutput, setShowOutput] = useState(false);
+    const hasOutput = active?.tool?.output !== undefined && active?.tool?.output !== null;
+    const outputResult = hasOutput ? active?.tool?.output : undefined;
+    const outputContentArr = Array.isArray(outputResult?.content) ? outputResult.content : [];
+
+    const defaultMainTab = hasOutput ? "output" : "input";
+    const defaultOutputTab = outputResult?.structuredContent ? "structuredContent" : "0";
+
+    const [activeTab, setActiveTab] = useState<string>(defaultMainTab);
+    const [activeOutputTab, setActiveOutputTab] = useState<string>(defaultOutputTab);
 
     // ✅ Deny-with-reason modal state
     const [showDenyReason, setShowDenyReason] = useState(false);
 
     // Reset small UI state when switching to a new approval id
     useEffect(() => {
-        setShowOutput(false);
+        setActiveTab(defaultMainTab);
+        setActiveOutputTab(defaultOutputTab);
         setShowDenyReason(false);
-    }, [active?.approvalId]);
+    }, [active?.approvalId, defaultMainTab, defaultOutputTab]);
 
     // 🔁 AUTO APPROVAL (with reason)
     useEffect(() => {
@@ -182,8 +191,6 @@ export function ToolApprovalModalHost({
                     <ToolApprovalButtons
                         toolName={toolName}
                         toolTitle={toolTitle}
-                        canViewOutput={!!active?.tool?.output}
-                        onViewOutput={() => setShowOutput(true)}
                         onAllow={respondAllow}
                         onDeny={respondDeny}
                         onAllowThisTool={allowThisTool}
@@ -191,15 +198,54 @@ export function ToolApprovalModalHost({
                     />
                 }
             >
-                <ToolContent invocation={active.tool} />
-            </Modal>
+                <Tabs activeKey={activeTab} onSelect={setActiveTab}>
+                    <Tab eventKey="input" title={t("input")}>
+                        <div style={{ paddingTop: 12 }}>
+                            <ToolContent invocation={active.tool} />
+                        </div>
+                    </Tab>
 
-            {/* NEW: OUTPUT MODAL (reuse existing component) */}
-            <ToolCallResultModal
-                open={showOutput}
-                onClose={() => setShowOutput(false)}
-                result={active?.tool?.output}
-            />
+                    <Tab eventKey="output" title={t("output")} disabled={!hasOutput}>
+                        <div style={{ paddingTop: 12 }}>
+                            {hasOutput ? (
+                                <>
+                                    {outputResult?.structuredContent && outputContentArr.length === 0 ? (
+                                        <StructuredOutputView result={outputResult} />
+                                    ) : null}
+
+                                    {outputContentArr.length > 0 ? (
+                                        <Tabs activeKey={activeOutputTab} onSelect={(k: string) => setActiveOutputTab(k)}>
+                                            {outputResult?.structuredContent ? (
+                                                <Tab eventKey={"structuredContent"} title={t("mcp.structuredContent")}>
+                                                    <StructuredOutputView result={outputResult} />
+                                                </Tab>
+                                            ) : null}
+
+                                            {outputContentArr.map((block: any, i: number) => (
+                                                <Tab
+                                                    key={String(i)}
+                                                    eventKey={String(i)}
+                                                    title={t(`mcp.${block.type}`)}
+                                                >
+                                                    <div style={{ padding: 8 }}>
+                                                        <ContentBlockView block={block} />
+                                                    </div>
+                                                </Tab>
+                                            ))}
+                                        </Tabs>
+                                    ) : null}
+
+                                    {!outputResult?.structuredContent && outputContentArr.length === 0 ? (
+                                        <div style={{ color: "#888" }}>{t("noResults")}</div>
+                                    ) : null}
+                                </>
+                            ) : (
+                                <div style={{ color: "#888" }}>{t("noResults")}</div>
+                            )}
+                        </div>
+                    </Tab>
+                </Tabs>
+            </Modal>
 
             <ToolDenyConfirmModal
                 open={showDenyReason}

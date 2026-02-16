@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import type { NavigationItem } from "aihappey-types/src/theme";
@@ -154,6 +154,7 @@ export const ConversationSidebar = ({
           key: "mesh",
           label: t("mesh"),
           href: "/mesh",
+          new: true,
           icon: "chart",
         },
       ],
@@ -266,21 +267,21 @@ export const ConversationSidebar = ({
             ? "providers"
             : location.pathname === "/mesh"
               ? "mesh"
-            : location.pathname === "/tools"
-              ? "tools"
-              : location.pathname === "/files"
-                ? "files"
-                : location.pathname === "/structured-outputs"
-                  ? "structured-outputs"
-                  : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
-                    ? "web-apps"
-                    : location.pathname === "/catalogs"
-                      ? "catalogs"
-                      : location.pathname === "/registries"
-                        ? "registries"
-                        : location.pathname === "/reranking"
-                          ? "reranking"
-                          : conversationId ?? undefined
+              : location.pathname === "/tools"
+                ? "tools"
+                : location.pathname === "/files"
+                  ? "files"
+                  : location.pathname === "/structured-outputs"
+                    ? "structured-outputs"
+                    : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
+                      ? "web-apps"
+                      : location.pathname === "/catalogs"
+                        ? "catalogs"
+                        : location.pathname === "/registries"
+                          ? "registries"
+                          : location.pathname === "/reranking"
+                            ? "reranking"
+                            : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {

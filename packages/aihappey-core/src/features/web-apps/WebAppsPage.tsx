@@ -368,7 +368,7 @@ export const WebAppsPage = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+           gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
             gap: 16,
             width: "100%",
             maxWidth: 700,

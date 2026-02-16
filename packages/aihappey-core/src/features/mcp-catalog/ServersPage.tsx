@@ -320,7 +320,7 @@ export const ServersPage = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr",
+          gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
           gap: 16,
           width: "100%",
           maxWidth: 700,

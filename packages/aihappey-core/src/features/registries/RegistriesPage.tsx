@@ -152,7 +152,7 @@ export const RegistriesPage = () => {
       >
         <OverviewPageHeader title={t("registries")} />
 
-        <Text as="p" align={"center" }>{t("registriesPage.description")}</Text>
+        <Text as="p" align={"center"}>{t("registriesPage.description")}</Text>
 
         <div
           style={{
@@ -180,7 +180,7 @@ export const RegistriesPage = () => {
                   <div
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
+                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                       gap: 16,
                       width: "100%",
                       maxWidth: 700,
@@ -232,7 +232,11 @@ export const RegistriesPage = () => {
           }
         >
           {!viewItem ? null : (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr", 
+              gap: 16
+            }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
                 <Text as="strong">{t("properties")}</Text>
 

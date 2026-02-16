@@ -28,9 +28,9 @@ export const StructuredOutputsPage = () => {
 
     const out = q
       ? items.filter((item) => {
-          const hay = normalizeText(`${item.name} ${item.json_schema}`);
-          return hay.includes(q);
-        })
+        const hay = normalizeText(`${item.name} ${item.json_schema}`);
+        return hay.includes(q);
+      })
       : items;
 
     return out
@@ -52,7 +52,7 @@ export const StructuredOutputsPage = () => {
       >
         <OverviewPageHeader title={t("structuredOutputs")} />
 
-        <Text as="p" align={"center" }>
+        <Text as="p" align={"center"}>
           {t("structuredOutputsPage.description")}
         </Text>
 
@@ -76,7 +76,7 @@ export const StructuredOutputsPage = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
             gap: 16,
             width: "100%",
             maxWidth: 700,

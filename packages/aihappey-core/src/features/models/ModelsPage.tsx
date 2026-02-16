@@ -222,7 +222,7 @@ export const ModelsPage = () => {
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr",
+                          gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
                           gap: 16,
                           paddingTop: 12,
                           width: "100%",

@@ -1,13 +1,10 @@
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
-import { ViewButton } from "./ViewButton";
 
 type ToolApprovalButtonsProps = {
   size?: "small" | "medium";
   toolName?: string;
   toolTitle?: string;
-  canViewOutput?: boolean;
-  onViewOutput?: () => void;
   onAllow: () => void;
   onDeny: () => void;
   onAllowThisTool: () => void;
@@ -18,8 +15,6 @@ export const ToolApprovalButtons = ({
   size = "medium",
   toolName,
   toolTitle,
-  canViewOutput,
-  onViewOutput,
   onAllow,
   onDeny,
   onAllowThisTool,
@@ -30,14 +25,6 @@ export const ToolApprovalButtons = ({
 
   return (
     <div style={{ display: "flex", gap: 8 }}>
-      <ViewButton
-        variant="subtle"
-        size={size}
-        text={t("output")}
-        disabled={!canViewOutput}
-        onClick={onViewOutput}
-      />
-
       <SplitButton
         size={size}
         label={t('automatic')}

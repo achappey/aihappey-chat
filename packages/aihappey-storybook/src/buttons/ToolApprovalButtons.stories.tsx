@@ -13,8 +13,6 @@ export const Default: Story = {
   args: {
     toolName: "web_search",
     toolTitle: "Web Search",
-    canViewOutput: true,
-    onViewOutput: () => console.log("View output"),
     onAllow: () => console.log("Allow"),
     onDeny: () => console.log("Deny"),
     onAllowThisTool: () => console.log("Allow this tool"),
@@ -28,8 +26,6 @@ export const MediumNoOutput: Story = {
     size: "medium",
     toolName: "web_search",
     toolTitle: "Web Search",
-    canViewOutput: false,
-    onViewOutput: () => console.log("View output"),
     onAllow: () => console.log("Allow"),
     onDeny: () => console.log("Deny"),
     onAllowThisTool: () => console.log("Allow this tool"),

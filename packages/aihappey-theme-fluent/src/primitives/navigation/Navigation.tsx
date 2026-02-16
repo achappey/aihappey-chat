@@ -104,6 +104,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <NavigationCategorySection
                   key={idx}
                   item={item}
+                  translations={translations}
                   onSelect={onSelect}
                 />
               );

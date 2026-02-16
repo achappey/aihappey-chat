@@ -156,7 +156,7 @@ export const AgentsPage = () => {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
+                 gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                   gap: 16,
                   paddingTop: 12,
                   width: "100%",

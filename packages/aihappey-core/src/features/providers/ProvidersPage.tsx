@@ -53,7 +53,7 @@ export const ProvidersPage = () => {
         if (!q) return providers;
 
         return providers.filter((p) => {
-            const haystack = `${p.key} ${p.name} ${p.url}`.toLowerCase();
+            const haystack = `${p.key} ${p.name} ${p.url} ${p.description ?? ""}`.toLowerCase();
             return haystack.includes(q);
         });
     }, [providers, search]);
