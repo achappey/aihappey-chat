@@ -9,5 +9,8 @@ export const googletranslate: Provider = {
     }
   ],
   url: "https://translate.google.com",
+    providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

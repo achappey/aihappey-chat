@@ -15,5 +15,8 @@ export const jina: Provider = {
     },
   ],
   url: "https://jina.ai",
+  providerCountry: "DE",
+  inferenceRegions: ["World"]
+
 };
 

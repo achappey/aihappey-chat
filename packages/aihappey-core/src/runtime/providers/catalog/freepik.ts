@@ -10,5 +10,8 @@ export const freepik: Provider = {
     },
   ],
   url: "https://www.freepik.com",
+  providerCountry: "ES",
+  inferenceRegions: ["World"]
+
 };
 

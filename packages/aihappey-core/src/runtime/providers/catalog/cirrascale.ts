@@ -10,5 +10,8 @@ export const cirrascale: Provider = {
     },
   ],
   url: "https://www.cirrascale.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

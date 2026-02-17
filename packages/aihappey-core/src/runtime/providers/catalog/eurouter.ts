@@ -10,5 +10,7 @@ export const eurouter: Provider = {
     },
   ],
   url: "https://www.eurouter.ai",
+  providerCountry: "NL",
+  inferenceRegions: ["Europe"]
 };
 

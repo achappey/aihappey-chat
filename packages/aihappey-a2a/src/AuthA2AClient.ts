@@ -53,7 +53,7 @@ export class AuthA2AClient {
                 throw new Error("Fetched Agent Card does not contain a valid 'url' for the service endpoint.");
             }
             this.serviceEndpointUrl = agentCard.url; // Cache the service endpoint URL from the agent card
-            console.log("ENDOPINT", this.serviceEndpointUrl);
+
             return agentCard;
         }
         catch (error) {

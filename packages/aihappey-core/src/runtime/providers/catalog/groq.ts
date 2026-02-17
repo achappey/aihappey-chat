@@ -9,5 +9,8 @@ export const groq: Provider = {
     },
   ],
   url: "https://groq.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

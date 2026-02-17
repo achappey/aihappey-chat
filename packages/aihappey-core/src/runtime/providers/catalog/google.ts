@@ -10,5 +10,8 @@ export const google: Provider = {
     },
   ],
   url: "https://ai.google",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

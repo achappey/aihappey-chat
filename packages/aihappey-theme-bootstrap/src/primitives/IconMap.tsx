@@ -76,6 +76,8 @@ import {
   Database,
   Grid3x3Gap,
   Puzzle,
+  Window,
+  FileText,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -103,6 +105,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   images: <Images />,
   videos: <CameraVideo />,
   folder: <Folder />,
+  docs: <FileText />,
+  console: <Window />,
   agentSettings: <Sliders />,
   link: <Link />,
   speech: <Speaker />,

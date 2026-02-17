@@ -9,5 +9,8 @@ export const gladia: Provider = {
     }
   ],
   url: "https://www.gladia.io",
+  providerCountry: "FR",
+  inferenceRegions: ["Europe", "Americas"]
+
 };
 

@@ -9,5 +9,8 @@ export const cortecs: Provider = {
     }
   ],
   url: "https://cortecs.ai",
+  providerCountry: "DE",
+  inferenceRegions: ["Europe"]
+
 };
 

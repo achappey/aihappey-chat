@@ -11,5 +11,7 @@ export const nvidia: Provider = {
     },
   ],
   url: "https://www.nvidia.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
 };
 

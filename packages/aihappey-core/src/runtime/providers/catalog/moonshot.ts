@@ -15,5 +15,8 @@ export const moonshot: Provider = {
     },
   ],
   url: "https://www.moonshot.ai",
+  providerCountry: "CN",
+  inferenceRegions: ["World"]
+
 };
 

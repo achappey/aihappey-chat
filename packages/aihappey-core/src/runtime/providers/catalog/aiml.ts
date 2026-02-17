@@ -14,5 +14,8 @@ export const aiml: Provider = {
     },
   ],
   url: "https://aimlapi.com",
+  providerCountry: "EE",
+  inferenceRegions: ["World"]
+
 };
 

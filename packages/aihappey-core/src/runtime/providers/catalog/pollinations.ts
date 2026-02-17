@@ -15,5 +15,8 @@ export const pollinations: Provider = {
     },
   ],
   url: "https://pollinations.ai",
+  providerCountry: "DE",
+  inferenceRegions: ["World"]
+
 };
 

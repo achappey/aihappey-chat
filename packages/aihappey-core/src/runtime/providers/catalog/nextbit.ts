@@ -9,5 +9,8 @@ export const nextbit: Provider = {
     }
   ],
   url: "https://www.nextbit256.com",
+  providerCountry: "ES",
+  inferenceRegions: ["Europe"]
+
 };
 

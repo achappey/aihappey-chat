@@ -14,5 +14,8 @@ export const reve: Provider = {
     },
   ],
   url: "https://app.reve.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

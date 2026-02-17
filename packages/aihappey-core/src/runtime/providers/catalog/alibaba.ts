@@ -10,5 +10,8 @@ export const alibaba: Provider = {
     },
   ],
   url: "https://www.alibaba.com",
+  providerCountry: "CN",
+  inferenceRegions: ["Asia", "Americas"]
+
 };
 

@@ -10,5 +10,8 @@ export const mistral: Provider = {
     },
   ],
   url: "https://mistral.ai",
+  providerCountry: "FR",
+  inferenceRegions: ["World"]
+
 };
 

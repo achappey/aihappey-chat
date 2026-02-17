@@ -9,5 +9,8 @@ export const bytez: Provider = {
     }
   ],
   url: "https://bytez.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

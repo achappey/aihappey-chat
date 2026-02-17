@@ -9,5 +9,8 @@ export const inferencenet: Provider = {
     },
   ],
   url: "https://inference.net",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

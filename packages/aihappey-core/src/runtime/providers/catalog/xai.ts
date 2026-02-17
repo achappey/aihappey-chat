@@ -15,5 +15,8 @@ export const xai: Provider = {
     },
   ],
   url: "https://x.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

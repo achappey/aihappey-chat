@@ -10,5 +10,7 @@ export const nscale: Provider = {
     },
   ],
   url: "https://www.nscale.com",
+  providerCountry: "GB",
+  inferenceRegions: ["World"]
 };
 

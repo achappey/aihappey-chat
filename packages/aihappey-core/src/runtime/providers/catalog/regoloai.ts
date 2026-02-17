@@ -10,5 +10,7 @@ export const regoloai: Provider = {
     },
   ],
   url: "https://regolo.ai",
+  providerCountry: "IT",
+  inferenceRegions: ["Europe"]
 };
 

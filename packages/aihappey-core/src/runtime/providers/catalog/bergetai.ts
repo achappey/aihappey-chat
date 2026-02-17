@@ -9,5 +9,8 @@ export const bergetai: Provider = {
     }
   ],
   url: "https://berget.ai",
+  providerCountry: "SE",
+  inferenceRegions: ["Europe"]
+
 };
 

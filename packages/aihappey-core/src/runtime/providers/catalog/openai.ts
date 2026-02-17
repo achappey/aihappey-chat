@@ -15,5 +15,8 @@ export const openai: Provider = {
     },
   ],
   url: "https://openai.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

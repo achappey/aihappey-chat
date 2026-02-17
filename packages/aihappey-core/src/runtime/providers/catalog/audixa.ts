@@ -10,5 +10,8 @@ export const audixa: Provider = {
     },
   ],
   url: "https://audixa.ai",
+  providerCountry: "IN",
+  inferenceRegions: ["World"]
+
 };
 

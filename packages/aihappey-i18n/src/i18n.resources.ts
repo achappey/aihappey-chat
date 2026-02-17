@@ -1,10 +1,12 @@
 import enCommon from "./locales/en/en.json";
 import enProviders from "./locales/en/providers.json";
 import enMimeTypes from "./locales/en/mimeTypes.json";
+import enRegional from "./locales/en/regional.json";
 
 import nlCommon from "./locales/nl/nl.json";
 import nlProviders from "./locales/nl/providers.json";
 import nlMimeTypes from "./locales/nl/mimeTypes.json";
+import nlRegional from "./locales/nl/regional.json";
 
 import deCommon from "./locales/de/de.json";
 import deProviders from "./locales/de/providers.json";
@@ -71,8 +73,8 @@ import idProviders from "./locales/id/providers.json";
 import idMimeTypes from "./locales/id/mimeTypes.json";
 
 export const resources = {
-  en: { common: enCommon, providers: enProviders, mimeTypes: enMimeTypes },
-  nl: { common: nlCommon, providers: nlProviders, mimeTypes: nlMimeTypes },
+  en: { common: enCommon, providers: enProviders, mimeTypes: enMimeTypes, regional: enRegional },
+  nl: { common: nlCommon, providers: nlProviders, mimeTypes: nlMimeTypes, regional: nlRegional },
   de: { common: deCommon, providers: deProviders, mimeTypes: deMimeTypes },
   es: { common: esCommon, providers: esProviders, mimeTypes: esMimeTypes },
   fr: { common: frCommon, providers: frProviders, mimeTypes: frMimeTypes },

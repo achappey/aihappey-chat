@@ -9,5 +9,8 @@ export const baseten: Provider = {
     },
   ],
   url: "https://www.baseten.co",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

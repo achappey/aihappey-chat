@@ -9,5 +9,8 @@ export const synexa: Provider = {
     }
   ],
   url: "https://synexa.ai",
+  providerCountry: "CA",
+  inferenceRegions: ["World"]
+
 };
 

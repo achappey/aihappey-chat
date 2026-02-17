@@ -10,5 +10,7 @@ export const arklabs: Provider = {
     },
   ],
   url: "https://ark-labs.cloud",
+  providerCountry: "PL",
+  inferenceRegions: ["World"]
 };
 

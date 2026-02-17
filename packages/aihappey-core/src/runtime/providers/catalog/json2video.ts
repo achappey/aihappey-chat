@@ -10,5 +10,8 @@ export const json2video: Provider = {
     },
   ],
   url: "https://json2video.com",
+  providerCountry: "ES",
+  inferenceRegions: ["World"]
+
 };
 

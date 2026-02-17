@@ -10,5 +10,8 @@ export const opperai: Provider = {
     },
   ],
   url: "https://opper.ai",
+  providerCountry: "SE",
+  inferenceRegions: ["World"]
+
 };
 

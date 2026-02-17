@@ -92,9 +92,10 @@ export const Select: React.FC<SelectProps> = ({
       if (freeform) setInputValue(data.optionText ?? data.optionValue);
     }
   };
-  //{...(rest as any)}
+
   const dropDownElement = (
     <Combobox
+      {...(rest as any)}
       selectedOptions={values}
       value={freeform ? inputValue : valueTitle ?? values?.join(", ") ?? ""}
       size={size}
@@ -108,7 +109,6 @@ export const Select: React.FC<SelectProps> = ({
       onInput={handleInputChange}
       style={{ backgroundColor: isDarkMode ? "#141414" : undefined, ...(label ? {} : style) }}
       aria-label={ariaLabel}
-      {...(rest as any)}
     >
       {renderFluentOptions(children)}
     </Combobox>

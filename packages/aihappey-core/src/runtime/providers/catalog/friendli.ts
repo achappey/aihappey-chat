@@ -11,5 +11,8 @@ export const friendli: Provider = {
     }
   ],
   url: "https://friendli.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

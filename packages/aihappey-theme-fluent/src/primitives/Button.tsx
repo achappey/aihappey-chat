@@ -90,6 +90,8 @@ import {
   PuzzlePieceRegular,
   VideoSettingsRegular,
   TextTRegular,
+  WindowRegular,
+  DocumentRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -178,6 +180,8 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   logout: DoorArrowRightRegular,
   copyClipboard: CopyRegular,
   settings: SettingsRegular,
+  docs: DocumentRegular,
+  console: WindowRegular,
   sources: CloudLinkRegular,
   chevronDown: ChevronDownRegular,
   chevronUp: ChevronUpRegular,

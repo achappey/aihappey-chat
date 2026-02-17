@@ -9,5 +9,8 @@ export const inworld: Provider = {
     }
   ],
   url: "https://inworld.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

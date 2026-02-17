@@ -10,5 +10,9 @@ export const assemblyai: Provider = {
     },
   ],
   url: "https://www.assemblyai.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
+
 };
 

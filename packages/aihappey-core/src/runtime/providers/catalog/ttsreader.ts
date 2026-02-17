@@ -9,5 +9,8 @@ export const ttsreader: Provider = {
     }
   ],
   url: "https://ttsreader.com",
+  providerCountry: "IL",
+  inferenceRegions: ["World"]
+
 };
 

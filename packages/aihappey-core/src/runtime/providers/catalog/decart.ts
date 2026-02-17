@@ -9,5 +9,8 @@ export const decart: Provider = {
     }
   ],
   url: "https://decart.ai",
+  providerCountry: "IL",
+  inferenceRegions: ["World"]
+
 };
 

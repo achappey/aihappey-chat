@@ -10,5 +10,8 @@ export const azure: Provider = {
     },
   ],
   url: "https://azure.microsoft.com",
+  providerCountry: "US",
+  inferenceRegions: ["Europe", "Americas", "Asia", "Africa", "Oceania"]
+
 };
 

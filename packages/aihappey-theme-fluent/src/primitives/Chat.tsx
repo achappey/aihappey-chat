@@ -13,8 +13,8 @@ import { Badge, ProgressBar, Tooltip } from "@fluentui/react-components";
 export type ChatProps = {
   messages?: Message[];
   locale?: string
-  aiGeneratedLabel: string
-  aiGeneratedWarning: string
+  aiGeneratedLabel?: string
+  aiGeneratedWarning?: string
   renderMessage: (msg: Message) => React.ReactElement;
   renderReactions?: (msg: Message) => React.ReactElement;
 };
@@ -34,16 +34,17 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
           renderReactions ? renderReactions(msg) : undefined;
         const IconCmp = msg.messageIcon ? iconMap[msg.messageIcon] : undefined;
         const icon = IconCmp ? <IconCmp /> : undefined;
-
+        const badge = aiGeneratedWarning ? <Tooltip content={aiGeneratedWarning}
+          relationship={"description"}>
+          <Badge color="informative"
+            shape="square"
+            appearance="outline">{aiGeneratedLabel}</Badge>
+        </Tooltip> : undefined
+        
         return (
           <MessageComponent
             key={msg.id}
-            author={<>{msg.author} <Tooltip content={aiGeneratedWarning}
-              relationship={"description"}>
-              <Badge color="informative"
-                shape="square"
-                appearance="outline">{aiGeneratedLabel}</Badge>
-            </Tooltip></>}
+            author={<>{msg.author} {badge}</>}
             timestamp={format(msg.createdAt, locale)}
             reactions={reactions}
             decorationIcon={icon}

@@ -9,5 +9,8 @@ export const speechify: Provider = {
     }
   ],
   url: "https://speechify.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

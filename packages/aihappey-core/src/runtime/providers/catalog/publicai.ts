@@ -10,5 +10,8 @@ export const publicai: Provider = {
     },
   ],
   url: "https://publicai.co",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

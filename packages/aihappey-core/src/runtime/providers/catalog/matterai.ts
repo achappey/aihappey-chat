@@ -9,5 +9,7 @@ export const matterai: Provider = {
     }
   ],
   url: "https://www.matterai.so",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
 };
 

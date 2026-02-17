@@ -9,5 +9,8 @@ export const ovhcloud: Provider = {
     }
   ],
   url: "https://www.ovhcloud.com",
+  providerCountry: "FR",
+  inferenceRegions: ["Americas", "Europe", "Asia"]
+
 };
 

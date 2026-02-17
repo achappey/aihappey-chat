@@ -9,5 +9,8 @@ export const sudo: Provider = {
     }
   ],
   url: "https://sudoapp.dev",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

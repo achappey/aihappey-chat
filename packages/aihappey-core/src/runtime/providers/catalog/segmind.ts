@@ -9,5 +9,8 @@ export const segmind: Provider = {
     }
   ],
   url: "https://www.segmind.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

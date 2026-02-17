@@ -9,5 +9,8 @@ export const rekaai: Provider = {
     }
   ],
   url: "https://reka.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

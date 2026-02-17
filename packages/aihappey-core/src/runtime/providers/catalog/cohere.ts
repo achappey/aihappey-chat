@@ -15,5 +15,8 @@ export const cohere: Provider = {
     },
   ],
   url: "https://cohere.com",
+  providerCountry: "CA",
+  inferenceRegions: ["World"]
+
 };
 

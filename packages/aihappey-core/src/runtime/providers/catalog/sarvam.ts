@@ -10,5 +10,8 @@ export const sarvam: Provider = {
     },
   ],
   url: "https://www.sarvam.ai",
+  providerCountry: "IN",
+  inferenceRegions: ["Asia"]
+
 };
 

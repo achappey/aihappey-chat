@@ -14,7 +14,7 @@ export const initI18n = () => {
     .use(initReactI18next)
     .init({
       resources,
-      ns: ["common", "providers", "mimeTypes"],
+      ns: ["common", "providers", "mimeTypes", "regional"],
       defaultNS: "common",
       fallbackLng: "en",
       supportedLngs,

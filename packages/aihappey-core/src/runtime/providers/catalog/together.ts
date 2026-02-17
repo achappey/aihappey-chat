@@ -9,6 +9,13 @@ export const together: Provider = {
       src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/together-color.png",
     },
   ],
-  url: "https://www.together.ai",
+  urls: {
+    homepage: "https://www.together.ai",
+    docs: "https://docs.together.ai",
+    console: "https://api.together.ai"
+  },
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

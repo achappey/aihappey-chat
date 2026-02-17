@@ -9,5 +9,8 @@ export const vidu: Provider = {
     }
   ],
   url: "https://www.vidu.com",
+  providerCountry: "CN",
+  inferenceRegions: ["World"]
+
 };
 

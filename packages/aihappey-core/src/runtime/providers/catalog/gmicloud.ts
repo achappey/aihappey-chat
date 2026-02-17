@@ -10,5 +10,8 @@ export const gmicloud: Provider = {
     },
   ],
   url: "https://www.gmicloud.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

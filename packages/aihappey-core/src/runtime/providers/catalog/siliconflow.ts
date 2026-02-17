@@ -10,5 +10,8 @@ export const siliconflow: Provider = {
     },
   ],
   url: "https://www.siliconflow.com",
+  providerCountry: "CN",
+  inferenceRegions: ["World"]
+
 };
 

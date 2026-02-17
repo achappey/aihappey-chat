@@ -9,5 +9,8 @@ export const speechmatics: Provider = {
     }
   ],
   url: "https://www.speechmatics.com",
+  providerCountry: "GB",
+  inferenceRegions: ["World"]
+
 };
 

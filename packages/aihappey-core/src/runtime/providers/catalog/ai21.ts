@@ -10,5 +10,7 @@ export const ai21: Provider = {
     },
   ],
   url: "https://www.ai21.com",
+  providerCountry: "IL",
+  inferenceRegions: ["World"]
 };
 

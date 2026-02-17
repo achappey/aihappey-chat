@@ -9,5 +9,8 @@ export const deepbricks: Provider = {
     }
   ],
   url: "https://deepbricks.ai",
+  providerCountry: "SG",
+  inferenceRegions: ["World"]
+
 };
 

@@ -12,12 +12,13 @@ export type Provider = {
     description?: string
     experimental?: boolean
     icons: Icon[];
-    hosting?: "us" | "europe" | "asia" | "unknown";
     urls?: ProviderUrls;
+    providerCountry?: string
+    inferenceRegions?: string[]
 };
 
 export type ProviderUrls = {
-    website: string;
-    documentation?: string;
-    portal?: string
+    homepage: string;
+    docs?: string;
+    console?: string
 };

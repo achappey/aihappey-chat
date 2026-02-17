@@ -92,7 +92,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
 
     const hasAnyModels = providerModels.length > 0;
     const hasModelTypeTabs = supportedModelTypes.length > 0;
-    const url = providerUrls?.website ?? providerUrl;
+    const url = providerUrls?.homepage ?? providerUrl;
 
     const openLinkButton = url ? <OpenLinkButton
         url={url}

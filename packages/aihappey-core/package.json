@@ -9,8 +9,8 @@
   ],
   "dependencies": {
     "@google/model-viewer": "^4.1.0",
-    "@json-render/core": "^0.6.0",
-    "@json-render/react": "^0.6.0",
+    "@json-render/core": "^0.7.0",
+    "@json-render/react": "^0.7.0",
     "@molotochok/msg-viewer": "^1.0.3",
     "aihappey-ai": "*",
     "aihappey-ai-components-adaptive-cards": "*",

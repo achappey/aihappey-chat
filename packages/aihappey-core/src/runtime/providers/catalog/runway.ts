@@ -10,5 +10,8 @@ export const runway: Provider = {
     },
   ],
   url: "https://runwayml.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

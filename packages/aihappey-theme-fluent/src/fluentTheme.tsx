@@ -60,12 +60,14 @@ import { FluentSettings } from "./FluentSettings";
 import { AudioPlayer } from "./primitives/AudioPlayer";
 import { JSX } from "react";
 import { Text as TextPrimitive } from "./primitives/Text";
+import { Accordion } from "./primitives/Accordion";
 
 export const fluentTheme: AihUiTheme = {
   DataGrid,
   Header,
   ToggleButton,
   AudioPlayer,
+  Accordion,
   Text: TextPrimitive,
   Button,
   JsonViewer,

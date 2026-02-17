@@ -10,5 +10,8 @@ export const murfai: Provider = {
     },
   ],
   url: "https://murf.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

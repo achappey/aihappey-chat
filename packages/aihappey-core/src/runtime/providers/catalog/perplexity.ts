@@ -10,5 +10,8 @@ export const perplexity: Provider = {
     },
   ],
   url: "https://www.perplexity.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

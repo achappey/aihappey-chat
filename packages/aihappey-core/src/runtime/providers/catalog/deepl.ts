@@ -10,5 +10,7 @@ export const deepl: Provider = {
     },
   ],
   url: "https://www.deepl.com",
+  providerCountry: "DE",
+  inferenceRegions: ["Europe"]
 };
 

@@ -10,5 +10,8 @@ export const klingai: Provider = {
     },
   ],
   url: "https://klingai.com",
+  providerCountry: "CN",
+  inferenceRegions: ["World"]
+
 };
 

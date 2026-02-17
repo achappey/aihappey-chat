@@ -9,5 +9,7 @@ export const cerebras: Provider = {
     },
   ],
   url: "https://www.cerebras.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
 };
 

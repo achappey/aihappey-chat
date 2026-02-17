@@ -10,5 +10,8 @@ export const fireworks: Provider = {
     },
   ],
   url: "https://fireworks.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

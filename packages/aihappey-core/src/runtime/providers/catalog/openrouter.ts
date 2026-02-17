@@ -9,5 +9,8 @@ export const openrouter: Provider = {
     }
   ],
   url: "https://openrouter.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

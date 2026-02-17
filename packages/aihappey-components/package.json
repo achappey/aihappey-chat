@@ -8,11 +8,12 @@
     "dist"
   ],
   "dependencies": {
-    "aihappey-types": "*",
     "aihappey-i18n": "*",
+    "aihappey-types": "*",
     "react-chartjs-2": "^5.3.0",
-    "usehooks-ts": "^3.1.1",
-    "timeago.js": "^4.0.2"
+    "react-world-flags": "^2.0.0-beta.4",
+    "timeago.js": "^4.0.2",
+    "usehooks-ts": "^3.1.1"
   },
   "scripts": {
     "build": "tsc",
@@ -24,9 +25,9 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.21.2",
     "@types/mime": "^3.0.4",
     "@types/react": "^18.0.0 || ^19.0.0",
-    "@modelcontextprotocol/sdk": "^1.21.2",
     "aihappey-ai": "*",
     "aihappey-mcp": "*",
     "typescript": "^5.9.3"

@@ -10,5 +10,8 @@ export const contextualai: Provider = {
     },
   ],
   url: "https://contextual.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

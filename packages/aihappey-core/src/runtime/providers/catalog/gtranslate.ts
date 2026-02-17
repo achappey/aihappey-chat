@@ -10,5 +10,8 @@ export const gtranslate: Provider = {
     },
   ],
   url: "https://github.com/d4n3436/GTranslate",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

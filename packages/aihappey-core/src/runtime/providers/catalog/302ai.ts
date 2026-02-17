@@ -9,5 +9,7 @@ export const ai302: Provider = {
     }
   ],
   url: "https://302.ai",
+  providerCountry: "SG",
+  inferenceRegions: ["World"]
 };
 

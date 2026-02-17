@@ -9,5 +9,8 @@ export const horayai: Provider = {
     }
   ],
   url: "https://www.horay.ai",
+  providerCountry: "CN",
+  inferenceRegions: ["World"]
+
 };
 

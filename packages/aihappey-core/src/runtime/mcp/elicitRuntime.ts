@@ -30,7 +30,7 @@ class ElicitRuntime {
 
   onElicit(_server: string, request: ElicitRequest): Promise<ElicitResult> {
     const id = crypto.randomUUID();
-    console.log("ELICIT", { id, request });
+
     return new Promise(resolve => {
       this.pending.set(id, { createdAt: Date.now(), request, resolve });
       this.notify();

@@ -9,5 +9,8 @@ export const nlpcloud: Provider = {
     }
   ],
   url: "https://nlpcloud.com",
+  providerCountry: "FR",
+  inferenceRegions: ["World"]
+
 };
 

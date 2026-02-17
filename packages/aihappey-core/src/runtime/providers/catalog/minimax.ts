@@ -10,5 +10,7 @@ export const minimax: Provider = {
     },
   ],
   url: "https://www.minimax.io",
+  providerCountry: "CN",
+  inferenceRegions: ["World"]
 };
 

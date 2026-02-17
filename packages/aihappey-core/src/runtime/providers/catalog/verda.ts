@@ -8,6 +8,13 @@ export const verda: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLDvVEuW0laXWa1GuUxB6U9Of-yhQiXJ3bLw&s"
     }
   ],
-  url: "https://verda.com",
+  urls: {
+    homepage: "https://verda.com",
+    docs: "https://docs.verda.com",
+    console: "https://console.verda.com"
+  },
+  providerCountry: "FI",
+  inferenceRegions: ["Europe"]
+
 };
 

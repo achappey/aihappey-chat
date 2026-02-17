@@ -9,5 +9,8 @@ export const deepseek: Provider = {
     },
   ],
   url: "https://www.deepseek.com",
+  providerCountry: "CN",
+  inferenceRegions: ["World"]
+
 };
 

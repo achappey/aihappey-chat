@@ -10,5 +10,8 @@ export const portkey: Provider = {
     },
   ],
   url: "https://portkey.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

@@ -4,7 +4,12 @@ export const elevenlabs: Provider = {
   name: "ElevenLabs",
   description:
     "Create lifelike speech with our AI voice generator and voice agents platform. Access 5,000+ voices in 70+ languages.",
-  icons: [{ src: "https://help.elevenlabs.io/hc/theming_assets/01HZQ08B6SDY5X53YN9ABG4B99" }],
+  icons: [{
+    src: "https://help.elevenlabs.io/hc/theming_assets/01HZQ08B6SDY5X53YN9ABG4B99"
+  }],
   url: "https://elevenlabs.io",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

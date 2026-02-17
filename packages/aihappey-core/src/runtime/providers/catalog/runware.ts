@@ -10,5 +10,8 @@ export const runware: Provider = {
     },
   ],
   url: "https://runware.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

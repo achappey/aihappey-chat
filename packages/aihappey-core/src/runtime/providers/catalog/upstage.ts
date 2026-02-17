@@ -10,9 +10,12 @@ export const upstage: Provider = {
     },
   ],
   urls: {
-    website: "https://www.upstage.ai",
-    documentation: "https://console.upstage.ai/api/chat",
-    portal: "https://console.upstage.ai/"
+    homepage: "https://www.upstage.ai",
+    docs: "https://console.upstage.ai/docs/getting-started",
+    console: "https://console.upstage.ai"
   },
+  providerCountry: "KR",
+  inferenceRegions: ["World"]
+
 };
 

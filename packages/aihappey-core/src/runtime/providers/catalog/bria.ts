@@ -9,5 +9,7 @@ export const bria: Provider = {
     }
   ],
   url: "https://bria.ai",
+  providerCountry: "IL",
+  inferenceRegions: ["World"]
 };
 

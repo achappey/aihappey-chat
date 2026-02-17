@@ -9,5 +9,7 @@ export const telnyx: Provider = {
     },
   ],
   url: "https://telnyx.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
 };
 

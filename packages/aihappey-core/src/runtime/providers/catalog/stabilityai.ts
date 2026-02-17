@@ -10,5 +10,7 @@ export const stabilityai: Provider = {
     },
   ],
   url: "https://stability.ai",
+  providerCountry: "GB",
+  inferenceRegions: ["World"]
 };
 

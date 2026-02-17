@@ -9,5 +9,8 @@ export const lingvanex: Provider = {
     }
   ],
   url: "https://lingvanex.com",
+  providerCountry: "CY",
+  inferenceRegions: ["World"]
+
 };
 

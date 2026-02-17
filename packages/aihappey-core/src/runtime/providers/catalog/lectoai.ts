@@ -9,5 +9,7 @@ export const lectoai: Provider = {
     }
   ],
   url: "https://lecto.ai",
+  providerCountry: "HK",
+  inferenceRegions: ["World"]
 };
 

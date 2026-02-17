@@ -8,8 +8,8 @@ export type ChatProps = {
   renderReactions?: (msg: any) => React.ReactElement;
   messages?: ChatMessage[];
   locale?: string
-  aiGeneratedLabel: string
-  aiGeneratedWarning: string
+  aiGeneratedLabel?: string
+  aiGeneratedWarning?: string
 };
 
 export type ChatComponent = (props: ChatProps) => JSX.Element;

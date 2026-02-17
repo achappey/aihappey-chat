@@ -1,0 +1,31 @@
+{
+    "regions": {
+        "Africa": "Africa",
+        "Americas": "Americas",
+        "Asia": "Asia",
+        "Europe": "Europe",
+        "Oceania": "Oceania",
+        "World": "World"
+    },
+    "countries": {
+        "CA": "Canada",
+        "CN": "China",
+        "CY": "Cyprus",
+        "DE": "Germany",
+        "EE": "Estonia",
+        "ES": "Spain",
+        "FI": "Finland",
+        "FR": "France",
+        "GB": "United Kingdom",
+        "HK": "Hong Kong",
+        "IL": "Israel",
+        "IN": "India",
+        "IT": "Italy",
+        "KR": "South Korea",
+        "NL": "Netherlands",
+        "PL": "Poland",
+        "SE": "Sweden",
+        "SG": "Singapore",
+        "US": "United States"
+    }
+}

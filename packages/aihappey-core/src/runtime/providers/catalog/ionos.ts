@@ -10,5 +10,8 @@ export const ionos: Provider = {
     },
   ],
   url: "https://cloud.ionos.com",
+  providerCountry: "DE",
+  inferenceRegions: ["World"]
+
 };
 

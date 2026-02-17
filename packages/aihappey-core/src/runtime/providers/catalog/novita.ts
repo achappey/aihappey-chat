@@ -10,5 +10,7 @@ export const novita: Provider = {
     },
   ],
   url: "https://novita.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
 };
 

@@ -10,5 +10,8 @@ export const relaxai: Provider = {
     },
   ],
   url: "https://relax.ai",
+  providerCountry: "GB",
+  inferenceRegions: ["Europe"]
+
 };
 

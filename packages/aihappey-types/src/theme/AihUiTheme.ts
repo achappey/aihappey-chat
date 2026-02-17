@@ -1,4 +1,5 @@
 import type { AlertComponent } from "./Alert";
+import type { AccordionComponent } from "./Accordion";
 import type { BadgeComponent } from "./Badge";
 import type { BreadcrumbComponent } from "./Breadcrumb";
 import type { ButtonComponent } from "./Button";
@@ -56,6 +57,7 @@ export interface AihUiTheme {
   Image: ImageComponent;
   Card: CardComponent;
   Alert: AlertComponent;
+  Accordion: AccordionComponent;
   Spinner: SpinnerComponent;
   Modal: ModalComponent;
   Tabs: TabsComponent;

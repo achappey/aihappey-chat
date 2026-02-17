@@ -14,5 +14,8 @@ export const recraft: Provider = {
     }
   ],
   url: "https://www.recraft.ai",
+  providerCountry: "GB",
+  inferenceRegions: ["World"]
+
 };
 

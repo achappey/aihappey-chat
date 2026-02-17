@@ -15,5 +15,8 @@ export const tinfoil: Provider = {
     },
   ],
   url: "https://tinfoil.sh",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

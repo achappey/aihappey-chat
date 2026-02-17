@@ -1,5 +1,6 @@
 export { Select } from "./Select";
 export { Image } from "./Image";
+export { Accordion } from "./Accordion";
 export { Toolbar } from "./Toolbar";
 export { Navigation } from "./Navigation";
 export { Drawer } from "./Drawer";

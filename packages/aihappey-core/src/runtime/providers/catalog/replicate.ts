@@ -9,5 +9,8 @@ export const replicate: Provider = {
     },
   ],
   url: "https://replicate.com",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

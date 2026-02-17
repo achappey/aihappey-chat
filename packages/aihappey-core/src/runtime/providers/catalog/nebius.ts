@@ -7,13 +7,10 @@ export const nebius: Provider = {
   icons: [
     {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKRoO9XCNhc_7_DVpQm8BsTL_oVF6q57IZPA&s",
-      theme: "dark",
-    },
-    {
-      src: "https://tinfoil.sh/icon.png",
-      theme: "light",
-    },
+    }
   ],
   url: "https://nebius.com",
+  providerCountry: "NL",
+  inferenceRegions: ["World"]
 };
 

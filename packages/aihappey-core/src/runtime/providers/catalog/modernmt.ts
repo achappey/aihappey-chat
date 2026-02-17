@@ -9,5 +9,8 @@ export const modernmt: Provider = {
     }
   ],
   url: "https://www.modernmt.com",
+  providerCountry: "IT",
+  inferenceRegions: ["World"]
+
 };
 

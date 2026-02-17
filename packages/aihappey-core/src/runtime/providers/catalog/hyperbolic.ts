@@ -9,5 +9,8 @@ export const hyperbolic: Provider = {
     },
   ],
   url: "https://www.hyperbolic.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

@@ -54,12 +54,14 @@ import { X } from "react-bootstrap-icons";
 import { BootstrapSettings } from "./primitives/BootstrapSettings";
 import { AudioPlayer } from "./primitives/AudioPlayer";
 import { Text as TextPrimitive } from "./primitives/Text";
+import { Accordion } from "./primitives/Accordion";
 
 export const bootstrapTheme: AihUiTheme = {
   Header,
   DataGrid,
   JsonViewer,
   AudioPlayer,
+  Accordion,
   Breadcrumb,
   Skeleton: ({
     width,

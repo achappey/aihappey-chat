@@ -15,5 +15,8 @@ export const primeintellect: Provider = {
     },
   ],
   url: "https://www.primeintellect.ai",
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+
 };
 

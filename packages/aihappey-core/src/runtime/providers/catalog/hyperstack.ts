@@ -9,5 +9,8 @@ export const hyperstack: Provider = {
     }
   ],
   url: "https://www.hyperstack.cloud",
+  providerCountry: "GB",
+  inferenceRegions: ["World"]
+
 };
 

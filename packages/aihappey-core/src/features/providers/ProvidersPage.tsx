@@ -1,5 +1,11 @@
 import { useMemo, useState } from "react";
-import { ProviderCard, ProviderDetailModal, useTheme } from "aihappey-components";
+import {
+    ProviderCard,
+    ProviderDetailModal,
+    ProviderLocationFilters,
+    PROVIDER_LOCATION_ALL_FILTER_VALUE,
+    useTheme,
+} from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useDarkMode } from "usehooks-ts";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
@@ -16,6 +22,12 @@ export const ProvidersPage = () => {
     const { t } = useTranslation();
     const { isDarkMode } = useDarkMode();
     const [search, setSearch] = useState("");
+    const [selectedCountries, setSelectedCountries] = useState<string[]>([
+        PROVIDER_LOCATION_ALL_FILTER_VALUE,
+    ]);
+    const [selectedRegions, setSelectedRegions] = useState<string[]>([
+        PROVIDER_LOCATION_ALL_FILTER_VALUE,
+    ]);
     const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(null);
     const models = useAppStore((s) => s.models);
     const collator = useMemo(
@@ -39,7 +51,10 @@ export const ProvidersPage = () => {
                 name: m?.name ?? key,
                 description: m?.description,
                 experimental: m?.experimental,
+                providerCountry: m?.providerCountry,
+                inferenceRegions: m?.inferenceRegions,
                 url: m?.url ?? "",
+                urls: m?.urls,
                 icons: m?.icons,
             } satisfies ProviderListItem;
         });
@@ -48,15 +63,49 @@ export const ProvidersPage = () => {
         return items;
     }, [collator]);
 
+    const providerCountryOptions = useMemo(() => {
+        const values = new Set<string>();
+        providers.forEach((p) => {
+            if (p.providerCountry) {
+                values.add(p.providerCountry);
+            }
+        });
+
+        return Array.from(values).sort((a, b) => collator.compare(a, b));
+    }, [providers, collator]);
+
+    const inferenceRegionOptions = useMemo(() => {
+        const values = new Set<string>();
+        providers.forEach((p) => {
+            (p.inferenceRegions ?? []).forEach((region) => {
+                if (region) {
+                    values.add(region);
+                }
+            });
+        });
+
+        return Array.from(values).sort((a, b) => collator.compare(a, b));
+    }, [providers, collator]);
+
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return providers;
-
         return providers.filter((p) => {
             const haystack = `${p.key} ${p.name} ${p.url} ${p.description ?? ""}`.toLowerCase();
-            return haystack.includes(q);
+            const matchesSearch = !q || haystack.includes(q);
+
+            const allowAllCountries = selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
+            const matchesCountry =
+                allowAllCountries ||
+                (!!p.providerCountry && selectedCountries.includes(p.providerCountry));
+
+            const allowAllRegions = selectedRegions.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
+            const matchesRegion =
+                allowAllRegions ||
+                (p.inferenceRegions ?? []).some((region) => selectedRegions.includes(region));
+
+            return matchesSearch && matchesCountry && matchesRegion;
         });
-    }, [providers, search]);
+    }, [providers, search, selectedCountries, selectedRegions]);
 
     const selectedProvider = useMemo(
         () => providers.find((p) => p.key === selectedProviderKey) ?? null,
@@ -124,6 +173,22 @@ export const ProvidersPage = () => {
                         </div>
                     </div>
 
+                    <ProviderLocationFilters
+                        selectedCountries={selectedCountries}
+                        selectedRegions={selectedRegions}
+                        countryOptions={providerCountryOptions}
+                        regionOptions={inferenceRegionOptions}
+                        onCountriesChange={setSelectedCountries}
+                        onRegionsChange={setSelectedRegions}
+                        allLabel={t("all")}
+                        countryLabel={t("countryOfOrigin")}
+                        regionLabel={t("aiRegion")}
+                        getCountryLabel={(country: string) => t("regional:countries." + country)}
+                        getRegionLabel={(region: string) => t("regional:regions." + region)}
+                        countryAriaLabel="Provider country filter"
+                        regionAriaLabel="Provider inference region filter"
+                    />
+
                     <div
                         style={{
                             display: "grid",
@@ -150,12 +215,16 @@ export const ProvidersPage = () => {
                             );
 
                             return (
-                                <div key={p.key} style={{ maxWidth: 320, width: "100%" }}>
+                                <div
+                                    key={p.key}
+                                    style={{ width: "100%" }}
+                                >
                                     <ProviderCard
                                         name={p.name}
                                         experimental={p.experimental}
                                         url={p.url}
                                         urls={p.urls}
+                                        providerCountry={p.providerCountry}
                                         image={image}
                                         description={p.description ?? p.key}
                                         modelTypes={modelTypes}

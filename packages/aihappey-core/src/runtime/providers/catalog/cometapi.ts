@@ -10,5 +10,8 @@ export const cometapi: Provider = {
     },
   ],
   url: "https://www.cometapi.com",
+  providerCountry: "HK",
+  inferenceRegions: ["World"]
+
 };
 

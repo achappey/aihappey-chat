@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChartJsBlock, useTheme } from "aihappey-components";
+import {
+  ChartJsBlock,
+  ProviderLocationFilters,
+  PROVIDER_LOCATION_ALL_FILTER_VALUE,
+  useTheme,
+} from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
@@ -10,6 +15,12 @@ type MeshModel = {
   name?: string;
   type: string;
   owned_by?: string;
+};
+
+type ProviderLocationMeta = {
+  name?: string;
+  providerCountry?: string;
+  inferenceRegions?: string[];
 };
 
 const normalizeModelId = (modelId: string) => {
@@ -29,10 +40,75 @@ export const MeshPage = () => {
   const models = useAppStore((s) => s.models) as MeshModel[] | undefined;
 
   const [search, setSearch] = useState("");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([
+    PROVIDER_LOCATION_ALL_FILTER_VALUE,
+  ]);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([
+    PROVIDER_LOCATION_ALL_FILTER_VALUE,
+  ]);
+  const collator = useMemo(
+    () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
+    []
+  );
+  const providerMetadata = PROVIDERS as Record<string, ProviderLocationMeta>;
+
+  const providerKeysInModels = useMemo(() => {
+    const keys = new Set<string>();
+    (models ?? []).forEach((model) => {
+      keys.add(getProviderKey(model));
+    });
+    return keys;
+  }, [models]);
+
+  const providerCountryOptions = useMemo(() => {
+    const values = new Set<string>();
+
+    providerKeysInModels.forEach((providerKey) => {
+      const country = providerMetadata[providerKey]?.providerCountry;
+      if (country) {
+        values.add(country);
+      }
+    });
+
+    return Array.from(values).sort((a, b) => collator.compare(a, b));
+  }, [providerKeysInModels, providerMetadata, collator]);
+
+  const inferenceRegionOptions = useMemo(() => {
+    const values = new Set<string>();
+
+    providerKeysInModels.forEach((providerKey) => {
+      (providerMetadata[providerKey]?.inferenceRegions ?? []).forEach((region) => {
+        if (region) {
+          values.add(region);
+        }
+      });
+    });
+
+    return Array.from(values).sort((a, b) => collator.compare(a, b));
+  }, [providerKeysInModels, providerMetadata, collator]);
+
+  const locationFiltered = useMemo(() => {
+    return (models ?? []).filter((model) => {
+      const providerKey = getProviderKey(model);
+      const provider = providerMetadata[providerKey];
+
+      const allowAllCountries = selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
+      const matchesCountry =
+        allowAllCountries ||
+        (!!provider?.providerCountry && selectedCountries.includes(provider.providerCountry));
+
+      const allowAllRegions = selectedRegions.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
+      const matchesRegion =
+        allowAllRegions ||
+        (provider?.inferenceRegions ?? []).some((region) => selectedRegions.includes(region));
+
+      return matchesCountry && matchesRegion;
+    });
+  }, [models, providerMetadata, selectedCountries, selectedRegions]);
 
   const types = useMemo(
-    () => Array.from(new Set((models ?? []).map((m) => m.type))).sort(),
-    [models]
+    () => Array.from(new Set(locationFiltered.map((m) => m.type))).sort(),
+    [locationFiltered]
   );
 
   const [activeTab, setActiveTab] = useState<string>(types[0] ?? "");
@@ -50,15 +126,15 @@ export const MeshPage = () => {
 
   const searchFiltered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return models ?? [];
+    if (!q) return locationFiltered;
 
-    return (models ?? []).filter((m) => {
+    return locationFiltered.filter((m) => {
       const providerKey = getProviderKey(m);
       const normalized = normalizeModelId(m.id);
       const haystack = `${m.id} ${m.name ?? ""} ${m.type ?? ""} ${providerKey} ${normalized}`.toLowerCase();
       return haystack.includes(q);
     });
-  }, [models, search]);
+  }, [locationFiltered, search]);
 
   const tabFiltered = useMemo(
     () => searchFiltered.filter((m) => !activeTab || m.type === activeTab),
@@ -88,7 +164,7 @@ export const MeshPage = () => {
     }
 
     for (const provider of Array.from(providerToModelSet.keys()).sort()) {
-      const meta = (PROVIDERS as any)[provider];
+      const meta = providerMetadata[provider];
       const label = meta?.name ?? provider;
       providerIndex.set(provider, nodes.length);
       nodes.push({
@@ -139,14 +215,14 @@ export const MeshPage = () => {
         },
       ],
     } as any;
-  }, [tabFiltered, t]);
+  }, [tabFiltered, t, providerMetadata]);
 
   const graphRenderKey = useMemo(() => {
     const dataset = graphData?.datasets?.[0] as any;
     const nodes = dataset?.data?.length ?? 0;
     const edges = dataset?.edges?.length ?? 0;
-    return `${activeTab}|${nodes}|${edges}|${search.trim().toLowerCase()}`;
-  }, [graphData, activeTab, search]);
+    return `${activeTab}|${nodes}|${edges}|${search.trim().toLowerCase()}|${selectedCountries.join(",")}|${selectedRegions.join(",")}`;
+  }, [graphData, activeTab, search, selectedCountries, selectedRegions]);
 
   const stackedBarData = useMemo(() => {
     const providers = Array.from(new Set(tabFiltered.map((m) => getProviderKey(m)))).sort();
@@ -175,10 +251,10 @@ export const MeshPage = () => {
     }));
 
     return {
-      labels: providers.map((provider) => (PROVIDERS as any)[provider]?.name ?? provider),
+      labels: providers.map((provider) => providerMetadata[provider]?.name ?? provider),
       datasets,
     };
-  }, [tabFiltered, t]);
+  }, [tabFiltered, t, providerMetadata]);
 
   const providersPerModelBarData = useMemo(() => {
     const modelToProviders = new Map<string, Set<string>>();
@@ -206,7 +282,7 @@ export const MeshPage = () => {
         },
       ],
     };
-  }, [tabFiltered, t]);
+  }, [tabFiltered]);
 
   return (
     <div style={{ background: "transparent" }}>
@@ -248,6 +324,22 @@ export const MeshPage = () => {
             />
           </div>
         </div>
+
+        <ProviderLocationFilters
+          selectedCountries={selectedCountries}
+          selectedRegions={selectedRegions}
+          countryOptions={providerCountryOptions}
+          regionOptions={inferenceRegionOptions}
+          onCountriesChange={setSelectedCountries}
+          onRegionsChange={setSelectedRegions}
+          allLabel={t("all")}
+          countryLabel={t("countryOfOrigin")}
+          regionLabel={t("aiRegion")}
+          getCountryLabel={(country: string) => t("regional:countries." + country)}
+          getRegionLabel={(region: string) => t("regional:regions." + region)}
+          countryAriaLabel="Mesh provider country filter"
+          regionAriaLabel="Mesh provider inference region filter"
+        />
 
         <Tabs activeKey={activeTab} style={{ width: "100%" }} onSelect={(k: string) => setActiveTab(k)}>
           {types.map((type) => {

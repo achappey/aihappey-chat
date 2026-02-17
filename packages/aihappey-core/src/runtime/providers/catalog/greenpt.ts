@@ -10,5 +10,8 @@ export const greenpt: Provider = {
     },
   ],
   url: "https://greenpt.ai",
+  providerCountry: "NL",
+  inferenceRegions: ["Europe"]
+
 };
 

@@ -47,7 +47,7 @@ export function createSpeechProvider(config: {
                     }
 
                     const resultJson = await result.json();
-                    console.log(resultJson)
+
                     return {
                         ...resultJson,
                         audio: `data:${resultJson.audio.mimeType};base64,${resultJson.audio.base64}`
