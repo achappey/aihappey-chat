@@ -15,6 +15,7 @@ export function toChatMessages(
 ): ChatMessage[] {
   const toolPartCounts = new Map<string, number>();
   const out: ChatMessage[] = [];
+  console.log(messages)
 
   for (let zi = 0; zi < messages.length; zi++) {
     const z = messages[zi];

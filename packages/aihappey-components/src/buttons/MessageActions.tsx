@@ -2,7 +2,7 @@
 import type { ChatMessage } from "aihappey-types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessagePart } from "aihappey-ai";
 import { useTheme } from "../theme/ThemeContext";
-import { AiWarningBadge, TokenBadge } from "../badges";
+import { TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { TemperatureBadge } from "../badges/TemperatureBadge";
 import { useMediaQuery } from "usehooks-ts";
@@ -44,10 +44,8 @@ export const MessageActions = ({
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
-    <>
-      {msg.role === "assistant" && (
-        <AiWarningBadge size={size ?? isDesktop ? undefined : "small"} />
-      )}
+    <div
+      style={{ height: 16, paddingTop: 8, display: "flex", alignItems: "center" }}>
 
       {onCopyMessage && (
         <CopyToClipboardButton
@@ -133,6 +131,6 @@ export const MessageActions = ({
             icon={"cardList"}
           />
         )}
-    </>
+    </div>
   );
 };

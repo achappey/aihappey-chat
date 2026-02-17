@@ -194,6 +194,8 @@ export const MessageList = ({
           renderReactions={renderActions}
           renderMessage={onRenderMessage}
           messages={messagesWithMeta}
+          aiGeneratedLabel={t('generatedByAi')}
+          aiGeneratedWarning={t('generatedByAiWarning')}
           locale={locale}
         />
       )}
