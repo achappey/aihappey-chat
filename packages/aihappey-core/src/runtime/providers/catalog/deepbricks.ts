@@ -8,7 +8,12 @@ export const deepbricks: Provider = {
       src: "https://pbs.twimg.com/profile_images/1793491402493771776/7wCjgiQZ_400x400.jpg"
     }
   ],
-  url: "https://deepbricks.ai",
+  urls: {
+    homepage: "https://deepbricks.ai",
+    docs: "https://deepbricks.ai/docs",
+    termsOfService: "https://deepbricks.ai/TermOfService.html",
+    privacyPolicy: "https://deepbricks.ai/PrivacyPolicy.html"
+  },
   providerCountry: "SG",
   inferenceRegions: ["World"]
 

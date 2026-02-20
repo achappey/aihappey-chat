@@ -43,6 +43,8 @@
   "activity": "Activiteit",
   "models": "Modellen",
   "website": "Website",
+  "terms": "Algemene voorwaarden",
+  "privacy": "Privacyverklaring",
   "chatSettings": "Chat instellingen",
   "temperature": "Temperatuur ({{temperature}})",
   "image": "Afbeelding",
@@ -172,6 +174,8 @@
     "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier.",
     "mesh": {
       "title": "AI-mesh",
+      "countryCoverage": "Landendekking",
+      "activeCountriesView": "{{count}} landen",
       "description": "De AI-mesh laat zien hoe de {{total}} modellen, providers en mogelijkheden met elkaar verbonden zijn binnen één netwerk. Je ziet per model waar het vandaan komt, hoe het zich verhoudt tot andere modellen en voor welk type taak het logisch is om het in te zetten. Dit maakt routering, vergelijking en keuze transparant zonder vast te zitten aan één provider.",
       "network": "Provider-modelnetwerk",
       "providersPerModel": "Top 20 modellen met de meeste providers",

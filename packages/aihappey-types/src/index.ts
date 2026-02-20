@@ -21,4 +21,6 @@ export type ProviderUrls = {
     homepage: string;
     docs?: string;
     console?: string
+    termsOfService?: string
+    privacyPolicy?: string
 };

@@ -36,6 +36,12 @@ export const WithViewAction: Story = {
   args: {
     name: "Anthropic",
     url: "https://anthropic.com",
+    urls: {
+      homepage: "https://anthropic.com",
+      docs: "https://docs.anthropic.com",
+      termsOfService: "https://www.anthropic.com/legal/consumer-terms",
+      privacyPolicy: "https://www.anthropic.com/legal/privacy",
+    },
     image: "https://placehold.co/32x32?text=A",
     description: "Provider with View + external link actions",
     experimental: true,

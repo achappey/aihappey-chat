@@ -9,7 +9,13 @@ export const nscale: Provider = {
       src: "https://startuprise.co.uk/wp-content/uploads/2025/04/nscale_cloud_logo.jpg",
     },
   ],
-  url: "https://www.nscale.com",
+  urls: {
+    homepage: "https://www.nscale.com",
+    docs: "https://docs.nscale.com",
+    privacyPolicy: "https://www.nscale.com/policies/privacy-policy",
+    termsOfService: "https://www.nscale.com/policies/terms-conditions",
+    console: "https://console.nscale.com"
+  },
   providerCountry: "GB",
   inferenceRegions: ["World"]
 };

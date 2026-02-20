@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import {
     ProviderCard,
     ProviderDetailModal,
-    ProviderLocationFilters,
     PROVIDER_LOCATION_ALL_FILTER_VALUE,
     useTheme,
 } from "aihappey-components";
@@ -12,15 +11,19 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import type { Provider } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { MeshFiltersRow } from "./mesh/MeshFiltersRow";
 
 type ProviderListItem = {
     key: string;
 } & Provider;
 
 export const ProvidersPage = () => {
-    const { SearchBox, Text } = useTheme();
+    const { Text } = useTheme();
+    const CONTENT_MAX_WIDTH = 980;
     const { t } = useTranslation();
     const { isDarkMode } = useDarkMode();
+    const isDesktop = useIsDesktop();
     const [search, setSearch] = useState("");
     const [selectedCountries, setSelectedCountries] = useState<string[]>([
         PROVIDER_LOCATION_ALL_FILTER_VALUE,
@@ -137,11 +140,14 @@ export const ProvidersPage = () => {
             <div style={{ background: "transparent" }}>
                 <div
                     style={{
-                        width: 700,
+                        width: CONTENT_MAX_WIDTH,
                         maxWidth: "100%",
                         margin: "0 auto",
                         display: "flex",
                         flexDirection: "column",
+                        paddingLeft: 8,
+                        paddingRight: 8,
+                        boxSizing: "border-box",
                         alignItems: "center",
                     }}
                 >
@@ -151,51 +157,25 @@ export const ProvidersPage = () => {
                         {t("ai.providers", { total: providers.length })}
                     </Text>
 
-                    <div
-                        style={{
-                            width: "100%",
-                            display: "flex",
-                            justifyContent: "center",
-                            marginBottom: 16,
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: 360,
-                                maxWidth: "100%",
-                            }}
-                        >
-                            <SearchBox
-                                value={search}
-                                onChange={setSearch}
-                                placeholder={t("searchPlaceholder")}
-                            />
-                        </div>
-                    </div>
-
-                    <ProviderLocationFilters
+                    <MeshFiltersRow
+                        search={search}
+                        onSearchChange={setSearch}
                         selectedCountries={selectedCountries}
                         selectedRegions={selectedRegions}
                         countryOptions={providerCountryOptions}
                         regionOptions={inferenceRegionOptions}
                         onCountriesChange={setSelectedCountries}
                         onRegionsChange={setSelectedRegions}
-                        allLabel={t("all")}
-                        countryLabel={t("countryOfOrigin")}
-                        regionLabel={t("aiRegion")}
-                        getCountryLabel={(country: string) => t("regional:countries." + country)}
-                        getRegionLabel={(region: string) => t("regional:regions." + region)}
-                        countryAriaLabel="Provider country filter"
-                        regionAriaLabel="Provider inference region filter"
+                        t={t}
                     />
 
                     <div
                         style={{
                             display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                            gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
                             gap: 16,
                             width: "100%",
-                            maxWidth: 700,
+                            maxWidth: CONTENT_MAX_WIDTH,
                             marginBottom: 24,
                         }}
                     >

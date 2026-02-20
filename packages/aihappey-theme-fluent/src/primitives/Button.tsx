@@ -92,6 +92,11 @@ import {
   TextTRegular,
   WindowRegular,
   DocumentRegular,
+  KeyRegular,
+  ShieldCheckmarkRegular,
+  ShieldLockRegular,
+  WindowSettingsRegular,
+  DocumentTextRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -180,8 +185,10 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   logout: DoorArrowRightRegular,
   copyClipboard: CopyRegular,
   settings: SettingsRegular,
-  docs: DocumentRegular,
-  console: WindowRegular,
+  docs: BookOpenRegular,
+  terms: DocumentTextRegular,
+  privacy: ShieldLockRegular,
+  console: WindowSettingsRegular,
   sources: CloudLinkRegular,
   chevronDown: ChevronDownRegular,
   chevronUp: ChevronUpRegular,

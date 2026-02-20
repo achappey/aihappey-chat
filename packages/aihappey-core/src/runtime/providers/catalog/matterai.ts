@@ -8,7 +8,13 @@ export const matterai: Provider = {
       src: "https://www.matterai.so/favicon.png"
     }
   ],
-  url: "https://www.matterai.so",
+  urls: {
+    homepage: "https://www.matterai.so",
+    docs: "https://docs.matterai.so",
+    privacyPolicy: "https://www.matterai.so/policy",
+    termsOfService: "https://www.matterai.so/terms",
+    console: "https://app.matterai.so"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 };

@@ -7,6 +7,11 @@ export const together: Provider = {
   icons: [
     {
       src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/together-color.png",
+      theme: "light"
+    },
+    {
+      src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/together-color.png",
+      theme: "dark"
     },
   ],
   urls: {
@@ -16,6 +21,4 @@ export const together: Provider = {
   },
   providerCountry: "US",
   inferenceRegions: ["World"]
-
 };
-

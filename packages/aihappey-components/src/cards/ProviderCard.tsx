@@ -93,6 +93,20 @@ export const ProviderCard = ({
                             icon={"console"}
                             size="small"
                             variant="subtle" />}
+                    {urls?.termsOfService
+                        && <OpenLinkButton
+                            url={urls?.termsOfService}
+                            tooltip={t('terms')}
+                            icon={"terms"}
+                            size="small"
+                            variant="subtle" />}
+                    {urls?.privacyPolicy
+                        && <OpenLinkButton
+                            url={urls?.privacyPolicy}
+                            tooltip={t('privacy')}
+                            icon={"privacy"}
+                            size="small"
+                            variant="subtle" />}
                 </div>
             }
         >

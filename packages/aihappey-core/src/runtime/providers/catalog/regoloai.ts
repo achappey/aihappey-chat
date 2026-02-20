@@ -9,7 +9,13 @@ export const regoloai: Provider = {
       src: "https://regolo.ai/wp-content/themes/regolo/img/hero-image.png",
     },
   ],
-  url: "https://regolo.ai",
+  urls: {
+    homepage: "https://regolo.ai",
+    docs: "https://docs.regolo.ai",
+    termsOfService: "https://regolo.ai/terms-and-conditions",
+    privacyPolicy: "https://regolo.ai/privacy-policy",
+    console: "https://dashboard.regolo.ai"
+  },
   providerCountry: "IT",
   inferenceRegions: ["Europe"]
 };

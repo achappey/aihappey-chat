@@ -74,6 +74,8 @@ export type IconToken =
   | "disconnect"
   | "contextWindow"
   | "docs"
+  | "terms"
+  | "privacy"
   | "console"
   | "maxOutputTokens"
   | "panelExpand"

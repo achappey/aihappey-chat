@@ -9,7 +9,13 @@ export const fireworks: Provider = {
       src: "https://images.crunchbase.com/image/upload/c_pad,f_auto,q_auto:eco,dpr_1/xgb8cpbz7pcvovoowrmk?ik-sanitizeSvg=true",
     },
   ],
-  url: "https://fireworks.ai",
+  urls: {
+    homepage: "https://fireworks.ai",
+    docs: "https://docs.fireworks.ai",
+    termsOfService: "https://fireworks.ai/terms-of-service",
+    privacyPolicy: "https://fireworks.ai/privacy-policy",
+    console: "https://app.fireworks.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

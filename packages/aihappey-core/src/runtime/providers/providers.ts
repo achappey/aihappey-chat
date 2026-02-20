@@ -106,6 +106,28 @@ import { sunoapi } from "./catalog/sunoapi";
 import { horayai } from "./catalog/horayai";
 import { synexa } from "./catalog/synexa";
 import { recraft } from "./catalog/recraft";
+import { atlascloud } from "./catalog/atlascloud";
+import { bineric } from "./catalog/bineric";
+import { digitalocean } from "./catalog/digitalocean";
+import { gooseai } from "./catalog/gooseai";
+import { supa } from "./catalog/supa";
+import { runpod } from "./catalog/runpod";
+import { meganova } from "./catalog/meganova";
+import { llmgateway } from "./catalog/llmgateway";
+import { abliteration } from "./catalog/abliteration";
+import { amazonbedrock } from "./catalog/amazonbedrock";
+import { parasail } from "./catalog/parasail";
+import { mancerai } from "./catalog/mancerai";
+import { kilo } from "./catalog/kilo";
+import { helicone } from "./catalog/helicone";
+import { nousresearch } from "./catalog/nousresearch";
+import { paraloncloud } from "./catalog/paraloncloud";
+import { asione } from "./catalog/asione";
+import { apipie } from "./catalog/apipie";
+import { stepfun } from "./catalog/stepfun";
+import { sealion } from "./catalog/sealion";
+import { tencenthunyuan } from "./catalog/tencenthunyuan";
+import { deapi } from "./catalog/deapi";
 
 /**
  * UI-facing provider catalog.
@@ -143,6 +165,7 @@ export const PROVIDERS: Record<string, Provider> = {
   opperai,
   eurouter,
   upstage,
+  deapi,
   ionos,
   bergetai,
   regoloai,
@@ -156,24 +179,45 @@ export const PROVIDERS: Record<string, Provider> = {
   deepl,
   speechmatics,
   gtranslate,
+  gooseai,
   synexa,
   moonshot,
   greenpt,
   decart,
   relaxai,
   horayai,
+  tencenthunyuan,
+  digitalocean,
+  atlascloud,
+  bineric,
+  parasail,
+  asione,
+  sealion,
+  apipie,
+  mancerai,
+  stepfun,
+  helicone,
   jina,
+  amazonbedrock,
   sunoapi,
+  nousresearch,
   bytez,
   matterai,
+  paraloncloud,
   publicai,
   nscale,
+  kilo,
   openrouter,
   ai302,
   primeintellect,
   resembleai,
+  abliteration,
+  meganova,
+  supa,
+  llmgateway,
   assemblyai,
   gladia,
+  runpod,
   kernelmemory,
   portkey,
   minimax,
