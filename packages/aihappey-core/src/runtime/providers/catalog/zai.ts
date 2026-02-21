@@ -7,7 +7,12 @@ export const zai: Provider = {
   icons: [{
     src: "https://avatars.githubusercontent.com/u/223098841?s=200&v=4"
   }],
-  url: "https://z.ai",
+  urls: {
+    homepage: "https://z.ai/model-api",
+    docs: "https://docs.z.ai",
+    privacyPolicy: "https://docs.z.ai/legal-agreement/privacy-policy",
+    termsOfService: "https://docs.z.ai/legal-agreement/terms-of-use"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

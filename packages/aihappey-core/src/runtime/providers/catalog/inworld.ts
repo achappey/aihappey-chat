@@ -8,7 +8,13 @@ export const inworld: Provider = {
       src: "https://inworld.ai/favicon.ico"
     }
   ],
-  url: "https://inworld.ai",
+  urls: {
+    homepage: "https://inworld.ai",
+    docs: "https://docs.inworld.ai",
+    privacyPolicy: "https://inworld.ai/privacy",
+    termsOfService: "https://inworld.ai/terms",
+    console: "https://studio.inworld.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

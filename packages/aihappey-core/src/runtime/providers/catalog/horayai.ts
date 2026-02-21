@@ -8,7 +8,12 @@ export const horayai: Provider = {
       src: "https://www.google.com/s2/favicons?sz=128&domain=horay.ai"
     }
   ],
-  url: "https://www.horay.ai",
+  urls: {
+    homepage: "https://www.horay.ai",
+    docs: "https://www.horay.ai/docs",
+    privacyPolicy: "https://www.horay.ai/privacy-policy",
+    termsOfService: "https://www.horay.ai/terms-of-service"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

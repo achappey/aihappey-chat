@@ -9,7 +9,12 @@ export const deepl: Provider = {
       src: "https://hel1.your-objectstorage.com/ztudium-cms/deepl_7baa54aa02.jpeg",
     },
   ],
-  url: "https://www.deepl.com",
+  urls: {
+    homepage: "https://www.deepl.com",
+    docs: "https://developers.deepl.com",
+    privacyPolicy: "https://www.deepl.com/privacy",
+    termsOfService: "https://www.deepl.com/terms"
+  },
   providerCountry: "DE",
   inferenceRegions: ["Europe"]
 };

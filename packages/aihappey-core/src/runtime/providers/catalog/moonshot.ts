@@ -14,7 +14,12 @@ export const moonshot: Provider = {
       theme: "dark"
     },
   ],
-  url: "https://www.moonshot.ai",
+  urls: {
+    homepage: "https://www.moonshot.ai",
+    docs: "https://platform.moonshot.ai/docs/overview",
+    privacyPolicy: "https://platform.moonshot.ai/docs/agreement/userprivacy",
+    termsOfService: "https://platform.moonshot.ai/docs/agreement/modeluse"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

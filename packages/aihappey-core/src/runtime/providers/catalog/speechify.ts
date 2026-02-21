@@ -8,7 +8,12 @@ export const speechify: Provider = {
       src: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Speechify-logo.svg/250px-Speechify-logo.svg.png"
     }
   ],
-  url: "https://speechify.com",
+  urls: {
+    homepage: "https://speechify.com",
+    console: "https://console.speechify.ai",
+    privacyPolicy: "https://speechify.com/privacy",
+    termsOfService: "https://speechify.com/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

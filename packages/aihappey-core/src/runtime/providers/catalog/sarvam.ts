@@ -9,7 +9,12 @@ export const sarvam: Provider = {
       src: "https://www.peakxv.com/wp-content/uploads/sites/2/2024/02/sarvam.ai-idJ9Sr0Dj7.jpeg",
     },
   ],
-  url: "https://www.sarvam.ai",
+  urls: {
+    homepage: "https://www.sarvam.ai",
+    docs: "https://docs.sarvam.ai",
+    privacyPolicy: "https://www.sarvam.ai/privacy-policy",
+    termsOfService: "https://www.sarvam.ai/terms-of-use"
+  },
   providerCountry: "IN",
   inferenceRegions: ["Asia"]
 

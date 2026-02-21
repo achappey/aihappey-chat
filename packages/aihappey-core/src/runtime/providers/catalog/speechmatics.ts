@@ -8,7 +8,13 @@ export const speechmatics: Provider = {
       src: "https://upload.wikimedia.org/wikipedia/commons/1/1a/SM-Icon-Dark_Cyan1000.png"
     }
   ],
-  url: "https://www.speechmatics.com",
+  urls: {
+    homepage: "https://www.speechmatics.com",
+    docs: "https://docs.speechmatics.com",
+    privacyPolicy: "https://www.speechmatics.com/legal/privacy-policy",
+    termsOfService: "https://www.speechmatics.com/legal/terms-of-service",
+    console: "https://portal.speechmatics.com"
+  },
   providerCountry: "GB",
   inferenceRegions: ["World"]
 

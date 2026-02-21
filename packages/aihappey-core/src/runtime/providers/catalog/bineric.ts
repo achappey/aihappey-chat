@@ -11,7 +11,9 @@ export const bineric: Provider = {
   urls: {
     homepage: "https://www.bineric.com",
     docs: "https://www.bineric.com/platform/docs",
-    console: "https://platform.bineric.com"
+    console: "https://platform.bineric.com",
+    privacyPolicy: "https://www.bineric.com/legal/privacy-policy",
+    termsOfService: "https://www.bineric.com/legal/terms-of-use"
   },
   providerCountry: "NO",
   inferenceRegions: ["Americas", "Europe"]

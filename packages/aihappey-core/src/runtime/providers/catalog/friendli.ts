@@ -10,7 +10,13 @@ export const friendli: Provider = {
       src: "https://friendli.ai/favicon/apple-touch-icon.png"
     }
   ],
-  url: "https://friendli.ai",
+  urls: {
+    homepage: "https://friendli.ai",
+    docs: "https://docs.friendli.ai",
+    privacyPolicy: "https://friendli.ai/privacy",
+    termsOfService: "https://friendli.ai/terms",
+    console: "https://console.friendli.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

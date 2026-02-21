@@ -8,7 +8,10 @@ export const bytez: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq-FM1H-8h8v2kJOjVa7gYIXq45Wl2c4fXEw&s"
     }
   ],
-  url: "https://bytez.com",
+  urls: {
+    homepage: "https://bytez.com",
+    docs: "https://docs.bytez.com"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

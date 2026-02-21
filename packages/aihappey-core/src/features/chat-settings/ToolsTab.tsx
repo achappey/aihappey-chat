@@ -17,6 +17,8 @@ import { localJsonRenderPluginDef } from "../tools/toolcalls/useLocalJsonRenderT
 import { localCatalogPluginDef } from "../tools/toolcalls/useLocalCatalogToolCall";
 import { localRegistryPluginDef } from "../tools/toolcalls/useLocalRegistryToolCall";
 import { localTodoPluginDef } from "../tools/toolcalls/useLocalTodoListToolCall";
+import { localWebPluginDef } from "../tools/toolcalls/useLocalWebToolCall";
+import { localArtificialIntelligencePluginDef } from "../tools/toolcalls/useLocalArtificialIntelligenceToolCall";
 
 // --- Tools Tab ---
 // Holds the "Lokale plugins" card previously shown in the General tab.
@@ -44,6 +46,8 @@ export const ToolsTab = () => {
       localImagesPluginDef,
       localJsonRenderPluginDef,
       localTodoPluginDef,
+      localWebPluginDef,
+      localArtificialIntelligencePluginDef,
       localStructuredOutputsPluginDef,
       localCatalogPluginDef,
       localRegistryPluginDef,

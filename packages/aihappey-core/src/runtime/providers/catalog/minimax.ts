@@ -9,7 +9,13 @@ export const minimax: Provider = {
       src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/minimax-color.png",
     },
   ],
-  url: "https://www.minimax.io",
+  urls: {
+    homepage: "https://www.minimax.io",
+    docs: "https://platform.minimax.io/docs",
+    privacyPolicy: "https://platform.minimax.io/protocol/privacy-policy",
+    termsOfService: "https://platform.minimax.io/protocol/terms-of-service",
+    console: "https://platform.minimax.io"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 };

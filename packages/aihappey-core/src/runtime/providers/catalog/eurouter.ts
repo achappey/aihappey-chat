@@ -9,7 +9,12 @@ export const eurouter: Provider = {
       src: "https://www.eurouter.ai/favicon.ico",
     },
   ],
-  url: "https://www.eurouter.ai",
+  urls: {
+    homepage: "https://www.eurouter.ai",
+    docs: "https://docs.eurouter.ai",
+    privacyPolicy: "https://www.eurouter.ai/privacy",
+    termsOfService: "https://www.eurouter.ai/terms"
+  },
   providerCountry: "NL",
   inferenceRegions: ["Europe"]
 };

@@ -14,7 +14,12 @@ export const pollinations: Provider = {
       theme: "light",
     },
   ],
-  url: "https://pollinations.ai",
+  urls: {
+    homepage: "https://pollinations.ai",
+    docs: "https://pollinations.ai/docs",
+    privacyPolicy: "https://pollinations.ai/privacy",
+    termsOfService: "https://pollinations.ai/terms"
+  },
   providerCountry: "DE",
   inferenceRegions: ["World"]
 

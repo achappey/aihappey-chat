@@ -9,7 +9,12 @@ export const freepik: Provider = {
       src: "https://cdn.freebiesupply.com/logos/large/2x/freepik-logo-png-transparent.png",
     },
   ],
-  url: "https://www.freepik.com",
+  urls: {
+    homepage: "https://www.freepik.com",
+    docs: "https://www.freepik.com/api",
+    privacyPolicy: "https://www.freepikcompany.com/privacy",
+    termsOfService: "https://www.freepikcompany.com/legal"
+  },
   providerCountry: "ES",
   inferenceRegions: ["World"]
 

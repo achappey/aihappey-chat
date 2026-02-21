@@ -14,7 +14,12 @@ export const cohere: Provider = {
       theme: "light",
     },
   ],
-  url: "https://cohere.com",
+  urls: {
+    homepage: "https://cohere.com",
+    docs: "https://docs.cohere.com",
+    privacyPolicy: "https://cohere.com/privacy",
+    termsOfService: "https://cohere.com/terms-of-use"
+  },
   providerCountry: "CA",
   inferenceRegions: ["World"]
 

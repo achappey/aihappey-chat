@@ -10,6 +10,8 @@ export const kernelmemory: Provider = {
       src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/960px-Microsoft_logo.svg.png",
     },
   ],
-  url: "https://github.com/microsoft/kernel-memory",
+  urls: {
+    homepage: "https://github.com/microsoft/kernel-memory"
+  }
 };
 

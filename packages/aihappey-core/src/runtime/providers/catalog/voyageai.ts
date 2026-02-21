@@ -6,7 +6,12 @@ export const voyageai: Provider = {
   icons: [{
     src: "https://blog.voyageai.com/wp-content/uploads/2023/10/logo.png"
   }],
-  url: "https://www.voyageai.com",
+  urls: {
+    homepage: "https://www.voyageai.com",
+    docs: "https://docs.voyageai.com",
+    privacyPolicy: "https://www.voyageai.com/privacy",
+    termsOfService: "https://www.voyageai.com/tos"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

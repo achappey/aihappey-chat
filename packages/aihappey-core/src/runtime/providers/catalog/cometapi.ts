@@ -9,7 +9,12 @@ export const cometapi: Provider = {
       src: "https://avatars.githubusercontent.com/u/225111184?s=200&v=4",
     },
   ],
-  url: "https://www.cometapi.com",
+  urls: {
+    homepage: "https://www.cometapi.com",
+    docs: "https://docs.cometapi.com",
+    privacyPolicy: "https://www.cometapi.com/privacy-policy",
+    termsOfService: "https://www.cometapi.com/terms-of-service"
+  },
   providerCountry: "HK",
   inferenceRegions: ["World"]
 

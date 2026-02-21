@@ -8,7 +8,12 @@ export const nlpcloud: Provider = {
       src: "https://nlpcloud.com/assets/images/logo.png"
     }
   ],
-  url: "https://nlpcloud.com",
+  urls: {
+    homepage: "https://nlpcloud.com",
+    docs: "https://docs.nlpcloud.com",
+    privacyPolicy: "https://nlpcloud.com/privacy.html",
+    termsOfService: "https://nlpcloud.com/tos.html"
+  },
   providerCountry: "FR",
   inferenceRegions: ["World"]
 

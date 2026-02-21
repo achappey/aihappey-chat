@@ -7,7 +7,12 @@ export const deepinfra: Provider = {
   icons: [{
     src: "https://avatars.githubusercontent.com/u/116928265?s=280&v=4"
   }],
-  url: "https://deepinfra.com",
+  urls: {
+    homepage: "https://deepinfra.com",
+    docs: "https://deepinfra.com/docs",
+    privacyPolicy: "https://deepinfra.com/privacy",
+    termsOfService: "https://deepinfra.com/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 };

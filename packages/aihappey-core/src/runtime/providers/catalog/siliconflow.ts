@@ -9,7 +9,13 @@ export const siliconflow: Provider = {
       src: "https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/siliconcloud-color.png",
     },
   ],
-  url: "https://www.siliconflow.com",
+  urls: {
+    homepage: "https://www.siliconflow.com",
+    docs: "https://docs.siliconflow.com",
+    privacyPolicy: "https://docs.siliconflow.com/en/legals/privacy-policy",
+    termsOfService: "https://docs.siliconflow.com/en/legals/terms-of-service",
+    console: "https://cloud.siliconflow.com"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

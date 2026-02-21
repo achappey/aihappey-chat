@@ -11,6 +11,8 @@ export const verda: Provider = {
   urls: {
     homepage: "https://verda.com",
     docs: "https://docs.verda.com",
+    privacyPolicy: "https://verda.com/privacy-policy",
+    termsOfService: "https://verda.com/terms-and-conditions",
     console: "https://console.verda.com"
   },
   providerCountry: "FI",

@@ -8,7 +8,10 @@ export const sunoapi: Provider = {
       src: "https://sunoapi.org/logo.png"
     }
   ],
-  url: "https://sunoapi.org",
+  urls: {
+    homepage: "https://sunoapi.org",
+    docs: "https://docs.sunoapi.org"
+  },
 
 };
 

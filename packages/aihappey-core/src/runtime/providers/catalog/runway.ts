@@ -9,7 +9,12 @@ export const runway: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQE01cLcJx7cJONWLVmk5tRBhGB0LIJ8SqSQ&s",
     },
   ],
-  url: "https://runwayml.com",
+  urls: {
+    homepage: "https://runwayml.com",
+    privacyPolicy: "https://runwayml.com/privacy-policy",
+    termsOfService: "https://runwayml.com/terms-of-use",
+    console: "https://app.runwayml.com"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

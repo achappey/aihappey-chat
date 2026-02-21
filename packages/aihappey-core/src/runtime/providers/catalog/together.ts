@@ -17,6 +17,8 @@ export const together: Provider = {
   urls: {
     homepage: "https://www.together.ai",
     docs: "https://docs.together.ai",
+    privacyPolicy: "https://www.together.ai/privacy",
+    termsOfService: "https://www.together.ai/terms-of-service",
     console: "https://api.together.ai"
   },
   providerCountry: "US",

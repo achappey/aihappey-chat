@@ -19,6 +19,8 @@ import { localCatalogPluginDef } from "./toolcalls/useLocalCatalogToolCall";
 import { localRegistryPluginDef } from "./toolcalls/useLocalRegistryToolCall";
 import { localStructuredOutputsPluginDef } from "./toolcalls/useLocalStructuredOutputsToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
+import { localWebPluginDef } from "./toolcalls/useLocalWebToolCall";
+import { localArtificialIntelligencePluginDef } from "./toolcalls/useLocalArtificialIntelligenceToolCall";
 import { parseStoredToolInputSchema } from "./localStoredTools";
 import { useOnToolCall } from "./toolcalls/useOnToolCall";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -82,6 +84,8 @@ export const ToolsPage = () => {
       localCanvasPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDef,
+      localWebPluginDef,
+      localArtificialIntelligencePluginDef,
       localCatalogPluginDef,
       localRegistryPluginDef,
       localActionsPluginDef,

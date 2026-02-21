@@ -9,7 +9,13 @@ export const novita: Provider = {
       src: "https://media.licdn.com/dms/image/v2/D560BAQG04_X3qbYWrg/company-logo_200_200/company-logo_200_200/0/1737460982063/novita_ai_labs_logo?e=2147483647&v=beta&t=PP0ulFsya1NvYiEtpQDIdmmnEfbrQ03kl6XA7TT1pJ0",
     },
   ],
-  url: "https://novita.ai",
+  urls: {
+    homepage: "https://novita.ai",
+    docs: "https://docs.novita.ai",
+    privacyPolicy: "https://novita.ai/legal/privacy-policy",
+    termsOfService: "https://novita.ai/legal/terms-of-service",
+    console: "https://console.novita.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 };

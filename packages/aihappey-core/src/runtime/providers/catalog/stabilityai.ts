@@ -9,7 +9,13 @@ export const stabilityai: Provider = {
       src: "https://media.licdn.com/dms/image/v2/D560BAQGCth_DU2z1Fg/company-logo_200_200/B56Zh18sPOHMAU-/0/1754325501246/stability_ai_logo?e=2147483647&v=beta&t=K2vnKQAZRmg2Nqe0fJY7sYHDbLA752NOG1E45JbZC5s",
     },
   ],
-  url: "https://stability.ai",
+  urls: {
+    homepage: "https://stability.ai",
+    docs: "https://platform.stability.ai/docs",
+    privacyPolicy: "https://stability.ai/privacy-policy",
+    termsOfService: "https://stability.ai/terms-of-service",
+    console: "https://platform.stability.ai"
+  },
   providerCountry: "GB",
   inferenceRegions: ["World"]
 };

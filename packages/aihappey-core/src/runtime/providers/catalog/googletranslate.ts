@@ -8,8 +8,13 @@ export const googletranslate: Provider = {
       src: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Google_Translate_logo.svg/960px-Google_Translate_logo.svg.png"
     }
   ],
-  url: "https://translate.google.com",
-    providerCountry: "US",
+  urls: {
+    homepage: "https://translate.google.com",
+    docs: "https://cloud.google.com/translate/docs",
+    privacyPolicy: "https://policies.google.com/privacy",
+    termsOfService: "https://policies.google.com/terms"
+  },
+  providerCountry: "US",
   inferenceRegions: ["World"]
 
 };

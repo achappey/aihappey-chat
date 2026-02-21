@@ -9,7 +9,13 @@ export const azure: Provider = {
       src: "https://brandlogos.net/wp-content/uploads/2022/07/microsoft_azure-logo_brandlogos.net_mlyt6-512x512.png",
     },
   ],
-  url: "https://azure.microsoft.com",
+  urls: {
+    homepage: "https://azure.microsoft.com",
+    docs: "https://learn.microsoft.com/azure",
+    privacyPolicy: "https://privacy.microsoft.com",
+    console: "https://portal.azure.com",
+    termsOfService: "https://www.microsoft.com/licensing/docs"
+  },
   providerCountry: "US",
   inferenceRegions: ["Europe", "Americas", "Asia", "Africa", "Oceania"]
 

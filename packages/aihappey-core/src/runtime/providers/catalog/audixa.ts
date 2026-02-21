@@ -9,7 +9,12 @@ export const audixa: Provider = {
       src: "https://cdn.audixa.ai/brand.png",
     },
   ],
-  url: "https://audixa.ai",
+  urls: {
+    homepage: "https://audixa.ai",
+    docs: "https://docs.audixa.ai",
+    privacyPolicy: "https://audixa.ai/privacy",
+    termsOfService: "https://audixa.ai/tos"
+  },
   providerCountry: "IN",
   inferenceRegions: ["World"]
 

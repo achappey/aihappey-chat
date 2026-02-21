@@ -9,7 +9,12 @@ export const ionos: Provider = {
       src: "https://avatars.githubusercontent.com/u/67323449?s=200&v=4",
     },
   ],
-  url: "https://cloud.ionos.com",
+  urls: {
+    homepage: "https://cloud.ionos.com",
+    docs: "https://docs.ionos.com/cloud",
+    privacyPolicy: "https://www.ionos.com/terms-gtc/privacy-policy",
+    termsOfService: "https://www.ionos.com/terms-gtc"
+  },
   providerCountry: "DE",
   inferenceRegions: ["World"]
 

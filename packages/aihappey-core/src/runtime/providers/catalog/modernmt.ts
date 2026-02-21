@@ -8,7 +8,12 @@ export const modernmt: Provider = {
       src: "https://rws-prod-appstore-resources-eu-central-1.s3.amazonaws.com/ada56836-b958-4588-aab3-567b2ad727d0/Resources/ModernMT.png?dl=1"
     }
   ],
-  url: "https://www.modernmt.com",
+  urls: {
+    homepage: "https://www.modernmt.com",
+    docs: "https://www.modernmt.com/api",
+    privacyPolicy: "https://www.modernmt.com/privacy",
+    termsOfService: "https://www.modernmt.com/terms"
+  },
   providerCountry: "IT",
   inferenceRegions: ["World"]
 

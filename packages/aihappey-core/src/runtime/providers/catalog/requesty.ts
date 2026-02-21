@@ -8,7 +8,13 @@ export const requesty: Provider = {
       src: "https://requesty.ai/favicon.ico"
     }
   ],
-  url: "https://www.requesty.ai",
+  urls: {
+    homepage: "https://www.requesty.ai",
+    docs: "https://docs.requesty.ai",
+    privacyPolicy: "https://www.requesty.ai/privacy",
+    termsOfService: "https://www.requesty.ai/terms",
+    console: "https://app.requesty.ai"
+  },
   providerCountry: "GB",
   inferenceRegions: ["Asia", "Europe", "Americas"]
 };

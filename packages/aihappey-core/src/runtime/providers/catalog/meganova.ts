@@ -12,6 +12,8 @@ export const meganova: Provider = {
   urls: {
     homepage: "https://www.meganova.ai",
     docs: "https://docs.meganova.ai",
+    termsOfService: "https://docs.meganova.ai/legal-docs/terms-of-service",
+    privacyPolicy: "https://docs.meganova.ai/legal-docs/privacy-policy",
     console: "https://console.meganova.ai"
   },
   providerCountry: "US",

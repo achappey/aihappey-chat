@@ -280,6 +280,8 @@
     "local-todo": "Todo list",
     "local-json-render": "Apps",
     "local-images": "Images",
+    "local-web": "Web",
+    "local-artificial-intelligence": "Artificial Intelligence",
     "local-catalog": "Component catalogs",
     "local-registry": "Component registries",
     "local-structured-outputs": "Structured outputs",

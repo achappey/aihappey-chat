@@ -9,7 +9,12 @@ export const contextualai: Provider = {
       src: "https://media.licdn.com/dms/image/v2/D560BAQEUQLTc-jpQAQ/company-logo_200_200/B56ZnCdNsrIYAI-/0/1759904062535/contextualai_logo?e=2147483647&v=beta&t=Nfk2U-IagqdIr1crFoT4nS9MkEeA2_BYNGsGiFl6rJM",
     },
   ],
-  url: "https://contextual.ai",
+  urls: {
+    homepage: "https://contextual.ai",
+    docs: "https://docs.contextual.ai",
+    privacyPolicy: "https://contextual.ai/legal/privacy-policy",
+    termsOfService: "https://contextual.ai/legal/terms-of-use"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

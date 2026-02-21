@@ -5,7 +5,12 @@ export const euqai: Provider = {
   description:
     "Stop wasting your AI budget. Switch to Euqai Fusion, the GDPR-compliant, intelligent API that uses the right model for the right task to dramatically cut costs.",
   icons: [{ src: "https://euqai.eu/home/images/euqai-q-logo.png" }],
-  url: "https://euqai.eu",
+  urls: {
+    homepage: "https://euqai.eu",
+    docs: "https://euqai.eu/home/developers.html",
+    privacyPolicy: "https://euqai.eu/static/privacy",
+    termsOfService: "https://euqai.eu/static/terms"
+  },
   providerCountry: "NL",
   inferenceRegions: ["World"]
 };

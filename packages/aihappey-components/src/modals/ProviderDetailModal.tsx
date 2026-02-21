@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import type { ModelOption, Provider, ProviderUrls } from "aihappey-types";
+import type { IconToken, ModelOption, Provider, ProviderUrls } from "aihappey-types";
 
 import { ModelCard } from "../cards/ModelCard";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
@@ -12,7 +12,6 @@ export type ProviderDetailModalProps = {
 
     providerKey: string;
     providerName: string;
-    providerUrl?: string;
     providerUrls?: ProviderUrls;
     providerDescription?: string;
     providerImage?: string;
@@ -25,6 +24,20 @@ export type ProviderDetailModalProps = {
     size?: "small" | "medium" | "large";
 };
 
+type ProviderLinkConfig = {
+    key: keyof ProviderUrls;
+    icon: IconToken;
+    labelKey: string;
+};
+
+const PROVIDER_LINKS: ProviderLinkConfig[] = [
+    { key: "homepage", icon: "globe", labelKey: "website" },
+    { key: "docs", icon: "docs", labelKey: "documentation" },
+    { key: "console", icon: "console", labelKey: "console" },
+    { key: "termsOfService", icon: "terms", labelKey: "terms" },
+    { key: "privacyPolicy", icon: "privacy", labelKey: "privacy" },
+];
+
 const uniq = (values: string[]) => Array.from(new Set(values));
 
 export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
@@ -32,7 +45,6 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     onClose,
     providerKey,
     providerName,
-    providerUrl,
     providerUrls,
     providerDescription,
     providerImage,
@@ -46,14 +58,14 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     const { Modal, Button, Tabs, Tab, Image, Alert, Card } = useTheme();
 
     const providerHost = useMemo(() => {
-        if (!providerUrl) return "";
+        if (!providerUrls?.homepage) return "";
 
         try {
-            return new URL(providerUrl).hostname;
+            return new URL(providerUrls?.homepage).hostname;
         } catch {
-            return providerUrl;
+            return providerUrls?.homepage;
         }
-    }, [providerUrl]);
+    }, [providerUrls]);
     const providerModels = useMemo(
         () => (models ?? []).filter((m) => m.id.startsWith(providerKey + "/")),
         [models, providerKey]
@@ -92,15 +104,37 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
 
     const hasAnyModels = providerModels.length > 0;
     const hasModelTypeTabs = supportedModelTypes.length > 0;
-    const url = providerUrls?.homepage ?? providerUrl;
+    const providerLinkButtons = useMemo(() => {
+        if (!providerUrls) return undefined;
 
-    const openLinkButton = url ? <OpenLinkButton
-        url={url}
-        size="small"
-        variant="subtle"
-        text={providerHost}
-        disabled={!providerUrl}
-    /> : undefined;
+        const buttons = PROVIDER_LINKS
+            .map(({ key, icon, labelKey }) => {
+                const url = providerUrls[key];
+                if (!url) return null;
+
+                const translatedLabel = t(labelKey);
+                const text = key === "homepage"
+                    ? providerHost || translatedLabel
+                    : translatedLabel;
+
+                return (
+                    <OpenLinkButton
+                        key={key}
+                        url={url}
+                        size="small"
+                        variant="subtle"
+                        icon={icon}
+                        tooltip={translatedLabel}
+                        text={text}
+                    />
+                );
+            })
+            .filter(Boolean);
+
+        if (buttons.length === 0) return undefined;
+
+        return <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{buttons}</div>;
+    }, [providerHost, providerUrls, t]);
 
     return (
         <Modal
@@ -123,7 +157,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                             ? <Image height={40} shape="square" src={providerImage} />
                             : undefined}
                             title={providerName}
-                            actions={openLinkButton}>
+                            actions={providerLinkButtons}>
                             <div>{providerDescription}</div>
                         </Card>
                     </div>

@@ -8,7 +8,6 @@ export * from "./models";
 
 export type Provider = {
     name: string;
-    url?: string;
     description?: string
     experimental?: boolean
     icons: Icon[];

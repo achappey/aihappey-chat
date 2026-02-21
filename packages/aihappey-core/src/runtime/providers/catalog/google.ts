@@ -9,7 +9,13 @@ export const google: Provider = {
       src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Google-gemini-icon.svg/2048px-Google-gemini-icon.svg.png",
     },
   ],
-  url: "https://ai.google",
+  urls: {
+    homepage: "https://ai.google",
+    docs: "https://ai.google.dev",
+    privacyPolicy: "https://policies.google.com/privacy",
+    termsOfService: "https://policies.google.com/terms",
+    console: "https://aistudio.google.com"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

@@ -8,7 +8,11 @@ export const supa: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYuRgMhcHBkM7NhX8H11NZsGc5CXNPoNVldw&s"
     }
   ],
-  url: "https://supa.works",
+  urls: {
+    homepage: "https://supa.works",
+    privacyPolicy: "https://supa.works/privacy",
+    termsOfService: "https://supa.works/imprint"
+  },
   providerCountry: "DE",
   inferenceRegions: ["Europe"]
 

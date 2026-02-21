@@ -9,7 +9,12 @@ export const arklabs: Provider = {
       src: "https://pbs.twimg.com/profile_images/1953784719708934144/GJ-a2b5O_400x400.jpg",
     },
   ],
-  url: "https://ark-labs.cloud",
+  urls: {
+    homepage: "https://ark-labs.cloud",
+    docs: "https://ark-labs.cloud/documentation/",
+    privacyPolicy: "https://ark-labs.cloud/privacy",
+    termsOfService: "https://ark-labs.cloud/terms"
+  },
   providerCountry: "PL",
   inferenceRegions: ["World"]
 };

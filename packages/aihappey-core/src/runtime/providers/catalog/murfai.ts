@@ -9,7 +9,13 @@ export const murfai: Provider = {
       src: "https://website.cdn.speechify.com/murf-ai-app-logo.png?quality=95&width=2800",
     },
   ],
-  url: "https://murf.ai",
+  urls: {
+    homepage: "https://murf.ai",
+    docs: "https://murf.ai/api/docs",
+    privacyPolicy: "https://murf.ai/legal/privacy-policy",
+    termsOfService: "https://murf.ai/legal/terms-of-service",
+    console: "https://studio.murf.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

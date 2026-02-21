@@ -8,7 +8,11 @@ export const vidu: Provider = {
       src: "https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/vidu-color.png"
     }
   ],
-  url: "https://www.vidu.com",
+  urls: {
+    homepage: "https://www.vidu.com",
+    privacyPolicy: "https://www.vidu.com/privacy",
+    termsOfService: "https://www.vidu.com/terms"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

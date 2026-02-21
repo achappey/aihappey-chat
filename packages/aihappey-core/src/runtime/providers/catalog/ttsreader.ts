@@ -8,7 +8,11 @@ export const ttsreader: Provider = {
       src: "https://ttsreader.com/android-chrome-512x512.png"
     }
   ],
-  url: "https://ttsreader.com",
+  urls: {
+    homepage: "https://ttsreader.com",
+    privacyPolicy: "https://ttsreader.com/docs/legal/privacy",
+    termsOfService: "https://ttsreader.com/docs/legal/terms"
+  },
   providerCountry: "IL",
   inferenceRegions: ["World"]
 

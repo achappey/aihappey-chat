@@ -12,6 +12,8 @@ export const llmgateway: Provider = {
   urls: {
     homepage: "https://llmgateway.io",
     docs: "https://docs.llmgateway.io",
+    termsOfService: "https://llmgateway.io/legal/terms",
+    privacyPolicy: "https://llmgateway.io/legal/privacy",
     console: "https://llmgateway.io/dashboard"
   },
   providerCountry: "US",

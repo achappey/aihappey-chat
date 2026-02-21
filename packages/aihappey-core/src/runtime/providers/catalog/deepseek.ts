@@ -8,7 +8,12 @@ export const deepseek: Provider = {
       src: "https://images.seeklogo.com/logo-png/61/1/deepseek-ai-icon-logo-png_seeklogo-611473.png",
     },
   ],
-  url: "https://www.deepseek.com",
+  urls: {
+    homepage: "https://www.deepseek.com",
+    docs: "https://platform.deepseek.com/docs",
+    privacyPolicy: "https://www.deepseek.com/privacy",
+    termsOfService: "https://www.deepseek.com/terms"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

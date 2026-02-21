@@ -9,7 +9,13 @@ export const portkey: Provider = {
       src: "https://media.licdn.com/dms/image/v2/D4D0BAQF6D3Bf64c7_Q/company-logo_200_200/company-logo_200_200/0/1706756517195/portkey_ai_logo?e=2147483647&v=beta&t=m4yu6L4zWSJ_N1EPpuWrqN3BN7sDZzprqPqQqnpllCE",
     },
   ],
-  url: "https://portkey.ai",
+  urls: {
+    homepage: "https://portkey.ai",
+    docs: "https://docs.portkey.ai",
+    privacyPolicy: "https://portkey.ai/privacy",
+    termsOfService: "https://portkey.ai/terms",
+    console: "https://app.portkey.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

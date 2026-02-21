@@ -20,6 +20,8 @@ import { storedToolToMcpTool } from "./localStoredTools";
 import { localImagesPluginDef } from "./toolcalls/useLocalImagesToolCall";
 import { localTodoPluginDef } from "./toolcalls/useLocalTodoListToolCall";
 import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall";
+import { localWebPluginDef } from "./toolcalls/useLocalWebToolCall";
+import { localArtificialIntelligencePluginDef } from "./toolcalls/useLocalArtificialIntelligenceToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -39,6 +41,8 @@ export function useTools() {
       localCanvasPluginDef,
       localJsonRenderPluginDef,
       localImagesPluginDef,
+      localWebPluginDef,
+      localArtificialIntelligencePluginDef,
       localTodoPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDef,

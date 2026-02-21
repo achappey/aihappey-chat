@@ -7,7 +7,11 @@ export const canopywave: Provider = {
   icons: [{
     src: "https://canopywave.com/canopy.png"
   }],
-  url: "https://canopywave.com",
+  urls: {
+    homepage: "https://canopywave.com",
+    privacyPolicy: "https://canopywave.com/privacy",
+    termsOfService: "https://canopywave.com/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

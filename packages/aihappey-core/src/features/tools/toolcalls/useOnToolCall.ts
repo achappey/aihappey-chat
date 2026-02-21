@@ -45,6 +45,11 @@ import { localStructuredOutputsPluginDef as localStructuredOutputsPluginDefStati
 import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToolCall";
 import { localJsonRenderPluginDef, useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
 import { localTodoPluginDef, useLocalTodoRuntime } from "./useLocalTodoListToolCall";
+import { localWebPluginDef, useLocalWebreaderRuntime } from "./useLocalWebToolCall";
+import {
+  localArtificialIntelligencePluginDef,
+  useLocalArtificialIntelligenceRuntime,
+} from "./useLocalArtificialIntelligenceToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -95,6 +100,8 @@ export function useOnToolCall({
   const localStructuredOutputsRuntime = useLocalStructuredOutputsRuntime(api, getAccessToken, headers);
   const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
+  const localWebreaderRuntime = useLocalWebreaderRuntime();
+  const localArtificialIntelligenceRuntime = useLocalArtificialIntelligenceRuntime();
   const jsonRenderRuntime = useLocalJsonRenderRuntime({
     setActiveData,
     send
@@ -120,6 +127,8 @@ export function useOnToolCall({
       [localRegistryRuntime.name]: localRegistryRuntime,
       [localStructuredOutputsRuntime.name]: localStructuredOutputsRuntime,
       [vercelAIRuntime.name]: vercelAIRuntime,
+      [localWebreaderRuntime.name]: localWebreaderRuntime,
+      [localArtificialIntelligenceRuntime.name]: localArtificialIntelligenceRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
       [jsonRenderRuntime.name]: jsonRenderRuntime,
     }),
@@ -138,6 +147,8 @@ export function useOnToolCall({
       jsonRenderRuntime,
       vercelAIRuntime,
       localStructuredOutputsRuntime,
+      localWebreaderRuntime,
+      localArtificialIntelligenceRuntime,
     ]
   );
 
@@ -147,6 +158,8 @@ export function useOnToolCall({
       localAgentsPluginDef,
       localConversationsPluginDef,
       localImagesPluginDef,
+      localWebPluginDef,
+      localArtificialIntelligencePluginDef,
       localCanvasPluginDef,
       localJsonRenderPluginDef,
       localTodoPluginDef,

@@ -12,6 +12,7 @@ export const stepfun: Provider = {
   urls: {
     homepage: "https://stepfun.ai",
     docs: "https://platform.stepfun.ai/docs/en/overview/concept",
+    privacyPolicy: "https://platform.stepfun.com/legal/privacy-policy.html",
     console: "https://platform.stepfun.ai"
   },
   providerCountry: "CN",

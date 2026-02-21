@@ -9,7 +9,12 @@ export const assemblyai: Provider = {
       src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/assemblyai-color.png",
     },
   ],
-  url: "https://www.assemblyai.com",
+  urls: {
+    homepage: "https://www.assemblyai.com",
+    docs: "https://www.assemblyai.com/docs",
+    privacyPolicy: "https://www.assemblyai.com/legal/privacy-policy",
+    termsOfService: "https://www.assemblyai.com/legal/terms-of-service"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

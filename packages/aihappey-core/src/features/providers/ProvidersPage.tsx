@@ -56,7 +56,6 @@ export const ProvidersPage = () => {
                 experimental: m?.experimental,
                 providerCountry: m?.providerCountry,
                 inferenceRegions: m?.inferenceRegions,
-                url: m?.url ?? "",
                 urls: m?.urls,
                 icons: m?.icons,
             } satisfies ProviderListItem;
@@ -93,7 +92,7 @@ export const ProvidersPage = () => {
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
         return providers.filter((p) => {
-            const haystack = `${p.key} ${p.name} ${p.url} ${p.description ?? ""}`.toLowerCase();
+            const haystack = `${p.key} ${p.name} ${p.urls?.homepage} ${p.description ?? ""}`.toLowerCase();
             const matchesSearch = !q || haystack.includes(q);
 
             const allowAllCountries = selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
@@ -201,7 +200,6 @@ export const ProvidersPage = () => {
                                     <ProviderCard
                                         name={p.name}
                                         experimental={p.experimental}
-                                        url={p.url}
                                         urls={p.urls}
                                         providerCountry={p.providerCountry}
                                         image={image}
@@ -221,7 +219,6 @@ export const ProvidersPage = () => {
                             onClose={() => setSelectedProviderKey(null)}
                             providerKey={selectedProvider.key}
                             providerName={selectedProvider.name}
-                            providerUrl={selectedProvider.url}
                             providerUrls={selectedProvider.urls}
                             providerDescription={selectedProvider.description}
                             providerImage={selectedProviderImage}

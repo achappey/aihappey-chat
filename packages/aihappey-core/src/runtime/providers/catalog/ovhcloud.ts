@@ -8,7 +8,12 @@ export const ovhcloud: Provider = {
       src: "https://pbs.twimg.com/profile_images/1178940876078407680/p0SH0xKH_400x400.jpg"
     }
   ],
-  url: "https://www.ovhcloud.com",
+  urls: {
+    homepage: "https://www.ovhcloud.com",
+    docs: "https://docs.ovh.com",
+    privacyPolicy: "https://www.ovhcloud.com/en/personal-data-protection",
+    termsOfService: "https://www.ovhcloud.com/en/terms-and-conditions"
+  },
   providerCountry: "FR",
   inferenceRegions: ["Americas", "Europe", "Asia"]
 

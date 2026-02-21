@@ -8,7 +8,12 @@ export const lectoai: Provider = {
       src: "https://lecto.ai/assets/images/image02.jpg?v=7b019a46"
     }
   ],
-  url: "https://lecto.ai",
+  urls: {
+    homepage: "https://lecto.ai",
+    docs: "https://dashboard.lecto.ai/docs",
+    console: "https://dashboard.lecto.ai",
+    termsOfService: "https://dashboard.lecto.ai/terms"
+  },
   providerCountry: "HK",
   inferenceRegions: ["World"]
 };

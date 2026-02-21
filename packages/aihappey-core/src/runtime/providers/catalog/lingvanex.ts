@@ -8,7 +8,12 @@ export const lingvanex: Provider = {
       src: "https://media.licdn.com/dms/image/v2/C4D0BAQHIYe-AlXNXcw/company-logo_200_200/company-logo_200_200/0/1630569764634/lingvanex_logo?e=2147483647&v=beta&t=NHkF-KaIYGhU4wkrQi2hr1H1dnyZhV_tRr0HjuWMcBg"
     }
   ],
-  url: "https://lingvanex.com",
+  urls: {
+    homepage: "https://lingvanex.com",
+    docs: "https://docs.lingvanex.com",
+    privacyPolicy: "https://lingvanex.com/privacy-policy",
+    termsOfService: "https://lingvanex.com/terms-of-service"
+  },
   providerCountry: "CY",
   inferenceRegions: ["World"]
 

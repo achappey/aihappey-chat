@@ -8,7 +8,10 @@ export const sudo: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHpkT8SvBa8pZvJeKuxvxVuSpcFAXnwHz-Hg&s"
     }
   ],
-  url: "https://sudoapp.dev",
+  urls: {
+    homepage: "https://sudoapp.dev",
+    docs: "https://docs.sudoapp.dev"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

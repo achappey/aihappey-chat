@@ -14,7 +14,13 @@ export const openai: Provider = {
       theme: "light",
     },
   ],
-  url: "https://openai.com",
+  urls: {
+    homepage: "https://openai.com",
+    docs: "https://platform.openai.com/docs",
+    privacyPolicy: "https://openai.com/policies/privacy-policy",
+    termsOfService: "https://openai.com/policies/terms-of-use",
+    console: "https://platform.openai.com"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

@@ -10,7 +10,12 @@ export const nvidia: Provider = {
       src: "https://www.citypng.com/public/uploads/preview/hd-nvidia-eye-logo-icon-png-701751694965655t2lbe7yugk.png",
     },
   ],
-  url: "https://www.nvidia.com",
+  urls: {
+    homepage: "https://www.nvidia.com",
+    docs: "https://docs.nvidia.com",
+    privacyPolicy: "https://www.nvidia.com/en-us/about-nvidia/privacy-policy",
+    termsOfService: "https://www.nvidia.com/en-us/about-nvidia/terms-of-service"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 };

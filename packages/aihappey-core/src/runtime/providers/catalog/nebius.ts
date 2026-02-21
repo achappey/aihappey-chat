@@ -9,7 +9,12 @@ export const nebius: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKRoO9XCNhc_7_DVpQm8BsTL_oVF6q57IZPA&s",
     }
   ],
-  url: "https://nebius.com",
+  urls: {
+    homepage: "https://nebius.com",
+    docs: "https://nebius.com/docs",
+    privacyPolicy: "https://docs.nebius.com/legal/privacy",
+    termsOfService: "https://docs.nebius.com/legal/terms-of-use"
+  },
   providerCountry: "NL",
   inferenceRegions: ["World"]
 };

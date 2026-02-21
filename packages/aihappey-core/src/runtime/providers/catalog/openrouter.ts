@@ -8,7 +8,12 @@ export const openrouter: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtUJ7sIo-IoQEx5qCcqYFmJE47fYgbnKe80A&s"
     }
   ],
-  url: "https://openrouter.ai",
+  urls: {
+    homepage: "https://openrouter.ai",
+    docs: "https://openrouter.ai/docs",
+    privacyPolicy: "https://openrouter.ai/privacy",
+    termsOfService: "https://openrouter.ai/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

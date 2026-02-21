@@ -14,7 +14,13 @@ export const primeintellect: Provider = {
       theme: "dark"
     },
   ],
-  url: "https://www.primeintellect.ai",
+  urls: {
+    homepage: "https://www.primeintellect.ai",
+    docs: "https://docs.primeintellect.ai",
+    privacyPolicy: "https://www.primeintellect.ai/privacy-policy",
+    termsOfService: "https://www.primeintellect.ai/terms-of-service",
+    console: "https://app.primeintellect.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

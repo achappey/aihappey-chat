@@ -9,7 +9,6 @@ import Flag from "react-world-flags";
 
 export type ProviderCardProps = {
     name: string;
-    url?: string;
     urls?: ProviderUrls;
     image?: string;
     description?: string;
@@ -21,7 +20,6 @@ export type ProviderCardProps = {
 
 export const ProviderCard = ({
     name,
-    url,
     urls,
     image,
     description,
@@ -32,7 +30,7 @@ export const ProviderCard = ({
 }: ProviderCardProps) => {
     const { Card, Image } = useTheme();
     const { t } = useTranslation();
-    const websiteUrl = urls?.homepage ?? url;
+    const websiteUrl = urls?.homepage;
 
     const imageItem = image ? (
         <Image height={40} shape="square" src={image} />

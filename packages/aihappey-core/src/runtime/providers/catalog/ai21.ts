@@ -9,7 +9,12 @@ export const ai21: Provider = {
       src: "https://media.licdn.com/dms/image/v2/D4D0BAQGi7Q43f9KESg/company-logo_200_200/B4DZu2qBPvJgAI-/0/1768296027620/ai21_logo?e=2147483647&v=beta&t=wR4j-IVlUaQA18d3_P0uJo4dXht0PvhowIC_vAuqXFo",
     },
   ],
-  url: "https://www.ai21.com",
+  urls: {
+    homepage: "https://www.ai21.com",
+    docs: "https://docs.ai21.com",
+    privacyPolicy: "https://www.ai21.com/terms-policies/privacy-policy",
+    termsOfService: "https://www.ai21.com/terms-policies/terms-of-use"
+  },
   providerCountry: "IL",
   inferenceRegions: ["World"]
 };

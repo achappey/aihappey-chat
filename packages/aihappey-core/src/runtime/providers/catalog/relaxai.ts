@@ -9,7 +9,12 @@ export const relaxai: Provider = {
       src: "https://relax.ai/images/home/pricing/relaxai-logomark.svg",
     },
   ],
-  url: "https://relax.ai",
+  urls: {
+    homepage: "https://relax.ai",
+    docs: "https://relax.ai/docs",
+    privacyPolicy: "https://relax.ai/privacy-policy",
+    termsOfService: "https://relax.ai/terms-of-service"
+  },
   providerCountry: "GB",
   inferenceRegions: ["Europe"]
 

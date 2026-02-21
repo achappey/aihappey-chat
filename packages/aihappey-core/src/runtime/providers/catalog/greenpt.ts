@@ -9,7 +9,11 @@ export const greenpt: Provider = {
       src: "https://greenpt.ai/content/uploads/2026/01/2993679_brand_brands_logo_logos_opera_icon@2x-800x800.webp",
     },
   ],
-  url: "https://greenpt.ai",
+  urls: {
+    homepage: "https://greenpt.ai",
+    privacyPolicy: "https://docs.greenpt.ai/privacy/privacy-policy",
+    termsOfService: "https://docs.greenpt.ai/privacy/terms"
+  },
   providerCountry: "NL",
   inferenceRegions: ["Europe"]
 

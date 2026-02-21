@@ -13,7 +13,13 @@ export const recraft: Provider = {
       theme: "dark"
     }
   ],
-  url: "https://www.recraft.ai",
+  urls: {
+    homepage: "https://www.recraft.ai",
+    docs: "https://www.recraft.ai/docs",
+    privacyPolicy: "https://www.recraft.ai/privacy",
+    termsOfService: "https://www.recraft.ai/terms",
+    console: "https://app.recraft.ai"
+  },
   providerCountry: "GB",
   inferenceRegions: ["World"]
 

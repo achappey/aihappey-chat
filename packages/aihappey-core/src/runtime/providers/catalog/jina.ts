@@ -14,7 +14,12 @@ export const jina: Provider = {
       theme: "light",
     },
   ],
-  url: "https://jina.ai",
+  urls: {
+    homepage: "https://jina.ai",
+    docs: "https://jina.ai/docs",
+    privacyPolicy: "https://jina.ai/legal/#privacy-policy",
+    termsOfService: "https://jina.ai/legal/#terms-and-conditions"
+  },
   providerCountry: "DE",
   inferenceRegions: ["World"]
 

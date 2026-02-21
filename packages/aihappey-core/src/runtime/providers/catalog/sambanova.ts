@@ -7,7 +7,13 @@ export const sambanova: Provider = {
   icons: [{
     src: "https://sambanova.ai/hubfs/logotype_sambanova_orange.png"
   }],
-  url: "https://sambanova.ai",
+  urls: {
+    homepage: "https://sambanova.ai",
+    docs: "https://docs.sambanova.ai",
+    privacyPolicy: "https://sambanova.ai/privacy-policy",
+    termsOfService: "https://sambanova.ai/legal-agreements",
+    console: "https://cloud.sambanova.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

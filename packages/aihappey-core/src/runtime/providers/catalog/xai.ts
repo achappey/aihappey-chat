@@ -14,7 +14,13 @@ export const xai: Provider = {
       theme: "light",
     },
   ],
-  url: "https://x.ai",
+  urls: {
+    homepage: "https://x.ai",
+    docs: "https://docs.x.ai",
+    privacyPolicy: "https://x.ai/privacy-policy",
+    termsOfService: "https://x.ai/legal",
+    console: "https://console.x.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

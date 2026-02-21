@@ -7,7 +7,13 @@ export const scaleway: Provider = {
   icons: [{
     src: "https://www-uploads.scaleway.com/Scaleway_3_D_Logo_57e7fb833f.png"
   }],
-  url: "https://www.scaleway.com",
+  urls: {
+    homepage: "https://www.scaleway.com",
+    docs: "https://www.scaleway.com/en/docs",
+    privacyPolicy: "https://www.scaleway.com/en/privacy-policy",
+    termsOfService: "https://www.scaleway.com/en/legal-notice",
+    console: "https://console.scaleway.com"
+  },
   providerCountry: "FR",
   inferenceRegions: ["Europe"]
 

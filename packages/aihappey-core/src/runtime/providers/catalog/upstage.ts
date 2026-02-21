@@ -12,6 +12,8 @@ export const upstage: Provider = {
   urls: {
     homepage: "https://www.upstage.ai",
     docs: "https://console.upstage.ai/docs/getting-started",
+    termsOfService: "https://www.upstage.ai/terms-of-service",
+    privacyPolicy: "https://www.upstage.ai/privacy-policy",
     console: "https://console.upstage.ai"
   },
   providerCountry: "KR",

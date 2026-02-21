@@ -13,7 +13,12 @@ export const aiml: Provider = {
       theme: "light",
     },
   ],
-  url: "https://aimlapi.com",
+  urls: {
+    homepage: "https://aimlapi.com",
+    docs: "https://docs.aimlapi.com",
+    privacyPolicy: "https://help.aimlapi.com/article/56-privacy-policy",
+    termsOfService: "https://help.aimlapi.com/article/55-terms-of-service"
+  },
   providerCountry: "EE",
   inferenceRegions: ["World"]
 

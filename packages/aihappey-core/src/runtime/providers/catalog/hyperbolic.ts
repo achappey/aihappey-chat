@@ -8,7 +8,13 @@ export const hyperbolic: Provider = {
       src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/hyperbolic-color.png",
     },
   ],
-  url: "https://www.hyperbolic.ai",
+  urls: {
+    homepage: "https://www.hyperbolic.ai",
+    docs: "https://docs.hyperbolic.ai",
+    privacyPolicy: "https://www.hyperbolic.ai/privacy",
+    termsOfService: "https://www.hyperbolic.ai/terms",
+    console: "https://app.hyperbolic.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

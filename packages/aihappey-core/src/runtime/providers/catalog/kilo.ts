@@ -12,7 +12,9 @@ export const kilo: Provider = {
   urls: {
     homepage: "https://kilo.ai",
     docs: "https://kilo.ai/docs",
-    console: "https://app.kilo.ai"
+    console: "https://app.kilo.ai",
+    termsOfService: "https://kilo.ai/terms",
+    privacyPolicy: "https://kilo.ai/privacy"
   },
   providerCountry: "US",
   inferenceRegions: ["World"]

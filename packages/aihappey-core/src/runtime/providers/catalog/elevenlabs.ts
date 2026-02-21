@@ -7,7 +7,12 @@ export const elevenlabs: Provider = {
   icons: [{
     src: "https://help.elevenlabs.io/hc/theming_assets/01HZQ08B6SDY5X53YN9ABG4B99"
   }],
-  url: "https://elevenlabs.io",
+  urls: {
+    homepage: "https://elevenlabs.io",
+    docs: "https://elevenlabs.io/docs",
+    privacyPolicy: "https://elevenlabs.io/privacy",
+    termsOfService: "https://elevenlabs.io/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

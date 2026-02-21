@@ -9,7 +9,13 @@ export const json2video: Provider = {
       src: "https://gdm-catalog-fmapi-prod.imgix.net/ProductLogo/11e2323a-3eee-468f-a99c-e059e95777b0.png?w=80&h=80&fit=max&dpr=3&auto=format&q=50",
     },
   ],
-  url: "https://json2video.com",
+  urls: {
+    homepage: "https://json2video.com",
+    docs: "https://json2video.com/docs/v2",
+    privacyPolicy: "https://json2video.com/legal/privacy-policy.html",
+    termsOfService: "https://json2video.com/legal/terms-of-use-2022-07.pdf",
+    console: "https://app.json2video.com"
+  },
   providerCountry: "ES",
   inferenceRegions: ["World"]
 

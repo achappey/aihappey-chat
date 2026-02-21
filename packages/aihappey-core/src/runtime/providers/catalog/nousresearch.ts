@@ -11,6 +11,9 @@ export const nousresearch: Provider = {
   ],
   urls: {
     homepage: "https://nousresearch.com",
+    docs: "https://portal.nousresearch.com/api-docs",
+    termsOfService: "https://portal.nousresearch.com/terms",
+    privacyPolicy: "https://portal.nousresearch.com/privacy",
     console: "https://portal.nousresearch.com"
   },
   providerCountry: "US",

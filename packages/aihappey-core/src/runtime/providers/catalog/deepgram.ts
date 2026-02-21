@@ -7,7 +7,12 @@ export const deepgram: Provider = {
   icons: [{
     src: "https://avatars.githubusercontent.com/u/17422641?s=280&v=4"
   }],
-  url: "https://deepgram.com",
+  urls: {
+    homepage: "https://deepgram.com",
+    docs: "https://developers.deepgram.com",
+    privacyPolicy: "https://deepgram.com/privacy",
+    termsOfService: "https://deepgram.com/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

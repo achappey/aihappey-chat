@@ -8,7 +8,13 @@ export const segmind: Provider = {
       src: "https://www.segmind.com/favicon-192x192.png"
     }
   ],
-  url: "https://www.segmind.com",
+  urls: {
+    homepage: "https://www.segmind.com",
+    docs: "https://docs.segmind.com",
+    privacyPolicy: "https://www.segmind.com/privacy",
+    termsOfService: "https://www.segmind.com/terms",
+    console: "https://app.segmind.com"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

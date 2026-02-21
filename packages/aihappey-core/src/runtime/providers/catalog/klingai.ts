@@ -9,7 +9,11 @@ export const klingai: Provider = {
       src: "https://cdn.prod.website-files.com/65b8f370a600366bc7cf9b20/6718d0e02f90eca5abe33eed_ddd.png",
     },
   ],
-  url: "https://klingai.com",
+  urls: {
+    homepage: "https://klingai.com",
+    privacyPolicy: "https://klingai.com/privacy",
+    termsOfService: "https://klingai.com/terms"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

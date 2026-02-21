@@ -8,7 +8,12 @@ export const nextbit: Provider = {
       src: "https://www.nextbit256.com/Nextbit_mark_Main@2x.png"
     }
   ],
-  url: "https://www.nextbit256.com",
+  urls: {
+    homepage: "https://www.nextbit256.com",
+    docs: "https://www.nextbit256.com/docs",
+    privacyPolicy: "https://www.nextbit256.com/docs/privacy-policy",
+    termsOfService: "https://www.nextbit256.com/docs/privacy-policy"
+  },
   providerCountry: "ES",
   inferenceRegions: ["Europe"]
 

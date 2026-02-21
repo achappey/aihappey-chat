@@ -7,7 +7,12 @@ export const cloudrift: Provider = {
   icons: [{
     src: "https://pbs.twimg.com/profile_images/1956487392204111872/IJ0Xu1b3_400x400.jpg"
   }],
-  url: "https://www.cloudrift.ai",
+  urls: {
+    homepage: "https://www.cloudrift.ai",
+    docs: "https://docs.cloudrift.ai",
+    privacyPolicy: "https://www.cloudrift.ai/privacy",
+    termsOfService: "https://www.cloudrift.ai/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

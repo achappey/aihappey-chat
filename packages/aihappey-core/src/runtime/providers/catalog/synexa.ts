@@ -8,7 +8,13 @@ export const synexa: Provider = {
       src: "https://pbs.twimg.com/ext_tw_video_thumb/1892346379894222848/pu/img/jUFHl2xNmS5crh-a.jpg",
     }
   ],
-  url: "https://synexa.ai",
+  urls: {
+    homepage: "https://synexa.ai",
+    docs: "https://synexa.ai/docs",
+    privacyPolicy: "https://synexa.ai/privacy",
+    termsOfService: "https://synexa.ai/terms",
+    console: "https://app.synexa.ai"
+  },
   providerCountry: "CA",
   inferenceRegions: ["World"]
 

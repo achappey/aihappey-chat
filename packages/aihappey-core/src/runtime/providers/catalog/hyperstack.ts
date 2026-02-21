@@ -8,7 +8,12 @@ export const hyperstack: Provider = {
       src: "https://www.hyperstack.cloud/hubfs/hyperstack_2023/blog/plain.jpg"
     }
   ],
-  url: "https://www.hyperstack.cloud",
+  urls: {
+    homepage: "https://www.hyperstack.cloud",
+    docs: "https://docs.hyperstack.cloud/docs/api-reference",
+    privacyPolicy: "https://www.hyperstack.cloud/privacy-policy",
+    termsOfService: "https://www.hyperstack.cloud/terms-and-conditions"
+  },
   providerCountry: "GB",
   inferenceRegions: ["World"]
 

@@ -9,7 +9,13 @@ export const runware: Provider = {
       src: "https://media.licdn.com/dms/image/v2/D4E0BAQFzsJTSfpkCbQ/company-logo_200_200/B4EZfR3QUwGcAQ-/0/1751572612962/runware_logo?e=2147483647&v=beta&t=HvfRm7Kk85KGMPVDzoiTBWuFN9v5bnyFSRvPuie2BBQ",
     },
   ],
-  url: "https://runware.ai",
+  urls: {
+    homepage: "https://runware.ai",
+    docs: "https://docs.runware.ai",
+    privacyPolicy: "https://runware.ai/privacy",
+    termsOfService: "https://runware.ai/terms",
+    console: "https://app.runware.ai"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

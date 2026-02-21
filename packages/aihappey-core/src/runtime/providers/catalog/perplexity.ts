@@ -9,7 +9,13 @@ export const perplexity: Provider = {
       src: "https://brandlogos.net/wp-content/uploads/2025/05/perplexity_icon-logo_brandlogos.net_a9d3e-512x591.png",
     },
   ],
-  url: "https://www.perplexity.ai",
+  urls: {
+    homepage: "https://www.perplexity.ai/api-platform",
+    docs: "https://docs.perplexity.ai",
+    privacyPolicy: "https://www.perplexity.ai/hub/legal/privacy-policy",
+    termsOfService: "https://www.perplexity.ai/hub/legal/perplexity-api-terms-of-service",
+    console: "https://www.perplexity.ai/settings/api"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

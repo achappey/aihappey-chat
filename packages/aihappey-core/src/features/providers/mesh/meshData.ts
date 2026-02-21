@@ -1,6 +1,7 @@
 import {
   PROVIDER_LOCATION_ALL_FILTER_VALUE,
 } from "aihappey-components";
+import { useTranslation } from "aihappey-i18n";
 
 export type MeshModel = {
   id: string;
@@ -376,12 +377,13 @@ export const buildProvidersByRegionBarData = ({
   providerMetadata: Record<string, ProviderLocationMeta>;
 }) => {
   const counts = buildRegionProviderCounts({ models, providerMetadata });
+  const { t } = useTranslation()
   const rows = Object.entries(counts)
     .map(([region, count]) => ({ region, count }))
     .sort((a, b) => b.count - a.count || a.region.localeCompare(b.region));
 
   return {
-    labels: rows.map((row) => row.region),
+    labels: rows.map((row) => t('regional:regions.' + row.region)),
     datasets: [
       {
         data: rows.map((row) => row.count),

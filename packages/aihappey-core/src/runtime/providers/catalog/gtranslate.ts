@@ -9,7 +9,9 @@ export const gtranslate: Provider = {
       src: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
     },
   ],
-  url: "https://github.com/d4n3436/GTranslate",
+  urls: {
+    homepage: "https://github.com/d4n3436/GTranslate",
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

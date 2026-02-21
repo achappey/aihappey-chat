@@ -9,7 +9,11 @@ export const cirrascale: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsw2BACdjpHicnOtmnwkxEAJj6lyVMrNUcHw&s",
     },
   ],
-  url: "https://www.cirrascale.com",
+  urls: {
+    homepage: "https://www.cirrascale.com",
+    privacyPolicy: "https://www.cirrascale.com/privacy-policy",
+    termsOfService: "https://www.cirrascale.com/terms-of-use"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

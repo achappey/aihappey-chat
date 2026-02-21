@@ -8,7 +8,13 @@ export const groq: Provider = {
       src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnze6t-thGVKlIKNKF9zeiTfaoxLdYdVzX0g&s",
     },
   ],
-  url: "https://groq.com",
+  urls: {
+    homepage: "https://groq.com",
+    docs: "https://console.groq.com/docs",
+    privacyPolicy: "https://groq.com/privacy-policy",
+    termsOfService: "https://groq.com/terms-of-use",
+    console: "https://console.groq.com"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

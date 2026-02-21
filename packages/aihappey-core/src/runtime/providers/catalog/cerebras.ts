@@ -8,7 +8,12 @@ export const cerebras: Provider = {
       src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/cerebras-color.png",
     },
   ],
-  url: "https://www.cerebras.ai",
+  urls: {
+    homepage: "https://www.cerebras.ai",
+    docs: "https://docs.cerebras.ai",
+    privacyPolicy: "https://www.cerebras.ai/privacy-policy",
+    termsOfService: "https://www.cerebras.ai/other-terms-and-policies"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 };

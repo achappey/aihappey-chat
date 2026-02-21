@@ -7,7 +7,13 @@ export const byteplus: Provider = {
   icons: [{
     src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJpF-GaGgjh9vGom4cCE4O3c83d7YSogg-uQ&s"
   }],
-  url: "https://byteplus.com",
+  urls: {
+    homepage: "https://www.byteplus.com",
+    docs: "https://docs.byteplus.com",
+    privacyPolicy: "https://docs.byteplus.com/en/legal/docs/privacy-policy",
+    termsOfService: "https://docs.byteplus.com/en/legal/docs/terms-of-service",
+    console: "https://console.byteplus.com"
+  },
   providerCountry: "CN",
   inferenceRegions: ["World"]
 

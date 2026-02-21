@@ -14,7 +14,12 @@ export const tinfoil: Provider = {
       theme: "light",
     },
   ],
-  url: "https://tinfoil.sh",
+  urls: {
+    homepage: "https://tinfoil.sh",
+    docs: "https://docs.tinfoil.sh",
+    privacyPolicy: "https://tinfoil.sh/privacy",
+    termsOfService: "https://tinfoil.sh/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 

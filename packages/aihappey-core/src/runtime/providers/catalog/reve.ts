@@ -13,7 +13,11 @@ export const reve: Provider = {
       theme: "light",
     },
   ],
-  url: "https://app.reve.com",
+  urls: {
+    homepage: "https://app.reve.com",
+    privacyPolicy: "https://reve.com/privacy",
+    termsOfService: "https://reve.com/terms"
+  },
   providerCountry: "US",
   inferenceRegions: ["World"]
 
