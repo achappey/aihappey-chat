@@ -282,6 +282,43 @@ export const buildModelTypeDistributionData = ({
   };
 };
 
+export const buildProviderCoverageHistogramData = ({
+  models,
+}: {
+  models: MeshModel[];
+}) => {
+  const modelToProviders = new Map<string, Set<string>>();
+
+  for (const model of models) {
+    const provider = getProviderKey(model);
+    const normalizedModel = normalizeModelId(model.id);
+    modelToProviders.set(normalizedModel, modelToProviders.get(normalizedModel) ?? new Set<string>());
+    modelToProviders.get(normalizedModel)!.add(provider);
+  }
+
+  const bucketCounts = new Map<number, number>();
+  for (const providers of modelToProviders.values()) {
+    const providerCount = providers.size;
+    bucketCounts.set(providerCount, (bucketCounts.get(providerCount) ?? 0) + 1);
+  }
+
+  const buckets = Array.from(bucketCounts.entries())
+    .map(([providerCount, modelCount]) => ({ providerCount, modelCount }))
+    .sort((a, b) => a.providerCount - b.providerCount);
+
+  return {
+    labels: buckets.map((bucket) => String(bucket.providerCount)),
+    datasets: [
+      {
+        data: buckets.map((bucket) => bucket.modelCount),
+        borderWidth: 1,
+        backgroundColor: "hsl(284 67% 56%)",
+        borderColor: "hsl(284 67% 42%)",
+      },
+    ],
+  };
+};
+
 export const buildCountryProviderCounts = ({
   models,
   providerMetadata,

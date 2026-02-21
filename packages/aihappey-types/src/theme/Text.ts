@@ -29,6 +29,7 @@ export type TextProps = {
   font?: "base" | "numeric" | "monospace";
   size?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 1000;
   children: React.ReactNode;
+  style?: React.CSSProperties
 };
 
 export type TextComponent = (props: TextProps) => JSX.Element;

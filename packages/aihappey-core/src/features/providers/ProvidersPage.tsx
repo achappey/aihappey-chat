@@ -153,7 +153,7 @@ export const ProvidersPage = () => {
                 >
                     <OverviewPageHeader title={t("ai.title")} />
 
-                    <Text as="p" align={"center"}>
+                    <Text as="p" align={"center"} style={{ maxWidth: 700 }}>
                         {t("ai.providers", { total: providers.length })}
                     </Text>
 
@@ -166,7 +166,6 @@ export const ProvidersPage = () => {
                         regionOptions={inferenceRegionOptions}
                         onCountriesChange={setSelectedCountries}
                         onRegionsChange={setSelectedRegions}
-                        t={t}
                     />
 
                     <div

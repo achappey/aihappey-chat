@@ -24,6 +24,8 @@ type WorldMapProps = {
   countryProviderCounts: Record<string, number>;
   width?: number;
   height?: number;
+  ariaLabel?: string;
+  summaryText?: string;
 };
 
 const getCountryFill = (providerCount: number, maxProviderCount: number) => {
@@ -82,6 +84,8 @@ export default function WorldMap({
   countryProviderCounts,
   width = 900,
   height = 500,
+  ariaLabel,
+  summaryText,
 }: WorldMapProps) {
   const [countries, setCountries] = useState<CountryFeature[]>([]);
   const [numericToIso, setNumericToIso] = useState<Record<string, string>>({});
@@ -203,7 +207,7 @@ export default function WorldMap({
         viewBox={`0 0 ${width} ${height}`}
         style={{ width: "100%", height: "auto", display: "block" }}
         role="img"
-        aria-label="World map showing active providers by country"
+        aria-label={ariaLabel ?? "World map showing active providers by country"}
       >
         {countries.map((geo) => {
           const providerCount = getProviderCountForFeature(geo);
@@ -236,7 +240,7 @@ export default function WorldMap({
           color: "#6B7280",
         }}
       >
-        <span>{t('ai.mesh.activeCountriesView', { count: activeCountries })}</span>
+        <span>{summaryText ?? t('ai.mesh.activeCountriesView', { count: activeCountries })}</span>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div

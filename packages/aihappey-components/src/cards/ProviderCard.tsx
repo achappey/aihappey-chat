@@ -35,7 +35,7 @@ export const ProviderCard = ({
     const websiteUrl = urls?.homepage ?? url;
 
     const imageItem = image ? (
-        <Image height={32} shape="square" src={image} />
+        <Image height={40} shape="square" src={image} />
     ) : undefined;
 
     const descriptionItem =
@@ -44,6 +44,7 @@ export const ProviderCard = ({
                 style={{
                     display: "flex",
                     gap: 4,
+                    minHeight: 36,
                     flexWrap: "wrap"
                 }}
             >
@@ -60,7 +61,10 @@ export const ProviderCard = ({
         <Card
             title={name}
             description={descriptionItem}
-            headerActions={<>{providerCountry && <Flag code={providerCountry} height={18} />}</>}
+            headerActions={<>{providerCountry
+                && <Flag code={providerCountry}
+                    title={providerCountry}
+                    height={18} />}</>}
             image={imageItem}
             actions={
                 <div style={{ display: "flex", gap: 8 }}>
@@ -110,7 +114,7 @@ export const ProviderCard = ({
                 </div>
             }
         >
-            <LimitedTextField text={description} />
+            <LimitedTextField text={description} minHeight={40} />
         </Card>
     );
 };

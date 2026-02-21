@@ -11,6 +11,7 @@ export const Text = ({
   block,
   strikethrough,
   align,
+  style,
   underline,
   size,
   italic,
@@ -36,6 +37,7 @@ export const Text = ({
   truncate?: boolean;
   underline?: boolean;
   strikethrough?: boolean;
+  style?: React.CSSProperties,
   block?: boolean;
   font?: "base" | "numeric" | "monospace"
   size?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 1000
@@ -52,6 +54,7 @@ export const Text = ({
     strikethrough={strikethrough}
     block={block}
     wrap={wrap}
+    style={style}
     font={font}>
     {children}
   </FluentText>;

@@ -116,7 +116,7 @@ export const MeshPage = () => {
       >
         <OverviewPageHeader title={t("ai.mesh.title")} />
 
-        <Text as="p" align={"center"}>
+        <Text as="p" align={"center"} style={{ maxWidth: 800 }}>
           {t("ai.mesh.description", { total: searchFiltered.length })}
         </Text>
 
@@ -129,7 +129,6 @@ export const MeshPage = () => {
           regionOptions={inferenceRegionOptions}
           onCountriesChange={setSelectedCountries}
           onRegionsChange={setSelectedRegions}
-          t={t}
         />
 
         <Tabs

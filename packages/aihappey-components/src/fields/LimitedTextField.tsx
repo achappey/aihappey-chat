@@ -1,9 +1,10 @@
 type LimitedTextFieldProps = {
   text?: string;
   rows?: number
+  minHeight?: number
 };
 
-export const LimitedTextField = ({ text, rows }: LimitedTextFieldProps) => {
+export const LimitedTextField = ({ text, rows, minHeight }: LimitedTextFieldProps) => {
   return (
     <div
       title={text}
@@ -14,6 +15,7 @@ export const LimitedTextField = ({ text, rows }: LimitedTextFieldProps) => {
         overflow: "hidden",
         textOverflow: "ellipsis",
         fontSize: 12,
+        minHeight: minHeight,
         color: "#888",
       }}
     >

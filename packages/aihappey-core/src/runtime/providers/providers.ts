@@ -128,6 +128,7 @@ import { stepfun } from "./catalog/stepfun";
 import { sealion } from "./catalog/sealion";
 import { tencenthunyuan } from "./catalog/tencenthunyuan";
 import { deapi } from "./catalog/deapi";
+import { infomaniak } from "./catalog/infomaniak";
 
 /**
  * UI-facing provider catalog.
@@ -153,6 +154,7 @@ export const PROVIDERS: Record<string, Provider> = {
   xai,
   together,
   googletranslate,
+  infomaniak,
   siliconflow,
   deepbricks,
   ovhcloud,

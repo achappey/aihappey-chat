@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { ChartJsBlock, useTheme } from "aihappey-components";
 import {
-  buildModelTypeDistributionData,
+  buildProviderCoverageHistogramData,
   buildProvidersPerModelBarData,
   type MeshModel,
 } from "./meshData";
@@ -20,9 +20,9 @@ export const MeshChartsModelsTab = ({ models, t }: Props) => {
     [models]
   );
 
-  const typeDistributionData = useMemo(
-    () => buildModelTypeDistributionData({ models, t }),
-    [models, t]
+  const providerCoverageHistogramData = useMemo(
+    () => buildProviderCoverageHistogramData({ models }),
+    [models]
   );
 
   return (
@@ -69,30 +69,37 @@ export const MeshChartsModelsTab = ({ models, t }: Props) => {
         </Card>
       )}
 
-      {models.length === 0 || !typeDistributionData?.labels?.length ? (
+      {models.length === 0 || !providerCoverageHistogramData?.labels?.length ? (
         <MeshNoDataCard
-          title={t("ai.mesh.typeDistribution")}
+          title={t("ai.mesh.providerCoverageDistribution")}
           description={t("ai.mesh.noDataDescription")}
         />
       ) : (
-        <Card title={t("ai.mesh.typeDistribution")}>
+        <Card title={t("ai.mesh.providerCoverageDistribution")}>
           <ChartJsBlock
             type={"bar" as any}
-            data={typeDistributionData as any}
+            data={providerCoverageHistogramData as any}
             options={{
-              indexAxis: "y",
               plugins: {
                 legend: { display: false },
               },
               scales: {
                 x: {
-                  beginAtZero: true,
-                  ticks: { precision: 0 },
-                },
-                y: {
+                  title: {
+                    display: true,
+                    text: t("ai.mesh.providersPerNormalizedModel"),
+                  },
                   ticks: {
                     autoSkip: false,
                   },
+                },
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: t("ai.mesh.normalizedModelsInBucket"),
+                  },
+                  ticks: { precision: 0 },
                 },
               },
             }}

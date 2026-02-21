@@ -4,6 +4,7 @@ import {
   toggleProviderLocationMultiSelectValue,
   useTheme,
 } from "aihappey-components";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   search: string;
@@ -14,7 +15,6 @@ type Props = {
   regionOptions: string[];
   onCountriesChange: (next: string[]) => void;
   onRegionsChange: (next: string[]) => void;
-  t: (key: string, options?: any) => string;
 };
 
 const getMultiSelectValueTitle = ({
@@ -41,13 +41,21 @@ export const MeshFiltersRow = ({
   regionOptions,
   onCountriesChange,
   onRegionsChange,
-  t,
 }: Props) => {
   const { SearchBox, Select } = useTheme();
   const SelectComponent = Select || "select";
+  const { t } = useTranslation();
 
   const resolveSelectionValue = (e: ChangeEvent<HTMLSelectElement> | any) =>
     e?.target?.value ?? e?.currentTarget?.value ?? e;
+
+  const sortedCountryOptions = [...countryOptions].sort((a, b) =>
+    t("regional:countries." + a).localeCompare(
+      t("regional:countries." + b),
+      undefined,
+      { sensitivity: "base" }
+    )
+  );
 
   return (
     <div
@@ -95,7 +103,7 @@ export const MeshFiltersRow = ({
           aria-label="Mesh provider country filter"
         >
           <option value={PROVIDER_LOCATION_ALL_FILTER_VALUE}>{t("all")}</option>
-          {countryOptions.map((country) => (
+          {sortedCountryOptions.map((country) => (
             <option key={country} value={country}>
               {t("regional:countries." + country)}
             </option>
