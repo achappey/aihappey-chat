@@ -129,6 +129,22 @@ import { sealion } from "./catalog/sealion";
 import { tencenthunyuan } from "./catalog/tencenthunyuan";
 import { deapi } from "./catalog/deapi";
 import { infomaniak } from "./catalog/infomaniak";
+import { tavily } from "./catalog/tavily";
+import { opencode } from "./catalog/opencode";
+import { haimaker } from "./catalog/haimaker";
+import { straico } from "./catalog/straico";
+import { monica } from "./catalog/monica";
+import { cambai } from "./catalog/cambai";
+import { morpheus } from "./catalog/morpheus";
+import { arceeai } from "./catalog/arceeai";
+import { exa } from "./catalog/exa";
+import { featherless } from "./catalog/featherless";
+import { blackbox } from "./catalog/blackbox";
+import { ohmygpt } from "./catalog/ohmygpt";
+import { ideogram } from "./catalog/ideogram";
+import { pinecone } from "./catalog/pinecone";
+import { zyphra } from "./catalog/zyphra";
+import { picsart } from "./catalog/picsart";
 
 /**
  * UI-facing provider catalog.
@@ -196,6 +212,7 @@ export const PROVIDERS: Record<string, Provider> = {
   asione,
   sealion,
   apipie,
+  ideogram,
   mancerai,
   stepfun,
   helicone,
@@ -204,21 +221,33 @@ export const PROVIDERS: Record<string, Provider> = {
   sunoapi,
   nousresearch,
   bytez,
+  morpheus,
   matterai,
+  ohmygpt,
+  tavily,
+  arceeai,
   paraloncloud,
   publicai,
+  exa,
   nscale,
   kilo,
+  featherless,
   openrouter,
+  cambai,
   ai302,
+  blackbox,
   primeintellect,
+  straico,
   resembleai,
   abliteration,
+  monica,
   meganova,
+  haimaker,
   supa,
   llmgateway,
   assemblyai,
   gladia,
+  opencode,
   runpod,
   kernelmemory,
   portkey,
@@ -226,8 +255,11 @@ export const PROVIDERS: Record<string, Provider> = {
   sarvam,
   sudo,
   deepgram,
+  zyphra,
+  pinecone,
   voyageai,
   friendli,
+  picsart,
   bria,
   contextualai,
   murfai,

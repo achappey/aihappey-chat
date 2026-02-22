@@ -11,7 +11,8 @@ export const arklabs: Provider = {
   ],
   urls: {
     homepage: "https://ark-labs.cloud",
-    docs: "https://ark-labs.cloud/documentation/",
+    docs: "https://ark-labs.cloud/documentation",
+    console: "https://shop.ark-labs.cloud",
     privacyPolicy: "https://ark-labs.cloud/privacy",
     termsOfService: "https://ark-labs.cloud/terms"
   },
