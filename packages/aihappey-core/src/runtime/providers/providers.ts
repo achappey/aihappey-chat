@@ -145,6 +145,37 @@ import { ideogram } from "./catalog/ideogram";
 import { pinecone } from "./catalog/pinecone";
 import { zyphra } from "./catalog/zyphra";
 import { picsart } from "./catalog/picsart";
+import { azerion } from "./catalog/azerion";
+import { blackforestlabs } from "./catalog/blackforestlabs";
+import { aionlabs } from "./catalog/aionlabs";
+import { lumaai } from "./catalog/lumaai";
+import { truefoundry } from "./catalog/truefoundry";
+import { databricks } from "./catalog/databricks";
+import { browseruse } from "./catalog/browseruse";
+import { inferencesh } from "./catalog/inferencesh";
+import { crazyrouter } from "./catalog/crazyrouter";
+import { infraxa } from "./catalog/infraxa";
+import { inceptionlabs } from "./catalog/inceptionlabs";
+import { daglo } from "./catalog/daglo";
+import { opeai } from "./catalog/opeai";
+import { forefront } from "./catalog/forefront";
+import { aicc } from "./catalog/aicc";
+import { yourvoic } from "./catalog/yourvoic";
+import { fishaudio } from "./catalog/fishaudio";
+import { lovo } from "./catalog/lovo";
+import { verbatik } from "./catalog/verbatik";
+import { cartesia } from "./catalog/cartesia";
+import { vapi } from "./catalog/vapi";
+import { smallestai } from "./catalog/smallestai";
+import { orq } from "./catalog/orq";
+import { typecast } from "./catalog/typecast";
+import { unrealspeech } from "./catalog/unrealspeech";
+import { kugu } from "./catalog/kugu";
+import { everypixellabs } from "./catalog/everypixellabs";
+import { supertone } from "./catalog/supertone";
+import { uvoiceai } from "./catalog/uvoiceai";
+import { astica } from "./catalog/astica";
+import { heygen } from "./catalog/heygen";
 
 /**
  * UI-facing provider catalog.
@@ -154,10 +185,28 @@ import { picsart } from "./catalog/picsart";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
+  verbatik,
+  everypixellabs,
+  unrealspeech,
+  astica,
   aiml,
+  supertone,
   anthropic,
+  heygen,
   euqai,
+  orq,
+  forefront,
+  typecast,
+  uvoiceai,
+  vapi,
+  lovo,
+  fishaudio,
+  kugu,
+  smallestai,
   rekaai,
+  aicc,
+  cartesia,
+  yourvoic,
   google,
   segmind,
   mistral,
@@ -225,7 +274,9 @@ export const PROVIDERS: Record<string, Provider> = {
   matterai,
   ohmygpt,
   tavily,
+  opeai,
   arceeai,
+  daglo,
   paraloncloud,
   publicai,
   exa,
@@ -234,13 +285,23 @@ export const PROVIDERS: Record<string, Provider> = {
   featherless,
   openrouter,
   cambai,
+  infraxa,
   ai302,
+  crazyrouter,
   blackbox,
   primeintellect,
+  inceptionlabs,
+  aionlabs,
+  databricks,
   straico,
+  blackforestlabs,
   resembleai,
   abliteration,
+  truefoundry,
+  inferencesh,
+  browseruse,
   monica,
+  lumaai,
   meganova,
   haimaker,
   supa,
@@ -248,6 +309,7 @@ export const PROVIDERS: Record<string, Provider> = {
   assemblyai,
   gladia,
   opencode,
+  azerion,
   runpod,
   kernelmemory,
   portkey,

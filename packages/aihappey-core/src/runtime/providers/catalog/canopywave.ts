@@ -9,6 +9,8 @@ export const canopywave: Provider = {
   }],
   urls: {
     homepage: "https://canopywave.com",
+    console: "https://cloud.canopywave.io",
+    docs: "https://canopywave.com/docs",
     privacyPolicy: "https://canopywave.com/privacy",
     termsOfService: "https://canopywave.com/terms"
   },

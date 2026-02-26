@@ -17,6 +17,7 @@ export const tinfoil: Provider = {
   urls: {
     homepage: "https://tinfoil.sh",
     docs: "https://docs.tinfoil.sh",
+    console: "https://dash.tinfoil.sh",
     privacyPolicy: "https://tinfoil.sh/privacy",
     termsOfService: "https://tinfoil.sh/terms"
   },

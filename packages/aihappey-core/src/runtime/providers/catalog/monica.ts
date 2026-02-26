@@ -5,12 +5,12 @@ export const monica: Provider = {
   description: "Access advanced Al models and exclusive APIs in one unified platform.",
   icons: [
     {
-      src: "https://images.g2crowd.com/uploads/product/image/9470459ec8d50314e1156b1077e8743e/straico.png"
+      src: "https://play-lh.googleusercontent.com/imw4zSeaSUa-duDEAGXPjIrpj1boTkZJ3Xc9cr9y0ENJCXInGjWJMN4uFXSdJFxz4Lc"
     }
   ],
   urls: {
-    homepage: "https://monica.im",
-    console: "https://platform.monica.im",
+    homepage: "https://platform.monica.im",
+    console: "https://platform.monica.im/dashboard",
     docs: "https://platform.monica.im/docs",
     privacyPolicy: "https://monica.im/privacy",
     termsOfService: "https://monica.im/terms"

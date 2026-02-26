@@ -33,11 +33,18 @@ export const ElicitationField = ({
   }
 
   if (field.type == "string" && field.oneOf?.length > 0) {
+    const options = field.oneOf?.map((a: any) => ({
+      value: a.const,
+      label: a.title
+    })) ?? [];
+
     return (
       <div style={{ marginBottom: 12 }}>
         <Select
-          value={field.oneOf.find((a: any) => a.const == value)?.title ?? value}
+          values={[value]}
+          valueTitle={field.oneOf.find((a: any) => a.const == value)?.title ?? value}
           hint={field.description}
+          options={options}
           required={required}
           label={label}
           onChange={onChange}

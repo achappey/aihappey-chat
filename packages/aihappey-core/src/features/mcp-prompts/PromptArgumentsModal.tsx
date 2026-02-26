@@ -2,7 +2,6 @@ import { PromptArgumentsForm, useTheme } from "aihappey-components";
 import { usePromptArguments } from "./usePromptArguments";
 import { PromptWithSource } from "./PromptSelectButton";
 import { CancelButton } from "../../ui/buttons/CancelButton";
-import { T } from "react-router/dist/development/index-react-server-client-1TI9M9o1";
 import { useTranslation } from "aihappey-i18n";
 
 type Props = {

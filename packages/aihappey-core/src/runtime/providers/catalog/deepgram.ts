@@ -10,6 +10,7 @@ export const deepgram: Provider = {
   urls: {
     homepage: "https://deepgram.com",
     docs: "https://developers.deepgram.com",
+    console: "https://console.deepgram.com",
     privacyPolicy: "https://deepgram.com/privacy",
     termsOfService: "https://deepgram.com/terms"
   },

@@ -1,0 +1,21 @@
+import type { Provider } from "aihappey-types";
+
+export const daglo: Provider = {
+  name: "Daglo",
+  description: "The best AI platform where all the world's AI comes together. Experience unparalleled voice recognition mastery.",
+  icons: [
+    {
+      src: "data:image/png;base64,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"
+    }
+  ],
+  urls: {
+    homepage: "https://daglo.ai",
+    docs: "https://developers.daglo.ai",
+    console: "https://developers.daglo.ai/console",
+    termsOfService: "https://daglo.ai/en/terms",
+    privacyPolicy: "https://daglo.ai/en/privacy"
+  },
+  providerCountry: "KR",
+  inferenceRegions: ["World"]
+};
+

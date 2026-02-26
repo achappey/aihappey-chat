@@ -1,0 +1,21 @@
+import type { Provider } from "aihappey-types";
+
+export const cartesia: Provider = {
+  name: "Cartesia",
+  description: "Integrate real-time text-to-speech with Sonic-3, Cartesia’s streaming TTS API. Generate natural, expressive voices with laughter in 40+ languages—built for AI agents and interactive apps.",
+  icons: [
+    {
+      src: "https://play.cartesia.ai/icon.svg?icon.78918bc9.svg"
+    }
+  ],
+  urls: {
+    homepage: "https://cartesia.ai",
+    docs: "https://docs.cartesia.ai",
+    console: "https://play.cartesia.ai",
+    termsOfService: "https://cartesia.ai/legal/terms.html",
+    privacyPolicy: "https://cartesia.ai/legal/privacy.html"
+  },
+  providerCountry: "US",
+  inferenceRegions: ["World"]
+};
+

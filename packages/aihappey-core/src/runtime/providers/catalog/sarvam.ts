@@ -12,6 +12,7 @@ export const sarvam: Provider = {
   urls: {
     homepage: "https://www.sarvam.ai",
     docs: "https://docs.sarvam.ai",
+    console: "https://dashboard.sarvam.ai",
     privacyPolicy: "https://www.sarvam.ai/privacy-policy",
     termsOfService: "https://www.sarvam.ai/terms-of-use"
   },

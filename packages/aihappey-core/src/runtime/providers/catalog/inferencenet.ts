@@ -10,6 +10,8 @@ export const inferencenet: Provider = {
   ],
   urls: {
     homepage: "https://inference.net",
+    console: "https://inference.net/dashboard",
+    docs: "https://docs.inference.net",
     privacyPolicy: "https://inference.net/privacy-policy",
     termsOfService: "https://inference.net/terms-of-service"
   },
