@@ -6,7 +6,7 @@ export const routeway: Provider = {
     "Access DeepSeek, Claude, Gemini, MiniMax, and 70+ more AI models through one unified, OpenAI-compatible API. No rate limits. Competitive pricing.",
   icons: [
     {
-      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRce9B6mDIhuEaaN1WpB377KeA8Wo4k60Sxrw&s",
+      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZTap4zhFeqtbJcCE2DcZgjVamwxxou7fP-A&s",
     },
   ],
   urls: {

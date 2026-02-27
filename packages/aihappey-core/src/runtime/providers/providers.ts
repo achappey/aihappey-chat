@@ -191,6 +191,8 @@ import { wai } from "./catalog/wai";
 import { venice } from "./catalog/venice";
 import { quiverai } from "./catalog/quiverai";
 import { kissapi } from "./catalog/kissapi";
+import { zenmux } from "./catalog/zenmux";
+import { netmind } from "./catalog/netmind";
 
 /**
  * UI-facing provider catalog.
@@ -218,7 +220,9 @@ export const PROVIDERS: Record<string, Provider> = {
   vapi,
   lovo,
   fishaudio,
+  netmind,
   kugu,
+  zenmux,
   smallestai,
   rekaai,
   aicc,
