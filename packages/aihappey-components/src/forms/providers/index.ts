@@ -35,7 +35,7 @@ export * from "./nebius";
 
 export * from "./elevenlabs";
 
-export * from "./asyncai";
+export * from "./async";
 
 export * from "./minimax";
 

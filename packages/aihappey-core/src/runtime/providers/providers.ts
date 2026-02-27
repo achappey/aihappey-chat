@@ -23,7 +23,7 @@ import { speechmatics } from "./catalog/speechmatics";
 import { voyageai } from "./catalog/voyageai";
 import { contextualai } from "./catalog/contextualai";
 import { replicate } from "./catalog/replicate";
-import { asyncai } from "./catalog/asyncai";
+import { async } from "./catalog/async";
 import { azure } from "./catalog/azure";
 import { deepseek } from "./catalog/deepseek";
 import { cloudrift } from "./catalog/cloudrift";
@@ -176,6 +176,21 @@ import { supertone } from "./catalog/supertone";
 import { uvoiceai } from "./catalog/uvoiceai";
 import { astica } from "./catalog/astica";
 import { heygen } from "./catalog/heygen";
+import { ionet } from "./catalog/ionet";
+import { avian } from "./catalog/avian";
+import { llmapi } from "./catalog/llmapi";
+import { llmlayer } from "./catalog/llmlayer";
+import { simplismart } from "./catalog/simplismart";
+import { chaingpt } from "./catalog/chaingpt";
+import { routeway } from "./catalog/routeway";
+import { cheapestinference } from "./catalog/cheapestinference";
+import { tetrate } from "./catalog/tetrate";
+import { clod } from "./catalog/clod";
+import { github } from "./catalog/github";
+import { wai } from "./catalog/wai";
+import { venice } from "./catalog/venice";
+import { quiverai } from "./catalog/quiverai";
+import { kissapi } from "./catalog/kissapi";
 
 /**
  * UI-facing provider catalog.
@@ -189,10 +204,12 @@ export const PROVIDERS: Record<string, Provider> = {
   everypixellabs,
   unrealspeech,
   astica,
+  quiverai,
   aiml,
   supertone,
   anthropic,
   heygen,
+  ionet,
   euqai,
   orq,
   forefront,
@@ -215,6 +232,7 @@ export const PROVIDERS: Record<string, Provider> = {
   byteplus,
   cohere,
   modernmt,
+  kissapi,
   groq,
   xai,
   together,
@@ -251,6 +269,7 @@ export const PROVIDERS: Record<string, Provider> = {
   moonshot,
   greenpt,
   decart,
+  venice,
   relaxai,
   horayai,
   tencenthunyuan,
@@ -306,14 +325,21 @@ export const PROVIDERS: Record<string, Provider> = {
   haimaker,
   supa,
   llmgateway,
+  github,
   assemblyai,
   gladia,
+  clod,
+  cheapestinference,
+  wai,
   opencode,
+  chaingpt,
   azerion,
   runpod,
   kernelmemory,
   portkey,
+  routeway,
   minimax,
+  tetrate,
   sarvam,
   sudo,
   deepgram,
@@ -326,16 +352,20 @@ export const PROVIDERS: Record<string, Provider> = {
   contextualai,
   murfai,
   replicate,
-  asyncai,
+  simplismart,
+  async,
   azure,
   deepseek,
+  llmlayer,
   reve,
   freepik,
   ai21,
+  avian,
   cloudrift,
   baseten,
   echo,
   tinfoil,
+  llmapi,
   nebius,
   audixa,
   klingai,

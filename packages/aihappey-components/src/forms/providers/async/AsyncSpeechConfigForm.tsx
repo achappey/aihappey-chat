@@ -2,14 +2,14 @@ import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
-export type AsyncAIVoice = {
+export type AsyncVoice = {
     /** AsyncAI currently supports only `id` mode. */
     mode: "id";
     /** Voice id */
     id: string;
 };
 
-export type AsyncAIOutputFormat = {
+export type AsyncOutputFormat = {
     /** raw | mp3 | wav */
     container?: "raw" | "mp3" | "wav";
     /** pcm_f32le | pcm_s16le (ignored for mp3) */
@@ -23,9 +23,9 @@ export type AsyncAIOutputFormat = {
 /**
  * IMPORTANT: keys must match backend JSON property names (snake_case).
  */
-export type AsyncAISpeechConfig = {
-    voice?: AsyncAIVoice;
-    output_format?: AsyncAIOutputFormat;
+export type AsyncSpeechConfig = {
+    voice?: AsyncVoice;
+    output_format?: AsyncOutputFormat;
     language?: string;
     speed_control?: number;
     stability?: number;
@@ -50,9 +50,9 @@ const ASYNCAI_LANGUAGES: Array<{ value: string; label: string }> = [
 ];
 
 
-export const AsyncAISpeechConfigForm: React.FC<{
-    config: AsyncAISpeechConfig;
-    updateConfig: (val: AsyncAISpeechConfig) => void;
+export const AsyncSpeechConfigForm: React.FC<{
+    config: AsyncSpeechConfig;
+    updateConfig: (val: AsyncSpeechConfig) => void;
 }> = ({ config, updateConfig }) => {
     const theme = useTheme();
     const { t } = useTranslation();
@@ -81,8 +81,8 @@ export const AsyncAISpeechConfigForm: React.FC<{
         ...ASYNCAI_LANGUAGES.map((l) => ({ value: l.value, label: `${l.label}` })),
     ];
 
-    const updateOutputFormat = (next: Partial<AsyncAIOutputFormat>) => {
-        const merged: AsyncAIOutputFormat = {
+    const updateOutputFormat = (next: Partial<AsyncOutputFormat>) => {
+        const merged: AsyncOutputFormat = {
             ...(config?.output_format ?? {}),
             ...next,
         };

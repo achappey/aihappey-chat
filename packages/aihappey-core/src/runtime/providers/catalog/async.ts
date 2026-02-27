@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
-export const asyncai: Provider = {
-  name: "AsyncAI",
+export const async: Provider = {
+  name: "Async",
   description:
     "Low-latency text-to-speech API built for next-gen voice apps and agents. 24/7 SLA, 15 languages, integrations: Pipecat, n8n, LiveKit. From $0.50/hour.",
   icons: [

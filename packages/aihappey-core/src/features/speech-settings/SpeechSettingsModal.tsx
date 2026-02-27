@@ -3,7 +3,7 @@ import { useTranslation } from "aihappey-i18n";
 import { SettingsActionButtons, SpeechifySpeechConfig, SpeechifySpeechConfigForm, useTheme } from "aihappey-components";
 import { SpeechSettingsGeneralTab } from "./SpeechSettingsGeneralTab";
 import { useAppStore } from "aihappey-state";
-  import {
+import {
   DeepInfraSpeechConfigForm,
   DeepgramSpeechConfigForm,
   AudixaSpeechConfigForm,
@@ -15,7 +15,7 @@ import { useAppStore } from "aihappey-state";
   ElevenLabsSpeechConfigForm,
   GoogleSpeechConfigForm,
   StabilityAISpeechConfigForm,
-  AsyncAISpeechConfigForm,
+  AsyncSpeechConfigForm,
   TogetherSpeechConfigForm,
   MiniMaxSpeechConfigForm,
   ResembleAISpeechConfigForm,
@@ -31,7 +31,7 @@ import { useAppStore } from "aihappey-state";
   type NovitaSpeechConfig,
   type GoogleSpeechConfig,
   type StabilityAISpeechConfig,
-  type AsyncAISpeechConfig,
+  type AsyncSpeechConfig,
   type MiniMaxSpeechConfig,
   type ResembleAISpeechConfig,
   type MurfAISpeechConfig,
@@ -83,12 +83,12 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
         </theme.Tab>
 
 
-        {enabledProviders.includes("AsyncAI") && (
-          <theme.Tab eventKey="asyncai" title="AsyncAI">
-            <AsyncAISpeechConfigForm
-              config={providerMetadata.asyncai ?? {}}
-              updateConfig={(asyncai: AsyncAISpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, asyncai })
+        {enabledProviders.includes("Async") && (
+          <theme.Tab eventKey="async" title="Async">
+            <AsyncSpeechConfigForm
+              config={providerMetadata.async ?? {}}
+              updateConfig={(async: AsyncSpeechConfig) =>
+                setProviderMetadata({ ...providerMetadata, async })
               }
             />
           </theme.Tab>

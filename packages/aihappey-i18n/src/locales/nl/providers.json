@@ -322,7 +322,7 @@
     "dialogueStability": "Dialoogstabiliteit ({{value}})",
     "dialogueStabilityReset": "Provider-standaard gebruiken"
   },
-  "asyncai": {
+  "async": {
     "speech": {
       "encoding": "Encodering",
       "bitRateMp3Only": "Bitrate (alleen mp3)",

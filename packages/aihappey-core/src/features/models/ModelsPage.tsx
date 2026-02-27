@@ -196,13 +196,27 @@ export const ModelsPage = () => {
                 title={t(type)
                   + " (" + models?.filter(a => a.type == type)?.length + ")"}>
                 {(() => {
-                  const tabFiltered = models
-                    ?.filter(m =>
-                      m.type === type &&
-                      (!search ||
-                        m.id.includes(search) ||
-                        m.name?.includes(search))
-                    ) as ModelOption[] | undefined;
+                  const normalize = (value?: string) =>
+                    value?.toLowerCase() ?? "";
+
+                  const tabFiltered = models?.filter(m => {
+                    if (m.type !== type) return false;
+                    if (!search) return true;
+
+                    const terms = search
+                      .toLowerCase()
+                      .split(/\s+/)
+                      .filter(Boolean);
+
+                    const haystack = [
+                      normalize(m.id),
+                      normalize(m.name),
+                      normalize(m.description)
+                    ].join(" ");
+
+                    // every term must be present
+                    return terms.every(term => haystack.includes(term));
+                  }) as ModelOption[] | undefined;
 
                   if (viewMode === "grid") {
                     return (

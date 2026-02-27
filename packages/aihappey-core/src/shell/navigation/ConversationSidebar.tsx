@@ -154,7 +154,6 @@ export const ConversationSidebar = ({
           key: "mesh",
           label: t("mesh"),
           href: "/mesh",
-          new: true,
           icon: "chart",
         },
       ],

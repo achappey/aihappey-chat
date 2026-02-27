@@ -339,7 +339,7 @@
     "dialogueStability": "Dialogue stability ({{value}})",
     "dialogueStabilityReset": "Use provider default"
   },
-  "asyncai": {
+  "async": {
     "speech": {
       "encoding": "Encoding",
       "bitRateMp3Only": "Bit rate (mp3 only)",
