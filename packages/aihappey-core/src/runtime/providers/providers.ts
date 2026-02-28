@@ -193,6 +193,18 @@ import { quiverai } from "./catalog/quiverai";
 import { kissapi } from "./catalog/kissapi";
 import { zenmux } from "./catalog/zenmux";
 import { netmind } from "./catalog/netmind";
+import { apiyi } from "./catalog/apiyi";
+import { widnai } from "./catalog/widnai";
+import { thaura } from "./catalog/thaura";
+import { modal } from "./catalog/modal";
+import { apifree } from "./catalog/apifree";
+import { modelslab } from "./catalog/modelslab";
+import { hicap } from "./catalog/hicap";
+import { prakasa } from "./catalog/prakasa";
+import { megallm } from "./catalog/megallm";
+import { infron } from "./catalog/infron";
+import { longcat } from "./catalog/longcat";
+import { aisa } from "./catalog/aisa";
 
 /**
  * UI-facing provider catalog.
@@ -203,10 +215,20 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
   verbatik,
+  infron,
+  longcat,
+  aisa,
   everypixellabs,
+  prakasa,
+  megallm,
+  apifree,
   unrealspeech,
   astica,
+  hicap,
+  modelslab,
+  thaura,
   quiverai,
+  modal,
   aiml,
   supertone,
   anthropic,
@@ -215,12 +237,14 @@ export const PROVIDERS: Record<string, Provider> = {
   euqai,
   orq,
   forefront,
+  widnai,
   typecast,
   uvoiceai,
   vapi,
   lovo,
   fishaudio,
   netmind,
+  apiyi,
   kugu,
   zenmux,
   smallestai,
