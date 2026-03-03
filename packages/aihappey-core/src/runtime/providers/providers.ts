@@ -205,6 +205,16 @@ import { megallm } from "./catalog/megallm";
 import { infron } from "./catalog/infron";
 import { longcat } from "./catalog/longcat";
 import { aisa } from "./catalog/aisa";
+import { evolinkai } from "./catalog/evolinkai";
+import { zenlayer } from "./catalog/zenlayer";
+import { aihubmix } from "./catalog/aihubmix";
+import { uniapi } from "./catalog/uniapi";
+import { openaihk } from "./catalog/openaihk";
+import { aiforhire } from "./catalog/aiforhire";
+import { apekey } from "./catalog/apekey";
+import { apertis } from "./catalog/apertis";
+import { wisdomgate } from "./catalog/wisdomgate";
+import { smooth } from "./catalog/smooth";
 
 /**
  * UI-facing provider catalog.
@@ -216,20 +226,30 @@ export const PROVIDERS: Record<string, Provider> = {
   runway,
   verbatik,
   infron,
+  aiforhire,
   longcat,
+  apekey,
+  openaihk,
   aisa,
   everypixellabs,
+  evolinkai,
   prakasa,
+  uniapi,
+  aihubmix,
   megallm,
   apifree,
   unrealspeech,
   astica,
   hicap,
   modelslab,
+  zenlayer,
   thaura,
   quiverai,
+  apertis,
   modal,
   aiml,
+  smooth,
+  wisdomgate,
   supertone,
   anthropic,
   heygen,
