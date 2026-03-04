@@ -8,6 +8,8 @@ export const anthropic: Provider = {
   urls: {
     homepage: "https://www.anthropic.com",
     docs: "https://docs.claude.com",
+    console: "https://platform.claude.com",
+    pricing: "https://platform.claude.com/docs/en/about-claude/pricing",
     privacyPolicy: "https://privacy.claude.com",
     termsOfService: "https://www.anthropic.com/legal/commercial-terms"
   },

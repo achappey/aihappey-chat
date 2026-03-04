@@ -11,6 +11,7 @@ export const sambanova: Provider = {
     homepage: "https://sambanova.ai",
     docs: "https://docs.sambanova.ai",
     privacyPolicy: "https://sambanova.ai/privacy-policy",
+    pricing: "https://cloud.sambanova.ai/plans/pricing",
     termsOfService: "https://sambanova.ai/legal-agreements",
     console: "https://cloud.sambanova.ai"
   },

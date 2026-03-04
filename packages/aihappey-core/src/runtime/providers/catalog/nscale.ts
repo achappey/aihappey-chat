@@ -12,6 +12,7 @@ export const nscale: Provider = {
   urls: {
     homepage: "https://www.nscale.com",
     docs: "https://docs.nscale.com",
+    pricing: "https://www.nscale.com/product/serverless",
     privacyPolicy: "https://www.nscale.com/policies/privacy-policy",
     termsOfService: "https://www.nscale.com/policies/terms-conditions",
     console: "https://console.nscale.com"

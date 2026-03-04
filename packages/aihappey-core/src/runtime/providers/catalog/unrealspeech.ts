@@ -11,6 +11,7 @@ export const unrealspeech: Provider = {
   urls: {
     homepage: "https://unrealspeech.com",
     docs: "https://docs.v8.unrealspeech.com",
+    pricing: "https://unrealspeech.com/pricing",
     console: "https://unrealspeech.com/dashboard",
     termsOfService: "https://unrealspeech.com/terms",
     privacyPolicy: "https://unrealspeech.com/privacy"

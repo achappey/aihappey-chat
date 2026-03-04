@@ -9,6 +9,7 @@ export const apertis: Provider = {
   urls: {
     homepage: "https://apertis.ai",
     docs: "https://docs.apertis.ai",
+    pricing: "https://apertis.ai/models",
     privacyPolicy: "https://apertis.ai/privacy",
     termsOfService: "https://apertis.ai/terms"
   },

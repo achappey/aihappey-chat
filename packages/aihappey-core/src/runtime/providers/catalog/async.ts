@@ -13,7 +13,10 @@ export const async: Provider = {
   inferenceRegions: ["World"],
   urls: {
     homepage: "https://www.async.com",
+    termsOfService: "https://async.com/terms",
+    privacyPolicy: "https://async.com/privacy",
     docs: "https://docs.async.com",
+    pricing: "https://async.com/async-voice-api/pricing",
     console: "https://async.com/developer"
   },
 };

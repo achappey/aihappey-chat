@@ -10,6 +10,7 @@ export const byteplus: Provider = {
   urls: {
     homepage: "https://www.byteplus.com",
     docs: "https://docs.byteplus.com",
+    pricing: "https://docs.byteplus.com/en/docs/ModelArk/1544106",
     privacyPolicy: "https://docs.byteplus.com/en/legal/docs/privacy-policy",
     termsOfService: "https://docs.byteplus.com/en/legal/docs/terms-of-service",
     console: "https://console.byteplus.com"

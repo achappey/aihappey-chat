@@ -10,6 +10,7 @@ export const zai: Provider = {
   urls: {
     homepage: "https://z.ai/model-api",
     docs: "https://docs.z.ai",
+    pricing: "https://docs.z.ai/guides/overview/pricing",
     privacyPolicy: "https://docs.z.ai/legal-agreement/privacy-policy",
     termsOfService: "https://docs.z.ai/legal-agreement/terms-of-use"
   },

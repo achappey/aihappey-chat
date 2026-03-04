@@ -11,6 +11,7 @@ export const rekaai: Provider = {
   urls: {
     homepage: "https://reka.ai",
     docs: "https://docs.reka.ai",
+    pricing: "https://docs.reka.ai/pricing",
     termsOfService: "https://reka.ai/legal/terms-of-use",
     privacyPolicy: "https://reka.ai/legal/privacy-policy",
     console: "https://app.reka.ai"

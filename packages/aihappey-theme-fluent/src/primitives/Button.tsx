@@ -97,6 +97,10 @@ import {
   ShieldLockRegular,
   WindowSettingsRegular,
   DocumentTextRegular,
+  PaymentRegular,
+  MoneyRegular,
+  WalletRegular,
+  CurrencyDollarEuroRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -186,6 +190,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   copyClipboard: CopyRegular,
   settings: SettingsRegular,
   docs: BookOpenRegular,
+  pricing: CurrencyDollarEuroRegular,
   terms: DocumentTextRegular,
   privacy: ShieldLockRegular,
   console: WindowSettingsRegular,

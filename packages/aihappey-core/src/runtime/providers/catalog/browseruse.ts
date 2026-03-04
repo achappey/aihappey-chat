@@ -12,6 +12,7 @@ export const browseruse: Provider = {
   urls: {
     homepage: "https://browser-use.com",
     docs: "https://docs.cloud.browser-use.com",
+    pricing: "https://browser-use.com/pricing",
     console: "https://cloud.browser-use.com",
     privacyPolicy: "https://browser-use.com/privacy",
     termsOfService: "https://browser-use.com/legal/terms-of-service"

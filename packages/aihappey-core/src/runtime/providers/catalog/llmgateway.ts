@@ -12,6 +12,7 @@ export const llmgateway: Provider = {
   urls: {
     homepage: "https://llmgateway.io",
     docs: "https://docs.llmgateway.io",
+    pricing: "https://llmgateway.io/pricing",
     termsOfService: "https://llmgateway.io/legal/terms",
     privacyPolicy: "https://llmgateway.io/legal/privacy",
     console: "https://llmgateway.io/dashboard"

@@ -11,6 +11,7 @@ export const requesty: Provider = {
   urls: {
     homepage: "https://www.requesty.ai",
     docs: "https://docs.requesty.ai",
+    pricing: "https://www.requesty.ai/pricing",
     privacyPolicy: "https://www.requesty.ai/privacy",
     termsOfService: "https://www.requesty.ai/terms",
     console: "https://app.requesty.ai"

@@ -11,6 +11,7 @@ export const decart: Provider = {
   urls: {
     homepage: "https://decart.ai",
     docs: "https://docs.platform.decart.ai",
+    pricing: "https://docs.platform.decart.ai/getting-started/pricing",
     termsOfService: "https://docs.platform.decart.ai/resources/terms-of-service",
     privacyPolicy: "https://docs.platform.decart.ai/resources/privacy-policy",
     console: "https://platform.decart.ai"

@@ -12,6 +12,7 @@ export const opperai: Provider = {
   urls: {
     homepage: "https://opper.ai",
     docs: "https://docs.opper.ai",
+    pricing: "https://opper.ai/pricing",
     privacyPolicy: "https://opper.ai/privacy-policy",
     termsOfService: "https://opper.ai/terms-of-service"
   },

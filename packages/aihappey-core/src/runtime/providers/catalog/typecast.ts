@@ -11,6 +11,7 @@ export const typecast: Provider = {
   urls: {
     homepage: "https://typecast.ai",
     docs: "https://typecast.ai/docs",
+    pricing: "https://typecast.ai/pricing",
     console: "https://typecast.ai/developers/api",
     termsOfService: "https://help.typecast.ai/en/articles/13448178-terms-of-use",
     privacyPolicy: "https://help.typecast.ai/en/articles/10717358-privacy-policy"

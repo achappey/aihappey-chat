@@ -11,6 +11,7 @@ export const fishaudio: Provider = {
   urls: {
     homepage: "https://fish.audio",
     docs: "https://docs.fish.audio",
+    pricing: "https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits",
     termsOfService: "https://fish.audio/terms",
     privacyPolicy: "https://fish.audio/privacy"
   },

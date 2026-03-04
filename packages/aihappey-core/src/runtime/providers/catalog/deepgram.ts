@@ -11,6 +11,7 @@ export const deepgram: Provider = {
     homepage: "https://deepgram.com",
     docs: "https://developers.deepgram.com",
     console: "https://console.deepgram.com",
+    pricing: "https://deepgram.com/pricing",
     privacyPolicy: "https://deepgram.com/privacy",
     termsOfService: "https://deepgram.com/terms"
   },

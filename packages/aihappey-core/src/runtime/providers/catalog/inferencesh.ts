@@ -13,6 +13,7 @@ export const inferencesh: Provider = {
     homepage: "https://inference.sh",
     docs: "https://inference.sh/docs",
     console: "https://app.inference.sh",
+    pricing: "https://inference.sh/pricing",
     privacyPolicy: "https://inference.sh/privacy",
     termsOfService: "https://inference.sh/terms"
   },

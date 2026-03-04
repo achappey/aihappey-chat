@@ -11,6 +11,7 @@ export const abliteration: Provider = {
   ],
   urls: {
     homepage: "https://abliteration.ai",
+    pricing: "https://abliteration.ai/pricing",
     privacyPolicy: "https://abliteration.ai/privacy-policy",
     termsOfService: "https://abliteration.ai/terms-of-service",
     docs: "https://abliteration.ai/docs"

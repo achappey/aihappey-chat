@@ -12,6 +12,7 @@ export const wai: Provider = {
     docs: "https://docs.w.ai"
   },
   providerCountry: "CA",
+  experimental: true,
   inferenceRegions: ["World"]
 
 };

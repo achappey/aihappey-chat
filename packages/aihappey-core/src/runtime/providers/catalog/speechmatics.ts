@@ -11,6 +11,7 @@ export const speechmatics: Provider = {
   urls: {
     homepage: "https://www.speechmatics.com",
     docs: "https://docs.speechmatics.com",
+    pricing: "https://www.speechmatics.com/pricing",
     privacyPolicy: "https://www.speechmatics.com/legal/privacy-policy",
     termsOfService: "https://www.speechmatics.com/legal/terms-of-service",
     console: "https://portal.speechmatics.com"

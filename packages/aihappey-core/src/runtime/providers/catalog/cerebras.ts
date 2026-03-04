@@ -11,6 +11,7 @@ export const cerebras: Provider = {
   urls: {
     homepage: "https://www.cerebras.ai",
     docs: "https://docs.cerebras.ai",
+    pricing: "https://www.cerebras.ai/pricing",
     privacyPolicy: "https://www.cerebras.ai/privacy-policy",
     termsOfService: "https://www.cerebras.ai/other-terms-and-policies"
   },

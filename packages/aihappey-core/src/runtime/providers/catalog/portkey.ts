@@ -12,6 +12,7 @@ export const portkey: Provider = {
   urls: {
     homepage: "https://portkey.ai",
     docs: "https://docs.portkey.ai",
+    pricing: "https://portkey.ai/pricing",
     privacyPolicy: "https://portkey.ai/privacy",
     termsOfService: "https://portkey.ai/terms",
     console: "https://app.portkey.ai"

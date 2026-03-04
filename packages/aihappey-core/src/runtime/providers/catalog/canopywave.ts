@@ -11,6 +11,7 @@ export const canopywave: Provider = {
     homepage: "https://canopywave.com",
     console: "https://cloud.canopywave.io",
     docs: "https://canopywave.com/docs",
+    pricing: "https://canopywave.com/pricing",
     privacyPolicy: "https://canopywave.com/privacy",
     termsOfService: "https://canopywave.com/terms"
   },

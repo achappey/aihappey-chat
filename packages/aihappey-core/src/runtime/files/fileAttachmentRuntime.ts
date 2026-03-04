@@ -5,6 +5,42 @@ class AttachmentRuntime {
   private snapshot: File[] = [];
   private listeners = new Set<() => void>();
 
+  private splitName(name: string) {
+    const dot = name.lastIndexOf(".");
+    if (dot <= 0) {
+      return { base: name, ext: "" };
+    }
+
+    return {
+      base: name.slice(0, dot),
+      ext: name.slice(dot),
+    };
+  }
+
+  private getUniqueName(originalName: string) {
+    if (!this.attachments.has(originalName)) return originalName;
+
+    const { base, ext } = this.splitName(originalName);
+    let index = 1;
+    let candidate = `${base}-${index}${ext}`;
+
+    while (this.attachments.has(candidate)) {
+      index += 1;
+      candidate = `${base}-${index}${ext}`;
+    }
+
+    return candidate;
+  }
+
+  private renameFile(file: File, name: string) {
+    if (file.name === name) return file;
+
+    return new File([file], name, {
+      type: file.type,
+      lastModified: file.lastModified,
+    });
+  }
+
   subscribe(cb: () => void) {
     this.listeners.add(cb);
     return () => this.listeners.delete(cb);
@@ -16,7 +52,9 @@ class AttachmentRuntime {
   }
 
   add(file: File) {
-    this.attachments.set(file.name, file);
+    const uniqueName = this.getUniqueName(file.name);
+    const fileWithUniqueName = this.renameFile(file, uniqueName);
+    this.attachments.set(fileWithUniqueName.name, fileWithUniqueName);
     this.notify();
   }
 

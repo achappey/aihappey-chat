@@ -12,6 +12,7 @@ export const nebius: Provider = {
   urls: {
     homepage: "https://nebius.com",
     docs: "https://nebius.com/docs",
+    pricing: "https://nebius.com/token-factory/prices",
     console: "https://tokenfactory.nebius.com",
     privacyPolicy: "https://docs.nebius.com/legal/privacy",
     termsOfService: "https://docs.nebius.com/legal/terms-of-use"

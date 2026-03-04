@@ -10,6 +10,9 @@ export const bergetai: Provider = {
   ],
   urls: {
     homepage: "https://berget.ai",
+    pricing: "https://berget.ai/pricing",
+    console: "https://console.berget.ai",
+    docs: "https://api.berget.ai",
     privacyPolicy: "https://berget.ai/privacy",
     termsOfService: "https://berget.ai/terms"
   },

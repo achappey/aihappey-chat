@@ -12,6 +12,7 @@ export const cartesia: Provider = {
     homepage: "https://cartesia.ai",
     docs: "https://docs.cartesia.ai",
     console: "https://play.cartesia.ai",
+    pricing: "https://cartesia.ai/pricing",
     termsOfService: "https://cartesia.ai/legal/terms.html",
     privacyPolicy: "https://cartesia.ai/legal/privacy.html"
   },

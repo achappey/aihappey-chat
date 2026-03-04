@@ -17,6 +17,7 @@ export const moonshot: Provider = {
   urls: {
     homepage: "https://www.moonshot.ai",
     docs: "https://platform.moonshot.ai/docs/overview",
+    pricing: "https://platform.moonshot.ai/docs/pricing/chat",
     console: "https://platform.moonshot.ai/console",
     privacyPolicy: "https://platform.moonshot.ai/docs/agreement/userprivacy",
     termsOfService: "https://platform.moonshot.ai/docs/agreement/modeluse"

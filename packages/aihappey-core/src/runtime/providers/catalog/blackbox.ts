@@ -11,6 +11,7 @@ export const blackbox: Provider = {
   urls: {
     homepage: "https://www.blackbox.ai",
     docs: "https://docs.blackbox.ai",
+    pricing: "https://www.blackbox.ai/pricing",
     console: "https://app.blackbox.ai",
     privacyPolicy: "https://www.blackbox.ai/privacy",
     termsOfService: "https://www.blackbox.ai/terms"

@@ -11,6 +11,7 @@ export const inferencenet: Provider = {
   urls: {
     homepage: "https://inference.net",
     console: "https://inference.net/dashboard",
+    pricing: "https://inference.net/pricing",
     docs: "https://docs.inference.net",
     privacyPolicy: "https://inference.net/privacy-policy",
     termsOfService: "https://inference.net/terms-of-service"

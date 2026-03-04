@@ -11,6 +11,7 @@ export const cheapestinference: Provider = {
   ],
   urls: {
     homepage: "https://cheapestinference.com",
+    pricing: "https://cheapestinference.com/pricing",
     docs: "https://docs.cheapestinference.com"
   },
   inferenceRegions: ["World"]

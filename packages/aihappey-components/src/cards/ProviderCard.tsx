@@ -81,11 +81,11 @@ export const ProviderCard = ({
                             icon={"globe"}
                             size="small"
                             variant="subtle" />}
-                    {urls?.docs
+                    {urls?.pricing
                         && <OpenLinkButton
-                            url={urls?.docs}
-                            icon={"docs"}
-                            tooltip={t('documentation')}
+                            url={urls?.pricing}
+                            tooltip={t('pricing')}
+                            icon={"pricing"}
                             size="small"
                             variant="subtle" />}
                     {urls?.console
@@ -93,6 +93,13 @@ export const ProviderCard = ({
                             url={urls?.console}
                             tooltip={t('console')}
                             icon={"console"}
+                            size="small"
+                            variant="subtle" />}
+                    {urls?.docs
+                        && <OpenLinkButton
+                            url={urls?.docs}
+                            icon={"docs"}
+                            tooltip={t('documentation')}
                             size="small"
                             variant="subtle" />}
                     {urls?.termsOfService

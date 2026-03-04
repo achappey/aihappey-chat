@@ -13,6 +13,7 @@ export const kilo: Provider = {
     homepage: "https://kilo.ai",
     docs: "https://kilo.ai/docs",
     console: "https://app.kilo.ai",
+    pricing: "https://kilo.ai/pricing",
     termsOfService: "https://kilo.ai/terms",
     privacyPolicy: "https://kilo.ai/privacy"
   },

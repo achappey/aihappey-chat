@@ -10,6 +10,7 @@ export const hyperstack: Provider = {
   ],
   urls: {
     homepage: "https://www.hyperstack.cloud",
+    pricing: "https://www.hyperstack.cloud/gpu-pricing#studio-pricing",
     docs: "https://docs.hyperstack.cloud/docs/api-reference",
     privacyPolicy: "https://www.hyperstack.cloud/privacy-policy",
     termsOfService: "https://www.hyperstack.cloud/terms-and-conditions"

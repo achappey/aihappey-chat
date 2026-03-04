@@ -9,6 +9,7 @@ export const venice: Provider = {
   urls: {
     homepage: "https://venice.ai",
     docs: "https://docs.venice.ai",
+    pricing: "https://docs.venice.ai/overview/pricing",
     privacyPolicy: "https://venice.ai/legal/privacy-policy",
     termsOfService: "https://venice.ai/legal/tos"
   },

@@ -9,6 +9,7 @@ export const voyageai: Provider = {
   urls: {
     homepage: "https://www.voyageai.com",
     docs: "https://docs.voyageai.com",
+    pricing: "https://docs.voyageai.com/docs/pricing",
     privacyPolicy: "https://www.voyageai.com/privacy",
     termsOfService: "https://www.voyageai.com/tos"
   },

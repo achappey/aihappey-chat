@@ -10,6 +10,7 @@ export const smallestai: Provider = {
   ],
   urls: {
     homepage: "https://smallest.ai",
+    pricing: "https://smallest.ai/pricing",
     docs: "https://waves-docs.smallest.ai",
     console: "https://console.smallest.ai",
     termsOfService: "https://smallest.ai/terms-of-service",

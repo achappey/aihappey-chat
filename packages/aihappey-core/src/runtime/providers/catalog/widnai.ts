@@ -9,6 +9,7 @@ export const widnai: Provider = {
   urls: {
     homepage: "https://www.widn.ai",
     docs: "https://www.widn.ai/api-docs",
+    pricing: "https://www.widn.ai/en/pricing?pricingMode=api",
     privacyPolicy: "https://www.widn.ai/nl/privacy",
     termsOfService: "https://www.widn.ai/nl/terms-and-conditions"
   },

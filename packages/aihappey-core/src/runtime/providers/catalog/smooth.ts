@@ -9,6 +9,7 @@ export const smooth: Provider = {
   urls: {
     homepage: "https://smooth.sh",
     docs: "https://docs.smooth.sh",
+    pricing: "https://www.smooth.sh/pricing",
     console: "https://app.smooth.sh",
     privacyPolicy: "https://app.smooth.sh/privacy",
     termsOfService: "https://app.smooth.sh/terms"

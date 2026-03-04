@@ -17,6 +17,7 @@ export const openai: Provider = {
   urls: {
     homepage: "https://openai.com",
     docs: "https://platform.openai.com/docs",
+    pricing: "https://openai.com/api/pricing",
     privacyPolicy: "https://openai.com/policies/privacy-policy",
     termsOfService: "https://openai.com/policies/terms-of-use",
     console: "https://platform.openai.com"

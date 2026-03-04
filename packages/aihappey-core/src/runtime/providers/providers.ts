@@ -215,6 +215,20 @@ import { apekey } from "./catalog/apekey";
 import { apertis } from "./catalog/apertis";
 import { wisdomgate } from "./catalog/wisdomgate";
 import { smooth } from "./catalog/smooth";
+import { speechactors } from "./catalog/speechactors";
+import { gptproto } from "./catalog/gptproto";
+import { neosantara } from "./catalog/neosantara";
+import { redpill } from "./catalog/redpill";
+import { blazerail } from "./catalog/blazerail";
+import { mangaba } from "./catalog/mangaba";
+import { aether } from "./catalog/aether";
+import { regraph } from "./catalog/regraph";
+import { electronhub } from "./catalog/electronhub";
+import { dandolo } from "./catalog/dandolo";
+import { glio } from "./catalog/glio";
+import { pixeldojo } from "./catalog/pixeldojo";
+import { navyai } from "./catalog/navyai";
+import { nearai } from "./catalog/nearai";
 
 /**
  * UI-facing provider catalog.
@@ -234,6 +248,7 @@ export const PROVIDERS: Record<string, Provider> = {
   everypixellabs,
   evolinkai,
   prakasa,
+  pixeldojo,
   uniapi,
   aihubmix,
   megallm,
@@ -245,8 +260,10 @@ export const PROVIDERS: Record<string, Provider> = {
   zenlayer,
   thaura,
   quiverai,
+  navyai,
   apertis,
   modal,
+  nearai,
   aiml,
   smooth,
   wisdomgate,
@@ -255,7 +272,9 @@ export const PROVIDERS: Record<string, Provider> = {
   heygen,
   ionet,
   euqai,
+  glio,
   orq,
+  dandolo,
   forefront,
   widnai,
   typecast,
@@ -335,10 +354,12 @@ export const PROVIDERS: Record<string, Provider> = {
   jina,
   amazonbedrock,
   sunoapi,
+  regraph,
   nousresearch,
   bytez,
   morpheus,
   matterai,
+  electronhub,
   ohmygpt,
   tavily,
   opeai,
@@ -355,10 +376,13 @@ export const PROVIDERS: Record<string, Provider> = {
   infraxa,
   ai302,
   crazyrouter,
+  aether,
   blackbox,
   primeintellect,
   inceptionlabs,
   aionlabs,
+  blazerail,
+  mangaba,
   databricks,
   straico,
   blackforestlabs,
@@ -366,9 +390,11 @@ export const PROVIDERS: Record<string, Provider> = {
   abliteration,
   truefoundry,
   inferencesh,
+  redpill,
   browseruse,
   monica,
   lumaai,
+  neosantara,
   meganova,
   haimaker,
   supa,
@@ -382,6 +408,7 @@ export const PROVIDERS: Record<string, Provider> = {
   opencode,
   chaingpt,
   azerion,
+  gptproto,
   runpod,
   kernelmemory,
   portkey,
@@ -391,6 +418,7 @@ export const PROVIDERS: Record<string, Provider> = {
   sarvam,
   sudo,
   deepgram,
+  speechactors,
   zyphra,
   pinecone,
   voyageai,

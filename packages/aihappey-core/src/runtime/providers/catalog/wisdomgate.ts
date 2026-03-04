@@ -9,6 +9,7 @@ export const wisdomgate: Provider = {
   urls: {
     homepage: "https://wisdom-gate.juheapi.com",
     docs: "https://wisdom-docs.juheapi.com",
+    pricing: "https://wisdom-gate.juheapi.com/pricing",
     privacyPolicy: "https://www.juheapi.com/docs/privacy-policy",
     termsOfService: "https://www.juheapi.com/docs/terms-of-service"
   },

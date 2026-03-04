@@ -12,6 +12,7 @@ export const aiforhire: Provider = {
     privacyPolicy: "https://aiforhire.xyz/doc#api-policy",
     termsOfService: "https://aiforhire.xyz/doc#terms"
   },
+  experimental: true,
   inferenceRegions: ["World"]
 
 };

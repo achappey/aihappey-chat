@@ -12,6 +12,7 @@ export const bineric: Provider = {
     homepage: "https://www.bineric.com",
     docs: "https://www.bineric.com/platform/docs",
     console: "https://platform.bineric.com",
+    pricing: "https://www.bineric.com/#pricing",
     privacyPolicy: "https://www.bineric.com/legal/privacy-policy",
     termsOfService: "https://www.bineric.com/legal/terms-of-use"
   },

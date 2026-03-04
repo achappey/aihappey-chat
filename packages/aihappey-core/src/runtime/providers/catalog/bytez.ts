@@ -10,6 +10,7 @@ export const bytez: Provider = {
   ],
   urls: {
     homepage: "https://bytez.com",
+    pricing: "https://bytez.com/api/pricing",
     docs: "https://docs.bytez.com"
   },
   providerCountry: "US",

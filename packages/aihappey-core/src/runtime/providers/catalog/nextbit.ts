@@ -11,6 +11,7 @@ export const nextbit: Provider = {
   urls: {
     homepage: "https://www.nextbit256.com",
     docs: "https://www.nextbit256.com/docs",
+    pricing: "https://www.nextbit256.com/#models",
     privacyPolicy: "https://www.nextbit256.com/docs/privacy-policy",
     termsOfService: "https://www.nextbit256.com/docs/privacy-policy"
   },

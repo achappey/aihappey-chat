@@ -11,6 +11,7 @@ export const upstage: Provider = {
   ],
   urls: {
     homepage: "https://www.upstage.ai",
+    pricing: "https://www.upstage.ai/pricing/api",
     docs: "https://console.upstage.ai/docs/getting-started",
     termsOfService: "https://www.upstage.ai/terms-of-service",
     privacyPolicy: "https://www.upstage.ai/privacy-policy",

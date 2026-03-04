@@ -11,6 +11,7 @@ export const blackforestlabs: Provider = {
   urls: {
     homepage: "https://bfl.ai",
     docs: "https://docs.bfl.ai",
+    pricing: "https://bfl.ai/pricing",
     termsOfService: "https://bfl.ai/legal/terms-of-service",
     privacyPolicy: "https://bfl.ai/legal/privacy-policy",
     console: "https://dashboard.bfl.ai"

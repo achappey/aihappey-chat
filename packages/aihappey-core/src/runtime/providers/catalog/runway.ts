@@ -12,6 +12,7 @@ export const runway: Provider = {
   urls: {
     homepage: "https://runwayml.com",
     privacyPolicy: "https://runwayml.com/privacy-policy",
+    pricing: "https://runwayml.com/pricing",
     termsOfService: "https://runwayml.com/terms-of-use",
     console: "https://app.runwayml.com"
   },

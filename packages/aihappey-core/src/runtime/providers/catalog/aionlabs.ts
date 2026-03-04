@@ -10,6 +10,7 @@ export const aionlabs: Provider = {
   ],
   urls: {
     homepage: "https://www.aionlabs.io",
+    pricing: "https://www.aionlabs.ai/pricing",
     docs: "https://www.aionlabs.ai/documentation",
     termsOfService: "https://www.aionlabs.ai/terms",
     privacyPolicy: "https://www.aionlabs.ai/privacy-policy"

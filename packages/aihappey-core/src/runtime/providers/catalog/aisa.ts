@@ -9,6 +9,7 @@ export const aisa: Provider = {
   urls: {
     homepage: "https://www.aisa.one",
     docs: "https://docs.aisa.one",
+    pricing: "https://marketplace.aisa.one/pricing",
     console: "https://marketplace.aisa.one",
     termsOfService: "https://www.aisa.one/html/AIsa_Terms_Of_Service.html"
   },

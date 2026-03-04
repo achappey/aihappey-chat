@@ -11,6 +11,7 @@ export const yourvoic: Provider = {
   urls: {
     homepage: "https://yourvoic.com",
     docs: "https://yourvoic.com/api/docs",
+    pricing: "https://yourvoic.com/api/docs/pricing",
     privacyPolicy: "https://yourvoic.com/privacy"
   },
   providerCountry: "IN",

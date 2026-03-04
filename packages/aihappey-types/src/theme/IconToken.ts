@@ -41,6 +41,7 @@ export type IconToken =
   | "brain"
   | "download"
   | "print"
+  | "pricing"
   | "explainTool"
   | "mail"
   | "theme"

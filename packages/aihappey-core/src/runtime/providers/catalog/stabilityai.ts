@@ -13,6 +13,7 @@ export const stabilityai: Provider = {
     homepage: "https://stability.ai",
     docs: "https://platform.stability.ai/docs",
     privacyPolicy: "https://stability.ai/privacy-policy",
+    pricing: "https://platform.stability.ai/pricing",
     termsOfService: "https://stability.ai/terms-of-service",
     console: "https://platform.stability.ai"
   },

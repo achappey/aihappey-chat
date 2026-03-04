@@ -11,6 +11,7 @@ export const kugu: Provider = {
   urls: {
     homepage: "https://kugu.ai",
     docs: "https://kugu.ai/docs",
+    pricing: "https://kugu.ai/pricing",
     termsOfService: "https://kugu.ai/terms",
     privacyPolicy: "https://kugu.ai/privacy"
   },

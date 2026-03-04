@@ -8,6 +8,7 @@ export const apekey: Provider = {
   }],
   urls: {
     homepage: "https://apekey.ai",
+    pricing: "https://apekey.ai/#pricing",
     docs: "https://apekey.ai/docs",
     console: "https://apekey.ai/dashboard",
     privacyPolicy: "https://apekey.ai/privacy",

@@ -12,6 +12,7 @@ export const segmind: Provider = {
     homepage: "https://www.segmind.com",
     docs: "https://docs.segmind.com",
     privacyPolicy: "https://www.segmind.com/privacy",
+    pricing: "https://www.segmind.com/pricing",
     termsOfService: "https://www.segmind.com/terms",
     console: "https://app.segmind.com"
   },

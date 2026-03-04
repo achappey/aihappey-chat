@@ -18,6 +18,7 @@
   "output": "Output",
   "table": "Table",
   "next": "Next",
+  "pricing": "Pricing",
   "aiRegion": "AI region",
   "countryOfOrigin": "Country of origin",
   "showMore": "Show more",
@@ -167,7 +168,7 @@
     "seed": "Seed",
     "image": "Image"
   },
-  "providerDefault": "Provider default",
+  "providerDefault": "Default",
   "custom": "Custom",
   "providers": "Providers",
   "mesh": "Mesh",

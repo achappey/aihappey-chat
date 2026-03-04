@@ -16,6 +16,7 @@ export const aiml: Provider = {
   urls: {
     homepage: "https://aimlapi.com",
     docs: "https://docs.aimlapi.com",
+    pricing: "https://aimlapi.com/ai-ml-api-pricing",
     privacyPolicy: "https://help.aimlapi.com/article/56-privacy-policy",
     termsOfService: "https://help.aimlapi.com/article/55-terms-of-service"
   },

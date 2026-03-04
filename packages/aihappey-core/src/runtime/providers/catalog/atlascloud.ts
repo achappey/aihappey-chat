@@ -11,6 +11,7 @@ export const atlascloud: Provider = {
   urls: {
     homepage: "https://www.atlascloud.ai",
     docs: "https://www.atlascloud.ai/docs",
+    pricing: "https://www.atlascloud.ai/pricing/models",
     termsOfService: "https://www.atlascloud.ai/services-agreement",
     privacyPolicy: "https://www.atlascloud.ai/privacy",
     console: "https://www.atlascloud.ai/console/dashboard"

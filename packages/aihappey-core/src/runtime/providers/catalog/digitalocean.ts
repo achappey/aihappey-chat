@@ -11,6 +11,7 @@ export const digitalocean: Provider = {
   urls: {
     homepage: "https://www.digitalocean.com",
     docs: "https://docs.digitalocean.com",
+    pricing: "https://www.digitalocean.com/pricing/gradient-platform",
     privacyPolicy: "https://www.digitalocean.com/legal/privacy-policy",
     termsOfService: "https://www.digitalocean.com/legal/terms-of-service-agreement",
     console: "https://cloud.digitalocean.com"

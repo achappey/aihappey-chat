@@ -11,6 +11,7 @@ export const contextualai: Provider = {
   ],
   urls: {
     homepage: "https://contextual.ai",
+    pricing: "https://contextual.ai/pricing",
     docs: "https://docs.contextual.ai",
     console: "https://app.contextual.ai",
     privacyPolicy: "https://contextual.ai/legal/privacy-policy",

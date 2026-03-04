@@ -12,6 +12,7 @@ export const relaxai: Provider = {
   urls: {
     homepage: "https://relax.ai",
     docs: "https://relax.ai/docs",
+    pricing: "https://relax.ai/pricing",
     console: "https://dashboard.relax.ai",
     privacyPolicy: "https://relax.ai/privacy-policy",
     termsOfService: "https://relax.ai/terms-of-service"

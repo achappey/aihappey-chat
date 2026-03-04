@@ -10,6 +10,7 @@ export const cambai: Provider = {
   ],
   urls: {
     homepage: "https://www.camb.ai",
+    pricing: "https://www.camb.ai/pricing",
     console: "https://studio.camb.ai",
     docs: "https://docs.camb.ai/introduction",
     privacyPolicy: "https://www.camb.ai/privacy-policy",

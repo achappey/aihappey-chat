@@ -13,7 +13,7 @@ export const opeai: Provider = {
     docs: "https://docs.ope.ai",
     console: "https://platform.ope.ai"
   },
-  providerCountry: "CN",
+  providerCountry: "JP",
   inferenceRegions: ["World"]
 
 };

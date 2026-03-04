@@ -12,6 +12,7 @@ export const parasail: Provider = {
   urls: {
     homepage: "https://parasail.io",
     privacyPolicy: "https://parasail.io/legal/privacy-policy",
+    pricing: "https://www.saas.parasail.io/pricing",
     termsOfService: "https://parasail.io/legal/terms-of-service",
     docs: "https://docs.parasail.io/parasail-docs",
     console: "https://www.saas.parasail.io"

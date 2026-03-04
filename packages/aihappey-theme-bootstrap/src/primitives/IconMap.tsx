@@ -79,6 +79,7 @@ import {
   Puzzle,
   Window,
   FileText,
+  Cash,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -172,6 +173,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   disconnect: <UsbPlugFill />,
   aiImage: <Image />,
   print: <Printer />,
+  pricing: <Cash />,
   chevronDown: <ChevronDown />,
   chevronUp: <ChevronUp />,
   logout: <Trash />,

@@ -8,6 +8,7 @@ export const euqai: Provider = {
   urls: {
     homepage: "https://euqai.eu",
     docs: "https://euqai.eu/home/developers.html",
+    pricing: "https://euqai.eu/home/developers.html",
     privacyPolicy: "https://euqai.eu/static/privacy",
     termsOfService: "https://euqai.eu/static/terms"
   },

@@ -12,6 +12,7 @@ export const eurouter: Provider = {
   urls: {
     homepage: "https://www.eurouter.ai",
     docs: "https://docs.eurouter.ai",
+    pricing: "https://www.eurouter.ai/pricing",
     privacyPolicy: "https://www.eurouter.ai/privacy",
     termsOfService: "https://www.eurouter.ai/terms"
   },

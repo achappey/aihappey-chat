@@ -22,4 +22,5 @@ export type ProviderUrls = {
     console?: string
     termsOfService?: string
     privacyPolicy?: string
+    pricing?: string
 };

@@ -12,6 +12,7 @@ export const avian: Provider = {
   urls: {
     homepage: "https://avian.io",
     docs: "https://avian.io/docs",
+    pricing: "https://avian.io/pricing",
     console: "https://avian.io/dashboard",
     privacyPolicy: "https://avian.io/privacy",
     termsOfService: "https://avian.io/terms"

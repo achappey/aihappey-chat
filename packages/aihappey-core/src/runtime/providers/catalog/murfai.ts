@@ -12,6 +12,7 @@ export const murfai: Provider = {
   urls: {
     homepage: "https://murf.ai",
     docs: "https://murf.ai/api/docs",
+    pricing: "https://murf.ai/pricing",
     privacyPolicy: "https://murf.ai/legal/privacy-policy",
     termsOfService: "https://murf.ai/legal/terms-of-service",
     console: "https://studio.murf.ai"

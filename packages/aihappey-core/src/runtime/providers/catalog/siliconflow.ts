@@ -11,6 +11,7 @@ export const siliconflow: Provider = {
   ],
   urls: {
     homepage: "https://www.siliconflow.com",
+    pricing: "https://www.siliconflow.com/pricing",
     docs: "https://docs.siliconflow.com",
     privacyPolicy: "https://docs.siliconflow.com/en/legals/privacy-policy",
     termsOfService: "https://docs.siliconflow.com/en/legals/terms-of-service",

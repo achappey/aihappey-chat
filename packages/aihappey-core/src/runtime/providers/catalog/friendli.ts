@@ -13,6 +13,7 @@ export const friendli: Provider = {
   urls: {
     homepage: "https://friendli.ai",
     docs: "https://docs.friendli.ai",
+    pricing: "https://friendli.ai/pricing",
     privacyPolicy: "https://friendli.ai/privacy",
     termsOfService: "https://friendli.ai/terms",
     console: "https://console.friendli.ai"

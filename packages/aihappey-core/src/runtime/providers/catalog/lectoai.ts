@@ -5,11 +5,12 @@ export const lectoai: Provider = {
   description: "Fast Machine Translation API at reasonable prices.",
   icons: [
     {
-      src: "https://lecto.ai/assets/images/image02.jpg?v=7b019a46"
+      src: "https://lecto.ai/favicon.svg"
     }
   ],
   urls: {
     homepage: "https://lecto.ai",
+    pricing: "https://lecto.ai/pricing",
     docs: "https://dashboard.lecto.ai/docs",
     console: "https://dashboard.lecto.ai",
     termsOfService: "https://dashboard.lecto.ai/terms"

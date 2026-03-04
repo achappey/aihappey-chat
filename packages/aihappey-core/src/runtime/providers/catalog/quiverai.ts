@@ -9,6 +9,7 @@ export const quiverai: Provider = {
   urls: {
     homepage: "https://quiver.ai",
     docs: "https://docs.quiver.ai",
+    pricing: "https://quiver.ai/pricing",
     privacyPolicy: "https://quiver.ai/legal/privacy",
     termsOfService: "https://quiver.ai/legal/terms"
   },

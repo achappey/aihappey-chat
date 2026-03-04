@@ -12,6 +12,7 @@ export const json2video: Provider = {
   urls: {
     homepage: "https://json2video.com",
     docs: "https://json2video.com/docs/v2",
+    pricing: "https://json2video.com/pricing",
     privacyPolicy: "https://json2video.com/legal/privacy-policy.html",
     termsOfService: "https://json2video.com/legal/terms-of-use-2022-07.pdf",
     console: "https://app.json2video.com"

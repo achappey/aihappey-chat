@@ -12,6 +12,7 @@ export const minimax: Provider = {
   urls: {
     homepage: "https://www.minimax.io",
     docs: "https://platform.minimax.io/docs",
+    pricing: "https://platform.minimax.io/docs/guides/pricing-paygo",
     privacyPolicy: "https://platform.minimax.io/protocol/privacy-policy",
     termsOfService: "https://platform.minimax.io/protocol/terms-of-service",
     console: "https://platform.minimax.io"

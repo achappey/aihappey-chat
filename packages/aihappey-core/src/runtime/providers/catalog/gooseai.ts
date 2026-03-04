@@ -12,6 +12,9 @@ export const gooseai: Provider = {
   urls: {
     homepage: "https://goose.ai",
     docs: "https://goose.ai/docs",
+    privacyPolicy: "https://goose.ai/docs/privacy",
+    termsOfService: "https://goose.ai/docs/tos",
+    pricing: "https://goose.ai/pricing",
     console: "https://goose.ai/dashboard"
   },
   providerCountry: "US",

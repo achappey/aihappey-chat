@@ -13,6 +13,7 @@ export const routeway: Provider = {
     homepage: "https://routeway.ai",
     docs: "https://docs.routeway.ai",
     console: "https://routeway.ai/dashboard",
+    pricing: "https://routeway.ai/#pricing",
     privacyPolicy: "https://routeway.ai/privacy",
     termsOfService: "https://routeway.ai/terms"
   },

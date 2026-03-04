@@ -11,6 +11,7 @@ export const baseten: Provider = {
   urls: {
     homepage: "https://www.baseten.co",
     docs: "https://docs.baseten.co",
+    pricing: "https://www.baseten.co/pricing",
     privacyPolicy: "https://www.baseten.co/privacy-policy",
     termsOfService: "https://www.baseten.co/terms-and-conditions",
     console: "https://app.baseten.co"

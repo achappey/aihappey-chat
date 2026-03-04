@@ -8,12 +8,13 @@ export const ai302: Provider = {
       src: "https://302.ai/img/logo.png"
     }
   ],
-urls: {
-  homepage: "https://302.ai", 
-  docs: "https://doc.302.ai", 
-  privacyPolicy: "https://302.ai/legal/privacy",
-  termsOfService: "https://302.ai/legal/terms"
-},
+  urls: {
+    homepage: "https://302.ai",
+    pricing: "https://302.ai/price",
+    docs: "https://doc.302.ai",
+    privacyPolicy: "https://302.ai/legal/privacy",
+    termsOfService: "https://302.ai/legal/terms"
+  },
   providerCountry: "SG",
   inferenceRegions: ["World"]
 };

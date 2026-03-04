@@ -12,6 +12,7 @@ export const ai21: Provider = {
   urls: {
     homepage: "https://www.ai21.com",
     docs: "https://docs.ai21.com",
+    pricing: "https://www.ai21.com/pricing",
     privacyPolicy: "https://www.ai21.com/terms-policies/privacy-policy",
     termsOfService: "https://www.ai21.com/terms-policies/terms-of-use"
   },

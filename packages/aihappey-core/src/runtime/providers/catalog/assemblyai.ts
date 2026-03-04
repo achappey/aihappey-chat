@@ -12,6 +12,7 @@ export const assemblyai: Provider = {
   urls: {
     homepage: "https://www.assemblyai.com",
     docs: "https://www.assemblyai.com/docs",
+    pricing: "https://www.assemblyai.com/pricing",
     privacyPolicy: "https://www.assemblyai.com/legal/privacy-policy",
     termsOfService: "https://www.assemblyai.com/legal/terms-of-service"
   },

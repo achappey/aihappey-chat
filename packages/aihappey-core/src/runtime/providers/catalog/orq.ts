@@ -12,6 +12,7 @@ export const orq: Provider = {
     homepage: "https://orq.ai",
     docs: "https://docs.orq.ai",
     console: "https://my.orq.ai",
+    pricing: "https://orq.ai/pricing",
     termsOfService: "https://orq.ai/legal/terms-of-service",
     privacyPolicy: "https://orq.ai/legal/privacy"
   },

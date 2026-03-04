@@ -10,6 +10,7 @@ export const bria: Provider = {
   ],
   urls: {
     homepage: "https://bria.ai",
+    pricing: "https://bria.ai/pricing",
     docs: "https://docs.bria.ai",
     privacyPolicy: "https://drive.google.com/file/d/15k_d1ncts4XbxmmZgp_KVQmBjfIRekDc/view",
     termsOfService: "https://pages.bria.ai/hubfs/Bria%20AI%20Enterprise%20Terms%20and%20Conditions%20(June%202024)%20v1%20(1).pdf?hsLang=en",

@@ -9,6 +9,7 @@ export const zenmux: Provider = {
   urls: {
     homepage: "https://zenmux.ai",
     docs: "https://zenmux.ai/docs",
+    pricing: "https://zenmux.ai/pricing/pay-as-you-go",
     console: "https://zenmux.ai/platform",
     privacyPolicy: "https://docs.zenmux.ai/privacy.html",
     termsOfService: "https://docs.zenmux.ai/terms-of-service.html"

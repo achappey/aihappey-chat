@@ -11,6 +11,7 @@ export const modernmt: Provider = {
   urls: {
     homepage: "https://www.modernmt.com",
     docs: "https://www.modernmt.com/api",
+    pricing: "https://www.modernmt.com/pricing",
     privacyPolicy: "https://www.modernmt.com/privacy",
     termsOfService: "https://www.modernmt.com/terms"
   },

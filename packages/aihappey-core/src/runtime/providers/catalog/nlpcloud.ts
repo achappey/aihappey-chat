@@ -11,6 +11,7 @@ export const nlpcloud: Provider = {
   urls: {
     homepage: "https://nlpcloud.com",
     docs: "https://docs.nlpcloud.com",
+    pricing: "https://nlpcloud.com/pricing.html",
     privacyPolicy: "https://nlpcloud.com/privacy.html",
     termsOfService: "https://nlpcloud.com/tos.html"
   },
