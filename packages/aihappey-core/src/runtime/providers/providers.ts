@@ -229,6 +229,19 @@ import { glio } from "./catalog/glio";
 import { pixeldojo } from "./catalog/pixeldojo";
 import { navyai } from "./catalog/navyai";
 import { nearai } from "./catalog/nearai";
+import { parallel } from "./catalog/parallel";
+import { nanogpt } from "./catalog/nanogpt";
+import { aibramha } from "./catalog/aibramha";
+import { ghostbot } from "./catalog/ghostbot";
+import { routmy } from "./catalog/routmy";
+import { poe } from "./catalog/poe";
+import { askarc } from "./catalog/askarc";
+import { synthetic } from "./catalog/synthetic";
+import { renderful } from "./catalog/renderful";
+import { tigercity } from "./catalog/tigercity";
+import { kittenstack } from "./catalog/kittenstack";
+import { packetai } from "./catalog/packetai";
+import { edenai } from "./catalog/edenai";
 
 /**
  * UI-facing provider catalog.
@@ -240,20 +253,33 @@ export const PROVIDERS: Record<string, Provider> = {
   runway,
   verbatik,
   infron,
+  edenai,
+  kittenstack,
   aiforhire,
+  packetai,
+  synthetic,
   longcat,
+  renderful,
   apekey,
+  askarc,
+  poe,
+  ghostbot,
   openaihk,
   aisa,
   everypixellabs,
+  routmy,
   evolinkai,
   prakasa,
+  aibramha,
+  nanogpt,
   pixeldojo,
   uniapi,
+  parallel,
   aihubmix,
   megallm,
   apifree,
   unrealspeech,
+  tigercity,
   astica,
   hicap,
   modelslab,

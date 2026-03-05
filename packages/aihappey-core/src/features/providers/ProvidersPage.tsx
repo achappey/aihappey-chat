@@ -46,6 +46,24 @@ export const ProvidersPage = () => {
         );
     }, [models]);
 
+    const modelTypesByProvider = useMemo(() => {
+        const byProvider: Record<string, string[]> = {};
+
+        orderedModels.forEach((model) => {
+            if (!model.type) return;
+
+            const providerKey = model.id.split("/")[0];
+            if (!providerKey) return;
+
+            const existing = byProvider[providerKey] ?? [];
+            if (!existing.includes(model.type)) {
+                byProvider[providerKey] = [...existing, model.type];
+            }
+        });
+
+        return byProvider;
+    }, [orderedModels]);
+
     const providers: ProviderListItem[] = useMemo(() => {
         const items = Object.entries(PROVIDERS).map(([key, meta]) => {
             const m = meta as any;
@@ -124,15 +142,8 @@ export const ProvidersPage = () => {
 
     const selectedProviderModelTypes = useMemo(() => {
         if (!selectedProvider) return [];
-        return Array.from(
-            new Set(
-                orderedModels
-                    ?.filter((m) => m.id.startsWith(selectedProvider.key + "/"))
-                    .map((m) => m.type)
-                    .filter(Boolean)
-            )
-        );
-    }, [orderedModels, selectedProvider]);
+        return modelTypesByProvider[selectedProvider.key] ?? [];
+    }, [modelTypesByProvider, selectedProvider]);
 
     return (
         <>
@@ -181,16 +192,7 @@ export const ProvidersPage = () => {
                             const image =
                                 p.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))
                                     ?.src ?? p.icons?.[0]?.src;
-
-                            // collect unique model types for this provider
-                            const modelTypes = Array.from(
-                                new Set(
-                                    orderedModels
-                                        ?.filter(m => m.id.startsWith(p.key + "/"))
-                                        .map(m => m.type)
-                                        .filter(Boolean)
-                                )
-                            );
+                            const modelTypes = modelTypesByProvider[p.key] ?? [];
 
                             return (
                                 <div
