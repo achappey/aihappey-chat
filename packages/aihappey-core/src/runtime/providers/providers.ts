@@ -242,6 +242,9 @@ import { tigercity } from "./catalog/tigercity";
 import { kittenstack } from "./catalog/kittenstack";
 import { packetai } from "./catalog/packetai";
 import { edenai } from "./catalog/edenai";
+import { websearchapi } from "./catalog/websearchapi";
+import { nimbleway } from "./catalog/nimbleway";
+import { eachlabs } from "./catalog/eachlabs";
 
 /**
  * UI-facing provider catalog.
@@ -255,7 +258,9 @@ export const PROVIDERS: Record<string, Provider> = {
   infron,
   edenai,
   kittenstack,
+  eachlabs,
   aiforhire,
+  nimbleway,
   packetai,
   synthetic,
   longcat,
@@ -271,6 +276,7 @@ export const PROVIDERS: Record<string, Provider> = {
   evolinkai,
   prakasa,
   aibramha,
+  websearchapi,
   nanogpt,
   pixeldojo,
   uniapi,
