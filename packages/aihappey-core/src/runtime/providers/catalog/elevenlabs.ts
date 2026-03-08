@@ -9,6 +9,7 @@ export const elevenlabs: Provider = {
   }],
   urls: {
     homepage: "https://elevenlabs.io",
+    pricing: "https://elevenlabs.io/pricing",
     docs: "https://elevenlabs.io/docs",
     privacyPolicy: "https://elevenlabs.io/privacy",
     termsOfService: "https://elevenlabs.io/terms"

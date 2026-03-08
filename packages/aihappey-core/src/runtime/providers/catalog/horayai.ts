@@ -11,6 +11,7 @@ export const horayai: Provider = {
   urls: {
     homepage: "https://www.horay.ai",
     docs: "https://www.horay.ai/docs",
+    pricing: "https://www.horay.ai/pricing",
     privacyPolicy: "https://www.horay.ai/privacy-policy",
     termsOfService: "https://www.horay.ai/terms-of-service"
   },

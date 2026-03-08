@@ -11,6 +11,7 @@ export const everypixellabs: Provider = {
   urls: {
     homepage: "https://labs.everypixel.com",
     docs: "https://labs.everypixel.com/docs",
+    pricing: "https://labs.everypixel.com/pricing",
     termsOfService: "https://labs.everypixel.com/terms",
     privacyPolicy: "https://www.everypixel.com/legal/privacy"
   },

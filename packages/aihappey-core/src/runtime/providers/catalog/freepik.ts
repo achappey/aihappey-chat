@@ -11,6 +11,7 @@ export const freepik: Provider = {
   ],
   urls: {
     homepage: "https://www.freepik.com",
+    pricing: "https://www.freepik.com/api/pricing",
     docs: "https://www.freepik.com/api",
     privacyPolicy: "https://www.freepikcompany.com/privacy",
     termsOfService: "https://www.freepikcompany.com/legal"

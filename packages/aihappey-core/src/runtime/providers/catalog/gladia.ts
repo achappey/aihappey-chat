@@ -11,6 +11,7 @@ export const gladia: Provider = {
   urls: {
     homepage: "https://www.gladia.io",
     docs: "https://docs.gladia.io",
+    pricing: "https://www.gladia.io/pricing",
     termsOfService: "https://www.gladia.io/legal-notice",
     privacyPolicy: "https://www.gladia.io/privacy-notice"
   },

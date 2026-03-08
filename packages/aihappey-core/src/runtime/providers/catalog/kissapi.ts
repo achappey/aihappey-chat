@@ -9,6 +9,7 @@ export const kissapi: Provider = {
   }],
   urls: {
     homepage: "https://api.kissapi.ai",
+    pricing: "https://api.kissapi.ai/landing/#pricing",
     docs: "https://kissapi.ai/tutorial/?mode=global",
     privacyPolicy: "https://kissapi.ai/privacy.html",
     termsOfService: "https://kissapi.ai/terms.html"

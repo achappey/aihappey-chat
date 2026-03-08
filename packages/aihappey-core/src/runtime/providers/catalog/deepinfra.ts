@@ -10,6 +10,7 @@ export const deepinfra: Provider = {
   urls: {
     homepage: "https://deepinfra.com",
     docs: "https://deepinfra.com/docs",
+    pricing: "https://deepinfra.com/pricing",
     privacyPolicy: "https://deepinfra.com/privacy",
     termsOfService: "https://deepinfra.com/terms"
   },

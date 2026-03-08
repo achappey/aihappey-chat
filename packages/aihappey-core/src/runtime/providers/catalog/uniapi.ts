@@ -10,6 +10,7 @@ export const uniapi: Provider = {
     homepage: "https://uniapi.ai",
     docs: "https://docs.uniapi.ai",
     console: "https://uniapi.ai/dashboard",
+    pricing: "https://uniapi.ai/prices",
     privacyPolicy: "https://uniapi.ai/privacy",
     termsOfService: "https://uniapi.ai/terms"
   },

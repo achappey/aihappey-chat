@@ -11,6 +11,7 @@ export const inworld: Provider = {
   urls: {
     homepage: "https://inworld.ai",
     docs: "https://docs.inworld.ai",
+    pricing: "https://inworld.ai/pricing",
     privacyPolicy: "https://inworld.ai/privacy",
     termsOfService: "https://inworld.ai/terms",
     console: "https://studio.inworld.ai"

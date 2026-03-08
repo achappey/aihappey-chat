@@ -11,6 +11,7 @@ export const uvoiceai: Provider = {
   urls: {
     homepage: "https://uvoice.app",
     docs: "https://uvoice.app/api-docs",
+    pricing: "https://uvoice.app/#pricing",
     termsOfService: "https://uvoice.app/terms-of-service",
     privacyPolicy: "https://uvoice.app/privacy-policy"
   },

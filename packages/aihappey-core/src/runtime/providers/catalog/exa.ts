@@ -11,6 +11,7 @@ export const exa: Provider = {
   urls: {
     homepage: "https://exa.ai",
     console: "https://dashboard.exa.ai",
+    pricing: "https://exa.ai/pricing",
     docs: "https://exa.ai/docs",
     privacyPolicy: "https://exa.ai/privacy-policy",
     termsOfService: "https://exa.ai/assets/Exa_Labs_Terms_of_Service.pdf"

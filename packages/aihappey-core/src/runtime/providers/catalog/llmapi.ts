@@ -13,6 +13,7 @@ export const llmapi: Provider = {
     homepage: "https://llmapi.ai",
     docs: "https://docs.llmapi.ai",
     console: "https://app.llmapi.ai",
+    pricing: "https://llmapi.ai/#pricing",
     privacyPolicy: "https://llmapi.ai/policy",
     termsOfService: "https://llmapi.ai/terms"
   },

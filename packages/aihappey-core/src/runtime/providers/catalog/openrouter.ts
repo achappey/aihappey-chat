@@ -11,6 +11,7 @@ export const openrouter: Provider = {
   urls: {
     homepage: "https://openrouter.ai",
     docs: "https://openrouter.ai/docs",
+    pricing: "https://openrouter.ai/pricing",
     privacyPolicy: "https://openrouter.ai/privacy",
     termsOfService: "https://openrouter.ai/terms"
   },

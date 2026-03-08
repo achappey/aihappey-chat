@@ -11,6 +11,7 @@ export const deepl: Provider = {
   ],
   urls: {
     homepage: "https://www.deepl.com",
+    pricing: "https://www.deepl.com/en/pro#api",
     docs: "https://developers.deepl.com",
     privacyPolicy: "https://www.deepl.com/privacy",
     termsOfService: "https://www.deepl.com/terms"

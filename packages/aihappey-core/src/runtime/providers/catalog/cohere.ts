@@ -17,6 +17,7 @@ export const cohere: Provider = {
   urls: {
     homepage: "https://cohere.com",
     docs: "https://docs.cohere.com",
+    pricing: "https://cohere.com/pricing",
     privacyPolicy: "https://cohere.com/privacy",
     termsOfService: "https://cohere.com/terms-of-use"
   },

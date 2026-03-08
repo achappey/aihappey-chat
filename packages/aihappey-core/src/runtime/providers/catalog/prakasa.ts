@@ -9,6 +9,7 @@ export const prakasa: Provider = {
   urls: {
     homepage: "https://prakasa.me",
     docs: "https://docs.prakasa.me",
+    pricing: "https://prakasa.me/#pricing",
     console: "https://prakasa.me/console"
   },
   providerCountry: "CN",

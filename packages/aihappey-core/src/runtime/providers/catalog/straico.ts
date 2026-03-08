@@ -10,6 +10,7 @@ export const straico: Provider = {
   ],
   urls: {
     homepage: "https://straico.com",
+    pricing: "https://straico.com/pricing",
     console: "https://platform.straico.com",
     docs: "https://documenter.getpostman.com/view/5900072/2s9YyzddrR",
     privacyPolicy: "https://straico.com/privacy-policy",

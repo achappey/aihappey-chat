@@ -10,6 +10,7 @@ export const gptproto: Provider = {
     homepage: "https://gptproto.com",
     docs: "https://docs.gptproto.com",
     console: "https://gptproto.com/dashboard",
+    pricing: "https://gptproto.com/dashboard/billing-center",
     privacyPolicy: "https://gptproto.com/privacy-policy",
     termsOfService: "https://gptproto.com/terms-of-service"
   },

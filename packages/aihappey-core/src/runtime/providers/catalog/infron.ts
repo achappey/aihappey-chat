@@ -9,6 +9,7 @@ export const infron: Provider = {
   urls: {
     homepage: "https://infron.ai",
     docs: "https://infron.ai/docs",
+    pricing: "https://infron.ai/docs/overview/pricing-and-fee-structure",
     console: "https://infron.ai/dashboard",
     privacyPolicy: "https://infron.ai/privacy-policy",
     termsOfService: "https://infron.ai/terms-of-use"

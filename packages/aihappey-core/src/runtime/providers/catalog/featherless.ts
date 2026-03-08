@@ -11,6 +11,7 @@ export const featherless: Provider = {
   urls: {
     homepage: "https://featherless.ai",
     docs: "https://featherless.ai/docs",
+    pricing: "https://featherless.ai/#pricing",
     privacyPolicy: "https://featherless.ai/privacy",
     termsOfService: "https://featherless.ai/terms"
   },

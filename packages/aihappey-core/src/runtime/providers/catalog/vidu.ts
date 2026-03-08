@@ -10,6 +10,7 @@ export const vidu: Provider = {
   ],
   urls: {
     homepage: "https://www.vidu.com",
+    pricing: "https://www.vidu.com/pricing",
     privacyPolicy: "https://www.vidu.com/privacy",
     termsOfService: "https://www.vidu.com/terms"
   },

@@ -11,6 +11,7 @@ export const infraxa: Provider = {
   urls: {
     homepage: "https://www.infraxa.ai",
     docs: "https://docs.infraxa.ai",
+    pricing: "https://dashboard.infraxa.ai/pricing",
     console: "https://dashboard.infraxa.ai",
     termsOfService: "https://dashboard.infraxa.ai/terms",
     privacyPolicy: "https://dashboard.infraxa.ai/privacy"

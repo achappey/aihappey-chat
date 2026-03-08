@@ -11,6 +11,7 @@ export const runpod: Provider = {
   urls: {
     homepage: "https://www.runpod.io",
     docs: "https://docs.runpod.io",
+    pricing: "https://www.runpod.io/pricing",
     privacyPolicy: "https://www.runpod.io/legal/privacy-policy",
     termsOfService: "https://www.runpod.io/legal/terms-of-service",
     console: "https://console.runpod.io"

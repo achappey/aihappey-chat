@@ -9,6 +9,7 @@ export const megallm: Provider = {
   urls: {
     homepage: "https://megallm.io",
     docs: "https://docs.megallm.io",
+    pricing: "https://megallm.io/pricing",
     privacyPolicy: "https://megallm.io/privacy",
     termsOfService: "https://megallm.io/legal"
   },

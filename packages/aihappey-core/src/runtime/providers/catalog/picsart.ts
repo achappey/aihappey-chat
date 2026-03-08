@@ -12,6 +12,7 @@ export const picsart: Provider = {
     homepage: "https://picsart.com",
     console: "https://console.picsart.io",
     docs: "https://docs.picsart.io",
+    pricing: "https://picsart.com/pricing",
     privacyPolicy: "https://picsart.com/privacy-policy",
     termsOfService: "https://picsart.com/terms-of-use"
   },

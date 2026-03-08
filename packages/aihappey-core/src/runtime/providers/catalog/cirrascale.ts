@@ -12,6 +12,7 @@ export const cirrascale: Provider = {
   urls: {
     homepage: "https://www.cirrascale.com",
     console: "https://aisuite.cirrascale.com",
+    pricing: "https://www.cirrascale.com/pricing",
     docs: "https://aisuite.cirrascale.com/imagine-api-docs",
     privacyPolicy: "https://www.cirrascale.com/privacy-policy",
     termsOfService: "https://www.cirrascale.com/terms-of-use"

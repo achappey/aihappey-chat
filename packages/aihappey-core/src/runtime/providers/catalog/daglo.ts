@@ -11,6 +11,7 @@ export const daglo: Provider = {
   urls: {
     homepage: "https://daglo.ai",
     docs: "https://developers.daglo.ai",
+    pricing: "https://daglo.ai/en/pricing",
     console: "https://developers.daglo.ai/console",
     termsOfService: "https://daglo.ai/en/terms",
     privacyPolicy: "https://daglo.ai/en/privacy"

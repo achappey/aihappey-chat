@@ -12,6 +12,7 @@ export const truefoundry: Provider = {
     homepage: "https://www.truefoundry.com",
     docs: "https://www.truefoundry.com/docs",
     termsOfService: "https://www.truefoundry.com/terms",
+    pricing: "https://www.truefoundry.com/pricing",
     privacyPolicy: "https://www.truefoundry.com/privacy-policy"
   },
   providerCountry: "US",

@@ -13,7 +13,7 @@ export const google: Provider = {
     homepage: "https://ai.google",
     docs: "https://ai.google.dev",
     privacyPolicy: "https://policies.google.com/privacy",
-    termsOfService: "https://policies.google.com/terms",
+    termsOfService: "https://ai.google.dev/gemini-api/terms",
     console: "https://aistudio.google.com"
   },
   providerCountry: "US",

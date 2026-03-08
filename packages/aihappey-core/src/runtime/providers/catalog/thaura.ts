@@ -9,6 +9,7 @@ export const thaura: Provider = {
   urls: {
     homepage: "https://thaura.ai",
     docs: "https://thaura.ai/api-platform",
+    pricing: "https://thaura.ai/pricing",
     privacyPolicy: "https://thaura.ai/privacy-policy",
     termsOfService: "https://thaura.ai/terms-of-service"
   },

@@ -11,6 +11,7 @@ export const inceptionlabs: Provider = {
   urls: {
     homepage: "https://www.inceptionlabs.ai",
     docs: "https://docs.inceptionlabs.ai",
+    pricing: "https://www.inceptionlabs.ai/models#pricing",
     console: "https://platform.inceptionlabs.ai",
     termsOfService: "https://www.inceptionlabs.ai/docs/terms-of-use",
     privacyPolicy: "https://www.inceptionlabs.ai/docs/privacy-policy"

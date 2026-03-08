@@ -13,6 +13,7 @@ export const arklabs: Provider = {
     homepage: "https://ark-labs.cloud",
     docs: "https://ark-labs.cloud/documentation",
     console: "https://shop.ark-labs.cloud",
+    pricing: "https://ark-labs.cloud/pricing",
     privacyPolicy: "https://ark-labs.cloud/privacy",
     termsOfService: "https://ark-labs.cloud/terms"
   },

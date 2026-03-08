@@ -12,6 +12,7 @@ export const infomaniak: Provider = {
   urls: {
     homepage: "https://www.infomaniak.com",
     docs: "https://developer.infomaniak.com",
+    pricing: "https://www.infomaniak.com/en/hosting/ai-services/prices",
     console: "https://manager.infomaniak.com",
     termsOfService: "https://www.infomaniak.com/en/legal/general-terms-and-conditions",
     privacyPolicy: "https://www.infomaniak.com/en/legal/confidentiality-policy"

@@ -12,6 +12,7 @@ export const simplismart: Provider = {
   urls: {
     homepage: "https://simplismart.ai",
     docs: "https://docs.simplismart.ai",
+    pricing: "https://simplismart.ai/pricing",
     console: "https://app.simplismart.ai",
     privacyPolicy: "https://simplismart.ai/privacy-policy",
     termsOfService: "https://simplismart.ai/terms-of-service"

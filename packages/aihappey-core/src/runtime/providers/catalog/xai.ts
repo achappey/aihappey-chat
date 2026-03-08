@@ -17,6 +17,7 @@ export const xai: Provider = {
   urls: {
     homepage: "https://x.ai",
     docs: "https://docs.x.ai",
+    pricing: "https://docs.x.ai/developers/models",
     privacyPolicy: "https://x.ai/privacy-policy",
     termsOfService: "https://x.ai/legal",
     console: "https://console.x.ai"

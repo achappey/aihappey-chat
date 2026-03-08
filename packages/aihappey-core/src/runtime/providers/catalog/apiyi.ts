@@ -10,6 +10,7 @@ export const apiyi: Provider = {
     homepage: "https://apiyi.com",
     docs: "https://apiyi.com/quick-start.html",
     console: "https://api.apiyi.com",
+    pricing: "https://apiyi.com/#pricing",
     privacyPolicy: "https://apiyi.com/privacyPolicy.html",
     termsOfService: "https://apiyi.com/serviceAgreement.html"
   },

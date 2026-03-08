@@ -9,6 +9,7 @@ export const netmind: Provider = {
   urls: {
     homepage: "https://www.netmind.ai",
     docs: "https://netmind-power.gitbook.io",
+    pricing: "https://www.netmind.ai/pricing",
     console: "https://www.netmind.ai/user/dashboard",
     privacyPolicy: "https://www.netmind.ai/privacyPolicy",
     termsOfService: "https://www.netmind.ai/termsOfService"

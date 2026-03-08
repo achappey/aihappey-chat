@@ -12,6 +12,7 @@ export const audixa: Provider = {
   urls: {
     homepage: "https://audixa.ai",
     docs: "https://docs.audixa.ai",
+    pricing: "https://audixa.ai/pricing",
     privacyPolicy: "https://audixa.ai/privacy",
     termsOfService: "https://audixa.ai/tos"
   },

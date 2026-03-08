@@ -10,6 +10,7 @@ export const evolinkai: Provider = {
     homepage: "https://evolink.ai",
     docs: "https://docs.evolink.ai",
     console: "https://evolink.ai/dashboard",
+    pricing: "https://evolink.ai/models",
     privacyPolicy: "https://evolink.ai/privacy",
     termsOfService: "https://evolink.ai/terms"
   },

@@ -9,6 +9,7 @@ export const modelslab: Provider = {
   urls: {
     homepage: "https://modelslab.com",
     docs: "https://docs.modelslab.com",
+    pricing: "https://modelslab.com/pricing",
     privacyPolicy: "https://modelslab.com/privacy-policy",
     termsOfService: "https://modelslab.com/terms-of-service"
   },

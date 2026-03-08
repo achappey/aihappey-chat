@@ -11,6 +11,7 @@ export const synexa: Provider = {
   urls: {
     homepage: "https://synexa.ai",
     docs: "https://synexa.ai/docs",
+    pricing: "https://synexa.ai/pricing",
     privacyPolicy: "https://synexa.ai/privacy",
     termsOfService: "https://synexa.ai/terms",
     console: "https://app.synexa.ai"

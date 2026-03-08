@@ -11,6 +11,7 @@ export const verbatik: Provider = {
   urls: {
     homepage: "https://verbatik.com",
     docs: "https://docs.verbatik.com",
+    pricing: "https://verbatik.com/pricing",
     console: "https://api.verbatik.com",
     termsOfService: "https://verbatik.com/terms",
     privacyPolicy: "https://verbatik.com/privacy"

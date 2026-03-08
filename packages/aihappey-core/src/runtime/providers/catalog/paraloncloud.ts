@@ -11,6 +11,7 @@ export const paraloncloud: Provider = {
   ],
   urls: {
     homepage: "https://ai.paraloncloud.com",
+    pricing: "https://ai.paraloncloud.com/#pricing",
     console: "https://ai.paraloncloud.com/console"
   },
   providerCountry: "US",

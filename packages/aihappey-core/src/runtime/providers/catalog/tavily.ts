@@ -11,6 +11,7 @@ export const tavily: Provider = {
   urls: {
     homepage: "https://www.tavily.com",
     docs: "https://docs.tavily.com",
+    pricing: "https://www.tavily.com/pricing",
     console: "https://app.tavily.com",
     privacyPolicy: "https://www.tavily.com/privacy",
     termsOfService: "https://www.tavily.com/terms"

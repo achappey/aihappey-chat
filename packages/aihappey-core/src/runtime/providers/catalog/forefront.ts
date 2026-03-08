@@ -12,6 +12,7 @@ export const forefront: Provider = {
     homepage: "https://forefront.ai",
     docs: "https://docs.forefront.ai",
     console: "https://platform.forefront.ai",
+    pricing: "https://forefront.ai/pricing",
     termsOfService: "https://forefront.ai/terms-of-service",
     privacyPolicy: "https://forefront.ai/privacy-policy",
   },

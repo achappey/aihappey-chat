@@ -245,6 +245,50 @@ import { edenai } from "./catalog/edenai";
 import { websearchapi } from "./catalog/websearchapi";
 import { nimbleway } from "./catalog/nimbleway";
 import { eachlabs } from "./catalog/eachlabs";
+import { laozhang } from "./catalog/laozhang";
+import { valyu } from "./catalog/valyu";
+import { jiekouai } from "./catalog/jiekouai";
+import { syllogy } from "./catalog/syllogy";
+import { literouter } from "./catalog/literouter";
+import { arwriter } from "./catalog/arwriter";
+import { qiniu } from "./catalog/qiniu";
+import { lunos } from "./catalog/lunos";
+import { maritacaai } from "./catalog/maritacaai";
+import { cloudferro } from "./catalog/cloudferro";
+import { arliai } from "./catalog/arliai";
+import { dataforseo } from "./catalog/dataforseo";
+import { jigsawstack } from "./catalog/jigsawstack";
+import { ishi } from "./catalog/ishi";
+import { payperq } from "./catalog/payperq";
+import { swarms } from "./catalog/swarms";
+import { docsrouter } from "./catalog/docsrouter";
+import { skillboss } from "./catalog/skillboss";
+import { ocrskill } from "./catalog/ocrskill";
+import { nexusify } from "./catalog/nexusify";
+import { jatevo } from "./catalog/jatevo";
+import { litai } from "./catalog/litai";
+import { pixcode } from "./catalog/pixcode";
+import { answira } from "./catalog/answira";
+import { anannas } from "./catalog/anannas";
+import { apipod } from "./catalog/apipod";
+import { tokenflux } from "./catalog/tokenflux";
+import { aimo } from "./catalog/aimo";
+import { lemondata } from "./catalog/lemondata";
+import { fullai } from "./catalog/fullai";
+import { assisters } from "./catalog/assisters";
+import { llmwise } from "./catalog/llmwise";
+import { casedev } from "./catalog/casedev";
+import { smartaipi } from "./catalog/smartaipi";
+import { apiairforce } from "./catalog/apiairforce";
+import { lava } from "./catalog/lava";
+import { multiverseai } from "./catalog/multiverseai";
+import { modelrouter } from "./catalog/modelrouter";
+import { llmpath } from "./catalog/llmpath";
+import { maximoai } from "./catalog/maximoai";
+import { rime } from "./catalog/rime";
+import { noiz } from "./catalog/noiz";
+import { gradium } from "./catalog/gradium";
+import { voiceai } from "./catalog/voiceai";
 
 /**
  * UI-facing provider catalog.
@@ -255,9 +299,45 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
   verbatik,
+  llmwise,
+  ocrskill,
+  voiceai,
+  llmpath,
+  noiz,
+  gradium,
+  apiairforce,
+  arliai,
+  rime,
+  maximoai,
+  modelrouter,
+  lava,
+  casedev,
+  multiverseai,
+  smartaipi,
+  assisters,
+  apipod,
+  fullai,
+  aimo,
+  litai,
+  lemondata,
+  nexusify,
+  docsrouter,
+  tokenflux,
+  anannas,
+  answira,
+  jatevo,
+  skillboss,
+  ishi,
+  pixcode,
+  payperq,
+  swarms,
   infron,
   edenai,
+  maritacaai,
+  dataforseo,
   kittenstack,
+  cloudferro,
+  jigsawstack,
   eachlabs,
   aiforhire,
   nimbleway,
@@ -291,6 +371,7 @@ export const PROVIDERS: Record<string, Provider> = {
   modelslab,
   zenlayer,
   thaura,
+  arwriter,
   quiverai,
   navyai,
   apertis,
@@ -308,11 +389,18 @@ export const PROVIDERS: Record<string, Provider> = {
   orq,
   dandolo,
   forefront,
+  literouter,
   widnai,
+  syllogy,
   typecast,
+  jiekouai,
+  qiniu,
   uvoiceai,
   vapi,
   lovo,
+  laozhang,
+  valyu,
+  lunos,
   fishaudio,
   netmind,
   apiyi,

@@ -11,6 +11,7 @@ export const deepbricks: Provider = {
   urls: {
     homepage: "https://deepbricks.ai",
     docs: "https://deepbricks.ai/docs",
+    pricing: "https://deepbricks.ai/pricing",
     termsOfService: "https://deepbricks.ai/TermOfService.html",
     privacyPolicy: "https://deepbricks.ai/PrivacyPolicy.html"
   },
