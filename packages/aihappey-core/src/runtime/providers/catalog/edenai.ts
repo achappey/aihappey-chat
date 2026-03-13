@@ -3,7 +3,7 @@ import type { Provider } from "aihappey-types";
 export const edenai: Provider = {
   name: "EdenAI",
   description:
-    "Access the best AI models through one unified API. Integrate OpenAI, Google, Anthropic, Mistral AI &amp; more. Compare performance, monitor costs, and switch providers instantly.",
+    "Access the best AI models through one unified API. Integrate OpenAI, Google, Anthropic, Mistral AI & more. Compare performance, monitor costs, and switch providers instantly.",
   icons: [
     {
       src: "https://meta-q.cdn.bubble.io/cdn-cgi/image/w=,h=,f=auto,dpr=1,fit=contain/f1680187367069x814617384157327800/edenlogowebclip.png"

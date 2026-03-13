@@ -289,6 +289,70 @@ import { rime } from "./catalog/rime";
 import { noiz } from "./catalog/noiz";
 import { gradium } from "./catalog/gradium";
 import { voiceai } from "./catalog/voiceai";
+import { ionrouter } from "./catalog/ionrouter";
+import { freedomgpt } from "./catalog/freedomgpt";
+import { pixia } from "./catalog/pixia";
+import { aisieure } from "./catalog/aisieure";
+import { kirha } from "./catalog/kirha";
+import { sufy } from "./catalog/sufy";
+import { llmhubifs } from "./catalog/llmhubifs";
+import { logicosllmhub } from "./catalog/logicosllmhub";
+import { shuttleai } from "./catalog/shuttleai";
+import { alphaneural } from "./catalog/alphaneural";
+import { routstr } from "./catalog/routstr";
+import { writer } from "./catalog/writer";
+import { glama } from "./catalog/glama";
+import { hanzo } from "./catalog/hanzo";
+import { setapp } from "./catalog/setapp";
+import { surfercloud } from "./catalog/surfercloud";
+import { claudible } from "./catalog/claudible";
+import { embraceableai } from "./catalog/embraceableai";
+import { brainiall } from "./catalog/brainiall";
+import { agabeyogluai } from "./catalog/agabeyogluai";
+import { airouter } from "./catalog/airouter";
+import { agentics } from "./catalog/agentics";
+import { gatewayz } from "./catalog/gatewayz";
+import { uplinkapi } from "./catalog/uplinkapi";
+import { nrpnautilus } from "./catalog/nrpnautilus";
+import { eagm } from "./catalog/eagm";
+import { edgee } from "./catalog/edgee";
+import { viablelab } from "./catalog/viablelab";
+import { dreamgen } from "./catalog/dreamgen";
+import { llm7 } from "./catalog/llm7";
+import { kimik2 } from "./catalog/kimik2";
+import { keyplex } from "./catalog/keyplex";
+import { llmkiwi } from "./catalog/llmkiwi";
+import { cheapgrok } from "./catalog/cheapgrok";
+import { lexi } from "./catalog/lexi";
+import { eliza } from "./catalog/eliza";
+import { openlimits } from "./catalog/openlimits";
+import { arkroute } from "./catalog/arkroute";
+import { aibadgr } from "./catalog/aibadgr";
+import { ainative } from "./catalog/ainative";
+import { unbound } from "./catalog/unbound";
+import { shakespeare } from "./catalog/shakespeare";
+import { corriente } from "./catalog/corriente";
+import { cline } from "./catalog/cline";
+import { bazaarlink } from "./catalog/bazaarlink";
+import { puter } from "./catalog/puter";
+import { routeplex } from "./catalog/routeplex";
+import { novai } from "./catalog/novai";
+import { lumenfall } from "./catalog/lumenfall";
+import { fal } from "./catalog/fal";
+import { jkaihub } from "./catalog/jkaihub";
+import { mia21 } from "./catalog/mia21";
+import { textsynth } from "./catalog/textsynth";
+import { modelsync } from "./catalog/modelsync";
+import { huggingface } from "./catalog/huggingface";
+import { ezai } from "./catalog/ezai";
+import { martian } from "./catalog/martian";
+import { askcodi } from "./catalog/askcodi";
+import { gonkagate } from "./catalog/gonkagate";
+import { agentaigateway } from "./catalog/agentaigateway";
+import { aicredits } from "./catalog/aicredits";
+import { fastrouter } from "./catalog/fastrouter";
+import { dubrify } from "./catalog/dubrify";
+import { andyapi } from "./catalog/andyapi";
 
 /**
  * UI-facing provider catalog.
@@ -298,16 +362,80 @@ import { voiceai } from "./catalog/voiceai";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
+  agabeyogluai,
+  aicredits,
+  cheapgrok,
+  fastrouter,
+  novai,
+  andyapi,
+  gonkagate,
+  kimik2,
+  agentaigateway,
+  ezai,
+  dubrify,
+  askcodi,
+  martian,
+  huggingface,
+  textsynth,
+  keyplex,
+  modelsync,
+  jkaihub,
+  fal,
+  agentics,
+  lumenfall,
+  puter,
+  routeplex,
+  nrpnautilus,
+  bazaarlink,
+  llmkiwi,
+  viablelab,
+  llm7,
+  dreamgen,
+  unbound,
+  uplinkapi,
+  airouter,
+  edgee,
+  corriente,
+  cline,
+  shakespeare,
+  ainative,
+  gatewayz,
+  lexi,
+  eagm,
+  setapp,
   verbatik,
+  aibadgr,
+  brainiall,
+  surfercloud,
+  openlimits,
+  arkroute,
+  eliza,
+  embraceableai,
+  ionrouter,
+  claudible,
   llmwise,
+  hanzo,
+  glama,
+  aisieure,
   ocrskill,
+  writer,
+  routstr,
+  alphaneural,
   voiceai,
+  freedomgpt,
+  shuttleai,
+  pixia,
   llmpath,
+  logicosllmhub,
+  llmhubifs,
   noiz,
+  sufy,
+  mia21,
   gradium,
   apiairforce,
   arliai,
   rime,
+  kirha,
   maximoai,
   modelrouter,
   lava,
