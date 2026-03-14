@@ -9,8 +9,7 @@ export const routstr: Provider = {
   urls: {
     homepage: "https://routstr.com",
     docs: "https://docs.routstr.com",
-    console: "https://beta.platform.routstr.com",
-    pricing: "https://wisdom-gate.juheapi.com/pricing"
+    console: "https://beta.platform.routstr.com"
   },
   experimental: true,
   inferenceRegions: ["World"]

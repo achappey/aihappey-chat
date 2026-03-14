@@ -353,6 +353,36 @@ import { aicredits } from "./catalog/aicredits";
 import { fastrouter } from "./catalog/fastrouter";
 import { dubrify } from "./catalog/dubrify";
 import { andyapi } from "./catalog/andyapi";
+import { aki } from "./catalog/aki";
+import { getgoapi } from "./catalog/getgoapi";
+import { blockrun } from "./catalog/blockrun";
+import { neuralwatt } from "./catalog/neuralwatt";
+import { toapis } from "./catalog/toapis";
+import { onekey } from "./catalog/onekey";
+import { atxp } from "./catalog/atxp";
+import { nagaai } from "./catalog/nagaai";
+import { sargalay } from "./catalog/sargalay";
+import { zeabur } from "./catalog/zeabur";
+import { inferlink } from "./catalog/inferlink";
+import { chainhub } from "./catalog/chainhub";
+import { clawswitch } from "./catalog/clawswitch";
+import { ultrasafe } from "./catalog/ultrasafe";
+import { llmcloud } from "./catalog/llmcloud";
+import { railwail } from "./catalog/railwail";
+import { knoxchat } from "./catalog/knoxchat";
+import { vlmrun } from "./catalog/vlmrun";
+import { vogent } from "./catalog/vogent";
+import { preapi } from "./catalog/preapi";
+import { yougetai } from "./catalog/yougetai";
+import { tikhubai } from "./catalog/tikhubai";
+import { elkapi } from "./catalog/elkapi";
+import { vultr } from "./catalog/vultr";
+import { ofoxai } from "./catalog/ofoxai";
+import { dedaluslabs } from "./catalog/dedaluslabs";
+import { world3 } from "./catalog/world3";
+import { voidai } from "./catalog/voidai";
+import { vibecodecheap } from "./catalog/vibecodecheap";
+import { modelmax } from "./catalog/modelmax";
 
 /**
  * UI-facing provider catalog.
@@ -363,12 +393,40 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
   agabeyogluai,
+  preapi,
+  voidai,
+  ultrasafe,
+  dedaluslabs,
+  ofoxai,
+  world3,
+  yougetai,
+  elkapi,
+  vultr,
+  tikhubai,
+  inferlink,
+  knoxchat,
+  vlmrun,
+  vogent,
   aicredits,
+  llmcloud,
   cheapgrok,
+  railwail,
+  chainhub,
+  clawswitch,
+  zeabur,
+  neuralwatt,
+  atxp,
+  sargalay,
+  nagaai,
   fastrouter,
   novai,
   andyapi,
+  onekey,
+  toapis,
+  blockrun,
+  getgoapi,
   gonkagate,
+  aki,
   kimik2,
   agentaigateway,
   ezai,
@@ -655,7 +713,9 @@ export const PROVIDERS: Record<string, Provider> = {
   wai,
   opencode,
   chaingpt,
+  vibecodecheap,
   azerion,
+  modelmax,
   gptproto,
   runpod,
   kernelmemory,

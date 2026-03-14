@@ -4,7 +4,7 @@ export const uplinkapi: Provider = {
   name: "UplinkAPI",
   description: "Access Llama, Qwen, Mistral, and 170+ open-source AI models through a single OpenAI-compatible API. Intelligent routing, 40% lower costs, deployed globally on Cloudflare.",
   icons: [{
-    src: "https://wisdom-gate.juheapi.com/favicon.ico"
+    src: "https://uplink.fimbriata.dev/logos/header-logo-uplink.png"
   }],
   urls: {
     homepage: "https://uplink.fimbriata.dev",
