@@ -2,7 +2,7 @@ import type { Provider } from "aihappey-types";
 
 export const aibadgr: Provider = {
   name: "AIBadgr",
-  description: "Production AI execution layer and AI provider for OpenAI &amp; Claude APIs. Run requests via passthrough or Badgr-managed models.",
+  description: "Production AI execution layer and AI provider for OpenAI & Claude APIs. Run requests via passthrough or Badgr-managed models.",
   icons: [{
     src: "https://aibadgr.com/favicon.ico"
   }],

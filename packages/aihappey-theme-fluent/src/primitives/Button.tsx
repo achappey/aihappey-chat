@@ -101,6 +101,7 @@ import {
   MoneyRegular,
   WalletRegular,
   CurrencyDollarEuroRegular,
+  SparkleRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -180,6 +181,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   eye: EyeRegular,
   image: ImageRegular,
   video: VideoRegular,
+  skills: SparkleRegular,
   databaseGear: DatabasePersonRegular,
   personalization: PersonHeartRegular,
   contextWindow: DatabaseWindowRegular,

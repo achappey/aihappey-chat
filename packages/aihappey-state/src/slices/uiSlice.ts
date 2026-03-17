@@ -192,6 +192,10 @@ export type UiSlice = {
     providersByType: Partial<Record<ProviderCapability, string[]>>
   ) => void;
 
+  enabledSkillNames: string[];
+  toggleEnabledSkillName: (skillName: string) => void;
+  setEnabledSkillNames: (skillNames: string[]) => void;
+
   userPreferredModel?: string;
   setUserPreferredModel: (model: string) => void;
 
@@ -245,6 +249,7 @@ export const createUiSlice: StateCreator<
   elicitation: {},
   accountLocation: undefined,
   enabledProvidersByType: createEmptyEnabledProvidersByType(),
+  enabledSkillNames: [],
   chatWithImageModels: false,
   chatWithVideoModels: false,
   chatWithRerankModels: false,
@@ -392,6 +397,22 @@ export const createUiSlice: StateCreator<
           ...state.enabledProvidersByType,
           [capability]: normalized,
         },
+      };
+    }),
+
+  setEnabledSkillNames: (skillNames: string[]) =>
+    set(() => ({
+      enabledSkillNames: Array.from(new Set((skillNames ?? []).filter(Boolean))),
+    })),
+
+  toggleEnabledSkillName: (skillName: string) =>
+    set((state: UiSlice) => {
+      if (!skillName) return state;
+      const exists = state.enabledSkillNames.includes(skillName);
+      return {
+        enabledSkillNames: exists
+          ? state.enabledSkillNames.filter((name) => name !== skillName)
+          : [...state.enabledSkillNames, skillName],
       };
     }),
 

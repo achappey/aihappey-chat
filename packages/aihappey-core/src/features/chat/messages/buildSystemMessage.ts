@@ -58,6 +58,11 @@ const isForAssistant = (a: any) =>
     !a?.annotations?.audience?.length ||
     a.annotations.audience.includes("assistant");
 
+type AvailableSkill = {
+    name: string;
+    description: string;
+};
+
 
 export const buildSystemMessage = (
     mcpServers: Record<string, any>,
@@ -69,7 +74,8 @@ export const buildSystemMessage = (
         id?: string, username?: string, name?: string, tenantId?: string,
         preferredLanguage?: string,
         darkMode?: boolean
-    }
+    },
+    availableSkills: AvailableSkill[] = []
 ): UIMessage => {
 
     var connects = Object.keys(allServers).filter(a => !allServers[a].config.disabled)
@@ -135,6 +141,24 @@ export const buildSystemMessage = (
         parts.push({
             type: "text",
             text: JSON.stringify(block)
+        });
+    }
+
+    if (availableSkills.length > 0) {
+        parts.push({
+            type: "text",
+            text: JSON.stringify({
+                availableSkills: {
+                    activationTool: "activate_skill",
+                    resourceTool: "read_skill_resource",
+                    instructions:
+                        "The following skills provide specialized instructions for specific tasks. When a task matches a skill description, call activate_skill with the exact skill name to load its instructions. After activation, use read_skill_resource with the same skill name and a relative path when the instructions reference bundled files.",
+                    skills: availableSkills.map((skill) => ({
+                        name: skill.name,
+                        description: skill.description,
+                    })),
+                },
+            })
         });
     }
 

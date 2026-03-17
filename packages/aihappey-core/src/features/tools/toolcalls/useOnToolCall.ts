@@ -50,6 +50,8 @@ import {
   localArtificialIntelligencePluginDef,
   useLocalArtificialIntelligenceRuntime,
 } from "./useLocalArtificialIntelligenceToolCall";
+import { useSkills } from "aihappey-skills";
+import { useSkillToolCall } from "./useSkillToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -79,6 +81,7 @@ export function useOnToolCall({
   const mcpServers = useAppStore(a => a.mcpServers);
   const enabledPlugins = useAppStore(a => a.activePlugins); // string list
   const enabledLocalTools = useAppStore(a => (a as any).enabledLocalTools as string[]);
+  const enabledSkillNames = useAppStore(a => a.enabledSkillNames);
   // const selectedConversationId = useAppStore(a => (a as any).selectedConversationId as string | null);
   const setActiveData = useAppStore(a => a.setActiveData);
   const conversations = useConversations();
@@ -86,6 +89,7 @@ export function useOnToolCall({
   const { i18n } = useTranslation();
 
   const localToolsStore = useLocalTools();
+  const skills = useSkills();
 
   // runtimes
   const localFilesRuntime = useLocalFilesRuntime(files);
@@ -112,6 +116,10 @@ export function useOnToolCall({
   // specials (runtime-only or conditional exposure)
   const { memoryPlugin } = useMemoryToolCall(); // runtime only
   const { readResourcePlugin } = useReadResourceToolCall({ mcpServers }); // runtime exists always
+  const { activateSkillPlugin, readSkillResourcePlugin } = useSkillToolCall({
+    skills,
+    enabledSkillNames,
+  });
 
   const runtimes = useMemo(
     () => ({
@@ -180,8 +188,10 @@ export function useOnToolCall({
       [memoryPlugin.name]: memoryPlugin,
       // read-resource: runtime exists, tools injected elsewhere conditionally
       [readResourcePlugin.name]: readResourcePlugin,
+      [activateSkillPlugin.name]: activateSkillPlugin,
+      [readSkillResourcePlugin.name]: readSkillResourcePlugin,
     }),
-    [memoryPlugin, readResourcePlugin]
+    [memoryPlugin, readResourcePlugin, activateSkillPlugin, readSkillResourcePlugin]
   );
 
   const { plugins } = usePlugins(enabledPlugins, defsAll, runtimes, specialRuntimes);
@@ -229,6 +239,12 @@ export function useOnToolCall({
         if (toolCall.toolName === "read_resource") {
           return await readResourcePlugin.handle(toolCall, signal);
         }
+        if (toolCall.toolName === "activate_skill") {
+          return await activateSkillPlugin.handle(toolCall, signal);
+        }
+        if (toolCall.toolName === "read_skill_resource") {
+          return await readSkillResourcePlugin.handle(toolCall, signal);
+        }
 
         // 3) fallback
         return await handleMcpPassthroughToolCall(toolCall, signal);
@@ -243,6 +259,8 @@ export function useOnToolCall({
       specialRuntimes,
       memoryPlugin,
       readResourcePlugin,
+      activateSkillPlugin,
+      readSkillResourcePlugin,
       handleMcpPassthroughToolCall,
     ]
   );

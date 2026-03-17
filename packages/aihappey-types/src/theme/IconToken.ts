@@ -24,6 +24,7 @@ export type IconToken =
   | "storage"
   | "providers"
   | "speech"
+  | "skills"
   | "speechSettings"
   | "transcriptionSettings"
   | "imageSettings"

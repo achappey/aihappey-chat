@@ -383,6 +383,8 @@ import { world3 } from "./catalog/world3";
 import { voidai } from "./catalog/voidai";
 import { vibecodecheap } from "./catalog/vibecodecheap";
 import { modelmax } from "./catalog/modelmax";
+import { yollomi } from "./catalog/yollomi";
+import { infercom } from "./catalog/infercom";
 
 /**
  * UI-facing provider catalog.
@@ -400,6 +402,7 @@ export const PROVIDERS: Record<string, Provider> = {
   ofoxai,
   world3,
   yougetai,
+  yollomi,
   elkapi,
   vultr,
   tikhubai,
@@ -415,6 +418,7 @@ export const PROVIDERS: Record<string, Provider> = {
   clawswitch,
   zeabur,
   neuralwatt,
+  infercom,
   atxp,
   sargalay,
   nagaai,

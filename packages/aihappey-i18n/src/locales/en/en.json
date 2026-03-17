@@ -11,6 +11,15 @@
   "variation": "Variation",
   "customTools": "Custom tools",
   "download": "Download",
+  "skillsPage": {
+    "description": "An overview of all available skills you can use to execute tasks and support workflows. For each skill, you see what it does, when to use it, and how it differs from other skills. This helps you quickly and confidently choose the right option for each task. Skills bring together instructions, logic, and execution in a consistent structure. This ensures clarity, repeatability, and control over the outcome.",
+    "fileCountBadge": "Files: {{count}}",
+    "importZipOnly": "Only ZIP archives can be imported as skills.",
+    "importedWithDiagnostics": "Imported {{count}} skill(s) with {{diagnostics}} diagnostic message(s).",
+    "imported": "Imported {{count}} skill(s).",
+    "importNoValidSkills": "No valid skills were found in the uploaded ZIP archive.",
+    "downloadFailed": "Could not prepare the skill download."
+  },
   "myImages": "My images",
   "myVideos": "My videos",
   "context": "Context",

@@ -6,6 +6,7 @@ import { useDarkMode } from "usehooks-ts";
 import { buildSystemMessage } from "./buildSystemMessage";
 import { useUserLocation } from "../../../shell/connectors/useUserLocation";
 import { useChatContext } from "../context/ChatContext";
+import { useSkills } from "aihappey-skills";
 
 export function useSystemMessage() {
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
@@ -13,11 +14,13 @@ export function useSystemMessage() {
   const accountLocation = useAppStore((s) => s.accountLocation);
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const mcpServers = useAppStore((s) => s.mcpServers);
+  const enabledSkillNames = useAppStore((s) => s.enabledSkillNames);
   const account = useAccount();
   useUserLocation(enableUserLocation);
   const { isDarkMode } = useDarkMode();
   const { i18n } = useTranslation();
   const { config } = useChatContext();
+  const skills = useSkills();
   const servers = Object.keys(mcpServers).map(z => ({
     name: z,
     clientConfig: mcpServers[z],
@@ -27,6 +30,14 @@ export function useSystemMessage() {
   const records: Record<string, any> = Object.fromEntries(
     connected.map(z => [z.name, z.clientConfig])
   );
+
+  const enabledSkills = useMemo(() => {
+    const byName = new Map((skills.items ?? []).map((item) => [item.name, item] as const));
+    return enabledSkillNames
+      .map((name) => byName.get(name))
+      .filter((item): item is (typeof skills.items)[number] => !!item)
+      .map((item) => ({ name: item.name, description: item.description }));
+  }, [enabledSkillNames, skills.items]);
 
   const systemMsg = useMemo(() => {
     const userContext = account
@@ -46,11 +57,12 @@ export function useSystemMessage() {
     return buildSystemMessage(
       mcpServerContent,
       records,
-      systemInstructions,
-      accountLocation,
-      config.appName,
-      userContext
-    );
+        systemInstructions,
+        accountLocation,
+        config.appName,
+        userContext,
+        enabledSkills
+      );
   }, [
     mcpServerContent,
     connected,
@@ -61,6 +73,7 @@ export function useSystemMessage() {
     i18n.language,
     isDarkMode,
     account?.tenantId,
+    enabledSkills,
   ]);
   return systemMsg;
 }

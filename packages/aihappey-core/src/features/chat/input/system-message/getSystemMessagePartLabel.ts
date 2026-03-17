@@ -19,6 +19,8 @@ export function getSystemMessagePartLabel(chatAppName: string, t: any,
             return parsed.modelContextProtocolServer?.name;
         };
 
+        if (parsed.availableSkills) return t('skills') ?? 'Skills';
+
         if (parsed.chatBotInstructions) return chatAppName;
         if (parsed.systemInformation) return t('systemContext');
         if (parsed.username || parsed.name || parsed.id || parsed.preferredLanguage) return parsed.name ?? "User";

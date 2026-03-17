@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import {
   AnthropicChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
+  LocalToolsSettingsForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
   PerplexityChatConfigForm,
   PollinationsChatConfigForm,
@@ -15,6 +16,7 @@ import {
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
+import { useSkills } from "aihappey-skills";
 
 export interface ProviderSettingsModalProps {
   open: boolean;
@@ -42,6 +44,13 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? [])
+  const enabledSkillNames = useAppStore((s) => s.enabledSkillNames);
+  const setEnabledSkillNames = useAppStore((s) => s.setEnabledSkillNames);
+  const skills = useSkills();
+  const skillItems = useMemo(
+    () => skills.items.map((item) => ({ id: item.name, label: item.name })),
+    [skills.items]
+  );
 
   const close = () => {
     onClose();
@@ -72,6 +81,15 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         </theme.Tab>
         <theme.Tab eventKey="tools" title={t("tools") ?? "Tools"}>
           <ToolsTab />
+        </theme.Tab>
+        <theme.Tab eventKey="skills" title={t("skills") ?? "Skills"}>
+          <LocalToolsSettingsForm
+            formTitle={t("skills") ?? "Skills"}
+            value={enabledSkillNames}
+            onChange={setEnabledSkillNames}
+            columns={2}
+            items={skillItems}
+          />
         </theme.Tab>
         {enabledProviders.includes("Anthropic") &&
           <theme.Tab eventKey="anthropic" title="Anthropic">

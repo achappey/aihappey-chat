@@ -27,6 +27,7 @@ import { JsonRenderRegistryProvider } from "aihappey-json-render-registry";
 import { JsonRenderCatalogProvider } from "aihappey-json-render-catalog";
 import { JsonRenderAppsProvider } from "aihappey-json-render-apps";
 import { VideosProvider } from "aihappey-videos";
+import { SkillsProvider } from "aihappey-skills";
 
 type Props = {
   chatConfig: ChatConfig;
@@ -119,26 +120,28 @@ export const CoreShell: React.FC<Props> = ({
                   <TranscriptionsProvider>
                     <StructuredOutputsProvider>
                       <VideosProvider>
-                        <JsonRenderCatalogProvider>
-                          <JsonRenderRegistryProvider>
-                            <JsonRenderAppsProvider>
-                              <SpeechProvider storageKind={"indexeddb"}>
-                                <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-                                  <McpConnectionsProvider
-                                    clientName={chatConfig?.appName}
-                                    agentScopes={agentScopes ?? []}
-                                    agentApi={chatConfig?.agentEndpoint!}
-                                    authenticated={chatConfig?.getAccessToken != null}
-                                    clientVersion={chatConfig?.appVersion}
-                                    samplingApi={samplingEndpoint}
-                                  >
-                                    {ui}
-                                  </McpConnectionsProvider>
-                                </ConversationsProvider>
-                              </SpeechProvider>
-                            </JsonRenderAppsProvider>
-                          </JsonRenderRegistryProvider>
-                        </JsonRenderCatalogProvider>
+                        <SkillsProvider>
+                          <JsonRenderCatalogProvider>
+                            <JsonRenderRegistryProvider>
+                              <JsonRenderAppsProvider>
+                                <SpeechProvider storageKind={"indexeddb"}>
+                                  <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+                                    <McpConnectionsProvider
+                                      clientName={chatConfig?.appName}
+                                      agentScopes={agentScopes ?? []}
+                                      agentApi={chatConfig?.agentEndpoint!}
+                                      authenticated={chatConfig?.getAccessToken != null}
+                                      clientVersion={chatConfig?.appVersion}
+                                      samplingApi={samplingEndpoint}
+                                    >
+                                      {ui}
+                                    </McpConnectionsProvider>
+                                  </ConversationsProvider>
+                                </SpeechProvider>
+                              </JsonRenderAppsProvider>
+                            </JsonRenderRegistryProvider>
+                          </JsonRenderCatalogProvider>
+                        </SkillsProvider>
                       </VideosProvider>
                     </StructuredOutputsProvider>
                   </TranscriptionsProvider>

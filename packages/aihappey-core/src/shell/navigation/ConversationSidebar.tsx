@@ -120,6 +120,13 @@ export const ConversationSidebar = ({
       icon: "folder",
     },
     {
+      key: "skills",
+      label: t("skills"),
+      new: true,
+      href: "/skills",
+      icon: "skills",
+    },
+    {
       key: "structured-outputs",
       label: t("structure"),
       href: "/structured-outputs",
@@ -270,8 +277,10 @@ export const ConversationSidebar = ({
                 ? "tools"
                 : location.pathname === "/files"
                   ? "files"
+                  : location.pathname === "/skills"
+                    ? "skills"
                   : location.pathname === "/structured-outputs"
-                    ? "structured-outputs"
+                     ? "structured-outputs"
                     : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
                       ? "web-apps"
                       : location.pathname === "/catalogs"
@@ -298,6 +307,8 @@ export const ConversationSidebar = ({
       await navigate("/tools");
     } else if (id === "files") {
       await navigate("/files");
+    } else if (id === "skills") {
+      await navigate("/skills");
     } else if (id === "structured-outputs") {
       await navigate("/structured-outputs");
     } else if (id === "web-apps") {

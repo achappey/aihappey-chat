@@ -25,6 +25,7 @@ export * from "./PromptCard";
 export * from "./SpeechCard";
 export * from "./ToolCard";
 export * from "./FileCard";
+export * from "./SkillCard";
 export * from "./RerankingDocumentCard";
 export * from "./RerankingCard";
 

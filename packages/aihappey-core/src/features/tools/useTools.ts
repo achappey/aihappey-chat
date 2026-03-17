@@ -22,6 +22,11 @@ import { localTodoPluginDef } from "./toolcalls/useLocalTodoListToolCall";
 import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall";
 import { localWebPluginDef } from "./toolcalls/useLocalWebToolCall";
 import { localArtificialIntelligencePluginDef } from "./toolcalls/useLocalArtificialIntelligenceToolCall";
+import { useSkills } from "aihappey-skills";
+import {
+  buildActivateSkillTool,
+  buildReadSkillResourceTool,
+} from "./toolcalls/useSkillToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -30,8 +35,17 @@ export function useTools() {
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
   const enabledPlugins = useAppStore(s => s.activePlugins);
   const enabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);
+  const enabledSkillNames = useAppStore(s => s.enabledSkillNames);
 
   const localTools = useLocalTools();
+  const skills = useSkills();
+
+  const enabledSkills = useMemo(() => {
+    const byName = new Map((skills.items ?? []).map((item) => [item.name, item] as const));
+    return enabledSkillNames
+      .map((name) => byName.get(name))
+      .filter((item): item is (typeof skills.items)[number] => !!item);
+  }, [enabledSkillNames, skills.items]);
 
   const defsAll = useMemo(
     () => [
@@ -108,6 +122,18 @@ export function useTools() {
       seen.add(t.name);
       allTools.push(t);
     }
+    if (enabledSkills.length > 0) {
+      const skillTools = [
+        buildActivateSkillTool(enabledSkills),
+        buildReadSkillResourceTool(enabledSkills),
+      ];
+
+      for (const t of skillTools) {
+        if (seen.has(t.name)) continue;
+        seen.add(t.name);
+        allTools.push(t);
+      }
+    }
     if (hasResources && !seen.has(resourceTool.name)) {
       allTools.push(resourceTool);
     }
@@ -153,5 +179,11 @@ export function useTools() {
     }
 
     return { tools: enabledTools, disabledTools: disabledMap };
-  }, [mcpServerContent, injectedLocalTools, injectedStoredLocalTools, toolAnnotations]);
+  }, [
+    mcpServerContent,
+    injectedLocalTools,
+    injectedStoredLocalTools,
+    enabledSkills,
+    toolAnnotations,
+  ]);
 }

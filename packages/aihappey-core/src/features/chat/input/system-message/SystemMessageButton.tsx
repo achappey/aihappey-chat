@@ -4,12 +4,10 @@ import { SystemMessageModal } from "./SystemMessageModal";
 import { useTranslation } from "aihappey-i18n";
 import { McpServerDetails } from "./McpServerDetails";
 import { useSystemMessage } from "../../messages/useSystemMessage";
-import { useTools } from "../../../tools/useTools";
 import { useTheme, ViewButton } from "aihappey-components";
 
 import { useChatContext } from "../../context/ChatContext";
 import { Markdown } from "../../../../ui/markdown/Markdown";
-import { chatAppInstructions } from "../../../../runtime/chat-app/chatAppInstructions";
 
 /**
  * Opens a modal showing system message parts.
@@ -47,6 +45,24 @@ export const SystemMessageButton = () => {
         return (
           <Card title={appName}>
             <Markdown text={parsed.chatBotInstructions} />
+          </Card>
+        );
+
+      if (parsed.availableSkills)
+        return (
+          <Card title={t("skills") ?? "Skills"}>
+            <div style={{ display: "grid", gap: 12 }}>
+              {parsed.availableSkills.instructions ? (
+                <Markdown text={parsed.availableSkills.instructions} />
+              ) : null}
+              {(parsed.availableSkills.skills ?? []).map((skill: any) => (
+                <Card
+                  key={skill.name}
+                  title={skill.name}
+                  description={skill.description ?? ""}
+                />
+              ))}
+            </div>
           </Card>
         );
 

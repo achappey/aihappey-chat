@@ -28,6 +28,7 @@ import { ToolsPage } from "../features/tools/ToolsPage";
 import { FilesPage } from "../features/files/FilesPage";
 import { RerankingPage } from "../features/reranking/RerankingPage";
 import { StructuredOutputsPage } from "../features/structured-outputs/StructuredOutputsPage";
+import { SkillsPage } from "../features/skills/SkillsPage";
 import { WebAppsPage, WebAppDetailPage } from "../features/web-apps";
 import { CatalogsPage } from "../features/catalogs";
 import { RegistriesPage } from "../features/registries";
@@ -118,6 +119,7 @@ export const CoreRoot = ({
             { path: "images", element: <ImagePage /> },
             { path: "videos", element: <VideoPage /> },
             { path: "files", element: <FilesPage /> },
+            { path: "skills", element: <SkillsPage /> },
             { path: "structured-outputs", element: <StructuredOutputsPage /> },
             { path: "transcriptions", element: <TranscriptionsPage /> },
             { path: "speech", element: <SpeechPage /> },

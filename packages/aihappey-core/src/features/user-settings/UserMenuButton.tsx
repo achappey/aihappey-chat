@@ -59,6 +59,30 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
     return set;
   }, [models]);
 
+  const visibleProviders = React.useMemo(() => {
+    if (!modelsLoaded) return [];
+    return providers.filter((name) => {
+      const key = providerNameToKey[name];
+      return !!key && providersWithModels.has(key);
+    });
+  }, [modelsLoaded, providerNameToKey, providers, providersWithModels]);
+
+  const visibleProvidersSet = React.useMemo(
+    () => new Set(visibleProviders),
+    [visibleProviders]
+  );
+
+  const visibleEnabledProvidersByType = React.useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(enabledProvidersByType ?? {}).map(([capability, names]) => [
+          capability,
+          (names ?? []).filter((name) => visibleProvidersSet.has(name)),
+        ])
+      ) as typeof enabledProvidersByType,
+    [enabledProvidersByType, visibleProvidersSet]
+  );
+
   const disabledProviders = React.useMemo(() => {
     // While loading, we disable everything via `providersDisabled`.
     // Once loaded, disable providers that returned 0 models.
@@ -116,9 +140,9 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         onLogout={onLogout}
         showApiKeysItem={!isEntraAuth}
         onApiKeys={() => setProviderKeysOpen(true)}
-        providers={providers}
+        providers={visibleProviders}
         providerGroups={providerGroups}
-        enabledProvidersByType={enabledProvidersByType}
+        enabledProvidersByType={visibleEnabledProvidersByType}
         onToggleProviderForType={toggleEnabledProviderForType}
         providersDisabled={!modelsLoaded}
         disabledProviders={disabledProviders}
