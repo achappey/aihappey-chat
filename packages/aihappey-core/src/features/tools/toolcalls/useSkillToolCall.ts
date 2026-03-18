@@ -68,7 +68,7 @@ async function resolveEnabledSkill(
 
   const skill = await skills.readByName(name);
   if (!skill) {
-    throw new Error(`Skill \"${name}\" was not found in local storage.`);
+    throw new Error(`Skill \"${name}\" could not be loaded.`);
   }
 
   return skill;

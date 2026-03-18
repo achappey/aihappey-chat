@@ -122,6 +122,17 @@ export const SkillsPage = () => {
     [skills, t]
   );
 
+  const handleDeleteSkill = useCallback(
+    async (item: SkillCatalogItem) => {
+      await skills.delete(item.id);
+      const remaining = await skills.list();
+      if (!remaining.some((entry) => entry.name === item.name)) {
+        setEnabledSkillNames(enabledSkillNames.filter((name) => name !== item.name));
+      }
+    },
+    [enabledSkillNames, setEnabledSkillNames, skills]
+  );
+
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   }, []);
@@ -221,14 +232,18 @@ export const SkillsPage = () => {
                     name: item.name,
                     description: item.description,
                     fileCount: item.fileCount,
+                    origin: item.origin,
+                    downloadState: item.downloadState,
+                    version: item.version,
+                    latestVersion: item.latestVersion,
+                    isDownloaded: item.isDownloaded,
                   }}
                   onDownload={() => {
                     void handleDownloadSkill(item.id);
                   }}
-                  onDelete={async () => {
-                    await skills.delete(item.id);
-                    setEnabledSkillNames(enabledSkillNames.filter((name) => name !== item.name));
-                  }}
+                  onDelete={item.isDownloaded ? () => {
+                    void handleDeleteSkill(item);
+                  } : undefined}
                 />
               ))
             )}

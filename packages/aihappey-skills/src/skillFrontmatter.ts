@@ -2,6 +2,8 @@ import type { SkillDiagnostic, SkillFrontmatter } from "./types";
 
 const FRONTMATTER_RE = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?([\s\S]*)$/;
 const SKILL_NAME_RE = /^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$/;
+const SKILL_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
+const SKILL_VERSION_RE = /^[1-9]\d*$/;
 
 function stripQuotes(value: string) {
   const trimmed = value.trim();
@@ -16,6 +18,11 @@ function stripQuotes(value: string) {
 
 function normalizeValue(value: string) {
   return stripQuotes(value).trim();
+}
+
+function normalizePositiveInteger(value: unknown) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return SKILL_VERSION_RE.test(text) ? text : undefined;
 }
 
 function parseYamlLikeFrontmatter(source: string) {
@@ -79,8 +86,12 @@ export function parseSkillMarkdown(
   const parsed = parseYamlLikeFrontmatter(yamlSource);
 
   const name = typeof parsed.name === "string" ? parsed.name : "";
+  const id = typeof parsed.id === "string" ? parsed.id.trim() : "";
   const description =
     typeof parsed.description === "string" ? parsed.description : "";
+  const version = normalizePositiveInteger(parsed.version);
+  const defaultVersion = normalizePositiveInteger(parsed["default-version"]);
+  const latestVersion = normalizePositiveInteger(parsed["latest-version"]);
 
   if (!name) {
     diagnostics.push({
@@ -95,6 +106,23 @@ export function parseSkillMarkdown(
       severity: "error",
       code: "skill-missing-description",
       message: "Skill frontmatter must include a non-empty description field.",
+    });
+  }
+
+  if (!id) {
+    diagnostics.push({
+      severity: "warning",
+      code: "skill-missing-id",
+      message: "Skill frontmatter should include an id field for OpenAI-compatible skill catalogs.",
+      skillName: name || undefined,
+    });
+  } else if (!SKILL_ID_RE.test(id)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "skill-invalid-id",
+      message:
+        "Skill id should start with a letter or number and only contain letters, numbers, underscores, or hyphens.",
+      skillName: name || undefined,
     });
   }
 
@@ -126,6 +154,33 @@ export function parseSkillMarkdown(
     });
   }
 
+  if (typeof parsed.version === "string" && !version) {
+    diagnostics.push({
+      severity: "warning",
+      code: "skill-invalid-version",
+      message: "Skill version must be a positive integer string such as 1, 2, or 3.",
+      skillName: name || undefined,
+    });
+  }
+
+  if (typeof parsed["default-version"] === "string" && !defaultVersion) {
+    diagnostics.push({
+      severity: "warning",
+      code: "skill-invalid-version",
+      message: "Skill default-version must be a positive integer string.",
+      skillName: name || undefined,
+    });
+  }
+
+  if (typeof parsed["latest-version"] === "string" && !latestVersion) {
+    diagnostics.push({
+      severity: "warning",
+      code: "skill-invalid-version",
+      message: "Skill latest-version must be a positive integer string.",
+      skillName: name || undefined,
+    });
+  }
+
   if (diagnostics.some((d) => d.severity === "error")) {
     return { body, diagnostics };
   }
@@ -134,8 +189,12 @@ export function parseSkillMarkdown(
     body,
     diagnostics,
     frontmatter: {
+      id: SKILL_ID_RE.test(id) ? id : undefined,
       name,
       description,
+      version,
+      defaultVersion,
+      latestVersion,
       license: typeof parsed.license === "string" ? parsed.license : undefined,
       compatibility:
         typeof parsed.compatibility === "string"

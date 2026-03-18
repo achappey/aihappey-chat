@@ -66,6 +66,7 @@ export const CoreShell: React.FC<Props> = ({
   }, []);
 
   const modelsApi = chatConfig.baseUrl + chatConfig.endpoints.models;
+  const skillsApi = chatConfig.baseUrl + chatConfig.endpoints.skills;
 
   useModels(
     modelsApi,
@@ -120,7 +121,12 @@ export const CoreShell: React.FC<Props> = ({
                   <TranscriptionsProvider>
                     <StructuredOutputsProvider>
                       <VideosProvider>
-                        <SkillsProvider>
+                        <SkillsProvider
+                          skillsApi={skillsApi}
+                          getAccessToken={chatConfig?.getAccessToken}
+                          headers={chatConfig?.headers}
+                          fetch={chatConfig?.fetch}
+                        >
                           <JsonRenderCatalogProvider>
                             <JsonRenderRegistryProvider>
                               <JsonRenderAppsProvider>

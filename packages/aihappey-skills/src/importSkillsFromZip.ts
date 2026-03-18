@@ -9,6 +9,27 @@ import type {
   StoredSkillFile,
 } from "./types";
 
+const POSITIVE_INTEGER_RE = /^[1-9]\d*$/;
+
+function normalizeVersion(value: string | undefined, fallback: string) {
+  const text = String(value ?? "").trim();
+  return POSITIVE_INTEGER_RE.test(text) ? text : fallback;
+}
+
+function incrementVersion(value: string | undefined) {
+  const normalized = normalizeVersion(value, "0");
+  return String(Number.parseInt(normalized, 10) + 1);
+}
+
+function buildSkillId(name: string) {
+  const slug = String(name ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "skill";
+  return `skill_${slug}`;
+}
+
 function normalizePath(path: string) {
   return path.replace(/\\/g, "/").replace(/^\.?\//, "").replace(/\/+/g, "/");
 }
@@ -78,6 +99,7 @@ async function parseArchive(blob: Blob): Promise<ParsedSkill[]> {
       const parsed = parseSkillMarkdown(text, directoryName);
 
       return {
+        id: parsed.frontmatter?.id,
         rootPath,
         entryPath,
         files,
@@ -86,6 +108,9 @@ async function parseArchive(blob: Blob): Promise<ParsedSkill[]> {
         diagnostics: parsed.diagnostics,
         name: parsed.frontmatter?.name ?? directoryName,
         description: parsed.frontmatter?.description ?? "",
+        version: parsed.frontmatter?.version,
+        defaultVersion: parsed.frontmatter?.defaultVersion,
+        latestVersion: parsed.frontmatter?.latestVersion,
       } satisfies ParsedSkill;
     })
   );
@@ -116,17 +141,47 @@ export function toStoredSkill(
   if (hasErrors || !parsed.frontmatter) return undefined;
 
   const now = Date.now();
+  const skillId =
+    parsed.frontmatter.id?.trim() || previous?.skillId?.trim() || buildSkillId(parsed.frontmatter.name);
+  const version =
+    parsed.frontmatter.version?.trim() ||
+    (source === "local-zip" && previous ? incrementVersion(previous.latestVersion) : undefined) ||
+    previous?.latestVersion ||
+    "1";
+  const normalizedVersion = normalizeVersion(version, "1");
+  const defaultVersion = normalizeVersion(
+    parsed.frontmatter.defaultVersion?.trim() || normalizedVersion,
+    normalizedVersion
+  );
+  const latestVersion = normalizeVersion(
+    parsed.frontmatter.latestVersion?.trim() || normalizedVersion,
+    normalizedVersion
+  );
+
   return {
     id: previous?.id ?? crypto.randomUUID(),
+    skillId,
     name: parsed.frontmatter.name,
     description: parsed.frontmatter.description,
     createdAt: previous?.createdAt ?? now,
     updatedAt: now,
+    origin: "local",
+    object: "skill",
+    version: normalizedVersion,
+    defaultVersion,
+    latestVersion,
+    remoteCreatedAt: previous?.remoteCreatedAt,
     source,
     rootPath: parsed.rootPath,
     entryPath: parsed.entryPath,
     files: parsed.files,
-    frontmatter: parsed.frontmatter,
+    frontmatter: {
+      ...parsed.frontmatter,
+      id: skillId,
+      version: normalizedVersion,
+      defaultVersion,
+      latestVersion,
+    },
     body: parsed.body,
     diagnostics: parsed.diagnostics,
   };

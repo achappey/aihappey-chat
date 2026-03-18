@@ -9,6 +9,11 @@ export type SkillCardItem = {
   name: string;
   description: string;
   fileCount?: number;
+  origin?: "local" | "remote";
+  downloadState?: "remote" | "downloading" | "downloaded" | "error";
+  version?: string;
+  latestVersion?: string;
+  isDownloaded?: boolean;
 };
 
 export type SkillCardProps = {
@@ -39,13 +44,20 @@ export const SkillCard = ({ skill, onDelete, onDownload }: SkillCardProps) => {
     <Button icon="download" size="small" variant="transparent" onClick={onDownload}>
     </Button>
   ) : undefined;
-  const description = <>{typeof skill.fileCount === "number" ? (
+  const description = (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      <Badge size="small" bg="informative">
-        {t("skillsPage.fileCountBadge", { count: skill.fileCount })}
-      </Badge>
+      {typeof skill.fileCount === "number" && skill.fileCount > 0 ? (
+        <Badge size="small" bg="informative">
+          {t("skillsPage.fileCountBadge", { count: skill.fileCount })}
+        </Badge>
+      ) : null}
+      {skill.version ? (
+        <Badge size="small" bg="subtle">
+          {(t("skillsPage.versionBadge", { version: skill.version }) ?? `v${skill.version}`)}
+        </Badge>
+      ) : null}
     </div>
-  ) : null}</>
+  );
 
   return (
     <Card

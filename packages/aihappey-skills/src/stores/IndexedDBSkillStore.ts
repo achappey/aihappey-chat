@@ -12,6 +12,56 @@ import type {
 
 const DB_KEY = "aihappey_skills_v1";
 
+const POSITIVE_INTEGER_RE = /^[1-9]\d*$/;
+
+function buildSkillId(name: string) {
+  const slug = String(name ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "skill";
+  return `skill_${slug}`;
+}
+
+function normalizeVersion(value: string | undefined, fallback: string) {
+  const text = String(value ?? "").trim();
+  return POSITIVE_INTEGER_RE.test(text) ? text : fallback;
+}
+
+function needsMigration(skill: Partial<StoredSkill>) {
+  return !skill.skillId || !skill.origin || !skill.object || !skill.version || !skill.defaultVersion || !skill.latestVersion;
+}
+
+function normalizeStoredSkill(skill: StoredSkill): StoredSkill {
+  const skillId = skill.skillId || skill.frontmatter?.id || buildSkillId(skill.name);
+  const version = normalizeVersion(skill.version || skill.frontmatter?.version, "1");
+  const defaultVersion = normalizeVersion(
+    skill.defaultVersion || skill.frontmatter?.defaultVersion || version,
+    version
+  );
+  const latestVersion = normalizeVersion(
+    skill.latestVersion || skill.frontmatter?.latestVersion || version,
+    version
+  );
+
+  return {
+    ...skill,
+    skillId,
+    origin: "local",
+    object: "skill",
+    version,
+    defaultVersion,
+    latestVersion,
+    frontmatter: {
+      ...skill.frontmatter,
+      id: skillId,
+      version,
+      defaultVersion,
+      latestVersion,
+    },
+  };
+}
+
 async function load(): Promise<StoredSkill[]> {
   if (typeof window === "undefined") return [];
   const data = (await get(DB_KEY)) as StoredSkill[] | undefined;
@@ -27,10 +77,19 @@ async function save(items: StoredSkill[]) {
 function toCatalogItem(skill: StoredSkill): SkillCatalogItem {
   return {
     id: skill.id,
+    skillId: skill.skillId,
     name: skill.name,
     description: skill.description,
     createdAt: skill.createdAt,
     updatedAt: skill.updatedAt,
+    origin: skill.origin,
+    object: skill.object,
+    version: skill.version,
+    defaultVersion: skill.defaultVersion,
+    latestVersion: skill.latestVersion,
+    remoteCreatedAt: skill.remoteCreatedAt,
+    downloadState: "downloaded",
+    isDownloaded: true,
     source: skill.source,
     rootPath: skill.rootPath,
     entryPath: skill.entryPath,
@@ -46,8 +105,13 @@ export class IndexedDBSkillStore implements SkillStore {
 
   private ensureLoaded = async () => {
     if (!this.loaded) {
-      this.data = await load();
+      const loaded = await load();
+      const migrated = loaded.map(normalizeStoredSkill);
+      this.data = migrated;
       this.loaded = true;
+      if (loaded.some(needsMigration)) {
+        await save(this.data);
+      }
     }
   };
 

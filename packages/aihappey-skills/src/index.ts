@@ -15,12 +15,16 @@ export {
 } from "./skillFiles";
 export type {
   ParsedSkill,
+  RemoteSkill,
+  RemoteSkillList,
   SkillArchiveExport,
   SkillCatalogItem,
   SkillDiagnostic,
+  SkillDownloadState,
   SkillFrontmatter,
   SkillImportResult,
   SkillImportSource,
+  SkillOrigin,
   SkillSeverity,
   SkillStorageKind,
   SkillStore,

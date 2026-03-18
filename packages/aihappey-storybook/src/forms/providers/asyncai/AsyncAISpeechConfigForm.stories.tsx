@@ -1,21 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
 import {
-  AsyncAISpeechConfigForm,
-  type AsyncAISpeechConfig,
+  AsyncSpeechConfigForm,
+  type AsyncSpeechConfig,
 } from "aihappey-components";
 
-const meta: Meta<typeof AsyncAISpeechConfigForm> = {
-  title: "Forms/Providers/AsyncAI/AsyncAISpeechConfigForm",
-  component: AsyncAISpeechConfigForm,
+const meta: Meta<typeof AsyncSpeechConfigForm> = {
+  title: "Forms/Providers/Async/AsyncSpeechConfigForm",
+  component: AsyncSpeechConfigForm,
 };
 
 export default meta;
-type Story = StoryObj<typeof AsyncAISpeechConfigForm>;
+type Story = StoryObj<typeof AsyncSpeechConfigForm>;
 
-const Wrapper: React.FC<{ initial?: AsyncAISpeechConfig }> = ({ initial }) => {
-  const [config, setConfig] = useState<AsyncAISpeechConfig>(initial ?? {});
-  return <AsyncAISpeechConfigForm config={config} updateConfig={setConfig} />;
+const Wrapper: React.FC<{ initial?: AsyncSpeechConfig }> = ({ initial }) => {
+  const [config, setConfig] = useState<AsyncSpeechConfig>(initial ?? {});
+  return <AsyncSpeechConfigForm config={config} updateConfig={setConfig} />;
 };
 
 export const Default: Story = {

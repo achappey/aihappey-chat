@@ -47,10 +47,33 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const enabledSkillNames = useAppStore((s) => s.enabledSkillNames);
   const setEnabledSkillNames = useAppStore((s) => s.setEnabledSkillNames);
   const skills = useSkills();
+  const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const skillItems = useMemo(
     () => skills.items.map((item) => ({ id: item.name, label: item.name })),
     [skills.items]
   );
+
+  const handleSkillSelectionChange = async (next: string[]) => {
+    setEnabledSkillNames(next);
+    setSkillFeedback(null);
+
+    const added = next.filter((name) => !enabledSkillNames.includes(name));
+    if (added.length === 0) return;
+
+    const results = await Promise.allSettled(
+      added.map((name) => skills.ensureDownloadedByName(name))
+    );
+
+    const failed = results.filter((result) => result.status === "rejected").length;
+    if (failed > 0) {
+      setSkillFeedback(
+        failed === 1
+          ? (t("skillsPage.remoteDownloadFailed") ?? "A remote skill could not be downloaded right now. It will retry on first use.")
+          : (t("skillsPage.remoteDownloadFailedMany", { count: failed }) ??
+            `${failed} remote skills could not be downloaded right now. They will retry on first use.`)
+      );
+    }
+  };
 
   const close = () => {
     onClose();
@@ -86,10 +109,13 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
           <LocalToolsSettingsForm
             formTitle={t("skills") ?? "Skills"}
             value={enabledSkillNames}
-            onChange={setEnabledSkillNames}
+            onChange={(next) => {
+              void handleSkillSelectionChange(next);
+            }}
             columns={2}
             items={skillItems}
           />
+          {skillFeedback ? <theme.Text>{skillFeedback}</theme.Text> : null}
         </theme.Tab>
         {enabledProviders.includes("Anthropic") &&
           <theme.Tab eventKey="anthropic" title="Anthropic">

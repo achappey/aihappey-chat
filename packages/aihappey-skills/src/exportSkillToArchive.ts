@@ -31,8 +31,12 @@ function toYamlScalar(value: string) {
 function buildSkillMarkdown(skill: StoredSkill) {
   const lines = [
     "---",
+    `id: ${toYamlScalar(skill.skillId)}`,
     `name: ${toYamlScalar(skill.frontmatter.name)}`,
     `description: ${toYamlScalar(skill.frontmatter.description)}`,
+    `version: ${toYamlScalar(skill.version)}`,
+    `default-version: ${toYamlScalar(skill.defaultVersion)}`,
+    `latest-version: ${toYamlScalar(skill.latestVersion)}`,
   ];
 
   if (skill.frontmatter.license) {

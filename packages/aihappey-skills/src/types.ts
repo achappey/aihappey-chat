@@ -2,6 +2,10 @@ export type SkillStorageKind = "indexeddb";
 
 export type SkillImportSource = "local-zip" | "remote-archive";
 
+export type SkillOrigin = "local" | "remote";
+
+export type SkillDownloadState = "remote" | "downloading" | "downloaded" | "error";
+
 export type SkillSeverity = "error" | "warning" | "info";
 
 export interface SkillDiagnostic {
@@ -12,6 +16,9 @@ export interface SkillDiagnostic {
     | "skill-invalid-frontmatter"
     | "skill-missing-name"
     | "skill-missing-description"
+    | "skill-missing-id"
+    | "skill-invalid-id"
+    | "skill-invalid-version"
     | "skill-name-mismatch"
     | "skill-invalid-name"
     | "skill-empty"
@@ -29,20 +36,49 @@ export interface StoredSkillFile {
 }
 
 export interface SkillFrontmatter {
+  id?: string;
   name: string;
   description: string;
+  version?: string;
+  defaultVersion?: string;
+  latestVersion?: string;
   license?: string;
   compatibility?: string;
   metadata?: Record<string, string>;
   allowedTools?: string;
 }
 
+export interface RemoteSkill {
+  id: string;
+  created_at: number;
+  default_version: string;
+  description: string;
+  latest_version: string;
+  name: string;
+  object: "skill";
+}
+
+export interface RemoteSkillList {
+  data: RemoteSkill[];
+  first_id?: string;
+  has_more: boolean;
+  last_id?: string;
+  object: "list";
+}
+
 export interface StoredSkill {
   id: string;
+  skillId: string;
   name: string;
   description: string;
   createdAt: number;
   updatedAt: number;
+  origin: Extract<SkillOrigin, "local">;
+  object: "skill";
+  version: string;
+  defaultVersion: string;
+  latestVersion: string;
+  remoteCreatedAt?: number;
   source: SkillImportSource;
   rootPath: string;
   entryPath: string;
@@ -54,10 +90,19 @@ export interface StoredSkill {
 
 export interface SkillCatalogItem {
   id: string;
+  skillId: string;
   name: string;
   description: string;
   createdAt: number;
   updatedAt: number;
+  origin: SkillOrigin;
+  object: "skill";
+  version?: string;
+  defaultVersion: string;
+  latestVersion: string;
+  remoteCreatedAt?: number;
+  downloadState: SkillDownloadState;
+  isDownloaded: boolean;
   source: SkillImportSource;
   rootPath: string;
   entryPath: string;
@@ -66,8 +111,12 @@ export interface SkillCatalogItem {
 }
 
 export interface ParsedSkill {
+  id?: string;
   name: string;
   description: string;
+  version?: string;
+  defaultVersion?: string;
+  latestVersion?: string;
   rootPath: string;
   entryPath: string;
   files: StoredSkillFile[];

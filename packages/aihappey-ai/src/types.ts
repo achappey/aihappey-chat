@@ -94,9 +94,11 @@ export const defaultEndpoints = {
   videos: "/v1/videos",
   transcriptions: "/v1/audio/transcriptions",
   speech: "/v1/audio/speech",
+  skills: "/v1/skills",
   sampling: "/sampling",
   models: "/v1/models",
   reranking: "/api/rerank",
-  chatCompletions: "/chat/completions",
+  chatCompletions: "/v1/chat/completions",
+  responses: "/v1/responses",
   realtime: "/v1/realtime/client_secrets"
 }
