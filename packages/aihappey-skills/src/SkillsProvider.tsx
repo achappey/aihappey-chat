@@ -27,6 +27,12 @@ import type {
 } from "./types";
 import { IndexedDBSkillStore } from "./stores/IndexedDBSkillStore";
 
+const EMPTY_STRING_ARRAY: string[] = [];
+
+function arraysEqual(a: readonly string[], b: readonly string[]) {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
 export type SkillsContextType = {
   items: SkillCatalogItem[];
   refresh: () => void;
@@ -214,7 +220,7 @@ export const SkillsProvider = ({
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const legacyEnabledSkillNames = useAppStore(
-    (s) => ((s as any).__legacyEnabledSkillNames as string[] | undefined) ?? []
+    (s) => ((s as any).__legacyEnabledSkillNames as string[] | undefined) ?? EMPTY_STRING_ARRAY
   );
 
   const store = useMemo(() => indexedDbSkillStore, []);
@@ -376,7 +382,7 @@ export const SkillsProvider = ({
   useEffect(() => {
     const legacyNames = Array.isArray(legacyEnabledSkillNames)
       ? legacyEnabledSkillNames.filter(Boolean)
-      : [];
+      : EMPTY_STRING_ARRAY;
     if (legacyNames.length === 0) return;
     if (mergedItems.length === 0) return;
 
@@ -388,14 +394,17 @@ export const SkillsProvider = ({
 
     const migratedSkillIds = legacyNames.flatMap((name) => byName.get(name) ?? []);
     const unresolvedNames = legacyNames.filter((name) => !byName.has(name));
+    const nextEnabledSkillIds = Array.from(new Set([...(enabledSkillIds ?? EMPTY_STRING_ARRAY), ...migratedSkillIds]));
 
-    if (migratedSkillIds.length > 0) {
-      setEnabledSkillIds(Array.from(new Set([...(enabledSkillIds ?? []), ...migratedSkillIds])));
+    if (migratedSkillIds.length > 0 && !arraysEqual(nextEnabledSkillIds, enabledSkillIds ?? EMPTY_STRING_ARRAY)) {
+      setEnabledSkillIds(nextEnabledSkillIds);
     }
 
-    appStore.setState({
-      __legacyEnabledSkillNames: unresolvedNames,
-    } as any);
+    if (!arraysEqual(unresolvedNames, legacyNames)) {
+      appStore.setState({
+        __legacyEnabledSkillNames: unresolvedNames,
+      } as any);
+    }
   }, [enabledSkillIds, legacyEnabledSkillNames, mergedItems, setEnabledSkillIds]);
 
   const ctxValue = useMemo<SkillsContextType>(() => ({
