@@ -35,17 +35,17 @@ export function useTools() {
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
   const enabledPlugins = useAppStore(s => s.activePlugins);
   const enabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);
-  const enabledSkillNames = useAppStore(s => s.enabledSkillNames);
+  const enabledSkillIds = useAppStore(s => s.enabledSkillIds);
 
   const localTools = useLocalTools();
   const skills = useSkills();
 
   const enabledSkills = useMemo(() => {
-    const byName = new Map((skills.items ?? []).map((item) => [item.name, item] as const));
-    return enabledSkillNames
-      .map((name) => byName.get(name))
+    const byId = new Map((skills.items ?? []).map((item) => [item.skillId, item] as const));
+    return (enabledSkillIds ?? [])
+      .map((skillId) => byId.get(skillId))
       .filter((item): item is (typeof skills.items)[number] => !!item);
-  }, [enabledSkillNames, skills.items]);
+  }, [enabledSkillIds, skills.items]);
 
   const defsAll = useMemo(
     () => [

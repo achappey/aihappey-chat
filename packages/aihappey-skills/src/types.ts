@@ -48,7 +48,7 @@ export interface SkillFrontmatter {
   allowedTools?: string;
 }
 
-export interface RemoteSkill {
+export interface Skill {
   id: string;
   created_at: number;
   default_version: string;
@@ -58,13 +58,47 @@ export interface RemoteSkill {
   object: "skill";
 }
 
-export interface RemoteSkillList {
-  data: RemoteSkill[];
+export interface SkillVersion {
+  id: string;
+  created_at: number;
+  description: string;
+  name: string;
+  object: "skill.version";
+  skill_id: string;
+  version: string;
+}
+
+export interface DataList<T> {
+  data: T[];
   first_id?: string;
   has_more: boolean;
   last_id?: string;
   object: "list";
 }
+
+export interface SkillListParams {
+  after?: string;
+  limit?: number;
+  order?: "asc" | "desc";
+}
+
+export interface VersionListParams {
+  after?: string;
+  limit?: number;
+  order?: "asc" | "desc";
+}
+
+export interface SkillUpdateParams {
+  default_version: string;
+}
+
+export interface ContentRetrieveParams {
+  skill_id: string;
+}
+
+export type RemoteSkill = Skill;
+
+export type RemoteSkillList = DataList<Skill>;
 
 export interface StoredSkill {
   id: string;
@@ -108,6 +142,8 @@ export interface SkillCatalogItem {
   entryPath: string;
   fileCount: number;
   diagnostics: SkillDiagnostic[];
+  versionCount: number;
+  downloadedVersion?: string;
 }
 
 export interface ParsedSkill {
@@ -130,6 +166,13 @@ export interface SkillImportResult {
   diagnostics: SkillDiagnostic[];
 }
 
+export interface SkillImportOptions {
+  skillId?: string;
+  version?: string;
+  defaultVersion?: string;
+  latestVersion?: string;
+}
+
 export interface SkillArchiveExport {
   filename: string;
   blob: Blob;
@@ -137,10 +180,22 @@ export interface SkillArchiveExport {
 
 export interface SkillStore {
   readonly kind: SkillStorageKind;
-  list(): Promise<SkillCatalogItem[]>;
+  listCatalogItems(): Promise<SkillCatalogItem[]>;
+  listSkills(query?: SkillListParams): Promise<DataList<Skill>>;
+  retrieveSkill(skillId: string): Promise<Skill | undefined>;
+  updateSkill(skillId: string, body: SkillUpdateParams): Promise<Skill>;
+  listSkillVersions(skillId: string, query?: VersionListParams): Promise<DataList<SkillVersion>>;
   read(id: string): Promise<StoredSkill | undefined>;
   readByName(name: string): Promise<StoredSkill | undefined>;
+  readVersion(skillId: string, version: string): Promise<StoredSkill | undefined>;
   exportArchive(id: string): Promise<SkillArchiveExport | undefined>;
-  importArchive(file: Blob, source?: SkillImportSource): Promise<SkillImportResult>;
+  exportVersionArchive(skillId: string, version: string): Promise<SkillArchiveExport | undefined>;
+  importArchive(
+    file: Blob,
+    source?: SkillImportSource,
+    options?: SkillImportOptions
+  ): Promise<SkillImportResult>;
   delete(id: string): Promise<void>;
+  deleteVersion(skillId: string, version: string): Promise<void>;
+  pruneVersions(skillId: string, keepVersion: string): Promise<void>;
 }

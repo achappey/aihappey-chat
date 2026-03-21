@@ -1,4 +1,4 @@
-import type { SpeechModelV3CallOptions, SpeechResponse } from "aihappey-ai";
+import type { SpeechModelV4CallOptions, SpeechResponse } from "aihappey-ai";
 
 export type SpeechStorageKind = "indexeddb" | "local";
 
@@ -12,7 +12,7 @@ export interface SpeechItem {
   /** Client-generated id (backend does not provide one). */
   id: string;
   createdAt: Date;
-  input: SpeechModelV3CallOptions;
+  input: SpeechModelV4CallOptions;
   /** Raw SpeechResponse payload (“straight json”). */
   speechResponse: SpeechResponse;
 }
@@ -20,7 +20,7 @@ export interface SpeechItem {
 export interface SpeechStore {
   readonly kind: SpeechStorageKind;
 
-  add(input: SpeechModelV3CallOptions, speechResponse: SpeechResponse): Promise<SpeechItem>;
+  add(input: SpeechModelV4CallOptions, speechResponse: SpeechResponse): Promise<SpeechItem>;
   list(): Promise<SpeechItem[]>;
   delete(id: string): Promise<void>;
 }

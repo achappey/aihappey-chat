@@ -18,26 +18,26 @@ type SkillToolResult = CallToolResult & {
 
 type ActivateSkillToolCall = {
   toolName: "activate_skill";
-  input: { name: string };
+  input: { skill_id: string };
 };
 
 type ReadSkillResourceToolCall = {
   toolName: "read_skill_resource";
-  input: { name: string; path: string };
+  input: { skill_id: string; path: string };
 };
 
 function getEnabledSkills(
   items: SkillCatalogItem[],
-  enabledSkillNames: string[]
+  enabledSkillIds: string[]
 ) {
-  const byName = new Map(items.map((item) => [item.name, item] as const));
-  return enabledSkillNames
-    .map((name) => byName.get(name))
+  const byId = new Map(items.map((item) => [item.skillId, item] as const));
+  return (enabledSkillIds ?? [])
+    .map((skillId) => byId.get(skillId))
     .filter((item): item is SkillCatalogItem => !!item);
 }
 
 function buildSkillCatalog(skills: SkillCatalogItem[]) {
-  return skills.map((skill) => `- ${skill.name}: ${skill.description}`).join("\n");
+  return skills.map((skill) => `- ${skill.skillId} (${skill.name}): ${skill.description}`).join("\n");
 }
 
 function escapeAttribute(value: string) {
@@ -48,27 +48,28 @@ function escapeAttribute(value: string) {
     .replaceAll(">", "&gt;");
 }
 
-function buildSkillUri(name: string, path: string) {
+function buildSkillUri(skillId: string, path: string) {
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
-  return `skill://${encodeURIComponent(name)}/${encodedPath}`;
+  return `skill://${encodeURIComponent(skillId)}/${encodedPath}`;
 }
 
 async function resolveEnabledSkill(
-  skills: Pick<SkillsContextType, "readByName">,
-  enabledSkillNames: string[],
-  name: string
+  skills: Pick<SkillsContextType, "read">,
+  enabledSkills: SkillCatalogItem[],
+  skillId: string
 ) {
-  const enabled = Array.from(new Set((enabledSkillNames ?? []).filter(Boolean)));
-  if (!name) throw new Error("Missing skill name.");
-  if (!enabled.includes(name)) {
+  if (!skillId) throw new Error("Missing skill_id.");
+
+  const enabledSkill = enabledSkills.find((item) => item.skillId === skillId);
+  if (!enabledSkill) {
     throw new Error(
-      `Skill \"${name}\" is not enabled. Enabled skills: ${enabled.join(", ") || "none"}.`
+      `Skill \"${skillId}\" is not enabled. Enabled skills: ${enabledSkills.map((item) => item.skillId).join(", ") || "none"}.`
     );
   }
 
-  const skill = await skills.readByName(name);
+  const skill = await skills.read(enabledSkill.skillId);
   if (!skill) {
-    throw new Error(`Skill \"${name}\" could not be loaded.`);
+    throw new Error(`Skill \"${skillId}\" could not be loaded.`);
   }
 
   return skill;
@@ -84,13 +85,13 @@ export function buildActivateSkillTool(skills: SkillCatalogItem[]): Tool {
     inputSchema: {
       type: "object",
       properties: {
-        name: {
+        skill_id: {
           type: "string",
-          enum: skills.map((skill) => skill.name),
-          description: "Exact enabled skill name to activate.",
+          enum: skills.map((skill) => skill.skillId),
+          description: "Exact enabled skill id to activate.",
         },
       },
-      required: ["name"],
+      required: ["skill_id"],
     },
     annotations: {
       readOnlyHint: true,
@@ -111,10 +112,10 @@ export function buildReadSkillResourceTool(skills: SkillCatalogItem[]): Tool {
     inputSchema: {
       type: "object",
       properties: {
-        name: {
+        skill_id: {
           type: "string",
-          enum: skills.map((skill) => skill.name),
-          description: "Exact enabled skill name that owns the resource.",
+          enum: skills.map((skill) => skill.skillId),
+          description: "Exact enabled skill id that owns the resource.",
         },
         path: {
           type: "string",
@@ -122,7 +123,7 @@ export function buildReadSkillResourceTool(skills: SkillCatalogItem[]): Tool {
             "Relative path within the skill directory, for example references/REFERENCE.md or scripts/run.py.",
         },
       },
-      required: ["name", "path"],
+      required: ["skill_id", "path"],
     },
     annotations: {
       readOnlyHint: true,
@@ -134,14 +135,18 @@ export function buildReadSkillResourceTool(skills: SkillCatalogItem[]): Tool {
 }
 
 export function useSkillToolCall(opts: {
-  skills: Pick<SkillsContextType, "items" | "readByName">;
-  enabledSkillNames: string[];
+  skills: Pick<SkillsContextType, "items" | "read">;
+  enabledSkillIds: string[];
 }) {
-  const { skills, enabledSkillNames } = opts;
+  const { skills, enabledSkillIds } = opts;
+  const enabledSkills = useCallback(
+    () => getEnabledSkills(skills.items ?? [], enabledSkillIds),
+    [enabledSkillIds, skills.items]
+  );
 
   const handleActivateSkill = useCallback(
     async (toolCall: ActivateSkillToolCall): Promise<SkillToolResult> => {
-      const skill = await resolveEnabledSkill(skills, enabledSkillNames, toolCall.input?.name);
+      const skill = await resolveEnabledSkill(skills, enabledSkills(), toolCall.input?.skill_id);
       const resourcePaths = listSkillResourcePaths(skill);
       const resourcesXml =
         resourcePaths.length > 0
@@ -166,10 +171,10 @@ export function useSkillToolCall(opts: {
           {
             type: "text",
             text: [
-              `<skill_content name="${escapeAttribute(skill.name)}">`,
+              `<skill_content skill_id="${escapeAttribute(skill.skillId)}" name="${escapeAttribute(skill.name)}">`,
               skill.body,
               "",
-              "Use read_skill_resource with this skill name and a relative path from the resource list when you need bundled files referenced by the instructions.",
+              "Use read_skill_resource with this skill_id and a relative path from the resource list when you need bundled files referenced by the instructions.",
               resourcesXml,
               "</skill_content>",
             ].join("\n"),
@@ -177,12 +182,12 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [enabledSkillNames, skills]
+    [enabledSkills, skills]
   );
 
   const handleReadSkillResource = useCallback(
     async (toolCall: ReadSkillResourceToolCall): Promise<SkillToolResult> => {
-      const skill = await resolveEnabledSkill(skills, enabledSkillNames, toolCall.input?.name);
+      const skill = await resolveEnabledSkill(skills, enabledSkills(), toolCall.input?.skill_id);
       const relativePath = normalizeSkillRelativePath(toolCall.input?.path ?? "");
       if (!relativePath) {
         throw new Error("Missing path. Provide a relative path inside the skill directory.");
@@ -212,7 +217,7 @@ export function useSkillToolCall(opts: {
             {
               type: "text",
               text: [
-                `<skill_resource name="${escapeAttribute(skill.name)}" path="${escapeAttribute(
+                `<skill_resource skill_id="${escapeAttribute(skill.skillId)}" name="${escapeAttribute(skill.name)}" path="${escapeAttribute(
                   relativePath
                 )}" mimeType="${escapeAttribute(mimeType)}">`,
                 text,
@@ -244,7 +249,7 @@ export function useSkillToolCall(opts: {
           {
             type: "resource",
             resource: {
-              uri: buildSkillUri(skill.name, relativePath),
+              uri: buildSkillUri(skill.skillId, relativePath),
               mimeType,
               blob,
             },
@@ -252,7 +257,7 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [enabledSkillNames, skills]
+    [enabledSkills, skills]
   );
 
   const activateSkillPlugin: ToolPlugin = {
@@ -268,7 +273,7 @@ export function useSkillToolCall(opts: {
   };
 
   return {
-    enabledSkills: getEnabledSkills(skills.items ?? [], enabledSkillNames),
+    enabledSkills: enabledSkills(),
     activateSkillPlugin,
     readSkillResourcePlugin,
   };

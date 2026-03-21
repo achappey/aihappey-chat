@@ -1,9 +1,9 @@
-import { SharedV3Warning } from "aihappey-ai";
+import { SharedV4Warning } from "aihappey-ai";
 import { SharedWarning } from "./SharedWarning";
 
 type SharedWarningsProps = {
-  warnings: SharedV3Warning[];
-  dismiss?: (warning: SharedV3Warning) => void;
+  warnings: SharedV4Warning[];
+  dismiss?: (warning: SharedV4Warning) => void;
 };
 
 export function SharedWarnings({ warnings, dismiss }: SharedWarningsProps) {

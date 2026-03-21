@@ -1,5 +1,5 @@
 import { get, set } from "idb-keyval";
-import type { SpeechModelV3CallOptions, SpeechResponse } from "aihappey-ai";
+import type { SpeechModelV4CallOptions, SpeechResponse } from "aihappey-ai";
 import type { SpeechItem, SpeechStore } from "../types";
 
 const DB_KEY = "aihappey_speech_v1";
@@ -37,7 +37,7 @@ export class IndexedDBSpeechStore implements SpeechStore {
   }
 
   add = async (
-    input: SpeechModelV3CallOptions,
+    input: SpeechModelV4CallOptions,
     speechResponse: SpeechResponse
   ): Promise<SpeechItem> => {
     await this.ensureLoaded();

@@ -385,6 +385,38 @@ import { vibecodecheap } from "./catalog/vibecodecheap";
 import { modelmax } from "./catalog/modelmax";
 import { yollomi } from "./catalog/yollomi";
 import { infercom } from "./catalog/infercom";
+import { raxai } from "./catalog/raxai";
+import { aiduet } from "./catalog/aiduet";
+import { piapi } from "./catalog/piapi";
+import { youcom } from "./catalog/youcom";
+import { iapp } from "./catalog/iapp";
+import { oodaai } from "./catalog/oodaai";
+import { stealthgpt } from "./catalog/stealthgpt";
+import { jassieai } from "./catalog/jassieai";
+import { messari } from "./catalog/messari";
+import { memoryrouter } from "./catalog/memoryrouter";
+import { imagerouter } from "./catalog/imagerouter";
+import { cailos } from "./catalog/cailos";
+import { codexforme } from "./catalog/codexforme";
+import { runapi } from "./catalog/runapi";
+import { gaterouter } from "./catalog/gaterouter";
+import { baseapi } from "./catalog/baseapi";
+import { yyclaw } from "./catalog/yyclaw";
+import { teamday } from "./catalog/teamday";
+import { oxoapi } from "./catalog/oxoapi";
+import { chutes } from "./catalog/chutes";
+import { vivgrid } from "./catalog/vivgrid";
+import { ambient } from "./catalog/ambient";
+import { xiaomimimo } from "./catalog/xiaomimimo";
+import { ollama } from "./catalog/ollama";
+import { switchpointai } from "./catalog/switchpointai";
+import { relace } from "./catalog/relace";
+import { inflection } from "./catalog/inflection";
+import { langdb } from "./catalog/langdb";
+import { morph } from "./catalog/morph";
+import { baidu } from "./catalog/baidu";
+import { streamlake } from "./catalog/streamlake";
+import { akashml } from "./catalog/akashml";
 
 /**
  * UI-facing provider catalog.
@@ -395,10 +427,37 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
   agabeyogluai,
+  baidu,
+  akashml,
+  morph,
+  streamlake,
+  runapi,
+  langdb,
+  inflection,
+  relace,
+  switchpointai,
+  ollama,
+  xiaomimimo,
+  vivgrid,
+  chutes,
+  ambient,
+  codexforme,
+  baseapi,
+  oxoapi,
   preapi,
+  teamday,
+  jassieai,
   voidai,
+  cailos,
+  imagerouter,
+  gaterouter,
   ultrasafe,
+  yyclaw,
+  memoryrouter,
+  messari,
+  oodaai,
   dedaluslabs,
+  stealthgpt,
   ofoxai,
   world3,
   yougetai,
@@ -409,6 +468,7 @@ export const PROVIDERS: Record<string, Provider> = {
   inferlink,
   knoxchat,
   vlmrun,
+  raxai,
   vogent,
   aicredits,
   llmcloud,
@@ -418,15 +478,19 @@ export const PROVIDERS: Record<string, Provider> = {
   clawswitch,
   zeabur,
   neuralwatt,
+  youcom,
+  aiduet,
   infercom,
   atxp,
   sargalay,
+  piapi,
   nagaai,
   fastrouter,
   novai,
   andyapi,
   onekey,
   toapis,
+  iapp,
   blockrun,
   getgoapi,
   gonkagate,

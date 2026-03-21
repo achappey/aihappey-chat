@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { SharedV3Warning } from "aihappey-ai";
+import type { SharedV4Warning } from "aihappey-ai";
 
 export type TranscriptionError = {
   id: string;
@@ -13,7 +13,7 @@ export type TranscriptionWarning = {
 
 export type TranscriptionSharedWarning = {
   id: string;
-  raw: SharedV3Warning;
+  raw: SharedV4Warning;
 };
 
 export function useTranscriptionErrors() {
@@ -41,7 +41,7 @@ export function useTranscriptionErrors() {
     setSharedWarnings([]);
   }, []);
 
-  const addSharedWarnings = useCallback((ws: SharedV3Warning[] | undefined | null) => {
+  const addSharedWarnings = useCallback((ws: SharedV4Warning[] | undefined | null) => {
     if (!ws?.length) return;
     setSharedWarnings((prev) => [...prev, ...ws.map((w) => ({ id: crypto.randomUUID(), raw: w }))]);
   }, []);

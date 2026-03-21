@@ -5,13 +5,16 @@ import { OpenAIWebSearchForm } from "./cards/OpenAIWebSearchForm";
 import { OpenAIImageGenerationForm } from "./cards/OpenAIImageGenerationForm";
 import { OpenAICodeInterpreterForm } from "./cards/OpenAICodeInterpreterForm";
 import { OpenAIFileSearchForm } from "./cards/OpenAIFileSearchForm";
+import { OpenAIShellForm } from "./cards/OpenAIShellForm";
 
 export const OpenAIChatConfigForm = ({
   config,
   updateConfig,
+  openAISkillOptions = [],
 }: {
   config: any;
   updateConfig: (val: any) => void;
+  openAISkillOptions?: Array<{ value: string; label: string }>;
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -22,6 +25,11 @@ export const OpenAIChatConfigForm = ({
       <OpenAIWebSearchForm config={config} updateConfig={updateConfig} />
       <OpenAIImageGenerationForm config={config} updateConfig={updateConfig} />
       <OpenAICodeInterpreterForm config={config} updateConfig={updateConfig} />
+      <OpenAIShellForm
+        config={config}
+        updateConfig={updateConfig}
+        openAISkillOptions={openAISkillOptions}
+      />
       <OpenAIFileSearchForm config={config} updateConfig={updateConfig} />
 
       <theme.Card

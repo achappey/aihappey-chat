@@ -9,7 +9,6 @@ export const elkapi: Provider = {
   urls: {
     homepage: "https://api.elkapi.com",
     docs: "https://apidoc.elkapi.com",
-    pricing: "https://wisdom-gate.juheapi.com/pricing",
     privacyPolicy: "https://apidoc.elkapi.com/doc-1807431",
     termsOfService: "https://apidoc.elkapi.com/doc-1807432"
   },

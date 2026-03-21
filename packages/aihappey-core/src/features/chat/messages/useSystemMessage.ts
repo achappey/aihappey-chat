@@ -14,7 +14,7 @@ export function useSystemMessage() {
   const accountLocation = useAppStore((s) => s.accountLocation);
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const mcpServers = useAppStore((s) => s.mcpServers);
-  const enabledSkillNames = useAppStore((s) => s.enabledSkillNames);
+  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const account = useAccount();
   useUserLocation(enableUserLocation);
   const { isDarkMode } = useDarkMode();
@@ -32,12 +32,12 @@ export function useSystemMessage() {
   );
 
   const enabledSkills = useMemo(() => {
-    const byName = new Map((skills.items ?? []).map((item) => [item.name, item] as const));
-    return enabledSkillNames
-      .map((name) => byName.get(name))
+    const byId = new Map((skills.items ?? []).map((item) => [item.skillId, item] as const));
+    return (enabledSkillIds ?? [])
+      .map((skillId) => byId.get(skillId))
       .filter((item): item is (typeof skills.items)[number] => !!item)
-      .map((item) => ({ name: item.name, description: item.description }));
-  }, [enabledSkillNames, skills.items]);
+      .map((item) => ({ skillId: item.skillId, name: item.name, description: item.description }));
+  }, [enabledSkillIds, skills.items]);
 
   const systemMsg = useMemo(() => {
     const userContext = account

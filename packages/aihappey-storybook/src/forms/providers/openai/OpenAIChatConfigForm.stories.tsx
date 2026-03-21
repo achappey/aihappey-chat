@@ -12,6 +12,10 @@ const Wrapper: React.FC<WrapperProps> = ({ config: initialConfig }) => {
   return (
     <OpenAIChatConfigForm
       config={config}
+      openAISkillOptions={[
+        { value: "xlsx", label: "Spreadsheets" },
+        { value: "pdf", label: "PDF Reader" },
+      ]}
       updateConfig={setConfig}
     />
   );

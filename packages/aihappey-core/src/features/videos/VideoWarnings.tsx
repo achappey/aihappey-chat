@@ -1,6 +1,6 @@
 import { SharedWarnings, useTheme } from "aihappey-components";
 import type { VideoWarning } from "./useVideoErrors";
-import { SharedV3Warning } from "aihappey-ai";
+import { SharedV4Warning } from "aihappey-ai";
 
 type VideoWarningsProps = {
   warnings: VideoWarning[];
@@ -12,7 +12,7 @@ export function VideoWarnings({ warnings, dismissWarning }: VideoWarningsProps) 
 
   return (
     <SharedWarnings
-      warnings={warnings.map((z) => z.raw) as SharedV3Warning[]}
+      warnings={warnings.map((z) => z.raw) as SharedV4Warning[]}
       dismiss={(incoming) => {
         const match = warnings.find(
           (w) => JSON.stringify(w.raw) === JSON.stringify(incoming)

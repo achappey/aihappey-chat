@@ -3,6 +3,7 @@ import { parseSkillMarkdown } from "./skillFrontmatter";
 import type {
   ParsedSkill,
   SkillDiagnostic,
+  SkillImportOptions,
   SkillImportResult,
   SkillImportSource,
   StoredSkill,
@@ -135,26 +136,31 @@ export async function extractSkillsFromArchive(blob: Blob): Promise<{
 export function toStoredSkill(
   parsed: ParsedSkill,
   source: SkillImportSource,
-  previous?: StoredSkill
+  previous?: StoredSkill,
+  overrides?: SkillImportOptions
 ): StoredSkill | undefined {
   const hasErrors = parsed.diagnostics.some((item) => item.severity === "error");
   if (hasErrors || !parsed.frontmatter) return undefined;
 
   const now = Date.now();
   const skillId =
-    parsed.frontmatter.id?.trim() || previous?.skillId?.trim() || buildSkillId(parsed.frontmatter.name);
+    overrides?.skillId?.trim() ||
+    parsed.frontmatter.id?.trim() ||
+    previous?.skillId?.trim() ||
+    buildSkillId(parsed.frontmatter.name);
   const version =
+    overrides?.version?.trim() ||
     parsed.frontmatter.version?.trim() ||
     (source === "local-zip" && previous ? incrementVersion(previous.latestVersion) : undefined) ||
     previous?.latestVersion ||
     "1";
   const normalizedVersion = normalizeVersion(version, "1");
   const defaultVersion = normalizeVersion(
-    parsed.frontmatter.defaultVersion?.trim() || normalizedVersion,
+    overrides?.defaultVersion?.trim() || parsed.frontmatter.defaultVersion?.trim() || normalizedVersion,
     normalizedVersion
   );
   const latestVersion = normalizeVersion(
-    parsed.frontmatter.latestVersion?.trim() || normalizedVersion,
+    overrides?.latestVersion?.trim() || parsed.frontmatter.latestVersion?.trim() || normalizedVersion,
     normalizedVersion
   );
 

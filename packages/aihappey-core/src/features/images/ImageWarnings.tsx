@@ -1,7 +1,5 @@
-import React from "react";
-import { SharedWarnings, useTheme } from "aihappey-components";
+import { SharedWarnings } from "aihappey-components";
 import type { ImageWarning } from "./useImageErrors";
-import { SharedV3Warning } from "aihappey-ai";
 
 type ImageWarningsProps = {
   warnings: ImageWarning[];

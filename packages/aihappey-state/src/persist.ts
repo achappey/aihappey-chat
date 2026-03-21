@@ -24,6 +24,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
+    version: 12,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       agents: s.agents,
@@ -86,22 +87,42 @@ export const withPersist = (
       resetTimeoutOnProgress: s.resetTimeoutOnProgress,
       conversationStorage: s.conversationStorage,
       enabledProvidersByType: (s as any).enabledProvidersByType,
+      enabledSkillIds: (s as any).enabledSkillIds,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
     }),
     migrate: (persistedState, version) => {
+      const safeState = typeof persistedState === "object"
+        && persistedState !== null ? persistedState as Record<string, any> : {};
+
       // On version bump, reset endpoints, servers, and selected
       if (version < 5) {
-        const safeState = typeof persistedState === "object"
-          && persistedState !== null ? persistedState : {};
         return {
           ...safeState,
 
           endpoints: [],
           servers: {},
           selected: [],
-        };
+        } as any;
       }
-      return persistedState;
+
+      if (version < 12) {
+        return {
+          ...safeState,
+          enabledSkillIds: Array.isArray(safeState.enabledSkillIds)
+            ? safeState.enabledSkillIds.filter(Boolean)
+            : [],
+          __legacyEnabledSkillNames: Array.isArray(safeState.enabledSkillNames)
+            ? safeState.enabledSkillNames.filter(Boolean)
+            : [],
+        } as any;
+      }
+
+      return {
+        ...safeState,
+        enabledSkillIds: Array.isArray(safeState.enabledSkillIds)
+          ? safeState.enabledSkillIds.filter(Boolean)
+          : [],
+      } as any;
     },
   });

@@ -1,8 +1,8 @@
-import { SharedV3Warning } from "aihappey-ai";
+import { SharedV4Warning } from "aihappey-ai";
 import { useTheme } from "../theme/ThemeContext";
 
 type SharedWarningProps = {
-  warning: SharedV3Warning;
+  warning: SharedV4Warning;
   dismiss?: () => void;
 };
 

@@ -192,9 +192,9 @@ export type UiSlice = {
     providersByType: Partial<Record<ProviderCapability, string[]>>
   ) => void;
 
-  enabledSkillNames: string[];
-  toggleEnabledSkillName: (skillName: string) => void;
-  setEnabledSkillNames: (skillNames: string[]) => void;
+  enabledSkillIds: string[];
+  toggleEnabledSkillId: (skillId: string) => void;
+  setEnabledSkillIds: (skillIds: string[]) => void;
 
   userPreferredModel?: string;
   setUserPreferredModel: (model: string) => void;
@@ -249,7 +249,7 @@ export const createUiSlice: StateCreator<
   elicitation: {},
   accountLocation: undefined,
   enabledProvidersByType: createEmptyEnabledProvidersByType(),
-  enabledSkillNames: [],
+  enabledSkillIds: [],
   chatWithImageModels: false,
   chatWithVideoModels: false,
   chatWithRerankModels: false,
@@ -400,19 +400,19 @@ export const createUiSlice: StateCreator<
       };
     }),
 
-  setEnabledSkillNames: (skillNames: string[]) =>
+  setEnabledSkillIds: (skillIds: string[]) =>
     set(() => ({
-      enabledSkillNames: Array.from(new Set((skillNames ?? []).filter(Boolean))),
+      enabledSkillIds: Array.from(new Set((skillIds ?? []).filter(Boolean))),
     })),
 
-  toggleEnabledSkillName: (skillName: string) =>
+  toggleEnabledSkillId: (skillId: string) =>
     set((state: UiSlice) => {
-      if (!skillName) return state;
-      const exists = state.enabledSkillNames.includes(skillName);
+      if (!skillId) return state;
+      const exists = state.enabledSkillIds.includes(skillId);
       return {
-        enabledSkillNames: exists
-          ? state.enabledSkillNames.filter((name) => name !== skillName)
-          : [...state.enabledSkillNames, skillName],
+        enabledSkillIds: exists
+          ? state.enabledSkillIds.filter((id) => id !== skillId)
+          : [...state.enabledSkillIds, skillId],
       };
     }),
 

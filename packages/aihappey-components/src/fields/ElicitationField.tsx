@@ -60,6 +60,57 @@ export const ElicitationField = ({
     );
   }
 
+  if (field.type == "array" && field.items && field.items.anyOf) {
+    const options = field.items.anyOf?.map((a: any) => ({
+      value: a.const,
+      label: a.title
+    })) ?? [];
+
+    const selectedValues = Array.isArray(value)
+      ? value.map((v: any) => String(v))
+      : [];
+
+    const valTitles = selectedValues
+      .map((z: string) => options.find((a: any) => a.value == z)?.label ?? z)
+      .join(", ");
+
+    return (
+      <div style={{ marginBottom: 12 }}>
+        <Select
+          values={selectedValues}
+          valueTitle={valTitles}
+          hint={field.description}
+          options={options}
+          multiselect={true}
+          required={required}
+          label={label}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {
+            const selectedValue =
+              e?.target?.value ?? e?.currentTarget?.value ?? e;
+
+            if (Array.isArray(selectedValue)) {
+              onChange(selectedValue);
+              return;
+            }
+
+            const nextValues = selectedValues.includes(selectedValue)
+              ? selectedValues.filter((v: string) => v !== selectedValue)
+              : [...selectedValues, selectedValue];
+
+            onChange(nextValues.length > 0 ? nextValues : "");
+          }}
+          aria-label={label}
+        >
+          {field.items.anyOf?.map((opt: any, i: number) => (
+            <option key={i} value={opt.const}>
+              {opt.title}
+            </option>
+          ))}
+        </Select>
+      </div>
+    );
+  }
+
   const type =
     field.type === "number" || field.type === "integer"
       ? "number"

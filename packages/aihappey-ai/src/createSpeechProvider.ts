@@ -1,5 +1,5 @@
 import type {
-    SpeechModelV3
+    SpeechModelV4
 } from "@ai-sdk/provider"
 
 export function createSpeechProvider(config: {
@@ -7,9 +7,9 @@ export function createSpeechProvider(config: {
     headers?: any;
 }) {
     return {
-        speechModel(modelId: string): SpeechModelV3 {
+        speechModel(modelId: string): SpeechModelV4 {
             return {
-                specificationVersion: 'v3',
+                specificationVersion: 'v4',
                 provider: modelId.split("/")?.[0],
                 modelId,
 

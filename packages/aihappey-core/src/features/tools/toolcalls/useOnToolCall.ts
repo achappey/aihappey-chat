@@ -81,7 +81,7 @@ export function useOnToolCall({
   const mcpServers = useAppStore(a => a.mcpServers);
   const enabledPlugins = useAppStore(a => a.activePlugins); // string list
   const enabledLocalTools = useAppStore(a => (a as any).enabledLocalTools as string[]);
-  const enabledSkillNames = useAppStore(a => a.enabledSkillNames);
+  const enabledSkillIds = useAppStore(a => a.enabledSkillIds);
   // const selectedConversationId = useAppStore(a => (a as any).selectedConversationId as string | null);
   const setActiveData = useAppStore(a => a.setActiveData);
   const conversations = useConversations();
@@ -118,7 +118,7 @@ export function useOnToolCall({
   const { readResourcePlugin } = useReadResourceToolCall({ mcpServers }); // runtime exists always
   const { activateSkillPlugin, readSkillResourcePlugin } = useSkillToolCall({
     skills,
-    enabledSkillNames,
+    enabledSkillIds,
   });
 
   const runtimes = useMemo(

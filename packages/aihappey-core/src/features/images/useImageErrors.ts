@@ -1,22 +1,18 @@
 import { useCallback, useState } from "react";
+import type { SharedV4Warning } from "aihappey-ai";
 
 export type ImageError = {
   id: string;
   message: string;
 };
 
-export type SharedV3Warning =
-  | { type: "unsupported"; feature: string; details?: string }
-  | { type: "compatibility"; feature: string; details?: string }
-  | { type: "other"; message: string };
-
 export type ImageWarning = {
   id: string;
   message: string;
-  raw: SharedV3Warning;
+  raw: SharedV4Warning;
 };
 
-const formatWarning = (w: SharedV3Warning) => {
+const formatWarning = (w: SharedV4Warning) => {
   if (w.type === "other") return w.message;
 
   const prefix = w.type === "unsupported" ? "Unsupported" : "Compatibility";
@@ -40,7 +36,7 @@ export function useImageErrors() {
     setWarnings([]);
   }, []);
 
-  const addWarnings = useCallback((ws: SharedV3Warning[] | undefined | null) => {
+  const addWarnings = useCallback((ws: SharedV4Warning[] | undefined | null) => {
     if (!ws?.length) return;
 
     setWarnings(

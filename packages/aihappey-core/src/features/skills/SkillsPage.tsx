@@ -1,16 +1,20 @@
 import { useCallback, useMemo, useState } from "react";
+import type { Provider } from "aihappey-types";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
-import { SkillCard, useTheme } from "aihappey-components";
+import { SkillCard, SkillDetailsModal, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import {
   useSkills,
   type SkillCatalogItem,
   type SkillDiagnostic,
   type SkillImportResult,
+  type SkillVersion,
+  type StoredSkill,
 } from "aihappey-skills";
 import { useAppStore } from "aihappey-state";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
+import { PROVIDERS } from "../../runtime/providers/providers";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -28,19 +32,46 @@ function downloadBlob(blob: Blob, filename: string) {
   }
 }
 
+function getFilenameFromResponse(response: Response, fallback: string) {
+  const disposition = response.headers.get("Content-Disposition") ?? response.headers.get("content-disposition");
+  const match = disposition?.match(/filename\*?=(?:UTF-8''|\")?([^\";]+)/i);
+  return match?.[1] ? decodeURIComponent(match[1].replace(/\"/g, "").trim()) : fallback;
+}
+
+function getProviderKeyFromSkillId(skillId: string) {
+  const parts = skillId.split("/").filter(Boolean);
+  return parts.length > 1 ? parts[0].toLowerCase() : null;
+}
+
 export const SkillsPage = () => {
   const theme = useTheme();
   const { t } = useTranslation();
   const skills = useSkills();
-  const enabledSkillNames = useAppStore((s) => s.enabledSkillNames);
-  const setEnabledSkillNames = useAppStore((s) => s.setEnabledSkillNames);
+  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [detailsSkillId, setDetailsSkillId] = useState<string | null>(null);
+  const [detailVersions, setDetailVersions] = useState<SkillVersion[]>([]);
+  const [detailLocalSkill, setDetailLocalSkill] = useState<StoredSkill | undefined>(undefined);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [downloadingVersion, setDownloadingVersion] = useState<string | null>(null);
   const q = normalizeText(search);
 
   const collator = useMemo(
     () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
     []
+  );
+
+  const getRemoteSkillIcons = useCallback(
+    (item: SkillCatalogItem): Provider["icons"] | undefined => {
+      if (item.origin !== "remote") return undefined;
+      const providerKey = getProviderKeyFromSkillId(item.skillId);
+      if (!providerKey) return undefined;
+      return PROVIDERS[providerKey]?.icons;
+    },
+    [PROVIDERS]
   );
 
   const filtered = useMemo(() => {
@@ -56,6 +87,37 @@ export const SkillsPage = () => {
       .slice()
       .sort((a: SkillCatalogItem, b: SkillCatalogItem) => collator.compare(a.name, b.name));
   }, [collator, q, skills.items]);
+
+  const selectedSkill = useMemo(
+    () => skills.items.find((item) => item.skillId === detailsSkillId || item.id === detailsSkillId),
+    [detailsSkillId, skills.items]
+  );
+
+  const loadSkillDetails = useCallback(
+    async (skillId: string, item?: SkillCatalogItem) => {
+      setDetailsLoading(true);
+      setDetailsError(null);
+      try {
+        const target = item ?? skills.items.find((entry) => entry.skillId === skillId || entry.id === skillId);
+        const [versionsPage, localSkill] = await Promise.all([
+          skills.versions.list(skillId),
+          target?.isDownloaded ? skills.read(skillId) : Promise.resolve(undefined),
+        ]);
+
+        setDetailVersions(versionsPage.data ?? []);
+        setDetailLocalSkill(localSkill);
+      } catch {
+        setDetailVersions([]);
+        setDetailLocalSkill(undefined);
+        setDetailsError(
+          t("skillsPage.skillDetailsFailed") ?? "Could not load skill details right now."
+        );
+      } finally {
+        setDetailsLoading(false);
+      }
+    },
+    [skills, t]
+  );
 
   const onImportFiles = useCallback(
     async (files: File[]) => {
@@ -79,8 +141,8 @@ export const SkillsPage = () => {
       );
 
       if (importedCount > 0) {
-        const importedNames = results.flatMap((item) => item.imported.map((skill) => skill.name));
-        setEnabledSkillNames([...enabledSkillNames, ...importedNames]);
+        const importedSkillIds = results.flatMap((item) => item.imported.map((skill) => skill.skillId));
+        setEnabledSkillIds(Array.from(new Set([...enabledSkillIds, ...importedSkillIds])));
         setFeedback(
           diagnostics.length > 0
             ? (t("skillsPage.importedWithDiagnostics", {
@@ -98,23 +160,26 @@ export const SkillsPage = () => {
             "No valid skills were found in the uploaded ZIP archive.")
         );
       }
-      skills.refresh();
     },
-    [enabledSkillNames, setEnabledSkillNames, skills, t]
+    [enabledSkillIds, setEnabledSkillIds, skills, t]
   );
 
   const handleDownloadSkill = useCallback(
-    async (id: string) => {
+    async (item: SkillCatalogItem) => {
       try {
-        const archive = await skills.exportArchive(id);
-        if (!archive) {
+        const response = await skills.content.retrieve(item.skillId);
+        if (!response.ok) {
           setFeedback(
             t("skillsPage.downloadFailed") ?? "Could not prepare the skill download."
           );
           return;
         }
 
-        downloadBlob(archive.blob, archive.filename);
+        const blob = await response.blob();
+        downloadBlob(
+          blob,
+          getFilenameFromResponse(response, `${item.name}-${item.version ?? item.defaultVersion}.zip`)
+        );
       } catch {
         setFeedback(t("skillsPage.downloadFailed") ?? "Could not prepare the skill download.");
       }
@@ -124,13 +189,77 @@ export const SkillsPage = () => {
 
   const handleDeleteSkill = useCallback(
     async (item: SkillCatalogItem) => {
-      await skills.delete(item.id);
-      const remaining = await skills.list();
-      if (!remaining.some((entry) => entry.name === item.name)) {
-        setEnabledSkillNames(enabledSkillNames.filter((name) => name !== item.name));
+      await skills.delete(item.skillId);
+      if (item.origin === "local") {
+        setEnabledSkillIds(enabledSkillIds.filter((id) => id !== item.skillId));
+      }
+
+      if (detailsSkillId === item.skillId) {
+        setDetailLocalSkill(undefined);
+        await loadSkillDetails(item.skillId);
       }
     },
-    [enabledSkillNames, setEnabledSkillNames, skills]
+    [detailsSkillId, enabledSkillIds, loadSkillDetails, setEnabledSkillIds, skills]
+  );
+
+  const handleOpenDetails = useCallback(
+    async (item: SkillCatalogItem) => {
+      setDetailsSkillId(item.skillId);
+      await loadSkillDetails(item.skillId, item);
+    },
+    [loadSkillDetails]
+  );
+
+  const handleCloseDetails = useCallback(() => {
+    setDetailsSkillId(null);
+    setDetailVersions([]);
+    setDetailLocalSkill(undefined);
+    setDetailsError(null);
+    setDownloadingVersion(null);
+  }, []);
+
+  const handleSetDefaultVersion = useCallback(
+    async (version: string) => {
+      if (!selectedSkill || selectedSkill.origin !== "local") return;
+
+      try {
+        await skills.update(selectedSkill.skillId, { default_version: version });
+        setFeedback(
+          t("skillsPage.defaultVersionUpdated", { version }) ??
+            `Default version updated to ${version}.`
+        );
+        await loadSkillDetails(selectedSkill.skillId);
+      } catch {
+        setFeedback(
+          t("skillsPage.defaultVersionUpdateFailed") ??
+            "Could not update the default skill version."
+        );
+      }
+    },
+    [loadSkillDetails, selectedSkill, skills, t]
+  );
+
+  const handleDownloadRemoteVersion = useCallback(
+    async (version: string) => {
+      if (!selectedSkill) return;
+      setDownloadingVersion(version);
+      try {
+        await skills.ensureDownloaded(selectedSkill.skillId, version);
+        setFeedback(
+          t("skillsPage.remoteVersionDownloaded", { version }) ??
+            `Downloaded skill version ${version}.`
+        );
+        await loadSkillDetails(selectedSkill.skillId);
+      } catch {
+        setFeedback(
+          t("skillsPage.remoteDownloadFailed") ??
+            "A remote skill could not be downloaded right now."
+        );
+      } finally {
+        setDownloadingVersion(null);
+      }
+    },
+    [loadSkillDetails, selectedSkill, skills, t]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -228,18 +357,22 @@ export const SkillsPage = () => {
                 <SkillCard
                   key={item.id}
                   skill={{
-                    id: item.id,
-                    name: item.name,
-                    description: item.description,
-                    fileCount: item.fileCount,
-                    origin: item.origin,
-                    downloadState: item.downloadState,
+                     id: item.skillId,
+                     name: item.name,
+                     description: item.description,
+                     icons: getRemoteSkillIcons(item),
+                     fileCount: item.fileCount,
+                     origin: item.origin,
+                     downloadState: item.downloadState,
                     version: item.version,
                     latestVersion: item.latestVersion,
                     isDownloaded: item.isDownloaded,
                   }}
+                  onView={() => {
+                    void handleOpenDetails(item);
+                  }}
                   onDownload={() => {
-                    void handleDownloadSkill(item.id);
+                    void handleDownloadSkill(item);
                   }}
                   onDelete={item.isDownloaded ? () => {
                     void handleDeleteSkill(item);
@@ -248,6 +381,21 @@ export const SkillsPage = () => {
               ))
             )}
           </div>
+
+          <SkillDetailsModal
+            open={!!detailsSkillId}
+            skill={selectedSkill}
+            versions={detailVersions}
+            localSkill={detailLocalSkill}
+            loadingVersions={detailsLoading}
+            error={detailsError}
+            downloadingVersion={downloadingVersion}
+            onClose={handleCloseDetails}
+            onSetDefaultVersion={selectedSkill?.origin === "local" ? handleSetDefaultVersion : undefined}
+            onDownloadRemoteVersion={selectedSkill?.origin === "remote"
+              ? handleDownloadRemoteVersion
+              : undefined}
+          />
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ export const llmpath: Provider = {
   name: "LLMPath",
   description: "LLMPath is the unified API gateway for AI. Access OpenAI, Google, and 200+ AI models through a single API. Intelligent routing, zero latency overhead, enterprise-grade security.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://285743.online&size=128"
+    src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxODAgMTgwJz48cmVjdCB3aWR0aD0nMTgwJyBoZWlnaHQ9JzE4MCcgcng9JzQwJyBmaWxsPScjMDUwNTA1Jy8+PHBhdGggZD0nTTQ1IDkwaDkwTTQ1IDYwaDkwTTQ1IDEyMGg2MCcgc3Ryb2tlPScjZmZmJyBzdHJva2Utd2lkdGg9JzEwJyBzdHJva2UtbGluZWNhcD0ncm91bmQnLz48L3N2Zz4="
   }],
   urls: {
     homepage: "https://285743.online",

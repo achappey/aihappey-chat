@@ -1,10 +1,10 @@
 import type {
-    ImageModelV3,
-    ImageModelV3Usage
+    ImageModelV4,
+    ImageModelV4Usage
 } from "@ai-sdk/provider"
 
-const sumUsage = (results: any[]): ImageModelV3Usage => {
-    return results.reduce<ImageModelV3Usage>(
+const sumUsage = (results: any[]): ImageModelV4Usage => {
+    return results.reduce<ImageModelV4Usage>(
         (acc, r) => {
             const u = r?.usage;
             if (!u) return acc;
@@ -33,9 +33,9 @@ export function createImageProvider(config: {
     headers?: any;
 }) {
     return {
-        imageModel(modelId: string, maxImagesPerCall?: number | undefined): ImageModelV3 {
+        imageModel(modelId: string, maxImagesPerCall?: number | undefined): ImageModelV4 {
             return {
-                specificationVersion: 'v3',
+                specificationVersion: 'v4',
                 provider: modelId.split("/")?.[0],
                 maxImagesPerCall: maxImagesPerCall,
                 modelId,

@@ -15,6 +15,8 @@ function coerceValueBySchema(schema: any, value: any) {
       return value === "" ? value : Math.trunc(Number(value));
     case "number":
       return value === "" ? value : Number(value);
+    case "array":
+      return value;
     default:
       return String(value);
   }

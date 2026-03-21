@@ -4,11 +4,13 @@ import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from 
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { useAppStore } from "aihappey-state";
 import { ModelSelect } from "../models/ModelSelect";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useAgent } from "./useAgentMcpServers";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
+import { buildOpenAISkillOptions } from "../provider-config/openai/openAISkillOptions";
+import { useSkills } from "aihappey-skills";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -24,6 +26,11 @@ export const AgentForm = ({
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState("general");
     const models = useAppStore((s) => s.models);
+    const skills = useSkills();
+    const openAISkillOptions = useMemo(
+        () => buildOpenAISkillOptions(skills.items ?? []),
+        [skills.items]
+    );
     // flatten all registry entries once
     const [showCatalog, setShowCatalog] = useState(false);
     const enrichedAgent = useAgent(agent)
@@ -254,6 +261,7 @@ export const AgentForm = ({
                     {providerKey === "openai" && (
                         <OpenAIChatConfigForm
                             config={providerMeta}
+                            openAISkillOptions={openAISkillOptions}
                             updateConfig={updateProviderMetadata}
                         />
                     )}

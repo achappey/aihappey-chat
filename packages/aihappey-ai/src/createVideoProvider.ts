@@ -1,5 +1,5 @@
 import type {
-    Experimental_VideoModelV3
+    Experimental_VideoModelV4
 } from "@ai-sdk/provider"
 
 export function createVideoProvider(config: {
@@ -7,9 +7,9 @@ export function createVideoProvider(config: {
     headers?: any;
 }) {
     return {
-        videoModel(modelId: string, maxVideosPerCall?: number | undefined): Experimental_VideoModelV3 {
+        videoModel(modelId: string, maxVideosPerCall?: number | undefined): Experimental_VideoModelV4 {
             return {
-                specificationVersion: 'v3',
+                specificationVersion: 'v4',
                 provider: modelId.split("/")?.[0],
                 modelId,
                 maxVideosPerCall: maxVideosPerCall,

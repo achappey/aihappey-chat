@@ -4,6 +4,7 @@ import { useTheme } from "../../../theme/ThemeContext";
 export type PluginToggleItem = {
   id: string;      // plugin id, e.g. "local-files"
   label: string;   // UI label
+  description?: string;
 };
 
 export type LocalToolsSettingsFormProps = {
@@ -50,14 +51,20 @@ export const LocalToolsSettingsForm = ({
         {list.map((item) => {
           const checked = enabled.includes(item.id);
           return (
-            <Switch
-              key={item.id}
-              size="small"
-              id={item.id}
-              label={item.label}
-              checked={checked}
-              onChange={() => toggle(item.id)}
-            />
+            <div key={item.id}>
+              <Switch
+                size="small"
+                id={item.id}
+                label={item.label}
+                checked={checked}
+                onChange={() => toggle(item.id)}
+              />
+              {item.description ? (
+                <div style={{ marginTop: 4, marginLeft: 8, fontSize: 12, opacity: 0.8 }}>
+                  {item.description}
+                </div>
+              ) : null}
+            </div>
           );
         })}
       </div>

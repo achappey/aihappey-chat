@@ -1,4 +1,4 @@
-import type { SharedV3Warning, ImageModelV3ProviderMetadata, ImageModelV3Usage } from "@ai-sdk/provider"
+import type { SharedV4Warning, ImageModelV4ProviderMetadata, ImageModelV4Usage } from "@ai-sdk/provider"
 
 export interface AiChatConfig {
   api?: string;
@@ -9,19 +9,19 @@ export interface AiChatConfig {
 
 export interface ImageResponse {
   images: string[] | Uint8Array<ArrayBufferLike>[];
-  warnings: Array<SharedV3Warning>;
-  providerMetadata?: ImageModelV3ProviderMetadata;
+  warnings: Array<SharedV4Warning>;
+  providerMetadata?: ImageModelV4ProviderMetadata;
   response: {
     timestamp: Date;
     modelId: string;
     headers: Record<string, string> | undefined;
   };
-  usage?: ImageModelV3Usage;
+  usage?: ImageModelV4Usage;
 }
 
 export interface VideoResponse {
   videos: VideoResponseFile[];
-  warnings: Array<SharedV3Warning>;
+  warnings: Array<SharedV4Warning>;
   providerMetadata?: Record<string, any>;
   response: {
     timestamp: Date;
@@ -45,7 +45,7 @@ export interface TranscriptionResponse {
   }>;
   language: string | undefined;
   durationInSeconds: number | undefined;
-  warnings: Array<SharedV3Warning>;
+  warnings: Array<SharedV4Warning>;
   request?: {
     body?: string;
   };
@@ -61,7 +61,7 @@ export interface RerankingResponse {
     index: number;
     relevanceScore: number;
   }>;
-  warnings: Array<SharedV3Warning>;
+  warnings: Array<SharedV4Warning>;
   response: {
     timestamp: Date;
     modelId: string;
@@ -71,7 +71,7 @@ export interface RerankingResponse {
 
 export interface SpeechResponse {
   audio: string | Uint8Array<ArrayBufferLike>;
-  warnings: Array<SharedV3Warning>;
+  warnings: Array<SharedV4Warning>;
   request?: {
     body?: unknown;
   };

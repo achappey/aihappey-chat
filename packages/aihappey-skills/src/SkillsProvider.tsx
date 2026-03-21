@@ -8,21 +8,50 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import { useAppStore } from "aihappey-state";
+import { store as appStore, useAppStore } from "aihappey-state";
 import type {
-  RemoteSkill,
+  ContentRetrieveParams,
+  DataList,
+  Skill,
+  SkillArchiveExport,
   SkillCatalogItem,
   SkillDownloadState,
   SkillImportResult,
+  SkillImportOptions,
   SkillImportSource,
-  SkillStore,
+  SkillListParams,
+  SkillUpdateParams,
+  SkillVersion,
   StoredSkill,
+  VersionListParams,
 } from "./types";
 import { IndexedDBSkillStore } from "./stores/IndexedDBSkillStore";
 
-export type SkillsContextType = SkillStore & {
+export type SkillsContextType = {
   items: SkillCatalogItem[];
   refresh: () => void;
+  list: (query?: SkillListParams) => Promise<DataList<Skill>>;
+  retrieve: (skillId: string) => Promise<Skill | undefined>;
+  update: (skillId: string, body: SkillUpdateParams) => Promise<Skill>;
+  content: {
+    retrieve: (skillId: string) => Promise<Response>;
+  };
+  versions: {
+    list: (skillId: string, query?: VersionListParams) => Promise<DataList<SkillVersion>>;
+    content: {
+      retrieve: (version: string, params: ContentRetrieveParams) => Promise<Response>;
+    };
+  };
+  read: (id: string) => Promise<StoredSkill | undefined>;
+  readByName: (name: string) => Promise<StoredSkill | undefined>;
+  exportArchive: (id: string) => Promise<SkillArchiveExport | undefined>;
+  importArchive: (
+    file: Blob,
+    source?: SkillImportSource,
+    options?: SkillImportOptions
+  ) => Promise<SkillImportResult>;
+  delete: (id: string) => Promise<void>;
+  ensureDownloaded: (skillId: string, version?: string) => Promise<StoredSkill | undefined>;
   ensureDownloadedByName: (name: string) => Promise<StoredSkill | undefined>;
 };
 
@@ -38,8 +67,53 @@ type SkillsProviderProps = {
   fetch?: typeof globalThis.fetch;
 };
 
+function paginateList<T extends { id: string }>(items: T[], after?: string, limit?: number): DataList<T> {
+  const startIndex = after ? Math.max(items.findIndex((item) => item.id === after) + 1, 0) : 0;
+  const page = items.slice(startIndex, limit ? startIndex + limit : undefined);
+
+  return {
+    object: "list",
+    has_more: startIndex + page.length < items.length,
+    first_id: page[0]?.id,
+    last_id: page[page.length - 1]?.id,
+    data: page,
+  };
+}
+
+function splitRemoteSkillId(skillId: string) {
+  const idx = String(skillId ?? "").indexOf("/");
+  if (idx === -1) {
+    return { providerId: undefined, providerSkillId: skillId };
+  }
+
+  return {
+    providerId: skillId.slice(0, idx),
+    providerSkillId: skillId.slice(idx + 1),
+  };
+}
+
+function buildRemoteSkillUrl(baseUrl: string, skillId: string, suffix = "") {
+  const { providerId, providerSkillId } = splitRemoteSkillId(skillId);
+  if (providerId) {
+    return `${baseUrl}/${encodeURIComponent(providerId)}/${encodeURIComponent(providerSkillId)}${suffix}`;
+  }
+  return `${baseUrl}/${encodeURIComponent(skillId)}${suffix}`;
+}
+
+function appendQuery<T extends object>(url: string, query?: T) {
+  if (!query) return url;
+  const search = new URLSearchParams();
+  Object.entries(query as Record<string, unknown>).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    search.set(key, String(value));
+  });
+
+  const qs = search.toString();
+  return qs ? `${url}?${qs}` : url;
+}
+
 function toRemoteCatalogItem(
-  skill: RemoteSkill,
+  skill: Skill,
   downloadState: SkillDownloadState = "remote"
 ): SkillCatalogItem {
   const createdAt = Number(skill.created_at ?? 0) * 1000;
@@ -55,7 +129,7 @@ function toRemoteCatalogItem(
     updatedAt: createdAt,
     origin: "remote",
     object: "skill",
-    version: defaultVersion,
+    version: latestVersion,
     defaultVersion,
     latestVersion,
     remoteCreatedAt: createdAt,
@@ -66,15 +140,39 @@ function toRemoteCatalogItem(
     entryPath: "",
     fileCount: 0,
     diagnostics: [],
+    versionCount: 0,
+    downloadedVersion: undefined,
   };
+}
+
+function buildMergedSkillList(localSkills: Skill[], remoteSkills: Skill[], query?: SkillListParams) {
+  const merged = new Map<string, Skill>();
+  const byRemoteName = new Map<string, Skill>();
+
+  for (const remote of remoteSkills) {
+    merged.set(remote.id, remote);
+    byRemoteName.set(remote.name, remote);
+  }
+
+  for (const local of localSkills) {
+    const remote = merged.get(local.id) ?? byRemoteName.get(local.name);
+    merged.set(local.id, remote ?? local);
+  }
+
+  const direction = query?.order === "asc" ? 1 : -1;
+  const items = Array.from(merged.values()).sort(
+    (a, b) => direction * (a.created_at - b.created_at || a.name.localeCompare(b.name))
+  );
+
+  return paginateList(items, query?.after, query?.limit);
 }
 
 function buildMergedItems(
   localItems: SkillCatalogItem[],
-  remoteItems: RemoteSkill[],
+  remoteItems: Skill[],
   downloadStates: Record<string, SkillDownloadState>
 ) {
-  const byRemoteIdentity = new Map<string, RemoteSkill>();
+  const byRemoteIdentity = new Map<string, Skill>();
   for (const item of remoteItems) {
     byRemoteIdentity.set(item.id, item);
     byRemoteIdentity.set(item.name, item);
@@ -91,11 +189,13 @@ function buildMergedItems(
     const remote = byRemoteIdentity.get(local.skillId) ?? byRemoteIdentity.get(local.name);
     const localWithRemote: SkillCatalogItem = {
       ...local,
+      origin: remote ? "remote" : local.origin,
       defaultVersion: remote?.default_version ?? local.defaultVersion,
       latestVersion: remote?.latest_version ?? local.latestVersion,
       remoteCreatedAt: remote ? remote.created_at * 1000 : local.remoteCreatedAt,
       downloadState: downloadStates[local.skillId] ?? "downloaded",
       isDownloaded: true,
+      version: local.downloadedVersion ?? local.version,
     };
     merged.set(localWithRemote.skillId || localWithRemote.name, localWithRemote);
   }
@@ -111,10 +211,15 @@ export const SkillsProvider = ({
   fetch: customFetch,
 }: SkillsProviderProps) => {
   useAppStore((s) => s.conversationStorage);
+  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
+  const legacyEnabledSkillNames = useAppStore(
+    (s) => ((s as any).__legacyEnabledSkillNames as string[] | undefined) ?? []
+  );
 
-  const store = useMemo<SkillStore>(() => indexedDbSkillStore, []);
+  const store = useMemo(() => indexedDbSkillStore, []);
   const [localItems, setLocalItems] = useState<SkillCatalogItem[]>([]);
-  const [remoteItems, setRemoteItems] = useState<RemoteSkill[]>([]);
+  const [remoteItems, setRemoteItems] = useState<Skill[]>([]);
   const [downloadStates, setDownloadStates] = useState<Record<string, SkillDownloadState>>({});
   const inflightDownloads = useRef(new Map<string, Promise<StoredSkill | undefined>>());
 
@@ -129,7 +234,7 @@ export const SkillsProvider = ({
     return nextHeaders;
   }, [getAccessToken, headers]);
 
-  const loadRemoteItems = useCallback(async (): Promise<RemoteSkill[]> => {
+  const loadRemoteItems = useCallback(async (): Promise<Skill[]> => {
     if (!skillsApi) return [];
     const response = await (customFetch ?? fetch)(skillsApi, {
       headers: await createRequestHeaders(),
@@ -139,12 +244,43 @@ export const SkillsProvider = ({
       throw new Error(`Failed to load remote skills: ${response.status}`);
     }
 
-    const payload = (await response.json()) as { data?: RemoteSkill[] };
+    const payload = (await response.json()) as DataList<Skill>;
     return Array.isArray(payload?.data) ? payload.data : [];
   }, [createRequestHeaders, customFetch, skillsApi]);
 
+  const loadRemoteSkillVersions = useCallback(
+    async (skillId: string, query?: VersionListParams): Promise<DataList<SkillVersion>> => {
+      if (!skillsApi) {
+        return {
+          object: "list",
+          has_more: false,
+          first_id: undefined,
+          last_id: undefined,
+          data: [],
+        };
+      }
+
+      const response = await (customFetch ?? fetch)(
+        appendQuery(
+          buildRemoteSkillUrl(skillsApi, skillId, "/versions"),
+          query
+        ),
+        {
+          headers: await createRequestHeaders(),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to load remote skill versions for ${skillId}: ${response.status}`);
+      }
+
+      return (await response.json()) as DataList<SkillVersion>;
+    },
+    [createRequestHeaders, customFetch, skillsApi]
+  );
+
   const refreshAsync = useCallback(async () => {
-    const nextLocalItems = await store.list();
+    const nextLocalItems = await store.listCatalogItems();
     setLocalItems(nextLocalItems);
 
     try {
@@ -163,106 +299,225 @@ export const SkillsProvider = ({
     void refreshAsync();
   }, [refreshAsync]);
 
-  const ensureDownloadedByName = useCallback(
-    async (name: string): Promise<StoredSkill | undefined> => {
-      const existing = await store.readByName(name);
+  const ensureDownloaded = useCallback(
+    async (skillId: string, version?: string): Promise<StoredSkill | undefined> => {
+      const existing = version ? await store.readVersion(skillId, version) : await store.read(skillId);
       if (existing) return existing;
 
-      const remote = remoteItems.find((item) => item.name === name || item.id === name);
+      const remote = remoteItems.find((item) => item.id === skillId || item.name === skillId);
       if (!remote || !skillsApi) return undefined;
 
-      const pending = inflightDownloads.current.get(remote.id);
+      const targetVersion = String(version ?? remote.latest_version ?? remote.default_version ?? "1");
+      const pendingKey = `${remote.id}@${targetVersion}`;
+      const pending = inflightDownloads.current.get(pendingKey);
       if (pending) return pending;
 
       const task = (async () => {
         setDownloadStates((prev) => ({ ...prev, [remote.id]: "downloading" }));
         try {
           const response = await (customFetch ?? fetch)(
-            `${skillsApi}/${encodeURIComponent(remote.id)}/content`,
+            buildRemoteSkillUrl(
+              skillsApi,
+              remote.id,
+              `/versions/${encodeURIComponent(targetVersion)}/content`
+            ),
             {
               headers: await createRequestHeaders(),
             }
           );
 
           if (!response.ok) {
-            throw new Error(`Failed to download skill ${remote.name}: ${response.status}`);
+            throw new Error(
+              `Failed to download skill ${remote.name} version ${targetVersion}: ${response.status}`
+            );
           }
 
           const blob = await response.blob();
-          await store.importArchive(blob, "remote-archive");
-          const nextLocalItems = await store.list();
-          setLocalItems(nextLocalItems);
+          await store.importArchive(blob, "remote-archive", {
+            skillId: remote.id,
+            version: targetVersion,
+            defaultVersion: targetVersion,
+            latestVersion: targetVersion,
+          });
+          await store.pruneVersions(remote.id, targetVersion);
+          setLocalItems(await store.listCatalogItems());
           setDownloadStates((prev) => ({ ...prev, [remote.id]: "downloaded" }));
-          return await store.readByName(remote.name);
+          return await store.readVersion(remote.id, targetVersion);
         } catch (error) {
           setDownloadStates((prev) => ({ ...prev, [remote.id]: "error" }));
           throw error;
         } finally {
-          inflightDownloads.current.delete(remote.id);
+          inflightDownloads.current.delete(pendingKey);
         }
       })();
 
-      inflightDownloads.current.set(remote.id, task);
+      inflightDownloads.current.set(pendingKey, task);
       return task;
     },
     [createRequestHeaders, customFetch, remoteItems, skillsApi, store]
+  );
+
+  const ensureDownloadedByName = useCallback(
+    async (name: string): Promise<StoredSkill | undefined> => {
+      const existing = await store.readByName(name);
+      if (existing) return existing;
+
+      const remote = remoteItems.find((item) => item.name === name || item.id === name);
+      if (!remote) return undefined;
+      return ensureDownloaded(remote.id, remote.latest_version ?? remote.default_version);
+    },
+    [ensureDownloaded, remoteItems, store]
   );
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const ctxValue = useMemo(() => {
-    const ctx = Object.assign(
-      Object.create(Object.getPrototypeOf(store)),
-      store,
-      { items: mergedItems, refresh, ensureDownloadedByName }
-    ) as SkillsContextType;
+  useEffect(() => {
+    const legacyNames = Array.isArray(legacyEnabledSkillNames)
+      ? legacyEnabledSkillNames.filter(Boolean)
+      : [];
+    if (legacyNames.length === 0) return;
+    if (mergedItems.length === 0) return;
 
-    ctx.list = async () => mergedItems;
+    const byName = new Map<string, string[]>();
+    for (const item of mergedItems) {
+      const current = byName.get(item.name) ?? [];
+      byName.set(item.name, [...current, item.skillId]);
+    }
 
-    ctx.read = async (id: string) => {
-      const local = await store.read(id);
-      if (local) return local;
-      const item = mergedItems.find((entry) => entry.id === id || entry.skillId === id);
-      if (!item) return undefined;
-      return ensureDownloadedByName(item.name);
-    };
+    const migratedSkillIds = legacyNames.flatMap((name) => byName.get(name) ?? []);
+    const unresolvedNames = legacyNames.filter((name) => !byName.has(name));
 
-    ctx.readByName = async (name: string) => {
+    if (migratedSkillIds.length > 0) {
+      setEnabledSkillIds(Array.from(new Set([...(enabledSkillIds ?? []), ...migratedSkillIds])));
+    }
+
+    appStore.setState({
+      __legacyEnabledSkillNames: unresolvedNames,
+    } as any);
+  }, [enabledSkillIds, legacyEnabledSkillNames, mergedItems, setEnabledSkillIds]);
+
+  const ctxValue = useMemo<SkillsContextType>(() => ({
+    items: mergedItems,
+    refresh,
+    list: async (query?: SkillListParams) => {
+      const local = await store.listSkills({ order: query?.order });
+      return buildMergedSkillList(local.data, remoteItems, query);
+    },
+    retrieve: async (skillId: string) => {
+      const remote = remoteItems.find((item) => item.id === skillId || item.name === skillId);
+      if (remote) return remote;
+      return store.retrieveSkill(skillId);
+    },
+    update: async (skillId: string, body: SkillUpdateParams) => {
+      if (remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+        throw new Error("Remote skills are read-only.");
+      }
+
+      const updated = await store.updateSkill(skillId, body);
+      setLocalItems(await store.listCatalogItems());
+      return updated;
+    },
+    content: {
+      retrieve: async (skillId: string) => {
+        const localArchive = await store.exportArchive(skillId);
+        if (localArchive) {
+          return new Response(localArchive.blob, {
+            headers: {
+              "Content-Type": "application/zip",
+              "Content-Disposition": `attachment; filename=\"${localArchive.filename}\"`,
+            },
+          });
+        }
+
+        if (skillsApi && remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+          return (customFetch ?? fetch)(buildRemoteSkillUrl(skillsApi, skillId, "/content"), {
+            headers: await createRequestHeaders(),
+          });
+        }
+
+        throw new Error(`Skill ${skillId} could not be retrieved.`);
+      },
+    },
+    versions: {
+      list: async (skillId: string, query?: VersionListParams) => {
+        if (skillsApi && remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+          try {
+            return await loadRemoteSkillVersions(skillId, query);
+          } catch {
+            // Fall back to local-only versions when the remote endpoint is unavailable.
+          }
+        }
+
+        return store.listSkillVersions(skillId, query);
+      },
+      content: {
+        retrieve: async (version: string, params: ContentRetrieveParams) => {
+          const localArchive = await store.exportVersionArchive(params.skill_id, version);
+          if (localArchive) {
+            return new Response(localArchive.blob, {
+              headers: {
+                "Content-Type": "application/zip",
+                "Content-Disposition": `attachment; filename=\"${localArchive.filename}\"`,
+              },
+            });
+          }
+
+          if (
+            skillsApi &&
+            remoteItems.some((item) => item.id === params.skill_id || item.name === params.skill_id)
+          ) {
+            return (customFetch ?? fetch)(
+              buildRemoteSkillUrl(
+                skillsApi,
+                params.skill_id,
+                `/versions/${encodeURIComponent(version)}/content`
+              ),
+              {
+                headers: await createRequestHeaders(),
+              }
+            );
+          }
+
+          throw new Error(`Skill ${params.skill_id} version ${version} could not be retrieved.`);
+        },
+      },
+    },
+    read: async (id: string) => store.read(id),
+    readByName: async (name: string) => {
       const local = await store.readByName(name);
       if (local) return local;
       return ensureDownloadedByName(name);
-    };
-
-    ctx.exportArchive = async (id: string) => {
-      const direct = await store.exportArchive(id);
-      if (direct) return direct;
-
-      const item = mergedItems.find((entry) => entry.id === id || entry.skillId === id);
-      if (!item) return undefined;
-
-      const stored = await ensureDownloadedByName(item.name);
-      if (!stored) return undefined;
-      return store.exportArchive(stored.id);
-    };
-
-    ctx.importArchive = async (
+    },
+    exportArchive: async (id: string) => store.exportArchive(id),
+    importArchive: async (
       file: Blob,
-      source?: SkillImportSource
+      source?: SkillImportSource,
+      options?: SkillImportOptions
     ): Promise<SkillImportResult> => {
-      const result = await store.importArchive(file, source);
-      setLocalItems(await store.list());
+      const result = await store.importArchive(file, source, options);
+      setLocalItems(await store.listCatalogItems());
       return result;
-    };
-
-    ctx.delete = async (id: string) => {
+    },
+    delete: async (id: string) => {
       await store.delete(id);
-      setLocalItems(await store.list());
-    };
-
-    return ctx;
-  }, [ensureDownloadedByName, mergedItems, refresh, store]);
+      setLocalItems(await store.listCatalogItems());
+    },
+    ensureDownloaded,
+    ensureDownloadedByName,
+  }), [
+    createRequestHeaders,
+    customFetch,
+    ensureDownloaded,
+    ensureDownloadedByName,
+    loadRemoteSkillVersions,
+    mergedItems,
+    refresh,
+    remoteItems,
+    skillsApi,
+    store,
+  ]);
 
   return <SkillsContext.Provider value={ctxValue}>{children}</SkillsContext.Provider>;
 };

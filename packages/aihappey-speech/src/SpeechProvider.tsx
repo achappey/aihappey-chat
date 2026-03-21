@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import type { SpeechModelV3CallOptions, SpeechResponse } from "aihappey-ai";
+import type { SpeechModelV4CallOptions, SpeechResponse } from "aihappey-ai";
 import { useAppStore } from "aihappey-state";
 import type { SpeechItem, SpeechStore, SpeechStorageKind } from "./types";
 import { IndexedDBSpeechStore } from "./stores/IndexedDBSpeechStore";
@@ -63,7 +63,7 @@ export const SpeechProvider = ({
       { items, refresh }
     ) as SpeechContextType;
 
-    ctx.add = async (input: SpeechModelV3CallOptions, speechResponse: SpeechResponse) => {
+    ctx.add = async (input: SpeechModelV4CallOptions, speechResponse: SpeechResponse) => {
       const created = await store.add(input, speechResponse);
       setItems((prev) => [created, ...prev]);
       return created;

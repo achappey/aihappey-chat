@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { SharedV3Warning } from "aihappey-ai";
+import type { SharedV4Warning } from "aihappey-ai";
 
 export type SpeechError = {
   id: string;
@@ -9,10 +9,10 @@ export type SpeechError = {
 export type SpeechWarning = {
   id: string;
   message: string;
-  raw: SharedV3Warning;
+  raw: SharedV4Warning;
 };
 
-const formatWarning = (w: SharedV3Warning) => {
+const formatWarning = (w: SharedV4Warning) => {
   if (w.type === "other") return w.message;
 
   const prefix = w.type === "unsupported" ? "Unsupported" : "Compatibility";
@@ -32,7 +32,7 @@ export function useSpeechErrors() {
     setErrors((prev) => prev.filter((e) => e.id !== id));
   }, []);
 
-  const addWarnings = useCallback((ws: SharedV3Warning[] | undefined | null) => {
+  const addWarnings = useCallback((ws: SharedV4Warning[] | undefined | null) => {
     if (!ws?.length) return;
 
     setWarnings((prev) => [

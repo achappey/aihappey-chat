@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { createTranscriptionProvider } from "aihappey-ai";
-import type { SharedV3Warning } from "aihappey-ai";
+import type { SharedV4Warning } from "aihappey-ai";
 import { useTranscriptions } from "aihappey-transcriptions";
 import { ErrorAlerts, TranscriptionCard, useTheme, WarningAlerts } from "aihappey-components";
 import { TranscriptionInput } from "./TranscriptionInput";
@@ -209,13 +209,13 @@ export const TranscriptionsPage = () => {
 
       // If backend error includes warnings, surface them too
       const anyErr: any = err;
-      const extraWarnings = anyErr?.warnings as SharedV3Warning[] | undefined;
+      const extraWarnings = anyErr?.warnings as SharedV4Warning[] | undefined;
       if (extraWarnings?.length) {
         addSharedWarnings(extraWarnings);
       }
 
       // Some providers include warnings nested in response metadata
-      const nested = anyErr?.response?.warnings as SharedV3Warning[] | undefined;
+      const nested = anyErr?.response?.warnings as SharedV4Warning[] | undefined;
       if (nested?.length) {
         addSharedWarnings(nested);
       }

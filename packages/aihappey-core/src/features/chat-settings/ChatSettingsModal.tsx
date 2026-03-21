@@ -16,6 +16,7 @@ import {
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
+import { buildOpenAISkillOptions } from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
 
 export interface ProviderSettingsModalProps {
@@ -44,24 +45,33 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? [])
-  const enabledSkillNames = useAppStore((s) => s.enabledSkillNames);
-  const setEnabledSkillNames = useAppStore((s) => s.setEnabledSkillNames);
+  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const skills = useSkills();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const skillItems = useMemo(
-    () => skills.items.map((item) => ({ id: item.name, label: item.name })),
+    () => skills.items.map((item) => {
+      return {
+        id: item.skillId,
+        label: `${item.name} (v${item.version})`,
+      };
+    }),
+    [skills.items]
+  );
+  const openAISkillOptions = useMemo(
+    () => buildOpenAISkillOptions(skills.items ?? []),
     [skills.items]
   );
 
   const handleSkillSelectionChange = async (next: string[]) => {
-    setEnabledSkillNames(next);
+    setEnabledSkillIds(next);
     setSkillFeedback(null);
 
-    const added = next.filter((name) => !enabledSkillNames.includes(name));
+    const added = next.filter((skillId) => !enabledSkillIds.includes(skillId));
     if (added.length === 0) return;
 
     const results = await Promise.allSettled(
-      added.map((name) => skills.ensureDownloadedByName(name))
+      added.map((skillId) => skills.ensureDownloaded(skillId))
     );
 
     const failed = results.filter((result) => result.status === "rejected").length;
@@ -108,7 +118,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         <theme.Tab eventKey="skills" title={t("skills") ?? "Skills"}>
           <LocalToolsSettingsForm
             formTitle={t("skills") ?? "Skills"}
-            value={enabledSkillNames}
+            value={enabledSkillIds}
             onChange={(next) => {
               void handleSkillSelectionChange(next);
             }}
@@ -181,6 +191,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
           <theme.Tab eventKey="openai" title="OpenAI">
             <OpenAIChatConfigForm
               config={providerMetadata.openai ?? {}}
+              openAISkillOptions={openAISkillOptions}
               updateConfig={(openai) =>
                 setProviderMetadata({ ...providerMetadata, openai })}
             />

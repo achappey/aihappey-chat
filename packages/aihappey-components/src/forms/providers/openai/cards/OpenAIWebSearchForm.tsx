@@ -2,7 +2,6 @@ import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 const DEFAULT_WEB_SEARCH = {
-  search_context_size: "medium",
   user_location: {
     country: "",
     region: "",
@@ -11,9 +10,6 @@ const DEFAULT_WEB_SEARCH = {
     type: "approximate",
   },
 };
-
-const CONTEXT_SIZES = ["low", "medium", "high"] as const;
-type ContextSize = (typeof CONTEXT_SIZES)[number];
 
 export const OpenAIWebSearchForm = ({
   config,
@@ -26,12 +22,6 @@ export const OpenAIWebSearchForm = ({
   const { t } = useTranslation();
 
   const webSearchOn = !!config?.web_search;
-
-  const sizeToIndex = (s?: ContextSize) =>
-    Math.max(0, CONTEXT_SIZES.indexOf((s ?? "medium") as ContextSize));
-
-  const indexToSize = (i: number): ContextSize =>
-    CONTEXT_SIZES[Math.min(CONTEXT_SIZES.length - 1, Math.max(0, i))];
 
   const toggleInclude = (key: string, enabled: boolean) => {
     const current = Array.isArray(config?.include) ? config.include : [];
@@ -63,30 +53,6 @@ export const OpenAIWebSearchForm = ({
       }
     >
       <div>
-        <theme.Slider
-          label={`${t("searchContextSize")} (${t(
-            config?.web_search?.search_context_size ?? "medium",
-            config?.web_search?.search_context_size ?? "medium"
-          )})`}
-          disabled={!webSearchOn}
-          min={0}
-          max={CONTEXT_SIZES.length - 1}
-          step={1}
-          value={sizeToIndex(config?.web_search?.search_context_size as ContextSize)}
-          onChange={(i: number) =>
-            updateConfig({
-              ...config,
-              web_search: {
-                ...(config.web_search ?? {}),
-                search_context_size: indexToSize(i),
-                user_location:
-                  config.web_search?.user_location ??
-                  { ...DEFAULT_WEB_SEARCH.user_location },
-              },
-            })
-          }
-        />
-
         <div style={{ display: "flex", gap: 12 }}>
           <theme.Input
             label={t("country")}

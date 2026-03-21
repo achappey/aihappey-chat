@@ -1,5 +1,5 @@
 import type {
-    RerankingModelV3
+    RerankingModelV4
 } from "@ai-sdk/provider"
 
 export function createRerankProvider(config: {
@@ -7,9 +7,9 @@ export function createRerankProvider(config: {
     headers?: any;
 }) {
     return {
-        rerankingModel(modelId: string): RerankingModelV3 {
+        rerankingModel(modelId: string): RerankingModelV4 {
             return {
-                specificationVersion: 'v3',
+                specificationVersion: 'v4',
                 provider: modelId.split("/")?.[0],
                 modelId,
 

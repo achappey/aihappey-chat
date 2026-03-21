@@ -11,9 +11,9 @@ export type {
 } from "ai";
 
 export type {
-        ImageModelV3, SharedV3Warning, RerankingModelV3, RerankingModelV3CallOptions,
-        TranscriptionModelV3, SpeechModelV3CallOptions,
-        ImageModelV3CallOptions
+        ImageModelV4, SharedV4Warning, RerankingModelV4, RerankingModelV4CallOptions,
+        TranscriptionModelV4, SpeechModelV4CallOptions,
+        ImageModelV4CallOptions
 } from "@ai-sdk/provider"
 
 export * from './types'

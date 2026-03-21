@@ -1,5 +1,5 @@
 import type {
-    TranscriptionModelV3
+    TranscriptionModelV4
 } from "@ai-sdk/provider"
 
 export function createTranscriptionProvider(config: {
@@ -7,9 +7,9 @@ export function createTranscriptionProvider(config: {
     headers?: any;
 }) {
     return {
-        transcriptionModel(modelId: string): TranscriptionModelV3 {
+        transcriptionModel(modelId: string): TranscriptionModelV4 {
             return {
-                specificationVersion: 'v3',
+                specificationVersion: 'v4',
                 provider: modelId.split("/")?.[0],
                 modelId,
 
