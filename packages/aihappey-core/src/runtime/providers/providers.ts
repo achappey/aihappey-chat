@@ -417,6 +417,15 @@ import { morph } from "./catalog/morph";
 import { baidu } from "./catalog/baidu";
 import { streamlake } from "./catalog/streamlake";
 import { akashml } from "./catalog/akashml";
+import { embyai } from "./catalog/embyai";
+import { cortex } from "./catalog/cortex";
+import { perceptron } from "./catalog/perceptron";
+import { mulerun } from "./catalog/mulerun";
+import { sudorouter } from "./catalog/sudorouter";
+import { clauddy } from "./catalog/clauddy";
+import { selinaai } from "./catalog/selinaai";
+import { lmrouter } from "./catalog/lmrouter";
+import { openpipe } from "./catalog/openpipe";
 
 /**
  * UI-facing provider catalog.
@@ -426,8 +435,17 @@ import { akashml } from "./catalog/akashml";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
+  openpipe,
   agabeyogluai,
+  embyai,
+  lmrouter,
+  selinaai,
+  clauddy,
+  sudorouter,
+  mulerun,
   baidu,
+  perceptron,
+  cortex,
   akashml,
   morph,
   streamlake,
