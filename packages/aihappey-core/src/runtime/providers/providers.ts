@@ -426,6 +426,10 @@ import { clauddy } from "./catalog/clauddy";
 import { selinaai } from "./catalog/selinaai";
 import { lmrouter } from "./catalog/lmrouter";
 import { openpipe } from "./catalog/openpipe";
+import { nonkycai } from "./catalog/nonkycai";
+import { clawplaza } from "./catalog/clawplaza";
+import { tokonlab } from "./catalog/tokonlab";
+import { modelbridge } from "./catalog/modelbridge";
 
 /**
  * UI-facing provider catalog.
@@ -435,8 +439,12 @@ import { openpipe } from "./catalog/openpipe";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
+  clawplaza,
+  tokonlab,
+  modelbridge,
   openpipe,
   agabeyogluai,
+  nonkycai,
   embyai,
   lmrouter,
   selinaai,
