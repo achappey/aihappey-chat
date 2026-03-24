@@ -21,6 +21,15 @@ const fail = (err: unknown): ToolTextResult => ({
 
 const normalizeText = (value: unknown) => String(value ?? "").trim().toLowerCase();
 
+const INFERENCE_REGION_OPTIONS = [
+  "World",
+  "Europe",
+  "Americas",
+  "Asia",
+  "Africa",
+  "Oceania",
+] as const;
+
 const parseLimit = (value: unknown): number | undefined => {
   if (value == null) return undefined;
   const n = Number(value);
@@ -40,6 +49,17 @@ export const localAiProvidersListTool: Tool = {
   inputSchema: {
     type: "object",
     properties: {
+      country: {
+        type: "string",
+        description:
+          "Optional provider country filter (exact ISO country code match, case-insensitive), e.g. NL.",
+      },
+      inferenceRegion: {
+        type: "string",
+        enum: [...INFERENCE_REGION_OPTIONS],
+        description:
+          "Optional inference region filter (exact token match, case-insensitive). Allowed values: World, Europe, Americas, Asia, Africa, Oceania.",
+      },
       limit: {
         type: "integer",
         description: "Optional max number of providers to return.",
@@ -65,6 +85,17 @@ export const localAiProvidersSearchTool: Tool = {
       query: {
         type: "string",
         description: "Search text matched case-insensitively against provider key and name.",
+      },
+      country: {
+        type: "string",
+        description:
+          "Optional provider country filter (exact ISO country code match, case-insensitive), e.g. NL.",
+      },
+      inferenceRegion: {
+        type: "string",
+        enum: [...INFERENCE_REGION_OPTIONS],
+        description:
+          "Optional inference region filter (exact token match, case-insensitive). Allowed values: World, Europe, Americas, Asia, Africa, Oceania.",
       },
       limit: {
         type: "integer",
@@ -202,6 +233,36 @@ const listProviderViews = (): ProviderView[] => {
     });
 };
 
+const filterProviderViews = (
+  providers: ProviderView[],
+  {
+    countryInput,
+    inferenceRegionInput,
+  }: {
+    countryInput?: unknown;
+    inferenceRegionInput?: unknown;
+  }
+) => {
+  const countryNeedle = normalizeText(countryInput);
+  const inferenceRegionNeedle = normalizeText(inferenceRegionInput);
+
+  return providers.filter(provider => {
+    if (countryNeedle) {
+      const providerCountry = normalizeText(provider.providerCountry);
+      if (providerCountry !== countryNeedle) return false;
+    }
+
+    if (inferenceRegionNeedle) {
+      const matchesRegion = (provider.inferenceRegions ?? []).some(
+        region => normalizeText(region) === inferenceRegionNeedle
+      );
+      if (!matchesRegion) return false;
+    }
+
+    return true;
+  });
+};
+
 const findProviderKeys = (providerQuery: unknown, providers: ProviderView[]) => {
   const q = normalizeText(providerQuery);
   if (!q) return [] as string[];
@@ -266,9 +327,13 @@ export function useLocalArtificialIntelligenceRuntime() {
 
         switch (toolCall.toolName) {
           case "local_ai_providers_list": {
+            const filtered = filterProviderViews(providers, {
+              countryInput: input.country,
+              inferenceRegionInput: input.inferenceRegion,
+            });
             const limit = parseLimit(input.limit);
-            const items = applyLimit(providers, limit);
-            return ok(JSON.stringify({ total: providers.length, count: items.length, items }));
+            const items = applyLimit(filtered, limit);
+            return ok(JSON.stringify({ total: filtered.length, count: items.length, items }));
           }
 
           case "local_ai_providers_search": {
@@ -276,9 +341,13 @@ export function useLocalArtificialIntelligenceRuntime() {
             if (!query) throw new Error("Missing query.");
 
             const limit = parseLimit(input.limit);
-            const filtered = providers.filter(
+            const queryFiltered = providers.filter(
               p => normalizeText(p.key).includes(query) || normalizeText(p.name).includes(query)
             );
+            const filtered = filterProviderViews(queryFiltered, {
+              countryInput: input.country,
+              inferenceRegionInput: input.inferenceRegion,
+            });
             const items = applyLimit(filtered, limit);
             return ok(JSON.stringify({ total: filtered.length, count: items.length, items }));
           }
