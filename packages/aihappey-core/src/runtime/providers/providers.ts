@@ -430,6 +430,10 @@ import { nonkycai } from "./catalog/nonkycai";
 import { clawplaza } from "./catalog/clawplaza";
 import { tokonlab } from "./catalog/tokonlab";
 import { modelbridge } from "./catalog/modelbridge";
+import { simplellm } from "./catalog/simplellm";
+import { privatemode } from "./catalog/privatemode";
+import { tensorix } from "./catalog/tensorix";
+import { schatziai } from "./catalog/schatziai";
 
 /**
  * UI-facing provider catalog.
@@ -441,10 +445,14 @@ export const PROVIDERS: Record<string, Provider> = {
   runway,
   clawplaza,
   tokonlab,
+  schatziai,
+  privatemode,
+  simplellm,
   modelbridge,
   openpipe,
   agabeyogluai,
   nonkycai,
+  tensorix,
   embyai,
   lmrouter,
   selinaai,

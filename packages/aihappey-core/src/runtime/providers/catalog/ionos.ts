@@ -16,7 +16,7 @@ export const ionos: Provider = {
     termsOfService: "https://www.ionos.com/terms-gtc"
   },
   providerCountry: "DE",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["Europe"]
 
 };
 

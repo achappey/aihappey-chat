@@ -13,6 +13,6 @@ export const euqai: Provider = {
     termsOfService: "https://euqai.eu/static/terms"
   },
   providerCountry: "NL",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["Europe"]
 };
 
