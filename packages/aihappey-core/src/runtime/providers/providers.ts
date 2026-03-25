@@ -90,7 +90,6 @@ import { cortecs } from "./catalog/cortecs";
 import { inworld } from "./catalog/inworld";
 import { eurouter } from "./catalog/eurouter";
 import { requesty } from "./catalog/requesty";
-import { sudo } from "./catalog/sudo";
 import { portkey } from "./catalog/portkey";
 import { deepl } from "./catalog/deepl";
 import { cometapi } from "./catalog/cometapi";
@@ -220,7 +219,6 @@ import { gptproto } from "./catalog/gptproto";
 import { neosantara } from "./catalog/neosantara";
 import { redpill } from "./catalog/redpill";
 import { blazerail } from "./catalog/blazerail";
-import { mangaba } from "./catalog/mangaba";
 import { aether } from "./catalog/aether";
 import { regraph } from "./catalog/regraph";
 import { electronhub } from "./catalog/electronhub";
@@ -381,7 +379,6 @@ import { ofoxai } from "./catalog/ofoxai";
 import { dedaluslabs } from "./catalog/dedaluslabs";
 import { world3 } from "./catalog/world3";
 import { voidai } from "./catalog/voidai";
-import { vibecodecheap } from "./catalog/vibecodecheap";
 import { modelmax } from "./catalog/modelmax";
 import { yollomi } from "./catalog/yollomi";
 import { infercom } from "./catalog/infercom";
@@ -434,6 +431,8 @@ import { simplellm } from "./catalog/simplellm";
 import { privatemode } from "./catalog/privatemode";
 import { tensorix } from "./catalog/tensorix";
 import { schatziai } from "./catalog/schatziai";
+import { nodebyt } from "./catalog/nodebyt";
+import { gptsapi } from "./catalog/gptsapi";
 
 /**
  * UI-facing provider catalog.
@@ -448,6 +447,7 @@ export const PROVIDERS: Record<string, Provider> = {
   schatziai,
   privatemode,
   simplellm,
+  gptsapi,
   modelbridge,
   openpipe,
   agabeyogluai,
@@ -790,7 +790,6 @@ export const PROVIDERS: Record<string, Provider> = {
   inceptionlabs,
   aionlabs,
   blazerail,
-  mangaba,
   databricks,
   straico,
   blackforestlabs,
@@ -815,7 +814,6 @@ export const PROVIDERS: Record<string, Provider> = {
   wai,
   opencode,
   chaingpt,
-  vibecodecheap,
   azerion,
   modelmax,
   gptproto,
@@ -826,10 +824,10 @@ export const PROVIDERS: Record<string, Provider> = {
   minimax,
   tetrate,
   sarvam,
-  sudo,
   deepgram,
   speechactors,
   zyphra,
+  nodebyt,
   pinecone,
   voyageai,
   friendli,
