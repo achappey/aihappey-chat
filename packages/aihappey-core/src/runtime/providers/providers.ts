@@ -438,10 +438,22 @@ import { embercloud } from "./catalog/embercloud";
 import { fortytwo } from "./catalog/fortytwo";
 import { oraicle } from "./catalog/oraicle";
 import { foureverland } from "./catalog/foureverland";
-import { distributedai } from "./catalog/distributedai";
+import { distributeai } from "./catalog/distributeai";
 import { wesenai } from "./catalog/wesenai";
 import { key4u } from "./catalog/key4u";
 import { fivedock } from "./catalog/fivedock";
+import { magisterium } from "./catalog/magisterium";
+import { lacesse } from "./catalog/lacesse";
+import { uncensoredchat } from "./catalog/uncensoredchat";
+import { orbgpu } from "./catalog/orbgpu";
+import { opengateway } from "./catalog/opengateway";
+import { applingo } from "./catalog/applingo";
+import { omniakey } from "./catalog/omniakey";
+import { nebulablock } from "./catalog/nebulablock";
+import { mumeai } from "./catalog/mumeai";
+import { nouswise } from "./catalog/nouswise";
+import { shengsuanyun } from "./catalog/shengsuanyun";
+import { opensourceaihub } from "./catalog/opensourceaihub";
 
 /**
  * UI-facing provider catalog.
@@ -451,10 +463,19 @@ import { fivedock } from "./catalog/fivedock";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
+  mumeai,
+  nebulablock,
   clawplaza,
-  distributedai,
+  shengsuanyun,
+  opensourceaihub,
+  omniakey,
+  nouswise,
+  distributeai,
+  orbgpu,
   embercloud,
   key4u,
+  opengateway,
+  applingo,
   tokonlab,
   foureverland,
   fivedock,
@@ -467,11 +488,14 @@ export const PROVIDERS: Record<string, Provider> = {
   gptsapi,
   modelbridge,
   openpipe,
+  magisterium,
   agabeyogluai,
   nonkycai,
   tensorix,
   embyai,
   lmrouter,
+  lacesse,
+  uncensoredchat,
   selinaai,
   clauddy,
   sudorouter,

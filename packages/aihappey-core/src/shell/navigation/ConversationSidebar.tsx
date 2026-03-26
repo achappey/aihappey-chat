@@ -122,7 +122,6 @@ export const ConversationSidebar = ({
     {
       key: "skills",
       label: t("skills"),
-      new: true,
       href: "/skills",
       icon: "skills",
     },

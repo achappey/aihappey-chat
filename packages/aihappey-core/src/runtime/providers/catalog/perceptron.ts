@@ -9,7 +9,6 @@ export const perceptron: Provider = {
   urls: {
     homepage: "https://www.perceptron.inc",
     docs: "https://docs.perceptron.inc",
-    pricing: "https://wisdom-gate.juheapi.com/pricing",
     privacyPolicy: "https://www.perceptron.inc/privacy-policy",
     termsOfService: "https://www.perceptron.inc/terms-of-use"
   },
