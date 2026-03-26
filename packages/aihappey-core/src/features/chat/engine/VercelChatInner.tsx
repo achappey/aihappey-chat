@@ -143,12 +143,29 @@ export function VercelChatInner({
       .filter(([key]) => model && key.toLocaleLowerCase().indexOf(model.split("/")[0]) > -1)
   );
 
+  const getAgentApiKeyHeaders = useCallback((agents: any[] | undefined) => {
+    const providerKeys = Array.from(
+      new Set(
+        (agents ?? [])
+          .map((agent: any) => String(agent?.model?.id ?? "").split("/")[0]?.toLowerCase())
+          .filter(Boolean)
+      )
+    );
+
+    return Object.fromEntries(
+      Object.entries(customHeaders)
+        .filter(([key]) => providerKeys.some((providerKey) => key.toLocaleLowerCase().includes(providerKey)))
+    );
+  }, [customHeaders]);
+
+  const authFetchCustomHeaders = chatMode === "agent" ? undefined : apiKeyHeaders;
+
   const authFetch = useAuthFetch({
     chatMode,
     getAccessToken,
     refreshToken,
     headers,
-    customHeaders: apiKeyHeaders,
+    customHeaders: authFetchCustomHeaders,
     customFetch,
   });
 
@@ -317,6 +334,7 @@ export function VercelChatInner({
         fetch: authFetch,
         prepareSendMessagesRequest: (opts) => {
           const patchedMessages = applyOverrides(opts.messages as any);
+
           const mergedBody: any = {
             ...baseBody,          // default body (includes toolChoice)
             ...(opts.body ?? {}), // per-call overrides
@@ -336,9 +354,20 @@ export function VercelChatInner({
             (typeof maxToolCalls === "number" && completedToolCalls >= maxToolCalls);
 
           const effectiveToolChoice = forceNone ? "none" : mergedBody.toolChoice;
+          const requestHeaders = new Headers(opts.headers as HeadersInit | undefined);
+
+          if (chatMode === "agent") {
+            Object.entries(headers ?? {}).forEach(([key, value]) => {
+              if (value != null) requestHeaders.set(key, String(value));
+            });
+
+            Object.entries(getAgentApiKeyHeaders(mergedBody.agents) ?? {}).forEach(([key, value]) => {
+              if (value != null) requestHeaders.set(key, String(value));
+            });
+          }
 
           return {
-            headers: opts.headers,
+            headers: requestHeaders,
             credentials: opts.credentials,
             body: {
               ...mergedBody,
@@ -348,7 +377,7 @@ export function VercelChatInner({
           };
         },
       }),
-    [authFetch, applyOverrides, baseBody, maxToolCalls, stopTools]
+    [authFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, maxToolCalls, stopTools]
   );
 
   const {
