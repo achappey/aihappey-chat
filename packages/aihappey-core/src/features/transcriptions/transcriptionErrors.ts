@@ -1,12 +1,17 @@
-const safeJsonStringify = (value: unknown) => {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return "";
-  }
-};
+import {
+  getStorageErrorMessage,
+  isQuotaExceededError,
+  type StorageErrorMessageOptions,
+} from "../storage/storageErrorMessage";
 
-export const getTranscriptionErrorMessage = (err: unknown) => {
+export const getTranscriptionErrorMessage = (
+  err: unknown,
+  options?: StorageErrorMessageOptions
+) => {
+  if (isQuotaExceededError(err)) {
+    return getStorageErrorMessage(err, "Transcription failed", options);
+  }
+
   if (typeof err === "string") return err;
 
   if (err && typeof err === "object") {
@@ -32,8 +37,7 @@ export const getTranscriptionErrorMessage = (err: unknown) => {
 
     if (typeof nested === "string" && nested.trim()) return nested;
 
-    const asJson = safeJsonStringify(anyErr);
-    if (asJson) return asJson;
+    return getStorageErrorMessage(anyErr, "Transcription failed", options);
   }
 
   return "Transcription failed";

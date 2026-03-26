@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
 
 import * as Components from "aihappey-components";
-import { FileCard, useTheme } from "aihappey-components";
+import { ErrorAlerts, FileCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useFiles } from "aihappey-files";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
@@ -17,6 +18,8 @@ export const FilesPage = () => {
     const { SearchBox, Text } = useTheme();
     const { t } = useTranslation();
     const files = useFiles();
+    const getStorageErrorMessage = useStorageErrorMessage();
+    const [errors, setErrors] = useState<{ id: string; message: string }[]>([]);
 
     const [search, setSearch] = useState("");
     const q = normalizeText(search);
@@ -45,6 +48,14 @@ export const FilesPage = () => {
         e.preventDefault();
     }, []);
 
+    const addError = useCallback((message: string) => {
+        setErrors((prev) => [...prev, { id: crypto.randomUUID(), message }]);
+    }, []);
+
+    const dismissError = useCallback((id: string) => {
+        setErrors((prev) => prev.filter((e) => e.id !== id));
+    }, []);
+
     // DnD preview
     const [{ isOver }, drop] = useDrop({
         accept: [NativeTypes.FILE],
@@ -65,19 +76,23 @@ export const FilesPage = () => {
             if (!list || list.length === 0) return;
 
             const selected = Array.from(list);
-            await Promise.all(
-                selected.map(async (f) => {
-                    await files.create({
-                        name: f.name,
-                        mimeType: f.type || "application/octet-stream",
-                        data: f,
-                    });
-                })
-            );
+            try {
+                await Promise.all(
+                    selected.map(async (f) => {
+                        await files.create({
+                            name: f.name,
+                            mimeType: f.type || "application/octet-stream",
+                            data: f,
+                        });
+                    })
+                );
 
-            files.refresh();
+                files.refresh();
+            } catch (err) {
+                addError(getStorageErrorMessage(err, "Failed to save file"));
+            }
         },
-        [files]
+        [addError, files]
     );
 
     const downloadFile = useCallback(
@@ -120,6 +135,8 @@ export const FilesPage = () => {
                         alignItems: "center",
                     }}
                 >
+                    <ErrorAlerts errors={errors} dismissError={dismissError} />
+
                     <OverviewPageHeader title={t("files")} />
 
                     <Text as="p" align={"center" }>{t("filesPage.description")}</Text>
@@ -158,7 +175,15 @@ export const FilesPage = () => {
                                     <FileCard
                                         file={f}
                                         onDownload={() => downloadFile(f.id)}
-                                        onDelete={() => files.delete(f.id)}
+                                        onDelete={() => {
+                                            void (async () => {
+                                                try {
+                                                    await files.delete(f.id);
+                                                } catch (err) {
+                                                    addError(getStorageErrorMessage(err, "Delete failed"));
+                                                }
+                                            })();
+                                        }}
                                     />
                                 </div>
                             ))

@@ -11,13 +11,17 @@ import { useUserMessageBuilder } from "./messages/useUserMessageBuilder";
 import { useResourceParts } from "./messages/useResourceParts";
 import { useAttachmentParts } from "./messages/useAttachmentParts";
 import { ChatErrors } from "./layout/ChatErrors";
+import { useChatErrors } from "./layout/useChatErrors";
 import { PromptWithSource } from "../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 
 export function NewChatPage() {
   const navigate = useNavigate();
   const { create } = useConversations();
+  const { addChatError } = useChatErrors();
+  const getStorageErrorMessage = useStorageErrorMessage();
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
   const agents = useAppStore(a => a.agents)
@@ -76,19 +80,32 @@ export function NewChatPage() {
     async (content: string) => {
       if (creating) return;
       setCreating(true);
-      const userMsg = await buildFromText(content);
-      await startNewConversation(userMsg);
+      try {
+        const userMsg = await buildFromText(content);
+        await startNewConversation(userMsg);
+      } catch (err) {
+        addChatError(getStorageErrorMessage(err, "Failed to start a new chat"));
+      } finally {
+        setCreating(false);
+      }
     },
-    [creating, temperature, selectedModel, workflowType,
-      selectedAgents, resourceParts] // minimal deps, don't need attachments/resourceParts (not used)
+    [addChatError, buildFromText, creating, startNewConversation]
   );
 
   const onPromptExecute = async (
     prompt: PromptWithSource,
     args?: Record<string, string>
   ) => {
-    const userMsg = await buildFromPrompt(prompt, args);
-    await startNewConversation(userMsg);
+    if (creating) return;
+    setCreating(true);
+    try {
+      const userMsg = await buildFromPrompt(prompt, args);
+      await startNewConversation(userMsg);
+    } catch (err) {
+      addChatError(getStorageErrorMessage(err, "Failed to start a new chat"));
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (

@@ -1,12 +1,17 @@
-const safeJsonStringify = (value: unknown) => {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return "";
-  }
-};
+import {
+  getStorageErrorMessage,
+  isQuotaExceededError,
+  type StorageErrorMessageOptions,
+} from "../storage/storageErrorMessage";
 
-export const getRerankingErrorMessage = (err: unknown) => {
+export const getRerankingErrorMessage = (
+  err: unknown,
+  options?: StorageErrorMessageOptions
+) => {
+  if (isQuotaExceededError(err)) {
+    return getStorageErrorMessage(err, "Reranking failed", options);
+  }
+
   if (typeof err === "string") return err;
 
   if (err && typeof err === "object") {
@@ -22,8 +27,7 @@ export const getRerankingErrorMessage = (err: unknown) => {
       anyErr?.data?.message;
     if (typeof nested === "string" && nested.trim()) return nested;
 
-    const asJson = safeJsonStringify(anyErr);
-    if (asJson) return asJson;
+    return getStorageErrorMessage(anyErr, "Reranking failed", options);
   }
 
   return "Reranking failed";

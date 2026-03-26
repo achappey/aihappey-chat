@@ -11,6 +11,7 @@ import { useSpeech } from "aihappey-speech";
 import { speechFilesToPromptText } from "./speechFilesToPromptText";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useSpeechErrors } from "./useSpeechErrors";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 
 export const SpeechPage = () => {
   const models = useAppStore((a) => a.models);
@@ -30,6 +31,7 @@ export const SpeechPage = () => {
   const [selectedModel, setSelectedModel] = useState<string>(userPreferredSpeechModel ?? (getAccessToken ?
     "openai/gpt-4o-mini-tts" : ""));
   const headers = config?.headers;
+  const getStorageErrorMessage = useStorageErrorMessage();
   const { Skeleton } = useTheme()
   const speech = useSpeech();
   const {
@@ -125,7 +127,7 @@ export const SpeechPage = () => {
       speech.refresh();
     } catch (err: any) {
       // Bubble up backend errors into page-level errors
-      addError(err?.message ?? "Speech request failed");
+      addError(getStorageErrorMessage(err, "Speech request failed"));
 
       // If backend error includes warnings, surface them too
       addWarnings(err?.warnings as any);
@@ -209,7 +211,15 @@ export const SpeechPage = () => {
             <SpeechCard
               key={item.id}
               speech={item.speechResponse}
-              onDelete={() => speech.delete(item.id)}
+              onDelete={() => {
+                void (async () => {
+                  try {
+                    await speech.delete(item.id);
+                  } catch (err) {
+                    addError(getStorageErrorMessage(err, "Delete failed"));
+                  }
+                })();
+              }}
             />
           ))}
         </div>

@@ -15,6 +15,7 @@ import { createVideoProvider } from "aihappey-ai/src/createVideoProvider";
 import { fileToBase64 } from "../chat/files/file";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import type { VideoContent } from "aihappey-components";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import {
   isValidVideoAttachment,
   toSingleVideoAttachment,
@@ -44,6 +45,7 @@ export const VideoPage = () => {
       (getAccessToken ? "openai/sora-2" : "")
   );
   const headers = config?.headers;
+  const getStorageErrorMessage = useStorageErrorMessage();
   const {
     errors,
     warnings,
@@ -181,8 +183,8 @@ export const VideoPage = () => {
         videos: normalizedVideos,
       });
       storageVideos.refresh();
-    } catch (err: any) {
-      addVideoError(err?.message ?? "Video generation failed");
+    } catch (err) {
+      addVideoError(getStorageErrorMessage(err, "Video generation failed"));
     } finally {
       setItemsLoading((prev) => prev - n);
     }
@@ -296,8 +298,8 @@ export const VideoPage = () => {
                     try {
                       await deleteStoredVideo(modalItem);
                       closeVideo();
-                    } catch (err: any) {
-                      addVideoError(err?.message ?? "Delete failed");
+                    } catch (err) {
+                      addVideoError(getStorageErrorMessage(err, "Delete failed"));
                     }
                   })();
                 }

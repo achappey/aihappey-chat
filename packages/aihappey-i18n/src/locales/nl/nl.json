@@ -10,6 +10,7 @@
   "customTools": "Aangepaste tools",
   "download": "Download",
   "versions": "Versies",
+  "storageQuotaMessage": "Je browseropslag is vol. Verwijder enkele chats of andere items en probeer het opnieuw.",
   "skillsPage": {
     "versionBadge": "Versie {{version}}",
     "latestVersionBadge": "Laatste versie {{version}}",

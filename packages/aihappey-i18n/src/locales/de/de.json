@@ -9,6 +9,7 @@
   "video": "Video",
   "variation": "Variation",
   "download": "Herunterladen",
+  "storageQuotaMessage": "Ihr Browserspeicher ist voll. Entfernen Sie einige Chats oder andere Elemente und versuchen Sie es erneut.",
   "imagePromptPlaceholder": "Neues Bild beschreiben",
   "videoPromptPlaceholder": "Neues Video beschreiben",
   "chatWithImageModels": "Chat mit Bildmodellen",

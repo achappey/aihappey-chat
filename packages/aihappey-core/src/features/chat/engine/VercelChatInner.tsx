@@ -46,6 +46,7 @@ import {
 import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useUIStream } from "../../json-render/useUIStream";
+import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -67,6 +68,7 @@ export function VercelChatInner({
   const { conversationId } = useParams<{ conversationId: string }>();
   const location = useLocation();
   const { addChatError } = useChatErrors();
+  const getStorageErrorMessage = useStorageErrorMessage();
   const [sources, setSources] = useState<(SourceUrlUIPart | SourceDocumentUIPart)[] | undefined>(undefined);
   const [messageActivity, setMessageActivity] = useState<any[] | undefined>(undefined);
   const [showToolCall, setShowToolCall] = useState<any | undefined>(undefined);
@@ -389,7 +391,11 @@ export function VercelChatInner({
               message as UIMessage
             );
           } catch (e) {
-            await addMessage(conversationId!, message as UIMessage);
+            try {
+              await addMessage(conversationId!, message as UIMessage);
+            } catch (persistErr) {
+              addChatError(getStorageErrorMessage(persistErr, "Failed to save the assistant response"));
+            }
           }
       }
     },

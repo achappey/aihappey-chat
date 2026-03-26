@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
-    CreateMessageRequestSchema, ElicitRequestSchema, ListRootsRequestSchema, LoggingMessageNotificationSchema,
+    CreateMessageRequestSchema, ElicitRequestSchema, LoggingMessageNotificationSchema,
     ProgressNotificationSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
@@ -144,6 +144,7 @@ export async function connectMcpServer(
         clientName?: string;
         clientVersion?: string;
         logLevel?: any;
+        logOptions?: any;
         onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult>;
         onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
         onLogging?: (server: string, req: LoggingMessageNotification) => Promise<void>;
@@ -155,14 +156,6 @@ export async function connectMcpServer(
     client: Client;
 }> {
     const client = await _connectMcpBase(url, opts ?? {});
-    // if (opts?.logLevel) await client.setLoggingLevel(opts?.logLevel)
-
-    /* client.onerror = (item) => {
-         console.log(item)
-         if (item.message.indexOf("SSE stream disconnected") > -1 && opts?.onDisconnect) {
-             opts.onDisconnect(url)
-         }
-     }*/
 
     return {
         client,

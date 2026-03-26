@@ -166,7 +166,7 @@ import { verbatik } from "./catalog/verbatik";
 import { cartesia } from "./catalog/cartesia";
 import { vapi } from "./catalog/vapi";
 import { smallestai } from "./catalog/smallestai";
-import { orq } from "./catalog/orq";
+import { orqrouter } from "./catalog/orqrouter";
 import { typecast } from "./catalog/typecast";
 import { unrealspeech } from "./catalog/unrealspeech";
 import { kugu } from "./catalog/kugu";
@@ -433,6 +433,15 @@ import { tensorix } from "./catalog/tensorix";
 import { schatziai } from "./catalog/schatziai";
 import { nodebyt } from "./catalog/nodebyt";
 import { gptsapi } from "./catalog/gptsapi";
+import { orqagentruntime } from "./catalog/orqagentruntime";
+import { embercloud } from "./catalog/embercloud";
+import { fortytwo } from "./catalog/fortytwo";
+import { oraicle } from "./catalog/oraicle";
+import { foureverland } from "./catalog/foureverland";
+import { distributedai } from "./catalog/distributedai";
+import { wesenai } from "./catalog/wesenai";
+import { key4u } from "./catalog/key4u";
+import { fivedock } from "./catalog/fivedock";
 
 /**
  * UI-facing provider catalog.
@@ -443,10 +452,18 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   runway,
   clawplaza,
+  distributedai,
+  embercloud,
+  key4u,
   tokonlab,
+  foureverland,
+  fivedock,
   schatziai,
   privatemode,
+  fortytwo,
   simplellm,
+  wesenai,
+  oraicle,
   gptsapi,
   modelbridge,
   openpipe,
@@ -674,11 +691,12 @@ export const PROVIDERS: Record<string, Provider> = {
   ionet,
   euqai,
   glio,
-  orq,
+  orqrouter,
   dandolo,
   forefront,
   literouter,
   widnai,
+  orqagentruntime,
   syllogy,
   typecast,
   jiekouai,

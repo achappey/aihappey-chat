@@ -5,6 +5,7 @@ import { useAppStore } from "aihappey-state";
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
+import { useTranslation } from "aihappey-i18n";
 
 import { getRerankingErrorMessage } from "./rerankingErrors";
 import { extractTextFromFileOrZip } from "./rerankingFileText";
@@ -14,6 +15,7 @@ import { useRerankingErrors } from "./useRerankingErrors";
 const genId = (n: number) => `${Date.now()}-${Math.random().toString(16).slice(2)}-${n}`;
 
 export function useRerankingController() {
+  const { t } = useTranslation();
   const models = useAppStore((a) => a.models);
   const userPreferredRerankingModel = useAppStore((a: any) => a.userPreferredRerankingModel);
   const customHeaders = useAppStore((a) => a.customHeaders);
@@ -174,7 +176,7 @@ export function useRerankingController() {
 
       return result;
     } catch (err) {
-      addError(getRerankingErrorMessage(err));
+      addError(getRerankingErrorMessage(err, { quotaMessage: t("storageQuotaMessage") }));
       return undefined;
     } finally {
       setProcessing(false);
@@ -192,6 +194,7 @@ export function useRerankingController() {
     prompt,
     providerRerankingMetadata,
     selectedModel,
+    t,
     topN,
   ]);
 
@@ -210,6 +213,7 @@ export function useRerankingController() {
     errors,
     warnings,
     conversionWarnings,
+    addError,
     dismissError,
     dismissWarning,
     dismissConversionWarning,

@@ -18,6 +18,7 @@ import { createImageProvider } from "aihappey-ai";
 import { blobToBase64, fileToBase64 } from "../chat/files/file";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useFiles } from "aihappey-files";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 
 export const ImagePage = () => {
   const images = useLibraryImages();
@@ -42,6 +43,7 @@ export const ImagePage = () => {
     (getAccessToken ?
       "openai/chatgpt-image-latest" : "pollinations/flux"));
   const headers = config?.headers;
+  const getStorageErrorMessage = useStorageErrorMessage();
   const {
     errors,
     warnings,
@@ -155,8 +157,8 @@ export const ImagePage = () => {
       addWarnings(imageResult.warnings);
       await storageImages.add(imageResult)
       storageImages.refresh()
-    } catch (err: any) {
-      addChatError(err?.message ?? "Image generation failed");
+    } catch (err) {
+      addChatError(getStorageErrorMessage(err, "Image generation failed"));
     } finally {
       setItemsLoading((prev) => prev - n);
     }
@@ -328,11 +330,11 @@ export const ImagePage = () => {
                   try {
                     await deleteStoredImage(modalItem);
                     closeImage();
-                  } catch (err: any) {
-                    addChatError(err?.message ?? "Delete failed");
-                  }
-                })();
-              }
+                    } catch (err) {
+                      addChatError(getStorageErrorMessage(err, "Delete failed"));
+                    }
+                  })();
+                }
               : undefined
           }
           onAddToPrompt={() => {

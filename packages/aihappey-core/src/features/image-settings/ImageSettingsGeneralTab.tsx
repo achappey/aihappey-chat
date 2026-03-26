@@ -7,14 +7,17 @@ import { useAppStore } from "aihappey-state";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useFiles } from "aihappey-files";
 import { useEffect, useMemo, useState } from "react";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 
 // --- General Tab ---
 export const ImageSettingsGeneralTab = ({
   temperature,
   setTemperature,
-  onEditProviderKeys
+  onEditProviderKeys,
+  onErrorAlert,
 }: any) => {
   const { t } = useTranslation();
+  const getStorageErrorMessage = useStorageErrorMessage();
   const publishers = Object.entries(PROVIDERS).map(a => a[1].name).sort();
   const n = useAppStore(s => s.n)
   const seed = useAppStore(s => s.seed)
@@ -67,24 +70,32 @@ export const ImageSettingsGeneralTab = ({
     if (!selected.length) return;
     const file = selected[0];
 
-    // replace existing `image_mask`
-    if (maskEntry?.id) {
-      await files.delete(maskEntry.id);
+    try {
+      // replace existing `image_mask`
+      if (maskEntry?.id) {
+        await files.delete(maskEntry.id);
+      }
+
+      await files.create({
+        name: "image_mask",
+        mimeType: file.type || "application/octet-stream",
+        data: file,
+      });
+
+      files.refresh();
+    } catch (err) {
+      onErrorAlert?.(getStorageErrorMessage(err, "Failed to save image mask"));
     }
-
-    await files.create({
-      name: "image_mask",
-      mimeType: file.type || "application/octet-stream",
-      data: file,
-    });
-
-    files.refresh();
   };
 
   const onClearMaskFile = async () => {
     if (!maskEntry?.id) return;
-    await files.delete(maskEntry.id);
-    files.refresh();
+    try {
+      await files.delete(maskEntry.id);
+      files.refresh();
+    } catch (err) {
+      onErrorAlert?.(getStorageErrorMessage(err, "Failed to clear image mask"));
+    }
   };
 
   const onChange = (next: ImageSettings) => {

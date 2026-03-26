@@ -65,7 +65,7 @@ export const ModelContextClientSettingsForm = ({
 
             <Slider
                 min={1}
-                max={15}
+                max={60}
                 step={1}
                 value={value.toolTimeoutMinutes}
                 label={t("mcpPage.toolTimeout", { minutes: value.toolTimeoutMinutes })}

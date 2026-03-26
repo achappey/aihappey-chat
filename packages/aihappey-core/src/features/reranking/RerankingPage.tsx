@@ -7,6 +7,7 @@ import { RerankingWarnings } from "./RerankingWarnings";
 import { useRerankingController } from "./useRerankingController";
 import { useReranking } from "aihappey-reranking";
 import { useTranslation } from "aihappey-i18n";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 
 function downloadFile(file: File, downloadName?: string) {
     const url = URL.createObjectURL(file);
@@ -22,6 +23,7 @@ function downloadFile(file: File, downloadName?: string) {
 export const RerankingPage = () => {
     const { Tabs, Tab } = useTheme();
     const { t } = useTranslation();
+    const getStorageErrorMessage = useStorageErrorMessage();
     const [activeTab, setActiveTab] = useState<string>("current");
     const rerankingStore = useReranking();
 
@@ -35,6 +37,7 @@ export const RerankingPage = () => {
         errors,
         warnings,
         conversionWarnings,
+        addError,
         dismissError,
         dismissWarning,
         dismissConversionWarning,
@@ -61,10 +64,14 @@ export const RerankingPage = () => {
     const handleSend = useCallback(async () => {
         const res = await onSend();
         if (!res) return;
-        await rerankingStore.add(prompt, persistFiles, res as any);
-        // optimistic update already happens in provider; still safe to refresh in case store is out-of-sync
-        rerankingStore.refresh();
-    }, [onSend, persistFiles, prompt, rerankingStore]);
+        try {
+            await rerankingStore.add(prompt, persistFiles, res as any);
+            // optimistic update already happens in provider; still safe to refresh in case store is out-of-sync
+            rerankingStore.refresh();
+        } catch (err) {
+            addError(getStorageErrorMessage(err, "Failed to save reranking result"));
+        }
+    }, [addError, onSend, persistFiles, prompt, rerankingStore]);
 
     return (
         <div
@@ -154,7 +161,13 @@ export const RerankingPage = () => {
                                     files={item.files}
                                     reranking={item.reranking}
                                     onDelete={() => {
-                                        void rerankingStore.delete(item.id);
+                                        void (async () => {
+                                            try {
+                                                await rerankingStore.delete(item.id);
+                                            } catch (err) {
+                                                addError(getStorageErrorMessage(err, "Delete failed"));
+                                            }
+                                        })();
                                     }}
                                 />
                             ))}

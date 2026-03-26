@@ -21,6 +21,7 @@ const appName = process.env.APP_NAME || "YACB";
 const conversationsApi = process.env.CONVERSATIONS_API_URL || "http://localhost:3021/conversations";
 const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3010";
 const chatAppMcp = process.env.CHAT_APP_MCP || "http://localhost:3001/chatapp";
+const appInsightsConnectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || "";
 
 // Deze kunnen JSON of string zijn, dus altijd even JSON.stringify voor define
 const conversationScopes = safeParseJSON(process.env.CONVERSATIONS_SCOPES, []);
@@ -53,6 +54,7 @@ const buildOptions = {
     "__APP_NAME__": JSON.stringify(appName),
      "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
     "__CHAT_APP_MCP__": JSON.stringify(chatAppMcp),
+    "__APPLICATIONINSIGHTS_CONNECTION_STRING__": JSON.stringify(appInsightsConnectionString),
     "__MSAL_CLIENT_ID__": JSON.stringify(msalClientId),
     "__CONVERSATIONS_API_URL__": JSON.stringify(conversationsApi),
     "__CONVERSATIONS_SCOPES__": JSON.stringify(conversationScopes),

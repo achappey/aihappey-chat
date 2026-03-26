@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { getRealtimeToken } from "aihappey-ai";
 import { useAppStore } from "aihappey-state";
+import { useTranslation } from "aihappey-i18n";
 import type { ChatConfig } from "../../chat/context/ChatContext";
 import type { TranscriptionsContextType } from "aihappey-transcriptions";
 import { startRealtimeWebrtcSession } from "./startRealtimeWebrtcSession";
@@ -33,6 +34,7 @@ export function useRealtimeTranscriptionController(args: {
   onErrorAlert?: (message: string) => void;
 }) {
   const { config, selectedModel, transcriptions, onErrorAlert } = args;
+  const { t } = useTranslation();
 
   const customHeaders = useAppStore((a) => a.customHeaders);
   const providerRealtimeMetadata = useAppStore((a) => a.providerRealtimeMetadata);
@@ -654,7 +656,7 @@ export function useRealtimeTranscriptionController(args: {
         setRealtimeSessionState({ realtimeStatus: "connected" });
       }
     } catch (e) {
-      const message = getTranscriptionErrorMessage(e);
+      const message = getTranscriptionErrorMessage(e, { quotaMessage: t("storageQuotaMessage") });
       setRealtimeSessionState({ realtimeStatus: "error", realtimeError: message });
 
       // Also bubble to page-level alerts when provided.

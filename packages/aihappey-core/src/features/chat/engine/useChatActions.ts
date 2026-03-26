@@ -6,6 +6,8 @@ import { useAppStore, type UiAttachment } from "aihappey-state";
 import { useUserMessageBuilder } from "../messages/useUserMessageBuilder";
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
+import { useChatErrors } from "../layout/useChatErrors";
+import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
 
@@ -47,6 +49,8 @@ export function useChatActions({
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
   const providerMetadata = useActiveProviderMetadata();
+  const { addChatError } = useChatErrors();
+  const getStorageErrorMessage = useStorageErrorMessage();
   const { buildFromText, buildFromPrompt } = useUserMessageBuilder({
     getAttachmentParts,
     extractExif
@@ -57,20 +61,24 @@ export function useChatActions({
       const userMsg = await buildFromPrompt(prompt, args);
 
       if (userMsg) {
-        await addMessage(conversationId!, userMsg);
-        await sendMessage(userMsg, {
-          body: {
-            model: selectedModel,
-            tools: finalTools,
-            temperature,
-            providerMetadata,
-            response_format: structuredOutputs,
-          },
-        });
+        try {
+          await addMessage(conversationId!, userMsg);
+          await sendMessage(userMsg, {
+            body: {
+              model: selectedModel,
+              tools: finalTools,
+              temperature,
+              providerMetadata,
+              response_format: structuredOutputs,
+            },
+          });
 
-        //clearAttachments();
-        fileAttachmentRuntime.clear()
-        mcpResourceRuntime.clear();
+          //clearAttachments();
+          fileAttachmentRuntime.clear()
+          mcpResourceRuntime.clear();
+        } catch (err) {
+          addChatError(getStorageErrorMessage(err, "Failed to save your message"));
+        }
       }
     },
     [
@@ -80,6 +88,7 @@ export function useChatActions({
       addMessage,
       sendMessage,
       providerMetadata,
+      addChatError,
       temperature,
       //    clearAttachments,
       selectedModel,
@@ -93,28 +102,32 @@ export function useChatActions({
     async (text: string) => {
       const userMsg = await buildFromText(text);
       if (userMsg) {
-        await addMessage(conversationId!, userMsg);
-        await sendMessage(userMsg, {
-          body: {
-            model: selectedModel,
-            agents: selectedAgents,
-            workflowType,
-            tools: finalTools,
-            temperature,
-            providerMetadata,
-            response_format: structuredOutputs,
-            workflowMetadata: {
-              "groupchat": {
-                "maximumIterationCount": maximumIterationCount
-              },
-              "handoff": {
-                "handoffs": handoffs
-              },
-            }
-          },
-        });
-        fileAttachmentRuntime.clear()
-        mcpResourceRuntime.clear();
+        try {
+          await addMessage(conversationId!, userMsg);
+          await sendMessage(userMsg, {
+            body: {
+              model: selectedModel,
+              agents: selectedAgents,
+              workflowType,
+              tools: finalTools,
+              temperature,
+              providerMetadata,
+              response_format: structuredOutputs,
+              workflowMetadata: {
+                "groupchat": {
+                  "maximumIterationCount": maximumIterationCount
+                },
+                "handoff": {
+                  "handoffs": handoffs
+                },
+              }
+            },
+          });
+          fileAttachmentRuntime.clear()
+          mcpResourceRuntime.clear();
+        } catch (err) {
+          addChatError(getStorageErrorMessage(err, "Failed to save your message"));
+        }
 
       }
     },
@@ -126,6 +139,7 @@ export function useChatActions({
       selectedAgents,
       workflowType,
       providerMetadata,
+      addChatError,
       selectedModel,
       conversationId,
       finalTools,

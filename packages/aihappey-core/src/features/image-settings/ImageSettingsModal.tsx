@@ -5,7 +5,7 @@ import {
   OpenAIImageConfigForm, PollinationsImageConfigForm,
   RunwayImageConfigForm, SettingsActionButtons,
   StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme,
-  FireworksImageConfigForm, VerdaImageConfigForm, FreepikImageConfigForm
+  FireworksImageConfigForm, VerdaImageConfigForm, FreepikImageConfigForm, ErrorAlerts
 } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
@@ -34,10 +34,20 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
   const { t } = useTranslation();
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const [errors, setErrors] = useState<{ id: string; message: string }[]>([]);
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.image ?? [])
+
+  const addError = (message: string) => {
+    setErrors((prev) => [...prev, { id: crypto.randomUUID(), message }]);
+  };
+
+  const dismissError = (id: string) => {
+    setErrors((prev) => prev.filter((e) => e.id !== id));
+  };
 
   const close = () => {
     onClose();
+    setErrors([]);
     setTimeout(() => {
       setActiveTab(defaultTab);
     }, 200);
@@ -55,11 +65,14 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
         />
       }
     >
+      <ErrorAlerts errors={errors} dismissError={dismissError} />
+
       <theme.Tabs activeKey={activeTab}
         onSelect={setActiveTab}>
         <theme.Tab eventKey="general"
           title={t("general")}>
           <ImageSettingsGeneralTab
+            onErrorAlert={addError}
             temperature={temperature}
             onEditProviderKeys={onEditProviderKeys}
             setTemperature={setTemperature}

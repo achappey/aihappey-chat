@@ -7,6 +7,7 @@
   "chatWithImageModels": "画像モデルとチャット",
   "variation": "バリエーション",
   "download": "ダウンロード",
+  "storageQuotaMessage": "ブラウザーの保存容量がいっぱいです。いくつかのチャットまたは他の項目を削除して、もう一度お試しください。",
   "myImages": "自分の画像",
   "context": "コンテキスト",
   "table": "テーブル",

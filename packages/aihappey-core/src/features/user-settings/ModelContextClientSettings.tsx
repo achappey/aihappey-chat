@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { mcpRuntime, useAppStore } from "aihappey-state";
-import { useTranslation } from "aihappey-i18n";
 import { ModelContextClientSettingsForm } from "aihappey-components";
 
 export const ModelContextClientSettings = () => {

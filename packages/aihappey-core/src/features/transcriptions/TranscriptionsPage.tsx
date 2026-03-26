@@ -26,6 +26,7 @@ import { useEffect } from "react";
 import type { AihUiTheme } from "aihappey-types";
 import { useRealtimeTranscriptionController } from "./realtime/useRealtimeTranscriptionController";
 import React from "react";
+import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -56,6 +57,7 @@ export const TranscriptionsPage = () => {
   const headers = config?.headers;
   const { Skeleton, Tabs, Tab } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab">;
   const { t } = useTranslation()
+  const getStorageErrorMessage = useStorageErrorMessage();
   const storageTranscriptions = useTranscriptions()
   const files = useFiles();
   const currentModel = models?.find(a => a.id == selectedModel);
@@ -98,16 +100,28 @@ export const TranscriptionsPage = () => {
     onUploadSample: async (speakerName: string, selected: File[]) => {
       if (!selected.length) return;
       const file = selected[0];
-      await saveKnownSpeakerReferenceSample(files, speakerName, file);
-      files.refresh();
+      try {
+        await saveKnownSpeakerReferenceSample(files, speakerName, file);
+        files.refresh();
+      } catch (err) {
+        addError(getStorageErrorMessage(err, "Failed to save speaker sample"));
+      }
     },
     onClearSample: async (speakerName: string) => {
-      await deleteKnownSpeakerReferenceSamples(files, speakerName);
-      files.refresh();
+      try {
+        await deleteKnownSpeakerReferenceSamples(files, speakerName);
+        files.refresh();
+      } catch (err) {
+        addError(getStorageErrorMessage(err, "Failed to clear speaker sample"));
+      }
     },
     onRenameSample: async (fromName: string, toName: string) => {
-      await migrateKnownSpeakerReferenceSample(files, fromName, toName);
-      files.refresh();
+      try {
+        await migrateKnownSpeakerReferenceSample(files, fromName, toName);
+        files.refresh();
+      } catch (err) {
+        addError(getStorageErrorMessage(err, "Failed to rename speaker sample"));
+      }
     },
     onPreviewSample: async (speakerName: string) => {
       const item = getLatestKnownSpeakerReferenceItem(files.items, speakerName);
@@ -205,7 +219,7 @@ export const TranscriptionsPage = () => {
       storageTranscriptions.refresh();
     } catch (err) {
       // Bubble up backend errors into page-level errors
-      addError(getTranscriptionErrorMessage(err));
+      addError(getTranscriptionErrorMessage(err, { quotaMessage: t("storageQuotaMessage") }));
 
       // If backend error includes warnings, surface them too
       const anyErr: any = err;
@@ -304,7 +318,15 @@ export const TranscriptionsPage = () => {
                   transcription={a.transcription}
                   filename={a.name}
                   file={a.blob}
-                  onDelete={a.id ? () => storageTranscriptions.delete(a.id) : undefined}
+                  onDelete={a.id ? () => {
+                    void (async () => {
+                      try {
+                        await storageTranscriptions.delete(a.id!);
+                      } catch (err) {
+                        addError(getStorageErrorMessage(err, "Delete failed"));
+                      }
+                    })();
+                  } : undefined}
                 />
               ))}
             </div>

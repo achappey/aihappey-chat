@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
 export const blackbox: Provider = {
-  name: "Blackbox",
+  name: "BLACKBOX",
   description: "BLACKBOX AI - The Universal Agent Platform. Orchestrate Claude, Codex, Gemini & Blackbox agents from one interface. 30M users, 4.7M+ VS Code installs, 300+ AI models.",
   icons: [
     {

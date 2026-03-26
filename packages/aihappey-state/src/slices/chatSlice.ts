@@ -197,7 +197,9 @@ export const createChatSlice: StateCreator<
   addChatError: (error) => {
     const message = typeof error === "string" ? error : error.message;
     set((state: any) => ({
-      chatErrors: [...state.chatErrors, message],
+      chatErrors: state.chatErrors.includes(message)
+        ? state.chatErrors
+        : [...state.chatErrors, message],
     }));
   },
   dismissChatError: (error) => {

@@ -3,7 +3,8 @@ import { useAppStore } from "aihappey-state";
 import { mcpRuntime } from "aihappey-state/dist/slices/uiSlice";
 import type {
     CreateMessageRequest, CreateMessageResult,
-    ElicitRequest} from "aihappey-mcp";
+    ElicitRequest
+} from "aihappey-mcp";
 import { acquireAccessToken } from "aihappey-auth";
 import { elicitRuntime } from "./elicitRuntime";
 import { samplingRuntime } from "./samplingRuntime";
