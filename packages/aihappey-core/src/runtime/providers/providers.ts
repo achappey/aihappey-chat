@@ -454,6 +454,15 @@ import { mumeai } from "./catalog/mumeai";
 import { nouswise } from "./catalog/nouswise";
 import { shengsuanyun } from "./catalog/shengsuanyun";
 import { opensourceaihub } from "./catalog/opensourceaihub";
+import { citadelis } from "./catalog/citadelis";
+import { finora } from "./catalog/finora";
+import { cairocoder } from "./catalog/cairocoder";
+import { geekai } from "./catalog/geekai";
+import { baystone } from "./catalog/baystone";
+import { aimagicx } from "./catalog/aimagicx";
+import { octagon } from "./catalog/octagon";
+import { nataris } from "./catalog/nataris";
+import { therouterai } from "./catalog/therouterai";
 
 /**
  * UI-facing provider catalog.
@@ -462,6 +471,15 @@ import { opensourceaihub } from "./catalog/opensourceaihub";
  */
 export const PROVIDERS: Record<string, Provider> = {
   openai,
+  citadelis,
+  octagon,
+  aimagicx,
+  therouterai,
+  nataris,
+  cairocoder,
+  geekai,
+  finora,
+  baystone,
   runway,
   mumeai,
   nebulablock,
