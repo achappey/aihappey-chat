@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useAppStore } from "aihappey-state";
 import { mcpRuntime } from "aihappey-state/dist/slices/uiSlice";
 import type {
@@ -75,6 +75,11 @@ export function useMcpRuntimeBinding({
     const clearMcpContent = useAppStore((s) => s.clearMcpContent);
     const enabledProviders = useAppStore((s) => s.enabledProvidersByType?.language ?? []);
     const models = useAppStore((s) => s.models);
+    const modelsRef = useRef(models);
+    const customHeadersRef = useRef(customHeaders);
+    const enabledProvidersRef = useRef(enabledProviders);
+    const authenticatedRef = useRef(authenticated);
+    const samplingApiRef = useRef(samplingApi);
     const conversations = useConversations()
     const addSampling = useAppStore((s) => s.addSampling);
     const onElicit = (server: string, params: ElicitRequest) => elicitRuntime.onElicit(server, params);
@@ -82,18 +87,30 @@ export function useMcpRuntimeBinding({
         progressRuntime.update(notif);
     };
 
+    useEffect(() => {
+        modelsRef.current = models;
+        customHeadersRef.current = customHeaders;
+        enabledProvidersRef.current = enabledProviders;
+        authenticatedRef.current = authenticated;
+        samplingApiRef.current = samplingApi;
+    }, [models, customHeaders, enabledProviders, authenticated, samplingApi]);
+
     // const onProgress = async (notif: ProgressNotification) => addProgress(notif);
 
-    const onSample = async (server: string, params: CreateMessageRequest) => {
-        const withModels = applyModelHintsToParams(params, models);
+    const onSample = useCallback(async (server: string, params: CreateMessageRequest) => {
+        const currentModels = modelsRef.current;
+        const currentCustomHeaders = customHeadersRef.current;
+        const currentEnabledProviders = enabledProvidersRef.current;
+        const currentSamplingApi = samplingApiRef.current;
+        const withModels = applyModelHintsToParams(params, currentModels);
 
         const apiKeyHeaders: Record<string, string> = Object.fromEntries(
-            Object.entries(customHeaders)
-                .filter(([key]) => enabledProviders.includes(key.split("-")[1]))
+            Object.entries(currentCustomHeaders)
+                .filter(([key]) => currentEnabledProviders.includes(key.split("-")[1]))
         );
         const { id, createdAt } = samplingRuntime.startSampling(server, withModels)
-        const accessToken = authenticated ? await acquireAccessToken() : null;
-        const res = await fetch(samplingApi, {
+        const accessToken = authenticatedRef.current ? await acquireAccessToken() : null;
+        const res = await fetch(currentSamplingApi, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -112,7 +129,7 @@ export function useMcpRuntimeBinding({
         addSampling(id, createdAt, server, withModels, json)
 
         return json;
-    };
+    }, [addSampling]);
 
     const conversationImport = async (conversation: any) => {
         var current = await conversations.list();
