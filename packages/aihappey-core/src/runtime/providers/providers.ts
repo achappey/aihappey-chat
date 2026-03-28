@@ -463,6 +463,17 @@ import { aimagicx } from "./catalog/aimagicx";
 import { octagon } from "./catalog/octagon";
 import { nataris } from "./catalog/nataris";
 import { therouterai } from "./catalog/therouterai";
+import { gatemind } from "./catalog/gatemind";
+import { lxg2it } from "./catalog/lxg2it";
+import { eugpt } from "./catalog/eugpt";
+import { moltkey } from "./catalog/moltkey";
+import { aichixia } from "./catalog/aichixia";
+import { teai } from "./catalog/teai";
+import { api1sbs } from "./catalog/api1sbs";
+import { paul } from "./catalog/paul";
+import { radient } from "./catalog/radient";
+import { aihorde } from "./catalog/aihorde";
+import { wiserouter } from "./catalog/wiserouter";
 
 /**
  * UI-facing provider catalog.
@@ -472,16 +483,27 @@ import { therouterai } from "./catalog/therouterai";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
+  api1sbs,
+  paul,
+  wiserouter,
+  radient,
+  aihorde,
   octagon,
   aimagicx,
   therouterai,
+  aichixia,
   nataris,
+  teai,
+  moltkey,
+  eugpt,
   cairocoder,
   geekai,
   finora,
   baystone,
+  lxg2it,
   runway,
   mumeai,
+  gatemind,
   nebulablock,
   clawplaza,
   shengsuanyun,

@@ -5,7 +5,7 @@ export const kissapi: Provider = {
   description:
     "One API. Every Model. Zero Hassle. Access Claude, GPT, Gemini and more through a single OpenAI-compatible endpoint. No VPN needed. Pay only for what you use.",
   icons: [{
-    src: "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://kissapi.ai&size=256"
+    src: "https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://kissapi.ai&size=256"
   }],
   urls: {
     homepage: "https://api.kissapi.ai",

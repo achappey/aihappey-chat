@@ -7,7 +7,7 @@ export const tigercity: Provider = {
   description: "Norwegian AI platform for continuous agent learning. Build adaptive AI agents through simplified LLM fine-tuning—no ML expertise required.",
   icons: [
     {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://tigercity.ai&size=128"
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://tigercity.ai&size=128"
     }
   ],
   urls: {

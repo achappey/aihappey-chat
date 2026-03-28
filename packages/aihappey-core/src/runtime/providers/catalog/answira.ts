@@ -4,7 +4,7 @@ export const answira: Provider = {
   name: "Answira",
   description: "AI inference API hosted in Czech Republic. OpenAI-compatible API with European data residency. Prompts and responses are not stored.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://www.answira.ai&size=128"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.answira.ai&size=128"
   }],
   urls: {
     homepage: "https://www.answira.ai",

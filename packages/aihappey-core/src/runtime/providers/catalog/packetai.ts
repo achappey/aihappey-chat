@@ -6,7 +6,7 @@ export const packetai: Provider = {
     "Rent NVIDIA B200, H200, and RTX 6000 96GB GPUs on-demand. Deploy in under 5 minutes with SSH access, no contracts, and up to 75% savings vs AWS. European GPU cloud built by hosted.ai.",
   icons: [
     {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://packet.ai&size=128"
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://packet.ai&size=128"
     }
   ],
   urls: {

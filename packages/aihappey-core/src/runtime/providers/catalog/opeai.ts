@@ -5,7 +5,7 @@ export const opeai: Provider = {
   description: "Collect top AI tools and conversation experiences, and make intelligence touchable. Whether it's creativity, travel, or learning, it's easy to achieve every target.",
   icons: [
     {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://ope.ai&size=128"
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://ope.ai&size=128"
     }
   ],
   urls: {

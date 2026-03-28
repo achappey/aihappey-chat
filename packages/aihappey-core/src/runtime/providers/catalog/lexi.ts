@@ -4,7 +4,7 @@ export const lexi: Provider = {
   name: "Lexi",
   description: "Lower AI costs. Change one URL. Pay less per request.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://lexisaas.com&size=128"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://lexisaas.com&size=128"
   }],
   urls: {
     homepage: "https://lexisaas.com",

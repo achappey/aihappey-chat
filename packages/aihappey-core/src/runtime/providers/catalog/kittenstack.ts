@@ -5,7 +5,7 @@ export const kittenstack: Provider = {
   description:
     "Generate stunning AI images with state-of-the-art models.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://kittenstack.com&size=128"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://kittenstack.com&size=128"
   }],
   urls: {
     homepage: "https://kittenstack.com",

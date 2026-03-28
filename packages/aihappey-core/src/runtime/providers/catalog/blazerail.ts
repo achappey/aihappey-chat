@@ -4,7 +4,7 @@ export const blazerail: Provider = {
   name: "BlazeRail",
   description: "Unify all your AI models in one API. Access GPT-4, Claude, and more through one simple, powerful interface.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://blazerail.com&size=128"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://blazerail.com&size=128"
   }],
   urls: {
     homepage: "https://www.blazerail.com",

@@ -4,7 +4,7 @@ export const corriente: Provider = {
   name: "Corriente",
   description: "One API key. 368 models. 7 bare-metal nodes. OpenAI-compatible. No rate surprises. Your data never leaves our hardware.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://corriente.ai&size=128"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://corriente.ai&size=128"
   }],
   urls: {
     homepage: "https://corriente.ai",

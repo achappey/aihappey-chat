@@ -6,7 +6,7 @@ export const relaxai: Provider = {
     "Get the benefits of AI without compromising on data privacy. relaxAI offers a secure, transparent, and compliant solution. Find out more and start using relaxAI today.",
   icons: [
     {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://relax.ai&size=256",
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://relax.ai&size=256",
     },
   ],
   urls: {

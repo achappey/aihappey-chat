@@ -4,7 +4,7 @@ export const websearchapi: Provider = {
   name: "WebsearchAPI",
   description: "Accurate. Extracted. Ready for RAG. All through one powerful Web Search API.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://websearchapi.ai&size=128"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://websearchapi.ai&size=128"
   }],
   urls: {
     homepage: "https://websearchapi.ai",

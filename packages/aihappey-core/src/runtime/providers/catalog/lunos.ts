@@ -4,7 +4,7 @@ export const lunos: Provider = {
   name: "Lunos",
   description: "A comprehensive AI platform that unifies multiple AI services and tools into one seamless experience.",
   icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://lunos.tech&size=128"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://lunos.tech&size=128"
   }],
   urls: {
     homepage: "https://lunos.tech",

@@ -5,7 +5,7 @@ export const arwriter: Provider = {
   description: "ARWriter منصة كتابة عربية بالذكاء الاصطناعي: مكتبة أوامر (Prompt Library)، قوالب كتابة جاهزة، مشاريع لتنظيم العمل، ودعم كامل للهجات.",
   icons: [
     {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://arwriter.ai&size=128"
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://arwriter.ai&size=128"
     }
   ],
   urls: {

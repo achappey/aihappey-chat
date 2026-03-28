@@ -5,7 +5,7 @@ export const aicc: Provider = {
   description: "Access over 400 AI models with low latency and high scalability AI APIs. Save up to 80% compared to OpenAI. Fast, cost-efficient, and perfect for advanced machine learning projects.",
   icons: [
     {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://ai.cc&size=128"
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://ai.cc&size=128"
     }
   ],
   urls: {

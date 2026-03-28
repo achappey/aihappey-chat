@@ -9,12 +9,12 @@ export const reactPlugin = new ReactPlugin();
 
 export const appInsights = connectionString
   ? new ApplicationInsights({
-      config: {
-        connectionString,
-        extensions: [reactPlugin],
-        enableAutoRouteTracking: false,
-      },
-    })
+    config: {
+      connectionString,
+      extensions: [reactPlugin],
+      enableAutoRouteTracking: false,
+    },
+  })
   : null;
 
 appInsights?.loadAppInsights();

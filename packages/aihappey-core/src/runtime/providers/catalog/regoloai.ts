@@ -6,7 +6,7 @@ export const regoloai: Provider = {
     "Experience Data Privacy First infrastructure. Scalable, enterprise-grade LLM APIs hosted in Europe with Zero Data Retention. Secure your AI workflows.",
   icons: [
     {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://regolo.ai&size=128",
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://regolo.ai&size=128",
     },
   ],
   urls: {
