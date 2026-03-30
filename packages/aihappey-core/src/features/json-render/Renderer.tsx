@@ -1,51 +1,33 @@
 "use client";
 
-import React, { type ComponentType, type ReactNode, useMemo } from "react";
-import type {
-  Spec,
-  Action,
-} from "@json-render/core";
+import React, { type ReactNode, useCallback, useMemo } from "react";
+import type { ComputedFunction, Spec, StateStore } from "@json-render/core";
 import { validateSpec, autoFixSpec } from "@json-render/core";
 import {
   Renderer as JsonRenderRenderer,
-  StateProvider,
-  VisibilityProvider,
-  ActionProvider,
-  ValidationProvider,
-  ConfirmDialog,
-  useActions,
+  JSONUIProvider as NativeJSONUIProvider,
 } from "@json-render/react";
 import type {
   ComponentRenderProps as JsonRenderComponentRenderProps,
   ComponentRenderer as JsonRenderComponentRenderer,
   ComponentRegistry as JsonRenderComponentRegistry,
+  JSONUIProviderProps as NativeJSONUIProviderProps,
 } from "@json-render/react";
 
 /**
  * Props passed to component renderers
  */
-export interface ComponentRenderProps<P = Record<string, unknown>> {
-  /** Base json-render props */
-  element: JsonRenderComponentRenderProps<P>["element"];
-  children?: JsonRenderComponentRenderProps<P>["children"];
-  emit: JsonRenderComponentRenderProps<P>["emit"];
-  bindings?: JsonRenderComponentRenderProps<P>["bindings"];
-  loading?: JsonRenderComponentRenderProps<P>["loading"];
-  /** Execute an action */
-  onAction?: (action: Action | string) => void;
-}
+export type ComponentRenderProps<P = Record<string, unknown>> = JsonRenderComponentRenderProps<P>;
 
 /**
  * Component renderer type
  */
-export type ComponentRenderer<P = Record<string, unknown>> = ComponentType<
-  ComponentRenderProps<P>
->;
+export type ComponentRenderer<P = Record<string, unknown>> = JsonRenderComponentRenderer<P>;
 
 /**
  * Registry of component renderers
  */
-export type ComponentRegistry = Record<string, ComponentRenderer<any>>;
+export type ComponentRegistry = JsonRenderComponentRegistry;
 
 /**
  * Props for the Renderer component
@@ -59,6 +41,23 @@ export interface RendererProps {
   loading?: boolean;
   /** Fallback component for unknown types */
   fallback?: ComponentRenderer;
+}
+
+export interface StateChange {
+  path: string;
+  value: unknown;
+}
+
+export type LegacyStateChangeHandler = (path: string, value: unknown) => void;
+
+export type BatchedStateChangeHandler = (changes: StateChange[]) => void;
+
+export type StateChangeHandler = LegacyStateChangeHandler | BatchedStateChangeHandler;
+
+function isLegacyStateChangeHandler(
+  handler: StateChangeHandler,
+): handler is LegacyStateChangeHandler {
+  return handler.length >= 2;
 }
 
 function resolveRenderableRoot(spec: Spec): string | null {
@@ -113,28 +112,6 @@ function resolveStreamingFallbackRoot(
   if (candidates.length > 0) return candidates[0];
 
   return keys.sort()[0] ?? null;
-}
-
-function LegacyActionBridge({
-  Component,
-  props,
-}: {
-  Component: ComponentRenderer<any>;
-  props: JsonRenderComponentRenderProps<any>;
-}) {
-  const { execute } = useActions();
-
-  const onAction = (action: unknown) => {
-    if (typeof action === "string") {
-      props.emit(action);
-      return;
-    }
-    if (action && typeof action === "object" && "action" in (action as Record<string, unknown>)) {
-      void execute(action as Action);
-    }
-  };
-
-  return <Component {...props} onAction={onAction} />;
 }
 
 /**
@@ -215,30 +192,14 @@ export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
     return nextSpec;
   }, [spec, loading]);
 
-  const compatibleRegistry = useMemo<JsonRenderComponentRegistry>(() => {
-    const wrappedEntries = Object.entries(registry).map(([name, Component]) => {
-      const Wrapped: JsonRenderComponentRenderer<any> = (props) => (
-        <LegacyActionBridge Component={Component} props={props} />
-      );
-      Wrapped.displayName = `Compat(${name})`;
-      return [name, Wrapped];
-    });
-    return Object.fromEntries(wrappedEntries);
-  }, [registry]);
-
-  const compatibleFallback = useMemo<JsonRenderComponentRenderer<Record<string, unknown>> | undefined>(
-    () => (fallback ? ((props) => <LegacyActionBridge Component={fallback} props={props} />) : undefined),
-    [fallback],
-  );
-
   if (!normalizedSpec) return null;
 
   return (
     <JsonRenderRenderer
       spec={normalizedSpec}
-      registry={compatibleRegistry}
+      registry={registry}
       loading={loading}
-      fallback={compatibleFallback}
+      fallback={fallback}
     />
   );
 }
@@ -246,79 +207,63 @@ export function Renderer({ spec, registry, loading, fallback }: RendererProps) {
 /**
  * Props for JSONUIProvider
  */
-export interface JSONUIProviderProps {
-  /** Component registry */
-  registry: ComponentRegistry;
-  /** Initial state model */
-  initialState?: Record<string, unknown>;
-  /** Action handlers */
-  handlers?: Record<
-    string,
-    (params: Record<string, unknown>) => Promise<unknown> | unknown
-  >;
-  /** Navigation function */
-  navigate?: (path: string) => void;
-  /** Custom validation functions */
-  validationFunctions?: Record<
-    string,
-    (value: unknown, args?: Record<string, unknown>) => boolean
-  >;
-  /** Callback when state changes */
-  onStateChange?: (path: string, value: unknown) => void;
+export interface JSONUIProviderProps extends Omit<NativeJSONUIProviderProps, "onStateChange"> {
+  /**
+   * Callback when state changes.
+   *
+   * Supports the json-render v0.16 batched `changes[]` signature while still
+   * accepting the legacy `(path, value)` callback during migration.
+   */
+  onStateChange?: StateChangeHandler;
+  /** Controlled store for native json-render state management */
+  store?: StateStore;
+  /** Named functions for `$computed` expressions */
+  functions?: Record<string, ComputedFunction>;
   children: ReactNode;
 }
-
-// Import the providers
-//import { DataProvider } from "./contexts/data";
-//import { VisibilityProvider } from "./contexts/visibility";
-//import { ActionProvider } from "./contexts/actions";
-//import { ValidationProvider } from "./contexts/validation";
-//import { ConfirmDialog } from "./contexts/actions";
 
 /**
  * Combined provider for all JSONUI contexts
  */
 export function JSONUIProvider({
   registry,
+  store,
   initialState,
   handlers,
   navigate,
   validationFunctions,
+  functions,
   onStateChange,
   children,
 }: JSONUIProviderProps) {
-  return (
-    <StateProvider
-      initialState={initialState}
-      onStateChange={onStateChange}
-    >
-      <VisibilityProvider>
-        <ActionProvider handlers={handlers} navigate={navigate}>
-          <ValidationProvider customFunctions={validationFunctions}>
-            {children}
-            <ConfirmationDialogManager />
-          </ValidationProvider>
-        </ActionProvider>
-      </VisibilityProvider>
-    </StateProvider>
+  const compatibleOnStateChange = useCallback(
+    (changes: StateChange[]) => {
+      if (!onStateChange) return;
+
+      if (isLegacyStateChangeHandler(onStateChange)) {
+        for (const { path, value } of changes) {
+          onStateChange(path, value);
+        }
+        return;
+      }
+
+      onStateChange(changes);
+    },
+    [onStateChange],
   );
-}
-
-/**
- * Renders the confirmation dialog when needed
- */
-function ConfirmationDialogManager() {
-  const { pendingConfirmation, confirm, cancel } = useActions();
-
-  if (!pendingConfirmation?.action.confirm) {
-    return null;
-  }
 
   return (
-    <ConfirmDialog
-      confirm={pendingConfirmation.action.confirm}
-      onConfirm={confirm}
-      onCancel={cancel}
-    />
+    <NativeJSONUIProvider
+      registry={registry}
+      store={store}
+      initialState={initialState}
+      handlers={handlers}
+      navigate={navigate}
+      validationFunctions={validationFunctions}
+      functions={functions}
+      onStateChange={onStateChange ? compatibleOnStateChange : undefined}
+    >
+      {children}
+    </NativeJSONUIProvider>
   );
 }

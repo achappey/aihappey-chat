@@ -3,6 +3,8 @@ import { defineCatalog } from "@json-render/core";
 import {
   useAction,
   useActions,
+  useBoundProp,
+  type ComponentRenderProps,
   useStateStore,
   useStateBinding,
   useStateValue,
@@ -52,19 +54,7 @@ export type RuntimeCatalogDefinitions = {
   validationFunctions?: Record<string, { description?: string }>;
 };
 
-export type ComponentRenderProps<P = Record<string, unknown>> = {
-  element: {
-    key?: string;
-    type: string;
-    props: P;
-    children?: unknown;
-    visible?: unknown;
-  };
-  children?: React.ReactNode;
-  emit?: (event: string) => void;
-  onAction?: (action: unknown) => void;
-  loading?: boolean;
-};
+export type { ComponentRenderProps };
 
 const emptySchema = { type: "object", properties: {} };
 const emptyRegistry = {} as Record<string, never>;
@@ -275,6 +265,7 @@ export function buildDefaultCatalogDefinitionsWithActions(
 
 export const defaultRuntimeBindings = {
   React,
+  useBoundProp,
   useStateBinding,
   useStateValue,
   useAction,

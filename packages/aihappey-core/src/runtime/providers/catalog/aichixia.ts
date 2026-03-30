@@ -4,7 +4,7 @@ export const aichixia: Provider = {
   name: "Aichixia",
   description: "Build AI applications 10x faster with Aichixia's unified API. Access Claude, GPT, Gemini, DeepSeek and 20+ AI models through one OpenAI-compatible endpoint. Sub-100ms latency, 99.9% uptime, enterprise-grade security.",
   icons: [{
-    src: "https://wisdom-gate.juheapi.com/favicon.ico"
+    src: "https://www.aichixia.xyz/favicon.ico"
   }],
   urls: {
     homepage: "https://www.aichixia.xyz",

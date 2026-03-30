@@ -1,11 +1,7 @@
 import React, { useState } from "react";
+import type { ComponentRenderProps } from "@json-render/react";
 
-type ComponentProps = {
-  element: {
-    props: Record<string, any>;
-  };
-  children?: React.ReactNode;
-};
+type ComponentProps = ComponentRenderProps<Record<string, any>>;
 
 const StringField = ({ element }: ComponentProps) => {
   const p = element.props ?? {};
@@ -106,7 +102,7 @@ const SchemaTable = ({ element }: ComponentProps) => {
   );
 };
 
-const Form = ({ element, children }: ComponentProps) => {
+const Form = ({ element, children, emit }: ComponentProps) => {
   const p = element.props ?? {};
   const [submitCount, setSubmitCount] = useState(0);
   return (
@@ -115,6 +111,7 @@ const Form = ({ element, children }: ComponentProps) => {
       onSubmit={(e) => {
         e.preventDefault();
         setSubmitCount((v) => v + 1);
+        emit("submit");
       }}
     >
       {p.title ? <h3>{String(p.title)}</h3> : null}

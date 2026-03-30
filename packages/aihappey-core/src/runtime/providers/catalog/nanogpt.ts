@@ -5,7 +5,7 @@ export const nanogpt: Provider = {
   description: "Explore the potential of AI with NanoGPT - pay per prompt. Get instant access to over 200+ powerful AI models. No subscriptions. No registration required.",
   icons: [
     {
-      src: "https://nano-gpt.com/landing/favicon.ico"
+      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0reRd8eXZTLB0R15TLR-gp7UWUVMGFFLb9A&s"
     }
   ],
   urls: {

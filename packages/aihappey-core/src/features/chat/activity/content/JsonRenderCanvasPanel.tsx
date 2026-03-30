@@ -79,6 +79,11 @@ export const JsonRenderCanvasPanel = ({
 
   const { registry, actionHandlers } = useCombinedComponentRegistryForIds(selectedRegistryIds);
 
+  const mergedState = useMemo(
+    () => ({ ...((tree as any)?.state ?? {}), ...(output ?? {}) }),
+    [tree, output],
+  );
+
   const toggleRegistry = (rid: string) => {
     setSelectedRegistryIds((prev) => {
       const exists = prev.includes(rid);
@@ -149,7 +154,7 @@ export const JsonRenderCanvasPanel = ({
         <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
           <Tab eventKey="app" title={t("app")}>
             <ErrorBoundary fallbackRender={(er) => "Something went wrong:" + er.error}>
-              <StateProvider initialState={{ ...((tree as any)?.state ?? {}), ...(output ?? {}) }}>
+              <StateProvider initialState={mergedState}>
                 <VisibilityProvider>
                   <ActionProvider handlers={actionHandlers}>
                     <Renderer spec={tree} registry={registry} />

@@ -1,11 +1,7 @@
 import React from "react";
+import type { ComponentRenderProps } from "@json-render/react";
 
-type ComponentProps = {
-  element: {
-    props: Record<string, any>;
-  };
-  children?: React.ReactNode;
-};
+type ComponentProps = ComponentRenderProps<Record<string, any>>;
 
 const AdaptiveCard = ({ children }: ComponentProps) => (
   <div style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12 }}>{children}</div>
@@ -106,33 +102,44 @@ const InputChoiceSet = ({ element }: ComponentProps) => {
   );
 };
 
-const ActionOpenUrl = ({ element }: ComponentProps) => {
+const ActionOpenUrl = ({ element, on }: ComponentProps) => {
   const p = element.props ?? {};
+  const press = on("press");
   return (
-    <a href={p.url} target="_blank" rel="noreferrer">
+    <a
+      href={p.url}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(e) => {
+        if (press.bound || press.shouldPreventDefault) {
+          e.preventDefault();
+        }
+        press.emit();
+      }}
+    >
       {String(p.title ?? "Open")}
     </a>
   );
 };
 
-const ActionSubmit = ({ element }: ComponentProps) => {
+const ActionSubmit = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
-  return <button type="button">{String(p.title ?? "Submit")}</button>;
+  return <button type="button" onClick={() => emit("press")}>{String(p.title ?? "Submit")}</button>;
 };
 
-const ActionShowCard = ({ element }: ComponentProps) => {
+const ActionShowCard = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
-  return <button type="button">{String(p.title ?? "Show")}</button>;
+  return <button type="button" onClick={() => emit("press")}>{String(p.title ?? "Show")}</button>;
 };
 
-const ActionToggleVisibility = ({ element }: ComponentProps) => {
+const ActionToggleVisibility = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
-  return <button type="button">{String(p.title ?? "Toggle")}</button>;
+  return <button type="button" onClick={() => emit("press")}>{String(p.title ?? "Toggle")}</button>;
 };
 
-const ActionExecute = ({ element }: ComponentProps) => {
+const ActionExecute = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
-  return <button type="button">{String(p.title ?? "Execute")}</button>;
+  return <button type="button" onClick={() => emit("press")}>{String(p.title ?? "Execute")}</button>;
 };
 
 export const adaptiveCardsComponentRegistry = {

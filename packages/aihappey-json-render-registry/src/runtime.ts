@@ -14,6 +14,7 @@ import type {
 
 export const DEFAULT_RUNTIME_BINDINGS = [
   "React",
+  "useBoundProp",
   "useStateBinding",
   "useStateValue",
   "useAction",

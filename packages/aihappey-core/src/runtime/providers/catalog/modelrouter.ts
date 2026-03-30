@@ -2,14 +2,16 @@ import type { Provider } from "aihappey-types";
 
 export const modelrouter: Provider = {
   name: "ModelRouter",
-  description: "ModelRouter is a unified AI model API that lets you access 100+ models through a single endpoint. Chat with GPT-5, Claude, Gemini, Grok. Generate images with FLUX, Ideogram. Create videos with Kling, Veo, Sora. Synthesize speech with ElevenLabs and Qwen TTS. OpenAI-compatible, pay-as-you-go.",
+  description: "ModelRouter: unified AI and LLM API. One API for GPT, Claude, embeddings and more. Superfast routing, reliability and speed.",
   icons: [{
-    src: "https://app.modelrouter.io/favicon.ico?favicon.d6953a31.ico"
+    src: "https://modelrouter.app/fav.png"
   }],
   urls: {
-    homepage: "https://app.modelrouter.io",
-    docs: "https://docs.modelrouter.io",
-    pricing: "https://app.modelrouter.io/models"
+    homepage: "https://modelrouter.app",
+    docs: "https://modelrouter.app/docs",
+    termsOfService: "https://modelrouter.app/terms",
+    privacyPolicy: "https://modelrouter.app/privacy",
+    pricing: "https://modelrouter.app/pricing"
   },
   inferenceRegions: ["World"]
 

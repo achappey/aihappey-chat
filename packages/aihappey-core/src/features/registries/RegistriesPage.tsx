@@ -9,7 +9,7 @@ import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import type { JsonRenderRegistryItem } from "aihappey-json-render-registry";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { ErrorBoundary } from "react-error-boundary";
-import { ActionProvider, StateProvider, VisibilityProvider, useActions } from "@json-render/react";
+import { ActionProvider, StateProvider, VisibilityProvider } from "@json-render/react";
 import { defaultRegistryBundles } from "aihappey-ai-components-default";
 import { builtInRegistryLabels, useCombinedComponentRegistryForIds } from "../json-render/ComponentRegistry";
 
@@ -68,18 +68,25 @@ export const RegistriesPage = () => {
   }, [viewItem, formValues, previewRevision]);
 
   const PreviewHost = ({ componentName }: { componentName: string }) => {
-    const { execute } = useActions();
     const Component = (registry as any)?.[componentName] as any;
     if (!Component) return null;
 
+    const noopHandle = {
+      emit: () => undefined,
+      shouldPreventDefault: false,
+      bound: false,
+    };
+
     // Support BOTH conventions:
     // 1) runtime registry components expecting direct props (e.g. props.text)
-    // 2) json-render component renderers expecting ComponentRenderProps (props.element.props)
+    // 2) json-render component renderers expecting native ComponentRenderProps
     return (
       <Component
         {...formValues}
         element={previewElement as any}
-        onAction={execute}
+        emit={() => undefined}
+        on={() => noopHandle}
+        bindings={undefined}
         loading={false}
       />
     );

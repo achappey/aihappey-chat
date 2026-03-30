@@ -7,7 +7,7 @@ export const moltkey: Provider = {
     src: "https://moltkey.io/favicon.ico"
   }],
   urls: {
-    homepage: "https://wisdom-gate.juheapi.com",
+    homepage: "https://moltkey.io",
     docs: "https://moltkey.io/docs",
     pricing: "https://moltkey.io/catalog",
     privacyPolicy: "https://moltkey.io/privacy"

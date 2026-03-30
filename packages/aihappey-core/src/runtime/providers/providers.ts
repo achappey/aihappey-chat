@@ -474,6 +474,16 @@ import { paul } from "./catalog/paul";
 import { radient } from "./catalog/radient";
 import { aihorde } from "./catalog/aihorde";
 import { wiserouter } from "./catalog/wiserouter";
+import { pellet } from "./catalog/pellet";
+import { bleep } from "./catalog/bleep";
+import { commonstack } from "./catalog/commonstack";
+import { llama } from "./catalog/llama";
+import { ninjachat } from "./catalog/ninjachat";
+import { mimicxai } from "./catalog/mimicxai";
+import { sawtia } from "./catalog/sawtia";
+import { runtimo } from "./catalog/runtimo";
+import { awstore } from "./catalog/awstore";
+import { huboteng } from "./catalog/huboteng";
 
 /**
  * UI-facing provider catalog.
@@ -484,8 +494,18 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
   api1sbs,
+  ninjachat,
+  llama,
+  bleep,
+  commonstack,
   paul,
+  sawtia,
+  mimicxai,
+  huboteng,
+  runtimo,
   wiserouter,
+  pellet,
+  awstore,
   radient,
   aihorde,
   octagon,

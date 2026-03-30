@@ -67,8 +67,24 @@ const readRowValue = (row: any, key?: string, path?: string) => {
     return field.split(".").reduce((acc: any, part) => acc?.[part], row);
 };
 
+const resolveElementValue = <T,>(element: any, pathProp: string, valueProp: string): T | undefined => {
+    const pathValue = useOptionalDataValue<T>(element?.props?.[pathProp]);
+    return pathValue ?? element?.props?.[valueProp];
+};
+
+const resolveRowKey = (row: any, rowIndex: number, rowKeyPath?: string) => {
+    const explicitKey = readRowValue(row, undefined, rowKeyPath);
+    if (explicitKey !== undefined && explicitKey !== null && typeof explicitKey !== "object") {
+        return explicitKey;
+    }
+    if (row?.id !== null && row?.id !== undefined && typeof row?.id !== "object") {
+        return row.id;
+    }
+    return rowIndex;
+};
+
 const Metric = ({ element }: ComponentRenderProps<any>) => {
-    const value = useStateValue<any>(element.props.valuePath);
+    const value = resolveElementValue<any>(element, "valuePath", "value");
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span style={{ fontSize: 12, opacity: 0.7 }}>{element.props.label}</span>
@@ -123,8 +139,12 @@ const Container = ({ element, children }: ComponentRenderProps<any>) => {
     );
 };
 
-const Stack = ({ element, children }: ComponentRenderProps<any>) => (
+const Stack = ({ element, children, emit, on, bindings, loading }: ComponentRenderProps<any>) => (
     <Container
+        emit={emit}
+        on={on}
+        bindings={bindings}
+        loading={loading}
         element={{
             ...element,
             props: { ...element.props, direction: "column" },
@@ -134,8 +154,12 @@ const Stack = ({ element, children }: ComponentRenderProps<any>) => (
     </Container>
 );
 
-const Row = ({ element, children }: ComponentRenderProps<any>) => (
+const Row = ({ element, children, emit, on, bindings, loading }: ComponentRenderProps<any>) => (
     <Container
+        emit={emit}
+        on={on}
+        bindings={bindings}
+        loading={loading}
         element={{
             ...element,
             props: { ...element.props, direction: "row" },
@@ -274,13 +298,19 @@ const Image = ({ element }: ComponentRenderProps<any>) => {
     );
 };
 
-const Carousel = ({ element }: ComponentRenderProps<any>) => {
+const Carousel = ({ element, emit, on, bindings, loading }: ComponentRenderProps<any>) => {
     const { Carousel: CarouselComponent } = useTheme();
     const slides = (element.props.slides ?? []).map((slide: any) => ({
         key: slide.key,
         caption: slide.title,
         content: slide.imageSrc ? (
-            <Image element={{ ...element, props: { src: slide.imageSrc } }} />
+            <Image
+                element={{ ...element, props: { src: slide.imageSrc } }}
+                emit={emit}
+                on={on}
+                bindings={bindings}
+                loading={loading}
+            />
         ) : (
             <div>
                 {slide.title ? <strong>{slide.title}</strong> : null}
@@ -292,9 +322,9 @@ const Carousel = ({ element }: ComponentRenderProps<any>) => {
 };
 
 const Chart = withMeta(({ element }: ComponentRenderProps<any>) => {
-    const labelsFromState = useOptionalDataValue<any[]>(toStatePath(element.props.labels));
-    const datasetsFromState = useOptionalDataValue<any[]>(toStatePath(element.props.datasets));
-    const optionsFromState = useOptionalDataValue<any>(toStatePath(element.props.options));
+    const labelsFromState = useOptionalDataValue<any[]>(element.props.labelsPath ?? toStatePath(element.props.labels));
+    const datasetsFromState = useOptionalDataValue<any[]>(element.props.datasetsPath ?? toStatePath(element.props.datasets));
+    const optionsFromState = useOptionalDataValue<any>(element.props.optionsPath ?? toStatePath(element.props.options));
 
     const labels = Array.isArray(labelsFromState)
         ? labelsFromState
@@ -358,13 +388,19 @@ const SimpleTable = ({ element }: ComponentRenderProps<any>) => {
                 </tr>
             </thead>
             <tbody>
+                {rows.length === 0 && element.props.emptyText ? (
+                    <tr>
+                        <td colSpan={Math.max(columns.length, 1)}>{element.props.emptyText}</td>
+                    </tr>
+                ) : null}
                 {rows.map((row: any, rowIndex: number) => (
-                    <tr key={row?.id !== null && typeof row?.id !== "object" ? row.id : rowIndex}>
-                        | {columns.map((column: any) => {
+                    <tr key={resolveRowKey(row, rowIndex, element.props.rowKeyPath)}>
+                        {columns.map((column: any) => {
                             const value = readRowValue(row, column.key, column.fieldPath);
+                            const formatted = formatNumber(value, column.format, column.precision);
                             return (
                                 <td key={column.key}>
-                                    {value}
+                                    {formatted == null ? "" : String(formatted)}
                                 </td>
                             );
                         })}
@@ -375,7 +411,7 @@ const SimpleTable = ({ element }: ComponentRenderProps<any>) => {
     );
 };
 
-const DataGrid = ({ element }: ComponentRenderProps<any>) => {
+const DataGrid = ({ element, emit, on, bindings, loading }: ComponentRenderProps<any>) => {
     const { DataGrid: DataGridComponent } = useTheme();
     const columns = (element.props.columns ?? []).map((column: any) => ({
         key: column.key,
@@ -394,6 +430,10 @@ const DataGrid = ({ element }: ComponentRenderProps<any>) => {
     if (!DataGridComponent) {
         return (
             <SimpleTable
+                emit={emit}
+                on={on}
+                bindings={bindings}
+                loading={loading}
                 element={{
                     ...element,
                     props: { ...element.props, data: rows },
@@ -405,7 +445,7 @@ const DataGrid = ({ element }: ComponentRenderProps<any>) => {
         <DataGridComponent
             columns={columns}
             data={rows}
-            rowKey={(row: any) => row?.id}
+            rowKey={(row: any, rowIndex?: number) => resolveRowKey(row, rowIndex ?? 0, element.props.rowKeyPath)}
             selectionMode={element.props.selectionMode ?? "none"}
         />
     );

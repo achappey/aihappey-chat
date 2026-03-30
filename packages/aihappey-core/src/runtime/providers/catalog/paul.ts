@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
 export const paul: Provider = {
-  name: "paul",
+  name: "Paul",
   description: "Paul is an AI designed for your reality — studies, employment, business, tech. Available in French, adapted to the Cameroonian context.",
   icons: [{
     src: "https://chat.fatherpaulai.com/static/apple-touch-icon.png?v=pp24"

@@ -132,7 +132,7 @@ export const componentDefinitions = {
     slots: ["default"],
   },
   ProgressBar: {
-    description: "Progress indicator. Use value or valuePath.",
+    description: "Progress indicator. Provide either a static value or a dynamic valuePath. Prefer valuePath for state-driven UI.",
     props: z.object({
       label: z.string().optional(),
       variant: z.string().optional(),
@@ -180,11 +180,13 @@ export const componentDefinitions = {
     }),
   },
   Table: {
-    description: "Simple data table using columns + data or dataPath. Use for small datasets.",
+    description: "Simple data table using columns plus either inline data or a dynamic dataPath. Prefer dataPath for state-driven tables and use column.fieldPath for nested values.",
     props: z.object({
       columns: z.array(TableColumnSchema),
       data: z.array(z.record(z.string(), z.unknown())).optional(),
       dataPath: z.string().optional(),
+      rowKeyPath: z.string().optional(),
+      emptyText: z.string().optional(),
       striped: z.boolean().optional(),
       bordered: z.boolean().optional(),
       hover: z.boolean().optional(),
@@ -192,28 +194,34 @@ export const componentDefinitions = {
     }),
   },
   DataGrid: {
-    description: "Advanced data grid with sortable columns. Use for larger datasets.",
+    description: "Advanced data grid with sortable columns. Provide either inline data or a dynamic dataPath. Prefer dataPath for state-driven grids and rowKeyPath when row.id is not stable.",
     props: z.object({
       columns: z.array(TableColumnSchema),
       data: z.array(z.record(z.string(), z.unknown())).optional(),
       dataPath: z.string().optional(),
+      rowKeyPath: z.string().optional(),
+      emptyText: z.string().optional(),
       selectionMode: z.enum(["single", "multiselect", "none"]).optional(),
     }),
   },
   Chart: {
-    description: "Chart.js block. Use JSON Pointer (RFC 6901) strings when using datapaths. Prefer datapaths for dynamic charts.",
+    description: "Chart.js block. Provide inline labels/datasets/options for static charts, or labelsPath/datasetsPath/optionsPath for state-driven charts. Prefer explicit *Path props for AI-generated dynamic charts.",
     props: z.object({
       type: z.string(),
-      labels: z.any(),
-      datasets: z.any(),
+      labels: z.any().optional(),
+      labelsPath: z.string().optional(),
+      datasets: z.any().optional(),
+      datasetsPath: z.string().optional(),
       options: z.any().optional(),
+      optionsPath: z.string().optional(),
       height: z.number().optional(),
     }),
   },
   Metric: {
-    description: "Metric display reading a numeric value from valuePath. Use format for display.",
+    description: "Metric display. Provide either a static value or a dynamic valuePath. Prefer valuePath for dashboards and use format for display.",
     props: z.object({
       label: z.string(),
+      value: z.union([z.number(), z.string()]).optional(),
       valuePath: z.string(),
       format: z.enum(["number", "currency", "percent"]).optional(),
       precision: z.number().int().min(0).max(6).optional(),

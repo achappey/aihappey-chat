@@ -1,12 +1,8 @@
 import React from "react";
+import type { ComponentRenderProps } from "@json-render/react";
 import { useTheme } from "aihappey-components";
 
-type ComponentProps = {
-  element: {
-    props: Record<string, any>;
-  };
-  children?: React.ReactNode;
-};
+type ComponentProps = ComponentRenderProps<Record<string, any>>;
 
 const AdaptiveCard = ({ element, children }: ComponentProps) => {
   const p = element.props ?? {};
@@ -226,38 +222,52 @@ const InputChoiceSet = ({ element }: ComponentProps) => {
   );
 };
 
-const ActionOpenUrl = ({ element }: ComponentProps) => {
+const ActionOpenUrl = ({ element, on }: ComponentProps) => {
   const p = element.props ?? {};
   const { Button } = useTheme();
+  const press = on("press");
   return (
-    <Button type="button" onClick={() => window.open(String(p.url ?? ""), "_blank", "noopener,noreferrer")}>
+    <Button
+      type="button"
+      onClick={(e: React.MouseEvent) => {
+        if (press.bound || press.shouldPreventDefault) {
+          e.preventDefault();
+        }
+
+        if (!press.bound && !press.shouldPreventDefault) {
+          window.open(String(p.url ?? ""), "_blank", "noopener,noreferrer");
+        }
+
+        press.emit();
+      }}
+    >
       {String(p.title ?? "Open")}
     </Button>
   );
 };
 
-const ActionSubmit = ({ element }: ComponentProps) => {
+const ActionSubmit = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
   const { Button } = useTheme();
-  return <Button type="button">{String(p.title ?? "Submit")}</Button>;
+  return <Button type="button" onClick={() => emit("press")}>{String(p.title ?? "Submit")}</Button>;
 };
 
-const ActionShowCard = ({ element }: ComponentProps) => {
+const ActionShowCard = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
   const { Button } = useTheme();
-  return <Button type="button">{String(p.title ?? "Show")}</Button>;
+  return <Button type="button" onClick={() => emit("press")}>{String(p.title ?? "Show")}</Button>;
 };
 
-const ActionToggleVisibility = ({ element }: ComponentProps) => {
+const ActionToggleVisibility = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
   const { Button } = useTheme();
-  return <Button type="button">{String(p.title ?? "Toggle")}</Button>;
+  return <Button type="button" onClick={() => emit("press")}>{String(p.title ?? "Toggle")}</Button>;
 };
 
-const ActionExecute = ({ element }: ComponentProps) => {
+const ActionExecute = ({ element, emit }: ComponentProps) => {
   const p = element.props ?? {};
   const { Button } = useTheme();
-  return <Button type="button">{String(p.title ?? "Execute")}</Button>;
+  return <Button type="button" onClick={() => emit("press")}>{String(p.title ?? "Execute")}</Button>;
 };
 
 export const adaptiveCardsAppComponentRegistry = {

@@ -4,7 +4,7 @@ export const baseapi: Provider = {
   name: "BaseAPI",
   description: "Stable AI Proxy API with transparent pricing and 5-minute integration. AI infrastructure solution for MMO.",
   icons: [{
-    src: "https://baseapi.dev/assets/favicon-v6De3hlE.svg"
+    src: "https://baseapi.dev/logo.png"
   }],
   urls: {
     homepage: "https://baseapi.dev",
