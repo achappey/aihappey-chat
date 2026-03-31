@@ -484,6 +484,9 @@ import { sawtia } from "./catalog/sawtia";
 import { runtimo } from "./catalog/runtimo";
 import { awstore } from "./catalog/awstore";
 import { huboteng } from "./catalog/huboteng";
+import { codzen } from "./catalog/codzen";
+import { opuscode } from "./catalog/opuscode";
+import { concentrate } from "./catalog/concentrate";
 
 /**
  * UI-facing provider catalog.
@@ -495,6 +498,9 @@ export const PROVIDERS: Record<string, Provider> = {
   citadelis,
   api1sbs,
   ninjachat,
+  concentrate,
+  opuscode,
+  codzen,
   llama,
   bleep,
   commonstack,
