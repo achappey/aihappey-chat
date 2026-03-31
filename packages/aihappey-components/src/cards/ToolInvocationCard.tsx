@@ -43,6 +43,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   const { Card, Button, Spinner, JsonViewer, Badge } = useTheme();
   const [loadingExplanation, setLoadingExplanation] = useState(false);
   const toolName = invocation.type.replace("tool-", "");
+  const task = invocation?.output?.task as any;
 
   const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? toolName;
 
@@ -59,6 +60,8 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
 
     {isCompleted && !invocation.output?.isError
       && <Badge size={"small"} bg="informative">{prettySize(invocation.output)}</Badge>}
+
+    {task && <Badge size={"small"} bg="warning">task: {task.status}</Badge>}
   </div>;
 
   return (

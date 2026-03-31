@@ -27,6 +27,7 @@ import {
   buildActivateSkillTool,
   buildReadSkillResourceTool,
 } from "./toolcalls/useSkillToolCall";
+import { buildMcpTaskTools, mcpTaskPluginDef } from "./toolcalls/useMcpTaskToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -64,6 +65,7 @@ export function useTools() {
       localRegistryPluginDef,
       localActionsPluginDef,
       localToolsPluginDef,
+      mcpTaskPluginDef,
       vercelAIPluginDef,
     ],
     []
@@ -98,6 +100,7 @@ export function useTools() {
 
   return useMemo(() => {
     const baseTools = Object.values(mcpServerContent).flatMap(s => s.tools ?? []);
+    const mcpTaskTools = buildMcpTaskTools(mcpServerContent);
 
     const hasResources = Object.values(mcpServerContent).some(
       s => (s.resources?.length ?? 0) > 0 || (s.resourceTemplates?.length ?? 0) > 0
@@ -118,6 +121,11 @@ export function useTools() {
       allTools.push(t);
     }
     for (const t of injectedStoredLocalTools) {
+      if (seen.has(t.name)) continue;
+      seen.add(t.name);
+      allTools.push(t);
+    }
+    for (const t of mcpTaskTools) {
       if (seen.has(t.name)) continue;
       seen.add(t.name);
       allTools.push(t);

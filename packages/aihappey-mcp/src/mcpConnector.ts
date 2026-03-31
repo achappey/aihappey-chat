@@ -3,6 +3,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import {
     CreateMessageRequestSchema, ElicitRequestSchema, LoggingMessageNotificationSchema,
     ProgressNotificationSchema,
+    TaskStatusNotificationSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
 import type {
@@ -10,7 +11,8 @@ import type {
     ElicitRequest, ElicitResult,
     LoggingMessageNotification,
     ProgressNotification,
-    CreateMessageResultWithTools
+    CreateMessageResultWithTools,
+    TaskStatusNotification,
 } from "@modelcontextprotocol/sdk/types.js";
 import { getMcpAccessToken, initiateMcpOAuthFlow, clearMcpAccessToken } from "aihappey-auth";
 import z from "zod";
@@ -65,6 +67,7 @@ async function _connectMcpBase(
         onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
         onLogging?: (server: string, req: LoggingMessageNotification) => Promise<void>;
         onProgress?: (req: ProgressNotification) => Promise<void>;
+        onTaskStatus?: (server: string, req: TaskStatusNotification["params"]) => Promise<void>;
         handleOAuth?: boolean;
     } = {}
 ): Promise<Client> {
@@ -104,6 +107,10 @@ async function _connectMcpBase(
         client.setNotificationHandler(ProgressNotificationSchema,
             ({ params }) => opts.onProgress!(params as any));
 
+    if (opts.onTaskStatus)
+        client.setNotificationHandler(TaskStatusNotificationSchema,
+            ({ params }) => opts.onTaskStatus!(url, params as any));
+
     const transport = new StreamableHTTPClientTransport(new URL(url), { requestInit: { headers } });
 
     try {
@@ -128,6 +135,7 @@ export async function connectSimple(
         token?: string;
         headers?: Record<string, string>;
         onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult>;
+        onTaskStatus?: (server: string, req: TaskStatusNotification["params"]) => Promise<void>;
         clientName?: string;
         clientVersion?: string;
     }
@@ -149,6 +157,7 @@ export async function connectMcpServer(
         onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
         onLogging?: (server: string, req: LoggingMessageNotification) => Promise<void>;
         onProgress?: (req: ProgressNotification) => Promise<void>;
+        onTaskStatus?: (server: string, req: TaskStatusNotification["params"]) => Promise<void>;
         handleOAuth?: boolean;
         onDisconnect?: (url: string) => Promise<void>;
     }

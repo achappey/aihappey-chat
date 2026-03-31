@@ -52,6 +52,7 @@ import {
 } from "./useLocalArtificialIntelligenceToolCall";
 import { useSkills } from "aihappey-skills";
 import { useSkillToolCall } from "./useSkillToolCall";
+import { mcpTaskPluginDef, useMcpTaskRuntime } from "./useMcpTaskToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -98,6 +99,7 @@ export function useOnToolCall({
   const localCanvasRuntime = useLocalCanvasRuntime(files);
   const localSettingsRuntime = useLocalSettingsRuntime();
   const localToolsRuntime = useLocalToolsRuntime();
+  const mcpTaskRuntime = useMcpTaskRuntime();
   const localActionsRuntime = useLocalActionsRuntime();
   const localCatalogRuntime = useLocalCatalogRuntime();
   const localRegistryRuntime = useLocalRegistryRuntime();
@@ -130,6 +132,7 @@ export function useOnToolCall({
       [localSettingsRuntime.name]: localSettingsRuntime,
       [todoListRuntime.name]: todoListRuntime,
       [localToolsRuntime.name]: localToolsRuntime,
+      [mcpTaskRuntime.name]: mcpTaskRuntime,
       [localActionsRuntime.name]: localActionsRuntime,
       [localCatalogRuntime.name]: localCatalogRuntime,
       [localRegistryRuntime.name]: localRegistryRuntime,
@@ -147,6 +150,7 @@ export function useOnToolCall({
       localCanvasRuntime,
       localSettingsRuntime,
       localToolsRuntime,
+      mcpTaskRuntime,
       todoListRuntime,
       localActionsRuntime,
       localCatalogRuntime,
@@ -177,6 +181,7 @@ export function useOnToolCall({
       localRegistryPluginDef,
       localActionsPluginDef,
       localToolsPluginDef,
+      mcpTaskPluginDef,
       vercelAIPluginDef,
     ],
     []
@@ -245,6 +250,9 @@ export function useOnToolCall({
         if (toolCall.toolName === "read_skill_resource") {
           return await readSkillResourcePlugin.handle(toolCall, signal);
         }
+        if (toolCall.toolName.startsWith("mcp_task_")) {
+          return await mcpTaskRuntime.handle(toolCall);
+        }
 
         // 3) fallback
         return await handleMcpPassthroughToolCall(toolCall, signal);
@@ -261,6 +269,7 @@ export function useOnToolCall({
       readResourcePlugin,
       activateSkillPlugin,
       readSkillResourcePlugin,
+      mcpTaskRuntime,
       handleMcpPassthroughToolCall,
     ]
   );

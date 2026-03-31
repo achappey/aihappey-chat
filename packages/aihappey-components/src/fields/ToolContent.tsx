@@ -25,6 +25,7 @@ export const ToolContent: React.FC<ToolContentProps> = ({
   const { t } = useTranslation();
   const argsPreview = JSON.stringify(invocation.input, null, 2);
   const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? invocation.type.replace("tool-", "");
+  const task = invocation?.output?.task as any;
   const contentStyle: React.CSSProperties = {
     margin: "0.5em 0px"
   }
@@ -41,6 +42,11 @@ export const ToolContent: React.FC<ToolContentProps> = ({
         {tool?.description}
       </p>
     }
+
+    {task && <p style={contentStyle}>
+      <strong>Task</strong>: {task.taskId} · <strong>Status</strong>: {task.status}
+    </p>}
+
     <JsonViewer title={t('input')} value={argsPreview} />
 
     {progress && <ProgressBar label={progress.message}

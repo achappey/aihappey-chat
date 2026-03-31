@@ -6,9 +6,27 @@ import {
   ProgressNotification, type ElicitRequest, type Tool,
   Resource, ResourceTemplate, type ElicitResult,
   type LoggingLevel,
+  type Task,
+  CallToolResultSchema,
 } from "aihappey-mcp";
 import { connectServerPersistent, mcpRuntime } from "./uiSlice";
 import { AGENT_RESOURCE_TYPE, AGENTS_RESOURCE_TYPE, CONVERSATION_RESOURCE_TYPE, CONVERSATIONS_RESOURCE_TYPE } from "aihappey-types";
+
+const DEFAULT_TASK_CREATED_TEXT = "Task started. Use MCP task tools to inspect status or fetch the result.";
+
+const asTaskCreatedToolResult = (task: Task) => ({
+  isError: false,
+  content: [{
+    type: "text",
+    text: task.statusMessage || DEFAULT_TASK_CREATED_TEXT,
+  }],
+  task,
+});
+
+const supportsTaskedToolCalls = (capabilities: ServerCapabilities | undefined, tool: Tool | undefined) => {
+  const taskSupport = tool?.execution?.taskSupport;
+  return !!capabilities?.tasks?.requests?.tools?.call && !!taskSupport && taskSupport !== "forbidden";
+};
 
 export type McpContents = {
   tools: Tool[];
@@ -60,6 +78,10 @@ export type McpSlice = {
   clearToken: (url: string) => void;
   callTool: (toolCallId: string | undefined, name: string, parameters: any, locale?: string, signal?: AbortSignal)
     => Promise<any | undefined>;
+  getMcpTask: (serverName: string, taskId: string, signal?: AbortSignal) => Promise<Task>;
+  getMcpTaskResult: (serverName: string, taskId: string, signal?: AbortSignal) => Promise<any>;
+  listMcpTasks: (serverName: string, cursor?: string, signal?: AbortSignal) => Promise<{ tasks: Task[]; nextCursor?: string }>;
+  cancelMcpTask: (serverName: string, taskId: string, signal?: AbortSignal) => Promise<Task>;
   clearMcpContent: (name: string) => void;
 
   setLogLevel: (logLevel: LoggingLevel) => Promise<void>;
@@ -277,6 +299,74 @@ export const createMcpSlice: StateCreator<
       logLevel: logLevel
     }));
   },
+  getMcpTask: async (serverName: string, taskId: string, signal?: AbortSignal) => {
+    const { toolTimeout, resetTimeoutOnProgress } = get();
+    const client = mcpRuntime.get(serverName);
+
+    if (!client)
+      throw new Error("Client not connected");
+
+    const taskClient = (client as any)?.experimental?.tasks;
+    if (!taskClient?.getTask)
+      throw new Error(`Server ${serverName} does not expose MCP tasks/get`);
+
+    return await taskClient.getTask(taskId, {
+      signal,
+      timeout: toolTimeout,
+      resetTimeoutOnProgress,
+    });
+  },
+  getMcpTaskResult: async (serverName: string, taskId: string, signal?: AbortSignal) => {
+    const { toolTimeout, resetTimeoutOnProgress } = get();
+    const client = mcpRuntime.get(serverName);
+
+    if (!client)
+      throw new Error("Client not connected");
+
+    const taskClient = (client as any)?.experimental?.tasks;
+    if (!taskClient?.getTaskResult)
+      throw new Error(`Server ${serverName} does not expose MCP tasks/result`);
+
+    return await taskClient.getTaskResult(taskId, CallToolResultSchema, {
+      signal,
+      timeout: toolTimeout,
+      resetTimeoutOnProgress,
+    });
+  },
+  listMcpTasks: async (serverName: string, cursor?: string, signal?: AbortSignal) => {
+    const { toolTimeout, resetTimeoutOnProgress } = get();
+    const client = mcpRuntime.get(serverName);
+
+    if (!client)
+      throw new Error("Client not connected");
+
+    const taskClient = (client as any)?.experimental?.tasks;
+    if (!taskClient?.listTasks)
+      throw new Error(`Server ${serverName} does not expose MCP tasks/list`);
+
+    return await taskClient.listTasks(cursor, {
+      signal,
+      timeout: toolTimeout,
+      resetTimeoutOnProgress,
+    });
+  },
+  cancelMcpTask: async (serverName: string, taskId: string, signal?: AbortSignal) => {
+    const { toolTimeout, resetTimeoutOnProgress } = get();
+    const client = mcpRuntime.get(serverName);
+
+    if (!client)
+      throw new Error("Client not connected");
+
+    const taskClient = (client as any)?.experimental?.tasks;
+    if (!taskClient?.cancelTask)
+      throw new Error(`Server ${serverName} does not expose MCP tasks/cancel`);
+
+    return await taskClient.cancelTask(taskId, {
+      signal,
+      timeout: toolTimeout,
+      resetTimeoutOnProgress,
+    });
+  },
   callTool: async (toolCallId: string | undefined, name: string,
     parameters: any,
     locale?: string,
@@ -294,9 +384,46 @@ export const createMcpSlice: StateCreator<
     if (!client)
       throw new Error("Client not connected")
 
+    const tool = mcpServerContent[serverName]?.tools.find((a: Tool) => a.name == name)
+
     const meta: Record<string, any> = {};
     if (locale) meta["chat/locale"] = locale;
     if (toolCallId) meta.progressToken = toolCallId;
+
+    if (supportsTaskedToolCalls(mcpServerContent[serverName]?.capabilities, tool)) {
+      const taskClient = (client as any)?.experimental?.tasks;
+
+      if (!taskClient?.callToolStream) {
+        throw new Error(`Server ${serverName} advertises MCP task support but the connected runtime does not expose task streaming APIs`)
+      }
+
+      const stream = taskClient.callToolStream({
+        name: name,
+        arguments: parameters,
+        ...(Object.keys(meta).length > 0 ? { _meta: meta } : {}),
+      }, undefined, {
+        signal,
+        timeout: toolTimeout,
+        resetTimeoutOnProgress,
+        task: {},
+      });
+
+      for await (const message of stream) {
+        if (message.type === "taskCreated") {
+          return asTaskCreatedToolResult(message.task);
+        }
+
+        if (message.type === "result") {
+          return message.result;
+        }
+
+        if (message.type === "error") {
+          throw message.error;
+        }
+      }
+
+      throw new Error(`Task-enabled tool ${name} did not return a task or a final result`)
+    }
 
     return await client.callTool({
       name: name,

@@ -487,6 +487,8 @@ import { huboteng } from "./catalog/huboteng";
 import { codzen } from "./catalog/codzen";
 import { opuscode } from "./catalog/opuscode";
 import { concentrate } from "./catalog/concentrate";
+import { lumecoder } from "./catalog/lumecoder";
+import { clankie } from "./catalog/clankie";
 
 /**
  * UI-facing provider catalog.
@@ -512,11 +514,13 @@ export const PROVIDERS: Record<string, Provider> = {
   wiserouter,
   pellet,
   awstore,
+  lumecoder,
   radient,
   aihorde,
   octagon,
   aimagicx,
   therouterai,
+  clankie,
   aichixia,
   nataris,
   teai,
