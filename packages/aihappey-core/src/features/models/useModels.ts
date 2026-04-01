@@ -24,6 +24,7 @@ export const useModels = (
         .get<ModelResponse>(modelsApi)
         .then((a) => {
           setModels(a.data)
+
           const defaultModel = model ?? userPreferredModel
           if (defaultModel)
             setSelectedModel(defaultModel)

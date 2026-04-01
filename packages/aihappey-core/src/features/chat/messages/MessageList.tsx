@@ -24,6 +24,7 @@ interface MessageListProps {
   conversationId?: string;
   messages: UIMessage[];
   sendMessage?: any;
+  streaming?: boolean;
 
   /**
    * Optional: patch the live in-memory chat message list (from `useChat()`).
@@ -60,6 +61,7 @@ export const MessageList = ({
   conversationId,
   messages,
   sendMessage,
+  streaming,
   onUiMessagePatched,
 }: MessageListProps) => {
   const { i18n } = useTranslation();
@@ -162,7 +164,7 @@ export const MessageList = ({
           const uiMessageId = getUiMessageIdFromChatMessageId(msg.id);
           setEditUiMessageId(uiMessageId);
         }}
-        onRenderMarkdown={(text) => <Markdown text={text} />}
+        onRenderMarkdown={(text) => <Markdown text={text} streaming={streaming} />}
         renderBlock={({ block }: any) => {
 
           if (block.type?.startsWith("tool-")
@@ -213,6 +215,7 @@ export const MessageList = ({
             return (
               <Markdown
                 text={((block.request?.params?.messages?.[0] as any).content as any)?.text}
+                streaming={streaming}
               />
             );
           }

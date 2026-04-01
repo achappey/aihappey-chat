@@ -2,13 +2,16 @@ import type { Provider } from "aihappey-types";
 
 export const ofoxai: Provider = {
   name: "OfoxAI",
-  description: "OfoxAI LLM Gateway Documentation — Access 100+ LLMs including GPT-5.3 Codex, Claude Opus 4.6, Gemini 3.1 Pro, DeepSeek V3.2 through one API. Fully compatible with OpenAI / Anthropic / Gemini SDKs.",
+  description: "Unified LLM API gateway — access GPT-5.2, Claude Opus 4.5, Gemini 3, DeepSeek V3.2 and 100+ models through one API. OpenAI-compatible, 3-minute setup, pay-as-you-go. Low latency, 99.9% SLA. Built for developers who ship.",
   icons: [{
-    src: "https://docs.ofox.ai/favicon.ico?favicon.de982e79.ico"
+    src: "https://ofox.ai/favicon.ico"
   }],
   urls: {
-    homepage: "https://docs.ofox.ai/en",
-    docs: "https://docs.ofox.ai/develop"
+    homepage: "https://ofox.ai",
+    pricing: "https://ofox.ai/pricing",
+    docs: "https://ofox.ai/docs",
+    termsOfService: "https://ofox.ai/terms-of-service",
+    privacyPolicy: "https://ofox.ai/privacy",
   },
   providerCountry: "SG",
   inferenceRegions: ["World"]

@@ -564,6 +564,7 @@ export function VercelChatInner({
             // NOTE: `useChat()` doesn't expose `setMessages` in this codebase,
             // so we keep a local overlay for edits/deletes.
             messages={uiMessages}
+            streaming={status === "submitted" || status === "streaming"}
             sendMessage={async (msg: any) => {
               startRun()
               await handleSend(msg.prompt)

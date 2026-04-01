@@ -75,7 +75,15 @@ const schema = {
   },
 };
 
-export const Markdown = ({ text, status }: { text: string, status?: string }) => {
+export const Markdown = ({
+  text,
+  status,
+  streaming,
+}: {
+  text: string;
+  status?: string;
+  streaming?: boolean;
+}) => {
   const { Image } = useTheme();
   return (
     <ReactMarkdown
@@ -83,16 +91,20 @@ export const Markdown = ({ text, status }: { text: string, status?: string }) =>
       rehypePlugins={[rehypeRaw, [rehypeSanitize, schema], rehypeHighlight]}
       urlTransform={(uri) => uri}
       components={{
-        code: ({ node, className = "", children, ...props }) => {
-          const match = /language-(\w+)/.exec(className);
-          const language = match?.[1] ?? "plaintext";
+        ...(streaming
+          ? {}
+          : {
+            code: ({ node, className = "", children, ...props }) => {
+              const match = /language-(\w+)/.exec(className);
+              const language = match?.[1] ?? "plaintext";
 
-          return (
-            <CodeBlock language={language} {...props} status={status}>
-              {children}
-            </CodeBlock>
-          );
-        },
+              return (
+                <CodeBlock language={language} {...props} status={status}>
+                  {children}
+                </CodeBlock>
+              );
+            },
+          }),
         p: ({ node, ...props }) => (
           <p style={{ margin: "0.5em 0" }} {...props} />
         ),

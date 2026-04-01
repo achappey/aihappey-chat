@@ -489,6 +489,10 @@ import { opuscode } from "./catalog/opuscode";
 import { concentrate } from "./catalog/concentrate";
 import { lumecoder } from "./catalog/lumecoder";
 import { clankie } from "./catalog/clankie";
+import { moleapi } from "./catalog/moleapi";
+import { blink } from "./catalog/blink";
+import { tensorblock } from "./catalog/tensorblock";
+import { aiapiworld } from "./catalog/aiapiworld";
 
 /**
  * UI-facing provider catalog.
@@ -500,11 +504,15 @@ export const PROVIDERS: Record<string, Provider> = {
   citadelis,
   api1sbs,
   ninjachat,
+  aiapiworld,
   concentrate,
+  moleapi,
   opuscode,
   codzen,
   llama,
+  blink,
   bleep,
+  tensorblock,
   commonstack,
   paul,
   sawtia,

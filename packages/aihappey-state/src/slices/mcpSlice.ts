@@ -149,7 +149,7 @@ export const createMcpSlice: StateCreator<
     const resources = capabilities?.resources
       ? ((await client.listResources())?.resources ?? []).map(r => ({
         ...r,
-        annotations: r.annotations ? { ...(r.annotations as any) } : undefined,
+        annotations: r.annotations ? { ...(r.annotations) } : undefined,
       }))
       : [];
 
@@ -340,7 +340,7 @@ export const createMcpSlice: StateCreator<
     if (!client)
       throw new Error("Client not connected");
 
-    const taskClient = (client as any)?.experimental?.tasks;
+    const taskClient = (client)?.experimental?.tasks;
     if (!taskClient?.listTasks)
       throw new Error(`Server ${serverName} does not expose MCP tasks/list`);
 
@@ -357,7 +357,7 @@ export const createMcpSlice: StateCreator<
     if (!client)
       throw new Error("Client not connected");
 
-    const taskClient = (client as any)?.experimental?.tasks;
+    const taskClient = (client)?.experimental?.tasks;
     if (!taskClient?.cancelTask)
       throw new Error(`Server ${serverName} does not expose MCP tasks/cancel`);
 
@@ -391,7 +391,7 @@ export const createMcpSlice: StateCreator<
     if (toolCallId) meta.progressToken = toolCallId;
 
     if (supportsTaskedToolCalls(mcpServerContent[serverName]?.capabilities, tool)) {
-      const taskClient = (client as any)?.experimental?.tasks;
+      const taskClient = (client)?.experimental?.tasks;
 
       if (!taskClient?.callToolStream) {
         throw new Error(`Server ${serverName} advertises MCP task support but the connected runtime does not expose task streaming APIs`)

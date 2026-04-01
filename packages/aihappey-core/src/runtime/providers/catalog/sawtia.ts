@@ -4,7 +4,7 @@ export const sawtia: Provider = {
   name: "SawtIA",
   description: "Rejoignez les entreprises qui font confiance à Sawtia pour leurs solutions vocales en Darija.",
   icons: [{
-    src: "https://sawtia.ma/assets/img/icon%20sawtia.png"
+    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtdK6PcImFpWU6HOk0Cb-JMsTkN8N-ezn8SA&s"
   }],
   urls: {
     homepage: "https://sawtia.ma",
