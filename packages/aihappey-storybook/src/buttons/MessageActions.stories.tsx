@@ -28,6 +28,7 @@ const baseAssistantMsg: ChatMessage = {
   ],
   totalTokens: 256,
   temperature: 0.7,
+  cost: 0.0123,
 };
 
 const attachments: FileUIPart[] = [

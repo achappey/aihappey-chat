@@ -30,6 +30,13 @@ export function toChatMessages(
     const author = meta?.author ?? meta?.model;
     const temperature = meta?.temperature;
     const totalTokens = meta?.totalTokens;
+    const costRaw = meta?.cost;
+    const cost =
+      typeof costRaw === "number"
+        ? costRaw
+        : typeof costRaw === "string" && costRaw.trim().length > 0
+          ? Number(costRaw)
+          : undefined;
     const parts = ((z.parts ?? [])).filter((p) => p?.type !== "step-start");
 
     const nonImageFiles = parts.filter(
@@ -75,6 +82,7 @@ export function toChatMessages(
         author,
         temperature,
         totalTokens,
+        cost,
       } as any);
 
       activityRun = [];
@@ -97,6 +105,7 @@ export function toChatMessages(
         author,
         temperature,
         totalTokens,
+        cost,
       } as any);
 
       imageRun = [];
@@ -140,6 +149,7 @@ export function toChatMessages(
           author,
           temperature,
           totalTokens,
+          cost,
         } as any);
 
         continue;
@@ -179,6 +189,7 @@ export function toChatMessages(
           author,
           temperature,
           totalTokens,
+          cost,
         } as any);
 
         continue;

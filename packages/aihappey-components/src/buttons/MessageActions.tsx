@@ -2,7 +2,7 @@
 import type { ChatMessage } from "aihappey-types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessagePart } from "aihappey-ai";
 import { useTheme } from "../theme/ThemeContext";
-import { TokenBadge } from "../badges";
+import { CostBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { TemperatureBadge } from "../badges/TemperatureBadge";
 import { useMediaQuery } from "usehooks-ts";
@@ -70,6 +70,8 @@ export const MessageActions = ({
         )}
 
       {showTokens && <TokenBadge totalTokens={msg.totalTokens} />}
+
+      {msg.role === "assistant" && <CostBadge cost={msg.cost} />}
 
       {onShowSources
         && msg?.sources
