@@ -4,7 +4,7 @@ export const paul: Provider = {
   name: "Paul",
   description: "Paul is an AI designed for your reality — studies, employment, business, tech. Available in French, adapted to the Cameroonian context.",
   icons: [{
-    src: "https://chat.fatherpaulai.com/static/apple-touch-icon.png?v=pp24"
+    src: "https://www.fatherpaulai.com/favicon-96x96.png"
   }],
   urls: {
     homepage: "https://www.fatherpaulai.com",

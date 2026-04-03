@@ -32,6 +32,7 @@ import { SkillsPage } from "../features/skills/SkillsPage";
 import { WebAppsPage, WebAppDetailPage } from "../features/web-apps";
 import { CatalogsPage } from "../features/catalogs";
 import { RegistriesPage } from "../features/registries";
+import { PlaygroundPage } from "../features/playground/PlaygroundPage";
 import { defaultEndpoints } from "aihappey-ai";
 
 type CoreRootProps = {
@@ -113,6 +114,7 @@ export const CoreRoot = ({
             { path: "models", element: <ModelsPage /> },
             { path: "providers", element: <ProvidersPage /> },
             { path: "mesh", element: <MeshPage /> },
+            { path: "playground", element: <PlaygroundPage /> },
             { path: "tools", element: <ToolsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },

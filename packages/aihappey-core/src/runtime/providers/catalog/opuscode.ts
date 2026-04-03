@@ -9,7 +9,6 @@ export const opuscode: Provider = {
   urls: {
     homepage: "https://www.opuscode.pro",
     docs: "https://www.opuscode.pro/docs",
-    pricing: "https://wisdom-gate.juheapi.com/pricing",
     privacyPolicy: "https://www.opuscode.pro/privacy",
     termsOfService: "https://www.opuscode.pro/terms"
   },

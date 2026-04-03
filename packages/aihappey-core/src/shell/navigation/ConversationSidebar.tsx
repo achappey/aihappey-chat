@@ -162,6 +162,12 @@ export const ConversationSidebar = ({
           href: "/mesh",
           icon: "chart",
         },
+        {
+          key: "playground",
+          label: "Playground",
+          href: "/playground",
+          icon: "brain",
+        },
       ],
     },
     {
