@@ -12,6 +12,31 @@ type CorePlaygroundMessage = {
   content: string;
 };
 
+type ResponsesInputContentPart = {
+  type: "input_text";
+  text: string;
+};
+
+type ResponsesOutputContentPart = {
+  type: "output_text";
+  text: string;
+};
+
+type ResponsesConversationItem = {
+  role: "user" | "assistant";
+  content: Array<ResponsesInputContentPart | ResponsesOutputContentPart>;
+};
+
+type NormalizedPlaygroundMessage = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+type NormalizedResponsesConversationMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 export type {
   PlaygroundClientOption,
   PlaygroundMessage,
@@ -70,8 +95,8 @@ const resolveUrl = (baseUrl: string, endpoint: string) => {
   return `${base}${path}`;
 };
 
-const textMessageContent = (content: string) => [{ type: "text" as const, text: content }];
 const inputTextMessageContent = (content: string) => [{ type: "input_text" as const, text: content }];
+const outputTextMessageContent = (content: string) => [{ type: "output_text" as const, text: content }];
 
 const toCoreMessages = (
   messages: PlaygroundMessage[],
@@ -83,13 +108,36 @@ const toCoreMessages = (
     };
   });
 
-const normalizeMessages = (messages: PlaygroundMessage[]) =>
+const normalizeMessages = (messages: PlaygroundMessage[]): NormalizedPlaygroundMessage[] =>
   messages
     .map((message) => ({
       role: message.role,
       content: String(message.content ?? "").trim(),
     }))
     .filter((message) => message.content.length > 0);
+
+const toResponsesConversationInput = (
+  messages: PlaygroundMessage[],
+): {
+  instructions?: string;
+  input: ResponsesConversationItem[];
+} => {
+  const normalized = normalizeMessages(messages);
+  const instructions = normalized.find((message) => message.role === "system")?.content;
+  const input = normalized
+    .filter((message): message is NormalizedResponsesConversationMessage => message.role !== "system")
+    .map((message) => ({
+      role: message.role,
+      content: message.role === "assistant"
+        ? outputTextMessageContent(message.content)
+        : inputTextMessageContent(message.content),
+    }));
+
+  return {
+    instructions,
+    input,
+  };
+};
 
 const extractResponsesText = (response: any): string => {
   if (typeof response?.output_text === "string" && response.output_text.trim()) {
@@ -226,20 +274,13 @@ const invokeOfficialResponses = async (
   request: InvokePlaygroundRequest,
 ): Promise<InvokePlaygroundResult> => {
   const client = await createOpenAIClient(request);
-  const normalized = normalizeMessages(request.messages);
-  const systemMessage = normalized.find((message) => message.role === "system")?.content;
-  const input = normalized
-    .filter((message) => message.role !== "system")
-    .map((message) => ({
-      role: message.role,
-      content: inputTextMessageContent(message.content),
-    }));
+  const { instructions, input } = toResponsesConversationInput(request.messages);
 
   const raw = await client.responses.create({
     model: request.model,
     temperature: request.temperature,
     max_output_tokens: request.maxOutputTokens,
-    instructions: systemMessage,
+    instructions,
     input,
   } as any);
 
@@ -258,8 +299,6 @@ export async function invokePlayground(request: InvokePlaygroundRequest): Promis
   }
 
   switch (option.id) {
-    //   case "vercel-api-chat":
-    //    return invokeVercelSdk(request, option.endpoint);
     case "vercel-chat-completions":
       return invokeVercelChatSdk(request, option.endpoint);
     case "vercel-responses":

@@ -102,6 +102,7 @@ import {
   WalletRegular,
   CurrencyDollarEuroRegular,
   SparkleRegular,
+  ChannelRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -124,6 +125,8 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   videos: VideoRegular,
   folder: FolderRegular,
   server: ServerRegular,
+  endpoint: ChannelRegular,
+  client: WindowRegular,
   connector: ConnectorRegular,
   tool: WrenchRegular,
   print: PrintRegular,

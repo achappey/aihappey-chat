@@ -166,6 +166,7 @@ export const ConversationSidebar = ({
           key: "playground",
           label: "Playground",
           href: "/playground",
+          new: true,
           icon: "brain",
         },
       ],

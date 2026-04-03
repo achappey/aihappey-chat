@@ -22,6 +22,8 @@ export type IconToken =
   | "transcription"
   | "language"
   | "storage"
+  | "endpoint"
+  | "client"
   | "providers"
   | "speech"
   | "skills"

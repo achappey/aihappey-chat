@@ -8,7 +8,7 @@
     "@ai-sdk/openai": "^4.0.0-beta.13",
     "@ai-sdk/react": "^4.0.0-beta.30",
     "@anthropic-ai/sdk": "^0.82.0",
-    "ai": "7.0.0-beta.62",
+    "ai": "7.0.0-beta.63",
     "openai": "^6.33.0"
   },
   "scripts": {

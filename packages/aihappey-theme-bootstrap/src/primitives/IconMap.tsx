@@ -81,6 +81,8 @@ import {
   FileText,
   Cash,
   Stars,
+  Diagram3,
+  Display,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -154,6 +156,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   catalog: <Shop />,
   mail: <Mailbox />,
   panelContract: <ArrowLeft />,
+  endpoint: <Diagram3 />,
+  client: <Display />,
   panelExpand: <ArrowRight />,
   dismiss: <XLg />,
   check: <Check />,

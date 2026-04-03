@@ -19,6 +19,7 @@ import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
 import { MessageList } from "../chat/messages/MessageList";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import {
   invokePlayground,
   playgroundClientChoices,
@@ -34,11 +35,13 @@ import {
   resolvePlaygroundUrl,
   toPlaygroundPayloadMessages,
 } from "./playgroundChat";
+import { PlaygroundInput } from "./PlaygroundInput";
 
 export const PlaygroundPage = () => {
   const { isDarkMode } = useDarkMode();
   const { config } = useChatContext();
-  const { Button, Card, Select, Switch, Text, Input, TextArea, Spinner } = useTheme();
+  const { Button, Card, Drawer, Select, Switch, Text, Input, TextArea } = useTheme();
+  const isDesktop = useIsDesktop();
   const models = useAppStore((s) => s.models);
   const selectedModel = useAppStore((s) => s.selectedModel);
   const customHeaders = useAppStore((s) => s.customHeaders);
@@ -59,6 +62,7 @@ export const PlaygroundPage = () => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [drawerSize, setDrawerSize] = useState<"medium" | "large" | "full">("medium");
   const [playgroundChatId, setPlaygroundChatId] = useState(() => `playground-${Date.now()}`);
 
   const availableClientsForEndpoint = useMemo(
@@ -219,6 +223,69 @@ export const PlaygroundPage = () => {
 
   const canSend = !!playgroundModel && !!baseUrl.trim() && !!draft.trim() && !isStreaming;
 
+  const sidebarHeaderNavigation = isDesktop ? (
+    <div
+      style={{
+        display: "flex",
+        width: "100%",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        gap: 4,
+      }}
+    >
+      <Button
+        icon="panelExpand"
+        variant="transparent"
+        disabled={drawerSize === "full"}
+        onClick={() =>
+          setDrawerSize((current) => (current === "medium" ? "large" : "full"))
+        }
+      />
+      <Button
+        icon="panelContract"
+        variant="transparent"
+        disabled={drawerSize === "medium"}
+        onClick={() =>
+          setDrawerSize((current) => (current === "full" ? "large" : "medium"))
+        }
+      />
+    </div>
+  ) : undefined;
+
+  const settingsContent = (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <Input
+        label="Base URL"
+        disabled
+        value={baseUrl}
+        onChange={(a) => setBaseUrl(a.target.value)}
+      />
+      <TextArea
+        label="System prompt"
+        rows={4}
+        value={systemPrompt}
+        onChange={setSystemPrompt}
+      />
+      <AiChatSettingsForm
+        value={aiSettings}
+        formTitle="AI"
+        onChange={(value: { temperature: number; maxOutputTokens?: number }) => {
+          setTemperature(value.temperature);
+          setMaxOutputTokens(value.maxOutputTokens);
+        }}
+      />
+      {currentProviderForm}
+      {rawResponse ? (
+        <TextArea
+          label="Raw response"
+          rows={12}
+          value={JSON.stringify(rawResponse, null, 2)}
+          onChange={() => undefined}
+        />
+      ) : null}
+    </div>
+  );
+
   const handleSend = async () => {
     if (!canSend) return;
 
@@ -274,8 +341,7 @@ export const PlaygroundPage = () => {
       style={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100%",
-        background: isDarkMode ? "#1f1f1f" : "#f7f7f8",
+        minHeight: "100%"
       }}
     >
       <div
@@ -296,8 +362,7 @@ export const PlaygroundPage = () => {
             display: "flex",
             alignItems: "center",
             gap: 8,
-            padding: "8px 12px",
-            borderBottom: isDarkMode ? "1px solid #3a3a3a" : "1px solid #e5e5e5",
+            padding: "0px 12px"
           }}
         >
           <ModelSelect
@@ -309,6 +374,8 @@ export const PlaygroundPage = () => {
 
           <Select
             label=""
+            size="large"
+            icon="endpoint"
             values={[selectedEndpoint]}
             valueTitle={selectedEndpoint}
             options={playgroundEndpointOptions.map((value) => ({ value, label: value }))}
@@ -330,6 +397,8 @@ export const PlaygroundPage = () => {
 
           <Select
             label=""
+            size="large"
+            icon="client"
             values={[selectedClient]}
             valueTitle={selectedClient === "openai" ? "OpenAI" : "Vercel AI SDK"}
             options={availableClientsForEndpoint.map((value) => ({
@@ -357,11 +426,10 @@ export const PlaygroundPage = () => {
         <div
           style={{
             padding: 16,
-            display: "grid",
-            gridTemplateColumns: sidebarOpen ? "minmax(0, 1fr) 380px" : "minmax(0, 1fr)",
-            gap: 16,
+            display: "flex",
             minHeight: 0,
             flex: 1,
+            overflow: "hidden",
           }}
         >
           <div
@@ -370,96 +438,63 @@ export const PlaygroundPage = () => {
               flexDirection: "column",
               gap: 12,
               minHeight: 0,
+              flex: 1,
+              overflow: "hidden",
             }}
           >
-            <div>
+            <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
               <div
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  minHeight: "55vh",
-                  maxHeight: "55vh",
+                  height: "100%",
+                  minHeight: 0,
                 }}
               >
                 <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
-                    <MessageList
-                     messages={displayMessages}
-                     streaming={isStreaming}
-                     showCitations={() => undefined}
-                     showActivity={() => undefined}
-                     showAttachments={() => undefined}
+                  <MessageList
+                    messages={displayMessages}
+                    streaming={isStreaming}
+                    showCitations={() => undefined}
+                    showActivity={() => undefined}
+                    showAttachments={() => undefined}
                   />
                 </div>
               </div>
             </div>
 
-            <div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <TextArea
-                  label="Message"
-                  rows={6}
-                  value={draft}
-                  onChange={setDraft}
-                  placeholder="Type a prompt to test the selected endpoint and client combination."
-                />
-                {error ? <Text style={{ color: "#d13438" }}>{error}</Text> : null}
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, alignItems: "center" }}>
-                  {isStreaming ? <Spinner /> : null}
-                  <Button onClick={() => {
-                    setRawResponse(undefined);
-                    setError(undefined);
-                    if (usesVercelApiChat) {
-                      setPlaygroundChatId(`playground-${Date.now()}`);
-                      return;
-                    }
-                    setManualMessages([]);
-                  }} variant="subtle">
-                     Clear
-                   </Button>
-                  <Button onClick={() => void handleSend()} disabled={!canSend}>
-                    Send
-                  </Button>
-                </div>
-              </div>
+            <div style={{ flexShrink: 0 }}>
+              <PlaygroundInput
+                value={draft}
+                onChange={setDraft}
+                onSend={() => void handleSend()}
+                disabled={!canSend}
+                streaming={isStreaming}
+                error={error}
+              />
             </div>
           </div>
 
           {sidebarOpen ? (
-            <div style={{ minHeight: 0, overflowY: "auto" }}>
-              <Card size="small" title="Settings">
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <Input
-                    label="Base URL"
-                    disabled
-                    value={baseUrl}
-                    onChange={(a) => setBaseUrl(a.target.value)}
-                  />
-                  <TextArea
-                    label="System prompt"
-                    rows={4}
-                    value={systemPrompt}
-                    onChange={setSystemPrompt}
-                  />
-                  <AiChatSettingsForm
-                    value={aiSettings}
-                    formTitle="AI"
-                    onChange={(value: { temperature: number; maxOutputTokens?: number }) => {
-                      setTemperature(value.temperature);
-                      setMaxOutputTokens(value.maxOutputTokens);
-                    }}
-                  />
-                  {currentProviderForm}
-                  {rawResponse ? (
-                    <TextArea
-                      label="Raw response"
-                      rows={12}
-                      value={JSON.stringify(rawResponse, null, 2)}
-                      onChange={() => undefined}
-                    />
-                  ) : null}
-                </div>
-              </Card>
-            </div>
+            <Drawer
+              open={sidebarOpen}
+              title="Settings"
+              position="end"
+              overlay={!isDesktop}
+              size={isDesktop ? drawerSize : "small"}
+              headerNavigation={sidebarHeaderNavigation}
+              onClose={() => setSidebarOpen(false)}
+            >
+              <div
+                style={{
+                  minHeight: 0,
+                  height: "100%",
+                  overflowY: "auto",
+                }}
+              >
+                {settingsContent}
+              </div>
+            </Drawer>
           ) : null}
         </div>
       </div>
