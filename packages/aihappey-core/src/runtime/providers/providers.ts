@@ -493,6 +493,7 @@ import { moleapi } from "./catalog/moleapi";
 import { blink } from "./catalog/blink";
 import { tensorblock } from "./catalog/tensorblock";
 import { aiapiworld } from "./catalog/aiapiworld";
+import { shannonai } from "./catalog/shannonai";
 
 /**
  * UI-facing provider catalog.
@@ -529,6 +530,7 @@ export const PROVIDERS: Record<string, Provider> = {
   aimagicx,
   therouterai,
   clankie,
+  shannonai,
   aichixia,
   nataris,
   teai,

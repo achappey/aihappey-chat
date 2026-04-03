@@ -21,6 +21,13 @@ import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
 import { AzureTranscriptionConfigForm } from "../forms/providers/azure/AzureTranscriptionConfigForm";
 
+const getDefaultProviderTab = (enabledProviders?: string[]): string => {
+    const firstProvider = enabledProviders?.[0];
+    return typeof firstProvider === "string"
+        ? firstProvider.toLocaleLowerCase()
+        : "";
+};
+
 export interface TranscriptionSettingsModalProps {
     open: boolean;
 
@@ -62,11 +69,11 @@ export const TranscriptionSettingsModal: React.FC<
         const theme = useTheme();
         const { t } = useTranslation();
 
-        const defaultTab = enabledProviders?.[0].toLocaleLowerCase();
+        const defaultTab = getDefaultProviderTab(enabledProviders);
         const [activeTab, setActiveTab] = useState(defaultTab);
 
         useEffect(() => {
-            setActiveTab(enabledProviders?.[0].toLocaleLowerCase())
+            setActiveTab(getDefaultProviderTab(enabledProviders))
         }, [enabledProviders]);
 
         const close = () => {

@@ -12,6 +12,7 @@ export const defaultProviderMetadata = {
       ],
     "parallel_tool_calls": true,
     "file_search": undefined,
+    "service_tier": "auto",
     "native_mcp": false,
     "code_interpreter": undefined,
     "reasoning": {
@@ -19,7 +20,6 @@ export const defaultProviderMetadata = {
       "summary": "auto"
     },
     "web_search": {
-      "search_context_size": "medium",
       "user_location": {
         "type": "approximate",
         "city": null,
@@ -57,7 +57,8 @@ export const defaultProviderMetadata = {
     },
   },
   "anthropic": {
-    "anthropic-beta": ["code-execution-2025-08-25",
+    "anthropic-beta": [
+      "code-execution-2025-08-25",
       "files-api-2025-04-14",
       "output-128k-2025-02-19",
       "interleaved-thinking-2025-05-14",

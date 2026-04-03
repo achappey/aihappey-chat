@@ -11,12 +11,15 @@ export const CostBadge: React.FC<CostBadgeProps> = ({
   const { Badge } = useTheme();
   const { t } = useTranslation();
 
-  const formatCost = (value: number) => {
-    const rounded = Math.round((value + Number.EPSILON) * 100) / 100;
-    return String(rounded);
-  };
+  const roundCost = (value: number) =>
+    Math.round((value + Number.EPSILON) * 100) / 100;
 
-  return typeof cost === "number" && Number.isFinite(cost) ? (
+  const roundedCost =
+    typeof cost === "number" && Number.isFinite(cost)
+      ? roundCost(cost)
+      : undefined;
+
+  return typeof roundedCost === "number" && roundedCost >= 0.01 ? (
     <Badge
       title={`${t("messagePrice")}`}
       icon={"pricing"}
@@ -24,7 +27,7 @@ export const CostBadge: React.FC<CostBadgeProps> = ({
       bg="informative"
       appearance="ghost"
     >
-      {formatCost(cost)}
+      {String(roundedCost)}
     </Badge>
   ) : undefined;
 };

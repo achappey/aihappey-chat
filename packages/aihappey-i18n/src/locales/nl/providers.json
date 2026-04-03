@@ -90,6 +90,14 @@
   },
   "openai": {
     "shell": "Shell",
+    "serviceTier": {
+      "title": "Servicelaag",
+      "auto": "Automatisch",
+      "default": "Standaard",
+      "flex": "Flexibel",
+      "scale": "Schaal",
+      "priority": "Prioriteit"
+    },
     "container": "Container",
     "customVoice": "Aangepaste stem",
     "includeOutputs": "Inclusief uitvoer",
@@ -593,8 +601,7 @@
         "scaleFactor": "Schaalfactor"
       }
     }
-  }
-  ,
+  },
   "assemblyai": {
     "realtime": "Real-time",
     "realtimeHint": "Streaming (WebSocket) instellingen voor AssemblyAI.",
@@ -608,28 +615,23 @@
     "realtimeInactivityTimeout": "Inactiviteitstimeout (seconden)",
     "realtimeLanguageDetection": "Taaldetectie",
     "realtimeKeytermsPrompt": "Keyterms prompt",
-
     "mediaTrimming": "Media bijsnijden",
     "audioStartFrom": "Audio start (ms)",
     "audioEndAt": "Audio einde (ms)",
-
     "language": "Taal",
     "languageHint": "Selecteer de taal van je audiobestand (of laat standaard).",
     "languageCode": "Taalcode",
     "languageDetection": "Automatische taaldetectie",
     "languageConfidenceThreshold": "Taalvertrouwensdrempel",
-
     "outputFormatting": "Uitvoeropmaak",
     "punctuate": "Interpunctie",
     "formatText": "Tekst opmaken",
     "disfluencies": "Stopwoorden",
-
     "channelsAndDiarization": "Kanalen & sprekerherkenning",
     "channelsAndDiarizationHint": "Meerkanaals transcriptie en sprekerherkenningsinstellingen.",
     "multichannel": "Meerkanaals",
     "speakerLabels": "Sprekerlabels",
     "speakersExpected": "Verwacht aantal sprekers",
-
     "enrichments": "Verrijkingen",
     "enrichmentsHint": "Schakel extra inzichten en analyse in.",
     "autoChapters": "Automatische hoofdstukken",
@@ -637,7 +639,6 @@
     "entityDetection": "Entiteiten detecteren",
     "sentimentAnalysis": "Sentimentanalyse",
     "iabCategories": "IAB-categorieën",
-
     "safetyAndPii": "Veiligheid & PII",
     "safetyAndPiiHint": "Profanity filtering, content moderatie en PII-redactie.",
     "filterProfanity": "Scheldwoorden filteren",
@@ -650,11 +651,9 @@
     "addPolicy": "Policy toevoegen",
     "redactPiiAudio": "PII-audio redigeren",
     "redactPiiAudioQuality": "Kwaliteit geredigeerde audio",
-
     "summarization": "Samenvatting",
     "summaryModel": "Samenvattingsmodel",
     "summaryType": "Type samenvatting",
-
     "accuracy": "Nauwkeurigheid",
     "accuracyHint": "Verbeter herkenningsnauwkeurigheid met drempels, keyterms en spelling overrides.",
     "speechThreshold": "Spraakdrempel (0.0–1.0)",

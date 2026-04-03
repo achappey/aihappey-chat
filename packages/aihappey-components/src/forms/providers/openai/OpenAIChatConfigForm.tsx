@@ -18,6 +18,8 @@ export const OpenAIChatConfigForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const serviceTierOptions = ["auto", "default", "flex", "scale", "priority"];
+  const serviceTierValue = config?.service_tier ?? "auto";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -32,12 +34,34 @@ export const OpenAIChatConfigForm = ({
       />
       <OpenAIFileSearchForm config={config} updateConfig={updateConfig} />
 
-      <theme.Card
-        size="small"
-        title={t("nativeMcp")}
-        headerActions={
+      <theme.Card size="small" title={t("other")}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+          <theme.Select
+            label={t("providers:openai.serviceTier.title")}
+            values={[serviceTierValue]}
+            valueTitle={t(`providers:openai.serviceTier.${serviceTierValue}`)}
+            options={serviceTierOptions.map((value) => ({
+              value,
+              label: t(`providers:openai.serviceTier.${value}`),
+            }))}
+            onChange={(value: string) =>
+              updateConfig({
+                ...config,
+                service_tier: String(value ?? "auto"),
+              })
+            }
+          >
+            {serviceTierOptions.map((value) => (
+              <option key={value} value={value}>
+                {t(`providers:openai.serviceTier.${value}`)}
+              </option>
+            ))}
+          </theme.Select>
+
           <theme.Switch
             id="nativeMcp"
+            label={t("nativeMcp")}
             checked={!!config?.native_mcp}
             onChange={(val) =>
               updateConfig({
@@ -46,20 +70,22 @@ export const OpenAIChatConfigForm = ({
               })
             }
           />
-        }
-      />
 
-      <theme.Switch
-        id="parallelToolCalls"
-        checked={!!config?.parallel_tool_calls}
-        label={t("parallelToolCalls")}
-        onChange={(value) =>
-          updateConfig({
-            ...config,
-            parallel_tool_calls: value,
-          })
-        }
-      />
+          <theme.Switch
+            id="parallelToolCalls"
+            checked={!!config?.parallel_tool_calls}
+            label={t("parallelToolCalls")}
+            onChange={(value) =>
+              updateConfig({
+                ...config,
+                parallel_tool_calls: value,
+              })
+            }
+          />
+
+
+        </div>
+      </theme.Card>
 
       <theme.TextArea
         label={t("providers:openai.instructions")}

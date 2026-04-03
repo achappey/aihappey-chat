@@ -106,6 +106,14 @@
   },
   "openai": {
     "shell": "Shell",
+    "serviceTier": {
+      "title": "Service tier",
+      "auto": "Automatic",
+      "default": "Default",
+      "flex": "Flexible",
+      "scale": "Scalable",
+      "priority": "Priority"
+    },
     "container": "Container",
     "customVoice": "Custom voice",
     "prompt": "Prompt",
