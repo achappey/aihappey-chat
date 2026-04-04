@@ -8,7 +8,7 @@ export const vultr: Provider = {
   }],
   urls: {
     homepage: "https://www.vultr.com",
-    docs: "https://www.vultr.com/docs",
+    docs: "https://api.vultrinference.com",
     pricing: "https://www.vultr.com/pricing",
     privacyPolicy: "https://www.vultr.com/legal/privacy",
     termsOfService: "https://www.vultr.com/legal/tos"

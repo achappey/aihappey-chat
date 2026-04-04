@@ -6,7 +6,7 @@ const DEFAULT_REASONING = {
   summary: "auto",
 };
 
-const EFFORTS = ["none", "low", "medium", "high"] as const;
+const EFFORTS = ["none", "minimal", "low", "medium", "high", "xhigh"] as const;
 type Effort = (typeof EFFORTS)[number];
 
 export const OpenAIReasoningForm = ({

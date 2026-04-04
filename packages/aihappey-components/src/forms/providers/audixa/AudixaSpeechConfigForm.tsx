@@ -154,8 +154,8 @@ export const AudixaSpeechConfigForm: React.FC<{
 
   const topPLabel =
     config?.top_p === undefined
-      ? `${t("providers:audixa.speech.topP")} (${t("providerDefault").toLowerCase()})`
-      : `${t("providers:audixa.speech.topP")} (${config.top_p.toFixed(2)})`;
+      ? `${t("providers:openai.topP")} (${t("providerDefault").toLowerCase()})`
+      : `${t("providers:openai.topP")} (${config.top_p.toFixed(2)})`;
 
   const emotionOptions = [
     { value: DEFAULT_VALUE, label: t("providerDefault") },

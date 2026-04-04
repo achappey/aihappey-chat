@@ -125,7 +125,7 @@ export const DeepInfraCanopyLabsSpeechCardForm: React.FC<{
             style={{ flex: 1 }}
             min={0}
             max={1}
-            label={t("providers:deepinfra.speech.topP")}
+            label={t("providers:openai.topP")}
             value={canopyConfig?.top_p ?? ""}
             onChange={(e: any) => {
               const raw = String(e?.target?.value ?? "").trim();

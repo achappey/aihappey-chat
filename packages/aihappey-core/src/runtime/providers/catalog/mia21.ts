@@ -4,7 +4,7 @@ export const mia21: Provider = {
   name: "Mia21",
   description: "Build AI companion apps with persistent memory, voice conversations, and native mobile SDKs. Your AI remembers every conversation. Launch in one afternoon.",
   icons: [{
-    src: "https://mia21.com/favicon-96x96.png"
+    src: "https://mia21.com/favicon.ico"
   }],
   urls: {
     homepage: "https://mia21.com",

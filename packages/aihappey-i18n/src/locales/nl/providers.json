@@ -48,7 +48,6 @@
       "exaggeration": "Overdrijving",
       "cfg": "Classifier-Free Guidance-schaal",
       "seed": "Seed",
-      "topP": "Top P",
       "minP": "Min P",
       "repetitionPenalty": "Herhalingsstraf",
       "topK": "Top K"
@@ -90,6 +89,12 @@
   },
   "openai": {
     "shell": "Shell",
+    "promptCacheRetention": "Prompt cache retentie",
+    "promptCacheOptions": {
+      "24h": "24 uur",
+      "in-memory": "Tijdelijk"
+    },
+    "topP": "Top-p",
     "serviceTier": {
       "title": "Servicelaag",
       "auto": "Automatisch",
@@ -103,6 +108,11 @@
     "includeOutputs": "Inclusief uitvoer",
     "includeSources": "Inclusief bronnen",
     "prompt": "Prompt",
+    "truncation": {
+      "title": "Inkorten",
+      "auto": "Automatisch",
+      "disabled": "Uitgeschakeld"
+    },
     "timestampGranularities": "Tijdstempel-granulariteit",
     "timestampGranularitiesSegment": "Segment",
     "timestampGranularitiesWord": "Woord",
@@ -110,6 +120,19 @@
     "speechPromptPlaceholder": "Optionele tekst om de stijl van het model te sturen of een eerder audiofragment te laten doorlopen",
     "includeSearchResults": "Inclusief zoekresultaten",
     "encryptedContent": "Inclusief encryptie",
+    "responsesIncludeTitle": "Include",
+    "responsesIncludeImageUrls": "Afbeeldings-URL's uit computeruitvoer opnemen",
+    "responsesIncludeInputImageUrls": "Afbeeldings-URL's uit invoerberichten opnemen",
+    "responsesIncludeOutputLogprobs": "Logprobs van uitvoer opnemen",
+    "responsesIncludeDescriptions": {
+      "webSearchSources": "Neem de bronnen op die door de webzoek-toolcall zijn teruggegeven.",
+      "codeInterpreterOutputs": "Neem de uitvoer van Python-code-uitvoering in code interpreter-toolcalls op.",
+      "computerCallImageUrls": "Neem afbeeldings-URL's op die door computer-call-uitvoer zijn teruggegeven.",
+      "fileSearchResults": "Neem de zoekresultaten op die door de file search-toolcall zijn teruggegeven.",
+      "inputImageUrls": "Neem afbeeldings-URL's uit invoerberichten op.",
+      "outputTextLogprobs": "Neem logprobabilities op bij assistent-tekstreacties.",
+      "reasoningEncryptedContent": "Neem versleutelde reasoning-tokens op zodat reasoning-items opnieuw kunnen worden gebruikt in stateless multi-turn Responses API-gesprekken."
+    },
     "instructions": "Instructies",
     "instructionsPlaceholder": "Een systeem bericht dat wordt toegevoegd aan de context.",
     "max_num_results": "Maximaal aantal resultaten",
@@ -513,8 +536,7 @@
       "advanceVoices": "Advance stemmen",
       "customVoiceId": "Aangepaste stem",
       "customVoicePlaceholder": "bijv. af_bella",
-      "emotion": "Emotie",
-      "topP": "Top P"
+      "emotion": "Emotie"
     }
   },
   "resembleai": {

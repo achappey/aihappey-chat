@@ -255,7 +255,7 @@ export const DeepInfraResembleAISpeechCardForm: React.FC<{
             min={0}
             style={{ flex: 1 }}
             max={1}
-            label={t("providers:deepinfra.speech.topP")}
+            label={t("providers:openai.topP")}
             value={resembleConfig?.top_p ?? ""}
             onChange={(e: any) => {
               const raw = String(e?.target?.value ?? "").trim();

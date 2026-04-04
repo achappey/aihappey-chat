@@ -9,6 +9,7 @@ export const apiairforce: Provider = {
   urls: {
     homepage: "https://panel.api.airforce",
     pricing: "https://panel.api.airforce/#pricing",
+    docs: "https://panel.api.airforce/docs",
     privacyPolicy: "https://panel.api.airforce/privacy",
     termsOfService: "https://panel.api.airforce/terms"
   },

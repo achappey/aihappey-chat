@@ -1,4 +1,5 @@
 export * from "./chat";
+export * from "./endpoint-config";
 export * from "./settings";
 export * from "./providers";
 export * from "./model-context";

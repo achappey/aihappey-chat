@@ -50,6 +50,7 @@
   "template": "Template",
   "current": "Current",
   "realtime": "Real-time",
+  "verbosity": "Verbosity",
   "addToFiles": "Add to files",
   "fileAdded": "{{filename}} added",
   "maxOutputTokens": "Maximum output tokens",
@@ -267,6 +268,7 @@
   "minimal": "Minimal",
   "none": "None",
   "low": "Low",
+  "xhigh": "Extra high",
   "source": "Source",
   "sources": "Sources",
   "noSources": "No sources",
@@ -318,6 +320,8 @@
   "structure": "Structure",
   "structuredOutputs": "Structured outputs",
   "structuredOutputsPlaceholder": "JSON schema...",
+  "json_schema": "JSON Schema",
+  "json_object": "JSON Object",
   "medium": "Medium",
   "budget": "Budget",
   "mode": "Mode",
@@ -340,10 +344,10 @@
   "attachments": "Attachments",
   "input": "Input",
   "data": "Data",
+  "type": "Type",
   "dataSource": {
     "title": "Data source",
     "none": "None",
-    "type": "Type",
     "url": "Public URL (application/json)",
     "resource": "Model Context resource",
     "resourceTemplate": "Model Context resource template",
@@ -366,6 +370,7 @@
   "new": "New",
   "general": "General",
   "reasoning": "Reasoning",
+  "effortLevel": "Effort",
   "reasoningEffort": "Effort ({{reasoningEffort}})",
   "reasoningSummary": "Reasoning detail",
   "image": "Image",
@@ -570,7 +575,6 @@
     "name": "Name",
     "validate": "Validate",
     "url": "URL",
-    "nameExists": "A server with this name already exists.",
-    "type": "Type"
+    "nameExists": "A server with this name already exists."
   }
 }

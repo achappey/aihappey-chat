@@ -3,10 +3,13 @@
   "compilerOptions": {
     "composite": false,
     "declaration": true,
+    "moduleResolution": "bundler",
     "noImplicitAny": false,
     "declarationMap": true,
     "outDir": "dist",
     "rootDir": "./src"
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

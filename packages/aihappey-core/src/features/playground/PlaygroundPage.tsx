@@ -1,19 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  AiChatSettingsForm,
-  AnthropicChatConfigForm,
-  CohereChatConfigForm,
-  GroqChatConfigForm,
-  JinaChatConfigForm,
-  MistralChatConfigForm,
-  OpenAIChatConfigForm,
-  PerplexityChatConfigForm,
-  PollinationsChatConfigForm,
-  SambanovaChatConfigForm,
-  TogetherChatConfigForm,
-  useTheme,
-  XAIChatConfigForm,
-} from "aihappey-components";
+import { useTheme } from "aihappey-components";
 import { useDarkMode } from "usehooks-ts";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
@@ -21,26 +7,31 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { MessageList } from "../chat/messages/MessageList";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import {
+  getPlaygroundClient,
   invokePlayground,
-  playgroundClientChoices,
+  preparePlaygroundRequest,
+  type PlaygroundEndpointConfigMap,
+  type PlaygroundClientId,
   playgroundClientOptions,
   playgroundEndpointOptions,
 } from "aihappey-clients";
 import { DefaultChatTransport, useChat, type UIMessage } from "aihappey-ai";
-import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import {
   createPlaygroundFetch,
-  createPlaygroundSystemMessage,
   createPlaygroundUiMessage,
+  replaceLastPlaygroundAssistantMessage,
   resolvePlaygroundUrl,
+  streamPlaygroundResponse,
+  stringifyPlaygroundPreview,
   toPlaygroundPayloadMessages,
 } from "./playgroundChat";
 import { PlaygroundInput } from "./PlaygroundInput";
+import { PlaygroundSettingsDrawer } from "./PlaygroundSettingsDrawer";
 
 export const PlaygroundPage = () => {
   const { isDarkMode } = useDarkMode();
   const { config } = useChatContext();
-  const { Button, Card, Drawer, Select, Switch, Text, Input, TextArea } = useTheme();
+  const { Button, Select, Switch } = useTheme();
   const isDesktop = useIsDesktop();
   const models = useAppStore((s) => s.models);
   const selectedModel = useAppStore((s) => s.selectedModel);
@@ -48,28 +39,46 @@ export const PlaygroundPage = () => {
   const maxOutputTokensFromStore = useAppStore((s) => s.maxOutputTokens);
   const temperatureFromStore = useAppStore((s) => s.temperature);
 
-  const [selectedEndpoint, setSelectedEndpoint] = useState(playgroundEndpointOptions[0] ?? "/api/chat");
-  const [selectedClient, setSelectedClient] = useState(playgroundClientChoices[0] ?? "vercel-ai-sdk");
+  const [selectedEndpoint, setSelectedEndpoint] = useState("/v1/responses");
+  const [selectedClient, setSelectedClient] = useState<PlaygroundClientId>("openai");
   const [playgroundModel, setPlaygroundModel] = useState(selectedModel ?? "");
   const [baseUrl, setBaseUrl] = useState(config?.baseUrl ?? "");
   const [temperature, setTemperature] = useState<number>(temperatureFromStore ?? 0.7);
   const [maxOutputTokens, setMaxOutputTokens] = useState<number | undefined>(maxOutputTokensFromStore ?? undefined);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [draft, setDraft] = useState("");
-  const [manualMessages, setManualMessages] = useState<UIMessage[]>([]);
+  const [messages, setMessages] = useState<UIMessage[]>([]);
   const [providerMetadata, setProviderMetadata] = useState<any>({ openai: {} });
+  const [endpointConfigByEndpoint, setEndpointConfigByEndpoint] = useState<PlaygroundEndpointConfigMap>({
+    "/api/chat": {},
+    "/v1/chat/completions": {},
+    "/v1/responses": {},
+    "/v1/messages": {},
+    "/sampling": {},
+  });
   const [rawResponse, setRawResponse] = useState<any>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const [sending, setSending] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [drawerSize, setDrawerSize] = useState<"medium" | "large" | "full">("medium");
-  const [playgroundChatId, setPlaygroundChatId] = useState(() => `playground-${Date.now()}`);
+  const [playgroundChatRevision, setPlaygroundChatRevision] = useState(0);
+  const [needsVercelRehydrate, setNeedsVercelRehydrate] = useState(false);
 
   const availableClientsForEndpoint = useMemo(
-    () => Array.from(new Set(playgroundClientOptions
-      .filter((option) => option.endpoint === selectedEndpoint)
-      .map((option) => option.client))),
+    () => Array.from(new Set(
+      playgroundClientOptions
+        .filter((option) => option.endpoint === selectedEndpoint)
+        .map((option) => option.client),
+    )),
     [selectedEndpoint],
+  );
+
+  const availableClientItems = useMemo(
+    () => availableClientsForEndpoint.map((clientId) => ({
+      value: clientId,
+      label: getPlaygroundClient(clientId as any)?.label ?? clientId,
+    })),
+    [availableClientsForEndpoint],
   );
 
   const activeOption = useMemo(() => {
@@ -84,6 +93,11 @@ export const PlaygroundPage = () => {
     [playgroundModel],
   );
 
+  const selectedModelOption = useMemo(
+    () => models?.find((model) => model.id === playgroundModel),
+    [models, playgroundModel],
+  );
+
   const effectiveHeaders = useMemo(() => {
     if (!providerKey) return customHeaders ?? {};
     return Object.fromEntries(
@@ -93,15 +107,15 @@ export const PlaygroundPage = () => {
     );
   }, [customHeaders, providerKey]);
 
-  const aiSettings = useMemo(
-    () => ({
-      temperature,
-      maxOutputTokens,
-    }),
-    [maxOutputTokens, temperature],
+  const currentEndpointConfig = useMemo(
+    () => endpointConfigByEndpoint[selectedEndpoint as keyof PlaygroundEndpointConfigMap] ?? {},
+    [endpointConfigByEndpoint, selectedEndpoint],
   );
 
   const usesVercelApiChat = activeOption?.id === "vercel-api-chat";
+  const supportsStreaming = currentEndpointConfig && typeof currentEndpointConfig === "object"
+    ? Boolean((currentEndpointConfig as any).stream)
+    : false;
 
   const playgroundFetch = useMemo(
     () => createPlaygroundFetch({
@@ -135,20 +149,15 @@ export const PlaygroundPage = () => {
     [baseUrl, maxOutputTokens, playgroundFetch, playgroundModel, providerMetadata, temperature],
   );
 
-  const vercelSeedMessages = useMemo(() => {
-    const systemMessage = createPlaygroundSystemMessage(systemPrompt);
-    return systemMessage ? [systemMessage] : [];
-  }, [systemPrompt]);
-
   const {
     messages: vercelMessages,
     sendMessage,
     status: vercelStatus,
     error: vercelError,
   } = useChat({
-    id: playgroundChatId,
+    id: `playground-${playgroundChatRevision}`,
     transport: playgroundTransport,
-    messages: vercelSeedMessages,
+    messages,
   });
 
   useEffect(() => {
@@ -170,56 +179,79 @@ export const PlaygroundPage = () => {
 
   useEffect(() => {
     if (!usesVercelApiChat) return;
-    setPlaygroundChatId(`playground-${Date.now()}`);
-    setError(undefined);
-    setRawResponse(undefined);
-  }, [usesVercelApiChat, baseUrl, playgroundModel, selectedEndpoint, selectedClient, systemPrompt]);
+    if (needsVercelRehydrate) return;
+    setMessages(vercelMessages as UIMessage[]);
+  }, [needsVercelRehydrate, usesVercelApiChat, vercelMessages]);
 
-  const displayMessages = usesVercelApiChat ? (vercelMessages as UIMessage[]) : manualMessages;
+  useEffect(() => {
+    if (!usesVercelApiChat) return;
+    setNeedsVercelRehydrate(true);
+  }, [usesVercelApiChat]);
+
+  useEffect(() => {
+    if (!usesVercelApiChat || !needsVercelRehydrate) return;
+    setPlaygroundChatRevision((current) => current + 1);
+    setNeedsVercelRehydrate(false);
+  }, [needsVercelRehydrate, usesVercelApiChat]);
+
+  const previewMessages = useMemo(
+    () => draft.trim()
+      ? [...messages, createPlaygroundUiMessage("user", draft.trim())]
+      : messages,
+    [draft, messages],
+  );
+
+  const preparedPreview = useMemo(() => {
+    if (!activeOption?.id || !baseUrl.trim() || !playgroundModel) return undefined;
+
+    try {
+      return preparePlaygroundRequest({
+        optionId: activeOption.id,
+        baseUrl,
+        model: playgroundModel,
+        messages: toPlaygroundPayloadMessages(previewMessages, systemPrompt),
+        temperature,
+        maxOutputTokens,
+        providerMetadata,
+        endpointConfig: currentEndpointConfig,
+        headers: effectiveHeaders,
+        getAccessToken: config?.getAccessToken,
+      });
+    } catch {
+      return undefined;
+    }
+  }, [
+    activeOption?.id,
+    baseUrl,
+    config?.getAccessToken,
+    currentEndpointConfig,
+    effectiveHeaders,
+    maxOutputTokens,
+    playgroundModel,
+    previewMessages,
+    providerMetadata,
+    systemPrompt,
+    temperature,
+  ]);
+
+  const requestPreviewHeaders = useMemo(
+    () => stringifyPlaygroundPreview({
+      ...effectiveHeaders,
+      "Content-Type": "application/json",
+      ...(supportsStreaming ? { Accept: "text/event-stream" } : {}),
+    }),
+    [effectiveHeaders, supportsStreaming],
+  );
+
+  const requestPreviewBody = useMemo(
+    () => stringifyPlaygroundPreview(preparedPreview?.prepared.body),
+    [preparedPreview],
+  );
+
+  const displayMessages = messages;
   const isStreaming = usesVercelApiChat
     ? vercelStatus === "submitted" || vercelStatus === "streaming"
     : sending;
-
-  const currentProviderForm = useMemo(() => {
-    const updateProviderConfig = (next: any) =>
-      setProviderMetadata((current: any) => ({
-        ...current,
-        [providerKey]: next,
-      }));
-
-    switch (providerKey) {
-      case "anthropic":
-        return <AnthropicChatConfigForm config={providerMetadata.anthropic ?? {}} updateConfig={updateProviderConfig} />;
-      case "cohere":
-        return <CohereChatConfigForm config={providerMetadata.cohere ?? {}} updateConfig={updateProviderConfig} />;
-      case "google":
-        return <GoogleChatConfig google={providerMetadata.google ?? {}} updateGoogle={updateProviderConfig} />;
-      case "groq":
-        return <GroqChatConfigForm config={providerMetadata.groq ?? {}} updateConfig={updateProviderConfig} />;
-      case "jina":
-        return <JinaChatConfigForm config={providerMetadata.jina ?? {}} updateConfig={updateProviderConfig} />;
-      case "mistral":
-        return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
-      case "openai":
-        return <OpenAIChatConfigForm config={providerMetadata.openai ?? {}} updateConfig={updateProviderConfig} />;
-      case "perplexity":
-        return <PerplexityChatConfigForm config={providerMetadata.perplexity ?? {}} updateConfig={updateProviderConfig} />;
-      case "pollinations":
-        return <PollinationsChatConfigForm config={providerMetadata.pollinations ?? {}} updateConfig={updateProviderConfig} />;
-      case "sambanova":
-        return <SambanovaChatConfigForm config={providerMetadata.sambanova ?? {}} updateConfig={updateProviderConfig} />;
-      case "together":
-        return <TogetherChatConfigForm config={providerMetadata.together ?? {}} updateConfig={updateProviderConfig} />;
-      case "xai":
-        return <XAIChatConfigForm config={providerMetadata.xai ?? {}} updateConfig={updateProviderConfig} />;
-      default:
-        return (
-          <Text>
-            No provider-specific playground form is available for <b>{providerKey || "this model"}</b> yet.
-          </Text>
-        );
-    }
-  }, [providerKey, providerMetadata, Text]);
 
   const canSend = !!playgroundModel && !!baseUrl.trim() && !!draft.trim() && !isStreaming;
 
@@ -252,40 +284,6 @@ export const PlaygroundPage = () => {
     </div>
   ) : undefined;
 
-  const settingsContent = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <Input
-        label="Base URL"
-        disabled
-        value={baseUrl}
-        onChange={(a) => setBaseUrl(a.target.value)}
-      />
-      <TextArea
-        label="System prompt"
-        rows={4}
-        value={systemPrompt}
-        onChange={setSystemPrompt}
-      />
-      <AiChatSettingsForm
-        value={aiSettings}
-        formTitle="AI"
-        onChange={(value: { temperature: number; maxOutputTokens?: number }) => {
-          setTemperature(value.temperature);
-          setMaxOutputTokens(value.maxOutputTokens);
-        }}
-      />
-      {currentProviderForm}
-      {rawResponse ? (
-        <TextArea
-          label="Raw response"
-          rows={12}
-          value={JSON.stringify(rawResponse, null, 2)}
-          onChange={() => undefined}
-        />
-      ) : null}
-    </div>
-  );
-
   const handleSend = async () => {
     if (!canSend) return;
 
@@ -302,33 +300,63 @@ export const PlaygroundPage = () => {
           model: playgroundModel,
           temperature,
           maxOutputTokens,
+          systemPrompt,
           providerMetadata,
         },
       });
       return;
     }
 
-    const nextMessages = [...manualMessages, createPlaygroundUiMessage("user", trimmedDraft)];
-    setManualMessages(nextMessages);
+    const nextMessages = [...messages, createPlaygroundUiMessage("user", trimmedDraft)];
+    setMessages(nextMessages);
+    setNeedsVercelRehydrate(true);
     setSending(true);
 
     try {
-      const payloadMessages = toPlaygroundPayloadMessages(nextMessages, systemPrompt);
+      const invocation = preparePlaygroundRequest({
+        optionId: activeOption.id,
+        baseUrl,
+        model: playgroundModel,
+        messages: toPlaygroundPayloadMessages(nextMessages, systemPrompt),
+        temperature,
+        maxOutputTokens,
+        providerMetadata,
+        endpointConfig: currentEndpointConfig,
+        headers: effectiveHeaders,
+        getAccessToken: config?.getAccessToken,
+      });
+
+      if (supportsStreaming && activeOption.id !== "vercel-api-chat") {
+        const streamed = await streamPlaygroundResponse({
+          invocation,
+          fetcher: playgroundFetch ?? fetch,
+          onText: (text) => {
+            setMessages((current) => replaceLastPlaygroundAssistantMessage(current, text));
+          },
+        });
+
+        setRawResponse(streamed.raw);
+        if (streamed.text) {
+          setMessages((current) => replaceLastPlaygroundAssistantMessage(current, streamed.text));
+        }
+        return;
+      }
 
       const result = await invokePlayground({
         optionId: activeOption.id,
         baseUrl,
         model: playgroundModel,
-        messages: payloadMessages,
+        messages: invocation.request.messages,
         temperature,
         maxOutputTokens,
         providerMetadata,
+        endpointConfig: currentEndpointConfig,
         headers: effectiveHeaders,
         getAccessToken: config?.getAccessToken,
       });
 
       setRawResponse(result.raw);
-      setManualMessages((current) => [...current, createPlaygroundUiMessage("assistant", result.text || "")]);
+      setMessages((current) => [...current, createPlaygroundUiMessage("assistant", result.text || "")]);
     } catch (err: any) {
       setError(err?.message ?? "Playground request failed.");
     } finally {
@@ -341,7 +369,7 @@ export const PlaygroundPage = () => {
       style={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100%"
+        minHeight: "100%",
       }}
     >
       <div
@@ -362,7 +390,7 @@ export const PlaygroundPage = () => {
             display: "flex",
             alignItems: "center",
             gap: 8,
-            padding: "0px 12px"
+            padding: "0px 12px",
           }}
         >
           <ModelSelect
@@ -400,16 +428,13 @@ export const PlaygroundPage = () => {
             size="large"
             icon="client"
             values={[selectedClient]}
-            valueTitle={selectedClient === "openai" ? "OpenAI" : "Vercel AI SDK"}
-            options={availableClientsForEndpoint.map((value) => ({
-              value,
-              label: value === "openai" ? "OpenAI" : "Vercel AI SDK",
-            }))}
+            valueTitle={availableClientItems.find((item) => item.value === selectedClient)?.label ?? selectedClient}
+            options={availableClientItems}
             onChange={(value: string) => setSelectedClient(String(value ?? availableClientsForEndpoint[0] ?? selectedClient) as any)}
           >
-            {availableClientsForEndpoint.map((value) => (
-              <option key={value} value={value}>
-                {value === "openai" ? "OpenAI" : "Vercel AI SDK"}
+            {availableClientItems.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
               </option>
             ))}
           </Select>
@@ -476,25 +501,32 @@ export const PlaygroundPage = () => {
           </div>
 
           {sidebarOpen ? (
-            <Drawer
+            <PlaygroundSettingsDrawer
               open={sidebarOpen}
-              title="Settings"
-              position="end"
-              overlay={!isDesktop}
-              size={isDesktop ? drawerSize : "small"}
+              isDesktop={isDesktop}
+              drawerSize={drawerSize}
               headerNavigation={sidebarHeaderNavigation}
               onClose={() => setSidebarOpen(false)}
-            >
-              <div
-                style={{
-                  minHeight: 0,
-                  height: "100%",
-                  overflowY: "auto",
-                }}
-              >
-                {settingsContent}
-              </div>
-            </Drawer>
+              baseUrl={baseUrl}
+              setBaseUrl={setBaseUrl}
+              systemPrompt={systemPrompt}
+              setSystemPrompt={setSystemPrompt}
+              temperature={temperature}
+              setTemperature={setTemperature}
+              maxOutputTokens={maxOutputTokens}
+              setMaxOutputTokens={setMaxOutputTokens}
+              selectedEndpoint={selectedEndpoint}
+              currentEndpointConfig={currentEndpointConfig}
+              setEndpointConfigByEndpoint={setEndpointConfigByEndpoint}
+              selectedModelOption={selectedModelOption}
+              playgroundModel={playgroundModel}
+              providerKey={providerKey}
+              providerMetadata={providerMetadata}
+              setProviderMetadata={setProviderMetadata}
+              rawResponse={rawResponse}
+              requestPreviewHeaders={requestPreviewHeaders}
+              requestPreviewBody={requestPreviewBody}
+            />
           ) : null}
         </div>
       </div>

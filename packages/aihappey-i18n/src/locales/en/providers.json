@@ -89,7 +89,6 @@
       "exaggeration": "Exaggeration",
       "cfg": "Classifier-Free Guidance scale",
       "seed": "Seed",
-      "topP": "Top P",
       "minP": "Min P",
       "repetitionPenalty": "Repetition penalty",
       "topK": "Top K"
@@ -106,6 +105,18 @@
   },
   "openai": {
     "shell": "Shell",
+    "promptCacheRetention": "Prompt cache retention",
+    "promptCacheKey": "Prompt cache id",
+    "promptCacheOptions": {
+      "24h": "24 hours",
+      "in-memory": "In-memory"
+    },
+    "promptCache": "Prompt cache",
+    "truncation": {
+      "title": "Truncation",
+      "auto": "Automatic",
+      "disabled": "Disabled"
+    },
     "serviceTier": {
       "title": "Service tier",
       "auto": "Automatic",
@@ -117,6 +128,7 @@
     "container": "Container",
     "customVoice": "Custom voice",
     "prompt": "Prompt",
+    "topP": "Top-p",
     "transcriptionLanguagePlaceholder": "The language of the input audio in ISO-639-1 (e.g. en)",
     "speechPromptPlaceholder": "An optional text to guide the model's style or continue a previous audio segment",
     "transcriptionTemperature": "Temperature",
@@ -127,6 +139,19 @@
     "includeSources": "Include sources",
     "includeSearchResults": "Include search results",
     "encryptedContent": "Include encryption",
+    "responsesIncludeTitle": "Include",
+    "responsesIncludeImageUrls": "Include image URLs from computer output",
+    "responsesIncludeInputImageUrls": "Include image URLs from input messages",
+    "responsesIncludeOutputLogprobs": "Include output logprobs",
+    "responsesIncludeDescriptions": {
+      "webSearchSources": "Include the sources returned by the web search tool call.",
+      "codeInterpreterOutputs": "Include the outputs of Python code execution in code interpreter tool calls.",
+      "computerCallImageUrls": "Include image URLs returned from computer call outputs.",
+      "fileSearchResults": "Include the search results returned by the file search tool call.",
+      "inputImageUrls": "Include image URLs from input messages.",
+      "outputTextLogprobs": "Include log probabilities with assistant text responses.",
+      "reasoningEncryptedContent": "Include encrypted reasoning tokens so reasoning items can be reused in stateless multi-turn Responses API conversations."
+    },
     "instructions": "Instructions",
     "instructionsPlaceholder": "A system (or developer) message inserted into the model's context.",
     "max_num_results": "Maximum number of results",
@@ -558,8 +583,7 @@
       "advanceVoices": "Advance voices",
       "customVoiceId": "Custom voice",
       "customVoicePlaceholder": "e.g. af_bella",
-      "emotion": "Emotion",
-      "topP": "Top P"
+      "emotion": "Emotion"
     }
   },
   "freepik": {

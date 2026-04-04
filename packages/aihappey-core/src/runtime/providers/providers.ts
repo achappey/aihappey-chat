@@ -329,7 +329,6 @@ import { aibadgr } from "./catalog/aibadgr";
 import { ainative } from "./catalog/ainative";
 import { unbound } from "./catalog/unbound";
 import { shakespeare } from "./catalog/shakespeare";
-import { corriente } from "./catalog/corriente";
 import { cline } from "./catalog/cline";
 import { bazaarlink } from "./catalog/bazaarlink";
 import { puter } from "./catalog/puter";
@@ -676,7 +675,6 @@ export const PROVIDERS: Record<string, Provider> = {
   uplinkapi,
   airouter,
   edgee,
-  corriente,
   cline,
   shakespeare,
   ainative,

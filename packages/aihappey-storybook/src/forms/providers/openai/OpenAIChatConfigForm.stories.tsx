@@ -58,6 +58,7 @@ export const Populated: Story = {
         partial_images: 2,
       },
       code_interpreter: { container: { type: "auto" } },
+      truncation: "disabled",
       native_mcp: true,
       parallel_tool_calls: true,
       instructions: "Be concise.",

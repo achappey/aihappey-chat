@@ -200,7 +200,7 @@ export const DataSourceForm: React.FC<DataSourceFormProps> = ({
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <SelectComponent
         values={[selectedType || ""]}
-        label={t("dataSource.type")}
+        label={t("type")}
         options={typeSelectOptions}
         valueTitle={
           typeSelectOptions.find((opt) => opt.value === selectedType)?.label ?? t("dataSource.none")
@@ -209,7 +209,7 @@ export const DataSourceForm: React.FC<DataSourceFormProps> = ({
         onChange={(e: any) =>
           onTypeChange((e?.target?.value ?? e?.currentTarget?.value ?? e) as any)
         }
-        aria-label={t("dataSource.type")}
+        aria-label={t("type")}
       >
         {typeSelectOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>

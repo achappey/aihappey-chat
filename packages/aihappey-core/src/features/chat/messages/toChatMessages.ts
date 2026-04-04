@@ -30,7 +30,7 @@ export function toChatMessages(
     const author = meta?.author ?? meta?.model;
     const temperature = meta?.temperature;
     const totalTokens = meta?.totalTokens;
-    const costRaw = meta?.cost;
+    const costRaw = meta?.gateway?.cost ?? meta?.cost;
     const cost =
       typeof costRaw === "number"
         ? costRaw

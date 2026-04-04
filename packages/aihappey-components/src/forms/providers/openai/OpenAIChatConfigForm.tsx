@@ -20,6 +20,8 @@ export const OpenAIChatConfigForm = ({
   const { t } = useTranslation();
   const serviceTierOptions = ["auto", "default", "flex", "scale", "priority"];
   const serviceTierValue = config?.service_tier ?? "auto";
+  const truncationOptions = ["auto", "disabled"];
+  const truncationValue = config?.truncation ?? "auto";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -36,6 +38,28 @@ export const OpenAIChatConfigForm = ({
 
       <theme.Card size="small" title={t("other")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+          <theme.Select
+            label={t("providers:openai.truncation.title")}
+            values={[truncationValue]}
+            valueTitle={t(`providers:openai.truncation.${truncationValue}`)}
+            options={truncationOptions.map((value) => ({
+              value,
+              label: t(`providers:openai.truncation.${value}`),
+            }))}
+            onChange={(value: string) =>
+              updateConfig({
+                ...config,
+                truncation: String(value ?? "auto"),
+              })
+            }
+          >
+            {truncationOptions.map((value) => (
+              <option key={value} value={value}>
+                {t(`providers:openai.truncation.${value}`)}
+              </option>
+            ))}
+          </theme.Select>
 
           <theme.Select
             label={t("providers:openai.serviceTier.title")}

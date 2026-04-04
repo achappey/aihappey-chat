@@ -12,6 +12,7 @@ export const defaultProviderMetadata = {
       ],
     "parallel_tool_calls": true,
     "file_search": undefined,
+    "truncation": "auto",
     "service_tier": "auto",
     "native_mcp": false,
     "code_interpreter": undefined,

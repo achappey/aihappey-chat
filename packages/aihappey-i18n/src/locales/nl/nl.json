@@ -12,6 +12,7 @@
   "messagePrice": "Indicatief. Werkelijke kosten kunnen afwijken.",
   "versions": "Versies",
   "other": "Overig",
+  "xhigh": "Extra hoog",
   "storageQuotaMessage": "Je browseropslag is vol. Verwijder enkele chats of andere items en probeer het opnieuw.",
   "skillsPage": {
     "versionBadge": "Versie {{version}}",
@@ -308,7 +309,6 @@
   "dataSource": {
     "title": "Databron",
     "none": "Geen",
-    "type": "Type",
     "url": "Publieke URL (application/json)",
     "resource": "Model Context bron",
     "resourceTemplate": "Model Context bronsjabloon",
@@ -347,8 +347,10 @@
   "structuredOutputs": "Gestructureerde uitvoer",
   "structuredOutputsPlaceholder": "JSON schema...",
   "fast": "Snel",
+  "verbosity": "Uitvoerigheid",
   "accurate": "Accuraat",
   "off": "Uit",
+  "effortLevel": "Niveau",
   "reasoningEffort": "Niveau ({{reasoningEffort}})",
   "reasoningSummary": "Weergave gedachten",
   "table": "Tabel",
@@ -555,6 +557,7 @@
   "rerankingPlaceholder": "Voeg bestanden toe en stel een vraag om de bestanden te rangschikken...",
   "chatWithSpeechModels": "Chat met spraakmodellen",
   "chatWithTranscriptionModels": "Chat met transcriptiemodellen",
+  "type": "Type",
   "manageServersModal": {
     "current": "Huidige servers",
     "client": "Client",
@@ -569,7 +572,6 @@
     "headersInfo": "Headers ok",
     "validate": "Valideer",
     "headers": "Headers",
-    "nameExists": "Er bestaat al een server met deze naam.",
-    "type": "Type"
+    "nameExists": "Er bestaat al een server met deze naam."
   }
 }
