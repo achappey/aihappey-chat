@@ -48,6 +48,27 @@
     "encryptedContent": "Verschlüsselung einschließen",
     "instructions": "Anweisungen",
     "instructionsPlaceholder": "System- (oder Entwickler-)Nachricht, die in den Modellkontext eingefügt wird.",
+    "imageInputDetail": {
+      "title": "Input image detail",
+      "auto": "Auto",
+      "low": "Low",
+      "high": "High",
+      "original": "Original"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure how the Responses API should compact earlier context during a request.",
+      "empty": "No context management entries configured yet.",
+      "add": "Add context rule",
+      "type": "Type",
+      "compactThreshold": "Compact threshold",
+      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
+      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
+      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compaction"
+      }
+    },
     "max_num_results": "Maximale Anzahl an Ergebnissen",
     "vector_store_ids": "IDs der Vektorspeicher",
     "file_search": "Dateisuche",

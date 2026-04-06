@@ -3,10 +3,13 @@ import { useTranslation } from "aihappey-i18n";
 
 const DEFAULT_IMAGE_GENERATION = {
   model: "gpt-image-1.5",
+  action: "auto",
   size: "auto",
   quality: "auto",
   input_fidelity: "low",
   background: "auto",
+  moderation: "auto",
+  output_compression: 100,
   partial_images: 3,
 };
 
@@ -27,6 +30,12 @@ export const OpenAIImageGenerationForm = ({
     { value: "gpt-image-1.5", label: "gpt-image-1.5" },
     { value: "gpt-image-1", label: "gpt-image-1" },
     { value: "gpt-image-1-mini", label: "gpt-image-1-mini" },
+  ];
+
+  const actionOptions = [
+    { value: "auto", label: t("auto") },
+    { value: "generate", label: t("providers:openai.generate") },
+    { value: "edit", label: t("providers:openai.edit") },
   ];
 
   const qualityOptions = [
@@ -53,6 +62,11 @@ export const OpenAIImageGenerationForm = ({
   const fidelityOptions = [
     { value: "low", label: t("low") },
     { value: "high", label: t("high") },
+  ];
+
+  const moderationOptions = [
+    { value: "auto", label: t("auto") },
+    { value: "low", label: t("low") },
   ];
 
   return (
@@ -180,6 +194,63 @@ export const OpenAIImageGenerationForm = ({
 
         <div style={{ display: "flex", flexDirection: "row" }}>
           <theme.Select
+            label={t("providers:openai.action")}
+            style={{ flex: "1 1 0" }}
+            values={[config?.image_generation?.action ?? "auto"]}
+            disabled={!imageGenerationOn}
+            valueTitle={
+              actionOptions.find((a) => a.value === config?.image_generation?.action)
+                ?.label ?? t("auto")
+            }
+            options={actionOptions}
+            onChange={(val: string) =>
+              updateConfig({
+                ...config,
+                image_generation: {
+                  ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
+                  action: val,
+                },
+              })
+            }
+          >
+            {actionOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Select
+            label={t("moderation")}
+            style={{ flex: "1 1 0" }}
+            values={[config?.image_generation?.moderation ?? "auto"]}
+            disabled={!imageGenerationOn}
+            valueTitle={
+              moderationOptions.find(
+                (a) => a.value === config?.image_generation?.moderation
+              )?.label ?? t("auto")
+            }
+            options={moderationOptions}
+            onChange={(val: string) =>
+              updateConfig({
+                ...config,
+                image_generation: {
+                  ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
+                  moderation: val,
+                },
+              })
+            }
+          >
+            {moderationOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <theme.Select
             label={t("background")}
             style={{ flex: "1 1 0" }}
             values={[config?.image_generation?.background || ""]}
@@ -233,6 +304,27 @@ export const OpenAIImageGenerationForm = ({
               </option>
             ))}
           </theme.Select>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <theme.Slider
+            label={`${t("providers:openai.output_compression")} (${config?.image_generation?.output_compression ?? 100})`}
+            disabled={!imageGenerationOn}
+            min={0}
+            max={100}
+            step={1}
+            style={{ flex: "1 1 0" }}
+            value={config?.image_generation?.output_compression ?? 100}
+            onChange={(i: number) =>
+              updateConfig({
+                ...config,
+                image_generation: {
+                  ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
+                  output_compression: i,
+                },
+              })
+            }
+          />
         </div>
       </div>
     </theme.Card>

@@ -30,7 +30,7 @@ export const PerplexityWebSearchCardForm: React.FC<{
     const userLocation = webSearchOptions.user_location || {};
 
     return (
-        <theme.Card size="small" title={t("webSearch")}>
+        <theme.Card size="small" title={t("webSearch") + " (Sonar)"}>
             <div>
                 <div style={{ display: "flex", flexDirection: "row", gap: 12 }}>
                     <theme.Select

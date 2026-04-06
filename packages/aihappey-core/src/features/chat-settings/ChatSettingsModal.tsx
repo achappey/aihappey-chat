@@ -44,6 +44,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const { t } = useTranslation();
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const models = useAppStore((a) => a.models);
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? [])
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
@@ -213,6 +214,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
             title="Perplexity">
             <PerplexityChatConfigForm
               config={providerMetadata.perplexity ?? {}}
+              models={models}
               updateConfig={(perplexity) =>
                 setProviderMetadata({ ...providerMetadata, perplexity })
               }

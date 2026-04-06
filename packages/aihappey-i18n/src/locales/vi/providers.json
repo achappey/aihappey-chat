@@ -54,6 +54,27 @@
     "encryptedContent": "Bao gồm mã hóa",
     "instructions": "Hướng dẫn",
     "instructionsPlaceholder": "Thông điệp hệ thống (hoặc nhà phát triển) được chèn vào ngữ cảnh của mô hình.",
+    "imageInputDetail": {
+      "title": "Input image detail",
+      "auto": "Auto",
+      "low": "Low",
+      "high": "High",
+      "original": "Original"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure how the Responses API should compact earlier context during a request.",
+      "empty": "No context management entries configured yet.",
+      "add": "Add context rule",
+      "type": "Type",
+      "compactThreshold": "Compact threshold",
+      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
+      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
+      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compaction"
+      }
+    },
     "max_num_results": "Số kết quả tối đa",
     "vector_store_ids": "ID của các kho vector",
     "file_search": "Tìm kiếm tệp",

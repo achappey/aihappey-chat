@@ -1,11 +1,22 @@
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
+import {
+  buildCanonicalProviderToolsConfig,
+  withResolvedProviderTools,
+} from "../providerToolConfig";
 
 const DEFAULT_WEB_SEARCH = { type: "web_search" };
 const DEFAULT_WEB_SEARCH_PREMIUM = { type: "web_search_premium" };
 const DEFAULT_IMAGE_GENERATION = { type: "image_generation" };
 const DEFAULT_CODE_EXECUTION = { type: "code_interpreter" };
 const DEFAULT_DOCUMENT_LIBRARY = { type: "document_library", library_ids: [] };
+const MISTRAL_TOOL_TYPES = [
+  "web_search",
+  "web_search_premium",
+  "image_generation",
+  "code_interpreter",
+  "document_library",
+];
 
 export const MistralChatConfigForm = ({
   config,
@@ -16,12 +27,18 @@ export const MistralChatConfigForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const resolvedConfig = withResolvedProviderTools(config, MISTRAL_TOOL_TYPES);
+  const submitConfig = (nextConfig: any) =>
+    updateConfig(
+      buildCanonicalProviderToolsConfig(nextConfig, MISTRAL_TOOL_TYPES)
+    );
 
-  const fileSearchOn = !!config?.document_library;
-  const codeExecutionOn = !!config?.code_interpreter;
-  const imageGenerationOn = !!config?.image_generation;
-  const webSearchOn = !!config?.web_search || !!config?.web_search_premium;
-  const webSearchPremiumOn = !!config?.web_search_premium;
+  const fileSearchOn = !!resolvedConfig?.document_library;
+  const codeExecutionOn = !!resolvedConfig?.code_interpreter;
+  const imageGenerationOn = !!resolvedConfig?.image_generation;
+  const webSearchOn =
+    !!resolvedConfig?.web_search || !!resolvedConfig?.web_search_premium;
+  const webSearchPremiumOn = !!resolvedConfig?.web_search_premium;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -33,8 +50,8 @@ export const MistralChatConfigForm = ({
             id="webSearch"
             checked={webSearchOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 web_search_premium: undefined,
                 web_search: !val ? undefined : { ...DEFAULT_WEB_SEARCH },
               })
@@ -48,8 +65,9 @@ export const MistralChatConfigForm = ({
           checked={webSearchPremiumOn}
           disabled={!webSearchOn}
           onChange={(val) =>
-            updateConfig({
-              ...config,
+            submitConfig({
+              ...resolvedConfig,
+              web_search: !val ? { ...DEFAULT_WEB_SEARCH } : undefined,
               web_search_premium: !val
                 ? undefined
                 : { ...DEFAULT_WEB_SEARCH_PREMIUM },
@@ -66,8 +84,8 @@ export const MistralChatConfigForm = ({
             id="imageGeneration"
             checked={imageGenerationOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 image_generation: !val
                   ? undefined
                   : { ...DEFAULT_IMAGE_GENERATION },
@@ -85,8 +103,8 @@ export const MistralChatConfigForm = ({
             id="codeExecution"
             checked={codeExecutionOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 code_interpreter: !val
                   ? undefined
                   : { ...DEFAULT_CODE_EXECUTION },
@@ -104,8 +122,8 @@ export const MistralChatConfigForm = ({
             id="fileSearch"
             checked={fileSearchOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 document_library: !val
                   ? undefined
                   : { ...DEFAULT_DOCUMENT_LIBRARY },
@@ -119,12 +137,12 @@ export const MistralChatConfigForm = ({
             label={t("providers:openai.vector_store_ids")}
             placeholder="xxx, zzz"
             disabled={!fileSearchOn}
-            value={(config?.document_library?.library_ids || []).join(", ")}
+            value={(resolvedConfig?.document_library?.library_ids || []).join(", ")}
             onChange={(e: any) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 document_library: {
-                  ...config.document_library,
+                  ...resolvedConfig.document_library,
                   library_ids: e.target.value
                     .split(",")
                     .map((s: string) => s.trim())

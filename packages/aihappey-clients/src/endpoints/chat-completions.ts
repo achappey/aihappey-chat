@@ -4,6 +4,7 @@ import type {
   InvokePlaygroundResult,
   NormalizedInvokeRequest,
 } from "../shared/types";
+import { toChatCompletionsMessages } from "../shared/messages";
 import { extractChatCompletionsText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -17,7 +18,7 @@ const buildChatCompletionsBody = (request: NormalizedInvokeRequest) => {
     model: request.model,
     temperature: request.temperature,
     max_tokens: request.maxOutputTokens,
-    messages: request.messages,
+    messages: toChatCompletionsMessages(request.messages),
     stream: endpointConfig.stream,
     n: endpointConfig.n,
     top_p: endpointConfig.top_p,

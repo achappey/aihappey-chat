@@ -1,8 +1,25 @@
 export type PlaygroundRole = "system" | "user" | "assistant";
 
+export type PlaygroundAttachmentKind = "image" | "audio" | "file";
+
+export type PlaygroundAttachmentDocumentKind = "pdf" | "text";
+
+export type PlaygroundAttachment = {
+  id: string;
+  kind: PlaygroundAttachmentKind;
+  filename: string;
+  mimeType?: string;
+  dataUrl?: string;
+  base64?: string;
+  audioFormat?: "wav" | "mp3";
+  documentKind?: PlaygroundAttachmentDocumentKind;
+  textContent?: string;
+};
+
 export type PlaygroundMessage = {
   role: PlaygroundRole;
   content: string;
+  attachments?: PlaygroundAttachment[];
 };
 
 export type PlaygroundClientId = "vercel-ai-sdk" | "openai" | "anthropic" | "fetch";
@@ -40,6 +57,11 @@ export type ResponsesEndpointConfig = {
   store?: boolean;
   top_p?: number;
   truncation?: string;
+  imageInputDetail?: "low" | "high" | "auto" | "original";
+  context_management?: Array<{
+    type?: "compaction" | string;
+    compact_threshold?: number;
+  }>;
   parallel_tool_calls?: boolean;
   background?: boolean;
   max_tool_calls?: number;
@@ -125,6 +147,7 @@ export type PreparedPlaygroundInvocation = {
 export type NormalizedPlaygroundMessage = {
   role: PlaygroundRole;
   content: string;
+  attachments: PlaygroundAttachment[];
 };
 
 export type NormalizedInvokeRequest = Omit<InvokePlaygroundRequest, "messages"> & {

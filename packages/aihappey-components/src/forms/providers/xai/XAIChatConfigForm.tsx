@@ -1,6 +1,12 @@
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
+const DEFAULT_REASONING = {
+};
+
+const EFFORTS = ["low", "medium", "high"] as const;
+type Effort = (typeof EFFORTS)[number];
+
 const DEFAULT_WEB_SEARCH = {
   enable_image_understanding: true,
   allowed_domains: [],
@@ -29,6 +35,19 @@ export const XAIChatConfigForm = ({
   const xSearchOn = !!config?.x_search;
   const codeExecutionOn = !!config?.code_execution;
 
+
+  const toggleInclude = (key: string, enabled: boolean) => {
+    const current = Array.isArray(config?.include) ? config.include : [];
+    const next = enabled
+      ? Array.from(new Set([...current, key]))
+      : current.filter((value: any) => value !== key);
+
+    updateConfig({
+      ...config,
+      include: next.length ? next : undefined,
+    });
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <theme.Card
@@ -41,12 +60,24 @@ export const XAIChatConfigForm = ({
             onChange={(val) =>
               updateConfig({
                 ...config,
-                reasoning: val ? {} : undefined,
+                reasoning: val ? { ...DEFAULT_REASONING } : undefined,
               })
             }
           />
         }
-      />
+      >
+        <div>
+          <theme.Switch
+            id="xaiEncryptedContent"
+            disabled={!reasoningOn}
+            checked={config?.include?.includes("reasoning.encrypted_content")}
+            label={t("providers:openai.encryptedContent")}
+            onChange={(value) =>
+              toggleInclude("reasoning.encrypted_content", !!value)
+            }
+          />
+        </div>
+      </theme.Card>
 
       <theme.Card
         size="small"

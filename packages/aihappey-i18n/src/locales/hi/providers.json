@@ -54,6 +54,27 @@
     "encryptedContent": "एन्क्रिप्शन शामिल करें",
     "instructions": "निर्देश",
     "instructionsPlaceholder": "मॉडल के संदर्भ में जोड़ा गया सिस्टम (या डेवलपर) संदेश।",
+    "imageInputDetail": {
+      "title": "Input image detail",
+      "auto": "Auto",
+      "low": "Low",
+      "high": "High",
+      "original": "Original"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure how the Responses API should compact earlier context during a request.",
+      "empty": "No context management entries configured yet.",
+      "add": "Add context rule",
+      "type": "Type",
+      "compactThreshold": "Compact threshold",
+      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
+      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
+      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compaction"
+      }
+    },
     "max_num_results": "परिणामों की अधिकतम संख्या",
     "vector_store_ids": "वेक्टर स्टोर्स के ID",
     "file_search": "फ़ाइल खोज",

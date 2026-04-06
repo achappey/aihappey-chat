@@ -1,24 +1,47 @@
 // PerplexityChatConfigForm.tsx
 
 import { useTranslation } from "aihappey-i18n";
+import type { ModelOption } from "aihappey-types";
 import { useTheme } from "../../../theme/ThemeContext";
 import { PerplexityWebSearchCardForm } from "./cards/PerplexityWebSearchCardForm";
+import { PerplexityResponsesWebSearchCardForm } from "./cards/PerplexityResponsesWebSearchCardForm";
 import { PerplexityDateSearchSettingsCardForm } from "./cards/PerplexityDateSearchSettingsCardForm";
 import { PerplexitySonarDeepResearchCardForm } from "./cards/PerplexitySonarDeepResearchCardForm";
 import { PerplexityMediaCardForm } from "./cards/PerplexityMediaCardForm";
+import { PerplexityFetchUrlCardForm } from "./cards/PerplexityFetchUrlCardForm";
+import { PerplexityReasoningCardForm } from "./cards/PerplexityReasoningCardForm";
+import { PerplexityAgentCardForm } from "./cards/PerplexityAgentCardForm";
 
 export const PerplexityChatConfigForm = ({
   config,
   updateConfig,
+  models,
 }: {
   config: any;
   updateConfig: (val: any) => void;
+  models?: ModelOption[];
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+      <PerplexityReasoningCardForm config={config} updateConfig={updateConfig} />
+
+      <PerplexityAgentCardForm
+        config={config}
+        updateConfig={updateConfig}
+        models={models}
+      />
+
+      <PerplexityResponsesWebSearchCardForm
+        config={config}
+        updateConfig={updateConfig}
+      />
+
+      <PerplexityFetchUrlCardForm config={config} updateConfig={updateConfig} />
+
       <PerplexityWebSearchCardForm config={config} updateConfig={updateConfig} />
 
       <PerplexityDateSearchSettingsCardForm

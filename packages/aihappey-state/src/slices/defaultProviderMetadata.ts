@@ -3,6 +3,31 @@ export const defaultProviderMetadata = {
     "reasoning_effort": "low"
   },
   "openai": {
+    "tools":
+      [
+        {
+          "type": "web_search",
+          "user_location": {
+            "type": "approximate",
+            "city": null,
+            "region": null,
+            "country": null,
+            "timezone ": null
+          }
+        },
+        {
+          "type": "image_generation",
+          "model": "gpt-image-1.5",
+          "partial_images": 3,
+          "quality": "auto",
+          "action": "auto",
+          "moderation": "auto",
+          "output_compression": 100,
+          "background": "auto",
+          "input_fidelity": "low",
+          "size": "auto"
+        }
+      ],
     "include":
       [
         "web_search_call.action.sources",
@@ -15,7 +40,9 @@ export const defaultProviderMetadata = {
     "truncation": "auto",
     "service_tier": "auto",
     "native_mcp": false,
+    "imageInputDetail": "auto",
     "code_interpreter": undefined,
+    "context_management": undefined,
     "reasoning": {
       "effort": "none",
       "summary": "auto"
@@ -33,6 +60,9 @@ export const defaultProviderMetadata = {
       "model": "gpt-image-1.5",
       "partial_images": 3,
       "quality": "auto",
+      "action": "auto",
+      "moderation": "auto",
+      "output_compression": 100,
       "background": "auto",
       "input_fidelity": "low",
       "size": "auto"
@@ -111,6 +141,17 @@ export const defaultProviderMetadata = {
     "web_fetch": undefined
   },
   "mistral": {
+    "tools": [
+      {
+        "type": "web_search_premium"
+      },
+      {
+        "type": "code_interpreter"
+      },
+      {
+        "type": "image_generation"
+      }
+    ],
     "web_search_premium": {
       "type": "web_search_premium"
     },
@@ -163,12 +204,41 @@ export const defaultProviderMetadata = {
       "excluded_domains": [],
       "enable_image_understanding": true
     },
+    "include":
+      [
+        "reasoning.encrypted_content"
+      ],
     "x_search": undefined,
     "code_execution": undefined,
-    "reasoning": {},
+    "reasoning": {
+    },
     "parallel_tool_calls": true
   },
   "perplexity": {
+    "web_search": {
+      "type": "web_search",
+      "filters": {
+        "search_domain_filter": [],
+        "last_updated_after_filter": "",
+        "last_updated_before_filter": "",
+        "search_after_date_filter": "",
+        "search_before_date_filter": "",
+        "search_recency_filter": ""
+      },
+      "max_tokens": "",
+      "max_tokens_per_page": "",
+      "user_location": {
+        "city": "",
+        "country": "",
+        "latitude": "",
+        "longitude": "",
+        "region": ""
+      }
+    },
+    "fetch_url": {
+      "type": "fetch_url",
+      "max_urls": ""
+    },
     "web_search_options": {
       "search_type": "auto",
       "search_context_size": "medium",

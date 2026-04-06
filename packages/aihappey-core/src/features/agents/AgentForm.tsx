@@ -311,6 +311,7 @@ export const AgentForm = ({
                     {providerKey === "perplexity" && (
                         <PerplexityChatConfigForm
                             config={providerMeta}
+                            models={models}
                             updateConfig={updateProviderMetadata}
                         />
                     )}

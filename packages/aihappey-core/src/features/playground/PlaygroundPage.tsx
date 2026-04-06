@@ -10,6 +10,7 @@ import {
   getPlaygroundClient,
   invokePlayground,
   preparePlaygroundRequest,
+  type PlaygroundAttachment,
   type PlaygroundEndpointConfigMap,
   type PlaygroundClientId,
   playgroundClientOptions,
@@ -18,6 +19,7 @@ import {
 import { DefaultChatTransport, useChat, type UIMessage } from "aihappey-ai";
 import {
   createPlaygroundFetch,
+  toPlaygroundApiChatMessages,
   createPlaygroundUiMessage,
   replaceLastPlaygroundAssistantMessage,
   resolvePlaygroundUrl,
@@ -27,6 +29,8 @@ import {
 } from "./playgroundChat";
 import { PlaygroundInput } from "./PlaygroundInput";
 import { PlaygroundSettingsDrawer } from "./PlaygroundSettingsDrawer";
+import { encodePlaygroundAttachment, getPlaygroundUnsupportedAttachmentKinds } from "./playgroundAttachments";
+import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 
 export const PlaygroundPage = () => {
   const { isDarkMode } = useDarkMode();
@@ -38,6 +42,8 @@ export const PlaygroundPage = () => {
   const customHeaders = useAppStore((s) => s.customHeaders);
   const maxOutputTokensFromStore = useAppStore((s) => s.maxOutputTokens);
   const temperatureFromStore = useAppStore((s) => s.temperature);
+  const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
+  const setThrottle = useAppStore((s) => s.setThrottle);
 
   const [selectedEndpoint, setSelectedEndpoint] = useState("/v1/responses");
   const [selectedClient, setSelectedClient] = useState<PlaygroundClientId>("openai");
@@ -48,6 +54,9 @@ export const PlaygroundPage = () => {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<UIMessage[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [pendingAttachments, setPendingAttachments] = useState<PlaygroundAttachment[]>([]);
+  const [attachmentEncoding, setAttachmentEncoding] = useState(false);
   const [providerMetadata, setProviderMetadata] = useState<any>({ openai: {} });
   const [endpointConfigByEndpoint, setEndpointConfigByEndpoint] = useState<PlaygroundEndpointConfigMap>({
     "/api/chat": {},
@@ -137,7 +146,7 @@ export const PlaygroundPage = () => {
           ...(opts.body ?? {}),
           id: opts.id,
           messageId: opts.messageId,
-          messages: opts.messages,
+          messages: toPlaygroundApiChatMessages(opts.messages as UIMessage[]),
           trigger: opts.trigger,
           model: playgroundModel,
           temperature,
@@ -157,6 +166,7 @@ export const PlaygroundPage = () => {
   } = useChat({
     id: `playground-${playgroundChatRevision}`,
     transport: playgroundTransport,
+    experimental_throttle: experimentalThrottle,
     messages,
   });
 
@@ -194,11 +204,55 @@ export const PlaygroundPage = () => {
     setNeedsVercelRehydrate(false);
   }, [needsVercelRehydrate, usesVercelApiChat]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!pendingFiles.length) {
+      setPendingAttachments([]);
+      setAttachmentEncoding(false);
+      return;
+    }
+
+    setAttachmentEncoding(true);
+    void Promise.all(pendingFiles.map((file) => encodePlaygroundAttachment(file)))
+      .then((attachments) => {
+        if (cancelled) return;
+        setPendingAttachments(attachments);
+      })
+      .catch((err: any) => {
+        if (cancelled) return;
+        setError(err?.message ?? "Failed to read one or more attachments.");
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setAttachmentEncoding(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pendingFiles]);
+
+  const addPendingFiles = (files: File[]) => {
+    if (!files.length) return;
+    setError(undefined);
+    setPendingFiles((current) => [...current, ...files]);
+  };
+
+  const removePendingFile = (name: string) => {
+    setPendingFiles((current) => current.filter((file) => file.name !== name));
+  };
+
+  const { isOver, dropRef: pageDrop, handleDrop, handleDragOver } = useChatFileDrop(
+    (file) => addPendingFiles([file]),
+    addPendingFiles,
+  );
+
   const previewMessages = useMemo(
-    () => draft.trim()
-      ? [...messages, createPlaygroundUiMessage("user", draft.trim())]
+    () => draft.trim() || pendingAttachments.length > 0
+      ? [...messages, createPlaygroundUiMessage("user", draft.trim(), pendingAttachments)]
       : messages,
-    [draft, messages],
+    [draft, messages, pendingAttachments],
   );
 
   const preparedPreview = useMemo(() => {
@@ -253,7 +307,13 @@ export const PlaygroundPage = () => {
     ? vercelStatus === "submitted" || vercelStatus === "streaming"
     : sending;
 
-  const canSend = !!playgroundModel && !!baseUrl.trim() && !!draft.trim() && !isStreaming;
+  const canSend = !!playgroundModel
+    && !!baseUrl.trim()
+    && (!!draft.trim() || pendingFiles.length > 0)
+    && !isStreaming
+    && !attachmentEncoding;
+
+  const canAttach = !isStreaming && !attachmentEncoding;
 
   const sidebarHeaderNavigation = isDesktop ? (
     <div
@@ -288,26 +348,47 @@ export const PlaygroundPage = () => {
     if (!canSend) return;
 
     const trimmedDraft = draft.trim();
-    if (!trimmedDraft) return;
-
-    setDraft("");
-    setError(undefined);
-
-    if (usesVercelApiChat) {
-      setRawResponse(undefined);
-      await sendMessage(createPlaygroundUiMessage("user", trimmedDraft) as any, {
-        body: {
-          model: playgroundModel,
-          temperature,
-          maxOutputTokens,
-          systemPrompt,
-          providerMetadata,
-        },
-      });
+    const unsupportedKinds = getPlaygroundUnsupportedAttachmentKinds(selectedEndpoint as any, pendingAttachments);
+    if (unsupportedKinds.length > 0) {
+      setError(`Attachments of type ${unsupportedKinds.join(", ")} are not implemented for ${selectedEndpoint} yet.`);
       return;
     }
 
-    const nextMessages = [...messages, createPlaygroundUiMessage("user", trimmedDraft)];
+    if (!trimmedDraft && pendingAttachments.length === 0) return;
+
+    const currentDraft = draft;
+    const currentFiles = pendingFiles;
+    const currentAttachments = pendingAttachments;
+
+    setDraft("");
+    setError(undefined);
+    setPendingFiles([]);
+    setPendingAttachments([]);
+
+    if (usesVercelApiChat) {
+      setRawResponse(undefined);
+
+      try {
+        await sendMessage(createPlaygroundUiMessage("user", trimmedDraft, currentAttachments) as any, {
+          body: {
+            model: playgroundModel,
+            temperature,
+            maxOutputTokens,
+            systemPrompt,
+            providerMetadata,
+          },
+        });
+      } catch (err: any) {
+        setDraft(currentDraft);
+        setPendingFiles(currentFiles);
+        setPendingAttachments(currentAttachments);
+        setError(err?.message ?? "Playground request failed.");
+      }
+
+      return;
+    }
+
+    const nextMessages = [...messages, createPlaygroundUiMessage("user", trimmedDraft, currentAttachments)];
     setMessages(nextMessages);
     setNeedsVercelRehydrate(true);
     setSending(true);
@@ -358,6 +439,9 @@ export const PlaygroundPage = () => {
       setRawResponse(result.raw);
       setMessages((current) => [...current, createPlaygroundUiMessage("assistant", result.text || "")]);
     } catch (err: any) {
+      setDraft(currentDraft);
+      setPendingFiles(currentFiles);
+      setPendingAttachments(currentAttachments);
       setError(err?.message ?? "Playground request failed.");
     } finally {
       setSending(false);
@@ -366,10 +450,18 @@ export const PlaygroundPage = () => {
 
   return (
     <div
+      ref={(node) => {
+        if (node) pageDrop(node);
+      }}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
       style={{
         display: "flex",
         flexDirection: "column",
         minHeight: "100%",
+        border: isOver ? "1px dashed #5b5fc7" : undefined,
+        borderRadius: isOver ? 8 : undefined,
+        backgroundColor: isOver ? "rgba(91, 95, 199, 0.06)" : undefined,
       }}
     >
       <div
@@ -493,9 +585,13 @@ export const PlaygroundPage = () => {
                 value={draft}
                 onChange={setDraft}
                 onSend={() => void handleSend()}
-                disabled={!canSend}
+                sendDisabled={!canSend}
+                attachmentsDisabled={!canAttach}
                 streaming={isStreaming}
                 error={error}
+                attachments={pendingFiles}
+                onAddAttachments={addPendingFiles}
+                onRemoveAttachment={removePendingFile}
               />
             </div>
           </div>
@@ -515,6 +611,8 @@ export const PlaygroundPage = () => {
               setTemperature={setTemperature}
               maxOutputTokens={maxOutputTokens}
               setMaxOutputTokens={setMaxOutputTokens}
+              experimentalThrottle={experimentalThrottle ?? 100}
+              setExperimentalThrottle={setThrottle}
               selectedEndpoint={selectedEndpoint}
               currentEndpointConfig={currentEndpointConfig}
               setEndpointConfigByEndpoint={setEndpointConfigByEndpoint}

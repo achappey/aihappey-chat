@@ -10,7 +10,7 @@ export const PerplexityDateSearchSettingsCardForm: React.FC<{
   const { t } = useTranslation();
 
   return (
-    <theme.Card size="small" title={t("providers:perplexity.dateSearchSettings")}>
+    <theme.Card size="small" title={t("providers:perplexity.dateSearchSettings") + " (Sonar)"}>
       <div>
         <theme.Input
           label={t("providers:perplexity.searchRecencyFilter")}

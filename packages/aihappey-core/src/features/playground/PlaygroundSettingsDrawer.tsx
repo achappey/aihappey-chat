@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import {
   AiChatSettingsForm,
   AnthropicChatConfigForm,
+  ChatSettingsForm,
   ChatCompletionsEndpointConfigForm,
   CohereChatConfigForm,
   GroqChatConfigForm,
@@ -19,6 +20,7 @@ import {
 } from "aihappey-components";
 import type { PlaygroundEndpointConfigMap } from "aihappey-clients";
 import type { ModelOption } from "aihappey-types";
+import { useAppStore } from "aihappey-state";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 
 type PlaygroundSettingsDrawerProps = {
@@ -35,6 +37,8 @@ type PlaygroundSettingsDrawerProps = {
   setTemperature: (value: number) => void;
   maxOutputTokens?: number;
   setMaxOutputTokens: (value: number | undefined) => void;
+  experimentalThrottle: number;
+  setExperimentalThrottle: (value: number) => void;
   selectedEndpoint: string;
   currentEndpointConfig: PlaygroundEndpointConfigMap[keyof PlaygroundEndpointConfigMap] | Record<string, any>;
   setEndpointConfigByEndpoint: React.Dispatch<React.SetStateAction<PlaygroundEndpointConfigMap>>;
@@ -47,6 +51,7 @@ type PlaygroundSettingsDrawerProps = {
   requestPreviewHeaders?: string;
   requestPreviewBody?: string;
 };
+
 
 const formatProviderTitle = (providerKey: string, selectedModelOption?: ModelOption) => {
   const displayName = selectedModelOption?.owned_by?.trim();
@@ -69,6 +74,8 @@ export const PlaygroundSettingsDrawer = ({
   setTemperature,
   maxOutputTokens,
   setMaxOutputTokens,
+  experimentalThrottle,
+  setExperimentalThrottle,
   selectedEndpoint,
   currentEndpointConfig,
   setEndpointConfigByEndpoint,
@@ -81,6 +88,7 @@ export const PlaygroundSettingsDrawer = ({
   requestPreviewHeaders = "",
   requestPreviewBody = "",
 }: PlaygroundSettingsDrawerProps) => {
+  const models = useAppStore((s) => s.models);
   const { Drawer, Tabs, Tab, Input, TextArea, Text } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
 
@@ -117,7 +125,7 @@ export const PlaygroundSettingsDrawer = ({
       case "openai":
         return <OpenAIChatConfigForm config={providerMetadata.openai ?? {}} updateConfig={updateProviderConfig} />;
       case "perplexity":
-        return <PerplexityChatConfigForm config={providerMetadata.perplexity ?? {}} updateConfig={updateProviderConfig} />;
+        return <PerplexityChatConfigForm config={providerMetadata.perplexity ?? {}} models={models} updateConfig={updateProviderConfig} />;
       case "pollinations":
         return <PollinationsChatConfigForm config={providerMetadata.pollinations ?? {}} updateConfig={updateProviderConfig} />;
       case "sambanova":
@@ -173,6 +181,13 @@ export const PlaygroundSettingsDrawer = ({
                 onChange={(value: { temperature: number; maxOutputTokens?: number }) => {
                   setTemperature(value.temperature);
                   setMaxOutputTokens(value.maxOutputTokens);
+                }}
+              />
+              <ChatSettingsForm
+                value={{ throttle: experimentalThrottle }}
+                formTitle="Chat"
+                onChange={(value: { throttle: number }) => {
+                  setExperimentalThrottle(value.throttle);
                 }}
               />
             </div>

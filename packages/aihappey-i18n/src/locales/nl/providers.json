@@ -68,10 +68,15 @@
   },
   "perplexity": {
     "academic": "Academisch",
+    "agent": "Agent",
     "fast": "Snel",
     "pro": "Pro",
+    "responsesWebSearch": "Zoeken op internet",
+    "fetchUrl": "Websites lezen",
     "web": "Web",
     "media": "Media",
+    "searchDomainFilter": "Domeinfilter",
+    "maxUrls": "Maximaal aantal pagina's",
     "searchType": "Type",
     "enableMediaClassifier": "Media classificatie",
     "improveImageRelevance": "Verbeter afbeelding relevantie",
@@ -83,12 +88,23 @@
     "lastUpdatedBeforeFilter": "Laatst bijgewerkt vóór datum",
     "dateSearchSettings": "Datum filters",
     "sonarDeepResearch": "Sonar Deep Research",
+    "instructions": "Instructies",
+    "languagePreference": "Taalvoorkeur",
+    "languagePreferencePlaceholder": "bijv. en",
+    "maxOutputTokens": "Maximum aantal outputtokens",
+    "maxSteps": "Maximum aantal stappen",
+    "models": "Modellen (max 5)",
+    "noModelsAvailable": "Geen Perplexity-modellen beschikbaar",
     "returnImages": "Afbeeldingen retourneren",
     "returnVideos": "Videos retourneren",
     "returnRelatedQuestions": "Gerelateerde vragen retourneren"
   },
   "openai": {
     "shell": "Shell",
+    "output_compression": "Uitvoer compressie",
+    "action": "Actie",
+    "generate": "Genereer",
+    "edit": "Wijzig",
     "promptCacheRetention": "Prompt cache retentie",
     "promptCacheOptions": {
       "24h": "24 uur",
@@ -135,6 +151,27 @@
     },
     "instructions": "Instructies",
     "instructionsPlaceholder": "Een systeem bericht dat wordt toegevoegd aan de context.",
+    "imageInputDetail": {
+      "title": "Detail van invoerafbeeldingen",
+      "auto": "Automatisch",
+      "low": "Laag",
+      "high": "Hoog",
+      "original": "Origineel"
+    },
+    "contextManagement": {
+      "title": "Context beheer",
+      "description": "Configureer hoe de chat-context te comprimeren.",
+      "empty": "Nog geen contextbeheerregels geconfigureerd.",
+      "add": "Contextregel toevoegen",
+      "type": "Type",
+      "compactThreshold": "Compressiedrempel",
+      "compactThresholdHelp": "Start compressie wanneer de context deze token-drempel bereikt.",
+      "compactThresholdInvalid": "Compressiedrempel moet {{min}} of hoger zijn.",
+      "entrySummary": "Comprimeert context bij {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compressie"
+      }
+    },
     "max_num_results": "Maximaal aantal resultaten",
     "vector_store_ids": "Ids van de documentenhubs",
     "file_search": "Documentenhub",

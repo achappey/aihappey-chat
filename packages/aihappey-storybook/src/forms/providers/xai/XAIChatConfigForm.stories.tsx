@@ -37,7 +37,10 @@ export const ReasoningOnly: Story = {
   render: () => (
     <Wrapper
       config={{
-        reasoning: {},
+        reasoning: {
+          effort: "medium",
+          summary: "auto",
+        },
       }}
     />
   ),
@@ -136,7 +139,11 @@ export const FullyLoaded: Story = {
   render: () => (
     <Wrapper
       config={{
-        reasoning: {},
+        include: ["reasoning.encrypted_content"],
+        reasoning: {
+          effort: "high",
+          summary: "detailed",
+        },
         web_search: {
           enable_image_understanding: true,
           allowed_domains: ["x.ai", "openai.com"],

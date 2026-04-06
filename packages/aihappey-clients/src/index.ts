@@ -6,6 +6,8 @@ export type {
   InvokePlaygroundResult,
   MessagesEndpointConfig,
   PreparedPlaygroundInvocation,
+  PlaygroundAttachment,
+  PlaygroundAttachmentKind,
   PlaygroundClientId,
   PlaygroundClientOption,
   PlaygroundEndpointConfigMap,

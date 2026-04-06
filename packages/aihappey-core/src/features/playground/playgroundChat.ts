@@ -1,9 +1,10 @@
-import type { PreparedPlaygroundInvocation } from "aihappey-clients";
+import type { PlaygroundAttachment, PreparedPlaygroundInvocation } from "aihappey-clients";
 import type { UIMessage } from "aihappey-ai";
 
 export type PlaygroundPayloadMessage = {
   role: "system" | "user" | "assistant";
   content: string;
+  attachments?: PlaygroundAttachment[];
 };
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
@@ -17,14 +18,53 @@ export const resolvePlaygroundUrl = (baseUrl: string, endpoint: string) => {
 export const createPlaygroundUiMessage = (
   role: "system" | "user" | "assistant",
   text: string,
+  attachments?: PlaygroundAttachment[],
 ): UIMessage => ({
   id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
   role,
   parts: [{ type: "text", text } as any],
   metadata: {
     timestamp: new Date().toISOString(),
+    playgroundAttachments: attachments,
   },
 } as UIMessage);
+
+const toPlaygroundApiChatAttachmentPart = (attachment: PlaygroundAttachment) => {
+  const url = typeof attachment.dataUrl === "string" && attachment.dataUrl.length > 0
+    ? attachment.dataUrl
+    : typeof attachment.base64 === "string" && attachment.base64.length > 0
+      ? `data:${attachment.mimeType || "application/octet-stream"};base64,${attachment.base64}`
+      : undefined;
+
+  if (!url) return undefined;
+
+  return {
+    type: "file" as const,
+    filename: attachment.filename,
+    mediaType: attachment.mimeType || "application/octet-stream",
+    url,
+  };
+};
+
+export const toPlaygroundApiChatMessage = (message: UIMessage): UIMessage => {
+  const text = getPlaygroundMessageText(message).trim();
+  const attachments = getPlaygroundMessageAttachments(message)
+    .map((attachment) => toPlaygroundApiChatAttachmentPart(attachment))
+    .filter(Boolean);
+
+  const parts = [
+    ...attachments,
+    ...(text ? [{ type: "text" as const, text }] : []),
+  ];
+
+  return {
+    ...message,
+    parts: parts.length > 0 ? parts as any : [{ type: "text", text }] as any,
+  } as UIMessage;
+};
+
+export const toPlaygroundApiChatMessages = (messages: UIMessage[]): UIMessage[] =>
+  messages.map((message) => toPlaygroundApiChatMessage(message));
 
 export const replaceLastPlaygroundAssistantMessage = (
   messages: UIMessage[],
@@ -44,6 +84,11 @@ export const getPlaygroundMessageText = (message: Pick<UIMessage, "parts">) =>
     .filter(Boolean)
     .join("\n\n") ?? "";
 
+export const getPlaygroundMessageAttachments = (message: Pick<UIMessage, "metadata">): PlaygroundAttachment[] => {
+  const attachments = (message as any)?.metadata?.playgroundAttachments;
+  return Array.isArray(attachments) ? attachments : [];
+};
+
 export const createPlaygroundSystemMessage = (systemPrompt?: string): UIMessage | undefined => {
   const text = String(systemPrompt ?? "").trim();
   if (!text) return undefined;
@@ -61,8 +106,9 @@ export const toPlaygroundPayloadMessages = (
     .map((message) => ({
       role: message.role as "system" | "user" | "assistant",
       content: getPlaygroundMessageText(message).trim(),
+      attachments: getPlaygroundMessageAttachments(message),
     }))
-    .filter((message) => message.content.length > 0),
+    .filter((message) => message.content.length > 0 || (message.attachments?.length ?? 0) > 0),
 ];
 
 export const createPlaygroundFetch = ({
