@@ -9,7 +9,7 @@ export const apipod: Provider = {
   urls: {
     homepage: "https://www.apipod.ai",
     pricing: "https://www.apipod.ai/pricing",
-    docs: "https://www.apipod.ai/docs",
+    docs: "https://docs.apipod.ai",
     privacyPolicy: "https://www.apipod.ai/privacy",
     termsOfService: "https://www.apipod.ai/terms"
   },

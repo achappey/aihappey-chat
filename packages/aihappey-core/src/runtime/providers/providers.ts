@@ -481,7 +481,6 @@ import { ninjachat } from "./catalog/ninjachat";
 import { mimicxai } from "./catalog/mimicxai";
 import { sawtia } from "./catalog/sawtia";
 import { runtimo } from "./catalog/runtimo";
-import { awstore } from "./catalog/awstore";
 import { huboteng } from "./catalog/huboteng";
 import { codzen } from "./catalog/codzen";
 import { opuscode } from "./catalog/opuscode";
@@ -493,6 +492,18 @@ import { blink } from "./catalog/blink";
 import { tensorblock } from "./catalog/tensorblock";
 import { aiapiworld } from "./catalog/aiapiworld";
 import { shannonai } from "./catalog/shannonai";
+import { trinixai } from "./catalog/trinixai";
+import { holysheepai } from "./catalog/holysheepai";
+import { zyloapi } from "./catalog/zyloapi";
+import { augure } from "./catalog/augure";
+import { sapiom } from "./catalog/sapiom";
+import { forgebylana } from "./catalog/forgebylana";
+import { theoldapi } from "./catalog/theoldapi";
+import { uncloseai } from "./catalog/uncloseai";
+import { radiance } from "./catalog/radiance";
+import { oneinfer } from "./catalog/oneinfer";
+import { tapas } from "./catalog/tapas";
+import { igpt } from "./catalog/igpt";
 
 /**
  * UI-facing provider catalog.
@@ -503,10 +514,19 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
   api1sbs,
+  tapas,
+  oneinfer,
+  igpt,
+  theoldapi,
+  sapiom,
+  augure,
+  forgebylana,
+  radiance,
   ninjachat,
   aiapiworld,
   concentrate,
   moleapi,
+  zyloapi,
   opuscode,
   codzen,
   llama,
@@ -520,8 +540,8 @@ export const PROVIDERS: Record<string, Provider> = {
   huboteng,
   runtimo,
   wiserouter,
+  uncloseai,
   pellet,
-  awstore,
   lumecoder,
   radient,
   aihorde,
@@ -556,7 +576,9 @@ export const PROVIDERS: Record<string, Provider> = {
   opengateway,
   applingo,
   tokonlab,
+  holysheepai,
   foureverland,
+  trinixai,
   fivedock,
   schatziai,
   privatemode,
