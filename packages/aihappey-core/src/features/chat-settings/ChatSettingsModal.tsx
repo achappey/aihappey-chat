@@ -3,6 +3,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import {
   AnthropicChatConfigForm,
+  BrowserUseChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
   LocalToolsSettingsForm,
@@ -144,6 +145,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               config={providerMetadata.cohere ?? {}}
               updateConfig={(cohere) =>
                 setProviderMetadata({ ...providerMetadata, cohere })
+              }
+            />
+          </theme.Tab>
+        }
+        {enabledProviders.includes("BrowserUse") &&
+          <theme.Tab eventKey="browseruse" title="BrowserUse">
+            <BrowserUseChatConfigForm
+              config={providerMetadata.browseruse ?? {}}
+              updateConfig={(browseruse) =>
+                setProviderMetadata({ ...providerMetadata, browseruse })
               }
             />
           </theme.Tab>

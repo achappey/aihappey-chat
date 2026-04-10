@@ -1,5 +1,9 @@
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
+import {
+  buildCanonicalProviderToolsConfig,
+  withResolvedProviderTools,
+} from "../providerToolConfig";
 
 const EFFORTS = ["low", "medium", "high"] as const;
 type Effort = (typeof EFFORTS)[number];
@@ -17,6 +21,8 @@ const DEFAULT_BROWSER_SEARCH = {
   type: "browser_search",
 };
 
+const GROQ_TOOL_TYPES = ["browser_search", "code_interpreter"];
+
 export const GroqChatConfigForm = ({
   config,
   updateConfig,
@@ -26,10 +32,13 @@ export const GroqChatConfigForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const resolvedConfig = withResolvedProviderTools(config, GROQ_TOOL_TYPES);
+  const submitConfig = (nextConfig: any) =>
+    updateConfig(buildCanonicalProviderToolsConfig(nextConfig, GROQ_TOOL_TYPES));
 
   const reasoningOn = !!config?.reasoning;
-  const browserSearchOn = !!config?.browser_search;
-  const codeInterpreterOn = !!config?.code_interpreter;
+  const browserSearchOn = !!resolvedConfig?.browser_search;
+  const codeInterpreterOn = !!resolvedConfig?.code_interpreter;
 
   const effortToIndex = (e?: Effort) =>
     Math.max(0, EFFORTS.indexOf((e ?? "medium") as Effort));
@@ -85,11 +94,11 @@ export const GroqChatConfigForm = ({
         title={t("webSearch")}
         headerActions={
           <theme.Switch
-            id="webSearch"
-            checked={browserSearchOn}
-            onChange={(val) =>
-              updateConfig({
-                ...config,
+             id="webSearch"
+             checked={browserSearchOn}
+             onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
                 browser_search: !val ? undefined : { ...DEFAULT_BROWSER_SEARCH },
               })
             }
@@ -105,8 +114,8 @@ export const GroqChatConfigForm = ({
             id="codeInterpreter"
             checked={codeInterpreterOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 code_interpreter: !val
                   ? undefined
                   : { ...DEFAULT_CODE_INTERPRETER },

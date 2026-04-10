@@ -5,14 +5,14 @@ import {
   AnthropicSharedToolFields,
 } from "./AnthropicToolCardShared";
 
-const MEMORY_VERSIONS = ["memory_20250818"];
+const BASH_VERSIONS = ["bash_20250124"];
 
-const createDefaultMemoryTool = () => ({
-  name: "memory",
-  type: MEMORY_VERSIONS[0],
+const createDefaultBashTool = () => ({
+  name: "bash",
+  type: BASH_VERSIONS[0],
 });
 
-export const AnthropicMemoryCard = ({
+export const AnthropicBashCard = ({
   config,
   updateConfig,
 }: {
@@ -21,21 +21,21 @@ export const AnthropicMemoryCard = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const memoryOn = !!config?.memory;
-  const tool = config?.memory ?? createDefaultMemoryTool();
+  const bashOn = !!config?.bash;
+  const tool = config?.bash ?? createDefaultBashTool();
 
   return (
     <theme.Card
       size="small"
-      title="Memory"
+      title={t("providers:anthropic.shell")}
       headerActions={
         <theme.Switch
-          id="anthropic-memory"
-          checked={memoryOn}
+          id="anthropic-bash"
+          checked={bashOn}
           onChange={(checked: boolean) =>
             updateConfig({
               ...config,
-              memory: checked ? createDefaultMemoryTool() : undefined,
+              bash: checked ? createDefaultBashTool() : undefined,
             })
           }
         />
@@ -43,16 +43,16 @@ export const AnthropicMemoryCard = ({
     >
       <div style={{ display: "flex", flexDirection: "column" }}>
         <AnthropicSharedToolFields
-          idPrefix="anthropic-memory"
-          disabled={!memoryOn}
+          idPrefix="anthropic-bash"
+          disabled={!bashOn}
           tool={tool}
-          versions={MEMORY_VERSIONS}
+          versions={BASH_VERSIONS}
           onVersionChange={(value: string) =>
             updateConfig({
               ...config,
-              memory: {
+              bash: {
                 ...tool,
-                name: "memory",
+                name: "bash",
                 type: value,
               },
             })
@@ -60,9 +60,9 @@ export const AnthropicMemoryCard = ({
           onChange={(nextTool: any) =>
             updateConfig({
               ...config,
-              memory: {
+              bash: {
                 ...nextTool,
-                name: "memory",
+                name: "bash",
               },
             })
           }
@@ -70,13 +70,13 @@ export const AnthropicMemoryCard = ({
 
         <AnthropicJsonTextArea
           label={t("providers:anthropic.inputExamples")}
-          disabled={!memoryOn}
+          disabled={!bashOn}
           placeholder="[]"
           value={tool?.input_examples}
           onChange={(value) =>
             updateConfig({
               ...config,
-              memory: {
+              bash: {
                 ...tool,
                 input_examples: value,
               },

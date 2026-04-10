@@ -40,6 +40,9 @@ export const Populated: Story = {
       reasoning: { effort: "medium", summary: "auto" },
       web_search: {
         search_context_size: "medium",
+        filters: {
+          allowed_domains: ["pubmed.ncbi.nlm.nih.gov", "openai.com"],
+        },
         user_location: {
           country: "NL",
           region: "Noord-Holland",

@@ -41,6 +41,18 @@
       "year": "Year"
     }
   },
+  "browseruse": {
+    "session": "Session",
+    "features": "Features",
+    "maxCostUsd": "Maximum cost (USD)",
+    "profileId": "Profile",
+    "workspaceId": "Workspace",
+    "proxyCountryCode": "Country where browser runs",
+    "enableRecording": "Enable recording",
+    "skills": "Enable skills",
+    "agentmail": "Enable AgentMail",
+    "cacheScript": "Cache script"
+  },
   "pollinations": {
     "enhance": "Enhance",
     "enhanceHint": "Let AI improve your prompt for better results",
@@ -59,7 +71,41 @@
     "betaHeader": "Beta",
     "customSkills": "Custom skills",
     "allowedDomains": "Allowed domains",
-    "blockedDomains": "Blocked domains"
+    "blockedDomains": "Blocked domains",
+    "shell": "Shell",
+    "textEditor": "Text editor",
+    "toolSearchBm25": "Tool search (BM25)",
+    "toolSearchRegex": "Tool search (Regex)",
+    "version": "Version",
+    "allowedCallers": "Who can use it",
+    "none": "None",
+    "cacheControl": "Prompt cache",
+    "deferLoading": "Defer loading",
+    "strictValidation": "Strict",
+    "cacheControlType": "Cache type",
+    "cacheDuration": "Cache duration",
+    "defaultOption": "Default",
+    "ephemeral": "Temporary",
+    "inputExamples": "Example inputs",
+    "maxCharacters": "Maximum characters",
+    "maxContentTokens": "Maximum content tokens",
+    "citations": "Citations",
+    "useCache": "Use cache",
+    "container": "Container",
+    "containerPlaceholder": "Optional container id",
+    "userLocation": "Location",
+    "locationType": "Location type",
+    "locationApproximate": "Approximate",
+    "thinkingDisplay": "Thinking detail",
+    "thinkingModes": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "adaptive": "Adaptive"
+    },
+    "thinkingDisplayModes": {
+      "summarized": "Summarized",
+      "omitted": "Omitted"
+    }
   },
   "cohere": {
     "citationOptions": "Citations",
@@ -153,6 +199,7 @@
     "generate": "Generate",
     "edit": "Edit",
     "prompt": "Prompt",
+    "allowedDomains": "Allowed domains",
     "topP": "Top-p",
     "transcriptionLanguagePlaceholder": "The language of the input audio in ISO-639-1 (e.g. en)",
     "speechPromptPlaceholder": "An optional text to guide the model's style or continue a previous audio segment",

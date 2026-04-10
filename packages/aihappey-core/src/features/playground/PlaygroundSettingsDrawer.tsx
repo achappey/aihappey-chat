@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import {
   AiChatSettingsForm,
   AnthropicChatConfigForm,
+  BrowserUseChatConfigForm,
   ChatSettingsForm,
   ChatCompletionsEndpointConfigForm,
   CohereChatConfigForm,
@@ -114,6 +115,8 @@ export const PlaygroundSettingsDrawer = ({
         return <AnthropicChatConfigForm config={providerMetadata.anthropic ?? {}} updateConfig={updateProviderConfig} />;
       case "cohere":
         return <CohereChatConfigForm config={providerMetadata.cohere ?? {}} updateConfig={updateProviderConfig} />;
+      case "browseruse":
+        return <BrowserUseChatConfigForm config={providerMetadata.browseruse ?? {}} updateConfig={updateProviderConfig} />;
       case "google":
         return <GoogleChatConfig google={providerMetadata.google ?? {}} updateGoogle={updateProviderConfig} />;
       case "groq":

@@ -9,7 +9,7 @@ type SharedWarningProps = {
 export function SharedWarning({ warning, dismiss }: SharedWarningProps) {
   const { Alert } = useTheme();
 
-  const message = warning.type == "other" ? warning.message
+  const message = warning.type == "other" || warning.type == "deprecated" ? warning.message
     : `${warning.type}: ${warning.feature}. ${warning.details ?? ""}`.trim();
 
   return (

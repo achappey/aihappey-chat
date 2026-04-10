@@ -1,17 +1,31 @@
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../../theme/ThemeContext";
+import {
+  AnthropicSharedToolFields,
+  formatAnthropicStringList,
+  parseAnthropicNumberInput,
+  parseAnthropicStringList,
+} from "./AnthropicToolCardShared";
 
-const DEFAULT_WEB_SEARCH = {
+const WEB_SEARCH_VERSIONS = ["web_search_20260209", "web_search_20250305"];
+
+const createDefaultUserLocation = () => ({
+  type: "approximate",
+  timezone: "",
+  country: "",
+  region: "",
+  city: "",
+});
+
+const createDefaultWebSearchTool = () => ({
+  name: "web_search",
+  type: WEB_SEARCH_VERSIONS[0],
   max_uses: 5,
-  allowed_domains: [],
-  blocked_domains: [],
-  user_location: {
-    timezone: "",
-    country: "",
-    region: "",
-    city: "",
-  },
-};
+  allowed_domains: null,
+  blocked_domains: null,
+  user_location: null,
+  //user_location: createDefaultUserLocation(),
+});
 
 export const AnthropicWebSearchCard = ({
   config,
@@ -23,7 +37,8 @@ export const AnthropicWebSearchCard = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const webSearchOn = !!config?.web_search;
-  const userLocation = config?.web_search?.user_location || {};
+  const tool = config?.web_search ?? createDefaultWebSearchTool();
+  const userLocation = tool?.user_location;
 
   return (
     <theme.Card
@@ -33,27 +48,53 @@ export const AnthropicWebSearchCard = ({
         <theme.Switch
           id="webSearch"
           checked={webSearchOn}
-          onChange={() =>
+          onChange={(checked: boolean) =>
             updateConfig({
               ...config,
-              web_search: webSearchOn ? undefined : { ...DEFAULT_WEB_SEARCH },
+              web_search: checked ? createDefaultWebSearchTool() : undefined,
             })
           }
         />
       }
     >
-      <div>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <AnthropicSharedToolFields
+          idPrefix="anthropic-web-search"
+          disabled={!webSearchOn}
+          tool={tool}
+          versions={WEB_SEARCH_VERSIONS}
+          onVersionChange={(value: string) =>
+            updateConfig({
+              ...config,
+              web_search: {
+                ...tool,
+                name: "web_search",
+                type: value,
+              },
+            })
+          }
+          onChange={(nextTool: any) =>
+            updateConfig({
+              ...config,
+              web_search: {
+                ...nextTool,
+                name: "web_search",
+              },
+            })
+          }
+        />
+
         <theme.Input
           type="number"
           label={t("providers:anthropic.maxUses")}
           disabled={!webSearchOn}
-          value={config?.web_search?.max_uses ?? ""}
+          value={tool?.max_uses ?? ""}
           onChange={(e: any) =>
             updateConfig({
               ...config,
               web_search: {
-                ...config.web_search,
-                max_uses: parseInt(e.target.value, 10),
+                ...tool,
+                max_uses: parseAnthropicNumberInput(e.target.value),
               },
             })
           }
@@ -63,16 +104,13 @@ export const AnthropicWebSearchCard = ({
           label={t("providers:anthropic.allowedDomains")}
           placeholder="domain1.com, domain2.com"
           disabled={!webSearchOn}
-          value={(config?.web_search?.allowed_domains || []).join(", ")}
+          value={formatAnthropicStringList(tool?.allowed_domains)}
           onChange={(e: any) =>
             updateConfig({
               ...config,
               web_search: {
-                ...config.web_search,
-                allowed_domains: e.target.value
-                  .split(",")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean),
+                ...tool,
+                allowed_domains: parseAnthropicStringList(e.target.value),
               },
             })
           }
@@ -82,95 +120,137 @@ export const AnthropicWebSearchCard = ({
           label={t("providers:anthropic.blockedDomains")}
           placeholder="domain1.com, domain2.com"
           disabled={!webSearchOn}
-          value={(config?.web_search?.blocked_domains || []).join(", ")}
+          value={formatAnthropicStringList(tool?.blocked_domains)}
           onChange={(e: any) =>
             updateConfig({
               ...config,
               web_search: {
-                ...config.web_search,
-                blocked_domains: e.target.value
-                  .split(",")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean),
+                ...tool,
+                blocked_domains: parseAnthropicStringList(e.target.value),
               },
             })
           }
         />
 
-        <div style={{ display: "flex", gap: 12 }}>
-          <theme.Input
-            label={t("country")}
-            disabled={!webSearchOn}
-            value={userLocation.country ?? ""}
-            style={{ minWidth: 70 }}
-            onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...userLocation,
-                    country: e.target.value,
+        <theme.Switch
+          id="anthropic-web-search-user-location"
+          label={t("providers:anthropic.userLocation")}
+          disabled={!webSearchOn}
+          checked={!!userLocation}
+          onChange={(checked: boolean) =>
+            updateConfig({
+              ...config,
+              web_search: {
+                ...tool,
+                user_location: checked
+                  ? userLocation ?? createDefaultUserLocation()
+                  : undefined,
+              },
+            })
+          }
+        />
+
+        {userLocation ? (
+          <>
+            <theme.Select
+              label={t("providers:anthropic.locationType")}
+              disabled={!webSearchOn}
+              values={[userLocation?.type ?? "approximate"]}
+              valueTitle={t("providers:anthropic.locationApproximate")}
+              onChange={() =>
+                updateConfig({
+                  ...config,
+                  web_search: {
+                    ...tool,
+                    user_location: {
+                      ...userLocation,
+                      type: "approximate",
+                    },
                   },
-                },
-              })
-            }
-          />
-          <theme.Input
-            label={t("region")}
-            disabled={!webSearchOn}
-            value={userLocation.region ?? ""}
-            style={{ minWidth: 110 }}
-            onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...userLocation,
-                    region: e.target.value,
-                  },
-                },
-              })
-            }
-          />
-          <theme.Input
-            label={t("city")}
-            disabled={!webSearchOn}
-            value={userLocation.city ?? ""}
-            style={{ minWidth: 110 }}
-            onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...userLocation,
-                    city: e.target.value,
-                  },
-                },
-              })
-            }
-          />
-          <theme.Input
-            label={t("timezone")}
-            disabled={!webSearchOn}
-            value={userLocation.timezone ?? ""}
-            style={{ minWidth: 140 }}
-            onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...userLocation,
-                    timezone: e.target.value,
-                  },
-                },
-              })
-            }
-          />
-        </div>
+                })
+              }
+            >
+              <option value="approximate">
+                {t("providers:anthropic.locationApproximate")}
+              </option>
+            </theme.Select>
+
+            <div style={{ display: "flex", flexWrap: "wrap" }}>
+              <theme.Input
+                label={t("country")}
+                disabled={!webSearchOn}
+                value={userLocation.country ?? ""}
+                style={{ minWidth: 120, flex: "1 1 160px" }}
+                onChange={(e: any) =>
+                  updateConfig({
+                    ...config,
+                    web_search: {
+                      ...tool,
+                      user_location: {
+                        ...userLocation,
+                        country: e.target.value,
+                      },
+                    },
+                  })
+                }
+              />
+              <theme.Input
+                label={t("region")}
+                disabled={!webSearchOn}
+                value={userLocation.region ?? ""}
+                style={{ minWidth: 120, flex: "1 1 160px" }}
+                onChange={(e: any) =>
+                  updateConfig({
+                    ...config,
+                    web_search: {
+                      ...tool,
+                      user_location: {
+                        ...userLocation,
+                        region: e.target.value,
+                      },
+                    },
+                  })
+                }
+              />
+              <theme.Input
+                label={t("city")}
+                disabled={!webSearchOn}
+                value={userLocation.city ?? ""}
+                style={{ minWidth: 120, flex: "1 1 160px" }}
+                onChange={(e: any) =>
+                  updateConfig({
+                    ...config,
+                    web_search: {
+                      ...tool,
+                      user_location: {
+                        ...userLocation,
+                        city: e.target.value,
+                      },
+                    },
+                  })
+                }
+              />
+              <theme.Input
+                label={t("timezone")}
+                disabled={!webSearchOn}
+                value={userLocation.timezone ?? ""}
+                style={{ minWidth: 140, flex: "1 1 180px" }}
+                onChange={(e: any) =>
+                  updateConfig({
+                    ...config,
+                    web_search: {
+                      ...tool,
+                      user_location: {
+                        ...userLocation,
+                        timezone: e.target.value,
+                      },
+                    },
+                  })
+                }
+              />
+            </div>
+          </>
+        ) : null}
       </div>
     </theme.Card>
   );

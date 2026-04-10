@@ -196,7 +196,7 @@ export function toChatMessages(
       }
 
       // 4) Ignore files/sources as "activity" (files become attachments, sources become sources)
-      if (t === "file" || t === "source-url" || t === "source-document") {
+      if (t === "file" || t === "source-url" || t === "source-document" || t.startsWith("data-")) {
         continue;
       }
 

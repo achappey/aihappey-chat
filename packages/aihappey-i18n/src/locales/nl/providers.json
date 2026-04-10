@@ -99,6 +99,18 @@
     "returnVideos": "Videos retourneren",
     "returnRelatedQuestions": "Gerelateerde vragen retourneren"
   },
+  "browseruse": {
+    "session": "Sessie",
+    "features": "Functies",
+    "maxCostUsd": "Maximale kosten (USD)",
+    "profileId": "Profiel",
+    "workspaceId": "Workspace",
+    "proxyCountryCode": "Land waar de browser draait",
+    "enableRecording": "Opname inschakelen",
+    "skills": "Skills inschakelen",
+    "agentmail": "AgentMail inschakelen",
+    "cacheScript": "Script opslaan"
+  },
   "openai": {
     "shell": "Shell",
     "output_compression": "Uitvoer compressie",
@@ -124,6 +136,7 @@
     "includeOutputs": "Inclusief uitvoer",
     "includeSources": "Inclusief bronnen",
     "prompt": "Prompt",
+    "allowedDomains": "Toegestane domeinen",
     "truncation": {
       "title": "Inkorten",
       "auto": "Automatisch",
@@ -286,7 +299,41 @@
     "maxUses": "Maximaal aantal keer",
     "customSkills": "Aangepaste vaardigheden",
     "allowedDomains": "Toegestane domeinen",
-    "blockedDomains": "Geblokkeerde domeinen"
+    "blockedDomains": "Geblokkeerde domeinen",
+    "shell": "Shell",
+    "textEditor": "Tekstbewerker",
+    "toolSearchBm25": "Tool zoeken (BM25)",
+    "toolSearchRegex": "Tool zoeken (Regex)",
+    "version": "Versie",
+    "allowedCallers": "Wie mag dit gebruiken",
+    "none": "Geen",
+    "cacheControl": "Promptcache",
+    "deferLoading": "Later laden",
+    "strictValidation": "Strikt",
+    "cacheControlType": "Cachetype",
+    "cacheDuration": "Cacheduur",
+    "defaultOption": "Standaard",
+    "ephemeral": "Tijdelijk",
+    "inputExamples": "Voorbeeldinvoer",
+    "maxCharacters": "Maximaal aantal tekens",
+    "maxContentTokens": "Maximaal aantal contenttokens",
+    "citations": "Citaten",
+    "useCache": "Cache gebruiken",
+    "container": "Container",
+    "containerPlaceholder": "Optionele container-id",
+    "userLocation": "Locatie",
+    "locationType": "Locatietype",
+    "locationApproximate": "Bij benadering",
+    "thinkingDisplay": "Weergave gedachten",
+    "thinkingModes": {
+      "enabled": "Ingeschakeld",
+      "disabled": "Uitgeschakeld",
+      "adaptive": "Adaptief"
+    },
+    "thinkingDisplayModes": {
+      "summarized": "Samengevat",
+      "omitted": "Weggelaten"
+    }
   },
   "hyperbolic": {},
   "together": {

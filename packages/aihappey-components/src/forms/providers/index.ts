@@ -10,6 +10,7 @@ export * from "./cohere";
 export * from "./voyageai";
 export * from "./contextualai";
 export * from "./google";
+export * from "./browseruse";
 export * from "./perplexity";
 export * from "./openai";
 export * from "./anthropic";

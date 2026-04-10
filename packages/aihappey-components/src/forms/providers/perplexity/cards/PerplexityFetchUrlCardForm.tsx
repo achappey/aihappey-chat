@@ -1,10 +1,13 @@
 import React from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../../theme/ThemeContext";
+import { buildCanonicalProviderToolsConfig } from "../../providerToolConfig";
 
 const DEFAULT_FETCH_URL = {
   type: "fetch_url",
 };
+
+const PERPLEXITY_TOOL_TYPES = ["web_search", "fetch_url"];
 
 const EMPTY_FETCH_URL = {
   ...DEFAULT_FETCH_URL,
@@ -18,6 +21,10 @@ export const PerplexityFetchUrlCardForm: React.FC<{
   const theme = useTheme();
   const { t } = useTranslation();
   const fetchUrlOn = !!config?.fetch_url;
+  const submitConfig = (nextConfig: any) =>
+    updateConfig(
+      buildCanonicalProviderToolsConfig(nextConfig, PERPLEXITY_TOOL_TYPES)
+    );
 
   const fetchUrl = {
     ...EMPTY_FETCH_URL,
@@ -34,7 +41,7 @@ export const PerplexityFetchUrlCardForm: React.FC<{
           id="perplexityFetchUrl"
           checked={fetchUrlOn}
           onChange={(val) =>
-            updateConfig({
+            submitConfig({
               ...config,
               fetch_url: val ? { ...DEFAULT_FETCH_URL } : undefined,
             })
@@ -51,7 +58,7 @@ export const PerplexityFetchUrlCardForm: React.FC<{
           disabled={!fetchUrlOn}
           value={fetchUrl.max_urls ?? ""}
           onChange={(e: any) =>
-            updateConfig({
+            submitConfig({
               ...config,
               fetch_url: {
                 ...fetchUrl,

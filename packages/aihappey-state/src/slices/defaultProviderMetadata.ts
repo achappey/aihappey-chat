@@ -88,6 +88,20 @@ export const defaultProviderMetadata = {
     },
   },
   "anthropic": {
+    "tools": [
+      {
+        "name": "web_search",
+        "type": "web_search_20260209",
+        "max_uses": 5,
+        "allowed_domains": null,
+        "blocked_domains": null,
+        "user_location": null
+      },
+      {
+        "name": "code_execution",
+        "type": "code_execution_20260120"
+      }
+    ],
     "anthropic-beta": [
       "code-execution-2025-08-25",
       "files-api-2025-04-14",
@@ -102,43 +116,8 @@ export const defaultProviderMetadata = {
     "thinking": {
       "budget_tokens": 8192
     },
-    "container": {
-      "skills": [{
-        "skill_id": "xlsx",
-        "version": "latest",
-        "type": "anthropic",
-
-      }, {
-        "skill_id": "pptx",
-        "version": "latest",
-        "type": "anthropic",
-
-      }, {
-        "skill_id": "docx",
-        "version": "latest",
-        "type": "anthropic",
-
-      }, {
-        "skill_id": "pdf",
-        "version": "latest",
-        "type": "anthropic",
-      }]
-    },
-    "code_execution": {},
-    "memory": undefined,
+    "container": undefined,
     "native_mcp": false,
-    "web_search": {
-      "max_uses": 5,
-      "allowed_domains": [],
-      "blocked_domains": [],
-      "user_location": {
-        "timezone": null,
-        "country": null,
-        "region": null,
-        "city": null,
-      }
-    },
-    "web_fetch": undefined
   },
   "mistral": {
     "tools": [
@@ -199,6 +178,12 @@ export const defaultProviderMetadata = {
     }
   },
   "xai": {
+    "tools": [{
+      "type": "web_search",
+      "allowed_domains": [],
+      "excluded_domains": [],
+      "enable_image_understanding": true
+    }],
     "web_search": {
       "allowed_domains": [],
       "excluded_domains": [],
@@ -215,6 +200,33 @@ export const defaultProviderMetadata = {
     "parallel_tool_calls": true
   },
   "perplexity": {
+    "tools":
+      [
+        {
+          "type": "web_search",
+          "filters": {
+            "search_domain_filter": [],
+            "last_updated_after_filter": "",
+            "last_updated_before_filter": "",
+            "search_after_date_filter": "",
+            "search_before_date_filter": "",
+            "search_recency_filter": ""
+          },
+          "max_tokens": "",
+          "max_tokens_per_page": "",
+          "user_location": {
+            "city": "",
+            "country": "",
+            "latitude": "",
+            "longitude": "",
+            "region": ""
+          }
+        },
+        {
+          "type": "fetch_url",
+          "max_urls": 5
+        }
+      ],
     "web_search": {
       "type": "web_search",
       "filters": {

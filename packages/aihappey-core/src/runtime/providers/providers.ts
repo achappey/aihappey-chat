@@ -208,7 +208,6 @@ import { evolinkai } from "./catalog/evolinkai";
 import { zenlayer } from "./catalog/zenlayer";
 import { aihubmix } from "./catalog/aihubmix";
 import { uniapi } from "./catalog/uniapi";
-import { openaihk } from "./catalog/openaihk";
 import { aiforhire } from "./catalog/aiforhire";
 import { apekey } from "./catalog/apekey";
 import { apertis } from "./catalog/apertis";
@@ -270,7 +269,6 @@ import { answira } from "./catalog/answira";
 import { anannas } from "./catalog/anannas";
 import { apipod } from "./catalog/apipod";
 import { tokenflux } from "./catalog/tokenflux";
-import { aimo } from "./catalog/aimo";
 import { lemondata } from "./catalog/lemondata";
 import { fullai } from "./catalog/fullai";
 import { assisters } from "./catalog/assisters";
@@ -281,7 +279,6 @@ import { apiairforce } from "./catalog/apiairforce";
 import { lava } from "./catalog/lava";
 import { multiverseai } from "./catalog/multiverseai";
 import { modelrouter } from "./catalog/modelrouter";
-import { llmpath } from "./catalog/llmpath";
 import { maximoai } from "./catalog/maximoai";
 import { rime } from "./catalog/rime";
 import { noiz } from "./catalog/noiz";
@@ -726,7 +723,6 @@ export const PROVIDERS: Record<string, Provider> = {
   freedomgpt,
   shuttleai,
   pixia,
-  llmpath,
   logicosllmhub,
   llmhubifs,
   noiz,
@@ -746,7 +742,6 @@ export const PROVIDERS: Record<string, Provider> = {
   assisters,
   apipod,
   fullai,
-  aimo,
   litai,
   lemondata,
   nexusify,
@@ -778,7 +773,6 @@ export const PROVIDERS: Record<string, Provider> = {
   askarc,
   poe,
   ghostbot,
-  openaihk,
   aisa,
   everypixellabs,
   routmy,

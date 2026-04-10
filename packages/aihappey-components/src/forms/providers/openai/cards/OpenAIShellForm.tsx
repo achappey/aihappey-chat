@@ -50,6 +50,9 @@ const parseCsv = (value: string) =>
         .map((item) => item.trim())
         .filter(Boolean);
 
+const withoutUndefined = (value: Record<string, any>) =>
+    Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined));
+
 export const OpenAIShellForm = ({
     config,
     updateConfig,
@@ -78,10 +81,12 @@ export const OpenAIShellForm = ({
     };
 
     const updateShell = (patch: any) => {
-        setShell({
+        const nextEnvironment = {
             ...(config?.shell?.environment ?? DEFAULT_SHELL.environment),
             ...patch,
-        });
+        };
+
+        setShell(withoutUndefined(nextEnvironment));
     };
 
     const setEnvironmentType = (type: string) => {
@@ -102,18 +107,16 @@ export const OpenAIShellForm = ({
             return;
         }
 
-        setShell({
-            type: "container_auto",
-            file_ids:
-                environmentType === "container_auto" && Array.isArray(environment?.file_ids)
-                    ? environment.file_ids
-                    : [],
-            memory_limit:
-                environmentType === "container_auto" ? environment?.memory_limit ?? "" : "",
-            network_policy:
-                environmentType === "container_auto" ? environment?.network_policy : undefined,
-            skills: Array.isArray(environment?.skills) ? environment.skills : [],
-        });
+        setShell(
+            withoutUndefined({
+                type: "container_auto",
+                memory_limit:
+                    environmentType === "container_auto" ? environment?.memory_limit ?? undefined : undefined,
+                network_policy:
+                    environmentType === "container_auto" ? environment?.network_policy : undefined,
+                skills: Array.isArray(environment?.skills) ? environment.skills : [],
+            })
+        );
     };
 
     const updateNetworkPolicy = (policy: any) => {
@@ -222,18 +225,6 @@ export const OpenAIShellForm = ({
 
                 {environmentType === "container_auto" && (
                     <>
-                        <theme.Input
-                            label={t("providers:openai.shellFileIds")}
-                            placeholder="file_abc, file_xyz"
-                            disabled={!shellOn}
-                            value={Array.isArray(environment?.file_ids) ? environment.file_ids.join(", ") : ""}
-                            onChange={(e: any) =>
-                                updateShell({
-                                    file_ids: parseCsv(e.target.value),
-                                })
-                            }
-                        />
-
                         <theme.Select
                             label={t("providers:openai.shellMemoryLimit")}
                             disabled={!shellOn}

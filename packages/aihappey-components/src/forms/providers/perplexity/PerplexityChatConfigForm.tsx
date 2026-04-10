@@ -11,6 +11,9 @@ import { PerplexityMediaCardForm } from "./cards/PerplexityMediaCardForm";
 import { PerplexityFetchUrlCardForm } from "./cards/PerplexityFetchUrlCardForm";
 import { PerplexityReasoningCardForm } from "./cards/PerplexityReasoningCardForm";
 import { PerplexityAgentCardForm } from "./cards/PerplexityAgentCardForm";
+import { withResolvedProviderTools } from "../providerToolConfig";
+
+const PERPLEXITY_TOOL_TYPES = ["web_search", "fetch_url"];
 
 export const PerplexityChatConfigForm = ({
   config,
@@ -23,6 +26,7 @@ export const PerplexityChatConfigForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const resolvedConfig = withResolvedProviderTools(config, PERPLEXITY_TOOL_TYPES);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -36,11 +40,11 @@ export const PerplexityChatConfigForm = ({
       />
 
       <PerplexityResponsesWebSearchCardForm
-        config={config}
+        config={resolvedConfig}
         updateConfig={updateConfig}
       />
 
-      <PerplexityFetchUrlCardForm config={config} updateConfig={updateConfig} />
+      <PerplexityFetchUrlCardForm config={resolvedConfig} updateConfig={updateConfig} />
 
       <PerplexityWebSearchCardForm config={config} updateConfig={updateConfig} />
 

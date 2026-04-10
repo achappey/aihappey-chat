@@ -14,6 +14,7 @@ export type SpeechWarning = {
 
 const formatWarning = (w: SharedV4Warning) => {
   if (w.type === "other") return w.message;
+  if (w.type === "deprecated") return w.message;
 
   const prefix = w.type === "unsupported" ? "Unsupported" : "Compatibility";
   const details = w.details ? ` — ${w.details}` : "";

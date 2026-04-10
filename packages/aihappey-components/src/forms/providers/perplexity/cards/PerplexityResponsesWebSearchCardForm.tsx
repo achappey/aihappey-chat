@@ -1,10 +1,13 @@
 import React from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../../theme/ThemeContext";
+import { buildCanonicalProviderToolsConfig } from "../../providerToolConfig";
 
 const DEFAULT_WEB_SEARCH = {
   type: "web_search",
 };
+
+const PERPLEXITY_TOOL_TYPES = ["web_search", "fetch_url"];
 
 const EMPTY_WEB_SEARCH = {
   ...DEFAULT_WEB_SEARCH,
@@ -43,6 +46,10 @@ export const PerplexityResponsesWebSearchCardForm: React.FC<{
   const theme = useTheme();
   const { t } = useTranslation();
   const webSearchOn = !!config?.web_search;
+  const submitConfig = (nextConfig: any) =>
+    updateConfig(
+      buildCanonicalProviderToolsConfig(nextConfig, PERPLEXITY_TOOL_TYPES)
+    );
 
   const webSearch = {
     ...EMPTY_WEB_SEARCH,
@@ -59,7 +66,7 @@ export const PerplexityResponsesWebSearchCardForm: React.FC<{
   };
 
   const updateWebSearch = (value: any) =>
-    updateConfig({
+    submitConfig({
       ...config,
       web_search: {
         ...webSearch,
@@ -93,7 +100,7 @@ export const PerplexityResponsesWebSearchCardForm: React.FC<{
           id="perplexityResponsesWebSearch"
           checked={webSearchOn}
           onChange={(val) =>
-            updateConfig({
+            submitConfig({
               ...config,
               web_search: val ? { ...DEFAULT_WEB_SEARCH } : undefined,
             })

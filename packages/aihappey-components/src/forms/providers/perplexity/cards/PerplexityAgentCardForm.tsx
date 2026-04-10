@@ -57,32 +57,36 @@ export const PerplexityAgentCardForm: React.FC<{
           }
         />
 
-        <theme.Input
-          label={t("providers:perplexity.languagePreference")}
-          placeholder={t("providers:perplexity.languagePreferencePlaceholder")}
-          value={config?.language_preference ?? ""}
-          onChange={(e: any) =>
-            updateConfig({
-              ...config,
-              language_preference: e.target.value || undefined,
-            })
-          }
-        />
+        <div style={{ display: "flex", gap: 12, width: "100%" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <theme.Input
+              label={t("providers:perplexity.languagePreference")}
+              placeholder={t("providers:perplexity.languagePreferencePlaceholder")}
+              value={config?.language_preference ?? ""}
+              onChange={(e: any) =>
+                updateConfig({
+                  ...config,
+                  language_preference: e.target.value || undefined,
+                })
+              }
+            />
+          </div>
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <theme.Input
-            label={t("providers:perplexity.maxSteps")}
-            type="number"
-            min={1}
-            max={10}
-            value={config?.max_steps ?? ""}
-            onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                max_steps: e.target.value === "" ? undefined : Number(e.target.value),
-              })
-            }
-          />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <theme.Input
+              label={t("providers:perplexity.maxSteps")}
+              type="number"
+              min={1}
+              max={10}
+              value={config?.max_steps ?? ""}
+              onChange={(e: any) =>
+                updateConfig({
+                  ...config,
+                  max_steps: e.target.value === "" ? undefined : Number(e.target.value),
+                })
+              }
+            />
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -101,6 +105,7 @@ export const PerplexityAgentCardForm: React.FC<{
                   key={option.value}
                   id={`perplexityAgentModel_${option.value}`}
                   label={option.label}
+                  size="small"
                   checked={selectedFallbackModels.includes(option.value)}
                   onChange={(enabled) => toggleModel(option.value, !!enabled)}
                 />

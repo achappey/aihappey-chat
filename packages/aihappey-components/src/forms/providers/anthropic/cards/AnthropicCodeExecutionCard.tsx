@@ -1,5 +1,17 @@
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../../theme/ThemeContext";
+import { AnthropicSharedToolFields } from "./AnthropicToolCardShared";
+
+const CODE_EXECUTION_VERSIONS = [
+  "code_execution_20260120",
+  "code_execution_20250825",
+  "code_execution_20250522",
+];
+
+const createDefaultCodeExecutionTool = () => ({
+  name: "code_execution",
+  type: CODE_EXECUTION_VERSIONS[0],
+});
 
 export const AnthropicCodeExecutionCard = ({
   config,
@@ -11,106 +23,64 @@ export const AnthropicCodeExecutionCard = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const codeExecutionOn = !!config?.code_execution;
+  const tool = config?.code_execution ?? createDefaultCodeExecutionTool();
 
   return (
     <theme.Card
       size="small"
-      title={t("code_execution")}
+      title="Code execution"
       headerActions={
         <theme.Switch
-          id="codeExecution"
+          id="anthropic-code-execution"
           checked={codeExecutionOn}
-          onChange={(val) =>
+          onChange={(checked: boolean) =>
             updateConfig({
               ...config,
-              code_execution: !val ? undefined : {},
-              container: !val
-                ? undefined
-                : {
-                    ...config?.container,
-                  },
+              code_execution: checked ? createDefaultCodeExecutionTool() : undefined,
+              container: checked ? config?.container : undefined,
             })
           }
         />
       }
     >
-      <div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gridTemplateRows: "repeat(2, auto)",
-          }}
-        >
-          {["xlsx", "pptx", "docx", "pdf"].map((skillId) => {
-            const enabled = config?.container?.skills?.some(
-              (s: any) => s.skill_id === skillId
-            );
-
-            return (
-              <div key={skillId}>
-                <theme.Switch
-                  id={skillId}
-                  label={t(skillId)}
-                  disabled={config.container == undefined}
-                  checked={enabled}
-                  onChange={(val: boolean) => {
-                    const currentSkills = config?.container?.skills ?? [];
-                    const newSkills = val
-                      ? [
-                          ...currentSkills,
-                          { skill_id: skillId, version: "latest", type: "anthropic" },
-                        ]
-                      : currentSkills.filter((s: any) => s.skill_id !== skillId);
-
-                    updateConfig({
-                      ...config,
-                      container: { ...config.container, skills: newSkills },
-                    });
-                  }}
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <theme.Input
-          label={t("providers:anthropic.customSkills")}
-          placeholder="skill_xxx, skill_zzz"
-          disabled={config.container == undefined}
-          value={
-            (config.container?.skills
-              ?.filter((a: any) => a.skill_id.startsWith("skill_"))
-              ?.map((a: any) => a.skill_id) || []
-            ).join(", ")
-          }
-          onChange={(e: any) => {
-            const raw = e.target.value;
-            const list = raw
-              .split(",")
-              .map((s: string) => s.trim())
-              .filter(Boolean);
-
-            const baseSkills = config?.container?.skills ?? [];
-
-            const toggledSkills = baseSkills.filter((s: any) =>
-              ["xlsx", "pptx", "docx", "pdf"].includes(s.skill_id)
-            );
-
-            const customSkills = list.map((id: string) => ({
-              skill_id: id,
-              version: "latest",
-              type: "custom",
-            }));
-
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <AnthropicSharedToolFields
+          idPrefix="anthropic-code-execution"
+          disabled={!codeExecutionOn}
+          tool={tool}
+          versions={CODE_EXECUTION_VERSIONS}
+          onVersionChange={(value: string) =>
             updateConfig({
               ...config,
-              container: {
-                ...config.container,
-                skills: [...toggledSkills, ...customSkills],
+              code_execution: {
+                ...tool,
+                name: "code_execution",
+                type: value,
               },
-            });
-          }}
+            })
+          }
+          onChange={(nextTool: any) =>
+            updateConfig({
+              ...config,
+              code_execution: {
+                ...nextTool,
+                name: "code_execution",
+              },
+            })
+          }
+        />
+
+        <theme.Input
+          label={t("providers:anthropic.container")}
+          placeholder={t("providers:anthropic.containerPlaceholder")}
+          disabled={!codeExecutionOn}
+          value={config?.container ?? ""}
+          onChange={(e: any) =>
+            updateConfig({
+              ...config,
+              container: e.target.value || undefined,
+            })
+          }
         />
       </div>
     </theme.Card>

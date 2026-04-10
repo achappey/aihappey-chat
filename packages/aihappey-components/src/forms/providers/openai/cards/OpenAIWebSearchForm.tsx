@@ -1,14 +1,52 @@
+import { useState } from "react";
 import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
+const SEARCH_CONTEXT_SIZE_OPTIONS = ["low", "medium", "high"] as const;
+
 const DEFAULT_WEB_SEARCH = {
-  user_location: {
-    country: "",
-    region: "",
-    city: "",
-    timezone: "",
-    type: "approximate",
-  },
+  search_context_size: "medium",
+  user_location: undefined,
+  filters: undefined,
+};
+
+const normalizeDomains = (domains: string[]) =>
+  Array.from(
+    new Set(
+      domains
+        .map((domain) => String(domain ?? "").trim())
+        .filter(Boolean)
+    )
+  );
+
+const normalizeFilters = (filters: any) => {
+  if (!filters) return undefined;
+
+  const allowed_domains = normalizeDomains(filters.allowed_domains ?? []);
+
+  return allowed_domains.length
+    ? {
+      ...filters,
+      allowed_domains,
+    }
+    : undefined;
+};
+
+const normalizeUserLocation = (loc: any) => {
+  if (!loc) return undefined;
+
+  const empty =
+    !loc.country &&
+    !loc.region &&
+    !loc.city &&
+    !loc.timezone;
+
+  return empty
+    ? undefined
+    : {
+      ...loc,
+      type: "approximate",
+    };
 };
 
 export const OpenAIWebSearchForm = ({
@@ -20,8 +58,56 @@ export const OpenAIWebSearchForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const [draftDomain, setDraftDomain] = useState("");
 
   const webSearchOn = !!config?.web_search;
+  const allowedDomains = config?.web_search?.filters?.allowed_domains ?? [];
+  const searchContextSize =
+    config?.web_search?.search_context_size ?? DEFAULT_WEB_SEARCH.search_context_size;
+  const searchContextIndex = Math.max(
+    0,
+    SEARCH_CONTEXT_SIZE_OPTIONS.indexOf(searchContextSize as (typeof SEARCH_CONTEXT_SIZE_OPTIONS)[number])
+  );
+
+  const updateWebSearch = (patch: any) => {
+    const nextWebSearch = {
+      ...(config?.web_search ?? DEFAULT_WEB_SEARCH),
+      ...patch,
+    };
+
+    updateConfig({
+      ...config,
+      web_search: {
+        ...nextWebSearch,
+        filters: normalizeFilters(nextWebSearch.filters),
+      },
+    });
+  };
+
+  const updateUserLocation = (patch: any) => {
+    const user_location = normalizeUserLocation({
+      ...(config?.web_search?.user_location ?? {}),
+      ...patch,
+    });
+
+    updateWebSearch({ user_location });
+  };
+
+  const updateAllowedDomains = (domains: string[]) => {
+    updateWebSearch({
+      filters: {
+        ...(config?.web_search?.filters ?? {}),
+        allowed_domains: domains,
+      },
+    });
+  };
+
+  const addAllowedDomain = () => {
+    const domain = String(draftDomain ?? "").trim();
+    if (!domain) return;
+    updateAllowedDomains([...allowedDomains, domain]);
+    setDraftDomain("");
+  };
 
   const toggleInclude = (key: string, enabled: boolean) => {
     const current = Array.isArray(config?.include) ? config.include : [];
@@ -52,7 +138,80 @@ export const OpenAIWebSearchForm = ({
         />
       }
     >
-      <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <theme.Slider
+          label={`${t("searchContextSize", "Search context size")} (${t(searchContextSize)})`}
+          disabled={!webSearchOn}
+          min={0}
+          max={SEARCH_CONTEXT_SIZE_OPTIONS.length - 1}
+          step={1}
+          value={searchContextIndex}
+          onChange={(value: number) =>
+            updateWebSearch({
+              search_context_size:
+                SEARCH_CONTEXT_SIZE_OPTIONS[value] ?? DEFAULT_WEB_SEARCH.search_context_size,
+            })
+          }
+        />
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <theme.Input
+              label={t("providers:openai.allowedDomains", "Allowed domains")}
+              placeholder="pubmed.ncbi.nlm.nih.gov"
+              disabled={!webSearchOn}
+              value={draftDomain}
+              style={{ flex: 1, minWidth: 220 }}
+              onChange={(e: any) => setDraftDomain(String(e?.target?.value ?? ""))}
+              onKeyDown={(e: any) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                addAllowedDomain();
+              }}
+            />
+            <theme.Button
+              icon="add"
+              size="small"
+              variant="informative"
+              title={t("add")}
+              disabled={!webSearchOn || !draftDomain.trim()}
+              onClick={addAllowedDomain}
+            />
+          </div>
+
+          {allowedDomains.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
+              {allowedDomains.map((domain: string, index: number) => (
+                <div
+                  key={`${domain}-${index}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ fontFamily: "monospace", wordBreak: "break-all", flex: 1 }}>
+                    {domain}
+                  </div>
+                  <theme.Button
+                    size="small"
+                    icon="delete"
+                    variant="informative"
+                    title={t("delete")}
+                    disabled={!webSearchOn}
+                    onClick={() =>
+                      updateAllowedDomains(
+                        allowedDomains.filter((_: string, i: number) => i !== index)
+                      )
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div style={{ display: "flex", gap: 12 }}>
           <theme.Input
             label={t("country")}
@@ -61,18 +220,10 @@ export const OpenAIWebSearchForm = ({
             value={config?.web_search?.user_location?.country || ""}
             style={{ minWidth: 70 }}
             onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...(config.web_search?.user_location ?? {}),
-                    country: e.target.value,
-                  },
-                },
-              })
+              updateUserLocation({ country: e.target.value })
             }
           />
+
           <theme.Input
             label={t("region")}
             placeholder="Noord-Holland"
@@ -80,18 +231,10 @@ export const OpenAIWebSearchForm = ({
             value={config?.web_search?.user_location?.region || ""}
             style={{ minWidth: 110 }}
             onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...(config.web_search?.user_location ?? {}),
-                    region: e.target.value,
-                  },
-                },
-              })
+              updateUserLocation({ region: e.target.value })
             }
           />
+
           <theme.Input
             label={t("city")}
             placeholder="Amsterdam"
@@ -99,18 +242,10 @@ export const OpenAIWebSearchForm = ({
             value={config?.web_search?.user_location?.city || ""}
             style={{ minWidth: 110 }}
             onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...(config.web_search?.user_location ?? {}),
-                    city: e.target.value,
-                  },
-                },
-              })
+              updateUserLocation({ city: e.target.value })
             }
           />
+
           <theme.Input
             label={t("timezone")}
             placeholder="Europe/Amsterdam"
@@ -118,16 +253,7 @@ export const OpenAIWebSearchForm = ({
             value={config?.web_search?.user_location?.timezone || ""}
             style={{ minWidth: 140 }}
             onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                web_search: {
-                  ...config.web_search,
-                  user_location: {
-                    ...(config.web_search?.user_location ?? {}),
-                    timezone: e.target.value,
-                  },
-                },
-              })
+              updateUserLocation({ timezone: e.target.value })
             }
           />
         </div>
@@ -145,4 +271,3 @@ export const OpenAIWebSearchForm = ({
     </theme.Card>
   );
 };
-
