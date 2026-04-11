@@ -2,7 +2,6 @@ import { AnthropicBashCard } from "./cards/AnthropicBashCard";
 import { AnthropicBetaCard } from "./cards/AnthropicBetaCard";
 import { AnthropicCodeExecutionCard } from "./cards/AnthropicCodeExecutionCard";
 import { AnthropicMemoryCard } from "./cards/AnthropicMemoryCard";
-import { AnthropicNativeMcpCard } from "./cards/AnthropicNativeMcpCard";
 import { AnthropicReasoningCard } from "./cards/AnthropicReasoningCard";
 import { AnthropicTextEditorCard } from "./cards/AnthropicTextEditorCard";
 import { AnthropicToolSearchBm25Card } from "./cards/AnthropicToolSearchBm25Card";
@@ -59,7 +58,6 @@ export const AnthropicChatConfigForm = ({
         config={resolvedConfig}
         updateConfig={submitConfig}
       />
-      <AnthropicNativeMcpCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicBetaCard config={resolvedConfig} updateConfig={submitConfig} />
     </div>
   );

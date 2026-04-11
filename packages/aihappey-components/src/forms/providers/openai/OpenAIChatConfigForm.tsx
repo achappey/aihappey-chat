@@ -399,18 +399,6 @@ export const OpenAIChatConfigForm = ({
           </theme.Select>
 
           <theme.Switch
-            id="nativeMcp"
-            label={t("nativeMcp")}
-            checked={!!resolvedConfig?.native_mcp}
-            onChange={(val) =>
-              submitConfig({
-                ...resolvedConfig,
-                native_mcp: val,
-              })
-            }
-          />
-
-          <theme.Switch
             id="parallelToolCalls"
             checked={!!resolvedConfig?.parallel_tool_calls}
             label={t("parallelToolCalls")}

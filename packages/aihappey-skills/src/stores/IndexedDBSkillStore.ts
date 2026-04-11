@@ -20,6 +20,7 @@ import type {
 const DB_KEY = "aihappey_skills_v1";
 
 const POSITIVE_INTEGER_RE = /^[1-9]\d*$/;
+const VERSION_IDENTIFIER_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 function buildSkillId(name: string) {
   const slug = String(name ?? "")
@@ -32,11 +33,27 @@ function buildSkillId(name: string) {
 
 function normalizeVersion(value: string | undefined, fallback: string) {
   const text = String(value ?? "").trim();
-  return POSITIVE_INTEGER_RE.test(text) ? text : fallback;
+  return VERSION_IDENTIFIER_RE.test(text) ? text : fallback;
 }
 
 function compareVersions(a: string | undefined, b: string | undefined) {
-  return Number.parseInt(normalizeVersion(a, "0"), 10) - Number.parseInt(normalizeVersion(b, "0"), 10);
+  const left = normalizeVersion(a, "");
+  const right = normalizeVersion(b, "");
+  const leftIsInteger = POSITIVE_INTEGER_RE.test(left);
+  const rightIsInteger = POSITIVE_INTEGER_RE.test(right);
+
+  if (leftIsInteger && rightIsInteger) {
+    return Number.parseInt(left, 10) - Number.parseInt(right, 10);
+  }
+
+  if (leftIsInteger !== rightIsInteger) {
+    return leftIsInteger ? -1 : 1;
+  }
+
+  return left.localeCompare(right, undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
 }
 
 function paginateList<T extends { id: string }>(items: T[], after?: string, limit?: number): DataList<T> {

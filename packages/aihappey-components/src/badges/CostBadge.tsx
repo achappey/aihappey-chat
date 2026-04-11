@@ -19,7 +19,14 @@ export const CostBadge: React.FC<CostBadgeProps> = ({
       ? roundCost(cost)
       : undefined;
 
-  return typeof roundedCost === "number" && roundedCost >= 0.01 ? (
+  const displayCost =
+    typeof cost === "number" && Number.isFinite(cost)
+      ? roundedCost === 0 && cost > 0
+        ? "0.00>"
+        : String(roundedCost)
+      : undefined;
+
+  return typeof displayCost === "string" ? (
     <Badge
       title={`${t("messagePrice")}`}
       icon={"pricing"}
@@ -27,7 +34,7 @@ export const CostBadge: React.FC<CostBadgeProps> = ({
       bg="informative"
       appearance="ghost"
     >
-      {String(roundedCost)}
+      {displayCost}
     </Badge>
   ) : undefined;
 };

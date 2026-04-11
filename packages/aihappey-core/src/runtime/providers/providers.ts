@@ -501,6 +501,7 @@ import { radiance } from "./catalog/radiance";
 import { oneinfer } from "./catalog/oneinfer";
 import { tapas } from "./catalog/tapas";
 import { igpt } from "./catalog/igpt";
+import { groovedev } from "./catalog/groovedev";
 
 /**
  * UI-facing provider catalog.
@@ -523,6 +524,7 @@ export const PROVIDERS: Record<string, Provider> = {
   aiapiworld,
   concentrate,
   moleapi,
+  groovedev,
   zyloapi,
   opuscode,
   codzen,

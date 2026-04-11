@@ -3,47 +3,42 @@ import { Agent } from "aihappey-types";
 export const defaultAgents: Agent[] = [{
     name: "OpenAIAgent",
     description: "Agent with all OpenAI capabilities",
-    instructions: "",
+    instructions: "You are an Agent with all OpenAI capabilities",
     model: {
         id: "openai/gpt-5.2",
         options: {
             temperature: 1
         },
         providerMetadata: {
-            "include":
-                [
-                    "web_search_call.action.sources",
-                    "reasoning.encrypted_content",
-                    "code_interpreter_call.outputs",
-                    "file_search_call.results"
-                ],
-            "parallel_tool_calls": true,
-            "file_search": undefined,
-            "native_mcp": false,
-            "code_interpreter": {
-
-            },
-            "reasoning": {
-                "effort": "low",
-                "summary": "auto"
-            },
-            "web_search": {
-                "search_context_size": "medium",
-                "user_location": {
-                    "type": "approximate",
-                    "city": null,
-                    "region": null,
-                    "country": null,
-                    "timezone ": null
-                }
-            },
-            "image_generation": {
+            "tools": [{
+                "type": "image_generation",
                 "model": "gpt-image-1",
                 "partial_images": 3,
                 "quality": "auto",
                 "background": "auto",
                 "input_fidelity": "low",
                 "size": "auto"
+            }, {
+                "type": "web_search",
+                "search_context_size": "medium",
+                "user_location": null
+            }, {
+                "type": "code_interpreter",
+                "container": {
+                    "type": "auto",
+                }
+            }],
+            include:
+                [
+                    "web_search_call.action.sources",
+                    "reasoning.encrypted_content",
+                    "code_interpreter_call.outputs",
+                    "file_search_call.results"
+                ],
+            parallel_tool_calls: true,
+            reasoning: {
+                effort: "low",
+                summary: "auto"
             }
         }
     }
@@ -58,7 +53,19 @@ export const defaultAgents: Agent[] = [{
             temperature: 1
         },
         providerMetadata: {
-            "thinking": {
+            tools: [
+                {
+                    "type": "web_search",
+                    "max_uses": 5,
+                    "allowed_domains": null,
+                    "blocked_domains": null,
+                    "user_location": null
+                },
+                {
+                    "type": "code_execution"
+                }
+            ],
+            thinking: {
                 "budget_tokens": 8192
             },
             "container": {
@@ -82,22 +89,7 @@ export const defaultAgents: Agent[] = [{
                     "version": "latest",
                     "type": "anthropic",
                 }]
-            },
-            "code_execution": {},
-            "memory": undefined,
-            "native_mcp": false,
-            "web_search": {
-                "max_uses": 5,
-                "allowed_domains": [],
-                "blocked_domains": [],
-                "user_location": {
-                    "timezone": null,
-                    "country": null,
-                    "region": null,
-                    "city": null,
-                }
-            },
-            "web_fetch": undefined
+            }
         }
     }
 },
@@ -111,13 +103,20 @@ export const defaultAgents: Agent[] = [{
             temperature: 1
         },
         providerMetadata: {
-            "web_search": {
-                "allowed_domains": [],
-                "excluded_domains": [],
-                "enable_image_understanding": true
-            },
-            "x_search": {},
-            "code_execution": {},
+            tools: [
+                {
+                    "type": "web_search",
+                    "allowed_domains": [],
+                    "excluded_domains": [],
+                    "enable_image_understanding": true
+                },
+                {
+                    "type": "x_search"
+                },
+                {
+                    "type": "code_execution"
+                }
+            ],
             "reasoning": {},
             "parallel_tool_calls": true
         }
@@ -156,22 +155,24 @@ export const defaultAgents: Agent[] = [{
 {
     name: "MistralAgent",
     description: "Agent with all Mistral capabilities",
-    instructions: "",
+    instructions: "You are an Agent with all Mistral capabilities",
     model: {
         id: "mistral/mistral-medium",
         options: {
             temperature: 1
         },
         providerMetadata: {
-            "web_search_premium": {
-                "type": "web_search_premium"
-            },
-            "code_interpreter": {
-                "type": "code_interpreter"
-            },
-            "image_generation": {
-                "type": "image_generation"
-            },
+            tools: [
+                {
+                    "type": "web_search_premium"
+                },
+                {
+                    "type": "code_interpreter"
+                },
+                {
+                    "type": "image_generation"
+                }
+            ]
         }
     }
 }]

@@ -55,8 +55,7 @@ export const Populated: Story = {
             { skill_id: "skill_custom_foo", version: "latest", type: "custom" },
           ],
         },
-        memory: {},
-        native_mcp: true,
+        memory: {}
       }}
     />
   ),

@@ -65,6 +65,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
         }))
     ) ?? [];
 
+
   const htmlFlatResources =
     toolInvocations?.flatMap((z: any) =>
       z?.output?.content
@@ -118,7 +119,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
     vercelGroupedByUri.set(r.uri, list);
   }
 
-    const htmlGroupedByUri = new Map<string, any[]>();
+  const htmlGroupedByUri = new Map<string, any[]>();
   for (const r of htmlFlatResources) {
     if (!r?.uri) continue;
     const list = htmlGroupedByUri.get(r.uri) ?? [];
@@ -142,7 +143,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
     return { uri, versions };
   });
 
-  
+
   // 3) per-URI: de-dupe by message (keep last part), then sort DESC by timestamp
   const htmlCanvasGroups = Array.from(htmlGroupedByUri.entries()).map(([uri, list]) => {
     // per message keep the highest partIndex (the last read in that turn)

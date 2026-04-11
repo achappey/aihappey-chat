@@ -11,14 +11,16 @@ import type {
 } from "./types";
 
 const POSITIVE_INTEGER_RE = /^[1-9]\d*$/;
+const VERSION_IDENTIFIER_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 function normalizeVersion(value: string | undefined, fallback: string) {
   const text = String(value ?? "").trim();
-  return POSITIVE_INTEGER_RE.test(text) ? text : fallback;
+  return VERSION_IDENTIFIER_RE.test(text) ? text : fallback;
 }
 
 function incrementVersion(value: string | undefined) {
-  const normalized = normalizeVersion(value, "0");
+  const normalized = String(value ?? "").trim();
+  if (!POSITIVE_INTEGER_RE.test(normalized)) return undefined;
   return String(Number.parseInt(normalized, 10) + 1);
 }
 

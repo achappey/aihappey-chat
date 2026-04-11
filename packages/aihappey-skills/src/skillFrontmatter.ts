@@ -2,8 +2,8 @@ import type { SkillDiagnostic, SkillFrontmatter } from "./types";
 
 const FRONTMATTER_RE = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?([\s\S]*)$/;
 const SKILL_NAME_RE = /^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$/;
-const SKILL_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
-const SKILL_VERSION_RE = /^[1-9]\d*$/;
+const SKILL_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]*(?:\/[A-Za-z0-9][A-Za-z0-9_-]*)*$/;
+const SKILL_VERSION_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 function stripQuotes(value: string) {
   const trimmed = value.trim();
@@ -20,7 +20,7 @@ function normalizeValue(value: string) {
   return stripQuotes(value).trim();
 }
 
-function normalizePositiveInteger(value: unknown) {
+function normalizeVersionIdentifier(value: unknown) {
   const text = typeof value === "string" ? value.trim() : "";
   return SKILL_VERSION_RE.test(text) ? text : undefined;
 }
@@ -89,9 +89,9 @@ export function parseSkillMarkdown(
   const id = typeof parsed.id === "string" ? parsed.id.trim() : "";
   const description =
     typeof parsed.description === "string" ? parsed.description : "";
-  const version = normalizePositiveInteger(parsed.version);
-  const defaultVersion = normalizePositiveInteger(parsed["default-version"]);
-  const latestVersion = normalizePositiveInteger(parsed["latest-version"]);
+  const version = normalizeVersionIdentifier(parsed.version);
+  const defaultVersion = normalizeVersionIdentifier(parsed["default-version"]);
+  const latestVersion = normalizeVersionIdentifier(parsed["latest-version"]);
 
   if (!name) {
     diagnostics.push({
@@ -121,7 +121,7 @@ export function parseSkillMarkdown(
       severity: "warning",
       code: "skill-invalid-id",
       message:
-        "Skill id should start with a letter or number and only contain letters, numbers, underscores, or hyphens.",
+        "Skill id should start with a letter or number and only contain letters, numbers, underscores, hyphens, and optional provider prefixes separated by slashes.",
       skillName: name || undefined,
     });
   }
@@ -158,7 +158,7 @@ export function parseSkillMarkdown(
     diagnostics.push({
       severity: "warning",
       code: "skill-invalid-version",
-      message: "Skill version must be a positive integer string such as 1, 2, or 3.",
+      message: "Skill version must be a non-empty identifier such as 1, 2, 3, or latest.",
       skillName: name || undefined,
     });
   }
@@ -167,7 +167,7 @@ export function parseSkillMarkdown(
     diagnostics.push({
       severity: "warning",
       code: "skill-invalid-version",
-      message: "Skill default-version must be a positive integer string.",
+      message: "Skill default-version must be a non-empty identifier such as 1 or latest.",
       skillName: name || undefined,
     });
   }
@@ -176,7 +176,7 @@ export function parseSkillMarkdown(
     diagnostics.push({
       severity: "warning",
       code: "skill-invalid-version",
-      message: "Skill latest-version must be a positive integer string.",
+      message: "Skill latest-version must be a non-empty identifier such as 1 or latest.",
       skillName: name || undefined,
     });
   }
