@@ -1,6 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import { useAppStore } from "aihappey-state";
+import {
+  DEFAULT_CHAT_TOOL_ANNOTATIONS,
+  defaultProviderMetadata,
+  useAppStore,
+} from "aihappey-state";
+import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
   AnthropicChatConfigForm,
   BrowserUseChatConfigForm,
@@ -26,10 +31,25 @@ export interface ProviderSettingsModalProps {
   temperature?: any;
   providerMetadata: any;
   resetDefaults?: any;
-  setProviderMetadata: (meta: any) => void;
+  setProviderMetadata: (meta: any | ((current: any) => any)) => void;
   onEditProviderKeys?: () => void
   onClose: () => void;
 }
+
+type ChatSettingsDraft = {
+  temperature?: number;
+  maxOutputTokens?: number;
+  structuredOutputs?: any;
+  throttle: number;
+  toolAnnotations?: ToolAnnotations;
+  stopTools?: string[];
+  maxToolCalls?: number;
+  toolChoice?: string;
+  activePlugins: string[];
+  enabledLocalTools: string[];
+  enabledSkillIds: string[];
+  providerMetadata: Record<string, any>;
+};
 
 export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   open,
@@ -47,10 +67,61 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const [activeTab, setActiveTab] = useState(defaultTab);
   const models = useAppStore((a) => a.models);
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? [])
+  const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
+  const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
+  const structuredOutputs = useAppStore((s) => s.structuredOutputs);
+  const setStructuredOutputs = useAppStore((s) => s.setStructuredOutputs);
+  const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
+  const setThrottle = useAppStore((s) => s.setThrottle);
+  const toolAnnotations = useAppStore((s) => s.toolAnnotations);
+  const setToolAnnotations = useAppStore((s) => s.setToolAnnotations);
+  const stopTools = useAppStore((s) => s.stopTools);
+  const setStopTools = useAppStore((s) => s.setStopTools);
+  const maxToolCalls = useAppStore((s) => s.maxToolCalls);
+  const setMaxToolCalls = useAppStore((s) => s.setMaxToolCalls);
+  const toolChoice = useAppStore((s) => s.toolChoice);
+  const setToolChoice = useAppStore((s) => s.setToolChoice);
+  const activePlugins = useAppStore((s) => s.activePlugins);
+  const setActivePlugins = useAppStore((s) => s.setActivePlugins);
+  const enabledLocalTools = useAppStore((s) => (s as any).enabledLocalTools as string[]);
+  const setEnabledLocalTools = useAppStore(
+    (s) => (s as any).setEnabledLocalTools as (names: string[]) => void
+  );
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const skills = useSkills();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
+  const createDraft = useCallback(
+    (): ChatSettingsDraft => ({
+      temperature,
+      maxOutputTokens,
+      structuredOutputs,
+      throttle: experimentalThrottle ?? 100,
+      toolAnnotations: toolAnnotations ?? DEFAULT_CHAT_TOOL_ANNOTATIONS,
+      stopTools: [...(stopTools ?? [])],
+      maxToolCalls,
+      toolChoice,
+      activePlugins: [...(activePlugins ?? [])],
+      enabledLocalTools: [...(enabledLocalTools ?? [])],
+      enabledSkillIds: [...(enabledSkillIds ?? [])],
+      providerMetadata: { ...(providerMetadata ?? {}) },
+    }),
+    [
+      activePlugins,
+      enabledLocalTools,
+      enabledSkillIds,
+      experimentalThrottle,
+      maxOutputTokens,
+      maxToolCalls,
+      providerMetadata,
+      stopTools,
+      structuredOutputs,
+      temperature,
+      toolAnnotations,
+      toolChoice,
+    ]
+  );
+  const [draft, setDraft] = useState<ChatSettingsDraft>(() => createDraft());
   const skillItems = useMemo(
     () => skills.items.map((item) => {
       return {
@@ -65,11 +136,53 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     [skills.items]
   );
 
+  useEffect(() => {
+    if (!open) return;
+    setDraft(createDraft());
+    setSkillFeedback(null);
+    setActiveTab(defaultTab);
+  }, [createDraft, defaultTab, open]);
+
+  const updateProviderConfig = useCallback(
+    (providerKey: string, nextConfig: any) => {
+      setDraft((current) => ({
+        ...(current ?? {}),
+        providerMetadata: {
+          ...(current?.providerMetadata ?? {}),
+          [providerKey]: nextConfig,
+        },
+      }));
+    },
+    []
+  );
+
+  const providerConfigUpdaters = useMemo(
+    () => ({
+      anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
+      cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
+      browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
+      google: (google: any) => updateProviderConfig("google", google),
+      groq: (groq: any) => updateProviderConfig("groq", groq),
+      jina: (jina: any) => updateProviderConfig("jina", jina),
+      mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
+      openai: (openai: any) => updateProviderConfig("openai", openai),
+      pollinations: (pollinations: any) => updateProviderConfig("pollinations", pollinations),
+      perplexity: (perplexity: any) => updateProviderConfig("perplexity", perplexity),
+      together: (together: any) => updateProviderConfig("together", together),
+      sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
+      xai: (xai: any) => updateProviderConfig("xai", xai),
+    }),
+    [updateProviderConfig]
+  );
+
   const handleSkillSelectionChange = async (next: string[]) => {
-    setEnabledSkillIds(next);
+    setDraft((current) => ({
+      ...current,
+      enabledSkillIds: next,
+    }));
     setSkillFeedback(null);
 
-    const added = next.filter((skillId) => !enabledSkillIds.includes(skillId));
+    const added = next.filter((skillId) => !draft.enabledSkillIds.includes(skillId));
     if (added.length === 0) return;
 
     const results = await Promise.allSettled(
@@ -87,7 +200,47 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     }
   };
 
+  const applyDraft = useCallback(() => {
+    void setTemperature?.(draft.temperature);
+    setMaxOutputTokens(draft.maxOutputTokens);
+    setStructuredOutputs(draft.structuredOutputs);
+    setThrottle(draft.throttle);
+    setToolAnnotations(draft.toolAnnotations);
+    setStopTools(draft.stopTools);
+    setMaxToolCalls(draft.maxToolCalls);
+    setToolChoice(draft.toolChoice);
+    setActivePlugins(draft.activePlugins);
+    setEnabledLocalTools(draft.enabledLocalTools);
+    setEnabledSkillIds(draft.enabledSkillIds);
+    setProviderMetadata(draft.providerMetadata);
+  }, [
+    draft,
+    setActivePlugins,
+    setEnabledLocalTools,
+    setEnabledSkillIds,
+    setMaxOutputTokens,
+    setMaxToolCalls,
+    setProviderMetadata,
+    setStopTools,
+    setStructuredOutputs,
+    setTemperature,
+    setThrottle,
+    setToolAnnotations,
+    setToolChoice,
+  ]);
+
+  const restoreDraftDefaults = useCallback(() => {
+    setDraft((current) => ({
+      ...current,
+      temperature: 1,
+      toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
+      providerMetadata: { ...defaultProviderMetadata },
+    }));
+    setSkillFeedback(null);
+  }, []);
+
   const close = () => {
+    applyDraft();
     onClose();
     setTimeout(() => {
       setActiveTab(defaultTab);
@@ -102,166 +255,245 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       actions={
         <SettingsActionButtons
           onClose={close}
-          onRestoreDefaults={resetDefaults}
+          onRestoreDefaults={resetDefaults ? restoreDraftDefaults : undefined}
         />
       }
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
         <theme.Tab eventKey="general" title={t("general")}>
-          <GeneralTab
-            temperature={temperature}
-            onEditProviderKeys={onEditProviderKeys}
-            setTemperature={setTemperature}
-          />
+          {activeTab === "general" ? (
+            <GeneralTab
+              temperature={draft.temperature}
+              onEditProviderKeys={onEditProviderKeys}
+              setTemperature={(value: number | undefined) => {
+                setDraft((current) => ({
+                  ...current,
+                  temperature: value,
+                }));
+              }}
+              maxOutputTokens={draft.maxOutputTokens}
+              setMaxOutputTokens={(value: number | undefined) => {
+                setDraft((current) => ({
+                  ...current,
+                  maxOutputTokens: value,
+                }));
+              }}
+              structuredOutputs={draft.structuredOutputs}
+              setStructuredOutputs={(value: any) => {
+                setDraft((current) => ({
+                  ...current,
+                  structuredOutputs: value,
+                }));
+              }}
+              experimentalThrottle={draft.throttle}
+              setThrottle={(value: number) => {
+                setDraft((current) => ({
+                  ...current,
+                  throttle: value,
+                }));
+              }}
+              toolAnnotations={draft.toolAnnotations}
+              setToolAnnotations={(value: ToolAnnotations | undefined) => {
+                setDraft((current) => ({
+                  ...current,
+                  toolAnnotations: value,
+                }));
+              }}
+              stopTools={draft.stopTools}
+              setStopTools={(value: string[] | undefined) => {
+                setDraft((current) => ({
+                  ...current,
+                  stopTools: value,
+                }));
+              }}
+              maxToolCalls={draft.maxToolCalls}
+              setMaxToolCalls={(value: number | undefined) => {
+                setDraft((current) => ({
+                  ...current,
+                  maxToolCalls: value,
+                }));
+              }}
+              toolChoice={draft.toolChoice}
+              setToolChoice={(value: string | undefined) => {
+                setDraft((current) => ({
+                  ...current,
+                  toolChoice: value,
+                }));
+              }}
+            />
+          ) : null}
         </theme.Tab>
         <theme.Tab eventKey="tools" title={t("tools") ?? "Tools"}>
-          <ToolsTab />
+          {activeTab === "tools" ? (
+            <ToolsTab
+              activePlugins={draft.activePlugins}
+              setActivePlugins={(value) => {
+                setDraft((current) => ({
+                  ...current,
+                  activePlugins: value,
+                }));
+              }}
+              enabledLocalTools={draft.enabledLocalTools}
+              setEnabledLocalTools={(value) => {
+                setDraft((current) => ({
+                  ...current,
+                  enabledLocalTools: value,
+                }));
+              }}
+            />
+          ) : null}
         </theme.Tab>
         <theme.Tab eventKey="skills" title={t("skills") ?? "Skills"}>
-          <LocalToolsSettingsForm
-            formTitle={t("skills") ?? "Skills"}
-            value={enabledSkillIds}
-            onChange={(next) => {
-              void handleSkillSelectionChange(next);
-            }}
-            columns={2}
-            items={skillItems}
-          />
-          {skillFeedback ? <theme.Text>{skillFeedback}</theme.Text> : null}
+          {activeTab === "skills" ? (
+            <>
+              <LocalToolsSettingsForm
+                formTitle={t("skills") ?? "Skills"}
+                value={draft.enabledSkillIds}
+                onChange={(next) => {
+                  void handleSkillSelectionChange(next);
+                }}
+                columns={2}
+                items={skillItems}
+              />
+              {skillFeedback ? <theme.Text>{skillFeedback}</theme.Text> : null}
+            </>
+          ) : null}
         </theme.Tab>
         {enabledProviders.includes("Anthropic") &&
           <theme.Tab eventKey="anthropic" title="Anthropic">
-            <AnthropicChatConfigForm
-              config={providerMetadata.anthropic ?? {}}
-              updateConfig={(anthropic) =>
-                setProviderMetadata({ ...providerMetadata, anthropic })
-              }
-            />
+            {activeTab === "anthropic" ? (
+              <AnthropicChatConfigForm
+                config={draft.providerMetadata.anthropic ?? {}}
+                updateConfig={providerConfigUpdaters.anthropic}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("Cohere") &&
           <theme.Tab eventKey="cohere" title="Cohere">
-            <CohereChatConfigForm
-              config={providerMetadata.cohere ?? {}}
-              updateConfig={(cohere) =>
-                setProviderMetadata({ ...providerMetadata, cohere })
-              }
-            />
+            {activeTab === "cohere" ? (
+              <CohereChatConfigForm
+                config={draft.providerMetadata.cohere ?? {}}
+                updateConfig={providerConfigUpdaters.cohere}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("BrowserUse") &&
           <theme.Tab eventKey="browseruse" title="BrowserUse">
-            <BrowserUseChatConfigForm
-              config={providerMetadata.browseruse ?? {}}
-              updateConfig={(browseruse) =>
-                setProviderMetadata({ ...providerMetadata, browseruse })
-              }
-            />
+            {activeTab === "browseruse" ? (
+              <BrowserUseChatConfigForm
+                config={draft.providerMetadata.browseruse ?? {}}
+                updateConfig={providerConfigUpdaters.browseruse}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("Google") &&
           <theme.Tab eventKey="google" title="Google">
-            <GoogleChatConfig
-              google={providerMetadata.google ?? {}}
-              updateGoogle={(google) =>
-                setProviderMetadata({ ...providerMetadata, google })
-              }
-            />
+            {activeTab === "google" ? (
+              <GoogleChatConfig
+                google={draft.providerMetadata.google ?? {}}
+                updateGoogle={providerConfigUpdaters.google}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("Groq") &&
           <theme.Tab eventKey="groq" title="Groq">
-            <GroqChatConfigForm
-              config={providerMetadata.groq ?? {}}
-              updateConfig={(groq) =>
-                setProviderMetadata({ ...providerMetadata, groq })
-              }
-            />
+            {activeTab === "groq" ? (
+              <GroqChatConfigForm
+                config={draft.providerMetadata.groq ?? {}}
+                updateConfig={providerConfigUpdaters.groq}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("Jina") &&
           <theme.Tab eventKey="jina" title="Jina">
-            <JinaChatConfigForm
-              config={providerMetadata.jina ?? {}}
-              updateConfig={(jina) =>
-                setProviderMetadata({ ...providerMetadata, jina })
-              }
-            />
+            {activeTab === "jina" ? (
+              <JinaChatConfigForm
+                config={draft.providerMetadata.jina ?? {}}
+                updateConfig={providerConfigUpdaters.jina}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("Mistral") &&
           <theme.Tab eventKey="mistral" title="Mistral">
-            <MistralChatConfigForm
-              config={providerMetadata.mistral ?? {}}
-              updateConfig={(mistral) =>
-                setProviderMetadata({ ...providerMetadata, mistral })
-              }
-            />
+            {activeTab === "mistral" ? (
+              <MistralChatConfigForm
+                config={draft.providerMetadata.mistral ?? {}}
+                updateConfig={providerConfigUpdaters.mistral}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("OpenAI") &&
           <theme.Tab eventKey="openai" title="OpenAI">
-            <OpenAIChatConfigForm
-              config={providerMetadata.openai ?? {}}
-              openAISkillOptions={openAISkillOptions}
-              updateConfig={(openai) =>
-                setProviderMetadata({ ...providerMetadata, openai })}
-            />
+            {activeTab === "openai" ? (
+              <OpenAIChatConfigForm
+                config={draft.providerMetadata.openai ?? {}}
+                openAISkillOptions={openAISkillOptions}
+                updateConfig={providerConfigUpdaters.openai}
+              />
+            ) : null}
 
           </theme.Tab>
         }
         {enabledProviders.includes("Pollinations") &&
           <theme.Tab eventKey="pollinations" title="Pollinations">
-            <PollinationsChatConfigForm
-              config={providerMetadata.pollinations ?? {}}
-              updateConfig={(pollinations) =>
-                setProviderMetadata({ ...providerMetadata, pollinations })
-              } />
+            {activeTab === "pollinations" ? (
+              <PollinationsChatConfigForm
+                config={draft.providerMetadata.pollinations ?? {}}
+                updateConfig={providerConfigUpdaters.pollinations}
+              />
+            ) : null}
 
           </theme.Tab>
         }
         {enabledProviders.includes("Perplexity") &&
           <theme.Tab eventKey="perplexity"
             title="Perplexity">
-            <PerplexityChatConfigForm
-              config={providerMetadata.perplexity ?? {}}
-              models={models}
-              updateConfig={(perplexity) =>
-                setProviderMetadata({ ...providerMetadata, perplexity })
-              }
-            />
+            {activeTab === "perplexity" ? (
+              <PerplexityChatConfigForm
+                config={draft.providerMetadata.perplexity ?? {}}
+                models={models}
+                updateConfig={providerConfigUpdaters.perplexity}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("Together") &&
           <theme.Tab eventKey="together"
             title="Together">
-            <TogetherChatConfigForm
-              config={providerMetadata.together ?? {}}
-              updateConfig={(together) =>
-                setProviderMetadata({ ...providerMetadata, together })
-              }
-            />
+            {activeTab === "together" ? (
+              <TogetherChatConfigForm
+                config={draft.providerMetadata.together ?? {}}
+                updateConfig={providerConfigUpdaters.together}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("SambaNova") &&
           <theme.Tab eventKey="sambanova" title="SambaNova">
-            <SambanovaChatConfigForm
-              config={providerMetadata.sambanova ?? {}}
-              updateConfig={(sambanova) =>
-                setProviderMetadata({ ...providerMetadata, sambanova })
-              }
-            />
+            {activeTab === "sambanova" ? (
+              <SambanovaChatConfigForm
+                config={draft.providerMetadata.sambanova ?? {}}
+                updateConfig={providerConfigUpdaters.sambanova}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("xAI") &&
           <theme.Tab eventKey="xai"
             title="xAI">
-            <XAIChatConfigForm
-              config={providerMetadata.xai ?? {}}
-              updateConfig={(xai) =>
-                setProviderMetadata({ ...providerMetadata, xai })
-              }
-            />
+            {activeTab === "xai" ? (
+              <XAIChatConfigForm
+                config={draft.providerMetadata.xai ?? {}}
+                updateConfig={providerConfigUpdaters.xai}
+              />
+            ) : null}
           </theme.Tab>
         }
       </theme.Tabs>

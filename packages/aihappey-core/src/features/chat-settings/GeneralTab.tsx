@@ -1,10 +1,8 @@
 import {
   AiChatSettingsForm, AiChatToolsSettingsForm, ChatSettingsForm,
   McpPolicySettings,
-  useTheme
 } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { useAppStore } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { useCallback, useMemo } from "react";
 import { useTools } from "../tools/useTools";
@@ -24,24 +22,23 @@ function toValidSchemaName(name: string): string {
 // --- General Tab ---
 export const GeneralTab = ({
   temperature,
-  setTemperature }: any) => {
+  setTemperature,
+  maxOutputTokens,
+  setMaxOutputTokens,
+  structuredOutputs,
+  setStructuredOutputs,
+  experimentalThrottle,
+  setThrottle,
+  toolAnnotations,
+  setToolAnnotations,
+  stopTools,
+  setStopTools,
+  maxToolCalls,
+  setMaxToolCalls,
+  toolChoice,
+  setToolChoice,
+}: any) => {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const setStructuredOutputs = useAppStore(a => a.setStructuredOutputs)
-  const structuredOutputs = useAppStore(a => a.structuredOutputs)
-  const setThrottle = useAppStore((s) => s.setThrottle);
-  const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
-  const toolAnnotations = useAppStore((s) => s.toolAnnotations);
-  const setToolAnnotations = useAppStore((s) => s.setToolAnnotations);
-
-  const maxOutputTokens = useAppStore(s => s.maxOutputTokens);
-  const setMaxOutputTokens = useAppStore(s => s.setMaxOutputTokens);
-  const stopTools = useAppStore(s => s.stopTools);
-  const setStopTools = useAppStore(s => s.setStopTools);
-  const maxToolCalls = useAppStore(s => s.maxToolCalls);
-  const setMaxToolCalls = useAppStore(s => s.setMaxToolCalls);
-  const toolChoice = useAppStore(s => s.toolChoice);
-  const setToolChoice = useAppStore(s => s.setToolChoice);
   const tools = useTools();
   const availableTools = tools.tools.map(z => z.name)
   const structuredOutputsStore = useStructuredOutputs();

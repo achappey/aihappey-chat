@@ -47,7 +47,7 @@ export type ChatSlice = {
   setModels: (models: ModelOption[]) => void;
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
-  setProviderMetadata: (metadata: any) => void;
+  setProviderMetadata: (metadata: any | ((current: any) => any)) => void;
   resetChatSettings: () => void;
   addChatError: (error: Error) => void
   dismissChatError: (error: string) => void
@@ -62,7 +62,7 @@ export type ChatSlice = {
 
 };
 
-const DEFAULT_ANNOTATIONS: ToolAnnotations = {
+export const DEFAULT_CHAT_TOOL_ANNOTATIONS: ToolAnnotations = {
   readOnlyHint: false,
   idempotentHint: false,
   openWorldHint: true,
@@ -84,7 +84,7 @@ export const createChatSlice: StateCreator<
   chatMode: "chat",
   customHeaders: {},
   structuredOutputs: undefined,
-  toolAnnotations: DEFAULT_ANNOTATIONS,
+  toolAnnotations: DEFAULT_CHAT_TOOL_ANNOTATIONS,
   chatErrors: [],
   approveAll: false,
   allowedToolList: [],
@@ -216,9 +216,16 @@ export const createChatSlice: StateCreator<
       temperature: temp,
     })),
   setProviderMetadata: (providerMetadata) =>
-    set(() => ({
-      providerMetadata: { ...providerMetadata },
-    })),
+    set((state: ChatSlice) => {
+      const nextProviderMetadata =
+        typeof providerMetadata === "function"
+          ? providerMetadata(state.providerMetadata)
+          : providerMetadata;
+
+      return {
+        providerMetadata: { ...(nextProviderMetadata ?? {}) },
+      };
+    }),
   resetChatSettings: () =>
     set(() => ({
       providerMetadata: { ...defaultProviderMetadata },
@@ -231,7 +238,7 @@ export const createChatSlice: StateCreator<
         reranking: [],
         video: [],
       },
-      toolAnnotations: DEFAULT_ANNOTATIONS
+      toolAnnotations: DEFAULT_CHAT_TOOL_ANNOTATIONS
     })),
   selectConversation: (id) =>
     set(() => ({

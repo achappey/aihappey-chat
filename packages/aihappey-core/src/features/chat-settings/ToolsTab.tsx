@@ -1,6 +1,5 @@
 import { LocalToolsSettingsForm, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { useAppStore } from "aihappey-state";
 import { useMemo } from "react";
 import { useLocalTools } from "aihappey-tools";
 import { localAgentsPluginDef } from "../tools/toolcalls/useLocalAgentsToolCall";
@@ -22,18 +21,19 @@ import { localArtificialIntelligencePluginDef } from "../tools/toolcalls/useLoca
 
 // --- Tools Tab ---
 // Holds the "Lokale plugins" card previously shown in the General tab.
-export const ToolsTab = () => {
+export const ToolsTab = ({
+  activePlugins,
+  setActivePlugins,
+  enabledLocalTools,
+  setEnabledLocalTools,
+}: {
+  activePlugins: string[];
+  setActivePlugins: (value: string[]) => void;
+  enabledLocalTools: string[];
+  setEnabledLocalTools: (value: string[]) => void;
+}) => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const activePlugins = useAppStore((s) => s.activePlugins);
-  const setActivePlugins = useAppStore((s) => s.setActivePlugins);
-
-  // NOTE: RootState typing comes from the built `aihappey-state` package.
-  // When working in-repo without rebuilding, newly added fields may not exist in .d.ts yet.
-  const enabledLocalTools = useAppStore((s) => (s as any).enabledLocalTools as string[]);
-  const setEnabledLocalTools = useAppStore(
-    (s) => (s as any).setEnabledLocalTools as (names: string[]) => void
-  );
 
   const localTools = useLocalTools();
   const defsAll = useMemo(

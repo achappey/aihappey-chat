@@ -36,55 +36,31 @@ export const defaultProviderMetadata = {
         "file_search_call.results"
       ],
     "parallel_tool_calls": true,
-    "file_search": undefined,
     "truncation": "auto",
     "service_tier": "auto",
     "imageInputDetail": "auto",
-    "code_interpreter": undefined,
     "context_management": undefined,
     "reasoning": {
       "effort": "none",
       "summary": "auto"
-    },
-    "web_search": {
-      "user_location": {
-        "type": "approximate",
-        "city": null,
-        "region": null,
-        "country": null,
-        "timezone ": null
-      }
-    },
-    "image_generation": {
-      "model": "gpt-image-1.5",
-      "partial_images": 3,
-      "quality": "auto",
-      "action": "auto",
-      "moderation": "auto",
-      "output_compression": 100,
-      "background": "auto",
-      "input_fidelity": "low",
-      "size": "auto"
     }
   },
   "google": {
-    "enableEnhancedCivicAnswers": false,
-    "code_execution": {},
-    "url_context": {},
-    "googleMaps": undefined,
-    "google_search": {
-      "timeRangeFilter": {
-        "startTime": undefined,
-        "endTime": undefined,
-      },
-      "excludeDomains": []
+    "generation_config": {
+      "thinking_level": "minimal",
+      "thinking_summaries": "auto",
     },
-    "mediaResolution": "MediaResolutionUnspecified",
-    "thinkingConfig": {
-      "thinkingBudget": -1,
-      "includeThoughts": true,
-      "thinkingLevel": "ThinkingLevelUnspecified"
-    },
+    "tools": [{
+      "type": "code_execution"
+    }, {
+      "type": "url_context"
+    }, {
+      "type": "google_maps"
+    }, {
+      "type": "google_search",
+      "search_types": ["web_search", "image_search"]
+    }],
+    "mediaResolution": "MediaResolutionUnspecified"
   },
   "anthropic": {
     "tools": [
@@ -141,16 +117,7 @@ export const defaultProviderMetadata = {
       {
         "type": "image_generation"
       }
-    ],
-    "web_search_premium": {
-      "type": "web_search_premium"
-    },
-    "code_interpreter": {
-      "type": "code_interpreter"
-    },
-    "image_generation": {
-      "type": "image_generation"
-    },
+    ]
   },
   "groq": {
     "browser_search": undefined,
@@ -195,17 +162,10 @@ export const defaultProviderMetadata = {
       "excluded_domains": [],
       "enable_image_understanding": true
     }],
-    "web_search": {
-      "allowed_domains": [],
-      "excluded_domains": [],
-      "enable_image_understanding": true
-    },
     "include":
       [
         "reasoning.encrypted_content"
       ],
-    "x_search": undefined,
-    "code_execution": undefined,
     "reasoning": {
     },
     "parallel_tool_calls": true
@@ -238,30 +198,6 @@ export const defaultProviderMetadata = {
           "max_urls": 5
         }
       ],
-    "web_search": {
-      "type": "web_search",
-      "filters": {
-        "search_domain_filter": [],
-        "last_updated_after_filter": "",
-        "last_updated_before_filter": "",
-        "search_after_date_filter": "",
-        "search_before_date_filter": "",
-        "search_recency_filter": ""
-      },
-      "max_tokens": "",
-      "max_tokens_per_page": "",
-      "user_location": {
-        "city": "",
-        "country": "",
-        "latitude": "",
-        "longitude": "",
-        "region": ""
-      }
-    },
-    "fetch_url": {
-      "type": "fetch_url",
-      "max_urls": ""
-    },
     "web_search_options": {
       "search_type": "auto",
       "search_context_size": "medium",

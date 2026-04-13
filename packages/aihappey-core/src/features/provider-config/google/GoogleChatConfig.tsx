@@ -21,6 +21,9 @@ export const GoogleChatConfig = ({
         budget: t("budget"),
         webSearch: t("webSearch"),
         code_execution: t("code_execution"),
+        web_search: t("providers:google.web_search"),
+        image_search: t("providers:google.image_search"),
+        enterprise_web_search: t("providers:google.enterprise_web_search"),
         low: t("low"),
         medium: t("medium"),
         high: t("high"),
@@ -32,10 +35,12 @@ export const GoogleChatConfig = ({
         intervalEnd: t("providers:google.intervalEnd"),
 
         googleMaps: t("providers:google.googleMaps"),
+        enable_widget: t("providers:google.enable_widget"),
+        latitude: t("latitude"),
+        longitude: t("longitude"),
         url_context: t("providers:google.url_context"),
 
         mediaResolution: t("providers:google.mediaResolution"),
-        enableEnhancedCivicAnswers: t("providers:google.enableEnhancedCivicAnswers"),
 
         blockingConfidence_label: t("providers:google.blockingConfidence.label"),
         blockingConfidence_unspecified: t(

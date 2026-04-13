@@ -502,6 +502,8 @@ import { oneinfer } from "./catalog/oneinfer";
 import { tapas } from "./catalog/tapas";
 import { igpt } from "./catalog/igpt";
 import { groovedev } from "./catalog/groovedev";
+import { botverse } from "./catalog/botverse";
+import { vibekit } from "./catalog/vibekit";
 
 /**
  * UI-facing provider catalog.
@@ -521,9 +523,11 @@ export const PROVIDERS: Record<string, Provider> = {
   forgebylana,
   radiance,
   ninjachat,
+  botverse,
   aiapiworld,
   concentrate,
   moleapi,
+  vibekit,
   groovedev,
   zyloapi,
   opuscode,

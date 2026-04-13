@@ -1,10 +1,30 @@
 // GoogleChatConfigForm.tsx
 
+import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
+import {
+  buildCanonicalProviderToolsConfig,
+  withResolvedProviderTools,
+} from "../providerToolConfig";
 
-const DEFAULT_CODE_EXECUTION = {};
-const DEFAULT_URL_CONTEXT = {};
-const DEFAULT_GOOGLE_MAPS = {};
+const DEFAULT_CODE_EXECUTION = { type: "code_execution" };
+const DEFAULT_URL_CONTEXT = { type: "url_context" };
+const DEFAULT_GOOGLE_MAPS = { type: "google_maps" };
+const DEFAULT_GOOGLE_SEARCH = {
+  type: "google_search",
+  search_types: ["web_search", "image_search"],
+};
+const GOOGLE_TOOL_TYPES = [
+  "code_execution",
+  "url_context",
+  "google_maps",
+  "google_search",
+];
+const GOOGLE_SEARCH_TYPES = [
+  "web_search",
+  "image_search",
+  "enterprise_web_search",
+] as const;
 
 enum BlockingConfidence {
   PhishBlockThresholdUnspecified = "PhishBlockThresholdUnspecified",
@@ -17,10 +37,9 @@ enum BlockingConfidence {
 }
 
 // --- Defaults ---
-const DEFAULT_GOOGLE_THINKING = {
-  thinkingBudget: -1,
-  includeThoughts: true,
-  thinkingLevel: "ThinkingLevelUnspecified",
+const DEFAULT_GOOGLE_GENERATION_CONFIG = {
+  thinking_level: "minimal",
+  thinking_summaries: "auto",
 };
 
 export type GoogleChatConfigFormTranslations = {
@@ -29,6 +48,9 @@ export type GoogleChatConfigFormTranslations = {
   budget?: string;
   webSearch?: string;
   code_execution?: string;
+  web_search?: string;
+  image_search?: string;
+  enterprise_web_search?: string;
   low?: string;
   medium?: string;
   high?: string;
@@ -41,10 +63,12 @@ export type GoogleChatConfigFormTranslations = {
   intervalEnd?: string;
 
   googleMaps?: string;
+  enable_widget?: string;
+  latitude?: string;
+  longitude?: string;
   url_context?: string;
 
   mediaResolution?: string;
-  enableEnhancedCivicAnswers?: string;
 
   // blockingConfidence (used in options list, even though select is currently false-gated)
   blockingConfidence_unspecified?: string;
@@ -67,6 +91,14 @@ export const GoogleChatConfigForm = ({
   translations?: GoogleChatConfigFormTranslations;
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
+  const resolvedConfig = withResolvedProviderTools(config, GOOGLE_TOOL_TYPES);
+  const submitConfig = (nextConfig: any) =>
+    updateConfig(buildCanonicalProviderToolsConfig(nextConfig, GOOGLE_TOOL_TYPES));
+  const generationConfig = {
+    ...DEFAULT_GOOGLE_GENERATION_CONFIG,
+    ...(resolvedConfig?.generation_config ?? {}),
+  };
 
   const blockingConfidenceOptions = [
     {
@@ -99,15 +131,33 @@ export const GoogleChatConfigForm = ({
     },
   ];
 
-  const searchOn = !!config?.google_search; // when ON it's an empty object
-  const thinkingOn = config?.thinkingConfig != null; // null/undefined = OFF
-  const codeExecutionOn = !!config?.code_execution;
-  const urlContextOn = !!config?.url_context;
-  const googleMapsOn = !!config?.googleMaps;
+  const searchOn = !!resolvedConfig?.google_search;
+  const thinkingOn = true;
+  const codeExecutionOn = !!resolvedConfig?.code_execution;
+  const urlContextOn = !!resolvedConfig?.url_context;
+  const googleMapsOn = !!resolvedConfig?.google_maps;
+  const googleSearchTypes = Array.isArray(resolvedConfig?.google_search?.search_types)
+    ? resolvedConfig.google_search.search_types
+    : [];
 
-  const timeRangeFilter = config?.google_search?.timeRangeFilter ?? {
-    startTime: undefined,
-    endTime: undefined,
+  const toggleGoogleSearchType = (
+    searchType: (typeof GOOGLE_SEARCH_TYPES)[number],
+    enabled: boolean
+  ) => {
+    const currentTypes = Array.isArray(resolvedConfig?.google_search?.search_types)
+      ? resolvedConfig.google_search.search_types
+      : [];
+    const nextSearchTypes = enabled
+      ? Array.from(new Set([...currentTypes, searchType]))
+      : currentTypes.filter((value: string) => value !== searchType);
+
+    submitConfig({
+      ...resolvedConfig,
+      google_search: {
+        ...(resolvedConfig?.google_search ?? { ...DEFAULT_GOOGLE_SEARCH }),
+        search_types: nextSearchTypes.length ? nextSearchTypes : undefined,
+      },
+    });
   };
 
   const mediaResolution = [
@@ -120,121 +170,86 @@ export const GoogleChatConfigForm = ({
     { value: "MediaResolutionHigh", label: translations?.high ?? "high" },
   ];
 
-  const thinkingLevel = [
+  const thinkingLevelOptions = [
     {
-      value: "ThinkingLevelUnspecified",
-      label: translations?.unspecified ?? "unspecified",
+      value: "minimal",
+      label: t("minimal"),
     },
-    { value: "Low", label: translations?.low ?? "low" },
-    { value: "High", label: translations?.high ?? "high" },
+    { value: "low", label: translations?.low ?? t("low") },
+    { value: "medium", label: translations?.medium ?? t("medium") },
+    { value: "high", label: translations?.high ?? t("high") },
   ];
+
+  const thinkingSummaryOptions = [
+    { value: "auto", label: t("auto") },
+    { value: "none", label: t("none") },
+  ];
+
+  const selectedThinkingLevel = generationConfig.thinking_level;
+  const selectedThinkingLevelLabel =
+    thinkingLevelOptions.find((option) => option.value === selectedThinkingLevel)?.label ??
+    selectedThinkingLevel;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card
-        size="small"
-        title={translations?.reasoning ?? "reasoning"}
-        headerActions={
-          <>
-            {false && (
-              <theme.Switch
-                id="googleThinking"
-                checked={thinkingOn}
-                onChange={() =>
-                  updateConfig({
-                    ...config,
-                    thinkingConfig: thinkingOn ? null : { ...DEFAULT_GOOGLE_THINKING },
-                  })
-                }
-              />
-            )}
-          </>
-        }
-      >
-        <div>
+      <theme.Card size="small" title={translations?.reasoning ?? t("reasoning")}>
+        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
           <theme.Select
-            label={translations?.reasoningEffort ?? "reasoningEffort"}
-            style={{ maxWidth: "100%" }}
-            values={[config?.thinkingConfig?.thinkingLevel || ""]}
+            label={t("reasoningEffort", {
+              reasoningEffort: selectedThinkingLevelLabel,
+            })}
+            style={{ flex: "1 1 0", maxWidth: "100%" }}
+            values={[selectedThinkingLevel]}
             disabled={!thinkingOn}
             valueTitle={
-              thinkingLevel.find(
-                (a) => a.value === config?.thinkingConfig?.thinkingLevel
-              )?.label
+              thinkingLevelOptions.find((option) => option.value === selectedThinkingLevel)
+                ?.label
             }
-            options={thinkingLevel}
+            options={thinkingLevelOptions}
             onChange={(val: string) =>
-              updateConfig({
-                ...config,
-                thinkingConfig: {
-                  ...(config?.thinkingConfig ?? { ...DEFAULT_GOOGLE_THINKING }),
-                  thinkingLevel: val,
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  thinking_level: val,
                 },
               })
             }
           >
-            {thinkingLevel.map((o) => (
+            {thinkingLevelOptions.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
             ))}
           </theme.Select>
 
-          <theme.Switch
-            id="googleIncludeThoughts"
-            label={translations?.includeThoughts ?? "includeThoughts"}
+          <theme.Select
+            label={t("reasoningSummary")}
+            style={{ flex: "1 1 0", maxWidth: "100%" }}
+            values={[generationConfig.thinking_summaries]}
             disabled={!thinkingOn}
-            checked={!!config?.thinkingConfig?.includeThoughts}
-            onChange={() =>
-              updateConfig({
-                ...config,
-                thinkingConfig: {
-                  ...(config?.thinkingConfig ?? { ...DEFAULT_GOOGLE_THINKING }),
-                  includeThoughts: !config?.thinkingConfig?.includeThoughts,
+            valueTitle={
+              thinkingSummaryOptions.find(
+                (option) => option.value === generationConfig.thinking_summaries
+              )?.label
+            }
+            options={thinkingSummaryOptions}
+            onChange={(val: string) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  thinking_summaries: val,
                 },
               })
             }
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-          <div
-            style={{
-              flex: "1 1 0",
-              minWidth: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-            }}
-          ></div>
-
-          <div style={{ flex: "0 0 140px" }}>
-            {false && (
-              <theme.Input
-                type="number"
-                label={translations?.budget ?? "budget"}
-                orientation="vertical"
-                max={32768}
-                style={{ maxWidth: "100%" }}
-                disabled={config?.thinkingConfig?.thinkingBudget == -1 || !thinkingOn}
-                value={config?.thinkingConfig?.thinkingBudget ?? ""}
-                onChange={(e: any) => {
-                  const raw = e.target.value;
-                  const parsed =
-                    raw === ""
-                      ? ""
-                      : Math.min(32768, Math.max(0, parseInt(raw, 10) || 0));
-                  updateConfig({
-                    ...config,
-                    thinkingConfig: {
-                      ...(config?.thinkingConfig ?? { ...DEFAULT_GOOGLE_THINKING }),
-                      thinkingBudget: parsed === "" ? undefined : parsed,
-                    },
-                  });
-                }}
-              />
-            )}
-          </div>
+          >
+            {thinkingSummaryOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
         </div>
       </theme.Card>
 
@@ -246,16 +261,9 @@ export const GoogleChatConfigForm = ({
             id="googleSearch"
             checked={searchOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
-                google_search: !val
-                  ? undefined
-                  : {
-                      timeRangeFilter: {
-                        startTime: undefined,
-                        endTime: undefined,
-                      },
-                    },
+              submitConfig({
+                ...resolvedConfig,
+                google_search: !val ? undefined : { ...DEFAULT_GOOGLE_SEARCH },
               })
             }
           />
@@ -265,64 +273,38 @@ export const GoogleChatConfigForm = ({
           <div
             style={{
               display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
+              flexDirection: "column",
+              gap: 12,
             }}
           >
-            <theme.Input
-              type="datetime-local"
-              label={translations?.intervalStart ?? "intervalStart"}
-              disabled={!searchOn}
-              value={timeRangeFilter.startTime}
-              onChange={(e: any) =>
-                updateConfig({
-                  ...config,
-                  google_search: {
-                    ...(config.google_search ?? {}),
-                    timeRangeFilter: {
-                      ...(timeRangeFilter ?? {}),
-                      startTime: e.target.value ?? undefined,
-                    },
-                  },
-                })
-              }
-            />
-            <theme.Input
-              type="datetime-local"
-              label={translations?.intervalEnd ?? "intervalEnd"}
-              value={timeRangeFilter.endTime}
-              disabled={!searchOn}
-              onChange={(e: any) =>
-                updateConfig({
-                  ...config,
-                  google_search: {
-                    ...(config.google_search ?? {}),
-                    timeRangeFilter: {
-                      ...(timeRangeFilter ?? {}),
-                      endTime: e.target.value ?? undefined,
-                    },
-                  },
-                })
-              }
-            />
+            {GOOGLE_SEARCH_TYPES.map((searchType) => (
+              <theme.Switch
+                key={searchType}
+                id={`googleSearchType_${searchType}`}
+                disabled={!searchOn}
+                checked={googleSearchTypes.includes(searchType)}
+                label={translations?.[searchType] ?? t(`providers:google.${searchType}`)}
+                onChange={(value) => toggleGoogleSearchType(searchType, !!value)}
+              />
+            ))}
           </div>
 
           {false && (
             <theme.Select
               label={translations?.blockingConfidence_label ?? "blockingConfidence"}
-              value={config.google_search?.blockingConfidence || ""}
+              value={resolvedConfig.google_search?.blockingConfidence || ""}
               disabled={!searchOn}
               valueTitle={
                 blockingConfidenceOptions.find(
-                  (a) => a.value === config.google_search?.blockingConfidence
+                  (a) => a.value === resolvedConfig.google_search?.blockingConfidence
                 )?.label
               }
               options={blockingConfidenceOptions}
               onChange={(val: string) =>
-                updateConfig({
-                  ...config,
+                submitConfig({
+                  ...resolvedConfig,
                   google_search: {
-                    ...config.google_search,
+                    ...resolvedConfig.google_search,
                     blockingConfidence: val,
                   },
                 })
@@ -346,14 +328,68 @@ export const GoogleChatConfigForm = ({
             id="googleMaps"
             checked={googleMapsOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
-                googleMaps: !val ? undefined : { ...DEFAULT_GOOGLE_MAPS },
+              submitConfig({
+                ...resolvedConfig,
+                google_maps: !val ? undefined : { ...DEFAULT_GOOGLE_MAPS },
               })
             }
           />
         }
-      />
+      >
+        <div>
+          <theme.Switch
+            id="googleMapsEnableWidget"
+            label={translations?.enable_widget ?? t("providers:google.enable_widget")}
+            disabled={!googleMapsOn}
+            checked={!!resolvedConfig?.google_maps?.enable_widget}
+            onChange={(value) =>
+              submitConfig({
+                ...resolvedConfig,
+                google_maps: {
+                  ...(resolvedConfig?.google_maps ?? { ...DEFAULT_GOOGLE_MAPS }),
+                  enable_widget: !!value,
+                },
+              })
+            }
+          />
+
+          <div style={{ display: "flex", gap: 12 }}>
+            <theme.Input
+              type="number"
+              label={translations?.latitude ?? t("latitude")}
+              disabled={!googleMapsOn}
+              value={resolvedConfig?.google_maps?.latitude ?? ""}
+              onChange={(e: any) => {
+                const raw = e.target.value;
+                submitConfig({
+                  ...resolvedConfig,
+                  google_maps: {
+                    ...(resolvedConfig?.google_maps ?? { ...DEFAULT_GOOGLE_MAPS }),
+                    latitude: raw === "" ? undefined : Number(raw),
+                  },
+                });
+              }}
+            />
+
+            <theme.Input
+              type="number"
+              label={translations?.longitude ?? t("longitude")}
+              disabled={!googleMapsOn}
+              value={resolvedConfig?.google_maps?.longitude ?? ""}
+              onChange={(e: any) => {
+                const raw = e.target.value;
+                submitConfig({
+                  ...resolvedConfig,
+                  google_maps: {
+                    ...(resolvedConfig?.google_maps ?? { ...DEFAULT_GOOGLE_MAPS }),
+                    longitude: raw === "" ? undefined : Number(raw),
+                  },
+                });
+              }}
+            />
+          </div>
+        </div>
+      </theme.Card>
 
       <theme.Card
         size="small"
@@ -363,8 +399,8 @@ export const GoogleChatConfigForm = ({
             id="urlContext"
             checked={urlContextOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 url_context: !val ? undefined : { ...DEFAULT_URL_CONTEXT },
               })
             }
@@ -380,8 +416,8 @@ export const GoogleChatConfigForm = ({
             id="codeExecution"
             checked={codeExecutionOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 code_execution: !val ? undefined : { ...DEFAULT_CODE_EXECUTION },
               })
             }
@@ -392,15 +428,15 @@ export const GoogleChatConfigForm = ({
       <theme.Select
         label={translations?.mediaResolution ?? "mediaResolution"}
         style={{ maxWidth: "100%" }}
-        values={[config.mediaResolution || ""]}
+        values={[resolvedConfig.mediaResolution || ""]}
         disabled={!thinkingOn}
         valueTitle={
-          mediaResolution.find((a) => a.value === config.mediaResolution)?.label
+          mediaResolution.find((a) => a.value === resolvedConfig.mediaResolution)?.label
         }
         options={mediaResolution}
         onChange={(val: string) =>
-          updateConfig({
-            ...config,
+          submitConfig({
+            ...resolvedConfig,
             mediaResolution: val,
           })
         }
@@ -411,20 +447,6 @@ export const GoogleChatConfigForm = ({
           </option>
         ))}
       </theme.Select>
-
-      <theme.Switch
-        id="enableEnhancedCivicAnswers"
-        checked={config?.enableEnhancedCivicAnswers}
-        label={
-          translations?.enableEnhancedCivicAnswers ?? "enableEnhancedCivicAnswers"
-        }
-        onChange={(value) =>
-          updateConfig({
-            ...config,
-            enableEnhancedCivicAnswers: value,
-          })
-        }
-      />
     </div>
   );
 };

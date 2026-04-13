@@ -9,7 +9,7 @@ export interface ChatSettingsButtonOptions {
   temperatureChanged?: any;
   resetDefaults?: any;
   providerMetadata: any;
-  setProviderMetadata: (meta: any) => void;
+  setProviderMetadata: (meta: any | ((current: any) => any)) => void;
 }
 
 export const ChatSettingsButton = (props: ChatSettingsButtonOptions) => {

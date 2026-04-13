@@ -25,6 +25,8 @@ export {
   createEmptyEnabledProvidersByType,
 } from "./slices/uiSlice";
 export { defaultAgents } from "./slices/defaultAgents";
+export { defaultProviderMetadata } from "./slices/defaultProviderMetadata";
+export { DEFAULT_CHAT_TOOL_ANNOTATIONS } from "./slices/chatSlice";
 export * from "./slices/defaultProviderTranscriptionMetadata";
 export * from "./slices/defaultProviderSpeechMetadata";
 export * from "./slices/defaultProviderRerankingMetadata";
