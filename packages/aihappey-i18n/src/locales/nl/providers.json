@@ -262,10 +262,18 @@
     "enableEnhancedCivicAnswers": "Verbeterde maatschappelijke antwoorden",
     "unspecified": "Niet gespecificeerd",
     "mediaResolution": "Beeldkwaliteit",
+    "responseModalities": "Uitvoertypes",
     "googleMaps": "Google Maps",
     "web_search": "Web zoeken",
     "image_search": "Afbeeldingen zoeken",
     "enterprise_web_search": "Zakelijk web zoeken",
+    "modalities": {
+      "text": "Tekst",
+      "image": "Afbeelding",
+      "audio": "Audio",
+      "video": "Video",
+      "document": "Document"
+    },
     "enable_widget": "Widget inschakelen",
     "url_context": "URL context",
     "includeThoughts": "Toon gedachten",
@@ -283,12 +291,22 @@
       "onlyExtremelyHigh": "Blokkeer alleen extreem hoog"
     },
     "speech": {
+      "title": "Spraak",
       "seed": "Seed",
       "multiSpeaker": "Multi-speaker",
       "speakers": "Sprekers",
       "addSpeaker": "Spreker toevoegen",
       "speakerNamePlaceholder": "bijv. Alice"
-    }
+    },
+    "image": {
+      "title": "Afbeelding",
+      "aspect_ratio": "Beeldverhouding",
+      "image_size": "Afbeeldingsgrootte"
+    },
+    "service_tier": "Servicelaag",
+    "voice": "Stem",
+    "language": "Taal",
+    "speaker": "Spreker"
   },
   "xSearch": "Zoeken op X",
   "xai": {
@@ -301,6 +319,7 @@
   },
   "anthropic": {
     "maxUses": "Maximaal aantal keer",
+    "betaHeader": "Beta",
     "customSkills": "Aangepaste vaardigheden",
     "allowedDomains": "Toegestane domeinen",
     "blockedDomains": "Geblokkeerde domeinen",
@@ -337,6 +356,73 @@
     "thinkingDisplayModes": {
       "summarized": "Samengevat",
       "omitted": "Weggelaten"
+    },
+    "contextManagement": {
+      "title": "Contextbeheer",
+      "description": "Configureer Anthropic-contextbeheerbewerkingen op het rootobject `context_management`. De gegenereerde payload blijft in lijn met het gedocumenteerde passthrough-schema.",
+      "empty": "Er zijn nog geen contextbeheerbewerkingen geconfigureerd.",
+      "add": "Contextbewerking toevoegen",
+      "type": "Bewerkingstype",
+      "trigger": "Trigger",
+      "triggerValue": "Triggerwaarde",
+      "keep": "Bewaren",
+      "keepValue": "Waarde bewaren",
+      "clearAtLeast": "Minimaal wissen",
+      "clearAtLeastValue": "Minimaal te wissen tokens",
+      "clearToolInputs": "Tool-invoer wissen",
+      "clearToolInputsValue": "Booleaanse waarde",
+      "clearToolInputsList": "Specifieke tool-invoer",
+      "clearToolInputsPlaceholder": "input_a, input_b",
+      "excludeTools": "Tools uitsluiten",
+      "excludeToolsPlaceholder": "tool_a, tool_b",
+      "instructions": "Instructies",
+      "instructionsPlaceholder": "Optionele extra instructies voor compactie-samenvatting.",
+      "pauseAfterCompaction": "Pauzeren na compactie",
+      "types": {
+        "clear_tool_uses_20250919": "Toolgebruik wissen (2025-09-19)",
+        "clear_thinking_20251015": "Denkblokken wissen (2025-10-15)",
+        "compact_20260112": "Context comprimeren (2026-01-12)"
+      },
+      "modes": {
+        "none": "Niet ingesteld",
+        "boolean": "Booleaans",
+        "list": "Specifieke tool-invoer",
+        "input_tokens": "Invoertokens",
+        "tool_uses": "Toolgebruiken",
+        "thinking_turns": "Denkbeurten",
+        "all_object": "Object: { type: \"all\" }",
+        "all_literal": "Letterlijk: \"all\""
+      },
+      "booleanValues": {
+        "true": "Waar",
+        "false": "Onwaar"
+      },
+      "booleanModes": {
+        "none": "Niet ingesteld",
+        "true": "Waar",
+        "false": "Onwaar"
+      },
+      "validation": {
+        "invalid": "Vul alle geselecteerde numerieke velden in voordat je deze contextbewerking opslaat."
+      },
+      "summaries": {
+        "noOptionalFields": "Geen optionele velden geconfigureerd.",
+        "triggerInputTokens": "Trigger: {{value}} invoertokens",
+        "triggerToolUses": "Trigger: {{value}} toolgebruiken",
+        "keepToolUses": "Bewaren: {{value}} toolgebruiken",
+        "clearAtLeast": "Minimaal wissen: {{value}} invoertokens",
+        "clearToolInputsTrue": "Tool-invoer wissen: waar",
+        "clearToolInputsFalse": "Tool-invoer wissen: onwaar",
+        "clearToolInputsList": "Tool-invoer wissen: {{value}}",
+        "excludeTools": "Tools uitsluiten: {{value}}",
+        "keepThinkingTurns": "Denkblokken bewaren: {{value}} beurten",
+        "keepAllObject": "Denkblokken bewaren: object { type: \"all\" }",
+        "keepAllLiteral": "Denkblokken bewaren: letterlijk \"all\"",
+        "compactDefaultTrigger": "Trigger: standaard {{value}} invoertokens",
+        "pauseAfterCompactionTrue": "Pauzeren na compactie: waar",
+        "pauseAfterCompactionFalse": "Pauzeren na compactie: onwaar",
+        "instructions": "Instructies ingesteld"
+      }
     }
   },
   "hyperbolic": {},

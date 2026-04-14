@@ -20,10 +20,16 @@ export const GoogleChatConfig = ({
         reasoningEffort: t("reasoningEffort"),
         budget: t("budget"),
         webSearch: t("webSearch"),
+        responseModalities: t("providers:google.responseModalities"),
         code_execution: t("code_execution"),
         web_search: t("providers:google.web_search"),
         image_search: t("providers:google.image_search"),
         enterprise_web_search: t("providers:google.enterprise_web_search"),
+        text: t("providers:google.text"),
+        image: t("providers:google.image"),
+        audio: t("providers:google.audio"),
+        video: t("providers:google.video"),
+        document: t("providers:google.document"),
         low: t("low"),
         medium: t("medium"),
         high: t("high"),
@@ -39,8 +45,6 @@ export const GoogleChatConfig = ({
         latitude: t("latitude"),
         longitude: t("longitude"),
         url_context: t("providers:google.url_context"),
-
-        mediaResolution: t("providers:google.mediaResolution"),
 
         blockingConfidence_label: t("providers:google.blockingConfidence.label"),
         blockingConfidence_unspecified: t(

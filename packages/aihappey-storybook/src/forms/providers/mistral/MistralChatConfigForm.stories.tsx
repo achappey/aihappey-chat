@@ -51,6 +51,13 @@ export const FullyPopulated: Story = {
           type: "document_library",
           library_ids: ["abc123", "xyz789"],
         },
+        completion_args: {
+          reasoning_effort: "high",
+          random_seed: 42,
+          top_p: 0.9,
+          presence_penalty: 0.2,
+          frequency_penalty: 0.1,
+        },
       }}
     />
   ),

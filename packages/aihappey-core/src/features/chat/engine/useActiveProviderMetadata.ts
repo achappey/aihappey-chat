@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppStore } from "aihappey-state";
 import { useFiles } from "aihappey-files";
 import type { ModelOption } from "aihappey-types";
@@ -23,35 +23,35 @@ export function useActiveProviderMetadata<
   const models = useAppStore((s) => s.models);
   const files = useFiles();
 
-  const [hydrated, setHydrated] = useState<T | undefined>(base);
+  const [hydrated, setHydrated] = useState<T | undefined>(undefined);
 
   // Determine selected model type (mirrors `useProviderMetadataForSelectedModelType()`)
-  const modelType: ModelType | undefined = (() => {
+  const modelType: ModelType | undefined = useMemo(() => {
     if (!selectedModel) return undefined;
     return models?.find((m) => m.id === selectedModel)?.type as ModelType | undefined;
-  })();
+  }, [models, selectedModel]);
+
+  const requiresHydration =
+    !!base &&
+    modelType === "transcription" &&
+    selectedModel?.startsWith("openai/");
 
   useEffect(() => {
+    if (!requiresHydration) {
+      setHydrated(undefined);
+      return;
+    }
+
     let cancelled = false;
 
     const run = async () => {
-      // Default: passthrough
-      let next: T | undefined = base;
+      const names: string[] | undefined = (base as any)?.openai?.known_speaker_names;
 
-      // Only hydrate for OpenAI transcription models.
-      if (
-        base &&
-        modelType === "transcription" &&
-        selectedModel?.startsWith("openai/")
-      ) {
-        const names: string[] | undefined = (base as any)?.openai?.known_speaker_names;
-
-        next = (await withOpenAiKnownSpeakerReferences(base, {
-          items: files.items,
-          files,
-          knownSpeakerNames: names,
-        })) as T | undefined;
-      }
+      const next = (await withOpenAiKnownSpeakerReferences(base, {
+        items: files.items,
+        files,
+        knownSpeakerNames: names,
+      })) as T | undefined;
 
       if (!cancelled) setHydrated(next);
     };
@@ -60,7 +60,7 @@ export function useActiveProviderMetadata<
     return () => {
       cancelled = true;
     };
-  }, [base, files, files.items, modelType, selectedModel]);
+  }, [base, files, files.items, requiresHydration]);
 
-  return hydrated;
+  return requiresHydration ? (hydrated ?? base) : base;
 }

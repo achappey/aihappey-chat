@@ -26,6 +26,32 @@ const BETA_OPTIONS = [
     "advisor-tool-2026-03-01"
 ];
 
+const parseAnthropicBeta = (value: unknown): string[] => {
+    if (Array.isArray(value)) {
+        return Array.from(
+            new Set(
+                value
+                    .filter((item): item is string => typeof item === "string")
+                    .map((item) => item.trim())
+                    .filter(Boolean)
+            )
+        );
+    }
+
+    if (typeof value === "string") {
+        return Array.from(
+            new Set(
+                value
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean)
+            )
+        );
+    }
+
+    return [];
+};
+
 export const AnthropicBetaCard = ({
     config,
     updateConfig,
@@ -35,7 +61,7 @@ export const AnthropicBetaCard = ({
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
-    const enabled = config?.["anthropic-beta"] ?? [];
+    const enabled = parseAnthropicBeta(config?.["anthropic-beta"]);
 
     const toggleOption = (option: string, isOn: boolean) => {
         const next = isOn
@@ -44,7 +70,7 @@ export const AnthropicBetaCard = ({
 
         updateConfig({
             ...config,
-            "anthropic-beta": next,
+            "anthropic-beta": next.join(","),
         });
     };
 

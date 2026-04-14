@@ -105,6 +105,73 @@
     "thinkingDisplayModes": {
       "summarized": "Summarized",
       "omitted": "Omitted"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure Anthropic context management edits on the root context_management object. The generated payload stays aligned with the documented passthrough schema.",
+      "empty": "No context management edits configured yet.",
+      "add": "Add context edit",
+      "type": "Edit type",
+      "trigger": "Trigger",
+      "triggerValue": "Trigger value",
+      "keep": "Keep",
+      "keepValue": "Keep value",
+      "clearAtLeast": "Clear at least",
+      "clearAtLeastValue": "Minimum tokens to clear",
+      "clearToolInputs": "Clear tool inputs",
+      "clearToolInputsValue": "Boolean value",
+      "clearToolInputsList": "Specific tool inputs",
+      "clearToolInputsPlaceholder": "input_a, input_b",
+      "excludeTools": "Exclude tools",
+      "excludeToolsPlaceholder": "tool_a, tool_b",
+      "instructions": "Instructions",
+      "instructionsPlaceholder": "Optional extra instructions for compaction summarization.",
+      "pauseAfterCompaction": "Pause after compaction",
+      "types": {
+        "clear_tool_uses_20250919": "Clear tool uses (2025-09-19)",
+        "clear_thinking_20251015": "Clear thinking (2025-10-15)",
+        "compact_20260112": "Compact context (2026-01-12)"
+      },
+      "modes": {
+        "none": "Not set",
+        "boolean": "Boolean",
+        "list": "Specific tool inputs",
+        "input_tokens": "Input tokens",
+        "tool_uses": "Tool uses",
+        "thinking_turns": "Thinking turns",
+        "all_object": "Object: { type: \"all\" }",
+        "all_literal": "Literal: \"all\""
+      },
+      "booleanValues": {
+        "true": "True",
+        "false": "False"
+      },
+      "booleanModes": {
+        "none": "Not set",
+        "true": "True",
+        "false": "False"
+      },
+      "validation": {
+        "invalid": "Complete all selected numeric fields before saving this context edit."
+      },
+      "summaries": {
+        "noOptionalFields": "No optional fields configured.",
+        "triggerInputTokens": "Trigger: {{value}} input tokens",
+        "triggerToolUses": "Trigger: {{value}} tool uses",
+        "keepToolUses": "Keep: {{value}} tool uses",
+        "clearAtLeast": "Clear at least: {{value}} input tokens",
+        "clearToolInputsTrue": "Clear tool inputs: true",
+        "clearToolInputsFalse": "Clear tool inputs: false",
+        "clearToolInputsList": "Clear tool inputs: {{value}}",
+        "excludeTools": "Exclude tools: {{value}}",
+        "keepThinkingTurns": "Keep thinking: {{value}} turns",
+        "keepAllObject": "Keep thinking: object { type: \"all\" }",
+        "keepAllLiteral": "Keep thinking: literal \"all\"",
+        "compactDefaultTrigger": "Trigger: default {{value}} input tokens",
+        "pauseAfterCompactionTrue": "Pause after compaction: true",
+        "pauseAfterCompactionFalse": "Pause after compaction: false",
+        "instructions": "Instructions set"
+      }
     }
   },
   "cohere": {
@@ -310,11 +377,19 @@
     "enableEnhancedCivicAnswers": "Enhanced civic answers",
     "unspecified": "Unspecified",
     "mediaResolution": "Image quality",
+    "responseModalities": "Response modalities",
     "url_context": "URL context",
     "googleMaps": "Google Maps",
     "web_search": "Web search",
     "image_search": "Image search",
     "enterprise_web_search": "Enterprise web search",
+    "modalities": {
+      "text": "Text",
+      "image": "Image",
+      "audio": "Audio",
+      "video": "Video",
+      "document": "Document"
+    },
     "enable_widget": "Enable widget",
     "includeThoughts": "Include thoughts",
     "dynamicThinking": "Dynamic thinking",
@@ -331,12 +406,22 @@
       "onlyExtremelyHigh": "Block only extremely high"
     },
     "speech": {
+      "title": "Speech",
       "seed": "Seed",
       "multiSpeaker": "Multi-speaker",
       "speakers": "Speakers",
       "addSpeaker": "Add speaker",
       "speakerNamePlaceholder": "e.g. Alice"
-    }
+    },
+    "image": {
+      "title": "Image",
+      "aspect_ratio": "Aspect ratio",
+      "image_size": "Image size"
+    },
+    "service_tier": "Service tier",
+    "voice": "Voice",
+    "language": "Language",
+    "speaker": "Speaker"
   },
   "jina": {
     "max_returned_urls": "Max returned URLs",

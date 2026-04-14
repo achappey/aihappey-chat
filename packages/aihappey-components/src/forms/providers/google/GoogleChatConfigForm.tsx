@@ -12,7 +12,7 @@ const DEFAULT_URL_CONTEXT = { type: "url_context" };
 const DEFAULT_GOOGLE_MAPS = { type: "google_maps" };
 const DEFAULT_GOOGLE_SEARCH = {
   type: "google_search",
-  search_types: ["web_search", "image_search"],
+  search_types: ["web_search"],
 };
 const GOOGLE_TOOL_TYPES = [
   "code_execution",
@@ -25,6 +25,33 @@ const GOOGLE_SEARCH_TYPES = [
   "image_search",
   "enterprise_web_search",
 ] as const;
+const GOOGLE_RESPONSE_MODALITIES = [
+  "text",
+  "image",
+  "audio",
+  "video",
+  "document",
+] as const;
+const GOOGLE_IMAGE_ASPECT_RATIO_OPTIONS = [
+  "1:1",
+  "2:3",
+  "3:2",
+  "3:4",
+  "4:3",
+  "4:5",
+  "5:4",
+  "9:16",
+  "16:9",
+  "21:9",
+  "1:8",
+  "8:1",
+  "1:4",
+  "4:1",
+] as const;
+const GOOGLE_IMAGE_SIZE_OPTIONS = ["1K", "2K", "4K", "512"] as const;
+const GOOGLE_AGENT_TYPE_OPTIONS = ["dynamic", "deep-research"] as const;
+const GOOGLE_AGENT_THINKING_SUMMARY_OPTIONS = ["auto", "none"] as const;
+const GOOGLE_SERVICE_TIER_OPTIONS = ["flex", "standard", "priority"] as const;
 
 enum BlockingConfidence {
   PhishBlockThresholdUnspecified = "PhishBlockThresholdUnspecified",
@@ -41,16 +68,26 @@ const DEFAULT_GOOGLE_GENERATION_CONFIG = {
   thinking_level: "minimal",
   thinking_summaries: "auto",
 };
+const DEFAULT_GOOGLE_IMAGE_CONFIG = {
+  aspect_ratio: "1:1",
+  image_size: "1K",
+};
 
 export type GoogleChatConfigFormTranslations = {
   reasoning?: string;
   reasoningEffort?: string;
   budget?: string;
   webSearch?: string;
+  responseModalities?: string;
   code_execution?: string;
   web_search?: string;
   image_search?: string;
   enterprise_web_search?: string;
+  text?: string;
+  image?: string;
+  audio?: string;
+  video?: string;
+  document?: string;
   low?: string;
   medium?: string;
   high?: string;
@@ -67,8 +104,6 @@ export type GoogleChatConfigFormTranslations = {
   latitude?: string;
   longitude?: string;
   url_context?: string;
-
-  mediaResolution?: string;
 
   // blockingConfidence (used in options list, even though select is currently false-gated)
   blockingConfidence_unspecified?: string;
@@ -99,6 +134,10 @@ export const GoogleChatConfigForm = ({
     ...DEFAULT_GOOGLE_GENERATION_CONFIG,
     ...(resolvedConfig?.generation_config ?? {}),
   };
+  const speechConfig = resolvedConfig?.generation_config?.speech_config;
+  const imageConfig = resolvedConfig?.generation_config?.image_config;
+  const agentConfig = resolvedConfig?.agent_config;
+  const agentThinkingSummariesEnabled = agentConfig?.type === "deep-research";
 
   const blockingConfidenceOptions = [
     {
@@ -133,11 +172,17 @@ export const GoogleChatConfigForm = ({
 
   const searchOn = !!resolvedConfig?.google_search;
   const thinkingOn = true;
+  const speechOn = !!speechConfig;
+  const imageOn = !!imageConfig;
+  const agentOn = !!agentConfig;
   const codeExecutionOn = !!resolvedConfig?.code_execution;
   const urlContextOn = !!resolvedConfig?.url_context;
   const googleMapsOn = !!resolvedConfig?.google_maps;
   const googleSearchTypes = Array.isArray(resolvedConfig?.google_search?.search_types)
     ? resolvedConfig.google_search.search_types
+    : [];
+  const responseModalities = Array.isArray(resolvedConfig?.response_modalities)
+    ? resolvedConfig.response_modalities
     : [];
 
   const toggleGoogleSearchType = (
@@ -160,15 +205,22 @@ export const GoogleChatConfigForm = ({
     });
   };
 
-  const mediaResolution = [
-    {
-      value: "MediaResolutionUnspecified",
-      label: translations?.unspecified ?? "unspecified",
-    },
-    { value: "MediaResolutionLow", label: translations?.low ?? "low" },
-    { value: "MediaResolutionMedium", label: translations?.medium ?? "medium" },
-    { value: "MediaResolutionHigh", label: translations?.high ?? "high" },
-  ];
+  const toggleResponseModality = (
+    modality: (typeof GOOGLE_RESPONSE_MODALITIES)[number],
+    enabled: boolean
+  ) => {
+    const currentModalities = Array.isArray(resolvedConfig?.response_modalities)
+      ? resolvedConfig.response_modalities
+      : [];
+    const nextModalities = enabled
+      ? Array.from(new Set([...currentModalities, modality]))
+      : currentModalities.filter((value: string) => value !== modality);
+
+    submitConfig({
+      ...resolvedConfig,
+      response_modalities: nextModalities,
+    });
+  };
 
   const thinkingLevelOptions = [
     {
@@ -184,6 +236,26 @@ export const GoogleChatConfigForm = ({
     { value: "auto", label: t("auto") },
     { value: "none", label: t("none") },
   ];
+  const imageAspectRatioOptions = GOOGLE_IMAGE_ASPECT_RATIO_OPTIONS.map((value) => ({
+    value,
+    label: value,
+  }));
+  const imageSizeOptions = GOOGLE_IMAGE_SIZE_OPTIONS.map((value) => ({
+    value,
+    label: value,
+  }));
+  const agentTypeOptions = GOOGLE_AGENT_TYPE_OPTIONS.map((value) => ({
+    value,
+    label: value,
+  }));
+  const agentThinkingSummaryOptions = GOOGLE_AGENT_THINKING_SUMMARY_OPTIONS.map((value) => ({
+    value,
+    label: t(value),
+  }));
+  const serviceTierOptions = GOOGLE_SERVICE_TIER_OPTIONS.map((value) => ({
+    value,
+    label: value,
+  }));
 
   const selectedThinkingLevel = generationConfig.thinking_level;
   const selectedThinkingLevelLabel =
@@ -253,6 +325,8 @@ export const GoogleChatConfigForm = ({
         </div>
       </theme.Card>
 
+
+
       <theme.Card
         size="small"
         title={translations?.webSearch ?? "webSearch"}
@@ -274,7 +348,6 @@ export const GoogleChatConfigForm = ({
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 12,
             }}
           >
             {GOOGLE_SEARCH_TYPES.map((searchType) => (
@@ -393,6 +466,158 @@ export const GoogleChatConfigForm = ({
 
       <theme.Card
         size="small"
+        title={t("providers:google.speech.title")}
+        headerActions={
+          <theme.Switch
+            id="googleSpeechConfig"
+            checked={speechOn}
+            onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  speech_config: !val ? undefined : {},
+                },
+              })
+            }
+          />
+        }
+      >
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <theme.Input
+            label={t("providers:google.voice")}
+            disabled={!speechOn}
+            value={speechConfig?.voice ?? ""}
+            onChange={(e: any) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  speech_config: {
+                    ...(speechConfig ?? {}),
+                    voice: e.target.value === "" ? undefined : e.target.value,
+                  },
+                },
+              })
+            }
+          />
+
+          <theme.Input
+            label={t("providers:google.language")}
+            disabled={!speechOn}
+            value={speechConfig?.language ?? ""}
+            onChange={(e: any) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  speech_config: {
+                    ...(speechConfig ?? {}),
+                    language: e.target.value === "" ? undefined : e.target.value,
+                  },
+                },
+              })
+            }
+          />
+
+          <theme.Input
+            label={t("providers:google.speaker")}
+            disabled={!speechOn}
+            value={speechConfig?.speaker ?? ""}
+            onChange={(e: any) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  speech_config: {
+                    ...(speechConfig ?? {}),
+                    speaker: e.target.value === "" ? undefined : e.target.value,
+                  },
+                },
+              })
+            }
+          />
+        </div>
+      </theme.Card>
+
+      <theme.Card
+        size="small"
+        title={t("providers:google.image.title")}
+        headerActions={
+          <theme.Switch
+            id="googleImageConfig"
+            checked={imageOn}
+            onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  image_config: !val ? undefined : { ...DEFAULT_GOOGLE_IMAGE_CONFIG },
+                },
+              })
+            }
+          />
+        }
+      >
+        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+          <theme.Select
+            label={t("providers:google.image.aspect_ratio")}
+            style={{ flex: "1 1 0", maxWidth: "100%" }}
+            values={imageConfig?.aspect_ratio ? [imageConfig.aspect_ratio] : []}
+            disabled={!imageOn}
+            valueTitle={imageConfig?.aspect_ratio}
+            options={imageAspectRatioOptions}
+            onChange={(val: string) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  image_config: {
+                    ...(imageConfig ?? {}),
+                    aspect_ratio: val || undefined,
+                  },
+                },
+              })
+            }
+          >
+            {imageAspectRatioOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Select
+            label={t("providers:google.image.image_size")}
+            style={{ flex: "1 1 0", maxWidth: "100%" }}
+            values={imageConfig?.image_size ? [imageConfig.image_size] : []}
+            disabled={!imageOn}
+            valueTitle={imageConfig?.image_size}
+            options={imageSizeOptions}
+            onChange={(val: string) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  image_config: {
+                    ...(imageConfig ?? {}),
+                    image_size: val || undefined,
+                  },
+                },
+              })
+            }
+          >
+            {imageSizeOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+        </div>
+      </theme.Card>
+
+      <theme.Card
+        size="small"
         title={translations?.url_context ?? "url_context"}
         headerActions={
           <theme.Switch
@@ -425,23 +650,42 @@ export const GoogleChatConfigForm = ({
         }
       />
 
+      <theme.Card
+        size="small"
+        title={t("providers:google.responseModalities")}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          }}
+        >
+          {GOOGLE_RESPONSE_MODALITIES.map((modality) => (
+            <theme.Switch
+              key={modality}
+              id={`googleResponseModality_${modality}`}
+              size="small"
+              checked={responseModalities.includes(modality)}
+              label={t(`providers:google.modalities.${modality}`)}
+              onChange={(value) => toggleResponseModality(modality, !!value)}
+            />
+          ))}
+        </div>
+      </theme.Card>
+
       <theme.Select
-        label={translations?.mediaResolution ?? "mediaResolution"}
-        style={{ maxWidth: "100%" }}
-        values={[resolvedConfig.mediaResolution || ""]}
-        disabled={!thinkingOn}
-        valueTitle={
-          mediaResolution.find((a) => a.value === resolvedConfig.mediaResolution)?.label
-        }
-        options={mediaResolution}
+        label={t("providers:google.service_tier")}
+        values={resolvedConfig?.service_tier ? [resolvedConfig.service_tier] : []}
+        valueTitle={resolvedConfig?.service_tier}
+        options={serviceTierOptions}
         onChange={(val: string) =>
           submitConfig({
             ...resolvedConfig,
-            mediaResolution: val,
+            service_tier: val || undefined,
           })
         }
       >
-        {mediaResolution.map((o) => (
+        {serviceTierOptions.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
