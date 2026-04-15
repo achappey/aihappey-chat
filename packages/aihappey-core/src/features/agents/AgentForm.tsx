@@ -9,7 +9,10 @@ import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useAgent } from "./useAgentMcpServers";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
-import { buildOpenAISkillOptions } from "../provider-config/openai/openAISkillOptions";
+import {
+    buildOpenAISkillOptions,
+    createOpenAIShellSkillResolver,
+} from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
 
 export interface AgentFormProps {
@@ -30,6 +33,10 @@ export const AgentForm = ({
     const openAISkillOptions = useMemo(
         () => buildOpenAISkillOptions(skills.items ?? []),
         [skills.items]
+    );
+    const resolveOpenAIShellSkill = useMemo(
+        () => createOpenAIShellSkillResolver(skills, openAISkillOptions),
+        [openAISkillOptions, skills]
     );
     // flatten all registry entries once
     const [showCatalog, setShowCatalog] = useState(false);
@@ -262,6 +269,7 @@ export const AgentForm = ({
                         <OpenAIChatConfigForm
                             config={providerMeta}
                             openAISkillOptions={openAISkillOptions}
+                            resolveOpenAIShellSkill={resolveOpenAIShellSkill}
                             updateConfig={updateProviderMetadata}
                         />
                     )}

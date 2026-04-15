@@ -6,7 +6,11 @@ import { OpenAIWebSearchForm } from "./cards/OpenAIWebSearchForm";
 import { OpenAIImageGenerationForm } from "./cards/OpenAIImageGenerationForm";
 import { OpenAICodeInterpreterForm } from "./cards/OpenAICodeInterpreterForm";
 import { OpenAIFileSearchForm } from "./cards/OpenAIFileSearchForm";
-import { OpenAIShellForm } from "./cards/OpenAIShellForm";
+import {
+  OpenAIShellForm,
+  type OpenAISkillOption,
+  type ResolveOpenAIShellSkill,
+} from "./cards/OpenAIShellForm";
 import {
   buildCanonicalProviderToolsConfig,
   withResolvedProviderTools,
@@ -46,10 +50,12 @@ export const OpenAIChatConfigForm = ({
   config,
   updateConfig,
   openAISkillOptions = [],
+  resolveOpenAIShellSkill,
 }: {
   config: any;
   updateConfig: (val: any) => void;
-  openAISkillOptions?: Array<{ value: string; label: string }>;
+  openAISkillOptions?: OpenAISkillOption[];
+  resolveOpenAIShellSkill?: ResolveOpenAIShellSkill;
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -145,6 +151,7 @@ export const OpenAIChatConfigForm = ({
         config={resolvedConfig}
         updateConfig={submitConfig}
         openAISkillOptions={openAISkillOptions}
+        resolveOpenAIShellSkill={resolveOpenAIShellSkill}
       />
       <OpenAIFileSearchForm
         config={resolvedConfig}

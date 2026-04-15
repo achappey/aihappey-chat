@@ -150,15 +150,15 @@ export const defaultProviderMetadata = {
             "last_updated_before_filter": "",
             "search_after_date_filter": "",
             "search_before_date_filter": "",
-            "search_recency_filter": ""
+            "search_recency_filter": undefined
           },
-          "max_tokens": "",
-          "max_tokens_per_page": "",
+          "max_tokens": undefined,
+          "max_tokens_per_page": undefined,
           "user_location": {
             "city": "",
             "country": "",
-            "latitude": "",
-            "longitude": "",
+            "latitude": undefined,
+            "longitude": undefined,
             "region": ""
           }
         },
@@ -181,7 +181,7 @@ export const defaultProviderMetadata = {
     },
     "search_mode": "web",
     "reasoning_effort": "medium",
-    "return_images": false,
+    "return_images": true,
     "return_related_questions": false,
     "enable_search_classifier": false,
     "disable_search": false

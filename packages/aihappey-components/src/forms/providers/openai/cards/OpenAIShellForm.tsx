@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
@@ -12,21 +13,18 @@ const DEFAULT_SHELL = {
 
 const MEMORY_LIMIT_OPTIONS = ["1g", "4g", "16g", "64g"];
 
-const createSkillReference = () => ({
-    type: "skill_reference",
-    skill_id: "",
-});
+export type OpenAISkillOption = {
+    value: string;
+    label: string;
+    skillId?: string;
+    name?: string;
+    description?: string;
+    providerId?: string;
+    backendType?: "reference" | "inline";
+    referenceSkillId?: string;
+};
 
-const createInlineSkill = () => ({
-    type: "inline",
-    name: "",
-    description: "",
-    source: {
-        type: "content",
-        media_type: "application/zip",
-        data: "",
-    },
-});
+export type ResolveOpenAIShellSkill = (skillValue: string) => Promise<any | undefined>;
 
 const createDomainSecret = () => ({
     domain: "",
@@ -53,17 +51,55 @@ const parseCsv = (value: string) =>
 const withoutUndefined = (value: Record<string, any>) =>
     Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined));
 
+const normalizeInlineSkill = (skill: any) => ({
+    type: "inline",
+    name: String(skill?.name ?? ""),
+    description: String(skill?.description ?? ""),
+    source: {
+        type: "base64",
+        media_type: "application/zip",
+        data: String(skill?.source?.data ?? ""),
+    },
+});
+
+const normalizeSkillReference = (skill: any) =>
+    withoutUndefined({
+        type: "skill_reference",
+        skill_id: String(skill?.skill_id ?? ""),
+        version: skill?.version ? String(skill.version) : undefined,
+    });
+
+const normalizeSkill = (skill: any) =>
+    skill?.type === "inline" ? normalizeInlineSkill(skill) : normalizeSkillReference(skill);
+
+const normalizeSkills = (items: any[]) => items.map((skill) => normalizeSkill(skill));
+
+const getOptionSelectionKey = (option: OpenAISkillOption) =>
+    option.backendType === "inline"
+        ? `inline:${String(option.name ?? "")}::${String(option.description ?? "")}`
+        : `reference:${String(option.referenceSkillId ?? option.skillId ?? option.value)}`;
+
+const getSkillSelectionKey = (skill: any) =>
+    skill?.type === "inline"
+        ? `inline:${String(skill?.name ?? "")}::${String(skill?.description ?? "")}`
+        : `reference:${String(skill?.skill_id ?? "")}`;
+
 export const OpenAIShellForm = ({
     config,
     updateConfig,
     openAISkillOptions = [],
+    resolveOpenAIShellSkill,
 }: {
     config: any;
     updateConfig: (val: any) => void;
-    openAISkillOptions?: Array<{ value: string; label: string }>;
+    openAISkillOptions?: OpenAISkillOption[];
+    resolveOpenAIShellSkill?: ResolveOpenAIShellSkill;
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
+    const [selectedSkillValue, setSelectedSkillValue] = useState("");
+    const [addingSkillValue, setAddingSkillValue] = useState<string | null>(null);
+    const [skillError, setSkillError] = useState<string | null>(null);
 
     const shellOn = !!config?.shell;
     const shell = config?.shell ?? DEFAULT_SHELL;
@@ -71,11 +107,18 @@ export const OpenAIShellForm = ({
     const environmentType = environment?.type ?? "container_auto";
 
     const setShell = (nextEnvironment: any) => {
+        const normalizedEnvironment = {
+            ...nextEnvironment,
+            skills: Array.isArray(nextEnvironment?.skills)
+                ? normalizeSkills(nextEnvironment.skills)
+                : nextEnvironment?.skills,
+        };
+
         updateConfig({
             ...config,
             shell: {
                 type: "shell",
-                environment: nextEnvironment,
+                environment: withoutUndefined(normalizedEnvironment),
             },
         });
     };
@@ -125,53 +168,56 @@ export const OpenAIShellForm = ({
         });
     };
 
-    const skills = Array.isArray(environment?.skills) ? environment.skills : [];
+    const skills = useMemo(
+        () => normalizeSkills(Array.isArray(environment?.skills) ? environment.skills : []),
+        [environment?.skills]
+    );
     const networkPolicy = environment?.network_policy;
 
-    const skillTypeOptions = [
-        { value: "skill_reference", label: t("providers:openai.shellSkillReference") },
-        { value: "inline", label: t("providers:openai.shellInlineSkill") },
-    ];
+    const selectedSkillKeys = useMemo(
+        () => new Set(skills.map((skill) => getSkillSelectionKey(skill))),
+        [skills]
+    );
 
-    const readFileAsBase64 = (file: File) =>
-        new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const result = typeof reader.result === "string" ? reader.result : "";
-                resolve(result.includes(",") ? result.split(",").pop() ?? "" : result);
-            };
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(file);
-        });
+    const availableSkillOptions = useMemo(
+        () => openAISkillOptions.filter((option) => !selectedSkillKeys.has(getOptionSelectionKey(option))),
+        [openAISkillOptions, selectedSkillKeys]
+    );
 
-    const updateInlineSkillArchive = async (index: number, file?: File | null) => {
-        const nextSkills = [...skills];
+    const findOptionForSkill = (skill: any) =>
+        openAISkillOptions.find((option) => getOptionSelectionKey(option) === getSkillSelectionKey(skill));
 
-        if (!file) {
-            nextSkills[index] = {
-                ...nextSkills[index],
-                source: {
-                    type: "content",
-                    media_type: "application/zip",
-                    data: "",
-                },
-                file_name: undefined,
-            };
-            updateShell({ skills: nextSkills });
-            return;
+    const addSkillFromCatalog = async (value: string) => {
+        setSelectedSkillValue("");
+        if (!value) return;
+
+        const option = openAISkillOptions.find((item) => item.value === value);
+        if (!option) return;
+        if (selectedSkillKeys.has(getOptionSelectionKey(option))) return;
+
+        setSkillError(null);
+        setAddingSkillValue(value);
+
+        try {
+            const nextSkill = resolveOpenAIShellSkill
+                ? await resolveOpenAIShellSkill(value)
+                : option.backendType === "reference"
+                    ? {
+                        type: "skill_reference",
+                        skill_id: option.referenceSkillId ?? option.skillId ?? option.value,
+                    }
+                    : undefined;
+
+            if (!nextSkill) {
+                throw new Error("Could not prepare the selected skill.");
+            }
+
+            updateShell({ skills: [...skills, nextSkill] });
+        } catch (error: any) {
+            setSkillError(error?.message ?? "Could not prepare the selected skill.");
+        } finally {
+            setAddingSkillValue(null);
         }
-
-        const data = await readFileAsBase64(file);
-        nextSkills[index] = {
-            ...nextSkills[index],
-            source: {
-                type: "content",
-                media_type: "application/zip",
-                data,
-            },
-            file_name: file.name,
-        };
-        updateShell({ skills: nextSkills });
     };
 
     const environmentOptions = [
@@ -424,178 +470,67 @@ export const OpenAIShellForm = ({
 
                 {(environmentType === "container_auto" || environmentType === "local") && (
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        <theme.Select
+                            label={t("providers:openai.shellSkillId")}
+                            disabled={!shellOn || !!addingSkillValue || availableSkillOptions.length === 0}
+                            values={[selectedSkillValue]}
+                            valueTitle={
+                                addingSkillValue
+                                    ? "Adding skill…"
+                                    : availableSkillOptions.find((option) => option.value === selectedSkillValue)?.label ||
+                                    t("providers:openai.shellSelectSkill")
+                            }
+                            options={availableSkillOptions}
+                            onChange={(value: string) => {
+                                setSelectedSkillValue(value);
+                                void addSkillFromCatalog(value);
+                            }}
+                        >
+                            <option value="">{t("providers:openai.shellSelectSkill")}</option>
+                            {availableSkillOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </theme.Select>
+
+                        {!openAISkillOptions.length ? (
+                            <theme.Text>{t("providers:openai.shellNoSkillsAvailable")}</theme.Text>
+                        ) : null}
+
+                        {skillError ? <theme.Text>{skillError}</theme.Text> : null}
+
                         {skills.map((skill: any, index: number) => {
-                            const skillType = skill?.type || "skill_reference";
+                            const skillOption = findOptionForSkill(skill);
+                            const skillLabel =
+                                skillOption?.label ||
+                                skill?.name ||
+                                skill?.skill_id ||
+                                t("providers:openai.shellSelectSkill");
+                            const skillSubtitle =
+                                skillOption?.skillId ||
+                                (skill?.type === "skill_reference" ? skill?.skill_id : undefined);
+
                             return (
                                 <div
                                     key={`skill-${index}`}
                                     style={{
                                         display: "flex",
-                                        flexDirection: "column",
+                                        alignItems: "flex-start",
+                                        justifyContent: "space-between",
                                         gap: 8,
                                         padding: 8,
                                         border: "1px solid rgba(0,0,0,0.08)",
                                         borderRadius: 8,
+                                        flexWrap: "wrap",
                                     }}
                                 >
-                                    <theme.Select
-                                        label={t("providers:openai.shellSkillType")}
-                                        disabled={!shellOn}
-                                        values={[skillType]}
-                                        valueTitle={
-                                            skillTypeOptions.find((option) => option.value === skillType)?.label
-                                        }
-                                        options={skillTypeOptions}
-                                        onChange={(value: string) => {
-                                            const nextSkills = [...skills];
-                                            nextSkills[index] =
-                                                value === "inline" ? createInlineSkill() : createSkillReference();
-                                            updateShell({ skills: nextSkills });
-                                        }}
-                                    >
-                                        {skillTypeOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </theme.Select>
-
-                                    {skillType === "skill_reference" ? (
-                                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", flexDirection: "column" }}>
-                                            <theme.Select
-                                                label={t("providers:openai.shellSkillId")}
-                                                disabled={!shellOn}
-                                                values={[skill?.skill_id || ""]}
-                                                valueTitle={
-                                                    openAISkillOptions.find(
-                                                        (option) => option.value === (skill?.skill_id || "")
-                                                    )?.label || t("providers:openai.shellSelectSkill")
-                                                }
-                                                options={openAISkillOptions}
-                                                onChange={(value: string) => {
-                                                    const nextSkills = [...skills];
-                                                    nextSkills[index] = {
-                                                        ...nextSkills[index],
-                                                        skill_id: value,
-                                                        version: undefined,
-                                                    };
-                                                    updateShell({ skills: nextSkills });
-                                                }}
-                                            >
-                                                <option value="">{t("providers:openai.shellSelectSkill")}</option>
-                                                {openAISkillOptions.map((option) => (
-                                                    <option key={option.value} value={option.value}>
-                                                        {option.label}
-                                                    </option>
-                                                ))}
-                                            </theme.Select>
-                                            {!openAISkillOptions.length ? (
-                                                <theme.Text>
-                                                    {t("providers:openai.shellNoSkillsAvailable")}
-                                                </theme.Text>
-                                            ) : null}
-                                        </div>
-                                    ) : (
-                                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                                <theme.Input
-                                                    label={t("name")}
-                                                    value={skill?.name || ""}
-                                                    disabled={!shellOn}
-                                                    onChange={(e: any) => {
-                                                        const nextSkills = [...skills];
-                                                        nextSkills[index] = {
-                                                            ...nextSkills[index],
-                                                            name: e.target.value,
-                                                        };
-                                                        updateShell({ skills: nextSkills });
-                                                    }}
-                                                />
-                                                <theme.Input
-                                                    label={t("description")}
-                                                    value={skill?.description || ""}
-                                                    disabled={!shellOn}
-                                                    onChange={(e: any) => {
-                                                        const nextSkills = [...skills];
-                                                        nextSkills[index] = {
-                                                            ...nextSkills[index],
-                                                            description: e.target.value,
-                                                        };
-                                                        updateShell({ skills: nextSkills });
-                                                    }}
-                                                />
-                                            </div>
-
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    flexDirection: "column",
-                                                    gap: 8,
-                                                    padding: 12,
-                                                    border: "1px dashed rgba(0,0,0,0.2)",
-                                                    borderRadius: 8,
-                                                }}
-                                                onDragOver={(e) => e.preventDefault()}
-                                                onDrop={(e) => {
-                                                    e.preventDefault();
-                                                    if (!shellOn) return;
-                                                    const file = e.dataTransfer.files?.[0];
-                                                    if (!file) return;
-                                                    void updateInlineSkillArchive(index, file);
-                                                }}
-                                            >
-                                                <theme.Text>
-                                                    {t("providers:openai.shellInlineUploadHelp")}
-                                                </theme.Text>
-                                                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                                    <label>
-                                                        <input
-                                                            type="file"
-                                                            accept=".zip,application/zip"
-                                                            style={{ display: "none" }}
-                                                            disabled={!shellOn}
-                                                            onChange={(e) => {
-                                                                const file = e.target.files?.[0];
-                                                                if (!file) return;
-                                                                void updateInlineSkillArchive(index, file);
-                                                                e.target.value = "";
-                                                            }}
-                                                        />
-                                                        <theme.Button
-                                                            size="small"
-                                                            variant="subtle"
-                                                            icon="attachment"
-                                                            disabled={!shellOn}
-                                                        >
-                                                            {skill?.source?.data
-                                                                ? t("providers:openai.shellReplaceArchive")
-                                                                : t("providers:openai.shellUploadArchive")}
-                                                        </theme.Button>
-                                                    </label>
-                                                    {skill?.source?.data ? (
-                                                        <theme.Button
-                                                            size="small"
-                                                            variant="subtle"
-                                                            icon="delete"
-                                                            disabled={!shellOn}
-                                                            onClick={() => {
-                                                                void updateInlineSkillArchive(index, null);
-                                                            }}
-                                                        >
-                                                            {t("providers:openai.shellRemoveArchive")}
-                                                        </theme.Button>
-                                                    ) : null}
-                                                </div>
-                                                <theme.Text>
-                                                    {skill?.file_name
-                                                        ? t("providers:openai.shellArchiveSelected", {
-                                                            fileName: skill.file_name,
-                                                        })
-                                                        : t("providers:openai.shellNoArchiveSelected")}
-                                                </theme.Text>
-                                            </div>
-                                        </div>
-                                    )}
+                                    <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+                                        <theme.Text>{skillLabel}</theme.Text>
+                                        {skillSubtitle ? (
+                                            <theme.Text style={{ opacity: 0.7 }}>{skillSubtitle}</theme.Text>
+                                        ) : null}
+                                    </div>
 
                                     <div>
                                         <theme.Button
@@ -614,36 +549,6 @@ export const OpenAIShellForm = ({
                                 </div>
                             );
                         })}
-
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                            <theme.Button
-                                size="small"
-                                variant="subtle"
-                                icon="add"
-                                disabled={!shellOn}
-                                onClick={() =>
-                                    updateShell({
-                                        skills: [...skills, createSkillReference()],
-                                    })
-                                }
-                            >
-                                {t("providers:openai.shellAddSkillReference")}
-                            </theme.Button>
-
-                            <theme.Button
-                                size="small"
-                                variant="subtle"
-                                icon="add"
-                                disabled={!shellOn}
-                                onClick={() =>
-                                    updateShell({
-                                        skills: [...skills, createInlineSkill()],
-                                    })
-                                }
-                            >
-                                {t("providers:openai.shellAddInlineSkill")}
-                            </theme.Button>
-                        </div>
                     </div>
                 )}
           

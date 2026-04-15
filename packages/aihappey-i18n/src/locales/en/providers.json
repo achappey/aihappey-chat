@@ -336,7 +336,7 @@
     "shellSkillReference": "Skill reference",
     "shellInlineSkill": "Inline skill",
     "shellSkillId": "Skill",
-    "shellSelectSkill": "Select an OpenAI skill",
+    "shellSelectSkill": "Select a skill",
     "shellNoSkillsAvailable": "No OpenAI shell skills are available from the shared skills catalog.",
     "shellAddSkillReference": "Add skill reference",
     "shellAddInlineSkill": "Add inline skill",

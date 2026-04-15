@@ -3,6 +3,52 @@ import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
 import { OpenAIChatConfigForm } from "aihappey-components";
 
+const storySkillOptions = [
+  {
+    value: "openai/spreadsheets",
+    label: "Spreadsheets (openai/spreadsheets)",
+    skillId: "openai/spreadsheets",
+    name: "Spreadsheets",
+    description: "Analyze spreadsheet files",
+    providerId: "openai",
+    backendType: "reference" as const,
+    referenceSkillId: "openai-spreadsheets",
+  },
+  {
+    value: "local/pdf-reader",
+    label: "PDF Reader (local/pdf-reader)",
+    skillId: "local/pdf-reader",
+    name: "PDF Reader",
+    description: "Read and summarize PDF documents",
+    providerId: "local",
+    backendType: "inline" as const,
+  },
+];
+
+const resolveStoryShellSkill = async (skillValue: string) => {
+  if (skillValue === "openai/spreadsheets") {
+    return {
+      type: "skill_reference",
+      skill_id: "openai-spreadsheets",
+    };
+  }
+
+  if (skillValue === "local/pdf-reader") {
+    return {
+      type: "inline",
+      name: "PDF Reader",
+      description: "Read and summarize PDF documents",
+      source: {
+        type: "base64",
+        media_type: "application/zip",
+        data: "UEsDBAoAAAAAA",
+      },
+    };
+  }
+
+  return undefined;
+};
+
 type WrapperProps = {
   config?: any;
 };
@@ -12,10 +58,8 @@ const Wrapper: React.FC<WrapperProps> = ({ config: initialConfig }) => {
   return (
     <OpenAIChatConfigForm
       config={config}
-      openAISkillOptions={[
-        { value: "xlsx", label: "Spreadsheets" },
-        { value: "pdf", label: "PDF Reader" },
-      ]}
+      openAISkillOptions={storySkillOptions}
+      resolveOpenAIShellSkill={resolveStoryShellSkill}
       updateConfig={setConfig}
     />
   );
@@ -61,6 +105,28 @@ export const Populated: Story = {
         partial_images: 2,
       },
       code_interpreter: { container: { type: "auto" } },
+      shell: {
+        type: "shell",
+        environment: {
+          type: "container_auto",
+          skills: [
+            {
+              type: "skill_reference",
+              skill_id: "openai-spreadsheets",
+            },
+            {
+              type: "inline",
+              name: "PDF Reader",
+              description: "Read and summarize PDF documents",
+              source: {
+                type: "base64",
+                media_type: "application/zip",
+                data: "UEsDBAoAAAAAA",
+              },
+            },
+          ],
+        },
+      },
       truncation: "disabled",
       parallel_tool_calls: true,
       instructions: "Be concise.",

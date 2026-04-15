@@ -22,7 +22,10 @@ import {
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
-import { buildOpenAISkillOptions } from "../provider-config/openai/openAISkillOptions";
+import {
+  buildOpenAISkillOptions,
+  createOpenAIShellSkillResolver,
+} from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
 
 export interface ProviderSettingsModalProps {
@@ -134,6 +137,10 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const openAISkillOptions = useMemo(
     () => buildOpenAISkillOptions(skills.items ?? []),
     [skills.items]
+  );
+  const resolveOpenAIShellSkill = useMemo(
+    () => createOpenAIShellSkillResolver(skills, openAISkillOptions),
+    [openAISkillOptions, skills]
   );
 
   useEffect(() => {
@@ -435,6 +442,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <OpenAIChatConfigForm
                 config={draft.providerMetadata.openai ?? {}}
                 openAISkillOptions={openAISkillOptions}
+                resolveOpenAIShellSkill={resolveOpenAIShellSkill}
                 updateConfig={providerConfigUpdaters.openai}
               />
             ) : null}

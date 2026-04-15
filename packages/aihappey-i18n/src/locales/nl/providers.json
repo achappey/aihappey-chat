@@ -207,7 +207,7 @@
     "shellSkillReference": "Skill-referentie",
     "shellInlineSkill": "Inline skill",
     "shellSkillId": "Skill",
-    "shellSelectSkill": "Selecteer een OpenAI-skill",
+    "shellSelectSkill": "Selecteer een skill",
     "shellNoSkillsAvailable": "Er zijn geen OpenAI-shellskills beschikbaar vanuit de gedeelde skillcatalogus.",
     "shellAddSkillReference": "Skill-referentie toevoegen",
     "shellAddInlineSkill": "Inline skill toevoegen",

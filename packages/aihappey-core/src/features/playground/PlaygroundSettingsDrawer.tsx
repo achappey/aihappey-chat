@@ -22,7 +22,12 @@ import {
 import type { PlaygroundEndpointConfigMap } from "aihappey-clients";
 import type { ModelOption } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
+import { useSkills } from "aihappey-skills";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
+import {
+  buildOpenAISkillOptions,
+  createOpenAIShellSkillResolver,
+} from "../provider-config/openai/openAISkillOptions";
 
 type PlaygroundSettingsDrawerProps = {
   open: boolean;
@@ -90,8 +95,17 @@ export const PlaygroundSettingsDrawer = ({
   requestPreviewBody = "",
 }: PlaygroundSettingsDrawerProps) => {
   const models = useAppStore((s) => s.models);
+  const skills = useSkills();
   const { Drawer, Tabs, Tab, Input, TextArea, Text } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
+  const openAISkillOptions = useMemo(
+    () => buildOpenAISkillOptions(skills.items ?? []),
+    [skills.items]
+  );
+  const resolveOpenAIShellSkill = useMemo(
+    () => createOpenAIShellSkillResolver(skills, openAISkillOptions),
+    [openAISkillOptions, skills]
+  );
 
   const aiSettings = useMemo(
     () => ({ temperature, maxOutputTokens }),
@@ -126,7 +140,14 @@ export const PlaygroundSettingsDrawer = ({
       case "mistral":
         return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
       case "openai":
-        return <OpenAIChatConfigForm config={providerMetadata.openai ?? {}} updateConfig={updateProviderConfig} />;
+        return (
+          <OpenAIChatConfigForm
+            config={providerMetadata.openai ?? {}}
+            openAISkillOptions={openAISkillOptions}
+            resolveOpenAIShellSkill={resolveOpenAIShellSkill}
+            updateConfig={updateProviderConfig}
+          />
+        );
       case "perplexity":
         return <PerplexityChatConfigForm config={providerMetadata.perplexity ?? {}} models={models} updateConfig={updateProviderConfig} />;
       case "pollinations":
@@ -140,7 +161,15 @@ export const PlaygroundSettingsDrawer = ({
       default:
         return <Text>No provider-specific playground form is available for <b>{providerKey || playgroundModel || "this model"}</b> yet.</Text>;
     }
-  }, [Text, playgroundModel, providerKey, providerMetadata, setProviderMetadata]);
+  }, [
+    Text,
+    openAISkillOptions,
+    playgroundModel,
+    providerKey,
+    providerMetadata,
+    resolveOpenAIShellSkill,
+    setProviderMetadata,
+  ]);
 
   const currentEndpointForm = useMemo(() => {
     const updateEndpointConfig = (next: any) => {
