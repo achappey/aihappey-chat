@@ -69,7 +69,7 @@ export const MessageActions = ({
           <TemperatureBadge temperature={msg.temperature} />
         )}
 
-      {showTokens && <TokenBadge totalTokens={msg.totalTokens} />}
+      {showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
 
       {msg.role === "assistant" && <CostBadge cost={msg.cost} />}
 

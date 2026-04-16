@@ -30,6 +30,7 @@ export function toChatMessages(
     const author = meta?.author ?? meta?.model;
     const temperature = meta?.temperature;
     const totalTokens = meta?.totalTokens;
+    const usage = meta?.usage;
     const costRaw = meta?.gateway?.cost ?? meta?.cost;
     const cost =
       typeof costRaw === "number"
@@ -82,6 +83,7 @@ export function toChatMessages(
         author,
         temperature,
         totalTokens,
+        usage,
         cost,
       } as any);
 
@@ -105,6 +107,7 @@ export function toChatMessages(
         author,
         temperature,
         totalTokens,
+        usage,
         cost,
       } as any);
 
@@ -149,6 +152,7 @@ export function toChatMessages(
           author,
           temperature,
           totalTokens,
+          usage,
           cost,
         } as any);
 
@@ -189,6 +193,7 @@ export function toChatMessages(
           author,
           temperature,
           totalTokens,
+          usage,
           cost,
         } as any);
 

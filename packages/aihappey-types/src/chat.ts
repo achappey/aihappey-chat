@@ -19,6 +19,7 @@ export interface ChatMessage {
   messageIcon?: IconToken
   messageLabel?: string
   totalTokens?: number;
+  usage?: any;
   cost?: number;
 }
 

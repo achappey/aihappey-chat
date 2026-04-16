@@ -29,14 +29,14 @@ export const defaultProviderMetadata = {
         "code_interpreter_call.outputs",
         "file_search_call.results"
       ],
-    "parallel_tool_calls": true,
     "truncation": "auto",
     "service_tier": "auto",
     "context_management": undefined,
     "reasoning": {
       "effort": "none",
       "summary": "auto"
-    }
+    },
+    "parallel_tool_calls": true,
   },
   "google": {
     "service_tier": "standard",
@@ -89,11 +89,12 @@ export const defaultProviderMetadata = {
     ]
   },
   "groq": {
-    "browser_search": undefined,
-    "code_interpreter": undefined,
-    "reasoning": {
-      "effort": "medium"
-    },
+    "tools": [
+      {
+        "type": "browser_search"
+      }
+    ],
+
     "parallel_tool_calls": true,
   },
   "cohere": {

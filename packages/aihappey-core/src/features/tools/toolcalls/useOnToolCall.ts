@@ -6,9 +6,14 @@ import { useConversations } from "aihappey-conversations";
 import { useFiles } from "aihappey-files";
 
 import { useMcpPassthroughToolCall } from "./useMcpPassthroughToolCall";
+import { useProviderMetadataForSelectedModelType } from "../../chat/engine/useProviderMetadataForSelectedModelType";
 
 import { useMemoryToolCall } from "./useMemoryToolCall";
 import { useReadResourceToolCall } from "./useReadResourceToolCall";
+import {
+  getAnthropicTextEditorConfig,
+  useAnthropicTextEditorToolCall,
+} from "./useAnthropicTextEditorToolCall";
 
 import { useLocalFilesRuntime } from "./useLocalFileToolCall";
 import { useLocalAgentsRuntime } from "./useLocalAgentsToolCall";
@@ -83,11 +88,13 @@ export function useOnToolCall({
   const enabledPlugins = useAppStore(a => a.activePlugins); // string list
   const enabledLocalTools = useAppStore(a => (a as any).enabledLocalTools as string[]);
   const enabledSkillIds = useAppStore(a => a.enabledSkillIds);
+  const selectedModel = useAppStore(a => a.selectedModel);
   // const selectedConversationId = useAppStore(a => (a as any).selectedConversationId as string | null);
   const setActiveData = useAppStore(a => a.setActiveData);
   const conversations = useConversations();
   const files = useFiles();
   const { i18n } = useTranslation();
+  const activeProviderMetadata = useProviderMetadataForSelectedModelType<Record<string, any>>();
 
   const localToolsStore = useLocalTools();
   const skills = useSkills();
@@ -115,7 +122,21 @@ export function useOnToolCall({
 
   const todoListRuntime = useLocalTodoRuntime(conversationId);
 
+  const anthropicTextEditorConfig = useMemo(
+    () => getAnthropicTextEditorConfig(activeProviderMetadata?.anthropic),
+    [activeProviderMetadata]
+  );
+  const anthropicTextEditorEnabled =
+    typeof selectedModel === "string"
+    && selectedModel.startsWith("anthropic/")
+    && !!anthropicTextEditorConfig;
+
   // specials (runtime-only or conditional exposure)
+  const { anthropicTextEditorPlugin } = useAnthropicTextEditorToolCall({
+    files,
+    enabled: anthropicTextEditorEnabled,
+    config: anthropicTextEditorConfig,
+  });
   const { memoryPlugin } = useMemoryToolCall(); // runtime only
   const { readResourcePlugin } = useReadResourceToolCall({ mcpServers }); // runtime exists always
   const { activateSkillPlugin, readSkillResourcePlugin } = useSkillToolCall({
@@ -244,6 +265,9 @@ export function useOnToolCall({
         if (toolCall.toolName === "read_resource") {
           return await readResourcePlugin.handle(toolCall, signal);
         }
+        if (anthropicTextEditorPlugin.match(toolCall.toolName)) {
+          return await anthropicTextEditorPlugin.handle(toolCall, signal);
+        }
         if (toolCall.toolName === "activate_skill") {
           return await activateSkillPlugin.handle(toolCall, signal);
         }
@@ -265,6 +289,7 @@ export function useOnToolCall({
       localToolsStore.items,
       plugins,
       specialRuntimes,
+      anthropicTextEditorPlugin,
       memoryPlugin,
       readResourcePlugin,
       activateSkillPlugin,

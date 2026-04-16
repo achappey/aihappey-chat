@@ -15,7 +15,6 @@ import { jina } from "./catalog/jina";
 import { nscale } from "./catalog/nscale";
 import { resembleai } from "./catalog/resembleai";
 import { assemblyai } from "./catalog/assemblyai";
-import { kernelmemory } from "./catalog/kernelmemory";
 import { minimax } from "./catalog/minimax";
 import { sarvam } from "./catalog/sarvam";
 import { deepgram } from "./catalog/deepgram";
@@ -960,7 +959,6 @@ export const PROVIDERS: Record<string, Provider> = {
   modelmax,
   gptproto,
   runpod,
-  kernelmemory,
   portkey,
   routeway,
   minimax,
