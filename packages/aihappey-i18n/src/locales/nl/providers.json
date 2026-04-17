@@ -344,6 +344,19 @@
     "useCache": "Cache gebruiken",
     "container": "Container",
     "containerPlaceholder": "Optionele container-id",
+    "containerSettings": {
+      "title": "Container",
+      "id": "Container-id",
+      "idPlaceholder": "Optionele container-id",
+      "customSkillIds": "Aangepaste skill-ID's",
+      "customSkillIdsPlaceholder": "skill_custom_a, skill_custom_b",
+      "skills": {
+        "pptx": "PowerPoint",
+        "xlsx": "Excel",
+        "docx": "Word",
+        "pdf": "PDF"
+      }
+    },
     "userLocation": "Locatie",
     "locationType": "Locatietype",
     "locationApproximate": "Bij benadering",

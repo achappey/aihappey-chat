@@ -1,4 +1,3 @@
-import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../../theme/ThemeContext";
 import { AnthropicSharedToolFields } from "./AnthropicToolCardShared";
 
@@ -11,6 +10,7 @@ const CODE_EXECUTION_VERSIONS = [
 const createDefaultCodeExecutionTool = () => ({
   name: "code_execution",
   type: CODE_EXECUTION_VERSIONS[0],
+  allowed_callers: ["direct"]
 });
 
 export const AnthropicCodeExecutionCard = ({
@@ -21,7 +21,6 @@ export const AnthropicCodeExecutionCard = ({
   updateConfig: (val: any) => void;
 }) => {
   const theme = useTheme();
-  const { t } = useTranslation();
   const codeExecutionOn = !!config?.code_execution;
   const tool = config?.code_execution ?? createDefaultCodeExecutionTool();
 
@@ -37,7 +36,6 @@ export const AnthropicCodeExecutionCard = ({
             updateConfig({
               ...config,
               code_execution: checked ? createDefaultCodeExecutionTool() : undefined,
-              container: checked ? config?.container : undefined,
             })
           }
         />
@@ -66,19 +64,6 @@ export const AnthropicCodeExecutionCard = ({
                 ...nextTool,
                 name: "code_execution",
               },
-            })
-          }
-        />
-
-        <theme.Input
-          label={t("providers:anthropic.container")}
-          placeholder={t("providers:anthropic.containerPlaceholder")}
-          disabled={!codeExecutionOn}
-          value={config?.container ?? ""}
-          onChange={(e: any) =>
-            updateConfig({
-              ...config,
-              container: e.target.value || undefined,
             })
           }
         />

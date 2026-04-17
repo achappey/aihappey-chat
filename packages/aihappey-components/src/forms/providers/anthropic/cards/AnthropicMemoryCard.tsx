@@ -10,6 +10,7 @@ const MEMORY_VERSIONS = ["memory_20250818"];
 const createDefaultMemoryTool = () => ({
   name: "memory",
   type: MEMORY_VERSIONS[0],
+  allowed_callers: ["direct"]
 });
 
 export const AnthropicMemoryCard = ({

@@ -20,6 +20,7 @@ const getTextEditorName = (type: string) =>
 const createDefaultTextEditorTool = () => ({
   name: getTextEditorName(TEXT_EDITOR_VERSIONS[0]),
   type: TEXT_EDITOR_VERSIONS[0],
+  allowed_callers: ["direct"]
 });
 
 export const AnthropicTextEditorCard = ({

@@ -70,6 +70,7 @@ export const defaultProviderMetadata = {
       }
     ],
     "anthropic-beta": "",
+    "max_tokens": 1024,
     "thinking": {
       "type": "disabled"
     },

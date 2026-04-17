@@ -49,10 +49,12 @@ export const Populated: Story = {
         },
         code_execution: {},
         container: {
+          id: "container_demo_123",
           skills: [
+            { skill_id: "pptx", version: "latest", type: "anthropic" },
             { skill_id: "xlsx", version: "latest", type: "anthropic" },
             { skill_id: "pdf", version: "latest", type: "anthropic" },
-            { skill_id: "skill_custom_foo", version: "latest", type: "custom" },
+            { skill_id: "skill_custom_foo", type: "custom" },
           ],
         },
         memory: {}

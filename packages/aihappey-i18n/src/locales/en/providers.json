@@ -93,6 +93,19 @@
     "useCache": "Use cache",
     "container": "Container",
     "containerPlaceholder": "Optional container id",
+    "containerSettings": {
+      "title": "Container",
+      "id": "Container id",
+      "idPlaceholder": "Optional container id",
+      "customSkillIds": "Custom skill IDs",
+      "customSkillIdsPlaceholder": "skill_custom_a, skill_custom_b",
+      "skills": {
+        "pptx": "PowerPoint",
+        "xlsx": "Excel",
+        "docx": "Word",
+        "pdf": "PDF"
+      }
+    },
     "userLocation": "Location",
     "locationType": "Location type",
     "locationApproximate": "Approximate",

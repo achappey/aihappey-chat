@@ -22,6 +22,7 @@ const createDefaultWebFetchTool = () => ({
   citations: {
     enabled: true,
   },
+  allowed_callers: ["direct"]
 });
 
 export const AnthropicWebFetchCard = ({

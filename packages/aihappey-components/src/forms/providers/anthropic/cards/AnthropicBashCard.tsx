@@ -10,6 +10,7 @@ const BASH_VERSIONS = ["bash_20250124"];
 const createDefaultBashTool = () => ({
   name: "bash",
   type: BASH_VERSIONS[0],
+  allowed_callers: ["direct"]
 });
 
 export const AnthropicBashCard = ({

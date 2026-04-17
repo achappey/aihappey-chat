@@ -134,7 +134,6 @@ export const GoogleChatConfigForm = ({
     ...DEFAULT_GOOGLE_GENERATION_CONFIG,
     ...(resolvedConfig?.generation_config ?? {}),
   };
-  const speechConfig = resolvedConfig?.generation_config?.speech_config;
   const imageConfig = resolvedConfig?.generation_config?.image_config;
   const agentConfig = resolvedConfig?.agent_config;
   const agentThinkingSummariesEnabled = agentConfig?.type === "deep-research";
@@ -172,7 +171,6 @@ export const GoogleChatConfigForm = ({
 
   const searchOn = !!resolvedConfig?.google_search;
   const thinkingOn = true;
-  const speechOn = !!speechConfig;
   const imageOn = !!imageConfig;
   const agentOn = !!agentConfig;
   const codeExecutionOn = !!resolvedConfig?.code_execution;
@@ -461,82 +459,6 @@ export const GoogleChatConfigForm = ({
               }}
             />
           </div>
-        </div>
-      </theme.Card>
-
-      <theme.Card
-        size="small"
-        title={t("providers:google.speech.title")}
-        headerActions={
-          <theme.Switch
-            id="googleSpeechConfig"
-            checked={speechOn}
-            onChange={(val) =>
-              submitConfig({
-                ...resolvedConfig,
-                generation_config: {
-                  ...generationConfig,
-                  speech_config: !val ? undefined : {},
-                },
-              })
-            }
-          />
-        }
-      >
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <theme.Input
-            label={t("providers:google.voice")}
-            disabled={!speechOn}
-            value={speechConfig?.voice ?? ""}
-            onChange={(e: any) =>
-              submitConfig({
-                ...resolvedConfig,
-                generation_config: {
-                  ...generationConfig,
-                  speech_config: {
-                    ...(speechConfig ?? {}),
-                    voice: e.target.value === "" ? undefined : e.target.value,
-                  },
-                },
-              })
-            }
-          />
-
-          <theme.Input
-            label={t("providers:google.language")}
-            disabled={!speechOn}
-            value={speechConfig?.language ?? ""}
-            onChange={(e: any) =>
-              submitConfig({
-                ...resolvedConfig,
-                generation_config: {
-                  ...generationConfig,
-                  speech_config: {
-                    ...(speechConfig ?? {}),
-                    language: e.target.value === "" ? undefined : e.target.value,
-                  },
-                },
-              })
-            }
-          />
-
-          <theme.Input
-            label={t("providers:google.speaker")}
-            disabled={!speechOn}
-            value={speechConfig?.speaker ?? ""}
-            onChange={(e: any) =>
-              submitConfig({
-                ...resolvedConfig,
-                generation_config: {
-                  ...generationConfig,
-                  speech_config: {
-                    ...(speechConfig ?? {}),
-                    speaker: e.target.value === "" ? undefined : e.target.value,
-                  },
-                },
-              })
-            }
-          />
         </div>
       </theme.Card>
 

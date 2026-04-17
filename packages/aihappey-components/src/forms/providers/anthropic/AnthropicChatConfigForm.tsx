@@ -1,11 +1,18 @@
 import { useRef } from "react";
+import { useTranslation } from "aihappey-i18n";
+import { useTheme } from "../../../theme/ThemeContext";
 import { AnthropicBashCard } from "./cards/AnthropicBashCard";
 import { AnthropicBetaCard } from "./cards/AnthropicBetaCard";
 import { AnthropicCodeExecutionCard } from "./cards/AnthropicCodeExecutionCard";
+import {
+  AnthropicContainerCard,
+  normalizeAnthropicContainer,
+} from "./cards/AnthropicContainerCard";
 import { AnthropicContextManagementCard } from "./cards/AnthropicContextManagementCard";
 import { AnthropicMemoryCard } from "./cards/AnthropicMemoryCard";
 import { AnthropicReasoningCard } from "./cards/AnthropicReasoningCard";
 import { AnthropicTextEditorCard } from "./cards/AnthropicTextEditorCard";
+import { parseAnthropicNumberInput } from "./cards/AnthropicToolCardShared";
 import { AnthropicToolSearchBm25Card } from "./cards/AnthropicToolSearchBm25Card";
 import { AnthropicToolSearchRegexCard } from "./cards/AnthropicToolSearchRegexCard";
 import { AnthropicWebFetchCard } from "./cards/AnthropicWebFetchCard";
@@ -65,6 +72,14 @@ const getContextManagementEdits = (value: any) =>
 const hasContextManagementEdits = (value: any) =>
   getContextManagementEdits(value).length > 0;
 
+const normalizeAnthropicContainerConfig = (nextConfig: any) => ({
+  ...nextConfig,
+  container:
+    nextConfig?.container === undefined
+      ? undefined
+      : normalizeAnthropicContainer(nextConfig.container),
+});
+
 const normalizeAnthropicContextManagementConfig = (
   previousConfig: any,
   nextConfig: any,
@@ -123,23 +138,54 @@ export const AnthropicChatConfigForm = ({
   config: any;
   updateConfig: (val: any) => void;
 }) => {
+  const theme = useTheme();
+  const { t } = useTranslation();
   const autoManagedContextManagementBeta = useRef(false);
   const resolvedConfig = withResolvedProviderTools(config, ANTHROPIC_TOOL_TYPES);
   const submitConfig = (nextConfig: any) =>
     updateConfig(
       buildCanonicalProviderToolsConfig(
-        normalizeAnthropicContextManagementConfig(
-          resolvedConfig,
-          nextConfig,
-          autoManagedContextManagementBeta
+        normalizeAnthropicContainerConfig(
+          normalizeAnthropicContextManagementConfig(
+            resolvedConfig,
+            nextConfig,
+            autoManagedContextManagementBeta
+          )
         ),
         ANTHROPIC_TOOL_TYPES
       )
     );
 
+  const updateMaxTokens = (value: string) => {
+    const nextMaxTokens = parseAnthropicNumberInput(value);
+
+    if (nextMaxTokens === undefined) {
+      const nextConfig = { ...(resolvedConfig ?? {}) };
+      delete nextConfig.max_tokens;
+      submitConfig(nextConfig);
+      return;
+    }
+
+    submitConfig({
+      ...resolvedConfig,
+      max_tokens: nextMaxTokens,
+    });
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      <theme.Input
+        type="number"
+        min={1}
+        step={1}
+        label={t("maxOutputTokens") ?? "max_tokens"}
+        placeholder={t("optional") ?? "optional"}
+        value={resolvedConfig?.max_tokens ?? ""}
+        onChange={(e: any) => updateMaxTokens(e.target.value)}
+      />
+
       <AnthropicReasoningCard config={resolvedConfig} updateConfig={submitConfig} />
+      <AnthropicContainerCard config={resolvedConfig} updateConfig={submitConfig} />
 
       <AnthropicBashCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicWebSearchCard config={resolvedConfig} updateConfig={submitConfig} />

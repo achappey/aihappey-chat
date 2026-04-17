@@ -24,6 +24,7 @@ const createDefaultWebSearchTool = () => ({
   allowed_domains: null,
   blocked_domains: null,
   user_location: null,
+  allowed_callers: ["direct"]
   //user_location: createDefaultUserLocation(),
 });
 
