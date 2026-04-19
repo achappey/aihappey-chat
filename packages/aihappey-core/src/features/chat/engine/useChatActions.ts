@@ -10,6 +10,7 @@ import { useChatErrors } from "../layout/useChatErrors";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
+import { buildSelectedAgentRequest } from "../../agents/agentSelection";
 
 type ChatActionsProps = {
   // attachments: UiAttachment[];
@@ -38,9 +39,13 @@ export function useChatActions({
 
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
   const agents = useAppStore(a => a.agents)
-  const selectedAgents = selectedAgentNames
-    .filter(a => agents.some(z => z.name == a))
-    .map(a => agents.find(z => z.name == a)!)
+  const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
+  const chatMode = useAppStore(a => a.chatMode)
+  const selectedAgentRequest = buildSelectedAgentRequest(
+    selectedAgentNames,
+    agents,
+    remoteAgentModels,
+  )
 
   const extractExif = useAppStore(a => a.extractExif)
   //const selectedAgents = useAppStore(a => a.selectedAgents)
@@ -65,7 +70,14 @@ export function useChatActions({
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
-              model: selectedModel,
+              ...(chatMode === "chat" ? { model: selectedModel } : {}),
+              ...(chatMode === "agent" && selectedAgentRequest.localAgents.length > 0
+                ? { agents: selectedAgentRequest.localAgents }
+                : {}),
+              ...(chatMode === "agent" && selectedAgentRequest.models.length > 0
+                ? { models: selectedAgentRequest.models }
+                : {}),
+              ...(chatMode === "agent" ? { workflowType } : {}),
               tools: finalTools,
               temperature,
               providerMetadata,
@@ -89,6 +101,10 @@ export function useChatActions({
       sendMessage,
       providerMetadata,
       addChatError,
+      chatMode,
+      selectedAgentRequest.localAgents,
+      selectedAgentRequest.models,
+      workflowType,
       temperature,
       //    clearAttachments,
       selectedModel,
@@ -106,9 +122,14 @@ export function useChatActions({
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
-              model: selectedModel,
-              agents: selectedAgents,
-              workflowType,
+              ...(chatMode === "chat" ? { model: selectedModel } : {}),
+              ...(chatMode === "agent" && selectedAgentRequest.localAgents.length > 0
+                ? { agents: selectedAgentRequest.localAgents }
+                : {}),
+              ...(chatMode === "agent" && selectedAgentRequest.models.length > 0
+                ? { models: selectedAgentRequest.models }
+                : {}),
+              ...(chatMode === "agent" ? { workflowType } : {}),
               tools: finalTools,
               temperature,
               providerMetadata,
@@ -135,8 +156,10 @@ export function useChatActions({
       getAttachmentParts,
       addMessage,
       sendMessage,
+      chatMode,
       temperature,
-      selectedAgents,
+      selectedAgentRequest.localAgents,
+      selectedAgentRequest.models,
       workflowType,
       providerMetadata,
       addChatError,

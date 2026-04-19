@@ -22,6 +22,7 @@ import { useState } from "react";
 import { ResourceTemplateArgumentsModal } from "./ResourceTemplateArgumentsModal";
 import { applyTemplateParams, extractTemplateParams } from "./resourceTemplateUri";
 import type { ResourceTemplate } from "aihappey-state";
+import { resolveSelectedAgentEntries } from "../../agents/agentSelection";
 
 export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
@@ -38,10 +39,18 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const models = useAppStore((s) => s.models);
   const chatMode = useAppStore((s) => s.chatMode);
   const agents = useAppStore((s) => s.agents);
+  const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
+  const selectedAgentEntries = resolveSelectedAgentEntries(
+    selectedAgentNames,
+    agents,
+    remoteAgentModels,
+  );
   const agentHint = chatMode == "agent"
-    && selectedAgentNames?.length == 1
-    ? agents?.find(a => a.name == selectedAgentNames[0])?.argumentHint : undefined;
+    && selectedAgentEntries.length == 1
+    && selectedAgentEntries[0].kind === "local"
+    ? selectedAgentEntries[0].argumentHint
+    : undefined;
   const promptPlaceholder = agentHint ?? t("promptPlaceholder");
   const resourceSelect = useResourceSelect();
   const [resourceLoading, setResourceLoading] = useState(false);

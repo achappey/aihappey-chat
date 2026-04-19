@@ -17,8 +17,6 @@ export const AgentSettingsButton = (props: AgentSettingsButtonOptions) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
-  const agents = useAppStore(a => a.agents)
-  const selectedAgents = selectedAgentNames.map(a => agents.find(z => z.name == a))
 
   return (
     <>
@@ -26,7 +24,7 @@ export const AgentSettingsButton = (props: AgentSettingsButtonOptions) => {
         type="button"
         icon="chatSettings"
         size="large"
-        disabled={selectedAgents.length == 0}
+        disabled={selectedAgentNames.length == 0}
         variant="transparent"
         onClick={() => setOpen(true)}
         title={t("agentSettings")}

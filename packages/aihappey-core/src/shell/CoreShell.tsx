@@ -11,6 +11,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { McpServerBootstrap } from "./bootstrap/McpServerBootstrap";
 import { useModels } from "../features/models/useModels";
+import { useRemoteAgentModels } from "../features/agents/useRemoteAgentModels";
 import { ChatConfig, ChatProvider } from "../features/chat/context/ChatProvider";
 import { useIsDesktop } from "./responsive/useIsDesktop";
 import { useDefaultModel } from "./bootstrap/useDefaultModel";
@@ -46,6 +47,7 @@ export const CoreShell: React.FC<Props> = ({
 }) => {
   const remoteStorageConnected = useRemoteStorageConnected();
   const [, token, error, refresh] = useAccessToken(conversationScopes ?? []);
+  const [, , , refreshAgentToken] = useAccessToken(agentScopes ?? []);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
   const isDesktop = useIsDesktop();
@@ -59,11 +61,21 @@ export const CoreShell: React.FC<Props> = ({
   }, []);
 
   const modelsApi = chatConfig.baseUrl + chatConfig.endpoints.models;
+  const remoteAgentModelsApi = chatConfig?.agentEndpoint
+    ? chatConfig.agentEndpoint + chatConfig.endpoints.models
+    : undefined;
   const skillsApi = chatConfig.baseUrl + chatConfig.endpoints.skills;
 
   useModels(
     modelsApi,
     chatConfig?.getAccessToken
+  );
+
+  useRemoteAgentModels(
+    remoteAgentModelsApi,
+    agentScopes?.length
+      ? async () => (await refreshAgentToken()) ?? ""
+      : undefined
   );
 
   useEffect(() => {

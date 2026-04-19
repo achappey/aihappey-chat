@@ -7,9 +7,10 @@ type AgentCardProps = {
   agent: Agent;
   onEdit?: () => void
   onDelete?: () => void
+  showExport?: boolean;
 };
 
-export const AgentCard = ({ agent, onEdit, onDelete }: AgentCardProps) => {
+export const AgentCard = ({ agent, onEdit, onDelete, showExport = true }: AgentCardProps) => {
   const { Card, Button, Menu } = useTheme();
   const { t } = useTranslation();
   const menuItems: MenuItemProps[] = [{
@@ -42,10 +43,12 @@ export const AgentCard = ({ agent, onEdit, onDelete }: AgentCardProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const exportButton = <Button icon="download"
-    size="small"
-    variant="transparent"
-    onClick={handleExport} />;
+  const exportButton = showExport
+    ? <Button icon="download"
+      size="small"
+      variant="transparent"
+      onClick={handleExport} />
+    : null;
 
   const headerActions = onDelete && <Menu items={menuItems} />;
   const editButton = onEdit
@@ -54,7 +57,7 @@ export const AgentCard = ({ agent, onEdit, onDelete }: AgentCardProps) => {
       variant="transparent"
       onClick={onEdit} /> : undefined;
 
-  const actions = <>{exportButton}{editButton}</>
+  const actions = exportButton || editButton ? <>{exportButton}{editButton}</> : undefined
 
   return (
     <Card

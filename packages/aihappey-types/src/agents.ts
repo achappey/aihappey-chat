@@ -11,6 +11,52 @@ export type Agent = {
     skills?: Skill[]
 };
 
+export type RemoteAgentModel = {
+    id: string;
+    name?: string;
+    description?: string;
+    created?: number;
+    owned_by?: string;
+    tags?: string[];
+    source: "remote";
+};
+
+export const LOCAL_AGENT_SELECTION_PREFIX = "local:";
+export const REMOTE_AGENT_SELECTION_PREFIX = "remote:";
+
+export const toLocalAgentSelectionKey = (name: string) =>
+    `${LOCAL_AGENT_SELECTION_PREFIX}${name}`;
+
+export const toRemoteAgentSelectionKey = (id: string) =>
+    `${REMOTE_AGENT_SELECTION_PREFIX}${id}`;
+
+export const isLocalAgentSelectionKey = (value: string) =>
+    value.startsWith(LOCAL_AGENT_SELECTION_PREFIX);
+
+export const isRemoteAgentSelectionKey = (value: string) =>
+    value.startsWith(REMOTE_AGENT_SELECTION_PREFIX);
+
+export const normalizeAgentSelectionValue = (
+    value: string,
+    localAgentNames: string[],
+    remoteAgentIds: string[]
+) => {
+    if (!value) return value;
+    if (isLocalAgentSelectionKey(value) || isRemoteAgentSelectionKey(value)) {
+        return value;
+    }
+
+    if (localAgentNames.includes(value)) {
+        return toLocalAgentSelectionKey(value);
+    }
+
+    if (remoteAgentIds.includes(value)) {
+        return toRemoteAgentSelectionKey(value);
+    }
+
+    return value;
+};
+
 
 export type Skill = {
     type: string;

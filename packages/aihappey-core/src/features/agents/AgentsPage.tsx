@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useAppStore } from "aihappey-state";
 import { AgentCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
@@ -19,6 +19,7 @@ export const AgentsPage = () => {
 
   //const agents = useAppStore((s) => s.agents as Record<string, AgentCardType>);
   const agents = useAppStore((s) => s.agents);
+  const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const createAgent = useAppStore((s) => s.createAgent);
   const updateAgent = useAppStore((s) => s.updateAgent);
   const deleteAgent = useAppStore((s) => s.deleteAgent);
@@ -105,6 +106,48 @@ export const AgentsPage = () => {
     e.preventDefault();
   }, []);
 
+  const cards = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    const localCards = agents.map((agent) => ({
+      key: `local:${agent.name}`,
+      kind: "local" as const,
+      agent,
+    }));
+
+    const remoteCards = remoteAgentModels.map((remoteAgentModel) => ({
+      key: `remote:${remoteAgentModel.id}`,
+      kind: "remote" as const,
+      agent: {
+        name: remoteAgentModel.name ?? remoteAgentModel.id,
+        description:
+          remoteAgentModel.description,
+        instructions: "",
+        model: {
+          id: remoteAgentModel.owned_by
+            ? `${remoteAgentModel.id}`
+            : remoteAgentModel.id,
+        },
+      } as Agent,
+      remoteAgentModel,
+    }));
+
+    return [...localCards, ...remoteCards].filter((card) => {
+      if (!query) return true;
+
+      const haystack = [
+        card.agent.name,
+        card.agent.description,
+        card.agent.model?.id,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(query);
+    });
+  }, [agents, remoteAgentModels, search]);
+
 
   return (
     <div ref={dropRef}
@@ -130,7 +173,7 @@ export const AgentsPage = () => {
             title={t("agents.title")}
           />
 
-          <Text as="p" align={"center" }>
+          <Text as="p" align={"center"}>
             {t("agents.description")}
           </Text>
 
@@ -156,7 +199,7 @@ export const AgentsPage = () => {
               <div
                 style={{
                   display: "grid",
-                 gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                   gap: 16,
                   paddingTop: 12,
                   width: "100%",
@@ -165,12 +208,13 @@ export const AgentsPage = () => {
                   justifyItems: "center",
                 }}
               >
-                {agents.map(r =>
-                  <div key={r.name} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+                {cards.map((card) =>
+                  <div key={card.key} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
                     <AgentCard
-                      agent={r}
-                      onDelete={() => deleteAgent(r.name)}
-                      onEdit={() => handleEdit(r.name)}
+                      agent={card.agent}
+                      showExport={card.kind === "local"}
+                      onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
+                      onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
                     />
                   </div>)}
               </div>

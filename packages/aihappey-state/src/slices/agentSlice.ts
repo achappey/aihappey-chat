@@ -1,14 +1,21 @@
-import { Agent } from "aihappey-types";
+import {
+    Agent,
+    RemoteAgentModel,
+    normalizeAgentSelectionValue,
+} from "aihappey-types";
 import type { StateCreator } from "zustand";
 import { defaultAgents } from "./defaultAgents";
 
 export type AgentSlice = {
     agents: Agent[];
+    remoteAgentModels: RemoteAgentModel[];
+    remoteAgentModelsLoaded: boolean;
     selectedAgentNames: string[];
     workflowType: string
     maximumIterationCount: number
     handoffs: any[]
     setAgents: (agents: Agent[]) => void
+    setRemoteAgentModels: (models: RemoteAgentModel[]) => void
     setWorkflowType: (workflowType: string) => void
     setHandoffs: (handoffs: any[]) => void
     setMaximumIterationCount: (count: number) => void
@@ -29,6 +36,8 @@ export const createAgentSlice: StateCreator<
     AgentSlice
 > = (set, get, store) => ({
     agents: defaultAgents,
+    remoteAgentModels: [],
+    remoteAgentModelsLoaded: false,
     selectedAgentNames: [],
     maximumIterationCount: 5,
     handoffs: [],
@@ -112,9 +121,23 @@ export const createAgentSlice: StateCreator<
             agents: agents,
         }));
     },
+    setRemoteAgentModels: (models) => {
+        set(() => ({
+            remoteAgentModels: models,
+            remoteAgentModelsLoaded: true,
+        }));
+    },
     setSelectedAgents: (agents) => {
-        set((state: any) => ({
-            selectedAgentNames: agents,
+        set((state: AgentSlice) => ({
+            selectedAgentNames: Array.from(new Set(
+                (agents ?? [])
+                    .map((value) => normalizeAgentSelectionValue(
+                        String(value ?? "").trim(),
+                        state.agents.map((agent) => agent.name),
+                        state.remoteAgentModels.map((model) => model.id),
+                    ))
+                    .filter(Boolean)
+            )),
         }));
     },
     createAgent: (agent) =>

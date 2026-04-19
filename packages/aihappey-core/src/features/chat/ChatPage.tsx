@@ -38,10 +38,6 @@ export function ChatPage() {
     };
   }, [addChatError, conversationId, create, navigate]);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
-  const agents = useAppStore(a => a.agents)
-  const selectedAgents = selectedAgentNames
-    .filter(a => agents.some(z => z.name == a))
-    .map(a => agents.find(z => z.name == a)!)
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
   const getAccessToken = config?.getAccessToken;
   const headers = config?.headers;
@@ -54,7 +50,7 @@ export function ChatPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <ChatHeader
-        agentValues={selectedAgents?.map(a => a.name) ?? []}
+        agentValues={selectedAgentNames ?? []}
         onAgentChange={(name) => selectedAgentNames.includes(name)
           ? setSelectedAgents(selectedAgentNames.filter(a => a != name))
           : setSelectedAgents([...selectedAgentNames, name])} />

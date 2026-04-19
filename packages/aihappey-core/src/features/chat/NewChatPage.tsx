@@ -16,6 +16,7 @@ import { PromptWithSource } from "../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
+import { buildSelectedAgentRequest } from "../agents/agentSelection";
 
 export function NewChatPage() {
   const navigate = useNavigate();
@@ -25,9 +26,7 @@ export function NewChatPage() {
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
   const agents = useAppStore(a => a.agents)
-  const selectedAgents = selectedAgentNames
-    .filter(a => agents.some(z => z.name == a))
-    .map(a => agents.find(z => z.name == a)!)
+  const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
   const temperature = useAppStore((s) => s.temperature);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
   const selectedModel = useAppStore((s) => s.selectedModel);
@@ -58,6 +57,11 @@ export function NewChatPage() {
     getAttachmentParts,
     extractExif,
   });
+  const selectedAgentRequest = buildSelectedAgentRequest(
+    selectedAgentNames,
+    agents,
+    remoteAgentModels,
+  );
 
   const startNewConversation = async (userMsg: any) => {
     if (!userMsg) return;
@@ -68,7 +72,8 @@ export function NewChatPage() {
         model: selectedModel,
         workflowType: workflowType,
         temperature,
-        agents: selectedAgents,
+        agents: selectedAgentRequest.localAgents,
+        models: selectedAgentRequest.models,
         responseFormat: structuredOutputs
       },
     });
@@ -119,7 +124,7 @@ export function NewChatPage() {
       }}
     >
       <ChatHeader
-        agentValues={selectedAgents?.map(a => a.name) ?? []}
+        agentValues={selectedAgentNames ?? []}
         onAgentChange={(name) => selectedAgentNames.includes(name)
           ? setSelectedAgents(selectedAgentNames.filter(a => a != name))
           : setSelectedAgents([...selectedAgentNames, name])} />

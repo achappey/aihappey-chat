@@ -4,17 +4,24 @@ import { useTheme } from "aihappey-components";
 import { useMediaQuery } from "usehooks-ts";
 import { useAppStore } from "aihappey-state";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import type { Agent } from "aihappey-types";
+import type { Agent, RemoteAgentModel } from "aihappey-types";
+import {
+  buildAvailableAgentSelectionEntries,
+  normalizeSelectedAgentKeys,
+  resolveSelectedAgentEntries,
+} from "./agentSelection";
 
 interface AgentSelectProps {
-  agents: Agent[];
+  localAgents: Agent[];
+  remoteAgentModels: RemoteAgentModel[];
   values: string[];
   onChange: (id: string) => void;
   disabled?: boolean;
 }
 
 export const AgentSelect: React.FC<AgentSelectProps> = ({
-  agents,
+  localAgents,
+  remoteAgentModels,
   values,
   onChange,
   disabled,
@@ -23,15 +30,19 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   const isDesktop = useIsDesktop();
   const SelectComponent = Select || "select";
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? []);
-  const visibleAgents = agents.filter((m) =>
-    enabledProviders.map(a => a.toLowerCase()).includes(m.model.id.split("/")[0])
+  const visibleAgents = buildAvailableAgentSelectionEntries(
+    localAgents,
+    remoteAgentModels,
+    enabledProviders,
   );
+  const normalizedValues = normalizeSelectedAgentKeys(values, localAgents, remoteAgentModels);
+  const selectedEntries = resolveSelectedAgentEntries(values, localAgents, remoteAgentModels);
 
   return (
     <SelectComponent
-      values={values}
+      values={normalizedValues}
       icon={"robot"}
-      valueTitle={values.join(", ")}
+      valueTitle={selectedEntries.map((entry) => entry.label).join(", ")}
       multiselect={true}
       style={{ minWidth: isDesktop ? 260 : 200 }}
       size="large"
@@ -41,12 +52,12 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
         onChange(selectedValue);
       }}
       disabled={disabled}
-      aria-label="Model"
+      aria-label="Agent"
     >
       {(
-        visibleAgents.map((model) => (
-          <option key={model.name} value={model.name}>
-            {model.name}
+        visibleAgents.map((agent) => (
+          <option key={agent.key} value={agent.key}>
+            {agent.label}
           </option>
         ))
       )}

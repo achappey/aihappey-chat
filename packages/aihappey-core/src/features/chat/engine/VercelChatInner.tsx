@@ -47,6 +47,7 @@ import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useUIStream } from "../../json-render/useUIStream";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
+import { buildSelectedAgentRequest } from "../../agents/agentSelection";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -89,6 +90,9 @@ export function VercelChatInner({
   const providerMetadata = useActiveProviderMetadata();
   const files = useFiles();
   const model = useAppStore((s) => s.selectedModel);
+  const agents = useAppStore((s) => s.agents);
+  const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
+  const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer, Toast } = useTheme();
   const { config } = useChatContext();
@@ -114,6 +118,12 @@ export function VercelChatInner({
   const isDesktop = useIsDesktop();
   const handoffs = useAppStore(a => a.handoffs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
+  const workflowType = useAppStore(a => a.workflowType)
+  const structuredOutputs = useAppStore(a => a.structuredOutputs)
+  const selectedAgentRequest = useMemo(
+    () => buildSelectedAgentRequest(selectedAgentNames, agents, remoteAgentModels),
+    [selectedAgentNames, agents, remoteAgentModels],
+  );
 
   const addAttachmentWithTranscription = async (file: File) => {
 
@@ -297,30 +307,34 @@ export function VercelChatInner({
       .filter((m: any) => !!m);
   }, []);
   const baseBody = useMemo(() => ({
-    model: model ?? "openai/gpt-5.2",
+    ...(chatMode === "chat" ? { model: model ?? "openai/gpt-5.2" } : {}),
     tools,
-    agents: location.state?.agents,
-    workflowType: location.state?.workflowType,
+    ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),
+    ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
+    ...(chatMode === "agent" ? { workflowType } : {}),
     maxOutputTokens,
     toolChoice,
     maxToolCalls,
     providerMetadata,
-    response_format: location.state?.responseFormat,
+    response_format: location.state?.responseFormat ?? structuredOutputs,
     workflowMetadata: {
       groupchat: { maximumIterationCount },
       handoff: { handoffs },
     },
     temperature: location.state?.temperature ?? temperature,
   }), [
+    chatMode,
     model,
     tools,
+    selectedAgentRequest.localAgents,
+    selectedAgentRequest.models,
+    workflowType,
     maxOutputTokens,
     toolChoice,
     maxToolCalls,
-    location.state?.agents,
-    location.state?.workflowType,
     location.state?.responseFormat,
     providerMetadata,
+    structuredOutputs,
     maximumIterationCount,
     handoffs,
     temperature,
@@ -481,15 +495,16 @@ export function VercelChatInner({
     getConversation: get,
     conversationName,
     body: {
-      model: model ?? "openai/gpt-5.2",
+      ...(chatMode === "chat" ? { model: model ?? "openai/gpt-5.2" } : {}),
       tools,
       maxOutputTokens,
       toolChoice,
       maxToolCalls,
-      agents: location.state?.agents,
-      workflowType: location.state?.workflowType,
+      ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),
+      ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
+      ...(chatMode === "agent" ? { workflowType } : {}),
       providerMetadata,
-      response_format: location.state?.responseFormat,
+      response_format: location.state?.responseFormat ?? structuredOutputs,
       workflowMetadata: {
         groupchat: { maximumIterationCount },
         handoff: { handoffs },

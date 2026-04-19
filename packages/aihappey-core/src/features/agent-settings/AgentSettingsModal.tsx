@@ -5,6 +5,7 @@ import { useAppStore } from "aihappey-state";
 import { IconToken } from "aihappey-types";
 import { Handoff, HandoffsEditor } from "../agents/HandoffsEditor";
 import { AgentWithMcpServers, useAgents } from "../agents/useAgentMcpServers";
+import { resolveSelectedAgentEntries } from "../agents/agentSelection";
 
 export interface AgentSettingsModalProps {
   open: boolean;
@@ -25,9 +26,16 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
   const updateAgentPolicy = useAppStore(a => a.updateAgentPolicy)
   const updateAgentClientCapabilities = useAppStore(a => a.updateAgentClientCapabilities)
   const enrichedAgents = useAgents()
-  const selectedAgents = selectedAgentNames
-    .filter(a => enrichedAgents.some(z => z.agent.name == a))
-    .map(a => enrichedAgents.find(z => z.agent.name == a)!)
+  const agents = useAppStore(a => a.agents)
+  const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
+  const selectedLocalAgents = resolveSelectedAgentEntries(
+    selectedAgentNames,
+    agents,
+    remoteAgentModels,
+  )
+    .filter((entry) => entry.kind === "local")
+    .map((entry) => enrichedAgents.find((item) => item.agent.name === entry.backendId))
+    .filter((entry): entry is AgentWithMcpServers => !!entry)
 
   return (
     <theme.Modal
@@ -49,7 +57,7 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
         <theme.Tab eventKey="general" title={t("general")}>
           <GeneralTab />
         </theme.Tab>
-        {selectedAgents.map(a => {
+        {selectedLocalAgents.map(a => {
           return <theme.Tab key={a.agent.name}
             eventKey={a.agent.name}
             title={a.agent.name}>
@@ -158,9 +166,12 @@ const GeneralTab = ({
   const handoffs = useAppStore((s) => s.handoffs);
   const setHandoffs = useAppStore((s) => s.setHandoffs);
   const agents = useAppStore(a => a.agents)
-  const selectedAgents = selectedAgentNames
-    .filter(a => agents.some(z => z.name == a))
-    .map(a => agents.find(z => z.name == a)!)
+  const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
+  const selectedAgents = resolveSelectedAgentEntries(
+    selectedAgentNames,
+    agents,
+    remoteAgentModels,
+  )
 
   const workflowOptions = [
     { key: "concurrent", icon: "concurrent" },
@@ -207,43 +218,43 @@ const GeneralTab = ({
 
                 {selectedAgents.map((agent: any, index: number) => (
                   <div
-                    key={agent.id}
+                    key={agent.key}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between"
-                    }}
-                  >
-                    <div>{index + 1}. {agent.name}</div>
-                    <div style={{ display: "flex" }}>
-                      <theme.Button
-                        icon="up"
+                      }}
+                    >
+                      <div>{index + 1}. {agent.label}</div>
+                      <div style={{ display: "flex" }}>
+                        <theme.Button
+                          icon="up"
                         size="small"
                         variant="transparant"
                         disabled={index === 0}
-                        onClick={() => {
-                          const copy = [...selectedAgents];
-                          const tmp = copy[index - 1];
-                          copy[index - 1] = copy[index];
-                          copy[index] = tmp;
-                          setSelectedAgents(copy.map(a => a.name));
-                        }}
-                      />
+                          onClick={() => {
+                            const copy = [...selectedAgents];
+                            const tmp = copy[index - 1];
+                            copy[index - 1] = copy[index];
+                            copy[index] = tmp;
+                            setSelectedAgents(copy.map(a => a.key));
+                          }}
+                        />
 
                       <theme.Button
                         icon="down"
                         size="small"
                         variant="transparant"
                         disabled={index === selectedAgents.length - 1}
-                        onClick={() => {
-                          const copy = [...selectedAgents];
-                          const tmp = copy[index + 1];
-                          copy[index + 1] = copy[index];
-                          copy[index] = tmp;
-                          setSelectedAgents(copy.map(a => a.name));
-                        }}
-                      />
-                    </div>
+                          onClick={() => {
+                            const copy = [...selectedAgents];
+                            const tmp = copy[index + 1];
+                            copy[index + 1] = copy[index];
+                            copy[index] = tmp;
+                            setSelectedAgents(copy.map(a => a.key));
+                          }}
+                        />
+                      </div>
                   </div>
                 ))}
 
@@ -266,7 +277,7 @@ const GeneralTab = ({
               <HandoffsEditor
                 theme={theme}
                 t={t}
-                agents={selectedAgents.map(a => ({ id: a.name, name: a.name }))}
+                agents={selectedAgents.map(a => ({ id: a.backendId, name: a.label }))}
                 handoffs={handoffs as Handoff[]}
                 setHandoffs={setHandoffs}
               />

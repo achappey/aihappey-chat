@@ -26,6 +26,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const chatMode = useAppStore((a) => a.chatMode);
   const { t } = useTranslation()
   const allAgents = useAppStore((a) => a.agents);
+  const remoteAgentModels = useAppStore((a) => a.remoteAgentModels);
   const switchChatMode = useAppStore((a) => a.switchChatMode);
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
   const chatWithImageModels = useAppStore((a) => a.chatWithImageModels);
@@ -74,7 +75,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           checked={chatMode == "agent"}
           onClick={() => toggleMode("agent")} />
         {chatMode == "agent" && <AgentSelect
-          agents={allAgents ?? []}
+          localAgents={allAgents ?? []}
+          remoteAgentModels={remoteAgentModels ?? []}
           values={agentValues ?? []}
           onChange={onAgentChange}
         />}
