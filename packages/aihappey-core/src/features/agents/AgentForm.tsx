@@ -1,10 +1,10 @@
-import { AnthropicChatConfigForm, BrowserUseChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BrowserUseChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { useAppStore } from "aihappey-state";
 import { ModelSelect } from "../models/ModelSelect";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useAgent } from "./useAgentMcpServers";
@@ -14,22 +14,39 @@ import {
     createOpenAIShellSkillResolver,
 } from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
+import { buildSkillMatchKey, buildStoredSkillMatchKey, createInlineAgentSkill, getInlineAgentSkillPayload, readInlineAgentSkillMetadata } from "./agentSkills";
 
 export interface AgentFormProps {
     agent: Agent;
     onChange: (agent: Agent) => void;
     isEditing: boolean;
+    onBusyChange?: (busy: boolean) => void;
 }
 
 export const AgentForm = ({
     agent,
     isEditing,
-    onChange }: AgentFormProps) => {
-    const { Input, TextArea, Tabs, Tab, Button } = useTheme();
+    onChange,
+    onBusyChange }: AgentFormProps) => {
+    const { Input, TextArea, Tabs, Tab, Button, Text } = useTheme();
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState("general");
+    const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
+    const [skillSyncPending, setSkillSyncPending] = useState(false);
+    const [hasHydratedSkillSelection, setHasHydratedSkillSelection] = useState(false);
+    const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
+    const [selectedSkillPayloads, setSelectedSkillPayloads] = useState<Record<string, string>>({});
+    const [initialPersistedSkills] = useState(() => agent.skills ?? []);
     const models = useAppStore((s) => s.models);
     const skills = useSkills();
+    const skillItems = useMemo(
+        () => skills.items.map((item) => ({
+            id: item.skillId,
+            label: `${item.name} (v${item.version ?? item.downloadedVersion ?? item.latestVersion})`,
+            // description: item.description,
+        })),
+        [skills.items]
+    );
     const openAISkillOptions = useMemo(
         () => buildOpenAISkillOptions(skills.items ?? []),
         [skills.items]
@@ -41,6 +58,86 @@ export const AgentForm = ({
     // flatten all registry entries once
     const [showCatalog, setShowCatalog] = useState(false);
     const enrichedAgent = useAgent(agent)
+
+    useEffect(() => {
+        onBusyChange?.(skillSyncPending);
+    }, [onBusyChange, skillSyncPending]);
+
+    useEffect(() => {
+        if (hasHydratedSkillSelection) return;
+
+        let cancelled = false;
+
+        const resolveSelectedSkillIds = async () => {
+            const persistedSkills = initialPersistedSkills.filter((skill) => getInlineAgentSkillPayload(skill));
+            if (persistedSkills.length === 0) {
+                if (!cancelled) {
+                    setSelectedSkillIds([]);
+                    setSelectedSkillPayloads({});
+                    setHasHydratedSkillSelection(true);
+                }
+                return;
+            }
+
+            const nextSelectedSkillIds: string[] = [];
+            const nextSelectedSkillPayloads: Record<string, string> = {};
+            const downloadedCatalogItems = skills.items.filter((entry) => entry.isDownloaded);
+            const downloadedSkills = await Promise.all(
+                downloadedCatalogItems.map(async (item) => ({
+                    skillId: item.skillId,
+                    storedSkill: await skills.read(item.skillId),
+                }))
+            );
+            const skillIdsByMatchKey = new Map<string, string[]>();
+
+            for (const downloaded of downloadedSkills) {
+                if (!downloaded.storedSkill) continue;
+
+                const key = buildStoredSkillMatchKey(downloaded.storedSkill);
+                const current = skillIdsByMatchKey.get(key) ?? [];
+                skillIdsByMatchKey.set(key, [...current, downloaded.skillId]);
+            }
+
+            for (const skill of persistedSkills) {
+                try {
+                    const metadata = await readInlineAgentSkillMetadata(skill);
+                    const directSkillId = String(metadata?.skillId ?? "").trim();
+                    const directMatch = skills.items.some((item) => item.skillId === directSkillId)
+                        ? directSkillId
+                        : "";
+                    const fallbackMatchKey = buildSkillMatchKey(metadata);
+                    const fallbackSkillIds = skillIdsByMatchKey.get(fallbackMatchKey) ?? [];
+                    const fallbackSkillId = fallbackSkillIds.shift() ?? "";
+
+                    if (fallbackSkillIds.length > 0) {
+                        skillIdsByMatchKey.set(fallbackMatchKey, fallbackSkillIds);
+                    } else {
+                        skillIdsByMatchKey.delete(fallbackMatchKey);
+                    }
+
+                    const skillId = directMatch || fallbackSkillId;
+                    if (!skillId) continue;
+
+                    nextSelectedSkillIds.push(skillId);
+                    nextSelectedSkillPayloads[skillId] = getInlineAgentSkillPayload(skill);
+                } catch {
+                    continue;
+                }
+            }
+
+            if (cancelled) return;
+            setSelectedSkillIds(nextSelectedSkillIds);
+            setSelectedSkillPayloads(nextSelectedSkillPayloads);
+            setHasHydratedSkillSelection(true);
+        };
+
+        void resolveSelectedSkillIds();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [hasHydratedSkillSelection, initialPersistedSkills, skills.items, skills.read]);
+
     const toggle = (key: string) => {
         const servers = agent.mcpServers ?? {}
 
@@ -105,6 +202,100 @@ export const AgentForm = ({
             ...agent,
             mcpServers: rest
         })
+    }
+
+    const handleSkillSelectionChange = async (next: string[]) => {
+        setHasHydratedSkillSelection(true);
+        setSkillFeedback(null);
+        setSelectedSkillIds(next);
+        setSkillSyncPending(true);
+
+        const removed = selectedSkillIds.filter((skillId) => !next.includes(skillId));
+        const removedPayloadCounts = new Map<string, number>();
+        for (const skillId of removed) {
+            const payload = selectedSkillPayloads[skillId];
+            if (!payload) continue;
+            removedPayloadCounts.set(payload, (removedPayloadCounts.get(payload) ?? 0) + 1);
+        }
+
+        const retainedSkills = (agent.skills ?? []).filter((skill) => {
+            const payload = getInlineAgentSkillPayload(skill);
+            const remaining = removedPayloadCounts.get(payload) ?? 0;
+            if (remaining <= 0) return true;
+
+            if (remaining === 1) {
+                removedPayloadCounts.delete(payload);
+            } else {
+                removedPayloadCounts.set(payload, remaining - 1);
+            }
+
+            return false;
+        });
+
+        const added = next.filter((skillId) => !selectedSkillIds.includes(skillId));
+        if (added.length === 0) {
+            setSelectedSkillPayloads((current) => Object.fromEntries(
+                Object.entries(current).filter(([skillId]) => next.includes(skillId))
+            ));
+            onChange({
+                ...agent,
+                skills: retainedSkills.length > 0 ? retainedSkills : undefined,
+            });
+            setSkillSyncPending(false);
+            return;
+        }
+
+        try {
+            const results = await Promise.allSettled(
+                added.map(async (skillId) => {
+                    const storedSkill = await skills.ensureDownloaded(skillId);
+                    if (!storedSkill) {
+                        throw new Error(`Could not download skill ${skillId}.`);
+                    }
+
+                    const archive = await skills.exportArchive(storedSkill.skillId);
+                    if (!archive) {
+                        throw new Error(`Could not load the skill archive for ${storedSkill.name}.`);
+                    }
+
+                    return {
+                        skillId,
+                        skill: await createInlineAgentSkill(storedSkill, archive.blob),
+                    };
+                })
+            );
+
+            const nextSkills = [...retainedSkills];
+            const nextPayloads = Object.fromEntries(
+                Object.entries(selectedSkillPayloads).filter(([skillId]) => next.includes(skillId))
+            );
+
+            for (const result of results) {
+                if (result.status !== "fulfilled") continue;
+
+                nextSkills.push(result.value.skill);
+                nextPayloads[result.value.skillId] = getInlineAgentSkillPayload(result.value.skill);
+            }
+
+            setSelectedSkillPayloads(nextPayloads);
+
+            onChange({
+                ...agent,
+                skills: nextSkills.length > 0 ? nextSkills : undefined,
+            });
+
+            const failed = results.filter((result) => result.status === "rejected").length;
+            if (failed > 0) {
+                setSkillFeedback(
+                    failed === 1
+                        ? (t("skillsPage.remoteDownloadFailed") ?? "A remote skill could not be downloaded right now. It will retry on first use.")
+                        : (t("skillsPage.remoteDownloadFailedMany", { count: failed }) ??
+                            `${failed} remote skills could not be downloaded right now. They will retry on first use.`)
+                );
+            }
+        } finally {
+            setSkillSyncPending(false);
+        }
     }
 
     const providerKey = agent?.model?.id?.split("/")?.[0];
@@ -261,6 +452,23 @@ export const AgentForm = ({
                     </Button>
 
                 </Tab>}
+
+                <Tab eventKey="skills" title={t("skills") ?? "Skills"}>
+                    {activeTab === "skills" ? (
+                        <>
+                            <LocalToolsSettingsForm
+                                formTitle={t("skills") ?? "Skills"}
+                                value={selectedSkillIds}
+                                onChange={(next) => {
+                                    void handleSkillSelectionChange(next);
+                                }}
+                                columns={2}
+                                items={skillItems}
+                            />
+                            {skillFeedback ? <Text>{skillFeedback}</Text> : null}
+                        </>
+                    ) : null}
+                </Tab>
 
                 {/* ---------------- Provider Settings ---------------- */}
                 <Tab eventKey="providers"

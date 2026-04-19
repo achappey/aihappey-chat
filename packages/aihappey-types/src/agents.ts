@@ -8,7 +8,23 @@ export type Agent = {
     outputSchema?: OutputSchema;
     mcpServers?: Record<string, McpServer>
     mcpClient?: McpClient
+    skills?: Skill[]
 };
+
+
+export type Skill = {
+    type: string;
+    name: string;
+    description: string
+    source: SkillSource
+};
+
+export type SkillSource = {
+    type: string;
+    media_type: string;
+    data: string
+};
+
 
 export type OutputSchema = {
     properties?: Record<string, Property>;

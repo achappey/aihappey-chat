@@ -77,24 +77,16 @@ export async function exportSkillToArchive(skill: StoredSkill): Promise<SkillArc
     throw new Error("Could not create the skill archive root folder.");
   }
 
-  let hasSkillMarkdown = false;
-
   for (const file of skill.files) {
     const relativePath = normalizeArchivePath(file.path);
     if (!isSafeArchivePath(relativePath)) {
       continue;
     }
 
-    if (relativePath === "SKILL.md") {
-      hasSkillMarkdown = true;
-    }
-
     rootFolder.file(relativePath, file.data);
   }
 
-  if (!hasSkillMarkdown) {
-    rootFolder.file("SKILL.md", buildSkillMarkdown(skill));
-  }
+  rootFolder.file("SKILL.md", buildSkillMarkdown(skill));
 
   const blob = await zip.generateAsync({
     type: "blob",
