@@ -168,7 +168,7 @@ export function VercelChatInner({
     );
   }, [customHeaders]);
 
-  const authFetchCustomHeaders = chatMode === "agent" ? undefined : apiKeyHeaders;
+  const authFetchCustomHeaders = chatMode === "agent" ? customHeaders : apiKeyHeaders;
 
   const authFetch = useAuthFetch({
     chatMode,
