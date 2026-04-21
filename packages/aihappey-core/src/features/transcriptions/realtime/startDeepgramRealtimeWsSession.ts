@@ -276,7 +276,9 @@ export async function startDeepgramRealtimeWsSession(args: {
 
             const pcm16 = pcm16leFromFloat32(resampled);
             // Deepgram expects raw binary audio frames (not base64 JSON).
-            ws.send(pcm16);
+            const bytes = new Uint8Array(new ArrayBuffer(pcm16.byteLength));
+            bytes.set(pcm16);
+            ws.send(bytes);
         } catch (e) {
             events?.onError?.(`Failed processing Deepgram audio chunk: ${describeError(e)}`, e);
         }

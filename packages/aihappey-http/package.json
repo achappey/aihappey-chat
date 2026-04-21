@@ -13,7 +13,7 @@
     "aihappey-types": "*"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "zod": "^4.0.0"
   }
 }

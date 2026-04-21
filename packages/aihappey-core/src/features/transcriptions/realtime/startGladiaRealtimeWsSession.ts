@@ -182,7 +182,9 @@ export async function startGladiaRealtimeWsSession(args: {
       const resampled = resampleLinear(input, audioCtx.sampleRate, targetSampleRate);
       const pcm16 = pcm16leFromFloat32(resampled);
       // Gladia accepts binary audio chunks over the socket (wav/pcm).
-      ws.send(pcm16);
+      const bytes = new Uint8Array(new ArrayBuffer(pcm16.byteLength));
+      bytes.set(pcm16);
+      ws.send(bytes);
     } catch (e) {
       events?.onError?.(`Failed processing Gladia audio chunk: ${describeError(e)}`, e);
     }

@@ -14,8 +14,8 @@
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.28.0",
     "rimraf": "^6.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }

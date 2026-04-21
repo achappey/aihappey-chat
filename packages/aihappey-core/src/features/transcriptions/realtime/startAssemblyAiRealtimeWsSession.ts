@@ -250,7 +250,9 @@ export async function startAssemblyAiRealtimeWsSession(args: {
       const resampled = resampleLinear(input, audioCtx.sampleRate, connect.sampleRate);
       const pcm16 = pcm16leFromFloat32(resampled);
       // AssemblyAI expects binary audio data chunks (bytes).
-      ws.send(pcm16);
+      const bytes = new Uint8Array(new ArrayBuffer(pcm16.byteLength));
+      bytes.set(pcm16);
+      ws.send(bytes);
     } catch (e) {
       events?.onError?.(`Failed processing AssemblyAI audio chunk: ${describeError(e)}`, e);
     }
