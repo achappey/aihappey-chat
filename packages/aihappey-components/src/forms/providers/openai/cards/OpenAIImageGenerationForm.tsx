@@ -27,6 +27,7 @@ export const OpenAIImageGenerationForm = ({
 
   const modelOptions = [
     { value: "chatgpt-image-latest", label: "chatgpt-image-latest" },
+    { value: "gpt-image-2", label: "gpt-image-2" },
     { value: "gpt-image-1.5", label: "gpt-image-1.5" },
     { value: "gpt-image-1", label: "gpt-image-1" },
     { value: "gpt-image-1-mini", label: "gpt-image-1-mini" },
@@ -103,6 +104,8 @@ export const OpenAIImageGenerationForm = ({
                 image_generation: {
                   ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
                   model: val,
+                  input_fidelity: val == "gpt-image-2" ? undefined :
+                    config.image_generation?.input_fidelity
                 },
               })
             }
