@@ -19,12 +19,16 @@ import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
 
+function isPlainRecord(value: unknown): value is Record<string, any> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export const withPersist = (
   creator: StateCreator<RootState, PersistMutators, [], RootState>
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 12,
+    version: 13,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       agents: s.agents,
@@ -48,7 +52,6 @@ export const withPersist = (
       extractExif: s.extractExif,
       showMessageTemperature: s.showMessageTemperature,
       showMessageTokens: s.showMessageTokens,
-      providerMetadata: s.providerMetadata,
       providerImageMetadata: s.providerImageMetadata,
       providerVideoMetadata: (s as any).providerVideoMetadata,
       providerSpeechMetadata: s.providerSpeechMetadata,
@@ -92,22 +95,23 @@ export const withPersist = (
       logLevel: s.logLevel,
     }),
     migrate: (persistedState, version) => {
-      const safeState = typeof persistedState === "object"
-        && persistedState !== null ? persistedState as Record<string, any> : {};
+      let safeState = isPlainRecord(persistedState)
+        ? { ...(persistedState as Record<string, any>) }
+        : {};
 
       // On version bump, reset endpoints, servers, and selected
       if (version < 5) {
-        return {
+        safeState = {
           ...safeState,
 
           endpoints: [],
           servers: {},
           selected: [],
-        } as any;
+        };
       }
 
       if (version < 12) {
-        return {
+        safeState = {
           ...safeState,
           enabledSkillIds: Array.isArray(safeState.enabledSkillIds)
             ? safeState.enabledSkillIds.filter(Boolean)
@@ -115,7 +119,21 @@ export const withPersist = (
           __legacyEnabledSkillNames: Array.isArray(safeState.enabledSkillNames)
             ? safeState.enabledSkillNames.filter(Boolean)
             : [],
-        } as any;
+        };
+      }
+
+      if (version < 13) {
+        const {
+          providerMetadata: legacyProviderMetadata,
+          ...restState
+        } = safeState;
+
+        safeState = {
+          ...restState,
+          __legacyProviderMetadata: isPlainRecord(legacyProviderMetadata)
+            ? legacyProviderMetadata
+            : undefined,
+        };
       }
 
       return {

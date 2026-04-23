@@ -22,6 +22,7 @@
     "aihappey-conversations": "*",
     "aihappey-files": "*",
     "aihappey-http": "*",
+    "aihappey-provider-metadata": "*",
     "aihappey-images": "*",
     "aihappey-json-render-apps": "*",
     "aihappey-json-render-catalog": "*",

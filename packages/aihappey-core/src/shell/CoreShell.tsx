@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Outlet, useSearchParams } from "react-router";
 import { McpConnectionsProvider } from "../runtime/mcp/McpConnectionsProvider";
 import { ChatAppConnector } from "./connectors/ChatAppConnector";
 import { I18nProvider } from "aihappey-i18n";
 import { ConversationsProvider } from "aihappey-conversations";
-import { useEffect } from "react";
-import { useRemoteStorageConnected, useAppStore } from "aihappey-state";
+import {
+  defaultProviderMetadata,
+  store as appStore,
+  useRemoteStorageConnected,
+  useAppStore,
+} from "aihappey-state";
 import { useAccessToken } from "aihappey-auth/src/msal/useAccessToken";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -29,6 +33,10 @@ import { JsonRenderCatalogProvider } from "aihappey-json-render-catalog";
 import { JsonRenderAppsProvider } from "aihappey-json-render-apps";
 import { VideosProvider } from "aihappey-videos";
 import { SkillsProvider } from "aihappey-skills";
+import {
+  chatProviderMetadataStore,
+  resolveProviderMetadataHydration,
+} from "aihappey-provider-metadata";
 
 type Props = {
   chatConfig: ChatConfig;
@@ -50,11 +58,63 @@ export const CoreShell: React.FC<Props> = ({
   const [, , , refreshAgentToken] = useAccessToken(agentScopes ?? []);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
+  const providerMetadata = useAppStore((s) => s.providerMetadata);
+  const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
+  const providerMetadataHydratedRef = useRef(false);
+  const skipNextProviderMetadataPersistRef = useRef(false);
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
   useDefaultProviders(chatConfig?.defaultProvidersByType)
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydrateProviderMetadata = async () => {
+      const indexedDbProviderMetadata = await chatProviderMetadataStore.list();
+      const legacyProviderMetadata = (appStore.getState() as any)
+        .__legacyProviderMetadata as Record<string, any> | undefined;
+
+      const { record: hydratedProviderMetadata, source } =
+        resolveProviderMetadataHydration({
+          defaults: defaultProviderMetadata,
+          indexedDb: indexedDbProviderMetadata,
+          legacy: legacyProviderMetadata,
+        });
+
+      const shouldWriteHydratedRecord =
+        source !== "indexeddb"
+        || JSON.stringify(indexedDbProviderMetadata) !== JSON.stringify(hydratedProviderMetadata);
+
+      if (shouldWriteHydratedRecord) {
+        await chatProviderMetadataStore.replaceAll(hydratedProviderMetadata);
+      }
+
+      if (cancelled) return;
+
+      providerMetadataHydratedRef.current = true;
+      skipNextProviderMetadataPersistRef.current = true;
+      setProviderMetadata(hydratedProviderMetadata);
+    };
+
+    void hydrateProviderMetadata();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setProviderMetadata]);
+
+  useEffect(() => {
+    if (!providerMetadataHydratedRef.current) return;
+
+    if (skipNextProviderMetadataPersistRef.current) {
+      skipNextProviderMetadataPersistRef.current = false;
+      return;
+    }
+
+    void chatProviderMetadataStore.replaceAll(providerMetadata ?? {});
+  }, [providerMetadata]);
 
   useEffect(() => {
     setSidebarOpen(isDesktop);
