@@ -286,7 +286,6 @@ import { voiceai } from "./catalog/voiceai";
 import { ionrouter } from "./catalog/ionrouter";
 import { freedomgpt } from "./catalog/freedomgpt";
 import { pixia } from "./catalog/pixia";
-import { aisieure } from "./catalog/aisieure";
 import { kirha } from "./catalog/kirha";
 import { sufy } from "./catalog/sufy";
 import { llmhubifs } from "./catalog/llmhubifs";
@@ -477,7 +476,6 @@ import { ninjachat } from "./catalog/ninjachat";
 import { mimicxai } from "./catalog/mimicxai";
 import { sawtia } from "./catalog/sawtia";
 import { runtimo } from "./catalog/runtimo";
-import { huboteng } from "./catalog/huboteng";
 import { codzen } from "./catalog/codzen";
 import { opuscode } from "./catalog/opuscode";
 import { concentrate } from "./catalog/concentrate";
@@ -539,7 +537,6 @@ export const PROVIDERS: Record<string, Provider> = {
   paul,
   sawtia,
   mimicxai,
-  huboteng,
   runtimo,
   wiserouter,
   uncloseai,
@@ -719,7 +716,6 @@ export const PROVIDERS: Record<string, Provider> = {
   llmwise,
   hanzo,
   glama,
-  aisieure,
   ocrskill,
   writer,
   routstr,
