@@ -53,6 +53,26 @@
     "agentmail": "Enable AgentMail",
     "cacheScript": "Cache script"
   },
+  "microsoft": {
+    "locationTitle": "Location hint",
+    "timeZone": "Time zone (IANA)",
+    "countryOrRegion": "Country or region",
+    "countryOrRegionConfidence": "Country or region confidence",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "contextualResourcesTitle": "Contextual resources",
+    "webContext": "Web search grounding",
+    "webContextUnset": "Not set",
+    "webContextEnabled": "Enabled",
+    "webContextDisabled": "Disabled",
+    "filesDescription": "Add OneDrive or SharePoint file URLs to send as contextualResources.files[].uri.",
+    "fileUri": "File {{index}} URI",
+    "addFile": "Add file URI",
+    "additionalContextTitle": "Additional context",
+    "additionalContextDescription": "Add text snippets that will be sent as additionalContext[].text.",
+    "additionalContextEntry": "Context {{index}}",
+    "addAdditionalContext": "Add context"
+  },
   "pollinations": {
     "enhance": "Enhance",
     "enhanceHint": "Let AI improve your prompt for better results",

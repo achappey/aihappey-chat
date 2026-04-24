@@ -501,6 +501,7 @@ import { igpt } from "./catalog/igpt";
 import { groovedev } from "./catalog/groovedev";
 import { botverse } from "./catalog/botverse";
 import { vibekit } from "./catalog/vibekit";
+import { microsoft } from "./catalog/microsoft";
 
 /**
  * UI-facing provider catalog.
@@ -511,6 +512,7 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
   api1sbs,
+  microsoft,
   tapas,
   oneinfer,
   igpt,

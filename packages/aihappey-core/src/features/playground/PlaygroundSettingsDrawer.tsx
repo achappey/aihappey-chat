@@ -9,6 +9,7 @@ import {
   GroqChatConfigForm,
   JinaChatConfigForm,
   MessagesEndpointConfigForm,
+  MicrosoftChatConfigForm,
   MistralChatConfigForm,
   OpenAIChatConfigForm,
   PerplexityChatConfigForm,
@@ -139,6 +140,8 @@ export const PlaygroundSettingsDrawer = ({
         return <JinaChatConfigForm config={providerMetadata.jina ?? {}} updateConfig={updateProviderConfig} />;
       case "mistral":
         return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
+      case "microsoft":
+        return <MicrosoftChatConfigForm config={providerMetadata.microsoft ?? {}} updateConfig={updateProviderConfig} />;
       case "openai":
         return (
           <OpenAIChatConfigForm

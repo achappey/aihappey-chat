@@ -12,6 +12,7 @@ import {
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
   LocalToolsSettingsForm,
+  MicrosoftChatConfigForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
   PerplexityChatConfigForm,
   PollinationsChatConfigForm,
@@ -171,6 +172,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       google: (google: any) => updateProviderConfig("google", google),
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
+      microsoft: (microsoft: any) => updateProviderConfig("microsoft", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
       openai: (openai: any) => updateProviderConfig("openai", openai),
       pollinations: (pollinations: any) => updateProviderConfig("pollinations", pollinations),
@@ -432,6 +434,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <MistralChatConfigForm
                 config={draft.providerMetadata.mistral ?? {}}
                 updateConfig={providerConfigUpdaters.mistral}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Microsoft") &&
+          <theme.Tab eventKey="microsoft" title="Microsoft">
+            {activeTab === "microsoft" ? (
+              <MicrosoftChatConfigForm
+                config={draft.providerMetadata.microsoft ?? {}}
+                updateConfig={providerConfigUpdaters.microsoft}
               />
             ) : null}
           </theme.Tab>

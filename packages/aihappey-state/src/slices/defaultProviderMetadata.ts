@@ -141,6 +141,11 @@ export const defaultProviderMetadata = {
     },
     "parallel_tool_calls": true
   },
+  "microsoft": {
+    "locationHint": {
+      "timeZone": "Europe/Amsterdam"
+    }
+  },
   "perplexity": {
     "tools":
       [
