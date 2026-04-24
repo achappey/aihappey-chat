@@ -1,6 +1,8 @@
 import { mcpRuntime } from "aihappey-state";
 
-export const readResource = async (serverName: string, uri: string) => {
+export const readResource = async (serverName: string, uri: string,
+    cursor: string | undefined = undefined,
+    limit: number | undefined = 100) => {
     const client = mcpRuntime.get(serverName);
 
     if (!client) {
@@ -8,6 +10,10 @@ export const readResource = async (serverName: string, uri: string) => {
     }
 
     return await client.readResource({
-        uri
+        uri,
+        _meta: {
+            cursor: cursor,
+            limit: limit
+        }
     });
 };

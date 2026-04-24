@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
 
@@ -47,12 +47,12 @@ export const MicrosoftChatConfigForm = ({
 
   const locationHint = config?.locationHint ?? {};
   const contextualResources = config?.contextualResources ?? {};
-  const files = Array.isArray(contextualResources?.files)
-    ? contextualResources.files
-    : [];
-  const additionalContext = Array.isArray(config?.additionalContext)
-    ? config.additionalContext
-    : [];
+  const [fileDrafts, setFileDrafts] = useState<MicrosoftFileResource[]>(() =>
+    Array.isArray(contextualResources?.files) ? contextualResources.files : []
+  );
+  const [additionalContextDrafts, setAdditionalContextDrafts] = useState<
+    MicrosoftAdditionalContext[]
+  >(() => (Array.isArray(config?.additionalContext) ? config.additionalContext : []));
 
   const webEnabledValue =
     typeof contextualResources?.webContext?.isWebEnabled === "boolean"
@@ -127,7 +127,8 @@ export const MicrosoftChatConfigForm = ({
       },
     });
 
-  const updateFiles = (nextFiles: MicrosoftFileResource[]) =>
+  const updateFiles = (nextFiles: MicrosoftFileResource[]) => {
+    setFileDrafts(nextFiles);
     submitConfig({
       ...config,
       contextualResources: {
@@ -135,14 +136,17 @@ export const MicrosoftChatConfigForm = ({
         files: nextFiles,
       },
     });
+  };
 
   const updateAdditionalContext = (
     nextAdditionalContext: MicrosoftAdditionalContext[]
-  ) =>
+  ) => {
+    setAdditionalContextDrafts(nextAdditionalContext);
     submitConfig({
       ...config,
       additionalContext: nextAdditionalContext,
     });
+  };
 
   const webContextOptions = [
     { value: "unset", label: t("providers:microsoft.webContextUnset") },
@@ -239,7 +243,7 @@ export const MicrosoftChatConfigForm = ({
               {t("providers:microsoft.filesDescription")}
             </div>
 
-            {files.map((file: MicrosoftFileResource, index: number) => (
+            {fileDrafts.map((file: MicrosoftFileResource, index: number) => (
               <div
                 key={`microsoft-file-${index}`}
                 style={{ display: "flex", gap: 8, alignItems: "flex-end" }}
@@ -250,7 +254,7 @@ export const MicrosoftChatConfigForm = ({
                   value={file?.uri ?? ""}
                   placeholder="https://contoso.sharepoint.com/sites/Engineering/Shared%20Documents/Specs/Business-Model.docx"
                   onChange={(e: any) => {
-                    const nextFiles = [...files];
+                    const nextFiles = [...fileDrafts];
                     nextFiles[index] = { uri: e.target.value };
                     updateFiles(nextFiles);
                   }}
@@ -261,7 +265,9 @@ export const MicrosoftChatConfigForm = ({
                   size="small"
                   title={t("delete")}
                   onClick={() =>
-                    updateFiles(files.filter((_: unknown, i: number) => i !== index))
+                    updateFiles(
+                      fileDrafts.filter((_: unknown, i: number) => i !== index)
+                    )
                   }
                 />
               </div>
@@ -273,7 +279,7 @@ export const MicrosoftChatConfigForm = ({
                 size="small"
                 variant="subtle"
                 title={t("providers:microsoft.addFile")}
-                onClick={() => updateFiles([...files, { uri: "" }])}
+                onClick={() => setFileDrafts([...fileDrafts, { uri: "" }])}
               >
                 {t("providers:microsoft.addFile")}
               </theme.Button>
@@ -291,7 +297,7 @@ export const MicrosoftChatConfigForm = ({
             {t("providers:microsoft.additionalContextDescription")}
           </div>
 
-          {additionalContext.map(
+          {additionalContextDrafts.map(
             (entry: MicrosoftAdditionalContext, index: number) => (
               <div
                 key={`microsoft-additional-context-${index}`}
@@ -305,7 +311,7 @@ export const MicrosoftChatConfigForm = ({
                   value={entry?.text ?? ""}
                   placeholder="John Doe's birthday is on January 1st."
                   onChange={(value: string) => {
-                    const nextAdditionalContext = [...additionalContext];
+                    const nextAdditionalContext = [...additionalContextDrafts];
                     nextAdditionalContext[index] = { text: value };
                     updateAdditionalContext(nextAdditionalContext);
                   }}
@@ -318,7 +324,7 @@ export const MicrosoftChatConfigForm = ({
                     title={t("delete")}
                     onClick={() =>
                       updateAdditionalContext(
-                        additionalContext.filter(
+                        additionalContextDrafts.filter(
                           (_: unknown, i: number) => i !== index
                         )
                       )
@@ -338,7 +344,10 @@ export const MicrosoftChatConfigForm = ({
               variant="subtle"
               title={t("providers:microsoft.addAdditionalContext")}
               onClick={() =>
-                updateAdditionalContext([...additionalContext, { text: "" }])
+                setAdditionalContextDrafts([
+                  ...additionalContextDrafts,
+                  { text: "" },
+                ])
               }
             >
               {t("providers:microsoft.addAdditionalContext")}

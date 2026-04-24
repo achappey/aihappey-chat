@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { readResource as defaultReadResource } from "../../../runtime/mcp/readResource";
-import { CallToolResult, TextResourceContentsSchema, type Tool } from "@modelcontextprotocol/sdk/types";
+import { CallToolResult, type Tool } from "@modelcontextprotocol/sdk/types";
 import { ToolPlugin } from "./usePlugins";
 
 type ToolResult = {
@@ -11,7 +11,7 @@ type ToolResult = {
 
 type ReadResourceToolCall = {
   toolName: "read_resource";
-  input: { serverUrl: string; uri: string };
+  input: { serverUrl: string; uri: string, cursor?: string, limit?: number };
 };
 
 function isValidAbsoluteUri(uri: string): boolean {
@@ -36,7 +36,7 @@ export function useReadResourceToolCall(opts: {
         .filter(k => mcpServers[k]?.config?.disabled !== true)
         .map(k => mcpServers[k]?.config?.url);
 
-      const { serverUrl, uri } = toolCall.input ?? {};
+      const { serverUrl, uri, cursor, limit } = toolCall.input ?? {};
 
       if (!serverUrl) throw new Error("Missing serverUrl.");
       if (!connectedUrls.includes(serverUrl)) {
@@ -64,7 +64,7 @@ export function useReadResourceToolCall(opts: {
 
       if (!serverName) throw new Error("Server not found");
 
-      const resource = await readResource(serverName, uri);
+      const resource = await readResource(serverName, uri, cursor, limit);
 
       const embeddedTextResources =
         resource?.contents
@@ -109,7 +109,6 @@ export function useReadResourceToolCall(opts: {
   return { readResourcePlugin };
 }
 
-
 export const resourceTool: Tool = {
   name: "read_resource",
   title: "Read an MCP resource",
@@ -126,6 +125,16 @@ export const resourceTool: Tool = {
         type: "string",
         description: "URI of the resource to read. Make sure this is always the uri of the requested resource."
       },
+      cursor: {
+        type: "string",
+        description: "Optional opaque pagination cursor returned by a previous read_resource call."
+      },
+      limit: {
+        type: "integer",
+        minimum: 1,
+        maximum: 1000,
+        description: "Optional maximum number of lines to return for text-based resources."
+      }
     },
     required: ["uri", "serverUrl"],
   },
