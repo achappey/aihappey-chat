@@ -116,14 +116,14 @@ export function resolveProviderMetadataHydration<T = ProviderMetadataValue>({
   if (hasProviderMetadataEntries(indexedDb)) {
     return {
       source: "indexeddb",
-      record: mergeProviderMetadataRecords(defaults, indexedDb),
+      record: mergeProviderMetadataRecords(undefined, indexedDb),
     };
   }
 
   if (hasProviderMetadataEntries(legacy)) {
     return {
       source: "legacy",
-      record: mergeProviderMetadataRecords(defaults, legacy),
+      record: mergeProviderMetadataRecords(undefined, legacy),
     };
   }
 

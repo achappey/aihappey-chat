@@ -90,8 +90,6 @@ export const CoreShell: React.FC<Props> = ({
 
       if (cancelled) return;
 
-      setProviderMetadata(hydratedProviderMetadata);
-
       const unsubscribeProviderMetadataPersist = appStore.subscribe(
         (state, previousState) => {
           if (state.providerMetadata === previousState.providerMetadata) return;
@@ -99,6 +97,8 @@ export const CoreShell: React.FC<Props> = ({
           void chatProviderMetadataStore.replaceAll(state.providerMetadata ?? {});
         }
       );
+
+      setProviderMetadata(hydratedProviderMetadata);
 
       return unsubscribeProviderMetadataPersist;
     };
