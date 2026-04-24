@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { Outlet, useSearchParams } from "react-router";
 import { McpConnectionsProvider } from "../runtime/mcp/McpConnectionsProvider";
 import { ChatAppConnector } from "./connectors/ChatAppConnector";
@@ -58,12 +58,9 @@ export const CoreShell: React.FC<Props> = ({
   const [, , , refreshAgentToken] = useAccessToken(agentScopes ?? []);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
-  const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
-  const providerMetadataHydratedRef = useRef(false);
-  const skipNextProviderMetadataPersistRef = useRef(false);
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
   useDefaultProviders(chatConfig?.defaultProvidersByType)
@@ -93,28 +90,35 @@ export const CoreShell: React.FC<Props> = ({
 
       if (cancelled) return;
 
-      providerMetadataHydratedRef.current = true;
-      skipNextProviderMetadataPersistRef.current = true;
       setProviderMetadata(hydratedProviderMetadata);
+
+      const unsubscribeProviderMetadataPersist = appStore.subscribe(
+        (state, previousState) => {
+          if (state.providerMetadata === previousState.providerMetadata) return;
+
+          void chatProviderMetadataStore.replaceAll(state.providerMetadata ?? {});
+        }
+      );
+
+      return unsubscribeProviderMetadataPersist;
     };
 
-    void hydrateProviderMetadata();
+    let unsubscribeProviderMetadataPersist: (() => void) | undefined;
+
+    void hydrateProviderMetadata().then((unsubscribe) => {
+      if (cancelled) {
+        unsubscribe?.();
+        return;
+      }
+
+      unsubscribeProviderMetadataPersist = unsubscribe;
+    });
 
     return () => {
       cancelled = true;
+      unsubscribeProviderMetadataPersist?.();
     };
   }, [setProviderMetadata]);
-
-  useEffect(() => {
-    if (!providerMetadataHydratedRef.current) return;
-
-    if (skipNextProviderMetadataPersistRef.current) {
-      skipNextProviderMetadataPersistRef.current = false;
-      return;
-    }
-
-    void chatProviderMetadataStore.replaceAll(providerMetadata ?? {});
-  }, [providerMetadata]);
 
   useEffect(() => {
     setSidebarOpen(isDesktop);

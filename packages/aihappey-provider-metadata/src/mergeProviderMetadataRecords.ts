@@ -32,6 +32,10 @@ function mergeProviderMetadataValue<T>(defaults: T, override: T): T {
   if (override === undefined) return cloneProviderMetadataValue(defaults);
   if (defaults === undefined) return cloneProviderMetadataValue(override);
 
+  if (Array.isArray(defaults) && Array.isArray(override)) {
+    return cloneProviderMetadataValue(override);
+  }
+
   if (Array.isArray(override)) {
     return cloneProviderMetadataValue(override);
   }
