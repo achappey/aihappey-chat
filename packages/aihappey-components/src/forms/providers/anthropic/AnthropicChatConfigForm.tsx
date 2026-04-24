@@ -177,9 +177,9 @@ export const AnthropicChatConfigForm = ({
       <theme.Input
         type="number"
         min={1}
+        required
         step={1}
         label={t("maxOutputTokens") ?? "max_tokens"}
-        placeholder={t("optional") ?? "optional"}
         value={resolvedConfig?.max_tokens ?? ""}
         onChange={(e: any) => updateMaxTokens(e.target.value)}
       />

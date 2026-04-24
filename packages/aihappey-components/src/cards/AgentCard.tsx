@@ -46,6 +46,7 @@ export const AgentCard = ({ agent, onEdit, onDelete, showExport = true }: AgentC
   const exportButton = showExport
     ? <Button icon="download"
       size="small"
+      title={t('download')}
       variant="transparent"
       onClick={handleExport} />
     : null;

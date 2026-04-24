@@ -24,12 +24,27 @@ function base64SizeInKB(base64: string): number {
   return bytes / 1024;
 }
 
+function tryGetFilename(providerMetadata: Record<string, any> | undefined): string | undefined {
+  if (!providerMetadata) return undefined;
+
+  for (const provider of Object.values(providerMetadata)) {
+    if (!provider || typeof provider !== "object") continue;
+
+    const filename = provider["filename"];
+    if (filename && typeof filename === "string") {
+      return filename;
+    }
+  }
+
+  return undefined;
+}
+
 export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardProps) => {
   const { Card, Button, Image } = useTheme();
   const { t } = useTranslation();
   const { mediaType, url, providerMetadata } = file
 
-  const filename = providerMetadata?.openai?.filename?.toString();
+  const filename = tryGetFilename(providerMetadata);
 
   // helper to download
   const handleDownload = () => {
