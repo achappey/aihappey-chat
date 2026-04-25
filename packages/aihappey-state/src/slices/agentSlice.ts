@@ -5,6 +5,7 @@ import {
 } from "aihappey-types";
 import type { StateCreator } from "zustand";
 import { defaultAgents } from "./defaultAgents";
+import { resolveAgentModelProviderMetadata } from "./agentModelProviderMetadata";
 
 export type AgentSlice = {
     agents: Agent[];
@@ -163,16 +164,16 @@ export const createAgentSlice: StateCreator<
             }
 
             const prev = state.agents[index];
-
-            /*      const prevProvider =
-                    prev.model?.id?.split("/")?.[0];
-                const nextProvider =
-                    agent.model?.id?.split("/")?.[0];
-    
-              const providerChanged =
-                    prevProvider &&
-                    nextProvider &&
-                    prevProvider !== nextProvider;*/
+            const mergedModel = {
+                ...(prev.model ?? {}),
+                ...(agent.model ?? {}),
+            };
+            const providerMetadata = resolveAgentModelProviderMetadata({
+                previousModelId: prev.model?.id,
+                nextModelId: mergedModel.id,
+                previousProviderMetadata: prev.model?.providerMetadata,
+                nextProviderMetadata: agent.model?.providerMetadata,
+            });
 
             const next = [...state.agents];
 
@@ -181,13 +182,8 @@ export const createAgentSlice: StateCreator<
                 ...agent,
                 name, // hard lock
                 model: {
-                    ...(prev.model ?? {}),
-                    ...(agent.model ?? {}),
-                    /*   providerMetadata: providerChanged
-                           ? {
-                               ...defaultProviderMetadata[nextProvider as keyof typeof defaultProviderMetadata]
-                           }
-                           : agent.model?.providerMetadata ?? prev.model?.providerMetadata,*/
+                    ...mergedModel,
+                    providerMetadata,
                 },
 
             };

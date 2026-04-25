@@ -7,7 +7,7 @@ const THINKING_MODE_OPTIONS = ["enabled", "disabled", "adaptive"] as const;
 
 const DEFAULT_THINKING = {
   type: "enabled",
-  budget_tokens: 16768,
+  budget_tokens: 4096,
   display: "summarized",
 } as const;
 

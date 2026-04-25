@@ -2,7 +2,11 @@ import { AnthropicChatConfigForm, BrowserUseChatConfigForm, ClientCapabilitiesFo
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
-import { useAppStore } from "aihappey-state";
+import {
+    getAgentModelProviderKey,
+    resolveAgentModelProviderMetadata,
+    useAppStore,
+} from "aihappey-state";
 import { ModelSelect } from "../models/ModelSelect";
 import { useEffect, useMemo, useState } from "react";
 import { ServerManagement } from "aihappey-components";
@@ -298,7 +302,7 @@ export const AgentForm = ({
         }
     }
 
-    const providerKey = agent?.model?.id?.split("/")?.[0];
+    const providerKey = getAgentModelProviderKey(agent?.model?.id);
     const providerMeta = agent?.model?.providerMetadata ?? {};
     const updateProviderMetadata = (patch: any) =>
         onChange({
@@ -375,6 +379,11 @@ export const AgentForm = ({
                                 model: {
                                     ...(agent.model ?? {}),
                                     id,
+                                    providerMetadata: resolveAgentModelProviderMetadata({
+                                        previousModelId: agent.model?.id,
+                                        nextModelId: id,
+                                        previousProviderMetadata: agent.model?.providerMetadata,
+                                    }),
                                 },
                             })
                         }
@@ -472,7 +481,7 @@ export const AgentForm = ({
 
                 {/* ---------------- Provider Settings ---------------- */}
                 <Tab eventKey="providers"
-                    title={agent?.model?.id?.split("/")?.[0]}>
+                    title={providerKey}>
                     {providerKey === "openai" && (
                         <OpenAIChatConfigForm
                             config={providerMeta}
