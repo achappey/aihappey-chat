@@ -5,6 +5,7 @@ import { useTranslation } from "aihappey-i18n";
 import { ContentBlockView } from "./ContentBlockView";
 import { ToolCallResult } from "aihappey-types";
 import { StructuredOutputView } from "./StructuredOutputView";
+import { Markdown } from "../../../../ui/markdown/Markdown";
 
 export interface ToolCallResultModalProps {
   open: boolean;
@@ -12,12 +13,22 @@ export interface ToolCallResultModalProps {
   result: ToolCallResult;
 }
 
+const tryParseJson: any = (input: any) => {
+  if (typeof input !== "string") return null;
+
+  try {
+    return JSON.parse(input);
+  } catch {
+    return null;
+  }
+};
+
 export const ToolCallResultModal = ({
   open,
   onClose,
   result,
 }: ToolCallResultModalProps) => {
-  const { Modal, Button, Tabs, Tab } = useTheme();
+  const { Modal, Button, Tabs, Tab, JsonViewer } = useTheme();
   const { t } = useTranslation();
 
   // Try to get content array
@@ -59,6 +70,28 @@ export const ToolCallResultModal = ({
             ))}
           </Tabs>
         ) : null}
+
+        {/* 3. Fallback */}
+        {!result.structuredContent && contentArr.length === 0 && (() => {
+          const raw = result as any;
+
+          // Try JSON
+          const parsed = tryParseJson(raw);
+          if (parsed) {
+            return <JsonViewer value={parsed} />;
+          }
+
+          // Try string fallback
+          if (typeof raw === "string") {
+            return <Markdown text={raw} />
+          }
+
+          // Last resort: stringify safely
+          return (
+            <JsonViewer value={raw} />
+          );
+        })()}
+
       </div>
     </Modal>
   );

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useConversations } from "aihappey-conversations";
 import { useImages } from "aihappey-images";
+import { toArray } from "../chat/activity/drawer/ActivityDrawer";
 
 export type LibraryImageItem = {
     source: "storage" | "conversation";
@@ -70,7 +71,7 @@ export function useLibraryImages(): LibraryImageItem[] {
                                 p.state === "output-available"
                         )
                         .forEach((p) =>
-                            (p.output?.content || [])
+                            toArray(p.output?.content) // 👈 SAFE
                                 .filter((x: any) => x.type === "image")
                                 .forEach((img: any) =>
                                     out.push({

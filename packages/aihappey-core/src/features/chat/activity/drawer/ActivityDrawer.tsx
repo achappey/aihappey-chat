@@ -37,6 +37,9 @@ const parseIso = (ts?: string) => {
   return isNaN(d.getTime()) ? 0 : d.getTime();
 };
 
+export const toArray = (val: any) =>
+  Array.isArray(val) ? val : val ? [val] : [];
+
 export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiOutput?: any }) => {
   const { Drawer, Tabs, Tab, Button } = useTheme();
   const { t } = useTranslation();
@@ -50,50 +53,49 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
   const toolInvocations = useToolInvocations(messages);
   const [activeTab, setActiveTab] = useState("toolInvocations");
 
-  // 1) flatten resources + attach msg timestamp + ids
-  const flatResources =
-    toolInvocations?.flatMap((z: any) =>
-      z?.output?.content
-        ?.filter(
-          (a: any) => a.type === "resource" && a.resource?.mimeType === "text/markdown"
-        )
-        .map((entry: any) => ({
-          ...entry.resource,                 // { uri, text, mimeType, ... }
-          _msgId: z.msgId,                   // for de-dupe per message turn
-          _partIndex: z.partIndex,           // last wins within message
-          _ts: z?.metadata?.timestamp ?? "", // 👈 timestamp lives here
-        }))
-    ) ?? [];
+  const extractResources = (
+    toolInvocations: any[],
+    mimeType: string,
+    extraMapper?: (entry: any, z: any, all: any[]) => any
+  ) => {
+    return toolInvocations?.flatMap((z: any) => {
+      const items = toArray(z?.output?.content);
 
-
-  const htmlFlatResources =
-    toolInvocations?.flatMap((z: any) =>
-      z?.output?.content
-        ?.filter(
-          (a: any) => a.type === "resource" && a.resource?.mimeType === "text/html"
-        )
-        .map((entry: any) => ({
-          ...entry.resource,                 // { uri, text, mimeType, ... }
-          _msgId: z.msgId,                   // for de-dupe per message turn
-          _partIndex: z.partIndex,           // last wins within message
-          _ts: z?.metadata?.timestamp ?? "", // 👈 timestamp lives here
-        }))
-    ) ?? [];
-
-  const flatVercelResources =
-    toolInvocations?.flatMap((z: any) =>
-      z?.output?.content
-        ?.filter(
-          (a: any) => a.type === "resource" && a.resource?.mimeType === "application/vnd.vercel-app+json"
+      return items
+        .filter(
+          (a: any) =>
+            a?.type === "resource" &&
+            a?.resource?.mimeType === mimeType
         )
         .map((entry: any) => ({
           ...entry.resource,
-          output: toolInvocations.find(a => a.toolCallId == z?.output?._meta?.toolCallId)?.output,
           _msgId: z.msgId,
           _partIndex: z.partIndex,
           _ts: z?.metadata?.timestamp ?? "",
-        }))
-    ) ?? [];
+          ...(extraMapper ? extraMapper(entry, z, toolInvocations) : {}),
+        }));
+    }) ?? [];
+  };
+
+  const flatResources = extractResources(
+    toolInvocations,
+    "text/markdown"
+  );
+
+  const htmlFlatResources = extractResources(
+    toolInvocations,
+    "text/html"
+  );
+
+  const flatVercelResources = extractResources(
+    toolInvocations,
+    "application/vnd.vercel-app+json",
+    (entry, z, all) => ({
+      output: all.find(
+        (a) => a.toolCallId == z?.output?._meta?.toolCallId
+      )?.output,
+    })
+  );
 
   const dataCards =
     messages?.flatMap((z) =>
