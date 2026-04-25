@@ -28,10 +28,9 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 13,
+    version: 14,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
-      agents: s.agents,
       debugMode: s.debugMode,
       structuredOutputs: s.structuredOutputs,
       quickSearches: s.quickSearches,
@@ -132,6 +131,20 @@ export const withPersist = (
           ...restState,
           __legacyProviderMetadata: isPlainRecord(legacyProviderMetadata)
             ? legacyProviderMetadata
+            : undefined,
+        };
+      }
+
+      if (version < 14) {
+        const {
+          agents: legacyAgents,
+          ...restState
+        } = safeState;
+
+        safeState = {
+          ...restState,
+          __legacyAgents: Array.isArray(legacyAgents)
+            ? legacyAgents.filter(Boolean)
             : undefined,
         };
       }

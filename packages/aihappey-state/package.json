@@ -5,6 +5,7 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
+    "aihappey-agents": "*",
     "zustand": "^5.0.0",
     "aihappey-types": "*",
     "aihappey-http": "*",

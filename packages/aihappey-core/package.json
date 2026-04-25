@@ -20,6 +20,7 @@
     "aihappey-clients": "^0.1.0",
     "aihappey-components": "*",
     "aihappey-conversations": "*",
+    "aihappey-agents": "*",
     "aihappey-files": "*",
     "aihappey-http": "*",
     "aihappey-provider-metadata": "*",

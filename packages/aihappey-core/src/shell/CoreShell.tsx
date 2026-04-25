@@ -5,6 +5,7 @@ import { ChatAppConnector } from "./connectors/ChatAppConnector";
 import { I18nProvider } from "aihappey-i18n";
 import { ConversationsProvider } from "aihappey-conversations";
 import {
+  defaultAgents,
   defaultProviderMetadata,
   store as appStore,
   useRemoteStorageConnected,
@@ -34,9 +35,14 @@ import { JsonRenderAppsProvider } from "aihappey-json-render-apps";
 import { VideosProvider } from "aihappey-videos";
 import { SkillsProvider } from "aihappey-skills";
 import {
+  localAgentStore,
+  resolveAgentHydration as resolveLocalAgentHydration,
+} from "aihappey-agents";
+import {
   chatProviderMetadataStore,
   resolveProviderMetadataHydration,
 } from "aihappey-provider-metadata";
+import type { Agent } from "aihappey-types";
 
 type Props = {
   chatConfig: ChatConfig;
@@ -58,6 +64,7 @@ export const CoreShell: React.FC<Props> = ({
   const [, , , refreshAgentToken] = useAccessToken(agentScopes ?? []);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
+  const setAgents = useAppStore((s) => s.setAgents);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
@@ -119,6 +126,62 @@ export const CoreShell: React.FC<Props> = ({
       unsubscribeProviderMetadataPersist?.();
     };
   }, [setProviderMetadata]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const hydrateLocalAgents = async () => {
+      const indexedDbAgents = await localAgentStore.list();
+      const legacyAgents = (appStore.getState() as any)
+        .__legacyAgents as Agent[] | undefined;
+
+      const { agents: hydratedAgents, source } = resolveLocalAgentHydration({
+        defaults: defaultAgents,
+        indexedDb: indexedDbAgents,
+        legacy: legacyAgents,
+      });
+
+      const shouldWriteHydratedAgents =
+        source !== "indexeddb"
+        || JSON.stringify(indexedDbAgents) !== JSON.stringify(hydratedAgents);
+
+      if (shouldWriteHydratedAgents) {
+        await localAgentStore.replaceAll(hydratedAgents);
+      }
+
+      if (cancelled) return;
+
+      setAgents(hydratedAgents);
+
+      if (cancelled) return;
+
+      const unsubscribeLocalAgentPersist = appStore.subscribe(
+        (state, previousState) => {
+          if (state.agents === previousState.agents) return;
+
+          void localAgentStore.replaceAll(state.agents ?? []);
+        }
+      );
+
+      return unsubscribeLocalAgentPersist;
+    };
+
+    let unsubscribeLocalAgentPersist: (() => void) | undefined;
+
+    void hydrateLocalAgents().then((unsubscribe) => {
+      if (cancelled) {
+        unsubscribe?.();
+        return;
+      }
+
+      unsubscribeLocalAgentPersist = unsubscribe;
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribeLocalAgentPersist?.();
+    };
+  }, [setAgents]);
 
   useEffect(() => {
     setSidebarOpen(isDesktop);
