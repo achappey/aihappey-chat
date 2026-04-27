@@ -79,10 +79,15 @@ export const OpenAIAppWidget: React.FC<OpenAIAppWidgetProps> = ({
     const iframe = iframeRef.current;
     if (!iframe) return;
 
-    iframe.srcdoc = resourceHtml;
+    const blob = new Blob([resourceHtml], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    iframe.src = url;
     const handleLoad = () => setReady(true);
     iframe.addEventListener("load", handleLoad);
-    return () => iframe.removeEventListener("load", handleLoad);
+    return () => {
+      URL.revokeObjectURL(url);
+      iframe.removeEventListener("load", handleLoad);
+    }
   }, [resourceHtml]);
 
   // 🧠 3. Inject openai context
@@ -175,7 +180,7 @@ export const OpenAIAppWidget: React.FC<OpenAIAppWidgetProps> = ({
           borderRadius: 4,
         }}
         allowFullScreen
-        sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation allow-forms allow-popups-to-escape-sandbox allow-modals"
+        sandbox="allow-scripts allow-popups allow-forms allow-same-origin"
       />
     </div>
   );
