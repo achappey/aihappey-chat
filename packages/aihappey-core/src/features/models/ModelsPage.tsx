@@ -111,7 +111,7 @@ export const ModelsPage = () => {
           <Button
             variant="subtle"
             icon="chat"
-            onClick={() => navigate(`/?model=${row.id}`)}
+            onClick={() => navigate(`/?model=${encodeURIComponent(row.id)}`)}
           />
         ),
       },
@@ -255,7 +255,7 @@ export const ModelsPage = () => {
                               <ModelCard
                                 model={r}
                                 provider={provider}
-                                onChat={() => navigate(`/?model=${r.id}`)}
+                                onChat={() => navigate(`/?model=${encodeURIComponent(r.id)}`)}
                               />
                             </div>
                           );

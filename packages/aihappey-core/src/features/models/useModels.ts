@@ -17,6 +17,7 @@ export const useModels = (
   const [searchParams] = useSearchParams();
 
   const model = searchParams.get("model");
+
   useEffect(() => {
     if (!modelsLoaded) {
       const client = createHttpClient({ getAccessToken, headers: customHeaders });
@@ -30,5 +31,12 @@ export const useModels = (
             setSelectedModel(defaultModel)
         })
     }
-  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded]);
+
+  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, userPreferredModel, setModels, setSelectedModel]);
+
+  useEffect(() => {
+    if (!modelsLoaded || !model) return;
+
+    setSelectedModel(model);
+  }, [modelsLoaded, model, setSelectedModel]);
 };
