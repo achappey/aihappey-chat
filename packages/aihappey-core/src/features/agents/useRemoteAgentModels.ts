@@ -9,6 +9,7 @@ const normalizeRemoteAgentModel = (value: any): RemoteAgentModel => ({
   description: typeof value?.description === "string" ? value.description : undefined,
   created: typeof value?.created === "number" ? value.created : undefined,
   owned_by: typeof value?.owned_by === "string" ? value.owned_by : undefined,
+  agent: value.agent,
   tags: Array.isArray(value?.tags) ? value.tags.map((tag: any) => String(tag)) : ["remote", "agent"],
   source: "remote",
 });

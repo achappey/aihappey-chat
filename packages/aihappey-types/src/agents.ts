@@ -1,3 +1,4 @@
+import { Icon } from "@modelcontextprotocol/sdk/types";
 
 export type Agent = {
     name: string;
@@ -9,6 +10,7 @@ export type Agent = {
     mcpServers?: Record<string, McpServer>
     mcpClient?: McpClient
     skills?: Skill[]
+    icons?: Icon[];
 };
 
 export type RemoteAgentModel = {
@@ -19,6 +21,7 @@ export type RemoteAgentModel = {
     owned_by?: string;
     tags?: string[];
     source: "remote";
+    agent?: Agent;
 };
 
 export const LOCAL_AGENT_SELECTION_PREFIX = "local:";

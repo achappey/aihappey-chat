@@ -1,14 +1,38 @@
 import { useCallback, useMemo, useState } from "react";
-import { useAppStore } from "aihappey-state";
+import { getAgentModelProviderKey, useAppStore } from "aihappey-state";
 import { AgentCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { ServersHeader } from "../mcp-catalog/ServersHeader";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { AgentEditModal } from "./AgentEditModal";
-import { Agent } from "aihappey-types";
+import { Agent, RemoteAgentModel } from "aihappey-types";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
 import React from "react";
+import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+
+const getProviderIconsForModel = (modelId?: string): Agent["icons"] | undefined => {
+  const providerKey = getAgentModelProviderKey(modelId);
+  if (!providerKey) return undefined;
+
+  return (PROVIDERS as Record<string, { icons?: Agent["icons"] }>)[providerKey]?.icons;
+};
+
+const getProviderIconsForAgentModel = (agent?: Pick<Agent, "model">): Agent["icons"] | undefined => {
+  return getProviderIconsForModel(agent?.model?.id);
+};
+
+const buildRemoteAgentCardAgent = (remoteAgentModel: RemoteAgentModel): Agent => {
+  const remoteAgent = remoteAgentModel.agent;
+
+  return {
+    ...remoteAgent,
+    name: remoteAgentModel.name ?? remoteAgent?.name ?? remoteAgentModel.id,
+    description: remoteAgentModel.description ?? remoteAgent?.description ?? "",
+    instructions: remoteAgent?.instructions ?? "",
+    model: remoteAgent?.model ?? { id: remoteAgentModel.id },
+  };
+};
 
 
 // --- Component ---------------------------------------------------------------
@@ -113,24 +137,20 @@ export const AgentsPage = () => {
       key: `local:${agent.name}`,
       kind: "local" as const,
       agent,
+      providerIcons: getProviderIconsForAgentModel(agent),
     }));
 
-    const remoteCards = remoteAgentModels.map((remoteAgentModel) => ({
-      key: `remote:${remoteAgentModel.id}`,
-      kind: "remote" as const,
-      agent: {
-        name: remoteAgentModel.name ?? remoteAgentModel.id,
-        description:
-          remoteAgentModel.description,
-        instructions: "",
-        model: {
-          id: remoteAgentModel.owned_by
-            ? `${remoteAgentModel.id}`
-            : remoteAgentModel.id,
-        },
-      } as Agent,
-      remoteAgentModel,
-    }));
+    const remoteCards = remoteAgentModels.map((remoteAgentModel) => {
+      const agent = buildRemoteAgentCardAgent(remoteAgentModel);
+
+      return {
+        key: `remote:${remoteAgentModel.id}`,
+        kind: "remote" as const,
+        agent,
+        providerIcons: getProviderIconsForAgentModel(remoteAgentModel.agent),
+        remoteAgentModel,
+      };
+    });
 
     return [...localCards, ...remoteCards].filter((card) => {
       if (!query) return true;
@@ -212,7 +232,7 @@ export const AgentsPage = () => {
                   <div key={card.key} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
                     <AgentCard
                       agent={card.agent}
-                      showExport={card.kind === "local"}
+                      providerIcons={card.providerIcons}
                       onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
                       onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
                     />
