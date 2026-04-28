@@ -18,7 +18,7 @@ const schema = {
     "source",
     "video",
     "iframe",
-    "model-viewer", // 👈 nieuw
+    "model-viewer", 
   ],
   attributes: {
     ...defaultSchema.attributes,
@@ -52,7 +52,6 @@ const schema = {
       "allowfullscreen",
       "frameborder",
     ],
-    // 👇 belangrijkste stukje: sta attributes van <model-viewer> toe
     "model-viewer": [
       "src",
       "alt",
