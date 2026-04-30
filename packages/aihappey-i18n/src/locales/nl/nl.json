@@ -230,7 +230,7 @@
   },
   "agents": {
     "title": "Agents",
-    "description": "Agents zijn autonome eenheden die capaciteiten, context en uitvoeringslogica combineren in één model. Dit zorgt voor voorspelbaar gedrag, eenvoudige schaalbaarheid en consistente integratie in verschillende omgevingen.",
+    "description": "Agents zijn autonome eenheden die vaardigheden, context en uitvoeringslogica samenbrengen in één model. Dat levert voorspelbaar gedrag op, maakt opschalen eenvoudig en zorgt voor een consistente inzet in verschillende omgevingen.",
     "mcpClientCapabilities": "Model Context mogelijkheden",
     "settings": "Instellingen",
     "mcpServers": "Model Context"

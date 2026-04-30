@@ -195,7 +195,7 @@
   "mesh": "Mesh",
   "agents": {
     "title": "Agents",
-    "description": "Agents are autonomous units that combine capabilities, context, and execution flow into a single model. This ensures predictable behavior, easy scaling, and consistent integration across different environments.",
+    "description": "Agents are autonomous units that bring capabilities, context, and execution logic together in a single model. This delivers predictable behavior, makes scaling straightforward, and ensures consistent use across different environments.",
     "mcpClientCapabilities": "Model Context capabilities",
     "settings": "Settings",
     "mcpServers": "Model Context servers"

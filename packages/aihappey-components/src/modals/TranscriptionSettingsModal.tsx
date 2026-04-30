@@ -16,6 +16,7 @@ import {
     ResembleAITranscriptionConfigForm,
     GladiaTranscriptionConfigForm,
     DeepInfraTranscriptionConfigForm,
+    XAITranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
@@ -264,7 +265,21 @@ export const TranscriptionSettingsModal: React.FC<
                         </theme.Tab>
                     )}
 
-
+                    {enabledProviders.includes("xAI") && (
+                        <theme.Tab eventKey="xai" title="xAI">
+                            <XAITranscriptionConfigForm
+                                config={providerMetadata.xai ?? {}}
+                                updateConfig={(xai) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        xai,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+ 
+ 
                     {enabledProviders.includes("SambaNova") && (
                         <theme.Tab eventKey="sambanova" title="SambaNova">
                             <SambanovaTranscriptionConfigForm

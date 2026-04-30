@@ -268,7 +268,18 @@
     "allowedDomains": "Allowed domains",
     "excludedDomains": "Excluded domains",
     "allowed_x_handles": "Allowed X handles",
-    "excluded_x_handles": "Excluded X handles"
+    "excluded_x_handles": "Excluded X handles",
+    "transcriptionGeneralHint": "Configure xAI speech-to-text options. Uploaded audio is supplied by the transcription flow.",
+    "transcriptionFormat": "Format text",
+    "transcriptionDiarize": "Speaker diarization",
+    "audioInput": "Audio input",
+    "audioInputHint": "Set audio_format only for raw/headerless audio. Container formats are auto-detected by xAI.",
+    "audioFormat": "Audio format",
+    "sampleRate": "Sample rate",
+    "channels": "Channels",
+    "channelsHint": "For container formats, channel count is auto-detected. For multichannel raw audio, set 2 through 8 channels.",
+    "transcriptionMultichannel": "Multichannel",
+    "channelCount": "Channel count"
   },
   "openai": {
     "shell": "Shell",
