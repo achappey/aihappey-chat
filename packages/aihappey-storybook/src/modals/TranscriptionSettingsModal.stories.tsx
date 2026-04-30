@@ -21,6 +21,7 @@ const Controlled: React.FC<ControlledProps> = ({
   const [providerMetadata, setProviderMetadata] = useState<Record<string, any>>(
     initialProviderMetadata ?? {}
   );
+  const [realtimeProviderMetadata, setRealtimeProviderMetadata] = useState<Record<string, any>>({});
 
   return (
     <TranscriptionSettingsModal
@@ -31,6 +32,8 @@ const Controlled: React.FC<ControlledProps> = ({
       open={open}
       providerMetadata={providerMetadata}
       setProviderMetadata={setProviderMetadata}
+      realtimeProviderMetadata={realtimeProviderMetadata}
+      setRealtimeProviderMetadata={setRealtimeProviderMetadata}
       resetDefaults={() => setProviderMetadata({})}
       onClose={() => {
         setOpen(false);
@@ -49,6 +52,8 @@ const meta = {
     enabledProviders: ["OpenAI"],
     providerMetadata: {},
     setProviderMetadata: (() => {}) as any,
+    realtimeProviderMetadata: {},
+    setRealtimeProviderMetadata: (() => {}) as any,
     knownSpeakerSamples: {
       getSampleInfo: (speakerName: string) => ({
         exists: false,
@@ -71,6 +76,8 @@ const meta = {
     knownSpeakerSamples: { control: false },
     providerMetadata: { control: false },
     setProviderMetadata: { control: false },
+    realtimeProviderMetadata: { control: false },
+    setRealtimeProviderMetadata: { control: false },
     resetDefaults: { control: false },
     onEditProviderKeys: { control: false },
   },
@@ -97,11 +104,21 @@ export const OpenAIAndElevenLabs: Story = {
   render: (args) => <Controlled {...(args as any)} />,
 };
 
+export const XAIOnly: Story = {
+  args: {
+    initialOpen: true,
+    enabledProviders: ["xAI"],
+    initialProviderMetadata: { xai: {} },
+  } as any,
+  render: (args) => <Controlled {...(args as any)} />,
+};
+
 export const MultipleProvidersScroll: Story = {
   args: {
     initialOpen: true,
     enabledProviders: [
       "OpenAI",
+      "xAI",
       "ElevenLabs",
       "Fireworks",
       "Groq",
@@ -115,6 +132,7 @@ export const MultipleProvidersScroll: Story = {
     ],
     initialProviderMetadata: {
       openai: {},
+      xai: {},
       elevenlabs: {},
       fireworks: {},
       groq: {},

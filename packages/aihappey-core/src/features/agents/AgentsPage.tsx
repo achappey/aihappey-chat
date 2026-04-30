@@ -174,6 +174,7 @@ export const AgentsPage = () => {
       onDrop={handleFileDrop}
       style={{
         border: isOver ? "2px dotted" : undefined,
+        display: "contents",
         borderColor: isOver ? "#888" : "transparent",
       }}
       onDragOver={handleDragOver}>
