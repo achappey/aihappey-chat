@@ -8,7 +8,7 @@ export function useDefaultModel(authenticated: boolean) {
 
   useEffect(() => {
     const defaultModel = userPreferredModel ??
-      authenticated ? "openai/gpt-5.2" : "pollinations/openai"
+      authenticated ? "openai/gpt-5.4-mini" : "pollinations/openai"
     if (!userPreferredModel)
       setUserPreferredModel(defaultModel)
 
