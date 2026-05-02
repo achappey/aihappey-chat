@@ -17,11 +17,11 @@ const BETA_OPTIONS = [
     "interleaved-thinking-2025-05-14",
     "code-execution-2025-05-22",
     "extended-cache-ttl-2025-04-11",
-    "context-1m-2025-08-07",
     "context-management-2025-06-27",
     "model-context-window-exceeded-2025-08-26",
     "skills-2025-10-02",
     "fast-mode-2026-02-01",
+    "user-profiles-2026-03-24",
     "output-300k-2026-03-24",
     "advisor-tool-2026-03-01"
 ];
@@ -52,6 +52,10 @@ const parseAnthropicBeta = (value: unknown): string[] => {
     return [];
 };
 
+const SORTED_BETA_OPTIONS = [...BETA_OPTIONS].sort((a, b) =>
+    a.localeCompare(b)
+);
+
 export const AnthropicBetaCard = ({
     config,
     updateConfig,
@@ -77,7 +81,7 @@ export const AnthropicBetaCard = ({
     return (
         <theme.Card size="small" title={t("providers:anthropic.betaHeader")}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}>
-                {BETA_OPTIONS.map((option) => (
+                {SORTED_BETA_OPTIONS.map((option) => (
                     <div key={option}>
                         <theme.Switch
                             id={option}
