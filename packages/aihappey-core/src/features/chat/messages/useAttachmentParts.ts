@@ -6,6 +6,7 @@ import { toMarkdownLinkSmart } from "../files/markdown";
 
 export const useAttachmentParts = () => {
   const attachments = useFileAttachments(fileAttachmentRuntime)
+  const chatMode = useAppStore((s) => s.chatMode);
   const convertAttachmentsToText = useAppStore((s) => s.convertAttachmentsToText);
   const maxAttachmentsSize = useAppStore((s) => s.maxAttachmentsSize);
 
@@ -13,8 +14,8 @@ export const useAttachmentParts = () => {
   const maxSize = typeof maxAttachmentsSize === "number" ? maxAttachmentsSize : 25 * 1024 * 1024;
 
   const getItems = async () => {
-    // 1) Only attempt conversion when enabled
-    if (!convertAttachmentsToText) {
+    // Only attempt conversion when enabled, and never in agent mode.
+    if (!convertAttachmentsToText || chatMode === "agent") {
       return { parts: [], convertedKeys: [] as string[] };
     }
 
