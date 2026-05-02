@@ -1,6 +1,7 @@
 import type { ElicitRequest, ElicitResult } from "aihappey-mcp";
 import { useAccount } from "aihappey-auth";
 import { ElicitationForm as ElicitationFormComponent } from "aihappey-components";
+import { Markdown } from "../../ui/markdown/Markdown";
 
 type Props = {
   params: ElicitRequest["params"];
@@ -11,7 +12,13 @@ type Props = {
 };
 
 export const ElicitationForm = ({ params, onChange }: Props) => {
-  return <ElicitationFormComponent params={params} onChange={onChange} />;
+  return (
+    <ElicitationFormComponent
+      params={params}
+      onChange={onChange}
+      onRenderMarkdown={(text) => <Markdown text={text} />}
+    />
+  );
 };
 
 /**

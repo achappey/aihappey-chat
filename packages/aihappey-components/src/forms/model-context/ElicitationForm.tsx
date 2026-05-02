@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ElicitationField } from "../../fields";
 import type { ElicitRequest } from "@modelcontextprotocol/sdk/types";
 
@@ -86,9 +86,10 @@ type Props = {
     values: Record<string, any>;
     isValid: boolean;
   }) => void;
+  onRenderMarkdown?: (text: string) => ReactNode;
 };
 
-export const ElicitationForm = ({ params, onChange }: Props) => {
+export const ElicitationForm = ({ params, onChange, onRenderMarkdown }: Props) => {
   const { requestedSchema, message }: any = params;
   const { properties, required }: any = requestedSchema;
 
@@ -122,7 +123,9 @@ export const ElicitationForm = ({ params, onChange }: Props) => {
 
   return (
     <>
-      {message}
+      {onRenderMarkdown && typeof message === "string"
+        ? onRenderMarkdown(message)
+        : message}
 
       {Object.entries(properties).map(([k, s]: any) => (
         <ElicitationField
