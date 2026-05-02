@@ -20,6 +20,7 @@ import { localRegistryPluginDef } from "./toolcalls/useLocalRegistryToolCall";
 import { localStructuredOutputsPluginDef } from "./toolcalls/useLocalStructuredOutputsToolCall";
 import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
 import { localWebPluginDef } from "./toolcalls/useLocalWebToolCall";
+import { localChartJsPluginDef } from "./toolcalls/useLocalChartJsToolCall";
 import { localArtificialIntelligencePluginDef } from "./toolcalls/useLocalArtificialIntelligenceToolCall";
 import { parseStoredToolInputSchema } from "./localStoredTools";
 import { useOnToolCall } from "./toolcalls/useOnToolCall";
@@ -85,6 +86,7 @@ export const ToolsPage = () => {
       localSettingsPluginDef,
       localStructuredOutputsPluginDef,
       localWebPluginDef,
+      localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
       localCatalogPluginDef,
       localRegistryPluginDef,

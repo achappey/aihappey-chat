@@ -21,6 +21,7 @@ import { localImagesPluginDef } from "./toolcalls/useLocalImagesToolCall";
 import { localTodoPluginDef } from "./toolcalls/useLocalTodoListToolCall";
 import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall";
 import { localWebPluginDef } from "./toolcalls/useLocalWebToolCall";
+import { localChartJsPluginDef } from "./toolcalls/useLocalChartJsToolCall";
 import { localArtificialIntelligencePluginDef } from "./toolcalls/useLocalArtificialIntelligenceToolCall";
 import { useSkills } from "aihappey-skills";
 import {
@@ -57,6 +58,7 @@ export function useTools() {
       localJsonRenderPluginDef,
       localImagesPluginDef,
       localWebPluginDef,
+      localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
       localTodoPluginDef,
       localSettingsPluginDef,

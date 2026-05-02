@@ -17,6 +17,7 @@ import { localCatalogPluginDef } from "../tools/toolcalls/useLocalCatalogToolCal
 import { localRegistryPluginDef } from "../tools/toolcalls/useLocalRegistryToolCall";
 import { localTodoPluginDef } from "../tools/toolcalls/useLocalTodoListToolCall";
 import { localWebPluginDef } from "../tools/toolcalls/useLocalWebToolCall";
+import { localChartJsPluginDef } from "../tools/toolcalls/useLocalChartJsToolCall";
 import { localArtificialIntelligencePluginDef } from "../tools/toolcalls/useLocalArtificialIntelligenceToolCall";
 
 // --- Tools Tab ---
@@ -47,6 +48,7 @@ export const ToolsTab = ({
       localJsonRenderPluginDef,
       localTodoPluginDef,
       localWebPluginDef,
+      localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
       localStructuredOutputsPluginDef,
       localCatalogPluginDef,

@@ -51,6 +51,7 @@ import { localImagesPluginDef, useLocalImagesRuntime } from "./useLocalImagesToo
 import { localJsonRenderPluginDef, useLocalJsonRenderRuntime } from "./useLocalJsonRenderToolCall";
 import { localTodoPluginDef, useLocalTodoRuntime } from "./useLocalTodoListToolCall";
 import { localWebPluginDef, useLocalWebreaderRuntime } from "./useLocalWebToolCall";
+import { localChartJsPluginDef, useLocalChartJsRuntime } from "./useLocalChartJsToolCall";
 import {
   localArtificialIntelligencePluginDef,
   useLocalArtificialIntelligenceRuntime,
@@ -114,6 +115,7 @@ export function useOnToolCall({
   const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
   const localWebreaderRuntime = useLocalWebreaderRuntime();
+  const localChartJsRuntime = useLocalChartJsRuntime();
   const localArtificialIntelligenceRuntime = useLocalArtificialIntelligenceRuntime();
   const jsonRenderRuntime = useLocalJsonRenderRuntime({
     setActiveData,
@@ -160,6 +162,7 @@ export function useOnToolCall({
       [localStructuredOutputsRuntime.name]: localStructuredOutputsRuntime,
       [vercelAIRuntime.name]: vercelAIRuntime,
       [localWebreaderRuntime.name]: localWebreaderRuntime,
+      [localChartJsRuntime.name]: localChartJsRuntime,
       [localArtificialIntelligenceRuntime.name]: localArtificialIntelligenceRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
       [jsonRenderRuntime.name]: jsonRenderRuntime,
@@ -181,6 +184,7 @@ export function useOnToolCall({
       vercelAIRuntime,
       localStructuredOutputsRuntime,
       localWebreaderRuntime,
+      localChartJsRuntime,
       localArtificialIntelligenceRuntime,
     ]
   );
@@ -192,6 +196,7 @@ export function useOnToolCall({
       localConversationsPluginDef,
       localImagesPluginDef,
       localWebPluginDef,
+      localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
       localCanvasPluginDef,
       localJsonRenderPluginDef,
