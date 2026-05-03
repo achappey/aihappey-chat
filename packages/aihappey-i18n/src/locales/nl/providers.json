@@ -11,6 +11,26 @@
       "instruction": "Instructie"
     }
   },
+  "microsoft": {
+    "locationTitle": "Locatiehint",
+    "timeZone": "Tijdzone (IANA)",
+    "countryOrRegion": "Land of regio",
+    "countryOrRegionConfidence": "Betrouwbaarheid land of regio",
+    "latitude": "Breedtegraad",
+    "longitude": "Lengtegraad",
+    "contextualResourcesTitle": "Contextuele bronnen",
+    "webContext": "Zoeken op internet",
+    "webContextUnset": "Niet ingesteld",
+    "webContextEnabled": "Ingeschakeld",
+    "webContextDisabled": "Uitgeschakeld",
+    "filesDescription": "Voeg OneDrive- of SharePoint-bestandslinks toe als contextuele bronnen",
+    "fileUri": "Bestand {{index}} link",
+    "addFile": "Bestandslink toevoegen",
+    "additionalContextTitle": "Aanvullende context",
+    "additionalContextDescription": "Voeg tekstfragmenten toe die als aanvullende context worden meegestuurd.",
+    "additionalContextEntry": "Context {{index}}",
+    "addAdditionalContext": "Context toevoegen"
+  },
   "deepinfra": {
     "transcription": {
       "task": "Taak",
