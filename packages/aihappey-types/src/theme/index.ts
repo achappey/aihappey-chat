@@ -1,4 +1,5 @@
 export * from "./AihUiTheme";
+export * from "./AvatarGroup";
 export * from "./Accordion";
 export * from "./IconToken";
 export * from "./Menu";

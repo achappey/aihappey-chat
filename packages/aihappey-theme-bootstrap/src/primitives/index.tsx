@@ -1,4 +1,5 @@
 export { Select } from "./Select";
+export { AvatarGroup } from "./AvatarGroup";
 export { Image } from "./Image";
 export { Accordion } from "./Accordion";
 export { Toolbar } from "./Toolbar";

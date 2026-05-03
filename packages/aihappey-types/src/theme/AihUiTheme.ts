@@ -38,6 +38,7 @@ import type { UserMenuComponent } from "./UserMenu";
 import type { SplitButtonComponent } from "./SplitButton";
 import type { AudioPlayerComponent } from "./AudioPlayer";
 import type { TextComponent } from "./Text";
+import type { AvatarGroupComponent } from "./AvatarGroup";
 
 /**
  * Split-out theme contract (recomposed from per-component types).
@@ -46,6 +47,7 @@ import type { TextComponent } from "./Text";
  * the active contract for now.
  */
 export interface AihUiTheme {
+  AvatarGroup: AvatarGroupComponent;
   DataGrid: DataGridComponent;
   Header: HeaderComponent;
   JsonViewer: JsonViewerComponent;

@@ -61,8 +61,10 @@ import { AudioPlayer } from "./primitives/AudioPlayer";
 import { JSX } from "react";
 import { Text as TextPrimitive } from "./primitives/Text";
 import { Accordion } from "./primitives/Accordion";
+import { AvatarGroup } from "./primitives/AvatarGroup";
 
 export const fluentTheme: AihUiTheme = {
+  AvatarGroup,
   DataGrid,
   Header,
   ToggleButton,

@@ -1,4 +1,5 @@
 export { Button } from "./Button";
+export { AvatarGroup } from "./AvatarGroup";
 export { Input } from "./Input";
 export { Card } from "./Card";
 export { Accordion } from "./Accordion";

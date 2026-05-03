@@ -55,8 +55,10 @@ import { BootstrapSettings } from "./primitives/BootstrapSettings";
 import { AudioPlayer } from "./primitives/AudioPlayer";
 import { Text as TextPrimitive } from "./primitives/Text";
 import { Accordion } from "./primitives/Accordion";
+import { AvatarGroup } from "./primitives/AvatarGroup";
 
 export const bootstrapTheme: AihUiTheme = {
+  AvatarGroup,
   Header,
   DataGrid,
   JsonViewer,
