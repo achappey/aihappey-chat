@@ -61,11 +61,16 @@ export const localConversationsGetTool: Tool = {
 export const localConversationsSearchTextTool: Tool = {
   name: "local_conversations_search_text",
   title: "Search local conversations (text only)",
-  description: "Plain text search across local conversations. Searches only text parts.",
+  description:
+    "Plain text search across local conversations. Searches only text parts. Multi-word queries match when all words occur in the same text part, regardless of order or distance.",
   inputSchema: {
     type: "object",
     properties: {
-      query: { type: "string", description: "Search query (substring match)" },
+      query: {
+        type: "string",
+        description:
+          "Search query. Single words use substring match; multi-word queries require every word in the same text part.",
+      },
       limit: { type: "number", description: "Max results (default 20, max 50)" },
     },
     required: ["query"],
@@ -100,6 +105,61 @@ function extractTextParts(msg: UIMessage): string[] {
     .filter(Boolean);
 }
 
+type SearchTermMatch = {
+  term: string;
+  index: number;
+};
+
+function tokenizeSearchQuery(query: string): string[] {
+  const seen = new Set<string>();
+  const terms: string[] = [];
+
+  for (const token of query.toLocaleLowerCase().split(/\s+/).filter(Boolean)) {
+    if (seen.has(token)) continue;
+    seen.add(token);
+    terms.push(token);
+  }
+
+  return terms;
+}
+
+function getSearchTermMatches(haystack: string, terms: string[]): SearchTermMatch[] | null {
+  const hay = haystack.toLocaleLowerCase();
+  const matches = terms.map((term) => ({ term, index: hay.indexOf(term) }));
+
+  if (matches.some((match) => match.index === -1)) return null;
+
+  return matches.sort((a, b) => a.index - b.index);
+}
+
+function createSearchSnippet(text: string, matches: SearchTermMatch[]): string {
+  const compactText = text.replace(/\s+/g, " ").trim();
+
+  if (compactText.length <= 320) return compactText;
+
+  const firstMatch = matches[0];
+  if (!firstMatch) return compactText.slice(0, 240).trimEnd() + "…";
+
+  const contextChars = 90;
+  const maxSnippetLength = 260;
+  const lastMatchEnd = Math.max(
+    ...matches.map((match) => match.index + match.term.length)
+  );
+
+  let start = Math.max(0, firstMatch.index - contextChars);
+  let end = Math.min(text.length, lastMatchEnd + contextChars);
+
+  if (end - start > maxSnippetLength) {
+    end = Math.min(text.length, start + maxSnippetLength);
+  }
+
+  const prefix = start > 0 ? "…" : "";
+  const suffix = end < text.length ? "…" : "";
+  const excerpt = text.slice(start, end).replace(/\s+/g, " ").trim();
+
+  return `${prefix}${excerpt}${suffix}`;
+}
+
 export type LocalConversationTextSearchHit = {
   conversationId: string;
   messageId: string | null;
@@ -129,6 +189,8 @@ export async function searchLocalConversationsText(
   const q = (query ?? "").trim();
   if (!q) throw new Error("Missing query.");
 
+  const terms = tokenizeSearchQuery(q);
+
   const cappedLimit = Math.max(1, Math.min(50, Number(limit ?? 20)));
 
   const results: LocalConversationTextSearchHit[] = [];
@@ -145,9 +207,8 @@ export async function searchLocalConversationsText(
       const textParts = extractTextParts(msg as any);
       for (let partIndex = 0; partIndex < textParts.length; partIndex++) {
         const text = textParts[partIndex];
-        const hay = text.toLowerCase();
-        const idx = hay.indexOf(q.toLowerCase());
-        if (idx === -1) continue;
+        const matches = getSearchTermMatches(text, terms);
+        if (!matches) continue;
 
         results.push({
           conversationId: convo.id,
@@ -155,8 +216,8 @@ export async function searchLocalConversationsText(
           messageIndex,
           role,
           partIndex,
-          matchIndex: idx,
-          snippet: text,
+          matchIndex: matches[0]?.index ?? 0,
+          snippet: createSearchSnippet(text, matches),
         });
 
         if (results.length >= cappedLimit) break;
