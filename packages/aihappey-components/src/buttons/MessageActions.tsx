@@ -4,6 +4,7 @@ import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessagePart }
 import { useTheme } from "../theme/ThemeContext";
 import { CostBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
+import { SourcesButton } from "./SourcesButton";
 import { TemperatureBadge } from "../badges/TemperatureBadge";
 import { useMediaQuery } from "usehooks-ts";
 import { useTranslation } from "aihappey-i18n";
@@ -73,18 +74,16 @@ export const MessageActions = ({
 
       {msg.role === "assistant" && <CostBadge cost={msg.cost} />}
 
-      {onShowSources
-        && msg?.sources
-        && msg?.sources?.length > 0 && (
-          <Button
-            variant="subtle"
-            style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
-            onClick={() => onShowSources(msg.sources ?? [])}
-            icon={"sources"}
-          >
-            {msg.sources.length}
-          </Button>
+      {onShowSources &&
+        msg?.sources &&
+        msg.sources.length > 0 && (
+          <SourcesButton
+            sources={msg.sources}
+            size={size}
+            onClick={onShowSources}
+          />
         )}
+
 
       {onShowAttachments
         && msg?.attachments
@@ -136,3 +135,17 @@ export const MessageActions = ({
     </div>
   );
 };
+
+/* {onShowSources
+        && msg?.sources
+        && msg?.sources?.length > 0 && (
+          <Button
+            variant="subtle"
+            style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+            onClick={() => onShowSources(msg.sources ?? [])}
+            icon={"sources"}
+          >
+            {msg.sources.length}
+          </Button>
+        )}
+*/

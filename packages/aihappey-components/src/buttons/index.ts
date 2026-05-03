@@ -3,6 +3,7 @@ export * from "./ViewButton";
 export * from "./CopyToClipboardButton";
 export * from "./OpenLinkButton";
 export * from "./MessageActions";
+export * from "./SourcesButton";
 export * from "./ToolApprovalButtons";
 export * from "./AttachmentButton";
 export * from "./SettingsActionButtons";

@@ -46,7 +46,8 @@ export function toChatMessages(
     );
 
     const sources = parts.filter(
-      (p) => p?.type === "source-url" || p?.type === "source-document"
+      (p) => (p?.type === "source-url" && !p?.url?.startsWith("file://"))
+        || p?.type === "source-document"
     );
 
     const baseTime = createdAtRaw ? Date.parse(createdAtRaw) : Date.now();
