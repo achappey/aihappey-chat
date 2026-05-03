@@ -163,10 +163,16 @@ export const ConversationSidebar = ({
           icon: "chart",
         },
         {
+          key: "usage",
+          label: t("ai.usage.nav"),
+          href: "/usage",
+          new: true,
+          icon: "databaseGear",
+        },
+        {
           key: "playground",
           label: "Playground",
           href: "/playground",
-          new: true,
           icon: "brain",
         },
       ],
@@ -279,23 +285,25 @@ export const ConversationSidebar = ({
             ? "providers"
             : location.pathname === "/mesh"
               ? "mesh"
-              : location.pathname === "/tools"
-                ? "tools"
-                : location.pathname === "/files"
-                  ? "files"
-                  : location.pathname === "/skills"
-                    ? "skills"
-                  : location.pathname === "/structured-outputs"
-                     ? "structured-outputs"
-                    : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
-                      ? "web-apps"
-                      : location.pathname === "/catalogs"
-                        ? "catalogs"
-                        : location.pathname === "/registries"
-                          ? "registries"
-                          : location.pathname === "/reranking"
-                            ? "reranking"
-                            : conversationId ?? undefined
+              : location.pathname === "/usage"
+                ? "usage"
+                : location.pathname === "/tools"
+                  ? "tools"
+                  : location.pathname === "/files"
+                    ? "files"
+                    : location.pathname === "/skills"
+                      ? "skills"
+                      : location.pathname === "/structured-outputs"
+                        ? "structured-outputs"
+                        : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
+                          ? "web-apps"
+                          : location.pathname === "/catalogs"
+                            ? "catalogs"
+                            : location.pathname === "/registries"
+                              ? "registries"
+                              : location.pathname === "/reranking"
+                                ? "reranking"
+                                : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -309,6 +317,8 @@ export const ConversationSidebar = ({
       await navigate("/providers");
     } else if (id === "mesh") {
       await navigate("/mesh");
+    } else if (id === "usage") {
+      await navigate("/usage");
     } else if (id === "tools") {
       await navigate("/tools");
     } else if (id === "files") {

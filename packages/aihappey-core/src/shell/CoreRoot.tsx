@@ -22,6 +22,7 @@ import { useTheme } from "aihappey-components";
 import { ModelsPage } from "../features/models/ModelsPage";
 import { ProvidersPage } from "../features/providers/ProvidersPage";
 import { MeshPage } from "../features/providers/MeshPage";
+import { UsagePage } from "../features/usage/UsagePage";
 import { TranscriptionsPage } from "../features/transcriptions/TranscriptionsPage";
 import { SpeechPage } from "../features/speech/SpeechPage";
 import { ToolsPage } from "../features/tools/ToolsPage";
@@ -114,6 +115,7 @@ export const CoreRoot = ({
             { path: "models", element: <ModelsPage /> },
             { path: "providers", element: <ProvidersPage /> },
             { path: "mesh", element: <MeshPage /> },
+            { path: "usage", element: <UsagePage /> },
             { path: "playground", element: <PlaygroundPage /> },
             { path: "tools", element: <ToolsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
