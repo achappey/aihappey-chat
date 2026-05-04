@@ -157,7 +157,7 @@ export const OpenAIWebSearchForm = ({
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
             <theme.Input
-              label={t("providers:openai.allowedDomains", "Allowed domains")}
+              label={t("providers:openai.allowedDomains")}
               placeholder="pubmed.ncbi.nlm.nih.gov"
               disabled={!webSearchOn}
               value={draftDomain}
@@ -262,7 +262,7 @@ export const OpenAIWebSearchForm = ({
           id="includeSources"
           disabled={!webSearchOn}
           checked={config?.include?.includes("web_search_call.action.sources")}
-          label={t("providers:openai.includeSources", "includeSources")}
+          label={t("providers:openai.includeSources")}
           onChange={(value) =>
             toggleInclude("web_search_call.action.sources", !!value)
           }

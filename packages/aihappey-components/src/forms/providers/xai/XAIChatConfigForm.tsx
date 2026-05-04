@@ -162,6 +162,17 @@ export const XAIChatConfigForm = ({
               })
             }
           />
+
+          <theme.Switch
+            id="includeSources"
+            disabled={!webSearchOn}
+            checked={config?.include?.includes("web_search_call.action.sources")}
+            label={t("providers:openai.includeSources")}
+            onChange={(value) =>
+              toggleInclude("web_search_call.action.sources", !!value)
+            }
+          />
+
         </div>
       </theme.Card>
 
@@ -267,7 +278,19 @@ export const XAIChatConfigForm = ({
             }
           />
         }
-      />
+      >
+        <div>
+          <theme.Switch
+            id="includeOutputs"
+            disabled={!codeExecutionOn}
+            checked={config?.include?.includes("code_interpreter_call.outputs")}
+            label={t("providers:openai.includeOutputs")}
+            onChange={(value) =>
+              toggleInclude("code_interpreter_call.outputs", !!value)
+            }
+          />
+        </div>
+      </theme.Card>
 
       <theme.Switch
         id="parallelToolCalls"
