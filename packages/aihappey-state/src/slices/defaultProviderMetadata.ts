@@ -64,6 +64,17 @@ export const defaultProviderMetadata = {
         "user_location": null
       },
       {
+        "name": "web_fetch",
+        "type": "web_fetch_20260309",
+        "max_uses": 5,
+        "allowed_callers": ["direct"],
+        "allowed_domains": null,
+        "blocked_domains": null,
+        "citations": {
+          "enabled": true,
+        },
+      },
+      {
         "name": "code_execution",
         "allowed_callers": ["direct"],
         "type": "code_execution_20260120"
@@ -72,7 +83,7 @@ export const defaultProviderMetadata = {
     "anthropic-beta": "",
     "max_tokens": 64000,
     "thinking": {
-      "type": "disabled"
+      "type": "adaptive"
     },
     "container": undefined
   },
@@ -91,11 +102,8 @@ export const defaultProviderMetadata = {
   },
   "groq": {
     "tools": [
-      {
-        "type": "browser_search"
-      }
     ],
-
+    "truncation": "auto",
     "parallel_tool_calls": true,
   },
   "cohere": {
@@ -135,6 +143,7 @@ export const defaultProviderMetadata = {
     }],
     "include":
       [
+        "web_search_call.action.sources",
         "reasoning.encrypted_content"
       ],
     "reasoning": {
