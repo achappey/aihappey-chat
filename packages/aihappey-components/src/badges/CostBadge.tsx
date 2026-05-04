@@ -23,7 +23,7 @@ export const CostBadge: React.FC<CostBadgeProps> = ({
     typeof cost === "number" && Number.isFinite(cost)
       ? roundedCost === 0 && cost > 0
         ? "0.00>"
-        : String(roundedCost)
+        : roundedCost!.toFixed(2)
       : undefined;
 
   return typeof displayCost === "string" ? (
