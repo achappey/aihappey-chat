@@ -715,7 +715,7 @@ export const OpenRouterChatConfigForm = ({
           />
         }
       >
-   
+
       </theme.Card>
 
       <theme.Card
