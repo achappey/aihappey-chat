@@ -124,7 +124,6 @@
                       "maximumIterationCount":  "Maximale Anzahl an Iterationen ({{maximumIterationCount}})",
                       "groupchat":  "Gruppenchat"
                   },
-    "nativeMcp":  "MCP Ã¼ber KI verwenden",
     "copyLink":  "Link in die Zwischenablage kopieren",
     "newWindow":  "Prompt in neuem Fenster Ã¶ffnen",
     "activities":  "AktivitÃ¤ten",

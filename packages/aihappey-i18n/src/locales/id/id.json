@@ -123,8 +123,7 @@
                                    },
                       "maximumIterationCount":  "Jumlah iterasi maksimum ({{maximumIterationCount}})",
                       "groupchat":  "Chat grup"
-                  },
-    "nativeMcp":  "Gunakan MCP melalui AI",
+                  },   
     "copyLink":  "Salin tautan",
     "newWindow":  "Buka di jendela baru",
     "activities":  "Aktivitas",

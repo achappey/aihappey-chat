@@ -313,7 +313,6 @@
         "maximumIterationCount": "Maximum iteration count ({{maximumIterationCount}})",
         "groupchat": "Groupchat"
     },
-    "nativeMcp": "Use MCP through AI",
     "copyClipboard": "Copy to clipboard",
     "newWindow": "Open in new window",
     "activities": "Activities",
