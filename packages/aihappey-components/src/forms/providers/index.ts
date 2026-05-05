@@ -14,6 +14,7 @@ export * from "./browseruse";
 export * from "./brave";
 export * from "./perplexity";
 export * from "./openai";
+export * from "./openrouter";
 export * from "./anthropic";
 export * from "./sambanova";
 export * from "./azure";

@@ -38,6 +38,21 @@ export const defaultProviderMetadata = {
     },
     "parallel_tool_calls": true,
   },
+  "openrouter": {
+    "tools": [
+      {
+        "type": "openrouter:web_search"
+      },
+      {
+        "type": "openrouter:datetime"
+      }
+    ],
+    "provider": {
+      "zdr": undefined
+    },
+    "plugins": undefined,
+    "headers": undefined
+  },
   "brave": {
     "web_search_options": {
       "search_context_size": "medium"

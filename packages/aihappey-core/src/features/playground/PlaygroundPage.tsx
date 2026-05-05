@@ -621,6 +621,7 @@ export const PlaygroundPage = () => {
               providerKey={providerKey}
               providerMetadata={providerMetadata}
               setProviderMetadata={setProviderMetadata}
+              appTitle={config?.appName}
               rawResponse={rawResponse}
               requestPreviewHeaders={requestPreviewHeaders}
               requestPreviewBody={requestPreviewBody}

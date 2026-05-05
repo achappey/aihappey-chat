@@ -13,6 +13,7 @@ import {
   MicrosoftChatConfigForm,
   MistralChatConfigForm,
   OpenAIChatConfigForm,
+  OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
   PollinationsChatConfigForm,
   ResponsesEndpointConfigForm,
@@ -56,6 +57,7 @@ type PlaygroundSettingsDrawerProps = {
   providerMetadata: any;
   setProviderMetadata: React.Dispatch<React.SetStateAction<any>>;
   rawResponse: any;
+  appTitle?: string;
   requestPreviewHeaders?: string;
   requestPreviewBody?: string;
 };
@@ -93,6 +95,7 @@ export const PlaygroundSettingsDrawer = ({
   providerMetadata,
   setProviderMetadata,
   rawResponse,
+  appTitle,
   requestPreviewHeaders = "",
   requestPreviewBody = "",
 }: PlaygroundSettingsDrawerProps) => {
@@ -154,6 +157,8 @@ export const PlaygroundSettingsDrawer = ({
             updateConfig={updateProviderConfig}
           />
         );
+      case "openrouter":
+        return <OpenRouterChatConfigForm config={providerMetadata.openrouter ?? {}} appTitle={appTitle} updateConfig={updateProviderConfig} />;
       case "perplexity":
         return <PerplexityChatConfigForm config={providerMetadata.perplexity ?? {}} models={models} updateConfig={updateProviderConfig} />;
       case "pollinations":
@@ -170,6 +175,7 @@ export const PlaygroundSettingsDrawer = ({
   }, [
     Text,
     openAISkillOptions,
+    appTitle,
     playgroundModel,
     providerKey,
     providerMetadata,

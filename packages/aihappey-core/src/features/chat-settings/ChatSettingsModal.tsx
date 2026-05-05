@@ -15,6 +15,7 @@ import {
   LocalToolsSettingsForm,
   MicrosoftChatConfigForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
+  OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
   PollinationsChatConfigForm,
   SambanovaChatConfigForm,
@@ -29,6 +30,7 @@ import {
   createOpenAIShellSkillResolver,
 } from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
+import { useChatContext } from "../chat/context/ChatContext";
 
 export interface ProviderSettingsModalProps {
   open: boolean;
@@ -68,6 +70,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { config: chatConfig } = useChatContext();
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
   const models = useAppStore((a) => a.models);
@@ -177,6 +180,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       microsoft: (microsoft: any) => updateProviderConfig("microsoft", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
       openai: (openai: any) => updateProviderConfig("openai", openai),
+      openrouter: (openrouter: any) => updateProviderConfig("openrouter", openrouter),
       pollinations: (pollinations: any) => updateProviderConfig("pollinations", pollinations),
       perplexity: (perplexity: any) => updateProviderConfig("perplexity", perplexity),
       together: (together: any) => updateProviderConfig("together", together),
@@ -471,6 +475,17 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               />
             ) : null}
 
+          </theme.Tab>
+        }
+        {enabledProviders.includes("OpenRouter") &&
+          <theme.Tab eventKey="openrouter" title="OpenRouter">
+            {activeTab === "openrouter" ? (
+              <OpenRouterChatConfigForm
+                config={draft.providerMetadata.openrouter ?? {}}
+                appTitle={chatConfig?.appName}
+                updateConfig={providerConfigUpdaters.openrouter}
+              />
+            ) : null}
           </theme.Tab>
         }
         {enabledProviders.includes("Pollinations") &&

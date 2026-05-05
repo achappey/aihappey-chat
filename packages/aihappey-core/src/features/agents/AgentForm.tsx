@@ -1,4 +1,4 @@
-import { AnthropicChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -19,6 +19,7 @@ import {
 } from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
 import { buildSkillMatchKey, buildStoredSkillMatchKey, createInlineAgentSkill, getInlineAgentSkillPayload, readInlineAgentSkillMetadata } from "./agentSkills";
+import { useChatContext } from "../chat/context/ChatContext";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -34,6 +35,7 @@ export const AgentForm = ({
     onBusyChange }: AgentFormProps) => {
     const { Input, TextArea, Tabs, Tab, Button, Text } = useTheme();
     const { t } = useTranslation();
+    const { config: chatConfig } = useChatContext();
     const [activeTab, setActiveTab] = useState("general");
     const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
     const [skillSyncPending, setSkillSyncPending] = useState(false);
@@ -487,6 +489,14 @@ export const AgentForm = ({
                             config={providerMeta}
                             openAISkillOptions={openAISkillOptions}
                             resolveOpenAIShellSkill={resolveOpenAIShellSkill}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "openrouter" && (
+                        <OpenRouterChatConfigForm
+                            config={providerMeta}
+                            appTitle={chatConfig?.appName}
                             updateConfig={updateProviderMetadata}
                         />
                     )}
