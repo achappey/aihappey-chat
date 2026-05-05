@@ -8,11 +8,13 @@ import { Markdown } from "../../../../ui/markdown/Markdown";
 export interface ToolInvocationCardProps {
   invocation: any;
   tool?: any;
+  providerIcons?: any;
 }
 
 export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   invocation,
   tool,
+  providerIcons,
 }) => {
   const { i18n } = useTranslation();
   const [output, setOutput] = useState<any | null>(null);
@@ -26,6 +28,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
       <ToolInvocationCardComponent
         invocation={invocation}
         tool={tool}
+        providerIcons={providerIcons}
         getToolExplanation={getToolExplanation}
         renderToolExplanation={(expl: any) => <Markdown text={expl} />}
         onShowOutput={(result: any) => setOutput(result)}

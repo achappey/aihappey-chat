@@ -635,7 +635,7 @@ export function VercelChatInner({
         onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
-      <ActivityDrawer messages={uiMessages} uiTree={effectiveUiTree} uiOutput={activeData} />
+      <ActivityDrawer messages={uiMessages} uiTree={effectiveUiTree} uiOutput={activeData} currentModel={model} />
 
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}

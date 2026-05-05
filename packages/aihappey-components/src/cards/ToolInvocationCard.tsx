@@ -13,6 +13,7 @@ export interface ToolInvocationCardProps {
     output?: any;
     toolCallId?: string;
     title?: string;
+    providerExecuted?: boolean;
     approval?: {
       id: string,
       approved?: boolean,
@@ -20,6 +21,7 @@ export interface ToolInvocationCardProps {
     }
   };
   tool?: Tool;
+  providerIcons?: Tool["icons"];
   getToolExplanation?: any;
   renderToolExplanation?: any;
   onShowOutput?: (data: any) => void
@@ -35,6 +37,7 @@ function prettySize(obj: any) {
 export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   invocation,
   tool,
+  providerIcons,
   onShowOutput,
   renderToolExplanation,
   getToolExplanation,
@@ -46,6 +49,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   const task = invocation?.output?.task as any;
 
   const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? toolName;
+  const imageIcons = tool?.icons ?? (invocation.providerExecuted ? providerIcons : undefined);
 
   const isCompleted = invocation.state === 'approval-responded'
     || invocation.state === 'output-available';
@@ -68,7 +72,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
     <Card
       description={cardDescription}
       title={toolTitle}
-      image={<CapabilityIcon icons={tool?.icons} />}
+      image={<CapabilityIcon icons={imageIcons} />}
       headerActions={
         <>
           {invocation.state?.startsWith("input-") && <Spinner size="small" />}

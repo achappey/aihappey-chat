@@ -13,8 +13,15 @@ type Story = StoryObj<typeof ToolInvocationCard>;
 const tool: Tool = {
   name: "demo-tool",
   title: "Demo Tool",
+  inputSchema: {
+    type: "object"
+  },
   icons: [{ src: "https://placehold.co/32x32?text=T", theme: "light" }],
 };
+
+const providerIcons: Tool["icons"] = [
+  { src: "https://placehold.co/32x32?text=AI", theme: "light" },
+];
 
 const baseInvocation = {
   type: "tool-demo-tool",
@@ -105,6 +112,29 @@ export const WithoutToolUsesInvocationTypeForTitle: Story = {
   render: () => (
     <ToolInvocationCard
       invocation={{ ...baseInvocation, type: "tool-custom" }}
+    />
+  ),
+};
+
+/**
+ * PROVIDER EXECUTED — provider icon without MCP tool metadata
+ */
+export const ProviderExecutedWithProviderIcon: Story = {
+  render: () => (
+    <ToolInvocationCard
+      invocation={{ ...baseInvocation, type: "tool-search", state: "output-available", providerExecuted: true }}
+      providerIcons={providerIcons}
+    />
+  ),
+};
+
+/**
+ * PROVIDER EXECUTED — no provider icon available should remain safe
+ */
+export const ProviderExecutedWithoutProviderIcon: Story = {
+  render: () => (
+    <ToolInvocationCard
+      invocation={{ ...baseInvocation, type: "tool-search", state: "output-available", providerExecuted: true }}
     />
   ),
 };

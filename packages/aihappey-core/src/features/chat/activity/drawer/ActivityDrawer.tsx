@@ -14,18 +14,77 @@ import { useIsDesktop } from "../../../../shell/responsive/useIsDesktop";
  * Returns a flat array of all tool invocation activities from the current message stream.
  * Each entry includes the message id, role, and the toolInvocation payload.
  */
-const useToolInvocations = (messages?: UIMessage[]) => {
+const readStringByKeys = (value: any, keys: string[], depth = 3): string | undefined => {
+  if (!value || depth < 0 || typeof value !== "object") return undefined;
+
+  for (const key of keys) {
+    const candidate = value[key];
+    if (typeof candidate === "string" && candidate.trim()) return candidate;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = readStringByKeys(item, keys, depth - 1);
+      if (found) return found;
+    }
+    return undefined;
+  }
+
+  for (const item of Object.values(value)) {
+    const found = readStringByKeys(item, keys, depth - 1);
+    if (found) return found;
+  }
+
+  return undefined;
+};
+
+const getProviderIdFromModelId = (modelId?: string) => {
+  const trimmed = String(modelId ?? "").trim();
+  if (!trimmed) return undefined;
+
+  const idx = trimmed.indexOf("/");
+  return (idx > 0 ? trimmed.slice(0, idx) : trimmed).toLowerCase();
+};
+
+const getFinishPartModelId = (message: any) => {
+  const finishPart = (message?.parts ?? []).find((p: any) =>
+    typeof p?.type === "string" && p.type.toLowerCase().includes("finish")
+  );
+
+  return readStringByKeys(finishPart, ["model", "modelId", "selectedModel"])
+    ?? (typeof finishPart?.model?.id === "string" ? finishPart.model.id : undefined);
+};
+
+const getAssistantRunProviderId = (message: any, currentRunModel?: string) => {
+  const modelId = getFinishPartModelId(message)
+    ?? readStringByKeys(message?.metadata, ["model", "modelId", "selectedModel"])
+    ?? currentRunModel;
+
+  return getProviderIdFromModelId(modelId);
+};
+
+const useToolInvocations = (messages?: UIMessage[], currentModel?: string) => {
+  const lastAssistantIndex = messages?.findLastIndex((m: any) => m.role === "assistant") ?? -1;
+
   return (
-    messages?.flatMap((m: any) =>
-      (m.parts || [])
-        .filter((p: any) => p.type.startsWith("tool-") && p.type != "tool-call")
+    messages?.flatMap((m: any, messageIndex: number) => {
+      const isCurrentAssistantRun = m.role === "assistant" && messageIndex === lastAssistantIndex;
+      const providerId = getAssistantRunProviderId(
+        m,
+        isCurrentAssistantRun ? currentModel : undefined
+      );
+
+      return (m.parts || [])
+        .filter((p: any) => p.type?.startsWith("tool-") && p.type != "tool-call")
         .map((p: any, idx: number) => ({
+          ...p,
           msgId: m.id,
           role: m.role,
           metadata: m.metadata,           // 👈 carries metadata.timestamp
           partIndex: idx,                 // 👈 order within the message
-          ...p,
-        }))
+          providerId: p.providerId ?? providerId,
+        }));
+    }
     ) ?? []
   );
 };
@@ -40,17 +99,17 @@ const parseIso = (ts?: string) => {
 export const toArray = (val: any) =>
   Array.isArray(val) ? val : val ? [val] : [];
 
-export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiOutput?: any }) => {
+export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiOutput?: any; currentModel?: string }) => {
   const { Drawer, Tabs, Tab, Button } = useTheme();
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
-  const { messages, uiTree, uiOutput } = props;
+  const { messages, uiTree, uiOutput, currentModel } = props;
   const showActivities = useAppStore((s) => s.showActivities);
   const setActivities = useAppStore((s) => s.setActivities);
   const activitiesSize = useAppStore((s) => s.activitiesSize);
   const chatMode = useAppStore((s) => s.chatMode);
   const setActivitiesSize = useAppStore((s) => s.setActivitiesSize);
-  const toolInvocations = useToolInvocations(messages);
+  const toolInvocations = useToolInvocations(messages, currentModel);
   const [activeTab, setActiveTab] = useState("toolInvocations");
 
   const extractResources = (
