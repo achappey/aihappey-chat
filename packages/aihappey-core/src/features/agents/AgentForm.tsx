@@ -1,4 +1,4 @@
-import { AnthropicChatConfigForm, BrowserUseChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
@@ -507,6 +507,13 @@ export const AgentForm = ({
 
                     {providerKey === "browseruse" && (
                         <BrowserUseChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "brave" && (
+                        <BraveChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

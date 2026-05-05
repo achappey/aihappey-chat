@@ -9,6 +9,7 @@ import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
   AnthropicChatConfigForm,
   BrowserUseChatConfigForm,
+  BraveChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
   LocalToolsSettingsForm,
@@ -169,6 +170,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
       cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
       browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
+      brave: (brave: any) => updateProviderConfig("brave", brave),
       google: (google: any) => updateProviderConfig("google", google),
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
@@ -394,6 +396,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <BrowserUseChatConfigForm
                 config={draft.providerMetadata.browseruse ?? {}}
                 updateConfig={providerConfigUpdaters.browseruse}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Brave") &&
+          <theme.Tab eventKey="brave" title="Brave">
+            {activeTab === "brave" ? (
+              <BraveChatConfigForm
+                config={draft.providerMetadata.brave ?? {}}
+                updateConfig={providerConfigUpdaters.brave}
               />
             ) : null}
           </theme.Tab>

@@ -3,6 +3,7 @@ import {
   AiChatSettingsForm,
   AnthropicChatConfigForm,
   BrowserUseChatConfigForm,
+  BraveChatConfigForm,
   ChatSettingsForm,
   ChatCompletionsEndpointConfigForm,
   CohereChatConfigForm,
@@ -132,6 +133,8 @@ export const PlaygroundSettingsDrawer = ({
         return <CohereChatConfigForm config={providerMetadata.cohere ?? {}} updateConfig={updateProviderConfig} />;
       case "browseruse":
         return <BrowserUseChatConfigForm config={providerMetadata.browseruse ?? {}} updateConfig={updateProviderConfig} />;
+      case "brave":
+        return <BraveChatConfigForm config={providerMetadata.brave ?? {}} updateConfig={updateProviderConfig} />;
       case "google":
         return <GoogleChatConfig google={providerMetadata.google ?? {}} updateGoogle={updateProviderConfig} />;
       case "groq":

@@ -38,6 +38,14 @@ export const defaultProviderMetadata = {
     },
     "parallel_tool_calls": true,
   },
+  "brave": {
+    "web_search_options": {
+      "search_context_size": "medium"
+    },
+    "enable_entities": true,
+    "enable_citations": true,
+    "enable_research": false
+  },
   "google": {
     "service_tier": "standard",
     "response_modalities": ["text"],

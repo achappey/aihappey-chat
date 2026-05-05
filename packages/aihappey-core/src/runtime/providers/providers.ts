@@ -278,7 +278,6 @@ import { apiairforce } from "./catalog/apiairforce";
 import { lava } from "./catalog/lava";
 import { multiverseai } from "./catalog/multiverseai";
 import { modelrouter } from "./catalog/modelrouter";
-import { maximoai } from "./catalog/maximoai";
 import { rime } from "./catalog/rime";
 import { noiz } from "./catalog/noiz";
 import { gradium } from "./catalog/gradium";
@@ -502,6 +501,7 @@ import { groovedev } from "./catalog/groovedev";
 import { botverse } from "./catalog/botverse";
 import { vibekit } from "./catalog/vibekit";
 import { microsoft } from "./catalog/microsoft";
+import { brave } from "./catalog/brave";
 
 /**
  * UI-facing provider catalog.
@@ -520,6 +520,7 @@ export const PROVIDERS: Record<string, Provider> = {
   sapiom,
   augure,
   forgebylana,
+  brave,
   radiance,
   ninjachat,
   botverse,
@@ -736,7 +737,6 @@ export const PROVIDERS: Record<string, Provider> = {
   arliai,
   rime,
   kirha,
-  maximoai,
   modelrouter,
   lava,
   casedev,
