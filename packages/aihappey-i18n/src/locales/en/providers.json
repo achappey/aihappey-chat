@@ -53,6 +53,25 @@
     "agentmail": "Enable AgentMail",
     "cacheScript": "Cache script"
   },
+  "brave": {
+    "notSet": "Not set",
+    "safesearch": "Safe search",
+    "safesearchOptions": {
+      "off": "Off",
+      "moderate": "Moderate",
+      "strict": "Strict"
+    },
+    "answerEnrichment": "Answer enrichment",
+    "enableEntities": "Enable entities",
+    "enableCitations": "Enable citations",
+    "research": "Research",
+    "researchAllowThinking": "Allow thinking",
+    "researchMaximumNumberOfTokensPerQuery": "Max tokens per query",
+    "researchMaximumNumberOfQueries": "Max queries",
+    "researchMaximumNumberOfIterations": "Max iterations",
+    "researchMaximumNumberOfSeconds": "Max seconds",
+    "researchMaximumNumberOfResultsPerQuery": "Max results per query"
+  },
   "microsoft": {
     "locationTitle": "Location hint",
     "timeZone": "Time zone (IANA)",

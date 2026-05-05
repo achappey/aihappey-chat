@@ -131,6 +131,25 @@
     "agentmail": "AgentMail inschakelen",
     "cacheScript": "Script opslaan"
   },
+  "brave": {
+    "notSet": "Niet ingesteld",
+    "safesearch": "Veilig zoeken",
+    "safesearchOptions": {
+      "off": "Uit",
+      "moderate": "Gemiddeld",
+      "strict": "Strikt"
+    },
+    "answerEnrichment": "Antwoordverrijking",
+    "enableEntities": "Entiteiten inschakelen",
+    "enableCitations": "Citaten inschakelen",
+    "research": "Onderzoek",
+    "researchAllowThinking": "Nadenken toestaan",
+    "researchMaximumNumberOfTokensPerQuery": "Max tokens per zoekopdracht",
+    "researchMaximumNumberOfQueries": "Max zoekopdrachten",
+    "researchMaximumNumberOfIterations": "Max iteraties",
+    "researchMaximumNumberOfSeconds": "Max seconden",
+    "researchMaximumNumberOfResultsPerQuery": "Max resultaten per zoekopdracht"
+  },
   "openai": {
     "shell": "Shell",
     "output_compression": "Uitvoer compressie",
