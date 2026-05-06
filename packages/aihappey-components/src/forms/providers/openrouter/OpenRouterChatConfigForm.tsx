@@ -25,7 +25,7 @@ const DEFAULT_APP_TITLE = "AIHappey";
 const WEB_SEARCH_ENGINES = ["", "auto", "native", "exa", "firecrawl", "parallel"] as const;
 const WEB_FETCH_ENGINES = ["", "auto", "native", "exa", "openrouter", "firecrawl"] as const;
 const SEARCH_CONTEXT_SIZES = ["", "low", "medium", "high"] as const;
-const PDF_ENGINES = ["", "cloudflare-ai", "mistral-ocr", "native", "pdf-text"] as const;
+const PDF_ENGINES = ["", "cloudflare-ai", "mistral-ocr", "native"] as const;
 const OUTPUT_FORMATS = ["", "png", "jpeg", "webp"] as const;
 const BACKGROUNDS = ["", "transparent", "opaque", "auto"] as const;
 const QUALITIES = ["", "low", "medium", "high", "auto"] as const;
@@ -160,6 +160,7 @@ export const OpenRouterChatConfigForm = ({
   const imageGeneration = resolvedConfig?.["openrouter:image_generation"];
   const webFetch = resolvedConfig?.["openrouter:web_fetch"];
   const responseHealingPlugin = getPlugin(resolvedConfig, "response-healing");
+  const contextCompressionPlugin = getPlugin(resolvedConfig, "context-compression");
   const fileParserPlugin = getPlugin(resolvedConfig, "file-parser");
   const appAttributionHeaders = useMemo(() => getAttributionHeaders(appTitle), [appTitle]);
   const appAttributionOn =
@@ -211,6 +212,12 @@ export const OpenRouterChatConfigForm = ({
   const updateResponseHealing = (enabled: boolean) => {
     submitConfig(
       setPlugin(resolvedConfig, "response-healing", enabled ? { id: "response-healing" } : undefined)
+    );
+  };
+
+  const updateContextCompression = (enabled: boolean) => {
+    submitConfig(
+      setPlugin(resolvedConfig, "context-compression", enabled ? { id: "context-compression" } : undefined)
     );
   };
 
@@ -706,12 +713,26 @@ export const OpenRouterChatConfigForm = ({
 
       <theme.Card
         size="small"
-        title={tr("responseHealingPlugin", "Response Healing plugin")}
+        title={tr("responseHealingPlugin", "responseHealingPlugin")}
         headerActions={
           <theme.Switch
             id="openrouterResponseHealing"
             checked={!!responseHealingPlugin}
             onChange={updateResponseHealing}
+          />
+        }
+      >
+
+      </theme.Card>
+
+      <theme.Card
+        size="small"
+        title={tr("contextCompressionPlugin", "contextCompressionPlugin")}
+        headerActions={
+          <theme.Switch
+            id="openrouterContextCompression"
+            checked={!!contextCompressionPlugin}
+            onChange={updateContextCompression}
           />
         }
       >
