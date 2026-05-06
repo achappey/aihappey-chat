@@ -8,7 +8,6 @@
     "@ai-sdk/openai": "^4.0.0-beta.13",
     "@modelcontextprotocol/sdk": "^1.21.2",
     "@ai-sdk/react": "^4.0.0-beta.30",
-    "@anthropic-ai/sdk": "^0.92.0",
     "aihappey-mcp": "*",
     "ai": "^7.0.0-beta.116",
     "openai": "^6.33.0"

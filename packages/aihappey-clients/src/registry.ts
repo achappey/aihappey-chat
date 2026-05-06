@@ -8,7 +8,6 @@ import type {
   PlaygroundClientOption,
   PlaygroundEndpointId,
 } from "./shared/types";
-import { anthropicClientAdapter } from "./clients/anthropic";
 import { openAiClientAdapter } from "./clients/openai";
 import { rawFetchClientAdapter } from "./clients/fetch";
 import { vercelClientAdapter } from "./clients/vercel";
@@ -35,7 +34,7 @@ const endpointAdapters: EndpointAdapter[] = [
 const clientAdapters: ClientAdapter[] = [
   vercelClientAdapter,
   openAiClientAdapter,
-  anthropicClientAdapter,
+  //anthropicClientAdapter,
   rawFetchClientAdapter,
 ];
 
