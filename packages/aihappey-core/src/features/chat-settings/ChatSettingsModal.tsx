@@ -20,7 +20,8 @@ import {
   PollinationsChatConfigForm,
   SambanovaChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
-  useTheme, XAIChatConfigForm
+  useTheme, XAIChatConfigForm,
+  RequestyChatConfigForm
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
@@ -186,6 +187,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       together: (together: any) => updateProviderConfig("together", together),
       sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
       xai: (xai: any) => updateProviderConfig("xai", xai),
+      requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
     }),
     [updateProviderConfig]
   );
@@ -484,6 +486,17 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
                 config={draft.providerMetadata.openrouter ?? {}}
                 appTitle={chatConfig?.appName}
                 updateConfig={providerConfigUpdaters.openrouter}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Requesty") &&
+          <theme.Tab eventKey="requesty" title="Requesty">
+            {activeTab === "requesty" ? (
+              <RequestyChatConfigForm
+                config={draft.providerMetadata.requesty ?? {}}
+                appTitle={chatConfig?.appName}
+                updateConfig={providerConfigUpdaters.requesty}
               />
             ) : null}
           </theme.Tab>

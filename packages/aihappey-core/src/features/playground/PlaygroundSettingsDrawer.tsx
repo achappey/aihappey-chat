@@ -21,6 +21,7 @@ import {
   TogetherChatConfigForm,
   useTheme,
   XAIChatConfigForm,
+  RequestyChatConfigForm,
 } from "aihappey-components";
 import type { PlaygroundEndpointConfigMap } from "aihappey-clients";
 import type { ModelOption } from "aihappey-types";
@@ -159,6 +160,8 @@ export const PlaygroundSettingsDrawer = ({
         );
       case "openrouter":
         return <OpenRouterChatConfigForm config={providerMetadata.openrouter ?? {}} appTitle={appTitle} updateConfig={updateProviderConfig} />;
+      case "requesty":
+        return <RequestyChatConfigForm config={providerMetadata.requesty ?? {}} appTitle={appTitle} updateConfig={updateProviderConfig} />;
       case "perplexity":
         return <PerplexityChatConfigForm config={providerMetadata.perplexity ?? {}} models={models} updateConfig={updateProviderConfig} />;
       case "pollinations":

@@ -84,9 +84,7 @@
     "notSet": "Niet ingesteld",
     "appAttribution": "App-attributie",
     "contextCompressionPlugin": "Context compressie",
-    "appAttributionDescription": "Stuurt OpenRouter app-attributie mee.",
     "zdr": "Zero Data Retention",
-    "zdrDescription": "Stuurt dit request alleen naar Zero Data Retention providers.",
     "webSearchServerTool": "Zoeken op internet",
     "webFetchServerTool": "Websites lezen",
     "datetimeServerTool": "Huidige datum/tijd",
@@ -117,6 +115,11 @@
     "outputCompression": "Outputcompressie",
     "moderation": "Moderatie",
     "pdfEngine": "PDF-engine"
+  },
+  "requesty": {
+    "appAttribution": "App-attributie",
+    "autoCache": "Automatisch cachen",
+    "autoCacheDescription": "Stuurt Requesty's requesty.auto_cache-vlag expliciet mee. Wanneer ingeschakeld kunnen ondersteunde providers zoals Anthropic en Gemini lange prompts en herhaalde content hergebruiken om kosten te verlagen."
   },
   "pollinations": {
     "enhance": "Verbeteren",

@@ -108,16 +108,14 @@
   "openrouter": {
     "notSet": "Not set",
     "appAttribution": "App attribution",
-    "appAttributionDescription": "Sends OpenRouter app attribution.",
     "zdr": "Zero Data Retention",
-    "zdrDescription": "Oly routes to Zero Data Retention endpoints.",
     "webSearchServerTool": "Web search",
     "webFetchServerTool": "Web fetch",
     "datetimeServerTool": "Current date/time",
     "imageGenerationServerTool": "Image generation",
     "responseHealingPlugin": "Response healing",
     "responseHealingDescription": "Automatically validates and repairs malformed JSON responses from AI models.",
-    "pdfInputsPlugin": "PDF Inputs",
+    "pdfInputsPlugin": "PDF inputs",
     "engine": "Engine",
     "contextCompressionPlugin": "Context compression",
     "searchContextSize": "Search context size",
@@ -142,6 +140,11 @@
     "outputCompression": "Output compression",
     "moderation": "Moderation",
     "pdfEngine": "PDF engine"
+  },
+  "requesty": {
+    "appAttribution": "App attribution",
+    "autoCache": "Auto caching",
+    "autoCacheDescription": "Explicitly sends Requesty's requesty.auto_cache flag. When enabled, supported providers such as Anthropic and Gemini can reuse long prompts and repeated content to reduce cost."
   },
   "anthropic": {
     "maxUses": "Maximum uses",

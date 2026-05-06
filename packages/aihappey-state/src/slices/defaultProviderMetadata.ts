@@ -53,6 +53,12 @@ export const defaultProviderMetadata = {
     "plugins": undefined,
     "headers": undefined
   },
+  "requesty": {
+    "requesty": {
+      "auto_cache": true
+    },
+    "headers": undefined
+  },
   "brave": {
     "web_search_options": {
       "search_context_size": "medium"
