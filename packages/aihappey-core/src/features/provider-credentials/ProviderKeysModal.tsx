@@ -25,8 +25,8 @@ const API_KEY_PROVIDER_IDS = Object.keys(PROVIDERS)
   .filter(a => a !== "pollinations")
   .filter(a => a !== "echo")
   .filter(a => a !== "azure")
+  .filter(a => a !== "microsoft")
   .filter(a => a !== "gtranslate")
-  .filter(a => a !== "kernelmemory")
 
 type ApiKeyProviderId = (typeof API_KEY_PROVIDER_IDS)[number];
 
@@ -197,6 +197,16 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
         name: provider.name,
         header: headerFor(id),
         iconSrc: pickIconSrc(provider.icons, isDarkMode),
+        url: provider.urls?.console ?? provider.urls?.homepage,
+        searchText: [
+          id,
+          provider.name,
+          provider.urls?.homepage,
+          provider.urls?.console,
+          provider.urls?.docs,
+        ]
+          .filter(Boolean)
+          .join(" "),
       };
     }).sort((a, b) => a.name.localeCompare(b.name));
   }, [isDarkMode]);
