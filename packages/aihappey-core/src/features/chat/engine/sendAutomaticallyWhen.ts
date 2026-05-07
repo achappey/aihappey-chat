@@ -3,7 +3,8 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage || lastMessage.role !== "assistant") return false;
 
-    const parts = (lastMessage.parts?.filter((a: any) => !a.type.startsWith("data-")) ?? []) as any[];
+    const parts = (lastMessage.parts?.filter((a: any) => !a.type.startsWith("data-")
+        && !a.type.startsWith("reasoning")) ?? []) as any[];
     if (parts.length === 0) return false;
 
     const lastPart = parts[parts.length - 1];
