@@ -131,6 +131,26 @@ export const localFileRenameTool: Tool = {
   },
 };
 
+export const localFileConvertToTextTool: Tool = {
+  name: "local_file_convert_to_text",
+  title: "Convert local file to text",
+  description:
+    "Convert a locally stored file to text using the same local attachment conversion pipeline and save it as a new .txt file with the same base name.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      name: { type: "string", description: "Exact local file name to convert." },
+    },
+    required: ["name"],
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: false,
+  },
+};
+
 /* ============================================================
    Plugin DEFINITION (STATIC)
 ============================================================ */
@@ -144,6 +164,7 @@ export const localFilesPluginDef = {
     localFileCreateTool,
     localFileDeleteTool,
     localFileRenameTool,
+    localFileConvertToTextTool,
   ],
 };
 
@@ -164,13 +185,36 @@ function wrapBlobAsFile(blob: Blob, name: string) {
   });
 }
 
+function textFilenameFromName(name: string) {
+  const trimmed = name.trim();
+  const slashIndex = Math.max(trimmed.lastIndexOf("/"), trimmed.lastIndexOf("\\"));
+  const dotIndex = trimmed.lastIndexOf(".");
+  const hasExtension = dotIndex > slashIndex;
+  return `${hasExtension ? trimmed.slice(0, dotIndex) : trimmed}.txt`;
+}
+
+async function convertFileToText(asFile: File): Promise<string | undefined> {
+  if (asFile.type === "application/zip" || /\.zip$/i.test(asFile.name)) {
+    const parts = await extractTextFromZip(asFile);
+    const texts = parts
+      .filter(p => p?.type === "text" && typeof p.text === "string")
+      .map(p => p.text)
+      .filter(Boolean);
+
+    return texts.length ? texts.join("\n\n") : undefined;
+  }
+
+  return await extractTextFromFile(asFile);
+}
+
 type LocalFileToolCall = {
   toolName:
     | "local_file_list"
     | "local_file_read"
     | "local_file_create"
     | "local_file_delete"
-    | "local_file_rename";
+    | "local_file_rename"
+    | "local_file_convert_to_text";
   input?: any;
 };
 
@@ -269,6 +313,36 @@ export function useLocalFilesRuntime(files?: FilesContextType | null) {
 
             await files.rename(file.id, normalizedNewName);
             return ok("OK");
+          }
+
+          case "local_file_convert_to_text": {
+            const { name } = toolCall.input ?? {};
+            const normalizedName = String(name ?? "").trim();
+            if (!normalizedName) throw new Error("Missing file name.");
+
+            const file = await resolveFileByName(files, normalizedName);
+            if (!file) throw new Error("File not found.");
+
+            const outputName = textFilenameFromName(file.name);
+            const existing = await resolveFileByName(files, outputName);
+            if (existing) throw new Error(`Destination file already exists: ${outputName}`);
+
+            const stored = await files.read(file.id);
+            if (!stored) throw new Error("File not found.");
+
+            const asFile = wrapBlobAsFile(stored.data, file.name);
+            const converted = await convertFileToText(asFile);
+            if (!converted?.trim()) {
+              throw new Error("File could not be converted to text.");
+            }
+
+            await files.create({
+              name: outputName,
+              mimeType: "text/plain",
+              data: new Blob([converted], { type: "text/plain" }),
+            });
+
+            return ok(`Created ${outputName}`);
           }
 
           default:
