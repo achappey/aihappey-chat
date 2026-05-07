@@ -8,6 +8,7 @@ import {
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
   AnthropicChatConfigForm,
+  BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
@@ -172,6 +173,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const providerConfigUpdaters = useMemo(
     () => ({
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
+      blackbox: (blackbox: any) => updateProviderConfig("blackbox", blackbox),
       cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
       browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
       brave: (brave: any) => updateProviderConfig("brave", brave),
@@ -497,6 +499,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
                 config={draft.providerMetadata.requesty ?? {}}
                 appTitle={chatConfig?.appName}
                 updateConfig={providerConfigUpdaters.requesty}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("BLACKBOX") &&
+          <theme.Tab eventKey="blackbox" title="BLACKBOX">
+            {activeTab === "blackbox" ? (
+              <BlackboxChatConfigForm
+                config={draft.providerMetadata.blackbox ?? {}}
+                updateConfig={providerConfigUpdaters.blackbox}
               />
             ) : null}
           </theme.Tab>

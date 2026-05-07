@@ -121,6 +121,16 @@
     "autoCache": "Automatisch cachen",
     "autoCacheDescription": "Stuurt Requesty's requesty.auto_cache-vlag expliciet mee. Wanneer ingeschakeld kunnen ondersteunde providers zoals Anthropic en Gemini lange prompts en herhaalde content hergebruiken om kosten te verlagen."
   },
+  "blackbox": {
+    "notSet": "Niet ingesteld",
+    "zdr": "Zero Data Retention",
+    "reasoning": "Nadenken",
+    "enabled": "Standaard nadenken inschakelen",
+    "effort": "Niveau",
+    "maxTokens": "Maximaal aantal tokens",
+    "exclude": "Nadenken weglaten uit het antwoord",
+    "summary": "Samenvatting"
+  },
   "pollinations": {
     "enhance": "Verbeteren",
     "enhanceHint": "Laat AI je prompt verbeteren voor betere resultaten",

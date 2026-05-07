@@ -59,6 +59,18 @@ export const defaultProviderMetadata = {
     },
     "headers": undefined
   },
+  "blackbox": {
+    "reasoning": {
+      "effort": "medium",
+      "summary": undefined,
+      "max_tokens": undefined,
+      "exclude": undefined,
+      "enabled": undefined
+    },
+    "provider": {
+      "zdr": undefined
+    }
+  },
   "brave": {
     "web_search_options": {
       "search_context_size": "medium"

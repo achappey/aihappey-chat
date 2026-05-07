@@ -11,6 +11,7 @@ export * from "./voyageai";
 export * from "./contextualai";
 export * from "./google";
 export * from "./browseruse";
+export * from "./blackbox";
 export * from "./brave";
 export * from "./perplexity";
 export * from "./openai";

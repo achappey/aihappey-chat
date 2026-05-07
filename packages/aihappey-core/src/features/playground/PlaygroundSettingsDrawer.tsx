@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import {
   AiChatSettingsForm,
   AnthropicChatConfigForm,
+  BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
   ChatSettingsForm,
@@ -133,6 +134,8 @@ export const PlaygroundSettingsDrawer = ({
     switch (providerKey) {
       case "anthropic":
         return <AnthropicChatConfigForm config={providerMetadata.anthropic ?? {}} updateConfig={updateProviderConfig} />;
+      case "blackbox":
+        return <BlackboxChatConfigForm config={providerMetadata.blackbox ?? {}} updateConfig={updateProviderConfig} />;
       case "cohere":
         return <CohereChatConfigForm config={providerMetadata.cohere ?? {}} updateConfig={updateProviderConfig} />;
       case "browseruse":
