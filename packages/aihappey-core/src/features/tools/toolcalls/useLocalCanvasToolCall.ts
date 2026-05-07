@@ -284,9 +284,19 @@ export function useLocalCanvasRuntime(files?: FilesContextType | null) {
             const stored = await files.read(file.id);
             if (!stored) throw new Error("File not found.");
 
-            const updated = (await stored.data.text()).replace(String(old_str ?? ""), String(new_str ?? ""));
+
+            const original = await stored.data.text();
+
+            const oldText = String(old_str ?? "");
+            if (!oldText) throw new Error("old_str is required.");
+
+            if (!original.includes(oldText))
+              throw new Error("old_str not found.");
+
+            const updated = original.replace(oldText, String(new_str ?? ""));
 
             await canvasReplace(files, file.id, file.name, updated);
+
             return ok("OK");
           }
 
