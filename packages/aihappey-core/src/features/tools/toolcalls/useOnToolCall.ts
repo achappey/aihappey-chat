@@ -57,7 +57,7 @@ import {
   useLocalArtificialIntelligenceRuntime,
 } from "./useLocalArtificialIntelligenceToolCall";
 import { useSkills } from "aihappey-skills";
-import { useSkillToolCall } from "./useSkillToolCall";
+import { buildSkillSearchPluginDef, SKILL_SEARCH_PLUGIN_ID, useSkillToolCall } from "./useSkillToolCall";
 import { mcpTaskPluginDef, useMcpTaskRuntime } from "./useMcpTaskToolCall";
 
 export function useOnToolCall({
@@ -141,9 +141,10 @@ export function useOnToolCall({
   });
   const { memoryPlugin } = useMemoryToolCall(); // runtime only
   const { readResourcePlugin } = useReadResourceToolCall({ mcpServers }); // runtime exists always
-  const { activateSkillPlugin, readSkillResourcePlugin } = useSkillToolCall({
+  const { searchSkillsPlugin, activateSkillPlugin, readSkillResourcePlugin } = useSkillToolCall({
     skills,
     enabledSkillIds,
+    skillSearchEnabled: enabledPlugins.includes(SKILL_SEARCH_PLUGIN_ID),
   });
 
   const runtimes = useMemo(
@@ -166,6 +167,7 @@ export function useOnToolCall({
       [localArtificialIntelligenceRuntime.name]: localArtificialIntelligenceRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
       [jsonRenderRuntime.name]: jsonRenderRuntime,
+      [searchSkillsPlugin.name]: searchSkillsPlugin,
     }),
     [
       localFilesRuntime,
@@ -186,6 +188,7 @@ export function useOnToolCall({
       localWebreaderRuntime,
       localChartJsRuntime,
       localArtificialIntelligenceRuntime,
+      searchSkillsPlugin,
     ]
   );
 
@@ -207,10 +210,11 @@ export function useOnToolCall({
       localRegistryPluginDef,
       localActionsPluginDef,
       localToolsPluginDef,
+      buildSkillSearchPluginDef(skills.items ?? []),
       mcpTaskPluginDef,
       vercelAIPluginDef,
     ],
-    []
+    [skills.items]
   );
 
   const specialRuntimes = useMemo(

@@ -19,6 +19,7 @@ import { localTodoPluginDef } from "../tools/toolcalls/useLocalTodoListToolCall"
 import { localWebPluginDef } from "../tools/toolcalls/useLocalWebToolCall";
 import { localChartJsPluginDef } from "../tools/toolcalls/useLocalChartJsToolCall";
 import { localArtificialIntelligencePluginDef } from "../tools/toolcalls/useLocalArtificialIntelligenceToolCall";
+import { SKILL_SEARCH_PLUGIN_ID } from "../tools/toolcalls/useSkillToolCall";
 
 // --- Tools Tab ---
 // Holds the "Lokale plugins" card previously shown in the General tab.
@@ -61,11 +62,17 @@ export const ToolsTab = ({
 
   const items = useMemo(
     () =>
-      defsAll
-        .map((d) => ({
+      [
+        ...defsAll.map((d) => ({
           id: d.name,
           label: t("plugins." + d.name),
-        }))
+        })),
+        {
+          id: SKILL_SEARCH_PLUGIN_ID,
+          label: t("plugins." + SKILL_SEARCH_PLUGIN_ID) ?? "Skill search",
+        },
+      ]
+        
         .sort((a, b) => a.label.localeCompare(b.label)),
     [defsAll, t]
   );

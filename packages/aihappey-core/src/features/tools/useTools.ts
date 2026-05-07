@@ -27,6 +27,7 @@ import { useSkills } from "aihappey-skills";
 import {
   buildActivateSkillTool,
   buildReadSkillResourceTool,
+  buildSkillSearchPluginDef,
 } from "./toolcalls/useSkillToolCall";
 import { buildMcpTaskTools, mcpTaskPluginDef } from "./toolcalls/useMcpTaskToolCall";
 
@@ -67,10 +68,11 @@ export function useTools() {
       localRegistryPluginDef,
       localActionsPluginDef,
       localToolsPluginDef,
+      buildSkillSearchPluginDef(skills.items ?? []),
       mcpTaskPluginDef,
       vercelAIPluginDef,
     ],
-    []
+    [skills.items]
   );
 
   // We don't need runtimes here; pass empty objects.

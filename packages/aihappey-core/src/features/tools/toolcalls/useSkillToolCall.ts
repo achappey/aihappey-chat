@@ -10,7 +10,7 @@ import {
   type SkillsContextType,
 } from "aihappey-skills";
 import { blobToBase64 } from "../../chat/files/file";
-import type { ToolPlugin } from "./usePlugins";
+import type { ToolPlugin, ToolPluginDef } from "./usePlugins";
 
 type SkillToolResult = CallToolResult & {
   structuredContent?: Record<string, any>;
@@ -26,6 +26,13 @@ type ReadSkillResourceToolCall = {
   input: { skill_id: string; path: string };
 };
 
+type SearchSkillsToolCall = {
+  toolName: "search_skills";
+  input?: { query?: string; limit?: number };
+};
+
+export const SKILL_SEARCH_PLUGIN_ID = "skill-search";
+
 function getEnabledSkills(
   items: SkillCatalogItem[],
   enabledSkillIds: string[]
@@ -38,6 +45,40 @@ function getEnabledSkills(
 
 function buildSkillCatalog(skills: SkillCatalogItem[]) {
   return skills.map((skill) => `- ${skill.skillId} (${skill.name}): ${skill.description}`).join("\n");
+}
+
+function clampSearchLimit(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) return 10;
+  return Math.max(1, Math.min(50, Math.floor(parsed)));
+}
+
+function normalizeSearchText(value: unknown) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function searchSkillCatalog(skills: SkillCatalogItem[], query: string, limit: number) {
+  const normalizedQuery = normalizeSearchText(query);
+  const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+  const matches = tokens.length === 0
+    ? skills
+    : skills.filter((skill) => {
+      const haystack = normalizeSearchText([
+        skill.skillId,
+        skill.name,
+        skill.description,
+        skill.origin,
+        skill.version,
+        skill.latestVersion,
+      ].filter(Boolean).join(" "));
+      return tokens.every((token) => haystack.includes(token));
+    });
+
+  return {
+    query: normalizedQuery,
+    totalMatches: matches.length,
+    skills: matches.slice(0, limit),
+  };
 }
 
 function escapeAttribute(value: string) {
@@ -54,7 +95,7 @@ function buildSkillUri(skillId: string, path: string) {
 }
 
 async function resolveEnabledSkill(
-  skills: Pick<SkillsContextType, "read">,
+  skills: Pick<SkillsContextType, "read" | "ensureDownloaded">,
   enabledSkills: SkillCatalogItem[],
   skillId: string
 ) {
@@ -67,7 +108,10 @@ async function resolveEnabledSkill(
     );
   }
 
-  const skill = await skills.read(enabledSkill.skillId);
+  let skill = await skills.read(enabledSkill.skillId);
+  if (!skill) {
+    skill = await skills.ensureDownloaded(enabledSkill.skillId);
+  }
   if (!skill) {
     throw new Error(`Skill \"${skillId}\" could not be loaded.`);
   }
@@ -80,8 +124,9 @@ export function buildActivateSkillTool(skills: SkillCatalogItem[]): Tool {
     name: "activate_skill",
     title: "Activate an enabled skill",
     description:
-      "Loads the body instructions for an enabled agent skill. Use this when one of the available skills matches the current task. After activation, use read_skill_resource to load referenced bundled files by relative path.\n\nAvailable skills:\n" +
-      buildSkillCatalog(skills),
+      "Loads the body instructions for an enabled agent skill. Use this when one of the available skills matches the current task. After activation, use read_skill_resource to load referenced bundled files by relative path.",
+    //\n\nAvailable skills:\n" +
+    // buildSkillCatalog(skills),
     inputSchema: {
       type: "object",
       properties: {
@@ -107,8 +152,9 @@ export function buildReadSkillResourceTool(skills: SkillCatalogItem[]): Tool {
     name: "read_skill_resource",
     title: "Read a bundled skill resource",
     description:
-      "Reads a bundled file from an enabled skill by relative path. Use this after activate_skill when the skill instructions reference scripts, references, or assets. Paths are relative to the skill root.\n\nEnabled skills:\n" +
-      buildSkillCatalog(skills),
+      "Reads a bundled file from an enabled skill by relative path. Use this after activate_skill when the skill instructions reference scripts, references, or assets. Paths are relative to the skill root.",
+    //\n\nEnabled skills:\n",
+    //buildSkillCatalog(skills),
     inputSchema: {
       type: "object",
       properties: {
@@ -134,27 +180,125 @@ export function buildReadSkillResourceTool(skills: SkillCatalogItem[]): Tool {
   };
 }
 
+export function buildSearchSkillsTool(): Tool {
+  return {
+    name: "search_skills",
+    title: "Search skills",
+    description:
+      "Searches the available Agent Skills catalog by skill id, name, description, origin, and version. Use this only when the user-enabled Skill search plugin is available and you need to discover a skill for the current task. Activate a returned skill with activate_skill before following its instructions.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description:
+            "Search terms that describe the task or needed capability. If omitted, returns the first catalog entries.",
+        },
+        limit: {
+          type: "number",
+          description: "Maximum number of matching skills to return. Defaults to 10 and is capped at 50.",
+        },
+      },
+    },
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: false,
+    },
+  };
+}
+
+export function buildSkillSearchPluginDef(skills: SkillCatalogItem[] = []): ToolPluginDef {
+  return {
+    name: SKILL_SEARCH_PLUGIN_ID,
+    match: (toolName) => toolName === "search_skills" || toolName === "activate_skill" || toolName === "read_skill_resource",
+    tools: [
+      buildSearchSkillsTool(),
+      buildActivateSkillTool(skills),
+      buildReadSkillResourceTool(skills),
+    ],
+  };
+}
+
+export const skillSearchPluginDef = buildSkillSearchPluginDef();
+
 export function useSkillToolCall(opts: {
-  skills: Pick<SkillsContextType, "items" | "read">;
+  skills: Pick<SkillsContextType, "items" | "read" | "ensureDownloaded">;
   enabledSkillIds: string[];
+  skillSearchEnabled?: boolean;
 }) {
-  const { skills, enabledSkillIds } = opts;
+  const { skills, enabledSkillIds, skillSearchEnabled = false } = opts;
   const enabledSkills = useCallback(
     () => getEnabledSkills(skills.items ?? [], enabledSkillIds),
     [enabledSkillIds, skills.items]
   );
+  const availableSkills = useCallback(
+    () => skillSearchEnabled ? (skills.items ?? []) : enabledSkills(),
+    [enabledSkills, skillSearchEnabled, skills.items]
+  );
+
+  const handleSearchSkills = useCallback(
+    async (toolCall: SearchSkillsToolCall): Promise<SkillToolResult> => {
+      if (!skillSearchEnabled) {
+        throw new Error("Skill search is not enabled for this chat.");
+      }
+
+      const limit = clampSearchLimit(toolCall.input?.limit);
+      const result = searchSkillCatalog(skills.items ?? [], toolCall.input?.query ?? "", limit);
+      const lines = result.skills.map((skill) => {
+        const version = skill.version ?? skill.downloadedVersion ?? skill.latestVersion;
+        const versionSuffix = version ? ` v${version}` : "";
+        const originSuffix = skill.origin ? `, ${skill.origin}` : "";
+        return `- ${skill.skillId} (${skill.name}${versionSuffix}${originSuffix}): ${skill.description}`;
+      });
+
+      return {
+        isError: false,
+        structuredContent: {
+          skillSearch: {
+            query: result.query,
+            totalMatches: result.totalMatches,
+            returned: result.skills.length,
+            skills: result.skills.map((skill) => ({
+              skill_id: skill.skillId,
+              name: skill.name,
+              description: skill.description,
+              origin: skill.origin,
+              version: skill.version,
+              defaultVersion: skill.defaultVersion,
+              latestVersion: skill.latestVersion,
+              isDownloaded: skill.isDownloaded,
+            })),
+          },
+        },
+        content: [
+          {
+            type: "text",
+            text: [
+              `<skill_search query="${escapeAttribute(result.query)}" total_matches="${result.totalMatches}" returned="${result.skills.length}">`,
+              lines.length > 0 ? lines.join("\n") : "No matching skills found.",
+              "Use activate_skill with a returned skill_id before following any skill instructions.",
+              "</skill_search>",
+            ].join("\n"),
+          },
+        ],
+      };
+    },
+    [skillSearchEnabled, skills.items]
+  );
 
   const handleActivateSkill = useCallback(
     async (toolCall: ActivateSkillToolCall): Promise<SkillToolResult> => {
-      const skill = await resolveEnabledSkill(skills, enabledSkills(), toolCall.input?.skill_id);
+      const skill = await resolveEnabledSkill(skills, availableSkills(), toolCall.input?.skill_id);
       const resourcePaths = listSkillResourcePaths(skill);
       const resourcesXml =
         resourcePaths.length > 0
           ? [
-              "<skill_resources>",
-              ...resourcePaths.map((path) => `  <file>${path}</file>`),
-              "</skill_resources>",
-            ].join("\n")
+            "<skill_resources>",
+            ...resourcePaths.map((path) => `  <file>${path}</file>`),
+            "</skill_resources>",
+          ].join("\n")
           : "<skill_resources />";
 
       return {
@@ -182,12 +326,12 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [enabledSkills, skills]
+    [availableSkills, skills]
   );
 
   const handleReadSkillResource = useCallback(
     async (toolCall: ReadSkillResourceToolCall): Promise<SkillToolResult> => {
-      const skill = await resolveEnabledSkill(skills, enabledSkills(), toolCall.input?.skill_id);
+      const skill = await resolveEnabledSkill(skills, availableSkills(), toolCall.input?.skill_id);
       const relativePath = normalizeSkillRelativePath(toolCall.input?.path ?? "");
       if (!relativePath) {
         throw new Error("Missing path. Provide a relative path inside the skill directory.");
@@ -257,8 +401,25 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [enabledSkills, skills]
+    [availableSkills, skills]
   );
+
+  const searchSkillsPlugin: ToolPlugin = {
+    name: SKILL_SEARCH_PLUGIN_ID,
+    match: (toolName) => toolName === "search_skills" || toolName === "activate_skill" || toolName === "read_skill_resource",
+    handle: async (toolCall, signal) => {
+      if (toolCall.toolName === "search_skills") {
+        return handleSearchSkills(toolCall);
+      }
+      if (toolCall.toolName === "activate_skill") {
+        return handleActivateSkill(toolCall);
+      }
+      if (toolCall.toolName === "read_skill_resource") {
+        return handleReadSkillResource(toolCall);
+      }
+      throw new Error(`Unsupported skill search tool: ${toolCall.toolName}`);
+    },
+  };
 
   const activateSkillPlugin: ToolPlugin = {
     name: "activate-skill",
@@ -274,6 +435,7 @@ export function useSkillToolCall(opts: {
 
   return {
     enabledSkills: enabledSkills(),
+    searchSkillsPlugin,
     activateSkillPlugin,
     readSkillResourcePlugin,
   };
