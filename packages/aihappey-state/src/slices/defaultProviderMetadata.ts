@@ -33,7 +33,7 @@ export const defaultProviderMetadata = {
     "service_tier": "auto",
     "context_management": undefined,
     "reasoning": {
-      "effort": "none",
+      "effort": "medium",
       "summary": "auto"
     },
     "parallel_tool_calls": true,
