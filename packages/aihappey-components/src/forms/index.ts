@@ -9,3 +9,4 @@ export * from "./settings/speech";
 export * from "./settings/reranking";
 export * from "./tools";
 export * from "./data-sources";
+export * from "./realtime";

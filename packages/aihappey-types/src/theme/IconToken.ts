@@ -40,6 +40,7 @@ export type IconToken =
   | "labs"
   | "rerankingSettings"
   | "realtime"
+  | "realtimeSettings"
   | "catalog"
   | "brain"
   | "download"

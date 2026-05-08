@@ -49,7 +49,7 @@
     "result": "Result",
     "template": "Template",
     "current": "Current",
-    "realtime": "Real-time",
+    "realtime": "Realtime",
     "verbosity": "Verbosity",
     "addToFiles": "Add to files",
     "fileAdded": "{{filename}} added",

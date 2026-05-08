@@ -102,6 +102,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   arena: <Columns />,
   transcription: <Mic />,
   transcriptionSettings: <Sliders />,
+  realtimeSettings: <Sliders />,
   imageSettings: <Palette />,
   videoSettings: <Sliders />,
   formula: <Calculator />,

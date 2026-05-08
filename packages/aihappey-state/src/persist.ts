@@ -28,7 +28,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 14,
+    version: 15,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -36,6 +36,7 @@ export const withPersist = (
       quickSearches: s.quickSearches,
       maxToolCalls: s.maxToolCalls,
       providerRealtimeMetadata: s.providerRealtimeMetadata,
+      providerRealtimeConversationMetadata: (s as any).providerRealtimeConversationMetadata,
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
       userPreferredVideoModel: (s as any).userPreferredVideoModel,
@@ -145,6 +146,15 @@ export const withPersist = (
           ...restState,
           __legacyAgents: Array.isArray(legacyAgents)
             ? legacyAgents.filter(Boolean)
+            : undefined,
+        };
+      }
+
+      if (version < 15) {
+        safeState = {
+          ...safeState,
+          providerRealtimeConversationMetadata: isPlainRecord(safeState.providerRealtimeConversationMetadata)
+            ? safeState.providerRealtimeConversationMetadata
             : undefined,
         };
       }

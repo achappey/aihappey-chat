@@ -83,6 +83,13 @@ export const ConversationSidebar = ({
       icon: "speech",
     },
     {
+      key: "realtime",
+      label: t("realtime"),
+      href: "/realtime",
+      new: true,
+      icon: "realtime",
+    },
+    {
       key: "reranking",
       label: t("reranking"),
       href: "/reranking",
@@ -303,7 +310,9 @@ export const ConversationSidebar = ({
                               ? "registries"
                               : location.pathname === "/reranking"
                                 ? "reranking"
-                                : conversationId ?? undefined
+                                : location.pathname === "/realtime"
+                                  ? "realtime"
+                                  : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -335,6 +344,8 @@ export const ConversationSidebar = ({
       await navigate("/registries");
     } else if (id === "reranking") {
       await navigate("/reranking");
+    } else if (id === "realtime") {
+      await navigate("/realtime");
     } else {
       await navigate(`/${id}`);
 

@@ -18,6 +18,8 @@ export interface UseMessageInputOptions {
   onSend: (content: string) => void;
   onPromptExecute?: (prompt: PromptWithSource, args: any) => void;
   onStop?: () => void;
+  canSendOverride?: boolean;
+  allowEmptySubmit?: boolean;
 }
 
 export const getIcon = (icons?: any[], isDarkMode?: boolean) => {
@@ -31,6 +33,8 @@ export function useMessageInput({
   streaming = false,
   onSend,
   onStop,
+  canSendOverride,
+  allowEmptySubmit = false,
 }: UseMessageInputOptions) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -112,12 +116,13 @@ export function useMessageInput({
     }
   };
 
-  const canSend = (!!value.trim() || attachments.length > 0 || resources.length > 0)
-    && (chatMode == "chat" || selectedAgents.length > 0);
+  const canSend = canSendOverride ?? ((!!value.trim() || attachments.length > 0 || resources.length > 0)
+    && (chatMode == "chat" || selectedAgents.length > 0));
 
   const handleSend = () => {
     const trimmed = value.trim();
     if (!canSend) return;
+    if (!allowEmptySubmit && !trimmed && attachments.length === 0 && resources.length === 0) return;
     if (streaming && onStop) onStop();
     onSend(trimmed);
     setValue("");

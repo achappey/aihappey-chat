@@ -35,6 +35,7 @@ import { CatalogsPage } from "../features/catalogs";
 import { RegistriesPage } from "../features/registries";
 import { PlaygroundPage } from "../features/playground/PlaygroundPage";
 import { defaultEndpoints } from "aihappey-ai";
+import { RealtimePage } from "../features/realtime";
 
 type CoreRootProps = {
   appName: string;
@@ -110,6 +111,8 @@ export const CoreRoot = ({
           element: <SidebarLayout />,
           children: [
             { index: true, element: <NewChatPage /> },
+            { path: "realtime", element: <RealtimePage /> },
+            { path: "realtime/:conversationId", element: <RealtimePage /> },
             { path: ":conversationId", element: <ChatPage /> },
             { path: "model-context-catalog", element: <ServersPage /> },
             { path: "models", element: <ModelsPage /> },

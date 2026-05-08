@@ -79,3 +79,49 @@ export const defaultProviderRealtimeMetadata = {
     // Intentionally empty.
   }
 };
+
+export const defaultProviderRealtimeConversationMetadata = {
+  "openai": {
+    "expires_after": {
+      "anchor": "created_at",
+      "seconds": 600
+    },
+    "session": {
+      "type": "realtime",
+      "output_modalities": ["audio"],
+      "reasoning": {
+        "effort": "low"
+      },
+      "audio": {
+        "input": {
+          "format": {
+            "type": "audio/pcm",
+            "rate": 24000
+          },
+          "noise_reduction": {
+            "type": "near_field"
+          },
+          "transcription": {
+            "model": "gpt-4o-mini-transcribe"
+          },
+          "turn_detection": {
+            "type": "semantic_vad",
+            "eagerness": "auto",
+            "create_response": true,
+            "interrupt_response": true
+          }
+        },
+        "output": {
+          "format": {
+            "type": "audio/pcm",
+            "rate": 24000
+          },
+          "voice": "marin",
+          "speed": 1
+        }
+      },
+      "tracing": null,
+      "truncation": "auto"
+    }
+  }
+};

@@ -1,6 +1,7 @@
 export * from "./ToolDenyConfirmModal";
 export * from "./ResourceSelectModal";
 export * from "./TranscriptionSettingsModal";
+export * from "./RealtimeSettingsModal";
 export * from "./RerankingSettingsModal";
 export * from "./RerankingModal";
 export * from "./TranscriptionDetailsModal";

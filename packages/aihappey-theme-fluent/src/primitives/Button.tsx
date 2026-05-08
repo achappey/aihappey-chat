@@ -168,6 +168,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   attachment: AttachRegular,
   concurrent: ArrowSplitRegular,
   realtime: LiveRegular,
+  realtimeSettings: SettingsRegular,
   providers: PlugConnectedRegular,
   sequential: ArrowRoutingRegular,
   aiImage: ImageSparkleRegular,

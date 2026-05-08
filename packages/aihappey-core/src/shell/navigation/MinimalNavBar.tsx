@@ -100,6 +100,17 @@ const MinimalNavBar = ({
           navigate("/speech")
         }
       />
+      <Button
+        icon="realtime"
+        size="small"
+        variant="transparent"
+        title={t("realtime")}
+        aria-label={t("realtime")}
+        style={{ marginBottom: 8 }}
+        onClick={() =>
+          navigate("/realtime")
+        }
+      />
 
       <Button
         icon="reranking"
