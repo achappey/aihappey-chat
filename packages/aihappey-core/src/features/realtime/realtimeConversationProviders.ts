@@ -109,10 +109,7 @@ export const buildOpenAiRealtimeSessionConfig = (args: RealtimeConversationProvi
     ...(realtimeTools.length ? { tools: realtimeTools, tool_choice: selectedToolChoice } : {}),
   });
 
-  if (chatOpenAiMetadata?.reasoning) {
-    appDefaults.reasoning = {
-      effort: chatOpenAiMetadata?.reasoning.effort,
-    };
+  if (sessionOverrides?.reasoning) {
     appDefaults.parallel_tool_calls = chatOpenAiMetadata?.parallel_tool_calls;
   }
 
