@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getRealtimeToken } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
 import type { UIMessage } from "aihappey-types";
@@ -7,14 +6,16 @@ import type { ChatConfig } from "../chat/context/ChatContext";
 import { useChatErrors } from "../chat/layout/useChatErrors";
 import { useOnToolCall } from "../tools/toolcalls/useOnToolCall";
 import { useTools } from "../tools/useTools";
-import { startRealtimeConversationWebrtcSession, type RealtimeConversationWebrtcSession } from "./startRealtimeConversationWebrtc";
+import {
+  buildRealtimeConversationSessionUpdateEvent,
+  startRealtimeConversationProviderSession,
+  type RealtimeConversationSession,
+} from "./realtimeConversationProviders";
 import {
   extractFunctionCallsFromRealtimeResponse,
   extractTextFromRealtimeResponse,
-  mcpToolToRealtimeFunctionTool,
   newUiMessage,
   realtimeContentToText,
-  stripProviderPrefix,
   uiMessageToRealtimeContent,
 } from "./realtimeMessageParts";
 
@@ -37,97 +38,6 @@ const safeJsonParse = (value: any) => {
   } catch {
     return { value };
   }
-};
-
-const isPlainRecord = (value: any): value is Record<string, any> => {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-};
-
-const compactUndefined = (value: any): any => {
-  if (Array.isArray(value)) return value.map(compactUndefined);
-  if (!isPlainRecord(value)) return value;
-  const next: Record<string, any> = {};
-  for (const [key, child] of Object.entries(value)) {
-    if (child === undefined) continue;
-    next[key] = compactUndefined(child);
-  }
-  return next;
-};
-
-const deepMerge = (...values: any[]) => {
-  const out: Record<string, any> = {};
-  for (const value of values) {
-    if (!isPlainRecord(value)) continue;
-    for (const [key, child] of Object.entries(value)) {
-      if (child === undefined) continue;
-      if (isPlainRecord(child) && isPlainRecord(out[key])) {
-        out[key] = deepMerge(out[key], child);
-      } else {
-        out[key] = child;
-      }
-    }
-  }
-  return out;
-};
-
-const buildRealtimeSessionConfig = (args: {
-  model: string;
-  realtimeOpenAiMetadata: any;
-  chatOpenAiMetadata: any;
-  instructions?: string;
-  maxOutputTokens?: number;
-  realtimeTools?: any[];
-  selectedToolChoice?: any;
-}) => {
-  const sessionOverrides = args.realtimeOpenAiMetadata?.session?.type === "realtime"
-    ? args.realtimeOpenAiMetadata.session
-    : {};
-
-  const chatDefaults = compactUndefined({
-    instructions: args.instructions ?? args.chatOpenAiMetadata?.instructions,
-    // reasoning: args.chatOpenAiMetadata?.reasoning,
-    //parallel_tool_calls: args.chatOpenAiMetadata?.parallel_tool_calls,
-    truncation: args.chatOpenAiMetadata?.truncation,
-  });
-
-  const appDefaults = compactUndefined({
-    type: "realtime",
-    model: stripProviderPrefix(args.model),
-    output_modalities: ["audio"],
-    /*  reasoning: args.chatOpenAiMetadata?.reasoning ? {
-        effort: args.chatOpenAiMetadata?.reasoning.effort
-      } : {
-  
-      },*/
-    max_output_tokens: args.maxOutputTokens,
-    audio: {
-      input: {
-        turn_detection: {
-          type: "semantic_vad",
-          eagerness: "auto",
-          create_response: true,
-          interrupt_response: true,
-        },
-      },
-      output: {
-        voice: args.realtimeOpenAiMetadata?.voice ?? sessionOverrides?.audio?.output?.voice ?? "marin",
-      },
-    },
-    ...(args.realtimeTools?.length ? { tools: args.realtimeTools, tool_choice: args.selectedToolChoice ?? "auto" } : {}),
-  });
-
-  if (args.chatOpenAiMetadata?.reasoning) {
-    appDefaults.reasoning = {
-      effort: args.chatOpenAiMetadata?.reasoning.effort
-    }
-
-    appDefaults.parallel_tool_calls = args.chatOpenAiMetadata?.parallel_tool_calls
-  }
-
-  return deepMerge(chatDefaults, appDefaults, sessionOverrides, {
-    type: "realtime",
-    model: stripProviderPrefix(args.model),
-  });
 };
 
 export function useRealtimeConversationController(args: {
@@ -166,7 +76,7 @@ export function useRealtimeConversationController(args: {
   const [messages, setMessages] = useState<UIMessage[]>(initialMessages ?? []);
   const [events, setEvents] = useState<any[]>([]);
 
-  const sessionRef = useRef<RealtimeConversationWebrtcSession | null>(null);
+  const sessionRef = useRef<RealtimeConversationSession | null>(null);
   const startedRef = useRef(false);
   const pendingQueueRef = useRef<UIMessage[]>([]);
   const persistedIdsRef = useRef<Set<string>>(new Set((initialMessages ?? []).map((m) => m.id)));
@@ -283,23 +193,16 @@ export function useRealtimeConversationController(args: {
   );
 
   const configureSession = useCallback(() => {
-    const realtimeTools = (tools ?? []).map(mcpToolToRealtimeFunctionTool);
-    const realtimeOpenAiMetadata = (providerRealtimeConversationMetadata as any)?.openai ?? {};
-    const chatOpenAiMetadata = (providerMetadata as any)?.openai ?? {};
-    const selectedToolChoice = toolChoice === "none" ? "none" : "auto";
-
-    sendEvent({
-      type: "session.update",
-      session: buildRealtimeSessionConfig({
-        model,
-        realtimeOpenAiMetadata,
-        chatOpenAiMetadata,
-        instructions,
-        maxOutputTokens,
-        realtimeTools,
-        selectedToolChoice,
-      }),
+    const event = buildRealtimeConversationSessionUpdateEvent({
+      model,
+      providerMetadata,
+      providerRealtimeConversationMetadata,
+      instructions,
+      maxOutputTokens,
+      tools,
+      toolChoice,
     });
+    if (event) sendEvent(event);
   }, [instructions, maxOutputTokens, model, providerMetadata, providerRealtimeConversationMetadata, sendEvent, toolChoice, tools]);
 
   const flushPendingQueue = useCallback(() => {
@@ -464,43 +367,18 @@ export function useRealtimeConversationController(args: {
       }
 
       try {
-        const merged = { ...(config?.headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
-        if (config?.getAccessToken) {
-          merged.Authorization = `Bearer ${await config.getAccessToken()}`;
-        }
-
-        const tokenClientFactory = await getRealtimeToken({
-          baseUrl: config.baseUrl + config.endpoints.realtime,
-          headers: merged,
-        });
-
-        const realtimeOpenAiMetadata = (providerRealtimeConversationMetadata as any)?.openai ?? {};
-        const chatOpenAiMetadata = (providerMetadata as any)?.openai ?? {};
-        const realtimeTools = (tools ?? []).map(mcpToolToRealtimeFunctionTool);
-        const selectedToolChoice = toolChoice === "none" ? "none" : "auto";
-        const sessionConfig = buildRealtimeSessionConfig({
+        const session = await startRealtimeConversationProviderSession({
+          config,
+          customHeaders,
           model,
-          realtimeOpenAiMetadata,
-          chatOpenAiMetadata,
+          providerMetadata,
+          providerRealtimeConversationMetadata,
           instructions,
           maxOutputTokens,
-          realtimeTools,
-          selectedToolChoice,
-        });
-        const session = await startRealtimeConversationWebrtcSession({
-          getEphemeralToken: () =>
-            tokenClientFactory({
-              model,
-              providerOptions: {
-                ...(providerRealtimeConversationMetadata ?? {}),
-                openai: {
-                  ...realtimeOpenAiMetadata,
-                  session: sessionConfig,
-                },
-              },
-            }),
+          tools,
+          toolChoice,
           events: {
-            onRemoteStream: (stream) => {
+            onRemoteStream: (stream: MediaStream) => {
               if (audioRef.current) {
                 audioRef.current.srcObject = stream;
                 audioRef.current.autoplay = true;
@@ -512,7 +390,7 @@ export function useRealtimeConversationController(args: {
               flushPendingQueue();
             },
             onEvent: handleRealtimeEvent,
-            onError: (message, err) => {
+            onError: (message: string, err?: unknown) => {
               const full = `${message}${err ? `: ${describeError(err)}` : ""}`;
               setStatus("error");
               setError(full);

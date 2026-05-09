@@ -233,6 +233,7 @@ export const createChatSlice: StateCreator<
       enabledProvidersByType: {
         language: [],
         image: [],
+        audio: [],
         transcription: [],
         speech: [],
         reranking: [],

@@ -101,11 +101,12 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
       return acc;
     }, {} as Record<string, string>);
 
-    const allowed: ProviderCapability[] = [...PROVIDER_CAPABILITIES];
+    const allowed = [...PROVIDER_CAPABILITIES] as ProviderCapability[];
 
     const byCap: Record<ProviderCapability, Set<string>> = {
       language: new Set<string>(),
       image: new Set<string>(),
+      audio: new Set<string>(),
       speech: new Set<string>(),
       transcription: new Set<string>(),
       reranking: new Set<string>(),
@@ -142,8 +143,8 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         onApiKeys={() => setProviderKeysOpen(true)}
         providers={visibleProviders}
         providerGroups={providerGroups}
-        enabledProvidersByType={visibleEnabledProvidersByType}
-        onToggleProviderForType={toggleEnabledProviderForType}
+        enabledProvidersByType={visibleEnabledProvidersByType as any}
+        onToggleProviderForType={toggleEnabledProviderForType as any}
         providersDisabled={!modelsLoaded}
         disabledProviders={disabledProviders}
         labels={{
@@ -154,6 +155,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
           // Capability submenu labels (translated in the parent).
           language: t("language"),
           image: t("image"),
+          audio: t("realtime"),
           speech: t("speech"),
           next: t("next"),
           previous: t("previous") ,

@@ -26,6 +26,7 @@ import { UserMenuLabels } from "aihappey-types/src/i18n";
 type ProviderCapability =
   | "language"
   | "image"
+  | "audio"
   | "transcription"
   | "speech"
   | "reranking"
@@ -110,6 +111,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         providers: g.language ?? [],
       },
       { key: "image", label: labels.image ?? "Image", providers: g.image ?? [] },
+      { key: "audio", label: labels.audio ?? labels.realtime ?? "Realtime", providers: g.audio ?? [] },
       {
         key: "transcription",
         label: labels.transcription ?? "Transcription",

@@ -20,6 +20,9 @@ export const AiDefaultSettings: React.FC = () => {
   const userPreferredImageModel = useAppStore((s) => s.userPreferredImageModel);
   const setUserPreferredImageModel = useAppStore((s) => s.setUserPreferredImageModel);
 
+  const userPreferredAudioModel = useAppStore((s: any) => s.userPreferredAudioModel);
+  const setUserPreferredAudioModel = useAppStore((s: any) => s.setUserPreferredAudioModel);
+
   const userPreferredVideoModel = useAppStore((s) => s.userPreferredVideoModel);
   const setUserPreferredVideoModel = useAppStore((s) => s.setUserPreferredVideoModel);
 
@@ -92,6 +95,18 @@ export const AiDefaultSettings: React.FC = () => {
               label={t("chatWithImageModels")}
               checked={chatWithImageModels ?? false}
               onChange={toggleChatWithImageModels}
+            />
+          </div>
+        </theme.Tab>
+
+        <theme.Tab eventKey="audio" title={t("realtime")}>
+          <div style={formStyle}>
+            <ModelSelect
+              models={models ?? []}
+              modelTypes={["audio"]}
+              value={userPreferredAudioModel ?? ""}
+              label={t("settingsModal.defaultModel")}
+              onChange={setUserPreferredAudioModel}
             />
           </div>
         </theme.Tab>

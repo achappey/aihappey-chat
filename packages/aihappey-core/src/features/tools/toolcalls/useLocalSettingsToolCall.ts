@@ -89,6 +89,10 @@ export const localSettingsSetTool: Tool = {
         type: "string",
         description: "Default image model id.",
       },
+      userPreferredAudioModel: {
+        type: "string",
+        description: "Default realtime audio model id.",
+      },
       userPreferredVideoModel: {
         type: "string",
         description: "Default video model id.",
@@ -259,6 +263,7 @@ export function useLocalSettingsRuntime() {
 
   const userPreferredModel = useAppStore(a => a.userPreferredModel);
   const userPreferredImageModel = useAppStore(a => a.userPreferredImageModel);
+  const userPreferredAudioModel = useAppStore((a: any) => a.userPreferredAudioModel);
   const userPreferredVideoModel = useAppStore(a => a.userPreferredVideoModel);
   const userPreferredSpeechModel = useAppStore(a => a.userPreferredSpeechModel);
   const userPreferredTranscriptionModel = useAppStore(a => a.userPreferredTranscriptionModel);
@@ -266,6 +271,7 @@ export function useLocalSettingsRuntime() {
 
   const setUserPreferredModel = useAppStore(a => a.setUserPreferredModel);
   const setUserPreferredImageModel = useAppStore(a => a.setUserPreferredImageModel);
+  const setUserPreferredAudioModel = useAppStore((a: any) => a.setUserPreferredAudioModel);
   const setUserPreferredVideoModel = useAppStore(a => a.setUserPreferredVideoModel);
   const setUserPreferredSpeechModel = useAppStore(a => a.setUserPreferredSpeechModel);
   const setUserPreferredTranscriptionModel = useAppStore(a => a.setUserPreferredTranscriptionModel);
@@ -320,6 +326,7 @@ export function useLocalSettingsRuntime() {
                   defaultModels: {
                     userPreferredModel,
                     userPreferredImageModel,
+                    userPreferredAudioModel,
                     userPreferredVideoModel,
                     userPreferredSpeechModel,
                     userPreferredTranscriptionModel,
@@ -393,6 +400,7 @@ export function useLocalSettingsRuntime() {
 
             setPreferredModel(input.userPreferredModel, setUserPreferredModel);
             setPreferredModel(input.userPreferredImageModel, setUserPreferredImageModel);
+            setPreferredModel(input.userPreferredAudioModel, setUserPreferredAudioModel);
             setPreferredModel(input.userPreferredVideoModel, setUserPreferredVideoModel);
             setPreferredModel(input.userPreferredSpeechModel, setUserPreferredSpeechModel);
             setPreferredModel(input.userPreferredTranscriptionModel, setUserPreferredTranscriptionModel);
@@ -484,6 +492,7 @@ export function useLocalSettingsRuntime() {
       temperature,
       userPreferredModel,
       userPreferredImageModel,
+      userPreferredAudioModel,
       userPreferredVideoModel,
       userPreferredSpeechModel,
       userPreferredTranscriptionModel,
@@ -508,6 +517,7 @@ export function useLocalSettingsRuntime() {
       setExtractExif,
       setUserPreferredModel,
       setUserPreferredImageModel,
+      setUserPreferredAudioModel,
       setUserPreferredVideoModel,
       setUserPreferredSpeechModel,
       setUserPreferredTranscriptionModel,

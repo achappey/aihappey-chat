@@ -97,6 +97,7 @@ export const mcpRuntime = new Map<string, Client>();
 export const PROVIDER_CAPABILITIES = [
   "language",
   "image",
+  "audio",
   "transcription",
   "speech",
   "reranking",
@@ -109,6 +110,7 @@ export type EnabledProvidersByType = Record<ProviderCapability, string[]>;
 export const createEmptyEnabledProvidersByType = (): EnabledProvidersByType => ({
   language: [],
   image: [],
+  audio: [],
   transcription: [],
   speech: [],
   reranking: [],
@@ -201,6 +203,9 @@ export type UiSlice = {
 
   userPreferredImageModel?: string;
   setUserPreferredImageModel: (model: string) => void;
+
+  userPreferredAudioModel?: string;
+  setUserPreferredAudioModel: (model: string) => void;
 
   userPreferredVideoModel?: string;
   setUserPreferredVideoModel: (model: string) => void;
@@ -327,6 +332,13 @@ export const createUiSlice: StateCreator<
     set((state: any) => {
       return {
         userPreferredImageModel: model
+      }
+    }),
+
+  setUserPreferredAudioModel: (model) =>
+    set((state: any) => {
+      return {
+        userPreferredAudioModel: model
       }
     }),
 

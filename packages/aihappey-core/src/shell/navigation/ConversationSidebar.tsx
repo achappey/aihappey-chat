@@ -57,6 +57,14 @@ export const ConversationSidebar = ({
       href: "/",
       icon: "add",
       onClick: handleCreate,
+
+    },
+    {
+      key: "realtime",
+      label: t("realtime"),
+      href: "/realtime",
+      new: true,
+      icon: "realtime",
     },
     {
       key: "search-conversations",
@@ -82,13 +90,7 @@ export const ConversationSidebar = ({
       href: "/speech",
       icon: "speech",
     },
-    {
-      key: "realtime",
-      label: t("realtime"),
-      href: "/realtime",
-      new: true,
-      icon: "realtime",
-    },
+
     {
       key: "reranking",
       label: t("reranking"),

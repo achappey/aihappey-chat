@@ -25,10 +25,10 @@ export interface UserMenuProps {
   providers?: string[];
   providerGroups?: Record<string, string[]>;
   enabledProvidersByType?: Partial<
-    Record<"language" | "image" | "transcription" | "speech" | "reranking" | "video", string[]>
+    Record<"language" | "image" | "audio" | "transcription" | "speech" | "reranking" | "video", string[]>
   >;
   onToggleProviderForType?: (
-    capability: "language" | "image" | "transcription" | "speech" | "reranking" | "video",
+    capability: "language" | "image" | "audio" | "transcription" | "speech" | "reranking" | "video",
     provider: string
   ) => void;
   providersDisabled?: boolean;

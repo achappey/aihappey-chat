@@ -5,7 +5,6 @@ import { useAppStore } from "aihappey-state";
 import type { UIMessage } from "aihappey-types";
 import { useTheme } from "aihappey-components";
 import { useChatContext } from "../chat/context/ChatContext";
-import { ChatHeader } from "../chat/layout/ChatHeader";
 import { DisclaimerBar } from "../chat/layout/DisclaimerBar";
 import { ChatErrors } from "../chat/layout/ChatErrors";
 import { useChatErrors } from "../chat/layout/useChatErrors";
@@ -30,11 +29,18 @@ const addAttachmentWithTranscription = async (file: File) => {
 const useRealtimeModelSelection = () => {
   const models = useAppStore((s) => s.models);
   const selectedModel = useAppStore((s) => s.selectedModel);
+  const userPreferredAudioModel = useAppStore((s: any) => s.userPreferredAudioModel);
   const realtimeModels = useMemo(
-    () => (models ?? []).filter((m: any) => m?.type === "audio" || m?.tags?.includes("real-time") || m?.tags?.includes("realtime")),
+    () => (models ?? []).filter((m: any) => m?.type === "audio" 
+    //  || m?.tags?.includes("real-time") || m?.tags?.includes("realtime")
+    ),
     [models]
   );
-  const defaultModel = realtimeModels.find((m: any) => m?.tags?.includes("real-time"))?.id ?? realtimeModels[0]?.id ?? selectedModel ?? "openai/gpt-realtime";
+  const defaultModel = userPreferredAudioModel
+    // ?? realtimeModels.find((m: any) => m?.tags?.includes("real-time"))?.id
+    //  ?? realtimeModels[0]?.id
+    // ?? (selectedModel && realtimeModels.some((m: any) => m?.id === selectedModel) ? selectedModel : undefined)
+    ?? "openai/gpt-realtime-2";
   const [model, setModel] = useState(defaultModel);
 
   useEffect(() => {
@@ -106,13 +112,7 @@ function RealtimeStartPage() {
 
   return (
     <div style={{ height: "100dvh", minHeight: 0, minWidth: 0, display: "flex", flexDirection: "column" }}>
-      <ChatHeader
-        agentValues={selectedAgentNames ?? []}
-        onAgentChange={(name) => selectedAgentNames.includes(name)
-          ? setSelectedAgents(selectedAgentNames.filter((a) => a !== name))
-          : setSelectedAgents([...selectedAgentNames, name])}
-      />
-      <div style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ padding: "0px 12px", display: "flex", alignItems: "center", gap: 8 }}>
         <ModelSelect models={models ?? []} modelTypes={["audio"]} value={model} onChange={setModel} />
         <div style={{ flex: 1 }} />
         <UserMenuInline />
@@ -236,12 +236,6 @@ function RealtimeConversationPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <ChatHeader
-        agentValues={selectedAgentNames ?? []}
-        onAgentChange={(name) => selectedAgentNames.includes(name)
-          ? setSelectedAgents(selectedAgentNames.filter((a) => a !== name))
-          : setSelectedAgents([...selectedAgentNames, name])}
-      />
       <div style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
         <ModelSelect models={models ?? []} modelTypes={["audio"]} value={effectiveModel} onChange={setModel} disabled={connected || busy} />
         <div style={{ flex: 1 }} />
@@ -261,7 +255,6 @@ function RealtimeConversationPage() {
         }}
       >
         <ChatErrors />
-        {controller.error ? <div style={{ padding: 12, color: "#b00020" }}>{controller.error}</div> : null}
         {debugMode ? <JsonViewer value={JSON.stringify(controller.events, null, 2)} /> : (
           <MessageList
             messages={controller.messages}

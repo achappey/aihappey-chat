@@ -23,6 +23,7 @@ export interface ChatConfig extends AiChatConfig {
   defaultProvidersByType?: Partial<{
     language: string[];
     image: string[];
+    audio: string[];
     transcription: string[];
     speech: string[];
     reranking: string[];

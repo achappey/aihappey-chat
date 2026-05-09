@@ -36,7 +36,10 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     const types = props.modelTypes ?? ["language"];
     const names = new Set<string>();
     for (const type of types) {
-      for (const name of enabledProvidersByType?.[type as keyof typeof enabledProvidersByType] ?? []) {
+      const bucket = (enabledProvidersByType as any)?.[type]
+        ?? (type === "audio" ? (enabledProvidersByType as any)?.realtime : undefined)
+        ?? [];
+      for (const name of bucket) {
         names.add(name);
       }
     }

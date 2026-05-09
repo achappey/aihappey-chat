@@ -1,6 +1,7 @@
 import type { RealtimeResponse } from "aihappey-ai";
 
 export type RealtimeConversationWebrtcSession = {
+  kind: "webrtc";
   pc: RTCPeerConnection;
   dc: RTCDataChannel;
   stream: MediaStream;
@@ -9,12 +10,16 @@ export type RealtimeConversationWebrtcSession = {
   stop: () => Promise<void>;
 };
 
-export type RealtimeConversationWebrtcEvents = {
+export type RealtimeConversationSession = RealtimeConversationWebrtcSession;
+
+export type RealtimeConversationEvents = {
   onOpen?: () => void;
   onEvent?: (event: any) => void;
   onError?: (message: string, err?: unknown) => void;
   onRemoteStream?: (stream: MediaStream) => void;
 };
+
+export type RealtimeConversationWebrtcEvents = RealtimeConversationEvents;
 
 const describeError = (e: unknown) => {
   if (!e) return "unknown";
@@ -26,9 +31,9 @@ const describeError = (e: unknown) => {
   }
 };
 
-export async function startRealtimeConversationWebrtcSession(args: {
+export async function startOpenAiRealtimeConversationWebrtcSession(args: {
   getEphemeralToken: () => Promise<RealtimeResponse>;
-  events?: RealtimeConversationWebrtcEvents;
+  events?: RealtimeConversationEvents;
 }): Promise<RealtimeConversationWebrtcSession> {
   const { events } = args;
   const token = await args.getEphemeralToken();
@@ -132,6 +137,8 @@ export async function startRealtimeConversationWebrtcSession(args: {
     }
   };
 
-  return { pc, dc, stream, send, setMicrophoneEnabled, stop };
+  return { kind: "webrtc", pc, dc, stream, send, setMicrophoneEnabled, stop };
 }
+
+export const startRealtimeConversationWebrtcSession = startOpenAiRealtimeConversationWebrtcSession;
 

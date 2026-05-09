@@ -10,7 +10,7 @@ export function RealtimeSettingsButton() {
   const { t } = useTranslation();
   const providerRealtimeConversationMetadata = useAppStore((s) => s.providerRealtimeConversationMetadata);
   const setProviderRealtimeConversationMetadata = useAppStore((s) => s.setProviderRealtimeConversationMetadata);
-  const enabledProviders = useAppStore((s: any) => s.enabledProvidersByType?.realtime);
+  const enabledProviders = useAppStore((s: any) => s.enabledProvidersByType?.audio ?? s.enabledProvidersByType?.realtime);
   const [open, setOpen] = useState(false);
 
   return (

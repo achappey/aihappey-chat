@@ -18,7 +18,14 @@ export const ModelsPage = () => {
   const navigate = useNavigate()
   const models = useAppStore((s) => s.models);
   // unique types
-  const types = Array.from(new Set(models?.map(m => m.type))).sort();
+  const types = Array
+    .from(new Set(models?.map(m => m.type)))
+    .sort((a, b) =>
+      t(a === "audio" ? "realtime" : a)
+        .localeCompare(
+          t(b === "audio" ? "realtime" : b)
+        )
+    );
   // default tab = first type
   const [activeTab, setActiveTab] = useState<string>(types[0]);
   const isDesktop = useIsDesktop()
@@ -193,7 +200,7 @@ export const ModelsPage = () => {
             {types.map(type => (
               <Tab key={type}
                 eventKey={type}
-                title={t(type)
+                title={t(type === "audio" ? "realtime" : type)
                   + " (" + models?.filter(a => a.type == type)?.length + ")"}>
                 {(() => {
                   const normalize = (value?: string) =>

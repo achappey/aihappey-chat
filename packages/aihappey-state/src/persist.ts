@@ -28,7 +28,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 15,
+    version: 16,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -39,6 +39,7 @@ export const withPersist = (
       providerRealtimeConversationMetadata: (s as any).providerRealtimeConversationMetadata,
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
+      userPreferredAudioModel: (s as any).userPreferredAudioModel,
       userPreferredVideoModel: (s as any).userPreferredVideoModel,
       userPreferredRerankingModel: (s as any).userPreferredRerankingModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,
@@ -156,6 +157,24 @@ export const withPersist = (
           providerRealtimeConversationMetadata: isPlainRecord(safeState.providerRealtimeConversationMetadata)
             ? safeState.providerRealtimeConversationMetadata
             : undefined,
+        };
+      }
+
+      if (version < 16) {
+        const enabledProvidersByType = isPlainRecord(safeState.enabledProvidersByType)
+          ? safeState.enabledProvidersByType
+          : {};
+
+        safeState = {
+          ...safeState,
+          enabledProvidersByType: {
+            ...enabledProvidersByType,
+            audio: Array.isArray(enabledProvidersByType.audio)
+              ? enabledProvidersByType.audio.filter(Boolean)
+              : Array.isArray((enabledProvidersByType as any).realtime)
+                ? (enabledProvidersByType as any).realtime.filter(Boolean)
+                : [],
+          },
         };
       }
 
