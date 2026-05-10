@@ -10,7 +10,16 @@ export type RealtimeConversationWebrtcSession = {
   stop: () => Promise<void>;
 };
 
-export type RealtimeConversationSession = RealtimeConversationWebrtcSession;
+export type RealtimeConversationWsSession = {
+  kind: "ws";
+  ws: WebSocket;
+  stream: MediaStream;
+  send: (event: any) => void;
+  setMicrophoneEnabled: (enabled: boolean) => void;
+  stop: () => Promise<void>;
+};
+
+export type RealtimeConversationSession = RealtimeConversationWebrtcSession | RealtimeConversationWsSession;
 
 export type RealtimeConversationEvents = {
   onOpen?: () => void;

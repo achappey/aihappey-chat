@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { SettingsActionButtons } from "../buttons";
-import { OpenAIRealtimeConversationConfigForm } from "../forms";
+import { OpenAIRealtimeConversationConfigForm, XAIRealtimeConversationConfigForm } from "../forms";
 import { useTheme } from "../theme/ThemeContext";
 
 const getDefaultProviderTab = (enabledProviders?: string[]): string => {
@@ -22,13 +22,13 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
   open,
   providerMetadata,
   setProviderMetadata,
-  enabledProviders = ["OpenAI"],
+  enabledProviders = ["OpenAI", "xAI"],
   resetDefaults,
   onClose,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI"];
+  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI", "xAI"];
   const defaultTab = getDefaultProviderTab(normalizedEnabledProviders);
   const [activeTab, setActiveTab] = useState(defaultTab);
 
@@ -61,6 +61,17 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
               updateConfig={(openai) => setProviderMetadata({
                 ...providerMetadata,
                 openai,
+              })}
+            />
+          </theme.Tab>
+        )}
+        {normalizedEnabledProviders.includes("xAI") && (
+          <theme.Tab eventKey="xai" title="xAI">
+            <XAIRealtimeConversationConfigForm
+              config={providerMetadata.xai ?? {}}
+              updateConfig={(xai) => setProviderMetadata({
+                ...providerMetadata,
+                xai,
               })}
             />
           </theme.Tab>

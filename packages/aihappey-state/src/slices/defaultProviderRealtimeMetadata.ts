@@ -123,5 +123,31 @@ export const defaultProviderRealtimeConversationMetadata = {
       "tracing": null,
       "truncation": "auto"
     }
+  },
+  "xai": {
+    "expires_after": {
+      "anchor": "created_at",
+      "seconds": 600
+    },
+    "session": {
+      "voice": "eve",
+      "turn_detection": {
+        "type": "server_vad"
+      },
+      "audio": {
+        "input": {
+          "format": {
+            "type": "audio/pcm",
+            "rate": 24000
+          }
+        },
+        "output": {
+          "format": {
+            "type": "audio/pcm",
+            "rate": 24000
+          }
+        }
+      }
+    }
   }
 };

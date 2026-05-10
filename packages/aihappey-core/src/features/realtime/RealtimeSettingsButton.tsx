@@ -3,7 +3,7 @@ import { defaultProviderRealtimeConversationMetadata, useAppStore } from "aihapp
 import { RealtimeSettingsModal, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 
-const defaultRealtimeProviders = ["OpenAI"];
+const defaultRealtimeProviders = ["OpenAI", "xAI"];
 
 export function RealtimeSettingsButton() {
   const { Button } = useTheme();

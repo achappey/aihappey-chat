@@ -87,6 +87,8 @@ export function useRealtimeConversationController(args: {
   const functionCallsInFlightRef = useRef<Set<string>>(new Set());
   const responseIdsPersistedRef = useRef<Set<string>>(new Set());
   const functionCallArgsRef = useRef<Record<string, any>>({});
+  const functionCallsDoneRef = useRef<Set<string>>(new Set());
+  const handledFunctionCallsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     setMessages(initialMessages ?? []);
@@ -140,8 +142,9 @@ export function useRealtimeConversationController(args: {
   const executeFunctionCall = useCallback(
     async (functionCall: any) => {
       const callId = String(functionCall.call_id ?? "");
-      const name = String(functionCall.name ?? "");
+      const name = String(functionCall.name ?? functionCallArgsRef.current[callId]?.name ?? "");
       if (!callId || !name || functionCallsInFlightRef.current.has(callId)) return;
+      handledFunctionCallsRef.current.add(callId);
       functionCallsInFlightRef.current.add(callId);
 
       const input = safeJsonParse(functionCall.arguments ?? functionCallArgsRef.current[callId]?.arguments ?? {});
@@ -252,6 +255,7 @@ export function useRealtimeConversationController(args: {
           name: event.name ?? functionCallArgsRef.current[callId]?.name,
           arguments: event.arguments ?? functionCallArgsRef.current[callId]?.arguments,
         };
+        functionCallsDoneRef.current.add(callId);
         return;
       }
 
@@ -313,6 +317,14 @@ export function useRealtimeConversationController(args: {
       }
 
       if (type === "response.output_item.done" && event?.item?.type === "function_call") {
+        const callId = String(event.item?.call_id ?? "");
+        if (callId) {
+          functionCallArgsRef.current[callId] = {
+            ...functionCallArgsRef.current[callId],
+            ...event.item,
+          };
+          functionCallsDoneRef.current.add(callId);
+        }
         void executeFunctionCall(event.item);
         return;
       }
@@ -339,8 +351,14 @@ export function useRealtimeConversationController(args: {
           }
         }
 
-        for (const functionCall of extractFunctionCallsFromRealtimeResponse(event?.response)) {
+        const functionCalls = extractFunctionCallsFromRealtimeResponse(event?.response);
+        for (const functionCall of functionCalls) {
           void executeFunctionCall(functionCall);
+        }
+        for (const callId of functionCallsDoneRef.current) {
+          if (handledFunctionCallsRef.current.has(callId)) continue;
+          const functionCall = functionCallArgsRef.current[callId];
+          if (functionCall?.name) void executeFunctionCall({ ...functionCall, call_id: callId });
         }
       }
     },
