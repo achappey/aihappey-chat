@@ -8,6 +8,10 @@
     "dist"
   ],
   "dependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/core-mt": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@google/model-viewer": "^4.1.0",
     "@json-render/core": "^0.19.0",
     "@json-render/react": "^0.19.0",

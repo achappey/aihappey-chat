@@ -1,5 +1,7 @@
 // esbuild.config.js
 const esbuild = require("esbuild");
+const fs = require("fs");
+const path = require("path");
 const isWatch = process.argv.includes("--watch");
 
 // Laad .env of .env.production afhankelijk van NODE_ENV
@@ -24,11 +26,11 @@ const chatAppMcp = process.env.CHAT_APP_MCP || "http://localhost:3001/chatapp";
 const appInsightsConnectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || "";
 
 // Deze kunnen JSON of string zijn, dus altijd even JSON.stringify voor define
-const conversationScopes = safeParseJSON(process.env.CONVERSATIONS_SCOPES, []);
-const msalClientId = process.env.MSAL_CLIENT_ID || "<client_id>";
-const msalAuthority = process.env.MSAL_AUTHORITY || "https://login.microsoftonline.com/<tenant_id>";
-const msalRedirectUri = process.env.MSAL_REDIRECT_URI || "/";
-const msalScopes = safeParseJSON(process.env.MSAL_SCOPES, ["<scope>"]);
+//const conversationScopes = safeParseJSON(process.env.CONVERSATIONS_SCOPES, []);
+//const msalClientId = process.env.MSAL_CLIENT_ID || "<client_id>";
+//const msalAuthority = process.env.MSAL_AUTHORITY || "https://login.microsoftonline.com/<tenant_id>";
+//const msalRedirectUri = process.env.MSAL_REDIRECT_URI || "/";
+//const msalScopes = safeParseJSON(process.env.MSAL_SCOPES, ["<scope>"]);
 
 // --- App version/tag op buildtijd (YYYYMMDD.HHmm) ---
 const now = new Date();
@@ -49,21 +51,55 @@ const buildOptions = {
   minify: !isWatch, // Alleen minify bij production build
   define: {
     "process.env.NODE_ENV": isWatch ? '"development"' : '"production"',
-    "__AGENT_ENDPOINT__": JSON.stringify(agentEndpoint),    
+    "__AGENT_ENDPOINT__": JSON.stringify(agentEndpoint),
     "__APP_VERSION__": JSON.stringify(`${buildDateVersion}.chathappey`),
     "__APP_NAME__": JSON.stringify(appName),
-     "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
+    "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
     "__CHAT_APP_MCP__": JSON.stringify(chatAppMcp),
     "__APPLICATIONINSIGHTS_CONNECTION_STRING__": JSON.stringify(appInsightsConnectionString),
-    "__MSAL_CLIENT_ID__": JSON.stringify(msalClientId),
-    "__CONVERSATIONS_API_URL__": JSON.stringify(conversationsApi),
-    "__CONVERSATIONS_SCOPES__": JSON.stringify(conversationScopes),
-    "__MSAL_AUTHORITY__": JSON.stringify(msalAuthority),
-    "__MSAL_REDIRECT_URI__": JSON.stringify(msalRedirectUri),
-    "__MSAL_SCOPES__": JSON.stringify(msalScopes),
+    /*    "__MSAL_CLIENT_ID__": JSON.stringify(msalClientId),
+        "__CONVERSATIONS_API_URL__": JSON.stringify(conversationsApi),
+        "__CONVERSATIONS_SCOPES__": JSON.stringify(conversationScopes),
+        "__MSAL_AUTHORITY__": JSON.stringify(msalAuthority),
+        "__MSAL_REDIRECT_URI__": JSON.stringify(msalRedirectUri),
+        "__MSAL_SCOPES__": JSON.stringify(msalScopes),*/
   },
   loader: { ".tsx": "tsx", ".ts": "ts" },
 };
+
+function copyFfmpegAssets() {
+  const publicDir = path.join(__dirname, "public");
+  const ffmpegDir = path.join(publicDir, "ffmpeg");
+  const rootDir = path.resolve(__dirname, "../..");
+
+  fs.mkdirSync(ffmpegDir, { recursive: true });
+
+  const copyFile = (from, to) => {
+    if (fs.existsSync(from)) {
+      fs.copyFileSync(from, to);
+    } else {
+      console.warn(`Missing optional ffmpeg smoke-test asset: ${from}`);
+    }
+  };
+
+  const copyDir = (fromDir, toDir) => {
+    fs.mkdirSync(toDir, { recursive: true });
+    for (const entry of fs.readdirSync(fromDir, { withFileTypes: true })) {
+      const from = path.join(fromDir, entry.name);
+      const to = path.join(toDir, entry.name);
+      if (entry.isDirectory()) copyDir(from, to);
+      else copyFile(from, to);
+    }
+  };
+
+  copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "ffmpeg", "dist", "esm"), ffmpegDir);
+  copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "core", "dist", "esm"), ffmpegDir);
+  copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "ffmpeg", "dist", "esm"), path.join(ffmpegDir, "ffmpeg"));
+  copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "core", "dist", "esm"), path.join(ffmpegDir, "core"));
+
+}
+
+copyFfmpegAssets();
 
 // --- Build of watch ---
 if (isWatch) {

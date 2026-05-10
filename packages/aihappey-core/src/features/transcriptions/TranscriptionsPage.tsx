@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { createTranscriptionProvider } from "aihappey-ai";
-import type { SharedV4Warning } from "aihappey-ai";
+import type { SharedV4Warning, TranscriptionResponse } from "aihappey-ai";
 import { useTranscriptions } from "aihappey-transcriptions";
 import { ErrorAlerts, TranscriptionCard, useTheme, WarningAlerts } from "aihappey-components";
 import { TranscriptionInput } from "./TranscriptionInput";
@@ -27,6 +27,7 @@ import type { AihUiTheme } from "aihappey-types";
 import { useRealtimeTranscriptionController } from "./realtime/useRealtimeTranscriptionController";
 import React from "react";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
+import { splitTranscriptionFile, type TranscriptionFileChunk } from "./transcriptionFileSplit";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -42,12 +43,75 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
+type ChunkTranscriptionResult = {
+  chunk: TranscriptionFileChunk;
+  result: TranscriptionResponse;
+};
+
+const mergeChunkTranscriptions = (
+  originalFile: File,
+  chunks: ChunkTranscriptionResult[],
+  durationInSeconds?: number
+): TranscriptionResponse => {
+  const ordered = [...chunks].sort((a, b) => a.chunk.index - b.chunk.index);
+  const first = ordered[0]?.result;
+  const last = ordered[ordered.length - 1]?.result ?? first;
+
+  const text = ordered
+    .map(({ result }) => (result.text ?? "").trim())
+    .filter(Boolean)
+    .join("\n");
+
+  const segments = ordered.flatMap(({ chunk, result }) => (result.segments ?? []).map((segment) => ({
+    ...segment,
+    startSecond: segment.startSecond + chunk.startSecond,
+    endSecond: segment.endSecond + chunk.startSecond,
+  })));
+
+  return {
+    ...(last ?? {} as TranscriptionResponse),
+    text,
+    segments,
+    language: first?.language,
+    durationInSeconds: durationInSeconds ?? last?.durationInSeconds,
+    warnings: ordered.flatMap(({ result }) => result.warnings ?? []),
+    request: {
+      ...(last?.request ?? {}),
+      body: JSON.stringify({
+        split: true,
+        fileName: originalFile.name,
+        fileSize: originalFile.size,
+        chunks: ordered.map(({ chunk }) => ({
+          index: chunk.index,
+          total: chunk.total,
+          name: chunk.file.name,
+          size: chunk.file.size,
+          mediaType: chunk.file.type,
+          startSecond: chunk.startSecond,
+          endSecond: chunk.endSecond,
+        })),
+      }),
+    },
+    response: {
+      timestamp: new Date(),
+      modelId: last?.response?.modelId ?? "",
+      body: {
+        split: true,
+        originalResponseBodies: ordered.map(({ result }) => result.response?.body),
+      },
+    },
+  };
+};
+
 
 export const TranscriptionsPage = () => {
   const models = useAppStore((a) => a.models);
   const customHeaders = useAppStore((a) => a.customHeaders);
   const providerTranscriptionMetadata = useAppStore((a) => a.providerTranscriptionMetadata);
   const userPreferredTranscriptionModel = useAppStore((a) => a.userPreferredTranscriptionModel);
+  const transcriptionFileSplitEnabled = useAppStore((a: any) => a.transcriptionFileSplitEnabled);
+  const transcriptionFileSplitOverlapSeconds = useAppStore((a: any) => a.transcriptionFileSplitOverlapSeconds);
+  const transcriptionFileSplitMaxSizeMb = useAppStore((a: any) => a.transcriptionFileSplitMaxSizeMb);
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<string>("recorded");
@@ -198,19 +262,47 @@ export const TranscriptionsPage = () => {
       );
 
 
+      const transcribeChunk = async (chunk: TranscriptionFileChunk): Promise<ChunkTranscriptionResult> => {
+        const audioBase64 = await fileToBase64(chunk.file);
+
+        const result = await model.doGenerate({
+          audio: audioBase64,
+          mediaType: chunk.file.type || "application/octet-stream",
+          providerOptions: {
+            ...(hydratedProviderOptions ?? providerTranscriptionMetadata),
+          },
+        }) as TranscriptionResponse;
+
+        addSharedWarnings(result?.warnings as any);
+
+        return { chunk, result };
+      };
+
       await Promise.all(
         accepted.map(async (file) => {
-          const audioBase64 = await fileToBase64(file);
+          let splitResult;
+          try {
+            splitResult = await splitTranscriptionFile(file, {
+              enabled: transcriptionFileSplitEnabled ?? false,
+              overlapSeconds: transcriptionFileSplitOverlapSeconds ?? 5,
+              maxChunkSizeMb: transcriptionFileSplitMaxSizeMb ?? 25,
+            });
+          } catch (err) {
+            if ((transcriptionFileSplitEnabled ?? false) && file.size > ((transcriptionFileSplitMaxSizeMb ?? 25) * 1024 * 1024)) {
+              addWarning(t("transcriptionFileSplitFailedTooLarge", { filename: file.name }));
+              throw err;
+            }
+            addWarning(t("transcriptionFileSplitFailed", { filename: file.name }));
+            splitResult = {
+              chunks: [{ file, index: 0, total: 1, startSecond: 0, endSecond: 0 }],
+              split: false,
+            };
+          }
 
-          const result = await model.doGenerate({
-            audio: audioBase64,
-            mediaType: file.type,
-            providerOptions: {
-              ...(hydratedProviderOptions ?? providerTranscriptionMetadata),
-            },
-          });
-
-          addSharedWarnings(result?.warnings as any);
+          const chunkResults = await Promise.all(splitResult.chunks.map(transcribeChunk));
+          const result = splitResult.split
+            ? mergeChunkTranscriptions(file, chunkResults, splitResult.durationInSeconds)
+            : chunkResults[0].result;
 
           await storageTranscriptions.add(file.name, file, result);
         })

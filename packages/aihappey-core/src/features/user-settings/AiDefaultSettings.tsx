@@ -8,7 +8,7 @@ import { useTheme } from "aihappey-components";
 export const AiDefaultSettings: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { Switch } = theme;
+  const { Switch, Slider } = theme;
   const models = useAppStore((s) => s.models);
   const selectedModel = useAppStore((s) => s.selectedModel);
 
@@ -46,6 +46,12 @@ export const AiDefaultSettings: React.FC = () => {
 
   const toggleChatWithTranscriptionModels = useAppStore((s: any) => s.toggleChatWithTranscriptionModels);
   const chatWithTranscriptionModels = useAppStore((s) => s.chatWithTranscriptionModels);
+  const transcriptionFileSplitEnabled = useAppStore((s: any) => s.transcriptionFileSplitEnabled);
+  const setTranscriptionFileSplitEnabled = useAppStore((s: any) => s.setTranscriptionFileSplitEnabled);
+  const transcriptionFileSplitOverlapSeconds = useAppStore((s: any) => s.transcriptionFileSplitOverlapSeconds);
+  const setTranscriptionFileSplitOverlapSeconds = useAppStore((s: any) => s.setTranscriptionFileSplitOverlapSeconds);
+  const transcriptionFileSplitMaxSizeMb = useAppStore((s: any) => s.transcriptionFileSplitMaxSizeMb);
+  const setTranscriptionFileSplitMaxSizeMb = useAppStore((s: any) => s.setTranscriptionFileSplitMaxSizeMb);
 
   // If the user has not yet chosen a preferred model, we display the currently
   // selected model as a reasonable default. Only userPreferredModel is updated
@@ -126,6 +132,39 @@ export const AiDefaultSettings: React.FC = () => {
               label={t("chatWithTranscriptionModels")}
               checked={chatWithTranscriptionModels ?? false}
               onChange={toggleChatWithTranscriptionModels}
+            />
+
+            <Switch
+              id={"transcriptionFileSplitEnabled"}
+              label={t("settingsModal.transcriptionFileSplitEnabled")}
+              checked={transcriptionFileSplitEnabled ?? false}
+              onChange={() => setTranscriptionFileSplitEnabled(!(transcriptionFileSplitEnabled ?? false))}
+            />
+
+            <Slider
+              id="transcriptionFileSplitOverlapSeconds-slider"
+              min={0}
+              max={60}
+              step={1}
+              value={transcriptionFileSplitOverlapSeconds ?? 5}
+              onChange={setTranscriptionFileSplitOverlapSeconds}
+              label={t("settingsModal.transcriptionFileSplitOverlapSeconds")}
+              disabled={!(transcriptionFileSplitEnabled ?? false)}
+              showValue={true}
+              valueFormat={(seconds) => `${seconds} s`}
+            />
+
+            <Slider
+              id="transcriptionFileSplitMaxSizeMb-slider"
+              min={1}
+              max={100}
+              step={1}
+              value={transcriptionFileSplitMaxSizeMb ?? 25}
+              onChange={setTranscriptionFileSplitMaxSizeMb}
+              label={t("settingsModal.transcriptionFileSplitMaxSizeMb")}
+              disabled={!(transcriptionFileSplitEnabled ?? false)}
+              showValue={true}
+              valueFormat={(mb) => `${mb} MB`}
             />
           </div>
         </theme.Tab>

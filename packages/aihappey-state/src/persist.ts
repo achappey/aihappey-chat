@@ -28,7 +28,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 16,
+    version: 17,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -80,6 +80,9 @@ export const withPersist = (
       chatWithVideoModels: (s as any).chatWithVideoModels,
       chatWithSpeechModels: s.chatWithSpeechModels,
       chatWithTranscriptionModels: s.chatWithTranscriptionModels,
+      transcriptionFileSplitEnabled: (s as any).transcriptionFileSplitEnabled,
+      transcriptionFileSplitOverlapSeconds: (s as any).transcriptionFileSplitOverlapSeconds,
+      transcriptionFileSplitMaxSizeMb: (s as any).transcriptionFileSplitMaxSizeMb,
       toolAnnotations: s.toolAnnotations,
       enableUserLocation: s.enableUserLocation,
       enableApps: s.enableApps,
@@ -175,6 +178,21 @@ export const withPersist = (
                 ? (enabledProvidersByType as any).realtime.filter(Boolean)
                 : [],
           },
+        };
+      }
+
+      if (version < 17) {
+        safeState = {
+          ...safeState,
+          transcriptionFileSplitEnabled: typeof safeState.transcriptionFileSplitEnabled === "boolean"
+            ? safeState.transcriptionFileSplitEnabled
+            : false,
+          transcriptionFileSplitOverlapSeconds: typeof safeState.transcriptionFileSplitOverlapSeconds === "number"
+            ? Math.max(0, safeState.transcriptionFileSplitOverlapSeconds)
+            : 5,
+          transcriptionFileSplitMaxSizeMb: typeof safeState.transcriptionFileSplitMaxSizeMb === "number"
+            ? Math.max(1, safeState.transcriptionFileSplitMaxSizeMb)
+            : 25,
         };
       }
 

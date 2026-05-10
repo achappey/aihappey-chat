@@ -19,9 +19,9 @@
         "latestVersionBadge": "Laatste versie {{version}}",
         "description": "Een overzicht van alle beschikbare skills die je kunt gebruiken om taken uit te voeren en workflows te ondersteunen. Per skill zie je wat het doet, waar je het voor inzet en hoe het zich onderscheidt van andere skills. Zo kies je per taak snel en onderbouwd de juiste optie. Skills brengen instructies, logica en uitvoering samen in Ã©Ã©n consistente opzet. Dit zorgt voor duidelijkheid, herhaalbaarheid en grip op het resultaat.",
         "fileCountBadge": "Bestanden: {{count}}",
-        "importZipOnly": "Alleen ZIP-archieven kunnen als skills worden geÃ¯mporteerd.",
+        "importZipOnly": "Alleen ZIP-archieven kunnen als skills worden geïmporteerd.",
         "importedWithDiagnostics": "{{count}} skill(s) geÃ¯mporteerd met {{diagnostics}} diagnostische melding(en).",
-        "imported": "{{count}} skill(s) geÃ¯mporteerd.",
+        "imported": "{{count}} skill(s) geïmporteerd.",
         "importNoValidSkills": "Er zijn geen geldige skills gevonden in het geÃ¼ploade ZIP-archief.",
         "downloadFailed": "Het skillarchief kon niet worden voorbereid voor download.",
         "remoteDownloadToInspect": "Download eerst een versie om de inhoud van SKILL.md te bekijken.",
@@ -299,7 +299,7 @@
     },
     "agents": {
         "title": "Agents",
-        "description": "Agents zijn autonome eenheden die vaardigheden, context en uitvoeringslogica samenbrengen in Ã©Ã©n model. Dat levert voorspelbaar gedrag op, maakt opschalen eenvoudig en zorgt voor een consistente inzet in verschillende omgevingen.",
+        "description": "Agents zijn autonome eenheden die vaardigheden, context en uitvoeringslogica samenbrengen in één model. Dat levert voorspelbaar gedrag op, maakt opschalen eenvoudig en zorgt voor een consistente inzet in verschillende omgevingen.",
         "mcpClientCapabilities": "Model Context mogelijkheden",
         "settings": "Instellingen",
         "mcpServers": "Model Context"
@@ -605,7 +605,10 @@
         "logoutOnDevice": "Uitloggen op dit apparaat",
         "deleteAll": "Alles verwijderen",
         "deleteAllChats": "Alle chats verwijderen",
-        "remoteStorage": "Cloud"
+        "remoteStorage": "Cloud",
+        "transcriptionFileSplitEnabled": "Grote transcriptiebestanden splitsen",
+        "transcriptionFileSplitOverlapSeconds": "Overlap bij transcriptiesplitsing",
+        "transcriptionFileSplitMaxSizeMb": "Maximale chunkgrootte voor transcriptiesplitsing"
     },
     "ok": "Ok",
     "execute": "Uitvoeren",
@@ -629,6 +632,9 @@
     "rerankingPlaceholder": "Voeg bestanden toe en stel een vraag om de bestanden te rangschikken...",
     "chatWithSpeechModels": "Chat met spraakmodellen",
     "chatWithTranscriptionModels": "Chat met transcriptiemodellen",
+    "transcriptionFileSplitUnavailable": "Kan {{filename}} niet splitsen in deze browser of dit mediaformaat. Het originele bestand wordt verzonden.",
+    "transcriptionFileSplitFailed": "Splitsen van {{filename}} is mislukt. Het originele bestand wordt verzonden.",
+    "transcriptionFileSplitFailedTooLarge": "Splitsen van {{filename}} is mislukt. Het originele bestand is te groot om veilig te verzenden.",
     "type": "Type",
     "manageServersModal": {
         "current": "Huidige servers",

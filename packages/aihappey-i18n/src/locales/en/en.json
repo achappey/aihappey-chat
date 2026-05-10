@@ -604,11 +604,17 @@
         "tabApps": "Apps",
         "appsHint": "Choose which UI catalogs are used in prompts (generation) and which registries are used at runtime (rendering). If you select none, all are enabled.",
         "defaultCatalogs": "Default catalogs",
-        "defaultRegistries": "Default registries"
+        "defaultRegistries": "Default registries",
+        "transcriptionFileSplitEnabled": "Split large transcription files",
+        "transcriptionFileSplitOverlapSeconds": "Transcription split overlap",
+        "transcriptionFileSplitMaxSizeMb": "Transcription split max chunk size"
     },
     "chatWithSpeechModels": "Chat with speech models",
     "chatWithTranscriptionModels": "Chat with transcription models",
     "transcriptionInputFilesNotSupported": "Only audio/video files are accepted. Rejected: {{rejected}}",
+    "transcriptionFileSplitUnavailable": "Could not split {{filename}} in this browser or media format. Sending the original file instead.",
+    "transcriptionFileSplitFailed": "Failed to split {{filename}}. Sending the original file instead.",
+    "transcriptionFileSplitFailedTooLarge": "Failed to split {{filename}}. The original file is too large to send safely.",
     "ok": "Ok",
     "experimental": "Experimental",
     "execute": "Execute",

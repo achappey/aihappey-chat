@@ -137,6 +137,9 @@ export type UiSlice = {
   chatWithTranscriptionModels?: boolean
   chatWithSpeechModels?: boolean
   chatWithRerankModels?: boolean
+  transcriptionFileSplitEnabled?: boolean
+  transcriptionFileSplitOverlapSeconds?: number
+  transcriptionFileSplitMaxSizeMb?: number
   sampling?: any
   elicitation?: any
   debugMode?: boolean
@@ -159,6 +162,9 @@ export type UiSlice = {
   toggleChatWithVideoModels: () => void;
   toggleChatWithSpeechModels: () => void;
   toggleChatWithTranscriptionModels: () => void;
+  setTranscriptionFileSplitEnabled: (enabled: boolean) => void;
+  setTranscriptionFileSplitOverlapSeconds: (seconds: number) => void;
+  setTranscriptionFileSplitMaxSizeMb: (mb: number) => void;
   toggleEliciation: () => void;
   toggleAgentImport: () => void;
   toggleConversationImport: () => void;
@@ -260,6 +266,9 @@ export const createUiSlice: StateCreator<
   chatWithRerankModels: false,
   chatWithSpeechModels: false,
   chatWithTranscriptionModels: false,
+  transcriptionFileSplitEnabled: false,
+  transcriptionFileSplitOverlapSeconds: 5,
+  transcriptionFileSplitMaxSizeMb: 25,
   activitiesSize: "medium",
   quickSearches: ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"],
   togglePinnedConversation: (value: string) =>
@@ -291,6 +300,18 @@ export const createUiSlice: StateCreator<
   toggleChatWithTranscriptionModels: () =>
     set((s: UiSlice) => ({
       chatWithTranscriptionModels: !s.chatWithTranscriptionModels,
+    })),
+  setTranscriptionFileSplitEnabled: (enabled: boolean) =>
+    set(() => ({
+      transcriptionFileSplitEnabled: enabled,
+    })),
+  setTranscriptionFileSplitOverlapSeconds: (seconds: number) =>
+    set(() => ({
+      transcriptionFileSplitOverlapSeconds: Math.max(0, seconds),
+    })),
+  setTranscriptionFileSplitMaxSizeMb: (mb: number) =>
+    set(() => ({
+      transcriptionFileSplitMaxSizeMb: Math.max(1, mb),
     })),
   toggleEliciation: () =>
     set((s: any) => ({
