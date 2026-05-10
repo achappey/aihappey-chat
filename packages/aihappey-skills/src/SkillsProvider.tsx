@@ -15,13 +15,17 @@ import type {
   Skill,
   SkillArchiveExport,
   SkillCatalogItem,
+  SkillFileWriteDefinition,
   SkillDownloadState,
+  SkillInspectionResult,
   SkillImportResult,
   SkillImportOptions,
   SkillImportSource,
   SkillListParams,
+  SkillManifestUpdateDefinition,
   SkillUpdateParams,
   SkillVersion,
+  SkillWriteDefinition,
   StoredSkill,
   VersionListParams,
 } from "./types";
@@ -56,6 +60,12 @@ export type SkillsContextType = {
     source?: SkillImportSource,
     options?: SkillImportOptions
   ) => Promise<SkillImportResult>;
+  createSkill: (definition: SkillWriteDefinition) => Promise<StoredSkill>;
+  inspectSkill: (skillId: string, version?: string) => Promise<SkillInspectionResult>;
+  updateSkillManifest: (skillId: string, definition: SkillManifestUpdateDefinition) => Promise<StoredSkill>;
+  upsertSkillFile: (skillId: string, file: SkillFileWriteDefinition) => Promise<StoredSkill>;
+  deleteSkillFile: (skillId: string, relativePath: string) => Promise<StoredSkill>;
+  restoreSkillVersion: (skillId: string, version: string) => Promise<StoredSkill>;
   delete: (id: string) => Promise<void>;
   ensureDownloaded: (skillId: string, version?: string) => Promise<StoredSkill | undefined>;
   ensureDownloadedByName: (name: string) => Promise<StoredSkill | undefined>;
@@ -506,6 +516,32 @@ export const SkillsProvider = ({
       options?: SkillImportOptions
     ): Promise<SkillImportResult> => {
       const result = await store.importArchive(file, source, options);
+      setLocalItems(await store.listCatalogItems());
+      return result;
+    },
+    createSkill: async (definition: SkillWriteDefinition) => {
+      const result = await store.createSkill(definition);
+      setLocalItems(await store.listCatalogItems());
+      return result;
+    },
+    inspectSkill: (skillId: string, version?: string) => store.inspectSkill(skillId, version),
+    updateSkillManifest: async (skillId: string, definition: SkillManifestUpdateDefinition) => {
+      const result = await store.updateSkillManifest(skillId, definition);
+      setLocalItems(await store.listCatalogItems());
+      return result;
+    },
+    upsertSkillFile: async (skillId: string, file: SkillFileWriteDefinition) => {
+      const result = await store.upsertSkillFile(skillId, file);
+      setLocalItems(await store.listCatalogItems());
+      return result;
+    },
+    deleteSkillFile: async (skillId: string, relativePath: string) => {
+      const result = await store.deleteSkillFile(skillId, relativePath);
+      setLocalItems(await store.listCatalogItems());
+      return result;
+    },
+    restoreSkillVersion: async (skillId: string, version: string) => {
+      const result = await store.restoreSkillVersion(skillId, version);
       setLocalItems(await store.listCatalogItems());
       return result;
     },

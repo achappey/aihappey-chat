@@ -1,9 +1,115 @@
-import type { SkillDiagnostic, SkillFrontmatter } from "./types";
+import type { SkillDiagnostic, SkillFrontmatter, SkillWriteDefinition } from "./types";
 
 const FRONTMATTER_RE = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?([\s\S]*)$/;
-const SKILL_NAME_RE = /^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$/;
+export const SKILL_NAME_RE = /^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$/;
 const SKILL_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]*(?:\/[A-Za-z0-9][A-Za-z0-9_-]*)*$/;
 const SKILL_VERSION_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+
+export function normalizeSkillName(value: unknown) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+export function validateSkillName(value: unknown) {
+  const name = normalizeSkillName(value);
+  if (!name) throw new Error("name is required.");
+  if (!SKILL_NAME_RE.test(name)) {
+    throw new Error(
+      "name must contain only lowercase letters, numbers, and single hyphens, and it must not start or end with a hyphen."
+    );
+  }
+  return name;
+}
+
+export function validateSkillDescription(value: unknown) {
+  const description = String(value ?? "").trim();
+  if (!description) throw new Error("description is required.");
+  if (description.length > 1024) throw new Error("description must be 1024 characters or less.");
+  return description;
+}
+
+export function normalizeSkillRelativePath(value: unknown) {
+  return String(value ?? "")
+    .replace(/\\/g, "/")
+    .replace(/^\.\/?/, "")
+    .replace(/^\/+/, "")
+    .replace(/\/+/g, "/")
+    .trim();
+}
+
+export function validateSkillRelativePath(value: unknown, options?: { allowManifest?: boolean }) {
+  const path = normalizeSkillRelativePath(value);
+  if (!path) throw new Error("relativePath is required.");
+  if (path === ".." || path.startsWith("../") || path.includes("/../") || path.includes("//")) {
+    throw new Error("relativePath must stay inside the skill folder.");
+  }
+  if (!options?.allowManifest && path.toLowerCase() === "skill.md") {
+    throw new Error("Use the manifest update tool for SKILL.md.");
+  }
+  return path === "skill.md" ? "SKILL.md" : path;
+}
+
+function toYamlScalar(value: string) {
+  return JSON.stringify(String(value ?? ""));
+}
+
+function normalizeMetadata(metadata: Record<string, string> | undefined | null) {
+  const result: Record<string, string> = {};
+  for (const [rawKey, rawValue] of Object.entries(metadata ?? {})) {
+    const key = String(rawKey ?? "").trim();
+    if (!key) throw new Error("metadata keys cannot be empty.");
+    if (!/^[A-Za-z0-9_.-]+$/.test(key)) {
+      throw new Error(`metadata key '${key}' contains unsupported characters.`);
+    }
+    result[key] = String(rawValue ?? "").trim();
+  }
+  return result;
+}
+
+export function buildDefaultSkillInstructions(name: string) {
+  return `# ${name}\n\n## When to use this skill\nDescribe when this skill should be activated.\n\n## Instructions\nAdd the exact workflow the agent should follow.`;
+}
+
+export function normalizeSkillWriteDefinition(definition: SkillWriteDefinition): Required<Pick<SkillWriteDefinition, "name" | "description">> & SkillWriteDefinition {
+  const name = validateSkillName(definition.name);
+  const description = validateSkillDescription(definition.description);
+  const compatibility = String(definition.compatibility ?? "").trim();
+  if (compatibility && compatibility.length > 500) {
+    throw new Error("compatibility must be 500 characters or less.");
+  }
+  return {
+    ...definition,
+    name,
+    description,
+    instructions: String(definition.instructions ?? "").trim() || buildDefaultSkillInstructions(name),
+    license: String(definition.license ?? "").trim() || undefined,
+    compatibility: compatibility || undefined,
+    metadata: normalizeMetadata(definition.metadata),
+    allowedTools: String(definition.allowedTools ?? "").trim() || undefined,
+    skillId: String(definition.skillId ?? "").trim() || undefined,
+  };
+}
+
+export function renderSkillMarkdown(definition: SkillWriteDefinition & { version?: string; defaultVersion?: string; latestVersion?: string }) {
+  const normalized = normalizeSkillWriteDefinition(definition);
+  const lines = ["---"];
+  if (normalized.skillId) lines.push(`id: ${toYamlScalar(normalized.skillId)}`);
+  lines.push(`name: ${toYamlScalar(normalized.name)}`);
+  lines.push(`description: ${toYamlScalar(normalized.description)}`);
+  if (definition.version) lines.push(`version: ${toYamlScalar(definition.version)}`);
+  if (definition.defaultVersion) lines.push(`default-version: ${toYamlScalar(definition.defaultVersion)}`);
+  if (definition.latestVersion) lines.push(`latest-version: ${toYamlScalar(definition.latestVersion)}`);
+  if (normalized.license) lines.push(`license: ${toYamlScalar(normalized.license)}`);
+  if (normalized.compatibility) lines.push(`compatibility: ${toYamlScalar(normalized.compatibility)}`);
+  if (normalized.metadata && Object.keys(normalized.metadata).length > 0) {
+    lines.push("metadata:");
+    for (const [key, value] of Object.entries(normalized.metadata).sort(([a], [b]) => a.localeCompare(b))) {
+      lines.push(`  ${key}: ${toYamlScalar(value)}`);
+    }
+  }
+  if (normalized.allowedTools) lines.push(`allowed-tools: ${toYamlScalar(normalized.allowedTools)}`);
+  lines.push("---", "", normalized.instructions ?? buildDefaultSkillInstructions(normalized.name));
+  return `${lines.join("\n").trim()}\n`;
+}
 
 function stripQuotes(value: string) {
   const trimmed = value.trim();

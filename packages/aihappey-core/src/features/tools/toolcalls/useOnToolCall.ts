@@ -59,6 +59,7 @@ import {
 import { useSkills } from "aihappey-skills";
 import { buildSkillSearchPluginDef, SKILL_SEARCH_PLUGIN_ID, useSkillToolCall } from "./useSkillToolCall";
 import { mcpTaskPluginDef, useMcpTaskRuntime } from "./useMcpTaskToolCall";
+import { localSkillEditorPluginDef, useLocalSkillEditorRuntime } from "./useLocalSkillEditorToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -117,6 +118,7 @@ export function useOnToolCall({
   const localWebreaderRuntime = useLocalWebreaderRuntime();
   const localChartJsRuntime = useLocalChartJsRuntime();
   const localArtificialIntelligenceRuntime = useLocalArtificialIntelligenceRuntime();
+  const localSkillEditorRuntime = useLocalSkillEditorRuntime(skills, files);
   const jsonRenderRuntime = useLocalJsonRenderRuntime({
     setActiveData,
     send
@@ -165,6 +167,7 @@ export function useOnToolCall({
       [localWebreaderRuntime.name]: localWebreaderRuntime,
       [localChartJsRuntime.name]: localChartJsRuntime,
       [localArtificialIntelligenceRuntime.name]: localArtificialIntelligenceRuntime,
+      [localSkillEditorRuntime.name]: localSkillEditorRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
       [jsonRenderRuntime.name]: jsonRenderRuntime,
       [searchSkillsPlugin.name]: searchSkillsPlugin,
@@ -188,6 +191,7 @@ export function useOnToolCall({
       localWebreaderRuntime,
       localChartJsRuntime,
       localArtificialIntelligenceRuntime,
+      localSkillEditorRuntime,
       searchSkillsPlugin,
     ]
   );
@@ -201,6 +205,7 @@ export function useOnToolCall({
       localWebPluginDef,
       localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
+      localSkillEditorPluginDef,
       localCanvasPluginDef,
       localJsonRenderPluginDef,
       localTodoPluginDef,

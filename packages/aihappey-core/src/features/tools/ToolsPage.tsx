@@ -22,6 +22,7 @@ import { vercelAIPluginDef } from "./toolcalls/useVercelAIToolCall";
 import { localWebPluginDef } from "./toolcalls/useLocalWebToolCall";
 import { localChartJsPluginDef } from "./toolcalls/useLocalChartJsToolCall";
 import { localArtificialIntelligencePluginDef } from "./toolcalls/useLocalArtificialIntelligenceToolCall";
+import { localSkillEditorPluginDef } from "./toolcalls/useLocalSkillEditorToolCall";
 import { parseStoredToolInputSchema } from "./localStoredTools";
 import { useOnToolCall } from "./toolcalls/useOnToolCall";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -88,6 +89,7 @@ export const ToolsPage = () => {
       localWebPluginDef,
       localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
+      localSkillEditorPluginDef,
       localCatalogPluginDef,
       localRegistryPluginDef,
       localActionsPluginDef,

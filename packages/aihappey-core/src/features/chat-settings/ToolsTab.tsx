@@ -19,6 +19,7 @@ import { localTodoPluginDef } from "../tools/toolcalls/useLocalTodoListToolCall"
 import { localWebPluginDef } from "../tools/toolcalls/useLocalWebToolCall";
 import { localChartJsPluginDef } from "../tools/toolcalls/useLocalChartJsToolCall";
 import { localArtificialIntelligencePluginDef } from "../tools/toolcalls/useLocalArtificialIntelligenceToolCall";
+import { localSkillEditorPluginDef } from "../tools/toolcalls/useLocalSkillEditorToolCall";
 import { SKILL_SEARCH_PLUGIN_ID } from "../tools/toolcalls/useSkillToolCall";
 
 // --- Tools Tab ---
@@ -51,6 +52,7 @@ export const ToolsTab = ({
       localWebPluginDef,
       localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
+      localSkillEditorPluginDef,
       localStructuredOutputsPluginDef,
       localCatalogPluginDef,
       localRegistryPluginDef,

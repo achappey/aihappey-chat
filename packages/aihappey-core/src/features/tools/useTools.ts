@@ -30,6 +30,7 @@ import {
   buildSkillSearchPluginDef,
 } from "./toolcalls/useSkillToolCall";
 import { buildMcpTaskTools, mcpTaskPluginDef } from "./toolcalls/useMcpTaskToolCall";
+import { localSkillEditorPluginDef } from "./toolcalls/useLocalSkillEditorToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -61,6 +62,7 @@ export function useTools() {
       localWebPluginDef,
       localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
+      localSkillEditorPluginDef,
       localTodoPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDef,

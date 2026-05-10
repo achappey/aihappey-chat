@@ -173,6 +173,39 @@ export interface SkillImportOptions {
   latestVersion?: string;
 }
 
+export interface SkillWriteDefinition {
+  name: string;
+  description: string;
+  instructions?: string;
+  license?: string;
+  compatibility?: string;
+  metadata?: Record<string, string>;
+  allowedTools?: string;
+  skillId?: string;
+}
+
+export interface SkillManifestUpdateDefinition {
+  description?: string;
+  instructions?: string;
+  license?: string | null;
+  compatibility?: string | null;
+  metadata?: Record<string, string> | null;
+  allowedTools?: string | null;
+}
+
+export interface SkillFileWriteDefinition {
+  relativePath: string;
+  data: Blob;
+}
+
+export interface SkillInspectionResult {
+  skill: StoredSkill;
+  files: string[];
+  diagnostics: SkillDiagnostic[];
+  warnings: SkillDiagnostic[];
+  errors: SkillDiagnostic[];
+}
+
 export interface SkillArchiveExport {
   filename: string;
   blob: Blob;
@@ -195,6 +228,12 @@ export interface SkillStore {
     source?: SkillImportSource,
     options?: SkillImportOptions
   ): Promise<SkillImportResult>;
+  createSkill(definition: SkillWriteDefinition): Promise<StoredSkill>;
+  inspectSkill(skillId: string, version?: string): Promise<SkillInspectionResult>;
+  updateSkillManifest(skillId: string, definition: SkillManifestUpdateDefinition): Promise<StoredSkill>;
+  upsertSkillFile(skillId: string, file: SkillFileWriteDefinition): Promise<StoredSkill>;
+  deleteSkillFile(skillId: string, relativePath: string): Promise<StoredSkill>;
+  restoreSkillVersion(skillId: string, version: string): Promise<StoredSkill>;
   delete(id: string): Promise<void>;
   deleteVersion(skillId: string, version: string): Promise<void>;
   pruneVersions(skillId: string, keepVersion: string): Promise<void>;

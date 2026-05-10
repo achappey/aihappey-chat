@@ -1,19 +1,29 @@
 import { get, set } from "idb-keyval";
 import { combineImportResult, extractSkillsFromArchive, toStoredSkill } from "../importSkillsFromZip";
 import { exportSkillToArchive } from "../exportSkillToArchive";
+import {
+  normalizeSkillWriteDefinition,
+  renderSkillMarkdown,
+  validateSkillRelativePath,
+} from "../skillFrontmatter";
 import type {
   DataList,
   SkillArchiveExport,
   SkillCatalogItem,
   Skill,
+  SkillFileWriteDefinition,
   SkillImportResult,
   SkillImportOptions,
+  SkillInspectionResult,
   SkillImportSource,
   SkillListParams,
+  SkillManifestUpdateDefinition,
   SkillStore,
   SkillUpdateParams,
   SkillVersion,
+  SkillWriteDefinition,
   StoredSkill,
+  StoredSkillFile,
   VersionListParams,
 } from "../types";
 
@@ -54,6 +64,16 @@ function compareVersions(a: string | undefined, b: string | undefined) {
     numeric: true,
     sensitivity: "base",
   });
+}
+
+function incrementVersion(value: string | undefined) {
+  const normalized = normalizeVersion(value, "1");
+  if (POSITIVE_INTEGER_RE.test(normalized)) return String(Number.parseInt(normalized, 10) + 1);
+  return `${normalized}-next`;
+}
+
+function cloneBlob(blob: Blob) {
+  return blob.slice(0, blob.size, blob.type || "application/octet-stream");
 }
 
 function paginateList<T extends { id: string }>(items: T[], after?: string, limit?: number): DataList<T> {
@@ -180,6 +200,18 @@ function toSkillVersion(item: StoredSkill): SkillVersion {
     description: item.description,
     skill_id: item.skillId,
   };
+}
+
+function manifestBlob(markdown: string) {
+  return new Blob([markdown], { type: "text/markdown" });
+}
+
+function upsertStoredFile(files: StoredSkillFile[], file: StoredSkillFile) {
+  const normalized = validateSkillRelativePath(file.path, { allowManifest: true });
+  return [
+    { ...file, path: normalized },
+    ...files.filter((item) => validateSkillRelativePath(item.path, { allowManifest: true }) !== normalized),
+  ];
 }
 
 export class IndexedDBSkillStore implements SkillStore {
@@ -427,6 +459,227 @@ export class IndexedDBSkillStore implements SkillStore {
 
     await save(this.data);
     return combineImportResult(parsedSkills, imported, diagnostics);
+  };
+
+  createSkill = async (definition: SkillWriteDefinition): Promise<StoredSkill> => {
+    await this.ensureLoaded();
+    const normalized = normalizeSkillWriteDefinition(definition);
+    const existing = this.data.find((item) => item.name === normalized.name || item.skillId === normalized.skillId);
+    if (existing) throw new Error(`Skill '${normalized.name}' already exists.`);
+
+    const now = Date.now();
+    const skillId = normalized.skillId || buildSkillId(normalized.name);
+    const version = "1";
+    const markdown = renderSkillMarkdown({
+      ...normalized,
+      skillId,
+      version,
+      defaultVersion: version,
+      latestVersion: version,
+    });
+    const parsed = normalizeSkillWriteDefinition(normalized);
+    const manifest = manifestBlob(markdown);
+    const stored: StoredSkill = {
+      id: crypto.randomUUID(),
+      skillId,
+      name: parsed.name,
+      description: parsed.description,
+      createdAt: now,
+      updatedAt: now,
+      origin: "local",
+      object: "skill",
+      version,
+      defaultVersion: version,
+      latestVersion: version,
+      source: "local-zip",
+      rootPath: parsed.name,
+      entryPath: `${parsed.name}/SKILL.md`,
+      files: [{ path: "SKILL.md", data: manifest, size: manifest.size }],
+      frontmatter: {
+        id: skillId,
+        name: parsed.name,
+        description: parsed.description,
+        version,
+        defaultVersion: version,
+        latestVersion: version,
+        license: parsed.license,
+        compatibility: parsed.compatibility,
+        metadata: parsed.metadata,
+        allowedTools: parsed.allowedTools,
+      },
+      body: parsed.instructions ?? "",
+      diagnostics: [],
+    };
+
+    this.data = [stored, ...this.data];
+    this.syncSkillGroup(skillId, version);
+    await save(this.data);
+    return (await this.readVersion(skillId, version)) ?? stored;
+  };
+
+  inspectSkill = async (skillId: string, version?: string): Promise<SkillInspectionResult> => {
+    await this.ensureLoaded();
+    const skill = version ? await this.readVersion(skillId, version) : await this.read(skillId);
+    if (!skill) throw new Error(`Skill ${skillId} was not found locally.`);
+    const diagnostics = skill.diagnostics ?? [];
+    return {
+      skill,
+      files: skill.files.map((file) => file.path).sort((a, b) => a.localeCompare(b)),
+      diagnostics,
+      warnings: diagnostics.filter((item) => item.severity === "warning"),
+      errors: diagnostics.filter((item) => item.severity === "error"),
+    };
+  };
+
+  updateSkillManifest = async (
+    skillId: string,
+    definition: SkillManifestUpdateDefinition
+  ): Promise<StoredSkill> => {
+    await this.ensureLoaded();
+    const current = await this.read(skillId);
+    if (!current) throw new Error(`Skill ${skillId} was not found locally.`);
+
+    const nextVersion = incrementVersion(current.latestVersion);
+    const latestGroup = this.getSkillGroup(current.skillId);
+    if (latestGroup.some((item) => item.version === nextVersion)) {
+      throw new Error(`Could not create version '${nextVersion}' because it already exists.`);
+    }
+
+    const nextFrontmatter = {
+      ...current.frontmatter,
+      description: definition.description === undefined
+        ? current.frontmatter.description
+        : String(definition.description ?? "").trim(),
+      license: definition.license === undefined ? current.frontmatter.license : definition.license ?? undefined,
+      compatibility: definition.compatibility === undefined
+        ? current.frontmatter.compatibility
+        : definition.compatibility ?? undefined,
+      metadata: definition.metadata === undefined ? current.frontmatter.metadata : definition.metadata ?? undefined,
+      allowedTools: definition.allowedTools === undefined
+        ? current.frontmatter.allowedTools
+        : definition.allowedTools ?? undefined,
+    };
+    const body = definition.instructions === undefined ? current.body : String(definition.instructions ?? "").trim();
+    const markdown = renderSkillMarkdown({
+      name: current.frontmatter.name,
+      description: nextFrontmatter.description,
+      instructions: body,
+      license: nextFrontmatter.license,
+      compatibility: nextFrontmatter.compatibility,
+      metadata: nextFrontmatter.metadata,
+      allowedTools: nextFrontmatter.allowedTools,
+      skillId: current.skillId,
+      version: nextVersion,
+      defaultVersion: nextVersion,
+      latestVersion: nextVersion,
+    });
+    const manifest = manifestBlob(markdown);
+    const now = Date.now();
+    const nextStored: StoredSkill = {
+      ...current,
+      id: crypto.randomUUID(),
+      description: nextFrontmatter.description,
+      createdAt: now,
+      updatedAt: now,
+      version: nextVersion,
+      defaultVersion: nextVersion,
+      latestVersion: nextVersion,
+      files: upsertStoredFile(current.files, { path: "SKILL.md", data: manifest, size: manifest.size }),
+      frontmatter: {
+        ...nextFrontmatter,
+        id: current.skillId,
+        version: nextVersion,
+        defaultVersion: nextVersion,
+        latestVersion: nextVersion,
+      },
+      body,
+      diagnostics: [],
+    };
+
+    this.data = [nextStored, ...this.data];
+    this.syncSkillGroup(current.skillId, nextVersion);
+    await save(this.data);
+    return (await this.readVersion(current.skillId, nextVersion)) ?? nextStored;
+  };
+
+  upsertSkillFile = async (skillId: string, file: SkillFileWriteDefinition): Promise<StoredSkill> => {
+    await this.ensureLoaded();
+    const current = await this.read(skillId);
+    if (!current) throw new Error(`Skill ${skillId} was not found locally.`);
+    const relativePath = validateSkillRelativePath(file.relativePath);
+    const data = cloneBlob(file.data);
+    const now = Date.now();
+    const files = upsertStoredFile(current.files, { path: relativePath, data, size: data.size });
+    this.data = this.data.map((item) => {
+      if (item.skillId !== current.skillId || item.version !== current.version) return item;
+      return { ...item, updatedAt: now, files };
+    });
+    await save(this.data);
+    return (await this.readVersion(current.skillId, current.version)) ?? { ...current, files };
+  };
+
+  deleteSkillFile = async (skillId: string, relativePathInput: string): Promise<StoredSkill> => {
+    await this.ensureLoaded();
+    const current = await this.read(skillId);
+    if (!current) throw new Error(`Skill ${skillId} was not found locally.`);
+    const relativePath = validateSkillRelativePath(relativePathInput);
+    const now = Date.now();
+    const files = current.files.filter(
+      (file) => validateSkillRelativePath(file.path, { allowManifest: true }) !== relativePath
+    );
+    this.data = this.data.map((item) => {
+      if (item.skillId !== current.skillId || item.version !== current.version) return item;
+      return { ...item, updatedAt: now, files };
+    });
+    await save(this.data);
+    return (await this.readVersion(current.skillId, current.version)) ?? { ...current, files };
+  };
+
+  restoreSkillVersion = async (skillId: string, version: string): Promise<StoredSkill> => {
+    await this.ensureLoaded();
+    const target = await this.readVersion(skillId, version);
+    if (!target) throw new Error(`Skill ${skillId} version ${version} was not found locally.`);
+    const nextVersion = incrementVersion(target.latestVersion);
+    const now = Date.now();
+    const markdown = renderSkillMarkdown({
+      name: target.frontmatter.name,
+      description: target.frontmatter.description,
+      instructions: target.body,
+      license: target.frontmatter.license,
+      compatibility: target.frontmatter.compatibility,
+      metadata: target.frontmatter.metadata,
+      allowedTools: target.frontmatter.allowedTools,
+      skillId: target.skillId,
+      version: nextVersion,
+      defaultVersion: nextVersion,
+      latestVersion: nextVersion,
+    });
+    const manifest = manifestBlob(markdown);
+    const restored: StoredSkill = {
+      ...target,
+      id: crypto.randomUUID(),
+      createdAt: now,
+      updatedAt: now,
+      version: nextVersion,
+      defaultVersion: nextVersion,
+      latestVersion: nextVersion,
+      files: upsertStoredFile(target.files.map((file) => ({ ...file, data: cloneBlob(file.data) })), {
+        path: "SKILL.md",
+        data: manifest,
+        size: manifest.size,
+      }),
+      frontmatter: {
+        ...target.frontmatter,
+        id: target.skillId,
+        version: nextVersion,
+        defaultVersion: nextVersion,
+        latestVersion: nextVersion,
+      },
+    };
+    this.data = [restored, ...this.data];
+    this.syncSkillGroup(target.skillId, nextVersion);
+    await save(this.data);
+    return (await this.readVersion(target.skillId, nextVersion)) ?? restored;
   };
 
   delete = async (id: string): Promise<void> => {

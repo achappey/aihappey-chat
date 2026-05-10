@@ -5,7 +5,17 @@ export {
 } from "./SkillsProvider";
 export { IndexedDBSkillStore } from "./stores/IndexedDBSkillStore";
 export { extractSkillsFromArchive } from "./importSkillsFromZip";
-export { parseSkillMarkdown } from "./skillFrontmatter";
+export {
+  buildDefaultSkillInstructions,
+  normalizeSkillName,
+  normalizeSkillRelativePath as normalizeSkillPackageRelativePath,
+  normalizeSkillWriteDefinition,
+  parseSkillMarkdown,
+  renderSkillMarkdown,
+  validateSkillDescription,
+  validateSkillName,
+  validateSkillRelativePath,
+} from "./skillFrontmatter";
 export {
   getStoredSkillFile,
   getStoredSkillFileMimeType,
@@ -28,13 +38,17 @@ export type {
   SkillImportResult,
   SkillImportOptions,
   SkillImportSource,
+  SkillFileWriteDefinition,
+  SkillInspectionResult,
   SkillListParams,
+  SkillManifestUpdateDefinition,
   SkillOrigin,
   SkillSeverity,
   SkillStorageKind,
   SkillStore,
   SkillUpdateParams,
   SkillVersion,
+  SkillWriteDefinition,
   StoredSkill,
   StoredSkillFile,
   VersionListParams,
