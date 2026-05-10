@@ -89,6 +89,12 @@ export function useRealtimeConversationController(args: {
   const functionCallArgsRef = useRef<Record<string, any>>({});
   const functionCallsDoneRef = useRef<Set<string>>(new Set());
   const handledFunctionCallsRef = useRef<Set<string>>(new Set());
+  const responseFunctionCallIdsRef = useRef<Record<string, Set<string>>>({});
+  const functionCallResponseIdsRef = useRef<Record<string, string>>({});
+  const functionCallOutputsSubmittedRef = useRef<Set<string>>(new Set());
+  const responseFunctionCallsDoneRef = useRef<Set<string>>(new Set());
+  const responseContinuationsCreatedRef = useRef<Set<string>>(new Set());
+  const toolExecutionQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     setMessages(initialMessages ?? []);
@@ -139,9 +145,98 @@ export function useRealtimeConversationController(args: {
     sessionRef.current?.send(event);
   }, []);
 
+  const getFunctionCallResponseId = useCallback((functionCall: any) => {
+    const callId = String(functionCall?.call_id ?? functionCall?.callId ?? "");
+    return String(
+      functionCall?.response_id ??
+      functionCall?.responseId ??
+      (callId ? functionCallArgsRef.current[callId]?.response_id : undefined) ??
+      (callId ? functionCallResponseIdsRef.current[callId] : undefined) ??
+      ""
+    );
+  }, []);
+
+  const registerFunctionCallForResponse = useCallback((functionCall: any, responseIdHint?: string) => {
+    const callId = String(functionCall?.call_id ?? functionCall?.callId ?? "");
+    if (!callId) return "";
+
+    const responseId = String(responseIdHint ?? getFunctionCallResponseId(functionCall) ?? "");
+    functionCallArgsRef.current[callId] = {
+      ...functionCallArgsRef.current[callId],
+      ...functionCall,
+      ...(responseId ? { response_id: responseId } : {}),
+    };
+
+    if (responseId) {
+      functionCallResponseIdsRef.current[callId] = responseId;
+      responseFunctionCallIdsRef.current[responseId] ??= new Set<string>();
+      responseFunctionCallIdsRef.current[responseId].add(callId);
+    }
+
+    return responseId;
+  }, [getFunctionCallResponseId]);
+
+  const cleanupCompletedResponseFunctionCalls = useCallback((responseId: string) => {
+    const callIds = responseFunctionCallIdsRef.current[responseId];
+    if (callIds) {
+      for (const callId of callIds) {
+        functionCallsDoneRef.current.delete(callId);
+        functionCallsInFlightRef.current.delete(callId);
+        functionCallOutputsSubmittedRef.current.delete(callId);
+        delete functionCallResponseIdsRef.current[callId];
+        delete functionCallArgsRef.current[callId];
+      }
+    }
+
+    delete responseFunctionCallIdsRef.current[responseId];
+    responseFunctionCallsDoneRef.current.delete(responseId);
+  }, []);
+
+  const maybeCreateContinuationForResponse = useCallback((responseId: string) => {
+    if (!responseId) return;
+    if (!responseFunctionCallsDoneRef.current.has(responseId)) return;
+    if (responseContinuationsCreatedRef.current.has(responseId)) return;
+
+    const callIds = Array.from(responseFunctionCallIdsRef.current[responseId] ?? []);
+    if (callIds.length === 0) return;
+    if (!callIds.every((callId) => functionCallOutputsSubmittedRef.current.has(callId))) return;
+
+    responseContinuationsCreatedRef.current.add(responseId);
+    cleanupCompletedResponseFunctionCalls(responseId);
+    sendEvent({ type: "response.create" });
+  }, [cleanupCompletedResponseFunctionCalls, sendEvent]);
+
+  const submitFunctionCallOutput = useCallback((callId: string, result: any) => {
+    sendEvent({
+      type: "conversation.item.create",
+      item: {
+        type: "function_call_output",
+        call_id: callId,
+        output: JSON.stringify(result),
+      },
+    });
+
+    functionCallOutputsSubmittedRef.current.add(callId);
+    maybeCreateContinuationForResponse(functionCallResponseIdsRef.current[callId] ?? "");
+  }, [maybeCreateContinuationForResponse, sendEvent]);
+
+  const runToolCallSequentially = useCallback(<T,>(run: () => Promise<T>) => {
+    const resultPromise = toolExecutionQueueRef.current
+      .catch(() => undefined)
+      .then(run);
+
+    toolExecutionQueueRef.current = resultPromise.then(
+      () => undefined,
+      () => undefined
+    );
+
+    return resultPromise;
+  }, []);
+
   const executeFunctionCall = useCallback(
     async (functionCall: any) => {
       const callId = String(functionCall.call_id ?? "");
+      registerFunctionCallForResponse(functionCall);
       const name = String(functionCall.name ?? functionCallArgsRef.current[callId]?.name ?? "");
       if (!callId || !name || functionCallsInFlightRef.current.has(callId)) return;
       handledFunctionCallsRef.current.add(callId);
@@ -159,13 +254,25 @@ export function useRealtimeConversationController(args: {
       ], { realtime: true, model });
       upsertLocalDraft(toolMessage);
 
-      const result = await (toolUse.onToolCall as any)({
-        toolCall: {
-          toolCallId: callId,
-          toolName: name,
-          input,
-        },
-      });
+      let result: any;
+      try {
+        result = await runToolCallSequentially(() =>
+          (toolUse.onToolCall as any)({
+            toolCall: {
+              toolCallId: callId,
+              toolName: name,
+              input,
+            },
+          })
+        );
+      } catch (e) {
+        const message = describeError(e);
+        addChatError(new Error(`Realtime tool call failed: ${message}`));
+        result = {
+          isError: true,
+          content: [{ type: "text", text: message }],
+        };
+      }
 
       const completedToolMessage: UIMessage = {
         ...toolMessage,
@@ -182,17 +289,9 @@ export function useRealtimeConversationController(args: {
       };
       await persistMessage(completedToolMessage);
 
-      sendEvent({
-        type: "conversation.item.create",
-        item: {
-          type: "function_call_output",
-          call_id: callId,
-          output: JSON.stringify(result),
-        },
-      });
-      sendEvent({ type: "response.create" });
+      submitFunctionCallOutput(callId, result);
     },
-    [model, persistMessage, sendEvent, toolUse.onToolCall, upsertLocalDraft]
+    [addChatError, model, persistMessage, registerFunctionCallForResponse, runToolCallSequentially, submitFunctionCallOutput, toolUse.onToolCall, upsertLocalDraft]
   );
 
   const configureSession = useCallback(() => {
@@ -243,8 +342,10 @@ export function useRealtimeConversationController(args: {
         functionCallArgsRef.current[callId] = {
           ...functionCallArgsRef.current[callId],
           name: event.name ?? functionCallArgsRef.current[callId]?.name,
+          response_id: event.response_id ?? functionCallArgsRef.current[callId]?.response_id,
           arguments: existing + String(event.delta ?? ""),
         };
+        registerFunctionCallForResponse({ call_id: callId, response_id: event.response_id });
         return;
       }
 
@@ -253,8 +354,10 @@ export function useRealtimeConversationController(args: {
         functionCallArgsRef.current[callId] = {
           ...functionCallArgsRef.current[callId],
           name: event.name ?? functionCallArgsRef.current[callId]?.name,
+          response_id: event.response_id ?? functionCallArgsRef.current[callId]?.response_id,
           arguments: event.arguments ?? functionCallArgsRef.current[callId]?.arguments,
         };
+        registerFunctionCallForResponse({ call_id: callId, response_id: event.response_id });
         functionCallsDoneRef.current.add(callId);
         return;
       }
@@ -322,7 +425,9 @@ export function useRealtimeConversationController(args: {
           functionCallArgsRef.current[callId] = {
             ...functionCallArgsRef.current[callId],
             ...event.item,
+            response_id: event.response_id ?? functionCallArgsRef.current[callId]?.response_id,
           };
+          registerFunctionCallForResponse({ ...event.item, response_id: event.response_id });
           functionCallsDoneRef.current.add(callId);
         }
         void executeFunctionCall(event.item);
@@ -353,16 +458,26 @@ export function useRealtimeConversationController(args: {
 
         const functionCalls = extractFunctionCallsFromRealtimeResponse(event?.response);
         for (const functionCall of functionCalls) {
-          void executeFunctionCall(functionCall);
+          registerFunctionCallForResponse(functionCall, responseId);
+          void executeFunctionCall({ ...functionCall, response_id: responseId });
         }
-        for (const callId of functionCallsDoneRef.current) {
+        for (const callId of Array.from(functionCallsDoneRef.current)) {
           if (handledFunctionCallsRef.current.has(callId)) continue;
           const functionCall = functionCallArgsRef.current[callId];
-          if (functionCall?.name) void executeFunctionCall({ ...functionCall, call_id: callId });
+          const callResponseId = getFunctionCallResponseId({ ...functionCall, call_id: callId });
+          if (callResponseId && callResponseId !== responseId) continue;
+          if (functionCall?.name) {
+            registerFunctionCallForResponse({ ...functionCall, call_id: callId }, responseId);
+            void executeFunctionCall({ ...functionCall, call_id: callId, response_id: responseId });
+          }
+        }
+        if ((responseFunctionCallIdsRef.current[responseId]?.size ?? 0) > 0) {
+          responseFunctionCallsDoneRef.current.add(responseId);
+          maybeCreateContinuationForResponse(responseId);
         }
       }
     },
-    [addChatError, executeFunctionCall, model, persistMessage, upsertLocalDraft]
+    [addChatError, executeFunctionCall, getFunctionCallResponseId, maybeCreateContinuationForResponse, model, persistMessage, registerFunctionCallForResponse, upsertLocalDraft]
   );
 
   const start = useCallback(

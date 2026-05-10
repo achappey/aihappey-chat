@@ -41,9 +41,9 @@ class ElicitRuntime {
     const entry = this.pending.get(id);
     if (!entry) return;
 
-    entry.resolve(result);
     this.pending.delete(id);
     this.notify();
+    entry.resolve(result);
   }
 
   getSnapshot() {

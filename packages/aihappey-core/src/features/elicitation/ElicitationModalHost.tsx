@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { ElicitationActionButtons, useTheme } from "aihappey-components";
 import type { ElicitResult } from "@modelcontextprotocol/sdk/types";
@@ -17,6 +17,11 @@ export const ElicitationModalHost = () => {
 
   const [values, setValues] = useState<Record<string, any>>({});
   const [isValid, setIsValid] = useState(false);
+
+  useEffect(() => {
+    setValues({});
+    setIsValid(false);
+  }, [active?.id]);
 
   const respond = (action: "accept" | "decline" | "cancel") => {
     if (!active) return;
@@ -43,6 +48,7 @@ export const ElicitationModalHost = () => {
     >
       {active && (
         <ElicitationForm
+          key={active.id}
           params={active.request.params}
           onChange={({ values, isValid }) => {
             setValues(values);
