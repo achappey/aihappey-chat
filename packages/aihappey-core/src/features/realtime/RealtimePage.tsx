@@ -16,6 +16,7 @@ import { MessageList } from "../chat/messages/MessageList";
 import { WelcomeMessage } from "../chat/messages/WelcomeMessage";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
+import { ElicitationModalHost } from "../elicitation/ElicitationModalHost";
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { buildSelectedAgentRequest } from "../agents/agentSelection";
@@ -289,6 +290,7 @@ function RealtimeConversationPage() {
         </div>
       </div>
       <DisclaimerBar />
+      <ElicitationModalHost />
     </div>
   );
 }
