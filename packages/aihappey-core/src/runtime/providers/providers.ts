@@ -502,6 +502,7 @@ import { botverse } from "./catalog/botverse";
 import { vibekit } from "./catalog/vibekit";
 import { microsoft } from "./catalog/microsoft";
 import { brave } from "./catalog/brave";
+import { terminalskills } from "./catalog/terminalskills";
 
 /**
  * UI-facing provider catalog.
@@ -588,6 +589,7 @@ export const PROVIDERS: Record<string, Provider> = {
   simplellm,
   wesenai,
   oraicle,
+  terminalskills,
   gptsapi,
   modelbridge,
   openpipe,
