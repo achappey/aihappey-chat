@@ -7,6 +7,8 @@ export const defaultProviderTranscriptionMetadata = {
   },
   "deepgram": {
   },
+  "cohere": {
+  },
   "resembleai": {
   },
   "assemblyai": {

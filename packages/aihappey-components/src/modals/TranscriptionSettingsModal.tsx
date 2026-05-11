@@ -17,6 +17,7 @@ import {
     GladiaTranscriptionConfigForm,
     DeepInfraTranscriptionConfigForm,
     XAITranscriptionConfigForm,
+    CohereTranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
@@ -203,6 +204,21 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         groq,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+
+                    {enabledProviders.includes("Cohere") && (
+                        <theme.Tab eventKey="cohere" title="Cohere">
+                            <CohereTranscriptionConfigForm
+                                config={providerMetadata.cohere ?? {}}
+                                updateConfig={(cohere) =>
+                                    setProviderMetadata({
+                                        ...providerMetadata,
+                                        cohere,
                                     })
                                 }
                             />
