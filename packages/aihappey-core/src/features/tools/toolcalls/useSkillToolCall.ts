@@ -54,28 +54,163 @@ function clampSearchLimit(value: unknown) {
 }
 
 function normalizeSearchText(value: unknown) {
-  return String(value ?? "").trim().toLowerCase();
+  return String(value ?? "")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+const SEARCH_STOP_WORDS = new Set([
+  "a",
+  "about",
+  "agent",
+  "agents",
+  "an",
+  "and",
+  "any",
+  "are",
+  "as",
+  "available",
+  "be",
+  "best",
+  "can",
+  "capability",
+  "capabilities",
+  "capable",
+  "could",
+  "current",
+  "discover",
+  "do",
+  "does",
+  "find",
+  "for",
+  "from",
+  "get",
+  "give",
+  "handle",
+  "help",
+  "i",
+  "in",
+  "is",
+  "kind",
+  "like",
+  "look",
+  "looking",
+  "me",
+  "my",
+  "need",
+  "needed",
+  "needs",
+  "of",
+  "on",
+  "or",
+  "please",
+  "query",
+  "search",
+  "skill",
+  "skills",
+  "some",
+  "support",
+  "task",
+  "tasks",
+  "that",
+  "the",
+  "this",
+  "to",
+  "tool",
+  "tools",
+  "use",
+  "using",
+  "want",
+  "wants",
+  "we",
+  "what",
+  "which",
+  "who",
+  "with",
+  "would",
+]);
+
+function tokenizeSearchText(value: unknown, options?: { dropStopWords?: boolean }) {
+  const normalized = normalizeSearchText(value);
+  const tokens = normalized
+    .split(/[^a-z0-9]+/g)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1 || /^\d+$/.test(token));
+
+  const meaningfulTokens = options?.dropStopWords
+    ? tokens.filter((token) => !SEARCH_STOP_WORDS.has(token))
+    : tokens;
+
+  return Array.from(new Set(meaningfulTokens));
+}
+
+function buildFieldIndex(value: unknown) {
+  const normalized = normalizeSearchText(value);
+  const tokens = tokenizeSearchText(value);
+  return { normalized, tokens };
+}
+
+function scoreField(token: string, field: ReturnType<typeof buildFieldIndex>, weight: number) {
+  if (!token || !field.normalized) return 0;
+  if (field.normalized === token) return weight * 6;
+  if (field.tokens.includes(token)) return weight * 4;
+  if (field.normalized.includes(token)) return weight * 2;
+  if (field.tokens.some((fieldToken) => fieldToken.startsWith(token) || token.startsWith(fieldToken))) return weight;
+  return 0;
+}
+
+function scoreSkillForSearch(skill: SkillCatalogItem, tokens: string[], index: number) {
+  const fields = [
+    { field: buildFieldIndex(skill.skillId), weight: 12 },
+    { field: buildFieldIndex(skill.name), weight: 10 },
+    { field: buildFieldIndex(skill.description), weight: 4 },
+    { field: buildFieldIndex(skill.origin), weight: 2 },
+    { field: buildFieldIndex(skill.version), weight: 1 },
+    { field: buildFieldIndex(skill.latestVersion), weight: 1 },
+  ];
+
+  let score = 0;
+  let matchedTokenCount = 0;
+
+  for (const token of tokens) {
+    const tokenScore = fields.reduce((best, item) => Math.max(best, scoreField(token, item.field, item.weight)), 0);
+    if (tokenScore > 0) {
+      matchedTokenCount += 1;
+      score += tokenScore;
+    }
+  }
+
+  if (matchedTokenCount === 0) return undefined;
+
+  return {
+    skill,
+    score,
+    matchedTokenCount,
+    index,
+  };
 }
 
 function searchSkillCatalog(skills: SkillCatalogItem[], query: string, limit: number) {
   const normalizedQuery = normalizeSearchText(query);
-  const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+  const tokens = tokenizeSearchText(normalizedQuery, { dropStopWords: true });
   const matches = tokens.length === 0
     ? skills
-    : skills.filter((skill) => {
-      const haystack = normalizeSearchText([
-        skill.skillId,
-        skill.name,
-        skill.description,
-        skill.origin,
-        skill.version,
-        skill.latestVersion,
-      ].filter(Boolean).join(" "));
-      return tokens.every((token) => haystack.includes(token));
-    });
+    : skills
+      .map((skill, index) => scoreSkillForSearch(skill, tokens, index))
+      .filter((item): item is NonNullable<typeof item> => !!item)
+      .sort((a, b) =>
+        b.matchedTokenCount - a.matchedTokenCount ||
+        b.score - a.score ||
+        a.index - b.index
+      )
+      .map((item) => item.skill);
 
   return {
     query: normalizedQuery,
+    keywords: tokens,
     totalMatches: matches.length,
     skills: matches.slice(0, limit),
   };
@@ -119,7 +254,7 @@ async function resolveEnabledSkill(
   return skill;
 }
 
-export function buildActivateSkillTool(skills: SkillCatalogItem[]): Tool {
+export function buildActivateSkillTool(_skills: SkillCatalogItem[]): Tool {
   return {
     name: "activate_skill",
     title: "Activate an enabled skill",
@@ -132,8 +267,7 @@ export function buildActivateSkillTool(skills: SkillCatalogItem[]): Tool {
       properties: {
         skill_id: {
           type: "string",
-          enum: skills.map((skill) => skill.skillId),
-          description: "Exact enabled skill id to activate.",
+          description: "Exact enabled skill ID string to activate. Use the id/skill_id shown in the system context or returned by search_skills; do not invent IDs.",
         },
       },
       required: ["skill_id"],
@@ -147,7 +281,7 @@ export function buildActivateSkillTool(skills: SkillCatalogItem[]): Tool {
   };
 }
 
-export function buildReadSkillResourceTool(skills: SkillCatalogItem[]): Tool {
+export function buildReadSkillResourceTool(_skills: SkillCatalogItem[]): Tool {
   return {
     name: "read_skill_resource",
     title: "Read a bundled skill resource",
@@ -160,8 +294,7 @@ export function buildReadSkillResourceTool(skills: SkillCatalogItem[]): Tool {
       properties: {
         skill_id: {
           type: "string",
-          enum: skills.map((skill) => skill.skillId),
-          description: "Exact enabled skill id that owns the resource.",
+          description: "Exact enabled skill ID string that owns the resource. Reuse the same id/skill_id passed to activate_skill.",
         },
         path: {
           type: "string",
@@ -185,14 +318,14 @@ export function buildSearchSkillsTool(): Tool {
     name: "search_skills",
     title: "Search skills",
     description:
-      "Searches the available Agent Skills catalog by skill id, name, description, origin, and version. Use this only when the user-enabled Skill search plugin is available and you need to discover a skill for the current task. Activate a returned skill with activate_skill before following its instructions.",
+      "Searches the available Agent Skills catalog by skill id, name, description, origin, and version. Use this only when the user-enabled Skill search plugin is available and you need to discover a skill for the current task. Send concise keyword queries only, not natural-language requests or prompts. Good queries look like 'excel spreadsheet csv formulas' or 'pdf extract summarize'. Activate a returned skill with activate_skill using its exact id/skill_id before following its instructions.",
     inputSchema: {
       type: "object",
       properties: {
         query: {
           type: "string",
           description:
-            "Search terms that describe the task or needed capability. If omitted, returns the first catalog entries.",
+            "Keyword-only search terms for the needed capability, separated by spaces. Do not send full prompt-style questions such as 'find a skill that can help me with spreadsheets'; send 'spreadsheet excel csv' instead. Multiple keywords are ranked by coverage and relevance. If omitted, returns the first catalog entries.",
         },
         limit: {
           type: "number",
@@ -250,17 +383,19 @@ export function useSkillToolCall(opts: {
         const version = skill.version ?? skill.downloadedVersion ?? skill.latestVersion;
         const versionSuffix = version ? ` v${version}` : "";
         const originSuffix = skill.origin ? `, ${skill.origin}` : "";
-        return `- ${skill.skillId} (${skill.name}${versionSuffix}${originSuffix}): ${skill.description}`;
+        return `- id=${skill.skillId}; skill_id=${skill.skillId}; name=${skill.name}${versionSuffix}${originSuffix}: ${skill.description}`;
       });
 
       return {
         isError: false,
         structuredContent: {
-          skillSearch: {
-            query: result.query,
-            totalMatches: result.totalMatches,
+            skillSearch: {
+              query: result.query,
+              keywords: result.keywords,
+              totalMatches: result.totalMatches,
             returned: result.skills.length,
             skills: result.skills.map((skill) => ({
+              id: skill.skillId,
               skill_id: skill.skillId,
               name: skill.name,
               description: skill.description,
@@ -305,6 +440,8 @@ export function useSkillToolCall(opts: {
         isError: false,
         structuredContent: {
           skill: {
+            id: skill.skillId,
+            skill_id: skill.skillId,
             name: skill.name,
             description: skill.description,
             resourcePaths,

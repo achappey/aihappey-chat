@@ -155,6 +155,7 @@ export const buildSystemMessage = (
                     instructions:
                         "The following skills provide specialized instructions for specific tasks. When a task matches a skill description, call activate_skill with the exact skill_id to load its instructions. After activation, use read_skill_resource with the same skill_id and a relative path when the instructions reference bundled files.",
                     skills: availableSkills.map((skill) => ({
+                        id: skill.skillId,
                         skill_id: skill.skillId,
                         name: skill.name,
                         description: skill.description,
