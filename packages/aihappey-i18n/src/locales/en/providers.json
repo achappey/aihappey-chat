@@ -390,6 +390,12 @@
     "timestampGranularitiesWord": "Word",
     "includeOutputs": "Include outputs",
     "includeSources": "Include sources",
+    "returnTokenBudget": "Return token budget",
+    "returnTokenBudgetOptions": {
+      "default": "Default",
+      "unlimited": "Unlimited"
+    },
+    "externalWebAccess": "Live internet access",
     "includeSearchResults": "Include search results",
     "encryptedContent": "Include encryption",
     "responsesIncludeTitle": "Include",

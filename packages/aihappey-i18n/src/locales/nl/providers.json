@@ -225,6 +225,12 @@
     "customVoice": "Aangepaste stem",
     "includeOutputs": "Inclusief uitvoer",
     "includeSources": "Inclusief bronnen",
+    "returnTokenBudget": "Tokenbudget voor resultaten",
+    "returnTokenBudgetOptions": {
+      "default": "Standaard",
+      "unlimited": "Onbeperkt"
+    },
+    "externalWebAccess": "Live internettoegang",
     "prompt": "Prompt",
     "allowedDomains": "Toegestane domeinen",
     "truncation": {

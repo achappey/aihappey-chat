@@ -3,6 +3,15 @@ import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 const SEARCH_CONTEXT_SIZE_OPTIONS = ["low", "medium", "high"] as const;
+const RETURN_TOKEN_BUDGET_OPTIONS = ["default", "unlimited"] as const;
+
+const twoColumnGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: 0,
+  width: "100%",
+  alignItems: "end",
+} as const;
 
 const DEFAULT_WEB_SEARCH = {
   search_context_size: "medium",
@@ -68,18 +77,24 @@ export const OpenAIWebSearchForm = ({
     0,
     SEARCH_CONTEXT_SIZE_OPTIONS.indexOf(searchContextSize as (typeof SEARCH_CONTEXT_SIZE_OPTIONS)[number])
   );
+  const returnTokenBudget =
+    config?.web_search?.return_token_budget ?? "default";
 
   const updateWebSearch = (patch: any) => {
     const nextWebSearch = {
       ...(config?.web_search ?? DEFAULT_WEB_SEARCH),
       ...patch,
     };
+    const normalizedFilters = normalizeFilters(nextWebSearch.filters);
+    const { filters, return_token_budget, external_web_access, ...restWebSearch } = nextWebSearch;
 
     updateConfig({
       ...config,
       web_search: {
-        ...nextWebSearch,
-        filters: normalizeFilters(nextWebSearch.filters),
+        ...restWebSearch,
+        ...(normalizedFilters ? { filters: normalizedFilters } : {}),
+        ...(return_token_budget === "unlimited" ? { return_token_budget } : {}),
+        ...(external_web_access === false ? { external_web_access } : {}),
       },
     });
   };
@@ -139,20 +154,44 @@ export const OpenAIWebSearchForm = ({
       }
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <theme.Slider
-          label={`${t("searchContextSize", "Search context size")} (${t(searchContextSize)})`}
-          disabled={!webSearchOn}
-          min={0}
-          max={SEARCH_CONTEXT_SIZE_OPTIONS.length - 1}
-          step={1}
-          value={searchContextIndex}
-          onChange={(value: number) =>
-            updateWebSearch({
-              search_context_size:
-                SEARCH_CONTEXT_SIZE_OPTIONS[value] ?? DEFAULT_WEB_SEARCH.search_context_size,
-            })
-          }
-        />
+        <div style={twoColumnGrid}>
+          <theme.Slider
+            label={`${t("searchContextSize", "Search context size")} (${t(searchContextSize)})`}
+            disabled={!webSearchOn}
+            min={0}
+            max={SEARCH_CONTEXT_SIZE_OPTIONS.length - 1}
+            step={1}
+            value={searchContextIndex}
+            onChange={(value: number) =>
+              updateWebSearch({
+                search_context_size:
+                  SEARCH_CONTEXT_SIZE_OPTIONS[value] ?? DEFAULT_WEB_SEARCH.search_context_size,
+              })
+            }
+          />
+
+          <theme.Select
+            label={t("providers:openai.returnTokenBudget")}
+            disabled={!webSearchOn}
+            values={[returnTokenBudget]}
+            valueTitle={t(`providers:openai.returnTokenBudgetOptions.${returnTokenBudget}`)}
+            options={RETURN_TOKEN_BUDGET_OPTIONS.map((value) => ({
+              value,
+              label: t(`providers:openai.returnTokenBudgetOptions.${value}`),
+            }))}
+            onChange={(value: string) =>
+              updateWebSearch({
+                return_token_budget: value === "unlimited" ? "unlimited" : undefined,
+              })
+            }
+          >
+            {RETURN_TOKEN_BUDGET_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {t(`providers:openai.returnTokenBudgetOptions.${value}`)}
+              </option>
+            ))}
+          </theme.Select>
+        </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
@@ -258,15 +297,27 @@ export const OpenAIWebSearchForm = ({
           />
         </div>
 
-        <theme.Switch
-          id="includeSources"
-          disabled={!webSearchOn}
-          checked={config?.include?.includes("web_search_call.action.sources")}
-          label={t("providers:openai.includeSources")}
-          onChange={(value) =>
-            toggleInclude("web_search_call.action.sources", !!value)
-          }
-        />
+        <div style={twoColumnGrid}>
+          <theme.Switch
+            id="externalWebAccess"
+            disabled={!webSearchOn}
+            checked={config?.web_search?.external_web_access !== false}
+            label={t("providers:openai.externalWebAccess")}
+            onChange={(value) =>
+              updateWebSearch({ external_web_access: value ? undefined : false })
+            }
+          />
+
+          <theme.Switch
+            id="includeSources"
+            disabled={!webSearchOn}
+            checked={config?.include?.includes("web_search_call.action.sources")}
+            label={t("providers:openai.includeSources")}
+            onChange={(value) =>
+              toggleInclude("web_search_call.action.sources", !!value)
+            }
+          />
+        </div>
       </div>
     </theme.Card>
   );
