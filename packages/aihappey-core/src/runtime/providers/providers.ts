@@ -503,6 +503,7 @@ import { vibekit } from "./catalog/vibekit";
 import { microsoft } from "./catalog/microsoft";
 import { brave } from "./catalog/brave";
 import { terminalskills } from "./catalog/terminalskills";
+import { clawhub } from "./catalog/clawhub";
 
 /**
  * UI-facing provider catalog.
@@ -572,6 +573,7 @@ export const PROVIDERS: Record<string, Provider> = {
   opensourceaihub,
   omniakey,
   nouswise,
+  clawhub,
   distributeai,
   orbgpu,
   embercloud,
