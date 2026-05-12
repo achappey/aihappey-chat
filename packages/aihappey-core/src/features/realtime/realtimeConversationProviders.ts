@@ -1,5 +1,6 @@
 import { openAiRealtimeConversationProvider } from "./openAiRealtimeConversationProvider";
 import { xAiRealtimeConversationProvider } from "./xAiRealtimeConversationProvider";
+import { assemblyAiRealtimeConversationProvider } from "./assemblyAiRealtimeConversationProvider";
 import type { RealtimeConversationSession } from "./startRealtimeConversationWebrtc";
 import type {
   RealtimeConversationProviderId,
@@ -29,6 +30,7 @@ export const parseRealtimeProviderIdFromModelId = (modelId?: string): RealtimeCo
 const providers: Record<string, RealtimeConversationProviderRuntime> = {
   openai: openAiRealtimeConversationProvider,
   xai: xAiRealtimeConversationProvider,
+  assemblyai: assemblyAiRealtimeConversationProvider,
 };
 
 export const getRealtimeConversationProvider = (providerId: string) => providers[providerId];

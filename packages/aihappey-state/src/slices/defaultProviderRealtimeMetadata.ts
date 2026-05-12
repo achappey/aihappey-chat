@@ -149,5 +149,27 @@ export const defaultProviderRealtimeConversationMetadata = {
         }
       }
     }
+  },
+  "assemblyai": {
+    "expires_after": {
+      "anchor": "created_at",
+      "seconds": 300
+    },
+    "session": {
+      "output": {
+        "voice": "ivy",
+        "format": {
+          "encoding": "audio/pcm"
+        }
+      },
+      "input": {
+        "format": {
+          "encoding": "audio/pcm"
+        },
+        "turn_detection": {
+          "interrupt_response": true
+        }
+      }
+    }
   }
 };

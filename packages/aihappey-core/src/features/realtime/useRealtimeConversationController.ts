@@ -95,6 +95,8 @@ export function useRealtimeConversationController(args: {
   const responseFunctionCallsDoneRef = useRef<Set<string>>(new Set());
   const responseContinuationsCreatedRef = useRef<Set<string>>(new Set());
   const toolExecutionQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const assemblyAiToolResultsPendingReplyDoneRef = useRef<Array<{ callId: string; result: any }>>([]);
+  const isAssemblyAiRealtime = model.toLowerCase().startsWith("assemblyai/");
 
   useEffect(() => {
     setMessages(initialMessages ?? []);
@@ -206,7 +208,23 @@ export function useRealtimeConversationController(args: {
     sendEvent({ type: "response.create" });
   }, [cleanupCompletedResponseFunctionCalls, sendEvent]);
 
+  const submitAssemblyAiPendingToolResults = useCallback(() => {
+    const pending = assemblyAiToolResultsPendingReplyDoneRef.current.splice(0);
+    for (const item of pending) {
+      sendEvent({
+        type: "tool.result",
+        call_id: item.callId,
+        result: JSON.stringify(item.result),
+      });
+    }
+  }, [sendEvent]);
+
   const submitFunctionCallOutput = useCallback((callId: string, result: any) => {
+    if (isAssemblyAiRealtime) {
+      assemblyAiToolResultsPendingReplyDoneRef.current.push({ callId, result });
+      return;
+    }
+
     sendEvent({
       type: "conversation.item.create",
       item: {
@@ -218,7 +236,7 @@ export function useRealtimeConversationController(args: {
 
     functionCallOutputsSubmittedRef.current.add(callId);
     maybeCreateContinuationForResponse(functionCallResponseIdsRef.current[callId] ?? "");
-  }, [maybeCreateContinuationForResponse, sendEvent]);
+  }, [isAssemblyAiRealtime, maybeCreateContinuationForResponse, sendEvent]);
 
   const runToolCallSequentially = useCallback(<T,>(run: () => Promise<T>) => {
     const resultPromise = toolExecutionQueueRef.current
@@ -333,6 +351,85 @@ export function useRealtimeConversationController(args: {
         const message = event?.error?.message ?? event?.message ?? "Realtime session error";
         setError(String(message));
         addChatError(new Error(String(message)));
+        return;
+      }
+
+      if (type === "session.error") {
+        const message = event?.message ?? event?.code ?? "Realtime session error";
+        setError(String(message));
+        addChatError(new Error(String(message)));
+        return;
+      }
+
+      if (type === "transcript.user.delta") {
+        const itemId = String(event?.item_id ?? "assemblyai-user-voice");
+        const next = String(event?.text ?? "");
+        userAudioTextByItemRef.current[itemId] = next;
+        const draft = userAudioDraftRef.current ?? newUiMessage("user", [], { realtime: true, input: "audio", model });
+        userAudioDraftRef.current = {
+          ...draft,
+          parts: [{ type: "text", text: next || "Listening…" }],
+        };
+        upsertLocalDraft(userAudioDraftRef.current);
+        return;
+      }
+
+      if (type === "transcript.user") {
+        const transcript = String(event?.text ?? "").trim();
+        if (transcript) {
+          const message = userAudioDraftRef.current ?? newUiMessage("user", [], { realtime: true, input: "audio", model });
+          userAudioDraftRef.current = null;
+          void persistMessage({
+            ...message,
+            parts: [{ type: "text", text: transcript }],
+            metadata: {
+              ...(message.metadata ?? {}),
+              model,
+              realtime: true,
+              item_id: event?.item_id,
+            },
+          });
+        }
+        return;
+      }
+
+      if (type === "transcript.agent") {
+        const text = String(event?.text ?? "").trim();
+        if (text) {
+          const message = assistantDraftRef.current ?? newUiMessage("assistant", [], { realtime: true, model });
+          assistantDraftRef.current = null;
+          assistantTextRef.current = "";
+          void persistMessage({
+            ...message,
+            parts: [{ type: "text", text }],
+            metadata: {
+              ...(message.metadata ?? {}),
+              model,
+              realtime: true,
+              reply_id: event?.reply_id,
+              item_id: event?.item_id,
+              interrupted: event?.interrupted,
+            },
+          });
+        }
+        return;
+      }
+
+      if (type === "tool.call") {
+        const callId = String(event?.call_id ?? "");
+        if (callId) {
+          functionCallArgsRef.current[callId] = {
+            ...functionCallArgsRef.current[callId],
+            ...event,
+            arguments: event?.arguments ?? {},
+          };
+        }
+        void executeFunctionCall(event);
+        return;
+      }
+
+      if (type === "reply.done") {
+        submitAssemblyAiPendingToolResults();
         return;
       }
 
@@ -477,7 +574,7 @@ export function useRealtimeConversationController(args: {
         }
       }
     },
-    [addChatError, executeFunctionCall, getFunctionCallResponseId, maybeCreateContinuationForResponse, model, persistMessage, registerFunctionCallForResponse, upsertLocalDraft]
+    [addChatError, executeFunctionCall, getFunctionCallResponseId, maybeCreateContinuationForResponse, model, persistMessage, registerFunctionCallForResponse, submitAssemblyAiPendingToolResults, upsertLocalDraft]
   );
 
   const start = useCallback(

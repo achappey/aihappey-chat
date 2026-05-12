@@ -71,3 +71,27 @@ export type AssemblyAIRealtimeConfig = {
   language_detection?: boolean;
 };
 
+export type AssemblyAIRealtimeConversationConfig = {
+  expires_after?: {
+    anchor?: "created_at";
+    seconds?: number;
+  };
+  session?: {
+    system_prompt?: string;
+    greeting?: string;
+    input?: {
+      format?: { encoding?: "audio/pcm" | "audio/pcmu" | "audio/pcma" };
+      keyterms?: string[];
+      turn_detection?: {
+        vad_threshold?: number;
+        min_silence?: number;
+        max_silence?: number;
+        interrupt_response?: boolean;
+      };
+    };
+    output?: {
+      voice?: string;
+      format?: { encoding?: "audio/pcm" | "audio/pcmu" | "audio/pcma" };
+    };
+  };
+};
