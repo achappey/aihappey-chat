@@ -58,6 +58,25 @@ export const localConversationsGetTool: Tool = {
   },
 };
 
+export const localConversationsDeleteTool: Tool = {
+  name: "local_conversations_delete_conversation",
+  title: "Delete local conversation by id",
+  description: "Delete a local conversation by id.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      conversationId: { type: "string", description: "Id of the conversation" },
+    },
+    required: ["conversationId"],
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: false,
+  },
+};
+
 export const localConversationsSearchTextTool: Tool = {
   name: "local_conversations_search_text",
   title: "Search local conversations (text only)",
@@ -90,7 +109,12 @@ export const localConversationsSearchTextTool: Tool = {
 export const localConversationsPluginDef = {
   name: "local-conversations",
   match: (toolName: string) => toolName.startsWith("local_conversations_"),
-  tools: [localConversationsGetTool, localConversationsListTool, localConversationsSearchTextTool],
+  tools: [
+    localConversationsGetTool,
+    localConversationsListTool,
+    localConversationsSearchTextTool,
+    localConversationsDeleteTool,
+  ],
 };
 
 /* ============================================================
@@ -245,7 +269,8 @@ type LocalConversationsToolCall = {
   toolName:
     | "local_conversations_list_all"
     | "local_conversations_search_text"
-    | "local_conversations_get_conversation";
+    | "local_conversations_get_conversation"
+    | "local_conversations_delete_conversation";
   input: any;
 };
 
@@ -273,6 +298,17 @@ export function useLocalConversationsRuntime(conversations?: ConversationsContex
               (conversations.items ?? []).find(a => a.id === conversationId) ?? null;
 
             return ok(JSON.stringify(convo));
+          }
+
+          case "local_conversations_delete_conversation": {
+            const { conversationId } = toolCall.input ?? {};
+            if (!conversationId) throw new Error("Missing conversationId.");
+
+            await conversations.remove(conversationId);
+
+            return ok(
+              JSON.stringify({ deletedId: conversationId, status: "deleted" })
+            );
           }
 
           case "local_conversations_search_text": {
