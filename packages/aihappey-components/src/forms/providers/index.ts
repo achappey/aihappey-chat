@@ -56,5 +56,6 @@ export * from "./freepik";
 
 export * from "./murfai";
 export * from "./microsoft";
+export * from "./venice";
  
  

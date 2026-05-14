@@ -22,7 +22,8 @@ import {
   SambanovaChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
   useTheme, XAIChatConfigForm,
-  RequestyChatConfigForm
+  RequestyChatConfigForm,
+  VeniceChatConfigForm,
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
@@ -190,6 +191,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
       xai: (xai: any) => updateProviderConfig("xai", xai),
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
+      venice: (venice: any) => updateProviderConfig("venice", venice),
     }),
     [updateProviderConfig]
   );
@@ -553,6 +555,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <SambanovaChatConfigForm
                 config={draft.providerMetadata.sambanova ?? {}}
                 updateConfig={providerConfigUpdaters.sambanova}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Venice") &&
+          <theme.Tab eventKey="venice" title="Venice">
+            {activeTab === "venice" ? (
+              <VeniceChatConfigForm
+                config={draft.providerMetadata.venice ?? {}}
+                updateConfig={providerConfigUpdaters.venice}
               />
             ) : null}
           </theme.Tab>

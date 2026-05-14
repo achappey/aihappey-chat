@@ -23,6 +23,7 @@ import {
   useTheme,
   XAIChatConfigForm,
   RequestyChatConfigForm,
+  VeniceChatConfigForm,
 } from "aihappey-components";
 import type { PlaygroundEndpointConfigMap } from "aihappey-clients";
 import type { ModelOption } from "aihappey-types";
@@ -173,6 +174,8 @@ export const PlaygroundSettingsDrawer = ({
         return <SambanovaChatConfigForm config={providerMetadata.sambanova ?? {}} updateConfig={updateProviderConfig} />;
       case "together":
         return <TogetherChatConfigForm config={providerMetadata.together ?? {}} updateConfig={updateProviderConfig} />;
+      case "venice":
+        return <VeniceChatConfigForm config={providerMetadata.venice ?? {}} updateConfig={updateProviderConfig} />;
       case "xai":
         return <XAIChatConfigForm config={providerMetadata.xai ?? {}} updateConfig={updateProviderConfig} />;
       default:

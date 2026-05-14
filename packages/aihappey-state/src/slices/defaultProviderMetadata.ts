@@ -175,6 +175,24 @@ export const defaultProviderMetadata = {
       "enable_thinking": true
     }
   },
+  "venice": {
+    "reasoning": undefined,
+    "seed": undefined,
+    "venice_parameters": {
+      "enable_e2ee": true,
+      "include_venice_system_prompt": true,
+      "enable_web_search": "off",
+      "enable_web_scraping": false,
+      "enable_web_citations": false,
+      "include_search_results_in_stream": false,
+      "return_search_results_as_documents": false,
+      "strip_thinking_response": false,
+      "disable_thinking": false,
+      "character_slug": undefined,
+      "enable_x_search": false
+    },
+    "tools": []
+  },
   "xai": {
     "tools": [{
       "type": "web_search",
