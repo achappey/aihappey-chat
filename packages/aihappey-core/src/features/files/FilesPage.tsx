@@ -1,11 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import * as Components from "aihappey-components";
 import { ErrorAlerts, FileCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useFiles } from "aihappey-files";
+import type { StoredFile } from "aihappey-files";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
+import { FileDetailModal } from "./FileDetailModal";
 
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
@@ -20,6 +21,9 @@ export const FilesPage = () => {
     const files = useFiles();
     const getStorageErrorMessage = useStorageErrorMessage();
     const [errors, setErrors] = useState<{ id: string; message: string }[]>([]);
+    const [selectedFileId, setSelectedFileId] = useState<string | undefined>(undefined);
+    const [selectedFile, setSelectedFile] = useState<StoredFile | undefined>(undefined);
+    const [detailsLoading, setDetailsLoading] = useState(false);
 
     const [search, setSearch] = useState("");
     const q = normalizeText(search);
@@ -54,6 +58,12 @@ export const FilesPage = () => {
 
     const dismissError = useCallback((id: string) => {
         setErrors((prev) => prev.filter((e) => e.id !== id));
+    }, []);
+
+    const closeFileDetails = useCallback(() => {
+        setSelectedFileId(undefined);
+        setSelectedFile(undefined);
+        setDetailsLoading(false);
     }, []);
 
     // DnD preview
@@ -92,7 +102,7 @@ export const FilesPage = () => {
                 addError(getStorageErrorMessage(err, "Failed to save file"));
             }
         },
-        [addError, files]
+        [addError, files, getStorageErrorMessage]
     );
 
     const downloadFile = useCallback(
@@ -108,6 +118,59 @@ export const FilesPage = () => {
             URL.revokeObjectURL(url);
         },
         [files]
+    );
+
+    const deleteFile = useCallback(
+        async (id: string) => {
+            try {
+                await files.delete(id);
+                if (selectedFileId === id) {
+                    closeFileDetails();
+                }
+            } catch (err) {
+                addError(getStorageErrorMessage(err, "Delete failed"));
+                throw err;
+            }
+        },
+        [addError, closeFileDetails, files, getStorageErrorMessage, selectedFileId]
+    );
+
+    useEffect(() => {
+        if (!selectedFileId) {
+            setSelectedFile(undefined);
+            setDetailsLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+        setDetailsLoading(true);
+
+        void files.read(selectedFileId)
+            .then((stored) => {
+                if (cancelled) return;
+                setSelectedFile(stored);
+                if (!stored) {
+                    addError("Failed to load file details");
+                }
+            })
+            .catch((err) => {
+                if (cancelled) return;
+                addError(getStorageErrorMessage(err, "Failed to load file"));
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setDetailsLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [addError, files, getStorageErrorMessage, selectedFileId]);
+
+    const selectedFileName = useMemo(
+        () => selectedFile?.name ?? files.items.find((item) => item.id === selectedFileId)?.name,
+        [files.items, selectedFile, selectedFileId]
     );
 
     return (
@@ -174,21 +237,26 @@ export const FilesPage = () => {
                                 <div key={f.id} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
                                     <FileCard
                                         file={f}
+                                        onView={() => setSelectedFileId(f.id)}
                                         onDownload={() => downloadFile(f.id)}
                                         onDelete={() => {
-                                            void (async () => {
-                                                try {
-                                                    await files.delete(f.id);
-                                                } catch (err) {
-                                                    addError(getStorageErrorMessage(err, "Delete failed"));
-                                                }
-                                            })();
+                                            void deleteFile(f.id);
                                         }}
                                     />
                                 </div>
                             ))
                         )}
                     </div>
+
+                    <FileDetailModal
+                        open={selectedFileId != undefined}
+                        file={selectedFile ?? undefined}
+                        fileName={selectedFileName}
+                        loading={detailsLoading}
+                        onClose={closeFileDetails}
+                        onDownload={selectedFileId ? () => void downloadFile(selectedFileId) : undefined}
+                        onDelete={selectedFileId ? async () => await deleteFile(selectedFileId) : undefined}
+                    />
                 </div>
             </div>
         </div>

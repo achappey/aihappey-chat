@@ -3,6 +3,7 @@ import { useTheme } from "../theme/ThemeContext";
 import type { MenuItemProps } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
 import { MimeTypeBadge } from "../badges";
+import { ViewButton } from "../buttons";
 
 export type FileCardItem = {
   id: string;
@@ -13,6 +14,7 @@ export type FileCardItem = {
 
 export type FileCardProps = {
   file: FileCardItem;
+  onView?: () => void;
   onDelete?: () => void;
   onDownload?: () => void;
 };
@@ -28,7 +30,7 @@ function formatBytes(bytes?: number): string {
   return `${gb.toFixed(1)} GB`;
 }
 
-export const FileCard = ({ file, onDelete, onDownload }: FileCardProps) => {
+export const FileCard = ({ file, onView, onDelete, onDownload }: FileCardProps) => {
   const { Card, Button, Menu } = useTheme();
   const { t } = useTranslation();
 
@@ -49,6 +51,14 @@ export const FileCard = ({ file, onDelete, onDownload }: FileCardProps) => {
   const headerActions = onDelete ? <Menu items={menuItems} /> : undefined;
   const actions = (
     <>
+      {onView && (
+        <ViewButton
+          size="small"
+          variant="transparent"
+          onClick={onView}
+          title={t("view")}
+        />
+      )}
       {onDownload && (
         <Button
           icon="download"
