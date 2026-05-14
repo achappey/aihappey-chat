@@ -1,4 +1,22 @@
 {
+  "venice": {
+    "webSearchModes": {
+      "auto": "Automatic",
+      "on": "On",
+      "off": "Off"
+    },
+    "includeSystemPrompt": "Venice system prompt",
+    "webCitations": "Web citations",
+    "webScraping": "Web scraping",
+    "xSearch": "Search X",
+    "stripThinking": "Strip thinking",
+    "seedPlaceholder": "Optional seed for reproducibility",
+    "enableE2EE": "End-to-end encryption",
+    "returnSearchResultsAsDocuments": "Search results as documents",
+    "characterSlug": "Character",
+    "disableThinking": "Disable thinking",
+    "includeSearchResultsInStream": "Search results"
+  },
   "perplexity": {
     "academic": "Academic",
     "agent": "Agent",

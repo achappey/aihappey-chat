@@ -20,6 +20,7 @@ import {
   ResponsesEndpointConfigForm,
   SambanovaChatConfigForm,
   TogetherChatConfigForm,
+  LinkupChatConfigForm,
   useTheme,
   XAIChatConfigForm,
   RequestyChatConfigForm,
@@ -176,6 +177,8 @@ export const PlaygroundSettingsDrawer = ({
         return <TogetherChatConfigForm config={providerMetadata.together ?? {}} updateConfig={updateProviderConfig} />;
       case "venice":
         return <VeniceChatConfigForm config={providerMetadata.venice ?? {}} updateConfig={updateProviderConfig} />;
+      case "linkup":
+        return <LinkupChatConfigForm config={providerMetadata.linkup ?? {}} updateConfig={updateProviderConfig} />;
       case "xai":
         return <XAIChatConfigForm config={providerMetadata.xai ?? {}} updateConfig={updateProviderConfig} />;
       default:

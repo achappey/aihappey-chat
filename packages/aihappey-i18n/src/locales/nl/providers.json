@@ -1,4 +1,21 @@
 {
+  "venice": {
+    "webSearchModes": {
+      "auto": "Automatisch",
+      "on": "Aan",
+      "off": "Uit"
+    },
+    "includeSystemPrompt": "Venice systeem prompt",
+    "webCitations": "Web citaten",
+    "webScraping": "Web scraping",
+    "xSearch": "Zoeken op X",
+    "enableE2EE": "End-to-end encryptie",
+    "seedPlaceholder": "Optionele seed voor reproduceerbaarheid",
+    "returnSearchResultsAsDocuments": "Zoek resultaten als documenten",
+    "stripThinking": "Gedachten niet meesturen",
+    "disableThinking": "Nadenken uitschakelen",
+    "includeSearchResultsInStream": "Zoek resutlaten"
+  },
   "cohere": {
     "citationOptions": "Citaten",
     "reranking": {

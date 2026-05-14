@@ -13,6 +13,7 @@ import {
   BraveChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
+  LinkupChatConfigForm,
   LocalToolsSettingsForm,
   MicrosoftChatConfigForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
@@ -192,6 +193,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       xai: (xai: any) => updateProviderConfig("xai", xai),
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
       venice: (venice: any) => updateProviderConfig("venice", venice),
+      linkup: (linkup: any) => updateProviderConfig("linkup", linkup),
     }),
     [updateProviderConfig]
   );
@@ -565,6 +567,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <VeniceChatConfigForm
                 config={draft.providerMetadata.venice ?? {}}
                 updateConfig={providerConfigUpdaters.venice}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Linkup") &&
+          <theme.Tab eventKey="linkup" title="Linkup">
+            {activeTab === "linkup" ? (
+              <LinkupChatConfigForm
+                config={draft.providerMetadata.linkup ?? {}}
+                updateConfig={providerConfigUpdaters.linkup}
               />
             ) : null}
           </theme.Tab>

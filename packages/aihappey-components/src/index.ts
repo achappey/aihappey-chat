@@ -15,3 +15,4 @@ export * from "./modals";
 export * from "./layout/StickyHeaderActionBar";
 export * from "./layout/StickyHeaderBar";
 export * from "./forms/providers/venice";
+export * from "./forms/providers/linkup";

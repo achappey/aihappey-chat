@@ -262,5 +262,11 @@ export const defaultProviderMetadata = {
     "disable_search": false
   }
   ,
+  "linkup": {
+    "includeImages": false,
+    "mode": "Auto",
+    "reasoningDepth": "L"
+  },
+  
   "murfai": {}
 };

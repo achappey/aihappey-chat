@@ -337,6 +337,7 @@
     "none": "None",
     "low": "Low",
     "xhigh": "Extra high",
+    "max": "Maximum",
     "source": "Source",
     "sources": "Sources",
     "sourceCount_one": "{{count}} source",
