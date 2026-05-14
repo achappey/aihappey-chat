@@ -504,6 +504,9 @@ import { microsoft } from "./catalog/microsoft";
 import { brave } from "./catalog/brave";
 import { terminalskills } from "./catalog/terminalskills";
 import { clawhub } from "./catalog/clawhub";
+import { merge } from "./catalog/merge";
+import { linkup } from "./catalog/linkup";
+import { wiro } from "./catalog/wiro";
 
 /**
  * UI-facing provider catalog.
@@ -515,9 +518,11 @@ export const PROVIDERS: Record<string, Provider> = {
   citadelis,
   api1sbs,
   microsoft,
+  wiro,
   tapas,
   oneinfer,
   igpt,
+  linkup,
   theoldapi,
   sapiom,
   augure,
@@ -531,6 +536,7 @@ export const PROVIDERS: Record<string, Provider> = {
   moleapi,
   vibekit,
   groovedev,
+  merge,
   zyloapi,
   opuscode,
   codzen,
