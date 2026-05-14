@@ -151,7 +151,9 @@ export const VeniceChatConfigForm = ({
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
-            label={t("providers:venice.reasoningEffort", "Reasoning effort")}
+            label={`${t("reasoningEffort", {
+              reasoningEffort: t(config?.reasoning?.effort),
+            })}`}
             disabled={!reasoningOn}
             values={[config?.reasoning?.effort ?? "none"]}
             valueTitle={t(config?.reasoning?.effort ?? "none")}
@@ -177,7 +179,7 @@ export const VeniceChatConfigForm = ({
           </theme.Select>
 
           <theme.Select
-            label={t("providers:venice.reasoningSummary", "Reasoning summary")}
+            label={t("reasoningSummary", "Reasoning summary")}
             disabled={!reasoningOn}
             values={[config?.reasoning?.summary ?? "auto"]}
             valueTitle={t(config?.reasoning?.summary ?? "auto")}
@@ -204,27 +206,41 @@ export const VeniceChatConfigForm = ({
         </div>
       </theme.Card>
 
-      {/* Seed */}
-      <theme.Card size="small" title={t("seed", "Seed")}>
-        <theme.Input
-          label={t("seed", "Seed")}
-          type="number"
-          value={config?.seed ?? ""}
-          onChange={(e: any) =>
-            updateConfig({
-              ...config,
-              seed: normalizeInteger(e?.target?.value),
-            })
-          }
-          placeholder={t("providers:venice.seedPlaceholder", "Optional seed for reproducibility")}
-        />
+      {/* Web Search tool */}
+      <theme.Card
+        size="small"
+        title={t("webSearch")}
+        headerActions={
+          <theme.Switch
+            id="veniceWebSearchTool"
+            checked={!!resolvedConfig?.web_search}
+            onChange={(val) => toggleTool("web_search", val)}
+          />
+        }
+      >
+
+      </theme.Card>
+
+      {/* X Search tool */}
+      <theme.Card
+        size="small"
+        title={t("providers:venice.xSearch", "X search")}
+        headerActions={
+          <theme.Switch
+            id="veniceXSearchTool"
+            checked={!!resolvedConfig?.x_search}
+            onChange={(val) => toggleTool("x_search", val)}
+          />
+        }
+      >
+
       </theme.Card>
 
       {/* Venice parameters */}
-      <theme.Card size="small" title={t("providers:venice.title", "Venice settings")}> 
+      <theme.Card size="small" title={t("other")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
-            label={t("providers:venice.webSearchMode", "Web search mode")}
+            label={t("webSearch")}
             values={[veniceParams.enable_web_search]}
             valueTitle={t(`providers:venice.webSearchModes.${veniceParams.enable_web_search}`, veniceParams.enable_web_search ?? "off")}
             options={["auto", "on", "off"].map((value) => ({
@@ -245,6 +261,19 @@ export const VeniceChatConfigForm = ({
             value={veniceParams.character_slug ?? ""}
             placeholder="venice"
             onChange={(e: any) => setVeniceParameters({ character_slug: e?.target?.value || undefined })}
+          />
+
+          <theme.Input
+            label={t("seed", "Seed")}
+            type="number"
+            value={config?.seed ?? ""}
+            onChange={(e: any) =>
+              updateConfig({
+                ...config,
+                seed: normalizeInteger(e?.target?.value),
+              })
+            }
+            placeholder={t("providers:venice.seedPlaceholder", "Optional seed for reproducibility")}
           />
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
@@ -292,45 +321,7 @@ export const VeniceChatConfigForm = ({
         </div>
       </theme.Card>
 
-      {/* Web Search tool */}
-      <theme.Card
-        size="small"
-        title={t("webSearch")}
-        headerActions={
-          <theme.Switch
-            id="veniceWebSearchTool"
-            checked={!!resolvedConfig?.web_search}
-            onChange={(val) => toggleTool("web_search", val)}
-          />
-        }
-      >
-        <theme.Text>{t("providers:venice.webSearchDescription", "Enable the Venice web search tool.")}</theme.Text>
-      </theme.Card>
 
-      {/* X Search tool */}
-      <theme.Card
-        size="small"
-        title={t("providers:venice.xSearch", "X search")}
-        headerActions={
-          <theme.Switch
-            id="veniceXSearchTool"
-            checked={!!resolvedConfig?.x_search}
-            onChange={(val) => toggleTool("x_search", val)}
-          />
-        }
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <theme.Text>
-            {t("providers:venice.xSearchDescription", "Enable xAI native search (web + X/Twitter)")}
-          </theme.Text>
-          <VeniceSwitchRow
-            label={t("providers:venice.enableXSearchFlag", "Mirror X search to venice parameters")}
-            checked={!!veniceParams.enable_x_search}
-            onChange={(val) => setVeniceParameters({ enable_x_search: val })}
-            disabled={!resolvedConfig?.x_search}
-          />
-        </div>
-      </theme.Card>
     </div>
   );
 };
