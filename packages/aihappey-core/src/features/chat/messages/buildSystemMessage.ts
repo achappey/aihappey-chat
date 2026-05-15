@@ -2,6 +2,7 @@ import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { ServerItem, type Resource, type ResourceTemplate } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import { chatAppInstructions } from "../../../runtime/chat-app/chatAppInstructions";
+import { encode } from '@toon-format/toon'
 
 const getSystemInfo = (appName?: string) => {
     const now = new Date();
@@ -142,12 +143,27 @@ export const buildSystemMessage = (
         parts.push({
             type: "text",
             text: JSON.stringify(block)
+            //text: encode(block)
         });
     }
 
     if (availableSkills.length > 0) {
         parts.push({
             type: "text",
+            /* text: encode({
+                 availableSkills: {
+                     activationTool: "activate_skill",
+                     resourceTool: "read_skill_resource",
+                     instructions:
+                         "The following skills provide specialized instructions for specific tasks. When a task matches a skill description, call activate_skill with the exact skill_id to load its instructions. After activation, use read_skill_resource with the same skill_id and a relative path when the instructions reference bundled files.",
+                     skills: availableSkills.map((skill) => ({
+                         id: skill.skillId,
+                         skill_id: skill.skillId,
+                         name: skill.name,
+                         description: skill.description,
+                     })),
+                 },
+             })*/
             text: JSON.stringify({
                 availableSkills: {
                     activationTool: "activate_skill",
@@ -168,6 +184,9 @@ export const buildSystemMessage = (
     const instructions = chatAppInstructions()
     parts.push({
         type: "text",
+        /* text: encode({
+             chatBotInstructions: instructions?.replaceAll("\\n", "\n")
+         })*/
         text: JSON.stringify({
             chatBotInstructions: instructions?.replaceAll("\\n", "\n")
         })
@@ -176,6 +195,9 @@ export const buildSystemMessage = (
     // System info block
     parts.push({
         type: "text",
+        /*     text: encode({
+                 systemInformation: getSystemInfo(appName)
+             })*/
         text: JSON.stringify({
             systemInformation: getSystemInfo(appName)
         })
@@ -185,6 +207,10 @@ export const buildSystemMessage = (
     if (account) {
         parts.push({
             type: "text",
+            /*  text: encode({
+                  ...account,
+                  ...(accountLocation ? { location: accountLocation } : {}),
+              })*/
             text: JSON.stringify({
                 ...account,
                 ...(accountLocation ? { location: accountLocation } : {}),

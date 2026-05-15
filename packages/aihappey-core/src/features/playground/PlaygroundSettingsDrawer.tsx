@@ -25,6 +25,7 @@ import {
   XAIChatConfigForm,
   RequestyChatConfigForm,
   VeniceChatConfigForm,
+  ZaiChatConfigForm,
 } from "aihappey-components";
 import type { PlaygroundEndpointConfigMap } from "aihappey-clients";
 import type { ModelOption } from "aihappey-types";
@@ -181,6 +182,8 @@ export const PlaygroundSettingsDrawer = ({
         return <LinkupChatConfigForm config={providerMetadata.linkup ?? {}} updateConfig={updateProviderConfig} />;
       case "xai":
         return <XAIChatConfigForm config={providerMetadata.xai ?? {}} updateConfig={updateProviderConfig} />;
+      case "zai":
+        return <ZaiChatConfigForm config={providerMetadata.zai ?? {}} updateConfig={updateProviderConfig} />;
       default:
         return <Text>No provider-specific playground form is available for <b>{providerKey || playgroundModel || "this model"}</b> yet.</Text>;
     }

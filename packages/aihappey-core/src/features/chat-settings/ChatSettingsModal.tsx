@@ -25,6 +25,7 @@ import {
   useTheme, XAIChatConfigForm,
   RequestyChatConfigForm,
   VeniceChatConfigForm,
+  ZaiChatConfigForm,
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
@@ -194,6 +195,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
       venice: (venice: any) => updateProviderConfig("venice", venice),
       linkup: (linkup: any) => updateProviderConfig("linkup", linkup),
+      zai: (zai: any) => updateProviderConfig("zai", zai),
     }),
     [updateProviderConfig]
   );
@@ -588,6 +590,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <XAIChatConfigForm
                 config={draft.providerMetadata.xai ?? {}}
                 updateConfig={providerConfigUpdaters.xai}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Zai") &&
+          <theme.Tab eventKey="zai" title="Zai">
+            {activeTab === "zai" ? (
+              <ZaiChatConfigForm
+                config={draft.providerMetadata.zai ?? {}}
+                updateConfig={providerConfigUpdaters.zai}
               />
             ) : null}
           </theme.Tab>

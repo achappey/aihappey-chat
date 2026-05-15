@@ -161,6 +161,28 @@ export const defaultProviderMetadata = {
   "jina": {
     "reasoning_effort": "medium"
   },
+  "zai": {
+    "thinking": {
+      "type": "enabled",
+      "clear_thinking": true
+    },
+    "tool_stream": false,
+    "tools": [
+      {
+        "type": "web_search",
+        "web_search": {
+          "enable": true,
+          "search_engine": "search_pro_jina",
+          "count": 10,
+          "search_recency_filter": "noLimit",
+          "content_size": "medium",
+          "result_sequence": "after",
+          "search_result": false,
+          "require_search": false
+        }
+      }
+    ]
+  },
   "nscale": {
     "reasoning_effort": "medium"
   },
