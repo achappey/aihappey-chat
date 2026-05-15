@@ -510,6 +510,7 @@ import { wiro } from "./catalog/wiro";
 import { bastiongpt } from "./catalog/bastiongpt";
 import { shareai } from "./catalog/shareai";
 import { token360 } from "./catalog/token360";
+import { webcrawlerapi } from "./catalog/webcrawlerapi";
 
 /**
  * UI-facing provider catalog.
@@ -722,6 +723,7 @@ export const PROVIDERS: Record<string, Provider> = {
   setapp,
   verbatik,
   aibadgr,
+  webcrawlerapi,
   shareai,
   brainiall,
   surfercloud,
