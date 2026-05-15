@@ -6,7 +6,7 @@ export const abliteration: Provider = {
     "Developer-controlled, less-censored LLM API with OpenAI-compatible /v1/chat/completions plus a Policy Gateway for enterprise AI governance (policy-as-code, quotas, rollouts, audit logs). Zero prompt/output retention and usage-based pricing.",
   icons: [
     {
-      src: "https://abliteration.ai/abliteration_logo.png",
+      src: "https://abliteration.ai/icon-512.png",
     },
   ],
   urls: {
