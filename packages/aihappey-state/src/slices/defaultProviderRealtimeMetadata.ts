@@ -171,5 +171,16 @@ export const defaultProviderRealtimeConversationMetadata = {
         }
       }
     }
+  },
+  "agentphone": {
+    "expires_after": {
+      "anchor": "created_at",
+      "seconds": 600
+    },
+    "session": {
+      /** The runtime derives agentId from model ids shaped like agentphone/<agent-id>. */
+      "sampleRate": 24000,
+      "emitRawAudioSamples": false
+    }
   }
 };

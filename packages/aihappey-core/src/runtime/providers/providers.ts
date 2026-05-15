@@ -511,6 +511,7 @@ import { bastiongpt } from "./catalog/bastiongpt";
 import { shareai } from "./catalog/shareai";
 import { token360 } from "./catalog/token360";
 import { webcrawlerapi } from "./catalog/webcrawlerapi";
+import { agentphone } from "./catalog/agentphone";
 
 /**
  * UI-facing provider catalog.
@@ -694,6 +695,7 @@ export const PROVIDERS: Record<string, Provider> = {
   askcodi,
   martian,
   huggingface,
+  agentphone,
   textsynth,
   keyplex,
   modelsync,

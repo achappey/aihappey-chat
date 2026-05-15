@@ -19,7 +19,16 @@ export type RealtimeConversationWsSession = {
   stop: () => Promise<void>;
 };
 
-export type RealtimeConversationSession = RealtimeConversationWebrtcSession | RealtimeConversationWsSession;
+export type RealtimeConversationSdkSession = {
+  kind: "sdk";
+  provider: string;
+  client: unknown;
+  send: (event: any) => void;
+  setMicrophoneEnabled: (enabled: boolean) => void;
+  stop: () => Promise<void>;
+};
+
+export type RealtimeConversationSession = RealtimeConversationWebrtcSession | RealtimeConversationWsSession | RealtimeConversationSdkSession;
 
 export type RealtimeConversationEvents = {
   onOpen?: () => void;

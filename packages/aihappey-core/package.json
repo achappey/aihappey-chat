@@ -18,6 +18,7 @@
     "@molotochok/msg-viewer": "^1.0.3",
     "@sgratzl/chartjs-chart-boxplot": "^4.4.5",
     "@toon-format/toon": "^2.2.0",
+    "agentphone-web-sdk": "^0.1.0",
     "aihappey-agents": "*",
     "aihappey-ai": "*",
     "aihappey-ai-components-adaptive-cards": "*",
