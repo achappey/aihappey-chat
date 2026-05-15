@@ -507,6 +507,9 @@ import { clawhub } from "./catalog/clawhub";
 import { merge } from "./catalog/merge";
 import { linkup } from "./catalog/linkup";
 import { wiro } from "./catalog/wiro";
+import { bastiongpt } from "./catalog/bastiongpt";
+import { shareai } from "./catalog/shareai";
+import { token360 } from "./catalog/token360";
 
 /**
  * UI-facing provider catalog.
@@ -713,14 +716,17 @@ export const PROVIDERS: Record<string, Provider> = {
   shakespeare,
   ainative,
   gatewayz,
+  token360,
   lexico,
   eagm,
   setapp,
   verbatik,
   aibadgr,
+  shareai,
   brainiall,
   surfercloud,
   openlimits,
+  bastiongpt,
   arkroute,
   eliza,
   embraceableai,

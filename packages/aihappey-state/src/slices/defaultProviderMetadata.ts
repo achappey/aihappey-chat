@@ -2,6 +2,9 @@ export const defaultProviderMetadata = {
   "pollinations": {
     "reasoning_effort": "low"
   },
+  "cerebras": {
+
+  },
   "openai": {
     "tools":
       [
@@ -289,6 +292,6 @@ export const defaultProviderMetadata = {
     "mode": "Auto",
     "reasoningDepth": "L"
   },
-  
+
   "murfai": {}
 };
