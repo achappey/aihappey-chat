@@ -4,7 +4,7 @@ export const swarms: Provider = {
   name: "Swarms",
   description: "Share, discover, and monetize autonomous agents, custom prompts, and specialized tools on the Swarms Marketplace.",
   icons: [{
-    src: "https://docs.swarms.world/en/latest/assets/img/swarms-logo.png"
+    src: "https://swarms.world/swarms-logo.svg"
   }],
   urls: {
     homepage: "https://swarms.world",
