@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
-export const lexi: Provider = {
-  name: "Lexi",
+export const lexico: Provider = {
+  name: "LexiCo",
   description: "Lower AI costs. Change one URL. Pay less per request.",
   icons: [{
     src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://lexisaas.com&size=128"

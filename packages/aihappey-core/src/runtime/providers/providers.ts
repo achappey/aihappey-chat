@@ -315,7 +315,7 @@ import { kimik2 } from "./catalog/kimik2";
 import { keyplex } from "./catalog/keyplex";
 import { llmkiwi } from "./catalog/llmkiwi";
 import { cheapgrok } from "./catalog/cheapgrok";
-import { lexi } from "./catalog/lexi";
+import { lexico } from "./catalog/lexico";
 import { eliza } from "./catalog/eliza";
 import { openlimits } from "./catalog/openlimits";
 import { arkroute } from "./catalog/arkroute";
@@ -713,7 +713,7 @@ export const PROVIDERS: Record<string, Provider> = {
   shakespeare,
   ainative,
   gatewayz,
-  lexi,
+  lexico,
   eagm,
   setapp,
   verbatik,
