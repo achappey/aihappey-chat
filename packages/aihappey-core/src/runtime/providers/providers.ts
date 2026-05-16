@@ -514,6 +514,9 @@ import { tembo } from "./catalog/tembo";
 import { agnesai } from "./catalog/agnesai";
 import { herma } from "./catalog/herma";
 import { bytespace } from "./catalog/bytespace";
+import { runcrate } from "./catalog/runcrate";
+import { mulerouter } from "./catalog/mulerouter";
+import { mixlayer } from "./catalog/mixlayer";
 
 /**
  * UI-facing provider catalog.
@@ -971,6 +974,7 @@ export const PROVIDERS: Record<string, Provider> = {
   llmgateway,
   github,
   assemblyai,
+  mixlayer,
   gladia,
   clod,
   cheapestinference,
@@ -978,6 +982,8 @@ export const PROVIDERS: Record<string, Provider> = {
   opencode,
   chaingpt,
   azerion,
+  mulerouter,
+  runcrate,
   modelmax,
   gptproto,
   runpod,
