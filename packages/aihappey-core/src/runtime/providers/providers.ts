@@ -399,7 +399,6 @@ import { vivgrid } from "./catalog/vivgrid";
 import { ambient } from "./catalog/ambient";
 import { xiaomimimo } from "./catalog/xiaomimimo";
 import { ollama } from "./catalog/ollama";
-import { switchpointai } from "./catalog/switchpointai";
 import { relace } from "./catalog/relace";
 import { inflection } from "./catalog/inflection";
 import { langdb } from "./catalog/langdb";
@@ -628,7 +627,6 @@ export const PROVIDERS: Record<string, Provider> = {
   langdb,
   inflection,
   relace,
-  switchpointai,
   ollama,
   xiaomimimo,
   vivgrid,
