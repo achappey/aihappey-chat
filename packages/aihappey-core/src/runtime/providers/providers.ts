@@ -512,6 +512,8 @@ import { webcrawlerapi } from "./catalog/webcrawlerapi";
 import { agentphone } from "./catalog/agentphone";
 import { tembo } from "./catalog/tembo";
 import { agnesai } from "./catalog/agnesai";
+import { herma } from "./catalog/herma";
+import { bytespace } from "./catalog/bytespace";
 
 /**
  * UI-facing provider catalog.
@@ -528,6 +530,7 @@ export const PROVIDERS: Record<string, Provider> = {
   tapas,
   oneinfer,
   igpt,
+  herma,
   linkup,
   theoldapi,
   sapiom,
@@ -864,6 +867,7 @@ export const PROVIDERS: Record<string, Provider> = {
   lectoai,
   gmicloud,
   byteplus,
+  bytespace,
   cohere,
   modernmt,
   kissapi,
