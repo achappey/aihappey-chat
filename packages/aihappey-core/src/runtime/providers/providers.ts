@@ -511,6 +511,7 @@ import { token360 } from "./catalog/token360";
 import { webcrawlerapi } from "./catalog/webcrawlerapi";
 import { agentphone } from "./catalog/agentphone";
 import { tembo } from "./catalog/tembo";
+import { agnesai } from "./catalog/agnesai";
 
 /**
  * UI-facing provider catalog.
@@ -530,6 +531,7 @@ export const PROVIDERS: Record<string, Provider> = {
   linkup,
   theoldapi,
   sapiom,
+  agnesai,
   augure,
   forgebylana,
   brave,
