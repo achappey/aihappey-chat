@@ -35,7 +35,7 @@ export type ZaiChatConfig = {
     web_search: {
       enable?: boolean;
       search_engine: SearchEngine;
-      search_query?: string;
+      search_query: string;
       count?: number;
       search_domain_filter?: string;
       search_recency_filter?: SearchRecencyFilter;
@@ -58,6 +58,7 @@ const DEFAULT_WEB_SEARCH = {
   web_search: {
     enable: true,
     search_engine: "search_pro_jina" as const,
+    search_query: "",
     count: 10,
     search_recency_filter: "noLimit" as const,
     content_size: "medium" as const,
@@ -107,7 +108,11 @@ export const ZaiChatConfigForm = ({
 
   const thinkingOn = !!resolvedConfig?.thinking;
   const webSearchOn = !!resolvedConfig?.web_search;
-  const webSearch = resolvedConfig?.web_search?.web_search ?? DEFAULT_WEB_SEARCH.web_search;
+  const webSearch = {
+    ...DEFAULT_WEB_SEARCH.web_search,
+    ...(resolvedConfig?.web_search?.web_search ?? {}),
+    enable: true,
+  };
   const thinkingType = (resolvedConfig?.thinking?.type ?? DEFAULT_THINKING.type) as ThinkingType;
 
   const updateThinking = (patch: Partial<NonNullable<ZaiChatConfig["thinking"]>>) =>
@@ -128,6 +133,7 @@ export const ZaiChatConfigForm = ({
         web_search: {
           ...(resolvedConfig?.web_search?.web_search ?? DEFAULT_WEB_SEARCH.web_search),
           ...patch,
+          enable: true,
           search_engine:
             patch.search_engine ??
             resolvedConfig?.web_search?.web_search?.search_engine ??
@@ -159,16 +165,16 @@ export const ZaiChatConfigForm = ({
             label={t("type") ?? "Type"}
             disabled={!thinkingOn}
             values={[thinkingType]}
-            valueTitle={t(thinkingType)}
+            valueTitle={t(`providers:zai.thinkingTypes.${thinkingType}`, thinkingType)}
             options={THINKING_TYPES.map((value) => ({
               value,
-              label: t(value),
+              label: t(`providers:zai.thinkingTypes.${value}`, value),
             }))}
             onChange={(value: string) => updateThinking({ type: value as ThinkingType })}
           >
             {THINKING_TYPES.map((value) => (
               <option key={value} value={value}>
-                {t(value)}
+                {t(`providers:zai.thinkingTypes.${value}`, value)}
               </option>
             ))}
           </theme.Select>
@@ -177,7 +183,7 @@ export const ZaiChatConfigForm = ({
             id="zaiClearThinking"
             disabled={!thinkingOn}
             checked={resolvedConfig?.thinking?.clear_thinking !== false}
-            label="Clear previous thinking"
+            label={t("providers:zai.clearThinking")}
             onChange={(value) => updateThinking({ clear_thinking: !!value })}
           />
         </div>
@@ -193,7 +199,15 @@ export const ZaiChatConfigForm = ({
             onChange={(value) =>
               submitConfig({
                 ...resolvedConfig,
-                web_search: value ? { ...DEFAULT_WEB_SEARCH } : undefined,
+                web_search: value
+                  ? {
+                      ...DEFAULT_WEB_SEARCH,
+                      web_search: {
+                        ...DEFAULT_WEB_SEARCH.web_search,
+                        enable: true,
+                      },
+                    }
+                  : undefined,
               })
             }
           />
@@ -201,25 +215,35 @@ export const ZaiChatConfigForm = ({
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={twoColumnGrid}>
-            <theme.Switch
-              id="zaiWebSearchEnable"
+            <theme.Input
+              id="zaiWebSearchQuery"
+              required
               disabled={!webSearchOn}
-              checked={webSearch?.enable !== false}
-              label="Enable search"
-              onChange={(value) => updateWebSearch({ enable: !!value })}
+              label={t("providers:zai.searchQuery")}
+              placeholder={t("providers:zai.searchQueryPlaceholder")}
+              value={webSearch?.search_query ?? ""}
+              onChange={(e: any) => updateWebSearch({ search_query: String(e?.target?.value ?? "") })}
             />
 
             <theme.Select
-              label="Search engine"
+              label={t("providers:zai.searchEngine")}
               disabled={!webSearchOn}
               values={[webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine]}
-              valueTitle={webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine}
-              options={SEARCH_ENGINE_OPTIONS.map((value) => ({ value, label: value }))}
+              valueTitle={t(
+                `providers:zai.searchEngines.${
+                  webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine
+                }`,
+                webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine
+              )}
+              options={SEARCH_ENGINE_OPTIONS.map((value) => ({
+                value,
+                label: t(`providers:zai.searchEngines.${value}`, value),
+              }))}
               onChange={(value: string) => updateWebSearch({ search_engine: value })}
             >
               {SEARCH_ENGINE_OPTIONS.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {t(`providers:zai.searchEngines.${value}`, value)}
                 </option>
               ))}
             </theme.Select>
@@ -229,7 +253,7 @@ export const ZaiChatConfigForm = ({
               min={1}
               max={50}
               step={1}
-              label="Result count"
+              label={t("providers:zai.resultCount")}
               disabled={!webSearchOn}
               value={webSearch?.count ?? ""}
               onChange={(e: any) =>
@@ -240,56 +264,74 @@ export const ZaiChatConfigForm = ({
             />
 
             <theme.Select
-              label="Recency filter"
+              label={t("providers:zai.recencyFilter")}
               disabled={!webSearchOn}
               values={[webSearch?.search_recency_filter ?? "noLimit"]}
-              valueTitle={webSearch?.search_recency_filter ?? "noLimit"}
-              options={SEARCH_RECENCY_FILTER_OPTIONS.map((value) => ({ value, label: value }))}
+              valueTitle={t(
+                `providers:zai.recencyFilters.${webSearch?.search_recency_filter ?? "noLimit"}`,
+                webSearch?.search_recency_filter ?? "noLimit"
+              )}
+              options={SEARCH_RECENCY_FILTER_OPTIONS.map((value) => ({
+                value,
+                label: t(`providers:zai.recencyFilters.${value}`, value),
+              }))}
               onChange={(value: string) =>
                 updateWebSearch({ search_recency_filter: value as SearchRecencyFilter })
               }
             >
               {SEARCH_RECENCY_FILTER_OPTIONS.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {t(`providers:zai.recencyFilters.${value}`, value)}
                 </option>
               ))}
             </theme.Select>
 
             <theme.Select
-              label="Content size"
+              label={t("providers:zai.contentSize")}
               disabled={!webSearchOn}
               values={[webSearch?.content_size ?? "medium"]}
-              valueTitle={webSearch?.content_size ?? "medium"}
-              options={CONTENT_SIZE_OPTIONS.map((value) => ({ value, label: value }))}
+              valueTitle={t(
+                `providers:zai.contentSizes.${webSearch?.content_size ?? "medium"}`,
+                webSearch?.content_size ?? "medium"
+              )}
+              options={CONTENT_SIZE_OPTIONS.map((value) => ({
+                value,
+                label: t(`providers:zai.contentSizes.${value}`, value),
+              }))}
               onChange={(value: string) => updateWebSearch({ content_size: value as ContentSize })}
             >
               {CONTENT_SIZE_OPTIONS.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {t(`providers:zai.contentSizes.${value}`, value)}
                 </option>
               ))}
             </theme.Select>
 
             <theme.Select
-              label="Result sequence"
+              label={t("providers:zai.resultSequence")}
               disabled={!webSearchOn}
               values={[webSearch?.result_sequence ?? "after"]}
-              valueTitle={webSearch?.result_sequence ?? "after"}
-              options={RESULT_SEQUENCE_OPTIONS.map((value) => ({ value, label: value }))}
+              valueTitle={t(
+                `providers:zai.resultSequences.${webSearch?.result_sequence ?? "after"}`,
+                webSearch?.result_sequence ?? "after"
+              )}
+              options={RESULT_SEQUENCE_OPTIONS.map((value) => ({
+                value,
+                label: t(`providers:zai.resultSequences.${value}`, value),
+              }))}
               onChange={(value: string) =>
                 updateWebSearch({ result_sequence: value as ResultSequence })
               }
             >
               {RESULT_SEQUENCE_OPTIONS.map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {t(`providers:zai.resultSequences.${value}`, value)}
                 </option>
               ))}
             </theme.Select>
 
             <theme.Input
-              label="Domain filter"
+              label={t("providers:zai.domainFilter")}
               placeholder="www.example.com"
               disabled={!webSearchOn}
               value={webSearch?.search_domain_filter ?? ""}
@@ -298,21 +340,11 @@ export const ZaiChatConfigForm = ({
               }
             />
 
-            <theme.Input
-              label="Force search query"
-              placeholder="Optional query that forces search"
-              disabled={!webSearchOn}
-              value={webSearch?.search_query ?? ""}
-              onChange={(e: any) =>
-                updateWebSearch({ search_query: optionalString(e?.target?.value) })
-              }
-            />
-
             <theme.Switch
               id="zaiSearchResult"
               disabled={!webSearchOn}
               checked={!!webSearch?.search_result}
-              label="Return search results"
+              label={t("providers:zai.returnSearchResults")}
               onChange={(value) => updateWebSearch({ search_result: !!value })}
             />
 
@@ -320,14 +352,14 @@ export const ZaiChatConfigForm = ({
               id="zaiRequireSearch"
               disabled={!webSearchOn}
               checked={!!webSearch?.require_search}
-              label="Require search grounding"
+              label={t("providers:zai.requireSearchGrounding")}
               onChange={(value) => updateWebSearch({ require_search: !!value })}
             />
 
             <div style={fullWidthGridItem}>
               <theme.TextArea
-                label="Search prompt"
-                placeholder="Optional prompt for processing search results"
+                label={t("providers:zai.searchPrompt")}
+                placeholder={t("providers:zai.searchPromptPlaceholder")}
                 rows={5}
                 value={webSearch?.search_prompt ?? ""}
                 onChange={(value) => updateWebSearch({ search_prompt: optionalString(value) })}
@@ -341,7 +373,7 @@ export const ZaiChatConfigForm = ({
         <theme.Switch
           id="zaiToolStream"
           checked={!!resolvedConfig?.tool_stream}
-          label="Tool stream"
+          label={t("providers:zai.toolStream")}
           onChange={(value) =>
             submitConfig({
               ...resolvedConfig,
