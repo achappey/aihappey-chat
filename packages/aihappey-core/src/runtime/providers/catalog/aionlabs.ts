@@ -9,11 +9,11 @@ export const aionlabs: Provider = {
     }
   ],
   urls: {
-    homepage: "https://www.aionlabs.io",
+    homepage: "https://www.aionlabs.ai",
     pricing: "https://www.aionlabs.ai/pricing",
-    docs: "https://www.aionlabs.ai/documentation",
+    docs: "https://www.aionlabs.ai/docs",
     termsOfService: "https://www.aionlabs.ai/terms",
-    privacyPolicy: "https://www.aionlabs.ai/privacy-policy"
+    privacyPolicy: "https://www.aionlabs.ai/privacy"
   },
   providerCountry: "IL",
   inferenceRegions: ["World"]
