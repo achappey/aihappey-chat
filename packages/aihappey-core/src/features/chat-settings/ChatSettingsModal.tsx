@@ -25,6 +25,7 @@ import {
   useTheme, XAIChatConfigForm,
   RequestyChatConfigForm,
   VeniceChatConfigForm,
+  WebCrawlerAPIChatConfigForm,
   ZaiChatConfigForm,
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
@@ -195,6 +196,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
       venice: (venice: any) => updateProviderConfig("venice", venice),
       linkup: (linkup: any) => updateProviderConfig("linkup", linkup),
+      webcrawlerapi: (webcrawlerapi: any) => updateProviderConfig("webcrawlerapi", webcrawlerapi),
       zai: (zai: any) => updateProviderConfig("zai", zai),
     }),
     [updateProviderConfig]
@@ -579,6 +581,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <LinkupChatConfigForm
                 config={draft.providerMetadata.linkup ?? {}}
                 updateConfig={providerConfigUpdaters.linkup}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("WebCrawlerAPI") &&
+          <theme.Tab eventKey="webcrawlerapi" title="WebCrawlerAPI">
+            {activeTab === "webcrawlerapi" ? (
+              <WebCrawlerAPIChatConfigForm
+                config={draft.providerMetadata.webcrawlerapi ?? {}}
+                updateConfig={providerConfigUpdaters.webcrawlerapi}
               />
             ) : null}
           </theme.Tab>

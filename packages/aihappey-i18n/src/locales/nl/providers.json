@@ -1,4 +1,10 @@
 {
+  "webcrawlerapi": {
+    "urls": "URLs",
+    "maxSpendUsd": "Maximale uitgaven (USD)",
+    "seedUrlsOnly": "Alleen opgegeven URL's gebruiken",
+    "agentRun": "Agent"
+  },
   "venice": {
     "webSearchModes": {
       "auto": "Automatisch",

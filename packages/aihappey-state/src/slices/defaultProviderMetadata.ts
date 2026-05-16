@@ -285,12 +285,16 @@ export const defaultProviderMetadata = {
     "return_related_questions": false,
     "enable_search_classifier": false,
     "disable_search": false
-  }
-  ,
+  },
   "linkup": {
     "includeImages": false,
     "mode": "Auto",
     "reasoningDepth": "L"
+  },
+  "webcrawlerapi": {
+    "max_spend_usd": 0.5,
+    "urls": undefined,
+    "seed_urls_only": undefined
   },
 
   "murfai": {}

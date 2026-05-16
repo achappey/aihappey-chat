@@ -25,6 +25,7 @@ import {
   XAIChatConfigForm,
   RequestyChatConfigForm,
   VeniceChatConfigForm,
+  WebCrawlerAPIChatConfigForm,
   ZaiChatConfigForm,
 } from "aihappey-components";
 import type { PlaygroundEndpointConfigMap } from "aihappey-clients";
@@ -180,6 +181,8 @@ export const PlaygroundSettingsDrawer = ({
         return <VeniceChatConfigForm config={providerMetadata.venice ?? {}} updateConfig={updateProviderConfig} />;
       case "linkup":
         return <LinkupChatConfigForm config={providerMetadata.linkup ?? {}} updateConfig={updateProviderConfig} />;
+      case "webcrawlerapi":
+        return <WebCrawlerAPIChatConfigForm config={providerMetadata.webcrawlerapi ?? {}} updateConfig={updateProviderConfig} />;
       case "xai":
         return <XAIChatConfigForm config={providerMetadata.xai ?? {}} updateConfig={updateProviderConfig} />;
       case "zai":
