@@ -76,6 +76,7 @@ const VeniceSwitchRow = ({
     <theme.Switch
       id={label}
       label={label}
+      size="small"
       checked={checked}
       disabled={disabled}
       onChange={onChange}
@@ -276,7 +277,7 @@ export const VeniceChatConfigForm = ({
             placeholder={t("providers:venice.seedPlaceholder", "Optional seed for reproducibility")}
           />
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
             <VeniceSwitchRow
               label={t("providers:venice.includeSystemPrompt", "Include Venice system prompt")}
               checked={!!veniceParams.include_venice_system_prompt}
