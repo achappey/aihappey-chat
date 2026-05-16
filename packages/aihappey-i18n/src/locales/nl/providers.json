@@ -1,9 +1,10 @@
 {
   "webcrawlerapi": {
     "urls": "URLs",
+    "costs": "Kosten",
+    "sources": "Bronnen",
     "maxSpendUsd": "Maximale uitgaven (USD)",
-    "seedUrlsOnly": "Alleen opgegeven URL's gebruiken",
-    "agentRun": "Agent"
+    "seedUrlsOnly": "Alleen deze URL's gebruiken"
   },
   "venice": {
     "webSearchModes": {
@@ -428,6 +429,44 @@
     "speaker": "Spreker"
   },
   "xSearch": "Zoeken op X",
+  "zai": {
+    "clearThinking": "Vorige gedachten wissen",
+    "searchQuery": "Zoekopdracht",
+    "searchQueryPlaceholder": "Zoekopdracht die webzoeken afdwingt",
+    "searchEngine": "Zoekmachine",
+    "resultCount": "Aantal resultaten",
+    "recencyFilter": "Tijdfilter",
+    "contentSize": "Contentgrootte",
+    "resultSequence": "Resultaatvolgorde",
+    "domainFilter": "Domeinfilter",
+    "returnSearchResults": "Zoekresultaten retourneren",
+    "requireSearchGrounding": "Zoekonderbouwing verplichten",
+    "searchPrompt": "Zoekprompt",
+    "searchPromptPlaceholder": "Optionele prompt voor het verwerken van zoekresultaten",
+    "toolStream": "Toolstream",
+    "thinkingTypes": {
+      "enabled": "Ingeschakeld",
+      "disabled": "Uitgeschakeld"
+    },
+    "searchEngines": {
+      "search_pro_jina": "Search Pro (Jina)"
+    },
+    "recencyFilters": {
+      "oneDay": "Afgelopen dag",
+      "oneWeek": "Afgelopen week",
+      "oneMonth": "Afgelopen maand",
+      "oneYear": "Afgelopen jaar",
+      "noLimit": "Geen limiet"
+    },
+    "contentSizes": {
+      "medium": "Gemiddeld",
+      "high": "Hoog"
+    },
+    "resultSequences": {
+      "before": "Voor het antwoord",
+      "after": "Na het antwoord"
+    }
+  },
   "xai": {
     "imageUnderstanding": "Begrip van afbeeldingen",
     "videoUnderstanding": "Begrip van video's",

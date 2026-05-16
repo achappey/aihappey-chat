@@ -92,8 +92,11 @@ export const WebCrawlerAPIChatConfigForm = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card size="small" title={t("providers:webcrawlerapi.agentRun", "Agent run")}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <theme.Card
+        size="small"
+        title={t("providers:webcrawlerapi.costs", "Costs")}
+      >
+        <div>
           <theme.Input
             label={t("providers:webcrawlerapi.maxSpendUsd", "Maximum spend (USD)")}
             type="number"
@@ -105,7 +108,14 @@ export const WebCrawlerAPIChatConfigForm = ({
               setConfigValue("max_spend_usd", parsePositiveNumber(e?.target?.value))
             }
           />
+        </div>
+      </theme.Card>
 
+      <theme.Card
+        size="small"
+        title={t("providers:webcrawlerapi.sources", "Sources")}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", gap: 8, alignItems: "end" }}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -122,6 +132,7 @@ export const WebCrawlerAPIChatConfigForm = ({
                   }}
                 />
               </div>
+
               <theme.Button
                 icon="add"
                 size="small"
@@ -160,6 +171,7 @@ export const WebCrawlerAPIChatConfigForm = ({
                   >
                     {url}
                   </div>
+
                   <theme.Button
                     icon="delete"
                     size="small"
@@ -170,16 +182,17 @@ export const WebCrawlerAPIChatConfigForm = ({
                 </div>
               ))}
             </div>
-
           </div>
 
           <theme.Switch
             id="webcrawlerapiSeedUrlsOnly"
-            disabled={urls?.length < 1}
+            disabled={urls.length < 1}
             checked={!!config?.seed_urls_only}
             label={t("providers:webcrawlerapi.seedUrlsOnly", "Use URLs only")}
             size="small"
-            onChange={(value) => setConfigValue("seed_urls_only", value ? true : undefined)}
+            onChange={(value) =>
+              setConfigValue("seed_urls_only", value ? true : undefined)
+            }
           />
         </div>
       </theme.Card>

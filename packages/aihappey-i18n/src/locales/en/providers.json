@@ -1,9 +1,10 @@
 {
   "webcrawlerapi": {
     "urls": "URLs",
+    "costs": "Pricing",
+    "sources": "Sources",
     "maxSpendUsd": "Maximum spend (USD)",
-    "seedUrlsOnly": "Use specified URLs only",
-    "agentRun": "Agent"
+    "seedUrlsOnly": "Use specified URLs only"
   },
   "venice": {
     "webSearchModes": {
@@ -356,6 +357,44 @@
     }
   },
   "xSearch": "Search on X",
+  "zai": {
+    "clearThinking": "Clear previous thinking",
+    "searchQuery": "Search query",
+    "searchQueryPlaceholder": "Query that forces web search",
+    "searchEngine": "Search engine",
+    "resultCount": "Result count",
+    "recencyFilter": "Recency filter",
+    "contentSize": "Content size",
+    "resultSequence": "Result sequence",
+    "domainFilter": "Domain filter",
+    "returnSearchResults": "Return search results",
+    "requireSearchGrounding": "Require search grounding",
+    "searchPrompt": "Search prompt",
+    "searchPromptPlaceholder": "Optional prompt for processing search results",
+    "toolStream": "Tool stream",
+    "thinkingTypes": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "searchEngines": {
+      "search_pro_jina": "Search Pro (Jina)"
+    },
+    "recencyFilters": {
+      "oneDay": "Past day",
+      "oneWeek": "Past week",
+      "oneMonth": "Past month",
+      "oneYear": "Past year",
+      "noLimit": "No limit"
+    },
+    "contentSizes": {
+      "medium": "Medium",
+      "high": "High"
+    },
+    "resultSequences": {
+      "before": "Before answer",
+      "after": "After answer"
+    }
+  },
   "xai": {
     "imageUnderstanding": "Image understanding",
     "videoUnderstanding": "Video understanding",
