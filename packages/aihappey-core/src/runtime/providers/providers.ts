@@ -264,7 +264,6 @@ import { nexusify } from "./catalog/nexusify";
 import { jatevo } from "./catalog/jatevo";
 import { litai } from "./catalog/litai";
 import { pixcode } from "./catalog/pixcode";
-import { answira } from "./catalog/answira";
 import { anannas } from "./catalog/anannas";
 import { apipod } from "./catalog/apipod";
 import { tokenflux } from "./catalog/tokenflux";
@@ -511,6 +510,7 @@ import { shareai } from "./catalog/shareai";
 import { token360 } from "./catalog/token360";
 import { webcrawlerapi } from "./catalog/webcrawlerapi";
 import { agentphone } from "./catalog/agentphone";
+import { tembo } from "./catalog/tembo";
 
 /**
  * UI-facing provider catalog.
@@ -521,6 +521,7 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
   api1sbs,
+  tembo,
   microsoft,
   wiro,
   tapas,
@@ -769,7 +770,6 @@ export const PROVIDERS: Record<string, Provider> = {
   docsrouter,
   tokenflux,
   anannas,
-  answira,
   jatevo,
   skillboss,
   ishi,
