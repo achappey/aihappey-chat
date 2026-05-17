@@ -522,6 +522,10 @@ import { anlinkai } from "./catalog/anlinkai";
 import { helyxai } from "./catalog/helyxai";
 import { anyrouter } from "./catalog/anyrouter";
 import { fred } from "./catalog/fred";
+import { pioneer } from "./catalog/pioneer";
+import { llmbase } from "./catalog/llmbase";
+import { skypooltoken } from "./catalog/skypooltoken";
+import { luminoai } from "./catalog/luminoai";
 
 /**
  * UI-facing provider catalog.
@@ -552,15 +556,19 @@ export const PROVIDERS: Record<string, Provider> = {
   aiapiworld,
   concentrate,
   moleapi,
+  skypooltoken,
+  luminoai,
   vibekit,
   groovedev,
   merge,
   zyloapi,
   opuscode,
+  pioneer,
   codzen,
   llama,
   blink,
   bleep,
+  llmbase,
   tensorblock,
   commonstack,
   paul,
