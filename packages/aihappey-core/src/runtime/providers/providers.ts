@@ -526,6 +526,10 @@ import { pioneer } from "./catalog/pioneer";
 import { llmbase } from "./catalog/llmbase";
 import { skypooltoken } from "./catalog/skypooltoken";
 import { luminoai } from "./catalog/luminoai";
+import { tokenhub } from "./catalog/tokenhub";
+import { myrouter } from "./catalog/myrouter";
+import { osiris } from "./catalog/osiris";
+import { sovrgpt } from "./catalog/sovrgpt";
 
 /**
  * UI-facing provider catalog.
@@ -548,6 +552,7 @@ export const PROVIDERS: Record<string, Provider> = {
   sapiom,
   agnesai,
   augure,
+  sovrgpt,
   forgebylana,
   brave,
   radiance,
@@ -556,8 +561,11 @@ export const PROVIDERS: Record<string, Provider> = {
   aiapiworld,
   concentrate,
   moleapi,
+  myrouter,
+  osiris,
   skypooltoken,
   luminoai,
+  tokenhub,
   vibekit,
   groovedev,
   merge,
