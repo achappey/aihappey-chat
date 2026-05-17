@@ -9,11 +9,18 @@ import { PerplexityDateSearchSettingsCardForm } from "./cards/PerplexityDateSear
 import { PerplexitySonarDeepResearchCardForm } from "./cards/PerplexitySonarDeepResearchCardForm";
 import { PerplexityMediaCardForm } from "./cards/PerplexityMediaCardForm";
 import { PerplexityFetchUrlCardForm } from "./cards/PerplexityFetchUrlCardForm";
+import { PerplexityFinanceSearchCardForm } from "./cards/PerplexityFinanceSearchCardForm";
+import { PerplexityPeopleSearchCardForm } from "./cards/PerplexityPeopleSearchCardForm";
 import { PerplexityReasoningCardForm } from "./cards/PerplexityReasoningCardForm";
 import { PerplexityAgentCardForm } from "./cards/PerplexityAgentCardForm";
 import { withResolvedProviderTools } from "../providerToolConfig";
 
-const PERPLEXITY_TOOL_TYPES = ["web_search", "fetch_url"];
+const PERPLEXITY_TOOL_TYPES = [
+  "web_search",
+  "fetch_url",
+  "finance_search",
+  "people_search",
+];
 
 export const PerplexityChatConfigForm = ({
   config,
@@ -45,6 +52,16 @@ export const PerplexityChatConfigForm = ({
       />
 
       <PerplexityFetchUrlCardForm config={resolvedConfig} updateConfig={updateConfig} />
+
+      <PerplexityFinanceSearchCardForm
+        config={resolvedConfig}
+        updateConfig={updateConfig}
+      />
+
+      <PerplexityPeopleSearchCardForm
+        config={resolvedConfig}
+        updateConfig={updateConfig}
+      />
 
       <PerplexityWebSearchCardForm config={config} updateConfig={updateConfig} />
 

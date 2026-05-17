@@ -7,7 +7,12 @@ const DEFAULT_WEB_SEARCH = {
   type: "web_search",
 };
 
-const PERPLEXITY_TOOL_TYPES = ["web_search", "fetch_url"];
+const PERPLEXITY_TOOL_TYPES = [
+  "web_search",
+  "fetch_url",
+  "finance_search",
+  "people_search",
+];
 
 const EMPTY_WEB_SEARCH = {
   ...DEFAULT_WEB_SEARCH,
