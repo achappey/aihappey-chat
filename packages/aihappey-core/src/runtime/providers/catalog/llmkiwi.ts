@@ -4,7 +4,7 @@ export const llmkiwi: Provider = {
   name: "LLMkiwi",
   description: "Build with LLM.kiwi using AI tools, a transparent model catalog, and an OpenAI-compatible API for production chat and automation workflows.",
   icons: [{
-    src: "https://llm.kiwi/logo.svg"
+    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRr8Sl-_UVZUl2_tGQXMZY4fFmBcGAmjtrFBg&s"
   }],
   urls: {
     homepage: "https://llm.kiwi",

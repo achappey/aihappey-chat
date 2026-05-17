@@ -517,6 +517,11 @@ import { bytespace } from "./catalog/bytespace";
 import { runcrate } from "./catalog/runcrate";
 import { mulerouter } from "./catalog/mulerouter";
 import { mixlayer } from "./catalog/mixlayer";
+import { alltoken } from "./catalog/alltoken";
+import { anlinkai } from "./catalog/anlinkai";
+import { helyxai } from "./catalog/helyxai";
+import { anyrouter } from "./catalog/anyrouter";
+import { fred } from "./catalog/fred";
 
 /**
  * UI-facing provider catalog.
@@ -579,11 +584,15 @@ export const PROVIDERS: Record<string, Provider> = {
   moltkey,
   eugpt,
   cairocoder,
+  fred,
+  anyrouter,
   geekai,
   finora,
   baystone,
   lxg2it,
   runway,
+  helyxai,
+  anlinkai,
   mumeai,
   gatemind,
   nebulablock,
@@ -976,6 +985,7 @@ export const PROVIDERS: Record<string, Provider> = {
   assemblyai,
   mixlayer,
   gladia,
+  alltoken,
   clod,
   cheapestinference,
   wai,
