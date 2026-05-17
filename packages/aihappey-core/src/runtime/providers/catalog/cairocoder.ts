@@ -8,7 +8,7 @@ export const cairocoder: Provider = {
   }],
   urls: {
     homepage: "https://www.cairo-coder.com",
-    docs: "https://book.cairo-lang.org",
+    docs: "https://www.cairo-coder.com/docs",
     console: "https://www.cairo-coder.com/dashboard",
     termsOfService: "https://kasar.io/pages/terms-and-conditions"
   },

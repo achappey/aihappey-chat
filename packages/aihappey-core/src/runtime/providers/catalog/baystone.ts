@@ -8,7 +8,6 @@ export const baystone: Provider = {
   }],
   urls: {
     homepage: "https://www.baystoneai.com",
-    docs: "https://dsdocs.baystoneai.com/docs",
     termsOfService: "https://www.baystoneai.com/legal"
   },
   providerCountry: "CN",
