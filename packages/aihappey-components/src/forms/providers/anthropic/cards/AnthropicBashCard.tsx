@@ -28,7 +28,7 @@ export const AnthropicBashCard = ({
   return (
     <theme.Card
       size="small"
-      title={t("providers:anthropic.shell")}
+      title={"Bash"}
       headerActions={
         <theme.Switch
           id="anthropic-bash"

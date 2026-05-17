@@ -123,6 +123,7 @@ export const AnthropicSharedToolFields = ({
       <div
         style={{
           display: "grid",
+          gap: 12,
           gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
           width: "100%",
         }}

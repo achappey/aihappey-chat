@@ -171,7 +171,7 @@ export const OpenRouterChatConfigForm = ({
   const twoColumnGrid = {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: 0,
+    gap: 12,
     width: "100%",
     alignItems: "end",
   } as const;
