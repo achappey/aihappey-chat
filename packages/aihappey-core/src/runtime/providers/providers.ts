@@ -168,7 +168,6 @@ import { smallestai } from "./catalog/smallestai";
 import { orqrouter } from "./catalog/orqrouter";
 import { typecast } from "./catalog/typecast";
 import { unrealspeech } from "./catalog/unrealspeech";
-import { kugu } from "./catalog/kugu";
 import { everypixellabs } from "./catalog/everypixellabs";
 import { supertone } from "./catalog/supertone";
 import { uvoiceai } from "./catalog/uvoiceai";
@@ -274,7 +273,6 @@ import { llmwise } from "./catalog/llmwise";
 import { casedev } from "./catalog/casedev";
 import { smartaipi } from "./catalog/smartaipi";
 import { apiairforce } from "./catalog/apiairforce";
-import { lava } from "./catalog/lava";
 import { multiverseai } from "./catalog/multiverseai";
 import { modelrouter } from "./catalog/modelrouter";
 import { rime } from "./catalog/rime";
@@ -792,7 +790,6 @@ export const PROVIDERS: Record<string, Provider> = {
   rime,
   kirha,
   modelrouter,
-  lava,
   casedev,
   multiverseai,
   smartaipi,
@@ -884,7 +881,6 @@ export const PROVIDERS: Record<string, Provider> = {
   fishaudio,
   netmind,
   apiyi,
-  kugu,
   zenmux,
   smallestai,
   rekaai,
