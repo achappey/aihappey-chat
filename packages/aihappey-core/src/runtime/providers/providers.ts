@@ -530,6 +530,7 @@ import { tokenhub } from "./catalog/tokenhub";
 import { myrouter } from "./catalog/myrouter";
 import { osiris } from "./catalog/osiris";
 import { sovrgpt } from "./catalog/sovrgpt";
+import { doubleword } from "./catalog/doubleword";
 
 /**
  * UI-facing provider catalog.
@@ -539,6 +540,7 @@ import { sovrgpt } from "./catalog/sovrgpt";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
+  doubleword,
   api1sbs,
   tembo,
   microsoft,
