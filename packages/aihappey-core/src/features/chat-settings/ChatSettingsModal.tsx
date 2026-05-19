@@ -17,6 +17,7 @@ import {
   LocalToolsSettingsForm,
   MicrosoftChatConfigForm,
   MistralChatConfigForm, OpenAIChatConfigForm,
+  OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
   PollinationsChatConfigForm,
@@ -26,6 +27,7 @@ import {
   RequestyChatConfigForm,
   VeniceChatConfigForm,
   WebCrawlerAPIChatConfigForm,
+  XiaomiMIMOChatConfigForm,
   ZaiChatConfigForm,
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
@@ -187,6 +189,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       microsoft: (microsoft: any) => updateProviderConfig("microsoft", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
       openai: (openai: any) => updateProviderConfig("openai", openai),
+      openhands: (openhands: any) => updateProviderConfig("openhands", openhands),
       openrouter: (openrouter: any) => updateProviderConfig("openrouter", openrouter),
       pollinations: (pollinations: any) => updateProviderConfig("pollinations", pollinations),
       perplexity: (perplexity: any) => updateProviderConfig("perplexity", perplexity),
@@ -197,6 +200,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       venice: (venice: any) => updateProviderConfig("venice", venice),
       linkup: (linkup: any) => updateProviderConfig("linkup", linkup),
       webcrawlerapi: (webcrawlerapi: any) => updateProviderConfig("webcrawlerapi", webcrawlerapi),
+      xiaomimimo: (xiaomimimo: any) => updateProviderConfig("xiaomimimo", xiaomimimo),
       zai: (zai: any) => updateProviderConfig("zai", zai),
     }),
     [updateProviderConfig]
@@ -489,6 +493,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
 
           </theme.Tab>
         }
+        {enabledProviders.includes("OpenHands") &&
+          <theme.Tab eventKey="openhands" title="OpenHands">
+            {activeTab === "openhands" ? (
+              <OpenHandsChatConfigForm
+                config={draft.providerMetadata.openhands ?? {}}
+                updateConfig={providerConfigUpdaters.openhands}
+              />
+            ) : null}
+          </theme.Tab>
+        }
         {enabledProviders.includes("OpenRouter") &&
           <theme.Tab eventKey="openrouter" title="OpenRouter">
             {activeTab === "openrouter" ? (
@@ -602,6 +616,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <XAIChatConfigForm
                 config={draft.providerMetadata.xai ?? {}}
                 updateConfig={providerConfigUpdaters.xai}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("XiaomiMIMO") &&
+          <theme.Tab eventKey="xiaomimimo" title="XiaomiMIMO">
+            {activeTab === "xiaomimimo" ? (
+              <XiaomiMIMOChatConfigForm
+                config={draft.providerMetadata.xiaomimimo ?? {}}
+                updateConfig={providerConfigUpdaters.xiaomimimo}
               />
             ) : null}
           </theme.Tab>

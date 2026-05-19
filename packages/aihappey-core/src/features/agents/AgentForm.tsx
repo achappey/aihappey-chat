@@ -1,4 +1,4 @@
-import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
@@ -494,6 +494,13 @@ export const AgentForm = ({
                         />
                     )}
 
+                    {providerKey === "openhands" && (
+                        <OpenHandsChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
                     {providerKey === "openrouter" && (
                         <OpenRouterChatConfigForm
                             config={providerMeta}
@@ -611,6 +618,13 @@ export const AgentForm = ({
 
                     {providerKey === "xai" && (
                         <XAIChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "xiaomimimo" && (
+                        <XiaomiMIMOChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

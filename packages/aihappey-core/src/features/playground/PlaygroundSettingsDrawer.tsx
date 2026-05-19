@@ -14,6 +14,7 @@ import {
   MicrosoftChatConfigForm,
   MistralChatConfigForm,
   OpenAIChatConfigForm,
+  OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
   PollinationsChatConfigForm,
@@ -26,6 +27,7 @@ import {
   RequestyChatConfigForm,
   VeniceChatConfigForm,
   WebCrawlerAPIChatConfigForm,
+  XiaomiMIMOChatConfigForm,
   ZaiChatConfigForm,
 } from "aihappey-components";
 import type { PlaygroundEndpointConfigMap } from "aihappey-clients";
@@ -165,6 +167,8 @@ export const PlaygroundSettingsDrawer = ({
             updateConfig={updateProviderConfig}
           />
         );
+      case "openhands":
+        return <OpenHandsChatConfigForm config={providerMetadata.openhands ?? {}} updateConfig={updateProviderConfig} />;
       case "openrouter":
         return <OpenRouterChatConfigForm config={providerMetadata.openrouter ?? {}} appTitle={appTitle} updateConfig={updateProviderConfig} />;
       case "requesty":
@@ -185,6 +189,8 @@ export const PlaygroundSettingsDrawer = ({
         return <WebCrawlerAPIChatConfigForm config={providerMetadata.webcrawlerapi ?? {}} updateConfig={updateProviderConfig} />;
       case "xai":
         return <XAIChatConfigForm config={providerMetadata.xai ?? {}} updateConfig={updateProviderConfig} />;
+      case "xiaomimimo":
+        return <XiaomiMIMOChatConfigForm config={providerMetadata.xiaomimimo ?? {}} updateConfig={updateProviderConfig} />;
       case "zai":
         return <ZaiChatConfigForm config={providerMetadata.zai ?? {}} updateConfig={updateProviderConfig} />;
       default:
