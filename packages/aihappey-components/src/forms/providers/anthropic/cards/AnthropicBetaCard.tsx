@@ -23,7 +23,8 @@ const BETA_OPTIONS = [
     "fast-mode-2026-02-01",
     "user-profiles-2026-03-24",
     "output-300k-2026-03-24",
-    "advisor-tool-2026-03-01"
+    "advisor-tool-2026-03-01",
+    "cache-diagnosis-2026-04-07"
 ];
 
 const parseAnthropicBeta = (value: unknown): string[] => {
