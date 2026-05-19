@@ -194,11 +194,11 @@ export const defaultProviderMetadata = {
     "enable_thinking": true
   },
   "sambanova": {
-    "reasoning_effort": "medium",
+    "reasoning": {
+      "effort": "medium"
+    },
+    "truncation": "auto",
     "parallel_tool_calls": true,
-    "chat_template_kwargs": {
-      "enable_thinking": true
-    }
   },
   "venice": {
     "reasoning": undefined,

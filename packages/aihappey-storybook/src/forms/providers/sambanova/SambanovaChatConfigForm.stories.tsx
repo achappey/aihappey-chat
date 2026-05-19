@@ -29,11 +29,11 @@ export const Populated: Story = {
   render: () => (
     <Wrapper
       config={{
-        reasoning_effort: "medium",
-        parallel_tool_calls: true,
-        chat_template_kwargs: {
-          enable_thinking: true,
+        reasoning: {
+          effort: "medium",
         },
+        truncation: "disabled",
+        parallel_tool_calls: true,
       }}
     />
   ),

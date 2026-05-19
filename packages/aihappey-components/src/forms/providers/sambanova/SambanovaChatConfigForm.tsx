@@ -1,21 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "aihappey-i18n";
 
 import { useTheme } from "../../../theme/ThemeContext";
 
 const EFFORTS = ["low", "medium", "high"] as const;
 type Effort = (typeof EFFORTS)[number];
+const TRUNCATION_OPTIONS = ["auto", "disabled"] as const;
+type Truncation = (typeof TRUNCATION_OPTIONS)[number];
 
 const DEFAULT_REASONING_EFFORT: Effort = "medium";
-const DEFAULT_CHAT_TEMPLATE_KWARGS = { enable_thinking: true };
-
-function safeStringify(value: unknown) {
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return "";
-  }
-}
 
 export const SambanovaChatConfigForm = ({
   config,
@@ -27,9 +20,11 @@ export const SambanovaChatConfigForm = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const reasoningOn = config?.reasoning_effort !== undefined;
+  const reasoningOn = config?.reasoning !== undefined;
+  const reasoningEffort = config?.reasoning?.effort;
+  const truncationValue = config?.truncation ?? "disabled";
 
-  const options = useMemo(
+  const reasoningOptions = useMemo(
     () =>
       EFFORTS.map((v) => ({
         value: v,
@@ -38,20 +33,14 @@ export const SambanovaChatConfigForm = ({
     [t]
   );
 
-  const [chatTemplateText, setChatTemplateText] = useState<string>(
-    safeStringify(config?.chat_template_kwargs ?? DEFAULT_CHAT_TEMPLATE_KWARGS)
+  const truncationOptions = useMemo(
+    () =>
+      TRUNCATION_OPTIONS.map((value) => ({
+        value,
+        label: t(`providers:openai.truncation.${value}`),
+      })),
+    [t]
   );
-  const [chatTemplateError, setChatTemplateError] = useState<string | undefined>(
-    undefined
-  );
-
-  // Keep textarea in sync when config changes externally (eg restore defaults).
-  useEffect(() => {
-    setChatTemplateText(
-      safeStringify(config?.chat_template_kwargs ?? DEFAULT_CHAT_TEMPLATE_KWARGS)
-    );
-    setChatTemplateError(undefined);
-  }, [config?.chat_template_kwargs]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -65,7 +54,7 @@ export const SambanovaChatConfigForm = ({
             onChange={(val) =>
               updateConfig({
                 ...config,
-                reasoning_effort: val ? DEFAULT_REASONING_EFFORT : undefined,
+                reasoning: val ? { effort: DEFAULT_REASONING_EFFORT } : undefined,
               })
             }
           />
@@ -74,22 +63,22 @@ export const SambanovaChatConfigForm = ({
         <div>
           <theme.Select
             label={t("reasoningEffort", {
-              reasoningEffort: t(config?.reasoning_effort ?? "none"),
+              reasoningEffort: t(reasoningEffort ?? "none"),
             })}
             disabled={!reasoningOn}
-            values={[config?.reasoning_effort ?? ""]}
+            values={[reasoningEffort ?? ""]}
             valueTitle={
-              options.find((o) => o.value === config?.reasoning_effort)?.label
+              reasoningOptions.find((o) => o.value === reasoningEffort)?.label
             }
-            options={options}
+            options={reasoningOptions}
             onChange={(val: string) =>
               updateConfig({
                 ...config,
-                reasoning_effort: val as Effort,
+                reasoning: { effort: val as Effort },
               })
             }
           >
-            {options.map((o) => (
+            {reasoningOptions.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
@@ -98,29 +87,24 @@ export const SambanovaChatConfigForm = ({
         </div>
       </theme.Card>
 
-      <theme.TextArea
-        label={t("providers:sambanova.chat_template_kwargs")}
-        placeholder={t("providers:sambanova.chat_template_kwargs_placeholder")}
-        rows={8}
-        hint={chatTemplateError ? t("providers:sambanova.invalid_json") + chatTemplateError : undefined}
-        value={chatTemplateText}
-        onChange={(value) => {
-          setChatTemplateText(value);
-
-          try {
-            const parsed = JSON.parse(value);
-            setChatTemplateError(undefined);
-            updateConfig({
-              ...config,
-              chat_template_kwargs: parsed,
-            });
-          } catch (e: any) {
-            // Keep raw text, but do not mutate config until JSON is valid.
-            setChatTemplateError(e?.message ?? "Invalid JSON");
-          }
-        }}
-      />
-
+      <theme.Select
+        label={t("providers:openai.truncation.title")}
+        values={[truncationValue]}
+        valueTitle={t(`providers:openai.truncation.${truncationValue}`)}
+        options={truncationOptions}
+        onChange={(value: string) =>
+          updateConfig({
+            ...config,
+            truncation: String(value ?? "disabled") as Truncation,
+          })
+        }
+      >
+        {truncationOptions.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </theme.Select>
 
       <theme.Switch
         id="sambanova_parallel_tool_calls"
