@@ -530,6 +530,7 @@ import { osiris } from "./catalog/osiris";
 import { sovrgpt } from "./catalog/sovrgpt";
 import { doubleword } from "./catalog/doubleword";
 import { openhands } from "./catalog/openhands";
+import { poolside } from "./catalog/poolside";
 
 /**
  * UI-facing provider catalog.
@@ -542,6 +543,7 @@ export const PROVIDERS: Record<string, Provider> = {
   doubleword,
   api1sbs,
   tembo,
+  poolside,
   microsoft,
   wiro,
   tapas,
