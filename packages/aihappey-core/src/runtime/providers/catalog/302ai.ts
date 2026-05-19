@@ -11,7 +11,7 @@ export const ai302: Provider = {
   urls: {
     homepage: "https://302.ai",
     pricing: "https://302.ai/price",
-    docs: "https://doc.302.ai",
+    docs: "https://302ai-en.apifox.cn",
     privacyPolicy: "https://302.ai/legal/privacy",
     termsOfService: "https://302.ai/legal/terms"
   },

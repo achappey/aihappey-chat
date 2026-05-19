@@ -529,6 +529,7 @@ import { myrouter } from "./catalog/myrouter";
 import { osiris } from "./catalog/osiris";
 import { sovrgpt } from "./catalog/sovrgpt";
 import { doubleword } from "./catalog/doubleword";
+import { openhands } from "./catalog/openhands";
 
 /**
  * UI-facing provider catalog.
@@ -971,6 +972,7 @@ export const PROVIDERS: Record<string, Provider> = {
   openrouter,
   cambai,
   infraxa,
+  openhands,
   ai302,
   crazyrouter,
   aether,
