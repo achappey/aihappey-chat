@@ -23,6 +23,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const showActivities = useAppStore((a) => a.showActivities);
   const toggleActivities = useAppStore((a) => a.toggleActivities);
   const models = useAppStore((a) => a.models);
+  const modelsLoaded = useAppStore((a) => a.modelsLoaded);
   const chatMode = useAppStore((a) => a.chatMode);
   const { t } = useTranslation()
   const allAgents = useAppStore((a) => a.agents);
@@ -33,9 +34,10 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const chatWithVideoModels = useAppStore((a: any) => a.chatWithVideoModels);
   const chatWithSpeechModels = useAppStore((a) => a.chatWithSpeechModels);
   const chatWithTranscriptionModels = useAppStore((a) => a.chatWithTranscriptionModels);
-  const { Switch, ToggleButton } = useTheme();
+  const { Switch, ToggleButton, Skeleton } = useTheme();
   const account = useAccount();
   const { pathname } = useLocation();
+  const hasLoadedModels = modelsLoaded && (models?.length ?? 0) > 0;
 
   const modelTypes = [
     "language",
@@ -80,12 +82,19 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           values={agentValues ?? []}
           onChange={onAgentChange}
         />}
-        {chatMode == "chat" && <ModelSelect
-          models={models ?? []}
-          modelTypes={modelTypes}
-          value={selectedModel ?? ""}
-          onChange={setSelectedModel}
-        />}
+        {chatMode == "chat" && !modelsLoaded ? (
+          <div style={{ width: "clamp(170px, 24vw, 260px)" }}>
+            <Skeleton width="100%" height={32} />
+          </div>
+        ) : null}
+        {chatMode == "chat" && hasLoadedModels ? (
+          <ModelSelect
+            models={models ?? []}
+            modelTypes={modelTypes}
+            value={selectedModel ?? ""}
+            onChange={setSelectedModel}
+          />
+        ) : null}
         <div style={{ flex: 1 }} />
         {pathname != "" && pathname != "/" ? (
           <Switch
