@@ -227,7 +227,6 @@ import { nearai } from "./catalog/nearai";
 import { parallel } from "./catalog/parallel";
 import { nanogpt } from "./catalog/nanogpt";
 import { aibramha } from "./catalog/aibramha";
-import { ghostbot } from "./catalog/ghostbot";
 import { routmy } from "./catalog/routmy";
 import { poe } from "./catalog/poe";
 import { askarc } from "./catalog/askarc";
@@ -828,7 +827,6 @@ export const PROVIDERS: Record<string, Provider> = {
   apekey,
   askarc,
   poe,
-  ghostbot,
   aisa,
   everypixellabs,
   routmy,

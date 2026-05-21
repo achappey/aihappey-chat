@@ -4,7 +4,7 @@ export const jassieai: Provider = {
   name: "JassieAI",
   description: "Access text, image, video, audio, and code generation models through a single, unified API.",
   icons: [{
-    src: "https://jassie.ai/assets/favicon-MlXTe4Yc.svg"
+    src: "https://jassie.ai/favicon.svg"
   }],
   urls: {
     homepage: "https://jassie.ai",
