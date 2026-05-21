@@ -605,6 +605,35 @@
       "aspect_ratio": "Aspect ratio",
       "image_size": "Image size"
     },
+    "environment": {
+      "title": "Environment (Agents)",
+      "description": "Configure a managed Linux sandbox for Google agents. Without sources or network settings, a fresh remote environment is used.",
+      "environmentId": "Environment ID",
+      "environmentIdHelp": "When an environment ID is set, sources and network settings are disabled and the existing sandbox is reused.",
+      "sources": "Sources",
+      "sourceType": "Source type",
+      "source": "Source",
+      "target": "Target path",
+      "inlineContent": "Inline content",
+      "addSource": "Add source",
+      "noSources": "No sources configured. Add repositories, Cloud Storage paths, or inline files to mount them in a new sandbox.",
+      "network": "Network",
+      "networkMode": "Network mode",
+      "allowlistHelp": "When allowlist is selected, only listed domains are allowed. Add * as a catch-all entry to allow remaining traffic.",
+      "domain": "Domain",
+      "transform": "Header transform JSON",
+      "addAllowlistRule": "Add rule",
+      "sourceTypes": {
+        "repository": "Git repository",
+        "gcs": "Cloud Storage",
+        "inline": "Inline content"
+      },
+      "networkModes": {
+        "default": "Default unrestricted access",
+        "disabled": "Disabled",
+        "allowlist": "Allowlist"
+      }
+    },
     "service_tier": "Service tier",
     "voice": "Voice",
     "language": "Language",

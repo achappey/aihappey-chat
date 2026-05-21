@@ -429,6 +429,35 @@
       "aspect_ratio": "Beeldverhouding",
       "image_size": "Afbeeldingsgrootte"
     },
+    "environment": {
+      "title": "Omgeving (Agents)",
+      "description": "Configureer een beheerde Linux-sandbox voor Google-agents. Zonder bronnen of netwerkinstellingen wordt een nieuwe externe omgeving gebruikt.",
+      "environmentId": "Omgevings-ID",
+      "environmentIdHelp": "Wanneer een omgevings-ID is ingesteld, worden bronnen en netwerkinstellingen uitgeschakeld en wordt de bestaande sandbox hergebruikt.",
+      "sources": "Bronnen",
+      "sourceType": "Brontype",
+      "source": "Bron",
+      "target": "Doelpad",
+      "inlineContent": "Inline-inhoud",
+      "addSource": "Bron toevoegen",
+      "noSources": "Geen bronnen geconfigureerd. Voeg repositories, Cloud Storage-paden of inline bestanden toe om ze in een nieuwe sandbox te koppelen.",
+      "network": "Netwerk",
+      "networkMode": "Netwerkmodus",
+      "allowlistHelp": "Wanneer allowlist is geselecteerd, zijn alleen vermelde domeinen toegestaan. Voeg * toe als catch-all om overig verkeer toe te staan.",
+      "domain": "Domein",
+      "transform": "Headertransformatie JSON",
+      "addAllowlistRule": "Regel toevoegen",
+      "sourceTypes": {
+        "repository": "Git-repository",
+        "gcs": "Cloud Storage",
+        "inline": "Inline-inhoud"
+      },
+      "networkModes": {
+        "default": "Standaard onbeperkte toegang",
+        "disabled": "Uitgeschakeld",
+        "allowlist": "Allowlist"
+      }
+    },
     "service_tier": "Servicelaag",
     "voice": "Stem",
     "language": "Taal",

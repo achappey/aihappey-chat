@@ -2,6 +2,7 @@
 
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
+import { GoogleEnvironmentCard } from "./GoogleEnvironmentCard";
 import {
   buildCanonicalProviderToolsConfig,
   withResolvedProviderTools,
@@ -571,6 +572,8 @@ export const GoogleChatConfigForm = ({
           />
         }
       />
+
+      <GoogleEnvironmentCard config={resolvedConfig} updateConfig={submitConfig} />
 
       <theme.Card
         size="small"
