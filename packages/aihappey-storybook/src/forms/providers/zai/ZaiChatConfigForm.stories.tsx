@@ -27,6 +27,17 @@ export const Populated: Story = {
           type: "enabled",
           clear_thinking: true,
         },
+        custom_variables: {
+          source_lang: "auto",
+          target_lang: "en",
+          strategy: "general",
+          glossary: "product-glossary",
+          strategy_config: {
+            general: {
+              suggestion: "Keep product names unchanged and use a concise professional tone.",
+            },
+          },
+        },
         tool_stream: true,
         tools: [
           {
@@ -51,3 +62,14 @@ export const Populated: Story = {
   ),
 };
 
+export const PopularSpecialEffectsVideos: Story = {
+  render: () => (
+    <Template
+      initial={{
+        custom_variables: {
+          template: "french_kiss",
+        },
+      }}
+    />
+  ),
+};

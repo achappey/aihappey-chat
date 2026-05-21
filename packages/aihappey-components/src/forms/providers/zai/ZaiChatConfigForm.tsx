@@ -17,18 +17,197 @@ const SEARCH_RECENCY_FILTER_OPTIONS = [
 ] as const;
 const CONTENT_SIZE_OPTIONS = ["medium", "high"] as const;
 const RESULT_SEQUENCE_OPTIONS = ["before", "after"] as const;
+const TRANSLATION_SOURCE_LANGUAGE_OPTIONS = [
+  "auto",
+  "zh-CN",
+  "zh-TW",
+  "wyw",
+  "yue",
+  "en",
+  "ja",
+  "ko",
+  "fr",
+  "de",
+  "es",
+  "ru",
+  "pt",
+  "it",
+  "ar",
+  "hi",
+  "bg",
+  "cs",
+  "da",
+  "el",
+  "et",
+  "fi",
+  "hu",
+  "id",
+  "lt",
+  "lv",
+  "nl",
+  "no",
+  "pl",
+  "ro",
+  "sk",
+  "sl",
+  "sv",
+  "th",
+  "tr",
+  "uk",
+  "vi",
+  "my",
+  "ms",
+  "Pinyin",
+  "IPA",
+] as const;
+const TRANSLATION_TARGET_LANGUAGE_OPTIONS = [
+  "zh-CN",
+  "zh-TW",
+  "wyw",
+  "yue",
+  "en",
+  "en-GB",
+  "en-US",
+  "ja",
+  "ko",
+  "fr",
+  "de",
+  "es",
+  "ru",
+  "pt",
+  "it",
+  "ar",
+  "hi",
+  "bg",
+  "cs",
+  "da",
+  "el",
+  "et",
+  "fi",
+  "hu",
+  "id",
+  "lt",
+  "lv",
+  "nl",
+  "no",
+  "pl",
+  "ro",
+  "sk",
+  "sl",
+  "sv",
+  "th",
+  "tr",
+  "uk",
+  "vi",
+  "my",
+  "ms",
+  "Pinyin",
+  "IPA",
+] as const;
+const TRANSLATION_STRATEGY_OPTIONS = [
+  "general",
+  "paraphrase",
+  "two_step",
+  "three_step",
+  "reflection",
+  "cot",
+] as const;
+const TRANSLATION_REASON_LANGUAGE_OPTIONS = ["from", "to"] as const;
+const VIDEO_TEMPLATE_OPTIONS = ["french_kiss", "bodyshake", "sexy_me"] as const;
+
+const TRANSLATION_LANGUAGE_LABELS: Record<
+  (typeof TRANSLATION_SOURCE_LANGUAGE_OPTIONS)[number] | (typeof TRANSLATION_TARGET_LANGUAGE_OPTIONS)[number],
+  string
+> = {
+  auto: "Auto Detect",
+  "zh-CN": "Simplified Chinese",
+  "zh-TW": "Traditional Chinese",
+  wyw: "Classical Chinese",
+  yue: "Cantonese",
+  en: "English",
+  "en-GB": "English (British)",
+  "en-US": "English (American)",
+  ja: "Japanese",
+  ko: "Korean",
+  fr: "French",
+  de: "German",
+  es: "Spanish",
+  ru: "Russian",
+  pt: "Portuguese",
+  it: "Italian",
+  ar: "Arabic",
+  hi: "Hindi",
+  bg: "Bulgarian",
+  cs: "Czech",
+  da: "Danish",
+  el: "Greek",
+  et: "Estonian",
+  fi: "Finnish",
+  hu: "Hungarian",
+  id: "Indonesian",
+  lt: "Lithuanian",
+  lv: "Latvian",
+  nl: "Dutch",
+  no: "Norwegian Bokmål",
+  pl: "Polish",
+  ro: "Romanian",
+  sk: "Slovak",
+  sl: "Slovenian",
+  sv: "Swedish",
+  th: "Thai",
+  tr: "Turkish",
+  uk: "Ukrainian",
+  vi: "Vietnamese",
+  my: "Burmese",
+  ms: "Malay",
+  Pinyin: "Pinyin",
+  IPA: "International Phonetic Alphabet",
+};
+
+const VIDEO_TEMPLATE_LABELS: Record<(typeof VIDEO_TEMPLATE_OPTIONS)[number], string> = {
+  french_kiss: "French Kiss",
+  bodyshake: "Body Shake Dance",
+  sexy_me: "Sexy Me",
+};
 
 type ThinkingType = (typeof THINKING_TYPES)[number];
 type SearchEngine = (typeof SEARCH_ENGINE_OPTIONS)[number];
 type SearchRecencyFilter = (typeof SEARCH_RECENCY_FILTER_OPTIONS)[number];
 type ContentSize = (typeof CONTENT_SIZE_OPTIONS)[number];
 type ResultSequence = (typeof RESULT_SEQUENCE_OPTIONS)[number];
+type TranslationSourceLanguage = (typeof TRANSLATION_SOURCE_LANGUAGE_OPTIONS)[number];
+type TranslationTargetLanguage = (typeof TRANSLATION_TARGET_LANGUAGE_OPTIONS)[number];
+type TranslationStrategy = (typeof TRANSLATION_STRATEGY_OPTIONS)[number];
+type TranslationReasonLanguage = (typeof TRANSLATION_REASON_LANGUAGE_OPTIONS)[number];
+type VideoTemplate = (typeof VIDEO_TEMPLATE_OPTIONS)[number];
+
+type ZaiTranslationCustomVariables = {
+  source_lang?: TranslationSourceLanguage;
+  target_lang?: TranslationTargetLanguage;
+  glossary?: string;
+  strategy?: TranslationStrategy;
+  strategy_config?: {
+    general?: {
+      suggestion?: string;
+    };
+    cot?: {
+      reason_lang?: TranslationReasonLanguage;
+    };
+  };
+};
+
+type ZaiVideoTemplateCustomVariables = {
+  template?: VideoTemplate;
+};
+
+type ZaiAgentCustomVariables = ZaiTranslationCustomVariables | ZaiVideoTemplateCustomVariables;
 
 export type ZaiChatConfig = {
   thinking?: {
     type?: ThinkingType;
     clear_thinking?: boolean;
   };
+  custom_variables?: ZaiAgentCustomVariables;
   tool_stream?: boolean;
   tools?: Array<{
     type: "web_search";
@@ -68,6 +247,18 @@ const DEFAULT_WEB_SEARCH = {
   },
 };
 
+const DEFAULT_TRANSLATION_CUSTOM_VARIABLES: Required<
+  Pick<ZaiTranslationCustomVariables, "source_lang" | "target_lang" | "strategy">
+> = {
+  source_lang: "auto",
+  target_lang: "en",
+  strategy: "general",
+};
+
+const DEFAULT_VIDEO_TEMPLATE_CUSTOM_VARIABLES: Required<ZaiVideoTemplateCustomVariables> = {
+  template: "french_kiss",
+};
+
 const twoColumnGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
@@ -93,6 +284,48 @@ const optionalString = (value: string) => {
   return trimmed ? trimmed : undefined;
 };
 
+const isVideoTemplateCustomVariables = (
+  customVariables?: ZaiAgentCustomVariables
+): customVariables is ZaiVideoTemplateCustomVariables => !!customVariables && "template" in customVariables;
+
+const isVideoTemplate = (value?: string): value is VideoTemplate =>
+  VIDEO_TEMPLATE_OPTIONS.includes(value as VideoTemplate);
+
+const normalizeTranslationCustomVariables = (
+  customVariables?: ZaiTranslationCustomVariables
+): ZaiTranslationCustomVariables => {
+  const strategy = customVariables?.strategy ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.strategy;
+  const glossary = optionalString(customVariables?.glossary ?? "");
+  const suggestion = optionalString(customVariables?.strategy_config?.general?.suggestion ?? "");
+  const strategyConfig: NonNullable<ZaiTranslationCustomVariables["strategy_config"]> = {};
+
+  if (strategy === "general" && suggestion) {
+    strategyConfig.general = { suggestion };
+  }
+
+  if (strategy === "cot") {
+    strategyConfig.cot = {
+      reason_lang: customVariables?.strategy_config?.cot?.reason_lang ?? "to",
+    };
+  }
+
+  return {
+    source_lang: customVariables?.source_lang ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.source_lang,
+    target_lang: customVariables?.target_lang ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.target_lang,
+    ...(glossary ? { glossary } : {}),
+    strategy,
+    ...(Object.keys(strategyConfig).length ? { strategy_config: strategyConfig } : {}),
+  };
+};
+
+const normalizeVideoTemplateCustomVariables = (
+  customVariables?: ZaiVideoTemplateCustomVariables
+): Required<ZaiVideoTemplateCustomVariables> => ({
+  template: isVideoTemplate(customVariables?.template)
+    ? customVariables.template
+    : DEFAULT_VIDEO_TEMPLATE_CUSTOM_VARIABLES.template,
+});
+
 export const ZaiChatConfigForm = ({
   config,
   updateConfig,
@@ -103,17 +336,46 @@ export const ZaiChatConfigForm = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const resolvedConfig = withResolvedProviderTools(config, ZAI_TOOL_TYPES);
-  const submitConfig = (nextConfig: any) =>
-    updateConfig(buildCanonicalProviderToolsConfig(nextConfig, ZAI_TOOL_TYPES));
+  const submitConfig = (nextConfig: any) => {
+    const canonicalConfig = buildCanonicalProviderToolsConfig(nextConfig, ZAI_TOOL_TYPES);
+
+    if (canonicalConfig.custom_variables === undefined) {
+      delete canonicalConfig.custom_variables;
+    }
+
+    updateConfig(canonicalConfig);
+  };
 
   const thinkingOn = !!resolvedConfig?.thinking;
   const webSearchOn = !!resolvedConfig?.web_search;
+  const videoTemplateOn = isVideoTemplateCustomVariables(resolvedConfig?.custom_variables);
+  const translationOn = !!resolvedConfig?.custom_variables && !videoTemplateOn;
   const webSearch = {
     ...DEFAULT_WEB_SEARCH.web_search,
     ...(resolvedConfig?.web_search?.web_search ?? {}),
     enable: true,
   };
+  const translationCustomVariables = normalizeTranslationCustomVariables(
+    resolvedConfig?.custom_variables ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES
+  );
+  const videoTemplateCustomVariables = normalizeVideoTemplateCustomVariables(
+    isVideoTemplateCustomVariables(resolvedConfig?.custom_variables)
+      ? resolvedConfig.custom_variables
+      : DEFAULT_VIDEO_TEMPLATE_CUSTOM_VARIABLES
+  );
   const thinkingType = (resolvedConfig?.thinking?.type ?? DEFAULT_THINKING.type) as ThinkingType;
+
+  const translationLanguageLabel = (value: string) =>
+    t(
+      `providers:zai.translationLanguages.${value}`,
+      TRANSLATION_LANGUAGE_LABELS[value as keyof typeof TRANSLATION_LANGUAGE_LABELS] ?? value
+    );
+
+  const videoTemplateLabel = (value: string) =>
+    t(
+      `providers:zai.videoTemplates.${value}`,
+      VIDEO_TEMPLATE_LABELS[value as keyof typeof VIDEO_TEMPLATE_LABELS] ?? value
+    );
 
   const updateThinking = (patch: Partial<NonNullable<ZaiChatConfig["thinking"]>>) =>
     submitConfig({
@@ -140,6 +402,28 @@ export const ZaiChatConfigForm = ({
             DEFAULT_WEB_SEARCH.web_search.search_engine,
         },
       },
+    });
+
+  const updateTranslationCustomVariables = (patch: ZaiTranslationCustomVariables) =>
+    submitConfig({
+      ...resolvedConfig,
+      custom_variables: normalizeTranslationCustomVariables({
+        ...translationCustomVariables,
+        ...patch,
+        strategy_config: {
+          ...(translationCustomVariables.strategy_config ?? {}),
+          ...(patch.strategy_config ?? {}),
+        },
+      }),
+    });
+
+  const updateVideoTemplateCustomVariables = (patch: ZaiVideoTemplateCustomVariables) =>
+    submitConfig({
+      ...resolvedConfig,
+      custom_variables: normalizeVideoTemplateCustomVariables({
+        ...videoTemplateCustomVariables,
+        ...patch,
+      }),
     });
 
   return (
@@ -201,12 +485,12 @@ export const ZaiChatConfigForm = ({
                 ...resolvedConfig,
                 web_search: value
                   ? {
-                      ...DEFAULT_WEB_SEARCH,
-                      web_search: {
-                        ...DEFAULT_WEB_SEARCH.web_search,
-                        enable: true,
-                      },
-                    }
+                    ...DEFAULT_WEB_SEARCH,
+                    web_search: {
+                      ...DEFAULT_WEB_SEARCH.web_search,
+                      enable: true,
+                    },
+                  }
                   : undefined,
               })
             }
@@ -230,8 +514,7 @@ export const ZaiChatConfigForm = ({
               disabled={!webSearchOn}
               values={[webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine]}
               valueTitle={t(
-                `providers:zai.searchEngines.${
-                  webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine
+                `providers:zai.searchEngines.${webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine
                 }`,
                 webSearch?.search_engine ?? DEFAULT_WEB_SEARCH.web_search.search_engine
               )}
@@ -368,6 +651,187 @@ export const ZaiChatConfigForm = ({
           </div>
         </div>
       </theme.Card>
+
+      <theme.Card
+        size="small"
+        title={t("providers:zai.generalTranslation")}
+        headerActions={
+          <theme.Switch
+            id="zaiGeneralTranslation"
+            checked={translationOn}
+            onChange={(value) =>
+              submitConfig({
+                ...resolvedConfig,
+                custom_variables: value ? { ...DEFAULT_TRANSLATION_CUSTOM_VARIABLES } : undefined,
+              })
+            }
+          />
+        }
+      >
+        <div style={twoColumnGrid}>
+          <theme.Select
+            label={t("providers:zai.sourceLanguage")}
+            disabled={!translationOn}
+            values={[translationCustomVariables.source_lang ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.source_lang]}
+            valueTitle={translationLanguageLabel(
+              translationCustomVariables.source_lang ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.source_lang
+            )}
+            options={TRANSLATION_SOURCE_LANGUAGE_OPTIONS.map((value) => ({
+              value,
+              label: translationLanguageLabel(value),
+            }))}
+            onChange={(value: string) =>
+              updateTranslationCustomVariables({ source_lang: value as TranslationSourceLanguage })
+            }
+          >
+            {TRANSLATION_SOURCE_LANGUAGE_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {translationLanguageLabel(value)}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Select
+            label={t("providers:zai.targetLanguage")}
+            disabled={!translationOn}
+            values={[translationCustomVariables.target_lang ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.target_lang]}
+            valueTitle={translationLanguageLabel(
+              translationCustomVariables.target_lang ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.target_lang
+            )}
+            options={TRANSLATION_TARGET_LANGUAGE_OPTIONS.map((value) => ({
+              value,
+              label: translationLanguageLabel(value),
+            }))}
+            onChange={(value: string) =>
+              updateTranslationCustomVariables({ target_lang: value as TranslationTargetLanguage })
+            }
+          >
+            {TRANSLATION_TARGET_LANGUAGE_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {translationLanguageLabel(value)}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Select
+            label={t("providers:zai.translationStrategy")}
+            disabled={!translationOn}
+            values={[translationCustomVariables.strategy ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.strategy]}
+            valueTitle={t(
+              `providers:zai.translationStrategies.${translationCustomVariables.strategy ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.strategy
+              }`,
+              translationCustomVariables.strategy ?? DEFAULT_TRANSLATION_CUSTOM_VARIABLES.strategy
+            )}
+            options={TRANSLATION_STRATEGY_OPTIONS.map((value) => ({
+              value,
+              label: t(`providers:zai.translationStrategies.${value}`, value),
+            }))}
+            onChange={(value: string) =>
+              updateTranslationCustomVariables({ strategy: value as TranslationStrategy })
+            }
+          >
+            {TRANSLATION_STRATEGY_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {t(`providers:zai.translationStrategies.${value}`, value)}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Input
+            label={t("providers:zai.glossary")}
+            placeholder={t("providers:zai.glossaryPlaceholder")}
+            disabled={!translationOn}
+            value={translationCustomVariables.glossary ?? ""}
+            onChange={(e: any) => updateTranslationCustomVariables({ glossary: optionalString(e?.target?.value) })}
+          />
+
+          {translationCustomVariables.strategy === "cot" ? (
+            <theme.Select
+              label={t("providers:zai.reasonLanguage")}
+              disabled={!translationOn}
+              values={[translationCustomVariables.strategy_config?.cot?.reason_lang ?? "to"]}
+              valueTitle={t(
+                `providers:zai.reasonLanguages.${translationCustomVariables.strategy_config?.cot?.reason_lang ?? "to"}`,
+                translationCustomVariables.strategy_config?.cot?.reason_lang ?? "to"
+              )}
+              options={TRANSLATION_REASON_LANGUAGE_OPTIONS.map((value) => ({
+                value,
+                label: t(`providers:zai.reasonLanguages.${value}`, value),
+              }))}
+              onChange={(value: string) =>
+                updateTranslationCustomVariables({
+                  strategy_config: {
+                    cot: { reason_lang: value as TranslationReasonLanguage },
+                  },
+                })
+              }
+            >
+              {TRANSLATION_REASON_LANGUAGE_OPTIONS.map((value) => (
+                <option key={value} value={value}>
+                  {t(`providers:zai.reasonLanguages.${value}`, value)}
+                </option>
+              ))}
+            </theme.Select>
+          ) : null}
+
+          {translationCustomVariables.strategy === "general" ? (
+            <div style={fullWidthGridItem}>
+              <theme.TextArea
+                label={t("providers:zai.translationSuggestion")}
+                placeholder={t("providers:zai.translationSuggestionPlaceholder")}
+                rows={4}
+                value={translationCustomVariables.strategy_config?.general?.suggestion ?? ""}
+                onChange={(value) =>
+                  updateTranslationCustomVariables({
+                    strategy_config: {
+                      general: { suggestion: optionalString(value) },
+                    },
+                  })
+                }
+              />
+            </div>
+          ) : null}
+        </div>
+      </theme.Card>
+
+      <theme.Card
+        size="small"
+        title={t("providers:zai.popularSpecialEffectsVideos")}
+        headerActions={
+          <theme.Switch
+            id="zaiPopularSpecialEffectsVideos"
+            checked={videoTemplateOn}
+            onChange={(value) =>
+              submitConfig({
+                ...resolvedConfig,
+                custom_variables: value ? { ...DEFAULT_VIDEO_TEMPLATE_CUSTOM_VARIABLES } : undefined,
+              })
+            }
+          />
+        }
+      >
+        <div style={twoColumnGrid}>
+          <theme.Select
+            label={t("providers:zai.videoTemplate")}
+            disabled={!videoTemplateOn}
+            values={[videoTemplateCustomVariables.template]}
+            valueTitle={videoTemplateLabel(videoTemplateCustomVariables.template)}
+            options={VIDEO_TEMPLATE_OPTIONS.map((value) => ({
+              value,
+              label: videoTemplateLabel(value),
+            }))}
+            onChange={(value: string) => updateVideoTemplateCustomVariables({ template: value as VideoTemplate })}
+          >
+            {VIDEO_TEMPLATE_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {videoTemplateLabel(value)}
+              </option>
+            ))}
+          </theme.Select>
+        </div>
+      </theme.Card>
+
+
 
       <theme.Card size="small" title={t("other")}>
         <theme.Switch
