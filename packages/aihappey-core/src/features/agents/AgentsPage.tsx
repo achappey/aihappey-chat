@@ -10,6 +10,7 @@ import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
 import React from "react";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { useChatContext } from "../chat/context/ChatContext";
 
 const getProviderIconsForModel = (modelId?: string): Agent["icons"] | undefined => {
   const providerKey = getAgentModelProviderKey(modelId);
@@ -34,12 +35,22 @@ const buildRemoteAgentCardAgent = (remoteAgentModel: RemoteAgentModel): Agent =>
   };
 };
 
+const hostnameOf = (url?: string) => {
+  if (!url) return "remote";
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+};
+
 
 // --- Component ---------------------------------------------------------------
 
 export const AgentsPage = () => {
   const { SearchBox, Text, Tabs, Tab } = useTheme();
   const { t } = useTranslation();
+  const { config: chatConfig } = useChatContext();
 
   //const agents = useAppStore((s) => s.agents as Record<string, AgentCardType>);
   const agents = useAppStore((s) => s.agents);
@@ -53,6 +64,11 @@ export const AgentsPage = () => {
   const [search, setSearch] = useState("");
   const [editingName, setEditingName] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all"); // "top" | "all"
+
+  const remoteAgentsHost = useMemo(
+    () => hostnameOf(chatConfig.agentEndpoint ? `${chatConfig.agentEndpoint}${chatConfig.endpoints.models}` : undefined),
+    [chatConfig.agentEndpoint, chatConfig.endpoints.models]
+  );
 
   // const handleEdit = (name: string) => setEditingName(name);
   const handleHideEdit = () => {
@@ -168,6 +184,47 @@ export const AgentsPage = () => {
     });
   }, [agents, remoteAgentModels, search]);
 
+  const localCards = useMemo(
+    () => cards.filter((card) => card.kind === "local"),
+    [cards]
+  );
+
+  const remoteCards = useMemo(
+    () => cards.filter((card) => card.kind === "remote"),
+    [cards]
+  );
+
+  const renderGrid = (items: typeof cards) => (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: 16,
+        paddingTop: 12,
+        width: "100%",
+        maxWidth: 700,
+        marginBottom: 24,
+        justifyItems: "center",
+      }}
+    >
+      {items.length === 0 ? (
+        <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
+          {t("noResults")}
+        </div>
+      ) : (
+        items.map((card) =>
+          <div key={card.key} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+            <AgentCard
+              agent={card.agent}
+              providerIcons={card.providerIcons}
+              onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
+              onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
+            />
+          </div>)
+      )}
+    </div>
+  );
+
 
   return (
     <div ref={dropRef}
@@ -216,29 +273,17 @@ export const AgentsPage = () => {
           </div>
 
           <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
-            <Tab eventKey="all" icon="cardList" title={t("agents.title")}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                  gap: 16,
-                  paddingTop: 12,
-                  width: "100%",
-                  maxWidth: 700,
-                  marginBottom: 24,
-                  justifyItems: "center",
-                }}
-              >
-                {cards.map((card) =>
-                  <div key={card.key} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
-                    <AgentCard
-                      agent={card.agent}
-                      providerIcons={card.providerIcons}
-                      onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
-                      onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
-                    />
-                  </div>)}
-              </div>
+            <Tab eventKey="all" icon="cardList" title={`${t("all")} (${cards.length})`}>
+              {renderGrid(cards)}
+            </Tab>
+
+            <Tab eventKey={`remote:${remoteAgentsHost}`}
+              title={`${remoteAgentsHost} (${remoteCards.length})`}>
+              {renderGrid(remoteCards)}
+            </Tab>
+
+            <Tab eventKey="local" title={`${t("local")} (${localCards.length})`}>
+              {renderGrid(localCards)}
             </Tab>
           </Tabs>
         </div>

@@ -15,6 +15,7 @@ import {
 import { useAppStore } from "aihappey-state";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { PROVIDERS } from "../../runtime/providers/providers";
+import { useChatContext } from "../chat/context/ChatContext";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -43,9 +44,19 @@ function getProviderKeyFromSkillId(skillId: string) {
   return parts.length > 1 ? parts[0].toLowerCase() : null;
 }
 
+function hostnameOf(url?: string) {
+  if (!url) return "remote";
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
+
 export const SkillsPage = () => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { config: chatConfig } = useChatContext();
   const skills = useSkills();
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
@@ -57,7 +68,13 @@ export const SkillsPage = () => {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [downloadingVersion, setDownloadingVersion] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("all");
   const q = normalizeText(search);
+
+  const remoteSkillsHost = useMemo(
+    () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
+    [chatConfig.baseUrl, chatConfig.endpoints.skills]
+  );
 
   const collator = useMemo(
     () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
@@ -87,6 +104,16 @@ export const SkillsPage = () => {
       .slice()
       .sort((a: SkillCatalogItem, b: SkillCatalogItem) => collator.compare(a.name, b.name));
   }, [collator, q, skills.items]);
+
+  const localFiltered = useMemo(
+    () => filtered.filter((item) => item.origin === "local"),
+    [filtered]
+  );
+
+  const remoteFiltered = useMemo(
+    () => filtered.filter((item) => item.origin === "remote"),
+    [filtered]
+  );
 
   const selectedSkill = useMemo(
     () => skills.items.find((item) => item.skillId === detailsSkillId || item.id === detailsSkillId),
@@ -226,13 +253,13 @@ export const SkillsPage = () => {
         await skills.update(selectedSkill.skillId, { default_version: version });
         setFeedback(
           t("skillsPage.defaultVersionUpdated", { version }) ??
-            `Default version updated to ${version}.`
+          `Default version updated to ${version}.`
         );
         await loadSkillDetails(selectedSkill.skillId);
       } catch {
         setFeedback(
           t("skillsPage.defaultVersionUpdateFailed") ??
-            "Could not update the default skill version."
+          "Could not update the default skill version."
         );
       }
     },
@@ -247,13 +274,13 @@ export const SkillsPage = () => {
         await skills.ensureDownloaded(selectedSkill.skillId, version);
         setFeedback(
           t("skillsPage.remoteVersionDownloaded", { version }) ??
-            `Downloaded skill version ${version}.`
+          `Downloaded skill version ${version}.`
         );
         await loadSkillDetails(selectedSkill.skillId);
       } catch {
         setFeedback(
           t("skillsPage.remoteDownloadFailed") ??
-            "A remote skill could not be downloaded right now."
+          "A remote skill could not be downloaded right now."
         );
       } finally {
         setDownloadingVersion(null);
@@ -287,6 +314,53 @@ export const SkillsPage = () => {
       await onImportFiles(Array.from(list));
     },
     [onImportFiles]
+  );
+
+  const renderGrid = (items: SkillCatalogItem[]) => (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: 16,
+        width: "100%",
+        maxWidth: 760,
+        marginBottom: 24,
+        justifyItems: "stretch",
+      }}
+    >
+      {items.length === 0 ? (
+        <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
+          {t("noResults")}
+        </div>
+      ) : (
+        items.map((item: SkillCatalogItem) => (
+          <SkillCard
+            key={item.id}
+            skill={{
+              id: item.skillId,
+              name: item.name,
+              description: item.description,
+              icons: getRemoteSkillIcons(item),
+              fileCount: item.fileCount,
+              origin: item.origin,
+              downloadState: item.downloadState,
+              version: item.version,
+              latestVersion: item.latestVersion,
+              isDownloaded: item.isDownloaded,
+            }}
+            onView={() => {
+              void handleOpenDetails(item);
+            }}
+            onDownload={() => {
+              void handleDownloadSkill(item);
+            }}
+            onDelete={item.isDownloaded ? () => {
+              void handleDeleteSkill(item);
+            } : undefined}
+          />
+        ))
+      )}
+    </div>
   );
 
   return (
@@ -337,50 +411,19 @@ export const SkillsPage = () => {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-              gap: 16,
-              width: "100%",
-              maxWidth: 760,
-              marginBottom: 24,
-              justifyItems: "stretch",
-            }}
-          >
-            {filtered.length === 0 ? (
-              <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
-                {t("noResults")}
-              </div>
-            ) : (
-              filtered.map((item: SkillCatalogItem) => (
-                <SkillCard
-                  key={item.id}
-                  skill={{
-                     id: item.skillId,
-                     name: item.name,
-                     description: item.description,
-                     icons: getRemoteSkillIcons(item),
-                     fileCount: item.fileCount,
-                     origin: item.origin,
-                     downloadState: item.downloadState,
-                    version: item.version,
-                    latestVersion: item.latestVersion,
-                    isDownloaded: item.isDownloaded,
-                  }}
-                  onView={() => {
-                    void handleOpenDetails(item);
-                  }}
-                  onDownload={() => {
-                    void handleDownloadSkill(item);
-                  }}
-                  onDelete={item.isDownloaded ? () => {
-                    void handleDeleteSkill(item);
-                  } : undefined}
-                />
-              ))
-            )}
-          </div>
+          <theme.Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
+            <theme.Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
+              <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
+            </theme.Tab>
+
+            <theme.Tab eventKey={`remote:${remoteSkillsHost}`} title={`${remoteSkillsHost} (${remoteFiltered.length})`}>
+              <div style={{ paddingTop: 12 }}>{renderGrid(remoteFiltered)}</div>
+            </theme.Tab>
+
+            <theme.Tab eventKey="local" title={`${t("local")} (${localFiltered.length})`}>
+              <div style={{ paddingTop: 12 }}>{renderGrid(localFiltered)}</div>
+            </theme.Tab>
+          </theme.Tabs>
 
           <SkillDetailsModal
             open={!!detailsSkillId}
