@@ -485,7 +485,6 @@ import { holysheepai } from "./catalog/holysheepai";
 import { zyloapi } from "./catalog/zyloapi";
 import { augure } from "./catalog/augure";
 import { sapiom } from "./catalog/sapiom";
-import { forgebylana } from "./catalog/forgebylana";
 import { theoldapi } from "./catalog/theoldapi";
 import { uncloseai } from "./catalog/uncloseai";
 import { radiance } from "./catalog/radiance";
@@ -530,6 +529,9 @@ import { sovrgpt } from "./catalog/sovrgpt";
 import { doubleword } from "./catalog/doubleword";
 import { openhands } from "./catalog/openhands";
 import { poolside } from "./catalog/poolside";
+import { cloister } from "./catalog/cloister";
+import { antbase } from "./catalog/antbase";
+import { slancha } from "./catalog/slancha";
 
 /**
  * UI-facing provider catalog.
@@ -541,6 +543,7 @@ export const PROVIDERS: Record<string, Provider> = {
   citadelis,
   doubleword,
   api1sbs,
+  slancha,
   tembo,
   poolside,
   microsoft,
@@ -555,7 +558,6 @@ export const PROVIDERS: Record<string, Provider> = {
   agnesai,
   augure,
   sovrgpt,
-  forgebylana,
   brave,
   radiance,
   ninjachat,
@@ -809,6 +811,7 @@ export const PROVIDERS: Record<string, Provider> = {
   ishi,
   pixcode,
   payperq,
+  antbase,
   swarms,
   infron,
   edenai,
@@ -820,6 +823,7 @@ export const PROVIDERS: Record<string, Provider> = {
   eachlabs,
   aiforhire,
   nimbleway,
+  cloister,
   packetai,
   synthetic,
   longcat,
