@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ProviderCard,
     ProviderDetailModal,
@@ -19,7 +19,8 @@ type ProviderListItem = {
 } & Provider;
 
 export const ProvidersPage = () => {
-    const { Text } = useTheme();
+    const PAGE_SIZE = 50;
+    const { Button, Text } = useTheme();
     const CONTENT_MAX_WIDTH = 980;
     const { t } = useTranslation();
     const { isDarkMode } = useDarkMode();
@@ -32,6 +33,7 @@ export const ProvidersPage = () => {
         PROVIDER_LOCATION_ALL_FILTER_VALUE,
     ]);
     const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(null);
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const models = useAppStore((s) => s.models);
     const collator = useMemo(
         () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
@@ -127,6 +129,10 @@ export const ProvidersPage = () => {
         });
     }, [providers, search, selectedCountries, selectedRegions]);
 
+    useEffect(() => {
+        setVisibleCount(PAGE_SIZE);
+    }, [search, selectedCountries, selectedRegions]);
+
     const selectedProvider = useMemo(
         () => providers.find((p) => p.key === selectedProviderKey) ?? null,
         [providers, selectedProviderKey]
@@ -188,7 +194,7 @@ export const ProvidersPage = () => {
                             marginBottom: 24,
                         }}
                     >
-                        {filtered.map((p) => {
+                        {filtered.slice(0, visibleCount).map((p) => {
                             const image =
                                 p.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))
                                     ?.src ?? p.icons?.[0]?.src;
@@ -215,6 +221,25 @@ export const ProvidersPage = () => {
 
                     </div>
 
+                    {filtered.length > visibleCount && (
+                        <div
+                            style={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                marginTop: 16,
+                                marginBottom: 24,
+                            }}
+                        >
+                            <Button
+                                variant="subtle"
+                                onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                            >
+                                {t("showMore")}
+                            </Button>
+                        </div>
+                    )}
+
                     {selectedProvider && (
                         <ProviderDetailModal
                             open={!!selectedProvider}
@@ -235,4 +260,3 @@ export const ProvidersPage = () => {
         </>
     );
 };
-
