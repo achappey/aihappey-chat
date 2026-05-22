@@ -20,5 +20,6 @@ export const languageNames = {
   th: "ไทย",
   ro: "Română",
   id: "Bahasa Indonesia",
-  bn: "বাংলা"
+  bn: "বাংলা",
+  da: "Dansk"
 };
