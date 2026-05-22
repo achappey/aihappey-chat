@@ -212,6 +212,18 @@
     "agentmail": "AgentMail inschakelen",
     "cacheScript": "Script opslaan"
   },
+  "tembo": {
+    "session": "Sessie",
+    "description": "Beschrijving",
+    "descriptionPlaceholder": "Gedetailleerde beschrijving van het werk dat Tembo moet uitvoeren",
+    "targetBranch": "Doelbranch",
+    "branchName": "Werkbranch",
+    "queueRightAway": "Direct in de wachtrij zetten",
+    "repositories": "Repositories",
+    "repositoriesHint": "Voeg de GitHub- of Git-repository-URL's toe waaraan Tembo moet werken.",
+    "addRepository": "Repository-URL toevoegen",
+    "noRepositories": "Er zijn nog geen repositories toegevoegd."
+  },
   "brave": {
     "notSet": "Niet ingesteld",
     "safesearch": "Veilig zoeken",

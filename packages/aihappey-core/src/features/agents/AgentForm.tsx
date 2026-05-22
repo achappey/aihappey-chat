@@ -1,4 +1,4 @@
-import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
@@ -611,6 +611,13 @@ export const AgentForm = ({
 
                     {providerKey === "sambanova" && (
                         <SambanovaChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "tembo" && (
+                        <TemboChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

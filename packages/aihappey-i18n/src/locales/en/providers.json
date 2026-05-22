@@ -82,6 +82,18 @@
     "agentmail": "Enable AgentMail",
     "cacheScript": "Cache script"
   },
+  "tembo": {
+    "session": "Session",
+    "description": "Description",
+    "descriptionPlaceholder": "Detailed description of the work Tembo should perform",
+    "targetBranch": "Target branch",
+    "branchName": "Work branch",
+    "queueRightAway": "Queue right away",
+    "repositories": "Repositories",
+    "repositoriesHint": "Add the GitHub or Git repository URLs that Tembo should work on.",
+    "addRepository": "Add repository URL",
+    "noRepositories": "No repositories added yet."
+  },
   "brave": {
     "notSet": "Not set",
     "safesearch": "Safe search",

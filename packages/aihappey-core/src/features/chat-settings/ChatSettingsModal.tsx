@@ -22,6 +22,7 @@ import {
   PerplexityChatConfigForm,
   PollinationsChatConfigForm,
   SambanovaChatConfigForm,
+  TemboChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
   useTheme, XAIChatConfigForm,
   RequestyChatConfigForm,
@@ -195,6 +196,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       perplexity: (perplexity: any) => updateProviderConfig("perplexity", perplexity),
       together: (together: any) => updateProviderConfig("together", together),
       sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
+      tembo: (tembo: any) => updateProviderConfig("tembo", tembo),
       xai: (xai: any) => updateProviderConfig("xai", xai),
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
       venice: (venice: any) => updateProviderConfig("venice", venice),
@@ -575,6 +577,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <SambanovaChatConfigForm
                 config={draft.providerMetadata.sambanova ?? {}}
                 updateConfig={providerConfigUpdaters.sambanova}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Tembo") &&
+          <theme.Tab eventKey="tembo" title="Tembo">
+            {activeTab === "tembo" ? (
+              <TemboChatConfigForm
+                config={draft.providerMetadata.tembo ?? {}}
+                updateConfig={providerConfigUpdaters.tembo}
               />
             ) : null}
           </theme.Tab>

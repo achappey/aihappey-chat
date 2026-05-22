@@ -60,6 +60,7 @@ export * from "./venice";
 export * from "./linkup";
 export * from "./webcrawlerapi";
 export * from "./openhands";
+export * from "./tembo";
 export * from "./xiaomimimo";
   
   

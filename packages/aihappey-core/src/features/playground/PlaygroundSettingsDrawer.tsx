@@ -20,6 +20,7 @@ import {
   PollinationsChatConfigForm,
   ResponsesEndpointConfigForm,
   SambanovaChatConfigForm,
+  TemboChatConfigForm,
   TogetherChatConfigForm,
   LinkupChatConfigForm,
   useTheme,
@@ -179,6 +180,8 @@ export const PlaygroundSettingsDrawer = ({
         return <PollinationsChatConfigForm config={providerMetadata.pollinations ?? {}} updateConfig={updateProviderConfig} />;
       case "sambanova":
         return <SambanovaChatConfigForm config={providerMetadata.sambanova ?? {}} updateConfig={updateProviderConfig} />;
+      case "tembo":
+        return <TemboChatConfigForm config={providerMetadata.tembo ?? {}} updateConfig={updateProviderConfig} />;
       case "together":
         return <TogetherChatConfigForm config={providerMetadata.together ?? {}} updateConfig={updateProviderConfig} />;
       case "venice":
