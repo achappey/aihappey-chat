@@ -532,6 +532,9 @@ import { poolside } from "./catalog/poolside";
 import { cloister } from "./catalog/cloister";
 import { antbase } from "./catalog/antbase";
 import { slancha } from "./catalog/slancha";
+import { codingplanx } from "./catalog/codingplanx";
+import { nodion } from "./catalog/nodion";
+import { generalcompute } from "./catalog/generalcompute";
 
 /**
  * UI-facing provider catalog.
@@ -582,12 +585,15 @@ export const PROVIDERS: Record<string, Provider> = {
   bleep,
   llmbase,
   tensorblock,
+  codingplanx,
   commonstack,
   paul,
   sawtia,
   mimicxai,
   runtimo,
   wiserouter,
+  nodion,
+  generalcompute,
   uncloseai,
   pellet,
   lumecoder,
