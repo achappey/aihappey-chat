@@ -63,7 +63,6 @@ export const ConversationSidebar = ({
       key: "realtime",
       label: t("realtime"),
       href: "/realtime",
-      new: true,
       icon: "realtime",
     },
     {
@@ -175,7 +174,6 @@ export const ConversationSidebar = ({
           key: "usage",
           label: t("ai.usage.nav"),
           href: "/usage",
-          new: true,
           icon: "databaseGear",
         },
         {
