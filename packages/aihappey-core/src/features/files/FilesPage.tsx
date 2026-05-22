@@ -16,7 +16,8 @@ function normalizeText(v: unknown) {
 }
 
 export const FilesPage = () => {
-    const { SearchBox, Text } = useTheme();
+    const PAGE_SIZE = 50;
+    const { Button, SearchBox, Text } = useTheme();
     const { t } = useTranslation();
     const files = useFiles();
     const getStorageErrorMessage = useStorageErrorMessage();
@@ -26,6 +27,7 @@ export const FilesPage = () => {
     const [detailsLoading, setDetailsLoading] = useState(false);
 
     const [search, setSearch] = useState("");
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const q = normalizeText(search);
 
     const collator = useMemo(
@@ -168,6 +170,10 @@ export const FilesPage = () => {
         };
     }, [addError, files, getStorageErrorMessage, selectedFileId]);
 
+    useEffect(() => {
+        setVisibleCount(PAGE_SIZE);
+    }, [search]);
+
     const selectedFileName = useMemo(
         () => selectedFile?.name ?? files.items.find((item) => item.id === selectedFileId)?.name,
         [files.items, selectedFile, selectedFileId]
@@ -233,7 +239,7 @@ export const FilesPage = () => {
                                 {t("noResults")}
                             </div>
                         ) : (
-                            filtered.map((f) => (
+                            filtered.slice(0, visibleCount).map((f) => (
                                 <div key={f.id} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
                                     <FileCard
                                         file={f}
@@ -247,6 +253,25 @@ export const FilesPage = () => {
                             ))
                         )}
                     </div>
+
+                    {filtered.length > visibleCount && (
+                        <div
+                            style={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                marginTop: 16,
+                                marginBottom: 24,
+                            }}
+                        >
+                            <Button
+                                variant="subtle"
+                                onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                            >
+                                {t("showMore")}
+                            </Button>
+                        </div>
+                    )}
 
                     <FileDetailModal
                         open={selectedFileId != undefined}
