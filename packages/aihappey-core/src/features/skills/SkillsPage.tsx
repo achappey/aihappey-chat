@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Provider } from "aihappey-types";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
@@ -54,6 +54,7 @@ function hostnameOf(url?: string) {
 }
 
 export const SkillsPage = () => {
+  const PAGE_SIZE = 50;
   const theme = useTheme();
   const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
@@ -69,12 +70,17 @@ export const SkillsPage = () => {
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [downloadingVersion, setDownloadingVersion] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const q = normalizeText(search);
 
   const remoteSkillsHost = useMemo(
     () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
     [chatConfig.baseUrl, chatConfig.endpoints.skills]
   );
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [search, activeTab]);
 
   const collator = useMemo(
     () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
@@ -316,52 +322,75 @@ export const SkillsPage = () => {
     [onImportFiles]
   );
 
-  const renderGrid = (items: SkillCatalogItem[]) => (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-        gap: 16,
-        width: "100%",
-        maxWidth: 760,
-        marginBottom: 24,
-        justifyItems: "stretch",
-      }}
-    >
-      {items.length === 0 ? (
-        <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
-          {t("noResults")}
+  const renderGrid = (items: SkillCatalogItem[]) => {
+    const visible = items.slice(0, visibleCount);
+    return (
+      <>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: 16,
+            width: "100%",
+            maxWidth: 760,
+            marginBottom: 24,
+            justifyItems: "stretch",
+          }}
+        >
+          {items.length === 0 ? (
+            <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>
+              {t("noResults")}
+            </div>
+          ) : (
+            visible.map((item: SkillCatalogItem) => (
+              <SkillCard
+                key={item.id}
+                skill={{
+                  id: item.skillId,
+                  name: item.name,
+                  description: item.description,
+                  icons: getRemoteSkillIcons(item),
+                  fileCount: item.fileCount,
+                  origin: item.origin,
+                  downloadState: item.downloadState,
+                  version: item.version,
+                  latestVersion: item.latestVersion,
+                  isDownloaded: item.isDownloaded,
+                }}
+                onView={() => {
+                  void handleOpenDetails(item);
+                }}
+                onDownload={() => {
+                  void handleDownloadSkill(item);
+                }}
+                onDelete={item.isDownloaded ? () => {
+                  void handleDeleteSkill(item);
+                } : undefined}
+              />
+            ))
+          )}
         </div>
-      ) : (
-        items.map((item: SkillCatalogItem) => (
-          <SkillCard
-            key={item.id}
-            skill={{
-              id: item.skillId,
-              name: item.name,
-              description: item.description,
-              icons: getRemoteSkillIcons(item),
-              fileCount: item.fileCount,
-              origin: item.origin,
-              downloadState: item.downloadState,
-              version: item.version,
-              latestVersion: item.latestVersion,
-              isDownloaded: item.isDownloaded,
+        {items.length > visibleCount && (
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: 16,
+              marginBottom: 24,
             }}
-            onView={() => {
-              void handleOpenDetails(item);
-            }}
-            onDownload={() => {
-              void handleDownloadSkill(item);
-            }}
-            onDelete={item.isDownloaded ? () => {
-              void handleDeleteSkill(item);
-            } : undefined}
-          />
-        ))
-      )}
-    </div>
-  );
+          >
+            <theme.Button
+              variant="subtle"
+              onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+            >
+              {t("showMore")}
+            </theme.Button>
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <div
