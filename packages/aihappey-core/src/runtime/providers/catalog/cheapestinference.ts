@@ -13,8 +13,8 @@ export const cheapestinference: Provider = {
     homepage: "https://cheapestinference.com",
     pricing: "https://cheapestinference.com/pricing",
     docs: "https://docs.cheapestinference.com",
-    terms: "https://cheapestinference.com/terms",
-    privacy: "https://docs.cheapestinference.com/privacy"
+    termsOfService: "https://cheapestinference.com/terms",
+    privacyPolicy: "https://docs.cheapestinference.com/privacy"
   },
   inferenceRegions: ["World"]
 };
