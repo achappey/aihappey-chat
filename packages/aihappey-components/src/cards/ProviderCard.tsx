@@ -14,6 +14,7 @@ export type ProviderCardProps = {
     description?: string;
     providerCountry?: string
     experimental?: boolean;
+    selected?: boolean;
     modelTypes?: string[];
     onView?: () => void;
 };
@@ -23,6 +24,7 @@ export const ProviderCard = ({
     urls,
     image,
     description,
+    selected,
     experimental,
     providerCountry,
     modelTypes,
@@ -59,6 +61,7 @@ export const ProviderCard = ({
         <Card
             title={name}
             description={descriptionItem}
+            selected={selected}
             headerActions={<>{providerCountry
                 && <Flag code={providerCountry}
                     title={providerCountry}
