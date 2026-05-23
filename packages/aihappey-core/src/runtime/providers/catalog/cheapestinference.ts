@@ -12,7 +12,9 @@ export const cheapestinference: Provider = {
   urls: {
     homepage: "https://cheapestinference.com",
     pricing: "https://cheapestinference.com/pricing",
-    docs: "https://docs.cheapestinference.com"
+    docs: "https://docs.cheapestinference.com",
+    terms: "https://cheapestinference.com/terms",
+    privacy: "https://docs.cheapestinference.com/privacy"
   },
   inferenceRegions: ["World"]
 };
