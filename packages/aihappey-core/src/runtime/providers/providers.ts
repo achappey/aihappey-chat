@@ -534,6 +534,7 @@ import { codingplanx } from "./catalog/codingplanx";
 import { nodion } from "./catalog/nodion";
 import { generalcompute } from "./catalog/generalcompute";
 import { libertai } from "./catalog/libertai";
+import { jules } from "./catalog/jules";
 
 /**
  * UI-facing provider catalog.
@@ -815,6 +816,7 @@ export const PROVIDERS: Record<string, Provider> = {
   pixcode,
   payperq,
   libertai,
+  jules,
   antbase,
   swarms,
   infron,
