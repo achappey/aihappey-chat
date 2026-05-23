@@ -10,7 +10,7 @@ export const heygen: Provider = {
   ],
   urls: {
     homepage: "https://www.heygen.com",
-    docs: "https://docs.heygen.com",
+    docs: "https://developers.heygen.com",
     console: "https://app.heygen.com",
     termsOfService: "https://www.heygen.com/terms",
     privacyPolicy: "https://www.heygen.com/privacy"

@@ -456,7 +456,6 @@ import { eugpt } from "./catalog/eugpt";
 import { moltkey } from "./catalog/moltkey";
 import { aichixia } from "./catalog/aichixia";
 import { teai } from "./catalog/teai";
-import { api1sbs } from "./catalog/api1sbs";
 import { paul } from "./catalog/paul";
 import { radient } from "./catalog/radient";
 import { aihorde } from "./catalog/aihorde";
@@ -545,7 +544,6 @@ export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
   doubleword,
-  api1sbs,
   slancha,
   tembo,
   poolside,
