@@ -1,8 +1,8 @@
 import type { Provider } from "aihappey-types";
 
-export const wisdomgate: Provider = {
-  name: "WisdomGate",
-  description: "Wisdom Gate is the unified interface for LLMs. Access OpenAI, Claude, Gemini, DeepSeek and more through one API. Pay-as-you-go pricing with transparent billing.",
+export const wisgate: Provider = {
+  name: "WisGate",
+  description: "WisGate is the unified interface for LLMs. Access OpenAI, Claude, Gemini, DeepSeek and more through one API. Pay-as-you-go pricing with transparent billing.",
   icons: [{
     src: "https://wisdom-gate.juheapi.com/favicon.ico"
   }],

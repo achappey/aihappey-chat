@@ -209,7 +209,7 @@ import { uniapi } from "./catalog/uniapi";
 import { aiforhire } from "./catalog/aiforhire";
 import { apekey } from "./catalog/apekey";
 import { apertis } from "./catalog/apertis";
-import { wisdomgate } from "./catalog/wisdomgate";
+import { wisgate } from "./catalog/wisgate";
 import { smooth } from "./catalog/smooth";
 import { speechactors } from "./catalog/speechactors";
 import { gptproto } from "./catalog/gptproto";
@@ -864,7 +864,7 @@ export const PROVIDERS: Record<string, Provider> = {
   nearai,
   aiml,
   smooth,
-  wisdomgate,
+  wisgate,
   supertone,
   anthropic,
   heygen,
