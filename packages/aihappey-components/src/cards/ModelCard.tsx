@@ -47,12 +47,25 @@ export const ModelCard = ({ model, onChat, provider }: ModelCardProps) => {
   const iconImage =
     provider?.icons?.find(i => i.theme === (isDarkMode ? "dark" : "light"))?.src ??
     provider?.icons?.[0]?.src;
+  const providerWebsiteUrl = provider?.urls?.homepage;
 
-  const imageItem = iconImage ? <Image
+  const providerImage = iconImage ? <Image
     height={32}
     title={provider?.name}
     shape="square"
     src={iconImage} /> : undefined;
+
+  const imageItem = providerImage && providerWebsiteUrl ? (
+    <a
+      href={providerWebsiteUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={provider?.name}
+      style={{ display: "inline-flex" }}
+    >
+      {providerImage}
+    </a>
+  ) : providerImage;
 
   const chatButton = onChat && model.type == "language"
     ? <Button icon="chat"
