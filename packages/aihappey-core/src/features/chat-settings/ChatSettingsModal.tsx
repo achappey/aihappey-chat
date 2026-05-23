@@ -16,7 +16,7 @@ import {
   LinkupChatConfigForm,
   LocalToolsSettingsForm,
   MicrosoftChatConfigForm,
-  MistralChatConfigForm, OpenAIChatConfigForm,
+  MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
   OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
@@ -189,6 +189,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       jina: (jina: any) => updateProviderConfig("jina", jina),
       microsoft: (microsoft: any) => updateProviderConfig("microsoft", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
+      ninjachat: (ninjachat: any) => updateProviderConfig("ninjachat", ninjachat),
       openai: (openai: any) => updateProviderConfig("openai", openai),
       openhands: (openhands: any) => updateProviderConfig("openhands", openhands),
       openrouter: (openrouter: any) => updateProviderConfig("openrouter", openrouter),
@@ -478,6 +479,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               <MicrosoftChatConfigForm
                 config={draft.providerMetadata.microsoft ?? {}}
                 updateConfig={providerConfigUpdaters.microsoft}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("NinjaChat") &&
+          <theme.Tab eventKey="ninjachat" title="NinjaChat">
+            {activeTab === "ninjachat" ? (
+              <NinjaChatChatConfigForm
+                config={draft.providerMetadata.ninjachat ?? {}}
+                updateConfig={providerConfigUpdaters.ninjachat}
               />
             ) : null}
           </theme.Tab>

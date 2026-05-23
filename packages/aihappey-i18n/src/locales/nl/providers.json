@@ -6,6 +6,28 @@
     "maxSpendUsd": "Maximale uitgaven (USD)",
     "seedUrlsOnly": "Alleen deze URL's gebruiken"
   },
+  "ninjachat": {
+    "search": "Zoeken",
+    "group": "Bron",
+    "maxResults": "Maximaal aantal resultaten",
+    "searchDepth": "Zoekdiepte",
+    "includeImages": "Afbeeldingen meenemen",
+    "topic": "Onderwerp",
+    "groupOptions": {
+      "web": "Web",
+      "academic": "Academisch",
+      "news": "Nieuws"
+    },
+    "searchDepthOptions": {
+      "basic": "Basis",
+      "advanced": "Geavanceerd"
+    },
+    "topicOptions": {
+      "general": "Algemeen",
+      "news": "Nieuws",
+      "finance": "Financiën"
+    }
+  },
   "venice": {
     "webSearchModes": {
       "auto": "Automatisch",

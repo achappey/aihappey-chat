@@ -13,6 +13,7 @@ import {
   MessagesEndpointConfigForm,
   MicrosoftChatConfigForm,
   MistralChatConfigForm,
+  NinjaChatChatConfigForm,
   OpenAIChatConfigForm,
   OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
@@ -159,6 +160,8 @@ export const PlaygroundSettingsDrawer = ({
         return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
       case "microsoft":
         return <MicrosoftChatConfigForm config={providerMetadata.microsoft ?? {}} updateConfig={updateProviderConfig} />;
+      case "ninjachat":
+        return <NinjaChatChatConfigForm config={providerMetadata.ninjachat ?? {}} updateConfig={updateProviderConfig} />;
       case "openai":
         return (
           <OpenAIChatConfigForm

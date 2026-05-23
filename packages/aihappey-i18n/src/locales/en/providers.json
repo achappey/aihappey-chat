@@ -6,6 +6,28 @@
     "maxSpendUsd": "Maximum spend (USD)",
     "seedUrlsOnly": "Use specified URLs only"
   },
+  "ninjachat": {
+    "search": "Search",
+    "group": "Source",
+    "maxResults": "Max results",
+    "searchDepth": "Search depth",
+    "includeImages": "Include images",
+    "topic": "Topic",
+    "groupOptions": {
+      "web": "Web",
+      "academic": "Academic",
+      "news": "News"
+    },
+    "searchDepthOptions": {
+      "basic": "Basic",
+      "advanced": "Advanced"
+    },
+    "topicOptions": {
+      "general": "General",
+      "news": "News",
+      "finance": "Finance"
+    }
+  },
   "venice": {
     "webSearchModes": {
       "auto": "Automatic",

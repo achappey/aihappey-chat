@@ -62,5 +62,6 @@ export * from "./webcrawlerapi";
 export * from "./openhands";
 export * from "./tembo";
 export * from "./xiaomimimo";
+export * from "./ninjachat";
   
   

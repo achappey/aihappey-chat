@@ -291,6 +291,13 @@ export const defaultProviderMetadata = {
     "mode": "Auto",
     "reasoningDepth": "L"
   },
+  "ninjachat": {
+    "group": "web",
+    "max_results": 10,
+    "search_depth": "basic",
+    "include_images": false,
+    "topic": "general"
+  },
   "webcrawlerapi": {
     "max_spend_usd": 0.5,
     "urls": undefined,
