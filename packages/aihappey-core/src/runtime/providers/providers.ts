@@ -299,7 +299,6 @@ import { agabeyogluai } from "./catalog/agabeyogluai";
 import { airouter } from "./catalog/airouter";
 import { agentics } from "./catalog/agentics";
 import { gatewayz } from "./catalog/gatewayz";
-import { uplinkapi } from "./catalog/uplinkapi";
 import { nrpnautilus } from "./catalog/nrpnautilus";
 import { eagm } from "./catalog/eagm";
 import { edgee } from "./catalog/edgee";
@@ -365,7 +364,7 @@ import { elkapi } from "./catalog/elkapi";
 import { vultr } from "./catalog/vultr";
 import { ofoxai } from "./catalog/ofoxai";
 import { dedaluslabs } from "./catalog/dedaluslabs";
-import { world3 } from "./catalog/world3";
+import { routerlink } from "./catalog/routerlink";
 import { voidai } from "./catalog/voidai";
 import { modelmax } from "./catalog/modelmax";
 import { yollomi } from "./catalog/yollomi";
@@ -386,7 +385,6 @@ import { codexforme } from "./catalog/codexforme";
 import { runapi } from "./catalog/runapi";
 import { gaterouter } from "./catalog/gaterouter";
 import { baseapi } from "./catalog/baseapi";
-import { yyclaw } from "./catalog/yyclaw";
 import { teamday } from "./catalog/teamday";
 import { oxoapi } from "./catalog/oxoapi";
 import { chutes } from "./catalog/chutes";
@@ -684,14 +682,13 @@ export const PROVIDERS: Record<string, Provider> = {
   imagerouter,
   gaterouter,
   ultrasafe,
-  yyclaw,
   memoryrouter,
   messari,
   oodaai,
   dedaluslabs,
   stealthgpt,
   ofoxai,
-  world3,
+  routerlink,
   yougetai,
   yollomi,
   elkapi,
@@ -750,8 +747,7 @@ export const PROVIDERS: Record<string, Provider> = {
   viablelab,
   llm7,
   dreamgen,
-  unbound,
-  uplinkapi,
+  unbound,  
   airouter,
   edgee,
   cline,
