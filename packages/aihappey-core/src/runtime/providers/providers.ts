@@ -259,7 +259,6 @@ import { docsrouter } from "./catalog/docsrouter";
 import { skillboss } from "./catalog/skillboss";
 import { ocrskill } from "./catalog/ocrskill";
 import { nexusify } from "./catalog/nexusify";
-import { jatevo } from "./catalog/jatevo";
 import { litai } from "./catalog/litai";
 import { pixcode } from "./catalog/pixcode";
 import { anannas } from "./catalog/anannas";
@@ -534,6 +533,7 @@ import { slancha } from "./catalog/slancha";
 import { codingplanx } from "./catalog/codingplanx";
 import { nodion } from "./catalog/nodion";
 import { generalcompute } from "./catalog/generalcompute";
+import { libertai } from "./catalog/libertai";
 
 /**
  * UI-facing provider catalog.
@@ -810,11 +810,11 @@ export const PROVIDERS: Record<string, Provider> = {
   docsrouter,
   tokenflux,
   anannas,
-  jatevo,
   skillboss,
   ishi,
   pixcode,
   payperq,
+  libertai,
   antbase,
   swarms,
   infron,
