@@ -16,6 +16,8 @@ export const Card = ({
   children,
   description,
   className,
+  selected,
+  disabled,
   image,
   style,
   actions,
@@ -26,6 +28,8 @@ export const Card = ({
   className?: string;
   description?: string;
   size?: any;
+  selected?: boolean
+  disabled?: boolean
   image?: React.ReactElement
   children?: React.ReactNode;
   style?: React.CSSProperties;
@@ -44,6 +48,8 @@ export const Card = ({
   return (
     <FluentCard
       size={size}
+      selected={selected}
+      disabled={disabled}
       className={className}
       style={{
         backgroundColor: !style?.backgroundColor ?

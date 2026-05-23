@@ -7,6 +7,8 @@ export type CardProps = {
   text?: string;
   className?: string;
   description?: any;
+  disabled?: boolean
+  selected?: boolean
   actions?: JSX.Element;
   image?: React.ReactElement;
   headerActions?: JSX.Element;
