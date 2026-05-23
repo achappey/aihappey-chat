@@ -54,11 +54,21 @@ export const ModelCard = ({ model, onChat, provider }: ModelCardProps) => {
     shape="square"
     src={iconImage} /> : undefined;
 
-  const actions = onChat && model.type == "language"
+  const chatButton = onChat && model.type == "language"
     ? <Button icon="chat"
       size="small"
       variant="transparent"
       onClick={onChat} /> : undefined;
+
+  const actions = <>
+    <Button
+      icon="copyClipboard"
+      size="small"
+      variant="transparent"
+      title={model.id}
+      onClick={() => navigator.clipboard.writeText(model.id)} />
+    {chatButton}
+  </>;
 
   return (
     <Card
