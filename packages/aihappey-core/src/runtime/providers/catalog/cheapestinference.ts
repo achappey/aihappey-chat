@@ -16,6 +16,7 @@ export const cheapestinference: Provider = {
     termsOfService: "https://cheapestinference.com/terms",
     privacyPolicy: "https://docs.cheapestinference.com/privacy"
   },
+  providerCountry:"US",
   inferenceRegions: ["World"]
 };
 
