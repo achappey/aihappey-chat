@@ -60,7 +60,6 @@ export const ModelCard = ({ model, onChat, provider }: ModelCardProps) => {
       href={providerWebsiteUrl}
       target="_blank"
       rel="noopener noreferrer"
-      title={provider?.name}
       style={{ display: "inline-flex" }}
     >
       {providerImage}

@@ -102,6 +102,14 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
             + ` (${count})`;
     };
 
+    const openChatInNewWindow = (modelId: string) => {
+        window.open(
+            `/?model=${encodeURIComponent(modelId)}`,
+            "_blank",
+            "noopener,noreferrer"
+        );
+    };
+
     const hasAnyModels = providerModels.length > 0;
     const hasModelTypeTabs = supportedModelTypes.length > 0;
     const providerLinkButtons = useMemo(() => {
@@ -182,7 +190,11 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                                     >
                                         {typeModels.map((model) => (
                                             <div key={model.id}>
-                                                <ModelCard model={model} provider={provider} />
+                                                <ModelCard
+                                                    model={model}
+                                                    provider={provider}
+                                                    onChat={() => openChatInNewWindow(model.id)}
+                                                />
                                             </div>
                                         ))}
                                     </div>
