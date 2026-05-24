@@ -349,7 +349,6 @@ import { sargalay } from "./catalog/sargalay";
 import { zeabur } from "./catalog/zeabur";
 import { inferlink } from "./catalog/inferlink";
 import { chainhub } from "./catalog/chainhub";
-import { clawswitch } from "./catalog/clawswitch";
 import { ultrasafe } from "./catalog/ultrasafe";
 import { llmcloud } from "./catalog/llmcloud";
 import { railwail } from "./catalog/railwail";
@@ -407,7 +406,6 @@ import { selinaai } from "./catalog/selinaai";
 import { lmrouter } from "./catalog/lmrouter";
 import { openpipe } from "./catalog/openpipe";
 import { nonkycai } from "./catalog/nonkycai";
-import { clawplaza } from "./catalog/clawplaza";
 import { tokonlab } from "./catalog/tokonlab";
 import { modelbridge } from "./catalog/modelbridge";
 import { simplellm } from "./catalog/simplellm";
@@ -441,7 +439,6 @@ import { citadelis } from "./catalog/citadelis";
 import { finora } from "./catalog/finora";
 import { cairocoder } from "./catalog/cairocoder";
 import { geekai } from "./catalog/geekai";
-import { baystone } from "./catalog/baystone";
 import { aimagicx } from "./catalog/aimagicx";
 import { octagon } from "./catalog/octagon";
 import { nataris } from "./catalog/nataris";
@@ -461,7 +458,6 @@ import { commonstack } from "./catalog/commonstack";
 import { llama } from "./catalog/llama";
 import { ninjachat } from "./catalog/ninjachat";
 import { mimicxai } from "./catalog/mimicxai";
-import { sawtia } from "./catalog/sawtia";
 import { runtimo } from "./catalog/runtimo";
 import { codzen } from "./catalog/codzen";
 import { opuscode } from "./catalog/opuscode";
@@ -583,7 +579,6 @@ export const PROVIDERS: Record<string, Provider> = {
   codingplanx,
   commonstack,
   paul,
-  sawtia,
   mimicxai,
   runtimo,
   wiserouter,
@@ -609,7 +604,6 @@ export const PROVIDERS: Record<string, Provider> = {
   anyrouter,
   geekai,
   finora,
-  baystone,
   lxg2it,
   runway,
   helyxai,
@@ -617,7 +611,6 @@ export const PROVIDERS: Record<string, Provider> = {
   mumeai,
   gatemind,
   nebulablock,
-  clawplaza,
   shengsuanyun,
   opensourceaihub,
   omniakey,
@@ -704,7 +697,6 @@ export const PROVIDERS: Record<string, Provider> = {
   cheapgrok,
   railwail,
   chainhub,
-  clawswitch,
   zeabur,
   neuralwatt,
   youcom,
@@ -747,7 +739,7 @@ export const PROVIDERS: Record<string, Provider> = {
   viablelab,
   llm7,
   dreamgen,
-  unbound,  
+  unbound,
   airouter,
   edgee,
   cline,

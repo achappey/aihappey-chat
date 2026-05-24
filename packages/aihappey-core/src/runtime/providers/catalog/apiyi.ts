@@ -8,7 +8,7 @@ export const apiyi: Provider = {
   }],
   urls: {
     homepage: "https://apiyi.com",
-    docs: "https://apiyi.com/quick-start.html",
+    docs: "https://docs.apiyi.com",
     console: "https://api.apiyi.com",
     pricing: "https://apiyi.com/#pricing",
     privacyPolicy: "https://apiyi.com/privacyPolicy.html",

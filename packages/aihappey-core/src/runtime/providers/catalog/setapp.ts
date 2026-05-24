@@ -4,7 +4,7 @@ export const setapp: Provider = {
   name: "Setapp",
   description: "Setapp is a large collection of powerful Mac apps available by subscription.",
   icons: [{
-    src: "https://setapp.com/_next/static/media/favicon.84fdedaf.png"
+    src: "https://setapp.com/favicon.svg"
   }],
   urls: {
     homepage: "https://setapp.com",
