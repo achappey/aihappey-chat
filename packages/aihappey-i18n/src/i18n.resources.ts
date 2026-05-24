@@ -87,6 +87,11 @@ import nbProviders from "./locales/nb/providers.json";
 import nbMimeTypes from "./locales/nb/mimeTypes.json";
 import nbRegional from "./locales/nb/regional.json";
 
+import fiCommon from "./locales/fi/fi.json";
+import fiProviders from "./locales/fi/providers.json";
+import fiMimeTypes from "./locales/fi/mimeTypes.json";
+import fiRegional from "./locales/fi/regional.json";
+
 export const resources = {
   en: { common: enCommon, providers: enProviders, mimeTypes: enMimeTypes, regional: enRegional },
   nl: { common: nlCommon, providers: nlProviders, mimeTypes: nlMimeTypes, regional: nlRegional },
@@ -109,6 +114,7 @@ export const resources = {
   da: { common: daCommon, providers: daProviders, mimeTypes: daMimeTypes, regional: daRegional },
   sv: { common: svCommon, providers: svProviders, mimeTypes: svMimeTypes, regional: svRegional },
   nb: { common: nbCommon, providers: nbProviders, mimeTypes: nbMimeTypes, regional: nbRegional },
+  fi: { common: fiCommon, providers: fiProviders, mimeTypes: fiMimeTypes, regional: fiRegional },
 } as const;
 
 export const supportedLngs = Object.keys(resources);
