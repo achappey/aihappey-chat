@@ -11,6 +11,7 @@ import tr from "timeago.js/lib/lang/tr";
 import ru from "timeago.js/lib/lang/ru";
 import ja from "timeago.js/lib/lang/ja";
 import ro from "timeago.js/lib/lang/ro";
+import fi from "timeago.js/lib/lang/fi";
 import it from "timeago.js/lib/lang/it";
 import vi from "timeago.js/lib/lang/vi";
 import th from "timeago.js/lib/lang/th";
@@ -32,6 +33,7 @@ export function registerTimeagoLocales() {
   register("ru", ru);
   register("th", th);
   register("it", it);
+  register("fi", fi);
   register("es", es);
   register("pt", ptBR);
   register("da", da);

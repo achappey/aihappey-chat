@@ -23,5 +23,6 @@ export const languageNames = {
   bn: "বাংলা",
   da: "Dansk",
   sv: "Svenska",
-  nb: "Norsk bokmål"
+  nb: "Norsk bokmål",
+  fi: "Suomi"
 };
