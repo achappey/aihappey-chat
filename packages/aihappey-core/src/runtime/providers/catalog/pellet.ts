@@ -9,6 +9,7 @@ export const pellet: Provider = {
   urls: {
     homepage: "https://getpellet.io",
     pricing: "https://getpellet.io/#pricing",
+    docs: "https://getpellet.io/docs",
     privacyPolicy: "https://getpellet.io/privacy",
     termsOfService: "https://getpellet.io/terms"
   },
