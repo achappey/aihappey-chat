@@ -1,0 +1,19 @@
+{
+    "mimeType": "Filtyp",
+    "text/plain": "Text",
+    "audio/webm": "WebM-ljud",
+    "audio/mpeg": "MPEG-ljud",
+    "image/png": "PNG-bild",
+    "application/pdf": "PDF-dokument",
+    "application/zip": "ZIP",
+    "text/markdown": "Markdown",
+    "text/html": "HTML",
+    "application/xml": "XML",
+    "application/json": "JSON",
+    "application/vnd.agents+json": "Agenter",
+    "application/vnd.agent+json": "Agent",
+    "text/html+skybridge": "OpenAI-appen",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel"
+}

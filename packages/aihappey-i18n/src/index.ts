@@ -21,5 +21,6 @@ export const languageNames = {
   ro: "Română",
   id: "Bahasa Indonesia",
   bn: "বাংলা",
-  da: "Dansk"
+  da: "Dansk",
+  sv: "Svenska"
 };

@@ -16,6 +16,7 @@ import vi from "timeago.js/lib/lang/vi";
 import th from "timeago.js/lib/lang/th";
 import ptBR from "timeago.js/lib/lang/pt_BR";
 import da from "timeago.js/lib/lang/da";
+import sv from "timeago.js/lib/lang/sv";
 
 export function registerTimeagoLocales() {
   register("nl", nl);
@@ -33,4 +34,5 @@ export function registerTimeagoLocales() {
   register("es", es);
   register("pt", ptBR);
   register("da", da);
+  register("sv", sv);
 }
