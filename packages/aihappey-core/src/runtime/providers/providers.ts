@@ -206,7 +206,6 @@ import { evolinkai } from "./catalog/evolinkai";
 import { zenlayer } from "./catalog/zenlayer";
 import { aihubmix } from "./catalog/aihubmix";
 import { uniapi } from "./catalog/uniapi";
-import { aiforhire } from "./catalog/aiforhire";
 import { apekey } from "./catalog/apekey";
 import { apertis } from "./catalog/apertis";
 import { wisgate } from "./catalog/wisgate";
@@ -381,7 +380,6 @@ import { messari } from "./catalog/messari";
 import { memoryrouter } from "./catalog/memoryrouter";
 import { imagerouter } from "./catalog/imagerouter";
 import { cailos } from "./catalog/cailos";
-import { codexforme } from "./catalog/codexforme";
 import { runapi } from "./catalog/runapi";
 import { gaterouter } from "./catalog/gaterouter";
 import { baseapi } from "./catalog/baseapi";
@@ -532,6 +530,8 @@ import { nodion } from "./catalog/nodion";
 import { generalcompute } from "./catalog/generalcompute";
 import { libertai } from "./catalog/libertai";
 import { jules } from "./catalog/jules";
+import { aigateway } from "./catalog/aigateway";
+import { miapi } from "./catalog/miapi";
 
 /**
  * UI-facing provider catalog.
@@ -670,8 +670,8 @@ export const PROVIDERS: Record<string, Provider> = {
   xiaomimimo,
   vivgrid,
   chutes,
+  miapi,
   ambient,
-  codexforme,
   baseapi,
   oxoapi,
   preapi,
@@ -821,10 +821,10 @@ export const PROVIDERS: Record<string, Provider> = {
   cloudferro,
   jigsawstack,
   eachlabs,
-  aiforhire,
   nimbleway,
   cloister,
   packetai,
+  aigateway,
   synthetic,
   longcat,
   renderful,
