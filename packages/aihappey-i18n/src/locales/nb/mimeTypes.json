@@ -1,0 +1,19 @@
+{
+    "mimeType": "Filtype",
+    "text/plain": "Tekst",
+    "audio/webm": "Web Movie",
+    "audio/mpeg": "MPEG-lydinndata lag 3",
+    "image/png": "Portable Network Graphic",
+    "application/pdf": "Portable Document Format",
+    "application/zip": "ZIP",
+    "text/markdown": "Markdown",
+    "text/html": "Hypertekst-markeringsspråk",
+    "application/xml": "Extensible Markup Language",
+    "application/json": "JavaScript Object Notation",
+    "application/vnd.agents+json": "Agenter",
+    "application/vnd.agent+json": "Agent",
+    "text/html+skybridge": "OpenAI-app",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel"
+}
