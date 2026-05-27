@@ -180,7 +180,6 @@ import { llmlayer } from "./catalog/llmlayer";
 import { simplismart } from "./catalog/simplismart";
 import { chaingpt } from "./catalog/chaingpt";
 import { routeway } from "./catalog/routeway";
-import { cheapestinference } from "./catalog/cheapestinference";
 import { tetrate } from "./catalog/tetrate";
 import { clod } from "./catalog/clod";
 import { github } from "./catalog/github";
@@ -191,7 +190,6 @@ import { kissapi } from "./catalog/kissapi";
 import { zenmux } from "./catalog/zenmux";
 import { netmind } from "./catalog/netmind";
 import { apiyi } from "./catalog/apiyi";
-import { widnai } from "./catalog/widnai";
 import { thaura } from "./catalog/thaura";
 import { modal } from "./catalog/modal";
 import { apifree } from "./catalog/apifree";
@@ -233,7 +231,6 @@ import { synthetic } from "./catalog/synthetic";
 import { renderful } from "./catalog/renderful";
 import { tigercity } from "./catalog/tigercity";
 import { kittenstack } from "./catalog/kittenstack";
-import { packetai } from "./catalog/packetai";
 import { edenai } from "./catalog/edenai";
 import { websearchapi } from "./catalog/websearchapi";
 import { nimbleway } from "./catalog/nimbleway";
@@ -815,7 +812,6 @@ export const PROVIDERS: Record<string, Provider> = {
   eachlabs,
   nimbleway,
   cloister,
-  packetai,
   aigateway,
   synthetic,
   longcat,
@@ -863,7 +859,6 @@ export const PROVIDERS: Record<string, Provider> = {
   dandolo,
   forefront,
   literouter,
-  widnai,
   orqagentruntime,
   syllogy,
   typecast,
@@ -999,7 +994,6 @@ export const PROVIDERS: Record<string, Provider> = {
   gladia,
   alltoken,
   clod,
-  cheapestinference,
   wai,
   opencode,
   chaingpt,
