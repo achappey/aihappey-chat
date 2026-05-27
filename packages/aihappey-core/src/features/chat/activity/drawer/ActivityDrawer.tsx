@@ -2,12 +2,10 @@ import { useMemo, useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { ToolInvocationsActivity } from "../content/ToolInvocationsActivity";
-import { SamplingActivity } from "../tabs/SamplingActivity";
 import { UIMessage } from "aihappey-ai";
 import { useTranslation } from "aihappey-i18n";
 import { CanvasActivity } from "../tabs/CanvasActivity";
 import { DataActivity } from "../content/DataActivity";
-import { LoggingNotificationsActivity } from "../tabs/LoggingNotificationsActivity";
 import { useIsDesktop } from "../../../../shell/responsive/useIsDesktop";
 
 /**
@@ -356,17 +354,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
       label: t("dataParts"),
       component: DataActivity,
       getProps: () => ({ dataCards }),
-    },
-    {
-      key: "mcpSampling",
-      label: t("sampling"),
-      component: SamplingActivity,
-    },
-    {
-      key: "mcpLogging",
-      label: t("log"),
-      component: LoggingNotificationsActivity,
-    },
+    }  
   ];
 
   const tabOrder =
