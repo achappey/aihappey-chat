@@ -46,15 +46,13 @@ export const Image: Story = {
 
 export const Audio: Story = {
   args: {
-    block: audioLink,
-    translations: { noAudioSupport: "Your browser does not support audio." },
+    block: audioLink,   
   },
 };
 
 export const Video: Story = {
   args: {
-    block: videoLink,
-    translations: { noVideoSupport: "Your browser does not support video." },
+    block: videoLink, 
   },
 };
 

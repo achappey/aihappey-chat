@@ -36,8 +36,7 @@ export const WithEdit: Story = {
 export const WithDeleteMenu: Story = {
     args: {
         agent: exampleAgent,
-        onDelete: () => { },
-        translations: { delete: "Delete" },
+        onDelete: () => { }
     },
 };
 
@@ -46,7 +45,7 @@ export const WithEditAndDelete: Story = {
         agent: exampleAgent,
         onEdit: () => { },
         onDelete: () => { },
-        translations: { delete: "Delete" },
+      
     },
 };
 
