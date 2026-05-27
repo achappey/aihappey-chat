@@ -9,6 +9,7 @@ export const clauddy: Provider = {
   urls: {
     homepage: "https://clauddy.com",
     docs: "https://docs.clauddy.com",
+    pricing: "https://clauddy.com/pricing",
     privacyPolicy: "https://docs.clauddy.com/en/terms/privacy-policy.html",
     termsOfService: "https://docs.clauddy.com/en/terms/user-agreement.html"
   },
