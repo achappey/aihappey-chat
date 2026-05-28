@@ -223,7 +223,8 @@ export const defaultProviderMetadata = {
       "type": "web_search",
       "allowed_domains": [],
       "excluded_domains": [],
-      "enable_image_understanding": true
+      "enable_image_understanding": true,
+      "enable_image_search": true
     }],
     "include":
       [

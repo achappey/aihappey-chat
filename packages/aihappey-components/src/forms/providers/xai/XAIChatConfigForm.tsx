@@ -14,6 +14,7 @@ type Effort = (typeof EFFORTS)[number];
 const DEFAULT_WEB_SEARCH = {
   type: "web_search",
   enable_image_understanding: true,
+  enable_image_search: true,
   allowed_domains: [],
   excluded_domains: [],
 };
@@ -158,6 +159,22 @@ export const XAIChatConfigForm = ({
                 web_search: {
                   ...resolvedConfig.web_search,
                   enable_image_understanding: val,
+                },
+              })
+            }
+          />
+
+          <theme.Switch
+            id="webImageSearch"
+            label={t("providers:xai.imageSearch")}
+            disabled={!webSearchOn}
+            checked={resolvedConfig?.web_search?.enable_image_search}
+            onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
+                web_search: {
+                  ...resolvedConfig.web_search,
+                  enable_image_search: val,
                 },
               })
             }

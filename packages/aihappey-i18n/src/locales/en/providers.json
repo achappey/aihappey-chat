@@ -508,6 +508,7 @@
   },
   "xai": {
     "imageUnderstanding": "Image understanding",
+    "imageSearch": "Image search",
     "videoUnderstanding": "Video understanding",
     "allowedDomains": "Allowed domains",
     "excludedDomains": "Excluded domains",

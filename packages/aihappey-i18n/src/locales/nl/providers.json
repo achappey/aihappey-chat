@@ -611,6 +611,7 @@
   },
   "xai": {
     "imageUnderstanding": "Begrip van afbeeldingen",
+    "imageSearch": "Afbeeldingen zoeken",
     "videoUnderstanding": "Begrip van video's",
     "allowedDomains": "Toegestane domeinen",
     "excludedDomains": "Uitgesloten domeinen",
