@@ -17,6 +17,19 @@ function hasReasoningText(part: UIMessagePart<any, any>): boolean {
   return String(text).trim().length > 0;
 }
 
+function parseCost(value: unknown): number | undefined {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
 export function toChatMessages(
   messages: UIMessage[],
 ): ChatMessage[] {
@@ -38,16 +51,23 @@ export function toChatMessages(
     const temperature = meta?.temperature;
     const totalTokens = meta?.totalTokens;
     const usage = meta?.usage;
-    const costRaw = meta?.gateway?.cost ?? meta?.cost;
-    const cost =
-      typeof costRaw === "number"
-        ? costRaw
-        : typeof costRaw === "string" && costRaw.trim().length > 0
-          ? Number(costRaw)
-          : undefined;
     const parts = ((z.parts ?? [])).filter(
       (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
     );
+
+    const baseCost = parseCost(meta?.gateway?.cost ?? meta?.cost);
+    const toolPartsCost = parts.reduce((sum, part) => {
+      const partAny = part as any;
+      const partCost = parseCost(
+        partAny?.output?._meta?.gateway?.cost
+      );
+
+      return sum + (partCost ?? 0);
+    }, 0);
+
+    const hasToolPartsCost = toolPartsCost !== 0;
+    const cost = (baseCost ?? 0) + toolPartsCost;
+    const effectiveCost = (baseCost !== undefined || hasToolPartsCost) ? cost : undefined;
 
     const nonImageFiles = parts.filter(
       (p): p is FileUIPart =>
@@ -94,7 +114,7 @@ export function toChatMessages(
         temperature,
         totalTokens,
         usage,
-        cost,
+        cost: effectiveCost,
       } as any);
 
       activityRun = [];
@@ -118,7 +138,7 @@ export function toChatMessages(
         temperature,
         totalTokens,
         usage,
-        cost,
+        cost: effectiveCost,
       } as any);
 
       imageRun = [];
@@ -163,7 +183,7 @@ export function toChatMessages(
           temperature,
           totalTokens,
           usage,
-          cost,
+          cost: effectiveCost,
         } as any);
 
         continue;
@@ -204,7 +224,7 @@ export function toChatMessages(
           temperature,
           totalTokens,
           usage,
-          cost,
+          cost: effectiveCost,
         } as any);
 
         continue;
