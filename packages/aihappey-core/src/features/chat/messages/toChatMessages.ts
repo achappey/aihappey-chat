@@ -10,6 +10,13 @@ function isCallToolResult(output: unknown): output is CallToolResult {
   );
 }
 
+function hasReasoningText(part: UIMessagePart<any, any>): boolean {
+  if (part?.type !== "reasoning") return true;
+
+  const text = part.text ?? "";
+  return String(text).trim().length > 0;
+}
+
 export function toChatMessages(
   messages: UIMessage[],
 ): ChatMessage[] {
@@ -38,7 +45,9 @@ export function toChatMessages(
         : typeof costRaw === "string" && costRaw.trim().length > 0
           ? Number(costRaw)
           : undefined;
-    const parts = ((z.parts ?? [])).filter((p) => p?.type !== "step-start");
+    const parts = ((z.parts ?? [])).filter(
+      (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
+    );
 
     const nonImageFiles = parts.filter(
       (p): p is FileUIPart =>

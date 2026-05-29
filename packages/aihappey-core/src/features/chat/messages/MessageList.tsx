@@ -94,34 +94,6 @@ export const MessageList = ({
   // If your current hook returns another shape, swap this line to:
   //   const chatMessages = toChatMessages(messages);
   const chatMessages: ChatMessage[] = toChatMessages(messages) as any;
-  const openSampling = useOpenSamplings(samplingRuntime)
-  const mergedSampling = useMemo(() => {
-    const byId = new Map<string, {
-      id: string; createdAt: string; serverUrl: string; request: CreateMessageRequest;
-      result?: CreateMessageResult
-    }>();
-
-    // completed first
-    for (const [id, tuple] of Object.entries(sampling)) {
-      const [createdAt, serverUrl, request, result] = tuple as SamplingRequest;
-      byId.set(id, { id, createdAt, serverUrl, request, result });
-    }
-
-    // running overwrites (prevents duplicate render)
-    for (const s of openSampling) {
-      const existing = byId.get(s.id);
-      byId.set(s.id, {
-        id: s.id,
-        createdAt: existing?.createdAt ?? s.createdAt,
-        serverUrl: s.serverUrl,
-        request: s.request,
-        result: existing?.result,
-      });
-    }
-
-    return [...byId.values()].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
-  }, [openSampling, sampling]);
-
   const copyClipboard = async (msg: ChatMessage) =>
     await copyMarkdownToClipboard(msg.content?.[0].type == "text" ? msg.content?.[0]?.text : JSON.stringify(msg));
 
