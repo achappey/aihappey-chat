@@ -294,7 +294,6 @@ import { brainiall } from "./catalog/brainiall";
 import { agabeyogluai } from "./catalog/agabeyogluai";
 import { airouter } from "./catalog/airouter";
 import { agentics } from "./catalog/agentics";
-import { gatewayz } from "./catalog/gatewayz";
 import { nrpnautilus } from "./catalog/nrpnautilus";
 import { eagm } from "./catalog/eagm";
 import { edgee } from "./catalog/edgee";
@@ -742,7 +741,6 @@ export const PROVIDERS: Record<string, Provider> = {
   cline,
   shakespeare,
   ainative,
-  gatewayz,
   token360,
   lexico,
   eagm,
