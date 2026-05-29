@@ -212,7 +212,6 @@ import { speechactors } from "./catalog/speechactors";
 import { gptproto } from "./catalog/gptproto";
 import { neosantara } from "./catalog/neosantara";
 import { redpill } from "./catalog/redpill";
-import { blazerail } from "./catalog/blazerail";
 import { aether } from "./catalog/aether";
 import { regraph } from "./catalog/regraph";
 import { electronhub } from "./catalog/electronhub";
@@ -968,8 +967,7 @@ export const PROVIDERS: Record<string, Provider> = {
   blackbox,
   primeintellect,
   inceptionlabs,
-  aionlabs,
-  blazerail,
+  aionlabs,  
   databricks,
   straico,
   blackforestlabs,
