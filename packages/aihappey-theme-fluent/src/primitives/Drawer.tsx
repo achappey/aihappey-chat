@@ -41,6 +41,10 @@ export const Drawer = (props: DrawerProps) => {
       separator
       position={position === "top" ? "end" : position}
       size={sizeMap[size]}
+      style={{
+        height: "100%",
+        minHeight: "100%",
+      }}
     >
       {title && (
         <DrawerHeader>
