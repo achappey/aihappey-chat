@@ -525,6 +525,8 @@ import { aigateway } from "./catalog/aigateway";
 import { miapi } from "./catalog/miapi";
 import { rodiumai } from "./catalog/rodiumai";
 import { miromind } from "./catalog/miromind";
+import { serverspace } from "./catalog/serverspace";
+import { thalam } from "./catalog/thalam";
 
 /**
  * UI-facing provider catalog.
@@ -949,6 +951,8 @@ export const PROVIDERS: Record<string, Provider> = {
   matterai,
   electronhub,
   ohmygpt,
+  thalam,
+  serverspace,
   tavily,
   opeai,
   arceeai,
