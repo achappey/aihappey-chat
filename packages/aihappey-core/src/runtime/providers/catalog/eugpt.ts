@@ -2,17 +2,18 @@ import type { Provider } from "aihappey-types";
 
 export const eugpt: Provider = {
   name: "EuGPT",
-  description: "EuGPT: Die europäische KI-Plattform. DSGVO-konformer KI-Chat, API-Zugang und Beratung für KI-Transformation — gehostet in Deutschland.",
+  description: "AI for organizations built on European values. Compliance with legislation is our starting point, not an afterthought.",
   icons: [{
-    src: "https://eugpt.eu/favicon.svg"
+    src: "https://www.eugpt.ai/favicon_io/apple-touch-icon.png"
   }],
   urls: {
-    homepage: "https://eugpt.eu",
-    docs: "https://eugpt.eu/en/developers",
-    privacyPolicy: "https://eugpt.eu/en/privacy",
-    termsOfService: "https://eugpt.eu/en/agb"
+    homepage: "https://www.eugpt.ai",
+    docs: "https://www.eugpt.ai/en/api",
+    pricing:"https://eugpt.ai/pricing",
+    privacyPolicy: "https://www.eugpt.ai/en/privacy",
+    termsOfService: "https://www.eugpt.ai/en/terms"
   },
-  providerCountry: "DE",
+  providerCountry: "NL",
   category: "gateway_router",
   inferenceRegions: ["Europe"]
 

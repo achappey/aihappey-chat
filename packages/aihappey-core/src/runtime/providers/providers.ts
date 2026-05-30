@@ -532,6 +532,8 @@ import { hyperrouter } from "./catalog/hyperrouter";
 import { clawlite } from "./catalog/clawlite";
 import { toolrelay } from "./catalog/toolrelay";
 import { callmissed } from "./catalog/callmissed";
+import { realrouter } from "./catalog/realrouter";
+import { picklyone } from "./catalog/picklyone";
 
 /**
  * UI-facing provider catalog.
@@ -543,6 +545,8 @@ export const PROVIDERS: Record<string, Provider> = {
   citadelis,
   doubleword,
   slancha,
+  realrouter,
+  picklyone,
   tembo,
   poolside,
   microsoft,
