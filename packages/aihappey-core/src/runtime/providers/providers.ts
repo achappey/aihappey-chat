@@ -527,6 +527,11 @@ import { rodiumai } from "./catalog/rodiumai";
 import { miromind } from "./catalog/miromind";
 import { serverspace } from "./catalog/serverspace";
 import { thalam } from "./catalog/thalam";
+import { ourtoken } from "./catalog/ourtoken";
+import { hyperrouter } from "./catalog/hyperrouter";
+import { clawlite } from "./catalog/clawlite";
+import { toolrelay } from "./catalog/toolrelay";
+import { callmissed } from "./catalog/callmissed";
 
 /**
  * UI-facing provider catalog.
@@ -565,6 +570,7 @@ export const PROVIDERS: Record<string, Provider> = {
   luminoai,
   tokenhub,
   vibekit,
+  callmissed,
   groovedev,
   merge,
   zyloapi,
@@ -885,14 +891,18 @@ export const PROVIDERS: Record<string, Provider> = {
   mistral,
   lectoai,
   gmicloud,
+  toolrelay,
   byteplus,
   bytespace,
+  clawlite,
   cohere,
   modernmt,
   kissapi,
   groq,
   xai,
+  hyperrouter,
   together,
+  ourtoken,
   googletranslate,
   infomaniak,
   siliconflow,
