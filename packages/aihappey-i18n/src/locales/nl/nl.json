@@ -195,6 +195,32 @@
         "providers": "Een overzicht van alle {{total}} beschikbare AI-providers. Per provider zie je wat deze biedt, voor welke toepassingen hij geschikt is en wanneer het logisch is om hem te gebruiken. Dit helpt je om per taak of workflow de juiste provider te kiezen op een duidelijke en consistente manier.",
         "models": "AI-modellen",
         "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier.",
+        "providerCategories": {
+            "model_provider": {
+                "label": "Modellab",
+                "description": "Bouwt en beheert foundation AI-modellen die direct of via andere platforms gebruikt kunnen worden."
+            },
+            "gateway_router": {
+                "label": "Gateway",
+                "description": "Routeert aanvragen over meerdere AI-providers, vaak met één API, fallback en facturatie."
+            },
+            "inference_compute": {
+                "label": "Compute",
+                "description": "Levert infrastructuur en rekenkracht voor het hosten en uitvoeren van AI-inference workloads."
+            },
+            "media_voice": {
+                "label": "Media",
+                "description": "Richt zich op afbeelding-, video-, spraak-, audio- en andere creatieve generatie-API's."
+            },
+            "search_data": {
+                "label": "Zoeken",
+                "description": "Biedt zoek-, retrieval-, embedding-, reranking-, OCR- en data-intelligence mogelijkheden."
+            },
+            "app_tools": {
+                "label": "Apps/tools",
+                "description": "Levert agenttools, AI-apps, workflowhulpmiddelen en gespecialiseerde applicatiefunctionaliteit."
+            }
+        },
         "usage": {
             "nav": "Gebruik",
             "title": "AI-gebruik",

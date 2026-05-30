@@ -83,6 +83,12 @@ import {
   Stars,
   Diagram3,
   Display,
+  Binoculars,
+  Tools,
+  Cpu,
+  Router,
+  CameraReels,
+  GpuCard,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -142,6 +148,12 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   search: <Search />,
   menu: <List />,
   skills: <Stars />,
+  gateway_router: <Router />,
+  model_provider: <Cpu />,
+  media_voice: <CameraReels />,
+  inference_compute: <GpuCard />,
+  search_data: <Binoculars />,
+  app_tools: <Tools />,
   structuredOutputs: <CodeSlash />,
   sources: <Cloud />,
   server: <Server />,

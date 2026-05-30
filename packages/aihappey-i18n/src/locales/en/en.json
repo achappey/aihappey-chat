@@ -206,6 +206,32 @@
         "models": "AI Models",
         "description": "An overview of all {{total}} available AI models. For each model, you can see its capabilities, intended use, and how it compares to other models. This helps you choose the right model per task, use case, or workflow in a transparent and consistent way.",
         "providers": "An overview of all {{total}} available AI providers. For each provider, you can see what it offers, how it fits into different use cases, and when it makes sense to use it. This helps you select the right provider per task or workflow in a clear and consistent way.",
+        "providerCategories": {
+            "model_provider": {
+                "label": "Model Lab",
+                "description": "Builds and owns foundation AI models that can be used directly or via other platforms."
+            },
+            "gateway_router": {
+                "label": "Gateway",
+                "description": "Routes requests across multiple AI providers, often with unified APIs, fallback, and billing."
+            },
+            "inference_compute": {
+                "label": "Compute",
+                "description": "Provides infrastructure and runtime capacity for hosting and running AI inference workloads."
+            },
+            "media_voice": {
+                "label": "Media",
+                "description": "Focuses on image, video, speech, audio, voice, and other creative-generation APIs."
+            },
+            "search_data": {
+                "label": "Search",
+                "description": "Provides search, retrieval, embeddings, reranking, OCR, and data-intelligence capabilities."
+            },
+            "app_tools": {
+                "label": "Apps/tools",
+                "description": "Delivers agent tools, AI apps, workflow utilities, and specialized application capabilities."
+            }
+        },
         "usage": {
             "nav": "Usage",
             "title": "AI usage",

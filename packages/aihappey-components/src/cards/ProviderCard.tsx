@@ -2,8 +2,8 @@ import { useTheme } from "../theme/ThemeContext";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
 import { ViewButton } from "../buttons/ViewButton";
 import { LimitedTextField } from "../fields";
-import { ExperimentalBadge, ModelTypeBadge } from "../badges";
-import { ProviderUrls } from "aihappey-types";
+import { ExperimentalBadge, ModelTypeBadge, ProviderCategoryBadge } from "../badges";
+import { ProviderCategory, ProviderUrls } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
 import Flag from "react-world-flags";
 
@@ -13,6 +13,7 @@ export type ProviderCardProps = {
     image?: string;
     description?: string;
     providerCountry?: string
+    category?: ProviderCategory;
     experimental?: boolean;
     selected?: boolean;
     modelTypes?: string[];
@@ -27,6 +28,7 @@ export const ProviderCard = ({
     selected,
     experimental,
     providerCountry,
+    category,
     modelTypes,
     onView,
 }: ProviderCardProps) => {
@@ -39,7 +41,7 @@ export const ProviderCard = ({
     ) : undefined;
 
     const descriptionItem =
-        experimental || (modelTypes?.length ?? 0) > 0 ? (
+        category || experimental || (modelTypes?.length ?? 0) > 0 ? (
             <div
                 style={{
                     display: "flex",
@@ -48,6 +50,8 @@ export const ProviderCard = ({
                     flexWrap: "wrap"
                 }}
             >
+                {category && <ProviderCategoryBadge category={category} size="small" />}
+
                 {experimental && <ExperimentalBadge size="small" />}
 
                 {modelTypes?.map((type) => (

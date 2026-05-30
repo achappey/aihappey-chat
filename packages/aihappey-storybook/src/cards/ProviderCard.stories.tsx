@@ -44,12 +44,28 @@ export const WithViewAction: Story = {
     },
     image: "https://placehold.co/32x32?text=A",
     description: "Provider with View + external link actions",
+    category: "model_provider",
     experimental: true,
     modelTypes: ["language", "image"],
     onView: () => {
       // Storybook demo action placeholder
       console.log("ProviderCard view clicked");
     },
+  },
+};
+
+export const WithCategoryFirstBadge: Story = {
+  args: {
+    name: "Example Router",
+    urls: {
+      homepage: "https://example.com",
+      docs: "https://example.com/docs",
+    },
+    image: "https://placehold.co/32x32?text=R",
+    description: "Category badge should render before all other provider badges.",
+    category: "gateway_router",
+    experimental: true,
+    modelTypes: ["language", "speech"],
   },
 };
 

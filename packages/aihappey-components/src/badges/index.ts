@@ -11,3 +11,4 @@ export * from "./ExperimentalBadge";
 export * from "./ContextWindowBadge";
 export * from "./MaxOutputTokensBadge";
 export * from "./ModelTypeBadge";
+export * from "./ProviderCategoryBadge";

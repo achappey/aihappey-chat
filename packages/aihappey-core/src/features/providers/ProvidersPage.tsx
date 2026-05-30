@@ -76,6 +76,7 @@ export const ProvidersPage = () => {
                 experimental: m?.experimental,
                 providerCountry: m?.providerCountry,
                 inferenceRegions: m?.inferenceRegions,
+                category: m?.category,
                 urls: m?.urls,
                 icons: m?.icons,
             } satisfies ProviderListItem;
@@ -210,6 +211,7 @@ export const ProvidersPage = () => {
                                         experimental={p.experimental}
                                         urls={p.urls}
                                         providerCountry={p.providerCountry}
+                                        category={p.category}
                                         image={image}
                                         description={p.description ?? p.key}
                                         modelTypes={modelTypes}

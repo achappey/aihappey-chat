@@ -103,6 +103,11 @@ import {
   CurrencyDollarEuroRegular,
   SparkleRegular,
   ChannelRegular,
+  DatabaseSearchRegular,
+  WindowWrenchRegular,
+  CloudCubeRegular,
+  BrainCircuitRegular,
+  RouterRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -131,6 +136,12 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   tool: WrenchRegular,
   print: PrintRegular,
   openLink: OpenRegular,
+  gateway_router: RouterRegular,
+  model_provider: BrainCircuitRegular,
+  app_tools: WindowWrenchRegular,
+  search_data: DatabaseSearchRegular,
+  media_voice: OpenRegular,
+  inference_compute: CloudCubeRegular,
   robot: BotFilled,
   chatSettings: ChatSettingsRegular,
   arena: DualScreenGroupRegular,
