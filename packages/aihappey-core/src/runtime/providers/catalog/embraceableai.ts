@@ -8,9 +8,7 @@ export const embraceableai: Provider = {
   }],
   urls: {
     homepage: "https://embraceable.ai",
-    docs: "https://docs.embraceable.ai",
-    privacyPolicy: "https://embraceable.ai/datenschutz",
-    termsOfService: "https://embraceable.ai/agb"
+    docs: "https://docs.embraceable.ai"
   },
   providerCountry: "DE",
   category: "gateway_router",

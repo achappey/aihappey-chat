@@ -15,7 +15,7 @@ export const cirrascale: Provider = {
     pricing: "https://www.cirrascale.com/pricing",
     docs: "https://aisuite.cirrascale.com/imagine-api-docs",
     privacyPolicy: "https://www.cirrascale.com/privacy-policy",
-    termsOfService: "https://www.cirrascale.com/terms-of-use"
+    termsOfService: "https://www.cirrascale.com/terms-of-service"
   },
   providerCountry: "US",
   category: "inference_compute",

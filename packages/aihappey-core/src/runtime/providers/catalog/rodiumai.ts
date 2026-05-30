@@ -4,7 +4,7 @@ export const rodiumai: Provider = {
   name: "RodiumAI",
   description: "One API. Multiple models. Pay with Mobile Money. Recharge in RODI credits and use GPT, Claude, Llama, DeepSeek and more.",
   icons: [{
-    src: "https://www.rodiumai.io/icon.png"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://rodiumai.io&size=128"
   }],
   urls: {
     homepage: "https://www.rodiumai.io",
