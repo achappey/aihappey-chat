@@ -523,6 +523,8 @@ import { libertai } from "./catalog/libertai";
 import { jules } from "./catalog/jules";
 import { aigateway } from "./catalog/aigateway";
 import { miapi } from "./catalog/miapi";
+import { rodiumai } from "./catalog/rodiumai";
+import { miromind } from "./catalog/miromind";
 
 /**
  * UI-facing provider catalog.
@@ -952,7 +954,9 @@ export const PROVIDERS: Record<string, Provider> = {
   arceeai,
   daglo,
   paraloncloud,
+  rodiumai,
   publicai,
+  miromind,
   exa,
   nscale,
   kilo,
