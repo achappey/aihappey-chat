@@ -14,7 +14,7 @@ export const aigateway: Provider = {
     termsOfService: "https://aigateway.sh/terms"
   },
   providerCountry: "US",
-  category: "media_voice",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };
