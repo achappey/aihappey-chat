@@ -16,6 +16,7 @@ export const ideogram: Provider = {
     termsOfService: "https://ideogram.ai/legal/api-tos"
   },
   providerCountry: "CA",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

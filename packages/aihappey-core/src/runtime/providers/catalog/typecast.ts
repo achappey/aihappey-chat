@@ -17,6 +17,7 @@ export const typecast: Provider = {
     privacyPolicy: "https://help.typecast.ai/en/articles/10717358-privacy-policy"
   },
   providerCountry: "KR",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

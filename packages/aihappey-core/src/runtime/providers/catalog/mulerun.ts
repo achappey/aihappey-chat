@@ -15,6 +15,7 @@ export const mulerun: Provider = {
     termsOfService: "https://mulerun.com/docs/legal/user-terms-of-use"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

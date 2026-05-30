@@ -16,5 +16,6 @@ export const mancerai: Provider = {
     privacyPolicy: "https://mancer.tech/privacy"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

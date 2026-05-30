@@ -13,6 +13,7 @@ export const mimicxai: Provider = {
     termsOfService: "https://mimicx.ai/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -15,6 +15,7 @@ export const chainhub: Provider = {
     termsOfService: "https://chainhub.tech/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

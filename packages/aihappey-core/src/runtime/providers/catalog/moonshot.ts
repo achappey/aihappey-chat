@@ -23,6 +23,7 @@ export const moonshot: Provider = {
     termsOfService: "https://platform.moonshot.ai/docs/agreement/modeluse"
   },
   providerCountry: "CN",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

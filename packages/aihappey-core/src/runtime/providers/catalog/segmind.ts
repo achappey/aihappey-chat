@@ -17,6 +17,7 @@ export const segmind: Provider = {
     console: "https://app.segmind.com"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

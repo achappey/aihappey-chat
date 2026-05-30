@@ -13,6 +13,7 @@ export const euqai: Provider = {
     termsOfService: "https://euqai.eu/static/terms"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 };
 

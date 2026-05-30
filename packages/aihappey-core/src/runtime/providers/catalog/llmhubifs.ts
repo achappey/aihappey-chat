@@ -14,6 +14,7 @@ export const llmhubifs: Provider = {
   },
   experimental: true,
   providerCountry: "CH",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

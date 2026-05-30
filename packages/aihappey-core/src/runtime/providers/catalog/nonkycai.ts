@@ -9,6 +9,7 @@ export const nonkycai: Provider = {
   urls: {
     homepage: "https://api.nonkycai.com"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

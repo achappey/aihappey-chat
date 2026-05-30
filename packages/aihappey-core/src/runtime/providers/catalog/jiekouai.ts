@@ -16,6 +16,7 @@ export const jiekouai: Provider = {
     termsOfService: "https://jiekou.ai/legal/terms-of-service"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

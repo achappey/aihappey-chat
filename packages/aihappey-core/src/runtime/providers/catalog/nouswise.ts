@@ -18,6 +18,7 @@ export const nouswise: Provider = {
     termsOfService: "https://nouswise.com/p/legal/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

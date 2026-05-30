@@ -13,6 +13,7 @@ export const serverspace: Provider = {
     termsOfService: "https://serverspace.io/conditions/terms-of-service"
   },
   providerCountry: "NL",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

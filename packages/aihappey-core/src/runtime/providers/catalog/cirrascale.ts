@@ -18,6 +18,7 @@ export const cirrascale: Provider = {
     termsOfService: "https://www.cirrascale.com/terms-of-use"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const fullai: Provider = {
     privacyPolicy: "https://www.fullai.com/privacy",
     termsOfService: "https://www.fullai.com/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -21,6 +21,7 @@ export const pollinations: Provider = {
     termsOfService: "https://pollinations.ai/terms"
   },
   providerCountry: "DE",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

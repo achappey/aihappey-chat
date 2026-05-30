@@ -14,6 +14,7 @@ export const apiairforce: Provider = {
     termsOfService: "https://panel.api.airforce/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

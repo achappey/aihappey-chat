@@ -18,6 +18,7 @@ export const regoloai: Provider = {
     console: "https://dashboard.regolo.ai"
   },
   providerCountry: "IT",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 };
 

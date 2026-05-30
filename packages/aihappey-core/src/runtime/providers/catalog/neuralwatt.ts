@@ -14,6 +14,7 @@ export const neuralwatt: Provider = {
     termsOfService: "https://portal.neuralwatt.com/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

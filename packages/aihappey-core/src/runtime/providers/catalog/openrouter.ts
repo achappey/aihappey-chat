@@ -16,6 +16,7 @@ export const openrouter: Provider = {
     termsOfService: "https://openrouter.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

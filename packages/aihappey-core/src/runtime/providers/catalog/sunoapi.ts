@@ -8,6 +8,7 @@ export const sunoapi: Provider = {
       src: "https://sunoapi.org/logo.png"
     }
   ],
+  category: "media_voice",
   urls: {
     homepage: "https://sunoapi.org",
     docs: "https://docs.sunoapi.org"

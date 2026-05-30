@@ -18,6 +18,7 @@ export const browseruse: Provider = {
     termsOfService: "https://browser-use.com/legal/terms-of-service"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["Americas", "Europe", "Asia", "Africa"]
 
 };

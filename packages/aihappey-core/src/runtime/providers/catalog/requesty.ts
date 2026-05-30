@@ -17,6 +17,7 @@ export const requesty: Provider = {
     console: "https://app.requesty.ai"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["Asia", "Europe", "Americas"]
 };
 

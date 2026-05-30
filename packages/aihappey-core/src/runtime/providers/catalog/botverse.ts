@@ -12,6 +12,7 @@ export const botverse: Provider = {
     pricing: "https://www.botverse.dev/pricing",
     termsOfService: "https://www.botverse.dev/tos.html"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const osiris: Provider = {
     termsOfService: "https://osiris-code.com/terms"
   },
   providerCountry: "ID",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

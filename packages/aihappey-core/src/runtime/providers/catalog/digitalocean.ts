@@ -17,6 +17,7 @@ export const digitalocean: Provider = {
     console: "https://cloud.digitalocean.com"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

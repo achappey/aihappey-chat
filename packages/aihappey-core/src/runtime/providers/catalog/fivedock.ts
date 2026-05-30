@@ -14,6 +14,7 @@ export const fivedock: Provider = {
     termsOfService: "https://5dock.com/user-agreement"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

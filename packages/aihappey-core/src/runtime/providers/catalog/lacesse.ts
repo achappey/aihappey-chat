@@ -12,6 +12,7 @@ export const lacesse: Provider = {
     pricing: "https://lacesse.co.ke/api/home/#pricing"
   },
   providerCountry: "KE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

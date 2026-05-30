@@ -11,6 +11,7 @@ export const blockrun: Provider = {
     docs: "https://blockrun.ai/docs",
     pricing: "https://blockrun.ai/pricing"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

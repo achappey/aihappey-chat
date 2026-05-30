@@ -12,6 +12,7 @@ export const toapis: Provider = {
     docs: "https://docs.toapis.com"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

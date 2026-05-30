@@ -14,6 +14,7 @@ export const aisa: Provider = {
     termsOfService: "https://www.aisa.one/html/AIsa_Terms_Of_Service.html"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

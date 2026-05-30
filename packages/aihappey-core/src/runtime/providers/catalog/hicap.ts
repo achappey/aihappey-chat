@@ -12,6 +12,7 @@ export const hicap: Provider = {
     console: "https://platform.hicap.ai"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

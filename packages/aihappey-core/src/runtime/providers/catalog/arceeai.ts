@@ -17,6 +17,7 @@ export const arceeai: Provider = {
     termsOfService: "https://www.arcee.ai/terms-and-conditions"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["Americas"]
 
 };

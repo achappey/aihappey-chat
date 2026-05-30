@@ -14,6 +14,7 @@ export const assisters: Provider = {
     termsOfService: "https://www.assisters.dev/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

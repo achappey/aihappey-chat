@@ -12,6 +12,7 @@ export const tapas: Provider = {
     privacyPolicy: "https://tapas.one/privacy",
     termsOfService: "https://tapas.one/terms"
   },
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

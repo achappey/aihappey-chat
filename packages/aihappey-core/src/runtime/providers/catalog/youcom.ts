@@ -14,6 +14,7 @@ export const youcom: Provider = {
     termsOfService: "https://you.com/terms"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

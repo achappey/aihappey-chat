@@ -18,6 +18,7 @@ export const linkup: Provider = {
     termsOfService: "https://www.linkup.so/terms-of-use"
   },
   providerCountry: "FR",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

@@ -17,6 +17,7 @@ export const novita: Provider = {
     console: "https://console.novita.ai"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

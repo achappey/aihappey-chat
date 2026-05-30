@@ -18,6 +18,7 @@ export const portkey: Provider = {
     console: "https://app.portkey.ai"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

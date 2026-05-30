@@ -12,6 +12,7 @@ export const nrpnautilus: Provider = {
     termsOfService: "https://nrp.ai/NRP-AUP.pdf"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

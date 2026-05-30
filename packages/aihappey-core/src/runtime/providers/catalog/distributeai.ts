@@ -13,6 +13,7 @@ export const distributeai: Provider = {
     termsOfService: "https://www.distribute.ai/legal/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

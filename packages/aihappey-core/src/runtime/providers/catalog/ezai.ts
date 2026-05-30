@@ -14,6 +14,7 @@ export const ezai: Provider = {
     termsOfService: "https://ezaiapi.com/#"
   },
   providerCountry: "VN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

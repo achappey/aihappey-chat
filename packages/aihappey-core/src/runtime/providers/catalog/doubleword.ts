@@ -14,6 +14,7 @@ export const doubleword: Provider = {
     termsOfService: "https://doubleword.ai/terms-of-service"
   },
   providerCountry: "GB",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -16,6 +16,7 @@ export const cloudferro: Provider = {
     privacyPolicy: "https://cloudferro.com/privacy-policy"
   },
   providerCountry: "PL",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

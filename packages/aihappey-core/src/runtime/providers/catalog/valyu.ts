@@ -16,6 +16,7 @@ export const valyu: Provider = {
     termsOfService: "https://www.valyu.ai/valyu-platform-service-agreement"
   },
   providerCountry: "GB",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

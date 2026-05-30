@@ -10,6 +10,7 @@ export const async: Provider = {
     },
   ],
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"],
   urls: {
     homepage: "https://www.async.com",

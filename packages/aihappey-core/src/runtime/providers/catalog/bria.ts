@@ -17,6 +17,7 @@ export const bria: Provider = {
     console: "https://platform.bria.ai"
   },
   providerCountry: "IL",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

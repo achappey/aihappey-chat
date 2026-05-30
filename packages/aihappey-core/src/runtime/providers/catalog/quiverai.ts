@@ -14,6 +14,7 @@ export const quiverai: Provider = {
     termsOfService: "https://quiver.ai/legal/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

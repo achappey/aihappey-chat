@@ -17,6 +17,7 @@ export const audixa: Provider = {
     termsOfService: "https://audixa.ai/tos"
   },
   providerCountry: "IN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

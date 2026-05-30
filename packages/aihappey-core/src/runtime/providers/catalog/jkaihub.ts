@@ -11,6 +11,7 @@ export const jkaihub: Provider = {
     docs: "https://aihub.jk.hk/docs"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

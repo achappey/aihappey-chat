@@ -13,6 +13,7 @@ export const akashml: Provider = {
     termsOfService: "https://akashml.com/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

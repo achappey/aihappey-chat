@@ -14,6 +14,7 @@ export const zenlayer: Provider = {
     termsOfService: "https://www.zenlayer.com/terms-of-use"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

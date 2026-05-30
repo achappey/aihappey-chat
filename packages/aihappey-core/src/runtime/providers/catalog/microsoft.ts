@@ -14,6 +14,7 @@ export const microsoft: Provider = {
     termsOfService: "https://learn.microsoft.com/en-us/legal/m365-copilot-apis/terms-of-use"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["Europe", "Americas", "Asia", "Africa", "Oceania"]
 
 };

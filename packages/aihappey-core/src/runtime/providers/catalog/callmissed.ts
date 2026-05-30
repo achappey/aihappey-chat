@@ -14,6 +14,7 @@ export const callmissed: Provider = {
     termsOfService: "https://www.callmissed.com/terms"
   },
   providerCountry: "IN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

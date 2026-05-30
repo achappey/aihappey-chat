@@ -14,6 +14,7 @@ export const eagm: Provider = {
     termsOfService: "https://api.eagmgroup.com/legal-policies"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

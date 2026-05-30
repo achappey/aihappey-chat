@@ -15,6 +15,7 @@ export const streamlake: Provider = {
     termsOfService: "https://streamlake.ai/document/DOC/mgkchnd89grpt1961fw"
   },
   providerCountry: "SG",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

@@ -21,6 +21,7 @@ export const aiml: Provider = {
     termsOfService: "https://help.aimlapi.com/article/55-terms-of-service"
   },
   providerCountry: "EE",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

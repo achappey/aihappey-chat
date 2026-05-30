@@ -15,6 +15,7 @@ export const deepinfra: Provider = {
     termsOfService: "https://deepinfra.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

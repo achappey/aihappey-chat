@@ -17,6 +17,7 @@ export const runware: Provider = {
     console: "https://app.runware.ai"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

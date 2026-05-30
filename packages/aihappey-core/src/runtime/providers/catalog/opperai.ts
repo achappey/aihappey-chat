@@ -17,6 +17,7 @@ export const opperai: Provider = {
     termsOfService: "https://opper.ai/terms-of-service"
   },
   providerCountry: "SE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

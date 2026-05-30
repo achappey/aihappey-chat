@@ -14,6 +14,7 @@ export const longcat: Provider = {
     termsOfService: "https://longcat.chat/platform/private"
   },
   providerCountry: "CN",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const sapiom: Provider = {
     termsOfService: "https://docs.sapiom.ai/terms-of-use"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

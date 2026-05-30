@@ -14,6 +14,7 @@ export const teai: Provider = {
     termsOfService: "https://teai.io/terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

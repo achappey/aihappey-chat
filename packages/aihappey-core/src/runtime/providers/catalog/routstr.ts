@@ -12,6 +12,7 @@ export const routstr: Provider = {
     console: "https://beta.platform.routstr.com"
   },
   experimental: true,
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

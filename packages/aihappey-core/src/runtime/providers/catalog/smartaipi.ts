@@ -11,6 +11,7 @@ export const smartaipi: Provider = {
     docs: "https://smartaipi.com/docs",
     pricing: "https://smartaipi.com/#pricing"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

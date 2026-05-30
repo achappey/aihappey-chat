@@ -19,6 +19,7 @@ export const friendli: Provider = {
     console: "https://console.friendli.ai"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

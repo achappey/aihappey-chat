@@ -18,6 +18,7 @@ export const infomaniak: Provider = {
     privacyPolicy: "https://www.infomaniak.com/en/legal/confidentiality-policy"
   },
   providerCountry: "CH",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 };
 

@@ -17,6 +17,7 @@ export const bineric: Provider = {
     termsOfService: "https://www.bineric.com/legal/terms-of-use"
   },
   providerCountry: "NO",
+  category: "gateway_router",
   inferenceRegions: ["Americas", "Europe"]
 };
 

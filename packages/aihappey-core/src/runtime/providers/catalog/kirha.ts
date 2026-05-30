@@ -12,6 +12,7 @@ export const kirha: Provider = {
     pricing: "https://kirha.com/pricing"
   },
   providerCountry: "FR",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

@@ -16,6 +16,7 @@ export const sambanova: Provider = {
     console: "https://cloud.sambanova.ai"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

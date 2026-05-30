@@ -15,6 +15,7 @@ export const gmicloud: Provider = {
     termsOfService: "https://www.gmicloud.ai/terms-and-conditions"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

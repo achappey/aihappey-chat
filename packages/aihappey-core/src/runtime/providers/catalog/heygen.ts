@@ -16,6 +16,7 @@ export const heygen: Provider = {
     privacyPolicy: "https://www.heygen.com/privacy"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

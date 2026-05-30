@@ -11,6 +11,7 @@ export const surfercloud: Provider = {
     docs: "https://www.surfercloud.com/en/docs"
   },
   providerCountry: "SG",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -11,6 +11,7 @@ export const orbgpu: Provider = {
     docs: "hhttps://orbigpu.com/docs",
     pricing: "https://orbigpu.com/pricing"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

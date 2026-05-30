@@ -15,6 +15,7 @@ export const runapi: Provider = {
     termsOfService: "https://runapi.co/terms-of-service"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -23,6 +23,7 @@ export const tinfoil: Provider = {
     termsOfService: "https://tinfoil.sh/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

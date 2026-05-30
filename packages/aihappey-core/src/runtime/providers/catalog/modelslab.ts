@@ -14,6 +14,7 @@ export const modelslab: Provider = {
     termsOfService: "https://modelslab.com/terms-of-service"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

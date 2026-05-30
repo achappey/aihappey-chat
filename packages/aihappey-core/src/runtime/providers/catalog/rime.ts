@@ -14,6 +14,7 @@ export const rime: Provider = {
     termsOfService: "https://rime.ai/terms"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

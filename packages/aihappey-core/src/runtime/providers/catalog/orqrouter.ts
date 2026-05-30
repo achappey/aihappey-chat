@@ -17,6 +17,7 @@ export const orqrouter: Provider = {
     privacyPolicy: "https://orq.ai/legal/privacy"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

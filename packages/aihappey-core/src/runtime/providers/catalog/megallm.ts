@@ -14,6 +14,7 @@ export const megallm: Provider = {
     termsOfService: "https://megallm.io/legal"
   },
   providerCountry: "IN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

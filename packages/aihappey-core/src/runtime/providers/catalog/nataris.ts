@@ -14,6 +14,7 @@ export const nataris: Provider = {
     termsOfService: "https://nataris.ai/terms"
   },
   providerCountry: "IN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

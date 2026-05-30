@@ -14,6 +14,7 @@ export const onekey: Provider = {
     termsOfService: "https://1key4ai.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

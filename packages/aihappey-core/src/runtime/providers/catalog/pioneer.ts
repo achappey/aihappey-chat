@@ -14,6 +14,7 @@ export const pioneer: Provider = {
     termsOfService: "https://agent.pioneer.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

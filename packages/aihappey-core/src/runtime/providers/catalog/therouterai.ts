@@ -12,6 +12,7 @@ export const therouterai: Provider = {
     privacyPolicy: "https://therouter.ai/docs/guides/privacy/data-collection"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

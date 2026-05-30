@@ -18,6 +18,7 @@ export const minimax: Provider = {
     console: "https://platform.minimax.io"
   },
   providerCountry: "CN",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 

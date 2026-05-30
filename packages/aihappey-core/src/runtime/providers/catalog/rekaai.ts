@@ -17,6 +17,7 @@ export const rekaai: Provider = {
     console: "https://app.reka.ai"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

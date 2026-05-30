@@ -17,6 +17,7 @@ export const bergetai: Provider = {
     termsOfService: "https://berget.ai/terms"
   },
   providerCountry: "SE",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

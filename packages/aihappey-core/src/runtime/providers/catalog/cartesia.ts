@@ -17,6 +17,7 @@ export const cartesia: Provider = {
     privacyPolicy: "https://cartesia.ai/legal/privacy.html"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

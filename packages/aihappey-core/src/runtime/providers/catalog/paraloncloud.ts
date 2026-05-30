@@ -15,5 +15,6 @@ export const paraloncloud: Provider = {
     console: "https://ai.paraloncloud.com/console"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

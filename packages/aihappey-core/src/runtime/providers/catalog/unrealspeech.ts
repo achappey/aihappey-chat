@@ -17,6 +17,7 @@ export const unrealspeech: Provider = {
     privacyPolicy: "https://unrealspeech.com/privacy"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

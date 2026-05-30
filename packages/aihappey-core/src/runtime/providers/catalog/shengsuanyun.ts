@@ -13,6 +13,7 @@ export const shengsuanyun: Provider = {
     termsOfService: "https://global.modelmesh.info/terms-of-service"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const huggingface: Provider = {
     termsOfService: "https://huggingface.co/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -11,6 +11,7 @@ export const agentaigateway: Provider = {
     docs: "https://www.agentaigateway.com/docs"
   },
   experimental: true,
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -18,5 +18,6 @@ export const together: Provider = {
     console: "https://api.together.ai"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };

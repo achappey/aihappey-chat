@@ -14,6 +14,7 @@ export const kimik2: Provider = {
     termsOfService: "https://kimi-k2.ai/terms-of-service"
   },
   providerCountry: "CN",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

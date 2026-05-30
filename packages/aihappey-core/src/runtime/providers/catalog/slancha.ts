@@ -14,6 +14,7 @@ export const slancha: Provider = {
     termsOfService: "https://slancha.ai/privacy"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

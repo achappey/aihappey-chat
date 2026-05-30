@@ -17,6 +17,7 @@ export const cambai: Provider = {
     termsOfService: "https://www.camb.ai/terms-conditions"
   },
   providerCountry: "AE",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

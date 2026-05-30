@@ -13,6 +13,7 @@ export const gaterouter: Provider = {
     termsOfService: "https://www.gaterouter.ai/terms"
   },
   providerCountry: "PA",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

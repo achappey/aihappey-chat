@@ -14,6 +14,7 @@ export const xiaomimimo: Provider = {
     termsOfService: "https://platform.xiaomimimo.com/#/docs/terms/user-agreement"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

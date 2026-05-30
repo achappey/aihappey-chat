@@ -17,6 +17,7 @@ export const forefront: Provider = {
     privacyPolicy: "https://forefront.ai/privacy-policy",
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

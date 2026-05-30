@@ -14,6 +14,7 @@ export const privatemode: Provider = {
     termsOfService: "https://www.privatemode.ai/terms-of-service"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

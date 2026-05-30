@@ -17,6 +17,7 @@ export const tigercity: Provider = {
   },
   providerCountry: "NO",
   experimental: true,
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

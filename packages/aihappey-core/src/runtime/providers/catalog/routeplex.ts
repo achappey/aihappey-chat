@@ -14,6 +14,7 @@ export const routeplex: Provider = {
     termsOfService: "https://routeplex.com/terms"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

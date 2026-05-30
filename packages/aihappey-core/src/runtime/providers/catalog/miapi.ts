@@ -14,6 +14,7 @@ export const miapi: Provider = {
     termsOfService: "https://miapi.uk/terms.html"
   },
   providerCountry: "GB",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const magisterium: Provider = {
     termsOfService: "https://www.magisterium.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

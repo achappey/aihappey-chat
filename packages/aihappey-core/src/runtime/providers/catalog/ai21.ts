@@ -17,6 +17,7 @@ export const ai21: Provider = {
     termsOfService: "https://www.ai21.com/terms-policies/terms-of-use"
   },
   providerCountry: "IL",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 

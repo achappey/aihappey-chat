@@ -17,6 +17,7 @@ export const azure: Provider = {
     termsOfService: "https://www.microsoft.com/licensing/docs"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["Europe", "Americas", "Asia", "Africa", "Oceania"]
 
 };

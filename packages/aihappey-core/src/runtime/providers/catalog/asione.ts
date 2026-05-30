@@ -16,6 +16,7 @@ export const asione: Provider = {
     privacyPolicy: "https://asi1.ai/legal/privacy"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

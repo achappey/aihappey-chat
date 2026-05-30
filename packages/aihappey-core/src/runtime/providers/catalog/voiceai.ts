@@ -14,6 +14,7 @@ export const voiceai: Provider = {
     termsOfService: "https://voice.ai/tos"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

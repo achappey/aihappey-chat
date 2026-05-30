@@ -15,6 +15,7 @@ export const askarc: Provider = {
     termsOfService: "https://askarc.app/terms"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

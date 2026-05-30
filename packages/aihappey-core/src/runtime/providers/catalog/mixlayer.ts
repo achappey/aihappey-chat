@@ -14,6 +14,7 @@ export const mixlayer: Provider = {
     termsOfService: "https://www.mixlayer.com/terms-of-service"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

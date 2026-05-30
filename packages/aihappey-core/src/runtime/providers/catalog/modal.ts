@@ -14,6 +14,7 @@ export const modal: Provider = {
     termsOfService: "https://modal.com/legal/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -12,6 +12,7 @@ export const nodion: Provider = {
     termsOfService: "https://www.nodion.ai/en/terms"
   },
   providerCountry: "DE",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

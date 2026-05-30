@@ -14,6 +14,7 @@ export const ttsreader: Provider = {
     termsOfService: "https://ttsreader.com/docs/legal/terms"
   },
   providerCountry: "IL",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

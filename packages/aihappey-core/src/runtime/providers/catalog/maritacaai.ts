@@ -17,6 +17,7 @@ export const maritacaai: Provider = {
     console: "https://plataforma.maritaca.ai"
   },
   providerCountry: "BR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

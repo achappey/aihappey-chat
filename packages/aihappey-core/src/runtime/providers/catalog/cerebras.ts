@@ -16,6 +16,7 @@ export const cerebras: Provider = {
     termsOfService: "https://www.cerebras.ai/other-terms-and-policies"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

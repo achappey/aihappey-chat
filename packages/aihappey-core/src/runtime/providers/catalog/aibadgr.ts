@@ -14,6 +14,7 @@ export const aibadgr: Provider = {
     termsOfService: "https://aibadgr.com/terms"
   },
   providerCountry: "AU",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

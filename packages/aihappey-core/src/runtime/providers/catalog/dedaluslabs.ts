@@ -15,6 +15,7 @@ export const dedaluslabs: Provider = {
     termsOfService: "https://www.dedaluslabs.ai/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

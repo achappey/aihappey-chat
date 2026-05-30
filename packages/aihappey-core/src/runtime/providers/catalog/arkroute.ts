@@ -11,6 +11,7 @@ export const arkroute: Provider = {
     docs: "https://ark-route.com/#docs",
     pricing: "https://ark-route.com/#pricing"
   },
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

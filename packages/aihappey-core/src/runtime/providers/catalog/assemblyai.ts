@@ -17,6 +17,7 @@ export const assemblyai: Provider = {
     termsOfService: "https://www.assemblyai.com/legal/terms-of-service"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 

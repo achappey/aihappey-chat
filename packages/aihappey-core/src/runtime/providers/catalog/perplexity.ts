@@ -17,6 +17,7 @@ export const perplexity: Provider = {
     console: "https://www.perplexity.ai/settings/api"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

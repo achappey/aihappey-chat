@@ -13,6 +13,7 @@ export const eugpt: Provider = {
     termsOfService: "https://eugpt.eu/en/agb"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

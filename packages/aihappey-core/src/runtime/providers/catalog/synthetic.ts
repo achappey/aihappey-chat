@@ -14,6 +14,7 @@ export const synthetic: Provider = {
     termsOfService: "https://synthetic.new/policies/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

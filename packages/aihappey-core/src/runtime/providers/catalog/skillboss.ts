@@ -15,6 +15,7 @@ export const skillboss: Provider = {
     pricing: "https://www.skillboss.co/pricing"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

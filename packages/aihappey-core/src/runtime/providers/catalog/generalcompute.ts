@@ -13,6 +13,7 @@ export const generalcompute: Provider = {
     termsOfService: "https://www.generalcompute.com/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

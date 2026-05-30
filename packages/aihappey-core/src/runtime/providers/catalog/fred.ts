@@ -14,6 +14,7 @@ export const fred: Provider = {
     termsOfService: "https://www.fredcode.net/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

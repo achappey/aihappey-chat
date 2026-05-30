@@ -14,6 +14,7 @@ export const lexico: Provider = {
     termsOfService: "https://lexisaas.com/terms"
   },
   providerCountry: "NO",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

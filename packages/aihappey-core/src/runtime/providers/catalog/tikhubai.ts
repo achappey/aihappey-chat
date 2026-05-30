@@ -12,6 +12,7 @@ export const tikhubai: Provider = {
     console:"https://ai.tikhub.io/console"
   },
   providerCountry: "CN",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

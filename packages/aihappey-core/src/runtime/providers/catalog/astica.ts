@@ -14,6 +14,7 @@ export const astica: Provider = {
     privacyPolicy: "https://astica.ai/privacy"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

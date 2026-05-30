@@ -14,6 +14,7 @@ export const llmbase: Provider = {
     termsOfService: "https://llmbase.ai/legal/terms"
   },
   providerCountry: "DE",
+  category: "app_tools",
   inferenceRegions: ["Europe"]
 
 };

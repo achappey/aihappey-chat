@@ -16,6 +16,7 @@ export const nearai: Provider = {
     privacyPolicy: "https://near.ai/privacy-policy"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

@@ -17,6 +17,7 @@ export const synexa: Provider = {
     console: "https://app.synexa.ai"
   },
   providerCountry: "CA",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const tokenflux: Provider = {
     termsOfService: "https://tokenflux.ai/docs/legal/terms-of-use"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

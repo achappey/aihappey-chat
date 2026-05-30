@@ -13,6 +13,7 @@ export const llama: Provider = {
     termsOfService: "https://www.facebook.com/policies_center"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

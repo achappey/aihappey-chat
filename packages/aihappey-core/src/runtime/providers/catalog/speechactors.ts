@@ -14,6 +14,7 @@ export const speechactors: Provider = {
     termsOfService: "https://speechactors.com/terms"
   },
   providerCountry: "IN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

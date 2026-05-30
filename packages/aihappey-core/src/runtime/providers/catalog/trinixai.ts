@@ -11,6 +11,7 @@ export const trinixai: Provider = {
     docs: "https://api.trinix.gg/docs",
     pricing: "https://api.trinix.gg/#pricing"
   },
+  category: "search_data",
   inferenceRegions: ["World"]
 };
 

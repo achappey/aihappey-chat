@@ -14,6 +14,7 @@ export const antbase: Provider = {
     termsOfService: "https://antbase.ai/terms"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

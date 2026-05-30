@@ -13,6 +13,7 @@ export const nexusify: Provider = {
     termsOfService: "https://terms.nexusify.co"
   },
   providerCountry: "AR",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

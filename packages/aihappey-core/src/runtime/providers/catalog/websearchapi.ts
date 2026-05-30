@@ -15,6 +15,7 @@ export const websearchapi: Provider = {
     termsOfService: "https://websearchapi.ai/terms-of-use"
   },
   providerCountry: "GB",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

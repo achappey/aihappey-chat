@@ -14,6 +14,7 @@ export const foureverland: Provider = {
     termsOfService: "https://www.4everland.org/term-of-service"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

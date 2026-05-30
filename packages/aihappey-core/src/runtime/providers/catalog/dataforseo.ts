@@ -14,6 +14,7 @@ export const dataforseo: Provider = {
     termsOfService: "https://dataforseo.com/terms-of-service"
   },
   providerCountry: "UA",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

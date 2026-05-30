@@ -14,6 +14,7 @@ export const vivgrid: Provider = {
     termsOfService: "https://vivgrid.com/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

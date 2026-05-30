@@ -18,6 +18,7 @@ export const murfai: Provider = {
     console: "https://studio.murf.ai"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

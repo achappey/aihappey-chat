@@ -15,6 +15,7 @@ export const vapi: Provider = {
     termsOfService: "https://vapi.ai/terms-of-service"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

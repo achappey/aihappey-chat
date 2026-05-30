@@ -17,6 +17,7 @@ export const baseten: Provider = {
     console: "https://app.baseten.co"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

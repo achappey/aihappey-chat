@@ -14,6 +14,7 @@ export const memoryrouter: Provider = {
     termsOfService: "https://memoryrouter.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

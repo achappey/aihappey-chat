@@ -14,6 +14,7 @@ export const yollomi: Provider = {
     termsOfService: "https://yollomi.com/en/terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

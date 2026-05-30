@@ -18,6 +18,7 @@ export const arklabs: Provider = {
     termsOfService: "https://ark-labs.cloud/terms"
   },
   providerCountry: "PL",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

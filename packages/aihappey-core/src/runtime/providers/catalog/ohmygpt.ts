@@ -16,6 +16,7 @@ export const ohmygpt: Provider = {
     termsOfService: "https://www.ohmygpt.com/tos"
   },
   providerCountry: "JP",
+  category: "gateway_router",
   inferenceRegions: ["Americas", "Asia"]
 
 };

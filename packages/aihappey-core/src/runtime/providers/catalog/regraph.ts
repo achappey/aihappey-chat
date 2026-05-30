@@ -14,6 +14,7 @@ export const regraph: Provider = {
     termsOfService: "https://regraph.tech/terms"
   },
   providerCountry: "HK",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const lunos: Provider = {
     termsOfService: "https://lunos.tech/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

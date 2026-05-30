@@ -16,6 +16,7 @@ export const eachlabs: Provider = {
     privacyPolicy: "https://www.eachlabs.ai/privacy-policy"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["World"]
 };
 

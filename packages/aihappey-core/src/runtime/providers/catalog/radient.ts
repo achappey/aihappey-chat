@@ -14,6 +14,7 @@ export const radient: Provider = {
     termsOfService: "https://radienthq.com/terms"
   },
   providerCountry: "CA",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

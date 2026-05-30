@@ -13,6 +13,7 @@ export const clankie: Provider = {
     termsOfService: "https://clankie.ai/terms"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const aicredits: Provider = {
     termsOfService: "https://aicredits.in/terms"
   },
   providerCountry: "IN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

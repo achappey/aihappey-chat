@@ -18,6 +18,7 @@ export const avian: Provider = {
     termsOfService: "https://avian.io/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

@@ -16,6 +16,7 @@ export const klingai: Provider = {
     termsOfService: "https://klingai.com/terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

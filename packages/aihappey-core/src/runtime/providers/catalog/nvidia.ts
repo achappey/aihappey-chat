@@ -17,6 +17,7 @@ export const nvidia: Provider = {
     termsOfService: "https://www.nvidia.com/en-us/about-nvidia/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

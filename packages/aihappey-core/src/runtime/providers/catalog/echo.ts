@@ -14,6 +14,7 @@ export const echo: Provider = {
       theme: "light",
     },
   ],
+  category: "gateway_router",
   urls: {
     homepage: "https://en.wikipedia.org/wiki/Echo_Protocol"
   },

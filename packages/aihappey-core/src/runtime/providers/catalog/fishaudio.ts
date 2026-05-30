@@ -16,6 +16,7 @@ export const fishaudio: Provider = {
     privacyPolicy: "https://fish.audio/privacy"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

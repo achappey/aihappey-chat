@@ -14,6 +14,7 @@ export const sufy: Provider = {
     termsOfService: "https://sufy.com/agreements/cloud-service-agreement"
   },
   providerCountry: "SG",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

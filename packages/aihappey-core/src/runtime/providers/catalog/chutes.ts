@@ -14,6 +14,7 @@ export const chutes: Provider = {
     termsOfService: "https://chutes.ai/terms"
   },
   providerCountry: "KN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

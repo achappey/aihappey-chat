@@ -13,6 +13,7 @@ export const finora: Provider = {
     privacyPolicy: "https://finorahq.org/privacy",
     termsOfService: "https://finorahq.org/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

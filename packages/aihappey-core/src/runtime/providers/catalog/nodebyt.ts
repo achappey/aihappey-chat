@@ -13,6 +13,7 @@ export const nodebyt: Provider = {
     pricing: "https://www.nodebyt.com/pricing"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

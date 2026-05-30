@@ -14,6 +14,7 @@ export const tokenhub: Provider = {
     termsOfService: "https://www.tokenhub.link/terms.html"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

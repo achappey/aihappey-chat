@@ -13,6 +13,7 @@ export const noiz: Provider = {
     termsOfService: "https://noiz.ai/resources/law/term-of-service-en.html"
   },
   providerCountry: "HK",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

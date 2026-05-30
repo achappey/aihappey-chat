@@ -13,6 +13,7 @@ export const zyloapi: Provider = {
     privacyPolicy: "https://zyloai.net/#privacy",
     termsOfService: "https://zyloai.net/#terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -23,6 +23,7 @@ export const xai: Provider = {
     console: "https://console.x.ai"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

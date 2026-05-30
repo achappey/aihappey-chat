@@ -16,6 +16,7 @@ export const groq: Provider = {
     console: "https://console.groq.com"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

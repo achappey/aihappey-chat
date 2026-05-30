@@ -13,6 +13,7 @@ export const hyperrouter: Provider = {
     privacyPolicy: "https://www.hyperrouter.ai/privacy-policy",
     termsOfService: "https://www.hyperrouter.ai/terms-of-service"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

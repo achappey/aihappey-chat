@@ -14,6 +14,7 @@ export const iapp: Provider = {
     termsOfService: "https://iapp.co.th/terms-and-conditions"
   },
   providerCountry: "TH",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

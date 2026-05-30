@@ -14,6 +14,7 @@ export const swarms: Provider = {
     termsOfService: "https://swarms.world/tos"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

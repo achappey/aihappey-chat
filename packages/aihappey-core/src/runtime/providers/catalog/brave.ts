@@ -13,6 +13,7 @@ export const brave: Provider = {
     termsOfService: "https://brave.com/terms-of-use"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

@@ -12,6 +12,7 @@ export const baidu: Provider = {
     termsOfService: "https://www.baidu.com/duty"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const electronhub: Provider = {
     privacyPolicy: "https://privacy.electronhub.ai",
     termsOfService: "https://tos.electronhub.ai"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

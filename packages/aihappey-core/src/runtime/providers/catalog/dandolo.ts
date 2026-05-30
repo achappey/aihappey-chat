@@ -11,6 +11,7 @@ export const dandolo: Provider = {
     homepage: "https://dandolo.ai",
     docs: "https://dandolo.ai/developers"
   },
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const llmwise: Provider = {
     termsOfService: "https://llmwise.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

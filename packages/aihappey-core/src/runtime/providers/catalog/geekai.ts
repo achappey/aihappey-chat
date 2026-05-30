@@ -11,6 +11,7 @@ export const geekai: Provider = {
     docs: "https://docs.geekai.co"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -16,6 +16,7 @@ export const replicate: Provider = {
     console: "https://replicate.com/account/api-tokens"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

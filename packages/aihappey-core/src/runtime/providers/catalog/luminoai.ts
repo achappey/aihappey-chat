@@ -13,6 +13,7 @@ export const luminoai: Provider = {
     termsOfService: "https://luminoai.co.in/terms"
   },
   providerCountry: "IN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

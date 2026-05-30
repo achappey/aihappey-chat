@@ -17,6 +17,7 @@ export const arliai: Provider = {
     termsOfService: "https://www.arliai.com/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

@@ -13,6 +13,7 @@ export const ambient: Provider = {
     termsOfService: "https://ambient.xyz/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

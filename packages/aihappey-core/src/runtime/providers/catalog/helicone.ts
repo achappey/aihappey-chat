@@ -16,5 +16,6 @@ export const helicone: Provider = {
     privacyPolicy: "https://www.helicone.ai/privacy"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

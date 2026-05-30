@@ -15,6 +15,7 @@ export const lingvanex: Provider = {
     termsOfService: "https://lingvanex.com/terms-of-service"
   },
   providerCountry: "CY",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

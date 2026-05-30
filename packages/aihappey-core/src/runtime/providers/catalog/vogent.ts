@@ -14,6 +14,7 @@ export const vogent: Provider = {
     termsOfService: "https://www.vogent.ai/terms"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

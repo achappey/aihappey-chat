@@ -15,6 +15,7 @@ export const infron: Provider = {
     termsOfService: "https://infron.ai/terms-of-use"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

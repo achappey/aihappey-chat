@@ -14,6 +14,7 @@ export const railwail: Provider = {
     termsOfService: "https://railwail.com/en/terms-of-service"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

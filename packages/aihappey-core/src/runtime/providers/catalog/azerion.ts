@@ -16,6 +16,7 @@ export const azerion: Provider = {
     console: "https://app.azerion.ai"
   },
   providerCountry: "NL",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

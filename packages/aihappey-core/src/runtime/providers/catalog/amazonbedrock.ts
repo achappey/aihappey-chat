@@ -13,6 +13,7 @@ export const amazonbedrock: Provider = {
     termsOfService: "https://aws.amazon.com/service-terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["Europe", "Americas", "Asia", "Africa", "Oceania"]
 
 };

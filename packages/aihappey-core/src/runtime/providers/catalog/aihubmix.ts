@@ -14,6 +14,7 @@ export const aihubmix: Provider = {
     termsOfService: "https://docs.aihubmix.com/en/terms-and-privacy/Terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

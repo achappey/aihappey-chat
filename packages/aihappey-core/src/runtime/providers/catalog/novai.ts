@@ -11,6 +11,7 @@ export const novai: Provider = {
     pricing: "https://aiapi-pro.com/pricing.html",
   },
   providerCountry: "HK",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

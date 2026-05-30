@@ -17,6 +17,7 @@ export const eurouter: Provider = {
     termsOfService: "https://www.eurouter.ai/terms"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 };
 

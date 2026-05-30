@@ -15,6 +15,7 @@ export const apiyi: Provider = {
     termsOfService: "https://apiyi.com/serviceAgreement.html"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

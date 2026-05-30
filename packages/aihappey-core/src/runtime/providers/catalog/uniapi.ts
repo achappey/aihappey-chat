@@ -15,6 +15,7 @@ export const uniapi: Provider = {
     termsOfService: "https://uniapi.ai/terms"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

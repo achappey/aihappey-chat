@@ -14,6 +14,7 @@ export const dreamgen: Provider = {
     termsOfService: "https://dreamgen.com/terms"
   },
   providerCountry: "CZ",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

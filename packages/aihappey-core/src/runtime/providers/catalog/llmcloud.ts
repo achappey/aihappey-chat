@@ -14,6 +14,7 @@ export const llmcloud: Provider = {
     termsOfService: "https://llmcloud.studio/terms"
   },
   providerCountry:"VN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

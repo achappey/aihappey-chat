@@ -14,6 +14,7 @@ export const oodaai: Provider = {
     termsOfService: "https://ooda.ai/terms"
   },
   providerCountry: "SE",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

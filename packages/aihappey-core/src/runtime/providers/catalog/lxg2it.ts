@@ -13,6 +13,7 @@ export const lxg2it: Provider = {
     termsOfService: "https://api.lxg2it.com/terms"
   },
   providerCountry: "HK",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

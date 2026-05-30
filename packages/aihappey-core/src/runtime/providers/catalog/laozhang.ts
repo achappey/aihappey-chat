@@ -16,6 +16,7 @@ export const laozhang: Provider = {
     termsOfService: "https://lp.laozhang.ai/serviceAgreement.html"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

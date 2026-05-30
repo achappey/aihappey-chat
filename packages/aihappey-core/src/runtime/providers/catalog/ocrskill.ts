@@ -11,6 +11,7 @@ export const ocrskill: Provider = {
     docs: "https://www.ocrskill.com/#docs",
     pricing: "https://www.ocrskill.com/#pricing"
   },
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

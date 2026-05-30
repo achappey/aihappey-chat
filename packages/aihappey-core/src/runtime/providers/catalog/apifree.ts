@@ -13,6 +13,7 @@ export const apifree: Provider = {
     termsOfService: "https://docs.apifree.ai/terms-privacy/service-agreement"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

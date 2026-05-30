@@ -15,6 +15,7 @@ export const gptproto: Provider = {
     termsOfService: "https://gptproto.com/terms-of-service"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

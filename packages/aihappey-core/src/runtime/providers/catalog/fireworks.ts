@@ -17,6 +17,7 @@ export const fireworks: Provider = {
     console: "https://app.fireworks.ai"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

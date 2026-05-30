@@ -10,6 +10,7 @@ export const yougetai: Provider = {
     homepage: "https://www.youget.ai",
     pricing: "https://www.youget.ai/pricing"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

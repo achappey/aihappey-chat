@@ -18,6 +18,7 @@ export const sarvam: Provider = {
     termsOfService: "https://www.sarvam.ai/terms-of-use"
   },
   providerCountry: "IN",
+  category: "gateway_router",
   inferenceRegions: ["Asia"]
 
 };

@@ -14,6 +14,7 @@ export const opensourceaihub: Provider = {
     termsOfService: "https://opensourceaihub.ai/legal/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

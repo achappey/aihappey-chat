@@ -17,6 +17,7 @@ export const deepl: Provider = {
     termsOfService: "https://www.deepl.com/terms"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 };
 

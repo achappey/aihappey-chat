@@ -15,6 +15,7 @@ export const speechify: Provider = {
     termsOfService: "https://speechify.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

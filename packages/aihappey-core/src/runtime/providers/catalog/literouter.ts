@@ -17,6 +17,7 @@ export const literouter: Provider = {
     console: "https://literouter.com/api_dashboard.php"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

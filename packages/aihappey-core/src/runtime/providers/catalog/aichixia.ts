@@ -13,6 +13,7 @@ export const aichixia: Provider = {
     privacyPolicy: "https://www.juheapi.com/docs/privacy-policy",
     termsOfService: "https://www.juheapi.com/docs/terms-of-service"
   },
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -12,6 +12,7 @@ export const shakespeare: Provider = {
     pricing: "https://ai.shakespeare.diy",
     termsOfService: "https://ai.shakespeare.diy/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

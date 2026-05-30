@@ -16,6 +16,7 @@ export const horayai: Provider = {
     termsOfService: "https://www.horay.ai/terms-of-service"
   },
   providerCountry: "CN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

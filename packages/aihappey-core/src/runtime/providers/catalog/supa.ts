@@ -14,6 +14,7 @@ export const supa: Provider = {
     termsOfService: "https://supa.works/imprint"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

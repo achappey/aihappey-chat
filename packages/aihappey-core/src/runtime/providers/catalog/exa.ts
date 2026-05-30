@@ -17,6 +17,7 @@ export const exa: Provider = {
     termsOfService: "https://exa.ai/assets/Exa_Labs_Terms_of_Service.pdf"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

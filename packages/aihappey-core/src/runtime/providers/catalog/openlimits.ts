@@ -14,6 +14,7 @@ export const openlimits: Provider = {
     termsOfService: "https://openlimits.app/terms"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

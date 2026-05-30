@@ -14,6 +14,7 @@ export const bytez: Provider = {
     docs: "https://docs.bytez.com"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

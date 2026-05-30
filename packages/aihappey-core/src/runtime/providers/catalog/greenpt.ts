@@ -16,6 +16,7 @@ export const greenpt: Provider = {
     termsOfService: "https://docs.greenpt.ai/privacy/terms"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

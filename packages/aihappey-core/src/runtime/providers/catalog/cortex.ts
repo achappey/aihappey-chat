@@ -12,6 +12,7 @@ export const cortex: Provider = {
     termsOfService: "https://cortexai.com.tr/#kullanim-sarti"
   },
   providerCountry: "TR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

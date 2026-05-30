@@ -14,6 +14,7 @@ export const apipod: Provider = {
     termsOfService: "https://www.apipod.ai/terms"
   },
   providerCountry: "CN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const bastiongpt: Provider = {
     termsOfService: "https://bastiongpt.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

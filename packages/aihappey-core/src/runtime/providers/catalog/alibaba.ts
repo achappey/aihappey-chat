@@ -15,6 +15,7 @@ export const alibaba: Provider = {
     termsOfService: "https://www.alibabacloud.com/help/en/legal/latest/alibaba-cloud-international-website-product-terms-of-service-v-3-8-0"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["Asia", "Americas"]
 
 };

@@ -14,6 +14,7 @@ export const glama: Provider = {
     termsOfService: "https://glama.ai/policies/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

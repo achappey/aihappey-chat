@@ -18,6 +18,7 @@ export const parasail: Provider = {
     console: "https://www.saas.parasail.io"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

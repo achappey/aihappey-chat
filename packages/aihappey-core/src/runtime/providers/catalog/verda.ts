@@ -17,6 +17,7 @@ export const verda: Provider = {
     console: "https://console.verda.com"
   },
   providerCountry: "FI",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

@@ -11,6 +11,7 @@ export const skypooltoken: Provider = {
     docs: "https://skypool.xyz/docs"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

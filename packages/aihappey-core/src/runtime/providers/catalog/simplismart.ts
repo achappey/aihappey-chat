@@ -18,6 +18,7 @@ export const simplismart: Provider = {
     termsOfService: "https://simplismart.ai/terms-of-service"
   },
   providerCountry: "IN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

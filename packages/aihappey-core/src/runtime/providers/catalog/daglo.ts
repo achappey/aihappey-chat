@@ -17,6 +17,7 @@ export const daglo: Provider = {
     privacyPolicy: "https://daglo.ai/en/privacy"
   },
   providerCountry: "KR",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

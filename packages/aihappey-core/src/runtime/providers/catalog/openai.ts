@@ -23,6 +23,7 @@ export const openai: Provider = {
     console: "https://platform.openai.com"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

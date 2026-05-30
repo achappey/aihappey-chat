@@ -13,6 +13,7 @@ export const toolrelay: Provider = {
     privacyPolicy: "https://toolrelay.dev/privacy-policy",
     termsOfService: "https://toolrelay.dev/terms-of-service"
   },
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

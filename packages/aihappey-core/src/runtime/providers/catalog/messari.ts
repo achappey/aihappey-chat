@@ -14,6 +14,7 @@ export const messari: Provider = {
     termsOfService: "https://messari.io/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

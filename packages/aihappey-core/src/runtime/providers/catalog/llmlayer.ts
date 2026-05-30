@@ -17,6 +17,7 @@ export const llmlayer: Provider = {
     termsOfService: "https://llmlayer.ai/terms"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 };
 

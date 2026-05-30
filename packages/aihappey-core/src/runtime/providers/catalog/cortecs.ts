@@ -15,6 +15,7 @@ export const cortecs: Provider = {
     termsOfService: "https://cortecs.ai/termsOfUse"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

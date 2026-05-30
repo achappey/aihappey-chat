@@ -16,6 +16,7 @@ export const truefoundry: Provider = {
     privacyPolicy: "https://www.truefoundry.com/privacy-policy"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

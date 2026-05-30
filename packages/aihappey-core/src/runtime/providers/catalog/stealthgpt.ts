@@ -14,6 +14,7 @@ export const stealthgpt: Provider = {
     termsOfService: "https://www.stealthgpt.ai/tos"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

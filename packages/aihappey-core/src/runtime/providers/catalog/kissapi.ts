@@ -15,6 +15,7 @@ export const kissapi: Provider = {
     termsOfService: "https://kissapi.ai/terms.html"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

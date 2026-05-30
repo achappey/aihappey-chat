@@ -14,6 +14,7 @@ export const codingplanx: Provider = {
     termsOfService: "https://codingplanx.ai/docs/terms-of-service"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

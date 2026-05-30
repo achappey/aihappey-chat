@@ -16,6 +16,7 @@ export const nanogpt: Provider = {
     privacyPolicy: "https://nano-gpt.com/legal/privacy-policy"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

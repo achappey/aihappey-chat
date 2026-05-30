@@ -13,6 +13,7 @@ export const fastrouter: Provider = {
     termsOfService: "https://fastrouter.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

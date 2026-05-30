@@ -14,6 +14,7 @@ export const alltoken: Provider = {
     termsOfService: "https://alltoken.ai/terms"
   },
   providerCountry: "HK",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

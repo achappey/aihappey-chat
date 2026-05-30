@@ -18,6 +18,7 @@ export const zeabur: Provider = {
     termsOfService: "https://zeabur.com/docs/legal/terms"
   },
   providerCountry: "SG",
+  category: "inference_compute",
   inferenceRegions: ["Asia", "Americas"]
 
 };

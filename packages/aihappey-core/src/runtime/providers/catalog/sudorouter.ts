@@ -14,6 +14,7 @@ export const sudorouter: Provider = {
     termsOfService: "https://sudorouter.ai/#terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

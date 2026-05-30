@@ -13,6 +13,7 @@ export const imagerouter: Provider = {
     privacyPolicy: "https://docs.imagerouter.io/privacy"
   },
   providerCountry: "HU",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const askcodi: Provider = {
     termsOfService: "https://askcodi.com/docs/terms"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const openpipe: Provider = {
     termsOfService: "https://openpipe.ai/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

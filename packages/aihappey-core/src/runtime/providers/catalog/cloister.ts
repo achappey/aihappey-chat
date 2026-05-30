@@ -12,6 +12,7 @@ export const cloister: Provider = {
     pricing: "https://cloister.space/#pricing",
     termsOfService: "https://cloister.space/disclaimer"
   },
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

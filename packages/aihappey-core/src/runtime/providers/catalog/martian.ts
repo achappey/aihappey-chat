@@ -13,6 +13,7 @@ export const martian: Provider = {
     termsOfService: "https://withmartian.com/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

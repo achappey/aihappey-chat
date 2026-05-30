@@ -18,5 +18,6 @@ export const gooseai: Provider = {
     console: "https://goose.ai/dashboard"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

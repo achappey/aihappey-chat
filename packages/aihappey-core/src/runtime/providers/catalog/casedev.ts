@@ -14,6 +14,7 @@ export const casedev: Provider = {
     termsOfService: "https://case.dev/terms"
   },
   providerCountry: "HK",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

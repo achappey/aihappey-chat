@@ -14,6 +14,7 @@ export const clauddy: Provider = {
     termsOfService: "https://docs.clauddy.com/en/terms/user-agreement.html"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

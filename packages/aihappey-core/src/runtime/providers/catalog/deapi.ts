@@ -17,6 +17,7 @@ export const deapi: Provider = {
     privacyPolicy: "https://deapi.ai/privacy-policy"
   },
   providerCountry: "MT",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

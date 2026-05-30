@@ -14,6 +14,7 @@ export const thalam: Provider = {
     termsOfService: "https://thalam.ai/terms"
   },
   providerCountry: "AE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

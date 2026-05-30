@@ -13,6 +13,7 @@ export const commonstack: Provider = {
     termsOfService: "https://commonstack.ai/terms-of-service"
   },
   providerCountry: "SG",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

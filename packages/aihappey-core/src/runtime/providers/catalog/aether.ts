@@ -14,6 +14,7 @@ export const aether: Provider = {
     termsOfService: "https://aetherapi.dev/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

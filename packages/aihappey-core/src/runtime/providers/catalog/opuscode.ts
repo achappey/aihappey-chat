@@ -12,6 +12,7 @@ export const opuscode: Provider = {
     privacyPolicy: "https://www.opuscode.pro/privacy",
     termsOfService: "https://www.opuscode.pro/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

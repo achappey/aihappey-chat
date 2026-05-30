@@ -14,6 +14,7 @@ export const simplellm: Provider = {
     termsOfService: "https://simplellm.eu/agb"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

@@ -17,6 +17,7 @@ export const mistral: Provider = {
     console: "https://console.mistral.ai"
   },
   providerCountry: "FR",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const openhands: Provider = {
     privacyPolicy: "https://www.openhands.dev/privacy"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

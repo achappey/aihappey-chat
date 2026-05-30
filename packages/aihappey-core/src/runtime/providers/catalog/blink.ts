@@ -14,6 +14,7 @@ export const blink: Provider = {
     termsOfService: "https://blink.new/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

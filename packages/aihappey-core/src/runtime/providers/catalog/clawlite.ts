@@ -11,6 +11,7 @@ export const clawlite: Provider = {
     docs: "https://www.clawlite.ai/clawrouter/api",
     pricing: "https://www.clawlite.ai/pricing"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

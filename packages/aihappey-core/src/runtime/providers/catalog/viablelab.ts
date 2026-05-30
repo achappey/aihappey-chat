@@ -13,6 +13,7 @@ export const viablelab: Provider = {
     termsOfService: "https://www.viablelab.org/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

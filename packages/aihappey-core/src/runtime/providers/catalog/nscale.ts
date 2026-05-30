@@ -18,6 +18,7 @@ export const nscale: Provider = {
     console: "https://console.nscale.com"
   },
   providerCountry: "GB",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

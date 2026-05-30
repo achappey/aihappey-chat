@@ -13,6 +13,7 @@ export const mulerouter: Provider = {
     termsOfService: "https://www.mulerouter.ai/docs/legal/user-terms-of-use"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

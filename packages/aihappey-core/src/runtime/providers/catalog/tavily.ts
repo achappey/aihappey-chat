@@ -17,6 +17,7 @@ export const tavily: Provider = {
     termsOfService: "https://www.tavily.com/terms"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

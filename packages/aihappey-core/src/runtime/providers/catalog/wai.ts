@@ -13,6 +13,7 @@ export const wai: Provider = {
   },
   providerCountry: "CA",
   experimental: true,
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

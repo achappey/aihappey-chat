@@ -17,6 +17,7 @@ export const arwriter: Provider = {
     termsOfService: "https://arwriter.ai/terms"
   },
   providerCountry: "EG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

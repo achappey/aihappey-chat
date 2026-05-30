@@ -16,6 +16,7 @@ export const deepbricks: Provider = {
     privacyPolicy: "https://deepbricks.ai/PrivacyPolicy.html"
   },
   providerCountry: "SG",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

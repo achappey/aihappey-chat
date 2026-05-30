@@ -14,6 +14,7 @@ export const lumenfall: Provider = {
     termsOfService: "https://lumenfall.ai/terms"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

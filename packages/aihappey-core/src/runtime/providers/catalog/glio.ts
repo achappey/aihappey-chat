@@ -15,6 +15,7 @@ export const glio: Provider = {
     pricing: "https://glio.io/pricing",
     docs: "https://glio.io/docs"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

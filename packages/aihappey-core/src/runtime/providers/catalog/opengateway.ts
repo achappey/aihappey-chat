@@ -10,6 +10,7 @@ export const opengateway: Provider = {
     homepage: "https://opengateway.ai",
     docs: "https://opengateway.ai/api-docs"
   },
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

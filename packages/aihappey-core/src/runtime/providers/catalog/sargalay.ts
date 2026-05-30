@@ -17,6 +17,7 @@ export const sargalay: Provider = {
     termsOfService: "https://www.sargalay.com/terms"
   },
   providerCountry: "MM",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

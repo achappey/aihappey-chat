@@ -12,6 +12,7 @@ export const anlinkai: Provider = {
     pricing: "https://anlinkai.com/pricing"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

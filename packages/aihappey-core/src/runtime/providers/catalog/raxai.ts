@@ -14,6 +14,7 @@ export const raxai: Provider = {
     termsOfService: "https://www.ai.raxcore.dev/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

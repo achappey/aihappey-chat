@@ -18,5 +18,6 @@ export const llmgateway: Provider = {
     console: "https://llmgateway.io/dashboard"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

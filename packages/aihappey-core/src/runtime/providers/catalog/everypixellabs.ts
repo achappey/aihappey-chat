@@ -16,6 +16,7 @@ export const everypixellabs: Provider = {
     privacyPolicy: "https://www.everypixel.com/legal/privacy"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

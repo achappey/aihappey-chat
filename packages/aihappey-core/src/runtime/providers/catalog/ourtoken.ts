@@ -12,6 +12,7 @@ export const ourtoken: Provider = {
     termsOfService: "https://ourtoken.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

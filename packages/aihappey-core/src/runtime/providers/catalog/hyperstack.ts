@@ -16,6 +16,7 @@ export const hyperstack: Provider = {
     termsOfService: "https://www.hyperstack.cloud/terms-and-conditions"
   },
   providerCountry: "GB",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

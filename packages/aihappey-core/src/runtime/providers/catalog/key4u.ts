@@ -12,6 +12,7 @@ export const key4u: Provider = {
     pricing: "https://key4u.shop/pricing"
   },
   providerCountry: "VN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

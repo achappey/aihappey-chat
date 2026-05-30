@@ -13,6 +13,7 @@ export const theoldapi: Provider = {
     privacyPolicy: "https://theoldllm.com/privacy",
     termsOfService: "https://theoldllm.com/tos"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

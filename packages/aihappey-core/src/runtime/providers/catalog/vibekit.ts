@@ -10,6 +10,7 @@ export const vibekit: Provider = {
     homepage: "https://vibekit.bot",
     docs: "https://docs.vibekit.bot"
   },
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

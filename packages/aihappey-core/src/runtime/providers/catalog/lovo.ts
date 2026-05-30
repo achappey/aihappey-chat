@@ -16,6 +16,7 @@ export const lovo: Provider = {
     privacyPolicy: "https://lovo.ai/privacy"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

@@ -15,5 +15,6 @@ export const apipie: Provider = {
     termsOfService: "https://apipie.ai/docs/Terms/api-agree",
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

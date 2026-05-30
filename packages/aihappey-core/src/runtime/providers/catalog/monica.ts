@@ -17,6 +17,7 @@ export const monica: Provider = {
     termsOfService: "https://monica.im/terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

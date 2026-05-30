@@ -15,6 +15,7 @@ export const apekey: Provider = {
     termsOfService: "https://apekey.ai/terms"
   },
   providerCountry: "DE",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

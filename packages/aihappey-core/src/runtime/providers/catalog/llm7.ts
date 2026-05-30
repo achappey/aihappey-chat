@@ -14,6 +14,7 @@ export const llm7: Provider = {
     termsOfService: "https://github.com/chigwell/llm7.io/blob/main/TERMS.md"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

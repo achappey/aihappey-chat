@@ -12,6 +12,7 @@ export const routerlink: Provider = {
     privacyPolicy: "https://routerlink.ai/privacy",
     termsOfService: "https://routerlink.ai/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

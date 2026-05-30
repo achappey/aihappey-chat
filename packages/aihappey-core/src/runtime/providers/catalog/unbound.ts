@@ -14,6 +14,7 @@ export const unbound: Provider = {
     termsOfService: "https://getunbound.ai/terms-and-conditions"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

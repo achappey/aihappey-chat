@@ -14,6 +14,7 @@ export const opeai: Provider = {
     console: "https://platform.ope.ai"
   },
   providerCountry: "JP",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

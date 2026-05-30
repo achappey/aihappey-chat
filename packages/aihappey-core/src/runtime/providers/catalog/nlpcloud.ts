@@ -16,6 +16,7 @@ export const nlpcloud: Provider = {
     termsOfService: "https://nlpcloud.com/tos.html"
   },
   providerCountry: "FR",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const getgoapi: Provider = {
     termsOfService: "https://getgoapi.com/en/terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

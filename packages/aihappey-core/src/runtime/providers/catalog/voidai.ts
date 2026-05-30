@@ -14,6 +14,7 @@ export const voidai: Provider = {
     termsOfService: "https://voidai.app/tos"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

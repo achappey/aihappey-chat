@@ -11,6 +11,7 @@ export const andyapi: Provider = {
     docs: "https://andy.mindcraft-ce.com/andy-docs"
   },
   experimental: true,
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

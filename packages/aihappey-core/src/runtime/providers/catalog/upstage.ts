@@ -18,6 +18,7 @@ export const upstage: Provider = {
     console: "https://console.upstage.ai"
   },
   providerCountry: "KR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

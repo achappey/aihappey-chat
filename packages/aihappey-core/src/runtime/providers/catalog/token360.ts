@@ -13,6 +13,7 @@ export const token360: Provider = {
     termsOfService: "https://www.token360.ai/en-US/legal/terms"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

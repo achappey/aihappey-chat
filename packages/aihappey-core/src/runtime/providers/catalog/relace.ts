@@ -14,6 +14,7 @@ export const relace: Provider = {
     termsOfService: "https://relace.ai/legal/terms-of-use"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -17,6 +17,7 @@ export const inferencenet: Provider = {
     termsOfService: "https://inference.net/terms-of-service"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

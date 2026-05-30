@@ -15,6 +15,7 @@ export const renderful: Provider = {
     termsOfService: "https://renderful.ai/terms"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

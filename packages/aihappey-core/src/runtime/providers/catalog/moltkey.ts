@@ -12,6 +12,7 @@ export const moltkey: Provider = {
     pricing: "https://moltkey.io/catalog",
     privacyPolicy: "https://moltkey.io/privacy"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

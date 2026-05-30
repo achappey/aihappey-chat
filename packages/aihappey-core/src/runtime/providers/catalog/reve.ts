@@ -21,6 +21,7 @@ export const reve: Provider = {
     termsOfService: "https://reve.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

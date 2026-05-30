@@ -13,6 +13,7 @@ export const modelmax: Provider = {
     privacyPolicy: "https://www.modelmax.io/privacy",
     termsOfService: "https://www.modelmax.io/terms"
   },
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

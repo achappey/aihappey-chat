@@ -15,6 +15,7 @@ export const routmy: Provider = {
     termsOfService: "https://rout.my/terms"
   },
   experimental: true,
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

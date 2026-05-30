@@ -14,6 +14,7 @@ export const vultr: Provider = {
     termsOfService: "https://www.vultr.com/legal/tos"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

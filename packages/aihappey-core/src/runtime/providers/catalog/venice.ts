@@ -14,6 +14,7 @@ export const venice: Provider = {
     termsOfService: "https://venice.ai/legal/tos"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

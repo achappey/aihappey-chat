@@ -14,6 +14,7 @@ export const vlmrun: Provider = {
     termsOfService: "https://www.vlm.run/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

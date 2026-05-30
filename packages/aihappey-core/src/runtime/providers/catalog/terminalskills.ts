@@ -12,6 +12,7 @@ export const terminalskills: Provider = {
     privacyPolicy: "https://terminalskills.io/privacy",
     termsOfService: "https://terminalskills.io/terms",
   },
+  category: "gateway_router",
   providerCountry: "US"
 
 };

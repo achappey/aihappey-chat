@@ -16,6 +16,7 @@ export const haimaker: Provider = {
     termsOfService: "https://haimaker.ai/terms-and-conditions"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

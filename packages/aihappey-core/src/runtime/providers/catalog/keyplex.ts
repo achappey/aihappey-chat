@@ -14,6 +14,7 @@ export const keyplex: Provider = {
     termsOfService: "https://keyplex.ai/terms"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

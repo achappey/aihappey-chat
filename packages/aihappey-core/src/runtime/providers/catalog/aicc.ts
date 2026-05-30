@@ -16,6 +16,7 @@ export const aicc: Provider = {
     termsOfService: "https://www.ai.cc/terms-of-service"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

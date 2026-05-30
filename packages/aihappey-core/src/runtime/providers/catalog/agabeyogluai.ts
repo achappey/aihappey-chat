@@ -14,6 +14,7 @@ export const agabeyogluai: Provider = {
     termsOfService: "https://agabeyogluai.com/legal-policies"
   },
   providerCountry: "TR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

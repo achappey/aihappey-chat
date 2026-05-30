@@ -14,6 +14,7 @@ export const langdb: Provider = {
     termsOfService: "https://docs.langdb.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

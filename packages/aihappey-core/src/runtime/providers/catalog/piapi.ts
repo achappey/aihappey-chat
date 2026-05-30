@@ -14,6 +14,7 @@ export const piapi: Provider = {
     termsOfService: "https://piapi.ai/terms-and-conditions"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

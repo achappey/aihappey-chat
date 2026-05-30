@@ -14,6 +14,7 @@ export const oneinfer: Provider = {
     termsOfService: "https://oneinfer.ai/terms-and-conditions"
   },
   providerCountry: "IN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

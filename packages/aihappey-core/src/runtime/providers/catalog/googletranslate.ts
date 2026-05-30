@@ -15,6 +15,7 @@ export const googletranslate: Provider = {
     termsOfService: "https://policies.google.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

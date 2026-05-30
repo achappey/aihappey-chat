@@ -19,6 +19,7 @@ export const claudible: Provider = {
     termsOfService: "https://claudible.io/legal/terms"
   },
   providerCountry: "VN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

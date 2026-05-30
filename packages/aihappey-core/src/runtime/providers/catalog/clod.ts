@@ -15,6 +15,7 @@ export const clod: Provider = {
     console: "https://app.clod.io"
   },
   providerCountry: "CA",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

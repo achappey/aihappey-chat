@@ -12,6 +12,7 @@ export const holysheepai: Provider = {
     pricing: "https://holysheep.ai/app/pricing"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

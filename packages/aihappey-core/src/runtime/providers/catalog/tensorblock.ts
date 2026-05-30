@@ -13,6 +13,7 @@ export const tensorblock: Provider = {
     termsOfService: "https://www.tensorblock.co/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

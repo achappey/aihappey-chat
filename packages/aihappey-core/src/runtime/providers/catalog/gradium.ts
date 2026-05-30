@@ -14,6 +14,7 @@ export const gradium: Provider = {
     termsOfService: "https://gradium.ai/terms-of-service"
   },
   providerCountry: "FR",
+  category: "media_voice",
   inferenceRegions: ["Europe", "Americas"]
 
 };

@@ -22,6 +22,7 @@ export const cohere: Provider = {
     termsOfService: "https://cohere.com/terms-of-use"
   },
   providerCountry: "CA",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

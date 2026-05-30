@@ -18,6 +18,7 @@ export const chaingpt: Provider = {
   },
   experimental: true,
   providerCountry: "PA",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

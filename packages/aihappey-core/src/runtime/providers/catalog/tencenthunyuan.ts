@@ -13,5 +13,6 @@ export const tencenthunyuan: Provider = {
     homepage: "https://hunyuan.tencent.com",
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

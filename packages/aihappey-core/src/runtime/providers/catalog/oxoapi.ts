@@ -11,6 +11,7 @@ export const oxoapi: Provider = {
     docs: "https://oxoev.ai/#api"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

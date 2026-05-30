@@ -13,6 +13,7 @@ export const puter: Provider = {
     termsOfService: "https://puter.com/terms"
   },
   providerCountry: "CA",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

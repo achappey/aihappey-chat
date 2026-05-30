@@ -15,6 +15,7 @@ export const publicai: Provider = {
     termsOfService: "https://publicai.co/tc"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const tembo: Provider = {
     termsOfService: "https://www.tembo.io/terms"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

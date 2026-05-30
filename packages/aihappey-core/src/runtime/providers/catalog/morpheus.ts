@@ -15,6 +15,7 @@ export const morpheus: Provider = {
     privacyPolicy: "https://mor.org/privacy"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

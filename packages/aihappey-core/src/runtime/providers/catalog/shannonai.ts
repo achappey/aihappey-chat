@@ -12,6 +12,7 @@ export const shannonai: Provider = {
     pricing: "https://shannon-ai.com/plan"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const wiserouter: Provider = {
     termsOfService: "https://wiserouter.ai/terms"
   },
   providerCountry: "AU",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const cloudrift: Provider = {
     termsOfService: "https://www.cloudrift.ai/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

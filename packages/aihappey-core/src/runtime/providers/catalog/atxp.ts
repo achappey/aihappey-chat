@@ -11,6 +11,7 @@ export const atxp: Provider = {
     docs: "https://docs.atxp.ai"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

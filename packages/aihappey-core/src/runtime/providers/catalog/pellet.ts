@@ -13,6 +13,7 @@ export const pellet: Provider = {
     privacyPolicy: "https://getpellet.io/privacy",
     termsOfService: "https://getpellet.io/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

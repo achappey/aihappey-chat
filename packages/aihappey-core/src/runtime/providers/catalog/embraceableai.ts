@@ -13,6 +13,7 @@ export const embraceableai: Provider = {
     termsOfService: "https://embraceable.ai/agb"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

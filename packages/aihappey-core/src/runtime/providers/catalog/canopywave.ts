@@ -16,6 +16,7 @@ export const canopywave: Provider = {
     termsOfService: "https://canopywave.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

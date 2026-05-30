@@ -15,6 +15,7 @@ export const zyphra: Provider = {
     termsOfService: "https://www.zyphra.com/terms-of-use"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

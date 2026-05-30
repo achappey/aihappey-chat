@@ -15,6 +15,7 @@ export const zenmux: Provider = {
     termsOfService: "https://docs.zenmux.ai/terms-of-service.html"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

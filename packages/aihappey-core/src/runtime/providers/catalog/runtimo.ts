@@ -13,6 +13,7 @@ export const runtimo: Provider = {
     privacyPolicy: "https://runtimo.com/privacy",
     termsOfService: "https://runtimo.com/terms"
   },
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

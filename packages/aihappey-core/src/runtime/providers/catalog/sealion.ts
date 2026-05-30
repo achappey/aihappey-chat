@@ -16,5 +16,6 @@ export const sealion: Provider = {
   },
   experimental: true,
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

@@ -15,6 +15,7 @@ export const smooth: Provider = {
     termsOfService: "https://app.smooth.sh/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

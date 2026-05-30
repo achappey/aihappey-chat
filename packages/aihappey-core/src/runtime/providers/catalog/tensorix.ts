@@ -14,6 +14,7 @@ export const tensorix: Provider = {
     termsOfService: "https://tensorix.ai/terms"
   },
   providerCountry: "IE",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

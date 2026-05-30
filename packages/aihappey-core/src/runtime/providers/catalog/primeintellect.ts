@@ -22,6 +22,7 @@ export const primeintellect: Provider = {
     console: "https://app.primeintellect.ai"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

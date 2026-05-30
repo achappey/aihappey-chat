@@ -18,6 +18,7 @@ export const nebius: Provider = {
     termsOfService: "https://docs.nebius.com/legal/terms-of-use"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

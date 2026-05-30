@@ -14,6 +14,7 @@ export const modelsync: Provider = {
     termsOfService: "https://modelsync.ai/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

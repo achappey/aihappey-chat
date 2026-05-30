@@ -14,6 +14,7 @@ export const inflection: Provider = {
     termsOfService: "https://inflection.ai/privacy-policy#terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

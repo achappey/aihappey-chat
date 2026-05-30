@@ -16,6 +16,7 @@ export const matterai: Provider = {
     console: "https://app.matterai.so"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

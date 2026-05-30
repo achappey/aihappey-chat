@@ -16,6 +16,7 @@ export const hyperbolic: Provider = {
     console: "https://app.hyperbolic.ai"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

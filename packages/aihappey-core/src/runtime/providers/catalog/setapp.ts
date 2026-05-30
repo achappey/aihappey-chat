@@ -13,6 +13,7 @@ export const setapp: Provider = {
     termsOfService: "https://setapp.com/terms-of-use"
   },
   providerCountry: "CY",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

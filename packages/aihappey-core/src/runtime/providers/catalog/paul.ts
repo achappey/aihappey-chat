@@ -14,6 +14,7 @@ export const paul: Provider = {
     termsOfService: "https://www.fatherpaulai.com/guide-api.html#"
   },
   providerCountry: "CM",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

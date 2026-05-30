@@ -14,6 +14,7 @@ export const teamday: Provider = {
     termsOfService: "https://www.teamday.ai/d/terms"
   },
   providerCountry: "SK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -10,6 +10,7 @@ export const applingo: Provider = {
     homepage: "https://applingo.store"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const merge: Provider = {
     termsOfService: "https://www.merge.dev/legal/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

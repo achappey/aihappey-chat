@@ -14,6 +14,7 @@ export const igpt: Provider = {
     termsOfService: "https://www.igpt.ai/terms-and-conditions"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

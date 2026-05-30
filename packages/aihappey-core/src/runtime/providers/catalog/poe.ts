@@ -14,6 +14,7 @@ export const poe: Provider = {
     termsOfService: "https://poe.com/tos"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

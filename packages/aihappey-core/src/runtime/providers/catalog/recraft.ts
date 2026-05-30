@@ -21,6 +21,7 @@ export const recraft: Provider = {
     console: "https://app.recraft.ai"
   },
   providerCountry: "GB",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

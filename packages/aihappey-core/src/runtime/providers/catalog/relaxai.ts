@@ -18,6 +18,7 @@ export const relaxai: Provider = {
     termsOfService: "https://relax.ai/terms-of-service"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

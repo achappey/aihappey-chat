@@ -14,6 +14,7 @@ export const apertis: Provider = {
     termsOfService: "https://apertis.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

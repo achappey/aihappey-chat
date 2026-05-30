@@ -14,6 +14,7 @@ export const shuttleai: Provider = {
     termsOfService: "https://shuttleai.com/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

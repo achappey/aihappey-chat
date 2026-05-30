@@ -14,6 +14,7 @@ export const redpill: Provider = {
     termsOfService: "https://www.redpill.ai/terms"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

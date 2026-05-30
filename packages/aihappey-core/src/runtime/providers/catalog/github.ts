@@ -16,6 +16,7 @@ export const github: Provider = {
     termsOfService: "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

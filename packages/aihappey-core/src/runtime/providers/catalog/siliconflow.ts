@@ -18,6 +18,7 @@ export const siliconflow: Provider = {
     console: "https://cloud.siliconflow.com"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

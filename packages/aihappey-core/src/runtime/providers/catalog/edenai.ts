@@ -17,6 +17,7 @@ export const edenai: Provider = {
     termsOfService: "https://www.edenai.co/terms-conditions"
   },
   providerCountry: "FR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

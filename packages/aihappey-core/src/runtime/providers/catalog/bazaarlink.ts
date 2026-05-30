@@ -13,6 +13,7 @@ export const bazaarlink: Provider = {
     termsOfService: "https://bazaarlink.ai/terms"
   },
   providerCountry: "TW",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

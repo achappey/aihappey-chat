@@ -14,6 +14,7 @@ export const lemondata: Provider = {
     termsOfService: "https://lemondata.cc/tos"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

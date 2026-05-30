@@ -13,6 +13,7 @@ export const eliza: Provider = {
     termsOfService: "https://www.elizacloud.ai/terms-of-service"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

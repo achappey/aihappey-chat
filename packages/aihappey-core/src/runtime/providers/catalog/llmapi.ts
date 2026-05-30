@@ -18,6 +18,7 @@ export const llmapi: Provider = {
     termsOfService: "https://llmapi.ai/terms"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

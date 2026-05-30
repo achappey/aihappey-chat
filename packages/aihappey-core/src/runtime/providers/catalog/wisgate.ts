@@ -14,6 +14,7 @@ export const wisgate: Provider = {
     termsOfService: "https://www.juheapi.com/docs/terms-of-service"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

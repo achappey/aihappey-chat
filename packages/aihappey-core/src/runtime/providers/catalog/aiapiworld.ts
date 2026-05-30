@@ -14,6 +14,7 @@ export const aiapiworld: Provider = {
     termsOfService: "https://aiapi.world/user-agreement"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

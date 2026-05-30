@@ -17,6 +17,7 @@ export const picsart: Provider = {
     termsOfService: "https://picsart.com/terms-of-use"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

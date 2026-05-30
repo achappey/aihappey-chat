@@ -15,6 +15,7 @@ export const databricks: Provider = {
     privacyPolicy: "https://www.databricks.com/legal/privacynotice"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

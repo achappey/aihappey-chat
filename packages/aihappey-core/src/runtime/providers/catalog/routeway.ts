@@ -17,6 +17,7 @@ export const routeway: Provider = {
     privacyPolicy: "https://routeway.ai/privacy",
     termsOfService: "https://routeway.ai/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

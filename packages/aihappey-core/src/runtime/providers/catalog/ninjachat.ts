@@ -14,6 +14,7 @@ export const ninjachat: Provider = {
     termsOfService: "https://www.ninjachat.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

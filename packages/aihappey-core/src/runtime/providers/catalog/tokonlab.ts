@@ -12,6 +12,7 @@ export const tokonlab: Provider = {
     pricing: "https://tokonlab.com/pricing"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

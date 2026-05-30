@@ -15,6 +15,7 @@ export const vidu: Provider = {
     termsOfService: "https://www.vidu.com/terms"
   },
   providerCountry: "CN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

@@ -17,6 +17,7 @@ export const atlascloud: Provider = {
     console: "https://www.atlascloud.ai/console/dashboard"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

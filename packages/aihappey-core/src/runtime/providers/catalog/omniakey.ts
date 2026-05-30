@@ -13,6 +13,7 @@ export const omniakey: Provider = {
     termsOfService: "https://omniakey.com/terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

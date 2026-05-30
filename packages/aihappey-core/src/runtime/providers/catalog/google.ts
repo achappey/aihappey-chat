@@ -17,6 +17,7 @@ export const google: Provider = {
     console: "https://aistudio.google.com"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

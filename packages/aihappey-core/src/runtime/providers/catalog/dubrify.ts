@@ -13,6 +13,7 @@ export const dubrify: Provider = {
     termsOfService: "https://dubrify.com/user-agreement"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -12,6 +12,7 @@ export const gptsapi: Provider = {
     termsOfService: "https://gptsapi.net/terms"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

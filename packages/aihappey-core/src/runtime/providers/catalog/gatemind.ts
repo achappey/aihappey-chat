@@ -12,6 +12,7 @@ export const gatemind: Provider = {
     console: "https://gatemind.ai/app"
   },
   experimental: true,
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

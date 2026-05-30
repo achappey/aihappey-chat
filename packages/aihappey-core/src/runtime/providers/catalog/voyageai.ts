@@ -14,6 +14,7 @@ export const voyageai: Provider = {
     termsOfService: "https://www.voyageai.com/tos"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

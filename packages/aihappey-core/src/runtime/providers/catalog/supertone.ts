@@ -16,6 +16,7 @@ export const supertone: Provider = {
     privacyPolicy: "https://supertone.notion.site/Privacy-Policy-2024-09-04-6eacb9c77aa54d28a0600fe8f6389296"
   },
   providerCountry: "KR",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

@@ -12,6 +12,7 @@ export const inferlink: Provider = {
     pricing: "https://inferlink.ai/#pricing"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

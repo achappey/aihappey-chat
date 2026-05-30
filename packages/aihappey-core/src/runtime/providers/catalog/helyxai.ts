@@ -12,6 +12,7 @@ export const helyxai: Provider = {
     pricing: "https://helyxai.space/pricing"
   },
   providerCountry: "PK",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

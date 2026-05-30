@@ -16,6 +16,7 @@ export const featherless: Provider = {
     termsOfService: "https://featherless.ai/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -16,6 +16,7 @@ export const cometapi: Provider = {
     termsOfService: "https://www.cometapi.com/terms-of-service"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

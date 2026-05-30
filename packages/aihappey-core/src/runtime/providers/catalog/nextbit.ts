@@ -16,6 +16,7 @@ export const nextbit: Provider = {
     termsOfService: "https://www.nextbit256.com/docs/privacy-policy"
   },
   providerCountry: "ES",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

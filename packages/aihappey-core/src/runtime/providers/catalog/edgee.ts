@@ -14,6 +14,7 @@ export const edgee: Provider = {
     termsOfService: "https://www.edgee.ai/terms"
   },
   providerCountry: "FR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

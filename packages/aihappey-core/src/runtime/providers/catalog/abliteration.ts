@@ -17,6 +17,7 @@ export const abliteration: Provider = {
     docs: "https://abliteration.ai/docs"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

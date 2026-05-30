@@ -15,6 +15,7 @@ export const kittenstack: Provider = {
     termsOfService: "https://kittenstack.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

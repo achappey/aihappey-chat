@@ -15,6 +15,7 @@ export const miromind: Provider = {
     termsOfService: "https://www.miromind.ai/policies/terms"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

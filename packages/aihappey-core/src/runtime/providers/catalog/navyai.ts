@@ -15,6 +15,7 @@ export const navyai: Provider = {
     termsOfService: "https://api.navy/terms",
     privacyPolicy: "https://api.navy/privacy"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

@@ -17,6 +17,7 @@ export const blackbox: Provider = {
     termsOfService: "https://www.blackbox.ai/terms"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

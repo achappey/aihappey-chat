@@ -17,5 +17,6 @@ export const nousresearch: Provider = {
     console: "https://portal.nousresearch.com"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };

@@ -13,6 +13,7 @@ export const wesenai: Provider = {
     termsOfService: "https://app.wesen.ai/terms-of-service"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

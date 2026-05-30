@@ -14,6 +14,7 @@ export const poolside: Provider = {
     termsOfService: "https://poolside.ai/legal/eula"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

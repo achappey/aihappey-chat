@@ -16,6 +16,7 @@ export const telnyx: Provider = {
     console: "https://portal.telnyx.com"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

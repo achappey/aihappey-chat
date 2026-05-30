@@ -11,6 +11,7 @@ export const pixcode: Provider = {
     docs: "https://onlypixai.com/docs",
     pricing: "https://onlypixai.com/#pricing"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

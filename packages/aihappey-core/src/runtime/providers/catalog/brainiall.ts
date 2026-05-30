@@ -12,6 +12,7 @@ export const brainiall: Provider = {
     pricing: "https://app.brainiall.com/pricing"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

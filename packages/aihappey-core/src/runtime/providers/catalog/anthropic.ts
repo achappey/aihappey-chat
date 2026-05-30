@@ -14,6 +14,7 @@ export const anthropic: Provider = {
     termsOfService: "https://www.anthropic.com/legal/commercial-terms"
   },
   providerCountry: "US",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

@@ -15,6 +15,7 @@ export const syllogy: Provider = {
   },
   experimental: true,
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

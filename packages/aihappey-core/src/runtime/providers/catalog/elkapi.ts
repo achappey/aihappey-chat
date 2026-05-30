@@ -13,6 +13,7 @@ export const elkapi: Provider = {
     termsOfService: "https://apidoc.elkapi.com/doc-1807432"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

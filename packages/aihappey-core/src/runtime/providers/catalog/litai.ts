@@ -10,6 +10,7 @@ export const litai: Provider = {
     homepage: "https://lightning.ai/docs/litai/home",
     docs: "https://lightning.ai/docs/litai/api-reference/llm-api"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

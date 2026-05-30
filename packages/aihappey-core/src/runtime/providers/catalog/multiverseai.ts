@@ -14,6 +14,7 @@ export const multiverseai: Provider = {
     termsOfService: "https://multiverseai.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

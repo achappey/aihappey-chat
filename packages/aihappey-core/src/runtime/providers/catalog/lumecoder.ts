@@ -14,6 +14,7 @@ export const lumecoder: Provider = {
     termsOfService: "https://lumecoder.com/terms"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

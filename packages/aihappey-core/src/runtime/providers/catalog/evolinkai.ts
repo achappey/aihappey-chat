@@ -15,6 +15,7 @@ export const evolinkai: Provider = {
     termsOfService: "https://evolink.ai/terms"
   },
   providerCountry: "HK",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

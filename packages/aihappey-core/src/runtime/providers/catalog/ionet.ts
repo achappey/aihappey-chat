@@ -16,6 +16,7 @@ export const ionet: Provider = {
     termsOfService: "https://io.net/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

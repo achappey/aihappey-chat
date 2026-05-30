@@ -13,6 +13,7 @@ export const radiance: Provider = {
     termsOfService: "https://radiance.cloud/terms-of-service"
   },
   providerCountry: "SE",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

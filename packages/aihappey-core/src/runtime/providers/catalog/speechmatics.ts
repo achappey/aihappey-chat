@@ -17,6 +17,7 @@ export const speechmatics: Provider = {
     console: "https://portal.speechmatics.com"
   },
   providerCountry: "GB",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

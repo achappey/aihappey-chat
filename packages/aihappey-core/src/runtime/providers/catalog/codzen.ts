@@ -14,6 +14,7 @@ export const codzen: Provider = {
     termsOfService: "https://codzen.ai/terms"
   },
   providerCountry: "JP",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

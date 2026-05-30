@@ -14,6 +14,7 @@ export const textsynth: Provider = {
     termsOfService: "https://textsynth.com/tos.html"
   },
   providerCountry: "FR",
+  category: "media_voice",
   inferenceRegions: ["Europe"]
 
 };

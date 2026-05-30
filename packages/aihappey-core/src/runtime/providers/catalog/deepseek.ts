@@ -15,6 +15,7 @@ export const deepseek: Provider = {
     termsOfService: "https://www.deepseek.com/terms"
   },
   providerCountry: "CN",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

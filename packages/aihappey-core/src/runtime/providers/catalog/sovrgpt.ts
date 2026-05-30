@@ -13,6 +13,7 @@ export const sovrgpt: Provider = {
     termsOfService: "https://sovrgpt.com/impressum"
   },
   providerCountry: "DE",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

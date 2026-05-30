@@ -17,6 +17,7 @@ export const decart: Provider = {
     console: "https://platform.decart.ai"
   },
   providerCountry: "IL",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

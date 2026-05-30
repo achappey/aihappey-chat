@@ -13,6 +13,7 @@ export const ishi: Provider = {
     termsOfService: "https://ishi.so/legal/terms-of-service"
   },
   providerCountry: "SG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

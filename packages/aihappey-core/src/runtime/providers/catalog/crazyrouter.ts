@@ -16,6 +16,7 @@ export const crazyrouter: Provider = {
     privacyPolicy: "https://crazyrouter.com/privacy-policy"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 };
 

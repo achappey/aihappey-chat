@@ -15,6 +15,7 @@ export const zai: Provider = {
     termsOfService: "https://docs.z.ai/legal-agreement/terms-of-use"
   },
   providerCountry: "CN",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

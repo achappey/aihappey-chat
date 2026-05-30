@@ -13,6 +13,7 @@ export const aihorde: Provider = {
     termsOfService: "https://aihorde.net/terms"
   },
   providerCountry: "LU",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

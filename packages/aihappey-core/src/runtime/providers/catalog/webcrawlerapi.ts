@@ -19,6 +19,7 @@ export const webcrawlerapi: Provider = {
     termsOfService: "https://webcrawlerapi.com/tos"
   },
   providerCountry: "NL",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

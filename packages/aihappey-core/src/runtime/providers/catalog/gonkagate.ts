@@ -13,6 +13,7 @@ export const gonkagate: Provider = {
     privacyPolicy: "https://gonkagate.com/en/privacy",
     termsOfService: "https://gonkagate.com/en/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

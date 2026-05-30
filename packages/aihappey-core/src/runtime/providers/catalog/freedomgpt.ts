@@ -13,6 +13,7 @@ export const freedomgpt: Provider = {
     termsOfService: "https://www.freedomgpt.com/terms-of-service"
   },
   experimental: true,
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

@@ -11,6 +11,7 @@ export const anannas: Provider = {
     docs: "https://docs.anannas.ai"
   },
   providerCountry: "IN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

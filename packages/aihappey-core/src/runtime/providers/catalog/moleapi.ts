@@ -11,6 +11,7 @@ export const moleapi: Provider = {
     docs: "https://docs.moleapi.com"
   },
   providerCountry: "CN",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

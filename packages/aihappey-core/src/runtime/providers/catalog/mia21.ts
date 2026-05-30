@@ -14,6 +14,7 @@ export const mia21: Provider = {
     termsOfService: "https://app.mia21.com/terms"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

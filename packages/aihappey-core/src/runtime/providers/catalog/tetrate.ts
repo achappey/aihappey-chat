@@ -17,6 +17,7 @@ export const tetrate: Provider = {
     termsOfService: "https://tetrate.io/eula"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

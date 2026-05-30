@@ -15,6 +15,7 @@ export const ovhcloud: Provider = {
     termsOfService: "https://www.ovhcloud.com/en/terms-and-conditions"
   },
   providerCountry: "FR",
+  category: "inference_compute",
   inferenceRegions: ["Americas", "Europe", "Asia"]
 
 };

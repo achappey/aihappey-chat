@@ -13,6 +13,7 @@ export const ionrouter: Provider = {
     termsOfService: "https://ionrouter.io/terms-of-service.pdf"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

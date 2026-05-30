@@ -14,6 +14,7 @@ export const ultrasafe: Provider = {
     termsOfService: "https://us.inc/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

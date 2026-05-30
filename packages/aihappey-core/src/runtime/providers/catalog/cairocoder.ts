@@ -13,6 +13,7 @@ export const cairocoder: Provider = {
     termsOfService: "https://kasar.io/pages/terms-and-conditions"
   },
   providerCountry: "FR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

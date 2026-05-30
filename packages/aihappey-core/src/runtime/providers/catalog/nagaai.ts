@@ -12,6 +12,7 @@ export const nagaai: Provider = {
     privacyPolicy: "https://naga.ac/legal/privacy",
     termsOfService: "https://naga.ac/legal/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

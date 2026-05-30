@@ -15,6 +15,7 @@ export const nimbleway: Provider = {
     termsOfService: "https://www.nimbleway.com/terms-of-use"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

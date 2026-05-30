@@ -15,6 +15,7 @@ export const elevenlabs: Provider = {
     termsOfService: "https://elevenlabs.io/terms"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

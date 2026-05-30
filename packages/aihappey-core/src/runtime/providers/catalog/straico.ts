@@ -17,6 +17,7 @@ export const straico: Provider = {
     termsOfService: "https://straico.com/terms-and-conditions"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

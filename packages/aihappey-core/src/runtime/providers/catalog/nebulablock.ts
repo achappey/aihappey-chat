@@ -14,6 +14,7 @@ export const nebulablock: Provider = {
     termsOfService: "https://docs.nebulablock.com/overview-3/terms_of_service"
   },
   providerCountry: "CA",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

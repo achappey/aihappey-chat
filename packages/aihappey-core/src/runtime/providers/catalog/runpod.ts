@@ -17,6 +17,7 @@ export const runpod: Provider = {
     console: "https://console.runpod.io"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

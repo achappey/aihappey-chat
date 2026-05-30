@@ -14,6 +14,7 @@ export const rodiumai: Provider = {
     termsOfService: "https://www.rodiumai.io/terms"
   },
   providerCountry: "NG",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

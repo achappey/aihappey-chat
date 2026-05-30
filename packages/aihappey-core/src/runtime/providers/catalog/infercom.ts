@@ -14,6 +14,7 @@ export const infercom: Provider = {
     termsOfService: "https://infercom.ai/termsconditions"
   },
   providerCountry: "LU",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

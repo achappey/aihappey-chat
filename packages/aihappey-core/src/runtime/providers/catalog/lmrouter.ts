@@ -14,6 +14,7 @@ export const lmrouter: Provider = {
     termsOfService: "https://docs.lmrouter.com/terms"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

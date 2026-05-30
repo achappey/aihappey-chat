@@ -12,6 +12,7 @@ export const ollama: Provider = {
     pricing: "https://ollama.com/pricing"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

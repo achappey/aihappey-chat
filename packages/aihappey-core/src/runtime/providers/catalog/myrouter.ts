@@ -10,6 +10,7 @@ export const myrouter: Provider = {
     homepage: "https://www.myrouter.ai",
     docs: "https://docs.myrouter.ai/docs/model/overview"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

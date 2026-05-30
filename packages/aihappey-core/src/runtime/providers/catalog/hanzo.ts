@@ -14,6 +14,7 @@ export const hanzo: Provider = {
     termsOfService: "https://hanzo.ai/terms"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

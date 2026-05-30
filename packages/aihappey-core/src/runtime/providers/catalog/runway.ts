@@ -17,6 +17,7 @@ export const runway: Provider = {
     console: "https://app.runwayml.com"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

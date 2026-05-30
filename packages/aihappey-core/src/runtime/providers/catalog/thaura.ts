@@ -14,6 +14,7 @@ export const thaura: Provider = {
     termsOfService: "https://thaura.ai/terms-of-service"
   },
   providerCountry: "DE",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const modelrouter: Provider = {
     privacyPolicy: "https://modelrouter.app/privacy",
     pricing: "https://modelrouter.app/pricing"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

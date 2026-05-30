@@ -17,6 +17,7 @@ export const infraxa: Provider = {
     privacyPolicy: "https://dashboard.infraxa.ai/privacy"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

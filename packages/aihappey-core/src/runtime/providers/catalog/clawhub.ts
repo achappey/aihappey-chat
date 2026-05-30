@@ -10,6 +10,7 @@ export const clawhub: Provider = {
     homepage: "https://clawhub.ai",
     docs: "https://documentation.openclaw.ai/clawhub"
   },
+  category: "search_data",
   providerCountry: "US"
 
 };

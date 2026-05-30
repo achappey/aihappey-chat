@@ -10,6 +10,7 @@ export const groovedev: Provider = {
     homepage: "https://groovedev.ai",
     docs: "https://docs.groovedev.ai"
   },
+  category: "gateway_router",
   providerCountry: "US"
 
 };

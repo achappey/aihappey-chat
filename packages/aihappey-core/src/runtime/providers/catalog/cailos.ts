@@ -13,6 +13,7 @@ export const cailos: Provider = {
     termsOfService: "https://cailos.com/terms"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

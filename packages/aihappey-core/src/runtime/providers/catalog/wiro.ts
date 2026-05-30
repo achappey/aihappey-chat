@@ -14,6 +14,7 @@ export const wiro: Provider = {
     termsOfService: "https://wiro.ai/agreement/terms-of-service"
   },
   providerCountry: "TR",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const neosantara: Provider = {
     termsOfService: "https://www.neosantara.xyz/terms"
   },
   providerCountry: "ID",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

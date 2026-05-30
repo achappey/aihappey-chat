@@ -10,6 +10,7 @@ export const modelbridge: Provider = {
     homepage: "https://openclaw-api.net"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

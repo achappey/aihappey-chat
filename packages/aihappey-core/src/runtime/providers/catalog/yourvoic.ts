@@ -15,6 +15,7 @@ export const yourvoic: Provider = {
     privacyPolicy: "https://yourvoic.com/privacy"
   },
   providerCountry: "IN",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

@@ -14,6 +14,7 @@ export const jigsawstack: Provider = {
     termsOfService: "https://jigsawstack.com/legal/terms"
   },
   providerCountry: "SG",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -16,6 +16,7 @@ export const deepgram: Provider = {
     termsOfService: "https://deepgram.com/terms"
   },
   providerCountry: "US",
+  category: "media_voice",
   inferenceRegions: ["World"]
 
 };

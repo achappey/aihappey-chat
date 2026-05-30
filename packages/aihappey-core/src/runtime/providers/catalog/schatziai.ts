@@ -14,6 +14,7 @@ export const schatziai: Provider = {
     termsOfService: "https://schatziai.ch/terms-conditions"
   },
   providerCountry: "CH",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

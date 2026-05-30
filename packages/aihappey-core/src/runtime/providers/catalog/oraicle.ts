@@ -13,6 +13,7 @@ export const oraicle: Provider = {
     privacyPolicy: "https://oraicle.me/privacy"
   },
   providerCountry: "HK",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

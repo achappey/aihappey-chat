@@ -11,6 +11,7 @@ export const libertai: Provider = {
     docs: "https://docs.libertai.io/apis",
     pricing: "https://docs.libertai.io/apis/text/#pricing"
   },
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

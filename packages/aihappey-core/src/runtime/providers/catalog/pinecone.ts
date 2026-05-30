@@ -16,6 +16,7 @@ export const pinecone: Provider = {
     termsOfService: "https://www.pinecone.io/legal"
   },
   providerCountry: "US",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

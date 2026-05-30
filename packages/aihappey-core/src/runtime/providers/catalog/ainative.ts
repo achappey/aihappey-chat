@@ -14,6 +14,7 @@ export const ainative: Provider = {
     termsOfService: "https://www.ainative.studio/terms"
   },
   providerCountry: "US",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

@@ -13,6 +13,7 @@ export const selinaai: Provider = {
     termsOfService: "https://selinalabs.io/t-and-c"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

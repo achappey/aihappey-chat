@@ -12,6 +12,7 @@ export const docsrouter: Provider = {
     console: "https://docsrouter.com/dashboard",
     pricing: "https://docsrouter.com/pricing"
   },
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };

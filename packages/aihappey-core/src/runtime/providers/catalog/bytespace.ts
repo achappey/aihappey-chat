@@ -14,6 +14,7 @@ export const bytespace: Provider = {
     termsOfService: "https://bytespace.sg/terms"
   },
   providerCountry: "SG",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

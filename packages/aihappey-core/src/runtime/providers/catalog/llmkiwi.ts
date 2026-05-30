@@ -15,6 +15,7 @@ export const llmkiwi: Provider = {
     termsOfService: "https://llm.kiwi/terms-of-service"
   },
   providerCountry: "HR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

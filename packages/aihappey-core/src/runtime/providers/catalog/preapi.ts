@@ -13,6 +13,7 @@ export const preapi: Provider = {
     termsOfService: "https://preapi.net/terms"
   },
   providerCountry: "GB",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

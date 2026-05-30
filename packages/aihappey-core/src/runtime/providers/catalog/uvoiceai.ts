@@ -16,6 +16,7 @@ export const uvoiceai: Provider = {
     privacyPolicy: "https://uvoice.app/privacy-policy"
   },
   providerCountry: "TH",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

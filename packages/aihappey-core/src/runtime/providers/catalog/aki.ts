@@ -14,6 +14,7 @@ export const aki: Provider = {
     termsOfService: "https://aki.io/privacy-policy"
   },
   providerCountry: "DE",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

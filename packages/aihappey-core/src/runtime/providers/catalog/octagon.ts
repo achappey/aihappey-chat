@@ -13,6 +13,7 @@ export const octagon: Provider = {
     termsOfService: "https://octagonai.co/terms-of-service"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

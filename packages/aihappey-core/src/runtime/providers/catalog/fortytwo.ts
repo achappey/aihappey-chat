@@ -13,6 +13,7 @@ export const fortytwo: Provider = {
     termsOfService: "https://docs.fortytwo.network/docs/legal-legal-notice"
   },
   providerCountry: "GB",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

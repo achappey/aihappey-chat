@@ -17,6 +17,7 @@ export const freepik: Provider = {
     termsOfService: "https://www.freepikcompany.com/legal"
   },
   providerCountry: "ES",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -14,6 +14,7 @@ export const runcrate: Provider = {
     termsOfService: "https://www.runcrate.ai/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

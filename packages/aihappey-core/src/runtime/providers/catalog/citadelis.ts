@@ -14,6 +14,7 @@ export const citadelis: Provider = {
     termsOfService: "https://citadelis.eu/terms"
   },
   providerCountry: "FR",
+  category: "gateway_router",
   inferenceRegions: ["Europe"]
 
 };

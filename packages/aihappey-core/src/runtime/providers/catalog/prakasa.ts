@@ -13,6 +13,7 @@ export const prakasa: Provider = {
     console: "https://prakasa.me/console"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

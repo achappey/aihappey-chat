@@ -13,6 +13,7 @@ export const aiduet: Provider = {
     privacyPolicy: "https://aiduet.app/en/privacy",
     termsOfService: "https://aiduet.app/en/terms"
   },
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

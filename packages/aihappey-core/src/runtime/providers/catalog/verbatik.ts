@@ -17,6 +17,7 @@ export const verbatik: Provider = {
     privacyPolicy: "https://verbatik.com/privacy"
   },
   providerCountry: "GB",
+  category: "media_voice",
   inferenceRegions: ["World"]
 };
 

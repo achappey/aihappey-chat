@@ -15,6 +15,7 @@ export const scaleway: Provider = {
     console: "https://console.scaleway.com"
   },
   providerCountry: "FR",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

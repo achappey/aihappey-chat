@@ -12,6 +12,7 @@ export const pixia: Provider = {
     pricing: "https://pixia.cloud/#pricing"
   },
   providerCountry: "BR",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

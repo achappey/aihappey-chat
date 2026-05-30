@@ -18,6 +18,7 @@ export const contextualai: Provider = {
     termsOfService: "https://contextual.ai/legal/terms-of-use"
   },
   providerCountry: "US",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

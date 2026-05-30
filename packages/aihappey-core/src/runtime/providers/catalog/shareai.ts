@@ -12,6 +12,7 @@ export const shareai: Provider = {
     pricing: "https://shareai.now/models"
   },
   providerCountry: "RO",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

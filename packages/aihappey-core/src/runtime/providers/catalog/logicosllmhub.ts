@@ -14,6 +14,7 @@ export const logicosllmhub: Provider = {
     termsOfService: "https://www.llmhub.one/terms"
   },
   providerCountry: "NL",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

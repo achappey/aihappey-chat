@@ -14,6 +14,7 @@ export const embercloud: Provider = {
     termsOfService: "https://www.embercloud.ai/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

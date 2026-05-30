@@ -16,6 +16,7 @@ export const gladia: Provider = {
     privacyPolicy: "https://www.gladia.io/privacy-notice"
   },
   providerCountry: "FR",
+  category: "media_voice",
   inferenceRegions: ["Europe", "Americas"]
 
 };

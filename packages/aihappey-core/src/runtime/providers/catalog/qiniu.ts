@@ -14,6 +14,7 @@ export const qiniu: Provider = {
     termsOfService: "https://www.qiniu.com/user-agreement"
   },
   providerCountry: "CN",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

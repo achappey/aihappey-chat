@@ -18,6 +18,7 @@ export const inferencesh: Provider = {
     termsOfService: "https://inference.sh/terms"
   },
   providerCountry: "US",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };
