@@ -536,6 +536,8 @@ import { keymeai } from "./catalog/keymeai";
 import { mycoai } from "./catalog/mycoai";
 import { scalixworld } from "./catalog/scalixworld";
 import { apipass } from "./catalog/apipass";
+import { virouter } from "./catalog/virouter";
+import { inferencespace } from "./catalog/inferencespace";
 
 /**
  * UI-facing provider catalog.
@@ -580,7 +582,9 @@ export const PROVIDERS: Record<string, Provider> = {
   callmissed,
   groovedev,
   apipass,
+  inferencespace,
   merge,
+  virouter,
   zyloapi,
   keymeai,
   opuscode,
