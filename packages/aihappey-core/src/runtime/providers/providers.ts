@@ -535,6 +535,7 @@ import { opengate } from "./catalog/opengate";
 import { keymeai } from "./catalog/keymeai";
 import { mycoai } from "./catalog/mycoai";
 import { scalixworld } from "./catalog/scalixworld";
+import { apipass } from "./catalog/apipass";
 
 /**
  * UI-facing provider catalog.
@@ -578,6 +579,7 @@ export const PROVIDERS: Record<string, Provider> = {
   vibekit,
   callmissed,
   groovedev,
+  apipass,
   merge,
   zyloapi,
   keymeai,
