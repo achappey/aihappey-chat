@@ -10,14 +10,14 @@ export const maritacaai: Provider = {
     }
   ],
   urls: {
-    homepage: "https://thalesrogerio.wixstudio.com/maritaca-ai",
+    homepage: "https://www.maritaca.ai",
     docs: "https://docs.maritaca.ai",
-    privacyPolicy: "https://thalesrogerio.wixstudio.com/maritaca-ai/politica-de-privacidade",
-    termsOfService: "https://thalesrogerio.wixstudio.com/maritaca-ai/terms-and-conditions",
+    privacyPolicy: "https://www.maritaca.ai/privacidade",
+    termsOfService: "https://www.maritaca.ai/termos",
     console: "https://plataforma.maritaca.ai"
   },
   providerCountry: "BR",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

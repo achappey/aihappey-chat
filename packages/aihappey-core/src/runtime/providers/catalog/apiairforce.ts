@@ -4,14 +4,14 @@ export const apiairforce: Provider = {
   name: "ApiAirforce",
   description: "Free Claude API, cheap GPT-4, and Midjourney access. 65+ AI models with pay-as-you-go from $0. Best affordable AI API for developers.",
   icons: [{
-    src: "https://panel.api.airforce/airforce.webp"
+    src: "https://api.airforce/airforce-logo.png"
   }],
   urls: {
-    homepage: "https://panel.api.airforce",
-    pricing: "https://panel.api.airforce/#pricing",
-    docs: "https://panel.api.airforce/docs",
-    privacyPolicy: "https://panel.api.airforce/privacy",
-    termsOfService: "https://panel.api.airforce/terms"
+    homepage: "https://api.airforce",
+    pricing: "https://api.airforce/pricing",
+    docs: "https://api.airforce/docs",
+    privacyPolicy: "https://api.airforce/privacy",
+    termsOfService: "https://api.airforce/terms"
   },
   providerCountry: "US",
   category: "gateway_router",

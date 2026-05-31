@@ -18,6 +18,6 @@ export const kilo: Provider = {
     privacyPolicy: "https://kilo.ai/privacy"
   },
   providerCountry: "US",
-  category: "app_tools",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };

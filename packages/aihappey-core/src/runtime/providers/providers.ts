@@ -464,7 +464,6 @@ import { blink } from "./catalog/blink";
 import { tensorblock } from "./catalog/tensorblock";
 import { aiapiworld } from "./catalog/aiapiworld";
 import { shannonai } from "./catalog/shannonai";
-import { trinixai } from "./catalog/trinixai";
 import { holysheepai } from "./catalog/holysheepai";
 import { zyloapi } from "./catalog/zyloapi";
 import { augure } from "./catalog/augure";
@@ -634,7 +633,6 @@ export const PROVIDERS: Record<string, Provider> = {
   tokonlab,
   holysheepai,
   foureverland,
-  trinixai,
   fivedock,
   schatziai,
   privatemode,

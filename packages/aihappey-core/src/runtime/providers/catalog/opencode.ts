@@ -16,7 +16,7 @@ export const opencode: Provider = {
     termsOfService: "https://opencode.ai/legal/terms-of-service"
   },
   providerCountry: "US",
-  category: "app_tools",
+  category: "gateway_router",
   inferenceRegions: ["Americas"]
 
 };

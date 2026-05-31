@@ -13,7 +13,7 @@ export const embyai: Provider = {
     privacyPolicy: "https://api.emby.ai/#"
   },
   providerCountry: "NL",
-  category: "app_tools",
+  category: "inference_compute",
   inferenceRegions: ["Europe"]
 
 };

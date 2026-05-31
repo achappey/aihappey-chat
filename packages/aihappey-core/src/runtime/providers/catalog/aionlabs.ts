@@ -16,7 +16,7 @@ export const aionlabs: Provider = {
     privacyPolicy: "https://www.aionlabs.ai/privacy"
   },
   providerCountry: "IL",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 
