@@ -5,7 +5,7 @@ export const navyai: Provider = {
   description: "A single API to access state-of-the-art models from OpenAI, Google, Mistral, and more.",
   icons: [
     {
-      src: "https://api.navy/assets/navyai.png"
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://api.navy&size=128"
     }
   ],
   urls: {

@@ -510,7 +510,6 @@ import { sovrgpt } from "./catalog/sovrgpt";
 import { doubleword } from "./catalog/doubleword";
 import { openhands } from "./catalog/openhands";
 import { poolside } from "./catalog/poolside";
-import { cloister } from "./catalog/cloister";
 import { antbase } from "./catalog/antbase";
 import { slancha } from "./catalog/slancha";
 import { codingplanx } from "./catalog/codingplanx";
@@ -838,7 +837,6 @@ export const PROVIDERS: Record<string, Provider> = {
   jigsawstack,
   eachlabs,
   nimbleway,
-  cloister,
   aigateway,
   synthetic,
   longcat,

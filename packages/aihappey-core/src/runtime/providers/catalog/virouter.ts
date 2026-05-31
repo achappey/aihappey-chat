@@ -4,7 +4,7 @@ export const virouter: Provider = {
   name: "Virouter",
   description: "A premium routing switchboard for OpenAI and Anthropic models. One API key, Billing USD Quota, built for solo developers.",
   icons: [{
-    src: "https://virouter.com/brand/favicon.svg"
+    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://virouter.com&size=128"
   }],
   urls: {
     homepage: "https://virouter.com",
