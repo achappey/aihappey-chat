@@ -192,6 +192,8 @@
     },
     "providerDefault": "Default",
     "custom": "Custom",
+    "category": "Category",
+    "filters": "Filters",
     "providers": "Providers",
     "mesh": "Mesh",
     "agents": {
@@ -208,7 +210,7 @@
         "providers": "An overview of all {{total}} available AI providers. For each provider, you can see what it offers, how it fits into different use cases, and when it makes sense to use it. This helps you select the right provider per task or workflow in a clear and consistent way.",
         "providerCategories": {
             "model_provider": {
-                "label": "Model Lab",
+                "label": "Model Builder",
                 "description": "Builds and owns foundation AI models that can be used directly or via other platforms."
             },
             "gateway_router": {

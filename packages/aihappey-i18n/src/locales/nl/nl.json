@@ -178,6 +178,7 @@
     },
     "instructions": "Instructies",
     "providerDefault": "Standaard",
+    "category": "Categorie",
     "custom": "Aangepast",
     "agentEdit": {
         "name": "Naam",
@@ -197,7 +198,7 @@
         "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier.",
         "providerCategories": {
             "model_provider": {
-                "label": "Modellab",
+                "label": "Modelbouwer",
                 "description": "Bouwt en beheert foundation AI-modellen die direct of via andere platforms gebruikt kunnen worden."
             },
             "gateway_router": {
@@ -205,8 +206,8 @@
                 "description": "Routeert aanvragen over meerdere AI-providers, vaak met één API, fallback en facturatie."
             },
             "inference_compute": {
-                "label": "Compute",
-                "description": "Levert infrastructuur en rekenkracht voor het hosten en uitvoeren van AI-inference workloads."
+                "label": "Rekenkracht",
+                "description": "Levert infrastructuur voor het hosten en uitvoeren van AI-inference workloads."
             },
             "media_voice": {
                 "label": "Media",

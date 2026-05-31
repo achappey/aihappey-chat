@@ -40,6 +40,9 @@ export const ProvidersPage = () => {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([
         PROVIDER_LOCATION_ALL_FILTER_VALUE,
     ]);
+    const [selectedModelTypes, setSelectedModelTypes] = useState<string[]>([
+        PROVIDER_LOCATION_ALL_FILTER_VALUE,
+    ]);
     const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(null);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const models = useAppStore((s) => s.models);
@@ -141,6 +144,39 @@ export const ProvidersPage = () => {
         return counts;
     }, [providers]);
 
+    const modelTypeOptions = useMemo(() => {
+        const values = new Set<string>();
+
+        Object.values(modelTypesByProvider).forEach((types) => {
+            types.forEach((type) => {
+                if (type) {
+                    values.add(type);
+                }
+            });
+        });
+
+        return Array.from(values).sort((a, b) => collator.compare(t(a), t(b)));
+    }, [collator, modelTypesByProvider, t]);
+
+    const modelTypeCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+
+        providers.forEach((p) => {
+            const types = modelTypesByProvider[p.key] ?? [];
+            types.forEach((type) => {
+                counts[type] = (counts[type] ?? 0) + 1;
+            });
+        });
+
+        return counts;
+    }, [modelTypesByProvider, providers]);
+
+    const sortedProviderCountryOptions = useMemo(() => {
+        return [...providerCountryOptions].sort((a, b) =>
+            collator.compare(t(`regional:countries.${a}`), t(`regional:countries.${b}`))
+        );
+    }, [collator, providerCountryOptions, t]);
+
     const countryCounts = useMemo(() => {
         const counts: Record<string, number> = {};
         providers.forEach((p) => {
@@ -167,7 +203,7 @@ export const ProvidersPage = () => {
         return [
             {
                 id: "provider-category-filters",
-                label: "Category",
+                label: t('category'),
                 allOption: {
                     id: "all-categories",
                     label: t("all"),
@@ -194,27 +230,27 @@ export const ProvidersPage = () => {
                 })),
             },
             {
-                id: "provider-country-filters",
-                label: t("countryOfOrigin"),
+                id: "provider-model-type-filters",
+                label: t("models"),
                 allOption: {
-                    id: "all-countries",
+                    id: "all-model-types",
                     label: t("all"),
                     count: providers.length,
-                    checked: selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
-                    onChange: () => setSelectedCountries([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
+                    checked: selectedModelTypes.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
+                    onChange: () => setSelectedModelTypes([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
                 },
-                items: providerCountryOptions.map((country) => ({
-                    id: `country-${country}`,
-                    label: t(`regional:countries.${country}`),
-                    count: countryCounts[country] ?? 0,
+                items: modelTypeOptions.map((modelType) => ({
+                    id: `model-type-${modelType}`,
+                    label: t(modelType),
+                    count: modelTypeCounts[modelType] ?? 0,
                     checked:
-                        !selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
-                        selectedCountries.includes(country),
+                        !selectedModelTypes.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
+                        selectedModelTypes.includes(modelType),
                     onChange: () => {
-                        setSelectedCountries((current) =>
+                        setSelectedModelTypes((current) =>
                             toggleProviderLocationMultiSelectValue(
                                 current,
-                                country,
+                                modelType,
                                 PROVIDER_LOCATION_ALL_FILTER_VALUE
                             )
                         );
@@ -249,18 +285,49 @@ export const ProvidersPage = () => {
                     },
                 })),
             },
+            {
+                id: "provider-country-filters",
+                label: t("countryOfOrigin"),
+                allOption: {
+                    id: "all-countries",
+                    label: t("all"),
+                    count: providers.length,
+                    checked: selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
+                    onChange: () => setSelectedCountries([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
+                },
+                items: sortedProviderCountryOptions.map((country) => ({
+                    id: `country-${country}`,
+                    label: t(`regional:countries.${country}`),
+                    count: countryCounts[country] ?? 0,
+                    checked:
+                        !selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
+                        selectedCountries.includes(country),
+                    onChange: () => {
+                        setSelectedCountries((current) =>
+                            toggleProviderLocationMultiSelectValue(
+                                current,
+                                country,
+                                PROVIDER_LOCATION_ALL_FILTER_VALUE
+                            )
+                        );
+                    },
+                })),
+            },
         ];
     }, [
         categoryCounts,
         categoryOptions,
         countryCounts,
         inferenceRegionOptions,
-        providerCountryOptions,
+        modelTypeCounts,
+        modelTypeOptions,
         providers.length,
         regionCounts,
         selectedCategories,
         selectedCountries,
+        selectedModelTypes,
         selectedRegions,
+        sortedProviderCountryOptions,
         t,
     ]);
 
@@ -285,13 +352,33 @@ export const ProvidersPage = () => {
                 allowAllCategories ||
                 (!!p.category && selectedCategories.includes(p.category));
 
-            return matchesSearch && matchesCountry && matchesRegion && matchesCategory;
+            const allowAllModelTypes = selectedModelTypes.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
+            const providerModelTypes = modelTypesByProvider[p.key] ?? [];
+            const matchesModelType =
+                allowAllModelTypes ||
+                selectedModelTypes.every((type) => providerModelTypes.includes(type));
+
+            return (
+                matchesSearch &&
+                matchesCountry &&
+                matchesRegion &&
+                matchesCategory &&
+                matchesModelType
+            );
         });
-    }, [providers, search, selectedCategories, selectedCountries, selectedRegions]);
+    }, [
+        modelTypesByProvider,
+        providers,
+        search,
+        selectedCategories,
+        selectedCountries,
+        selectedModelTypes,
+        selectedRegions,
+    ]);
 
     useEffect(() => {
         setVisibleCount(PAGE_SIZE);
-    }, [search, selectedCategories, selectedCountries, selectedRegions]);
+    }, [search, selectedCategories, selectedCountries, selectedModelTypes, selectedRegions]);
 
     const selectedProvider = useMemo(
         () => providers.find((p) => p.key === selectedProviderKey) ?? null,
@@ -515,19 +602,19 @@ export const ProvidersPage = () => {
                                     size="medium"
                                     onClose={() => setFiltersOpen(false)}
                                 >
-                                     <div
-                                         id="providers-inline-filter-drawer"
-                                         style={{
-                                             width: "100%",
-                                             boxSizing: "border-box",
-                                             padding: 16,
-                                         }}
-                                     >
-                                         {renderFilterPanels()}
-                                     </div>
-                                 </Drawer>
-                             </div>
-                         ) : null}
+                                    <div
+                                        id="providers-inline-filter-drawer"
+                                        style={{
+                                            width: "100%",
+                                            boxSizing: "border-box",
+                                            padding: 16,
+                                        }}
+                                    >
+                                        {renderFilterPanels()}
+                                    </div>
+                                </Drawer>
+                            </div>
+                        ) : null}
                     </div>
 
                     {!isDesktop ? (
@@ -539,18 +626,18 @@ export const ProvidersPage = () => {
                             size="small"
                             onClose={() => setFiltersOpen(false)}
                         >
-                             <div
-                                 id="providers-inline-filter-drawer"
-                                 style={{
-                                     width: "100%",
-                                     boxSizing: "border-box",
-                                     padding: 16,
-                                 }}
-                             >
-                                 {renderFilterPanels()}
-                             </div>
-                         </Drawer>
-                     ) : null}
+                            <div
+                                id="providers-inline-filter-drawer"
+                                style={{
+                                    width: "100%",
+                                    boxSizing: "border-box",
+                                    padding: 16,
+                                }}
+                            >
+                                {renderFilterPanels()}
+                            </div>
+                        </Drawer>
+                    ) : null}
 
                     {selectedProvider && (
                         <ProviderDetailModal
