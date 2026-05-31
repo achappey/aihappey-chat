@@ -32,6 +32,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const isDesktop = useIsDesktop();
 
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
+  const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const enabledProviderKeys = React.useMemo(() => {
     const types = props.modelTypes ?? ["language"];
     const names = new Set<string>();
@@ -46,11 +47,30 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     return Array.from(names).map((name) => providerNameToKey[name]).filter(Boolean);
   }, [enabledProvidersByType, props.modelTypes]);
 
+  const favoriteModelIds = React.useMemo(() => {
+    const types = props.modelTypes ?? ["language"];
+    const all = new Set<string>();
+
+    for (const type of types) {
+      const bucket = favoriteModelsByType?.[type]
+        ?? (type === "audio" ? favoriteModelsByType?.realtime : undefined)
+        ?? [];
+
+      for (const modelId of bucket) {
+        if (modelId) all.add(modelId);
+      }
+    }
+
+    return Array.from(all);
+  }, [favoriteModelsByType, props.modelTypes]);
+
   return (
     <ModelSelectField
       {...props}
       providers={providerOptions}
       enabledProviderKeys={enabledProviderKeys}
+      favoriteModelIds={favoriteModelIds}
+      favoritesLabel={t("favorites")}
       placeholder={t("selectModelPlaceholder")}
       minWidth={isDesktop ? 260 : 170}
     />

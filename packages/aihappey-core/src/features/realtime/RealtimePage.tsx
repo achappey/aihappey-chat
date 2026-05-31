@@ -22,6 +22,7 @@ import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { buildSelectedAgentRequest } from "../agents/agentSelection";
 import { useRealtimeConversationController } from "./useRealtimeConversationController";
 import { RealtimeInput } from "./RealtimeInput";
+import { useTranslation } from "aihappey-i18n";
 
 const addAttachmentWithTranscription = async (file: File) => {
   fileAttachmentRuntime.add(file);
@@ -32,8 +33,8 @@ const useRealtimeModelSelection = () => {
   const selectedModel = useAppStore((s) => s.selectedModel);
   const userPreferredAudioModel = useAppStore((s: any) => s.userPreferredAudioModel);
   const realtimeModels = useMemo(
-    () => (models ?? []).filter((m: any) => m?.type === "audio" 
-    //  || m?.tags?.includes("real-time") || m?.tags?.includes("realtime")
+    () => (models ?? []).filter((m: any) => m?.type === "audio"
+      //  || m?.tags?.includes("real-time") || m?.tags?.includes("realtime")
     ),
     [models]
   );
@@ -63,7 +64,6 @@ function RealtimeStartPage() {
   const { models, model, setModel } = useRealtimeModelSelection();
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
-  const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const temperature = useAppStore((s) => s.temperature);
@@ -72,7 +72,11 @@ function RealtimeStartPage() {
   const getAttachmentParts = useAttachmentParts();
   const { buildFromText, buildFromPrompt } = useUserMessageBuilder({ getAttachmentParts, extractExif });
   const { isOver, dropRef: drop, handleDrop, handleDragOver } = useChatFileDrop(addAttachmentWithTranscription);
-
+  const { Button } = useTheme();
+  const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+  const isFavorite = !!model && (favoriteModelsByType?.audio ?? []).includes(model);
+  const { t } = useTranslation();
   const dropRef = useCallback((node: HTMLDivElement | null) => {
     if (node) drop(node);
   }, [drop]);
@@ -115,6 +119,14 @@ function RealtimeStartPage() {
     <div style={{ height: "100dvh", minHeight: 0, minWidth: 0, display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "0px 12px", display: "flex", alignItems: "center", gap: 8 }}>
         <ModelSelect models={models ?? []} modelTypes={["audio"]} value={model} onChange={setModel} />
+        <Button
+          variant="subtle"
+          size="small"
+          icon={isFavorite ? "starFilled" : "star"}
+          onClick={() => model && toggleFavoriteModelForType("audio", model)}
+          disabled={!model}
+          title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+        />
         <div style={{ flex: 1 }} />
         <UserMenuInline />
       </div>
@@ -163,7 +175,7 @@ function RealtimeConversationPage() {
   const { get, items } = useConversations();
   const { config } = useChatContext();
   const { addChatError } = useChatErrors();
-  const { Spinner, JsonViewer } = useTheme();
+  const { Spinner, JsonViewer, Button } = useTheme();
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
   const debugMode = useAppStore((s) => s.debugMode);
@@ -172,6 +184,9 @@ function RealtimeConversationPage() {
   const extractExif = useAppStore((s) => s.extractExif);
   const { models, model, setModel } = useRealtimeModelSelection();
   const effectiveModel = String((location.state as any)?.model ?? model);
+  const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+  const isFavorite = !!effectiveModel && (favoriteModelsByType?.audio ?? []).includes(effectiveModel);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>(items.find((c) => c.id === conversationId)?.messages ?? []);
   const [started, setStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -186,7 +201,7 @@ function RealtimeConversationPage() {
       .join("\n\n"),
     [systemMessage]
   );
-
+  const { t } = useTranslation();
   const dropRef = useCallback((node: HTMLDivElement | null) => {
     if (node) drop(node);
   }, [drop]);
@@ -239,6 +254,14 @@ function RealtimeConversationPage() {
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
         <ModelSelect models={models ?? []} modelTypes={["audio"]} value={effectiveModel} onChange={setModel} disabled={connected || busy} />
+        <Button
+          variant="subtle"
+          size="small"
+          icon={isFavorite ? "starFilled" : "star"}
+          onClick={() => effectiveModel && toggleFavoriteModelForType("audio", effectiveModel)}
+          disabled={connected || busy || !effectiveModel}
+          title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+        />
         <div style={{ flex: 1 }} />
       </div>
       <audio ref={audioRef} autoPlay />

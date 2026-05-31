@@ -1,5 +1,5 @@
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { ImageGrid } from "aihappey-components";
+import { ImageGrid, useTheme } from "aihappey-components";
 import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
@@ -19,6 +19,7 @@ import { blobToBase64, fileToBase64 } from "../chat/files/file";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useFiles } from "aihappey-files";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
+import { useTranslation } from "aihappey-i18n";
 
 export const ImagePage = () => {
   const images = useLibraryImages();
@@ -36,7 +37,7 @@ export const ImagePage = () => {
   const storageImages = useImages()
   const userPreferredImageModel = useAppStore((a) => a.userPreferredImageModel);
   const files = useFiles()
-
+  const { t } = useTranslation();
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(
     userPreferredImageModel ??
@@ -44,6 +45,10 @@ export const ImagePage = () => {
       "openai/chatgpt-image-latest" : "pollinations/flux"));
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
+  const { Button } = useTheme();
+  const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+  const isFavorite = !!selectedModel && (favoriteModelsByType?.image ?? []).includes(selectedModel);
   const {
     errors,
     warnings,
@@ -260,6 +265,16 @@ export const ImagePage = () => {
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />
+        <div style={{ paddingLeft: 8 }}>
+          <Button
+            variant="subtle"
+            size="small"
+            icon={isFavorite ? "starFilled" : "star"}
+            onClick={() => selectedModel && toggleFavoriteModelForType("image", selectedModel)}
+            disabled={!selectedModel}
+            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+          />
+        </div>
         <div style={{ flex: 1 }} />
         <div style={{ paddingLeft: 16 }}>
           <UserMenuInline />
@@ -330,11 +345,11 @@ export const ImagePage = () => {
                   try {
                     await deleteStoredImage(modalItem);
                     closeImage();
-                    } catch (err) {
-                      addChatError(getStorageErrorMessage(err, "Delete failed"));
-                    }
-                  })();
-                }
+                  } catch (err) {
+                    addChatError(getStorageErrorMessage(err, "Delete failed"));
+                  }
+                })();
+              }
               : undefined
           }
           onAddToPrompt={() => {

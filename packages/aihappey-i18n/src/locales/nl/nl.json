@@ -179,6 +179,9 @@
     "instructions": "Instructies",
     "providerDefault": "Standaard",
     "category": "Categorie",
+    "favorites": "Favorieten",
+    "favorite_model": "Toevoegen aan favorieten",
+    "unfavorite_model": "Favoriet verwijderen",
     "custom": "Aangepast",
     "agentEdit": {
         "name": "Naam",

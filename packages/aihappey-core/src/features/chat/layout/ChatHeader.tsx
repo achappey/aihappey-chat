@@ -30,14 +30,18 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const remoteAgentModels = useAppStore((a) => a.remoteAgentModels);
   const switchChatMode = useAppStore((a) => a.switchChatMode);
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
+  const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const chatWithImageModels = useAppStore((a) => a.chatWithImageModels);
   const chatWithVideoModels = useAppStore((a: any) => a.chatWithVideoModels);
   const chatWithSpeechModels = useAppStore((a) => a.chatWithSpeechModels);
   const chatWithTranscriptionModels = useAppStore((a) => a.chatWithTranscriptionModels);
-  const { Switch, ToggleButton, Skeleton } = useTheme();
+  const { Switch, ToggleButton, Skeleton, Button } = useTheme();
   const account = useAccount();
   const { pathname } = useLocation();
   const hasLoadedModels = modelsLoaded && (models?.length ?? 0) > 0;
+  const selectedModelType = models?.find((m: any) => m.id === selectedModel)?.type ?? "language";
+  const isSelectedModelFavorite = !!selectedModel && (favoriteModelsByType?.[selectedModelType] ?? []).includes(selectedModel);
 
   const modelTypes = [
     "language",
@@ -88,12 +92,24 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           </div>
         ) : null}
         {chatMode == "chat" && hasLoadedModels ? (
-          <ModelSelect
-            models={models ?? []}
-            modelTypes={modelTypes}
-            value={selectedModel ?? ""}
-            onChange={setSelectedModel}
-          />
+          <>
+            <ModelSelect
+              models={models ?? []}
+              modelTypes={modelTypes}
+              value={selectedModel ?? ""}
+              onChange={setSelectedModel}
+            />
+            <div style={{ paddingLeft: 8 }}>
+              <Button
+                variant="subtle"
+                size="small"
+                icon={isSelectedModelFavorite ? "starFilled" : "star"}
+                onClick={() => selectedModel && toggleFavoriteModelForType(selectedModelType, selectedModel)}
+                disabled={!selectedModel}
+                title={isSelectedModelFavorite ? t("unfavorite_model") : t("favorite_model")}
+              />
+            </div>
+          </>
         ) : null}
         <div style={{ flex: 1 }} />
         {pathname != "" && pathname != "/" ? (

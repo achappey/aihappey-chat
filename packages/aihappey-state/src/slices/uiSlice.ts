@@ -106,8 +106,19 @@ export const PROVIDER_CAPABILITIES = [
 
 export type ProviderCapability = typeof PROVIDER_CAPABILITIES[number];
 export type EnabledProvidersByType = Record<ProviderCapability, string[]>;
+export type FavoriteModelsByType = Record<ProviderCapability, string[]>;
 
 export const createEmptyEnabledProvidersByType = (): EnabledProvidersByType => ({
+  language: [],
+  image: [],
+  audio: [],
+  transcription: [],
+  speech: [],
+  reranking: [],
+  video: [],
+});
+
+export const createEmptyFavoriteModelsByType = (): FavoriteModelsByType => ({
   language: [],
   image: [],
   audio: [],
@@ -121,6 +132,17 @@ const normalizeEnabledProvidersByType = (
   input?: Partial<Record<ProviderCapability, string[]>>
 ): EnabledProvidersByType => {
   const next = createEmptyEnabledProvidersByType();
+  for (const capability of PROVIDER_CAPABILITIES) {
+    const list = input?.[capability] ?? [];
+    next[capability] = Array.from(new Set((list ?? []).filter(Boolean)));
+  }
+  return next;
+};
+
+const normalizeFavoriteModelsByType = (
+  input?: Partial<Record<ProviderCapability, string[]>>
+): FavoriteModelsByType => {
+  const next = createEmptyFavoriteModelsByType();
   for (const capability of PROVIDER_CAPABILITIES) {
     const list = input?.[capability] ?? [];
     next[capability] = Array.from(new Set((list ?? []).filter(Boolean)));
@@ -200,6 +222,13 @@ export type UiSlice = {
     providersByType: Partial<Record<ProviderCapability, string[]>>
   ) => void;
 
+  favoriteModelsByType: FavoriteModelsByType;
+  toggleFavoriteModelForType: (capability: ProviderCapability, modelId: string) => void;
+  setFavoriteModelsForType: (capability: ProviderCapability, modelIds: string[]) => void;
+  setFavoriteModelsByType: (
+    favoriteModelsByType: Partial<Record<ProviderCapability, string[]>>
+  ) => void;
+
   enabledSkillIds: string[];
   toggleEnabledSkillId: (skillId: string) => void;
   setEnabledSkillIds: (skillIds: string[]) => void;
@@ -260,6 +289,7 @@ export const createUiSlice: StateCreator<
   elicitation: {},
   accountLocation: undefined,
   enabledProvidersByType: createEmptyEnabledProvidersByType(),
+  favoriteModelsByType: createEmptyFavoriteModelsByType(),
   enabledSkillIds: [],
   chatWithImageModels: false,
   chatWithVideoModels: false,
@@ -419,6 +449,38 @@ export const createUiSlice: StateCreator<
       return {
         enabledProvidersByType: normalizeEnabledProvidersByType(providersByType),
       }
+    }),
+
+  setFavoriteModelsByType: (favoriteModelsByType: Partial<Record<ProviderCapability, string[]>>) =>
+    set(() => ({
+      favoriteModelsByType: normalizeFavoriteModelsByType(favoriteModelsByType),
+    })),
+
+  setFavoriteModelsForType: (capability: ProviderCapability, modelIds: string[]) =>
+    set((state: any) => {
+      if (!capability) return state;
+      const normalized = Array.from(new Set((modelIds ?? []).filter(Boolean)));
+      return {
+        favoriteModelsByType: {
+          ...state.favoriteModelsByType,
+          [capability]: normalized,
+        },
+      };
+    }),
+
+  toggleFavoriteModelForType: (capability: ProviderCapability, modelId?: string) =>
+    set((state: any) => {
+      if (!capability || !modelId) return state;
+      const current = state.favoriteModelsByType?.[capability] ?? [];
+      const exists = current.includes(modelId);
+      return {
+        favoriteModelsByType: {
+          ...state.favoriteModelsByType,
+          [capability]: exists
+            ? current.filter((id: string) => id !== modelId)
+            : [...current, modelId],
+        },
+      };
     }),
 
   setEnabledProvidersForType: (capability: ProviderCapability, providers: string[]) =>

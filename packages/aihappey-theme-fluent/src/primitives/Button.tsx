@@ -108,6 +108,8 @@ import {
   CloudCubeRegular,
   BrainCircuitRegular,
   RouterRegular,
+  StarRegular,
+  StarFilled,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -216,6 +218,8 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   chevronUp: ChevronUpRegular,
   chevronLeft: ChevronLeftRegular,
   chevronRight: ChevronRightRegular,
+  star: StarRegular,
+  starFilled: StarFilled,
 };
 
 export const Button = ({

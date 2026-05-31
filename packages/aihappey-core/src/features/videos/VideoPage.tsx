@@ -1,5 +1,5 @@
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { VideoGrid, VideoModal } from "aihappey-components";
+import { VideoGrid, VideoModal, useTheme } from "aihappey-components";
 import { useLibraryVideos, type LibraryVideoItem } from "./useLibraryVideos";
 import { VideoInput } from "./VideoInput";
 import { ModelSelect } from "../models/ModelSelect";
@@ -20,6 +20,7 @@ import {
   isValidVideoAttachment,
   toSingleVideoAttachment,
 } from "./videoAttachments";
+import { useTranslation } from "aihappey-i18n";
 
 export const VideoPage = () => {
   const videos = useLibraryVideos();
@@ -38,14 +39,18 @@ export const VideoPage = () => {
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const storageVideos = useVideos();
-
+  const { t } = useTranslation();
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(
     userPreferredVideoModel ??
-      (getAccessToken ? "openai/sora-2" : "")
+    (getAccessToken ? "openai/sora-2" : "")
   );
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
+  const { Button } = useTheme();
+  const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+  const isFavorite = !!selectedModel && (favoriteModelsByType?.video ?? []).includes(selectedModel);
   const {
     errors,
     warnings,
@@ -122,7 +127,7 @@ export const VideoPage = () => {
       if (getAccessToken) {
         try {
           merged.Authorization = `Bearer ${await getAccessToken()}`;
-        } catch {}
+        } catch { }
       }
 
       const videoProvider = createVideoProvider({
@@ -137,10 +142,10 @@ export const VideoPage = () => {
       const attachment = attachments.find(isValidVideoAttachment);
       const imagePayload = attachment
         ? {
-            type: "file",
-            mediaType: attachment.type,
-            data: await fileToBase64(attachment),
-          }
+          type: "file",
+          mediaType: attachment.type,
+          data: await fileToBase64(attachment),
+        }
         : undefined;
 
       const videoResult = await videoModel.doGenerate({
@@ -233,6 +238,16 @@ export const VideoPage = () => {
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />
+        <div style={{ paddingLeft: 8 }}>
+          <Button
+            variant="subtle"
+            size="small"
+            icon={isFavorite ? "starFilled" : "star"}
+            onClick={() => selectedModel && toggleFavoriteModelForType("video", selectedModel)}
+            disabled={!selectedModel}
+            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+          />
+        </div>
         <div style={{ flex: 1 }} />
         <div style={{ paddingLeft: 16 }}>
           <UserMenuInline />
@@ -294,15 +309,15 @@ export const VideoPage = () => {
           onDelete={
             modalItem?.source === "storage"
               ? () => {
-                  void (async () => {
-                    try {
-                      await deleteStoredVideo(modalItem);
-                      closeVideo();
-                    } catch (err) {
-                      addVideoError(getStorageErrorMessage(err, "Delete failed"));
-                    }
-                  })();
-                }
+                void (async () => {
+                  try {
+                    await deleteStoredVideo(modalItem);
+                    closeVideo();
+                  } catch (err) {
+                    addVideoError(getStorageErrorMessage(err, "Delete failed"));
+                  }
+                })();
+              }
               : undefined
           }
           onClose={closeVideo}

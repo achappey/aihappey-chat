@@ -11,9 +11,11 @@ type ModelCardProps = {
   locale?: string
   onChat?: () => void
   provider?: Provider
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 };
 
-export const ModelCard = ({ model, onChat, provider }: ModelCardProps) => {
+export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggleFavorite }: ModelCardProps) => {
   const { Card, Image, Badge, Button } = useTheme();
   const { t } = useTranslation();
   const isDarkMode = useDarkMode();
@@ -73,13 +75,25 @@ export const ModelCard = ({ model, onChat, provider }: ModelCardProps) => {
       onClick={onChat} /> : undefined;
 
   const actions = <>
+
     <Button
       icon="copyClipboard"
       size="small"
       variant="transparent"
       title={model.id}
       onClick={() => navigator.clipboard.writeText(model.id)} />
+
     {chatButton}
+
+    {onToggleFavorite && (
+      <Button
+        icon={isFavorite ? "starFilled" : "star"}
+        size="small"
+        variant="transparent"
+        title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+        onClick={onToggleFavorite}
+      />
+    )}
   </>;
 
   return (

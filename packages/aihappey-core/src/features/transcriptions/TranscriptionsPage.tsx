@@ -119,7 +119,10 @@ export const TranscriptionsPage = () => {
   const [selectedModel, setSelectedModel] = useState<string>(userPreferredTranscriptionModel
     ?? (getAccessToken ? "openai/gpt-4o-transcribe-diarize" : ""));
   const headers = config?.headers;
-  const { Skeleton, Tabs, Tab } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab">;
+  const { Skeleton, Tabs, Tab, Button } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab" | "Button">;
+  const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+  const isFavorite = !!selectedModel && (favoriteModelsByType?.transcription ?? []).includes(selectedModel);
   const { t } = useTranslation()
   const getStorageErrorMessage = useStorageErrorMessage();
   const storageTranscriptions = useTranscriptions()
@@ -352,6 +355,16 @@ export const TranscriptionsPage = () => {
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />
+        <div style={{ paddingLeft: 8 }}>
+          <Button
+            variant="subtle"
+            size="small"
+            icon={isFavorite ? "starFilled" : "star"}
+            onClick={() => selectedModel && toggleFavoriteModelForType("transcription", selectedModel)}
+            disabled={!selectedModel}
+            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+          />
+        </div>
         <div style={{ flex: 1 }} />
         <div style={{ paddingLeft: 16 }}>
           <UserMenuInline />

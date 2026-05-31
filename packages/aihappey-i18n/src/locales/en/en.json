@@ -194,6 +194,9 @@
     "custom": "Custom",
     "category": "Category",
     "filters": "Filters",
+    "favorites": "Favorites",
+    "favorite_model": "Add to favorites",
+    "unfavorite_model": "Remove from favorites",
     "providers": "Providers",
     "mesh": "Mesh",
     "agents": {

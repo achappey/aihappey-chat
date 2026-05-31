@@ -12,6 +12,7 @@ import { speechFilesToPromptText } from "./speechFilesToPromptText";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useSpeechErrors } from "./useSpeechErrors";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
+import { useTranslation } from "aihappey-i18n";
 
 export const SpeechPage = () => {
   const models = useAppStore((a) => a.models);
@@ -25,7 +26,7 @@ export const SpeechPage = () => {
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const [prompt, setPrompt] = useState<string>("");
-
+  const { t } = useTranslation();
   const userPreferredSpeechModel = useAppStore((a) => a.userPreferredSpeechModel);
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(userPreferredSpeechModel ?? (getAccessToken ?
@@ -33,6 +34,10 @@ export const SpeechPage = () => {
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
   const { Skeleton } = useTheme()
+  const { Button } = useTheme();
+  const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+  const isFavorite = !!selectedModel && (favoriteModelsByType?.speech ?? []).includes(selectedModel);
   const speech = useSpeech();
   const {
     errors,
@@ -161,6 +166,16 @@ export const SpeechPage = () => {
           value={selectedModel ?? ""}
           onChange={setSelectedModel}
         />
+        <div style={{ paddingLeft: 8 }}>
+          <Button
+            variant="subtle"
+            size="small"
+            icon={isFavorite ? "starFilled" : "star"}
+            onClick={() => selectedModel && toggleFavoriteModelForType("speech", selectedModel)}
+            disabled={!selectedModel}
+            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+          />
+        </div>
         <div style={{ flex: 1 }} />
         <div style={{ paddingLeft: 16 }}>
           <UserMenuInline />

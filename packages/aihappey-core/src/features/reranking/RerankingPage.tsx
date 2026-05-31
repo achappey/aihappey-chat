@@ -8,6 +8,7 @@ import { useRerankingController } from "./useRerankingController";
 import { useReranking } from "aihappey-reranking";
 import { useTranslation } from "aihappey-i18n";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
+import { useAppStore } from "aihappey-state";
 
 function downloadFile(file: File, downloadName?: string) {
     const url = URL.createObjectURL(file);
@@ -21,7 +22,7 @@ function downloadFile(file: File, downloadName?: string) {
 }
 
 export const RerankingPage = () => {
-    const { Tabs, Tab } = useTheme();
+    const { Tabs, Tab, Button } = useTheme();
     const { t } = useTranslation();
     const getStorageErrorMessage = useStorageErrorMessage();
     const [activeTab, setActiveTab] = useState<string>("current");
@@ -51,6 +52,9 @@ export const RerankingPage = () => {
         handleDrop,
         handleDragOver,
     } = useRerankingController();
+    const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
+    const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+    const isFavorite = !!selectedModel && (favoriteModelsByType?.reranking ?? []).includes(selectedModel);
 
     const dropRef = useCallback((node: HTMLDivElement | null) => {
         if (node) drop(node);
@@ -97,6 +101,16 @@ export const RerankingPage = () => {
                     value={selectedModel ?? ""}
                     onChange={setSelectedModel}
                 />
+                <div style={{ paddingLeft: 8 }}>
+                    <Button
+                        variant="subtle"
+                        size="small"
+                        icon={isFavorite ? "starFilled" : "star"}
+                        onClick={() => selectedModel && toggleFavoriteModelForType("reranking", selectedModel)}
+                        disabled={!selectedModel}
+                        title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
+                    />
+                </div>
                 <div style={{ flex: 1 }} />
                 <div style={{ paddingLeft: 16 }}>
                     <UserMenuInline />

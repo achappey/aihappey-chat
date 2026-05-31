@@ -89,6 +89,8 @@ import {
   Router,
   CameraReels,
   GpuCard,
+  Star,
+  StarFill,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -198,6 +200,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   logout: <Trash />,
   customize: <Sliders />,
   copyClipboard: <CardList />, // Approximate
+  star: <Star />,
+  starFilled: <StarFill />,
 };
 
 export const getIcon = (iconName?: IconToken) => {

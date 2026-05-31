@@ -15,6 +15,8 @@ export type ModelSelectFieldProps = {
   providers: ProviderOption[];
   enabledProviderKeys?: string[]; // optional filter
   modelTypes?: string[];          // default ["language"]
+  favoriteModelIds?: string[];
+  favoritesLabel?: string;
 
   label?: string;
   placeholder?: string;
@@ -36,6 +38,8 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   providers,
   enabledProviderKeys,
   modelTypes = ["language"],
+  favoriteModelIds,
+  favoritesLabel = "Favorites",
 
   label,
   placeholder = "Select a model",
@@ -55,18 +59,26 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     ? new Set(enabledProviderKeys)
     : null;
 
+  const favoriteSet = new Set((favoriteModelIds ?? []).filter(Boolean));
+
   const visibleModels = (models ?? []).filter((m) => {
     if (!modelTypes.includes(m.type)) return false;
+
+    // Favorites must always remain visible even if provider is currently disabled.
+    if (favoriteSet.has(m.id)) return true;
+
     const providerKey = m.id.split("/")[0];
     return !enabledSet || enabledSet.has(providerKey);
   });
 
   const providerLabelByKey = new Map(providers.map((p) => [p.key, p.label]));
+  const favoriteModels = visibleModels.filter((model) => favoriteSet.has(model.id));
 
   const grouped: Record<string, ModelOption[]> = {};
   const ungrouped: ModelOption[] = [];
 
   for (const model of visibleModels) {
+    if (favoriteSet.has(model.id)) continue;
     const providerKey = model.id.split("/")[0];
     if (providerLabelByKey.has(providerKey)) {
       (grouped[providerKey] ??= []).push(model);
@@ -94,6 +106,16 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
       }}
     >
       <>
+        {favoriteModels.length > 0 && (
+          <optgroup label={favoritesLabel}>
+            {favoriteModels.map((model) => (
+              <option key={model.id} value={model.id}>
+                {model.name || model.id}
+              </option>
+            ))}
+          </optgroup>
+        )}
+
         {Object.entries(grouped).map(([providerKey, list]) => (
           <optgroup key={providerKey} label={providerLabelByKey.get(providerKey) ?? providerKey}>
             {list.map((model) => (

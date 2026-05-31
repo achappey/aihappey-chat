@@ -28,7 +28,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 17,
+    version: 18,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -94,6 +94,7 @@ export const withPersist = (
       resetTimeoutOnProgress: s.resetTimeoutOnProgress,
       conversationStorage: s.conversationStorage,
       enabledProvidersByType: (s as any).enabledProvidersByType,
+      favoriteModelsByType: (s as any).favoriteModelsByType,
       enabledSkillIds: (s as any).enabledSkillIds,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
@@ -193,6 +194,39 @@ export const withPersist = (
           transcriptionFileSplitMaxSizeMb: typeof safeState.transcriptionFileSplitMaxSizeMb === "number"
             ? Math.max(1, safeState.transcriptionFileSplitMaxSizeMb)
             : 25,
+        };
+      }
+
+      if (version < 18) {
+        const favoriteModelsByType = isPlainRecord(safeState.favoriteModelsByType)
+          ? safeState.favoriteModelsByType
+          : {};
+
+        safeState = {
+          ...safeState,
+          favoriteModelsByType: {
+            language: Array.isArray(favoriteModelsByType.language)
+              ? favoriteModelsByType.language.filter(Boolean)
+              : [],
+            image: Array.isArray(favoriteModelsByType.image)
+              ? favoriteModelsByType.image.filter(Boolean)
+              : [],
+            audio: Array.isArray(favoriteModelsByType.audio)
+              ? favoriteModelsByType.audio.filter(Boolean)
+              : [],
+            transcription: Array.isArray(favoriteModelsByType.transcription)
+              ? favoriteModelsByType.transcription.filter(Boolean)
+              : [],
+            speech: Array.isArray(favoriteModelsByType.speech)
+              ? favoriteModelsByType.speech.filter(Boolean)
+              : [],
+            reranking: Array.isArray(favoriteModelsByType.reranking)
+              ? favoriteModelsByType.reranking.filter(Boolean)
+              : [],
+            video: Array.isArray(favoriteModelsByType.video)
+              ? favoriteModelsByType.video.filter(Boolean)
+              : [],
+          },
         };
       }
 

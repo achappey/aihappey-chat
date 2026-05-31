@@ -105,4 +105,6 @@ export type IconToken =
   | "chevronUp"
   | "chevronLeft"
   | "chevronRight"
-  | "logout";
+  | "logout"
+  | "star"
+  | "starFilled";

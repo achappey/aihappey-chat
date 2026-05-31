@@ -17,6 +17,8 @@ export const ModelsPage = () => {
   const { isDarkMode } = useDarkMode();
   const navigate = useNavigate()
   const models = useAppStore((s) => s.models);
+  const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
+  const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   // unique types
   const types = Array
     .from(new Set(models?.map(m => m.type)))
@@ -112,6 +114,20 @@ export const ModelsPage = () => {
         render: (row) => formatPrice(row.pricing?.output),
       },
       {
+        key: "favorite",
+        header: "",
+        render: (row) => {
+          const isFavorite = (favoriteModelsByType?.[row.type] ?? []).includes(row.id);
+          return (
+            <Button
+              variant="subtle"
+              icon={isFavorite ? "starFilled" : "star"}
+              onClick={() => toggleFavoriteModelForType(row.type, row.id)}
+            />
+          );
+        },
+      },
+      {
         key: "chat",
         header: "",
         render: (row) => (
@@ -123,7 +139,7 @@ export const ModelsPage = () => {
         ),
       },
     ],
-    [Button, collator, navigate]
+    [Button, collator, favoriteModelsByType, navigate, toggleFavoriteModelForType]
   );
 
   return (
@@ -253,6 +269,7 @@ export const ModelsPage = () => {
                         {tabFiltered?.slice(0, visibleCount).map(r => {
                           const providerId = r.id.split("/")[0].toLowerCase();
                           const provider = PROVIDERS[providerId];
+                          const isFavorite = (favoriteModelsByType?.[r.type] ?? []).includes(r.id);
 
                           return (
                             <div key={r.id}
@@ -263,6 +280,8 @@ export const ModelsPage = () => {
                                 model={r}
                                 provider={provider}
                                 onChat={() => navigate(`/?model=${encodeURIComponent(r.id)}`)}
+                                isFavorite={isFavorite}
+                                onToggleFavorite={() => toggleFavoriteModelForType(r.type, r.id)}
                               />
                             </div>
                           );
