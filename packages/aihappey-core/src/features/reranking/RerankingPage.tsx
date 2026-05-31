@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { RerankingInput } from "./RerankingInput";
-import { ErrorAlerts, RerankingCard, RerankingDocumentCard, useTheme, WarningAlerts } from "aihappey-components";
+import { ErrorAlerts, ModelFavoriteToggleButton, RerankingCard, RerankingDocumentCard, useTheme, WarningAlerts } from "aihappey-components";
 import { RerankingWarnings } from "./RerankingWarnings";
 import { useRerankingController } from "./useRerankingController";
 import { useReranking } from "aihappey-reranking";
@@ -22,7 +22,7 @@ function downloadFile(file: File, downloadName?: string) {
 }
 
 export const RerankingPage = () => {
-    const { Tabs, Tab, Button } = useTheme();
+    const { Tabs, Tab } = useTheme();
     const { t } = useTranslation();
     const getStorageErrorMessage = useStorageErrorMessage();
     const [activeTab, setActiveTab] = useState<string>("current");
@@ -52,6 +52,7 @@ export const RerankingPage = () => {
         handleDrop,
         handleDragOver,
     } = useRerankingController();
+    const selectedModelOption = models?.find((model) => model.id === selectedModel);
     const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
     const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
     const isFavorite = !!selectedModel && (favoriteModelsByType?.reranking ?? []).includes(selectedModel);
@@ -102,13 +103,13 @@ export const RerankingPage = () => {
                     onChange={setSelectedModel}
                 />
                 <div style={{ paddingLeft: 8 }}>
-                    <Button
+                    <ModelFavoriteToggleButton
                         variant="subtle"
                         size="small"
-                        icon={isFavorite ? "starFilled" : "star"}
-                        onClick={() => selectedModel && toggleFavoriteModelForType("reranking", selectedModel)}
+                        isFavorite={isFavorite}
+                        modelName={selectedModelOption?.name ?? selectedModel}
+                        onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("reranking", selectedModel)}
                         disabled={!selectedModel}
-                        title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
                     />
                 </div>
                 <div style={{ flex: 1 }} />

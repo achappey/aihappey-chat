@@ -1,5 +1,5 @@
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { VideoGrid, VideoModal, useTheme } from "aihappey-components";
+import { ModelFavoriteToggleButton, VideoGrid, VideoModal } from "aihappey-components";
 import { useLibraryVideos, type LibraryVideoItem } from "./useLibraryVideos";
 import { VideoInput } from "./VideoInput";
 import { ModelSelect } from "../models/ModelSelect";
@@ -45,9 +45,9 @@ export const VideoPage = () => {
     userPreferredVideoModel ??
     (getAccessToken ? "openai/sora-2" : "")
   );
+  const selectedModelOption = models?.find((model) => model.id === selectedModel);
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
-  const { Button } = useTheme();
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!selectedModel && (favoriteModelsByType?.video ?? []).includes(selectedModel);
@@ -239,13 +239,13 @@ export const VideoPage = () => {
           onChange={setSelectedModel}
         />
         <div style={{ paddingLeft: 8 }}>
-          <Button
+          <ModelFavoriteToggleButton
             variant="subtle"
             size="small"
-            icon={isFavorite ? "starFilled" : "star"}
-            onClick={() => selectedModel && toggleFavoriteModelForType("video", selectedModel)}
+            isFavorite={isFavorite}
+            modelName={selectedModelOption?.name ?? selectedModel}
+            onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("video", selectedModel)}
             disabled={!selectedModel}
-            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
           />
         </div>
         <div style={{ flex: 1 }} />

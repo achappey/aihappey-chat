@@ -19,6 +19,8 @@ export type ProviderDetailModalProps = {
 
     modelTypes?: string[];
     models?: ModelOption[];
+    isModelFavorite?: (model: ModelOption) => boolean;
+    onToggleModelFavorite?: (model: ModelOption) => void;
 
     provider?: Provider;
     size?: "small" | "medium" | "large";
@@ -51,6 +53,8 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     providerExperimental,
     modelTypes,
     models,
+    isModelFavorite,
+    onToggleModelFavorite,
     provider,
     size = "large",
 }) => {
@@ -194,6 +198,10 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                                                     model={model}
                                                     provider={provider}
                                                     onChat={() => openChatInNewWindow(model.id)}
+                                                    isFavorite={isModelFavorite?.(model) ?? false}
+                                                    onToggleFavorite={onToggleModelFavorite
+                                                        ? () => onToggleModelFavorite(model)
+                                                        : undefined}
                                                 />
                                             </div>
                                         ))}

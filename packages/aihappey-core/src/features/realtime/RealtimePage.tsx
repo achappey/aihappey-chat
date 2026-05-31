@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
 import type { UIMessage } from "aihappey-types";
-import { useTheme } from "aihappey-components";
+import { ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { useChatContext } from "../chat/context/ChatContext";
 import { DisclaimerBar } from "../chat/layout/DisclaimerBar";
 import { ChatErrors } from "../chat/layout/ChatErrors";
@@ -62,6 +62,7 @@ function RealtimeStartPage() {
   const { create } = useConversations();
   const { addChatError } = useChatErrors();
   const { models, model, setModel } = useRealtimeModelSelection();
+  const selectedModelOption = models?.find((m: any) => m.id === model);
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const agents = useAppStore((s) => s.agents);
@@ -72,7 +73,6 @@ function RealtimeStartPage() {
   const getAttachmentParts = useAttachmentParts();
   const { buildFromText, buildFromPrompt } = useUserMessageBuilder({ getAttachmentParts, extractExif });
   const { isOver, dropRef: drop, handleDrop, handleDragOver } = useChatFileDrop(addAttachmentWithTranscription);
-  const { Button } = useTheme();
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!model && (favoriteModelsByType?.audio ?? []).includes(model);
@@ -119,13 +119,13 @@ function RealtimeStartPage() {
     <div style={{ height: "100dvh", minHeight: 0, minWidth: 0, display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "0px 12px", display: "flex", alignItems: "center", gap: 8 }}>
         <ModelSelect models={models ?? []} modelTypes={["audio"]} value={model} onChange={setModel} />
-        <Button
+        <ModelFavoriteToggleButton
           variant="subtle"
           size="small"
-          icon={isFavorite ? "starFilled" : "star"}
-          onClick={() => model && toggleFavoriteModelForType("audio", model)}
+          isFavorite={isFavorite}
+          modelName={selectedModelOption?.name ?? model}
+          onToggleFavorite={() => model && toggleFavoriteModelForType("audio", model)}
           disabled={!model}
-          title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
         />
         <div style={{ flex: 1 }} />
         <UserMenuInline />
@@ -175,7 +175,7 @@ function RealtimeConversationPage() {
   const { get, items } = useConversations();
   const { config } = useChatContext();
   const { addChatError } = useChatErrors();
-  const { Spinner, JsonViewer, Button } = useTheme();
+  const { Spinner, JsonViewer } = useTheme();
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
   const debugMode = useAppStore((s) => s.debugMode);
@@ -184,6 +184,7 @@ function RealtimeConversationPage() {
   const extractExif = useAppStore((s) => s.extractExif);
   const { models, model, setModel } = useRealtimeModelSelection();
   const effectiveModel = String((location.state as any)?.model ?? model);
+  const effectiveModelOption = models?.find((m: any) => m.id === effectiveModel);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!effectiveModel && (favoriteModelsByType?.audio ?? []).includes(effectiveModel);
@@ -254,13 +255,13 @@ function RealtimeConversationPage() {
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
         <ModelSelect models={models ?? []} modelTypes={["audio"]} value={effectiveModel} onChange={setModel} disabled={connected || busy} />
-        <Button
+        <ModelFavoriteToggleButton
           variant="subtle"
           size="small"
-          icon={isFavorite ? "starFilled" : "star"}
-          onClick={() => effectiveModel && toggleFavoriteModelForType("audio", effectiveModel)}
+          isFavorite={isFavorite}
+          modelName={effectiveModelOption?.name ?? effectiveModel}
+          onToggleFavorite={() => effectiveModel && toggleFavoriteModelForType("audio", effectiveModel)}
           disabled={connected || busy || !effectiveModel}
-          title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
         />
         <div style={{ flex: 1 }} />
       </div>

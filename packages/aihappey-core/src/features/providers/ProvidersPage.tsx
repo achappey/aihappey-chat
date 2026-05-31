@@ -46,6 +46,8 @@ export const ProvidersPage = () => {
     const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(null);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const models = useAppStore((s) => s.models);
+    const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
+    const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
     const collator = useMemo(
         () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
         []
@@ -652,6 +654,8 @@ export const ProvidersPage = () => {
                             modelTypes={selectedProviderModelTypes}
                             models={orderedModels}
                             provider={selectedProvider}
+                            isModelFavorite={(model) => (favoriteModelsByType?.[model.type] ?? []).includes(model.id)}
+                            onToggleModelFavorite={(model) => toggleFavoriteModelForType(model.type, model.id)}
                         />
                     )}
                 </div>

@@ -180,8 +180,8 @@
     "providerDefault": "Standaard",
     "category": "Categorie",
     "favorites": "Favorieten",
-    "favorite_model": "Toevoegen aan favorieten",
-    "unfavorite_model": "Favoriet verwijderen",
+    "favorite_model": "{{model}} toevoegen aan favorieten",
+    "unfavorite_model": "{{model}} verwijderen uit favorieten",
     "custom": "Aangepast",
     "agentEdit": {
         "name": "Naam",

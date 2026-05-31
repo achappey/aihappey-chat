@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAppStore } from "aihappey-state";
-import { ModelCard, useTheme } from "aihappey-components";
+import { ModelCard, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useDarkMode } from "usehooks-ts";
@@ -119,10 +119,11 @@ export const ModelsPage = () => {
         render: (row) => {
           const isFavorite = (favoriteModelsByType?.[row.type] ?? []).includes(row.id);
           return (
-            <Button
+            <ModelFavoriteToggleButton
               variant="subtle"
-              icon={isFavorite ? "starFilled" : "star"}
-              onClick={() => toggleFavoriteModelForType(row.type, row.id)}
+              isFavorite={isFavorite}
+              modelName={row.name ?? row.id}
+              onToggleFavorite={() => toggleFavoriteModelForType(row.type, row.id)}
             />
           );
         },

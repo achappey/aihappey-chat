@@ -1,5 +1,5 @@
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { ImageGrid, useTheme } from "aihappey-components";
+import { ImageGrid, ModelFavoriteToggleButton } from "aihappey-components";
 import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
@@ -43,9 +43,9 @@ export const ImagePage = () => {
     userPreferredImageModel ??
     (getAccessToken ?
       "openai/chatgpt-image-latest" : "pollinations/flux"));
+  const selectedModelOption = models?.find((model) => model.id === selectedModel);
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
-  const { Button } = useTheme();
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!selectedModel && (favoriteModelsByType?.image ?? []).includes(selectedModel);
@@ -266,13 +266,13 @@ export const ImagePage = () => {
           onChange={setSelectedModel}
         />
         <div style={{ paddingLeft: 8 }}>
-          <Button
+          <ModelFavoriteToggleButton
             variant="subtle"
             size="small"
-            icon={isFavorite ? "starFilled" : "star"}
-            onClick={() => selectedModel && toggleFavoriteModelForType("image", selectedModel)}
+            isFavorite={isFavorite}
+            modelName={selectedModelOption?.name ?? selectedModel}
+            onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("image", selectedModel)}
             disabled={!selectedModel}
-            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
           />
         </div>
         <div style={{ flex: 1 }} />

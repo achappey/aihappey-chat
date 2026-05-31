@@ -6,7 +6,7 @@ import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { createTranscriptionProvider } from "aihappey-ai";
 import type { SharedV4Warning, TranscriptionResponse } from "aihappey-ai";
 import { useTranscriptions } from "aihappey-transcriptions";
-import { ErrorAlerts, TranscriptionCard, useTheme, WarningAlerts } from "aihappey-components";
+import { ErrorAlerts, ModelFavoriteToggleButton, TranscriptionCard, useTheme, WarningAlerts } from "aihappey-components";
 import { TranscriptionInput } from "./TranscriptionInput";
 import { fileToBase64 } from "../chat/files/file";
 import { useFiles } from "aihappey-files";
@@ -119,7 +119,7 @@ export const TranscriptionsPage = () => {
   const [selectedModel, setSelectedModel] = useState<string>(userPreferredTranscriptionModel
     ?? (getAccessToken ? "openai/gpt-4o-transcribe-diarize" : ""));
   const headers = config?.headers;
-  const { Skeleton, Tabs, Tab, Button } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab" | "Button">;
+  const { Skeleton, Tabs, Tab } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab">;
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!selectedModel && (favoriteModelsByType?.transcription ?? []).includes(selectedModel);
@@ -356,13 +356,13 @@ export const TranscriptionsPage = () => {
           onChange={setSelectedModel}
         />
         <div style={{ paddingLeft: 8 }}>
-          <Button
+          <ModelFavoriteToggleButton
             variant="subtle"
             size="small"
-            icon={isFavorite ? "starFilled" : "star"}
-            onClick={() => selectedModel && toggleFavoriteModelForType("transcription", selectedModel)}
+            isFavorite={isFavorite}
+            modelName={currentModel?.name ?? selectedModel}
+            onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("transcription", selectedModel)}
             disabled={!selectedModel}
-            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
           />
         </div>
         <div style={{ flex: 1 }} />

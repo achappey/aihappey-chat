@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { createSpeechProvider } from "aihappey-ai";
-import { ErrorAlerts, SpeechCard, useTheme, WarningAlerts } from "aihappey-components";
+import { ErrorAlerts, ModelFavoriteToggleButton, SpeechCard, useTheme, WarningAlerts } from "aihappey-components";
 import { SpeechInput } from "./SpeechInput";
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { useSpeech } from "aihappey-speech";
@@ -31,10 +31,10 @@ export const SpeechPage = () => {
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(userPreferredSpeechModel ?? (getAccessToken ?
     "openai/gpt-4o-mini-tts" : ""));
+  const selectedModelOption = models?.find((model) => model.id === selectedModel);
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
   const { Skeleton } = useTheme()
-  const { Button } = useTheme();
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!selectedModel && (favoriteModelsByType?.speech ?? []).includes(selectedModel);
@@ -167,13 +167,13 @@ export const SpeechPage = () => {
           onChange={setSelectedModel}
         />
         <div style={{ paddingLeft: 8 }}>
-          <Button
+          <ModelFavoriteToggleButton
             variant="subtle"
             size="small"
-            icon={isFavorite ? "starFilled" : "star"}
-            onClick={() => selectedModel && toggleFavoriteModelForType("speech", selectedModel)}
+            isFavorite={isFavorite}
+            modelName={selectedModelOption?.name ?? selectedModel}
+            onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("speech", selectedModel)}
             disabled={!selectedModel}
-            title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
           />
         </div>
         <div style={{ flex: 1 }} />

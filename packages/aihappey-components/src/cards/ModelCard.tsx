@@ -5,6 +5,7 @@ import { useTranslation } from "aihappey-i18n";
 import { ContextWindowBadge, MaxOutputTokensBadge } from "../badges";
 import type { Provider } from "aihappey-types";
 import { useDarkMode } from "usehooks-ts";
+import { ModelFavoriteToggleButton } from "../buttons/ModelFavoriteToggleButton";
 
 type ModelCardProps = {
   model: ModelOption;
@@ -86,12 +87,12 @@ export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggl
     {chatButton}
 
     {onToggleFavorite && (
-      <Button
-        icon={isFavorite ? "starFilled" : "star"}
+      <ModelFavoriteToggleButton
+        modelName={model?.name ?? model?.id}
+        isFavorite={isFavorite}
+        onToggleFavorite={onToggleFavorite}
         size="small"
         variant="transparent"
-        title={isFavorite ? t("unfavorite_model") : t("favorite_model")}
-        onClick={onToggleFavorite}
       />
     )}
   </>;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ModelSelect } from "../../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { useTheme } from "aihappey-components";
+import { ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { UserMenuButton } from "../../user-settings/UserMenuButton";
 import { useAccount } from "aihappey-auth";
 import SettingsModal from "../../user-settings/SettingsModal";
@@ -36,11 +36,12 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const chatWithVideoModels = useAppStore((a: any) => a.chatWithVideoModels);
   const chatWithSpeechModels = useAppStore((a) => a.chatWithSpeechModels);
   const chatWithTranscriptionModels = useAppStore((a) => a.chatWithTranscriptionModels);
-  const { Switch, ToggleButton, Skeleton, Button } = useTheme();
+  const { Switch, ToggleButton, Skeleton } = useTheme();
   const account = useAccount();
   const { pathname } = useLocation();
   const hasLoadedModels = modelsLoaded && (models?.length ?? 0) > 0;
-  const selectedModelType = models?.find((m: any) => m.id === selectedModel)?.type ?? "language";
+  const selectedModelOption = models?.find((m: any) => m.id === selectedModel);
+  const selectedModelType = selectedModelOption?.type ?? "language";
   const isSelectedModelFavorite = !!selectedModel && (favoriteModelsByType?.[selectedModelType] ?? []).includes(selectedModel);
 
   const modelTypes = [
@@ -100,13 +101,13 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
               onChange={setSelectedModel}
             />
             <div style={{ paddingLeft: 8 }}>
-              <Button
+              <ModelFavoriteToggleButton
                 variant="subtle"
                 size="small"
-                icon={isSelectedModelFavorite ? "starFilled" : "star"}
-                onClick={() => selectedModel && toggleFavoriteModelForType(selectedModelType, selectedModel)}
+                isFavorite={isSelectedModelFavorite}
+                modelName={selectedModelOption?.name ?? selectedModel}
+                onToggleFavorite={() => selectedModel && toggleFavoriteModelForType(selectedModelType, selectedModel)}
                 disabled={!selectedModel}
-                title={isSelectedModelFavorite ? t("unfavorite_model") : t("favorite_model")}
               />
             </div>
           </>

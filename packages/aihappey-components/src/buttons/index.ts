@@ -11,3 +11,4 @@ export * from "./ElicitationActionButtons";
 export * from "./ResourceSelectButton";
 export * from "./TranscriptionSettingsButton";
 export * from "./RerankingSettingsButton";
+export * from "./ModelFavoriteToggleButton";
