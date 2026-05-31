@@ -14,7 +14,7 @@ export const cheapgrok: Provider = {
     termsOfService: "https://www.cheapgrok.com/terms.html"
   },
   providerCountry: "US",
-  category: "inference_compute",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

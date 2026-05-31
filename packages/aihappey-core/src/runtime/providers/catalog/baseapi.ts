@@ -13,7 +13,7 @@ export const baseapi: Provider = {
     privacyPolicy: "https://baseapi.dev/privacy",
     termsOfService: "https://baseapi.dev/terms"
   },
-  category: "inference_compute",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

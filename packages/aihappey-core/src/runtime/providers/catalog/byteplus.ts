@@ -16,7 +16,7 @@ export const byteplus: Provider = {
     console: "https://console.byteplus.com"
   },
   providerCountry: "CN",
-  category: "inference_compute",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

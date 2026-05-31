@@ -10,7 +10,7 @@ export const anyrouter: Provider = {
     homepage: "https://anyrouter.dev",
     docs: "https://anyrouter.dev/docs"
   },
-  category: "inference_compute",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };
