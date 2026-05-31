@@ -17,7 +17,7 @@ const App = () => (
       chatAppMcp={__CHAT_APP_MCP__}
       chatConfig={{
         defaultProvidersByType: {
-          language: ["Pollinations", "GTranslate", "Echo"],
+          language: ["Pollinations", "GTranslate", "Echo", "UncloseAI", "AndyAPI"],
           image: ["Pollinations"],
           transcription: [],
           speech: [],
