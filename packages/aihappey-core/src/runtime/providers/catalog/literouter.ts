@@ -6,7 +6,7 @@ export const literouter: Provider = {
     "LiteRouter is a unified AI API aggregator providing access to GPT-4, Claude, and 100+ AI models through a single gateway. Get started free with instant integration and scalable infrastructure.",
   icons: [
     {
-      src: "https://literouter.com/assets/literouter/images/literouter.png",
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://literouter.com&size=128",
     },
   ],
   urls: {
@@ -17,7 +17,7 @@ export const literouter: Provider = {
     console: "https://literouter.com/api_dashboard.php"
   },
   providerCountry: "US",
-  category: "inference_compute",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

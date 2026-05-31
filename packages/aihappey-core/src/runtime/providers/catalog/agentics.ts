@@ -14,7 +14,7 @@ export const agentics: Provider = {
     termsOfService: "https://agentics.co.za/terms"
   },
   providerCountry: "ZA",
-  category: "search_data",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

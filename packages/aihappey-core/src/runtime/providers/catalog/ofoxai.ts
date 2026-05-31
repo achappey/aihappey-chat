@@ -14,7 +14,7 @@ export const ofoxai: Provider = {
     privacyPolicy: "https://ofox.ai/privacy",
   },
   providerCountry: "SG",
-  category: "inference_compute",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

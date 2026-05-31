@@ -13,7 +13,7 @@ export const alphaneural: Provider = {
     termsOfService: "https://www.alphaneural.io/terms-and-conditions"
   },
   providerCountry: "CH",
-  category: "media_voice",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

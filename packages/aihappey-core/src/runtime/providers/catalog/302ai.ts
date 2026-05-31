@@ -16,7 +16,7 @@ export const ai302: Provider = {
     termsOfService: "https://302.ai/legal/terms"
   },
   providerCountry: "SG",
-  category: "media_voice",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

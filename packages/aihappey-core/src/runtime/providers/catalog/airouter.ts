@@ -14,7 +14,7 @@ export const airouter: Provider = {
     termsOfService: "https://airouter.io/terms-of-service"
   },
   providerCountry: "DE",
-  category: "inference_compute",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

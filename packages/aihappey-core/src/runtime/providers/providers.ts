@@ -422,7 +422,6 @@ import { lacesse } from "./catalog/lacesse";
 import { uncensoredchat } from "./catalog/uncensoredchat";
 import { orbgpu } from "./catalog/orbgpu";
 import { opengateway } from "./catalog/opengateway";
-import { applingo } from "./catalog/applingo";
 import { omniakey } from "./catalog/omniakey";
 import { nebulablock } from "./catalog/nebulablock";
 import { mumeai } from "./catalog/mumeai";
@@ -533,6 +532,9 @@ import { callmissed } from "./catalog/callmissed";
 import { realrouter } from "./catalog/realrouter";
 import { picklyone } from "./catalog/picklyone";
 import { opengate } from "./catalog/opengate";
+import { keymeai } from "./catalog/keymeai";
+import { mycoai } from "./catalog/mycoai";
+import { scalixworld } from "./catalog/scalixworld";
 
 /**
  * UI-facing provider catalog.
@@ -544,6 +546,7 @@ export const PROVIDERS: Record<string, Provider> = {
   citadelis,
   doubleword,
   slancha,
+  mycoai,
   realrouter,
   picklyone,
   tembo,
@@ -577,6 +580,7 @@ export const PROVIDERS: Record<string, Provider> = {
   groovedev,
   merge,
   zyloapi,
+  keymeai,
   opuscode,
   opengate,
   pioneer,
@@ -592,6 +596,7 @@ export const PROVIDERS: Record<string, Provider> = {
   runtimo,
   wiserouter,
   nodion,
+  scalixworld,
   generalcompute,
   uncloseai,
   pellet,
@@ -630,7 +635,6 @@ export const PROVIDERS: Record<string, Provider> = {
   embercloud,
   key4u,
   opengateway,
-  applingo,
   tokonlab,
   holysheepai,
   foureverland,

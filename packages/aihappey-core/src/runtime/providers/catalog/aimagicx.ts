@@ -2,7 +2,7 @@ import type { Provider } from "aihappey-types";
 
 export const aimagicx: Provider = {
   name: "AIMagicx",
-  description: "A unified AI workspace to design text, images, video, music, and voice — try demos or start for just $3.",
+  description: "Chat, image, video, voice, music — 50+ frontier models in a single AI workspace.",
   icons: [{
     src: "https://www.aimagicx.com/favicon/favicon.ico"
   }],
@@ -14,7 +14,7 @@ export const aimagicx: Provider = {
     termsOfService: "https://www.aimagicx.com/terms"
   },
   providerCountry: "US",
-  category: "media_voice",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };
