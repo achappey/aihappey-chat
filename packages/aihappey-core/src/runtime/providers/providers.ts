@@ -538,6 +538,8 @@ import { scalixworld } from "./catalog/scalixworld";
 import { apipass } from "./catalog/apipass";
 import { virouter } from "./catalog/virouter";
 import { inferencespace } from "./catalog/inferencespace";
+import { scrapellm } from "./catalog/scrapellm";
+import { uumuse } from "./catalog/uumuse";
 
 /**
  * UI-facing provider catalog.
@@ -582,7 +584,9 @@ export const PROVIDERS: Record<string, Provider> = {
   callmissed,
   groovedev,
   apipass,
+  uumuse,
   inferencespace,
+  scrapellm,
   merge,
   virouter,
   zyloapi,
