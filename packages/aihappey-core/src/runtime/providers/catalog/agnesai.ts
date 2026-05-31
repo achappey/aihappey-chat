@@ -13,7 +13,7 @@ export const agnesai: Provider = {
     termsOfService: "https://agnes-ai.com/doc/terms-of-service"
   },
   providerCountry: "SG",
-  category: "inference_compute",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

@@ -532,6 +532,7 @@ import { toolrelay } from "./catalog/toolrelay";
 import { callmissed } from "./catalog/callmissed";
 import { realrouter } from "./catalog/realrouter";
 import { picklyone } from "./catalog/picklyone";
+import { opengate } from "./catalog/opengate";
 
 /**
  * UI-facing provider catalog.
@@ -577,6 +578,7 @@ export const PROVIDERS: Record<string, Provider> = {
   merge,
   zyloapi,
   opuscode,
+  opengate,
   pioneer,
   codzen,
   llama,
