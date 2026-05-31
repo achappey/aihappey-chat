@@ -259,7 +259,7 @@ import { pixcode } from "./catalog/pixcode";
 import { anannas } from "./catalog/anannas";
 import { apipod } from "./catalog/apipod";
 import { tokenflux } from "./catalog/tokenflux";
-import { lemondata } from "./catalog/lemondata";
+import { tokenlab } from "./catalog/tokenlab";
 import { fullai } from "./catalog/fullai";
 import { assisters } from "./catalog/assisters";
 import { llmwise } from "./catalog/llmwise";
@@ -804,7 +804,7 @@ export const PROVIDERS: Record<string, Provider> = {
   apipod,
   fullai,
   litai,
-  lemondata,
+  tokenlab,
   nexusify,
   docsrouter,
   tokenflux,
@@ -993,7 +993,7 @@ export const PROVIDERS: Record<string, Provider> = {
   blackbox,
   primeintellect,
   inceptionlabs,
-  aionlabs,  
+  aionlabs,
   databricks,
   straico,
   blackforestlabs,
