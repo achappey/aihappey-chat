@@ -540,6 +540,8 @@ import { virouter } from "./catalog/virouter";
 import { inferencespace } from "./catalog/inferencespace";
 import { scrapellm } from "./catalog/scrapellm";
 import { uumuse } from "./catalog/uumuse";
+import { freeinference } from "./catalog/freeinference";
+import { llmtr } from "./catalog/llmtr";
 
 /**
  * UI-facing provider catalog.
@@ -579,9 +581,11 @@ export const PROVIDERS: Record<string, Provider> = {
   osiris,
   skypooltoken,
   luminoai,
+  llmtr,
   tokenhub,
   vibekit,
   callmissed,
+  freeinference,
   groovedev,
   apipass,
   uumuse,
