@@ -358,7 +358,6 @@ import { vultr } from "./catalog/vultr";
 import { ofoxai } from "./catalog/ofoxai";
 import { dedaluslabs } from "./catalog/dedaluslabs";
 import { routerlink } from "./catalog/routerlink";
-import { voidai } from "./catalog/voidai";
 import { modelmax } from "./catalog/modelmax";
 import { yollomi } from "./catalog/yollomi";
 import { infercom } from "./catalog/infercom";
@@ -677,7 +676,6 @@ export const PROVIDERS: Record<string, Provider> = {
   preapi,
   teamday,
   jassieai,
-  voidai,
   cailos,
   imagerouter,
   gaterouter,
