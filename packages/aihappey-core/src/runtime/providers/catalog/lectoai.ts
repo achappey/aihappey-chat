@@ -16,7 +16,7 @@ export const lectoai: Provider = {
     termsOfService: "https://dashboard.lecto.ai/terms"
   },
   providerCountry: "HK",
-  category: "media_voice",
+  category: "app_tools",
   inferenceRegions: ["World"]
 };
 

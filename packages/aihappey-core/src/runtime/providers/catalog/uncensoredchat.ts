@@ -14,7 +14,7 @@ export const uncensoredchat: Provider = {
     termsOfService: "https://uncensored.chat/terms-and-conditions"
   },
   providerCountry: "IN",
-  category: "media_voice",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

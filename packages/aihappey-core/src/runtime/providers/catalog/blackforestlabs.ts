@@ -17,7 +17,7 @@ export const blackforestlabs: Provider = {
     console: "https://dashboard.bfl.ai"
   },
   providerCountry: "DE",
-  category: "media_voice",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 

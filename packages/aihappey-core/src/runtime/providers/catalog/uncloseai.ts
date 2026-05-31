@@ -13,7 +13,7 @@ export const uncloseai: Provider = {
     termsOfService: "https://uncloseai.com/terms-of-use.html"
   },
   providerCountry: "US",
-  category: "media_voice",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

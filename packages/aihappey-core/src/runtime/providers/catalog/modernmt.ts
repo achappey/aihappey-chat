@@ -16,7 +16,7 @@ export const modernmt: Provider = {
     termsOfService: "https://www.modernmt.com/terms"
   },
   providerCountry: "IT",
-  category: "media_voice",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

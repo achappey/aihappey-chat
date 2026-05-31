@@ -13,7 +13,7 @@ export const gtranslate: Provider = {
     homepage: "https://github.com/d4n3436/GTranslate",
   },
   providerCountry: "US",
-  category: "media_voice",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

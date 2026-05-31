@@ -18,6 +18,6 @@ export const meganova: Provider = {
     console: "https://console.meganova.ai"
   },
   providerCountry: "US",
-  category: "media_voice",
+  category: "app_tools",
   inferenceRegions: ["World"]
 };

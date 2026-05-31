@@ -14,7 +14,7 @@ export const aibramha: Provider = {
     termsOfService: "https://aibramha.in/terms-and-conditions"
   },
   providerCountry: "IN",
-  category: "app_tools",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

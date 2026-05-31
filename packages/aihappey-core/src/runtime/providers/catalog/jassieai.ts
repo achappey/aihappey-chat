@@ -12,7 +12,7 @@ export const jassieai: Provider = {
     privacyPolicy: "https://jassie.ai/privacy",
     termsOfService: "https://jassie.ai/terms"
   },
-  category: "media_voice",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

@@ -15,7 +15,7 @@ export const lumaai: Provider = {
     privacyPolicy: "https://lumalabs.ai/legal/privacy"
   },
   providerCountry: "US",
-  category: "media_voice",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 

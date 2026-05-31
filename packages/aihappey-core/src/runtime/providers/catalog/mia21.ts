@@ -8,13 +8,13 @@ export const mia21: Provider = {
   }],
   urls: {
     homepage: "https://mia21.com",
-    console:"https://app.mia21.com",
+    console: "https://app.mia21.com",
     docs: "https://docs.mia21.com",
     privacyPolicy: "https://app.mia21.com/privacy",
     termsOfService: "https://app.mia21.com/terms"
   },
   providerCountry: "US",
-  category: "media_voice",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };
