@@ -30,7 +30,7 @@ export const ProvidersPage = () => {
     const { isDarkMode } = useDarkMode();
     const isDesktop = useIsDesktop();
     const [search, setSearch] = useState("");
-    const [filtersOpen, setFiltersOpen] = useState(false);
+    const [filtersOpen, setFiltersOpen] = useState(() => isDesktop);
     const [selectedCountries, setSelectedCountries] = useState<string[]>([
         PROVIDER_LOCATION_ALL_FILTER_VALUE,
     ]);
@@ -313,6 +313,23 @@ export const ProvidersPage = () => {
 
     const showInlineFilters = filtersOpen && isDesktop;
 
+    const renderFilterPanels = () => (
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+            }}
+        >
+            {filterSections.map((section) => (
+                <FilterDrawerPanel
+                    key={section.id}
+                    sections={[section]}
+                />
+            ))}
+        </div>
+    );
+
     return (
         <>
             <div style={{ background: "transparent" }}>
@@ -498,19 +515,19 @@ export const ProvidersPage = () => {
                                     size="medium"
                                     onClose={() => setFiltersOpen(false)}
                                 >
-                                    <div
-                                        id="providers-inline-filter-drawer"
-                                        style={{
-                                            width: "100%",
-                                            boxSizing: "border-box",
-                                            padding: 16,
-                                        }}
-                                    >
-                                        <FilterDrawerPanel sections={filterSections} />
-                                    </div>
-                                </Drawer>
-                            </div>
-                        ) : null}
+                                     <div
+                                         id="providers-inline-filter-drawer"
+                                         style={{
+                                             width: "100%",
+                                             boxSizing: "border-box",
+                                             padding: 16,
+                                         }}
+                                     >
+                                         {renderFilterPanels()}
+                                     </div>
+                                 </Drawer>
+                             </div>
+                         ) : null}
                     </div>
 
                     {!isDesktop ? (
@@ -522,17 +539,18 @@ export const ProvidersPage = () => {
                             size="small"
                             onClose={() => setFiltersOpen(false)}
                         >
-                            <div
-                                id="providers-inline-filter-drawer"
-                                style={{
-                                    width: "100%",
-                                    boxSizing: "border-box",
-                                }}
-                            >
-                                <FilterDrawerPanel sections={filterSections} />
-                            </div>
-                        </Drawer>
-                    ) : null}
+                             <div
+                                 id="providers-inline-filter-drawer"
+                                 style={{
+                                     width: "100%",
+                                     boxSizing: "border-box",
+                                     padding: 16,
+                                 }}
+                             >
+                                 {renderFilterPanels()}
+                             </div>
+                         </Drawer>
+                     ) : null}
 
                     {selectedProvider && (
                         <ProviderDetailModal
