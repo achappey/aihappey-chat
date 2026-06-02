@@ -299,7 +299,7 @@ import { edgee } from "./catalog/edgee";
 import { viablelab } from "./catalog/viablelab";
 import { dreamgen } from "./catalog/dreamgen";
 import { llm7 } from "./catalog/llm7";
-import { kimik2 } from "./catalog/kimik2";
+import { kimrel } from "./catalog/kimrel";
 import { keyplex } from "./catalog/keyplex";
 import { llmkiwi } from "./catalog/llmkiwi";
 import { cheapgrok } from "./catalog/cheapgrok";
@@ -417,7 +417,6 @@ import { wesenai } from "./catalog/wesenai";
 import { key4u } from "./catalog/key4u";
 import { fivedock } from "./catalog/fivedock";
 import { magisterium } from "./catalog/magisterium";
-import { lacesse } from "./catalog/lacesse";
 import { uncensoredchat } from "./catalog/uncensoredchat";
 import { orbgpu } from "./catalog/orbgpu";
 import { opengateway } from "./catalog/opengateway";
@@ -549,6 +548,7 @@ import { mara } from "./catalog/mara";
 import { inceptron } from "./catalog/inceptron";
 import { crofai } from "./catalog/crofai";
 import { commandcode } from "./catalog/commandcode";
+import { lilac } from "./catalog/lilac";
 
 /**
  * UI-facing provider catalog.
@@ -681,7 +681,6 @@ export const PROVIDERS: Record<string, Provider> = {
   tensorix,
   embyai,
   lmrouter,
-  lacesse,
   uncensoredchat,
   selinaai,
   clauddy,
@@ -752,7 +751,8 @@ export const PROVIDERS: Record<string, Provider> = {
   getgoapi,
   gonkagate,
   aki,
-  kimik2,
+  lilac,
+  kimrel,
   agentaigateway,
   ezai,
   dubrify,

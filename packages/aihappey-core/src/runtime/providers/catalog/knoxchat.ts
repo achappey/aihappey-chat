@@ -13,7 +13,7 @@ export const knoxchat: Provider = {
     termsOfService: "https://docs.knox.chat/terms-of-service"
   },
   providerCountry: "CN",
-  category: "gateway_router",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };
