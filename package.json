@@ -17,5 +17,10 @@
     "esbuild": "^0.28.0",
     "rimraf": "^6.0.0",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.0": true,
+    "esbuild@0.27.7": true,
+    "@swc/core@1.15.40": true
   }
 }
