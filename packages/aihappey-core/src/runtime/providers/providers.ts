@@ -541,6 +541,7 @@ import { scrapellm } from "./catalog/scrapellm";
 import { uumuse } from "./catalog/uumuse";
 import { freeinference } from "./catalog/freeinference";
 import { llmtr } from "./catalog/llmtr";
+import { llmstats } from "./catalog/llmstats";
 
 /**
  * UI-facing provider catalog.
@@ -838,6 +839,7 @@ export const PROVIDERS: Record<string, Provider> = {
   eachlabs,
   nimbleway,
   aigateway,
+  llmstats,
   synthetic,
   longcat,
   renderful,

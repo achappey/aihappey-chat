@@ -16,6 +16,6 @@ export const stepfun: Provider = {
     privacyPolicy: "https://platform.stepfun.com/legal/privacy-policy.html"
   },
   providerCountry: "CN",
-  category: "app_tools",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };

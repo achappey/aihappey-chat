@@ -15,7 +15,7 @@ export const mumeai: Provider = {
     termsOfService: "https://mume.ai/terms"
   },
   providerCountry: "IN",
-  category: "app_tools",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

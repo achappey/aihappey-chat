@@ -14,7 +14,7 @@ export const cline: Provider = {
     termsOfService: "https://cline.bot/tos"
   },
   providerCountry: "US",
-  category: "app_tools",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

@@ -21,7 +21,7 @@ export const jina: Provider = {
     termsOfService: "https://jina.ai/legal/#terms-and-conditions"
   },
   providerCountry: "DE",
-  category: "search_data",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };
