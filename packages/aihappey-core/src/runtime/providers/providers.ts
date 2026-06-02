@@ -544,6 +544,10 @@ import { llmtr } from "./catalog/llmtr";
 import { llmstats } from "./catalog/llmstats";
 import { wafer } from "./catalog/wafer";
 import { freellmapikeys } from "./catalog/freellmapikeys";
+import { routera } from "./catalog/routera";
+import { orcarouter } from "./catalog/orcarouter";
+import { mara } from "./catalog/mara";
+import { inceptron } from "./catalog/inceptron";
 
 /**
  * UI-facing provider catalog.
@@ -555,8 +559,11 @@ export const PROVIDERS: Record<string, Provider> = {
   citadelis,
   freellmapikeys,
   wafer,
+  orcarouter,
   doubleword,
+  routera,
   slancha,
+  mara,
   mycoai,
   realrouter,
   picklyone,
@@ -1012,6 +1019,7 @@ export const PROVIDERS: Record<string, Provider> = {
   aionlabs,
   databricks,
   straico,
+  inceptron,
   blackforestlabs,
   resembleai,
   abliteration,

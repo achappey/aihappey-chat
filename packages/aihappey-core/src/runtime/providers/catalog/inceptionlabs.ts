@@ -17,7 +17,7 @@ export const inceptionlabs: Provider = {
     privacyPolicy: "https://www.inceptionlabs.ai/docs/privacy-policy"
   },
   providerCountry: "US",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 
