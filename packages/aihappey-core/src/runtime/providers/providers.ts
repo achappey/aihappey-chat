@@ -542,6 +542,8 @@ import { uumuse } from "./catalog/uumuse";
 import { freeinference } from "./catalog/freeinference";
 import { llmtr } from "./catalog/llmtr";
 import { llmstats } from "./catalog/llmstats";
+import { wafer } from "./catalog/wafer";
+import { freellmapikeys } from "./catalog/freellmapikeys";
 
 /**
  * UI-facing provider catalog.
@@ -551,6 +553,8 @@ import { llmstats } from "./catalog/llmstats";
 export const PROVIDERS: Record<string, Provider> = {
   openai,
   citadelis,
+  freellmapikeys,
+  wafer,
   doubleword,
   slancha,
   mycoai,
