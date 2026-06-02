@@ -21,7 +21,7 @@ export const recraft: Provider = {
     console: "https://app.recraft.ai"
   },
   providerCountry: "GB",
-  category: "media_voice",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

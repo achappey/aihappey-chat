@@ -385,7 +385,6 @@ import { xiaomimimo } from "./catalog/xiaomimimo";
 import { ollama } from "./catalog/ollama";
 import { relace } from "./catalog/relace";
 import { inflection } from "./catalog/inflection";
-import { langdb } from "./catalog/langdb";
 import { morph } from "./catalog/morph";
 import { baidu } from "./catalog/baidu";
 import { streamlake } from "./catalog/streamlake";
@@ -548,6 +547,8 @@ import { routera } from "./catalog/routera";
 import { orcarouter } from "./catalog/orcarouter";
 import { mara } from "./catalog/mara";
 import { inceptron } from "./catalog/inceptron";
+import { crofai } from "./catalog/crofai";
+import { commandcode } from "./catalog/commandcode";
 
 /**
  * UI-facing provider catalog.
@@ -693,7 +694,6 @@ export const PROVIDERS: Record<string, Provider> = {
   morph,
   streamlake,
   runapi,
-  langdb,
   inflection,
   relace,
   ollama,
@@ -1016,6 +1016,8 @@ export const PROVIDERS: Record<string, Provider> = {
   blackbox,
   primeintellect,
   inceptionlabs,
+  crofai,
+  commandcode,
   aionlabs,
   databricks,
   straico,
