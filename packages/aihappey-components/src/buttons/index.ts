@@ -13,3 +13,4 @@ export * from "./TranscriptionSettingsButton";
 export * from "./RerankingSettingsButton";
 export * from "./ModelFavoriteToggleButton";
 export * from "./AgentFavoriteToggleButton";
+export * from "./SkillFavoriteToggleButton";

@@ -1,4 +1,4 @@
-import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
@@ -21,6 +21,16 @@ import {
 import { useSkills } from "aihappey-skills";
 import { buildSkillMatchKey, buildStoredSkillMatchKey, createInlineAgentSkill, getInlineAgentSkillPayload, readInlineAgentSkillMetadata } from "./agentSkills";
 import { useChatContext } from "../chat/context/ChatContext";
+import { SkillToggleGroups } from "../skills/SkillToggleGroups";
+
+const hostnameOf = (url?: string) => {
+    if (!url) return "remote";
+    try {
+        return new URL(url).hostname;
+    } catch {
+        return url;
+    }
+};
 
 export interface AgentFormProps {
     agent: Agent;
@@ -45,14 +55,20 @@ export const AgentForm = ({
     const [selectedSkillPayloads, setSelectedSkillPayloads] = useState<Record<string, string>>({});
     const [initialPersistedSkills] = useState(() => agent.skills ?? []);
     const models = useAppStore((s) => s.models);
+    const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
     const skills = useSkills();
     const skillItems = useMemo(
         () => skills.items.map((item) => ({
             id: item.skillId,
             label: `${item.name} (v${item.version ?? item.downloadedVersion ?? item.latestVersion})`,
+            origin: item.origin,
             // description: item.description,
         })),
         [skills.items]
+    );
+    const remoteSkillsHost = useMemo(
+        () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
+        [chatConfig.baseUrl, chatConfig.endpoints.skills]
     );
     const openAISkillOptions = useMemo(
         () => buildOpenAISkillOptions(skills.items ?? []),
@@ -468,14 +484,15 @@ export const AgentForm = ({
                 <Tab eventKey="skills" title={t("skills") ?? "Skills"}>
                     {activeTab === "skills" ? (
                         <>
-                            <LocalToolsSettingsForm
-                                formTitle={t("skills") ?? "Skills"}
+                            <SkillToggleGroups
                                 value={selectedSkillIds}
                                 onChange={(next) => {
                                     void handleSkillSelectionChange(next);
                                 }}
                                 columns={2}
                                 items={skillItems}
+                                favoriteSkillIds={favoriteSkillIds ?? []}
+                                remoteTitle={remoteSkillsHost}
                             />
                             {skillFeedback ? <Text>{skillFeedback}</Text> : null}
                         </>

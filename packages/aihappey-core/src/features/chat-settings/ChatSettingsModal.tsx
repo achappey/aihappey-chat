@@ -14,7 +14,6 @@ import {
   CohereChatConfigForm, GroqChatConfigForm,
   JinaChatConfigForm,
   LinkupChatConfigForm,
-  LocalToolsSettingsForm,
   MicrosoftChatConfigForm,
   MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
   OpenHandsChatConfigForm,
@@ -33,6 +32,7 @@ import {
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
+import { SkillToggleGroups } from "../skills/SkillToggleGroups";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import {
   buildOpenAISkillOptions,
@@ -40,6 +40,15 @@ import {
 } from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
 import { useChatContext } from "../chat/context/ChatContext";
+
+const hostnameOf = (url?: string) => {
+  if (!url) return "remote";
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+};
 
 export interface ProviderSettingsModalProps {
   open: boolean;
@@ -106,6 +115,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   );
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
+  const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
   const skills = useSkills();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const createDraft = useCallback(
@@ -144,9 +154,14 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       return {
         id: item.skillId,
         label: `${item.name} (v${item.version})`,
+        origin: item.origin,
       };
     }),
     [skills.items]
+  );
+  const remoteSkillsHost = useMemo(
+    () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
+    [chatConfig.baseUrl, chatConfig.endpoints.skills]
   );
   const openAISkillOptions = useMemo(
     () => buildOpenAISkillOptions(skills.items ?? []),
@@ -380,14 +395,15 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         <theme.Tab eventKey="skills" title={t("skills") ?? "Skills"}>
           {activeTab === "skills" ? (
             <>
-              <LocalToolsSettingsForm
-                formTitle={t("skills") ?? "Skills"}
+              <SkillToggleGroups
                 value={draft.enabledSkillIds}
                 onChange={(next) => {
                   void handleSkillSelectionChange(next);
                 }}
                 columns={2}
                 items={skillItems}
+                favoriteSkillIds={favoriteSkillIds ?? []}
+                remoteTitle={remoteSkillsHost}
               />
               {skillFeedback ? <theme.Text>{skillFeedback}</theme.Text> : null}
             </>

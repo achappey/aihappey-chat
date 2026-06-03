@@ -4,6 +4,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useDarkMode } from "usehooks-ts";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTheme } from "../theme/ThemeContext";
+import { SkillFavoriteToggleButton } from "../buttons/SkillFavoriteToggleButton";
 
 export type SkillCardItem = {
   id: string;
@@ -23,9 +24,11 @@ export type SkillCardProps = {
   onDelete?: () => void;
   onDownload?: () => void;
   onView?: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 };
 
-export const SkillCard = ({ skill, onDelete, onDownload, onView }: SkillCardProps) => {
+export const SkillCard = ({ skill, onDelete, onDownload, onView, isFavorite = false, onToggleFavorite }: SkillCardProps) => {
   const { Card, Menu, Button, Badge, Image } = useTheme();
   const { t } = useTranslation();
   const isDarkMode = useDarkMode();
@@ -51,6 +54,14 @@ export const SkillCard = ({ skill, onDelete, onDownload, onView }: SkillCardProp
       ) : null}
       {onDownload ? (
         <Button icon="download" size="small" variant="transparent" onClick={onDownload}></Button>
+      ) : null}
+      {onToggleFavorite ? (
+        <SkillFavoriteToggleButton
+          variant="transparent"
+          skillName={skill.name}
+          isFavorite={isFavorite}
+          onToggleFavorite={onToggleFavorite}
+        />
       ) : null}
     </>
   );
@@ -89,7 +100,7 @@ export const SkillCard = ({ skill, onDelete, onDownload, onView }: SkillCardProp
       size="small"
       image={imageItem}
       description={description}
-      actions={onView || onDownload ? actions : undefined}
+      actions={onToggleFavorite || onView || onDownload ? actions : undefined}
       headerActions={onDelete ? <Menu items={menuItems} /> : undefined}
     >
       <LimitedTextField text={skill.description} />

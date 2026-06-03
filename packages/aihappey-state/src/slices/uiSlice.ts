@@ -233,6 +233,10 @@ export type UiSlice = {
   toggleEnabledSkillId: (skillId: string) => void;
   setEnabledSkillIds: (skillIds: string[]) => void;
 
+  favoriteSkillIds: string[];
+  toggleFavoriteSkill: (skillId: string) => void;
+  setFavoriteSkillIds: (skillIds: string[]) => void;
+
   userPreferredModel?: string;
   setUserPreferredModel: (model: string) => void;
 
@@ -291,6 +295,7 @@ export const createUiSlice: StateCreator<
   enabledProvidersByType: createEmptyEnabledProvidersByType(),
   favoriteModelsByType: createEmptyFavoriteModelsByType(),
   enabledSkillIds: [],
+  favoriteSkillIds: [],
   chatWithImageModels: false,
   chatWithVideoModels: false,
   chatWithRerankModels: false,
@@ -508,6 +513,23 @@ export const createUiSlice: StateCreator<
         enabledSkillIds: exists
           ? state.enabledSkillIds.filter((id) => id !== skillId)
           : [...state.enabledSkillIds, skillId],
+      };
+    }),
+
+  setFavoriteSkillIds: (skillIds: string[]) =>
+    set(() => ({
+      favoriteSkillIds: Array.from(new Set((skillIds ?? []).filter(Boolean))),
+    })),
+
+  toggleFavoriteSkill: (skillId: string) =>
+    set((state: UiSlice) => {
+      if (!skillId) return state;
+      const current = state.favoriteSkillIds ?? [];
+      const exists = current.includes(skillId);
+      return {
+        favoriteSkillIds: exists
+          ? current.filter((id) => id !== skillId)
+          : [...current, skillId],
       };
     }),
 

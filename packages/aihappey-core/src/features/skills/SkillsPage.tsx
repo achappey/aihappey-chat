@@ -61,6 +61,9 @@ export const SkillsPage = () => {
   const skills = useSkills();
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
+  const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
+  const toggleFavoriteSkill = useAppStore((s: any) => s.toggleFavoriteSkill as (skillId: string) => void);
+  const setFavoriteSkillIds = useAppStore((s: any) => s.setFavoriteSkillIds as (skillIds: string[]) => void);
   const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [detailsSkillId, setDetailsSkillId] = useState<string | null>(null);
@@ -81,6 +84,11 @@ export const SkillsPage = () => {
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [search, activeTab]);
+
+  const favoriteSkillSet = useMemo(
+    () => new Set((favoriteSkillIds ?? []).filter(Boolean)),
+    [favoriteSkillIds]
+  );
 
   const collator = useMemo(
     () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
@@ -120,6 +128,17 @@ export const SkillsPage = () => {
     () => filtered.filter((item) => item.origin === "remote"),
     [filtered]
   );
+
+  const favoriteFiltered = useMemo(
+    () => filtered.filter((item) => favoriteSkillSet.has(item.skillId)),
+    [favoriteSkillSet, filtered]
+  );
+
+  useEffect(() => {
+    if (activeTab === "favorites" && favoriteFiltered.length === 0) {
+      setActiveTab("all");
+    }
+  }, [activeTab, favoriteFiltered.length]);
 
   const selectedSkill = useMemo(
     () => skills.items.find((item) => item.skillId === detailsSkillId || item.id === detailsSkillId),
@@ -225,6 +244,7 @@ export const SkillsPage = () => {
       await skills.delete(item.skillId);
       if (item.origin === "local") {
         setEnabledSkillIds(enabledSkillIds.filter((id) => id !== item.skillId));
+        setFavoriteSkillIds((favoriteSkillIds ?? []).filter((id) => id !== item.skillId));
       }
 
       if (detailsSkillId === item.skillId) {
@@ -232,7 +252,7 @@ export const SkillsPage = () => {
         await loadSkillDetails(item.skillId);
       }
     },
-    [detailsSkillId, enabledSkillIds, loadSkillDetails, setEnabledSkillIds, skills]
+    [detailsSkillId, enabledSkillIds, favoriteSkillIds, loadSkillDetails, setEnabledSkillIds, setFavoriteSkillIds, skills]
   );
 
   const handleOpenDetails = useCallback(
@@ -366,6 +386,8 @@ export const SkillsPage = () => {
                 onDelete={item.isDownloaded ? () => {
                   void handleDeleteSkill(item);
                 } : undefined}
+                isFavorite={favoriteSkillSet.has(item.skillId)}
+                onToggleFavorite={() => toggleFavoriteSkill(item.skillId)}
               />
             ))
           )}
@@ -444,6 +466,12 @@ export const SkillsPage = () => {
             <theme.Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
               <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
             </theme.Tab>
+
+            {favoriteFiltered.length > 0 ? (
+              <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
+                <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
+              </theme.Tab>
+            ) : null}
 
             <theme.Tab eventKey={`remote:${remoteSkillsHost}`} title={`${remoteSkillsHost} (${remoteFiltered.length})`}>
               <div style={{ paddingTop: 12 }}>{renderGrid(remoteFiltered)}</div>
