@@ -6,11 +6,11 @@
     "samples/*"
   ],
   "scripts": {
-    "build": "npm run -ws build",
+    "build": "npm run clean && node scripts/build-workspaces.cjs",
     "dev": "npm run -ws dev",
     "build:packages": "npm run -w packages --if-present build",
     "watch:packages": "npm run -w packages --if-present watch",
-    "clean": "rimraf ./packages/**/dist ./samples/**/dist"
+    "clean": "rimraf --glob \"packages/*/dist\" \"samples/*/dist\" \"samples/*/public/bundle.js\" \"samples/*/public/bundle.js.map\""
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",

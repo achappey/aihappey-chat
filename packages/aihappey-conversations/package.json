@@ -10,13 +10,12 @@
   "peerDependencies": {
     "aihappey-ai": "*",
     "aihappey-types": "*",
-    "aihappey-state": "*",
     "aihappey-auth": "*",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
     "aihappey-ai": "*",
-       "typescript": "^6.0.3"
+    "typescript": "^6.0.3"
   },
   "exports": {
     ".": {
@@ -25,6 +24,7 @@
     }
   },
   "dependencies": {
-    "idb-keyval": "^6.2.2"
+    "idb-keyval": "^6.2.2",
+    "aihappey-state": "*"
   }
 }

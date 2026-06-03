@@ -9,8 +9,7 @@
   ],
   "dependencies": {
     "@azure/msal-browser": "^4.0.0",
-    "@azure/msal-react": "^3.0.0",
-    "aihappey-state": "*"
+    "@azure/msal-react": "^3.0.0"
   },
   "scripts": {
     "build": "tsc",

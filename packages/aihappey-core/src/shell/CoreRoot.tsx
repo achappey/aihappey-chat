@@ -10,8 +10,8 @@ import {
   MsalAuthenticationTemplate,
   InteractionType,
   MsalAuthProvider,
-  OAuthCallbackPage,
 } from "aihappey-auth";
+import { OAuthCallbackPage } from "./OAuthCallbackPage";
 import { NewChatPage } from "../features/chat/NewChatPage";
 import { ChatArenaPage } from "../features/chat/arena/ChatArenaPage";
 import { ChatPage } from "../features/chat";

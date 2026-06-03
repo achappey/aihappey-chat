@@ -27,8 +27,18 @@ const BASE64_EXPANSION_FACTOR = 4 / 3;
 // The @ffmpeg/ffmpeg class worker is a module worker in bundled apps, so use
 // the ESM core. Passing an explicit classWorkerURL avoids the package trying to
 // construct a relative worker URL from the bundled module location.
-const FFMPEG_BASE_URL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm";
-const FFMPEG_WORKER_URL = "https://unpkg.com/@ffmpeg/ffmpeg@0.12.15/dist/esm/worker.js";
+const FFMPEG_CORE_CDN_BASE_URL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm";
+const FFMPEG_CLASS_WORKER_CDN_URL = "https://unpkg.com/@ffmpeg/ffmpeg@0.12.15/dist/esm/worker.js";
+
+// These are browser URLs, not filesystem paths.
+// They must match what esbuild copies into public:
+//
+// public/ffmpeg/ffmpeg/worker.js
+// public/ffmpeg/core/ffmpeg-core.js
+// public/ffmpeg/core/ffmpeg-core.wasm
+const LOCAL_FFMPEG_CLASS_WORKER_URL = "ffmpeg/ffmpeg/worker.js";
+const LOCAL_FFMPEG_CORE_URL = "ffmpeg/core/ffmpeg-core.js";
+const LOCAL_FFMPEG_WASM_URL = "ffmpeg/core/ffmpeg-core.wasm";
 
 let ffmpegPromise: Promise<FFmpeg> | undefined;
 
@@ -46,24 +56,36 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number, message: 
   }
 };
 
-const absoluteUrl = (url: string) => new URL(url, window.location.origin).toString();
+// Important: use document.baseURI instead of window.location.origin.
+// This also works when the app is hosted under a subpath.
+const browserUrl = (url: string) => new URL(url, document.baseURI).toString();
 
-const isExpectedAssetResponse = (response: Response, expectedContentType: string) => {
+const fetchOkAndNotHtml = async (url: string) => {
+  const response = await fetch(browserUrl(url), {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (!response.ok) return false;
+
   const contentType = response.headers.get("content-type") ?? "";
-  return response.ok && contentType.includes(expectedContentType);
+
+  // If your SPA fallback returns index.html for missing files,
+  // response.ok can still be true. That would break ffmpeg with weird errors.
+  if (contentType.includes("text/html")) return false;
+
+  return true;
 };
 
 const browserFfmpegAssetsAvailable = async () => {
   try {
-    const [worker, core, wasm] = await Promise.all([
-      fetch(absoluteUrl("/ffmpeg/worker.js"), { method: "GET" }),
-      fetch(absoluteUrl("/ffmpeg/ffmpeg-core.js"), { method: "GET" }),
-      fetch(absoluteUrl("/ffmpeg/ffmpeg-core.wasm"), { method: "GET" }),
+    const [classWorkerOk, coreOk, wasmOk] = await Promise.all([
+      fetchOkAndNotHtml(LOCAL_FFMPEG_CLASS_WORKER_URL),
+      fetchOkAndNotHtml(LOCAL_FFMPEG_CORE_URL),
+      fetchOkAndNotHtml(LOCAL_FFMPEG_WASM_URL),
     ]);
 
-    return isExpectedAssetResponse(worker, "javascript")
-      && isExpectedAssetResponse(core, "javascript")
-      && isExpectedAssetResponse(wasm, "wasm");
+    return classWorkerOk && coreOk && wasmOk;
   } catch {
     return false;
   }
@@ -72,16 +94,16 @@ const browserFfmpegAssetsAvailable = async () => {
 const getFfmpegLoadConfig = async () => {
   if (await browserFfmpegAssetsAvailable()) {
     return {
-      classWorkerURL: absoluteUrl("/ffmpeg/worker.js"),
-      coreURL: absoluteUrl("/ffmpeg/ffmpeg-core.js"),
-      wasmURL: absoluteUrl("/ffmpeg/ffmpeg-core.wasm"),
+      classWorkerURL: browserUrl(LOCAL_FFMPEG_CLASS_WORKER_URL),
+      coreURL: browserUrl(LOCAL_FFMPEG_CORE_URL),
+      wasmURL: browserUrl(LOCAL_FFMPEG_WASM_URL),
     };
   }
 
   return {
-    classWorkerURL: absoluteUrl(await toBlobURL(FFMPEG_WORKER_URL, "text/javascript")),
-    coreURL: await toBlobURL(`${FFMPEG_BASE_URL}/ffmpeg-core.js`, "text/javascript"),
-    wasmURL: await toBlobURL(`${FFMPEG_BASE_URL}/ffmpeg-core.wasm`, "application/wasm"),
+    classWorkerURL: await toBlobURL(FFMPEG_CLASS_WORKER_CDN_URL, "text/javascript"),
+    coreURL: await toBlobURL(`${FFMPEG_CORE_CDN_BASE_URL}/ffmpeg-core.js`, "text/javascript"),
+    wasmURL: await toBlobURL(`${FFMPEG_CORE_CDN_BASE_URL}/ffmpeg-core.wasm`, "application/wasm"),
   };
 };
 

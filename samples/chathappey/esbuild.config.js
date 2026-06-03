@@ -26,12 +26,6 @@ const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3010";
 const chatAppMcp = process.env.CHAT_APP_MCP || "http://localhost:3001/chatapp";
 const appInsightsConnectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || "";
 
-// Deze kunnen JSON of string zijn, dus altijd even JSON.stringify voor define
-//const conversationScopes = safeParseJSON(process.env.CONVERSATIONS_SCOPES, []);
-//const msalClientId = process.env.MSAL_CLIENT_ID || "<client_id>";
-//const msalAuthority = process.env.MSAL_AUTHORITY || "https://login.microsoftonline.com/<tenant_id>";
-//const msalRedirectUri = process.env.MSAL_REDIRECT_URI || "/";
-//const msalScopes = safeParseJSON(process.env.MSAL_SCOPES, ["<scope>"]);
 
 // --- App version/tag op buildtijd (YYYYMMDD.HHmm) ---
 const now = new Date();
@@ -48,7 +42,7 @@ const buildOptions = {
   entryPoints: ["src/main.tsx"],
   bundle: true,
   outfile: "public/bundle.js",
-  sourcemap: true,
+  sourcemap: false,
   minify: !isWatch, // Alleen minify bij production build
   define: {
     "process.env.NODE_ENV": isWatch ? '"development"' : '"production"',
@@ -58,12 +52,6 @@ const buildOptions = {
     "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
     "__CHAT_APP_MCP__": JSON.stringify(chatAppMcp),
     "__APPLICATIONINSIGHTS_CONNECTION_STRING__": JSON.stringify(appInsightsConnectionString),
-    /*    "__MSAL_CLIENT_ID__": JSON.stringify(msalClientId),
-        "__CONVERSATIONS_API_URL__": JSON.stringify(conversationsApi),
-        "__CONVERSATIONS_SCOPES__": JSON.stringify(conversationScopes),
-        "__MSAL_AUTHORITY__": JSON.stringify(msalAuthority),
-        "__MSAL_REDIRECT_URI__": JSON.stringify(msalRedirectUri),
-        "__MSAL_SCOPES__": JSON.stringify(msalScopes),*/
   },
   loader: { ".tsx": "tsx", ".ts": "ts" },
 };
@@ -93,11 +81,8 @@ function copyFfmpegAssets() {
     }
   };
 
-  copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "ffmpeg", "dist", "esm"), ffmpegDir);
-  copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "core", "dist", "esm"), ffmpegDir);
   copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "ffmpeg", "dist", "esm"), path.join(ffmpegDir, "ffmpeg"));
   copyDir(path.join(rootDir, "node_modules", "@ffmpeg", "core", "dist", "esm"), path.join(ffmpegDir, "core"));
-
 }
 
 copyFfmpegAssets();

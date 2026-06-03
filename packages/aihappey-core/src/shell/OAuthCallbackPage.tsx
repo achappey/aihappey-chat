@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { handleOAuthCallback } from "./mcp/oauthClient";
-import { setMcpAccessToken } from "./mcp/helpers";
-import { localStorageAuth } from "./storage/defaultStorage";
 import { useNavigate } from "react-router";
+import { setMcpAccessToken } from "aihappey-auth";
+import { handleOAuthCallback } from "aihappey-auth/src/mcp/oauthClient";
+import { localStorageAuth } from "aihappey-auth/src/storage/defaultStorage";
 import { useAppStore } from "aihappey-state";
 
 const OAUTH_TARGET_URL_KEY = "mcp_oauth_target_url";
 
-const OAuthCallbackPage = () => {
+export const OAuthCallbackPage = () => {
   const [status, setStatus] = useState<"pending" | "success" | "error">(
     "pending"
   );
@@ -20,6 +20,7 @@ const OAuthCallbackPage = () => {
   useEffect(() => {
     const processCallback = async () => {
       const result = await handleOAuthCallback(localStorageAuth);
+
       if ("error" in result) {
         setStatus("error");
         setMessage(
@@ -31,6 +32,7 @@ const OAuthCallbackPage = () => {
         sessionStorage.removeItem(OAUTH_TARGET_URL_KEY);
         return;
       }
+
       if (result.accessToken && result.targetUrl) {
         setMcpAccessToken(
           result.targetUrl,
@@ -61,6 +63,7 @@ const OAuthCallbackPage = () => {
         }, 2000);
       }
     };
+
     processCallback();
   }, [navigate, setToken]);
 

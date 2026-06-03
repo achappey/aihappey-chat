@@ -10,7 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "rootDir": "./src",
     "outDir": "public",
-    "sourceMap": true
+    "sourceMap": false
   },
   "include": [
     "src"
