@@ -3,6 +3,8 @@
 // esbuild.config.js
 
 const esbuild = require("esbuild");
+const path = require("path");
+const { copyI18nLocalesToPublic } = require("../../packages/aihappey-i18n/scripts/copy-locales.cjs");
 const isWatch = process.argv.includes("--watch");
 
 // Laad .env of .env.production afhankelijk van NODE_ENV
@@ -66,6 +68,8 @@ const buildOptions = {
   },
   loader: { ".tsx": "tsx", ".ts": "ts" },
 };
+
+copyI18nLocalesToPublic(path.join(__dirname, "public"));
 
 // --- Build of watch ---
 if (isWatch) {
