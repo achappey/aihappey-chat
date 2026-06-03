@@ -274,7 +274,6 @@ import { gradium } from "./catalog/gradium";
 import { voiceai } from "./catalog/voiceai";
 import { ionrouter } from "./catalog/ionrouter";
 import { freedomgpt } from "./catalog/freedomgpt";
-import { pixia } from "./catalog/pixia";
 import { kirha } from "./catalog/kirha";
 import { sufy } from "./catalog/sufy";
 import { llmhubifs } from "./catalog/llmhubifs";
@@ -812,7 +811,6 @@ export const PROVIDERS: Record<string, Provider> = {
   voiceai,
   freedomgpt,
   shuttleai,
-  pixia,
   logicosllmhub,
   llmhubifs,
   noiz,
