@@ -352,7 +352,6 @@ import { vogent } from "./catalog/vogent";
 import { preapi } from "./catalog/preapi";
 import { yougetai } from "./catalog/yougetai";
 import { tikhubai } from "./catalog/tikhubai";
-import { elkapi } from "./catalog/elkapi";
 import { vultr } from "./catalog/vultr";
 import { ofoxai } from "./catalog/ofoxai";
 import { dedaluslabs } from "./catalog/dedaluslabs";
@@ -722,7 +721,6 @@ export const PROVIDERS: Record<string, Provider> = {
   routerlink,
   yougetai,
   yollomi,
-  elkapi,
   vultr,
   tikhubai,
   inferlink,
