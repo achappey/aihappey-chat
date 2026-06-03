@@ -10,13 +10,13 @@ export const crazyrouter: Provider = {
   ],
   urls: {
     homepage: "https://crazyrouter.com",
-    docs: "https://crazyrouter.apifox.cn",
+    docs: "https://docs.crazyrouter.com",
     console: "https://crazyrouter.com/console",
     termsOfService: "https://crazyrouter.com/user-agreement",
     privacyPolicy: "https://crazyrouter.com/privacy-policy"
   },
   providerCountry: "CN",
-  category: "inference_compute",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 

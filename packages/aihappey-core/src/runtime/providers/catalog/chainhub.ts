@@ -14,7 +14,7 @@ export const chainhub: Provider = {
     privacyPolicy: "https://chainhub.tech/privacy",
     termsOfService: "https://chainhub.tech/terms"
   },
-  providerCountry: "US",
+  providerCountry: "TR",
   category: "gateway_router",
   inferenceRegions: ["World"]
 

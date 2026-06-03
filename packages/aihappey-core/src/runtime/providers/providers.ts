@@ -549,6 +549,8 @@ import { inceptron } from "./catalog/inceptron";
 import { crofai } from "./catalog/crofai";
 import { commandcode } from "./catalog/commandcode";
 import { lilac } from "./catalog/lilac";
+import { openadapter } from "./catalog/openadapter";
+import { router9 } from "./catalog/router9";
 
 /**
  * UI-facing provider catalog.
@@ -576,6 +578,8 @@ export const PROVIDERS: Record<string, Provider> = {
   oneinfer,
   igpt,
   herma,
+  openadapter,
+  router9,
   linkup,
   theoldapi,
   sapiom,

@@ -14,7 +14,7 @@ export const morph: Provider = {
     termsOfService: "https://www.morphllm.com/privacy/tos"
   },
   providerCountry: "US",
-  category: "search_data",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };
