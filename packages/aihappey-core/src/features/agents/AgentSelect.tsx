@@ -1,7 +1,6 @@
 import React from "react";
 import { useTheme } from "aihappey-components";
 
-import { useMediaQuery } from "usehooks-ts";
 import { useAppStore } from "aihappey-state";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import type { Agent, RemoteAgentModel } from "aihappey-types";
@@ -10,6 +9,19 @@ import {
   normalizeSelectedAgentKeys,
   resolveSelectedAgentEntries,
 } from "./agentSelection";
+import { useChatContext } from "../chat/context/ChatContext";
+
+const hostnameOf = (url?: string) => {
+  if (!url) return "remote";
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+};
+
+const sortAgentsByLabel = <T extends { label: string }>(agents: T[]) =>
+  [...agents].sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }));
 
 interface AgentSelectProps {
   localAgents: Agent[];
@@ -27,6 +39,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   disabled,
 }) => {
   const { Select } = useTheme();
+  const { config: chatConfig } = useChatContext();
   const isDesktop = useIsDesktop();
   const SelectComponent = Select || "select";
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? []);
@@ -37,6 +50,12 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   );
   const normalizedValues = normalizeSelectedAgentKeys(values, localAgents, remoteAgentModels);
   const selectedEntries = resolveSelectedAgentEntries(values, localAgents, remoteAgentModels);
+  const remoteAgentsHost = React.useMemo(
+    () => hostnameOf(chatConfig.agentEndpoint ? `${chatConfig.agentEndpoint}${chatConfig.endpoints.models}` : undefined),
+    [chatConfig.agentEndpoint, chatConfig.endpoints.models]
+  );
+  const localVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "local"));
+  const remoteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "remote"));
 
   return (
     <SelectComponent
@@ -54,13 +73,27 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       disabled={disabled}
       aria-label="Agent"
     >
-      {(
-        visibleAgents.map((agent) => (
-          <option key={agent.key} value={agent.key}>
-            {agent.label}
-          </option>
-        ))
-      )}
+      <>
+        {remoteVisibleAgents.length > 0 && (
+          <optgroup label={remoteAgentsHost}>
+            {remoteVisibleAgents.map((agent) => (
+              <option key={agent.key} value={agent.key}>
+                {agent.label}
+              </option>
+            ))}
+          </optgroup>
+        )}
+
+        {localVisibleAgents.length > 0 && (
+          <optgroup label="Local">
+            {localVisibleAgents.map((agent) => (
+              <option key={agent.key} value={agent.key}>
+                {agent.label}
+              </option>
+            ))}
+          </optgroup>
+        )}
+      </>
 
     </SelectComponent>
   );
