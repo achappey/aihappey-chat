@@ -37,6 +37,7 @@ nupkg/
 dist/
 **/dist/
 **/public/bundle*.*
+**/public/locales
 **/public/ffmpeg
 **/fakton/
 
