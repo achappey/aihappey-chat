@@ -28,7 +28,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 18,
+    version: 19,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -95,6 +95,7 @@ export const withPersist = (
       conversationStorage: s.conversationStorage,
       enabledProvidersByType: (s as any).enabledProvidersByType,
       favoriteModelsByType: (s as any).favoriteModelsByType,
+      favoriteAgentIds: (s as any).favoriteAgentIds,
       enabledSkillIds: (s as any).enabledSkillIds,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
@@ -230,8 +231,20 @@ export const withPersist = (
         };
       }
 
+      if (version < 19) {
+        safeState = {
+          ...safeState,
+          favoriteAgentIds: Array.isArray(safeState.favoriteAgentIds)
+            ? Array.from(new Set(safeState.favoriteAgentIds.filter(Boolean)))
+            : [],
+        };
+      }
+
       return {
         ...safeState,
+        favoriteAgentIds: Array.isArray(safeState.favoriteAgentIds)
+          ? Array.from(new Set(safeState.favoriteAgentIds.filter(Boolean)))
+          : [],
         enabledSkillIds: Array.isArray(safeState.enabledSkillIds)
           ? safeState.enabledSkillIds.filter(Boolean)
           : [],

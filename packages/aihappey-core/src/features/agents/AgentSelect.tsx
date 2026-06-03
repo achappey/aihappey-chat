@@ -1,5 +1,6 @@
 import React from "react";
 import { useTheme } from "aihappey-components";
+import { useTranslation } from "aihappey-i18n";
 
 import { useAppStore } from "aihappey-state";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
@@ -29,6 +30,8 @@ interface AgentSelectProps {
   values: string[];
   onChange: (id: string) => void;
   disabled?: boolean;
+  favoriteAgentIds?: string[];
+  favoritesLabel?: string;
 }
 
 export const AgentSelect: React.FC<AgentSelectProps> = ({
@@ -37,8 +40,11 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   values,
   onChange,
   disabled,
+  favoriteAgentIds = [],
+  favoritesLabel,
 }) => {
   const { Select } = useTheme();
+  const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
   const isDesktop = useIsDesktop();
   const SelectComponent = Select || "select";
@@ -47,6 +53,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
     localAgents,
     remoteAgentModels,
     enabledProviders,
+    favoriteAgentIds,
   );
   const normalizedValues = normalizeSelectedAgentKeys(values, localAgents, remoteAgentModels);
   const selectedEntries = resolveSelectedAgentEntries(values, localAgents, remoteAgentModels);
@@ -54,8 +61,13 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
     () => hostnameOf(chatConfig.agentEndpoint ? `${chatConfig.agentEndpoint}${chatConfig.endpoints.models}` : undefined),
     [chatConfig.agentEndpoint, chatConfig.endpoints.models]
   );
-  const localVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "local"));
-  const remoteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "remote"));
+  const favoriteSet = React.useMemo(
+    () => new Set((favoriteAgentIds ?? []).filter(Boolean)),
+    [favoriteAgentIds]
+  );
+  const favoriteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => favoriteSet.has(agent.key)));
+  const localVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "local" && !favoriteSet.has(agent.key)));
+  const remoteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "remote" && !favoriteSet.has(agent.key)));
 
   return (
     <SelectComponent
@@ -74,6 +86,16 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       aria-label="Agent"
     >
       <>
+        {favoriteVisibleAgents.length > 0 && (
+          <optgroup label={favoritesLabel ?? t("favorites")}>
+            {favoriteVisibleAgents.map((agent) => (
+              <option key={agent.key} value={agent.key}>
+                {agent.label}
+              </option>
+            ))}
+          </optgroup>
+        )}
+
         {remoteVisibleAgents.length > 0 && (
           <optgroup label={remoteAgentsHost}>
             {remoteVisibleAgents.map((agent) => (

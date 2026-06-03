@@ -12,3 +12,4 @@ export * from "./ResourceSelectButton";
 export * from "./TranscriptionSettingsButton";
 export * from "./RerankingSettingsButton";
 export * from "./ModelFavoriteToggleButton";
+export * from "./AgentFavoriteToggleButton";

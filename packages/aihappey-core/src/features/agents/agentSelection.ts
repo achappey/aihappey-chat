@@ -65,10 +65,14 @@ export const buildAvailableAgentSelectionEntries = (
     localAgents: Agent[],
     remoteAgentModels: RemoteAgentModel[],
     enabledProviders: string[] = [],
+    alwaysVisibleAgentKeys: string[] = [],
 ) => {
     const enabledProviderKeys = enabledProviders.map((provider) => provider.toLowerCase());
+    const alwaysVisibleSet = new Set((alwaysVisibleAgentKeys ?? []).filter(Boolean));
 
     const visibleLocalAgents = localAgents.filter((agent) => {
+        if (alwaysVisibleSet.has(toLocalAgentSelectionKey(agent.name))) return true;
+
         const providerKey = String(agent.model?.id ?? "").split("/")[0]?.toLowerCase();
         return enabledProviderKeys.includes(providerKey);
     });

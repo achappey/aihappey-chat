@@ -2,6 +2,7 @@ import {
     Agent,
     RemoteAgentModel,
     normalizeAgentSelectionValue,
+    toLocalAgentSelectionKey,
 } from "aihappey-types";
 import type { StateCreator } from "zustand";
 import { defaultAgents } from "./defaultAgents";
@@ -12,6 +13,7 @@ export type AgentSlice = {
     remoteAgentModels: RemoteAgentModel[];
     remoteAgentModelsLoaded: boolean;
     selectedAgentNames: string[];
+    favoriteAgentIds: string[];
     workflowType: string
     maximumIterationCount: number
     handoffs: any[]
@@ -21,6 +23,8 @@ export type AgentSlice = {
     setHandoffs: (handoffs: any[]) => void
     setMaximumIterationCount: (count: number) => void
     setSelectedAgents: (agents: string[]) => void
+    setFavoriteAgentIds: (agentIds: string[]) => void
+    toggleFavoriteAgent: (agentId: string) => void
     createAgent: (agent: Agent) => void
     updateAgent: (name: string, agent: Agent) => void
     deleteAgent: (name: string) => void
@@ -40,6 +44,7 @@ export const createAgentSlice: StateCreator<
     remoteAgentModels: [],
     remoteAgentModelsLoaded: false,
     selectedAgentNames: [],
+    favoriteAgentIds: [],
     maximumIterationCount: 5,
     handoffs: [],
     // in your create(...) slice implementation
@@ -141,6 +146,24 @@ export const createAgentSlice: StateCreator<
             )),
         }));
     },
+    setFavoriteAgentIds: (agentIds) => {
+        set(() => ({
+            favoriteAgentIds: Array.from(new Set((agentIds ?? []).filter(Boolean))),
+        }));
+    },
+    toggleFavoriteAgent: (agentId) => {
+        set((state: AgentSlice) => {
+            if (!agentId) return state;
+            const current = state.favoriteAgentIds ?? [];
+            const exists = current.includes(agentId);
+
+            return {
+                favoriteAgentIds: exists
+                    ? current.filter((id) => id !== agentId)
+                    : [...current, agentId],
+            };
+        });
+    },
     createAgent: (agent) =>
         set((state: AgentSlice) => {
             if (state.agents.some((a) => a.name === agent.name)) {
@@ -199,6 +222,8 @@ export const createAgentSlice: StateCreator<
 
             return {
                 agents: state.agents.filter((a) => a.name !== name),
+                favoriteAgentIds: (state.favoriteAgentIds ?? [])
+                    .filter((id) => id !== toLocalAgentSelectionKey(name)),
             };
         }),
 

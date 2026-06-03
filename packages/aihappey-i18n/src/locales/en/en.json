@@ -197,6 +197,8 @@
     "favorites": "Favorites",
     "favorite_model": "Add {{model}} to favorites",
     "unfavorite_model": "Remove {{model}} from favorites",
+    "favorite_agent": "Add {{agent}} to favorites",
+    "unfavorite_agent": "Remove {{agent}} from favorites",
     "providers": "Providers",
     "mesh": "Mesh",
     "agents": {

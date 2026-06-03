@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { ModelSelect } from "../../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { ModelFavoriteToggleButton, useTheme } from "aihappey-components";
+import { AgentFavoriteToggleButton, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { UserMenuButton } from "../../user-settings/UserMenuButton";
 import { useAccount } from "aihappey-auth";
 import SettingsModal from "../../user-settings/SettingsModal";
 import { useLocation } from "react-router";
 import { useDarkMode } from "usehooks-ts";
 import { AgentSelect } from "../../agents/AgentSelect";
+import { normalizeSelectedAgentKeys, resolveSelectedAgentEntries } from "../../agents/agentSelection";
 import { useTranslation } from "aihappey-i18n";
 
 interface ChatHeaderProps {
@@ -32,6 +33,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
+  const favoriteAgentIds = useAppStore((a: any) => a.favoriteAgentIds as string[] | undefined);
+  const toggleFavoriteAgent = useAppStore((a: any) => a.toggleFavoriteAgent as (agentId: string) => void);
   const chatWithImageModels = useAppStore((a) => a.chatWithImageModels);
   const chatWithVideoModels = useAppStore((a: any) => a.chatWithVideoModels);
   const chatWithSpeechModels = useAppStore((a) => a.chatWithSpeechModels);
@@ -43,6 +46,12 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const selectedModelOption = models?.find((m: any) => m.id === selectedModel);
   const selectedModelType = selectedModelOption?.type ?? "language";
   const isSelectedModelFavorite = !!selectedModel && (favoriteModelsByType?.[selectedModelType] ?? []).includes(selectedModel);
+  const normalizedAgentValues = normalizeSelectedAgentKeys(agentValues, allAgents ?? [], remoteAgentModels ?? []);
+  const selectedAgentKey = normalizedAgentValues.length === 1 ? normalizedAgentValues[0] : undefined;
+  const selectedAgentEntry = selectedAgentKey
+    ? resolveSelectedAgentEntries([selectedAgentKey], allAgents ?? [], remoteAgentModels ?? [])[0]
+    : undefined;
+  const isSelectedAgentFavorite = !!selectedAgentKey && (favoriteAgentIds ?? []).includes(selectedAgentKey);
 
   const modelTypes = [
     "language",
@@ -86,7 +95,21 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           remoteAgentModels={remoteAgentModels ?? []}
           values={agentValues ?? []}
           onChange={onAgentChange}
+          favoriteAgentIds={favoriteAgentIds ?? []}
+          favoritesLabel={t("favorites")}
         />}
+        {chatMode == "agent" && (
+          <div style={{ paddingLeft: 8 }}>
+            <AgentFavoriteToggleButton
+              variant="subtle"
+              size="small"
+              isFavorite={isSelectedAgentFavorite}
+              agentName={selectedAgentEntry?.label}
+              onToggleFavorite={() => selectedAgentKey && toggleFavoriteAgent(selectedAgentKey)}
+              disabled={!selectedAgentKey}
+            />
+          </div>
+        )}
         {chatMode == "chat" && !modelsLoaded ? (
           <div style={{ width: "clamp(170px, 24vw, 260px)" }}>
             <Skeleton width="100%" height={32} />

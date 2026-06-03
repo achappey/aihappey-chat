@@ -3,6 +3,7 @@ import { Agent, MenuItemProps } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTranslation } from "aihappey-i18n";
 import { CapabilityIcon } from "../images/CapabilityIcon";
+import { AgentFavoriteToggleButton } from "../buttons/AgentFavoriteToggleButton";
 
 type AgentCardProps = {
   agent: Agent;
@@ -10,9 +11,11 @@ type AgentCardProps = {
   onEdit?: () => void
   onDelete?: () => void
   showExport?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 };
 
-export const AgentCard = ({ agent, providerIcons, onEdit, onDelete, showExport = true }: AgentCardProps) => {
+export const AgentCard = ({ agent, providerIcons, onEdit, onDelete, showExport = true, isFavorite = false, onToggleFavorite }: AgentCardProps) => {
   const { Card, Button, Menu } = useTheme();
   const { t } = useTranslation();
   const menuItems: MenuItemProps[] = [{
@@ -59,10 +62,19 @@ export const AgentCard = ({ agent, providerIcons, onEdit, onDelete, showExport =
       variant="transparent"
       onClick={onEdit} /> : undefined;
 
+  const favoriteButton = onToggleFavorite
+    ? <AgentFavoriteToggleButton
+      agentName={agent?.name}
+      isFavorite={isFavorite}
+      onToggleFavorite={onToggleFavorite}
+      size="small"
+      variant="transparent"
+    /> : undefined;
+
   const imageIcons = agent?.icons?.length ? agent.icons : providerIcons;
   const image = imageIcons?.length ? <CapabilityIcon icons={imageIcons} /> : undefined;
 
-  const actions = exportButton || editButton ? <>{exportButton}{editButton}</> : undefined
+  const actions = exportButton || editButton || favoriteButton ? <>{exportButton}{editButton}{favoriteButton}</> : undefined
 
   return (
     <Card

@@ -58,6 +58,8 @@ export const AgentsPage = () => {
   const createAgent = useAppStore((s) => s.createAgent);
   const updateAgent = useAppStore((s) => s.updateAgent);
   const deleteAgent = useAppStore((s) => s.deleteAgent);
+  const favoriteAgentIds = useAppStore((s: any) => s.favoriteAgentIds as string[] | undefined);
+  const toggleFavoriteAgent = useAppStore((s: any) => s.toggleFavoriteAgent as (agentId: string) => void);
   // rankings stats could come from the store OR from the tool TEXT response we parse locally
 
   const [showModal, setShowModal] = useState(false);
@@ -219,6 +221,8 @@ export const AgentsPage = () => {
               providerIcons={card.providerIcons}
               onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
               onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
+              isFavorite={(favoriteAgentIds ?? []).includes(card.key)}
+              onToggleFavorite={() => toggleFavoriteAgent(card.key)}
             />
           </div>)
       )}
