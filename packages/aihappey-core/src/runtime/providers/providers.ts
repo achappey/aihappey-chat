@@ -549,6 +549,8 @@ import { commandcode } from "./catalog/commandcode";
 import { lilac } from "./catalog/lilac";
 import { openadapter } from "./catalog/openadapter";
 import { router9 } from "./catalog/router9";
+import { auriko } from "./catalog/auriko";
+import { hyperbrowser } from "./catalog/hyperbrowser";
 
 /**
  * UI-facing provider catalog.
@@ -633,6 +635,7 @@ export const PROVIDERS: Record<string, Provider> = {
   aihorde,
   octagon,
   aimagicx,
+  hyperbrowser,
   therouterai,
   clankie,
   shannonai,
@@ -725,6 +728,7 @@ export const PROVIDERS: Record<string, Provider> = {
   tikhubai,
   inferlink,
   knoxchat,
+  auriko,
   vlmrun,
   raxai,
   vogent,
