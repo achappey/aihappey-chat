@@ -15,7 +15,7 @@ export const resembleai: Provider = {
     termsOfService: "https://www.resemble.ai/terms"
   },
   providerCountry: "CA",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

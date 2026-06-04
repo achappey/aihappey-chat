@@ -15,7 +15,7 @@ export const writer: Provider = {
     termsOfService: "https://writer.com/legal/terms-of-use"
   },
   providerCountry: "US",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };

@@ -551,6 +551,12 @@ import { openadapter } from "./catalog/openadapter";
 import { router9 } from "./catalog/router9";
 import { auriko } from "./catalog/auriko";
 import { hyperbrowser } from "./catalog/hyperbrowser";
+import { langbaseagent } from "./catalog/langbaseagent";
+import { langbasepipe } from "./catalog/langbasepipe";
+import { rewindai } from "./catalog/rewindai";
+import { pixserp } from "./catalog/pixserp";
+import { humeai } from "./catalog/humeai";
+import { ltx } from "./catalog/ltx";
 
 /**
  * UI-facing provider catalog.
@@ -590,8 +596,11 @@ export const PROVIDERS: Record<string, Provider> = {
   radiance,
   ninjachat,
   botverse,
+  pixserp,
+  humeai,
   aiapiworld,
   concentrate,
+  rewindai,
   moleapi,
   myrouter,
   osiris,
@@ -599,9 +608,12 @@ export const PROVIDERS: Record<string, Provider> = {
   luminoai,
   llmtr,
   tokenhub,
+  ltx,
   vibekit,
   callmissed,
   freeinference,
+  langbaseagent,
+  langbasepipe,
   groovedev,
   apipass,
   uumuse,
