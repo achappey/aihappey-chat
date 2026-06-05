@@ -4,14 +4,32 @@ import { loginRequest, msalConfig } from "./msalConfig";
 declare const __CHAT_API__: string;
 declare const __MODELS_API__: string;
 declare const __SAMPLING_API__: string;
+declare const __API_BASE_URL__: string;
+declare const __APP_NAME__: string;
+declare const __CHAT_APP_MCP__: string;
+declare const __AGENT_ENDPOINT__: string;
+declare const __AGENT_SCOPES__: string[];
+declare const __APP_VERSION__: string;
 
 const App = () => (
   <ThemeProvider>
     <CoreRoot
+      appName={__APP_NAME__}
+      baseUrl={__API_BASE_URL__}
+      appVersion={__APP_VERSION__}
+      agentEndpoint={__AGENT_ENDPOINT__}
+      agentScopes={__AGENT_SCOPES__}
+      chatAppMcp={__CHAT_APP_MCP__}
       chatConfig={{
-        api: __CHAT_API__,
-        modelsApi: __MODELS_API__,
-        samplingApi: __SAMPLING_API__,
+        defaultProvidersByType: {
+          language: ["OpenAI", "Anthropic", "Google", "xAI"],
+          image: ["OpenAI"],
+          audio: ["OpenAI"],
+          transcription: ["OpenAI", "Gladia"],
+          speech: ["OpenAI"],
+          reranking: ["Cohere"],
+          video: ["OpenAI"],
+        },
       }}
       authConfig={{
         msal: {

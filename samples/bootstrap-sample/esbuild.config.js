@@ -22,20 +22,22 @@ function safeParseJSON(str, fallback) {
 }
 
 
-const chatApi         = process.env.CHAT_API_URL            || "http://localhost:3010/api/chat";
-const appName         = process.env.APP_NAME                || "YACB";
-const modelsApi       = process.env.MODELS_API_URL          || "http://localhost:3010/models";
-const samplingApi     = process.env.SAMPLING_API_URL        || "http://localhost:3010/sampling";
-const conversationsApi= process.env.CONVERSATIONS_API_URL   || "http://localhost:3021/conversations";
+const chatApi = process.env.CHAT_API_URL || "http://localhost:3010/api/chat";
+const appName = process.env.APP_NAME || "YACB";
+const modelsApi = process.env.MODELS_API_URL || "http://localhost:3010/models";
+const samplingApi = process.env.SAMPLING_API_URL || "http://localhost:3010/sampling";
+const conversationsApi = process.env.CONVERSATIONS_API_URL || "http://localhost:3021/conversations";
+const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3010";
+const agentEndpoint = process.env.AGENT_ENDPOINT || "http://localhost:3037";
+const agentScopes = safeParseJSON(process.env.AGENT_SCOPES, []);
+const chatAppMcp = process.env.CHAT_APP_MCP || "http://localhost:3001/chatapp";
 
-// Deze kunnen JSON of string zijn, dus altijd even JSON.stringify voor define
 const conversationScopes = safeParseJSON(process.env.CONVERSATIONS_SCOPES, []);
-const msalClientId   = process.env.MSAL_CLIENT_ID           || "<client_id>";
-const msalAuthority  = process.env.MSAL_AUTHORITY           || "https://login.microsoftonline.com/<tenant_id>";
-const msalRedirectUri= process.env.MSAL_REDIRECT_URI        || "/";
-const msalScopes     = safeParseJSON(process.env.MSAL_SCOPES, ["<scope>"]);
+const msalClientId = process.env.MSAL_CLIENT_ID || "<client_id>";
+const msalAuthority = process.env.MSAL_AUTHORITY || "https://login.microsoftonline.com/<tenant_id>";
+const msalRedirectUri = process.env.MSAL_REDIRECT_URI || "/";
+const msalScopes = safeParseJSON(process.env.MSAL_SCOPES, ["<scope>"]);
 
-// --- App version/tag op buildtijd (YYYYMMDD.HHmm) ---
 const now = new Date();
 const pad = (n) => n.toString().padStart(2, "0");
 const buildDateVersion =
@@ -57,8 +59,12 @@ const buildOptions = {
     "__CHAT_API__": JSON.stringify(chatApi),
     "__APP_VERSION__": JSON.stringify(`${buildDateVersion}.fluent`),
     "__MODELS_API__": JSON.stringify(modelsApi),
+    "__AGENT_ENDPOINT__": JSON.stringify(agentEndpoint),
     "__APP_NAME__": JSON.stringify(appName),
+    "__AGENT_SCOPES__": JSON.stringify(agentScopes),
+    "__CHAT_APP_MCP__": JSON.stringify(chatAppMcp),
     "__SAMPLING_API__": JSON.stringify(samplingApi),
+    "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
     "__MSAL_CLIENT_ID__": JSON.stringify(msalClientId),
     "__CONVERSATIONS_API_URL__": JSON.stringify(conversationsApi),
     "__CONVERSATIONS_SCOPES__": JSON.stringify(conversationScopes),
