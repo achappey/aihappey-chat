@@ -2,6 +2,7 @@
 import type { Preview } from "@storybook/react";
 import { ThemeProvider as FluentThemeProvider } from "aihappey-theme-fluent";
 import { ThemeProvider as BootstrapThemeProvider } from "aihappey-theme-bootstrap";
+import { ThemeProvider as ShadcnThemeProvider } from "aihappey-theme-shadcn";
 import { I18nProvider, languageNames } from "aihappey-i18n";
 
 const languageItems = Object.entries(languageNames).map(z => ({
@@ -18,6 +19,7 @@ const preview: Preview = {
         items: [
           { value: "fluent", title: "Fluent" },
           { value: "bootstrap", title: "Bootstrap" },
+          { value: "shadcn", title: "Shadcn" },
         ],
       },
     },
@@ -35,7 +37,9 @@ const preview: Preview = {
   decorators: [
     (Story, context) => {
       const ThemeProvider =
-        context.globals.theme === "bootstrap"
+        context.globals.theme === "shadcn"
+          ? ShadcnThemeProvider
+          : context.globals.theme === "bootstrap"
           ? BootstrapThemeProvider
           : FluentThemeProvider;
 

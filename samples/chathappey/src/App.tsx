@@ -2,7 +2,11 @@ import CoreRoot, { MultiThemeProvider } from "aihappey-core";
 import { useAppStore } from "aihappey-state";
 import { ThemeProvider as BootstrapThemeProvider } from "aihappey-theme-bootstrap";
 import { ThemeProvider as FluentThemeProvider } from "aihappey-theme-fluent";
-import { ThemeProvider as ShadcnThemeProvider } from "aihappey-theme-shadcn";
+import {
+  ThemeProvider as ShadcnThemeProvider,
+  createSchemeFromBaseColor,
+  type ShadcnThemeProviderProps,
+} from "aihappey-theme-shadcn";
 
 declare const __AGENT_ENDPOINT__: string;
 declare const __API_BASE_URL__: string;
@@ -10,10 +14,27 @@ declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
 declare const __CHAT_APP_MCP__: string;
 
+const shadcnCustomSchemes: NonNullable<ShadcnThemeProviderProps["customSchemes"]> = {
+  chathappey: {
+    title: "Chathappey",
+    description: "App-configured shadcn scheme generated from the Chathappey brand color.",
+    ...createSchemeFromBaseColor("#42649D", "0.5rem"),
+  },
+};
+
+const ConfiguredShadcnThemeProvider = ({ children }: { children: React.ReactNode }) => (
+  <ShadcnThemeProvider
+    customSchemes={shadcnCustomSchemes}
+    defaultPresetId="scheme:chathappey"
+  >
+    {children}
+  </ShadcnThemeProvider>
+);
+
 const themes = [
   { id: "fluent", label: "Fluent", Provider: FluentThemeProvider },
   { id: "bootstrap", label: "Bootstrap", Provider: BootstrapThemeProvider },
-  { id: "shadcn", label: "Shadcn", Provider: ShadcnThemeProvider },
+  { id: "shadcn", label: "Shadcn", Provider: ConfiguredShadcnThemeProvider },
 ];
 
 const App = () => {
