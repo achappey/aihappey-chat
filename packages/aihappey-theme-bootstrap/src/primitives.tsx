@@ -124,17 +124,48 @@ export const bootstrapTheme: AihUiTheme = {
     icon?: IconToken;
     iconPosition?: "left" | "right";
     children?: React.ReactNode;
-  }): JSX.Element => (
-    <RBButton variant={variant} size={size as any} {...(rest as any)}>
-      {icon && iconPosition === "left" && (
-        <span className="me-2">{iconMap[icon]}</span>
-      )}
-      {children}
-      {icon && iconPosition === "right" && (
-        <span className="ms-2">{iconMap[icon]}</span>
-      )}
-    </RBButton>
-  ),
+  }): JSX.Element => {
+    const isSubtle = variant === "subtle";
+    const hasChildren = React.Children.count(children) > 0;
+    const mappedVariant = isSubtle ? "link" : variant;
+    const buttonSize = size === "large" ? undefined : size as any;
+    const iconOnlyStyles: React.CSSProperties | undefined = icon && !hasChildren
+      ? {
+        minWidth: size === "large" ? 36 : 30,
+        minHeight: size === "large" ? 36 : 30,
+        padding: 4,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        lineHeight: 1,
+      }
+      : undefined;
+    const className = [
+      (rest as any).className,
+      isSubtle ? "text-body text-decoration-none" : undefined,
+    ].filter(Boolean).join(" ") || undefined;
+
+    return (
+      <RBButton
+        variant={mappedVariant}
+        size={buttonSize}
+        {...(rest as any)}
+        className={className}
+        style={{
+          ...iconOnlyStyles,
+          ...((rest as any).style ?? {}),
+        }}
+      >
+        {icon && iconPosition === "left" && (
+          <span className={hasChildren ? "me-2" : undefined}>{iconMap[icon]}</span>
+        )}
+        {children}
+        {icon && iconPosition === "right" && (
+          <span className={hasChildren ? "ms-2" : undefined}>{iconMap[icon]}</span>
+        )}
+      </RBButton>
+    );
+  },
   UserMenu,
   Select,
   Navigation: Navigation as any,
