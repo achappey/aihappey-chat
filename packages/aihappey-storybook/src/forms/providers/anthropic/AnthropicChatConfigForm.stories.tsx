@@ -30,6 +30,14 @@ export const Populated: Story = {
     <Wrapper
       config={{
         thinking: { budget_tokens: 2048 },
+        advisor: {
+          type: "advisor_20260301",
+          name: "advisor",
+          model: "claude-opus-4-8",
+          max_uses: 2,
+          max_tokens: 2048,
+          caching: { type: "ephemeral", ttl: "5m" },
+        },
         web_search: {
           max_uses: 3,
           allowed_domains: ["example.com"],

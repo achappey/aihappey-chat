@@ -28,7 +28,7 @@ export const AnthropicMemoryCard = ({
   return (
     <theme.Card
       size="small"
-      title="Memory"
+      title={t("providers:anthropic.memory")}
       headerActions={
         <theme.Switch
           id="anthropic-memory"

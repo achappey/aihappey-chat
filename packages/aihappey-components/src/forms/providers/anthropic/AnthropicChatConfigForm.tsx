@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
+import { AnthropicAdvisorCard } from "./cards/AnthropicAdvisorCard";
 import { AnthropicBashCard } from "./cards/AnthropicBashCard";
 import { AnthropicBetaCard } from "./cards/AnthropicBetaCard";
 import { AnthropicCodeExecutionCard } from "./cards/AnthropicCodeExecutionCard";
@@ -23,6 +24,7 @@ import {
 } from "../providerToolConfig";
 
 const ANTHROPIC_TOOL_TYPES = [
+  "advisor",
   "bash",
   "code_execution",
   "memory",
@@ -34,6 +36,7 @@ const ANTHROPIC_TOOL_TYPES = [
 ];
 
 const REQUIRED_CONTEXT_MANAGEMENT_BETA = "context-management-2025-06-27";
+const REQUIRED_ADVISOR_BETA = "advisor-tool-2026-03-01";
 
 const parseAnthropicBeta = (value: unknown): string[] => {
   if (Array.isArray(value)) {
@@ -72,6 +75,8 @@ const getContextManagementEdits = (value: any) =>
 const hasContextManagementEdits = (value: any) =>
   getContextManagementEdits(value).length > 0;
 
+const hasAdvisorTool = (value: any) => !!value?.advisor;
+
 const normalizeAnthropicContainerConfig = (nextConfig: any) => ({
   ...nextConfig,
   container:
@@ -83,11 +88,14 @@ const normalizeAnthropicContainerConfig = (nextConfig: any) => ({
 const normalizeAnthropicContextManagementConfig = (
   previousConfig: any,
   nextConfig: any,
-  autoManagedContextManagementBeta: { current: boolean }
+  autoManagedContextManagementBeta: { current: boolean },
+  autoManagedAdvisorBeta: { current: boolean }
 ) => {
   const currentHasContextManagement = hasContextManagementEdits(previousConfig);
   const nextContextManagementEdits = getContextManagementEdits(nextConfig);
   const nextHasContextManagement = nextContextManagementEdits.length > 0;
+  const currentHasAdvisor = hasAdvisorTool(previousConfig);
+  const nextHasAdvisor = hasAdvisorTool(nextConfig);
   const currentBetas = parseAnthropicBeta(previousConfig?.["anthropic-beta"]);
   const requestedNextBetas = parseAnthropicBeta(nextConfig?.["anthropic-beta"]);
   const betaListChanged =
@@ -117,6 +125,26 @@ const normalizeAnthropicContextManagementConfig = (
     autoManagedContextManagementBeta.current = false;
   }
 
+  if (nextHasAdvisor) {
+    if (!nextBetas.includes(REQUIRED_ADVISOR_BETA)) {
+      nextBetas = [...nextBetas, REQUIRED_ADVISOR_BETA];
+      autoManagedAdvisorBeta.current = true;
+    } else if (
+      autoManagedAdvisorBeta.current &&
+      currentHasAdvisor &&
+      betaListChanged
+    ) {
+      autoManagedAdvisorBeta.current = false;
+    }
+  } else if (
+    currentHasAdvisor &&
+    autoManagedAdvisorBeta.current &&
+    nextBetas.includes(REQUIRED_ADVISOR_BETA)
+  ) {
+    nextBetas = nextBetas.filter((value) => value !== REQUIRED_ADVISOR_BETA);
+    autoManagedAdvisorBeta.current = false;
+  }
+
   return {
     ...nextConfig,
     context_management: nextHasContextManagement
@@ -141,6 +169,7 @@ export const AnthropicChatConfigForm = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const autoManagedContextManagementBeta = useRef(false);
+  const autoManagedAdvisorBeta = useRef(false);
   const resolvedConfig = withResolvedProviderTools(config, ANTHROPIC_TOOL_TYPES);
   const submitConfig = (nextConfig: any) =>
     updateConfig(
@@ -149,7 +178,8 @@ export const AnthropicChatConfigForm = ({
           normalizeAnthropicContextManagementConfig(
             resolvedConfig,
             nextConfig,
-            autoManagedContextManagementBeta
+            autoManagedContextManagementBeta,
+            autoManagedAdvisorBeta
           )
         ),
         ANTHROPIC_TOOL_TYPES
@@ -187,6 +217,7 @@ export const AnthropicChatConfigForm = ({
       <AnthropicReasoningCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicContainerCard config={resolvedConfig} updateConfig={submitConfig} />
 
+
       <AnthropicBashCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicWebSearchCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicWebFetchCard config={resolvedConfig} updateConfig={submitConfig} />
@@ -199,6 +230,9 @@ export const AnthropicChatConfigForm = ({
         updateConfig={submitConfig}
       />
       <AnthropicMemoryCard config={resolvedConfig} updateConfig={submitConfig} />
+
+      <AnthropicAdvisorCard config={resolvedConfig} updateConfig={submitConfig} />
+
       <AnthropicToolSearchBm25Card
         config={resolvedConfig}
         updateConfig={submitConfig}

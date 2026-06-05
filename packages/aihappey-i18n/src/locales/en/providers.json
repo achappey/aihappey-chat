@@ -222,6 +222,7 @@
   "anthropic": {
     "maxUses": "Maximum uses",
     "betaHeader": "Beta",
+    "memory": "Memory",
     "customSkills": "Custom skills",
     "allowedDomains": "Allowed domains",
     "blockedDomains": "Blocked domains",
@@ -239,6 +240,13 @@
     "cacheDuration": "Cache duration",
     "defaultOption": "Default",
     "ephemeral": "Temporary",
+    "advisor": {
+      "title": "Advisor",
+      "toolName": "Tool name",
+      "model": "Model",
+      "maxTokens": "Maximum tokens",
+      "caching": "Advisor prompt cache"
+    },
     "inputExamples": "Example inputs",
     "maxCharacters": "Maximum characters",
     "maxContentTokens": "Maximum content tokens",

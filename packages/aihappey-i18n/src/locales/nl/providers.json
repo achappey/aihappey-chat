@@ -632,6 +632,7 @@
   "anthropic": {
     "maxUses": "Maximaal aantal keer",
     "betaHeader": "Beta",
+    "memory": "Geheugen",
     "customSkills": "Aangepaste vaardigheden",
     "allowedDomains": "Toegestane domeinen",
     "blockedDomains": "Geblokkeerde domeinen",
@@ -649,6 +650,13 @@
     "cacheDuration": "Cacheduur",
     "defaultOption": "Standaard",
     "ephemeral": "Tijdelijk",
+    "advisor": {
+      "title": "Adviseur",
+      "toolName": "Toolnaam",
+      "model": "Model",
+      "maxTokens": "Maximaal aantal tokens",
+      "caching": "Adviseur-promptcache"
+    },
     "inputExamples": "Voorbeeldinvoer",
     "maxCharacters": "Maximaal aantal tekens",
     "maxContentTokens": "Maximaal aantal contenttokens",
