@@ -9,6 +9,7 @@ import {
   Badge,
   CloseButton,
   Modal,
+  Nav,
   Tab,
   Table,
   Tabs,
@@ -76,6 +77,75 @@ const TextArea = ({ rows, readOnly, value, onChange, style, className }: any) =>
       }}
       onChange={(e) => onChange?.(e.target.value)}
     />
+  );
+};
+
+const BootstrapTabs = (props: Parameters<AihUiTheme["Tabs"]>[0]): JSX.Element => {
+  const { activeKey, onSelect, vertical, fill, className, style, children, ...rest } = props;
+  const handleSelect = (k: string | null) => {
+    if (onSelect && typeof onSelect === "function" && k) {
+      onSelect(k as string);
+    }
+  };
+
+  if (!vertical) {
+    return (
+      <Tabs
+        {...(rest as any)}
+        activeKey={activeKey}
+        className={className}
+        fill={fill}
+        style={style}
+        onSelect={handleSelect}
+      >
+        {children}
+      </Tabs>
+    );
+  }
+
+  const tabItems = React.Children.toArray(children).filter(
+    React.isValidElement
+  ) as React.ReactElement<any>[];
+  const activeTab = tabItems.find((child) => child.props.eventKey === activeKey);
+
+  return (
+    <Tab.Container activeKey={activeKey} onSelect={handleSelect}>
+      <div
+        className={className}
+        style={{
+          display: "flex",
+          gap: 16,
+          width: "100%",
+          ...style,
+        }}
+      >
+        <Nav
+          variant="pills"
+          className="flex-column flex-shrink-0"
+          style={{ minWidth: 220 }}
+          role="tablist"
+        >
+          {tabItems.map((child) => {
+            const { eventKey, title, icon, disabled } = child.props;
+            return (
+              <Nav.Item key={eventKey}>
+                <Nav.Link
+                  eventKey={eventKey}
+                  disabled={disabled}
+                  className="d-flex align-items-center gap-2"
+                >
+                  {icon && iconMap[icon as IconToken]}
+                  <span>{title}</span>
+                </Nav.Link>
+              </Nav.Item>
+            );
+          })}
+        </Nav>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {activeTab?.props.children}
+        </div>
+      </div>
+    </Tab.Container>
   );
 };
 
@@ -257,21 +327,7 @@ export const bootstrapTheme: AihUiTheme = {
       </Modal>
     );
   },
-  Tabs: (props) => {
-    // onSelect expects (k: string | null) => void
-    const { onSelect, ...rest } = props;
-    return (
-      <Tabs
-        {...rest}
-        onSelect={(k) =>
-          onSelect &&
-          typeof onSelect === "function" &&
-          k &&
-          onSelect(k as string)
-        }
-      />
-    );
-  },
+  Tabs: BootstrapTabs,
   Tab: (props) => <Tab {...props} />,
   Badge: (props) => <Badge {...props} />,
   Table: (props) => <Table {...props} />,
