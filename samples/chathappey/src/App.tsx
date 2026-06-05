@@ -1,5 +1,7 @@
-import CoreRoot from "aihappey-core";
-import { ThemeProvider } from "aihappey-theme-fluent";
+import CoreRoot, { MultiThemeProvider } from "aihappey-core";
+import { useAppStore } from "aihappey-state";
+import { ThemeProvider as BootstrapThemeProvider } from "aihappey-theme-bootstrap";
+import { ThemeProvider as FluentThemeProvider } from "aihappey-theme-fluent";
 
 declare const __AGENT_ENDPOINT__: string;
 declare const __API_BASE_URL__: string;
@@ -7,8 +9,22 @@ declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
 declare const __CHAT_APP_MCP__: string;
 
-const App = () => (
-  <ThemeProvider>
+const themes = [
+  { id: "fluent", label: "Fluent", Provider: FluentThemeProvider },
+  { id: "bootstrap", label: "Bootstrap", Provider: BootstrapThemeProvider },
+];
+
+const App = () => {
+  const selectedThemeId = useAppStore((state) => state.selectedThemeId);
+  const setSelectedThemeId = useAppStore((state) => state.setSelectedThemeId);
+
+  return (
+  <MultiThemeProvider
+    themes={themes}
+    defaultThemeId="fluent"
+    selectedThemeId={selectedThemeId}
+    onThemeChange={setSelectedThemeId}
+  >
     <CoreRoot
       appName={__APP_NAME__}
       baseUrl={__API_BASE_URL__}
@@ -27,7 +43,8 @@ const App = () => (
       }}
 
     />
-  </ThemeProvider>
-);
+  </MultiThemeProvider>
+  );
+};
 
 export default App;

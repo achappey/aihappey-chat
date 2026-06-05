@@ -1,4 +1,5 @@
 export * from "./theme/ThemeContext";
+export * from "./theme/MultiThemeContext";
 export * from "./cards";
 export * from "./charts";
 export * from "./math";

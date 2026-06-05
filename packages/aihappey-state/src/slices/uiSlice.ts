@@ -237,6 +237,9 @@ export type UiSlice = {
   toggleFavoriteSkill: (skillId: string) => void;
   setFavoriteSkillIds: (skillIds: string[]) => void;
 
+  selectedThemeId?: string;
+  setSelectedThemeId: (themeId: string) => void;
+
   userPreferredModel?: string;
   setUserPreferredModel: (model: string) => void;
 
@@ -296,6 +299,7 @@ export const createUiSlice: StateCreator<
   favoriteModelsByType: createEmptyFavoriteModelsByType(),
   enabledSkillIds: [],
   favoriteSkillIds: [],
+  selectedThemeId: undefined,
   chatWithImageModels: false,
   chatWithVideoModels: false,
   chatWithRerankModels: false,
@@ -529,9 +533,14 @@ export const createUiSlice: StateCreator<
       return {
         favoriteSkillIds: exists
           ? current.filter((id) => id !== skillId)
-          : [...current, skillId],
+            : [...current, skillId],
       };
     }),
+
+  setSelectedThemeId: (themeId: string) =>
+    set(() => ({
+      selectedThemeId: themeId,
+    })),
 
   toggleEnabledProviderForType: (capability: ProviderCapability, provider?: string) =>
     set((state: any) => {

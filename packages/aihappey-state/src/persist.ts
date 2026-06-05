@@ -98,6 +98,7 @@ export const withPersist = (
       favoriteAgentIds: (s as any).favoriteAgentIds,
       enabledSkillIds: (s as any).enabledSkillIds,
       favoriteSkillIds: (s as any).favoriteSkillIds,
+      selectedThemeId: (s as any).selectedThemeId,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
     }),

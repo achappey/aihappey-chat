@@ -8,6 +8,7 @@ import { AiDefaultSettings } from "./AiDefaultSettings";
 import { useChatContext } from "../chat/context/ChatContext";
 import { StorageSettings } from "./StorageSettings";
 import { AppsSettings } from "./AppsSettings";
+import { useMultiTheme } from "aihappey-components";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -19,9 +20,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const { Modal, Switch, Slider } = theme;
+  const { Modal, Select, Switch, Slider } = theme;
   const { t } = useTranslation(); // Uncomment when i18n is ready
   const [activeTab, setActiveTab] = useState("general");
+  const multiTheme = useMultiTheme();
   const remoteStorageConnected = useAppStore((s) => s.remoteStorageConnected);
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const setEnableUserLocation = useAppStore((s) => s.setEnableUserLocation);
@@ -100,7 +102,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               icon={"theme"}
               title={t("settingsModal.tabTheme")}
             >
-              <theme.ThemeSettings />
+              <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                {multiTheme && multiTheme.themes.length > 1 ? (
+                  <Select
+                    values={[multiTheme.selectedThemeId]}
+                    label={t("settingsModal.tabTheme")}
+                    valueTitle={multiTheme.selectedTheme?.label}
+                    options={multiTheme.themes.map((themeOption) => ({
+                      value: themeOption.id,
+                      label: themeOption.label,
+                    }))}
+                    onChange={(themeId: string) => multiTheme.setSelectedThemeId(themeId)}
+                  >
+                    {multiTheme.themes.map((themeOption) => (
+                      <option key={themeOption.id} value={themeOption.id}>
+                        {themeOption.label}
+                      </option>
+                    ))}
+                  </Select>
+                ) : null}
+                <theme.ThemeSettings />
+              </div>
             </theme.Tab>
 
             <theme.Tab

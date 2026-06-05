@@ -1,9 +1,6 @@
 import CoreRoot from "aihappey-core";
 import { ThemeProvider } from "aihappey-theme-bootstrap";
 import { loginRequest, msalConfig } from "./msalConfig";
-declare const __CHAT_API__: string;
-declare const __MODELS_API__: string;
-declare const __SAMPLING_API__: string;
 declare const __API_BASE_URL__: string;
 declare const __APP_NAME__: string;
 declare const __CHAT_APP_MCP__: string;
