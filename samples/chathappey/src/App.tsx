@@ -18,14 +18,14 @@ const shadcnCustomSchemes: NonNullable<ShadcnThemeProviderProps["customSchemes"]
   chathappey: {
     title: "Chathappey",
     description: "App-configured shadcn scheme generated from the Chathappey brand color.",
-    ...createSchemeFromBaseColor("#42649D", "0.5rem"),
+    ...createSchemeFromBaseColor("#4A72B4", "0.5rem"),
   },
 };
+//    customSchemes={shadcnCustomSchemes}
 
 const ConfiguredShadcnThemeProvider = ({ children }: { children: React.ReactNode }) => (
   <ShadcnThemeProvider
-    customSchemes={shadcnCustomSchemes}
-    defaultPresetId="scheme:chathappey"
+    defaultPresetId="tailwind:neutral"
   >
     {children}
   </ShadcnThemeProvider>
@@ -44,7 +44,7 @@ const App = () => {
   return (
     <MultiThemeProvider
       themes={themes}
-      defaultThemeId="fluent"
+      defaultThemeId="shadcn"
       selectedThemeId={selectedThemeId}
       onThemeChange={setSelectedThemeId}
     >
