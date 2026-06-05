@@ -98,6 +98,7 @@ import type { ButtonProps } from "aihappey-types/src/theme/Button";
 import type { CloseButtonProps } from "aihappey-types/src/theme/CloseButton";
 import type { ProviderCapability, UserMenuProps } from "aihappey-types/src/theme/UserMenu";
 import { cn } from "./utils";
+import { ThemeSettings } from "./ShadcnSettings";
 
 type IconComponent = React.ComponentType<LucideProps>;
 
@@ -223,6 +224,10 @@ function WarningIcon(props: LucideProps) {
   return <ShieldCheck {...props} />;
 }
 
+const PortalThemeScope = ({ children }: { children: React.ReactNode }) => (
+  <div className="aih-shadcn-portal-root">{children}</div>
+);
+
 const buttonVariants = cva("aih-shadcn-btn", {
   variants: {
     variant: {
@@ -282,7 +287,9 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(function But
       <TooltipPrimitive.Root>
         <TooltipPrimitive.Trigger asChild>{button}</TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal>
-          <TooltipPrimitive.Content className="aih-shadcn-popover" sideOffset={4}>{title}</TooltipPrimitive.Content>
+          <PortalThemeScope>
+            <TooltipPrimitive.Content className="aih-shadcn-popover aih-shadcn-tooltip-content" sideOffset={4}>{title}</TooltipPrimitive.Content>
+          </PortalThemeScope>
         </TooltipPrimitive.Portal>
       </TooltipPrimitive.Root>
     </TooltipPrimitive.Provider>
@@ -363,15 +370,19 @@ export const Select = ({ values = [], onChange, label, hint, required, children,
         <SelectPrimitive.Icon><Icon size={16} /></SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
-        <SelectPrimitive.Content className="aih-shadcn-popover">
-          <SelectPrimitive.Viewport>
+        <PortalThemeScope>
+          <SelectPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content" position="popper" sideOffset={4} collisionPadding={8}>
+          <SelectPrimitive.ScrollUpButton className="aih-shadcn-select-scroll-button"><ChevronUp size={14} /></SelectPrimitive.ScrollUpButton>
+          <SelectPrimitive.Viewport className="aih-shadcn-select-viewport">
             {options.map((option) => (
               <SelectPrimitive.Item key={option.value} value={option.value} className="aih-shadcn-menu-item">
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
               </SelectPrimitive.Item>
             ))}
           </SelectPrimitive.Viewport>
-        </SelectPrimitive.Content>
+          <SelectPrimitive.ScrollDownButton className="aih-shadcn-select-scroll-button"><ChevronDown size={14} /></SelectPrimitive.ScrollDownButton>
+          </SelectPrimitive.Content>
+        </PortalThemeScope>
       </SelectPrimitive.Portal>
     </SelectPrimitive.Root>
   );
@@ -424,14 +435,26 @@ export const Badge = ({ variant = "secondary", icon, text, children, className, 
   return <span className={cn("aih-shadcn-badge", `aih-shadcn-badge-${mapped}`, className)} {...rest}>{Icon ? <Icon size={12} /> : null}{children ?? text}</span>;
 };
 
-export const Card = ({ title, text, description, children, actions, headerActions, image, className, style }: any) => (
-  <div className={cn("aih-shadcn-card", className)} style={style}>
-    {image}
-    <div className="aih-shadcn-card-header"><div><div className="aih-shadcn-card-title">{title}</div>{description ? <div className="aih-shadcn-card-description">{description}</div> : null}</div>{headerActions}</div>
-    <div className="aih-shadcn-card-content">{children ?? text}</div>
-    {actions ? <div className="aih-shadcn-card-footer">{actions}</div> : null}
-  </div>
-);
+export const Card = ({ title, text, description, children, actions, headerActions, image, className, style }: any) => {
+  const hasHeader = image || title || description || headerActions;
+
+  return (
+    <div className={cn("aih-shadcn-card", className)} style={style}>
+      {hasHeader ? (
+        <div className={cn("aih-shadcn-card-header", !image && "aih-shadcn-card-header-no-image")}>
+          {image ? <div className="aih-shadcn-card-image">{image}</div> : null}
+          <div className="aih-shadcn-card-header-main">
+            {title ? <div className="aih-shadcn-card-title">{title}</div> : null}
+            {description ? <div className="aih-shadcn-card-description">{description}</div> : null}
+          </div>
+          {headerActions ? <div className="aih-shadcn-card-header-actions">{headerActions}</div> : null}
+        </div>
+      ) : null}
+      <div className="aih-shadcn-card-content">{children ?? text}</div>
+      {actions ? <div className="aih-shadcn-card-footer">{actions}</div> : null}
+    </div>
+  );
+};
 
 export const Image = (props: any) => <img alt="" {...props} style={{ maxWidth: "100%", borderRadius: "var(--aih-shadcn-radius)", ...(props.style ?? {}) }} />;
 export const Skeleton = ({ width, height, circle, className, style }: any) => <span className={cn("aih-shadcn-skeleton", className)} style={{ width, height, borderRadius: circle ? "50%" : "var(--aih-shadcn-radius)", ...style }} />;
@@ -483,38 +506,84 @@ export const Modal = ({ open, show, onOpenChange, onHide, title, children, actio
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="aih-shadcn-dialog-overlay" />
-        <DialogPrimitive.Content
-          className="aih-shadcn-dialog-content"
-          style={{
-            width,
-            ...(centered ? { display: "flex", flexDirection: "column", justifyContent: "center" } : {}),
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-            {title ? <DialogPrimitive.Title className="aih-shadcn-card-title">{title}</DialogPrimitive.Title> : null}
-            <DialogPrimitive.Close asChild><CloseButtonBase aria-label="Close" /></DialogPrimitive.Close>
-          </div>
-          <div style={{ marginTop: 12 }}>{children}</div>
-          {actions ? <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", gap: 8 }}>{actions}</div> : null}
-        </DialogPrimitive.Content>
+        <PortalThemeScope>
+          <DialogPrimitive.Overlay className="aih-shadcn-dialog-overlay" />
+          <DialogPrimitive.Content
+            className="aih-shadcn-dialog-content"
+            style={{
+              width,
+              ...(centered ? { display: "flex", flexDirection: "column", justifyContent: "center" } : {}),
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+              {title ? <DialogPrimitive.Title className="aih-shadcn-card-title">{title}</DialogPrimitive.Title> : null}
+              <DialogPrimitive.Close asChild><CloseButtonBase aria-label="Close" /></DialogPrimitive.Close>
+            </div>
+            <div style={{ marginTop: 12 }}>{children}</div>
+            {actions ? <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", gap: 8 }}>{actions}</div> : null}
+          </DialogPrimitive.Content>
+        </PortalThemeScope>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   );
 };
-export const Drawer = ({ open, isOpen, onOpenChange, onClose, title, children, actions }: any) => <DialogPrimitive.Root open={open ?? isOpen} onOpenChange={(v) => { onOpenChange?.(v); if (!v) onClose?.(); }}><DialogPrimitive.Portal><DialogPrimitive.Overlay className="aih-shadcn-dialog-overlay" /><DialogPrimitive.Content className="aih-shadcn-drawer-content"><div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>{title ? <DialogPrimitive.Title className="aih-shadcn-card-title">{title}</DialogPrimitive.Title> : null}<DialogPrimitive.Close asChild><CloseButtonBase /></DialogPrimitive.Close></div><div style={{ marginTop: 12 }}>{children}</div>{actions}</DialogPrimitive.Content></DialogPrimitive.Portal></DialogPrimitive.Root>;
+export const Drawer = ({ open, isOpen, onOpenChange, onClose, title, children, actions }: any) => (
+  <DialogPrimitive.Root open={open ?? isOpen} onOpenChange={(v) => { onOpenChange?.(v); if (!v) onClose?.(); }}>
+    <DialogPrimitive.Portal>
+      <PortalThemeScope>
+        <DialogPrimitive.Overlay className="aih-shadcn-dialog-overlay" />
+        <DialogPrimitive.Content className="aih-shadcn-drawer-content">
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            {title ? <DialogPrimitive.Title className="aih-shadcn-card-title">{title}</DialogPrimitive.Title> : null}
+            <DialogPrimitive.Close asChild><CloseButtonBase /></DialogPrimitive.Close>
+          </div>
+          <div style={{ marginTop: 12 }}>{children}</div>
+          {actions}
+        </DialogPrimitive.Content>
+      </PortalThemeScope>
+    </DialogPrimitive.Portal>
+  </DialogPrimitive.Root>
+);
 
 export const Menu = ({ items = [], trigger, align = "right", size = "small", className }: any) => {
-  const render = (menuItems: any[] = [], parentKey = "menu") => menuItems.map((item, index) => { const itemKey = `${parentKey}:${item.key ?? item.label ?? index}:${index}`; const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined; return item.children?.length ? <DropdownMenuPrimitive.Sub key={itemKey}><DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.SubTrigger><DropdownMenuPrimitive.Portal><DropdownMenuPrimitive.SubContent className="aih-shadcn-popover">{render(item.children, itemKey)}</DropdownMenuPrimitive.SubContent></DropdownMenuPrimitive.Portal></DropdownMenuPrimitive.Sub> : <DropdownMenuPrimitive.Item key={itemKey} className={cn("aih-shadcn-menu-item", item.danger && "aih-shadcn-menu-item-danger")} onSelect={() => item.onClick?.()}>{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.Item>; });
-  return <DropdownMenuPrimitive.Root><DropdownMenuPrimitive.Trigger asChild>{trigger ?? <Button variant="ghost" size={size} icon="menu" className={className} />}</DropdownMenuPrimitive.Trigger><DropdownMenuPrimitive.Portal><DropdownMenuPrimitive.Content className="aih-shadcn-popover" align={align === "left" ? "start" : "end"}>{render(items)}</DropdownMenuPrimitive.Content></DropdownMenuPrimitive.Portal></DropdownMenuPrimitive.Root>;
+  const render = (menuItems: any[] = [], parentKey = "menu") => menuItems.map((item, index) => {
+    const itemKey = `${parentKey}:${item.key ?? item.label ?? index}:${index}`;
+    const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined;
+    return item.children?.length ? (
+      <DropdownMenuPrimitive.Sub key={itemKey}>
+        <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.SubTrigger>
+        <DropdownMenuPrimitive.Portal>
+          <PortalThemeScope>
+            <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>{render(item.children, itemKey)}</DropdownMenuPrimitive.SubContent>
+          </PortalThemeScope>
+        </DropdownMenuPrimitive.Portal>
+      </DropdownMenuPrimitive.Sub>
+    ) : (
+      <DropdownMenuPrimitive.Item key={itemKey} className={cn("aih-shadcn-menu-item", item.danger && "aih-shadcn-menu-item-danger")} onSelect={() => item.onClick?.()}>{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.Item>
+    );
+  });
+  return (
+    <DropdownMenuPrimitive.Root>
+      <DropdownMenuPrimitive.Trigger asChild>{trigger ?? <Button variant="ghost" size={size} icon="menu" className={className} />}</DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Portal>
+        <PortalThemeScope>
+          <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-menu-content" align={align === "left" ? "start" : "end"} sideOffset={4} collisionPadding={8}>{render(items)}</DropdownMenuPrimitive.Content>
+        </PortalThemeScope>
+      </DropdownMenuPrimitive.Portal>
+    </DropdownMenuPrimitive.Root>
+  );
 };
 
-const UserMenuTrigger = React.forwardRef<HTMLButtonElement, Pick<UserMenuProps, "email" | "className" | "style">>(function UserMenuTrigger({ email, className, style }, ref) {
+type UserMenuTriggerProps = Pick<UserMenuProps, "email" | "className" | "style"> &
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className" | "style">;
+
+const UserMenuTrigger = React.forwardRef<HTMLButtonElement, UserMenuTriggerProps>(function UserMenuTrigger({ email, className, style, ...rest }, ref) {
   return (
   <button
     ref={ref}
     type="button"
     className={className}
+    {...rest}
     style={{
       display: "inline-flex",
       alignItems: "center",
@@ -622,37 +691,43 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         <UserMenuTrigger email={email} className={className} style={style} />
       </DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
-        <DropdownMenuPrimitive.Content className="aih-shadcn-popover" align="end">
-          {email ? <DropdownMenuPrimitive.Label className="aih-shadcn-hint" style={{ padding: ".5rem .75rem" }}>{email}</DropdownMenuPrimitive.Label> : null}
-          {email ? menuDivider : null}
-          {onCustomize ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onCustomize}><UserCog size={14} />{labels.customize ?? "Customize"}</DropdownMenuPrimitive.Item> : null}
-          <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onSettings}><Settings size={14} />{labels.settings ?? "Settings"}</DropdownMenuPrimitive.Item>
-          {!!providers.length && !!onToggleProviderForType ? (
-            <DropdownMenuPrimitive.Sub>
-              <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item"><PlugZap size={14} />{labels.providers ?? "Providers"}</DropdownMenuPrimitive.SubTrigger>
-              <DropdownMenuPrimitive.Portal>
-                <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover">
-                  {!!showApiKeysItem && !!onApiKeys ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onApiKeys}><KeyRound size={14} />{labels.apiKeys ?? "API keys"}</DropdownMenuPrimitive.Item> : null}
-                  {!!showApiKeysItem && !!onApiKeys ? menuDivider : null}
-                  {capabilityMenus.length > 0
-                    ? capabilityMenus.map((cap) => (
-                        <DropdownMenuPrimitive.Sub key={cap.key}>
-                          <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">{cap.label}</DropdownMenuPrimitive.SubTrigger>
-                          <DropdownMenuPrimitive.Portal>
-                            <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover">
-                              {cap.providers.map((provider) => renderProviderItem(cap.key, provider))}
-                            </DropdownMenuPrimitive.SubContent>
-                          </DropdownMenuPrimitive.Portal>
-                        </DropdownMenuPrimitive.Sub>
-                      ))
-                    : providers.map((provider) => renderProviderItem("language", provider))}
-                </DropdownMenuPrimitive.SubContent>
-              </DropdownMenuPrimitive.Portal>
-            </DropdownMenuPrimitive.Sub>
-          ) : (!!showApiKeysItem && !!onApiKeys ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onApiKeys}><KeyRound size={14} />{labels.apiKeys ?? "API keys"}</DropdownMenuPrimitive.Item> : null)}
-          {menuDivider}
-          <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onLogout}><KeyRound size={14} />{labels.logout ?? "Log out"}</DropdownMenuPrimitive.Item>
-        </DropdownMenuPrimitive.Content>
+        <PortalThemeScope>
+          <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-menu-content" align="end" sideOffset={4} collisionPadding={8}>
+            {email ? <DropdownMenuPrimitive.Label className="aih-shadcn-hint" style={{ padding: ".5rem .75rem" }}>{email}</DropdownMenuPrimitive.Label> : null}
+            {email ? menuDivider : null}
+            {onCustomize ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onCustomize}><UserCog size={14} />{labels.customize ?? "Customize"}</DropdownMenuPrimitive.Item> : null}
+            <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onSettings}><Settings size={14} />{labels.settings ?? "Settings"}</DropdownMenuPrimitive.Item>
+            {!!providers.length && !!onToggleProviderForType ? (
+              <DropdownMenuPrimitive.Sub>
+                <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item"><PlugZap size={14} />{labels.providers ?? "Providers"}</DropdownMenuPrimitive.SubTrigger>
+                <DropdownMenuPrimitive.Portal>
+                  <PortalThemeScope>
+                    <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>
+                      {!!showApiKeysItem && !!onApiKeys ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onApiKeys}><KeyRound size={14} />{labels.apiKeys ?? "API keys"}</DropdownMenuPrimitive.Item> : null}
+                      {!!showApiKeysItem && !!onApiKeys ? menuDivider : null}
+                      {capabilityMenus.length > 0
+                        ? capabilityMenus.map((cap) => (
+                            <DropdownMenuPrimitive.Sub key={cap.key}>
+                              <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">{cap.label}</DropdownMenuPrimitive.SubTrigger>
+                              <DropdownMenuPrimitive.Portal>
+                                <PortalThemeScope>
+                                  <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>
+                                    {cap.providers.map((provider) => renderProviderItem(cap.key, provider))}
+                                  </DropdownMenuPrimitive.SubContent>
+                                </PortalThemeScope>
+                              </DropdownMenuPrimitive.Portal>
+                            </DropdownMenuPrimitive.Sub>
+                          ))
+                        : providers.map((provider) => renderProviderItem("language", provider))}
+                    </DropdownMenuPrimitive.SubContent>
+                  </PortalThemeScope>
+                </DropdownMenuPrimitive.Portal>
+              </DropdownMenuPrimitive.Sub>
+            ) : (!!showApiKeysItem && !!onApiKeys ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onApiKeys}><KeyRound size={14} />{labels.apiKeys ?? "API keys"}</DropdownMenuPrimitive.Item> : null)}
+            {menuDivider}
+            <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onLogout}><KeyRound size={14} />{labels.logout ?? "Log out"}</DropdownMenuPrimitive.Item>
+          </DropdownMenuPrimitive.Content>
+        </PortalThemeScope>
       </DropdownMenuPrimitive.Portal>
     </DropdownMenuPrimitive.Root>
   );
@@ -690,14 +765,13 @@ export const Tabs = ({ activeKey, onSelect, vertical, children, className, style
 
 export const Accordion = ({ items = [], openItems, defaultOpenItems, onToggle, multiple, collapsible = true, className, style }: any) => <AccordionPrimitive.Root type={multiple ? "multiple" : "single" as any} value={multiple ? openItems : openItems?.[0]} defaultValue={multiple ? defaultOpenItems : defaultOpenItems?.[0]} collapsible={collapsible} onValueChange={(value: string | string[]) => onToggle?.(Array.isArray(value) ? value : value ? [value] : [])} className={className} style={style}>{items.map((item: any) => <AccordionPrimitive.Item key={item.key} value={item.key} disabled={item.disabled} className={item.className} style={{ borderBottom: "1px solid var(--aih-shadcn-border)" }}><AccordionPrimitive.Header><AccordionPrimitive.Trigger style={{ display: "flex", width: "100%", justifyContent: "space-between", padding: ".75rem 0", border: 0, background: "transparent", color: "inherit", fontWeight: 500 }}>{item.header}<ChevronDown size={16} /></AccordionPrimitive.Trigger></AccordionPrimitive.Header><AccordionPrimitive.Content style={{ padding: "0 0 .75rem" }}>{item.content}</AccordionPrimitive.Content></AccordionPrimitive.Item>)}</AccordionPrimitive.Root>;
 
-export const Toast = ({ id, variant, message, show, autohide, onClose }: any) => <ToastPrimitive.Provider swipeDirection="right" duration={autohide}><ToastPrimitive.Root className="aih-shadcn-toast-root" open={show} onOpenChange={(open) => !open && onClose?.()} data-variant={variant}><ToastPrimitive.Title>{message}</ToastPrimitive.Title><ToastPrimitive.Close asChild><CloseButtonBase aria-label="Close" /></ToastPrimitive.Close></ToastPrimitive.Root><ToastPrimitive.Viewport className="aih-shadcn-toast-viewport" /></ToastPrimitive.Provider>;
-export const Toaster = ({ toasts = [], position }: any) => <ToastPrimitive.Provider>{toasts.map((toast: any) => <ToastPrimitive.Root key={toast.id} className="aih-shadcn-toast-root" open={toast.show ?? true} onOpenChange={(open) => !open && toast.onClose?.()}><ToastPrimitive.Title>{toast.message ?? toast.title}</ToastPrimitive.Title>{toast.description ? <ToastPrimitive.Description>{toast.description}</ToastPrimitive.Description> : null}</ToastPrimitive.Root>)}<ToastPrimitive.Viewport className="aih-shadcn-toast-viewport" style={position?.includes?.("top") ? { top: 16, bottom: "auto" } : undefined} /></ToastPrimitive.Provider>;
+export const Toast = ({ id, variant, message, show, autohide, onClose }: any) => <ToastPrimitive.Provider swipeDirection="right" duration={autohide}><ToastPrimitive.Root className="aih-shadcn-toast-root" open={show} onOpenChange={(open) => !open && onClose?.()} data-variant={variant}><ToastPrimitive.Title>{message}</ToastPrimitive.Title><ToastPrimitive.Close asChild><CloseButtonBase aria-label="Close" /></ToastPrimitive.Close></ToastPrimitive.Root><ToastPrimitive.Viewport className="aih-shadcn-portal-root aih-shadcn-toast-viewport" /></ToastPrimitive.Provider>;
+export const Toaster = ({ toasts = [], position }: any) => <ToastPrimitive.Provider>{toasts.map((toast: any) => <ToastPrimitive.Root key={toast.id} className="aih-shadcn-toast-root" open={toast.show ?? true} onOpenChange={(open) => !open && toast.onClose?.()}><ToastPrimitive.Title>{toast.message ?? toast.title}</ToastPrimitive.Title>{toast.description ? <ToastPrimitive.Description>{toast.description}</ToastPrimitive.Description> : null}</ToastPrimitive.Root>)}<ToastPrimitive.Viewport className="aih-shadcn-portal-root aih-shadcn-toast-viewport" style={position?.includes?.("top") ? { top: 16, bottom: "auto" } : undefined} /></ToastPrimitive.Provider>;
 
 export const Carousel = ({ children, className, style }: any) => <div className={className} style={{ display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", gap: 12, ...style }}>{React.Children.map(children, (child) => <div style={{ flex: "0 0 100%", scrollSnapAlign: "start" }}>{child}</div>)}</div>;
 
-export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => <div className="aih-shadcn-chat">{messages?.map((msg) => { const isUser = msg.role === "user"; const streaming = msg.content?.some((a: any) => a.type === "text" && a.state === "streaming"); const Icon = msg.messageIcon ? iconMap[msg.messageIcon] : undefined; return <article key={msg.id} className={cn("aih-shadcn-chat-message", isUser ? "aih-shadcn-chat-message-user" : "aih-shadcn-chat-message-assistant")}><header className="aih-shadcn-chat-header"><span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{Icon ? <Icon size={16} /> : null}{msg.author}{aiGeneratedWarning ? <TooltipPrimitive.Provider><TooltipPrimitive.Root><TooltipPrimitive.Trigger asChild><span><Badge variant="outline">{aiGeneratedLabel ?? "AI"}</Badge></span></TooltipPrimitive.Trigger><TooltipPrimitive.Portal><TooltipPrimitive.Content className="aih-shadcn-popover">{aiGeneratedWarning}</TooltipPrimitive.Content></TooltipPrimitive.Portal></TooltipPrimitive.Root></TooltipPrimitive.Provider> : null}</span><time>{format(msg.createdAt, locale)}</time></header>{msg.messageLabel ? <div className="aih-shadcn-hint" style={{ padding: ".5rem .75rem 0" }}>{msg.messageLabel}</div> : null}<div className="aih-shadcn-chat-body">{renderMessage(msg)}</div>{streaming || renderReactions ? <footer className="aih-shadcn-chat-footer">{streaming ? <ProgressBar value={80} /> : renderReactions?.(msg)}</footer> : null}</article>; })}</div>;
+export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => <div className="aih-shadcn-chat">{messages?.map((msg) => { const isUser = msg.role === "user"; const streaming = msg.content?.some((a: any) => a.type === "text" && a.state === "streaming"); const Icon = msg.messageIcon ? iconMap[msg.messageIcon] : undefined; return <article key={msg.id} className={cn("aih-shadcn-chat-message", isUser ? "aih-shadcn-chat-message-user" : "aih-shadcn-chat-message-assistant")}><header className="aih-shadcn-chat-header"><span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{Icon ? <Icon size={16} /> : null}{msg.author}{aiGeneratedWarning ? <TooltipPrimitive.Provider><TooltipPrimitive.Root><TooltipPrimitive.Trigger asChild><span><Badge variant="outline">{aiGeneratedLabel ?? "AI"}</Badge></span></TooltipPrimitive.Trigger><TooltipPrimitive.Portal><PortalThemeScope><TooltipPrimitive.Content className="aih-shadcn-popover aih-shadcn-tooltip-content">{aiGeneratedWarning}</TooltipPrimitive.Content></PortalThemeScope></TooltipPrimitive.Portal></TooltipPrimitive.Root></TooltipPrimitive.Provider> : null}</span><time>{format(msg.createdAt, locale)}</time></header>{msg.messageLabel ? <div className="aih-shadcn-hint" style={{ padding: ".5rem .75rem 0" }}>{msg.messageLabel}</div> : null}<div className="aih-shadcn-chat-body">{renderMessage(msg)}</div>{streaming || renderReactions ? <footer className="aih-shadcn-chat-footer">{streaming ? <ProgressBar value={80} /> : renderReactions?.(msg)}</footer> : null}</article>; })}</div>;
 
-export const ThemeSettings = () => <div className="aih-shadcn-card" style={{ padding: 12 }}><strong>shadcn</strong><p className="aih-shadcn-hint">This theme follows shadcn/ui CSS variable tokens and Radix primitives.</p></div>;
 export const ShadcnSettings = ThemeSettings;
 
 export const shadcnTheme: AihUiTheme = {
