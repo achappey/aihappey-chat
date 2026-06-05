@@ -18,7 +18,7 @@ export const stabilityai: Provider = {
     console: "https://platform.stability.ai"
   },
   providerCountry: "GB",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 

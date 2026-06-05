@@ -557,6 +557,7 @@ import { rewindai } from "./catalog/rewindai";
 import { pixserp } from "./catalog/pixserp";
 import { humeai } from "./catalog/humeai";
 import { ltx } from "./catalog/ltx";
+import { melious } from "./catalog/melious";
 
 /**
  * UI-facing provider catalog.
@@ -594,6 +595,7 @@ export const PROVIDERS: Record<string, Provider> = {
   sovrgpt,
   brave,
   radiance,
+  melious,
   ninjachat,
   botverse,
   pixserp,
