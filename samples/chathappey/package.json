@@ -14,6 +14,7 @@
     "@microsoft/applicationinsights-web": "^3.3.11",
     "aihappey-core": "*",
     "aihappey-theme-bootstrap": "*",
+    "aihappey-theme-shadcn": "*",
     "aihappey-theme-fluent": "*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
