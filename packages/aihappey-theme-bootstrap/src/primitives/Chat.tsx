@@ -34,7 +34,7 @@ export const Chat = ({
 }: ChatProps): JSX.Element => {
   const { isDarkMode } = useDarkMode();
   return (
-    <div className="d-flex flex-column gap-3 p-3">
+    <div className="aihappey-bootstrap-chat d-flex flex-column gap-3 p-3">
       {messages?.map((m) => {
         const isUser = m.role === "user";
         // Styling based on role
@@ -53,7 +53,7 @@ export const Chat = ({
             key={m.id}
             bg={bg}
             text={text}
-            className={`w-75 shadow-sm ${alignClass}`}
+            className={`aihappey-bootstrap-chat-message shadow-sm ${alignClass}`}
           >
             <Card.Header className="d-flex align-items-center justify-content-between py-2">
               {m.author} {dateStr}

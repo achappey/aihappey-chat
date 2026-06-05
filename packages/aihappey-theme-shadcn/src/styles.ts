@@ -27,7 +27,7 @@ export const shadcnThemeStyles = `
   --aih-shadcn-toast-z-index: 100;
   --aih-shadcn-chat-user: var(--aih-shadcn-primary);
   --aih-shadcn-chat-user-foreground: var(--aih-shadcn-primary-foreground);
-  --aih-shadcn-chat-user-border: var(--aih-shadcn-ring);
+  --aih-shadcn-chat-user-border: transparent;
   --aih-shadcn-chat-assistant: color-mix(in srgb, var(--aih-shadcn-card) 40%, var(--aih-shadcn-muted));
   --aih-shadcn-chat-assistant-foreground: var(--aih-shadcn-card-foreground);
   --aih-shadcn-chat-assistant-border: color-mix(in srgb, var(--aih-shadcn-border) 82%, var(--aih-shadcn-foreground));
@@ -59,7 +59,7 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
   --aih-shadcn-ring: hsl(212.7 26.8% 83.9%);
   --aih-shadcn-chat-user: var(--aih-shadcn-secondary);
   --aih-shadcn-chat-user-foreground: var(--aih-shadcn-secondary-foreground);
-  --aih-shadcn-chat-user-border: color-mix(in srgb, var(--aih-shadcn-ring) 45%, transparent);
+  --aih-shadcn-chat-user-border: transparent;
   --aih-shadcn-chat-assistant: color-mix(in srgb, var(--aih-shadcn-background) 55%, var(--aih-shadcn-card));
   --aih-shadcn-chat-assistant-foreground: var(--aih-shadcn-card-foreground);
   --aih-shadcn-chat-assistant-border: color-mix(in srgb, var(--aih-shadcn-border) 80%, var(--aih-shadcn-ring));
@@ -178,14 +178,14 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-table td { border-bottom: 1px solid var(--aih-shadcn-border); padding: .625rem .75rem; text-align: left; vertical-align: top; }
 .aih-shadcn-table th { color: var(--aih-shadcn-muted-foreground); font-weight: 600; }
 
-.aih-shadcn-nav { display: flex; min-width: 220px; flex-direction: column; gap: .375rem; }
+.aih-shadcn-nav { display: flex; min-width: 220px; flex-direction: column; gap: .25rem; }
 .aih-shadcn-nav-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 0 0 .375rem; }
-.aih-shadcn-nav-list { display: flex; flex-direction: column; gap: .25rem; }
+.aih-shadcn-nav-list { display: flex; flex-direction: column; gap: .125rem; }
 .aih-shadcn-nav-divider { height: 1px; background: var(--aih-shadcn-border); margin: .5rem 0; }
-.aih-shadcn-nav-section-label { padding: .5rem .75rem .375rem; font-weight: 600; color: var(--aih-shadcn-foreground); }
+.aih-shadcn-nav-section-label { padding: .4375rem .75rem .3125rem; font-weight: 600; color: var(--aih-shadcn-foreground); }
 .aih-shadcn-nav-row { position: relative; display: flex; align-items: center; min-width: 0; }
 .aih-shadcn-nav-row-editing { padding: .125rem .25rem; }
-.aih-shadcn-nav-button { width: 100%; min-width: 0; height: auto; justify-content: flex-start; gap: .75rem; padding: .5rem .75rem; line-height: 1.25rem; text-align: left; }
+.aih-shadcn-nav-button { width: 100%; min-width: 0; height: auto; justify-content: flex-start; gap: .75rem; padding: .375rem .75rem; line-height: 1.25rem; text-align: left; }
 .aih-shadcn-nav-button svg { flex: 0 0 auto; }
 .aih-shadcn-nav-label { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .aih-shadcn-nav-action { position: absolute; right: .25rem; display: inline-flex; width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border: 0; border-radius: calc(var(--aih-shadcn-radius) - 4px); background: transparent; color: var(--aih-shadcn-muted-foreground); opacity: 0; cursor: pointer; transition: opacity .15s ease, color .15s ease, background-color .15s ease; }
@@ -195,15 +195,15 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-nav-row:hover .aih-shadcn-nav-action,
 .aih-shadcn-nav-action:focus-visible { opacity: 1; }
 .aih-shadcn-nav-edit-input { height: 2rem; }
-.aih-shadcn-nav-category { display: flex; flex-direction: column; gap: .25rem; }
-.aih-shadcn-nav-category-trigger { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .75rem; border: 0; border-radius: calc(var(--aih-shadcn-radius) - 2px); background: transparent; color: var(--aih-shadcn-foreground); padding: .5rem .75rem; font: inherit; font-size: .875rem; font-weight: 500; line-height: 1.25rem; cursor: pointer; }
+.aih-shadcn-nav-category { display: flex; flex-direction: column; gap: .125rem; }
+.aih-shadcn-nav-category-trigger { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .75rem; border: 0; border-radius: calc(var(--aih-shadcn-radius) - 2px); background: transparent; color: var(--aih-shadcn-foreground); padding: .375rem .75rem; font: inherit; font-size: .875rem; font-weight: 500; line-height: 1.25rem; cursor: pointer; }
 .aih-shadcn-nav-category-trigger:hover,
 .aih-shadcn-nav-category-trigger[data-state="open"] { background: var(--aih-shadcn-accent); color: var(--aih-shadcn-accent-foreground); }
 .aih-shadcn-nav-category-trigger:focus-visible { outline: 2px solid var(--aih-shadcn-ring); outline-offset: 2px; }
 .aih-shadcn-nav-category-label { display: inline-flex; min-width: 0; align-items: center; gap: .75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .aih-shadcn-nav-category-chevron { flex: 0 0 auto; color: var(--aih-shadcn-muted-foreground); transition: transform .15s ease; }
 .aih-shadcn-nav-category-trigger[data-state="open"] .aih-shadcn-nav-category-chevron { transform: rotate(180deg); }
-.aih-shadcn-nav-category-content { display: flex; flex-direction: column; gap: .25rem; padding-left: 1rem; overflow: hidden; }
+.aih-shadcn-nav-category-content { display: flex; flex-direction: column; gap: .125rem; padding-left: 1rem; overflow: hidden; }
 .aih-shadcn-nav-category-content[data-state="closed"] { animation: aih-shadcn-accordion-up .15s ease-out; }
 .aih-shadcn-nav-category-content[data-state="open"] { animation: aih-shadcn-accordion-down .15s ease-out; }
 @keyframes aih-shadcn-accordion-down { from { height: 0; } to { height: var(--radix-accordion-content-height); } }
@@ -217,7 +217,7 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgb(255 255 255 / .25), transparent); animation: aih-shadcn-shimmer 1.5s infinite; }
 @keyframes aih-shadcn-shimmer { to { transform: translateX(100%); } }
 
-.aih-shadcn-chat { display: flex; flex-direction: column; gap: .75rem; padding: .75rem; }
+.aih-shadcn-chat { display: flex; flex-direction: column; gap: .75rem; width: min(100%, var(--aih-chat-content-max-width, 1056px)); max-width: var(--aih-chat-content-max-width, 1056px); margin-inline: auto; padding: .75rem; box-sizing: border-box; }
 .aih-shadcn-chat-message { width: min(75%, 52rem); border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-card); color: var(--aih-shadcn-card-foreground); overflow: hidden; }
 .aih-shadcn-chat-message-user { align-self: flex-end; border-color: var(--aih-shadcn-chat-user-border); background: var(--aih-shadcn-chat-user); color: var(--aih-shadcn-chat-user-foreground); }
 .aih-shadcn-chat-message-assistant { align-self: flex-start; border-color: var(--aih-shadcn-chat-assistant-border); background: var(--aih-shadcn-chat-assistant); color: var(--aih-shadcn-chat-assistant-foreground); }
@@ -229,6 +229,10 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-chat-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .625rem .75rem; border-bottom: 1px solid var(--aih-shadcn-border); font-size: .8125rem; }
 .aih-shadcn-chat-body { padding: .75rem; }
 .aih-shadcn-chat-footer { padding: .5rem .75rem; border-top: 1px solid var(--aih-shadcn-border); }
+
+@media (max-width: 767.98px) {
+  .aih-shadcn-chat-message { width: 100%; }
+}
 
 .aih-shadcn-toast-viewport { position: fixed; right: 1rem; bottom: 1rem; z-index: var(--aih-shadcn-toast-z-index); display: flex; max-width: min(24rem, calc(100vw - 2rem)); flex-direction: column; gap: .5rem; margin: 0; padding: 0; list-style: none; }
 .aih-shadcn-toast-root { border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-popover); color: var(--aih-shadcn-popover-foreground); padding: .75rem; box-shadow: 0 10px 30px rgb(0 0 0 / .15); }

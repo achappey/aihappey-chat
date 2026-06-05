@@ -1,5 +1,6 @@
 import { ThemeContext } from "aihappey-components";
 import { bootstrapTheme } from "./primitives";
+import { bootstrapThemeStyles } from "./styles";
 import { useEffect, type ReactNode } from "react";
 import { useDarkMode } from "usehooks-ts";
 
@@ -25,6 +26,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeContext.Provider value={bootstrapTheme}>
       <div data-bs-theme={colorMode} className="min-vh-100 bg-body text-body">
+        <style>{bootstrapThemeStyles}</style>
         {children}
       </div>
     </ThemeContext.Provider>

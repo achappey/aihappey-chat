@@ -35,6 +35,11 @@ interface MessageListProps {
 
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 const toolMeta = { icon: "tool" as IconToken, label: "tool" };
+const chatContentStyles = {
+  width: "100%",
+  maxWidth: "var(--aih-chat-content-max-width, 1056px)",
+  margin: "0 auto",
+} satisfies React.CSSProperties;
 
 const BLOCK_META: Record<string, { icon: IconToken; label: string }> = {
   //text: { icon: "text", label: "Text" },
@@ -189,16 +194,18 @@ export const MessageList = ({
       id="chat-container"
       style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: 12 }}
     >
-      {messagesWithMeta.length > 0 && (
-        <Chat
-          renderReactions={renderActions}
-          renderMessage={onRenderMessage}
-          messages={messagesWithMeta}
-          aiGeneratedLabel={t('generatedByAi')}
-          aiGeneratedWarning={t('generatedByAiWarning')}
-          locale={locale}
-        />
-      )}
+      <div style={chatContentStyles}>
+        {messagesWithMeta.length > 0 && (
+          <Chat
+            renderReactions={renderActions}
+            renderMessage={onRenderMessage}
+            messages={messagesWithMeta}
+            aiGeneratedLabel={t('generatedByAi')}
+            aiGeneratedWarning={t('generatedByAiWarning')}
+            locale={locale}
+          />
+        )}
+      </div>
     </div>
   );
 };
