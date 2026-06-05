@@ -20,7 +20,6 @@ export const ServersHeader = ({ onAddServer }: ServersHeaderProps) => {
         zIndex: 10,
         height: 48,
         display: "flex",
-        backgroundColor: isDarkMode ? "#292929" : "#ffffff",
         alignItems: "center",
         padding: "0 12px",
         borderBottom: "1px solid #222",

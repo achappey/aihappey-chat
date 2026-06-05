@@ -55,6 +55,7 @@ import {
   List,
   Mail,
   Maximize2,
+  MoreHorizontal,
   Menu as MenuIcon,
   Mic,
   MonitorCog,
@@ -65,6 +66,8 @@ import {
   PanelRightOpen,
   Paperclip,
   Pencil,
+  Pin,
+  PinOff,
   Plug,
   PlugZap,
   Puzzle,
@@ -733,28 +736,268 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   );
 };
 
-export const Navigation = ({ items = [], activeKey, onSelect, className, style, onClose }: any) => {
+const navItemMatchesActive = (item: any, activeKey?: string): boolean => {
+  if (!activeKey) return false;
+  const itemValue = item?.key ?? item?.eventKey;
+  if (itemValue === activeKey || item?.eventKey === activeKey) return true;
+  return Array.isArray(item?.children) && item.children.some((child: any) => navItemMatchesActive(child, activeKey));
+};
+
+type ShadcnNavItemRowProps = {
+  item: any;
+  itemKey: string;
+  activeKey?: string;
+  onSelect?: (key: string) => void;
+  onRename?: (key: string, value: string) => Promise<void> | void;
+  onDelete?: (key: string) => Promise<void> | void;
+  onExport?: (key: string) => Promise<void> | void;
+  onTogglePin?: (key: string) => Promise<void> | void;
+  translations?: any;
+  editingId: string | null;
+  editValue: string;
+  setEditingId: (value: string | null) => void;
+  setEditValue: (value: string) => void;
+};
+
+const ShadcnNavItemRow = ({
+  item,
+  itemKey,
+  activeKey,
+  onSelect,
+  onRename,
+  onDelete,
+  onExport,
+  onTogglePin,
+  translations,
+  editingId,
+  editValue,
+  setEditingId,
+  setEditValue,
+}: ShadcnNavItemRowProps) => {
+  const [isHovered, setIsHovered] = React.useState(false);
+  const itemValue = item.key ?? item.eventKey;
+  const selected = !!activeKey && (itemValue === activeKey || item.eventKey === activeKey);
+  const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined;
+  const isEditing = editingId === item.key;
+  const showConversationActions = !!item.conversationItem && (!!onRename || !!onExport || !!onTogglePin || !!onDelete);
+
+  const submitRename = async () => {
+    const trimmed = editValue.trim();
+    if (onRename && trimmed) await onRename(item.key, trimmed);
+    setEditingId(null);
+  };
+
+  if (isEditing && onRename) {
+    return (
+      <div key={itemKey} className="aih-shadcn-nav-row aih-shadcn-nav-row-editing">
+        <input
+          autoFocus
+          className="aih-shadcn-input aih-shadcn-nav-edit-input"
+          value={editValue}
+          onChange={(event) => setEditValue(event.target.value)}
+          onBlur={() => void submitRename()}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void submitRename();
+            }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              setEditingId(null);
+            }
+          }}
+        />
+      </div>
+    );
+  }
+
+  const actionButton = showConversationActions ? (
+    <DropdownMenuPrimitive.Root>
+      <DropdownMenuPrimitive.Trigger asChild>
+        <button
+          type="button"
+          className="aih-shadcn-nav-action"
+          aria-label={translations?.conversationActions ?? translations?.actions ?? "Conversation actions"}
+          data-pinned={item.pinned ? "true" : undefined}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
+          {isHovered || !item.pinned ? <MoreHorizontal size={16} /> : <Pin size={16} />}
+        </button>
+      </DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Portal>
+        <PortalThemeScope>
+          <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-menu-content" align="end" sideOffset={4} collisionPadding={8}>
+            {onRename ? (
+              <DropdownMenuPrimitive.Item
+                className="aih-shadcn-menu-item"
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  setEditingId(item.key);
+                  setEditValue(String(item.label ?? ""));
+                }}
+              >
+                <Pencil size={14} />{translations?.rename ?? "Rename"}
+              </DropdownMenuPrimitive.Item>
+            ) : null}
+            {onExport ? (
+              <DropdownMenuPrimitive.Item
+                className="aih-shadcn-menu-item"
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  void onExport(item.key);
+                }}
+              >
+                <ArrowRight size={14} />{translations?.export ?? "Export"}
+              </DropdownMenuPrimitive.Item>
+            ) : null}
+            {(onRename || onExport) && (onTogglePin || onDelete) ? menuDivider : null}
+            {onTogglePin ? (
+              <DropdownMenuPrimitive.Item
+                className="aih-shadcn-menu-item"
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  void onTogglePin(item.key);
+                }}
+              >
+                {item.pinned ? <PinOff size={14} /> : <Pin size={14} />}{item.pinned ? (translations?.unpin ?? "Unpin") : (translations?.pin ?? "Pin")}
+              </DropdownMenuPrimitive.Item>
+            ) : null}
+            {onDelete ? (
+              <DropdownMenuPrimitive.Item
+                className="aih-shadcn-menu-item aih-shadcn-menu-item-danger"
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  void onDelete(item.key);
+                }}
+              >
+                <Trash2 size={14} />{translations?.delete ?? "Delete"}
+              </DropdownMenuPrimitive.Item>
+            ) : null}
+          </DropdownMenuPrimitive.Content>
+        </PortalThemeScope>
+      </DropdownMenuPrimitive.Portal>
+    </DropdownMenuPrimitive.Root>
+  ) : null;
+
+  return (
+    <div
+      key={itemKey}
+      className="aih-shadcn-nav-row"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <button
+        type="button"
+        className={cn("aih-shadcn-btn aih-shadcn-nav-button", selected ? "aih-shadcn-btn-secondary" : "aih-shadcn-btn-ghost")}
+        disabled={item.disabled}
+        onClick={() => { item.onClick ? item.onClick() : onSelect?.(itemValue); }}
+      >
+        {Icon ? <Icon size={18} /> : null}
+        <span className="aih-shadcn-nav-label">{item.label}</span>
+        {item.new ? <Badge variant="outline">{translations?.new ?? "new"}</Badge> : null}
+      </button>
+      {actionButton}
+    </div>
+  );
+};
+
+export const Navigation = ({ items = [], activeKey, onSelect, className, style, onClose, storageType = "local", onStorageSwitch, translations, onRename, onDelete, onExport, onTogglePin }: any) => {
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editValue, setEditValue] = React.useState("");
+  const activeCategoryKeys = React.useMemo(
+    () => items
+      .map((item: any, index: number) => ({ item, key: `nav:${item.key ?? item.eventKey ?? item.label ?? index}:${index}` }))
+      .filter(({ item }: any) => item?.children?.length && navItemMatchesActive(item, activeKey))
+      .map(({ key }: any) => key),
+    [activeKey, items]
+  );
+  const [openCategoryKeys, setOpenCategoryKeys] = React.useState<string[]>(activeCategoryKeys);
+
+  React.useEffect(() => {
+    if (!activeCategoryKeys.length) return;
+    setOpenCategoryKeys((current) => Array.from(new Set([...current, ...activeCategoryKeys])));
+  }, [activeCategoryKeys]);
+
+  const renderHeader = () => (
+    <div className="aih-shadcn-nav-header">
+      <Button
+        icon="menu"
+        size="small"
+        variant="ghost"
+        aria-label={translations?.closeNavigation ?? "Close navigation"}
+        title={translations?.closeNavigation ?? "Close navigation"}
+        onClick={onClose}
+      />
+      {onStorageSwitch ? (
+        <Button
+          icon={storageType === "local" ? "storage" : "sources"}
+          size="small"
+          variant="ghost"
+          aria-label="Switch storage"
+          title={`Storage: ${storageType === "local" ? "Local" : "Cloud"}`}
+          onClick={() => onStorageSwitch(storageType === "local" ? "remote" : "local")}
+        />
+      ) : <span />}
+    </div>
+  );
+
   const renderItem = (item: any, index: number, parentKey = "nav") => {
     const itemKey = `${parentKey}:${item.key ?? item.eventKey ?? item.label ?? index}:${index}`;
-    if (item.key === "divider") return <SeparatorPrimitive.Root key={itemKey} style={{ height: 1, background: "var(--aih-shadcn-border)", margin: ".5rem 0" }} />;
-    if (item.key?.startsWith?.("section:")) return <div key={itemKey} className="aih-shadcn-hint" style={{ padding: ".5rem .75rem" }}>{item.label}</div>;
+    if (item.key === "divider") return <SeparatorPrimitive.Root key={itemKey} className="aih-shadcn-nav-divider" />;
+    if (item.key?.startsWith?.("section:")) return <div key={itemKey} className="aih-shadcn-hint aih-shadcn-nav-section-label">{item.label}</div>;
     if (item.children?.length) {
       const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined;
       return (
-        <div key={itemKey} style={{ display: "grid", gap: 4 }}>
-          <div className="aih-shadcn-hint" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: ".5rem .75rem", fontWeight: 600 }}>
-            {Icon ? <Icon size={14} /> : null}{item.label}
-          </div>
-          <div style={{ display: "grid", gap: 4, paddingLeft: 12 }}>
+        <AccordionPrimitive.Item key={itemKey} value={itemKey} className="aih-shadcn-nav-category">
+          <AccordionPrimitive.Header>
+            <AccordionPrimitive.Trigger className="aih-shadcn-nav-category-trigger">
+              <span className="aih-shadcn-nav-category-label">{Icon ? <Icon size={18} /> : null}{item.label}</span>
+              <ChevronDown size={16} className="aih-shadcn-nav-category-chevron" />
+            </AccordionPrimitive.Trigger>
+          </AccordionPrimitive.Header>
+          <AccordionPrimitive.Content className="aih-shadcn-nav-category-content">
             {item.children.map((child: any, childIndex: number) => renderItem(child, childIndex, itemKey))}
-          </div>
-        </div>
+          </AccordionPrimitive.Content>
+        </AccordionPrimitive.Item>
       );
     }
-    return <Button key={itemKey} variant={item.key === activeKey || item.eventKey === activeKey ? "secondary" : "ghost"} icon={item.icon} disabled={item.disabled} onClick={() => { item.onClick?.(); onSelect?.(item.key ?? item.eventKey); onClose?.(); }} style={{ justifyContent: "flex-start" }}>{item.label}</Button>;
+    return (
+      <ShadcnNavItemRow
+        key={itemKey}
+        item={item}
+        itemKey={itemKey}
+        activeKey={activeKey}
+        onSelect={onSelect}
+        onRename={onRename}
+        onDelete={onDelete}
+        onExport={onExport}
+        onTogglePin={onTogglePin}
+        translations={translations}
+        editingId={editingId}
+        editValue={editValue}
+        setEditingId={setEditingId}
+        setEditValue={setEditValue}
+      />
+    );
   };
 
-  return <nav className={className} style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 220, ...style }}>{items.map((item: any, index: number) => renderItem(item, index))}</nav>;
+  return (
+    <nav className={cn("aih-shadcn-nav", className)} style={style}>
+      {renderHeader()}
+      <AccordionPrimitive.Root
+        type="multiple"
+        value={openCategoryKeys}
+        onValueChange={setOpenCategoryKeys}
+        className="aih-shadcn-nav-list"
+      >
+        {items.map((item: any, index: number) => renderItem(item, index))}
+      </AccordionPrimitive.Root>
+    </nav>
+  );
 };
 
 export const Tab = ({ children }: any) => <>{children}</>;

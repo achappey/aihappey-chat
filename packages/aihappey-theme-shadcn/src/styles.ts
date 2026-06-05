@@ -178,6 +178,37 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-table td { border-bottom: 1px solid var(--aih-shadcn-border); padding: .625rem .75rem; text-align: left; vertical-align: top; }
 .aih-shadcn-table th { color: var(--aih-shadcn-muted-foreground); font-weight: 600; }
 
+.aih-shadcn-nav { display: flex; min-width: 220px; flex-direction: column; gap: .375rem; }
+.aih-shadcn-nav-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 0 0 .375rem; }
+.aih-shadcn-nav-list { display: flex; flex-direction: column; gap: .25rem; }
+.aih-shadcn-nav-divider { height: 1px; background: var(--aih-shadcn-border); margin: .5rem 0; }
+.aih-shadcn-nav-section-label { padding: .5rem .75rem .375rem; font-weight: 600; color: var(--aih-shadcn-foreground); }
+.aih-shadcn-nav-row { position: relative; display: flex; align-items: center; min-width: 0; }
+.aih-shadcn-nav-row-editing { padding: .125rem .25rem; }
+.aih-shadcn-nav-button { width: 100%; min-width: 0; height: auto; justify-content: flex-start; gap: .75rem; padding: .5rem .75rem; line-height: 1.25rem; text-align: left; }
+.aih-shadcn-nav-button svg { flex: 0 0 auto; }
+.aih-shadcn-nav-label { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aih-shadcn-nav-action { position: absolute; right: .25rem; display: inline-flex; width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border: 0; border-radius: calc(var(--aih-shadcn-radius) - 4px); background: transparent; color: var(--aih-shadcn-muted-foreground); opacity: 0; cursor: pointer; transition: opacity .15s ease, color .15s ease, background-color .15s ease; }
+.aih-shadcn-nav-action:hover,
+.aih-shadcn-nav-action[data-state="open"] { background: var(--aih-shadcn-accent); color: var(--aih-shadcn-accent-foreground); opacity: 1; }
+.aih-shadcn-nav-action[data-pinned="true"],
+.aih-shadcn-nav-row:hover .aih-shadcn-nav-action,
+.aih-shadcn-nav-action:focus-visible { opacity: 1; }
+.aih-shadcn-nav-edit-input { height: 2rem; }
+.aih-shadcn-nav-category { display: flex; flex-direction: column; gap: .25rem; }
+.aih-shadcn-nav-category-trigger { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .75rem; border: 0; border-radius: calc(var(--aih-shadcn-radius) - 2px); background: transparent; color: var(--aih-shadcn-foreground); padding: .5rem .75rem; font: inherit; font-size: .875rem; font-weight: 500; line-height: 1.25rem; cursor: pointer; }
+.aih-shadcn-nav-category-trigger:hover,
+.aih-shadcn-nav-category-trigger[data-state="open"] { background: var(--aih-shadcn-accent); color: var(--aih-shadcn-accent-foreground); }
+.aih-shadcn-nav-category-trigger:focus-visible { outline: 2px solid var(--aih-shadcn-ring); outline-offset: 2px; }
+.aih-shadcn-nav-category-label { display: inline-flex; min-width: 0; align-items: center; gap: .75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aih-shadcn-nav-category-chevron { flex: 0 0 auto; color: var(--aih-shadcn-muted-foreground); transition: transform .15s ease; }
+.aih-shadcn-nav-category-trigger[data-state="open"] .aih-shadcn-nav-category-chevron { transform: rotate(180deg); }
+.aih-shadcn-nav-category-content { display: flex; flex-direction: column; gap: .25rem; padding-left: 1rem; overflow: hidden; }
+.aih-shadcn-nav-category-content[data-state="closed"] { animation: aih-shadcn-accordion-up .15s ease-out; }
+.aih-shadcn-nav-category-content[data-state="open"] { animation: aih-shadcn-accordion-down .15s ease-out; }
+@keyframes aih-shadcn-accordion-down { from { height: 0; } to { height: var(--radix-accordion-content-height); } }
+@keyframes aih-shadcn-accordion-up { from { height: var(--radix-accordion-content-height); } to { height: 0; } }
+
 .aih-shadcn-progress-root { position: relative; height: .5rem; overflow: hidden; border-radius: 999px; background: var(--aih-shadcn-secondary); }
 .aih-shadcn-progress-indicator { height: 100%; background: var(--aih-shadcn-primary); transition: width .2s ease; }
 .aih-shadcn-spinner { display: inline-block; border-radius: 999px; border: 2px solid var(--aih-shadcn-muted); border-top-color: var(--aih-shadcn-primary); animation: aih-shadcn-spin .8s linear infinite; }

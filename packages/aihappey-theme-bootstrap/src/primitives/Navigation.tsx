@@ -3,8 +3,9 @@ import Nav from "react-bootstrap/Nav";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import Button from "react-bootstrap/Button";
 import { NavigationProps, NavigationItem } from "aihappey-types/src/theme";
-import { Plus, Cloud, Hdd } from "react-bootstrap-icons"; // Bootstrap icons
+import { Plus, Cloud, Hdd, List } from "react-bootstrap-icons"; // Bootstrap icons
 import { useDarkMode } from "usehooks-ts";
+import { iconMap } from "./IconMap";
 
 const isSection = (item: NavigationItem) => item.key.startsWith("section:");
 const isDivider = (item: NavigationItem) => item.key === "divider";
@@ -12,7 +13,8 @@ const isDivider = (item: NavigationItem) => item.key === "divider";
 const renderNavItems = (
   items: NavigationItem[],
   activeKey?: string,
-  onSelect?: (key: string) => void
+  onSelect?: (key: string) => void,
+  level = 0
 ) =>
   items.map((item, idx) => {
     if (isDivider(item)) {
@@ -25,21 +27,47 @@ const renderNavItems = (
     if (isSection(item)) {
       return (
         <Nav.Item key={item.key}>
-          <Nav.Link disabled className="fw-bold text-muted">
+          <Nav.Link disabled className="fw-bold text-muted d-flex align-items-center gap-2">
+            {item.icon && iconMap[item.icon] ? <span className="d-inline-flex">{iconMap[item.icon]}</span> : null}
             {item.label}
           </Nav.Link>
         </Nav.Item>
       );
     }
+    if (item.children?.length) {
+      return (
+        <React.Fragment key={`${item.key}:${idx}`}>
+          <Nav.Item>
+            <Nav.Link disabled className="fw-bold text-muted d-flex align-items-center gap-2">
+              {item.icon && iconMap[item.icon] ? <span className="d-inline-flex">{iconMap[item.icon]}</span> : null}
+              {item.label}
+            </Nav.Link>
+          </Nav.Item>
+          {renderNavItems(item.children, activeKey, onSelect, level + 1)}
+        </React.Fragment>
+      );
+    }
+    const itemValue = item.key ?? item.eventKey;
+    const selected = !!activeKey && itemValue === activeKey;
     return (
       <Nav.Link
         key={item.key}
-        eventKey={item.key}
+        eventKey={itemValue}
         href={item.href}
         disabled={item.disabled}
-        active={activeKey === item.key}
-        onClick={() => onSelect && onSelect(item.key)}
+        active={selected}
+        className="d-flex align-items-center gap-2"
+        onClick={(event) => {
+          event.preventDefault();
+          if (item.onClick) {
+            item.onClick();
+            return;
+          }
+          if (itemValue) onSelect?.(itemValue);
+        }}
+        style={{ paddingLeft: level > 0 ? `${1 + level * 1.25}rem` : undefined }}
       >
+        {item.icon && iconMap[item.icon] ? <span className="d-inline-flex">{iconMap[item.icon]}</span> : null}
         {item.label}
       </Nav.Link>
     );
@@ -50,6 +78,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   activeKey,
   onSelect,
   onNewChat,
+  onClose,
   storageType = "local",
   onStorageSwitch,
   multiple,
@@ -70,13 +99,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   if (drawerType === "overlay") {
     return (
       <div className={className} style={navstyle}>
-        <Button
-          variant="light"
-          aria-label="Open navigation"
-          onClick={() => setShow(true)}
-          className="mb-2"
-        >
-          &#9776;
+        <Button variant="link" aria-label="Open navigation" onClick={() => setShow(true)} className="mb-2">
+          <List size={24} />
         </Button>
         <Offcanvas show={!!show} onHide={() => setShow(false)} placement="start">
           <Offcanvas.Header closeButton>
@@ -115,7 +139,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   return (
     <div className={className} style={navstyle}>
       <div className="d-flex align-items-center justify-content-between px-2 py-2">
-        <span style={{ fontWeight: 600 }}></span>
+        <Button variant="link" aria-label="Close navigation" onClick={onClose} className="p-1">
+          <List size={24} />
+        </Button>
         <div className="d-flex gap-2">
           {onNewChat && (
             <Button variant="link" aria-label="Nieuw chat" onClick={onNewChat}>

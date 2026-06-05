@@ -320,6 +320,8 @@ export const ConversationSidebar = ({
       await navigate("/model-context-catalog");
     } else if (id === "agents") {
       await navigate("/agents");
+    } else if (id === "apps") {
+      await navigate("/apps");
     } else if (id === "models") {
       await navigate("/models");
     } else if (id === "providers") {
@@ -346,6 +348,18 @@ export const ConversationSidebar = ({
       await navigate("/reranking");
     } else if (id === "realtime") {
       await navigate("/realtime");
+    } else if (id === "images") {
+      await navigate("/images");
+    } else if (id === "transcriptions") {
+      await navigate("/transcriptions");
+    } else if (id === "speech") {
+      await navigate("/speech");
+    } else if (id === "videos") {
+      await navigate("/videos");
+    } else if (id === "arena") {
+      await navigate("/arena");
+    } else if (id === "new") {
+      await handleCreate();
     } else {
       await navigate(`/${id}`);
 
