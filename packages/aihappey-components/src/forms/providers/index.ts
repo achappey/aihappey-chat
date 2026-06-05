@@ -14,6 +14,7 @@ export * from "./browseruse";
 export * from "./blackbox";
 export * from "./brave";
 export * from "./perplexity";
+export * from "./poolside";
 export * from "./openai";
 export * from "./openrouter";
 export * from "./requesty";

@@ -18,6 +18,7 @@ import {
   OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
+  PoolsideChatConfigForm,
   PollinationsChatConfigForm,
   ResponsesEndpointConfigForm,
   SambanovaChatConfigForm,
@@ -181,6 +182,8 @@ export const PlaygroundSettingsDrawer = ({
         return <PerplexityChatConfigForm config={providerMetadata.perplexity ?? {}} models={models} updateConfig={updateProviderConfig} />;
       case "pollinations":
         return <PollinationsChatConfigForm config={providerMetadata.pollinations ?? {}} updateConfig={updateProviderConfig} />;
+      case "poolside":
+        return <PoolsideChatConfigForm config={providerMetadata.poolside ?? {}} updateConfig={updateProviderConfig} />;
       case "sambanova":
         return <SambanovaChatConfigForm config={providerMetadata.sambanova ?? {}} updateConfig={updateProviderConfig} />;
       case "tembo":

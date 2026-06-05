@@ -34,6 +34,7 @@ type ProviderLinkConfig = {
 
 const PROVIDER_LINKS: ProviderLinkConfig[] = [
     { key: "homepage", icon: "globe", labelKey: "website" },
+    { key: "pricing", icon: "pricing", labelKey: "pricing" },
     { key: "docs", icon: "docs", labelKey: "documentation" },
     { key: "console", icon: "console", labelKey: "console" },
     { key: "termsOfService", icon: "terms", labelKey: "terms" },

@@ -19,6 +19,7 @@ import {
   OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
+  PoolsideChatConfigForm,
   PollinationsChatConfigForm,
   SambanovaChatConfigForm,
   TemboChatConfigForm,
@@ -210,6 +211,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       openrouter: (openrouter: any) => updateProviderConfig("openrouter", openrouter),
       pollinations: (pollinations: any) => updateProviderConfig("pollinations", pollinations),
       perplexity: (perplexity: any) => updateProviderConfig("perplexity", perplexity),
+      poolside: (poolside: any) => updateProviderConfig("poolside", poolside),
       together: (together: any) => updateProviderConfig("together", together),
       sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
       tembo: (tembo: any) => updateProviderConfig("tembo", tembo),
@@ -583,6 +585,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
                 config={draft.providerMetadata.perplexity ?? {}}
                 models={models}
                 updateConfig={providerConfigUpdaters.perplexity}
+              />
+            ) : null}
+          </theme.Tab>
+        }
+        {enabledProviders.includes("Poolside") &&
+          <theme.Tab eventKey="poolside" title="Poolside">
+            {activeTab === "poolside" ? (
+              <PoolsideChatConfigForm
+                config={draft.providerMetadata.poolside ?? {}}
+                updateConfig={providerConfigUpdaters.poolside}
               />
             ) : null}
           </theme.Tab>

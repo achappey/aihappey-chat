@@ -287,6 +287,11 @@ export const defaultProviderMetadata = {
     "enable_search_classifier": false,
     "disable_search": false
   },
+  "poolside": {
+    "reasoning": {
+      "effort": "medium"
+    }
+  },
   "linkup": {
     "includeImages": false,
     "mode": "Auto",
