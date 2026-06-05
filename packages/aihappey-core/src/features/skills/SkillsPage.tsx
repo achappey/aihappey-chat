@@ -134,12 +134,6 @@ export const SkillsPage = () => {
     [favoriteSkillSet, filtered]
   );
 
-  useEffect(() => {
-    if (activeTab === "favorites" && favoriteFiltered.length === 0) {
-      setActiveTab("all");
-    }
-  }, [activeTab, favoriteFiltered.length]);
-
   const selectedSkill = useMemo(
     () => skills.items.find((item) => item.skillId === detailsSkillId || item.id === detailsSkillId),
     [detailsSkillId, skills.items]
@@ -467,11 +461,9 @@ export const SkillsPage = () => {
               <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
             </theme.Tab>
 
-            {favoriteFiltered.length > 0 ? (
-              <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
-                <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
-              </theme.Tab>
-            ) : null}
+            <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
+              <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
+            </theme.Tab>
 
             <theme.Tab eventKey={`remote:${remoteSkillsHost}`} title={`${remoteSkillsHost} (${remoteFiltered.length})`}>
               <div style={{ paddingTop: 12 }}>{renderGrid(remoteFiltered)}</div>

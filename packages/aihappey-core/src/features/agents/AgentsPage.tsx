@@ -67,6 +67,11 @@ export const AgentsPage = () => {
   const [editingName, setEditingName] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all"); // "top" | "all"
 
+  const favoriteAgentSet = useMemo(
+    () => new Set((favoriteAgentIds ?? []).filter(Boolean)),
+    [favoriteAgentIds]
+  );
+
   const remoteAgentsHost = useMemo(
     () => hostnameOf(chatConfig.agentEndpoint ? `${chatConfig.agentEndpoint}${chatConfig.endpoints.models}` : undefined),
     [chatConfig.agentEndpoint, chatConfig.endpoints.models]
@@ -191,6 +196,11 @@ export const AgentsPage = () => {
     [cards]
   );
 
+  const favoriteCards = useMemo(
+    () => cards.filter((card) => favoriteAgentSet.has(card.key)),
+    [cards, favoriteAgentSet]
+  );
+
   const remoteCards = useMemo(
     () => cards.filter((card) => card.kind === "remote"),
     [cards]
@@ -221,7 +231,7 @@ export const AgentsPage = () => {
               providerIcons={card.providerIcons}
               onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
               onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
-              isFavorite={(favoriteAgentIds ?? []).includes(card.key)}
+              isFavorite={favoriteAgentSet.has(card.key)}
               onToggleFavorite={() => toggleFavoriteAgent(card.key)}
             />
           </div>)
@@ -279,6 +289,10 @@ export const AgentsPage = () => {
           <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
             <Tab eventKey="all" icon="cardList" title={`${t("all")} (${cards.length})`}>
               {renderGrid(cards)}
+            </Tab>
+
+            <Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteCards.length})`}>
+              {renderGrid(favoriteCards)}
             </Tab>
 
             <Tab eventKey={`remote:${remoteAgentsHost}`}
