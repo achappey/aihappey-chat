@@ -41,6 +41,7 @@ import {
 } from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
 import { useChatContext } from "../chat/context/ChatContext";
+import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -93,7 +94,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
   const models = useAppStore((a) => a.models);
-  const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? [])
+  const selectedModel = useAppStore((a) => a.selectedModel);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
@@ -225,6 +226,101 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     }),
     [updateProviderConfig]
   );
+
+  const activeProviderKey = useMemo(() => {
+    const key = selectedModel?.split("/")[0]?.trim().toLowerCase();
+    return key || undefined;
+  }, [selectedModel]);
+
+  const selectedModelOption = useMemo(
+    () => models?.find((model) => model.id === selectedModel),
+    [models, selectedModel]
+  );
+
+  const activeProviderTitle = useMemo(() => {
+    if (!activeProviderKey) return undefined;
+
+    return (
+      (PROVIDERS as Record<string, any>)[activeProviderKey]?.name
+      || activeProviderKey
+    );
+  }, [activeProviderKey, selectedModelOption]);
+
+  const activeProviderForm = useMemo(() => {
+    switch (activeProviderKey) {
+      case "anthropic":
+        return <AnthropicChatConfigForm config={draft.providerMetadata.anthropic ?? {}} updateConfig={providerConfigUpdaters.anthropic} />;
+      case "blackbox":
+        return <BlackboxChatConfigForm config={draft.providerMetadata.blackbox ?? {}} updateConfig={providerConfigUpdaters.blackbox} />;
+      case "cohere":
+        return <CohereChatConfigForm config={draft.providerMetadata.cohere ?? {}} updateConfig={providerConfigUpdaters.cohere} />;
+      case "browseruse":
+        return <BrowserUseChatConfigForm config={draft.providerMetadata.browseruse ?? {}} updateConfig={providerConfigUpdaters.browseruse} />;
+      case "brave":
+        return <BraveChatConfigForm config={draft.providerMetadata.brave ?? {}} updateConfig={providerConfigUpdaters.brave} />;
+      case "google":
+        return <GoogleChatConfig google={draft.providerMetadata.google ?? {}} updateGoogle={providerConfigUpdaters.google} />;
+      case "groq":
+        return <GroqChatConfigForm config={draft.providerMetadata.groq ?? {}} updateConfig={providerConfigUpdaters.groq} />;
+      case "jina":
+        return <JinaChatConfigForm config={draft.providerMetadata.jina ?? {}} updateConfig={providerConfigUpdaters.jina} />;
+      case "mistral":
+        return <MistralChatConfigForm config={draft.providerMetadata.mistral ?? {}} updateConfig={providerConfigUpdaters.mistral} />;
+      case "microsoft":
+        return <MicrosoftChatConfigForm config={draft.providerMetadata.microsoft ?? {}} updateConfig={providerConfigUpdaters.microsoft} />;
+      case "ninjachat":
+        return <NinjaChatChatConfigForm config={draft.providerMetadata.ninjachat ?? {}} updateConfig={providerConfigUpdaters.ninjachat} />;
+      case "openai":
+        return (
+          <OpenAIChatConfigForm
+            config={draft.providerMetadata.openai ?? {}}
+            openAISkillOptions={openAISkillOptions}
+            resolveOpenAIShellSkill={resolveOpenAIShellSkill}
+            updateConfig={providerConfigUpdaters.openai}
+          />
+        );
+      case "openhands":
+        return <OpenHandsChatConfigForm config={draft.providerMetadata.openhands ?? {}} updateConfig={providerConfigUpdaters.openhands} />;
+      case "openrouter":
+        return <OpenRouterChatConfigForm config={draft.providerMetadata.openrouter ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.openrouter} />;
+      case "requesty":
+        return <RequestyChatConfigForm config={draft.providerMetadata.requesty ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.requesty} />;
+      case "pollinations":
+        return <PollinationsChatConfigForm config={draft.providerMetadata.pollinations ?? {}} updateConfig={providerConfigUpdaters.pollinations} />;
+      case "perplexity":
+        return <PerplexityChatConfigForm config={draft.providerMetadata.perplexity ?? {}} models={models} updateConfig={providerConfigUpdaters.perplexity} />;
+      case "poolside":
+        return <PoolsideChatConfigForm config={draft.providerMetadata.poolside ?? {}} updateConfig={providerConfigUpdaters.poolside} />;
+      case "together":
+        return <TogetherChatConfigForm config={draft.providerMetadata.together ?? {}} updateConfig={providerConfigUpdaters.together} />;
+      case "sambanova":
+        return <SambanovaChatConfigForm config={draft.providerMetadata.sambanova ?? {}} updateConfig={providerConfigUpdaters.sambanova} />;
+      case "tembo":
+        return <TemboChatConfigForm config={draft.providerMetadata.tembo ?? {}} updateConfig={providerConfigUpdaters.tembo} />;
+      case "venice":
+        return <VeniceChatConfigForm config={draft.providerMetadata.venice ?? {}} updateConfig={providerConfigUpdaters.venice} />;
+      case "linkup":
+        return <LinkupChatConfigForm config={draft.providerMetadata.linkup ?? {}} updateConfig={providerConfigUpdaters.linkup} />;
+      case "webcrawlerapi":
+        return <WebCrawlerAPIChatConfigForm config={draft.providerMetadata.webcrawlerapi ?? {}} updateConfig={providerConfigUpdaters.webcrawlerapi} />;
+      case "xai":
+        return <XAIChatConfigForm config={draft.providerMetadata.xai ?? {}} updateConfig={providerConfigUpdaters.xai} />;
+      case "xiaomimimo":
+        return <XiaomiMIMOChatConfigForm config={draft.providerMetadata.xiaomimimo ?? {}} updateConfig={providerConfigUpdaters.xiaomimimo} />;
+      case "zai":
+        return <ZaiChatConfigForm config={draft.providerMetadata.zai ?? {}} updateConfig={providerConfigUpdaters.zai} />;
+      default:
+        return null;
+    }
+  }, [
+    activeProviderKey,
+    chatConfig?.appName,
+    draft.providerMetadata,
+    models,
+    openAISkillOptions,
+    providerConfigUpdaters,
+    resolveOpenAIShellSkill,
+  ]);
 
   const handleSkillSelectionChange = async (next: string[]) => {
     setDraft((current) => ({
@@ -411,286 +507,11 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
             </>
           ) : null}
         </theme.Tab>
-        {enabledProviders.includes("Anthropic") &&
-          <theme.Tab eventKey="anthropic" title="Anthropic">
-            {activeTab === "anthropic" ? (
-              <AnthropicChatConfigForm
-                config={draft.providerMetadata.anthropic ?? {}}
-                updateConfig={providerConfigUpdaters.anthropic}
-              />
-            ) : null}
+        {activeProviderForm && activeProviderTitle ? (
+          <theme.Tab eventKey="provider" title={activeProviderTitle}>
+            {activeTab === "provider" ? activeProviderForm : null}
           </theme.Tab>
-        }
-        {enabledProviders.includes("Cohere") &&
-          <theme.Tab eventKey="cohere" title="Cohere">
-            {activeTab === "cohere" ? (
-              <CohereChatConfigForm
-                config={draft.providerMetadata.cohere ?? {}}
-                updateConfig={providerConfigUpdaters.cohere}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("BrowserUse") &&
-          <theme.Tab eventKey="browseruse" title="BrowserUse">
-            {activeTab === "browseruse" ? (
-              <BrowserUseChatConfigForm
-                config={draft.providerMetadata.browseruse ?? {}}
-                updateConfig={providerConfigUpdaters.browseruse}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Brave") &&
-          <theme.Tab eventKey="brave" title="Brave">
-            {activeTab === "brave" ? (
-              <BraveChatConfigForm
-                config={draft.providerMetadata.brave ?? {}}
-                updateConfig={providerConfigUpdaters.brave}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Google") &&
-          <theme.Tab eventKey="google" title="Google">
-            {activeTab === "google" ? (
-              <GoogleChatConfig
-                google={draft.providerMetadata.google ?? {}}
-                updateGoogle={providerConfigUpdaters.google}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Groq") &&
-          <theme.Tab eventKey="groq" title="Groq">
-            {activeTab === "groq" ? (
-              <GroqChatConfigForm
-                config={draft.providerMetadata.groq ?? {}}
-                updateConfig={providerConfigUpdaters.groq}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Jina") &&
-          <theme.Tab eventKey="jina" title="Jina">
-            {activeTab === "jina" ? (
-              <JinaChatConfigForm
-                config={draft.providerMetadata.jina ?? {}}
-                updateConfig={providerConfigUpdaters.jina}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Mistral") &&
-          <theme.Tab eventKey="mistral" title="Mistral">
-            {activeTab === "mistral" ? (
-              <MistralChatConfigForm
-                config={draft.providerMetadata.mistral ?? {}}
-                updateConfig={providerConfigUpdaters.mistral}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Microsoft") &&
-          <theme.Tab eventKey="microsoft" title="Microsoft">
-            {activeTab === "microsoft" ? (
-              <MicrosoftChatConfigForm
-                config={draft.providerMetadata.microsoft ?? {}}
-                updateConfig={providerConfigUpdaters.microsoft}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("NinjaChat") &&
-          <theme.Tab eventKey="ninjachat" title="NinjaChat">
-            {activeTab === "ninjachat" ? (
-              <NinjaChatChatConfigForm
-                config={draft.providerMetadata.ninjachat ?? {}}
-                updateConfig={providerConfigUpdaters.ninjachat}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("OpenAI") &&
-          <theme.Tab eventKey="openai" title="OpenAI">
-            {activeTab === "openai" ? (
-              <OpenAIChatConfigForm
-                config={draft.providerMetadata.openai ?? {}}
-                openAISkillOptions={openAISkillOptions}
-                resolveOpenAIShellSkill={resolveOpenAIShellSkill}
-                updateConfig={providerConfigUpdaters.openai}
-              />
-            ) : null}
-
-          </theme.Tab>
-        }
-        {enabledProviders.includes("OpenHands") &&
-          <theme.Tab eventKey="openhands" title="OpenHands">
-            {activeTab === "openhands" ? (
-              <OpenHandsChatConfigForm
-                config={draft.providerMetadata.openhands ?? {}}
-                updateConfig={providerConfigUpdaters.openhands}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("OpenRouter") &&
-          <theme.Tab eventKey="openrouter" title="OpenRouter">
-            {activeTab === "openrouter" ? (
-              <OpenRouterChatConfigForm
-                config={draft.providerMetadata.openrouter ?? {}}
-                appTitle={chatConfig?.appName}
-                updateConfig={providerConfigUpdaters.openrouter}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Requesty") &&
-          <theme.Tab eventKey="requesty" title="Requesty">
-            {activeTab === "requesty" ? (
-              <RequestyChatConfigForm
-                config={draft.providerMetadata.requesty ?? {}}
-                appTitle={chatConfig?.appName}
-                updateConfig={providerConfigUpdaters.requesty}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("BLACKBOX") &&
-          <theme.Tab eventKey="blackbox" title="BLACKBOX">
-            {activeTab === "blackbox" ? (
-              <BlackboxChatConfigForm
-                config={draft.providerMetadata.blackbox ?? {}}
-                updateConfig={providerConfigUpdaters.blackbox}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Pollinations") &&
-          <theme.Tab eventKey="pollinations" title="Pollinations">
-            {activeTab === "pollinations" ? (
-              <PollinationsChatConfigForm
-                config={draft.providerMetadata.pollinations ?? {}}
-                updateConfig={providerConfigUpdaters.pollinations}
-              />
-            ) : null}
-
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Perplexity") &&
-          <theme.Tab eventKey="perplexity"
-            title="Perplexity">
-            {activeTab === "perplexity" ? (
-              <PerplexityChatConfigForm
-                config={draft.providerMetadata.perplexity ?? {}}
-                models={models}
-                updateConfig={providerConfigUpdaters.perplexity}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Poolside") &&
-          <theme.Tab eventKey="poolside" title="Poolside">
-            {activeTab === "poolside" ? (
-              <PoolsideChatConfigForm
-                config={draft.providerMetadata.poolside ?? {}}
-                updateConfig={providerConfigUpdaters.poolside}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Together") &&
-          <theme.Tab eventKey="together"
-            title="Together">
-            {activeTab === "together" ? (
-              <TogetherChatConfigForm
-                config={draft.providerMetadata.together ?? {}}
-                updateConfig={providerConfigUpdaters.together}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("SambaNova") &&
-          <theme.Tab eventKey="sambanova" title="SambaNova">
-            {activeTab === "sambanova" ? (
-              <SambanovaChatConfigForm
-                config={draft.providerMetadata.sambanova ?? {}}
-                updateConfig={providerConfigUpdaters.sambanova}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Tembo") &&
-          <theme.Tab eventKey="tembo" title="Tembo">
-            {activeTab === "tembo" ? (
-              <TemboChatConfigForm
-                config={draft.providerMetadata.tembo ?? {}}
-                updateConfig={providerConfigUpdaters.tembo}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Venice") &&
-          <theme.Tab eventKey="venice" title="Venice">
-            {activeTab === "venice" ? (
-              <VeniceChatConfigForm
-                config={draft.providerMetadata.venice ?? {}}
-                updateConfig={providerConfigUpdaters.venice}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Linkup") &&
-          <theme.Tab eventKey="linkup" title="Linkup">
-            {activeTab === "linkup" ? (
-              <LinkupChatConfigForm
-                config={draft.providerMetadata.linkup ?? {}}
-                updateConfig={providerConfigUpdaters.linkup}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("WebCrawlerAPI") &&
-          <theme.Tab eventKey="webcrawlerapi" title="WebCrawlerAPI">
-            {activeTab === "webcrawlerapi" ? (
-              <WebCrawlerAPIChatConfigForm
-                config={draft.providerMetadata.webcrawlerapi ?? {}}
-                updateConfig={providerConfigUpdaters.webcrawlerapi}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("xAI") &&
-          <theme.Tab eventKey="xai"
-            title="xAI">
-            {activeTab === "xai" ? (
-              <XAIChatConfigForm
-                config={draft.providerMetadata.xai ?? {}}
-                updateConfig={providerConfigUpdaters.xai}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("XiaomiMIMO") &&
-          <theme.Tab eventKey="xiaomimimo" title="XiaomiMIMO">
-            {activeTab === "xiaomimimo" ? (
-              <XiaomiMIMOChatConfigForm
-                config={draft.providerMetadata.xiaomimimo ?? {}}
-                updateConfig={providerConfigUpdaters.xiaomimimo}
-              />
-            ) : null}
-          </theme.Tab>
-        }
-        {enabledProviders.includes("Zai") &&
-          <theme.Tab eventKey="zai" title="Zai">
-            {activeTab === "zai" ? (
-              <ZaiChatConfigForm
-                config={draft.providerMetadata.zai ?? {}}
-                updateConfig={providerConfigUpdaters.zai}
-              />
-            ) : null}
-          </theme.Tab>
-        }
+        ) : null}
       </theme.Tabs>
     </theme.Modal>
   );
