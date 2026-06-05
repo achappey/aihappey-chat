@@ -40,7 +40,7 @@ export const Chat = ({
         // Styling based on role
         const alignClass = isUser ? "align-self-end" : "align-self-start";
         const bg = isUser
-          ? (isDarkMode ? "secondary" : "primary")
+          ? "secondary"
           : (isDarkMode ? "dark" : "light")
         const text = isUser
           ? "light"
@@ -58,7 +58,11 @@ export const Chat = ({
             <Card.Header className="d-flex align-items-center justify-content-between py-2">
               {m.author} {dateStr}
             </Card.Header>
-            <Card.Body className="pt-0">
+            <Card.Body className="pt-0"
+              style={{
+                backgroundColor: isDarkMode
+                  && m.role == "assistant" ? "#1b1f22" : undefined
+              }}>
               <Card.Title>{m.messageLabel} </Card.Title>
               <Card.Text>
                 {renderMessage(m)}

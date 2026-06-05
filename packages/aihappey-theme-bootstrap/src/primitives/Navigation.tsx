@@ -4,6 +4,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Button from "react-bootstrap/Button";
 import { NavigationProps, NavigationItem } from "aihappey-types/src/theme";
 import { Plus, Cloud, Hdd } from "react-bootstrap-icons"; // Bootstrap icons
+import { useDarkMode } from "usehooks-ts";
 
 const isSection = (item: NavigationItem) => item.key.startsWith("section:");
 const isDivider = (item: NavigationItem) => item.key === "divider";
@@ -57,13 +58,18 @@ export const Navigation: React.FC<NavigationProps> = ({
   style,
 }) => {
   const [show, setShow] = React.useState(drawerType === "overlay" ? true : undefined);
-
+  const {isDarkMode} = useDarkMode();
+  const navstyle = {
+    ...style,
+    backgroundColor: isDarkMode ? "#1b1f22" : "rgb(248, 249, 250)"
+  }
+  
   const StorageIcon = storageType === "local" ? Hdd : Cloud;
 
   // --- Overlay (Offcanvas)
   if (drawerType === "overlay") {
     return (
-      <div className={className} style={style}>
+      <div className={className} style={navstyle}>
         <Button
           variant="light"
           aria-label="Open navigation"
@@ -107,9 +113,9 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   // --- Inline (Sidebar)
   return (
-    <div className={className} style={style}>
+    <div className={className} style={navstyle}>
       <div className="d-flex align-items-center justify-content-between px-2 py-2">
-        <span style={{ fontWeight: 600 }}>Chats</span>
+        <span style={{ fontWeight: 600 }}></span>
         <div className="d-flex gap-2">
           {onNewChat && (
             <Button variant="link" aria-label="Nieuw chat" onClick={onNewChat}>

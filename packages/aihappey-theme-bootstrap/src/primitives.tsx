@@ -56,6 +56,28 @@ import { AudioPlayer } from "./primitives/AudioPlayer";
 import { Text as TextPrimitive } from "./primitives/Text";
 import { Accordion } from "./primitives/Accordion";
 import { AvatarGroup } from "./primitives/AvatarGroup";
+import { useDarkMode } from "usehooks-ts";
+
+const TextArea = ({ rows, readOnly, value, onChange, style, className }: any) => {
+  const { isDarkMode } = useDarkMode();
+
+  return (
+    <Form.Control
+      as="textarea"
+      rows={rows}
+      disabled={readOnly}
+      value={value}
+      className={className}
+      style={{
+        ...style,
+        backgroundColor: isDarkMode ? "#1b1f22" : "rgb(248, 249, 250)",
+        color: isDarkMode ? "#ffffff" : undefined,
+        borderColor: isDarkMode ? "#495057" : undefined
+      }}
+      onChange={(e) => onChange?.(e.target.value)}
+    />
+  );
+};
 
 export const bootstrapTheme: AihUiTheme = {
   AvatarGroup,
@@ -268,9 +290,11 @@ export const bootstrapTheme: AihUiTheme = {
       onChange={(e) => onChange(e.target.checked)}
     />
   ),
-
+  TextArea: TextArea as any,
+  //TextArea: (props) => <TextArea {...props} />,
   // Added TextArea primitive
-  TextArea: ({ rows, readOnly, value, onChange, style, className }) => (
+  /*TextArea: ({ rows, readOnly, value, onChange, style, className }) => (
+    
     <Form.Control
       as="textarea"
       rows={rows}
@@ -281,7 +305,7 @@ export const bootstrapTheme: AihUiTheme = {
       onChange={(e) => onChange && onChange(e.target.value)}
     />
   ),
-
+*/
   Card: ({
     title,
     text,
