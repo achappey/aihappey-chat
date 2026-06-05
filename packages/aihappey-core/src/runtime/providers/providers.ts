@@ -229,7 +229,6 @@ import { askarc } from "./catalog/askarc";
 import { synthetic } from "./catalog/synthetic";
 import { renderful } from "./catalog/renderful";
 import { tigercity } from "./catalog/tigercity";
-import { kittenstack } from "./catalog/kittenstack";
 import { edenai } from "./catalog/edenai";
 import { websearchapi } from "./catalog/websearchapi";
 import { nimbleway } from "./catalog/nimbleway";
@@ -862,7 +861,6 @@ export const PROVIDERS: Record<string, Provider> = {
   edenai,
   maritacaai,
   dataforseo,
-  kittenstack,
   cloudferro,
   jigsawstack,
   eachlabs,
