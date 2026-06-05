@@ -73,7 +73,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           position: "sticky",
           top: 0,
           zIndex: 10,
-          backgroundColor: isDarkMode ? "#292929" : "#ffffff",
           height: 48,
           display: "flex",
           alignItems: "center",
