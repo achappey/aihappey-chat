@@ -10,7 +10,8 @@ export const deepseek: Provider = {
   ],
   urls: {
     homepage: "https://www.deepseek.com",
-    docs: "https://platform.deepseek.com/docs",
+    console: "https://platform.deepseek.com",
+    docs: "https://api-docs.deepseek.com",
     privacyPolicy: "https://www.deepseek.com/privacy",
     termsOfService: "https://www.deepseek.com/terms"
   },
