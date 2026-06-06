@@ -118,7 +118,6 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-input,
 .aih-shadcn-textarea,
 .aih-shadcn-select-trigger {
-  width: 100%;
   border-radius: calc(var(--aih-shadcn-radius) - 2px);
   border: 1px solid var(--aih-shadcn-input);
   background: var(--aih-shadcn-background);
@@ -126,6 +125,10 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
   font-size: .875rem;
   line-height: 1.25rem;
 }
+.aih-shadcn-input,
+.aih-shadcn-textarea { width: 100%; }
+.aih-shadcn-field .aih-shadcn-select-trigger { width: 100%; }
+.aih-shadcn-select-trigger { max-width: 100%; }
 .aih-shadcn-input { height: 2.25rem; padding: 0 .75rem; }
 .aih-shadcn-textarea { min-height: 5rem; padding: .5rem .75rem; resize: vertical; }
 .aih-shadcn-field { display: grid; gap: .375rem; }
@@ -149,6 +152,10 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-badge-secondary { background: var(--aih-shadcn-secondary); color: var(--aih-shadcn-secondary-foreground); }
 .aih-shadcn-badge-outline { border-color: var(--aih-shadcn-border); color: var(--aih-shadcn-foreground); }
 .aih-shadcn-badge-danger { background: var(--aih-shadcn-destructive); color: var(--aih-shadcn-destructive-foreground); }
+.aih-shadcn-tag-image { width: 1rem; height: 1rem; border-radius: 999px; object-fit: contain; }
+.aih-shadcn-tag-remove { display: inline-flex; align-items: center; justify-content: center; width: 1rem; height: 1rem; margin-inline: .125rem -.25rem; padding: 0; border: 0; border-radius: 999px; background: transparent; color: currentColor; opacity: .75; cursor: pointer; }
+.aih-shadcn-tag-remove:hover,
+.aih-shadcn-tag-remove:focus-visible { opacity: 1; background: color-mix(in srgb, currentColor 12%, transparent); outline: none; }
 
 .aih-shadcn-popover { z-index: var(--aih-shadcn-popover-z-index); min-width: 12rem; border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-popover); color: var(--aih-shadcn-popover-foreground); box-shadow: 0 10px 30px rgb(0 0 0 / .18); padding: .25rem; }
 .aih-shadcn-menu-content,
@@ -165,7 +172,10 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-menu-separator { height: 1px; margin: .25rem 0; background: var(--aih-shadcn-border); }
 
 .aih-shadcn-dialog-overlay { position: fixed; inset: 0; z-index: var(--aih-shadcn-dialog-z-index); background: rgb(0 0 0 / .55); }
-.aih-shadcn-dialog-content { position: fixed; left: 50%; top: 50%; z-index: calc(var(--aih-shadcn-dialog-z-index) + 1); width: min(calc(100vw - 2rem), 36rem); transform: translate(-50%, -50%); border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-background); color: var(--aih-shadcn-foreground); box-shadow: 0 20px 60px rgb(0 0 0 / .25); padding: 1rem; }
+.aih-shadcn-dialog-content { position: fixed; left: 50%; top: 50%; z-index: calc(var(--aih-shadcn-dialog-z-index) + 1); display: flex; width: min(calc(100vw - 2rem), 36rem); max-height: min(calc(100dvh - 2rem), calc(100vh - 2rem)); flex-direction: column; overflow: hidden; transform: translate(-50%, -50%); border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-background); color: var(--aih-shadcn-foreground); box-shadow: 0 20px 60px rgb(0 0 0 / .25); }
+.aih-shadcn-dialog-header { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: space-between; gap: .5rem; padding: 1rem 1rem 0; }
+.aih-shadcn-dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1rem; }
+.aih-shadcn-dialog-footer { display: flex; flex: 0 0 auto; justify-content: flex-end; gap: .5rem; border-top: 1px solid var(--aih-shadcn-border); background: var(--aih-shadcn-background); padding: .75rem 1rem 1rem; }
 .aih-shadcn-drawer-content { position: fixed; inset-block: 0; right: 0; z-index: calc(var(--aih-shadcn-dialog-z-index) + 1); width: min(28rem, 90vw); border-left: 1px solid var(--aih-shadcn-border); background: var(--aih-shadcn-background); color: var(--aih-shadcn-foreground); box-shadow: -10px 0 30px rgb(0 0 0 / .18); padding: 1rem; overflow: auto; }
 
 .aih-shadcn-tabs-list { display: inline-flex; align-items: center; gap: .25rem; border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-muted); padding: .25rem; }

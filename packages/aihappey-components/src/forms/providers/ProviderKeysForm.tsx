@@ -90,41 +90,48 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
             <div
               key={item.header}
               style={{
-                display: "flex",
+                display: "grid",
+                gridTemplateColumns: "32px minmax(7rem, 13rem) minmax(0, 1fr) auto auto",
                 gap: "0.5rem",
                 alignItems: "center",
+                width: "100%",
               }}
             >
-              {item.iconSrc ? (
-                item.url ? (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    title={t("website")}
-                    aria-label={t("website")}
-                    style={{ display: "inline-flex", lineHeight: 0 }}
-                  >
+              <div style={{ display: "inline-flex", justifyContent: "center", lineHeight: 0, width: 32 }}>
+                {item.iconSrc ? (
+                  item.url ? (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={t("website")}
+                      aria-label={t("website")}
+                      style={{ display: "inline-flex", lineHeight: 0 }}
+                    >
+                      <theme.Image width={24} src={item.iconSrc} />
+                    </a>
+                  ) : (
                     <theme.Image width={24} src={item.iconSrc} />
-                  </a>
-                ) : (
-                  <theme.Image width={24} src={item.iconSrc} />
-                )
-              ) : null}
+                  )
+                ) : null}
+              </div>
 
-              <div style={{ width: 120, fontWeight: 600 }}>
+              <div style={{ minWidth: 0, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={item.name}>
                 {item.name}
               </div>
 
-              <theme.Input
-                type={isVisible ? "text" : "password"}
-                value={value}
-                style={{ flexGrow: 1 }}
-                placeholder={`${item.name} ${apiKeyLabel}...`}
-                autoComplete="off"
-                onChange={(e: any) =>
-                  onChange(item.header, e.target.value)
-                }
-              />
+              <div style={{ minWidth: 0 }}>
+                <theme.Input
+                  type={isVisible ? "text" : "password"}
+                  value={value}
+                  style={{ width: "100%" }}
+                  placeholder={`${item.name} ${apiKeyLabel}...`}
+                  autoComplete="off"
+                  onChange={(e: any) =>
+                    onChange(item.header, e.target.value)
+                  }
+                />
+              </div>
 
               <theme.Button
                 icon="eye"

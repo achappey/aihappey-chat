@@ -350,13 +350,23 @@ const Field = ({ label, hint, required, orientation, style, children }: any) => 
   </label>
 );
 
-function flattenOptions(children: React.ReactNode): { value: string; label: React.ReactNode; group?: string }[] {
-  const out: { value: string; label: React.ReactNode; group?: string }[] = [];
+const EMPTY_SELECT_ITEM_VALUE = "__aih_shadcn_empty_select_item__";
+
+function toSelectItemValue(value: string) {
+  return value === "" ? EMPTY_SELECT_ITEM_VALUE : value;
+}
+
+function fromSelectItemValue(value: string) {
+  return value === EMPTY_SELECT_ITEM_VALUE ? "" : value;
+}
+
+function flattenOptions(children: React.ReactNode): { value: string; label: React.ReactNode; group?: string; disabled?: boolean }[] {
+  const out: { value: string; label: React.ReactNode; group?: string; disabled?: boolean }[] = [];
   React.Children.forEach(children, (child) => {
     if (!React.isValidElement<any>(child)) return;
     const element = child as React.ReactElement<any>;
     if (element.type === React.Fragment) out.push(...flattenOptions(element.props.children));
-    else if (element.type === "option") out.push({ value: String(element.props.value), label: element.props.children });
+    else if (element.type === "option") out.push({ value: String(element.props.value ?? ""), label: element.props.children, disabled: element.props.disabled });
     else if (element.type === "optgroup") flattenOptions(element.props.children).forEach((o) => out.push({ ...o, group: element.props.label }));
   });
   return out;
@@ -365,10 +375,13 @@ function flattenOptions(children: React.ReactNode): { value: string; label: Reac
 export const Select = ({ values = [], onChange, label, hint, required, children, disabled, valueTitle, style, className, icon, ...rest }: any) => {
   const options = React.useMemo(() => flattenOptions(children), [children]);
   const selected = values?.[0] ?? "";
+  const hasEmptyOption = options.some((option) => option.value === "");
+  const radixValue = selected === "" && hasEmptyOption ? EMPTY_SELECT_ITEM_VALUE : selected;
   const Icon = icon ? iconMap[icon as IconToken] : ChevronDown;
+  const triggerStyle = label ? undefined : style;
   const select = (
-    <SelectPrimitive.Root value={selected} disabled={disabled} onValueChange={(value) => onChange?.(value)}>
-      <SelectPrimitive.Trigger className={cn("aih-shadcn-select-trigger", className)} style={{ display: "inline-flex", height: 36, alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 .75rem", ...(label ? {} : style) }} aria-label={rest["aria-label"]}>
+    <SelectPrimitive.Root value={radixValue} disabled={disabled} onValueChange={(value) => onChange?.(fromSelectItemValue(value))}>
+      <SelectPrimitive.Trigger className={cn("aih-shadcn-select-trigger", className)} style={{ display: "inline-flex", height: 36, alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 .75rem", ...(triggerStyle ?? {}) }} aria-label={rest["aria-label"]}>
         <SelectPrimitive.Value placeholder={valueTitle ?? "Select..."} />
         <SelectPrimitive.Icon><Icon size={16} /></SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
@@ -377,8 +390,8 @@ export const Select = ({ values = [], onChange, label, hint, required, children,
           <SelectPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content" position="popper" sideOffset={4} collisionPadding={8}>
           <SelectPrimitive.ScrollUpButton className="aih-shadcn-select-scroll-button"><ChevronUp size={14} /></SelectPrimitive.ScrollUpButton>
           <SelectPrimitive.Viewport className="aih-shadcn-select-viewport">
-            {options.map((option) => (
-              <SelectPrimitive.Item key={option.value} value={option.value} className="aih-shadcn-menu-item">
+            {options.map((option, index) => (
+              <SelectPrimitive.Item key={`${option.group ?? "option"}:${option.value}:${index}`} value={toSelectItemValue(option.value)} disabled={option.disabled} className="aih-shadcn-menu-item">
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
               </SelectPrimitive.Item>
             ))}
@@ -485,7 +498,34 @@ AvatarGroup.Item = (props: any) => <Avatar {...props} style={{ marginLeft: -6, .
 AvatarGroup.Popover = ({ children, count }: any) => <span className="aih-shadcn-badge aih-shadcn-badge-secondary">{children ?? `+${count ?? 0}`}</span>;
 AvatarGroup.partitionItems = <T,>({ items, maxInlineItems = 5 }: { items: readonly T[]; maxInlineItems?: number }) => ({ inlineItems: items.slice(0, maxInlineItems), overflowItems: items.length > maxInlineItems ? items.slice(maxInlineItems) : undefined });
 
-export const Tags = ({ items = [], className, style }: any) => <div className={className} style={{ display: "flex", flexWrap: "wrap", gap: 6, ...style }}>{items.map((item: any) => <Badge key={item.key} icon={item.icon}>{item.label ?? item.text ?? item.key}</Badge>)}</div>;
+export const Tags = ({ items = [], onRemove, className, style }: any) => (
+  <div className={className} style={{ display: "flex", flexWrap: "wrap", gap: 6, ...style }}>
+    {items.map((item: any) => {
+      const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined;
+      return (
+        <span key={item.key} className="aih-shadcn-badge aih-shadcn-badge-secondary">
+          {Icon ? <Icon size={12} /> : null}
+          {item.image ? <img src={item.image} alt="" className="aih-shadcn-tag-image" /> : null}
+          {item.label ?? item.text ?? item.key}
+          {onRemove ? (
+            <button
+              type="button"
+              className="aih-shadcn-tag-remove"
+              aria-label="Remove"
+              title="Remove"
+              onClick={(event) => {
+                event.stopPropagation();
+                void onRemove(item.key);
+              }}
+            >
+              <X size={12} />
+            </button>
+          ) : null}
+        </span>
+      );
+    })}
+  </div>
+);
 export const Breadcrumb = ({ items = [], separator = <ChevronRight size={14} />, className, style }: any) => <nav className={className} style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--aih-shadcn-muted-foreground)", ...style }}>{items.map((item: any, index: number) => { const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined; return <React.Fragment key={item.key}>{index > 0 ? separator : null}<button onClick={item.onClick} style={{ display: "inline-flex", alignItems: "center", gap: 4, border: 0, background: "transparent", color: "inherit", cursor: item.onClick ? "pointer" : undefined }}>{Icon ? <Icon size={14} /> : null}{item.label}</button></React.Fragment>; })}</nav>;
 export const AudioPlayer = (props: any) => <audio controls {...props} style={{ width: "100%", ...(props.style ?? {}) }} />;
 
@@ -518,12 +558,12 @@ export const Modal = ({ open, show, onOpenChange, onHide, title, children, actio
               ...(centered ? { display: "flex", flexDirection: "column", justifyContent: "center" } : {}),
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+            <div className="aih-shadcn-dialog-header">
               {title ? <DialogPrimitive.Title className="aih-shadcn-card-title">{title}</DialogPrimitive.Title> : null}
               <DialogPrimitive.Close asChild><CloseButtonBase aria-label="Close" /></DialogPrimitive.Close>
             </div>
-            <div style={{ marginTop: 12 }}>{children}</div>
-            {actions ? <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end", gap: 8 }}>{actions}</div> : null}
+            <div className="aih-shadcn-dialog-body">{children}</div>
+            {actions ? <div className="aih-shadcn-dialog-footer">{actions}</div> : null}
           </DialogPrimitive.Content>
         </PortalThemeScope>
       </DialogPrimitive.Portal>

@@ -79,8 +79,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           style={{
             flex: 1,
             display: "flex",
-            flexDirection: "column",
-            padding: "24px 0 0 0",
+            flexDirection: "column"
           }}
         >
           <theme.Tabs
