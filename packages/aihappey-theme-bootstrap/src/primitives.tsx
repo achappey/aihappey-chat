@@ -188,21 +188,73 @@ export const bootstrapTheme: AihUiTheme = {
   ToggleButton: ({
     checked = false,
     onClick,
+    variant = "primary",
+    size,
+    icon,
+    iconPosition = "left",
     children,
+    className,
+    style,
     ...rest
-  }: {
+  }: ComponentProps<"button"> & {
     checked?: boolean;
     onClick?: any;
+    variant?: string;
+    size?: string;
+    icon?: IconToken;
+    iconPosition?: "left" | "right";
     children?: React.ReactNode;
-  }) => (
-    <RBButton
-      variant={checked ? "primary" : "outline-primary"}
-      onClick={onClick}
-      {...(rest as any)}
-    >
-      {children}
-    </RBButton>
-  ),
+  }): JSX.Element => {
+    const isSubtle = variant === "subtle" || variant === "transparent";
+    const hasChildren = React.Children.count(children) > 0;
+    const mappedVariant = isSubtle
+      ? checked
+        ? "primary"
+        : "link"
+      : checked
+        ? variant
+        : `outline-${variant}`;
+    const buttonSize = size === "large" ? undefined : size as any;
+    const iconOnlyExtent = size === "large" ? 42 : 38;
+    const iconOnlyStyles: React.CSSProperties | undefined = icon && !hasChildren
+      ? {
+        width: iconOnlyExtent,
+        height: iconOnlyExtent,
+        padding: 0,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        lineHeight: 1,
+      }
+      : undefined;
+    const buttonClassName = [
+      className,
+      isSubtle && !checked ? "text-body text-decoration-none" : undefined,
+    ].filter(Boolean).join(" ") || undefined;
+
+    return (
+      <RBButton
+        variant={mappedVariant}
+        size={buttonSize}
+        onClick={onClick}
+        aria-pressed={checked}
+        {...(rest as any)}
+        className={buttonClassName}
+        style={{
+          ...iconOnlyStyles,
+          ...(style ?? {}),
+        }}
+      >
+        {icon && iconPosition === "left" && (
+          <span className={hasChildren ? "me-2" : undefined}>{iconMap[icon]}</span>
+        )}
+        {children}
+        {icon && iconPosition === "right" && (
+          <span className={hasChildren ? "ms-2" : undefined}>{iconMap[icon]}</span>
+        )}
+      </RBButton>
+    );
+  },
   Button: ({
     variant = "primary",
     size,
@@ -221,11 +273,12 @@ export const bootstrapTheme: AihUiTheme = {
     const hasChildren = React.Children.count(children) > 0;
     const mappedVariant = isSubtle ? "link" : variant;
     const buttonSize = size === "large" ? undefined : size as any;
+    const iconOnlyExtent = size === "large" ? 42 : 38;
     const iconOnlyStyles: React.CSSProperties | undefined = icon && !hasChildren
       ? {
-        minWidth: size === "large" ? 36 : 30,
-        minHeight: size === "large" ? 36 : 30,
-        padding: 4,
+        width: iconOnlyExtent,
+        height: iconOnlyExtent,
+        padding: 0,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",

@@ -116,7 +116,7 @@ export const Select: React.FC<SelectProps> = ({
 
   const toggleContent = React.useMemo(() => {
     if (valueTitle != null && valueTitle !== "") return valueTitle;
-    if (selectedValues.length === 0) return placeholder ?? "";
+    if (selectedValues.length === 0) return placeholder ?? "Select...";
     return selectedValues.map((v, idx) => (
       <React.Fragment key={v}>
         {idx > 0 ? ", " : null}
@@ -137,7 +137,7 @@ export const Select: React.FC<SelectProps> = ({
         variant="outline-secondary"
         size={bsSize}
         disabled={disabled}
-        style={style}
+        style={{ minWidth: 160, ...style }}
         aria-label={ariaLabel}
         aria-required={required || undefined}
       >
