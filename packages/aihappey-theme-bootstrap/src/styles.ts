@@ -42,6 +42,15 @@ export const bootstrapThemeStyles = `
   padding-bottom: .25rem !important;
 }
 
+.aihappey-bootstrap-select-menu {
+  z-index: 1080;
+  min-width: var(--aihappey-bootstrap-select-menu-min-width, 10rem);
+  max-width: calc(100vw - 1rem);
+  max-height: min(24rem, calc(100vh - 1rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 @media (max-width: 767.98px) {
   .aihappey-bootstrap-chat-message {
     width: 100%;
