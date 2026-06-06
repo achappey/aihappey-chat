@@ -8,6 +8,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useIsDesktop } from "../responsive/useIsDesktop";
+import { useChatContext } from "../../features/chat/context/ChatContext";
 
 export const ConversationSidebar = ({
   onSearch,
@@ -23,6 +24,7 @@ export const ConversationSidebar = ({
   const location = useLocation();
   const { t } = useTranslation();
   const { Navigation } = useTheme();
+  const { config } = useChatContext();
   const conversationStorage = useAppStore((a) => a.conversationStorage);
   const remoteStorageConnected = useAppStore((a) => a.remoteStorageConnected);
   const setConversationStorage = useAppStore((a) => a.setConversationStorage);
@@ -452,6 +454,7 @@ export const ConversationSidebar = ({
 
       <Navigation
         items={navItems}
+        appTitle={config?.appName ?? "AIHappey"}
         translations={translations}
         onClose={() => setSidebarOpen(false)}
         onTogglePin={async (a) => {

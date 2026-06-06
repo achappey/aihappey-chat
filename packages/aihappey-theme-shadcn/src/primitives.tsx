@@ -1020,7 +1020,7 @@ const ShadcnNavItemRow = ({
   );
 };
 
-export const Navigation = ({ items = [], activeKey, onSelect, className, style, onClose, storageType = "local", onStorageSwitch, translations, onRename, onDelete, onExport, onTogglePin }: any) => {
+export const Navigation = ({ items = [], appTitle, activeKey, onSelect, className, style, onClose, storageType = "local", onStorageSwitch, translations, onRename, onDelete, onExport, onTogglePin }: any) => {
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editValue, setEditValue] = React.useState("");
   const activeCategoryKeys = React.useMemo(
@@ -1039,24 +1039,27 @@ export const Navigation = ({ items = [], activeKey, onSelect, className, style, 
 
   const renderHeader = () => (
     <div className="aih-shadcn-nav-header">
-      <Button
-        icon="menu"
-        size="small"
-        variant="ghost"
-        aria-label={translations?.closeNavigation ?? "Close navigation"}
-        title={translations?.closeNavigation ?? "Close navigation"}
-        onClick={onClose}
-      />
-      {onStorageSwitch ? (
+      <div className="aih-shadcn-nav-app-title" title={appTitle ?? "AIHappey"}>{appTitle ?? "AIHappey"}</div>
+      <div className="aih-shadcn-nav-header-actions">
+        {onStorageSwitch ? (
+          <Button
+            icon={storageType === "local" ? "storage" : "sources"}
+            size="small"
+            variant="ghost"
+            aria-label="Switch storage"
+            title={`Storage: ${storageType === "local" ? "Local" : "Cloud"}`}
+            onClick={() => onStorageSwitch(storageType === "local" ? "remote" : "local")}
+          />
+        ) : null}
         <Button
-          icon={storageType === "local" ? "storage" : "sources"}
+          icon="menu"
           size="small"
           variant="ghost"
-          aria-label="Switch storage"
-          title={`Storage: ${storageType === "local" ? "Local" : "Cloud"}`}
-          onClick={() => onStorageSwitch(storageType === "local" ? "remote" : "local")}
+          aria-label={translations?.closeNavigation ?? "Close navigation"}
+          title={translations?.closeNavigation ?? "Close navigation"}
+          onClick={onClose}
         />
-      ) : <span />}
+      </div>
     </div>
   );
 

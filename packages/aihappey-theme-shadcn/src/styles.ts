@@ -197,7 +197,9 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-table th { color: var(--aih-shadcn-muted-foreground); font-weight: 600; }
 
 .aih-shadcn-nav { display: flex; min-width: 220px; flex-direction: column; gap: .25rem; }
-.aih-shadcn-nav-header { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 0 0 .375rem; }
+.aih-shadcn-nav-header { display: flex; min-height: 3rem; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem .75rem; }
+.aih-shadcn-nav-app-title { display: flex; min-width: 0; min-height: 2rem; flex: 1 1 auto; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.125rem; font-weight: 650; line-height: 2rem; color: var(--aih-shadcn-foreground); }
+.aih-shadcn-nav-header-actions { display: inline-flex; min-height: 2rem; flex: 0 0 auto; align-items: center; gap: .125rem; }
 .aih-shadcn-nav-list { display: flex; flex-direction: column; gap: .125rem; }
 .aih-shadcn-nav-divider { height: 1px; background: var(--aih-shadcn-border); margin: .5rem 0; }
 .aih-shadcn-nav-section-label { padding: .4375rem .75rem .3125rem; font-weight: 600; color: var(--aih-shadcn-foreground); }

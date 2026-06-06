@@ -19,6 +19,7 @@ export interface NavigationItem {
 
 export interface NavigationProps {
   items: NavigationItem[];
+  appTitle?: string;
   activeKey?: string;
   onClose?: () => void;
   onSelect?: (key: string) => void;

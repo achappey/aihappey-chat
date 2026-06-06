@@ -33,6 +33,7 @@ const useStyles = makeStyles({
 
 export const Navigation: React.FC<NavigationProps> = ({
   items,
+  appTitle,
   activeKey,
   onSelect,
   storageType = "local",
@@ -75,6 +76,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         }
       >
         <NavigationHeader
+          appTitle={appTitle}
           storageType={storageType}
           onClose={onClose}
           onStorageSwitch={onStorageSwitch}

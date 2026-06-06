@@ -75,6 +75,7 @@ const renderNavItems = (
 
 export const Navigation: React.FC<NavigationProps> = ({
   items,
+  appTitle,
   activeKey,
   onSelect,
   onNewChat,
@@ -87,7 +88,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   style,
 }) => {
   const [show, setShow] = React.useState(drawerType === "overlay" ? true : undefined);
-  const {isDarkMode} = useDarkMode();
+  const { isDarkMode } = useDarkMode();
+  const title = appTitle ?? "AIHappey";
   const navstyle = {
     ...style,
     backgroundColor: isDarkMode ? "#1b1f22" : "rgb(248, 249, 250)"
@@ -104,20 +106,22 @@ export const Navigation: React.FC<NavigationProps> = ({
         </Button>
         <Offcanvas show={!!show} onHide={() => setShow(false)} placement="start">
           <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Navigation</Offcanvas.Title>
+            <Offcanvas.Title>{title}</Offcanvas.Title>
             <div className="d-flex align-items-center gap-2 ms-auto">
               <Button variant="link" aria-label="Nieuw chat" onClick={onNewChat}>
                 <Plus size={20} />
               </Button>
-              <Button
-                variant="link"
-                aria-label="Wissel opslag"
-                onClick={() =>
-                  onStorageSwitch?.(storageType === "local" ? "remote" : "local")
-                }
-              >
-                <StorageIcon size={20} />
-              </Button>
+              {onStorageSwitch && (
+                <Button
+                  variant="link"
+                  aria-label="Wissel opslag"
+                  onClick={() =>
+                    onStorageSwitch(storageType === "local" ? "remote" : "local")
+                  }
+                >
+                  <StorageIcon size={20} />
+                </Button>
+              )}
             </div>
           </Offcanvas.Header>
           <Offcanvas.Body>
@@ -138,24 +142,36 @@ export const Navigation: React.FC<NavigationProps> = ({
   // --- Inline (Sidebar)
   return (
     <div className={className} style={navstyle}>
-      <div className="d-flex align-items-center justify-content-between px-2 py-2">
-        <Button variant="link" aria-label="Close navigation" onClick={onClose} className="p-1">
-          <List size={24} />
-        </Button>
-        <div className="d-flex gap-2">
-          {onNewChat && (
-            <Button variant="link" aria-label="Nieuw chat" onClick={onNewChat}>
-              <Plus size={20} />
+      <div className="d-flex align-items-center justify-content-between px-3 py-2" style={{ minHeight: 48 }}>
+        <div
+          className="fw-semibold fs-5 text-truncate"
+          title={title}
+          style={{ lineHeight: "2rem" }}
+        >
+          {title}
+        </div>
+        <div className="d-flex align-items-center gap-1 flex-shrink-0">
+          {onStorageSwitch && (
+            <Button
+              variant="link"
+              aria-label="Wissel opslag"
+              onClick={() =>
+                onStorageSwitch(storageType === "local" ? "remote" : "local")
+              }
+              className="p-1"
+              style={{ width: 32, height: 32, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <StorageIcon size={20} />
             </Button>
           )}
           <Button
             variant="link"
-            aria-label="Wissel opslag"
-            onClick={() =>
-              onStorageSwitch?.(storageType === "local" ? "remote" : "local")
-            }
+            aria-label="Close navigation"
+            onClick={onClose}
+            className="p-1"
+            style={{ width: 32, height: 32, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
           >
-            <StorageIcon size={20} />
+            <List size={24} />
           </Button>
         </div>
       </div>
