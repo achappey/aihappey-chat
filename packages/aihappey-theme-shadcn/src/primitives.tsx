@@ -212,7 +212,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   chevronRight: ChevronRight,
   logout: KeyRound,
   star: Star,
-  starFilled: Star,
+  starFilled: StarFilledIcon,
 };
 
 function PlusIcon(props: LucideProps) {
@@ -225,6 +225,10 @@ function MessagesIcon(props: LucideProps) {
 
 function WarningIcon(props: LucideProps) {
   return <ShieldCheck {...props} />;
+}
+
+function StarFilledIcon(props: LucideProps) {
+  return <Star {...props} fill="currentColor" />;
 }
 
 const PortalThemeScope = ({ children }: { children: React.ReactNode }) => (
@@ -301,18 +305,23 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(function But
 
 export const Button = ButtonBase as unknown as (props: ButtonProps) => React.JSX.Element;
 
-export const ToggleButton = ({ checked = false, variant, className, icon, iconPosition = "left", children, ...rest }: any) => (
-  <Button
-    variant={variant ?? (checked ? "primary" : "outline")}
-    icon={icon}
-    iconPosition={iconPosition}
-    aria-pressed={checked}
-    className={className}
-    {...rest}
-  >
-    {children}
-  </Button>
-);
+export const ToggleButton = ({ checked = false, variant, className, icon, iconPosition = "left", children, ...rest }: any) => {
+  const checkedSubtle = checked && (variant === "subtle" || variant === "transparent" || variant === "ghost");
+
+  return (
+    <Button
+      variant={variant ?? (checked ? "primary" : "outline")}
+      icon={icon}
+      iconPosition={iconPosition}
+      aria-pressed={checked}
+      data-state={checked ? "on" : "off"}
+      className={cn(checkedSubtle && "aih-shadcn-toggle-active", className)}
+      {...rest}
+    >
+      {children}
+    </Button>
+  );
+};
 
 const CloseButtonBase = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<"button"> & Partial<CloseButtonProps>>(function CloseButtonBase(props, ref) {
   return <ButtonBase ref={ref} variant="ghost" icon="dismiss" {...props} />;
@@ -352,6 +361,21 @@ const Field = ({ label, hint, required, orientation, style, children }: any) => 
 
 const EMPTY_SELECT_ITEM_VALUE = "__aih_shadcn_empty_select_item__";
 
+type ShadcnSelectOption = {
+  type: "option";
+  value: string;
+  label: React.ReactNode;
+  disabled?: boolean;
+};
+
+type ShadcnSelectGroup = {
+  type: "group";
+  label: React.ReactNode;
+  options: ShadcnSelectOption[];
+};
+
+type ShadcnSelectNode = ShadcnSelectOption | ShadcnSelectGroup;
+
 function toSelectItemValue(value: string) {
   return value === "" ? EMPTY_SELECT_ITEM_VALUE : value;
 }
@@ -360,29 +384,146 @@ function fromSelectItemValue(value: string) {
   return value === EMPTY_SELECT_ITEM_VALUE ? "" : value;
 }
 
-function flattenOptions(children: React.ReactNode): { value: string; label: React.ReactNode; group?: string; disabled?: boolean }[] {
-  const out: { value: string; label: React.ReactNode; group?: string; disabled?: boolean }[] = [];
+function parseSelectNodes(children: React.ReactNode): ShadcnSelectNode[] {
+  const out: ShadcnSelectNode[] = [];
   React.Children.forEach(children, (child) => {
     if (!React.isValidElement<any>(child)) return;
     const element = child as React.ReactElement<any>;
-    if (element.type === React.Fragment) out.push(...flattenOptions(element.props.children));
-    else if (element.type === "option") out.push({ value: String(element.props.value ?? ""), label: element.props.children, disabled: element.props.disabled });
-    else if (element.type === "optgroup") flattenOptions(element.props.children).forEach((o) => out.push({ ...o, group: element.props.label }));
+    if (element.type === React.Fragment) out.push(...parseSelectNodes(element.props.children));
+    else if (element.type === "option") out.push({ type: "option", value: String(element.props.value ?? ""), label: element.props.children, disabled: element.props.disabled });
+    else if (element.type === "optgroup") {
+      const groupOptions = flattenSelectOptions(element.props.children);
+      if (groupOptions.length > 0) out.push({ type: "group", label: element.props.label, options: groupOptions });
+    }
   });
   return out;
 }
 
-export const Select = ({ values = [], onChange, label, hint, required, children, disabled, valueTitle, style, className, icon, ...rest }: any) => {
-  const options = React.useMemo(() => flattenOptions(children), [children]);
-  const selected = values?.[0] ?? "";
+function flattenSelectOptions(children: React.ReactNode): ShadcnSelectOption[] {
+  const options: ShadcnSelectOption[] = [];
+  for (const node of parseSelectNodes(children)) {
+    if (node.type === "option") options.push(node);
+    else options.push(...node.options);
+  }
+  return options;
+}
+
+function findSelectLabel(options: ShadcnSelectOption[], value: string): React.ReactNode {
+  return options.find((option) => option.value === value)?.label ?? value;
+}
+
+function renderSelectOption(option: ShadcnSelectOption, key: React.Key) {
+  return (
+    <SelectPrimitive.Item key={key} value={toSelectItemValue(option.value)} disabled={option.disabled} className="aih-shadcn-menu-item aih-shadcn-select-item">
+      <SelectPrimitive.ItemIndicator className="aih-shadcn-select-item-indicator"><Check size={14} /></SelectPrimitive.ItemIndicator>
+      <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
+    </SelectPrimitive.Item>
+  );
+}
+
+function renderSelectNodes(nodes: ShadcnSelectNode[]) {
+  return nodes.map((node, index) => {
+    if (node.type === "option") return renderSelectOption(node, `option:${node.value}:${index}`);
+    return (
+      <React.Fragment key={`group:${String(node.label)}:${index}`}>
+        {index > 0 ? <SelectPrimitive.Separator className="aih-shadcn-menu-separator" /> : null}
+        <SelectPrimitive.Group>
+          <SelectPrimitive.Label className="aih-shadcn-select-group-label">{node.label}</SelectPrimitive.Label>
+          {node.options.map((option, optionIndex) => renderSelectOption(option, `group:${String(node.label)}:${option.value}:${optionIndex}`))}
+        </SelectPrimitive.Group>
+      </React.Fragment>
+    );
+  });
+}
+
+function renderMultiSelectNodes(nodes: ShadcnSelectNode[], selectedValues: string[], onChange: ((value: string) => void) | undefined) {
+  return nodes.map((node, index) => {
+    if (node.type === "option") return renderMultiSelectOption(node, selectedValues, onChange, `option:${node.value}:${index}`);
+    return (
+      <React.Fragment key={`group:${String(node.label)}:${index}`}>
+        {index > 0 ? <DropdownMenuPrimitive.Separator className="aih-shadcn-menu-separator" /> : null}
+        <DropdownMenuPrimitive.Group>
+          <DropdownMenuPrimitive.Label className="aih-shadcn-select-group-label">{node.label}</DropdownMenuPrimitive.Label>
+          {node.options.map((option, optionIndex) => renderMultiSelectOption(option, selectedValues, onChange, `group:${String(node.label)}:${option.value}:${optionIndex}`))}
+        </DropdownMenuPrimitive.Group>
+      </React.Fragment>
+    );
+  });
+}
+
+function renderMultiSelectOption(option: ShadcnSelectOption, selectedValues: string[], onChange: ((value: string) => void) | undefined, key: React.Key) {
+  return (
+    <DropdownMenuPrimitive.CheckboxItem
+      key={key}
+      checked={selectedValues.includes(option.value)}
+      disabled={option.disabled}
+      className="aih-shadcn-menu-item aih-shadcn-multiselect-item"
+      onSelect={(event) => {
+        event.preventDefault();
+        onChange?.(option.value);
+      }}
+    >
+      <DropdownMenuPrimitive.ItemIndicator className="aih-shadcn-multiselect-item-indicator"><Check size={14} /></DropdownMenuPrimitive.ItemIndicator>
+      <span className="aih-shadcn-multiselect-item-label">{option.label}</span>
+    </DropdownMenuPrimitive.CheckboxItem>
+  );
+}
+
+export const Select = ({ values = [], value, onChange, label, hint, required, children, disabled, valueTitle, style, className, icon, multiselect, placeholder, size, ...rest }: any) => {
+  const optionNodes = React.useMemo(() => parseSelectNodes(children), [children]);
+  const options = React.useMemo(() => flattenSelectOptions(children), [children]);
+  const selectedValues = React.useMemo(() => {
+    if (Array.isArray(values) && values.length > 0) return values.map((v) => String(v));
+    if (typeof value === "string" && value.length > 0) return [value];
+    return [];
+  }, [values, value]);
+  const selected = selectedValues[0] ?? "";
   const hasEmptyOption = options.some((option) => option.value === "");
   const radixValue = selected === "" && hasEmptyOption ? EMPTY_SELECT_ITEM_VALUE : selected;
   const Icon = icon ? iconMap[icon as IconToken] : ChevronDown;
   const triggerStyle = label ? undefined : style;
+  const triggerHeight = size === "small" ? 32 : size === "large" ? 40 : 36;
+  const displayValue = valueTitle != null && valueTitle !== ""
+    ? valueTitle
+    : selectedValues.length > 0
+      ? selectedValues.map((selectedValue, index) => (
+          <React.Fragment key={selectedValue}>
+            {index > 0 ? ", " : null}
+            {findSelectLabel(options, selectedValue)}
+          </React.Fragment>
+        ))
+      : selected === "" && hasEmptyOption
+        ? findSelectLabel(options, "")
+        : undefined;
+  const trigger = (
+    <button
+      type="button"
+      disabled={disabled}
+      className={cn("aih-shadcn-select-trigger", className)}
+      style={{ display: "inline-flex", height: triggerHeight, alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 .75rem", ...(triggerStyle ?? {}) }}
+      aria-label={rest["aria-label"]}
+      aria-required={required || undefined}
+    >
+      <span className="aih-shadcn-select-value">{displayValue ?? placeholder ?? "Select..."}</span>
+      <Icon size={16} />
+    </button>
+  );
+  const multiselectDropdown = (
+    <DropdownMenuPrimitive.Root modal={false}>
+      <DropdownMenuPrimitive.Trigger asChild>{trigger}</DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Portal>
+        <PortalThemeScope>
+          <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content aih-shadcn-multiselect-content" align="start" sideOffset={4} collisionPadding={8}>
+            {renderMultiSelectNodes(optionNodes, selectedValues, onChange)}
+          </DropdownMenuPrimitive.Content>
+        </PortalThemeScope>
+      </DropdownMenuPrimitive.Portal>
+    </DropdownMenuPrimitive.Root>
+  );
   const select = (
     <SelectPrimitive.Root value={radixValue} disabled={disabled} onValueChange={(value) => onChange?.(fromSelectItemValue(value))}>
-      <SelectPrimitive.Trigger className={cn("aih-shadcn-select-trigger", className)} style={{ display: "inline-flex", height: 36, alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 .75rem", ...(triggerStyle ?? {}) }} aria-label={rest["aria-label"]}>
-        <SelectPrimitive.Value placeholder={valueTitle ?? "Select..."} />
+      <SelectPrimitive.Trigger className={cn("aih-shadcn-select-trigger", className)} style={{ display: "inline-flex", height: triggerHeight, alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 .75rem", ...(triggerStyle ?? {}) }} aria-label={rest["aria-label"]} aria-required={required || undefined}>
+        <SelectPrimitive.Value placeholder={placeholder ?? "Select..."}>{displayValue}</SelectPrimitive.Value>
         <SelectPrimitive.Icon><Icon size={16} /></SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
@@ -390,11 +531,7 @@ export const Select = ({ values = [], onChange, label, hint, required, children,
           <SelectPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content" position="popper" sideOffset={4} collisionPadding={8}>
           <SelectPrimitive.ScrollUpButton className="aih-shadcn-select-scroll-button"><ChevronUp size={14} /></SelectPrimitive.ScrollUpButton>
           <SelectPrimitive.Viewport className="aih-shadcn-select-viewport">
-            {options.map((option, index) => (
-              <SelectPrimitive.Item key={`${option.group ?? "option"}:${option.value}:${index}`} value={toSelectItemValue(option.value)} disabled={option.disabled} className="aih-shadcn-menu-item">
-                <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
-              </SelectPrimitive.Item>
-            ))}
+            {renderSelectNodes(optionNodes)}
           </SelectPrimitive.Viewport>
           <SelectPrimitive.ScrollDownButton className="aih-shadcn-select-scroll-button"><ChevronDown size={14} /></SelectPrimitive.ScrollDownButton>
           </SelectPrimitive.Content>
@@ -402,7 +539,8 @@ export const Select = ({ values = [], onChange, label, hint, required, children,
       </SelectPrimitive.Portal>
     </SelectPrimitive.Root>
   );
-  return label ? <Field label={label} hint={hint} required={required} style={style}>{select}</Field> : select;
+  const element = multiselect ? multiselectDropdown : select;
+  return label ? <Field label={label} hint={hint} required={required} style={style}>{element}</Field> : element;
 };
 
 export const SearchBox = ({ value, onChange, placeholder, className, style, ...rest }: any) => (
