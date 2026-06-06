@@ -613,7 +613,7 @@ export const Card = ({ title, text, description, children, actions, headerAction
 export const Image = (props: any) => <img alt="" {...props} style={{ maxWidth: "100%", borderRadius: "var(--aih-shadcn-radius)", ...(props.style ?? {}) }} />;
 export const Skeleton = ({ width, height, circle, className, style }: any) => <span className={cn("aih-shadcn-skeleton", className)} style={{ width, height, borderRadius: circle ? "50%" : "var(--aih-shadcn-radius)", ...style }} />;
 export const Spinner = ({ size = "sm", className }: any) => <span className={cn("aih-shadcn-spinner", className)} style={{ width: size === "large" || size === "lg" ? 28 : 16, height: size === "large" || size === "lg" ? 28 : 16 }} />;
-export const ProgressBar = ({ value = 0, label, className }: any) => <ProgressPrimitive.Root className={cn("aih-shadcn-progress-root", className)}><ProgressPrimitive.Indicator className="aih-shadcn-progress-indicator" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />{label}</ProgressPrimitive.Root>;
+export const ProgressBar = ({ value = 0, label, className, animated }: any) => <ProgressPrimitive.Root className={cn("aih-shadcn-progress-root", animated && "aih-shadcn-progress-indeterminate", className)}>{animated ? <ProgressPrimitive.Indicator className="aih-shadcn-progress-indicator" /> : <ProgressPrimitive.Indicator className="aih-shadcn-progress-indicator" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />}{label}</ProgressPrimitive.Root>;
 export const Table = (props: any) => <table className={cn("aih-shadcn-table", props.className)} {...props} />;
 
 export function DataGrid<T>({ columns = [], data = [], rowKey, className, style }: { columns?: GenericDataGridColumn<T>[]; data?: T[]; rowKey: (row: T) => string | number; className?: string; style?: React.CSSProperties }) {
@@ -1303,7 +1303,7 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
           </header>
           {msg.messageLabel ? <div className="aih-shadcn-hint" style={{ padding: ".5rem .75rem 0" }}>{msg.messageLabel}</div> : null}
           <div className="aih-shadcn-chat-body">{renderMessage(msg)}</div>
-          {streaming || renderReactions ? <footer className="aih-shadcn-chat-footer">{streaming ? <ProgressBar value={80} /> : renderReactions?.(msg)}</footer> : null}
+          {streaming || renderReactions ? <footer className="aih-shadcn-chat-footer">{streaming ? <ProgressBar animated /> : renderReactions?.(msg)}</footer> : null}
         </article>
       );
     })}
