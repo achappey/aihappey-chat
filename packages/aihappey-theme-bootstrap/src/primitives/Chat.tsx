@@ -4,6 +4,7 @@ import { Card } from "react-bootstrap";
 import React from "react";
 import { useDarkMode } from "usehooks-ts";
 import { format } from "timeago.js";
+import { iconMap } from "./IconMap";
 
 export type ChatProps = {
   messages?: ChatMessage[];
@@ -37,6 +38,8 @@ export const Chat = ({
     <div className="aihappey-bootstrap-chat d-flex flex-column gap-3 p-3">
       {messages?.map((m) => {
         const isUser = m.role === "user";
+        const isActivity = m.messageIcon === "brain" || m.messageIcon === "tool";
+        const Icon = m.messageIcon ? iconMap[m.messageIcon] : undefined;
         // Styling based on role
         const alignClass = isUser ? "align-self-end" : "align-self-start";
         const bg = isUser
@@ -53,10 +56,14 @@ export const Chat = ({
             key={m.id}
             bg={bg}
             text={text}
-            className={`aihappey-bootstrap-chat-message shadow-sm ${alignClass}`}
+            className={`aihappey-bootstrap-chat-message shadow-sm ${alignClass}${isActivity ? " aihappey-bootstrap-chat-message-activity" : ""}`}
           >
-            <Card.Header className="d-flex align-items-center justify-content-between py-2">
-              {m.author} {dateStr}
+            <Card.Header className="d-flex align-items-center justify-content-between gap-2 py-2">
+              <span className="d-inline-flex align-items-center gap-2 flex-wrap">
+                {m.author ? <span>{m.author}</span> : null}
+                <time>{dateStr}</time>
+              </span>
+              {Icon ? <span className={isActivity ? "aihappey-bootstrap-chat-activity-icon" : undefined}>{Icon}</span> : null}
             </Card.Header>
             <Card.Body className="pt-0"
               style={{
