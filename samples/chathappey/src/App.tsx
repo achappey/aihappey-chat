@@ -16,8 +16,8 @@ declare const __CHAT_APP_MCP__: string;
 
 const shadcnCustomSchemes: NonNullable<ShadcnThemeProviderProps["customSchemes"]> = {
   chathappey: {
-    title: "Chathappey",
-    description: "App-configured shadcn scheme generated from the Chathappey brand color.",
+    title: "chathappey",
+    description: "App-configured shadcn scheme generated from a brand color.",
     ...createSchemeFromBaseColor("#4A72B4", "0.5rem"),
   },
 };
@@ -32,8 +32,8 @@ const ConfiguredShadcnThemeProvider = ({ children }: { children: React.ReactNode
 );
 
 const themes = [
-  { id: "fluent", label: "Fluent", Provider: FluentThemeProvider },
   { id: "bootstrap", label: "Bootstrap", Provider: BootstrapThemeProvider },
+  { id: "fluent", label: "Fluent", Provider: FluentThemeProvider },
   { id: "shadcn", label: "Shadcn", Provider: ConfiguredShadcnThemeProvider },
 ];
 
