@@ -489,10 +489,85 @@ export function DataGrid<T>({ columns = [], data = [], rowKey, className, style 
   return <table className={cn("aih-shadcn-table", className)} style={style}><thead><tr>{columns.map((col) => <th key={col.key} style={{ width: col.width }}><button type="button" onClick={() => col.sortFn && setSort((s) => ({ key: col.key, direction: s.key === col.key && s.direction === "asc" ? "desc" : "asc" }))} style={{ border: 0, background: "transparent", color: "inherit", font: "inherit", cursor: col.sortFn ? "pointer" : undefined }}>{col.header}{sort.key === col.key ? sort.direction === "asc" ? " ↑" : " ↓" : ""}</button></th>)}</tr></thead><tbody>{sorted.map((row, rowIndex) => <tr key={rowKey?.(row) ?? rowIndex}>{columns.map((col) => <td key={col.key}>{col.render(row, rowIndex)}</td>)}</tr>)}</tbody></table>;
 }
 
-export const JsonViewer = ({ value, data, className, style }: any) => <pre className={className} style={{ overflow: "auto", border: "1px solid var(--aih-shadcn-border)", borderRadius: "var(--aih-shadcn-radius)", background: "var(--aih-shadcn-muted)", padding: 12, ...style }}>{JSON.stringify(value ?? data, null, 2)}</pre>;
+function parseJson(input: unknown): any | null {
+  if (typeof input === "object") return input;
+  try {
+    return JSON.parse(String(input));
+  } catch {
+    return null;
+  }
+}
 
-const Avatar = ({ image, icon, initials, name, shape = "circular", size = 32, className, ...rest }: any) => <AvatarPrimitive.Root className={className} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: shape === "square" ? "var(--aih-shadcn-radius)" : "50%", overflow: "hidden", background: "var(--aih-shadcn-muted)", color: "var(--aih-shadcn-foreground)", fontSize: Math.max(10, size / 2.5), border: "1px solid var(--aih-shadcn-background)" }} {...rest}>{image?.src ? <AvatarPrimitive.Image src={image.src} alt={image.alt ?? name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : null}<AvatarPrimitive.Fallback>{icon ?? initials ?? name?.slice(0, 2)?.toUpperCase()}</AvatarPrimitive.Fallback></AvatarPrimitive.Root>;
-export const AvatarGroup: any = ({ children, layout = "stack", className, style, ...rest }: any) => <div className={className} style={{ display: "flex", alignItems: "center", ...(layout === "stack" ? { gap: 0 } : { gap: 6 }), ...style }} {...rest}>{children}</div>;
+const JsonValue = ({ data }: { data: any }) => {
+  if (typeof data === "object" && data !== null) {
+    if (Array.isArray(data)) {
+      return (
+        <details open>
+          <summary>[Array] ({data.length} items)</summary>
+          <ul>
+            {data.map((item, idx) => (
+              <li key={idx}>
+                <JsonValue data={item} />
+              </li>
+            ))}
+          </ul>
+        </details>
+      );
+    }
+
+    return (
+      <details open>
+        <summary>{`{Object}`}</summary>
+        <ul>
+          {Object.entries(data).map(([key, val]) => (
+            <li key={key}>
+              <strong>{key}: </strong>
+              <JsonValue data={val} />
+            </li>
+          ))}
+        </ul>
+      </details>
+    );
+  }
+
+  return <span className="aih-shadcn-json-primitive">{JSON.stringify(data)}</span>;
+};
+
+export const JsonViewer = ({ value, data, title, className, style }: any) => {
+  const json = parseJson(value ?? data);
+
+  if (json === null) {
+    return <div className="aih-shadcn-json-error">Invalid JSON</div>;
+  }
+
+  return (
+    <div className={cn("aih-shadcn-json-viewer", className)} style={style}>
+      {title ? (
+        <details open>
+          <summary>{title}</summary>
+          <ul>
+            <li><JsonValue data={json} /></li>
+          </ul>
+        </details>
+      ) : (
+        <JsonValue data={json} />
+      )}
+    </div>
+  );
+};
+
+const Avatar = ({ image, icon, initials, name, shape = "circular", size = 32, className, style, ...rest }: any) => <AvatarPrimitive.Root className={className} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, minWidth: size, borderRadius: shape === "square" ? "var(--aih-shadcn-radius)" : "50%", overflow: "hidden", background: "var(--aih-shadcn-muted)", color: "var(--aih-shadcn-foreground)", fontSize: Math.max(10, size / 2.5), border: "1px solid var(--aih-shadcn-background)", ...style }} {...rest}>{image?.src ? <AvatarPrimitive.Image src={image.src} alt={image.alt ?? name} style={{ width: "100%", height: "100%", objectFit: "cover", ...(image.style ?? {}) }} /> : null}<AvatarPrimitive.Fallback>{icon ?? initials ?? name?.slice(0, 2)?.toUpperCase()}</AvatarPrimitive.Fallback></AvatarPrimitive.Root>;
+export const AvatarGroup: any = ({ children, layout = "stack", size = 32, className, style, ...rest }: any) => <div className={className} role="group" style={{ display: "inline-flex", alignItems: "center", height: size, ...(layout === "stack" ? { gap: 0 } : { gap: 6 }), ...style }} {...rest}>{React.Children.map(children, (child, index) => {
+  if (!React.isValidElement(child)) return child;
+  return React.cloneElement(child as React.ReactElement<any>, {
+    size: (child.props as any).size ?? size,
+    style: {
+      marginLeft: layout === "stack" && index > 0 ? Math.floor(size * -0.28) : 0,
+      zIndex: React.Children.count(children) - index,
+      ...((child.props as any).style ?? {}),
+    },
+  });
+})}</div>;
 AvatarGroup.Avatar = Avatar;
 AvatarGroup.Item = (props: any) => <Avatar {...props} style={{ marginLeft: -6, ...(props.style ?? {}) }} />;
 AvatarGroup.Popover = ({ children, count }: any) => <span className="aih-shadcn-badge aih-shadcn-badge-secondary">{children ?? `+${count ?? 0}`}</span>;

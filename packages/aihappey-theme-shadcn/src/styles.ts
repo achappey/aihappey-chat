@@ -147,6 +147,14 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-card-content { padding: 1rem; }
 .aih-shadcn-card-footer { border-top: 1px solid var(--aih-shadcn-border); padding: .75rem 1rem; }
 
+.aih-shadcn-json-viewer { overflow: auto; max-width: 100%; border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-muted); padding: .75rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .875rem; line-height: 1.45; white-space: pre-wrap; }
+.aih-shadcn-json-viewer details { min-width: 0; }
+.aih-shadcn-json-viewer summary { cursor: default; font-weight: 600; }
+.aih-shadcn-json-viewer ul { margin: 0 0 0 1rem; padding: 0; list-style-position: outside; }
+.aih-shadcn-json-viewer li { margin: .125rem 0; padding-left: .25rem; }
+.aih-shadcn-json-primitive { color: var(--aih-shadcn-primary); word-break: break-word; overflow-wrap: anywhere; }
+.aih-shadcn-json-error { color: var(--aih-shadcn-destructive); }
+
 .aih-shadcn-badge { display: inline-flex; align-items: center; gap: .25rem; border-radius: 999px; border: 1px solid transparent; padding: .125rem .625rem; font-size: .75rem; font-weight: 600; line-height: 1.25rem; }
 .aih-shadcn-badge-primary { background: var(--aih-shadcn-primary); color: var(--aih-shadcn-primary-foreground); }
 .aih-shadcn-badge-secondary { background: var(--aih-shadcn-secondary); color: var(--aih-shadcn-secondary-foreground); }
