@@ -75,7 +75,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       icon={"robot"}
       valueTitle={selectedEntries.map((entry) => entry.label).join(", ")}
       multiselect={true}
-      style={{ minWidth: isDesktop ? 260 : 200 }}
+      //style={{ minWidth: isDesktop ? 260 : 200 }}
       size="large"
       onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {
         const selectedValue =

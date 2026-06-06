@@ -99,7 +99,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
       placeholder={placeholder}
       disabled={disabled}
       aria-label={ariaLabel}
-      style={{ minWidth, ...(style ?? {}) }}
+      style={{ ...(style ?? {}) }}
       onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {
         const selectedValue = e?.target?.value ?? e?.currentTarget?.value ?? e;
         onChange(selectedValue);

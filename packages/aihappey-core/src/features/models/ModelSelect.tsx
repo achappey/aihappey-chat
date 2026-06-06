@@ -72,7 +72,6 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
       favoriteModelIds={favoriteModelIds}
       favoritesLabel={t("favorites")}
       placeholder={t("selectModelPlaceholder")}
-      minWidth={isDesktop ? 260 : 170}
     />
   );
 };
