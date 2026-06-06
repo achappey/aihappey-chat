@@ -140,9 +140,15 @@ function rgbToHex(r: number, g: number, b: number) {
     .join("")}`.toUpperCase();
 }
 
-function mix(hex: string, targetHex: string, amount: number) {
-  const source = parseHex(hex) ?? parseHex("#000000")!;
-  const target = parseHex(targetHex) ?? parseHex("#000000")!;
+function mix(color: string, targetColor: string, amount: number) {
+  const source = parseHex(color);
+  const target = parseHex(targetColor);
+
+  if (!source || !target) {
+    const sourceWeight = Math.round((1 - amount) * 1000) / 10;
+    return `color-mix(in srgb, ${color} ${sourceWeight}%, ${targetColor})`;
+  }
+
   return rgbToHex(
     source.r * (1 - amount) + target.r * amount,
     source.g * (1 - amount) + target.g * amount,
@@ -345,10 +351,10 @@ ${mergeModeTokens(preset.scheme.light)}
 }
 
 .aih-shadcn-theme.dark,
-.dark .aih-shadcn-theme,
+.dark .aih-shadcn-theme:not(.light),
 .aih-shadcn-portal-root.dark,
-.dark .aih-shadcn-portal-root,
-html[data-theme="dark"] .aih-shadcn-portal-root {
+.dark .aih-shadcn-portal-root:not(.light),
+html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 ${mergeModeTokens(preset.scheme.dark)}
 }`;
 }

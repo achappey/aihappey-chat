@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ThemeContext } from "aihappey-components";
 import { useDarkMode, useLocalStorage } from "usehooks-ts";
-import { shadcnTheme } from "./primitives";
+import { ShadcnColorModeContext, shadcnTheme } from "./primitives";
 import { shadcnThemeStyles } from "./styles";
 import { ShadcnThemePresetContext, type ShadcnThemePresetMap } from "./ShadcnThemeContext";
 import {
@@ -193,7 +193,9 @@ export const ThemeProvider = ({
       <ShadcnThemePresetContext.Provider value={ctxValue}>
         <style>{shadcnThemeStyles}</style>
         <style>{activePresetStyles}</style>
-        <div className={`aih-shadcn-theme ${colorMode}`}>{children}</div>
+        <ShadcnColorModeContext.Provider value={colorMode}>
+          <div className={`aih-shadcn-theme ${colorMode}`}>{children}</div>
+        </ShadcnColorModeContext.Provider>
       </ShadcnThemePresetContext.Provider>
     </ThemeContext.Provider>
   );

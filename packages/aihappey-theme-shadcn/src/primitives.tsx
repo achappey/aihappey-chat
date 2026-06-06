@@ -104,6 +104,9 @@ import { cn } from "./utils";
 import { ThemeSettings } from "./ShadcnSettings";
 
 type IconComponent = React.ComponentType<LucideProps>;
+type ShadcnColorMode = "light" | "dark";
+
+export const ShadcnColorModeContext = React.createContext<ShadcnColorMode>("light");
 
 export const iconMap: Record<IconToken, IconComponent> = {
   add: PlusIcon,
@@ -231,9 +234,11 @@ function StarFilledIcon(props: LucideProps) {
   return <Star {...props} fill="currentColor" />;
 }
 
-const PortalThemeScope = ({ children }: { children: React.ReactNode }) => (
-  <div className="aih-shadcn-portal-root">{children}</div>
-);
+const PortalThemeScope = ({ children }: { children: React.ReactNode }) => {
+  const colorMode = React.useContext(ShadcnColorModeContext);
+
+  return <div className={cn("aih-shadcn-portal-root", colorMode)}>{children}</div>;
+};
 
 const buttonVariants = cva("aih-shadcn-btn", {
   variants: {
