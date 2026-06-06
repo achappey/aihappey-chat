@@ -28,8 +28,6 @@ export const StickyHeaderBar = ({
                 height,
                 display: "flex",
                 alignItems: "center",
-                //  padding: "0 12px",
-               // backgroundColor: isDarkMode ? "#292929" : "#ffffff",
                 gap: 8,
             }}
         >
