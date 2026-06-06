@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import Form from "react-bootstrap/Form";
 
@@ -6,6 +7,8 @@ type BootstrapDropdownProps = Omit<
   React.ComponentProps<typeof Dropdown>,
   "children" | "onSelect"
 >;
+
+type BootstrapDropdownMenuProps = React.ComponentProps<typeof Dropdown.Menu>;
 
 interface SelectProps extends BootstrapDropdownProps {
   /** Preferred API (matches Fluent theme): current selected values. */
@@ -37,6 +40,28 @@ interface SelectProps extends BootstrapDropdownProps {
   style?: React.CSSProperties;
   "aria-label"?: string;
 }
+
+function joinClassNames(
+  ...classNames: Array<string | false | null | undefined>
+): string | undefined {
+  const value = classNames.filter(Boolean).join(" ");
+  return value || undefined;
+}
+
+const PortalDropdownMenu: React.FC<BootstrapDropdownMenuProps> = ({
+  children,
+  ...props
+}) => {
+  const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    setPortalContainer(document.body);
+  }, []);
+
+  const menu = <Dropdown.Menu {...props}>{children}</Dropdown.Menu>;
+
+  return portalContainer ? createPortal(menu, portalContainer) : menu;
+};
 
 function renderBootstrapOptions(
   children: React.ReactNode,
@@ -108,6 +133,10 @@ export const Select: React.FC<SelectProps> = ({
   "aria-label": ariaLabel,
   ...dropdownProps
 }) => {
+  const { className: dropdownClassName, ...restDropdownProps } = dropdownProps;
+  const toggleRef = React.useRef<HTMLButtonElement | null>(null);
+  const [menuMinWidth, setMenuMinWidth] = React.useState<number>();
+
   const selectedValues = React.useMemo(() => {
     if (Array.isArray(values) && values.length > 0) return values;
     if (typeof value === "string" && value.length > 0) return [value];
@@ -127,13 +156,43 @@ export const Select: React.FC<SelectProps> = ({
 
   const bsSize = size === "small" ? "sm" : size === "large" ? "lg" : undefined;
 
+  React.useEffect(() => {
+    const toggle = toggleRef.current;
+    if (!toggle) return;
+
+    const updateMenuMinWidth = () => {
+      const nextWidth = Math.ceil(toggle.getBoundingClientRect().width);
+      setMenuMinWidth((previousWidth) => (
+        previousWidth === nextWidth ? previousWidth : nextWidth
+      ));
+    };
+
+    updateMenuMinWidth();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateMenuMinWidth);
+      return () => window.removeEventListener("resize", updateMenuMinWidth);
+    }
+
+    const observer = new ResizeObserver(updateMenuMinWidth);
+    observer.observe(toggle);
+    window.addEventListener("resize", updateMenuMinWidth);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateMenuMinWidth);
+    };
+  }, []);
+
   const dropdown = (
     <Dropdown
+      {...restDropdownProps}
+      className={joinClassNames("aihappey-bootstrap-select", dropdownClassName)}
       onSelect={(k) => k != null && onChange(k as string)}
       autoClose={multiselect ? "outside" : undefined}
-      {...dropdownProps}
     >
       <Dropdown.Toggle
+        ref={toggleRef}
         variant="outline-secondary"
         size={bsSize}
         disabled={disabled}
@@ -143,9 +202,17 @@ export const Select: React.FC<SelectProps> = ({
       >
         {toggleContent}
       </Dropdown.Toggle>
-      <Dropdown.Menu>
+      <PortalDropdownMenu
+        className="aihappey-bootstrap-select-menu"
+        popperConfig={{ strategy: "fixed" }}
+        style={
+          menuMinWidth != null
+            ? { "--aihappey-bootstrap-select-menu-min-width": `${menuMinWidth}px` } as React.CSSProperties
+            : undefined
+        }
+      >
         {renderBootstrapOptions(children, selectedValues)}
-      </Dropdown.Menu>
+      </PortalDropdownMenu>
     </Dropdown>
   );
 
