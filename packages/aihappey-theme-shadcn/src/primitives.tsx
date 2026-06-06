@@ -1053,7 +1053,46 @@ export const Toaster = ({ toasts = [], position }: any) => <ToastPrimitive.Provi
 
 export const Carousel = ({ children, className, style }: any) => <div className={className} style={{ display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", gap: 12, ...style }}>{React.Children.map(children, (child) => <div style={{ flex: "0 0 100%", scrollSnapAlign: "start" }}>{child}</div>)}</div>;
 
-export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => <div className="aih-shadcn-chat">{messages?.map((msg) => { const isUser = msg.role === "user"; const streaming = msg.content?.some((a: any) => a.type === "text" && a.state === "streaming"); const Icon = msg.messageIcon ? iconMap[msg.messageIcon] : undefined; return <article key={msg.id} className={cn("aih-shadcn-chat-message", isUser ? "aih-shadcn-chat-message-user" : "aih-shadcn-chat-message-assistant")}><header className="aih-shadcn-chat-header"><span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{Icon ? <Icon size={16} /> : null}{msg.author}{aiGeneratedWarning ? <TooltipPrimitive.Provider><TooltipPrimitive.Root><TooltipPrimitive.Trigger asChild><span><Badge variant="outline">{aiGeneratedLabel ?? "AI"}</Badge></span></TooltipPrimitive.Trigger><TooltipPrimitive.Portal><PortalThemeScope><TooltipPrimitive.Content className="aih-shadcn-popover aih-shadcn-tooltip-content">{aiGeneratedWarning}</TooltipPrimitive.Content></PortalThemeScope></TooltipPrimitive.Portal></TooltipPrimitive.Root></TooltipPrimitive.Provider> : null}</span><time>{format(msg.createdAt, locale)}</time></header>{msg.messageLabel ? <div className="aih-shadcn-hint" style={{ padding: ".5rem .75rem 0" }}>{msg.messageLabel}</div> : null}<div className="aih-shadcn-chat-body">{renderMessage(msg)}</div>{streaming || renderReactions ? <footer className="aih-shadcn-chat-footer">{streaming ? <ProgressBar value={80} /> : renderReactions?.(msg)}</footer> : null}</article>; })}</div>;
+export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => (
+  <div className="aih-shadcn-chat">
+    {messages?.map((msg) => {
+      const isUser = msg.role === "user";
+      const isAssistant = msg.role === "assistant";
+      const streaming = msg.content?.some((a: any) => a.type === "text" && a.state === "streaming");
+      const Icon = msg.messageIcon ? iconMap[msg.messageIcon] : undefined;
+      const isActivity = msg.messageIcon === "brain" || msg.messageIcon === "tool";
+
+      return (
+        <article key={msg.id} className={cn("aih-shadcn-chat-message", isUser ? "aih-shadcn-chat-message-user" : "aih-shadcn-chat-message-assistant", isActivity && "aih-shadcn-chat-message-activity")}>
+          <header className="aih-shadcn-chat-header">
+            <span className="aih-shadcn-chat-header-meta">
+              {msg.author ? <span>{msg.author}</span> : null}
+              {isAssistant && aiGeneratedWarning ? (
+                <TooltipPrimitive.Provider>
+                  <TooltipPrimitive.Root>
+                    <TooltipPrimitive.Trigger asChild>
+                      <span><Badge variant="outline">{aiGeneratedLabel ?? "AI"}</Badge></span>
+                    </TooltipPrimitive.Trigger>
+                    <TooltipPrimitive.Portal>
+                      <PortalThemeScope>
+                        <TooltipPrimitive.Content className="aih-shadcn-popover aih-shadcn-tooltip-content">{aiGeneratedWarning}</TooltipPrimitive.Content>
+                      </PortalThemeScope>
+                    </TooltipPrimitive.Portal>
+                  </TooltipPrimitive.Root>
+                </TooltipPrimitive.Provider>
+              ) : null}
+              <time>{format(msg.createdAt, locale)}</time>
+            </span>
+            {Icon ? <span className={cn("aih-shadcn-chat-header-icon", isActivity && "aih-shadcn-chat-header-icon-activity")}><Icon size={18} /></span> : null}
+          </header>
+          {msg.messageLabel ? <div className="aih-shadcn-hint" style={{ padding: ".5rem .75rem 0" }}>{msg.messageLabel}</div> : null}
+          <div className="aih-shadcn-chat-body">{renderMessage(msg)}</div>
+          {streaming || renderReactions ? <footer className="aih-shadcn-chat-footer">{streaming ? <ProgressBar value={80} /> : renderReactions?.(msg)}</footer> : null}
+        </article>
+      );
+    })}
+  </div>
+);
 
 export const ShadcnSettings = ThemeSettings;
 

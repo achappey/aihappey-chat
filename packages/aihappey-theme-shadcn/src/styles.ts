@@ -231,14 +231,20 @@ html[data-theme="dark"] .aih-shadcn-portal-root {
 .aih-shadcn-chat-message { width: min(75%, 52rem); border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-card); color: var(--aih-shadcn-card-foreground); overflow: hidden; }
 .aih-shadcn-chat-message-user { align-self: flex-end; border-color: var(--aih-shadcn-chat-user-border); background: var(--aih-shadcn-chat-user); color: var(--aih-shadcn-chat-user-foreground); }
 .aih-shadcn-chat-message-assistant { align-self: flex-start; border-color: var(--aih-shadcn-chat-assistant-border); background: var(--aih-shadcn-chat-assistant); color: var(--aih-shadcn-chat-assistant-foreground); }
+.aih-shadcn-chat-message-activity { border-left: 4px solid var(--aih-shadcn-destructive); }
 .aih-shadcn-chat-message-user .aih-shadcn-chat-header,
 .aih-shadcn-chat-message-user .aih-shadcn-chat-footer { border-color: rgb(255 255 255 / .16); }
 .aih-shadcn-chat-message-assistant .aih-shadcn-chat-header,
 .aih-shadcn-chat-message-assistant .aih-shadcn-chat-footer { border-color: var(--aih-shadcn-chat-assistant-border); }
 .aih-shadcn-chat-message-user .aih-shadcn-hint { color: color-mix(in srgb, var(--aih-shadcn-chat-user-foreground) 70%, transparent); }
-.aih-shadcn-chat-header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .625rem .75rem; border-bottom: 1px solid var(--aih-shadcn-border); font-size: .8125rem; }
+.aih-shadcn-chat-header { display: flex; align-items: center; justify-content: flex-start; gap: .75rem; padding: .625rem .75rem; border-bottom: 1px solid var(--aih-shadcn-border); font-size: .8125rem; }
+.aih-shadcn-chat-header-meta { display: inline-flex; align-items: center; gap: .5rem; min-width: 0; flex-wrap: wrap; }
+.aih-shadcn-chat-header-icon { display: inline-flex; align-items: center; justify-content: center; margin-left: auto; color: currentColor; }
+.aih-shadcn-chat-header-icon-activity svg { stroke-width: 2.5; }
 .aih-shadcn-chat-body { padding: .75rem; }
-.aih-shadcn-chat-footer { padding: .5rem .75rem; border-top: 1px solid var(--aih-shadcn-border); }
+.aih-shadcn-chat-footer { display: flex; align-items: center; min-height: 0; padding: .25rem .75rem; border-top: 1px solid var(--aih-shadcn-border); }
+.aih-shadcn-chat-footer > div { height: auto !important; padding-top: 0 !important; align-items: center !important; }
+.aih-shadcn-chat-footer .aih-shadcn-badge + .aih-shadcn-badge { margin-left: .25rem; }
 
 @media (max-width: 767.98px) {
   .aih-shadcn-chat-message { width: 100%; }
