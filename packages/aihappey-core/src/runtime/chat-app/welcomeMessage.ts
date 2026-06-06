@@ -1,26 +1,29 @@
-import { mcpRuntime } from "aihappey-state";
+import {
+    DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
+    store,
+} from "aihappey-state";
+import type { SideInferenceAgentCallOptions } from "./sideInferenceAgentCall";
+import { invokeSideInferenceAgent } from "./sideInferenceAgentCall";
 
 export const fetchWelcomeMessage = async (language: string,
-    currentUser?: string | null) => {
-    const client = mcpRuntime.get("chatapp");
-
-    if (!client) {
-        throw new Error("ChatApp MCP is not connected");
-    }
-
-    const args = {
+    currentUser?: string | null,
+    options: SideInferenceAgentCallOptions = {}) => {
+    const state = store.getState();
+    return invokeSideInferenceAgent({
+        ...options,
+        feature: "welcomeMessage",
+        agents: options.agents ?? state.agents,
+        models: options.models ?? state.models,
+        customHeaders: options.customHeaders ?? state.customHeaders,
+        agentName: options.agentName
+            ?? state.sideInferenceAgentNames?.welcomeMessageAgent
+            ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION.welcomeMessageAgent,
+        fallback: options.fallback ?? "Welcome",
+        input: {
         language: language,
         currentUser: currentUser ?? null,
         currentDateTime: new Date().toLocaleString(navigator.language,
             { timeZoneName: "long" }),
-    };
-
-    const res: any = await client.callTool({
-        name: "chat_app_generate_welcome_message",
-        arguments: args,
+        },
     });
-
-    return typeof res?.content?.[0]?.text === "string"
-        ? res.content[0].text
-        : undefined;
 };

@@ -9,6 +9,7 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { StorageSettings } from "./StorageSettings";
 import { AppsSettings } from "./AppsSettings";
 import { useMultiTheme } from "aihappey-components";
+import { SideInferenceAgentsTab } from "../chat-settings/SideInferenceAgentsTab";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -41,6 +42,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const showMessageTemperature = useAppStore((s) => s.showMessageTemperature);
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
+  const agents = useAppStore((s) => s.agents);
+  const sideInferenceAgentNames = useAppStore((s) => s.sideInferenceAgentNames);
+  const setSideInferenceAgentNames = useAppStore((s) => s.setSideInferenceAgentNames);
 
   const setShowMessageTemperature = useAppStore((s) => s.setShowMessageTemperature);
   const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
@@ -153,7 +157,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               icon={"chat"}
               title={t("chat")}
             >
-              <div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                 <Switch
                   id="temperature-toggle"
                   checked={!!showMessageTemperature}
@@ -166,6 +170,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={!!showMessageTokens}
                   label={t("settingsModal.showTokens")}
                   onChange={setShowMessageTokens}
+                />
+
+                <SideInferenceAgentsTab
+                  agents={agents ?? []}
+                  value={sideInferenceAgentNames}
+                  onChange={setSideInferenceAgentNames}
                 />
               </div>
             </theme.Tab>

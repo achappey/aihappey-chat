@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import {
   DEFAULT_CHAT_TOOL_ANNOTATIONS,
+  DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
   defaultProviderMetadata,
   useAppStore,
 } from "aihappey-state";
@@ -42,6 +43,8 @@ import {
 import { useSkills } from "aihappey-skills";
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { SideInferenceAgentsTab } from "./SideInferenceAgentsTab";
+import type { SideInferenceAgentNames } from "aihappey-state";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -76,6 +79,7 @@ type ChatSettingsDraft = {
   enabledLocalTools: string[];
   enabledSkillIds: string[];
   providerMetadata: Record<string, any>;
+  sideInferenceAgentNames: SideInferenceAgentNames;
 };
 
 export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
@@ -94,6 +98,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
   const models = useAppStore((a) => a.models);
+  const agents = useAppStore((a) => a.agents);
   const selectedModel = useAppStore((a) => a.selectedModel);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
@@ -117,6 +122,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   );
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
+  const sideInferenceAgentNames = useAppStore((s) => s.sideInferenceAgentNames);
+  const setSideInferenceAgentNames = useAppStore((s) => s.setSideInferenceAgentNames);
+  const restoreDefaultAgents = useAppStore((s) => s.restoreDefaultAgents);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
   const skills = useSkills();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
@@ -134,6 +142,10 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       enabledLocalTools: [...(enabledLocalTools ?? [])],
       enabledSkillIds: [...(enabledSkillIds ?? [])],
       providerMetadata: { ...(providerMetadata ?? {}) },
+      sideInferenceAgentNames: {
+        ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
+        ...(sideInferenceAgentNames ?? {}),
+      },
     }),
     [
       activePlugins,
@@ -143,6 +155,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       maxOutputTokens,
       maxToolCalls,
       providerMetadata,
+      sideInferenceAgentNames,
       stopTools,
       structuredOutputs,
       temperature,
@@ -359,12 +372,14 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setActivePlugins(draft.activePlugins);
     setEnabledLocalTools(draft.enabledLocalTools);
     setEnabledSkillIds(draft.enabledSkillIds);
+    setSideInferenceAgentNames(draft.sideInferenceAgentNames);
     setProviderMetadata(draft.providerMetadata);
   }, [
     draft,
     setActivePlugins,
     setEnabledLocalTools,
     setEnabledSkillIds,
+    setSideInferenceAgentNames,
     setMaxOutputTokens,
     setMaxToolCalls,
     setProviderMetadata,
@@ -382,9 +397,11 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       temperature: 1,
       toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
       providerMetadata: { ...defaultProviderMetadata },
+      sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
     }));
+    restoreDefaultAgents();
     setSkillFeedback(null);
-  }, []);
+  }, [restoreDefaultAgents]);
 
   const close = () => {
     applyDraft();
@@ -465,6 +482,20 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
                 setDraft((current) => ({
                   ...current,
                   toolChoice: value,
+                }));
+              }}
+            />
+          ) : null}
+        </theme.Tab>
+        <theme.Tab eventKey="side-inference" title={t("sideInference.title") ?? "Side inference"}>
+          {activeTab === "side-inference" ? (
+            <SideInferenceAgentsTab
+              agents={agents ?? []}
+              value={draft.sideInferenceAgentNames}
+              onChange={(next) => {
+                setDraft((current) => ({
+                  ...current,
+                  sideInferenceAgentNames: next,
                 }));
               }}
             />

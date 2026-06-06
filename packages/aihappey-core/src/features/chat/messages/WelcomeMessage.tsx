@@ -5,6 +5,7 @@ import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { useMultiTheme, useTheme } from "aihappey-components";
 import { fetchWelcomeMessage } from "../../../runtime/chat-app/welcomeMessage";
 import { useAppStore } from "aihappey-state";
+import { useChatContext } from "../context/ChatContext";
 
 interface WelcomeMessageProps { }
 
@@ -117,7 +118,9 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const { Skeleton } = useTheme();
   const multiTheme = useMultiTheme();
   const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const account = useAccount()
+  const { config } = useChatContext();
   const models = useAppStore((s) => s.models);
   const [welcomeMessage, setWelcomeMessage] = useState<string | undefined>(
     undefined
@@ -129,12 +132,18 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   useEffect(() => {
     if (models && models?.length > 0)
       fetchWelcomeMessage((languageNames as any)[i18n.language as any],
-        account?.name)
+        account?.name,
+        {
+          baseUrl: config.baseUrl,
+          fetch: config.fetch,
+          getAccessToken: config.getAccessToken,
+          fallback: t("sideInference.fallbackWelcome") ?? "Welcome",
+        })
         .then(a =>
           setWelcomeMessage(a)
         );
 
-  }, [i18n.language, models]);
+  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, i18n.language, models, t]);
 
   return (
     <div style={getWelcomeSlotStyle(isDesktop, sizing)}>

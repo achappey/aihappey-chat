@@ -5,7 +5,7 @@ import {
     toLocalAgentSelectionKey,
 } from "aihappey-types";
 import type { StateCreator } from "zustand";
-import { defaultAgents } from "./defaultAgents";
+import { defaultAgents, ensureDefaultAgents } from "./defaultAgents";
 import { resolveAgentModelProviderMetadata } from "./agentModelProviderMetadata";
 
 export type AgentSlice = {
@@ -25,6 +25,7 @@ export type AgentSlice = {
     setSelectedAgents: (agents: string[]) => void
     setFavoriteAgentIds: (agentIds: string[]) => void
     toggleFavoriteAgent: (agentId: string) => void
+    restoreDefaultAgents: () => void
     createAgent: (agent: Agent) => void
     updateAgent: (name: string, agent: Agent) => void
     deleteAgent: (name: string) => void
@@ -163,6 +164,11 @@ export const createAgentSlice: StateCreator<
                     : [...current, agentId],
             };
         });
+    },
+    restoreDefaultAgents: () => {
+        set((state: AgentSlice) => ({
+            agents: ensureDefaultAgents(state.agents),
+        }));
     },
     createAgent: (agent) =>
         set((state: AgentSlice) => {

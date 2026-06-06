@@ -15,6 +15,7 @@ import { SpeechSlice } from "./slices/speechSlice";
 import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
+import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -28,7 +29,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 20,
+    version: 21,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -99,6 +100,7 @@ export const withPersist = (
       enabledSkillIds: (s as any).enabledSkillIds,
       favoriteSkillIds: (s as any).favoriteSkillIds,
       selectedThemeId: (s as any).selectedThemeId,
+      sideInferenceAgentNames: (s as any).sideInferenceAgentNames,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
     }),
@@ -251,8 +253,26 @@ export const withPersist = (
         };
       }
 
+      if (version < 21) {
+        safeState = {
+          ...safeState,
+          sideInferenceAgentNames: {
+            ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
+            ...(isPlainRecord(safeState.sideInferenceAgentNames)
+              ? safeState.sideInferenceAgentNames
+              : {}),
+          },
+        };
+      }
+
       return {
         ...safeState,
+        sideInferenceAgentNames: {
+          ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
+          ...(isPlainRecord(safeState.sideInferenceAgentNames)
+            ? safeState.sideInferenceAgentNames
+            : {}),
+        },
         favoriteAgentIds: Array.isArray(safeState.favoriteAgentIds)
           ? Array.from(new Set(safeState.favoriteAgentIds.filter(Boolean)))
           : [],

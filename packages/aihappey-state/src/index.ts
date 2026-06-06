@@ -24,14 +24,22 @@ export {
   PROVIDER_CAPABILITIES,
   createEmptyEnabledProvidersByType,
 } from "./slices/uiSlice";
-export { defaultAgents } from "./slices/defaultAgents";
+export {
+  defaultAgents,
+  ensureDefaultAgents,
+  SIDE_INFERENCE_DEFAULT_AGENT_NAMES,
+} from "./slices/defaultAgents";
 export { defaultProviderMetadata } from "./slices/defaultProviderMetadata";
 export {
   defaultProviderRealtimeConversationMetadata,
   defaultProviderRealtimeMetadata,
 } from "./slices/defaultProviderRealtimeMetadata";
 export * from "./slices/agentModelProviderMetadata";
-export { DEFAULT_CHAT_TOOL_ANNOTATIONS } from "./slices/chatSlice";
+export {
+  DEFAULT_CHAT_TOOL_ANNOTATIONS,
+  DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
+} from "./slices/chatSlice";
+export type { SideInferenceAgentNames } from "./slices/chatSlice";
 export * from "./slices/defaultProviderTranscriptionMetadata";
 export * from "./slices/defaultProviderSpeechMetadata";
 export * from "./slices/defaultProviderRerankingMetadata";

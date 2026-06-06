@@ -44,6 +44,12 @@ import {
 } from "aihappey-provider-metadata";
 import type { Agent } from "aihappey-types";
 
+const ensureDefaultLocalAgents = (agents: Agent[] = []) => {
+  const existingNames = new Set((agents ?? []).map((agent) => agent?.name).filter(Boolean));
+  const missingDefaults = defaultAgents.filter((agent) => !existingNames.has(agent.name));
+  return [...(agents ?? []), ...missingDefaults];
+};
+
 type Props = {
   chatConfig: ChatConfig;
   apiUrl?: string;
@@ -135,11 +141,13 @@ export const CoreShell: React.FC<Props> = ({
       const legacyAgents = (appStore.getState() as any)
         .__legacyAgents as Agent[] | undefined;
 
-      const { agents: hydratedAgents, source } = resolveLocalAgentHydration({
+      const { agents: resolvedAgents, source } = resolveLocalAgentHydration({
         defaults: defaultAgents,
         indexedDb: indexedDbAgents,
         legacy: legacyAgents,
       });
+
+      const hydratedAgents = ensureDefaultLocalAgents(resolvedAgents);
 
       const shouldWriteHydratedAgents =
         source !== "indexeddb"

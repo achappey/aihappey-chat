@@ -22,7 +22,7 @@ import { useAccessToken } from "aihappey-auth";
 import { ToolDrawer } from "../../tools";
 import { getToolName, useTools } from "../../tools/useTools";
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
-import { conversationName } from "../../../runtime/chat-app/conversationName";
+import { conversationName as generateConversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
 import { MessageActivityDrawer } from "../activity/drawer/MessageActivityDrawer";
 import { ToolCallResultModal } from "../activity/content/ToolCallResultModal";
@@ -147,6 +147,15 @@ export function VercelChatInner({
   }, [includeSystem, systemMessage, initial, messageLength]);
 
   const [, , , refreshToken] = useAccessToken(config.agentScopes ?? []);
+  const createConversationName = useCallback(
+    (text: string) => generateConversationName(text, {
+      baseUrl: config.baseUrl,
+      fetch: config.fetch ?? customFetch,
+      getAccessToken,
+      fallback: t("newChat") ?? "New chat",
+    }),
+    [config.baseUrl, config.fetch, customFetch, getAccessToken, t]
+  );
 
   const apiKeyHeaders: any = Object.fromEntries(
     Object.entries(customHeaders)
@@ -493,7 +502,7 @@ export function VercelChatInner({
     navigate,
     rename,
     getConversation: get,
-    conversationName,
+    conversationName: createConversationName,
     body: {
       ...(chatMode === "chat" ? { model: model ?? "openai/gpt-5.4-mini" } : {}),
       tools,

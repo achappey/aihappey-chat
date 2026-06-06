@@ -2,6 +2,19 @@ import type { StateCreator } from "zustand";
 import { defaultProviderMetadata } from "./defaultProviderMetadata";
 import type { ModelOption } from "aihappey-types";
 import { ToolAnnotations } from "aihappey-mcp";
+import { SIDE_INFERENCE_DEFAULT_AGENT_NAMES } from "./defaultAgents";
+
+export type SideInferenceAgentNames = {
+  welcomeMessageAgent: string;
+  conversationNameAgent: string;
+  explainToolCallAgent: string;
+};
+
+export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
+  welcomeMessageAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.welcomeMessage,
+  conversationNameAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.conversationName,
+  explainToolCallAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.explainToolCall,
+};
 
 export type ChatSlice = {
   selectedConversationId: string | null;
@@ -48,6 +61,9 @@ export type ChatSlice = {
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
   setProviderMetadata: (metadata: any | ((current: any) => any)) => void;
+  sideInferenceAgentNames: SideInferenceAgentNames;
+  setSideInferenceAgentNames: (agentNames: Partial<SideInferenceAgentNames>) => void;
+  resetSideInferenceAgentNames: () => void;
   resetChatSettings: () => void;
   addChatError: (error: Error) => void
   dismissChatError: (error: string) => void
@@ -77,6 +93,7 @@ export const createChatSlice: StateCreator<
 > = (set, get) => ({
   selectedConversationId: null,
   providerMetadata: defaultProviderMetadata,
+  sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
   temperature: 1,
   experimentalThrottle: 500,
   models: [],
@@ -226,9 +243,21 @@ export const createChatSlice: StateCreator<
         providerMetadata: { ...(nextProviderMetadata ?? {}) },
       };
     }),
+  setSideInferenceAgentNames: (agentNames) =>
+    set((state: ChatSlice) => ({
+      sideInferenceAgentNames: {
+        ...(state.sideInferenceAgentNames ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION),
+        ...(agentNames ?? {}),
+      },
+    })),
+  resetSideInferenceAgentNames: () =>
+    set(() => ({
+      sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
+    })),
   resetChatSettings: () =>
     set(() => ({
       providerMetadata: { ...defaultProviderMetadata },
+      sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       temperature: 1,
       enabledProvidersByType: {
         language: [],

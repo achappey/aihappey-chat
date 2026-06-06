@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { ToolInvocationCard as ToolInvocationCardComponent } from "aihappey-components";
 import { ToolCallResultModal } from "./ToolCallResultModal";
-import { useTranslation } from "aihappey-i18n";
+import { languageNames, useTranslation } from "aihappey-i18n";
 import { explainToolCall } from "../../../../runtime/chat-app/explainToolCall";
 import { Markdown } from "../../../../ui/markdown/Markdown";
+import { useChatContext } from "../../context/ChatContext";
 
 export interface ToolInvocationCardProps {
   invocation: any;
@@ -16,11 +17,18 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   tool,
   providerIcons,
 }) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const { config } = useChatContext();
   const [output, setOutput] = useState<any | null>(null);
   const getToolExplanation = async (invocation: any, tool: any) => await explainToolCall(
     JSON.stringify({ toolcall: invocation, tool }),
-    i18n.language
+    (languageNames as any)[i18n.language as any] ?? i18n.language,
+    {
+      baseUrl: config.baseUrl,
+      fetch: config.fetch,
+      getAccessToken: config.getAccessToken,
+      fallback: t("sideInference.toolExplanationFallback") ?? "The tool call could not be explained.",
+    }
   );
 
   return (
