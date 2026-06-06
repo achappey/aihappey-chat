@@ -1,6 +1,6 @@
 import type { JSX } from "react";
 import { ChatMessage } from "aihappey-types";
-import { Card } from "react-bootstrap";
+import { Card, ProgressBar } from "react-bootstrap";
 import React from "react";
 import { useDarkMode } from "usehooks-ts";
 import { format } from "timeago.js";
@@ -39,6 +39,7 @@ export const Chat = ({
       {messages?.map((m) => {
         const isUser = m.role === "user";
         const isActivity = m.messageIcon === "brain" || m.messageIcon === "tool";
+        const streaming = m.content?.some((a: any) => a.type === "text" && a.state === "streaming");
         const Icon = m.messageIcon ? iconMap[m.messageIcon] : undefined;
         // Styling based on role
         const alignClass = isUser ? "align-self-end" : "align-self-start";
@@ -75,10 +76,10 @@ export const Chat = ({
                 {renderMessage(m)}
               </Card.Text>
             </Card.Body>
-            {renderReactions && (
+            {(streaming || renderReactions) && (
               <Card.Footer className="px-3 py-2" style={footerStyles}>
                 <div className="aihappey-bootstrap-chat-actions" style={reactionsStyles}>
-                  {renderReactions(m)}
+                  {streaming ? <ProgressBar now={100} animated striped style={{ width: "100%", height: 6 }} /> : renderReactions?.(m)}
                 </div>
               </Card.Footer>
             )}

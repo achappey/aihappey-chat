@@ -101,7 +101,11 @@ export const PlaygroundInput = ({
           {isOver ? <Text style={styles.dropHint}>{t("attachments")}</Text> : null}
         </div>
 
-        {streaming ? <Spinner /> : null}
+        {streaming ? (
+          <div style={styles.streamingIndicator}>
+            <Spinner />
+          </div>
+        ) : null}
         <Button
           onClick={onSend}
           disabled={sendDisabled}
@@ -147,6 +151,12 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 8,
+    flex: 1,
+  },
+  streamingIndicator: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
   },
   error: {

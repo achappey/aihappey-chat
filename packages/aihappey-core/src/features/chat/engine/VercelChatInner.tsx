@@ -597,9 +597,11 @@ export function VercelChatInner({
           />}
 
         {status === "submitted" || status === "streaming" || lastPart ? (
-          <Spinner
-            label={toolName}
-          />
+          <div style={streamingIndicatorStyles}>
+            <Spinner
+              label={toolName}
+            />
+          </div>
         ) : undefined}
         <div style={{ paddingRight: 24, paddingTop: 8, boxSizing: "border-box" }}>
           <MessageInput
@@ -660,3 +662,11 @@ export function VercelChatInner({
     </div>
   );
 }
+
+const streamingIndicatorStyles = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  width: "100%",
+  padding: "8px 0 0",
+} as const;

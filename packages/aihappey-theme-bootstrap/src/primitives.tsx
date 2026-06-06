@@ -163,24 +163,41 @@ export const bootstrapTheme: AihUiTheme = {
     circle,
     animation = "pulse",
     className,
+    style,
   }: {
     width?: number | string;
     height?: number | string;
     circle?: boolean;
     animation?: "pulse" | "wave";
     className?: string;
+    style?: React.CSSProperties;
   }) => (
     <RBPlaceholder
       as="span"
       animation={animation === "wave" ? "wave" : "glow"}
       className={className}
       style={{
-        width,
-        height,
-        borderRadius: circle ? "50%" : undefined,
+        ...style,
+        ...(width != null ? { width } : {}),
+        ...(height != null ? { height } : {}),
+        ...(circle ? { borderRadius: "50%" } : {}),
         display: "inline-block",
+        overflow: "hidden",
       }}
-    />
+    >
+      <RBPlaceholder
+        as="span"
+        xs={12}
+        bg="secondary"
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          minHeight: height == null && style?.height == null ? "1em" : undefined,
+          ...(circle ? { borderRadius: "50%" } : {}),
+        }}
+      />
+    </RBPlaceholder>
   ),
   Toast,
   SplitButton,
@@ -342,7 +359,7 @@ export const bootstrapTheme: AihUiTheme = {
   ),
 
   ProgressBar: ({
-    value = 0,
+    value,
     label,
     variant,
     striped,
@@ -355,16 +372,20 @@ export const bootstrapTheme: AihUiTheme = {
     striped?: boolean;
     animated?: boolean;
     className?: string;
-  }) => (
-    <RBProgressBar
-      now={value}
-      label={label}
-      variant={variant as any}
-      striped={striped}
-      animated={animated}
-      className={className}
-    />
-  ),
+  }) => {
+    const now = value ?? (animated ? 100 : 0);
+
+    return (
+      <RBProgressBar
+        now={now}
+        label={label}
+        variant={variant as any}
+        striped={striped ?? animated}
+        animated={animated}
+        className={className}
+      />
+    );
+  },
   Modal: (props) => {
     // Only allow "sm" | "lg" | "xl" for size
     const { size, title, children, actions, ...rest } = props;
