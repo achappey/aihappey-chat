@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { getAgentModelProviderKey, useAppStore } from "aihappey-state";
-import { AgentCard, useTheme } from "aihappey-components";
+import { AgentCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { ServersHeader } from "../mcp-catalog/ServersHeader";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { AgentEditModal } from "./AgentEditModal";
 import { Agent, RemoteAgentModel } from "aihappey-types";
@@ -249,7 +248,10 @@ export const AgentsPage = () => {
         borderColor: isOver ? "#888" : "transparent",
       }}
       onDragOver={handleDragOver}>
-      <ServersHeader onAddServer={() => handleCreate()} />
+      <StickyHeaderActionBar
+        actionLabel={t("add")}
+        onAction={handleCreate}
+      />
       <div style={{ background: "transparent" }}>
         <div
           style={{

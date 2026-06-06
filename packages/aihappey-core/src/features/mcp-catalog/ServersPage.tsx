@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useAppStore } from "aihappey-state";
-import { RegistryServerCard, useTheme } from "aihappey-components";
+import { RegistryServerCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { ServersHeader } from "./ServersHeader";
 import { AddServerModal } from "../mcp-servers/AddServerModal";
 import { EditServerModal } from "../mcp-servers/EditServerModal";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
@@ -372,7 +371,10 @@ export const ServersPage = () => {
 
   return (
     <>
-      <ServersHeader onAddServer={() => setShowModal(true)} />
+      <StickyHeaderActionBar
+        actionLabel={t("manageServersModal.add")}
+        onAction={() => setShowModal(true)}
+      />
       <div style={{ background: "transparent" }}>
         <div
           style={{
