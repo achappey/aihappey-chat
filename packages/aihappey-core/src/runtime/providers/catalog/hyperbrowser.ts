@@ -3,9 +3,6 @@ import type { Provider } from "aihappey-types";
 export const hyperbrowser: Provider = {
   name: "Hyperbrowser",
   description: "Cloud browsers for AI agents & Apps",
-  icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.hyperbrowser.ai&size=128"
-  }],
   urls: {
     homepage: "https://www.hyperbrowser.ai",
     docs: "https://www.hyperbrowser.ai/docs",

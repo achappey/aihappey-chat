@@ -1,4 +1,5 @@
 import type { Provider } from "aihappey-types";
+import { withProviderIconFallbacks } from "./providerIcons";
 import { openai } from "./catalog/openai";
 import { runway } from "./catalog/runway";
 import { aiml } from "./catalog/aiml";
@@ -343,7 +344,6 @@ import { zeabur } from "./catalog/zeabur";
 import { inferlink } from "./catalog/inferlink";
 import { chainhub } from "./catalog/chainhub";
 import { ultrasafe } from "./catalog/ultrasafe";
-import { llmcloud } from "./catalog/llmcloud";
 import { railwail } from "./catalog/railwail";
 import { knoxchat } from "./catalog/knoxchat";
 import { vlmrun } from "./catalog/vlmrun";
@@ -410,7 +410,6 @@ import { fortytwo } from "./catalog/fortytwo";
 import { oraicle } from "./catalog/oraicle";
 import { foureverland } from "./catalog/foureverland";
 import { distributeai } from "./catalog/distributeai";
-import { wesenai } from "./catalog/wesenai";
 import { key4u } from "./catalog/key4u";
 import { fivedock } from "./catalog/fivedock";
 import { magisterium } from "./catalog/magisterium";
@@ -563,7 +562,7 @@ import { melious } from "./catalog/melious";
  *
  * Keys are stable identifiers (used in settings and metadata buckets).
  */
-export const PROVIDERS: Record<string, Provider> = {
+export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   openai,
   citadelis,
   freellmapikeys,
@@ -687,7 +686,6 @@ export const PROVIDERS: Record<string, Provider> = {
   privatemode,
   fortytwo,
   simplellm,
-  wesenai,
   oraicle,
   terminalskills,
   gptsapi,
@@ -746,7 +744,6 @@ export const PROVIDERS: Record<string, Provider> = {
   raxai,
   vogent,
   aicredits,
-  llmcloud,
   cheapgrok,
   railwail,
   chainhub,
@@ -1122,5 +1119,4 @@ export const PROVIDERS: Record<string, Provider> = {
   zai,
   hyperbolic,
   elevenlabs,
-} as const;
-
+});

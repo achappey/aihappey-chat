@@ -3,11 +3,6 @@ import type { Provider } from "aihappey-types";
 export const cartesia: Provider = {
   name: "Cartesia",
   description: "Integrate real-time text-to-speech with Sonic-3, Cartesia’s streaming TTS API. Generate natural, expressive voices with laughter in 40+ languages—built for AI agents and interactive apps.",
-  icons: [
-    {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.cartesia.ai&size=512"
-    }
-  ],
   urls: {
     homepage: "https://cartesia.ai",
     docs: "https://docs.cartesia.ai",

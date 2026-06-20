@@ -3,11 +3,6 @@ import type { Provider } from "aihappey-types";
 export const digitalocean: Provider = {
   name: "DigitalOcean",
   description: "Build on DigitalOcean's unified agentic AI cloud infrastructure. AI-powered development, instant deployment, easy management. Simple and affordable.",
-  icons: [
-    {
-      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.digitalocean.com&size=128"
-    }
-  ],
   urls: {
     homepage: "https://www.digitalocean.com",
     docs: "https://docs.digitalocean.com",

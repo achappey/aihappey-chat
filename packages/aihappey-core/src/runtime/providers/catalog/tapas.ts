@@ -3,9 +3,6 @@ import type { Provider } from "aihappey-types";
 export const tapas: Provider = {
   name: "Tapas",
   description: "An AI-optimized platform that reduces energy consumption by categorizing questions and serving pre-cached answers. Features Low Energy Mode, semantic question categorization, and integration with Google Cloud, NVIDIA, and Anthropic Claude.",
-  icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://tapas.one&size=128"
-  }],
   urls: {
     homepage: "https://tapas.one",
     docs: "https://tapas.one/docs",

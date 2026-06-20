@@ -3,9 +3,6 @@ import type { Provider } from "aihappey-types";
 export const wisgate: Provider = {
   name: "WisGate",
   description: "WisGate is the unified interface for LLMs. Access OpenAI, Claude, Gemini, DeepSeek and more through one API. Pay-as-you-go pricing with transparent billing.",
-  icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://wisgate.ai&size=128"
-  }],
   urls: {
     homepage: "https://wisdom-gate.juheapi.com",
     docs: "https://wisdom-docs.juheapi.com",

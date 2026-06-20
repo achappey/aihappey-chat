@@ -3,9 +3,6 @@ import type { Provider } from "aihappey-types";
 export const lumenfall: Provider = {
   name: "Lumenfall",
   description: "Lumenfall is an AI media gateway for unified access to the top image models across leading providers. OpenAI-compatible API, no markup, pay as you go.",
-  icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://lumenfall.ai&size=128"
-  }],
   urls: {
     homepage: "https://lumenfall.ai",
     docs: "https://docs.lumenfall.ai",

@@ -3,9 +3,6 @@ import type { Provider } from "aihappey-types";
 export const infron: Provider = {
   name: "Infron",
   description: "Enterprise-grade platform for models and agents — unified API, unified billing, deploy in minutes, with dedicated throughput and SLA-backed performance.",
-  icons: [{
-    src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://infron.ai&size=256"
-  }],
   urls: {
     homepage: "https://infron.ai",
     docs: "https://infron.ai/docs",
