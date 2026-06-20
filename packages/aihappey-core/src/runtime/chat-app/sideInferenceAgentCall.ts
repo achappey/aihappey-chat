@@ -27,15 +27,16 @@ const compactObject = <T extends Record<string, any>>(value: T): T => Object.fro
     return true;
   })
 ) as T;
-
 const extractText = (response: any): string => {
   if (typeof response?.output_text === "string" && response.output_text.trim()) {
     return response.output_text.trim();
   }
 
   const responseOutputText = (response?.output ?? [])
+    .filter((item: any) => item?.type === "message")
     .flatMap((item: any) => item?.content ?? [])
-    .map((item: any) => item?.text ?? item?.output_text ?? "")
+    .filter((item: any) => item?.type === "output_text" || item?.type === "text")
+    .map((item: any) => item?.text ?? "")
     .filter(Boolean)
     .join("\n\n")
     .trim();
@@ -43,6 +44,7 @@ const extractText = (response: any): string => {
   if (responseOutputText) return responseOutputText;
 
   const contentText = (response?.content ?? [])
+    .filter((item: any) => item?.type !== "reasoning_text")
     .map((item: any) => item?.text ?? "")
     .filter(Boolean)
     .join("\n\n")
@@ -51,9 +53,12 @@ const extractText = (response: any): string => {
   if (contentText) return contentText;
 
   const choiceContent = response?.choices?.[0]?.message?.content;
+
   if (typeof choiceContent === "string") return choiceContent.trim();
+
   if (Array.isArray(choiceContent)) {
     return choiceContent
+      .filter((item: any) => item?.type !== "reasoning_text")
       .map((item: any) => item?.text ?? item?.content ?? "")
       .filter(Boolean)
       .join("\n\n")

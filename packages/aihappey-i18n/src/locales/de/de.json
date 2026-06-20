@@ -375,15 +375,14 @@
                           "image":  "Bild"
                       },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "App-Agenten",
+                          "welcomeMessageAgent":  "Agent für Begrüßungsnachrichten",
+                          "welcomeMessageAgentHint":  "Wähle den Agenten für Begrüßungsnachrichten.",
+                          "conversationNameAgent":  "Agent für Gesprächsnamen",
+                          "conversationNameAgentHint":  "Wähle den Agenten für Gesprächsnamen.",
+                          "explainToolCallAgent":  "Agent für Tool-Erklärungen",
+                          "explainToolCallAgentHint":  "Wähle den Agenten für Tool-Erklärungen.",
+                          "fallbackWelcome":  "Willkommen",
+                          "toolExplanationFallback":  "Der Tool-Aufruf konnte nicht erklärt werden. Der ausgewählte Erklärungsagent ist nicht verfügbar oder hat einen Fehler zurückgegeben."
                       }
 }

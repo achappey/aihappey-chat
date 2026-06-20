@@ -355,15 +355,14 @@
                           "seed":  "Graine"
                       },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Agents de l’application",
+                          "welcomeMessageAgent":  "Agent de message d’accueil",
+                          "welcomeMessageAgentHint":  "Choisissez l’agent pour les messages d’accueil.",
+                          "conversationNameAgent":  "Agent de nom de conversation",
+                          "conversationNameAgentHint":  "Choisissez l’agent pour les noms de conversation.",
+                          "explainToolCallAgent":  "Agent d’explication des outils",
+                          "explainToolCallAgentHint":  "Choisissez l’agent pour les explications d’outils.",
+                          "fallbackWelcome":  "Bienvenue",
+                          "toolExplanationFallback":  "L’appel d’outil n’a pas pu être expliqué. L’agent d’explication sélectionné est indisponible ou a renvoyé une erreur."
                       }
 }

@@ -327,15 +327,14 @@
                                "http":  "HTTP"
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "ऐप एजेंट",
+                          "welcomeMessageAgent":  "स्वागत संदेश एजेंट",
+                          "welcomeMessageAgentHint":  "स्वागत संदेशों के लिए एजेंट चुनें।",
+                          "conversationNameAgent":  "बातचीत नाम एजेंट",
+                          "conversationNameAgentHint":  "बातचीत के नामों के लिए एजेंट चुनें।",
+                          "explainToolCallAgent":  "टूल व्याख्या एजेंट",
+                          "explainToolCallAgentHint":  "टूल व्याख्याओं के लिए एजेंट चुनें।",
+                          "fallbackWelcome":  "स्वागत है",
+                          "toolExplanationFallback":  "टूल कॉल की व्याख्या नहीं की जा सकी। चुना गया व्याख्या एजेंट उपलब्ध नहीं है या उसने त्रुटि लौटाई है।"
                       }
 }

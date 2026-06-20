@@ -355,15 +355,14 @@
                           "seed":  "Semilla"
                       },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Agentes de la app",
+                          "welcomeMessageAgent":  "Agente de mensajes de bienvenida",
+                          "welcomeMessageAgentHint":  "Elige el agente para los mensajes de bienvenida.",
+                          "conversationNameAgent":  "Agente de nombres de conversación",
+                          "conversationNameAgentHint":  "Elige el agente para los nombres de conversación.",
+                          "explainToolCallAgent":  "Agente de explicación de herramientas",
+                          "explainToolCallAgentHint":  "Elige el agente para las explicaciones de herramientas.",
+                          "fallbackWelcome":  "Bienvenido",
+                          "toolExplanationFallback":  "No se pudo explicar la llamada a la herramienta. El agente de explicación seleccionado no está disponible o devolvió un error."
                       }
 }

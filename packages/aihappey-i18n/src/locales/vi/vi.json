@@ -340,15 +340,14 @@
                                "http":  "HTTP"
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Tác nhân ứng dụng",
+                          "welcomeMessageAgent":  "Tác nhân tin nhắn chào mừng",
+                          "welcomeMessageAgentHint":  "Chọn tác nhân cho tin nhắn chào mừng.",
+                          "conversationNameAgent":  "Tác nhân tên cuộc trò chuyện",
+                          "conversationNameAgentHint":  "Chọn tác nhân cho tên cuộc trò chuyện.",
+                          "explainToolCallAgent":  "Tác nhân giải thích công cụ",
+                          "explainToolCallAgentHint":  "Chọn tác nhân cho phần giải thích công cụ.",
+                          "fallbackWelcome":  "Chào mừng",
+                          "toolExplanationFallback":  "Không thể giải thích lệnh gọi công cụ. Tác nhân giải thích đã chọn không khả dụng hoặc trả về lỗi."
                       }
 }

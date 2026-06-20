@@ -341,15 +341,14 @@
                         "openWorld":  "オープンワールド"
                     },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "アプリ エージェント",
+                          "welcomeMessageAgent":  "ウェルカム メッセージ エージェント",
+                          "welcomeMessageAgentHint":  "ウェルカム メッセージに使うエージェントを選択します。",
+                          "conversationNameAgent":  "会話名エージェント",
+                          "conversationNameAgentHint":  "会話名に使うエージェントを選択します。",
+                          "explainToolCallAgent":  "ツール説明エージェント",
+                          "explainToolCallAgentHint":  "ツール説明に使うエージェントを選択します。",
+                          "fallbackWelcome":  "ようこそ",
+                          "toolExplanationFallback":  "ツール呼び出しを説明できませんでした。選択した説明エージェントが利用できないか、エラーを返しました。"
                       }
 }

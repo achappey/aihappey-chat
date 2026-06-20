@@ -327,15 +327,14 @@
                                "http":  "HTTP"
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Alkalmazásügynökök",
+                          "welcomeMessageAgent":  "Üdvözlőüzenet-ügynök",
+                          "welcomeMessageAgentHint":  "Válaszd ki az ügynököt az üdvözlőüzenetekhez.",
+                          "conversationNameAgent":  "Beszélgetésnév-ügynök",
+                          "conversationNameAgentHint":  "Válaszd ki az ügynököt a beszélgetésnevekhez.",
+                          "explainToolCallAgent":  "Eszközmagyarázó ügynök",
+                          "explainToolCallAgentHint":  "Válaszd ki az ügynököt az eszközmagyarázatokhoz.",
+                          "fallbackWelcome":  "Üdvözöljük",
+                          "toolExplanationFallback":  "Az eszközhívást nem sikerült megmagyarázni. A kiválasztott magyarázó ügynök nem érhető el, vagy hibát adott vissza."
                       }
 }

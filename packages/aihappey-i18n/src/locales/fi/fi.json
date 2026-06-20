@@ -659,15 +659,14 @@
                                "nameExists":  "Palvelin tÃ¤llÃ¤ nimellÃ¤ on jo olemassa."
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Sovellusagentit",
+                          "welcomeMessageAgent":  "Tervetuloviestien agentti",
+                          "welcomeMessageAgentHint":  "Valitse agentti tervetuloviesteille.",
+                          "conversationNameAgent":  "Keskustelunimien agentti",
+                          "conversationNameAgentHint":  "Valitse agentti keskustelunimille.",
+                          "explainToolCallAgent":  "Työkaluselitysten agentti",
+                          "explainToolCallAgentHint":  "Valitse agentti työkaluselityksille.",
+                          "fallbackWelcome":  "Tervetuloa",
+                          "toolExplanationFallback":  "Työkalukutsua ei voitu selittää. Valittu selitysagentti ei ole käytettävissä tai palautti virheen."
                       }
 }

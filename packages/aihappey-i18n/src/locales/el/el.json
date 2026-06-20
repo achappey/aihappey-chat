@@ -659,15 +659,14 @@
                                "nameExists":  "Î¥Ï€Î¬ÏÏ‡ÎµÎ¹ Î®Î´Î· Î´Î¹Î±ÎºÎ¿Î¼Î¹ÏƒÏ„Î®Ï‚ Î¼Îµ Î±Ï…Ï„ÏŒ Ï„Î¿ ÏŒÎ½Î¿Î¼Î±."
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Πράκτορες εφαρμογής",
+                          "welcomeMessageAgent":  "Πράκτορας μηνυμάτων καλωσορίσματος",
+                          "welcomeMessageAgentHint":  "Επιλέξτε τον πράκτορα για μηνύματα καλωσορίσματος.",
+                          "conversationNameAgent":  "Πράκτορας ονομάτων συνομιλιών",
+                          "conversationNameAgentHint":  "Επιλέξτε τον πράκτορα για ονόματα συνομιλιών.",
+                          "explainToolCallAgent":  "Πράκτορας επεξηγήσεων εργαλείων",
+                          "explainToolCallAgentHint":  "Επιλέξτε τον πράκτορα για επεξηγήσεις εργαλείων.",
+                          "fallbackWelcome":  "Καλώς ήρθατε",
+                          "toolExplanationFallback":  "Δεν ήταν δυνατή η επεξήγηση της κλήσης εργαλείου. Ο επιλεγμένος πράκτορας επεξήγησης δεν είναι διαθέσιμος ή επέστρεψε σφάλμα."
                       }
 }

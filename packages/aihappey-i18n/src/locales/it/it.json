@@ -336,15 +336,14 @@
                                "http":  "HTTP"
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Agenti dell’app",
+                          "welcomeMessageAgent":  "Agente per i messaggi di benvenuto",
+                          "welcomeMessageAgentHint":  "Scegli l’agente per i messaggi di benvenuto.",
+                          "conversationNameAgent":  "Agente per i nomi delle conversazioni",
+                          "conversationNameAgentHint":  "Scegli l’agente per i nomi delle conversazioni.",
+                          "explainToolCallAgent":  "Agente per le spiegazioni degli strumenti",
+                          "explainToolCallAgentHint":  "Scegli l’agente per le spiegazioni degli strumenti.",
+                          "fallbackWelcome":  "Benvenuto",
+                          "toolExplanationFallback":  "Non è stato possibile spiegare la chiamata allo strumento. L’agente di spiegazione selezionato non è disponibile o ha restituito un errore."
                       }
 }

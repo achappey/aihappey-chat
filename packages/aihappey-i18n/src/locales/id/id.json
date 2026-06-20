@@ -327,15 +327,14 @@
                                "http":  "HTTP"
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "Agen Aplikasi",
+                          "welcomeMessageAgent":  "Agen pesan sambutan",
+                          "welcomeMessageAgentHint":  "Pilih agen untuk pesan sambutan.",
+                          "conversationNameAgent":  "Agen nama percakapan",
+                          "conversationNameAgentHint":  "Pilih agen untuk nama percakapan.",
+                          "explainToolCallAgent":  "Agen penjelasan alat",
+                          "explainToolCallAgentHint":  "Pilih agen untuk penjelasan alat.",
+                          "fallbackWelcome":  "Selamat datang",
+                          "toolExplanationFallback":  "Panggilan alat tidak dapat dijelaskan. Agen penjelasan yang dipilih tidak tersedia atau mengembalikan kesalahan."
                       }
 }

@@ -327,15 +327,14 @@
                                "http":  "HTTP"
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "เอเจนต์ของแอป",
+                          "welcomeMessageAgent":  "เอเจนต์ข้อความต้อนรับ",
+                          "welcomeMessageAgentHint":  "เลือกเอเจนต์สำหรับข้อความต้อนรับ",
+                          "conversationNameAgent":  "เอเจนต์ชื่อการสนทนา",
+                          "conversationNameAgentHint":  "เลือกเอเจนต์สำหรับชื่อการสนทนา",
+                          "explainToolCallAgent":  "เอเจนต์คำอธิบายเครื่องมือ",
+                          "explainToolCallAgentHint":  "เลือกเอเจนต์สำหรับคำอธิบายเครื่องมือ",
+                          "fallbackWelcome":  "ยินดีต้อนรับ",
+                          "toolExplanationFallback":  "ไม่สามารถอธิบายการเรียกใช้เครื่องมือได้ เอเจนต์คำอธิบายที่เลือกไม่พร้อมใช้งานหรือส่งคืนข้อผิดพลาด"
                       }
 }

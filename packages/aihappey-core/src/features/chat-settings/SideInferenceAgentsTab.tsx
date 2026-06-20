@@ -33,7 +33,6 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
     return (
       <theme.Select
         label={label}
-        hint={hint}
         values={[selected]}
         valueTitle={selectedAgent?.name ?? selected}
         onChange={(next: string) => onChange({ ...value, [key]: next })}
@@ -54,27 +53,23 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
   return (
     <theme.Card
       size="small"
-      title={t("sideInference.title") ?? "Side inference"}
+      title={t("sideInference.title") ?? "App Agents"}
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <theme.Text>
-          {t("sideInference.description") ??
-            "Choose the local agents used for small AI side tasks in the chat app."}
-        </theme.Text>
         {renderSelect(
           "welcomeMessageAgent",
           t("sideInference.welcomeMessageAgent") ?? "Welcome message agent",
-          t("sideInference.welcomeMessageAgentHint") ?? "Creates the message shown on a new chat screen.",
+          t("sideInference.welcomeMessageAgentHint") ?? "Choose the agent for welcome messages.",
         )}
         {renderSelect(
           "conversationNameAgent",
           t("sideInference.conversationNameAgent") ?? "Conversation name agent",
-          t("sideInference.conversationNameAgentHint") ?? "Creates names for new conversations.",
+          t("sideInference.conversationNameAgentHint") ?? "Choose the agent for conversation names.",
         )}
         {renderSelect(
           "explainToolCallAgent",
           t("sideInference.explainToolCallAgent") ?? "Tool explanation agent",
-          t("sideInference.explainToolCallAgentHint") ?? "Explains completed tool calls to end users.",
+          t("sideInference.explainToolCallAgentHint") ?? "Choose the agent for tool explanations.",
         )}
       </div>
     </theme.Card>

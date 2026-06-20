@@ -327,15 +327,14 @@
                                "http":  "HTTP"
                            },
     "sideInference":  {
-                          "title":  "Side inference",
-                          "description":  "Choose the local agents used for small AI side tasks in the chat app.",
-                          "welcomeMessageAgent":  "Welcome message agent",
-                          "welcomeMessageAgentHint":  "Creates the message shown on a new chat screen.",
-                          "conversationNameAgent":  "Conversation name agent",
-                          "conversationNameAgentHint":  "Creates names for new conversations.",
-                          "explainToolCallAgent":  "Tool explanation agent",
-                          "explainToolCallAgentHint":  "Explains completed tool calls to end users.",
-                          "fallbackWelcome":  "Welcome",
-                          "toolExplanationFallback":  "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
+                          "title":  "অ্যাপ এজেন্ট",
+                          "welcomeMessageAgent":  "স্বাগত বার্তা এজেন্ট",
+                          "welcomeMessageAgentHint":  "স্বাগত বার্তার জন্য এজেন্ট নির্বাচন করুন।",
+                          "conversationNameAgent":  "কথোপকথনের নাম এজেন্ট",
+                          "conversationNameAgentHint":  "কথোপকথনের নামের জন্য এজেন্ট নির্বাচন করুন।",
+                          "explainToolCallAgent":  "টুল ব্যাখ্যা এজেন্ট",
+                          "explainToolCallAgentHint":  "টুল ব্যাখ্যার জন্য এজেন্ট নির্বাচন করুন।",
+                          "fallbackWelcome":  "স্বাগতম",
+                          "toolExplanationFallback":  "টুল কলটি ব্যাখ্যা করা যায়নি। নির্বাচিত ব্যাখ্যা এজেন্টটি উপলভ্য নয় বা একটি ত্রুটি ফিরিয়েছে।"
                       }
 }
