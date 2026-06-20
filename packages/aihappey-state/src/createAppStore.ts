@@ -13,13 +13,16 @@ import { createSpeechSlice, SpeechSlice } from "./slices/speechSlice";
 import { createRerankingSlice, RerankingSlice } from "./slices/rerankingSlice";
 import { createRealtimeSlice, RealtimeSlice } from "./slices/realtimeSlice";
 import { createJsonRenderSlice, JsonRenderSlice } from "./slices/jsonRenderSlice";
+import { AppStoreConfig, setAppStoreConfig } from "./appStoreConfig";
 
 export type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & TranscriptionSlice & RealtimeSlice
   & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
 
-export const createAppStore = () =>
-  createStore<RootState, [["zustand/persist", unknown]]>(
+export const createAppStore = (config: AppStoreConfig = {}) => {
+  setAppStoreConfig(config);
+
+  return createStore<RootState, [["zustand/persist", unknown]]>(
     withPersist(
       (set, get, store) => ({
         ...createChatSlice(set, get, store),
@@ -38,3 +41,4 @@ export const createAppStore = () =>
       })
     )
   );
+};

@@ -1,6 +1,8 @@
 import CoreRoot from "aihappey-core";
+import { configureAppStore } from "aihappey-state";
 import { ThemeProvider } from "aihappey-theme-fluent";
 import { loginRequest, msalConfig } from "./msalConfig";
+import { defaultAgents as sampleDefaultAgents } from "./defaultAgents";
 declare const __CHAT_API__: string;
 declare const __API_BASE_URL__: string;
 declare const __MODELS_API__: string;
@@ -11,6 +13,8 @@ declare const __APP_VERSION__: string;
 declare const __CHAT_APP_MCP__: string;
 declare const __CONVERSATIONS_API_URL__: string;
 declare const __CONVERSATIONS_SCOPES__: string[];
+
+configureAppStore({ defaultAgents: sampleDefaultAgents });
 
 const App = () => (
   <ThemeProvider>

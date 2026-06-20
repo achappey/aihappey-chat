@@ -65,7 +65,7 @@ export type Provider = {
     name: string;
     description?: string
     experimental?: boolean
-    icons: Icon[];
+    icons?: Icon[];
     urls?: ProviderUrls;
     providerCountry?: string
     inferenceRegions?: string[]

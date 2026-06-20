@@ -1,5 +1,5 @@
 import CoreRoot, { MultiThemeProvider } from "aihappey-core";
-import { useAppStore } from "aihappey-state";
+import { configureAppStore, useAppStore } from "aihappey-state";
 import { ThemeProvider as BootstrapThemeProvider } from "aihappey-theme-bootstrap";
 import { ThemeProvider as FluentThemeProvider } from "aihappey-theme-fluent";
 import {
@@ -7,6 +7,7 @@ import {
   createSchemeFromBaseColor,
   type ShadcnThemeProviderProps,
 } from "aihappey-theme-shadcn";
+import { defaultAgents as sampleDefaultAgents } from "./defaultAgents";
 
 declare const __AGENT_ENDPOINT__: string;
 declare const __API_BASE_URL__: string;
@@ -21,6 +22,9 @@ const shadcnCustomSchemes: NonNullable<ShadcnThemeProviderProps["customSchemes"]
     ...createSchemeFromBaseColor("#4A72B4", "0.5rem"),
   },
 };
+
+configureAppStore({ defaultAgents: sampleDefaultAgents });
+
 //    customSchemes={shadcnCustomSchemes}
 
 const ConfiguredShadcnThemeProvider = ({ children }: { children: React.ReactNode }) => (

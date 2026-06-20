@@ -5,8 +5,9 @@ import { ChatAppConnector } from "./connectors/ChatAppConnector";
 import { I18nProvider } from "aihappey-i18n";
 import { ConversationsProvider } from "aihappey-conversations";
 import {
-  defaultAgents,
   defaultProviderMetadata,
+  ensureDefaultAgents,
+  getConfiguredDefaultAgents,
   store as appStore,
   useRemoteStorageConnected,
   useAppStore,
@@ -43,12 +44,6 @@ import {
   resolveProviderMetadataHydration,
 } from "aihappey-provider-metadata";
 import type { Agent } from "aihappey-types";
-
-const ensureDefaultLocalAgents = (agents: Agent[] = []) => {
-  const existingNames = new Set((agents ?? []).map((agent) => agent?.name).filter(Boolean));
-  const missingDefaults = defaultAgents.filter((agent) => !existingNames.has(agent.name));
-  return [...(agents ?? []), ...missingDefaults];
-};
 
 type Props = {
   chatConfig: ChatConfig;
@@ -137,17 +132,18 @@ export const CoreShell: React.FC<Props> = ({
     let cancelled = false;
 
     const hydrateLocalAgents = async () => {
+      const configuredDefaultAgents = getConfiguredDefaultAgents();
       const indexedDbAgents = await localAgentStore.list();
       const legacyAgents = (appStore.getState() as any)
         .__legacyAgents as Agent[] | undefined;
 
       const { agents: resolvedAgents, source } = resolveLocalAgentHydration({
-        defaults: defaultAgents,
+        defaults: configuredDefaultAgents,
         indexedDb: indexedDbAgents,
         legacy: legacyAgents,
       });
 
-      const hydratedAgents = ensureDefaultLocalAgents(resolvedAgents);
+      const hydratedAgents = ensureDefaultAgents(resolvedAgents, configuredDefaultAgents);
 
       const shouldWriteHydratedAgents =
         source !== "indexeddb"

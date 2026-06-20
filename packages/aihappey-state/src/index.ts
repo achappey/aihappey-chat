@@ -1,16 +1,32 @@
 import { createAppStore, RootState } from "./createAppStore";
 import { useStore } from "zustand/react";
+import {
+  areAgentsEqual,
+  getConfiguredDefaultAgents,
+  setAppStoreConfig,
+  type AppStoreConfig,
+} from "./appStoreConfig";
 
 const store = createAppStore();
 /** Generic selector hook for the global store. */
 const useAppStore = <T>(selector: (state: RootState) => T): T =>
   useStore(store, selector);
 
+export const configureAppStore = (config: AppStoreConfig = {}) => {
+  const { previousConfig, nextConfig } = setAppStoreConfig(config);
+  const currentAgents = (store.getState() as RootState).agents ?? [];
+
+  if (currentAgents.length === 0 || areAgentsEqual(currentAgents, previousConfig.defaultAgents)) {
+    store.setState({ agents: nextConfig.defaultAgents } as Partial<RootState>);
+  }
+};
+
 /** Selector for remoteStorageConnected flag */
 export const useRemoteStorageConnected = () =>
   useAppStore(s => (s as any).remoteStorageConnected as boolean);
 
-export { createAppStore, useAppStore, store };
+export { createAppStore, useAppStore, store, getConfiguredDefaultAgents };
+export type { AppStoreConfig };
 
 export type { Resource, ResourceTemplate, Prompt } from "aihappey-mcp";
 export { SamplingRequest } from "./slices/mcpSlice";
@@ -25,8 +41,11 @@ export {
   createEmptyEnabledProvidersByType,
 } from "./slices/uiSlice";
 export {
-  defaultAgents,
+  CONVERSATION_NAME_AGENT_NAME,
+  EXPLAIN_TOOL_CALL_AGENT_NAME,
+  WELCOME_MESSAGE_AGENT_NAME,
   ensureDefaultAgents,
+  cloneAgents,
   SIDE_INFERENCE_DEFAULT_AGENT_NAMES,
 } from "./slices/defaultAgents";
 export { defaultProviderMetadata } from "./slices/defaultProviderMetadata";
