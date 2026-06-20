@@ -5,7 +5,7 @@ export const cartesia: Provider = {
   description: "Integrate real-time text-to-speech with Sonic-3, Cartesia’s streaming TTS API. Generate natural, expressive voices with laughter in 40+ languages—built for AI agents and interactive apps.",
   icons: [
     {
-      src: "https://play.cartesia.ai/icon.svg?icon.78918bc9.svg"
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://www.cartesia.ai&size=512"
     }
   ],
   urls: {

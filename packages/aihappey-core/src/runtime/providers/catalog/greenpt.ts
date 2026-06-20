@@ -6,7 +6,7 @@ export const greenpt: Provider = {
     "GreenPT is a privacy-friendly AI chat platform, hosted in Europe and powered by renewable energy. Get clear answers with full transparency and peace of mind.",
   icons: [
     {
-      src: "https://greenpt.ai/content/uploads/2026/01/2993679_brand_brands_logo_logos_opera_icon@2x-800x800.webp",
+      src: "https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://greenpt.com&size=512",
     },
   ],
   urls: {
