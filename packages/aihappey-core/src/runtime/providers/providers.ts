@@ -21,7 +21,6 @@ import { sarvam } from "./catalog/sarvam";
 import { deepgram } from "./catalog/deepgram";
 import { speechmatics } from "./catalog/speechmatics";
 import { voyageai } from "./catalog/voyageai";
-import { contextualai } from "./catalog/contextualai";
 import { replicate } from "./catalog/replicate";
 import { async } from "./catalog/async";
 import { azure } from "./catalog/azure";
@@ -1078,7 +1077,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   friendli,
   picsart,
   bria,
-  contextualai,
   murfai,
   replicate,
   simplismart,
