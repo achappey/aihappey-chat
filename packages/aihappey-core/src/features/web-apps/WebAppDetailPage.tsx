@@ -25,6 +25,7 @@ import {
 } from "./dataSources";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useUIStream } from "../json-render/useUIStream";
+import { createChatAuthHeadersForModel } from "../provider-credentials/providerAuthHeaders";
 import {
   createCatalogFromStored,
   getDefaultCatalogDefinitionsWithActions,
@@ -275,7 +276,7 @@ export const WebAppDetailPage = () => {
     catalogPrompt: effectiveCatalogPrompt,
     model: selectedModel,
     getAccessToken: config?.getAccessToken,
-    customHeaders,
+    customHeaders: createChatAuthHeadersForModel(customHeaders, selectedModel, Boolean(config?.getAccessToken)),
     initialTree: tree ?? null,
   });
 

@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { createHttpClient } from "aihappey-http";
-import type { ModelResponse } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
 import { useSearchParams } from "react-router";
+import { listModelsWithSplitProviderHeaders } from "../provider-credentials/providerAuthHeaders";
 
 export const useModels = (
   modelsApi: string,
@@ -12,6 +11,7 @@ export const useModels = (
   const modelsLoaded = useAppStore(a => a.modelsLoaded);
   const setModels = useAppStore(a => a.setModels)
   const customHeaders = useAppStore(a => a.customHeaders)
+  const setModelsLoadingProgress = useAppStore((a: any) => a.setModelsLoadingProgress)
   const setSelectedModel = useAppStore(a => a.setSelectedModel)
   const userPreferredModel = useAppStore(a => a.userPreferredModel)
   const [searchParams] = useSearchParams();
@@ -20,19 +20,27 @@ export const useModels = (
 
   useEffect(() => {
     if (!modelsLoaded) {
-      const client = createHttpClient({ getAccessToken, headers: customHeaders });
-      client
-        .get<ModelResponse>(modelsApi)
+      listModelsWithSplitProviderHeaders({
+        modelsApi,
+        getAccessToken,
+        customHeaders,
+        onProgress: setModelsLoadingProgress,
+      })
         .then((a) => {
           setModels(a.data)
+          setModelsLoadingProgress?.(undefined)
 
           const defaultModel = model ?? userPreferredModel
           if (defaultModel)
             setSelectedModel(defaultModel)
         })
+        .catch((err) => {
+          setModelsLoadingProgress?.(undefined)
+          console.error("Failed to load models:", err);
+        })
     }
 
-  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, userPreferredModel, setModels, setSelectedModel]);
+  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, userPreferredModel, setModels, setSelectedModel, setModelsLoadingProgress]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;

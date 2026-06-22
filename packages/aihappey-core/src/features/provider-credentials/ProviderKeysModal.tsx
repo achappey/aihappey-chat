@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { ProviderKeysForm, SettingsActionButtons, useTheme } from "aihappey-components";
-import { createHttpClient } from "aihappey-http";
 import { useTranslation } from "aihappey-i18n";
-import type { ModelResponse } from "aihappey-types";
 import { PROVIDER_CAPABILITIES, useAppStore } from "aihappey-state";
 import { useDarkMode } from "usehooks-ts";
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { listModelsWithSplitProviderHeaders } from "./providerAuthHeaders";
 
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -59,6 +58,7 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
 
   const customHeaders = useAppStore((s) => s.customHeaders);
   const setModels = useAppStore((s) => s.setModels);
+  const setModelsLoadingProgress = useAppStore((s: any) => s.setModelsLoadingProgress);
   const addCustomHeader = useAppStore((s) => s.addCustomHeader);
   const removeCustomHeader = useAppStore((s) => s.removeCustomHeader);
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
@@ -169,18 +169,21 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
 
   const refreshModels = useCallback(async () => {
     const modelsApi = config.baseUrl + config.endpoints.models;
-    const client = createHttpClient({
-      getAccessToken: config.getAccessToken,
-      headers: customHeaders,
-    });
 
     try {
-      const response = await client.get<ModelResponse>(modelsApi);
+      const response = await listModelsWithSplitProviderHeaders({
+        modelsApi,
+        getAccessToken: config.getAccessToken,
+        customHeaders,
+        onProgress: setModelsLoadingProgress,
+      });
       setModels(response.data);
+      setModelsLoadingProgress?.(undefined);
     } catch (err) {
+      setModelsLoadingProgress?.(undefined);
       console.error("Failed to refresh models after provider key changes:", err);
     }
-  }, [config, customHeaders, setModels]);
+  }, [config, customHeaders, setModels, setModelsLoadingProgress]);
 
   const handleClose = useCallback(() => {
     if (hasProviderKeysChangedThisSession()) {

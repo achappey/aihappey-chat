@@ -31,6 +31,7 @@ import { PlaygroundInput } from "./PlaygroundInput";
 import { PlaygroundSettingsDrawer } from "./PlaygroundSettingsDrawer";
 import { encodePlaygroundAttachment, getPlaygroundUnsupportedAttachmentKinds } from "./playgroundAttachments";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
+import { createChatAuthHeadersForModel } from "../provider-credentials/providerAuthHeaders";
 
 export const PlaygroundPage = () => {
   const { isDarkMode } = useDarkMode();
@@ -108,13 +109,8 @@ export const PlaygroundPage = () => {
   );
 
   const effectiveHeaders = useMemo(() => {
-    if (!providerKey) return customHeaders ?? {};
-    return Object.fromEntries(
-      Object.entries(customHeaders ?? {}).filter(([key]) =>
-        key.toLowerCase().includes(providerKey),
-      ),
-    );
-  }, [customHeaders, providerKey]);
+    return createChatAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken));
+  }, [config?.getAccessToken, customHeaders, playgroundModel]);
 
   const currentEndpointConfig = useMemo(
     () => endpointConfigByEndpoint[selectedEndpoint as keyof PlaygroundEndpointConfigMap] ?? {},

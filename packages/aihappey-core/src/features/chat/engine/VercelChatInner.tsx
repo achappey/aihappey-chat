@@ -48,6 +48,11 @@ import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useUIStream } from "../../json-render/useUIStream";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { buildSelectedAgentRequest } from "../../agents/agentSelection";
+import {
+  createChatAuthHeadersForModel,
+  getProviderApiKeyHeaderEntries,
+  getProviderKeyFromModelId,
+} from "../../provider-credentials/providerAuthHeaders";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -157,27 +162,26 @@ export function VercelChatInner({
     [config.baseUrl, config.fetch, customFetch, getAccessToken, t]
   );
 
-  const apiKeyHeaders: any = Object.fromEntries(
-    Object.entries(customHeaders)
-      .filter(([key]) => model && key.toLocaleLowerCase().indexOf(model.split("/")[0]) > -1)
+  const apiKeyHeaders: any = useMemo(
+    () => createChatAuthHeadersForModel(customHeaders, model, Boolean(getAccessToken)),
+    [customHeaders, getAccessToken, model],
   );
 
   const getAgentApiKeyHeaders = useCallback((agents: any[] | undefined) => {
     const providerKeys = Array.from(
       new Set(
         (agents ?? [])
-          .map((agent: any) => String(agent?.model?.id ?? "").split("/")[0]?.toLowerCase())
+          .map((agent: any) => getProviderKeyFromModelId(agent?.model?.id))
           .filter(Boolean)
       )
     );
 
     return Object.fromEntries(
-      Object.entries(customHeaders)
-        .filter(([key]) => providerKeys.some((providerKey) => key.toLocaleLowerCase().includes(providerKey)))
+      providerKeys.flatMap((providerKey) => getProviderApiKeyHeaderEntries(customHeaders, providerKey))
     );
   }, [customHeaders]);
 
-  const authFetchCustomHeaders = chatMode === "agent" ? customHeaders : apiKeyHeaders;
+  const authFetchCustomHeaders = chatMode === "agent" ? undefined : apiKeyHeaders;
 
   const authFetch = useAuthFetch({
     chatMode,

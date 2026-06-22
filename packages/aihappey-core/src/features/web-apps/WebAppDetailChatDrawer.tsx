@@ -10,6 +10,7 @@ import { useUIStream } from "../json-render/useUIStream";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
 import { WebAppDetailDrawerTabs } from "./WebAppDetailDrawerTabs";
+import { createChatAuthHeadersForModel } from "../provider-credentials/providerAuthHeaders";
 
 type WebAppDetailChatDrawerProps = {
     open: boolean;
@@ -81,12 +82,8 @@ export const WebAppDetailChatDrawer = ({
     const providerMetadata = useActiveProviderMetadata();
 
     const apiKeyHeaders = useMemo(
-        () =>
-            Object.fromEntries(
-                Object.entries(customHeaders)
-                    .filter(([key]) => model && key.toLocaleLowerCase().includes(model.split("/")[0]))
-            ),
-        [customHeaders, model]
+        () => createChatAuthHeadersForModel(customHeaders, model, Boolean(config?.getAccessToken)),
+        [config?.getAccessToken, customHeaders, model]
     );
 
     const appDataRef = useRef(app?.data);

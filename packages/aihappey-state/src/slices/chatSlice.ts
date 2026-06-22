@@ -57,6 +57,8 @@ export type ChatSlice = {
   models?: ModelOption[]
   /** True once we have attempted to load models from the backend (even if the list is empty). */
   modelsLoaded: boolean;
+  modelsLoadingProgress?: { completed: number; total: number; active: boolean };
+  setModelsLoadingProgress: (progress?: { completed: number; total: number; active: boolean }) => void;
   setModels: (models: ModelOption[]) => void;
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
@@ -98,6 +100,7 @@ export const createChatSlice: StateCreator<
   experimentalThrottle: 500,
   models: [],
   modelsLoaded: false,
+  modelsLoadingProgress: undefined,
   chatMode: "chat",
   customHeaders: {},
   structuredOutputs: undefined,
@@ -204,6 +207,12 @@ export const createChatSlice: StateCreator<
     set((state: any) => ({
       models: models,
       modelsLoaded: true,
+      modelsLoadingProgress: undefined,
+    }));
+  },
+  setModelsLoadingProgress: (progress) => {
+    set(() => ({
+      modelsLoadingProgress: progress,
     }));
   },
   setThrottle: (throttle) => {

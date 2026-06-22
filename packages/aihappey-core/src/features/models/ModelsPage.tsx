@@ -11,12 +11,13 @@ import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 export const ModelsPage = () => {
   const PAGE_SIZE = 50;
-  const { SearchBox, Text, Tabs, Tab, ToggleButton, DataGrid, Button, Image } = useTheme();
+  const { SearchBox, Text, Tabs, Tab, ToggleButton, DataGrid, Button, Image, ProgressBar } = useTheme();
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const { isDarkMode } = useDarkMode();
   const navigate = useNavigate()
   const models = useAppStore((s) => s.models);
+  const modelsLoadingProgress = useAppStore((s: any) => s.modelsLoadingProgress as { completed: number; total: number; active: boolean } | undefined);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   // unique types
@@ -34,6 +35,9 @@ export const ModelsPage = () => {
 
   const [viewMode, setViewMode] = useState<"cards" | "grid">("cards");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const modelLoadPercent = modelsLoadingProgress?.total
+    ? Math.round((modelsLoadingProgress.completed / modelsLoadingProgress.total) * 100)
+    : 0;
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -166,6 +170,15 @@ export const ModelsPage = () => {
           <Text as="p" align={"center"}>
             {t("ai.description", { total: models?.length })}
           </Text>
+
+          {modelsLoadingProgress?.active && (
+            <div style={{ width: "100%", maxWidth: 700, marginBottom: 16 }}>
+              <ProgressBar
+                value={modelLoadPercent}
+                label={`Loading models ${modelsLoadingProgress.completed}/${modelsLoadingProgress.total}`}
+              />
+            </div>
+          )}
 
           <div
             style={{
