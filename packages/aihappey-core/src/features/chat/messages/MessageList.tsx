@@ -16,6 +16,8 @@ import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { getUiMessageIdFromChatMessageId } from "./getUiMessageIdFromChatMessageId";
 import { EditMessageModal } from "./EditMessageModal";
 import { useConversations } from "aihappey-conversations";
+import { ImageModal } from "../../images/ImageModal";
+import { downloadImageContent, imageContentToSrc } from "../../images/imageContentUtils";
 
 interface MessageListProps {
   showCitations: (items: (SourceUrlUIPart | SourceDocumentUIPart)[]) => void;
@@ -81,6 +83,7 @@ export const MessageList = ({
   const isDesktop = useIsDesktop()
 
   const [editUiMessageId, setEditUiMessageId] = useState<string | undefined>(undefined);
+  const [modalImage, setModalImage] = useState<ImageContent | undefined>(undefined);
   const editUiMessage = useMemo(
     () => messages.find((m) => m.id === editUiMessageId),
     [editUiMessageId, messages]
@@ -96,28 +99,6 @@ export const MessageList = ({
   const chatMessages: ChatMessage[] = toChatMessages(messages) as any;
   const copyClipboard = async (msg: ChatMessage) =>
     await copyMarkdownToClipboard(msg.content?.[0].type == "text" ? msg.content?.[0]?.text : JSON.stringify(msg));
-
-  const imageContentToSrc = (img: any) => {
-    if (!img) return "";
-
-    // MCP style: { type:"image", mimeType, data }
-    if (img.type === "image") {
-      const mime = img.mimeType ?? "image/png";
-      const data = img.data ?? "";
-
-      // if already data-url, keep it
-      if (typeof data === "string" && data.startsWith("data:")) return data;
-
-      // base64 payload -> data-url
-      return `data:${mime};base64,${data}`;
-    }
-
-    // fallback: if something already passed a string
-    if (typeof img === "string") return img;
-
-    return "";
-  };
-
 
   return (
     <>
@@ -173,14 +154,18 @@ export const MessageList = ({
             if (items.length <= 1) {
               const src = imageContentToSrc(items[0]);
               return src ? (
-                <div><Image
-                  src={src}
-                  fit="cover"
-                /></div>
+                <div>
+                  <Image
+                    src={src}
+                    fit="cover"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setModalImage(items[0])}
+                  />
+                </div>
               ) : null;
             }
 
-            return <ImageGrid items={items} columns={3} fit="cover" gap={8} />;
+            return <ImageGrid items={items} columns={3} fit="cover" gap={8} onImageClick={setModalImage} />;
           }
 
           if (block?.type === "sampling") {
@@ -216,6 +201,15 @@ export const MessageList = ({
             setEditUiMessageId(undefined);
             refresh();
           }}
+        />
+      ) : null}
+
+      {modalImage ? (
+        <ImageModal
+          open={!!modalImage}
+          image={modalImage}
+          onDownload={() => downloadImageContent(modalImage)}
+          onClose={() => setModalImage(undefined)}
         />
       ) : null}
     </>

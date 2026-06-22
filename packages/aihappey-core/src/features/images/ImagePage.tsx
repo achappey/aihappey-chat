@@ -20,6 +20,7 @@ import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useFiles } from "aihappey-files";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useTranslation } from "aihappey-i18n";
+import { downloadImageContent, getImageContentMimeType, getImageFileExtension, imageContentToSrc } from "./imageContentUtils";
 
 export const ImagePage = () => {
   const images = useLibraryImages();
@@ -169,71 +170,15 @@ export const ImagePage = () => {
     }
   }
 
-  const downloadImage = async (data: ImageContent) => {
-    // data can be:
-    // - full data URL: data:image/png;base64,...
-    // - raw base64 (assumed image/png)
-
-    const isDataUrl = data.data.startsWith("data:");
-
-    const mimeType = isDataUrl
-      ? data.data.substring(5, data.data.indexOf(";"))
-      : "image/png";
-
-    const src = isDataUrl
-      ? data.data
-      : `data:${mimeType};base64,${data.data}`;
-
-    const res = await fetch(src);
-    const blob = await res.blob();
-
-    const ext =
-      ({
-        "image/png": "png",
-        "image/jpeg": "jpg",
-        "image/webp": "webp",
-        "image/gif": "gif",
-        "image/svg+xml": "svg",
-        "image/bmp": "bmp",
-        "image/avif": "avif",
-      } as Record<string, string>)[mimeType] ?? "bin";
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `image.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  };
-
-  const extFromMime = (mimeType: string) =>
-    ({
-      "image/png": "png",
-      "image/jpeg": "jpg",
-      "image/webp": "webp",
-      "image/gif": "gif",
-      "image/svg+xml": "svg",
-      "image/bmp": "bmp",
-      "image/avif": "avif",
-    } as Record<string, string>)[mimeType] ?? "bin";
-
   const addImageToPrompt = (data: ImageContent) => {
     void (async () => {
-      // data = data URL OR raw base64
-      const isDataUrl = data.data.startsWith("data:");
-      const mimeType = isDataUrl
-        ? data.data.substring(5, data.data.indexOf(";"))
-        : "image/png";
-
-      const src = isDataUrl ? data.data : `data:${mimeType};base64,${data.data}`;
+      const mimeType = getImageContentMimeType(data);
+      const src = imageContentToSrc(data);
 
       // safest conversion: dataURL -> blob via fetch
       const blob = await (await fetch(src)).blob();
 
-      const ext = extFromMime(mimeType);
+      const ext = getImageFileExtension(mimeType);
       const file = new File([blob], `image_${Date.now()}.${ext}`, {
         type: mimeType,
       });
@@ -322,7 +267,7 @@ export const ImagePage = () => {
           }))}
           shimmers={itemsLoading}
           onImageClick={openImage}
-          onImageDownload={downloadImage}
+          onImageDownload={downloadImageContent}
           columns={isDesktop ? 5 : 2}
           gap="1rem"
           fit="cover"
@@ -334,10 +279,10 @@ export const ImagePage = () => {
       {modalImage && (
         <ImageModal
           open={modalImage != undefined}
-          image={modalImage}
-          onDownload={() =>
-            downloadImage(modalImage!)
-          }
+           image={modalImage}
+           onDownload={() =>
+             downloadImageContent(modalImage!)
+           }
           onDelete={
             modalItem?.source === "storage"
               ? () => {

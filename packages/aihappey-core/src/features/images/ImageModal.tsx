@@ -9,7 +9,7 @@ export interface ImageModalProps {
     onClose: () => void;
     onDownload: () => void;
     onDelete?: () => void;
-    onAddToPrompt: () => void;
+    onAddToPrompt?: () => void;
 }
 
 export const ImageModal = ({
@@ -37,11 +37,11 @@ export const ImageModal = ({
                         onClick={onDownload}>
                         {t("download")}
                     </Button>
-                    <Button variant="primary"
+                    {onAddToPrompt && <Button variant="primary"
                         icon="aiImage"
                         onClick={onAddToPrompt}>
                         {t("variation")}
-                    </Button>
+                    </Button>}
                     <Button variant="secondary"
                         onClick={onClose}>
                         {t("close")}
