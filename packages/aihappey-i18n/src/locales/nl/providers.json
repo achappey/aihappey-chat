@@ -302,8 +302,8 @@
       "image": "Afbeeldingszoekresultaten"
     },
     "imageSettings": {
-      "maxResults": "Maximumaantal afbeeldingsresultaten",
-      "caption": "Afbeeldingsbijschriften aanvragen"
+      "maxResults": "Maximum aantal afbeeldingsresultaten",
+      "caption": "Inclusief afbeeldingsbijschriften"
     },
     "truncation": {
       "title": "Inkorten",
