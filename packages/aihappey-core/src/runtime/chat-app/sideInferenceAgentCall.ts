@@ -1,4 +1,5 @@
 import type { Agent, ModelOption } from "aihappey-types";
+import { createChatAuthHeadersForModel, getProviderKeyFromModelId } from "../../features/provider-credentials/providerAuthHeaders";
 
 type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall";
 
@@ -112,12 +113,9 @@ export const invokeSideInferenceAgent = async ({
     const url = endpointUrl(baseUrl);
     if (!url) throw new Error("Inference endpoint is not configured");
 
-    const providerKey = modelId.split("/")[0]?.toLowerCase();
-    const apiKeyHeaders = Object.fromEntries(
-      Object.entries(customHeaders)
-        .filter(([key]) => providerKey && key.toLowerCase().includes(providerKey))
-    );
     const accessToken = await getAccessToken?.().catch(() => undefined);
+    const providerKey: any = getProviderKeyFromModelId(modelId);
+    const apiKeyHeaders = createChatAuthHeadersForModel(customHeaders, modelId, Boolean(accessToken));
     const doFetch = customFetch ?? globalThis.fetch;
 
     const providerMetadata = selectedAgent.model?.providerMetadata
