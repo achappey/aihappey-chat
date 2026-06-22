@@ -84,6 +84,11 @@ export const Populated: Story = {
       reasoning: { effort: "medium", summary: "auto" },
       web_search: {
         search_context_size: "medium",
+        search_content_types: ["image", "text"],
+        image_settings: {
+          max_results: 3,
+          caption: true,
+        },
         filters: {
           allowed_domains: ["pubmed.ncbi.nlm.nih.gov", "openai.com"],
         },
@@ -95,7 +100,7 @@ export const Populated: Story = {
           type: "approximate",
         },
       },
-      include: ["web_search_call.action.sources"],
+      include: ["web_search_call.action.sources", "web_search_call.results"],
       image_generation: {
         model: "gpt-image-1",
         size: "1024x1024",

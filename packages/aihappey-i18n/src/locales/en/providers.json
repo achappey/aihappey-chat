@@ -564,6 +564,14 @@
     "edit": "Edit",
     "prompt": "Prompt",
     "allowedDomains": "Allowed domains",
+    "searchContentTypes": {
+      "text": "Text search results",
+      "image": "Image search results"
+    },
+    "imageSettings": {
+      "maxResults": "Maximum image results",
+      "caption": "Request image captions"
+    },
     "topP": "Top-p",
     "transcriptionLanguagePlaceholder": "The language of the input audio in ISO-639-1 (e.g. en)",
     "speechPromptPlaceholder": "An optional text to guide the model's style or continue a previous audio segment",

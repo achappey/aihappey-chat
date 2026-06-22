@@ -4,6 +4,8 @@ import { useTranslation } from "aihappey-i18n";
 
 const SEARCH_CONTEXT_SIZE_OPTIONS = ["low", "medium", "high"] as const;
 const RETURN_TOKEN_BUDGET_OPTIONS = ["default", "unlimited"] as const;
+const SEARCH_CONTENT_TYPE_OPTIONS = ["text", "image"] as const;
+type SearchContentType = (typeof SEARCH_CONTENT_TYPE_OPTIONS)[number];
 
 const twoColumnGrid = {
   display: "grid",
@@ -17,6 +19,19 @@ const DEFAULT_WEB_SEARCH = {
   search_context_size: "medium",
   user_location: undefined,
   filters: undefined,
+};
+
+const DEFAULT_IMAGE_SETTINGS = {
+  max_results: 3,
+  caption: true,
+};
+
+const parseOptionalPositiveInteger = (value: unknown) => {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) return undefined;
+
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : undefined;
 };
 
 const normalizeDomains = (domains: string[]) =>
@@ -37,6 +52,30 @@ const normalizeFilters = (filters: any) => {
     ? {
       ...filters,
       allowed_domains,
+    }
+    : undefined;
+};
+
+const normalizeSearchContentTypes = (contentTypes: any) => {
+  if (!Array.isArray(contentTypes)) return undefined;
+
+  const normalized = SEARCH_CONTENT_TYPE_OPTIONS.filter((type) =>
+    contentTypes.includes(type)
+  );
+
+  return normalized.length ? normalized : undefined;
+};
+
+const normalizeImageSettings = (imageSettings: any) => {
+  if (!imageSettings) return undefined;
+
+  const max_results = parseOptionalPositiveInteger(imageSettings.max_results);
+  const caption = imageSettings.caption === true ? true : undefined;
+
+  return max_results || caption
+    ? {
+      ...(max_results ? { max_results } : {}),
+      ...(caption ? { caption } : {}),
     }
     : undefined;
 };
@@ -79,6 +118,11 @@ export const OpenAIWebSearchForm = ({
   );
   const returnTokenBudget =
     config?.web_search?.return_token_budget ?? "default";
+  const searchContentTypes = normalizeSearchContentTypes(
+    config?.web_search?.search_content_types
+  ) ?? [];
+  const imageSearchOn = searchContentTypes.includes("image");
+  const imageSettings = config?.web_search?.image_settings ?? {};
 
   const updateWebSearch = (patch: any) => {
     const nextWebSearch = {
@@ -86,7 +130,20 @@ export const OpenAIWebSearchForm = ({
       ...patch,
     };
     const normalizedFilters = normalizeFilters(nextWebSearch.filters);
-    const { filters, return_token_budget, external_web_access, ...restWebSearch } = nextWebSearch;
+    const normalizedSearchContentTypes = normalizeSearchContentTypes(
+      nextWebSearch.search_content_types
+    );
+    const normalizedImageSettings = normalizedSearchContentTypes?.includes("image")
+      ? normalizeImageSettings(nextWebSearch.image_settings)
+      : undefined;
+    const {
+      filters,
+      return_token_budget,
+      external_web_access,
+      search_content_types,
+      image_settings,
+      ...restWebSearch
+    } = nextWebSearch;
 
     updateConfig({
       ...config,
@@ -95,6 +152,32 @@ export const OpenAIWebSearchForm = ({
         ...(normalizedFilters ? { filters: normalizedFilters } : {}),
         ...(return_token_budget === "unlimited" ? { return_token_budget } : {}),
         ...(external_web_access === false ? { external_web_access } : {}),
+        ...(normalizedSearchContentTypes
+          ? { search_content_types: normalizedSearchContentTypes }
+          : {}),
+        ...(normalizedImageSettings ? { image_settings: normalizedImageSettings } : {}),
+      },
+    });
+  };
+
+  const toggleSearchContentType = (type: SearchContentType, enabled: boolean) => {
+    const nextContentTypes = enabled
+      ? Array.from(new Set([...searchContentTypes, type]))
+      : searchContentTypes.filter((item) => item !== type);
+
+    updateWebSearch({
+      search_content_types: nextContentTypes,
+      ...(type === "image" && enabled
+        ? { image_settings: { ...DEFAULT_IMAGE_SETTINGS, ...(config?.web_search?.image_settings ?? {}) } }
+        : {}),
+    });
+  };
+
+  const updateImageSettings = (patch: any) => {
+    updateWebSearch({
+      image_settings: {
+        ...(config?.web_search?.image_settings ?? DEFAULT_IMAGE_SETTINGS),
+        ...patch,
       },
     });
   };
@@ -191,6 +274,43 @@ export const OpenAIWebSearchForm = ({
               </option>
             ))}
           </theme.Select>
+        </div>
+
+        <div style={twoColumnGrid}>
+          {SEARCH_CONTENT_TYPE_OPTIONS.map((contentType) => (
+            <theme.Switch
+              key={contentType}
+              id={`openAIWebSearchContentType_${contentType}`}
+              disabled={!webSearchOn}
+              checked={searchContentTypes.includes(contentType)}
+              label={t(`providers:openai.searchContentTypes.${contentType}`)}
+              onChange={(value) => toggleSearchContentType(contentType, !!value)}
+            />
+          ))}
+        </div>
+
+        <div style={twoColumnGrid}>
+          <theme.Input
+            label={t("providers:openai.imageSettings.maxResults")}
+            type="number"
+            min={1}
+            step={1}
+            disabled={!webSearchOn || !imageSearchOn}
+            value={imageSettings.max_results ?? ""}
+            onChange={(e: any) =>
+              updateImageSettings({
+                max_results: parseOptionalPositiveInteger(e?.target?.value),
+              })
+            }
+          />
+
+          <theme.Switch
+            id="openAIWebSearchImageCaptions"
+            disabled={!webSearchOn || !imageSearchOn}
+            checked={imageSettings.caption === true}
+            label={t("providers:openai.imageSettings.caption")}
+            onChange={(value) => updateImageSettings({ caption: !!value || undefined })}
+          />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -315,6 +435,16 @@ export const OpenAIWebSearchForm = ({
             label={t("providers:openai.includeSources")}
             onChange={(value) =>
               toggleInclude("web_search_call.action.sources", !!value)
+            }
+          />
+
+          <theme.Switch
+            id="includeSearchResults"
+            disabled={!webSearchOn}
+            checked={config?.include?.includes("web_search_call.results")}
+            label={t("providers:openai.includeSearchResults")}
+            onChange={(value) =>
+              toggleInclude("web_search_call.results", !!value)
             }
           />
         </div>

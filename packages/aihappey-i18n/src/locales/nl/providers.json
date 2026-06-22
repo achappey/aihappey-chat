@@ -297,6 +297,14 @@
     "externalWebAccess": "Live internettoegang",
     "prompt": "Prompt",
     "allowedDomains": "Toegestane domeinen",
+    "searchContentTypes": {
+      "text": "Tekstzoekresultaten",
+      "image": "Afbeeldingszoekresultaten"
+    },
+    "imageSettings": {
+      "maxResults": "Maximumaantal afbeeldingsresultaten",
+      "caption": "Afbeeldingsbijschriften aanvragen"
+    },
     "truncation": {
       "title": "Inkorten",
       "auto": "Automatisch",
