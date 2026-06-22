@@ -1,0 +1,5 @@
+[allowlist]
+paths = [
+  '''docs/storybook-chat/.*\.bundle\.js''',
+  '''docs/storybook-themes/.*\.bundle\.js'''
+]
