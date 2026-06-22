@@ -100,7 +100,7 @@ export const defaultProviderMetadata = {
     "tools": [
       {
         "name": "web_search",
-        "type": "web_search_20260209",
+        "type": "web_search_20260318",
         "max_uses": 5,
         "allowed_callers": ["direct"],
         "allowed_domains": null,
@@ -109,7 +109,7 @@ export const defaultProviderMetadata = {
       },
       {
         "name": "web_fetch",
-        "type": "web_fetch_20260309",
+        "type": "web_fetch_20260318",
         "max_uses": 5,
         "allowed_callers": ["direct"],
         "allowed_domains": null,
@@ -121,7 +121,7 @@ export const defaultProviderMetadata = {
       {
         "name": "code_execution",
         "allowed_callers": ["direct"],
-        "type": "code_execution_20260120"
+        "type": "code_execution_20260521"
       }
     ],
     "anthropic-beta": "",

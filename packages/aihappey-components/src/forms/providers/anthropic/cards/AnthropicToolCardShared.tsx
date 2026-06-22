@@ -4,8 +4,9 @@ import { useTheme } from "../../../../theme/ThemeContext";
 
 export const ANTHROPIC_ALLOWED_CALLERS = [
   "direct",
-  "code_execution_20250825",
+  "code_execution_20260521",
   "code_execution_20260120",
+  "code_execution_20250825",
 ] as const;
 
 export const ANTHROPIC_CACHE_CONTROL_TTLS = ["5m", "1h"] as const;

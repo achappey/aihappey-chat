@@ -252,6 +252,7 @@
     "maxContentTokens": "Maximum content tokens",
     "citations": "Citations",
     "useCache": "Use cache",
+    "responseInclusion": "Response inclusion",
     "container": "Container",
     "containerPlaceholder": "Optional container id",
     "containerSettings": {

@@ -670,6 +670,7 @@
     "maxContentTokens": "Maximaal aantal contenttokens",
     "citations": "Citaten",
     "useCache": "Cache gebruiken",
+    "responseInclusion": "Responsopname",
     "container": "Container",
     "containerPlaceholder": "Optionele container-id",
     "containerSettings": {

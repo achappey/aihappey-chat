@@ -7,7 +7,11 @@ import {
   parseAnthropicStringList,
 } from "./AnthropicToolCardShared";
 
-const WEB_SEARCH_VERSIONS = ["web_search_20260209", "web_search_20250305"];
+const WEB_SEARCH_VERSIONS = [
+  "web_search_20260318",
+  "web_search_20260209",
+  "web_search_20250305",
+];
 
 const createDefaultUserLocation = () => ({
   type: "approximate",
@@ -40,6 +44,7 @@ export const AnthropicWebSearchCard = ({
   const webSearchOn = !!config?.web_search;
   const tool = config?.web_search ?? createDefaultWebSearchTool();
   const userLocation = tool?.user_location;
+  const supportsResponseInclusion = tool?.type === "web_search_20260318";
 
   return (
     <theme.Card
@@ -71,6 +76,10 @@ export const AnthropicWebSearchCard = ({
                 ...tool,
                 name: "web_search",
                 type: value,
+                response_inclusion:
+                  value === "web_search_20260318"
+                    ? tool?.response_inclusion
+                    : undefined,
               },
             })
           }
@@ -100,6 +109,29 @@ export const AnthropicWebSearchCard = ({
             })
           }
         />
+
+        {supportsResponseInclusion ? (
+          <theme.Select
+            label={t("providers:anthropic.responseInclusion", "Response inclusion")}
+            disabled={!webSearchOn}
+            values={[tool?.response_inclusion ?? ""]}
+            valueTitle={
+              tool?.response_inclusion ?? t("providers:anthropic.defaultOption")
+            }
+            onChange={(value: string) =>
+              updateConfig({
+                ...config,
+                web_search: {
+                  ...tool,
+                  response_inclusion: value || undefined,
+                },
+              })
+            }
+          >
+            <option value="">{t("providers:anthropic.defaultOption")}</option>
+            <option value="excluded">excluded</option>
+          </theme.Select>
+        ) : null}
 
         <theme.Input
           label={t("providers:anthropic.allowedDomains")}

@@ -39,7 +39,10 @@ export const Populated: Story = {
           caching: { type: "ephemeral", ttl: "5m" },
         },
         web_search: {
+          name: "web_search",
+          type: "web_search_20260318",
           max_uses: 3,
+          response_inclusion: "excluded",
           allowed_domains: ["example.com"],
           blocked_domains: [],
           user_location: {
@@ -50,12 +53,18 @@ export const Populated: Story = {
           },
         },
         web_fetch: {
+          name: "web_fetch",
+          type: "web_fetch_20260318",
           max_uses: 2,
+          response_inclusion: "excluded",
           allowed_domains: [],
           blocked_domains: ["ads.example"],
           citations: { enabled: true },
         },
-        code_execution: {},
+        code_execution: {
+          name: "code_execution",
+          type: "code_execution_20260521",
+        },
         container: {
           id: "container_demo_123",
           skills: [

@@ -8,10 +8,12 @@ import {
 } from "./AnthropicToolCardShared";
 
 const WEB_FETCH_VERSIONS = [
+  "web_fetch_20260318",
   "web_fetch_20260309",
   "web_fetch_20260209",
   "web_fetch_20250910",
 ];
+const WEB_FETCH_CACHE_VERSIONS = ["web_fetch_20260318", "web_fetch_20260309"];
 
 const createDefaultWebFetchTool = () => ({
   name: "web_fetch",
@@ -36,7 +38,8 @@ export const AnthropicWebFetchCard = ({
   const { t } = useTranslation();
   const webFetchOn = !!config?.web_fetch;
   const tool = config?.web_fetch ?? createDefaultWebFetchTool();
-  const supportsUseCache = tool?.type === "web_fetch_20260309";
+  const supportsUseCache = WEB_FETCH_CACHE_VERSIONS.includes(tool?.type);
+  const supportsResponseInclusion = tool?.type === "web_fetch_20260318";
 
   return (
     <theme.Card
@@ -68,8 +71,13 @@ export const AnthropicWebFetchCard = ({
                 ...tool,
                 name: "web_fetch",
                 type: value,
-                use_cache:
-                  value === "web_fetch_20260309" ? tool?.use_cache : undefined,
+                use_cache: WEB_FETCH_CACHE_VERSIONS.includes(value)
+                  ? tool?.use_cache
+                  : undefined,
+                response_inclusion:
+                  value === "web_fetch_20260318"
+                    ? tool?.response_inclusion
+                    : undefined,
               },
             })
           }
@@ -115,6 +123,29 @@ export const AnthropicWebFetchCard = ({
             })
           }
         />
+
+        {supportsResponseInclusion ? (
+          <theme.Select
+            label={t("providers:anthropic.responseInclusion", "Response inclusion")}
+            disabled={!webFetchOn}
+            values={[tool?.response_inclusion ?? ""]}
+            valueTitle={
+              tool?.response_inclusion ?? t("providers:anthropic.defaultOption")
+            }
+            onChange={(value: string) =>
+              updateConfig({
+                ...config,
+                web_fetch: {
+                  ...tool,
+                  response_inclusion: value || undefined,
+                },
+              })
+            }
+          >
+            <option value="">{t("providers:anthropic.defaultOption")}</option>
+            <option value="excluded">excluded</option>
+          </theme.Select>
+        ) : null}
 
         <theme.Input
           label={t("providers:anthropic.allowedDomains")}
@@ -181,7 +212,7 @@ export const AnthropicWebFetchCard = ({
               label={t("providers:anthropic.useCache")}
               size="small"
               disabled={!webFetchOn}
-              checked={!!tool?.use_cache}
+              checked={tool?.use_cache !== false}
               onChange={(checked: boolean) =>
                 updateConfig({
                   ...config,
