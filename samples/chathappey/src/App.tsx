@@ -2,6 +2,7 @@ import CoreRoot, { MultiThemeProvider } from "aihappey-core";
 import { configureAppStore, useAppStore } from "aihappey-state";
 import { ThemeProvider as BootstrapThemeProvider } from "aihappey-theme-bootstrap";
 import { ThemeProvider as FluentThemeProvider } from "aihappey-theme-fluent";
+import { ThemeProvider as MantinetThemeProvider } from "aihappey-theme-mantine";
 import {
   ThemeProvider as ShadcnThemeProvider,
   createSchemeFromBaseColor,
@@ -38,6 +39,7 @@ const ConfiguredShadcnThemeProvider = ({ children }: { children: React.ReactNode
 const themes = [
   { id: "bootstrap", label: "Bootstrap", Provider: BootstrapThemeProvider },
   { id: "fluent", label: "Fluent", Provider: FluentThemeProvider },
+  { id: "mantine", label: "Mantine", Provider: MantinetThemeProvider },
   { id: "shadcn", label: "Shadcn", Provider: ConfiguredShadcnThemeProvider },
 ];
 
