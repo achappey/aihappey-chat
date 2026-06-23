@@ -18,6 +18,7 @@ import {
   Input as MantineInput,
   Menu as MantineMenu,
   Modal as MantineModal,
+  MultiSelect as MantineMultiSelect,
   NavLink,
   Paper,
   Progress,
@@ -59,8 +60,74 @@ import type { UserMenuProps } from "aihappey-types/src/theme/UserMenu";
 
 type IconProps = { size?: number | string; style?: React.CSSProperties };
 type IconComponent = (props: IconProps) => React.JSX.Element;
+type SelectOptionData = { type: "option"; value: string; label: string; disabled?: boolean };
+type SelectGroupData = { type: "group"; group: string; items: SelectOptionData[] };
+type SelectNodeData = SelectOptionData | SelectGroupData;
 
 const iconStyle: React.CSSProperties = { display: "inline-block", lineHeight: 1 };
+
+function parseSelectNodes(children: React.ReactNode): SelectNodeData[] {
+  const out: SelectNodeData[] = [];
+
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement<any>(child)) return;
+    const element = child as React.ReactElement<any>;
+
+    if (element.type === React.Fragment) {
+      out.push(...parseSelectNodes(element.props.children));
+      return;
+    }
+
+    if (element.type === "option") {
+      out.push({
+        type: "option",
+        value: String(element.props.value ?? ""),
+        label: String(element.props.children ?? element.props.value ?? ""),
+        disabled: element.props.disabled,
+      });
+      return;
+    }
+
+    if (element.type === "optgroup") {
+      out.push({
+        type: "group",
+        group: String(element.props.label ?? ""),
+        items: flattenSelectOptions(parseSelectNodes(element.props.children)),
+      });
+    }
+  });
+
+  return out;
+}
+
+function flattenSelectOptions(nodes: SelectNodeData[]): SelectOptionData[] {
+  const out: SelectOptionData[] = [];
+
+  for (const node of nodes) {
+    if (node.type === "option") out.push(node);
+    else out.push(...node.items);
+  }
+
+  return out;
+}
+
+function toMantineSelectData(nodes: SelectNodeData[]) {
+  return nodes.map((node) => {
+    if (node.type === "option") {
+      const { type, ...option } = node;
+      return option;
+    }
+
+    return {
+      group: node.group,
+      items: node.items.map(({ type, ...option }) => option),
+    };
+  });
+}
+
+function getChangedMultiSelectValue(previous: string[], next: string[]) {
+  return next.find((item) => !previous.includes(item)) ?? previous.find((item) => !next.includes(item)) ?? "";
+}
 
 function makeIcon(symbol: React.ReactNode): IconComponent {
   return ({ size = 16, style }) => (
@@ -299,21 +366,28 @@ export const TextArea = ({ label, hint, required, rows, readOnly, value, onChang
 );
 
 export const Select = ({ value, values, onChange, label, hint, required, children, disabled, placeholder, size, multiselect, ...rest }: any) => {
-  const data = React.useMemo(() => {
-    const out: { value: string; label: string; disabled?: boolean }[] = [];
-    React.Children.forEach(children, (child) => {
-      if (!React.isValidElement<any>(child)) return;
-      if (child.type === "option") out.push({ value: String(child.props.value ?? ""), label: String(child.props.children ?? child.props.value ?? ""), disabled: child.props.disabled });
-      if (child.type === "optgroup") {
-        React.Children.forEach(child.props.children, (option) => {
-          if (React.isValidElement<any>(option) && option.type === "option") out.push({ value: String(option.props.value ?? ""), label: String(option.props.children ?? option.props.value ?? ""), disabled: option.props.disabled });
-        });
-      }
-    });
-    return out;
-  }, [children]);
+  const nodes = React.useMemo(() => parseSelectNodes(children), [children]);
+  const data = React.useMemo(() => toMantineSelectData(nodes), [nodes]);
 
   const selected = Array.isArray(values) ? values[0] : value;
+  if (multiselect) {
+    const selectedValues = Array.isArray(values) ? values : value ? [value] : [];
+    return (
+      <MantineMultiSelect
+        label={label}
+        description={hint}
+        required={required}
+        disabled={disabled}
+        placeholder={placeholder}
+        data={data}
+        value={selectedValues}
+        size={mapSize(size)}
+        onChange={(next) => onChange?.(getChangedMultiSelectValue(selectedValues, next))}
+        {...rest}
+      />
+    );
+  }
+
   return (
     <MantineSelect
       label={label}
