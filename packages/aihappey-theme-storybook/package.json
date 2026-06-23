@@ -11,7 +11,11 @@
     "aihappey-types": "*",
     "aihappey-theme-fluent": "*",
     "aihappey-theme-bootstrap": "*",
-    "aihappey-components": "*"
+    "aihappey-components": "*",
+    "aihappey-theme-chakra": "*",
+    "aihappey-theme-mantine": "*",
+    "aihappey-theme-material": "*",
+    "aihappey-theme-shadcn": "*"
   },
   "scripts": {
     "storybook": "storybook dev -p 6007",

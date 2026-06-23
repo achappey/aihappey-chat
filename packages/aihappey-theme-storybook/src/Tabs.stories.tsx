@@ -29,6 +29,14 @@ const TabsStory = (args: TabsStoryArgs) => {
 const meta = {
   title: "Tabs",
   component: TabsStory,
+  argTypes: {
+    vertical: { control: { type: "boolean" } },
+    size: { control: { type: "select" }, options: ["small", "medium", "large"] },
+  },
+  args: {
+    vertical: false,
+    size: "medium",
+  },
 } satisfies Meta<typeof TabsStory>;
 
 export default meta;
@@ -36,3 +44,14 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const Vertical: Story = {
+  args: {
+    vertical: true,
+  },
+};
+
+export const Large: Story = {
+  args: {
+    size: "large",
+  },
+};

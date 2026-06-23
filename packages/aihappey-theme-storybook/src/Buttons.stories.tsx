@@ -52,6 +52,34 @@ type Story = StoryObj<typeof meta>;
 
 export const Small: Story = {};
 
+export const Medium: Story = {
+  args: {
+    size: "medium",
+    children: "Medium button",
+  },
+};
+
+export const Large: Story = {
+  args: {
+    size: "large",
+    children: "Large button",
+  },
+};
+
+export const Secondary: Story = {
+  args: {
+    variant: "secondary",
+    children: "Secondary action",
+  },
+};
+
+export const Outline: Story = {
+  args: {
+    variant: "outline",
+    children: "Outline action",
+  },
+};
+
 export const Disabled: Story = {
   args: {
     disabled: true,

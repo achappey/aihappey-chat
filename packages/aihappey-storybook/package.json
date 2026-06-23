@@ -7,14 +7,17 @@
   "files": [
     "dist"
   ],
-    "dependencies": {
-        "aihappey-components": "*",
-        "aihappey-theme-bootstrap": "*",
-        "aihappey-theme-fluent": "*",
-        "aihappey-theme-shadcn": "*",
-        "aihappey-types": "*",
-        "aihappey-i18n": "*"
-    },
+  "dependencies": {
+    "aihappey-components": "*",
+    "aihappey-theme-bootstrap": "*",
+    "aihappey-theme-fluent": "*",
+    "aihappey-theme-shadcn": "*",
+    "aihappey-theme-chakra": "*",
+    "aihappey-theme-mantine": "*",
+    "aihappey-theme-material": "*",
+    "aihappey-types": "*",
+    "aihappey-i18n": "*"
+  },
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "build": "storybook build --output-dir ../../docs/storybook-chat",
