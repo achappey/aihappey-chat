@@ -555,6 +555,7 @@ import { pixserp } from "./catalog/pixserp";
 import { humeai } from "./catalog/humeai";
 import { ltx } from "./catalog/ltx";
 import { melious } from "./catalog/melious";
+import { lucidquery } from "./catalog/lucidquery";
 
 /**
  * UI-facing provider catalog.
@@ -1076,6 +1077,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   voyageai,
   friendli,
   picsart,
+  lucidquery,
   bria,
   murfai,
   replicate,
