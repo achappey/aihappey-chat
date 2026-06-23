@@ -198,6 +198,7 @@ function mapColor(variant?: string): MantineColor | undefined {
   if (variant === "success") return "green";
   if (variant === "warning") return "yellow";
   if (variant === "secondary") return "gray";
+  if (variant === "informative" || variant === "info") return "blue";
   return undefined;
 }
 
@@ -207,7 +208,13 @@ function mapSize(size?: string): any {
   return "sm";
 }
 
-export const Button = ({ variant = "primary", size, icon, iconPosition = "left", children, ...rest }: any) => {
+function mapActionIconSize(size?: string): any {
+  if (size === "large" || size === "lg") return "md";
+  if (size === "small" || size === "sm") return "sm";
+  return "sm";
+}
+
+export const Button = ({ variant = "primary", size, icon, iconPosition = "left", children, style, ...rest }: any) => {
   const hasChildren = React.Children.count(children) > 0;
   const leftSection = icon && iconPosition === "left" ? renderIcon(icon) : undefined;
   const rightSection = icon && iconPosition === "right" ? renderIcon(icon) : undefined;
@@ -217,12 +224,13 @@ export const Button = ({ variant = "primary", size, icon, iconPosition = "left",
       <ActionIcon
         variant={mapButtonVariant(variant) as any}
         color={mapColor(variant)}
-        size={mapSize(size) === "lg" ? "lg" : "md"}
+        size={mapActionIconSize(size)}
+        style={{ flex: "0 0 auto", ...style }}
         title={rest.title}
         aria-label={rest["aria-label"] ?? rest.title ?? String(icon)}
         {...rest}
       >
-        {renderIcon(icon)}
+        {renderIcon(icon, size === "large" || size === "lg" ? 17 : 15)}
       </ActionIcon>
     );
   }
@@ -234,6 +242,7 @@ export const Button = ({ variant = "primary", size, icon, iconPosition = "left",
       size={mapSize(size)}
       leftSection={leftSection}
       rightSection={rightSection}
+      style={style}
       {...rest}
     >
       {children}
@@ -435,7 +444,32 @@ export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className,
 
 export const Tab = ({ children }: any) => <>{children}</>;
 
-export const Badge = ({ bg, color, children, ...rest }: any) => <MantineBadge color={color ?? bg} {...rest}>{children}</MantineBadge>;
+function mapBadgeSize(size?: string): any {
+  if (size === "large" || size === "lg") return "md";
+  if (size === "extra-small" || size === "xs") return "xs";
+  if (size === "medium" || size === "md") return "md";
+  return "sm";
+}
+
+function mapBadgeVariant(appearance?: string, variant?: string): any {
+  if (variant === "outline" || appearance === "outline") return "outline";
+  if (appearance === "ghost" || appearance === "subtle" || appearance === "tint") return "light";
+  return variant ?? "light";
+}
+
+export const Badge = ({ bg, color, appearance, variant, size, icon, text, children, style, ...rest }: any) => (
+  <MantineBadge
+    color={mapColor(color ?? bg) ?? color ?? bg}
+    variant={mapBadgeVariant(appearance, variant)}
+    size={mapBadgeSize(size)}
+    radius="xl"
+    leftSection={icon ? <Box component="span" style={{ display: "inline-flex", alignItems: "center", lineHeight: 1 }}>{renderIcon(icon, 12)}</Box> : undefined}
+    style={{ textTransform: "none", letterSpacing: 0, fontWeight: 650, verticalAlign: "middle", ...style }}
+    {...rest}
+  >
+    {children ?? text}
+  </MantineBadge>
+);
 
 export const Table = ({ striped, bordered, hover, children, className }: any) => <MantineTable striped={striped} withTableBorder={bordered} highlightOnHover={hover} className={className}>{children}</MantineTable>;
 
@@ -463,7 +497,87 @@ export function DataGrid<T>({ columns, data, rowKey, className, style }: DataGri
   );
 }
 
-export const JsonViewer = ({ value }: any) => <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{JSON.stringify(value, null, 2)}</pre>;
+function parseJsonValue(input: unknown): { ok: true; value: any } | { ok: false } {
+  if (input !== undefined && (typeof input === "object" || typeof input === "number" || typeof input === "boolean")) return { ok: true, value: input };
+
+  let current = String(input ?? "");
+  if (!current.trim()) return { ok: false };
+
+  for (let i = 0; i < 3; i += 1) {
+    try {
+      const parsed = JSON.parse(current);
+      if (typeof parsed === "string" && /^[\s\r\n]*[\[{]/.test(parsed) && parsed !== current) {
+        current = parsed;
+        continue;
+      }
+      return { ok: true, value: parsed };
+    } catch {
+      return { ok: false };
+    }
+  }
+
+  return { ok: true, value: current };
+}
+
+const JsonPrimitive = ({ value }: { value: any }) => {
+  const color =
+    typeof value === "string"
+      ? "blue"
+      : typeof value === "number"
+        ? "grape"
+        : typeof value === "boolean"
+          ? "teal"
+          : "dimmed";
+
+  return <MantineText component="span" c={color} ff="monospace" size="sm">{JSON.stringify(value)}</MantineText>;
+};
+
+const JsonValue = ({ value, label }: { value: any; label?: React.ReactNode }) => {
+  if (typeof value === "object" && value !== null) {
+    const entries = Array.isArray(value) ? value.map((item, index) => [String(index), item] as const) : Object.entries(value);
+    const summary = Array.isArray(value) ? `[Array] (${value.length} items)` : "{Object}";
+
+    return (
+      <Box component="details" open style={{ margin: 0 }}>
+        <Box component="summary" style={{ cursor: "pointer", listStylePosition: "inside" }}>
+          {label ? <MantineText component="strong" ff="monospace" size="sm">{label}: </MantineText> : null}
+          <MantineText component="span" c="dimmed" ff="monospace" size="sm">{summary}</MantineText>
+        </Box>
+        <Box component="ul" style={{ margin: "4px 0 4px 18px", paddingLeft: 14 }}>
+          {entries.map(([key, child]) => (
+            <Box component="li" key={key} style={{ margin: "2px 0" }}>
+              <JsonValue value={child} label={key} />
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Box component="span">
+      {label ? <MantineText component="strong" ff="monospace" size="sm">{label}: </MantineText> : null}
+      <JsonPrimitive value={value} />
+    </Box>
+  );
+};
+
+export const JsonViewer = ({ value, data, title, className, style }: any) => {
+  const parsed = parseJsonValue(value ?? data);
+
+  if (!parsed.ok) {
+    return <MantineText c="red" className={className} style={style}>Invalid JSON</MantineText>;
+  }
+
+  return (
+    <Paper withBorder p="sm" radius="sm" className={className} style={{ overflowX: "auto", ...style }}>
+      {title ? <MantineText fw={600} mb="xs">{title}</MantineText> : null}
+      <Box style={{ fontFamily: "var(--mantine-font-family-monospace)", fontSize: "var(--mantine-font-size-sm)", lineHeight: 1.55 }}>
+        <JsonValue value={parsed.value} />
+      </Box>
+    </Paper>
+  );
+};
 
 export const Toolbar = ({ children, ariaLabel, className }: any) => <Group role="toolbar" aria-label={ariaLabel} gap="xs" className={className}>{children}</Group>;
 export const ToolbarButton = (props: any) => <Button variant={props.variant ?? "subtle"} {...props} />;
@@ -531,7 +645,24 @@ export const AvatarGroup = (({ children, layout, size, style, ...rest }: AvatarG
 
 AvatarGroup.Avatar = ({ image, icon, initials, name, shape, size, children, ...rest }: AvatarProps) => <Avatar src={image?.src} alt={image?.alt ?? name} radius={shape === "square" ? "sm" : "xl"} size={avatarSize(size)} {...rest as any}>{children ?? icon ?? initials ?? name?.slice(0, 2).toUpperCase()}</Avatar>;
 AvatarGroup.Item = ({ overflowLabel, ...props }: AvatarGroupItemProps) => <Tooltip label={overflowLabel ?? props.name ?? props.initials}><AvatarGroup.Avatar {...props} /></Tooltip>;
-AvatarGroup.Popover = ({ children, count, indicator, ...rest }: AvatarGroupPopoverProps) => <Indicator label={indicator === "count" ? count : undefined} disabled={!count} {...rest as any}>{children}</Indicator>;
+AvatarGroup.Popover = ({ children, count, indicator, size, overflowLabel, ...rest }: AvatarGroupPopoverProps & { size?: number; overflowLabel?: string }) => {
+  const hiddenLabels = React.Children.toArray(children)
+    .map((child) => {
+      if (!React.isValidElement<any>(child)) return undefined;
+      const props = child.props as any;
+      return props.overflowLabel ?? props.name ?? props.title;
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  return (
+    <Tooltip label={overflowLabel ?? hiddenLabels ?? `+${count ?? 0}`} multiline>
+      <Avatar color="blue" radius="xl" size={avatarSize(size)} style={{ fontSize: Math.max(9, avatarSize(size) / 2.2), fontWeight: 700 }} {...rest as any}>
+        +{count ?? 0}
+      </Avatar>
+    </Tooltip>
+  );
+};
 AvatarGroup.partitionItems = <T,>({ items, maxInlineItems = 5 }: { items: readonly T[]; maxInlineItems?: number }) => ({ inlineItems: items.slice(0, maxInlineItems), overflowItems: items.length > maxInlineItems ? items.slice(maxInlineItems) : undefined });
 
 export const Chat = ({ messages = [], renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: any) => (
@@ -546,18 +677,54 @@ export const Chat = ({ messages = [], renderMessage, renderReactions, locale, ai
             <MantineText size="xs" c="dimmed">{msg.createdAt ? format(msg.createdAt, locale) : ""}</MantineText>
           </Group>
           {renderMessage(msg)}
-          {streaming ? <Progress mt="sm" size="xs" value={100} animated /> : renderReactions?.(msg)}
+          {(streaming || renderReactions) ? (
+            <Box mt="xs" style={{ display: "flex", alignItems: "center", minHeight: 30, overflow: "visible" }}>
+              {streaming ? <Progress size="xs" value={100} animated style={{ width: "100%" }} /> : renderReactions?.(msg)}
+            </Box>
+          ) : null}
         </Paper>
       );
     })}
   </Stack>
 );
 
-export const Navigation = ({ items, activeKey, onSelect, appTitle, className, style }: any) => (
+const navItemMatchesActive = (item: NavigationItem, activeKey?: string): boolean => {
+  if (!activeKey) return false;
+  const itemValue = item.eventKey ?? item.key;
+  if (itemValue === activeKey || item.key === activeKey || item.eventKey === activeKey) return true;
+  return Array.isArray(item.children) && item.children.some((child: NavigationItem) => navItemMatchesActive(child, activeKey));
+};
+
+const renderNavItem = (item: NavigationItem, activeKey?: string, onSelect?: (key: string) => void, path = "nav", index = 0): React.ReactNode => {
+  const key = `${path}:${item.key ?? item.eventKey ?? index}:${index}`;
+
+  if (item.key === "divider") return <Divider key={key} my={4} />;
+  if (item.key?.startsWith?.("section:")) return <MantineText key={key} c="dimmed" size="sm" px="sm" py={6}>{item.label}</MantineText>;
+
+  const itemValue = item.eventKey ?? item.key;
+  const selected = !!activeKey && (itemValue === activeKey || item.key === activeKey || item.eventKey === activeKey);
+  const childSelected = Array.isArray(item.children) && item.children.some((child: NavigationItem) => navItemMatchesActive(child, activeKey));
+
+  return (
+    <NavLink
+      key={key}
+      label={item.label}
+      leftSection={renderIcon(item.icon)}
+      active={selected}
+      defaultOpened={childSelected}
+      disabled={item.disabled}
+      onClick={(event) => { item.onClick?.(event); if (!item.children?.length) onSelect?.(itemValue); }}
+    >
+      {item.children?.map((child: NavigationItem, childIndex: number) => renderNavItem(child, activeKey, onSelect, key, childIndex))}
+    </NavLink>
+  );
+};
+
+export const Navigation = ({ items = [], activeKey, onSelect, appTitle, className, style }: any) => (
   <ScrollArea className={className} style={style}>
     <Stack gap={2}>
       {appTitle ? <MantineText fw={700} p="sm">{appTitle}</MantineText> : null}
-      {items.map((item: NavigationItem) => <NavLink key={item.key} label={item.label} leftSection={renderIcon(item.icon)} active={activeKey === item.key || activeKey === item.eventKey} disabled={item.disabled} onClick={(event) => { item.onClick?.(event); onSelect?.(item.eventKey ?? item.key); }} />)}
+      {items.map((item: NavigationItem, index: number) => renderNavItem(item, activeKey, onSelect, "nav", index))}
     </Stack>
   </ScrollArea>
 );
