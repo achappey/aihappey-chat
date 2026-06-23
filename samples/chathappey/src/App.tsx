@@ -3,10 +3,10 @@ import { configureAppStore, useAppStore } from "aihappey-state";
 import { ThemeProvider as BootstrapThemeProvider } from "aihappey-theme-bootstrap";
 import { ThemeProvider as FluentThemeProvider } from "aihappey-theme-fluent";
 import { ThemeProvider as MantinetThemeProvider } from "aihappey-theme-mantine";
+import { ThemeProvider as MaterialThemeProvider } from "aihappey-theme-material";
+import { ThemeProvider as ChakraThemeProvider } from "aihappey-theme-chakra";
 import {
-  ThemeProvider as ShadcnThemeProvider,
-  createSchemeFromBaseColor,
-  type ShadcnThemeProviderProps,
+  ThemeProvider as ShadcnThemeProvider
 } from "aihappey-theme-shadcn";
 import { defaultAgents as sampleDefaultAgents } from "./defaultAgents";
 
@@ -16,17 +16,7 @@ declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
 declare const __CHAT_APP_MCP__: string;
 
-const shadcnCustomSchemes: NonNullable<ShadcnThemeProviderProps["customSchemes"]> = {
-  chathappey: {
-    title: "chathappey",
-    description: "App-configured shadcn scheme generated from a brand color.",
-    ...createSchemeFromBaseColor("#4A72B4", "0.5rem"),
-  },
-};
-
 configureAppStore({ defaultAgents: sampleDefaultAgents });
-
-//    customSchemes={shadcnCustomSchemes}
 
 const ConfiguredShadcnThemeProvider = ({ children }: { children: React.ReactNode }) => (
   <ShadcnThemeProvider
@@ -38,7 +28,9 @@ const ConfiguredShadcnThemeProvider = ({ children }: { children: React.ReactNode
 
 const themes = [
   { id: "bootstrap", label: "Bootstrap", Provider: BootstrapThemeProvider },
+  { id: "chakra", label: "Chakra", Provider: ChakraThemeProvider },
   { id: "fluent", label: "Fluent", Provider: FluentThemeProvider },
+  { id: "material", label: "Material", Provider: MaterialThemeProvider },
   { id: "mantine", label: "Mantine", Provider: MantinetThemeProvider },
   { id: "shadcn", label: "Shadcn", Provider: ConfiguredShadcnThemeProvider },
 ];
