@@ -36,6 +36,7 @@ import { RegistriesPage } from "../features/registries";
 import { PlaygroundPage } from "../features/playground/PlaygroundPage";
 import { defaultEndpoints } from "aihappey-ai";
 import { RealtimePage } from "../features/realtime";
+import { normalizeChatEndpointId } from "aihappey-state";
 
 type CoreRootProps = {
   appName: string;
@@ -47,7 +48,7 @@ type CoreRootProps = {
   conversationsScopes?: string[];
   agentScopes?: string[];
   allowCustomLists?: boolean;
-  chatConfig?: any;
+  chatConfig?: any & { defaultChatEndpoint?: string };
   authConfig?: AuthConfig;
 };
 
@@ -84,6 +85,7 @@ export const CoreRoot = ({
       agentScopes,
       baseUrl: baseUrl,
       endpoints: defaultEndpoints,
+      defaultChatEndpoint: normalizeChatEndpointId(chatConfig?.defaultChatEndpoint),
       getAccessToken: authConfig != null ?
         () => acquireAccessToken(authConfig.msal.scopes) : undefined,
     };

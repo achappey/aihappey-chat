@@ -24,6 +24,7 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
     system: getSystemPrompt(request.messages),
     temperature: request.temperature,
     max_tokens: request.maxOutputTokens,
+    providerMetadata: request.providerMetadata,
     messages: toAnthropicMessages(request.messages),
     stream: endpointConfig.stream,
     top_p: endpointConfig.top_p,

@@ -16,6 +16,7 @@ import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
+import { DEFAULT_CHAT_ENDPOINT_ID, normalizeChatEndpointId, resolveEffectiveChatEndpointId } from "./slices/chatEndpoint";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -29,7 +30,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 21,
+    version: 22,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -101,6 +102,8 @@ export const withPersist = (
       favoriteSkillIds: (s as any).favoriteSkillIds,
       selectedThemeId: (s as any).selectedThemeId,
       sideInferenceAgentNames: (s as any).sideInferenceAgentNames,
+      configuredChatEndpoint: (s as any).configuredChatEndpoint,
+      selectedChatEndpoint: (s as any).selectedChatEndpoint,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
     }),
@@ -265,8 +268,27 @@ export const withPersist = (
         };
       }
 
+      if (version < 22) {
+        const configuredChatEndpoint = normalizeChatEndpointId(safeState.configuredChatEndpoint)
+          ?? DEFAULT_CHAT_ENDPOINT_ID;
+        const selectedChatEndpoint = normalizeChatEndpointId(safeState.selectedChatEndpoint);
+
+        safeState = {
+          ...safeState,
+          configuredChatEndpoint,
+          selectedChatEndpoint,
+          effectiveChatEndpoint: resolveEffectiveChatEndpointId(configuredChatEndpoint, selectedChatEndpoint),
+        };
+      }
+
       return {
         ...safeState,
+        configuredChatEndpoint: normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
+        selectedChatEndpoint: normalizeChatEndpointId(safeState.selectedChatEndpoint),
+        effectiveChatEndpoint: resolveEffectiveChatEndpointId(
+          normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
+          normalizeChatEndpointId(safeState.selectedChatEndpoint),
+        ),
         sideInferenceAgentNames: {
           ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
           ...(isPlainRecord(safeState.sideInferenceAgentNames)

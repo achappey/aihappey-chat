@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTheme } from "aihappey-components";
-import { useAppStore } from "aihappey-state";
+import { CHAT_ENDPOINT_IDS, useAppStore, type ChatEndpointId } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { ModelContextSettings } from "./ModelContextSettings";
 import { GeneralSettings } from "./GeneralSettings";
@@ -48,6 +48,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const setShowMessageTemperature = useAppStore((s) => s.setShowMessageTemperature);
   const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
+  const configuredChatEndpoint = useAppStore((s) => s.configuredChatEndpoint);
+  const selectedChatEndpoint = useAppStore((s) => s.selectedChatEndpoint);
+  const effectiveChatEndpoint = useAppStore((s) => s.effectiveChatEndpoint);
+  const setSelectedChatEndpoint = useAppStore((s) => s.setSelectedChatEndpoint);
 
   const ONE_MB = 1024 * 1024;
   const clamp = (value: number, min: number, max: number) =>
@@ -64,6 +68,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const setExtractExif = useAppStore(
     (s) => s.setExtractExif
   );
+  const endpointOptions = [
+    { value: "", label: `${t("providerDefault") ?? "Default"} (${configuredChatEndpoint ?? "/api/chat"})` },
+    ...CHAT_ENDPOINT_IDS.map((endpoint) => ({ value: endpoint, label: endpoint })),
+  ];
+  const selectedEndpointValue = selectedChatEndpoint ?? "";
 
   return (
     <Modal show={open}
@@ -177,6 +186,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={sideInferenceAgentNames}
                   onChange={setSideInferenceAgentNames}
                 />
+
+                <Select
+                  values={[selectedEndpointValue]}
+                  label={t("settingsModal.chatEndpoint") ?? "Chat endpoint"}
+                  hint={`${t("settingsModal.effectiveChatEndpoint") ?? "Effective endpoint"}: ${effectiveChatEndpoint}`}
+                  valueTitle={selectedEndpointValue || `${t("providerDefault") ?? "Default"} (${configuredChatEndpoint ?? "/api/chat"})`}
+                  options={endpointOptions}
+                  onChange={(value: string) => setSelectedChatEndpoint((value || undefined) as ChatEndpointId | undefined)}
+                >
+                  {endpointOptions.map((option) => (
+                    <option key={option.value || "default"} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
               </div>
             </theme.Tab>
 

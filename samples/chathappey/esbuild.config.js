@@ -23,6 +23,7 @@ const agentEndpoint = process.env.AGENT_ENDPOINT || "http://localhost:3036";
 const appName = process.env.APP_NAME || "YACB";
 const conversationsApi = process.env.CONVERSATIONS_API_URL || "http://localhost:3021/conversations";
 const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3010";
+const defaultChatEndpoint = process.env.DEFAULT_CHAT_ENDPOINT || "/api/chat";
 const chatAppMcp = process.env.CHAT_APP_MCP || "http://localhost:3001/chatapp";
 const appInsightsConnectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || "";
 
@@ -50,6 +51,7 @@ const buildOptions = {
     "__APP_VERSION__": JSON.stringify(`${buildDateVersion}.chathappey`),
     "__APP_NAME__": JSON.stringify(appName),
     "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
+    "__DEFAULT_CHAT_ENDPOINT__": JSON.stringify(defaultChatEndpoint),
     "__CHAT_APP_MCP__": JSON.stringify(chatAppMcp),
     "__APPLICATIONINSIGHTS_CONNECTION_STRING__": JSON.stringify(appInsightsConnectionString),
   },

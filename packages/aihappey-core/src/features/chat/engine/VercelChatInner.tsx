@@ -53,6 +53,12 @@ import {
   getProviderApiKeyHeaderEntries,
   getProviderKeyFromModelId,
 } from "../../provider-credentials/providerAuthHeaders";
+import {
+  isGenericChatEndpoint,
+  resolveGenericChatEndpointUrl,
+  wrapGenericChatFetch,
+} from "./genericChatEndpoint";
+import { buildGenericChatEndpointBody } from "./genericEndpointMappers";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -91,6 +97,7 @@ export function VercelChatInner({
   const maxToolCalls = useAppStore((a) => a.maxToolCalls);
   const activeData = useAppStore((a) => a.activeData);
   const maxOutputTokens = useAppStore((a) => a.maxOutputTokens);
+  const effectiveChatEndpoint = useAppStore((a) => a.effectiveChatEndpoint);
   const callTool = useAppStore((a) => a.callTool);
   const providerMetadata = useActiveProviderMetadata();
   const files = useFiles();
@@ -192,9 +199,16 @@ export function VercelChatInner({
     customFetch,
   });
 
+  const chatFetch = useMemo(() => {
+    if (!isGenericChatEndpoint(effectiveChatEndpoint)) return authFetch;
+    return wrapGenericChatFetch({ endpoint: effectiveChatEndpoint, fetcher: authFetch as typeof fetch });
+  }, [authFetch, effectiveChatEndpoint]);
+
   const api = chatMode === "agent"
     ? config?.agentEndpoint + "/api/chat"
-    : config.baseUrl + config.endpoints.chat;
+    : isGenericChatEndpoint(effectiveChatEndpoint)
+      ? resolveGenericChatEndpointUrl(config.baseUrl, effectiveChatEndpoint)
+      : config.baseUrl + config.endpoints.chat;
 
   const systemPrompt = useMemo(
     () => {
@@ -253,10 +267,7 @@ export function VercelChatInner({
     const cleanedCatalogIds = Array.isArray(request?.catalogIds)
       ? Array.from(new Set(request.catalogIds.map((v) => String(v ?? "").trim()).filter(Boolean)))
       : undefined;
-    /* const cleanedRegistryIds = Array.isArray(request?.registryIds)
-       ? Array.from(new Set(request.registryIds.map((v) => String(v ?? "").trim()).filter(Boolean)))
-       : undefined;
- */
+
     const fallbackCatalogs = getDefaultCatalogDefinitionsWithActions(
       jsonRenderRegistry.actions,
       "app",
@@ -270,10 +281,6 @@ export function VercelChatInner({
       ).prompt()
       : undefined;
 
-    // if (cleanedRegistryIds?.length) {
-    //  promptToSend = `Preferred component registries for this request: ${cleanedRegistryIds.join(", ")}\n\n${promptToSend}`;
-    //  }
-
     if (effectiveTree?.root && Object.keys(effectiveTree.elements || {}).length > 0) {
       promptToSend = `CURRENT UI STATE (already loaded, DO NOT recreate existing elements):\n${JSON.stringify(effectiveTree, null, 2)}\n\nUSER REQUEST: ${prompt}\n\nIMPORTANT: The current UI is already loaded. Output ONLY the patches needed to make the requested change, one JSON patch per line (JSONL), using RFC 6902 operations:\n- Add a new element: {"op":"add","path":"/elements/new-key","value":{...}}\n- Update existing value: {"op":"replace","path":"/elements/existing-key/props/title","value":"New title"}\n- Update root: {"op":"replace","path":"/root","value":"new-root-key"}\n- Remove: {"op":"remove","path":"/elements/old-key"}\n\nDo not use op \"set\". Use add/replace/remove (and move/copy/test only if truly needed).\nDO NOT output patches for elements that don't need to change. Only output what's necessary for the requested modification.`;
     }
@@ -281,10 +288,6 @@ export function VercelChatInner({
     return await send(promptToSend, activeData ? {
       ...activeData,
       _meta: undefined,
-      /* jsonRender: {
-         catalogIds: cleanedCatalogIds,
-         registryIds: cleanedRegistryIds,
-       }*/
     } : undefined, providerMetadata, effectiveTree ?? null, maxOutputTokens, catalogPromptOverride)
   }
 
@@ -299,6 +302,9 @@ export function VercelChatInner({
   });
 
   const apiRef = useApiRef(api);
+  apiRef.current = api;
+  const effectiveChatEndpointRef = useRef(effectiveChatEndpoint);
+  effectiveChatEndpointRef.current = effectiveChatEndpoint;
   const { tools } = useTools();
 
   // Local UI overlay for edits/deletes (since `useChat()` doesn't expose `setMessages`).
@@ -358,7 +364,7 @@ export function VercelChatInner({
     () =>
       new DefaultChatTransport({
         api: "/api/chat", // just a fallback; we override per-request below
-        fetch: authFetch,
+        fetch: chatFetch,
         prepareSendMessagesRequest: (opts) => {
           const patchedMessages = applyOverrides(opts.messages as any);
 
@@ -393,18 +399,32 @@ export function VercelChatInner({
             });
           }
 
+          const requestApi = apiRef.current;
+          const requestEndpoint = effectiveChatEndpointRef.current;
+          const requestBody = isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
+            ? buildGenericChatEndpointBody(requestEndpoint, {
+              ...mergedBody,
+              toolChoice: effectiveToolChoice,
+            })
+            : {
+              ...mergedBody,
+              toolChoice: effectiveToolChoice,
+            };
+
+          if (isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent") {
+            requestHeaders.set("Content-Type", "application/json");
+            requestHeaders.set("Accept", "text/event-stream");
+          }
+
           return {
             headers: requestHeaders,
             credentials: opts.credentials,
-            body: {
-              ...mergedBody,
-              toolChoice: effectiveToolChoice,
-            },
-            api: apiRef.current,
+            body: requestBody,
+            api: requestApi,
           };
         },
       }),
-    [authFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, maxToolCalls, stopTools]
+    [chatFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, maxToolCalls, stopTools, effectiveChatEndpoint, api]
   );
 
   const {

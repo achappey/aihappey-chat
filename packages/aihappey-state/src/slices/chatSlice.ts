@@ -3,6 +3,12 @@ import { defaultProviderMetadata } from "./defaultProviderMetadata";
 import type { ModelOption } from "aihappey-types";
 import { ToolAnnotations } from "aihappey-mcp";
 import { SIDE_INFERENCE_DEFAULT_AGENT_NAMES } from "./defaultAgents";
+import {
+  DEFAULT_CHAT_ENDPOINT_ID,
+  normalizeChatEndpointId,
+  resolveEffectiveChatEndpointId,
+  type ChatEndpointId,
+} from "./chatEndpoint";
 
 export type SideInferenceAgentNames = {
   welcomeMessageAgent: string;
@@ -24,6 +30,11 @@ export type ChatSlice = {
   systemInstructions?: string
   chatMode: "chat" | "agent"
   switchChatMode: () => void;
+  configuredChatEndpoint?: ChatEndpointId;
+  selectedChatEndpoint?: ChatEndpointId;
+  effectiveChatEndpoint: ChatEndpointId;
+  setConfiguredChatEndpoint: (endpoint?: ChatEndpointId | string) => void;
+  setSelectedChatEndpoint: (endpoint?: ChatEndpointId | string) => void;
   experimentalThrottle?: number
   chatErrors?: string[]
   structuredOutputs?: any
@@ -102,6 +113,9 @@ export const createChatSlice: StateCreator<
   modelsLoaded: false,
   modelsLoadingProgress: undefined,
   chatMode: "chat",
+  configuredChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
+  selectedChatEndpoint: undefined,
+  effectiveChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
   customHeaders: {},
   structuredOutputs: undefined,
   toolAnnotations: DEFAULT_CHAT_TOOL_ANNOTATIONS,
@@ -179,6 +193,20 @@ export const createChatSlice: StateCreator<
   setStructuredOutputs: (value) => {
     set((state: any) => ({
       structuredOutputs: value,
+    }));
+  },
+  setConfiguredChatEndpoint: (value) => {
+    const configuredChatEndpoint = normalizeChatEndpointId(value) ?? DEFAULT_CHAT_ENDPOINT_ID;
+    set((state: ChatSlice) => ({
+      configuredChatEndpoint,
+      effectiveChatEndpoint: resolveEffectiveChatEndpointId(configuredChatEndpoint, state.selectedChatEndpoint),
+    }));
+  },
+  setSelectedChatEndpoint: (value) => {
+    const selectedChatEndpoint = normalizeChatEndpointId(value);
+    set((state: ChatSlice) => ({
+      selectedChatEndpoint,
+      effectiveChatEndpoint: resolveEffectiveChatEndpointId(state.configuredChatEndpoint, selectedChatEndpoint),
     }));
   },
   switchChatMode: () => {
@@ -268,6 +296,8 @@ export const createChatSlice: StateCreator<
       providerMetadata: { ...defaultProviderMetadata },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       temperature: 1,
+      selectedChatEndpoint: undefined,
+      effectiveChatEndpoint: get().configuredChatEndpoint ?? DEFAULT_CHAT_ENDPOINT_ID,
       enabledProvidersByType: {
         language: [],
         image: [],

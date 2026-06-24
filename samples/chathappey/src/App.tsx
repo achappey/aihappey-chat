@@ -15,6 +15,7 @@ declare const __API_BASE_URL__: string;
 declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
 declare const __CHAT_APP_MCP__: string;
+declare const __DEFAULT_CHAT_ENDPOINT__: string;
 
 configureAppStore({ defaultAgents: sampleDefaultAgents });
 
@@ -53,6 +54,7 @@ const App = () => {
         appVersion={__APP_VERSION__}
         chatAppMcp={__CHAT_APP_MCP__}
         chatConfig={{
+          defaultChatEndpoint: __DEFAULT_CHAT_ENDPOINT__,
           defaultProvidersByType: {
             language: ["Pollinations", "GTranslate", "Echo", "UncloseAI", "AndyAPI"],
             image: ["Pollinations"],

@@ -18,6 +18,7 @@ const buildChatCompletionsBody = (request: NormalizedInvokeRequest) => {
     model: request.model,
     temperature: request.temperature,
     max_tokens: request.maxOutputTokens,
+    providerMetadata: request.providerMetadata,
     messages: toChatCompletionsMessages(request.messages),
     stream: endpointConfig.stream,
     n: endpointConfig.n,

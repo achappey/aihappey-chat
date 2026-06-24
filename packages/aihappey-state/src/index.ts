@@ -59,6 +59,14 @@ export {
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
 } from "./slices/chatSlice";
 export type { SideInferenceAgentNames } from "./slices/chatSlice";
+export {
+  CHAT_ENDPOINT_IDS,
+  DEFAULT_CHAT_ENDPOINT_ID,
+  isChatEndpointId,
+  normalizeChatEndpointId,
+  resolveEffectiveChatEndpointId,
+} from "./slices/chatEndpoint";
+export type { ChatEndpointId } from "./slices/chatEndpoint";
 export * from "./slices/defaultProviderTranscriptionMetadata";
 export * from "./slices/defaultProviderSpeechMetadata";
 export * from "./slices/defaultProviderRerankingMetadata";

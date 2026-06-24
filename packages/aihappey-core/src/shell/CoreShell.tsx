@@ -67,11 +67,16 @@ export const CoreShell: React.FC<Props> = ({
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
   const setAgents = useAppStore((s) => s.setAgents);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
+  const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
   useDefaultProviders(chatConfig?.defaultProvidersByType)
+
+  useEffect(() => {
+    setConfiguredChatEndpoint(chatConfig?.defaultChatEndpoint);
+  }, [chatConfig?.defaultChatEndpoint, setConfiguredChatEndpoint]);
 
   useEffect(() => {
     let cancelled = false;

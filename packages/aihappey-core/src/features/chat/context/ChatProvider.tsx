@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { ChatContext } from "./ChatContext";
 import type { ReactNode, FC } from "react";
 import { defaultEndpoints } from "aihappey-ai";
+import type { ChatEndpointId } from "aihappey-state";
 
 export interface AiChatConfig {
  // api?: string;
@@ -20,6 +21,7 @@ export interface ChatConfig extends AiChatConfig {
   agentEndpoint?: string;
   agentScopes?: string[];
   appVersion?: string;
+  defaultChatEndpoint?: ChatEndpointId;
   defaultProvidersByType?: Partial<{
     language: string[];
     image: string[];
