@@ -182,7 +182,6 @@ import { chaingpt } from "./catalog/chaingpt";
 import { routeway } from "./catalog/routeway";
 import { tetrate } from "./catalog/tetrate";
 import { clod } from "./catalog/clod";
-import { github } from "./catalog/github";
 import { wai } from "./catalog/wai";
 import { venice } from "./catalog/venice";
 import { quiverai } from "./catalog/quiverai";
@@ -1049,7 +1048,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   haimaker,
   supa,
   llmgateway,
-  github,
   assemblyai,
   mixlayer,
   gladia,
