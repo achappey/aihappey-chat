@@ -63,7 +63,9 @@ export {
   CHAT_ENDPOINT_IDS,
   DEFAULT_CHAT_ENDPOINT_ID,
   isChatEndpointId,
+  normalizeBaseUrl,
   normalizeChatEndpointId,
+  resolveEffectiveBaseUrl,
   resolveEffectiveChatEndpointId,
 } from "./slices/chatEndpoint";
 export type { ChatEndpointId } from "./slices/chatEndpoint";

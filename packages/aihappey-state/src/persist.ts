@@ -16,7 +16,7 @@ import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
-import { DEFAULT_CHAT_ENDPOINT_ID, normalizeChatEndpointId, resolveEffectiveChatEndpointId } from "./slices/chatEndpoint";
+import { DEFAULT_CHAT_ENDPOINT_ID, normalizeBaseUrl, normalizeChatEndpointId, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId } from "./slices/chatEndpoint";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -30,7 +30,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 22,
+    version: 24,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -103,7 +103,11 @@ export const withPersist = (
       selectedThemeId: (s as any).selectedThemeId,
       sideInferenceAgentNames: (s as any).sideInferenceAgentNames,
       configuredChatEndpoint: (s as any).configuredChatEndpoint,
+      selectedEndpointProfileId: (s as any).selectedEndpointProfileId,
       selectedChatEndpoint: (s as any).selectedChatEndpoint,
+      selectedBaseUrl: (s as any).selectedBaseUrl,
+      endpointRawModelIds: (s as any).endpointRawModelIds,
+      endpointProviderMetadataEnabled: (s as any).endpointProviderMetadataEnabled,
       remoteStorageConnected: s.remoteStorageConnected,
       logLevel: s.logLevel,
     }),
@@ -281,14 +285,43 @@ export const withPersist = (
         };
       }
 
+      if (version < 23) {
+        safeState = {
+          ...safeState,
+          selectedBaseUrl: normalizeBaseUrl(safeState.selectedBaseUrl),
+        };
+      }
+
+      if (version < 24) {
+        safeState = {
+          ...safeState,
+          selectedEndpointProfileId: typeof safeState.selectedEndpointProfileId === "string"
+            && safeState.selectedEndpointProfileId.trim().length
+            ? safeState.selectedEndpointProfileId.trim()
+            : undefined,
+        };
+      }
+
       return {
         ...safeState,
         configuredChatEndpoint: normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
+        selectedEndpointProfileId: typeof safeState.selectedEndpointProfileId === "string"
+          && safeState.selectedEndpointProfileId.trim().length
+          ? safeState.selectedEndpointProfileId.trim()
+          : undefined,
         selectedChatEndpoint: normalizeChatEndpointId(safeState.selectedChatEndpoint),
         effectiveChatEndpoint: resolveEffectiveChatEndpointId(
           normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
           normalizeChatEndpointId(safeState.selectedChatEndpoint),
         ),
+        configuredBaseUrl: normalizeBaseUrl(safeState.configuredBaseUrl) ?? "",
+        selectedBaseUrl: normalizeBaseUrl(safeState.selectedBaseUrl),
+        effectiveBaseUrl: resolveEffectiveBaseUrl(
+          normalizeBaseUrl(safeState.configuredBaseUrl) ?? "",
+          normalizeBaseUrl(safeState.selectedBaseUrl),
+        ),
+        endpointRawModelIds: safeState.endpointRawModelIds === true,
+        endpointProviderMetadataEnabled: safeState.endpointProviderMetadataEnabled !== false,
         sideInferenceAgentNames: {
           ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
           ...(isPlainRecord(safeState.sideInferenceAgentNames)

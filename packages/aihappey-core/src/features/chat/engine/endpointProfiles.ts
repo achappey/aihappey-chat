@@ -1,0 +1,209 @@
+import { CHAT_ENDPOINT_IDS, type ChatEndpointId } from "aihappey-state";
+import type { Provider } from "aihappey-types";
+import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
+import { isGenericChatEndpoint } from "./genericChatEndpoint";
+
+export const DEFAULT_ENDPOINT_PROFILE_ID = "default";
+export const CUSTOM_ENDPOINT_PROFILE_ID = "custom";
+export const PROVIDER_ENDPOINT_PROFILE_PREFIX = "provider:";
+
+export type EndpointProfileKind = "default" | "provider" | "custom";
+
+export type EndpointProfile = {
+  id: string;
+  kind: EndpointProfileKind;
+  label: string;
+  providerKey?: string;
+  provider?: Provider;
+  apiBaseUrl?: string;
+  chatEndpoints: ChatEndpointId[];
+};
+
+const toChatEndpointIds = (values?: string[]) => Array.from(new Set(
+  (values ?? []).filter((value): value is ChatEndpointId =>
+    (CHAT_ENDPOINT_IDS as readonly string[]).includes(value),
+  ),
+));
+
+const hasProviderEndpointProfile = (entry: [string, Provider]) => {
+  const [, provider] = entry;
+  return typeof provider.apiBaseUrl === "string"
+    && provider.apiBaseUrl.trim().length > 0
+    && toChatEndpointIds(provider.chatEndpoints).some(isGenericChatEndpoint);
+};
+
+export const getProviderEndpointProfileId = (providerKey: string) =>
+  `${PROVIDER_ENDPOINT_PROFILE_PREFIX}${providerKey}`;
+
+export const getProviderKeyFromEndpointProfileId = (profileId?: string) => {
+  if (!profileId?.startsWith(PROVIDER_ENDPOINT_PROFILE_PREFIX)) return undefined;
+  return profileId.slice(PROVIDER_ENDPOINT_PROFILE_PREFIX.length) || undefined;
+};
+
+export const getEndpointProfiles = ({
+  configuredChatEndpoint,
+}: {
+  configuredChatEndpoint?: ChatEndpointId;
+}): EndpointProfile[] => {
+  const defaultEndpoint = configuredChatEndpoint ?? "/api/chat";
+
+  return [
+    {
+      id: DEFAULT_ENDPOINT_PROFILE_ID,
+      kind: "default",
+      label: "Default gateway",
+      chatEndpoints: [defaultEndpoint],
+    },
+    ...Object.entries(PROVIDERS)
+      .filter(hasProviderEndpointProfile)
+      .map(([providerKey, provider]) => ({
+        id: getProviderEndpointProfileId(providerKey),
+        kind: "provider" as const,
+        label: provider.name,
+        providerKey,
+        provider,
+        apiBaseUrl: provider.apiBaseUrl?.trim(),
+        chatEndpoints: toChatEndpointIds(provider.chatEndpoints).filter(isGenericChatEndpoint),
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
+    {
+      id: CUSTOM_ENDPOINT_PROFILE_ID,
+      kind: "custom",
+      label: "Custom override",
+      chatEndpoints: [...CHAT_ENDPOINT_IDS],
+    },
+  ];
+};
+
+export const resolveEndpointProfile = ({
+  selectedEndpointProfileId,
+  selectedBaseUrl,
+  configuredChatEndpoint,
+}: {
+  selectedEndpointProfileId?: string;
+  selectedBaseUrl?: string;
+  configuredChatEndpoint?: ChatEndpointId;
+}) => {
+  const profiles = getEndpointProfiles({ configuredChatEndpoint });
+  const hasManualOverride = !!selectedBaseUrl;
+  const fallbackProfileId = hasManualOverride
+    ? CUSTOM_ENDPOINT_PROFILE_ID
+    : DEFAULT_ENDPOINT_PROFILE_ID;
+  const profileId = selectedEndpointProfileId ?? fallbackProfileId;
+
+  return profiles.find((profile) => profile.id === profileId)
+    ?? profiles.find((profile) => profile.id === fallbackProfileId)
+    ?? profiles[0];
+};
+
+export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {
+  const value = String(modelId ?? "").trim();
+  const slashIndex = value.indexOf("/");
+  if (slashIndex <= 0) return value;
+
+  const prefix = value.slice(0, slashIndex).toLowerCase();
+  if (providerKey) {
+    return prefix === providerKey.toLowerCase()
+      ? value.slice(slashIndex + 1)
+      : value;
+  }
+
+  return Object.prototype.hasOwnProperty.call(PROVIDERS, prefix)
+    ? value.slice(slashIndex + 1)
+    : value;
+};
+
+export const resolveEndpointProfileRequestMetadata = ({
+  activeProviderMetadata,
+  endpointProfile,
+  fallbackProviderMetadataEnabled,
+}: {
+  activeProviderMetadata?: Record<string, any>;
+  endpointProfile?: EndpointProfile;
+  fallbackProviderMetadataEnabled: boolean;
+}) => {
+  if (endpointProfile?.kind !== "provider") {
+    return fallbackProviderMetadataEnabled ? activeProviderMetadata : undefined;
+  }
+
+  const profileProviderKey = endpointProfile.providerKey;
+  if (!profileProviderKey) return activeProviderMetadata;
+
+  const metadata = activeProviderMetadata ?? {};
+  const selectedProviderKey = Object.keys(metadata)[0];
+  const selectedProviderValue = selectedProviderKey ? metadata[selectedProviderKey] : undefined;
+  const profileProviderValue = metadata[profileProviderKey];
+
+  if (profileProviderValue !== undefined) {
+    if (selectedProviderKey && selectedProviderKey !== profileProviderKey && selectedProviderValue !== undefined) {
+      return {
+        ...metadata,
+        [profileProviderKey]: {
+          ...(typeof selectedProviderValue === "object" && selectedProviderValue ? selectedProviderValue : {}),
+          ...(typeof profileProviderValue === "object" && profileProviderValue ? profileProviderValue : {}),
+        },
+      };
+    }
+
+    return metadata;
+  }
+
+  if (selectedProviderKey && selectedProviderValue !== undefined) {
+    return {
+      ...metadata,
+      [profileProviderKey]: selectedProviderValue,
+    };
+  }
+
+  return activeProviderMetadata;
+};
+
+const asRecord = (value: unknown): Record<string, any> | undefined =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, any>
+    : undefined;
+
+export const resolveEndpointProfileProviderConfig = ({
+  activeProviderMetadata,
+  providerMetadata,
+  endpointProfile,
+}: {
+  activeProviderMetadata?: Record<string, any>;
+  providerMetadata?: Record<string, any>;
+  endpointProfile?: EndpointProfile;
+}) => {
+  if (endpointProfile?.kind !== "provider" || !endpointProfile.providerKey) return undefined;
+
+  const profileProviderKey = endpointProfile.providerKey;
+  const selectedProviderKey = Object.keys(activeProviderMetadata ?? {})[0];
+  const selectedProviderConfig = selectedProviderKey
+    ? asRecord(activeProviderMetadata?.[selectedProviderKey])
+    : undefined;
+  const profileProviderConfig = asRecord(providerMetadata?.[profileProviderKey])
+    ?? asRecord(activeProviderMetadata?.[profileProviderKey]);
+
+  const merged = {
+    ...(selectedProviderKey && selectedProviderKey !== profileProviderKey ? selectedProviderConfig : {}),
+    ...(profileProviderConfig ?? {}),
+  };
+
+  return Object.keys(merged).length ? merged : undefined;
+};
+
+export const splitEndpointProfileProviderConfig = (config?: Record<string, any>) => {
+  if (!config) return { body: undefined, headers: undefined } as const;
+
+  const { headers, ...body } = config;
+  const normalizedHeaders = asRecord(headers);
+
+  return {
+    body: Object.keys(body).length ? body : undefined,
+    headers: normalizedHeaders
+      ? Object.fromEntries(
+        Object.entries(normalizedHeaders)
+          .filter(([key, value]) => key.trim().length > 0 && value != null && String(value).trim().length > 0)
+          .map(([key, value]) => [key, String(value)]),
+      )
+      : undefined,
+  } as const;
+};

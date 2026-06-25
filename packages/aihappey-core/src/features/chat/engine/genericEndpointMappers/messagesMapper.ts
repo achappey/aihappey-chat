@@ -1,4 +1,10 @@
-import { compactObject, type GenericChatEndpointRequestBody, type GenericMappedFilePart, type GenericMappedMessage } from "./types";
+import {
+  compactObject,
+  resolveNativeRequestMetadata,
+  type GenericChatEndpointRequestBody,
+  type GenericMappedFilePart,
+  type GenericMappedMessage,
+} from "./types";
 import { getSystemText, mapUiMessages, parseDataUrl } from "./uiMessageParts";
 
 const toAnthropicFileBlocks = (file: GenericMappedFilePart) => {
@@ -58,11 +64,17 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
 
   return compactObject({
+    ...(body.providerRequestConfig ?? {}),
     model: body.model,
     system: getSystemText(messages),
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens ?? 1024,
-    metadata: body.providerMetadata,
+    metadata: resolveNativeRequestMetadata({
+      ...body,
+      extraMetadata: compactObject({
+        user_id: body.metadata?.user_id,
+      }),
+    }),
     messages: messages
       .filter((message) => message.role !== "system")
       .map((message) => compactObject({

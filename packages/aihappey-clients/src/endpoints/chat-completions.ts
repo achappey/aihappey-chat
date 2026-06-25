@@ -5,6 +5,7 @@ import type {
   NormalizedInvokeRequest,
 } from "../shared/types";
 import { toChatCompletionsMessages } from "../shared/messages";
+import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
 import { extractChatCompletionsText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -15,10 +16,11 @@ const buildChatCompletionsBody = (request: NormalizedInvokeRequest) => {
   const endpointConfig = (request.endpointConfig ?? {}) as ChatCompletionsEndpointConfig;
 
   return compactObject({
+    ...(request.providerRequestConfig ?? {}),
     model: request.model,
     temperature: request.temperature,
     max_tokens: request.maxOutputTokens,
-    metadata: request.providerMetadata,
+    metadata: resolveNativeRequestMetadata(request),
     messages: toChatCompletionsMessages(request.messages),
     stream: endpointConfig.stream,
     n: endpointConfig.n,

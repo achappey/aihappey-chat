@@ -5,7 +5,9 @@ import { ToolAnnotations } from "aihappey-mcp";
 import { SIDE_INFERENCE_DEFAULT_AGENT_NAMES } from "./defaultAgents";
 import {
   DEFAULT_CHAT_ENDPOINT_ID,
+  normalizeBaseUrl,
   normalizeChatEndpointId,
+  resolveEffectiveBaseUrl,
   resolveEffectiveChatEndpointId,
   type ChatEndpointId,
 } from "./chatEndpoint";
@@ -31,10 +33,21 @@ export type ChatSlice = {
   chatMode: "chat" | "agent"
   switchChatMode: () => void;
   configuredChatEndpoint?: ChatEndpointId;
+  selectedEndpointProfileId?: string;
   selectedChatEndpoint?: ChatEndpointId;
   effectiveChatEndpoint: ChatEndpointId;
+  configuredBaseUrl: string;
+  selectedBaseUrl?: string;
+  effectiveBaseUrl: string;
+  endpointRawModelIds: boolean;
+  endpointProviderMetadataEnabled: boolean;
   setConfiguredChatEndpoint: (endpoint?: ChatEndpointId | string) => void;
+  setSelectedEndpointProfileId: (profileId?: string) => void;
   setSelectedChatEndpoint: (endpoint?: ChatEndpointId | string) => void;
+  setConfiguredBaseUrl: (baseUrl?: string) => void;
+  setSelectedBaseUrl: (baseUrl?: string) => void;
+  setEndpointRawModelIds: (enabled: boolean) => void;
+  setEndpointProviderMetadataEnabled: (enabled: boolean) => void;
   experimentalThrottle?: number
   chatErrors?: string[]
   structuredOutputs?: any
@@ -114,8 +127,14 @@ export const createChatSlice: StateCreator<
   modelsLoadingProgress: undefined,
   chatMode: "chat",
   configuredChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
+  selectedEndpointProfileId: undefined,
   selectedChatEndpoint: undefined,
   effectiveChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
+  configuredBaseUrl: "",
+  selectedBaseUrl: undefined,
+  effectiveBaseUrl: "",
+  endpointRawModelIds: false,
+  endpointProviderMetadataEnabled: true,
   customHeaders: {},
   structuredOutputs: undefined,
   toolAnnotations: DEFAULT_CHAT_TOOL_ANNOTATIONS,
@@ -202,12 +221,38 @@ export const createChatSlice: StateCreator<
       effectiveChatEndpoint: resolveEffectiveChatEndpointId(configuredChatEndpoint, state.selectedChatEndpoint),
     }));
   },
+  setSelectedEndpointProfileId: (value) => {
+    const selectedEndpointProfileId = typeof value === "string" && value.trim().length
+      ? value.trim()
+      : undefined;
+    set(() => ({ selectedEndpointProfileId }));
+  },
   setSelectedChatEndpoint: (value) => {
     const selectedChatEndpoint = normalizeChatEndpointId(value);
     set((state: ChatSlice) => ({
       selectedChatEndpoint,
       effectiveChatEndpoint: resolveEffectiveChatEndpointId(state.configuredChatEndpoint, selectedChatEndpoint),
     }));
+  },
+  setConfiguredBaseUrl: (value) => {
+    const configuredBaseUrl = normalizeBaseUrl(value) ?? "";
+    set((state: ChatSlice) => ({
+      configuredBaseUrl,
+      effectiveBaseUrl: resolveEffectiveBaseUrl(configuredBaseUrl, state.selectedBaseUrl),
+    }));
+  },
+  setSelectedBaseUrl: (value) => {
+    const selectedBaseUrl = normalizeBaseUrl(value);
+    set((state: ChatSlice) => ({
+      selectedBaseUrl,
+      effectiveBaseUrl: resolveEffectiveBaseUrl(state.configuredBaseUrl, selectedBaseUrl),
+    }));
+  },
+  setEndpointRawModelIds: (value) => {
+    set(() => ({ endpointRawModelIds: !!value }));
+  },
+  setEndpointProviderMetadataEnabled: (value) => {
+    set(() => ({ endpointProviderMetadataEnabled: !!value }));
   },
   switchChatMode: () => {
     set((state: any) => ({
@@ -296,8 +341,13 @@ export const createChatSlice: StateCreator<
       providerMetadata: { ...defaultProviderMetadata },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       temperature: 1,
+      selectedEndpointProfileId: undefined,
       selectedChatEndpoint: undefined,
       effectiveChatEndpoint: get().configuredChatEndpoint ?? DEFAULT_CHAT_ENDPOINT_ID,
+      selectedBaseUrl: undefined,
+      effectiveBaseUrl: get().configuredBaseUrl ?? "",
+      endpointRawModelIds: false,
+      endpointProviderMetadataEnabled: true,
       enabledProvidersByType: {
         language: [],
         image: [],

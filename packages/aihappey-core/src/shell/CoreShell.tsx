@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Outlet, useSearchParams } from "react-router";
 import { McpConnectionsProvider } from "../runtime/mcp/McpConnectionsProvider";
 import { ChatAppConnector } from "./connectors/ChatAppConnector";
@@ -68,8 +68,25 @@ export const CoreShell: React.FC<Props> = ({
   const setAgents = useAppStore((s) => s.setAgents);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
+  const setConfiguredBaseUrl = useAppStore((s) => s.setConfiguredBaseUrl);
+  const setSelectedBaseUrl = useAppStore((s) => s.setSelectedBaseUrl);
+  const setSelectedEndpointProfileId = useAppStore((s) => s.setSelectedEndpointProfileId);
+  const storeEffectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
+  const selectedBaseUrl = useAppStore((s) => s.selectedBaseUrl);
+  const selectedEndpointProfileId = useAppStore((s) => s.selectedEndpointProfileId);
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
+  const authenticated = chatConfig?.getAccessToken != null;
+  const effectiveBaseUrl = authenticated
+    ? chatConfig.baseUrl
+    : storeEffectiveBaseUrl || chatConfig.baseUrl;
+  const effectiveChatConfig = useMemo(
+    () => ({
+      ...chatConfig,
+      baseUrl: effectiveBaseUrl,
+    }),
+    [chatConfig, effectiveBaseUrl],
+  );
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
   useDefaultProviders(chatConfig?.defaultProvidersByType)
@@ -77,6 +94,19 @@ export const CoreShell: React.FC<Props> = ({
   useEffect(() => {
     setConfiguredChatEndpoint(chatConfig?.defaultChatEndpoint);
   }, [chatConfig?.defaultChatEndpoint, setConfiguredChatEndpoint]);
+
+  useEffect(() => {
+    setConfiguredBaseUrl(chatConfig?.baseUrl);
+  }, [chatConfig?.baseUrl, setConfiguredBaseUrl]);
+
+  useEffect(() => {
+    if (authenticated && selectedBaseUrl) {
+      setSelectedBaseUrl(undefined);
+    }
+    if (authenticated && selectedEndpointProfileId) {
+      setSelectedEndpointProfileId(undefined);
+    }
+  }, [authenticated, selectedBaseUrl, selectedEndpointProfileId, setSelectedBaseUrl, setSelectedEndpointProfileId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -196,15 +226,15 @@ export const CoreShell: React.FC<Props> = ({
     setSidebarOpen(isDesktop);
   }, []);
 
-  const modelsApi = chatConfig.baseUrl + chatConfig.endpoints.models;
-  const remoteAgentModelsApi = chatConfig?.agentEndpoint
-    ? chatConfig.agentEndpoint + chatConfig.endpoints.models
+  const modelsApi = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.models;
+  const remoteAgentModelsApi = effectiveChatConfig?.agentEndpoint
+    ? effectiveChatConfig.agentEndpoint + effectiveChatConfig.endpoints.models
     : undefined;
-  const skillsApi = chatConfig.baseUrl + chatConfig.endpoints.skills;
+  const skillsApi = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.skills;
 
   useModels(
     modelsApi,
-    chatConfig?.getAccessToken
+    effectiveChatConfig?.getAccessToken
   );
 
   useRemoteAgentModels(
@@ -228,21 +258,21 @@ export const CoreShell: React.FC<Props> = ({
       items.push(new URL(chatAppMcp).host);
     }
 
-    if (chatConfig?.agentEndpoint) {
-      items.push(new URL(chatConfig?.agentEndpoint).host);
+    if (effectiveChatConfig?.agentEndpoint) {
+      items.push(new URL(effectiveChatConfig?.agentEndpoint).host);
     }
     setSafeHosts(items);
-  }, [chatAppMcp, chatConfig]);
+  }, [chatAppMcp, effectiveChatConfig, setSafeHosts]);
 
-  const ui = chatConfig ? (
-    <ChatProvider config={chatConfig}>
+  const ui = effectiveChatConfig ? (
+    <ChatProvider config={effectiveChatConfig}>
       <Outlet />
     </ChatProvider>
   ) : (
     <Outlet />
   );
 
-  const samplingEndpoint = chatConfig.baseUrl + chatConfig.endpoints.sampling;
+  const samplingEndpoint = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.sampling;
 
   return (
     <I18nProvider>
@@ -250,9 +280,9 @@ export const CoreShell: React.FC<Props> = ({
       <DndProvider backend={HTML5Backend}>
         <McpServerBootstrap />
         <ChatAppConnector
-          mcpUrl={chatAppMcp}
-          clientName={chatConfig?.appName}
-          clientVersion={chatConfig?.appVersion}
+            mcpUrl={chatAppMcp}
+          clientName={effectiveChatConfig?.appName}
+          clientVersion={effectiveChatConfig?.appVersion}
           samplingApi={samplingEndpoint}
         >
           <ImagesProvider storageKind={"indexeddb"}>
@@ -264,9 +294,9 @@ export const CoreShell: React.FC<Props> = ({
                       <VideosProvider>
                         <SkillsProvider
                           skillsApi={skillsApi}
-                          getAccessToken={chatConfig?.getAccessToken}
-                          headers={chatConfig?.headers}
-                          fetch={chatConfig?.fetch}
+                          getAccessToken={effectiveChatConfig?.getAccessToken}
+                          headers={effectiveChatConfig?.headers}
+                          fetch={effectiveChatConfig?.fetch}
                         >
                           <JsonRenderCatalogProvider>
                             <JsonRenderRegistryProvider>
@@ -274,11 +304,11 @@ export const CoreShell: React.FC<Props> = ({
                                 <SpeechProvider storageKind={"indexeddb"}>
                                   <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
                                     <McpConnectionsProvider
-                                      clientName={chatConfig?.appName}
+                                      clientName={effectiveChatConfig?.appName}
                                       agentScopes={agentScopes ?? []}
-                                      agentApi={chatConfig?.agentEndpoint!}
-                                      authenticated={chatConfig?.getAccessToken != null}
-                                      clientVersion={chatConfig?.appVersion}
+                                      agentApi={effectiveChatConfig?.agentEndpoint!}
+                                      authenticated={effectiveChatConfig?.getAccessToken != null}
+                                      clientVersion={effectiveChatConfig?.appVersion}
                                       samplingApi={samplingEndpoint}
                                     >
                                       {ui}

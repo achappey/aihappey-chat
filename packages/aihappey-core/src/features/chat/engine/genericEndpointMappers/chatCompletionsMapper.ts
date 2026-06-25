@@ -1,4 +1,8 @@
-import { compactObject, type GenericChatEndpointRequestBody } from "./types";
+import {
+  compactObject,
+  resolveNativeRequestMetadata,
+  type GenericChatEndpointRequestBody,
+} from "./types";
 import { mapUiMessages, toInlineFileData } from "./uiMessageParts";
 
 const toChatCompletionContent = (message: ReturnType<typeof mapUiMessages>[number]) => {
@@ -34,10 +38,11 @@ export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) =
   const messages = mapUiMessages(body.messages);
 
   return compactObject({
+    ...(body.providerRequestConfig ?? {}),
     model: body.model,
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens,
-    metadata: body.providerMetadata,
+    metadata: resolveNativeRequestMetadata(body),
     messages: messages.map((message) => compactObject({
       role: message.role,
       content: toChatCompletionContent(message),

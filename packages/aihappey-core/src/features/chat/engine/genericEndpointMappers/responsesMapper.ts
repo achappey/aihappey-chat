@@ -1,4 +1,9 @@
-import { compactObject, type GenericChatEndpointRequestBody, type GenericMappedMessage } from "./types";
+import {
+  compactObject,
+  resolveNativeRequestMetadata,
+  type GenericChatEndpointRequestBody,
+  type GenericMappedMessage,
+} from "./types";
 import { getSystemText, mapUiMessages, toInlineFileData } from "./uiMessageParts";
 
 const toResponsesContent = (message: GenericMappedMessage) => {
@@ -36,10 +41,11 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     .filter((message: any) => Array.isArray(message.content) && message.content.length > 0);
 
   return compactObject({
+    ...(body.providerRequestConfig ?? {}),
     model: body.model,
     temperature: body.temperature,
     max_output_tokens: body.maxOutputTokens,
-    metadata: body.providerMetadata,
+    metadata: resolveNativeRequestMetadata(body),
     instructions: getSystemText(messages),
     input,
     stream: true,

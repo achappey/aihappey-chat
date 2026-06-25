@@ -17,7 +17,9 @@ export const openrouter: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://openrouter.ai/api",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses", "/v1/messages"]
 
 };
 

@@ -117,6 +117,8 @@ export type InvokePlaygroundRequest = {
   temperature?: number;
   maxOutputTokens?: number;
   providerMetadata?: any;
+  providerRequestConfig?: Record<string, any>;
+  omitProviderMetadataInNativeMetadata?: boolean;
   endpointConfig?: unknown;
   headers?: Record<string, string>;
   getAccessToken?: () => Promise<string>;

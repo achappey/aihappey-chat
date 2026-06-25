@@ -34,7 +34,7 @@ const getCanonicalHeaderName = (providerKey?: string) => {
   return `X-${provider.name}-Key`;
 };
 
-const isProviderHeader = (header: string, providerKey?: string) => {
+export const isProviderHeader = (header: string, providerKey?: string) => {
   if (!providerKey) return false;
 
   const provider = getProvider(providerKey);
@@ -59,6 +59,14 @@ const isNonEmptyHeader = ([, value]: [string, string]) =>
 
 export const getConfiguredProviderHeaderEntries = (customHeaders?: Record<string, string>) =>
   Object.entries(customHeaders ?? {}).filter(isNonEmptyHeader);
+
+export const getEndpointHeaderEntries = (customHeaders?: Record<string, string>) =>
+  getConfiguredProviderHeaderEntries(customHeaders).filter(([header]) =>
+    !Object.keys(PROVIDERS).some((providerKey) => isProviderHeader(header, providerKey)),
+  );
+
+export const createEndpointHeaders = (customHeaders?: Record<string, string>) =>
+  Object.fromEntries(getEndpointHeaderEntries(customHeaders));
 
 export const getProviderApiKeyHeaderEntries = (
   customHeaders: Record<string, string> | undefined,
@@ -94,7 +102,12 @@ export const createChatAuthHeadersForModel = (
   customHeaders: Record<string, string> | undefined,
   modelId?: string,
   hasAccessToken?: boolean,
-) => hasAccessToken ? {} : createProviderBearerHeadersForModel(customHeaders, modelId);
+) => hasAccessToken
+  ? {}
+  : {
+    ...createProviderBearerHeadersForModel(customHeaders, modelId),
+    ...createEndpointHeaders(customHeaders),
+  };
 
 export const createProviderHeaderSubsetForModel = (
   customHeaders: Record<string, string> | undefined,

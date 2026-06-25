@@ -70,6 +70,8 @@ export type Provider = {
     providerCountry?: string
     inferenceRegions?: string[]
     category?: ProviderCategory
+    apiBaseUrl?: string
+    chatEndpoints?: string[]
 };
 
 export type ProviderUrls = {

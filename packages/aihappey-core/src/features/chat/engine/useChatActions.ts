@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { UIMessage } from "aihappey-types";
 import { useAppStore, type UiAttachment } from "aihappey-state";
 
@@ -11,6 +11,13 @@ import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
 import { buildSelectedAgentRequest } from "../../agents/agentSelection";
+import {
+  resolveEndpointProfile,
+  resolveEndpointProfileProviderConfig,
+  resolveEndpointProfileRequestMetadata,
+  splitEndpointProfileProviderConfig,
+  stripProviderPrefix,
+} from "./endpointProfiles";
 
 type ChatActionsProps = {
   // attachments: UiAttachment[];
@@ -53,7 +60,43 @@ export function useChatActions({
   const handoffs = useAppStore(a => a.handoffs)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
-  const providerMetadata = useActiveProviderMetadata();
+  const selectedEndpointProfileId = useAppStore(a => a.selectedEndpointProfileId)
+  const selectedBaseUrl = useAppStore(a => a.selectedBaseUrl)
+  const configuredChatEndpoint = useAppStore(a => a.configuredChatEndpoint)
+  const endpointRawModelIds = useAppStore(a => a.endpointRawModelIds)
+  const endpointProviderMetadataEnabled = useAppStore(a => a.endpointProviderMetadataEnabled)
+  const activeProviderMetadata = useActiveProviderMetadata();
+  const allProviderMetadata = useAppStore(a => a.providerMetadata)
+  const endpointProfile = useMemo(
+    () => resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint }),
+    [selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint],
+  );
+  const isProviderEndpointProfile = endpointProfile?.kind === "provider";
+  const requestModel = isProviderEndpointProfile
+    ? stripProviderPrefix(selectedModel, endpointProfile.providerKey)
+    : endpointRawModelIds
+      ? stripProviderPrefix(selectedModel)
+      : selectedModel;
+  const providerMetadata = useMemo(
+    () => resolveEndpointProfileRequestMetadata({
+      activeProviderMetadata,
+      endpointProfile,
+      fallbackProviderMetadataEnabled: endpointProviderMetadataEnabled !== false,
+    }),
+    [activeProviderMetadata, endpointProfile, endpointProviderMetadataEnabled],
+  );
+  const endpointProfileProviderConfig = useMemo(
+    () => resolveEndpointProfileProviderConfig({
+      activeProviderMetadata,
+      providerMetadata: allProviderMetadata,
+      endpointProfile,
+    }),
+    [activeProviderMetadata, allProviderMetadata, endpointProfile],
+  );
+  const { body: providerRequestConfig } = useMemo(
+    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig),
+    [endpointProfileProviderConfig],
+  );
   const { addChatError } = useChatErrors();
   const getStorageErrorMessage = useStorageErrorMessage();
   const { buildFromText, buildFromPrompt } = useUserMessageBuilder({
@@ -70,7 +113,7 @@ export function useChatActions({
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
-              ...(chatMode === "chat" ? { model: selectedModel } : {}),
+              ...(chatMode === "chat" ? { model: requestModel } : {}),
               ...(chatMode === "agent" && selectedAgentRequest.localAgents.length > 0
                 ? { agents: selectedAgentRequest.localAgents }
                 : {}),
@@ -81,6 +124,8 @@ export function useChatActions({
               tools: finalTools,
               temperature,
               providerMetadata,
+              ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
+              ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
               response_format: structuredOutputs,
             },
           });
@@ -100,6 +145,7 @@ export function useChatActions({
       addMessage,
       sendMessage,
       providerMetadata,
+      providerRequestConfig,
       addChatError,
       chatMode,
       selectedAgentRequest.localAgents,
@@ -107,7 +153,7 @@ export function useChatActions({
       workflowType,
       temperature,
       //    clearAttachments,
-      selectedModel,
+      requestModel,
       conversationId,
       finalTools,
     ]
@@ -122,7 +168,7 @@ export function useChatActions({
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
-              ...(chatMode === "chat" ? { model: selectedModel } : {}),
+              ...(chatMode === "chat" ? { model: requestModel } : {}),
               ...(chatMode === "agent" && selectedAgentRequest.localAgents.length > 0
                 ? { agents: selectedAgentRequest.localAgents }
                 : {}),
@@ -133,6 +179,8 @@ export function useChatActions({
               tools: finalTools,
               temperature,
               providerMetadata,
+              ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
+              ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
               response_format: structuredOutputs,
               workflowMetadata: {
                 "groupchat": {
@@ -162,8 +210,9 @@ export function useChatActions({
       selectedAgentRequest.models,
       workflowType,
       providerMetadata,
+      providerRequestConfig,
       addChatError,
-      selectedModel,
+      requestModel,
       conversationId,
       finalTools,
     ]

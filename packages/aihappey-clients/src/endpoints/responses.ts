@@ -5,6 +5,7 @@ import type {
   ResponsesEndpointConfig,
 } from "../shared/types";
 import { toResponsesConversationInput } from "../shared/messages";
+import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
 import { extractResponsesText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -22,11 +23,12 @@ const buildResponsesBody = (request: NormalizedInvokeRequest) => {
   const endpointConfig = (request.endpointConfig ?? {}) as ResponsesEndpointConfig;
 
   return compactObject({
+    ...(request.providerRequestConfig ?? {}),
     model: request.model,
     temperature: request.temperature,
     include: endpointConfig.include,
     max_output_tokens: request.maxOutputTokens,
-    metadata: request.providerMetadata,
+    metadata: resolveNativeRequestMetadata(request),
     instructions,
     input,
     stream: endpointConfig.stream,

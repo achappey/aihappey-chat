@@ -25,3 +25,16 @@ export function resolveEffectiveChatEndpointId(
     ?? normalizeChatEndpointId(configured)
     ?? DEFAULT_CHAT_ENDPOINT_ID;
 }
+
+export function normalizeBaseUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}
+
+export function resolveEffectiveBaseUrl(
+  configured?: unknown,
+  selected?: unknown,
+): string {
+  return normalizeBaseUrl(selected) ?? normalizeBaseUrl(configured) ?? "";
+}

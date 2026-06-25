@@ -5,6 +5,7 @@ import type {
   NormalizedInvokeRequest,
 } from "../shared/types";
 import { getSystemPrompt, toAnthropicMessages } from "../shared/messages";
+import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
 import { extractAnthropicMessagesText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -20,6 +21,7 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
   const endpointConfig = (request.endpointConfig ?? {}) as MessagesEndpointConfig;
 
   return compactObject({
+    ...(request.providerRequestConfig ?? {}),
     model: request.model,
     system: getSystemPrompt(request.messages),
     temperature: request.temperature,
@@ -32,9 +34,11 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
     container: endpointConfig.container,
     inference_geo: endpointConfig.inference_geo,
     stop_sequences: endpointConfig.stop_sequences,
-    metadata: compactObject({
-      ...(request.providerMetadata ?? {}),
-      user_id: endpointConfig.metadata?.user_id,
+    metadata: resolveNativeRequestMetadata({
+      ...request,
+      extraMetadata: compactObject({
+        user_id: endpointConfig.metadata?.user_id,
+      }),
     }),
     output_config: compactObject({
       effort: endpointConfig.output_config?.effort,
