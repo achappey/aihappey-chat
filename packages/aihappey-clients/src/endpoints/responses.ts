@@ -26,7 +26,7 @@ const buildResponsesBody = (request: NormalizedInvokeRequest) => {
     temperature: request.temperature,
     include: endpointConfig.include,
     max_output_tokens: request.maxOutputTokens,
-    providerMetadata: request.providerMetadata,
+    metadata: request.providerMetadata,
     instructions,
     input,
     stream: endpointConfig.stream,

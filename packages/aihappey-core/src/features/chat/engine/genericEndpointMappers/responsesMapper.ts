@@ -39,7 +39,7 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     model: body.model,
     temperature: body.temperature,
     max_output_tokens: body.maxOutputTokens,
-    providerMetadata: body.providerMetadata,
+    metadata: body.providerMetadata,
     instructions: getSystemText(messages),
     input,
     stream: true,

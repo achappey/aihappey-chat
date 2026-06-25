@@ -62,7 +62,7 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
     system: getSystemText(messages),
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens ?? 1024,
-    providerMetadata: body.providerMetadata,
+    metadata: body.providerMetadata,
     messages: messages
       .filter((message) => message.role !== "system")
       .map((message) => compactObject({

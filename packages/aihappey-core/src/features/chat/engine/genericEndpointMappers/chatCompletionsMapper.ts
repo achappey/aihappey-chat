@@ -37,7 +37,7 @@ export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) =
     model: body.model,
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens,
-    providerMetadata: body.providerMetadata,
+    metadata: body.providerMetadata,
     messages: messages.map((message) => compactObject({
       role: message.role,
       content: toChatCompletionContent(message),

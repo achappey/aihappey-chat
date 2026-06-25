@@ -24,7 +24,6 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
     system: getSystemPrompt(request.messages),
     temperature: request.temperature,
     max_tokens: request.maxOutputTokens,
-    providerMetadata: request.providerMetadata,
     messages: toAnthropicMessages(request.messages),
     stream: endpointConfig.stream,
     top_p: endpointConfig.top_p,
@@ -34,6 +33,7 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
     inference_geo: endpointConfig.inference_geo,
     stop_sequences: endpointConfig.stop_sequences,
     metadata: compactObject({
+      ...(request.providerMetadata ?? {}),
       user_id: endpointConfig.metadata?.user_id,
     }),
     output_config: compactObject({

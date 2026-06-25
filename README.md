@@ -42,12 +42,12 @@ All four endpoint modes share the same UI features where possible. The native en
 
 ### Provider options / metadata
 
-Chat settings are sent as `providerMetadata` on every chat request:
+Chat settings are forwarded with the metadata field expected by each endpoint shape:
 
 - `POST /api/chat` receives `providerMetadata` in the Vercel AI SDK style request body.
-- `POST /v1/chat/completions`, `POST /v1/responses`, and `POST /v1/messages` also receive `providerMetadata` as a top-level compatibility field.
+- `POST /v1/chat/completions`, `POST /v1/responses`, and `POST /v1/messages` receive the same provider settings as top-level `metadata`.
 
-This keeps provider-specific settings consistent when switching between `/api/chat` and native provider-style endpoints.
+This keeps provider-specific settings consistent while using the correct wire field for `/api/chat` and native provider-style endpoints.
 
 ## Backend compatibility
 
