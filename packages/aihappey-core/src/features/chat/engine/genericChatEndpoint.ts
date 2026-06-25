@@ -75,52 +75,95 @@ const createUiMessageChunkStream = ({
   const textPartId = "text-1";
   const messageId = `generic-${endpoint.replace(/[^a-z0-9]+/gi, "-")}-${Date.now()}`;
   let buffer = "";
+  let startedMessage = false;
+  let startedStep = false;
   let startedText = false;
+  let endedText = false;
   let closed = false;
   let latestModel: string | undefined = requestModel;
+  let latestUsage: any | undefined;
+  let latestGateway: any | undefined;
   let totalTokens: number | undefined;
+  let finalTextBuffer = "";
   const startedToolCalls = new Set<string>();
+  const emittedToolOutputs = new Set<string>();
+  const activeReasoningIds = new Set<string>();
+  const closedReasoningIds = new Set<string>();
+  const reasoningTextById = new Map<string, string>();
+  const emittedSourceKeys = new Set<string>();
 
   const enqueueChunk = (controller: ReadableStreamDefaultController<Uint8Array>, chunk: any) => {
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
   };
 
-  const ensureStarted = (controller: ReadableStreamDefaultController<Uint8Array>) => {
-    if (startedText) return;
+  const messageMetadata = () => ({
+    model: latestModel,
+    modelId: latestModel,
+    selectedModel: latestModel,
+    author: latestModel,
+    endpoint,
+    totalTokens,
+    usage: latestUsage,
+    gateway: latestGateway,
+    timestamp: new Date().toISOString(),
+  });
+
+  const ensureMessageStarted = (controller: ReadableStreamDefaultController<Uint8Array>) => {
+    if (startedMessage) return;
     enqueueChunk(controller, {
       type: "start",
       messageId,
-      messageMetadata: {
-        model: latestModel,
-        modelId: latestModel,
-        selectedModel: latestModel,
-        author: latestModel,
-        endpoint,
-        timestamp: new Date().toISOString(),
-      },
+      messageMetadata: messageMetadata(),
     });
+    startedMessage = true;
+  };
+
+  const ensureStepStarted = (controller: ReadableStreamDefaultController<Uint8Array>) => {
+    ensureMessageStarted(controller);
+    if (startedStep) return;
     enqueueChunk(controller, { type: "start-step" });
+    startedStep = true;
+  };
+
+  const ensureStarted = (controller: ReadableStreamDefaultController<Uint8Array>) => {
+    if (startedText) return;
+    ensureStepStarted(controller);
     enqueueChunk(controller, { type: "text-start", id: textPartId });
     startedText = true;
+    endedText = false;
+  };
+
+  const closeText = (controller: ReadableStreamDefaultController<Uint8Array>) => {
+    if (!startedText || endedText) return;
+    enqueueChunk(controller, { type: "text-end", id: textPartId });
+    endedText = true;
+  };
+
+  const closeReasoning = (controller: ReadableStreamDefaultController<Uint8Array>, id: string) => {
+    if (!activeReasoningIds.has(id) || closedReasoningIds.has(id)) return;
+    enqueueChunk(controller, { type: "reasoning-end", id });
+    activeReasoningIds.delete(id);
+    closedReasoningIds.add(id);
   };
 
   const finish = (controller: ReadableStreamDefaultController<Uint8Array>) => {
     if (closed) return;
-    ensureStarted(controller);
-    enqueueChunk(controller, { type: "text-end", id: textPartId });
-    enqueueChunk(controller, { type: "finish-step" });
+    if (endpoint === "/v1/responses") {
+      ensureMessageStarted(controller);
+      for (const reasoningId of Array.from(activeReasoningIds)) {
+        closeReasoning(controller, reasoningId);
+      }
+      closeText(controller);
+      if (startedStep) enqueueChunk(controller, { type: "finish-step" });
+    } else {
+      ensureStarted(controller);
+      closeText(controller);
+      enqueueChunk(controller, { type: "finish-step" });
+    }
     enqueueChunk(controller, {
       type: "finish",
       finishReason: "stop",
-      messageMetadata: {
-        model: latestModel,
-        modelId: latestModel,
-        selectedModel: latestModel,
-        author: latestModel,
-        endpoint,
-        totalTokens,
-        timestamp: new Date().toISOString(),
-      },
+      messageMetadata: messageMetadata(),
     });
     controller.enqueue(encoder.encode("data: [DONE]\n\n"));
     closed = true;
@@ -130,6 +173,8 @@ const createUiMessageChunkStream = ({
     if (!event || typeof event !== "object") return;
     latestModel = event.model ?? event.message?.model ?? event.response?.model ?? latestModel;
     const usage = event.usage ?? event.message?.usage ?? event.response?.usage;
+    if (usage) latestUsage = usage;
+    latestGateway = event.metadata?.gateway ?? event.response?.metadata?.gateway ?? latestGateway;
     const inputTokens = usage?.input_tokens ?? usage?.prompt_tokens;
     const outputTokens = usage?.output_tokens ?? usage?.completion_tokens;
     const providedTotal = usage?.total_tokens;
@@ -138,6 +183,226 @@ const createUiMessageChunkStream = ({
       : typeof inputTokens === "number" || typeof outputTokens === "number"
         ? (inputTokens ?? 0) + (outputTokens ?? 0)
         : totalTokens;
+  };
+
+  const safeJsonParse = (value: unknown) => {
+    if (typeof value !== "string") return value;
+    const trimmed = value.trim();
+    if (!trimmed) return {};
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed;
+    }
+  };
+
+  const responsesToolName = (item: any) => {
+    const type = String(item?.type ?? "");
+    if (type === "web_search_call") return "web_search";
+    if (type === "function_call") return item?.name ?? "function_call";
+    if (type.endsWith("_call")) return type.replace(/_call$/, "");
+    return item?.name ?? type ?? "provider_tool";
+  };
+
+  const compactToolInput = (value: Record<string, any>) => Object.fromEntries(
+    Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null),
+  );
+
+  const responsesToolInput = (item: any) => {
+    if (item?.type === "web_search_call") {
+      return compactToolInput({
+        action: item?.action?.type,
+        query: item?.action?.query,
+        queries: item?.action?.queries,
+        sources: item?.action?.sources,
+        status: item?.status,
+      });
+    }
+
+    return safeJsonParse(item?.arguments ?? item?.input ?? item?.action ?? {});
+  };
+
+  const responsesToolOutput = (item: any) => {
+    if (item?.type === "web_search_call") {
+      return compactToolInput({
+        status: item?.status,
+        action: item?.action,
+        results: item?.results,
+      });
+    }
+
+    return item?.output ?? item?.result ?? item;
+  };
+
+  const emitProviderTool = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    item: any,
+    includeOutput: boolean,
+  ) => {
+    const toolCallId = item?.id ?? item?.call_id;
+    if (!toolCallId) return;
+
+    const toolName = responsesToolName(item);
+    ensureStepStarted(controller);
+
+    if (!startedToolCalls.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-input-start",
+        toolCallId,
+        toolName,
+        providerExecuted: true,
+        title: item?.type === "web_search_call" ? "Web search" : item?.name,
+      });
+      startedToolCalls.add(toolCallId);
+    }
+
+    enqueueChunk(controller, {
+      type: "tool-input-available",
+      toolCallId,
+      toolName,
+      input: responsesToolInput(item),
+      providerExecuted: true,
+      title: item?.type === "web_search_call" ? "Web search" : item?.name,
+    });
+
+    if (includeOutput && !emittedToolOutputs.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-output-available",
+        toolCallId,
+        output: responsesToolOutput(item),
+        providerExecuted: true,
+      });
+      emittedToolOutputs.add(toolCallId);
+    }
+  };
+
+  const emitSource = (controller: ReadableStreamDefaultController<Uint8Array>, annotation: any, fallbackIndex?: number) => {
+    if (annotation?.type !== "url_citation" || typeof annotation?.url !== "string") return;
+    const sourceId = `response-source-${fallbackIndex ?? emittedSourceKeys.size}`;
+    const key = `${annotation.url}|${annotation.title ?? ""}`;
+    if (emittedSourceKeys.has(key)) return;
+    emittedSourceKeys.add(key);
+    ensureStepStarted(controller);
+    enqueueChunk(controller, {
+      type: "source-url",
+      sourceId,
+      url: annotation.url,
+      title: annotation.title,
+      providerMetadata: {
+        openai: {
+          start_index: annotation.start_index,
+          end_index: annotation.end_index,
+        },
+      },
+    });
+  };
+
+  const responseReasoningId = (event: any) => `reasoning-${event?.item_id ?? "summary"}-${event?.summary_index ?? 0}`;
+
+  const handleResponsesPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>) => {
+    const type = event?.type;
+
+    if (type === "response.created" || type === "response.in_progress") {
+      ensureMessageStarted(controller);
+      return;
+    }
+
+    if (type === "response.reasoning_summary_text.delta" && typeof event?.delta === "string") {
+      ensureStepStarted(controller);
+      const id = responseReasoningId(event);
+      if (!activeReasoningIds.has(id) && !closedReasoningIds.has(id)) {
+        enqueueChunk(controller, { type: "reasoning-start", id });
+        activeReasoningIds.add(id);
+      }
+      reasoningTextById.set(id, `${reasoningTextById.get(id) ?? ""}${event.delta}`);
+      enqueueChunk(controller, { type: "reasoning-delta", id, delta: event.delta });
+      return;
+    }
+
+    if (type === "response.reasoning_summary_text.done") {
+      const id = responseReasoningId(event);
+      const finalText = typeof event?.text === "string" ? event.text : "";
+      if (finalText && !activeReasoningIds.has(id) && !closedReasoningIds.has(id)) {
+        ensureStepStarted(controller);
+        enqueueChunk(controller, { type: "reasoning-start", id });
+        activeReasoningIds.add(id);
+        enqueueChunk(controller, { type: "reasoning-delta", id, delta: finalText });
+      }
+      closeReasoning(controller, id);
+      return;
+    }
+
+    if (type === "response.reasoning_summary_part.done") {
+      const id = responseReasoningId(event);
+      closeReasoning(controller, id);
+      return;
+    }
+
+    if (type === "response.output_item.added" && event?.item?.type && event.item.type !== "message" && event.item.type !== "reasoning") {
+      emitProviderTool(controller, event.item, false);
+      return;
+    }
+
+    if (type === "response.output_item.done" && event?.item?.type && event.item.type !== "message" && event.item.type !== "reasoning") {
+      emitProviderTool(controller, event.item, true);
+      return;
+    }
+
+    if (type?.startsWith("response.web_search_call.") && typeof event?.item_id === "string") {
+      ensureStepStarted(controller);
+      if (!startedToolCalls.has(event.item_id)) {
+        enqueueChunk(controller, {
+          type: "tool-input-start",
+          toolCallId: event.item_id,
+          toolName: "web_search",
+          providerExecuted: true,
+          title: "Web search",
+        });
+        startedToolCalls.add(event.item_id);
+      }
+      if (type === "response.web_search_call.in_progress" || type === "response.web_search_call.searching") {
+        enqueueChunk(controller, {
+          type: "tool-input-available",
+          toolCallId: event.item_id,
+          toolName: "web_search",
+          input: { status: type.replace("response.web_search_call.", "") },
+          providerExecuted: true,
+          title: "Web search",
+        });
+      }
+      return;
+    }
+
+    if (type === "response.output_text.delta" && typeof event?.delta === "string") {
+      ensureStarted(controller);
+      finalTextBuffer += event.delta;
+      enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: event.delta });
+      return;
+    }
+
+    if (type === "response.output_text.annotation.added") {
+      emitSource(controller, event.annotation, event.annotation_index);
+      return;
+    }
+
+    if (type === "response.output_text.done") {
+      if (!finalTextBuffer && typeof event?.text === "string" && event.text) {
+        ensureStarted(controller);
+        finalTextBuffer = event.text;
+        enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: event.text });
+      }
+      return;
+    }
+
+    if (type === "response.content_part.done") {
+      (event?.part?.annotations ?? []).forEach((annotation: any, index: number) => emitSource(controller, annotation, index));
+      return;
+    }
+
+    if (type === "response.completed") {
+      rememberMetadata(event);
+      finish(controller);
+    }
   };
 
   const normalizeProviderPayload = (payload: string) => {
@@ -251,10 +516,17 @@ const createUiMessageChunkStream = ({
       return;
     }
 
+    if (payload.startsWith("[")) return;
+
     const parsed = parseJsonPayload(payload);
     if (!parsed || typeof parsed !== "object") return;
 
     rememberMetadata(parsed);
+    if (endpoint === "/v1/responses") {
+      handleResponsesPayload(parsed, controller);
+      return;
+    }
+
     normalizeToolDeltas(eventName, parsed, controller);
     const delta = getTextDelta(eventName, parsed);
     if (!delta) return;
