@@ -1,8 +1,7 @@
 import {
   Client,
   connectMcpServer,
-  connectSimple, CreateMessageRequest,
-  CreateMessageResult
+  connectSimple
 } from "aihappey-mcp";
 import type { StateCreator } from "zustand";
 
@@ -264,19 +263,6 @@ export type UiSlice = {
   accountLocation?: any
   setAccountLocation: (location?: any) => void
 
-  connectChatApp: (
-    clientName: string,
-    clientVersion: string,
-    url: string,
-    opts: McpConnectOpts
-  ) => Promise<{
-    close(): void;
-  }>;
-
-};
-
-type McpConnectOpts = {
-  onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult>;
 };
 
 export const createUiSlice: StateCreator<
@@ -569,14 +555,6 @@ export const createUiSlice: StateCreator<
     set(() => ({
       enableUserLocation: enableUserLocation,
     })),
-
-  connectChatApp: async (name, version, url, opts) => {
-    return connectPersistent("chatapp", url, {
-      ...opts,
-      clientName: name,
-      clientVersion: version
-    });
-  },
 
   toggleExtractExif: () =>
     set((s: any) => ({

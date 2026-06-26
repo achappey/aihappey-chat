@@ -44,7 +44,6 @@ type CoreRootProps = {
   appVersion?: string;
   agentEndpoint?: string
   conversationsApi?: string;
-  chatAppMcp?: string;
   conversationsScopes?: string[];
   agentScopes?: string[];
   allowCustomLists?: boolean;
@@ -61,7 +60,6 @@ export const CoreRoot = ({
   agentScopes,
   agentEndpoint,
   appVersion,
-  chatAppMcp,
   authConfig,
 }: CoreRootProps) => {
   useTheme(); // Throws if no provider
@@ -104,7 +102,6 @@ export const CoreRoot = ({
           apiUrl={conversationsApi}
           conversationScopes={conversationsScopes}
           agentScopes={agentScopes}
-          chatAppMcp={chatAppMcp}
           chatConfig={mergedChatConfig}
         />
       ),

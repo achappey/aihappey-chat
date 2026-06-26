@@ -18,6 +18,8 @@ export interface ChatConfig extends AiChatConfig {
   transcriptionApi?: string;
   samplingApi?: string;
   appName?: string;
+  chatbotInstructions?: string;
+  mcpCatalogUrls?: string[];
   agentEndpoint?: string;
   agentScopes?: string[];
   appVersion?: string;

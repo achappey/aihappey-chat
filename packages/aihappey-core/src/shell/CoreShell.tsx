@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { Outlet, useSearchParams } from "react-router";
 import { McpConnectionsProvider } from "../runtime/mcp/McpConnectionsProvider";
-import { ChatAppConnector } from "./connectors/ChatAppConnector";
 import { I18nProvider } from "aihappey-i18n";
 import { ConversationsProvider } from "aihappey-conversations";
 import {
@@ -49,7 +48,6 @@ import type { Agent } from "aihappey-types";
 type Props = {
   chatConfig: ChatConfig;
   apiUrl?: string;
-  chatAppMcp?: string;
   conversationScopes?: string[];
   agentScopes?: string[];
 };
@@ -59,7 +57,6 @@ export const CoreShell: React.FC<Props> = ({
   apiUrl,
   conversationScopes,
   agentScopes,
-  chatAppMcp,
 }) => {
   const remoteStorageConnected = useRemoteStorageConnected();
   const [, token, error, refresh] = useAccessToken(conversationScopes ?? []);
@@ -270,15 +267,11 @@ export const CoreShell: React.FC<Props> = ({
 
   useEffect(() => {
     const items: string[] = []
-    if (chatAppMcp) {
-      items.push(new URL(chatAppMcp).host);
-    }
-
     if (effectiveChatConfig?.agentEndpoint) {
       items.push(new URL(effectiveChatConfig?.agentEndpoint).host);
     }
     setSafeHosts(items);
-  }, [chatAppMcp, effectiveChatConfig, setSafeHosts]);
+  }, [effectiveChatConfig, setSafeHosts]);
 
   const ui = effectiveChatConfig ? (
     <ChatProvider config={effectiveChatConfig}>
@@ -295,54 +288,47 @@ export const CoreShell: React.FC<Props> = ({
       <ErrorLog />
       <DndProvider backend={HTML5Backend}>
         <McpServerBootstrap />
-        <ChatAppConnector
-            mcpUrl={chatAppMcp}
-          clientName={effectiveChatConfig?.appName}
-          clientVersion={effectiveChatConfig?.appVersion}
-          samplingApi={samplingEndpoint}
-        >
-          <ImagesProvider storageKind={"indexeddb"}>
-            <ToolsProvider storageKind={"indexeddb"}>
-              <FilesProvider>
-                <RerankingProvider>
-                  <TranscriptionsProvider>
-                    <StructuredOutputsProvider>
-                      <VideosProvider>
-                        <SkillsProvider
-                          skillsApi={skillsApi}
-                          getAccessToken={effectiveChatConfig?.getAccessToken}
-                          headers={effectiveChatConfig?.headers}
-                          fetch={effectiveChatConfig?.fetch}
-                        >
-                          <JsonRenderCatalogProvider>
-                            <JsonRenderRegistryProvider>
-                              <JsonRenderAppsProvider>
-                                <SpeechProvider storageKind={"indexeddb"}>
-                                  <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-                                    <McpConnectionsProvider
-                                      clientName={effectiveChatConfig?.appName}
-                                      agentScopes={agentScopes ?? []}
-                                      agentApi={effectiveChatConfig?.agentEndpoint!}
-                                      authenticated={effectiveChatConfig?.getAccessToken != null}
-                                      clientVersion={effectiveChatConfig?.appVersion}
-                                      samplingApi={samplingEndpoint}
-                                    >
-                                      {ui}
-                                    </McpConnectionsProvider>
-                                  </ConversationsProvider>
-                                </SpeechProvider>
-                              </JsonRenderAppsProvider>
-                            </JsonRenderRegistryProvider>
-                          </JsonRenderCatalogProvider>
-                        </SkillsProvider>
-                      </VideosProvider>
-                    </StructuredOutputsProvider>
-                  </TranscriptionsProvider>
-                </RerankingProvider>
-              </FilesProvider>
-            </ToolsProvider>
-          </ImagesProvider>
-        </ChatAppConnector>
+        <ImagesProvider storageKind={"indexeddb"}>
+          <ToolsProvider storageKind={"indexeddb"}>
+            <FilesProvider>
+              <RerankingProvider>
+                <TranscriptionsProvider>
+                  <StructuredOutputsProvider>
+                    <VideosProvider>
+                      <SkillsProvider
+                        skillsApi={skillsApi}
+                        getAccessToken={effectiveChatConfig?.getAccessToken}
+                        headers={effectiveChatConfig?.headers}
+                        fetch={effectiveChatConfig?.fetch}
+                      >
+                        <JsonRenderCatalogProvider>
+                          <JsonRenderRegistryProvider>
+                            <JsonRenderAppsProvider>
+                              <SpeechProvider storageKind={"indexeddb"}>
+                                <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+                                  <McpConnectionsProvider
+                                    clientName={effectiveChatConfig?.appName}
+                                    agentScopes={agentScopes ?? []}
+                                    agentApi={effectiveChatConfig?.agentEndpoint!}
+                                    authenticated={effectiveChatConfig?.getAccessToken != null}
+                                    clientVersion={effectiveChatConfig?.appVersion}
+                                    samplingApi={samplingEndpoint}
+                                  >
+                                    {ui}
+                                  </McpConnectionsProvider>
+                                </ConversationsProvider>
+                              </SpeechProvider>
+                            </JsonRenderAppsProvider>
+                          </JsonRenderRegistryProvider>
+                        </JsonRenderCatalogProvider>
+                      </SkillsProvider>
+                    </VideosProvider>
+                  </StructuredOutputsProvider>
+                </TranscriptionsProvider>
+              </RerankingProvider>
+            </FilesProvider>
+          </ToolsProvider>
+        </ImagesProvider>
       </DndProvider>
     </I18nProvider >
   );

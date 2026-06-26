@@ -21,6 +21,7 @@ export function useSystemMessage() {
   const { i18n } = useTranslation();
   const { config } = useChatContext();
   const skills = useSkills();
+  const chatbotInstructions = config.chatbotInstructions;
   const servers = Object.keys(mcpServers).map(z => ({
     name: z,
     clientConfig: mcpServers[z],
@@ -58,6 +59,7 @@ export function useSystemMessage() {
       mcpServerContent,
       records,
         systemInstructions,
+        chatbotInstructions,
         accountLocation,
         config.appName,
         userContext,
@@ -67,6 +69,7 @@ export function useSystemMessage() {
     mcpServerContent,
     connected,
     systemInstructions,
+    chatbotInstructions,
     account?.username,
     account?.name,
     account?.localAccountId,

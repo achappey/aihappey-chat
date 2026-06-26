@@ -1,16 +1,8 @@
-import { mcpRuntime } from "aihappey-state";
 import { McpRegistryServerResponse } from "aihappey-types";
 
 export const defaultRegistries = async (
+    catalogUrls: string[] = []
 ): Promise<Record<string, McpRegistryServerResponse[]>> => {
-    const client = mcpRuntime.get("chatapp");
-
-    if (!client) {
-        throw new Error("ChatApp MCP is not connected");
-    }
-
-    const res = await client.listResources();
-
     async function loadAllServersForStore(storeUri: string) {
         const allServers: any[] = [];
         let cursor: string | undefined;
@@ -20,28 +12,24 @@ export const defaultRegistries = async (
                 ? `${storeUri}${storeUri.includes("?") ? "&" : "?"}cursor=${encodeURIComponent(cursor)}`
                 : storeUri;
 
-            const resource = await client!.readResource({ uri });
+            try {
+                const response = await fetch(uri, { method: "GET" });
+                if (!response.ok) throw new Error(`Failed to fetch MCP catalog (${response.status})`);
+                const result = await response.json();
 
-            for (const content of resource.contents ?? []) {
-                if (!("text" in content)) continue;
-
-                try {
-                    const result = JSON.parse(content.text as string);
-
-                    if (Array.isArray(result.servers)) {
-                        allServers.push(
-                            ...result.servers.filter((a: any) =>
-                                a.server.remotes?.some((z: any) => z.type === "streamable-http")
-                            )
-                        );
-                    }
-
-                    cursor = result?.metadata?.next_cursor;
-
+                if (Array.isArray(result.servers)) {
+                    allServers.push(
+                        ...result.servers.filter((a: any) =>
+                            a.server.remotes?.some((z: any) => z.type === "streamable-http")
+                        )
+                    );
                 }
-                catch (err) { 
-                    cursor = undefined
-                }
+
+                cursor = result?.metadata?.next_cursor;
+
+            }
+            catch (err) { 
+                cursor = undefined
             }
 
             if (!cursor) break;
@@ -51,14 +39,10 @@ export const defaultRegistries = async (
     }
 
     const entries = await Promise.all(
-        res.resources
-            .filter(
-                (r: any) =>
-                    r.mimeType === "application/vnd.modelcontextprotocol-registry+json"
-            )
-            .map(async (store: any) => {
-                const servers = await loadAllServersForStore(store.uri);
-                return servers.length > 0 ? [store.uri, servers] as const : null;
+        Array.from(new Set(catalogUrls.map((url) => url.trim()).filter(Boolean)))
+            .map(async (storeUri) => {
+                const servers = await loadAllServersForStore(storeUri);
+                return servers.length > 0 ? [storeUri, servers] as const : null;
             })
     );
 

@@ -1,7 +1,6 @@
 import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { ServerItem, type Resource, type ResourceTemplate } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
-import { chatAppInstructions } from "../../../runtime/chat-app/chatAppInstructions";
 import { encode } from '@toon-format/toon'
 
 const getSystemInfo = (appName?: string) => {
@@ -70,6 +69,7 @@ export const buildSystemMessage = (
     mcpServers: Record<string, any>,
     allServers: Record<string, ServerItem>,
     chatInstructions?: string,
+    chatbotInstructions?: string,
     accountLocation?: any,
     appName?: string,
     account?: {
@@ -181,16 +181,17 @@ export const buildSystemMessage = (
         });
     }
 
-    const instructions = chatAppInstructions()
-    parts.push({
-        type: "text",
-        /* text: encode({
-             chatBotInstructions: instructions?.replaceAll("\\n", "\n")
-         })*/
-        text: JSON.stringify({
-            chatBotInstructions: instructions?.replaceAll("\\n", "\n")
-        })
-    });
+    if (chatbotInstructions?.trim()) {
+        parts.push({
+            type: "text",
+            /* text: encode({
+                 chatBotInstructions: chatbotInstructions?.replaceAll("\\n", "\n")
+             })*/
+            text: JSON.stringify({
+                chatBotInstructions: chatbotInstructions.replaceAll("\\n", "\n")
+            })
+        });
+    }
 
     // System info block
     parts.push({
