@@ -141,6 +141,21 @@ const enrichModelResponse = (response: ModelResponse) => ({
   data: enrichModelTypes(response?.data ?? []),
 }) satisfies ModelResponse;
 
+const prefixProviderModelIds = (response: ModelResponse, providerKey?: string) => {
+  const normalizedProviderKey = providerKey?.trim().toLowerCase();
+  if (!normalizedProviderKey) return response;
+
+  return {
+    ...response,
+    data: (response?.data ?? []).map((model) => ({
+      ...model,
+      id: model.id?.toLowerCase().startsWith(`${normalizedProviderKey}/`)
+        ? model.id
+        : `${normalizedProviderKey}/${model.id}`,
+    })),
+  } satisfies ModelResponse;
+};
+
 export const listModelsWithSplitProviderHeaders = async ({
   modelsApi,
   getAccessToken,
@@ -163,7 +178,7 @@ export const listModelsWithSplitProviderHeaders = async ({
     ? getProviderApiKeyHeaderEntries(customHeaders, providerKey)
     : getConfiguredProviderHeaderEntries(customHeaders);
   const includeAnonymousRequest = !providerKey;
-  const total = (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length;
+  const total = providerKey ? 1 : (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length;
   const responses: ModelResponse[] = [];
   let completed = 0;
   let lastError: unknown;
@@ -175,7 +190,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   const requestModels = async (headers?: Record<string, string>) => {
     try {
       const client = createHttpClient({ headers });
-      responses.push(enrichModelResponse(await client.get<ModelResponse>(modelsApi)));
+      responses.push(prefixProviderModelIds(enrichModelResponse(await client.get<ModelResponse>(modelsApi)), providerKey));
     } catch (err) {
       lastError = err;
       console.error("Failed to load models for provider header subset:", err);

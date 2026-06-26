@@ -18,6 +18,14 @@ const providerNameToKey = Object.entries(PROVIDERS).reduce((acc, [key, meta]) =>
   return acc;
 }, {} as Record<string, string>);
 
+const newestModelOfTypes = (models: ModelOption[], modelTypes: string[]) => {
+  const candidates = (models ?? []).filter((model) => modelTypes.includes(model.type));
+  return candidates
+    .map((model, index) => ({ model, index }))
+    .sort((a, b) => (b.model.created ?? 0) - (a.model.created ?? 0) || a.index - b.index)[0]
+    ?.model;
+};
+
 interface ModelSelectProps {
   models: ModelOption[];
   value: string;
@@ -32,9 +40,11 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const isDesktop = useIsDesktop();
 
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
+  const modelsLoaded = useAppStore((s) => s.modelsLoaded);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
+  const modelTypes = React.useMemo(() => props.modelTypes ?? ["language"], [props.modelTypes]);
   const enabledProviderKeys = React.useMemo(() => {
-    const types = props.modelTypes ?? ["language"];
+    const types = modelTypes;
     const names = new Set<string>();
     for (const type of types) {
       const bucket = (enabledProvidersByType as any)?.[type]
@@ -45,10 +55,10 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
       }
     }
     return Array.from(names).map((name) => providerNameToKey[name]).filter(Boolean);
-  }, [enabledProvidersByType, props.modelTypes]);
+  }, [enabledProvidersByType, modelTypes]);
 
   const favoriteModelIds = React.useMemo(() => {
-    const types = props.modelTypes ?? ["language"];
+    const types = modelTypes;
     const all = new Set<string>();
 
     for (const type of types) {
@@ -62,7 +72,24 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     }
 
     return Array.from(all);
-  }, [favoriteModelsByType, props.modelTypes]);
+  }, [favoriteModelsByType, modelTypes]);
+
+  React.useEffect(() => {
+    if (!modelsLoaded) return;
+
+    const currentValue = props.value;
+    const currentExists = !!currentValue && props.models.some((model) =>
+      model.id === currentValue && modelTypes.includes(model.type),
+    );
+
+    if (currentExists) return;
+
+    const fallbackModel = newestModelOfTypes(props.models, modelTypes);
+    const nextValue = fallbackModel?.id ?? "";
+    if (currentValue !== nextValue) {
+      props.onChange(nextValue);
+    }
+  }, [modelTypes, modelsLoaded, props.models, props.onChange, props.value]);
 
   return (
     <ModelSelectField

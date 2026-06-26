@@ -43,6 +43,7 @@ import {
 import { useSkills } from "aihappey-skills";
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { resolveEndpointProfile } from "../chat/engine/endpointProfiles";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -97,6 +98,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const models = useAppStore((a) => a.models);
   const agents = useAppStore((a) => a.agents);
   const selectedModel = useAppStore((a) => a.selectedModel);
+  const selectedEndpointProfileId = useAppStore((a) => a.selectedEndpointProfileId);
+  const selectedBaseUrl = useAppStore((a) => a.selectedBaseUrl);
+  const configuredChatEndpoint = useAppStore((a) => a.configuredChatEndpoint);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
@@ -230,9 +234,18 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   );
 
   const activeProviderKey = useMemo(() => {
+    const endpointProfile = resolveEndpointProfile({
+      selectedEndpointProfileId,
+      selectedBaseUrl,
+      configuredChatEndpoint,
+    });
+    if (endpointProfile?.kind === "provider" && endpointProfile.providerKey) {
+      return endpointProfile.providerKey;
+    }
+
     const key = selectedModel?.split("/")[0]?.trim().toLowerCase();
     return key || undefined;
-  }, [selectedModel]);
+  }, [configuredChatEndpoint, selectedBaseUrl, selectedEndpointProfileId, selectedModel]);
 
   const selectedModelOption = useMemo(
     () => models?.find((model) => model.id === selectedModel),

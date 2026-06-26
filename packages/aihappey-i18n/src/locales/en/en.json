@@ -658,6 +658,8 @@
         "transcriptionFileSplitOverlapSeconds": "Transcription split overlap",
         "transcriptionFileSplitMaxSizeMb": "Transcription split max chunk size",
         "tabEndpoints": "Endpoints",
+        "endpointProfile": "Endpoint profile",
+        "endpointProfileHint": "Choose the configured app gateway, a provider catalog endpoint profile, or a custom override.",
         "baseUrl": "Base URL",
         "baseUrlHint": "Override the base API URL used for chat, models, skills, sampling, images, audio, transcriptions, reranking, and video.",
         "effectiveBaseUrl": "Effective base URL",
@@ -673,7 +675,8 @@
         "endpointRawModelIds": "Send raw model IDs",
         "endpointRawModelIdsHint": "When enabled, known app provider prefixes are removed from outgoing chat request model IDs for overridden endpoints.",
         "endpointProviderMetadata": "Include provider metadata",
-        "endpointProviderMetadataHint": "When disabled, provider-specific metadata is omitted from chat requests sent to overridden endpoints."
+        "endpointProviderMetadataHint": "When disabled, provider-specific metadata is omitted from chat requests sent to overridden endpoints.",
+        "endpointProviderProfileAutomaticHint": "Provider profiles automatically send provider-compatible model IDs and provider metadata from the selected gateway provider."
     },
     "chatWithSpeechModels": "Chat with speech models",
     "chatWithTranscriptionModels": "Chat with transcription models",

@@ -128,6 +128,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     () => getEndpointProfiles({ configuredChatEndpoint }),
     [configuredChatEndpoint],
   );
+  const visibleEndpointProfiles = useMemo(
+    () => isAuthenticatedEndpointConfig
+      ? endpointProfiles.filter((profile) => profile.id === DEFAULT_ENDPOINT_PROFILE_ID)
+      : endpointProfiles,
+    [endpointProfiles, isAuthenticatedEndpointConfig],
+  );
   const activeEndpointProfile = useMemo(
     () => resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint }),
     [selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint],
@@ -159,9 +165,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       ? effectiveBaseUrl || configuredBaseUrl || chat.config.baseUrl || ""
       : configuredBaseUrl || chat.config.baseUrl || "";
   const handleEndpointProfileChange = (profileId: string) => {
+    if (isAuthenticatedEndpointConfig) return;
+
     const nextProfileId = profileId || DEFAULT_ENDPOINT_PROFILE_ID;
-    const nextProfile = endpointProfiles.find((profile) => profile.id === nextProfileId)
-      ?? endpointProfiles[0];
+    const nextProfile = visibleEndpointProfiles.find((profile) => profile.id === nextProfileId)
+      ?? visibleEndpointProfiles[0];
 
     setSelectedEndpointProfileId(nextProfileId === DEFAULT_ENDPOINT_PROFILE_ID ? undefined : nextProfileId);
 
@@ -337,7 +345,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   hint={t("settingsModal.endpointProfileHint")
                     ?? "Choose the configured app gateway, a provider catalog endpoint profile, or a custom override."}
                   valueTitle={activeEndpointProfile?.label ?? "Default gateway"}
-                  options={endpointProfiles.map((profile) => ({
+                  disabled={isAuthenticatedEndpointConfig}
+                  options={visibleEndpointProfiles.map((profile) => ({
                     value: profile.id,
                     label: profile.kind === "default"
                       ? `${profile.label} (${configuredChatEndpoint ?? "/api/chat"})`
@@ -347,7 +356,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }))}
                   onChange={handleEndpointProfileChange}
                 >
-                  {endpointProfiles.map((profile) => (
+                  {visibleEndpointProfiles.map((profile) => (
                     <option key={profile.id} value={profile.id}>
                       {profile.kind === "default"
                         ? `${profile.label} (${configuredChatEndpoint ?? "/api/chat"})`
@@ -439,6 +448,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   hint={`${t("settingsModal.chatEndpointHint") ?? "Choose the chat API shape used when sending messages."} ${t("settingsModal.effectiveChatEndpoint") ?? "Effective endpoint"}: ${selectedEndpointValue || effectiveChatEndpoint}`}
                   valueTitle={selectedEndpointValue || `${t("providerDefault") ?? "Default"} (${configuredChatEndpoint ?? "/api/chat"})`}
                   options={endpointOptions}
+                  disabled={isAuthenticatedEndpointConfig}
                   onChange={(value: string) => setSelectedChatEndpoint((value || undefined) as ChatEndpointId | undefined)}
                 >
                   {endpointOptions.map((option) => (

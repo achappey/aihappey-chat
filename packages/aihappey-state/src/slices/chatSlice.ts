@@ -84,7 +84,7 @@ export type ChatSlice = {
   modelsLoadingProgress?: { completed: number; total: number; active: boolean };
   setModelsLoadingProgress: (progress?: { completed: number; total: number; active: boolean }) => void;
   setModels: (models: ModelOption[]) => void;
-  resetModels: () => void;
+  resetModels: (options?: { keepSelectedModel?: boolean }) => void;
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
   setProviderMetadata: (metadata: any | ((current: any) => any)) => void;
@@ -101,7 +101,7 @@ export type ChatSlice = {
   setToolAnnotations: (value?: ToolAnnotations) => void
 
   selectedModel?: string;
-  setSelectedModel: (model: string) => void;
+  setSelectedModel: (model?: string) => void;
 
 };
 
@@ -207,7 +207,7 @@ export const createChatSlice: StateCreator<
   setSelectedModel: (model) =>
     set((state: any) => {
       return {
-        selectedModel: model
+        selectedModel: typeof model === "string" && model.trim().length ? model : undefined
       }
     }),
   setStructuredOutputs: (value) => {
@@ -284,12 +284,12 @@ export const createChatSlice: StateCreator<
       modelsLoadingProgress: undefined,
     }));
   },
-  resetModels: () => {
+  resetModels: (options) => {
     set(() => ({
       models: [],
       modelsLoaded: false,
       modelsLoadingProgress: undefined,
-      selectedModel: undefined,
+      ...(options?.keepSelectedModel ? {} : { selectedModel: undefined }),
     }));
   },
   setModelsLoadingProgress: (progress) => {

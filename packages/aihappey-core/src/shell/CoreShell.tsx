@@ -242,7 +242,7 @@ export const CoreShell: React.FC<Props> = ({
   const skillsApi = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.skills;
 
   useEffect(() => {
-    resetModels();
+    (resetModels as any)({ keepSelectedModel: true });
   }, [modelsApi, resetModels]);
 
   useModels(

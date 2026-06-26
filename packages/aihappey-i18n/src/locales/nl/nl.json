@@ -643,6 +643,8 @@
         "transcriptionFileSplitOverlapSeconds": "Overlap bij transcriptiesplitsing",
         "transcriptionFileSplitMaxSizeMb": "Maximale chunkgrootte voor transcriptiesplitsing",
         "tabEndpoints": "Endpoints",
+        "endpointProfile": "Endpointprofiel",
+        "endpointProfileHint": "Kies de ingestelde app-gateway, een endpointprofiel uit de providercatalogus of een aangepaste overschrijving.",
         "baseUrl": "Basis-URL",
         "baseUrlHint": "Overschrijf de basis-API-URL voor chat, modellen, skills, sampling, afbeeldingen, audio, transcripties, reranking en video.",
         "effectiveBaseUrl": "Effectieve basis-URL",
@@ -658,7 +660,8 @@
         "endpointRawModelIds": "Ruwe model-ID's versturen",
         "endpointRawModelIdsHint": "Wanneer ingeschakeld worden bekende app-providerprefixen verwijderd uit model-ID's in uitgaande chatrequests voor overschreven endpoints.",
         "endpointProviderMetadata": "Providermetadata meesturen",
-        "endpointProviderMetadataHint": "Wanneer uitgeschakeld wordt provider-specifieke metadata niet meegestuurd met chatrequests naar overschreven endpoints."
+        "endpointProviderMetadataHint": "Wanneer uitgeschakeld wordt provider-specifieke metadata niet meegestuurd met chatrequests naar overschreven endpoints.",
+        "endpointProviderProfileAutomaticHint": "Providerprofielen versturen automatisch gateway-compatibele model-ID's en providermetadata van de geselecteerde gatewayprovider."
     },
     "ok": "Ok",
     "execute": "Uitvoeren",
