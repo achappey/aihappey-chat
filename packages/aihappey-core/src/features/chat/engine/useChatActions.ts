@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { UIMessage } from "aihappey-types";
 import { useAppStore, type UiAttachment } from "aihappey-state";
+import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 
 // Helpers, importeer in dit bestand of elders:
 import { useUserMessageBuilder } from "../messages/useUserMessageBuilder";
@@ -13,6 +14,8 @@ import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRunt
 import { buildSelectedAgentRequest } from "../../agents/agentSelection";
 import {
   resolveEndpointProfile,
+  resolveChatEndpointModeProfile,
+  resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
   splitEndpointProfileProviderConfig,
@@ -60,18 +63,41 @@ export function useChatActions({
   const handoffs = useAppStore(a => a.handoffs)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
+  const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
   const selectedEndpointProfileId = useAppStore(a => a.selectedEndpointProfileId)
   const selectedBaseUrl = useAppStore(a => a.selectedBaseUrl)
   const configuredChatEndpoint = useAppStore(a => a.configuredChatEndpoint)
+  const effectiveChatEndpoint = useAppStore(a => a.effectiveChatEndpoint)
   const endpointRawModelIds = useAppStore(a => a.endpointRawModelIds)
   const endpointProviderMetadataEnabled = useAppStore(a => a.endpointProviderMetadataEnabled)
   const activeProviderMetadata = useActiveProviderMetadata();
   const allProviderMetadata = useAppStore(a => a.providerMetadata)
+  const providers = useProviderRegistry()
   const endpointProfile = useMemo(
-    () => resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint }),
-    [selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint],
+    () => effectiveChatEndpointMode === "direct"
+      ? resolveChatEndpointModeProfile({
+        mode: effectiveChatEndpointMode,
+        modelId: selectedModel,
+        selectedChatEndpoint: effectiveChatEndpoint,
+        configuredChatEndpoint,
+        providers,
+      })
+      : resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint, providers }),
+    [
+      configuredChatEndpoint,
+      effectiveChatEndpoint,
+      effectiveChatEndpointMode,
+      providers,
+      selectedBaseUrl,
+      selectedEndpointProfileId,
+      selectedModel,
+    ],
   );
   const isProviderEndpointProfile = endpointProfile?.kind === "provider";
+  const requestEndpoint = resolveEndpointProfileChatEndpoint({
+    endpointProfile,
+    selectedChatEndpoint: effectiveChatEndpoint,
+  }) ?? effectiveChatEndpoint;
   const requestModel = isProviderEndpointProfile
     ? stripProviderPrefix(selectedModel, endpointProfile.providerKey)
     : endpointRawModelIds
@@ -94,8 +120,8 @@ export function useChatActions({
     [activeProviderMetadata, allProviderMetadata, endpointProfile],
   );
   const { body: providerRequestConfig } = useMemo(
-    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey),
-    [endpointProfileProviderConfig, endpointProfile],
+    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey, requestEndpoint),
+    [endpointProfileProviderConfig, endpointProfile, requestEndpoint],
   );
   const { addChatError } = useChatErrors();
   const getStorageErrorMessage = useStorageErrorMessage();

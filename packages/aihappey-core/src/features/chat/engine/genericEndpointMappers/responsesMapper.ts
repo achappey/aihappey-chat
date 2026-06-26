@@ -32,7 +32,10 @@ const toResponsesContent = (message: GenericMappedMessage) => {
 
 export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
-  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig(body);
+  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
+    ...body,
+    endpoint: "/v1/responses",
+  });
   const input = messages
     .filter((message) => message.role !== "system")
     .map((message) => compactObject({

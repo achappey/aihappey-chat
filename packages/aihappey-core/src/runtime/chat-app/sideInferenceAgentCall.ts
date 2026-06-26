@@ -140,7 +140,9 @@ export const invokeSideInferenceAgent = async ({
 
     const isDirectProviderRequest = providerKey && providerKey === endpointProviderKey;
     const directProviderRequestConfig = isDirectProviderRequest
-      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent.model?.providerMetadata), providerKey) ?? {})
+      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent.model?.providerMetadata), providerKey, {
+        endpointId: "/v1/responses",
+      }) ?? {})
       : {};
     const requestModel = isDirectProviderRequest
       ? stripProviderPrefix(modelId, providerKey)

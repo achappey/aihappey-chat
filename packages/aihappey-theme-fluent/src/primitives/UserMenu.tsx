@@ -6,6 +6,7 @@ import {
   MenuList,
   MenuItem,
   MenuItemCheckbox,
+  MenuItemRadio,
   MenuDivider,
   MenuGroup,
   MenuGroupHeader,
@@ -22,41 +23,7 @@ import {
 } from "@fluentui/react-icons";
 
 import { UserMenuLabels } from "aihappey-types/src/i18n";
-
-type ProviderCapability =
-  | "language"
-  | "image"
-  | "audio"
-  | "transcription"
-  | "speech"
-  | "reranking"
-  | "video";
-
-type EnabledProvidersByType = Partial<Record<ProviderCapability, string[]>>;
-
-export interface UserMenuProps {
-  email?: string;
-  onCustomize?: () => void;
-  onSettings: () => void;
-  onLogout: () => void;
-
-  showApiKeysItem?: boolean;
-  onApiKeys?: () => void;
-
-  providers?: string[];
-  providerGroups?: Record<string, string[]>;
-  enabledProvidersByType?: EnabledProvidersByType;
-  onToggleProviderForType?: (capability: ProviderCapability, provider: string) => void;
-
-  /** When true, provider toggles are disabled (e.g. while models are still loading). */
-  providersDisabled?: boolean;
-  /** Providers (by display name) that should be disabled (e.g. because they returned 0 models). */
-  disabledProviders?: string[];
-
-  className?: string;
-  style?: React.CSSProperties;
-  labels?: UserMenuLabels;
-}
+import type { ProviderCapability, UserMenuProps } from "aihappey-types/src/theme/UserMenu";
 
 export const UserMenu: React.FC<UserMenuProps> = ({
   email,
@@ -65,6 +32,11 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   onLogout,
   showApiKeysItem,
   onApiKeys,
+  showChatEndpointsItem,
+  chatEndpointOptions,
+  selectedChatEndpoint,
+  chatEndpointsDisabled,
+  onSelectChatEndpoint,
   providers,
   providerGroups,
   enabledProvidersByType,
@@ -139,6 +111,61 @@ export const UserMenu: React.FC<UserMenuProps> = ({
       })
       .filter((d) => (d.providers?.length ?? 0) > 0);
   }, [providerGroups, labels, enabledProvidersByType]);
+
+  const chatEndpointMenu = React.useMemo(() => {
+    if (!showChatEndpointsItem) return null;
+
+    const label = selectedChatEndpoint
+      ? `${labels.chatEndpoint ?? "Chat endpoint"} (${selectedChatEndpoint})`
+      : (labels.chatEndpoint ?? "Chat endpoint");
+    const options = chatEndpointOptions ?? [];
+
+    if (chatEndpointsDisabled || options.length === 0) {
+      return (
+        <MenuItem disabled icon={<PlugConnectedRegular />}>
+          {labels.noChatEndpoints ?? label}
+        </MenuItem>
+      );
+    }
+
+    return (
+      <Menu
+        checkedValues={{ chatEndpoints: selectedChatEndpoint ? [selectedChatEndpoint] : [] }}
+        onCheckedValueChange={(_event, data) => {
+          const nextValue = data.checkedItems?.[0];
+          if (typeof nextValue === "string") {
+            onSelectChatEndpoint?.(nextValue);
+          }
+        }}
+      >
+        <MenuTrigger disableButtonEnhancement>
+          <MenuItem icon={<PlugConnectedRegular />}>{label}</MenuItem>
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList hasCheckmarks>
+            {options.map((option) => (
+              <MenuItemRadio
+                key={option.value}
+                name="chatEndpoints"
+                value={option.value}
+                disabled={!!option.disabled}
+              >
+                {option.label}
+              </MenuItemRadio>
+            ))}
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+    );
+  }, [
+    chatEndpointOptions,
+    chatEndpointsDisabled,
+    labels.chatEndpoint,
+    labels.noChatEndpoints,
+    onSelectChatEndpoint,
+    selectedChatEndpoint,
+    showChatEndpointsItem,
+  ]);
 
   const clampProviderPage = React.useCallback(
     (key: string, totalItems: number) => {
@@ -268,9 +295,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                         onClick={onApiKeys}>
                         {labels.apiKeys ?? "API keys"}
                       </MenuItem>
-                      <MenuDivider />
+                      {chatEndpointMenu ? <MenuDivider /> : null}
                     </>
                   )}
+
+                  {chatEndpointMenu ? (
+                    <>
+                      {chatEndpointMenu}
+                      <MenuDivider />
+                    </>
+                  ) : null}
 
                   {capabilityMenus.length > 0 ? (
                     <>
@@ -318,6 +352,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
               </MenuPopover>
             </Menu>
           )}
+
+          {!providers?.length && chatEndpointMenu ? chatEndpointMenu : null}
 
           <MenuDivider />
           <MenuItem icon={<SignOutRegular />} onClick={onLogout}>

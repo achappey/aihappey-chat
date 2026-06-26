@@ -1,4 +1,9 @@
-import { CHAT_ENDPOINT_IDS, type ChatEndpointId, type ChatEndpointMode } from "aihappey-state";
+import {
+  CHAT_ENDPOINT_IDS,
+  resolvePreferredProviderChatEndpoint,
+  type ChatEndpointId,
+  type ChatEndpointMode,
+} from "aihappey-state";
 import type { Provider } from "aihappey-types";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 import { sanitizeProviderRequestConfigForProvider } from "../../../runtime/providers/providerRequestConfig";
@@ -19,6 +24,7 @@ export type EndpointProfile = {
   provider?: Provider;
   apiBaseUrl?: string;
   chatEndpoints: ChatEndpointId[];
+  selectedChatEndpoint?: ChatEndpointId;
 };
 
 const toChatEndpointIds = (values?: string[]) => Array.from(new Set(
@@ -149,10 +155,25 @@ export const resolveDirectEndpointProfileForModel = ({
     provider,
     apiBaseUrl: provider.apiBaseUrl?.trim(),
     chatEndpoints,
-    selectedChatEndpoint: selectedChatEndpoint && isGenericChatEndpoint(selectedChatEndpoint) && chatEndpoints.includes(selectedChatEndpoint)
-      ? selectedChatEndpoint
-      : chatEndpoints[0],
+    selectedChatEndpoint: resolvePreferredProviderChatEndpoint(chatEndpoints, selectedChatEndpoint),
   };
+};
+
+export const resolveEndpointProfileChatEndpoint = ({
+  endpointProfile,
+  selectedChatEndpoint,
+}: {
+  endpointProfile?: EndpointProfile;
+  selectedChatEndpoint?: ChatEndpointId;
+}) => {
+  if (!endpointProfile) return selectedChatEndpoint;
+
+  if (endpointProfile.kind === "provider") {
+    return resolvePreferredProviderChatEndpoint(endpointProfile.chatEndpoints, selectedChatEndpoint)
+      ?? endpointProfile.chatEndpoints[0];
+  }
+
+  return selectedChatEndpoint ?? endpointProfile.chatEndpoints[0];
 };
 
 export const resolveChatEndpointModeProfile = ({
@@ -237,12 +258,16 @@ export const resolveEndpointProfileProviderConfig = ({
   return sanitizeProviderRequestConfigForProvider(profileProviderConfig, profileProviderKey);
 };
 
-export const splitEndpointProfileProviderConfig = (config?: Record<string, any>, providerKey?: string) => {
+export const splitEndpointProfileProviderConfig = (
+  config?: Record<string, any>,
+  providerKey?: string,
+  endpointId?: string,
+) => {
   if (!config) return { body: undefined, headers: undefined } as const;
 
   const { headers, ...body } = config;
   const normalizedHeaders = asRecord(headers);
-  const sanitizedBody = sanitizeProviderRequestConfigForProvider(body, providerKey);
+  const sanitizedBody = sanitizeProviderRequestConfigForProvider(body, providerKey, { endpointId });
 
   return {
     body: sanitizedBody,

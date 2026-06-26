@@ -4,7 +4,12 @@ import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { PROVIDER_CAPABILITIES, useAppStore, type ProviderCapability } from "aihappey-state";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { useChatContext } from "../chat/context/ChatContext";
+import {
+  getProviderEndpointProfileId,
+  resolveDirectEndpointProfileForModel,
+} from "../chat/engine/endpointProfiles";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 
 interface UserMenuButtonProps {
@@ -33,6 +38,12 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
   const toggleEnabledProviderForType = useAppStore((s) => s.toggleEnabledProviderForType);
   const models = useAppStore((s) => s.models ?? []);
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
+  const selectedModel = useAppStore((s) => s.selectedModel);
+  const effectiveChatEndpoint = useAppStore((s) => s.effectiveChatEndpoint);
+  const setSelectedChatEndpointMode = useAppStore((s) => s.setSelectedChatEndpointMode);
+  const setSelectedChatEndpoint = useAppStore((s) => s.setSelectedChatEndpoint);
+  const setSelectedEndpointProfileId = useAppStore((s) => s.setSelectedEndpointProfileId);
+  const providersByKey = useProviderRegistry();
 
   // Today enabledProviders in state is stored as *display names* (e.g. "OpenAI").
   const providers = React.useMemo(
@@ -133,6 +144,36 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
     return result;
   }, [models]);
 
+  const directEndpointProfile = React.useMemo(
+    () => resolveDirectEndpointProfileForModel({
+      modelId: selectedModel,
+      selectedChatEndpoint: effectiveChatEndpoint,
+      providers: providersByKey,
+    }),
+    [effectiveChatEndpoint, providersByKey, selectedModel]
+  );
+
+  const chatEndpointOptions = React.useMemo(
+    () => (directEndpointProfile?.chatEndpoints ?? []).map((endpoint) => ({
+      value: endpoint,
+      label: endpoint,
+    })),
+    [directEndpointProfile]
+  );
+
+  const handleSelectChatEndpoint = React.useCallback(
+    (endpoint: string) => {
+      setSelectedChatEndpointMode("direct");
+      setSelectedEndpointProfileId(
+        directEndpointProfile?.providerKey
+          ? getProviderEndpointProfileId(directEndpointProfile.providerKey)
+          : undefined,
+      );
+      setSelectedChatEndpoint(endpoint);
+    },
+    [directEndpointProfile, setSelectedChatEndpoint, setSelectedChatEndpointMode, setSelectedEndpointProfileId]
+  );
+
   return (
     <>
       <UserMenu
@@ -141,6 +182,11 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         onLogout={onLogout}
         showApiKeysItem={!isEntraAuth}
         onApiKeys={() => setProviderKeysOpen(true)}
+        showChatEndpointsItem={!isEntraAuth}
+        chatEndpointOptions={chatEndpointOptions}
+        selectedChatEndpoint={directEndpointProfile?.selectedChatEndpoint}
+        chatEndpointsDisabled={chatEndpointOptions.length === 0}
+        onSelectChatEndpoint={handleSelectChatEndpoint}
         providers={visibleProviders}
         providerGroups={providerGroups}
         enabledProvidersByType={visibleEnabledProvidersByType as any}
@@ -150,6 +196,10 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         labels={{
           providers: t("providers"),
           apiKeys: t("apiKeys"),
+          chatEndpoint: directEndpointProfile?.label
+            ? `${t("settingsModal.chatEndpoint") ?? "Chat endpoint"} (${directEndpointProfile.label})`
+            : (t("settingsModal.chatEndpoint") ?? "Chat endpoint"),
+          noChatEndpoints: t("settingsModal.chatEndpointNoOptions") ?? "No chat endpoints available",
           settings: t("userMenu.settings"),
           logout: t("userMenu.logout"),
           // Capability submenu labels (translated in the parent).

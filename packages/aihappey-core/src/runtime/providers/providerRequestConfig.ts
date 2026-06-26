@@ -7,18 +7,25 @@ const PROVIDER_SPECIFIC_REQUEST_KEYS = new Set(
   Object.values(PROVIDER_REQUEST_KEYS_BY_PROVIDER).flat(),
 );
 
+const ENDPOINT_RESTRICTED_REQUEST_KEYS: Record<string, readonly string[]> = {
+  include: ["/v1/responses"],
+};
+
 export const sanitizeProviderRequestConfigForProvider = (
   config?: Record<string, any>,
   providerKey?: string,
+  options?: { endpointId?: string },
 ): Record<string, any> | undefined => {
   if (!config) return undefined;
 
   const normalizedProviderKey = String(providerKey ?? "").trim().toLowerCase();
   const allowedKeys = new Set(PROVIDER_REQUEST_KEYS_BY_PROVIDER[normalizedProviderKey] ?? []);
+  const endpointId = String(options?.endpointId ?? "").trim();
 
   const sanitized = Object.fromEntries(
     Object.entries(config).filter(([key]) =>
-      !PROVIDER_SPECIFIC_REQUEST_KEYS.has(key) || allowedKeys.has(key),
+      ((!ENDPOINT_RESTRICTED_REQUEST_KEYS[key] || !endpointId || ENDPOINT_RESTRICTED_REQUEST_KEYS[key]?.includes(endpointId))
+        && (!PROVIDER_SPECIFIC_REQUEST_KEYS.has(key) || allowedKeys.has(key))),
     ),
   );
 

@@ -78,5 +78,7 @@ export const resolveNativeRequestMetadata = ({
 
 export const sanitizeGenericEndpointProviderRequestConfig = (body: GenericChatEndpointRequestBody) => {
   const providerKey = Object.keys(body.providerMetadata ?? {})[0]?.trim().toLowerCase() || undefined;
-  return sanitizeProviderRequestConfigForProvider(body.providerRequestConfig, providerKey);
+  return sanitizeProviderRequestConfigForProvider(body.providerRequestConfig, providerKey, {
+    endpointId: body.endpoint,
+  });
 };

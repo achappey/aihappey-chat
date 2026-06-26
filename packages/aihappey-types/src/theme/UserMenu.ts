@@ -14,6 +14,12 @@ export type ProviderCapability =
 
 export type EnabledProvidersByType = Partial<Record<ProviderCapability, string[]>>;
 
+export type UserMenuChatEndpointOption = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+};
+
 export type UserMenuProps = {
   email?: string;
   onCustomize?: () => void;
@@ -27,6 +33,12 @@ export type UserMenuProps = {
    */
   showApiKeysItem?: boolean;
   onApiKeys?: () => void;
+
+  showChatEndpointsItem?: boolean;
+  chatEndpointOptions?: UserMenuChatEndpointOption[];
+  selectedChatEndpoint?: string;
+  chatEndpointsDisabled?: boolean;
+  onSelectChatEndpoint?: (endpoint: string) => void;
 
   /**
    * Optional provider toggles for the user menu.

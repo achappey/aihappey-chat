@@ -15,6 +15,11 @@ export const DEFAULT_CHAT_ENDPOINT_ID: ChatEndpointId = "/api/chat";
 
 export const DEFAULT_CHAT_ENDPOINT_MODE: ChatEndpointMode = "default";
 
+const PREFERRED_PROVIDER_CHAT_ENDPOINT_IDS: readonly ChatEndpointId[] = [
+  "/v1/responses",
+  "/v1/messages",
+];
+
 export function isChatEndpointId(value: unknown): value is ChatEndpointId {
   return typeof value === "string" && (CHAT_ENDPOINT_IDS as readonly string[]).includes(value);
 }
@@ -38,6 +43,24 @@ export function resolveEffectiveChatEndpointId(
   return normalizeChatEndpointId(selected)
     ?? normalizeChatEndpointId(configured)
     ?? DEFAULT_CHAT_ENDPOINT_ID;
+}
+
+export function resolvePreferredProviderChatEndpoint(
+  endpoints: readonly ChatEndpointId[],
+  selected?: unknown,
+): ChatEndpointId | undefined {
+  const normalizedSelected = normalizeChatEndpointId(selected);
+  if (normalizedSelected && endpoints.includes(normalizedSelected)) {
+    return normalizedSelected;
+  }
+
+  for (const preferred of PREFERRED_PROVIDER_CHAT_ENDPOINT_IDS) {
+    if (endpoints.includes(preferred)) {
+      return preferred;
+    }
+  }
+
+  return endpoints[0];
 }
 
 export function normalizeBaseUrl(value: unknown): string | undefined {

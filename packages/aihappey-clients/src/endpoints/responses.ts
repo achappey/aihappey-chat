@@ -25,6 +25,7 @@ const buildResponsesBody = (request: NormalizedInvokeRequest) => {
   const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
     request.providerRequestConfig,
     getProviderKeyFromRequest(request),
+    { endpointId: "/v1/responses" },
   );
 
   return compactObject({

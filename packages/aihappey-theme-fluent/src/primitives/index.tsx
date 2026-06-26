@@ -17,7 +17,7 @@ export { TextArea } from "./TextArea";
 export { Select } from "./Select";
 export { Image } from "./Image";
 export { Text } from "./Text";
-export { UserMenu, UserMenuProps } from "./UserMenu";
+export { UserMenu } from "./UserMenu";
 export { Toolbar, ToolbarButton, ToolbarDivider } from "./Toolbar";
 export { Drawer } from "./Drawer";
 export { Toast } from "./Toast";

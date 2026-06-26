@@ -8,36 +8,7 @@ import {
   Key,
 } from "react-bootstrap-icons";
 
-import { UserMenuLabels } from "aihappey-types/src/i18n";
-
-export interface UserMenuProps {
-  email?: string;
-  onCustomize?: () => void;
-  onSettings: () => void;
-  onLogout: () => void;
-  showApiKeysItem?: boolean;
-  onApiKeys?: () => void;
-
-  /**
-   * Optional provider toggles (implemented in Fluent theme). Accepted here so the
-   * theme contract stays compatible across themes.
-   */
-  providers?: string[];
-  providerGroups?: Record<string, string[]>;
-  enabledProvidersByType?: Partial<
-    Record<"language" | "image" | "audio" | "transcription" | "speech" | "reranking" | "video", string[]>
-  >;
-  onToggleProviderForType?: (
-    capability: "language" | "image" | "audio" | "transcription" | "speech" | "reranking" | "video",
-    provider: string
-  ) => void;
-  providersDisabled?: boolean;
-  disabledProviders?: string[];
-
-  className?: string;
-  style?: React.CSSProperties;
-  labels?: UserMenuLabels;
-}
+import type { UserMenuProps } from "aihappey-types/src/theme/UserMenu";
 
 export const UserMenu: React.FC<UserMenuProps> = ({
   email,
@@ -46,6 +17,11 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   onLogout,
   showApiKeysItem,
   onApiKeys,
+  showChatEndpointsItem,
+  chatEndpointOptions = [],
+  selectedChatEndpoint,
+  chatEndpointsDisabled,
+  onSelectChatEndpoint,
   className,
   style,
   labels = {},
@@ -103,6 +79,21 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             <Key className="me-2" /> {labels.apiKeys ?? "API keys"}
           </Dropdown.Item>
         )}
+        {showChatEndpointsItem ? (
+          <>
+            <Dropdown.Header>{labels.chatEndpoint ?? "Chat endpoint"}</Dropdown.Header>
+            {chatEndpointOptions.length > 0 ? chatEndpointOptions.map((option) => (
+              <Dropdown.Item
+                key={option.value}
+                active={option.value === selectedChatEndpoint}
+                disabled={!!chatEndpointsDisabled || !!option.disabled}
+                onClick={() => onSelectChatEndpoint?.(option.value)}
+              >
+                {option.label}
+              </Dropdown.Item>
+            )) : <Dropdown.ItemText>{labels.noChatEndpoints ?? "No chat endpoints available"}</Dropdown.ItemText>}
+          </>
+        ) : null}
         <Dropdown.Item onClick={onSettings}>
           <Gear className="me-2" /> {labels.settings ?? "Settings"}
         </Dropdown.Item>

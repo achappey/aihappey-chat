@@ -2,6 +2,8 @@ export interface UserMenuLabels {
   customize?: string;
   providers?: string;
   apiKeys?: string;
+  chatEndpoint?: string;
+  noChatEndpoints?: string;
   settings?: string;
   logout?: string;
   realtime?: string;

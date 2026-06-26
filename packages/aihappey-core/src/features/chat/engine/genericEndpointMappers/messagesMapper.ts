@@ -63,7 +63,10 @@ const toAnthropicContentBlocks = (message: GenericMappedMessage) => {
 
 export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
-  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig(body);
+  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
+    ...body,
+    endpoint: "/v1/messages",
+  });
 
   return compactObject({
     ...(providerRequestConfig ?? {}),

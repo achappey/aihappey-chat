@@ -74,6 +74,7 @@ export {
   resolveEffectiveBaseUrl,
   resolveEffectiveChatEndpointId,
   resolveEffectiveChatEndpointMode,
+  resolvePreferredProviderChatEndpoint,
 } from "./slices/chatEndpoint";
 export type { ChatEndpointId, ChatEndpointMode } from "./slices/chatEndpoint";
 export * from "./slices/defaultProviderTranscriptionMetadata";

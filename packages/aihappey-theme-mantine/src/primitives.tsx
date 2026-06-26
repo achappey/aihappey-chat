@@ -803,7 +803,7 @@ export const Navigation = ({ items = [], activeKey, onSelect, appTitle, classNam
   </ScrollArea>
 );
 
-export const UserMenu = ({ email, onCustomize, onSettings, onLogout, showApiKeysItem, onApiKeys, providers = [], providersDisabled, className, labels }: UserMenuProps) => (
+export const UserMenu = ({ email, onCustomize, onSettings, onLogout, showApiKeysItem, onApiKeys, showChatEndpointsItem, chatEndpointOptions = [], selectedChatEndpoint, chatEndpointsDisabled, onSelectChatEndpoint, providers = [], providersDisabled, className, labels }: UserMenuProps) => (
   <MantineMenu withinPortal position="bottom-end">
     <MantineMenu.Target><ActionIcon variant="subtle" aria-label="User menu" className={className}>{renderIcon("customize")}</ActionIcon></MantineMenu.Target>
     <MantineMenu.Dropdown>
@@ -811,6 +811,20 @@ export const UserMenu = ({ email, onCustomize, onSettings, onLogout, showApiKeys
       {onCustomize ? <MantineMenu.Item leftSection={renderIcon("personalization")} onClick={onCustomize}>{labels?.customize ?? "Customize"}</MantineMenu.Item> : null}
       <MantineMenu.Item leftSection={renderIcon("settings")} onClick={onSettings}>{labels?.settings ?? "Settings"}</MantineMenu.Item>
       {showApiKeysItem ? <MantineMenu.Item leftSection={renderIcon("settings")} onClick={onApiKeys}>{labels?.apiKeys ?? "API keys"}</MantineMenu.Item> : null}
+      {showChatEndpointsItem ? <MantineMenu.Label>{labels?.chatEndpoint ?? "Chat endpoint"}</MantineMenu.Label> : null}
+      {showChatEndpointsItem && chatEndpointOptions.length > 0
+        ? chatEndpointOptions.map((option) => (
+          <MantineMenu.Item
+            key={option.value}
+            disabled={!!chatEndpointsDisabled || !!option.disabled}
+            onClick={() => onSelectChatEndpoint?.(option.value)}
+          >
+            {option.value === selectedChatEndpoint ? "✓ " : ""}
+            {option.label}
+          </MantineMenu.Item>
+        ))
+        : null}
+      {showChatEndpointsItem && chatEndpointOptions.length === 0 ? <MantineMenu.Item disabled>{labels?.noChatEndpoints ?? "No chat endpoints available"}</MantineMenu.Item> : null}
       {providers.length ? <MantineMenu.Label>Providers</MantineMenu.Label> : null}
       {providers.map((provider) => <MantineMenu.Item key={provider} disabled={providersDisabled}>{provider}</MantineMenu.Item>)}
       <MantineMenu.Divider />

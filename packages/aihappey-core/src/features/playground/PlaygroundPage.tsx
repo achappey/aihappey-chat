@@ -152,8 +152,8 @@ export const PlaygroundPage = () => {
     body: playgroundProviderRequestConfig,
     headers: playgroundProviderRequestHeaders,
   } = useMemo(
-    () => splitEndpointProfileProviderConfig(playgroundEndpointProfileProviderConfig, playgroundEndpointProfile?.providerKey),
-    [playgroundEndpointProfileProviderConfig, playgroundEndpointProfile],
+    () => splitEndpointProfileProviderConfig(playgroundEndpointProfileProviderConfig, playgroundEndpointProfile?.providerKey, selectedEndpoint),
+    [playgroundEndpointProfileProviderConfig, playgroundEndpointProfile, selectedEndpoint],
   );
 
   const selectedModelOption = useMemo(

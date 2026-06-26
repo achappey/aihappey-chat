@@ -63,6 +63,7 @@ import { buildGenericChatEndpointBody } from "./genericEndpointMappers";
 import {
   resolveEndpointProfile,
   resolveChatEndpointModeProfile,
+  resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
   splitEndpointProfileProviderConfig,
@@ -143,11 +144,10 @@ export function VercelChatInner({
     [effectiveChatEndpointMode, model, effectiveChatEndpoint, configuredChatEndpoint, providers, selectedEndpointProfileId, selectedBaseUrl],
   );
   const isProviderEndpointProfile = endpointProfile?.kind === "provider";
-  const requestEndpoint = isProviderEndpointProfile
-    ? endpointProfile.chatEndpoints.includes(effectiveChatEndpoint)
-      ? effectiveChatEndpoint
-      : endpointProfile.chatEndpoints[0]
-    : effectiveChatEndpoint;
+  const requestEndpoint = resolveEndpointProfileChatEndpoint({
+    endpointProfile,
+    selectedChatEndpoint: effectiveChatEndpoint,
+  }) ?? effectiveChatEndpoint;
   const requestBaseUrl = isProviderEndpointProfile
     ? endpointProfile.apiBaseUrl ?? config.baseUrl
     : config.baseUrl;
@@ -173,8 +173,8 @@ export function VercelChatInner({
     [activeProviderMetadata, allProviderMetadata, endpointProfile],
   );
   const { body: providerRequestConfig, headers: providerRequestHeaders } = useMemo(
-    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey),
-    [endpointProfileProviderConfig, endpointProfile],
+    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey, requestEndpoint),
+    [endpointProfileProviderConfig, endpointProfile, requestEndpoint],
   );
 
   /* const [toast, setToast] = useState<{

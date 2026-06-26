@@ -23,6 +23,7 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
   const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
     request.providerRequestConfig,
     getProviderKeyFromRequest(request),
+    { endpointId: "/v1/messages" },
   );
 
   return compactObject({

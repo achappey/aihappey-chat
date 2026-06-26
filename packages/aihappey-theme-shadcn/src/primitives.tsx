@@ -902,6 +902,11 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   onLogout,
   showApiKeysItem,
   onApiKeys,
+  showChatEndpointsItem,
+  chatEndpointOptions = [],
+  selectedChatEndpoint,
+  chatEndpointsDisabled,
+  onSelectChatEndpoint,
   providers = [],
   providerGroups = {},
   enabledProvidersByType = {},
@@ -946,6 +951,41 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     [disabledProviderSet, enabledProvidersByType, onToggleProviderForType, providersDisabled]
   );
 
+  const chatEndpointMenu = showChatEndpointsItem ? (
+    chatEndpointOptions.length > 0 && !chatEndpointsDisabled ? (
+      <DropdownMenuPrimitive.Sub>
+        <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">
+          <PlugZap size={14} />
+          {selectedChatEndpoint
+            ? `${labels.chatEndpoint ?? "Chat endpoint"} (${selectedChatEndpoint})`
+            : (labels.chatEndpoint ?? "Chat endpoint")}
+        </DropdownMenuPrimitive.SubTrigger>
+        <DropdownMenuPrimitive.Portal>
+          <PortalThemeScope>
+            <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>
+              {chatEndpointOptions.map((option) => (
+                <DropdownMenuPrimitive.Item
+                  key={option.value}
+                  className="aih-shadcn-menu-item"
+                  disabled={!!option.disabled}
+                  onSelect={() => onSelectChatEndpoint?.(option.value)}
+                >
+                  {option.value === selectedChatEndpoint ? <Check size={14} /> : <span style={{ width: 14, display: "inline-block" }} />}
+                  {option.label}
+                </DropdownMenuPrimitive.Item>
+              ))}
+            </DropdownMenuPrimitive.SubContent>
+          </PortalThemeScope>
+        </DropdownMenuPrimitive.Portal>
+      </DropdownMenuPrimitive.Sub>
+    ) : (
+      <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" disabled>
+        <PlugZap size={14} />
+        {labels.noChatEndpoints ?? "No chat endpoints available"}
+      </DropdownMenuPrimitive.Item>
+    )
+  ) : null;
+
   return (
     <DropdownMenuPrimitive.Root>
       <DropdownMenuPrimitive.Trigger asChild>
@@ -966,6 +1006,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                     <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>
                       {!!showApiKeysItem && !!onApiKeys ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onApiKeys}><KeyRound size={14} />{labels.apiKeys ?? "API keys"}</DropdownMenuPrimitive.Item> : null}
                       {!!showApiKeysItem && !!onApiKeys ? menuDivider : null}
+                      {chatEndpointMenu}
+                      {chatEndpointMenu ? menuDivider : null}
                       {capabilityMenus.length > 0
                         ? capabilityMenus.map((cap) => (
                             <DropdownMenuPrimitive.Sub key={cap.key}>
@@ -985,6 +1027,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                 </DropdownMenuPrimitive.Portal>
               </DropdownMenuPrimitive.Sub>
             ) : (!!showApiKeysItem && !!onApiKeys ? <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onApiKeys}><KeyRound size={14} />{labels.apiKeys ?? "API keys"}</DropdownMenuPrimitive.Item> : null)}
+            {!providers.length ? chatEndpointMenu : null}
+            {!providers.length && chatEndpointMenu ? menuDivider : null}
             {menuDivider}
             <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" onSelect={onLogout}><KeyRound size={14} />{labels.logout ?? "Log out"}</DropdownMenuPrimitive.Item>
           </DropdownMenuPrimitive.Content>

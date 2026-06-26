@@ -37,7 +37,10 @@ const toChatCompletionContent = (message: ReturnType<typeof mapUiMessages>[numbe
 
 export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
-  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig(body);
+  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
+    ...body,
+    endpoint: "/v1/chat/completions",
+  });
 
   return compactObject({
     ...(providerRequestConfig ?? {}),
