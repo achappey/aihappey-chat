@@ -20,6 +20,7 @@ import { useModels } from "../features/models/useModels";
 import { useRemoteAgentModels } from "../features/agents/useRemoteAgentModels";
 import { ChatConfig, ChatProvider } from "../features/chat/context/ChatProvider";
 import { useIsDesktop } from "./responsive/useIsDesktop";
+import { resolveEndpointProfile } from "../features/chat/engine/endpointProfiles";
 import { useDefaultModel } from "./bootstrap/useDefaultModel";
 import { useDefaultProviders } from "./bootstrap/useDefaultProviders";
 import { ImagesProvider } from "aihappey-images";
@@ -71,14 +72,25 @@ export const CoreShell: React.FC<Props> = ({
   const setConfiguredBaseUrl = useAppStore((s) => s.setConfiguredBaseUrl);
   const setSelectedBaseUrl = useAppStore((s) => s.setSelectedBaseUrl);
   const setSelectedEndpointProfileId = useAppStore((s) => s.setSelectedEndpointProfileId);
+  const resetModels = useAppStore((s) => s.resetModels);
   const storeEffectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
   const selectedBaseUrl = useAppStore((s) => s.selectedBaseUrl);
   const selectedEndpointProfileId = useAppStore((s) => s.selectedEndpointProfileId);
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
   const authenticated = chatConfig?.getAccessToken != null;
+  const selectedEndpointProfile = useMemo(
+    () => resolveEndpointProfile({
+      selectedEndpointProfileId,
+      selectedBaseUrl,
+      configuredChatEndpoint: chatConfig?.defaultChatEndpoint,
+    }),
+    [chatConfig?.defaultChatEndpoint, selectedBaseUrl, selectedEndpointProfileId],
+  );
   const effectiveBaseUrl = authenticated
     ? chatConfig.baseUrl
+    : selectedEndpointProfile?.kind === "provider"
+      ? selectedEndpointProfile.apiBaseUrl || chatConfig.baseUrl
     : storeEffectiveBaseUrl || chatConfig.baseUrl;
   const effectiveChatConfig = useMemo(
     () => ({
@@ -231,6 +243,10 @@ export const CoreShell: React.FC<Props> = ({
     ? effectiveChatConfig.agentEndpoint + effectiveChatConfig.endpoints.models
     : undefined;
   const skillsApi = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.skills;
+
+  useEffect(() => {
+    resetModels();
+  }, [modelsApi, resetModels]);
 
   useModels(
     modelsApi,

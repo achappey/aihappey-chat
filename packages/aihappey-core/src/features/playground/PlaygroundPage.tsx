@@ -31,7 +31,17 @@ import { PlaygroundInput } from "./PlaygroundInput";
 import { PlaygroundSettingsDrawer } from "./PlaygroundSettingsDrawer";
 import { encodePlaygroundAttachment, getPlaygroundUnsupportedAttachmentKinds } from "./playgroundAttachments";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
-import { createChatAuthHeadersForModel } from "../provider-credentials/providerAuthHeaders";
+import {
+  createChatAuthHeadersForModel,
+  createProviderBearerHeadersForProviderKey,
+} from "../provider-credentials/providerAuthHeaders";
+import {
+  resolveEndpointProfileProviderConfig,
+  resolveEndpointProfileRequestMetadata,
+  resolveProviderEndpointProfileForModel,
+  splitEndpointProfileProviderConfig,
+  stripProviderPrefix,
+} from "../chat/engine/endpointProfiles";
 
 export const PlaygroundPage = () => {
   const { isDarkMode } = useDarkMode();
@@ -102,6 +112,49 @@ export const PlaygroundPage = () => {
     () => playgroundModel?.split("/")?.[0]?.toLowerCase() ?? "",
     [playgroundModel],
   );
+  const providerScopedMetadata = useMemo(
+    () => providerKey && providerMetadata?.[providerKey] !== undefined
+      ? { [providerKey]: providerMetadata[providerKey] }
+      : undefined,
+    [providerKey, providerMetadata],
+  );
+  const playgroundEndpointProfile = useMemo(
+    () => resolveProviderEndpointProfileForModel({
+      modelId: playgroundModel,
+      endpoint: selectedEndpoint,
+    }),
+    [playgroundModel, selectedEndpoint],
+  );
+  const isProviderBackedPlaygroundRequest = playgroundEndpointProfile?.kind === "provider";
+  const playgroundRequestModel = isProviderBackedPlaygroundRequest
+    ? stripProviderPrefix(playgroundModel, playgroundEndpointProfile?.providerKey)
+    : playgroundModel;
+  const playgroundBaseUrl = isProviderBackedPlaygroundRequest
+    ? playgroundEndpointProfile?.apiBaseUrl ?? baseUrl
+    : baseUrl;
+  const resolvedProviderMetadata = useMemo(
+    () => resolveEndpointProfileRequestMetadata({
+      activeProviderMetadata: providerScopedMetadata,
+      endpointProfile: playgroundEndpointProfile,
+      fallbackProviderMetadataEnabled: true,
+    }),
+    [playgroundEndpointProfile, providerScopedMetadata],
+  );
+  const playgroundEndpointProfileProviderConfig = useMemo(
+    () => resolveEndpointProfileProviderConfig({
+      activeProviderMetadata: providerScopedMetadata,
+      providerMetadata,
+      endpointProfile: playgroundEndpointProfile,
+    }),
+    [playgroundEndpointProfile, providerMetadata, providerScopedMetadata],
+  );
+  const {
+    body: playgroundProviderRequestConfig,
+    headers: playgroundProviderRequestHeaders,
+  } = useMemo(
+    () => splitEndpointProfileProviderConfig(playgroundEndpointProfileProviderConfig),
+    [playgroundEndpointProfileProviderConfig],
+  );
 
   const selectedModelOption = useMemo(
     () => models?.find((model) => model.id === playgroundModel),
@@ -109,8 +162,15 @@ export const PlaygroundPage = () => {
   );
 
   const effectiveHeaders = useMemo(() => {
+    if (isProviderBackedPlaygroundRequest) {
+      return {
+        ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey),
+        ...(playgroundProviderRequestHeaders ?? {}),
+      };
+    }
+
     return createChatAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken));
-  }, [config?.getAccessToken, customHeaders, playgroundModel]);
+  }, [config?.getAccessToken, customHeaders, isProviderBackedPlaygroundRequest, playgroundModel, playgroundProviderRequestHeaders, providerKey]);
 
   const currentEndpointConfig = useMemo(
     () => endpointConfigByEndpoint[selectedEndpoint as keyof PlaygroundEndpointConfigMap] ?? {},
@@ -125,9 +185,9 @@ export const PlaygroundPage = () => {
   const playgroundFetch = useMemo(
     () => createPlaygroundFetch({
       headers: effectiveHeaders,
-      getAccessToken: config?.getAccessToken,
+      getAccessToken: isProviderBackedPlaygroundRequest ? undefined : config?.getAccessToken,
     }),
-    [config?.getAccessToken, effectiveHeaders],
+    [config?.getAccessToken, effectiveHeaders, isProviderBackedPlaygroundRequest],
   );
 
   const playgroundTransport = useMemo(
@@ -144,14 +204,14 @@ export const PlaygroundPage = () => {
           messageId: opts.messageId,
           messages: toPlaygroundApiChatMessages(opts.messages as UIMessage[]),
           trigger: opts.trigger,
-          model: playgroundModel,
+          model: playgroundRequestModel,
           temperature,
           maxOutputTokens,
-          providerMetadata,
+          providerMetadata: resolvedProviderMetadata,
         },
       }),
     }),
-    [baseUrl, maxOutputTokens, playgroundFetch, playgroundModel, providerMetadata, temperature],
+    [baseUrl, maxOutputTokens, playgroundFetch, playgroundRequestModel, resolvedProviderMetadata, temperature],
   );
 
   const {
@@ -252,34 +312,38 @@ export const PlaygroundPage = () => {
   );
 
   const preparedPreview = useMemo(() => {
-    if (!activeOption?.id || !baseUrl.trim() || !playgroundModel) return undefined;
+    if (!activeOption?.id || !playgroundBaseUrl.trim() || !playgroundModel) return undefined;
 
     try {
       return preparePlaygroundRequest({
         optionId: activeOption.id,
-        baseUrl,
-        model: playgroundModel,
+        baseUrl: playgroundBaseUrl,
+        model: playgroundRequestModel,
         messages: toPlaygroundPayloadMessages(previewMessages, systemPrompt),
         temperature,
         maxOutputTokens,
-        providerMetadata,
+        providerMetadata: resolvedProviderMetadata,
+        providerRequestConfig: playgroundProviderRequestConfig,
+        omitProviderMetadataInNativeMetadata: isProviderBackedPlaygroundRequest,
         endpointConfig: currentEndpointConfig,
         headers: effectiveHeaders,
-        getAccessToken: config?.getAccessToken,
+        getAccessToken: isProviderBackedPlaygroundRequest ? undefined : config?.getAccessToken,
       });
     } catch {
       return undefined;
     }
   }, [
     activeOption?.id,
-    baseUrl,
+    playgroundBaseUrl,
     config?.getAccessToken,
     currentEndpointConfig,
     effectiveHeaders,
+    isProviderBackedPlaygroundRequest,
     maxOutputTokens,
-    playgroundModel,
+    playgroundRequestModel,
+    playgroundProviderRequestConfig,
     previewMessages,
-    providerMetadata,
+    resolvedProviderMetadata,
     systemPrompt,
     temperature,
   ]);
@@ -304,7 +368,7 @@ export const PlaygroundPage = () => {
     : sending;
 
   const canSend = !!playgroundModel
-    && !!baseUrl.trim()
+    && !!playgroundBaseUrl.trim()
     && (!!draft.trim() || pendingFiles.length > 0)
     && !isStreaming
     && !attachmentEncoding;
@@ -367,11 +431,11 @@ export const PlaygroundPage = () => {
       try {
         await sendMessage(createPlaygroundUiMessage("user", trimmedDraft, currentAttachments) as any, {
           body: {
-            model: playgroundModel,
+            model: playgroundRequestModel,
             temperature,
             maxOutputTokens,
             systemPrompt,
-            providerMetadata,
+            providerMetadata: resolvedProviderMetadata,
           },
         });
       } catch (err: any) {
@@ -392,15 +456,17 @@ export const PlaygroundPage = () => {
     try {
       const invocation = preparePlaygroundRequest({
         optionId: activeOption.id,
-        baseUrl,
-        model: playgroundModel,
+        baseUrl: playgroundBaseUrl,
+        model: playgroundRequestModel,
         messages: toPlaygroundPayloadMessages(nextMessages, systemPrompt),
         temperature,
         maxOutputTokens,
-        providerMetadata,
+        providerMetadata: resolvedProviderMetadata,
+        providerRequestConfig: playgroundProviderRequestConfig,
+        omitProviderMetadataInNativeMetadata: isProviderBackedPlaygroundRequest,
         endpointConfig: currentEndpointConfig,
         headers: effectiveHeaders,
-        getAccessToken: config?.getAccessToken,
+        getAccessToken: isProviderBackedPlaygroundRequest ? undefined : config?.getAccessToken,
       });
 
       if (supportsStreaming && activeOption.id !== "vercel-api-chat") {
@@ -421,15 +487,17 @@ export const PlaygroundPage = () => {
 
       const result = await invokePlayground({
         optionId: activeOption.id,
-        baseUrl,
-        model: playgroundModel,
+        baseUrl: playgroundBaseUrl,
+        model: playgroundRequestModel,
         messages: invocation.request.messages,
         temperature,
         maxOutputTokens,
-        providerMetadata,
+        providerMetadata: resolvedProviderMetadata,
+        providerRequestConfig: playgroundProviderRequestConfig,
+        omitProviderMetadataInNativeMetadata: isProviderBackedPlaygroundRequest,
         endpointConfig: currentEndpointConfig,
         headers: effectiveHeaders,
-        getAccessToken: config?.getAccessToken,
+        getAccessToken: isProviderBackedPlaygroundRequest ? undefined : config?.getAccessToken,
       });
 
       setRawResponse(result.raw);
@@ -599,7 +667,7 @@ export const PlaygroundPage = () => {
               drawerSize={drawerSize}
               headerNavigation={sidebarHeaderNavigation}
               onClose={() => setSidebarOpen(false)}
-              baseUrl={baseUrl}
+              baseUrl={playgroundBaseUrl}
               setBaseUrl={setBaseUrl}
               systemPrompt={systemPrompt}
               setSystemPrompt={setSystemPrompt}

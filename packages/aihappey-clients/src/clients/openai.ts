@@ -2,19 +2,44 @@ import OpenAI from "openai";
 import type { ClientAdapter, NormalizedInvokeRequest } from "../shared/types";
 import { createHeaders, headersToObject, trimBaseUrl } from "../shared/http";
 
+const getAuthorizationToken = (headers: Record<string, string>) => {
+  const authorization = headers.authorization ?? headers.Authorization;
+  if (!authorization) return undefined;
+
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+  return match?.[1]?.trim() || undefined;
+};
+
+const resolveSdkBaseUrl = (baseUrl: string) => {
+  const trimmed = trimBaseUrl(baseUrl);
+  return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+};
+
 const createOpenAIClient = async (
   args: Pick<NormalizedInvokeRequest, "baseUrl" | "headers" | "getAccessToken">,
 ) => {
-  const defaultHeaders = headersToObject(await createHeaders(args.headers, args.getAccessToken));
+  const allHeaders = headersToObject(await createHeaders(args.headers, args.getAccessToken));
+  const authorizationToken = getAuthorizationToken(allHeaders);
+  const defaultHeaders = { ...allHeaders };
+
+  if (authorizationToken) {
+    delete defaultHeaders.authorization;
+    delete (defaultHeaders as any).Authorization;
+  }
 
   return {
     client: new OpenAI({
-      apiKey: defaultHeaders.Authorization ? "unused" : defaultHeaders["x-api-key"] ?? defaultHeaders["api-key"] ?? "unused",
-      baseURL: trimBaseUrl(args.baseUrl) + "/v1",
+      apiKey: authorizationToken ?? defaultHeaders["x-api-key"] ?? defaultHeaders["api-key"] ?? "unused",
+      baseURL: resolveSdkBaseUrl(args.baseUrl),
       defaultHeaders,
       dangerouslyAllowBrowser: true,
     }),
-    defaultHeaders,
+    defaultHeaders: authorizationToken
+      ? {
+        ...defaultHeaders,
+        authorization: `Bearer ${authorizationToken}`,
+      }
+      : defaultHeaders,
   };
 };
 

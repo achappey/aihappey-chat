@@ -1,6 +1,7 @@
 import { createHttpClient } from "aihappey-http";
 import type { ModelResponse } from "aihappey-types";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { enrichModelTypes } from "../models/modelTypeEnrichment";
 
 export type ModelsListProgress = {
   completed: number;
@@ -81,11 +82,10 @@ export const getProviderApiKeyHeaderEntry = (
   providerKey?: string,
 ) => getProviderApiKeyHeaderEntries(customHeaders, providerKey)[0];
 
-export const createProviderBearerHeadersForModel = (
+export const createProviderBearerHeadersForProviderKey = (
   customHeaders: Record<string, string> | undefined,
-  modelId?: string,
+  providerKey?: string,
 ) => {
-  const providerKey = getProviderKeyFromModelId(modelId);
   const entry = getProviderApiKeyHeaderEntry(customHeaders, providerKey);
   const value = entry?.[1]?.trim();
 
@@ -96,6 +96,14 @@ export const createProviderBearerHeadersForModel = (
       ? value
       : `Bearer ${value}`,
   };
+};
+
+export const createProviderBearerHeadersForModel = (
+  customHeaders: Record<string, string> | undefined,
+  modelId?: string,
+) => {
+  const providerKey = getProviderKeyFromModelId(modelId);
+  return createProviderBearerHeadersForProviderKey(customHeaders, providerKey);
 };
 
 export const createChatAuthHeadersForModel = (
@@ -125,27 +133,37 @@ const mergeModelResponses = (responses: ModelResponse[]) => {
     return true;
   });
 
-  return { data } satisfies ModelResponse;
+  return { data: enrichModelTypes(data) } satisfies ModelResponse;
 };
+
+const enrichModelResponse = (response: ModelResponse) => ({
+  ...response,
+  data: enrichModelTypes(response?.data ?? []),
+}) satisfies ModelResponse;
 
 export const listModelsWithSplitProviderHeaders = async ({
   modelsApi,
   getAccessToken,
   customHeaders,
+  providerKey,
   onProgress,
 }: {
   modelsApi: string;
   getAccessToken?: () => Promise<string>;
   customHeaders?: Record<string, string>;
+  providerKey?: string;
   onProgress?: (progress: ModelsListProgress) => void;
 }) => {
   if (getAccessToken) {
     const client = createHttpClient({ getAccessToken, headers: customHeaders });
-    return client.get<ModelResponse>(modelsApi);
+    return enrichModelResponse(await client.get<ModelResponse>(modelsApi));
   }
 
-  const providerHeaderEntries = getConfiguredProviderHeaderEntries(customHeaders);
-  const total = 1 + providerHeaderEntries.length;
+  const providerHeaderEntries = providerKey
+    ? getProviderApiKeyHeaderEntries(customHeaders, providerKey)
+    : getConfiguredProviderHeaderEntries(customHeaders);
+  const includeAnonymousRequest = !providerKey;
+  const total = (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length;
   const responses: ModelResponse[] = [];
   let completed = 0;
   let lastError: unknown;
@@ -157,7 +175,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   const requestModels = async (headers?: Record<string, string>) => {
     try {
       const client = createHttpClient({ headers });
-      responses.push(await client.get<ModelResponse>(modelsApi));
+      responses.push(enrichModelResponse(await client.get<ModelResponse>(modelsApi)));
     } catch (err) {
       lastError = err;
       console.error("Failed to load models for provider header subset:", err);
@@ -168,10 +186,17 @@ export const listModelsWithSplitProviderHeaders = async ({
   };
 
   updateProgress();
-  await requestModels(undefined);
 
-  for (const [header, value] of providerHeaderEntries) {
-    await requestModels({ [header]: value });
+  if (includeAnonymousRequest) {
+    await requestModels(undefined);
+  }
+
+  if (providerKey) {
+    await requestModels(createProviderBearerHeadersForProviderKey(customHeaders, providerKey));
+  } else {
+    for (const [header, value] of providerHeaderEntries) {
+      await requestModels({ [header]: value });
+    }
   }
 
   onProgress?.({ completed: total, total, active: false });

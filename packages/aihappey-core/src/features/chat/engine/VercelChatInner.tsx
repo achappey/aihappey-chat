@@ -49,8 +49,8 @@ import { useUIStream } from "../../json-render/useUIStream";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { buildSelectedAgentRequest } from "../../agents/agentSelection";
 import {
-  createEndpointHeaders,
   createChatAuthHeadersForModel,
+  createProviderBearerHeadersForProviderKey,
   getProviderApiKeyHeaderEntries,
   getProviderKeyFromModelId,
 } from "../../provider-credentials/providerAuthHeaders";
@@ -228,18 +228,9 @@ export function VercelChatInner({
 
   const providerProfileAuthHeaders: any = useMemo(() => {
     const providerKey = isProviderEndpointProfile ? endpointProfile.providerKey : undefined;
-    const entry = providerKey ? getProviderApiKeyHeaderEntries(customHeaders, providerKey)[0] : undefined;
-    const value = entry?.[1]?.trim();
 
     return {
-      ...createEndpointHeaders(customHeaders),
-      ...(value
-        ? {
-          Authorization: value.toLowerCase().startsWith("bearer ")
-            ? value
-            : `Bearer ${value}`,
-        }
-        : {}),
+      ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey),
       ...(providerRequestHeaders ?? {}),
     };
   }, [customHeaders, endpointProfile, isProviderEndpointProfile, providerRequestHeaders]);

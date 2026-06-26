@@ -40,6 +40,23 @@ export const getProviderKeyFromEndpointProfileId = (profileId?: string) => {
   return profileId.slice(PROVIDER_ENDPOINT_PROFILE_PREFIX.length) || undefined;
 };
 
+export const resolveProviderEndpointProfileForModel = ({
+  modelId,
+  endpoint,
+}: {
+  modelId?: string;
+  endpoint?: string;
+}) => {
+  const providerKey = String(modelId ?? "").split("/")[0]?.trim().toLowerCase();
+  if (!providerKey || !endpoint) return undefined;
+
+  return getEndpointProfiles({}).find((profile) =>
+    profile.kind === "provider"
+    && profile.providerKey === providerKey
+    && profile.chatEndpoints.includes(endpoint as ChatEndpointId),
+  );
+};
+
 export const getEndpointProfiles = ({
   configuredChatEndpoint,
 }: {

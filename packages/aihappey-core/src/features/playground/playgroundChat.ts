@@ -208,12 +208,13 @@ export const streamPlaygroundResponse = async ({
   fetcher: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   onText?: (text: string) => void;
 }) => {
+  const requestHeaders = new Headers(invocation.request.headers ?? {});
+  requestHeaders.set("Content-Type", "application/json");
+  requestHeaders.set("Accept", "text/event-stream");
+
   const response = await fetcher(resolvePlaygroundUrl(invocation.request.baseUrl, invocation.prepared.path), {
     method: invocation.prepared.method,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "text/event-stream",
-    },
+    headers: requestHeaders,
     body: JSON.stringify(invocation.prepared.body),
   });
 

@@ -84,6 +84,7 @@ export type ChatSlice = {
   modelsLoadingProgress?: { completed: number; total: number; active: boolean };
   setModelsLoadingProgress: (progress?: { completed: number; total: number; active: boolean }) => void;
   setModels: (models: ModelOption[]) => void;
+  resetModels: () => void;
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
   setProviderMetadata: (metadata: any | ((current: any) => any)) => void;
@@ -281,6 +282,14 @@ export const createChatSlice: StateCreator<
       models: models,
       modelsLoaded: true,
       modelsLoadingProgress: undefined,
+    }));
+  },
+  resetModels: () => {
+    set(() => ({
+      models: [],
+      modelsLoaded: false,
+      modelsLoadingProgress: undefined,
+      selectedModel: undefined,
     }));
   },
   setModelsLoadingProgress: (progress) => {
