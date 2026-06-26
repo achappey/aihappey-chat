@@ -1,5 +1,6 @@
 import type { ChatEndpointId } from "aihappey-state";
 import type { UIMessage } from "aihappey-ai";
+import { sanitizeProviderRequestConfigForProvider } from "../../../../runtime/providers/providerRequestConfig";
 
 export type GenericEndpointId = Exclude<ChatEndpointId, "/api/chat">;
 
@@ -73,4 +74,9 @@ export const resolveNativeRequestMetadata = ({
   };
 
   return Object.keys(merged).length ? merged : undefined;
+};
+
+export const sanitizeGenericEndpointProviderRequestConfig = (body: GenericChatEndpointRequestBody) => {
+  const providerKey = Object.keys(body.providerMetadata ?? {})[0]?.trim().toLowerCase() || undefined;
+  return sanitizeProviderRequestConfigForProvider(body.providerRequestConfig, providerKey);
 };

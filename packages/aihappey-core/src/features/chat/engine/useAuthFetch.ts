@@ -7,6 +7,26 @@ function useLatestRef<T>(value: T) {
     return r;
 }
 
+function normalizeContentType(headers: Headers) {
+    const contentType = headers.get("Content-Type") ?? headers.get("content-type");
+    if (!contentType) return;
+
+    const values = contentType
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+
+    if (values.length <= 1) return;
+
+    const uniqueValues = Array.from(new Set(values.map((value) => value.toLowerCase())));
+    if (uniqueValues.length === 1) {
+        headers.set("Content-Type", values[0]);
+        return;
+    }
+
+    headers.set("Content-Type", values[0]);
+}
+
 type UseAuthFetchArgs = {
     chatMode: "chat" | "agent";
     getAccessToken?: () => Promise<string>;
@@ -63,7 +83,14 @@ export function useAuthFetch({
                 // keep existing Authorization
             }
 
+            normalizeContentType(h);
+
             const f = customFetchRef.current ?? fetch;
+            if (typeof Request !== "undefined" && input instanceof Request) {
+                const request = new Request(input, { ...init, headers: h });
+                return f(request);
+            }
+
             return f(input, { ...init, headers: h });
         };
     }, []);

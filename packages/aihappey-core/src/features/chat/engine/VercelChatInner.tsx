@@ -173,8 +173,8 @@ export function VercelChatInner({
     [activeProviderMetadata, allProviderMetadata, endpointProfile],
   );
   const { body: providerRequestConfig, headers: providerRequestHeaders } = useMemo(
-    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig),
-    [endpointProfileProviderConfig],
+    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey),
+    [endpointProfileProviderConfig, endpointProfile],
   );
 
   /* const [toast, setToast] = useState<{
@@ -223,15 +223,6 @@ export function VercelChatInner({
   }, [includeSystem, systemMessage, initial, messageLength]);
 
   const [, , , refreshToken] = useAccessToken(config.agentScopes ?? []);
-  const createConversationName = useCallback(
-    (text: string) => generateConversationName(text, {
-      baseUrl: requestBaseUrl,
-      fetch: config.fetch ?? customFetch,
-      getAccessToken,
-      fallback: t("newChat") ?? "New chat",
-    }),
-    [requestBaseUrl, config.fetch, customFetch, getAccessToken, t]
-  );
 
   const apiKeyHeaders: any = useMemo(
     () => createChatAuthHeadersForModel(customHeaders, model, Boolean(getAccessToken), providers),
@@ -246,6 +237,32 @@ export function VercelChatInner({
       ...(providerRequestHeaders ?? {}),
     };
   }, [customHeaders, endpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers]);
+
+  const createConversationName = useCallback(
+    (text: string) => generateConversationName(text, {
+      baseUrl: requestBaseUrl,
+      fetch: config.fetch ?? customFetch,
+      ...(isProviderEndpointProfile
+        ? {
+          customHeaders: providerProfileAuthHeaders,
+          endpointProviderKey: endpointProfile.providerKey,
+        }
+        : {
+          getAccessToken,
+        }),
+      fallback: t("newChat") ?? "New chat",
+    }),
+    [
+      requestBaseUrl,
+      config.fetch,
+      customFetch,
+      isProviderEndpointProfile,
+      providerProfileAuthHeaders,
+      endpointProfile,
+      getAccessToken,
+      t,
+    ]
+  );
 
   const getAgentApiKeyHeaders = useCallback((agents: any[] | undefined) => {
     const providerKeys = Array.from(
@@ -492,7 +509,7 @@ export function VercelChatInner({
             };
 
           if (isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent") {
-            requestHeaders.set("Content-Type", "application/json");
+            requestHeaders.delete("Content-Type");
             requestHeaders.set("Accept", "text/event-stream");
           }
 

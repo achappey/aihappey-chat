@@ -1,5 +1,6 @@
 import type { Agent, ModelOption } from "aihappey-types";
 import { createChatAuthHeadersForModel, getProviderKeyFromModelId } from "../../features/provider-credentials/providerAuthHeaders";
+import { sanitizeProviderRequestConfigForProvider } from "../providers/providerRequestConfig";
 
 type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall";
 
@@ -7,6 +8,7 @@ export type SideInferenceAgentCallOptions = {
   baseUrl?: string;
   getAccessToken?: () => Promise<string | null | undefined>;
   customHeaders?: Record<string, string>;
+  endpointProviderKey?: string;
   fetch?: typeof fetch;
   agents?: Agent[];
   models?: ModelOption[];
@@ -28,6 +30,23 @@ const compactObject = <T extends Record<string, any>>(value: T): T => Object.fro
     return true;
   })
 ) as T;
+
+const asRecord = (value: unknown): Record<string, any> | undefined =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, any>
+    : undefined;
+
+const stripProviderPrefix = (modelId?: string, providerKey?: string) => {
+  const value = String(modelId ?? "").trim();
+  const normalizedProviderKey = String(providerKey ?? "").trim().toLowerCase();
+  if (!value || !normalizedProviderKey) return value;
+
+  const prefix = `${normalizedProviderKey}/`;
+  return value.toLowerCase().startsWith(prefix)
+    ? value.slice(prefix.length)
+    : value;
+};
+
 const extractText = (response: any): string => {
   if (typeof response?.output_text === "string" && response.output_text.trim()) {
     return response.output_text.trim();
@@ -94,6 +113,7 @@ export const invokeSideInferenceAgent = async ({
   baseUrl,
   getAccessToken,
   customHeaders = {},
+  endpointProviderKey,
   fetch: customFetch,
   agents = [],
   models = [],
@@ -118,20 +138,20 @@ export const invokeSideInferenceAgent = async ({
     const apiKeyHeaders = createChatAuthHeadersForModel(customHeaders, modelId, Boolean(accessToken));
     const doFetch = customFetch ?? globalThis.fetch;
 
-    const providerMetadata = selectedAgent.model?.providerMetadata
-      ? { [providerKey]: selectedAgent.model.providerMetadata }
-      : undefined;
+    const isDirectProviderRequest = providerKey && providerKey === endpointProviderKey;
+    const directProviderRequestConfig = isDirectProviderRequest
+      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent.model?.providerMetadata), providerKey) ?? {})
+      : {};
+    const requestModel = isDirectProviderRequest
+      ? stripProviderPrefix(modelId, providerKey)
+      : modelId;
 
     const body = compactObject({
-      model: modelId,
+      ...directProviderRequestConfig,
+      model: requestModel,
       instructions: selectedAgent.instructions,
       input: toInputText(input),
       stream: false,
-      providerMetadata,
-      metadata: {
-        sideInferenceFeature: feature,
-        agentName: selectedAgent.name,
-      },
     });
 
     const response = await doFetch(url, {

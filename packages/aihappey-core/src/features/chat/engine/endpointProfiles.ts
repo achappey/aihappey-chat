@@ -1,6 +1,7 @@
 import { CHAT_ENDPOINT_IDS, type ChatEndpointId, type ChatEndpointMode } from "aihappey-state";
 import type { Provider } from "aihappey-types";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
+import { sanitizeProviderRequestConfigForProvider } from "../../../runtime/providers/providerRequestConfig";
 import { isGenericChatEndpoint } from "./genericChatEndpoint";
 
 export const DEFAULT_ENDPOINT_PROFILE_ID = "default";
@@ -207,33 +208,10 @@ export const resolveEndpointProfileRequestMetadata = ({
   const profileProviderKey = endpointProfile.providerKey;
   if (!profileProviderKey) return activeProviderMetadata;
 
-  const metadata = activeProviderMetadata ?? {};
-  const selectedProviderKey = Object.keys(metadata)[0];
-  const selectedProviderValue = selectedProviderKey ? metadata[selectedProviderKey] : undefined;
-  const profileProviderValue = metadata[profileProviderKey];
+  const profileProviderValue = activeProviderMetadata?.[profileProviderKey];
+  if (profileProviderValue === undefined) return undefined;
 
-  if (profileProviderValue !== undefined) {
-    if (selectedProviderKey && selectedProviderKey !== profileProviderKey && selectedProviderValue !== undefined) {
-      return {
-        ...metadata,
-        [profileProviderKey]: {
-          ...(typeof selectedProviderValue === "object" && selectedProviderValue ? selectedProviderValue : {}),
-          ...(typeof profileProviderValue === "object" && profileProviderValue ? profileProviderValue : {}),
-        },
-      };
-    }
-
-    return metadata;
-  }
-
-  if (selectedProviderKey && selectedProviderValue !== undefined) {
-    return {
-      ...metadata,
-      [profileProviderKey]: selectedProviderValue,
-    };
-  }
-
-  return activeProviderMetadata;
+  return { [profileProviderKey]: profileProviderValue };
 };
 
 const asRecord = (value: unknown): Record<string, any> | undefined =>
@@ -253,29 +231,21 @@ export const resolveEndpointProfileProviderConfig = ({
   if (endpointProfile?.kind !== "provider" || !endpointProfile.providerKey) return undefined;
 
   const profileProviderKey = endpointProfile.providerKey;
-  const selectedProviderKey = Object.keys(activeProviderMetadata ?? {})[0];
-  const selectedProviderConfig = selectedProviderKey
-    ? asRecord(activeProviderMetadata?.[selectedProviderKey])
-    : undefined;
   const profileProviderConfig = asRecord(providerMetadata?.[profileProviderKey])
     ?? asRecord(activeProviderMetadata?.[profileProviderKey]);
 
-  const merged = {
-    ...(selectedProviderKey && selectedProviderKey !== profileProviderKey ? selectedProviderConfig : {}),
-    ...(profileProviderConfig ?? {}),
-  };
-
-  return Object.keys(merged).length ? merged : undefined;
+  return sanitizeProviderRequestConfigForProvider(profileProviderConfig, profileProviderKey);
 };
 
-export const splitEndpointProfileProviderConfig = (config?: Record<string, any>) => {
+export const splitEndpointProfileProviderConfig = (config?: Record<string, any>, providerKey?: string) => {
   if (!config) return { body: undefined, headers: undefined } as const;
 
   const { headers, ...body } = config;
   const normalizedHeaders = asRecord(headers);
+  const sanitizedBody = sanitizeProviderRequestConfigForProvider(body, providerKey);
 
   return {
-    body: Object.keys(body).length ? body : undefined,
+    body: sanitizedBody,
     headers: normalizedHeaders
       ? Object.fromEntries(
         Object.entries(normalizedHeaders)

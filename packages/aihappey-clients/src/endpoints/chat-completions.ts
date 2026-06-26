@@ -6,6 +6,7 @@ import type {
 } from "../shared/types";
 import { toChatCompletionsMessages } from "../shared/messages";
 import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
+import { getProviderKeyFromRequest, sanitizeProviderRequestConfigForProvider } from "../shared/providerRequestConfig";
 import { extractChatCompletionsText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -14,9 +15,13 @@ const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEn
 
 const buildChatCompletionsBody = (request: NormalizedInvokeRequest) => {
   const endpointConfig = (request.endpointConfig ?? {}) as ChatCompletionsEndpointConfig;
+  const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
+    request.providerRequestConfig,
+    getProviderKeyFromRequest(request),
+  );
 
   return compactObject({
-    ...(request.providerRequestConfig ?? {}),
+    ...(providerRequestConfig ?? {}),
     model: request.model,
     temperature: request.temperature,
     max_tokens: request.maxOutputTokens,

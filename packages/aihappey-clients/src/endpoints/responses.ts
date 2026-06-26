@@ -6,6 +6,7 @@ import type {
 } from "../shared/types";
 import { toResponsesConversationInput } from "../shared/messages";
 import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
+import { getProviderKeyFromRequest, sanitizeProviderRequestConfigForProvider } from "../shared/providerRequestConfig";
 import { extractResponsesText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -21,9 +22,13 @@ const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEn
 const buildResponsesBody = (request: NormalizedInvokeRequest) => {
   const { instructions, input } = toResponsesConversationInput(request.messages);
   const endpointConfig = (request.endpointConfig ?? {}) as ResponsesEndpointConfig;
+  const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
+    request.providerRequestConfig,
+    getProviderKeyFromRequest(request),
+  );
 
   return compactObject({
-    ...(request.providerRequestConfig ?? {}),
+    ...(providerRequestConfig ?? {}),
     model: request.model,
     temperature: request.temperature,
     include: endpointConfig.include,

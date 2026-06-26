@@ -94,8 +94,8 @@ export function useChatActions({
     [activeProviderMetadata, allProviderMetadata, endpointProfile],
   );
   const { body: providerRequestConfig } = useMemo(
-    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig),
-    [endpointProfileProviderConfig],
+    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey),
+    [endpointProfileProviderConfig, endpointProfile],
   );
   const { addChatError } = useChatErrors();
   const getStorageErrorMessage = useStorageErrorMessage();

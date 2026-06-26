@@ -1,6 +1,7 @@
 import {
   compactObject,
   resolveNativeRequestMetadata,
+  sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
   type GenericMappedMessage,
 } from "./types";
@@ -31,6 +32,7 @@ const toResponsesContent = (message: GenericMappedMessage) => {
 
 export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
+  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig(body);
   const input = messages
     .filter((message) => message.role !== "system")
     .map((message) => compactObject({
@@ -41,7 +43,7 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     .filter((message: any) => Array.isArray(message.content) && message.content.length > 0);
 
   return compactObject({
-    ...(body.providerRequestConfig ?? {}),
+    ...(providerRequestConfig ?? {}),
     model: body.model,
     temperature: body.temperature,
     max_output_tokens: body.maxOutputTokens,

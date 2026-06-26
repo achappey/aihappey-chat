@@ -1,6 +1,7 @@
 import {
   compactObject,
   resolveNativeRequestMetadata,
+  sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
 } from "./types";
 import { mapUiMessages, toInlineFileData } from "./uiMessageParts";
@@ -36,9 +37,10 @@ const toChatCompletionContent = (message: ReturnType<typeof mapUiMessages>[numbe
 
 export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
+  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig(body);
 
   return compactObject({
-    ...(body.providerRequestConfig ?? {}),
+    ...(providerRequestConfig ?? {}),
     model: body.model,
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens,

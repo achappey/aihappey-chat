@@ -1,6 +1,7 @@
 import {
   compactObject,
   resolveNativeRequestMetadata,
+  sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
   type GenericMappedFilePart,
   type GenericMappedMessage,
@@ -62,9 +63,10 @@ const toAnthropicContentBlocks = (message: GenericMappedMessage) => {
 
 export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
+  const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig(body);
 
   return compactObject({
-    ...(body.providerRequestConfig ?? {}),
+    ...(providerRequestConfig ?? {}),
     model: body.model,
     system: getSystemText(messages),
     temperature: body.temperature,

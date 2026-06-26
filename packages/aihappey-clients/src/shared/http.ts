@@ -18,6 +18,19 @@ export const createHeaders = async (
   if (!merged.has("Content-Type")) {
     merged.set("Content-Type", "application/json");
   }
+
+  const contentType = merged.get("Content-Type") ?? merged.get("content-type");
+  if (contentType) {
+    const values = contentType
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+    if (values.length > 1) {
+      merged.set("Content-Type", values[0]);
+    }
+  }
+
   return merged;
 };
 

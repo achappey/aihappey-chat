@@ -6,6 +6,7 @@ import type {
 } from "../shared/types";
 import { getSystemPrompt, toAnthropicMessages } from "../shared/messages";
 import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
+import { getProviderKeyFromRequest, sanitizeProviderRequestConfigForProvider } from "../shared/providerRequestConfig";
 import { extractAnthropicMessagesText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -19,9 +20,13 @@ const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEn
 
 const buildMessagesBody = (request: NormalizedInvokeRequest) => {
   const endpointConfig = (request.endpointConfig ?? {}) as MessagesEndpointConfig;
+  const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
+    request.providerRequestConfig,
+    getProviderKeyFromRequest(request),
+  );
 
   return compactObject({
-    ...(request.providerRequestConfig ?? {}),
+    ...(providerRequestConfig ?? {}),
     model: request.model,
     system: getSystemPrompt(request.messages),
     temperature: request.temperature,

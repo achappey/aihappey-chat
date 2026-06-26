@@ -22,6 +22,9 @@ const createOpenAIClient = async (
   const authorizationToken = getAuthorizationToken(allHeaders);
   const defaultHeaders = { ...allHeaders };
 
+  delete defaultHeaders["content-type"];
+  delete (defaultHeaders as any)["Content-Type"];
+
   if (authorizationToken) {
     delete defaultHeaders.authorization;
     delete (defaultHeaders as any).Authorization;
