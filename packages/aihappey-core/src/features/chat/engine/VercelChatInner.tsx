@@ -62,11 +62,13 @@ import {
 import { buildGenericChatEndpointBody } from "./genericEndpointMappers";
 import {
   resolveEndpointProfile,
+  resolveChatEndpointModeProfile,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
 } from "./endpointProfiles";
+import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -106,6 +108,7 @@ export function VercelChatInner({
   const activeData = useAppStore((a) => a.activeData);
   const maxOutputTokens = useAppStore((a) => a.maxOutputTokens);
   const effectiveChatEndpoint = useAppStore((a) => a.effectiveChatEndpoint);
+  const effectiveChatEndpointMode = useAppStore((a) => a.effectiveChatEndpointMode);
   const selectedEndpointProfileId = useAppStore((a) => a.selectedEndpointProfileId);
   const selectedBaseUrl = useAppStore((a) => a.selectedBaseUrl);
   const configuredChatEndpoint = useAppStore((a) => a.configuredChatEndpoint);
@@ -116,6 +119,7 @@ export function VercelChatInner({
   const allProviderMetadata = useAppStore((a) => a.providerMetadata);
   const files = useFiles();
   const model = useAppStore((s) => s.selectedModel);
+  const providers = useProviderRegistry();
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
@@ -127,8 +131,16 @@ export function VercelChatInner({
   const jsonRenderCatalog = useJsonRenderCatalog();
   const defaultCatalogs = useAppStore((s) => s.defaultCatalogs);
   const endpointProfile = useMemo(
-    () => resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint }),
-    [selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint],
+    () => effectiveChatEndpointMode === "direct"
+      ? resolveChatEndpointModeProfile({
+        mode: effectiveChatEndpointMode,
+        modelId: model,
+        selectedChatEndpoint: effectiveChatEndpoint,
+        configuredChatEndpoint,
+        providers,
+      })
+      : resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint, providers }),
+    [effectiveChatEndpointMode, model, effectiveChatEndpoint, configuredChatEndpoint, providers, selectedEndpointProfileId, selectedBaseUrl],
   );
   const isProviderEndpointProfile = endpointProfile?.kind === "provider";
   const requestEndpoint = isProviderEndpointProfile
@@ -222,18 +234,18 @@ export function VercelChatInner({
   );
 
   const apiKeyHeaders: any = useMemo(
-    () => createChatAuthHeadersForModel(customHeaders, model, Boolean(getAccessToken)),
-    [customHeaders, getAccessToken, model],
+    () => createChatAuthHeadersForModel(customHeaders, model, Boolean(getAccessToken), providers),
+    [customHeaders, getAccessToken, model, providers],
   );
 
   const providerProfileAuthHeaders: any = useMemo(() => {
     const providerKey = isProviderEndpointProfile ? endpointProfile.providerKey : undefined;
 
     return {
-      ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey),
+      ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers),
       ...(providerRequestHeaders ?? {}),
     };
-  }, [customHeaders, endpointProfile, isProviderEndpointProfile, providerRequestHeaders]);
+  }, [customHeaders, endpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers]);
 
   const getAgentApiKeyHeaders = useCallback((agents: any[] | undefined) => {
     const providerKeys = Array.from(
@@ -245,9 +257,9 @@ export function VercelChatInner({
     );
 
     return Object.fromEntries(
-      providerKeys.flatMap((providerKey) => getProviderApiKeyHeaderEntries(customHeaders, providerKey))
+      providerKeys.flatMap((providerKey) => getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers))
     );
-  }, [customHeaders]);
+  }, [customHeaders, providers]);
 
   const authFetchCustomHeaders = chatMode === "agent"
     ? undefined

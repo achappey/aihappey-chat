@@ -4,8 +4,8 @@ import { useTranslation } from "aihappey-i18n";
 import { PROVIDER_CAPABILITIES, useAppStore } from "aihappey-state";
 import { useDarkMode } from "usehooks-ts";
 import { useChatContext } from "../chat/context/ChatContext";
-import { PROVIDERS } from "../../runtime/providers/providerMetadata";
-import { listModelsWithSplitProviderHeaders } from "./providerAuthHeaders";
+import { getProviderApiKeyHeaderName, listModelsWithSplitProviderHeaders } from "./providerAuthHeaders";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -20,17 +20,16 @@ function downloadJson(filename: string, data: unknown) {
 
   URL.revokeObjectURL(url);
 }
-const API_KEY_PROVIDER_IDS = Object.keys(PROVIDERS)
-  .filter(a => a !== "pollinations")
-  .filter(a => a !== "echo")
-  .filter(a => a !== "azure")
-  .filter(a => a !== "microsoft")
-  .filter(a => a !== "gtranslate")
+const EXCLUDED_API_KEY_PROVIDER_IDS = new Set([
+  "pollinations",
+  "echo",
+  "azure",
+  "microsoft",
+  "gtranslate",
+]);
 
-type ApiKeyProviderId = (typeof API_KEY_PROVIDER_IDS)[number];
-
-function headerFor(id: ApiKeyProviderId) {
-  return `X-${PROVIDERS[id].name}-Key`;
+function headerFor(id: string, providers: Record<string, { name?: string }>) {
+  return getProviderApiKeyHeaderName(id, providers) ?? `X-${id}-Key`;
 }
 
 function pickIconSrc(
@@ -55,6 +54,7 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   const { t } = useTranslation();
   const { isDarkMode } = useDarkMode();
   const { config } = useChatContext();
+  const providers = useProviderRegistry();
 
   const customHeaders = useAppStore((s) => s.customHeaders);
   const setModels = useAppStore((s) => s.setModels);
@@ -77,9 +77,11 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   const providerNameByHeader = useMemo(
     () =>
       Object.fromEntries(
-        API_KEY_PROVIDER_IDS.map((id) => [headerFor(id), PROVIDERS[id].name])
+        Object.keys(providers)
+          .filter((id) => !EXCLUDED_API_KEY_PROVIDER_IDS.has(id))
+          .map((id) => [headerFor(id, providers), providers[id].name])
       ) as Record<string, string>,
-    []
+    [providers]
   );
 
   const syncProviderEnabledState = useCallback(
@@ -175,6 +177,7 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
         modelsApi,
         getAccessToken: config.getAccessToken,
         customHeaders,
+        providers,
         onProgress: setModelsLoadingProgress,
       });
       setModels(response.data);
@@ -183,7 +186,7 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
       setModelsLoadingProgress?.(undefined);
       console.error("Failed to refresh models after provider key changes:", err);
     }
-  }, [config, customHeaders, setModels, setModelsLoadingProgress]);
+  }, [config, customHeaders, providers, setModels, setModelsLoadingProgress]);
 
   const handleClose = useCallback(() => {
     if (hasProviderKeysChangedThisSession()) {
@@ -193,12 +196,12 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   }, [hasProviderKeysChangedThisSession, refreshModels, onClose]);
 
   const items = useMemo(() => {
-    return API_KEY_PROVIDER_IDS.map((id) => {
-      const provider = PROVIDERS[id];
+    return Object.keys(providers).filter((id) => !EXCLUDED_API_KEY_PROVIDER_IDS.has(id)).map((id) => {
+      const provider = providers[id];
       return {
         id,
         name: provider.name,
-        header: headerFor(id),
+        header: headerFor(id, providers),
         iconSrc: pickIconSrc(provider.icons, isDarkMode),
         url: provider.urls?.console ?? provider.urls?.homepage,
         searchText: [
@@ -212,7 +215,7 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
           .join(" "),
       };
     }).sort((a, b) => a.name.localeCompare(b.name));
-  }, [isDarkMode]);
+  }, [isDarkMode, providers]);
 
   return (
     <theme.Modal

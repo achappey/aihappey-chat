@@ -4,6 +4,7 @@ import {
   connectSimple
 } from "aihappey-mcp";
 import type { StateCreator } from "zustand";
+import type { Provider } from "aihappey-types";
 
 export type UiAttachment = {
   id: string;
@@ -106,6 +107,49 @@ export const PROVIDER_CAPABILITIES = [
 export type ProviderCapability = typeof PROVIDER_CAPABILITIES[number];
 export type EnabledProvidersByType = Record<ProviderCapability, string[]>;
 export type FavoriteModelsByType = Record<ProviderCapability, string[]>;
+export type CustomProvidersByKey = Record<string, Provider>;
+
+export const normalizeCustomProviderKey = (value: unknown) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const normalizeStringArray = (values: unknown) => Array.isArray(values)
+  ? Array.from(new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean)))
+  : [];
+
+export const normalizeCustomProviders = (providers: unknown): CustomProvidersByKey => {
+  if (!providers || typeof providers !== "object" || Array.isArray(providers)) return {};
+
+  const entries: [string, Provider][] = [];
+
+  Object.entries(providers as Record<string, any>)
+    .forEach(([rawKey, rawProvider]) => {
+      const key = normalizeCustomProviderKey(rawKey);
+      if (!key || !rawProvider || typeof rawProvider !== "object" || Array.isArray(rawProvider)) return;
+
+      const provider = rawProvider as Partial<Provider>;
+      const name = String(provider.name ?? key).trim();
+      const apiBaseUrl = String(provider.apiBaseUrl ?? "").trim();
+      const chatEndpoints = normalizeStringArray(provider.chatEndpoints);
+
+      if (!name || !apiBaseUrl || chatEndpoints.length === 0) return;
+
+      entries.push([key, {
+        ...provider,
+        name,
+        apiBaseUrl,
+        chatEndpoints,
+        icons: Array.isArray(provider.icons) ? provider.icons : undefined,
+        inferenceRegions: normalizeStringArray(provider.inferenceRegions),
+        category: provider.category ?? "model_provider",
+      }]);
+    });
+
+  return Object.fromEntries(entries);
+};
 
 export const createEmptyEnabledProvidersByType = (): EnabledProvidersByType => ({
   language: [],
@@ -236,6 +280,11 @@ export type UiSlice = {
   toggleFavoriteSkill: (skillId: string) => void;
   setFavoriteSkillIds: (skillIds: string[]) => void;
 
+  customProviders: CustomProvidersByKey;
+  setCustomProviders: (providers: CustomProvidersByKey) => void;
+  upsertCustomProvider: (key: string, provider: Provider) => void;
+  removeCustomProvider: (key: string) => void;
+
   selectedThemeId?: string;
   setSelectedThemeId: (themeId: string) => void;
 
@@ -283,6 +332,7 @@ export const createUiSlice: StateCreator<
   accountLocation: undefined,
   enabledProvidersByType: createEmptyEnabledProvidersByType(),
   favoriteModelsByType: createEmptyFavoriteModelsByType(),
+  customProviders: {},
   enabledSkillIds: [],
   favoriteSkillIds: [],
   selectedThemeId: undefined,
@@ -510,6 +560,37 @@ export const createUiSlice: StateCreator<
     set(() => ({
       favoriteSkillIds: Array.from(new Set((skillIds ?? []).filter(Boolean))),
     })),
+
+  setCustomProviders: (customProviders: CustomProvidersByKey) =>
+    set(() => ({
+      customProviders: normalizeCustomProviders(customProviders),
+    })),
+
+  upsertCustomProvider: (key: string, provider: Provider) =>
+    set((state: any) => {
+      const normalizedKey = normalizeCustomProviderKey(key);
+      if (!normalizedKey) return state;
+
+      const normalized = normalizeCustomProviders({ [normalizedKey]: provider });
+      const normalizedProvider = normalized[normalizedKey];
+      if (!normalizedProvider) return state;
+
+      return {
+        customProviders: {
+          ...(state.customProviders ?? {}),
+          [normalizedKey]: normalizedProvider,
+        },
+      };
+    }),
+
+  removeCustomProvider: (key: string) =>
+    set((state: any) => {
+      const normalizedKey = normalizeCustomProviderKey(key);
+      if (!normalizedKey) return state;
+
+      const { [normalizedKey]: _removed, ...rest } = state.customProviders ?? {};
+      return { customProviders: rest };
+    }),
 
   toggleFavoriteSkill: (skillId: string) =>
     set((state: UiSlice) => {

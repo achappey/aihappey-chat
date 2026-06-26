@@ -1,10 +1,11 @@
-import { CHAT_ENDPOINT_IDS, type ChatEndpointId } from "aihappey-state";
+import { CHAT_ENDPOINT_IDS, type ChatEndpointId, type ChatEndpointMode } from "aihappey-state";
 import type { Provider } from "aihappey-types";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 import { isGenericChatEndpoint } from "./genericChatEndpoint";
 
 export const DEFAULT_ENDPOINT_PROFILE_ID = "default";
 export const CUSTOM_ENDPOINT_PROFILE_ID = "custom";
+export const DIRECT_ENDPOINT_PROFILE_ID = "direct";
 export const PROVIDER_ENDPOINT_PROFILE_PREFIX = "provider:";
 
 export type EndpointProfileKind = "default" | "provider" | "custom";
@@ -25,6 +26,8 @@ const toChatEndpointIds = (values?: string[]) => Array.from(new Set(
   ),
 ));
 
+const providerRegistryOrDefault = (providers?: Record<string, Provider>) => providers ?? PROVIDERS;
+
 const hasProviderEndpointProfile = (entry: [string, Provider]) => {
   const [, provider] = entry;
   return typeof provider.apiBaseUrl === "string"
@@ -43,14 +46,16 @@ export const getProviderKeyFromEndpointProfileId = (profileId?: string) => {
 export const resolveProviderEndpointProfileForModel = ({
   modelId,
   endpoint,
+  providers,
 }: {
   modelId?: string;
   endpoint?: string;
+  providers?: Record<string, Provider>;
 }) => {
   const providerKey = String(modelId ?? "").split("/")[0]?.trim().toLowerCase();
   if (!providerKey || !endpoint) return undefined;
 
-  return getEndpointProfiles({}).find((profile) =>
+  return getEndpointProfiles({ providers }).find((profile) =>
     profile.kind === "provider"
     && profile.providerKey === providerKey
     && profile.chatEndpoints.includes(endpoint as ChatEndpointId),
@@ -59,10 +64,13 @@ export const resolveProviderEndpointProfileForModel = ({
 
 export const getEndpointProfiles = ({
   configuredChatEndpoint,
+  providers,
 }: {
   configuredChatEndpoint?: ChatEndpointId;
+  providers?: Record<string, Provider>;
 }): EndpointProfile[] => {
   const defaultEndpoint = configuredChatEndpoint ?? "/api/chat";
+  const providerRegistry = providerRegistryOrDefault(providers);
 
   return [
     {
@@ -71,7 +79,7 @@ export const getEndpointProfiles = ({
       label: "Default gateway",
       chatEndpoints: [defaultEndpoint],
     },
-    ...Object.entries(PROVIDERS)
+    ...Object.entries(providerRegistry)
       .filter(hasProviderEndpointProfile)
       .map(([providerKey, provider]) => ({
         id: getProviderEndpointProfileId(providerKey),
@@ -96,12 +104,14 @@ export const resolveEndpointProfile = ({
   selectedEndpointProfileId,
   selectedBaseUrl,
   configuredChatEndpoint,
+  providers,
 }: {
   selectedEndpointProfileId?: string;
   selectedBaseUrl?: string;
   configuredChatEndpoint?: ChatEndpointId;
+  providers?: Record<string, Provider>;
 }) => {
-  const profiles = getEndpointProfiles({ configuredChatEndpoint });
+  const profiles = getEndpointProfiles({ configuredChatEndpoint, providers });
   const hasManualOverride = !!selectedBaseUrl;
   const fallbackProfileId = hasManualOverride
     ? CUSTOM_ENDPOINT_PROFILE_ID
@@ -111,6 +121,57 @@ export const resolveEndpointProfile = ({
   return profiles.find((profile) => profile.id === profileId)
     ?? profiles.find((profile) => profile.id === fallbackProfileId)
     ?? profiles[0];
+};
+
+export const resolveDirectEndpointProfileForModel = ({
+  modelId,
+  selectedChatEndpoint,
+  providers,
+}: {
+  modelId?: string;
+  selectedChatEndpoint?: ChatEndpointId;
+  providers?: Record<string, Provider>;
+}) => {
+  const providerKey = String(modelId ?? "").split("/")[0]?.trim().toLowerCase();
+  if (!providerKey) return undefined;
+
+  const providerRegistry = providerRegistryOrDefault(providers);
+  const provider = providerRegistry[providerKey];
+  if (!provider || !hasProviderEndpointProfile([providerKey, provider])) return undefined;
+
+  const chatEndpoints = toChatEndpointIds(provider.chatEndpoints).filter(isGenericChatEndpoint);
+  return {
+    id: getProviderEndpointProfileId(providerKey),
+    kind: "provider" as const,
+    label: provider.name,
+    providerKey,
+    provider,
+    apiBaseUrl: provider.apiBaseUrl?.trim(),
+    chatEndpoints,
+    selectedChatEndpoint: selectedChatEndpoint && isGenericChatEndpoint(selectedChatEndpoint) && chatEndpoints.includes(selectedChatEndpoint)
+      ? selectedChatEndpoint
+      : chatEndpoints[0],
+  };
+};
+
+export const resolveChatEndpointModeProfile = ({
+  mode,
+  modelId,
+  selectedChatEndpoint,
+  configuredChatEndpoint,
+  providers,
+}: {
+  mode?: ChatEndpointMode;
+  modelId?: string;
+  selectedChatEndpoint?: ChatEndpointId;
+  configuredChatEndpoint?: ChatEndpointId;
+  providers?: Record<string, Provider>;
+}) => {
+  if (mode === "direct") {
+    return resolveDirectEndpointProfileForModel({ modelId, selectedChatEndpoint, providers });
+  }
+
+  return getEndpointProfiles({ configuredChatEndpoint, providers })[0];
 };
 
 export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {

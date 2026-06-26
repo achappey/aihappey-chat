@@ -39,6 +39,8 @@ export type {
 export {
   PROVIDER_CAPABILITIES,
   createEmptyEnabledProvidersByType,
+  normalizeCustomProviderKey,
+  normalizeCustomProviders,
 } from "./slices/uiSlice";
 export {
   CONVERSATION_NAME_AGENT_NAME,
@@ -61,14 +63,19 @@ export {
 export type { SideInferenceAgentNames } from "./slices/chatSlice";
 export {
   CHAT_ENDPOINT_IDS,
+  CHAT_ENDPOINT_MODES,
   DEFAULT_CHAT_ENDPOINT_ID,
+  DEFAULT_CHAT_ENDPOINT_MODE,
   isChatEndpointId,
+  isChatEndpointMode,
   normalizeBaseUrl,
   normalizeChatEndpointId,
+  normalizeChatEndpointMode,
   resolveEffectiveBaseUrl,
   resolveEffectiveChatEndpointId,
+  resolveEffectiveChatEndpointMode,
 } from "./slices/chatEndpoint";
-export type { ChatEndpointId } from "./slices/chatEndpoint";
+export type { ChatEndpointId, ChatEndpointMode } from "./slices/chatEndpoint";
 export * from "./slices/defaultProviderTranscriptionMetadata";
 export * from "./slices/defaultProviderSpeechMetadata";
 export * from "./slices/defaultProviderRerankingMetadata";

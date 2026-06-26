@@ -16,7 +16,8 @@ import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
-import { DEFAULT_CHAT_ENDPOINT_ID, normalizeBaseUrl, normalizeChatEndpointId, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId } from "./slices/chatEndpoint";
+import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
+import { normalizeCustomProviders } from "./slices/uiSlice";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -30,7 +31,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 24,
+    version: 25,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -100,8 +101,11 @@ export const withPersist = (
       favoriteAgentIds: (s as any).favoriteAgentIds,
       enabledSkillIds: (s as any).enabledSkillIds,
       favoriteSkillIds: (s as any).favoriteSkillIds,
+      customProviders: (s as any).customProviders,
       selectedThemeId: (s as any).selectedThemeId,
       sideInferenceAgentNames: (s as any).sideInferenceAgentNames,
+      configuredChatEndpointMode: (s as any).configuredChatEndpointMode,
+      selectedChatEndpointMode: (s as any).selectedChatEndpointMode,
       configuredChatEndpoint: (s as any).configuredChatEndpoint,
       selectedEndpointProfileId: (s as any).selectedEndpointProfileId,
       selectedChatEndpoint: (s as any).selectedChatEndpoint,
@@ -302,8 +306,27 @@ export const withPersist = (
         };
       }
 
+      if (version < 25) {
+        safeState = {
+          ...safeState,
+          configuredChatEndpointMode: normalizeChatEndpointMode(safeState.configuredChatEndpointMode)
+            ?? DEFAULT_CHAT_ENDPOINT_MODE,
+          selectedChatEndpointMode: normalizeChatEndpointMode(safeState.selectedChatEndpointMode)
+            ?? (typeof safeState.selectedEndpointProfileId === "string" && safeState.selectedEndpointProfileId.trim().length
+              ? "direct"
+              : undefined),
+          customProviders: normalizeCustomProviders(safeState.customProviders),
+        };
+      }
+
       return {
         ...safeState,
+        configuredChatEndpointMode: normalizeChatEndpointMode(safeState.configuredChatEndpointMode) ?? DEFAULT_CHAT_ENDPOINT_MODE,
+        selectedChatEndpointMode: normalizeChatEndpointMode(safeState.selectedChatEndpointMode),
+        effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(
+          normalizeChatEndpointMode(safeState.configuredChatEndpointMode) ?? DEFAULT_CHAT_ENDPOINT_MODE,
+          normalizeChatEndpointMode(safeState.selectedChatEndpointMode),
+        ),
         configuredChatEndpoint: normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
         selectedEndpointProfileId: typeof safeState.selectedEndpointProfileId === "string"
           && safeState.selectedEndpointProfileId.trim().length
@@ -337,6 +360,7 @@ export const withPersist = (
         favoriteSkillIds: Array.isArray(safeState.favoriteSkillIds)
           ? Array.from(new Set(safeState.favoriteSkillIds.filter(Boolean)))
           : [],
+        customProviders: normalizeCustomProviders(safeState.customProviders),
       } as any;
     },
   });

@@ -5,10 +5,14 @@ import { ToolAnnotations } from "aihappey-mcp";
 import { SIDE_INFERENCE_DEFAULT_AGENT_NAMES } from "./defaultAgents";
 import {
   DEFAULT_CHAT_ENDPOINT_ID,
+  DEFAULT_CHAT_ENDPOINT_MODE,
   normalizeBaseUrl,
   normalizeChatEndpointId,
+  normalizeChatEndpointMode,
   resolveEffectiveBaseUrl,
   resolveEffectiveChatEndpointId,
+  resolveEffectiveChatEndpointMode,
+  type ChatEndpointMode,
   type ChatEndpointId,
 } from "./chatEndpoint";
 
@@ -32,6 +36,9 @@ export type ChatSlice = {
   systemInstructions?: string
   chatMode: "chat" | "agent"
   switchChatMode: () => void;
+  configuredChatEndpointMode?: ChatEndpointMode;
+  selectedChatEndpointMode?: ChatEndpointMode;
+  effectiveChatEndpointMode: ChatEndpointMode;
   configuredChatEndpoint?: ChatEndpointId;
   selectedEndpointProfileId?: string;
   selectedChatEndpoint?: ChatEndpointId;
@@ -41,6 +48,8 @@ export type ChatSlice = {
   effectiveBaseUrl: string;
   endpointRawModelIds: boolean;
   endpointProviderMetadataEnabled: boolean;
+  setConfiguredChatEndpointMode: (mode?: ChatEndpointMode | string) => void;
+  setSelectedChatEndpointMode: (mode?: ChatEndpointMode | string) => void;
   setConfiguredChatEndpoint: (endpoint?: ChatEndpointId | string) => void;
   setSelectedEndpointProfileId: (profileId?: string) => void;
   setSelectedChatEndpoint: (endpoint?: ChatEndpointId | string) => void;
@@ -127,6 +136,9 @@ export const createChatSlice: StateCreator<
   modelsLoaded: false,
   modelsLoadingProgress: undefined,
   chatMode: "chat",
+  configuredChatEndpointMode: DEFAULT_CHAT_ENDPOINT_MODE,
+  selectedChatEndpointMode: undefined,
+  effectiveChatEndpointMode: DEFAULT_CHAT_ENDPOINT_MODE,
   configuredChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
   selectedEndpointProfileId: undefined,
   selectedChatEndpoint: undefined,
@@ -213,6 +225,29 @@ export const createChatSlice: StateCreator<
   setStructuredOutputs: (value) => {
     set((state: any) => ({
       structuredOutputs: value,
+    }));
+  },
+  setConfiguredChatEndpointMode: (value) => {
+    const configuredChatEndpointMode = normalizeChatEndpointMode(value) ?? DEFAULT_CHAT_ENDPOINT_MODE;
+    set((state: ChatSlice) => ({
+      configuredChatEndpointMode,
+      effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(configuredChatEndpointMode, state.selectedChatEndpointMode),
+    }));
+  },
+  setSelectedChatEndpointMode: (value) => {
+    const selectedChatEndpointMode = normalizeChatEndpointMode(value);
+    set((state: ChatSlice) => ({
+      selectedChatEndpointMode,
+      effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(state.configuredChatEndpointMode, selectedChatEndpointMode),
+      ...(selectedChatEndpointMode === "default"
+        ? {
+          selectedEndpointProfileId: undefined,
+          selectedChatEndpoint: undefined,
+          selectedBaseUrl: undefined,
+          effectiveChatEndpoint: resolveEffectiveChatEndpointId(state.configuredChatEndpoint, undefined),
+          effectiveBaseUrl: resolveEffectiveBaseUrl(state.configuredBaseUrl, undefined),
+        }
+        : {}),
     }));
   },
   setConfiguredChatEndpoint: (value) => {
@@ -350,6 +385,8 @@ export const createChatSlice: StateCreator<
       providerMetadata: { ...defaultProviderMetadata },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       temperature: 1,
+      selectedChatEndpointMode: undefined,
+      effectiveChatEndpointMode: get().configuredChatEndpointMode ?? DEFAULT_CHAT_ENDPOINT_MODE,
       selectedEndpointProfileId: undefined,
       selectedChatEndpoint: undefined,
       effectiveChatEndpoint: get().configuredChatEndpoint ?? DEFAULT_CHAT_ENDPOINT_ID,

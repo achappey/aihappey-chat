@@ -660,6 +660,10 @@
         "tabEndpoints": "Endpoints",
         "endpointProfile": "Endpoint profile",
         "endpointProfileHint": "Choose the configured app gateway, a provider catalog endpoint profile, or a custom override.",
+        "endpointMode": "Endpoint mode",
+        "endpointModeHint": "Use the app gateway or connect directly to the provider selected by the model prefix.",
+        "endpointModeDefaultGateway": "Default gateway",
+        "endpointModeDirectProvider": "Direct provider",
         "baseUrl": "Base URL",
         "baseUrlHint": "Override the base API URL used for chat, models, skills, sampling, images, audio, transcriptions, reranking, and video.",
         "effectiveBaseUrl": "Effective base URL",
@@ -676,7 +680,15 @@
         "endpointRawModelIdsHint": "When enabled, known app provider prefixes are removed from outgoing chat request model IDs for overridden endpoints.",
         "endpointProviderMetadata": "Include provider metadata",
         "endpointProviderMetadataHint": "When disabled, provider-specific metadata is omitted from chat requests sent to overridden endpoints.",
-        "endpointProviderProfileAutomaticHint": "Provider profiles automatically send provider-compatible model IDs and provider metadata from the selected gateway provider."
+        "endpointProviderProfileAutomaticHint": "Provider profiles automatically send provider-compatible model IDs and provider metadata from the selected gateway provider.",
+        "endpointDirectProviderAutomaticHint": "Direct provider automatically uses the provider from the selected model, sends provider-compatible model IDs, and applies the matching API key."
+    },
+    "providersPage": {
+        "addProvider": "Add provider",
+        "providerKey": "Provider key",
+        "addProviderRequired": "Provider key, name, and base URL are required.",
+        "addProviderInvalidUrl": "Enter a valid provider base URL.",
+        "customProviderDescription": "Custom direct provider"
     },
     "chatWithSpeechModels": "Chat with speech models",
     "chatWithTranscriptionModels": "Chat with transcription models",

@@ -2,6 +2,7 @@ import { createHttpClient } from "aihappey-http";
 import type { ModelResponse } from "aihappey-types";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { enrichModelTypes } from "../models/modelTypeEnrichment";
+import type { Provider } from "aihappey-types";
 
 export type ModelsListProgress = {
   completed: number;
@@ -12,6 +13,8 @@ export type ModelsListProgress = {
 type ProviderLike = {
   name?: string;
 };
+
+const providerRegistryOrDefault = (providers?: Record<string, ProviderLike>) => providers ?? PROVIDERS;
 
 const normalizeLookupValue = (value?: string) =>
   String(value ?? "")
@@ -24,25 +27,25 @@ export const getProviderKeyFromModelId = (modelId?: string) =>
     ?.trim()
     .toLowerCase() || undefined;
 
-const getProvider = (providerKey?: string): ProviderLike | undefined => {
+const getProvider = (providerKey?: string, providers?: Record<string, ProviderLike>): ProviderLike | undefined => {
   if (!providerKey) return undefined;
-  return (PROVIDERS as Record<string, ProviderLike | undefined>)[providerKey];
+  return providerRegistryOrDefault(providers)[providerKey];
 };
 
-const getCanonicalHeaderName = (providerKey?: string) => {
-  const provider = getProvider(providerKey);
+export const getProviderApiKeyHeaderName = (providerKey?: string, providers?: Record<string, ProviderLike>) => {
+  const provider = getProvider(providerKey, providers);
   if (!provider?.name) return undefined;
   return `X-${provider.name}-Key`;
 };
 
-export const isProviderHeader = (header: string, providerKey?: string) => {
+export const isProviderHeader = (header: string, providerKey?: string, providers?: Record<string, ProviderLike>) => {
   if (!providerKey) return false;
 
-  const provider = getProvider(providerKey);
+  const provider = getProvider(providerKey, providers);
   const normalizedHeader = normalizeLookupValue(header);
   const normalizedProviderKey = normalizeLookupValue(providerKey);
   const normalizedProviderName = normalizeLookupValue(provider?.name);
-  const normalizedCanonicalHeader = normalizeLookupValue(getCanonicalHeaderName(providerKey));
+  const normalizedCanonicalHeader = normalizeLookupValue(getProviderApiKeyHeaderName(providerKey, providers));
 
   if (normalizedCanonicalHeader && normalizedHeader === normalizedCanonicalHeader) {
     return true;
@@ -61,32 +64,35 @@ const isNonEmptyHeader = ([, value]: [string, string]) =>
 export const getConfiguredProviderHeaderEntries = (customHeaders?: Record<string, string>) =>
   Object.entries(customHeaders ?? {}).filter(isNonEmptyHeader);
 
-export const getEndpointHeaderEntries = (customHeaders?: Record<string, string>) =>
+export const getEndpointHeaderEntries = (customHeaders?: Record<string, string>, providers?: Record<string, ProviderLike>) =>
   getConfiguredProviderHeaderEntries(customHeaders).filter(([header]) =>
-    !Object.keys(PROVIDERS).some((providerKey) => isProviderHeader(header, providerKey)),
+    !Object.keys(providerRegistryOrDefault(providers)).some((providerKey) => isProviderHeader(header, providerKey, providers)),
   );
 
-export const createEndpointHeaders = (customHeaders?: Record<string, string>) =>
-  Object.fromEntries(getEndpointHeaderEntries(customHeaders));
+export const createEndpointHeaders = (customHeaders?: Record<string, string>, providers?: Record<string, ProviderLike>) =>
+  Object.fromEntries(getEndpointHeaderEntries(customHeaders, providers));
 
 export const getProviderApiKeyHeaderEntries = (
   customHeaders: Record<string, string> | undefined,
   providerKey?: string,
+  providers?: Record<string, ProviderLike>,
 ) =>
   getConfiguredProviderHeaderEntries(customHeaders).filter(([header]) =>
-    isProviderHeader(header, providerKey),
+    isProviderHeader(header, providerKey, providers),
   );
 
 export const getProviderApiKeyHeaderEntry = (
   customHeaders: Record<string, string> | undefined,
   providerKey?: string,
-) => getProviderApiKeyHeaderEntries(customHeaders, providerKey)[0];
+  providers?: Record<string, ProviderLike>,
+) => getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers)[0];
 
 export const createProviderBearerHeadersForProviderKey = (
   customHeaders: Record<string, string> | undefined,
   providerKey?: string,
+  providers?: Record<string, ProviderLike>,
 ) => {
-  const entry = getProviderApiKeyHeaderEntry(customHeaders, providerKey);
+  const entry = getProviderApiKeyHeaderEntry(customHeaders, providerKey, providers);
   const value = entry?.[1]?.trim();
 
   if (!value) return {} as Record<string, string>;
@@ -101,28 +107,31 @@ export const createProviderBearerHeadersForProviderKey = (
 export const createProviderBearerHeadersForModel = (
   customHeaders: Record<string, string> | undefined,
   modelId?: string,
+  providers?: Record<string, ProviderLike>,
 ) => {
   const providerKey = getProviderKeyFromModelId(modelId);
-  return createProviderBearerHeadersForProviderKey(customHeaders, providerKey);
+  return createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers);
 };
 
 export const createChatAuthHeadersForModel = (
   customHeaders: Record<string, string> | undefined,
   modelId?: string,
   hasAccessToken?: boolean,
+  providers?: Record<string, ProviderLike>,
 ) => hasAccessToken
   ? {}
   : {
-    ...createProviderBearerHeadersForModel(customHeaders, modelId),
-    ...createEndpointHeaders(customHeaders),
+    ...createProviderBearerHeadersForModel(customHeaders, modelId, providers),
+    ...createEndpointHeaders(customHeaders, providers),
   };
 
 export const createProviderHeaderSubsetForModel = (
   customHeaders: Record<string, string> | undefined,
   modelId?: string,
+  providers?: Record<string, ProviderLike>,
 ) => {
   const providerKey = getProviderKeyFromModelId(modelId);
-  return Object.fromEntries(getProviderApiKeyHeaderEntries(customHeaders, providerKey));
+  return Object.fromEntries(getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers));
 };
 
 const mergeModelResponses = (responses: ModelResponse[]) => {
@@ -161,12 +170,14 @@ export const listModelsWithSplitProviderHeaders = async ({
   getAccessToken,
   customHeaders,
   providerKey,
+  providers,
   onProgress,
 }: {
   modelsApi: string;
   getAccessToken?: () => Promise<string>;
   customHeaders?: Record<string, string>;
   providerKey?: string;
+  providers?: Record<string, Provider>;
   onProgress?: (progress: ModelsListProgress) => void;
 }) => {
   if (getAccessToken) {
@@ -175,7 +186,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   }
 
   const providerHeaderEntries = providerKey
-    ? getProviderApiKeyHeaderEntries(customHeaders, providerKey)
+    ? getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers)
     : getConfiguredProviderHeaderEntries(customHeaders);
   const includeAnonymousRequest = !providerKey;
   const total = providerKey ? 1 : (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length;
@@ -207,7 +218,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   }
 
   if (providerKey) {
-    await requestModels(createProviderBearerHeadersForProviderKey(customHeaders, providerKey));
+    await requestModels(createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers));
   } else {
     for (const [header, value] of providerHeaderEntries) {
       await requestModels({ [header]: value });

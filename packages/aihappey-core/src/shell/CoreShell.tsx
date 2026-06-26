@@ -22,6 +22,7 @@ import { useIsDesktop } from "./responsive/useIsDesktop";
 import { resolveEndpointProfile } from "../features/chat/engine/endpointProfiles";
 import { useDefaultModel } from "./bootstrap/useDefaultModel";
 import { useDefaultProviders } from "./bootstrap/useDefaultProviders";
+import { useProviderRegistry } from "../runtime/providers/useProviderRegistry";
 import { ImagesProvider } from "aihappey-images";
 import { ToolsProvider } from "aihappey-tools";
 import { FilesProvider } from "aihappey-files";
@@ -67,12 +68,14 @@ export const CoreShell: React.FC<Props> = ({
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
   const setConfiguredBaseUrl = useAppStore((s) => s.setConfiguredBaseUrl);
+  const effectiveChatEndpointMode = useAppStore((s) => s.effectiveChatEndpointMode);
   const setSelectedBaseUrl = useAppStore((s) => s.setSelectedBaseUrl);
   const setSelectedEndpointProfileId = useAppStore((s) => s.setSelectedEndpointProfileId);
   const resetModels = useAppStore((s) => s.resetModels);
   const storeEffectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
   const selectedBaseUrl = useAppStore((s) => s.selectedBaseUrl);
   const selectedEndpointProfileId = useAppStore((s) => s.selectedEndpointProfileId);
+  const providers = useProviderRegistry();
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
   const authenticated = chatConfig?.getAccessToken != null;
@@ -81,11 +84,14 @@ export const CoreShell: React.FC<Props> = ({
       selectedEndpointProfileId,
       selectedBaseUrl,
       configuredChatEndpoint: chatConfig?.defaultChatEndpoint,
+      providers,
     }),
-    [chatConfig?.defaultChatEndpoint, selectedBaseUrl, selectedEndpointProfileId],
+    [chatConfig?.defaultChatEndpoint, selectedBaseUrl, selectedEndpointProfileId, providers],
   );
   const effectiveBaseUrl = authenticated
     ? chatConfig.baseUrl
+    : effectiveChatEndpointMode === "direct"
+      ? chatConfig.baseUrl
     : selectedEndpointProfile?.kind === "provider"
       ? selectedEndpointProfile.apiBaseUrl || chatConfig.baseUrl
     : storeEffectiveBaseUrl || chatConfig.baseUrl;

@@ -652,6 +652,10 @@
         "chatEndpoint": "Chatendpoint",
         "chatEndpointHint": "Kies de chat-API-vorm die wordt gebruikt bij het versturen van berichten.",
         "effectiveChatEndpoint": "Effectief chatendpoint",
+        "endpointMode": "Endpointmodus",
+        "endpointModeHint": "Gebruik de app-gateway of verbind direct met de provider die door de modelprefix wordt gekozen.",
+        "endpointModeDefaultGateway": "Standaardgateway",
+        "endpointModeDirectProvider": "Directe provider",
         "endpointHeaders": "Headers",
         "endpointHeadersHint": "Optionele requestheaders voor endpoints die deze basis-URL gebruiken. Voer één header per regel in als Naam: waarde.",
         "endpointHeadersPlaceholder": "Authorization: Bearer ...\nx-api-key: ...",
@@ -661,7 +665,15 @@
         "endpointRawModelIdsHint": "Wanneer ingeschakeld worden bekende app-providerprefixen verwijderd uit model-ID's in uitgaande chatrequests voor overschreven endpoints.",
         "endpointProviderMetadata": "Providermetadata meesturen",
         "endpointProviderMetadataHint": "Wanneer uitgeschakeld wordt provider-specifieke metadata niet meegestuurd met chatrequests naar overschreven endpoints.",
-        "endpointProviderProfileAutomaticHint": "Providerprofielen versturen automatisch gateway-compatibele model-ID's en providermetadata van de geselecteerde gatewayprovider."
+        "endpointProviderProfileAutomaticHint": "Providerprofielen versturen automatisch gateway-compatibele model-ID's en providermetadata van de geselecteerde gatewayprovider.",
+        "endpointDirectProviderAutomaticHint": "Directe provider gebruikt automatisch de provider van het geselecteerde model, verstuurt provider-compatibele model-ID's en past de bijbehorende API-sleutel toe."
+    },
+    "providersPage": {
+        "addProvider": "Provider toevoegen",
+        "providerKey": "Providersleutel",
+        "addProviderRequired": "Providersleutel, naam en basis-URL zijn verplicht.",
+        "addProviderInvalidUrl": "Voer een geldige provider basis-URL in.",
+        "customProviderDescription": "Aangepaste directe provider"
     },
     "ok": "Ok",
     "execute": "Uitvoeren",

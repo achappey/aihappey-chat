@@ -7,7 +7,13 @@ export const CHAT_ENDPOINT_IDS = [
 
 export type ChatEndpointId = typeof CHAT_ENDPOINT_IDS[number];
 
+export const CHAT_ENDPOINT_MODES = ["default", "direct"] as const;
+
+export type ChatEndpointMode = typeof CHAT_ENDPOINT_MODES[number];
+
 export const DEFAULT_CHAT_ENDPOINT_ID: ChatEndpointId = "/api/chat";
+
+export const DEFAULT_CHAT_ENDPOINT_MODE: ChatEndpointMode = "default";
 
 export function isChatEndpointId(value: unknown): value is ChatEndpointId {
   return typeof value === "string" && (CHAT_ENDPOINT_IDS as readonly string[]).includes(value);
@@ -15,6 +21,14 @@ export function isChatEndpointId(value: unknown): value is ChatEndpointId {
 
 export function normalizeChatEndpointId(value: unknown): ChatEndpointId | undefined {
   return isChatEndpointId(value) ? value : undefined;
+}
+
+export function isChatEndpointMode(value: unknown): value is ChatEndpointMode {
+  return typeof value === "string" && (CHAT_ENDPOINT_MODES as readonly string[]).includes(value);
+}
+
+export function normalizeChatEndpointMode(value: unknown): ChatEndpointMode | undefined {
+  return isChatEndpointMode(value) ? value : undefined;
 }
 
 export function resolveEffectiveChatEndpointId(
@@ -37,4 +51,13 @@ export function resolveEffectiveBaseUrl(
   selected?: unknown,
 ): string {
   return normalizeBaseUrl(selected) ?? normalizeBaseUrl(configured) ?? "";
+}
+
+export function resolveEffectiveChatEndpointMode(
+  configured?: unknown,
+  selected?: unknown,
+): ChatEndpointMode {
+  return normalizeChatEndpointMode(selected)
+    ?? normalizeChatEndpointMode(configured)
+    ?? DEFAULT_CHAT_ENDPOINT_MODE;
 }

@@ -3,20 +3,10 @@ import { ModelSelectField } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import type { ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useTranslation } from "aihappey-i18n";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
 type ProviderOption = { key: string; label: string };
-
-const providerOptions: ProviderOption[] = Object.entries(PROVIDERS).map(([key, meta]) => ({
-  key,
-  label: meta.name,
-}));
-
-const providerNameToKey = Object.entries(PROVIDERS).reduce((acc, [key, meta]) => {
-  acc[meta.name] = key;
-  return acc;
-}, {} as Record<string, string>);
 
 const newestModelOfTypes = (models: ModelOption[], modelTypes: string[]) => {
   const candidates = (models ?? []).filter((model) => modelTypes.includes(model.type));
@@ -38,6 +28,21 @@ interface ModelSelectProps {
 export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
+  const providers = useProviderRegistry();
+  const providerOptions: ProviderOption[] = React.useMemo(
+    () => Object.entries(providers).map(([key, meta]) => ({
+      key,
+      label: meta.name,
+    })),
+    [providers],
+  );
+  const providerNameToKey = React.useMemo(
+    () => Object.entries(providers).reduce((acc, [key, meta]) => {
+      acc[meta.name] = key;
+      return acc;
+    }, {} as Record<string, string>),
+    [providers],
+  );
 
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);

@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { useAppStore } from "aihappey-state";
 import { useSearchParams } from "react-router";
 import { listModelsWithSplitProviderHeaders } from "../provider-credentials/providerAuthHeaders";
-import { resolveEndpointProfile } from "../chat/engine/endpointProfiles";
 import type { ModelOption } from "aihappey-types";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
 const newestModelOfType = (models: ModelOption[], type?: string) => {
   const candidates = models.filter((item) => !type || item.type === type);
@@ -25,25 +25,17 @@ export const useModels = (
   const setModels = useAppStore(a => a.setModels)
   const resetModels = useAppStore(a => a.resetModels)
   const customHeaders = useAppStore(a => a.customHeaders)
-  const configuredChatEndpoint = useAppStore(a => a.configuredChatEndpoint)
-  const selectedEndpointProfileId = useAppStore(a => a.selectedEndpointProfileId)
-  const selectedBaseUrl = useAppStore(a => a.selectedBaseUrl)
+  const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
   const setModelsLoadingProgress = useAppStore((a: any) => a.setModelsLoadingProgress)
   const setSelectedModel = useAppStore(a => a.setSelectedModel)
   const userPreferredModel = useAppStore(a => a.userPreferredModel)
   const selectedModel = useAppStore(a => a.selectedModel)
   const [searchParams] = useSearchParams();
   const lastSelectionRef = useRef<{ selectedModel?: string; models?: ModelOption[] }>({});
+  const providers = useProviderRegistry();
 
   const model = searchParams.get("model");
-  const endpointProfile = resolveEndpointProfile({
-    selectedEndpointProfileId,
-    selectedBaseUrl,
-    configuredChatEndpoint,
-  });
-  const selectedProviderKey = endpointProfile?.kind === "provider"
-    ? endpointProfile.providerKey
-    : undefined;
+  const selectedProviderKey = undefined;
 
   useEffect(() => {
     if (selectedModel || (models?.length ?? 0) > 0) {
@@ -57,7 +49,8 @@ export const useModels = (
         modelsApi,
         getAccessToken,
         customHeaders,
-        providerKey: selectedProviderKey,
+        providerKey: effectiveChatEndpointMode === "direct" ? selectedProviderKey : undefined,
+        providers,
         onProgress: setModelsLoadingProgress,
       })
         .then((a) => {
@@ -86,7 +79,7 @@ export const useModels = (
         })
     }
 
-  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, selectedModel, selectedProviderKey, userPreferredModel, setModels, resetModels, setSelectedModel, setModelsLoadingProgress]);
+  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, selectedModel, selectedProviderKey, effectiveChatEndpointMode, providers, userPreferredModel, setModels, resetModels, setSelectedModel, setModelsLoadingProgress]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;

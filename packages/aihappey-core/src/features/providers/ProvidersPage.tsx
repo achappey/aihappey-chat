@@ -11,11 +11,12 @@ import {
 import { useTranslation } from "aihappey-i18n";
 import { useDarkMode } from "usehooks-ts";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
-import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import type { Provider, ProviderCategory } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { MeshFiltersRow } from "./mesh/MeshFiltersRow";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { AddProviderModal } from "./AddProviderModal";
 
 type ProviderListItem = {
     key: string;
@@ -45,6 +46,8 @@ export const ProvidersPage = () => {
     ]);
     const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(null);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+    const [showAddProvider, setShowAddProvider] = useState(false);
+    const providerRegistry = useProviderRegistry();
     const models = useAppStore((s) => s.models);
     const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
     const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
@@ -80,7 +83,7 @@ export const ProvidersPage = () => {
     }, [orderedModels]);
 
     const providers: ProviderListItem[] = useMemo(() => {
-        const items = Object.entries(PROVIDERS).map(([key, meta]) => {
+        const items = Object.entries(providerRegistry).map(([key, meta]) => {
             const m = meta as any;
             return {
                 key: key,
@@ -97,7 +100,7 @@ export const ProvidersPage = () => {
 
         items.sort((a, b) => collator.compare(a.name, b.name));
         return items;
-    }, [collator]);
+    }, [collator, providerRegistry]);
 
     const providerCountryOptions = useMemo(() => {
         const values = new Set<string>();
@@ -515,6 +518,12 @@ export const ProvidersPage = () => {
                                     </Text>
                                 </div>
 
+                                <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                                    <Button icon="add" variant="primary" onClick={() => setShowAddProvider(true)}>
+                                        {t("providersPage.addProvider") ?? "Add provider"}
+                                    </Button>
+                                </div>
+
                                 <MeshFiltersRow
                                     search={search}
                                     onSearchChange={setSearch}
@@ -658,6 +667,7 @@ export const ProvidersPage = () => {
                             onToggleModelFavorite={(model) => toggleFavoriteModelForType(model.type, model.id)}
                         />
                     )}
+                    <AddProviderModal open={showAddProvider} onClose={() => setShowAddProvider(false)} />
                 </div>
             </div>
         </>
