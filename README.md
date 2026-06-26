@@ -12,7 +12,7 @@
 
 `aihappey-chat` is a client-side AI chat app. It gives users one interface for normal chat, model/provider switching, MCP tools, file attachments, structured output, and rich responses.
 
-The app does not own a backend. You point it at compatible APIs and MCP servers.
+The app does not own a backend. You point it at compatible APIs and MCP catalogs.
 
 ## Highlights
 
@@ -54,9 +54,6 @@ This keeps provider-specific settings consistent while using the correct wire fi
 This repository is client-side only. A deployment usually provides:
 
 - A chat backend at `API_BASE_URL` supporting at least one of the chat endpoints above.
-- A model catalog endpoint if model discovery is enabled.
-- An MCP server for chat tools/resources.
-- A backend for MCP sampling calls when sampling is enabled.
 
 Optional backends:
 
@@ -80,7 +77,6 @@ Important variables:
 - `API_BASE_URL`: base URL for chat and related APIs, for example `http://localhost:3010`.
 - `DEFAULT_CHAT_ENDPOINT`: default chat endpoint. Use `/api/chat`, `/v1/chat/completions`, `/v1/responses`, or `/v1/messages`.
 - `AGENT_ENDPOINT`: agent backend base URL. Agent mode calls `${AGENT_ENDPOINT}/api/chat`.
-- `CHAT_APP_MCP`: MCP server URL used by the chat app.
 - `APPLICATIONINSIGHTS_CONNECTION_STRING`: optional monitoring configuration.
 
 See [`samples/chathappey/.env.example`](samples/chathappey/.env.example) for the current sample values.
