@@ -33,7 +33,7 @@ Supported chat endpoints:
 
 | Endpoint | Purpose | Request shape |
 | --- | --- | --- |
-| `POST /api/chat` | Legacy/default chat endpoint | Vercel AI SDK compatible streaming chat body |
+| `POST /api/chat` | Default chat endpoint | Vercel AI SDK compatible streaming chat body |
 | `POST /v1/chat/completions` | OpenAI-compatible chat completions endpoint | Native chat completions body |
 | `POST /v1/responses` | OpenAI-compatible responses endpoint | Native responses body |
 | `POST /v1/messages` | Anthropic-compatible messages endpoint | Native messages body |
