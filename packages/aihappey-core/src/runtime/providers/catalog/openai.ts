@@ -24,7 +24,9 @@ export const openai: Provider = {
   },
   providerCountry: "US",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.openai.com",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses"]
 
 };
 
