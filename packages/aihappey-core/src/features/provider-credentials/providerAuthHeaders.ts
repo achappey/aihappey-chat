@@ -12,6 +12,7 @@ export type ModelsListProgress = {
 
 type ProviderLike = {
   name?: string;
+  apiBaseUrl?: string;
 };
 
 const providerRegistryOrDefault = (providers?: Record<string, ProviderLike>) => providers ?? PROVIDERS;
@@ -85,23 +86,68 @@ export const getProviderApiKeyHeaderEntry = (
   customHeaders: Record<string, string> | undefined,
   providerKey?: string,
   providers?: Record<string, ProviderLike>,
-) => getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers)[0];
+) => {
+  const entries = getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers);
+  const canonicalHeader = normalizeLookupValue(getProviderApiKeyHeaderName(providerKey, providers));
+
+  return entries.find(([header]) => canonicalHeader && normalizeLookupValue(header) === canonicalHeader)
+    ?? entries[0];
+};
+
+const getExactProviderApiKeyHeaderEntry = (
+  customHeaders: Record<string, string> | undefined,
+  providerKey?: string,
+  providers?: Record<string, ProviderLike>,
+) => {
+  const canonicalHeader = normalizeLookupValue(getProviderApiKeyHeaderName(providerKey, providers));
+  if (!canonicalHeader) return undefined;
+
+  return getConfiguredProviderHeaderEntries(customHeaders).find(([header]) =>
+    normalizeLookupValue(header) === canonicalHeader,
+  );
+};
+
+const getProviderModelApi = (provider: ProviderLike | undefined, modelsApi: string) => {
+  const baseUrl = provider?.apiBaseUrl?.trim();
+  if (!baseUrl) return modelsApi;
+
+  return `${baseUrl.replace(/\/$/, "")}/v1/models`;
+};
+
+const getDirectProviderModelRequests = (
+  customHeaders: Record<string, string> | undefined,
+  providers?: Record<string, ProviderLike>,
+) => Object.entries(providerRegistryOrDefault(providers)).flatMap(([providerKey, provider]) => {
+  if (!provider?.apiBaseUrl?.trim()) return [];
+
+  const entry = getExactProviderApiKeyHeaderEntry(customHeaders, providerKey, providers);
+  const value = entry?.[1]?.trim();
+  if (!value) return [];
+
+  return [{ providerKey, apiKey: value }];
+});
+
+const createBearerHeadersFromApiKey = (value?: string) => {
+  const apiKey = value?.trim();
+
+  if (!apiKey) return {} as Record<string, string>;
+
+  return {
+    Authorization: apiKey.toLowerCase().startsWith("bearer ")
+      ? apiKey
+      : `Bearer ${apiKey}`,
+  };
+};
 
 export const createProviderBearerHeadersForProviderKey = (
   customHeaders: Record<string, string> | undefined,
   providerKey?: string,
   providers?: Record<string, ProviderLike>,
 ) => {
-  const entry = getProviderApiKeyHeaderEntry(customHeaders, providerKey, providers);
+  const entry = getExactProviderApiKeyHeaderEntry(customHeaders, providerKey, providers);
   const value = entry?.[1]?.trim();
 
-  if (!value) return {} as Record<string, string>;
-
-  return {
-    Authorization: value.toLowerCase().startsWith("bearer ")
-      ? value
-      : `Bearer ${value}`,
-  };
+  return createBearerHeadersFromApiKey(value);
 };
 
 export const createProviderBearerHeadersForModel = (
@@ -158,6 +204,10 @@ const prefixProviderModelIds = (response: ModelResponse, providerKey?: string) =
     ...response,
     data: (response?.data ?? []).map((model) => ({
       ...model,
+      sourceProviderKey: normalizedProviderKey,
+      providerKey: normalizedProviderKey,
+      providerModelId: model.id,
+      type: model.type || "",
       id: model.id?.toLowerCase().startsWith(`${normalizedProviderKey}/`)
         ? model.id
         : `${normalizedProviderKey}/${model.id}`,
@@ -170,6 +220,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   getAccessToken,
   customHeaders,
   providerKey,
+  directProviderModels,
   providers,
   onProgress,
 }: {
@@ -177,6 +228,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   getAccessToken?: () => Promise<string>;
   customHeaders?: Record<string, string>;
   providerKey?: string;
+  directProviderModels?: boolean;
   providers?: Record<string, Provider>;
   onProgress?: (progress: ModelsListProgress) => void;
 }) => {
@@ -185,11 +237,21 @@ export const listModelsWithSplitProviderHeaders = async ({
     return enrichModelResponse(await client.get<ModelResponse>(modelsApi));
   }
 
+  const directProviderRequests = directProviderModels
+    ? providerKey
+      ? (() => {
+        const apiKey = getExactProviderApiKeyHeaderEntry(customHeaders, providerKey, providers)?.[1]?.trim();
+        return apiKey ? [{ providerKey, apiKey }] : [];
+      })()
+      : getDirectProviderModelRequests(customHeaders, providers)
+    : [];
   const providerHeaderEntries = providerKey
     ? getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers)
     : getConfiguredProviderHeaderEntries(customHeaders);
-  const includeAnonymousRequest = !providerKey;
-  const total = providerKey ? 1 : (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length;
+  const includeAnonymousRequest = !directProviderModels && !providerKey;
+  const total = directProviderModels
+    ? directProviderRequests.length
+    : providerKey ? 1 : (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length;
   const responses: ModelResponse[] = [];
   let completed = 0;
   let lastError: unknown;
@@ -198,10 +260,13 @@ export const listModelsWithSplitProviderHeaders = async ({
     onProgress?.({ completed, total, active: completed < total });
   };
 
-  const requestModels = async (headers?: Record<string, string>) => {
+  const requestModels = async (headers?: Record<string, string>, requestProviderKey?: string) => {
     try {
       const client = createHttpClient({ headers });
-      responses.push(prefixProviderModelIds(enrichModelResponse(await client.get<ModelResponse>(modelsApi)), providerKey));
+      const requestModelsApi = requestProviderKey
+        ? getProviderModelApi(getProvider(requestProviderKey, providers), modelsApi)
+        : modelsApi;
+      responses.push(prefixProviderModelIds(enrichModelResponse(await client.get<ModelResponse>(requestModelsApi)), requestProviderKey ?? providerKey));
     } catch (err) {
       lastError = err;
       console.error("Failed to load models for provider header subset:", err);
@@ -212,6 +277,20 @@ export const listModelsWithSplitProviderHeaders = async ({
   };
 
   updateProgress();
+
+  if (directProviderModels) {
+    for (const request of directProviderRequests) {
+      await requestModels(createBearerHeadersFromApiKey(request.apiKey), request.providerKey);
+    }
+
+    onProgress?.({ completed: total, total, active: false });
+
+    if (responses.length === 0 && lastError) {
+      throw lastError;
+    }
+
+    return mergeModelResponses(responses);
+  }
 
   if (includeAnonymousRequest) {
     await requestModels(undefined);

@@ -19,7 +19,6 @@ import { useModels } from "../features/models/useModels";
 import { useRemoteAgentModels } from "../features/agents/useRemoteAgentModels";
 import { ChatConfig, ChatProvider } from "../features/chat/context/ChatProvider";
 import { useIsDesktop } from "./responsive/useIsDesktop";
-import { resolveEndpointProfile } from "../features/chat/engine/endpointProfiles";
 import { useDefaultModel } from "./bootstrap/useDefaultModel";
 import { useDefaultProviders } from "./bootstrap/useDefaultProviders";
 import { useProviderRegistry } from "../runtime/providers/useProviderRegistry";
@@ -68,8 +67,14 @@ export const CoreShell: React.FC<Props> = ({
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
   const setConfiguredBaseUrl = useAppStore((s) => s.setConfiguredBaseUrl);
+  const configuredChatEndpointMode = useAppStore((s) => s.configuredChatEndpointMode);
   const effectiveChatEndpointMode = useAppStore((s) => s.effectiveChatEndpointMode);
+  const selectedChatEndpointMode = useAppStore((s) => s.selectedChatEndpointMode);
+  const selectedChatEndpoint = useAppStore((s) => s.selectedChatEndpoint);
+  const customHeaders = useAppStore((s) => s.customHeaders);
   const setSelectedBaseUrl = useAppStore((s) => s.setSelectedBaseUrl);
+  const setConfiguredChatEndpointMode = useAppStore((s) => s.setConfiguredChatEndpointMode);
+  const setSelectedChatEndpointMode = useAppStore((s) => s.setSelectedChatEndpointMode);
   const setSelectedEndpointProfileId = useAppStore((s) => s.setSelectedEndpointProfileId);
   const resetModels = useAppStore((s) => s.resetModels);
   const storeEffectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
@@ -79,21 +84,10 @@ export const CoreShell: React.FC<Props> = ({
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
   const authenticated = chatConfig?.getAccessToken != null;
-  const selectedEndpointProfile = useMemo(
-    () => resolveEndpointProfile({
-      selectedEndpointProfileId,
-      selectedBaseUrl,
-      configuredChatEndpoint: chatConfig?.defaultChatEndpoint,
-      providers,
-    }),
-    [chatConfig?.defaultChatEndpoint, selectedBaseUrl, selectedEndpointProfileId, providers],
-  );
   const effectiveBaseUrl = authenticated
     ? chatConfig.baseUrl
     : effectiveChatEndpointMode === "direct"
       ? chatConfig.baseUrl
-    : selectedEndpointProfile?.kind === "provider"
-      ? selectedEndpointProfile.apiBaseUrl || chatConfig.baseUrl
     : storeEffectiveBaseUrl || chatConfig.baseUrl;
   const effectiveChatConfig = useMemo(
     () => ({
@@ -115,13 +109,19 @@ export const CoreShell: React.FC<Props> = ({
   }, [chatConfig?.baseUrl, setConfiguredBaseUrl]);
 
   useEffect(() => {
+    if (authenticated && configuredChatEndpointMode !== "default") {
+      setConfiguredChatEndpointMode("default");
+    }
+    if (authenticated && selectedChatEndpointMode) {
+      setSelectedChatEndpointMode(undefined);
+    }
     if (authenticated && selectedBaseUrl) {
       setSelectedBaseUrl(undefined);
     }
     if (authenticated && selectedEndpointProfileId) {
       setSelectedEndpointProfileId(undefined);
     }
-  }, [authenticated, selectedBaseUrl, selectedEndpointProfileId, setSelectedBaseUrl, setSelectedEndpointProfileId]);
+  }, [authenticated, configuredChatEndpointMode, selectedBaseUrl, selectedChatEndpointMode, selectedEndpointProfileId, setConfiguredChatEndpointMode, setSelectedBaseUrl, setSelectedChatEndpointMode, setSelectedEndpointProfileId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -249,7 +249,7 @@ export const CoreShell: React.FC<Props> = ({
 
   useEffect(() => {
     (resetModels as any)({ keepSelectedModel: true });
-  }, [modelsApi, resetModels]);
+  }, [customHeaders, effectiveChatEndpointMode, modelsApi, providers, resetModels, selectedChatEndpoint, selectedEndpointProfileId]);
 
   useModels(
     modelsApi,

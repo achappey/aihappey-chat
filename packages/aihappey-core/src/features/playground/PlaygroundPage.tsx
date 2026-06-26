@@ -73,8 +73,7 @@ export const PlaygroundPage = () => {
     "/api/chat": {},
     "/v1/chat/completions": {},
     "/v1/responses": {},
-    "/v1/messages": {},
-    "/sampling": {},
+    "/v1/messages": {}
   });
   const [rawResponse, setRawResponse] = useState<any>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);

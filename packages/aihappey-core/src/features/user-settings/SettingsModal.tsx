@@ -87,6 +87,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const effectiveChatEndpointMode = useAppStore((s) => s.effectiveChatEndpointMode);
   const configuredBaseUrl = useAppStore((s) => s.configuredBaseUrl);
   const effectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
+  const setConfiguredChatEndpointMode = useAppStore((s) => s.setConfiguredChatEndpointMode);
   const setSelectedChatEndpointMode = useAppStore((s) => s.setSelectedChatEndpointMode);
   const [providerKeysOpen, setProviderKeysOpen] = useState(false);
 
@@ -118,6 +119,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleEndpointModeChange = (mode: string) => {
     if (isAuthenticatedEndpointConfig) return;
     const nextMode = (mode === "direct" ? "direct" : "default") as ChatEndpointMode;
+    setConfiguredChatEndpointMode(nextMode);
     setSelectedChatEndpointMode(nextMode === "default" ? undefined : nextMode);
   };
 

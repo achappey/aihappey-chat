@@ -15,6 +15,8 @@ export const DEFAULT_CHAT_ENDPOINT_ID: ChatEndpointId = "/api/chat";
 
 export const DEFAULT_CHAT_ENDPOINT_MODE: ChatEndpointMode = "default";
 
+export const CHAT_ENDPOINT_MODE_STORAGE_KEY = "aihappey_chat_endpoint_mode";
+
 const PREFERRED_PROVIDER_CHAT_ENDPOINT_IDS: readonly ChatEndpointId[] = [
   "/v1/responses",
   "/v1/messages",
@@ -34,6 +36,25 @@ export function isChatEndpointMode(value: unknown): value is ChatEndpointMode {
 
 export function normalizeChatEndpointMode(value: unknown): ChatEndpointMode | undefined {
   return isChatEndpointMode(value) ? value : undefined;
+}
+
+export function readStoredChatEndpointMode(): ChatEndpointMode | undefined {
+  try {
+    if (typeof window === "undefined") return undefined;
+    return normalizeChatEndpointMode(window.localStorage.getItem(CHAT_ENDPOINT_MODE_STORAGE_KEY));
+  } catch {
+    return undefined;
+  }
+}
+
+export function writeStoredChatEndpointMode(value?: unknown): void {
+  try {
+    if (typeof window === "undefined") return;
+    const mode = normalizeChatEndpointMode(value) ?? DEFAULT_CHAT_ENDPOINT_MODE;
+    window.localStorage.setItem(CHAT_ENDPOINT_MODE_STORAGE_KEY, mode);
+  } catch {
+    // Ignore storage failures. Zustand persistence remains the primary store.
+  }
 }
 
 export function resolveEffectiveChatEndpointId(

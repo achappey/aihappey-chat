@@ -40,7 +40,7 @@ const themes = [
 const App = () => {
   const selectedThemeId = useAppStore((state) => state.selectedThemeId);
   const setSelectedThemeId = useAppStore((state) => state.setSelectedThemeId);
-
+//  defaultChatEndpoint: __DEFAULT_CHAT_ENDPOINT__,
   return (
     <MultiThemeProvider
       themes={themes}
@@ -55,7 +55,7 @@ const App = () => {
         appVersion={__APP_VERSION__}
         chatConfig={{
           chatbotInstructions: __CHATBOT_INSTRUCTIONS__,
-          defaultChatEndpoint: __DEFAULT_CHAT_ENDPOINT__,
+        
           mcpCatalogUrls: __MCP_CATALOG_URLS__,
           defaultProvidersByType: {
             language: ["Pollinations", "GTranslate", "Echo", "UncloseAI", "AndyAPI"],

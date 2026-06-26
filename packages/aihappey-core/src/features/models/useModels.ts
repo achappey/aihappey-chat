@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { useAppStore } from "aihappey-state";
+import { useEffect, useRef, useState } from "react";
+import { store as appStore, useAppStore } from "aihappey-state";
 import { useSearchParams } from "react-router";
 import { listModelsWithSplitProviderHeaders } from "../provider-credentials/providerAuthHeaders";
 import type { ModelOption } from "aihappey-types";
@@ -33,9 +33,21 @@ export const useModels = (
   const [searchParams] = useSearchParams();
   const lastSelectionRef = useRef<{ selectedModel?: string; models?: ModelOption[] }>({});
   const providers = useProviderRegistry();
+  const [storeHydrated, setStoreHydrated] = useState(() =>
+    (appStore as any).persist?.hasHydrated?.() ?? true,
+  );
 
   const model = searchParams.get("model");
-  const selectedProviderKey = undefined;
+
+  useEffect(() => {
+    const persistApi = (appStore as any).persist;
+    if (!persistApi || persistApi.hasHydrated?.()) {
+      setStoreHydrated(true);
+      return;
+    }
+
+    return persistApi.onFinishHydration?.(() => setStoreHydrated(true));
+  }, []);
 
   useEffect(() => {
     if (selectedModel || (models?.length ?? 0) > 0) {
@@ -44,12 +56,12 @@ export const useModels = (
   }, [models, selectedModel]);
 
   useEffect(() => {
-    if (!modelsLoaded) {
+    if (storeHydrated && !modelsLoaded) {
       listModelsWithSplitProviderHeaders({
         modelsApi,
         getAccessToken,
         customHeaders,
-        providerKey: effectiveChatEndpointMode === "direct" ? selectedProviderKey : undefined,
+        directProviderModels: effectiveChatEndpointMode === "direct" && !getAccessToken,
         providers,
         onProgress: setModelsLoadingProgress,
       })
@@ -79,7 +91,7 @@ export const useModels = (
         })
     }
 
-  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, selectedModel, selectedProviderKey, effectiveChatEndpointMode, providers, userPreferredModel, setModels, resetModels, setSelectedModel, setModelsLoadingProgress]);
+  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, selectedModel, effectiveChatEndpointMode, providers, userPreferredModel, setModels, resetModels, setSelectedModel, setModelsLoadingProgress, storeHydrated]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;

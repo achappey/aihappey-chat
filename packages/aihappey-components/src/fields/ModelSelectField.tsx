@@ -30,6 +30,15 @@ export type ModelSelectFieldProps = {
   ariaLabel?: string;
 };
 
+const getModelProviderKey = (model: ModelOption) => {
+  const explicitProviderKey = (model as any).sourceProviderKey ?? (model as any).providerKey;
+  if (typeof explicitProviderKey === "string" && explicitProviderKey.trim().length > 0) {
+    return explicitProviderKey.trim().toLowerCase();
+  }
+
+  return model.id.split("/")[0]?.toLowerCase();
+};
+
 export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   models,
   value,
@@ -67,7 +76,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     // Favorites must always remain visible even if provider is currently disabled.
     if (favoriteSet.has(m.id)) return true;
 
-    const providerKey = m.id.split("/")[0];
+    const providerKey = getModelProviderKey(m);
     return !enabledSet || enabledSet.has(providerKey);
   });
 
@@ -79,7 +88,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
 
   for (const model of visibleModels) {
     if (favoriteSet.has(model.id)) continue;
-    const providerKey = model.id.split("/")[0];
+    const providerKey = getModelProviderKey(model);
     if (providerLabelByKey.has(providerKey)) {
       (grouped[providerKey] ??= []).push(model);
     } else {
@@ -120,7 +129,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
           <optgroup key={providerKey} label={providerLabelByKey.get(providerKey) ?? providerKey}>
             {list.map((model) => (
               <option key={model.id} value={model.id}>
-                {model.name}
+                {model.name ?? model.id}
               </option>
             ))}
           </optgroup>
@@ -128,7 +137,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
 
         {ungrouped.map((model) => (
           <option key={model.id} value={model.id}>
-            {model.name}
+            {model.name ?? model.id}
           </option>
         ))}
       </>

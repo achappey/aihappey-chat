@@ -16,7 +16,7 @@ import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
-import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
+import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, readStoredChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
 import { normalizeCustomProviders } from "./slices/uiSlice";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
@@ -319,13 +319,21 @@ export const withPersist = (
         };
       }
 
+      const storedChatEndpointMode = readStoredChatEndpointMode();
+      const configuredChatEndpointMode = storedChatEndpointMode
+        ?? normalizeChatEndpointMode(safeState.configuredChatEndpointMode)
+        ?? DEFAULT_CHAT_ENDPOINT_MODE;
+      const selectedChatEndpointMode = storedChatEndpointMode === "direct"
+        ? "direct"
+        : normalizeChatEndpointMode(safeState.selectedChatEndpointMode);
+
       return {
         ...safeState,
-        configuredChatEndpointMode: normalizeChatEndpointMode(safeState.configuredChatEndpointMode) ?? DEFAULT_CHAT_ENDPOINT_MODE,
-        selectedChatEndpointMode: normalizeChatEndpointMode(safeState.selectedChatEndpointMode),
+        configuredChatEndpointMode,
+        selectedChatEndpointMode,
         effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(
-          normalizeChatEndpointMode(safeState.configuredChatEndpointMode) ?? DEFAULT_CHAT_ENDPOINT_MODE,
-          normalizeChatEndpointMode(safeState.selectedChatEndpointMode),
+          configuredChatEndpointMode,
+          selectedChatEndpointMode,
         ),
         configuredChatEndpoint: normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
         selectedEndpointProfileId: typeof safeState.selectedEndpointProfileId === "string"

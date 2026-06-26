@@ -3,8 +3,7 @@ import { ProviderKeysForm, SettingsActionButtons, useTheme } from "aihappey-comp
 import { useTranslation } from "aihappey-i18n";
 import { PROVIDER_CAPABILITIES, useAppStore } from "aihappey-state";
 import { useDarkMode } from "usehooks-ts";
-import { useChatContext } from "../chat/context/ChatContext";
-import { getProviderApiKeyHeaderName, listModelsWithSplitProviderHeaders } from "./providerAuthHeaders";
+import { getProviderApiKeyHeaderName } from "./providerAuthHeaders";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
 function downloadJson(filename: string, data: unknown) {
@@ -53,12 +52,10 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const { isDarkMode } = useDarkMode();
-  const { config } = useChatContext();
   const providers = useProviderRegistry();
 
   const customHeaders = useAppStore((s) => s.customHeaders);
-  const setModels = useAppStore((s) => s.setModels);
-  const setModelsLoadingProgress = useAppStore((s: any) => s.setModelsLoadingProgress);
+  const resetModels = useAppStore((s) => s.resetModels);
   const addCustomHeader = useAppStore((s) => s.addCustomHeader);
   const removeCustomHeader = useAppStore((s) => s.removeCustomHeader);
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
@@ -169,31 +166,12 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
     return false;
   }, [customHeaders]);
 
-  const refreshModels = useCallback(async () => {
-    const modelsApi = config.baseUrl + config.endpoints.models;
-
-    try {
-      const response = await listModelsWithSplitProviderHeaders({
-        modelsApi,
-        getAccessToken: config.getAccessToken,
-        customHeaders,
-        providers,
-        onProgress: setModelsLoadingProgress,
-      });
-      setModels(response.data);
-      setModelsLoadingProgress?.(undefined);
-    } catch (err) {
-      setModelsLoadingProgress?.(undefined);
-      console.error("Failed to refresh models after provider key changes:", err);
-    }
-  }, [config, customHeaders, providers, setModels, setModelsLoadingProgress]);
-
   const handleClose = useCallback(() => {
     if (hasProviderKeysChangedThisSession()) {
-      void refreshModels();
+      (resetModels as any)({ keepSelectedModel: true });
     }
     onClose();
-  }, [hasProviderKeysChangedThisSession, refreshModels, onClose]);
+  }, [hasProviderKeysChangedThisSession, resetModels, onClose]);
 
   const items = useMemo(() => {
     return Object.keys(providers).filter((id) => !EXCLUDED_API_KEY_PROVIDER_IDS.has(id)).map((id) => {
