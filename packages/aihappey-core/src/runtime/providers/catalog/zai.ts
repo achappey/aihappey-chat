@@ -17,8 +17,8 @@ export const zai: Provider = {
   providerCountry: "CN",
   category: "model_provider",
   inferenceRegions: ["World"],
-  apiBaseUrl: "https://api.z.ai/api/paas",
-  chatEndpoints: ["/v4/chat/completions"]
+  //apiBaseUrl: "https://api.z.ai/api/paas",
+  //chatEndpoints: ["/v4/chat/completions"]
 
 };
 
