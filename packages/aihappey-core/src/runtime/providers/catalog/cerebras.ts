@@ -19,6 +19,6 @@ export const cerebras: Provider = {
   category: "inference_compute",
   inferenceRegions: ["World"],
   apiBaseUrl: "https://api.cerebras.ai",
-  chatEndpoints: ["/v1/chat/completions", "/v1/responses"]
+  chatEndpoints: ["/v1/chat/completions"]
 };
 
