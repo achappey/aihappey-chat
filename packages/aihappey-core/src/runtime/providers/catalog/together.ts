@@ -19,5 +19,7 @@ export const together: Provider = {
   },
   providerCountry: "US",
   category: "inference_compute",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.together.xyz",
+  chatEndpoints: ["/v1/chat/completions"],
 };

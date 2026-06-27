@@ -17,7 +17,8 @@ export const groq: Provider = {
   },
   providerCountry: "US",
   category: "inference_compute",
-  inferenceRegions: ["World"]
-
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.groq.com/openai",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses"],
 };
 
