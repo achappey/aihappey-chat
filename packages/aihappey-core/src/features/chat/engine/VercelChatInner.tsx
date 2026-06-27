@@ -159,10 +159,11 @@ export function VercelChatInner({
   const providerMetadata = useMemo(
     () => resolveEndpointProfileRequestMetadata({
       activeProviderMetadata,
+      providerMetadata: allProviderMetadata,
       endpointProfile,
       fallbackProviderMetadataEnabled: endpointProviderMetadataEnabled !== false,
     }),
-    [activeProviderMetadata, endpointProfile, endpointProviderMetadataEnabled],
+    [activeProviderMetadata, allProviderMetadata, endpointProfile, endpointProviderMetadataEnabled],
   );
   const endpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({
@@ -656,7 +657,7 @@ export function VercelChatInner({
     addMessage,
     sendMessage,
     temperature,
-    selectedModel: requestModel,
+    selectedModel: model,
     conversationId,
     finalTools: tools,
     rename,

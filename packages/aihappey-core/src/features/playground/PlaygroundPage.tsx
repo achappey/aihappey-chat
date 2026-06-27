@@ -134,10 +134,11 @@ export const PlaygroundPage = () => {
   const resolvedProviderMetadata = useMemo(
     () => resolveEndpointProfileRequestMetadata({
       activeProviderMetadata: providerScopedMetadata,
+      providerMetadata,
       endpointProfile: playgroundEndpointProfile,
       fallbackProviderMetadataEnabled: true,
     }),
-    [playgroundEndpointProfile, providerScopedMetadata],
+    [playgroundEndpointProfile, providerMetadata, providerScopedMetadata],
   );
   const playgroundEndpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({

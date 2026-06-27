@@ -1,17 +1,33 @@
 import {
   compactObject,
+  getProviderKeyFromRequestBody,
   resolveNativeRequestMetadata,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
   type GenericMappedMessage,
 } from "./types";
-import { getSystemText, mapUiMessages, toInlineFileData } from "./uiMessageParts";
+import { getSystemText, getTextFromPart, mapUiMessages, toInlineFileData } from "./uiMessageParts";
+
+const responsesReasoningFromPart = (part: any, providerKey?: string) => {
+  if (!providerKey) return undefined;
+
+  const encryptedContent = part?.providerMetadata?.[providerKey]?.encrypted_content;
+  if (typeof encryptedContent !== "string" || !encryptedContent) return undefined;
+
+  const summaryText = getTextFromPart(part);
+  return compactObject({
+    type: "reasoning" as const,
+    id: part?.id,
+    encrypted_content: encryptedContent,
+    summary: summaryText ? [{ type: "summary_text" as const, text: summaryText }] : undefined,
+  });
+};
 
 const toResponsesContent = (message: GenericMappedMessage) => {
   const content: any[] = [];
 
   if (message.role === "assistant") {
-    if (message.text) content.push({ type: "output_text", text: message.text });
+    message.nonReasoningTextParts.forEach((text) => content.push({ type: "output_text", text }));
     return content;
   }
 
@@ -32,18 +48,31 @@ const toResponsesContent = (message: GenericMappedMessage) => {
 
 export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
+  const providerKey = getProviderKeyFromRequestBody(body);
   const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
     ...body,
     endpoint: "/v1/responses",
   });
-  const input = messages
-    .filter((message) => message.role !== "system")
-    .map((message) => compactObject({
+  const input = messages.flatMap((message) => {
+    if (message.role === "system") return [];
+
+    const reasoningItems = message.role === "assistant"
+      ? message.reasoningParts
+        .map((part) => responsesReasoningFromPart(part, providerKey))
+        .filter(Boolean)
+      : [];
+
+    const messageItem = compactObject({
       type: "message" as const,
       role: message.role as "user" | "assistant",
       content: toResponsesContent(message),
-    }))
-    .filter((message: any) => Array.isArray(message.content) && message.content.length > 0);
+    });
+
+    return [
+      ...reasoningItems,
+      ...(Array.isArray(messageItem.content) && messageItem.content.length > 0 ? [messageItem] : []),
+    ];
+  });
 
   return compactObject({
     ...(providerRequestConfig ?? {}),

@@ -35,6 +35,7 @@ export type GenericMappedMessage = {
   role: "system" | "user" | "assistant";
   text: string;
   textParts: string[];
+  nonReasoningTextParts: string[];
   fileParts: GenericMappedFilePart[];
   reasoningParts: any[];
   toolParts: any[];
@@ -77,8 +78,11 @@ export const resolveNativeRequestMetadata = ({
 };
 
 export const sanitizeGenericEndpointProviderRequestConfig = (body: GenericChatEndpointRequestBody) => {
-  const providerKey = Object.keys(body.providerMetadata ?? {})[0]?.trim().toLowerCase() || undefined;
+  const providerKey = getProviderKeyFromRequestBody(body);
   return sanitizeProviderRequestConfigForProvider(body.providerRequestConfig, providerKey, {
     endpointId: body.endpoint,
   });
 };
+
+export const getProviderKeyFromRequestBody = (body: Pick<GenericChatEndpointRequestBody, "providerMetadata">) =>
+  Object.keys(body.providerMetadata ?? {})[0]?.trim().toLowerCase() || undefined;

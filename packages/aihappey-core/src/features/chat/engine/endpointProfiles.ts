@@ -213,12 +213,24 @@ export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {
     : value;
 };
 
+const cloneProviderMetadataForKey = (
+  metadata: Record<string, any> | undefined,
+  providerKey?: string,
+) => {
+  if (!metadata || !providerKey) return undefined;
+
+  const value = metadata[providerKey];
+  return value === undefined ? undefined : { [providerKey]: value };
+};
+
 export const resolveEndpointProfileRequestMetadata = ({
   activeProviderMetadata,
+  providerMetadata,
   endpointProfile,
   fallbackProviderMetadataEnabled,
 }: {
   activeProviderMetadata?: Record<string, any>;
+  providerMetadata?: Record<string, any>;
   endpointProfile?: EndpointProfile;
   fallbackProviderMetadataEnabled: boolean;
 }) => {
@@ -229,10 +241,8 @@ export const resolveEndpointProfileRequestMetadata = ({
   const profileProviderKey = endpointProfile.providerKey;
   if (!profileProviderKey) return activeProviderMetadata;
 
-  const profileProviderValue = activeProviderMetadata?.[profileProviderKey];
-  if (profileProviderValue === undefined) return undefined;
-
-  return { [profileProviderKey]: profileProviderValue };
+  return cloneProviderMetadataForKey(providerMetadata, profileProviderKey)
+    ?? cloneProviderMetadataForKey(activeProviderMetadata, profileProviderKey);
 };
 
 const asRecord = (value: unknown): Record<string, any> | undefined =>

@@ -59,6 +59,10 @@ export const mapUiMessages = (messages: UIMessage[] = []): GenericMappedMessage[
     .map((message: UIMessage) => {
       const parts = (message.parts ?? []) as any[];
       const textParts = parts.map(getTextFromPart).filter(Boolean);
+      const nonReasoningTextParts = parts
+        .filter((part) => !isReasoningPart(part))
+        .map(getTextFromPart)
+        .filter(Boolean);
       const fileParts = parts.map(mapFilePart).filter((part): part is GenericMappedFilePart => !!part);
       const reasoningParts = parts.filter(isReasoningPart);
       const toolParts = parts.filter(isToolPart);
@@ -68,6 +72,7 @@ export const mapUiMessages = (messages: UIMessage[] = []): GenericMappedMessage[
         role: message.role as GenericMappedMessage["role"],
         text: textParts.join("\n\n").trim(),
         textParts,
+        nonReasoningTextParts,
         fileParts,
         reasoningParts,
         toolParts,

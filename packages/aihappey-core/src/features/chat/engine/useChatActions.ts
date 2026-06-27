@@ -106,10 +106,11 @@ export function useChatActions({
   const providerMetadata = useMemo(
     () => resolveEndpointProfileRequestMetadata({
       activeProviderMetadata,
+      providerMetadata: allProviderMetadata,
       endpointProfile,
       fallbackProviderMetadataEnabled: endpointProviderMetadataEnabled !== false,
     }),
-    [activeProviderMetadata, endpointProfile, endpointProviderMetadataEnabled],
+    [activeProviderMetadata, allProviderMetadata, endpointProfile, endpointProviderMetadataEnabled],
   );
   const endpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({

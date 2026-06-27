@@ -29,7 +29,9 @@ export const registerResponseProviderStreamOverride = (
   };
 };
 
-const providerKeyFromModel = (modelId?: string) => String(modelId ?? "").split("/")[0]?.trim().toLowerCase() || undefined;
+const normalizeProviderKey = (value?: string) => String(value ?? "").trim().toLowerCase() || undefined;
+
+const providerKeyFromModel = (modelId?: string) => normalizeProviderKey(String(modelId ?? "").split("/")[0]);
 
 export const isGenericChatEndpoint = (endpoint: ChatEndpointId | string | undefined): endpoint is GenericEndpointId =>
   endpoint === "/v1/chat/completions" || endpoint === "/v1/responses" || endpoint === "/v1/messages";
@@ -123,6 +125,7 @@ const createUiMessageChunkStream = ({
   const activeReasoningIds = new Set<string>();
   const closedReasoningIds = new Set<string>();
   const reasoningTextById = new Map<string, string>();
+  const reasoningProviderMetadataById = new Map<string, Record<string, any>>();
   const emittedSourceKeys = new Set<string>();
 
   const enqueueChunk = (controller: ReadableStreamDefaultController<Uint8Array>, chunk: any) => {
@@ -142,8 +145,28 @@ const createUiMessageChunkStream = ({
   });
 
   const resolveProvider = () => {
-    const resolvedProviderKey = providerKey ?? providerKeyFromModel(latestModel ?? requestModel);
+    const resolvedProviderKey = normalizeProviderKey(providerKey) ?? providerKeyFromModel(latestModel ?? requestModel);
     return resolvedProviderKey ? providers?.[resolvedProviderKey] : undefined;
+  };
+
+  const resolveProviderKey = () => normalizeProviderKey(providerKey) ?? providerKeyFromModel(latestModel ?? requestModel);
+
+  const createReasoningProviderMetadata = (item?: any) => {
+    const encryptedContent = item?.encrypted_content;
+    const resolvedProviderKey = resolveProviderKey();
+    if (!resolvedProviderKey || typeof encryptedContent !== "string" || !encryptedContent) return undefined;
+    return {
+      [resolvedProviderKey]: {
+        encrypted_content: encryptedContent,
+      },
+    };
+  };
+
+  const rememberReasoningMetadata = (id: string, item?: any) => {
+    const providerMetadata = createReasoningProviderMetadata(item);
+    if (!providerMetadata) return undefined;
+    reasoningProviderMetadataById.set(id, providerMetadata);
+    return providerMetadata;
   };
 
   const ensureMessageStarted = (controller: ReadableStreamDefaultController<Uint8Array>) => {
@@ -179,7 +202,7 @@ const createUiMessageChunkStream = ({
 
   const closeReasoning = (controller: ReadableStreamDefaultController<Uint8Array>, id: string) => {
     if (!activeReasoningIds.has(id) || closedReasoningIds.has(id)) return;
-    enqueueChunk(controller, { type: "reasoning-end", id });
+    enqueueChunk(controller, { type: "reasoning-end", id, providerMetadata: reasoningProviderMetadataById.get(id) });
     activeReasoningIds.delete(id);
     closedReasoningIds.add(id);
   };
@@ -345,10 +368,16 @@ const createUiMessageChunkStream = ({
 
   const responseReasoningId = (event: any) => `reasoning-${event?.item_id ?? "summary"}-${event?.content_index ?? event?.summary_index ?? 0}`;
 
-  const ensureReasoning = (controller: ReadableStreamDefaultController<Uint8Array>, id: string) => {
+  const ensureReasoning = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    id: string,
+    providerMetadata?: Record<string, any>,
+  ) => {
     ensureStepStarted(controller);
+    const rememberedProviderMetadata = providerMetadata ?? reasoningProviderMetadataById.get(id);
+    if (rememberedProviderMetadata) reasoningProviderMetadataById.set(id, rememberedProviderMetadata);
     if (!activeReasoningIds.has(id) && !closedReasoningIds.has(id)) {
-      enqueueChunk(controller, { type: "reasoning-start", id });
+      enqueueChunk(controller, { type: "reasoning-start", id, providerMetadata: rememberedProviderMetadata });
       activeReasoningIds.add(id);
     }
   };
@@ -357,11 +386,11 @@ const createUiMessageChunkStream = ({
     if (!delta) return;
     ensureReasoning(controller, id);
     reasoningTextById.set(id, `${reasoningTextById.get(id) ?? ""}${delta}`);
-    enqueueChunk(controller, { type: "reasoning-delta", id, delta });
+    enqueueChunk(controller, { type: "reasoning-delta", id, delta, providerMetadata: reasoningProviderMetadataById.get(id) });
   };
 
   const applyProviderResponseOverride = (event: any, eventName?: string) => {
-    const resolvedProviderKey = providerKey ?? providerKeyFromModel(latestModel ?? requestModel);
+    const resolvedProviderKey = resolveProviderKey();
     const override = resolvedProviderKey ? RESPONSE_PROVIDER_STREAM_OVERRIDES[resolvedProviderKey] : undefined;
     return override?.({ event, eventName, endpoint, requestModel: latestModel ?? requestModel }) === true;
   };
@@ -394,23 +423,22 @@ const createUiMessageChunkStream = ({
       if (finalText && !activeReasoningIds.has(id) && !closedReasoningIds.has(id)) {
         emitReasoningDelta(controller, id, finalText);
       }
-      closeReasoning(controller, id);
       return;
     }
 
     if (type === "response.reasoning_summary_part.done") {
-      const id = responseReasoningId(event);
-      closeReasoning(controller, id);
       return;
     }
 
     if (type === "response.output_item.added" && event?.item?.type === "reasoning") {
-      ensureReasoning(controller, responseReasoningId({ item_id: event.item.id, content_index: 0 }));
+      const id = responseReasoningId({ item_id: event.item.id, content_index: 0 });
+      ensureReasoning(controller, id, rememberReasoningMetadata(id, event.item));
       return;
     }
 
     if (type === "response.output_item.done" && event?.item?.type === "reasoning") {
       for (const reasoningId of Array.from(activeReasoningIds).filter((id) => id.startsWith(`reasoning-${event.item.id}-`))) {
+        rememberReasoningMetadata(reasoningId, event.item);
         closeReasoning(controller, reasoningId);
       }
       return;

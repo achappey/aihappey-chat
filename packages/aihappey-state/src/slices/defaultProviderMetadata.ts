@@ -33,6 +33,7 @@ export const defaultProviderMetadata = {
         "file_search_call.results"
       ],
     "truncation": "auto",
+    "store": false,
     "service_tier": "auto",
     "context_management": undefined,
     "reasoning": {
@@ -219,6 +220,7 @@ export const defaultProviderMetadata = {
     "tools": []
   },
   "xai": {
+    "store": false,
     "tools": [{
       "type": "web_search",
       "allowed_domains": [],
