@@ -1,3 +1,4 @@
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useAppStore, type ChatEndpointMode } from "aihappey-state";
@@ -268,29 +269,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </Button>
                   </div>
                 ) : null}
-
-                <Input
-                  type="url"
-                  label={t("settingsModal.baseUrl") ?? "Base URL"}
-                  hint={`${t("settingsModal.baseUrlHint") ?? "Override the base API URL used by derived endpoints."} ${t("settingsModal.effectiveBaseUrl") ?? "Effective base URL"}: ${effectiveProfileBaseUrl}`}
-                  value={baseUrlInputValue}
-                  readOnly={true}
-                  disabled={true}
-                />
-
-                {isAuthenticatedEndpointConfig ? (
-                  <div style={{ opacity: 0.75, fontSize: 13 }}>
-                    {t("settingsModal.baseUrlReadOnlyAuthenticated")
-                      ?? "This app uses Azure authentication. The API base URL is configured by the server and cannot be changed here."}
-                  </div>
-                ) : null}
-
-                {activeEndpointMode === "direct" ? (
-                  <div style={{ opacity: 0.75, fontSize: 13 }}>
-                    {t("settingsModal.endpointDirectProviderAutomaticHint")
-                      ?? "Direct provider automatically uses the provider from the selected model, sends provider-compatible model IDs, and applies the matching API key."}
-                  </div>
-                ) : null}
+               
               </div>
             </theme.Tab>
 

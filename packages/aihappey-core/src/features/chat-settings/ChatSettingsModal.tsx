@@ -43,7 +43,8 @@ import {
 import { useSkills } from "aihappey-skills";
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
-import { resolveEndpointProfile } from "../chat/engine/endpointProfiles";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { resolveChatEndpointModeProfile, resolveEndpointProfile } from "../chat/engine/endpointProfiles";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -101,6 +102,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const selectedEndpointProfileId = useAppStore((a) => a.selectedEndpointProfileId);
   const selectedBaseUrl = useAppStore((a) => a.selectedBaseUrl);
   const configuredChatEndpoint = useAppStore((a) => a.configuredChatEndpoint);
+  const effectiveChatEndpoint = useAppStore((a) => a.effectiveChatEndpoint);
+  const effectiveChatEndpointMode = useAppStore((a) => a.effectiveChatEndpointMode);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
@@ -125,6 +128,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
   const skills = useSkills();
+  const providers = useProviderRegistry();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const createDraft = useCallback(
     (): ChatSettingsDraft => ({
@@ -234,18 +238,27 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   );
 
   const activeProviderKey = useMemo(() => {
-    const endpointProfile = resolveEndpointProfile({
-      selectedEndpointProfileId,
-      selectedBaseUrl,
-      configuredChatEndpoint,
-    });
+    const endpointProfile = effectiveChatEndpointMode === "direct"
+      ? resolveChatEndpointModeProfile({
+        mode: effectiveChatEndpointMode,
+        modelId: selectedModel,
+        selectedChatEndpoint: effectiveChatEndpoint,
+        configuredChatEndpoint,
+        providers,
+      })
+      : resolveEndpointProfile({
+        selectedEndpointProfileId,
+        selectedBaseUrl,
+        configuredChatEndpoint,
+        providers,
+      });
     if (endpointProfile?.kind === "provider" && endpointProfile.providerKey) {
       return endpointProfile.providerKey;
     }
 
     const key = selectedModel?.split("/")[0]?.trim().toLowerCase();
     return key || undefined;
-  }, [configuredChatEndpoint, selectedBaseUrl, selectedEndpointProfileId, selectedModel]);
+  }, [configuredChatEndpoint, effectiveChatEndpoint, effectiveChatEndpointMode, providers, selectedBaseUrl, selectedEndpointProfileId, selectedModel]);
 
   const selectedModelOption = useMemo(
     () => models?.find((model) => model.id === selectedModel),

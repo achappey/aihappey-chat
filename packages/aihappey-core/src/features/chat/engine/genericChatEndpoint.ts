@@ -2,6 +2,34 @@ import type { ChatEndpointId } from "aihappey-state";
 import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 
+type ResponseProviderStreamContext = {
+  event: any;
+  eventName?: string;
+  endpoint: GenericEndpointId;
+  requestModel?: string;
+};
+
+type ResponseProviderStreamOverride = (context: ResponseProviderStreamContext) => boolean | void;
+
+const RESPONSE_PROVIDER_STREAM_OVERRIDES: Record<string, ResponseProviderStreamOverride> = {};
+
+export const registerResponseProviderStreamOverride = (
+  providerKey: string,
+  override: ResponseProviderStreamOverride,
+) => {
+  const normalizedProviderKey = String(providerKey ?? "").trim().toLowerCase();
+  if (!normalizedProviderKey) return () => undefined;
+
+  RESPONSE_PROVIDER_STREAM_OVERRIDES[normalizedProviderKey] = override;
+  return () => {
+    if (RESPONSE_PROVIDER_STREAM_OVERRIDES[normalizedProviderKey] === override) {
+      delete RESPONSE_PROVIDER_STREAM_OVERRIDES[normalizedProviderKey];
+    }
+  };
+};
+
+const providerKeyFromModel = (modelId?: string) => String(modelId ?? "").split("/")[0]?.trim().toLowerCase() || undefined;
+
 export const isGenericChatEndpoint = (endpoint: ChatEndpointId | string | undefined): endpoint is GenericEndpointId =>
   endpoint === "/v1/chat/completions" || endpoint === "/v1/responses" || endpoint === "/v1/messages";
 
@@ -63,10 +91,12 @@ const extractGenericStreamText = (endpoint: GenericEndpointId, event: any): stri
 
 const createUiMessageChunkStream = ({
   endpoint,
+  providerKey,
   source,
   requestModel,
 }: {
   endpoint: GenericEndpointId;
+  providerKey?: string;
   source: ReadableStream<Uint8Array>;
   requestModel?: string;
 }): ReadableStream<Uint8Array> => {
@@ -297,9 +327,32 @@ const createUiMessageChunkStream = ({
     });
   };
 
-  const responseReasoningId = (event: any) => `reasoning-${event?.item_id ?? "summary"}-${event?.summary_index ?? 0}`;
+  const responseReasoningId = (event: any) => `reasoning-${event?.item_id ?? "summary"}-${event?.content_index ?? event?.summary_index ?? 0}`;
 
-  const handleResponsesPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>) => {
+  const ensureReasoning = (controller: ReadableStreamDefaultController<Uint8Array>, id: string) => {
+    ensureStepStarted(controller);
+    if (!activeReasoningIds.has(id) && !closedReasoningIds.has(id)) {
+      enqueueChunk(controller, { type: "reasoning-start", id });
+      activeReasoningIds.add(id);
+    }
+  };
+
+  const emitReasoningDelta = (controller: ReadableStreamDefaultController<Uint8Array>, id: string, delta: string) => {
+    if (!delta) return;
+    ensureReasoning(controller, id);
+    reasoningTextById.set(id, `${reasoningTextById.get(id) ?? ""}${delta}`);
+    enqueueChunk(controller, { type: "reasoning-delta", id, delta });
+  };
+
+  const applyProviderResponseOverride = (event: any, eventName?: string) => {
+    const resolvedProviderKey = providerKey ?? providerKeyFromModel(latestModel ?? requestModel);
+    const override = resolvedProviderKey ? RESPONSE_PROVIDER_STREAM_OVERRIDES[resolvedProviderKey] : undefined;
+    return override?.({ event, eventName, endpoint, requestModel: latestModel ?? requestModel }) === true;
+  };
+
+  const handleResponsesPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
+    if (applyProviderResponseOverride(event, eventName)) return;
+
     const type = event?.type;
 
     if (type === "response.created" || type === "response.in_progress") {
@@ -308,25 +361,22 @@ const createUiMessageChunkStream = ({
     }
 
     if (type === "response.reasoning_summary_text.delta" && typeof event?.delta === "string") {
-      ensureStepStarted(controller);
       const id = responseReasoningId(event);
-      if (!activeReasoningIds.has(id) && !closedReasoningIds.has(id)) {
-        enqueueChunk(controller, { type: "reasoning-start", id });
-        activeReasoningIds.add(id);
-      }
-      reasoningTextById.set(id, `${reasoningTextById.get(id) ?? ""}${event.delta}`);
-      enqueueChunk(controller, { type: "reasoning-delta", id, delta: event.delta });
+      emitReasoningDelta(controller, id, event.delta);
       return;
     }
 
-    if (type === "response.reasoning_summary_text.done") {
+    if (type === "response.reasoning_text.delta" && typeof event?.delta === "string") {
+      const id = responseReasoningId(event);
+      emitReasoningDelta(controller, id, event.delta);
+      return;
+    }
+
+    if (type === "response.reasoning_summary_text.done" || type === "response.reasoning_text.done") {
       const id = responseReasoningId(event);
       const finalText = typeof event?.text === "string" ? event.text : "";
       if (finalText && !activeReasoningIds.has(id) && !closedReasoningIds.has(id)) {
-        ensureStepStarted(controller);
-        enqueueChunk(controller, { type: "reasoning-start", id });
-        activeReasoningIds.add(id);
-        enqueueChunk(controller, { type: "reasoning-delta", id, delta: finalText });
+        emitReasoningDelta(controller, id, finalText);
       }
       closeReasoning(controller, id);
       return;
@@ -335,6 +385,27 @@ const createUiMessageChunkStream = ({
     if (type === "response.reasoning_summary_part.done") {
       const id = responseReasoningId(event);
       closeReasoning(controller, id);
+      return;
+    }
+
+    if (type === "response.output_item.added" && event?.item?.type === "reasoning") {
+      ensureReasoning(controller, responseReasoningId({ item_id: event.item.id, content_index: 0 }));
+      return;
+    }
+
+    if (type === "response.output_item.done" && event?.item?.type === "reasoning") {
+      for (const reasoningId of Array.from(activeReasoningIds).filter((id) => id.startsWith(`reasoning-${event.item.id}-`))) {
+        closeReasoning(controller, reasoningId);
+      }
+      return;
+    }
+
+    if (type === "response.content_part.added" && event?.part?.type === "reasoning_text") {
+      const id = responseReasoningId(event);
+      ensureReasoning(controller, id);
+      if (typeof event?.part?.text === "string" && event.part.text) {
+        emitReasoningDelta(controller, id, event.part.text);
+      }
       return;
     }
 
@@ -523,7 +594,7 @@ const createUiMessageChunkStream = ({
 
     rememberMetadata(parsed);
     if (endpoint === "/v1/responses") {
-      handleResponsesPayload(parsed, controller);
+      handleResponsesPayload(parsed, controller, eventName);
       return;
     }
 
@@ -603,9 +674,11 @@ const createUiMessageChunkStream = ({
 export function wrapGenericChatFetch({
   endpoint,
   fetcher,
+  providerKey,
 }: {
   endpoint: GenericEndpointId;
   fetcher: typeof fetch;
+  providerKey?: string;
 }): typeof fetch {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const requestEndpoint = getEndpointFromRequestInput(input);
@@ -642,7 +715,7 @@ export function wrapGenericChatFetch({
     const response = await fetcher(input, nextInit);
     if (!response.body) return response;
 
-    return new Response(createUiMessageChunkStream({ endpoint: requestEndpoint, source: response.body, requestModel }), {
+    return new Response(createUiMessageChunkStream({ endpoint: requestEndpoint, providerKey, source: response.body, requestModel }), {
       status: response.status,
       statusText: response.statusText,
       headers: {

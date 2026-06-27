@@ -295,8 +295,12 @@ export function VercelChatInner({
 
   const chatFetch = useMemo(() => {
     if (!isGenericChatEndpoint(requestEndpoint)) return authFetch;
-    return wrapGenericChatFetch({ endpoint: requestEndpoint, fetcher: authFetch as typeof fetch });
-  }, [authFetch, requestEndpoint]);
+    return wrapGenericChatFetch({
+      endpoint: requestEndpoint,
+      fetcher: authFetch as typeof fetch,
+      providerKey: isProviderEndpointProfile ? endpointProfile.providerKey : undefined,
+    });
+  }, [authFetch, endpointProfile, isProviderEndpointProfile, requestEndpoint]);
 
   const api = chatMode === "agent"
     ? config?.agentEndpoint + "/api/chat"
