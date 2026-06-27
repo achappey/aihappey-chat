@@ -6,6 +6,7 @@ import { useMultiTheme, useTheme } from "aihappey-components";
 import { fetchWelcomeMessage } from "../../../runtime/chat-app/welcomeMessage";
 import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../context/ChatContext";
+import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 
 interface WelcomeMessageProps { }
 
@@ -122,6 +123,7 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const account = useAccount()
   const { config } = useChatContext();
   const models = useAppStore((s) => s.models);
+  const providers = useProviderRegistry();
   const [welcomeMessage, setWelcomeMessage] = useState<string | undefined>(
     undefined
   );
@@ -137,13 +139,14 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
           baseUrl: config.baseUrl,
           fetch: config.fetch,
           getAccessToken: config.getAccessToken,
+          providers,
           fallback: t("sideInference.fallbackWelcome") ?? "Welcome",
         })
         .then(a =>
           setWelcomeMessage(a)
         );
 
-  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, i18n.language, models, t]);
+  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, i18n.language, models, providers, t]);
 
   return (
     <div style={getWelcomeSlotStyle(isDesktop, sizing)}>

@@ -1,4 +1,5 @@
 import type { ChatEndpointId } from "aihappey-state";
+import type { Provider } from "aihappey-types";
 import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 
@@ -94,11 +95,13 @@ const createUiMessageChunkStream = ({
   providerKey,
   source,
   requestModel,
+  providers,
 }: {
   endpoint: GenericEndpointId;
   providerKey?: string;
   source: ReadableStream<Uint8Array>;
   requestModel?: string;
+  providers?: Record<string, Provider>;
 }): ReadableStream<Uint8Array> => {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
@@ -137,6 +140,11 @@ const createUiMessageChunkStream = ({
     gateway: latestGateway,
     timestamp: new Date().toISOString(),
   });
+
+  const resolveProvider = () => {
+    const resolvedProviderKey = providerKey ?? providerKeyFromModel(latestModel ?? requestModel);
+    return resolvedProviderKey ? providers?.[resolvedProviderKey] : undefined;
+  };
 
   const ensureMessageStarted = (controller: ReadableStreamDefaultController<Uint8Array>) => {
     if (startedMessage) return;
@@ -204,7 +212,15 @@ const createUiMessageChunkStream = ({
     latestModel = event.model ?? event.message?.model ?? event.response?.model ?? latestModel;
     const usage = event.usage ?? event.message?.usage ?? event.response?.usage;
     if (usage) latestUsage = usage;
-    latestGateway = event.metadata?.gateway ?? event.response?.metadata?.gateway ?? latestGateway;
+    const responseGateway = event.metadata?.gateway ?? event.response?.metadata?.gateway;
+    const currentGateway = responseGateway ?? latestGateway;
+    const providerGateway = resolveProvider()?.createGatewayMetadata?.({
+      event,
+      endpoint,
+      requestModel: latestModel ?? requestModel,
+      currentGateway,
+    });
+    latestGateway = providerGateway ?? currentGateway;
     const inputTokens = usage?.input_tokens ?? usage?.prompt_tokens;
     const outputTokens = usage?.output_tokens ?? usage?.completion_tokens;
     const providedTotal = usage?.total_tokens;
@@ -675,10 +691,12 @@ export function wrapGenericChatFetch({
   endpoint,
   fetcher,
   providerKey,
+  providers,
 }: {
   endpoint: GenericEndpointId;
   fetcher: typeof fetch;
   providerKey?: string;
+  providers?: Record<string, Provider>;
 }): typeof fetch {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const requestEndpoint = getEndpointFromRequestInput(input);
@@ -715,7 +733,7 @@ export function wrapGenericChatFetch({
     const response = await fetcher(input, nextInit);
     if (!response.body) return response;
 
-    return new Response(createUiMessageChunkStream({ endpoint: requestEndpoint, providerKey, source: response.body, requestModel }), {
+    return new Response(createUiMessageChunkStream({ endpoint: requestEndpoint, providerKey, source: response.body, requestModel, providers }), {
       status: response.status,
       statusText: response.statusText,
       headers: {

@@ -244,8 +244,9 @@ export function VercelChatInner({
       fetch: config.fetch ?? customFetch,
       ...(isProviderEndpointProfile
         ? {
-          customHeaders: providerProfileAuthHeaders,
+          customHeaders,
           endpointProviderKey: endpointProfile.providerKey,
+          providers,
         }
         : {
           getAccessToken,
@@ -257,8 +258,9 @@ export function VercelChatInner({
       config.fetch,
       customFetch,
       isProviderEndpointProfile,
-      providerProfileAuthHeaders,
+      customHeaders,
       endpointProfile,
+      providers,
       getAccessToken,
       t,
     ]
@@ -299,8 +301,9 @@ export function VercelChatInner({
       endpoint: requestEndpoint,
       fetcher: authFetch as typeof fetch,
       providerKey: isProviderEndpointProfile ? endpointProfile.providerKey : undefined,
+      providers,
     });
-  }, [authFetch, endpointProfile, isProviderEndpointProfile, requestEndpoint]);
+  }, [authFetch, endpointProfile, isProviderEndpointProfile, providers, requestEndpoint]);
 
   const api = chatMode === "agent"
     ? config?.agentEndpoint + "/api/chat"

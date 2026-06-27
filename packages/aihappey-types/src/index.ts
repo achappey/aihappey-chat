@@ -60,6 +60,16 @@ export type ProviderCategory =
      */
     | "app_tools";
 
+export type ProviderGatewayMetadataContext = {
+    event: any;
+    endpoint?: string;
+    requestModel?: string;
+    currentGateway?: Record<string, any>;
+};
+
+export type ProviderGatewayMetadataFactory = (
+    context: ProviderGatewayMetadataContext,
+) => Record<string, any> | undefined;
 
 export type Provider = {
     name: string;
@@ -72,6 +82,7 @@ export type Provider = {
     category?: ProviderCategory
     apiBaseUrl?: string
     chatEndpoints?: string[]
+    createGatewayMetadata?: ProviderGatewayMetadataFactory
 };
 
 export type ProviderUrls = {

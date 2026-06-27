@@ -1,6 +1,11 @@
-import type { Agent, ModelOption } from "aihappey-types";
-import { createChatAuthHeadersForModel, getProviderKeyFromModelId } from "../../features/provider-credentials/providerAuthHeaders";
+import type { Agent, ModelOption, Provider } from "aihappey-types";
+import {
+  createChatAuthHeadersForModel,
+  createProviderBearerHeadersForProviderKey,
+  getProviderKeyFromModelId,
+} from "../../features/provider-credentials/providerAuthHeaders";
 import { sanitizeProviderRequestConfigForProvider } from "../providers/providerRequestConfig";
+import { PROVIDERS } from "../providers/providerMetadata";
 
 type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall";
 
@@ -9,6 +14,7 @@ export type SideInferenceAgentCallOptions = {
   getAccessToken?: () => Promise<string | null | undefined>;
   customHeaders?: Record<string, string>;
   endpointProviderKey?: string;
+  providers?: Record<string, Provider>;
   fetch?: typeof fetch;
   agents?: Agent[];
   models?: ModelOption[];
@@ -104,6 +110,43 @@ const endpointUrl = (baseUrl?: string) => {
   return `${baseUrl.replace(/\/$/, "")}/v1/responses`;
 };
 
+const providerRegistryOrDefault = (providers?: Record<string, Provider>) => providers ?? PROVIDERS;
+
+const resolveSideInferenceEndpoint = ({
+  fallbackBaseUrl,
+  providerKey,
+  endpointProviderKey,
+  providers,
+}: {
+  fallbackBaseUrl?: string;
+  providerKey?: string;
+  endpointProviderKey?: string;
+  providers?: Record<string, Provider>;
+}) => {
+  if (!endpointProviderKey || !providerKey) {
+    return {
+      baseUrl: fallbackBaseUrl,
+      providerKey: endpointProviderKey,
+      directProviderRequest: false,
+    };
+  }
+
+  const providerBaseUrl = providerRegistryOrDefault(providers)[providerKey]?.apiBaseUrl?.trim();
+  if (!providerBaseUrl) {
+    return {
+      baseUrl: fallbackBaseUrl,
+      providerKey: endpointProviderKey,
+      directProviderRequest: false,
+    };
+  }
+
+  return {
+    baseUrl: providerBaseUrl,
+    providerKey,
+    directProviderRequest: true,
+  };
+};
+
 const toInputText = (input: string | Record<string, any>) =>
   typeof input === "string" ? input : JSON.stringify(input, null, 2);
 
@@ -114,6 +157,7 @@ export const invokeSideInferenceAgent = async ({
   getAccessToken,
   customHeaders = {},
   endpointProviderKey,
+  providers,
   fetch: customFetch,
   agents = [],
   models = [],
@@ -130,22 +174,31 @@ export const invokeSideInferenceAgent = async ({
       throw new Error(`Side inference agent model '${modelId}' is not available`);
     }
 
-    const url = endpointUrl(baseUrl);
+    const providerKey = getProviderKeyFromModelId(modelId);
+    const endpoint = resolveSideInferenceEndpoint({
+      fallbackBaseUrl: baseUrl,
+      providerKey,
+      endpointProviderKey,
+      providers,
+    });
+    const url = endpointUrl(endpoint.baseUrl);
     if (!url) throw new Error("Inference endpoint is not configured");
 
     const accessToken = await getAccessToken?.().catch(() => undefined);
-    const providerKey: any = getProviderKeyFromModelId(modelId);
-    const apiKeyHeaders = createChatAuthHeadersForModel(customHeaders, modelId, Boolean(accessToken));
     const doFetch = customFetch ?? globalThis.fetch;
 
-    const isDirectProviderRequest = providerKey && providerKey === endpointProviderKey;
+    const isDirectProviderRequest = endpoint.directProviderRequest;
+    const requestProviderKey = endpoint.providerKey;
+    const apiKeyHeaders = isDirectProviderRequest
+      ? createProviderBearerHeadersForProviderKey(customHeaders, requestProviderKey, providers)
+      : createChatAuthHeadersForModel(customHeaders, modelId, Boolean(accessToken), providers);
     const directProviderRequestConfig = isDirectProviderRequest
-      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent.model?.providerMetadata), providerKey, {
+      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent.model?.providerMetadata), requestProviderKey, {
         endpointId: "/v1/responses",
       }) ?? {})
       : {};
     const requestModel = isDirectProviderRequest
-      ? stripProviderPrefix(modelId, providerKey)
+      ? stripProviderPrefix(modelId, requestProviderKey)
       : modelId;
 
     const body = compactObject({
