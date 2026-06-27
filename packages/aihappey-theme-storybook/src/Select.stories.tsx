@@ -14,22 +14,30 @@ type SelectStoryArgs = {
 const SelectStory = ({ initialValue = "1", ...args }: SelectStoryArgs) => {
   const { Select } = useTheme() as unknown as Pick<AihUiTheme, "Select">;
   const [values, setValues] = useState([initialValue]);
+  const [changeCount, setChangeCount] = useState(0);
 
   useEffect(() => {
     setValues([initialValue]);
+    setChangeCount(0);
   }, [initialValue]);
 
   return (
-    <Select
-      {...args}
-      values={values}
-      valueTitle={`Selected: ${values.join(", ")}`}
-      onChange={(value: string) => setValues([value])}
-    >
-      <option value="1">Option 1</option>
-      <option value="2">Option 2</option>
-      <option value="3">Option 3</option>
-    </Select>
+    <div style={{ display: "grid", gap: 8, maxWidth: 320 }}>
+      <Select
+        {...args}
+        values={values}
+        valueTitle={`Selected: ${values.join(", ")}`}
+        onChange={(value: string) => {
+          setValues([value]);
+          setChangeCount((count) => count + 1);
+        }}
+      >
+        <option value="1">Option 1</option>
+        <option value="2">Option 2</option>
+        <option value="3">Option 3</option>
+      </Select>
+      <small>Change calls: {changeCount}</small>
+    </div>
   );
 };
 

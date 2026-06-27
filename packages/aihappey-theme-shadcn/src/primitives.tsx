@@ -5,7 +5,6 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
-import * as SelectPrimitive from "@radix-ui/react-select";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
@@ -18,15 +17,12 @@ import {
   ArrowDown,
   ArrowDownAZ,
   ArrowDownToLine,
-  ArrowLeft,
   ArrowRight,
   ArrowUp,
-  BadgeDollarSign,
   Beaker,
   Bot,
   Brain,
   BrainCircuit,
-  Building2,
   ChartNoAxesCombined,
   Check,
   ChevronDown,
@@ -89,7 +85,6 @@ import {
   Users,
   Video,
   Volume2,
-  Wallet,
   WandSparkles,
   Wrench,
   X,
@@ -417,25 +412,76 @@ function findSelectLabel(options: ShadcnSelectOption[], value: string): React.Re
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
-function renderSelectOption(option: ShadcnSelectOption, key: React.Key) {
+function SelectDropdownViewport({ children }: { children: React.ReactNode }) {
+  const viewportRef = React.useRef<HTMLDivElement>(null);
+  const [scrollState, setScrollState] = React.useState({ up: false, down: false });
+
+  const updateScrollState = React.useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const maxScrollTop = viewport.scrollHeight - viewport.clientHeight;
+    setScrollState({
+      up: viewport.scrollTop > 1,
+      down: viewport.scrollTop < maxScrollTop - 1,
+    });
+  }, []);
+
+  React.useEffect(() => {
+    updateScrollState();
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.addEventListener("scroll", updateScrollState, { passive: true });
+    const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(updateScrollState) : undefined;
+    resizeObserver?.observe(viewport);
+    return () => {
+      viewport.removeEventListener("scroll", updateScrollState);
+      resizeObserver?.disconnect();
+    };
+  }, [children, updateScrollState]);
+
+  const scrollBy = (delta: number) => (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    viewportRef.current?.scrollBy({ top: delta, behavior: "smooth" });
+  };
+
   return (
-    <SelectPrimitive.Item key={key} value={toSelectItemValue(option.value)} disabled={option.disabled} className="aih-shadcn-menu-item aih-shadcn-select-item">
-      <SelectPrimitive.ItemIndicator className="aih-shadcn-select-item-indicator"><Check size={14} /></SelectPrimitive.ItemIndicator>
-      <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
-    </SelectPrimitive.Item>
+    <>
+      <button type="button" className="aih-shadcn-select-scroll-button" disabled={!scrollState.up} onClick={scrollBy(-180)} aria-label="Scroll up"><ChevronUp size={14} /></button>
+      <div ref={viewportRef} className="aih-shadcn-select-viewport aih-shadcn-dropdown-select-viewport">
+        {children}
+      </div>
+      <button type="button" className="aih-shadcn-select-scroll-button" disabled={!scrollState.down} onClick={scrollBy(180)} aria-label="Scroll down"><ChevronDown size={14} /></button>
+    </>
   );
 }
 
-function renderSelectNodes(nodes: ShadcnSelectNode[]) {
+function renderSingleSelectOption(option: ShadcnSelectOption, selected: string, onChange: ((value: string) => void) | undefined, key: React.Key) {
+  return (
+    <DropdownMenuPrimitive.Item
+      key={key}
+      disabled={option.disabled}
+      className="aih-shadcn-menu-item aih-shadcn-select-item"
+      onSelect={() => {
+        if (option.value !== selected) onChange?.(option.value);
+      }}
+    >
+      <span className="aih-shadcn-select-item-indicator">{option.value === selected ? <Check size={14} /> : null}</span>
+      <span>{option.label}</span>
+    </DropdownMenuPrimitive.Item>
+  );
+}
+
+function renderSingleSelectNodes(nodes: ShadcnSelectNode[], selected: string, onChange: ((value: string) => void) | undefined) {
   return nodes.map((node, index) => {
-    if (node.type === "option") return renderSelectOption(node, `option:${node.value}:${index}`);
+    if (node.type === "option") return renderSingleSelectOption(node, selected, onChange, `option:${node.value}:${index}`);
     return (
       <React.Fragment key={`group:${String(node.label)}:${index}`}>
-        {index > 0 ? <SelectPrimitive.Separator className="aih-shadcn-menu-separator" /> : null}
-        <SelectPrimitive.Group>
-          <SelectPrimitive.Label className="aih-shadcn-select-group-label">{node.label}</SelectPrimitive.Label>
-          {node.options.map((option, optionIndex) => renderSelectOption(option, `group:${String(node.label)}:${option.value}:${optionIndex}`))}
-        </SelectPrimitive.Group>
+        {index > 0 ? <DropdownMenuPrimitive.Separator className="aih-shadcn-menu-separator" /> : null}
+        <DropdownMenuPrimitive.Group>
+          <DropdownMenuPrimitive.Label className="aih-shadcn-select-group-label">{node.label}</DropdownMenuPrimitive.Label>
+          {node.options.map((option, optionIndex) => renderSingleSelectOption(option, selected, onChange, `group:${String(node.label)}:${option.value}:${optionIndex}`))}
+        </DropdownMenuPrimitive.Group>
       </React.Fragment>
     );
   });
@@ -484,7 +530,6 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
   }, [values, value]);
   const selected = selectedValues[0] ?? "";
   const hasEmptyOption = options.some((option) => option.value === "");
-  const radixValue = selected === "" && hasEmptyOption ? EMPTY_SELECT_ITEM_VALUE : selected;
   const Icon = icon ? iconMap[icon as IconToken] : ChevronDown;
   const triggerStyle = label ? undefined : style;
   const triggerHeight = size === "small" ? 32 : size === "large" ? 40 : 36;
@@ -526,23 +571,18 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
     </DropdownMenuPrimitive.Root>
   );
   const select = (
-    <SelectPrimitive.Root value={radixValue} disabled={disabled} onValueChange={(value) => onChange?.(fromSelectItemValue(value))}>
-      <SelectPrimitive.Trigger className={cn("aih-shadcn-select-trigger", className)} style={{ display: "inline-flex", height: triggerHeight, alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 .75rem", ...(triggerStyle ?? {}) }} aria-label={rest["aria-label"]} aria-required={required || undefined}>
-        <SelectPrimitive.Value placeholder={placeholder ?? "Select..."}>{displayValue}</SelectPrimitive.Value>
-        <SelectPrimitive.Icon><Icon size={16} /></SelectPrimitive.Icon>
-      </SelectPrimitive.Trigger>
-      <SelectPrimitive.Portal>
+    <DropdownMenuPrimitive.Root modal={false}>
+      <DropdownMenuPrimitive.Trigger asChild>{trigger}</DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Portal>
         <PortalThemeScope>
-          <SelectPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content" position="popper" sideOffset={4} collisionPadding={8}>
-          <SelectPrimitive.ScrollUpButton className="aih-shadcn-select-scroll-button"><ChevronUp size={14} /></SelectPrimitive.ScrollUpButton>
-          <SelectPrimitive.Viewport className="aih-shadcn-select-viewport">
-            {renderSelectNodes(optionNodes)}
-          </SelectPrimitive.Viewport>
-          <SelectPrimitive.ScrollDownButton className="aih-shadcn-select-scroll-button"><ChevronDown size={14} /></SelectPrimitive.ScrollDownButton>
-          </SelectPrimitive.Content>
+          <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content" align="start" sideOffset={4} collisionPadding={8}>
+            <SelectDropdownViewport>
+              {renderSingleSelectNodes(optionNodes, selected, onChange)}
+            </SelectDropdownViewport>
+          </DropdownMenuPrimitive.Content>
         </PortalThemeScope>
-      </SelectPrimitive.Portal>
-    </SelectPrimitive.Root>
+      </DropdownMenuPrimitive.Portal>
+    </DropdownMenuPrimitive.Root>
   );
   const element = multiselect ? multiselectDropdown : select;
   return label ? <Field label={label} hint={hint} required={required} style={style}>{element}</Field> : element;
