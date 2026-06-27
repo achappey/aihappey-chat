@@ -8,7 +8,6 @@ export * from "./mistral";
 export * from "./jina";
 export * from "./cohere";
 export * from "./voyageai";
-export * from "./contextualai";
 export * from "./google";
 export * from "./browseruse";
 export * from "./blackbox";

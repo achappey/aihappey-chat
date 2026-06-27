@@ -7,8 +7,6 @@ import { useTheme } from "../theme/ThemeContext";
 import {
     CohereRerankingConfig,
     CohereRerankingConfigForm,
-    ContextualAIRerankingConfig,
-    ContextualAIRerankingConfigForm,
     DeepInfraRerankingConfig,
     DeepInfraRerankingConfigForm,
     FireworksRerankingConfig,
@@ -92,23 +90,7 @@ export const RerankingSettingsModal: React.FC<RerankingSettingsModalProps> = ({
                             }
                         />
                     </theme.Tab>
-                )}
-
-                {enabledProviders.includes("ContextualAI") && (
-                    <theme.Tab eventKey="contextualai" title="ContextualAI">
-                        <ContextualAIRerankingConfigForm
-                            config={
-                                (providerMetadata?.contextualai ?? {}) as ContextualAIRerankingConfig
-                            }
-                            updateConfig={(contextualai) =>
-                                setProviderMetadata({
-                                    ...providerMetadata,
-                                    contextualai,
-                                })
-                            }
-                        />
-                    </theme.Tab>
-                )}
+                )}          
 
                 {enabledProviders.includes("DeepInfra") && (
                     <theme.Tab eventKey="deepinfra" title="DeepInfra">

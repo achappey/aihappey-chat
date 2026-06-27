@@ -7,8 +7,6 @@ export const defaultProviderRerankingMetadata = {
   },
   "voyageai": {
   },
-  "contextualai": {
-  },
   "deepinfra": {
   },
   "fireworks": {

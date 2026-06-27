@@ -324,12 +324,7 @@
       "priority": "Προτεραιότητα",
       "maxTokensPerDoc": "Μέγιστα tokens ανά έγγραφο"
     }
-  },
-  "contextualai": {
-    "reranking": {
-      "instruction": "Οδηγία"
-    }
-  },
+  }, 
   "deepinfra": {
     "transcription": {
       "task": "Εργασία",

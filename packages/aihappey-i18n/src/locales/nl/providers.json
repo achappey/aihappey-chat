@@ -51,12 +51,7 @@
       "priority": "Prioriteit",
       "maxTokensPerDoc": "Maximaal aantal tokens per document"
     }
-  },
-  "contextualai": {
-    "reranking": {
-      "instruction": "Instructie"
-    }
-  },
+  }, 
   "microsoft": {
     "locationTitle": "Locatiehint",
     "timeZone": "Tijdzone (IANA)",

@@ -355,12 +355,7 @@
       "priority": "Priority",
       "maxTokensPerDoc": "Maximum tokens per document"
     }
-  },
-  "contextualai": {
-    "reranking": {
-      "instruction": "Instruction"
-    }
-  },
+  }, 
   "deepinfra": {
     "transcription": {
       "task": "Task",

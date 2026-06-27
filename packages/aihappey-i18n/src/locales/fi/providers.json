@@ -324,12 +324,7 @@
       "priority": "Prioriteetti",
       "maxTokensPerDoc": "Enimmäistokenit asiakirjaa kohden"
     }
-  },
-  "contextualai": {
-    "reranking": {
-      "instruction": "Ohje"
-    }
-  },
+  }, 
   "deepinfra": {
     "transcription": {
       "task": "Tehtävä",
