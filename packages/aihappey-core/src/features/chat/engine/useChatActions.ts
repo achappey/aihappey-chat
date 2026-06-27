@@ -18,6 +18,7 @@ import {
   resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
+  resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
 } from "./endpointProfiles";
@@ -73,6 +74,11 @@ export function useChatActions({
   const activeProviderMetadata = useActiveProviderMetadata();
   const allProviderMetadata = useAppStore(a => a.providerMetadata)
   const providers = useProviderRegistry()
+  const models = useAppStore(a => a.models)
+  const selectedModelOption = useMemo(
+    () => models?.find((model: any) => model.id === selectedModel),
+    [models, selectedModel],
+  );
   const endpointProfile = useMemo(
     () => effectiveChatEndpointMode === "direct"
       ? resolveChatEndpointModeProfile({
@@ -99,7 +105,11 @@ export function useChatActions({
     selectedChatEndpoint: effectiveChatEndpoint,
   }) ?? effectiveChatEndpoint;
   const requestModel = isProviderEndpointProfile
-    ? stripProviderPrefix(selectedModel, endpointProfile.providerKey)
+    ? resolveProviderRequestModelId({
+      modelId: selectedModel,
+      providerKey: endpointProfile.providerKey,
+      model: selectedModelOption,
+    })
     : endpointRawModelIds
       ? stripProviderPrefix(selectedModel)
       : selectedModel;

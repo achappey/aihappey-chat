@@ -39,8 +39,8 @@ import {
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
   resolveProviderEndpointProfileForModel,
+  resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
-  stripProviderPrefix,
 } from "../chat/engine/endpointProfiles";
 
 export const PlaygroundPage = () => {
@@ -125,8 +125,16 @@ export const PlaygroundPage = () => {
     [playgroundModel, selectedEndpoint],
   );
   const isProviderBackedPlaygroundRequest = playgroundEndpointProfile?.kind === "provider";
+  const selectedModelOption = useMemo(
+    () => models?.find((model) => model.id === playgroundModel),
+    [models, playgroundModel],
+  );
   const playgroundRequestModel = isProviderBackedPlaygroundRequest
-    ? stripProviderPrefix(playgroundModel, playgroundEndpointProfile?.providerKey)
+    ? resolveProviderRequestModelId({
+      modelId: playgroundModel,
+      providerKey: playgroundEndpointProfile?.providerKey,
+      model: selectedModelOption,
+    })
     : playgroundModel;
   const playgroundBaseUrl = isProviderBackedPlaygroundRequest
     ? playgroundEndpointProfile?.apiBaseUrl ?? baseUrl
@@ -154,11 +162,6 @@ export const PlaygroundPage = () => {
   } = useMemo(
     () => splitEndpointProfileProviderConfig(playgroundEndpointProfileProviderConfig, playgroundEndpointProfile?.providerKey, selectedEndpoint),
     [playgroundEndpointProfileProviderConfig, playgroundEndpointProfile, selectedEndpoint],
-  );
-
-  const selectedModelOption = useMemo(
-    () => models?.find((model) => model.id === playgroundModel),
-    [models, playgroundModel],
   );
 
   const effectiveHeaders = useMemo(() => {

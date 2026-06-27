@@ -4,6 +4,7 @@ import {
   createProviderBearerHeadersForProviderKey,
   getProviderKeyFromModelId,
 } from "../../features/provider-credentials/providerAuthHeaders";
+import { resolveProviderRequestModelId } from "../../features/chat/engine/endpointProfiles";
 import { sanitizeProviderRequestConfigForProvider } from "../providers/providerRequestConfig";
 import { PROVIDERS } from "../providers/providerMetadata";
 
@@ -41,17 +42,6 @@ const asRecord = (value: unknown): Record<string, any> | undefined =>
   value && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, any>
     : undefined;
-
-const stripProviderPrefix = (modelId?: string, providerKey?: string) => {
-  const value = String(modelId ?? "").trim();
-  const normalizedProviderKey = String(providerKey ?? "").trim().toLowerCase();
-  if (!value || !normalizedProviderKey) return value;
-
-  const prefix = `${normalizedProviderKey}/`;
-  return value.toLowerCase().startsWith(prefix)
-    ? value.slice(prefix.length)
-    : value;
-};
 
 const extractText = (response: any): string => {
   if (typeof response?.output_text === "string" && response.output_text.trim()) {
@@ -170,7 +160,8 @@ export const invokeSideInferenceAgent = async ({
 
     const modelId = selectedAgent.model?.id;
     if (!modelId) throw new Error(`Side inference agent '${agentName}' has no model`);
-    if (!models.some((model) => model.id === modelId)) {
+    const selectedModelOption = models.find((model) => model.id === modelId);
+    if (!selectedModelOption) {
       throw new Error(`Side inference agent model '${modelId}' is not available`);
     }
 
@@ -198,7 +189,11 @@ export const invokeSideInferenceAgent = async ({
       }) ?? {})
       : {};
     const requestModel = isDirectProviderRequest
-      ? stripProviderPrefix(modelId, requestProviderKey)
+      ? resolveProviderRequestModelId({
+        modelId,
+        providerKey: requestProviderKey,
+        model: selectedModelOption,
+      })
       : modelId;
 
     const body = compactObject({

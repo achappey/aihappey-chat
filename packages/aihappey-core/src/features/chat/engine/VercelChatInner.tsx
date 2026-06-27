@@ -66,6 +66,7 @@ import {
   resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
+  resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
 } from "./endpointProfiles";
@@ -120,6 +121,11 @@ export function VercelChatInner({
   const allProviderMetadata = useAppStore((a) => a.providerMetadata);
   const files = useFiles();
   const model = useAppStore((s) => s.selectedModel);
+  const models = useAppStore((s) => s.models);
+  const selectedModelOption = useMemo(
+    () => models?.find((item: any) => item.id === model),
+    [models, model],
+  );
   const providers = useProviderRegistry();
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
@@ -152,7 +158,11 @@ export function VercelChatInner({
     ? endpointProfile.apiBaseUrl ?? config.baseUrl
     : config.baseUrl;
   const requestModel = isProviderEndpointProfile
-    ? stripProviderPrefix(model, endpointProfile.providerKey)
+    ? resolveProviderRequestModelId({
+      modelId: model,
+      providerKey: endpointProfile.providerKey,
+      model: selectedModelOption,
+    })
     : endpointRawModelIds
       ? stripProviderPrefix(model)
       : model;

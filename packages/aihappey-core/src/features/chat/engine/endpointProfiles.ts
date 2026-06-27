@@ -4,7 +4,7 @@ import {
   type ChatEndpointId,
   type ChatEndpointMode,
 } from "aihappey-state";
-import type { Provider } from "aihappey-types";
+import type { ModelOption, Provider } from "aihappey-types";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 import { sanitizeProviderRequestConfigForProvider } from "../../../runtime/providers/providerRequestConfig";
 import { isGenericChatEndpoint } from "./genericChatEndpoint";
@@ -212,6 +212,23 @@ export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {
     ? value.slice(slashIndex + 1)
     : value;
 };
+
+export const getProviderModelId = (model?: ModelOption | null) => {
+  const providerModelId = (model as any)?.providerModelId;
+  return typeof providerModelId === "string" && providerModelId.trim().length
+    ? providerModelId.trim()
+    : undefined;
+};
+
+export const resolveProviderRequestModelId = ({
+  modelId,
+  providerKey,
+  model,
+}: {
+  modelId?: string;
+  providerKey?: string;
+  model?: ModelOption | null;
+}) => getProviderModelId(model) ?? stripProviderPrefix(modelId, providerKey);
 
 const cloneProviderMetadataForKey = (
   metadata: Record<string, any> | undefined,
