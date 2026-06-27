@@ -68,3 +68,10 @@ export const Large: Story = {
   },
 };
 
+export const DarkModeOpen: Story = {
+  args: {
+    defaultOpen: true,
+    title: "Dark mode modal text",
+    children: "The title and body should inherit the Bootstrap body text color instead of hardcoded black.",
+  },
+};

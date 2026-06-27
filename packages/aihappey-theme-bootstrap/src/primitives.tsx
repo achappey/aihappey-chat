@@ -388,11 +388,15 @@ export const bootstrapTheme: AihUiTheme = {
   },
   Modal: (props) => {
     // Only allow "sm" | "lg" | "xl" for size
-    const { size, title, children, actions, ...rest } = props;
+    const { size, title, children, actions, contentClassName, ...rest } = props as any;
+    const { isDarkMode } = useDarkMode();
     const allowed =
       size === "sm" || size === "lg" || size === "xl" ? size : undefined;
+    const modalContentClassName = ["bg-body", "text-body", contentClassName]
+      .filter(Boolean)
+      .join(" ");
     return (
-      <Modal size={allowed} {...rest}>
+      <Modal size={allowed} contentClassName={modalContentClassName} data-bs-theme={isDarkMode ? "dark" : "light"} {...rest}>
         <Modal.Header closeButton>
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
