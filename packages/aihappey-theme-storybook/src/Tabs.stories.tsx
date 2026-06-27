@@ -8,20 +8,21 @@ type TabsStoryArgs = {
   size?: "small" | "medium" | "large";
   className?: string;
   style?: React.CSSProperties;
+  tabCount?: number;
 };
 
-const TabsStory = (args: TabsStoryArgs) => {
+const TabsStory = ({ tabCount = 2, ...args }: TabsStoryArgs) => {
   const { Tabs, Tab } = useTheme() as unknown as Pick<AihUiTheme, "Tabs" | "Tab">;
   const [activeKey, setActiveKey] = useState<string>("tab1");
+  const tabs = Array.from({ length: tabCount }, (_, index) => index + 1);
 
   return (
     <Tabs {...args} activeKey={activeKey} onSelect={setActiveKey}>
-      <Tab eventKey="tab1" title="Tab 1">
-        Content for Tab 1
-      </Tab>
-      <Tab eventKey="tab2" title="Tab 2">
-        Content for Tab 2
-      </Tab>
+      {tabs.map((tabNumber) => (
+        <Tab key={tabNumber} eventKey={`tab${tabNumber}`} title={`Tab ${tabNumber}`}>
+          Content for Tab {tabNumber}
+        </Tab>
+      ))}
     </Tabs>
   );
 };
@@ -32,10 +33,12 @@ const meta = {
   argTypes: {
     vertical: { control: { type: "boolean" } },
     size: { control: { type: "select" }, options: ["small", "medium", "large"] },
+    tabCount: { control: { type: "number", min: 2, max: 16 } },
   },
   args: {
     vertical: false,
     size: "medium",
+    tabCount: 2,
   },
 } satisfies Meta<typeof TabsStory>;
 
@@ -53,5 +56,12 @@ export const Vertical: Story = {
 export const Large: Story = {
   args: {
     size: "large",
+  },
+};
+
+export const Overflow: Story = {
+  args: {
+    tabCount: 12,
+    style: { maxWidth: 420 },
   },
 };
