@@ -15,7 +15,9 @@ export const anthropic: Provider = {
   },
   providerCountry: "US",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.anthropic.com",
+  chatEndpoints: ["/v1/messages"]
 
 };
 
