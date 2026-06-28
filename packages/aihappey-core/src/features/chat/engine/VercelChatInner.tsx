@@ -227,12 +227,21 @@ export function VercelChatInner({
     if (node) drop(node);
   }, [drop]);
 
-  const messageLength = items.find(a => a.id == conversationId)?.messages?.length ?? 0;
+  const persistedMessages = useMemo(() => {
+    const conversationMessages = items.find(a => a.id == conversationId)?.messages;
+    const sourceMessages = conversationMessages?.length ? conversationMessages : initial;
+
+    return [...(sourceMessages ?? [])].sort(
+      (a: any, b: any) =>
+        new Date(a.metadata?.timestamp ?? 0).getTime() -
+        new Date(b.metadata?.timestamp ?? 0).getTime()
+    );
+  }, [conversationId, items, initial]);
   const systemMessage = useSystemMessage();
   const seededMessages = useMemo(() => {
-    const nonSystem = initial.filter((a) => a.role !== SYSTEM_ROLE);
+    const nonSystem = persistedMessages.filter((a) => a.role !== SYSTEM_ROLE);
     return includeSystem ? [systemMessage, ...nonSystem] : nonSystem;
-  }, [includeSystem, systemMessage, initial, messageLength]);
+  }, [includeSystem, systemMessage, persistedMessages]);
 
   const [, , , refreshToken] = useAccessToken(config.agentScopes ?? []);
 
