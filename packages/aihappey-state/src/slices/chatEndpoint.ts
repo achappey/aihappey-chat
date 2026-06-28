@@ -3,6 +3,8 @@ export const CHAT_ENDPOINT_IDS = [
   "/v1/chat/completions",
   "/v1/responses",
   "/v1/messages",
+  "/paas/v4/chat/completions",
+  "/v1/agents",
 ] as const;
 
 export type ChatEndpointId = typeof CHAT_ENDPOINT_IDS[number];
@@ -20,6 +22,8 @@ export const CHAT_ENDPOINT_MODE_STORAGE_KEY = "aihappey_chat_endpoint_mode";
 const PREFERRED_PROVIDER_CHAT_ENDPOINT_IDS: readonly ChatEndpointId[] = [
   "/v1/responses",
   "/v1/messages",
+  "/paas/v4/chat/completions",
+  "/v1/agents",
 ];
 
 export function isChatEndpointId(value: unknown): value is ChatEndpointId {

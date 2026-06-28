@@ -43,6 +43,31 @@ const toChatEndpointIds = (values?: string[]) => Array.from(new Set(
 
 const providerRegistryOrDefault = (providers?: Record<string, Provider>) => providers ?? PROVIDERS;
 
+const isZaiAgentModel = (modelId?: string, model?: ModelOption | null) => {
+  const localModelId = (getProviderModelId(model) ?? stripProviderPrefix(modelId, "zai")).trim().toLowerCase();
+  return localModelId.startsWith("agents/");
+};
+
+const resolvePreferredProviderChatEndpointForModel = ({
+  providerKey,
+  chatEndpoints,
+  modelId,
+  model,
+  selectedChatEndpoint,
+}: {
+  providerKey?: string;
+  chatEndpoints: ChatEndpointId[];
+  modelId?: string;
+  model?: ModelOption | null;
+  selectedChatEndpoint?: ChatEndpointId;
+}) => {
+  if (providerKey === "zai" && isZaiAgentModel(modelId, model) && chatEndpoints.includes("/v1/agents")) {
+    return "/v1/agents" as ChatEndpointId;
+  }
+
+  return resolvePreferredProviderChatEndpoint(chatEndpoints, selectedChatEndpoint);
+};
+
 const hasProviderEndpointProfile = (entry: [string, Provider]) => {
   const [, provider] = entry;
   return typeof provider.apiBaseUrl === "string"
@@ -165,7 +190,13 @@ export const resolveDirectEndpointProfileForModel = ({
     provider,
     apiBaseUrl: provider.apiBaseUrl?.trim(),
     chatEndpoints,
-    selectedChatEndpoint: resolvePreferredProviderChatEndpoint(chatEndpoints, selectedChatEndpoint),
+    selectedChatEndpoint: resolvePreferredProviderChatEndpointForModel({
+      providerKey,
+      chatEndpoints,
+      modelId,
+      model,
+      selectedChatEndpoint,
+    }),
   };
 };
 
@@ -179,7 +210,8 @@ export const resolveEndpointProfileChatEndpoint = ({
   if (!endpointProfile) return selectedChatEndpoint;
 
   if (endpointProfile.kind === "provider") {
-    return resolvePreferredProviderChatEndpoint(endpointProfile.chatEndpoints, selectedChatEndpoint)
+    return endpointProfile.selectedChatEndpoint
+      ?? resolvePreferredProviderChatEndpoint(endpointProfile.chatEndpoints, selectedChatEndpoint)
       ?? endpointProfile.chatEndpoints[0];
   }
 

@@ -3,7 +3,7 @@ import type { Provider } from "aihappey-types";
 import { DefaultChatTransport } from "aihappey-ai";
 import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
-import { ANTHROPIC_THINKING_METADATA_TYPES, compactObject } from "./genericEndpointMappers/types";
+import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
 
 type ResponseProviderStreamContext = {
   event: any;
@@ -36,7 +36,10 @@ const normalizeProviderKey = (value?: string) => String(value ?? "").trim().toLo
 const providerKeyFromModel = (modelId?: string) => normalizeProviderKey(String(modelId ?? "").split("/")[0]);
 
 export const isGenericChatEndpoint = (endpoint: ChatEndpointId | string | undefined): endpoint is GenericEndpointId =>
-  endpoint === "/v1/chat/completions" || endpoint === "/v1/responses" || endpoint === "/v1/messages";
+  (GENERIC_CHAT_ENDPOINT_IDS as readonly string[]).includes(String(endpoint ?? ""));
+
+const isChatCompletionsEndpoint = (endpoint: GenericEndpointId) =>
+  endpoint === "/v1/chat/completions" || endpoint === "/paas/v4/chat/completions";
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
@@ -62,9 +65,9 @@ const getEndpointFromRequestInput = (input: RequestInfo | URL): GenericEndpointI
     }
   })();
 
-  if (path.endsWith("/v1/chat/completions")) return "/v1/chat/completions";
-  if (path.endsWith("/v1/responses")) return "/v1/responses";
-  if (path.endsWith("/v1/messages")) return "/v1/messages";
+  for (const endpoint of GENERIC_CHAT_ENDPOINT_IDS) {
+    if (path.endsWith(endpoint)) return endpoint;
+  }
   return undefined;
 };
 
@@ -93,6 +96,9 @@ const extractGenericStreamText = (endpoint: GenericEndpointId, event: any): stri
 
   return extractPlaygroundStreamText(endpoint, event);
 };
+
+const textToDataUrl = (text: string, mediaType: string) =>
+  `data:${mediaType};charset=utf-8,${encodeURIComponent(text)}`;
 
 const createUiMessageChunkStream = ({
   endpoint,
@@ -243,7 +249,7 @@ const createUiMessageChunkStream = ({
     }
   };
 
-  const finish = (controller: ReadableStreamDefaultController<Uint8Array>) => {
+  const finish = (controller: ReadableStreamDefaultController<Uint8Array>, finishReason = "stop") => {
     if (closed) return;
     if (endpoint === "/v1/responses") {
       ensureMessageStarted(controller);
@@ -258,7 +264,7 @@ const createUiMessageChunkStream = ({
     }
     enqueueChunk(controller, {
       type: "finish",
-      finishReason: "stop",
+      finishReason,
       messageMetadata: messageMetadata(),
     });
     controller.enqueue(encoder.encode("data: [DONE]\n\n"));
@@ -608,6 +614,168 @@ const createUiMessageChunkStream = ({
     }
   };
 
+  const zaiAgentProviderMetadata = (event: any, extra?: Record<string, any>) => ({
+    zai: compactObject({
+      agent: true,
+      agent_id: event?.agent_id,
+      id: event?.id,
+      async_id: event?.async_id,
+      conversation_id: event?.conversation_id,
+      status: event?.status,
+      raw: event,
+      ...(extra ?? {}),
+    }),
+  });
+
+  const emitZaiAgentText = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+    text?: string,
+    phase?: string,
+  ) => {
+    const delta = String(text ?? "");
+    if (!delta) return false;
+
+    if (phase === "thinking") {
+      emitReasoningDelta(controller, `reasoning-zai-agent-${event?.id ?? "stream"}`, delta);
+      return true;
+    }
+
+    closeActiveReasoning(controller);
+    ensureStarted(controller);
+    finalTextBuffer += delta;
+    enqueueChunk(controller, {
+      type: "text-delta",
+      id: textPartId,
+      delta,
+      providerMetadata: zaiAgentProviderMetadata(event, { phase }),
+    });
+    return true;
+  };
+
+  const emitZaiAgentToolObject = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+    objectPart: any,
+    index: number,
+    phase?: string,
+  ) => {
+    const obj = objectPart?.object && typeof objectPart.object === "object" ? objectPart.object : objectPart;
+    const toolName = obj?.tool_name ?? objectPart?.tool_name ?? "zai_agent_tool";
+    const toolCallId = obj?.id ?? `${event?.id ?? event?.async_id ?? "zai-agent"}-${toolName}-${index}`;
+    const title = objectPart?.title ?? objectPart?.tag_en ?? objectPart?.tag_cn ?? toolName;
+
+    ensureStepStarted(controller);
+    if (!startedToolCalls.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-input-start",
+        toolCallId,
+        toolName,
+        providerExecuted: true,
+        title,
+      });
+      startedToolCalls.add(toolCallId);
+    }
+
+    enqueueChunk(controller, {
+      type: "tool-input-available",
+      toolCallId,
+      toolName,
+      input: safeJsonParse(obj?.input ?? {}),
+      providerExecuted: true,
+      title,
+      providerMetadata: zaiAgentProviderMetadata(event, { phase, tool_name: toolName, tool_title: title }),
+    });
+
+    if (!emittedToolOutputs.has(toolCallId)) {
+      const output = safeJsonParse(obj?.output ?? obj?.result ?? obj ?? {});
+      enqueueChunk(controller, {
+        type: "tool-output-available",
+        toolCallId,
+        output,
+        providerExecuted: true,
+        providerMetadata: zaiAgentProviderMetadata(event, { phase, tool_name: toolName, tool_title: title }),
+      });
+      emittedToolOutputs.add(toolCallId);
+
+      if (typeof obj?.output === "string" && /<html[\s>]|<!doctype html/i.test(obj.output)) {
+        enqueueChunk(controller, {
+          type: "file",
+          url: textToDataUrl(obj.output, "text/html"),
+          mediaType: "text/html",
+          filename: `${String(title || toolName).replace(/[^a-z0-9._-]+/gi, "-") || "zai-slide"}.html`,
+          providerMetadata: zaiAgentProviderMetadata(event, { phase, tool_name: toolName, tool_title: title }),
+        });
+      }
+    }
+  };
+
+  const handleZaiAgentMessage = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+    message: any,
+    index: number,
+  ) => {
+    const messages = Array.isArray(message) ? message : [message];
+    let emitted = false;
+
+    messages.forEach((entry, entryIndex) => {
+      const phase = entry?.phase;
+      const content = entry?.content;
+      if (typeof content === "string") {
+        emitted = emitZaiAgentText(controller, event, content, phase) || emitted;
+        return;
+      }
+
+      if (content?.text) {
+        emitted = emitZaiAgentText(controller, event, content.text, phase) || emitted;
+        return;
+      }
+
+      const parts = Array.isArray(content) ? content : content ? [content] : [];
+      parts.forEach((part, partIndex) => {
+        if (typeof part?.text === "string") {
+          emitted = emitZaiAgentText(controller, event, part.text, phase) || emitted;
+        } else if (part?.type === "object" || part?.object) {
+          emitZaiAgentToolObject(controller, event, part, index * 1000 + entryIndex * 100 + partIndex, phase);
+          emitted = true;
+        }
+      });
+    });
+
+    return emitted;
+  };
+
+  const handleZaiAgentsPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>) => {
+    if (event?.error) {
+      enqueueChunk(controller, { type: "error", errorText: event.error?.message ?? "Z.AI agent request failed." });
+      return;
+    }
+
+    if (event?.status || event?.async_id) {
+      emitZaiAgentText(
+        controller,
+        event,
+        [`Z.AI agent status: ${event.status ?? "created"}.`, event.async_id ? `Async ID: ${event.async_id}.` : ""].filter(Boolean).join(" "),
+      );
+    }
+
+    let emitted = false;
+    for (const [choiceIndex, choice] of (event?.choices ?? []).entries()) {
+      const message = choice?.messages ?? choice?.message ?? choice?.delta;
+      if (message) emitted = handleZaiAgentMessage(controller, event, message, choiceIndex) || emitted;
+      if (choice?.finish_reason) {
+        rememberMetadata(event);
+        if (!emitted && !startedText) ensureMessageStarted(controller);
+        finish(controller, choice.finish_reason);
+      }
+    }
+
+    if (!emitted && event?.agent_id && !event?.choices?.length) {
+      emitZaiAgentText(controller, event, extractTextFromValue(event));
+    }
+  };
+
   const emitSource = (controller: ReadableStreamDefaultController<Uint8Array>, annotation: any, fallbackIndex?: number) => {
     if (annotation?.type !== "url_citation" || typeof annotation?.url !== "string") return;
     const sourceId = `response-source-${fallbackIndex ?? emittedSourceKeys.size}`;
@@ -945,7 +1113,7 @@ const createUiMessageChunkStream = ({
   };
 
   const normalizeToolDeltas = (eventName: string | undefined, event: any, controller: ReadableStreamDefaultController<Uint8Array>) => {
-    if (endpoint === "/v1/chat/completions") {
+    if (isChatCompletionsEndpoint(endpoint)) {
       for (const choice of event?.choices ?? []) {
         for (const toolCall of choice?.delta?.tool_calls ?? []) {
           const toolCallId = toolCall.id ?? `tool-${toolCall.index ?? startedToolCalls.size}`;
@@ -981,7 +1149,7 @@ const createUiMessageChunkStream = ({
   const getTextDelta = (eventName: string | undefined, event: any) => {
     if (!event || typeof event !== "object") return "";
 
-    if (endpoint === "/v1/chat/completions") {
+    if (isChatCompletionsEndpoint(endpoint)) {
       if (event.object && event.object !== "chat.completion.chunk") return "";
       return (event.choices ?? [])
         .map((choice: any) => choice?.delta?.content)
@@ -1000,7 +1168,7 @@ const createUiMessageChunkStream = ({
   };
 
   const emitChatCompletionReasoningDeltas = (event: any, controller: ReadableStreamDefaultController<Uint8Array>) => {
-    if (endpoint !== "/v1/chat/completions") return false;
+    if (!isChatCompletionsEndpoint(endpoint)) return false;
     if (!event || typeof event !== "object") return false;
     if (event.object && event.object !== "chat.completion.chunk") return false;
 
@@ -1032,6 +1200,11 @@ const createUiMessageChunkStream = ({
     rememberMetadata(parsed);
     if (endpoint === "/v1/responses") {
       handleResponsesPayload(parsed, controller, eventName);
+      return;
+    }
+
+    if (endpoint === "/v1/agents") {
+      handleZaiAgentsPayload(parsed, controller);
       return;
     }
 

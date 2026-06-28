@@ -4,6 +4,7 @@ import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { enrichModelTypes } from "../models/modelTypeEnrichment";
 import type { Provider } from "aihappey-types";
 import { HIDDEN_DIRECT_MODEL_ID_SUFFIX } from "aihappey-types";
+import zaiModels from "../../runtime/providers/catalog/models/zai.json";
 
 export const DIRECT_MODEL_ID_SUFFIX = HIDDEN_DIRECT_MODEL_ID_SUFFIX;
 
@@ -16,6 +17,10 @@ export type ModelsListProgress = {
 type ProviderLike = {
   name?: string;
   apiBaseUrl?: string;
+};
+
+const STATIC_DIRECT_MODEL_RESPONSES: Record<string, ModelResponse> = {
+  zai: zaiModels as unknown as ModelResponse,
 };
 
 const providerRegistryOrDefault = (providers?: Record<string, ProviderLike>) => providers ?? PROVIDERS;
@@ -299,6 +304,22 @@ const prefixProviderModelIds = (response: ModelResponse, providerKey?: string) =
   } satisfies ModelResponse;
 };
 
+const stripStaticProviderPrefix = (response: ModelResponse, providerKey?: string) => {
+  const normalizedProviderKey = providerKey?.trim().toLowerCase();
+  if (!normalizedProviderKey) return response;
+  const prefix = `${normalizedProviderKey}/`;
+
+  return {
+    ...response,
+    data: (response?.data ?? []).map((model: any) => ({
+      ...model,
+      id: typeof model.id === "string" && model.id.toLowerCase().startsWith(prefix)
+        ? model.id.slice(prefix.length)
+        : model.id,
+    })),
+  } satisfies ModelResponse;
+};
+
 export const listModelsWithSplitProviderHeaders = async ({
   modelsApi,
   getAccessToken,
@@ -348,6 +369,15 @@ export const listModelsWithSplitProviderHeaders = async ({
 
   const requestModels = async (headers?: Record<string, string>, requestProviderKey?: string, route: "gateway" | "direct" = "gateway") => {
     try {
+      const staticDirectResponse = route === "direct" && requestProviderKey
+        ? STATIC_DIRECT_MODEL_RESPONSES[requestProviderKey]
+        : undefined;
+      if (staticDirectResponse) {
+        const response = enrichModelResponse(stripStaticProviderPrefix(staticDirectResponse, requestProviderKey));
+        responses.push(prefixProviderModelIds(response, requestProviderKey ?? providerKey));
+        return;
+      }
+
       const client = createHttpClient(route === "gateway" && getAccessToken ? { getAccessToken, headers } : { headers });
       const requestModelsApi = requestProviderKey
         ? getProviderModelApi(getProvider(requestProviderKey, providers), modelsApi)

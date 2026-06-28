@@ -4,6 +4,14 @@ import { sanitizeProviderRequestConfigForProvider } from "../../../../runtime/pr
 
 export type GenericEndpointId = Exclude<ChatEndpointId, "/api/chat">;
 
+export const GENERIC_CHAT_ENDPOINT_IDS: readonly GenericEndpointId[] = [
+  "/v1/chat/completions",
+  "/v1/responses",
+  "/v1/messages",
+  "/paas/v4/chat/completions",
+  "/v1/agents",
+] as const;
+
 export type GenericChatEndpointRequestBody = {
   model?: string;
   temperature?: number;

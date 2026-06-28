@@ -39,7 +39,7 @@ export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) =
   const messages = mapUiMessages(body.messages);
   const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
     ...body,
-    endpoint: "/v1/chat/completions",
+    endpoint: body.endpoint ?? "/v1/chat/completions",
   });
 
   return compactObject({

@@ -1,6 +1,23 @@
 const PROVIDER_REQUEST_KEYS_BY_PROVIDER: Record<string, readonly string[]> = {
   openrouter: ["provider", "plugins"],
   requesty: ["requesty"],
+  zai: [
+    "agent_id",
+    "conversation_id",
+    "custom_variables",
+    "do_sample",
+    "glossary",
+    "reasoning_effort",
+    "request_id",
+    "source_lang",
+    "strategy",
+    "strategy_config",
+    "template",
+    "thinking",
+    "tool_stream",
+    "target_lang",
+    "user_id",
+  ],
 };
 
 const PROVIDER_SPECIFIC_REQUEST_KEYS = new Set(
