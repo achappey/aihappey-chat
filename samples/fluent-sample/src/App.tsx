@@ -5,9 +5,6 @@ import { loginRequest, msalConfig } from "./msalConfig";
 import { defaultAgents as sampleDefaultAgents } from "./defaultAgents";
 declare const __CHAT_API__: string;
 declare const __API_BASE_URL__: string;
-declare const __MODELS_API__: string;
-declare const __SAMPLING_API__: string;
-declare const __TRANSCRIPTION_API__: string;
 declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
 declare const __CONVERSATIONS_API_URL__: string;
@@ -25,9 +22,6 @@ const App = () => (
       conversationsScopes={__CONVERSATIONS_SCOPES__}
       chatConfig={{
         api: __CHAT_API__,
-        modelsApi: __MODELS_API__,
-        samplingApi: __SAMPLING_API__,
-        transcriptionApi: __TRANSCRIPTION_API__,
         defaultProvidersByType: {
           language: ["OpenAI", "Anthropic", "Google", "xAI", "Pollinations"],
           image: ["OpenAI", "Pollinations"],
