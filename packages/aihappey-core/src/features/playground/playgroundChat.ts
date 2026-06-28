@@ -127,7 +127,7 @@ export const createPlaygroundFetch = ({
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const requestHeaders = new Headers(headers ?? {});
 
-    if (getAccessToken) {
+    if (getAccessToken && !requestHeaders.has("x-api-key")) {
       try {
         const token = await getAccessToken();
         if (token) {

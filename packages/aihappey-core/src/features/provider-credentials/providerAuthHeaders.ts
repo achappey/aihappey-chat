@@ -142,6 +142,63 @@ const createBearerHeadersFromApiKey = (value?: string) => {
   };
 };
 
+const stripBearerPrefix = (value?: string) => {
+  const apiKey = value?.trim();
+
+  if (!apiKey) return undefined;
+
+  return apiKey.toLowerCase().startsWith("bearer ")
+    ? apiKey.slice("bearer ".length).trim()
+    : apiKey;
+};
+
+const createMessagesEndpointHeadersFromApiKey = (value?: string) => {
+  const apiKey = stripBearerPrefix(value);
+
+  return {
+    "anthropic-version": "2023-06-01",
+    "anthropic-dangerous-direct-browser-access": "true",
+    ...(apiKey ? { "x-api-key": apiKey } : {}),
+  } satisfies Record<string, string>;
+};
+
+const createDirectProviderModelHeadersFromApiKey = (value: string, providerKey?: string) => {
+  if (normalizeLookupValue(providerKey) === "anthropic") {
+    return createMessagesEndpointHeadersFromApiKey(value);
+  }
+
+  return createBearerHeadersFromApiKey(value);
+};
+
+export const createMessagesEndpointHeadersForProviderKey = (
+  customHeaders: Record<string, string> | undefined,
+  providerKey?: string,
+  providers?: Record<string, ProviderLike>,
+) => {
+  const entry = getExactProviderApiKeyHeaderEntry(customHeaders, providerKey, providers);
+  const value = entry?.[1]?.trim();
+
+  return createMessagesEndpointHeadersFromApiKey(value);
+};
+
+export const createMessagesEndpointAuthHeadersForModel = (
+  customHeaders: Record<string, string> | undefined,
+  modelId?: string,
+  hasAccessToken?: boolean,
+  providers?: Record<string, ProviderLike>,
+) => {
+  const providerKey = getProviderKeyFromModelId(modelId);
+
+  if (hasAccessToken) {
+    return createMessagesEndpointHeadersFromApiKey();
+  }
+
+  return {
+    ...createMessagesEndpointHeadersForProviderKey(customHeaders, providerKey, providers),
+    ...createEndpointHeaders(customHeaders, providers),
+  };
+};
+
 export const createProviderBearerHeadersForProviderKey = (
   customHeaders: Record<string, string> | undefined,
   providerKey?: string,
@@ -329,7 +386,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   }
 
   for (const request of directProviderRequests) {
-    await requestModels(createBearerHeadersFromApiKey(request.apiKey), request.providerKey, "direct");
+    await requestModels(createDirectProviderModelHeadersFromApiKey(request.apiKey, request.providerKey), request.providerKey, "direct");
   }
 
   onProgress?.({ completed: total, total, active: false });

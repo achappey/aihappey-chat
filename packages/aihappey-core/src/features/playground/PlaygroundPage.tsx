@@ -33,6 +33,8 @@ import { encodePlaygroundAttachment, getPlaygroundUnsupportedAttachmentKinds } f
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import {
   createChatAuthHeadersForModel,
+  createMessagesEndpointAuthHeadersForModel,
+  createMessagesEndpointHeadersForProviderKey,
   createProviderBearerHeadersForProviderKey,
 } from "../provider-credentials/providerAuthHeaders";
 import {
@@ -166,14 +168,25 @@ export const PlaygroundPage = () => {
 
   const effectiveHeaders = useMemo(() => {
     if (isProviderBackedPlaygroundRequest) {
+      if (selectedEndpoint === "/v1/messages") {
+        return {
+          ...createMessagesEndpointHeadersForProviderKey(customHeaders, providerKey),
+          ...(playgroundProviderRequestHeaders ?? {}),
+        };
+      }
+
       return {
         ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey),
         ...(playgroundProviderRequestHeaders ?? {}),
       };
     }
 
+    if (selectedEndpoint === "/v1/messages") {
+      return createMessagesEndpointAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken));
+    }
+
     return createChatAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken));
-  }, [config?.getAccessToken, customHeaders, isProviderBackedPlaygroundRequest, playgroundModel, playgroundProviderRequestHeaders, providerKey]);
+  }, [config?.getAccessToken, customHeaders, isProviderBackedPlaygroundRequest, playgroundModel, playgroundProviderRequestHeaders, providerKey, selectedEndpoint]);
 
   const currentEndpointConfig = useMemo(
     () => endpointConfigByEndpoint[selectedEndpoint as keyof PlaygroundEndpointConfigMap] ?? {},

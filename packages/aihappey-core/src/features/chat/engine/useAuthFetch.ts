@@ -72,7 +72,7 @@ export function useAuthFetch({
             }
 
             try {
-                if (mode === "chat" && getAccessTokenRef.current && !h.has("Authorization")) {
+                if (mode === "chat" && getAccessTokenRef.current && !h.has("Authorization") && !h.has("x-api-key")) {
                     const token = await getAccessTokenRef.current();
                     if (token) h.set("Authorization", `Bearer ${token}`);
                 } else if (mode === "agent" && refreshTokenRef.current && !h.has("Authorization")) {

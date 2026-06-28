@@ -50,6 +50,8 @@ import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { buildSelectedAgentRequest } from "../../agents/agentSelection";
 import {
   createChatAuthHeadersForModel,
+  createMessagesEndpointAuthHeadersForModel,
+  createMessagesEndpointHeadersForProviderKey,
   createProviderBearerHeadersForProviderKey,
   getProviderApiKeyHeaderEntries,
   getProviderKeyFromModelId,
@@ -253,11 +255,18 @@ export function VercelChatInner({
   const providerProfileAuthHeaders: any = useMemo(() => {
     const providerKey = isProviderEndpointProfile ? endpointProfile.providerKey : undefined;
 
+    if (requestEndpoint === "/v1/messages") {
+      return {
+        ...createMessagesEndpointHeadersForProviderKey(customHeaders, providerKey, providers),
+        ...(providerRequestHeaders ?? {}),
+      };
+    }
+
     return {
       ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers),
       ...(providerRequestHeaders ?? {}),
     };
-  }, [customHeaders, endpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers]);
+  }, [customHeaders, endpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint]);
 
   const createConversationName = useCallback(
     (text: string) => generateConversationName(text, {
@@ -309,6 +318,8 @@ export function VercelChatInner({
     ? undefined
     : isProviderEndpointProfile
       ? providerProfileAuthHeaders
+      : requestEndpoint === "/v1/messages"
+        ? createMessagesEndpointAuthHeadersForModel(customHeaders, model, Boolean(getAccessToken), providers)
       : apiKeyHeaders;
 
   const authFetch = useAuthFetch({

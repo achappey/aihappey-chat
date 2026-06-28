@@ -1,11 +1,35 @@
 import type { ModelOption } from "aihappey-types";
 
-export const guessModelType = (model?: string) => {
-  const modelId = String(model ?? "").toLowerCase();
+const MODEL_TYPES = [
+  "language",
+  "transcription",
+  "speech",
+  "reranking",
+  "embedding",
+  "image",
+  "video",
+  "audio",
+] as const;
+
+type ModelType = (typeof MODEL_TYPES)[number];
+
+const isValidModelType = (value?: unknown): value is ModelType => {
+  if (typeof value !== "string") return false;
+  return MODEL_TYPES.includes(value.trim().toLowerCase() as ModelType);
+};
+
+export const guessModelType = (model?: string): ModelType => {
+  const modelId = String(model ?? "").trim().toLowerCase();
+
+  // If the input is already a valid model type, return it directly.
+  if (isValidModelType(modelId)) {
+    return modelId as ModelType;
+  }
 
   if (
     modelId.includes("whisper") ||
     modelId.includes("transcribe") ||
+    modelId.includes("transcription") ||
     modelId.includes("cartesia") ||
     (modelId.includes("voxtral") && !modelId.includes("tts"))
   ) {
@@ -14,6 +38,7 @@ export const guessModelType = (model?: string) => {
 
   if (
     modelId.includes("tts") ||
+    modelId.includes("speech") ||
     modelId.includes("canopy") ||
     modelId.includes("kokoro") ||
     modelId.includes("chatterbox")
@@ -25,7 +50,10 @@ export const guessModelType = (model?: string) => {
     return "reranking";
   }
 
-  if (modelId.includes("embed")) {
+  if (
+    modelId.includes("embed") ||
+    modelId.includes("embedding")
+  ) {
     return "embedding";
   }
 
@@ -36,6 +64,7 @@ export const guessModelType = (model?: string) => {
     modelId.includes("sdxl") ||
     modelId.includes("sd3.5") ||
     modelId.includes("dalle") ||
+    modelId.includes("dall-e") ||
     modelId.includes("ideogram") ||
     modelId.includes("riverflow") ||
     modelId.includes("kandinsky") ||
@@ -44,14 +73,14 @@ export const guessModelType = (model?: string) => {
     modelId.includes("bria") ||
     modelId.includes("seedream") ||
     modelId.includes("recraft") ||
-    modelId.includes("imagen") ||
-    modelId.includes("dall-e")
+    modelId.includes("imagen")
   ) {
     return "image";
   }
 
   if (
     modelId.includes("openai/sora-") ||
+    modelId.includes("sora") ||
     modelId.includes("veo-") ||
     modelId.includes("t2v") ||
     modelId.includes("i2v") ||
@@ -60,7 +89,10 @@ export const guessModelType = (model?: string) => {
     return "video";
   }
 
-  if (modelId.includes("realtime")) {
+  if (
+    modelId.includes("realtime") ||
+    modelId.includes("audio")
+  ) {
     return "audio";
   }
 
@@ -68,8 +100,14 @@ export const guessModelType = (model?: string) => {
 };
 
 export const enrichModelType = (model: ModelOption): ModelOption => {
-  const type = typeof model.type === "string" ? model.type.trim() : "";
-  if (type.length > 0) return model;
+  const existingType = typeof model.type === "string"
+    ? model.type.trim().toLowerCase()
+    : "";
+
+  // Only trust existing type if it is valid.
+  if (isValidModelType(existingType)) {
+    return model;
+  }
 
   return {
     ...model,
@@ -77,4 +115,5 @@ export const enrichModelType = (model: ModelOption): ModelOption => {
   };
 };
 
-export const enrichModelTypes = (models: ModelOption[]) => models.map(enrichModelType);
+export const enrichModelTypes = (models: ModelOption[]): ModelOption[] =>
+  models.map(enrichModelType);
