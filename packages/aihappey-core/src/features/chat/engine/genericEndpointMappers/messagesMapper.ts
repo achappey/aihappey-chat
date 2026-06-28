@@ -1,12 +1,14 @@
 import {
+  ANTHROPIC_THINKING_METADATA_TYPES,
   compactObject,
+  getProviderKeyFromRequestBody,
   resolveNativeRequestMetadata,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
   type GenericMappedFilePart,
   type GenericMappedMessage,
 } from "./types";
-import { getSystemText, mapUiMessages, parseDataUrl } from "./uiMessageParts";
+import { getSystemText, getTextFromPart, mapUiMessages, parseDataUrl } from "./uiMessageParts";
 
 const toAnthropicFileBlocks = (file: GenericMappedFilePart) => {
   if (file.mimeType.startsWith("image/") && file.dataUrl) {
@@ -50,8 +52,44 @@ const toAnthropicFileBlocks = (file: GenericMappedFilePart) => {
   return [];
 };
 
-const toAnthropicContentBlocks = (message: GenericMappedMessage) => {
+const messagesReasoningFromPart = (part: any, providerKey?: string) => {
+  if (!providerKey) return undefined;
+
+  const providerMetadata = part?.providerMetadata?.[providerKey];
+  if (!providerMetadata || typeof providerMetadata !== "object") return undefined;
+
+  const metadataType = providerMetadata.type;
+  const redactedData = providerMetadata.data;
+  if (metadataType === ANTHROPIC_THINKING_METADATA_TYPES.redactedThinking && typeof redactedData === "string" && redactedData) {
+    return {
+      type: "redacted_thinking" as const,
+      data: redactedData,
+    };
+  }
+
+  const signature = providerMetadata.signature;
+  if (typeof signature !== "string" || !signature) return undefined;
+
+  return {
+    type: "thinking" as const,
+    thinking: getTextFromPart(part),
+    signature,
+  };
+};
+
+const toAnthropicContentBlocks = (message: GenericMappedMessage, providerKey?: string) => {
   const blocks: any[] = [];
+
+  if (message.role === "assistant") {
+    blocks.push(
+      ...message.reasoningParts
+        .map((part) => messagesReasoningFromPart(part, providerKey))
+        .filter(Boolean),
+    );
+    message.nonReasoningTextParts.forEach((text) => blocks.push({ type: "text", text }));
+    return blocks;
+  }
+
   if (message.text) blocks.push({ type: "text", text: message.text });
 
   if (message.role === "user") {
@@ -63,6 +101,7 @@ const toAnthropicContentBlocks = (message: GenericMappedMessage) => {
 
 export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
+  const providerKey = getProviderKeyFromRequestBody(body);
   const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
     ...body,
     endpoint: "/v1/messages",
@@ -84,7 +123,7 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
       .filter((message) => message.role !== "system")
       .map((message) => compactObject({
         role: message.role as "user" | "assistant",
-        content: toAnthropicContentBlocks(message),
+        content: toAnthropicContentBlocks(message, providerKey),
       }))
       .filter((message: any) => Array.isArray(message.content) && message.content.length > 0),
     stream: true,

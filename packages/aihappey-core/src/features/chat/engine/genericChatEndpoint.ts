@@ -3,7 +3,7 @@ import type { Provider } from "aihappey-types";
 import { DefaultChatTransport } from "aihappey-ai";
 import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
-import { compactObject } from "./genericEndpointMappers/types";
+import { ANTHROPIC_THINKING_METADATA_TYPES, compactObject } from "./genericEndpointMappers/types";
 
 type ResponseProviderStreamContext = {
   event: any;
@@ -131,6 +131,8 @@ const createUiMessageChunkStream = ({
   const emittedSourceKeys = new Set<string>();
   const imageGenerationItems = new Map<string, any>();
   const imageGenerationFinalFiles = new Set<string>();
+  const messagesContentBlocksByIndex = new Map<number, any>();
+  const messagesReasoningIdsByIndex = new Map<number, string>();
 
   const enqueueChunk = (controller: ReadableStreamDefaultController<Uint8Array>, chunk: any) => {
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
@@ -156,21 +158,45 @@ const createUiMessageChunkStream = ({
   const resolveProviderKey = () => normalizeProviderKey(providerKey) ?? providerKeyFromModel(latestModel ?? requestModel);
 
   const createReasoningProviderMetadata = (item?: any) => {
-    const encryptedContent = item?.encrypted_content;
     const resolvedProviderKey = resolveProviderKey();
-    if (!resolvedProviderKey || typeof encryptedContent !== "string" || !encryptedContent) return undefined;
-    return {
-      [resolvedProviderKey]: {
-        encrypted_content: encryptedContent,
-      },
-    };
+    if (!resolvedProviderKey) return undefined;
+
+    const providerEntry = compactObject({
+      encrypted_content: typeof item?.encrypted_content === "string" && item.encrypted_content
+        ? item.encrypted_content
+        : undefined,
+      signature: typeof item?.signature === "string" && item.signature
+        ? item.signature
+        : undefined,
+      type: item?.type === ANTHROPIC_THINKING_METADATA_TYPES.thinking
+        || item?.type === ANTHROPIC_THINKING_METADATA_TYPES.redactedThinking
+        ? item.type
+        : undefined,
+      data: item?.type === ANTHROPIC_THINKING_METADATA_TYPES.redactedThinking
+        && typeof item?.data === "string"
+        && item.data
+        ? item.data
+        : undefined,
+    });
+
+    return Object.keys(providerEntry).length
+      ? { [resolvedProviderKey]: providerEntry }
+      : undefined;
   };
 
   const rememberReasoningMetadata = (id: string, item?: any) => {
     const providerMetadata = createReasoningProviderMetadata(item);
     if (!providerMetadata) return undefined;
-    reasoningProviderMetadataById.set(id, providerMetadata);
-    return providerMetadata;
+    const currentProviderMetadata = reasoningProviderMetadataById.get(id) ?? {};
+    const mergedProviderMetadata = { ...currentProviderMetadata };
+    for (const [key, value] of Object.entries(providerMetadata)) {
+      mergedProviderMetadata[key] = {
+        ...(currentProviderMetadata[key] ?? {}),
+        ...(value ?? {}),
+      };
+    }
+    reasoningProviderMetadataById.set(id, mergedProviderMetadata);
+    return mergedProviderMetadata;
   };
 
   const ensureMessageStarted = (controller: ReadableStreamDefaultController<Uint8Array>) => {
@@ -626,6 +652,83 @@ const createUiMessageChunkStream = ({
     enqueueChunk(controller, { type: "reasoning-delta", id, delta, providerMetadata: reasoningProviderMetadataById.get(id) });
   };
 
+  const messagesReasoningId = (index: number) => `reasoning-messages-${index}`;
+
+  const isMessagesReasoningBlock = (block: any) =>
+    block?.type === ANTHROPIC_THINKING_METADATA_TYPES.thinking
+    || block?.type === ANTHROPIC_THINKING_METADATA_TYPES.redactedThinking;
+
+  const rememberMessagesReasoningMetadata = (index: number, patch?: any) => {
+    const block = {
+      ...(messagesContentBlocksByIndex.get(index) ?? {}),
+      ...(patch ?? {}),
+    };
+    messagesContentBlocksByIndex.set(index, block);
+    if (!isMessagesReasoningBlock(block)) return undefined;
+
+    const id = messagesReasoningIdsByIndex.get(index) ?? messagesReasoningId(index);
+    messagesReasoningIdsByIndex.set(index, id);
+    return rememberReasoningMetadata(id, block);
+  };
+
+  const ensureMessagesReasoning = (controller: ReadableStreamDefaultController<Uint8Array>, index: number) => {
+    const id = messagesReasoningIdsByIndex.get(index) ?? messagesReasoningId(index);
+    messagesReasoningIdsByIndex.set(index, id);
+    ensureReasoning(controller, id, rememberMessagesReasoningMetadata(index));
+    return id;
+  };
+
+  const handleMessagesReasoningPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
+    if (endpoint !== "/v1/messages") return false;
+
+    const type = eventName ?? event?.type;
+    const index = typeof event?.index === "number" ? event.index : undefined;
+
+    if (type === "content_block_start" && index !== undefined) {
+      const contentBlock = event?.content_block;
+      if (!contentBlock || !isMessagesReasoningBlock(contentBlock)) return false;
+
+      messagesContentBlocksByIndex.set(index, { ...contentBlock });
+      const id = ensureMessagesReasoning(controller, index);
+      const initialThinking = typeof contentBlock.thinking === "string" ? contentBlock.thinking : "";
+      if (initialThinking) emitReasoningDelta(controller, id, initialThinking);
+      return true;
+    }
+
+    if (type === "content_block_delta" && index !== undefined) {
+      const block = messagesContentBlocksByIndex.get(index);
+      if (!isMessagesReasoningBlock(block)) return false;
+
+      const id = ensureMessagesReasoning(controller, index);
+      const delta = event?.delta;
+      if (delta?.type === "thinking_delta" && typeof delta.thinking === "string") {
+        emitReasoningDelta(controller, id, delta.thinking);
+        return true;
+      }
+
+      if (delta?.type === "signature_delta" && typeof delta.signature === "string") {
+        rememberMessagesReasoningMetadata(index, {
+          signature: `${block?.signature ?? ""}${delta.signature}`,
+        });
+        return true;
+      }
+
+      return false;
+    }
+
+    if (type === "content_block_stop" && index !== undefined) {
+      const block = messagesContentBlocksByIndex.get(index);
+      if (!isMessagesReasoningBlock(block)) return false;
+
+      const id = ensureMessagesReasoning(controller, index);
+      rememberMessagesReasoningMetadata(index);
+      closeReasoning(controller, id);
+      return true;
+    }
+
+    return false;
+  };
+
   const emitResponsesTextSnapshot = (controller: ReadableStreamDefaultController<Uint8Array>, value: any) => {
     const text = extractTextFromValue(value);
     if (!text) return false;
@@ -933,6 +1036,7 @@ const createUiMessageChunkStream = ({
     }
 
     normalizeToolDeltas(eventName, parsed, controller);
+    if (handleMessagesReasoningPayload(parsed, controller, eventName)) return;
     emitChatCompletionReasoningDeltas(parsed, controller);
     const delta = getTextDelta(eventName, parsed);
     if (!delta) return;

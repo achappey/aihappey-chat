@@ -43,6 +43,11 @@ export type GenericMappedMessage = {
   raw: UIMessage;
 };
 
+export const ANTHROPIC_THINKING_METADATA_TYPES = {
+  thinking: "thinking",
+  redactedThinking: "redacted_thinking",
+} as const;
+
 export const compactObject = <T extends Record<string, any>>(value: T): Partial<T> => Object.fromEntries(
   Object.entries(value).filter(([, entry]) => {
     if (entry === undefined || entry === null) return false;
