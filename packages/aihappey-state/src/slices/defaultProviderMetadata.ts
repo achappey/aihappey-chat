@@ -125,7 +125,6 @@ export const defaultProviderMetadata = {
         "type": "code_execution_20260521"
       }
     ],
-    "anthropic-beta": "",
     "max_tokens": 64000,
     "thinking": {
       "type": "adaptive"
