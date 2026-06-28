@@ -18,7 +18,9 @@ export const sargalay: Provider = {
   },
   providerCountry: "MM",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.sargalay.com",
+  chatEndpoints: ["/v1/chat/completions"],
 
 };
 

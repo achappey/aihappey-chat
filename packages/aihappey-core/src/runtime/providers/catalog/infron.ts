@@ -13,7 +13,9 @@ export const infron: Provider = {
   },
   providerCountry: "US",
   category: "inference_compute",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://llm.onerouter.pro",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses", "/v1/messages"],
 
 };
 
