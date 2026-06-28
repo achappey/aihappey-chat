@@ -40,7 +40,7 @@ import { normalizeChatEndpointId } from "aihappey-state";
 
 type CoreRootProps = {
   appName: string;
-  baseUrl: string;
+  baseUrl?: string;
   appVersion?: string;
   agentEndpoint?: string
   conversationsApi?: string;

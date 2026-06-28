@@ -104,6 +104,10 @@ export function useMcpRuntimeBinding({
         const currentSamplingApi = samplingApiRef.current;
         const withModels = applyModelHintsToParams(params, currentModels);
 
+        if (!currentSamplingApi) {
+            throw new Error("Sampling endpoint is not configured");
+        }
+
         const apiKeyHeaders: Record<string, string> = Object.fromEntries(
             Object.entries(currentCustomHeaders)
                 .filter(([key]) => currentEnabledProviders.includes(key.split("-")[1]))

@@ -85,11 +85,16 @@ export const CoreShell: React.FC<Props> = ({
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
   const authenticated = chatConfig?.getAccessToken != null;
-  const effectiveBaseUrl = authenticated
+  const configuredGatewayBaseUrl = typeof chatConfig?.baseUrl === "string" && chatConfig.baseUrl.trim().length > 0
     ? chatConfig.baseUrl
+    : "";
+  const effectiveBaseUrl = authenticated
+    ? configuredGatewayBaseUrl
     : effectiveChatEndpointMode === "direct"
-      ? chatConfig.baseUrl
-    : storeEffectiveBaseUrl || chatConfig.baseUrl;
+      ? configuredGatewayBaseUrl
+    : configuredGatewayBaseUrl
+      ? storeEffectiveBaseUrl || configuredGatewayBaseUrl
+      : "";
   const hasGatewayBaseUrl = typeof effectiveBaseUrl === "string" && effectiveBaseUrl.trim().length > 0;
   const effectiveGatewayEnabled = hasGatewayBaseUrl
     && (authenticated || ((chatConfig as any)?.gatewayEnabled !== false && gatewayEnabled !== false));
@@ -246,11 +251,15 @@ export const CoreShell: React.FC<Props> = ({
     setSidebarOpen(isDesktop);
   }, []);
 
-  const modelsApi = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.models;
+  const modelsApi = effectiveGatewayEnabled
+    ? effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.models
+    : "";
   const remoteAgentModelsApi = effectiveChatConfig?.agentEndpoint
     ? effectiveChatConfig.agentEndpoint + effectiveChatConfig.endpoints.models
     : undefined;
-  const skillsApi = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.skills;
+  const skillsApi = effectiveGatewayEnabled
+    ? effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.skills
+    : undefined;
 
   useEffect(() => {
     (resetModels as any)({ keepSelectedModel: true });
@@ -293,7 +302,9 @@ export const CoreShell: React.FC<Props> = ({
     <Outlet />
   );
 
-  const samplingEndpoint = effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.sampling;
+  const samplingEndpoint = effectiveGatewayEnabled
+    ? effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.sampling
+    : undefined;
 
   return (
     <I18nProvider>

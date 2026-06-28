@@ -3,7 +3,7 @@ import { useMcpRuntimeBinding } from "./useMcpRuntimeBinding";
 
 type McpConnectionsProviderProps = {
   children: ReactNode;
-  samplingApi: string;
+  samplingApi?: string;
   agentApi: string
   agentScopes: string[]
   clientName?: string;
