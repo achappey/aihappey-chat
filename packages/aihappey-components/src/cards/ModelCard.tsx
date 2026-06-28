@@ -1,5 +1,5 @@
 import { useTheme } from "../theme/ThemeContext";
-import { ModelOption } from "aihappey-types";
+import { getModelDisplayId, getModelDisplayName, ModelOption } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTranslation } from "aihappey-i18n";
 import { ContextWindowBadge, MaxOutputTokensBadge } from "../badges";
@@ -51,6 +51,8 @@ export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggl
     provider?.icons?.find(i => i.theme === (isDarkMode ? "dark" : "light"))?.src ??
     provider?.icons?.[0]?.src;
   const providerWebsiteUrl = provider?.urls?.homepage;
+  const displayId = getModelDisplayId(model);
+  const displayName = getModelDisplayName(model);
 
   const providerImage = iconImage ? <Image
     height={32}
@@ -81,14 +83,14 @@ export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggl
       icon="copyClipboard"
       size="small"
       variant="transparent"
-      title={model.id}
-      onClick={() => navigator.clipboard.writeText(model.id)} />
+      title={displayId}
+      onClick={() => navigator.clipboard.writeText(displayId)} />
 
     {chatButton}
 
     {onToggleFavorite && (
-      <ModelFavoriteToggleButton
-        modelName={model?.name ?? model?.id}
+        <ModelFavoriteToggleButton
+        modelName={displayName}
         isFavorite={isFavorite}
         onToggleFavorite={onToggleFavorite}
         size="small"
@@ -99,7 +101,7 @@ export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggl
 
   return (
     <Card
-      title={model?.name ?? model?.id}
+      title={displayName}
       image={imageItem}
       actions={actions}
       headerActions={<>{isNew && <>{" "}<Badge>{t("new")}</Badge></>}</>}

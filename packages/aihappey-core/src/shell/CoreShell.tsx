@@ -85,18 +85,21 @@ export const CoreShell: React.FC<Props> = ({
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
   const authenticated = chatConfig?.getAccessToken != null;
-  const effectiveGatewayEnabled = authenticated || gatewayEnabled !== false;
   const effectiveBaseUrl = authenticated
     ? chatConfig.baseUrl
     : effectiveChatEndpointMode === "direct"
       ? chatConfig.baseUrl
     : storeEffectiveBaseUrl || chatConfig.baseUrl;
+  const hasGatewayBaseUrl = typeof effectiveBaseUrl === "string" && effectiveBaseUrl.trim().length > 0;
+  const effectiveGatewayEnabled = hasGatewayBaseUrl
+    && (authenticated || ((chatConfig as any)?.gatewayEnabled !== false && gatewayEnabled !== false));
   const effectiveChatConfig = useMemo(
     () => ({
       ...chatConfig,
       baseUrl: effectiveBaseUrl,
+      gatewayEnabled: effectiveGatewayEnabled,
     }),
-    [chatConfig, effectiveBaseUrl],
+    [chatConfig, effectiveBaseUrl, effectiveGatewayEnabled],
   );
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)

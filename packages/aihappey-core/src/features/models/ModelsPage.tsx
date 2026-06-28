@@ -6,7 +6,7 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useNavigate } from "react-router";
-import type { GenericDataGridColumn, ModelOption } from "aihappey-types";
+import { getModelDisplayName, getModelProviderKey, isUserVisibleModel, type GenericDataGridColumn, type ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 export const ModelsPage = () => {
@@ -17,12 +17,16 @@ export const ModelsPage = () => {
   const { isDarkMode } = useDarkMode();
   const navigate = useNavigate()
   const models = useAppStore((s) => s.models);
+  const visibleModels = useMemo(
+    () => (models ?? []).filter(isUserVisibleModel),
+    [models],
+  );
   const modelsLoadingProgress = useAppStore((s: any) => s.modelsLoadingProgress as { completed: number; total: number; active: boolean } | undefined);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   // unique types
   const types = Array
-    .from(new Set(models?.map(m => m.type)))
+    .from(new Set(visibleModels.map(m => m.type)))
     .sort((a, b) =>
       t(a === "audio" ? "realtime" : a)
         .localeCompare(
@@ -70,7 +74,7 @@ export const ModelsPage = () => {
         key: "provider",
         header: "",
         render: (row) => {
-          const providerId = row.id.split("/")[0].toLowerCase();
+          const providerId = getModelProviderKey(row.id, row) ?? row.id.split("/")[0].toLowerCase();
           const icons = (PROVIDERS as any)[providerId]?.icons as
             | { src: string; theme?: "light" | "dark" }[]
             | undefined;
@@ -92,7 +96,7 @@ export const ModelsPage = () => {
         header: "Name",
         sortable: true,
         sortFn: (a, b) => collator.compare(a.name ?? "", b.name ?? ""),
-        render: (row) => row.name || row.id,
+        render: (row) => getModelDisplayName(row),
       },
       {
         key: "owned_by",
@@ -126,7 +130,7 @@ export const ModelsPage = () => {
             <ModelFavoriteToggleButton
               variant="subtle"
               isFavorite={isFavorite}
-              modelName={row.name ?? row.id}
+              modelName={getModelDisplayName(row)}
               onToggleFavorite={() => toggleFavoriteModelForType(row.type, row.id)}
             />
           );
@@ -144,7 +148,7 @@ export const ModelsPage = () => {
         ),
       },
     ],
-    [Button, collator, favoriteModelsByType, navigate, toggleFavoriteModelForType]
+    [Button, collator, favoriteModelsByType, Image, isDarkMode, navigate, toggleFavoriteModelForType]
   );
 
   return (
@@ -168,7 +172,7 @@ export const ModelsPage = () => {
           />
 
           <Text as="p" align={"center"}>
-            {t("ai.description", { total: models?.length })}
+            {t("ai.description", { total: visibleModels.length })}
           </Text>
 
           {modelsLoadingProgress?.active && (
@@ -231,12 +235,12 @@ export const ModelsPage = () => {
               <Tab key={type}
                 eventKey={type}
                 title={t(type === "audio" ? "realtime" : type)
-                  + " (" + models?.filter(a => a.type == type)?.length + ")"}>
+                  + " (" + visibleModels.filter(a => a.type == type).length + ")"}>
                 {(() => {
                   const normalize = (value?: string) =>
                     value?.toLowerCase() ?? "";
 
-                  const tabFiltered = models?.filter(m => {
+                  const tabFiltered = visibleModels.filter(m => {
                     if (m.type !== type) return false;
                     if (!search) return true;
 
@@ -246,7 +250,7 @@ export const ModelsPage = () => {
                       .filter(Boolean);
 
                     const haystack = [
-                      normalize(m.id),
+                      normalize(getModelDisplayName(m)),
                       normalize(m.name),
                       normalize(m.description)
                     ].join(" ");
@@ -281,7 +285,7 @@ export const ModelsPage = () => {
                         }}
                       >
                         {tabFiltered?.slice(0, visibleCount).map(r => {
-                          const providerId = r.id.split("/")[0].toLowerCase();
+                          const providerId = getModelProviderKey(r.id, r) ?? r.id.split("/")[0].toLowerCase();
                           const provider = PROVIDERS[providerId];
                           const isFavorite = (favoriteModelsByType?.[r.type] ?? []).includes(r.id);
 

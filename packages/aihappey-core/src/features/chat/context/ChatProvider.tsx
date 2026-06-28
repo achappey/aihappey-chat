@@ -24,6 +24,7 @@ export interface ChatConfig extends AiChatConfig {
   agentScopes?: string[];
   appVersion?: string;
   defaultChatEndpoint?: ChatEndpointId;
+  gatewayEnabled?: boolean;
   defaultProvidersByType?: Partial<{
     language: string[];
     image: string[];

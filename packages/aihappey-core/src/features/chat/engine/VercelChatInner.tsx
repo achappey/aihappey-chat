@@ -206,6 +206,7 @@ export function VercelChatInner({
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
   const workflowType = useAppStore(a => a.workflowType)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
+  const gatewayEnabled = useAppStore((a: any) => a.gatewayEnabled);
   const selectedAgentRequest = useMemo(
     () => buildSelectedAgentRequest(selectedAgentNames, agents, remoteAgentModels),
     [selectedAgentNames, agents, remoteAgentModels],
@@ -256,10 +257,14 @@ export function VercelChatInner({
         ? {
           customHeaders,
           endpointProviderKey: endpointProfile.providerKey,
+          gatewayEnabled: false,
           providers,
         }
         : {
           getAccessToken,
+          customHeaders,
+          gatewayEnabled: (config as any)?.gatewayEnabled !== false && gatewayEnabled !== false,
+          providers,
         }),
       fallback: t("newChat") ?? "New chat",
     }),

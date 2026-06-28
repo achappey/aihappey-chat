@@ -2,9 +2,11 @@ import type { Agent, ModelOption, Provider } from "aihappey-types";
 import {
   createChatAuthHeadersForModel,
   createProviderBearerHeadersForProviderKey,
+  getExactProviderApiKeyHeaderEntry,
   getProviderKeyFromModelId,
 } from "../../features/provider-credentials/providerAuthHeaders";
 import { resolveProviderRequestModelId } from "../../features/chat/engine/endpointProfiles";
+import { isGenericChatEndpoint } from "../../features/chat/engine/genericChatEndpoint";
 import { sanitizeProviderRequestConfigForProvider } from "../providers/providerRequestConfig";
 import { PROVIDERS } from "../providers/providerMetadata";
 
@@ -15,6 +17,7 @@ export type SideInferenceAgentCallOptions = {
   getAccessToken?: () => Promise<string | null | undefined>;
   customHeaders?: Record<string, string>;
   endpointProviderKey?: string;
+  gatewayEnabled?: boolean;
   providers?: Record<string, Provider>;
   fetch?: typeof fetch;
   agents?: Agent[];
@@ -102,18 +105,40 @@ const endpointUrl = (baseUrl?: string) => {
 
 const providerRegistryOrDefault = (providers?: Record<string, Provider>) => providers ?? PROVIDERS;
 
+const toGenericChatEndpointIds = (values?: string[]) =>
+  (values ?? []).filter(isGenericChatEndpoint);
+
+const hasDirectProviderSupport = (provider?: Provider) =>
+  !!provider?.apiBaseUrl?.trim() && toGenericChatEndpointIds(provider.chatEndpoints).length > 0;
+
+const findGatewayModelOption = (models: ModelOption[], modelId: string) =>
+  models.find((model) => model.id === modelId && (model as any).route !== "direct");
+
+const findDirectModelOption = (models: ModelOption[], modelId: string, providerKey?: string) =>
+  models.find((model) =>
+    (model as any).route === "direct"
+    && (
+      model.id === modelId
+      || (model as any).displayId === modelId
+      || (model as any).providerModelId === modelId
+    )
+    && (!providerKey || ((model as any).sourceProviderKey ?? (model as any).providerKey) === providerKey),
+  );
+
 const resolveSideInferenceEndpoint = ({
   fallbackBaseUrl,
   providerKey,
   endpointProviderKey,
   providers,
+  customHeaders,
 }: {
   fallbackBaseUrl?: string;
   providerKey?: string;
   endpointProviderKey?: string;
   providers?: Record<string, Provider>;
+  customHeaders?: Record<string, string>;
 }) => {
-  if (!endpointProviderKey || !providerKey) {
+  if (!providerKey) {
     return {
       baseUrl: fallbackBaseUrl,
       providerKey: endpointProviderKey,
@@ -121,8 +146,10 @@ const resolveSideInferenceEndpoint = ({
     };
   }
 
-  const providerBaseUrl = providerRegistryOrDefault(providers)[providerKey]?.apiBaseUrl?.trim();
-  if (!providerBaseUrl) {
+  const provider = providerRegistryOrDefault(providers)[providerKey];
+  const providerBaseUrl = provider?.apiBaseUrl?.trim();
+  const hasProviderApiKey = !!getExactProviderApiKeyHeaderEntry(customHeaders, providerKey, providers)?.[1]?.trim();
+  if (!hasDirectProviderSupport(provider) || !providerBaseUrl || !hasProviderApiKey) {
     return {
       baseUrl: fallbackBaseUrl,
       providerKey: endpointProviderKey,
@@ -147,6 +174,7 @@ export const invokeSideInferenceAgent = async ({
   getAccessToken,
   customHeaders = {},
   endpointProviderKey,
+  gatewayEnabled = true,
   providers,
   fetch: customFetch,
   agents = [],
@@ -160,7 +188,10 @@ export const invokeSideInferenceAgent = async ({
 
     const modelId = selectedAgent.model?.id;
     if (!modelId) throw new Error(`Side inference agent '${agentName}' has no model`);
-    const selectedModelOption = models.find((model) => model.id === modelId);
+    const exactGatewayModelOption = findGatewayModelOption(models, modelId);
+    const selectedModelOption = gatewayEnabled
+      ? exactGatewayModelOption ?? findDirectModelOption(models, modelId, getProviderKeyFromModelId(modelId))
+      : findDirectModelOption(models, modelId, getProviderKeyFromModelId(modelId)) ?? exactGatewayModelOption;
     if (!selectedModelOption) {
       throw new Error(`Side inference agent model '${modelId}' is not available`);
     }
@@ -168,12 +199,20 @@ export const invokeSideInferenceAgent = async ({
     const providerKey = (selectedModelOption as any).sourceProviderKey
       ?? (selectedModelOption as any).providerKey
       ?? getProviderKeyFromModelId(modelId);
-    const endpoint = resolveSideInferenceEndpoint({
-      fallbackBaseUrl: baseUrl,
-      providerKey,
-      endpointProviderKey,
-      providers,
-    });
+    const shouldUseGateway = gatewayEnabled && !!exactGatewayModelOption;
+    const endpoint = shouldUseGateway
+      ? {
+        baseUrl,
+        providerKey: endpointProviderKey,
+        directProviderRequest: false,
+      }
+      : resolveSideInferenceEndpoint({
+        fallbackBaseUrl: baseUrl,
+        providerKey,
+        endpointProviderKey,
+        providers,
+        customHeaders,
+      });
     const url = endpointUrl(endpoint.baseUrl);
     if (!url) throw new Error("Inference endpoint is not configured");
 

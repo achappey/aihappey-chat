@@ -5,6 +5,7 @@ export * from "./theme";
 export * from "./mcp";
 export * from "./agents";
 export * from "./models";
+export * from "./modelIdentity";
 
 /**
  * Primary provider category used for UI filtering and catalog grouping.

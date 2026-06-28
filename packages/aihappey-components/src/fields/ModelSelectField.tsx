@@ -1,5 +1,6 @@
 import React from "react";
 import type { ModelOption } from "aihappey-types";
+import { getModelDisplayName, getModelProviderKey as getSharedModelProviderKey, isUserVisibleModel } from "aihappey-types";
 import { useTheme } from "../theme/ThemeContext";
 
 export type ProviderOption = {
@@ -31,12 +32,7 @@ export type ModelSelectFieldProps = {
 };
 
 const getModelProviderKey = (model: ModelOption) => {
-  const explicitProviderKey = (model as any).sourceProviderKey ?? (model as any).providerKey;
-  if (typeof explicitProviderKey === "string" && explicitProviderKey.trim().length > 0) {
-    return explicitProviderKey.trim().toLowerCase();
-  }
-
-  return model.id.split("/")[0]?.toLowerCase();
+  return getSharedModelProviderKey(model.id, model);
 };
 
 const getModelRouteProviderKey = (model: ModelOption) => {
@@ -77,13 +73,14 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   const favoriteSet = new Set((favoriteModelIds ?? []).filter(Boolean));
 
   const visibleModels = (models ?? []).filter((m) => {
+    if (!isUserVisibleModel(m)) return false;
     if (!modelTypes.includes(m.type)) return false;
 
     // Favorites must always remain visible even if provider is currently disabled.
     if (favoriteSet.has(m.id)) return true;
 
     const providerKey = getModelProviderKey(m);
-    return !enabledSet || enabledSet.has(providerKey);
+    return !enabledSet || (!!providerKey && enabledSet.has(providerKey));
   });
 
   const providerLabelByKey = new Map(providers.map((p) => [p.key, p.label]));
@@ -97,14 +94,15 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     const providerKey = providerLabelByKey.has(getModelRouteProviderKey(model) ?? "")
       ? getModelRouteProviderKey(model)
       : getModelProviderKey(model);
-    if (providerLabelByKey.has(providerKey)) {
+    if (providerKey && providerLabelByKey.has(providerKey)) {
       (grouped[providerKey] ??= []).push(model);
     } else {
       ungrouped.push(model);
     }
   }
 
-  const displayValue = models?.find((m) => m.id === value)?.name ?? value;
+  const selectedModel = models?.find((m) => m.id === value);
+  const displayValue = getModelDisplayName(selectedModel, value);
 
   return (
     <SelectComponent
@@ -127,7 +125,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
           <optgroup label={favoritesLabel}>
             {favoriteModels.map((model) => (
               <option key={model.id} value={model.id}>
-                {model.name || model.id}
+                {getModelDisplayName(model)}
               </option>
             ))}
           </optgroup>
@@ -137,7 +135,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
           <optgroup key={providerKey} label={providerLabelByKey.get(providerKey) ?? providerKey}>
             {list.map((model) => (
               <option key={model.id} value={model.id}>
-                {model.name ?? model.id}
+                {getModelDisplayName(model)}
               </option>
             ))}
           </optgroup>
@@ -145,7 +143,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
 
         {ungrouped.map((model) => (
           <option key={model.id} value={model.id}>
-            {model.name ?? model.id}
+            {getModelDisplayName(model)}
           </option>
         ))}
       </>

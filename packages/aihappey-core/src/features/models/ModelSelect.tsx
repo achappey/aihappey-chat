@@ -5,11 +5,12 @@ import type { ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { isUserVisibleModel } from "aihappey-types";
 
 type ProviderOption = { key: string; label: string };
 
 const newestModelOfTypes = (models: ModelOption[], modelTypes: string[]) => {
-  const candidates = (models ?? []).filter((model) => modelTypes.includes(model.type));
+  const candidates = (models ?? []).filter((model) => isUserVisibleModel(model) && modelTypes.includes(model.type));
   return candidates
     .map((model, index) => ({ model, index }))
     .sort((a, b) => (b.model.created ?? 0) - (a.model.created ?? 0) || a.index - b.index)[0]
@@ -33,6 +34,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     () => {
       const routeByProvider = new Map<string, Set<string>>();
       for (const model of props.models ?? []) {
+        if (!isUserVisibleModel(model)) continue;
         const providerKey = ((model as any).sourceProviderKey ?? (model as any).providerKey ?? model.id?.split("/")?.[0])?.toLowerCase();
         if (!providerKey) continue;
         const route = (model as any).route === "direct" ? "direct" : "gateway";
@@ -102,7 +104,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
 
     const currentValue = props.value;
     const currentExists = !!currentValue && props.models.some((model) =>
-      model.id === currentValue && modelTypes.includes(model.type),
+      model.id === currentValue && isUserVisibleModel(model) && modelTypes.includes(model.type),
     );
 
     if (currentExists) return;
@@ -117,6 +119,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   return (
     <ModelSelectField
       {...props}
+      models={(props.models ?? []).filter(isUserVisibleModel)}
       providers={providerOptions}
       enabledProviderKeys={enabledProviderKeys}
       favoriteModelIds={favoriteModelIds}

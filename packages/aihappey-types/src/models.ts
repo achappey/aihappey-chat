@@ -6,6 +6,8 @@ export interface ModelResponse {
 export interface ModelOption {
   id: string;
   name: string;
+  /** User-facing model id. Internal route markers must not be exposed in UI or copied values. */
+  displayId?: string;
   type: string;
   description?: string;
   created?: number;

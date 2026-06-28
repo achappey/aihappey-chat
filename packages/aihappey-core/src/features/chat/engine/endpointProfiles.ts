@@ -5,6 +5,7 @@ import {
   type ChatEndpointMode,
 } from "aihappey-state";
 import type { ModelOption, Provider } from "aihappey-types";
+import { getModelProviderKey as getSharedModelProviderKey, stripHiddenDirectModelIdSuffix } from "aihappey-types";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 import { sanitizeProviderRequestConfigForProvider } from "../../../runtime/providers/providerRequestConfig";
 import { isGenericChatEndpoint } from "./genericChatEndpoint";
@@ -31,12 +32,7 @@ export const getModelRoute = (model?: ModelOption | null): "gateway" | "direct" 
   (model as any)?.route === "direct" ? "direct" : "gateway";
 
 export const getModelProviderKey = (modelId?: string, model?: ModelOption | null) => {
-  const explicitProviderKey = (model as any)?.sourceProviderKey ?? (model as any)?.providerKey;
-  if (typeof explicitProviderKey === "string" && explicitProviderKey.trim().length) {
-    return explicitProviderKey.trim().toLowerCase();
-  }
-
-  return String(modelId ?? "").split("/")[0]?.trim().toLowerCase() || undefined;
+  return getSharedModelProviderKey(modelId, model);
 };
 
 const toChatEndpointIds = (values?: string[]) => Array.from(new Set(
@@ -237,7 +233,7 @@ export const resolveEndpointProfileForSelectedModel = ({
 };
 
 export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {
-  const value = String(modelId ?? "").trim();
+  const value = stripHiddenDirectModelIdSuffix(modelId);
   const slashIndex = value.indexOf("/");
   if (slashIndex <= 0) return value;
 

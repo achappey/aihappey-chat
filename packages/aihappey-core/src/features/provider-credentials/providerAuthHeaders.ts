@@ -3,8 +3,9 @@ import type { ModelResponse } from "aihappey-types";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { enrichModelTypes } from "../models/modelTypeEnrichment";
 import type { Provider } from "aihappey-types";
+import { HIDDEN_DIRECT_MODEL_ID_SUFFIX } from "aihappey-types";
 
-export const DIRECT_MODEL_ID_SUFFIX = "__direct";
+export const DIRECT_MODEL_ID_SUFFIX = HIDDEN_DIRECT_MODEL_ID_SUFFIX;
 
 export type ModelsListProgress = {
   completed: number;
@@ -96,7 +97,7 @@ export const getProviderApiKeyHeaderEntry = (
     ?? entries[0];
 };
 
-const getExactProviderApiKeyHeaderEntry = (
+export const getExactProviderApiKeyHeaderEntry = (
   customHeaders: Record<string, string> | undefined,
   providerKey?: string,
   providers?: Record<string, ProviderLike>,
@@ -221,17 +222,23 @@ const prefixProviderModelIds = (response: ModelResponse, providerKey?: string) =
 
   return {
     ...response,
-    data: (response?.data ?? []).map((model) => ({
-      ...model,
-      route: "direct",
-      sourceProviderKey: normalizedProviderKey,
-      providerKey: normalizedProviderKey,
-      providerModelId: model.id,
-      type: model.type || "",
-      id: `${model.id?.toLowerCase().startsWith(`${normalizedProviderKey}/`)
-        ? model.id
-        : `${normalizedProviderKey}/${model.id}`}${DIRECT_MODEL_ID_SUFFIX}`,
-    })),
+    data: (response?.data ?? []).map((model) => {
+      const providerModelId = model.id;
+      const displayId = providerModelId?.toLowerCase().startsWith(`${normalizedProviderKey}/`)
+        ? providerModelId
+        : `${normalizedProviderKey}/${providerModelId}`;
+
+      return {
+        ...model,
+        route: "direct",
+        sourceProviderKey: normalizedProviderKey,
+        providerKey: normalizedProviderKey,
+        providerModelId,
+        displayId,
+        type: model.type || "",
+        id: `${displayId}${DIRECT_MODEL_ID_SUFFIX}`,
+      };
+    }),
   } satisfies ModelResponse;
 };
 

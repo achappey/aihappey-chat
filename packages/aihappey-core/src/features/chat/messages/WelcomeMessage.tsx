@@ -123,6 +123,8 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const account = useAccount()
   const { config } = useChatContext();
   const models = useAppStore((s) => s.models);
+  const customHeaders = useAppStore((s) => s.customHeaders);
+  const gatewayEnabled = useAppStore((s: any) => s.gatewayEnabled);
   const providers = useProviderRegistry();
   const [welcomeMessage, setWelcomeMessage] = useState<string | undefined>(
     undefined
@@ -139,6 +141,9 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
           baseUrl: config.baseUrl,
           fetch: config.fetch,
           getAccessToken: config.getAccessToken,
+          models,
+          customHeaders,
+          gatewayEnabled: (config as any)?.gatewayEnabled !== false && gatewayEnabled !== false,
           providers,
           fallback: t("sideInference.fallbackWelcome") ?? "Welcome",
         })
@@ -146,7 +151,7 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
           setWelcomeMessage(a)
         );
 
-  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, i18n.language, models, providers, t]);
+  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, customHeaders, gatewayEnabled, i18n.language, models, providers, t]);
 
   return (
     <div style={getWelcomeSlotStyle(isDesktop, sizing)}>
