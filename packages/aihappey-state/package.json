@@ -6,16 +6,16 @@
   "license": "MIT",
   "dependencies": {
     "aihappey-agents": "*",
-    "zustand": "^5.0.0",
-    "aihappey-types": "*",
     "aihappey-http": "*",
-    "aihappey-mcp": "*"
+    "aihappey-mcp": "*",
+    "aihappey-types": "*",
+    "zustand": "^5.0.0"
   },
   "scripts": {
     "build": "tsc"
   },
   "devDependencies": {
-    "typescript": "^6.0.3",
-    "@modelcontextprotocol/sdk": "^1.21.2"
+    "@modelcontextprotocol/sdk": "^1.21.2",
+    "typescript": "^6.0.3"
   }
 }
