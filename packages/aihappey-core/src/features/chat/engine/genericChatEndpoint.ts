@@ -1174,7 +1174,7 @@ const createUiMessageChunkStream = ({
 
     let emitted = false;
     for (const choice of event.choices ?? []) {
-      const delta = choice?.delta?.reasoning;
+      const delta = choice?.delta?.reasoning ?? choice?.delta?.reasoning_content;
       if (typeof delta !== "string" || !delta) continue;
       const id = `reasoning-chat-completion-${choice?.index ?? 0}`;
       emitReasoningDelta(controller, id, delta);
