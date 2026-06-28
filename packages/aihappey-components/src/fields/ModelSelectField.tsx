@@ -39,6 +39,12 @@ const getModelProviderKey = (model: ModelOption) => {
   return model.id.split("/")[0]?.toLowerCase();
 };
 
+const getModelRouteProviderKey = (model: ModelOption) => {
+  const providerKey = getModelProviderKey(model);
+  const route = (model as any).route === "direct" ? "direct" : "gateway";
+  return providerKey ? `${providerKey}:${route}` : providerKey;
+};
+
 export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   models,
   value,
@@ -88,7 +94,9 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
 
   for (const model of visibleModels) {
     if (favoriteSet.has(model.id)) continue;
-    const providerKey = getModelProviderKey(model);
+    const providerKey = providerLabelByKey.has(getModelRouteProviderKey(model) ?? "")
+      ? getModelRouteProviderKey(model)
+      : getModelProviderKey(model);
     if (providerLabelByKey.has(providerKey)) {
       (grouped[providerKey] ??= []).push(model);
     } else {

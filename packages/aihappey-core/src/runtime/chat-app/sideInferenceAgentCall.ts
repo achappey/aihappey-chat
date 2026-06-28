@@ -165,7 +165,9 @@ export const invokeSideInferenceAgent = async ({
       throw new Error(`Side inference agent model '${modelId}' is not available`);
     }
 
-    const providerKey = getProviderKeyFromModelId(modelId);
+    const providerKey = (selectedModelOption as any).sourceProviderKey
+      ?? (selectedModelOption as any).providerKey
+      ?? getProviderKeyFromModelId(modelId);
     const endpoint = resolveSideInferenceEndpoint({
       fallbackBaseUrl: baseUrl,
       providerKey,

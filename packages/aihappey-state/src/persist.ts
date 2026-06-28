@@ -110,6 +110,7 @@ export const withPersist = (
       selectedEndpointProfileId: (s as any).selectedEndpointProfileId,
       selectedChatEndpoint: (s as any).selectedChatEndpoint,
       selectedBaseUrl: (s as any).selectedBaseUrl,
+      gatewayEnabled: (s as any).gatewayEnabled,
       endpointRawModelIds: (s as any).endpointRawModelIds,
       endpointProviderMetadataEnabled: (s as any).endpointProviderMetadataEnabled,
       remoteStorageConnected: s.remoteStorageConnected,
@@ -351,6 +352,7 @@ export const withPersist = (
           normalizeBaseUrl(safeState.configuredBaseUrl) ?? "",
           normalizeBaseUrl(safeState.selectedBaseUrl),
         ),
+        gatewayEnabled: safeState.gatewayEnabled !== false,
         endpointRawModelIds: safeState.endpointRawModelIds === true,
         endpointProviderMetadataEnabled: safeState.endpointProviderMetadataEnabled !== false,
         sideInferenceAgentNames: {

@@ -48,6 +48,7 @@ export type ChatSlice = {
   configuredBaseUrl: string;
   selectedBaseUrl?: string;
   effectiveBaseUrl: string;
+  gatewayEnabled: boolean;
   endpointRawModelIds: boolean;
   endpointProviderMetadataEnabled: boolean;
   setConfiguredChatEndpointMode: (mode?: ChatEndpointMode | string) => void;
@@ -57,6 +58,7 @@ export type ChatSlice = {
   setSelectedChatEndpoint: (endpoint?: ChatEndpointId | string) => void;
   setConfiguredBaseUrl: (baseUrl?: string) => void;
   setSelectedBaseUrl: (baseUrl?: string) => void;
+  setGatewayEnabled: (enabled: boolean) => void;
   setEndpointRawModelIds: (enabled: boolean) => void;
   setEndpointProviderMetadataEnabled: (enabled: boolean) => void;
   experimentalThrottle?: number
@@ -148,6 +150,7 @@ export const createChatSlice: StateCreator<
   configuredBaseUrl: "",
   selectedBaseUrl: undefined,
   effectiveBaseUrl: "",
+  gatewayEnabled: true,
   endpointRawModelIds: false,
   endpointProviderMetadataEnabled: true,
   customHeaders: {},
@@ -288,6 +291,9 @@ export const createChatSlice: StateCreator<
       effectiveBaseUrl: resolveEffectiveBaseUrl(state.configuredBaseUrl, selectedBaseUrl),
     }));
   },
+  setGatewayEnabled: (value) => {
+    set(() => ({ gatewayEnabled: !!value }));
+  },
   setEndpointRawModelIds: (value) => {
     set(() => ({ endpointRawModelIds: !!value }));
   },
@@ -396,6 +402,7 @@ export const createChatSlice: StateCreator<
       effectiveChatEndpoint: get().configuredChatEndpoint ?? DEFAULT_CHAT_ENDPOINT_ID,
       selectedBaseUrl: undefined,
       effectiveBaseUrl: get().configuredBaseUrl ?? "",
+      gatewayEnabled: true,
       endpointRawModelIds: false,
       endpointProviderMetadataEnabled: true,
       enabledProvidersByType: {

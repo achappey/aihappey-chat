@@ -40,8 +40,6 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
   const selectedModel = useAppStore((s) => s.selectedModel);
   const effectiveChatEndpoint = useAppStore((s) => s.effectiveChatEndpoint);
-  const setConfiguredChatEndpointMode = useAppStore((s) => s.setConfiguredChatEndpointMode);
-  const setSelectedChatEndpointMode = useAppStore((s) => s.setSelectedChatEndpointMode);
   const setSelectedChatEndpoint = useAppStore((s) => s.setSelectedChatEndpoint);
   const setSelectedEndpointProfileId = useAppStore((s) => s.setSelectedEndpointProfileId);
   const providersByKey = useProviderRegistry();
@@ -164,8 +162,6 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
 
   const handleSelectChatEndpoint = React.useCallback(
     (endpoint: string) => {
-      setConfiguredChatEndpointMode("direct");
-      setSelectedChatEndpointMode("direct");
       setSelectedEndpointProfileId(
         directEndpointProfile?.providerKey
           ? getProviderEndpointProfileId(directEndpointProfile.providerKey)
@@ -173,7 +169,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
       );
       setSelectedChatEndpoint(endpoint);
     },
-    [directEndpointProfile, setConfiguredChatEndpointMode, setSelectedChatEndpoint, setSelectedChatEndpointMode, setSelectedEndpointProfileId]
+    [directEndpointProfile, setSelectedChatEndpoint, setSelectedEndpointProfileId]
   );
 
   return (

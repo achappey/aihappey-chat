@@ -626,6 +626,7 @@
     },
     "settingsModal": {
         "title": "Settings",
+        "gatewayEnabled": "Enable gateway",
         "showTemperature": "Show temperature",
         "showTokens": "Show tokens per message",
         "agentImport": "Agents",

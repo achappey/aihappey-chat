@@ -30,11 +30,29 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const isDesktop = useIsDesktop();
   const providers = useProviderRegistry();
   const providerOptions: ProviderOption[] = React.useMemo(
-    () => Object.entries(providers).map(([key, meta]) => ({
-      key,
-      label: meta.name,
-    })),
-    [providers],
+    () => {
+      const routeByProvider = new Map<string, Set<string>>();
+      for (const model of props.models ?? []) {
+        const providerKey = ((model as any).sourceProviderKey ?? (model as any).providerKey ?? model.id?.split("/")?.[0])?.toLowerCase();
+        if (!providerKey) continue;
+        const route = (model as any).route === "direct" ? "direct" : "gateway";
+        (routeByProvider.get(providerKey) ?? routeByProvider.set(providerKey, new Set()).get(providerKey)!)
+          .add(route);
+      }
+
+      return Object.entries(providers).flatMap(([key, meta]) => {
+        const routes = routeByProvider.get(key) ?? new Set<string>();
+        if (routes.has("gateway") && routes.has("direct")) {
+          return [
+            { key: `${key}:gateway`, label: `${meta.name} (gateway)` },
+            { key: `${key}:direct`, label: `${meta.name} (direct)` },
+          ];
+        }
+
+        return [{ key, label: meta.name }];
+      });
+    },
+    [providers, props.models],
   );
   const providerNameToKey = React.useMemo(
     () => Object.entries(providers).reduce((acc, [key, meta]) => {

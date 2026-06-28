@@ -18,7 +18,8 @@ const modelTypeFor = (models: ModelOption[] | undefined, modelId?: string) =>
 
 export const useModels = (
   modelsApi: string,
-  getAccessToken?: () => Promise<string>
+  getAccessToken?: () => Promise<string>,
+  options?: { gatewayEnabled?: boolean }
 ) => {
   const models = useAppStore(a => a.models);
   const modelsLoaded = useAppStore(a => a.modelsLoaded);
@@ -26,6 +27,7 @@ export const useModels = (
   const resetModels = useAppStore(a => a.resetModels)
   const customHeaders = useAppStore(a => a.customHeaders)
   const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
+  const gatewayEnabled = options?.gatewayEnabled !== false;
   const setModelsLoadingProgress = useAppStore((a: any) => a.setModelsLoadingProgress)
   const setSelectedModel = useAppStore(a => a.setSelectedModel)
   const userPreferredModel = useAppStore(a => a.userPreferredModel)
@@ -61,7 +63,8 @@ export const useModels = (
         modelsApi,
         getAccessToken,
         customHeaders,
-        directProviderModels: effectiveChatEndpointMode === "direct" && !getAccessToken,
+        directProviderModels: true,
+        includeGatewayModels: gatewayEnabled,
         providers,
         onProgress: setModelsLoadingProgress,
       })
@@ -91,7 +94,7 @@ export const useModels = (
         })
     }
 
-  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, selectedModel, effectiveChatEndpointMode, providers, userPreferredModel, setModels, resetModels, setSelectedModel, setModelsLoadingProgress, storeHydrated]);
+  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, selectedModel, effectiveChatEndpointMode, providers, userPreferredModel, setModels, resetModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;

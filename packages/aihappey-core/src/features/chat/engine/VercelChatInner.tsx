@@ -61,8 +61,7 @@ import {
 } from "./genericChatEndpoint";
 import { buildGenericChatEndpointBody } from "./genericEndpointMappers";
 import {
-  resolveEndpointProfile,
-  resolveChatEndpointModeProfile,
+  resolveEndpointProfileForSelectedModel,
   resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
@@ -138,16 +137,16 @@ export function VercelChatInner({
   const jsonRenderCatalog = useJsonRenderCatalog();
   const defaultCatalogs = useAppStore((s) => s.defaultCatalogs);
   const endpointProfile = useMemo(
-    () => effectiveChatEndpointMode === "direct"
-      ? resolveChatEndpointModeProfile({
-        mode: effectiveChatEndpointMode,
+    () => resolveEndpointProfileForSelectedModel({
         modelId: model,
+        model: selectedModelOption,
+        selectedEndpointProfileId,
+        selectedBaseUrl,
         selectedChatEndpoint: effectiveChatEndpoint,
         configuredChatEndpoint,
         providers,
-      })
-      : resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint, providers }),
-    [effectiveChatEndpointMode, model, effectiveChatEndpoint, configuredChatEndpoint, providers, selectedEndpointProfileId, selectedBaseUrl],
+      }),
+    [model, selectedModelOption, selectedEndpointProfileId, selectedBaseUrl, effectiveChatEndpoint, configuredChatEndpoint, providers],
   );
   const isProviderEndpointProfile = endpointProfile?.kind === "provider";
   const requestEndpoint = resolveEndpointProfileChatEndpoint({

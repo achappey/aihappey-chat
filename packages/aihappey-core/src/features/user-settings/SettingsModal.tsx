@@ -1,7 +1,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useTheme } from "aihappey-components";
-import { useAppStore, type ChatEndpointMode } from "aihappey-state";
+import { CHAT_ENDPOINT_IDS, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { ModelContextSettings } from "./ModelContextSettings";
 import { GeneralSettings } from "./GeneralSettings";
@@ -85,11 +85,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const setShowMessageTemperature = useAppStore((s) => s.setShowMessageTemperature);
   const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
   const configuredChatEndpoint = useAppStore((s) => s.configuredChatEndpoint);
-  const effectiveChatEndpointMode = useAppStore((s) => s.effectiveChatEndpointMode);
   const configuredBaseUrl = useAppStore((s) => s.configuredBaseUrl);
   const effectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
-  const setConfiguredChatEndpointMode = useAppStore((s) => s.setConfiguredChatEndpointMode);
-  const setSelectedChatEndpointMode = useAppStore((s) => s.setSelectedChatEndpointMode);
+  const gatewayEnabled = useAppStore((s) => s.gatewayEnabled);
+  const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
+  const setSelectedChatEndpoint = useAppStore((s) => s.setSelectedChatEndpoint);
+  const setGatewayEnabled = useAppStore((s) => s.setGatewayEnabled);
   const [providerKeysOpen, setProviderKeysOpen] = useState(false);
 
   const ONE_MB = 1024 * 1024;
@@ -108,20 +109,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     (s) => s.setExtractExif
   );
   const isAuthenticatedEndpointConfig = !!chat.config.getAccessToken;
-  const activeEndpointMode = isAuthenticatedEndpointConfig ? "default" : effectiveChatEndpointMode;
-  const endpointModeOptions = [
-    { value: "default", label: `${t("settingsModal.endpointModeDefaultGateway") ?? "Default gateway"} (${configuredChatEndpoint ?? "/api/chat"})` },
-    { value: "direct", label: t("settingsModal.endpointModeDirectProvider") ?? "Direct provider" },
-  ];
+  const gatewayChatEndpointOptions = CHAT_ENDPOINT_IDS.map((endpoint) => ({
+    value: endpoint,
+    label: endpoint === "/api/chat" ? `${endpoint} (${t("providerDefault") ?? "default"})` : endpoint,
+  }));
   const baseUrlInputValue = isAuthenticatedEndpointConfig
     ? configuredBaseUrl || effectiveBaseUrl || chat.config.baseUrl || ""
     : configuredBaseUrl ?? chat.config.baseUrl ?? "";
   const effectiveProfileBaseUrl = configuredBaseUrl || chat.config.baseUrl || "";
-  const handleEndpointModeChange = (mode: string) => {
-    if (isAuthenticatedEndpointConfig) return;
-    const nextMode = (mode === "direct" ? "direct" : "default") as ChatEndpointMode;
-    setConfiguredChatEndpointMode(nextMode);
-    setSelectedChatEndpointMode(nextMode === "default" ? undefined : nextMode);
+  const handleGatewayEndpointChange = (endpoint: string) => {
+    setConfiguredChatEndpoint(endpoint);
+    setSelectedChatEndpoint(undefined);
   };
 
   return (
@@ -246,21 +244,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             >
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                 <Select
-                  values={[activeEndpointMode]}
-                  label={t("settingsModal.endpointMode") ?? "Endpoint mode"}
+                  values={[configuredChatEndpoint ?? "/api/chat"]}
+                  label={t("settingsModal.chatEndpoint") ?? "Chat endpoint"}
                   hint={t("settingsModal.endpointModeHint")
-                    ?? "Use the app gateway or connect directly to the provider selected by the model prefix."}
-                  valueTitle={endpointModeOptions.find((option) => option.value === activeEndpointMode)?.label}
-                  disabled={isAuthenticatedEndpointConfig}
-                  options={endpointModeOptions}
-                  onChange={handleEndpointModeChange}
+                    ?? "Select the gateway chat endpoint. Direct provider models route directly from the selected model."}
+                  valueTitle={gatewayChatEndpointOptions.find((option) => option.value === (configuredChatEndpoint ?? "/api/chat"))?.label}
+                  options={gatewayChatEndpointOptions}
+                  onChange={handleGatewayEndpointChange}
                 >
-                  {endpointModeOptions.map((option) => (
+                  {gatewayChatEndpointOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
                   ))}
                 </Select>
+
+                {!isAuthenticatedEndpointConfig ? (
+                  <Switch
+                    id="gateway-enabled-toggle"
+                    checked={gatewayEnabled !== false}
+                    label={t("settingsModal.gatewayEnabled") ?? "Enable gateway models"}
+                    onChange={setGatewayEnabled}
+                  />
+                ) : null}
 
                 {!isAuthenticatedEndpointConfig ? (
                   <div>

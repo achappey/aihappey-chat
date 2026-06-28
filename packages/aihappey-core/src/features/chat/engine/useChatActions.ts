@@ -13,8 +13,7 @@ import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
 import { buildSelectedAgentRequest } from "../../agents/agentSelection";
 import {
-  resolveEndpointProfile,
-  resolveChatEndpointModeProfile,
+  resolveEndpointProfileForSelectedModel,
   resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
@@ -80,23 +79,23 @@ export function useChatActions({
     [models, selectedModel],
   );
   const endpointProfile = useMemo(
-    () => effectiveChatEndpointMode === "direct"
-      ? resolveChatEndpointModeProfile({
-        mode: effectiveChatEndpointMode,
+    () => resolveEndpointProfileForSelectedModel({
         modelId: selectedModel,
+        model: selectedModelOption,
+        selectedEndpointProfileId,
+        selectedBaseUrl,
         selectedChatEndpoint: effectiveChatEndpoint,
         configuredChatEndpoint,
         providers,
-      })
-      : resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint, providers }),
+      }),
     [
       configuredChatEndpoint,
       effectiveChatEndpoint,
-      effectiveChatEndpointMode,
       providers,
       selectedBaseUrl,
       selectedEndpointProfileId,
       selectedModel,
+      selectedModelOption,
     ],
   );
   const isProviderEndpointProfile = endpointProfile?.kind === "provider";

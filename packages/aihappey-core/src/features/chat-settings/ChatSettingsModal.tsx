@@ -44,7 +44,7 @@ import { useSkills } from "aihappey-skills";
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
-import { resolveChatEndpointModeProfile, resolveEndpointProfile } from "../chat/engine/endpointProfiles";
+import { resolveEndpointProfileForSelectedModel } from "../chat/engine/endpointProfiles";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -103,7 +103,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const selectedBaseUrl = useAppStore((a) => a.selectedBaseUrl);
   const configuredChatEndpoint = useAppStore((a) => a.configuredChatEndpoint);
   const effectiveChatEndpoint = useAppStore((a) => a.effectiveChatEndpoint);
-  const effectiveChatEndpointMode = useAppStore((a) => a.effectiveChatEndpointMode);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
@@ -237,33 +236,28 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     [updateProviderConfig]
   );
 
-  const activeProviderKey = useMemo(() => {
-    const endpointProfile = effectiveChatEndpointMode === "direct"
-      ? resolveChatEndpointModeProfile({
-        mode: effectiveChatEndpointMode,
-        modelId: selectedModel,
-        selectedChatEndpoint: effectiveChatEndpoint,
-        configuredChatEndpoint,
-        providers,
-      })
-      : resolveEndpointProfile({
-        selectedEndpointProfileId,
-        selectedBaseUrl,
-        configuredChatEndpoint,
-        providers,
-      });
-    if (endpointProfile?.kind === "provider" && endpointProfile.providerKey) {
-      return endpointProfile.providerKey;
-    }
-
-    const key = selectedModel?.split("/")[0]?.trim().toLowerCase();
-    return key || undefined;
-  }, [configuredChatEndpoint, effectiveChatEndpoint, effectiveChatEndpointMode, providers, selectedBaseUrl, selectedEndpointProfileId, selectedModel]);
-
   const selectedModelOption = useMemo(
     () => models?.find((model) => model.id === selectedModel),
     [models, selectedModel]
   );
+
+  const activeProviderKey = useMemo(() => {
+    const endpointProfile = resolveEndpointProfileForSelectedModel({
+      modelId: selectedModel,
+      model: selectedModelOption,
+      selectedEndpointProfileId,
+      selectedBaseUrl,
+      selectedChatEndpoint: effectiveChatEndpoint,
+      configuredChatEndpoint,
+      providers,
+    });
+    if (endpointProfile?.kind === "provider" && endpointProfile.providerKey) {
+      return endpointProfile.providerKey;
+    }
+
+    const key = ((selectedModelOption as any)?.sourceProviderKey ?? (selectedModelOption as any)?.providerKey ?? selectedModel?.split("/")[0])?.trim().toLowerCase();
+    return key || undefined;
+  }, [configuredChatEndpoint, effectiveChatEndpoint, providers, selectedBaseUrl, selectedEndpointProfileId, selectedModel, selectedModelOption]);
 
   const activeProviderTitle = useMemo(() => {
     if (!activeProviderKey) return undefined;

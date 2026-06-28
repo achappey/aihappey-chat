@@ -27,6 +27,18 @@ export type EndpointProfile = {
   selectedChatEndpoint?: ChatEndpointId;
 };
 
+export const getModelRoute = (model?: ModelOption | null): "gateway" | "direct" =>
+  (model as any)?.route === "direct" ? "direct" : "gateway";
+
+export const getModelProviderKey = (modelId?: string, model?: ModelOption | null) => {
+  const explicitProviderKey = (model as any)?.sourceProviderKey ?? (model as any)?.providerKey;
+  if (typeof explicitProviderKey === "string" && explicitProviderKey.trim().length) {
+    return explicitProviderKey.trim().toLowerCase();
+  }
+
+  return String(modelId ?? "").split("/")[0]?.trim().toLowerCase() || undefined;
+};
+
 const toChatEndpointIds = (values?: string[]) => Array.from(new Set(
   (values ?? []).filter((value): value is ChatEndpointId =>
     (CHAT_ENDPOINT_IDS as readonly string[]).includes(value),
@@ -132,14 +144,16 @@ export const resolveEndpointProfile = ({
 
 export const resolveDirectEndpointProfileForModel = ({
   modelId,
+  model,
   selectedChatEndpoint,
   providers,
 }: {
   modelId?: string;
+  model?: ModelOption | null;
   selectedChatEndpoint?: ChatEndpointId;
   providers?: Record<string, Provider>;
 }) => {
-  const providerKey = String(modelId ?? "").split("/")[0]?.trim().toLowerCase();
+  const providerKey = getModelProviderKey(modelId, model);
   if (!providerKey) return undefined;
 
   const providerRegistry = providerRegistryOrDefault(providers);
@@ -179,21 +193,47 @@ export const resolveEndpointProfileChatEndpoint = ({
 export const resolveChatEndpointModeProfile = ({
   mode,
   modelId,
+  model,
   selectedChatEndpoint,
   configuredChatEndpoint,
   providers,
 }: {
   mode?: ChatEndpointMode;
   modelId?: string;
+  model?: ModelOption | null;
   selectedChatEndpoint?: ChatEndpointId;
   configuredChatEndpoint?: ChatEndpointId;
   providers?: Record<string, Provider>;
 }) => {
   if (mode === "direct") {
-    return resolveDirectEndpointProfileForModel({ modelId, selectedChatEndpoint, providers });
+    return resolveDirectEndpointProfileForModel({ modelId, model, selectedChatEndpoint, providers });
   }
 
   return getEndpointProfiles({ configuredChatEndpoint, providers })[0];
+};
+
+export const resolveEndpointProfileForSelectedModel = ({
+  modelId,
+  model,
+  selectedEndpointProfileId,
+  selectedBaseUrl,
+  selectedChatEndpoint,
+  configuredChatEndpoint,
+  providers,
+}: {
+  modelId?: string;
+  model?: ModelOption | null;
+  selectedEndpointProfileId?: string;
+  selectedBaseUrl?: string;
+  selectedChatEndpoint?: ChatEndpointId;
+  configuredChatEndpoint?: ChatEndpointId;
+  providers?: Record<string, Provider>;
+}) => {
+  if (getModelRoute(model) === "direct") {
+    return resolveDirectEndpointProfileForModel({ modelId, model, selectedChatEndpoint, providers });
+  }
+
+  return resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint, providers });
 };
 
 export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {

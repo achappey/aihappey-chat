@@ -14,6 +14,14 @@ export interface ModelOption {
   owned_by: string;
   tags: string[];
   pricing?: ModelPricing
+  /** Runtime route used by the chat app. Omitted means legacy/gateway. */
+  route?: "gateway" | "direct";
+  /** Provider key that owns this model, independent from route-specific display ids. */
+  providerKey?: string;
+  /** Provider key returned by a direct provider model request. */
+  sourceProviderKey?: string;
+  /** Original model id returned by the upstream `/v1/models` response. */
+  providerModelId?: string;
 }
 
 export interface ModelPricing {

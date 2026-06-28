@@ -4,6 +4,8 @@ import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { enrichModelTypes } from "../models/modelTypeEnrichment";
 import type { Provider } from "aihappey-types";
 
+export const DIRECT_MODEL_ID_SUFFIX = "__direct";
+
 export type ModelsListProgress = {
   completed: number;
   total: number;
@@ -167,7 +169,7 @@ export const createChatAuthHeadersForModel = (
 ) => hasAccessToken
   ? {}
   : {
-    ...createProviderBearerHeadersForModel(customHeaders, modelId, providers),
+    ...createProviderHeaderSubsetForModel(customHeaders, modelId, providers),
     ...createEndpointHeaders(customHeaders, providers),
   };
 
@@ -179,6 +181,9 @@ export const createProviderHeaderSubsetForModel = (
   const providerKey = getProviderKeyFromModelId(modelId);
   return Object.fromEntries(getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers));
 };
+
+const modelRouteOf = (model: any): "gateway" | "direct" =>
+  model?.route === "direct" ? "direct" : "gateway";
 
 const mergeModelResponses = (responses: ModelResponse[]) => {
   const seen = new Set<string>();
@@ -196,6 +201,20 @@ const enrichModelResponse = (response: ModelResponse) => ({
   data: enrichModelTypes(response?.data ?? []),
 }) satisfies ModelResponse;
 
+const annotateGatewayModelIds = (response: ModelResponse) => ({
+  ...response,
+  data: (response?.data ?? []).map((model) => {
+    const providerKey = getProviderKeyFromModelId(model.id);
+
+    return {
+      ...model,
+      route: modelRouteOf(model),
+      providerKey: (model as any).providerKey ?? providerKey,
+      providerModelId: (model as any).providerModelId ?? model.id,
+    };
+  }),
+}) satisfies ModelResponse;
+
 const prefixProviderModelIds = (response: ModelResponse, providerKey?: string) => {
   const normalizedProviderKey = providerKey?.trim().toLowerCase();
   if (!normalizedProviderKey) return response;
@@ -204,13 +223,14 @@ const prefixProviderModelIds = (response: ModelResponse, providerKey?: string) =
     ...response,
     data: (response?.data ?? []).map((model) => ({
       ...model,
+      route: "direct",
       sourceProviderKey: normalizedProviderKey,
       providerKey: normalizedProviderKey,
       providerModelId: model.id,
       type: model.type || "",
-      id: model.id?.toLowerCase().startsWith(`${normalizedProviderKey}/`)
+      id: `${model.id?.toLowerCase().startsWith(`${normalizedProviderKey}/`)
         ? model.id
-        : `${normalizedProviderKey}/${model.id}`,
+        : `${normalizedProviderKey}/${model.id}`}${DIRECT_MODEL_ID_SUFFIX}`,
     })),
   } satisfies ModelResponse;
 };
@@ -221,6 +241,7 @@ export const listModelsWithSplitProviderHeaders = async ({
   customHeaders,
   providerKey,
   directProviderModels,
+  includeGatewayModels,
   providers,
   onProgress,
 }: {
@@ -229,13 +250,11 @@ export const listModelsWithSplitProviderHeaders = async ({
   customHeaders?: Record<string, string>;
   providerKey?: string;
   directProviderModels?: boolean;
+  includeGatewayModels?: boolean;
   providers?: Record<string, Provider>;
   onProgress?: (progress: ModelsListProgress) => void;
 }) => {
-  if (getAccessToken) {
-    const client = createHttpClient({ getAccessToken, headers: customHeaders });
-    return enrichModelResponse(await client.get<ModelResponse>(modelsApi));
-  }
+  const shouldIncludeGatewayModels = includeGatewayModels ?? !directProviderModels;
 
   const directProviderRequests = directProviderModels
     ? providerKey
@@ -248,10 +267,13 @@ export const listModelsWithSplitProviderHeaders = async ({
   const providerHeaderEntries = providerKey
     ? getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers)
     : getConfiguredProviderHeaderEntries(customHeaders);
-  const includeAnonymousRequest = !directProviderModels && !providerKey;
-  const total = directProviderModels
-    ? directProviderRequests.length
-    : providerKey ? 1 : (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length;
+  const includeAnonymousRequest = shouldIncludeGatewayModels && !getAccessToken && !providerKey;
+  const gatewayRequestTotal = shouldIncludeGatewayModels
+    ? getAccessToken
+      ? 1
+      : providerKey ? 1 : (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length
+    : 0;
+  const total = gatewayRequestTotal + directProviderRequests.length;
   const responses: ModelResponse[] = [];
   let completed = 0;
   let lastError: unknown;
@@ -260,13 +282,16 @@ export const listModelsWithSplitProviderHeaders = async ({
     onProgress?.({ completed, total, active: completed < total });
   };
 
-  const requestModels = async (headers?: Record<string, string>, requestProviderKey?: string) => {
+  const requestModels = async (headers?: Record<string, string>, requestProviderKey?: string, route: "gateway" | "direct" = "gateway") => {
     try {
-      const client = createHttpClient({ headers });
+      const client = createHttpClient(route === "gateway" && getAccessToken ? { getAccessToken, headers } : { headers });
       const requestModelsApi = requestProviderKey
         ? getProviderModelApi(getProvider(requestProviderKey, providers), modelsApi)
         : modelsApi;
-      responses.push(prefixProviderModelIds(enrichModelResponse(await client.get<ModelResponse>(requestModelsApi)), requestProviderKey ?? providerKey));
+      const response = enrichModelResponse(await client.get<ModelResponse>(requestModelsApi));
+      responses.push(route === "direct"
+        ? prefixProviderModelIds(response, requestProviderKey ?? providerKey)
+        : annotateGatewayModelIds(response));
     } catch (err) {
       lastError = err;
       console.error("Failed to load models for provider header subset:", err);
@@ -278,30 +303,26 @@ export const listModelsWithSplitProviderHeaders = async ({
 
   updateProgress();
 
-  if (directProviderModels) {
-    for (const request of directProviderRequests) {
-      await requestModels(createBearerHeadersFromApiKey(request.apiKey), request.providerKey);
+  if (shouldIncludeGatewayModels) {
+    if (getAccessToken) {
+      await requestModels(customHeaders, undefined, "gateway");
+    } else if (includeAnonymousRequest) {
+      await requestModels(undefined, undefined, "gateway");
     }
 
-    onProgress?.({ completed: total, total, active: false });
-
-    if (responses.length === 0 && lastError) {
-      throw lastError;
+    if (!getAccessToken) {
+      if (providerKey) {
+        await requestModels(createProviderHeaderSubsetForModel(customHeaders, providerKey, providers), undefined, "gateway");
+      } else {
+        for (const [header, value] of providerHeaderEntries) {
+          await requestModels({ [header]: value }, undefined, "gateway");
+        }
+      }
     }
-
-    return mergeModelResponses(responses);
   }
 
-  if (includeAnonymousRequest) {
-    await requestModels(undefined);
-  }
-
-  if (providerKey) {
-    await requestModels(createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers));
-  } else {
-    for (const [header, value] of providerHeaderEntries) {
-      await requestModels({ [header]: value });
-    }
+  for (const request of directProviderRequests) {
+    await requestModels(createBearerHeadersFromApiKey(request.apiKey), request.providerKey, "direct");
   }
 
   onProgress?.({ completed: total, total, active: false });

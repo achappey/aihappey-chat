@@ -72,6 +72,7 @@ export const CoreShell: React.FC<Props> = ({
   const selectedChatEndpointMode = useAppStore((s) => s.selectedChatEndpointMode);
   const selectedChatEndpoint = useAppStore((s) => s.selectedChatEndpoint);
   const customHeaders = useAppStore((s) => s.customHeaders);
+  const gatewayEnabled = useAppStore((s) => s.gatewayEnabled);
   const setSelectedBaseUrl = useAppStore((s) => s.setSelectedBaseUrl);
   const setConfiguredChatEndpointMode = useAppStore((s) => s.setConfiguredChatEndpointMode);
   const setSelectedChatEndpointMode = useAppStore((s) => s.setSelectedChatEndpointMode);
@@ -84,6 +85,7 @@ export const CoreShell: React.FC<Props> = ({
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
   const authenticated = chatConfig?.getAccessToken != null;
+  const effectiveGatewayEnabled = authenticated || gatewayEnabled !== false;
   const effectiveBaseUrl = authenticated
     ? chatConfig.baseUrl
     : effectiveChatEndpointMode === "direct"
@@ -249,11 +251,12 @@ export const CoreShell: React.FC<Props> = ({
 
   useEffect(() => {
     (resetModels as any)({ keepSelectedModel: true });
-  }, [customHeaders, effectiveChatEndpointMode, modelsApi, providers, resetModels, selectedChatEndpoint, selectedEndpointProfileId]);
+  }, [customHeaders, effectiveChatEndpointMode, effectiveGatewayEnabled, modelsApi, providers, resetModels, selectedChatEndpoint, selectedEndpointProfileId]);
 
   useModels(
     modelsApi,
-    effectiveChatConfig?.getAccessToken
+    effectiveChatConfig?.getAccessToken,
+    { gatewayEnabled: effectiveGatewayEnabled }
   );
 
   useRemoteAgentModels(
