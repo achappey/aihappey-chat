@@ -340,7 +340,8 @@ export const createMcpSlice: StateCreator<
     if (!client)
       throw new Error("Client not connected");
 
-    const taskClient = (client)?.experimental?.tasks;
+       throw new Error(`Server ${serverName} tasks not supported`)
+ /*   const taskClient = (client)?.experimental?.tasks;
     if (!taskClient?.listTasks)
       throw new Error(`Server ${serverName} does not expose MCP tasks/list`);
 
@@ -348,7 +349,7 @@ export const createMcpSlice: StateCreator<
       signal,
       timeout: toolTimeout,
       resetTimeoutOnProgress,
-    });
+    });*/
   },
   cancelMcpTask: async (serverName: string, taskId: string, signal?: AbortSignal) => {
     const { toolTimeout, resetTimeoutOnProgress } = get();
@@ -357,7 +358,8 @@ export const createMcpSlice: StateCreator<
     if (!client)
       throw new Error("Client not connected");
 
-    const taskClient = (client)?.experimental?.tasks;
+     throw new Error(`Server ${serverName} tasks not supported`)
+ /*   const taskClient = (client)?.experimental?.tasks;
     if (!taskClient?.cancelTask)
       throw new Error(`Server ${serverName} does not expose MCP tasks/cancel`);
 
@@ -365,7 +367,7 @@ export const createMcpSlice: StateCreator<
       signal,
       timeout: toolTimeout,
       resetTimeoutOnProgress,
-    });
+    });*/
   },
   callTool: async (toolCallId: string | undefined, name: string,
     parameters: any,
@@ -391,48 +393,56 @@ export const createMcpSlice: StateCreator<
     if (toolCallId) meta.progressToken = toolCallId;
 
     if (supportsTaskedToolCalls(mcpServerContent[serverName]?.capabilities, tool)) {
-      const taskClient = (client)?.experimental?.tasks;
+      const taskClient = (client)?.getServerCapabilities()?.experimental?.tasks;
 
       if (!taskClient?.callToolStream) {
         throw new Error(`Server ${serverName} advertises MCP task support but the connected runtime does not expose task streaming APIs`)
       }
 
-      const stream = taskClient.callToolStream({
-        name: name,
-        arguments: parameters,
-        ...(Object.keys(meta).length > 0 ? { _meta: meta } : {}),
-      }, undefined, {
-        signal,
-        timeout: toolTimeout,
-        resetTimeoutOnProgress,
-        task: {},
-      });
+      throw new Error(`Server ${serverName} tasks not supported`)
 
-      for await (const message of stream) {
-        if (message.type === "taskCreated") {
-          return asTaskCreatedToolResult(message.task);
-        }
 
-        if (message.type === "result") {
-          return message.result;
-        }
-
-        if (message.type === "error") {
-          throw message.error;
-        }
-      }
-
-      throw new Error(`Task-enabled tool ${name} did not return a task or a final result`)
+      /*      const stream = taskClient.callToolStream({
+              name: name,
+              arguments: parameters,
+              ...(Object.keys(meta).length > 0 ? { _meta: meta } : {}),
+            }, undefined,*/
+      /*  {
+         signal,
+         timeout: toolTimeout,
+         resetTimeoutOnProgress,
+         task: {},
+       }*/
+      /* );
+   
+         for await (const message of stream) {
+           if (message.type === "taskCreated") {
+             return asTaskCreatedToolResult(message.task);
+           }
+   
+           if (message.type === "result") {
+             return message.result;
+           }
+   
+           if (message.type === "error") {
+             throw message.error;
+           }
+         }
+   
+         throw new Error(`Task-enabled tool ${name} did not return a task or a final result`)
+       }*/
     }
 
     return await client.callTool({
       name: name,
       arguments: parameters,
       ...(Object.keys(meta).length > 0 ? { _meta: meta } : {}),
-    }, undefined, {
-      signal: signal,
-      timeout: toolTimeout,
-      resetTimeoutOnProgress,
-    });
+    }, undefined,
+      //  {
+      //   signal: signal,
+      //   timeout: toolTimeout,
+      //  resetTimeoutOnProgress,
+      // }
+    );
   },
 });
