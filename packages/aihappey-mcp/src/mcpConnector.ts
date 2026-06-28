@@ -1,10 +1,4 @@
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import {
-    CreateMessageRequestSchema, ElicitRequestSchema, LoggingMessageNotificationSchema,
-    ProgressNotificationSchema,
-    TaskStatusNotificationSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
 import type {
     CreateMessageRequest, CreateMessageResult,
@@ -87,28 +81,27 @@ async function _connectMcpBase(
     }, {
         capabilities: {
             sampling: opts.onSample ? {} : undefined,
-            elicitation: opts.onElicit ? {} : undefined
+            elicitation: opts.onElicit ? {
+                form: {},
+                url: {},
+            } : undefined
         }
     });
 
     if (opts.onSample)
-        client.setRequestHandler(CreateMessageRequestSchema,
-            req => opts.onSample!(url, req));
+        client.setRequestHandler("sampling/createMessage",
+            req => opts.onSample!(url, req as any));
 
     if (opts.onElicit)
-        client.setRequestHandler(ElicitRequestSchema,
-            req => opts.onElicit!(url, req));
-
-    if (opts.onLogging)
-        client.setNotificationHandler(LoggingMessageNotificationSchema,
-            ({ params }) => opts.onLogging!(url, params as any));
+        client.setRequestHandler("elicitation/create",
+            req => opts.onElicit!(url, req as any));
 
     if (opts.onProgress)
-        client.setNotificationHandler(ProgressNotificationSchema,
+        client.setNotificationHandler("notifications/progress",
             ({ params }) => opts.onProgress!(params as any));
 
     if (opts.onTaskStatus)
-        client.setNotificationHandler(TaskStatusNotificationSchema,
+        client.setNotificationHandler("notifications/tasks/status",
             ({ params }) => opts.onTaskStatus!(url, params as any));
 
     const transport = new StreamableHTTPClientTransport(new URL(url), { requestInit: { headers } });
@@ -123,7 +116,6 @@ async function _connectMcpBase(
         throw err;
     }
 
-    if (opts.logLevel) await client.setLoggingLevel(opts.logLevel);
     // client.close();
     return client;
 }

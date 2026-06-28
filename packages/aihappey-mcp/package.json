@@ -5,6 +5,7 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "dependencies": {
+    "@modelcontextprotocol/client": "^2.0.0-alpha.3",
     "@modelcontextprotocol/sdk": "^1.21.2",
     "aihappey-auth": "*"
   },
@@ -12,8 +13,8 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "zod": "^4.0.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "zod": "^4.0.0"
   },
   "peerDependencies": {
     "aihappey-types": "*"
