@@ -15,7 +15,7 @@ export {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { type Resource as BaseResource } from "@modelcontextprotocol/sdk/types.js";
-export { Client } from "@modelcontextprotocol/sdk/client/index.js";
+export { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 export type { ResponseMessage } from "@modelcontextprotocol/sdk/shared/responseMessage.js";
 
 export type Resource = BaseResource & {
