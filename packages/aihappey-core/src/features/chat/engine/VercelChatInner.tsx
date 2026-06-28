@@ -55,6 +55,7 @@ import {
   getProviderKeyFromModelId,
 } from "../../provider-credentials/providerAuthHeaders";
 import {
+  GenericChatEndpointTransport,
   isGenericChatEndpoint,
   resolveGenericChatEndpointUrl,
   wrapGenericChatFetch,
@@ -325,6 +326,9 @@ export function VercelChatInner({
     : isGenericChatEndpoint(requestEndpoint)
       ? resolveGenericChatEndpointUrl(requestBaseUrl, requestEndpoint)
       : config.baseUrl + config.endpoints.chat;
+  const chatInstanceId = isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
+    ? `${conversationId ?? "chat"}:generic:${requestEndpoint}:${isProviderEndpointProfile ? endpointProfile.providerKey : "gateway"}`
+    : conversationId;
 
   const systemPrompt = useMemo(
     () => {
@@ -480,17 +484,17 @@ export function VercelChatInner({
   ]);
 
   const transport = useMemo(
-    () =>
-      new DefaultChatTransport({
+    () => {
+      const transportOptions = {
         api: "/api/chat", // just a fallback; we override per-request below
-        fetch: chatFetch,
-        prepareSendMessagesRequest: (opts) => {
+        fetch: isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent" ? authFetch : chatFetch,
+        prepareSendMessagesRequest: (opts: any) => {
           const patchedMessages = applyOverrides(opts.messages as any);
 
           const mergedBody: any = {
             ...baseBody,          // default body (includes toolChoice)
             ...(opts.body ?? {}), // per-call overrides
-            id: opts.id,
+            id: conversationId ?? opts.id,
             messages: patchedMessages,
             trigger: opts.trigger,
             messageId: opts.messageId,
@@ -542,7 +546,17 @@ export function VercelChatInner({
             api: requestApi,
           };
         },
-      }),
+      };
+
+      return isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
+        ? new GenericChatEndpointTransport(
+          requestEndpoint,
+          isProviderEndpointProfile ? endpointProfile.providerKey : undefined,
+          providers,
+          transportOptions,
+        )
+        : new DefaultChatTransport(transportOptions);
+    },
     [chatFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, maxToolCalls, stopTools, requestEndpoint, api]
   );
 
@@ -554,7 +568,7 @@ export function VercelChatInner({
     stop,
     addToolApprovalResponse,
   } = useChat({
-    id: conversationId,
+    id: chatInstanceId,
     transport,
     experimental_throttle: experimentalThrottle,
     onError: addChatError,

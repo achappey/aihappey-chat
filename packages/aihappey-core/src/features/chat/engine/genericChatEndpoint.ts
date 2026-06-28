@@ -1,5 +1,6 @@
 import type { ChatEndpointId } from "aihappey-state";
 import type { Provider } from "aihappey-types";
+import { DefaultChatTransport } from "aihappey-ai";
 import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 import { compactObject } from "./genericEndpointMappers/types";
@@ -625,6 +626,29 @@ const createUiMessageChunkStream = ({
     enqueueChunk(controller, { type: "reasoning-delta", id, delta, providerMetadata: reasoningProviderMetadataById.get(id) });
   };
 
+  const emitResponsesTextSnapshot = (controller: ReadableStreamDefaultController<Uint8Array>, value: any) => {
+    const text = extractTextFromValue(value);
+    if (!text) return false;
+
+    if (!finalTextBuffer) {
+      ensureStarted(controller);
+      finalTextBuffer = text;
+      enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: text });
+      return true;
+    }
+
+    if (text.startsWith(finalTextBuffer)) {
+      const delta = text.slice(finalTextBuffer.length);
+      if (!delta) return false;
+      ensureStarted(controller);
+      finalTextBuffer = text;
+      enqueueChunk(controller, { type: "text-delta", id: textPartId, delta });
+      return true;
+    }
+
+    return false;
+  };
+
   const applyProviderResponseOverride = (event: any, eventName?: string) => {
     const resolvedProviderKey = resolveProviderKey();
     const override = resolvedProviderKey ? RESPONSE_PROVIDER_STREAM_OVERRIDES[resolvedProviderKey] : undefined;
@@ -677,6 +701,11 @@ const createUiMessageChunkStream = ({
         rememberReasoningMetadata(reasoningId, event.item);
         closeReasoning(controller, reasoningId);
       }
+      return;
+    }
+
+    if (type === "response.output_item.done" && event?.item?.type === "message") {
+      emitResponsesTextSnapshot(controller, event.item?.content);
       return;
     }
 
@@ -750,12 +779,16 @@ const createUiMessageChunkStream = ({
     }
 
     if (type === "response.content_part.done") {
+      if (event?.part?.type === "output_text" || event?.part?.type === "refusal") {
+        emitResponsesTextSnapshot(controller, event.part);
+      }
       (event?.part?.annotations ?? []).forEach((annotation: any, index: number) => emitSource(controller, annotation, index));
       return;
     }
 
     if (type === "response.completed") {
       rememberMetadata(event);
+      emitResponsesTextSnapshot(controller, event?.response?.output);
       finish(controller);
     }
   };
@@ -974,6 +1007,26 @@ const createUiMessageChunkStream = ({
   });
 };
 
+export class GenericChatEndpointTransport extends DefaultChatTransport<any> {
+  constructor(
+    private readonly genericEndpoint: GenericEndpointId,
+    private readonly providerKey?: string,
+    private readonly providers?: Record<string, Provider>,
+    options: ConstructorParameters<typeof DefaultChatTransport<any>>[0] = {},
+  ) {
+    super(options);
+  }
+
+  protected processResponseStream(stream: ReadableStream<Uint8Array>): any {
+    return super.processResponseStream(createUiMessageChunkStream({
+      endpoint: this.genericEndpoint,
+      providerKey: this.providerKey,
+      source: stream,
+      providers: this.providers,
+    }));
+  }
+}
+
 export function wrapGenericChatFetch({
   endpoint,
   fetcher,
@@ -986,7 +1039,7 @@ export function wrapGenericChatFetch({
   providers?: Record<string, Provider>;
 }): typeof fetch {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
-    const requestEndpoint = getEndpointFromRequestInput(input);
+    const requestEndpoint = getEndpointFromRequestInput(input) ?? endpoint;
     if (!requestEndpoint) {
       return fetcher(input, init);
     }

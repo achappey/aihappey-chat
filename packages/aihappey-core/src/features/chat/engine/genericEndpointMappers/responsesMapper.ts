@@ -15,12 +15,14 @@ const responsesReasoningFromPart = (part: any, providerKey?: string) => {
   if (typeof encryptedContent !== "string" || !encryptedContent) return undefined;
 
   const summaryText = getTextFromPart(part);
-  return compactObject({
+  return {
+    ...compactObject({
     type: "reasoning" as const,
     id: part?.id,
     encrypted_content: encryptedContent,
-    summary: summaryText ? [{ type: "summary_text" as const, text: summaryText }] : undefined,
-  });
+    }),
+    summary: summaryText ? [{ type: "summary_text" as const, text: summaryText }] : [],
+  };
 };
 
 const toResponsesContent = (message: GenericMappedMessage) => {
