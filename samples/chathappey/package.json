@@ -19,6 +19,7 @@
     "aihappey-theme-material": "*",
     "aihappey-theme-shadcn": "*",
     "aihappey-theme-fluent": "*",
+    "aihappey-theme-html": "*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.6.0"

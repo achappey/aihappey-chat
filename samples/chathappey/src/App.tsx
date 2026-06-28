@@ -2,6 +2,7 @@ import CoreRoot, { MultiThemeProvider } from "aihappey-core";
 import { configureAppStore, useAppStore } from "aihappey-state";
 import { ThemeProvider as BootstrapThemeProvider } from "aihappey-theme-bootstrap";
 import { ThemeProvider as FluentThemeProvider } from "aihappey-theme-fluent";
+import { ThemeProvider as HtmlThemeProvider } from "aihappey-theme-html";
 import { ThemeProvider as MantinetThemeProvider } from "aihappey-theme-mantine";
 import { ThemeProvider as MaterialThemeProvider } from "aihappey-theme-material";
 import { ThemeProvider as ChakraThemeProvider } from "aihappey-theme-chakra";
@@ -15,7 +16,6 @@ declare const __API_BASE_URL__: string;
 declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
 declare const __CHATBOT_INSTRUCTIONS__: string;
-declare const __DEFAULT_CHAT_ENDPOINT__: string;
 declare const __MCP_CATALOG_URLS__: string[];
 
 configureAppStore({ defaultAgents: sampleDefaultAgents });
@@ -32,6 +32,7 @@ const themes = [
   { id: "bootstrap", label: "Bootstrap", Provider: BootstrapThemeProvider },
   { id: "chakra", label: "Chakra", Provider: ChakraThemeProvider },
   { id: "fluent", label: "Fluent", Provider: FluentThemeProvider },
+  { id: "html", label: "HTML", Provider: HtmlThemeProvider },
   { id: "material", label: "Material", Provider: MaterialThemeProvider },
   { id: "mantine", label: "Mantine", Provider: MantinetThemeProvider },
   { id: "shadcn", label: "Shadcn", Provider: ConfiguredShadcnThemeProvider },
@@ -40,7 +41,7 @@ const themes = [
 const App = () => {
   const selectedThemeId = useAppStore((state) => state.selectedThemeId);
   const setSelectedThemeId = useAppStore((state) => state.setSelectedThemeId);
-//  defaultChatEndpoint: __DEFAULT_CHAT_ENDPOINT__,
+
   return (
     <MultiThemeProvider
       themes={themes}
