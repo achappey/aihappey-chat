@@ -207,16 +207,21 @@ const createUiMessageChunkStream = ({
     closedReasoningIds.add(id);
   };
 
+  const closeActiveReasoning = (controller: ReadableStreamDefaultController<Uint8Array>) => {
+    for (const reasoningId of Array.from(activeReasoningIds)) {
+      closeReasoning(controller, reasoningId);
+    }
+  };
+
   const finish = (controller: ReadableStreamDefaultController<Uint8Array>) => {
     if (closed) return;
     if (endpoint === "/v1/responses") {
       ensureMessageStarted(controller);
-      for (const reasoningId of Array.from(activeReasoningIds)) {
-        closeReasoning(controller, reasoningId);
-      }
+      closeActiveReasoning(controller);
       closeText(controller);
       if (startedStep) enqueueChunk(controller, { type: "finish-step" });
     } else {
+      closeActiveReasoning(controller);
       ensureStarted(controller);
       closeText(controller);
       enqueueChunk(controller, { type: "finish-step" });
@@ -623,6 +628,23 @@ const createUiMessageChunkStream = ({
     return extractGenericStreamText(endpoint, event);
   };
 
+  const emitChatCompletionReasoningDeltas = (event: any, controller: ReadableStreamDefaultController<Uint8Array>) => {
+    if (endpoint !== "/v1/chat/completions") return false;
+    if (!event || typeof event !== "object") return false;
+    if (event.object && event.object !== "chat.completion.chunk") return false;
+
+    let emitted = false;
+    for (const choice of event.choices ?? []) {
+      const delta = choice?.delta?.reasoning;
+      if (typeof delta !== "string" || !delta) continue;
+      const id = `reasoning-chat-completion-${choice?.index ?? 0}`;
+      emitReasoningDelta(controller, id, delta);
+      emitted = true;
+    }
+
+    return emitted;
+  };
+
   const handlePayload = (rawPayload: string, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
     const payload = normalizeProviderPayload(rawPayload);
     if (!payload) return;
@@ -643,8 +665,10 @@ const createUiMessageChunkStream = ({
     }
 
     normalizeToolDeltas(eventName, parsed, controller);
+    emitChatCompletionReasoningDeltas(parsed, controller);
     const delta = getTextDelta(eventName, parsed);
     if (!delta) return;
+    closeActiveReasoning(controller);
     ensureStarted(controller);
     enqueueChunk(controller, { type: "text-delta", id: textPartId, delta });
   };
