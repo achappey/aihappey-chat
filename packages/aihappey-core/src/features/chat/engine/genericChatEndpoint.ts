@@ -2,6 +2,7 @@ import type { ChatEndpointId } from "aihappey-state";
 import type { Provider } from "aihappey-types";
 import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
+import { compactObject } from "./genericEndpointMappers/types";
 
 type ResponseProviderStreamContext = {
   event: any;
@@ -127,6 +128,8 @@ const createUiMessageChunkStream = ({
   const reasoningTextById = new Map<string, string>();
   const reasoningProviderMetadataById = new Map<string, Record<string, any>>();
   const emittedSourceKeys = new Set<string>();
+  const imageGenerationItems = new Map<string, any>();
+  const imageGenerationFinalFiles = new Set<string>();
 
   const enqueueChunk = (controller: ReadableStreamDefaultController<Uint8Array>, chunk: any) => {
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
@@ -273,6 +276,7 @@ const createUiMessageChunkStream = ({
   const responsesToolName = (item: any) => {
     const type = String(item?.type ?? "");
     if (type === "web_search_call") return "web_search";
+    if (type === "image_generation_call") return "image_generation";
     if (type === "function_call") return item?.name ?? "function_call";
     if (type.endsWith("_call")) return type.replace(/_call$/, "");
     return item?.name ?? type ?? "provider_tool";
@@ -306,6 +310,233 @@ const createUiMessageChunkStream = ({
     }
 
     return item?.output ?? item?.result ?? item;
+  };
+
+  const isImageGenerationItemType = (type: unknown) => {
+    const normalizedType = String(type ?? "");
+    return normalizedType === "image_generation_call" || normalizedType.endsWith(":image_generation");
+  };
+
+  const imageMediaTypeFromFormat = (format?: string) => {
+    const normalizedFormat = String(format ?? "").trim().toLowerCase();
+    if (!normalizedFormat) return "image/png";
+    if (normalizedFormat.includes("/")) return normalizedFormat;
+    return `image/${normalizedFormat.replace(/^\.+/, "") || "png"}`;
+  };
+
+  const stripDataUrlBase64 = (value?: string) => {
+    const base64 = String(value ?? "").trim();
+    if (!base64) return "";
+    if (!base64.startsWith("data:")) return base64;
+
+    const commaIndex = base64.indexOf(",");
+    return commaIndex >= 0 ? base64.slice(commaIndex + 1).trim() : "";
+  };
+
+  const toImageDataUrl = (base64: string, mediaType: string) => {
+    const payload = stripDataUrlBase64(base64);
+    if (!payload) return undefined;
+    return `data:${mediaType};base64,${payload}`;
+  };
+
+  const rememberImageGenerationItem = (item?: any) => {
+    const itemId = item?.id ?? item?.item_id;
+    if (!itemId) return undefined;
+    const previous = imageGenerationItems.get(itemId) ?? {};
+    const next = compactObject({ ...previous, ...(item ?? {}) });
+    imageGenerationItems.set(itemId, next);
+    return next;
+  };
+
+  const getImageGenerationItem = (itemId?: string, fallback?: any) => {
+    if (!itemId) return fallback;
+    return imageGenerationItems.get(itemId) ?? fallback;
+  };
+
+  const imageGenerationFileId = (itemId: string) => `generated-image-${itemId}`;
+
+  const imageGenerationMetadata = ({
+    item,
+    event,
+    mediaType,
+    partial,
+    revision,
+  }: {
+    item?: any;
+    event?: any;
+    mediaType: string;
+    partial: boolean;
+    revision?: number;
+  }) => {
+    const resolvedProviderKey = resolveProviderKey() ?? "openai";
+    const itemId = String(event?.item_id ?? item?.id ?? "image_generation");
+    return {
+      [resolvedProviderKey]: compactObject({
+        item_id: itemId,
+        id: itemId,
+        generated_image_id: imageGenerationFileId(itemId),
+        source: "response.image_generation_call",
+        partial,
+        revision,
+        status: event?.type?.replace("response.image_generation_call.", "") ?? item?.status,
+        output_index: event?.output_index ?? item?.output_index,
+        output_format: event?.output_format ?? item?.output_format,
+        media_type: mediaType,
+        background: event?.background ?? item?.background,
+        quality: item?.quality,
+        action: item?.action,
+        size: item?.size,
+        revised_prompt: item?.revised_prompt,
+      }),
+    };
+  };
+
+  const emitImageGenerationToolInput = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    itemOrEvent: any,
+    status?: string,
+  ) => {
+    const toolCallId = itemOrEvent?.id ?? itemOrEvent?.item_id;
+    if (!toolCallId) return;
+
+    ensureStepStarted(controller);
+    if (!startedToolCalls.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-input-start",
+        toolCallId,
+        toolName: "image_generation",
+        providerExecuted: true,
+        title: "Image generation",
+      });
+      startedToolCalls.add(toolCallId);
+    }
+
+    const item = getImageGenerationItem(toolCallId, itemOrEvent);
+    enqueueChunk(controller, {
+      type: "tool-input-available",
+      toolCallId,
+      toolName: "image_generation",
+      input: compactToolInput({
+        status: status ?? item?.status,
+        action: item?.action,
+        background: item?.background ?? itemOrEvent?.background,
+        output_format: item?.output_format ?? itemOrEvent?.output_format,
+        quality: item?.quality,
+        size: item?.size,
+      }),
+      providerExecuted: true,
+      title: "Image generation",
+    });
+  };
+
+  const emitImageGenerationFile = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    itemOrEvent: any,
+    base64: string | undefined,
+    partial: boolean,
+  ) => {
+    const itemId = itemOrEvent?.item_id ?? itemOrEvent?.id;
+    if (!itemId) return false;
+
+    const item = getImageGenerationItem(itemId, itemOrEvent);
+    const outputFormat = itemOrEvent?.output_format ?? item?.output_format;
+    const mediaType = imageMediaTypeFromFormat(outputFormat);
+    const url = toImageDataUrl(base64 ?? "", mediaType);
+    if (!url) return false;
+    const revision = partial
+      ? (Number(item?.partial_revision ?? 0) || 0) + 1
+      : undefined;
+    if (partial) {
+      imageGenerationItems.set(String(itemId), compactObject({ ...item, partial_revision: revision }));
+    }
+
+    ensureStepStarted(controller);
+    enqueueChunk(controller, {
+      type: "file",
+      url,
+      mediaType,
+      providerMetadata: imageGenerationMetadata({ item, event: itemOrEvent, mediaType, partial, revision }),
+    });
+    return true;
+  };
+
+  const emitImageGenerationToolOutput = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    item: any,
+    preliminary: boolean,
+  ) => {
+    const toolCallId = item?.id ?? item?.item_id;
+    if (!toolCallId) return;
+    const outputFormat = item?.output_format;
+    const mediaType = imageMediaTypeFromFormat(outputFormat);
+    enqueueChunk(controller, {
+      type: "tool-output-available",
+      toolCallId,
+      output: compactToolInput({
+        status: item?.status,
+        action: item?.action,
+        background: item?.background,
+        output_format: outputFormat,
+        media_type: mediaType,
+        quality: item?.quality,
+        size: item?.size,
+        revised_prompt: item?.revised_prompt,
+      }),
+      providerExecuted: true,
+      preliminary,
+      providerMetadata: imageGenerationMetadata({ item, mediaType, partial: preliminary }),
+    });
+  };
+
+  const handleImageGenerationPayload = (
+    event: any,
+    controller: ReadableStreamDefaultController<Uint8Array>,
+  ) => {
+    const type = event?.type;
+
+    if (type === "response.output_item.added" && isImageGenerationItemType(event?.item?.type)) {
+      const item = rememberImageGenerationItem({ ...event.item, output_index: event.output_index });
+      emitImageGenerationToolInput(controller, item, "in_progress");
+      return true;
+    }
+
+    if (type?.startsWith("response.image_generation_call.") && typeof event?.item_id === "string") {
+      const eventStatus = type.replace("response.image_generation_call.", "");
+      const item = rememberImageGenerationItem(compactObject({
+        ...(getImageGenerationItem(event.item_id) ?? {}),
+        id: event.item_id,
+        output_index: event.output_index,
+        output_format: event.output_format,
+        background: event.background,
+        status: eventStatus,
+      }));
+
+      emitImageGenerationToolInput(controller, item ?? event, eventStatus);
+
+      if (type === "response.image_generation_call.partial_image") {
+        emitImageGenerationFile(controller, event, event.partial_image_b64, true);
+      }
+
+      return true;
+    }
+
+    if (type === "response.output_item.done" && isImageGenerationItemType(event?.item?.type)) {
+      const item = rememberImageGenerationItem({ ...event.item, output_index: event.output_index });
+      emitImageGenerationToolInput(controller, item, item?.status ?? "completed");
+      if (!emittedToolOutputs.has(item?.id)) {
+        emitImageGenerationToolOutput(controller, item, false);
+        emittedToolOutputs.add(item?.id);
+      }
+
+      if (item?.id && !imageGenerationFinalFiles.has(item.id)) {
+        emitImageGenerationFile(controller, item, item?.result, false);
+        imageGenerationFinalFiles.add(item.id);
+      }
+
+      return true;
+    }
+
+    return false;
   };
 
   const emitProviderTool = (
@@ -455,6 +686,10 @@ const createUiMessageChunkStream = ({
       if (typeof event?.part?.text === "string" && event.part.text) {
         emitReasoningDelta(controller, id, event.part.text);
       }
+      return;
+    }
+
+    if (handleImageGenerationPayload(event, controller)) {
       return;
     }
 

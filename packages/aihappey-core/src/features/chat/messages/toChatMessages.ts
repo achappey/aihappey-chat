@@ -17,6 +17,36 @@ function hasReasoningText(part: UIMessagePart<any, any>): boolean {
   return String(text).trim().length > 0;
 }
 
+function generatedImageIdFromPart(part: UIMessagePart<any, any>): string | undefined {
+  if (part?.type !== "file" || !(part as FileUIPart).mediaType?.startsWith("image/")) return undefined;
+
+  const providerMetadata = (part as FileUIPart).providerMetadata;
+  if (!providerMetadata || typeof providerMetadata !== "object") return undefined;
+
+  for (const scopedMetadata of Object.values(providerMetadata as Record<string, any>)) {
+    const generatedImageId = scopedMetadata?.generated_image_id ?? scopedMetadata?.generatedImageId;
+    if (typeof generatedImageId === "string" && generatedImageId) return generatedImageId;
+  }
+
+  return undefined;
+}
+
+function collapseGeneratedImagePreviews(parts: UIMessagePart<any, any>[]) {
+  const latestGeneratedImagePartIndex = new Map<string, number>();
+
+  parts.forEach((part, index) => {
+    const generatedImageId = generatedImageIdFromPart(part);
+    if (generatedImageId) latestGeneratedImagePartIndex.set(generatedImageId, index);
+  });
+
+  if (latestGeneratedImagePartIndex.size === 0) return parts;
+
+  return parts.filter((part, index) => {
+    const generatedImageId = generatedImageIdFromPart(part);
+    return !generatedImageId || latestGeneratedImagePartIndex.get(generatedImageId) === index;
+  });
+}
+
 function parseCost(value: unknown): number | undefined {
   if (typeof value === "number") {
     return Number.isFinite(value) ? value : undefined;
@@ -51,9 +81,9 @@ export function toChatMessages(
     const temperature = meta?.temperature;
     const totalTokens = meta?.totalTokens;
     const usage = meta?.usage;
-    const parts = ((z.parts ?? [])).filter(
+    const parts = collapseGeneratedImagePreviews(((z.parts ?? [])).filter(
       (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
-    );
+    ));
 
     const baseCost = parseCost(meta?.gateway?.cost ?? meta?.cost);
     const toolPartsCost = parts.reduce((sum, part) => {
