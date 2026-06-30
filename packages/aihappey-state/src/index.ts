@@ -61,6 +61,11 @@ export {
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
 } from "./slices/chatSlice";
 export type { SideInferenceAgentNames } from "./slices/chatSlice";
+export type {
+  ApiKeyEncryptionState,
+  ApiKeyEncryptionStatus,
+  EncryptedApiKeys,
+} from "./slices/apiKeyEncryption";
 export {
   CHAT_ENDPOINT_IDS,
   CHAT_ENDPOINT_MODES,

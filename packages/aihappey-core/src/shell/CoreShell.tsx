@@ -44,6 +44,7 @@ import {
   resolveProviderMetadataHydration,
 } from "aihappey-provider-metadata";
 import type { Agent } from "aihappey-types";
+import { ApiKeyUnlockHost } from "../features/provider-credentials/ApiKeyUnlockHost";
 
 type Props = {
   chatConfig: ChatConfig;
@@ -309,6 +310,7 @@ export const CoreShell: React.FC<Props> = ({
   return (
     <I18nProvider>
       <ErrorLog />
+      <ApiKeyUnlockHost />
       <DndProvider backend={HTML5Backend}>
         <McpServerBootstrap />
         <ImagesProvider storageKind={"indexeddb"}>

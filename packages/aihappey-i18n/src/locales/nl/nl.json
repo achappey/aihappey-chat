@@ -728,5 +728,26 @@
         "explainToolCallAgentHint": "Kies de agent voor tooluitleg.",
         "fallbackWelcome": "Welkom",
         "toolExplanationFallback": "De toolaanroep kon niet worden uitgelegd. De geselecteerde uitlegagent is niet beschikbaar of gaf een fout terug."
+    },
+    "apiKeysPassword": {
+        "setPassword": "Wachtwoord instellen",
+        "changePassword": "Wachtwoord wijzigen",
+        "unlock": "Ontgrendelen",
+        "setTitle": "Wachtwoord voor API-sleutels instellen",
+        "changeTitle": "Wachtwoord voor API-sleutels wijzigen",
+        "unlockTitle": "API-sleutels ontgrendelen",
+        "setDescription": "Stel een wachtwoord in voordat je lokaal opgeslagen API-sleutels toevoegt of bewerkt. Bestaande lokale sleutels worden versleuteld in de browseropslag.",
+        "changeDescription": "Voer het huidige wachtwoord en een nieuw wachtwoord in om je lokaal opgeslagen API-sleutels opnieuw te versleutelen.",
+        "unlockDescription": "Voer je API-sleutelwachtwoord één keer in om de sleutels voor deze browsersessie te ontsleutelen.",
+        "setPasswordRequired": "Stel een wachtwoord in voordat je API-sleutels toevoegt of bewerkt.",
+        "unlockRequired": "Ontgrendel API-sleutels voordat je ze toevoegt of bewerkt.",
+        "password": "Wachtwoord",
+        "currentPassword": "Huidig wachtwoord",
+        "newPassword": "Nieuw wachtwoord",
+        "confirmPassword": "Bevestig wachtwoord",
+        "passwordRequired": "Wachtwoord is verplicht.",
+        "currentRequired": "Huidig wachtwoord is verplicht.",
+        "passwordsDoNotMatch": "Wachtwoorden komen niet overeen.",
+        "invalidPassword": "Het wachtwoord kon de API-sleutels niet ontsleutelen. Controleer het wachtwoord en probeer het opnieuw."
     }
 }

@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProviderKeysForm, SettingsActionButtons, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { PROVIDER_CAPABILITIES, useAppStore } from "aihappey-state";
 import { useDarkMode } from "usehooks-ts";
 import { getProviderApiKeyHeaderName } from "./providerAuthHeaders";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { ApiKeyPasswordModal, type ApiKeyPasswordModalMode } from "./ApiKeyPasswordModal";
+import { decryptApiKeys, encryptApiKeys } from "./apiKeyEncryption";
 
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -55,14 +57,26 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   const providers = useProviderRegistry();
 
   const customHeaders = useAppStore((s) => s.customHeaders);
+  const encryptedApiKeys = useAppStore((s: any) => s.encryptedApiKeys);
+  const apiKeyEncryptionStatus = useAppStore((s: any) => s.apiKeyEncryptionStatus);
   const resetModels = useAppStore((s) => s.resetModels);
   const addCustomHeader = useAppStore((s) => s.addCustomHeader);
   const removeCustomHeader = useAppStore((s) => s.removeCustomHeader);
+  const setCustomHeaders = useAppStore((s: any) => s.setCustomHeaders);
+  const setEncryptedApiKeys = useAppStore((s: any) => s.setEncryptedApiKeys);
+  const apiKeySessionPassword = useAppStore((s: any) => s.apiKeySessionPassword);
+  const setApiKeySessionPassword = useAppStore((s: any) => s.setApiKeySessionPassword);
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
   const setEnabledProvidersForType = useAppStore((s) => s.setEnabledProvidersForType);
 
   const initialHeadersRef = useRef<Record<string, string>>({});
   const wasOpenRef = useRef(false);
+  const [passwordMode, setPasswordMode] = useState<ApiKeyPasswordModalMode | undefined>(undefined);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
+  const keysEditable = apiKeyEncryptionStatus === "unlocked";
+  const canPersistKeyEdits = apiKeyEncryptionStatus === "unlocked";
+  const passwordRequired = apiKeyEncryptionStatus === "none" || apiKeyEncryptionStatus === "needs-password";
 
   useEffect(() => {
     if (open && !wasOpenRef.current) {
@@ -99,27 +113,43 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   );
 
   const handleHeaderChange = useCallback(
-    (header: string, value: string) => {
+    async (header: string, value: string) => {
+      if (!canPersistKeyEdits) return;
+      const nextHeaders = {
+        ...(customHeaders ?? {}),
+        [header]: value,
+      };
+      if (encryptedApiKeys) {
+        if (!apiKeySessionPassword) return;
+        setEncryptedApiKeys(await encryptApiKeys(nextHeaders, apiKeySessionPassword));
+      }
       addCustomHeader(header, value);
       if (value.trim().length > 0) {
         syncProviderEnabledState(header, true);
       }
     },
-    [addCustomHeader, syncProviderEnabledState]
+    [addCustomHeader, apiKeySessionPassword, canPersistKeyEdits, customHeaders, encryptedApiKeys, setEncryptedApiKeys, syncProviderEnabledState]
   );
 
   const handleHeaderRemove = useCallback(
-    (header: string) => {
+    async (header: string) => {
+      if (!canPersistKeyEdits) return;
+      const { [header]: _, ...nextHeaders } = customHeaders ?? {};
+      if (encryptedApiKeys) {
+        if (!apiKeySessionPassword) return;
+        setEncryptedApiKeys(await encryptApiKeys(nextHeaders, apiKeySessionPassword));
+      }
       removeCustomHeader(header);
       syncProviderEnabledState(header, false);
     },
-    [removeCustomHeader, syncProviderEnabledState]
+    [apiKeySessionPassword, canPersistKeyEdits, customHeaders, encryptedApiKeys, removeCustomHeader, setEncryptedApiKeys, syncProviderEnabledState]
   );
 
   const handleDrop = useCallback(
     async (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
+      if (!keysEditable) return;
 
       const files = e.dataTransfer.files;
       if (!files || files.length === 0) return;
@@ -144,7 +174,7 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
         }
       }
     },
-    [handleHeaderChange]
+    [handleHeaderChange, keysEditable]
   );
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -173,6 +203,32 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
     onClose();
   }, [hasProviderKeysChangedThisSession, resetModels, onClose]);
 
+  const encryptAndStoreHeaders = useCallback(async (headers: Record<string, string>, password: string) => {
+    const encrypted = await encryptApiKeys(headers, password);
+    setApiKeySessionPassword(password);
+    setEncryptedApiKeys(encrypted);
+    setCustomHeaders(headers);
+  }, [setApiKeySessionPassword, setCustomHeaders, setEncryptedApiKeys]);
+
+  const handlePasswordSubmit = useCallback(async ({ password, currentPassword }: { password: string; currentPassword?: string }) => {
+    setPasswordBusy(true);
+    setPasswordError(undefined);
+    try {
+      if (passwordMode === "change") {
+        if (!encryptedApiKeys || !currentPassword) throw new Error(t("apiKeysPassword.invalidPassword"));
+        const headers = await decryptApiKeys(encryptedApiKeys, currentPassword);
+        await encryptAndStoreHeaders(headers, password);
+      } else if (passwordMode === "set") {
+        await encryptAndStoreHeaders(customHeaders ?? {}, password);
+      }
+      setPasswordMode(undefined);
+    } catch {
+      setPasswordError(t("apiKeysPassword.invalidPassword"));
+    } finally {
+      setPasswordBusy(false);
+    }
+  }, [customHeaders, encryptAndStoreHeaders, encryptedApiKeys, passwordMode, t]);
+
   const items = useMemo(() => {
     return Object.keys(providers).filter((id) => !EXCLUDED_API_KEY_PROVIDER_IDS.has(id)).map((id) => {
       const provider = providers[id];
@@ -196,32 +252,61 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   }, [isDarkMode, providers]);
 
   return (
-    <theme.Modal
-      show={open}
-      onHide={handleClose}
-      title={t("apiKeys")}
-      actions={
-        <SettingsActionButtons
-          onClose={handleClose}
-          onDownload={() => downloadJson("provider_config.json", customHeaders ?? {})}
-        />
-      }
+    <>
+      <theme.Modal
+        show={open}
+        onHide={handleClose}
+        title={t("apiKeys")}
+        actions={
+          <>
+            <theme.Button
+              variant="informative"
+              onClick={() => {
+                setPasswordError(undefined);
+                setPasswordMode(encryptedApiKeys ? "change" : "set");
+              }}
+            >
+              {encryptedApiKeys ? t("apiKeysPassword.changePassword") : t("apiKeysPassword.setPassword")}
+            </theme.Button>
+            <SettingsActionButtons
+              onClose={handleClose}
+              onDownload={keysEditable ? () => downloadJson("provider_config.json", customHeaders ?? {}) : undefined}
+            />
+          </>
+        }
 
-    >
-      <div
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        style={{ width: "100%" }}
       >
-        <ProviderKeysForm
-          title={t("providers")}
-          apiKeyLabel={t("apiKey")}
-          items={items}
-          values={customHeaders ?? {}}
-          onChange={handleHeaderChange}
-          onRemove={handleHeaderRemove}
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          style={{ width: "100%" }}
+        >
+          <ProviderKeysForm
+            title={t("providers")}
+            apiKeyLabel={t("apiKey")}
+            items={items}
+            values={customHeaders ?? {}}
+            onChange={handleHeaderChange}
+            onRemove={handleHeaderRemove}
+            disabled={!keysEditable}
+            disabledMessage={passwordRequired
+              ? t("apiKeysPassword.setPasswordRequired")
+              : !keysEditable
+                ? t("apiKeysPassword.unlockRequired")
+                : undefined}
+          />
+        </div>
+      </theme.Modal>
+      {passwordMode ? (
+        <ApiKeyPasswordModal
+          open={!!passwordMode}
+          mode={passwordMode}
+          busy={passwordBusy}
+          error={passwordError}
+          onSubmit={handlePasswordSubmit}
+          onClose={() => setPasswordMode(undefined)}
         />
-      </div>
-    </theme.Modal>
+      ) : null}
+    </>
   );
 };

@@ -18,6 +18,8 @@ export interface ProviderKeysFormProps {
   onRemove: (header: string) => void;
   title?: string;
   apiKeyLabel?: string;
+  disabled?: boolean;
+  disabledMessage?: string;
 }
 
 export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
@@ -27,6 +29,8 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
   onRemove,
   title,
   apiKeyLabel = "API key",
+  disabled = false,
+  disabledMessage,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -75,6 +79,8 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
   return (
     <theme.Card size="small" title={title}>
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        {disabledMessage ? <theme.Alert variant="warning">{disabledMessage}</theme.Alert> : null}
+
         <theme.SearchBox
           value={search}
           placeholder={t("search")}
@@ -127,6 +133,7 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
                   style={{ width: "100%" }}
                   placeholder={`${item.name} ${apiKeyLabel}...`}
                   autoComplete="off"
+                  disabled={disabled}
                   onChange={(e: any) =>
                     onChange(item.header, e.target.value)
                   }
@@ -137,7 +144,7 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
                 icon="eye"
                 variant={isVisible ? "primary" : "subtle"}
                 size="small"
-                disabled={!value}
+                disabled={disabled || !value}
                 title={t("view")}
                 aria-label={t("view")}
                 onClick={() => toggleHeaderVisibility(item.header)}
@@ -149,7 +156,7 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
                 size="small"
                 title={t("delete")}
                 aria-label={t("delete")}
-                disabled={!value}
+                disabled={disabled || !value}
                 onClick={() => handleRemove(item.header)}
               />
             </div>

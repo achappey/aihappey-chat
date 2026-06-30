@@ -18,6 +18,7 @@ import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
 import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, readStoredChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
 import { normalizeCustomProviders } from "./slices/uiSlice";
+import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -31,7 +32,7 @@ export const withPersist = (
 ) =>
   persist(creator, {
     name: "aihappey_store_v8",
-    version: 25,
+    version: 26,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -91,7 +92,8 @@ export const withPersist = (
       enableApps: s.enableApps,
       defaultCatalogs: s.defaultCatalogs,
       defaultRegistries: (s as any).defaultRegistries,
-      customHeaders: s.customHeaders,
+      customHeaders: undefined,
+      encryptedApiKeys: (s as any).encryptedApiKeys,
       experimentalThrottle: s.experimentalThrottle,
       toolTimeout: s.toolTimeout,
       resetTimeoutOnProgress: s.resetTimeoutOnProgress,
@@ -320,6 +322,15 @@ export const withPersist = (
         };
       }
 
+      if (version < 26) {
+        safeState = {
+          ...safeState,
+          encryptedApiKeys: isPlainRecord(safeState.encryptedApiKeys)
+            ? safeState.encryptedApiKeys
+            : undefined,
+        };
+      }
+
       const storedChatEndpointMode = readStoredChatEndpointMode();
       const configuredChatEndpointMode = storedChatEndpointMode
         ?? normalizeChatEndpointMode(safeState.configuredChatEndpointMode)
@@ -371,6 +382,10 @@ export const withPersist = (
           ? Array.from(new Set(safeState.favoriteSkillIds.filter(Boolean)))
           : [],
         customProviders: normalizeCustomProviders(safeState.customProviders),
+        apiKeyEncryptionStatus: resolveApiKeyEncryptionStatus(
+          isPlainRecord(safeState.encryptedApiKeys) ? safeState.encryptedApiKeys as any : undefined,
+          isPlainRecord(safeState.customHeaders) ? safeState.customHeaders as Record<string, string> : undefined,
+        ),
       } as any;
     },
   });

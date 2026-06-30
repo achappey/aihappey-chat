@@ -3,6 +3,7 @@ import { defaultProviderMetadata } from "./defaultProviderMetadata";
 import type { ModelOption } from "aihappey-types";
 import { ToolAnnotations } from "aihappey-mcp";
 import { SIDE_INFERENCE_DEFAULT_AGENT_NAMES } from "./defaultAgents";
+import type { ApiKeyEncryptionState, EncryptedApiKeys } from "./apiKeyEncryption";
 import {
   DEFAULT_CHAT_ENDPOINT_ID,
   DEFAULT_CHAT_ENDPOINT_MODE,
@@ -30,7 +31,7 @@ export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
   explainToolCallAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.explainToolCall,
 };
 
-export type ChatSlice = {
+export type ChatSlice = ApiKeyEncryptionState & {
   selectedConversationId: string | null;
   selectConversation: (id: string | null) => void;
   setTemperature: (temperature: number) => void;
@@ -109,6 +110,7 @@ export type ChatSlice = {
   dismissChatError: (error: string) => void
   toolAnnotations?: ToolAnnotations;
   customHeaders: Record<string, string>;
+  encryptedApiKeys?: EncryptedApiKeys;
   addCustomHeader: (key: string, value: string) => void
   removeCustomHeader: (key: string) => void
   setToolAnnotations: (value?: ToolAnnotations) => void
@@ -154,6 +156,9 @@ export const createChatSlice: StateCreator<
   endpointRawModelIds: false,
   endpointProviderMetadataEnabled: true,
   customHeaders: {},
+  encryptedApiKeys: undefined,
+  apiKeySessionPassword: undefined,
+  apiKeyEncryptionStatus: "none",
   structuredOutputs: undefined,
   toolAnnotations: DEFAULT_CHAT_TOOL_ANNOTATIONS,
   chatErrors: [],
@@ -311,6 +316,7 @@ export const createChatSlice: StateCreator<
         ...state.customHeaders,
         [key]: value,   // <-- dynamic property name
       },
+      apiKeyEncryptionStatus: state.encryptedApiKeys ? "unlocked" : "needs-password",
     }));
   },
   removeCustomHeader: (key) => {
@@ -318,9 +324,59 @@ export const createChatSlice: StateCreator<
       const { [key]: _, ...rest } = state.customHeaders;   // remove key
 
       return {
-        customHeaders: rest
+        customHeaders: rest,
+        apiKeyEncryptionStatus: state.encryptedApiKeys
+          ? "unlocked"
+          : Object.keys(rest).length > 0
+            ? "needs-password"
+            : "none",
       };
     });
+  },
+  setCustomHeaders: (headers) => {
+    set((state: any) => ({
+      customHeaders: headers ?? {},
+      apiKeyEncryptionStatus: state.encryptedApiKeys
+        ? "unlocked"
+        : Object.keys(headers ?? {}).length > 0
+          ? "needs-password"
+          : "none",
+    }));
+  },
+  setEncryptedApiKeys: (encryptedApiKeys) => {
+    set((state: any) => ({
+      encryptedApiKeys,
+      apiKeyEncryptionStatus: encryptedApiKeys
+        ? Object.keys(state.customHeaders ?? {}).length > 0
+          ? "unlocked"
+          : "locked"
+        : Object.keys(state.customHeaders ?? {}).length > 0
+          ? "needs-password"
+          : "none",
+    }));
+  },
+  setApiKeySessionPassword: (password) => {
+    set(() => ({ apiKeySessionPassword: password }));
+  },
+  unlockApiKeys: (headers) => {
+    set(() => ({
+      customHeaders: headers ?? {},
+      apiKeyEncryptionStatus: "unlocked",
+    }));
+  },
+  lockApiKeys: () => {
+    set((state: any) => ({
+      customHeaders: {},
+      apiKeySessionPassword: undefined,
+      apiKeyEncryptionStatus: state.encryptedApiKeys ? "locked" : "none",
+    }));
+  },
+  setApiKeysNeedPassword: (headers) => {
+    set(() => ({
+      customHeaders: headers ?? {},
+      encryptedApiKeys: undefined,
+      apiKeyEncryptionStatus: Object.keys(headers ?? {}).length > 0 ? "needs-password" : "none",
+    }));
   },
   setModels: (models) => {
     set((state: any) => ({
