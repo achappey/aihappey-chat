@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     FilterDrawerPanel,
     ProviderCard,
@@ -23,6 +23,86 @@ type ProviderListItem = {
     key: string;
 } & Provider;
 
+type ProviderFilterSelections = {
+    selectedCountries: string[];
+    selectedRegions: string[];
+    selectedCategories: string[];
+    selectedModelTypes: string[];
+};
+
+type ProviderFilterFacet = "country" | "region" | "category" | "modelType";
+
+const isAllFilterSelected = (selected: string[]) =>
+    selected.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
+
+const sameSelection = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((value, index) => value === b[index]);
+
+const keepAvailableSelection = (
+    selected: string[],
+    options: string[],
+    counts: Record<string, number>
+) => {
+    if (isAllFilterSelected(selected)) return selected;
+
+    const optionSet = new Set(options);
+    const next = selected.filter(
+        (value) => optionSet.has(value) && (counts[value] ?? 0) > 0
+    );
+
+    return next.length > 0 ? next : [PROVIDER_LOCATION_ALL_FILTER_VALUE];
+};
+
+const addProviderModelType = (types: Set<string>, condition: boolean, type: string) => {
+    if (condition) types.add(type);
+};
+
+const inferProviderModelTypes = (provider: ProviderListItem) => {
+    const text = [provider.name, provider.description, provider.category]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+    const types = new Set<string>();
+
+    addProviderModelType(
+        types,
+        /\b(llm|language|chat|text|reasoning|code|coding|conversation|model|models)\b/.test(text),
+        "language"
+    );
+    addProviderModelType(
+        types,
+        /\b(image|images|visual|vision|photo|design)\b/.test(text),
+        "image"
+    );
+    addProviderModelType(
+        types,
+        /\b(video|videos|avatar|motion)\b/.test(text),
+        "video"
+    );
+    addProviderModelType(
+        types,
+        /\b(speech|voice|tts|text-to-speech|voiceover|dubbing)\b/.test(text),
+        "speech"
+    );
+    addProviderModelType(
+        types,
+        /\b(transcription|transcribe|asr|speech-to-text)\b/.test(text),
+        "transcription"
+    );
+    addProviderModelType(
+        types,
+        /\b(audio|realtime|music|sound)\b/.test(text),
+        "audio"
+    );
+    addProviderModelType(
+        types,
+        /\b(rerank|reranker|reranking)\b/.test(text),
+        "reranking"
+    );
+
+    return Array.from(types);
+};
+
 export const ProvidersPage = () => {
     const PAGE_SIZE = 50;
     const { Drawer, Switch, Button, Text } = useTheme();
@@ -32,7 +112,7 @@ export const ProvidersPage = () => {
     const { isDarkMode } = useDarkMode();
     const isDesktop = useIsDesktop();
     const [search, setSearch] = useState("");
-    const [filtersOpen, setFiltersOpen] = useState(() => isDesktop);
+    const [filtersOpen, setFiltersOpen] = useState(false);
     const [selectedCountries, setSelectedCountries] = useState<string[]>([
         PROVIDER_LOCATION_ALL_FILTER_VALUE,
     ]);
@@ -140,20 +220,31 @@ export const ProvidersPage = () => {
         );
     }, [providers, collator, t]);
 
-    const categoryCounts = useMemo(() => {
-        const counts: Record<string, number> = {};
-        providers.forEach((p) => {
-            if (!p.category) return;
-            counts[p.category] = (counts[p.category] ?? 0) + 1;
+    const sortedProviderCountryOptions = useMemo(() => {
+        return [...providerCountryOptions].sort((a, b) =>
+            collator.compare(t(`regional:countries.${a}`), t(`regional:countries.${b}`))
+        );
+    }, [collator, providerCountryOptions, t]);
+
+    const effectiveModelTypesByProvider = useMemo(() => {
+        const byProvider: Record<string, string[]> = {};
+
+        providers.forEach((provider) => {
+            const discovered = modelTypesByProvider[provider.key] ?? [];
+            const inferred = inferProviderModelTypes(provider);
+            const merged = Array.from(new Set([...discovered, ...inferred]));
+            if (merged.length > 0) {
+                byProvider[provider.key] = merged.sort((a, b) => collator.compare(t(a), t(b)));
+            }
         });
 
-        return counts;
-    }, [providers]);
+        return byProvider;
+    }, [collator, modelTypesByProvider, providers, t]);
 
     const modelTypeOptions = useMemo(() => {
         const values = new Set<string>();
 
-        Object.values(modelTypesByProvider).forEach((types) => {
+        Object.values(effectiveModelTypesByProvider).forEach((types) => {
             types.forEach((type) => {
                 if (type) {
                     values.add(type);
@@ -162,48 +253,168 @@ export const ProvidersPage = () => {
         });
 
         return Array.from(values).sort((a, b) => collator.compare(t(a), t(b)));
-    }, [collator, modelTypesByProvider, t]);
+    }, [collator, effectiveModelTypesByProvider, t]);
+
+    const currentSelections = useMemo<ProviderFilterSelections>(() => ({
+        selectedCountries,
+        selectedRegions,
+        selectedCategories,
+        selectedModelTypes,
+    }), [selectedCategories, selectedCountries, selectedModelTypes, selectedRegions]);
+
+    const normalizedSearch = useMemo(() => search.trim().toLowerCase(), [search]);
+
+    const providerMatchesFilters = useCallback((
+        p: ProviderListItem,
+        selections: ProviderFilterSelections,
+        omittedFacet?: ProviderFilterFacet,
+        includeSearch = true
+    ) => {
+        const haystack = `${p.key} ${p.name} ${p.urls?.homepage} ${p.description ?? ""}`.toLowerCase();
+        const matchesSearch = !includeSearch || !normalizedSearch || haystack.includes(normalizedSearch);
+
+        const matchesCountry =
+            omittedFacet === "country" ||
+            isAllFilterSelected(selections.selectedCountries) ||
+            (!!p.providerCountry && selections.selectedCountries.includes(p.providerCountry));
+
+        const matchesRegion =
+            omittedFacet === "region" ||
+            isAllFilterSelected(selections.selectedRegions) ||
+            (p.inferenceRegions ?? []).some((region) => selections.selectedRegions.includes(region));
+
+        const matchesCategory =
+            omittedFacet === "category" ||
+            isAllFilterSelected(selections.selectedCategories) ||
+            (!!p.category && selections.selectedCategories.includes(p.category));
+
+            const providerModelTypes = effectiveModelTypesByProvider[p.key] ?? [];
+        const matchesModelType =
+            omittedFacet === "modelType" ||
+            isAllFilterSelected(selections.selectedModelTypes) ||
+            selections.selectedModelTypes.every((type) => providerModelTypes.includes(type));
+
+        return (
+            matchesSearch &&
+            matchesCountry &&
+            matchesRegion &&
+            matchesCategory &&
+            matchesModelType
+        );
+    }, [effectiveModelTypesByProvider, normalizedSearch]);
+
+    const countProviders = useCallback((
+        selections: ProviderFilterSelections,
+        omittedFacet?: ProviderFilterFacet,
+        includeSearch = true
+    ) => providers.reduce(
+        (count, p) => count + (providerMatchesFilters(p, selections, omittedFacet, includeSearch) ? 1 : 0),
+        0
+    ), [providerMatchesFilters, providers]);
+
+    const categoryCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        categoryOptions.forEach((category) => {
+            counts[category] = countProviders({
+                ...currentSelections,
+                selectedCategories: [category],
+            });
+        });
+
+        return counts;
+    }, [categoryOptions, countProviders, currentSelections]);
 
     const modelTypeCounts = useMemo(() => {
         const counts: Record<string, number> = {};
+        const activeModelTypes = isAllFilterSelected(selectedModelTypes) ? [] : selectedModelTypes;
 
-        providers.forEach((p) => {
-            const types = modelTypesByProvider[p.key] ?? [];
-            types.forEach((type) => {
-                counts[type] = (counts[type] ?? 0) + 1;
+        modelTypeOptions.forEach((modelType) => {
+            const nextModelTypes = activeModelTypes.includes(modelType)
+                ? activeModelTypes
+                : [...activeModelTypes, modelType];
+
+            counts[modelType] = countProviders({
+                ...currentSelections,
+                selectedModelTypes: nextModelTypes.length > 0
+                    ? nextModelTypes
+                    : [PROVIDER_LOCATION_ALL_FILTER_VALUE],
             });
         });
 
         return counts;
-    }, [modelTypesByProvider, providers]);
-
-    const sortedProviderCountryOptions = useMemo(() => {
-        return [...providerCountryOptions].sort((a, b) =>
-            collator.compare(t(`regional:countries.${a}`), t(`regional:countries.${b}`))
-        );
-    }, [collator, providerCountryOptions, t]);
+    }, [countProviders, currentSelections, modelTypeOptions, selectedModelTypes]);
 
     const countryCounts = useMemo(() => {
         const counts: Record<string, number> = {};
-        providers.forEach((p) => {
-            if (!p.providerCountry) return;
-            counts[p.providerCountry] = (counts[p.providerCountry] ?? 0) + 1;
-        });
-
-        return counts;
-    }, [providers]);
-
-    const regionCounts = useMemo(() => {
-        const counts: Record<string, number> = {};
-        providers.forEach((p) => {
-            (p.inferenceRegions ?? []).forEach((region) => {
-                if (!region) return;
-                counts[region] = (counts[region] ?? 0) + 1;
+        providerCountryOptions.forEach((country) => {
+            counts[country] = countProviders({
+                ...currentSelections,
+                selectedCountries: [country],
             });
         });
 
         return counts;
-    }, [providers]);
+    }, [countProviders, currentSelections, providerCountryOptions]);
+
+    const regionCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        inferenceRegionOptions.forEach((region) => {
+            counts[region] = countProviders({
+                ...currentSelections,
+                selectedRegions: [region],
+            });
+        });
+
+        return counts;
+    }, [countProviders, currentSelections, inferenceRegionOptions]);
+
+    const cleanupCounts = useMemo(() => {
+        const createCounts = (facet: ProviderFilterFacet, values: string[]) => {
+            const counts: Record<string, number> = {};
+            values.forEach((value) => {
+                const selections = { ...currentSelections };
+                if (facet === "category") selections.selectedCategories = [value];
+                if (facet === "country") selections.selectedCountries = [value];
+                if (facet === "region") selections.selectedRegions = [value];
+                if (facet === "modelType") {
+                    const activeModelTypes = isAllFilterSelected(selectedModelTypes) ? [] : selectedModelTypes;
+                    selections.selectedModelTypes = activeModelTypes.includes(value)
+                        ? activeModelTypes
+                        : [...activeModelTypes, value];
+                }
+
+                counts[value] = countProviders(selections, undefined, false);
+            });
+            return counts;
+        };
+
+        return {
+            categories: createCounts("category", categoryOptions),
+            countries: createCounts("country", providerCountryOptions),
+            regions: createCounts("region", inferenceRegionOptions),
+            modelTypes: createCounts("modelType", modelTypeOptions),
+        };
+    }, [categoryOptions, countProviders, currentSelections, inferenceRegionOptions, modelTypeOptions, providerCountryOptions, selectedModelTypes]);
+
+    const allCategoryCount = useMemo(
+        () => countProviders(currentSelections, "category"),
+        [countProviders, currentSelections]
+    );
+
+    const allModelTypeCount = useMemo(
+        () => countProviders(currentSelections, "modelType"),
+        [countProviders, currentSelections]
+    );
+
+    const allRegionCount = useMemo(
+        () => countProviders(currentSelections, "region"),
+        [countProviders, currentSelections]
+    );
+
+    const allCountryCount = useMemo(
+        () => countProviders(currentSelections, "country"),
+        [countProviders, currentSelections]
+    );
 
     const filterSections = useMemo(() => {
         return [
@@ -213,27 +424,34 @@ export const ProvidersPage = () => {
                 allOption: {
                     id: "all-categories",
                     label: t("all"),
-                    count: providers.length,
+                    count: allCategoryCount,
                     checked: selectedCategories.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
                     onChange: () => setSelectedCategories([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
                 },
-                items: categoryOptions.map((category) => ({
-                    id: `category-${category}`,
-                    label: t(`ai.providerCategories.${category}.label`),
-                    count: categoryCounts[category] ?? 0,
-                    checked:
+                items: categoryOptions.map((category) => {
+                    const count = categoryCounts[category] ?? 0;
+                    const checked =
                         !selectedCategories.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
-                        selectedCategories.includes(category),
-                    onChange: () => {
-                        setSelectedCategories((current) =>
-                            toggleProviderLocationMultiSelectValue(
-                                current,
-                                category,
-                                PROVIDER_LOCATION_ALL_FILTER_VALUE
-                            )
-                        );
-                    },
-                })),
+                        selectedCategories.includes(category);
+
+                    return {
+                        id: `category-${category}`,
+                        label: t(`ai.providerCategories.${category}.label`),
+                        count,
+                        checked,
+                        disabled: count === 0 && !checked,
+                        onChange: () => {
+                            if (count === 0 && !checked) return;
+                            setSelectedCategories((current) =>
+                                toggleProviderLocationMultiSelectValue(
+                                    current,
+                                    category,
+                                    PROVIDER_LOCATION_ALL_FILTER_VALUE
+                                )
+                            );
+                        },
+                    };
+                }),
             },
             {
                 id: "provider-model-type-filters",
@@ -241,27 +459,34 @@ export const ProvidersPage = () => {
                 allOption: {
                     id: "all-model-types",
                     label: t("all"),
-                    count: providers.length,
+                    count: allModelTypeCount,
                     checked: selectedModelTypes.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
                     onChange: () => setSelectedModelTypes([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
                 },
-                items: modelTypeOptions.map((modelType) => ({
-                    id: `model-type-${modelType}`,
-                    label: t(modelType),
-                    count: modelTypeCounts[modelType] ?? 0,
-                    checked:
+                items: modelTypeOptions.map((modelType) => {
+                    const count = modelTypeCounts[modelType] ?? 0;
+                    const checked =
                         !selectedModelTypes.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
-                        selectedModelTypes.includes(modelType),
-                    onChange: () => {
-                        setSelectedModelTypes((current) =>
-                            toggleProviderLocationMultiSelectValue(
-                                current,
-                                modelType,
-                                PROVIDER_LOCATION_ALL_FILTER_VALUE
-                            )
-                        );
-                    },
-                })),
+                        selectedModelTypes.includes(modelType);
+
+                    return {
+                        id: `model-type-${modelType}`,
+                        label: t(modelType),
+                        count,
+                        checked,
+                        disabled: count === 0 && !checked,
+                        onChange: () => {
+                            if (count === 0 && !checked) return;
+                            setSelectedModelTypes((current) =>
+                                toggleProviderLocationMultiSelectValue(
+                                    current,
+                                    modelType,
+                                    PROVIDER_LOCATION_ALL_FILTER_VALUE
+                                )
+                            );
+                        },
+                    };
+                }),
             },
             {
                 id: "provider-region-filters",
@@ -269,27 +494,34 @@ export const ProvidersPage = () => {
                 allOption: {
                     id: "all-regions",
                     label: t("all"),
-                    count: providers.length,
+                    count: allRegionCount,
                     checked: selectedRegions.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
                     onChange: () => setSelectedRegions([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
                 },
-                items: inferenceRegionOptions.map((region) => ({
-                    id: `region-${region}`,
-                    label: t(`regional:regions.${region}`),
-                    count: regionCounts[region] ?? 0,
-                    checked:
+                items: inferenceRegionOptions.map((region) => {
+                    const count = regionCounts[region] ?? 0;
+                    const checked =
                         !selectedRegions.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
-                        selectedRegions.includes(region),
-                    onChange: () => {
-                        setSelectedRegions((current) =>
-                            toggleProviderLocationMultiSelectValue(
-                                current,
-                                region,
-                                PROVIDER_LOCATION_ALL_FILTER_VALUE
-                            )
-                        );
-                    },
-                })),
+                        selectedRegions.includes(region);
+
+                    return {
+                        id: `region-${region}`,
+                        label: t(`regional:regions.${region}`),
+                        count,
+                        checked,
+                        disabled: count === 0 && !checked,
+                        onChange: () => {
+                            if (count === 0 && !checked) return;
+                            setSelectedRegions((current) =>
+                                toggleProviderLocationMultiSelectValue(
+                                    current,
+                                    region,
+                                    PROVIDER_LOCATION_ALL_FILTER_VALUE
+                                )
+                            );
+                        },
+                    };
+                }),
             },
             {
                 id: "provider-country-filters",
@@ -297,37 +529,47 @@ export const ProvidersPage = () => {
                 allOption: {
                     id: "all-countries",
                     label: t("all"),
-                    count: providers.length,
+                    count: allCountryCount,
                     checked: selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
                     onChange: () => setSelectedCountries([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
                 },
-                items: sortedProviderCountryOptions.map((country) => ({
-                    id: `country-${country}`,
-                    label: t(`regional:countries.${country}`),
-                    count: countryCounts[country] ?? 0,
-                    checked:
+                items: sortedProviderCountryOptions.map((country) => {
+                    const count = countryCounts[country] ?? 0;
+                    const checked =
                         !selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
-                        selectedCountries.includes(country),
-                    onChange: () => {
-                        setSelectedCountries((current) =>
-                            toggleProviderLocationMultiSelectValue(
-                                current,
-                                country,
-                                PROVIDER_LOCATION_ALL_FILTER_VALUE
-                            )
-                        );
-                    },
-                })),
+                        selectedCountries.includes(country);
+
+                    return {
+                        id: `country-${country}`,
+                        label: t(`regional:countries.${country}`),
+                        count,
+                        checked,
+                        disabled: count === 0 && !checked,
+                        onChange: () => {
+                            if (count === 0 && !checked) return;
+                            setSelectedCountries((current) =>
+                                toggleProviderLocationMultiSelectValue(
+                                    current,
+                                    country,
+                                    PROVIDER_LOCATION_ALL_FILTER_VALUE
+                                )
+                            );
+                        },
+                    };
+                }),
             },
         ];
     }, [
+        allCategoryCount,
+        allCountryCount,
+        allModelTypeCount,
+        allRegionCount,
         categoryCounts,
         categoryOptions,
         countryCounts,
         inferenceRegionOptions,
         modelTypeCounts,
         modelTypeOptions,
-        providers.length,
         regionCounts,
         selectedCategories,
         selectedCountries,
@@ -338,48 +580,35 @@ export const ProvidersPage = () => {
     ]);
 
     const filtered = useMemo(() => {
-        const q = search.trim().toLowerCase();
-        return providers.filter((p) => {
-            const haystack = `${p.key} ${p.name} ${p.urls?.homepage} ${p.description ?? ""}`.toLowerCase();
-            const matchesSearch = !q || haystack.includes(q);
+        return providers.filter((p) => providerMatchesFilters(p, currentSelections));
+    }, [currentSelections, providerMatchesFilters, providers]);
 
-            const allowAllCountries = selectedCountries.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
-            const matchesCountry =
-                allowAllCountries ||
-                (!!p.providerCountry && selectedCountries.includes(p.providerCountry));
+    useEffect(() => {
+        setSelectedCategories((current) => {
+            const next = keepAvailableSelection(current, categoryOptions, cleanupCounts.categories);
+            return sameSelection(current, next) ? current : next;
+        });
 
-            const allowAllRegions = selectedRegions.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
-            const matchesRegion =
-                allowAllRegions ||
-                (p.inferenceRegions ?? []).some((region) => selectedRegions.includes(region));
+        setSelectedModelTypes((current) => {
+            const next = keepAvailableSelection(current, modelTypeOptions, cleanupCounts.modelTypes);
+            return sameSelection(current, next) ? current : next;
+        });
 
-            const allowAllCategories = selectedCategories.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
-            const matchesCategory =
-                allowAllCategories ||
-                (!!p.category && selectedCategories.includes(p.category));
+        setSelectedRegions((current) => {
+            const next = keepAvailableSelection(current, inferenceRegionOptions, cleanupCounts.regions);
+            return sameSelection(current, next) ? current : next;
+        });
 
-            const allowAllModelTypes = selectedModelTypes.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
-            const providerModelTypes = modelTypesByProvider[p.key] ?? [];
-            const matchesModelType =
-                allowAllModelTypes ||
-                selectedModelTypes.every((type) => providerModelTypes.includes(type));
-
-            return (
-                matchesSearch &&
-                matchesCountry &&
-                matchesRegion &&
-                matchesCategory &&
-                matchesModelType
-            );
+        setSelectedCountries((current) => {
+            const next = keepAvailableSelection(current, providerCountryOptions, cleanupCounts.countries);
+            return sameSelection(current, next) ? current : next;
         });
     }, [
-        modelTypesByProvider,
-        providers,
-        search,
-        selectedCategories,
-        selectedCountries,
-        selectedModelTypes,
-        selectedRegions,
+        categoryOptions,
+        cleanupCounts,
+        inferenceRegionOptions,
+        modelTypeOptions,
+        providerCountryOptions,
     ]);
 
     useEffect(() => {
@@ -401,8 +630,8 @@ export const ProvidersPage = () => {
 
     const selectedProviderModelTypes = useMemo(() => {
         if (!selectedProvider) return [];
-        return modelTypesByProvider[selectedProvider.key] ?? [];
-    }, [modelTypesByProvider, selectedProvider]);
+        return effectiveModelTypesByProvider[selectedProvider.key] ?? [];
+    }, [effectiveModelTypesByProvider, selectedProvider]);
 
     const showInlineFilters = filtersOpen && isDesktop;
 
@@ -446,35 +675,48 @@ export const ProvidersPage = () => {
                         <StickyHeaderBar
                             height={44}
                             rightContent={
-                                <label
-                                    htmlFor="providers-filters-toggle"
+                                <div
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
+                                        gap: 12,
                                         justifyContent: "flex-end",
                                     }}
                                 >
-                                    <span
+                                    <label
+                                        htmlFor="providers-filters-toggle"
                                         style={{
-                                            position: "absolute",
-                                            width: 1,
-                                            height: 1,
-                                            padding: 0,
-                                            margin: -1,
-                                            overflow: "hidden",
-                                            clip: "rect(0, 0, 0, 0)",
-                                            whiteSpace: "nowrap",
-                                            border: 0,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "flex-end",
                                         }}
                                     >
-                                        {t("filters")}
-                                    </span>
-                                    <Switch
-                                        id="providers-filters-toggle"
-                                        checked={filtersOpen}
-                                        onChange={setFiltersOpen}
-                                    />
-                                </label>
+                                        <span
+                                            style={{
+                                                position: "absolute",
+                                                width: 1,
+                                                height: 1,
+                                                padding: 0,
+                                                margin: -1,
+                                                overflow: "hidden",
+                                                clip: "rect(0, 0, 0, 0)",
+                                                whiteSpace: "nowrap",
+                                                border: 0,
+                                            }}
+                                        >
+                                            {t("filters")}
+                                        </span>
+                                        <Switch
+                                            id="providers-filters-toggle"
+                                            checked={filtersOpen}
+                                            onChange={setFiltersOpen}
+                                        />
+                                    </label>
+
+                                    <Button icon="add" variant="primary" onClick={() => setShowAddProvider(true)}>
+                                        {t("providersPage.addProvider") ?? "Add provider"}
+                                    </Button>
+                                </div>
                             }
                         />
                     </div>
@@ -519,12 +761,6 @@ export const ProvidersPage = () => {
                                     </Text>
                                 </div>
 
-                                <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                                    <Button icon="add" variant="primary" onClick={() => setShowAddProvider(true)}>
-                                        {t("providersPage.addProvider") ?? "Add provider"}
-                                    </Button>
-                                </div>
-
                                 <MeshFiltersRow
                                     search={search}
                                     onSearchChange={setSearch}
@@ -532,6 +768,8 @@ export const ProvidersPage = () => {
                                     selectedRegions={selectedRegions}
                                     countryOptions={providerCountryOptions}
                                     regionOptions={inferenceRegionOptions}
+                                    countryCounts={countryCounts}
+                                    regionCounts={regionCounts}
                                     onCountriesChange={setSelectedCountries}
                                     onRegionsChange={setSelectedRegions}
                                 />
@@ -551,7 +789,7 @@ export const ProvidersPage = () => {
                                         const image =
                                             p.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))
                                                 ?.src ?? p.icons?.[0]?.src;
-                                        const modelTypes = modelTypesByProvider[p.key] ?? [];
+                                        const modelTypes = effectiveModelTypesByProvider[p.key] ?? [];
 
                                         return (
                                             <div

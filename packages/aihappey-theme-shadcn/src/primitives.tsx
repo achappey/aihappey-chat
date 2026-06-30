@@ -511,6 +511,7 @@ function renderMultiSelectOption(option: ShadcnSelectOption, selectedValues: str
       className="aih-shadcn-menu-item aih-shadcn-multiselect-item"
       onSelect={(event) => {
         event.preventDefault();
+        if (option.disabled) return;
         onChange?.(option.value);
       }}
     >

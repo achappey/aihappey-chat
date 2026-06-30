@@ -13,6 +13,8 @@ type Props = {
   selectedRegions: string[];
   countryOptions: string[];
   regionOptions: string[];
+  countryCounts?: Record<string, number>;
+  regionCounts?: Record<string, number>;
   onCountriesChange: (next: string[]) => void;
   onRegionsChange: (next: string[]) => void;
 };
@@ -39,6 +41,8 @@ export const MeshFiltersRow = ({
   selectedRegions,
   countryOptions,
   regionOptions,
+  countryCounts,
+  regionCounts,
   onCountriesChange,
   onRegionsChange,
 }: Props) => {
@@ -56,6 +60,9 @@ export const MeshFiltersRow = ({
       { sensitivity: "base" }
     )
   );
+
+  const formatCountedLabel = (label: string, count?: number) =>
+    typeof count === "number" ? `${label} (${count})` : label;
 
   return (
     <div
@@ -92,6 +99,11 @@ export const MeshFiltersRow = ({
           onChange={(e: ChangeEvent<HTMLSelectElement> | any) => {
             const selectedValue = resolveSelectionValue(e);
             if (typeof selectedValue !== "string") return;
+            if (
+              selectedValue !== PROVIDER_LOCATION_ALL_FILTER_VALUE &&
+              (countryCounts?.[selectedValue] ?? 0) === 0 &&
+              !selectedCountries.includes(selectedValue)
+            ) return;
             onCountriesChange(
               toggleProviderLocationMultiSelectValue(
                 selectedCountries,
@@ -104,8 +116,15 @@ export const MeshFiltersRow = ({
         >
           <option value={PROVIDER_LOCATION_ALL_FILTER_VALUE}>{t("all")}</option>
           {sortedCountryOptions.map((country) => (
-            <option key={country} value={country}>
-              {t("regional:countries." + country)}
+            <option
+              key={country}
+              value={country}
+              disabled={
+                (countryCounts?.[country] ?? 1) === 0 &&
+                !selectedCountries.includes(country)
+              }
+            >
+              {formatCountedLabel(t("regional:countries." + country), countryCounts?.[country])}
             </option>
           ))}
         </SelectComponent>
@@ -126,6 +145,11 @@ export const MeshFiltersRow = ({
           onChange={(e: ChangeEvent<HTMLSelectElement> | any) => {
             const selectedValue = resolveSelectionValue(e);
             if (typeof selectedValue !== "string") return;
+            if (
+              selectedValue !== PROVIDER_LOCATION_ALL_FILTER_VALUE &&
+              (regionCounts?.[selectedValue] ?? 0) === 0 &&
+              !selectedRegions.includes(selectedValue)
+            ) return;
             onRegionsChange(
               toggleProviderLocationMultiSelectValue(
                 selectedRegions,
@@ -138,8 +162,15 @@ export const MeshFiltersRow = ({
         >
           <option value={PROVIDER_LOCATION_ALL_FILTER_VALUE}>{t("all")}</option>
           {regionOptions.map((region) => (
-            <option key={region} value={region}>
-              {t("regional:regions." + region)}
+            <option
+              key={region}
+              value={region}
+              disabled={
+                (regionCounts?.[region] ?? 1) === 0 &&
+                !selectedRegions.includes(region)
+              }
+            >
+              {formatCountedLabel(t("regional:regions." + region), regionCounts?.[region])}
             </option>
           ))}
         </SelectComponent>
