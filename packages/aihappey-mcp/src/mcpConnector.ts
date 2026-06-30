@@ -100,9 +100,9 @@ async function _connectMcpBase(
         client.setNotificationHandler("notifications/progress",
             ({ params }) => opts.onProgress!(params as any));
 
-    if (opts.onTaskStatus)
+    /*if (opts.onTaskStatus)
         client.setNotificationHandler("notifications/tasks/status",
-            ({ params }) => opts.onTaskStatus!(url, params as any));
+            ({ params }) => opts.onTaskStatus!(url, params as any));*/
 
     const transport = new StreamableHTTPClientTransport(new URL(url), { requestInit: { headers } });
 
