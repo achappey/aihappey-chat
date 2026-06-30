@@ -146,13 +146,17 @@ const createUiMessageChunkStream = ({
 
   const messageMetadata = () => ({
     model: latestModel,
-    modelId: latestModel,
-    selectedModel: latestModel,
-    author: latestModel,
     endpoint,
     totalTokens,
     usage: latestUsage,
-    gateway: latestGateway,
+    providerMetadata: {
+      gateway: latestGateway,
+      ...(providerKey
+        ? {
+          [providerKey]: latestUsage ?? {},
+        }
+        : {}),
+    },
     timestamp: new Date().toISOString(),
   });
 
