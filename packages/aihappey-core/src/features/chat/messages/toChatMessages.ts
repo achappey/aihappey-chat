@@ -85,7 +85,7 @@ export function toChatMessages(
       (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
     ));
 
-    const baseCost = parseCost(meta?.gateway?.cost ?? meta?.cost);
+    const baseCost = parseCost(meta?.providerMetadata?.gateway?.cost ?? meta?.gateway?.cost ?? meta?.cost);
     const toolPartsCost = parts.reduce((sum, part) => {
       const partAny = part as any;
       const partCost = parseCost(

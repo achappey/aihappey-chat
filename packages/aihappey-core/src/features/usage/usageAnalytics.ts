@@ -254,6 +254,7 @@ const getUsageNumbers = (metadata: Record<string, any>) => {
 };
 
 const getCost = (metadata: Record<string, any>) =>
+  toNumber(metadata.providerMetadata?.gateway?.cost) ??
   toNumber(metadata.gateway?.cost) ??
   toNumber(metadata.cost) ??
   toNumber(metadata.response?.cost) ??
