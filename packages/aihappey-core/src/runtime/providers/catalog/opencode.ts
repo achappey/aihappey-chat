@@ -17,7 +17,9 @@ export const opencode: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  inferenceRegions: ["Americas"]
+  inferenceRegions: ["Americas"],
+  apiBaseUrl: "https://opencode.ai/zen",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses", "/v1/messages"],
 
 };
 

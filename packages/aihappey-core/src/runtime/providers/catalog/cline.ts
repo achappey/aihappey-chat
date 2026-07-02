@@ -15,7 +15,9 @@ export const cline: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.cline.bot/api",
+  chatEndpoints: ["/v1/chat/completions"],
 
 };
 
