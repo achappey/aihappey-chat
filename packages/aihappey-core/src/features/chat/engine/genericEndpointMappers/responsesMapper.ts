@@ -17,9 +17,9 @@ const responsesReasoningFromPart = (part: any, providerKey?: string) => {
   const summaryText = getTextFromPart(part);
   return {
     ...compactObject({
-    type: "reasoning" as const,
-    id: part?.id,
-    encrypted_content: encryptedContent,
+      type: "reasoning" as const,
+      id: part?.id,
+      encrypted_content: encryptedContent,
     }),
     summary: summaryText ? [{ type: "summary_text" as const, text: summaryText }] : [],
   };
@@ -83,6 +83,7 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     max_output_tokens: body.maxOutputTokens,
     metadata: resolveNativeRequestMetadata(body),
     instructions: getSystemText(messages),
+    store: false,
     input,
     stream: true,
   });
