@@ -1,12 +1,13 @@
 // MessageList.tsx
 import { useTheme } from "../theme/ThemeContext";
-import type { ChatMessage, IconToken } from "aihappey-types";
+import type { ChatMessage, ChatMessageProviderIcon, IconToken, Provider } from "aihappey-types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessagePart } from "aihappey-ai";
 import { useEffect, useState } from "react";
 import { ToolContent } from "../fields/ToolContent";
 import { MessageActions } from "../buttons/MessageActions";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
 import { useTranslation } from "aihappey-i18n";
+import { useDarkMode } from "usehooks-ts";
 
 interface MessageListProps {
   messages: ChatMessage[];
@@ -21,6 +22,8 @@ interface MessageListProps {
   locale?: string
   showTemperature?: boolean
   showTokens?: boolean
+  disableProviderLogo?: boolean
+  providers?: Record<string, Provider>
 
   /**
    * Optional hook to override rendering for a specific block.
@@ -56,6 +59,8 @@ export const MessageList = ({
   locale,
   showTemperature,
   showTokens,
+  disableProviderLogo,
+  providers,
   onRenderMarkdown,
   onShowSources,
   onShowActivity,
@@ -64,6 +69,7 @@ export const MessageList = ({
 }: MessageListProps) => {
   const { Chat, Image } = useTheme();
   const { t } = useTranslation()
+  const { isDarkMode } = useDarkMode();
   // Per-message paging state (for messages with multiple blocks/pages)
   const [pageById, setPageById] = useState<Record<string, number>>({});
 
@@ -174,6 +180,22 @@ export const MessageList = ({
     return BLOCK_META[block.type] ?? {};
   };
 
+  const getProviderIcon = (msg: ChatMessage): ChatMessageProviderIcon | undefined => {
+    if (disableProviderLogo || msg.role !== "assistant" || !msg.providerKey) return undefined;
+
+    const provider = providers?.[msg.providerKey];
+    const icon = provider?.icons?.find((i: any) => i.theme === (isDarkMode ? "dark" : "light"))
+      ?? provider?.icons?.[0];
+    const src = icon?.src;
+    if (!src) return undefined;
+
+    return {
+      src,
+      theme: icon.theme,
+      alt: provider?.name ?? msg.providerKey,
+    };
+  };
+
   const messagesWithMeta = messages.map(msg => {
     const page = getPage(msg);
     const block = msg.content?.[page];
@@ -185,6 +207,8 @@ export const MessageList = ({
       ...msg,
       messageIcon: meta.icon ?? msg.messageIcon,
       messageLabel: t(label),
+      providerName: msg.providerKey ? providers?.[msg.providerKey]?.name : msg.providerName,
+      providerIcon: getProviderIcon(msg),
     };
   });
 
@@ -202,6 +226,7 @@ export const MessageList = ({
             messages={messagesWithMeta}
             aiGeneratedLabel={t('generatedByAi')}
             aiGeneratedWarning={t('generatedByAiWarning')}
+            disableProviderLogo={disableProviderLogo}
             locale={locale}
           />
         )}

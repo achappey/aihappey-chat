@@ -7,6 +7,12 @@ import type {
   ToolUIPart, SourceUrlUIPart, SourceDocumentUIPart
 } from "ai";
 
+export type ChatMessageProviderIcon = {
+  src: string;
+  theme?: string;
+  alt?: string;
+};
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
@@ -18,6 +24,9 @@ export interface ChatMessage {
   temperature?: number;
   messageIcon?: IconToken
   messageLabel?: string
+  providerKey?: string;
+  providerName?: string;
+  providerIcon?: ChatMessageProviderIcon;
   totalTokens?: number;
   usage?: any;
   cost?: number;

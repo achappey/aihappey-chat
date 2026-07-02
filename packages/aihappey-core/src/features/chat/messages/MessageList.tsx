@@ -18,6 +18,7 @@ import { EditMessageModal } from "./EditMessageModal";
 import { useConversations } from "aihappey-conversations";
 import { ImageModal } from "../../images/ImageModal";
 import { downloadImageContent, imageContentToSrc } from "../../images/imageContentUtils";
+import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 
 interface MessageListProps {
   showCitations: (items: (SourceUrlUIPart | SourceDocumentUIPart)[]) => void;
@@ -71,7 +72,9 @@ export const MessageList = ({
   const sampling = useAppStore((a) => a.sampling);
   const showMessageTokens = useAppStore((a) => a.showMessageTokens);
   const showMessageTemperature = useAppStore((a) => a.showMessageTemperature);
+  const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
+  const providers = useProviderRegistry();
   const { Image } = useTheme()
   const progress = useMcpProgress(progressRuntime);
   const progressByToken = useMemo(() => {
@@ -96,7 +99,7 @@ export const MessageList = ({
   // ✅ This hook should output ChatMessage[] (your app adapter layer).
   // If your current hook returns another shape, swap this line to:
   //   const chatMessages = toChatMessages(messages);
-  const chatMessages: ChatMessage[] = toChatMessages(messages) as any;
+  const chatMessages: ChatMessage[] = toChatMessages(messages, providers) as any;
   const copyClipboard = async (msg: ChatMessage) =>
     await copyMarkdownToClipboard(msg.content?.[0].type == "text" ? msg.content?.[0]?.text : JSON.stringify(msg));
 
@@ -109,6 +112,8 @@ export const MessageList = ({
         locale={i18n.language}
         showTemperature={showMessageTemperature && isDesktop}
         showTokens={showMessageTokens && isDesktop}
+        disableProviderLogo={disableProviderLogo}
+        providers={providers}
         tools={tools?.tools ?? []}
         onShowActivity={showActivity}
         onShowSources={showCitations}

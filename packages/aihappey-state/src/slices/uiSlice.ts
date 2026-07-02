@@ -210,10 +210,12 @@ export type UiSlice = {
   debugMode?: boolean
   showMessageTemperature?: boolean
   showMessageTokens?: boolean
+  disableProviderLogo?: boolean
   pinnedConversations?: string[]
   togglePinnedConversation: (conversationId: string) => void;
   setShowMessageTemperature: (value: boolean) => void;
   setShowMessageTokens: (value: boolean) => void;
+  setDisableProviderLogo: (value: boolean) => void;
 
   quickSearches?: string[]
   addQuickSearch: (value: string) => void;
@@ -358,6 +360,10 @@ export const createUiSlice: StateCreator<
   setShowMessageTokens: (value: boolean) =>
     set((state: UiSlice) => ({
       showMessageTokens: value
+    })),
+  setDisableProviderLogo: (value: boolean) =>
+    set((state: UiSlice) => ({
+      disableProviderLogo: value
     })),
 
   toggleChatWithImageModels: () =>

@@ -11,6 +11,7 @@ export type ChatProps = {
   locale?: string
   renderMessage: (msg: ChatMessage) => React.ReactElement;
   renderReactions?: (msg: ChatMessage) => React.ReactElement;
+  disableProviderLogo?: boolean;
 };
 
 const footerStyles: React.CSSProperties = {
@@ -32,6 +33,7 @@ export const Chat = ({
   renderMessage,
   locale,
   renderReactions,
+  disableProviderLogo,
 }: ChatProps): JSX.Element => {
   const { isDarkMode } = useDarkMode();
   return (
@@ -41,6 +43,7 @@ export const Chat = ({
         const isActivity = m.messageIcon === "brain" || m.messageIcon === "tool";
         const streaming = m.content?.some((a: any) => a.type === "text" && a.state === "streaming");
         const Icon = m.messageIcon ? iconMap[m.messageIcon] : undefined;
+        const providerLogo = !disableProviderLogo && !isUser && m.providerIcon?.src ? m.providerIcon : undefined;
         // Styling based on role
         const alignClass = isUser ? "align-self-end" : "align-self-start";
         const bg = isUser
@@ -61,6 +64,7 @@ export const Chat = ({
           >
             <Card.Header className="d-flex align-items-center justify-content-between gap-2 py-2">
               <span className="d-inline-flex align-items-center gap-2 flex-wrap">
+                {providerLogo ? <img src={providerLogo.src} alt={providerLogo.alt ?? m.providerName ?? m.providerKey ?? ""} width={24} height={24} style={{ borderRadius: 4, objectFit: "contain" }} /> : null}
                 {m.author ? <span>{m.author}</span> : null}
                 <time>{dateStr}</time>
               </span>

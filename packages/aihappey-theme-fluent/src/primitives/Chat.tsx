@@ -8,7 +8,7 @@ import { ChatMessage as Message } from "aihappey-types";
 import { iconMap } from "./Button";
 import React from "react";
 import { format } from "timeago.js";
-import { Badge, ProgressBar, Tooltip } from "@fluentui/react-components";
+import { Avatar, Badge, ProgressBar, Tooltip, Image } from "@fluentui/react-components";
 
 export type ChatProps = {
   messages?: Message[];
@@ -17,9 +17,10 @@ export type ChatProps = {
   aiGeneratedWarning?: string
   renderMessage: (msg: Message) => React.ReactElement;
   renderReactions?: (msg: Message) => React.ReactElement;
+  disableProviderLogo?: boolean;
 };
 
-export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: ChatProps): JSX.Element => {
+export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning, disableProviderLogo }: ChatProps): JSX.Element => {
   return (
     <FluentChat>
       {messages?.map((msg) => {
@@ -34,13 +35,22 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
           renderReactions ? renderReactions(msg) : undefined;
         const IconCmp = msg.messageIcon ? iconMap[msg.messageIcon] : undefined;
         const icon = IconCmp ? <IconCmp /> : undefined;
-        const badge = aiGeneratedWarning ? <Tooltip content={aiGeneratedWarning}
+        const providerAvatar = !disableProviderLogo && msg.role === "assistant" && msg.providerIcon?.src
+          ? <Avatar
+            image={{ src: msg.providerIcon.src, alt: msg.providerIcon.alt ?? msg.providerName }}
+            name={msg.providerName ?? msg.providerKey ?? msg.author}
+          />
+          : undefined;
+      
+        const badge = msg.role === "assistant" && aiGeneratedWarning ? <Tooltip content={aiGeneratedWarning}
           relationship={"description"}>
           <Badge color="informative"
             shape="square"
             appearance="outline">{aiGeneratedLabel}</Badge>
         </Tooltip> : undefined
-        
+
+        //            avatar={<Avatar name="Ashley McCarthy" badge={{ status: 'available' }} />}
+
         return (
           <MessageComponent
             key={msg.id}
@@ -48,6 +58,7 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
             timestamp={format(msg.createdAt, locale)}
             reactions={reactions}
             decorationIcon={icon}
+            avatar={providerAvatar}
             root={{ style: { marginLeft: 0 } }}
             decorationLabel={msg.messageLabel}
           >

@@ -650,6 +650,7 @@
         "gatewayEnabled": "Enable gateway",
         "showTemperature": "Show temperature",
         "showTokens": "Show tokens per message",
+        "showProviderLogo": "Show provider logo",
         "agentImport": "Agents",
         "defaultModel": "Default model",
         "agentImportHint": "Import resources as Agents.",

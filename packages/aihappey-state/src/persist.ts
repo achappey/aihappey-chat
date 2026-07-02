@@ -57,6 +57,7 @@ export const withPersist = (
       extractExif: s.extractExif,
       showMessageTemperature: s.showMessageTemperature,
       showMessageTokens: s.showMessageTokens,
+      disableProviderLogo: (s as any).disableProviderLogo,
       providerImageMetadata: s.providerImageMetadata,
       providerVideoMetadata: (s as any).providerVideoMetadata,
       providerSpeechMetadata: s.providerSpeechMetadata,

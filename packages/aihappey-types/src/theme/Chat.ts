@@ -10,6 +10,7 @@ export type ChatProps = {
   locale?: string
   aiGeneratedLabel?: string
   aiGeneratedWarning?: string
+  disableProviderLogo?: boolean
 };
 
 export type ChatComponent = (props: ChatProps) => JSX.Element;

@@ -78,12 +78,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const showMessageTemperature = useAppStore((s) => s.showMessageTemperature);
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
+  const disableProviderLogo = useAppStore((s) => s.disableProviderLogo);
   const agents = useAppStore((s) => s.agents);
   const sideInferenceAgentNames = useAppStore((s) => s.sideInferenceAgentNames);
   const setSideInferenceAgentNames = useAppStore((s) => s.setSideInferenceAgentNames);
 
   const setShowMessageTemperature = useAppStore((s) => s.setShowMessageTemperature);
   const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
+  const setDisableProviderLogo = useAppStore((s) => s.setDisableProviderLogo);
   const configuredChatEndpoint = useAppStore((s) => s.configuredChatEndpoint);
   const configuredBaseUrl = useAppStore((s) => s.configuredBaseUrl);
   const effectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
@@ -227,6 +229,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={!!showMessageTokens}
                   label={t("settingsModal.showTokens")}
                   onChange={setShowMessageTokens}
+                />
+
+                <Switch
+                  id="provider-logo-toggle"
+                  checked={!disableProviderLogo}
+                  label={t("settingsModal.showProviderLogo") ?? "Show provider logo"}
+                  onChange={(checked) => setDisableProviderLogo(!checked)}
                 />
 
                 <SideInferenceAgentsTab

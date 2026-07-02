@@ -1359,7 +1359,7 @@ export const Toaster = ({ toasts = [], position }: any) => <ToastPrimitive.Provi
 
 export const Carousel = ({ children, className, style }: any) => <div className={className} style={{ display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", gap: 12, ...style }}>{React.Children.map(children, (child) => <div style={{ flex: "0 0 100%", scrollSnapAlign: "start" }}>{child}</div>)}</div>;
 
-export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => (
+export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning, disableProviderLogo }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; disableProviderLogo?: boolean; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => (
   <div className="aih-shadcn-chat">
     {messages?.map((msg) => {
       const isUser = msg.role === "user";
@@ -1367,11 +1367,13 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
       const streaming = msg.content?.some((a: any) => a.type === "text" && a.state === "streaming");
       const Icon = msg.messageIcon ? iconMap[msg.messageIcon] : undefined;
       const isActivity = msg.messageIcon === "brain" || msg.messageIcon === "tool";
+      const providerLogo = !disableProviderLogo && isAssistant && msg.providerIcon?.src ? msg.providerIcon : undefined;
 
       return (
         <article key={msg.id} className={cn("aih-shadcn-chat-message", isUser ? "aih-shadcn-chat-message-user" : "aih-shadcn-chat-message-assistant", isActivity && "aih-shadcn-chat-message-activity")}>
           <header className="aih-shadcn-chat-header">
             <span className="aih-shadcn-chat-header-meta">
+              {providerLogo ? <Avatar image={{ src: providerLogo.src, alt: providerLogo.alt ?? msg.providerName }} name={msg.providerName ?? msg.providerKey} size={24} shape="square" /> : null}
               {msg.author ? <span>{msg.author}</span> : null}
               {isAssistant && aiGeneratedWarning ? (
                 <TooltipPrimitive.Provider>

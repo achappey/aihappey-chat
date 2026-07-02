@@ -1,4 +1,4 @@
-import { ChatMessage, SYSTEM_ROLE } from "aihappey-types";
+import { ChatMessage, type Provider, SYSTEM_ROLE } from "aihappey-types";
 import type { FileUIPart, ToolUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { CallToolResult } from "aihappey-mcp";
 
@@ -60,8 +60,23 @@ function parseCost(value: unknown): number | undefined {
   return undefined;
 }
 
+function resolveProviderKeyFromMetadata(
+  metadata: Record<string, any>,
+  providers?: Record<string, Provider>
+): string | undefined {
+  const providerMetadata = metadata?.providerMetadata;
+  if (!providerMetadata || typeof providerMetadata !== "object") return undefined;
+
+  const registeredProviders = providers ?? {};
+  return Object.keys(providerMetadata).find((key) => {
+    const normalizedKey = key.toLowerCase();
+    return normalizedKey !== "gateway" && !!registeredProviders[key];
+  });
+}
+
 export function toChatMessages(
   messages: UIMessage[],
+  providers?: Record<string, Provider>,
 ): ChatMessage[] {
   const toolPartCounts = new Map<string, number>();
   const out: ChatMessage[] = [];
@@ -76,6 +91,9 @@ export function toChatMessages(
         : `${z.role}:${zi}`;
 
     const meta = (z.metadata ?? {}) as any;
+    const providerKey = z.role === "assistant"
+      ? resolveProviderKeyFromMetadata(meta, providers)
+      : undefined;
     const createdAtRaw = meta?.timestamp;
     const author = meta?.author ?? meta?.model;
     const temperature = meta?.temperature;
@@ -214,6 +232,7 @@ export function toChatMessages(
           totalTokens,
           usage,
           cost: effectiveCost,
+          providerKey,
         } as any);
 
         continue;

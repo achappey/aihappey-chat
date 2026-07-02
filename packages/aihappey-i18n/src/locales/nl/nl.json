@@ -618,6 +618,7 @@
         "title": "Instellingen",
         "showTemperature": "Toon temperatuur",
         "showTokens": "Toon tokens per bericht",
+        "showProviderLogo": "Toon providerlogo",
         "tabTheme": "Thema",
         "agentImport": "Agents",
         "defaultModel": "Standaard model",
