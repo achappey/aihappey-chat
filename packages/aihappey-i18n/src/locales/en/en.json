@@ -691,7 +691,7 @@
         "baseUrlHint": "Override the base API URL used for chat, models, skills, sampling, images, audio, transcriptions, reranking, and video.",
         "effectiveBaseUrl": "Effective base URL",
         "baseUrlReadOnlyAuthenticated": "This app uses Azure authentication. The API base URL is configured by the server and cannot be changed here.",
-        "chatEndpoint": "Chat endpoint",
+        "chatEndpoint": "Chat",
         "chatEndpointHint": "Choose the chat API shape used when sending messages.",
         "effectiveChatEndpoint": "Effective chat endpoint",
         "endpointHeaders": "Headers",

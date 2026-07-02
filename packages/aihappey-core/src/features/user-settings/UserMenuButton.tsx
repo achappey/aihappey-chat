@@ -194,10 +194,8 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         labels={{
           providers: t("providers"),
           apiKeys: t("apiKeys"),
-          chatEndpoint: directEndpointProfile?.label
-            ? `${t("settingsModal.chatEndpoint") ?? "Chat endpoint"} (${directEndpointProfile.label})`
-            : (t("settingsModal.chatEndpoint") ?? "Chat endpoint"),
-          noChatEndpoints: t("settingsModal.chatEndpointNoOptions") ?? "No chat endpoints available",
+          chatEndpoint: t("settingsModal.chatEndpoint"),
+          noChatEndpoints: t("settingsModal.chatEndpoint"),
           settings: t("userMenu.settings"),
           logout: t("userMenu.logout"),
           // Capability submenu labels (translated in the parent).
@@ -206,7 +204,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
           audio: t("realtime"),
           speech: t("speech"),
           next: t("next"),
-          previous: t("previous") ,
+          previous: t("previous"),
           transcription: t("transcription"),
           reranking: t("reranking"),
           video: t("video"),
