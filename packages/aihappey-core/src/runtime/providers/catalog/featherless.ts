@@ -17,7 +17,9 @@ export const featherless: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.featherless.ai",
+  chatEndpoints: ["/v1/chat/completions"],
 
 };
 

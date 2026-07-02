@@ -1,5 +1,20 @@
 import type { Provider } from "aihappey-types";
 
+const toFiniteNumber = (value: unknown): number | undefined => {
+  const numeric = typeof value === "number" ? value : typeof value === "string" ? Number(value) : undefined;
+  return typeof numeric === "number" && Number.isFinite(numeric) ? numeric : undefined;
+};
+
+const createDeepInfraGatewayMetadata: Provider["createGatewayMetadata"] = ({ event, currentGateway }) => {
+  const cost = toFiniteNumber(event?.usage?.estimated_cost ?? event?.response?.usage?.estimated_cost);
+  if (cost === undefined) return undefined;
+
+  return {
+    ...(currentGateway ?? {}),
+    cost,
+  };
+};
+
 export const deepinfra: Provider = {
   name: "DeepInfra",
   description:
@@ -18,7 +33,7 @@ export const deepinfra: Provider = {
   category: "gateway_router",
   inferenceRegions: ["World"],
   apiBaseUrl: "https://api.deepinfra.com",
-  chatEndpoints: ["/v1/openai/chat/completions"]
+  chatEndpoints: ["/v1/openai/chat/completions"],
+  createGatewayMetadata: createDeepInfraGatewayMetadata
 
 };
-
