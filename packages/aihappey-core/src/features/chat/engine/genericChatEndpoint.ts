@@ -48,6 +48,58 @@ export const resolveGenericChatEndpointUrl = (baseUrl: string, endpoint: Generic
   return `${base}${endpoint}`;
 };
 
+const numberFromUsageValue = (value: unknown): number | undefined => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+};
+
+const getUsageNumber = (usage: any, keys: string[]) => {
+  for (const key of keys) {
+    const value = key.split(".").reduce<any>((acc, segment) => acc?.[segment], usage);
+    const numberValue = numberFromUsageValue(value);
+    if (numberValue !== undefined) return numberValue;
+  }
+  return undefined;
+};
+
+const normalizeUsage = (usage: any) => {
+  if (!usage || typeof usage !== "object") return undefined;
+
+  const promptTokens = getUsageNumber(usage, [
+    "promptTokens",
+    "inputTokens",
+    "prompt_tokens",
+    "input_tokens",
+    "tokens.prompt",
+    "tokens.input",
+  ]);
+  const completionTokens = getUsageNumber(usage, [
+    "completionTokens",
+    "outputTokens",
+    "completion_tokens",
+    "output_tokens",
+    "tokens.completion",
+    "tokens.output",
+  ]);
+  const providedTotalTokens = getUsageNumber(usage, [
+    "totalTokens",
+    "total_tokens",
+    "tokens.total",
+  ]);
+  const totalTokens = providedTotalTokens
+    ?? (promptTokens !== undefined || completionTokens !== undefined
+      ? (promptTokens ?? 0) + (completionTokens ?? 0)
+      : undefined);
+
+  return promptTokens !== undefined || completionTokens !== undefined || totalTokens !== undefined
+    ? compactObject({ promptTokens, completionTokens, totalTokens })
+    : undefined;
+};
+
 const getEndpointFromRequestInput = (input: RequestInfo | URL): GenericEndpointId | undefined => {
   const raw = typeof input === "string"
     ? input
@@ -125,8 +177,8 @@ const createUiMessageChunkStream = ({
   let closed = false;
   let latestModel: string | undefined = requestModel;
   let latestUsage: any | undefined;
+  let latestRawUsage: any | undefined;
   let latestGateway: any | undefined;
-  let totalTokens: number | undefined;
   let finalTextBuffer = "";
   const startedToolCalls = new Set<string>();
   const emittedToolOutputs = new Set<string>();
@@ -146,14 +198,13 @@ const createUiMessageChunkStream = ({
 
   const messageMetadata = () => ({
     model: latestModel,
-    totalTokens,
     usage: latestUsage,
     providerMetadata: {
       gateway: latestGateway,
       ...(providerKey
         ? {
           [providerKey]: {
-            usage: latestUsage
+            usage: latestRawUsage
           },
         }
         : {}),
@@ -280,7 +331,10 @@ const createUiMessageChunkStream = ({
     if (!event || typeof event !== "object") return;
     latestModel = event.model ?? event.message?.model ?? event.response?.model ?? latestModel;
     const usage = event.usage ?? event.message?.usage ?? event.response?.usage;
-    if (usage) latestUsage = usage;
+    if (usage) {
+      latestRawUsage = usage;
+      latestUsage = normalizeUsage(usage) ?? latestUsage;
+    }
     const responseGateway = event.metadata?.gateway ?? event.response?.metadata?.gateway;
     const currentGateway = responseGateway ?? latestGateway;
     const providerGateway = resolveProvider()?.createGatewayMetadata?.({
@@ -290,14 +344,6 @@ const createUiMessageChunkStream = ({
       currentGateway,
     });
     latestGateway = providerGateway ?? currentGateway;
-    const inputTokens = usage?.input_tokens ?? usage?.prompt_tokens;
-    const outputTokens = usage?.output_tokens ?? usage?.completion_tokens;
-    const providedTotal = usage?.total_tokens;
-    totalTokens = typeof providedTotal === "number"
-      ? providedTotal
-      : typeof inputTokens === "number" || typeof outputTokens === "number"
-        ? (inputTokens ?? 0) + (outputTokens ?? 0)
-        : totalTokens;
   };
 
   const safeJsonParse = (value: unknown) => {

@@ -79,8 +79,8 @@ export function toChatMessages(
     const createdAtRaw = meta?.timestamp;
     const author = meta?.author ?? meta?.model;
     const temperature = meta?.temperature;
-    const totalTokens = meta?.totalTokens;
     const usage = meta?.usage;
+    const totalTokens = usage?.totalTokens ?? meta?.totalTokens;
     const parts = collapseGeneratedImagePreviews(((z.parts ?? [])).filter(
       (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
     ));

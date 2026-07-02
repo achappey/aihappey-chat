@@ -666,8 +666,9 @@ export function VercelChatInner({
 
   const totalTokens = [...messages]
     .reverse()
-    .find(m => m.role === "assistant" && m.metadata?.totalTokens != null)
-    ?.metadata?.totalTokens;
+    .find(m => m.role === "assistant" && (m.metadata?.usage?.totalTokens ?? m.metadata?.totalTokens) != null)
+    ?.metadata;
+  const latestTotalTokens = totalTokens?.usage?.totalTokens ?? totalTokens?.totalTokens;
 
   usePendingMessageAutoSend({
     conversationId,
@@ -796,7 +797,7 @@ export function VercelChatInner({
               await handleSend(msg)
             }}
             onStop={cancelRun}
-            tokenUsage={totalTokens}
+            tokenUsage={latestTotalTokens}
             temperature={temperature}
             temperatureChanged={temperatureChanged}
             onPromptExecute={onPromptExecute}
