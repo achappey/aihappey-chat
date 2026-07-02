@@ -15,7 +15,9 @@ export const venice: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.venice.ai/api",
+  chatEndpoints: ["/v1/chat/completions"]
 
 };
 

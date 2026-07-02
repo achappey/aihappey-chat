@@ -6,6 +6,8 @@ export const CHAT_ENDPOINT_IDS = [
   "/v1/messages",
   "/v1beta/interactions",
   "/paas/v4/chat/completions",
+  "/v1/openai/chat/completions",
+  "/chat/completions",
   "/v1/agents",
 ] as const;
 

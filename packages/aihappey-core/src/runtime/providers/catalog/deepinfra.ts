@@ -16,6 +16,9 @@ export const deepinfra: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.deepinfra.com",
+  chatEndpoints: ["/v1/openai/chat/completions"]
+
 };
 

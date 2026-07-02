@@ -39,7 +39,8 @@ export const isGenericChatEndpoint = (endpoint: ChatEndpointId | string | undefi
   (GENERIC_CHAT_ENDPOINT_IDS as readonly string[]).includes(String(endpoint ?? ""));
 
 const isChatCompletionsEndpoint = (endpoint: GenericEndpointId) =>
-  endpoint === "/v1/chat/completions" || endpoint === "/paas/v4/chat/completions";
+  endpoint === "/v1/chat/completions" || endpoint === "/paas/v4/chat/completions"
+  || endpoint === "/v1/openai/chat/completions" || endpoint == "/chat/completions";
 
 const isConversationsEndpoint = (endpoint: GenericEndpointId) => endpoint === "/v1/conversations";
 
@@ -68,27 +69,27 @@ const getUsageNumber = (usage: any, keys: string[]) => {
   return undefined;
 };
 
-  const normalizeUsage = (usage: any) => {
-    if (!usage || typeof usage !== "object") return undefined;
+const normalizeUsage = (usage: any) => {
+  if (!usage || typeof usage !== "object") return undefined;
 
-    const promptTokens = getUsageNumber(usage, [
-      "promptTokens",
-      "inputTokens",
-      "prompt_tokens",
-      "input_tokens",
-      "total_input_tokens",
-      "tokens.prompt",
-      "tokens.input",
-    ]);
-    const completionTokens = getUsageNumber(usage, [
-      "completionTokens",
-      "outputTokens",
-      "completion_tokens",
-      "output_tokens",
-      "total_output_tokens",
-      "tokens.completion",
-      "tokens.output",
-    ]);
+  const promptTokens = getUsageNumber(usage, [
+    "promptTokens",
+    "inputTokens",
+    "prompt_tokens",
+    "input_tokens",
+    "total_input_tokens",
+    "tokens.prompt",
+    "tokens.input",
+  ]);
+  const completionTokens = getUsageNumber(usage, [
+    "completionTokens",
+    "outputTokens",
+    "completion_tokens",
+    "output_tokens",
+    "total_output_tokens",
+    "tokens.completion",
+    "tokens.output",
+  ]);
   const providedTotalTokens = getUsageNumber(usage, [
     "totalTokens",
     "total_tokens",
@@ -239,17 +240,17 @@ const createUiMessageChunkStream = ({
   const messageMetadata = () => ({
     model: latestModel,
     usage: latestUsage,
-      providerMetadata: {
-        gateway: latestGateway,
-        ...(providerKey
-          ? {
+    providerMetadata: {
+      gateway: latestGateway,
+      ...(providerKey
+        ? {
           [providerKey]: compactObject({
             ...(latestProviderStreamMetadata ?? {}),
             usage: latestRawUsage,
           }),
         }
         : {}),
-      },
+    },
     timestamp: new Date().toISOString(),
   });
 

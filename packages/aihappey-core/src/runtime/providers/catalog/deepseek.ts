@@ -17,7 +17,9 @@ export const deepseek: Provider = {
   },
   providerCountry: "CN",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.deepseek.com",
+  chatEndpoints: ["/chat/completions"]
 
 };
 
