@@ -83,8 +83,8 @@
     "zod": "^4.3.6"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch"
+    "build": "node scripts/generate-provider-pricing-index.cjs && tsc",
+    "watch": "node scripts/generate-provider-pricing-index.cjs && tsc --watch"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

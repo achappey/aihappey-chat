@@ -1,6 +1,5 @@
 import type { ModelOption, ModelResponse, Provider } from "aihappey-types";
-import anthropicPricing from "./pricing/anthropic.json";
-import zaiPricing from "./pricing/zai.json";
+import { PROVIDER_PRICING_CATALOGS as RAW_PROVIDER_PRICING_CATALOGS } from "./pricing.generated";
 
 type PriceValue = string | number;
 
@@ -18,10 +17,7 @@ type ProviderPricingCatalogEntry = {
 
 type ProviderPricingCatalog = Record<string, ProviderPricingCatalogEntry>;
 
-const PROVIDER_PRICING_CATALOGS: Record<string, ProviderPricingCatalog> = {
-  anthropic: anthropicPricing as ProviderPricingCatalog,
-  zai: zaiPricing as ProviderPricingCatalog,
-};
+const PROVIDER_PRICING_CATALOGS = RAW_PROVIDER_PRICING_CATALOGS as Record<string, ProviderPricingCatalog>;
 
 const normalizeProviderKey = (value?: string) => String(value ?? "").trim().toLowerCase();
 
