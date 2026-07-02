@@ -15,7 +15,9 @@ export const doubleword: Provider = {
   },
   providerCountry: "GB",
   category: "inference_compute",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.doubleword.ai",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses"],
 
 };
 

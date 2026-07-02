@@ -18,6 +18,8 @@ export const abliteration: Provider = {
   },
   providerCountry: "US",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.abliteration.ai",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses", "/v1/messages"]
 };
 
