@@ -17,6 +17,7 @@ const userMsg: ChatMessage = {
   id: "1",
   role: "user",
   createdAt: new Date().toISOString(),
+  messageIcon: "customize",
   content: [
     {
       type: "text",
@@ -29,12 +30,22 @@ const assistantMsg: ChatMessage = {
   id: "2",
   role: "assistant",
   createdAt: new Date().toISOString(),
+  providerKey: "openai",
   content: [
     {
       type: "text",
       text: "Sure, what do you need?",
     } as TextUIPart,
   ],
+};
+
+const providers = {
+  openai: {
+    name: "OpenAI",
+    icons: [
+      { src: "https://placehold.co/40x40?text=AI", theme: "light" },
+    ],
+  },
 };
 
 const multiPageMsg: ChatMessage = {
@@ -88,6 +99,7 @@ export const Conversation: Story = {
   render: () => (
     <MessageList
       messages={[userMsg, assistantMsg]}
+      providers={providers}
       onRenderMarkdown={renderMarkdown}
       onCopyMessage={async () => { }}
     />
@@ -154,6 +166,7 @@ export const StreamingAssistant: Story = {
           ],
         },
       ]}
+      providers={providers}
       onRenderMarkdown={renderMarkdown}
       onCopyMessage={async () => { }}
     />

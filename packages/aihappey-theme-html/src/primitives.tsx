@@ -533,7 +533,7 @@ export const htmlTheme: AihUiTheme = {
   ThemeSettings,
 };
 
-export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => (
+export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning, disableProviderLogo }: { messages?: ChatMessage[]; locale?: string; aiGeneratedLabel?: string; aiGeneratedWarning?: string; disableProviderLogo?: boolean; renderMessage: (msg: ChatMessage) => React.ReactElement; renderReactions?: (msg: ChatMessage) => React.ReactElement }) => (
   <section
     style={{
       display: "flex",
@@ -546,6 +546,8 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
       const isUser = msg.role === "user";
       const isAssistant = msg.role === "assistant";
       const streaming = msg.content?.some((part: any) => part.type === "text" && part.state === "streaming");
+      const providerLogo = !disableProviderLogo && isAssistant && msg.providerIcon?.src ? msg.providerIcon : undefined;
+      const messageIcon = !isUser && msg.messageIcon ? msg.messageIcon : undefined;
 
       return (
         <article
@@ -569,7 +571,8 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
               marginBlockEnd: "0.35rem",
             }}
           >
-            {msg.messageIcon ? icon(msg.messageIcon, 18) : null}
+            {providerLogo ? <img src={providerLogo.src} alt={providerLogo.alt ?? msg.providerName ?? msg.providerKey ?? ""} width={24} height={24} style={{ borderRadius: 4, objectFit: "contain" }} /> : null}
+            {messageIcon ? icon(messageIcon, 18) : null}
             {msg.author ? <strong>{msg.author}</strong> : null}
             {isAssistant && aiGeneratedWarning ? <abbr title={aiGeneratedWarning}>{aiGeneratedLabel ?? "AI"}</abbr> : null}
             <time>{format(msg.createdAt, locale)}</time>

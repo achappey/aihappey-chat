@@ -739,15 +739,18 @@ AvatarGroup.Popover = ({ children, count, indicator, size, overflowLabel, ...res
 };
 AvatarGroup.partitionItems = <T,>({ items, maxInlineItems = 5 }: { items: readonly T[]; maxInlineItems?: number }) => ({ inlineItems: items.slice(0, maxInlineItems), overflowItems: items.length > maxInlineItems ? items.slice(maxInlineItems) : undefined });
 
-export const Chat = ({ messages = [], renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning }: any) => (
+export const Chat = ({ messages = [], renderMessage, renderReactions, locale, aiGeneratedLabel, aiGeneratedWarning, disableProviderLogo }: any) => (
   <Stack gap="sm">
     {messages.map((msg: ChatMessage) => {
       const isUser = msg.role === "user";
+      const isAssistant = msg.role === "assistant";
       const streaming = msg.content?.some((part: any) => part.type === "text" && part.state === "streaming");
+      const providerLogo = !disableProviderLogo && isAssistant && msg.providerIcon?.src ? msg.providerIcon : undefined;
+      const messageIcon = !isUser && msg.messageIcon ? renderIcon(msg.messageIcon, 14) : undefined;
       return (
         <Paper key={msg.id} withBorder radius="md" p="sm" maw="90%" style={{ alignSelf: isUser ? "flex-end" : "flex-start" }}>
           <Group justify="space-between" gap="xs" mb={4}>
-            <Group gap="xs"><Avatar size="sm">{renderIcon(msg.messageIcon ?? (isUser ? "customize" : "robot"), 14)}</Avatar><MantineText size="sm" fw={600}>{msg.author ?? (isUser ? "You" : "Assistant")}</MantineText>{aiGeneratedWarning ? <Tooltip label={aiGeneratedWarning}><MantineBadge variant="outline" size="xs">{aiGeneratedLabel}</MantineBadge></Tooltip> : null}</Group>
+            <Group gap="xs">{providerLogo ? <Avatar src={providerLogo.src} alt={providerLogo.alt ?? msg.providerName ?? msg.providerKey} radius="sm" size="sm" /> : messageIcon ? <Avatar size="sm">{messageIcon}</Avatar> : null}<MantineText size="sm" fw={600}>{msg.author ?? (isUser ? "You" : "Assistant")}</MantineText>{isAssistant && aiGeneratedWarning ? <Tooltip label={aiGeneratedWarning}><MantineBadge variant="outline" size="xs">{aiGeneratedLabel}</MantineBadge></Tooltip> : null}</Group>
             <MantineText size="xs" c="dimmed">{msg.createdAt ? format(msg.createdAt, locale) : ""}</MantineText>
           </Group>
           {renderMessage(msg)}

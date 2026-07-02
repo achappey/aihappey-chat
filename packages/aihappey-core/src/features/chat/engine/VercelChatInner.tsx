@@ -790,7 +790,7 @@ export function VercelChatInner({
             />
           </div>
         ) : undefined}
-        <div style={{ paddingRight: 24, paddingTop: 8, boxSizing: "border-box" }}>
+        <div style={{ paddingRight: 24, paddingLeft: 16, paddingTop: 8, boxSizing: "border-box" }}>
           <MessageInput
             onSend={async (msg) => {
               startRun()
