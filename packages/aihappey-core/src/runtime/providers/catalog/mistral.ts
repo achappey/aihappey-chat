@@ -20,7 +20,7 @@ export const mistral: Provider = {
   category: "model_provider",
   inferenceRegions: ["World"],
   apiBaseUrl: "https://api.mistral.ai",
-  chatEndpoints: ["/v1/chat/completions"],
+  chatEndpoints: ["/v1/chat/completions", "/v1/conversations"],
 
 };
 

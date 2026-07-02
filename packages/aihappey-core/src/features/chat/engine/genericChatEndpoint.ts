@@ -41,6 +41,8 @@ export const isGenericChatEndpoint = (endpoint: ChatEndpointId | string | undefi
 const isChatCompletionsEndpoint = (endpoint: GenericEndpointId) =>
   endpoint === "/v1/chat/completions" || endpoint === "/paas/v4/chat/completions";
 
+const isConversationsEndpoint = (endpoint: GenericEndpointId) => endpoint === "/v1/conversations";
+
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
 export const resolveGenericChatEndpointUrl = (baseUrl: string, endpoint: GenericEndpointId) => {
@@ -148,6 +150,13 @@ const extractGenericStreamText = (endpoint: GenericEndpointId, event: any): stri
     return extractTextFromValue(event?.content);
   }
 
+  if (endpoint === "/v1/conversations") {
+    if (typeof event?.delta === "string") return event.delta;
+    if (typeof event?.text === "string") return event.text;
+    if (typeof event?.output_text === "string") return event.output_text;
+    return extractTextFromValue(event?.content ?? event?.message?.content ?? event?.output?.content);
+  }
+
   return extractPlaygroundStreamText(endpoint, event);
 };
 
@@ -208,6 +217,7 @@ const createUiMessageChunkStream = ({
   let latestUsage: any | undefined;
   let latestRawUsage: any | undefined;
   let latestGateway: any | undefined;
+  let latestProviderStreamMetadata: Record<string, any> | undefined;
   let finalTextBuffer = "";
   const startedToolCalls = new Set<string>();
   const emittedToolOutputs = new Set<string>();
@@ -229,16 +239,17 @@ const createUiMessageChunkStream = ({
   const messageMetadata = () => ({
     model: latestModel,
     usage: latestUsage,
-    providerMetadata: {
-      gateway: latestGateway,
-      ...(providerKey
-        ? {
-          [providerKey]: {
-            usage: latestRawUsage
-          },
+      providerMetadata: {
+        gateway: latestGateway,
+        ...(providerKey
+          ? {
+          [providerKey]: compactObject({
+            ...(latestProviderStreamMetadata ?? {}),
+            usage: latestRawUsage,
+          }),
         }
         : {}),
-    },
+      },
     timestamp: new Date().toISOString(),
   });
 
@@ -359,10 +370,11 @@ const createUiMessageChunkStream = ({
 
   const rememberMetadata = (event: any) => {
     if (!event || typeof event !== "object") return;
-    latestModel = event.model ?? event.message?.model ?? event.response?.model ?? event.interaction?.model ?? latestModel;
+    latestModel = event.model ?? event.message?.model ?? event.response?.model ?? event.conversation?.model ?? event.interaction?.model ?? latestModel;
     const usage = event.usage
       ?? event.message?.usage
       ?? event.response?.usage
+      ?? event.conversation?.usage
       ?? event.interaction?.usage
       ?? event.metadata?.total_usage;
     if (usage) {
@@ -378,6 +390,17 @@ const createUiMessageChunkStream = ({
       currentGateway,
     });
     latestGateway = providerGateway ?? currentGateway;
+
+    if (isConversationsEndpoint(endpoint)) {
+      const conversationMetadata = compactObject({
+        ...(latestProviderStreamMetadata ?? {}),
+        conversation_id: event.conversation_id ?? event.conversation?.id ?? event.response?.conversation_id,
+        response_id: event.id ?? event.response?.id,
+        event_type: event.type,
+        object: event.object,
+      });
+      latestProviderStreamMetadata = Object.keys(conversationMetadata).length ? conversationMetadata : latestProviderStreamMetadata;
+    }
   };
 
   const safeJsonParse = (value: unknown) => {
@@ -1425,6 +1448,201 @@ const createUiMessageChunkStream = ({
     }
   };
 
+  const conversationContentParts = (content: any): any[] => Array.isArray(content)
+    ? content
+    : content
+      ? [content]
+      : [];
+
+  const conversationOutputItems = (event: any): any[] => {
+    const outputs = event?.outputs ?? event?.response?.outputs ?? event?.conversation?.outputs;
+    if (Array.isArray(outputs)) return outputs;
+    const output = event?.output ?? event?.message ?? event?.response?.output;
+    return output ? (Array.isArray(output) ? output : [output]) : [];
+  };
+
+  const conversationTextFromParts = (content: any) => conversationContentParts(content)
+    .map((part) => extractTextFromValue(part?.text ?? part?.output_text ?? part?.content ?? part))
+    .filter(Boolean)
+    .join("");
+
+  const conversationTextSnapshot = (event: any) => conversationOutputItems(event)
+    .flatMap((item) => conversationContentParts(item?.content ?? item))
+    .map((part) => extractTextFromValue(part?.text ?? part?.output_text ?? part?.content ?? part))
+    .filter(Boolean)
+    .join("");
+
+  const emitConversationSourcePart = (controller: ReadableStreamDefaultController<Uint8Array>, part: any, fallbackIndex: number) => {
+    const url = part?.url ?? part?.document_url ?? part?.source_url;
+    if (typeof url !== "string" || !url) return;
+    const key = `${url}|${part?.title ?? part?.document_name ?? ""}`;
+    if (emittedSourceKeys.has(key)) return;
+    emittedSourceKeys.add(key);
+    ensureStepStarted(controller);
+    enqueueChunk(controller, {
+      type: "source-url",
+      sourceId: `conversation-source-${fallbackIndex}`,
+      url,
+      title: part?.title ?? part?.document_name,
+      providerMetadata: providerMetadataFor({ raw: part }, "mistral"),
+    });
+  };
+
+  const emitConversationFilePart = (controller: ReadableStreamDefaultController<Uint8Array>, part: any, fallbackIndex: number) => {
+    const fileId = part?.file_id ?? part?.id;
+    if (typeof fileId !== "string" || !fileId) return;
+    const url = `https://api.mistral.ai/v1/files/${encodeURIComponent(fileId)}`;
+    const key = `${url}|${part?.file_name ?? part?.filename ?? ""}`;
+    if (emittedSourceKeys.has(key)) return;
+    emittedSourceKeys.add(key);
+    ensureStepStarted(controller);
+    enqueueChunk(controller, {
+      type: "source-url",
+      sourceId: `conversation-file-${fallbackIndex}`,
+      url,
+      title: part?.file_name ?? part?.filename ?? fileId,
+      providerMetadata: providerMetadataFor({ file_id: fileId, file_type: part?.file_type, raw: part }, "mistral"),
+    });
+  };
+
+  const emitConversationArtifacts = (controller: ReadableStreamDefaultController<Uint8Array>, content: any) => {
+    conversationContentParts(content).forEach((part, index) => {
+      const type = String(part?.type ?? "");
+      if (type === "tool_reference" || type === "document_url") emitConversationSourcePart(controller, part, index);
+      if (type === "tool_file") emitConversationFilePart(controller, part, index);
+    });
+  };
+
+  const emitConversationText = (controller: ReadableStreamDefaultController<Uint8Array>, text: string) => {
+    if (!text) return false;
+    closeActiveReasoning(controller);
+    ensureStarted(controller);
+    finalTextBuffer += text;
+    enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: text });
+    return true;
+  };
+
+  const emitConversationTextSnapshot = (controller: ReadableStreamDefaultController<Uint8Array>, text: string) => {
+    if (!text) return false;
+    if (!finalTextBuffer) return emitConversationText(controller, text);
+    if (!text.startsWith(finalTextBuffer)) return false;
+    const delta = text.slice(finalTextBuffer.length);
+    return emitConversationText(controller, delta);
+  };
+
+  const conversationToolName = (event: any) => event?.name ?? event?.tool_name ?? event?.tool?.name ?? String(event?.type ?? "conversation_tool").replace(/[^a-z0-9_]+/gi, "_");
+
+  const conversationToolCallId = (event: any) => event?.tool_call_id ?? event?.call_id ?? event?.id ?? event?.tool_execution_id ?? event?.execution_id;
+
+  const emitConversationToolExecution = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, includeOutput: boolean) => {
+    const toolCallId = conversationToolCallId(event);
+    if (!toolCallId) return false;
+    const toolName = conversationToolName(event);
+    ensureStepStarted(controller);
+    if (!startedToolCalls.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-input-start",
+        toolCallId,
+        toolName,
+        providerExecuted: true,
+        title: event?.title ?? toolName,
+        providerMetadata: providerMetadataFor({ raw: event }, "mistral"),
+      });
+      startedToolCalls.add(toolCallId);
+    }
+    enqueueChunk(controller, {
+      type: "tool-input-available",
+      toolCallId,
+      toolName,
+      input: safeJsonParse(event?.arguments ?? event?.input ?? event?.tool_input ?? {}),
+      providerExecuted: true,
+      title: event?.title ?? toolName,
+      providerMetadata: providerMetadataFor({ raw: event }, "mistral"),
+    });
+    if (includeOutput && !emittedToolOutputs.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-output-available",
+        toolCallId,
+        output: event?.result ?? event?.output ?? event?.tool_output ?? event,
+        providerExecuted: true,
+        providerMetadata: providerMetadataFor({ raw: event }, "mistral"),
+      });
+      emittedToolOutputs.add(toolCallId);
+    }
+    return true;
+  };
+
+  const handleConversationsPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
+    const type = eventName ?? event?.type;
+    if (event?.error || type === "conversation.response.error") {
+      const error = event?.error ?? event;
+      enqueueChunk(controller, { type: "error", errorText: error?.message ?? error?.detail ?? "Mistral conversation request failed." });
+      finish(controller, "error");
+      return;
+    }
+
+    if (type === "conversation.response.started" || type === "conversation.response.in_progress") {
+      ensureMessageStarted(controller);
+      return;
+    }
+
+    if (type === "message.output.delta") {
+      const content = event?.content ?? event?.delta?.content ?? event?.message?.content;
+      emitConversationArtifacts(controller, content);
+      emitConversationText(controller, conversationTextFromParts(content) || extractGenericStreamText(endpoint, event));
+      return;
+    }
+
+    if (type === "message.output.done" || type === "message.output.completed") {
+      const content = event?.content ?? event?.message?.content;
+      emitConversationArtifacts(controller, content);
+      emitConversationTextSnapshot(controller, conversationTextFromParts(content));
+      return;
+    }
+
+    if (type === "tool.execution.started" || type === "tool.execution.delta") {
+      emitConversationToolExecution(event, controller, false);
+      return;
+    }
+
+    if (type === "tool.execution.done") {
+      emitConversationToolExecution(event, controller, true);
+      return;
+    }
+
+    if (type === "function.call.delta") {
+      emitToolInput(
+        controller,
+        conversationToolCallId(event) ?? `conversation-function-${startedToolCalls.size}`,
+        conversationToolName(event),
+        typeof event?.arguments === "string" ? event.arguments : typeof event?.delta === "string" ? event.delta : undefined,
+      );
+      return;
+    }
+
+    if (type === "function.call.done") {
+      emitToolInput(
+        controller,
+        conversationToolCallId(event),
+        conversationToolName(event),
+        undefined,
+        safeJsonParse(event?.arguments ?? event?.input ?? {}),
+      );
+      return;
+    }
+
+    if (type === "agent.handoff.started" || type === "agent.handoff.done") {
+      emitConversationToolExecution({ ...event, name: "agent_handoff" }, controller, type === "agent.handoff.done");
+      return;
+    }
+
+    if (type === "conversation.response.done" || type === "conversation.response.completed") {
+      conversationOutputItems(event).forEach((item) => emitConversationArtifacts(controller, item?.content ?? item));
+      emitConversationTextSnapshot(controller, conversationTextSnapshot(event));
+      finish(controller);
+    }
+  };
+
   const normalizeProviderPayload = (payload: string) => {
     const trimmed = String(payload ?? "").trim();
     if (trimmed.startsWith("message")) {
@@ -1561,6 +1779,11 @@ const createUiMessageChunkStream = ({
     rememberMetadata(parsed);
     if (endpoint === "/v1/responses") {
       handleResponsesPayload(parsed, controller, eventName);
+      return;
+    }
+
+    if (endpoint === "/v1/conversations") {
+      handleConversationsPayload(parsed, controller, eventName);
       return;
     }
 
