@@ -91,6 +91,7 @@ import {
   GpuCard,
   Star,
   StarFill,
+  Clipboard,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -199,7 +200,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   chevronUp: <ChevronUp />,
   logout: <Trash />,
   customize: <Sliders />,
-  copyClipboard: <CardList />, // Approximate
+  copyClipboard: <Clipboard />, // Approximate
   star: <Star />,
   starFilled: <StarFill />,
 };
