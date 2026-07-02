@@ -65,6 +65,7 @@ export type ProviderGatewayMetadataContext = {
     event: any;
     endpoint?: string;
     requestModel?: string;
+    directProviderEndpoint?: boolean;
     currentGateway?: Record<string, any>;
 };
 

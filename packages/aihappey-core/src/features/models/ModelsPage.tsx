@@ -61,7 +61,7 @@ export const ModelsPage = () => {
     []
   );
 
-  const formatPrice = (v?: string) => {
+  const formatPrice = (v?: string | number) => {
     if (!v) return "";
     const n = Number(v);
     if (!Number.isFinite(n)) return String(v);

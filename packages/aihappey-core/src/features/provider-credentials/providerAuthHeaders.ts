@@ -5,6 +5,7 @@ import { enrichModelTypes } from "../models/modelTypeEnrichment";
 import type { Provider } from "aihappey-types";
 import { HIDDEN_DIRECT_MODEL_ID_SUFFIX } from "aihappey-types";
 import zaiModels from "../../runtime/providers/catalog/models/zai.json";
+import { enrichDirectModelsWithProviderPricing } from "../../runtime/providers/catalog/providerPricing";
 
 export const DIRECT_MODEL_ID_SUFFIX = HIDDEN_DIRECT_MODEL_ID_SUFFIX;
 
@@ -452,7 +453,10 @@ export const listModelsWithSplitProviderHeaders = async ({
         ? STATIC_DIRECT_MODEL_RESPONSES[requestProviderKey]
         : undefined;
       if (staticDirectResponse) {
-        const response = enrichModelResponse(stripStaticProviderPrefix(staticDirectResponse, requestProviderKey));
+        const response = enrichModelResponse(enrichDirectModelsWithProviderPricing(
+          stripStaticProviderPrefix(staticDirectResponse, requestProviderKey),
+          requestProviderKey,
+        ));
         responses.push(prefixProviderModelIds(response, requestProviderKey ?? providerKey));
         return;
       }
@@ -462,9 +466,13 @@ export const listModelsWithSplitProviderHeaders = async ({
         ? getProviderModelApiForKey(getProvider(requestProviderKey, providers), requestProviderKey, modelsApi)
         : modelsApi;
       const rawResponse = await client.get<any>(requestModelsApi);
-      const response = enrichModelResponse(route === "direct"
-        ? normalizeDirectProviderModelResponse(rawResponse, requestProviderKey ?? providerKey)
-        : rawResponse as ModelResponse);
+      const normalizedResponse = route === "direct"
+        ? enrichDirectModelsWithProviderPricing(
+          normalizeDirectProviderModelResponse(rawResponse, requestProviderKey ?? providerKey),
+          requestProviderKey ?? providerKey,
+        )
+        : rawResponse as ModelResponse;
+      const response = enrichModelResponse(normalizedResponse);
       responses.push(route === "direct"
         ? prefixProviderModelIds(response, requestProviderKey ?? providerKey)
         : annotateGatewayModelIds(response));

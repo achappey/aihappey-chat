@@ -1,4 +1,5 @@
 import type { Provider } from "aihappey-types";
+import { createProviderPricingGatewayMetadata } from "./providerPricing";
 
 export const anthropic: Provider = {
   name: "Anthropic",
@@ -17,7 +18,7 @@ export const anthropic: Provider = {
   category: "model_provider",
   inferenceRegions: ["World"],
   apiBaseUrl: "https://api.anthropic.com",
-  chatEndpoints: ["/v1/messages"]
+  chatEndpoints: ["/v1/messages"],
+  createGatewayMetadata: createProviderPricingGatewayMetadata("anthropic")
 
 };
-

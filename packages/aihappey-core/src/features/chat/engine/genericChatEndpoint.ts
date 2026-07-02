@@ -387,6 +387,7 @@ const createUiMessageChunkStream = ({
       event,
       endpoint,
       requestModel: latestModel ?? requestModel,
+      directProviderEndpoint: Boolean(providerKey),
       currentGateway,
     });
     latestGateway = providerGateway ?? currentGateway;

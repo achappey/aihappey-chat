@@ -27,7 +27,8 @@ export interface ModelOption {
 }
 
 export interface ModelPricing {
-  input: string;
-  output: string;
-  input_cache_read?: string;
+  input: string | number;
+  output: string | number;
+  input_cache_read?: string | number;
+  input_cache_write?: string | number;
 }

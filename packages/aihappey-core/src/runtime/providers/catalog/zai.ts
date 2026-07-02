@@ -1,4 +1,5 @@
 import type { Provider } from "aihappey-types";
+import { createProviderPricingGatewayMetadata } from "./providerPricing";
 
 export const zai: Provider = {
   name: "Zai",
@@ -18,7 +19,7 @@ export const zai: Provider = {
   category: "model_provider",
   inferenceRegions: ["World"],
   apiBaseUrl: "https://api.z.ai/api",
-  chatEndpoints: ["/paas/v4/chat/completions", "/v1/agents"]
+  chatEndpoints: ["/paas/v4/chat/completions", "/v1/agents"],
+  createGatewayMetadata: createProviderPricingGatewayMetadata("zai")
 
 };
-
