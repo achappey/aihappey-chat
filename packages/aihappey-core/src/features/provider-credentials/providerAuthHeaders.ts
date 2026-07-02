@@ -19,6 +19,18 @@ type ProviderLike = {
   apiBaseUrl?: string;
 };
 
+type GoogleModel = {
+  name?: string;
+  baseModelId?: string;
+  version?: string;
+  displayName?: string;
+  description?: string;
+  inputTokenLimit?: number;
+  outputTokenLimit?: number;
+  supportedGenerationMethods?: string[];
+  thinking?: boolean;
+};
+
 const STATIC_DIRECT_MODEL_RESPONSES: Record<string, ModelResponse> = {
   zai: zaiModels as unknown as ModelResponse,
 };
@@ -122,6 +134,21 @@ const getProviderModelApi = (provider: ProviderLike | undefined, modelsApi: stri
   return `${baseUrl.replace(/\/$/, "")}/v1/models`;
 };
 
+const getGoogleProviderModelApi = (provider: ProviderLike | undefined, modelsApi: string) => {
+  const baseUrl = provider?.apiBaseUrl?.trim();
+  if (!baseUrl) return modelsApi;
+
+  return `${baseUrl.replace(/\/$/, "")}/v1beta/models?pageSize=1000`;
+};
+
+const getProviderModelApiForKey = (provider: ProviderLike | undefined, providerKey: string | undefined, modelsApi: string) => {
+  if (normalizeLookupValue(providerKey) === "google") {
+    return getGoogleProviderModelApi(provider, modelsApi);
+  }
+
+  return getProviderModelApi(provider, modelsApi);
+};
+
 const getDirectProviderModelRequests = (
   customHeaders: Record<string, string> | undefined,
   providers?: Record<string, ProviderLike>,
@@ -172,6 +199,11 @@ const createDirectProviderModelHeadersFromApiKey = (value: string, providerKey?:
     return createMessagesEndpointHeadersFromApiKey(value);
   }
 
+  if (normalizeLookupValue(providerKey) === "google") {
+    const apiKey = stripBearerPrefix(value);
+    return apiKey ? { "x-goog-api-key": apiKey } : {};
+  }
+
   return createBearerHeadersFromApiKey(value);
 };
 
@@ -211,6 +243,11 @@ export const createProviderBearerHeadersForProviderKey = (
 ) => {
   const entry = getExactProviderApiKeyHeaderEntry(customHeaders, providerKey, providers);
   const value = entry?.[1]?.trim();
+
+  if (normalizeLookupValue(providerKey) === "google") {
+    const apiKey = stripBearerPrefix(value);
+    return apiKey ? { "x-goog-api-key": apiKey } : {};
+  }
 
   return createBearerHeadersFromApiKey(value);
 };
@@ -263,6 +300,48 @@ const enrichModelResponse = (response: ModelResponse) => ({
   ...response,
   data: enrichModelTypes(response?.data ?? []),
 }) satisfies ModelResponse;
+
+const normalizeGoogleModelId = (model: GoogleModel) => {
+  const name = String(model.name ?? "").trim();
+  if (name.toLowerCase().startsWith("models/")) return name.slice("models/".length);
+  return model.baseModelId?.trim() || name;
+};
+
+const mapGoogleModelResponse = (response: any): ModelResponse => ({
+  data: (response?.models ?? [])
+    .map((model: GoogleModel) => {
+      const id = normalizeGoogleModelId(model);
+      if (!id) return undefined;
+
+      const supportedGenerationMethods = Array.isArray(model.supportedGenerationMethods)
+        ? model.supportedGenerationMethods
+        : [];
+
+      return {
+        id,
+        name: model.displayName || id,
+        description: model.description,
+        type: "language",
+        context_window: model.inputTokenLimit,
+        max_tokens: model.outputTokenLimit,
+        owned_by: "google",
+        tags: [
+          ...supportedGenerationMethods,
+          ...(model.thinking ? ["thinking"] : []),
+          ...(model.version ? [`version:${model.version}`] : []),
+        ],
+      };
+    })
+    .filter(Boolean),
+});
+
+const normalizeDirectProviderModelResponse = (response: any, providerKey?: string) => {
+  if (normalizeLookupValue(providerKey) === "google") {
+    return mapGoogleModelResponse(response);
+  }
+
+  return response as ModelResponse;
+};
 
 const annotateGatewayModelIds = (response: ModelResponse) => ({
   ...response,
@@ -380,9 +459,12 @@ export const listModelsWithSplitProviderHeaders = async ({
 
       const client = createHttpClient(route === "gateway" && getAccessToken ? { getAccessToken, headers } : { headers });
       const requestModelsApi = requestProviderKey
-        ? getProviderModelApi(getProvider(requestProviderKey, providers), modelsApi)
+        ? getProviderModelApiForKey(getProvider(requestProviderKey, providers), requestProviderKey, modelsApi)
         : modelsApi;
-      const response = enrichModelResponse(await client.get<ModelResponse>(requestModelsApi));
+      const rawResponse = await client.get<any>(requestModelsApi);
+      const response = enrichModelResponse(route === "direct"
+        ? normalizeDirectProviderModelResponse(rawResponse, requestProviderKey ?? providerKey)
+        : rawResponse as ModelResponse);
       responses.push(route === "direct"
         ? prefixProviderModelIds(response, requestProviderKey ?? providerKey)
         : annotateGatewayModelIds(response));

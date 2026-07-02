@@ -66,25 +66,27 @@ const getUsageNumber = (usage: any, keys: string[]) => {
   return undefined;
 };
 
-const normalizeUsage = (usage: any) => {
-  if (!usage || typeof usage !== "object") return undefined;
+  const normalizeUsage = (usage: any) => {
+    if (!usage || typeof usage !== "object") return undefined;
 
-  const promptTokens = getUsageNumber(usage, [
-    "promptTokens",
-    "inputTokens",
-    "prompt_tokens",
-    "input_tokens",
-    "tokens.prompt",
-    "tokens.input",
-  ]);
-  const completionTokens = getUsageNumber(usage, [
-    "completionTokens",
-    "outputTokens",
-    "completion_tokens",
-    "output_tokens",
-    "tokens.completion",
-    "tokens.output",
-  ]);
+    const promptTokens = getUsageNumber(usage, [
+      "promptTokens",
+      "inputTokens",
+      "prompt_tokens",
+      "input_tokens",
+      "total_input_tokens",
+      "tokens.prompt",
+      "tokens.input",
+    ]);
+    const completionTokens = getUsageNumber(usage, [
+      "completionTokens",
+      "outputTokens",
+      "completion_tokens",
+      "output_tokens",
+      "total_output_tokens",
+      "tokens.completion",
+      "tokens.output",
+    ]);
   const providedTotalTokens = getUsageNumber(usage, [
     "totalTokens",
     "total_tokens",
@@ -152,6 +154,33 @@ const extractGenericStreamText = (endpoint: GenericEndpointId, event: any): stri
 const textToDataUrl = (text: string, mediaType: string) =>
   `data:${mediaType};charset=utf-8,${encodeURIComponent(text)}`;
 
+const INTERACTIONS_PROVIDER_TOOL_TYPES = new Set([
+  "function_call",
+  "code_execution_call",
+  "url_context_call",
+  "mcp_server_tool_call",
+  "google_search_call",
+  "file_search_call",
+  "google_maps_call",
+  "function_result",
+  "code_execution_result",
+  "url_context_result",
+  "mcp_server_tool_result",
+  "google_search_result",
+  "file_search_result",
+  "google_maps_result",
+]);
+
+const INTERACTIONS_TOOL_RESULT_TYPES = new Set([
+  "function_result",
+  "code_execution_result",
+  "url_context_result",
+  "mcp_server_tool_result",
+  "google_search_result",
+  "file_search_result",
+  "google_maps_result",
+]);
+
 const createUiMessageChunkStream = ({
   endpoint,
   providerKey,
@@ -186,6 +215,7 @@ const createUiMessageChunkStream = ({
   const closedReasoningIds = new Set<string>();
   const reasoningTextById = new Map<string, string>();
   const reasoningProviderMetadataById = new Map<string, Record<string, any>>();
+  const interactionsStepsByIndex = new Map<number, any>();
   const emittedSourceKeys = new Set<string>();
   const imageGenerationItems = new Map<string, any>();
   const imageGenerationFinalFiles = new Set<string>();
@@ -329,8 +359,12 @@ const createUiMessageChunkStream = ({
 
   const rememberMetadata = (event: any) => {
     if (!event || typeof event !== "object") return;
-    latestModel = event.model ?? event.message?.model ?? event.response?.model ?? latestModel;
-    const usage = event.usage ?? event.message?.usage ?? event.response?.usage;
+    latestModel = event.model ?? event.message?.model ?? event.response?.model ?? event.interaction?.model ?? latestModel;
+    const usage = event.usage
+      ?? event.message?.usage
+      ?? event.response?.usage
+      ?? event.interaction?.usage
+      ?? event.metadata?.total_usage;
     if (usage) {
       latestRawUsage = usage;
       latestUsage = normalizeUsage(usage) ?? latestUsage;
@@ -850,6 +884,11 @@ const createUiMessageChunkStream = ({
 
   const responseReasoningId = (event: any) => `reasoning-${event?.item_id ?? "summary"}-${event?.content_index ?? event?.summary_index ?? 0}`;
 
+  const providerMetadataFor = (entry: Record<string, any>, fallbackProviderKey?: string) => {
+    const resolvedProviderKey = resolveProviderKey() ?? fallbackProviderKey;
+    return resolvedProviderKey ? { [resolvedProviderKey]: compactObject(entry) } : undefined;
+  };
+
   const ensureReasoning = (
     controller: ReadableStreamDefaultController<Uint8Array>,
     id: string,
@@ -869,6 +908,277 @@ const createUiMessageChunkStream = ({
     ensureReasoning(controller, id);
     reasoningTextById.set(id, `${reasoningTextById.get(id) ?? ""}${delta}`);
     enqueueChunk(controller, { type: "reasoning-delta", id, delta, providerMetadata: reasoningProviderMetadataById.get(id) });
+  };
+
+  const rememberInteractionsStep = (index: number | undefined, patch?: any) => {
+    if (typeof index !== "number") return patch;
+    const next = compactObject({
+      ...(interactionsStepsByIndex.get(index) ?? {}),
+      ...(patch ?? {}),
+    });
+    interactionsStepsByIndex.set(index, next);
+    return next;
+  };
+
+  const interactionsStepId = (index?: number, prefix = "interactions") => `${prefix}-${typeof index === "number" ? index : interactionsStepsByIndex.size}`;
+
+  const interactionsToolName = (step: any) => {
+    const type = String(step?.type ?? "");
+    if (type === "mcp_server_tool_call" || type === "mcp_server_tool_result") return step?.name ?? step?.server_name ?? "mcp_server";
+    if (type === "function_call" || type === "function_result") return step?.name ?? "function_call";
+    if (type === "code_execution_call" || type === "code_execution_result") return "code_execution";
+    if (type === "url_context_call" || type === "url_context_result") return "url_context";
+    if (type === "google_search_call" || type === "google_search_result") return "google_search";
+    if (type === "file_search_call" || type === "file_search_result") return "file_search";
+    if (type === "google_maps_call" || type === "google_maps_result") return "google_maps";
+    return type.replace(/_(call|result)$/, "") || "provider_tool";
+  };
+
+  const interactionsToolInput = (step: any) => safeJsonParse(step?.arguments ?? step?.input ?? {});
+
+  const interactionsToolOutput = (step: any) => step?.result ?? step?.output ?? step;
+
+  const interactionsContentText = (content: any) => {
+    if (content?.type === "thought_summary") return extractTextFromValue(content?.content ?? content?.summary ?? content?.text);
+    return extractTextFromValue(content);
+  };
+
+  const emitInteractionsContent = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    content: any,
+    index?: number,
+    partial = false,
+  ) => {
+    const type = String(content?.type ?? "text");
+    if (type === "text" || type === "output_text" || typeof content === "string") {
+      const delta = interactionsContentText(content);
+      if (!delta) return false;
+      closeActiveReasoning(controller);
+      ensureStarted(controller);
+      finalTextBuffer += delta;
+      enqueueChunk(controller, {
+        type: "text-delta",
+        id: textPartId,
+        delta,
+        providerMetadata: providerMetadataFor({
+          source: "interactions.step.delta",
+          index,
+          content_type: type,
+          partial,
+          annotations: content?.annotations,
+        }),
+      });
+      return true;
+    }
+
+    if (type === "thought_summary") {
+      const delta = interactionsContentText(content);
+      if (!delta) return false;
+      emitReasoningDelta(controller, interactionsStepId(index, "reasoning-interactions"), delta);
+      return true;
+    }
+
+    if (["image", "audio", "video", "document"].includes(type)) {
+      const data = content?.data;
+      const uri = content?.uri;
+      const mimeType = content?.mime_type ?? (type === "image" ? "image/png" : "application/octet-stream");
+      const url = typeof uri === "string" && uri
+        ? uri
+        : typeof data === "string" && data
+          ? (data.startsWith("data:") ? data : `data:${mimeType};base64,${stripDataUrlBase64(data)}`)
+          : undefined;
+      if (!url) return false;
+
+      ensureStepStarted(controller);
+      enqueueChunk(controller, {
+        type: "file",
+        url,
+        mediaType: mimeType,
+        providerMetadata: providerMetadataFor({
+          source: "interactions.step.delta",
+          index,
+          content_type: type,
+          partial,
+          resolution: content?.resolution,
+          sample_rate: content?.sample_rate,
+          channels: content?.channels,
+        }),
+      });
+      return true;
+    }
+
+    return false;
+  };
+
+  const emitInteractionsTool = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    step: any,
+    index?: number,
+    includeOutput?: boolean,
+  ) => {
+    const toolCallId = step?.id ?? step?.call_id ?? interactionsStepId(index, "interactions-tool");
+    const toolName = interactionsToolName(step);
+    ensureStepStarted(controller);
+
+    if (!startedToolCalls.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-input-start",
+        toolCallId,
+        toolName,
+        providerExecuted: true,
+        title: toolName,
+      });
+      startedToolCalls.add(toolCallId);
+    }
+
+    enqueueChunk(controller, {
+      type: "tool-input-available",
+      toolCallId,
+      toolName,
+      input: interactionsToolInput(step),
+      providerExecuted: true,
+      title: toolName,
+      providerMetadata: providerMetadataFor({
+        source: "interactions.step",
+        index,
+        step_type: step?.type,
+        signature: step?.signature,
+        server_name: step?.server_name,
+      }),
+    });
+
+    if (includeOutput && !emittedToolOutputs.has(toolCallId)) {
+      enqueueChunk(controller, {
+        type: "tool-output-available",
+        toolCallId,
+        output: interactionsToolOutput(step),
+        providerExecuted: true,
+        providerMetadata: providerMetadataFor({
+          source: "interactions.step",
+          index,
+          step_type: step?.type,
+          signature: step?.signature,
+          is_error: step?.is_error,
+        }),
+      });
+      emittedToolOutputs.add(toolCallId);
+    }
+  };
+
+  const emitInteractionsStepSnapshot = (controller: ReadableStreamDefaultController<Uint8Array>, step: any, index?: number) => {
+    const stepType = String(step?.type ?? "");
+    if (stepType === "model_output") {
+      return (step?.content ?? []).some((content: any) => emitInteractionsContent(controller, content, index, false));
+    }
+
+    if (stepType === "thought") {
+      const summary = step?.summary ?? step?.content;
+      const id = interactionsStepId(index, "reasoning-interactions");
+      if (typeof step?.signature === "string" && step.signature) {
+        rememberReasoningMetadata(id, { signature: step.signature });
+      }
+      const emitted = (Array.isArray(summary) ? summary : [summary])
+        .filter(Boolean)
+        .some((content: any) => {
+          const text = extractTextFromValue(content);
+          if (!text) return false;
+          emitReasoningDelta(controller, id, text);
+          return true;
+        });
+      closeReasoning(controller, id);
+      return emitted;
+    }
+
+    if (INTERACTIONS_PROVIDER_TOOL_TYPES.has(stepType)) {
+      emitInteractionsTool(controller, step, index, INTERACTIONS_TOOL_RESULT_TYPES.has(stepType));
+      return true;
+    }
+
+    return false;
+  };
+
+  const handleInteractionsPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
+    const type = eventName ?? event?.event_type ?? event?.type;
+
+    if (type === "interaction.created" || type === "interaction.status_update") {
+      ensureMessageStarted(controller);
+      if (event?.interaction) rememberMetadata(event);
+      return;
+    }
+
+    if (type === "error") {
+      enqueueChunk(controller, { type: "error", errorText: event?.error?.message ?? "Interactions request failed." });
+      return;
+    }
+
+    if (type === "step.start") {
+      const step = rememberInteractionsStep(event?.index, event?.step);
+      if (step?.type === "thought") {
+        ensureReasoning(controller, interactionsStepId(event?.index, "reasoning-interactions"));
+      } else if (INTERACTIONS_PROVIDER_TOOL_TYPES.has(String(step?.type ?? ""))) {
+        emitInteractionsTool(controller, step, event?.index, INTERACTIONS_TOOL_RESULT_TYPES.has(String(step?.type ?? "")));
+      } else {
+        ensureStepStarted(controller);
+      }
+      return;
+    }
+
+    if (type === "step.delta") {
+      const currentStep = rememberInteractionsStep(event?.index);
+      const delta = event?.delta;
+      const deltaType = String(delta?.type ?? "");
+
+      if (deltaType === "thought_signature") {
+        const id = interactionsStepId(event?.index, "reasoning-interactions");
+        rememberReasoningMetadata(id, { signature: delta?.signature });
+        ensureReasoning(controller, id, reasoningProviderMetadataById.get(id));
+        return;
+      }
+
+      if (deltaType === "thought_summary") {
+        emitInteractionsContent(controller, delta, event?.index, true);
+        return;
+      }
+
+      if (deltaType === "arguments_delta") {
+        const toolCallId = currentStep?.id ?? interactionsStepId(event?.index, "interactions-tool");
+        emitToolInput(controller, toolCallId, interactionsToolName(currentStep), delta?.arguments);
+        return;
+      }
+
+      if (INTERACTIONS_PROVIDER_TOOL_TYPES.has(deltaType)) {
+        emitInteractionsTool(controller, { ...currentStep, ...delta }, event?.index, INTERACTIONS_TOOL_RESULT_TYPES.has(deltaType));
+        return;
+      }
+
+      emitInteractionsContent(controller, delta, event?.index, true);
+      return;
+    }
+
+    if (type === "step.stop") {
+      const currentStep = rememberInteractionsStep(event?.index);
+      if (currentStep?.type === "thought") closeReasoning(controller, interactionsStepId(event?.index, "reasoning-interactions"));
+      return;
+    }
+
+    if (type === "interaction.completed") {
+      rememberMetadata(event);
+      for (const [index, step] of event?.interaction?.steps?.entries?.() ?? []) {
+        emitInteractionsStepSnapshot(controller, step, index);
+      }
+      finish(controller);
+      return;
+    }
+
+    if (event?.object === "interaction" || Array.isArray(event?.steps)) {
+      rememberMetadata({ interaction: event, ...event });
+      for (const [index, step] of event?.steps?.entries?.() ?? []) {
+        emitInteractionsStepSnapshot(controller, step, index);
+      }
+      if (event?.status === "completed" || event?.status === "incomplete" || event?.status === "cancelled" || event?.status === "failed") {
+        finish(controller, event.status === "completed" ? "stop" : event.status);
+      }
+    }
   };
 
   const messagesReasoningId = (index: number) => `reasoning-messages-${index}`;
@@ -1256,6 +1566,11 @@ const createUiMessageChunkStream = ({
 
     if (endpoint === "/v1/agents") {
       handleZaiAgentsPayload(parsed, controller);
+      return;
+    }
+
+    if (endpoint === "/v1beta/interactions") {
+      handleInteractionsPayload(parsed, controller, eventName);
       return;
     }
 

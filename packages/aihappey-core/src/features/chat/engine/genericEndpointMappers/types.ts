@@ -8,6 +8,7 @@ export const GENERIC_CHAT_ENDPOINT_IDS: readonly GenericEndpointId[] = [
   "/v1/chat/completions",
   "/v1/responses",
   "/v1/messages",
+  "/v1beta/interactions",
   "/paas/v4/chat/completions",
   "/v1/agents",
 ] as const;

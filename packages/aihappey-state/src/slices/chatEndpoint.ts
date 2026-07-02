@@ -3,6 +3,7 @@ export const CHAT_ENDPOINT_IDS = [
   "/v1/chat/completions",
   "/v1/responses",
   "/v1/messages",
+  "/v1beta/interactions",
   "/paas/v4/chat/completions",
   "/v1/agents",
 ] as const;
@@ -22,6 +23,7 @@ export const CHAT_ENDPOINT_MODE_STORAGE_KEY = "aihappey_chat_endpoint_mode";
 const PREFERRED_PROVIDER_CHAT_ENDPOINT_IDS: readonly ChatEndpointId[] = [
   "/v1/responses",
   "/v1/messages",
+  "/v1beta/interactions",
   "/paas/v4/chat/completions",
   "/v1/agents",
 ];

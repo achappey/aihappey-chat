@@ -1,4 +1,5 @@
 import { buildChatCompletionsBody } from "./chatCompletionsMapper";
+import { buildInteractionsBody } from "./interactionsMapper";
 import { buildMessagesBody } from "./messagesMapper";
 import { buildResponsesBody } from "./responsesMapper";
 import { buildZaiAgentsBody } from "./zaiAgentsMapper";
@@ -12,6 +13,7 @@ export function buildGenericChatEndpointBody(endpoint: GenericEndpointId, body: 
   }
   if (endpoint === "/v1/responses") return buildResponsesBody(body);
   if (endpoint === "/v1/messages") return buildMessagesBody(body);
+  if (endpoint === "/v1beta/interactions") return buildInteractionsBody(body);
   if (endpoint === "/v1/agents") return buildZaiAgentsBody(body);
   throw new Error(`Unsupported chat endpoint: ${endpoint}`);
 }

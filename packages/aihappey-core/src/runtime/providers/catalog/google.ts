@@ -18,7 +18,9 @@ export const google: Provider = {
   },
   providerCountry: "US",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://generativelanguage.googleapis.com",
+  chatEndpoints: ["/v1beta/interactions"],
 
 };
 

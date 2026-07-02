@@ -85,6 +85,7 @@ export const defaultProviderMetadata = {
   },
   "google": {
     "service_tier": "standard",
+    "store": false,
     "response_modalities": ["text"],
     "generation_config": {
       "thinking_level": "low",
