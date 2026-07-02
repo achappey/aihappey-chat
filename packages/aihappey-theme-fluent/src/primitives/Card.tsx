@@ -4,7 +4,6 @@ import {
   Card as FluentCard,
   CardHeader,
   CardFooter,
-  CardPreview,
   tokens,
 } from "@fluentui/react-components";
 import { useDarkMode } from "usehooks-ts";
@@ -37,10 +36,12 @@ export const Card = ({
   headerActions?: JSX.Element;
 }): JSX.Element => {
   const { isDarkMode } = useDarkMode();
-  const previewStyle =
-    size == "small"
-      ? { paddingLeft: 8, paddingRight: 8 }
-      : { paddingLeft: 12, paddingRight: 12 };
+  const backgroundColor = style?.backgroundColor ?? (isDarkMode
+    ? tokens.colorNeutralBackground2
+    : tokens.colorNeutralBackground3);
+  const foregroundColor = style?.color ?? tokens.colorNeutralForeground1;
+  const contentStyle: React.CSSProperties =
+    { color: foregroundColor };
 
   const hasChildren =
     Array.isArray(children) ? children.length > 0 : !!children;
@@ -52,10 +53,9 @@ export const Card = ({
       disabled={disabled}
       className={className}
       style={{
-        backgroundColor: !style?.backgroundColor ?
-          isDarkMode
-            ? tokens.colorNeutralBackground2
-            : tokens.colorNeutralBackground3 : style?.backgroundColor,
+        ...style,
+        backgroundColor,
+        color: foregroundColor,
       }}
     >
       <CardHeader
@@ -64,7 +64,7 @@ export const Card = ({
         description={description}
         action={headerActions}
       />
-      <CardPreview style={previewStyle}>{hasChildren ? children : text}</CardPreview>
+      <div style={contentStyle}>{hasChildren ? children : text}</div>
       {actions && <CardFooter>{actions}</CardFooter>}
     </FluentCard>
   );

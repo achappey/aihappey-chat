@@ -29,3 +29,19 @@ export const WithMarkdown: Story = {
   },
 };
 
+export const WithMarkdownParagraphs: Story = {
+  args: {
+    block: {
+      ...block,
+      text: "Considering user language preference\n\nI need to respond in the user's preferred language. The developer instructions mention always using English, but the user greeted me in Dutch, so the greeting should match their context.",
+    } as ReasoningUIPart,
+    renderText: (text) => (
+      <div>
+        <p style={{ margin: "0 0 0.5em" }}>
+          <strong>{text.split("\n\n")[0]}</strong>
+        </p>
+        <p style={{ margin: 0 }}>{text.split("\n\n")[1]}</p>
+      </div>
+    ),
+  },
+};
