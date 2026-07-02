@@ -18,7 +18,9 @@ export const mistral: Provider = {
   },
   providerCountry: "FR",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.mistral.ai",
+  chatEndpoints: ["/v1/chat/completions"],
 
 };
 
