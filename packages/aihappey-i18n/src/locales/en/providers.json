@@ -565,8 +565,8 @@
       "image": "Image search results"
     },
     "imageSettings": {
-      "maxResults": "Maximum image results",
-      "caption": "Include image captions"
+      "maxResults": "Max. image results",
+      "caption": "Include captions"
     },
     "topP": "Top-p",
     "transcriptionLanguagePlaceholder": "The language of the input audio in ISO-639-1 (e.g. en)",

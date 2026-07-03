@@ -10,7 +10,8 @@ type SearchContentType = (typeof SEARCH_CONTENT_TYPE_OPTIONS)[number];
 const twoColumnGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-  gap: 0,
+  columnGap: 0,
+  rowGap: 12,
   width: "100%",
   alignItems: "end",
 } as const;
@@ -122,6 +123,7 @@ export const OpenAIWebSearchForm = ({
     config?.web_search?.search_content_types
   ) ?? [];
   const imageSearchOn = searchContentTypes.includes("image");
+  const includeSearchResultsOn = !!config?.include?.includes("web_search_call.results");
   const imageSettings = config?.web_search?.image_settings ?? {};
 
   const updateWebSearch = (patch: any) => {
@@ -276,43 +278,6 @@ export const OpenAIWebSearchForm = ({
           </theme.Select>
         </div>
 
-        <div style={twoColumnGrid}>
-          {SEARCH_CONTENT_TYPE_OPTIONS.map((contentType) => (
-            <theme.Switch
-              key={contentType}
-              id={`openAIWebSearchContentType_${contentType}`}
-              disabled={!webSearchOn}
-              checked={searchContentTypes.includes(contentType)}
-              label={t(`providers:openai.searchContentTypes.${contentType}`)}
-              onChange={(value) => toggleSearchContentType(contentType, !!value)}
-            />
-          ))}
-        </div>
-
-        <div style={twoColumnGrid}>
-          <theme.Input
-            label={t("providers:openai.imageSettings.maxResults")}
-            type="number"
-            min={1}
-            step={1}
-            disabled={!webSearchOn || !imageSearchOn}
-            value={imageSettings.max_results ?? ""}
-            onChange={(e: any) =>
-              updateImageSettings({
-                max_results: parseOptionalPositiveInteger(e?.target?.value),
-              })
-            }
-          />
-
-          <theme.Switch
-            id="openAIWebSearchImageCaptions"
-            disabled={!webSearchOn || !imageSearchOn}
-            checked={imageSettings.caption === true}
-            label={t("providers:openai.imageSettings.caption")}
-            onChange={(value) => updateImageSettings({ caption: !!value || undefined })}
-          />
-        </div>
-
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
             <theme.Input
@@ -441,11 +406,48 @@ export const OpenAIWebSearchForm = ({
           <theme.Switch
             id="includeSearchResults"
             disabled={!webSearchOn}
-            checked={config?.include?.includes("web_search_call.results")}
+            checked={includeSearchResultsOn}
             label={t("providers:openai.includeSearchResults")}
             onChange={(value) =>
               toggleInclude("web_search_call.results", !!value)
             }
+          />
+        </div>
+
+        <div style={twoColumnGrid}>
+          {SEARCH_CONTENT_TYPE_OPTIONS.map((contentType) => (
+            <theme.Switch
+              key={contentType}
+              id={`openAIWebSearchContentType_${contentType}`}
+              disabled={!webSearchOn || !includeSearchResultsOn}
+              checked={searchContentTypes.includes(contentType)}
+              label={t(`providers:openai.searchContentTypes.${contentType}`)}
+              onChange={(value) => toggleSearchContentType(contentType, !!value)}
+            />
+          ))}
+        </div>
+
+        <div style={twoColumnGrid}>
+          <theme.Input
+            label={t("providers:openai.imageSettings.maxResults")}
+            type="number"
+            min={1}
+            step={1}
+            disabled={!webSearchOn || !includeSearchResultsOn || !imageSearchOn}
+            value={imageSettings.max_results ?? ""}
+            onChange={(e: any) =>
+              updateImageSettings({
+                max_results: parseOptionalPositiveInteger(e?.target?.value),
+              })
+            }
+          />
+
+          <theme.Switch
+            id="openAIWebSearchImageCaptions"
+            disabled={!webSearchOn || !includeSearchResultsOn || !imageSearchOn}
+            checked={imageSettings.caption === true}
+            label={t("providers:openai.imageSettings.caption")}
+            onChange={(value) => updateImageSettings({ caption: !!value || undefined })}
           />
         </div>
       </div>

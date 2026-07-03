@@ -297,8 +297,8 @@
       "image": "Afbeeldingszoekresultaten"
     },
     "imageSettings": {
-      "maxResults": "Maximum aantal afbeeldingsresultaten",
-      "caption": "Inclusief afbeeldingsbijschriften"
+      "maxResults": "Max. aantal afbeeldingen",
+      "caption": "Inclusief bijschriften"
     },
     "truncation": {
       "title": "Inkorten",
