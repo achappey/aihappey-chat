@@ -598,8 +598,8 @@ export const SearchBox = ({ value, onChange, placeholder, className, style, ...r
 
 export const Switch = ({ checked, onChange, label, className, id, ...rest }: any) => (
   <label className={cn("aih-shadcn-label", className)} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-    <SwitchPrimitive.Root id={id} checked={checked} onCheckedChange={onChange} style={{ width: 40, height: 22, borderRadius: 999, border: 0, padding: 2, background: checked ? "var(--aih-shadcn-primary)" : "var(--aih-shadcn-muted)", position: "relative" }} {...rest}>
-      <SwitchPrimitive.Thumb style={{ display: "block", width: 18, height: 18, borderRadius: 999, background: "var(--aih-shadcn-background)", transform: checked ? "translateX(18px)" : "translateX(0)", transition: "transform .15s" }} />
+    <SwitchPrimitive.Root id={id} className="aih-shadcn-switch" checked={checked} onCheckedChange={onChange} {...rest}>
+      <SwitchPrimitive.Thumb className="aih-shadcn-switch-thumb" />
     </SwitchPrimitive.Root>
     {label}
   </label>
@@ -608,11 +608,11 @@ export const Switch = ({ checked, onChange, label, className, id, ...rest }: any
 export const Slider = ({ value, onChange, min = 0, max = 100, step = 1, label, disabled, showValue, valueFormat, className, style, id }: any) => (
   <div className={cn("aih-shadcn-field", className)} style={style}>
     {label ? <label htmlFor={id} className="aih-shadcn-label">{label}{showValue ? ` ${valueFormat ? valueFormat(value) : value}` : ""}</label> : null}
-    <SliderPrimitive.Root id={id} value={[value]} onValueChange={([v]) => onChange?.(v)} min={min} max={max} step={step} disabled={disabled} style={{ position: "relative", display: "flex", alignItems: "center", width: "100%", height: 20 }}>
-      <SliderPrimitive.Track style={{ position: "relative", flexGrow: 1, height: 6, borderRadius: 999, background: "var(--aih-shadcn-secondary)" }}>
-        <SliderPrimitive.Range style={{ position: "absolute", height: "100%", borderRadius: 999, background: "var(--aih-shadcn-primary)" }} />
+    <SliderPrimitive.Root id={id} className="aih-shadcn-slider" value={[value]} onValueChange={([v]) => onChange?.(v)} min={min} max={max} step={step} disabled={disabled}>
+      <SliderPrimitive.Track className="aih-shadcn-slider-track">
+        <SliderPrimitive.Range className="aih-shadcn-slider-range" />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb style={{ display: "block", width: 16, height: 16, borderRadius: 999, border: "2px solid var(--aih-shadcn-primary)", background: "var(--aih-shadcn-background)" }} />
+      <SliderPrimitive.Thumb className="aih-shadcn-slider-thumb" />
     </SliderPrimitive.Root>
   </div>
 );
