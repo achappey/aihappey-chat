@@ -19,6 +19,8 @@ export const minimax: Provider = {
   },
   providerCountry: "CN",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.minimax.io",
+  chatEndpoints: ["/v1/chat/completions"],
 };
 
