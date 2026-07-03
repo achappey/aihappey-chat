@@ -161,8 +161,30 @@ const extractGenericStreamText = (endpoint: GenericEndpointId, event: any): stri
   return extractPlaygroundStreamText(endpoint, event);
 };
 
-const textToDataUrl = (text: string, mediaType: string) =>
-  `data:${mediaType};charset=utf-8,${encodeURIComponent(text)}`;
+  const textToDataUrl = (text: string, mediaType: string) =>
+    `data:${mediaType};charset=utf-8,${encodeURIComponent(text)}`;
+
+  const textToBase64DataUrl = (text: string, mediaType: string) => {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    bytes.forEach((byte) => {
+      binary += String.fromCharCode(byte);
+    });
+    return `data:${mediaType};base64,${btoa(binary)}`;
+  };
+
+  const normalizeEscapedHtmlText = (html: string) => html
+    .replace(/\\\\r\\\\n/g, "\n")
+    .replace(/\\\\n/g, "\n")
+    .replace(/\\\\t/g, "\t")
+    .replace(/\\\\"/g, "\"")
+    .replace(/\\\\\//g, "/")
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\\t/g, "\t")
+    .replace(/\\"/g, "\"")
+    .replace(/\\\//g, "/")
+    .replace(/\\\\/g, "\\");
 
 const INTERACTIONS_PROVIDER_TOOL_TYPES = new Set([
   "function_call",
@@ -232,6 +254,22 @@ const createUiMessageChunkStream = ({
   const imageGenerationFinalFiles = new Set<string>();
   const messagesContentBlocksByIndex = new Map<number, any>();
   const messagesReasoningIdsByIndex = new Map<number, string>();
+  let zaiAgentReasoningOrdinal = 0;
+  let activeZaiAgentReasoningId: string | undefined;
+  let zaiAgentToolOrdinal = 0;
+  let activeZaiAgentTool: {
+    toolCallId: string;
+    toolName: string;
+    title?: string;
+    inputText: string;
+    outputText: string;
+    jsonOutputs: any[];
+    inputAvailable: boolean;
+    inputDeltaJsonOpen: boolean;
+    position?: any;
+    lastEvent?: any;
+    lastObjectPart?: any;
+  } | undefined;
 
   const enqueueChunk = (controller: ReadableStreamDefaultController<Uint8Array>, chunk: any) => {
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
@@ -332,6 +370,7 @@ const createUiMessageChunkStream = ({
     if (!startedText || endedText) return;
     enqueueChunk(controller, { type: "text-end", id: textPartId });
     endedText = true;
+    startedText = false;
   };
 
   const closeReasoning = (controller: ReadableStreamDefaultController<Uint8Array>, id: string) => {
@@ -371,7 +410,13 @@ const createUiMessageChunkStream = ({
 
   const rememberMetadata = (event: any) => {
     if (!event || typeof event !== "object") return;
-    latestModel = event.model ?? event.message?.model ?? event.response?.model ?? event.conversation?.model ?? event.interaction?.model ?? latestModel;
+    latestModel = event.model
+      ?? event.message?.model
+      ?? event.response?.model
+      ?? event.conversation?.model
+      ?? event.interaction?.model
+      ?? (endpoint === "/v1/agents" ? event.agent_id : undefined)
+      ?? latestModel;
     const usage = event.usage
       ?? event.message?.usage
       ?? event.response?.usage
@@ -737,6 +782,222 @@ const createUiMessageChunkStream = ({
     }),
   });
 
+  const isZaiAgentIntermediateFinishReason = (finishReason: unknown) =>
+    String(finishReason ?? "").trim() === "tool_calls";
+
+  const createZaiAgentReasoningId = (event: any) =>
+    `reasoning-zai-agent-${event?.id ?? event?.async_id ?? "stream"}-${++zaiAgentReasoningOrdinal}`;
+
+  const emitZaiAgentReasoningDelta = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+    delta: string,
+  ) => {
+    if (!delta) return false;
+    closeText(controller);
+    flushZaiAgentTool(controller, event, false);
+    if (!activeZaiAgentReasoningId || !activeReasoningIds.has(activeZaiAgentReasoningId)) {
+      activeZaiAgentReasoningId = createZaiAgentReasoningId(event);
+    }
+    emitReasoningDelta(controller, activeZaiAgentReasoningId, delta);
+    return true;
+  };
+
+  const zaiAgentToolTitle = (objectPart: any, obj: any, fallbackToolName: string) =>
+    obj?.title ?? objectPart?.title ?? objectPart?.tag_en ?? objectPart?.tag_cn ?? fallbackToolName;
+
+  const createZaiAgentToolCallId = (event: any, toolName: string) =>
+    `${event?.id ?? event?.async_id ?? "zai-agent"}-${toolName}-${++zaiAgentToolOrdinal}`;
+
+  const isZaiAgentHtmlToolOutput = (toolName?: string, output?: string) => {
+    const normalizedToolName = String(toolName ?? "").trim().toLowerCase();
+    if (normalizedToolName === "add_slide" || normalizedToolName === "insert_page") {
+      return Boolean(output);
+    }
+    return /<html[\s>]|<!doctype html/i.test(String(output ?? ""));
+  };
+
+  const sanitizeZaiAgentFileNamePart = (value: unknown, fallback: string) =>
+    (String(value ?? "").trim().replace(/[^a-z0-9._-]+/gi, "-").replace(/^-+|-+$/g, "") || fallback);
+
+  const escapeJsonStringChunk = (value: string) => JSON.stringify(value).slice(1, -1);
+
+  const zaiAgentSlideId = (tool: NonNullable<typeof activeZaiAgentTool>) => {
+    const position = tool.position;
+    if (Array.isArray(position) && position.length > 0) return position.filter(Boolean).join("-");
+    if (position !== undefined && position !== null && String(position).trim()) return String(position).trim();
+    return sanitizeZaiAgentFileNamePart(tool.title ?? tool.toolCallId, tool.toolCallId);
+  };
+
+  const createZaiAgentToolResult = (tool: NonNullable<typeof activeZaiAgentTool>, preliminary: boolean) => {
+    const parsedOutput = tool.jsonOutputs.length === 0
+      ? (tool.outputText ? safeJsonParse(tool.outputText) : undefined)
+      : tool.jsonOutputs.length === 1
+        ? tool.jsonOutputs[0]
+        : tool.jsonOutputs;
+
+    if (isZaiAgentHtmlToolOutput(tool.toolName, tool.outputText)) {
+      const html = normalizeEscapedHtmlText(tool.outputText);
+      const slideId = zaiAgentSlideId(tool);
+      const filename = `${sanitizeZaiAgentFileNamePart(tool.title ?? slideId, "zai-slide")}.html`;
+      return compactObject({
+        tool_name: tool.toolName,
+        title: tool.title,
+        position: tool.position,
+        media_type: "text/html",
+        filename,
+        url: textToBase64DataUrl(html, "text/html"),
+        preliminary,
+        html,
+      });
+    }
+
+    return compactObject({
+      tool_name: tool.toolName,
+      title: tool.title,
+      position: tool.position,
+      preliminary,
+      output: parsedOutput,
+    });
+  };
+
+  const emitZaiAgentToolInputAvailable = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event?: any,
+  ) => {
+    const tool = activeZaiAgentTool;
+    if (!tool || tool.inputAvailable) return;
+    if (tool.inputDeltaJsonOpen) {
+      enqueueChunk(controller, {
+        type: "tool-input-delta",
+        toolCallId: tool.toolCallId,
+        inputTextDelta: '"}',
+      });
+      tool.inputDeltaJsonOpen = false;
+    }
+    tool.inputAvailable = true;
+    enqueueChunk(controller, {
+      type: "tool-input-available",
+      toolCallId: tool.toolCallId,
+      toolName: tool.toolName,
+      input: tool.inputText.trim() ? safeJsonParse(tool.inputText) : {},
+      providerExecuted: true,
+      title: tool.title,
+      providerMetadata: zaiAgentProviderMetadata(event ?? tool.lastEvent, {
+        phase: "tool",
+        tool_name: tool.toolName,
+        tool_title: tool.title,
+      }),
+    });
+  };
+
+  const emitZaiAgentToolOutputAvailable = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+    preliminary: boolean,
+  ) => {
+    const tool = activeZaiAgentTool;
+    if (!tool || (!tool.outputText && tool.jsonOutputs.length === 0)) return;
+    enqueueChunk(controller, {
+      type: "tool-output-available",
+      toolCallId: tool.toolCallId,
+      output: createZaiAgentToolResult(tool, preliminary),
+      providerExecuted: true,
+      providerMetadata: zaiAgentProviderMetadata(event ?? tool.lastEvent, {
+        phase: "tool",
+        tool_name: tool.toolName,
+        tool_title: tool.title,
+      }),
+    });
+  };
+
+  const emitZaiAgentToolFile = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+  ) => {
+    const tool = activeZaiAgentTool;
+    if (!tool || !isZaiAgentHtmlToolOutput(tool.toolName, tool.outputText)) return;
+    const result = createZaiAgentToolResult(tool, false) as any;
+    enqueueChunk(controller, {
+      type: "file",
+      url: result.url,
+      mediaType: "text/html",
+      providerMetadata: zaiAgentProviderMetadata(event ?? tool.lastEvent, {
+        phase: "tool",
+        tool_name: tool.toolName,
+        tool_title: tool.title,
+        filename: result.filename,
+        final: true,
+      }),
+    });
+  };
+
+  const flushZaiAgentTool = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+    preliminary: boolean,
+  ) => {
+    const tool = activeZaiAgentTool;
+    if (!tool) return;
+    emitZaiAgentToolInputAvailable(controller, event);
+    if (tool.outputText || tool.jsonOutputs.length > 0) {
+      emitZaiAgentToolOutputAvailable(controller, event, preliminary);
+      if (!preliminary) emitZaiAgentToolFile(controller, event);
+    }
+    if (!preliminary) activeZaiAgentTool = undefined;
+  };
+
+  const ensureZaiAgentTool = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    event: any,
+    objectPart: any,
+    obj: any,
+    toolName: string,
+    title: string,
+  ) => {
+    closeActiveReasoning(controller);
+    closeText(controller);
+
+    const incomingStartsNewTool = activeZaiAgentTool
+      && (
+        activeZaiAgentTool.toolName !== toolName
+        || ((activeZaiAgentTool.outputText || activeZaiAgentTool.jsonOutputs.length > 0) && obj?.input !== undefined && obj?.output === undefined)
+      );
+    if (incomingStartsNewTool) flushZaiAgentTool(controller, event, false);
+
+    ensureStepStarted(controller);
+    if (!activeZaiAgentTool) {
+      activeZaiAgentTool = {
+        toolCallId: obj?.id ?? createZaiAgentToolCallId(event, toolName),
+        toolName,
+        title,
+        inputText: "",
+        outputText: "",
+        jsonOutputs: [],
+        inputAvailable: false,
+        inputDeltaJsonOpen: false,
+      };
+      const tool = activeZaiAgentTool;
+      enqueueChunk(controller, {
+        type: "tool-input-start",
+        toolCallId: tool.toolCallId,
+        toolName,
+        providerExecuted: true,
+        title,
+        providerMetadata: zaiAgentProviderMetadata(event, { phase: "tool", tool_name: toolName, tool_title: title }),
+      });
+      startedToolCalls.add(tool.toolCallId);
+    }
+
+    const tool = activeZaiAgentTool;
+    if (!tool) return undefined;
+    tool.title ||= title;
+    tool.lastEvent = event;
+    tool.lastObjectPart = objectPart;
+    if (obj?.position !== undefined) tool.position = obj.position;
+    return tool;
+  };
+
   const emitZaiAgentText = (
     controller: ReadableStreamDefaultController<Uint8Array>,
     event: any,
@@ -747,10 +1008,10 @@ const createUiMessageChunkStream = ({
     if (!delta) return false;
 
     if (phase === "thinking") {
-      emitReasoningDelta(controller, `reasoning-zai-agent-${event?.id ?? "stream"}`, delta);
-      return true;
+      return emitZaiAgentReasoningDelta(controller, event, delta);
     }
 
+    flushZaiAgentTool(controller, event, false);
     closeActiveReasoning(controller);
     ensureStarted(controller);
     finalTextBuffer += delta;
@@ -767,56 +1028,40 @@ const createUiMessageChunkStream = ({
     controller: ReadableStreamDefaultController<Uint8Array>,
     event: any,
     objectPart: any,
-    index: number,
+    _index: number,
     phase?: string,
   ) => {
     const obj = objectPart?.object && typeof objectPart.object === "object" ? objectPart.object : objectPart;
     const toolName = obj?.tool_name ?? objectPart?.tool_name ?? "zai_agent_tool";
-    const toolCallId = obj?.id ?? `${event?.id ?? event?.async_id ?? "zai-agent"}-${toolName}-${index}`;
-    const title = objectPart?.title ?? objectPart?.tag_en ?? objectPart?.tag_cn ?? toolName;
+    const title = zaiAgentToolTitle(objectPart, obj, toolName);
+    const tool = ensureZaiAgentTool(controller, event, objectPart, obj, toolName, title);
+    if (!tool) return;
 
-    ensureStepStarted(controller);
-    if (!startedToolCalls.has(toolCallId)) {
-      enqueueChunk(controller, {
-        type: "tool-input-start",
-        toolCallId,
-        toolName,
-        providerExecuted: true,
-        title,
-      });
-      startedToolCalls.add(toolCallId);
-    }
-
-    enqueueChunk(controller, {
-      type: "tool-input-available",
-      toolCallId,
-      toolName,
-      input: safeJsonParse(obj?.input ?? {}),
-      providerExecuted: true,
-      title,
-      providerMetadata: zaiAgentProviderMetadata(event, { phase, tool_name: toolName, tool_title: title }),
-    });
-
-    if (!emittedToolOutputs.has(toolCallId)) {
-      const output = safeJsonParse(obj?.output ?? obj?.result ?? obj ?? {});
-      enqueueChunk(controller, {
-        type: "tool-output-available",
-        toolCallId,
-        output,
-        providerExecuted: true,
-        providerMetadata: zaiAgentProviderMetadata(event, { phase, tool_name: toolName, tool_title: title }),
-      });
-      emittedToolOutputs.add(toolCallId);
-
-      if (typeof obj?.output === "string" && /<html[\s>]|<!doctype html/i.test(obj.output)) {
+    if (obj?.input !== undefined) {
+      const rawInputDelta = typeof obj.input === "string" ? obj.input : JSON.stringify(obj.input);
+      const inputTextDelta = tool.inputDeltaJsonOpen
+        ? escapeJsonStringChunk(rawInputDelta)
+        : `{"input":"${escapeJsonStringChunk(rawInputDelta)}`;
+      if (inputTextDelta) {
+        tool.inputText += rawInputDelta;
+        tool.inputDeltaJsonOpen = true;
         enqueueChunk(controller, {
-          type: "file",
-          url: textToDataUrl(obj.output, "text/html"),
-          mediaType: "text/html",
-          filename: `${String(title || toolName).replace(/[^a-z0-9._-]+/gi, "-") || "zai-slide"}.html`,
-          providerMetadata: zaiAgentProviderMetadata(event, { phase, tool_name: toolName, tool_title: title }),
+          type: "tool-input-delta",
+          toolCallId: tool.toolCallId,
+          inputTextDelta,
         });
       }
+    }
+
+    if (obj?.output !== undefined || obj?.result !== undefined) {
+      emitZaiAgentToolInputAvailable(controller, event);
+      const output = obj?.output ?? obj?.result;
+      if (typeof output === "string") {
+        tool.outputText += output;
+      } else if (output !== undefined && output !== null) {
+        tool.jsonOutputs.push(output);
+      }
+      emitZaiAgentToolOutputAvailable(controller, event, true);
     }
   };
 
@@ -876,6 +1121,11 @@ const createUiMessageChunkStream = ({
       if (message) emitted = handleZaiAgentMessage(controller, event, message, choiceIndex) || emitted;
       if (choice?.finish_reason) {
         rememberMetadata(event);
+        if (isZaiAgentIntermediateFinishReason(choice.finish_reason)) {
+          flushZaiAgentTool(controller, event, false);
+          continue;
+        }
+        flushZaiAgentTool(controller, event, false);
         if (!emitted && !startedText) ensureMessageStarted(controller);
         finish(controller, choice.finish_reason);
       }
