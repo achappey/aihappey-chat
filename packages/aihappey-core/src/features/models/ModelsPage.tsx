@@ -52,6 +52,11 @@ const toFiniteNumber = (value?: string | number | null) => {
   return Number.isFinite(n) ? n : undefined;
 };
 
+const toNonNegativeFiniteNumber = (value?: string | number | null) => {
+  const n = toFiniteNumber(value);
+  return n !== undefined && n >= 0 ? n : undefined;
+};
+
 const createNumericRange = (values: Array<number | undefined>) => {
   const finiteValues = values.filter((value): value is number =>
     typeof value === "number" && Number.isFinite(value)
@@ -93,6 +98,40 @@ const normalizeRangeSelection = (
 const getModelProviderId = (model: ModelOption) =>
   getModelProviderKey(model.id, model) ?? model.id.split("/")[0].toLowerCase();
 
+const normalizeProviderLookupValue = (value?: string) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+
+const getEnabledProviderBucketForModelType = (
+  enabledProviderKeysByType: Record<string, string[]>,
+  type?: string,
+) => {
+  const primary = type ? enabledProviderKeysByType[type] : undefined;
+  if (primary?.length) return primary;
+
+  if (type === "audio") {
+    const realtime = enabledProviderKeysByType.realtime;
+    if (realtime?.length) return realtime;
+  }
+
+  const language = enabledProviderKeysByType.language;
+  if (language?.length) return language;
+
+  return primary ?? [];
+};
+
+const getAllEnabledProviderKeys = (enabledProviderKeysByType: Record<string, string[]>) =>
+  Array.from(new Set(Object.values(enabledProviderKeysByType).flat()));
+
+const getEnabledProviderKeysForModels = (
+  enabledProviderKeysByType: Record<string, string[]>,
+  models: ModelOption[],
+) => Array.from(new Set(models.flatMap((model) =>
+  getEnabledProviderBucketForModelType(enabledProviderKeysByType, model.type)
+)));
+
 const PRICE_PER_MILLION_TOKENS_MULTIPLIER = 1_000_000;
 const ENABLED_PROVIDERS_FILTER_VALUE = "__ENABLED_PROVIDERS__";
 
@@ -122,6 +161,7 @@ export const ModelsPage = () => {
   const [selectedProviderKeys, setSelectedProviderKeys] = useState<string[]>([
     PROVIDER_LOCATION_ALL_FILTER_VALUE,
   ]);
+  const [providerFilterTouched, setProviderFilterTouched] = useState(false);
   const [contextFilterEnabled, setContextFilterEnabled] = useState(false);
   const [priceFilterEnabled, setPriceFilterEnabled] = useState(false);
   const [contextMin, setContextMin] = useState<number | null>(null);
@@ -169,6 +209,7 @@ export const ModelsPage = () => {
     if (v === undefined || v === null || v === "") return "";
     const n = Number(v);
     if (!Number.isFinite(n)) return String(v);
+    if (n < 0) return "";
     return money.format(n);
   };
 
@@ -216,8 +257,13 @@ export const ModelsPage = () => {
   const providerNameToKey = useMemo(() => {
     const mapping: Record<string, string> = {};
     Object.entries(PROVIDERS as Record<string, any>).forEach(([key, provider]) => {
+      mapping[key] = key;
+      mapping[normalizeProviderLookupValue(key)] = key;
+
       if (provider?.name) {
         mapping[String(provider.name)] = key;
+        mapping[String(provider.name).toLowerCase()] = key;
+        mapping[normalizeProviderLookupValue(provider.name)] = key;
       }
     });
     return mapping;
@@ -227,24 +273,28 @@ export const ModelsPage = () => {
     const byType: Record<string, string[]> = {};
     Object.entries(enabledProvidersByType ?? {}).forEach(([type, names]) => {
       byType[type] = (names ?? [])
-        .map((name) => providerNameToKey[name] ?? String(name).toLowerCase())
+        .map((name) => {
+          const value = String(name ?? "").trim();
+          return providerNameToKey[value]
+            ?? providerNameToKey[value.toLowerCase()]
+            ?? providerNameToKey[normalizeProviderLookupValue(value)]
+            ?? value.toLowerCase();
+        })
         .filter(Boolean);
     });
     return byType;
   }, [enabledProvidersByType, providerNameToKey]);
 
-  const enabledProviderKeysForActiveTab = useMemo(() => {
-    return enabledProviderKeysByType[activeTab]
-      ?? (activeTab === "audio" ? enabledProviderKeysByType.realtime : undefined)
-      ?? [];
-  }, [activeTab, enabledProviderKeysByType]);
-
-  const hasEnabledProvidersForActiveTab = enabledProviderKeysForActiveTab.length > 0;
-
   const activeTabModels = useMemo(
     () => visibleModels.filter((model) => model.type === activeTab),
     [activeTab, visibleModels]
   );
+
+  const enabledProviderKeysForActiveTab = useMemo(() => {
+    return getEnabledProviderKeysForModels(enabledProviderKeysByType, activeTabModels);
+  }, [activeTabModels, enabledProviderKeysByType]);
+
+  const hasEnabledProvidersForActiveTab = enabledProviderKeysForActiveTab.length > 0;
 
   const contextRange = useMemo(
     () => createNumericRange(activeTabModels.map((model) => toFiniteNumber(model.context_window))),
@@ -252,12 +302,12 @@ export const ModelsPage = () => {
   );
 
   const inputPriceRange = useMemo(
-    () => createNumericRange(activeTabModels.map((model) => toFiniteNumber(model.pricing?.input))),
+    () => createNumericRange(activeTabModels.map((model) => toNonNegativeFiniteNumber(model.pricing?.input))),
     [activeTabModels]
   );
 
   const outputPriceRange = useMemo(
-    () => createNumericRange(activeTabModels.map((model) => toFiniteNumber(model.pricing?.output))),
+    () => createNumericRange(activeTabModels.map((model) => toNonNegativeFiniteNumber(model.pricing?.output))),
     [activeTabModels]
   );
 
@@ -317,9 +367,7 @@ export const ModelsPage = () => {
 
     if (selectedProviderKeys.includes(ENABLED_PROVIDERS_FILTER_VALUE)) {
       const providerId = getModelProviderId(model);
-      const enabledProviderKeys = enabledProviderKeysByType[model.type]
-        ?? (model.type === "audio" ? enabledProviderKeysByType.realtime : undefined)
-        ?? [];
+      const enabledProviderKeys = getAllEnabledProviderKeys(enabledProviderKeysByType);
       if (!enabledProviderKeys.includes(providerId)) return false;
     } else if (!isAllFilterSelected(selectedProviderKeys)) {
       const providerId = getModelProviderId(model);
@@ -333,8 +381,8 @@ export const ModelsPage = () => {
     }
 
     if (priceFilterEnabled) {
-      const inputPrice = toFiniteNumber(model.pricing?.input);
-      const outputPrice = toFiniteNumber(model.pricing?.output);
+      const inputPrice = toNonNegativeFiniteNumber(model.pricing?.input);
+      const outputPrice = toNonNegativeFiniteNumber(model.pricing?.output);
       if (inputPrice === undefined || outputPrice === undefined) return false;
       if (inputPrice < effectiveInputPriceRange.min || inputPrice > effectiveInputPriceRange.max) return false;
       if (outputPrice < effectiveOutputPriceRange.min || outputPrice > effectiveOutputPriceRange.max) return false;
@@ -387,6 +435,12 @@ export const ModelsPage = () => {
 
   useEffect(() => {
     setSelectedProviderKeys((current) => {
+      if (!providerFilterTouched && hasEnabledProvidersForActiveTab) {
+        return sameSelection(current, [ENABLED_PROVIDERS_FILTER_VALUE])
+          ? current
+          : [ENABLED_PROVIDERS_FILTER_VALUE];
+      }
+
       const next = keepAvailableSelection(
         current,
         hasEnabledProvidersForActiveTab
@@ -395,7 +449,7 @@ export const ModelsPage = () => {
       );
       return sameSelection(current, next) ? current : next;
     });
-  }, [hasEnabledProvidersForActiveTab, providerOptionKeys]);
+  }, [hasEnabledProvidersForActiveTab, providerFilterTouched, providerOptionKeys]);
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -455,7 +509,7 @@ export const ModelsPage = () => {
         header: "Input",
         sortable: true,
         sortFn: (a, b) =>
-          (Number(a.pricing?.input ?? NaN) || 0) - (Number(b.pricing?.input ?? NaN) || 0),
+          (toNonNegativeFiniteNumber(a.pricing?.input) ?? 0) - (toNonNegativeFiniteNumber(b.pricing?.input) ?? 0),
         render: (row) => formatPrice(row.pricing?.input),
       },
       {
@@ -463,7 +517,7 @@ export const ModelsPage = () => {
         header: "Output",
         sortable: true,
         sortFn: (a, b) =>
-          (Number(a.pricing?.output ?? NaN) || 0) - (Number(b.pricing?.output ?? NaN) || 0),
+          (toNonNegativeFiniteNumber(a.pricing?.output) ?? 0) - (toNonNegativeFiniteNumber(b.pricing?.output) ?? 0),
         render: (row) => formatPrice(row.pricing?.output),
       },
       {
@@ -764,12 +818,14 @@ export const ModelsPage = () => {
                         selected: selectedProviderKeys,
                         allLabel: t("all"),
                         getLabel: (providerKey) => providerKey === ENABLED_PROVIDERS_FILTER_VALUE
-                          ? "Enabled providers"
+                          ? t("enabled")
                           : providerLabelByKey[providerKey] ?? providerKey,
                       })}
                       onChange={(e: ChangeEvent<HTMLSelectElement> | any) => {
                         const selectedValue = resolveSelectionValue(e);
                         if (typeof selectedValue !== "string") return;
+
+                        setProviderFilterTouched(true);
 
                         if (selectedValue === ENABLED_PROVIDERS_FILTER_VALUE) {
                           setSelectedProviderKeys([ENABLED_PROVIDERS_FILTER_VALUE]);
@@ -788,7 +844,7 @@ export const ModelsPage = () => {
                     >
                       <option value={PROVIDER_LOCATION_ALL_FILTER_VALUE}>{t("all")}</option>
                       {hasEnabledProvidersForActiveTab ? (
-                        <option value={ENABLED_PROVIDERS_FILTER_VALUE}>Enabled providers</option>
+                        <option value={ENABLED_PROVIDERS_FILTER_VALUE}>{t("enabled")}</option>
                       ) : null}
                       {providerOptions.map((provider) => (
                         <option key={provider.key} value={provider.key}>

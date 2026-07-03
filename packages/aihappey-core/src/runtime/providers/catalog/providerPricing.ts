@@ -178,7 +178,7 @@ export const calculateProviderPricingCost = ({
   const addCost = (tokenCount: number | undefined, price: unknown) => {
     if (tokenCount === undefined) return;
     const numericPrice = toFiniteNumber(price);
-    if (numericPrice === undefined) return;
+    if (numericPrice === undefined || numericPrice < 0) return;
     cost += tokenCount * numericPrice;
     hasPricedUsage = true;
   };
