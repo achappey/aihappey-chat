@@ -5,6 +5,7 @@ import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from 
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
     getAgentModelProviderKey,
+    resolveAgentModelProviderHeaders,
     resolveAgentModelProviderMetadata,
     useAppStore,
 } from "aihappey-state";
@@ -323,6 +324,7 @@ export const AgentForm = ({
 
     const providerKey = getAgentModelProviderKey(agent?.model?.id);
     const providerMeta = agent?.model?.providerMetadata ?? {};
+    const providerHeaders = agent?.model?.providerHeaders ?? {};
     const updateProviderMetadata = (patch: any) =>
         onChange({
             ...agent,
@@ -332,6 +334,20 @@ export const AgentForm = ({
                     ...agent.model?.providerMetadata,
                     ...patch,
                 },
+            },
+        });
+    const updateProviderHeaders = (headers: Record<string, string> | undefined) =>
+        onChange({
+            ...agent,
+            model: {
+                ...agent.model,
+                providerHeaders: headers && Object.keys(headers).length ? {
+                    ...(agent.model?.providerHeaders ?? {}),
+                    [providerKey]: headers,
+                } : Object.fromEntries(
+                    Object.entries(agent.model?.providerHeaders ?? {})
+                        .filter(([key]) => key !== providerKey)
+                ),
             },
         });
 
@@ -402,6 +418,12 @@ export const AgentForm = ({
                                         previousModelId: agent.model?.id,
                                         nextModelId: id,
                                         previousProviderMetadata: agent.model?.providerMetadata,
+                                    }),
+                                    providerHeaders: resolveAgentModelProviderHeaders({
+                                        previousModelId: agent.model?.id,
+                                        nextModelId: id,
+                                        previousProviderMetadata: agent.model?.providerMetadata,
+                                        previousProviderHeaders: agent.model?.providerHeaders,
                                     }),
                                 },
                             })
@@ -521,16 +543,20 @@ export const AgentForm = ({
                     {providerKey === "openrouter" && (
                         <OpenRouterChatConfigForm
                             config={providerMeta}
+                            headers={providerHeaders[providerKey] ?? {}}
                             appTitle={chatConfig?.appName}
                             updateConfig={updateProviderMetadata}
+                            updateHeaders={updateProviderHeaders}
                         />
                     )}
 
                     {providerKey === "requesty" && (
                         <RequestyChatConfigForm
                             config={providerMeta}
+                            headers={providerHeaders[providerKey] ?? {}}
                             appTitle={chatConfig?.appName}
                             updateConfig={updateProviderMetadata}
+                            updateHeaders={updateProviderHeaders}
                         />
                     )}
 
@@ -544,7 +570,9 @@ export const AgentForm = ({
                     {providerKey === "anthropic" && (
                         <AnthropicChatConfigForm
                             config={providerMeta}
+                            headers={providerHeaders[providerKey] ?? {}}
                             updateConfig={updateProviderMetadata}
+                            updateHeaders={updateProviderHeaders}
                         />
                     )}
 

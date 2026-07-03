@@ -30,13 +30,22 @@ const removeAttributionHeaders = (headers: Record<string, any> | undefined) => {
   return Object.keys(nextHeaders).length ? nextHeaders : undefined;
 };
 
+const removeConfigHeaders = (config: any) => {
+  const { headers: _headers, ...bodyConfig } = config ?? {};
+  return bodyConfig;
+};
+
 export const RequestyChatConfigForm = ({
   config,
+  headers,
   updateConfig,
+  updateHeaders,
   appTitle,
 }: {
   config: any;
+  headers?: Record<string, string>;
   updateConfig: (val: any) => void;
+  updateHeaders?: (val: Record<string, string> | undefined) => void;
   appTitle?: string;
 }) => {
   const theme = useTheme();
@@ -44,29 +53,28 @@ export const RequestyChatConfigForm = ({
   const autoCacheEnabled = config?.requesty?.auto_cache !== false;
   const appAttributionHeaders = getAttributionHeaders(appTitle);
   const appAttributionOn =
-    !!config?.headers?.[APP_ATTRIBUTION_HEADERS.referer] &&
-    !!config?.headers?.[APP_ATTRIBUTION_HEADERS.title];
+    !!headers?.[APP_ATTRIBUTION_HEADERS.referer] &&
+    !!headers?.[APP_ATTRIBUTION_HEADERS.title];
 
   const updateAutoCache = (enabled: boolean) => {
-    updateConfig({
+    updateConfig(removeConfigHeaders({
       ...(config ?? {}),
       requesty: {
         ...(config?.requesty ?? {}),
         auto_cache: enabled,
       },
-    });
+    }));
   };
 
   const updateAppAttribution = (enabled: boolean) => {
-    updateConfig({
-      ...(config ?? {}),
-      headers: enabled
+    updateHeaders?.(
+      enabled
         ? {
-          ...(config?.headers ?? {}),
+          ...(headers ?? {}),
           ...appAttributionHeaders,
         }
-        : removeAttributionHeaders(config?.headers),
-    });
+        : removeAttributionHeaders(headers)
+    );
   };
 
   return (

@@ -33,6 +33,8 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const { t } = useTranslation();
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
+  const providerHeaders = useAppStore((s) => s.providerHeaders);
+  const setProviderHeaders = useAppStore((s) => s.setProviderHeaders);
   const approveAll = useAppStore((s) => s.approveAll);
   const selectedModel = useAppStore((s) => s.selectedModel);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
@@ -273,10 +275,12 @@ export const MessageInput = (props: UseMessageInputOptions) => {
 
             <ChatSettingsButton
               providerMetadata={providerMetadata}
+              providerHeaders={providerHeaders ?? {}}
               temperature={props.temperature}
               resetDefaults={resetChatSettings}
               temperatureChanged={props.temperatureChanged}
               setProviderMetadata={setProviderMetadata}
+              setProviderHeaders={setProviderHeaders}
             />
             <AttachmentButton
               disabled={props.disabled}

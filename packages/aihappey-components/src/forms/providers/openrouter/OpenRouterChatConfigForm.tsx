@@ -19,6 +19,12 @@ const APP_ATTRIBUTION_HEADERS = {
   categories: "X-OpenRouter-Categories",
 } as const;
 
+const APP_ATTRIBUTION_HEADER_ALIASES = {
+  referer: ["HTTP-Referer", "Referer"],
+  title: ["X-OpenRouter-Title", "X-Openrouter-Title"],
+  categories: ["X-OpenRouter-Categories", "X-Openrouter-Categories"],
+} as const;
+
 const APP_ATTRIBUTION_CATEGORIES = "general-chat,personal-agent";
 const DEFAULT_APP_TITLE = "AIHappey";
 
@@ -124,10 +130,17 @@ const getAttributionHeaders = (appTitle?: string) => ({
 
 const removeAttributionHeaders = (headers: Record<string, any> | undefined) => {
   const nextHeaders = { ...(headers ?? {}) };
-  delete nextHeaders[APP_ATTRIBUTION_HEADERS.referer];
-  delete nextHeaders[APP_ATTRIBUTION_HEADERS.title];
-  delete nextHeaders[APP_ATTRIBUTION_HEADERS.categories];
+  Object.values(APP_ATTRIBUTION_HEADER_ALIASES)
+    .flat()
+    .forEach((header) => {
+      delete nextHeaders[header];
+    });
   return Object.keys(nextHeaders).length ? nextHeaders : undefined;
+};
+
+const removeConfigHeaders = (config: any) => {
+  const { headers: _headers, ...bodyConfig } = config ?? {};
+  return bodyConfig;
 };
 
 const optionItems = (values: readonly string[], notSetLabel: string) =>
@@ -142,18 +155,22 @@ const tk = (t: (key: string, options?: any) => string, key: string, fallback: st
 
 export const OpenRouterChatConfigForm = ({
   config,
+  headers,
   updateConfig,
+  updateHeaders,
   appTitle,
 }: {
   config: any;
+  headers?: Record<string, string>;
   updateConfig: (val: any) => void;
+  updateHeaders?: (val: Record<string, string> | undefined) => void;
   appTitle?: string;
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const resolvedConfig = withResolvedProviderTools(config, OPENROUTER_TOOL_TYPES);
   const submitConfig = (nextConfig: any) =>
-    updateConfig(buildCanonicalProviderToolsConfig(nextConfig, OPENROUTER_TOOL_TYPES));
+    updateConfig(buildCanonicalProviderToolsConfig(removeConfigHeaders(nextConfig), OPENROUTER_TOOL_TYPES));
 
   const webSearch = resolvedConfig?.["openrouter:web_search"];
   const datetime = resolvedConfig?.["openrouter:datetime"];
@@ -164,9 +181,9 @@ export const OpenRouterChatConfigForm = ({
   const fileParserPlugin = getPlugin(resolvedConfig, "file-parser");
   const appAttributionHeaders = useMemo(() => getAttributionHeaders(appTitle), [appTitle]);
   const appAttributionOn =
-    !!resolvedConfig?.headers?.[APP_ATTRIBUTION_HEADERS.referer] &&
-    !!resolvedConfig?.headers?.[APP_ATTRIBUTION_HEADERS.title] &&
-    resolvedConfig?.headers?.[APP_ATTRIBUTION_HEADERS.categories] === APP_ATTRIBUTION_CATEGORIES;
+    !!headers?.[APP_ATTRIBUTION_HEADERS.referer] &&
+    !!headers?.[APP_ATTRIBUTION_HEADERS.title] &&
+    headers?.[APP_ATTRIBUTION_HEADERS.categories] === APP_ATTRIBUTION_CATEGORIES;
 
   const twoColumnGrid = {
     display: "grid",
@@ -186,15 +203,14 @@ export const OpenRouterChatConfigForm = ({
     updateTool(type, withToolParameters(tool, patch));
 
   const updateAppAttribution = (enabled: boolean) => {
-    submitConfig({
-      ...resolvedConfig,
-      headers: enabled
+    updateHeaders?.(
+      enabled
         ? {
-          ...(resolvedConfig?.headers ?? {}),
+          ...(removeAttributionHeaders(headers) ?? {}),
           ...appAttributionHeaders,
         }
-        : removeAttributionHeaders(resolvedConfig?.headers),
-    });
+        : removeAttributionHeaders(headers)
+    );
   };
 
   const updateZdr = (enabled: boolean) => {

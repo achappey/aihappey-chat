@@ -10,6 +10,8 @@ export interface ChatSettingsButtonOptions {
   resetDefaults?: any;
   providerMetadata: any;
   setProviderMetadata: (meta: any | ((current: any) => any)) => void;
+  providerHeaders: Record<string, Record<string, string>>;
+  setProviderHeaders: (headers: Record<string, Record<string, string>> | ((current: Record<string, Record<string, string>> | undefined) => Record<string, Record<string, string>> | undefined)) => void;
 }
 
 export const ChatSettingsButton = (props: ChatSettingsButtonOptions) => {
@@ -17,8 +19,10 @@ export const ChatSettingsButton = (props: ChatSettingsButtonOptions) => {
     temperature,
     temperatureChanged,
     providerMetadata,
+    providerHeaders,
     resetDefaults,
     setProviderMetadata,
+    setProviderHeaders,
   } = props;
   const { Button } = useTheme();
   const { t } = useTranslation();
@@ -44,6 +48,8 @@ export const ChatSettingsButton = (props: ChatSettingsButtonOptions) => {
         resetDefaults={resetDefaults}
         providerMetadata={providerMetadata}
         setProviderMetadata={setProviderMetadata}
+        providerHeaders={providerHeaders}
+        setProviderHeaders={setProviderHeaders}
       />
       <ProviderKeysModal open={showProviderKeys} onClose={() => setShowProviderKeys(false)} />
     </>

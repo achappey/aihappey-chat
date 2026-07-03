@@ -59,23 +59,40 @@ const SORTED_BETA_OPTIONS = [...BETA_OPTIONS].sort((a, b) =>
 
 export const AnthropicBetaCard = ({
     config,
+    headers,
     updateConfig,
+    updateHeaders,
 }: {
     config: any;
+    headers?: Record<string, string>;
     updateConfig: (val: any) => void;
+    updateHeaders?: (val: Record<string, string> | undefined) => void;
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
-    const enabled = parseAnthropicBeta(config?.["anthropic-beta"]);
+    const enabled = parseAnthropicBeta(headers?.["anthropic-beta"] ?? config?.["anthropic-beta"]);
 
     const toggleOption = (option: string, isOn: boolean) => {
         const next = isOn
             ? Array.from(new Set([...enabled, option]))
             : enabled.filter((item: string) => item !== option);
+        const nextHeaders = { ...(headers ?? {}) };
+        const serialized = next.join(",");
+
+        if (serialized) {
+            nextHeaders["anthropic-beta"] = serialized;
+        } else {
+            delete nextHeaders["anthropic-beta"];
+        }
+
+        if (updateHeaders) {
+            updateHeaders(Object.keys(nextHeaders).length ? nextHeaders : undefined);
+            return;
+        }
 
         updateConfig({
             ...config,
-            "anthropic-beta": next.join(","),
+            "anthropic-beta": serialized || undefined,
         });
     };
 

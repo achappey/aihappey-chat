@@ -17,6 +17,7 @@ import {
   resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
+  resolveEndpointProfileRequestProviderHeaders,
   resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
@@ -73,6 +74,7 @@ export function useChatActions({
   const endpointProviderMetadataEnabled = useAppStore(a => a.endpointProviderMetadataEnabled)
   const activeProviderMetadata = useActiveProviderMetadata();
   const allProviderMetadata = useAppStore(a => a.providerMetadata)
+  const allProviderHeaders = useAppStore(a => a.providerHeaders)
   const providers = useProviderRegistry()
   const models = useAppStore(a => a.models)
   const selectedModelOption = useMemo(
@@ -127,6 +129,14 @@ export function useChatActions({
     }),
     [activeProviderMetadata, allProviderMetadata, requestEndpointProfile, endpointProviderMetadataEnabled],
   );
+  const providerHeaders = useMemo(
+    () => resolveEndpointProfileRequestProviderHeaders({
+      providerHeaders: allProviderHeaders,
+      endpointProfile: requestEndpointProfile,
+      selectedModelProviderKey: selectedModel?.split("/")[0],
+    }),
+    [allProviderHeaders, requestEndpointProfile, selectedModel],
+  );
   const endpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({
       activeProviderMetadata,
@@ -166,6 +176,7 @@ export function useChatActions({
               tools: finalTools,
               temperature,
               providerMetadata,
+              providerHeaders,
               ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
               ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
               ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
@@ -188,6 +199,7 @@ export function useChatActions({
       addMessage,
       sendMessage,
       providerMetadata,
+      providerHeaders,
       providerRequestConfig,
       isProviderEndpointProfile,
       requestEndpointProfile,
@@ -224,6 +236,7 @@ export function useChatActions({
               tools: finalTools,
               temperature,
               providerMetadata,
+              providerHeaders,
               ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
               ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
               ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
@@ -256,6 +269,7 @@ export function useChatActions({
       selectedAgentRequest.models,
       workflowType,
       providerMetadata,
+      providerHeaders,
       providerRequestConfig,
       isProviderEndpointProfile,
       requestEndpointProfile,

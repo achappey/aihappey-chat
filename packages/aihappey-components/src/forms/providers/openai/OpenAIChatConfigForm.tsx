@@ -67,7 +67,8 @@ export const OpenAIChatConfigForm = ({
   const serviceTierOptions = ["auto", "default", "flex", "scale", "priority"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";
   const truncationOptions = ["auto", "disabled"];
-  const truncationValue = resolvedConfig?.truncation ?? "auto";
+  const truncationEnabled = resolvedConfig?.truncation != null;
+  const truncationValue = truncationEnabled ? resolvedConfig.truncation : "auto";
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
   const contextManagement = useMemo(
     () =>
@@ -88,6 +89,23 @@ export const OpenAIChatConfigForm = ({
       ...resolvedConfig,
       context_management: nextEntries.length > 0 ? nextEntries : undefined,
     });
+
+  const omitTruncation = (nextConfig: any) => {
+    const { truncation: _truncation, ...rest } = nextConfig ?? {};
+    return rest;
+  };
+
+  const updateTruncationEnabled = (enabled: boolean) => {
+    if (enabled) {
+      submitConfig({
+        ...resolvedConfig,
+        truncation: resolvedConfig?.truncation ?? "auto",
+      });
+      return;
+    }
+
+    submitConfig(omitTruncation(resolvedConfig));
+  };
 
   const startContextManagementEdit = (
     index: number,
@@ -336,6 +354,45 @@ export const OpenAIChatConfigForm = ({
         </div>
       </theme.Card>
 
+      <theme.Card
+        size="small"
+        title={t("providers:openai.truncation.title")}
+        headerActions={
+          <theme.Switch
+            id="openai-truncation-enabled"
+            checked={truncationEnabled}
+            onChange={updateTruncationEnabled}
+          />
+        }
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <theme.Select
+            label={t("providers:openai.truncation.title")}
+            values={[truncationValue]}
+            valueTitle={t(`providers:openai.truncation.${truncationValue}`)}
+            disabled={!truncationEnabled}
+            options={truncationOptions.map((value) => ({
+              value,
+              label: t(`providers:openai.truncation.${value}`),
+            }))}
+            onChange={(value: string) => {
+              if (!truncationEnabled) return;
+
+              submitConfig({
+                ...resolvedConfig,
+                truncation: String(value ?? "auto"),
+              });
+            }}
+          >
+            {truncationOptions.map((value) => (
+              <option key={value} value={value}>
+                {t(`providers:openai.truncation.${value}`)}
+              </option>
+            ))}
+          </theme.Select>
+        </div>
+      </theme.Card>
+
       <theme.Card size="small" title={t("other")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
@@ -357,28 +414,6 @@ export const OpenAIChatConfigForm = ({
             {IMAGE_INPUT_DETAIL_OPTIONS.map((value) => (
               <option key={value} value={value}>
                 {t(`providers:openai.imageInputDetail.${value}`)}
-              </option>
-            ))}
-          </theme.Select>
-
-          <theme.Select
-            label={t("providers:openai.truncation.title")}
-            values={[truncationValue]}
-            valueTitle={t(`providers:openai.truncation.${truncationValue}`)}
-            options={truncationOptions.map((value) => ({
-              value,
-              label: t(`providers:openai.truncation.${value}`),
-            }))}
-            onChange={(value: string) =>
-              submitConfig({
-                ...resolvedConfig,
-                truncation: String(value ?? "auto"),
-              })
-            }
-          >
-            {truncationOptions.map((value) => (
-              <option key={value} value={value}>
-                {t(`providers:openai.truncation.${value}`)}
               </option>
             ))}
           </theme.Select>

@@ -2179,9 +2179,20 @@ export function wrapGenericChatFetch({
       const hasRawUiMessages = Array.isArray(rawBody?.messages)
         && rawBody.messages.some((message: any) => Array.isArray(message?.parts));
       if (hasRawUiMessages) {
+        const mappedBody = buildGenericChatEndpointBody(requestEndpoint, rawBody);
+        const providerRequestHeaders = rawBody?.providerRequestHeaders && typeof rawBody.providerRequestHeaders === "object"
+          ? rawBody.providerRequestHeaders as Record<string, string>
+          : undefined;
+        const mappedHeaders = new Headers(nextInit?.headers as HeadersInit | undefined);
+
+        Object.entries(providerRequestHeaders ?? {}).forEach(([key, value]) => {
+          if (value != null && key.trim()) mappedHeaders.set(key, String(value));
+        });
+
         nextInit = {
           ...(init ?? {}),
-          body: JSON.stringify(buildGenericChatEndpointBody(requestEndpoint, rawBody)),
+          headers: mappedHeaders,
+          body: JSON.stringify(mappedBody),
         };
       }
     } catch {

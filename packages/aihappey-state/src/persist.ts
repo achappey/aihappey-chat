@@ -19,6 +19,7 @@ import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
 import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, readStoredChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
 import { normalizeCustomProviders } from "./slices/uiSlice";
 import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
+import { normalizeProviderHeaders, splitLegacyProviderHeadersFromMetadata } from "./slices/providerHeaders";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -30,9 +31,9 @@ function isPlainRecord(value: unknown): value is Record<string, any> {
 export const withPersist = (
   creator: StateCreator<RootState, PersistMutators, [], RootState>
 ) =>
-  persist(creator, {
+    persist(creator, {
     name: "aihappey_store_v8",
-    version: 26,
+    version: 27,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -63,6 +64,7 @@ export const withPersist = (
       providerSpeechMetadata: s.providerSpeechMetadata,
       providerTranscriptionMetadata: s.providerTranscriptionMetadata,
       providerRerankingMetadata: s.providerRerankingMetadata,
+      providerHeaders: (s as any).providerHeaders,
       topN: s.topN,
       // Speech (general)
       voice: s.voice,
@@ -332,6 +334,25 @@ export const withPersist = (
         };
       }
 
+      if (version < 27) {
+        const split = splitLegacyProviderHeadersFromMetadata({
+          providerMetadata: isPlainRecord(safeState.__legacyProviderMetadata)
+            ? safeState.__legacyProviderMetadata
+            : undefined,
+          providerHeaders: isPlainRecord(safeState.providerHeaders)
+            ? safeState.providerHeaders
+            : undefined,
+        });
+
+        safeState = {
+          ...safeState,
+          __legacyProviderMetadata: isPlainRecord(safeState.__legacyProviderMetadata)
+            ? split.providerMetadata
+            : safeState.__legacyProviderMetadata,
+          providerHeaders: split.providerHeaders,
+        };
+      }
+
       const storedChatEndpointMode = readStoredChatEndpointMode();
       const configuredChatEndpointMode = storedChatEndpointMode
         ?? normalizeChatEndpointMode(safeState.configuredChatEndpointMode)
@@ -367,6 +388,7 @@ export const withPersist = (
         gatewayEnabled: safeState.gatewayEnabled !== false,
         endpointRawModelIds: safeState.endpointRawModelIds === true,
         endpointProviderMetadataEnabled: safeState.endpointProviderMetadataEnabled !== false,
+        providerHeaders: normalizeProviderHeaders(safeState.providerHeaders),
         sideInferenceAgentNames: {
           ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
           ...(isPlainRecord(safeState.sideInferenceAgentNames)

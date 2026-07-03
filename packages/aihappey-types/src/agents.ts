@@ -89,6 +89,7 @@ export type AiModel = {
     id: string;
     options?: AiModelOptions;
     providerMetadata?: Record<string, any>;
+    providerHeaders?: Record<string, Record<string, string>>;
 };
 
 export type AiModelOptions = {

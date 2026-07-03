@@ -85,9 +85,26 @@ const normalizeAnthropicContainerConfig = (nextConfig: any) => ({
       : normalizeAnthropicContainer(nextConfig.container),
 });
 
+const withoutAnthropicBetaBody = (config: any) => {
+  const { "anthropic-beta": _beta, ...bodyConfig } = config ?? {};
+  return bodyConfig;
+};
+
+const cleanProviderHeaders = (headers: Record<string, string> | undefined) => {
+  const cleanHeaders = Object.fromEntries(
+    Object.entries(headers ?? {})
+      .filter(([, value]) => value != null && String(value).trim().length > 0)
+      .map(([key, value]) => [key, String(value)]),
+  );
+
+  return Object.keys(cleanHeaders).length ? cleanHeaders : undefined;
+};
+
 const normalizeAnthropicContextManagementConfig = (
   previousConfig: any,
   nextConfig: any,
+  previousHeaders: Record<string, string> | undefined,
+  nextHeaders: Record<string, string> | undefined,
   autoManagedContextManagementBeta: { current: boolean },
   autoManagedAdvisorBeta: { current: boolean }
 ) => {
@@ -96,8 +113,8 @@ const normalizeAnthropicContextManagementConfig = (
   const nextHasContextManagement = nextContextManagementEdits.length > 0;
   const currentHasAdvisor = hasAdvisorTool(previousConfig);
   const nextHasAdvisor = hasAdvisorTool(nextConfig);
-  const currentBetas = parseAnthropicBeta(previousConfig?.["anthropic-beta"]);
-  const requestedNextBetas = parseAnthropicBeta(nextConfig?.["anthropic-beta"]);
+  const currentBetas = parseAnthropicBeta(previousHeaders?.["anthropic-beta"] ?? previousConfig?.["anthropic-beta"]);
+  const requestedNextBetas = parseAnthropicBeta(nextHeaders?.["anthropic-beta"] ?? nextConfig?.["anthropic-beta"]);
   const betaListChanged =
     serializeAnthropicBeta(currentBetas) !== serializeAnthropicBeta(requestedNextBetas);
 
@@ -153,38 +170,64 @@ const normalizeAnthropicContextManagementConfig = (
         edits: nextContextManagementEdits,
       }
       : undefined,
-    "anthropic-beta": nextBetas.length
-      ? serializeAnthropicBeta(nextBetas)
-      : undefined,
+    providerHeaders: {
+      ...(nextHeaders ?? {}),
+      "anthropic-beta": nextBetas.length
+        ? serializeAnthropicBeta(nextBetas)
+        : undefined,
+    },
   };
 };
 
 export const AnthropicChatConfigForm = ({
   config,
+  headers,
   updateConfig,
+  updateHeaders,
 }: {
   config: any;
+  headers?: Record<string, string>;
   updateConfig: (val: any) => void;
+  updateHeaders?: (val: Record<string, string> | undefined) => void;
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const autoManagedContextManagementBeta = useRef(false);
   const autoManagedAdvisorBeta = useRef(false);
   const resolvedConfig = withResolvedProviderTools(config, ANTHROPIC_TOOL_TYPES);
-  const submitConfig = (nextConfig: any) =>
-    updateConfig(
+  const submitConfig = (nextConfig: any, nextHeaders: Record<string, string> | undefined = headers) => {
+    const normalized =
       buildCanonicalProviderToolsConfig(
         normalizeAnthropicContainerConfig(
           normalizeAnthropicContextManagementConfig(
             resolvedConfig,
             nextConfig,
+            headers,
+            nextHeaders,
             autoManagedContextManagementBeta,
             autoManagedAdvisorBeta
           )
         ),
         ANTHROPIC_TOOL_TYPES
-      )
+      );
+    const { providerHeaders, ...bodyConfig } = normalized as any;
+
+    updateConfig(withoutAnthropicBetaBody(bodyConfig));
+    updateHeaders?.(cleanProviderHeaders(providerHeaders));
+  };
+
+  const submitHeaders = (nextHeaders: Record<string, string> | undefined) => {
+    const normalized = normalizeAnthropicContextManagementConfig(
+      resolvedConfig,
+      resolvedConfig,
+      headers,
+      nextHeaders,
+      autoManagedContextManagementBeta,
+      autoManagedAdvisorBeta
     );
+
+    updateHeaders?.(cleanProviderHeaders((normalized as any).providerHeaders));
+  };
 
   const updateMaxTokens = (value: string) => {
     const nextMaxTokens = parseAnthropicNumberInput(value);
@@ -246,7 +289,7 @@ export const AnthropicChatConfigForm = ({
         config={resolvedConfig}
         updateConfig={submitConfig}
       />
-      <AnthropicBetaCard config={resolvedConfig} updateConfig={submitConfig} />
+      <AnthropicBetaCard config={resolvedConfig} headers={headers} updateConfig={submitConfig} updateHeaders={submitHeaders} />
     </div>
   );
 };

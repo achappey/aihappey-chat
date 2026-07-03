@@ -8,6 +8,7 @@ import type { ModelOption, Provider } from "aihappey-types";
 import { getModelProviderKey as getSharedModelProviderKey, stripHiddenDirectModelIdSuffix } from "aihappey-types";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 import { sanitizeProviderRequestConfigForProvider } from "../../../runtime/providers/providerRequestConfig";
+import { getProviderHeadersForKey } from "aihappey-state";
 import { isGenericChatEndpoint } from "./genericChatEndpoint";
 
 export const DEFAULT_ENDPOINT_PROFILE_ID = "default";
@@ -338,7 +339,17 @@ const cloneProviderMetadataForKey = (
   if (!metadata || !providerKey) return undefined;
 
   const value = metadata[providerKey];
-  return value === undefined ? undefined : { [providerKey]: value };
+  if (value === undefined) return undefined;
+
+  return { [providerKey]: sanitizeProviderRequestConfigForProvider(value, providerKey) ?? {} };
+};
+
+const cloneProviderHeadersForKey = (
+  providerHeaders: Record<string, any> | undefined,
+  providerKey?: string,
+) => {
+  const headers = getProviderHeadersForKey(providerHeaders, providerKey);
+  return headers ? { [providerKey!]: headers } : undefined;
 };
 
 export const resolveEndpointProfileRequestMetadata = ({
@@ -361,6 +372,34 @@ export const resolveEndpointProfileRequestMetadata = ({
 
   return cloneProviderMetadataForKey(providerMetadata, profileProviderKey)
     ?? cloneProviderMetadataForKey(activeProviderMetadata, profileProviderKey);
+};
+
+export const resolveEndpointProfileRequestProviderHeaders = ({
+  providerHeaders,
+  endpointProfile,
+  selectedModelProviderKey,
+}: {
+  providerHeaders?: Record<string, any>;
+  endpointProfile?: EndpointProfile;
+  selectedModelProviderKey?: string;
+}) => {
+  const profileProviderKey = endpointProfile?.kind === "provider"
+    ? endpointProfile.providerKey
+    : undefined;
+
+  return cloneProviderHeadersForKey(providerHeaders, profileProviderKey ?? selectedModelProviderKey);
+};
+
+export const resolveEndpointProfileProviderHeaders = ({
+  providerHeaders,
+  endpointProfile,
+}: {
+  providerHeaders?: Record<string, any>;
+  endpointProfile?: EndpointProfile;
+}) => {
+  if (endpointProfile?.kind !== "provider" || !endpointProfile.providerKey) return undefined;
+
+  return getProviderHeadersForKey(providerHeaders, endpointProfile.providerKey);
 };
 
 const asRecord = (value: unknown): Record<string, any> | undefined =>

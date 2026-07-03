@@ -67,7 +67,9 @@ import {
   resolveEndpointProfileForSelectedModel,
   resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
+  resolveEndpointProfileProviderHeaders,
   resolveEndpointProfileRequestMetadata,
+  resolveEndpointProfileRequestProviderHeaders,
   resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
@@ -122,6 +124,7 @@ export function VercelChatInner({
   const callTool = useAppStore((a) => a.callTool);
   const activeProviderMetadata = useActiveProviderMetadata();
   const allProviderMetadata = useAppStore((a) => a.providerMetadata);
+  const allProviderHeaders = useAppStore((a) => a.providerHeaders);
   const files = useFiles();
   const model = useAppStore((s) => s.selectedModel);
   const models = useAppStore((s) => s.models);
@@ -183,6 +186,14 @@ export function VercelChatInner({
       }),
     [activeProviderMetadata, allProviderMetadata, requestEndpointProfile, endpointProviderMetadataEnabled],
   );
+  const providerHeaders = useMemo(
+    () => resolveEndpointProfileRequestProviderHeaders({
+      providerHeaders: allProviderHeaders,
+      endpointProfile: requestEndpointProfile,
+      selectedModelProviderKey: model?.split("/")[0],
+    }),
+    [allProviderHeaders, requestEndpointProfile, model],
+  );
   const endpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({
       activeProviderMetadata,
@@ -194,6 +205,13 @@ export function VercelChatInner({
   const { body: providerRequestConfig, headers: providerRequestHeaders } = useMemo(
     () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, requestEndpointProfile?.providerKey, requestEndpoint),
     [endpointProfileProviderConfig, requestEndpointProfile, requestEndpoint],
+  );
+  const endpointProfileProviderHeaders = useMemo(
+    () => resolveEndpointProfileProviderHeaders({
+      providerHeaders: allProviderHeaders,
+      endpointProfile: requestEndpointProfile,
+    }),
+    [allProviderHeaders, requestEndpointProfile],
   );
 
   /* const [toast, setToast] = useState<{
@@ -264,15 +282,17 @@ export function VercelChatInner({
     if (requestEndpoint === "/v1/messages") {
       return {
         ...createMessagesEndpointHeadersForProviderKey(customHeaders, providerKey, providers),
+        ...(endpointProfileProviderHeaders ?? {}),
         ...(providerRequestHeaders ?? {}),
       };
     }
 
     return {
       ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers),
+      ...(endpointProfileProviderHeaders ?? {}),
       ...(providerRequestHeaders ?? {}),
     };
-  }, [customHeaders, requestEndpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint]);
+  }, [customHeaders, requestEndpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint, endpointProfileProviderHeaders]);
 
   const createConversationName = useCallback(
     (text: string) => generateConversationName(text, {
@@ -471,6 +491,24 @@ export function VercelChatInner({
       })
       .filter((m: any) => !!m);
   }, []);
+  const getGatewayProviderHeaders = useCallback((body: any) => {
+    const entries = [
+      ...Object.values(body?.providerHeaders ?? {}),
+      ...(body?.agents ?? []).flatMap((agent: any) =>
+        Object.values(agent?.model?.providerHeaders ?? {})
+      ),
+    ];
+
+    return Object.fromEntries(
+      entries
+        .filter((headers): headers is Record<string, any> =>
+          headers != null && typeof headers === "object" && !Array.isArray(headers)
+        )
+        .flatMap((headers) => Object.entries(headers))
+        .filter(([key, value]) => key.trim().length > 0 && value != null && String(value).trim().length > 0)
+        .map(([key, value]) => [key, String(value)])
+    );
+  }, []);
   const baseBody = useMemo(() => ({
     ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.4-mini" } : {}),
     tools,
@@ -481,8 +519,10 @@ export function VercelChatInner({
     toolChoice,
     maxToolCalls,
     providerMetadata,
+    providerHeaders,
     ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
     ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
+    ...(isProviderEndpointProfile && endpointProfileProviderHeaders ? { providerRequestHeaders: endpointProfileProviderHeaders } : {}),
     ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
     response_format: location.state?.responseFormat ?? structuredOutputs,
     workflowMetadata: {
@@ -502,7 +542,9 @@ export function VercelChatInner({
     maxToolCalls,
     location.state?.responseFormat,
     providerMetadata,
+    providerHeaders,
     providerRequestConfig,
+    endpointProfileProviderHeaders,
     isProviderEndpointProfile,
     requestEndpointProfile,
     structuredOutputs,
@@ -529,6 +571,10 @@ export function VercelChatInner({
             messageId: opts.messageId,
           };
 
+          if (mergedBody.providerHeaders == null && baseBody.providerHeaders != null) {
+            mergedBody.providerHeaders = baseBody.providerHeaders;
+          }
+
           const completedToolCalls =
             typeof maxToolCalls === "number"
               ? countCompletedToolCallsLastAssistant(patchedMessages as any[])
@@ -548,6 +594,12 @@ export function VercelChatInner({
 
             Object.entries(getAgentApiKeyHeaders(mergedBody.agents) ?? {}).forEach(([key, value]) => {
               if (value != null) requestHeaders.set(key, String(value));
+            });
+          }
+
+          if (!isGenericChatEndpoint(effectiveChatEndpointRef.current)) {
+            Object.entries(getGatewayProviderHeaders(mergedBody)).forEach(([key, value]) => {
+              requestHeaders.set(key, value);
             });
           }
 
@@ -586,7 +638,7 @@ export function VercelChatInner({
         )
         : new DefaultChatTransport(transportOptions);
     },
-    [chatFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, maxToolCalls, stopTools, requestEndpoint, api]
+    [chatFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api]
   );
 
   const {
@@ -700,8 +752,10 @@ export function VercelChatInner({
       ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
       ...(chatMode === "agent" ? { workflowType } : {}),
       providerMetadata,
+      providerHeaders,
       ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
       ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
+      ...(isProviderEndpointProfile && endpointProfileProviderHeaders ? { providerRequestHeaders: endpointProfileProviderHeaders } : {}),
       ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
       response_format: location.state?.responseFormat ?? structuredOutputs,
       workflowMetadata: {

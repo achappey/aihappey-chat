@@ -1,4 +1,6 @@
 import { defaultProviderMetadata } from "./defaultProviderMetadata";
+import { defaultProviderHeaders } from "./defaultProviderHeaders";
+import { splitLegacyProviderHeadersFromMetadata } from "./providerHeaders";
 
 function isPlainObject(value: unknown): value is Record<string, any> {
   if (value === null || typeof value !== "object") return false;
@@ -69,4 +71,44 @@ export const resolveAgentModelProviderMetadata = ({
   }
 
   return undefined;
+};
+
+export const getDefaultAgentModelProviderHeaders = (
+  modelId?: string
+): Record<string, Record<string, string>> | undefined => {
+  const providerKey = getAgentModelProviderKey(modelId);
+  if (!providerKey) return undefined;
+
+  const headers = defaultProviderHeaders[providerKey];
+  return headers ? { [providerKey]: cloneProviderMetadataValue(headers) } : undefined;
+};
+
+export const resolveAgentModelProviderHeaders = ({
+  previousModelId,
+  nextModelId,
+  previousProviderMetadata,
+  previousProviderHeaders,
+  nextProviderMetadata,
+  nextProviderHeaders,
+}: {
+  previousModelId?: string;
+  nextModelId?: string;
+  previousProviderMetadata?: Record<string, any>;
+  previousProviderHeaders?: Record<string, Record<string, string>>;
+  nextProviderMetadata?: Record<string, any>;
+  nextProviderHeaders?: Record<string, Record<string, string>>;
+}): Record<string, Record<string, string>> | undefined => {
+  const previousProvider = getAgentModelProviderKey(previousModelId);
+  const nextProvider = getAgentModelProviderKey(nextModelId);
+
+  if (nextProvider && previousProvider !== nextProvider) {
+    return getDefaultAgentModelProviderHeaders(nextModelId);
+  }
+
+  const split = splitLegacyProviderHeadersFromMetadata({
+    providerMetadata: nextProviderMetadata ?? previousProviderMetadata,
+    providerHeaders: nextProviderHeaders ?? previousProviderHeaders,
+  });
+
+  return Object.keys(split.providerHeaders).length ? split.providerHeaders : undefined;
 };

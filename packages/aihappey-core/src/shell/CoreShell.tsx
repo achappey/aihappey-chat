@@ -5,8 +5,10 @@ import { I18nProvider } from "aihappey-i18n";
 import { ConversationsProvider } from "aihappey-conversations";
 import {
   defaultProviderMetadata,
+  defaultProviderHeaders,
   ensureDefaultAgents,
   getConfiguredDefaultAgents,
+  splitLegacyProviderHeadersFromMetadata,
   store as appStore,
   useRemoteStorageConnected,
   useAppStore,
@@ -66,6 +68,7 @@ export const CoreShell: React.FC<Props> = ({
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
   const setAgents = useAppStore((s) => s.setAgents);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
+  const setProviderHeaders = useAppStore((s) => s.setProviderHeaders);
   const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
   const setConfiguredBaseUrl = useAppStore((s) => s.setConfiguredBaseUrl);
   const configuredChatEndpointMode = useAppStore((s) => s.configuredChatEndpointMode);
@@ -141,6 +144,8 @@ export const CoreShell: React.FC<Props> = ({
       const indexedDbProviderMetadata = await chatProviderMetadataStore.list();
       const legacyProviderMetadata = (appStore.getState() as any)
         .__legacyProviderMetadata as Record<string, any> | undefined;
+      const currentProviderHeaders = (appStore.getState() as any)
+        .providerHeaders as Record<string, any> | undefined;
 
       const { record: hydratedProviderMetadata, source } =
         resolveProviderMetadataHydration({
@@ -148,13 +153,22 @@ export const CoreShell: React.FC<Props> = ({
           indexedDb: indexedDbProviderMetadata,
           legacy: legacyProviderMetadata,
         });
+      const split = splitLegacyProviderHeadersFromMetadata({
+        providerMetadata: hydratedProviderMetadata,
+        providerHeaders: {
+          ...defaultProviderHeaders,
+          ...(currentProviderHeaders ?? {}),
+        },
+      });
+      const cleanProviderMetadata = split.providerMetadata;
+      const hydratedProviderHeaders = split.providerHeaders;
 
       const shouldWriteHydratedRecord =
         source !== "indexeddb"
-        || JSON.stringify(indexedDbProviderMetadata) !== JSON.stringify(hydratedProviderMetadata);
+        || JSON.stringify(indexedDbProviderMetadata) !== JSON.stringify(cleanProviderMetadata);
 
       if (shouldWriteHydratedRecord) {
-        await chatProviderMetadataStore.replaceAll(hydratedProviderMetadata);
+        await chatProviderMetadataStore.replaceAll(cleanProviderMetadata);
       }
 
       if (cancelled) return;
@@ -167,7 +181,8 @@ export const CoreShell: React.FC<Props> = ({
         }
       );
 
-      setProviderMetadata(hydratedProviderMetadata);
+      setProviderMetadata(cleanProviderMetadata);
+      setProviderHeaders(hydratedProviderHeaders);
 
       return unsubscribeProviderMetadataPersist;
     };
@@ -187,7 +202,7 @@ export const CoreShell: React.FC<Props> = ({
       cancelled = true;
       unsubscribeProviderMetadataPersist?.();
     };
-  }, [setProviderMetadata]);
+  }, [setProviderHeaders, setProviderMetadata]);
 
   useEffect(() => {
     let cancelled = false;

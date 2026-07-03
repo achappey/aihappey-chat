@@ -54,14 +54,12 @@ export const defaultProviderMetadata = {
     "provider": {
       "zdr": undefined
     },
-    "plugins": undefined,
-    "headers": undefined
+    "plugins": undefined
   },
   "requesty": {
     "requesty": {
       "auto_cache": true
-    },
-    "headers": undefined
+    }
   },
   "blackbox": {
     "reasoning": {

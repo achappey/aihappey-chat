@@ -1,5 +1,6 @@
 import type { StateCreator } from "zustand";
 import { defaultProviderMetadata } from "./defaultProviderMetadata";
+import { defaultProviderHeaders } from "./defaultProviderHeaders";
 import type { ModelOption } from "aihappey-types";
 import { ToolAnnotations } from "aihappey-mcp";
 import { SIDE_INFERENCE_DEFAULT_AGENT_NAMES } from "./defaultAgents";
@@ -102,6 +103,8 @@ export type ChatSlice = ApiKeyEncryptionState & {
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
   setProviderMetadata: (metadata: any | ((current: any) => any)) => void;
+  providerHeaders?: Record<string, Record<string, string>>;
+  setProviderHeaders: (headers: Record<string, Record<string, string>> | ((current: Record<string, Record<string, string>> | undefined) => Record<string, Record<string, string>> | undefined)) => void;
   sideInferenceAgentNames: SideInferenceAgentNames;
   setSideInferenceAgentNames: (agentNames: Partial<SideInferenceAgentNames>) => void;
   resetSideInferenceAgentNames: () => void;
@@ -135,6 +138,7 @@ export const createChatSlice: StateCreator<
 > = (set, get) => ({
   selectedConversationId: null,
   providerMetadata: defaultProviderMetadata,
+  providerHeaders: defaultProviderHeaders,
   sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
   temperature: 1,
   experimentalThrottle: 500,
@@ -435,6 +439,17 @@ export const createChatSlice: StateCreator<
         providerMetadata: { ...(nextProviderMetadata ?? {}) },
       };
     }),
+  setProviderHeaders: (providerHeaders) =>
+    set((state: ChatSlice) => {
+      const nextProviderHeaders =
+        typeof providerHeaders === "function"
+          ? providerHeaders(state.providerHeaders)
+          : providerHeaders;
+
+      return {
+        providerHeaders: { ...(nextProviderHeaders ?? {}) },
+      };
+    }),
   setSideInferenceAgentNames: (agentNames) =>
     set((state: ChatSlice) => ({
       sideInferenceAgentNames: {
@@ -449,6 +464,7 @@ export const createChatSlice: StateCreator<
   resetChatSettings: () =>
     set(() => ({
       providerMetadata: { ...defaultProviderMetadata },
+      providerHeaders: { ...defaultProviderHeaders },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       temperature: 1,
       selectedChatEndpointMode: undefined,

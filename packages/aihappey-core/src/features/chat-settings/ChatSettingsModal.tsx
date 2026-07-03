@@ -3,6 +3,7 @@ import { useTranslation } from "aihappey-i18n";
 import {
   DEFAULT_CHAT_TOOL_ANNOTATIONS,
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
+  defaultProviderHeaders,
   defaultProviderMetadata,
   useAppStore,
 } from "aihappey-state";
@@ -60,8 +61,10 @@ export interface ProviderSettingsModalProps {
   setTemperature?: any;
   temperature?: any;
   providerMetadata: any;
+  providerHeaders: Record<string, Record<string, string>>;
   resetDefaults?: any;
   setProviderMetadata: (meta: any | ((current: any) => any)) => void;
+  setProviderHeaders: (headers: Record<string, Record<string, string>> | ((current: Record<string, Record<string, string>> | undefined) => Record<string, Record<string, string>> | undefined)) => void;
   onEditProviderKeys?: () => void
   onClose: () => void;
 }
@@ -79,15 +82,18 @@ type ChatSettingsDraft = {
   enabledLocalTools: string[];
   enabledSkillIds: string[];
   providerMetadata: Record<string, any>;
+  providerHeaders: Record<string, Record<string, string>>;
 };
 
 export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   open,
   providerMetadata,
+  providerHeaders,
   temperature,
   resetDefaults,
   setTemperature,
   setProviderMetadata,
+  setProviderHeaders,
   onEditProviderKeys,
   onClose,
 }) => {
@@ -142,7 +148,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       activePlugins: [...(activePlugins ?? [])],
       enabledLocalTools: [...(enabledLocalTools ?? [])],
       enabledSkillIds: [...(enabledSkillIds ?? [])],
-      providerMetadata: { ...(providerMetadata ?? {}) }
+      providerMetadata: { ...(providerMetadata ?? {}) },
+      providerHeaders: { ...(providerHeaders ?? {}) },
     }),
     [
       activePlugins,
@@ -151,6 +158,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       experimentalThrottle,
       maxOutputTokens,
       maxToolCalls,
+      providerHeaders,
       providerMetadata,
       stopTools,
       structuredOutputs,
@@ -203,6 +211,26 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     []
   );
 
+  const updateProviderHeaders = useCallback(
+    (providerKey: string, nextHeaders: Record<string, string> | undefined) => {
+      setDraft((current) => {
+        const providerHeaders = { ...(current?.providerHeaders ?? {}) };
+
+        if (nextHeaders && Object.keys(nextHeaders).length) {
+          providerHeaders[providerKey] = nextHeaders;
+        } else {
+          delete providerHeaders[providerKey];
+        }
+
+        return {
+          ...(current ?? {}),
+          providerHeaders,
+        };
+      });
+    },
+    []
+  );
+
   const providerConfigUpdaters = useMemo(
     () => ({
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
@@ -234,6 +262,15 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       zai: (zai: any) => updateProviderConfig("zai", zai),
     }),
     [updateProviderConfig]
+  );
+
+  const providerHeaderUpdaters = useMemo(
+    () => ({
+      anthropic: (headers: Record<string, string> | undefined) => updateProviderHeaders("anthropic", headers),
+      openrouter: (headers: Record<string, string> | undefined) => updateProviderHeaders("openrouter", headers),
+      requesty: (headers: Record<string, string> | undefined) => updateProviderHeaders("requesty", headers),
+    }),
+    [updateProviderHeaders]
   );
 
   const selectedModelOption = useMemo(
@@ -271,7 +308,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const activeProviderForm = useMemo(() => {
     switch (activeProviderKey) {
       case "anthropic":
-        return <AnthropicChatConfigForm config={draft.providerMetadata.anthropic ?? {}} updateConfig={providerConfigUpdaters.anthropic} />;
+        return <AnthropicChatConfigForm config={draft.providerMetadata.anthropic ?? {}} headers={draft.providerHeaders.anthropic ?? {}} updateConfig={providerConfigUpdaters.anthropic} updateHeaders={providerHeaderUpdaters.anthropic} />;
       case "blackbox":
         return <BlackboxChatConfigForm config={draft.providerMetadata.blackbox ?? {}} updateConfig={providerConfigUpdaters.blackbox} />;
       case "cohere":
@@ -304,9 +341,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       case "openhands":
         return <OpenHandsChatConfigForm config={draft.providerMetadata.openhands ?? {}} updateConfig={providerConfigUpdaters.openhands} />;
       case "openrouter":
-        return <OpenRouterChatConfigForm config={draft.providerMetadata.openrouter ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.openrouter} />;
+        return <OpenRouterChatConfigForm config={draft.providerMetadata.openrouter ?? {}} headers={draft.providerHeaders.openrouter ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.openrouter} updateHeaders={providerHeaderUpdaters.openrouter} />;
       case "requesty":
-        return <RequestyChatConfigForm config={draft.providerMetadata.requesty ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.requesty} />;
+        return <RequestyChatConfigForm config={draft.providerMetadata.requesty ?? {}} headers={draft.providerHeaders.requesty ?? {}} appTitle={chatConfig?.appName} updateConfig={providerConfigUpdaters.requesty} updateHeaders={providerHeaderUpdaters.requesty} />;
       case "pollinations":
         return <PollinationsChatConfigForm config={draft.providerMetadata.pollinations ?? {}} updateConfig={providerConfigUpdaters.pollinations} />;
       case "perplexity":
@@ -337,10 +374,12 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   }, [
     activeProviderKey,
     chatConfig?.appName,
+    draft.providerHeaders,
     draft.providerMetadata,
     models,
     openAISkillOptions,
     providerConfigUpdaters,
+    providerHeaderUpdaters,
     resolveOpenAIShellSkill,
   ]);
 
@@ -382,11 +421,13 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setEnabledLocalTools(draft.enabledLocalTools);
     setEnabledSkillIds(draft.enabledSkillIds);
     setProviderMetadata(draft.providerMetadata);
+    setProviderHeaders(draft.providerHeaders);
   }, [
     draft,
     setActivePlugins,
     setEnabledLocalTools,
     setEnabledSkillIds,
+    setProviderHeaders,
     setMaxOutputTokens,
     setMaxToolCalls,
     setProviderMetadata,
@@ -404,6 +445,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       temperature: 1,
       toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
       providerMetadata: { ...defaultProviderMetadata },
+      providerHeaders: { ...defaultProviderHeaders },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
     }));
 
