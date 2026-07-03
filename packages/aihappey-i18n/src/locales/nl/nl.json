@@ -18,7 +18,7 @@
     "skillsPage": {
         "versionBadge": "Versie {{version}}",
         "latestVersionBadge": "Laatste versie {{version}}",
-        "description": "Een overzicht van alle beschikbare skills die je kunt gebruiken om taken uit te voeren en workflows te ondersteunen. Per skill zie je wat het doet, waar je het voor inzet en hoe het zich onderscheidt van andere skills. Zo kies je per taak snel en onderbouwd de juiste optie. Skills brengen instructies, logica en uitvoering samen in één consistente opzet. Dit zorgt voor duidelijkheid, herhaalbaarheid en grip op het resultaat.",
+        "description": "Een overzicht van alle beschikbare skills voor taken en workflows. Per skill zie je wat het doet, wanneer je het inzet en hoe het verschilt van andere skills. Zo kies je snel de juiste optie. Skills bundelen instructies, logica en uitvoering in één consistente aanpak, voor duidelijkheid, herhaalbaarheid en grip.",
         "fileCountBadge": "Bestanden: {{count}}",
         "importZipOnly": "Alleen ZIP-archieven kunnen als skills worden geïmporteerd.",
         "importedWithDiagnostics": "{{count}} skill(s) geÃ¯mporteerd met {{diagnostics}} diagnostische melding(en).",

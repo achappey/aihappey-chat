@@ -16,7 +16,7 @@
     "local": "Local",
     "storageQuotaMessage": "Your browser storage is full. Remove some chats or other items and try again.",
     "skillsPage": {
-        "description": "An overview of all available skills you can use to execute tasks and support workflows. For each skill, you see what it does, when to use it, and how it differs from other skills. This helps you quickly and confidently choose the right option for each task. Skills bring together instructions, logic, and execution in a consistent structure. This ensures clarity, repeatability, and control over the outcome.",
+        "description": "An overview of all available skills for tasks and workflows. For each skill, you see what it does, when to use it, and how it differs from others. This helps you quickly choose the right option. Skills combine instructions, logic, and execution in a consistent structure for clarity, repeatability, and control.",
         "fileCountBadge": "Files: {{count}}",
         "versionBadge": "Version {{version}}",
         "latestVersionBadge": "Latest version {{version}}",
