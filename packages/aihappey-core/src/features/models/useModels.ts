@@ -68,12 +68,21 @@ export const useModels = (
   const selectedModel = useAppStore(a => a.selectedModel)
   const [searchParams] = useSearchParams();
   const lastSelectionRef = useRef<{ selectedModel?: string; models?: ModelOption[] }>({});
+  const selectionRef = useRef<{
+    model?: string | null;
+    selectedModel?: string;
+    userPreferredModel?: string;
+  }>({});
   const providers = useProviderRegistry();
   const [storeHydrated, setStoreHydrated] = useState(() =>
     (appStore as any).persist?.hasHydrated?.() ?? true,
   );
 
   const model = searchParams.get("model");
+
+  useEffect(() => {
+    selectionRef.current = { model, selectedModel, userPreferredModel };
+  }, [model, selectedModel, userPreferredModel]);
 
   useEffect(() => {
     const persistApi = (appStore as any).persist;
@@ -92,43 +101,58 @@ export const useModels = (
   }, [models, selectedModel]);
 
   useEffect(() => {
-    if (storeHydrated && !modelsLoaded) {
-      listModelsWithSplitProviderHeaders({
-        modelsApi,
-        getAccessToken,
-        customHeaders,
-        directProviderModels: true,
-        includeGatewayModels: gatewayEnabled,
-        providers,
-        onProgress: setModelsLoadingProgress,
+    if (!storeHydrated || modelsLoaded) return;
+
+    let cancelled = false;
+
+    listModelsWithSplitProviderHeaders({
+      modelsApi,
+      getAccessToken,
+      customHeaders,
+      directProviderModels: true,
+      includeGatewayModels: gatewayEnabled,
+      providers,
+      onProgress: setModelsLoadingProgress,
+    })
+      .then((a) => {
+        if (cancelled) return;
+
+        const loadedModels = a.data ?? [];
+        setModels(loadedModels)
+        setModelsLoadingProgress?.(undefined)
+
+        const {
+          model: latestUrlModel,
+          selectedModel: latestSelectedModel,
+          userPreferredModel: latestUserPreferredModel,
+        } = selectionRef.current;
+        const preferredModel = latestUrlModel ?? latestUserPreferredModel ?? latestSelectedModel;
+        const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel, latestUrlModel ? undefined : "gateway");
+        if (resolvedPreferredModel) {
+          setSelectedModel(resolvedPreferredModel);
+          return;
+        }
+
+        const previousModels = lastSelectionRef.current.models;
+        const previousType = modelTypeFor(previousModels, preferredModel)
+          ?? modelTypeFor(previousModels, lastSelectionRef.current.selectedModel)
+          ?? "language";
+        const fallbackModel = newestModelOfType(loadedModels, previousType);
+        setSelectedModel(fallbackModel?.id);
       })
-        .then((a) => {
-          const loadedModels = a.data ?? [];
-          setModels(loadedModels)
-          setModelsLoadingProgress?.(undefined)
+      .catch((err) => {
+        if (cancelled) return;
 
-          const preferredModel = model ?? selectedModel ?? userPreferredModel;
-          const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel, model ? undefined : "gateway");
-          if (resolvedPreferredModel) {
-            setSelectedModel(resolvedPreferredModel);
-            return;
-          }
+        resetModels()
+        setModelsLoadingProgress?.(undefined)
+        console.error("Failed to load models:", err);
+      })
 
-          const previousModels = lastSelectionRef.current.models;
-          const previousType = modelTypeFor(previousModels, preferredModel)
-            ?? modelTypeFor(previousModels, lastSelectionRef.current.selectedModel)
-            ?? "language";
-          const fallbackModel = newestModelOfType(loadedModels, previousType);
-          setSelectedModel(fallbackModel?.id);
-        })
-        .catch((err) => {
-          resetModels()
-          setModelsLoadingProgress?.(undefined)
-          console.error("Failed to load models:", err);
-        })
-    }
+    return () => {
+      cancelled = true;
+    };
 
-  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, model, selectedModel, effectiveChatEndpointMode, providers, userPreferredModel, setModels, resetModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
+  }, [modelsApi, getAccessToken, customHeaders, modelsLoaded, effectiveChatEndpointMode, providers, setModels, resetModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;

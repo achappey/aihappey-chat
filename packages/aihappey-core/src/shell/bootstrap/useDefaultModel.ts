@@ -1,17 +1,28 @@
-import { useAppStore } from "aihappey-state";
-import { useEffect } from "react";
+import { store as appStore, useAppStore } from "aihappey-state";
+import { useEffect, useState } from "react";
 
 export function useDefaultModel(authenticated: boolean) {
   const userPreferredModel = useAppStore((s) => s.userPreferredModel);
-  const setSelectedModel = useAppStore((s) => s.setSelectedModel);
   const setUserPreferredModel = useAppStore((s) => s.setUserPreferredModel);
+  const [storeHydrated, setStoreHydrated] = useState(() =>
+    (appStore as any).persist?.hasHydrated?.() ?? true,
+  );
 
   useEffect(() => {
-    const defaultModel = userPreferredModel ??
-      authenticated ? "openai/gpt-5.4-mini" : "pollinations/openai"
-    if (!userPreferredModel)
-      setUserPreferredModel(defaultModel)
+    const persistApi = (appStore as any).persist;
+    if (!persistApi || persistApi.hasHydrated?.()) {
+      setStoreHydrated(true);
+      return;
+    }
 
-    setSelectedModel(defaultModel)
+    return persistApi.onFinishHydration?.(() => setStoreHydrated(true));
   }, []);
+
+  useEffect(() => {
+    if (!storeHydrated) return;
+    if (userPreferredModel) return;
+
+    const defaultModel = authenticated ? "openai/gpt-5.4-mini" : "pollinations/openai"
+    setUserPreferredModel(defaultModel)
+  }, [authenticated, setUserPreferredModel, storeHydrated, userPreferredModel]);
 }

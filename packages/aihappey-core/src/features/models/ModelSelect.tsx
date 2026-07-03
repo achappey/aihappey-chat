@@ -24,9 +24,11 @@ interface ModelSelectProps {
   onChange: (id: string) => void;
   disabled?: boolean;
   modelTypes?: string[];
+  autoSelectFallback?: boolean;
 }
 
 export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
+  const { autoSelectFallback = true, ...fieldProps } = props;
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
   const providers = useProviderRegistry();
@@ -101,6 +103,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
 
   React.useEffect(() => {
     if (!modelsLoaded) return;
+    if (!autoSelectFallback) return;
 
     const currentValue = props.value;
     const currentExists = !!currentValue && props.models.some((model) =>
@@ -114,11 +117,11 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     if (currentValue !== nextValue) {
       props.onChange(nextValue);
     }
-  }, [modelTypes, modelsLoaded, props.models, props.onChange, props.value]);
+  }, [autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value]);
 
   return (
     <ModelSelectField
-      {...props}
+      {...fieldProps}
       models={(props.models ?? []).filter(isUserVisibleModel)}
       providers={providerOptions}
       enabledProviderKeys={enabledProviderKeys}

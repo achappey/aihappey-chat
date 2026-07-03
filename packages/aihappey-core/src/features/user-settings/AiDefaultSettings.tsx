@@ -82,6 +82,7 @@ export const AiDefaultSettings: React.FC = () => {
               value={value}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredModel}
+              autoSelectFallback={false}
             />
           </div>
         </theme.Tab>
@@ -94,6 +95,7 @@ export const AiDefaultSettings: React.FC = () => {
               value={userPreferredImageModel ?? ""}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredImageModel}
+              autoSelectFallback={false}
             />
 
             <Switch
@@ -113,6 +115,7 @@ export const AiDefaultSettings: React.FC = () => {
               value={userPreferredAudioModel ?? ""}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredAudioModel}
+              autoSelectFallback={false}
             />
           </div>
         </theme.Tab>
@@ -125,6 +128,7 @@ export const AiDefaultSettings: React.FC = () => {
               value={userPreferredTranscriptionModel ?? ""}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredTranscriptionModel}
+              autoSelectFallback={false}
             />
 
             <Switch
@@ -177,6 +181,7 @@ export const AiDefaultSettings: React.FC = () => {
               value={userPreferredSpeechModel ?? ""}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredSpeechModel}
+              autoSelectFallback={false}
             />
 
             <Switch
@@ -198,6 +203,7 @@ export const AiDefaultSettings: React.FC = () => {
               value={userPreferredRerankingModel ?? ""}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredRerankingModel}
+              autoSelectFallback={false}
             />
           </div>
         </theme.Tab>
@@ -210,6 +216,7 @@ export const AiDefaultSettings: React.FC = () => {
               value={userPreferredVideoModel ?? ""}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredVideoModel}
+              autoSelectFallback={false}
             />
 
             <Switch
