@@ -31,8 +31,39 @@ export type EndpointProfile = {
 export const getModelRoute = (model?: ModelOption | null): "gateway" | "direct" =>
   (model as any)?.route === "direct" ? "direct" : "gateway";
 
+export const isDirectModelRoute = (model?: ModelOption | null) => getModelRoute(model) === "direct";
+
 export const getModelProviderKey = (modelId?: string, model?: ModelOption | null) => {
   return getSharedModelProviderKey(modelId, model);
+};
+
+const normalizeProviderKey = (value?: string) => String(value ?? "").trim().toLowerCase() || undefined;
+
+export const isEndpointProfileCompatibleWithModelProvider = (
+  profile: EndpointProfile | undefined,
+  modelProviderKey?: string,
+) => {
+  if (profile?.kind !== "provider") return true;
+
+  const profileProviderKey = normalizeProviderKey(profile.providerKey);
+  return !!profileProviderKey && !!modelProviderKey && profileProviderKey === modelProviderKey;
+};
+
+export const validateEndpointProfileForModel = ({
+  endpointProfile,
+  modelId,
+  model,
+}: {
+  endpointProfile?: EndpointProfile;
+  modelId?: string;
+  model?: ModelOption | null;
+}) => {
+  const modelProviderKey = getModelProviderKey(modelId, model);
+  if (endpointProfile?.kind === "provider" && !isDirectModelRoute(model)) return undefined;
+
+  return isEndpointProfileCompatibleWithModelProvider(endpointProfile, modelProviderKey)
+    ? endpointProfile
+    : undefined;
 };
 
 const toChatEndpointIds = (values?: string[]) => Array.from(new Set(
@@ -215,6 +246,10 @@ export const resolveEndpointProfileChatEndpoint = ({
       ?? endpointProfile.chatEndpoints[0];
   }
 
+  if (endpointProfile.kind === "default") {
+    return endpointProfile.chatEndpoints[0];
+  }
+
   return selectedChatEndpoint ?? endpointProfile.chatEndpoints[0];
 };
 
@@ -243,8 +278,6 @@ export const resolveChatEndpointModeProfile = ({
 export const resolveEndpointProfileForSelectedModel = ({
   modelId,
   model,
-  selectedEndpointProfileId,
-  selectedBaseUrl,
   selectedChatEndpoint,
   configuredChatEndpoint,
   providers,
@@ -261,7 +294,7 @@ export const resolveEndpointProfileForSelectedModel = ({
     return resolveDirectEndpointProfileForModel({ modelId, model, selectedChatEndpoint, providers });
   }
 
-  return resolveEndpointProfile({ selectedEndpointProfileId, selectedBaseUrl, configuredChatEndpoint, providers });
+  return getEndpointProfiles({ configuredChatEndpoint, providers })[0];
 };
 
 export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {

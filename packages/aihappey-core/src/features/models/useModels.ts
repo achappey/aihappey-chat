@@ -5,6 +5,40 @@ import { listModelsWithSplitProviderHeaders } from "../provider-credentials/prov
 import type { ModelOption } from "aihappey-types";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
+const modelRouteOf = (model: ModelOption): "gateway" | "direct" =>
+  (model as any)?.route === "direct" ? "direct" : "gateway";
+
+const equivalentModelIds = (model: ModelOption) => [
+  model.id,
+  (model as any).displayId,
+  (model as any).providerModelId,
+].filter((value): value is string => typeof value === "string" && value.trim().length > 0);
+
+const resolveSelectableModelId = (
+  models: ModelOption[],
+  value?: string | null,
+  preferredRoute?: "gateway" | "direct",
+) => {
+  const requested = String(value ?? "").trim();
+  if (!requested) return undefined;
+
+  const exact = models.find((item) => item.id === requested);
+  if (exact) return exact.id;
+
+  const matches = models.filter((item) => equivalentModelIds(item).includes(requested));
+  if (matches.length === 0) return undefined;
+
+  const routeMatch = preferredRoute
+    ? matches.find((item) => modelRouteOf(item) === preferredRoute)
+    : undefined;
+  if (routeMatch) return routeMatch.id;
+
+  const gatewayMatch = matches.find((item) => modelRouteOf(item) === "gateway");
+  if (gatewayMatch) return gatewayMatch.id;
+
+  return matches.length === 1 ? matches[0].id : undefined;
+};
+
 const newestModelOfType = (models: ModelOption[], type?: string) => {
   const candidates = models.filter((item) => !type || item.type === type);
   return candidates
@@ -74,9 +108,9 @@ export const useModels = (
           setModelsLoadingProgress?.(undefined)
 
           const preferredModel = model ?? selectedModel ?? userPreferredModel;
-          const availableIds = new Set(loadedModels.map((item) => item.id));
-          if (preferredModel && availableIds.has(preferredModel)) {
-            setSelectedModel(preferredModel);
+          const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel, model ? undefined : "gateway");
+          if (resolvedPreferredModel) {
+            setSelectedModel(resolvedPreferredModel);
             return;
           }
 
@@ -99,6 +133,6 @@ export const useModels = (
   useEffect(() => {
     if (!modelsLoaded || !model) return;
 
-    setSelectedModel(model);
-  }, [modelsLoaded, model, setSelectedModel]);
+    setSelectedModel(resolveSelectableModelId(models ?? [], model) ?? model);
+  }, [models, modelsLoaded, model, setSelectedModel]);
 };

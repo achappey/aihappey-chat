@@ -71,6 +71,7 @@ import {
   resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
+  validateEndpointProfileForModel,
 } from "./endpointProfiles";
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 
@@ -151,18 +152,23 @@ export function VercelChatInner({
       }),
     [model, selectedModelOption, selectedEndpointProfileId, selectedBaseUrl, effectiveChatEndpoint, configuredChatEndpoint, providers],
   );
-  const isProviderEndpointProfile = endpointProfile?.kind === "provider";
-  const requestEndpoint = resolveEndpointProfileChatEndpoint({
+  const requestEndpointProfile = validateEndpointProfileForModel({
     endpointProfile,
+    modelId: model,
+    model: selectedModelOption,
+  });
+  const isProviderEndpointProfile = requestEndpointProfile?.kind === "provider";
+  const requestEndpoint = resolveEndpointProfileChatEndpoint({
+    endpointProfile: requestEndpointProfile,
     selectedChatEndpoint: effectiveChatEndpoint,
   }) ?? effectiveChatEndpoint;
   const requestBaseUrl = isProviderEndpointProfile
-    ? endpointProfile.apiBaseUrl ?? config.baseUrl
+    ? requestEndpointProfile.apiBaseUrl ?? config.baseUrl
     : config.baseUrl;
   const requestModel = isProviderEndpointProfile
     ? resolveProviderRequestModelId({
       modelId: model,
-      providerKey: endpointProfile.providerKey,
+      providerKey: requestEndpointProfile.providerKey,
       model: selectedModelOption,
     })
     : endpointRawModelIds
@@ -170,24 +176,24 @@ export function VercelChatInner({
       : model;
   const providerMetadata = useMemo(
     () => resolveEndpointProfileRequestMetadata({
-      activeProviderMetadata,
-      providerMetadata: allProviderMetadata,
-      endpointProfile,
-      fallbackProviderMetadataEnabled: endpointProviderMetadataEnabled !== false,
-    }),
-    [activeProviderMetadata, allProviderMetadata, endpointProfile, endpointProviderMetadataEnabled],
+        activeProviderMetadata,
+        providerMetadata: allProviderMetadata,
+        endpointProfile: requestEndpointProfile,
+        fallbackProviderMetadataEnabled: endpointProviderMetadataEnabled !== false,
+      }),
+    [activeProviderMetadata, allProviderMetadata, requestEndpointProfile, endpointProviderMetadataEnabled],
   );
   const endpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({
       activeProviderMetadata,
       providerMetadata: allProviderMetadata,
-      endpointProfile,
+      endpointProfile: requestEndpointProfile,
     }),
-    [activeProviderMetadata, allProviderMetadata, endpointProfile],
+    [activeProviderMetadata, allProviderMetadata, requestEndpointProfile],
   );
   const { body: providerRequestConfig, headers: providerRequestHeaders } = useMemo(
-    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey, requestEndpoint),
-    [endpointProfileProviderConfig, endpointProfile, requestEndpoint],
+    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, requestEndpointProfile?.providerKey, requestEndpoint),
+    [endpointProfileProviderConfig, requestEndpointProfile, requestEndpoint],
   );
 
   /* const [toast, setToast] = useState<{
@@ -253,7 +259,7 @@ export function VercelChatInner({
   );
 
   const providerProfileAuthHeaders: any = useMemo(() => {
-    const providerKey = isProviderEndpointProfile ? endpointProfile.providerKey : undefined;
+    const providerKey = isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined;
 
     if (requestEndpoint === "/v1/messages") {
       return {
@@ -266,7 +272,7 @@ export function VercelChatInner({
       ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers),
       ...(providerRequestHeaders ?? {}),
     };
-  }, [customHeaders, endpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint]);
+  }, [customHeaders, requestEndpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint]);
 
   const createConversationName = useCallback(
     (text: string) => generateConversationName(text, {
@@ -275,7 +281,7 @@ export function VercelChatInner({
       ...(isProviderEndpointProfile
         ? {
           customHeaders,
-          endpointProviderKey: endpointProfile.providerKey,
+          endpointProviderKey: requestEndpointProfile.providerKey,
           gatewayEnabled: false,
           providers,
         }
@@ -293,7 +299,7 @@ export function VercelChatInner({
       customFetch,
       isProviderEndpointProfile,
       customHeaders,
-      endpointProfile,
+      requestEndpointProfile,
       providers,
       getAccessToken,
       t,
@@ -336,10 +342,10 @@ export function VercelChatInner({
     return wrapGenericChatFetch({
       endpoint: requestEndpoint,
       fetcher: authFetch as typeof fetch,
-      providerKey: isProviderEndpointProfile ? endpointProfile.providerKey : undefined,
+      providerKey: isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined,
       providers,
     });
-  }, [authFetch, endpointProfile, isProviderEndpointProfile, providers, requestEndpoint]);
+  }, [authFetch, requestEndpointProfile, isProviderEndpointProfile, providers, requestEndpoint]);
 
   const api = chatMode === "agent"
     ? config?.agentEndpoint + "/api/chat"
@@ -347,7 +353,7 @@ export function VercelChatInner({
       ? resolveGenericChatEndpointUrl(requestBaseUrl, requestEndpoint)
       : config.baseUrl + config.endpoints.chat;
   const chatInstanceId = isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
-    ? `${conversationId ?? "chat"}:generic:${requestEndpoint}:${isProviderEndpointProfile ? endpointProfile.providerKey : "gateway"}`
+    ? `${conversationId ?? "chat"}:generic:${requestEndpoint}:${isProviderEndpointProfile ? requestEndpointProfile.providerKey : "gateway"}`
     : conversationId;
 
   const systemPrompt = useMemo(
@@ -571,7 +577,7 @@ export function VercelChatInner({
       return isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
         ? new GenericChatEndpointTransport(
           requestEndpoint,
-          isProviderEndpointProfile ? endpointProfile.providerKey : undefined,
+          isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined,
           providers,
           transportOptions,
         )

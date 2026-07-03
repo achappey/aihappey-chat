@@ -20,6 +20,7 @@ import {
   resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
+  validateEndpointProfileForModel,
 } from "./endpointProfiles";
 
 type ChatActionsProps = {
@@ -98,15 +99,20 @@ export function useChatActions({
       selectedModelOption,
     ],
   );
-  const isProviderEndpointProfile = endpointProfile?.kind === "provider";
-  const requestEndpoint = resolveEndpointProfileChatEndpoint({
+  const requestEndpointProfile = validateEndpointProfileForModel({
     endpointProfile,
+    modelId: selectedModel,
+    model: selectedModelOption,
+  });
+  const isProviderEndpointProfile = requestEndpointProfile?.kind === "provider";
+  const requestEndpoint = resolveEndpointProfileChatEndpoint({
+    endpointProfile: requestEndpointProfile,
     selectedChatEndpoint: effectiveChatEndpoint,
   }) ?? effectiveChatEndpoint;
   const requestModel = isProviderEndpointProfile
     ? resolveProviderRequestModelId({
       modelId: selectedModel,
-      providerKey: endpointProfile.providerKey,
+      providerKey: requestEndpointProfile.providerKey,
       model: selectedModelOption,
     })
     : endpointRawModelIds
@@ -116,22 +122,22 @@ export function useChatActions({
     () => resolveEndpointProfileRequestMetadata({
       activeProviderMetadata,
       providerMetadata: allProviderMetadata,
-      endpointProfile,
+      endpointProfile: requestEndpointProfile,
       fallbackProviderMetadataEnabled: endpointProviderMetadataEnabled !== false,
     }),
-    [activeProviderMetadata, allProviderMetadata, endpointProfile, endpointProviderMetadataEnabled],
+    [activeProviderMetadata, allProviderMetadata, requestEndpointProfile, endpointProviderMetadataEnabled],
   );
   const endpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({
       activeProviderMetadata,
       providerMetadata: allProviderMetadata,
-      endpointProfile,
+      endpointProfile: requestEndpointProfile,
     }),
-    [activeProviderMetadata, allProviderMetadata, endpointProfile],
+    [activeProviderMetadata, allProviderMetadata, requestEndpointProfile],
   );
   const { body: providerRequestConfig } = useMemo(
-    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, endpointProfile?.providerKey, requestEndpoint),
-    [endpointProfileProviderConfig, endpointProfile, requestEndpoint],
+    () => splitEndpointProfileProviderConfig(endpointProfileProviderConfig, requestEndpointProfile?.providerKey, requestEndpoint),
+    [endpointProfileProviderConfig, requestEndpointProfile, requestEndpoint],
   );
   const { addChatError } = useChatErrors();
   const getStorageErrorMessage = useStorageErrorMessage();
