@@ -21,6 +21,7 @@ export type GenericChatEndpointRequestBody = {
   temperature?: number;
   maxOutputTokens?: number;
   providerRequestConfig?: Record<string, any>;
+  providerRequestConfigProviderKey?: string;
   omitProviderMetadataInNativeMetadata?: boolean;
   providerMetadata?: Record<string, any>;
   messages?: UIMessage[];
@@ -95,7 +96,10 @@ export const resolveNativeRequestMetadata = ({
 };
 
 export const sanitizeGenericEndpointProviderRequestConfig = (body: GenericChatEndpointRequestBody) => {
-  const providerKey = getProviderKeyFromRequestBody(body);
+  if (!body.providerRequestConfig || body.omitProviderMetadataInNativeMetadata !== true) return undefined;
+
+  const providerKey = String(body.providerRequestConfigProviderKey ?? "").trim().toLowerCase()
+    || getProviderKeyFromRequestBody(body);
   return sanitizeProviderRequestConfigForProvider(body.providerRequestConfig, providerKey, {
     endpointId: body.endpoint,
   });

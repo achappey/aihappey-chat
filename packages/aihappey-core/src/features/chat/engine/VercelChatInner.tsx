@@ -482,6 +482,7 @@ export function VercelChatInner({
     maxToolCalls,
     providerMetadata,
     ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
+    ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
     ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
     response_format: location.state?.responseFormat ?? structuredOutputs,
     workflowMetadata: {
@@ -502,6 +503,8 @@ export function VercelChatInner({
     location.state?.responseFormat,
     providerMetadata,
     providerRequestConfig,
+    isProviderEndpointProfile,
+    requestEndpointProfile,
     structuredOutputs,
     maximumIterationCount,
     handoffs,
@@ -697,6 +700,9 @@ export function VercelChatInner({
       ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
       ...(chatMode === "agent" ? { workflowType } : {}),
       providerMetadata,
+      ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
+      ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
+      ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
       response_format: location.state?.responseFormat ?? structuredOutputs,
       workflowMetadata: {
         groupchat: { maximumIterationCount },
