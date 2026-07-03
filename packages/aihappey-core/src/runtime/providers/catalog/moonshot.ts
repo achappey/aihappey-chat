@@ -24,7 +24,9 @@ export const moonshot: Provider = {
   },
   providerCountry: "CN",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.moonshot.ai",
+  chatEndpoints: ["/v1/chat/completions"],
 
 };
 
