@@ -50,6 +50,12 @@ const GOOGLE_IMAGE_ASPECT_RATIO_OPTIONS = [
   "4:1",
 ] as const;
 const GOOGLE_IMAGE_SIZE_OPTIONS = ["1K", "2K", "4K", "512"] as const;
+const GOOGLE_VIDEO_TASK_OPTIONS = [
+  "text_to_video",
+  "image_to_video",
+  "reference_to_video",
+  "edit",
+] as const;
 const GOOGLE_AGENT_TYPE_OPTIONS = ["dynamic", "deep-research"] as const;
 const GOOGLE_AGENT_THINKING_SUMMARY_OPTIONS = ["auto", "none"] as const;
 const GOOGLE_SERVICE_TIER_OPTIONS = ["flex", "standard", "priority"] as const;
@@ -73,6 +79,7 @@ const DEFAULT_GOOGLE_IMAGE_CONFIG = {
   aspect_ratio: "1:1",
   image_size: "1K",
 };
+const DEFAULT_GOOGLE_VIDEO_CONFIG = {};
 
 export type GoogleChatConfigFormTranslations = {
   reasoning?: string;
@@ -105,6 +112,13 @@ export type GoogleChatConfigFormTranslations = {
   latitude?: string;
   longitude?: string;
   url_context?: string;
+  videoConfig?: string;
+  videoConfigTask?: string;
+  videoConfigProviderDefault?: string;
+  videoTask_text_to_video?: string;
+  videoTask_image_to_video?: string;
+  videoTask_reference_to_video?: string;
+  videoTask_edit?: string;
 
   // blockingConfidence (used in options list, even though select is currently false-gated)
   blockingConfidence_unspecified?: string;
@@ -136,6 +150,7 @@ export const GoogleChatConfigForm = ({
     ...(resolvedConfig?.generation_config ?? {}),
   };
   const imageConfig = resolvedConfig?.generation_config?.image_config;
+  const videoConfig = resolvedConfig?.generation_config?.video_config;
   const agentConfig = resolvedConfig?.agent_config;
   const agentThinkingSummariesEnabled = agentConfig?.type === "deep-research";
 
@@ -173,6 +188,7 @@ export const GoogleChatConfigForm = ({
   const searchOn = !!resolvedConfig?.google_search;
   const thinkingOn = true;
   const imageOn = !!imageConfig;
+  const videoOn = !!videoConfig;
   const agentOn = !!agentConfig;
   const codeExecutionOn = !!resolvedConfig?.code_execution;
   const urlContextOn = !!resolvedConfig?.url_context;
@@ -243,6 +259,21 @@ export const GoogleChatConfigForm = ({
     value,
     label: value,
   }));
+  const videoProviderDefaultLabel =
+    translations?.videoConfigProviderDefault ??
+    t("providers:google.videoConfig.providerDefault");
+  const videoTaskOptions = [
+    {
+      value: "",
+      label: videoProviderDefaultLabel,
+    },
+    ...GOOGLE_VIDEO_TASK_OPTIONS.map((value) => ({
+      value,
+      label:
+        translations?.[`videoTask_${value}`] ??
+        t(`providers:google.videoConfig.tasks.${value}`),
+    })),
+  ];
   const agentTypeOptions = GOOGLE_AGENT_TYPE_OPTIONS.map((value) => ({
     value,
     label: value,
@@ -537,6 +568,57 @@ export const GoogleChatConfigForm = ({
             ))}
           </theme.Select>
         </div>
+      </theme.Card>
+
+      <theme.Card
+        size="small"
+        title={translations?.videoConfig ?? t("providers:google.videoConfig.title")}
+        headerActions={
+          <theme.Switch
+            id="googleVideoConfig"
+            checked={videoOn}
+            onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  video_config: !val
+                    ? undefined
+                    : { ...DEFAULT_GOOGLE_VIDEO_CONFIG },
+                },
+              })
+            }
+          />
+        }
+      >
+        <theme.Select
+          label={translations?.videoConfigTask ?? t("providers:google.videoConfig.task")}
+          values={[videoConfig?.task ?? ""]}
+          disabled={!videoOn}
+          valueTitle={
+            videoTaskOptions.find((option) => option.value === (videoConfig?.task ?? ""))
+              ?.label
+          }
+          options={videoTaskOptions}
+          onChange={(val: string) =>
+            submitConfig({
+              ...resolvedConfig,
+              generation_config: {
+                ...generationConfig,
+                video_config: {
+                  ...(videoConfig ?? DEFAULT_GOOGLE_VIDEO_CONFIG),
+                  task: val || undefined,
+                },
+              },
+            })
+          }
+        >
+          {videoTaskOptions.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </theme.Select>
       </theme.Card>
 
       <theme.Card

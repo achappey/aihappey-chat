@@ -466,6 +466,17 @@
       "aspect_ratio": "Beeldverhouding",
       "image_size": "Afbeeldingsgrootte"
     },
+    "videoConfig": {
+      "title": "Video",
+      "task": "Taak",
+      "providerDefault": "Providerstandaard (afleiden uit prompt)",
+      "tasks": {
+        "text_to_video": "Tekst naar video",
+        "image_to_video": "Afbeelding naar video",
+        "reference_to_video": "Referentie naar video",
+        "edit": "Bewerken"
+      }
+    },
     "environment": {
       "title": "Omgeving (Agents)",
       "description": "Configureer een beheerde Linux-sandbox voor Google-agents. Zonder bronnen of netwerkinstellingen wordt een nieuwe externe omgeving gebruikt.",

@@ -725,6 +725,17 @@
       "aspect_ratio": "Aspect ratio",
       "image_size": "Image size"
     },
+    "videoConfig": {
+      "title": "Video",
+      "task": "Task",
+      "providerDefault": "Provider default (infer from prompt)",
+      "tasks": {
+        "text_to_video": "Text to video",
+        "image_to_video": "Image to video",
+        "reference_to_video": "Reference to video",
+        "edit": "Edit"
+      }
+    },
     "environment": {
       "title": "Environment (Agents)",
       "description": "Configure a managed Linux sandbox for Google agents. Without sources or network settings, a fresh remote environment is used.",

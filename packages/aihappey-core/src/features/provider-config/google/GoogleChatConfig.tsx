@@ -45,6 +45,13 @@ export const GoogleChatConfig = ({
         latitude: t("latitude"),
         longitude: t("longitude"),
         url_context: t("providers:google.url_context"),
+        videoConfig: t("providers:google.videoConfig.title"),
+        videoConfigTask: t("providers:google.videoConfig.task"),
+        videoConfigProviderDefault: t("providers:google.videoConfig.providerDefault"),
+        videoTask_text_to_video: t("providers:google.videoConfig.tasks.text_to_video"),
+        videoTask_image_to_video: t("providers:google.videoConfig.tasks.image_to_video"),
+        videoTask_reference_to_video: t("providers:google.videoConfig.tasks.reference_to_video"),
+        videoTask_edit: t("providers:google.videoConfig.tasks.edit"),
 
         blockingConfidence_label: t("providers:google.blockingConfidence.label"),
         blockingConfidence_unspecified: t(
