@@ -55,7 +55,7 @@ function collapseGeneratedImagePreviews(parts: UIMessagePart<any, any>[]) {
   });
 }
 
-function parseCost(value: unknown): number | undefined {
+export function parseGatewayCost(value: unknown): number | undefined {
   if (typeof value === "number") {
     return Number.isFinite(value) ? value : undefined;
   }
@@ -66,6 +66,49 @@ function parseCost(value: unknown): number | undefined {
   }
 
   return undefined;
+}
+
+export type GatewayCostSummary = {
+  cost: number;
+  count: number;
+};
+
+export function summarizeAssistantGatewayCost(message: Pick<UIMessage, "role" | "metadata" | "parts">): GatewayCostSummary {
+  if (message.role !== "assistant") return { cost: 0, count: 0 };
+
+  const meta = (message.metadata ?? {}) as any;
+  const entries: number[] = [];
+  const baseCost = parseGatewayCost(meta?.providerMetadata?.gateway?.cost ?? meta?.gateway?.cost ?? meta?.cost);
+
+  if (baseCost !== undefined) entries.push(baseCost);
+
+  for (const part of message.parts ?? []) {
+    const partAny = part as any;
+    const partCost = parseGatewayCost(partAny?.output?._meta?.gateway?.cost);
+
+    if (partCost !== undefined) entries.push(partCost);
+  }
+
+  return {
+    cost: entries.reduce((sum, cost) => sum + cost, 0),
+    count: entries.length,
+  };
+}
+
+export function conversationGatewayCostTotal(messages: Pick<UIMessage, "role" | "metadata" | "parts">[]): number | undefined {
+  const summary = messages.reduce(
+    (total, message) => {
+      const messageSummary = summarizeAssistantGatewayCost(message);
+
+      return {
+        cost: total.cost + messageSummary.cost,
+        count: total.count + messageSummary.count,
+      };
+    },
+    { cost: 0, count: 0 } satisfies GatewayCostSummary,
+  );
+
+  return summary.count > 1 ? summary.cost : undefined;
 }
 
 function resolveProviderKeyFromMetadata(
@@ -111,19 +154,12 @@ export function toChatMessages(
       (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
     ));
 
-    const baseCost = parseCost(meta?.providerMetadata?.gateway?.cost ?? meta?.gateway?.cost ?? meta?.cost);
-    const toolPartsCost = parts.reduce((sum, part) => {
-      const partAny = part as any;
-      const partCost = parseCost(
-        partAny?.output?._meta?.gateway?.cost
-      );
-
-      return sum + (partCost ?? 0);
-    }, 0);
-
-    const hasToolPartsCost = toolPartsCost !== 0;
-    const cost = (baseCost ?? 0) + toolPartsCost;
-    const effectiveCost = (baseCost !== undefined || hasToolPartsCost) ? cost : undefined;
+    const messageCostSummary = summarizeAssistantGatewayCost({
+      role: z.role,
+      metadata: meta,
+      parts,
+    });
+    const effectiveCost = messageCostSummary.count > 0 ? messageCostSummary.cost : undefined;
 
     const nonInlineMediaFiles = parts.filter(
       (p): p is FileUIPart =>

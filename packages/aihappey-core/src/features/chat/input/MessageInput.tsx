@@ -1,5 +1,5 @@
 import {
-  AttachmentButton, BrrrBadge, ContextProgressBar, FileTags,
+  AttachmentButton, BrrrBadge, ContextProgressBar, CostBadge, FileTags,
   ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme
 } from "aihappey-components";
 import { ServerSelectButton } from "../../mcp-servers/ServerSelectButton";
@@ -131,7 +131,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      {(attachmentsElement || serverElements || approveAll
+      {(attachmentsElement || serverElements || approveAll || props.conversationCost !== undefined
         || (currentModel?.context_window && props.tokenUsage)
       ) ? (
         <div style={styles.metaRow}>
@@ -145,6 +145,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
             <ContextProgressBar tokenUsage={props.tokenUsage}
               max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
               context_window={currentModel?.context_window} />
+            <CostBadge cost={props.conversationCost} size="small" />
             {approveAll && <BrrrBadge size="small" />}
           </div>
         </div>

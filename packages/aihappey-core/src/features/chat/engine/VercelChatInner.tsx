@@ -12,6 +12,7 @@ import { useChatFileDrop } from "../input/useChatFileDrop";
 import { useOnToolCall } from "../../tools/toolcalls/useOnToolCall";
 import { findLatestLocalJsonRenderTree } from "../../tools/toolcalls/useLocalJsonRenderToolCall";
 import { MessageList } from "../messages/MessageList";
+import { conversationGatewayCostTotal } from "../messages/toChatMessages";
 import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
 import { useChatActions } from "./useChatActions";
 import { useSystemMessage } from "../messages/useSystemMessage";
@@ -700,6 +701,11 @@ export function VercelChatInner({
       .filter((m): m is UIMessage => !!m);
   }, [messages, uiMessageOverrides]);
 
+  const conversationCost = useMemo(
+    () => conversationGatewayCostTotal(uiMessages),
+    [uiMessages],
+  );
+
   const effectiveUiTree = useMemo(() => {
     if (tree) return tree;
     const last = (uiMessages ?? [])
@@ -864,6 +870,7 @@ export function VercelChatInner({
             }}
             onStop={cancelRun}
             tokenUsage={latestTotalTokens}
+            conversationCost={conversationCost}
             temperature={temperature}
             temperatureChanged={temperatureChanged}
             onPromptExecute={onPromptExecute}

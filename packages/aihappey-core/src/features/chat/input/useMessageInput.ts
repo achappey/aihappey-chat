@@ -13,6 +13,7 @@ export interface UseMessageInputOptions {
   streaming?: boolean;
   disabled?: boolean;
   tokenUsage?: number
+  conversationCost?: number
   temperature?: number
   temperatureChanged?: any
   onSend: (content: string) => void;

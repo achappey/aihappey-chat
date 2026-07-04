@@ -3,10 +3,12 @@ import { useTheme } from "../theme/ThemeContext";
 
 interface CostBadgeProps {
   cost?: number;
+  size?: string;
 }
 
 export const CostBadge: React.FC<CostBadgeProps> = ({
   cost,
+  size = "large",
 }) => {
   const { Badge } = useTheme();
   const { t } = useTranslation();
@@ -30,7 +32,7 @@ export const CostBadge: React.FC<CostBadgeProps> = ({
     <Badge
       title={`${t("messagePrice")}`}
       icon={"pricing"}
-      size="large"
+      size={size}
       bg="informative"
       appearance="ghost"
     >
