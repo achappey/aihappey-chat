@@ -57,8 +57,8 @@ export const SystemMessageButton = () => {
               ) : null}
               {(parsed.availableSkills.skills ?? []).map((skill: any) => (
                 <Card
-                  key={skill.name}
-                  title={skill.name}
+                  key={skill.skill_id ?? skill.id ?? skill.name}
+                  title={`${skill.name}${skill.skill_id ? ` (${skill.skill_id})` : ""}`}
                   description={skill.description ?? ""}
                 />
               ))}

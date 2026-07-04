@@ -64,6 +64,11 @@ type AvailableSkill = {
     description: string;
 };
 
+const buildAvailableSkillActivationLines = (availableSkills: AvailableSkill[]) =>
+    availableSkills.map((skill) => (
+        `- skill_id=${skill.skillId}; name=${skill.name}: ${skill.description}`
+    ));
+
 
 export const buildSystemMessage = (
     mcpServers: Record<string, any>,
@@ -148,6 +153,7 @@ export const buildSystemMessage = (
     }
 
     if (availableSkills.length > 0) {
+        const skillActivationLines = buildAvailableSkillActivationLines(availableSkills);
         parts.push({
             type: "text",
             /* text: encode({
@@ -169,12 +175,16 @@ export const buildSystemMessage = (
                     activationTool: "activate_skill",
                     resourceTool: "read_skill_resource",
                     instructions:
-                        "The following skills provide specialized instructions for specific tasks. When a task matches a skill description, call activate_skill with the exact skill_id to load its instructions. After activation, use read_skill_resource with the same skill_id and a relative path when the instructions reference bundled files.",
+                        "The following skills provide specialized instructions for specific tasks. When a task matches a skill description, call activate_skill with the exact skill_id shown below to load its instructions. Do not use the skill name as skill_id unless it exactly matches the listed skill_id. After activation, use read_skill_resource with the same skill_id and a relative path when the instructions reference bundled files.",
+                    skillIdRequired: true,
+                    activationExamples: skillActivationLines,
                     skills: availableSkills.map((skill) => ({
                         id: skill.skillId,
                         skill_id: skill.skillId,
+                        exact_skill_id_to_activate: skill.skillId,
                         name: skill.name,
                         description: skill.description,
+                        activation: `Call activate_skill with skill_id \"${skill.skillId}\".`,
                     })),
                 },
             })
