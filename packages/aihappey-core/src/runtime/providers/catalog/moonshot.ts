@@ -1,4 +1,5 @@
 import type { Provider } from "aihappey-types";
+import { createProviderPricingGatewayMetadata } from "./providerPricing";
 
 export const moonshot: Provider = {
   name: "Moonshot",
@@ -27,6 +28,6 @@ export const moonshot: Provider = {
   inferenceRegions: ["World"],
   apiBaseUrl: "https://api.moonshot.ai",
   chatEndpoints: ["/v1/chat/completions"],
+  createGatewayMetadata: createProviderPricingGatewayMetadata("moonshot")
 
 };
-
