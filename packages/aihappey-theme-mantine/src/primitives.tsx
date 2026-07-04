@@ -660,7 +660,7 @@ export const ToolbarDivider = () => <Divider orientation="vertical" />;
 function renderMenuItems(items: MenuItemProps[] | SplitButtonMenuItem[]) {
   return items.map((item: any) => item.children?.length ? (
     <MantineMenu.Sub key={item.key}>
-      <MantineMenu.Sub.Target><MantineMenu.Sub.Item leftSection={renderIcon(item.icon)} color={item.danger ? "red" : undefined}>{item.label}</MantineMenu.Sub.Item></MantineMenu.Sub.Target>
+      <MantineMenu.Sub.Target><MantineMenu.Sub.Item leftSection={renderIcon(item.icon)} color={item.danger ? "red" : undefined} disabled={item.disabled}>{item.label}</MantineMenu.Sub.Item></MantineMenu.Sub.Target>
       <MantineMenu.Sub.Dropdown>{renderMenuItems(item.children)}</MantineMenu.Sub.Dropdown>
     </MantineMenu.Sub>
   ) : (
@@ -668,8 +668,8 @@ function renderMenuItems(items: MenuItemProps[] | SplitButtonMenuItem[]) {
   ));
 }
 
-export const Menu = ({ items, trigger, align = "right", className }: MenuProps) => (
-  <MantineMenu position={align === "left" ? "bottom-start" : "bottom-end"} withinPortal>
+export const Menu = ({ items, trigger, align = "right", direction = "bottom", className }: MenuProps) => (
+  <MantineMenu position={`${direction === "top" ? "top" : "bottom"}-${align === "left" ? "start" : "end"}` as any} withinPortal>
     <MantineMenu.Target>{trigger ?? <MantineButton variant="subtle">More</MantineButton>}</MantineMenu.Target>
     <MantineMenu.Dropdown className={className}>{renderMenuItems(items)}</MantineMenu.Dropdown>
   </MantineMenu>

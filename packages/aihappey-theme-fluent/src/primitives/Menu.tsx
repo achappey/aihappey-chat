@@ -19,6 +19,7 @@ export type MenuProps = {
   items: MenuItemProps[];
   trigger?: React.ReactElement;
   align?: "left" | "right";
+  direction?: "top" | "bottom";
   size?: "small" | "medium";
   className?: string;
 };
@@ -26,6 +27,7 @@ export type MenuProps = {
 export const Menu: React.FC<MenuProps> = ({
   items,
   trigger,
+  direction = "bottom",
   size = "small",
   className,
 }) => {
@@ -37,7 +39,7 @@ export const Menu: React.FC<MenuProps> = ({
       return item.children && item.children.length > 0 ? (
         <FMenu key={item.key}>
           <MenuTrigger disableButtonEnhancement>
-            <MenuItem>{item.label}</MenuItem>
+            <MenuItem disabled={(item as any).disabled}>{item.label}</MenuItem>
           </MenuTrigger>
           <MenuPopover>
             <MenuList>{renderItems(item.children)}</MenuList>
@@ -47,6 +49,7 @@ export const Menu: React.FC<MenuProps> = ({
         <MenuItem
           key={item.key}
           icon={IconElem && <IconElem />}
+          disabled={(item as any).disabled}
           onClick={item.onClick}
           style={item.danger ? { color: "red" } : undefined}
         >
@@ -57,7 +60,7 @@ export const Menu: React.FC<MenuProps> = ({
     );
 
   return (
-    <FMenu>
+    <FMenu positioning={direction === "top" ? "above" : "below"}>
       <MenuTrigger disableButtonEnhancement>
         {trigger || (
           <Button

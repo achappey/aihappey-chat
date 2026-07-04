@@ -847,13 +847,13 @@ export const Drawer = ({ open, isOpen, onOpenChange, onClose, title, children, a
   </DialogPrimitive.Root>
 );
 
-export const Menu = ({ items = [], trigger, align = "right", size = "small", className }: any) => {
+export const Menu = ({ items = [], trigger, align = "right", direction = "bottom", size = "small", className }: any) => {
   const render = (menuItems: any[] = [], parentKey = "menu") => menuItems.map((item, index) => {
     const itemKey = `${parentKey}:${item.key ?? item.label ?? index}:${index}`;
     const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined;
     return item.children?.length ? (
       <DropdownMenuPrimitive.Sub key={itemKey}>
-        <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.SubTrigger>
+        <DropdownMenuPrimitive.SubTrigger disabled={item.disabled} className="aih-shadcn-menu-item">{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.SubTrigger>
         <DropdownMenuPrimitive.Portal>
           <PortalThemeScope>
             <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>{render(item.children, itemKey)}</DropdownMenuPrimitive.SubContent>
@@ -861,7 +861,7 @@ export const Menu = ({ items = [], trigger, align = "right", size = "small", cla
         </DropdownMenuPrimitive.Portal>
       </DropdownMenuPrimitive.Sub>
     ) : (
-      <DropdownMenuPrimitive.Item key={itemKey} className={cn("aih-shadcn-menu-item", item.danger && "aih-shadcn-menu-item-danger")} onSelect={() => item.onClick?.()}>{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.Item>
+      <DropdownMenuPrimitive.Item key={itemKey} disabled={item.disabled} className={cn("aih-shadcn-menu-item", item.danger && "aih-shadcn-menu-item-danger")} onSelect={() => item.onClick?.()}>{Icon ? <Icon size={14} /> : null}{item.label}</DropdownMenuPrimitive.Item>
     );
   });
   return (
@@ -869,7 +869,7 @@ export const Menu = ({ items = [], trigger, align = "right", size = "small", cla
       <DropdownMenuPrimitive.Trigger asChild>{trigger ?? <Button variant="ghost" size={size} icon="menu" className={className} />}</DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
         <PortalThemeScope>
-          <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-menu-content" align={align === "left" ? "start" : "end"} sideOffset={4} collisionPadding={8}>{render(items)}</DropdownMenuPrimitive.Content>
+          <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-menu-content" align={align === "left" ? "start" : "end"} side={direction === "top" ? "top" : "bottom"} sideOffset={4} collisionPadding={8}>{render(items)}</DropdownMenuPrimitive.Content>
         </PortalThemeScope>
       </DropdownMenuPrimitive.Portal>
     </DropdownMenuPrimitive.Root>

@@ -411,10 +411,10 @@ export const Drawer = ({ open, isOpen, onOpenChange, onClose, title, children, a
 };
 
 function renderMenuItems(items: any[] = []) {
-  return <ul>{items.map((item, index) => <li key={item.key ?? index}>{item.children?.length ? <details><summary>{icon(item.icon)} {item.label}</summary>{renderMenuItems(item.children)}</details> : <button type="button" onClick={() => void item.onClick?.()}>{icon(item.icon)}{item.icon ? " " : null}{item.label}</button>}</li>)}</ul>;
+  return <ul>{items.map((item, index) => <li key={item.key ?? index}>{item.children?.length ? <details><summary aria-disabled={item.disabled} onClick={(event) => { if (item.disabled) event.preventDefault(); }}>{icon(item.icon)} {item.label}</summary>{renderMenuItems(item.children)}</details> : <button type="button" disabled={item.disabled} onClick={() => void item.onClick?.()}>{icon(item.icon)}{item.icon ? " " : null}{item.label}</button>}</li>)}</ul>;
 }
 
-export const Menu = ({ items = [], trigger, ...rest }: any) => <details {...rest}><summary>{trigger ?? <span>Menu</span>}</summary>{renderMenuItems(items)}</details>;
+export const Menu = ({ items = [], trigger, direction = "bottom", ...rest }: any) => <details {...rest} style={{ position: "relative", ...(rest.style ?? {}) }}><summary>{trigger ?? <span>Menu</span>}</summary><div style={direction === "top" ? { position: "absolute", bottom: "100%" } : undefined}>{renderMenuItems(items)}</div></details>;
 
 const UserMenuCheckbox = ({ capability, provider, checked, disabled, onToggleProviderForType }: { capability: ProviderCapability; provider: string; checked: boolean; disabled?: boolean; onToggleProviderForType?: UserMenuProps["onToggleProviderForType"] }) => (
   <label><input type="checkbox" checked={checked} disabled={disabled} onChange={() => onToggleProviderForType?.(capability, provider)} /> {provider}</label>

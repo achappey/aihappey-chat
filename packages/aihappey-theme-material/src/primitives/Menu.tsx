@@ -12,9 +12,9 @@ function renderMenuItems(items: MenuItemProps[] | SplitButtonMenuItem[]): React.
   ]);
 }
 
-export const Menu = ({ items, trigger, align = "right", className }: MenuProps) => {
+export const Menu = ({ items, trigger, align = "right", direction = "bottom", className }: MenuProps) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const defaultTrigger = <MuiButton variant="text">More</MuiButton>;
-  return <>{React.cloneElement((trigger ?? defaultTrigger) as React.ReactElement<any>, { onClick: (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget) })}<MuiMenu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} className={className} anchorOrigin={{ horizontal: align === "left" ? "left" : "right", vertical: "bottom" }} transformOrigin={{ horizontal: align === "left" ? "left" : "right", vertical: "top" }}>{renderMenuItems(items)}</MuiMenu></>;
+  return <>{React.cloneElement((trigger ?? defaultTrigger) as React.ReactElement<any>, { onClick: (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget) })}<MuiMenu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)} className={className} anchorOrigin={{ horizontal: align === "left" ? "left" : "right", vertical: direction === "top" ? "top" : "bottom" }} transformOrigin={{ horizontal: align === "left" ? "left" : "right", vertical: direction === "top" ? "bottom" : "top" }}>{renderMenuItems(items)}</MuiMenu></>;
 };
 
