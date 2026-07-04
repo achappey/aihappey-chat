@@ -3,7 +3,8 @@ import { SamplingRequest, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { OpenAIAppWidget } from "../../../ui/widgets/OpenAIAppWidget";
 import { copyMarkdownToClipboard } from "../files/file";
-import { ImageGrid, MessageList as MessageListComponent, ToolContent, useTheme } from "aihappey-components";
+import { ImageGrid, MessageList as MessageListComponent, ToolContent, useTheme, VideoGrid } from "aihappey-components";
+import type { VideoContent } from "aihappey-components";
 import type { CreateMessageRequest, CreateMessageResult, ImageContent } from "@modelcontextprotocol/sdk/types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
@@ -48,6 +49,18 @@ const fileToImageContent = (f: FileUIPart): ImageContent => {
 
   // If url is already base64 without prefix, pass through
   return { type: "image", mimeType: mt, data: url } as any;
+};
+
+const fileToVideoContent = (f: FileUIPart): VideoContent => {
+  const url = f?.url ?? "";
+  const mt = f?.mediaType ?? "video/mp4";
+
+  const m = /^data:([^;]+);base64,(.*)$/i.exec(url);
+  if (m) {
+    return { type: "base64", mimeType: m[1], data: m[2] };
+  }
+
+  return { type: "base64", mimeType: mt, data: url };
 };
 
 
@@ -171,6 +184,20 @@ export const MessageList = ({
             }
 
             return <ImageGrid items={items} columns={3} fit="cover" gap={8} onImageClick={setModalImage} />;
+          }
+
+          if (block?.type === "video") {
+            const item = block.item ? fileToVideoContent(block.item) : undefined;
+
+            return item ? (
+              <VideoGrid
+                items={[item]}
+                columns={1}
+                gap={8}
+                shape="rounded"
+                style={{ maxWidth: "100%" }}
+              />
+            ) : null;
           }
 
           if (block?.type === "sampling") {

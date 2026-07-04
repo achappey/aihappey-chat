@@ -7,6 +7,12 @@ export type VideoContent = {
   _meta?: Record<string, any>;
 };
 
+const videoContentToSrc = (item: VideoContent) => {
+  if (/^(data:|blob:|https?:\/\/)/i.test(item.data)) return item.data;
+
+  return `data:${item.mimeType};base64,${item.data}`;
+};
+
 type VideoGridProps = {
   items: VideoContent[];
   columns?: number;
@@ -67,9 +73,7 @@ export const VideoGrid = ({
       ))}
 
       {items.map((item, idx) => {
-        const src = item.data.startsWith("data:")
-          ? item.data
-          : `data:${item.mimeType};base64,${item.data}`;
+        const src = videoContentToSrc(item);
 
         return (
           <div key={idx} style={cellStyle}>

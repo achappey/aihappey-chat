@@ -17,6 +17,14 @@ function hasReasoningText(part: UIMessagePart<any, any>): boolean {
   return String(text).trim().length > 0;
 }
 
+function isImageFilePart(part: UIMessagePart<any, any>): part is FileUIPart {
+  return part?.type === "file" && !!(part as FileUIPart)?.mediaType?.startsWith("image/");
+}
+
+function isVideoFilePart(part: UIMessagePart<any, any>): part is FileUIPart {
+  return part?.type === "file" && !!(part as FileUIPart)?.mediaType?.startsWith("video/");
+}
+
 function generatedImageIdFromPart(part: UIMessagePart<any, any>): string | undefined {
   if (part?.type !== "file" || !(part as FileUIPart).mediaType?.startsWith("image/")) return undefined;
 
@@ -117,9 +125,9 @@ export function toChatMessages(
     const cost = (baseCost ?? 0) + toolPartsCost;
     const effectiveCost = (baseCost !== undefined || hasToolPartsCost) ? cost : undefined;
 
-    const nonImageFiles = parts.filter(
+    const nonInlineMediaFiles = parts.filter(
       (p): p is FileUIPart =>
-        p?.type === "file" && !p?.mediaType?.startsWith("image/")
+        p?.type === "file" && !isImageFilePart(p) && !isVideoFilePart(p)
     );
 
     const sources = parts.filter(
@@ -207,14 +215,40 @@ export function toChatMessages(
       const t = p?.type;
 
       // 1) Images: buffer consecutive image files
-      if (t === "file" && (p as FileUIPart)?.mediaType?.startsWith("image/")) {
+      if (isImageFilePart(p)) {
         startImageRunIfNeeded(i);
         imageRun.push(p as FileUIPart);
         continue;
       }
 
+      // 1b) Videos: each video file gets its own message, even when multiple are consecutive
+      if (isVideoFilePart(p)) {
+        flushActivity();
+        flushImages();
+
+        out.push({
+          id: `${baseId}:video:${i}`,
+          role: z.role,
+          content: [
+            {
+              type: "video",
+              item: p,
+            } as any,
+          ],
+          createdAt: ts(i),
+          author,
+          temperature,
+          totalTokens,
+          usage,
+          cost: effectiveCost,
+          providerKey,
+        } as any);
+
+        continue;
+      }
+
       // Any non-image part breaks the image run
-      // flushImages();
+      flushImages();
 
       // 2) Text: flush activity, then push text message
       if (t === "text") {
@@ -224,7 +258,7 @@ export function toChatMessages(
           id: `${baseId}:text:${i}`,
           role: z.role,
           content: [p as any],
-          attachments: nonImageFiles,
+          attachments: nonInlineMediaFiles,
           sources,
           createdAt: ts(i),
           author,
@@ -280,7 +314,7 @@ export function toChatMessages(
       }
 
       // 4) Ignore files/sources as "activity" (files become attachments, sources become sources)
-      if (t === "file" || t === "source-url" || t === "source-document" || t.startsWith("data-")) {
+      if (t === "file" || t === "source-url" || t === "source-document" || (typeof t === "string" && t.startsWith("data-"))) {
         continue;
       }
 

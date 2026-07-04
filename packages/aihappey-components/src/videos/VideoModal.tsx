@@ -22,7 +22,7 @@ export const VideoModal = ({
   const { Modal, Button } = useTheme();
   const { t } = useTranslation();
 
-  const src = video.data.startsWith("data:")
+  const src = /^(data:|blob:|https?:\/\/)/i.test(video.data)
     ? video.data
     : `data:${video.mimeType};base64,${video.data}`;
 
