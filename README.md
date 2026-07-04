@@ -10,7 +10,7 @@
 
 ## What is this?
 
-`aihappey-chat` is a client-side AI chat app. It gives users one interface for normal chat, model/provider switching, MCP tools, file attachments, structured output, and rich responses.
+`aihappey-chat` is a client-side AI chat app. It gives users one interface for normal chat, model/provider switching, Skills, MCP tools/resources/prompts/elicitation/tasks, local plugins/tools, files, structured output and rich responses.
 
 The app does not own a backend. You point it at compatible APIs and MCP catalogs.
 
