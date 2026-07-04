@@ -1347,9 +1347,44 @@ export const Navigation = ({ items = [], appTitle, activeKey, onSelect, classNam
 };
 
 export const Tab = ({ children }: any) => <>{children}</>;
-export const Tabs = ({ activeKey, onSelect, vertical, children, className, style }: any) => {
+export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className, style }: any) => {
   const tabs = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
-  return <TabsPrimitive.Root value={activeKey} onValueChange={onSelect} className={className} style={{ display: vertical ? "flex" : undefined, gap: vertical ? 12 : undefined, ...style }}><TabsPrimitive.List className="aih-shadcn-tabs-list" style={{ flexDirection: vertical ? "column" : undefined, alignItems: vertical ? "stretch" : undefined }}>{tabs.map((tab) => { const Icon = tab.props.icon ? iconMap[tab.props.icon as IconToken] : undefined; return <TabsPrimitive.Trigger key={tab.props.eventKey} value={tab.props.eventKey} disabled={tab.props.disabled} className="aih-shadcn-tabs-trigger" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{Icon ? <Icon size={14} /> : null}{tab.props.title}</TabsPrimitive.Trigger>; })}</TabsPrimitive.List>{tabs.map((tab) => <TabsPrimitive.Content key={tab.props.eventKey} value={tab.props.eventKey} className="aih-shadcn-tabs-content" style={{ flex: 1 }}>{tab.props.children}</TabsPrimitive.Content>)}</TabsPrimitive.Root>;
+  const tabsList = (
+    <TabsPrimitive.List
+      className={cn(
+        "aih-shadcn-tabs-list",
+        vertical ? "aih-shadcn-tabs-list-vertical" : "aih-shadcn-tabs-list-horizontal",
+        fill && !vertical && "aih-shadcn-tabs-list-fill"
+      )}
+    >
+      {tabs.map((tab) => {
+        const Icon = tab.props.icon ? iconMap[tab.props.icon as IconToken] : undefined;
+        return (
+          <TabsPrimitive.Trigger key={tab.props.eventKey} value={tab.props.eventKey} disabled={tab.props.disabled} className="aih-shadcn-tabs-trigger">
+            {Icon ? <Icon size={14} /> : null}
+            <span className="aih-shadcn-tabs-trigger-label">{tab.props.title}</span>
+          </TabsPrimitive.Trigger>
+        );
+      })}
+    </TabsPrimitive.List>
+  );
+
+  return (
+    <TabsPrimitive.Root
+      value={activeKey}
+      onValueChange={onSelect}
+      orientation={vertical ? "vertical" : "horizontal"}
+      className={cn("aih-shadcn-tabs", vertical ? "aih-shadcn-tabs-vertical" : "aih-shadcn-tabs-horizontal", className)}
+      style={{ display: vertical ? "flex" : undefined, gap: vertical ? 12 : undefined, maxWidth: "100%", minWidth: 0, minHeight: 0, ...style }}
+    >
+      {vertical ? tabsList : <div className="aih-shadcn-tabs-scroll">{tabsList}</div>}
+      {tabs.map((tab) => (
+        <TabsPrimitive.Content key={tab.props.eventKey} value={tab.props.eventKey} className="aih-shadcn-tabs-content">
+          {tab.props.children}
+        </TabsPrimitive.Content>
+      ))}
+    </TabsPrimitive.Root>
+  );
 };
 
 export const Accordion = ({ items = [], openItems, defaultOpenItems, onToggle, multiple, collapsible = true, className, style }: any) => <AccordionPrimitive.Root type={multiple ? "multiple" : "single" as any} value={multiple ? openItems : openItems?.[0]} defaultValue={multiple ? defaultOpenItems : defaultOpenItems?.[0]} collapsible={collapsible} onValueChange={(value: string | string[]) => onToggle?.(Array.isArray(value) ? value : value ? [value] : [])} className={className} style={style}>{items.map((item: any) => <AccordionPrimitive.Item key={item.key} value={item.key} disabled={item.disabled} className={item.className} style={{ borderBottom: "1px solid var(--aih-shadcn-border)" }}><AccordionPrimitive.Header><AccordionPrimitive.Trigger style={{ display: "flex", width: "100%", justifyContent: "space-between", padding: ".75rem 0", border: 0, background: "transparent", color: "inherit", fontWeight: 500 }}>{item.header}<ChevronDown size={16} /></AccordionPrimitive.Trigger></AccordionPrimitive.Header><AccordionPrimitive.Content style={{ padding: "0 0 .75rem" }}>{item.content}</AccordionPrimitive.Content></AccordionPrimitive.Item>)}</AccordionPrimitive.Root>;
