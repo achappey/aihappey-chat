@@ -16,7 +16,9 @@ export const scaleway: Provider = {
   },
   providerCountry: "FR",
   category: "inference_compute",
-  inferenceRegions: ["Europe"]
+  inferenceRegions: ["Europe"],
+  apiBaseUrl: "https://api.scaleway.ai",
+  chatEndpoints: ["/v1/chat/completions"]
 
 };
 

@@ -15,7 +15,7 @@ export const infron: Provider = {
   category: "inference_compute",
   inferenceRegions: ["World"],
   apiBaseUrl: "https://llm.onerouter.pro",
-  chatEndpoints: ["/v1/chat/completions", "/v1/responses", "/v1/messages"],
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses", "/v1/messages"]
 
 };
 

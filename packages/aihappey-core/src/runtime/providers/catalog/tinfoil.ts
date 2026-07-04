@@ -24,7 +24,9 @@ export const tinfoil: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://inference.tinfoil.sh",
+  chatEndpoints: ["/v1/chat/completions"]
 
 };
 

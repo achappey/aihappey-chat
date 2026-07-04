@@ -12,9 +12,5 @@ export const greenpt: Provider = {
   },
   providerCountry: "NL",
   category: "gateway_router",
-  inferenceRegions: ["Europe"],
-  apiBaseUrl: "https://api.greenpt.ai",
-  chatEndpoints: ["/v1/chat/completions"],
-
-
+  inferenceRegions: ["Europe"]
 };

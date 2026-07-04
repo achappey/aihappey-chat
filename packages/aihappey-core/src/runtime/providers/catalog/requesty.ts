@@ -18,6 +18,8 @@ export const requesty: Provider = {
   },
   providerCountry: "GB",
   category: "gateway_router",
-  inferenceRegions: ["Asia", "Europe", "Americas"]
+  inferenceRegions: ["Asia", "Europe", "Americas"],
+  apiBaseUrl: "https://router.eu.requesty.ai",
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses", "/v1/messages"],
 };
 
