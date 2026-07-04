@@ -1,4 +1,5 @@
 import type { Provider } from "aihappey-types";
+import { createProviderPricingGatewayMetadata } from "./providerPricing";
 
 export const minimax: Provider = {
   name: "MiniMax",
@@ -21,6 +22,7 @@ export const minimax: Provider = {
   category: "model_provider",
   inferenceRegions: ["World"],
   apiBaseUrl: "https://api.minimax.io",
-  chatEndpoints: ["/v1/chat/completions"],
+  chatEndpoints: ["/v1/chat/completions", "/v1/responses"],
+  createGatewayMetadata: createProviderPricingGatewayMetadata("minimax")
 };
 
