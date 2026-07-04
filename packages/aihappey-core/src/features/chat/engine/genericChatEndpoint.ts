@@ -408,6 +408,17 @@ const createUiMessageChunkStream = ({
     closed = true;
   };
 
+  const getChatCompletionChoiceUsage = (event: any) => {
+    if (!isChatCompletionsEndpoint(endpoint)) return undefined;
+
+    for (const choice of event?.choices ?? []) {
+      const usage = choice?.usage ?? choice?.delta?.usage;
+      if (usage && typeof usage === "object") return usage;
+    }
+
+    return undefined;
+  };
+
   const rememberMetadata = (event: any) => {
     if (!event || typeof event !== "object") return;
     latestModel = event.model
@@ -422,7 +433,8 @@ const createUiMessageChunkStream = ({
       ?? event.response?.usage
       ?? event.conversation?.usage
       ?? event.interaction?.usage
-      ?? event.metadata?.total_usage;
+      ?? event.metadata?.total_usage
+      ?? getChatCompletionChoiceUsage(event);
     if (usage) {
       latestRawUsage = usage;
       latestUsage = normalizeUsage(usage) ?? latestUsage;
