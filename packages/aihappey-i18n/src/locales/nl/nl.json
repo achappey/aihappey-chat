@@ -211,6 +211,11 @@
         "providers": "Een overzicht van alle {{total}} beschikbare AI-providers. Per provider zie je wat deze biedt, voor welke toepassingen hij geschikt is en wanneer het logisch is om hem te gebruiken. Dit helpt je om per taak of workflow de juiste provider te kiezen op een duidelijke en consistente manier.",
         "models": "AI-modellen",
         "description": "Een overzicht van alle {{total}} beschikbare AI-modellen. Per model zie je de mogelijkheden, het beoogde gebruik en hoe het zich verhoudt tot andere modellen. Dit helpt je om per taak, use-case of workflow het juiste model te kiezen op een transparante en consistente manier.",
+        "modelsFilter": {
+            "pricePerMillionTokens": "Prijs per 1M tokens",
+            "min": "Min",
+            "max": "Max"
+        },
         "providerCategories": {
             "model_provider": {
                 "label": "Modelbouwer",

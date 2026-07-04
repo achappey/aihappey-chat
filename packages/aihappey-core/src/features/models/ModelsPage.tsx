@@ -155,7 +155,7 @@ export const ModelsPage = () => {
     Card,
     Slider,
   } = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedProviderKeys, setSelectedProviderKeys] = useState<string[]>([
@@ -191,18 +191,38 @@ export const ModelsPage = () => {
     ? Math.round((modelsLoadingProgress.completed / modelsLoadingProgress.total) * 100)
     : 0;
 
+  const numberLocale = i18n.resolvedLanguage ?? i18n.language;
+
   const collator = useMemo(
-    () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
-    []
+    () => new Intl.Collator(numberLocale, { sensitivity: "base", numeric: true }),
+    [numberLocale]
   );
 
   const money = useMemo(
     () =>
-      new Intl.NumberFormat(undefined, {
+      new Intl.NumberFormat(numberLocale, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 10,
       }),
-    []
+    [numberLocale]
+  );
+
+  const filterPanelInteger = useMemo(
+    () =>
+      new Intl.NumberFormat(numberLocale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+    [numberLocale]
+  );
+
+  const filterPanelPrice = useMemo(
+    () =>
+      new Intl.NumberFormat(numberLocale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }),
+    [numberLocale]
   );
 
   const formatPrice = (v?: string | number) => {
@@ -214,13 +234,13 @@ export const ModelsPage = () => {
   };
 
   const formatCompactNumber = useCallback(
-    (value: number) => money.format(Math.round(value)),
-    [money]
+    (value: number) => filterPanelInteger.format(Math.round(value)),
+    [filterPanelInteger]
   );
 
   const formatPricePerMillionTokens = useCallback(
-    (value: number) => money.format(value * PRICE_PER_MILLION_TOKENS_MULTIPLIER),
-    [money]
+    (value: number) => filterPanelPrice.format(value * PRICE_PER_MILLION_TOKENS_MULTIPLIER),
+    [filterPanelPrice]
   );
 
   const providerOptions = useMemo(() => {
@@ -562,7 +582,7 @@ export const ModelsPage = () => {
     >
       <Card
         size="small"
-        title="Context"
+        title={t("contextWindow")}
         headerActions={
           <Switch
             id="models-context-filter-toggle"
@@ -572,13 +592,8 @@ export const ModelsPage = () => {
         }
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <Text as="p" style={{ margin: 0 }}>
-            {contextFilterEnabled
-              ? `Showing models with context between ${formatCompactNumber(effectiveContextRange.min)} and ${formatCompactNumber(effectiveContextRange.max)}.`
-              : "Enable to filter by context window."}
-          </Text>
           <Slider
-            label={`Min (${formatCompactNumber(effectiveContextRange.min)})`}
+            label={`${t("ai.modelsFilter.min")} (${formatCompactNumber(effectiveContextRange.min)})`}
             min={contextRange.min}
             max={contextRange.max}
             step={contextSliderStep}
@@ -590,7 +605,7 @@ export const ModelsPage = () => {
             }}
           />
           <Slider
-            label={`Max (${formatCompactNumber(effectiveContextRange.max)})`}
+            label={`${t("ai.modelsFilter.max")} (${formatCompactNumber(effectiveContextRange.max)})`}
             min={contextRange.min}
             max={contextRange.max}
             step={contextSliderStep}
@@ -606,7 +621,7 @@ export const ModelsPage = () => {
 
       <Card
         size="small"
-        title="Price (per 1M tokens)"
+        title={t("ai.modelsFilter.pricePerMillionTokens")}
         headerActions={
           <Switch
             id="models-price-filter-toggle"
@@ -616,15 +631,10 @@ export const ModelsPage = () => {
         }
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <Text as="p" style={{ margin: 0 }}>
-            {priceFilterEnabled
-              ? "Showing models with input and output pricing in range. Values are displayed per 1M tokens."
-              : "Enable to filter by input and output price. Values are displayed per 1M tokens."}
-          </Text>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <Text as="p" style={{ margin: 0, fontWeight: 700 }}>Input</Text>
+            <Text as="p" style={{ margin: 0, fontWeight: 700 }}>{t("input")}</Text>
             <Slider
-              label={`Min (${formatPricePerMillionTokens(effectiveInputPriceRange.min)})`}
+              label={`${t("ai.modelsFilter.min")} (${formatPricePerMillionTokens(effectiveInputPriceRange.min)})`}
               min={inputPriceRange.min}
               max={inputPriceRange.max}
               step={inputPriceStep}
@@ -636,7 +646,7 @@ export const ModelsPage = () => {
               }}
             />
             <Slider
-              label={`Max (${formatPricePerMillionTokens(effectiveInputPriceRange.max)})`}
+              label={`${t("ai.modelsFilter.max")} (${formatPricePerMillionTokens(effectiveInputPriceRange.max)})`}
               min={inputPriceRange.min}
               max={inputPriceRange.max}
               step={inputPriceStep}
@@ -650,9 +660,9 @@ export const ModelsPage = () => {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <Text as="p" style={{ margin: 0, fontWeight: 700 }}>Output</Text>
+            <Text as="p" style={{ margin: 0, fontWeight: 700 }}>{t("output")}</Text>
             <Slider
-              label={`Min (${formatPricePerMillionTokens(effectiveOutputPriceRange.min)})`}
+              label={`${t("ai.modelsFilter.min")} (${formatPricePerMillionTokens(effectiveOutputPriceRange.min)})`}
               min={outputPriceRange.min}
               max={outputPriceRange.max}
               step={outputPriceStep}
@@ -664,7 +674,7 @@ export const ModelsPage = () => {
               }}
             />
             <Slider
-              label={`Max (${formatPricePerMillionTokens(effectiveOutputPriceRange.max)})`}
+              label={`${t("ai.modelsFilter.max")} (${formatPricePerMillionTokens(effectiveOutputPriceRange.max)})`}
               min={outputPriceRange.min}
               max={outputPriceRange.max}
               step={outputPriceStep}

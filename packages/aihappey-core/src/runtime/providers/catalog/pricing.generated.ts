@@ -1,4 +1,5 @@
 import anthropicPricing from "./pricing/anthropic.json";
+import minimaxPricing from "./pricing/minimax.json";
 import moonshotPricing from "./pricing/moonshot.json";
 import zaiPricing from "./pricing/zai.json";
 
@@ -6,6 +7,7 @@ import zaiPricing from "./pricing/zai.json";
 // Add a provider pricing JSON file under ./pricing and run the package build to update it.
 export const PROVIDER_PRICING_CATALOGS = {
   "anthropic": anthropicPricing,
+  "minimax": minimaxPricing,
   "moonshot": moonshotPricing,
   "zai": zaiPricing,
 } as const;

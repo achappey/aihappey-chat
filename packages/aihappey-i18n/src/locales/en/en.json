@@ -256,6 +256,11 @@
         "models": "AI Models",
         "description": "An overview of all {{total}} available AI models. For each model, you can see its capabilities, intended use, and how it compares to other models. This helps you choose the right model per task, use case, or workflow in a transparent and consistent way.",
         "providers": "An overview of all {{total}} available AI providers. For each provider, you can see what it offers, how it fits into different use cases, and when it makes sense to use it. This helps you select the right provider per task or workflow in a clear and consistent way.",
+        "modelsFilter": {
+            "pricePerMillionTokens": "Price per 1M tokens",
+            "min": "Min",
+            "max": "Max"
+        },
         "providerCategories": {
             "model_provider": {
                 "label": "Model Builder",
