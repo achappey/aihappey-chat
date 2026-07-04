@@ -175,7 +175,16 @@
         "aspectRatio": "Beeldverhouding",
         "other": "Overig",
         "seed": "Seed",
-        "image": "Afbeelding"
+        "image": "Afbeelding",
+        "inputReferences": "Invoerreferenties",
+        "addInputReferences": "Referentieafbeeldingen toevoegen",
+        "inputReferencesHint": "Sleep afbeeldingen hierheen of gebruik de bijlageknop. Deze referenties blijven beschikbaar totdat je ze verwijdert.",
+        "noInputReferences": "Geen referentieafbeeldingen toegevoegd.",
+        "frameImages": "Frame-afbeeldingen",
+        "first_frame": "Eerste frame",
+        "last_frame": "Laatste frame",
+        "dropFrameImage": "Sleep hier een afbeelding heen",
+        "frameImageHint": "Voeg een afbeelding toe of sleep er een hierheen om dit frame te gebruiken."
     },
     "instructions": "Instructies",
     "providerDefault": "Standaard",

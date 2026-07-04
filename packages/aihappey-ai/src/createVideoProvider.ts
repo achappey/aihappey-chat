@@ -1,5 +1,6 @@
 import type {
-    Experimental_VideoModelV4
+    Experimental_VideoModelV4,
+    Experimental_VideoModelV4CallOptions,
 } from "@ai-sdk/provider"
 
 export function createVideoProvider(config: {
@@ -13,7 +14,7 @@ export function createVideoProvider(config: {
                 provider: modelId.split("/")?.[0],
                 modelId,
                 maxVideosPerCall: maxVideosPerCall,
-                async doGenerate(options) {
+                async doGenerate(options: Experimental_VideoModelV4CallOptions) {
                     const {
                         prompt,
                         n,
@@ -23,7 +24,9 @@ export function createVideoProvider(config: {
                         resolution,
                         image,
                         fps,
-                        providerOptions
+                        providerOptions,
+                        inputReferences,
+                        frameImages
                     } = options;
 
                     const max = maxVideosPerCall ?? n;
@@ -46,6 +49,8 @@ export function createVideoProvider(config: {
                                 image,
                                 duration,
                                 fps,
+                                frameImages,
+                                inputReferences,
                                 n: batchN,
                                 providerOptions
                             })

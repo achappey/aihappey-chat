@@ -220,7 +220,16 @@
         "aspectRatio": "Aspect ratio",
         "other": "Other",
         "seed": "Seed",
-        "image": "Image"
+        "image": "Image",
+        "inputReferences": "Input references",
+        "addInputReferences": "Add reference images",
+        "inputReferencesHint": "Drop images here or use the attachment button. These references stay available until you remove them.",
+        "noInputReferences": "No reference images added.",
+        "frameImages": "Frame images",
+        "first_frame": "First frame",
+        "last_frame": "Last frame",
+        "dropFrameImage": "Drop an image here",
+        "frameImageHint": "Add or drop an image to use for this frame."
     },
     "providerDefault": "Default",
     "custom": "Custom",

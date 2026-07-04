@@ -12,15 +12,20 @@ import { VideoErrors } from "./VideoErrors";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { VideoWarnings } from "./VideoWarnings";
 import { createVideoProvider } from "aihappey-ai/src/createVideoProvider";
-import { fileToBase64 } from "../chat/files/file";
+import { blobToBase64, fileToBase64 } from "../chat/files/file";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import type { VideoContent } from "aihappey-components";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import {
   isValidVideoAttachment,
+  isValidVideoImageAttachment,
   toSingleVideoAttachment,
+  VIDEO_INPUT_REFERENCE_PREFIX,
+  videoFrameImageNamePrefix,
+  videoFrameTypes,
 } from "./videoAttachments";
 import { useTranslation } from "aihappey-i18n";
+import { useFiles } from "aihappey-files";
 
 export const VideoPage = () => {
   const videos = useLibraryVideos();
@@ -39,6 +44,7 @@ export const VideoPage = () => {
   const { config } = useChatContext();
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const storageVideos = useVideos();
+  const files = useFiles();
   const { t } = useTranslation();
   const getAccessToken = config?.getAccessToken;
   const [selectedModel, setSelectedModel] = useState<string>(
@@ -148,6 +154,50 @@ export const VideoPage = () => {
         }
         : undefined;
 
+      const inputReferences = (
+        await Promise.all(
+          (files.items ?? [])
+            .filter((file) => file.name.startsWith(VIDEO_INPUT_REFERENCE_PREFIX))
+            .map(async (file) => {
+              const stored = await files.read(file.id);
+              if (!stored || !isValidVideoImageAttachment(stored.data)) return undefined;
+              return {
+                type: "file" as const,
+                mediaType: stored.data.type,
+                data: await blobToBase64(stored.data),
+              };
+            })
+        )
+      ).filter((file): file is { type: "file"; mediaType: string; data: string } => !!file);
+
+      const frameImages = (
+        await Promise.all(
+          videoFrameTypes.map(async (frameType) => {
+            const item = (files.items ?? [])
+              .filter((file) => file.name.startsWith(videoFrameImageNamePrefix(frameType)))
+              .sort((a, b) => b.createdAt - a.createdAt)[0];
+            if (!item) return undefined;
+
+            const stored = await files.read(item.id);
+            if (!stored || !isValidVideoImageAttachment(stored.data)) return undefined;
+
+            return {
+              frameType,
+              image: {
+                type: "file" as const,
+                mediaType: stored.data.type,
+                data: await blobToBase64(stored.data),
+              },
+            };
+          })
+        )
+      ).filter(
+        (frame): frame is {
+          frameType: (typeof videoFrameTypes)[number];
+          image: { type: "file"; mediaType: string; data: string };
+        } => !!frame
+      );
+
       const videoResult = await videoModel.doGenerate({
         prompt: content,
         n,
@@ -157,6 +207,8 @@ export const VideoPage = () => {
         duration,
         fps,
         image: imagePayload,
+        inputReferences: inputReferences.length ? inputReferences : undefined,
+        frameImages: frameImages.length ? frameImages : undefined,
         providerOptions: providerVideoMetadata,
       } as any);
 
