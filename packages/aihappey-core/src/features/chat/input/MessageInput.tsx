@@ -16,7 +16,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useResourceSelect } from "./useResourceSelect";
 import { readResource } from "../../../runtime/mcp/readResource";
 import { useDictation } from "./useDictation";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ResourceTemplateArgumentsModal } from "./ResourceTemplateArgumentsModal";
 import { applyTemplateParams, extractTemplateParams } from "./resourceTemplateUri";
 import type { Prompt, ResourceTemplate } from "aihappey-state";
@@ -26,8 +26,11 @@ import { PromptSelectModal } from "../../mcp-prompts/PromptSelectModal";
 import { PromptArgumentsModal } from "../../mcp-prompts/PromptArgumentsModal";
 import { useAutoPromptExecution } from "../../mcp-prompts/useAutoPromptExecution";
 import { getPrompts } from "../../../runtime/mcp/mcpPrompts";
-import type { IconToken, MenuItemProps } from "aihappey-types";
+import type { IconToken, MenuItemProps, TagItem } from "aihappey-types";
 import { ContextSearchModal } from "./context-search/ContextSearchModal";
+import { useLocalTools } from "aihappey-tools";
+import { useSkills } from "aihappey-skills";
+import { buildLocalToolToggleItems, usePluginToggleItems } from "../../tools/toolCatalogItems";
 
 export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
@@ -54,9 +57,18 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const models = useAppStore((s) => s.models);
   const chatMode = useAppStore((s) => s.chatMode);
+  const activePlugins = useAppStore((s) => s.activePlugins);
+  const setActivePlugins = useAppStore((s) => s.setActivePlugins);
+  const enabledLocalTools = useAppStore((s) => (s as any).enabledLocalTools as string[]);
+  const setEnabledLocalTools = useAppStore((s) => (s as any).setEnabledLocalTools as (names: string[]) => void);
+  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
+  const localTools = useLocalTools();
+  const skills = useSkills();
+  const pluginToggleItems = usePluginToggleItems({ includeSkillSearch: true, settingsScope: true });
   const selectedAgentEntries = resolveSelectedAgentEntries(
     selectedAgentNames,
     agents,
@@ -121,9 +133,62 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const currentModel = models?.find(a => a.id == selectedModel);
   const resources = useSelectedResources(mcpResourceRuntime)
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
+  const localToolToggleItems = useMemo(
+    () => buildLocalToolToggleItems(localTools.items ?? [], t),
+    [localTools.items, t]
+  );
   const hasPrompts = Object.keys(mcpServerContent)
     .filter(a => mcpServerContent[a].capabilities?.prompts)
     .length > 0;
+
+  const contextToolTags = useMemo<TagItem[]>(() => {
+    if (chatMode !== "chat") return [];
+
+    const pluginLabels = new Map(pluginToggleItems.map((item) => [item.id, item.label] as const));
+    const localToolLabels = new Map(localToolToggleItems.map((item) => [item.id, item.label] as const));
+    const skillLabels = new Map(
+      (skills.items ?? []).map((item) => [item.skillId, item.name || item.skillId] as const)
+    );
+
+    const pluginTags: TagItem[] = (activePlugins ?? []).map((id) => ({
+      key: `plugin:${id}`,
+      icon: "tool",
+      label: pluginLabels.get(id) ?? id,
+    }));
+
+    const localToolTags: TagItem[] = (enabledLocalTools ?? []).map((id) => ({
+      key: `local:${id}`,
+      icon: "tool",
+      label: localToolLabels.get(id) ?? id,
+    }));
+
+    const skillTags: TagItem[] = (enabledSkillIds ?? []).map((id) => ({
+      key: `skill:${id}`,
+      icon: "skills",
+      label: skillLabels.get(id) ?? id,
+    }));
+
+    return [...skillTags, ...pluginTags, ...localToolTags];
+  }, [activePlugins, chatMode, enabledLocalTools, enabledSkillIds, localToolToggleItems, pluginToggleItems, skills.items]);
+
+  const removeContextToolTag = (key: string) => {
+    if (key.startsWith("plugin:")) {
+      const id = key.slice("plugin:".length);
+      setActivePlugins((activePlugins ?? []).filter((item) => item !== id));
+      return;
+    }
+
+    if (key.startsWith("local:")) {
+      const id = key.slice("local:".length);
+      setEnabledLocalTools((enabledLocalTools ?? []).filter((item) => item !== id));
+      return;
+    }
+
+    if (key.startsWith("skill:")) {
+      const id = key.slice("skill:".length);
+      setEnabledSkillIds((enabledSkillIds ?? []).filter((item) => item !== id));
+    }
+  };
 
   const onServerManagementHide = (enabledServers: Set<string>) => {
     setServerManagementOpen(false);
@@ -249,15 +314,27 @@ export const MessageInput = (props: UseMessageInputOptions) => {
       </div>
     ) : null;
 
+  const contextToolElements =
+    contextToolTags.length > 0 ? (
+      <div style={styles.tagRow}>
+        <Tags
+          size="small"
+          items={contextToolTags}
+          onRemove={removeContextToolTag}
+        />
+      </div>
+    ) : null;
+
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      {(attachmentsElement || serverElements || approveAll || props.conversationCost !== undefined
+      {(attachmentsElement || serverElements || contextToolElements || approveAll || props.conversationCost !== undefined
         || (currentModel?.context_window && props.tokenUsage)
       ) ? (
         <div style={styles.metaRow}>
           <div style={styles.metaLeft}>
             {attachmentsElement}
             {serverElements}
+            {contextToolElements}
           </div>
 
           <div style={styles.metaRight}>
