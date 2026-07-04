@@ -27,6 +27,7 @@ import { PromptArgumentsModal } from "../../mcp-prompts/PromptArgumentsModal";
 import { useAutoPromptExecution } from "../../mcp-prompts/useAutoPromptExecution";
 import { getPrompts } from "../../../runtime/mcp/mcpPrompts";
 import type { IconToken, MenuItemProps } from "aihappey-types";
+import { ContextSearchModal } from "./context-search/ContextSearchModal";
 
 export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
@@ -70,6 +71,7 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const resourceSelect = useResourceSelect();
   const [resourceLoading, setResourceLoading] = useState(false);
   const [serverManagementOpen, setServerManagementOpen] = useState(false);
+  const [contextSearchOpen, setContextSearchOpen] = useState(false);
   const [prompts, setPrompts] = useState<PromptWithSource[]>([]);
   const [promptSelectOpen, setPromptSelectOpen] = useState(false);
   const [argumentPrompt, setArgumentPrompt] = useState<PromptWithSource | undefined>(undefined);
@@ -140,6 +142,13 @@ export const MessageInput = (props: UseMessageInputOptions) => {
     updateMcpServers(updates);
   };
 
+  const closeContextSearch = (catalogInstallHappened: boolean) => {
+    setContextSearchOpen(false);
+    if (catalogInstallHappened) {
+      setTimeout(() => setServerManagementOpen(true), 0);
+    }
+  };
+
   const loadPrompts = async () => {
     const results = await Promise.all(
       Object.keys(mcpServerContent)
@@ -176,6 +185,12 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   });
 
   const chatInputMenuItems: MenuItemProps[] = [
+    {
+      key: "search-context",
+      label: t("search") ?? "Search",
+      icon: "search" as IconToken,
+      onClick: () => setContextSearchOpen(true),
+    },
     {
       key: "select-file",
       label: t("attachments"),
@@ -307,6 +322,11 @@ export const MessageInput = (props: UseMessageInputOptions) => {
             />
 
             <ServerManagementModal show={serverManagementOpen} onHide={onServerManagementHide} />
+
+            <ContextSearchModal
+              open={contextSearchOpen}
+              onClose={closeContextSearch}
+            />
 
             <PromptSelectModal
               open={promptSelectOpen}
