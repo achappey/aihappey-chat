@@ -753,7 +753,7 @@
         "unlockTitle": "API-sleutels ontgrendelen",
         "setDescription": "Stel een wachtwoord in voordat je lokaal opgeslagen API-sleutels toevoegt of bewerkt. Bestaande lokale sleutels worden versleuteld in de browseropslag.",
         "changeDescription": "Voer het huidige wachtwoord en een nieuw wachtwoord in om je lokaal opgeslagen API-sleutels opnieuw te versleutelen.",
-        "unlockDescription": "Voer je API-sleutelwachtwoord één keer in om de sleutels voor deze browsersessie te ontsleutelen.",
+        "unlockDescription": "Voer je API-sleutelwachtwoord in om de sleutels voor deze sessie te ontsleutelen.",
         "setPasswordRequired": "Stel een wachtwoord in voordat je API-sleutels toevoegt of bewerkt.",
         "unlockRequired": "Ontgrendel API-sleutels voordat je ze toevoegt of bewerkt.",
         "password": "Wachtwoord",

@@ -1,15 +1,13 @@
 import {
-  AttachmentButton, BrrrBadge, ContextProgressBar, CostBadge, FileTags,
-  ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme
+  BrrrBadge, ContextProgressBar, CostBadge, FileTags,
+  ResourceSelectModal, ResourceTags, useTheme
 } from "aihappey-components";
-import { ServerSelectButton } from "../../mcp-servers/ServerSelectButton";
 import {
   useMessageInput,
   UseMessageInputOptions,
 } from "./useMessageInput";
 import { useAppStore } from "aihappey-state";
 import { AgentSettingsButton } from "../../agent-settings/AgentSettingsButton";
-import { PromptSelectButton } from "../../mcp-prompts/PromptSelectButton";
 import { ChatSettingsButton } from "../../chat-settings/ChatSettingsButton";
 import { SystemMessageButton } from "./system-message/SystemMessageButton";
 import { mcpResourceRuntime, useSelectedResources } from "../../../runtime/mcp/mcpResourceRuntime";
@@ -18,19 +16,34 @@ import { useTranslation } from "aihappey-i18n";
 import { useResourceSelect } from "./useResourceSelect";
 import { readResource } from "../../../runtime/mcp/readResource";
 import { useDictation } from "./useDictation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ResourceTemplateArgumentsModal } from "./ResourceTemplateArgumentsModal";
 import { applyTemplateParams, extractTemplateParams } from "./resourceTemplateUri";
-import type { ResourceTemplate } from "aihappey-state";
+import type { Prompt, ResourceTemplate } from "aihappey-state";
 import { resolveSelectedAgentEntries } from "../../agents/agentSelection";
+import { ServerManagementModal } from "../../mcp-servers/ServerManagementModal";
+import { PromptSelectModal } from "../../mcp-prompts/PromptSelectModal";
+import { PromptArgumentsModal } from "../../mcp-prompts/PromptArgumentsModal";
+import { useAutoPromptExecution } from "../../mcp-prompts/useAutoPromptExecution";
+import { getPrompts } from "../../../runtime/mcp/mcpPrompts";
+import type { IconToken, MenuItemProps } from "aihappey-types";
 
 export const addFilesToRuntime = (files: File[]) => {
   files.forEach(file => fileAttachmentRuntime.add(file));
 };
 
+type PromptWithSource = Prompt & {
+  _serverName?: string;
+  _serverTitle?: string;
+  _url?: string;
+};
+
 export const MessageInput = (props: UseMessageInputOptions) => {
-  const { Button, Tags, TextArea, Spinner } = useTheme();
+  const { Button, Menu, Tags, TextArea, Spinner } = useTheme();
   const { t } = useTranslation();
+  const mcpServerContent = useAppStore((s) => s.mcpServerContent);
+  const mcpServers = useAppStore((s) => s.mcpServers);
+  const updateMcpServers = useAppStore((s) => s.updateMcpServers);
   const providerMetadata = useAppStore((s) => s.providerMetadata);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const providerHeaders = useAppStore((s) => s.providerHeaders);
@@ -56,11 +69,16 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const promptPlaceholder = agentHint ?? t("promptPlaceholder");
   const resourceSelect = useResourceSelect();
   const [resourceLoading, setResourceLoading] = useState(false);
+  const [serverManagementOpen, setServerManagementOpen] = useState(false);
+  const [prompts, setPrompts] = useState<PromptWithSource[]>([]);
+  const [promptSelectOpen, setPromptSelectOpen] = useState(false);
+  const [argumentPrompt, setArgumentPrompt] = useState<PromptWithSource | undefined>(undefined);
   const [selectedResourceTemplate, setSelectedResourceTemplate] = useState<{
     serverKey: string;
     resourceTemplate: ResourceTemplate;
   } | null>(null);
   const [resourceTemplateModalOpen, setResourceTemplateModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const {
     value,
     setValue,
@@ -101,6 +119,93 @@ export const MessageInput = (props: UseMessageInputOptions) => {
   const currentModel = models?.find(a => a.id == selectedModel);
   const resources = useSelectedResources(mcpResourceRuntime)
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
+  const hasPrompts = Object.keys(mcpServerContent)
+    .filter(a => mcpServerContent[a].capabilities?.prompts)
+    .length > 0;
+
+  const onServerManagementHide = (enabledServers: Set<string>) => {
+    setServerManagementOpen(false);
+    var updates: any = {
+
+    };
+
+    var keys = Object.keys(mcpServers);
+    for (const name of keys) {
+      updates[name] = {
+        ...mcpServers[name].config,
+        disabled: !enabledServers.has(name)
+      };
+    }
+
+    updateMcpServers(updates);
+  };
+
+  const loadPrompts = async () => {
+    const results = await Promise.all(
+      Object.keys(mcpServerContent)
+        .filter(a => mcpServerContent[a].capabilities?.prompts)
+        .map(async (a) => {
+          const serverPrompts = await getPrompts(a);
+          return serverPrompts.map(y => ({
+            ...y,
+            _serverName: a,
+            _serverTitle: mcpServers[a]?.registry?.server.title,
+            _url: mcpServers[a]?.config?.url
+          }));
+        })
+    );
+
+    setPrompts(results.flat());
+  };
+
+  const openPromptSelect = () => {
+    if (!hasPrompts) return;
+    setPromptSelectOpen(true);
+    void loadPrompts();
+  };
+
+  const closePromptSelect = () => {
+    setPromptSelectOpen(false);
+    setPrompts([]);
+  };
+
+  useAutoPromptExecution({
+    onPromptExecute: props.onPromptExecute as any,
+    setArgumentPrompt,
+    setOpen: setPromptSelectOpen,
+  });
+
+  const chatInputMenuItems: MenuItemProps[] = [
+    {
+      key: "select-file",
+      label: t("attachments"),
+      icon: "attachment" as IconToken,
+      onClick: () => fileInputRef.current?.click(),
+    },
+    {
+      key: "prompts",
+      label: t("promptSelectModal.title"),
+      icon: "prompts" as IconToken,
+      disabled: !hasPrompts,
+      onClick: openPromptSelect,
+    },
+    {
+      key: "resources",
+      label: t("mcp.resources"),
+      icon: "resources" as IconToken,
+      disabled: !resourceSelect.hasResources,
+      onClick: () => {
+        if (!resourceSelect.hasResources) return;
+        resourceSelect.setOpen(true);
+      },
+    },
+    {
+      key: "model-context",
+      label: "Model Context",
+      icon: "mcpServer" as IconToken,
+      onClick: () => setServerManagementOpen(true),
+    },
+  ];
 
   const attachmentsElement =
     resources.length > 0 || fileAttachments.length > 0 ? (
@@ -172,15 +277,66 @@ export const MessageInput = (props: UseMessageInputOptions) => {
           </>
           }
           {chatMode == "chat" && <>
-            <ServerSelectButton />
-
-            <PromptSelectButton
-              onPromptExecute={props.onPromptExecute}
+            <Menu
+              align="left"
+              direction="top"
+              size="medium"
+              items={chatInputMenuItems}
+              trigger={
+                <Button
+                  type="button"
+                  icon="add"
+                  size="large"
+                  variant="transparent"
+                  title={t("add") ?? "Add"}
+                  disabled={props.disabled}
+                />
+              }
             />
 
-            <ResourceSelectButton disabled={!resourceSelect.hasResources}
-              onClick={() => resourceSelect.setOpen(true)}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              hidden
+              onChange={(e) => {
+                if (!e.target.files) return;
+                addFilesToRuntime(Array.from(e.target.files));
+                e.target.value = "";
+              }}
             />
+
+            <ServerManagementModal show={serverManagementOpen} onHide={onServerManagementHide} />
+
+            <PromptSelectModal
+              open={promptSelectOpen}
+              prompts={prompts}
+              onPromptClick={async (p) => {
+                if (p.arguments && p.arguments.length > 0) {
+                  setArgumentPrompt(p);
+                } else {
+                  closePromptSelect();
+                  await (props.onPromptExecute as any)?.(p);
+                }
+              }}
+              onHide={closePromptSelect}
+            />
+
+            {argumentPrompt && (
+              <PromptArgumentsModal
+                open={argumentPrompt != undefined}
+                prompt={argumentPrompt}
+                onPromptExecute={async (prompt: any, args: any) => {
+                  setArgumentPrompt(undefined);
+                  closePromptSelect();
+                  await props.onPromptExecute?.(prompt, args);
+                }}
+                onHide={() => {
+                  setArgumentPrompt(undefined);
+                  setPromptSelectOpen(true);
+                }}
+              />
+            )}
 
             <ResourceSelectModal
               open={resourceSelect.open}
@@ -282,10 +438,6 @@ export const MessageInput = (props: UseMessageInputOptions) => {
               temperatureChanged={props.temperatureChanged}
               setProviderMetadata={setProviderMetadata}
               setProviderHeaders={setProviderHeaders}
-            />
-            <AttachmentButton
-              disabled={props.disabled}
-              onFilesSelected={addFilesToRuntime}
             />
           </>}
         </div>

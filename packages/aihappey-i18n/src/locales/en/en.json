@@ -127,7 +127,7 @@
         "unlockTitle": "Unlock API keys",
         "setDescription": "Set a password before adding or editing locally stored API keys. Existing local keys will be encrypted in browser storage.",
         "changeDescription": "Enter the current password and a new password to re-encrypt your locally stored API keys.",
-        "unlockDescription": "Enter your API key password once to decrypt keys for this browser session.",
+        "unlockDescription": "Enter your API key password to decrypt keys for this session.",
         "setPasswordRequired": "Set a password before adding or editing API keys.",
         "unlockRequired": "Unlock API keys before adding or editing them.",
         "password": "Password",

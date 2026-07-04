@@ -8,6 +8,7 @@ export type MenuItemProps = {
   label: string;
   icon?: IconToken;
   onClick?: () => void | Promise<void>;
+  disabled?: boolean;
   danger?: boolean; // Optional for "delete" style
   children?: MenuItemProps[]; // for submenus
 };
@@ -16,6 +17,7 @@ export type MenuProps = {
   items: MenuItemProps[];
   trigger?: React.ReactElement; // Optional, defaults to "More"
   align?: "left" | "right"; // Optional
+  direction?: "top" | "bottom"; // Optional, preferred popover direction
   size?: "small" | "medium"; // Optional
   className?: string;
 };
