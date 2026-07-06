@@ -17,7 +17,9 @@ export const ionos: Provider = {
   },
   providerCountry: "DE",
   category: "inference_compute",
-  inferenceRegions: ["Europe"]
+  inferenceRegions: ["Europe"],
+  apiBaseUrl: "https://openai.inference.de-txl.ionos.com",
+  chatEndpoints: ["/v1/chat/completions"],
 
 };
 
