@@ -1,34 +1,25 @@
 import {
   compactObject,
   hasConfiguredNativeTools,
-  mapGenericFunctionTools,
+  mapMistralConversationTools,
   resolveNativeRequestMetadata,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
   type GenericMappedFilePart,
   type GenericMappedMessage,
 } from "./types";
+import {
+  asRecord,
+  isClientExecutableToolPart,
+  isOutputOnlyToolPart,
+  nonEmptyString,
+  stringifyToolValue,
+  toolPartCallId,
+  toolPartInput,
+  toolPartName,
+  toolPartOutput,
+} from "./toolParts";
 import { getSystemText, mapUiMessages, toInlineFileData } from "./uiMessageParts";
-
-const asRecord = (value: unknown): Record<string, any> | undefined =>
-  value && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, any>
-    : undefined;
-
-const nonEmptyString = (value: unknown): string | undefined => {
-  const text = typeof value === "string" ? value.trim() : "";
-  return text.length ? text : undefined;
-};
-
-const stringifyToolValue = (value: unknown) => {
-  if (typeof value === "string") return value;
-  if (value === undefined || value === null) return "";
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return String(value);
-  }
-};
 
 const nativeMistralContentBlock = (value: any) => {
   const metadata = asRecord(value?.providerMetadata?.mistral)
@@ -99,25 +90,10 @@ const toConversationMessageContent = (message: GenericMappedMessage) => {
   return content;
 };
 
-const toolPartName = (part: any) => {
-  const fromType = String(part?.type ?? "").replace(/^tool-/, "");
-  return nonEmptyString(part?.toolName ?? part?.name ?? fromType) ?? "tool";
-};
-
-const toolPartInput = (part: any) => part?.input ?? part?.args ?? part?.arguments ?? {};
-
-const toolPartOutput = (part: any) => part?.output ?? part?.result;
-
-const isOutputOnlyToolPart = (part: any) => {
-  const type = String(part?.type ?? "").toLowerCase();
-  const state = String(part?.state ?? "").toLowerCase();
-  return type.includes("output") || state === "output-available" || state === "output_available";
-};
-
 const toConversationToolEntries = (message: GenericMappedMessage) => message.toolParts.flatMap((part: any) => {
-  if (part?.providerExecuted === true) return [];
+  if (!isClientExecutableToolPart(part)) return [];
 
-  const toolCallId = nonEmptyString(part?.toolCallId ?? part?.id ?? part?.call_id);
+  const toolCallId = toolPartCallId(part);
   if (!toolCallId) return [];
 
   const entries: any[] = [];
@@ -218,7 +194,7 @@ export const buildConversationsBody = (body: GenericChatEndpointRequestBody) => 
   const agentId = nonEmptyString(providerRequestConfig?.agent_id ?? body.agent_id);
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
     ? undefined
-    : mapGenericFunctionTools(body);
+    : mapMistralConversationTools(body);
 
   return compactObject({
     ...(requestConfig ?? {}),

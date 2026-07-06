@@ -9,6 +9,17 @@ import {
   type GenericMappedFilePart,
   type GenericMappedMessage,
 } from "./types";
+import {
+  asRecord,
+  hasToolPartOutput,
+  isClientExecutableToolPart,
+  isOutputOnlyToolPart,
+  stringifyToolValue,
+  toolPartCallId,
+  toolPartInput,
+  toolPartName,
+  toolPartOutput,
+} from "./toolParts";
 import { getSystemText, getTextFromPart, mapUiMessages } from "./uiMessageParts";
 
 const INTERACTIONS_GENERATION_CONFIG_KEYS = [
@@ -128,8 +139,102 @@ const toInteractionsSteps = (message: GenericMappedMessage, providerKey?: string
     });
   }
 
+  if (message.role === "assistant") {
+    steps.push(...toInteractionsToolSteps(message, providerKey));
+  }
+
   return steps;
 };
+
+const toInteractionsToolSteps = (message: GenericMappedMessage, providerKey?: string) => message.toolParts.flatMap((part: any) => {
+  if (!isClientExecutableToolPart(part)) return [];
+
+  const callId = toolPartCallId(part);
+  if (!callId) return [];
+
+  const steps: any[] = [];
+  if (!isOutputOnlyToolPart(part)) {
+    steps.push(compactObject({
+      type: "function_call" as const,
+      id: callId,
+      name: toolPartName(part, "function"),
+      arguments: toolPartInput(part),
+      signature: interactionsToolPartSignature(part, providerKey),
+    }));
+  }
+
+  if (hasToolPartOutput(part)) {
+    steps.push(compactObject({
+      type: "function_result" as const,
+      call_id: callId,
+      name: toolPartName(part, "function"),
+      result: [{ type: "text" as const, text: interactionFunctionResultText(toolPartOutput(part)) }],
+      is_error: String(part?.state ?? "").toLowerCase() === "output-error" ? true : undefined,
+    }));
+  }
+
+  return steps;
+});
+
+const interactionsToolPartSignature = (part: any, providerKey?: string) => {
+  const scoped = providerKey
+    ? asRecord(part?.callProviderMetadata?.[providerKey])
+      ?? asRecord(part?.providerMetadata?.[providerKey])
+      ?? asRecord(part?.resultProviderMetadata?.[providerKey])
+    : undefined;
+  return scoped?.signature ?? scoped?.thought_signature ?? part?.signature;
+};
+
+const interactionFunctionResultText = (output: unknown): string => {
+  if (output === undefined || output === null) return "{}";
+  if (typeof output === "string") return output;
+
+  const record = asRecord(output);
+  if (record) {
+    const structuredContent = record.structuredContent ?? record.structured_content;
+    if (structuredContent !== undefined && structuredContent !== null) return stringifyToolValue(structuredContent);
+
+    const contentText = interactionContentArrayText(record.content);
+    if (contentText) return contentText;
+
+    const resultText = interactionContentArrayText(record.result);
+    if (resultText) return resultText;
+
+    if (record.text !== undefined && record.text !== null) return stringifyToolValue(record.text);
+  }
+
+  const arrayText = interactionContentArrayText(output);
+  return arrayText || stringifyToolValue(output);
+};
+
+const interactionContentArrayText = (value: unknown): string | undefined => {
+  if (!Array.isArray(value)) return undefined;
+
+  const parts = value
+    .map(interactionContentItemText)
+    .filter((text): text is string => typeof text === "string" && text.trim().length > 0);
+
+  return parts.length > 0 ? parts.join("\n") : undefined;
+};
+
+const interactionContentItemText = (item: unknown): string | undefined => {
+  if (item === undefined || item === null) return undefined;
+  if (typeof item === "string") return item;
+  const record = asRecord(item);
+  if (!record) return stringifyToolValue(item);
+
+  if (record.text !== undefined && record.text !== null) return stringifyToolValue(record.text);
+
+  const resource = asRecord(record.resource);
+  if (resource?.text !== undefined && resource.text !== null) return stringifyToolValue(resource.text);
+
+  const nestedContentText = interactionContentArrayText(record.content);
+  return nestedContentText || stringifyToolValue(item);
+};
+
+const hasInteractionsFunctionResult = (messages: GenericMappedMessage[]) => messages.some((message) =>
+  message.toolParts.some((part: any) => isClientExecutableToolPart(part) && hasToolPartOutput(part)),
+);
 
 export const buildInteractionsBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
@@ -154,9 +259,12 @@ export const buildInteractionsBody = (body: GenericChatEndpointRequestBody) => {
   });
   const topLevelConfig = pickSnakeCaseConfig(providerRequestConfig, INTERACTIONS_TOP_LEVEL_CONFIG_KEYS);
   const agent = typeof topLevelConfig.agent === "string" ? topLevelConfig.agent : undefined;
+  const hasClientFunctionResults = hasInteractionsFunctionResult(messages);
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
     ? undefined
-    : mapGenericFunctionTools(body);
+    : hasClientFunctionResults
+      ? undefined
+      : mapGenericFunctionTools(body);
   const hasTools = Boolean(activeTools?.length || topLevelConfig.tools?.length);
 
   return compactObject({

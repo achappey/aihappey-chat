@@ -7,6 +7,16 @@ import {
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
 } from "./types";
+import {
+  hasToolPartOutput,
+  isClientExecutableToolPart,
+  isOutputOnlyToolPart,
+  stringifyToolValue,
+  toolPartCallId,
+  toolPartInput,
+  toolPartName,
+  toolPartOutput,
+} from "./toolParts";
 import { mapUiMessages, toInlineFileData } from "./uiMessageParts";
 
 const toChatCompletionContent = (message: ReturnType<typeof mapUiMessages>[number]) => {
@@ -38,6 +48,61 @@ const toChatCompletionContent = (message: ReturnType<typeof mapUiMessages>[numbe
     : contentParts;
 };
 
+const toChatCompletionToolCalls = (message: ReturnType<typeof mapUiMessages>[number]): any[] => message.toolParts
+  .filter(isClientExecutableToolPart)
+  .filter((part: any) => !isOutputOnlyToolPart(part))
+  .map((part: any) => {
+    const toolCallId = toolPartCallId(part);
+    if (!toolCallId) return undefined;
+
+    return {
+      id: toolCallId,
+      type: "function" as const,
+      function: {
+        name: toolPartName(part, "function_call"),
+        arguments: stringifyToolValue(toolPartInput(part)),
+      },
+    };
+  })
+  .filter(Boolean);
+
+const toChatCompletionToolResultMessages = (message: ReturnType<typeof mapUiMessages>[number]): any[] => message.toolParts
+  .filter(isClientExecutableToolPart)
+  .filter(hasToolPartOutput)
+  .map((part: any) => {
+    const toolCallId = toolPartCallId(part);
+    if (!toolCallId) return undefined;
+
+    return {
+      role: "tool" as const,
+      tool_call_id: toolCallId,
+      content: stringifyToolValue(toolPartOutput(part)),
+    };
+  })
+  .filter(Boolean);
+
+const toChatCompletionMessages = (messages: ReturnType<typeof mapUiMessages>): any[] => messages.flatMap((message): any[] => {
+  if (message.role !== "assistant") {
+    return [compactObject({
+      role: message.role,
+      content: toChatCompletionContent(message),
+    })];
+  }
+
+  const toolCalls = toChatCompletionToolCalls(message);
+  const toolResults = toChatCompletionToolResultMessages(message);
+  const assistantMessage = compactObject({
+    role: "assistant" as const,
+    content: message.text || (toolCalls.length > 0 ? null : ""),
+    tool_calls: toolCalls,
+  });
+
+  return [
+    ...(message.text || toolCalls.length > 0 ? [assistantMessage] : []),
+    ...toolResults,
+  ];
+});
+
 export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
   const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
@@ -57,10 +122,7 @@ export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) =
     tools: activeTools,
     tool_choice: resolveOpenAiToolChoice(body, providerRequestConfig, hasTools),
     metadata: resolveNativeRequestMetadata(body),
-    messages: messages.map((message) => compactObject({
-      role: message.role,
-      content: toChatCompletionContent(message),
-    })),
+    messages: toChatCompletionMessages(messages),
     stream: true,
   });
 };

@@ -159,6 +159,12 @@ export const mapGenericFunctionTools = (body: GenericChatEndpointRequestBody) =>
     ...tool,
   }));
 
+export const mapMistralConversationTools = (body: GenericChatEndpointRequestBody) =>
+  nativeFunctionTools(body).map((tool) => ({
+    type: "function" as const,
+    function: tool,
+  }));
+
 export const resolveOpenAiToolChoice = (
   body: GenericChatEndpointRequestBody,
   providerRequestConfig?: Record<string, any>,

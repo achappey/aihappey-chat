@@ -11,6 +11,16 @@ import {
   type GenericMappedFilePart,
   type GenericMappedMessage,
 } from "./types";
+import {
+  hasToolPartOutput,
+  isClientExecutableToolPart,
+  isOutputOnlyToolPart,
+  stringifyToolValue,
+  toolPartCallId,
+  toolPartInput,
+  toolPartName,
+  toolPartOutput,
+} from "./toolParts";
 import { getSystemText, getTextFromPart, mapUiMessages, parseDataUrl } from "./uiMessageParts";
 
 const toAnthropicFileBlocks = (file: GenericMappedFilePart) => {
@@ -102,6 +112,63 @@ const toAnthropicContentBlocks = (message: GenericMappedMessage, providerKey?: s
   return blocks;
 };
 
+const toAnthropicToolUseBlocks = (message: GenericMappedMessage): any[] => message.toolParts
+  .filter(isClientExecutableToolPart)
+  .filter((part: any) => !isOutputOnlyToolPart(part))
+  .map((part: any) => {
+    const toolUseId = toolPartCallId(part);
+    if (!toolUseId) return undefined;
+
+    return {
+      type: "tool_use" as const,
+      id: toolUseId,
+      name: toolPartName(part, "tool"),
+      input: toolPartInput(part),
+    };
+  })
+  .filter(Boolean);
+
+const toAnthropicToolResultMessages = (message: GenericMappedMessage): any[] => message.toolParts
+  .filter(isClientExecutableToolPart)
+  .filter(hasToolPartOutput)
+  .map((part: any) => {
+    const toolUseId = toolPartCallId(part);
+    if (!toolUseId) return undefined;
+
+    return compactObject({
+      role: "user" as const,
+      content: [compactObject({
+        type: "tool_result" as const,
+        tool_use_id: toolUseId,
+        content: stringifyToolValue(toolPartOutput(part)),
+        is_error: String(part?.state ?? "").toLowerCase() === "output-error" ? true : undefined,
+      })],
+    });
+  })
+  .filter(Boolean);
+
+const toAnthropicMessages = (messages: GenericMappedMessage[], providerKey?: string): any[] => messages
+  .filter((message) => message.role !== "system")
+  .flatMap((message): any[] => {
+    if (message.role !== "assistant") {
+      const content = toAnthropicContentBlocks(message, providerKey);
+      return content.length > 0
+        ? [compactObject({ role: message.role as "user", content })]
+        : [];
+    }
+
+    const content = [
+      ...toAnthropicContentBlocks(message, providerKey),
+      ...toAnthropicToolUseBlocks(message),
+    ];
+    const toolResults = toAnthropicToolResultMessages(message);
+
+    return [
+      ...(content.length > 0 ? [compactObject({ role: "assistant" as const, content })] : []),
+      ...toolResults,
+    ];
+  });
+
 export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
   const providerKey = getProviderKeyFromRequestBody(body);
@@ -126,13 +193,7 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
         user_id: body.metadata?.user_id,
       }),
     }),
-    messages: messages
-      .filter((message) => message.role !== "system")
-      .map((message) => compactObject({
-        role: message.role as "user" | "assistant",
-        content: toAnthropicContentBlocks(message, providerKey),
-      }))
-      .filter((message: any) => Array.isArray(message.content) && message.content.length > 0),
+    messages: toAnthropicMessages(messages, providerKey),
     tools: activeTools,
     tool_choice: resolveAnthropicToolChoice(body, providerRequestConfig, hasTools),
     stream: true,

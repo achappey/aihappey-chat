@@ -250,12 +250,14 @@ const createUiMessageChunkStream = ({
   const reasoningProviderMetadataById = new Map<string, Record<string, any>>();
   const toolInputTextById = new Map<string, string>();
   const toolNameById = new Map<string, string>();
+  const toolProviderMetadataById = new Map<string, Record<string, any>>();
   const interactionsStepsByIndex = new Map<number, any>();
   const emittedSourceKeys = new Set<string>();
   const imageGenerationItems = new Map<string, any>();
   const imageGenerationFinalFiles = new Set<string>();
   const messagesContentBlocksByIndex = new Map<number, any>();
   const messagesReasoningIdsByIndex = new Map<number, string>();
+  let emittedClientToolInput = false;
   let zaiAgentReasoningOrdinal = 0;
   let activeZaiAgentReasoningId: string | undefined;
   let zaiAgentToolOrdinal = 0;
@@ -394,6 +396,10 @@ const createUiMessageChunkStream = ({
       ensureMessageStarted(controller);
       closeActiveReasoning(controller);
       closeText(controller);
+      if (startedStep) enqueueChunk(controller, { type: "finish-step" });
+    } else if (!finalTextBuffer && emittedClientToolInput) {
+      closeActiveReasoning(controller);
+      ensureMessageStarted(controller);
       if (startedStep) enqueueChunk(controller, { type: "finish-step" });
     } else {
       closeActiveReasoning(controller);
@@ -1230,6 +1236,11 @@ const createUiMessageChunkStream = ({
 
   const interactionsToolOutput = (step: any) => step?.result ?? step?.output ?? step;
 
+  const isClientExecutableInteractionsTool = (step: any) => {
+    const type = String(step?.type ?? "");
+    return type === "function_call" || type === "function_result";
+  };
+
   const interactionsContentText = (content: any) => {
     if (content?.type === "thought_summary") return extractTextFromValue(content?.content ?? content?.summary ?? content?.text);
     return extractTextFromValue(content);
@@ -1310,6 +1321,14 @@ const createUiMessageChunkStream = ({
   ) => {
     const toolCallId = step?.id ?? step?.call_id ?? interactionsStepId(index, "interactions-tool");
     const toolName = interactionsToolName(step);
+    const providerExecuted = !isClientExecutableInteractionsTool(step);
+    const inputProviderMetadata = providerMetadataFor({
+      source: "interactions.step",
+      index,
+      step_type: step?.type,
+      signature: step?.signature,
+      server_name: step?.server_name,
+    });
     ensureStepStarted(controller);
 
     if (!startedToolCalls.has(toolCallId)) {
@@ -1317,7 +1336,7 @@ const createUiMessageChunkStream = ({
         type: "tool-input-start",
         toolCallId,
         toolName,
-        providerExecuted: true,
+        providerExecuted,
         title: toolName,
       });
       startedToolCalls.add(toolCallId);
@@ -1328,23 +1347,18 @@ const createUiMessageChunkStream = ({
       toolCallId,
       toolName,
       input: interactionsToolInput(step),
-      providerExecuted: true,
+      providerExecuted,
       title: toolName,
-      providerMetadata: providerMetadataFor({
-        source: "interactions.step",
-        index,
-        step_type: step?.type,
-        signature: step?.signature,
-        server_name: step?.server_name,
-      }),
+      providerMetadata: inputProviderMetadata,
     });
+    if (!providerExecuted && inputProviderMetadata) toolProviderMetadataById.set(toolCallId, inputProviderMetadata);
 
     if (includeOutput && !emittedToolOutputs.has(toolCallId)) {
       enqueueChunk(controller, {
         type: "tool-output-available",
         toolCallId,
         output: interactionsToolOutput(step),
-        providerExecuted: true,
+        providerExecuted,
         providerMetadata: providerMetadataFor({
           source: "interactions.step",
           index,
@@ -1434,7 +1448,13 @@ const createUiMessageChunkStream = ({
 
       if (deltaType === "arguments_delta") {
         const toolCallId = currentStep?.id ?? interactionsStepId(event?.index, "interactions-tool");
-        emitToolInput(controller, toolCallId, interactionsToolName(currentStep), delta?.arguments);
+        emitToolInput(controller, toolCallId, interactionsToolName(currentStep), delta?.arguments, undefined, providerMetadataFor({
+          source: "interactions.step",
+          index: event?.index,
+          step_type: currentStep?.type,
+          signature: currentStep?.signature,
+          server_name: currentStep?.server_name,
+        }));
         return;
       }
 
@@ -1455,10 +1475,11 @@ const createUiMessageChunkStream = ({
 
     if (type === "interaction.completed") {
       rememberMetadata(event);
+      finalizePendingClientToolInputs(controller);
       for (const [index, step] of event?.interaction?.steps?.entries?.() ?? []) {
         emitInteractionsStepSnapshot(controller, step, index);
       }
-      finish(controller);
+      finish(controller, emittedClientToolInput && !finalTextBuffer ? "tool-calls" : "stop");
       return;
     }
 
@@ -1468,7 +1489,8 @@ const createUiMessageChunkStream = ({
         emitInteractionsStepSnapshot(controller, step, index);
       }
       if (event?.status === "completed" || event?.status === "incomplete" || event?.status === "cancelled" || event?.status === "failed") {
-        finish(controller, event.status === "completed" ? "stop" : event.status);
+        finalizePendingClientToolInputs(controller);
+        finish(controller, event.status === "completed" && emittedClientToolInput && !finalTextBuffer ? "tool-calls" : event.status === "completed" ? "stop" : event.status);
       }
     }
   };
@@ -1906,9 +1928,10 @@ const createUiMessageChunkStream = ({
     }
 
     if (type === "conversation.response.done" || type === "conversation.response.completed") {
+      finalizePendingClientToolInputs(controller);
       conversationOutputItems(event).forEach((item) => emitConversationArtifacts(controller, item?.content ?? item));
       emitConversationTextSnapshot(controller, conversationTextSnapshot(event));
-      finish(controller);
+      finish(controller, emittedClientToolInput && !finalTextBuffer ? "tool-calls" : "stop");
     }
   };
 
@@ -1943,11 +1966,14 @@ const createUiMessageChunkStream = ({
     toolName: string | undefined,
     inputTextDelta: string | undefined,
     completeInput?: unknown,
+    providerMetadata?: Record<string, any>,
   ) => {
     if (!toolCallId || !toolName) return;
+    emittedClientToolInput = true;
     toolNameById.set(toolCallId, toolName);
+    if (providerMetadata) toolProviderMetadataById.set(toolCallId, providerMetadata);
     if (!startedToolCalls.has(toolCallId)) {
-      enqueueChunk(controller, { type: "tool-input-start", toolCallId, toolName });
+      enqueueChunk(controller, { type: "tool-input-start", toolCallId, toolName, providerMetadata: toolProviderMetadataById.get(toolCallId) });
       startedToolCalls.add(toolCallId);
     }
 
@@ -1957,7 +1983,7 @@ const createUiMessageChunkStream = ({
     }
 
     if (completeInput !== undefined) {
-      enqueueChunk(controller, { type: "tool-input-available", toolCallId, toolName, input: completeInput });
+      enqueueChunk(controller, { type: "tool-input-available", toolCallId, toolName, input: completeInput, providerMetadata: toolProviderMetadataById.get(toolCallId) });
       toolInputTextById.delete(toolCallId);
       startedToolCalls.delete(toolCallId);
     }
@@ -1974,6 +2000,7 @@ const createUiMessageChunkStream = ({
         toolCallId,
         toolName,
         input: safeJsonParse(inputText),
+        providerMetadata: toolProviderMetadataById.get(toolCallId),
       });
       toolInputTextById.delete(toolCallId);
       startedToolCalls.delete(toolCallId);
@@ -2009,7 +2036,9 @@ const createUiMessageChunkStream = ({
 
     if (endpoint === "/v1/messages") {
       const contentBlock = event?.content_block;
+      const index = typeof event?.index === "number" ? event.index : undefined;
       if (contentBlock?.type === "tool_use") {
+        if (index !== undefined) messagesContentBlocksByIndex.set(index, { ...contentBlock });
         emitToolInput(controller, contentBlock.id, contentBlock.name, undefined);
         if (contentBlock?.input && typeof contentBlock.input === "object" && Object.keys(contentBlock.input).length > 0) {
           toolInputTextById.set(contentBlock.id, JSON.stringify(contentBlock.input));
@@ -2020,11 +2049,12 @@ const createUiMessageChunkStream = ({
       if (eventName === "content_block_delta" || event?.type === "content_block_delta") {
         const delta = event?.delta;
         if (delta?.type === "input_json_delta") {
-          const toolCallId = event?.content_block_id ?? `tool-${event?.index ?? startedToolCalls.size}`;
+          const contentBlockForIndex = index !== undefined ? messagesContentBlocksByIndex.get(index) : undefined;
+          const toolCallId = event?.content_block_id ?? contentBlockForIndex?.id ?? `tool-${event?.index ?? startedToolCalls.size}`;
           emitToolInput(
             controller,
             toolCallId,
-            event?.name ?? toolNameById.get(toolCallId) ?? "unknown_tool",
+            event?.name ?? contentBlockForIndex?.name ?? toolNameById.get(toolCallId) ?? "unknown_tool",
             typeof delta.partial_json === "string" ? delta.partial_json : undefined,
           );
         }
