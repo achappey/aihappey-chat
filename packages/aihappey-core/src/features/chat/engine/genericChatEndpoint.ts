@@ -248,6 +248,8 @@ const createUiMessageChunkStream = ({
   const closedReasoningIds = new Set<string>();
   const reasoningTextById = new Map<string, string>();
   const reasoningProviderMetadataById = new Map<string, Record<string, any>>();
+  const toolInputTextById = new Map<string, string>();
+  const toolNameById = new Map<string, string>();
   const interactionsStepsByIndex = new Map<number, any>();
   const emittedSourceKeys = new Set<string>();
   const imageGenerationItems = new Map<string, any>();
@@ -512,6 +514,8 @@ const createUiMessageChunkStream = ({
     return item?.output ?? item?.result ?? item;
   };
 
+  const isClientExecutableResponsesTool = (item: any) => item?.type === "function_call";
+
   const isImageGenerationItemType = (type: unknown) => {
     const normalizedType = String(type ?? "");
     return normalizedType === "image_generation_call" || normalizedType.endsWith(":image_generation");
@@ -748,6 +752,7 @@ const createUiMessageChunkStream = ({
     if (!toolCallId) return;
 
     const toolName = responsesToolName(item);
+    const providerExecuted = !isClientExecutableResponsesTool(item);
     ensureStepStarted(controller);
 
     if (!startedToolCalls.has(toolCallId)) {
@@ -755,7 +760,7 @@ const createUiMessageChunkStream = ({
         type: "tool-input-start",
         toolCallId,
         toolName,
-        providerExecuted: true,
+        providerExecuted,
         title: item?.type === "web_search_call" ? "Web search" : item?.name,
       });
       startedToolCalls.add(toolCallId);
@@ -766,11 +771,11 @@ const createUiMessageChunkStream = ({
       toolCallId,
       toolName,
       input: responsesToolInput(item),
-      providerExecuted: true,
+      providerExecuted,
       title: item?.type === "web_search_call" ? "Web search" : item?.name,
     });
 
-    if (includeOutput && !emittedToolOutputs.has(toolCallId)) {
+    if (includeOutput && providerExecuted && !emittedToolOutputs.has(toolCallId)) {
       enqueueChunk(controller, {
         type: "tool-output-available",
         toolCallId,
@@ -1940,17 +1945,37 @@ const createUiMessageChunkStream = ({
     completeInput?: unknown,
   ) => {
     if (!toolCallId || !toolName) return;
+    toolNameById.set(toolCallId, toolName);
     if (!startedToolCalls.has(toolCallId)) {
       enqueueChunk(controller, { type: "tool-input-start", toolCallId, toolName });
       startedToolCalls.add(toolCallId);
     }
 
     if (inputTextDelta) {
+      toolInputTextById.set(toolCallId, `${toolInputTextById.get(toolCallId) ?? ""}${inputTextDelta}`);
       enqueueChunk(controller, { type: "tool-input-delta", toolCallId, inputTextDelta });
     }
 
     if (completeInput !== undefined) {
       enqueueChunk(controller, { type: "tool-input-available", toolCallId, toolName, input: completeInput });
+      toolInputTextById.delete(toolCallId);
+      startedToolCalls.delete(toolCallId);
+    }
+  };
+
+  const finalizePendingClientToolInputs = (controller: ReadableStreamDefaultController<Uint8Array>) => {
+    for (const toolCallId of Array.from(startedToolCalls)) {
+      const toolName = toolNameById.get(toolCallId);
+      if (!toolName) continue;
+
+      const inputText = toolInputTextById.get(toolCallId) ?? "";
+      enqueueChunk(controller, {
+        type: "tool-input-available",
+        toolCallId,
+        toolName,
+        input: safeJsonParse(inputText),
+      });
+      toolInputTextById.delete(toolCallId);
       startedToolCalls.delete(toolCallId);
     }
   };
@@ -1958,11 +1983,25 @@ const createUiMessageChunkStream = ({
   const normalizeToolDeltas = (eventName: string | undefined, event: any, controller: ReadableStreamDefaultController<Uint8Array>) => {
     if (isChatCompletionsEndpoint(endpoint)) {
       for (const choice of event?.choices ?? []) {
+        for (const toolCall of choice?.message?.tool_calls ?? []) {
+          emitToolInput(
+            controller,
+            toolCall.id ?? `tool-${toolCall.index ?? startedToolCalls.size}`,
+            toolCall.function?.name ?? toolCall.name ?? "unknown_tool",
+            undefined,
+            safeJsonParse(toolCall.function?.arguments ?? toolCall.arguments ?? {}),
+          );
+        }
+
         for (const toolCall of choice?.delta?.tool_calls ?? []) {
           const toolCallId = toolCall.id ?? `tool-${toolCall.index ?? startedToolCalls.size}`;
-          const toolName = toolCall.function?.name ?? "unknown_tool";
+          const toolName = toolCall.function?.name ?? toolNameById.get(toolCallId) ?? "unknown_tool";
           const argsDelta = typeof toolCall.function?.arguments === "string" ? toolCall.function.arguments : undefined;
           emitToolInput(controller, toolCallId, toolName, argsDelta);
+        }
+
+        if (choice?.finish_reason === "tool_calls") {
+          finalizePendingClientToolInputs(controller);
         }
       }
       return;
@@ -1971,20 +2010,28 @@ const createUiMessageChunkStream = ({
     if (endpoint === "/v1/messages") {
       const contentBlock = event?.content_block;
       if (contentBlock?.type === "tool_use") {
-        emitToolInput(controller, contentBlock.id, contentBlock.name, undefined, contentBlock.input ?? {});
+        emitToolInput(controller, contentBlock.id, contentBlock.name, undefined);
+        if (contentBlock?.input && typeof contentBlock.input === "object" && Object.keys(contentBlock.input).length > 0) {
+          toolInputTextById.set(contentBlock.id, JSON.stringify(contentBlock.input));
+        }
         return;
       }
 
       if (eventName === "content_block_delta" || event?.type === "content_block_delta") {
         const delta = event?.delta;
         if (delta?.type === "input_json_delta") {
+          const toolCallId = event?.content_block_id ?? `tool-${event?.index ?? startedToolCalls.size}`;
           emitToolInput(
             controller,
-            event?.content_block_id ?? `tool-${event?.index ?? startedToolCalls.size}`,
-            event?.name ?? "unknown_tool",
+            toolCallId,
+            event?.name ?? toolNameById.get(toolCallId) ?? "unknown_tool",
             typeof delta.partial_json === "string" ? delta.partial_json : undefined,
           );
         }
+      }
+
+      if (eventName === "content_block_stop" || event?.type === "content_block_stop") {
+        finalizePendingClientToolInputs(controller);
       }
     }
   };

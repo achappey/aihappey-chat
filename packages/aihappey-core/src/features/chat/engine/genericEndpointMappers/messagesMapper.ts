@@ -2,7 +2,10 @@ import {
   ANTHROPIC_THINKING_METADATA_TYPES,
   compactObject,
   getProviderKeyFromRequestBody,
+  hasConfiguredNativeTools,
+  mapAnthropicMessagesTools,
   resolveNativeRequestMetadata,
+  resolveAnthropicToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
   type GenericMappedFilePart,
@@ -106,6 +109,10 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
     ...body,
     endpoint: "/v1/messages",
   });
+  const activeTools = hasConfiguredNativeTools(providerRequestConfig)
+    ? undefined
+    : mapAnthropicMessagesTools(body);
+  const hasTools = Boolean(activeTools?.length || providerRequestConfig?.tools?.length);
 
   return compactObject({
     ...(providerRequestConfig ?? {}),
@@ -126,6 +133,8 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
         content: toAnthropicContentBlocks(message, providerKey),
       }))
       .filter((message: any) => Array.isArray(message.content) && message.content.length > 0),
+    tools: activeTools,
+    tool_choice: resolveAnthropicToolChoice(body, providerRequestConfig, hasTools),
     stream: true,
   });
 };

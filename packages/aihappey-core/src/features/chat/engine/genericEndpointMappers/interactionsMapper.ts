@@ -1,6 +1,9 @@
 import {
   compactObject,
   getProviderKeyFromRequestBody,
+  hasConfiguredNativeTools,
+  mapGenericFunctionTools,
+  resolveGenericToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
   type GenericMappedFilePart,
@@ -151,16 +154,24 @@ export const buildInteractionsBody = (body: GenericChatEndpointRequestBody) => {
   });
   const topLevelConfig = pickSnakeCaseConfig(providerRequestConfig, INTERACTIONS_TOP_LEVEL_CONFIG_KEYS);
   const agent = typeof topLevelConfig.agent === "string" ? topLevelConfig.agent : undefined;
+  const activeTools = hasConfiguredNativeTools(providerRequestConfig)
+    ? undefined
+    : mapGenericFunctionTools(body);
+  const hasTools = Boolean(activeTools?.length || topLevelConfig.tools?.length);
 
   return compactObject({
     ...passthroughConfig,
     ...topLevelConfig,
+    tools: topLevelConfig.tools ?? activeTools,
     model: agent ? undefined : stripGoogleProviderPrefix(body.model),
     input: messages
       .filter((message) => message.role !== "system")
       .flatMap((message) => toInteractionsSteps(message, providerKey)),
     system_instruction: getSystemText(messages),
-    generation_config: agent ? undefined : generationConfig,
+    generation_config: agent ? undefined : compactObject({
+      ...generationConfig,
+      tool_choice: resolveGenericToolChoice(body, providerRequestConfig, hasTools),
+    }),
     stream: true,
     store: false,
   });

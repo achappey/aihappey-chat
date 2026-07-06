@@ -1,5 +1,7 @@
 import {
   compactObject,
+  hasConfiguredNativeTools,
+  mapGenericFunctionTools,
   resolveNativeRequestMetadata,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
@@ -214,6 +216,9 @@ export const buildConversationsBody = (body: GenericChatEndpointRequestBody) => 
       ? body.inputs
       : undefined;
   const agentId = nonEmptyString(providerRequestConfig?.agent_id ?? body.agent_id);
+  const activeTools = hasConfiguredNativeTools(providerRequestConfig)
+    ? undefined
+    : mapGenericFunctionTools(body);
 
   return compactObject({
     ...(requestConfig ?? {}),
@@ -221,6 +226,7 @@ export const buildConversationsBody = (body: GenericChatEndpointRequestBody) => 
     agent_id: agentId,
     instructions: getSystemText(messages) ?? providerRequestConfig?.instructions,
     inputs: nativeInputs ?? toConversationInputs(messages),
+    tools: activeTools,
     completion_args,
     metadata: resolveNativeRequestMetadata(body),
     stream: true,

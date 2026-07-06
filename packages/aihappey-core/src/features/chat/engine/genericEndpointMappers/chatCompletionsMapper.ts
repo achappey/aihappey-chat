@@ -1,6 +1,9 @@
 import {
   compactObject,
+  hasConfiguredNativeTools,
+  mapOpenAiChatCompletionTools,
   resolveNativeRequestMetadata,
+  resolveOpenAiToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
 } from "./types";
@@ -41,12 +44,18 @@ export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) =
     ...body,
     endpoint: body.endpoint ?? "/v1/chat/completions",
   });
+  const activeTools = hasConfiguredNativeTools(providerRequestConfig)
+    ? undefined
+    : mapOpenAiChatCompletionTools(body);
+  const hasTools = Boolean(activeTools?.length || providerRequestConfig?.tools?.length);
 
   return compactObject({
     ...(providerRequestConfig ?? {}),
     model: body.model,
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens,
+    tools: activeTools,
+    tool_choice: resolveOpenAiToolChoice(body, providerRequestConfig, hasTools),
     metadata: resolveNativeRequestMetadata(body),
     messages: messages.map((message) => compactObject({
       role: message.role,
