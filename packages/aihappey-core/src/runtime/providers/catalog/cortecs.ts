@@ -16,7 +16,9 @@ export const cortecs: Provider = {
   },
   providerCountry: "DE",
   category: "gateway_router",
-  inferenceRegions: ["Europe"]
+  inferenceRegions: ["Europe"],
+  apiBaseUrl: "https://api.cortecs.ai",
+  chatEndpoints: ["/v1/chat/completions", "/v1/messages"],
 
 };
 

@@ -18,7 +18,9 @@ export const bergetai: Provider = {
   },
   providerCountry: "SE",
   category: "inference_compute",
-  inferenceRegions: ["Europe"]
+  inferenceRegions: ["Europe"],
+  apiBaseUrl: "https://api.berget.ai",
+  chatEndpoints: ["/v1/chat/completions"],
 
 };
 
