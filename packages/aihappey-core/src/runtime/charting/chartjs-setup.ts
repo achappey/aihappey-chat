@@ -1,4 +1,4 @@
-import { Chart, registerables } from "chart.js";
+import { Chart, registerables, type ChartComponentLike } from "chart.js";
 import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 import { SankeyController, Flow } from 'chartjs-chart-sankey';
 import { TreemapController, TreemapElement } from 'chartjs-chart-treemap';
@@ -15,6 +15,10 @@ type RegistryItemInfo = {
     name: string;
     defaults?: any;
 };
+
+// chartjs-chart-treemap v4's controller declaration omits its static Chart.js
+// component metadata, even though the runtime export still provides it.
+const TreemapControllerComponent = TreemapController as unknown as ChartComponentLike;
 
 const readRegistryBucket = (bucket: any): RegistryItemInfo[] => {
     const items = bucket?.items ?? {};
@@ -34,7 +38,7 @@ const readRegistryBucket = (bucket: any): RegistryItemInfo[] => {
 Chart.register(
     ...registerables,
     MatrixController, MatrixElement,
-    TreemapController, TreemapElement,
+    TreemapControllerComponent, TreemapElement,
     SankeyController, Flow,
     WordCloudController, WordElement,
     GraphController,
