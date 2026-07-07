@@ -555,6 +555,7 @@ import { humeai } from "./catalog/humeai";
 import { ltx } from "./catalog/ltx";
 import { melious } from "./catalog/melious";
 import { lucidquery } from "./catalog/lucidquery";
+import { hostyourai } from "./catalog/hostyourai";
 
 /**
  * UI-facing provider catalog.
@@ -601,6 +602,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   concentrate,
   rewindai,
   moleapi,
+  hostyourai,
   myrouter,
   osiris,
   skypooltoken,
