@@ -556,6 +556,8 @@ import { ltx } from "./catalog/ltx";
 import { melious } from "./catalog/melious";
 import { lucidquery } from "./catalog/lucidquery";
 import { hostyourai } from "./catalog/hostyourai";
+import { rebytemodels } from "./catalog/rebytemodels";
+import { rebytetasks } from "./catalog/rebytetasks";
 
 /**
  * UI-facing provider catalog.
@@ -600,6 +602,8 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   humeai,
   aiapiworld,
   concentrate,
+  rebytemodels,
+  rebytetasks,
   rewindai,
   moleapi,
   hostyourai,
