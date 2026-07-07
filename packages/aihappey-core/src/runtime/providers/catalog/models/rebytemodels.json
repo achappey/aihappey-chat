@@ -2,7 +2,7 @@
   "object": "list",
   "data": [
     {
-      "id": "rebyte/claude-opus-4.6",
+      "id": "rebytemodels/claude-opus-4.6",
       "object": "model",
       "owned_by": "Anthropic",
       "name": "claude-opus-4.6",
@@ -10,7 +10,7 @@
       "description": "Rebyte-hosted Claude Opus 4.6 model. Available executors: claude, opencode."
     },
     {
-      "id": "rebyte/claude-sonnet-4.6",
+      "id": "rebytemodels/claude-sonnet-4.6",
       "object": "model",
       "owned_by": "Anthropic",
       "name": "claude-sonnet-4.6",
@@ -18,7 +18,7 @@
       "description": "Rebyte-hosted Claude Sonnet 4.6 model. Available executors: claude, opencode."
     },
     {
-      "id": "rebyte/gpt-5.4",
+      "id": "rebytemodels/gpt-5.4",
       "object": "model",
       "owned_by": "OpenAI",
       "name": "gpt-5.4",
@@ -26,7 +26,7 @@
       "description": "Rebyte-hosted GPT-5.4 model. Available executors: claude, codex, opencode."
     },
     {
-      "id": "rebyte/gpt-5.3-codex",
+      "id": "rebytemodels/gpt-5.3-codex",
       "object": "model",
       "owned_by": "OpenAI",
       "name": "gpt-5.3-codex",
@@ -34,7 +34,7 @@
       "description": "Rebyte-hosted GPT-5.3 Codex model. Available executors: claude, codex, opencode."
     },
     {
-      "id": "rebyte/gemini-3.1-pro",
+      "id": "rebytemodels/gemini-3.1-pro",
       "object": "model",
       "owned_by": "Google",
       "name": "gemini-3.1-pro",
@@ -42,7 +42,7 @@
       "description": "Rebyte-hosted Gemini 3.1 Pro model. Available executors: claude, opencode."
     },
     {
-      "id": "rebyte/gemini-3-flash",
+      "id": "rebytemodels/gemini-3-flash",
       "object": "model",
       "owned_by": "Google",
       "name": "gemini-3-flash",
@@ -50,7 +50,7 @@
       "description": "Rebyte-hosted Gemini 3 Flash model. Available executors: claude, opencode."
     },
     {
-      "id": "rebyte/auto-gemini-3",
+      "id": "rebytemodels/auto-gemini-3",
       "object": "model",
       "owned_by": "Google",
       "name": "auto-gemini-3",
@@ -58,7 +58,7 @@
       "description": "Rebyte-hosted Auto Gemini 3 model. Available executor: gemini."
     },
     {
-      "id": "rebyte/minimax-m2.7",
+      "id": "rebytemodels/minimax-m2.7",
       "object": "model",
       "owned_by": "Open Source",
       "name": "minimax-m2.7",
@@ -66,7 +66,7 @@
       "description": "Rebyte-hosted MiniMax M2.7 model. Available executors: claude, opencode."
     },
     {
-      "id": "rebyte/kimi-k2.6",
+      "id": "rebytemodels/kimi-k2.6",
       "object": "model",
       "owned_by": "Open Source",
       "name": "kimi-k2.6",
@@ -74,7 +74,7 @@
       "description": "Rebyte-hosted Kimi K2.6 model. Available executors: claude, opencode."
     },
     {
-      "id": "rebyte/glm-5.1",
+      "id": "rebytemodels/glm-5.1",
       "object": "model",
       "owned_by": "Open Source",
       "name": "glm-5.1",
