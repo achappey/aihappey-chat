@@ -6,7 +6,6 @@ export const hostyourai: Provider = {
     "Open LLMs on EU GPUs via an OpenAI- and Anthropic-compatible API. GDPR-compliant: your data never leaves the EU. Shared Router or dedicated instance.",
   urls: {
     homepage: "https://hostyourai.com",
-    docs: "https://hostyourai.com/docs/management-api",
     pricing: "https://hostyourai.com/pricing",
     privacyPolicy: "https://hostyourai.com/nl/legal/privacy-policy",
     termsOfService: "https://hostyourai.com/nl/legal/terms-of-service"
