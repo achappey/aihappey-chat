@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { format } from "timeago.js";
 import { useDarkMode } from "usehooks-ts";
 import { CostBadge } from "../badges";
-import { normalizeAudioSource } from "./audioSource";
+import { normalizeAudioSource, type AudioSourceInput } from "./audioSource";
 
 interface SpeechCardProps {
   speech: SpeechResponse;
@@ -77,6 +77,17 @@ const getExtensionFromUrl = (audio: string) => {
 
 const getAudioExtension = (audio: SpeechResponse["audio"], src?: string) => {
   if (audio instanceof Uint8Array) return "audio";
+
+  if (audio && typeof audio === "object") {
+    const mimeType = (audio as any).mimeType ?? (audio as any).mime_type;
+    if (typeof mimeType === "string") {
+      const normalizedMimeType = mimeType.split(";")[0].trim().toLocaleLowerCase();
+      if (extensionByMimeType[normalizedMimeType]) return extensionByMimeType[normalizedMimeType];
+      if (normalizedMimeType.startsWith("audio/")) return normalizedMimeType.slice("audio/".length).split("+")[0];
+    }
+
+    if ((audio as any).format?.toLocaleLowerCase?.() === "pcm") return "wav";
+  }
 
   if (typeof audio === "string") {
     const mimeType = getMimeTypeFromDataUri(audio);
@@ -156,7 +167,7 @@ export const SpeechCard = ({ speech, onDelete, providers }: SpeechCardProps) => 
   ) : undefined;
 
   useEffect(() => {
-    const { src, revoke } = normalizeAudioSource(speech.audio as string);
+    const { src, revoke } = normalizeAudioSource(speech.audio as AudioSourceInput);
     setSrc(src);
     return revoke;
   }, [speech.audio]);
