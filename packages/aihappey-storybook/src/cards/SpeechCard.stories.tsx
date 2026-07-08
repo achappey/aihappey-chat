@@ -64,6 +64,60 @@ export const WithDeleteMenu: Story = {
   },
 };
 
+export const WithDownloadMenu: Story = {
+  args: {
+    speech: {
+      ...baseResponseFields,
+      audio: SILENT_WAV_DATA_URI,
+    },
+  },
+};
+
+export const WithRequestMenu: Story = {
+  args: {
+    speech: {
+      ...baseResponseFields,
+      request: {
+        body: {
+          language: "auto",
+          text: "The quick brown fox jumps over the lazy dog.",
+          voice_id: "altair",
+        },
+      },
+      audio: SILENT_WAV_DATA_URI,
+    },
+  },
+};
+
+export const WithAllMenuActions: Story = {
+  args: {
+    speech: {
+      ...baseResponseFields,
+      request: {
+        body: {
+          language: "auto",
+          text: "The quick brown fox jumps over the lazy dog.",
+          voice_id: "altair",
+        },
+      },
+      audio: SILENT_WAV_DATA_URI,
+    },
+    onDelete: () => console.log("Delete speech"),
+  },
+};
+
+export const WithNonObjectRequestBody: Story = {
+  args: {
+    speech: {
+      ...baseResponseFields,
+      request: {
+        body: "request body is not a JSON object",
+      },
+      audio: SILENT_WAV_DATA_URI,
+    },
+  },
+};
+
 export const WithGatewayCost: Story = {
   args: {
     speech: {
