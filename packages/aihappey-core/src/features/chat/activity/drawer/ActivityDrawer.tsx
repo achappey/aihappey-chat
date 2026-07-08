@@ -205,7 +205,6 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
   const showActivities = useAppStore((s) => s.showActivities);
   const setActivities = useAppStore((s) => s.setActivities);
   const activitiesSize = useAppStore((s) => s.activitiesSize);
-  const chatMode = useAppStore((s) => s.chatMode);
   const setActivitiesSize = useAppStore((s) => s.setActivitiesSize);
   const toolInvocations = useToolInvocations(messages, currentModel);
   const [activeTab, setActiveTab] = useState("toolInvocations");
@@ -357,13 +356,6 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
     }  
   ];
 
-  const tabOrder =
-    chatMode === "agent"
-      ? baseTabs.filter((t) =>
-        ["toolInvocations", "dataParts"].includes(t.key)
-      )
-      : baseTabs;
-
   if (!showActivities) {
     return undefined;
   }
@@ -408,7 +400,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
       onClose={() => setActivities(false)}>
       <Tabs activeKey={activeTab}
         onSelect={setActiveTab}>
-        {tabOrder.map((tab) => (
+        {baseTabs.map((tab) => (
           <Tab key={tab.key}
             eventKey={tab.key}
             title={tab.label}>
