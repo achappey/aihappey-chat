@@ -72,6 +72,7 @@ export interface RerankingResponse {
 export interface SpeechResponse {
   audio: string | Uint8Array<ArrayBufferLike>;
   warnings: Array<SharedV4Warning>;
+  providerMetadata?: Record<string, any>;
   request?: {
     body?: unknown;
   };

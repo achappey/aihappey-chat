@@ -12,6 +12,7 @@ export const Badge = ({
   size,
   icon,
   children,
+  style,
 }: {
   bg?: string;
   icon?: IconToken | undefined
@@ -19,6 +20,7 @@ export const Badge = ({
   title?: string;
   appearance?: any
   size?: any
+  style?: React.CSSProperties
   children: React.ReactNode;
 }): JSX.Element => {
   const IconElem = icon ? iconMap[icon] : undefined;
@@ -26,6 +28,7 @@ export const Badge = ({
   const badge = <FluentBadge size={size}
     icon={IconElem ? <IconElem /> : undefined}
     appearance={appearance}
+    style={style}
     color={(bg as any) == "primary" ? "brand" : (bg as any)}>
     {text ?? children}
   </FluentBadge>
