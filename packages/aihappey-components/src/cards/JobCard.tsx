@@ -4,6 +4,7 @@ import type { MenuItemProps } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { LimitedTextField } from "../fields";
+import { CostBadge } from "../badges";
 
 export type JobCardJobItem = {
   id: string;
@@ -19,6 +20,11 @@ const terminalJobStatuses = new Set(["completed", "failed", "cancelled", "incomp
 
 const getJobStatus = (job: Pick<JobCardJobItem, "response">): string =>
   job.response?.status ?? "queued";
+
+const getGatewayCost = (job: Pick<JobCardJobItem, "response">) => {
+  const cost = job.response?.metadata?.providerMetadata?.gateway?.cost;
+  return typeof cost === "number" && Number.isFinite(cost) ? cost : undefined;
+};
 
 const isActiveJobStatus = (status?: string) => !!status && activeJobStatuses.has(status);
 const isTerminalJobStatus = (status?: string) => !!status && terminalJobStatuses.has(status);
@@ -56,6 +62,7 @@ export const JobCard = ({ job, onRefresh, onDelete, renderMarkdown }: JobCardPro
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("raw");
   const status = getJobStatus(job);
+  const gatewayCost = getGatewayCost(job);
   const canRefresh = isActiveJobStatus(status) && !!onRefresh;
   const canDelete = isTerminalJobStatus(status) && !!onDelete;
   const outputText = useMemo(
@@ -111,7 +118,14 @@ export const JobCard = ({ job, onRefresh, onDelete, renderMarkdown }: JobCardPro
     <>
       <Card
         title={status}
-        description={<>{format(job.updatedAt ?? job.createdAt)}</>}
+        description={<div style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+          <span style={{ display: "inline-flex", alignItems: "center" }}>
+            {format(job.updatedAt ?? job.createdAt)}
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "center", transform: "translateY(2px)" }}>
+            <CostBadge cost={gatewayCost} size="small" />
+          </span>
+        </div>}
         size="small"
         actions={actions}
         headerActions={headerActions}
