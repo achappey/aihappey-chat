@@ -25,6 +25,7 @@ import { MeshPage } from "../features/providers/MeshPage";
 import { UsagePage } from "../features/usage/UsagePage";
 import { TranscriptionsPage } from "../features/transcriptions/TranscriptionsPage";
 import { SpeechPage } from "../features/speech/SpeechPage";
+import { JobsPage } from "../features/jobs/JobsPage";
 import { ToolsPage } from "../features/tools/ToolsPage";
 import { FilesPage } from "../features/files/FilesPage";
 import { RerankingPage } from "../features/reranking/RerankingPage";
@@ -129,6 +130,7 @@ export const CoreRoot = ({
             { path: "structured-outputs", element: <StructuredOutputsPage /> },
             { path: "transcriptions", element: <TranscriptionsPage /> },
             { path: "speech", element: <SpeechPage /> },
+            { path: "jobs", element: <JobsPage /> },
             { path: "reranking", element: <RerankingPage /> },
             { path: "apps", element: <WebAppsPage /> },
             { path: "apps/:appId", element: <WebAppDetailPage /> },

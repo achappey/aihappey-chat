@@ -91,7 +91,6 @@ export const ConversationSidebar = ({
       href: "/speech",
       icon: "speech",
     },
-
     {
       key: "reranking",
       label: t("reranking"),
@@ -103,6 +102,12 @@ export const ConversationSidebar = ({
       label: t("videos"),
       href: "/videos",
       icon: "videos",
+    },
+    {
+      key: "jobs",
+      label: t("jobs", "Jobs"),
+      href: "/jobs",
+      icon: "jobs",
     },
     {
       key: "arena",
@@ -312,9 +317,19 @@ export const ConversationSidebar = ({
                               ? "registries"
                               : location.pathname === "/reranking"
                                 ? "reranking"
-                                : location.pathname === "/realtime"
-                                  ? "realtime"
-                                  : conversationId ?? undefined
+                                 : location.pathname === "/jobs"
+                                   ? "jobs"
+                                   : location.pathname === "/images"
+                                     ? "images"
+                                     : location.pathname === "/transcriptions"
+                                       ? "transcriptions"
+                                       : location.pathname === "/speech"
+                                         ? "speech"
+                                         : location.pathname === "/videos"
+                                           ? "videos"
+                                           : location.pathname === "/realtime"
+                                             ? "realtime"
+                                             : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -356,6 +371,8 @@ export const ConversationSidebar = ({
       await navigate("/transcriptions");
     } else if (id === "speech") {
       await navigate("/speech");
+    } else if (id === "jobs") {
+      await navigate("/jobs");
     } else if (id === "videos") {
       await navigate("/videos");
     } else if (id === "arena") {

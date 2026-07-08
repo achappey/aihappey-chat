@@ -25,6 +25,7 @@ import { useDefaultModel } from "./bootstrap/useDefaultModel";
 import { useDefaultProviders } from "./bootstrap/useDefaultProviders";
 import { useProviderRegistry } from "../runtime/providers/useProviderRegistry";
 import { ImagesProvider } from "aihappey-images";
+import { JobsProvider } from "aihappey-jobs";
 import { ToolsProvider } from "aihappey-tools";
 import { FilesProvider } from "aihappey-files";
 import { TranscriptionsProvider } from "aihappey-transcriptions";
@@ -107,8 +108,11 @@ export const CoreShell: React.FC<Props> = ({
       ...chatConfig,
       baseUrl: effectiveBaseUrl,
       gatewayEnabled: effectiveGatewayEnabled,
+      getAgentAccessToken: agentScopes?.length
+        ? async () => (await refreshAgentToken()) ?? ""
+        : undefined,
     }),
-    [chatConfig, effectiveBaseUrl, effectiveGatewayEnabled],
+    [agentScopes?.length, chatConfig, effectiveBaseUrl, effectiveGatewayEnabled, refreshAgentToken],
   );
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
@@ -345,18 +349,20 @@ export const CoreShell: React.FC<Props> = ({
                           <JsonRenderRegistryProvider>
                             <JsonRenderAppsProvider>
                               <SpeechProvider storageKind={"indexeddb"}>
-                                <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
-                                  <McpConnectionsProvider
-                                    clientName={effectiveChatConfig?.appName}
-                                    agentScopes={agentScopes ?? []}
-                                    agentApi={effectiveChatConfig?.agentEndpoint!}
-                                    authenticated={effectiveChatConfig?.getAccessToken != null}
-                                    clientVersion={effectiveChatConfig?.appVersion}
-                                    samplingApi={samplingEndpoint}
-                                  >
-                                    {ui}
-                                  </McpConnectionsProvider>
-                                </ConversationsProvider>
+                                <JobsProvider storageKind={"indexeddb"}>
+                                  <ConversationsProvider apiUrl={apiUrl!} scopes={conversationScopes ?? []}>
+                                    <McpConnectionsProvider
+                                      clientName={effectiveChatConfig?.appName}
+                                      agentScopes={agentScopes ?? []}
+                                      agentApi={effectiveChatConfig?.agentEndpoint!}
+                                      authenticated={effectiveChatConfig?.getAccessToken != null}
+                                      clientVersion={effectiveChatConfig?.appVersion}
+                                      samplingApi={samplingEndpoint}
+                                    >
+                                      {ui}
+                                    </McpConnectionsProvider>
+                                  </ConversationsProvider>
+                                </JobsProvider>
                               </SpeechProvider>
                             </JsonRenderAppsProvider>
                           </JsonRenderRegistryProvider>

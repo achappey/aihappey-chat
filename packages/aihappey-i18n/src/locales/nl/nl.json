@@ -14,6 +14,10 @@
     "other": "Overig",
     "local": "Lokaal",
     "xhigh": "Extra hoog",
+    "jobs": "Opdrachten",
+    "myJobs": "Mijn opdrachten",
+    "jobsPromptPlaceholder": "Vraag een agent om een achtergrondopdracht uit te voeren",
+    "selectAgentForJob": "Selecteer minimaal één agent voor de opdracht.",
     "storageQuotaMessage": "Je browseropslag is vol. Verwijder enkele chats of andere items en probeer het opnieuw.",
     "skillsPage": {
         "versionBadge": "Versie {{version}}",

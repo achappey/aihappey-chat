@@ -112,6 +112,17 @@ const MinimalNavBar = ({
           navigate("/speech")
         }
       />
+      <Button
+        icon="jobs"
+        size="small"
+        variant="transparent"
+        title={t("jobs", "Jobs")}
+        aria-label={t("jobs", "Jobs")}
+        style={{ marginBottom: 8 }}
+        onClick={() =>
+          navigate("/jobs")
+        }
+      />
 
 
       <Button

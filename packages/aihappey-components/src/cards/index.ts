@@ -21,6 +21,7 @@ export * from "./ConversationCard";
 export * from "./TranscriptionCard";
 export * from "./PromptCard";
 export * from "./SpeechCard";
+export * from "./JobCard";
 export * from "./ToolCard";
 export * from "./FileCard";
 export * from "./SkillCard";

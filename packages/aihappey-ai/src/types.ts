@@ -94,6 +94,51 @@ export interface RealtimeResponse {
   providerMetadata: Record<string, any>
 }
 
+export type ResponseApiStatus =
+  | "queued"
+  | "in_progress"
+  | "completed"
+  | "failed"
+  | "cancelled"
+  | "incomplete"
+  | string;
+
+export type ResponseApiInputContent =
+  | { type: "input_text"; text: string }
+  | { type: "input_image"; image_url: string; detail?: string }
+  | { type: "input_file"; file_data: string; filename?: string }
+  | Record<string, any>;
+
+export interface ResponseApiInputMessage {
+  type?: "message" | string;
+  role: "user" | "assistant" | "system" | string;
+  content: string | ResponseApiInputContent[];
+}
+
+export interface ResponseApiCreateRequest {
+  model?: string;
+  models?: string[];
+  input: string | ResponseApiInputMessage[];
+  background?: boolean;
+  store?: boolean;
+  stream?: boolean;
+  metadata?: Record<string, any>;
+  [key: string]: any;
+}
+
+export interface ResponseApiResponse {
+  id?: string;
+  object?: string;
+  created_at?: number;
+  status?: ResponseApiStatus;
+  model?: string;
+  output?: any[];
+  error?: unknown;
+  incomplete_details?: unknown;
+  metadata?: Record<string, any>;
+  [key: string]: any;
+}
+
 export const defaultEndpoints = {
   chat: "/api/chat",
   images: "/v1/images/generations",
