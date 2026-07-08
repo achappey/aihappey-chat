@@ -125,6 +125,13 @@ const nativeFunctionTools = (body: GenericChatEndpointRequestBody) => {
 export const hasConfiguredNativeTools = (providerRequestConfig?: Record<string, any>) =>
   hasOwn(providerRequestConfig, "tools");
 
+const nativeToolList = (tools: unknown) => Array.isArray(tools) ? tools.filter(Boolean) : [];
+
+export const mergeNativeTools = (...toolLists: unknown[]) => {
+  const tools = toolLists.flatMap(nativeToolList);
+  return tools.length ? tools : undefined;
+};
+
 export const hasConfiguredNativeToolChoice = (providerRequestConfig?: Record<string, any>) =>
   hasOwn(providerRequestConfig, "tool_choice") || hasOwn(providerRequestConfig, "toolChoice");
 

@@ -3,6 +3,7 @@ import {
   getProviderKeyFromRequestBody,
   hasConfiguredNativeTools,
   mapOpenAiResponsesTools,
+  mergeNativeTools,
   resolveNativeRequestMetadata,
   resolveOpenAiToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
@@ -112,9 +113,9 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     endpoint: "/v1/responses",
   });
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
-    ? undefined
+    ? mergeNativeTools(providerRequestConfig?.tools, mapOpenAiResponsesTools(body))
     : mapOpenAiResponsesTools(body);
-  const hasTools = Boolean(activeTools?.length || providerRequestConfig?.tools?.length);
+  const hasTools = Boolean(activeTools?.length);
   const input = messages.flatMap((message) => {
     if (message.role === "system") return [];
 

@@ -2,6 +2,7 @@ import {
   compactObject,
   hasConfiguredNativeTools,
   mapMistralConversationTools,
+  mergeNativeTools,
   resolveNativeRequestMetadata,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
@@ -193,7 +194,7 @@ export const buildConversationsBody = (body: GenericChatEndpointRequestBody) => 
       : undefined;
   const agentId = nonEmptyString(providerRequestConfig?.agent_id ?? body.agent_id);
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
-    ? undefined
+    ? mergeNativeTools(providerRequestConfig?.tools, mapMistralConversationTools(body))
     : mapMistralConversationTools(body);
 
   return compactObject({

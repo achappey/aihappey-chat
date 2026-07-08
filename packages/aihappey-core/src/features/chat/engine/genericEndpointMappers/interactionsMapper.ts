@@ -1,8 +1,10 @@
+
 import {
   compactObject,
   getProviderKeyFromRequestBody,
   hasConfiguredNativeTools,
   mapGenericFunctionTools,
+  mergeNativeTools,
   resolveGenericToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
@@ -261,16 +263,16 @@ export const buildInteractionsBody = (body: GenericChatEndpointRequestBody) => {
   const agent = typeof topLevelConfig.agent === "string" ? topLevelConfig.agent : undefined;
   const hasClientFunctionResults = hasInteractionsFunctionResult(messages);
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
-    ? undefined
+    ? mergeNativeTools(topLevelConfig.tools, hasClientFunctionResults ? undefined : mapGenericFunctionTools(body))
     : hasClientFunctionResults
       ? undefined
       : mapGenericFunctionTools(body);
-  const hasTools = Boolean(activeTools?.length || topLevelConfig.tools?.length);
+  const hasTools = Boolean(activeTools?.length);
 
   return compactObject({
     ...passthroughConfig,
     ...topLevelConfig,
-    tools: topLevelConfig.tools ?? activeTools,
+    tools: activeTools,
     model: agent ? undefined : stripGoogleProviderPrefix(body.model),
     input: messages
       .filter((message) => message.role !== "system")

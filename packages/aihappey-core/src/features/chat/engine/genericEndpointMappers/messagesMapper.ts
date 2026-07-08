@@ -4,6 +4,7 @@ import {
   getProviderKeyFromRequestBody,
   hasConfiguredNativeTools,
   mapAnthropicMessagesTools,
+  mergeNativeTools,
   resolveNativeRequestMetadata,
   resolveAnthropicToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
@@ -177,9 +178,9 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
     endpoint: "/v1/messages",
   });
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
-    ? undefined
+    ? mergeNativeTools(providerRequestConfig?.tools, mapAnthropicMessagesTools(body))
     : mapAnthropicMessagesTools(body);
-  const hasTools = Boolean(activeTools?.length || providerRequestConfig?.tools?.length);
+  const hasTools = Boolean(activeTools?.length);
 
   return compactObject({
     ...(providerRequestConfig ?? {}),

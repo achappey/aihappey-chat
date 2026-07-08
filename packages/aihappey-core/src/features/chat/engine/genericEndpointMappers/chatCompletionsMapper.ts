@@ -2,6 +2,7 @@ import {
   compactObject,
   hasConfiguredNativeTools,
   mapOpenAiChatCompletionTools,
+  mergeNativeTools,
   resolveNativeRequestMetadata,
   resolveOpenAiToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
@@ -110,9 +111,9 @@ export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) =
     endpoint: body.endpoint ?? "/v1/chat/completions",
   });
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
-    ? undefined
+    ? mergeNativeTools(providerRequestConfig?.tools, mapOpenAiChatCompletionTools(body))
     : mapOpenAiChatCompletionTools(body);
-  const hasTools = Boolean(activeTools?.length || providerRequestConfig?.tools?.length);
+  const hasTools = Boolean(activeTools?.length);
 
   return compactObject({
     ...(providerRequestConfig ?? {}),
