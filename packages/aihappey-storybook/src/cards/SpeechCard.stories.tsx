@@ -17,6 +17,15 @@ const SILENT_WAV_DATA_URI = `data:audio/wav;base64,${SILENT_WAV_BASE64}`;
 
 // Minimal LINEAR16 PCM data URI (Google-style), 4 bytes = 2 mono samples @ 16kHz.
 const PCM_DATA_URI = "data:audio/L16;codec=pcm;rate=16000;base64,AAAAAA==";
+const OPENAI_ICON_DATA_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%2310a37f'/%3E%3Ctext x='20' y='25' text-anchor='middle' font-size='14' font-family='Arial' fill='white'%3EOAI%3C/text%3E%3C/svg%3E";
+
+const providers = {
+  openai: {
+    name: "OpenAI",
+    icons: [{ src: OPENAI_ICON_DATA_URI }],
+    urls: { homepage: "https://openai.com" },
+  },
+};
 
 const baseResponseFields = {
   warnings: [],
@@ -26,15 +35,6 @@ const baseResponseFields = {
     body: { provider: "example" },
   },
 } satisfies Omit<SpeechResponse, "audio">;
-
-export const EmptyAudio: Story = {
-  args: {
-    speech: {
-      ...baseResponseFields,
-      audio: undefined,
-    } as SpeechResponse,
-  } satisfies ComponentProps<typeof SpeechCard>,
-};
 
 export const WavDataUri: Story = {
   args: {
@@ -64,3 +64,42 @@ export const WithDeleteMenu: Story = {
   },
 };
 
+export const WithGatewayCost: Story = {
+  args: {
+    speech: {
+      ...baseResponseFields,
+      providerMetadata: {
+        gateway: { cost: 0.00132 },
+      },
+      audio: SILENT_WAV_DATA_URI,
+    },
+  },
+};
+
+export const WithProviderLogoAndGatewayCost: Story = {
+  args: {
+    providers,
+    speech: {
+      ...baseResponseFields,
+      providerMetadata: {
+        gateway: { cost: 0.00132 },
+        openai: {},
+      },
+      audio: SILENT_WAV_DATA_URI,
+    },
+  },
+};
+
+export const WithOptionalMetadataFallback: Story = {
+  args: {
+    providers,
+    speech: {
+      ...baseResponseFields,
+      providerMetadata: {
+        gateway: {},
+        unknownprovider: {},
+      },
+      audio: SILENT_WAV_DATA_URI,
+    },
+  },
+};

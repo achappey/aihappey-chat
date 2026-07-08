@@ -13,6 +13,7 @@ import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useSpeechErrors } from "./useSpeechErrors";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useTranslation } from "aihappey-i18n";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
 export const SpeechPage = () => {
   const models = useAppStore((a) => a.models);
@@ -35,6 +36,7 @@ export const SpeechPage = () => {
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
   const { Skeleton } = useTheme()
+  const providers = useProviderRegistry();
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!selectedModel && (favoriteModelsByType?.speech ?? []).includes(selectedModel);
@@ -226,6 +228,7 @@ export const SpeechPage = () => {
             <SpeechCard
               key={item.id}
               speech={item.speechResponse}
+              providers={providers}
               onDelete={() => {
                 void (async () => {
                   try {
