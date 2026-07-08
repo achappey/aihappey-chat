@@ -61,9 +61,11 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Paperclip,
+  Pause,
   Pencil,
   Pin,
   PinOff,
+  Play,
   Plug,
   PlugZap,
   Puzzle,
@@ -85,6 +87,7 @@ import {
   Users,
   Video,
   Volume2,
+  VolumeX,
   WandSparkles,
   Wrench,
   X,
@@ -786,7 +789,185 @@ export const Tags = ({ items = [], onRemove, className, style }: any) => (
   </div>
 );
 export const Breadcrumb = ({ items = [], separator = <ChevronRight size={14} />, className, style }: any) => <nav className={className} style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--aih-shadcn-muted-foreground)", ...style }}>{items.map((item: any, index: number) => { const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined; return <React.Fragment key={item.key}>{index > 0 ? separator : null}<button onClick={item.onClick} style={{ display: "inline-flex", alignItems: "center", gap: 4, border: 0, background: "transparent", color: "inherit", cursor: item.onClick ? "pointer" : undefined }}>{Icon ? <Icon size={14} /> : null}{item.label}</button></React.Fragment>; })}</nav>;
-export const AudioPlayer = (props: any) => <audio controls {...props} style={{ width: "100%", ...(props.style ?? {}) }} />;
+
+type ShadcnAudioPlayerProps = {
+  src: string;
+  autoPlay?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+};
+
+const formatAudioTime = (seconds: number) => {
+  if (!Number.isFinite(seconds) || seconds < 0) return "--:--";
+
+  const rounded = Math.floor(seconds);
+  const minutes = Math.floor(rounded / 60);
+  const remainingSeconds = rounded % 60;
+
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
+
+export const AudioPlayer = ({ src, autoPlay, className, style, ...rest }: ShadcnAudioPlayerProps & Record<string, any>) => {
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = React.useState(false);
+  const [current, setCurrent] = React.useState(0);
+  const [duration, setDuration] = React.useState(0);
+  const [muted, setMuted] = React.useState(false);
+  const [volume, setVolume] = React.useState(1);
+  const durationIsFinite = Number.isFinite(duration) && duration > 0;
+  const seekMax = durationIsFinite ? duration : 100;
+  const seekValue = durationIsFinite ? Math.min(current, seekMax) : 0;
+  const volumeValue = muted ? 0 : volume;
+
+  React.useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const syncPlayback = () => setPlaying(!audio.paused && !audio.ended);
+    const syncTime = () => setCurrent(audio.currentTime || 0);
+    const syncDuration = () => setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
+    const syncVolume = () => {
+      setMuted(audio.muted);
+      setVolume(audio.volume);
+    };
+    const handleEnded = () => {
+      setPlaying(false);
+      setCurrent(audio.duration || 0);
+    };
+
+    audio.addEventListener("play", syncPlayback);
+    audio.addEventListener("pause", syncPlayback);
+    audio.addEventListener("timeupdate", syncTime);
+    audio.addEventListener("loadedmetadata", syncDuration);
+    audio.addEventListener("durationchange", syncDuration);
+    audio.addEventListener("volumechange", syncVolume);
+    audio.addEventListener("ended", handleEnded);
+
+    syncPlayback();
+    syncTime();
+    syncDuration();
+    syncVolume();
+
+    return () => {
+      audio.removeEventListener("play", syncPlayback);
+      audio.removeEventListener("pause", syncPlayback);
+      audio.removeEventListener("timeupdate", syncTime);
+      audio.removeEventListener("loadedmetadata", syncDuration);
+      audio.removeEventListener("durationchange", syncDuration);
+      audio.removeEventListener("volumechange", syncVolume);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    setPlaying(false);
+    setCurrent(0);
+    setDuration(0);
+  }, [src]);
+
+  const togglePlayback = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused || audio.ended) {
+      void audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const seekTo = (value: number) => {
+    const audio = audioRef.current;
+    if (!audio || !durationIsFinite) return;
+
+    audio.currentTime = value;
+    setCurrent(value);
+  };
+
+  const toggleMuted = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.muted = !audio.muted;
+  };
+
+  const changeVolume = (value: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = value;
+    audio.muted = value === 0;
+    setVolume(value);
+    setMuted(value === 0);
+  };
+
+  return (
+    <div className={cn("aih-shadcn-audio-player", className)} style={style}>
+      <audio ref={audioRef} src={src} autoPlay={autoPlay} preload="metadata" {...rest} />
+
+      <ButtonBase
+        variant="ghost"
+        size="small"
+        title={playing ? "Pause" : "Play"}
+        aria-label={playing ? "Pause audio" : "Play audio"}
+        className="aih-shadcn-audio-button"
+        onClick={togglePlayback}
+      >
+        {playing ? <Pause size={16} /> : <Play size={16} fill="currentColor" />}
+      </ButtonBase>
+
+      <div className="aih-shadcn-audio-main">
+        <SliderPrimitive.Root
+          className="aih-shadcn-slider aih-shadcn-audio-seek"
+          value={[seekValue]}
+          onValueChange={([value]) => seekTo(value)}
+          min={0}
+          max={seekMax}
+          step={0.1}
+          disabled={!durationIsFinite}
+          aria-label="Audio progress"
+        >
+          <SliderPrimitive.Track className="aih-shadcn-slider-track">
+            <SliderPrimitive.Range className="aih-shadcn-slider-range" />
+          </SliderPrimitive.Track>
+          <SliderPrimitive.Thumb className="aih-shadcn-slider-thumb" />
+        </SliderPrimitive.Root>
+        <div className="aih-shadcn-audio-time" aria-live="off">
+          <span>{formatAudioTime(current)}</span>
+          <span aria-hidden="true">/</span>
+          <span>{formatAudioTime(duration)}</span>
+        </div>
+      </div>
+
+      <div className="aih-shadcn-audio-volume">
+        <ButtonBase
+          variant="ghost"
+          size="small"
+          title={muted || volume === 0 ? "Unmute" : "Mute"}
+          aria-label={muted || volume === 0 ? "Unmute audio" : "Mute audio"}
+          className="aih-shadcn-audio-button"
+          onClick={toggleMuted}
+        >
+          {muted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+        </ButtonBase>
+        <SliderPrimitive.Root
+          className="aih-shadcn-slider aih-shadcn-audio-volume-slider"
+          value={[volumeValue]}
+          onValueChange={([value]) => changeVolume(value)}
+          min={0}
+          max={1}
+          step={0.05}
+          aria-label="Audio volume"
+        >
+          <SliderPrimitive.Track className="aih-shadcn-slider-track">
+            <SliderPrimitive.Range className="aih-shadcn-slider-range" />
+          </SliderPrimitive.Track>
+          <SliderPrimitive.Thumb className="aih-shadcn-slider-thumb" />
+        </SliderPrimitive.Root>
+      </div>
+    </div>
+  );
+};
 
 export const Alert = ({ variant, title, onDismiss, children, className }: any) => <div className={cn("aih-shadcn-card", className)} role="alert" style={{ padding: 12, borderColor: variant === "error" || variant === "danger" ? "var(--aih-shadcn-destructive)" : undefined }}><div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>{title ? <strong>{title}</strong> : null}{onDismiss ? <CloseButtonBase onClick={onDismiss} /> : null}</div><div>{children}</div></div>;
 
