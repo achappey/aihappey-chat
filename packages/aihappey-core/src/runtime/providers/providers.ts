@@ -205,7 +205,6 @@ import { aihubmix } from "./catalog/aihubmix";
 import { uniapi } from "./catalog/uniapi";
 import { apekey } from "./catalog/apekey";
 import { apertis } from "./catalog/apertis";
-import { wisgate } from "./catalog/wisgate";
 import { smooth } from "./catalog/smooth";
 import { speechactors } from "./catalog/speechactors";
 import { gptproto } from "./catalog/gptproto";
@@ -285,7 +284,6 @@ import { hanzo } from "./catalog/hanzo";
 import { setapp } from "./catalog/setapp";
 import { surfercloud } from "./catalog/surfercloud";
 import { claudible } from "./catalog/claudible";
-import { embraceableai } from "./catalog/embraceableai";
 import { brainiall } from "./catalog/brainiall";
 import { agabeyogluai } from "./catalog/agabeyogluai";
 import { airouter } from "./catalog/airouter";
@@ -815,7 +813,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   bastiongpt,
   arkroute,
   eliza,
-  embraceableai,
   ionrouter,
   claudible,
   llmwise,
@@ -904,7 +901,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   nearai,
   aiml,
   smooth,
-  wisgate,
   supertone,
   anthropic,
   heygen,
