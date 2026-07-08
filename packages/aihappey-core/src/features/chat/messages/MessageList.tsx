@@ -63,6 +63,22 @@ const fileToVideoContent = (f: FileUIPart): VideoContent => {
   return { type: "base64", mimeType: mt, data: url };
 };
 
+const fileToAudioSrc = (f: FileUIPart): string | undefined => {
+  const url = f?.url ?? "";
+  if (!url) return undefined;
+
+  if (
+    url.startsWith("data:") ||
+    url.startsWith("blob:") ||
+    url.startsWith("/") ||
+    /^https?:\/\//i.test(url)
+  ) {
+    return url;
+  }
+
+  return `data:${f?.mediaType ?? "audio/mpeg"};base64,${url}`;
+};
+
 
 /**
  * App-layer MessageList:
@@ -88,7 +104,7 @@ export const MessageList = ({
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
   const providers = useProviderRegistry();
-  const { Image } = useTheme()
+  const { AudioPlayer, Image } = useTheme()
   const progress = useMcpProgress(progressRuntime);
   const progressByToken = useMemo(() => {
     const m = new Map<string | number, McpProgressItem>();
@@ -197,6 +213,16 @@ export const MessageList = ({
                 shape="rounded"
                 style={{ maxWidth: "100%" }}
               />
+            ) : null;
+          }
+
+          if (block?.type === "audio") {
+            const src = block.item ? fileToAudioSrc(block.item) : undefined;
+
+            return src ? (
+              <div style={{ width: "100%", maxWidth: 420 }}>
+                <AudioPlayer src={src} style={{ width: "100%" }} />
+              </div>
             ) : null;
           }
 

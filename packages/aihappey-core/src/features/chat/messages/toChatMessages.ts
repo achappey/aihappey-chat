@@ -25,6 +25,10 @@ function isVideoFilePart(part: UIMessagePart<any, any>): part is FileUIPart {
   return part?.type === "file" && !!(part as FileUIPart)?.mediaType?.startsWith("video/");
 }
 
+function isAudioFilePart(part: UIMessagePart<any, any>): part is FileUIPart {
+  return part?.type === "file" && !!(part as FileUIPart)?.mediaType?.startsWith("audio/");
+}
+
 function generatedImageIdFromPart(part: UIMessagePart<any, any>): string | undefined {
   if (part?.type !== "file" || !(part as FileUIPart).mediaType?.startsWith("image/")) return undefined;
 
@@ -163,7 +167,7 @@ export function toChatMessages(
 
     const nonInlineMediaFiles = parts.filter(
       (p): p is FileUIPart =>
-        p?.type === "file" && !isImageFilePart(p) && !isVideoFilePart(p)
+        p?.type === "file" && !isImageFilePart(p) && !isVideoFilePart(p) && !isAudioFilePart(p)
     );
 
     const sources = parts.filter(
@@ -268,6 +272,32 @@ export function toChatMessages(
           content: [
             {
               type: "video",
+              item: p,
+            } as any,
+          ],
+          createdAt: ts(i),
+          author,
+          temperature,
+          totalTokens,
+          usage,
+          cost: effectiveCost,
+          providerKey,
+        } as any);
+
+        continue;
+      }
+
+      // 1c) Audio: each audio file gets its own message and uses the themed audio player
+      if (isAudioFilePart(p)) {
+        flushActivity();
+        flushImages();
+
+        out.push({
+          id: `${baseId}:audio:${i}`,
+          role: z.role,
+          content: [
+            {
+              type: "audio",
               item: p,
             } as any,
           ],
