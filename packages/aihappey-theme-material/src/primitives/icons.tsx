@@ -36,7 +36,6 @@ import Input from "@mui/icons-material/Input";
 import Key from "@mui/icons-material/Key";
 import Language from "@mui/icons-material/Language";
 import Link from "@mui/icons-material/Link";
-import List from "@mui/icons-material/List";
 import Mail from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Mic from "@mui/icons-material/Mic";
@@ -47,6 +46,7 @@ import Print from "@mui/icons-material/Print";
 import PriorityHigh from "@mui/icons-material/PriorityHigh";
 import Psychology from "@mui/icons-material/Psychology";
 import RadioButtonChecked from "@mui/icons-material/RadioButtonChecked";
+import Refresh from "@mui/icons-material/Refresh";
 import Router from "@mui/icons-material/Router";
 import Science from "@mui/icons-material/Science";
 import Search from "@mui/icons-material/Search";
@@ -71,6 +71,7 @@ import ViewList from "@mui/icons-material/ViewList";
 import Visibility from "@mui/icons-material/Visibility";
 import VolumeUp from "@mui/icons-material/VolumeUp";
 import WebAsset from "@mui/icons-material/WebAsset";
+import Work from "@mui/icons-material/Work";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import type { IconToken } from "aihappey-types";
 
@@ -88,6 +89,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   delete: makeIcon(Delete),
   send: makeIcon(Send),
   robot: makeIcon(SmartToy),
+  jobs: makeIcon(Work),
   customize: makeIcon(Tune),
   trending: makeIcon(TrendingUp),
   mcpServer: makeIcon(Power),
@@ -160,6 +162,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   menu: makeIcon(MenuIcon),
   globe: makeIcon(Language),
   connect: makeIcon(Power),
+  refresh: makeIcon(Refresh),
   sequential: makeIcon(ArrowForward),
   concurrent: makeIcon(SyncAlt),
   groupchat: makeIcon(Groups),

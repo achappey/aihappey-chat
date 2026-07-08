@@ -6,6 +6,7 @@ import {
   ExclamationTriangle,
   Pencil,
   Trash,
+  ArrowClockwise,
   Check,
   Code,
   Globe,
@@ -92,6 +93,7 @@ import {
   Star,
   StarFill,
   Clipboard,
+  ListTask,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -99,6 +101,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   robot: <Robot />,
   warning: <ExclamationTriangle />,
   add: <Plus />, // Default fallback or specific mapping
+  jobs: <ListTask />,
+  refresh: <ArrowClockwise />,
   edit: <Pencil />,
   delete: <Trash />,
   prompts: <BSChatIcon />,

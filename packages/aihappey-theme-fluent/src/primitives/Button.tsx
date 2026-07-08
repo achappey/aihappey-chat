@@ -4,6 +4,7 @@ import { Button as FluentButton, Hamburger, Tooltip } from "@fluentui/react-comp
 import type { IconToken } from "aihappey-types";
 import {
   AddRegular,
+  ArrowClockwiseRegular,
   EditRegular,
   DeleteRegular,
   SendRegular,
@@ -108,6 +109,7 @@ import {
   CloudCubeRegular,
   BrainCircuitRegular,
   RouterRegular,
+  ClipboardTaskRegular,
   StarRegular,
   StarFilled,
 } from "@fluentui/react-icons";
@@ -121,6 +123,8 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   mcpServer: UsbPlugFilled,
   send: SendRegular,
   connect: PlugConnectedAddRegular,
+  refresh: ArrowClockwiseRegular,
+  jobs: ClipboardTaskRegular,
   speech: SpeakerBoxRegular,
   speechSettings: SpeakerSettingsRegular,
   transcription: MicRegular,
