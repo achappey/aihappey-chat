@@ -17,10 +17,10 @@ const createXaiGatewayMetadata: Provider["createGatewayMetadata"] = ({ event, cu
   };
 };
 
-export const xai: Provider = {
-  name: "xAI",
+export const spacexai: Provider = {
+  name: "SpaceXAI",
   description:
-    "xAI is an AI company with the mission of advancing scientific discovery and gaining a deeper understanding of our universe.",
+    "SpaceXAI is an AI company with the mission of advancing scientific discovery and gaining a deeper understanding of our universe.",
   icons: [
     {
       src: "https://registry.npmmirror.com/@lobehub/icons-static-png/1.74.0/files/dark/xai.png",

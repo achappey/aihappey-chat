@@ -8,7 +8,7 @@ import { google } from "./catalog/google";
 import { mistral } from "./catalog/mistral";
 import { cohere } from "./catalog/cohere";
 import { groq } from "./catalog/groq";
-import { xai } from "./catalog/xai";
+import { spacexai } from "./catalog/spacexai";
 import { together } from "./catalog/together";
 import { pollinations } from "./catalog/pollinations";
 import { perplexity } from "./catalog/perplexity";
@@ -944,7 +944,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   modernmt,
   kissapi,
   groq,
-  xai,
+  spacexai,
   hyperrouter,
   together,
   ourtoken,
