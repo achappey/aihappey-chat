@@ -12,6 +12,12 @@ export type LibraryVideoItem = {
   storageItemId?: string;
   videoIndex?: number;
   model?: string;
+  cost?: number;
+};
+
+const getGatewayCost = (providerMetadata?: Record<string, any>) => {
+  const cost = providerMetadata?.gateway?.cost;
+  return typeof cost === "number" && Number.isFinite(cost) ? cost : undefined;
 };
 
 const normalizeVideoData = (input: string) => {
@@ -31,6 +37,8 @@ export function useLibraryVideos(): LibraryVideoItem[] {
     const out: LibraryVideoItem[] = [];
 
     videos.items.forEach((c: VideoItem) => {
+      const cost = getGatewayCost(c.videoResponse?.providerMetadata as Record<string, any> | undefined);
+
       (c.videoResponse?.videos ?? []).forEach((d: { data?: string; mimeType?: string }, videoIndex: number) => {
         const raw = d?.data ?? "";
         const { mimeType, data } = normalizeVideoData(raw);
@@ -44,6 +52,7 @@ export function useLibraryVideos(): LibraryVideoItem[] {
           storageItemId: c.id,
           videoIndex,
           model: c.videoResponse?.response?.modelId,
+          cost,
         });
       });
     });

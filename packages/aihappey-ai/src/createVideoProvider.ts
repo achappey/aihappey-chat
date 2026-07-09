@@ -65,6 +65,7 @@ export function createVideoProvider(config: {
                     const results = await Promise.all(requests);
                     const videos = results.flatMap(r => r.videos ?? []);
                     const warnings = results.flatMap(r => r.warnings ?? []);
+                    const providerMetadata = results.find(r => r?.providerMetadata)?.providerMetadata;
                     const timestamp =
                         results.find(r => r?.response?.timestamp)?.response?.timestamp ??
                         new Date().toString();
@@ -73,6 +74,7 @@ export function createVideoProvider(config: {
                     return {
                         videos,
                         warnings,
+                        providerMetadata,
                         response: {
                             timestamp,
                             modelId,

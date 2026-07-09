@@ -342,7 +342,10 @@ export const VideoPage = () => {
             data: item.data,
             mimeType: item.mimeType,
             type: "base64",
-            _meta: item.model ? { model: item.model } : undefined,
+            _meta: item.model || item.cost !== undefined ? {
+              model: item.model,
+              cost: item.cost,
+            } : undefined,
           }))}
           shimmers={itemsLoading}
           onVideoClick={openVideo}
