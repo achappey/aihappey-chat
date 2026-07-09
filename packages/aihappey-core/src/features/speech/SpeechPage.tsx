@@ -15,6 +15,19 @@ import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
+const getProviderOptionsForSelectedModel = (
+  selectedModel: string | undefined,
+  providerOptions: Record<string, any> | undefined
+) => {
+  const providerKey = selectedModel?.split("/")?.[0]?.trim().toLowerCase();
+  if (!providerKey || !providerOptions) return undefined;
+
+  const providerConfig = providerOptions[providerKey];
+  if (providerConfig === undefined) return undefined;
+
+  return { [providerKey]: providerConfig };
+};
+
 export const SpeechPage = () => {
   const models = useAppStore((a) => a.models);
   const customHeaders = useAppStore((a) => a.customHeaders);
@@ -105,6 +118,10 @@ export const SpeechPage = () => {
       });
 
       const model = provider.speechModel(selectedModel);
+      const scopedProviderOptions = getProviderOptionsForSelectedModel(
+        selectedModel,
+        providerSpeechMetadata
+      );
 
       const result = await model.doGenerate({
         text,
@@ -113,7 +130,7 @@ export const SpeechPage = () => {
         instructions,
         speed,
         language,
-        providerOptions: providerSpeechMetadata,
+        providerOptions: scopedProviderOptions,
       });
 
       // Surface provider warnings (do NOT clear on new send; user dismisses).
@@ -121,13 +138,14 @@ export const SpeechPage = () => {
 
       await speech.add(
         {
+          model: selectedModel,
           text,
           voice,
           outputFormat,
           instructions,
           speed,
           language,
-          providerOptions: providerSpeechMetadata
+          providerOptions: scopedProviderOptions
         },
         result
       );
