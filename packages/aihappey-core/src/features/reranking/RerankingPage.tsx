@@ -9,6 +9,7 @@ import { useReranking } from "aihappey-reranking";
 import { useTranslation } from "aihappey-i18n";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useAppStore } from "aihappey-state";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
 function downloadFile(file: File, downloadName?: string) {
     const url = URL.createObjectURL(file);
@@ -27,6 +28,7 @@ export const RerankingPage = () => {
     const getStorageErrorMessage = useStorageErrorMessage();
     const [activeTab, setActiveTab] = useState<string>("current");
     const rerankingStore = useReranking();
+    const providers = useProviderRegistry();
 
     const {
         models,
@@ -175,6 +177,7 @@ export const RerankingPage = () => {
                                     query={item.query}
                                     files={item.files}
                                     reranking={item.reranking}
+                                    providers={providers}
                                     onDelete={() => {
                                         void (async () => {
                                             try {

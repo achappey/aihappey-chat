@@ -2,6 +2,16 @@ import type { Meta, StoryObj } from "@storybook/react";
 import type { RerankingResponse } from "aihappey-ai";
 import { RerankingCard } from "aihappey-components";
 
+const OPENROUTER_ICON_DATA_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%230f172a'/%3E%3Ctext x='20' y='25' text-anchor='middle' font-size='13' font-family='Arial' fill='white'%3EOR%3C/text%3E%3C/svg%3E";
+
+const providers = {
+  openrouter: {
+    name: "OpenRouter",
+    icons: [{ src: OPENROUTER_ICON_DATA_URI }],
+    urls: { homepage: "https://openrouter.ai" },
+  },
+};
+
 const files = [
   {
     name: "support-ticket-1421.txt",
@@ -26,8 +36,12 @@ const files = [
 ];
 
 const rerankingReranked = {
+  providerMetadata: {
+    gateway: { cost: 0.002 },
+    openrouter: { usage: { search_units: 1, cost: 0.002 } },
+  },
   response: {
-    modelId: "rerank-v1",
+    modelId: "openrouter/rerank-v1",
     timestamp: new Date("2026-01-10T10:11:12.000Z").getTime(),
   },
   ranking: [
@@ -59,7 +73,21 @@ type Story = StoryObj<typeof meta>;
 
 export const DefaultReranked: Story = {
   args: {
+    providers,
     reranking: rerankingReranked,
+    onDelete: () => console.log("RerankingCard: delete"),
+  },
+};
+
+export const WithModelPrefixProviderFallback: Story = {
+  args: {
+    providers,
+    reranking: {
+      ...rerankingReranked,
+      providerMetadata: {
+        gateway: { cost: 0.002 },
+      },
+    } as unknown as RerankingResponse,
     onDelete: () => console.log("RerankingCard: delete"),
   },
 };

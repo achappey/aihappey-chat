@@ -14,6 +14,7 @@ export type LocalDoc = {
 export type RerankingResponse = {
   ranking: { index: number; relevanceScore: number }[];
   warnings?: unknown[];
+  providerMetadata?: Record<string, any>;
   response?: unknown;
 };
 

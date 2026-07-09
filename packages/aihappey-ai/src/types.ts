@@ -63,6 +63,7 @@ export interface RerankingResponse {
     relevanceScore: number;
   }>;
   warnings: Array<SharedV4Warning>;
+  providerMetadata?: Record<string, any>;
   response: {
     timestamp: Date;
     modelId: string;
