@@ -46,6 +46,7 @@ export interface TranscriptionResponse {
   language: string | undefined;
   durationInSeconds: number | undefined;
   warnings: Array<SharedV4Warning>;
+  providerMetadata?: Record<string, any>;
   request?: {
     body?: string;
   };

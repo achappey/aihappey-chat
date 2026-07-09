@@ -28,6 +28,7 @@ import { useRealtimeTranscriptionController } from "./realtime/useRealtimeTransc
 import React from "react";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { splitTranscriptionFile, type TranscriptionFileChunk } from "./transcriptionFileSplit";
+import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -127,6 +128,7 @@ export const TranscriptionsPage = () => {
   const getStorageErrorMessage = useStorageErrorMessage();
   const storageTranscriptions = useTranscriptions()
   const files = useFiles();
+  const providers = useProviderRegistry();
   const currentModel = models?.find(a => a.id == selectedModel);
   // Ensure we stop the realtime session when leaving the page.
   useEffect(() => {
@@ -423,6 +425,7 @@ export const TranscriptionsPage = () => {
                   transcription={a.transcription}
                   filename={a.name}
                   file={a.blob}
+                  providers={providers}
                   onDelete={a.id ? () => {
                     void (async () => {
                       try {
