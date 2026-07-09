@@ -10,6 +10,10 @@ import { normalizeAudioSource, type AudioSourceInput } from "./audioSource";
 
 interface SpeechCardProps {
   speech: SpeechResponse;
+  speechInput?: unknown;
+  speechItem?: {
+    input?: unknown;
+  };
   onDelete?: () => void;
   providers?: Record<string, Provider>;
 }
@@ -24,6 +28,12 @@ const isJsonObject = (value: unknown): value is Record<string, unknown> => {
 
   const prototype = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
+};
+
+const getJsonObjectChildren = (value: unknown): Record<string, unknown> | undefined => {
+  if (!isJsonObject(value)) return undefined;
+  const children = { ...value };
+  return Object.keys(children).length > 0 ? children : undefined;
 };
 
 const downloadUrl = (url: string, filename: string) => {
@@ -143,18 +153,25 @@ const getProviderKeyFromMetadata = (
   });
 };
 
-export const SpeechCard = ({ speech, onDelete, providers }: SpeechCardProps) => {
-  const { Card, Menu, AudioPlayer, Image, Modal, JsonViewer, Button } = useTheme();
+export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, providers }: SpeechCardProps) => {
+  const { Card, Menu, AudioPlayer, Image, Modal, JsonViewer, Button, Tabs, Tab } = useTheme();
   const { t, i18n } = useTranslation();
   const { isDarkMode } = useDarkMode();
   const [src, setSrc] = useState<string>();
-  const [requestOpen, setRequestOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [activeDetailsTab, setActiveDetailsTab] = useState("input");
   const providerMetadata = speech.providerMetadata;
   const gatewayCost = getGatewayCost(providerMetadata);
   const providerKey = getProviderKeyFromMetadata(providerMetadata, providers);
   const provider = getProvider(providers, providerKey);
+  const providerDisplayName = provider?.name ?? providerKey ?? speech.response?.modelId?.split("/")?.[0] ?? t("speechProvider", "Provider");
+  const inputObject = getJsonObjectChildren(speechInput)
+    ?? getJsonObjectChildren(speechItem?.input)
+    ?? getJsonObjectChildren((speech as any).input);
   const requestBody = speech.request?.body;
   const hasRequestBodyJsonObject = isJsonObject(requestBody);
+  const responseBody = speech.response?.body;
+  const hasResponseBodyJsonObject = isJsonObject(responseBody);
   const providerIcon = provider?.icons?.find((icon: any) => icon.theme === (isDarkMode ? "dark" : "light"))
     ?? provider?.icons?.[0];
   const providerImage = providerIcon?.src ? (
@@ -172,6 +189,11 @@ export const SpeechCard = ({ speech, onDelete, providers }: SpeechCardProps) => 
     return revoke;
   }, [speech.audio]);
 
+  useEffect(() => {
+    if (!detailsOpen) return;
+    setActiveDetailsTab("input");
+  }, [detailsOpen]);
+
   const menuItems: MenuItemProps[] = [
     {
       key: "download",
@@ -180,9 +202,7 @@ export const SpeechCard = ({ speech, onDelete, providers }: SpeechCardProps) => 
       onClick: () => downloadSpeechAudio(speech, src),
       disabled: !src && !(speech.audio instanceof Uint8Array),
     },
-    ...(hasRequestBodyJsonObject
-      ? [{ key: "view-request", label: t("viewRequest", "View request"), icon: "eye" as const, onClick: () => setRequestOpen(true) }]
-      : []),
+    { key: "details", label: t("details", "Details"), icon: "eye" as const, onClick: () => setDetailsOpen(true) },
     ...(onDelete ? [{ key: "delete", label: t("delete"), icon: "delete" as const, onClick: onDelete }] : []),
   ];
 
@@ -209,17 +229,43 @@ export const SpeechCard = ({ speech, onDelete, providers }: SpeechCardProps) => 
       </Card>
 
       <Modal
-        show={requestOpen}
-        onHide={() => setRequestOpen(false)}
-        title={t("viewRequest", "View request")}
+        show={detailsOpen}
+        onHide={() => setDetailsOpen(false)}
+        title={t("speechDetails", "Speech details")}
         size="large"
         actions={
-          <Button variant="secondary" onClick={() => setRequestOpen(false)}>
-            {t("close")}
-          </Button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button
+              variant="transparent"
+              icon="download"
+              onClick={() => downloadSpeechAudio(speech, src)}
+              disabled={!src && !(speech.audio instanceof Uint8Array)}
+            >
+              {t("download")}
+            </Button>
+            <Button variant="secondary" onClick={() => setDetailsOpen(false)}>
+              {t("close")}
+            </Button>
+          </div>
         }
       >
-        <JsonViewer value={requestBody} />
+        <Tabs activeKey={activeDetailsTab} onSelect={setActiveDetailsTab}>
+          <Tab eventKey="input" title={t("input")}>
+            <JsonViewer value={inputObject ?? {}} />
+          </Tab>
+
+          {hasRequestBodyJsonObject && (
+            <Tab eventKey="providerInput" title={t("providerInput", "{{provider}} input", { provider: providerDisplayName })}>
+              <JsonViewer value={requestBody} />
+            </Tab>
+          )}
+
+          {hasResponseBodyJsonObject && (
+            <Tab eventKey="providerResult" title={t("providerResult", "{{provider}} result", { provider: providerDisplayName })}>
+              <JsonViewer value={responseBody} />
+            </Tab>
+          )}
+        </Tabs>
       </Modal>
     </>
   );

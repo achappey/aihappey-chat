@@ -246,6 +246,8 @@ export const SpeechPage = () => {
             <SpeechCard
               key={item.id}
               speech={item.speechResponse}
+              speechInput={item.input}
+              speechItem={item}
               providers={providers}
               onDelete={() => {
                 void (async () => {
