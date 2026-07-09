@@ -15,6 +15,17 @@ export type LibraryImageItem = {
     /** Present only when source === "storage" */
     imageIndex?: number;
     model?: string;
+    cost?: number;
+};
+
+const getGatewayCost = (providerMetadata?: Record<string, any>) => {
+    const cost = providerMetadata?.gateway?.cost;
+    return typeof cost === "number" && Number.isFinite(cost) ? cost : undefined;
+};
+
+const getGatewayImageCost = (providerMetadata: Record<string, any> | undefined, imageIndex: number) => {
+    const cost = providerMetadata?.gateway?.images?.[imageIndex]?.cost;
+    return typeof cost === "number" && Number.isFinite(cost) ? cost : undefined;
 };
 
 const parseImageData = (input: string) => {
@@ -36,7 +47,12 @@ export function useLibraryImages(): LibraryImageItem[] {
         const out: LibraryImageItem[] = [];
 
         images.items.forEach((c) => {
+            const totalCost = getGatewayCost(c.imageResponse.providerMetadata as Record<string, any> | undefined);
+            const imageCount = c.imageResponse.images.length;
+
             c.imageResponse.images.forEach((d, imageIndex) => {
+                const cost = getGatewayImageCost(c.imageResponse.providerMetadata as Record<string, any> | undefined, imageIndex)
+                    ?? (totalCost !== undefined && imageCount > 0 ? totalCost / imageCount : undefined);
                 const raw = d.toString();
                 const { mimeType, data } = parseImageData(raw);
 
@@ -51,7 +67,8 @@ export function useLibraryImages(): LibraryImageItem[] {
                     mimeType,
                     storageItemId: c.id,
                     imageIndex,
-                    model: c.imageResponse.response.modelId
+                    model: c.imageResponse.response.modelId,
+                    cost,
                 })
             });
         });

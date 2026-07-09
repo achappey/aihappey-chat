@@ -261,8 +261,9 @@ export const ImagePage = () => {
             data: item.data,
             mimeType: item.mimeType,
             type: "image",
-            _meta: item.model ? {
-              model: item.model
+            _meta: item.model || item.cost !== undefined ? {
+              model: item.model,
+              cost: item.cost,
             } : undefined
           }))}
           shimmers={itemsLoading}

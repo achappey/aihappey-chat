@@ -1,4 +1,5 @@
 import type { ImageContent } from "@modelcontextprotocol/sdk/types";
+import { CostBadge } from "../badges";
 import { useTheme } from "../theme/ThemeContext";
 
 type ImageGridProps = {
@@ -66,6 +67,8 @@ export const ImageGrid = ({
         const src = item.data.startsWith("data:")
           ? item.data
           : `data:${item.mimeType};base64,${item.data}`;
+        const cost = item._meta?.cost;
+        const gatewayCost = typeof cost === "number" && Number.isFinite(cost) ? cost : undefined;
 
         return (
           <div key={idx} style={cellStyle}>
@@ -99,6 +102,16 @@ export const ImageGrid = ({
             ><Badge
               icon="brain"
             >{item._meta?.model as string}</Badge></div>}
+
+            {gatewayCost !== undefined && <div
+              style={{
+                position: "absolute",
+                top: "0.5rem",
+                right: "0.5rem",
+              }}
+            >
+              <CostBadge cost={gatewayCost} size="small" />
+            </div>}
 
           </div>
         );

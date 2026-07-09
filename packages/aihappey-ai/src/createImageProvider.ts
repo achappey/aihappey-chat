@@ -28,6 +28,71 @@ const sumUsage = (results: any[]): ImageModelV4Usage => {
     );
 };
 
+const splitMetadataPerImage = (value: any, imageCount: number) => {
+    if (imageCount <= 0) return [];
+
+    const cost = value?.cost;
+    const perImageCost = typeof cost === "number" && Number.isFinite(cost)
+        ? cost / imageCount
+        : undefined;
+
+    return Array.from({ length: imageCount }, () => ({
+        ...(value && typeof value === "object" ? value : {}),
+        ...(perImageCost !== undefined ? { cost: perImageCost } : {})
+    }));
+};
+
+const mergeProviderMetadata = (results: any[]) => {
+    const providerMetadata = results.reduce<Record<string, any>>((acc, result) => {
+        const metadata = result?.providerMetadata;
+        if (!metadata || typeof metadata !== "object") return acc;
+
+        const imageCount = Array.isArray(result?.images) ? result.images.length : 0;
+
+        Object.entries(metadata).forEach(([key, value]) => {
+            const perImageMetadata = splitMetadataPerImage(value, imageCount);
+
+            if (key === "gateway") {
+                const currentCost = acc.gateway?.cost;
+                const nextCost = (value as any)?.cost;
+                const gatewayMetadata = { ...((value && typeof value === "object" ? value : {}) as Record<string, any>) };
+                delete gatewayMetadata.cost;
+                delete gatewayMetadata.images;
+
+                acc.gateway = {
+                    ...(acc.gateway ?? {}),
+                    ...gatewayMetadata,
+                    images: [
+                        ...(Array.isArray(acc.gateway?.images) ? acc.gateway.images : []),
+                        ...perImageMetadata
+                    ],
+                    ...(typeof currentCost === "number" || typeof nextCost === "number" ? {
+                        cost: (typeof currentCost === "number" && Number.isFinite(currentCost) ? currentCost : 0)
+                            + (typeof nextCost === "number" && Number.isFinite(nextCost) ? nextCost : 0)
+                    } : {})
+                };
+                return;
+            }
+
+            const providerMetadata = { ...((value && typeof value === "object" ? value : {}) as Record<string, any>) };
+            delete providerMetadata.images;
+
+            acc[key] = {
+                ...(acc[key] ?? {}),
+                ...providerMetadata,
+                images: [
+                    ...(Array.isArray(acc[key]?.images) ? acc[key].images : []),
+                    ...perImageMetadata
+                ]
+            };
+        });
+
+        return acc;
+    }, {});
+
+    return Object.keys(providerMetadata).length > 0 ? providerMetadata : undefined;
+};
+
 export function createImageProvider(config: {
     baseUrl: string;
     headers?: any;
@@ -91,10 +156,12 @@ export function createImageProvider(config: {
                         new Date().toString();
 
                     const usage = sumUsage(results);
+                    const providerMetadata = mergeProviderMetadata(results);
 
                     return {
                         images,
                         warnings,
+                        providerMetadata,
                         response: {
                             timestamp,
                             modelId,
