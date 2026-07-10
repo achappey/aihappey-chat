@@ -538,6 +538,13 @@
       "24h": "24 hours",
       "in-memory": "In-memory"
     },
+    "betaHeader": "Beta",
+    "multiAgent": {
+      "title": "Multi-agent",
+      "description": "Allow the root model to coordinate subagents in parallel for complex Responses API tasks. Enabling this also adds the required OpenAI beta header.",
+      "maxConcurrentSubagents": "Max concurrent subagents",
+      "maxConcurrentSubagentsHelp": "Limits the number of active subagents across the entire agent tree. The OpenAI recommended default is 3."
+    },
     "promptCache": "Prompt cache",
     "truncation": {
       "title": "Truncation",

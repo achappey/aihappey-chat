@@ -1,6 +1,7 @@
 import { defaultProviderHeaders } from "./defaultProviderHeaders";
 
 const ANTHROPIC_BETA_HEADER = "anthropic-beta";
+const OPENAI_BETA_HEADER = "OpenAI-Beta";
 
 const isPlainRecord = (value: unknown): value is Record<string, any> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -83,13 +84,18 @@ export const splitLegacyProviderHeadersFromMetadata = ({
       continue;
     }
 
-    const { headers, [ANTHROPIC_BETA_HEADER]: anthropicBeta, ...bodyConfig } = rawConfig;
+    const { headers, [ANTHROPIC_BETA_HEADER]: anthropicBeta, [OPENAI_BETA_HEADER]: openAIBeta, ...bodyConfig } = rawConfig;
     addHeaderPatch(nextProviderHeaders, providerKey, normalizeMetadataHeaders(headers));
 
     if (providerKey === "anthropic") {
       const betaHeader = normalizeAnthropicBetaHeaderValue(anthropicBeta);
       if (betaHeader) {
         addHeaderPatch(nextProviderHeaders, providerKey, { [ANTHROPIC_BETA_HEADER]: betaHeader });
+      }
+    } else if (providerKey === "openai") {
+      const betaHeader = normalizeAnthropicBetaHeaderValue(openAIBeta);
+      if (betaHeader) {
+        addHeaderPatch(nextProviderHeaders, providerKey, { [OPENAI_BETA_HEADER]: betaHeader });
       }
     } else if (anthropicBeta !== undefined) {
       bodyConfig[ANTHROPIC_BETA_HEADER] = anthropicBeta;

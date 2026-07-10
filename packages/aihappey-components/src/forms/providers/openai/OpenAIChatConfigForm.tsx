@@ -27,6 +27,13 @@ const OPENAI_TOOL_TYPES = [
 const IMAGE_INPUT_DETAIL_OPTIONS = ["auto", "low", "high", "original"] as const;
 const CONTEXT_MANAGEMENT_TYPE_OPTIONS = ["compaction"] as const;
 const MIN_COMPACT_THRESHOLD = 1000;
+const OPENAI_BETA_HEADER = "OpenAI-Beta";
+const OPENAI_MULTI_AGENT_BETA = "responses_multi_agent=v1";
+const DEFAULT_MAX_CONCURRENT_SUBAGENTS = 3;
+const OPENAI_BETA_OPTIONS = [OPENAI_MULTI_AGENT_BETA];
+const SORTED_OPENAI_BETA_OPTIONS = [...OPENAI_BETA_OPTIONS].sort((a, b) =>
+  a.localeCompare(b)
+);
 
 type OpenAIContextManagementEntry = {
   type?: string;
@@ -46,14 +53,91 @@ const normalizeThresholdInput = (value: string) => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const normalizePositiveIntegerInput = (value: unknown) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return undefined;
+
+  const normalized = Math.floor(parsed);
+  return normalized >= 1 ? normalized : undefined;
+};
+
+const parseOpenAIBeta = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return Array.from(
+      new Set(
+        value
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    );
+  }
+
+  if (typeof value === "string") {
+    return Array.from(
+      new Set(
+        value
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    );
+  }
+
+  return [];
+};
+
+const cleanProviderHeaders = (headers: Record<string, string> | undefined) => {
+  const cleanHeaders = Object.fromEntries(
+    Object.entries(headers ?? {})
+      .filter(([key, value]) => key.trim().length > 0 && value != null && String(value).trim().length > 0)
+      .map(([key, value]) => [key.trim(), String(value).trim()])
+  );
+
+  return Object.keys(cleanHeaders).length ? cleanHeaders : undefined;
+};
+
+const OpenAIBetaCard = ({
+  enabled,
+  toggleOption,
+}: {
+  enabled: string[];
+  toggleOption: (option: string, isOn: boolean) => void;
+}) => {
+  const theme = useTheme();
+  const { t } = useTranslation();
+
+  return (
+    <theme.Card size="small" title={t("providers:openai.betaHeader")}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}>
+        {SORTED_OPENAI_BETA_OPTIONS.map((option) => (
+          <div key={option}>
+            <theme.Switch
+              id={`openai-beta-${option}`}
+              label={option}
+              size="small"
+              checked={enabled.includes(option)}
+              onChange={(val: boolean) => toggleOption(option, val)}
+            />
+          </div>
+        ))}
+      </div>
+    </theme.Card>
+  );
+};
+
 export const OpenAIChatConfigForm = ({
   config,
+  headers,
   updateConfig,
+  updateHeaders,
   openAISkillOptions = [],
   resolveOpenAIShellSkill,
 }: {
   config: any;
+  headers?: Record<string, string>;
   updateConfig: (val: any) => void;
+  updateHeaders?: (val: Record<string, string> | undefined) => void;
   openAISkillOptions?: OpenAISkillOption[];
   resolveOpenAIShellSkill?: ResolveOpenAIShellSkill;
 }) => {
@@ -70,6 +154,13 @@ export const OpenAIChatConfigForm = ({
   const truncationEnabled = resolvedConfig?.truncation != null;
   const truncationValue = truncationEnabled ? resolvedConfig.truncation : "auto";
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
+  const multiAgentEnabled = !!resolvedConfig?.multi_agent?.enabled;
+  const maxConcurrentSubagents = normalizePositiveIntegerInput(
+    resolvedConfig?.multi_agent?.max_concurrent_subagents
+  ) ?? DEFAULT_MAX_CONCURRENT_SUBAGENTS;
+  const openAIBetaEnabled = parseOpenAIBeta(
+    headers?.[OPENAI_BETA_HEADER] ?? headers?.[OPENAI_BETA_HEADER.toLowerCase()]
+  );
   const contextManagement = useMemo(
     () =>
       Array.isArray(resolvedConfig?.context_management)
@@ -90,8 +181,37 @@ export const OpenAIChatConfigForm = ({
       context_management: nextEntries.length > 0 ? nextEntries : undefined,
     });
 
+  const submitHeaders = (nextHeaders: Record<string, string> | undefined) => {
+    updateHeaders?.(cleanProviderHeaders(nextHeaders));
+  };
+
+  const updateOpenAIBetaOption = (option: string, isOn: boolean) => {
+    const currentEnabled = parseOpenAIBeta(
+      headers?.[OPENAI_BETA_HEADER] ?? headers?.[OPENAI_BETA_HEADER.toLowerCase()]
+    );
+    const next = isOn
+      ? Array.from(new Set([...currentEnabled, option]))
+      : currentEnabled.filter((item) => item !== option);
+    const nextHeaders = { ...(headers ?? {}) };
+    const serialized = next.join(",");
+
+    delete nextHeaders[OPENAI_BETA_HEADER.toLowerCase()];
+    if (serialized) {
+      nextHeaders[OPENAI_BETA_HEADER] = serialized;
+    } else {
+      delete nextHeaders[OPENAI_BETA_HEADER];
+    }
+
+    submitHeaders(nextHeaders);
+  };
+
   const omitTruncation = (nextConfig: any) => {
     const { truncation: _truncation, ...rest } = nextConfig ?? {};
+    return rest;
+  };
+
+  const omitMultiAgent = (nextConfig: any) => {
+    const { multi_agent: _multiAgent, ...rest } = nextConfig ?? {};
     return rest;
   };
 
@@ -105,6 +225,38 @@ export const OpenAIChatConfigForm = ({
     }
 
     submitConfig(omitTruncation(resolvedConfig));
+  };
+
+  const updateMultiAgentEnabled = (enabled: boolean) => {
+    if (enabled) {
+      submitConfig({
+        ...resolvedConfig,
+        multi_agent: {
+          enabled: true,
+          max_concurrent_subagents: maxConcurrentSubagents,
+        },
+      });
+      updateOpenAIBetaOption(OPENAI_MULTI_AGENT_BETA, true);
+      return;
+    }
+
+    submitConfig(omitMultiAgent(resolvedConfig));
+    updateOpenAIBetaOption(OPENAI_MULTI_AGENT_BETA, false);
+  };
+
+  const updateMaxConcurrentSubagents = (value: unknown) => {
+    if (!multiAgentEnabled) return;
+
+    const nextValue = normalizePositiveIntegerInput(value);
+    if (nextValue === undefined) return;
+
+    submitConfig({
+      ...resolvedConfig,
+      multi_agent: {
+        enabled: true,
+        max_concurrent_subagents: nextValue,
+      },
+    });
   };
 
   const startContextManagementEdit = (
@@ -469,6 +621,43 @@ export const OpenAIChatConfigForm = ({
             instructions: value,
           })
         }
+      />
+
+      <theme.Card
+        size="small"
+        title={t("providers:openai.multiAgent.title")}
+        headerActions={
+          <theme.Switch
+            id="openai-multi-agent-enabled"
+            checked={multiAgentEnabled}
+            onChange={updateMultiAgentEnabled}
+          />
+        }
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ fontSize: 12, opacity: 0.78 }}>
+            {t("providers:openai.multiAgent.description")}
+          </div>
+
+          <theme.Input
+            label={t("providers:openai.multiAgent.maxConcurrentSubagents")}
+            type="number"
+            min={1}
+            step={1}
+            disabled={!multiAgentEnabled}
+            value={maxConcurrentSubagents}
+            onChange={(e: any) => updateMaxConcurrentSubagents(e?.target?.value)}
+          />
+
+          <div style={{ fontSize: 12, opacity: 0.72 }}>
+            {t("providers:openai.multiAgent.maxConcurrentSubagentsHelp")}
+          </div>
+        </div>
+      </theme.Card>
+
+      <OpenAIBetaCard
+        enabled={openAIBetaEnabled}
+        toggleOption={updateOpenAIBetaOption}
       />
     </div>
   );

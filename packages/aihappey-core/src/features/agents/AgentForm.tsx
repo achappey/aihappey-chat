@@ -527,9 +527,11 @@ export const AgentForm = ({
                     {providerKey === "openai" && (
                         <OpenAIChatConfigForm
                             config={providerMeta}
+                            headers={providerHeaders[providerKey] ?? {}}
                             openAISkillOptions={openAISkillOptions}
                             resolveOpenAIShellSkill={resolveOpenAIShellSkill}
                             updateConfig={updateProviderMetadata}
+                            updateHeaders={updateProviderHeaders}
                         />
                     )}
 

@@ -267,6 +267,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const providerHeaderUpdaters = useMemo(
     () => ({
       anthropic: (headers: Record<string, string> | undefined) => updateProviderHeaders("anthropic", headers),
+      openai: (headers: Record<string, string> | undefined) => updateProviderHeaders("openai", headers),
       openrouter: (headers: Record<string, string> | undefined) => updateProviderHeaders("openrouter", headers),
       requesty: (headers: Record<string, string> | undefined) => updateProviderHeaders("requesty", headers),
     }),
@@ -333,9 +334,11 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return (
           <OpenAIChatConfigForm
             config={draft.providerMetadata.openai ?? {}}
+            headers={draft.providerHeaders.openai ?? {}}
             openAISkillOptions={openAISkillOptions}
             resolveOpenAIShellSkill={resolveOpenAIShellSkill}
             updateConfig={providerConfigUpdaters.openai}
+            updateHeaders={providerHeaderUpdaters.openai}
           />
         );
       case "openhands":

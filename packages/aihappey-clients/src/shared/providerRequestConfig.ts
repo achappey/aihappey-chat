@@ -26,10 +26,15 @@ export const sanitizeProviderRequestConfigForProvider = (
   const endpointId = String(options?.endpointId ?? "").trim();
 
   const sanitized = Object.fromEntries(
-    Object.entries(config).filter(([key]) =>
-      ((!ENDPOINT_RESTRICTED_REQUEST_KEYS[key] || !endpointId || ENDPOINT_RESTRICTED_REQUEST_KEYS[key]?.includes(endpointId))
-        && (!PROVIDER_SPECIFIC_REQUEST_KEYS.has(key) || allowedKeys.has(key))),
-    ),
+    Object.entries(config).filter(([key]) => {
+      const normalizedKey = key.trim().toLowerCase();
+      if (!normalizedKey || normalizedKey === "headers") return false;
+      if (normalizedProviderKey === "anthropic" && normalizedKey === "anthropic-beta") return false;
+      if (normalizedProviderKey === "openai" && normalizedKey === "openai-beta") return false;
+
+      return ((!ENDPOINT_RESTRICTED_REQUEST_KEYS[key] || !endpointId || ENDPOINT_RESTRICTED_REQUEST_KEYS[key]?.includes(endpointId))
+        && (!PROVIDER_SPECIFIC_REQUEST_KEYS.has(key) || allowedKeys.has(key)));
+    }),
   );
 
   return Object.keys(sanitized).length ? sanitized : undefined;

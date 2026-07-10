@@ -67,6 +67,8 @@ type PlaygroundSettingsDrawerProps = {
   providerKey: string;
   providerMetadata: any;
   setProviderMetadata: React.Dispatch<React.SetStateAction<any>>;
+  providerHeaders?: Record<string, Record<string, string>>;
+  setProviderHeaders?: React.Dispatch<React.SetStateAction<Record<string, Record<string, string>>>>;
   rawResponse: any;
   appTitle?: string;
   requestPreviewHeaders?: string;
@@ -105,6 +107,8 @@ export const PlaygroundSettingsDrawer = ({
   providerKey,
   providerMetadata,
   setProviderMetadata,
+  providerHeaders = {},
+  setProviderHeaders,
   rawResponse,
   appTitle,
   requestPreviewHeaders = "",
@@ -139,6 +143,18 @@ export const PlaygroundSettingsDrawer = ({
         ...current,
         [providerKey]: next,
       }));
+    const updateProviderHeaders = (nextHeaders: Record<string, string> | undefined) =>
+      setProviderHeaders?.((current) => {
+        const nextProviderHeaders = { ...(current ?? {}) };
+
+        if (nextHeaders && Object.keys(nextHeaders).length) {
+          nextProviderHeaders[providerKey] = nextHeaders;
+        } else {
+          delete nextProviderHeaders[providerKey];
+        }
+
+        return nextProviderHeaders;
+      });
 
     switch (providerKey) {
       case "anthropic":
@@ -167,9 +183,11 @@ export const PlaygroundSettingsDrawer = ({
         return (
           <OpenAIChatConfigForm
             config={providerMetadata.openai ?? {}}
+            headers={providerHeaders.openai ?? {}}
             openAISkillOptions={openAISkillOptions}
             resolveOpenAIShellSkill={resolveOpenAIShellSkill}
             updateConfig={updateProviderConfig}
+            updateHeaders={updateProviderHeaders}
           />
         );
       case "openhands":
@@ -211,8 +229,10 @@ export const PlaygroundSettingsDrawer = ({
     appTitle,
     playgroundModel,
     providerKey,
+    providerHeaders,
     providerMetadata,
     resolveOpenAIShellSkill,
+    setProviderHeaders,
     setProviderMetadata,
   ]);
 

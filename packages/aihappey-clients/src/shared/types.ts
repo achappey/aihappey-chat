@@ -62,6 +62,10 @@ export type ResponsesEndpointConfig = {
     type?: "compaction" | string;
     compact_threshold?: number;
   }>;
+  multi_agent?: {
+    enabled?: boolean;
+    max_concurrent_subagents?: number;
+  };
   parallel_tool_calls?: boolean;
   background?: boolean;
   max_tool_calls?: number;

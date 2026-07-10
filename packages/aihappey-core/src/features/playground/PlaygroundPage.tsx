@@ -71,6 +71,7 @@ export const PlaygroundPage = () => {
   const [pendingAttachments, setPendingAttachments] = useState<PlaygroundAttachment[]>([]);
   const [attachmentEncoding, setAttachmentEncoding] = useState(false);
   const [providerMetadata, setProviderMetadata] = useState<any>({ openai: {} });
+  const [providerHeaders, setProviderHeaders] = useState<Record<string, Record<string, string>>>({});
   const [endpointConfigByEndpoint, setEndpointConfigByEndpoint] = useState<PlaygroundEndpointConfigMap>({
     "/api/chat": {},
     "/v1/chat/completions": {},
@@ -119,6 +120,12 @@ export const PlaygroundPage = () => {
       : undefined,
     [providerKey, providerMetadata],
   );
+  const providerScopedHeaders = useMemo(
+    () => providerKey && providerHeaders?.[providerKey] !== undefined
+      ? { [providerKey]: providerHeaders[providerKey] }
+      : undefined,
+    [providerKey, providerHeaders],
+  );
   const playgroundEndpointProfile = useMemo(
     () => resolveProviderEndpointProfileForModel({
       modelId: playgroundModel,
@@ -165,28 +172,44 @@ export const PlaygroundPage = () => {
     () => splitEndpointProfileProviderConfig(playgroundEndpointProfileProviderConfig, playgroundEndpointProfile?.providerKey, selectedEndpoint),
     [playgroundEndpointProfileProviderConfig, playgroundEndpointProfile, selectedEndpoint],
   );
+  const playgroundProviderHeaders = useMemo(() => {
+    if (playgroundEndpointProfile?.kind === "provider" && playgroundEndpointProfile.providerKey) {
+      return providerHeaders[playgroundEndpointProfile.providerKey]
+        ?? providerScopedHeaders?.[playgroundEndpointProfile.providerKey];
+    }
+
+    return providerScopedHeaders?.[providerKey];
+  }, [playgroundEndpointProfile, providerHeaders, providerKey, providerScopedHeaders]);
 
   const effectiveHeaders = useMemo(() => {
     if (isProviderBackedPlaygroundRequest) {
       if (selectedEndpoint === "/v1/messages") {
         return {
           ...createMessagesEndpointHeadersForProviderKey(customHeaders, providerKey),
+          ...(playgroundProviderHeaders ?? {}),
           ...(playgroundProviderRequestHeaders ?? {}),
         };
       }
 
       return {
         ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey),
+        ...(playgroundProviderHeaders ?? {}),
         ...(playgroundProviderRequestHeaders ?? {}),
       };
     }
 
     if (selectedEndpoint === "/v1/messages") {
-      return createMessagesEndpointAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken));
+      return {
+        ...createMessagesEndpointAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken)),
+        ...(playgroundProviderHeaders ?? {}),
+      };
     }
 
-    return createChatAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken));
-  }, [config?.getAccessToken, customHeaders, isProviderBackedPlaygroundRequest, playgroundModel, playgroundProviderRequestHeaders, providerKey, selectedEndpoint]);
+    return {
+      ...createChatAuthHeadersForModel(customHeaders, playgroundModel, Boolean(config?.getAccessToken)),
+      ...(playgroundProviderHeaders ?? {}),
+    };
+  }, [config?.getAccessToken, customHeaders, isProviderBackedPlaygroundRequest, playgroundModel, playgroundProviderHeaders, playgroundProviderRequestHeaders, providerKey, selectedEndpoint]);
 
   const currentEndpointConfig = useMemo(
     () => endpointConfigByEndpoint[selectedEndpoint as keyof PlaygroundEndpointConfigMap] ?? {},
@@ -701,6 +724,8 @@ export const PlaygroundPage = () => {
               providerKey={providerKey}
               providerMetadata={providerMetadata}
               setProviderMetadata={setProviderMetadata}
+              providerHeaders={providerHeaders}
+              setProviderHeaders={setProviderHeaders}
               appTitle={config?.appName}
               rawResponse={rawResponse}
               requestPreviewHeaders={requestPreviewHeaders}

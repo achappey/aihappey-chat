@@ -43,6 +43,7 @@ const buildResponsesBody = (request: NormalizedInvokeRequest) => {
     truncation: endpointConfig.truncation,
     imageInputDetail: endpointConfig.imageInputDetail,
     context_management: endpointConfig.context_management,
+    multi_agent: endpointConfig.multi_agent,
     parallel_tool_calls: endpointConfig.parallel_tool_calls,
     background: endpointConfig.background,
     max_tool_calls: endpointConfig.max_tool_calls,

@@ -51,7 +51,7 @@
       "priority": "Prioriteit",
       "maxTokensPerDoc": "Maximaal aantal tokens per document"
     }
-  }, 
+  },
   "microsoft": {
     "locationTitle": "Locatiehint",
     "timeZone": "Tijdzone (IANA)",
@@ -270,6 +270,12 @@
     "promptCacheOptions": {
       "24h": "24 uur",
       "in-memory": "Tijdelijk"
+    },
+    "multiAgent": {
+      "title": "Multi-agent",
+      "description": "Laat het hoofdmodel subagents parallel aansturen voor complexe Responses API-taken. Als je dit inschakelt, wordt ook de vereiste OpenAI beta-header toegevoegd.",
+      "maxConcurrentSubagents": "Maximum aantal gelijktijdige subagents",
+      "maxConcurrentSubagentsHelp": "Beperkt het aantal actieve subagents binnen de volledige agentstructuur. De door OpenAI aanbevolen standaardwaarde is 3."
     },
     "topP": "Top-p",
     "serviceTier": {
