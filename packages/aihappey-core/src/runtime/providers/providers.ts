@@ -556,6 +556,7 @@ import { hostyourai } from "./catalog/hostyourai";
 import { rebytemodels } from "./catalog/rebytemodels";
 import { rebytetasks } from "./catalog/rebytetasks";
 import { wayscloud } from "./catalog/wayscloud";
+import { tierup } from "./catalog/tierup";
 
 /**
  * UI-facing provider catalog.
@@ -632,6 +633,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   codzen,
   llama,
   blink,
+  tierup,
   llmbase,
   wayscloud,
   tensorblock,
