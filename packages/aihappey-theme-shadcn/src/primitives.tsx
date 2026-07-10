@@ -184,7 +184,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   dismiss: X,
   agentSettings: Settings,
   preview: Eye,
-  menu: MenuIcon,
+  contextMenu: MoreVertical,
+  navigationMenu: MenuIcon,
   globe: Globe,
   connect: PlugZap,
   refresh: RefreshCw,
@@ -545,11 +546,11 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
     ? valueTitle
     : selectedValues.length > 0
       ? selectedValues.map((selectedValue, index) => (
-          <React.Fragment key={selectedValue}>
-            {index > 0 ? ", " : null}
-            {findSelectLabel(options, selectedValue)}
-          </React.Fragment>
-        ))
+        <React.Fragment key={selectedValue}>
+          {index > 0 ? ", " : null}
+          {findSelectLabel(options, selectedValue)}
+        </React.Fragment>
+      ))
       : selected === "" && hasEmptyOption
         ? findSelectLabel(options, "")
         : undefined;
@@ -1051,7 +1052,7 @@ export const Menu = ({ items = [], trigger, align = "right", direction = "bottom
   });
   return (
     <DropdownMenuPrimitive.Root>
-      <DropdownMenuPrimitive.Trigger asChild>{trigger ?? <Button variant="ghost" size={size} icon="menu" className={className} />}</DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Trigger asChild>{trigger ?? <Button variant="ghost" size={size} icon="contextMenu" className={className} />}</DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
         <PortalThemeScope>
           <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-menu-content" align={align === "left" ? "start" : "end"} side={direction === "top" ? "top" : "bottom"} sideOffset={4} collisionPadding={8}>{render(items)}</DropdownMenuPrimitive.Content>
@@ -1066,30 +1067,30 @@ type UserMenuTriggerProps = Pick<UserMenuProps, "email" | "className" | "style">
 
 const UserMenuTrigger = React.forwardRef<HTMLButtonElement, UserMenuTriggerProps>(function UserMenuTrigger({ email, className, style, ...rest }, ref) {
   return (
-  <button
-    ref={ref}
-    type="button"
-    className={className}
-    {...rest}
-    style={{
-      display: "inline-flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: 36,
-      height: 36,
-      borderRadius: "50%",
-      border: "1px solid var(--aih-shadcn-border)",
-      background: "var(--aih-shadcn-muted)",
-      color: "var(--aih-shadcn-foreground)",
-      fontWeight: 600,
-      fontSize: 14,
-      cursor: "pointer",
-      ...style,
-    }}
-    aria-label={email ?? "User menu"}
-  >
-    {email ? email[0]?.toUpperCase() : <Users size={18} />}
-  </button>
+    <button
+      ref={ref}
+      type="button"
+      className={className}
+      {...rest}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 36,
+        height: 36,
+        borderRadius: "50%",
+        border: "1px solid var(--aih-shadcn-border)",
+        background: "var(--aih-shadcn-muted)",
+        color: "var(--aih-shadcn-foreground)",
+        fontWeight: 600,
+        fontSize: 14,
+        cursor: "pointer",
+        ...style,
+      }}
+      aria-label={email ?? "User menu"}
+    >
+      {email ? email[0]?.toUpperCase() : <Users size={18} />}
+    </button>
   );
 });
 
@@ -1236,17 +1237,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                       {chatEndpointMenu ? menuDivider : null}
                       {capabilityMenus.length > 0
                         ? capabilityMenus.map((cap) => (
-                            <DropdownMenuPrimitive.Sub key={cap.key}>
-                              <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">{cap.label}</DropdownMenuPrimitive.SubTrigger>
-                              <DropdownMenuPrimitive.Portal>
-                                <PortalThemeScope>
-                                  <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>
-                                    {cap.providers.map((provider) => renderProviderItem(cap.key, provider))}
-                                  </DropdownMenuPrimitive.SubContent>
-                                </PortalThemeScope>
-                              </DropdownMenuPrimitive.Portal>
-                            </DropdownMenuPrimitive.Sub>
-                          ))
+                          <DropdownMenuPrimitive.Sub key={cap.key}>
+                            <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">{cap.label}</DropdownMenuPrimitive.SubTrigger>
+                            <DropdownMenuPrimitive.Portal>
+                              <PortalThemeScope>
+                                <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>
+                                  {cap.providers.map((provider) => renderProviderItem(cap.key, provider))}
+                                </DropdownMenuPrimitive.SubContent>
+                              </PortalThemeScope>
+                            </DropdownMenuPrimitive.Portal>
+                          </DropdownMenuPrimitive.Sub>
+                        ))
                         : providers.map((provider) => renderProviderItem("language", provider))}
                     </DropdownMenuPrimitive.SubContent>
                   </PortalThemeScope>
@@ -1465,7 +1466,7 @@ export const Navigation = ({ items = [], appTitle, activeKey, onSelect, classNam
           />
         ) : null}
         <Button
-          icon="menu"
+          icon="navigationMenu"
           size="small"
           variant="ghost"
           aria-label={translations?.closeNavigation ?? "Close navigation"}

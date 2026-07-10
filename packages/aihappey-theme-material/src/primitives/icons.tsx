@@ -74,6 +74,7 @@ import WebAsset from "@mui/icons-material/WebAsset";
 import Work from "@mui/icons-material/Work";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import type { IconToken } from "aihappey-types";
+import { MoreVert } from "@mui/icons-material";
 
 export type IconProps = { size?: number | string; style?: React.CSSProperties };
 export type IconComponent = (props: IconProps) => React.JSX.Element;
@@ -159,7 +160,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   dismiss: makeIcon(Close),
   agentSettings: makeIcon(Settings),
   preview: makeIcon(Visibility),
-  menu: makeIcon(MenuIcon),
+  navigationMenu: makeIcon(MenuIcon),
+  contextMenu: makeIcon(MoreVert),
   globe: makeIcon(Language),
   connect: makeIcon(Power),
   refresh: makeIcon(Refresh),

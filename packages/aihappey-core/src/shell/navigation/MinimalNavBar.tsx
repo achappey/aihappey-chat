@@ -43,7 +43,7 @@ const MinimalNavBar = ({
       aria-label="Minimal navigation"
     >
       <Button
-        icon="menu"
+        icon="navigationMenu"
         size="small"
         variant="transparent"
         aria-label={t("openNavigation")}

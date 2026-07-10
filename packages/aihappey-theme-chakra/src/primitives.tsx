@@ -100,6 +100,7 @@ import type {
 import type { TextProps } from "aihappey-types/src/theme/Text";
 import type { ToastProps } from "aihappey-types/src/theme/Toast";
 import type { UserMenuProps } from "aihappey-types/src/theme/UserMenu";
+import { FaEllipsisVertical } from "react-icons/fa6";
 
 const Box = Chakra.Box as any;
 const ButtonBase = Chakra.Button as any;
@@ -211,7 +212,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   dismiss: makeIcon(FaTimes),
   agentSettings: makeIcon(FaCog),
   preview: makeIcon(FaEye),
-  menu: makeIcon(FaBars),
+  navigationMenu: makeIcon(FaBars),
+  contextMenu: makeIcon(FaEllipsisVertical),
   globe: makeIcon(FaGlobe),
   connect: makeIcon(FaPlug),
   refresh: makeIcon(FaSync),

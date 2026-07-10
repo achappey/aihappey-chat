@@ -26,6 +26,7 @@ import {
   Copy,
   Database,
   DatabaseZap,
+  EllipsisVertical,
   Eye,
   FileCode2,
   FileKey,
@@ -172,7 +173,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   dismiss: X,
   agentSettings: Settings,
   preview: Eye,
-  menu: MenuIcon,
+  navigationMenu: MenuIcon,
+  contextMenu: EllipsisVertical,
   globe: Globe,
   connect: PlugZap,
   refresh: RefreshCw,
@@ -333,7 +335,7 @@ export const Spinner = ({ label, ...rest }: any) => <span role="status" {...rest
 export const ProgressBar = ({ value = 0, label, animated, ...rest }: any) => animated ? <progress {...rest}>{label}</progress> : <progress value={value} max={100} {...rest}>{label}</progress>;
 export const Table = ({ children, ...rest }: any) => <table {...rest}>{children}</table>;
 
-export function DataGrid<T>({ columns = [], data = [], rowKey, ...rest }: { columns?: GenericDataGridColumn<T>[]; data?: T[]; rowKey: (row: T) => string | number; [key: string]: any }) {
+export function DataGrid<T>({ columns = [], data = [], rowKey, ...rest }: { columns?: GenericDataGridColumn<T>[]; data?: T[]; rowKey: (row: T) => string | number;[key: string]: any }) {
   const [sort, setSort] = React.useState<{ key?: string; direction: "asc" | "desc" }>({ direction: "asc" });
   const sorted = React.useMemo(() => {
     const col = columns.find((candidate) => candidate.key === sort.key);

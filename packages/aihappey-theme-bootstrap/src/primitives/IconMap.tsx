@@ -94,6 +94,7 @@ import {
   StarFill,
   Clipboard,
   ListTask,
+  ThreeDotsVertical,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -153,7 +154,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   eye: <Eye />,
   chatSettings: <Sliders />,
   search: <Search />,
-  menu: <List />,
+  navigationMenu: <List />,
+  contextMenu: <ThreeDotsVertical />,
   skills: <Stars />,
   gateway_router: <Router />,
   model_provider: <Cpu />,
