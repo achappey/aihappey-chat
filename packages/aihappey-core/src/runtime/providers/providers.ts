@@ -555,6 +555,7 @@ import { lucidquery } from "./catalog/lucidquery";
 import { hostyourai } from "./catalog/hostyourai";
 import { rebytemodels } from "./catalog/rebytemodels";
 import { rebytetasks } from "./catalog/rebytetasks";
+import { wayscloud } from "./catalog/wayscloud";
 
 /**
  * UI-facing provider catalog.
@@ -632,6 +633,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   llama,
   blink,
   llmbase,
+  wayscloud,
   tensorblock,
   commonstack,
   paul,
