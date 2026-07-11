@@ -76,11 +76,6 @@ const createNumericRange = (values: Array<number | undefined>) => {
 const clampNumber = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-const resolveSliderNumber = (value: number | number[]) => {
-  const resolved = Array.isArray(value) ? value[0] : value;
-  return Number.isFinite(Number(resolved)) ? Number(resolved) : 0;
-};
-
 const normalizeRangeSelection = (
   selectedMin: number | null,
   selectedMax: number | null,
@@ -153,7 +148,7 @@ export const ModelsPage = () => {
     Drawer,
     Switch,
     Card,
-    Slider,
+    Range,
   } = useTheme();
   const { t, i18n } = useTranslation();
   const [search, setSearch] = useState("");
@@ -592,28 +587,20 @@ export const ModelsPage = () => {
         }
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <Slider
-            label={`${t("ai.modelsFilter.min")} (${formatCompactNumber(effectiveContextRange.min)})`}
+          <Range
+            label={t("contextWindow")}
+            minLabel={t("ai.modelsFilter.min")}
+            maxLabel={t("ai.modelsFilter.max")}
             min={contextRange.min}
             max={contextRange.max}
             step={contextSliderStep}
-            value={effectiveContextRange.min}
+            value={[effectiveContextRange.min, effectiveContextRange.max]}
             disabled={!contextFilterEnabled || !contextRange.hasValues || contextRange.min >= contextRange.max}
-            onChange={(next: number | number[]) => {
-              const value = resolveSliderNumber(next);
-              setContextMin(Math.min(value, effectiveContextRange.max));
-            }}
-          />
-          <Slider
-            label={`${t("ai.modelsFilter.max")} (${formatCompactNumber(effectiveContextRange.max)})`}
-            min={contextRange.min}
-            max={contextRange.max}
-            step={contextSliderStep}
-            value={effectiveContextRange.max}
-            disabled={!contextFilterEnabled || !contextRange.hasValues || contextRange.min >= contextRange.max}
-            onChange={(next: number | number[]) => {
-              const value = resolveSliderNumber(next);
-              setContextMax(Math.max(value, effectiveContextRange.min));
+            showValue={true}
+            valueFormat={formatCompactNumber}
+            onChange={(next: [number, number]) => {
+              setContextMin(next[0]);
+              setContextMax(next[1]);
             }}
           />
         </div>
@@ -633,56 +620,40 @@ export const ModelsPage = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <Text as="p" style={{ margin: 0, fontWeight: 700 }}>{t("input")}</Text>
-            <Slider
-              label={`${t("ai.modelsFilter.min")} (${formatPricePerMillionTokens(effectiveInputPriceRange.min)})`}
+            <Range
+              label={t("input")}
+              minLabel={t("ai.modelsFilter.min")}
+              maxLabel={t("ai.modelsFilter.max")}
               min={inputPriceRange.min}
               max={inputPriceRange.max}
               step={inputPriceStep}
-              value={effectiveInputPriceRange.min}
+              value={[effectiveInputPriceRange.min, effectiveInputPriceRange.max]}
               disabled={!priceFilterEnabled || !inputPriceRange.hasValues || inputPriceRange.min >= inputPriceRange.max}
-              onChange={(next: number | number[]) => {
-                const value = resolveSliderNumber(next);
-                setInputPriceMin(Math.min(value, effectiveInputPriceRange.max));
-              }}
-            />
-            <Slider
-              label={`${t("ai.modelsFilter.max")} (${formatPricePerMillionTokens(effectiveInputPriceRange.max)})`}
-              min={inputPriceRange.min}
-              max={inputPriceRange.max}
-              step={inputPriceStep}
-              value={effectiveInputPriceRange.max}
-              disabled={!priceFilterEnabled || !inputPriceRange.hasValues || inputPriceRange.min >= inputPriceRange.max}
-              onChange={(next: number | number[]) => {
-                const value = resolveSliderNumber(next);
-                setInputPriceMax(Math.max(value, effectiveInputPriceRange.min));
+              showValue={true}
+              valueFormat={formatPricePerMillionTokens}
+              onChange={(next: [number, number]) => {
+                setInputPriceMin(next[0]);
+                setInputPriceMax(next[1]);
               }}
             />
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <Text as="p" style={{ margin: 0, fontWeight: 700 }}>{t("output")}</Text>
-            <Slider
-              label={`${t("ai.modelsFilter.min")} (${formatPricePerMillionTokens(effectiveOutputPriceRange.min)})`}
+            <Range
+              label={t("output")}
+              minLabel={t("ai.modelsFilter.min")}
+              maxLabel={t("ai.modelsFilter.max")}
               min={outputPriceRange.min}
               max={outputPriceRange.max}
               step={outputPriceStep}
-              value={effectiveOutputPriceRange.min}
+              value={[effectiveOutputPriceRange.min, effectiveOutputPriceRange.max]}
               disabled={!priceFilterEnabled || !outputPriceRange.hasValues || outputPriceRange.min >= outputPriceRange.max}
-              onChange={(next: number | number[]) => {
-                const value = resolveSliderNumber(next);
-                setOutputPriceMin(Math.min(value, effectiveOutputPriceRange.max));
-              }}
-            />
-            <Slider
-              label={`${t("ai.modelsFilter.max")} (${formatPricePerMillionTokens(effectiveOutputPriceRange.max)})`}
-              min={outputPriceRange.min}
-              max={outputPriceRange.max}
-              step={outputPriceStep}
-              value={effectiveOutputPriceRange.max}
-              disabled={!priceFilterEnabled || !outputPriceRange.hasValues || outputPriceRange.min >= outputPriceRange.max}
-              onChange={(next: number | number[]) => {
-                const value = resolveSliderNumber(next);
-                setOutputPriceMax(Math.max(value, effectiveOutputPriceRange.min));
+              showValue={true}
+              valueFormat={formatPricePerMillionTokens}
+              onChange={(next: [number, number]) => {
+                setOutputPriceMin(next[0]);
+                setOutputPriceMax(next[1]);
               }}
             />
           </div>
