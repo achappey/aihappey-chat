@@ -314,10 +314,6 @@ const mapGoogleModelResponse = (response: any): ModelResponse => ({
       const id = normalizeGoogleModelId(model);
       if (!id) return undefined;
 
-      const supportedGenerationMethods = Array.isArray(model.supportedGenerationMethods)
-        ? model.supportedGenerationMethods
-        : [];
-
       return {
         id,
         name: model.displayName || id,
