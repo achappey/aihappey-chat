@@ -19,7 +19,9 @@ export const siliconflow: Provider = {
   },
   providerCountry: "CN",
   category: "gateway_router",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World"],
+  apiBaseUrl: "https://api.siliconflow.com",
+  chatEndpoints: ["/v1/chat/completions", "/v1/messages"],
 
 };
 
