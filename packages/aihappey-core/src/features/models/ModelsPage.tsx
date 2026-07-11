@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useAppStore } from "aihappey-state";
 import {
+  FilterDrawerPanel,
   ModelCard,
   ModelFavoriteToggleButton,
   PROVIDER_LOCATION_ALL_FILTER_VALUE,
@@ -99,6 +100,21 @@ const normalizeProviderLookupValue = (value?: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "");
 
+const getModelTags = (model: ModelOption) => {
+  const tags = (model as { tags?: unknown }).tags;
+  if (!Array.isArray(tags)) return [];
+
+  const uniqueTags = new Set<string>();
+  tags.forEach((tag) => {
+    if (typeof tag !== "string") return;
+
+    const value = tag.trim();
+    if (value) uniqueTags.add(value);
+  });
+
+  return Array.from(uniqueTags);
+};
+
 const getEnabledProviderBucketForModelType = (
   enabledProviderKeysByType: Record<string, string[]>,
   type?: string,
@@ -129,6 +145,7 @@ const getEnabledProviderKeysForModels = (
 
 const PRICE_PER_MILLION_TOKENS_MULTIPLIER = 1_000_000;
 const ENABLED_PROVIDERS_FILTER_VALUE = "__ENABLED_PROVIDERS__";
+type ModelFilterFacet = "tags";
 
 export const ModelsPage = () => {
   const PAGE_SIZE = 50;
@@ -154,6 +171,9 @@ export const ModelsPage = () => {
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedProviderKeys, setSelectedProviderKeys] = useState<string[]>([
+    PROVIDER_LOCATION_ALL_FILTER_VALUE,
+  ]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([
     PROVIDER_LOCATION_ALL_FILTER_VALUE,
   ]);
   const [providerFilterTouched, setProviderFilterTouched] = useState(false);
@@ -305,6 +325,16 @@ export const ModelsPage = () => {
     [activeTab, visibleModels]
   );
 
+  const tagOptions = useMemo(() => {
+    const values = new Set<string>();
+
+    activeTabModels.forEach((model) => {
+      getModelTags(model).forEach((tag) => values.add(tag));
+    });
+
+    return Array.from(values).sort((a, b) => collator.compare(a, b));
+  }, [activeTabModels, collator]);
+
   const enabledProviderKeysForActiveTab = useMemo(() => {
     return getEnabledProviderKeysForModels(enabledProviderKeysByType, activeTabModels);
   }, [activeTabModels, enabledProviderKeysByType]);
@@ -361,7 +391,7 @@ export const ModelsPage = () => {
     [search]
   );
 
-  const modelMatchesFilters = useCallback((model: ModelOption) => {
+  const modelMatchesFilters = useCallback((model: ModelOption, omittedFacet?: ModelFilterFacet) => {
     if (normalizedSearchTerms.length > 0) {
       const normalize = (value?: string) => value?.toLowerCase() ?? "";
       const providerId = getModelProviderId(model);
@@ -373,6 +403,7 @@ export const ModelsPage = () => {
         normalize(model.owned_by),
         normalize(providerId),
         normalize(providerName),
+        getModelTags(model).map((tag) => normalize(tag)).join(" "),
       ].join(" ");
 
       if (!normalizedSearchTerms.every((term) => haystack.includes(term))) {
@@ -403,6 +434,11 @@ export const ModelsPage = () => {
       if (outputPrice < effectiveOutputPriceRange.min || outputPrice > effectiveOutputPriceRange.max) return false;
     }
 
+    if (omittedFacet !== "tags" && !isAllFilterSelected(selectedTags)) {
+      const modelTags = getModelTags(model);
+      if (!selectedTags.some((tag) => modelTags.includes(tag))) return false;
+    }
+
     return true;
   }, [
     contextFilterEnabled,
@@ -414,10 +450,68 @@ export const ModelsPage = () => {
     enabledProviderKeysByType,
     providerLabelByKey,
     selectedProviderKeys,
+    selectedTags,
   ]);
 
+  const tagCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    tagOptions.forEach((tag) => {
+      counts[tag] = activeTabModels.reduce((count, model) => {
+        if (!getModelTags(model).includes(tag)) return count;
+        return count + (modelMatchesFilters(model, "tags") ? 1 : 0);
+      }, 0);
+    });
+
+    return counts;
+  }, [activeTabModels, modelMatchesFilters, tagOptions]);
+
+  const allTagCount = useMemo(
+    () => activeTabModels.reduce(
+      (count, model) => count + (modelMatchesFilters(model, "tags") ? 1 : 0),
+      0
+    ),
+    [activeTabModels, modelMatchesFilters]
+  );
+
+  const tagFilterSection = useMemo(() => ({
+    id: "model-tag-filters",
+    label: t("providers:tags"),
+    allOption: {
+      id: "all-model-tags",
+      label: t("all"),
+      count: allTagCount,
+      checked: selectedTags.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE),
+      onChange: () => setSelectedTags([PROVIDER_LOCATION_ALL_FILTER_VALUE]),
+    },
+    items: tagOptions.map((tag) => {
+      const count = tagCounts[tag] ?? 0;
+      const checked =
+        !selectedTags.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE) &&
+        selectedTags.includes(tag);
+
+      return {
+        id: `model-tag-${tag}`,
+        label: tag,
+        count,
+        checked,
+        disabled: count === 0 && !checked,
+        onChange: () => {
+          if (count === 0 && !checked) return;
+          setSelectedTags((current) =>
+            toggleProviderLocationMultiSelectValue(
+              current,
+              tag,
+              PROVIDER_LOCATION_ALL_FILTER_VALUE
+            )
+          );
+        },
+      };
+    }),
+  }), [allTagCount, selectedTags, t, tagCounts, tagOptions]);
+
   const filteredModels = useMemo(
-    () => visibleModels.filter(modelMatchesFilters),
+    () => visibleModels.filter((model) => modelMatchesFilters(model)),
     [modelMatchesFilters, visibleModels]
   );
 
@@ -467,6 +561,13 @@ export const ModelsPage = () => {
   }, [hasEnabledProvidersForActiveTab, providerFilterTouched, providerOptionKeys]);
 
   useEffect(() => {
+    setSelectedTags((current) => {
+      const next = keepAvailableSelection(current, tagOptions);
+      return sameSelection(current, next) ? current : next;
+    });
+  }, [tagOptions]);
+
+  useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [
     activeTab,
@@ -480,6 +581,7 @@ export const ModelsPage = () => {
     priceFilterEnabled,
     search,
     selectedProviderKeys,
+    selectedTags,
   ]);
 
   const gridColumns: GenericDataGridColumn<ModelOption>[] = useMemo(
@@ -659,6 +761,10 @@ export const ModelsPage = () => {
           </div>
         </div>
       </Card>
+
+      <FilterDrawerPanel
+        sections={[tagFilterSection]}
+      />
     </div>
   );
 
