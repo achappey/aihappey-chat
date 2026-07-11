@@ -325,12 +325,7 @@ const mapGoogleModelResponse = (response: any): ModelResponse => ({
         type: "language",
         context_window: model.inputTokenLimit,
         max_tokens: model.outputTokenLimit,
-        owned_by: "google",
-        tags: [
-          ...supportedGenerationMethods,
-          ...(model.thinking ? ["thinking"] : []),
-          ...(model.version ? [`version:${model.version}`] : []),
-        ],
+        owned_by: "google"
       };
     })
     .filter(Boolean),
