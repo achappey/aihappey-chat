@@ -24,7 +24,7 @@ export { Toast } from "./Toast";
 export { Toaster } from "./Toaster";
 export { Breadcrumb } from "./Breadcrumb";
 export { DataGrid } from "./DataGrid";
-export { Slider } from "./Slider";
+export { Range, Slider } from "./Slider";
 export { AudioPlayer } from "./AudioPlayer";
 export { Tags } from "./Tags";
 

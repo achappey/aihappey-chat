@@ -22,6 +22,7 @@ import {
   NavLink,
   Paper,
   Progress,
+  RangeSlider as MantineRangeSlider,
   ScrollArea,
   Select as MantineSelect,
   Skeleton as MantineSkeleton,
@@ -561,6 +562,18 @@ export const Slider = ({ value, min, max, step, onChange, label, marks, disabled
   </Box>
 );
 
+export const Range = ({ value, min = 0, max = 100, step = 1, onChange, label, marks, disabled, className, style, showValue, valueFormat }: any) => {
+  const nextValue = Array.isArray(value) ? [Number(value[0] ?? min), Number(value[1] ?? max)] : [min, max];
+  const formatValue = (v: number) => valueFormat ? valueFormat(v) : String(v);
+
+  return (
+    <Box className={className} style={style}>
+      {label ? <MantineText size="sm">{label}{showValue ? ` ${formatValue(nextValue[0])} – ${formatValue(nextValue[1])}` : ""}</MantineText> : null}
+      <MantineRangeSlider value={nextValue as [number, number]} min={min} max={max} step={step} onChange={(next) => onChange?.([next[0], next[1]])} marks={marks} disabled={disabled} label={valueFormat} />
+    </Box>
+  );
+};
+
 export const Breadcrumb = ({ items, className }: any) => (
   <Breadcrumbs className={className}>{items.map((item: any) => item.href ? <a key={item.key ?? item.href} href={item.href} onClick={item.onClick}>{item.label}</a> : <span key={item.key ?? String(item.label)}>{item.label}</span>)}</Breadcrumbs>
 );
@@ -883,6 +896,7 @@ export const mantineTheme: AihUiTheme = {
   Skeleton,
   Carousel,
   Slider,
+  Range,
   ThemeSettings,
 };
 

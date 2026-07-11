@@ -8,5 +8,6 @@ export * from "./Drawer";
 export * from "./DataGrid";
 export * from "./SplitButton";
 export * from "./ProgressBar";
+export * from "./Range";
 export * from "./JsonViewer";
 export * from "./Navigation";

@@ -20,7 +20,7 @@ import { Chat } from "./primitives/Chat";
 import { Select } from "./primitives/Select";
 import { Drawer } from "./primitives/Drawer";
 import { Image } from "./primitives/Image";
-import { Slider } from "./primitives/Slider";
+import { Range, Slider } from "./primitives/Slider";
 import { Carousel } from "./primitives/Carousel";
 import React from "react";
 
@@ -502,4 +502,5 @@ export const bootstrapTheme: AihUiTheme = {
   },
   Carousel,
   Slider,
+  Range,
 };

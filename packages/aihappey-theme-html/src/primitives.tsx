@@ -306,6 +306,27 @@ export const Slider = ({ value, onChange, min = 0, max = 100, step = 1, label, s
   </label>
 );
 
+export const Range = ({ value, onChange, min = 0, max = 100, step = 1, label, minLabel = "Minimum", maxLabel = "Maximum", showValue, valueFormat, id, disabled, className, style, ...rest }: any) => {
+  const nextValue = Array.isArray(value) ? [Number(value[0] ?? min), Number(value[1] ?? max)] : [min, max];
+  const formatValue = (v: number) => valueFormat ? valueFormat(v) : String(v);
+  const minId = id ? `${id}-min` : undefined;
+  const maxId = id ? `${id}-max` : undefined;
+
+  return (
+    <fieldset className={className} style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: 8, ...(style ?? {}) }}>
+      {label ? <legend>{label}{showValue ? ` ${formatValue(nextValue[0])} – ${formatValue(nextValue[1])}` : ""}</legend> : null}
+      <label htmlFor={minId}>
+        <span>{minLabel}</span>
+        <input id={minId} type="range" value={nextValue[0]} min={min} max={max} step={step} disabled={disabled} onChange={(event) => onChange?.([Math.min(Number(event.target.value), nextValue[1]), nextValue[1]])} {...rest} />
+      </label>
+      <label htmlFor={maxId}>
+        <span>{maxLabel}</span>
+        <input id={maxId} type="range" value={nextValue[1]} min={min} max={max} step={step} disabled={disabled} onChange={(event) => onChange?.([nextValue[0], Math.max(Number(event.target.value), nextValue[0])])} {...rest} />
+      </label>
+    </fieldset>
+  );
+};
+
 export const Header = ({ level = 1, children, ...rest }: any) => {
   const Tag = `h${Math.min(6, Math.max(1, Number(level) || 1))}` as keyof React.JSX.IntrinsicElements;
   return <Tag {...rest}>{children}</Tag>;
@@ -536,6 +557,7 @@ export const htmlTheme: AihUiTheme = {
   Skeleton,
   Carousel,
   Slider,
+  Range,
   ThemeSettings,
 };
 

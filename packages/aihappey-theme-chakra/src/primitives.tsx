@@ -525,6 +525,15 @@ export const Slider = ({ value, min, max, step, onChange, label, marks, disabled
   <Box className={className} style={style}>{label ? <TextBase fontSize="sm">{label}</TextBase> : null}<Chakra.Slider.Root value={[value ?? min ?? 0]} min={min} max={max} step={step} disabled={disabled} onValueChange={(details: any) => onChange?.(details.value?.[0] ?? 0)}><Chakra.Slider.Control><Chakra.Slider.Track><Chakra.Slider.Range /></Chakra.Slider.Track><Chakra.Slider.Thumb index={0} /></Chakra.Slider.Control>{marks?.length ? <Chakra.Slider.MarkerGroup>{marks.map((mark: any) => <Chakra.Slider.Marker key={mark.value} value={mark.value}>{mark.label}</Chakra.Slider.Marker>)}</Chakra.Slider.MarkerGroup> : null}</Chakra.Slider.Root></Box>
 );
 
+export const Range = ({ value, min = 0, max = 100, step = 1, onChange, label, marks, disabled, className, style, showValue, valueFormat }: any) => {
+  const nextValue = Array.isArray(value) ? [Number(value[0] ?? min), Number(value[1] ?? max)] : [min, max];
+  const formatValue = (v: number) => valueFormat ? valueFormat(v) : String(v);
+
+  return (
+    <Box className={className} style={style}>{label ? <TextBase fontSize="sm">{label}{showValue ? ` ${formatValue(nextValue[0])} – ${formatValue(nextValue[1])}` : ""}</TextBase> : null}<Chakra.Slider.Root value={nextValue} min={min} max={max} step={step} disabled={disabled} onValueChange={(details: any) => { const next = details.value ?? nextValue; onChange?.([Number(next[0]), Number(next[1])]); }}><Chakra.Slider.Control><Chakra.Slider.Track><Chakra.Slider.Range /></Chakra.Slider.Track><Chakra.Slider.Thumb index={0} /><Chakra.Slider.Thumb index={1} /></Chakra.Slider.Control>{marks?.length ? <Chakra.Slider.MarkerGroup>{marks.map((mark: any) => <Chakra.Slider.Marker key={mark.value} value={mark.value}>{mark.label}</Chakra.Slider.Marker>)}</Chakra.Slider.MarkerGroup> : null}</Chakra.Slider.Root></Box>
+  );
+};
+
 export const Breadcrumb = ({ items, className }: any) => <HStack className={className} gap="2">{items.map((item: any, index: number) => <React.Fragment key={item.key ?? item.href ?? index}>{index ? <TextBase color="fg.muted">/</TextBase> : null}{item.href ? <Box as="a" color="blue.600" href={item.href} onClick={item.onClick}>{item.label}</Box> : <TextBase>{item.label}</TextBase>}</React.Fragment>)}</HStack>;
 
 export function DataGrid<T>({ columns, data, rowKey, className, style }: DataGridProps<T>) {
@@ -652,5 +661,6 @@ export const chakraTheme: AihUiTheme = {
   Skeleton,
   Carousel,
   Slider,
+  Range,
   ThemeSettings,
 };

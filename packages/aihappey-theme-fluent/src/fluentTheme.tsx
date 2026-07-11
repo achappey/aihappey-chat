@@ -18,7 +18,7 @@ export { CloseButton } from "./primitives/CloseButton";
 export { Switch } from "./primitives/Switch";
 export { TextArea } from "./primitives/TextArea";
 export { Skeleton } from "./primitives/Skeleton";
-import { Slider } from "./primitives/Slider";
+import { Range, Slider } from "./primitives/Slider";
 
 import { Header } from "./primitives/Header";
 import { Button } from "./primitives/Button";
@@ -105,5 +105,6 @@ export const fluentTheme: AihUiTheme = {
   Skeleton,
   Carousel,
   Slider,
+  Range,
   ThemeSettings: FluentSettings
 };

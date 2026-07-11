@@ -7,13 +7,12 @@ export const tierup: Provider = {
     src: "https://tierup.ai/icon-192.png"
   }],
   urls: {
-    homepage: "https://tierup.ai/",
+    homepage: "https://tierup.ai",
     docs: "https://tierup.ai/docs",
     privacyPolicy: "https://tierup.ai/privacy",
     termsOfService: "https://tierup.ai/terms"
   },
   category: "gateway_router",
   inferenceRegions: ["World"]
-
 };
 

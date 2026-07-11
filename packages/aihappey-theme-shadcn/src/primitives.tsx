@@ -625,6 +625,24 @@ export const Slider = ({ value, onChange, min = 0, max = 100, step = 1, label, d
   </div>
 );
 
+export const Range = ({ value, onChange, min = 0, max = 100, step = 1, label, minLabel = "Minimum", maxLabel = "Maximum", disabled, showValue, valueFormat, className, style, id }: any) => {
+  const nextValue = Array.isArray(value) ? [Number(value[0] ?? min), Number(value[1] ?? max)] : [min, max];
+  const formatValue = (v: number) => valueFormat ? valueFormat(v) : String(v);
+
+  return (
+    <div className={cn("aih-shadcn-field", className)} style={style}>
+      {label ? <label htmlFor={id} className="aih-shadcn-label">{label}{showValue ? ` ${formatValue(nextValue[0])} – ${formatValue(nextValue[1])}` : ""}</label> : null}
+      <SliderPrimitive.Root id={id} className="aih-shadcn-slider" value={nextValue} onValueChange={([from, to]) => onChange?.([from, to])} min={min} max={max} step={step} disabled={disabled}>
+        <SliderPrimitive.Track className="aih-shadcn-slider-track">
+          <SliderPrimitive.Range className="aih-shadcn-slider-range" />
+        </SliderPrimitive.Track>
+        <SliderPrimitive.Thumb className="aih-shadcn-slider-thumb" aria-label={minLabel} />
+        <SliderPrimitive.Thumb className="aih-shadcn-slider-thumb" aria-label={maxLabel} />
+      </SliderPrimitive.Root>
+    </div>
+  );
+};
+
 export const Header = ({ level = 1, className, children, style }: any) => {
   const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
   return <Tag className={className} style={{ margin: 0, fontWeight: 700, letterSpacing: "-.025em", ...style }}>{children}</Tag>;
@@ -1667,6 +1685,7 @@ export const shadcnTheme: AihUiTheme = {
   Skeleton,
   Carousel,
   Slider,
+  Range,
   ThemeSettings,
 };
 

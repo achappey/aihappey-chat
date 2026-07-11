@@ -19,7 +19,7 @@ import { Modal } from "./primitives/Modal";
 import { Navigation } from "./primitives/Navigation";
 import { SearchBox } from "./primitives/SearchBox";
 import { Select } from "./primitives/Select";
-import { Slider, Switch } from "./primitives/FormControls";
+import { Range, Slider, Switch } from "./primitives/FormControls";
 import { SplitButton } from "./primitives/SplitButton";
 import { Table } from "./primitives/Table";
 import { Tab, Tabs } from "./primitives/Tabs";
@@ -72,6 +72,7 @@ export const materialTheme: AihUiTheme = {
   Skeleton,
   Carousel,
   Slider,
+  Range,
   ThemeSettings,
 };
 

@@ -17,6 +17,7 @@ import type { MenuComponent } from "./Menu";
 import type { ModalComponent } from "./Modal";
 import type { NavigationComponent } from "./Navigation";
 import type { ProgressBarComponent } from "./ProgressBar";
+import type { RangeComponent } from "./Range";
 import type { SearchBoxComponent } from "./SearchBox";
 import type { SelectComponent } from "./Select";
 import type { SkeletonComponent } from "./Skeleton";
@@ -88,5 +89,6 @@ export interface AihUiTheme {
   Skeleton: SkeletonComponent;
   Carousel: CarouselComponent;
   Slider: SliderComponent;
+  Range: RangeComponent;
   ThemeSettings: (props: any) => React.JSX.Element
 }
