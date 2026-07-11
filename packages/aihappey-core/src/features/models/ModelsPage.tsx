@@ -147,6 +147,17 @@ const PRICE_PER_MILLION_TOKENS_MULTIPLIER = 1_000_000;
 const ENABLED_PROVIDERS_FILTER_VALUE = "__ENABLED_PROVIDERS__";
 type ModelFilterFacet = "tags";
 
+type ModelFilterData = {
+  model: ModelOption;
+  providerId: string;
+  tags: string[];
+  tagSet: Set<string>;
+  context?: number;
+  inputPrice?: number;
+  outputPrice?: number;
+  searchHaystack: string;
+};
+
 export const ModelsPage = () => {
   const PAGE_SIZE = 50;
   const CONTENT_MAX_WIDTH = 980;
@@ -320,40 +331,90 @@ export const ModelsPage = () => {
     return byType;
   }, [enabledProvidersByType, providerNameToKey]);
 
+  const visibleModelFilterData = useMemo<ModelFilterData[]>(() => {
+    const normalize = (value?: string) => value?.toLowerCase() ?? "";
+
+    return visibleModels.map((model) => {
+      const providerId = getModelProviderId(model);
+      const providerName = providerLabelByKey[providerId] ?? providerId;
+      const tags = getModelTags(model);
+      const searchHaystack = [
+        normalize(getModelDisplayName(model)),
+        normalize(model.name),
+        normalize(model.description),
+        normalize(model.owned_by),
+        normalize(providerId),
+        normalize(providerName),
+        tags.map((tag) => normalize(tag)).join(" "),
+      ].join(" ");
+
+      return {
+        model,
+        providerId,
+        tags,
+        tagSet: new Set(tags),
+        context: toFiniteNumber(model.context_window),
+        inputPrice: toNonNegativeFiniteNumber(model.pricing?.input),
+        outputPrice: toNonNegativeFiniteNumber(model.pricing?.output),
+        searchHaystack,
+      };
+    });
+  }, [providerLabelByKey, visibleModels]);
+
+  const activeTabModelData = useMemo(
+    () => visibleModelFilterData.filter(({ model }) => model.type === activeTab),
+    [activeTab, visibleModelFilterData]
+  );
+
   const activeTabModels = useMemo(
-    () => visibleModels.filter((model) => model.type === activeTab),
-    [activeTab, visibleModels]
+    () => activeTabModelData.map(({ model }) => model),
+    [activeTabModelData]
   );
 
   const tagOptions = useMemo(() => {
     const values = new Set<string>();
 
-    activeTabModels.forEach((model) => {
-      getModelTags(model).forEach((tag) => values.add(tag));
+    activeTabModelData.forEach(({ tags }) => {
+      tags.forEach((tag) => values.add(tag));
     });
 
     return Array.from(values).sort((a, b) => collator.compare(a, b));
-  }, [activeTabModels, collator]);
+  }, [activeTabModelData, collator]);
 
   const enabledProviderKeysForActiveTab = useMemo(() => {
     return getEnabledProviderKeysForModels(enabledProviderKeysByType, activeTabModels);
   }, [activeTabModels, enabledProviderKeysByType]);
 
+  const allEnabledProviderKeysSet = useMemo(
+    () => new Set(getAllEnabledProviderKeys(enabledProviderKeysByType)),
+    [enabledProviderKeysByType]
+  );
+
+  const selectedProviderKeySet = useMemo(
+    () => new Set(selectedProviderKeys),
+    [selectedProviderKeys]
+  );
+
+  const selectedTagSet = useMemo(
+    () => new Set(selectedTags),
+    [selectedTags]
+  );
+
   const hasEnabledProvidersForActiveTab = enabledProviderKeysForActiveTab.length > 0;
 
   const contextRange = useMemo(
-    () => createNumericRange(activeTabModels.map((model) => toFiniteNumber(model.context_window))),
-    [activeTabModels]
+    () => createNumericRange(activeTabModelData.map((data) => data.context)),
+    [activeTabModelData]
   );
 
   const inputPriceRange = useMemo(
-    () => createNumericRange(activeTabModels.map((model) => toNonNegativeFiniteNumber(model.pricing?.input))),
-    [activeTabModels]
+    () => createNumericRange(activeTabModelData.map((data) => data.inputPrice)),
+    [activeTabModelData]
   );
 
   const outputPriceRange = useMemo(
-    () => createNumericRange(activeTabModels.map((model) => toNonNegativeFiniteNumber(model.pricing?.output))),
-    [activeTabModels]
+    () => createNumericRange(activeTabModelData.map((data) => data.outputPrice)),
+    [activeTabModelData]
   );
 
   const effectiveContextRange = useMemo(
@@ -391,87 +452,77 @@ export const ModelsPage = () => {
     [search]
   );
 
-  const modelMatchesFilters = useCallback((model: ModelOption, omittedFacet?: ModelFilterFacet) => {
+  const modelFilterDataMatchesFilters = useCallback((data: ModelFilterData, omittedFacet?: ModelFilterFacet) => {
     if (normalizedSearchTerms.length > 0) {
-      const normalize = (value?: string) => value?.toLowerCase() ?? "";
-      const providerId = getModelProviderId(model);
-      const providerName = providerLabelByKey[providerId] ?? providerId;
-      const haystack = [
-        normalize(getModelDisplayName(model)),
-        normalize(model.name),
-        normalize(model.description),
-        normalize(model.owned_by),
-        normalize(providerId),
-        normalize(providerName),
-        getModelTags(model).map((tag) => normalize(tag)).join(" "),
-      ].join(" ");
-
-      if (!normalizedSearchTerms.every((term) => haystack.includes(term))) {
+      if (!normalizedSearchTerms.every((term) => data.searchHaystack.includes(term))) {
         return false;
       }
     }
 
     if (selectedProviderKeys.includes(ENABLED_PROVIDERS_FILTER_VALUE)) {
-      const providerId = getModelProviderId(model);
-      const enabledProviderKeys = getAllEnabledProviderKeys(enabledProviderKeysByType);
-      if (!enabledProviderKeys.includes(providerId)) return false;
+      if (!allEnabledProviderKeysSet.has(data.providerId)) return false;
     } else if (!isAllFilterSelected(selectedProviderKeys)) {
-      const providerId = getModelProviderId(model);
-      if (!selectedProviderKeys.includes(providerId)) return false;
+      if (!selectedProviderKeySet.has(data.providerId)) return false;
     }
 
     if (contextFilterEnabled) {
-      const context = toFiniteNumber(model.context_window);
-      if (context === undefined) return false;
-      if (context < effectiveContextRange.min || context > effectiveContextRange.max) return false;
+      if (data.context === undefined) return false;
+      if (data.context < effectiveContextRange.min || data.context > effectiveContextRange.max) return false;
     }
 
     if (priceFilterEnabled) {
-      const inputPrice = toNonNegativeFiniteNumber(model.pricing?.input);
-      const outputPrice = toNonNegativeFiniteNumber(model.pricing?.output);
-      if (inputPrice === undefined || outputPrice === undefined) return false;
-      if (inputPrice < effectiveInputPriceRange.min || inputPrice > effectiveInputPriceRange.max) return false;
-      if (outputPrice < effectiveOutputPriceRange.min || outputPrice > effectiveOutputPriceRange.max) return false;
+      if (data.inputPrice === undefined || data.outputPrice === undefined) return false;
+      if (data.inputPrice < effectiveInputPriceRange.min || data.inputPrice > effectiveInputPriceRange.max) return false;
+      if (data.outputPrice < effectiveOutputPriceRange.min || data.outputPrice > effectiveOutputPriceRange.max) return false;
     }
 
     if (omittedFacet !== "tags" && !isAllFilterSelected(selectedTags)) {
-      const modelTags = getModelTags(model);
-      if (!selectedTags.some((tag) => modelTags.includes(tag))) return false;
+      let hasSelectedTag = false;
+      for (const tag of selectedTagSet) {
+        if (data.tagSet.has(tag)) {
+          hasSelectedTag = true;
+          break;
+        }
+      }
+
+      if (!hasSelectedTag) return false;
     }
 
     return true;
   }, [
+    allEnabledProviderKeysSet,
     contextFilterEnabled,
     effectiveContextRange,
     effectiveInputPriceRange,
     effectiveOutputPriceRange,
     normalizedSearchTerms,
     priceFilterEnabled,
-    enabledProviderKeysByType,
-    providerLabelByKey,
+    selectedProviderKeySet,
     selectedProviderKeys,
+    selectedTagSet,
     selectedTags,
   ]);
 
   const tagCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
-    tagOptions.forEach((tag) => {
-      counts[tag] = activeTabModels.reduce((count, model) => {
-        if (!getModelTags(model).includes(tag)) return count;
-        return count + (modelMatchesFilters(model, "tags") ? 1 : 0);
-      }, 0);
+    activeTabModelData.forEach((data) => {
+      if (!modelFilterDataMatchesFilters(data, "tags")) return;
+
+      data.tags.forEach((tag) => {
+        counts[tag] = (counts[tag] ?? 0) + 1;
+      });
     });
 
     return counts;
-  }, [activeTabModels, modelMatchesFilters, tagOptions]);
+  }, [activeTabModelData, modelFilterDataMatchesFilters]);
 
   const allTagCount = useMemo(
-    () => activeTabModels.reduce(
-      (count, model) => count + (modelMatchesFilters(model, "tags") ? 1 : 0),
+    () => activeTabModelData.reduce(
+      (count, data) => count + (modelFilterDataMatchesFilters(data, "tags") ? 1 : 0),
       0
     ),
-    [activeTabModels, modelMatchesFilters]
+    [activeTabModelData, modelFilterDataMatchesFilters]
   );
 
   const tagFilterSection = useMemo(() => ({
@@ -511,8 +562,10 @@ export const ModelsPage = () => {
   }), [allTagCount, selectedTags, t, tagCounts, tagOptions]);
 
   const filteredModels = useMemo(
-    () => visibleModels.filter((model) => modelMatchesFilters(model)),
-    [modelMatchesFilters, visibleModels]
+    () => visibleModelFilterData
+      .filter((data) => modelFilterDataMatchesFilters(data))
+      .map(({ model }) => model),
+    [modelFilterDataMatchesFilters, visibleModelFilterData]
   );
 
   const types = useMemo(
