@@ -129,6 +129,7 @@ export const RerankingCard = ({ query, files, reranking, onDelete, providers }: 
                 query={query}
                 files={files}
                 reranking={reranking}
+                providers={providers}
             />
         </>
     );

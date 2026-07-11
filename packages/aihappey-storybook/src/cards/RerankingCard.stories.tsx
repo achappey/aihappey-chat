@@ -42,7 +42,16 @@ const rerankingReranked = {
   },
   response: {
     modelId: "openrouter/rerank-v1",
+    id: "rerank-resp-123",
     timestamp: new Date("2026-01-10T10:11:12.000Z").getTime(),
+    body: {
+      results: [
+        { index: 3, relevance_score: 0.9823 },
+        { index: 0, relevance_score: 0.9411 },
+        { index: 1, relevance_score: 0.9032 },
+        { index: 2, relevance_score: 0.1027 },
+      ],
+    },
   },
   ranking: [
     { index: 3, relevanceScore: 0.9823 },

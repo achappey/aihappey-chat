@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import type { RerankingResponse } from "aihappey-ai";
+import type { Provider } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
@@ -14,8 +15,42 @@ export type RerankingModalProps = {
     query: string;
     files: RerankingModalFile[];
     reranking: RerankingResponse;
+    providers?: Record<string, Provider>;
 
     size?: "small" | "medium" | "large";
+};
+
+const getProvider = (
+    providers: Record<string, Provider> | undefined,
+    key: string | undefined
+) => {
+    if (!providers || !key) return undefined;
+
+    return providers[key] ?? providers[key.toLocaleLowerCase()];
+};
+
+const getProviderKeyFromModelId = (modelId: string | undefined) => {
+    if (!modelId?.includes("/")) return undefined;
+
+    return modelId.split("/")[0]?.trim().toLocaleLowerCase();
+};
+
+const getProviderKeyFromMetadata = (
+    providerMetadata: Record<string, any> | undefined,
+    providers: Record<string, Provider> | undefined,
+    modelId: string | undefined,
+) => {
+    if (providerMetadata && providers) {
+        const metadataProviderKey = Object.keys(providerMetadata).find((key) => {
+            const normalizedKey = key.trim().toLocaleLowerCase();
+            return normalizedKey !== "gateway" && !!getProvider(providers, normalizedKey);
+        });
+
+        if (metadataProviderKey) return metadataProviderKey;
+    }
+
+    const modelProviderKey = getProviderKeyFromModelId(modelId);
+    return getProvider(providers, modelProviderKey) ? modelProviderKey : undefined;
 };
 
 export const RerankingModal: React.FC<RerankingModalProps> = ({
@@ -24,10 +59,21 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
     query,
     files,
     reranking,
+    providers,
     size = "large",
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
+    const response = reranking?.response as (RerankingResponse["response"] & { id?: string }) | undefined;
+    const modelId = response?.modelId;
+    const responseId = typeof response?.id === "string" && response.id.trim() ? response.id : undefined;
+    const providerKey = getProviderKeyFromMetadata(reranking.providerMetadata, providers, modelId);
+    const provider = getProvider(providers, providerKey);
+    const providerDisplayName = provider?.name
+        ?? providerKey
+        ?? modelId?.split("/")?.[0]
+        ?? t("rerankingProvider", "Provider");
+    const rawOutput = response?.body;
 
     const defaultTab = "general";
     const [activeTab, setActiveTab] = useState<string>(defaultTab);
@@ -86,6 +132,19 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
         >
             <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
                 <theme.Tab eventKey="general" title={t("input")}>
+                    <div style={{ display: "inline-flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                        {modelId ? (
+                            <theme.Badge
+                                title={modelId}
+                                icon="brain"
+                                size="small"
+                                bg="informative"
+                                appearance="ghost"
+                            >
+                                {modelId}
+                            </theme.Badge>
+                        ) : undefined}
+                    </div>
                     <div>
                         {query}
                     </div>
@@ -93,6 +152,18 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
 
                 <theme.Tab eventKey="documents" title={t("result")}>
                     <div style={{ paddingTop: 12 }}>
+                        {responseId ? (
+                            <div style={{ display: "inline-flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                                <theme.Badge
+                                    title={responseId}
+                                    size="small"
+                                    bg="informative"
+                                    appearance="ghost"
+                                >
+                                    {responseId}
+                                </theme.Badge>
+                            </div>
+                        ) : undefined}
                         <div
                             style={{
                                 border: "1px solid rgba(0,0,0,0.1)",
@@ -131,8 +202,8 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
                     </div>
                 </theme.Tab>
 
-                <theme.Tab eventKey="raw" title={t("output")}>
-                    <theme.JsonViewer value={reranking} />
+                <theme.Tab eventKey="raw" title={t("providerResult", "{{provider}} result", { provider: providerDisplayName })}>
+                    <theme.JsonViewer value={rawOutput} />
                 </theme.Tab>
             </theme.Tabs>
         </theme.Modal>

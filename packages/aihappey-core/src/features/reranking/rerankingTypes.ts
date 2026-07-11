@@ -15,6 +15,12 @@ export type RerankingResponse = {
   ranking: { index: number; relevanceScore: number }[];
   warnings?: unknown[];
   providerMetadata?: Record<string, any>;
-  response?: unknown;
+  response?: {
+    timestamp?: Date | number | string;
+    modelId?: string;
+    id?: string;
+    body?: unknown;
+    [key: string]: unknown;
+  };
 };
 

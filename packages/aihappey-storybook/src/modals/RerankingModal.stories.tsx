@@ -3,6 +3,13 @@ import type { Meta, StoryObj } from "@storybook/react";
 import type { RerankingResponse } from "aihappey-ai";
 import { RerankingModal } from "aihappey-components";
 
+const providers = {
+  openrouter: {
+    name: "OpenRouter",
+    urls: { homepage: "https://openrouter.ai" },
+  },
+};
+
 const files = [
   { name: "support-ticket-1421.txt" },
   { name: "incident-postmortem.md" },
@@ -11,9 +18,19 @@ const files = [
 ];
 
 const reranking: RerankingResponse = {
+  providerMetadata: {
+    openrouter: { usage: { search_units: 1 } },
+  },
   response: {
-    modelId: "rerank-v1",
+    modelId: "openrouter/rerank-v1",
+    id: "rerank-resp-123",
     timestamp: new Date("2026-01-10T10:11:12.000Z").getTime() as any,
+    body: {
+      results: [
+        { index: 3, relevance_score: 0.9823 },
+        { index: 0, relevance_score: 0.9411 },
+      ],
+    },
   },
   ranking: [
     { index: 3, relevanceScore: 0.9823 },
@@ -44,6 +61,7 @@ const meta = {
     query: "Find the most relevant documents about token exchange failures",
     files,
     reranking,
+    providers,
     size: "large",
   },
   argTypes: {

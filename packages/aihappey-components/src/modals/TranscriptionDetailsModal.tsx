@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import type { TranscriptionResponse } from "aihappey-ai";
+import type { Provider } from "aihappey-types";
 import { useTheme } from "../theme/ThemeContext";
 
 export type TranscriptionDetailsModalProps = {
@@ -11,6 +12,8 @@ export type TranscriptionDetailsModalProps = {
 
     audio: Blob;
     audioFilename: string;
+
+    providers?: Record<string, Provider>;
 
     size?: "small" | "medium" | "large";
 };
@@ -54,6 +57,51 @@ const getFlattenedTranscriptionText = (transcription: TranscriptionResponse) => 
     return flattened.length > 0 ? flattened : (transcription.text ?? "");
 };
 
+const getProvider = (
+    providers: Record<string, Provider> | undefined,
+    key: string | undefined
+) => {
+    if (!providers || !key) return undefined;
+
+    return providers[key] ?? providers[key.toLocaleLowerCase()];
+};
+
+const getProviderKeyFromModelId = (modelId: string | undefined) => {
+    if (!modelId?.includes("/")) return undefined;
+
+    return modelId.split("/")[0]?.trim().toLocaleLowerCase();
+};
+
+const getProviderKeyFromMetadata = (
+    providerMetadata: Record<string, any> | undefined,
+    providers: Record<string, Provider> | undefined,
+    modelId: string | undefined,
+) => {
+    if (providerMetadata && providers) {
+        const metadataProviderKey = Object.keys(providerMetadata).find((key) => {
+            const normalizedKey = key.trim().toLocaleLowerCase();
+            return normalizedKey !== "gateway" && !!getProvider(providers, normalizedKey);
+        });
+
+        if (metadataProviderKey) return metadataProviderKey;
+    }
+
+    const modelProviderKey = getProviderKeyFromModelId(modelId);
+    return getProvider(providers, modelProviderKey) ? modelProviderKey : undefined;
+};
+
+const tryParseJsonString = (value: unknown) => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+
+    try {
+        return JSON.parse(trimmed);
+    } catch {
+        return undefined;
+    }
+};
+
 export const TranscriptionDetailsModal: React.FC<
     TranscriptionDetailsModalProps
 > = ({
@@ -62,16 +110,28 @@ export const TranscriptionDetailsModal: React.FC<
     transcription,
     audio,
     audioFilename,
+    providers,
     size = "large",
 }) => {
         const theme = useTheme();
         const { t } = useTranslation();
 
-        // Avoid adding new i18n keys for now; use simple English tab labels.
+        const providerKey = getProviderKeyFromMetadata(
+            transcription.providerMetadata,
+            providers,
+            transcription.response?.modelId,
+        );
+        const provider = getProvider(providers, providerKey);
+        const providerDisplayName = provider?.name
+            ?? providerKey
+            ?? transcription.response?.modelId?.split("/")?.[0]
+            ?? t("transcriptionProvider", "Provider");
+
         const tabLabels = {
             rawText: t('text'),
             segments: t('segments'),
-            rawOutput: t('output'),
+            providerInput: t("providerInput", "{{provider}} input", { provider: providerDisplayName }),
+            rawOutput: t("providerResult", "{{provider}} result", { provider: providerDisplayName }),
         } as const;
 
         const hasSegments = (transcription.segments?.length ?? 0) > 0;
@@ -85,6 +145,8 @@ export const TranscriptionDetailsModal: React.FC<
         }, [open]);
 
         const rawOutput = useMemo(() => transcription.response?.body, [transcription]);
+        const parsedRequestBody = useMemo(() => tryParseJsonString(transcription.request?.body), [transcription]);
+        const hasParsedRequestBody = parsedRequestBody !== undefined;
 
         const downloadText = () => {
             const text = getFlattenedTranscriptionText(transcription);
@@ -160,6 +222,12 @@ export const TranscriptionDetailsModal: React.FC<
                                     </div>
                                 ))}
                             </div>
+                        </theme.Tab>
+                    )}
+
+                    {hasParsedRequestBody && (
+                        <theme.Tab eventKey="providerInput" title={tabLabels.providerInput}>
+                            <theme.JsonViewer value={parsedRequestBody} />
                         </theme.Tab>
                     )}
 

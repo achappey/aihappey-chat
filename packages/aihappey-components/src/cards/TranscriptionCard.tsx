@@ -208,6 +208,7 @@ export const TranscriptionCard = ({ transcription, file, filename, onDelete, pro
                 transcription={transcription}
                 audio={file}
                 audioFilename={filename}
+                providers={providers}
             />
         </>
     );
