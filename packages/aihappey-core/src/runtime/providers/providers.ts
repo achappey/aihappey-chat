@@ -557,6 +557,7 @@ import { rebytemodels } from "./catalog/rebytemodels";
 import { rebytetasks } from "./catalog/rebytetasks";
 import { wayscloud } from "./catalog/wayscloud";
 import { tierup } from "./catalog/tierup";
+import { evidencemd } from "./catalog/evidencemd";
 
 /**
  * UI-facing provider catalog.
@@ -635,6 +636,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   blink,
   tierup,
   llmbase,
+  evidencemd,
   wayscloud,
   tensorblock,
   commonstack,
