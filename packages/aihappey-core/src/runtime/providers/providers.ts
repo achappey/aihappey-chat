@@ -559,6 +559,7 @@ import { wayscloud } from "./catalog/wayscloud";
 import { tierup } from "./catalog/tierup";
 import { evidencemd } from "./catalog/evidencemd";
 import { agen } from "./catalog/agen";
+import { chatqt } from "./catalog/chatqt";
 
 /**
  * UI-facing provider catalog.
@@ -629,6 +630,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   virouter,
   zyloapi,
   keymeai,
+  chatqt,
   opuscode,
   opengate,
   pioneer,
