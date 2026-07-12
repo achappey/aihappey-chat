@@ -36,6 +36,13 @@ const getJsonObjectChildren = (value: unknown): Record<string, unknown> | undefi
   return Object.keys(children).length > 0 ? children : undefined;
 };
 
+const getSpeechInputText = (value: unknown) => {
+  if (!isJsonObject(value)) return undefined;
+
+  const text = value.text;
+  return typeof text === "string" && text.trim().length > 0 ? text : undefined;
+};
+
 const downloadUrl = (url: string, filename: string) => {
   const anchor = document.createElement("a");
   anchor.href = url;
@@ -154,20 +161,22 @@ const getProviderKeyFromMetadata = (
 };
 
 export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, providers }: SpeechCardProps) => {
-  const { Card, Menu, AudioPlayer, Image, Modal, JsonViewer, Button, Tabs, Tab } = useTheme();
+  const { Card, Menu, AudioPlayer, Image, Modal, JsonViewer, Button, Tabs, Tab, Badge } = useTheme();
   const { t, i18n } = useTranslation();
   const { isDarkMode } = useDarkMode();
   const [src, setSrc] = useState<string>();
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [activeDetailsTab, setActiveDetailsTab] = useState("input");
+  const modelId = speech.response?.modelId;
   const providerMetadata = speech.providerMetadata;
   const gatewayCost = getGatewayCost(providerMetadata);
   const providerKey = getProviderKeyFromMetadata(providerMetadata, providers);
   const provider = getProvider(providers, providerKey);
-  const providerDisplayName = provider?.name ?? providerKey ?? speech.response?.modelId?.split("/")?.[0] ?? t("speechProvider", "Provider");
+  const providerDisplayName = provider?.name ?? providerKey ?? modelId?.split("/")?.[0] ?? t("speechProvider", "Provider");
   const inputObject = getJsonObjectChildren(speechInput)
     ?? getJsonObjectChildren(speechItem?.input)
     ?? getJsonObjectChildren((speech as any).input);
+  const inputText = getSpeechInputText(inputObject);
   const requestBody = speech.request?.body;
   const hasRequestBodyJsonObject = isJsonObject(requestBody);
   const responseBody = speech.response?.body;
@@ -208,7 +217,7 @@ export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, provider
 
   return (
     <>
-      <Card title={speech?.response?.modelId}
+      <Card title={modelId}
         description={<div style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           <span style={{ display: "inline-flex", alignItems: "center" }}>
             {format(speech?.response?.timestamp, i18n.language)}
@@ -251,7 +260,22 @@ export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, provider
       >
         <Tabs activeKey={activeDetailsTab} onSelect={setActiveDetailsTab}>
           <Tab eventKey="input" title={t("input")}>
-            <JsonViewer value={inputObject ?? {}} />
+            <div style={{ display: "inline-flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+              {modelId ? (
+                <Badge
+                  title={modelId}
+                  icon="brain"
+                  size="small"
+                  bg="informative"
+                  appearance="ghost"
+                >
+                  {modelId}
+                </Badge>
+              ) : undefined}
+            </div>
+            <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+              {inputText ?? <span style={{ opacity: 0.7 }}>{t("none")}</span>}
+            </div>
           </Tab>
 
           {hasRequestBodyJsonObject && (
