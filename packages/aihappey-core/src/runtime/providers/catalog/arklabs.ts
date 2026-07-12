@@ -19,6 +19,6 @@ export const arklabs: Provider = {
   },
   providerCountry: "PL",
   category: "inference_compute",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["Europe"]
 };
 
