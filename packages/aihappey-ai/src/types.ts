@@ -53,6 +53,7 @@ export interface TranscriptionResponse {
   response: {
     timestamp: Date;
     modelId: string;
+    headers?: Record<string, string> | undefined;
     body?: unknown;
   };
 }
@@ -65,8 +66,10 @@ export interface RerankingResponse {
   warnings: Array<SharedV4Warning>;
   providerMetadata?: Record<string, any>;
   response: {
+    id?: string;
     timestamp: Date;
     modelId: string;
+    headers?: Record<string, string>
     body?: unknown;
   };
 }
@@ -86,6 +89,7 @@ export interface SpeechResponse {
   response: {
     timestamp: Date;
     modelId: string;
+    headers?: Record<string, string>
     body?: unknown;
   };
 }
