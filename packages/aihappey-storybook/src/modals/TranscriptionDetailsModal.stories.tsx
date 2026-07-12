@@ -32,6 +32,10 @@ const SAMPLE_TRANSCRIPTION_WITH_SEGMENTS: TranscriptionResponse = {
   response: {
     timestamp: new Date("2026-01-01T12:00:00.000Z") as any,
     modelId: "openai/gpt-4o-transcribe",
+    headers: {
+      "x-request-id": "transcription-req-123",
+      "content-type": "application/json",
+    },
     body: {
       provider: "openai",
       raw: { foo: "bar", nested: { a: 1 } },

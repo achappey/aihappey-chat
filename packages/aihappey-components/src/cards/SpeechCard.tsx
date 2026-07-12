@@ -7,6 +7,7 @@ import { format } from "timeago.js";
 import { useDarkMode } from "usehooks-ts";
 import { CostBadge } from "../badges";
 import { normalizeAudioSource, type AudioSourceInput } from "./audioSource";
+import { getProviderResultVisibility, ProviderResultCards } from "../modals/ProviderResultCards";
 
 interface SpeechCardProps {
   speech: SpeechResponse;
@@ -180,7 +181,13 @@ export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, provider
   const requestBody = speech.request?.body;
   const hasRequestBodyJsonObject = isJsonObject(requestBody);
   const responseBody = speech.response?.body;
-  const hasResponseBodyJsonObject = isJsonObject(responseBody);
+  const providerResultVisibility = getProviderResultVisibility({
+    providerMetadata,
+    providers,
+    providerKey,
+    headers: speech.response?.headers,
+    body: responseBody,
+  });
   const providerIcon = provider?.icons?.find((icon: any) => icon.theme === (isDarkMode ? "dark" : "light"))
     ?? provider?.icons?.[0];
   const providerImage = providerIcon?.src ? (
@@ -284,9 +291,15 @@ export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, provider
             </Tab>
           )}
 
-          {hasResponseBodyJsonObject && (
+          {providerResultVisibility.hasAny && (
             <Tab eventKey="providerResult" title={t("providerResult", "{{provider}} result", { provider: providerDisplayName })}>
-              <JsonViewer value={responseBody} />
+              <ProviderResultCards
+                providerMetadata={providerMetadata}
+                providers={providers}
+                providerKey={providerKey}
+                headers={speech.response?.headers}
+                body={responseBody}
+              />
             </Tab>
           )}
         </Tabs>

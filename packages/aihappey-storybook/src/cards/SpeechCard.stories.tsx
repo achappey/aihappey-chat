@@ -37,6 +37,10 @@ const baseResponseFields = {
   response: {
     timestamp: new Date("2026-01-01T12:00:00.000Z") as any,
     modelId: "example-model",
+    headers: {
+      "x-request-id": "speech-req-123",
+      "content-type": "audio/wav",
+    },
     body: { provider: "example" },
   },
 } satisfies Omit<SpeechResponse, "audio">;
@@ -142,7 +146,7 @@ export const WithProviderLogoAndGatewayCost: Story = {
       ...baseResponseFields,
       providerMetadata: {
         gateway: { cost: 0.00132 },
-        openai: {},
+        openai: { requestId: "req-speech-123", usage: { characters: 43 } },
       },
       audio: SILENT_WAV_DATA_URI,
     },

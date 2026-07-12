@@ -3,6 +3,7 @@ import type { RerankingResponse } from "aihappey-ai";
 import type { Provider } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
+import { getProviderResultVisibility, ProviderResultCards } from "./ProviderResultCards";
 
 export type RerankingModalFile = {
     name: string;
@@ -74,6 +75,13 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
         ?? modelId?.split("/")?.[0]
         ?? t("rerankingProvider", "Provider");
     const rawOutput = response?.body;
+    const providerResultVisibility = getProviderResultVisibility({
+        providerMetadata: reranking.providerMetadata,
+        providers,
+        providerKey,
+        headers: response?.headers,
+        body: rawOutput,
+    });
 
     const defaultTab = "general";
     const [activeTab, setActiveTab] = useState<string>(defaultTab);
@@ -202,9 +210,17 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
                     </div>
                 </theme.Tab>
 
-                <theme.Tab eventKey="raw" title={t("providerResult", "{{provider}} result", { provider: providerDisplayName })}>
-                    <theme.JsonViewer value={rawOutput} />
-                </theme.Tab>
+                {providerResultVisibility.hasAny ? (
+                    <theme.Tab eventKey="raw" title={t("providerResult", "{{provider}} result", { provider: providerDisplayName })}>
+                        <ProviderResultCards
+                            providerMetadata={reranking.providerMetadata}
+                            providers={providers}
+                            providerKey={providerKey}
+                            headers={response?.headers}
+                            body={rawOutput}
+                        />
+                    </theme.Tab>
+                ) : null}
             </theme.Tabs>
         </theme.Modal>
     );

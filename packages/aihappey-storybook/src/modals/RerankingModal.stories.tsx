@@ -25,6 +25,10 @@ const reranking: RerankingResponse = {
     modelId: "openrouter/rerank-v1",
     id: "rerank-resp-123",
     timestamp: new Date("2026-01-10T10:11:12.000Z").getTime() as any,
+    headers: {
+      "x-request-id": "rerank-req-123",
+      "content-type": "application/json",
+    },
     body: {
       results: [
         { index: 3, relevance_score: 0.9823 },

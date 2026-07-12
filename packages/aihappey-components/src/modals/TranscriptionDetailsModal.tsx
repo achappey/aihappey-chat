@@ -3,6 +3,7 @@ import { useTranslation } from "aihappey-i18n";
 import type { TranscriptionResponse } from "aihappey-ai";
 import type { Provider } from "aihappey-types";
 import { useTheme } from "../theme/ThemeContext";
+import { getProviderResultVisibility, ProviderResultCards } from "./ProviderResultCards";
 
 export type TranscriptionDetailsModalProps = {
     open: boolean;
@@ -145,6 +146,13 @@ export const TranscriptionDetailsModal: React.FC<
         }, [open]);
 
         const rawOutput = useMemo(() => transcription.response?.body, [transcription]);
+        const providerResultVisibility = getProviderResultVisibility({
+            providerMetadata: transcription.providerMetadata,
+            providers,
+            providerKey,
+            headers: transcription.response?.headers,
+            body: rawOutput,
+        });
         const parsedRequestBody = useMemo(() => tryParseJsonString(transcription.request?.body), [transcription]);
         const hasParsedRequestBody = parsedRequestBody !== undefined;
 
@@ -231,9 +239,17 @@ export const TranscriptionDetailsModal: React.FC<
                         </theme.Tab>
                     )}
 
-                    <theme.Tab eventKey="rawOutput" title={tabLabels.rawOutput}>
-                        <theme.JsonViewer value={rawOutput} />
-                    </theme.Tab>
+                    {providerResultVisibility.hasAny ? (
+                        <theme.Tab eventKey="rawOutput" title={tabLabels.rawOutput}>
+                            <ProviderResultCards
+                                providerMetadata={transcription.providerMetadata}
+                                providers={providers}
+                                providerKey={providerKey}
+                                headers={transcription.response?.headers}
+                                body={rawOutput}
+                            />
+                        </theme.Tab>
+                    ) : null}
                 </theme.Tabs>
             </theme.Modal>
         );
