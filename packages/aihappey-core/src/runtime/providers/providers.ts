@@ -558,6 +558,7 @@ import { rebytetasks } from "./catalog/rebytetasks";
 import { wayscloud } from "./catalog/wayscloud";
 import { tierup } from "./catalog/tierup";
 import { evidencemd } from "./catalog/evidencemd";
+import { agen } from "./catalog/agen";
 
 /**
  * UI-facing provider catalog.
@@ -631,6 +632,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   opuscode,
   opengate,
   pioneer,
+  agen,
   codzen,
   llama,
   blink,
