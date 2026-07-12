@@ -11,11 +11,11 @@ export const arklabs: Provider = {
   ],
   urls: {
     homepage: "https://ark-labs.cloud",
-    docs: "https://ark-labs.cloud/documentation",
+    docs: "https://ark-labs.cloud/developers/docs",
     console: "https://shop.ark-labs.cloud",
     pricing: "https://ark-labs.cloud/pricing",
-    privacyPolicy: "https://ark-labs.cloud/privacy",
-    termsOfService: "https://ark-labs.cloud/terms"
+    privacyPolicy: "https://ark-labs.cloud/company/legal/privacy",
+    termsOfService: "https://ark-labs.cloud/company/legal/terms"
   },
   providerCountry: "PL",
   category: "inference_compute",
