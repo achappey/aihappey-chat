@@ -560,6 +560,7 @@ import { tierup } from "./catalog/tierup";
 import { evidencemd } from "./catalog/evidencemd";
 import { agen } from "./catalog/agen";
 import { chatqt } from "./catalog/chatqt";
+import { zeroentropy } from "./catalog/zeroentropy";
 
 /**
  * UI-facing provider catalog.
@@ -570,6 +571,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   openai,
   citadelis,
   freellmapikeys,
+  zeroentropy,
   wafer,
   orcarouter,
   doubleword,
