@@ -1,5 +1,5 @@
 import { useTheme } from "../theme/ThemeContext";
-import { getModelDisplayId, getModelDisplayName, ModelOption } from "aihappey-types";
+import { getModelDisplayId, getModelDisplayName, type IconToken, ModelOption } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTranslation } from "aihappey-i18n";
 import { ContextWindowBadge, MaxOutputTokensBadge } from "../badges";
@@ -10,13 +10,24 @@ import { ModelFavoriteToggleButton } from "../buttons/ModelFavoriteToggleButton"
 type ModelCardProps = {
   model: ModelOption;
   locale?: string
+  onLaunch?: () => void
+  launchIcon?: IconToken
   onChat?: () => void
   provider?: Provider
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
 };
 
-export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggleFavorite }: ModelCardProps) => {
+const DEFAULT_LAUNCH_ICON_BY_MODEL_TYPE: Partial<Record<string, IconToken>> = {
+  language: "chat",
+  video: "video",
+  speech: "speech",
+  transcription: "transcription",
+  reranking: "reranking",
+  image: "image",
+};
+
+export const ModelCard = ({ model, onLaunch, launchIcon, onChat, provider, isFavorite = false, onToggleFavorite }: ModelCardProps) => {
   const { Card, Image, Badge, Button } = useTheme();
   const { t } = useTranslation();
   const isDarkMode = useDarkMode();
@@ -71,11 +82,17 @@ export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggl
     </a>
   ) : providerImage;
 
-  const chatButton = onChat && model.type == "language"
-    ? <Button icon="chat"
+  const launchAction = onLaunch
+    ? { handler: onLaunch, icon: launchIcon ?? DEFAULT_LAUNCH_ICON_BY_MODEL_TYPE[model.type] }
+    : onChat && model.type === "language"
+      ? { handler: onChat, icon: "chat" as IconToken }
+      : undefined;
+
+  const launchButton = launchAction?.icon
+    ? <Button icon={launchAction.icon}
       size="small"
       variant="transparent"
-      onClick={onChat} /> : undefined;
+      onClick={launchAction.handler} /> : undefined;
 
   const actions = <>
 
@@ -86,7 +103,7 @@ export const ModelCard = ({ model, onChat, provider, isFavorite = false, onToggl
       title={displayId}
       onClick={() => navigator.clipboard.writeText(displayId)} />
 
-    {chatButton}
+    {launchButton}
 
     {onToggleFavorite && (
         <ModelFavoriteToggleButton

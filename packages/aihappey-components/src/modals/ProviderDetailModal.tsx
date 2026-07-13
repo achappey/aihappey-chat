@@ -43,6 +43,15 @@ const PROVIDER_LINKS: ProviderLinkConfig[] = [
 
 const uniq = (values: string[]) => Array.from(new Set(values));
 
+const MODEL_LAUNCH_BY_TYPE: Partial<Record<string, { icon: IconToken; path: string }>> = {
+    language: { icon: "chat", path: "/" },
+    video: { icon: "video", path: "/videos" },
+    speech: { icon: "speech", path: "/speech" },
+    transcription: { icon: "transcription", path: "/transcriptions" },
+    reranking: { icon: "reranking", path: "/reranking" },
+    image: { icon: "image", path: "/images" },
+};
+
 export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     open,
     onClose,
@@ -109,9 +118,12 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
             + ` (${count})`;
     };
 
-    const openChatInNewWindow = (modelId: string) => {
+    const openModelInNewWindow = (model: ModelOption) => {
+        const launchConfig = MODEL_LAUNCH_BY_TYPE[model.type];
+        if (!launchConfig) return;
+
         window.open(
-            `/?model=${encodeURIComponent(modelId)}`,
+            `${launchConfig.path}?model=${encodeURIComponent(model.id)}`,
             "_blank",
             "noopener,noreferrer"
         );
@@ -200,7 +212,10 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                                                 <ModelCard
                                                     model={model}
                                                     provider={provider}
-                                                    onChat={() => openChatInNewWindow(model.id)}
+                                                    onLaunch={MODEL_LAUNCH_BY_TYPE[model.type]
+                                                        ? () => openModelInNewWindow(model)
+                                                        : undefined}
+                                                    launchIcon={MODEL_LAUNCH_BY_TYPE[model.type]?.icon}
                                                     isFavorite={isModelFavorite?.(model) ?? false}
                                                     onToggleFavorite={onToggleModelFavorite
                                                         ? () => onToggleModelFavorite(model)

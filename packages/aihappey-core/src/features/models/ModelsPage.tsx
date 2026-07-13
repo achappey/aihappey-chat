@@ -16,6 +16,7 @@ import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useNavigate } from "react-router";
 import { getModelDisplayName, getModelProviderKey, isUserVisibleModel, type GenericDataGridColumn, type ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { getModelLaunchConfig, getModelLaunchPath } from "./modelLaunch";
 
 const isAllFilterSelected = (selected: string[]) =>
   selected.includes(PROVIDER_LOCATION_ALL_FILTER_VALUE);
@@ -706,15 +707,21 @@ export const ModelsPage = () => {
         },
       },
       {
-        key: "chat",
+        key: "launch",
         header: "",
-        render: (row) => (
-          <Button
-            variant="subtle"
-            icon="chat"
-            onClick={() => navigate(`/?model=${encodeURIComponent(row.id)}`)}
-          />
-        ),
+        render: (row) => {
+          const launchConfig = getModelLaunchConfig(row.type);
+          const launchPath = getModelLaunchPath(row);
+          if (!launchConfig || !launchPath) return null;
+
+          return (
+            <Button
+              variant="subtle"
+              icon={launchConfig.icon}
+              onClick={() => navigate(launchPath)}
+            />
+          );
+        },
       },
     ],
     [Button, collator, favoriteModelsByType, Image, isDarkMode, navigate, toggleFavoriteModelForType]
@@ -1056,6 +1063,8 @@ export const ModelsPage = () => {
                                 const providerId = getModelProviderId(r);
                                 const provider = PROVIDERS[providerId];
                                 const isFavorite = (favoriteModelsByType?.[r.type] ?? []).includes(r.id);
+                                const launchConfig = getModelLaunchConfig(r.type);
+                                const launchPath = getModelLaunchPath(r);
 
                                 return (
                                   <div key={r.id}
@@ -1065,7 +1074,8 @@ export const ModelsPage = () => {
                                     <ModelCard
                                       model={r}
                                       provider={provider}
-                                      onChat={() => navigate(`/?model=${encodeURIComponent(r.id)}`)}
+                                      onLaunch={launchPath ? () => navigate(launchPath) : undefined}
+                                      launchIcon={launchConfig?.icon}
                                       isFavorite={isFavorite}
                                       onToggleFavorite={() => toggleFavoriteModelForType(r.type, r.id)}
                                     />
