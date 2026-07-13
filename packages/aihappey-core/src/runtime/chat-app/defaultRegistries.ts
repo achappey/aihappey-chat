@@ -1,7 +1,13 @@
 import { McpRegistryServerResponse } from "aihappey-types";
 
+export type RegistryLoadProgress = {
+    completed: number;
+    total: number;
+};
+
 export const defaultRegistries = async (
-    catalogUrls: string[] = []
+    catalogUrls: string[] = [],
+    onProgress?: (progress: RegistryLoadProgress) => void
 ): Promise<Record<string, McpRegistryServerResponse[]>> => {
     async function loadAllServersForStore(storeUri: string) {
         const allServers: any[] = [];
@@ -38,11 +44,20 @@ export const defaultRegistries = async (
         return allServers;
     }
 
+    const uniqueCatalogUrls = Array.from(new Set(catalogUrls.map((url) => url.trim()).filter(Boolean)));
+    let completed = 0;
+    onProgress?.({ completed, total: uniqueCatalogUrls.length });
+
     const entries = await Promise.all(
-        Array.from(new Set(catalogUrls.map((url) => url.trim()).filter(Boolean)))
+        uniqueCatalogUrls
             .map(async (storeUri) => {
-                const servers = await loadAllServersForStore(storeUri);
-                return servers.length > 0 ? [storeUri, servers] as const : null;
+                try {
+                    const servers = await loadAllServersForStore(storeUri);
+                    return servers.length > 0 ? [storeUri, servers] as const : null;
+                } finally {
+                    completed += 1;
+                    onProgress?.({ completed, total: uniqueCatalogUrls.length });
+                }
             })
     );
 
