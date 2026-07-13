@@ -4,7 +4,7 @@ import { useLibraryVideos, type LibraryVideoItem } from "./useLibraryVideos";
 import { VideoInput } from "./VideoInput";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useVideos } from "aihappey-videos";
 import { useVideoErrors } from "./useVideoErrors";
@@ -26,6 +26,7 @@ import {
 } from "./videoAttachments";
 import { useTranslation } from "aihappey-i18n";
 import { useFiles } from "aihappey-files";
+import { useQueryModelId } from "../models/queryModelSelection";
 
 export const VideoPage = () => {
   const videos = useLibraryVideos();
@@ -47,7 +48,9 @@ export const VideoPage = () => {
   const files = useFiles();
   const { t } = useTranslation();
   const getAccessToken = config?.getAccessToken;
+  const queryModelId = useQueryModelId(models ?? [], "video");
   const [selectedModel, setSelectedModel] = useState<string>(
+    queryModelId ??
     userPreferredVideoModel ??
     (getAccessToken ? "openai/sora-2" : "")
   );
@@ -66,6 +69,10 @@ export const VideoPage = () => {
     dismissError,
     dismissWarning,
   } = useVideoErrors();
+
+  useEffect(() => {
+    if (queryModelId) setSelectedModel(queryModelId);
+  }, [queryModelId]);
 
   const [modalVideo, setModalVideo] = useState<VideoContent | undefined>(undefined);
   const [modalItem, setModalItem] = useState<LibraryVideoItem | undefined>(undefined);

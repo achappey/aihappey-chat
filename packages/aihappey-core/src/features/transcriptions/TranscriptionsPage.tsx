@@ -29,6 +29,7 @@ import React from "react";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { splitTranscriptionFile, type TranscriptionFileChunk } from "./transcriptionFileSplit";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { useQueryModelId } from "../models/queryModelSelection";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -117,7 +118,8 @@ export const TranscriptionsPage = () => {
   const [itemsLoading, setItemsLoading] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<string>("recorded");
   const getAccessToken = config?.getAccessToken;
-  const [selectedModel, setSelectedModel] = useState<string>(userPreferredTranscriptionModel
+  const queryModelId = useQueryModelId(models ?? [], "transcription");
+  const [selectedModel, setSelectedModel] = useState<string>(queryModelId ?? userPreferredTranscriptionModel
     ?? (getAccessToken ? "openai/gpt-4o-transcribe-diarize" : ""));
   const headers = config?.headers;
   const { Skeleton, Tabs, Tab } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab">;
@@ -130,6 +132,10 @@ export const TranscriptionsPage = () => {
   const files = useFiles();
   const providers = useProviderRegistry();
   const currentModel = models?.find(a => a.id == selectedModel);
+  useEffect(() => {
+    if (queryModelId) setSelectedModel(queryModelId);
+  }, [queryModelId]);
+
   // Ensure we stop the realtime session when leaving the page.
   useEffect(() => {
     return () => {

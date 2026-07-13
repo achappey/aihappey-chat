@@ -6,6 +6,7 @@ import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { useTranslation } from "aihappey-i18n";
+import { useQueryModelId } from "../models/queryModelSelection";
 
 import { getRerankingErrorMessage } from "./rerankingErrors";
 import { extractTextFromFileOrZip } from "./rerankingFileText";
@@ -44,9 +45,14 @@ export function useRerankingController() {
 
   const baseUrl = config.baseUrl + config.endpoints.reranking;
   const defaultModel = getAccessToken ? "cohere/rerank-v4.0-fast" : "";
+  const queryModelId = useQueryModelId(models ?? [], "reranking");
   const [selectedModel, setSelectedModel] = useState<string>(
-    userPreferredRerankingModel ?? defaultModel
+    queryModelId ?? userPreferredRerankingModel ?? defaultModel
   );
+
+  useEffect(() => {
+    if (queryModelId) setSelectedModel(queryModelId);
+  }, [queryModelId]);
 
   // Safety: ensure this page never uses the shared attachment runtime.
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { createSpeechProvider } from "aihappey-ai";
@@ -14,6 +14,7 @@ import { useSpeechErrors } from "./useSpeechErrors";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { useQueryModelId } from "../models/queryModelSelection";
 
 const getProviderOptionsForSelectedModel = (
   selectedModel: string | undefined,
@@ -43,7 +44,8 @@ export const SpeechPage = () => {
   const { t } = useTranslation();
   const userPreferredSpeechModel = useAppStore((a) => a.userPreferredSpeechModel);
   const getAccessToken = config?.getAccessToken;
-  const [selectedModel, setSelectedModel] = useState<string>(userPreferredSpeechModel ?? (getAccessToken ?
+  const queryModelId = useQueryModelId(models ?? [], "speech");
+  const [selectedModel, setSelectedModel] = useState<string>(queryModelId ?? userPreferredSpeechModel ?? (getAccessToken ?
     "openai/gpt-4o-mini-tts" : ""));
   const selectedModelOption = models?.find((model) => model.id === selectedModel);
   const headers = config?.headers;
@@ -62,6 +64,10 @@ export const SpeechPage = () => {
     addWarnings,
     dismissWarning,
   } = useSpeechErrors();
+
+  useEffect(() => {
+    if (queryModelId) setSelectedModel(queryModelId);
+  }, [queryModelId]);
 
   // Speech page file->prompt behavior.
   // No auto-send and no keeping files as attachments/tags.

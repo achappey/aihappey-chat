@@ -4,7 +4,7 @@ import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useImages } from "aihappey-images";
 import { useImageErrors } from "./useImageErrors";
@@ -21,6 +21,7 @@ import { useFiles } from "aihappey-files";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useTranslation } from "aihappey-i18n";
 import { downloadImageContent, getImageContentMimeType, getImageFileExtension, imageContentToSrc } from "./imageContentUtils";
+import { useQueryModelId } from "../models/queryModelSelection";
 
 export const ImagePage = () => {
   const images = useLibraryImages();
@@ -40,7 +41,9 @@ export const ImagePage = () => {
   const files = useFiles()
   const { t } = useTranslation();
   const getAccessToken = config?.getAccessToken;
+  const queryModelId = useQueryModelId(models ?? [], "image");
   const [selectedModel, setSelectedModel] = useState<string>(
+    queryModelId ??
     userPreferredImageModel ??
     (getAccessToken ?
       "openai/chatgpt-image-latest" : "pollinations/flux"));
@@ -59,6 +62,10 @@ export const ImagePage = () => {
     dismissError,
     dismissWarning,
   } = useImageErrors();
+
+  useEffect(() => {
+    if (queryModelId) setSelectedModel(queryModelId);
+  }, [queryModelId]);
 
   const [modalImage, setModalImage] = useState<ImageContent | undefined>(undefined);
   const [modalItem, setModalItem] = useState<LibraryImageItem | undefined>(undefined);
