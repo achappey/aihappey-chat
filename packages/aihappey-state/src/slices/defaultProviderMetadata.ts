@@ -38,6 +38,8 @@ export const defaultProviderMetadata = {
     "context_management": undefined,
     "reasoning": {
       "effort": "medium",
+      "context": "auto",
+      "mode": "standard",
       "summary": "auto"
     },
     "parallel_tool_calls": true,

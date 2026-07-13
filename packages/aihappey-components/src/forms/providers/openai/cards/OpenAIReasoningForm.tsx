@@ -2,11 +2,13 @@ import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 const DEFAULT_REASONING = {
-  effort: "low",
+  effort: "medium",
+  context: "auto",
+  mode: "standard",
   summary: "auto",
 };
 
-const EFFORTS = ["none", "minimal", "low", "medium", "high", "xhigh"] as const;
+const EFFORTS = ["none", "minimal", "low", "medium", "high", "xhigh", "max"] as const;
 type Effort = (typeof EFFORTS)[number];
 
 export const OpenAIReasoningForm = ({
@@ -25,6 +27,17 @@ export const OpenAIReasoningForm = ({
     { value: "auto", label: t("auto") },
     { value: "concise", label: t("concise") },
     { value: "detailed", label: t("detailed") },
+  ];
+
+  const contextOptions = [
+    { value: "auto", label: t("auto") },
+    { value: "current_turn", label: t("current_turn") },
+    { value: "all_turns", label: t("all_turns") },
+  ];
+
+  const modeOptions = [
+    { value: "standard", label: t("standard") },
+    { value: "pro", label: t("pro") },
   ];
 
   const effortToIndex = (e?: Effort) =>
@@ -106,6 +119,62 @@ export const OpenAIReasoningForm = ({
             }
           >
             {summaryOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "row", marginTop: 6, marginBottom: 6 }}>
+          <theme.Select
+            label={t("reasoningContext")}
+            style={{ flex: "1 1 0" }}
+            values={[config?.reasoning?.context || ""]}
+            disabled={!reasoningOn}
+            valueTitle={
+              contextOptions.find((a) => a.value === config?.reasoning?.context)
+                ?.label
+            }
+            options={contextOptions}
+            onChange={(val: string) =>
+              updateConfig({
+                ...config,
+                reasoning: {
+                  ...(config.reasoning ?? { ...DEFAULT_REASONING }),
+                  context: val,
+                },
+              })
+            }
+          >
+            {contextOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Select
+            label={t("reasoningMode")}
+            style={{ flex: "1 1 0" }}
+            values={[config?.reasoning?.mode || ""]}
+            disabled={!reasoningOn}
+            valueTitle={
+              modeOptions.find((a) => a.value === config?.reasoning?.mode)
+                ?.label
+            }
+            options={modeOptions}
+            onChange={(val: string) =>
+              updateConfig({
+                ...config,
+                reasoning: {
+                  ...(config.reasoning ?? { ...DEFAULT_REASONING }),
+                  mode: val,
+                },
+              })
+            }
+          >
+            {modeOptions.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
               </option>
