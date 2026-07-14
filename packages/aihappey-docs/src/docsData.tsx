@@ -91,18 +91,18 @@ export const agentNavSections: DocsNavSection[] = [
         id: "agent-openai-compatible",
         title: "OpenAI compatible",
         items: [
-            { id: "agents-openai-models", label: "Models", href: "/agents/openai/models", badge: "soon" },
-            { id: "agents-openai-create-response", label: "Create response", href: "/agents/openai/responses/create", badge: "soon" },
-            { id: "agents-openai-retrieve-response", label: "Retrieve response", href: "/agents/openai/responses/retrieve", badge: "soon" },
-            { id: "agents-openai-delete-response", label: "Delete response", href: "/agents/openai/responses/delete", badge: "soon" },
-            { id: "agents-openai-list-responses", label: "List responses", href: "/agents/openai/responses/list", badge: "soon" },
+            { id: "agents-openai-models", label: "Models", href: "/agents/openai/models", badge: { label: "GET", method: "GET" } },
+            { id: "agents-openai-create-response", label: "Create response", href: "/agents/openai/responses/create", badge: { label: "POST", method: "POST" } },
+            { id: "agents-openai-retrieve-response", label: "Retrieve response", href: "/agents/openai/responses/retrieve", badge: { label: "GET", method: "GET" } },
+            { id: "agents-openai-delete-response", label: "Delete response", href: "/agents/openai/responses/delete", badge: { label: "DELETE", method: "DELETE" } },
+            { id: "agents-openai-list-responses", label: "List responses", href: "/agents/openai/responses/list", badge: { label: "GET", method: "GET" } },
         ],
     },
     {
         id: "agent-ai-sdk",
         title: "AI SDK",
         items: [
-            { id: "agents-ai-sdk-chat", label: "Chat", href: "/agents/ai/chat", badge: "soon" }
+            { id: "agents-ai-sdk-chat", label: "Chat", href: "/agents/ai/chat", badge: { label: "POST", method: "POST" } }
         ],
     },
 ];
