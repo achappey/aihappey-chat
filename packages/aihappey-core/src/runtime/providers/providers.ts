@@ -561,6 +561,7 @@ import { evidencemd } from "./catalog/evidencemd";
 import { agen } from "./catalog/agen";
 import { chatqt } from "./catalog/chatqt";
 import { zeroentropy } from "./catalog/zeroentropy";
+import { beastlabai } from "./catalog/beastlabai";
 
 /**
  * UI-facing provider catalog.
@@ -572,6 +573,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   citadelis,
   freellmapikeys,
   zeroentropy,
+  beastlabai,
   wafer,
   orcarouter,
   doubleword,
