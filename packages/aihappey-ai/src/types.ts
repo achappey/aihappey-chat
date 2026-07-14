@@ -149,7 +149,7 @@ export const defaultEndpoints = {
   chat: "/api/chat",
   images: "/v1/images/generations",
   videos: "/api/videos",
-  transcriptions: "/v1/audio/transcriptions",
+  transcriptions: "/api/transcriptions",
   speech: "/api/speech",
   skills: "/v1/skills",
   sampling: "/sampling",
