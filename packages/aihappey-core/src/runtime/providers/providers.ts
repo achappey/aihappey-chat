@@ -562,6 +562,7 @@ import { agen } from "./catalog/agen";
 import { chatqt } from "./catalog/chatqt";
 import { zeroentropy } from "./catalog/zeroentropy";
 import { beastlabai } from "./catalog/beastlabai";
+import { lelapaai } from "./catalog/lelapaai";
 
 /**
  * UI-facing provider catalog.
@@ -574,6 +575,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   freellmapikeys,
   zeroentropy,
   beastlabai,
+  lelapaai,
   wafer,
   orcarouter,
   doubleword,
