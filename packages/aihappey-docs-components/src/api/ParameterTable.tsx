@@ -1,4 +1,5 @@
 import type { DocsParameter } from "../navigation/types";
+import { docsInlineCodeStyle } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
 
 export type ParameterTableProps = {
@@ -21,8 +22,8 @@ export const ParameterTable = ({ parameters }: ParameterTableProps) => {
       <tbody>
         {parameters.map((parameter) => (
           <tr key={parameter.name}>
-            <td style={{ padding: 12 }}><code>{parameter.name}</code></td>
-            <td style={{ padding: 12 }}><code>{parameter.type}</code></td>
+            <td style={{ padding: 12 }}><code style={docsInlineCodeStyle}>{parameter.name}</code></td>
+            <td style={{ padding: 12 }}><code style={docsInlineCodeStyle}>{parameter.type}</code></td>
             <td style={{ padding: 12 }}>
               <Badge appearance={parameter.required ? "primary" : "secondary"}>{parameter.required ? "Required" : "Optional"}</Badge>
             </td>

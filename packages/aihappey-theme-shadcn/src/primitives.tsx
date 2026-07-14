@@ -655,10 +655,12 @@ export const Text = ({ as = "span", children, style, weight, italic, underline, 
 
 export const Paragraph = ({ children, className, style, ...rest }: any) => <p className={className} style={{ marginBlock: "0 1rem", color: "var(--aih-shadcn-muted-foreground)", ...style }} {...rest}>{children}</p>;
 
-export const Badge = ({ variant = "secondary", icon, text, children, className, ...rest }: any) => {
+export const Badge = ({ bg, color, appearance, variant = "secondary", icon, text, children, className, ...rest }: any) => {
   const Icon = icon ? iconMap[icon as IconToken] : undefined;
-  const mapped = variant === "error" || variant === "danger" ? "danger" : variant === "outline" ? "outline" : variant === "primary" ? "primary" : "secondary";
-  return <span className={cn("aih-shadcn-badge", `aih-shadcn-badge-${mapped}`, className)} {...rest}>{Icon ? <Icon size={12} /> : null}{children ?? text}</span>;
+  const tone = color ?? bg ?? variant;
+  const toneClass = tone === "error" || tone === "danger" || tone === "destructive" ? "danger" : tone === "success" ? "success" : tone === "info" || tone === "informative" ? "info" : tone === "primary" ? "primary" : undefined;
+  const mapped = appearance === "outline" || tone === "outline" ? "outline" : appearance === "ghost" || appearance === "subtle" || appearance === "tint" ? "tint" : toneClass ?? "secondary";
+  return <span className={cn("aih-shadcn-badge", `aih-shadcn-badge-${mapped}`, toneClass && `aih-shadcn-badge-tone-${toneClass}`, className)} {...rest}>{Icon ? <Icon size={12} /> : null}{children ?? text}</span>;
 };
 
 export const Card = ({ title, text, description, children, actions, headerActions, image, className, style }: any) => {
@@ -1445,7 +1447,7 @@ const ShadcnNavItemRow = ({
       >
         {Icon ? <Icon size={18} /> : null}
         <span className="aih-shadcn-nav-label">{item.label}</span>
-        {item.badge ? <Badge variant="outline">{item.badge}</Badge> : null}
+        {item.badge ? React.isValidElement(item.badge) ? item.badge : <Badge variant="outline">{item.badge}</Badge> : null}
         {item.new ? <Badge variant="outline">{translations?.new ?? "new"}</Badge> : null}
       </button>
       {actionButton}

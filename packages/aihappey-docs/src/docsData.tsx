@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import type { DocsEndpointDoc, DocsHomeCard, DocsNavSection, DocsTopNavItem } from "aihappey-docs-components";
+import { docsInlineCodeStyle, type DocsEndpointDoc, type DocsHomeCard, type DocsNavSection, type DocsTopNavItem } from "aihappey-docs-components";
+
+const inlineCode = (value: string) => <code style={docsInlineCodeStyle}>{value}</code>;
 
 export const docsTopNavItems: DocsTopNavItem[] = [
     { id: "home", label: "Home", href: "/" },
@@ -46,32 +48,32 @@ export const gatewayNavSections: DocsNavSection[] = [
         id: "openai-compatible",
         title: "OpenAI compatible",
         items: [
-            { id: "openai-chat", label: "Chat completions", href: "/gateway/openai/chat-completions", badge: "POST" },
-            { id: "openai-models", label: "Models", href: "/gateway/openai/models", badge: "GET" },
-            { id: "openai-realtime", label: "Realtime", href: "/gateway/openai/realtime", badge: "POST" },
-            { id: "openai-responses", label: "Responses", href: "/gateway/openai/responses", badge: "POST" },
-            { id: "openai-skills", label: "Skills", href: "/gateway/openai/skills", badge: "GET" },
-            { id: "openai-speech", label: "Speech", href: "/gateway/openai/speech", badge: "POST" },
-            { id: "openai-transcriptions", label: "Transcriptions", href: "/gateway/openai/transcriptions", badge: "POST" },
+            { id: "openai-chat", label: "Chat completions", href: "/gateway/openai/chat-completions", badge: { label: "POST", method: "POST" } },
+            { id: "openai-models", label: "Models", href: "/gateway/openai/models", badge: { label: "GET", method: "GET" } },
+            { id: "openai-realtime", label: "Realtime", href: "/gateway/openai/realtime", badge: { label: "POST", method: "POST" } },
+            { id: "openai-responses", label: "Responses", href: "/gateway/openai/responses", badge: { label: "POST", method: "POST" } },
+            { id: "openai-skills", label: "Skills", href: "/gateway/openai/skills", badge: { label: "GET", method: "GET" } },
+            { id: "openai-speech", label: "Speech", href: "/gateway/openai/speech", badge: { label: "POST", method: "POST" } },
+            { id: "openai-transcriptions", label: "Transcriptions", href: "/gateway/openai/transcriptions", badge: { label: "POST", method: "POST" } },
         ],
     },
     {
         id: "anthropic-compatible",
         title: "Anthropic compatible",
         items: [
-            { id: "anthropic-messages", label: "Messages", href: "/gateway/anthropic/messages", badge: "POST" }
+            { id: "anthropic-messages", label: "Messages", href: "/gateway/anthropic/messages", badge: { label: "POST", method: "POST" } }
         ],
     },
     {
         id: "ai-sdk",
         title: "AI SDK",
         items: [
-            { id: "ai-chat", label: "Chat", href: "/gateway/ai/chat", badge: "POST" },
-            { id: "ai-rerank", label: "Rerank", href: "/gateway/ai/rerank", badge: "POST" },
-            { id: "ai-speech", label: "Speech", href: "/gateway/ai/speech", badge: "POST" },
-            { id: "ai-transcriptions", label: "Transcriptions", href: "/gateway/ai/transcriptions", badge: "POST" },
-            { id: "ai-ui", label: "UI", href: "/gateway/ai/ui", badge: "POST" },
-            { id: "ai-video", label: "Video", href: "/gateway/ai/video", badge: "POST" },
+            { id: "ai-chat", label: "Chat", href: "/gateway/ai/chat", badge: { label: "POST", method: "POST" } },
+            { id: "ai-rerank", label: "Rerank", href: "/gateway/ai/rerank", badge: { label: "POST", method: "POST" } },
+            { id: "ai-speech", label: "Speech", href: "/gateway/ai/speech", badge: { label: "POST", method: "POST" } },
+            { id: "ai-transcriptions", label: "Transcriptions", href: "/gateway/ai/transcriptions", badge: { label: "POST", method: "POST" } },
+            { id: "ai-ui", label: "UI", href: "/gateway/ai/ui", badge: { label: "POST", method: "POST" } },
+            { id: "ai-video", label: "Video", href: "/gateway/ai/video", badge: { label: "POST", method: "POST" } },
         ],
     },
 ];
@@ -124,7 +126,7 @@ const createApiUrl = (apiBaseUrl: string, path: string) => `${normalizeApiBaseUr
 const openAiSpeechDescription: ReactNode = (
     <p style={{ margin: 0 }}>
         Create speech audio through the OpenAI-compatible audio endpoint. This route accepts the OpenAI text-to-speech request shape and returns raw
-        audio bytes by default, or server-sent events when <code>stream_format</code> is set to <code>sse</code>.
+        audio bytes by default, or server-sent events when {inlineCode("stream_format")} is set to {inlineCode("sse")}.
     </p>
 );
 

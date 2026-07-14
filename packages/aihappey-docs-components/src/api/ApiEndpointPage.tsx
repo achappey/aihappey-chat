@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { DocsEndpointDoc } from "../navigation/types";
 import { useDocsTheme } from "../theme/useDocsTheme";
-import { docsArticleStyle, docsCodeStyle, docsHeroTextStyle } from "../theme/docsThemeStyles";
+import { docsArticleStyle, docsCodeStyle, docsHeroTextStyle, getDocsMethodBadgeProps } from "../theme/docsThemeStyles";
 import { DocsLink } from "../layout/DocsLink";
 import { ApiSection } from "./ApiSection";
 import { CodeExample } from "./CodeExample";
@@ -26,7 +26,7 @@ export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
           {endpoint.summary}
         </p>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <Badge appearance="primary">{endpoint.method}</Badge>
+          <Badge {...getDocsMethodBadgeProps(endpoint.method)}>{endpoint.method}</Badge>
           <code style={{ ...docsCodeStyle, padding: "0.45rem 0.7rem", borderRadius: 10, overflowWrap: "anywhere" }}>{endpoint.url ?? endpoint.path}</code>
           {endpoint.test ? (
             <Button

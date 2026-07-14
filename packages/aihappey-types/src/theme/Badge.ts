@@ -5,6 +5,8 @@ import type { IconToken } from "./IconToken";
 
 export type BadgeProps = {
   bg?: string;
+  color?: string;
+  variant?: string;
   appearance?: any;
   size?: any;
   icon?: IconToken | undefined;

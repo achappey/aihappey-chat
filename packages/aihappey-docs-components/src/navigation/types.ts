@@ -1,11 +1,18 @@
 import type { ReactNode } from "react";
 
+export type DocsHttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+export type DocsNavBadge = string | {
+  label: string;
+  method?: DocsHttpMethod;
+};
+
 export type DocsNavItem = {
   id: string;
   label: string;
   href: string;
   description?: string;
-  badge?: string;
+  badge?: DocsNavBadge;
   items?: DocsNavItem[];
 };
 
@@ -71,7 +78,7 @@ export type DocsEndpointDoc = {
   id: string;
   title: string;
   surface: string;
-  method: string;
+  method: DocsHttpMethod | string;
   path: string;
   url?: string;
   summary: string;

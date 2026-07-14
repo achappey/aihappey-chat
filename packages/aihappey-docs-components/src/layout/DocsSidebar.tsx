@@ -2,7 +2,7 @@ import { useMemo, type CSSProperties } from "react";
 import { useNavigate } from "react-router";
 import type { NavigationItem } from "aihappey-types";
 import type { DocsNavItem, DocsNavSection } from "../navigation/types";
-import { docsBorderStyle } from "../theme/docsThemeStyles";
+import { docsBorderStyle, getDocsNavBadgeLabel, getDocsNavBadgeProps } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
 
 export type DocsSidebarProps = {
@@ -17,7 +17,7 @@ const activeFor = (activePath: string, item: DocsNavItem) => activePath === item
 
 export const DocsSidebar = ({ title, sections, activePath, collapsed, onToggleCollapsed }: DocsSidebarProps) => {
   const navigate = useNavigate();
-  const { Button, Navigation } = useDocsTheme();
+  const { Badge, Button, Navigation } = useDocsTheme();
 
   const items = useMemo<NavigationItem[]>(
     () =>
@@ -29,7 +29,7 @@ export const DocsSidebar = ({ title, sections, activePath, collapsed, onToggleCo
           key: item.href,
           eventKey: item.href,
           label: item.label,
-          badge: item.badge,
+          badge: item.badge ? <Badge size="small" {...getDocsNavBadgeProps(item.badge)}>{getDocsNavBadgeLabel(item.badge)}</Badge> : undefined,
           href: item.href,
           onClick: (event?: { preventDefault?: () => void }) => {
             event?.preventDefault?.();

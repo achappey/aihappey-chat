@@ -1,4 +1,13 @@
 import type { CSSProperties } from "react";
+import type { DocsHttpMethod, DocsNavBadge } from "../navigation/types";
+
+export type DocsBadgeTone = "primary" | "informative" | "success" | "danger" | "secondary";
+
+export type DocsBadgeStyleProps = {
+  bg?: DocsBadgeTone;
+  color?: DocsBadgeTone;
+  appearance?: string;
+};
 
 export const docsSurfaceStyle: CSSProperties = {
   minHeight: "100dvh",
@@ -44,5 +53,34 @@ export const docsCodeStyle: CSSProperties = {
   ...docsSubtleSurfaceStyle,
   border: docsBorderStyle,
   color: "inherit",
+};
+
+export const docsInlineCodeStyle: CSSProperties = {
+  background: "color-mix(in srgb, currentColor 10%, transparent)",
+  border: "1px solid color-mix(in srgb, currentColor 16%, transparent)",
+  borderRadius: "0.35em",
+  color: "inherit",
+  fontSize: "0.9em",
+  fontWeight: 650,
+  padding: "0.08em 0.32em",
+};
+
+export const docsMethodBadgePropsByMethod: Partial<Record<DocsHttpMethod, DocsBadgeStyleProps>> = {
+  POST: { bg: "informative", color: "informative", appearance: "tint" },
+  GET: { bg: "success", color: "success", appearance: "tint" },
+  DELETE: { bg: "danger", color: "danger", appearance: "tint" },
+};
+
+export const getDocsMethodBadgeProps = (method?: string): DocsBadgeStyleProps => {
+  const normalizedMethod = method?.trim().toUpperCase() as DocsHttpMethod | undefined;
+  return normalizedMethod ? docsMethodBadgePropsByMethod[normalizedMethod] ?? { appearance: "secondary" } : { appearance: "secondary" };
+};
+
+export const getDocsNavBadgeLabel = (badge?: DocsNavBadge) => typeof badge === "string" ? badge : badge?.label;
+
+export const getDocsNavBadgeProps = (badge?: DocsNavBadge): DocsBadgeStyleProps => {
+  if (!badge) return { appearance: "secondary" };
+  if (typeof badge === "string") return getDocsMethodBadgeProps(badge);
+  return getDocsMethodBadgeProps(badge.method ?? badge.label);
 };
 

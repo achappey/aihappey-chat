@@ -14,6 +14,15 @@ type CategorySectionProps = {
   translations?: any
 };
 
+const renderBadge = (badge: React.ReactNode) => {
+  if (!badge) return null;
+  if (React.isValidElement(badge)) {
+    return <span style={{ marginLeft: "auto", flex: "0 0 auto" }}>{badge}</span>;
+  }
+
+  return <Badge appearance="outline" style={{ marginLeft: "auto", flex: "0 0 auto" }}>{badge}</Badge>;
+};
+
 export const NavigationCategorySection: React.FC<CategorySectionProps> = ({ item, onSelect, translations }) => {
   return (
     <NavCategory value={item.label}>
@@ -42,7 +51,7 @@ export const NavigationCategorySection: React.FC<CategorySectionProps> = ({ item
           >
             <span style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", minWidth: 0 }}>
               <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.label}</span>
-              {b.badge ? <Badge appearance="outline" style={{ marginLeft: "auto", flex: "0 0 auto" }}>{b.badge}</Badge> : null}
+              {renderBadge(b.badge)}
             </span>
             {b.new && (
               <Badge color="informative" appearance="outline">

@@ -18,6 +18,10 @@ export const shadcnThemeStyles = `
   --aih-shadcn-accent-foreground: hsl(222.2 47.4% 11.2%);
   --aih-shadcn-destructive: hsl(0 84.2% 60.2%);
   --aih-shadcn-destructive-foreground: hsl(210 40% 98%);
+  --aih-shadcn-info: hsl(221.2 83.2% 53.3%);
+  --aih-shadcn-info-foreground: hsl(210 40% 98%);
+  --aih-shadcn-success: hsl(142.1 76.2% 36.3%);
+  --aih-shadcn-success-foreground: hsl(355.7 100% 97.3%);
   --aih-shadcn-border: hsl(214.3 31.8% 91.4%);
   --aih-shadcn-input: hsl(214.3 31.8% 91.4%);
   --aih-shadcn-ring: hsl(222.2 84% 4.9%);
@@ -54,6 +58,10 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
   --aih-shadcn-accent-foreground: hsl(210 40% 98%);
   --aih-shadcn-destructive: hsl(0 62.8% 30.6%);
   --aih-shadcn-destructive-foreground: hsl(210 40% 98%);
+  --aih-shadcn-info: hsl(217.2 91.2% 59.8%);
+  --aih-shadcn-info-foreground: hsl(222.2 47.4% 11.2%);
+  --aih-shadcn-success: hsl(142.1 70.6% 45.3%);
+  --aih-shadcn-success-foreground: hsl(144.9 80.4% 10%);
   --aih-shadcn-border: hsl(217.2 32.6% 17.5%);
   --aih-shadcn-input: hsl(217.2 32.6% 17.5%);
   --aih-shadcn-ring: hsl(212.7 26.8% 83.9%);
@@ -264,7 +272,18 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 .aih-shadcn-badge-primary { background: var(--aih-shadcn-primary); color: var(--aih-shadcn-primary-foreground); }
 .aih-shadcn-badge-secondary { background: var(--aih-shadcn-secondary); color: var(--aih-shadcn-secondary-foreground); }
 .aih-shadcn-badge-outline { border-color: var(--aih-shadcn-border); color: var(--aih-shadcn-foreground); }
+.aih-shadcn-badge-tint { background: color-mix(in srgb, currentColor 12%, transparent); color: var(--aih-shadcn-foreground); }
 .aih-shadcn-badge-danger { background: var(--aih-shadcn-destructive); color: var(--aih-shadcn-destructive-foreground); }
+.aih-shadcn-badge-info { background: var(--aih-shadcn-info); color: var(--aih-shadcn-info-foreground); }
+.aih-shadcn-badge-success { background: var(--aih-shadcn-success); color: var(--aih-shadcn-success-foreground); }
+.aih-shadcn-badge-outline.aih-shadcn-badge-tone-primary { border-color: color-mix(in srgb, var(--aih-shadcn-primary) 64%, transparent); color: var(--aih-shadcn-primary); }
+.aih-shadcn-badge-outline.aih-shadcn-badge-tone-info { border-color: color-mix(in srgb, var(--aih-shadcn-info) 64%, transparent); color: var(--aih-shadcn-info); }
+.aih-shadcn-badge-outline.aih-shadcn-badge-tone-success { border-color: color-mix(in srgb, var(--aih-shadcn-success) 64%, transparent); color: var(--aih-shadcn-success); }
+.aih-shadcn-badge-outline.aih-shadcn-badge-tone-danger { border-color: color-mix(in srgb, var(--aih-shadcn-destructive) 64%, transparent); color: var(--aih-shadcn-destructive); }
+.aih-shadcn-badge-tint.aih-shadcn-badge-tone-primary { background: color-mix(in srgb, var(--aih-shadcn-primary) 12%, transparent); color: var(--aih-shadcn-primary); }
+.aih-shadcn-badge-tint.aih-shadcn-badge-tone-info { background: color-mix(in srgb, var(--aih-shadcn-info) 12%, transparent); color: var(--aih-shadcn-info); }
+.aih-shadcn-badge-tint.aih-shadcn-badge-tone-success { background: color-mix(in srgb, var(--aih-shadcn-success) 12%, transparent); color: var(--aih-shadcn-success); }
+.aih-shadcn-badge-tint.aih-shadcn-badge-tone-danger { background: color-mix(in srgb, var(--aih-shadcn-destructive) 12%, transparent); color: var(--aih-shadcn-destructive); }
 .aih-shadcn-tag-image { width: 1rem; height: 1rem; border-radius: 999px; object-fit: contain; }
 .aih-shadcn-tag-remove { display: inline-flex; align-items: center; justify-content: center; width: 1rem; height: 1rem; margin-inline: .125rem -.25rem; padding: 0; border: 0; border-radius: 999px; background: transparent; color: currentColor; opacity: .75; cursor: pointer; }
 .aih-shadcn-tag-remove:hover,
