@@ -1,0 +1,30 @@
+{
+  "name": "aihappey-docs-components",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "aihappey-components": "*",
+    "aihappey-docs-i18n": "*",
+    "aihappey-types": "*",
+    "timeago.js": "^4.0.2",
+    "usehooks-ts": "^3.1.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-router": "^7.6.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^18.0.0 || ^19.0.0",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "text/plain": "Text",
+    "image/png": "Imagine (PNG)",
+    "application/pdf": "PDF",
+    "application/zip": "Arhivă (ZIP)",
+    "text/markdown": "Markdown",
+    "application/xml": "XML",
+    "application/json": "JSON",
+    "application/vnd.agents+json": "Agenți",
+    "application/vnd.agent+json": "Agent",
+    "text/html+skybridge": "Aplicație OpenAI"
+  }

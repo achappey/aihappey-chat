@@ -1,0 +1,12 @@
+{
+    "text/plain": "Teks",
+    "image/png": "Gambar (PNG)",
+    "application/pdf": "PDF",
+    "application/zip": "Arsip (ZIP)",
+    "text/markdown": "Markdown",
+    "application/xml": "XML",
+    "application/json": "JSON",
+    "application/vnd.agents+json": "Agen",
+    "application/vnd.agent+json": "Agen",
+    "text/html+skybridge": "Aplikasi OpenAI"
+  }

@@ -1,0 +1,48 @@
+import type { DocsEndpointDoc } from "../navigation/types";
+import { useDocsTheme } from "../theme/useDocsTheme";
+import { DocsLink } from "../layout/DocsLink";
+import { ApiSection } from "./ApiSection";
+import { CodeExample } from "./CodeExample";
+import { ParameterTable } from "./ParameterTable";
+import { ResponseExample } from "./ResponseExample";
+
+export type ApiEndpointPageProps = {
+  endpoint: DocsEndpointDoc;
+};
+
+export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
+  const { Badge, Header } = useDocsTheme();
+
+  return (
+    <article style={{ maxWidth: 980, padding: "clamp(2rem, 5vw, 5rem)", display: "grid", gap: 42 }}>
+      <header style={{ display: "grid", gap: 18 }}>
+        <Badge appearance="secondary">{endpoint.surface}</Badge>
+        <Header level={1} style={{ fontSize: "clamp(2.4rem, 5vw, 4.6rem)" }}>{endpoint.title}</Header>
+        <p style={{ fontSize: "clamp(1.05rem, 2vw, 1.35rem)", lineHeight: 1.7, opacity: 0.78, maxWidth: 860 }}>
+          {endpoint.summary}
+        </p>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <Badge appearance="primary">{endpoint.method}</Badge>
+          <code style={{ padding: "0.45rem 0.7rem", borderRadius: 10, background: "rgba(127,127,127,0.13)" }}>{endpoint.path}</code>
+        </div>
+      </header>
+
+      <ApiSection title="Overview">{endpoint.description}</ApiSection>
+      {endpoint.auth ? <ApiSection title="Authentication">{endpoint.auth}</ApiSection> : null}
+      {endpoint.parameters?.length ? <ApiSection title="Request body"><ParameterTable parameters={endpoint.parameters} /></ApiSection> : null}
+      {endpoint.requestExamples?.length ? <ApiSection title="Request examples"><CodeExample examples={endpoint.requestExamples} /></ApiSection> : null}
+      {endpoint.responses?.length ? <ApiSection title="Responses"><ResponseExample responses={endpoint.responses} /></ApiSection> : null}
+      {endpoint.errors?.length ? <ApiSection title="Errors"><ResponseExample responses={endpoint.errors} /></ApiSection> : null}
+      {endpoint.related?.length ? (
+        <ApiSection title="Related">
+          <ul style={{ margin: 0, paddingInlineStart: 20 }}>
+            {endpoint.related.map((item) => (
+              <li key={item.id}><DocsLink href={item.href}>{item.label}</DocsLink></li>
+            ))}
+          </ul>
+        </ApiSection>
+      ) : null}
+    </article>
+  );
+};
+

@@ -1,0 +1,33 @@
+{
+  "name": "aihappey-docshappey",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Documentation for aihappey",
+  "scripts": {
+    "build:dev": "node esbuild.config.js",
+    "build": "cross-env NODE_ENV=production node esbuild.config.js",
+    "dev": "node esbuild.config.js --watch",
+    "serve": "npx serve public --single -l 3052"
+  },
+  "dependencies": {
+    "@microsoft/applicationinsights-react-js": "^19.3.8",
+    "@microsoft/applicationinsights-web": "^3.3.11",
+    "aihappey-docs": "*",
+    "aihappey-theme-bootstrap": "*",
+    "aihappey-theme-chakra": "*",
+    "aihappey-theme-mantine": "*",
+    "aihappey-theme-material": "*",
+    "aihappey-theme-shadcn": "*",
+    "aihappey-theme-fluent": "*",
+    "aihappey-theme-html": "*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/react-dom": "^18.0.0 || ^19.0.0",
+    "cross-env": "^10.0.0",
+    "dotenv": "^17.2.3",
+    "typescript": "^6.0.3"
+  }
+}

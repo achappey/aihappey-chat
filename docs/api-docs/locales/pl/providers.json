@@ -1,0 +1,155 @@
+{
+  "perplexity": {
+    "academic": "Akademickie",
+    "web": "Web",
+    "improveImageRelevance": "Popraw trafność obrazów",
+    "enableSearchClassifier": "Klasyfikator wyszukiwania",
+    "dateSearchSettings": "Filtry daty",
+    "searchRecencyFilter": "Filtr świeżości",
+    "searchAfterDateFilter": "Opublikowane po dacie",
+    "searchBeforeDateFilter": "Opublikowane przed datą",
+    "lastUpdatedAfterFilter": "Ostatnia aktualizacja po dacie",
+    "lastUpdatedBeforeFilter": "Ostatnia aktualizacja przed datą",
+    "sonarDeepResearch": "Dogłębne badania Sonar",
+    "returnImages": "Zwracaj obrazy",
+    "returnVideos": "Zwracaj wideo",
+    "returnRelatedQuestions": "Zwracaj powiązane pytania"
+  },
+  "pollinations": {
+    "enhance": "Ulepsz",
+    "enhanceHint": "Pozwól AI ulepszyć prompt, aby uzyskać lepsze wyniki",
+    "private": "Prywatne",
+    "privateHint": "Ukryj obraz z publicznych kanałów"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Uwaga",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: znaczniki czasu (timestamp_granularities) nie są kompatybilne z językiem. Użyj znaczników czasu LUB języka.",
+    "transcriptionTimestampsEnabledHint": "Znaczniki czasu włączone (tylko segment). Język został automatycznie wyczyszczony.",
+    "transcriptionLanguageEnabledHint": "Język jest ustawiony. Jeśli włączysz znaczniki czasu, język zostanie automatycznie wyczyszczony."
+  },
+  "anthropic": {
+    "maxUses": "Maksymalna liczba użyć",
+    "customSkills": "Niestandardowe umiejętności",
+    "allowedDomains": "Dozwolone domeny",
+    "blockedDomains": "Zablokowane domeny"
+  },
+  "cohere": {
+    "citationOptions": "Cytowania"
+  },
+  "xSearch": "Szukaj na X",
+  "xai": {
+    "imageUnderstanding": "Rozumienie obrazów",
+    "videoUnderstanding": "Rozumienie wideo",
+    "allowedDomains": "Dozwolone domeny",
+    "excludedDomains": "Wykluczone domeny",
+    "allowed_x_handles": "Dozwolone konta X",
+    "excluded_x_handles": "Wykluczone konta X"
+  },
+  "openai": {
+    "container": "Kontener",
+    "includeOutputs": "Uwzględnij wyniki",
+    "includeSources": "Uwzględnij źródła",
+    "includeSearchResults": "Uwzględnij wyniki wyszukiwania",
+    "encryptedContent": "Uwzględnij szyfrowanie",
+    "instructions": "Instrukcje",
+    "instructionsPlaceholder": "Wiadomość systemowa (lub deweloperska) wstawiona do kontekstu modelu.",
+    "imageInputDetail": {
+      "title": "Input image detail",
+      "auto": "Auto",
+      "low": "Low",
+      "high": "High",
+      "original": "Original"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure how the Responses API should compact earlier context during a request.",
+      "empty": "No context management entries configured yet.",
+      "add": "Add context rule",
+      "type": "Type",
+      "compactThreshold": "Compact threshold",
+      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
+      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
+      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compaction"
+      }
+    },
+    "max_num_results": "Maksymalna liczba wyników",
+    "vector_store_ids": "Identyfikatory magazynów wektorowych",
+    "file_search": "Wyszukiwanie plików",
+    "knownSpeakersTitle": "Znani mówcy",
+    "knownSpeakersDescription": "Dodaj maksymalnie 4 nazwy mówców i opcjonalnie prześlij krótką próbkę głosu dla każdego, aby poprawić diarizację.",
+    "knownSpeakersAdd": "Dodaj mówcę",
+    "knownSpeakersNamePlaceholder": "np. Alicja",
+    "knownSpeakersSampleMissing": "Brak przesłanej próbki",
+    "knownSpeakersNameExists": "Ta nazwa już istnieje.",
+    "knownSpeakersMax": "Możesz dodać maksymalnie 4 mówców.",
+    "knownSpeakersDeleteConfirm": "Ten mówca ma zapisaną próbkę. Usunąć mówcę i jego próbkę?",
+    "knownSpeakersSampleDuration": "Nagranie musi trwać od 2 do 10 sekund."
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Rozszerzone odpowiedzi obywatelskie",
+    "unspecified": "Nieokreślone",
+    "mediaResolution": "Jakość obrazu",
+    "url_context": "Kontekst URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Uwzględnij myśli",
+    "dynamicThinking": "Dynamiczne myślenie",
+    "intervalStart": "Data początkowa",
+    "intervalEnd": "Data końcowa",
+    "blockingConfidence": {
+      "label": "Poziom blokowania",
+      "unspecified": "Nieokreślony",
+      "lowAndAbove": "Blokuj od niskiego wzwyż",
+      "mediumAndAbove": "Blokuj od średniego wzwyż",
+      "highAndAbove": "Blokuj od wysokiego wzwyż",
+      "higherAndAbove": "Blokuj od bardzo wysokiego wzwyż",
+      "veryHighAndAbove": "Blokuj od bardzo wysokiego wzwyż",
+      "onlyExtremelyHigh": "Blokuj tylko ekstremalnie wysokie"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Maksymalna liczba zwróconych URL-i",
+    "search_provider": "Zoptymalizowane wyszukiwanie Arxiv",
+    "team_size": "Rozmiar zespołu agentowego",
+    "goodDomains": "Wzmocnione domeny",
+    "badDomains": "Negatywne domeny",
+    "onlyDomains": "Ogranicz wyszukiwanie do tych domen"
+  },
+  "together": {
+    "guidanceScale": "Skala prowadzenia",
+    "steps": "Kroki",
+    "negativePrompt": "Negatywny prompt",
+    "disableSafetyChecker": "Wyłącz kontrolę bezpieczeństwa"
+  },
+  "runway": {
+    "contentModeration": "Moderacja treści",
+    "publicFigureThreshold": "Próg dla postaci publicznych"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Predefiniowany styl",
+    "negativePrompt": "Negatywny prompt",
+    "no_style_preset": "Brak predefiniowanego stylu",
+    "style_presetHint": "Kieruje model obrazu w stronę określonego stylu.",
+    "style_preset": {
+      "3d-model": "Model 3D",
+      "analog-film": "Film analogowy",
+      "anime": "Anime",
+      "cinematic": "Filmowy",
+      "comic-book": "Komiks",
+      "digital-art": "Sztuka cyfrowa",
+      "enhance": "Ulepsz",
+      "fantasy-art": "Sztuka fantasy",
+      "isometric": "Izometryczny",
+      "line-art": "Rysunek liniowy",
+      "low-poly": "Low poly",
+      "modeling-compound": "Masa plastyczna",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Fotograficzny",
+      "pixel-art": "Pixel art",
+      "tile-texture": "Tekstura płytek"
+    }
+  }
+}

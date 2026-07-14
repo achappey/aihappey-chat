@@ -1,0 +1,155 @@
+{
+  "perplexity": {
+    "academic": "Академический",
+    "web": "Веб",
+    "improveImageRelevance": "Улучшить релевантность изображений",
+    "enableSearchClassifier": "Классификатор поиска",
+    "dateSearchSettings": "Фильтры по дате",
+    "searchRecencyFilter": "Фильтр по давности",
+    "searchAfterDateFilter": "Опубликовано после даты",
+    "searchBeforeDateFilter": "Опубликовано до даты",
+    "lastUpdatedAfterFilter": "Обновлено после даты",
+    "lastUpdatedBeforeFilter": "Обновлено до даты",
+    "sonarDeepResearch": "Глубокое исследование Sonar",
+    "returnImages": "Возвращать изображения",
+    "returnVideos": "Возвращать видео",
+    "returnRelatedQuestions": "Возвращать связанные вопросы"
+  },
+  "pollinations": {
+    "enhance": "Улучшить",
+    "enhanceHint": "Позволить AI улучшить промпт для лучших результатов",
+    "private": "Приватный",
+    "privateHint": "Скрыть изображение из публичных лент"
+  },
+  "mistral": {
+    "webSearchPremium": "Премиум",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Примечание",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: таймстемпы (timestamp_granularities) несовместимы с языком. Используйте либо таймстемпы, либо язык.",
+    "transcriptionTimestampsEnabledHint": "Таймстемпы включены (только сегменты). Язык был автоматически очищен.",
+    "transcriptionLanguageEnabledHint": "Язык задан. Если включить таймстемпы, язык будет автоматически очищен."
+  },
+  "anthropic": {
+    "maxUses": "Максимальное количество использований",
+    "customSkills": "Пользовательские навыки",
+    "allowedDomains": "Разрешённые домены",
+    "blockedDomains": "Заблокированные домены"
+  },
+  "cohere": {
+    "citationOptions": "Цитирования"
+  },
+  "xSearch": "Поиск в X",
+  "xai": {
+    "imageUnderstanding": "Понимание изображений",
+    "videoUnderstanding": "Понимание видео",
+    "allowedDomains": "Разрешённые домены",
+    "excludedDomains": "Исключённые домены",
+    "allowed_x_handles": "Разрешённые аккаунты X",
+    "excluded_x_handles": "Исключённые аккаунты X"
+  },
+  "openai": {
+    "container": "Контейнер",
+    "includeOutputs": "Включить выходные данные",
+    "includeSources": "Включить источники",
+    "includeSearchResults": "Включить результаты поиска",
+    "encryptedContent": "Включить шифрование",
+    "instructions": "Инструкции",
+    "instructionsPlaceholder": "Системное (или разработческое) сообщение, вставляемое в контекст модели.",
+    "imageInputDetail": {
+      "title": "Input image detail",
+      "auto": "Auto",
+      "low": "Low",
+      "high": "High",
+      "original": "Original"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure how the Responses API should compact earlier context during a request.",
+      "empty": "No context management entries configured yet.",
+      "add": "Add context rule",
+      "type": "Type",
+      "compactThreshold": "Compact threshold",
+      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
+      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
+      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compaction"
+      }
+    },
+    "max_num_results": "Максимальное количество результатов",
+    "vector_store_ids": "Идентификаторы векторных хранилищ",
+    "file_search": "Поиск файлов",
+    "knownSpeakersTitle": "Известные спикеры",
+    "knownSpeakersDescription": "Добавьте до 4 имён спикеров и при желании загрузите короткий голосовой образец для каждого, чтобы улучшить диаризацию.",
+    "knownSpeakersAdd": "Добавить спикера",
+    "knownSpeakersNamePlaceholder": "например, Алиса",
+    "knownSpeakersSampleMissing": "Образец не загружен",
+    "knownSpeakersNameExists": "Это имя уже существует.",
+    "knownSpeakersMax": "Можно добавить до 4 спикеров.",
+    "knownSpeakersDeleteConfirm": "У этого спикера есть сохранённый образец. Удалить спикера и образец?",
+    "knownSpeakersSampleDuration": "Запись должна длиться от 2 до 10 секунд."
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Расширенные гражданские ответы",
+    "unspecified": "Не указано",
+    "mediaResolution": "Качество изображения",
+    "url_context": "Контекст URL",
+    "googleMaps": "Google Карты",
+    "includeThoughts": "Включить мысли",
+    "dynamicThinking": "Динамическое мышление",
+    "intervalStart": "Дата начала",
+    "intervalEnd": "Дата окончания",
+    "blockingConfidence": {
+      "label": "Уровень блокировки",
+      "unspecified": "Не указано",
+      "lowAndAbove": "Блокировать низкий и выше",
+      "mediumAndAbove": "Блокировать средний и выше",
+      "highAndAbove": "Блокировать высокий и выше",
+      "higherAndAbove": "Блокировать очень высокий и выше",
+      "veryHighAndAbove": "Блокировать чрезвычайно высокий и выше",
+      "onlyExtremelyHigh": "Блокировать только чрезвычайно высокий"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Максимальное количество возвращаемых URL",
+    "search_provider": "Оптимизированный поиск Arxiv",
+    "team_size": "Размер агентной команды",
+    "goodDomains": "Продвигаемые домены",
+    "badDomains": "Нежелательные домены",
+    "onlyDomains": "Ограничить поиск этими доменами"
+  },
+  "together": {
+    "guidanceScale": "Шкала направляющих",
+    "steps": "Шаги",
+    "negativePrompt": "Негативный промпт",
+    "disableSafetyChecker": "Отключить проверку безопасности"
+  },
+  "runway": {
+    "contentModeration": "Модерация контента",
+    "publicFigureThreshold": "Порог публичной фигуры"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Пресет стиля",
+    "negativePrompt": "Негативный промпт",
+    "no_style_preset": "Без пресета стиля",
+    "style_presetHint": "Направляет модель изображений к определённому стилю.",
+    "style_preset": {
+      "3d-model": "3D-модель",
+      "analog-film": "Аналоговая плёнка",
+      "anime": "Аниме",
+      "cinematic": "Кинематографичный",
+      "comic-book": "Комикс",
+      "digital-art": "Цифровое искусство",
+      "enhance": "Улучшить",
+      "fantasy-art": "Фэнтези-арт",
+      "isometric": "Изометрия",
+      "line-art": "Лайн-арт",
+      "low-poly": "Лоу-поли",
+      "modeling-compound": "Пластилин",
+      "neon-punk": "Неон-панк",
+      "origami": "Оригами",
+      "photographic": "Фотографический",
+      "pixel-art": "Пиксель-арт",
+      "tile-texture": "Плиточная текстура"
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "perplexity": {
+    "academic": "Academic",
+    "web": "Web",
+    "improveImageRelevance": "Îmbunătățește relevanța imaginilor",
+    "enableSearchClassifier": "Clasificator de căutare",
+    "dateSearchSettings": "Filtre de dată",
+    "searchRecencyFilter": "Filtru de recență",
+    "searchAfterDateFilter": "Publicat după data",
+    "searchBeforeDateFilter": "Publicat înainte de data",
+    "lastUpdatedAfterFilter": "Ultima actualizare după data",
+    "lastUpdatedBeforeFilter": "Ultima actualizare înainte de data",
+    "sonarDeepResearch": "Cercetare aprofundată Sonar",
+    "returnImages": "Returnează imagini",
+    "returnVideos": "Returnează videoclipuri",
+    "returnRelatedQuestions": "Returnează întrebări conexe"
+  },
+  "pollinations": {
+    "enhance": "Îmbunătățește",
+    "enhanceHint": "Permite AI să îmbunătățească promptul pentru rezultate mai bune",
+    "private": "Privat",
+    "privateHint": "Ascunde imaginea din fluxurile publice"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Notă",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: marcajele de timp (timestamp_granularities) nu sunt compatibile cu limba. Folosește marcaje de timp SAU limbă.",
+    "transcriptionTimestampsEnabledHint": "Marcajele de timp sunt activate (doar segment). Limba a fost ștearsă automat.",
+    "transcriptionLanguageEnabledHint": "Limba este setată. Dacă activezi marcajele de timp, limba va fi ștearsă automat."
+  },
+  "anthropic": {
+    "maxUses": "Număr maxim de utilizări",
+    "customSkills": "Abilități personalizate",
+    "allowedDomains": "Domenii permise",
+    "blockedDomains": "Domenii blocate"
+  },
+  "cohere": {
+    "citationOptions": "Citații"
+  },
+  "xSearch": "Caută pe X",
+  "xai": {
+    "imageUnderstanding": "Înțelegerea imaginilor",
+    "videoUnderstanding": "Înțelegerea videoclipurilor",
+    "allowedDomains": "Domenii permise",
+    "excludedDomains": "Domenii excluse",
+    "allowed_x_handles": "Conturi X permise",
+    "excluded_x_handles": "Conturi X excluse"
+  },
+  "openai": {
+    "container": "Container",
+    "includeOutputs": "Include ieșirile",
+    "includeSources": "Include sursele",
+    "includeSearchResults": "Include rezultatele căutării",
+    "encryptedContent": "Include criptarea",
+    "instructions": "Instrucțiuni",
+    "instructionsPlaceholder": "Mesaj de sistem (sau dezvoltator) inserat în contextul modelului.",
+    "imageInputDetail": {
+      "title": "Input image detail",
+      "auto": "Auto",
+      "low": "Low",
+      "high": "High",
+      "original": "Original"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure how the Responses API should compact earlier context during a request.",
+      "empty": "No context management entries configured yet.",
+      "add": "Add context rule",
+      "type": "Type",
+      "compactThreshold": "Compact threshold",
+      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
+      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
+      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compaction"
+      }
+    },
+    "max_num_results": "Număr maxim de rezultate",
+    "vector_store_ids": "ID-uri ale stocărilor vectoriale",
+    "file_search": "Căutare fișiere",
+    "knownSpeakersTitle": "Vorbitori cunoscuți",
+    "knownSpeakersDescription": "Adaugă până la 4 nume de vorbitor și, opțional, încarcă o mostră scurtă de voce pentru fiecare vorbitor pentru a îmbunătăți diarizarea.",
+    "knownSpeakersAdd": "Adaugă vorbitor",
+    "knownSpeakersNamePlaceholder": "de ex. Alice",
+    "knownSpeakersSampleMissing": "Nicio mostră încărcată",
+    "knownSpeakersNameExists": "Acest nume există deja.",
+    "knownSpeakersMax": "Poți adăuga până la 4 vorbitori.",
+    "knownSpeakersDeleteConfirm": "Acest vorbitor are o mostră salvată. Ștergi vorbitorul și mostra?",
+    "knownSpeakersSampleDuration": "Înregistrarea trebuie să aibă între 2 și 10 secunde."
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Răspunsuri civice îmbunătățite",
+    "unspecified": "Nespecificat",
+    "mediaResolution": "Calitatea imaginii",
+    "url_context": "Context URL",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Include gânduri",
+    "dynamicThinking": "Gândire dinamică",
+    "intervalStart": "Data de început",
+    "intervalEnd": "Data de sfârșit",
+    "blockingConfidence": {
+      "label": "Nivel de blocare",
+      "unspecified": "Nespecificat",
+      "lowAndAbove": "Blochează nivel scăzut și peste",
+      "mediumAndAbove": "Blochează nivel mediu și peste",
+      "highAndAbove": "Blochează nivel ridicat și peste",
+      "higherAndAbove": "Blochează nivel foarte ridicat și peste",
+      "veryHighAndAbove": "Blochează nivel extrem de ridicat și peste",
+      "onlyExtremelyHigh": "Blochează doar nivel extrem de ridicat"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Număr maxim de URL-uri returnate",
+    "search_provider": "Căutare Arxiv optimizată",
+    "team_size": "Dimensiunea echipei de agenți",
+    "goodDomains": "Domenii promovate",
+    "badDomains": "Domenii nefavorabile",
+    "onlyDomains": "Restricționează căutarea la aceste domenii"
+  },
+  "together": {
+    "guidanceScale": "Scală de ghidare",
+    "steps": "Pași",
+    "negativePrompt": "Prompt negativ",
+    "disableSafetyChecker": "Dezactivează verificarea de siguranță"
+  },
+  "runway": {
+    "contentModeration": "Moderare conținut",
+    "publicFigureThreshold": "Prag pentru persoane publice"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Preset de stil",
+    "negativePrompt": "Prompt negativ",
+    "no_style_preset": "Fără preset de stil",
+    "style_presetHint": "Ghidează modelul de imagine către un anumit stil.",
+    "style_preset": {
+      "3d-model": "Model 3D",
+      "analog-film": "Film analogic",
+      "anime": "Anime",
+      "cinematic": "Cinematografic",
+      "comic-book": "Bandă desenată",
+      "digital-art": "Artă digitală",
+      "enhance": "Îmbunătățește",
+      "fantasy-art": "Artă fantastică",
+      "isometric": "Izometric",
+      "line-art": "Desen liniar",
+      "low-poly": "Low poly",
+      "modeling-compound": "Pastă de modelaj",
+      "neon-punk": "Neon punk",
+      "origami": "Origami",
+      "photographic": "Fotografic",
+      "pixel-art": "Pixel art",
+      "tile-texture": "Textură de plăci"
+    }
+  }
+}

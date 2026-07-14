@@ -1,0 +1,19 @@
+{
+    "mimeType": "Tiedostotyyppi",
+    "text/plain": "Teksti",
+    "audio/webm": "Web Movie",
+    "audio/mpeg": "MPEG Audio Layer 3",
+    "image/png": "Portable Network Graphic",
+    "application/pdf": "Portable Document Format",
+    "application/zip": "ZIP",
+    "text/markdown": "Markdown",
+    "text/html": "Hypertext Markup Language",
+    "application/xml": "Extensible Markup Language",
+    "application/json": "JavaScript Object Notation",
+    "application/vnd.agents+json": "Agentit",
+    "application/vnd.agent+json": "Agentti",
+    "text/html+skybridge": "OpenAI-sovellus",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel"
+}

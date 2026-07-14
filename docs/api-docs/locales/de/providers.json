@@ -1,0 +1,162 @@
+{
+  "perplexity": {
+    "academic": "Akademisch",
+    "web": "Web",
+    "improveImageRelevance": "Bildrelevanz verbessern",
+    "enableSearchClassifier": "Suchklassifikator",
+    "dateSearchSettings": "Datumsfilter",
+    "searchRecencyFilter": "Aktualitätsfilter",
+    "searchAfterDateFilter": "Veröffentlicht nach",
+    "searchBeforeDateFilter": "Veröffentlicht vor",
+    "lastUpdatedAfterFilter": "Zuletzt aktualisiert nach",
+    "lastUpdatedBeforeFilter": "Zuletzt aktualisiert vor",
+    "sonarDeepResearch": "Sonar Tiefenrecherche",
+    "returnImages": "Bilder zurückgeben",
+    "returnVideos": "Videos zurückgeben",
+    "returnRelatedQuestions": "Verwandte Fragen zurückgeben"
+  },
+  "mistral": {
+    "webSearchPremium": "Premium",
+    "transcriptionTimestampsLanguageIncompatibleTitle": "Hinweis",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: Zeitstempel (timestamp_granularities) sind nicht kompatibel mit Sprache. Verwende entweder Zeitstempel ODER Sprache.",
+    "transcriptionTimestampsEnabledHint": "Zeitstempel sind aktiviert (nur Segment). Sprache wurde automatisch entfernt.",
+    "transcriptionLanguageEnabledHint": "Sprache ist gesetzt. Wenn du Zeitstempel aktivierst, wird die Sprache automatisch entfernt."
+  },
+  "anthropic": {
+    "maxUses": "Maximale Nutzung",
+    "customSkills": "Benutzerdefinierte Fähigkeiten",
+    "allowedDomains": "Erlaubte Domains",
+    "blockedDomains": "Blockierte Domains"
+  },
+  "cohere": {
+    "citationOptions": "Zitate"
+  },
+  "xSearch": "Auf X suchen",
+  "xai": {
+    "imageUnderstanding": "Bildverständnis",
+    "videoUnderstanding": "Videoverständnis",
+    "allowedDomains": "Erlaubte Domains",
+    "excludedDomains": "Ausgeschlossene Domains",
+    "allowed_x_handles": "Erlaubte X-Accounts",
+    "excluded_x_handles": "Ausgeschlossene X-Accounts"
+  },
+  "openai": {
+    "container": "Container",
+    "includeOutputs": "Ausgaben einschließen",
+    "includeSources": "Quellen einschließen",
+    "includeSearchResults": "Suchergebnisse einschließen",
+    "encryptedContent": "Verschlüsselung einschließen",
+    "instructions": "Anweisungen",
+    "instructionsPlaceholder": "System- (oder Entwickler-)Nachricht, die in den Modellkontext eingefügt wird.",
+    "imageInputDetail": {
+      "title": "Input image detail",
+      "auto": "Auto",
+      "low": "Low",
+      "high": "High",
+      "original": "Original"
+    },
+    "contextManagement": {
+      "title": "Context management",
+      "description": "Configure how the Responses API should compact earlier context during a request.",
+      "empty": "No context management entries configured yet.",
+      "add": "Add context rule",
+      "type": "Type",
+      "compactThreshold": "Compact threshold",
+      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
+      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
+      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "types": {
+        "compaction": "Compaction"
+      }
+    },
+    "max_num_results": "Maximale Anzahl an Ergebnissen",
+    "vector_store_ids": "IDs der Vektorspeicher",
+    "file_search": "Dateisuche",
+    "knownSpeakersTitle": "Bekannte Sprecher",
+    "knownSpeakersDescription": "Füge bis zu 4 Sprechernamen hinzu und lade optional pro Sprecher eine kurze Sprachprobe hoch, um die Sprechertrennung zu verbessern.",
+    "knownSpeakersAdd": "Sprecher hinzufügen",
+    "knownSpeakersNamePlaceholder": "z. B. Alice",
+    "knownSpeakersSampleMissing": "Keine Probe hochgeladen",
+    "knownSpeakersNameExists": "Dieser Name existiert bereits.",
+    "knownSpeakersMax": "Du kannst bis zu 4 Sprecher hinzufügen.",
+    "knownSpeakersDeleteConfirm": "Dieser Sprecher hat eine gespeicherte Probe. Sprecher und Probe löschen?",
+    "knownSpeakersSampleDuration": "Die Aufnahme muss zwischen 2 und 10 Sekunden lang sein."
+  },
+  "google": {
+    "enableEnhancedCivicAnswers": "Erweiterte zivilgesellschaftliche Antworten",
+    "unspecified": "Nicht angegeben",
+    "mediaResolution": "Bildqualität",
+    "url_context": "URL-Kontext",
+    "googleMaps": "Google Maps",
+    "includeThoughts": "Gedankengänge einschließen",
+    "dynamicThinking": "Dynamisches Denken",
+    "intervalStart": "Startdatum",
+    "intervalEnd": "Enddatum",
+    "blockingConfidence": {
+      "label": "Blockierungsstufe",
+      "unspecified": "Nicht angegeben",
+      "lowAndAbove": "Niedrig und höher blockieren",
+      "mediumAndAbove": "Mittel und höher blockieren",
+      "highAndAbove": "Hoch und höher blockieren",
+      "higherAndAbove": "Sehr hoch und höher blockieren",
+      "veryHighAndAbove": "Sehr hoch aufwärts blockieren",
+      "onlyExtremelyHigh": "Nur extrem hoch blockieren"
+    },
+    "speech": {
+      "seed": "Seed",
+      "multiSpeaker": "Mehrere Sprecher",
+      "speakers": "Sprecher",
+      "addSpeaker": "Sprecher hinzufügen",
+      "speakerNamePlaceholder": "z. B. Alice"
+    }
+  },
+  "jina": {
+    "max_returned_urls": "Max. zurückgegebene URLs",
+    "search_provider": "Optimierte arXiv-Suche",
+    "team_size": "Agentische Teamgröße",
+    "goodDomains": "Bevorzugte Domains",
+    "badDomains": "Unerwünschte Domains",
+    "onlyDomains": "Suche auf diese Domains beschränken"
+  },
+  "together": {
+    "guidanceScale": "Leitfaktor",
+    "steps": "Schritte",
+    "negativePrompt": "Negativer Prompt",
+    "disableSafetyChecker": "Sicherheitsprüfung deaktivieren"
+  },
+  "runway": {
+    "contentModeration": "Inhaltsmoderation",
+    "publicFigureThreshold": "Schwellenwert für öffentliche Personen"
+  },
+  "pollinations": {
+    "enhance": "Verbessern",
+    "enhanceHint": "Lass die KI deinen Prompt für bessere Ergebnisse verbessern",
+    "private": "Privat",
+    "privateHint": "Bild aus öffentlichen Feeds ausblenden"
+  },
+  "stabilityai": {
+    "style_presetLabel": "Stilvorgabe",
+    "negativePrompt": "Negativer Prompt",
+    "no_style_preset": "Keine Stilvorgabe",
+    "style_presetHint": "Leitet das Bildmodell zu einem bestimmten Stil an.",
+    "style_preset": {
+      "3d-model": "3D-Modell",
+      "analog-film": "Analogfilm",
+      "anime": "Anime",
+      "cinematic": "Kinematisch",
+      "comic-book": "Comic",
+      "digital-art": "Digitale Kunst",
+      "enhance": "Verbessern",
+      "fantasy-art": "Fantasy-Kunst",
+      "isometric": "Isometrisch",
+      "line-art": "Linienzeichnung",
+      "low-poly": "Low-Poly",
+      "modeling-compound": "Modelliermasse",
+      "neon-punk": "Neon-Punk",
+      "origami": "Origami",
+      "photographic": "Fotografisch",
+      "pixel-art": "Pixelkunst",
+      "tile-texture": "Kacheltextur"
+    }
+  }
+}
