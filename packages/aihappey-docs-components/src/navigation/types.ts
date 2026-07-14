@@ -47,6 +47,26 @@ export type DocsEndpointResponse = {
   example?: DocsCodeExample;
 };
 
+export type DocsEndpointTestResponseType = "auto" | "json" | "text" | "blob" | "audio";
+
+export type DocsEndpointTestHeader = {
+  name: string;
+  value?: string;
+  placeholder?: string;
+};
+
+export type DocsEndpointTestConfig = {
+  label?: string;
+  modalTitle?: string;
+  description?: ReactNode;
+  method?: string;
+  url?: string;
+  headers?: DocsEndpointTestHeader[];
+  body?: unknown;
+  responseType?: DocsEndpointTestResponseType;
+  downloadFileName?: string;
+};
+
 export type DocsEndpointDoc = {
   id: string;
   title: string;
@@ -61,6 +81,7 @@ export type DocsEndpointDoc = {
   requestExamples?: DocsCodeExample[];
   responses?: DocsEndpointResponse[];
   errors?: DocsEndpointResponse[];
+  test?: DocsEndpointTestConfig;
   related?: DocsNavItem[];
 };
 

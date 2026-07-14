@@ -1,9 +1,11 @@
+import { useState } from "react";
 import type { DocsEndpointDoc } from "../navigation/types";
 import { useDocsTheme } from "../theme/useDocsTheme";
 import { docsArticleStyle, docsCodeStyle, docsHeroTextStyle } from "../theme/docsThemeStyles";
 import { DocsLink } from "../layout/DocsLink";
 import { ApiSection } from "./ApiSection";
 import { CodeExample } from "./CodeExample";
+import { EndpointTestModal } from "./EndpointTestModal";
 import { ParameterTable } from "./ParameterTable";
 import { ResponseExample } from "./ResponseExample";
 
@@ -12,7 +14,8 @@ export type ApiEndpointPageProps = {
 };
 
 export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
-  const { Badge, Header } = useDocsTheme();
+  const { Badge, Button, Header } = useDocsTheme();
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
 
   return (
     <article style={docsArticleStyle}>
@@ -25,8 +28,19 @@ export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           <Badge appearance="primary">{endpoint.method}</Badge>
           <code style={{ ...docsCodeStyle, padding: "0.45rem 0.7rem", borderRadius: 10, overflowWrap: "anywhere" }}>{endpoint.url ?? endpoint.path}</code>
+          {endpoint.test ? (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setIsTestModalOpen(true)}
+            >
+              {endpoint.test.label ?? "Test"}
+            </Button>
+          ) : null}
         </div>
       </header>
+
+      {endpoint.test ? <EndpointTestModal endpoint={endpoint} show={isTestModalOpen} onHide={() => setIsTestModalOpen(false)} /> : null}
 
       <ApiSection title="Overview">{endpoint.description}</ApiSection>
       {endpoint.auth ? <ApiSection title="Authentication">{endpoint.auth}</ApiSection> : null}

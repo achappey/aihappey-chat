@@ -46,32 +46,32 @@ export const gatewayNavSections: DocsNavSection[] = [
         id: "openai-compatible",
         title: "OpenAI compatible",
         items: [
-            { id: "openai-chat", label: "Chat completions", href: "/gateway/openai/chat-completions", badge: "soon" },
-            { id: "openai-models", label: "Models", href: "/gateway/openai/models", badge: "soon" },
-            { id: "openai-realtime", label: "Realtime", href: "/gateway/openai/realtime", badge: "soon" },
-            { id: "openai-responses", label: "Responses", href: "/gateway/openai/responses", badge: "soon" },
-            { id: "openai-skills", label: "Skills", href: "/gateway/openai/skills", badge: "soon" },
+            { id: "openai-chat", label: "Chat completions", href: "/gateway/openai/chat-completions", badge: "POST" },
+            { id: "openai-models", label: "Models", href: "/gateway/openai/models", badge: "GET" },
+            { id: "openai-realtime", label: "Realtime", href: "/gateway/openai/realtime", badge: "POST" },
+            { id: "openai-responses", label: "Responses", href: "/gateway/openai/responses", badge: "POST" },
+            { id: "openai-skills", label: "Skills", href: "/gateway/openai/skills", badge: "GET" },
             { id: "openai-speech", label: "Speech", href: "/gateway/openai/speech", badge: "POST" },
-            { id: "openai-transcriptions", label: "Transcriptions", href: "/gateway/openai/transcriptions", badge: "soon" },
+            { id: "openai-transcriptions", label: "Transcriptions", href: "/gateway/openai/transcriptions", badge: "POST" },
         ],
     },
     {
         id: "anthropic-compatible",
         title: "Anthropic compatible",
         items: [
-            { id: "anthropic-messages", label: "Messages", href: "/gateway/anthropic/messages", badge: "soon" }
+            { id: "anthropic-messages", label: "Messages", href: "/gateway/anthropic/messages", badge: "POST" }
         ],
     },
     {
         id: "ai-sdk",
         title: "AI SDK",
         items: [
-            { id: "ai-chat", label: "Chat", href: "/gateway/ai/chat", badge: "soon" },
-            { id: "ai-rerank", label: "Rerank", href: "/gateway/ai/rerank", badge: "soon" },
+            { id: "ai-chat", label: "Chat", href: "/gateway/ai/chat", badge: "POST" },
+            { id: "ai-rerank", label: "Rerank", href: "/gateway/ai/rerank", badge: "POST" },
             { id: "ai-speech", label: "Speech", href: "/gateway/ai/speech", badge: "POST" },
-            { id: "ai-transcriptions", label: "Transcriptions", href: "/gateway/ai/transcriptions", badge: "soon" },
-            { id: "ai-ui", label: "UI", href: "/gateway/ai/ui", badge: "soon" },
-            { id: "ai-video", label: "Video", href: "/gateway/ai/video", badge: "soon" },
+            { id: "ai-transcriptions", label: "Transcriptions", href: "/gateway/ai/transcriptions", badge: "POST" },
+            { id: "ai-ui", label: "UI", href: "/gateway/ai/ui", badge: "POST" },
+            { id: "ai-video", label: "Video", href: "/gateway/ai/video", badge: "POST" },
         ],
     },
 ];
@@ -137,8 +137,7 @@ const aiSdkSpeechDescription: ReactNode = (
 
 const speechAuth: ReactNode = (
     <p style={{ margin: 0 }}>
-        Send a bearer token with every request. In local samples this may be a development token; hosted environments should use the configured
-        downstream access token flow for the gateway.
+        Send a bearer token with every request.
     </p>
 );
 
@@ -175,7 +174,7 @@ const aiSdkSpeechResponseExample = `{
   "warnings": [],
   "response": {
     "timestamp": "2026-07-14T13:20:00Z",
-    "modelId": "tts-1"
+    "modelId": "openai/tts-1"
   },
   "request": {
     "body": {
@@ -185,6 +184,18 @@ const aiSdkSpeechResponseExample = `{
     }
   }
 }`;
+
+const openAiSpeechTestDescription: ReactNode = (
+    <p style={{ margin: 0 }}>
+        Edit the bearer token, model, voice, and input, then send a live request. Audio responses can be played directly in the modal or downloaded.
+    </p>
+);
+
+const aiSdkSpeechTestDescription: ReactNode = (
+    <p style={{ margin: 0 }}>
+        Edit the bearer token and JSON body, then send a live request. JSON responses are formatted automatically, and binary audio responses can still be downloaded.
+    </p>
+);
 
 export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
@@ -203,13 +214,30 @@ export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateS
             description: openAiSpeechDescription,
             auth: speechAuth,
             parameters: openAiSpeechParameters,
+            test: {
+                label: "Test",
+                modalTitle: "Test OpenAI-compatible speech",
+                description: openAiSpeechTestDescription,
+                responseType: "audio",
+                downloadFileName: "speech.mp3",
+                headers: [
+                    { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                    { name: "Content-Type", value: "application/json" },
+                ],
+                body: {
+                    model: "openai/tts-1",
+                    voice: "alloy",
+                    input: "Hallo daar, welkom bij aihappey docs.",
+                    response_format: "mp3",
+                },
+            },
             requestExamples: [
                 {
                     id: "curl-openai-binary",
                     label: "cURL",
                     language: "bash",
                     code: `curl ${openAiSpeechUrl} \\
-  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   --output speech.mp3 \\
   -d '{
@@ -224,7 +252,7 @@ export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateS
                     label: "cURL streaming",
                     language: "bash",
                     code: `curl ${openAiSpeechUrl} \\
-  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/tts-1",
@@ -286,6 +314,23 @@ data: [DONE]`,
         description: aiSdkSpeechDescription,
         auth: speechAuth,
         parameters: aiSdkSpeechParameters,
+        test: {
+            label: "Test",
+            modalTitle: "Test AI SDK speech",
+            description: aiSdkSpeechTestDescription,
+            responseType: "auto",
+            downloadFileName: "speech-response.bin",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body: {
+                model: "openai/tts-1",
+                text: "Hallo daar, welkom bij aihappey docs.",
+                voice: "alloy",
+                outputFormat: "mp3",
+            },
+        },
         requestExamples: [
             {
                 id: "typescript-ai-sdk",
@@ -312,7 +357,7 @@ const speech = await response.json();`,
                 label: "cURL",
                 language: "bash",
                 code: `curl ${aiSdkSpeechUrl} \\
-  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/tts-1",
