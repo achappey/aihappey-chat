@@ -11,7 +11,7 @@ export const lelapaai: Provider = {
     privacyPolicy: "https://lelapa.ai/privacy",
     termsOfService: "https://lelapa.ai/terms"
   },
-  providerCountry: "SA",
+  providerCountry: "ZA",
   category: "model_provider",
   inferenceRegions: ["World"]
 
