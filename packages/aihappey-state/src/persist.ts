@@ -33,7 +33,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 27,
+    version: 28,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -106,6 +106,7 @@ export const withPersist = (
       favoriteAgentIds: (s as any).favoriteAgentIds,
       enabledSkillIds: (s as any).enabledSkillIds,
       favoriteSkillIds: (s as any).favoriteSkillIds,
+      favoriteProviderIds: (s as any).favoriteProviderIds,
       customProviders: (s as any).customProviders,
       selectedThemeId: (s as any).selectedThemeId,
       sideInferenceAgentNames: (s as any).sideInferenceAgentNames,
@@ -353,6 +354,15 @@ export const withPersist = (
         };
       }
 
+      if (version < 28) {
+        safeState = {
+          ...safeState,
+          favoriteProviderIds: Array.isArray(safeState.favoriteProviderIds)
+            ? Array.from(new Set(safeState.favoriteProviderIds.filter(Boolean)))
+            : [],
+        };
+      }
+
       const storedChatEndpointMode = readStoredChatEndpointMode();
       const configuredChatEndpointMode = storedChatEndpointMode
         ?? normalizeChatEndpointMode(safeState.configuredChatEndpointMode)
@@ -403,6 +413,9 @@ export const withPersist = (
           : [],
         favoriteSkillIds: Array.isArray(safeState.favoriteSkillIds)
           ? Array.from(new Set(safeState.favoriteSkillIds.filter(Boolean)))
+          : [],
+        favoriteProviderIds: Array.isArray(safeState.favoriteProviderIds)
+          ? Array.from(new Set(safeState.favoriteProviderIds.filter(Boolean)))
           : [],
         customProviders: normalizeCustomProviders(safeState.customProviders),
         apiKeyEncryptionStatus: resolveApiKeyEncryptionStatus(

@@ -6,6 +6,7 @@ import { ExperimentalBadge, ModelTypeBadge, ProviderCategoryBadge } from "../bad
 import { ProviderCategory, ProviderUrls } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
 import Flag from "react-world-flags";
+import { ProviderFavoriteToggleButton } from "../buttons/ProviderFavoriteToggleButton";
 
 export type ProviderCardProps = {
     name: string;
@@ -18,6 +19,8 @@ export type ProviderCardProps = {
     selected?: boolean;
     modelTypes?: string[];
     onView?: () => void;
+    isFavorite?: boolean;
+    onToggleFavorite?: () => void;
 };
 
 export const ProviderCard = ({
@@ -31,6 +34,8 @@ export const ProviderCard = ({
     category,
     modelTypes,
     onView,
+    isFavorite = false,
+    onToggleFavorite,
 }: ProviderCardProps) => {
     const { Card, Image } = useTheme();
     const { t } = useTranslation();
@@ -123,6 +128,15 @@ export const ProviderCard = ({
                             icon={"privacy"}
                             size="small"
                             variant="subtle" />}
+                    {onToggleFavorite && (
+                        <ProviderFavoriteToggleButton
+                            providerName={name}
+                            isFavorite={isFavorite}
+                            onToggleFavorite={onToggleFavorite}
+                            size="small"
+                            variant="subtle"
+                        />
+                    )}
                 </div>
             }
         >

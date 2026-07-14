@@ -105,7 +105,7 @@ const inferProviderModelTypes = (provider: ProviderListItem) => {
 
 export const ProvidersPage = () => {
     const PAGE_SIZE = 50;
-    const { Drawer, Switch, Button, Text } = useTheme();
+    const { Drawer, Switch, Button, Text, Tabs, Tab } = useTheme();
     const CONTENT_MAX_WIDTH = 980;
     const DESKTOP_FILTER_DRAWER_WIDTH = 320;
     const { t } = useTranslation();
@@ -128,8 +128,11 @@ export const ProvidersPage = () => {
     const [selectedProviderKey, setSelectedProviderKey] = useState<string | null>(null);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
     const [showAddProvider, setShowAddProvider] = useState(false);
+    const [activeTab, setActiveTab] = useState<string>("all");
     const providerRegistry = useProviderRegistry();
     const models = useAppStore((s) => s.models);
+    const favoriteProviderIds = useAppStore((s: any) => s.favoriteProviderIds as string[] | undefined);
+    const toggleFavoriteProvider = useAppStore((s: any) => s.toggleFavoriteProvider as (providerId: string) => void);
     const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
     const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
     const collator = useMemo(
@@ -144,6 +147,11 @@ export const ProvidersPage = () => {
             t(a.type).localeCompare(t(b.type))
         );
     }, [models]);
+
+    const favoriteProviderSet = useMemo(
+        () => new Set((favoriteProviderIds ?? []).filter(Boolean)),
+        [favoriteProviderIds]
+    );
 
     const modelTypesByProvider = useMemo(() => {
         const byProvider: Record<string, string[]> = {};
@@ -583,6 +591,11 @@ export const ProvidersPage = () => {
         return providers.filter((p) => providerMatchesFilters(p, currentSelections));
     }, [currentSelections, providerMatchesFilters, providers]);
 
+    const favoriteFiltered = useMemo(
+        () => filtered.filter((p) => favoriteProviderSet.has(p.key)),
+        [favoriteProviderSet, filtered]
+    );
+
     useEffect(() => {
         setSelectedCategories((current) => {
             const next = keepAvailableSelection(current, categoryOptions, cleanupCounts.categories);
@@ -613,7 +626,7 @@ export const ProvidersPage = () => {
 
     useEffect(() => {
         setVisibleCount(PAGE_SIZE);
-    }, [search, selectedCategories, selectedCountries, selectedModelTypes, selectedRegions]);
+    }, [activeTab, search, selectedCategories, selectedCountries, selectedModelTypes, selectedRegions]);
 
     const selectedProvider = useMemo(
         () => providers.find((p) => p.key === selectedProviderKey) ?? null,
@@ -650,6 +663,69 @@ export const ProvidersPage = () => {
                 />
             ))}
         </div>
+    );
+
+    const renderProviderResults = (items: ProviderListItem[]) => (
+        <>
+            <div
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: isDesktop
+                        ? "repeat(auto-fit, minmax(320px, 1fr))"
+                        : "1fr",
+                    gap: 16,
+                    width: "100%",
+                    marginBottom: 24,
+                }}
+            >
+                {items.slice(0, visibleCount).map((p) => {
+                    const image =
+                        p.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))
+                            ?.src ?? p.icons?.[0]?.src;
+                    const modelTypes = effectiveModelTypesByProvider[p.key] ?? [];
+
+                    return (
+                        <div
+                            key={p.key}
+                            style={{ width: "100%" }}
+                        >
+                            <ProviderCard
+                                name={p.name}
+                                experimental={p.experimental}
+                                urls={p.urls}
+                                providerCountry={p.providerCountry}
+                                category={p.category}
+                                image={image}
+                                description={p.description ?? p.key}
+                                modelTypes={modelTypes}
+                                onView={() => setSelectedProviderKey(p.key)}
+                                isFavorite={favoriteProviderSet.has(p.key)}
+                                onToggleFavorite={() => toggleFavoriteProvider(p.key)}
+                            />
+                        </div>
+                    );
+                })}
+            </div>
+
+            {items.length > visibleCount && (
+                <div
+                    style={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: 16,
+                        marginBottom: 24,
+                    }}
+                >
+                    <Button
+                        variant="subtle"
+                        onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                    >
+                        {t("showMore")}
+                    </Button>
+                </div>
+            )}
+        </>
     );
 
     return (
@@ -774,62 +850,15 @@ export const ProvidersPage = () => {
                                     onRegionsChange={setSelectedRegions}
                                 />
 
-                                <div
-                                    style={{
-                                        display: "grid",
-                                        gridTemplateColumns: isDesktop
-                                            ? "repeat(auto-fit, minmax(320px, 1fr))"
-                                            : "1fr",
-                                        gap: 16,
-                                        width: "100%",
-                                        marginBottom: 24,
-                                    }}
-                                >
-                                    {filtered.slice(0, visibleCount).map((p) => {
-                                        const image =
-                                            p.icons?.find((i) => i.theme === (isDarkMode ? "dark" : "light"))
-                                                ?.src ?? p.icons?.[0]?.src;
-                                        const modelTypes = effectiveModelTypesByProvider[p.key] ?? [];
+                                <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
+                                    <Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
+                                        <div style={{ paddingTop: 12 }}>{renderProviderResults(filtered)}</div>
+                                    </Tab>
 
-                                        return (
-                                            <div
-                                                key={p.key}
-                                                style={{ width: "100%" }}
-                                            >
-                                                <ProviderCard
-                                                    name={p.name}
-                                                    experimental={p.experimental}
-                                                    urls={p.urls}
-                                                    providerCountry={p.providerCountry}
-                                                    category={p.category}
-                                                    image={image}
-                                                    description={p.description ?? p.key}
-                                                    modelTypes={modelTypes}
-                                                    onView={() => setSelectedProviderKey(p.key)}
-                                                />
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-
-                                {filtered.length > visibleCount && (
-                                    <div
-                                        style={{
-                                            width: "100%",
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            marginTop: 16,
-                                            marginBottom: 24,
-                                        }}
-                                    >
-                                        <Button
-                                            variant="subtle"
-                                            onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
-                                        >
-                                            {t("showMore")}
-                                        </Button>
-                                    </div>
-                                )}
+                                    <Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
+                                        <div style={{ paddingTop: 12 }}>{renderProviderResults(favoriteFiltered)}</div>
+                                    </Tab>
+                                </Tabs>
                             </div>
                         </div>
 

@@ -202,6 +202,8 @@
     "unfavorite_model": "{{model}} verwijderen uit favorieten",
     "favorite_agent": "{{agent}} toevoegen aan favorieten",
     "unfavorite_agent": "{{agent}} verwijderen uit favorieten",
+    "favorite_provider": "{{provider}} toevoegen aan favorieten",
+    "unfavorite_provider": "{{provider}} verwijderen uit favorieten",
     "custom": "Aangepast",
     "agentEdit": {
         "name": "Naam",
