@@ -1,8 +1,0 @@
-{
-  "mimeType": "Bestandstype",
-  "text/plain": "Tekst",
-  "text/markdown": "Opmaak",
-  "application/json": "JavaScript Object Notatie",
-  "application/vnd.agents+json": "Agents",
-  "application/vnd.agent+json": "Agent"
-}
