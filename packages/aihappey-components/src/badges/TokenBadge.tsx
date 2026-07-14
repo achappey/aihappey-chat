@@ -16,7 +16,6 @@ export const TokenBadge: React.FC<TokenBadgeProps> = ({
     <Badge title={t('totalTokens')}
       icon={"code"}
       size="large"
-      bg="informative"
       appearance="ghost">
       {totalTokens}
     </Badge>

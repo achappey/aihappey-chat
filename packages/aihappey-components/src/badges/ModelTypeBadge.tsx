@@ -12,7 +12,6 @@ export const ModelTypeBadge: React.FC<ModelTypeBadgeProps> = ({
   const { t } = useTranslation();
 
   return <Badge
-    bg="informative"
     size="small"
     icon={modelType as any}
     appearance={"outline"}

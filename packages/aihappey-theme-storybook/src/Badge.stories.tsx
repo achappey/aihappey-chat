@@ -6,16 +6,17 @@ import type { AihUiTheme } from "aihappey-types";
 type BadgeStoryArgs = {
   appearance?: unknown;
   bg?: string;
+  variant?: string;
   title?: string;
   children: string;
 };
 
 const BadgeStory = (args: BadgeStoryArgs) => {
-  const { appearance, bg, title, children } = args;
+  const { appearance, bg, variant, title, children } = args;
   const { Badge } = useTheme() as unknown as Pick<AihUiTheme, "Badge">;
 
   return (
-    <Badge appearance={appearance} bg={bg} title={title}>
+    <Badge appearance={appearance} bg={bg} variant={variant} title={title}>
       {children}
     </Badge>
   );
@@ -31,6 +32,9 @@ const meta = {
     bg: {
       control: { type: "color" },
     },
+    variant: {
+      control: { type: "text" },
+    },
     title: {
       control: { type: "text" },
     },
@@ -39,8 +43,9 @@ const meta = {
     },
   },
   args: {
-    appearance: "filled",
+    appearance: undefined,
     bg: undefined,
+    variant: undefined,
     title: "Badge",
     children: "Badge",
   },
@@ -50,6 +55,38 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Secondary: Story = {
+  args: {
+    variant: "secondary",
+    children: "Secondary",
+  },
+};
+
+export const InformativeTint: Story = {
+  args: {
+    appearance: "tint",
+    bg: "informative",
+    children: "GET",
+  },
+};
+
+export const InformativeGhost: Story = {
+  args: {
+    appearance: "ghost",
+    bg: "informative",
+    children: "747",
+  },
+};
+
+export const SidebarMethodBadge: Story = {
+  args: {
+    appearance: "tint",
+    bg: "informative",
+    title: "Docs sidebar API reference badge",
+    children: "POST",
+  },
+};
 
 export const CustomBg: Story = {
   args: {

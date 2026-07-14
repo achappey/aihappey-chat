@@ -33,7 +33,6 @@ export const CostBadge: React.FC<CostBadgeProps> = ({
       title={`${t("messagePrice")}`}
       icon={"pricing"}
       size={size}
-      bg="informative"
       appearance="ghost"
     >
       {displayCost}

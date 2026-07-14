@@ -655,12 +655,33 @@ export const Text = ({ as = "span", children, style, weight, italic, underline, 
 
 export const Paragraph = ({ children, className, style, ...rest }: any) => <p className={className} style={{ marginBlock: "0 1rem", color: "var(--aih-shadcn-muted-foreground)", ...style }} {...rest}>{children}</p>;
 
-export const Badge = ({ bg, color, appearance, variant = "secondary", icon, text, children, className, ...rest }: any) => {
+const getBadgeToneClass = (tone?: string) => {
+  const normalizedTone = tone?.toLowerCase();
+  if (normalizedTone === "error" || normalizedTone === "danger" || normalizedTone === "destructive" || normalizedTone === "severe") return "danger";
+  if (normalizedTone === "success") return "success";
+  if (normalizedTone === "info" || normalizedTone === "informative") return "info";
+  if (normalizedTone === "primary" || normalizedTone === "brand") return "primary";
+  return undefined;
+};
+
+export const Badge = ({ bg, color, appearance, variant = "default", icon, text, children, className, ...rest }: any) => {
   const Icon = icon ? iconMap[icon as IconToken] : undefined;
-  const tone = color ?? bg ?? variant;
-  const toneClass = tone === "error" || tone === "danger" || tone === "destructive" ? "danger" : tone === "success" ? "success" : tone === "info" || tone === "informative" ? "info" : tone === "primary" ? "primary" : undefined;
-  const mapped = appearance === "outline" || tone === "outline" ? "outline" : appearance === "ghost" || appearance === "subtle" || appearance === "tint" ? "tint" : toneClass ?? "secondary";
-  return <span className={cn("aih-shadcn-badge", `aih-shadcn-badge-${mapped}`, toneClass && `aih-shadcn-badge-tone-${toneClass}`, className)} {...rest}>{Icon ? <Icon size={12} /> : null}{children ?? text}</span>;
+  const tone = color ?? bg ?? (variant !== "default" ? variant : undefined) ?? (appearance !== "filled" ? appearance : undefined);
+  const toneClass = getBadgeToneClass(tone);
+  const visualVariant = appearance === "outline" || variant === "outline" || tone === "outline"
+    ? "outline"
+    : appearance === "ghost"
+      ? "ghost"
+      : appearance === "subtle"
+        ? "subtle"
+        : appearance === "tint"
+          ? "tint"
+          : variant === "secondary" || appearance === "secondary"
+            ? "secondary"
+            : undefined;
+  const mapped = visualVariant ?? toneClass ?? (tone ? "secondary" : "primary");
+  const shouldApplyTone = Boolean(toneClass && mapped !== "ghost" && mapped !== "subtle" && mapped !== toneClass);
+  return <span className={cn("aih-shadcn-badge", `aih-shadcn-badge-${mapped}`, shouldApplyTone && `aih-shadcn-badge-tone-${toneClass}`, className)} {...rest}>{Icon ? <Icon size={12} /> : null}{children ?? text}</span>;
 };
 
 export const Card = ({ title, text, description, children, actions, headerActions, image, className, style }: any) => {

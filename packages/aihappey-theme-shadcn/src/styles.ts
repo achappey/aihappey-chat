@@ -272,6 +272,8 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 .aih-shadcn-badge-primary { background: var(--aih-shadcn-primary); color: var(--aih-shadcn-primary-foreground); }
 .aih-shadcn-badge-secondary { background: var(--aih-shadcn-secondary); color: var(--aih-shadcn-secondary-foreground); }
 .aih-shadcn-badge-outline { border-color: var(--aih-shadcn-border); color: var(--aih-shadcn-foreground); }
+.aih-shadcn-badge-ghost { background: transparent; color: var(--aih-shadcn-foreground); }
+.aih-shadcn-badge-subtle { background: color-mix(in srgb, var(--aih-shadcn-foreground) 8%, transparent); color: var(--aih-shadcn-foreground); }
 .aih-shadcn-badge-tint { background: color-mix(in srgb, currentColor 12%, transparent); color: var(--aih-shadcn-foreground); }
 .aih-shadcn-badge-danger { background: var(--aih-shadcn-destructive); color: var(--aih-shadcn-destructive-foreground); }
 .aih-shadcn-badge-info { background: var(--aih-shadcn-info); color: var(--aih-shadcn-info-foreground); }
