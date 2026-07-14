@@ -1,5 +1,6 @@
 import type { DocsEndpointDoc } from "../navigation/types";
 import { useDocsTheme } from "../theme/useDocsTheme";
+import { docsArticleStyle, docsCodeStyle, docsHeroTextStyle } from "../theme/docsThemeStyles";
 import { DocsLink } from "../layout/DocsLink";
 import { ApiSection } from "./ApiSection";
 import { CodeExample } from "./CodeExample";
@@ -14,16 +15,16 @@ export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
   const { Badge, Header } = useDocsTheme();
 
   return (
-    <article style={{ maxWidth: 980, padding: "clamp(2rem, 5vw, 5rem)", display: "grid", gap: 42 }}>
+    <article style={docsArticleStyle}>
       <header style={{ display: "grid", gap: 18 }}>
         <Badge appearance="secondary">{endpoint.surface}</Badge>
         <Header level={1} style={{ fontSize: "clamp(2.4rem, 5vw, 4.6rem)" }}>{endpoint.title}</Header>
-        <p style={{ fontSize: "clamp(1.05rem, 2vw, 1.35rem)", lineHeight: 1.7, opacity: 0.78, maxWidth: 860 }}>
+        <p style={{ ...docsHeroTextStyle, fontSize: "clamp(1.05rem, 2vw, 1.35rem)", maxWidth: 860 }}>
           {endpoint.summary}
         </p>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           <Badge appearance="primary">{endpoint.method}</Badge>
-          <code style={{ padding: "0.45rem 0.7rem", borderRadius: 10, background: "rgba(127,127,127,0.13)" }}>{endpoint.path}</code>
+          <code style={{ ...docsCodeStyle, padding: "0.45rem 0.7rem", borderRadius: 10, overflowWrap: "anywhere" }}>{endpoint.url ?? endpoint.path}</code>
         </div>
       </header>
 

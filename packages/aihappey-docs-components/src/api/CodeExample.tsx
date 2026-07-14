@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { DocsCodeExample } from "../navigation/types";
+import { docsCodeStyle } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
 
 export type CodeExampleProps = {
@@ -37,7 +38,7 @@ export const CodeExample = ({ examples }: CodeExampleProps) => {
             padding: 16,
             overflow: "auto",
             borderRadius: 14,
-            background: "rgba(127,127,127,0.12)",
+            ...docsCodeStyle,
             lineHeight: 1.6,
           }}
         >

@@ -1,6 +1,7 @@
 export * from "./theme/ThemeContext";
 export * from "./theme/MultiThemeContext";
 export * from "./theme/useDocsTheme";
+export * from "./theme/docsThemeStyles";
 export * from "./navigation/types";
 export * from "./layout/DocsLink";
 export * from "./layout/DocsTopNav";

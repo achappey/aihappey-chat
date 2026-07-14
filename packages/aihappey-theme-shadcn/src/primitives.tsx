@@ -1445,6 +1445,7 @@ const ShadcnNavItemRow = ({
       >
         {Icon ? <Icon size={18} /> : null}
         <span className="aih-shadcn-nav-label">{item.label}</span>
+        {item.badge ? <Badge variant="outline">{item.badge}</Badge> : null}
         {item.new ? <Badge variant="outline">{translations?.new ?? "new"}</Badge> : null}
       </button>
       {actionButton}

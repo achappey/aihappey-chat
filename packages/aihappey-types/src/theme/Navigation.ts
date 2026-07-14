@@ -9,6 +9,7 @@ export interface NavigationItem {
   icon?: IconToken;
   href?: string;
   disabled?: boolean;
+  badge?: string | React.ReactNode;
   new?: boolean;
   pinned?: boolean;
   conversationItem?: boolean;

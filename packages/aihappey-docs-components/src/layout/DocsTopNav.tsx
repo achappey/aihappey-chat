@@ -1,4 +1,5 @@
 import type { DocsTopNavItem } from "../navigation/types";
+import { docsActiveSurfaceStyle } from "../theme/docsThemeStyles";
 import { DocsLink } from "./DocsLink";
 
 export type DocsTopNavProps = {
@@ -22,7 +23,7 @@ export const DocsTopNav = ({ items, activePath }: DocsTopNavProps) => (
           active={active}
           style={{
             padding: "0.55rem 0.85rem",
-            background: active ? "rgba(127,127,127,0.16)" : undefined,
+            ...(active ? docsActiveSurfaceStyle : undefined),
           }}
         >
           {item.label}

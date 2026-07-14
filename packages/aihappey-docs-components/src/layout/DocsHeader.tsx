@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { DocsTopNavItem } from "../navigation/types";
+import { docsBorderStyle } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
 import { DocsLink } from "./DocsLink";
 import { DocsTopNav } from "./DocsTopNav";
@@ -23,11 +24,11 @@ export const DocsHeader = ({ title, activePath, navItems, dashboardHref, actions
         top: 0,
         zIndex: 20,
         backdropFilter: "blur(18px)",
-        background: "color-mix(in srgb, Canvas 88%, transparent)",
-        borderBottom: "1px solid color-mix(in srgb, currentColor 13%, transparent)",
+        background: "color-mix(in srgb, currentColor 3%, transparent)",
+        borderBottom: docsBorderStyle,
       }}
     >
-      <div
+        <div
         style={{
           minHeight: 76,
           padding: "0.85rem clamp(1rem, 2vw, 2rem)",

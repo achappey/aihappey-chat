@@ -3,13 +3,14 @@ import { createSpeechEndpointDoc, docsTopNavItems, gatewayNavSections } from "..
 
 export type SpeechEndpointPageProps = {
   activePath: string;
+  apiBaseUrl?: string;
   appTitle: string;
   surface: "openai" | "ai-sdk";
 };
 
-export const SpeechEndpointPage = ({ activePath, appTitle, surface }: SpeechEndpointPageProps) => (
+export const SpeechEndpointPage = ({ activePath, apiBaseUrl, appTitle, surface }: SpeechEndpointPageProps) => (
   <ApiReferenceLayout appTitle={appTitle} activePath={activePath} topNavItems={docsTopNavItems} sidebarTitle="Gateway" sections={gatewayNavSections}>
-    <ApiEndpointPage endpoint={createSpeechEndpointDoc(surface)} />
+    <ApiEndpointPage endpoint={createSpeechEndpointDoc(surface, { apiBaseUrl })} />
   </ApiReferenceLayout>
 );
 

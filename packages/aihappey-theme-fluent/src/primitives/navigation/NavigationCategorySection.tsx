@@ -40,7 +40,10 @@ export const NavigationCategorySection: React.FC<CategorySectionProps> = ({ item
             value={b.key}
             onClick={() => (b.onClick ? b.onClick() : onSelect?.(b.href))}
           >
-            {b.label}
+            <span style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", minWidth: 0 }}>
+              <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.label}</span>
+              {b.badge ? <Badge appearance="outline" style={{ marginLeft: "auto", flex: "0 0 auto" }}>{b.badge}</Badge> : null}
+            </span>
             {b.new && (
               <Badge color="informative" appearance="outline">
                 {translations?.new ?? "new"}

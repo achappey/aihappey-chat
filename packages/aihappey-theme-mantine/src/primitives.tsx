@@ -801,7 +801,7 @@ const renderNavItem = (item: NavigationItem, activeKey?: string, onSelect?: (key
   return (
     <NavLink
       key={key}
-      label={item.label}
+      label={<span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, width: "100%" }}><span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.label}</span>{item.badge ? <MantineText component="span" size="xs" c="dimmed" style={{ marginLeft: "auto", flex: "0 0 auto" }}>{item.badge}</MantineText> : null}</span>}
       leftSection={renderIcon(item.icon)}
       active={selected}
       defaultOpened={childSelected}

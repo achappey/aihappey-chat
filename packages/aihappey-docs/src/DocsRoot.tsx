@@ -8,6 +8,7 @@ import { SpeechEndpointPage } from "./pages/SpeechEndpointPage";
 
 export type DocsRootProps = {
   appTitle?: string;
+  apiBaseUrl?: string;
 };
 
 const withLocation = (render: (activePath: string) => ReactElement) => {
@@ -19,18 +20,18 @@ const withLocation = (render: (activePath: string) => ReactElement) => {
   return <RouteElement />;
 };
 
-export const DocsRoot = ({ appTitle = "AIHappey Developers" }: DocsRootProps) => {
+export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl }: DocsRootProps) => {
   const router = useMemo(
     () =>
       createBrowserRouter([
         { path: "/", element: withLocation((activePath) => <HomePage activePath={activePath} appTitle={appTitle} />) },
         { path: "/gateway", element: withLocation((activePath) => <GatewayOverviewPage activePath={activePath} appTitle={appTitle} />) },
         { path: "/agents", element: withLocation((activePath) => <AgentsOverviewPage activePath={activePath} appTitle={appTitle} />) },
-        { path: "/gateway/openai/speech", element: withLocation((activePath) => <SpeechEndpointPage activePath={activePath} appTitle={appTitle} surface="openai" />) },
-        { path: "/gateway/ai/speech", element: withLocation((activePath) => <SpeechEndpointPage activePath={activePath} appTitle={appTitle} surface="ai-sdk" />) },
+        { path: "/gateway/openai/speech", element: withLocation((activePath) => <SpeechEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="openai" />) },
+        { path: "/gateway/ai/speech", element: withLocation((activePath) => <SpeechEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="ai-sdk" />) },
         { path: "*", element: withLocation((activePath) => <ComingSoonPage activePath={activePath} appTitle={appTitle} />) },
       ]),
-    [appTitle]
+    [apiBaseUrl, appTitle]
   );
 
   return <RouterProvider router={router} />;

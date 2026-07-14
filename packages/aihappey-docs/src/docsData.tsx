@@ -90,7 +90,10 @@ export const agentNavSections: DocsNavSection[] = [
         title: "OpenAI compatible",
         items: [
             { id: "agents-openai-models", label: "Models", href: "/agents/openai/models", badge: "soon" },
-            { id: "agents-openai-responses", label: "Responses", href: "/agents/openai/responses", badge: "soon" },
+            { id: "agents-openai-create-response", label: "Create response", href: "/agents/openai/responses/create", badge: "soon" },
+            { id: "agents-openai-retrieve-response", label: "Retrieve response", href: "/agents/openai/responses/retrieve", badge: "soon" },
+            { id: "agents-openai-delete-response", label: "Delete response", href: "/agents/openai/responses/delete", badge: "soon" },
+            { id: "agents-openai-list-responses", label: "List responses", href: "/agents/openai/responses/list", badge: "soon" },
         ],
     },
     {
@@ -102,10 +105,33 @@ export const agentNavSections: DocsNavSection[] = [
     },
 ];
 
-const speechDescription: ReactNode = (
+type SpeechSurface = "openai" | "ai-sdk";
+
+type CreateSpeechEndpointDocOptions = {
+    apiBaseUrl?: string;
+};
+
+const fallbackApiBaseUrl = "http://localhost:3010";
+
+const normalizeApiBaseUrl = (apiBaseUrl?: string) => {
+    const trimmed = apiBaseUrl?.trim();
+    if (!trimmed) return fallbackApiBaseUrl;
+    return trimmed.replace(/\/+$/, "");
+};
+
+const createApiUrl = (apiBaseUrl: string, path: string) => `${normalizeApiBaseUrl(apiBaseUrl)}${path}`;
+
+const openAiSpeechDescription: ReactNode = (
     <p style={{ margin: 0 }}>
-        Create speech audio from text input through the gateway. This page is intentionally the first fully worked endpoint so the docs structure,
-        side navigation, examples, request tables, and response sections can be reused for the remaining endpoints.
+        Create speech audio through the OpenAI-compatible audio endpoint. This route accepts the OpenAI text-to-speech request shape and returns raw
+        audio bytes by default, or server-sent events when <code>stream_format</code> is set to <code>sse</code>.
+    </p>
+);
+
+const aiSdkSpeechDescription: ReactNode = (
+    <p style={{ margin: 0 }}>
+        Generate speech audio through the AI SDK gateway route. This route uses the Vercel AI SDK speech request shape and returns JSON metadata with
+        the generated audio encoded as base64.
     </p>
 );
 
@@ -116,55 +142,156 @@ const speechAuth: ReactNode = (
     </p>
 );
 
-const speechParameters = [
-    { name: "model", type: "string", required: true, description: "Speech-capable model or provider deployment identifier." },
+const openAiSpeechParameters = [
+    { name: "model", type: "string", required: true, description: "Speech-capable model or provider-qualified model identifier." },
     { name: "input", type: "string", required: true, description: "Text to synthesize into audio." },
-    { name: "voice", type: "string", required: true, description: "Voice identifier supported by the configured provider." },
-    { name: "format", type: "string", required: false, description: "Optional audio format such as mp3, wav, opus, or provider-specific values." },
+    { name: "voice", type: "string", required: true, description: "Voice identifier supported by the selected model or provider." },
+    { name: "response_format", type: "string", required: false, description: "Optional output format such as mp3, wav, opus, flac, aac, or pcm when supported by the provider." },
+    { name: "instructions", type: "string", required: false, description: "Optional provider instructions for tone, delivery, or speaking style." },
     { name: "speed", type: "number", required: false, description: "Optional speech speed multiplier when supported by the provider." },
+    { name: "stream_format", type: "string", required: false, description: "Set to sse to receive speech.audio.delta and speech.audio.done events instead of a binary audio response." },
 ];
 
-const speechResponseExample = `{
-  "id": "speech_01JZEXAMPLE",
-  "model": "tts-1",
-  "voice": "alloy",
-  "mimeType": "audio/mpeg",
-  "audioUrl": "https://api.example.com/files/speech_01JZEXAMPLE.mp3",
-  "usage": {
-    "inputTokens": 12
+const aiSdkSpeechParameters = [
+    { name: "model", type: "string", required: true, description: "Speech-capable model or provider-qualified model identifier." },
+    { name: "text", type: "string", required: true, description: "Text to synthesize into audio." },
+    { name: "voice", type: "string", required: false, description: "Voice identifier supported by the selected model or provider. Some providers require this value." },
+    { name: "outputFormat", type: "string", required: false, description: "Optional output format such as mp3, wav, opus, flac, aac, or pcm when supported by the provider." },
+    { name: "instructions", type: "string", required: false, description: "Optional provider instructions for tone, delivery, or speaking style." },
+    { name: "speed", type: "number", required: false, description: "Optional speech speed multiplier when supported by the provider." },
+    { name: "language", type: "string", required: false, description: "Optional language hint for providers that support explicit speech language selection." },
+    { name: "providerOptions", type: "object", required: false, description: "Provider-specific options keyed by provider identifier, for example openai, deepgram, elevenlabs, minimax, or together." },
+];
+
+const aiSdkSpeechResponseExample = `{
+  "providerMetadata": {
+    "openai": {}
+  },
+  "audio": {
+    "base64": "SUQzBAAAAAAA...",
+    "mimeType": "audio/mpeg",
+    "format": "mp3"
+  },
+  "warnings": [],
+  "response": {
+    "timestamp": "2026-07-14T13:20:00Z",
+    "modelId": "tts-1"
+  },
+  "request": {
+    "body": {
+      "model": "tts-1",
+      "input": "Hallo daar, welkom bij aihappey docs.",
+      "voice": "alloy"
+    }
   }
 }`;
 
-export const createSpeechEndpointDoc = (surface: "openai" | "ai-sdk"): DocsEndpointDoc => ({
-    id: `speech-${surface}`,
-    title: surface === "openai" ? "Create speech" : "Generate speech",
-    surface: surface === "openai" ? "OpenAI compatible" : "AI SDK",
-    method: "POST",
-    path: surface === "openai" ? "/v1/audio/speech" : "/api/speech",
-    summary: "Generate speech audio from text using the shared gateway speech endpoint.",
-    description: speechDescription,
-    auth: speechAuth,
-    parameters: speechParameters,
-    requestExamples: [
-        surface === "openai"
-            ? {
-                id: "curl-openai",
-                label: "cURL",
-                language: "bash",
-                code: `curl https://your-aihappey-host.example/v1/audio/speech \\
+export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const openAiSpeechUrl = createApiUrl(apiBaseUrl, "/v1/audio/speech");
+    const aiSdkSpeechUrl = createApiUrl(apiBaseUrl, "/api/speech");
+
+    if (surface === "openai") {
+        return {
+            id: "speech-openai",
+            title: "Create speech",
+            surface: "OpenAI compatible",
+            method: "POST",
+            path: "/v1/audio/speech",
+            url: openAiSpeechUrl,
+            summary: "Generate speech audio from text using the OpenAI-compatible audio speech endpoint.",
+            description: openAiSpeechDescription,
+            auth: speechAuth,
+            parameters: openAiSpeechParameters,
+            requestExamples: [
+                {
+                    id: "curl-openai-binary",
+                    label: "cURL",
+                    language: "bash",
+                    code: `curl ${openAiSpeechUrl} \\
+  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  --output speech.mp3 \\
+  -d '{
+    "model": "openai/tts-1",
+    "voice": "alloy",
+    "input": "Hallo daar, welkom bij aihappey docs.",
+    "response_format": "mp3"
+  }'`,
+                },
+                {
+                    id: "curl-openai-sse",
+                    label: "cURL streaming",
+                    language: "bash",
+                    code: `curl ${openAiSpeechUrl} \\
   -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/tts-1",
     "voice": "alloy",
-    "input": "Hallo daar, welkom bij AIHappey docs."
+    "input": "Stream this as audio deltas.",
+    "stream_format": "sse"
   }'`,
-            }
-            : {
+                },
+            ],
+            responses: [
+                {
+                    status: "200",
+                    description: "Binary audio is returned by default with the generated file content in the response body.",
+                    example: {
+                        id: "openai-binary-response",
+                        label: "Binary audio",
+                        language: "http",
+                        code: `HTTP/1.1 200 OK
+Content-Type: audio/mpeg
+
+<binary audio bytes>`,
+                    },
+                },
+                {
+                    status: "200",
+                    description: "When stream_format is sse, the endpoint emits OpenAI-style speech audio events and terminates with [DONE].",
+                    example: {
+                        id: "openai-sse-response",
+                        label: "SSE",
+                        language: "text",
+                        code: `data: {"type":"speech.audio.delta","audio":"SUQzBAAAAAAA..."}
+
+data: {"type":"speech.audio.done","usage":null}
+
+data: [DONE]`,
+                    },
+                },
+            ],
+            errors: [
+                { status: "400", description: "The request body is missing input, model, or voice, or the selected model is not available." },
+                { status: "401", description: "The request did not include a valid bearer token." },
+                { status: "500", description: "The provider failed while generating speech audio. SSE requests receive an error event instead." },
+            ],
+            related: [
+                { id: "gateway-overview", label: "Gateway overview", href: "/gateway" },
+                { id: "other-surface", label: "AI SDK speech", href: "/gateway/ai/speech" },
+            ],
+        };
+    }
+
+    return {
+        id: "speech-ai-sdk",
+        title: "Generate speech",
+        surface: "AI SDK",
+        method: "POST",
+        path: "/api/speech",
+        url: aiSdkSpeechUrl,
+        summary: "Generate speech audio from text using the AI SDK gateway speech endpoint.",
+        description: aiSdkSpeechDescription,
+        auth: speechAuth,
+        parameters: aiSdkSpeechParameters,
+        requestExamples: [
+            {
                 id: "typescript-ai-sdk",
                 label: "TypeScript",
                 language: "ts",
-                code: `const response = await fetch("/api/speech", {
+                code: `const response = await fetch("${aiSdkSpeechUrl}", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -172,34 +299,50 @@ export const createSpeechEndpointDoc = (surface: "openai" | "ai-sdk"): DocsEndpo
   },
   body: JSON.stringify({
     model: "openai/tts-1",
+    text: "Hallo daar, welkom bij aihappey docs.",
     voice: "alloy",
-    text: "Hallo daar, welkom bij AIHappey docs.",
+    outputFormat: "mp3"
   }),
 });
 
 const speech = await response.json();`,
             },
-    ],
-    responses: [
-        {
-            status: "200",
-            description: "Speech request accepted and the generated audio metadata is returned.",
-            example: {
-                id: "speech-response",
-                label: "JSON",
-                language: "json",
-                code: speechResponseExample,
+            {
+                id: "curl-ai-sdk",
+                label: "cURL",
+                language: "bash",
+                code: `curl ${aiSdkSpeechUrl} \\
+  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "openai/tts-1",
+    "text": "Hallo daar, welkom bij aihappey docs.",
+    "voice": "alloy",
+    "outputFormat": "mp3"
+  }'`,
             },
-        },
-    ],
-    errors: [
-        { status: "400", description: "The request body is missing required fields or uses an unsupported voice/format combination." },
-        { status: "401", description: "The request did not include a valid bearer token." },
-        { status: "429", description: "The selected provider or model deployment is currently rate limited." },
-    ],
-    related: [
-        { id: "gateway-overview", label: "Gateway overview", href: "/gateway" },
-        { id: "other-surface", label: surface === "openai" ? "AI SDK speech" : "OpenAI-compatible speech", href: surface === "openai" ? "/gateway/ai/speech" : "/gateway/openai/speech" },
-    ],
-});
+        ],
+        responses: [
+            {
+                status: "200",
+                description: "Speech request accepted and JSON metadata is returned with the generated audio encoded in audio.base64.",
+                example: {
+                    id: "ai-sdk-speech-response",
+                    label: "JSON",
+                    language: "json",
+                    code: aiSdkSpeechResponseExample,
+                },
+            },
+        ],
+        errors: [
+            { status: "400", description: "The selected model is not available or the provider rejects the request payload." },
+            { status: "401", description: "The request did not include a valid bearer token." },
+            { status: "429", description: "The selected provider or model deployment is currently rate limited." },
+        ],
+        related: [
+            { id: "gateway-overview", label: "Gateway overview", href: "/gateway" },
+            { id: "other-surface", label: "OpenAI-compatible speech", href: "/gateway/openai/speech" },
+        ],
+    };
+};
 

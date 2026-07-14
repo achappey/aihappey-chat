@@ -53,6 +53,7 @@ export type DocsEndpointDoc = {
   surface: string;
   method: string;
   path: string;
+  url?: string;
   summary: string;
   description: ReactNode;
   auth?: ReactNode;

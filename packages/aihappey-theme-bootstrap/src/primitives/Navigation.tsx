@@ -67,8 +67,9 @@ const renderNavItems = (
         }}
         style={{ paddingLeft: level > 0 ? `${1 + level * 1.25}rem` : undefined }}
       >
-        {item.icon && iconMap[item.icon] ? <span className="d-inline-flex">{iconMap[item.icon]}</span> : null}
-        {item.label}
+        {item.icon && iconMap[item.icon] ? <span className="d-inline-flex flex-shrink-0">{iconMap[item.icon]}</span> : null}
+        <span className="min-w-0 flex-grow-1 text-truncate">{item.label}</span>
+        {item.badge ? <small className="ms-auto flex-shrink-0 opacity-75">{item.badge}</small> : null}
       </Nav.Link>
     );
   });

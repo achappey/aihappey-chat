@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { DocsNavSection, DocsTopNavItem } from "../navigation/types";
+import { docsSurfaceStyle } from "../theme/docsThemeStyles";
 import { DocsHeader } from "./DocsHeader";
 import { DocsSidebar } from "./DocsSidebar";
 
@@ -23,17 +24,26 @@ export const DocsLayout = ({
   children,
 }: DocsLayoutProps) => {
   const hasSidebar = Boolean(sidebarTitle && sidebarSections?.length);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div style={{ minHeight: "100dvh", background: "Canvas", color: "CanvasText" }}>
+    <div style={docsSurfaceStyle}>
       <DocsHeader title={title} activePath={activePath} navItems={topNavItems} dashboardHref={dashboardHref} />
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: hasSidebar ? "minmax(250px, 330px) minmax(0, 1fr)" : "1fr",
+          gridTemplateColumns: hasSidebar ? (sidebarCollapsed ? "56px minmax(0, 1fr)" : "minmax(250px, 330px) minmax(0, 1fr)") : "1fr",
         }}
       >
-        {hasSidebar ? <DocsSidebar title={sidebarTitle!} sections={sidebarSections!} activePath={activePath} /> : null}
+        {hasSidebar ? (
+          <DocsSidebar
+            title={sidebarTitle!}
+            sections={sidebarSections!}
+            activePath={activePath}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={() => setSidebarCollapsed((value) => !value)}
+          />
+        ) : null}
         <main style={{ minWidth: 0 }}>{children}</main>
       </div>
     </div>
