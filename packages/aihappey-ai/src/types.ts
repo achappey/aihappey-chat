@@ -148,9 +148,9 @@ export interface ResponseApiResponse {
 export const defaultEndpoints = {
   chat: "/api/chat",
   images: "/v1/images/generations",
-  videos: "/v1/videos",
+  videos: "/api/videos",
   transcriptions: "/v1/audio/transcriptions",
-  speech: "/v1/audio/speech",
+  speech: "/api/speech",
   skills: "/v1/skills",
   sampling: "/sampling",
   models: "/v1/models",
