@@ -111,6 +111,7 @@ type SpeechSurface = "openai" | "ai-sdk";
 
 type CreateSpeechEndpointDocOptions = {
     apiBaseUrl?: string;
+    t?: (key: string) => string;
 };
 
 const fallbackApiBaseUrl = "http://localhost:3010";
@@ -123,49 +124,52 @@ const normalizeApiBaseUrl = (apiBaseUrl?: string) => {
 
 const createApiUrl = (apiBaseUrl: string, path: string) => `${normalizeApiBaseUrl(apiBaseUrl)}${path}`;
 
-const openAiSpeechDescription: ReactNode = (
+const fallbackT = (key: string) => key;
+
+const createOpenAiSpeechDescription = (t: (key: string) => string): ReactNode => (
     <p style={{ margin: 0 }}>
-        Create speech audio through the OpenAI-compatible audio endpoint. This route accepts the OpenAI text-to-speech request shape and returns raw
-        audio bytes by default, or server-sent events when {inlineCode("stream_format")} is set to {inlineCode("sse")}.
+        {t("speech.openai.descriptionPrefix")} {inlineCode("stream_format")} {t("speech.openai.descriptionMiddle")} {inlineCode("sse")}{t("speech.openai.descriptionSuffix")}
     </p>
 );
 
-const aiSdkSpeechDescription: ReactNode = (
+const createAiSdkSpeechDescription = (t: (key: string) => string): ReactNode => (
     <p style={{ margin: 0 }}>
-        Generate speech audio through the AI SDK gateway route. This route uses the Vercel AI SDK speech request shape and returns JSON metadata with
-        the generated audio encoded as base64.
+        {t("speech.aiSdk.description")}
     </p>
 );
 
-const speechAuth: ReactNode = (
+const createSpeechAuth = (t: (key: string) => string): ReactNode => (
     <p style={{ margin: 0 }}>
-        Send a bearer token with every request.
+        {t("speech.common.auth")}
     </p>
 );
 
-const openAiSpeechParameters = [
-    { name: "model", type: "string", required: true, description: "Speech-capable model or provider-qualified model identifier." },
-    { name: "input", type: "string", required: true, description: "Text to synthesize into audio." },
-    { name: "voice", type: "string", required: true, description: "Voice identifier supported by the selected model or provider." },
-    { name: "response_format", type: "string", required: false, description: "Optional output format such as mp3, wav, opus, flac, aac, or pcm when supported by the provider." },
-    { name: "instructions", type: "string", required: false, description: "Optional provider instructions for tone, delivery, or speaking style." },
-    { name: "speed", type: "number", required: false, description: "Optional speech speed multiplier when supported by the provider." },
-    { name: "stream_format", type: "string", required: false, description: "Set to sse to receive speech.audio.delta and speech.audio.done events instead of a binary audio response." },
+const createOpenAiSpeechParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("speech.openai.parameters.model") },
+    { name: "input", type: "string", required: true, description: t("speech.openai.parameters.input") },
+    { name: "voice", type: "string", required: true, description: t("speech.openai.parameters.voice") },
+    { name: "response_format", type: "string", required: false, description: t("speech.openai.parameters.response_format") },
+    { name: "instructions", type: "string", required: false, description: t("speech.openai.parameters.instructions") },
+    { name: "speed", type: "number", required: false, description: t("speech.openai.parameters.speed") },
+    { name: "stream_format", type: "string", required: false, description: t("speech.openai.parameters.stream_format") },
 ];
 
-const aiSdkSpeechParameters = [
-    { name: "model", type: "string", required: true, description: "Speech-capable model or provider-qualified model identifier." },
-    { name: "text", type: "string", required: true, description: "Text to synthesize into audio." },
-    { name: "voice", type: "string", required: false, description: "Voice identifier supported by the selected model or provider. Some providers require this value." },
-    { name: "outputFormat", type: "string", required: false, description: "Optional output format such as mp3, wav, opus, flac, aac, or pcm when supported by the provider." },
-    { name: "instructions", type: "string", required: false, description: "Optional provider instructions for tone, delivery, or speaking style." },
-    { name: "speed", type: "number", required: false, description: "Optional speech speed multiplier when supported by the provider." },
-    { name: "language", type: "string", required: false, description: "Optional language hint for providers that support explicit speech language selection." },
-    { name: "providerOptions", type: "object", required: false, description: "Provider-specific options keyed by provider identifier, for example openai, deepgram, elevenlabs, minimax, or together." },
+const createAiSdkSpeechParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("speech.aiSdk.parameters.model") },
+    { name: "text", type: "string", required: true, description: t("speech.aiSdk.parameters.text") },
+    { name: "voice", type: "string", required: false, description: t("speech.aiSdk.parameters.voice") },
+    { name: "outputFormat", type: "string", required: false, description: t("speech.aiSdk.parameters.outputFormat") },
+    { name: "instructions", type: "string", required: false, description: t("speech.aiSdk.parameters.instructions") },
+    { name: "speed", type: "number", required: false, description: t("speech.aiSdk.parameters.speed") },
+    { name: "language", type: "string", required: false, description: t("speech.aiSdk.parameters.language") },
+    { name: "providerOptions", type: "object", required: false, description: t("speech.aiSdk.parameters.providerOptions") },
 ];
 
 const aiSdkSpeechResponseExample = `{
   "providerMetadata": {
+    "gateway": {
+        "cost": 0.00123456789
+    },
     "openai": {}
   },
   "audio": {
@@ -176,7 +180,11 @@ const aiSdkSpeechResponseExample = `{
   "warnings": [],
   "response": {
     "timestamp": "2026-07-14T13:20:00Z",
-    "modelId": "openai/tts-1"
+    "modelId": "openai/tts-1",
+    "headers": {
+        "Header-1": "Header-1-Value",
+        "Header-2": "Header-2-Value"
+    }
   },
   "request": {
     "body": {
@@ -187,39 +195,40 @@ const aiSdkSpeechResponseExample = `{
   }
 }`;
 
-const openAiSpeechTestDescription: ReactNode = (
+const createOpenAiSpeechTestDescription = (t: (key: string) => string): ReactNode => (
     <p style={{ margin: 0 }}>
-        Edit the bearer token, model, voice, and input, then send a live request. Audio responses can be played directly in the modal or downloaded.
+        {t("speech.openai.testDescription")}
     </p>
 );
 
-const aiSdkSpeechTestDescription: ReactNode = (
+const createAiSdkSpeechTestDescription = (t: (key: string) => string): ReactNode => (
     <p style={{ margin: 0 }}>
-        Edit the bearer token and JSON body, then send a live request. JSON responses are formatted automatically, and binary audio responses can still be downloaded.
+        {t("speech.aiSdk.testDescription")}
     </p>
 );
 
 export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
     const openAiSpeechUrl = createApiUrl(apiBaseUrl, "/v1/audio/speech");
     const aiSdkSpeechUrl = createApiUrl(apiBaseUrl, "/api/speech");
 
     if (surface === "openai") {
         return {
             id: "speech-openai",
-            title: "Create speech",
-            surface: "OpenAI compatible",
+            title: t("speech.openai.title"),
+            surface: t("speech.openai.surface"),
             method: "POST",
             path: "/v1/audio/speech",
             url: openAiSpeechUrl,
-            summary: "Generate speech audio from text using the OpenAI-compatible audio speech endpoint.",
-            description: openAiSpeechDescription,
-            auth: speechAuth,
-            parameters: openAiSpeechParameters,
+            summary: t("speech.openai.summary"),
+            description: createOpenAiSpeechDescription(t),
+            auth: createSpeechAuth(t),
+            parameters: createOpenAiSpeechParameters(t),
             test: {
-                label: "Test",
-                modalTitle: "Test OpenAI-compatible speech",
-                description: openAiSpeechTestDescription,
+                label: t("speech.openai.testLabel"),
+                modalTitle: t("speech.openai.testModalTitle"),
+                description: createOpenAiSpeechTestDescription(t),
                 responseType: "audio",
                 downloadFileName: "speech.mp3",
                 headers: [
@@ -267,7 +276,7 @@ export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateS
             responses: [
                 {
                     status: "200",
-                    description: "Binary audio is returned by default with the generated file content in the response body.",
+                    description: t("speech.openai.responses.binary"),
                     example: {
                         id: "openai-binary-response",
                         label: "Binary audio",
@@ -280,7 +289,7 @@ Content-Type: audio/mpeg
                 },
                 {
                     status: "200",
-                    description: "When stream_format is sse, the endpoint emits OpenAI-style speech audio events and terminates with [DONE].",
+                    description: t("speech.openai.responses.sse"),
                     example: {
                         id: "openai-sse-response",
                         label: "SSE",
@@ -294,32 +303,32 @@ data: [DONE]`,
                 },
             ],
             errors: [
-                { status: "400", description: "The request body is missing input, model, or voice, or the selected model is not available." },
-                { status: "401", description: "The request did not include a valid bearer token." },
-                { status: "500", description: "The provider failed while generating speech audio. SSE requests receive an error event instead." },
+                { status: "400", description: t("speech.openai.errors.badRequest") },
+                { status: "401", description: t("speech.openai.errors.unauthorized") },
+                { status: "500", description: t("speech.openai.errors.providerFailed") },
             ],
             related: [
-                { id: "gateway-overview", label: "Gateway overview", href: "/gateway" },
-                { id: "other-surface", label: "AI SDK speech", href: "/gateway/ai/speech" },
+                { id: "gateway-overview", label: t("speech.common.relatedGatewayOverview"), href: "/gateway" },
+                { id: "other-surface", label: t("speech.openai.relatedAiSdkSpeech"), href: "/gateway/ai/speech" },
             ],
         };
     }
 
     return {
         id: "speech-ai-sdk",
-        title: "Generate speech",
-        surface: "AI SDK",
+        title: t("speech.aiSdk.title"),
+        surface: t("speech.aiSdk.surface"),
         method: "POST",
         path: "/api/speech",
         url: aiSdkSpeechUrl,
-        summary: "Generate speech audio from text using the AI SDK gateway speech endpoint.",
-        description: aiSdkSpeechDescription,
-        auth: speechAuth,
-        parameters: aiSdkSpeechParameters,
+        summary: t("speech.aiSdk.summary"),
+        description: createAiSdkSpeechDescription(t),
+        auth: createSpeechAuth(t),
+        parameters: createAiSdkSpeechParameters(t),
         test: {
-            label: "Test",
-            modalTitle: "Test AI SDK speech",
-            description: aiSdkSpeechTestDescription,
+            label: t("speech.aiSdk.testLabel"),
+            modalTitle: t("speech.aiSdk.testModalTitle"),
+            description: createAiSdkSpeechTestDescription(t),
             responseType: "auto",
             downloadFileName: "speech-response.bin",
             headers: [
@@ -372,7 +381,7 @@ const speech = await response.json();`,
         responses: [
             {
                 status: "200",
-                description: "Speech request accepted and JSON metadata is returned with the generated audio encoded in audio.base64.",
+                description: t("speech.aiSdk.responses.json"),
                 example: {
                     id: "ai-sdk-speech-response",
                     label: "JSON",
@@ -382,13 +391,13 @@ const speech = await response.json();`,
             },
         ],
         errors: [
-            { status: "400", description: "The selected model is not available or the provider rejects the request payload." },
-            { status: "401", description: "The request did not include a valid bearer token." },
-            { status: "429", description: "The selected provider or model deployment is currently rate limited." },
+            { status: "400", description: t("speech.aiSdk.errors.badRequest") },
+            { status: "401", description: t("speech.aiSdk.errors.unauthorized") },
+            { status: "429", description: t("speech.aiSdk.errors.rateLimited") },
         ],
         related: [
-            { id: "gateway-overview", label: "Gateway overview", href: "/gateway" },
-            { id: "other-surface", label: "OpenAI-compatible speech", href: "/gateway/openai/speech" },
+            { id: "gateway-overview", label: t("speech.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "other-surface", label: t("speech.aiSdk.relatedOpenAiSpeech"), href: "/gateway/openai/speech" },
         ],
     };
 };

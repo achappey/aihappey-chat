@@ -1,4 +1,5 @@
 import { useMemo, type ReactElement } from "react";
+import { DocsI18nProvider } from "aihappey-docs-i18n";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router";
 import { AgentsOverviewPage } from "./pages/AgentsOverviewPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
@@ -34,7 +35,11 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl }: DocsR
     [apiBaseUrl, appTitle]
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <DocsI18nProvider>
+      <RouterProvider router={router} />
+    </DocsI18nProvider>
+  );
 };
 
 export default DocsRoot;

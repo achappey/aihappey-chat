@@ -4,6 +4,7 @@ import type { DocsEndpointDoc } from "../navigation/types";
 import { useDocsTheme } from "../theme/useDocsTheme";
 import { docsArticleStyle, docsCodeStyle, docsHeroTextStyle, getDocsMethodBadgeProps } from "../theme/docsThemeStyles";
 import { DocsLink } from "../layout/DocsLink";
+import { useDocsTranslation } from "aihappey-docs-i18n";
 import { ApiSection } from "./ApiSection";
 import { CodeExample } from "./CodeExample";
 import { EndpointTestModal } from "./EndpointTestModal";
@@ -16,6 +17,7 @@ export type ApiEndpointPageProps = {
 
 export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
   const { Badge, Button, Header } = useDocsTheme();
+  const { t } = useDocsTranslation();
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
 
   return (
@@ -43,14 +45,14 @@ export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
 
       {endpoint.test ? <EndpointTestModal endpoint={endpoint} show={isTestModalOpen} onHide={() => setIsTestModalOpen(false)} /> : null}
 
-      <ApiSection title="Overview">{endpoint.description}</ApiSection>
-      {endpoint.auth ? <ApiSection title="Authentication">{endpoint.auth}</ApiSection> : null}
-      {endpoint.parameters?.length ? <ApiSection title="Request body"><ParameterTable parameters={endpoint.parameters} /></ApiSection> : null}
-      {endpoint.requestExamples?.length ? <ApiSection title="Request examples"><CodeExample examples={endpoint.requestExamples} /></ApiSection> : null}
-      {endpoint.responses?.length ? <ApiSection title="Responses"><ResponseExample responses={endpoint.responses} /></ApiSection> : null}
-      {endpoint.errors?.length ? <ApiSection title="Errors"><ResponseExample responses={endpoint.errors} /></ApiSection> : null}
+      <ApiSection title={t("api.sections.overview")}>{endpoint.description}</ApiSection>
+      {endpoint.auth ? <ApiSection title={t("api.sections.authentication")}>{endpoint.auth}</ApiSection> : null}
+      {endpoint.parameters?.length ? <ApiSection title={t("api.sections.requestBody")}><ParameterTable parameters={endpoint.parameters} /></ApiSection> : null}
+      {endpoint.requestExamples?.length ? <ApiSection title={t("api.sections.requestExamples")}><CodeExample examples={endpoint.requestExamples} /></ApiSection> : null}
+      {endpoint.responses?.length ? <ApiSection title={t("api.sections.responses")}><ResponseExample responses={endpoint.responses} /></ApiSection> : null}
+      {endpoint.errors?.length ? <ApiSection title={t("api.sections.errors")}><ResponseExample responses={endpoint.errors} /></ApiSection> : null}
       {endpoint.related?.length ? (
-        <ApiSection title="Related">
+        <ApiSection title={t("api.sections.related")}>
           <ul style={{ margin: 0, paddingInlineStart: 20 }}>
             {endpoint.related.map((item) => (
               <li key={item.id}><DocsLink href={item.href}>{item.label}</DocsLink></li>
