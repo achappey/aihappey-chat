@@ -150,7 +150,6 @@ import { lumaai } from "./catalog/lumaai";
 import { truefoundry } from "./catalog/truefoundry";
 import { databricks } from "./catalog/databricks";
 import { browseruse } from "./catalog/browseruse";
-import { inferencesh } from "./catalog/inferencesh";
 import { crazyrouter } from "./catalog/crazyrouter";
 import { infraxa } from "./catalog/infraxa";
 import { inceptionlabs } from "./catalog/inceptionlabs";
@@ -377,7 +376,6 @@ import { ambient } from "./catalog/ambient";
 import { xiaomimimo } from "./catalog/xiaomimimo";
 import { ollama } from "./catalog/ollama";
 import { relace } from "./catalog/relace";
-import { inflection } from "./catalog/inflection";
 import { morph } from "./catalog/morph";
 import { baidu } from "./catalog/baidu";
 import { streamlake } from "./catalog/streamlake";
@@ -730,7 +728,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   morph,
   streamlake,
   runapi,
-  inflection,
   relace,
   ollama,
   xiaomimimo,
@@ -1058,7 +1055,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   resembleai,
   abliteration,
   truefoundry,
-  inferencesh,
   redpill,
   browseruse,
   monica,
