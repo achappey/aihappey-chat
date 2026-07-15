@@ -45,6 +45,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onTogglePin,
   translations,
   onRename,
+  onToggleNavigationItemHidden,
   multiple = false,
   drawerType = "inline",
   className,
@@ -105,10 +106,11 @@ export const Navigation: React.FC<NavigationProps> = ({
               return (
                 <NavigationCategorySection
                   key={idx}
-                  item={item}
-                  translations={translations}
-                  onSelect={onSelect}
-                />
+                item={item}
+                translations={translations}
+                onSelect={onSelect}
+                onToggleNavigationItemHidden={onToggleNavigationItemHidden}
+              />
               );
             }
 
@@ -125,6 +127,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 onRename={onRename}
                 onDelete={onDelete}
                 onExport={onExport}
+                onToggleNavigationItemHidden={onToggleNavigationItemHidden}
                 translations={translations}
               />
             );

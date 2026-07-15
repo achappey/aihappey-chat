@@ -212,7 +212,11 @@ export type UiSlice = {
   showMessageTokens?: boolean
   disableProviderLogo?: boolean
   pinnedConversations?: string[]
+  hiddenNavigationItemKeys?: string[]
   togglePinnedConversation: (conversationId: string) => void;
+  hideNavigationItem: (key: string) => void;
+  showNavigationItem: (key: string) => void;
+  toggleHiddenNavigationItem: (key: string) => void;
   setShowMessageTemperature: (value: boolean) => void;
   setShowMessageTokens: (value: boolean) => void;
   setDisableProviderLogo: (value: boolean) => void;
@@ -353,11 +357,37 @@ export const createUiSlice: StateCreator<
   transcriptionFileSplitMaxSizeMb: 25,
   activitiesSize: "medium",
   quickSearches: ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"],
+  hiddenNavigationItemKeys: ["speech", "reranking", "videos", "jobs", "arena"],
   togglePinnedConversation: (value: string) =>
     set((state: UiSlice) => ({
       pinnedConversations: state.pinnedConversations?.includes(value) ?
         state.pinnedConversations.filter((a: any) => a != value) : [...state.pinnedConversations ?? [], value]
     })),
+  hideNavigationItem: (key: string) =>
+    set((state: UiSlice) => {
+      if (!key || state.hiddenNavigationItemKeys?.includes(key)) return state;
+      return {
+        hiddenNavigationItemKeys: [...state.hiddenNavigationItemKeys ?? [], key],
+      };
+    }),
+  showNavigationItem: (key: string) =>
+    set((state: UiSlice) => {
+      if (!key) return state;
+      return {
+        hiddenNavigationItemKeys: (state.hiddenNavigationItemKeys ?? []).filter((itemKey) => itemKey !== key),
+      };
+    }),
+  toggleHiddenNavigationItem: (key: string) =>
+    set((state: UiSlice) => {
+      if (!key) return state;
+      const current = state.hiddenNavigationItemKeys ?? [];
+      const isHidden = current.includes(key);
+      return {
+        hiddenNavigationItemKeys: isHidden
+          ? current.filter((itemKey) => itemKey !== key)
+          : [...current, key],
+      };
+    }),
   setShowMessageTemperature: (value: boolean) =>
     set((state: UiSlice) => ({
       showMessageTemperature: value

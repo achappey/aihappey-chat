@@ -4,7 +4,7 @@
 ============================================================ */
 
 import { NavItem, Input, Badge, Menu, MenuTrigger, Button, MenuPopover, MenuList, MenuItem, MenuDivider, makeStyles } from "@fluentui/react-components";
-import { MoreHorizontalRegular, EditRegular, ArrowExportRegular, DeleteRegular, PinRegular, PinFilled, PinOffRegular } from "@fluentui/react-icons";
+import { MoreHorizontalRegular, EditRegular, ArrowExportRegular, DeleteRegular, PinRegular, PinFilled, PinOffRegular, EyeRegular, EyeOffRegular } from "@fluentui/react-icons";
 import { IconToken } from "aihappey-types";
 import React from "react";
 import { iconMap } from "../Button";
@@ -20,6 +20,7 @@ type NavItemRowProps = {
   onDelete?: (key: string) => Promise<void> | void;
   onExport?: (key: string) => Promise<void> | void;
   onTogglePin?: (key: string) => Promise<void> | void;
+  onToggleNavigationItemHidden?: (key: string) => Promise<void> | void;
   translations?: Record<string, string>;
 };
 
@@ -42,10 +43,12 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
   onRename,
   onDelete,
   onExport,
+  onToggleNavigationItemHidden,
   translations,
 }) => {
   const styles = useStyles();
   const isEditing = editingId === item.key;
+  const showNavigationItemActions = !!item.configurableNavigationItem && !!onToggleNavigationItemHidden;
 
   const [isHovered, setIsHovered] = React.useState(false);
 
@@ -109,7 +112,7 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
             )}
           </span>
 
-          {item.conversationItem && (
+          {(item.conversationItem || showNavigationItemActions) && (
             <Menu>
               <MenuTrigger disableButtonEnhancement>
                 <Button
@@ -128,18 +131,20 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
 
               <MenuPopover>
                 <MenuList>
-                  <MenuItem
-                    icon={<EditRegular />}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setEditingId(item.key);
-                      setEditValue(item.label as string);
-                    }}
-                  >
-                    {translations?.rename ?? "rename"}
-                  </MenuItem>
+                  {item.conversationItem && (
+                    <MenuItem
+                      icon={<EditRegular />}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setEditingId(item.key);
+                        setEditValue(item.label as string);
+                      }}
+                    >
+                      {translations?.rename ?? "rename"}
+                    </MenuItem>
+                  )}
 
-                  {onExport && (
+                  {item.conversationItem && onExport && (
                     <MenuItem
                       icon={<ArrowExportRegular />}
                       onClick={async e => {
@@ -151,9 +156,9 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
                     </MenuItem>
                   )}
 
-                  <MenuDivider />
+                  {item.conversationItem && <MenuDivider />}
 
-                  {onTogglePin && (
+                  {item.conversationItem && onTogglePin && (
                     <MenuItem
                       icon={item.pinned ? <PinOffRegular /> : <PinRegular />}
                       onClick={async e => {
@@ -168,7 +173,7 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
                     </MenuItem>
                   )}
 
-                  {onDelete && (
+                  {item.conversationItem && onDelete && (
                     <MenuItem
                       icon={<DeleteRegular />}
                       onClick={async e => {
@@ -177,6 +182,21 @@ export const NavItemRow: React.FC<NavItemRowProps> = ({
                       }}
                     >
                       {translations?.delete ?? "delete"}
+                    </MenuItem>
+                  )}
+
+                  {showNavigationItemActions && (
+                    <MenuItem
+                      icon={item.hiddenNavigationItem ? <EyeRegular /> : <EyeOffRegular />}
+                      onClick={async e => {
+                        e.stopPropagation();
+                        await onToggleNavigationItemHidden?.(item.key);
+                        setIsHovered(false);
+                      }}
+                    >
+                      {item.hiddenNavigationItem
+                        ? (translations?.show ?? "show")
+                        : (translations?.hide ?? "hide")}
                     </MenuItem>
                   )}
                 </MenuList>

@@ -30,6 +30,8 @@ export const ConversationSidebar = ({
   const setConversationStorage = useAppStore((a) => a.setConversationStorage);
   const togglePinnedConversation = useAppStore((a) => a.togglePinnedConversation);
   const pinnedConversations = useAppStore((a) => a.pinnedConversations);
+  const hiddenNavigationItemKeys = useAppStore((a) => a.hiddenNavigationItemKeys ?? []);
+  const toggleHiddenNavigationItem = useAppStore((a) => a.toggleHiddenNavigationItem);
   const isDesktop = useIsDesktop();
   // When breakpoint changes, reset sidebarOpen to match desktop/mobile
   const { conversationId } = useParams<{ conversationId?: string }>();
@@ -51,8 +53,35 @@ export const ConversationSidebar = ({
     }
   };
 
-  // Build navigation items: servers section, servers link, divider, then chats
-  const staticNavItems: NavigationItem[] = [
+  const markConfigurableNavigationItems = (
+    items: NavigationItem[],
+    hiddenKeys: string[],
+  ): NavigationItem[] => items.map((item) => ({
+    ...item,
+    configurableNavigationItem: true,
+    hiddenNavigationItem: hiddenKeys.includes(item.key),
+  }));
+
+  const buildCustomizableNavigationBlock = (
+    visibleItems: NavigationItem[],
+    hiddenItems: NavigationItem[],
+  ): NavigationItem[] => {
+    const items = [...visibleItems];
+
+    if (hiddenItems.length > 0) {
+      items.push({
+        key: "category",
+        label: t("more"),
+        icon: "contextMenu",
+        children: hiddenItems,
+      });
+    }
+
+    return items;
+  };
+
+  // Build navigation items: primary links, content links, categories, then chats
+  const firstBlockItems: NavigationItem[] = [
     {
       key: "new",
       label: t("newChat"),
@@ -115,7 +144,9 @@ export const ConversationSidebar = ({
       href: "/arena",
       icon: "arena",
     },
-    { key: "divider", label: "" },
+  ];
+
+  const secondBlockItems: NavigationItem[] = [
     {
       key: "agents",
       label: t("agents.title"),
@@ -152,6 +183,9 @@ export const ConversationSidebar = ({
       href: "/tools",
       icon: "tool",
     },
+  ];
+
+  const thirdBlockItems: NavigationItem[] = [
 
     { key: "divider", label: "" },
     {
@@ -223,6 +257,22 @@ export const ConversationSidebar = ({
         },
       ],
     },
+  ];
+
+  const hiddenNavigationKeySet = new Set(hiddenNavigationItemKeys);
+  const configurableFirstBlockItems = markConfigurableNavigationItems(firstBlockItems, hiddenNavigationItemKeys);
+  const configurableSecondBlockItems = markConfigurableNavigationItems(secondBlockItems, hiddenNavigationItemKeys);
+  const staticNavItems: NavigationItem[] = [
+    ...buildCustomizableNavigationBlock(
+      configurableFirstBlockItems.filter((item) => !hiddenNavigationKeySet.has(item.key)),
+      configurableFirstBlockItems.filter((item) => hiddenNavigationKeySet.has(item.key)),
+    ),
+    { key: "divider", label: "" },
+    ...buildCustomizableNavigationBlock(
+      configurableSecondBlockItems.filter((item) => !hiddenNavigationKeySet.has(item.key)),
+      configurableSecondBlockItems.filter((item) => hiddenNavigationKeySet.has(item.key)),
+    ),
+    ...thirdBlockItems,
   ];
 
   if (conversations.items.length > 0) {
@@ -311,25 +361,27 @@ export const ConversationSidebar = ({
                         ? "structured-outputs"
                         : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
                           ? "web-apps"
-                          : location.pathname === "/catalogs"
-                            ? "catalogs"
-                            : location.pathname === "/registries"
-                              ? "registries"
-                              : location.pathname === "/reranking"
-                                ? "reranking"
-                                 : location.pathname === "/jobs"
-                                   ? "jobs"
-                                   : location.pathname === "/images"
-                                     ? "images"
-                                     : location.pathname === "/transcriptions"
-                                       ? "transcriptions"
-                                       : location.pathname === "/speech"
-                                         ? "speech"
-                                         : location.pathname === "/videos"
-                                           ? "videos"
-                                           : location.pathname === "/realtime"
-                                             ? "realtime"
-                                             : conversationId ?? undefined
+                            : location.pathname === "/apps" || location.pathname.startsWith("/apps/")
+                              ? "apps"
+                              : location.pathname === "/catalogs"
+                                ? "catalogs"
+                                : location.pathname === "/registries"
+                                  ? "registries"
+                                  : location.pathname === "/reranking"
+                                    ? "reranking"
+                                    : location.pathname === "/jobs"
+                                      ? "jobs"
+                                      : location.pathname === "/images"
+                                        ? "images"
+                                        : location.pathname === "/transcriptions"
+                                          ? "transcriptions"
+                                          : location.pathname === "/speech"
+                                            ? "speech"
+                                            : location.pathname === "/videos"
+                                              ? "videos"
+                                              : location.pathname === "/realtime"
+                                                ? "realtime"
+                                                : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -456,7 +508,10 @@ export const ConversationSidebar = ({
     pin: t('pinChat'),
     unpin: t('unpinChat'),
     closeNavigation: t('closeNavigation'),
-    rename: t('rename')
+    rename: t('rename'),
+    hide: t('hide'),
+    show: t('show'),
+    more: t('more')
   }
 
   return (
@@ -480,6 +535,7 @@ export const ConversationSidebar = ({
         isOpen={sidebarOpen}
         onDelete={handleRemove}
         onRename={conversations.rename}
+        onToggleNavigationItemHidden={toggleHiddenNavigationItem}
         onStorageSwitch={
           remoteStorageConnected
             ? (config) => setConversationStorage(config)

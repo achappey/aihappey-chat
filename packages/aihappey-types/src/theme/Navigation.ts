@@ -13,6 +13,8 @@ export interface NavigationItem {
   new?: boolean;
   pinned?: boolean;
   conversationItem?: boolean;
+  configurableNavigationItem?: boolean;
+  hiddenNavigationItem?: boolean;
   onClick?: any;
   eventKey?: string;
   [key: string]: any;
@@ -35,6 +37,7 @@ export interface NavigationProps {
   onExport?: (id: string) => Promise<void>;
   onRename?: (id: string, newName: string) => Promise<void>;
   onTogglePin?: (id: string) => Promise<void>;
+  onToggleNavigationItemHidden?: (id: string) => Promise<void> | void;
   style?: React.CSSProperties;
   translations?: any
 }

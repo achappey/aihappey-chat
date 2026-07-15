@@ -49,6 +49,7 @@ export const withPersist = (
       userPreferredRerankingModel: s.userPreferredRerankingModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,
       pinnedConversations: s.pinnedConversations,
+      hiddenNavigationItemKeys: (s as any).hiddenNavigationItemKeys,
       userPreferredTranscriptionModel: s.userPreferredTranscriptionModel,
       enableAgentImport: s.enableAgentImport,
       enableConversationImport: s.enableConversationImport,

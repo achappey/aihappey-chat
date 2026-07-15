@@ -1322,6 +1322,7 @@ type ShadcnNavItemRowProps = {
   onDelete?: (key: string) => Promise<void> | void;
   onExport?: (key: string) => Promise<void> | void;
   onTogglePin?: (key: string) => Promise<void> | void;
+  onToggleNavigationItemHidden?: (key: string) => Promise<void> | void;
   translations?: any;
   editingId: string | null;
   editValue: string;
@@ -1338,6 +1339,7 @@ const ShadcnNavItemRow = ({
   onDelete,
   onExport,
   onTogglePin,
+  onToggleNavigationItemHidden,
   translations,
   editingId,
   editValue,
@@ -1350,6 +1352,7 @@ const ShadcnNavItemRow = ({
   const Icon = item.icon ? iconMap[item.icon as IconToken] : undefined;
   const isEditing = editingId === item.key;
   const showConversationActions = !!item.conversationItem && (!!onRename || !!onExport || !!onTogglePin || !!onDelete);
+  const showNavigationItemActions = !!item.configurableNavigationItem && !!onToggleNavigationItemHidden;
 
   const submitRename = async () => {
     const trimmed = editValue.trim();
@@ -1382,7 +1385,7 @@ const ShadcnNavItemRow = ({
     );
   }
 
-  const actionButton = showConversationActions ? (
+  const actionButton = showConversationActions || showNavigationItemActions ? (
     <DropdownMenuPrimitive.Root>
       <DropdownMenuPrimitive.Trigger asChild>
         <button
@@ -1401,7 +1404,7 @@ const ShadcnNavItemRow = ({
       <DropdownMenuPrimitive.Portal>
         <PortalThemeScope>
           <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-menu-content" align="end" sideOffset={4} collisionPadding={8}>
-            {onRename ? (
+            {item.conversationItem && onRename ? (
               <DropdownMenuPrimitive.Item
                 className="aih-shadcn-menu-item"
                 onSelect={(event) => {
@@ -1413,7 +1416,7 @@ const ShadcnNavItemRow = ({
                 <Pencil size={14} />{translations?.rename ?? "Rename"}
               </DropdownMenuPrimitive.Item>
             ) : null}
-            {onExport ? (
+            {item.conversationItem && onExport ? (
               <DropdownMenuPrimitive.Item
                 className="aih-shadcn-menu-item"
                 onSelect={(event) => {
@@ -1424,8 +1427,8 @@ const ShadcnNavItemRow = ({
                 <ArrowRight size={14} />{translations?.export ?? "Export"}
               </DropdownMenuPrimitive.Item>
             ) : null}
-            {(onRename || onExport) && (onTogglePin || onDelete) ? menuDivider : null}
-            {onTogglePin ? (
+            {item.conversationItem && (onRename || onExport) && (onTogglePin || onDelete) ? menuDivider : null}
+            {item.conversationItem && onTogglePin ? (
               <DropdownMenuPrimitive.Item
                 className="aih-shadcn-menu-item"
                 onSelect={(event) => {
@@ -1436,7 +1439,7 @@ const ShadcnNavItemRow = ({
                 {item.pinned ? <PinOff size={14} /> : <Pin size={14} />}{item.pinned ? (translations?.unpin ?? "Unpin") : (translations?.pin ?? "Pin")}
               </DropdownMenuPrimitive.Item>
             ) : null}
-            {onDelete ? (
+            {item.conversationItem && onDelete ? (
               <DropdownMenuPrimitive.Item
                 className="aih-shadcn-menu-item aih-shadcn-menu-item-danger"
                 onSelect={(event) => {
@@ -1445,6 +1448,17 @@ const ShadcnNavItemRow = ({
                 }}
               >
                 <Trash2 size={14} />{translations?.delete ?? "Delete"}
+              </DropdownMenuPrimitive.Item>
+            ) : null}
+            {showNavigationItemActions ? (
+              <DropdownMenuPrimitive.Item
+                className="aih-shadcn-menu-item"
+                onSelect={(event) => {
+                  event.stopPropagation();
+                  void onToggleNavigationItemHidden?.(item.key);
+                }}
+              >
+                {item.hiddenNavigationItem ? <Eye size={14} /> : <X size={14} />}{item.hiddenNavigationItem ? (translations?.show ?? "Show") : (translations?.hide ?? "Hide")}
               </DropdownMenuPrimitive.Item>
             ) : null}
           </DropdownMenuPrimitive.Content>
@@ -1476,7 +1490,7 @@ const ShadcnNavItemRow = ({
   );
 };
 
-export const Navigation = ({ items = [], appTitle, activeKey, onSelect, className, style, onClose, storageType = "local", onStorageSwitch, translations, onRename, onDelete, onExport, onTogglePin }: any) => {
+export const Navigation = ({ items = [], appTitle, activeKey, onSelect, className, style, onClose, storageType = "local", onStorageSwitch, translations, onRename, onDelete, onExport, onTogglePin, onToggleNavigationItemHidden }: any) => {
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editValue, setEditValue] = React.useState("");
   const activeCategoryKeys = React.useMemo(
@@ -1550,6 +1564,7 @@ export const Navigation = ({ items = [], appTitle, activeKey, onSelect, classNam
         onDelete={onDelete}
         onExport={onExport}
         onTogglePin={onTogglePin}
+        onToggleNavigationItemHidden={onToggleNavigationItemHidden}
         translations={translations}
         editingId={editingId}
         editValue={editValue}
