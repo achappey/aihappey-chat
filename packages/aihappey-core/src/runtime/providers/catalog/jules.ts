@@ -13,7 +13,7 @@ export const jules: Provider = {
     termsOfService: "https://policies.google.com/terms"
   },
   providerCountry: "US",
-  category: "gateway_router",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

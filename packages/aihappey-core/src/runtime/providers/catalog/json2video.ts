@@ -18,7 +18,7 @@ export const json2video: Provider = {
     console: "https://app.json2video.com"
   },
   providerCountry: "ES",
-  category: "gateway_router",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };
