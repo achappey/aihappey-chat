@@ -392,7 +392,7 @@ import { nonkycai } from "./catalog/nonkycai";
 import { tokonlab } from "./catalog/tokonlab";
 import { modelbridge } from "./catalog/modelbridge";
 import { simplellm } from "./catalog/simplellm";
-import { tensorix } from "./catalog/tensorix";
+import { tensorx } from "./catalog/tensorx";
 import { schatziai } from "./catalog/schatziai";
 import { nodebyt } from "./catalog/nodebyt";
 import { gptsapi } from "./catalog/gptsapi";
@@ -710,7 +710,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   magisterium,
   agabeyogluai,
   nonkycai,
-  tensorix,
+  tensorx,
   embyai,
   lmrouter,
   uncensoredchat,
