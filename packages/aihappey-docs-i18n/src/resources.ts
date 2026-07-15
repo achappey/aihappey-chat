@@ -64,6 +64,12 @@ export const docsI18nResources = {
           receivedBinary: "Received {{size}} binary response.",
         },
       },
+      gateway: {
+        common: {
+          auth: "Send a bearer token with every request.",
+          relatedGatewayOverview: "Gateway overview",
+        },
+      },
       speech: {
         common: {
           auth: "Send a bearer token with every request.",
@@ -123,6 +129,69 @@ export const docsI18nResources = {
           },
           errors: {
             badRequest: "The selected model is not available or the provider rejects the request payload.",
+            unauthorized: "The request did not include a valid bearer token.",
+            rateLimited: "The selected provider or model deployment is currently rate limited.",
+          },
+        },
+      },
+      rerank: {
+        aiSdk: {
+          title: "Rerank documents",
+          surface: "AI SDK",
+          summary: "Score and reorder documents for a query using the AI SDK gateway reranking endpoint.",
+          description: "Use the AI SDK reranking route to submit a query and a typed document collection. The gateway resolves the provider-qualified model, forwards the reranking request, and returns ranked indexes with relevance scores, warnings, response metadata, and provider metadata.",
+          testLabel: "Test",
+          testModalTitle: "Test AI SDK rerank",
+          testDescription: "Edit the bearer token, model, query, documents, and topN value, then send a live reranking request. JSON responses are formatted automatically.",
+          relatedVideo: "AI SDK video",
+          parameters: {
+            model: "Reranking-capable model or provider-qualified model identifier.",
+            query: "Search query or user intent used to rank the provided documents.",
+            documents: "Typed document container. Use type and values to describe the document payload sent to the provider.",
+            documentsType: "Document value type. Text reranking uses text.",
+            documentsValues: "Documents to rerank. For text reranking this is an array of strings in their original order.",
+            topN: "Optional maximum number of ranked results to return.",
+            providerOptions: "Provider-specific options keyed by provider identifier, for example cohere or voyage.",
+          },
+          responses: {
+            json: "Reranking request accepted and JSON metadata is returned with ranking entries sorted by relevance.",
+          },
+          errors: {
+            badRequest: "The selected model is not available, required request fields are missing, or the provider rejects the reranking payload.",
+            unauthorized: "The request did not include a valid bearer token.",
+            rateLimited: "The selected provider or model deployment is currently rate limited.",
+          },
+        },
+      },
+      video: {
+        aiSdk: {
+          title: "Generate video",
+          surface: "AI SDK",
+          summary: "Generate videos from prompts and optional image inputs using the AI SDK gateway video endpoint.",
+          description: "Use the AI SDK video route to create videos through provider-qualified video models. The route accepts prompt, format, timing, image, frame, and provider-specific options, then returns generated videos as normalized response files with metadata and warnings.",
+          testLabel: "Test",
+          testModalTitle: "Test AI SDK video",
+          testDescription: "Edit the bearer token and JSON body, then send a live video generation request. Responses include generated video file data and metadata when the provider completes successfully.",
+          relatedRerank: "AI SDK rerank",
+          parameters: {
+            model: "Video-capable model or provider-qualified model identifier.",
+            prompt: "Text prompt describing the video to generate.",
+            resolution: "Optional output resolution such as 720p, 1080p, or a provider-specific size.",
+            aspectRatio: "Optional aspect ratio such as 16:9, 9:16, or 1:1 when supported by the provider.",
+            seed: "Optional seed for deterministic or reproducible generations when supported by the provider.",
+            duration: "Optional video duration in seconds when supported by the provider.",
+            fps: "Optional frames per second value when supported by the provider.",
+            n: "Optional number of videos to generate.",
+            image: "Optional base64 input image with type, mediaType, and data for image-to-video workflows.",
+            inputReferences: "Optional array of input reference files for providers that support multiple visual references.",
+            frameImages: "Optional first-frame or last-frame image controls. Each item includes frameType and image.",
+            providerOptions: "Provider-specific options keyed by provider identifier, for example google, kling, runway, or luma.",
+          },
+          responses: {
+            json: "Video generation accepted and JSON metadata is returned with generated files in videos[].",
+          },
+          errors: {
+            badRequest: "The selected model is not available, required request fields are missing, or the provider rejects the video payload.",
             unauthorized: "The request did not include a valid bearer token.",
             rateLimited: "The selected provider or model deployment is currently rate limited.",
           },
@@ -195,6 +264,12 @@ export const docsI18nResources = {
           receivedBinary: "{{size}} binary response ontvangen.",
         },
       },
+      gateway: {
+        common: {
+          auth: "Stuur bij elke request een bearer token mee.",
+          relatedGatewayOverview: "Gateway-overzicht",
+        },
+      },
       speech: {
         common: {
           auth: "Stuur bij elke request een bearer token mee.",
@@ -254,6 +329,69 @@ export const docsI18nResources = {
           },
           errors: {
             badRequest: "Het geselecteerde model is niet beschikbaar of de provider weigert de request payload.",
+            unauthorized: "De request bevatte geen geldige bearer token.",
+            rateLimited: "De geselecteerde provider of model deployment is momenteel rate limited.",
+          },
+        },
+      },
+      rerank: {
+        aiSdk: {
+          title: "Documenten reranken",
+          surface: "AI SDK",
+          summary: "Score en herschik documenten voor een query met het AI SDK gateway reranking endpoint.",
+          description: "Gebruik de AI SDK reranking route om een query en typed document collection te versturen. De gateway resolved het provider-qualified model, stuurt de reranking request door en retourneert ranked indexes met relevance scores, warnings, response metadata en provider metadata.",
+          testLabel: "Testen",
+          testModalTitle: "AI SDK rerank testen",
+          testDescription: "Pas de bearer token, model, query, documenten en topN-waarde aan en verzend daarna een live reranking request. JSON responses worden automatisch geformatteerd.",
+          relatedVideo: "AI SDK video",
+          parameters: {
+            model: "Reranking-capable model of provider-qualified model identifier.",
+            query: "Zoekquery of user intent waarmee de meegegeven documenten worden gerankt.",
+            documents: "Typed document container. Gebruik type en values om de documentpayload voor de provider te beschrijven.",
+            documentsType: "Document value type. Text reranking gebruikt text.",
+            documentsValues: "Documenten om te reranken. Voor text reranking is dit een array van strings in de oorspronkelijke volgorde.",
+            topN: "Optioneel maximaal aantal ranked results dat wordt geretourneerd.",
+            providerOptions: "Provider-specific options keyed by provider identifier, bijvoorbeeld cohere of voyage.",
+          },
+          responses: {
+            json: "Reranking request geaccepteerd en JSON metadata wordt geretourneerd met ranking entries gesorteerd op relevance.",
+          },
+          errors: {
+            badRequest: "Het geselecteerde model is niet beschikbaar, vereiste requestvelden ontbreken of de provider weigert de reranking payload.",
+            unauthorized: "De request bevatte geen geldige bearer token.",
+            rateLimited: "De geselecteerde provider of model deployment is momenteel rate limited.",
+          },
+        },
+      },
+      video: {
+        aiSdk: {
+          title: "Video genereren",
+          surface: "AI SDK",
+          summary: "Genereer video's uit prompts en optionele image inputs met het AI SDK gateway video endpoint.",
+          description: "Gebruik de AI SDK video route om video's te maken via provider-qualified video models. De route accepteert prompt-, format-, timing-, image-, frame- en provider-specific options en retourneert gegenereerde video's als genormaliseerde response files met metadata en warnings.",
+          testLabel: "Testen",
+          testModalTitle: "AI SDK video testen",
+          testDescription: "Pas de bearer token en JSON body aan en verzend daarna een live video generation request. Responses bevatten generated video file data en metadata wanneer de provider succesvol afrondt.",
+          relatedRerank: "AI SDK rerank",
+          parameters: {
+            model: "Video-capable model of provider-qualified model identifier.",
+            prompt: "Tekstprompt die beschrijft welke video moet worden gegenereerd.",
+            resolution: "Optionele output resolution zoals 720p, 1080p of een provider-specific size.",
+            aspectRatio: "Optionele aspect ratio zoals 16:9, 9:16 of 1:1 wanneer dit door de provider wordt ondersteund.",
+            seed: "Optionele seed voor deterministic of reproducible generations wanneer dit door de provider wordt ondersteund.",
+            duration: "Optionele videoduur in seconden wanneer dit door de provider wordt ondersteund.",
+            fps: "Optionele frames-per-second waarde wanneer dit door de provider wordt ondersteund.",
+            n: "Optioneel aantal video's om te genereren.",
+            image: "Optionele base64 input image met type, mediaType en data voor image-to-video workflows.",
+            inputReferences: "Optionele array met input reference files voor providers die meerdere visual references ondersteunen.",
+            frameImages: "Optionele first-frame of last-frame image controls. Elk item bevat frameType en image.",
+            providerOptions: "Provider-specific options keyed by provider identifier, bijvoorbeeld google, kling, runway of luma.",
+          },
+          responses: {
+            json: "Video generation geaccepteerd en JSON metadata wordt geretourneerd met generated files in videos[].",
+          },
+          errors: {
+            badRequest: "Het geselecteerde model is niet beschikbaar, vereiste requestvelden ontbreken of de provider weigert de video payload.",
             unauthorized: "De request bevatte geen geldige bearer token.",
             rateLimited: "De geselecteerde provider of model deployment is momenteel rate limited.",
           },

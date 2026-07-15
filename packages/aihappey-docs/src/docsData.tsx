@@ -402,3 +402,414 @@ const speech = await response.json();`,
     };
 };
 
+type CreateAiSdkEndpointDocOptions = {
+    apiBaseUrl?: string;
+    t?: (key: string) => string;
+};
+
+const createAiSdkRerankDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("rerank.aiSdk.description")}
+    </p>
+);
+
+const createAiSdkVideoDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("video.aiSdk.description")}
+    </p>
+);
+
+const createGatewayAuth = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("gateway.common.auth")}
+    </p>
+);
+
+const createAiSdkRerankParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("rerank.aiSdk.parameters.model") },
+    { name: "query", type: "string", required: true, description: t("rerank.aiSdk.parameters.query") },
+    { name: "documents", type: "object", required: true, description: t("rerank.aiSdk.parameters.documents") },
+    { name: "documents.type", type: "string", required: true, description: t("rerank.aiSdk.parameters.documentsType") },
+    { name: "documents.values", type: "array", required: true, description: t("rerank.aiSdk.parameters.documentsValues") },
+    { name: "topN", type: "number", required: false, description: t("rerank.aiSdk.parameters.topN") },
+    { name: "providerOptions", type: "object", required: false, description: t("rerank.aiSdk.parameters.providerOptions") },
+];
+
+const nestedShapeDescription = (description: string, example: string): ReactNode => (
+    <div style={{ display: "grid", gap: 8 }}>
+        <span>{description}</span>
+        <pre style={{ margin: 0, padding: "0.7rem", overflow: "auto", borderRadius: 8, background: "rgba(148, 163, 184, 0.12)" }}>
+            <code>{example}</code>
+        </pre>
+    </div>
+);
+
+const videoFileShapeExample = `{
+  "type": "file",
+  "mediaType": "image/png",
+  "data": "iVBORw0KGgoAAAANSUhEUgAA..."
+}`;
+
+const videoInputReferencesShapeExample = `[
+  {
+    "type": "file",
+    "mediaType": "image/png",
+    "data": "iVBORw0KGgoAAAANSUhEUgAA..."
+  },
+  {
+    "type": "file",
+    "mediaType": "image/jpeg",
+    "data": "/9j/4AAQSkZJRgABAQ..."
+  }
+]`;
+
+const videoFrameImagesShapeExample = `[
+  {
+    "frameType": "first_frame",
+    "image": {
+      "type": "file",
+      "mediaType": "image/png",
+      "data": "iVBORw0KGgoAAAANSUhEUgAA..."
+    }
+  },
+  {
+    "frameType": "last_frame",
+    "image": {
+      "type": "file",
+      "mediaType": "image/png",
+      "data": "iVBORw0KGgoAAAANSUhEUgAA..."
+    }
+  }
+]`;
+
+const createAiSdkVideoParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("video.aiSdk.parameters.model") },
+    { name: "prompt", type: "string", required: true, description: t("video.aiSdk.parameters.prompt") },
+    { name: "resolution", type: "string", required: false, description: t("video.aiSdk.parameters.resolution") },
+    { name: "aspectRatio", type: "string", required: false, description: t("video.aiSdk.parameters.aspectRatio") },
+    { name: "seed", type: "number", required: false, description: t("video.aiSdk.parameters.seed") },
+    { name: "duration", type: "number", required: false, description: t("video.aiSdk.parameters.duration") },
+    { name: "fps", type: "number", required: false, description: t("video.aiSdk.parameters.fps") },
+    { name: "n", type: "number", required: false, description: t("video.aiSdk.parameters.n") },
+    { name: "image", type: "object", required: false, description: nestedShapeDescription(t("video.aiSdk.parameters.image"), videoFileShapeExample) },
+    { name: "inputReferences", type: "array", required: false, description: nestedShapeDescription(t("video.aiSdk.parameters.inputReferences"), videoInputReferencesShapeExample) },
+    { name: "frameImages", type: "array", required: false, description: nestedShapeDescription(t("video.aiSdk.parameters.frameImages"), videoFrameImagesShapeExample) },
+    { name: "providerOptions", type: "object", required: false, description: t("video.aiSdk.parameters.providerOptions") },
+];
+
+const aiSdkRerankResponseExample = `{
+  "ranking": [
+    {
+      "index": 1,
+      "relevanceScore": 0.9612
+    },
+    {
+      "index": 0,
+      "relevanceScore": 0.8428
+    }
+  ],
+  "warnings": [],
+  "response": {
+    "id": "rerank_01hzyj8v5n9k6s3r2d4a",
+    "timestamp": "2026-07-14T13:20:00Z",
+    "modelId": "cohere/rerank-v3.5",
+    "headers": {
+      "Header-1": "Header-1-Value",
+      "Header-2": "Header-2-Value"
+    }
+  },
+  "providerMetadata": {
+    "gateway": {
+      "cost": 0.00023456789
+    },
+    "cohere": {}
+  }
+}`;
+
+const aiSdkVideoResponseExample = `{
+  "providerMetadata": {
+    "gateway": {
+      "cost": 0.0456789
+    },
+    "google": {}
+  },
+  "videos": [
+    {
+      "type": "base64",
+      "data": "AAAAIGZ0eXBpc29t...",
+      "mediaType": "video/mp4"
+    }
+  ],
+  "warnings": [],
+  "response": {
+    "timestamp": "2026-07-14T13:20:00Z",
+    "modelId": "google/veo-3.0-generate-preview",
+    "headers": {
+      "Header-1": "Header-1-Value",
+      "Header-2": "Header-2-Value"
+    }
+  }
+}`;
+
+const createAiSdkRerankTestDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("rerank.aiSdk.testDescription")}
+    </p>
+);
+
+const createAiSdkVideoTestDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("video.aiSdk.testDescription")}
+    </p>
+);
+
+export const createRerankEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const aiSdkRerankUrl = createApiUrl(apiBaseUrl, "/api/rerank");
+
+    return {
+        id: "rerank-ai-sdk",
+        title: t("rerank.aiSdk.title"),
+        surface: t("rerank.aiSdk.surface"),
+        method: "POST",
+        path: "/api/rerank",
+        url: aiSdkRerankUrl,
+        summary: t("rerank.aiSdk.summary"),
+        description: createAiSdkRerankDescription(t),
+        auth: createGatewayAuth(t),
+        parameters: createAiSdkRerankParameters(t),
+        test: {
+            label: t("rerank.aiSdk.testLabel"),
+            modalTitle: t("rerank.aiSdk.testModalTitle"),
+            description: createAiSdkRerankTestDescription(t),
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body: {
+                model: "cohere/rerank-v3.5",
+                query: "Which document best explains API authentication?",
+                documents: {
+                    type: "text",
+                    values: [
+                        "Send a bearer token with every request to authenticate against the gateway.",
+                        "The speech endpoint generates audio from text.",
+                        "Video generation can use prompts, images, and provider options."
+                    ]
+                },
+                topN: 2,
+            },
+        },
+        requestExamples: [
+            {
+                id: "typescript-ai-sdk-rerank",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${aiSdkRerankUrl}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "cohere/rerank-v3.5",
+    query: "Which document best explains API authentication?",
+    documents: {
+      type: "text",
+      values: [
+        "Send a bearer token with every request to authenticate against the gateway.",
+        "The speech endpoint generates audio from text.",
+        "Video generation can use prompts, images, and provider options."
+      ]
+    },
+    topN: 2
+  }),
+});
+
+const rerank = await response.json();`,
+            },
+            {
+                id: "curl-ai-sdk-rerank",
+                label: "cURL",
+                language: "bash",
+                code: `curl ${aiSdkRerankUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "cohere/rerank-v3.5",
+    "query": "Which document best explains API authentication?",
+    "documents": {
+      "type": "text",
+      "values": [
+        "Send a bearer token with every request to authenticate against the gateway.",
+        "The speech endpoint generates audio from text.",
+        "Video generation can use prompts, images, and provider options."
+      ]
+    },
+    "topN": 2
+  }'`,
+            },
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t("rerank.aiSdk.responses.json"),
+                example: {
+                    id: "ai-sdk-rerank-response",
+                    label: "JSON",
+                    language: "json",
+                    code: aiSdkRerankResponseExample,
+                },
+            },
+        ],
+        errors: [
+            { status: "400", description: t("rerank.aiSdk.errors.badRequest") },
+            { status: "401", description: t("rerank.aiSdk.errors.unauthorized") },
+            { status: "429", description: t("rerank.aiSdk.errors.rateLimited") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "ai-video", label: t("rerank.aiSdk.relatedVideo"), href: "/gateway/ai/video" },
+        ],
+    };
+};
+
+export const createVideoEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const aiSdkVideoUrl = createApiUrl(apiBaseUrl, "/api/videos");
+
+    return {
+        id: "video-ai-sdk",
+        title: t("video.aiSdk.title"),
+        surface: t("video.aiSdk.surface"),
+        method: "POST",
+        path: "/api/videos",
+        url: aiSdkVideoUrl,
+        summary: t("video.aiSdk.summary"),
+        description: createAiSdkVideoDescription(t),
+        auth: createGatewayAuth(t),
+        parameters: createAiSdkVideoParameters(t),
+        test: {
+            label: t("video.aiSdk.testLabel"),
+            modalTitle: t("video.aiSdk.testModalTitle"),
+            description: createAiSdkVideoTestDescription(t),
+            responseType: "json",
+            downloadFileName: "video-response.json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body: {
+                model: "google/veo-3.0-generate-preview",
+                prompt: "A cinematic drone shot over Amsterdam canals at sunrise, warm light, realistic style.",
+                aspectRatio: "16:9",
+                duration: 8,
+                n: 1,
+            },
+        },
+        requestExamples: [
+            {
+                id: "typescript-ai-sdk-video",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${aiSdkVideoUrl}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "google/veo-3.0-generate-preview",
+    prompt: "A cinematic drone shot over Amsterdam canals at sunrise, warm light, realistic style.",
+    aspectRatio: "16:9",
+    duration: 8,
+    n: 1
+  }),
+});
+
+const video = await response.json();`,
+            },
+            {
+                id: "curl-ai-sdk-video",
+                label: "cURL",
+                language: "bash",
+                code: `curl ${aiSdkVideoUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "google/veo-3.0-generate-preview",
+    "prompt": "A cinematic drone shot over Amsterdam canals at sunrise, warm light, realistic style.",
+    "aspectRatio": "16:9",
+    "duration": 8,
+    "n": 1
+  }'`,
+            },
+            {
+                id: "typescript-ai-sdk-video-visual-inputs",
+                label: "TypeScript with visual inputs",
+                language: "ts",
+                code: `const response = await fetch("${aiSdkVideoUrl}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "google/veo-3.0-generate-preview",
+    prompt: "Animate this product photo with subtle camera movement.",
+    image: {
+      type: "file",
+      mediaType: "image/png",
+      data: "iVBORw0KGgoAAAANSUhEUgAA..."
+    },
+    inputReferences: [
+      {
+        type: "file",
+        mediaType: "image/jpeg",
+        data: "/9j/4AAQSkZJRgABAQ..."
+      }
+    ],
+    frameImages: [
+      {
+        frameType: "first_frame",
+        image: {
+          type: "file",
+          mediaType: "image/png",
+          data: "iVBORw0KGgoAAAANSUhEUgAA..."
+        }
+      }
+    ],
+    duration: 5
+  }),
+});
+
+const video = await response.json();`,
+            },
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t("video.aiSdk.responses.json"),
+                example: {
+                    id: "ai-sdk-video-response",
+                    label: "JSON",
+                    language: "json",
+                    code: aiSdkVideoResponseExample,
+                },
+            },
+        ],
+        errors: [
+            { status: "400", description: t("video.aiSdk.errors.badRequest") },
+            { status: "401", description: t("video.aiSdk.errors.unauthorized") },
+            { status: "429", description: t("video.aiSdk.errors.rateLimited") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "ai-rerank", label: t("video.aiSdk.relatedRerank"), href: "/gateway/ai/rerank" },
+        ],
+    };
+};
+
