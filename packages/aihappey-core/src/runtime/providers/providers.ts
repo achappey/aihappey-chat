@@ -155,7 +155,6 @@ import { infraxa } from "./catalog/infraxa";
 import { inceptionlabs } from "./catalog/inceptionlabs";
 import { daglo } from "./catalog/daglo";
 import { opeai } from "./catalog/opeai";
-import { forefront } from "./catalog/forefront";
 import { aicc } from "./catalog/aicc";
 import { yourvoic } from "./catalog/yourvoic";
 import { fishaudio } from "./catalog/fishaudio";
@@ -922,7 +921,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   glio,
   orqrouter,
   dandolo,
-  forefront,
   literouter,
   orqagentruntime,
   syllogy,
