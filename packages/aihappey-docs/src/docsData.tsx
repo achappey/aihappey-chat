@@ -49,10 +49,13 @@ export const gatewayNavSections: DocsNavSection[] = [
         title: "OpenAI compatible",
         items: [
             { id: "openai-chat", label: "Chat completions", href: "/gateway/openai/chat-completions", badge: { label: "POST", method: "POST" } },
+            { id: "openai-download-skill", label: "Download skill", href: "/gateway/openai/download-skill", badge: { label: "GET", method: "GET" } },
+            { id: "openai-download-skill-version", label: "Download skill version", href: "/gateway/openai/download-skill-version", badge: { label: "GET", method: "GET" } },
             { id: "openai-models", label: "Models", href: "/gateway/openai/models", badge: { label: "GET", method: "GET" } },
+            { id: "openai-list-skills", label: "List skills", href: "/gateway/openai/list-skills", badge: { label: "GET", method: "GET" } },
+            { id: "openai-list-skill-versions", label: "List skill versions", href: "/gateway/openai/list-skill-versions", badge: { label: "GET", method: "GET" } },
             { id: "openai-realtime", label: "Realtime", href: "/gateway/openai/realtime", badge: { label: "POST", method: "POST" } },
             { id: "openai-responses", label: "Responses", href: "/gateway/openai/responses", badge: { label: "POST", method: "POST" } },
-            { id: "openai-skills", label: "Skills", href: "/gateway/openai/skills", badge: { label: "GET", method: "GET" } },
             { id: "openai-speech", label: "Speech", href: "/gateway/openai/speech", badge: { label: "POST", method: "POST" } },
             { id: "openai-transcriptions", label: "Transcriptions", href: "/gateway/openai/transcriptions", badge: { label: "POST", method: "POST" } },
         ],
@@ -108,6 +111,7 @@ export const agentNavSections: DocsNavSection[] = [
 ];
 
 type SpeechSurface = "openai" | "ai-sdk";
+type TranscriptionsSurface = "openai" | "ai-sdk";
 
 type CreateSpeechEndpointDocOptions = {
     apiBaseUrl?: string;
@@ -398,6 +402,521 @@ const speech = await response.json();`,
         related: [
             { id: "gateway-overview", label: t("speech.common.relatedGatewayOverview"), href: "/gateway" },
             { id: "other-surface", label: t("speech.aiSdk.relatedOpenAiSpeech"), href: "/gateway/openai/speech" },
+        ],
+    };
+};
+
+const createOpenAiTranscriptionsDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("transcriptions.openai.descriptionPrefix")} {inlineCode("multipart/form-data")} {t("transcriptions.openai.descriptionMiddle")} {inlineCode("stream")} {t("transcriptions.openai.descriptionSuffix")}
+    </p>
+);
+
+const createAiSdkTranscriptionsDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("transcriptions.aiSdk.descriptionPrefix")} {inlineCode("audio")} {t("transcriptions.aiSdk.descriptionMiddle")} {inlineCode("mediaType")}{t("transcriptions.aiSdk.descriptionSuffix")}
+    </p>
+);
+
+const createOpenAiResponsesDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("responses.openai.descriptionPrefix")} {inlineCode("input")} {t("responses.openai.descriptionMiddle")} {inlineCode("stream")} {t("responses.openai.descriptionSuffix")}
+    </p>
+);
+
+const createOpenAiRealtimeDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("realtime.openai.descriptionPrefix")} {inlineCode("/v1/realtime/client_secrets")} {t("realtime.openai.descriptionMiddle")} {inlineCode("providerOptions")}{t("realtime.openai.descriptionSuffix")}
+    </p>
+);
+
+const createOpenAiTranscriptionsParameters = (t: (key: string) => string) => [
+    { name: "file", type: "file", required: true, description: t("transcriptions.openai.parameters.file") },
+    { name: "model", type: "string", required: true, description: t("transcriptions.openai.parameters.model") },
+    { name: "language", type: "string", required: false, description: t("transcriptions.openai.parameters.language") },
+    { name: "prompt", type: "string", required: false, description: t("transcriptions.openai.parameters.prompt") },
+    { name: "response_format", type: "string", required: false, description: t("transcriptions.openai.parameters.response_format") },
+    { name: "temperature", type: "number", required: false, description: t("transcriptions.openai.parameters.temperature") },
+    { name: "timestamp_granularities", type: "array", required: false, description: t("transcriptions.openai.parameters.timestamp_granularities") },
+    { name: "stream", type: "boolean", required: false, description: t("transcriptions.openai.parameters.stream") },
+    { name: "include", type: "array", required: false, description: t("transcriptions.openai.parameters.include") },
+];
+
+const createAiSdkTranscriptionsParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("transcriptions.aiSdk.parameters.model") },
+    { name: "audio", type: "string", required: true, description: t("transcriptions.aiSdk.parameters.audio") },
+    { name: "mediaType", type: "string", required: true, description: t("transcriptions.aiSdk.parameters.mediaType") },
+    { name: "providerOptions", type: "object", required: false, description: t("transcriptions.aiSdk.parameters.providerOptions") },
+];
+
+const createOpenAiResponsesParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("responses.openai.parameters.model") },
+    { name: "input", type: "string | array", required: true, description: t("responses.openai.parameters.input") },
+    { name: "instructions", type: "string", required: false, description: t("responses.openai.parameters.instructions") },
+    { name: "stream", type: "boolean", required: false, description: t("responses.openai.parameters.stream") },
+    { name: "temperature", type: "number", required: false, description: t("responses.openai.parameters.temperature") },
+    { name: "top_p", type: "number", required: false, description: t("responses.openai.parameters.top_p") },
+    { name: "max_output_tokens", type: "number", required: false, description: t("responses.openai.parameters.max_output_tokens") },
+    { name: "tools", type: "array", required: false, description: t("responses.openai.parameters.tools") },
+    { name: "tool_choice", type: "string | object", required: false, description: t("responses.openai.parameters.tool_choice") },
+    { name: "reasoning", type: "object", required: false, description: t("responses.openai.parameters.reasoning") },
+    { name: "metadata", type: "object", required: false, description: t("responses.openai.parameters.metadata") },
+];
+
+const createOpenAiRealtimeParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("realtime.openai.parameters.model") },
+    { name: "providerOptions", type: "object", required: false, description: t("realtime.openai.parameters.providerOptions") },
+];
+
+const aiSdkTranscriptionsResponseExample = `{
+  "providerMetadata": {
+    "gateway": {
+      "cost": 0.00012345678
+    },
+    "openai": {}
+  },
+  "text": "Welcome to the aihappey transcription docs.",
+  "language": "en",
+  "durationInSeconds": 3.4,
+  "warnings": [],
+  "segments": [
+    {
+      "text": "Welcome to the aihappey transcription docs.",
+      "startSecond": 0,
+      "endSecond": 3.4
+    }
+  ],
+  "response": {
+    "timestamp": "2026-07-14T13:20:00Z",
+    "modelId": "openai/whisper-1",
+    "headers": {
+      "Header-1": "Header-1-Value",
+      "Header-2": "Header-2-Value"
+    }
+  }
+}`;
+
+const openAiTranscriptionsJsonResponseExample = `{
+  "text": "Welcome to the aihappey transcription docs."
+}`;
+
+const openAiTranscriptionsVerboseResponseExample = `{
+  "text": "Welcome to the aihappey transcription docs.",
+  "language": "en",
+  "duration": 3.4,
+  "segments": [
+    {
+      "text": "Welcome to the aihappey transcription docs.",
+      "start": 0,
+      "end": 3.4
+    }
+  ]
+}`;
+
+const openAiResponsesResponseExample = `{
+  "id": "resp_01hzyj8v5n9k6s3r2d4a",
+  "object": "response",
+  "created_at": 1784035200,
+  "model": "gpt-4.1-mini",
+  "output": [
+    {
+      "type": "message",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "Use a bearer token on every request and choose provider-qualified model ids when routing through the gateway."
+        }
+      ]
+    }
+  ],
+  "usage": {
+    "input_tokens": 24,
+    "output_tokens": 22,
+    "total_tokens": 46
+  }
+}`;
+
+const openAiRealtimeResponseExample = `{
+  "value": "ek_01hzyj8v5n9k6s3r2d4a",
+  "expires_at": 1784038800,
+  "providerMetadata": {
+    "openai": {
+      "session_id": "sess_01hzyj8v5n9k6s3r2d4a"
+    }
+  }
+}`;
+
+const createTranscriptionsTestDescription = (t: (key: string) => string, surface: TranscriptionsSurface): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t(surface === "openai" ? "transcriptions.openai.testDescription" : "transcriptions.aiSdk.testDescription")}
+    </p>
+);
+
+const createResponsesTestDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("responses.openai.testDescription")}
+    </p>
+);
+
+const createRealtimeTestDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("realtime.openai.testDescription")}
+    </p>
+);
+
+export const createTranscriptionsEndpointDoc = (surface: TranscriptionsSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const openAiTranscriptionsUrl = createApiUrl(apiBaseUrl, "/v1/audio/transcriptions");
+    const aiSdkTranscriptionsUrl = createApiUrl(apiBaseUrl, "/api/transcriptions");
+
+    if (surface === "openai") {
+        return {
+            id: "transcriptions-openai",
+            title: t("transcriptions.openai.title"),
+            surface: t("transcriptions.openai.surface"),
+            method: "POST",
+            path: "/v1/audio/transcriptions",
+            url: openAiTranscriptionsUrl,
+            summary: t("transcriptions.openai.summary"),
+            description: createOpenAiTranscriptionsDescription(t),
+            auth: createGatewayAuth(t),
+            parameters: createOpenAiTranscriptionsParameters(t),
+            requestExamples: [
+                {
+                    id: "curl-openai-transcriptions-json",
+                    label: "cURL",
+                    language: "bash",
+                    code: `curl ${openAiTranscriptionsUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -F file=@meeting.mp3 \\
+  -F model=openai/whisper-1 \\
+  -F response_format=json`,
+                },
+                {
+                    id: "curl-openai-transcriptions-stream",
+                    label: "cURL streaming",
+                    language: "bash",
+                    code: `curl ${openAiTranscriptionsUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -F file=@meeting.mp3 \\
+  -F model=openai/whisper-1 \\
+  -F stream=true`,
+                },
+            ],
+            responses: [
+                {
+                    status: "200",
+                    description: t("transcriptions.openai.responses.json"),
+                    example: {
+                        id: "openai-transcriptions-json-response",
+                        label: "JSON",
+                        language: "json",
+                        code: openAiTranscriptionsJsonResponseExample,
+                    },
+                },
+                {
+                    status: "200",
+                    description: t("transcriptions.openai.responses.verbose"),
+                    example: {
+                        id: "openai-transcriptions-verbose-response",
+                        label: "Verbose JSON",
+                        language: "json",
+                        code: openAiTranscriptionsVerboseResponseExample,
+                    },
+                },
+                {
+                    status: "200",
+                    description: t("transcriptions.openai.responses.sse"),
+                    example: {
+                        id: "openai-transcriptions-sse-response",
+                        label: "SSE",
+                        language: "text",
+                        code: `data: {"type":"transcript.text.delta","delta":"Welcome to the docs."}
+
+data: {"type":"transcript.text.done","text":"Welcome to the docs."}
+
+data: [DONE]`,
+                    },
+                },
+            ],
+            errors: [
+                { status: "400", description: t("transcriptions.openai.errors.badRequest") },
+                { status: "401", description: t("transcriptions.openai.errors.unauthorized") },
+                { status: "500", description: t("transcriptions.openai.errors.providerFailed") },
+            ],
+            related: [
+                { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+                { id: "other-surface", label: t("transcriptions.openai.relatedAiSdkTranscriptions"), href: "/gateway/ai/transcriptions" },
+            ],
+        };
+    }
+
+    return {
+        id: "transcriptions-ai-sdk",
+        title: t("transcriptions.aiSdk.title"),
+        surface: t("transcriptions.aiSdk.surface"),
+        method: "POST",
+        path: "/api/transcriptions",
+        url: aiSdkTranscriptionsUrl,
+        summary: t("transcriptions.aiSdk.summary"),
+        description: createAiSdkTranscriptionsDescription(t),
+        auth: createGatewayAuth(t),
+        parameters: createAiSdkTranscriptionsParameters(t),
+        test: {
+            label: t("transcriptions.aiSdk.testLabel"),
+            modalTitle: t("transcriptions.aiSdk.testModalTitle"),
+            description: createTranscriptionsTestDescription(t, "ai-sdk"),
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body: {
+                model: "openai/whisper-1",
+                audio: "data:audio/mpeg;base64,SUQzBAAAAAAA...",
+                mediaType: "audio/mpeg",
+            },
+        },
+        requestExamples: [
+            {
+                id: "typescript-ai-sdk-transcriptions",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${aiSdkTranscriptionsUrl}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "openai/whisper-1",
+    audio: "data:audio/mpeg;base64,SUQzBAAAAAAA...",
+    mediaType: "audio/mpeg"
+  }),
+});
+
+const transcription = await response.json();`,
+            },
+            {
+                id: "curl-ai-sdk-transcriptions",
+                label: "cURL",
+                language: "bash",
+                code: `curl ${aiSdkTranscriptionsUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "openai/whisper-1",
+    "audio": "data:audio/mpeg;base64,SUQzBAAAAAAA...",
+    "mediaType": "audio/mpeg"
+  }'`,
+            },
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t("transcriptions.aiSdk.responses.json"),
+                example: {
+                    id: "ai-sdk-transcriptions-response",
+                    label: "JSON",
+                    language: "json",
+                    code: aiSdkTranscriptionsResponseExample,
+                },
+            },
+        ],
+        errors: [
+            { status: "400", description: t("transcriptions.aiSdk.errors.badRequest") },
+            { status: "401", description: t("transcriptions.aiSdk.errors.unauthorized") },
+            { status: "429", description: t("transcriptions.aiSdk.errors.rateLimited") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "other-surface", label: t("transcriptions.aiSdk.relatedOpenAiTranscriptions"), href: "/gateway/openai/transcriptions" },
+        ],
+    };
+};
+
+export const createResponsesEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const openAiResponsesUrl = createApiUrl(apiBaseUrl, "/v1/responses");
+
+    return {
+        id: "responses-openai",
+        title: t("responses.openai.title"),
+        surface: t("responses.openai.surface"),
+        method: "POST",
+        path: "/v1/responses",
+        url: openAiResponsesUrl,
+        summary: t("responses.openai.summary"),
+        description: createOpenAiResponsesDescription(t),
+        auth: createGatewayAuth(t),
+        parameters: createOpenAiResponsesParameters(t),
+        test: {
+            label: t("responses.openai.testLabel"),
+            modalTitle: t("responses.openai.testModalTitle"),
+            description: createResponsesTestDescription(t),
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body: {
+                model: "openai/gpt-4.1-mini",
+                input: "Explain how to authenticate against the aihappey gateway in one sentence.",
+            },
+        },
+        requestExamples: [
+            {
+                id: "typescript-openai-responses",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${openAiResponsesUrl}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-4.1-mini",
+    input: "Explain how to authenticate against the aihappey gateway in one sentence."
+  }),
+});
+
+const result = await response.json();`,
+            },
+            {
+                id: "curl-openai-responses-stream",
+                label: "cURL streaming",
+                language: "bash",
+                code: `curl ${openAiResponsesUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "openai/gpt-4.1-mini",
+    "input": "Explain how to authenticate against the aihappey gateway in one sentence.",
+    "stream": true
+  }'`,
+            },
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t("responses.openai.responses.json"),
+                example: {
+                    id: "openai-responses-response",
+                    label: "JSON",
+                    language: "json",
+                    code: openAiResponsesResponseExample,
+                },
+            },
+            {
+                status: "200",
+                description: t("responses.openai.responses.sse"),
+                example: {
+                    id: "openai-responses-sse-response",
+                    label: "SSE",
+                    language: "text",
+                    code: `data: {"type":"response.output_text.delta","delta":"Use a bearer token"}
+
+data: {"type":"response.completed","response":{"id":"resp_01hzyj8v5n9k6s3r2d4a"}}
+
+data: [DONE]`,
+                },
+            },
+        ],
+        errors: [
+            { status: "400", description: t("responses.openai.errors.badRequest") },
+            { status: "401", description: t("responses.openai.errors.unauthorized") },
+            { status: "500", description: t("responses.openai.errors.providerFailed") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "openai-realtime", label: t("responses.openai.relatedRealtime"), href: "/gateway/openai/realtime" },
+        ],
+    };
+};
+
+export const createRealtimeEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const openAiRealtimeUrl = createApiUrl(apiBaseUrl, "/v1/realtime/client_secrets");
+
+    return {
+        id: "realtime-openai",
+        title: t("realtime.openai.title"),
+        surface: t("realtime.openai.surface"),
+        method: "POST",
+        path: "/v1/realtime/client_secrets",
+        url: openAiRealtimeUrl,
+        summary: t("realtime.openai.summary"),
+        description: createOpenAiRealtimeDescription(t),
+        auth: createGatewayAuth(t),
+        parameters: createOpenAiRealtimeParameters(t),
+        test: {
+            label: t("realtime.openai.testLabel"),
+            modalTitle: t("realtime.openai.testModalTitle"),
+            description: createRealtimeTestDescription(t),
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body: {
+                model: "openai/gpt-4o-realtime-preview",
+            },
+        },
+        requestExamples: [
+            {
+                id: "typescript-openai-realtime",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${openAiRealtimeUrl}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-4o-realtime-preview"
+  }),
+});
+
+const clientSecret = await response.json();`,
+            },
+            {
+                id: "curl-openai-realtime",
+                label: "cURL",
+                language: "bash",
+                code: `curl ${openAiRealtimeUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "openai/gpt-4o-realtime-preview"
+  }'`,
+            },
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t("realtime.openai.responses.json"),
+                example: {
+                    id: "openai-realtime-response",
+                    label: "JSON",
+                    language: "json",
+                    code: openAiRealtimeResponseExample,
+                },
+            },
+        ],
+        errors: [
+            { status: "400", description: t("realtime.openai.errors.badRequest") },
+            { status: "401", description: t("realtime.openai.errors.unauthorized") },
+            { status: "500", description: t("realtime.openai.errors.providerFailed") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "openai-responses", label: t("realtime.openai.relatedResponses"), href: "/gateway/openai/responses" },
         ],
     };
 };
