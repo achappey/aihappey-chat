@@ -561,6 +561,7 @@ import { beastlabai } from "./catalog/beastlabai";
 import { lelapaai } from "./catalog/lelapaai";
 import { sailresearch } from "./catalog/sailresearch";
 import { darkbloom } from "./catalog/darkbloom";
+import { ilmu } from "./catalog/ilmu";
 
 /**
  * UI-facing provider catalog.
@@ -698,6 +699,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tokonlab,
   holysheepai,
   foureverland,
+  ilmu,
   fivedock,
   schatziai,
   fortytwo,
