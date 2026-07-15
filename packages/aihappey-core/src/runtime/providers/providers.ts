@@ -562,6 +562,7 @@ import { lelapaai } from "./catalog/lelapaai";
 import { sailresearch } from "./catalog/sailresearch";
 import { darkbloom } from "./catalog/darkbloom";
 import { ilmu } from "./catalog/ilmu";
+import { lyceum } from "./catalog/lyceum";
 
 /**
  * UI-facing provider catalog.
@@ -698,6 +699,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   opengateway,
   tokonlab,
   holysheepai,
+  lyceum,
   foureverland,
   ilmu,
   fivedock,
