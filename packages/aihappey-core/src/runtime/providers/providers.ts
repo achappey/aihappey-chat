@@ -564,6 +564,7 @@ import { zeroentropy } from "./catalog/zeroentropy";
 import { beastlabai } from "./catalog/beastlabai";
 import { lelapaai } from "./catalog/lelapaai";
 import { sailresearch } from "./catalog/sailresearch";
+import { darkbloom } from "./catalog/darkbloom";
 
 /**
  * UI-facing provider catalog.
@@ -656,6 +657,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   runtimo,
   wiserouter,
   nodion,
+  darkbloom,
   scalixworld,
   generalcompute,
   uncloseai,

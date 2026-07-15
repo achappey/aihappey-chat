@@ -13,7 +13,7 @@ export const perceptron: Provider = {
     termsOfService: "https://www.perceptron.inc/terms-of-use"
   },
   providerCountry: "US",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };
