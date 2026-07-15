@@ -5,10 +5,8 @@ import { ProviderDetailModal } from "aihappey-components";
 
 const SAMPLE_PROVIDER: Provider = {
   name: "OpenAI",
-  url: "https://openai.com",
   description: "General-purpose AI provider",
   experimental: false,
-  hosting: "us",
   icons: [],
 };
 
@@ -55,10 +53,9 @@ const meta = {
   component: ProviderDetailModal,
   args: {
     open: true,
-    onClose: (() => {}) as any,
+    onClose: (() => { }) as any,
     providerKey: "openai",
     providerName: "OpenAI",
-    providerUrl: "https://openai.com",
     providerDescription: "General-purpose AI provider",
     providerImage: "https://placehold.co/40x40?text=AI",
     providerExperimental: false,
@@ -72,7 +69,6 @@ const meta = {
     onClose: { action: "close", control: false },
     providerKey: { control: "text" },
     providerName: { control: "text" },
-    providerUrl: { control: "text" },
     providerDescription: { control: "text" },
     providerImage: { control: "text" },
     providerExperimental: { control: "boolean" },
@@ -102,3 +98,24 @@ export const NoModels: Story = {
   render: (args) => <Controlled {...(args as any)} />,
 };
 
+export const IgnoresUnavailableModelTypes: Story = {
+  args: {
+    initialOpen: true,
+    providerKey: "zeroentropy",
+    providerName: "ZeroEntropy",
+    providerDescription:
+      "ZeroEntropy trains small, specialized AI models — state-of-the-art rerankers, embeddings, and custom-trained models for production AI systems.",
+    modelTypes: ["language", "reranking"],
+    models: [
+      {
+        id: "zeroentropy/zerank-1",
+        name: "ZeRank 1",
+        type: "reranking",
+        owned_by: "zeroentropy",
+        tags: [],
+        description: "Reranking model",
+      },
+    ],
+  } as any,
+  render: (args) => <Controlled {...(args as any)} />,
+};

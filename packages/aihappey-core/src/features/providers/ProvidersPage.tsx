@@ -53,56 +53,6 @@ const keepAvailableSelection = (
     return next.length > 0 ? next : [PROVIDER_LOCATION_ALL_FILTER_VALUE];
 };
 
-const addProviderModelType = (types: Set<string>, condition: boolean, type: string) => {
-    if (condition) types.add(type);
-};
-
-const inferProviderModelTypes = (provider: ProviderListItem) => {
-    const text = [provider.name, provider.description, provider.category]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-    const types = new Set<string>();
-
-    addProviderModelType(
-        types,
-        /\b(llm|language|chat|text|reasoning|code|coding|conversation|model|models)\b/.test(text),
-        "language"
-    );
-    addProviderModelType(
-        types,
-        /\b(image|images|visual|vision|photo|design)\b/.test(text),
-        "image"
-    );
-    addProviderModelType(
-        types,
-        /\b(video|videos|avatar|motion)\b/.test(text),
-        "video"
-    );
-    addProviderModelType(
-        types,
-        /\b(speech|voice|tts|text-to-speech|voiceover|dubbing)\b/.test(text),
-        "speech"
-    );
-    addProviderModelType(
-        types,
-        /\b(transcription|transcribe|asr|speech-to-text)\b/.test(text),
-        "transcription"
-    );
-    addProviderModelType(
-        types,
-        /\b(audio|realtime|music|sound)\b/.test(text),
-        "audio"
-    );
-    addProviderModelType(
-        types,
-        /\b(rerank|reranker|reranking)\b/.test(text),
-        "reranking"
-    );
-
-    return Array.from(types);
-};
-
 export const ProvidersPage = () => {
     const PAGE_SIZE = 50;
     const { Drawer, Switch, Button, Text, Tabs, Tab } = useTheme();
@@ -239,10 +189,8 @@ export const ProvidersPage = () => {
 
         providers.forEach((provider) => {
             const discovered = modelTypesByProvider[provider.key] ?? [];
-            const inferred = inferProviderModelTypes(provider);
-            const merged = Array.from(new Set([...discovered, ...inferred]));
-            if (merged.length > 0) {
-                byProvider[provider.key] = merged.sort((a, b) => collator.compare(t(a), t(b)));
+            if (discovered.length > 0) {
+                byProvider[provider.key] = [...discovered].sort((a, b) => collator.compare(t(a), t(b)));
             }
         });
 

@@ -90,7 +90,8 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     const supportedModelTypes = useMemo(() => {
         const discovered = providerModels.map((m) => m.type).filter(Boolean);
         const source = modelTypes?.length ? modelTypes : discovered;
-        return uniq(source);
+        const discoveredSet = new Set(discovered);
+        return uniq(source).filter((type) => discoveredSet.has(type));
     }, [modelTypes, providerModels]);
 
     const modelGroups = useMemo(() => {
