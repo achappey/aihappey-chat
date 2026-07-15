@@ -20,7 +20,7 @@ export const openrouter: Provider = {
   description: "The unified interface for LLMs. Find the best models & prices for your prompts.",
   icons: [
     {
-      src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtUJ7sIo-IoQEx5qCcqYFmJE47fYgbnKe80A&s"
+      src: "https://pbs.twimg.com/profile_images/2076693957258727424/AyRghTGJ_400x400.jpg"
     }
   ],
   urls: {
