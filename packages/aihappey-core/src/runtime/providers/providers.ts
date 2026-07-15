@@ -393,7 +393,6 @@ import { nonkycai } from "./catalog/nonkycai";
 import { tokonlab } from "./catalog/tokonlab";
 import { modelbridge } from "./catalog/modelbridge";
 import { simplellm } from "./catalog/simplellm";
-import { privatemode } from "./catalog/privatemode";
 import { tensorix } from "./catalog/tensorix";
 import { schatziai } from "./catalog/schatziai";
 import { nodebyt } from "./catalog/nodebyt";
@@ -702,7 +701,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   foureverland,
   fivedock,
   schatziai,
-  privatemode,
   fortytwo,
   simplellm,
   oraicle,
