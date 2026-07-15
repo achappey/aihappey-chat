@@ -420,6 +420,42 @@ function findSelectLabel(options: ShadcnSelectOption[], value: string): React.Re
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
+function getSelectSearchText(value: React.ReactNode): string {
+  if (value == null || typeof value === "boolean") return "";
+  if (typeof value === "string" || typeof value === "number") return String(value);
+  if (Array.isArray(value)) return value.map(getSelectSearchText).join(" ");
+  if (React.isValidElement<{ children?: React.ReactNode }>(value)) return getSelectSearchText(value.props.children);
+  return "";
+}
+
+function optionMatchesSearch(option: ShadcnSelectOption, normalizedSearch: string) {
+  if (!normalizedSearch) return true;
+  const haystack = `${getSelectSearchText(option.label)} ${option.value}`.toLowerCase();
+  return haystack.includes(normalizedSearch);
+}
+
+function filterSelectNodes(nodes: ShadcnSelectNode[], search: string): ShadcnSelectNode[] {
+  const normalizedSearch = search.trim().toLowerCase();
+  if (!normalizedSearch) return nodes;
+
+  const filteredNodes: ShadcnSelectNode[] = [];
+  for (const node of nodes) {
+    if (node.type === "option") {
+      if (optionMatchesSearch(node, normalizedSearch)) filteredNodes.push(node);
+      continue;
+    }
+
+    const matchingOptions = node.options.filter((option) => optionMatchesSearch(option, normalizedSearch));
+    if (matchingOptions.length > 0) filteredNodes.push({ ...node, options: matchingOptions });
+  }
+
+  return filteredNodes;
+}
+
+function countSelectOptions(nodes: ShadcnSelectNode[]) {
+  return nodes.reduce((count, node) => count + (node.type === "option" ? 1 : node.options.length), 0);
+}
+
 function SelectDropdownViewport({ children }: { children: React.ReactNode }) {
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const [scrollState, setScrollState] = React.useState({ up: false, down: false });
@@ -529,9 +565,14 @@ function renderMultiSelectOption(option: ShadcnSelectOption, selectedValues: str
   );
 }
 
-export const Select = ({ values = [], value, onChange, label, hint, required, children, disabled, valueTitle, style, className, icon, multiselect, placeholder, size, ...rest }: any) => {
+export const Select = ({ values = [], value, onChange, label, hint, required, children, disabled, valueTitle, style, className, icon, multiselect, placeholder, size, searchable, searchPlaceholder = "Search...", noResultsText = "No results", ...rest }: any) => {
+  const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState("");
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   const optionNodes = React.useMemo(() => parseSelectNodes(children), [children]);
+  const filteredOptionNodes = React.useMemo(() => filterSelectNodes(optionNodes, searchable ? search : ""), [optionNodes, search, searchable]);
   const options = React.useMemo(() => flattenSelectOptions(children), [children]);
+  const filteredOptionCount = React.useMemo(() => countSelectOptions(filteredOptionNodes), [filteredOptionNodes]);
   const selectedValues = React.useMemo(() => {
     if (Array.isArray(values) && values.length > 0) return values.map((v) => String(v));
     if (typeof value === "string" && value.length > 0) return [value];
@@ -567,26 +608,56 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
       <Icon size={16} />
     </button>
   );
+  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) setSearch("");
+  }, []);
+  React.useEffect(() => {
+    if (!open || !searchable) return;
+
+    const frame = requestAnimationFrame(() => searchInputRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [open, searchable]);
+  const searchBox = searchable ? (
+    <div className="aih-shadcn-select-search">
+      <SearchIcon className="aih-shadcn-select-search-icon" size={16} />
+      <input
+        ref={searchInputRef}
+        className="aih-shadcn-input aih-shadcn-select-search-input"
+        value={search}
+        placeholder={searchPlaceholder}
+        aria-label={searchPlaceholder}
+        onChange={(event) => setSearch(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") event.stopPropagation();
+        }}
+        onPointerDown={(event) => event.stopPropagation()}
+      />
+    </div>
+  ) : null;
+  const noResults = searchable && filteredOptionCount === 0 ? <div className="aih-shadcn-select-empty">{noResultsText}</div> : null;
   const multiselectDropdown = (
-    <DropdownMenuPrimitive.Root modal={false}>
+    <DropdownMenuPrimitive.Root modal={false} open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuPrimitive.Trigger asChild>{trigger}</DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
         <PortalThemeScope>
           <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content aih-shadcn-multiselect-content" align="start" sideOffset={4} collisionPadding={8}>
-            {renderMultiSelectNodes(optionNodes, selectedValues, onChange)}
+            {searchBox}
+            {noResults ?? renderMultiSelectNodes(filteredOptionNodes, selectedValues, onChange)}
           </DropdownMenuPrimitive.Content>
         </PortalThemeScope>
       </DropdownMenuPrimitive.Portal>
     </DropdownMenuPrimitive.Root>
   );
   const select = (
-    <DropdownMenuPrimitive.Root modal={false}>
+    <DropdownMenuPrimitive.Root modal={false} open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuPrimitive.Trigger asChild>{trigger}</DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
         <PortalThemeScope>
           <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content" align="start" sideOffset={4} collisionPadding={8}>
+            {searchBox}
             <SelectDropdownViewport>
-              {renderSingleSelectNodes(optionNodes, selected, onChange)}
+              {noResults ?? renderSingleSelectNodes(filteredOptionNodes, selected, onChange)}
             </SelectDropdownViewport>
           </DropdownMenuPrimitive.Content>
         </PortalThemeScope>

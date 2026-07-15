@@ -29,6 +29,9 @@ export type ModelSelectFieldProps = {
   minWidth?: number;
   style?: React.CSSProperties;
   ariaLabel?: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  noResultsText?: string;
 };
 
 const getModelProviderKey = (model: ModelOption) => {
@@ -62,6 +65,9 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   minWidth = 260,
   style,
   ariaLabel = "Model",
+  searchable = false,
+  searchPlaceholder = "Search models...",
+  noResultsText = "No results",
 }) => {
   const { Select } = useTheme();
   const SelectComponent = Select || "select";
@@ -114,6 +120,9 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
       placeholder={placeholder}
       disabled={disabled}
       aria-label={ariaLabel}
+      searchable={searchable}
+      searchPlaceholder={searchPlaceholder}
+      noResultsText={noResultsText}
       style={{ ...(style ?? {}) }}
       onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {
         const selectedValue = e?.target?.value ?? e?.currentTarget?.value ?? e;

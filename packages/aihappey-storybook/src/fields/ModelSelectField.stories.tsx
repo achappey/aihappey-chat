@@ -103,6 +103,7 @@ const meta = {
     label: undefined,
     minWidth: 320,
     ariaLabel: "Model",
+    searchable: false,
   },
   argTypes: {
     size: { control: "select", options: ["small", "medium", "large"] },
@@ -112,6 +113,7 @@ const meta = {
     placeholder: { control: "text" },
     minWidth: { control: "number" },
     ariaLabel: { control: "text" },
+    searchable: { control: "boolean" },
 
     // Complex values / controlled state:
     models: { control: false },
@@ -142,6 +144,15 @@ export const FilterByProvider: Story = {
     initialValue: "openai/gpt-4o",
     enabledProviderKeys: ["openai"],
     label: "Provider-filtered",
+  } as any,
+  render: (args) => <Controlled {...(args as any)} />,
+};
+
+export const Searchable: Story = {
+  args: {
+    initialValue: firstLanguageModelId,
+    label: "Searchable model select",
+    searchable: true,
   } as any,
   render: (args) => <Controlled {...(args as any)} />,
 };

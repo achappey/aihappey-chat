@@ -9,6 +9,7 @@ type SelectStoryArgs = {
   hint?: string;
   disabled?: boolean;
   initialValue?: string;
+  searchable?: boolean;
 };
 
 const SelectStory = ({ initialValue = "1", ...args }: SelectStoryArgs) => {
@@ -49,6 +50,7 @@ const meta = {
     label: { control: { type: "text" } },
     hint: { control: { type: "text" } },
     disabled: { control: { type: "boolean" } },
+    searchable: { control: { type: "boolean" } },
     initialValue: { control: { type: "select" }, options: ["1", "2", "3"] },
   },
   args: {
@@ -56,6 +58,7 @@ const meta = {
     label: "Demo select",
     hint: "Toggle value and verify the current selection is visible",
     disabled: false,
+    searchable: false,
     initialValue: "1",
   },
 } satisfies Meta<typeof SelectStory>;
@@ -71,3 +74,10 @@ export const Disabled: Story = {
   },
 };
 
+export const Searchable: Story = {
+  args: {
+    searchable: true,
+    placeholder: "Select an option",
+    hint: "Type to filter by option label or value",
+  },
+};
