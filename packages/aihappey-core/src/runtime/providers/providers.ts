@@ -563,6 +563,7 @@ import { chatqt } from "./catalog/chatqt";
 import { zeroentropy } from "./catalog/zeroentropy";
 import { beastlabai } from "./catalog/beastlabai";
 import { lelapaai } from "./catalog/lelapaai";
+import { sailresearch } from "./catalog/sailresearch";
 
 /**
  * UI-facing provider catalog.
@@ -664,6 +665,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   aihorde,
   octagon,
   aimagicx,
+  sailresearch,
   hyperbrowser,
   therouterai,
   clankie,
