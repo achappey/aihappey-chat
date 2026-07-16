@@ -116,6 +116,7 @@ export const agentNavSections: DocsNavSection[] = [
 
 type SpeechSurface = "openai" | "ai-sdk";
 type TranscriptionsSurface = "openai" | "ai-sdk";
+type OpenAiImageEndpoint = "generation" | "edit" | "variation";
 
 type CreateSpeechEndpointDocOptions = {
     apiBaseUrl?: string;
@@ -921,6 +922,565 @@ const clientSecret = await response.json();`,
         related: [
             { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
             { id: "openai-responses", label: t("realtime.openai.relatedResponses"), href: "/gateway/openai/responses" },
+        ],
+    };
+};
+
+const createOpenAiModelsDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("models.openai.descriptionPrefix")} {inlineCode("X-OpenAI-Key")} {t("models.openai.descriptionMiddle")} {inlineCode("Authorization: Bearer")} {t("models.openai.descriptionSuffix")}
+    </p>
+);
+
+const createOpenAiChatDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("chat.openai.descriptionPrefix")} {inlineCode("messages")} {t("chat.openai.descriptionMiddle")} {inlineCode("stream")} {t("chat.openai.descriptionSuffix")}
+    </p>
+);
+
+const createOpenAiImageDescription = (t: (key: string) => string, endpoint: OpenAiImageEndpoint): ReactNode => {
+    const key = endpoint === "generation" ? "generation" : endpoint === "edit" ? "edit" : "variation";
+    return (
+        <p style={{ margin: 0 }}>
+            {t(`images.openai.${key}.descriptionPrefix`)} {inlineCode(endpoint === "generation" ? "prompt" : endpoint === "edit" ? "images" : "image")} {t(`images.openai.${key}.descriptionMiddle`)} {inlineCode("stream")} {t(`images.openai.${key}.descriptionSuffix`)}
+        </p>
+    );
+};
+
+const createOpenAiModelsAuth = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("models.openai.authPrefix")} {inlineCode("X-OpenAI-Key")} {t("models.openai.authMiddle")} {inlineCode("Authorization: Bearer")} {t("models.openai.authSuffix")}
+    </p>
+);
+
+const createOpenAiModelsParameters = (t: (key: string) => string) => [
+    { name: "X-OpenAI-Key", type: "header", required: false, description: t("models.openai.parameters.xOpenAIKey") },
+    { name: "X-Anthropic-Key", type: "header", required: false, description: t("models.openai.parameters.xAnthropicKey") },
+    { name: "X-Google-Key", type: "header", required: false, description: t("models.openai.parameters.xGoogleKey") },
+    { name: "X-<Provider>-Key", type: "header", required: false, description: t("models.openai.parameters.providerKey") },
+];
+
+const createOpenAiChatParameters = (t: (key: string) => string) => [
+    { name: "model", type: "string", required: true, description: t("chat.openai.parameters.model") },
+    { name: "messages", type: "array", required: true, description: t("chat.openai.parameters.messages") },
+    { name: "messages[].role", type: "string", required: true, description: t("chat.openai.parameters.messageRole") },
+    { name: "messages[].content", type: "string | array", required: true, description: t("chat.openai.parameters.messageContent") },
+    { name: "stream", type: "boolean", required: false, description: t("chat.openai.parameters.stream") },
+    { name: "temperature", type: "number", required: false, description: t("chat.openai.parameters.temperature") },
+    { name: "tools", type: "array", required: false, description: t("chat.openai.parameters.tools") },
+    { name: "tool_choice", type: "string", required: false, description: t("chat.openai.parameters.toolChoice") },
+    { name: "response_format", type: "object", required: false, description: t("chat.openai.parameters.responseFormat") },
+    { name: "reasoning_effort", type: "string", required: false, description: t("chat.openai.parameters.reasoningEffort") },
+    { name: "metadata", type: "object", required: false, description: t("chat.openai.parameters.metadata") },
+];
+
+const createOpenAiImageGenerationParameters = (t: (key: string) => string) => [
+    { name: "prompt", type: "string", required: true, description: t("images.openai.generation.parameters.prompt") },
+    { name: "model", type: "string", required: true, description: t("images.openai.generation.parameters.model") },
+    { name: "n", type: "number", required: false, description: t("images.openai.common.parameters.n") },
+    { name: "size", type: "string", required: false, description: t("images.openai.common.parameters.size") },
+    { name: "quality", type: "string", required: false, description: t("images.openai.common.parameters.quality") },
+    { name: "background", type: "string", required: false, description: t("images.openai.common.parameters.background") },
+    { name: "output_format", type: "string", required: false, description: t("images.openai.common.parameters.outputFormat") },
+    { name: "output_compression", type: "number", required: false, description: t("images.openai.common.parameters.outputCompression") },
+    { name: "response_format", type: "string", required: false, description: t("images.openai.common.parameters.responseFormat") },
+    { name: "stream", type: "boolean", required: false, description: t("images.openai.generation.parameters.stream") },
+    { name: "partial_images", type: "number", required: false, description: t("images.openai.common.parameters.partialImages") },
+    { name: "style", type: "string", required: false, description: t("images.openai.generation.parameters.style") },
+    { name: "user", type: "string", required: false, description: t("images.openai.common.parameters.user") },
+];
+
+const createOpenAiImageEditParameters = (t: (key: string) => string) => [
+    { name: "prompt", type: "string", required: true, description: t("images.openai.edit.parameters.prompt") },
+    { name: "images", type: "array", required: true, description: t("images.openai.edit.parameters.images") },
+    { name: "model", type: "string", required: true, description: t("images.openai.edit.parameters.model") },
+    { name: "image", type: "file", required: false, description: t("images.openai.edit.parameters.imageFile") },
+    { name: "mask", type: "object | file", required: false, description: t("images.openai.edit.parameters.mask") },
+    { name: "n", type: "number", required: false, description: t("images.openai.common.parameters.n") },
+    { name: "size", type: "string", required: false, description: t("images.openai.common.parameters.size") },
+    { name: "quality", type: "string", required: false, description: t("images.openai.common.parameters.quality") },
+    { name: "background", type: "string", required: false, description: t("images.openai.common.parameters.background") },
+    { name: "input_fidelity", type: "string", required: false, description: t("images.openai.edit.parameters.inputFidelity") },
+    { name: "output_format", type: "string", required: false, description: t("images.openai.common.parameters.outputFormat") },
+    { name: "stream", type: "boolean", required: false, description: t("images.openai.edit.parameters.stream") },
+    { name: "partial_images", type: "number", required: false, description: t("images.openai.common.parameters.partialImages") },
+    { name: "user", type: "string", required: false, description: t("images.openai.common.parameters.user") },
+];
+
+const createOpenAiImageVariationParameters = (t: (key: string) => string) => [
+    { name: "image", type: "object | file", required: true, description: t("images.openai.variation.parameters.image") },
+    { name: "model", type: "string", required: true, description: t("images.openai.variation.parameters.model") },
+    { name: "n", type: "number", required: false, description: t("images.openai.common.parameters.n") },
+    { name: "size", type: "string", required: false, description: t("images.openai.common.parameters.size") },
+    { name: "response_format", type: "string", required: false, description: t("images.openai.common.parameters.responseFormat") },
+    { name: "user", type: "string", required: false, description: t("images.openai.common.parameters.user") },
+];
+
+const openAiModelsResponseExample = `{
+  "object": "list",
+  "data": [
+    {
+      "id": "openai/gpt-4.1-mini",
+      "object": "model",
+      "created": 1715367049,
+      "owned_by": "openai",
+      "name": "GPT-4.1 mini",
+      "description": "Fast, cost-efficient text and vision model for chat, tools, and structured outputs.",
+      "context_window": 1047576,
+      "max_tokens": 32768,
+      "type": "language",
+      "pricing": {
+        "input": "0.40000000",
+        "output": "1.20000000",
+        "input_cache_read": "0.10000000",
+        "input_cache_write": "0.10000000"
+      }
+    },
+    {
+      "id": "anthropic/agent_xyz/environment_xyz",
+      "object": "model",
+      "created": 1715367049,
+      "owned_by": "Anthropic",
+      "name": "Anthropic Managed Agent xyz at environment xyz",
+      "description": "Managed agent exposed through the gateway model list.",
+      "type": "language",
+      "tags": ["agent"]
+    },
+    {
+      "id": "googletranslate/translate-to/en",
+      "object": "model",
+      "created": 1715367049,
+      "owned_by": "googletranslate",
+      "name": "Dutch to English",
+      "description": "Translate text to en.",
+      "type": "language",
+      "tags": ["translate", "en"],
+      "pricing": {
+        "input": "0.00002000",
+        "output": "0.00000000"
+      }
+    },
+    {
+      "id": "elevenlabs/voice-rachel",
+      "object": "model",
+      "created": 1715367049,
+      "owned_by": "elevenlabs",
+      "name": "Rachel",
+      "description": "Voice shortcut for English (en-US) text-to-speech.",
+      "type": "speech",
+      "tags": ["voice"],
+      "pricing": {
+        "input": "0.00003000",
+        "output": "0.00000000"
+      }
+    }
+  ]
+}`;
+
+const openAiChatResponseExample = `{
+  "id": "chatcmpl_01hzyj8v5n9k6s3r2d4a",
+  "object": "chat.completion",
+  "created": 1784035200,
+  "model": "gpt-4.1-mini",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Send a bearer token and choose a provider-qualified model id such as openai/gpt-4.1-mini."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 24,
+    "completion_tokens": 19,
+    "total_tokens": 43
+  }
+}`;
+
+const openAiImagesResponseExample = `{
+  "created": 1784035200,
+  "data": [
+    {
+      "b64_json": "iVBORw0KGgoAAAANSUhEUgAA...",
+      "revised_prompt": "A friendly robot reading API documentation in a bright workspace."
+    }
+  ],
+  "size": "1024x1024",
+  "quality": "standard",
+  "usage": {
+    "input_tokens": 18,
+    "output_tokens": 64,
+    "total_tokens": 82
+  }
+}`;
+
+const createOpenAiModelsTestDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("models.openai.testDescription")}
+    </p>
+);
+
+const createOpenAiChatTestDescription = (t: (key: string) => string): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t("chat.openai.testDescription")}
+    </p>
+);
+
+const createOpenAiImageTestDescription = (t: (key: string) => string, endpoint: OpenAiImageEndpoint): ReactNode => (
+    <p style={{ margin: 0 }}>
+        {t(`images.openai.${endpoint === "generation" ? "generation" : endpoint}.testDescription`)}
+    </p>
+);
+
+export const createModelsEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const openAiModelsUrl = createApiUrl(apiBaseUrl, "/v1/models");
+
+    return {
+        id: "models-openai",
+        title: t("models.openai.title"),
+        surface: t("models.openai.surface"),
+        method: "GET",
+        path: "/v1/models",
+        url: openAiModelsUrl,
+        summary: t("models.openai.summary"),
+        description: createOpenAiModelsDescription(t),
+        auth: createOpenAiModelsAuth(t),
+        parameters: createOpenAiModelsParameters(t),
+        test: {
+            label: t("models.openai.testLabel"),
+            modalTitle: t("models.openai.testModalTitle"),
+            description: createOpenAiModelsTestDescription(t),
+            responseType: "json",
+            headers: [
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
+            ],
+        },
+        requestExamples: [
+            {
+                id: "typescript-openai-models",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${openAiModelsUrl}", {
+  method: "GET",
+  headers: {
+    "X-OpenAI-Key": openAiApiKey,
+  },
+});
+
+const models = await response.json();`,
+            },
+            {
+                id: "curl-openai-models",
+                label: "cURL",
+                language: "bash",
+                code: `curl ${openAiModelsUrl} \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY"`,
+            },
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t("models.openai.responses.json"),
+                example: {
+                    id: "openai-models-response",
+                    label: "JSON",
+                    language: "json",
+                    code: openAiModelsResponseExample,
+                },
+            },
+        ],
+        errors: [
+            { status: "401", description: t("models.openai.errors.unauthorized") },
+            { status: "500", description: t("models.openai.errors.providerFailed") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "openai-chat", label: t("models.openai.relatedChat"), href: "/gateway/openai/chat-completions" },
+        ],
+    };
+};
+
+export const createChatCompletionsEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const openAiChatUrl = createApiUrl(apiBaseUrl, "/v1/chat/completions");
+
+    return {
+        id: "chat-openai",
+        title: t("chat.openai.title"),
+        surface: t("chat.openai.surface"),
+        method: "POST",
+        path: "/v1/chat/completions",
+        url: openAiChatUrl,
+        summary: t("chat.openai.summary"),
+        description: createOpenAiChatDescription(t),
+        auth: createGatewayAuth(t),
+        parameters: createOpenAiChatParameters(t),
+        test: {
+            label: t("chat.openai.testLabel"),
+            modalTitle: t("chat.openai.testModalTitle"),
+            description: createOpenAiChatTestDescription(t),
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body: {
+                model: "openai/gpt-4.1-mini",
+                messages: [
+                    { role: "user", content: "Explain the aihappey gateway authentication flow in one sentence." }
+                ]
+            },
+        },
+        requestExamples: [
+            {
+                id: "typescript-openai-chat",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${openAiChatUrl}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "openai/gpt-4.1-mini",
+    messages: [
+      { role: "user", content: "Explain the aihappey gateway authentication flow in one sentence." }
+    ]
+  }),
+});
+
+const completion = await response.json();`,
+            },
+            {
+                id: "curl-openai-chat-stream",
+                label: "cURL streaming",
+                language: "bash",
+                code: `curl ${openAiChatUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "openai/gpt-4.1-mini",
+    "messages": [
+      { "role": "user", "content": "Explain streaming chat completions in one sentence." }
+    ],
+    "stream": true
+  }'`,
+            },
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t("chat.openai.responses.json"),
+                example: {
+                    id: "openai-chat-response",
+                    label: "JSON",
+                    language: "json",
+                    code: openAiChatResponseExample,
+                },
+            },
+            {
+                status: "200",
+                description: t("chat.openai.responses.sse"),
+                example: {
+                    id: "openai-chat-sse-response",
+                    label: "SSE",
+                    language: "text",
+                    code: `data: {"id":"chatcmpl_01hzyj8v5n9k6s3r2d4a","object":"chat.completion.chunk","choices":[{"delta":{"content":"Use"}}]}
+
+data: {"id":"chatcmpl_01hzyj8v5n9k6s3r2d4a","object":"chat.completion.chunk","choices":[{"delta":{"content":" bearer auth."}}],"usage":{"total_tokens":12}}
+
+data: [DONE]`,
+                },
+            },
+        ],
+        errors: [
+            { status: "400", description: t("chat.openai.errors.badRequest") },
+            { status: "401", description: t("chat.openai.errors.unauthorized") },
+            { status: "500", description: t("chat.openai.errors.providerFailed") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            { id: "openai-responses", label: t("chat.openai.relatedResponses"), href: "/gateway/openai/responses" },
+        ],
+    };
+};
+
+export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const path = endpoint === "generation" ? "/v1/images/generations" : endpoint === "edit" ? "/v1/images/edits" : "/v1/images/variations";
+    const url = createApiUrl(apiBaseUrl, path);
+    const key = endpoint === "generation" ? "generation" : endpoint;
+    const id = endpoint === "generation" ? "image-generation-openai" : endpoint === "edit" ? "image-edit-openai" : "image-variation-openai";
+
+    const parameters = endpoint === "generation"
+        ? createOpenAiImageGenerationParameters(t)
+        : endpoint === "edit"
+            ? createOpenAiImageEditParameters(t)
+            : createOpenAiImageVariationParameters(t);
+
+    const body = endpoint === "generation"
+        ? {
+            model: "openai/gpt-image-1.5",
+            prompt: "A friendly robot reading API documentation in a bright workspace.",
+            size: "1024x1024",
+            n: 1,
+        }
+        : endpoint === "edit"
+            ? {
+                model: "openai/gpt-image-1.5",
+                prompt: "Add warm sunrise lighting and keep the original composition.",
+                size: "1024x1024",
+                n: 1,
+            }
+            : {
+                model: "openai/dall-e-2",
+                size: "1024x1024",
+                n: 1,
+            };
+
+    const titleKey = `images.openai.${key}.title`;
+    const requestPrompt = endpoint === "generation"
+        ? `"prompt": "A friendly robot reading API documentation in a bright workspace.",`
+        : endpoint === "edit"
+            ? `"prompt": "Add warm sunrise lighting and keep the original composition.",\n    "images": [{ "image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." }],`
+            : `"image": { "image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." },`;
+
+    return {
+        id,
+        title: t(titleKey),
+        surface: t("images.openai.surface"),
+        method: "POST",
+        path,
+        url,
+        summary: t(`images.openai.${key}.summary`),
+        description: createOpenAiImageDescription(t, endpoint),
+        auth: createGatewayAuth(t),
+        parameters,
+        test: {
+            label: t(`images.openai.${key}.testLabel`),
+            modalTitle: t(`images.openai.${key}.testModalTitle`),
+            description: createOpenAiImageTestDescription(t, endpoint),
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                ...(endpoint === "generation" ? [{ name: "Content-Type", value: "application/json" }] : []),
+            ],
+            ...(endpoint === "generation" ? { body } : {
+                bodyType: "form-data" as const,
+                fields: endpoint === "edit" ? [
+                    { name: "model", label: "model", value: "openai/gpt-image-1.5", required: true },
+                    { name: "prompt", label: "prompt", value: "Add warm sunrise lighting and keep the original composition.", required: true },
+                    { name: "image", label: "image", type: "file" as const, accept: "image/*", required: true, multiple: true },
+                    { name: "mask", label: "mask", type: "file" as const, accept: "image/*" },
+                    { name: "size", label: "size", value: "1024x1024" },
+                    { name: "n", label: "n", value: "1" },
+                ] : [
+                    { name: "model", label: "model", value: "openai/dall-e-2", required: true },
+                    { name: "image", label: "image", type: "file" as const, accept: "image/*", required: true },
+                    { name: "size", label: "size", value: "1024x1024" },
+                    { name: "n", label: "n", value: "1" },
+                ],
+            }),
+        },
+        requestExamples: [
+            {
+                id: `typescript-openai-image-${key}`,
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${url}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify({
+    model: "${endpoint === "variation" ? "openai/dall-e-2" : "openai/gpt-image-1.5"}",
+    ${requestPrompt}
+    size: "1024x1024",
+    n: 1
+  }),
+});
+
+const images = await response.json();`,
+            },
+            ...(endpoint === "generation" ? [{
+                id: "curl-openai-image-generation-stream",
+                label: "cURL streaming",
+                language: "bash",
+                code: `curl ${url} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "openai/gpt-image-1.5",
+    "prompt": "A friendly robot reading API documentation in a bright workspace.",
+    "stream": true,
+    "partial_images": 1
+  }'`,
+            }] : [{
+                id: `curl-openai-image-${key}-multipart`,
+                label: "cURL multipart",
+                language: "bash",
+                code: endpoint === "edit" ? `curl ${url} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -F model=openai/gpt-image-1.5 \\
+  -F prompt="Add warm sunrise lighting and keep the original composition." \\
+  -F image=@source.png \\
+  -F size=1024x1024` : `curl ${url} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -F model=openai/dall-e-2 \\
+  -F image=@source.png \\
+  -F size=1024x1024`,
+            }]),
+        ],
+        responses: [
+            {
+                status: "200",
+                description: t(`images.openai.${key}.responses.json`),
+                example: {
+                    id: `openai-image-${key}-response`,
+                    label: "JSON",
+                    language: "json",
+                    code: openAiImagesResponseExample,
+                },
+            },
+            ...(endpoint === "variation" ? [] : [{
+                status: "200",
+                description: t(`images.openai.${key}.responses.sse`),
+                example: {
+                    id: `openai-image-${key}-sse-response`,
+                    label: "SSE",
+                    language: "text",
+                    code: endpoint === "generation" ? `event: image_generation.partial_image
+data: {"type":"image_generation.partial_image","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...","partial_image_index":0,"created_at":1784035200}
+
+event: image_generation.completed
+data: {"type":"image_generation.completed","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...","created_at":1784035200}` : `event: image_edit.partial_image
+data: {"type":"image_edit.partial_image","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...","partial_image_index":0,"created_at":1784035200}
+
+event: image_edit.completed
+data: {"type":"image_edit.completed","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...","created_at":1784035200}`,
+                },
+            }]),
+        ],
+        errors: [
+            { status: "400", description: t(`images.openai.${key}.errors.badRequest`) },
+            { status: "401", description: t("images.openai.common.errors.unauthorized") },
+            { status: "500", description: t("images.openai.common.errors.providerFailed") },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            endpoint === "generation"
+                ? { id: "openai-edit-image", label: t("images.openai.generation.relatedEdit"), href: "/gateway/openai/edit-image" }
+                : endpoint === "edit"
+                    ? { id: "openai-create-variation", label: t("images.openai.edit.relatedVariation"), href: "/gateway/openai/create-variation" }
+                    : { id: "openai-create-image", label: t("images.openai.variation.relatedGeneration"), href: "/gateway/openai/create-image" },
         ],
     };
 };
