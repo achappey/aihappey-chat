@@ -147,7 +147,7 @@ export interface ResponseApiResponse {
 
 export const defaultEndpoints = {
   chat: "/api/chat",
-  images: "/v1/images/generations",
+  images: "/api/images",
   videos: "/api/videos",
   transcriptions: "/api/transcriptions",
   speech: "/api/speech",
