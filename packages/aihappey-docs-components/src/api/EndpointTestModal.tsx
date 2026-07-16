@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
-import type { DocsEndpointDoc, DocsEndpointTestConfig, DocsEndpointTestHeader, DocsEndpointTestResponseType } from "../navigation/types";
+import type { DocsEndpointDoc, DocsEndpointTestConfig, DocsEndpointTestField, DocsEndpointTestHeader, DocsEndpointTestResponseType } from "../navigation/types";
 import { docsBorderStyle, docsCodeStyle, docsMutedTextStyle, docsSubtleSurfaceStyle } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
 import { useDocsTranslation } from "aihappey-docs-i18n";
 
 type HeaderRow = DocsEndpointTestHeader & {
+  id: string;
+};
+
+type FieldRow = DocsEndpointTestField & {
   id: string;
 };
 
@@ -58,6 +62,7 @@ const responsePreStyle: CSSProperties = {
 };
 
 const createHeaderId = () => `header-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+const createFieldId = () => `field-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
 const stringifyBody = (body: unknown) => {
   if (body === undefined || body === null) return "";
@@ -72,6 +77,9 @@ const createInitialHeaders = (headers: DocsEndpointTestHeader[] = []): HeaderRow
       { id: "content-type", name: "Content-Type", value: "application/json" },
       { id: "authorization", name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
     ];
+
+const createInitialFields = (fields: DocsEndpointTestField[] = []): FieldRow[] =>
+  fields.map((field, index) => ({ ...field, id: `${field.name || "field"}-${index}` }));
 
 const formatHeaderValue = (headers: Headers) => Array.from(headers.entries()).map(([name, value]) => ({ name, value }));
 
@@ -113,12 +121,16 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
   const [url, setUrl] = useState(config.url ?? endpoint.url ?? endpoint.path);
   const [headers, setHeaders] = useState<HeaderRow[]>(() => createInitialHeaders(config.headers));
   const [body, setBody] = useState(() => stringifyBody(config.body));
+  const [fields, setFields] = useState<FieldRow[]>(() => createInitialFields(config.fields));
+  const [fileValues, setFileValues] = useState<Record<string, FileList | null>>({});
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TestResult | null>(null);
   const [isSending, setIsSending] = useState(false);
 
   const responseType = config.responseType ?? "auto";
+  const bodyType = config.bodyType ?? "json";
   const canSendBody = !noBodyMethods.has(method.trim().toUpperCase());
+  const usesFormData = bodyType === "form-data";
 
   useEffect(() => {
     if (!show) return;
@@ -126,9 +138,11 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     setUrl(config.url ?? endpoint.url ?? endpoint.path);
     setHeaders(createInitialHeaders(config.headers));
     setBody(stringifyBody(config.body));
+    setFields(createInitialFields(config.fields));
+    setFileValues({});
     setError(null);
     setResult(null);
-  }, [config.body, config.headers, config.method, config.url, endpoint.method, endpoint.path, endpoint.url, show]);
+  }, [config.body, config.fields, config.headers, config.method, config.url, endpoint.method, endpoint.path, endpoint.url, show]);
 
   useEffect(() => () => {
     if (result?.blobUrl) URL.revokeObjectURL(result.blobUrl);
@@ -141,8 +155,21 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     return acc;
   }, {}), [headers]);
 
+  const requestHeadersRecord = useMemo(() => {
+    if (!usesFormData) return headersRecord;
+    return Object.fromEntries(Object.entries(headersRecord).filter(([name]) => name.toLowerCase() !== "content-type"));
+  }, [headersRecord, usesFormData]);
+
   const updateHeader = useCallback((id: string, patch: Partial<HeaderRow>) => {
     setHeaders((current) => current.map((header) => header.id === id ? { ...header, ...patch } : header));
+  }, []);
+
+  const updateField = useCallback((id: string, patch: Partial<FieldRow>) => {
+    setFields((current) => current.map((field) => field.id === id ? { ...field, ...patch } : field));
+  }, []);
+
+  const updateFieldFiles = useCallback((id: string, files: FileList | null) => {
+    setFileValues((current) => ({ ...current, [id]: files }));
   }, []);
 
   const addHeader = useCallback(() => {
@@ -159,9 +186,11 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     setUrl(config.url ?? endpoint.url ?? endpoint.path);
     setHeaders(createInitialHeaders(config.headers));
     setBody(stringifyBody(config.body));
+    setFields(createInitialFields(config.fields));
+    setFileValues({});
     setError(null);
     setResult(null);
-  }, [config.body, config.headers, config.method, config.url, endpoint.method, endpoint.path, endpoint.url, result?.blobUrl]);
+  }, [config.body, config.fields, config.headers, config.method, config.url, endpoint.method, endpoint.path, endpoint.url, result?.blobUrl]);
 
   const formatRequestBody = useCallback(() => {
     if (!body.trim()) return;
@@ -187,7 +216,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     }
 
     const contentType = Object.entries(headersRecord).find(([name]) => name.toLowerCase() === "content-type")?.[1] ?? "";
-    const shouldValidateJsonBody = canSendBody && body.trim() && contentType.toLowerCase().includes("json");
+    const shouldValidateJsonBody = canSendBody && !usesFormData && body.trim() && contentType.toLowerCase().includes("json");
     if (shouldValidateJsonBody) {
       try {
         JSON.parse(body);
@@ -200,10 +229,42 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     setIsSending(true);
     const startedAt = performance.now();
     try {
+      let requestBody: BodyInit | undefined;
+      if (canSendBody && usesFormData) {
+        const formData = new FormData();
+        for (const field of fields) {
+          const name = field.name.trim();
+          if (!name) continue;
+
+          if (field.type === "file") {
+            const files = fileValues[field.id];
+            if (field.required && (!files || files.length === 0)) {
+              setError(t("api.test.missingRequiredFile", { name }));
+              setIsSending(false);
+              return;
+            }
+
+            Array.from(files ?? []).forEach((file) => formData.append(name, file));
+            continue;
+          }
+
+          if (field.required && !field.value?.trim()) {
+            setError(t("api.test.missingRequiredField", { name }));
+            setIsSending(false);
+            return;
+          }
+
+          if (field.value !== undefined && field.value !== "") formData.append(name, field.value);
+        }
+        requestBody = formData;
+      } else {
+        requestBody = canSendBody && body.trim() ? body : undefined;
+      }
+
       const response = await fetch(trimmedUrl, {
         method: trimmedMethod,
-        headers: headersRecord,
-        body: canSendBody && body.trim() ? body : undefined,
+        headers: requestHeadersRecord,
+        body: requestBody,
       });
       const elapsedMs = Math.round(performance.now() - startedAt);
       const responseContentType = response.headers.get("content-type") ?? "";
@@ -245,7 +306,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     } finally {
       setIsSending(false);
     }
-  }, [body, canSendBody, headersRecord, method, responseType, result?.blobUrl, t, url]);
+  }, [body, canSendBody, fields, fileValues, headersRecord, method, requestHeadersRecord, responseType, result?.blobUrl, t, url, usesFormData]);
 
   const modalTitle = config.modalTitle ?? `Test ${endpoint.title}`;
   const downloadFileName = config.downloadFileName ?? `${endpoint.id}-response.bin`;
@@ -271,6 +332,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
             <Badge appearance="primary">{method || endpoint.method}</Badge>
             <Badge appearance="secondary">{t("api.test.responseType", { responseType })}</Badge>
+            {usesFormData ? <Badge appearance="secondary">multipart/form-data</Badge> : null}
           </div>
         </div>
 
@@ -298,21 +360,50 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
           </div>
         </section>
 
-        <section style={sectionStyle}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
-            <strong>{t("api.test.body")}</strong>
-            <Button type="button" variant="secondary" size="small" onClick={formatRequestBody} disabled={!body.trim()}>{t("api.test.formatJson")}</Button>
-          </div>
-          {!canSendBody ? <p style={{ ...docsMutedTextStyle, margin: 0 }}>{t("api.test.noRequestBody")}</p> : null}
-          <TextArea
-            label={t("api.test.requestBody")}
-            rows={10}
-            value={body}
-            readOnly={!canSendBody}
-            onChange={setBody}
-            placeholder={`{\n  "key": "value"\n}`}
-          />
-        </section>
+        {usesFormData ? (
+          <section style={sectionStyle}>
+            <strong>{t("api.test.formData")}</strong>
+            {!canSendBody ? <p style={{ ...docsMutedTextStyle, margin: 0 }}>{t("api.test.noRequestBody")}</p> : null}
+            <div style={{ display: "grid", gap: 10 }}>
+              {fields.map((field) => field.type === "file" ? (
+                <Input
+                  key={field.id}
+                  label={field.label ?? field.name}
+                  type="file"
+                  accept={field.accept}
+                  multiple={field.multiple}
+                  required={field.required}
+                  onChange={(event) => updateFieldFiles(field.id, event.currentTarget.files)}
+                />
+              ) : (
+                <Input
+                  key={field.id}
+                  label={field.label ?? field.name}
+                  value={field.value ?? ""}
+                  placeholder={field.placeholder}
+                  required={field.required}
+                  onChange={(event) => updateField(field.id, { value: event.currentTarget.value })}
+                />
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section style={sectionStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
+              <strong>{t("api.test.body")}</strong>
+              <Button type="button" variant="secondary" size="small" onClick={formatRequestBody} disabled={!body.trim()}>{t("api.test.formatJson")}</Button>
+            </div>
+            {!canSendBody ? <p style={{ ...docsMutedTextStyle, margin: 0 }}>{t("api.test.noRequestBody")}</p> : null}
+            <TextArea
+              label={t("api.test.requestBody")}
+              rows={10}
+              value={body}
+              readOnly={!canSendBody}
+              onChange={setBody}
+              placeholder={`{\n  "key": "value"\n}`}
+            />
+          </section>
+        )}
 
         {error ? (
           <div role="alert" style={{ padding: 12, borderRadius: 12, border: "1px solid #ef4444", color: "#fecaca", background: "color-mix(in srgb, #ef4444 18%, transparent)" }}>

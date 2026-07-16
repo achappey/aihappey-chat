@@ -62,6 +62,17 @@ export type DocsEndpointTestHeader = {
   placeholder?: string;
 };
 
+export type DocsEndpointTestField = {
+  name: string;
+  label?: string;
+  value?: string;
+  placeholder?: string;
+  type?: "text" | "file";
+  required?: boolean;
+  multiple?: boolean;
+  accept?: string;
+};
+
 export type DocsEndpointTestConfig = {
   label?: string;
   modalTitle?: string;
@@ -70,6 +81,8 @@ export type DocsEndpointTestConfig = {
   url?: string;
   headers?: DocsEndpointTestHeader[];
   body?: unknown;
+  bodyType?: "json" | "form-data";
+  fields?: DocsEndpointTestField[];
   responseType?: DocsEndpointTestResponseType;
   downloadFileName?: string;
 };
