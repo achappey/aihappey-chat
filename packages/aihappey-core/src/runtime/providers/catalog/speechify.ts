@@ -11,6 +11,7 @@ export const speechify: Provider = {
   urls: {
     homepage: "https://speechify.com",
     console: "https://console.speechify.ai",
+    docs: "https://docs.speechify.ai",
     privacyPolicy: "https://speechify.com/privacy",
     termsOfService: "https://speechify.com/terms"
   },
