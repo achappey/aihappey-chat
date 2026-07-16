@@ -13,8 +13,8 @@ export const blackbox: Provider = {
     docs: "https://docs.blackbox.ai",
     pricing: "https://www.blackbox.ai/pricing",
     console: "https://app.blackbox.ai",
-    privacyPolicy: "https://www.blackbox.ai/privacy",
-    termsOfService: "https://www.blackbox.ai/terms"
+    privacyPolicy: "https://www.blackbox.ai/privacy-policy",
+    termsOfService: "https://www.blackbox.ai/terms-of-service"
   },
   providerCountry: "US",
   category: "app_tools",
