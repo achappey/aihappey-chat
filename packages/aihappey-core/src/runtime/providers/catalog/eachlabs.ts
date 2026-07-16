@@ -10,7 +10,7 @@ export const eachlabs: Provider = {
   ],
   urls: {
     homepage: "https://www.eachlabs.ai",
-    docs: "https://www.eachlabs.ai/pricing",
+    docs: "https://docs.eachlabs.ai",
     pricing: "https://www.eachlabs.ai/pricing",
     termsOfService: "https://www.eachlabs.ai/terms-of-service",
     privacyPolicy: "https://www.eachlabs.ai/privacy-policy"
