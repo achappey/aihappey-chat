@@ -9,6 +9,7 @@ export const kirha: Provider = {
   urls: {
     homepage: "https://kirha.com",
     docs: "https://docs.kirha.com",
+    termsOfService: "https://kirha.com/terms-of-service",
     pricing: "https://kirha.com/pricing"
   },
   providerCountry: "FR",
