@@ -9,6 +9,8 @@ export const blockrun: Provider = {
   urls: {
     homepage: "https://blockrun.ai",
     docs: "https://blockrun.ai/docs",
+    privacyPolicy: "https://blockrun.ai/privacy",
+    termsOfService: "https://blockrun.ai/terms",
     pricing: "https://blockrun.ai/pricing"
   },
   category: "gateway_router",
