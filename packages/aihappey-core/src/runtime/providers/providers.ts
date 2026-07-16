@@ -563,6 +563,7 @@ import { sailresearch } from "./catalog/sailresearch";
 import { darkbloom } from "./catalog/darkbloom";
 import { ilmu } from "./catalog/ilmu";
 import { lyceum } from "./catalog/lyceum";
+import { depaza } from "./catalog/depaza";
 
 /**
  * UI-facing provider catalog.
@@ -708,6 +709,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   simplellm,
   oraicle,
   terminalskills,
+  depaza,
   gptsapi,
   modelbridge,
   openpipe,
