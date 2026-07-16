@@ -12,10 +12,11 @@ export const publicai: Provider = {
   urls: {
     homepage: "https://publicai.co",
     docs: "https://platform.publicai.co/docs",
+    pricing: "https://platform.publicai.co/billing",
     termsOfService: "https://publicai.co/tc"
   },
   providerCountry: "US",
-  category: "gateway_router",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };
