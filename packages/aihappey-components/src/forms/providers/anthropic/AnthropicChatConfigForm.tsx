@@ -248,7 +248,6 @@ export const AnthropicChatConfigForm = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <AnthropicCacheCard config={resolvedConfig} updateConfig={submitConfig} />
 
       <theme.Input
         type="number"
@@ -259,6 +258,8 @@ export const AnthropicChatConfigForm = ({
         value={resolvedConfig?.max_tokens ?? ""}
         onChange={(e: any) => updateMaxTokens(e.target.value)}
       />
+
+      <AnthropicCacheCard config={resolvedConfig} updateConfig={submitConfig} />
 
       <AnthropicReasoningCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicContainerCard config={resolvedConfig} updateConfig={submitConfig} />
