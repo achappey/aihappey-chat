@@ -14,14 +14,13 @@ export const defaultProviderMetadata = {
         },
         {
           "type": "image_generation",
-          "model": "gpt-image-1.5",
+          "model": "gpt-image-2",
           "partial_images": 3,
           "quality": "auto",
           "action": "auto",
           "moderation": "auto",
           "output_compression": 100,
           "background": "auto",
-          "input_fidelity": "low",
           "size": "auto"
         }
       ],
@@ -99,6 +98,7 @@ export const defaultProviderMetadata = {
     }]
   },
   "anthropic": {
+    "cache_control": { "type": "ephemeral" },
     "tools": [
       {
         "name": "web_search",
