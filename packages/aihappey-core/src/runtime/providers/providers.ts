@@ -564,6 +564,7 @@ import { ilmu } from "./catalog/ilmu";
 import { lyceum } from "./catalog/lyceum";
 import { depaza } from "./catalog/depaza";
 import { samtal } from "./catalog/samtal";
+import { fikra } from "./catalog/fikra";
 
 /**
  * UI-facing provider catalog.
@@ -1121,6 +1122,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   alibaba,
   cirrascale,
   inferencenet,
+  fikra,
   telnyx,
   stabilityai,
   novita,
