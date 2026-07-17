@@ -11,7 +11,7 @@ export const ovhcloud: Provider = {
   urls: {
     homepage: "https://www.ovhcloud.com",
     docs: "https://docs.ovh.com",
-    privacyPolicy: "https://www.ovhcloud.com/en/personal-data-protection",
+    privacyPolicy: "https://www.ovhcloud.com/en/terms-and-conditions/privacy-policy",
     termsOfService: "https://www.ovhcloud.com/en/terms-and-conditions"
   },
   providerCountry: "FR",
