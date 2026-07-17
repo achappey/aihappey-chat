@@ -563,6 +563,7 @@ import { darkbloom } from "./catalog/darkbloom";
 import { ilmu } from "./catalog/ilmu";
 import { lyceum } from "./catalog/lyceum";
 import { depaza } from "./catalog/depaza";
+import { samtal } from "./catalog/samtal";
 
 /**
  * UI-facing provider catalog.
@@ -1127,6 +1128,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   scaleway,
   sambanova,
   ttsreader,
+  samtal,
   verda,
   fireworks,
   cerebras,
