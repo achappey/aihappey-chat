@@ -10,7 +10,7 @@ export const samtal: Provider = {
     console: "https://samtal.moln.ai/login"
   },
   providerCountry: "SE",
-  category: "gateway_router",
+  category: "app_tools",
   inferenceRegions: ["World"]
 
 };

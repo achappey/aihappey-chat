@@ -11,6 +11,7 @@ export const apipie: Provider = {
   ],
   urls: {
     homepage: "https://apipie.ai",
+    privacyPolicy: "https://apipie.ai/docs/Terms/privacy",
     docs: "https://apipie.ai/docs",
     termsOfService: "https://apipie.ai/docs/Terms/api-agree",
   },
