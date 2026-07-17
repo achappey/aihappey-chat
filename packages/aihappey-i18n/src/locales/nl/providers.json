@@ -721,7 +721,6 @@
     },
     "contextManagement": {
       "title": "Contextbeheer",
-      "description": "Configureer Anthropic-contextbeheerbewerkingen op het rootobject `context_management`. De gegenereerde payload blijft in lijn met het gedocumenteerde passthrough-schema.",
       "empty": "Er zijn nog geen contextbeheerbewerkingen geconfigureerd.",
       "add": "Contextbewerking toevoegen",
       "type": "Bewerkingstype",

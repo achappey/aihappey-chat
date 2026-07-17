@@ -886,9 +886,6 @@ export const AnthropicContextManagementCard = ({
       size="small"
     >
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ fontSize: 12, opacity: 0.78 }}>
-          {t("providers:anthropic.contextManagement.description")}
-        </div>
 
         {contextManagementEdits.length === 0 ? (
           <div style={{ fontSize: 12, opacity: 0.72 }}>

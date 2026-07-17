@@ -291,7 +291,6 @@
     },
     "contextManagement": {
       "title": "Context management",
-      "description": "Configure Anthropic context management edits on the root context_management object. The generated payload stays aligned with the documented passthrough schema.",
       "empty": "No context management edits configured yet.",
       "add": "Add context edit",
       "type": "Edit type",
