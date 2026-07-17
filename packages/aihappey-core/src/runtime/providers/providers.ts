@@ -192,7 +192,6 @@ import { modal } from "./catalog/modal";
 import { apifree } from "./catalog/apifree";
 import { modelslab } from "./catalog/modelslab";
 import { hicap } from "./catalog/hicap";
-import { prakasa } from "./catalog/prakasa";
 import { megallm } from "./catalog/megallm";
 import { infron } from "./catalog/infron";
 import { longcat } from "./catalog/longcat";
@@ -894,7 +893,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   everypixellabs,
   routmy,
   evolinkai,
-  prakasa,
   aibramha,
   websearchapi,
   nanogpt,
