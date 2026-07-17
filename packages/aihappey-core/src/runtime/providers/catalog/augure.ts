@@ -14,7 +14,7 @@ export const augure: Provider = {
     termsOfService: "https://augureai.ca/terms"
   },
   providerCountry: "CA",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 
 };
