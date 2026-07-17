@@ -4,6 +4,7 @@ import { useTheme } from "../../../theme/ThemeContext";
 import { AnthropicAdvisorCard } from "./cards/AnthropicAdvisorCard";
 import { AnthropicBashCard } from "./cards/AnthropicBashCard";
 import { AnthropicBetaCard } from "./cards/AnthropicBetaCard";
+import { AnthropicCacheCard } from "./cards/AnthropicCacheCard";
 import { AnthropicCodeExecutionCard } from "./cards/AnthropicCodeExecutionCard";
 import {
   AnthropicContainerCard,
@@ -247,6 +248,8 @@ export const AnthropicChatConfigForm = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      <AnthropicCacheCard config={resolvedConfig} updateConfig={submitConfig} />
+
       <theme.Input
         type="number"
         min={1}

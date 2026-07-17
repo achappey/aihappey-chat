@@ -234,6 +234,14 @@
     "allowedCallers": "Who can use it",
     "none": "None",
     "cacheControl": "Prompt cache",
+    "cache": {
+      "title": "Cache",
+      "ttl": "Duration",
+      "ttlOptions": {
+        "5m": "5 minutes",
+        "1h": "1 hour"
+      }
+    },
     "deferLoading": "Defer loading",
     "strictValidation": "Strict",
     "cacheControlType": "Cache type",

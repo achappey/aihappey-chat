@@ -664,6 +664,14 @@
     "allowedCallers": "Wie mag dit gebruiken",
     "none": "Geen",
     "cacheControl": "Promptcache",
+    "cache": {
+      "title": "Cache",
+      "ttl": "Duur",
+      "ttlOptions": {
+        "5m": "5 minuten",
+        "1h": "1 uur"
+      }
+    },
     "deferLoading": "Later laden",
     "strictValidation": "Strikt",
     "cacheControlType": "Cachetype",
