@@ -10,8 +10,8 @@ export const slancha: Provider = {
     homepage: "https://slancha.ai",
     docs: "https://slancha.ai/docs",
     pricing: "https://slancha.ai/pricing",
-    privacyPolicy: "https://slancha.ai/terms",
-    termsOfService: "https://slancha.ai/privacy"
+    termsOfService: "https://slancha.ai/terms",
+    privacyPolicy: "https://slancha.ai/privacy"
   },
   providerCountry: "US",
   category: "inference_compute",
