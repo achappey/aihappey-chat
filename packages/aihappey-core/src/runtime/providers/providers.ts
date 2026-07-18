@@ -565,6 +565,7 @@ import { lyceum } from "./catalog/lyceum";
 import { depaza } from "./catalog/depaza";
 import { samtal } from "./catalog/samtal";
 import { fikra } from "./catalog/fikra";
+import { cencori } from "./catalog/cencori";
 
 /**
  * UI-facing provider catalog.
@@ -1118,6 +1119,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   deepinfra,
   nvidia,
   runware,
+  cencori,
   canopywave,
   alibaba,
   cirrascale,
