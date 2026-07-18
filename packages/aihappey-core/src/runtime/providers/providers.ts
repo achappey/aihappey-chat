@@ -566,6 +566,7 @@ import { depaza } from "./catalog/depaza";
 import { samtal } from "./catalog/samtal";
 import { fikra } from "./catalog/fikra";
 import { cencori } from "./catalog/cencori";
+import { aivara } from "./catalog/aivara";
 
 /**
  * UI-facing provider catalog.
@@ -1123,6 +1124,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   canopywave,
   alibaba,
   cirrascale,
+  aivara,
   inferencenet,
   fikra,
   telnyx,
