@@ -240,6 +240,25 @@ export const ConversationSidebar = ({
     },
     {
       key: "category",
+      label: t("streaming.title"),
+      icon: "realtime",
+      children: [
+        {
+          key: "streaming-transcriptions",
+          label: t("transcriptions"),
+          href: "/streaming/transcriptions",
+          icon: "transcription",
+        },
+        {
+          key: "streaming-speech",
+          label: t("speech"),
+          href: "/streaming/speech",
+          icon: "speech",
+        },
+      ],
+    },
+    {
+      key: "category",
       label: t("componentsPage.title"),
       icon: "components",
       children: [
@@ -375,6 +394,10 @@ export const ConversationSidebar = ({
                                         ? "images"
                                         : location.pathname === "/transcriptions"
                                           ? "transcriptions"
+                                          : location.pathname === "/streaming/transcriptions"
+                                            ? "streaming-transcriptions"
+                                            : location.pathname === "/streaming/speech"
+                                              ? "streaming-speech"
                                           : location.pathname === "/speech"
                                             ? "speech"
                                             : location.pathname === "/videos"
@@ -421,6 +444,10 @@ export const ConversationSidebar = ({
       await navigate("/images");
     } else if (id === "transcriptions") {
       await navigate("/transcriptions");
+    } else if (id === "streaming-transcriptions") {
+      await navigate("/streaming/transcriptions");
+    } else if (id === "streaming-speech") {
+      await navigate("/streaming/speech");
     } else if (id === "speech") {
       await navigate("/speech");
     } else if (id === "jobs") {

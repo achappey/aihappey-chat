@@ -1,4 +1,27 @@
 ﻿{
+    "streaming": { "title": "Streaming" },
+    "streamingTranscriptions": {
+        "settings": "Instellingen voor streaming transcriptie",
+        "output": "Streaming uitvoer",
+        "outputPlaceholder": "De transcriptietekst verschijnt hier tijdens het streamen.",
+        "unsupportedFile": "Selecteer een audio- of videobestand.",
+        "emptyResult": "De stream is voltooid zonder transcriptietekst.",
+        "failed": "Streaming transcriptie is mislukt.",
+        "filePrefix": "streaming-transcriptie",
+        "responseFormat": "Antwoordformaat",
+        "temperature": "Temperatuur",
+        "segmentTimestamps": "Tijdstempels per segment",
+        "wordTimestamps": "Tijdstempels per woord"
+    },
+    "streamingSpeech": {
+        "settings": "Instellingen voor streaming spraak",
+        "output": "Streaming audio",
+        "emptyResult": "De stream is voltooid zonder audio.",
+        "failed": "Streaming spraak is mislukt.",
+        "filePrefix": "streaming-spraak",
+        "receiving": "Audio ontvangen… {{bytes}} bytes",
+        "ready": "De gegenereerde audio verschijnt hier."
+    },
     "cancel": "Annuleer",
     "hide": "Verbergen",
     "show": "Tonen",

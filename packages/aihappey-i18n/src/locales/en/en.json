@@ -1,4 +1,27 @@
 ﻿{
+    "streaming": { "title": "Streaming" },
+    "streamingTranscriptions": {
+        "settings": "Streaming transcription settings",
+        "output": "Streaming output",
+        "outputPlaceholder": "Transcription text will appear here while it streams.",
+        "unsupportedFile": "Select an audio or video file.",
+        "emptyResult": "The stream completed without transcription text.",
+        "failed": "Streaming transcription failed.",
+        "filePrefix": "streaming-transcription",
+        "responseFormat": "Response format",
+        "temperature": "Temperature",
+        "segmentTimestamps": "Segment timestamps",
+        "wordTimestamps": "Word timestamps"
+    },
+    "streamingSpeech": {
+        "settings": "Streaming speech settings",
+        "output": "Streaming audio",
+        "emptyResult": "The stream completed without audio.",
+        "failed": "Streaming speech failed.",
+        "filePrefix": "streaming-speech",
+        "receiving": "Receiving audio… {{bytes}} bytes",
+        "ready": "The generated audio appears here."
+    },
     "cancel": "Cancel",
     "hide": "Hide",
     "show": "Show",

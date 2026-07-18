@@ -157,5 +157,7 @@ export const defaultEndpoints = {
   reranking: "/api/rerank",
   chatCompletions: "/v1/chat/completions",
   responses: "/v1/responses",
+  oaiTranscriptions: "/v1/audio/transcriptions",
+  oaiSpeech: "/v1/audio/speech",
   realtime: "/v1/realtime/client_secrets"
 }

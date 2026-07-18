@@ -567,6 +567,7 @@ import { samtal } from "./catalog/samtal";
 import { fikra } from "./catalog/fikra";
 import { cencori } from "./catalog/cencori";
 import { aivara } from "./catalog/aivara";
+import { condensechat } from "./catalog/condensechat";
 
 /**
  * UI-facing provider catalog.
@@ -1126,6 +1127,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   cirrascale,
   aivara,
   inferencenet,
+  condensechat,
   fikra,
   telnyx,
   stabilityai,
