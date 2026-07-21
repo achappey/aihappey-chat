@@ -2,7 +2,7 @@ import type { Provider } from "aihappey-types";
 
 export const ecoia: Provider = {
   name: "Ecoia",
-  description: "Eco-friendly, carbon-negative AI chat, images &amp; API with Claude, GPT &amp; Gemini. Ecoia offsets 200%+ of the carbon, water and energy of every request.",
+  description: "Eco-friendly, carbon-negative AI chat, images & API with Claude, GPT & Gemini. Ecoia offsets 200%+ of the carbon, water and energy of every request.",
   urls: {
     homepage: "https://ecoia.ai",
     docs: "https://ecoia.ai/api",
