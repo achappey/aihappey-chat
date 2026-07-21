@@ -400,7 +400,6 @@ import { embercloud } from "./catalog/embercloud";
 import { fortytwo } from "./catalog/fortytwo";
 import { oraicle } from "./catalog/oraicle";
 import { foureverland } from "./catalog/foureverland";
-import { distributeai } from "./catalog/distributeai";
 import { key4u } from "./catalog/key4u";
 import { fivedock } from "./catalog/fivedock";
 import { magisterium } from "./catalog/magisterium";
@@ -697,7 +696,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   omniakey,
   nouswise,
   clawhub,
-  distributeai,
   orbgpu,
   embercloud,
   key4u,
