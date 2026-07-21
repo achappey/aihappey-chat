@@ -169,7 +169,6 @@ export const StreamingSpeechPage = () => {
       </form>
 
       <section style={styles.output} aria-live="polite" aria-busy={processing}>
-        <h2>{t("streamingSpeech.output")}</h2>
         <div style={styles.visualizer}>
           <StreamingAudioVisualizer analyser={analyser} />
           {completedAudioUrl && <AudioPlayer src={completedAudioUrl} style={{ width: "100%" }} />}

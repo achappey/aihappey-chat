@@ -175,7 +175,6 @@ export const StreamingTranscriptionsPage = () => {
       </div>
 
       <section style={styles.output} aria-live="polite" aria-busy={processing}>
-        <h2>{t("streamingTranscriptions.output")}</h2>
         <div style={styles.transcript}>{transcript}</div>
       </section>
 
