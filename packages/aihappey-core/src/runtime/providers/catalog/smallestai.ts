@@ -17,7 +17,7 @@ export const smallestai: Provider = {
     privacyPolicy: "https://smallest.ai/privacy-notice"
   },
   providerCountry: "US",
-  category: "gateway_router",
+  category: "model_provider",
   inferenceRegions: ["World"]
 };
 
