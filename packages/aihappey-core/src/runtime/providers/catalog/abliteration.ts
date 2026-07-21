@@ -14,7 +14,7 @@ export const abliteration: Provider = {
     pricing: "https://abliteration.ai/pricing",
     privacyPolicy: "https://abliteration.ai/privacy-policy",
     termsOfService: "https://abliteration.ai/terms-of-service",
-    docs: "https://abliteration.ai/docs"
+    docs: "https://docs.abliteration.ai"
   },
   providerCountry: "US",
   category: "model_provider",
