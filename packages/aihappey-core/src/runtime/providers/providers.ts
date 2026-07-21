@@ -189,7 +189,6 @@ import { netmind } from "./catalog/netmind";
 import { apiyi } from "./catalog/apiyi";
 import { thaura } from "./catalog/thaura";
 import { modal } from "./catalog/modal";
-import { apifree } from "./catalog/apifree";
 import { modelslab } from "./catalog/modelslab";
 import { hicap } from "./catalog/hicap";
 import { megallm } from "./catalog/megallm";
@@ -904,7 +903,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   parallel,
   aihubmix,
   megallm,
-  apifree,
   unrealspeech,
   tigercity,
   astica,

@@ -16,6 +16,7 @@ export const reve: Provider = {
   urls: {
     homepage: "https://api.reve.com",
     console: "https://api.reve.com/console",
+    docs: "https://api.reve.com/console/docs",
     pricing: "https://api.reve.com/console/pricing",
     privacyPolicy: "https://reve.com/privacy",
     termsOfService: "https://reve.com/terms"
