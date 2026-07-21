@@ -203,6 +203,6 @@ const styles: Record<string, React.CSSProperties> = {
   form: { maxWidth: 1056, margin: "44px auto 0", display: "flex", flexDirection: "column", gap: 8, width: "100%" },
   buttonRow: { display: "flex", alignItems: "center", gap: 8 },
   output: { maxWidth: 1056, margin: "44px auto 0", padding: "0 12px" },
-  visualizer: { minHeight: 180, padding: 16, display: "flex", flexDirection: "column", gap: 12, border: "1px solid rgba(128,128,128,.3)", borderRadius: 8 },
+  visualizer: { minHeight: 180, padding: 16, display: "flex", flexDirection: "column", gap: 12, borderRadius: 8 },
   settings: { display: "flex", flexDirection: "column", gap: 16 },
 };
