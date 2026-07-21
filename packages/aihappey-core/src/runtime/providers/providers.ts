@@ -566,6 +566,8 @@ import { fikra } from "./catalog/fikra";
 import { cencori } from "./catalog/cencori";
 import { aivara } from "./catalog/aivara";
 import { condensechat } from "./catalog/condensechat";
+import { ecoia } from "./catalog/ecoia";
+import { tinyfish } from "./catalog/tinyfish";
 
 /**
  * UI-facing provider catalog.
@@ -690,12 +692,14 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   mumeai,
   gatemind,
   nebulablock,
+  tinyfish,
   shengsuanyun,
   opensourceaihub,
   omniakey,
   nouswise,
   clawhub,
   orbgpu,
+  ecoia,
   embercloud,
   key4u,
   opengateway,
