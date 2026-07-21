@@ -14,7 +14,7 @@ export const ModelTypeBadge: React.FC<ModelTypeBadgeProps> = ({
   return <Badge
     size="small"
     icon={modelType as any}
-    appearance={"outline"}
+    appearance="neutral"
   >
     {t(modelType)}
   </Badge>

@@ -79,6 +79,13 @@ export const InformativeGhost: Story = {
   },
 };
 
+export const NeutralModelMetadata: Story = {
+  args: {
+    appearance: "neutral",
+    children: "Language",
+  },
+};
+
 export const SidebarMethodBadge: Story = {
   args: {
     appearance: "tint",

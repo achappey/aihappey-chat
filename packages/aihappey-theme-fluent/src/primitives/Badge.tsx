@@ -24,12 +24,18 @@ export const Badge = ({
   children: React.ReactNode;
 }): JSX.Element => {
   const IconElem = icon ? iconMap[icon] : undefined;
+  const isNeutralBadge = appearance === "neutral";
+  const fluentAppearance = isNeutralBadge ? "transparent" : appearance;
+  const fluentColor = isNeutralBadge ? "neutral" : (bg as any) === "primary" ? "brand" : (bg as any);
+  const fluentStyle = isNeutralBadge
+    ? { color: tokens.colorNeutralForeground1, ...style }
+    : style;
 
   const badge = <FluentBadge size={size}
     icon={IconElem ? <IconElem /> : undefined}
-    appearance={appearance}
-    style={style}
-    color={(bg as any) == "primary" ? "brand" : (bg as any)}>
+    appearance={fluentAppearance}
+    style={fluentStyle}
+    color={fluentColor}>
     {text ?? children}
   </FluentBadge>
 
