@@ -568,6 +568,7 @@ import { aivara } from "./catalog/aivara";
 import { condensechat } from "./catalog/condensechat";
 import { ecoia } from "./catalog/ecoia";
 import { tinyfish } from "./catalog/tinyfish";
+import { trustedrouter } from "./catalog/trustedrouter";
 
 /**
  * UI-facing provider catalog.
@@ -696,6 +697,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   shengsuanyun,
   opensourceaihub,
   omniakey,
+  trustedrouter,
   nouswise,
   clawhub,
   orbgpu,
