@@ -150,9 +150,6 @@ export const OpenAIChatConfigForm = ({
     );
   const serviceTierOptions = ["auto", "default", "flex", "scale", "priority"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";
-  const truncationOptions = ["auto", "disabled"];
-  const truncationEnabled = resolvedConfig?.truncation != null;
-  const truncationValue = truncationEnabled ? resolvedConfig.truncation : "auto";
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
   const multiAgentEnabled = !!resolvedConfig?.multi_agent?.enabled;
   const maxConcurrentSubagents = normalizePositiveIntegerInput(
@@ -205,26 +202,9 @@ export const OpenAIChatConfigForm = ({
     submitHeaders(nextHeaders);
   };
 
-  const omitTruncation = (nextConfig: any) => {
-    const { truncation: _truncation, ...rest } = nextConfig ?? {};
-    return rest;
-  };
-
   const omitMultiAgent = (nextConfig: any) => {
     const { multi_agent: _multiAgent, ...rest } = nextConfig ?? {};
     return rest;
-  };
-
-  const updateTruncationEnabled = (enabled: boolean) => {
-    if (enabled) {
-      submitConfig({
-        ...resolvedConfig,
-        truncation: resolvedConfig?.truncation ?? "auto",
-      });
-      return;
-    }
-
-    submitConfig(omitTruncation(resolvedConfig));
   };
 
   const updateMultiAgentEnabled = (enabled: boolean) => {
@@ -503,45 +483,6 @@ export const OpenAIChatConfigForm = ({
               {t("providers:openai.contextManagement.add")}
             </theme.Button>
           </div>
-        </div>
-      </theme.Card>
-
-      <theme.Card
-        size="small"
-        title={t("providers:openai.truncation.title")}
-        headerActions={
-          <theme.Switch
-            id="openai-truncation-enabled"
-            checked={truncationEnabled}
-            onChange={updateTruncationEnabled}
-          />
-        }
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <theme.Select
-            label={t("providers:openai.truncation.title")}
-            values={[truncationValue]}
-            valueTitle={t(`providers:openai.truncation.${truncationValue}`)}
-            disabled={!truncationEnabled}
-            options={truncationOptions.map((value) => ({
-              value,
-              label: t(`providers:openai.truncation.${value}`),
-            }))}
-            onChange={(value: string) => {
-              if (!truncationEnabled) return;
-
-              submitConfig({
-                ...resolvedConfig,
-                truncation: String(value ?? "auto"),
-              });
-            }}
-          >
-            {truncationOptions.map((value) => (
-              <option key={value} value={value}>
-                {t(`providers:openai.truncation.${value}`)}
-              </option>
-            ))}
-          </theme.Select>
         </div>
       </theme.Card>
 

@@ -31,10 +31,14 @@ export const defaultProviderMetadata = {
         "code_interpreter_call.outputs",
         "file_search_call.results"
       ],
-    "truncation": "auto",
     "store": false,
     "service_tier": "auto",
-    "context_management": undefined,
+    "context_management": [
+      {
+        "type": "compaction",
+        "compact_threshold": 64000
+      }
+    ],
     "reasoning": {
       "effort": "medium",
       "context": "auto",
