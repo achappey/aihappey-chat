@@ -590,6 +590,18 @@
     "delete": "Delete",
     "parallelToolCalls": "Parallel tool calls",
     "resetDefaults": "Restore defaults",
+    "cortecs": {
+        "routing": "Routing",
+        "preference": "Preference",
+        "preferences": {
+            "speed": "Speed",
+            "cost": "Cost",
+            "balanced": "Balanced"
+        },
+        "euNative": "EU-native providers only",
+        "allowZeroDataRetention": "Zero-data-retention providers only",
+        "enableModelFallback": "Enable model fallback"
+    },
     "disclaimer": "{{appName}} can make mistakes. Check important information.",
     "select": "Select",
     "code_execution": "Code execution",

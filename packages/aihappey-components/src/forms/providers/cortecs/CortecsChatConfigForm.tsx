@@ -49,7 +49,7 @@ export const CortecsChatConfigForm = ({
   const normalizedConfig = normalizeCortecsChatConfig(config);
   const preferenceOptions = CORTECS_PREFERENCES.map((value) => ({
     value,
-    label: t(value),
+    label: t(`cortecs.preferences.${value}`),
   }));
 
   const update = (nextConfig: Partial<CortecsChatConfig>) =>
@@ -57,10 +57,10 @@ export const CortecsChatConfigForm = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card size="small" title={t("routing", "Routing")}>
+      <theme.Card size="small" title={t("cortecs.routing")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
-            label={t("preference", "Preference")}
+            label={t("cortecs.preference")}
             values={[normalizedConfig.preference]}
             valueTitle={
               preferenceOptions.find((option) => option.value === normalizedConfig.preference)
@@ -80,13 +80,13 @@ export const CortecsChatConfigForm = ({
 
           <theme.Switch
             id="cortecs_eu_native"
-            label={t("euNative", "EU-native providers only")}
+            label={t("cortecs.euNative")}
             checked={normalizedConfig.eu_native}
             onChange={(eu_native) => update({ ...normalizedConfig, eu_native })}
           />
           <theme.Switch
             id="cortecs_allow_zero_data_retention"
-            label={t("allowZeroDataRetention", "Zero-data-retention providers only")}
+            label={t("cortecs.allowZeroDataRetention")}
             checked={normalizedConfig.allow_zero_data_retention}
             onChange={(allow_zero_data_retention) =>
               update({ ...normalizedConfig, allow_zero_data_retention })
@@ -94,7 +94,7 @@ export const CortecsChatConfigForm = ({
           />
           <theme.Switch
             id="cortecs_enable_model_fallback"
-            label={t("enableModelFallback", "Enable model fallback")}
+            label={t("cortecs.enableModelFallback")}
             checked={normalizedConfig.enable_model_fallback}
             onChange={(enable_model_fallback) =>
               update({ ...normalizedConfig, enable_model_fallback })
@@ -102,7 +102,7 @@ export const CortecsChatConfigForm = ({
           />
           <theme.Switch
             id="cortecs_parallel_tool_calls"
-            label={t("parallelToolCalls", "Allow parallel tool calls")}
+            label={t("parallelToolCalls")}
             checked={normalizedConfig.parallel_tool_calls}
             onChange={(parallel_tool_calls) =>
               update({ ...normalizedConfig, parallel_tool_calls })

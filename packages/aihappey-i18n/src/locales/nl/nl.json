@@ -580,6 +580,18 @@
     "timezone": "Tijdzone",
     "parallelToolCalls": "Parallel tools gebruiken",
     "resetDefaults": "Standaardwaarden",
+    "cortecs": {
+        "routing": "Routering",
+        "preference": "Voorkeur",
+        "preferences": {
+            "speed": "Snelheid",
+            "cost": "Kosten",
+            "balanced": "Gebalanceerd"
+        },
+        "euNative": "Alleen in de EU gevestigde providers",
+        "allowZeroDataRetention": "Alleen providers zonder gegevensbewaring",
+        "enableModelFallback": "Automatische modelwissel inschakelen"
+    },
     "code_execution": "Code uitvoeren",
     "disclaimer": "{{appName}} kan fouten maken. Controleer belangrijke informatie.",
     "annotations": {
