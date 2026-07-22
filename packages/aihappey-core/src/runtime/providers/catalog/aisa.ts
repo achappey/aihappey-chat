@@ -8,10 +8,11 @@ export const aisa: Provider = {
   }],
   urls: {
     homepage: "https://www.aisa.one",
-    docs: "https://docs.aisa.one",
-    pricing: "https://marketplace.aisa.one/pricing",
+    docs: "https://aisa.one/docs",
+    pricing: "https://www.aisa.one/models",
     console: "https://marketplace.aisa.one",
-    termsOfService: "https://www.aisa.one/html/AIsa_Terms_Of_Service.html"
+    privacyPolicy: "https://www.aisa.one/privacy",
+    termsOfService: "https://www.aisa.one/TOS"
   },
   providerCountry: "US",
   category: "inference_compute",
