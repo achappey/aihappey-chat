@@ -7,6 +7,9 @@ export const clod: Provider = {
   urls: {
     homepage: "https://clod.io",
     docs: "https://clod.io/docs",
+    pricing: "https://clod.io/pricing",
+    termsOfService: "https://clod.io/terms",
+    privacyPolicy: "https://clod.io/privacy",
     console: "https://app.clod.io"
   },
   providerCountry: "CA",

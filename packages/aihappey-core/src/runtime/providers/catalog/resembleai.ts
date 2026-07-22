@@ -8,8 +8,8 @@ export const resembleai: Provider = {
     homepage: "https://www.resemble.ai",
     docs: "https://docs.resemble.ai",
     pricing: "https://www.resemble.ai/pricing",
-    privacyPolicy: "https://www.resemble.ai/privacy",
-    termsOfService: "https://www.resemble.ai/terms"
+    privacyPolicy: "https://www.resemble.ai/privacy-policy",
+    termsOfService: "https://www.resemble.ai/terms-of-service"
   },
   providerCountry: "CA",
   category: "model_provider",
