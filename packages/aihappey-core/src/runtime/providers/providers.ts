@@ -569,6 +569,7 @@ import { ecoia } from "./catalog/ecoia";
 import { tinyfish } from "./catalog/tinyfish";
 import { trustedrouter } from "./catalog/trustedrouter";
 import { secrypt } from "./catalog/secrypt";
+import { monstergaming } from "./catalog/monstergaming";
 
 /**
  * UI-facing provider catalog.
@@ -633,6 +634,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   langbaseagent,
   langbasepipe,
   groovedev,
+  monstergaming,
   apipass,
   uumuse,
   inferencespace,
