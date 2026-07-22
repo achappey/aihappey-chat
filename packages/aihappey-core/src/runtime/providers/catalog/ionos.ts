@@ -12,6 +12,7 @@ export const ionos: Provider = {
   urls: {
     homepage: "https://cloud.ionos.com",
     docs: "https://docs.ionos.com/cloud",
+    pricing: "https://cloud.ionos.com/managed/ai-model-hub",
     privacyPolicy: "https://www.ionos.com/terms-gtc/privacy-policy",
     termsOfService: "https://www.ionos.com/terms-gtc"
   },
