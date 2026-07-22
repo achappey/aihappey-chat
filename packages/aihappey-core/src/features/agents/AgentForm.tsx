@@ -1,4 +1,4 @@
-import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
@@ -580,6 +580,13 @@ export const AgentForm = ({
 
                     {providerKey === "cohere" && (
                         <CohereChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "cortecs" && (
+                        <CortecsChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

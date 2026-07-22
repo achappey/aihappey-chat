@@ -11,6 +11,7 @@ export const cortecs: Provider = {
   urls: {
     homepage: "https://cortecs.ai",
     docs: "https://docs.cortecs.ai",
+    pricing: "https://cortecs.ai/pricing",
     privacyPolicy: "https://cortecs.ai/privacyPolicy",
     termsOfService: "https://cortecs.ai/termsOfUse"
   },

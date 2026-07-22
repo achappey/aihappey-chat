@@ -14,6 +14,7 @@ import {
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
+  CortecsChatConfigForm,
   DepazaChatConfigForm,
   JinaChatConfigForm,
   LinkupChatConfigForm,
@@ -238,6 +239,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
       blackbox: (blackbox: any) => updateProviderConfig("blackbox", blackbox),
       cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
+      cortecs: (cortecs: any) => updateProviderConfig("cortecs", cortecs),
       depaza: (depaza: any) => updateProviderConfig("depaza", depaza),
       browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
       brave: (brave: any) => updateProviderConfig("brave", brave),
@@ -318,6 +320,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <BlackboxChatConfigForm config={draft.providerMetadata.blackbox ?? {}} updateConfig={providerConfigUpdaters.blackbox} />;
       case "cohere":
         return <CohereChatConfigForm config={draft.providerMetadata.cohere ?? {}} updateConfig={providerConfigUpdaters.cohere} />;
+      case "cortecs":
+        return <CortecsChatConfigForm config={draft.providerMetadata.cortecs ?? {}} updateConfig={providerConfigUpdaters.cortecs} />;
       case "depaza":
         return <DepazaChatConfigForm config={draft.providerMetadata.depaza ?? {}} updateConfig={providerConfigUpdaters.depaza} />;
       case "browseruse":

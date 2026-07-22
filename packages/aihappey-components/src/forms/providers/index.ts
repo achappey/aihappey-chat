@@ -65,5 +65,6 @@ export * from "./xiaomimimo";
 export * from "./ninjachat";
 export * from "./depaza";
 export * from "./tinyfish";
-   
-   
+export * from "./cortecs";
+    
+    

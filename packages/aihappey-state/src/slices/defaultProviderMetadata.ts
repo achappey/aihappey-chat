@@ -323,4 +323,11 @@ export const defaultProviderMetadata = {
     "mode": "standard",
     "depaza_events": true
   },
+  "cortecs": {
+    "preference": "balanced",
+    "eu_native": false,
+    "allow_zero_data_retention": false,
+    "enable_model_fallback": true,
+    "parallel_tool_calls": true
+  },
 };
