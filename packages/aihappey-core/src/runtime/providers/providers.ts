@@ -573,6 +573,8 @@ import { sunbirdai } from "./catalog/sunbirdai";
 import { addisai } from "./catalog/addisai";
 import { akumi } from "./catalog/akumi";
 import { impossibl } from "./catalog/impossibl";
+import { sluis } from "./catalog/sluis";
+import { neuralring } from "./catalog/neuralring";
 
 /**
  * UI-facing provider catalog.
@@ -671,6 +673,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   generalcompute,
   uncloseai,
   pellet,
+  neuralring,
   lumecoder,
   radient,
   aihorde,
@@ -678,6 +681,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   octagon,
   aimagicx,
   impossibl,
+  sluis,
   sailresearch,
   hyperbrowser,
   therouterai,
