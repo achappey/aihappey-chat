@@ -571,6 +571,7 @@ import { secrypt } from "./catalog/secrypt";
 import { monstergaming } from "./catalog/monstergaming";
 import { mljunction } from "./catalog/mljunction";
 import { sunbirdai } from "./catalog/sunbirdai";
+import { addisai } from "./catalog/addisai";
 
 /**
  * UI-facing provider catalog.
@@ -753,6 +754,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   oxoapi,
   preapi,
   mljunction,
+  addisai,
   teamday,
   jassieai,
   cailos,
