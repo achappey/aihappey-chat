@@ -8,7 +8,9 @@ export const nodion: Provider = {
   }],
   urls: {
     homepage: "https://www.nodion.ai",
-    privacyPolicy: "https://www.nodion.ai/en/privacy/",
+    pricing:"https://www.nodion.ai/en/inference/#models",
+    docs: "https://www.nodion.ai/en/inference/#docs",
+    privacyPolicy: "https://www.nodion.ai/en/privacy",
     termsOfService: "https://www.nodion.ai/en/terms"
   },
   providerCountry: "DE",
