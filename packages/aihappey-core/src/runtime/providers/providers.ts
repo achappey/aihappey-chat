@@ -568,6 +568,7 @@ import { condensechat } from "./catalog/condensechat";
 import { ecoia } from "./catalog/ecoia";
 import { tinyfish } from "./catalog/tinyfish";
 import { trustedrouter } from "./catalog/trustedrouter";
+import { secrypt } from "./catalog/secrypt";
 
 /**
  * UI-facing provider catalog.
@@ -636,6 +637,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   uumuse,
   inferencespace,
   scrapellm,
+  secrypt,
   merge,
   virouter,
   zyloapi,
