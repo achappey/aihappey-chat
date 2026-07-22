@@ -230,7 +230,6 @@ import { eachlabs } from "./catalog/eachlabs";
 import { laozhang } from "./catalog/laozhang";
 import { valyu } from "./catalog/valyu";
 import { jiekouai } from "./catalog/jiekouai";
-import { syllogy } from "./catalog/syllogy";
 import { literouter } from "./catalog/literouter";
 import { arwriter } from "./catalog/arwriter";
 import { qiniu } from "./catalog/qiniu";
@@ -936,7 +935,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   dandolo,
   literouter,
   orqagentruntime,
-  syllogy,
   typecast,
   jiekouai,
   qiniu,
