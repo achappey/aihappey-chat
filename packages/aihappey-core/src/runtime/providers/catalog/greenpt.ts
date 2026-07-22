@@ -7,6 +7,7 @@ export const greenpt: Provider = {
   urls: {
     homepage: "https://greenpt.ai",
     pricing: "https://docs.greenpt.ai/api/pricing",
+    docs: "https://docs.greenpt.ai",
     privacyPolicy: "https://docs.greenpt.ai/privacy/privacy-policy",
     termsOfService: "https://docs.greenpt.ai/privacy/terms"
   },
