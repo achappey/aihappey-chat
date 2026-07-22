@@ -569,6 +569,7 @@ import { tinyfish } from "./catalog/tinyfish";
 import { trustedrouter } from "./catalog/trustedrouter";
 import { secrypt } from "./catalog/secrypt";
 import { monstergaming } from "./catalog/monstergaming";
+import { mljunction } from "./catalog/mljunction";
 
 /**
  * UI-facing provider catalog.
@@ -749,6 +750,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   baseapi,
   oxoapi,
   preapi,
+  mljunction,
   teamday,
   jassieai,
   cailos,
