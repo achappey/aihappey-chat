@@ -225,6 +225,7 @@ export const defaultProviderMetadata = {
   },
   "spacexai": {
     "store": false,
+    "service_tier": "default",
     "tools": [{
       "type": "web_search",
       "allowed_domains": [],

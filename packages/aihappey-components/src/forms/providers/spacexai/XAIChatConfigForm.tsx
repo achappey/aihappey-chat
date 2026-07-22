@@ -51,7 +51,8 @@ export const XAIChatConfigForm = ({
   const xSearchOn = !!resolvedConfig?.x_search;
   const codeExecutionOn = !!resolvedConfig?.code_execution;
 
-
+  const serviceTierOptions = ["default", "priority"];
+  const serviceTierValue = resolvedConfig?.service_tier ?? "default";
   const toggleInclude = (key: string, enabled: boolean) => {
     const current = Array.isArray(config?.include) ? config.include : [];
     const next = enabled
@@ -309,17 +310,47 @@ export const XAIChatConfigForm = ({
         </div>
       </theme.Card>
 
-      <theme.Switch
-        id="parallelToolCalls"
-        checked={!!config?.parallel_tool_calls}
-        label={t("parallelToolCalls")}
-        onChange={(value) =>
-          updateConfig({
-            ...config,
-            parallel_tool_calls: value,
-          })
-        }
-      />
+      <theme.Card size="small" title={t("other")}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+          <theme.Select
+            label={t("providers:openai.serviceTier.title")}
+            values={[serviceTierValue]}
+            valueTitle={t(`providers:openai.serviceTier.${serviceTierValue}`)}
+            options={serviceTierOptions.map((value) => ({
+              value,
+              label: t(`providers:openai.serviceTier.${value}`),
+            }))}
+            onChange={(value: string) =>
+              submitConfig({
+                ...config,
+                service_tier: String(value ?? "auto"),
+              })
+            }
+          >
+            {serviceTierOptions.map((value) => (
+              <option key={value} value={value}>
+                {t(`providers:openai.serviceTier.${value}`)}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Switch
+            id="parallelToolCalls"
+            checked={!!config?.parallel_tool_calls}
+            label={t("parallelToolCalls")}
+            onChange={(value) =>
+              submitConfig({
+                ...config,
+                parallel_tool_calls: value,
+              })
+            }
+          />
+
+
+        </div>
+      </theme.Card>
+
 
       <theme.TextArea
         label={t("providers:openai.instructions")}
