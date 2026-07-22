@@ -14,6 +14,7 @@ import {
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
+  DepazaChatConfigForm,
   JinaChatConfigForm,
   LinkupChatConfigForm,
   MicrosoftChatConfigForm,
@@ -25,6 +26,7 @@ import {
   PollinationsChatConfigForm,
   SambanovaChatConfigForm,
   TemboChatConfigForm,
+  TinyFishChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
   useTheme, XAIChatConfigForm,
   RequestyChatConfigForm,
@@ -236,6 +238,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
       blackbox: (blackbox: any) => updateProviderConfig("blackbox", blackbox),
       cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
+      depaza: (depaza: any) => updateProviderConfig("depaza", depaza),
       browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
       brave: (brave: any) => updateProviderConfig("brave", brave),
       google: (google: any) => updateProviderConfig("google", google),
@@ -253,6 +256,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       together: (together: any) => updateProviderConfig("together", together),
       sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
       tembo: (tembo: any) => updateProviderConfig("tembo", tembo),
+      tinyfish: (tinyfish: any) => updateProviderConfig("tinyfish", tinyfish),
       xai: (xai: any) => updateProviderConfig("xai", xai),
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
       venice: (venice: any) => updateProviderConfig("venice", venice),
@@ -314,6 +318,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <BlackboxChatConfigForm config={draft.providerMetadata.blackbox ?? {}} updateConfig={providerConfigUpdaters.blackbox} />;
       case "cohere":
         return <CohereChatConfigForm config={draft.providerMetadata.cohere ?? {}} updateConfig={providerConfigUpdaters.cohere} />;
+      case "depaza":
+        return <DepazaChatConfigForm config={draft.providerMetadata.depaza ?? {}} updateConfig={providerConfigUpdaters.depaza} />;
       case "browseruse":
         return <BrowserUseChatConfigForm config={draft.providerMetadata.browseruse ?? {}} updateConfig={providerConfigUpdaters.browseruse} />;
       case "brave":
@@ -359,6 +365,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <SambanovaChatConfigForm config={draft.providerMetadata.sambanova ?? {}} updateConfig={providerConfigUpdaters.sambanova} />;
       case "tembo":
         return <TemboChatConfigForm config={draft.providerMetadata.tembo ?? {}} updateConfig={providerConfigUpdaters.tembo} />;
+      case "tinyfish":
+        return <TinyFishChatConfigForm config={draft.providerMetadata.tinyfish ?? {}} updateConfig={providerConfigUpdaters.tinyfish} />;
       case "venice":
         return <VeniceChatConfigForm config={draft.providerMetadata.venice ?? {}} updateConfig={providerConfigUpdaters.venice} />;
       case "linkup":

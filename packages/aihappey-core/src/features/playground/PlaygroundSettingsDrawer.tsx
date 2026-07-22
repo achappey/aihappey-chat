@@ -8,6 +8,7 @@ import {
   ChatSettingsForm,
   ChatCompletionsEndpointConfigForm,
   CohereChatConfigForm,
+  DepazaChatConfigForm,
   GroqChatConfigForm,
   JinaChatConfigForm,
   MessagesEndpointConfigForm,
@@ -163,6 +164,8 @@ export const PlaygroundSettingsDrawer = ({
         return <BlackboxChatConfigForm config={providerMetadata.blackbox ?? {}} updateConfig={updateProviderConfig} />;
       case "cohere":
         return <CohereChatConfigForm config={providerMetadata.cohere ?? {}} updateConfig={updateProviderConfig} />;
+      case "depaza":
+        return <DepazaChatConfigForm config={providerMetadata.depaza ?? {}} updateConfig={updateProviderConfig} />;
       case "browseruse":
         return <BrowserUseChatConfigForm config={providerMetadata.browseruse ?? {}} updateConfig={updateProviderConfig} />;
       case "brave":

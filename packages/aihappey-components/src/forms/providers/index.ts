@@ -63,5 +63,7 @@ export * from "./openhands";
 export * from "./tembo";
 export * from "./xiaomimimo";
 export * from "./ninjachat";
-  
-  
+export * from "./depaza";
+export * from "./tinyfish";
+   
+   

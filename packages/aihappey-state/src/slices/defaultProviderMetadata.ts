@@ -316,5 +316,10 @@ export const defaultProviderMetadata = {
     "seed_urls_only": undefined
   },
 
-  "murfai": {}
+  "murfai": {},
+  "tinyfish": {},
+  "depaza": {
+    "mode": "standard",
+    "depaza_events": true
+  },
 };
