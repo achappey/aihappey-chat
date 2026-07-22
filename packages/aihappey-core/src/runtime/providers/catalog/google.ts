@@ -12,6 +12,7 @@ export const google: Provider = {
   urls: {
     homepage: "https://ai.google",
     docs: "https://ai.google.dev",
+    pricing: "https://ai.google.dev/gemini-api/docs/pricing",
     privacyPolicy: "https://policies.google.com/privacy",
     termsOfService: "https://ai.google.dev/gemini-api/terms",
     console: "https://aistudio.google.com"
