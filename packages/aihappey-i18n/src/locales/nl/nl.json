@@ -22,6 +22,9 @@
         "receiving": "Audio ontvangen… {{bytes}} bytes",
         "ready": "De gegenereerde audio verschijnt hier."
     },
+    "messageSpeech": {
+        "failed": "Dit bericht kon niet worden afgespeeld. Controleer je spraakinstellingen en probeer het opnieuw."
+    },
     "cancel": "Annuleer",
     "hide": "Verbergen",
     "show": "Tonen",
@@ -128,6 +131,7 @@
     "steps": "Stappen",
     "negativePrompt": "Negatieve prompt",
     "speech": "Spraak",
+    "speakMessage": "Voorlezen",
     "speechDetails": "Spraakdetails",
     "speechProvider": "Provider",
     "details": "Details",

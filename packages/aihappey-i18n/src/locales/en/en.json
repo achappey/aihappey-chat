@@ -22,6 +22,9 @@
         "receiving": "Receiving audio… {{bytes}} bytes",
         "ready": "The generated audio appears here."
     },
+    "messageSpeech": {
+        "failed": "Could not play this message. Check your speech settings and try again."
+    },
     "cancel": "Cancel",
     "hide": "Hide",
     "show": "Show",
@@ -90,6 +93,7 @@
     "toolChoice": "Tool choice",
     "language": "Language",
     "speech": "Speech",
+    "speakMessage": "Read aloud",
     "speechDetails": "Speech details",
     "speechProvider": "Provider",
     "details": "Details",

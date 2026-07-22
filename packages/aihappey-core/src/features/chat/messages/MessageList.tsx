@@ -1,16 +1,15 @@
 import { Markdown } from "../../../ui/markdown/Markdown";
-import { SamplingRequest, useAppStore } from "aihappey-state";
+import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { OpenAIAppWidget } from "../../../ui/widgets/OpenAIAppWidget";
 import { copyMarkdownToClipboard } from "../files/file";
 import { ImageGrid, MessageList as MessageListComponent, ToolContent, useTheme, VideoGrid } from "aihappey-components";
 import type { VideoContent } from "aihappey-components";
-import type { CreateMessageRequest, CreateMessageResult, ImageContent } from "@modelcontextprotocol/sdk/types";
+import type { ImageContent } from "@modelcontextprotocol/sdk/types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toChatMessages } from "./toChatMessages";
-import { samplingRuntime, useOpenSamplings } from "../../../runtime/mcp/samplingRuntime";
 import { getToolName, useTools } from "../../tools/useTools";
 import { McpProgressItem, progressRuntime, useMcpProgress } from "../../../runtime/mcp/progressRuntime";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
@@ -20,6 +19,7 @@ import { useConversations } from "aihappey-conversations";
 import { ImageModal } from "../../images/ImageModal";
 import { downloadImageContent, imageContentToSrc } from "../../images/imageContentUtils";
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
+import { useMessageSpeechPlayback } from "./useMessageSpeechPlayback";
 
 interface MessageListProps {
   showCitations: (items: (SourceUrlUIPart | SourceDocumentUIPart)[]) => void;
@@ -96,7 +96,7 @@ export const MessageList = ({
   streaming,
   onUiMessagePatched,
 }: MessageListProps) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
   const sampling = useAppStore((a) => a.sampling);
   const showMessageTokens = useAppStore((a) => a.showMessageTokens);
@@ -104,7 +104,7 @@ export const MessageList = ({
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
   const providers = useProviderRegistry();
-  const { AudioPlayer, Image } = useTheme()
+  const { AudioPlayer, Image, Toast } = useTheme()
   const progress = useMcpProgress(progressRuntime);
   const progressByToken = useMemo(() => {
     const m = new Map<string | number, McpProgressItem>();
@@ -116,6 +116,9 @@ export const MessageList = ({
 
   const [editUiMessageId, setEditUiMessageId] = useState<string | undefined>(undefined);
   const [modalImage, setModalImage] = useState<ImageContent | undefined>(undefined);
+  const [speechToastOpen, setSpeechToastOpen] = useState(false);
+  const showSpeechError = useCallback(() => setSpeechToastOpen(true), []);
+  const { canSpeak, speak } = useMessageSpeechPlayback({ onError: showSpeechError });
   const editUiMessage = useMemo(
     () => messages.find((m) => m.id === editUiMessageId),
     [editUiMessageId, messages]
@@ -134,6 +137,14 @@ export const MessageList = ({
 
   return (
     <>
+      <Toast
+        id="message-speech-failed"
+        variant="error"
+        message={t("messageSpeech.failed")}
+        show={speechToastOpen}
+        autohide={4000}
+        onClose={() => setSpeechToastOpen(false)}
+      />
       <MessageListComponent
         key={uiVersion}
         messages={chatMessages}
@@ -147,6 +158,8 @@ export const MessageList = ({
         onShowActivity={showActivity}
         onShowSources={showCitations}
         onShowAttachments={showAttachments}
+        canSpeakMessage={canSpeak}
+        onSpeakMessage={(message) => void speak(message)}
         onEditMessage={(msg: ChatMessage) => {
           const uiMessageId = getUiMessageIdFromChatMessageId(msg.id);
           setEditUiMessageId(uiMessageId);

@@ -23,6 +23,8 @@ interface MessageActionsProps {
   onShowAttachments?: (files: FileUIPart[]) => void;
   onShowActivity?: (content: UIMessagePart<any, any>[]) => void;
   onShowSources?: (sources: (SourceDocumentUIPart | SourceUrlUIPart)[]) => void;
+  canSpeakMessage?: boolean;
+  onSpeakMessage?: (msg: ChatMessage) => void;
   onSetPage: (nextPage: number) => void;
 }
 
@@ -38,6 +40,8 @@ export const MessageActions = ({
   onShowAttachments,
   onShowActivity,
   onShowSources,
+  canSpeakMessage,
+  onSpeakMessage,
   onSetPage,
 }: MessageActionsProps) => {
   const { Button } = useTheme();
@@ -61,6 +65,17 @@ export const MessageActions = ({
           onClick={() => onEditMessage(msg)}
           icon={"edit"}
           title={t("editMessage")}
+        />
+      )}
+
+      {onSpeakMessage && msg.role === "assistant" && (
+        <Button
+          variant="subtle"
+          style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+          disabled={!canSpeakMessage}
+          onClick={() => onSpeakMessage(msg)}
+          icon="speech"
+          title={t("speakMessage")}
         />
       )}
 

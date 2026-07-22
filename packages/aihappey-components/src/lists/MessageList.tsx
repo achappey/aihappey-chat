@@ -17,6 +17,8 @@ interface MessageListProps {
   onShowAttachments?: (files: FileUIPart[]) => void;
   onShowSources?: (sources: (SourceDocumentUIPart | SourceUrlUIPart)[]) => void;
   onShowActivity?: (content: UIMessagePart<any, any>[]) => void;
+  canSpeakMessage?: boolean;
+  onSpeakMessage?: (msg: ChatMessage) => void;
   tools?: Tool[]
   size?: string;
   locale?: string
@@ -65,6 +67,8 @@ export const MessageList = ({
   onShowSources,
   onShowActivity,
   onShowAttachments,
+  canSpeakMessage,
+  onSpeakMessage,
   renderBlock,
 }: MessageListProps) => {
   const { Chat, Image } = useTheme();
@@ -163,9 +167,11 @@ export const MessageList = ({
         onCopyMessage={onCopyMessage}
         onEditMessage={onEditMessage}
         onShowSources={onShowSources}
-        onShowAttachments={onShowAttachments}
-        onShowActivity={onShowActivity}
-        onSetPage={(next) => setPage(msg, next)}
+          onShowAttachments={onShowAttachments}
+          onShowActivity={onShowActivity}
+          canSpeakMessage={canSpeakMessage}
+          onSpeakMessage={onSpeakMessage}
+          onSetPage={(next) => setPage(msg, next)}
       />
     );
   };
