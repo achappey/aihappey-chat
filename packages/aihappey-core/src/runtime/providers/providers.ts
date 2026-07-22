@@ -570,6 +570,7 @@ import { trustedrouter } from "./catalog/trustedrouter";
 import { secrypt } from "./catalog/secrypt";
 import { monstergaming } from "./catalog/monstergaming";
 import { mljunction } from "./catalog/mljunction";
+import { sunbirdai } from "./catalog/sunbirdai";
 
 /**
  * UI-facing provider catalog.
@@ -745,6 +746,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   xiaomimimo,
   vivgrid,
   chutes,
+  sunbirdai,
   miapi,
   ambient,
   baseapi,
