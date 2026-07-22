@@ -571,6 +571,8 @@ import { monstergaming } from "./catalog/monstergaming";
 import { mljunction } from "./catalog/mljunction";
 import { sunbirdai } from "./catalog/sunbirdai";
 import { addisai } from "./catalog/addisai";
+import { akumi } from "./catalog/akumi";
+import { impossibl } from "./catalog/impossibl";
 
 /**
  * UI-facing provider catalog.
@@ -672,8 +674,10 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   lumecoder,
   radient,
   aihorde,
+  akumi,
   octagon,
   aimagicx,
+  impossibl,
   sailresearch,
   hyperbrowser,
   therouterai,
