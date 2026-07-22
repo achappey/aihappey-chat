@@ -494,7 +494,6 @@ import { doubleword } from "./catalog/doubleword";
 import { openhands } from "./catalog/openhands";
 import { poolside } from "./catalog/poolside";
 import { antbase } from "./catalog/antbase";
-import { slancha } from "./catalog/slancha";
 import { nodion } from "./catalog/nodion";
 import { generalcompute } from "./catalog/generalcompute";
 import { libertai } from "./catalog/libertai";
@@ -586,7 +585,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   orcarouter,
   doubleword,
   routera,
-  slancha,
   mara,
   mycoai,
   realrouter,

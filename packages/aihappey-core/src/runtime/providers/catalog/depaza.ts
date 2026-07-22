@@ -6,6 +6,7 @@ export const depaza: Provider = {
   urls: {
     homepage: "https://depaza.eu",
     docs: "https://depaza.eu/docs",
+    pricing: "https://depaza.eu/pricing",
     privacyPolicy: "https://depaza.eu/privacy",
     termsOfService: "https://depaza.eu/terms"
   },
