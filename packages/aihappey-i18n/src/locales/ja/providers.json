@@ -38,7 +38,7 @@
     "citationOptions": "引用"
   },
   "xSearch": "X で検索",
-  "xai": {
+  "spacexai": {
     "imageUnderstanding": "画像理解",
     "videoUnderstanding": "動画理解",
     "allowedDomains": "許可されたドメイン",

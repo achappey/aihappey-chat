@@ -124,7 +124,7 @@ export const defaultProviderRealtimeConversationMetadata = {
       "truncation": "auto"
     }
   },
-  "xai": {
+  "spacexai": {
     "expires_after": {
       "anchor": "created_at",
       "seconds": 600

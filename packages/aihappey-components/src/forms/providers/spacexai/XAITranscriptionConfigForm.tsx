@@ -82,7 +82,7 @@ export const XAITranscriptionConfigForm: React.FC<{
       <theme.Card
         size="small"
         title={t("general")}
-        description={t("providers:xai.transcriptionGeneralHint")}
+        description={t("providers:spacexai.transcriptionGeneralHint")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Input
@@ -101,7 +101,7 @@ export const XAITranscriptionConfigForm: React.FC<{
 
           <theme.Switch
             id="xai-transcription-format"
-            label={t("providers:xai.transcriptionFormat")}
+            label={t("providers:spacexai.transcriptionFormat")}
             disabled={!hasLanguage}
             checked={config?.format === "true"}
             onChange={(enabled) =>
@@ -114,7 +114,7 @@ export const XAITranscriptionConfigForm: React.FC<{
 
           <theme.Switch
             id="xai-transcription-diarize"
-            label={t("providers:xai.transcriptionDiarize")}
+            label={t("providers:spacexai.transcriptionDiarize")}
             checked={config?.diarize === "true"}
             onChange={(enabled) =>
               updateConfig({
@@ -128,12 +128,12 @@ export const XAITranscriptionConfigForm: React.FC<{
 
       <theme.Card
         size="small"
-        title={t("providers:xai.audioInput")}
-        description={t("providers:xai.audioInputHint")}
+        title={t("providers:spacexai.audioInput")}
+        description={t("providers:spacexai.audioInputHint")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
-            label={t("providers:xai.audioFormat")}
+            label={t("providers:spacexai.audioFormat")}
             values={[audioFormatValue]}
             valueTitle={
               audioFormatOptions.find((option) => option.value === audioFormatValue)?.label ??
@@ -163,7 +163,7 @@ export const XAITranscriptionConfigForm: React.FC<{
           </theme.Select>
 
           <theme.Select
-            label={t("providers:xai.sampleRate")}
+            label={t("providers:spacexai.sampleRate")}
             disabled={!isRawAudio}
             values={[sampleRateValue]}
             valueTitle={
@@ -190,13 +190,13 @@ export const XAITranscriptionConfigForm: React.FC<{
 
       <theme.Card
         size="small"
-        title={t("providers:xai.channels")}
-        description={t("providers:xai.channelsHint")}
+        title={t("providers:spacexai.channels")}
+        description={t("providers:spacexai.channelsHint")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Switch
             id="xai-transcription-multichannel"
-            label={t("providers:xai.transcriptionMultichannel")}
+            label={t("providers:spacexai.transcriptionMultichannel")}
             checked={multichannelEnabled}
             onChange={(enabled) =>
               updateConfig({
@@ -214,7 +214,7 @@ export const XAITranscriptionConfigForm: React.FC<{
             max={8}
             step={1}
             disabled={!multichannelEnabled || !isRawAudio}
-            label={t("providers:xai.channelCount")}
+            label={t("providers:spacexai.channelCount")}
             value={config?.channels ?? ""}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const raw = e.target.value;

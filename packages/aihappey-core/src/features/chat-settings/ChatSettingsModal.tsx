@@ -257,7 +257,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
       tembo: (tembo: any) => updateProviderConfig("tembo", tembo),
       tinyfish: (tinyfish: any) => updateProviderConfig("tinyfish", tinyfish),
-      xai: (xai: any) => updateProviderConfig("xai", xai),
+      spacexai: (spacexai: any) => updateProviderConfig("spacexai", spacexai),
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
       venice: (venice: any) => updateProviderConfig("venice", venice),
       linkup: (linkup: any) => updateProviderConfig("linkup", linkup),
@@ -373,8 +373,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <LinkupChatConfigForm config={draft.providerMetadata.linkup ?? {}} updateConfig={providerConfigUpdaters.linkup} />;
       case "webcrawlerapi":
         return <WebCrawlerAPIChatConfigForm config={draft.providerMetadata.webcrawlerapi ?? {}} updateConfig={providerConfigUpdaters.webcrawlerapi} />;
-      case "xai":
-        return <XAIChatConfigForm config={draft.providerMetadata.xai ?? {}} updateConfig={providerConfigUpdaters.xai} />;
+      case "spacexai":
+        return <XAIChatConfigForm config={draft.providerMetadata.spacexai ?? {}} updateConfig={providerConfigUpdaters.spacexai} />;
       case "xiaomimimo":
         return <XiaomiMIMOChatConfigForm config={draft.providerMetadata.xiaomimimo ?? {}} updateConfig={providerConfigUpdaters.xiaomimimo} />;
       case "zai":

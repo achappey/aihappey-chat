@@ -217,8 +217,8 @@ export const PlaygroundSettingsDrawer = ({
         return <LinkupChatConfigForm config={providerMetadata.linkup ?? {}} updateConfig={updateProviderConfig} />;
       case "webcrawlerapi":
         return <WebCrawlerAPIChatConfigForm config={providerMetadata.webcrawlerapi ?? {}} updateConfig={updateProviderConfig} />;
-      case "xai":
-        return <XAIChatConfigForm config={providerMetadata.xai ?? {}} updateConfig={updateProviderConfig} />;
+      case "spacexai":
+        return <XAIChatConfigForm config={providerMetadata.spacexai ?? {}} updateConfig={updateProviderConfig} />;
       case "xiaomimimo":
         return <XiaomiMIMOChatConfigForm config={providerMetadata.xiaomimimo ?? {}} updateConfig={updateProviderConfig} />;
       case "zai":

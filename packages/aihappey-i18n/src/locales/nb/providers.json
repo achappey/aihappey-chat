@@ -479,7 +479,7 @@
       "after": "Etter svar"
     }
   },
-  "xai": {
+  "spacexai": {
     "imageUnderstanding": "Bildeforståelse",
     "videoUnderstanding": "Videoforståelse",
     "allowedDomains": "Tillatte domener",

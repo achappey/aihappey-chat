@@ -281,8 +281,8 @@ export const TranscriptionSettingsModal: React.FC<
                         </theme.Tab>
                     )}
 
-                    {enabledProviders.includes("xAI") && (
-                        <theme.Tab eventKey="xai" title="xAI">
+                    {enabledProviders.includes("SpaceXAI") && (
+                        <theme.Tab eventKey="spacexai" title="SpaceXAI">
                             <XAITranscriptionConfigForm
                                 config={providerMetadata.xai ?? {}}
                                 updateConfig={(xai) =>

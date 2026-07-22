@@ -113,7 +113,7 @@ export const XAIChatConfigForm = ({
       >
         <div>
           <theme.Input
-            label={t("providers:xai.allowedDomains")}
+            label={t("providers:spacexai.allowedDomains")}
             disabled={!webSearchOn}
             value={(resolvedConfig?.web_search?.allowed_domains || []).join(", ")}
             onChange={(e: any) =>
@@ -131,7 +131,7 @@ export const XAIChatConfigForm = ({
           />
 
           <theme.Input
-            label={t("providers:xai.excludedDomains")}
+            label={t("providers:spacexai.excludedDomains")}
             disabled={!webSearchOn}
             value={(resolvedConfig?.web_search?.excluded_domains || []).join(", ")}
             onChange={(e: any) =>
@@ -150,7 +150,7 @@ export const XAIChatConfigForm = ({
 
           <theme.Switch
             id="webImageUnderstanding"
-            label={t("providers:xai.imageUnderstanding")}
+            label={t("providers:spacexai.imageUnderstanding")}
             disabled={!webSearchOn}
             checked={resolvedConfig?.web_search?.enable_image_understanding}
             onChange={(val) =>
@@ -166,7 +166,7 @@ export const XAIChatConfigForm = ({
 
           <theme.Switch
             id="webImageSearch"
-            label={t("providers:xai.imageSearch")}
+            label={t("providers:spacexai.imageSearch")}
             disabled={!webSearchOn}
             checked={resolvedConfig?.web_search?.enable_image_search}
             onChange={(val) =>
@@ -211,7 +211,7 @@ export const XAIChatConfigForm = ({
       >
         <div>
           <theme.Input
-            label={t("providers:xai.allowed_x_handles")}
+            label={t("providers:spacexai.allowed_x_handles")}
             disabled={!xSearchOn}
             value={(resolvedConfig?.x_search?.allowed_x_handles || []).join(", ")}
             onChange={(e: any) =>
@@ -229,7 +229,7 @@ export const XAIChatConfigForm = ({
           />
 
           <theme.Input
-            label={t("providers:xai.excluded_x_handles")}
+            label={t("providers:spacexai.excluded_x_handles")}
             disabled={!xSearchOn}
             value={(resolvedConfig?.x_search?.excluded_x_handles || []).join(", ")}
             onChange={(e: any) =>
@@ -248,7 +248,7 @@ export const XAIChatConfigForm = ({
 
           <theme.Switch
             id="xImageUnderstanding"
-            label={t("providers:xai.imageUnderstanding")}
+            label={t("providers:spacexai.imageUnderstanding")}
             disabled={!xSearchOn}
             checked={resolvedConfig?.x_search?.enable_image_understanding}
             onChange={(val) =>
@@ -264,7 +264,7 @@ export const XAIChatConfigForm = ({
 
           <theme.Switch
             id="xVideoUnderstanding"
-            label={t("providers:xai.videoUnderstanding")}
+            label={t("providers:spacexai.videoUnderstanding")}
             disabled={!xSearchOn}
             checked={resolvedConfig?.x_search?.enable_video_understanding}
             onChange={(val) =>

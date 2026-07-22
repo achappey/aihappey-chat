@@ -517,7 +517,7 @@
       "after": "After answer"
     }
   },
-  "xai": {
+  "spacexai": {
     "imageUnderstanding": "Image understanding",
     "imageSearch": "Image search",
     "videoUnderstanding": "Video understanding",

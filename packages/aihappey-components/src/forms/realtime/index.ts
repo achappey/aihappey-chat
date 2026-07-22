@@ -1,2 +1,2 @@
 export * from "../providers/openai/OpenAIRealtimeConversationConfigForm";
-export * from "../providers/xai/XAIRealtimeConversationConfigForm";
+export * from "../providers/spacexai/XAIRealtimeConversationConfigForm";

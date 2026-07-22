@@ -223,7 +223,7 @@ export const defaultProviderMetadata = {
     },
     "tools": []
   },
-  "xai": {
+  "spacexai": {
     "store": false,
     "tools": [{
       "type": "web_search",

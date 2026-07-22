@@ -479,7 +479,7 @@
       "after": "Vastauksen jälkeen"
     }
   },
-  "xai": {
+  "spacexai": {
     "imageUnderstanding": "Kuvan ymmärtäminen",
     "videoUnderstanding": "Videon ymmärtäminen",
     "allowedDomains": "Sallitut toimialueet",

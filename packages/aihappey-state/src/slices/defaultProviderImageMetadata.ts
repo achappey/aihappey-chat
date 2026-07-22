@@ -34,7 +34,7 @@ export const defaultProviderImageMetadata = {
       "publicFigureThreshold": "auto"
     },
   },
-  "xai": {
+  "spacexai": {
 
   }
   ,

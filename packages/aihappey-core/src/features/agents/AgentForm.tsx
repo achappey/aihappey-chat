@@ -691,7 +691,7 @@ export const AgentForm = ({
                         />
                     )}
 
-                    {providerKey === "xai" && (
+                    {providerKey === "spacexai" && (
                         <XAIChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}

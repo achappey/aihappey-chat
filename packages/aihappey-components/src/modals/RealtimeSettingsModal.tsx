@@ -65,8 +65,8 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
             />
           </theme.Tab>
         )}
-        {normalizedEnabledProviders.includes("xAI") && (
-          <theme.Tab eventKey="xai" title="xAI">
+        {normalizedEnabledProviders.includes("SpaceXAI") && (
+          <theme.Tab eventKey="spacexai" title="SpaceXAI">
             <XAIRealtimeConversationConfigForm
               config={providerMetadata.xai ?? {}}
               updateConfig={(xai) => setProviderMetadata({

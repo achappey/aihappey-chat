@@ -2,7 +2,7 @@ export * from "./ProviderKeysForm";
 
 export * from "./pollinations";
 export * from "./groq";
-export * from "./xai";
+export * from "./spacexai";
 export * from "./together";
 export * from "./mistral";
 export * from "./jina";
