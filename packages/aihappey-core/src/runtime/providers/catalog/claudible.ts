@@ -15,7 +15,7 @@ export const claudible: Provider = {
     homepage: "https://claudible.io",
     docs: "https://claudible.io/docs",
     pricing: "https://claudible.io/docs/pricing",
-    privacyPolicy: "https://www.juheapi.com/docs/privacy-policy",
+    privacyPolicy: "https://claudible.io/legal/privacy",
     termsOfService: "https://claudible.io/legal/terms"
   },
   providerCountry: "VN",

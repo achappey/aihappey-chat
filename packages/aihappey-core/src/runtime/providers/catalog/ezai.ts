@@ -7,8 +7,7 @@ export const ezai: Provider = {
     homepage: "https://ezaiapi.com",
     docs: "https://ezaiapi.com/docs",
     pricing: "https://ezaiapi.com/pricing",
-    privacyPolicy: "https://ezaiapi.com/#",
-    termsOfService: "https://ezaiapi.com/#"
+    console: "https://ezaiapi.com/dashboard"
   },
   providerCountry: "VN",
   category: "gateway_router",
