@@ -13,7 +13,6 @@ export const arceeai: Provider = {
     console: "https://chat.arcee.ai",
     docs: "https://docs.arcee.ai",
     pricing: "https://docs.arcee.ai/get-started/pricing",
-    privacyPolicy: "https://www.arcee.ai/privacy-policy",
     termsOfService: "https://www.arcee.ai/terms-and-conditions"
   },
   providerCountry: "US",

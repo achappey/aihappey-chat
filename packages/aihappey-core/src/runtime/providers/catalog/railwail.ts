@@ -9,7 +9,7 @@ export const railwail: Provider = {
   urls: {
     homepage: "https://railwail.com",
     docs: "https://railwail.com/en/docs",
-    pricing: "https://railwail.com/en/privacy-policy",
+    pricing: "https://railwail.com/en/pricing",
     privacyPolicy: "https://railwail.com/en/privacy-policy",
     termsOfService: "https://railwail.com/en/terms-of-service"
   },

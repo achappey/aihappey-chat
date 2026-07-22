@@ -13,7 +13,7 @@ export const askcodi: Provider = {
     privacyPolicy: "https://askcodi.com/docs/privacy",
     termsOfService: "https://askcodi.com/docs/terms"
   },
-  providerCountry: "DE",
+  providerCountry: "BR",
   category: "gateway_router",
   inferenceRegions: ["World"]
 
