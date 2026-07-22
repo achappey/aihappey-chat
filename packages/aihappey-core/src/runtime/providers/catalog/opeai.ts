@@ -6,6 +6,8 @@ export const opeai: Provider = {
   urls: {
     homepage: "https://ope.ai",
     docs: "https://docs.ope.ai",
+    privacyPolicy: "https://ope.ai/website/policy?type=privacy",
+    termsOfService: "https://ope.ai/website/policy?type=service",
     console: "https://platform.ope.ai"
   },
   providerCountry: "JP",

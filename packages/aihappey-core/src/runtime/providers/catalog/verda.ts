@@ -11,7 +11,7 @@ export const verda: Provider = {
   urls: {
     homepage: "https://verda.com",
     docs: "https://docs.verda.com",
-    pricing: "https://verda.com/managed-endpoints",
+    pricing: "https://docs.verda.com/inference/pricing-and-billing",
     privacyPolicy: "https://verda.com/privacy-policy",
     termsOfService: "https://verda.com/terms-and-conditions",
     console: "https://console.verda.com"

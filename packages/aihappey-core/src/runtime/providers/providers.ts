@@ -412,7 +412,6 @@ import { shengsuanyun } from "./catalog/shengsuanyun";
 import { opensourceaihub } from "./catalog/opensourceaihub";
 import { citadelis } from "./catalog/citadelis";
 import { finora } from "./catalog/finora";
-import { cairocoder } from "./catalog/cairocoder";
 import { geekai } from "./catalog/geekai";
 import { aimagicx } from "./catalog/aimagicx";
 import { octagon } from "./catalog/octagon";
@@ -685,7 +684,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   teai,
   moltkey,
   eugpt,
-  cairocoder,
   fred,
   anyrouter,
   geekai,
