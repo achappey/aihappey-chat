@@ -32,10 +32,6 @@ const MIN_COMPACT_THRESHOLD = 1000;
 const OPENAI_BETA_HEADER = "OpenAI-Beta";
 const OPENAI_MULTI_AGENT_BETA = "responses_multi_agent=v1";
 const DEFAULT_MAX_CONCURRENT_SUBAGENTS = 3;
-const OPENAI_BETA_OPTIONS = [OPENAI_MULTI_AGENT_BETA];
-const SORTED_OPENAI_BETA_OPTIONS = [...OPENAI_BETA_OPTIONS].sort((a, b) =>
-  a.localeCompare(b)
-);
 
 type OpenAIContextManagementEntry = {
   type?: string;
@@ -99,35 +95,6 @@ const cleanProviderHeaders = (headers: Record<string, string> | undefined) => {
   return Object.keys(cleanHeaders).length ? cleanHeaders : undefined;
 };
 
-const OpenAIBetaCard = ({
-  enabled,
-  toggleOption,
-}: {
-  enabled: string[];
-  toggleOption: (option: string, isOn: boolean) => void;
-}) => {
-  const theme = useTheme();
-  const { t } = useTranslation();
-
-  return (
-    <theme.Card size="small" title={t("providers:openai.betaHeader")}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }}>
-        {SORTED_OPENAI_BETA_OPTIONS.map((option) => (
-          <div key={option}>
-            <theme.Switch
-              id={`openai-beta-${option}`}
-              label={option}
-              size="small"
-              checked={enabled.includes(option)}
-              onChange={(val: boolean) => toggleOption(option, val)}
-            />
-          </div>
-        ))}
-      </div>
-    </theme.Card>
-  );
-};
-
 export const OpenAIChatConfigForm = ({
   config,
   headers,
@@ -146,10 +113,17 @@ export const OpenAIChatConfigForm = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const resolvedConfig = withResolvedProviderTools(config, OPENAI_TOOL_TYPES);
-  const submitConfig = (nextConfig: any) =>
+  const submitConfig = (nextConfig: any) => {
+    const { instructions: _instructions, ...configWithoutInstructions } =
+      nextConfig ?? {};
+
     updateConfig(
-      buildCanonicalProviderToolsConfig(nextConfig, OPENAI_TOOL_TYPES)
+      buildCanonicalProviderToolsConfig(
+        configWithoutInstructions,
+        OPENAI_TOOL_TYPES
+      )
     );
+  };
   const serviceTierOptions = ["auto", "default", "flex", "scale", "priority"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
@@ -157,9 +131,6 @@ export const OpenAIChatConfigForm = ({
   const maxConcurrentSubagents = normalizePositiveIntegerInput(
     resolvedConfig?.multi_agent?.max_concurrent_subagents
   ) ?? DEFAULT_MAX_CONCURRENT_SUBAGENTS;
-  const openAIBetaEnabled = parseOpenAIBeta(
-    headers?.[OPENAI_BETA_HEADER] ?? headers?.[OPENAI_BETA_HEADER.toLowerCase()]
-  );
   const contextManagement = useMemo(
     () =>
       Array.isArray(resolvedConfig?.context_management)
@@ -494,6 +465,30 @@ export const OpenAIChatConfigForm = ({
         updateConfig={submitConfig}
       />
 
+      <theme.Card
+        size="small"
+        title={t("providers:openai.multiAgent.title")}
+        headerActions={
+          <theme.Switch
+            id="openai-multi-agent-enabled"
+            checked={multiAgentEnabled}
+            onChange={updateMultiAgentEnabled}
+          />
+        }
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <theme.Input
+            label={t("providers:openai.multiAgent.maxConcurrentSubagents")}
+            type="number"
+            min={1}
+            step={1}
+            disabled={!multiAgentEnabled}
+            value={maxConcurrentSubagents}
+            onChange={(e: any) => updateMaxConcurrentSubagents(e?.target?.value)}
+          />
+        </div>
+      </theme.Card>
+
       <theme.Card size="small" title={t("other")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
@@ -556,58 +551,6 @@ export const OpenAIChatConfigForm = ({
 
         </div>
       </theme.Card>
-
-      <theme.TextArea
-        label={t("providers:openai.instructions")}
-        placeholder={t(
-          "providers:openai.instructionsPlaceholder"
-        )}
-        rows={5}
-        value={resolvedConfig?.instructions}
-        onChange={(value) =>
-          submitConfig({
-            ...resolvedConfig,
-            instructions: value,
-          })
-        }
-      />
-
-      <theme.Card
-        size="small"
-        title={t("providers:openai.multiAgent.title")}
-        headerActions={
-          <theme.Switch
-            id="openai-multi-agent-enabled"
-            checked={multiAgentEnabled}
-            onChange={updateMultiAgentEnabled}
-          />
-        }
-      >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ fontSize: 12, opacity: 0.78 }}>
-            {t("providers:openai.multiAgent.description")}
-          </div>
-
-          <theme.Input
-            label={t("providers:openai.multiAgent.maxConcurrentSubagents")}
-            type="number"
-            min={1}
-            step={1}
-            disabled={!multiAgentEnabled}
-            value={maxConcurrentSubagents}
-            onChange={(e: any) => updateMaxConcurrentSubagents(e?.target?.value)}
-          />
-
-          <div style={{ fontSize: 12, opacity: 0.72 }}>
-            {t("providers:openai.multiAgent.maxConcurrentSubagentsHelp")}
-          </div>
-        </div>
-      </theme.Card>
-
-      <OpenAIBetaCard
-        enabled={openAIBetaEnabled}
-        toggleOption={updateOpenAIBetaOption}
-      />
     </div>
   );
 };
