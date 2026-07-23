@@ -511,7 +511,7 @@ export function VercelChatInner({
     );
   }, []);
   const baseBody = useMemo(() => ({
-    ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.4-mini" } : {}),
+    ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.6-luna" } : {}),
     tools,
     ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),
     ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
@@ -749,7 +749,7 @@ export function VercelChatInner({
     getConversation: get,
     conversationName: createConversationName,
     body: {
-      ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.4-mini" } : {}),
+      ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.6-luna" } : {}),
       tools,
       maxOutputTokens,
       toolChoice,

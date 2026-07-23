@@ -22,7 +22,7 @@ export function useDefaultModel(authenticated: boolean) {
     if (!storeHydrated) return;
     if (userPreferredModel) return;
 
-    const defaultModel = authenticated ? "openai/gpt-5.4-mini" : "pollinations/openai"
+    const defaultModel = authenticated ? "openai/gpt-5.6-luna" : "pollinations/openai"
     setUserPreferredModel(defaultModel)
   }, [authenticated, setUserPreferredModel, storeHydrated, userPreferredModel]);
 }
