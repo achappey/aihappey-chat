@@ -24,6 +24,7 @@ const OPENAI_TOOL_TYPES = [
   "code_interpreter",
   "file_search",
   "shell",
+  "programmatic_tool_calling",
 ];
 
 const IMAGE_INPUT_DETAIL_OPTIONS = ["auto", "low", "high", "original"] as const;
@@ -127,6 +128,7 @@ export const OpenAIChatConfigForm = ({
   const serviceTierOptions = ["auto", "default", "flex", "scale", "priority"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
+  const programmaticToolCallingEnabled = !!resolvedConfig?.programmatic_tool_calling;
   const multiAgentEnabled = !!resolvedConfig?.multi_agent?.enabled;
   const maxConcurrentSubagents = normalizePositiveIntegerInput(
     resolvedConfig?.multi_agent?.max_concurrent_subagents
@@ -212,6 +214,29 @@ export const OpenAIChatConfigForm = ({
     });
   };
 
+  const updateProgrammaticToolCallingEnabled = (enabled: boolean) => {
+    const updateAllowedCallers = (tool: any) => {
+      if (!tool) return tool;
+
+      const { allowed_callers: _allowedCallers, ...toolWithoutAllowedCallers } = tool;
+      return enabled
+        ? {
+            ...toolWithoutAllowedCallers,
+            allowed_callers: ["direct", "programmatic"],
+          }
+        : toolWithoutAllowedCallers;
+    };
+
+    submitConfig({
+      ...resolvedConfig,
+      programmatic_tool_calling: enabled
+        ? { type: "programmatic_tool_calling" }
+        : undefined,
+      shell: updateAllowedCallers(resolvedConfig?.shell),
+      code_interpreter: updateAllowedCallers(resolvedConfig?.code_interpreter),
+    });
+  };
+
   const startContextManagementEdit = (
     index: number,
     entry: OpenAIContextManagementEntry
@@ -266,13 +291,26 @@ export const OpenAIChatConfigForm = ({
         config={resolvedConfig}
         updateConfig={submitConfig}
       />
+      <theme.Card
+        size="small"
+        title={t("providers:openai.programmaticToolCalling.title")}
+        headerActions={
+          <theme.Switch
+            id="openai-programmatic-tool-calling-enabled"
+            checked={programmaticToolCallingEnabled}
+            onChange={updateProgrammaticToolCallingEnabled}
+          />
+        }
+      />
       <OpenAICodeInterpreterForm
         config={resolvedConfig}
         updateConfig={submitConfig}
+        programmaticToolCallingEnabled={programmaticToolCallingEnabled}
       />
       <OpenAIShellForm
         config={resolvedConfig}
         updateConfig={submitConfig}
+        programmaticToolCallingEnabled={programmaticToolCallingEnabled}
         openAISkillOptions={openAISkillOptions}
         resolveOpenAIShellSkill={resolveOpenAIShellSkill}
       />

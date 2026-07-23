@@ -374,6 +374,14 @@
         "compaction": "Compressie"
       }
     },
+    "programmaticToolCalling": {
+      "title": "Tools via code",
+      "allowedCallers": "Wie mag dit gebruiken",
+      "allowedCallersOptions": {
+        "direct": "Direct",
+        "programmatic": "Code"
+      }
+    },
     "max_num_results": "Maximaal aantal resultaten",
     "vector_store_ids": "Ids van de documentenhubs",
     "file_search": "Documentenhub",

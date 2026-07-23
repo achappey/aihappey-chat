@@ -12,6 +12,7 @@ const DEFAULT_SHELL = {
 } as const;
 
 const MEMORY_LIMIT_OPTIONS = ["1g", "4g", "16g", "64g"];
+const PROGRAMMATIC_ALLOWED_CALLERS = ["direct", "programmatic"] as const;
 
 export type OpenAISkillOption = {
     value: string;
@@ -87,11 +88,13 @@ const getSkillSelectionKey = (skill: any) =>
 export const OpenAIShellForm = ({
     config,
     updateConfig,
+    programmaticToolCallingEnabled,
     openAISkillOptions = [],
     resolveOpenAIShellSkill,
 }: {
     config: any;
     updateConfig: (val: any) => void;
+    programmaticToolCallingEnabled: boolean;
     openAISkillOptions?: OpenAISkillOption[];
     resolveOpenAIShellSkill?: ResolveOpenAIShellSkill;
 }) => {
@@ -105,6 +108,17 @@ export const OpenAIShellForm = ({
     const shell = config?.shell ?? DEFAULT_SHELL;
     const environment = shell?.environment ?? DEFAULT_CONTAINER;
     const environmentType = environment?.type ?? "container_auto";
+    const allowedCallers = Array.isArray(shell?.allowed_callers)
+        ? shell.allowed_callers.filter(
+            (caller: unknown): caller is (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number] =>
+                caller === "direct" || caller === "programmatic"
+        )
+        : [];
+    const allowedCallersTitle = allowedCallers
+        .map((caller: (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number]) =>
+            t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${caller}`)
+        )
+        .join(", ");
 
     const setShell = (nextEnvironment: any) => {
         const normalizedEnvironment = {
@@ -118,6 +132,9 @@ export const OpenAIShellForm = ({
             ...config,
             shell: {
                 type: "shell",
+                allowed_callers: Array.isArray(shell?.allowed_callers)
+                    ? shell.allowed_callers
+                    : undefined,
                 environment: withoutUndefined(normalizedEnvironment),
             },
         });
@@ -165,6 +182,22 @@ export const OpenAIShellForm = ({
     const updateNetworkPolicy = (policy: any) => {
         updateShell({
             network_policy: policy,
+        });
+    };
+
+    const updateAllowedCallers = (caller: (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number]) => {
+        const nextAllowedCallers = allowedCallers.includes(caller)
+            ? allowedCallers.filter((value: any) => value !== caller)
+            : [...allowedCallers, caller];
+
+        updateConfig({
+            ...config,
+            shell: withoutUndefined({
+                ...shell,
+                type: "shell",
+                allowed_callers: nextAllowedCallers.length ? nextAllowedCallers : undefined,
+                environment,
+            }),
         });
     };
 
@@ -245,13 +278,41 @@ export const OpenAIShellForm = ({
                     onChange={(val) =>
                         updateConfig({
                             ...config,
-                            shell: !val ? undefined : { ...DEFAULT_SHELL },
+                            shell: !val
+                                ? undefined
+                                : {
+                                    ...DEFAULT_SHELL,
+                                    allowed_callers: programmaticToolCallingEnabled
+                                        ? [...PROGRAMMATIC_ALLOWED_CALLERS]
+                                        : undefined,
+                                },
                         })
                     }
                 />
             }
         >
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <theme.Select
+                    label={t("providers:openai.programmaticToolCalling.allowedCallers")}
+                    disabled={!shellOn || !programmaticToolCallingEnabled}
+                    multiselect
+                    values={allowedCallers}
+                    valueTitle={allowedCallersTitle}
+                    options={PROGRAMMATIC_ALLOWED_CALLERS.map((value) => ({
+                        value,
+                        label: t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${value}`),
+                    }))}
+                    onChange={(value: (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number]) =>
+                        updateAllowedCallers(value)
+                    }
+                >
+                    {PROGRAMMATIC_ALLOWED_CALLERS.map((value) => (
+                        <option key={`shell-allowed-caller-${value}`} value={value}>
+                            {t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${value}`)}
+                        </option>
+                    ))}
+                </theme.Select>
+
                 <theme.Select
                     label={t("providers:openai.shellEnvironment")}
                     disabled={!shellOn}

@@ -655,6 +655,14 @@
         "compaction": "Compaction"
       }
     },
+    "programmaticToolCalling": {
+      "title": "Tools with code",
+      "allowedCallers": "Who can use it",
+      "allowedCallersOptions": {
+        "direct": "Direct",
+        "programmatic": "Code"
+      }
+    },
     "max_num_results": "Maximum number of results",
     "vector_store_ids": "Ids of the vector stores",
     "file_search": "File search",

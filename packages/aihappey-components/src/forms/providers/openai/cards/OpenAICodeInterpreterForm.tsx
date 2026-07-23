@@ -8,6 +8,7 @@ const DEFAULT_CODE_INTERPRETER = {
 };
 
 const MEMORY_LIMIT_OPTIONS = ["1g", "4g", "16g", "64g"];
+const PROGRAMMATIC_ALLOWED_CALLERS = ["direct", "programmatic"] as const;
 
 const createAllowlistPolicy = () => ({
   type: "allowlist",
@@ -37,9 +38,11 @@ const withoutUndefined = (value: Record<string, any>) =>
 export const OpenAICodeInterpreterForm = ({
   config,
   updateConfig,
+  programmaticToolCallingEnabled,
 }: {
   config: any;
   updateConfig: (val: any) => void;
+  programmaticToolCallingEnabled: boolean;
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -50,6 +53,17 @@ export const OpenAICodeInterpreterForm = ({
   const containerConfig =
     container && typeof container === "object" ? container : DEFAULT_CODE_INTERPRETER.container;
   const networkPolicy = containerConfig?.network_policy;
+  const allowedCallers = Array.isArray(config?.code_interpreter?.allowed_callers)
+    ? config.code_interpreter.allowed_callers.filter(
+        (caller: unknown): caller is (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number] =>
+          caller === "direct" || caller === "programmatic"
+      )
+    : [];
+  const allowedCallersTitle = allowedCallers
+    .map((caller: (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number]) =>
+      t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${caller}`)
+    )
+    .join(", ");
 
   const networkPolicyOptions = [
     { value: "disabled", label: t("providers:openai.shellNetworkPolicyDisabled") },
@@ -70,6 +84,20 @@ export const OpenAICodeInterpreterForm = ({
     updateCodeInterpreterContainer({
       ...containerConfig,
       ...patch,
+    });
+  };
+
+  const updateAllowedCallers = (caller: (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number]) => {
+    const nextAllowedCallers = allowedCallers.includes(caller)
+      ? allowedCallers.filter((value: any) => value !== caller)
+      : [...allowedCallers, caller];
+
+    updateConfig({
+      ...config,
+      code_interpreter: withoutUndefined({
+        ...(config?.code_interpreter ?? {}),
+        allowed_callers: nextAllowedCallers.length ? nextAllowedCallers : undefined,
+      }),
     });
   };
 
@@ -96,13 +124,41 @@ export const OpenAICodeInterpreterForm = ({
           onChange={(val) =>
             updateConfig({
               ...config,
-              code_interpreter: !val ? undefined : { ...DEFAULT_CODE_INTERPRETER },
+              code_interpreter: !val
+                ? undefined
+                : {
+                    ...DEFAULT_CODE_INTERPRETER,
+                    allowed_callers: programmaticToolCallingEnabled
+                      ? [...PROGRAMMATIC_ALLOWED_CALLERS]
+                      : undefined,
+                  },
             })
           }
         />
       }
     >
       <div>
+        <theme.Select
+          label={t("providers:openai.programmaticToolCalling.allowedCallers")}
+          disabled={!codeInterpreterOn || !programmaticToolCallingEnabled}
+          multiselect
+          values={allowedCallers}
+          valueTitle={allowedCallersTitle}
+          options={PROGRAMMATIC_ALLOWED_CALLERS.map((value) => ({
+            value,
+            label: t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${value}`),
+          }))}
+          onChange={(value: (typeof PROGRAMMATIC_ALLOWED_CALLERS)[number]) =>
+            updateAllowedCallers(value)
+          }
+        >
+          {PROGRAMMATIC_ALLOWED_CALLERS.map((value) => (
+            <option key={`code-interpreter-allowed-caller-${value}`} value={value}>
+              {t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${value}`)}
+            </option>
+          ))}
+        </theme.Select>
+
         <theme.Input
           label={t("providers:openai.container")}
           placeholder="cntr_xxx or cntr_zzz"
