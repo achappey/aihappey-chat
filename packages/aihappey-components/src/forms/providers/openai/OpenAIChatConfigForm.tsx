@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 import { OpenAIReasoningForm } from "./cards/OpenAIReasoningForm";
+import { OpenAIModerationForm } from "./cards/OpenAIModerationForm";
+import { OpenAIPromptCacheOptionsForm } from "./cards/OpenAIPromptCacheOptionsForm";
 import { OpenAIWebSearchForm } from "./cards/OpenAIWebSearchForm";
 import { OpenAIImageGenerationForm } from "./cards/OpenAIImageGenerationForm";
 import { OpenAICodeInterpreterForm } from "./cards/OpenAICodeInterpreterForm";
@@ -485,6 +487,12 @@ export const OpenAIChatConfigForm = ({
           </div>
         </div>
       </theme.Card>
+
+      <OpenAIModerationForm config={resolvedConfig} updateConfig={submitConfig} />
+      <OpenAIPromptCacheOptionsForm
+        config={resolvedConfig}
+        updateConfig={submitConfig}
+      />
 
       <theme.Card size="small" title={t("other")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

@@ -269,7 +269,27 @@
     "promptCacheRetention": "Prompt cache retentie",
     "promptCacheOptions": {
       "24h": "24 uur",
-      "in-memory": "Tijdelijk"
+      "in-memory": "Tijdelijk",
+      "title": "Promptcache",
+      "mode": "Modus",
+      "ttl": "Minimale cacheduur",
+      "modes": {
+        "implicit": "Impliciet",
+        "explicit": "Expliciet"
+      },
+      "ttls": {
+        "30m": "30 minuten"
+      }
+    },
+    "moderation": {
+      "title": "Moderatie",
+      "model": "Moderatietmodel",
+      "inputMode": "Invoerbeleid",
+      "outputMode": "Uitvoerbeleid",
+      "modes": {
+        "score": "Score",
+        "block": "Blokkeren"
+      }
     },
     "multiAgent": {
       "title": "Multi-agent",

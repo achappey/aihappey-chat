@@ -45,6 +45,10 @@ export const defaultProviderMetadata = {
       "mode": "standard",
       "summary": "auto"
     },
+    "prompt_cache_options": {
+      "mode": "implicit",
+      "ttl": "30m"
+    },
     "parallel_tool_calls": true,
   },
   "openrouter": {

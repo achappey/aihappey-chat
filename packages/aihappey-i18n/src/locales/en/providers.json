@@ -543,7 +543,27 @@
     "promptCacheKey": "Prompt cache id",
     "promptCacheOptions": {
       "24h": "24 hours",
-      "in-memory": "In-memory"
+      "in-memory": "In-memory",
+      "title": "Prompt cache",
+      "mode": "Mode",
+      "ttl": "Minimum cache lifetime",
+      "modes": {
+        "implicit": "Implicit",
+        "explicit": "Explicit"
+      },
+      "ttls": {
+        "30m": "30 minutes"
+      }
+    },
+    "moderation": {
+      "title": "Moderation",
+      "model": "Moderation model",
+      "inputMode": "Input policy",
+      "outputMode": "Output policy",
+      "modes": {
+        "score": "Score",
+        "block": "Block"
+      }
     },
     "betaHeader": "Beta",
     "multiAgent": {
