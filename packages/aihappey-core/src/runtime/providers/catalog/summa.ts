@@ -11,7 +11,7 @@ export const summa: Provider = {
     termsOfService: "https://summachat.com/terms"
   },
   providerCountry: "US",
-  category: "app_tools",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 
 };

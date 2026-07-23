@@ -578,6 +578,7 @@ import { neuralring } from "./catalog/neuralring";
 import { episcloud } from "./catalog/episcloud";
 import { cognitivessai } from "./catalog/cognitivessai";
 import { summa } from "./catalog/summa";
+import { meshapi } from "./catalog/meshapi";
 
 /**
  * UI-facing provider catalog.
@@ -673,6 +674,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   nodion,
   darkbloom,
   scalixworld,
+  meshapi,
   generalcompute,
   uncloseai,
   summa,
