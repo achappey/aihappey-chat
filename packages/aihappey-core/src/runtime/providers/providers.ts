@@ -577,6 +577,7 @@ import { sluis } from "./catalog/sluis";
 import { neuralring } from "./catalog/neuralring";
 import { episcloud } from "./catalog/episcloud";
 import { cognitivessai } from "./catalog/cognitivessai";
+import { summa } from "./catalog/summa";
 
 /**
  * UI-facing provider catalog.
@@ -674,6 +675,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   scalixworld,
   generalcompute,
   uncloseai,
+  summa,
   pellet,
   neuralring,
   cognitivessai,
