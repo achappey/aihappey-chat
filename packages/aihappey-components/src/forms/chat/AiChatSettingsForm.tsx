@@ -4,7 +4,6 @@ import { TemperatureField } from "../../fields";
 import { useTheme } from "../../theme/ThemeContext";
 
 type AiChatSettings = {
-    temperature: number
 
     maxOutputTokens?: number
 };
@@ -38,15 +37,6 @@ export const AiChatSettingsForm = memo(({
     const SelectComponent = theme.Select || "select";
 
     const safeValue = value;
-
-    const handleTemperatureChange = useCallback(
-        (temperature: number) =>
-            onChange({
-                ...safeValue,
-                temperature,
-            }),
-        [onChange, safeValue]
-    );
 
     const handleMaxTokensChange = useCallback(
         (e: any) => {
@@ -83,10 +73,6 @@ export const AiChatSettingsForm = memo(({
         <>
             <theme.Card size="small" title={formTitle}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                    <TemperatureField
-                        value={safeValue?.temperature}
-                        onChange={handleTemperatureChange}
-                    />
 
                     <theme.Input
                         type="number"

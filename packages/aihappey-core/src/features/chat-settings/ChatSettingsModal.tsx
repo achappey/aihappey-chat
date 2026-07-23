@@ -424,7 +424,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   };
 
   const applyDraft = useCallback(() => {
-    void setTemperature?.(draft.temperature);
+//    void setTemperature?.(draft.temperature);
     setMaxOutputTokens(draft.maxOutputTokens);
     setStructuredOutputs(draft.structuredOutputs);
     setThrottle(draft.throttle);
@@ -448,7 +448,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setProviderMetadata,
     setStopTools,
     setStructuredOutputs,
-    setTemperature,
+  //  setTemperature,
     setThrottle,
     setToolAnnotations,
     setToolChoice,
@@ -491,7 +491,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         <theme.Tab eventKey="general" title={t("general")}>
           {activeTab === "general" ? (
             <GeneralTab
-              temperature={draft.temperature}
               onEditProviderKeys={onEditProviderKeys}
               setTemperature={(value: number | undefined) => {
                 setDraft((current) => ({

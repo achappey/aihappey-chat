@@ -21,7 +21,6 @@ function toValidSchemaName(name: string): string {
 
 // --- General Tab ---
 export const GeneralTab = ({
-  temperature,
   setTemperature,
   maxOutputTokens,
   setMaxOutputTokens,
@@ -81,11 +80,10 @@ export const GeneralTab = ({
   );
 
   const aiSettings = useMemo(
-    () => ({
-      temperature: temperature,
+    () => ({      
       maxOutputTokens,
     }),
-    [temperature, maxOutputTokens]
+    [ maxOutputTokens]
   );
 
   const toolSettings = useMemo(
@@ -108,8 +106,7 @@ export const GeneralTab = ({
   );
 
   const handleAiSettingsChange = useCallback(
-    (val: { temperature: number; maxOutputTokens?: number }) => {
-      setTemperature(val.temperature);
+    (val: { maxOutputTokens?: number }) => {
       setMaxOutputTokens(val.maxOutputTokens);
     },
     [setTemperature, setMaxOutputTokens]

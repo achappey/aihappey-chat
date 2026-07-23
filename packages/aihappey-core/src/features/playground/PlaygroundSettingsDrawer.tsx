@@ -130,8 +130,8 @@ export const PlaygroundSettingsDrawer = ({
   );
 
   const aiSettings = useMemo(
-    () => ({ temperature, maxOutputTokens }),
-    [maxOutputTokens, temperature],
+    () => ({ maxOutputTokens }),
+    [maxOutputTokens],
   );
 
   const providerTitle = useMemo(
@@ -281,8 +281,7 @@ export const PlaygroundSettingsDrawer = ({
               <AiChatSettingsForm
                 value={aiSettings}
                 formTitle="AI"
-                onChange={(value: { temperature: number; maxOutputTokens?: number }) => {
-                  setTemperature(value.temperature);
+                onChange={(value: { maxOutputTokens?: number }) => {
                   setMaxOutputTokens(value.maxOutputTokens);
                 }}
               />
