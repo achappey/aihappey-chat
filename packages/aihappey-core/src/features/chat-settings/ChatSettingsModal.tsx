@@ -18,6 +18,7 @@ import {
   DepazaChatConfigForm,
   JinaChatConfigForm,
   LinkupChatConfigForm,
+  MaritacaAIChatConfigForm,
   MicrosoftChatConfigForm,
   MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
   OpenHandsChatConfigForm,
@@ -246,6 +247,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       google: (google: any) => updateProviderConfig("google", google),
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
+      maritacaai: (maritacaai: any) => updateProviderConfig("maritacaai", maritacaai),
       microsoft: (microsoft: any) => updateProviderConfig("microsoft", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
       ninjachat: (ninjachat: any) => updateProviderConfig("ninjachat", ninjachat),
@@ -336,6 +338,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <JinaChatConfigForm config={draft.providerMetadata.jina ?? {}} updateConfig={providerConfigUpdaters.jina} />;
       case "mistral":
         return <MistralChatConfigForm config={draft.providerMetadata.mistral ?? {}} updateConfig={providerConfigUpdaters.mistral} />;
+      case "maritacaai":
+        return <MaritacaAIChatConfigForm config={draft.providerMetadata.maritacaai ?? {}} updateConfig={providerConfigUpdaters.maritacaai} />;
       case "microsoft":
         return <MicrosoftChatConfigForm config={draft.providerMetadata.microsoft ?? {}} updateConfig={providerConfigUpdaters.microsoft} />;
       case "ninjachat":

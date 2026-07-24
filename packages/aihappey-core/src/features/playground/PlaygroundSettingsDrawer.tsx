@@ -13,6 +13,7 @@ import {
   GroqChatConfigForm,
   JinaChatConfigForm,
   MessagesEndpointConfigForm,
+  MaritacaAIChatConfigForm,
   MicrosoftChatConfigForm,
   MistralChatConfigForm,
   NinjaChatChatConfigForm,
@@ -181,6 +182,8 @@ export const PlaygroundSettingsDrawer = ({
         return <JinaChatConfigForm config={providerMetadata.jina ?? {}} updateConfig={updateProviderConfig} />;
       case "mistral":
         return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
+      case "maritacaai":
+        return <MaritacaAIChatConfigForm config={providerMetadata.maritacaai ?? {}} updateConfig={updateProviderConfig} />;
       case "microsoft":
         return <MicrosoftChatConfigForm config={providerMetadata.microsoft ?? {}} updateConfig={updateProviderConfig} />;
       case "ninjachat":

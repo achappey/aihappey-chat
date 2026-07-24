@@ -66,5 +66,6 @@ export * from "./ninjachat";
 export * from "./depaza";
 export * from "./tinyfish";
 export * from "./cortecs";
+export * from "./maritacaai";
     
     
