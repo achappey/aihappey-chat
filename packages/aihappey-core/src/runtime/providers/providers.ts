@@ -130,7 +130,6 @@ import { infomaniak } from "./catalog/infomaniak";
 import { tavily } from "./catalog/tavily";
 import { opencode } from "./catalog/opencode";
 import { haimaker } from "./catalog/haimaker";
-import { straico } from "./catalog/straico";
 import { monica } from "./catalog/monica";
 import { cambai } from "./catalog/cambai";
 import { morpheus } from "./catalog/morpheus";
@@ -1076,7 +1075,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   commandcode,
   aionlabs,
   databricks,
-  straico,
   inceptron,
   blackforestlabs,
   resembleai,
