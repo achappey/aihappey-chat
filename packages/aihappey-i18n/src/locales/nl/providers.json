@@ -665,17 +665,18 @@
     "excludedDomains": "Uitgesloten domeinen",
     "allowed_x_handles": "Toegestane X-handles",
     "excluded_x_handles": "Uitgesloten X-handles",
-    "transcriptionGeneralHint": "Configureer xAI speech-to-text-opties. De geüploade audio wordt door de transcriptiestroom geleverd.",
     "transcriptionFormat": "Tekst formatteren",
     "transcriptionDiarize": "Sprekerdiarisatie",
     "audioInput": "Audio-invoer",
-    "audioInputHint": "Stel audio_format alleen in voor ruwe audio zonder header. Containerformaten worden automatisch door xAI gedetecteerd.",
     "audioFormat": "Audioformaat",
     "sampleRate": "Samplefrequentie",
     "channels": "Kanalen",
-    "channelsHint": "Voor containerformaten wordt het aantal kanalen automatisch gedetecteerd. Stel voor multichannel ruwe audio 2 tot en met 8 kanalen in.",
     "transcriptionMultichannel": "Multichannel",
-    "channelCount": "Aantal kanalen"
+    "channelCount": "Aantal kanalen",
+    "transcriptionFillerWords": "Vulwoorden opnemen",
+    "transcriptionVadThreshold": "Drempelwaarde voor spraakactiviteitsdetectie ({{value}})",
+    "transcriptionKeyterm": "Sleuteltermen",
+    "transcriptionKeytermPlaceholder": "Voer een door komma's gescheiden lijst met sleuteltermen in"
   },
   "anthropic": {
     "maxUses": "Maximaal aantal keer",

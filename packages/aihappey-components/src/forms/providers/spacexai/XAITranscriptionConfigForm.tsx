@@ -50,6 +50,15 @@ export type XAITranscriptionConfig = {
 
   /** Official xAI string boolean field for speaker diarization. */
   diarize?: XAIStringBoolean;
+
+  /** Comma-separated xAI transcription-bias terms. The backend expands this for multipart requests. */
+  keyterm?: string;
+
+  /** Official xAI string boolean field for including filler words in the transcript. */
+  filler_words?: XAIStringBoolean;
+
+  /** xAI voice-activity detection threshold, from 0 (disabled) through 1. */
+  vad_threshold?: number;
 };
 
 const rawFormats = new Set<string>(["pcm", "mulaw", "alaw"]);
@@ -82,7 +91,6 @@ export const XAITranscriptionConfigForm: React.FC<{
       <theme.Card
         size="small"
         title={t("general")}
-        description={t("providers:spacexai.transcriptionGeneralHint")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Input
@@ -123,13 +131,55 @@ export const XAITranscriptionConfigForm: React.FC<{
               })
             }
           />
+
+          <theme.Switch
+            id="xai-transcription-filler-words"
+            label={t("providers:spacexai.transcriptionFillerWords")}
+            checked={config?.filler_words === "true"}
+            onChange={(enabled) =>
+              updateConfig({
+                ...config,
+                filler_words: enabled ? "true" : "false",
+              })
+            }
+          />
+
+          <theme.Slider
+            label={t("providers:spacexai.transcriptionVadThreshold", {
+              value: config?.vad_threshold ?? 0.5,
+            })}
+            min={0}
+            max={1}
+            step={0.01}
+            value={config?.vad_threshold ?? 0.5}
+            onChange={(vad_threshold: number) =>
+              updateConfig({
+                ...config,
+                vad_threshold,
+              })
+            }
+          />
+
+          <theme.TextArea
+            rows={3}
+            label={t("providers:spacexai.transcriptionKeyterm")}
+            placeholder={t("providers:spacexai.transcriptionKeytermPlaceholder")}
+            value={config?.keyterm ?? ""}
+            onChange={(value: string) => {
+              const keyterm = String(value ?? "");
+              updateConfig({
+                ...config,
+                keyterm: keyterm || undefined,
+              });
+            }}
+          />
         </div>
       </theme.Card>
 
       <theme.Card
         size="small"
         title={t("providers:spacexai.audioInput")}
-        description={t("providers:spacexai.audioInputHint")}
+        
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
@@ -191,7 +241,6 @@ export const XAITranscriptionConfigForm: React.FC<{
       <theme.Card
         size="small"
         title={t("providers:spacexai.channels")}
-        description={t("providers:spacexai.channelsHint")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Switch
