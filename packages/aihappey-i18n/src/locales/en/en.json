@@ -3,7 +3,6 @@
     "streamingTranscriptions": {
         "settings": "Settings",
         "output": "Streaming output",
-        "outputPlaceholder": "Transcription text will appear here while it streams.",
         "unsupportedFile": "Select an audio or video file.",
         "emptyResult": "The stream completed without transcription text.",
         "failed": "Streaming transcription failed.",
@@ -32,7 +31,6 @@
     "streamingImageCreate": {
         "title": "Create image",
         "settings": "Settings",
-        "outputPlaceholder": "The generated image will appear here while it streams.",
         "partialAlt": "Streaming image preview",
         "outputAlt": "Generated image {{index}}",
         "emptyResult": "The stream completed without a generated image.",
@@ -44,7 +42,6 @@
         "settings": "Settings",
         "dropPlaceholder": "Attach or drop one or more images to edit.",
         "unsupportedFile": "Select one or more image files.",
-        "outputPlaceholder": "The edited image will appear here while it streams.",
         "partialAlt": "Streaming edited image preview",
         "outputAlt": "Edited image {{index}}",
         "emptyResult": "The stream completed without an edited image.",

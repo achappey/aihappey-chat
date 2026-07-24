@@ -1,9 +1,8 @@
 ﻿{
     "streaming": { "title": "Streaming" },
     "streamingTranscriptions": {
-        "settings": "Instellingen voor streaming transcriptie",
+        "settings": "Instellingen",
         "output": "Streaming uitvoer",
-        "outputPlaceholder": "De transcriptietekst verschijnt hier tijdens het streamen.",
         "unsupportedFile": "Selecteer een audio- of videobestand.",
         "emptyResult": "De stream is voltooid zonder transcriptietekst.",
         "failed": "Streaming transcriptie is mislukt.",
@@ -14,13 +13,12 @@
         "wordTimestamps": "Tijdstempels per woord"
     },
     "streamingSpeech": {
-        "settings": "Instellingen voor streaming spraak",
+        "settings": "Instellingen",
         "output": "Streaming audio",
         "emptyResult": "De stream is voltooid zonder audio.",
         "failed": "Streaming spraak is mislukt.",
         "filePrefix": "streaming-spraak",
-        "receiving": "Audio ontvangen… {{bytes}} bytes",
-        "ready": "De gegenereerde audio verschijnt hier."
+        "receiving": "Audio ontvangen… {{bytes}} bytes"
     },
     "streamingImage": {
         "size": "Afmeting",
@@ -31,8 +29,7 @@
     },
     "streamingImageCreate": {
         "title": "Afbeelding maken",
-        "settings": "Instellingen voor streaming afbeeldingen maken",
-        "outputPlaceholder": "De gegenereerde afbeelding verschijnt hier tijdens het streamen.",
+        "settings": "Instellingen",
         "partialAlt": "Voorbeeld van streaming afbeelding",
         "outputAlt": "Gegenereerde afbeelding {{index}}",
         "emptyResult": "De stream is voltooid zonder gegenereerde afbeelding.",
@@ -44,7 +41,6 @@
         "settings": "Instellingen",
         "dropPlaceholder": "Voeg een of meer afbeeldingen toe of sleep ze hierheen om te bewerken.",
         "unsupportedFile": "Selecteer een of meer afbeeldingsbestanden.",
-        "outputPlaceholder": "De bewerkte afbeelding verschijnt hier tijdens het streamen.",
         "partialAlt": "Voorbeeld van streaming bewerkte afbeelding",
         "outputAlt": "Bewerkte afbeelding {{index}}",
         "emptyResult": "De stream is voltooid zonder bewerkte afbeelding.",
