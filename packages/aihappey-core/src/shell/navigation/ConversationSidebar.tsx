@@ -244,6 +244,18 @@ export const ConversationSidebar = ({
       icon: "realtime",
       children: [
         {
+          key: "streaming-image-create",
+          label: t("streamingImageCreate.title"),
+          href: "/streaming/images/create",
+          icon: "image",
+        },
+        {
+          key: "streaming-image-edit",
+          label: t("streamingImageEdit.title"),
+          href: "/streaming/images/edit",
+          icon: "image",
+        },
+        {
           key: "streaming-transcriptions",
           label: t("transcriptions"),
           href: "/streaming/transcriptions",
@@ -390,9 +402,13 @@ export const ConversationSidebar = ({
                                     ? "reranking"
                                     : location.pathname === "/jobs"
                                       ? "jobs"
-                                      : location.pathname === "/images"
-                                        ? "images"
-                                        : location.pathname === "/transcriptions"
+                                        : location.pathname === "/images"
+                                          ? "images"
+                                          : location.pathname === "/streaming/images/create"
+                                            ? "streaming-image-create"
+                                            : location.pathname === "/streaming/images/edit"
+                                              ? "streaming-image-edit"
+                                          : location.pathname === "/transcriptions"
                                           ? "transcriptions"
                                           : location.pathname === "/streaming/transcriptions"
                                             ? "streaming-transcriptions"
@@ -442,6 +458,10 @@ export const ConversationSidebar = ({
       await navigate("/realtime");
     } else if (id === "images") {
       await navigate("/images");
+    } else if (id === "streaming-image-create") {
+      await navigate("/streaming/images/create");
+    } else if (id === "streaming-image-edit") {
+      await navigate("/streaming/images/edit");
     } else if (id === "transcriptions") {
       await navigate("/transcriptions");
     } else if (id === "streaming-transcriptions") {

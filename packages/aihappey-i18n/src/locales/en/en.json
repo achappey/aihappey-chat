@@ -1,7 +1,7 @@
 ﻿{
     "streaming": { "title": "Streaming" },
     "streamingTranscriptions": {
-        "settings": "Streaming transcription settings",
+        "settings": "Settings",
         "output": "Streaming output",
         "outputPlaceholder": "Transcription text will appear here while it streams.",
         "unsupportedFile": "Select an audio or video file.",
@@ -14,13 +14,42 @@
         "wordTimestamps": "Word timestamps"
     },
     "streamingSpeech": {
-        "settings": "Streaming speech settings",
+        "settings": "Settings",
         "output": "Streaming audio",
         "emptyResult": "The stream completed without audio.",
         "failed": "Streaming speech failed.",
         "filePrefix": "streaming-speech",
         "receiving": "Receiving audio… {{bytes}} bytes",
         "ready": "The generated audio appears here."
+    },
+    "streamingImage": {
+        "size": "Size",
+        "count": "Number of images",
+        "quality": "Quality",
+        "outputFormat": "Output format",
+        "partialImages": "Partial images"
+    },
+    "streamingImageCreate": {
+        "title": "Create image",
+        "settings": "Settings",
+        "outputPlaceholder": "The generated image will appear here while it streams.",
+        "partialAlt": "Streaming image preview",
+        "outputAlt": "Generated image {{index}}",
+        "emptyResult": "The stream completed without a generated image.",
+        "failed": "Streaming image creation failed.",
+        "filePrefix": "streaming-image"
+    },
+    "streamingImageEdit": {
+        "title": "Edit image",
+        "settings": "Settings",
+        "dropPlaceholder": "Attach or drop one or more images to edit.",
+        "unsupportedFile": "Select one or more image files.",
+        "outputPlaceholder": "The edited image will appear here while it streams.",
+        "partialAlt": "Streaming edited image preview",
+        "outputAlt": "Edited image {{index}}",
+        "emptyResult": "The stream completed without an edited image.",
+        "failed": "Streaming image editing failed.",
+        "filePrefix": "streaming-image-edit"
     },
     "messageSpeech": {
         "failed": "Could not play this message. Check your speech settings and try again."

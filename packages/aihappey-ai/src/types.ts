@@ -159,5 +159,7 @@ export const defaultEndpoints = {
   responses: "/v1/responses",
   oaiTranscriptions: "/v1/audio/transcriptions",
   oaiSpeech: "/v1/audio/speech",
+  oaiImageGeneration: "/v1/images/generations",
+  oaiImageEdits: "/v1/images/edits",
   realtime: "/v1/realtime/client_secrets"
 }

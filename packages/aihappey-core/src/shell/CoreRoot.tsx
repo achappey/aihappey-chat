@@ -40,6 +40,8 @@ import { RealtimePage } from "../features/realtime";
 import { normalizeChatEndpointId } from "aihappey-state";
 import { StreamingTranscriptionsPage } from "../features/streaming/StreamingTranscriptionsPage";
 import { StreamingSpeechPage } from "../features/streaming/StreamingSpeechPage";
+import { StreamingImageGenerationPage } from "../features/streaming/StreamingImageGenerationPage";
+import { StreamingImageEditPage } from "../features/streaming/StreamingImageEditPage";
 
 type CoreRootProps = {
   appName: string;
@@ -132,6 +134,8 @@ export const CoreRoot = ({
             { path: "structured-outputs", element: <StructuredOutputsPage /> },
             { path: "transcriptions", element: <TranscriptionsPage /> },
             { path: "speech", element: <SpeechPage /> },
+            { path: "streaming/images/create", element: <StreamingImageGenerationPage /> },
+            { path: "streaming/images/edit", element: <StreamingImageEditPage /> },
             { path: "streaming/transcriptions", element: <StreamingTranscriptionsPage /> },
             { path: "streaming/speech", element: <StreamingSpeechPage /> },
             { path: "jobs", element: <JobsPage /> },

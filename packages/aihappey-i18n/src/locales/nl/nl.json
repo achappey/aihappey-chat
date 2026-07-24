@@ -22,6 +22,35 @@
         "receiving": "Audio ontvangen… {{bytes}} bytes",
         "ready": "De gegenereerde audio verschijnt hier."
     },
+    "streamingImage": {
+        "size": "Afmeting",
+        "count": "Aantal afbeeldingen",
+        "quality": "Kwaliteit",
+        "outputFormat": "Uitvoerformaat",
+        "partialImages": "Tussentijdse afbeeldingen"
+    },
+    "streamingImageCreate": {
+        "title": "Afbeelding maken",
+        "settings": "Instellingen voor streaming afbeeldingen maken",
+        "outputPlaceholder": "De gegenereerde afbeelding verschijnt hier tijdens het streamen.",
+        "partialAlt": "Voorbeeld van streaming afbeelding",
+        "outputAlt": "Gegenereerde afbeelding {{index}}",
+        "emptyResult": "De stream is voltooid zonder gegenereerde afbeelding.",
+        "failed": "Streaming afbeelding maken is mislukt.",
+        "filePrefix": "streaming-afbeelding"
+    },
+    "streamingImageEdit": {
+        "title": "Afbeelding wijzigen",
+        "settings": "Instellingen",
+        "dropPlaceholder": "Voeg een of meer afbeeldingen toe of sleep ze hierheen om te bewerken.",
+        "unsupportedFile": "Selecteer een of meer afbeeldingsbestanden.",
+        "outputPlaceholder": "De bewerkte afbeelding verschijnt hier tijdens het streamen.",
+        "partialAlt": "Voorbeeld van streaming bewerkte afbeelding",
+        "outputAlt": "Bewerkte afbeelding {{index}}",
+        "emptyResult": "De stream is voltooid zonder bewerkte afbeelding.",
+        "failed": "Streaming afbeelding bewerken is mislukt.",
+        "filePrefix": "streaming-afbeelding-bewerken"
+    },
     "messageSpeech": {
         "failed": "Dit bericht kon niet worden afgespeeld. Controleer je spraakinstellingen en probeer het opnieuw."
     },
