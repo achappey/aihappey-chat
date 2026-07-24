@@ -4,7 +4,7 @@ export const apipass: Provider = {
   name: "APIPASS",
   description: "AI API marketplace: image generation, text processing, NLP & more. Easy integration, comprehensive documentation, reliable performance for developers.",
   icons: [{
-    src: "https://apipass.dev/favicon.ico"
+    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1uKoVTju8Wz9liZXusAlDD7pRbIAQwD-RMDMCSVKUObrt-f--pYuW6xHg&s=10"
   }],
   urls: {
     homepage: "https://apipass.dev",

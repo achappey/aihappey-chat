@@ -4,7 +4,7 @@ export const augure: Provider = {
   name: "Augure",
   description: "Enterprise-grade intelligence. Full data sovereignty. Compliant with Quebec Law 25 and federal requirements—without compromising capability.",
   icons: [{
-    src: "https://augureai.ca/favicon.ico?favicon.d6a0a5d8.ico"
+    src: "https://chat.augureai.ca/apple-icon.png?apple-icon.14kqp1d9p~xnp.png"
   }],
   urls: {
     homepage: "https://augureai.ca",

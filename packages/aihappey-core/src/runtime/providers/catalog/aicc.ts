@@ -3,6 +3,7 @@ import type { Provider } from "aihappey-types";
 export const aicc: Provider = {
   name: "AICC",
   description: "Access over 400 AI models with low latency and high scalability AI APIs. Save up to 80% compared to OpenAI. Fast, cost-efficient, and perfect for advanced machine learning projects.",
+  icons: [{ src: "https://ecdn6-nc.globalso.com/upload/p/5220/image_other/2025-12/icon.png" }],
   urls: {
     homepage: "https://www.ai.cc",
     console: "https://api.ai.cc/console",

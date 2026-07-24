@@ -4,7 +4,7 @@ export const osiris: Provider = {
   name: "Osiris",
   description: "Unified API for every AI model. Access Claude, GPT, Gemini, DeepSeek and more through one endpoint. OpenAI and Anthropic SDK compatible.",
   icons: [{
-    src: "https://osiris-code.com/favicon.ico"
+    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHmWjsig2nHKUfbzYUs8EFE89Vf8WrB6tN1VdyXSoXh6jIoPR--GdWLgI&s=10"
   }],
   urls: {
     homepage: "https://osiris-code.com/",
