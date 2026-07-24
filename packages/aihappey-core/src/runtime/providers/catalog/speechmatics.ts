@@ -18,7 +18,7 @@ export const speechmatics: Provider = {
   },
   providerCountry: "GB",
   category: "media_voice",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["Americas", "Europe", "Oceania"]
 
 };
 
