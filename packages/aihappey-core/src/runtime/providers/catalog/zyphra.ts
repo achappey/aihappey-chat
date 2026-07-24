@@ -10,8 +10,8 @@ export const zyphra: Provider = {
   ],
   urls: {
     homepage: "https://www.zyphra.com",
-    docs: "https://playground.zyphra.com/settings/docs",
-    console: "https://playground.zyphra.com",
+    docs: "https://cloud.zyphra.com/docs",
+    console: "https://cloud.zyphra.com",
     termsOfService: "https://www.zyphra.com/terms-of-use"
   },
   providerCountry: "US",
