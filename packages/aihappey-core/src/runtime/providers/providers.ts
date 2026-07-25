@@ -57,7 +57,6 @@ import { ai21 } from "./catalog/ai21";
 import { murfai } from "./catalog/murfai";
 import { lingvanex } from "./catalog/lingvanex";
 import { googletranslate } from "./catalog/googletranslate";
-import { modernmt } from "./catalog/modernmt";
 import { lectoai } from "./catalog/lectoai";
 import { bria } from "./catalog/bria";
 import { friendli } from "./catalog/friendli";
@@ -984,7 +983,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   bytespace,
   clawlite,
   cohere,
-  modernmt,
   kissapi,
   groq,
   spacexai,
