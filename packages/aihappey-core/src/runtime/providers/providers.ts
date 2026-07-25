@@ -127,7 +127,6 @@ import { tencenthunyuan } from "./catalog/tencenthunyuan";
 import { deapi } from "./catalog/deapi";
 import { infomaniak } from "./catalog/infomaniak";
 import { tavily } from "./catalog/tavily";
-import { opencode } from "./catalog/opencode";
 import { haimaker } from "./catalog/haimaker";
 import { monica } from "./catalog/monica";
 import { cambai } from "./catalog/cambai";
@@ -578,6 +577,8 @@ import { cognitivessai } from "./catalog/cognitivessai";
 import { summa } from "./catalog/summa";
 import { meshapi } from "./catalog/meshapi";
 import { lara } from "./catalog/lara";
+import { opencodego } from "./catalog/opencodego";
+import { opencodezen } from "./catalog/opencodezen";
 
 /**
  * UI-facing provider catalog.
@@ -664,6 +665,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tierup,
   llmbase,
   evidencemd,
+  opencodego,
   wayscloud,
   tensorblock,
   commonstack,
@@ -1095,7 +1097,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   alltoken,
   clod,
   wai,
-  opencode,
+  opencodezen,
   chaingpt,
   azerion,
   mulerouter,

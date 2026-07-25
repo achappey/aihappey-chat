@@ -5,13 +5,8 @@ export const inferencespace: Provider = {
   description: "Ultra-fast, cost-effective AI inference powered by TensorFusion.",
   icons: [
     {
-      src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=",
-      theme: "dark",
-    },
-    {
-      src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=",
-      theme: "light",
-    },
+      src: "https://inf.space/logo.round.png"
+    }
   ],
   urls: {
     homepage: "https://inf.space",

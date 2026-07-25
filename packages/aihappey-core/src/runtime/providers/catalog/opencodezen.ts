@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
-export const opencode: Provider = {
-  name: "OpenCode",
+export const opencodezen: Provider = {
+  name: "OpenCodeZen",
   description:
     "The open source AI coding agent. Free models included or connect any model from any provider, including Claude, GPT, Gemini and more.",
   icons: [
@@ -11,7 +11,7 @@ export const opencode: Provider = {
   ],
   urls: {
     homepage: "https://opencode.ai",
-    docs: "https://opencode.ai/docs",
+    docs: "https://opencode.ai/docs/zen",
     privacyPolicy: "https://opencode.ai/legal/privacy-policy",
     termsOfService: "https://opencode.ai/legal/terms-of-service"
   },
