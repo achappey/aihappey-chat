@@ -17,7 +17,7 @@ export const byteplus: Provider = {
   },
   providerCountry: "CN",
   category: "model_provider",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["Asia", "Europe"]
 
 };
 

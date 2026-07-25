@@ -18,7 +18,7 @@ export const assemblyai: Provider = {
   },
   providerCountry: "US",
   category: "media_voice",
-  inferenceRegions: ["World"]
+  inferenceRegions: ["World", "Europe"]
 
 
 };
