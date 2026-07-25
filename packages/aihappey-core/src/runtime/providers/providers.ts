@@ -245,7 +245,6 @@ import { ocrskill } from "./catalog/ocrskill";
 import { nexusify } from "./catalog/nexusify";
 import { litai } from "./catalog/litai";
 import { pixcode } from "./catalog/pixcode";
-import { anannas } from "./catalog/anannas";
 import { apipod } from "./catalog/apipod";
 import { tokenflux } from "./catalog/tokenflux";
 import { tokenlab } from "./catalog/tokenlab";
@@ -473,7 +472,6 @@ import { runcrate } from "./catalog/runcrate";
 import { mulerouter } from "./catalog/mulerouter";
 import { mixlayer } from "./catalog/mixlayer";
 import { alltoken } from "./catalog/alltoken";
-import { anlinkai } from "./catalog/anlinkai";
 import { helyxai } from "./catalog/helyxai";
 import { anyrouter } from "./catalog/anyrouter";
 import { fred } from "./catalog/fred";
@@ -709,7 +707,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   lxg2it,
   runway,
   helyxai,
-  anlinkai,
   mumeai,
   gatemind,
   nebulablock,
@@ -895,7 +892,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   nexusify,
   docsrouter,
   tokenflux,
-  anannas,
   skillboss,
   ishi,
   pixcode,
