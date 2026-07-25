@@ -578,6 +578,7 @@ import { episcloud } from "./catalog/episcloud";
 import { cognitivessai } from "./catalog/cognitivessai";
 import { summa } from "./catalog/summa";
 import { meshapi } from "./catalog/meshapi";
+import { lara } from "./catalog/lara";
 
 /**
  * UI-facing provider catalog.
@@ -606,6 +607,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tapas,
   oneinfer,
   igpt,
+  lara,
   herma,
   openadapter,
   router9,
