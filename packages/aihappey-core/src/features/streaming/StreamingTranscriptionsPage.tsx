@@ -22,7 +22,7 @@ import { buildStreamingHeaders, resolveStreamingUrl, streamingErrorMessage } fro
 type Settings = {
   language: string;
   prompt: string;
-  responseFormat: "json" | "text" | "verbose_json";
+  responseFormat: "" | "json" | "text" | "srt" | "verbose_json" | "vtt" | "diarized_json";
   temperature: string;
   timestampGranularities: Array<"segment" | "word">;
 };
@@ -30,7 +30,7 @@ type Settings = {
 const initialSettings: Settings = {
   language: "",
   prompt: "",
-  responseFormat: "json",
+  responseFormat: "",
   temperature: "",
   timestampGranularities: [],
 };
@@ -40,7 +40,7 @@ const isMedia = (file: File) => file.type.startsWith("audio/") || file.type.star
 export const StreamingTranscriptionsPage = () => {
   const { t } = useTranslation();
   const { config } = useChatContext();
-  const { Button, Input, Modal, Select, Switch } = useTheme();
+  const { Button, Input, Modal, Select, Switch, TextArea } = useTheme();
   const models = useAppStore((state) => state.models);
   const customHeaders = useAppStore((state) => state.customHeaders);
   const preferredModel = useAppStore((state) => state.userPreferredTranscriptionModel);
@@ -92,7 +92,7 @@ export const StreamingTranscriptionsPage = () => {
       body.set("file", selectedFile);
       body.set("model", selectedModel);
       body.set("stream", "true");
-      body.set("response_format", settings.responseFormat);
+      if (settings.responseFormat) body.set("response_format", settings.responseFormat);
       if (settings.language.trim()) body.set("language", settings.language.trim());
       if (settings.prompt.trim()) body.set("prompt", settings.prompt.trim());
       if (settings.temperature !== "") body.set("temperature", settings.temperature);
@@ -180,21 +180,22 @@ export const StreamingTranscriptionsPage = () => {
 
       <Modal show={settingsOpen} onHide={() => setSettingsOpen(false)} title={t("streamingTranscriptions.settings")} actions={<Button onClick={() => setSettingsOpen(false)}>{t("close")}</Button>}>
         <div style={styles.settings}>
-          <Input label={t("language")} value={settings.language} onChange={(event: any) => setSettings({ ...settings, language: event.target.value })} />
-          <Input label={t("instructions")} value={settings.prompt} onChange={(event: any) => setSettings({ ...settings, prompt: event.target.value })} />
+          <Input label={t("language")} placeholder={t("streamingTranscriptions.languagePlaceholder")} value={settings.language} onChange={(event: any) => setSettings({ ...settings, language: event.target.value })} />
           <Select
             label={t("streamingTranscriptions.responseFormat")}
             values={[settings.responseFormat]}
-            valueTitle={settings.responseFormat}
+            valueTitle={settings.responseFormat || t("default")}
             onChange={(value: string) => setSettings({ ...settings, responseFormat: value as Settings["responseFormat"] })}
           >
-            {["json", "text", "verbose_json"].map((value) => (
+            <option value="">{t("default")}</option>
+            {["json", "text", "srt", "verbose_json", "vtt", "diarized_json"].map((value) => (
               <option key={value} value={value}>{value}</option>
             ))}
           </Select>
           <Input label={t("streamingTranscriptions.temperature")} type="number" min={0} max={1} step={0.1} value={settings.temperature} onChange={(event: any) => setSettings({ ...settings, temperature: event.target.value })} />
           <Switch id="streaming-transcriptions-segment" label={t("streamingTranscriptions.segmentTimestamps")} checked={settings.timestampGranularities.includes("segment")} onChange={(checked: boolean) => toggleGranularity("segment", checked)} />
           <Switch id="streaming-transcriptions-word" label={t("streamingTranscriptions.wordTimestamps")} checked={settings.timestampGranularities.includes("word")} onChange={(checked: boolean) => toggleGranularity("word", checked)} />
+          <TextArea label={t("instructions")} rows={4} value={settings.prompt} onChange={(value: string) => setSettings({ ...settings, prompt: value })} />
         </div>
       </Modal>
     </div>
