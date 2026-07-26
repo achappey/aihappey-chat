@@ -26,7 +26,7 @@ type Settings = { voice: string; responseFormat: OpenAISpeechFormat; instruction
 export const StreamingSpeechPage = () => {
   const { t } = useTranslation();
   const { config } = useChatContext();
-  const { AudioPlayer, Button, Input, Modal, Select, TextArea } = useTheme();
+  const { AudioPlayer, Button, Input, Modal, Select, Slider, TextArea } = useTheme();
   const models = useAppStore((state) => state.models);
   const customHeaders = useAppStore((state) => state.customHeaders);
   const preferredModel = useAppStore((state) => state.userPreferredSpeechModel);
@@ -35,7 +35,7 @@ export const StreamingSpeechPage = () => {
   const files = useFiles();
   const [selectedModel, setSelectedModel] = useState(preferredModel ?? (config.getAccessToken ? "openai/gpt-4o-mini-tts" : ""));
   const [text, setText] = useState("");
-  const [settings, setSettings] = useState<Settings>({ voice: "alloy", responseFormat: "mp3", instructions: "", speed: "1" });
+  const [settings, setSettings] = useState<Settings>({ voice: "", responseFormat: "mp3", instructions: "", speed: "1" });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState<Array<{ id: string; message: string }>>([]);
@@ -58,7 +58,7 @@ export const StreamingSpeechPage = () => {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!text.trim() || !settings.voice.trim() || !selectedModel || processing) return;
+    if (!text.trim() || !selectedModel || processing) return;
 
     abortRef.current?.abort();
     playbackRef.current?.dispose();
@@ -96,7 +96,7 @@ export const StreamingSpeechPage = () => {
           body: JSON.stringify({
             model: selectedModel,
             input: text.trim(),
-            voice: settings.voice.trim(),
+            voice: settings.voice.trim() || undefined,
             response_format: settings.responseFormat,
             instructions: settings.instructions.trim() || undefined,
             speed: settings.speed === "" ? undefined : Number(settings.speed),
@@ -164,7 +164,7 @@ export const StreamingSpeechPage = () => {
           <Button type="button" size="large" variant="transparent" icon="speechSettings" title={t("settings")} onClick={() => setSettingsOpen(true)} />
           <div style={{ flex: 1 }} />
           {processing && <Button type="button" size="large" icon="stop" title={t("stop")} onClick={() => abortRef.current?.abort()} />}
-          <Button type="submit" size="large" icon="send" disabled={processing || !text.trim() || !settings.voice.trim() || !selectedModel} />
+          <Button type="submit" size="large" icon="send" disabled={processing || !text.trim() || !selectedModel} />
         </div>
       </form>
 
@@ -178,7 +178,7 @@ export const StreamingSpeechPage = () => {
 
       <Modal show={settingsOpen} onHide={() => setSettingsOpen(false)} title={t("streamingSpeech.settings")} actions={<Button onClick={() => setSettingsOpen(false)}>{t("close")}</Button>}>
         <div style={styles.settings}>
-          <Input label={t("speechSettings.voice")} value={settings.voice} required onChange={(event: any) => setSettings({ ...settings, voice: event.target.value })} />
+          <Input label={t("speechSettings.voice")} value={settings.voice} onChange={(event: any) => setSettings({ ...settings, voice: event.target.value })} />
           <Select
             label={t("outputFormat")}
             values={[settings.responseFormat]}
@@ -189,7 +189,7 @@ export const StreamingSpeechPage = () => {
               <option key={value} value={value}>{value.toUpperCase()}</option>
             ))}
           </Select>
-          <Input label={t("speechSettings.speed", { speed: settings.speed || 1 })} type="number" min={0.25} max={4} step={0.05} value={settings.speed} onChange={(event: any) => setSettings({ ...settings, speed: event.target.value })} />
+          <Slider id="streaming-speech-speed" label={t("speechSettings.speed", { speed: settings.speed || 1 })} min={0.25} max={4} step={0.05} value={Number(settings.speed)} onChange={(value: number) => setSettings({ ...settings, speed: String(value) })} showValue />
           <TextArea label={t("instructions")} rows={4} value={settings.instructions} onChange={(value: string) => setSettings({ ...settings, instructions: value })} />
         </div>
       </Modal>
