@@ -36,7 +36,7 @@ export const defaultProviderMetadata = {
     "context_management": [
       {
         "type": "compaction",
-        "compact_threshold": 64000
+        "compact_threshold": 512000
       }
     ],
     "reasoning": {
