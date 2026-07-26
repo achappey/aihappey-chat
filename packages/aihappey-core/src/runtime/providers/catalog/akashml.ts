@@ -9,6 +9,7 @@ export const akashml: Provider = {
   urls: {
     homepage: "https://akashml.com",
     pricing: "https://akashml.com/#pricing",
+    docs:"https://akashml.com/docs",
     privacyPolicy: "https://akashml.com/privacy",
     termsOfService: "https://akashml.com/terms"
   },
