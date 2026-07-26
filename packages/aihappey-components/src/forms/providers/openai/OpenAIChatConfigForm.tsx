@@ -25,6 +25,7 @@ const OPENAI_TOOL_TYPES = [
   "file_search",
   "shell",
   "programmatic_tool_calling",
+  "tool_search",
 ];
 
 const IMAGE_INPUT_DETAIL_OPTIONS = ["auto", "low", "high", "original"] as const;
@@ -129,6 +130,7 @@ export const OpenAIChatConfigForm = ({
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
   const programmaticToolCallingEnabled = !!resolvedConfig?.programmatic_tool_calling;
+  const toolSearchEnabled = !!resolvedConfig?.tool_search;
   const multiAgentEnabled = !!resolvedConfig?.multi_agent?.enabled;
   const maxConcurrentSubagents = normalizePositiveIntegerInput(
     resolvedConfig?.multi_agent?.max_concurrent_subagents
@@ -221,9 +223,9 @@ export const OpenAIChatConfigForm = ({
       const { allowed_callers: _allowedCallers, ...toolWithoutAllowedCallers } = tool;
       return enabled
         ? {
-            ...toolWithoutAllowedCallers,
-            allowed_callers: ["direct", "programmatic"],
-          }
+          ...toolWithoutAllowedCallers,
+          allowed_callers: ["direct", "programmatic"],
+        }
         : toolWithoutAllowedCallers;
     };
 
@@ -291,6 +293,21 @@ export const OpenAIChatConfigForm = ({
         config={resolvedConfig}
         updateConfig={submitConfig}
       />
+      <theme.Card
+        size="small"
+        title={t("providers:openai.toolSearch.title")}
+        headerActions={
+          <theme.Switch
+            id="openai-hosted-tool-search-enabled"
+            checked={toolSearchEnabled}
+            onChange={(enabled: boolean) => submitConfig({
+              ...resolvedConfig,
+              tool_search: enabled ? { type: "tool_search" } : undefined,
+            })}
+          />
+        }
+      >
+      </theme.Card>
       <theme.Card
         size="small"
         title={t("providers:openai.programmaticToolCalling.title")}
@@ -447,8 +464,8 @@ export const OpenAIChatConfigForm = ({
                           {thresholdValid
                             ? t("providers:openai.contextManagement.compactThresholdHelp")
                             : t("providers:openai.contextManagement.compactThresholdInvalid", {
-                                min: MIN_COMPACT_THRESHOLD,
-                              })}
+                              min: MIN_COMPACT_THRESHOLD,
+                            })}
                         </div>
 
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
