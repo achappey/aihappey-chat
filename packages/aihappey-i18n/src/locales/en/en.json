@@ -10,6 +10,7 @@
         "failed": "Streaming transcription failed.",
         "filePrefix": "streaming-transcription",
         "responseFormat": "Response format",
+        "languagePlaceholder": "The language of the input audio, e.g. en or nl. Will improve accuracy and latency.",
         "temperature": "Temperature",
         "segmentTimestamps": "Segment timestamps",
         "wordTimestamps": "Word timestamps"
@@ -28,6 +29,14 @@
         "count": "Number of images",
         "quality": "Quality",
         "outputFormat": "Output format",
+        "outputCompression": "Output compression",
+        "moderation": "Moderation",
+        "qualityAuto": "Auto",
+        "qualityHigh": "High",
+        "qualityMedium": "Medium",
+        "qualityLow": "Low",
+        "moderationAuto": "Auto",
+        "moderationLow": "Low",
         "partialImages": "Partial images"
     },
     "streamingImageCreate": {

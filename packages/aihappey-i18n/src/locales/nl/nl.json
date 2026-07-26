@@ -8,6 +8,7 @@
         "failed": "Streaming transcriptie is mislukt.",
         "filePrefix": "streaming-transcriptie",
         "responseFormat": "Antwoordformaat",
+        "languagePlaceholder": "De taal van de invoeraudio, bijv. nl of en. Verbetert de nauwkeurigheid en snelheid.",
         "temperature": "Temperatuur",
         "segmentTimestamps": "Tijdstempels per segment",
         "wordTimestamps": "Tijdstempels per woord"
@@ -25,6 +26,14 @@
         "count": "Aantal afbeeldingen",
         "quality": "Kwaliteit",
         "outputFormat": "Uitvoerformaat",
+        "outputCompression": "Uitvoercompressie",
+        "moderation": "Moderatie",
+        "qualityAuto": "Automatisch",
+        "qualityHigh": "Hoog",
+        "qualityMedium": "Gemiddeld",
+        "qualityLow": "Laag",
+        "moderationAuto": "Automatisch",
+        "moderationLow": "Laag",
         "partialImages": "Tussentijdse afbeeldingen"
     },
     "streamingImageCreate": {
@@ -54,6 +63,7 @@
     "hide": "Verbergen",
     "show": "Tonen",
     "more": "Meer",
+    "default": "Standaard",
     "loaded": "Geladen",
     "delete": "Verwijderen",
     "chats": "Chats",
