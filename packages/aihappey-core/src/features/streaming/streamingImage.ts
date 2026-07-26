@@ -4,7 +4,9 @@ export type StreamingImageSettings = {
   size: string;
   n: string;
   quality: string;
-  outputFormat: "png" | "jpeg" | "webp";
+  outputFormat: "" | "png" | "jpeg" | "webp";
+  outputCompression: string;
+  moderation: "" | "low" | "auto";
   partialImages: string;
 };
 
@@ -31,7 +33,9 @@ export const initialStreamingImageSettings: StreamingImageSettings = {
   size: "",
   n: "1",
   quality: "",
-  outputFormat: "png",
+  outputFormat: "",
+  outputCompression: "100",
+  moderation: "",
   partialImages: "3",
 };
 
@@ -56,7 +60,9 @@ export const imageRequestSettings = (settings: StreamingImageSettings) => ({
   size: settings.size || undefined,
   n: settings.n === "" ? undefined : Number(settings.n),
   quality: settings.quality || undefined,
-  output_format: settings.outputFormat,
+  output_format: settings.outputFormat || undefined,
+  output_compression: settings.outputCompression === "" ? undefined : Number(settings.outputCompression),
+  moderation: settings.moderation || undefined,
   partial_images: settings.partialImages === "" ? undefined : Number(settings.partialImages),
   stream: true,
 });

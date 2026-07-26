@@ -104,7 +104,7 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
         signal: abort.signal,
         init: { method: "POST", headers, body },
         onEvent: async (streamEvent) => {
-          const image = toStreamingImage(streamEvent, settings.outputFormat);
+          const image = toStreamingImage(streamEvent, settings.outputFormat || "png");
           if (!image) return;
 
           if (streamEvent.type.endsWith(".partial_image")) {
@@ -178,10 +178,29 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
       <Modal show={settingsOpen} onHide={() => setSettingsOpen(false)} title={t(`${prefix}.settings`)} actions={<Button onClick={() => setSettingsOpen(false)}>{t("close")}</Button>}>
         <div style={styles.settings}>
           <Input label={t("streamingImage.size")} value={settings.size} onChange={(event: any) => setSettings({ ...settings, size: event.target.value })} />
-          <Input label={t("streamingImage.count")} type="number" min={1} max={10} step={1} value={settings.n} onChange={(event: any) => setSettings({ ...settings, n: event.target.value })} />
-          <Input label={t("streamingImage.quality")} value={settings.quality} onChange={(event: any) => setSettings({ ...settings, quality: event.target.value })} />
-          <Select label={t("streamingImage.outputFormat")} values={[settings.outputFormat]} valueTitle={settings.outputFormat.toUpperCase()} onChange={(value: string) => setSettings({ ...settings, outputFormat: value as StreamingImageSettings["outputFormat"] })}>
+          <Slider id="streaming-image-count" label={t("streamingImage.count")} min={1} max={20} step={1} value={Number(settings.n)} onChange={(value: number) => setSettings({ ...settings, n: String(value) })} showValue />
+          <Select
+            label={t("streamingImage.quality")}
+            values={[settings.quality]}
+            valueTitle={settings.quality ? t(`streamingImage.quality${settings.quality.charAt(0).toUpperCase()}${settings.quality.slice(1)}`) : t("default")}
+            onChange={(value: string) => setSettings({ ...settings, quality: value })}
+          >
+            <option value="">{t("default")}</option>
+            {(["auto", "high", "medium", "low"] as const).map((value) => <option key={value} value={value}>{t(`streamingImage.quality${value.charAt(0).toUpperCase()}${value.slice(1)}`)}</option>)}
+          </Select>
+          <Select label={t("streamingImage.outputFormat")} values={[settings.outputFormat]} valueTitle={settings.outputFormat ? settings.outputFormat.toUpperCase() : t("default")} onChange={(value: string) => setSettings({ ...settings, outputFormat: value as StreamingImageSettings["outputFormat"] })}>
+            <option value="">{t("default")}</option>
             {(["png", "jpeg", "webp"] as const).map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}
+          </Select>
+          <Slider id="streaming-image-output-compression" label={t("streamingImage.outputCompression")} min={0} max={100} step={1} value={Number(settings.outputCompression)} onChange={(value: number) => setSettings({ ...settings, outputCompression: String(value) })} showValue />
+          <Select
+            label={t("streamingImage.moderation")}
+            values={[settings.moderation]}
+            valueTitle={settings.moderation ? t(`streamingImage.moderation${settings.moderation.charAt(0).toUpperCase()}${settings.moderation.slice(1)}`) : t("default")}
+            onChange={(value: string) => setSettings({ ...settings, moderation: value as StreamingImageSettings["moderation"] })}
+          >
+            <option value="">{t("default")}</option>
+            {(["auto", "low"] as const).map((value) => <option key={value} value={value}>{t(`streamingImage.moderation${value.charAt(0).toUpperCase()}${value.slice(1)}`)}</option>)}
           </Select>
           <Slider id="streaming-image-partial-images" label={t("streamingImage.partialImages")} min={0} max={3} step={1} value={Number(settings.partialImages)} onChange={(value: number) => setSettings({ ...settings, partialImages: String(value) })} showValue />
         </div>
