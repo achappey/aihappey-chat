@@ -382,6 +382,9 @@
         "programmatic": "Code"
       }
     },
+    "toolSearch": {
+      "title": "Tools zoeken"
+    },
     "max_num_results": "Maximaal aantal resultaten",
     "vector_store_ids": "Ids van de documentenhubs",
     "file_search": "Documentenhub",

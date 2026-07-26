@@ -34,6 +34,15 @@ import { localSkillEditorPluginDef } from "./toolcalls/useLocalSkillEditorToolCa
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
+export type AttachedToolSource = {
+  kind: "mcp" | "plugin" | "local";
+  id: string;
+  name: string;
+  description?: string;
+};
+
+export type AttachedTool = Tool & { source: AttachedToolSource };
+
 export function useTools() {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
@@ -80,8 +89,16 @@ export function useTools() {
   // We don't need runtimes here; pass empty objects.
   const { defs } = usePlugins(enabledPlugins, defsAll, {}, {});
 
-  const injectedLocalTools = useMemo(
-    () => defs.flatMap((d: any) => d.tools ?? []),
+  const injectedPluginTools = useMemo(
+    () => defs.flatMap((definition: any) => (definition.tools ?? []).map((tool: Tool) => ({
+      tool,
+      source: {
+        kind: "plugin" as const,
+        id: String(definition.name ?? "plugin"),
+        name: String(definition.title ?? definition.name ?? "Plugin"),
+        description: definition.description,
+      },
+    }))),
     [defs]
   );
 
@@ -105,7 +122,17 @@ export function useTools() {
   }, [enabledLocalTools, localTools.items]);
 
   return useMemo(() => {
-    const baseTools = Object.values(mcpServerContent).flatMap(s => s.tools ?? []);
+    const baseTools = Object.entries(mcpServerContent).flatMap(([serverId, server]: [string, any]) =>
+      (server.tools ?? []).map((tool: Tool) => ({
+        tool,
+        source: {
+          kind: "mcp" as const,
+          id: serverId,
+          name: String(server.name ?? server.title ?? serverId),
+          description: server.description,
+        },
+      }))
+    );
     const mcpTaskTools = buildMcpTaskTools(mcpServerContent);
 
     const hasResources = Object.values(mcpServerContent).some(
@@ -114,27 +141,27 @@ export function useTools() {
 
     // De-dupe by name with precedence: MCP/server tools > injected plugin tools > stored local tools
     const seen = new Set<string>();
-    const allTools: Tool[] = [];
+    const allTools: AttachedTool[] = [];
 
-    for (const t of baseTools) {
+    for (const { tool: t, source } of baseTools) {
       if (seen.has(t.name)) continue;
       seen.add(t.name);
-      allTools.push(t);
+      allTools.push({ ...t, source });
     }
-    for (const t of injectedLocalTools) {
+    for (const { tool: t, source } of injectedPluginTools) {
       if (seen.has(t.name)) continue;
       seen.add(t.name);
-      allTools.push(t);
+      allTools.push({ ...t, source });
     }
     for (const t of injectedStoredLocalTools) {
       if (seen.has(t.name)) continue;
       seen.add(t.name);
-      allTools.push(t);
+      allTools.push({ ...t, source: { kind: "local", id: "local", name: "Local tools" } });
     }
     for (const t of mcpTaskTools) {
       if (seen.has(t.name)) continue;
       seen.add(t.name);
-      allTools.push(t);
+      allTools.push({ ...t, source: { kind: "local", id: "local", name: "Local tools" } });
     }
     if (enabledSkills.length > 0) {
       const skillTools = [
@@ -145,11 +172,11 @@ export function useTools() {
       for (const t of skillTools) {
         if (seen.has(t.name)) continue;
         seen.add(t.name);
-        allTools.push(t);
+        allTools.push({ ...t, source: { kind: "local", id: "local", name: "Local tools" } });
       }
     }
     if (hasResources && !seen.has(resourceTool.name)) {
-      allTools.push(resourceTool);
+      allTools.push({ ...resourceTool, source: { kind: "local", id: "local", name: "Local tools" } });
     }
 
     // annotation gates (unchanged)
@@ -158,7 +185,7 @@ export function useTools() {
     const allowDestructive = !!toolAnnotations?.destructiveHint;
     const allowOpenWorld = !!toolAnnotations?.openWorldHint;
 
-    const enabledTools: Tool[] = [];
+    const enabledTools: AttachedTool[] = [];
     const disabledMap: Record<string, string[]> = {};
 
     for (const t of allTools) {
@@ -192,10 +219,16 @@ export function useTools() {
       if (allowed) enabledTools.push(t);
     }
 
-    return { tools: enabledTools, disabledTools: disabledMap };
+    return {
+      // Source metadata is client-only and ignored by ordinary tool mappers. The
+      // OpenAI Responses mapper uses it to build optional namespaces.
+      tools: enabledTools,
+      attachedTools: enabledTools,
+      disabledTools: disabledMap,
+    };
   }, [
     mcpServerContent,
-    injectedLocalTools,
+    injectedPluginTools,
     injectedStoredLocalTools,
     enabledSkills,
     toolAnnotations,

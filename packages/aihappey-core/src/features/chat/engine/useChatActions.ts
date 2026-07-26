@@ -23,6 +23,7 @@ import {
   stripProviderPrefix,
   validateEndpointProfileForModel,
 } from "./endpointProfiles";
+import { decorateToolsWithRequestConfig } from "../../tools/toolRequestConfig";
 
 type ChatActionsProps = {
   // attachments: UiAttachment[];
@@ -64,6 +65,8 @@ export function useChatActions({
   const workflowType = useAppStore(a => a.workflowType)
   const handoffs = useAppStore(a => a.handoffs)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
+  const toolRequestConfig = useAppStore(a => (a as any).toolRequestConfig)
+  const useToolNamespaces = useAppStore(a => (a as any).useToolNamespaces)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
   const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
   const selectedEndpointProfileId = useAppStore(a => a.selectedEndpointProfileId)
@@ -137,6 +140,10 @@ export function useChatActions({
     }),
     [allProviderHeaders, requestEndpointProfile, selectedModel],
   );
+  const requestTools = useMemo(
+    () => decorateToolsWithRequestConfig(finalTools, toolRequestConfig),
+    [finalTools, toolRequestConfig],
+  );
   const endpointProfileProviderConfig = useMemo(
     () => resolveEndpointProfileProviderConfig({
       activeProviderMetadata,
@@ -173,7 +180,9 @@ export function useChatActions({
                 ? { models: selectedAgentRequest.models }
                 : {}),
               ...(chatMode === "agent" ? { workflowType } : {}),
-              tools: finalTools,
+              tools: requestTools,
+              toolRequestConfig,
+              useToolNamespaces,
               temperature,
               providerMetadata,
               providerHeaders,
@@ -212,7 +221,9 @@ export function useChatActions({
       //    clearAttachments,
       requestModel,
       conversationId,
-      finalTools,
+      requestTools,
+      toolRequestConfig,
+      useToolNamespaces,
     ]
   );
 
@@ -233,7 +244,9 @@ export function useChatActions({
                 ? { models: selectedAgentRequest.models }
                 : {}),
               ...(chatMode === "agent" ? { workflowType } : {}),
-              tools: finalTools,
+              tools: requestTools,
+              toolRequestConfig,
+              useToolNamespaces,
               temperature,
               providerMetadata,
               providerHeaders,
@@ -276,7 +289,9 @@ export function useChatActions({
       addChatError,
       requestModel,
       conversationId,
-      finalTools,
+      requestTools,
+      toolRequestConfig,
+      useToolNamespaces,
     ]
   );
 

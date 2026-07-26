@@ -39,6 +39,7 @@ import {
 } from "aihappey-components";
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
+import { ToolConfigurationTab, type ToolRequestConfig } from "./ToolConfigurationTab";
 import { SkillToggleGroups } from "../skills/SkillToggleGroups";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import {
@@ -50,6 +51,7 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { resolveEndpointProfileForSelectedModel } from "../chat/engine/endpointProfiles";
+import { useTools } from "../tools/useTools";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -84,6 +86,8 @@ type ChatSettingsDraft = {
   toolChoice?: string;
   activePlugins: string[];
   enabledLocalTools: string[];
+  toolRequestConfig: ToolRequestConfig;
+  useToolNamespaces: boolean;
   enabledSkillIds: string[];
   providerMetadata: Record<string, any>;
   providerHeaders: Record<string, Record<string, string>>;
@@ -133,11 +137,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const setEnabledLocalTools = useAppStore(
     (s) => (s as any).setEnabledLocalTools as (names: string[]) => void
   );
+  const toolRequestConfig = useAppStore((s) => (s as any).toolRequestConfig as ToolRequestConfig);
+  const setToolRequestConfig = useAppStore((s) => (s as any).setToolRequestConfig as (value: ToolRequestConfig) => void);
+  const useToolNamespaces = useAppStore((s) => !!(s as any).useToolNamespaces);
+  const setUseToolNamespaces = useAppStore((s) => (s as any).setUseToolNamespaces as (value: boolean) => void);
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
   const skills = useSkills();
   const providers = useProviderRegistry();
+  const attachedTools = useTools().attachedTools;
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const createDraft = useCallback(
     (): ChatSettingsDraft => ({
@@ -151,6 +160,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       toolChoice,
       activePlugins: [...(activePlugins ?? [])],
       enabledLocalTools: [...(enabledLocalTools ?? [])],
+      toolRequestConfig: { ...(toolRequestConfig ?? {}) },
+      useToolNamespaces: !!useToolNamespaces,
       enabledSkillIds: [...(enabledSkillIds ?? [])],
       providerMetadata: { ...(providerMetadata ?? {}) },
       providerHeaders: { ...(providerHeaders ?? {}) },
@@ -168,7 +179,9 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       structuredOutputs,
       temperature,
       toolAnnotations,
+      toolRequestConfig,
       toolChoice,
+      useToolNamespaces,
     ]
   );
   const [draft, setDraft] = useState<ChatSettingsDraft>(() => createDraft());
@@ -438,6 +451,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setToolChoice(draft.toolChoice);
     setActivePlugins(draft.activePlugins);
     setEnabledLocalTools(draft.enabledLocalTools);
+    setToolRequestConfig(draft.toolRequestConfig);
+    setUseToolNamespaces(draft.useToolNamespaces);
     setEnabledSkillIds(draft.enabledSkillIds);
     setProviderMetadata(draft.providerMetadata);
     setProviderHeaders(draft.providerHeaders);
@@ -445,6 +460,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     draft,
     setActivePlugins,
     setEnabledLocalTools,
+    setToolRequestConfig,
+    setUseToolNamespaces,
     setEnabledSkillIds,
     setProviderHeaders,
     setMaxOutputTokens,
@@ -466,6 +483,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       providerMetadata: { ...defaultProviderMetadata },
       providerHeaders: { ...defaultProviderHeaders },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
+      toolRequestConfig: {},
+      useToolNamespaces: false,
     }));
 
     setSkillFeedback(null);
@@ -571,6 +590,17 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
                   enabledLocalTools: value,
                 }));
               }}
+            />
+          ) : null}
+        </theme.Tab>
+        <theme.Tab eventKey="tool-configuration" title={t("toolConfiguration.title") ?? "Tool configuration"}>
+          {activeTab === "tool-configuration" ? (
+            <ToolConfigurationTab
+              tools={attachedTools}
+              config={draft.toolRequestConfig}
+              useNamespaces={draft.useToolNamespaces}
+              onConfigChange={(value) => setDraft((current) => ({ ...current, toolRequestConfig: value }))}
+              onUseNamespacesChange={(value) => setDraft((current) => ({ ...current, useToolNamespaces: value }))}
             />
           ) : null}
         </theme.Tab>

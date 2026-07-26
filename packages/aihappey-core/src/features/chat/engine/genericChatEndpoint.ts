@@ -759,6 +759,9 @@ const createUiMessageChunkStream = ({
 
     const toolName = responsesToolName(item);
     const providerExecuted = !isClientExecutableResponsesTool(item);
+    const toolProviderMetadata = item?.caller || item?.namespace
+      ? { openai: compactObject({ caller: item?.caller, namespace: item?.namespace }) }
+      : undefined;
     ensureStepStarted(controller);
 
     if (!startedToolCalls.has(toolCallId)) {
@@ -767,6 +770,7 @@ const createUiMessageChunkStream = ({
         toolCallId,
         toolName,
         providerExecuted,
+        providerMetadata: toolProviderMetadata,
         title: item?.type === "web_search_call" ? "Web search" : item?.name,
       });
       startedToolCalls.add(toolCallId);
@@ -778,6 +782,7 @@ const createUiMessageChunkStream = ({
       toolName,
       input: responsesToolInput(item),
       providerExecuted,
+      providerMetadata: toolProviderMetadata,
       title: item?.type === "web_search_call" ? "Web search" : item?.name,
     });
 

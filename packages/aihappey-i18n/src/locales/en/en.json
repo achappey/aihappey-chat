@@ -1,5 +1,7 @@
 ﻿{
-    "streaming": { "title": "Streaming" },
+    "streaming": {
+        "title": "Streaming"
+    },
     "streamingTranscriptions": {
         "settings": "Settings",
         "output": "Streaming output",
@@ -656,6 +658,17 @@
     "pluginTools": "Plugin tools",
     "recentlyUsed": "Previously used",
     "tools": "Tools",
+    "toolConfiguration": {
+        "title": "Tool configuration",
+        "useNamespaces": "Use namespaces",
+        "namespace": "Namespace",
+        "name": "Name",
+        "allowedCallers": "Who can use it",
+        "deferLoading": "Search",
+        "allTools": "All tools",
+        "applyAll": "Apply to all",
+        "empty": "No tools are currently attached."
+    },
     "toolSources": {
         "plugin": "Plugin tool",
         "local": "Custom tool",

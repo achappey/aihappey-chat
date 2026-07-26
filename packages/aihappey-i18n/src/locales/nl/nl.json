@@ -136,6 +136,17 @@
     "throttle": "Vertraging ({{throttle}} ms)",
     "all": "Alles",
     "pluginTools": "Plugin tools",
+    "toolConfiguration": {
+        "title": "Toolconfiguratie",
+        "useNamespaces": "Namespaces gebruiken",
+        "namespace": "Namespace",
+        "name": "Naam",
+        "allowedCallers": "Wie mag dit gebruiken",
+        "deferLoading": "Zoeken",
+        "allTools": "Alle tools",
+        "applyAll": "Op alles toepassen",
+        "empty": "Er zijn momenteel geen tools gekoppeld."
+    },
     "recentlyUsed": "Eerder gebruikt",
     "totalTokens": "Totaal tokens",
     "images": "Afbeeldingen",

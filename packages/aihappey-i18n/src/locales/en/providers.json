@@ -664,6 +664,9 @@
         "programmatic": "Code"
       }
     },
+    "toolSearch": {
+      "title": "Tool search"
+    },
     "max_num_results": "Maximum number of results",
     "vector_store_ids": "Ids of the vector stores",
     "file_search": "File search",

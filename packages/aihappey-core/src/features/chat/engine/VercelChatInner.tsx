@@ -22,6 +22,7 @@ import { ChatErrors } from "../layout/ChatErrors";
 import { useAccessToken } from "aihappey-auth";
 import { ToolDrawer } from "../../tools";
 import { getToolName, useTools } from "../../tools/useTools";
+import { shapeToolsForRequest } from "../../tools/toolRequestConfig";
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
 import { conversationName as generateConversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
@@ -115,6 +116,8 @@ export function VercelChatInner({
   const maxToolCalls = useAppStore((a) => a.maxToolCalls);
   const activeData = useAppStore((a) => a.activeData);
   const maxOutputTokens = useAppStore((a) => a.maxOutputTokens);
+  const toolRequestConfig = useAppStore((a) => (a as any).toolRequestConfig);
+  const useToolNamespaces = useAppStore((a) => !!(a as any).useToolNamespaces);
   const effectiveChatEndpoint = useAppStore((a) => a.effectiveChatEndpoint);
   const effectiveChatEndpointMode = useAppStore((a) => a.effectiveChatEndpointMode);
   const selectedEndpointProfileId = useAppStore((a) => a.selectedEndpointProfileId);
@@ -512,7 +515,9 @@ export function VercelChatInner({
   }, []);
   const baseBody = useMemo(() => ({
     ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.6-luna" } : {}),
-    tools,
+    tools: useToolNamespaces ? [] : shapeToolsForRequest(tools, toolRequestConfig, false),
+    toolRequestConfig,
+    useToolNamespaces,
     ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),
     ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
     ...(chatMode === "agent" ? { workflowType } : {}),
@@ -535,6 +540,8 @@ export function VercelChatInner({
     chatMode,
     requestModel,
     tools,
+    toolRequestConfig,
+    useToolNamespaces,
     selectedAgentRequest.localAgents,
     selectedAgentRequest.models,
     workflowType,
@@ -571,6 +578,43 @@ export function VercelChatInner({
             trigger: opts.trigger,
             messageId: opts.messageId,
           };
+          // `opts.body` can replace the memoized base tools. Decorate at the
+          // final transport boundary so `/api/chat` always receives the two
+          // request-only properties directly on each tool definition.
+          const namespacesEnabled = mergedBody.useToolNamespaces ?? useToolNamespaces;
+          const sourceTools = namespacesEnabled && (!Array.isArray(mergedBody.tools) || mergedBody.tools.length === 0)
+            ? tools
+            : mergedBody.tools;
+          if (namespacesEnabled) {
+            const namespaces = shapeToolsForRequest(
+              sourceTools,
+              mergedBody.toolRequestConfig ?? toolRequestConfig,
+              true,
+            );
+            const providerKey = String(
+              (isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined)
+              ?? model?.split("/")[0]
+              ?? Object.keys(mergedBody.providerMetadata ?? {})[0]
+              ?? "",
+            ).trim().toLowerCase();
+            const providerMetadata = { ...(mergedBody.providerMetadata ?? {}) };
+            const providerConfig = { ...(providerMetadata[providerKey] ?? {}) };
+            const existingTools = Array.isArray(providerConfig.tools) ? providerConfig.tools : [];
+            const namespaceNames = new Set(namespaces.map((tool: any) => tool.name));
+            providerConfig.tools = [
+              ...existingTools.filter((tool: any) => tool?.type !== "namespace" || !namespaceNames.has(tool?.name)),
+              ...namespaces,
+            ];
+            providerMetadata[providerKey] = providerConfig;
+            mergedBody.providerMetadata = providerMetadata;
+            mergedBody.tools = [];
+          } else {
+            mergedBody.tools = shapeToolsForRequest(
+              sourceTools,
+              mergedBody.toolRequestConfig ?? toolRequestConfig,
+              false,
+            );
+          }
 
           if (mergedBody.providerHeaders == null && baseBody.providerHeaders != null) {
             mergedBody.providerHeaders = baseBody.providerHeaders;

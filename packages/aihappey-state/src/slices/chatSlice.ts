@@ -69,6 +69,12 @@ export type ChatSlice = ApiKeyEncryptionState & {
   activePlugins: string[]
   /** Enabled user-defined local tools (stored in IndexedDB via aihappey-tools). */
   enabledLocalTools: string[]
+  /** Request-only OpenAI tool options. Intentionally excluded from persistence. */
+  toolRequestConfig: Record<string, {
+    allowed_callers?: Array<"direct" | "programmatic">;
+    defer_loading?: true;
+  }>;
+  useToolNamespaces: boolean;
   approveAll: boolean;
   maxOutputTokens?: number
   setMaxOutputTokens: (maxOutputTokens?: number) => void;
@@ -92,6 +98,8 @@ export type ChatSlice = ApiKeyEncryptionState & {
   addAllowedTool: (name: string) => void;
   setActivePlugins: (names: string[]) => void;
   setEnabledLocalTools: (names: string[]) => void;
+  setToolRequestConfig: (config: ChatSlice["toolRequestConfig"]) => void;
+  setUseToolNamespaces: (enabled: boolean) => void;
   setStructuredOutputs: (structuredOutputs?: any) => void;
   models?: ModelOption[]
   /** True once we have attempted to load models from the backend (even if the list is empty). */
@@ -170,6 +178,8 @@ export const createChatSlice: StateCreator<
   allowedToolList: [],
   activePlugins: [],
   enabledLocalTools: [],
+  toolRequestConfig: {},
+  useToolNamespaces: false,
   stopTools: [],
   convertAttachmentsToText: true,
   maxAttachmentsSize: 25 * 1024 * 1024,
@@ -229,6 +239,14 @@ export const createChatSlice: StateCreator<
     set(() => ({
       enabledLocalTools: Array.isArray(value) ? value : [],
     }));
+  },
+  setToolRequestConfig: (value) => {
+    set(() => ({
+      toolRequestConfig: value && typeof value === "object" ? value : {},
+    }));
+  },
+  setUseToolNamespaces: (value) => {
+    set(() => ({ useToolNamespaces: !!value }));
   },
   setSelectedModel: (model) =>
     set((state: any) => {
@@ -477,6 +495,8 @@ export const createChatSlice: StateCreator<
       gatewayEnabled: true,
       endpointRawModelIds: false,
       endpointProviderMetadataEnabled: true,
+      toolRequestConfig: {},
+      useToolNamespaces: false,
       enabledProvidersByType: {
         language: [],
         image: [],

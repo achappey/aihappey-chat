@@ -2,8 +2,8 @@ import {
   compactObject,
   getProviderKeyFromRequestBody,
   hasConfiguredNativeTools,
-  mapOpenAiResponsesTools,
   mergeNativeTools,
+  normalizeToolChoice,
   resolveNativeRequestMetadata,
   resolveOpenAiToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
@@ -77,6 +77,91 @@ const isOutputOnlyToolPart = (part: any) => {
   return type.includes("output") || state === "output-only" || state === "output_only";
 };
 
+const sanitizeNamespaceName = (value: unknown, fallback = "tools") => {
+  const clean = String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "_")
+    .replace(/^[_-]+|[_-]+$/g, "")
+    .slice(0, 64);
+  return clean || fallback;
+};
+
+const uniqueNamespaceNames = (keys: string[]) => {
+  const used = new Set<string>();
+  const names = new Map<string, string>();
+  for (const key of keys) {
+    const base = sanitizeNamespaceName(key, "tools");
+    let candidate = base;
+    let suffix = 2;
+    while (used.has(candidate)) candidate = `${base.slice(0, 60)}_${suffix++}`;
+    used.add(candidate);
+    names.set(key, candidate);
+  }
+  return names;
+};
+
+export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointRequestBody) => {
+  if (normalizeToolChoice(body.toolChoice) === "none") return [];
+  const requestConfig = body.toolRequestConfig && typeof body.toolRequestConfig === "object"
+    ? body.toolRequestConfig
+    : {};
+  const functions = (Array.isArray(body.tools) ? body.tools : []).flatMap((tool: any) => {
+    const name = typeof tool?.name === "string" ? tool.name.trim() : "";
+    if (!name) return [];
+    const configured = requestConfig[name] ?? {};
+    const allowedCallers = Array.isArray(configured.allowed_callers)
+      ? configured.allowed_callers.filter((caller: unknown) => caller === "direct" || caller === "programmatic")
+      : [];
+    return [{
+      type: "function" as const,
+      name,
+      description: typeof tool.description === "string" && tool.description.trim()
+        ? tool.description.trim()
+        : tool.annotations?.title,
+      parameters: tool.inputSchema && typeof tool.inputSchema === "object"
+        ? tool.inputSchema
+        : tool.parameters && typeof tool.parameters === "object"
+          ? tool.parameters
+          : { type: "object", properties: {} },
+      ...(allowedCallers.length ? { allowed_callers: allowedCallers } : {}),
+      ...(configured.defer_loading ? { defer_loading: true } : {}),
+      source: tool.source,
+    }];
+  });
+
+  if (!body.useToolNamespaces) {
+    return functions.map(({ source: _source, ...tool }) => tool);
+  }
+
+  const groups = new Map<string, { name: string; description?: string; tools: Array<Record<string, any>> }>();
+  for (const { source, ...tool } of functions) {
+    const kind = source?.kind === "mcp" || source?.kind === "plugin" ? source.kind : "local";
+    const id = kind === "local" ? "local" : String(source?.id ?? kind);
+    const key = `${kind}:${id}`;
+    const group: { name: string; description?: string; tools: Array<Record<string, any>> } = groups.get(key) ?? {
+      name: kind === "local" ? "local" : String(source?.name ?? id),
+      description: source?.description || (kind === "local"
+        ? "Locally available application tools."
+        : `Tools provided by ${source?.name ?? id}.`),
+      tools: [],
+    };
+    group.tools.push(tool);
+    groups.set(key, group);
+  }
+
+  const names = uniqueNamespaceNames([...groups.keys()].map((key) => groups.get(key)!.name));
+  const claimedNames = new Set<string>();
+  return [...groups.values()].map((group) => {
+    let name = names.get(group.name) ?? sanitizeNamespaceName(group.name);
+    let suffix = 2;
+    const base = name;
+    while (claimedNames.has(name)) name = `${base.slice(0, 60)}_${suffix++}`;
+    claimedNames.add(name);
+    return { type: "namespace" as const, name, description: group.description, tools: group.tools };
+  });
+};
+
 const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolParts.flatMap((part: any) => {
   if (part?.providerExecuted === true) return [];
 
@@ -89,7 +174,9 @@ const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolPa
       type: "function_call" as const,
       call_id: callId,
       name: toolPartName(part),
+      namespace: part?.namespace ?? part?.providerMetadata?.openai?.namespace,
       arguments: stringifyToolValue(toolPartInput(part)),
+      caller: part?.caller ?? part?.providerMetadata?.openai?.caller,
     }));
   }
 
@@ -99,6 +186,7 @@ const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolPa
       type: "function_call_output" as const,
       call_id: callId,
       output: stringifyToolValue(output),
+      caller: part?.caller ?? part?.providerMetadata?.openai?.caller,
     });
   }
 
@@ -112,9 +200,10 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     ...body,
     endpoint: "/v1/responses",
   });
+  const mappedTools = mapConfiguredOpenAiResponseTools(body);
   const activeTools = hasConfiguredNativeTools(providerRequestConfig)
-    ? mergeNativeTools(providerRequestConfig?.tools, mapOpenAiResponsesTools(body))
-    : mapOpenAiResponsesTools(body);
+    ? mergeNativeTools(providerRequestConfig?.tools, mappedTools)
+    : mappedTools;
   const hasTools = Boolean(activeTools?.length);
   const input = messages.flatMap((message) => {
     if (message.role === "system") return [];
