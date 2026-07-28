@@ -250,7 +250,8 @@
     "ephemeral": "Temporary",
     "outputConfig": {
       "title": "Output config",
-      "effort": "Effort ({{effort}})"
+      "effort": "Effort ({{effort}})",
+      "taskBudget": "Task budget"
     },
     "advisor": {
       "title": "Advisor",

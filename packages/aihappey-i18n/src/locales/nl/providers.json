@@ -712,7 +712,8 @@
     "ephemeral": "Tijdelijk",
     "outputConfig": {
       "title": "Uitvoer",
-      "effort": "Inspanning ({{effort}})"
+      "effort": "Inspanning ({{effort}})",
+      "taskBudget": "Taakbudget"
     },
     "advisor": {
       "title": "Adviseur",
