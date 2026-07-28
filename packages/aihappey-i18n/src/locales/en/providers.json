@@ -248,6 +248,10 @@
     "cacheDuration": "Cache duration",
     "defaultOption": "Default",
     "ephemeral": "Temporary",
+    "outputConfig": {
+      "title": "Output config",
+      "effort": "Effort ({{effort}})"
+    },
     "advisor": {
       "title": "Advisor",
       "toolName": "Tool name",

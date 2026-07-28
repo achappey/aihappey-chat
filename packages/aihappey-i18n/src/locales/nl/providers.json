@@ -710,6 +710,10 @@
     "cacheDuration": "Cacheduur",
     "defaultOption": "Standaard",
     "ephemeral": "Tijdelijk",
+    "outputConfig": {
+      "title": "Uitvoer",
+      "effort": "Inspanning ({{effort}})"
+    },
     "advisor": {
       "title": "Adviseur",
       "toolName": "Toolnaam",

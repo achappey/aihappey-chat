@@ -138,6 +138,9 @@ export const defaultProviderMetadata = {
     "thinking": {
       "type": "adaptive"
     },
+    "output_config": {
+      "effort": "medium"
+    },
     "container": undefined
   },
   "mistral": {
