@@ -4,8 +4,7 @@ import { AnthropicSharedToolFields } from "./AnthropicToolCardShared";
 const CODE_EXECUTION_VERSIONS = [
   "code_execution_20260521",
   "code_execution_20260120",
-  "code_execution_20250825",
-  "code_execution_20250522",
+  "code_execution_20250825"
 ];
 
 const createDefaultCodeExecutionTool = () => ({
