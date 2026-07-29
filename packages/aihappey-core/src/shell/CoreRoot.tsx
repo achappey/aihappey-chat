@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { CoreShell } from "./CoreShell";
 import { ServersPage } from "../features/mcp-catalog/ServersPage";
@@ -67,7 +67,7 @@ export const CoreRoot = ({
   appVersion,
   authConfig,
 }: CoreRootProps) => {
-  useTheme(); // Throws if no provider
+  const { Skeleton } = useTheme(); // Throws if no provider
 
   const msalInstance = useMemo(() => {
     if (!authConfig) return null;
@@ -153,17 +153,25 @@ export const CoreRoot = ({
   const router = createBrowserRouter(routes);
   const routerUi = <RouterProvider router={router} />;
 
-  return msalInstance ? (
+  const app = msalInstance ? (
     <MsalAuthProvider instance={msalInstance}>
       <MsalAuthenticationTemplate
         interactionType={InteractionType.Redirect}
-        authenticationRequest={{ scopes: authConfig!.msal.scopes }}
+        authenticationRequest={{
+          scopes: authConfig!.msal.scopes,
+        }}
       >
         {routerUi}
       </MsalAuthenticationTemplate>
     </MsalAuthProvider>
   ) : (
-    <>{routerUi}</>
+    routerUi
+  );
+
+  return (
+    <Suspense fallback={<Skeleton />}>
+      {app}
+    </Suspense>
   );
 };
 
