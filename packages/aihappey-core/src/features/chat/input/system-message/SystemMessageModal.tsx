@@ -12,7 +12,7 @@ export interface SystemMessageModalProps {
   systemMsg: any
   appName: string
   onClose: () => void;
- // tools: any[],
+  // tools: any[],
   /** Optional override for rendering each part */
   renderPart?: (part: any, index: number, active: boolean) => React.ReactNode;
 }
@@ -31,11 +31,11 @@ export const SystemMessageModal = ({
   onClose,
   appName,
   systemMsg,
- // tools = [],
+  // tools = [],
   renderPart,
 }: SystemMessageModalProps) => {
   const { t } = useTranslation();
-    const { tools } = useTools();
+  const { tools } = useTools();
 
   const { Modal, Tabs, Tab, TextArea, JsonViewer, Card, Badge, Button } = useTheme();
   const hasTools = Array.isArray(tools) && tools.length > 0;
@@ -102,6 +102,13 @@ export const SystemMessageModal = ({
                       <details>
                         <summary>{t("input")}</summary>
                         <JsonViewer value={tool.inputSchema} />
+                      </details>
+                    )}
+
+                    {tool.outputSchema && !!Object.keys(tool.outputSchema?.properties ?? {}).length && (
+                      <details>
+                        <summary>{t("output")}</summary>
+                        <JsonViewer value={tool.outputSchema} />
                       </details>
                     )}
                   </Card>
