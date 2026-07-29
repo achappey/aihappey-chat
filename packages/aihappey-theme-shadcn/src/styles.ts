@@ -295,8 +295,8 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 .aih-shadcn-menu-content,
 .aih-shadcn-menu-sub-content { max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; }
 .aih-shadcn-select-content { width: var(--radix-select-trigger-width, var(--radix-dropdown-menu-trigger-width)); max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow: hidden; }
-.aih-shadcn-multiselect-content { width: var(--radix-dropdown-menu-trigger-width); max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; }
-.aih-shadcn-select-viewport { max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow-y: auto; padding: .25rem; }
+.aih-shadcn-multiselect-content { width: var(--radix-dropdown-menu-trigger-width); max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.aih-shadcn-select-viewport { max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow-y: auto; padding: .25rem; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 .aih-shadcn-dropdown-select-viewport { max-height: min(calc(var(--radix-dropdown-menu-content-available-height, 24rem) - 3rem), 21rem); overscroll-behavior: contain; }
 .aih-shadcn-select-search { position: relative; padding: .25rem .25rem .375rem; }
 .aih-shadcn-select-search-icon { position: absolute; left: .875rem; top: 50%; transform: translateY(-50%); color: var(--aih-shadcn-muted-foreground); pointer-events: none; }

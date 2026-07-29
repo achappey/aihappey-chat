@@ -568,6 +568,7 @@ function renderMultiSelectOption(option: ShadcnSelectOption, selectedValues: str
 export const Select = ({ values = [], value, onChange, label, hint, required, children, disabled, valueTitle, style, className, icon, multiselect, placeholder, size, searchable, searchPlaceholder = "Search...", noResultsText = "No results", ...rest }: any) => {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const optionNodes = React.useMemo(() => parseSelectNodes(children), [children]);
   const filteredOptionNodes = React.useMemo(() => filterSelectNodes(optionNodes, searchable ? search : ""), [optionNodes, search, searchable]);
@@ -597,6 +598,7 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
         : undefined;
   const trigger = (
     <button
+      ref={triggerRef}
       type="button"
       disabled={disabled}
       className={cn("aih-shadcn-select-trigger", className)}
@@ -609,9 +611,13 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
     </button>
   );
   const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+    if (disabled && nextOpen) return;
     setOpen(nextOpen);
     if (!nextOpen) setSearch("");
-  }, []);
+  }, [disabled]);
+  React.useEffect(() => {
+    if (disabled && open) handleOpenChange(false);
+  }, [disabled, handleOpenChange, open]);
   React.useEffect(() => {
     if (!open || !searchable) return;
 
@@ -636,10 +642,14 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
     </div>
   ) : null;
   const noResults = searchable && filteredOptionCount === 0 ? <div className="aih-shadcn-select-empty">{noResultsText}</div> : null;
+  // Keep a dropdown opened from a modal inside that modal's DOM subtree. Radix
+  // Dialog's scroll lock otherwise treats a body-portalled menu as external and
+  // suppresses wheel/touch scrolling over it.
+  const portalContainer = triggerRef.current?.closest<HTMLElement>(".aih-shadcn-dialog-content") ?? undefined;
   const multiselectDropdown = (
     <DropdownMenuPrimitive.Root modal={false} open={open} onOpenChange={handleOpenChange}>
-      <DropdownMenuPrimitive.Trigger asChild>{trigger}</DropdownMenuPrimitive.Trigger>
-      <DropdownMenuPrimitive.Portal>
+      <DropdownMenuPrimitive.Trigger asChild disabled={disabled}>{trigger}</DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Portal container={portalContainer}>
         <PortalThemeScope>
           <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content aih-shadcn-multiselect-content" align="start" sideOffset={4} collisionPadding={8}>
             {searchBox}
@@ -651,8 +661,8 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
   );
   const select = (
     <DropdownMenuPrimitive.Root modal={false} open={open} onOpenChange={handleOpenChange}>
-      <DropdownMenuPrimitive.Trigger asChild>{trigger}</DropdownMenuPrimitive.Trigger>
-      <DropdownMenuPrimitive.Portal>
+      <DropdownMenuPrimitive.Trigger asChild disabled={disabled}>{trigger}</DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Portal container={portalContainer}>
         <PortalThemeScope>
           <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content" align="start" sideOffset={4} collisionPadding={8}>
             {searchBox}
