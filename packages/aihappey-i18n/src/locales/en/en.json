@@ -777,7 +777,7 @@
         "agentImportHint": "Import resources as Agents.",
         "conversationImport": "Conversations",
         "conversationImportHint": "Import resources as conversations.",
-        "apps": "OpenAI Apps",
+        "apps": "MCP Apps",
         "extractExif": "Extract EXIF",
         "convertAttachmentsToText": "Convert attachments to text",
         "sendRawAttachments": "Send raw attachments",

@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import type { CallToolResult } from "aihappey-mcp";
-import { OPENAI_OUTPUT_TEMPLATE } from "aihappey-types";
 import { readResource as defaultReadResource } from "../../../runtime/mcp/readResource";
 
 type AnyToolCall = {
@@ -29,7 +28,9 @@ export function useMcpPassthroughToolCall(opts: {
       );
 
       if (!opts.enableApps) return toolResult;
-      if (!toolResult?._meta?.[OPENAI_OUTPUT_TEMPLATE]) return toolResult;
+      if (!((toolResult?._meta?.ui as any)?.resourceUri)
+        || !((toolResult?._meta?.ui as any)?.resourceUri.startsWith("ui://")))
+        return toolResult;
 
       const key = Object.entries(opts.mcpServerContent)
         .find(([_, v]: any) => v?.tools?.some((t: any) => t?.name === toolCall.toolName))
@@ -37,29 +38,21 @@ export function useMcpPassthroughToolCall(opts: {
 
       if (!key) return toolResult;
 
-      const widget = await readResource(key, toolResult._meta[OPENAI_OUTPUT_TEMPLATE] as string);
+      const widget = await readResource(key, (toolResult?._meta?.ui as any)?.resourceUri as string);
       if (!widget) return toolResult;
 
       const first = widget.contents?.[0];
       if (!first) return toolResult;
 
-      if (first.mimeType !== "text/html+skybridge") return toolResult;
+      if (first.mimeType !== "text/html;profile=mcp-app") return toolResult;
 
       const html = (first as any).text ?? null;
-      const widgetName = first.uri ?? null;
-      const desc = first?._meta?.["openai/widgetDescription"];
-
-      const modelText =
-        `INJECTED BY CHAT APP: The chat app rendered a widget.\n\n` +
-        `Uri: ${widgetName}\nDescription: ${desc}`;
 
       return {
         ...toolResult,
-        content: [...(toolResult.content ?? []), { type: "text", text: modelText }],
         _meta: {
           ...toolResult._meta,
-          ["chat/html"]: html,
-          ...(desc ? { ["chat/widgetDescription"]: desc } : {}),
+          ["chat/html"]: html
         },
       };
     },
