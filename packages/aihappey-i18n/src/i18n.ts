@@ -34,7 +34,7 @@ export const initI18n = () => {
         caches: ["localStorage", "cookie"],
       },
       react: {
-        useSuspense: true,
+        useSuspense: false,
       },
     });
 

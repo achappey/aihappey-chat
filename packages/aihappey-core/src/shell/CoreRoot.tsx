@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { CoreShell } from "./CoreShell";
 import { ServersPage } from "../features/mcp-catalog/ServersPage";
@@ -153,7 +153,7 @@ export const CoreRoot = ({
   const router = createBrowserRouter(routes);
   const routerUi = <RouterProvider router={router} />;
 
-  const app = msalInstance ? (
+  return msalInstance ? (
     <MsalAuthProvider instance={msalInstance}>
       <MsalAuthenticationTemplate
         interactionType={InteractionType.Redirect}
@@ -166,12 +166,6 @@ export const CoreRoot = ({
     </MsalAuthProvider>
   ) : (
     routerUi
-  );
-
-  return (
-    <Suspense fallback={<Skeleton />}>
-      {app}
-    </Suspense>
   );
 };
 
