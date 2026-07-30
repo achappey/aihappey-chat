@@ -3,7 +3,7 @@ import { useMcpRuntimeBinding } from "./useMcpRuntimeBinding";
 
 type McpConnectionsProviderProps = {
   children: ReactNode;
-  samplingApi?: string;
+  inferenceApi?: string
   agentApi: string
   agentScopes: string[]
   clientName?: string;
@@ -17,15 +17,15 @@ type McpConnectionsProviderProps = {
  * Uses zustand store for state and actions.
  */
 export const McpConnectionsProvider = ({
+  inferenceApi,
   children,
-  samplingApi,
   agentApi,
   agentScopes,
   clientVersion,
   authenticated,
   clientName,
 }: McpConnectionsProviderProps) => {
-  useMcpRuntimeBinding({ samplingApi, agentApi, agentScopes, clientVersion, authenticated, clientName });
+  useMcpRuntimeBinding({ inferenceApi, agentApi, agentScopes, clientVersion, authenticated, clientName });
 
   return <>{children}</>;
 };

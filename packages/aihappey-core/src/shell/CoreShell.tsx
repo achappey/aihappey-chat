@@ -322,8 +322,8 @@ export const CoreShell: React.FC<Props> = ({
     <Outlet />
   );
 
-  const samplingEndpoint = effectiveGatewayEnabled
-    ? effectiveChatConfig.baseUrl + effectiveChatConfig.endpoints.sampling
+  const inferenceApi = effectiveGatewayEnabled
+    ? effectiveChatConfig.baseUrl
     : undefined;
 
   return (
@@ -357,7 +357,7 @@ export const CoreShell: React.FC<Props> = ({
                                       agentApi={effectiveChatConfig?.agentEndpoint!}
                                       authenticated={effectiveChatConfig?.getAccessToken != null}
                                       clientVersion={effectiveChatConfig?.appVersion}
-                                      samplingApi={samplingEndpoint}
+                                      inferenceApi={inferenceApi}
                                     >
                                       {ui}
                                     </McpConnectionsProvider>

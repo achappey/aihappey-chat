@@ -40,18 +40,7 @@ export const Default: Story = {
   render: () => <Wrapper initial={undefined} />,
 };
 
-export const SamplingOn: Story = {
-  args: {} as any,
-  render: () => <Wrapper initial={{ sampling: {} }} />,
-};
-
 export const ElicitationOn: Story = {
   args: {} as any,
   render: () => <Wrapper initial={{ elicitation: {} }} />,
 };
-
-export const BothOn: Story = {
-  args: {} as any,
-  render: () => <Wrapper initial={{ sampling: {}, elicitation: {} }} />,
-};
-

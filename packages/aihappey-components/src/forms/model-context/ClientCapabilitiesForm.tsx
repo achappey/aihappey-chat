@@ -3,7 +3,7 @@ import { useTheme } from "../../theme/ThemeContext";
 
 type ClientCapabilitiesFormProps = {
     capabilities?: Record<string, any>;
-    onChange: (key: "sampling" | "elicitation", value: any) => void;
+    onChange: (key: "elicitation", value: any) => void;
 };
 
 export const ClientCapabilitiesForm = ({
@@ -13,7 +13,7 @@ export const ClientCapabilitiesForm = ({
     const theme = useTheme();
     const { t } = useTranslation();
 
-    const toggle = (key: "sampling" | "elicitation") => {
+    const toggle = (key:"elicitation") => {
         const current = capabilities?.[key];
         onChange(key, current != null ? undefined : {});
     };
@@ -27,13 +27,6 @@ export const ClientCapabilitiesForm = ({
                     gridTemplateColumns: "1fr 1fr",
                 }}
             >
-                <theme.Switch
-                    id="sampling"
-                    label={t("sampling")}
-                    checked={capabilities?.sampling}
-                    onChange={() => toggle("sampling")}
-                />
-
                 <theme.Switch
                     id="elicitation"
                     label={t("elicit")}

@@ -47,16 +47,6 @@ export type McpContents = {
   } | undefined;
 };
 
-
-type McpConnectOpts = {
-  token?: string;
-  headers?: Record<string, string>;
-  onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult>;
-  onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
-  onLogging?: (notif: LoggingMessageNotification) => Promise<void>;
-  onProgress?: (notif: ProgressNotification) => Promise<void>;
-};
-
 export type ResourceResult = { uri: string; data: ReadResourceResult };
 export type SamplingRequest = [string, string, CreateMessageRequest, CreateMessageResult];
 export type ElicitRequestItem = [string, ElicitRequest, ElicitResult];
@@ -68,9 +58,6 @@ export type McpSlice = {
   safeHosts: string[]
   setSafeHosts: (safeHosts: string[]) => void;
   resetTimeoutOnProgress: boolean
-  sampling: Record<string, SamplingRequest>;
-  addSampling: (id: string, createdAt: string, server: string, request: CreateMessageRequest, result?: CreateMessageResult) => void;
-  clearSampling: () => void;
 
   tokens: Record<string, string>;
   mcpServerContent: Record<string, McpContents>;
@@ -102,7 +89,6 @@ export const createMcpSlice: StateCreator<
   logLevel: "info",
   toolTimeout: 300000,
   resetTimeoutOnProgress: true,
-  sampling: {},
   progress: [],
   setSafeHosts: async (hosts) => {
     set((state: any) => ({
@@ -262,17 +248,6 @@ export const createMcpSlice: StateCreator<
 
     return result;
   },
-  addSampling: (id, createdAt, server, notif, result) =>
-    set((state: any) => ({
-      sampling: {
-        ...state.sampling,
-        [id]: [createdAt, server, notif, result]
-      }
-    })),
-  clearSampling: () =>
-    set((state: any) => ({
-      sampling: {}
-    })),
   tokens: {},
   setToken: (url, token) => {
     set((state: any) => ({

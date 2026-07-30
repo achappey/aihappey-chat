@@ -28,8 +28,7 @@ export type PlaygroundEndpointId =
   | "/api/chat"
   | "/v1/chat/completions"
   | "/v1/responses"
-  | "/v1/messages"
-  | "/sampling";
+  | "/v1/messages";
 
 export type PlaygroundClientOption = {
   id: string;
@@ -110,7 +109,6 @@ export type PlaygroundEndpointConfigMap = {
   "/v1/chat/completions"?: ChatCompletionsEndpointConfig;
   "/v1/responses"?: ResponsesEndpointConfig;
   "/v1/messages"?: MessagesEndpointConfig;
-  "/sampling"?: Record<string, never>;
 };
 
 export type InvokePlaygroundRequest = {

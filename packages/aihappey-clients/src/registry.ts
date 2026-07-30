@@ -14,7 +14,6 @@ import { vercelClientAdapter } from "./clients/vercel";
 import { chatCompletionsEndpoint } from "./endpoints/chat-completions";
 import { messagesEndpoint } from "./endpoints/messages";
 import { responsesEndpoint } from "./endpoints/responses";
-import { samplingEndpoint } from "./endpoints/sampling";
 import { normalizeRequest } from "./shared/messages";
 
 const endpointAdapters: EndpointAdapter[] = [
@@ -27,8 +26,7 @@ const endpointAdapters: EndpointAdapter[] = [
   },
   chatCompletionsEndpoint,
   responsesEndpoint,
-  messagesEndpoint,
-  samplingEndpoint,
+  messagesEndpoint
 ];
 
 const clientAdapters: ClientAdapter[] = [

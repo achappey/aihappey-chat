@@ -205,7 +205,6 @@ export type UiSlice = {
   transcriptionFileSplitEnabled?: boolean
   transcriptionFileSplitOverlapSeconds?: number
   transcriptionFileSplitMaxSizeMb?: number
-  sampling?: any
   elicitation?: any
   debugMode?: boolean
   showMessageTemperature?: boolean
@@ -228,7 +227,6 @@ export type UiSlice = {
 
   activitiesSize: string;
   setActivitiesSize: (value: string) => void;
-  toggleSampling: () => void;
   toggleChatWithImageModels: () => void;
   toggleChatWithVideoModels: () => void;
   toggleChatWithSpeechModels: () => void;
@@ -337,7 +335,6 @@ export const createUiSlice: StateCreator<
   enableUserLocation: false,
   extractExif: false,
   debugMode: false,
-  sampling: {},
   elicitation: {},
   accountLocation: undefined,
   enabledProvidersByType: createEmptyEnabledProvidersByType(),
@@ -432,10 +429,6 @@ export const createUiSlice: StateCreator<
   toggleEliciation: () =>
     set((s: any) => ({
       eliciation: s.eliciation ? undefined : {},
-    })),
-  toggleSampling: () =>
-    set((s: any) => ({
-      sampling: s.sampling ? undefined : {},
     })),
   toggleAgentImport: () =>
     set((s: any) => ({

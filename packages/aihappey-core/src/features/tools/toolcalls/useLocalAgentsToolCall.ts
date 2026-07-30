@@ -54,8 +54,6 @@ export const localAgentsCreateTool: Tool = {
       policyIdempotent: { type: "boolean", description: "Whether the agent is idempotent" },
       policyOpenWorld: { type: "boolean", description: "Whether the agent can query external/unknown resources" },
       policyDestructive: { type: "boolean", description: "Whether the agent can make destructive changes" },
-
-      capabilitySampling: { type: "boolean", description: "Whether the agent supports sampling capabilities" },
       capabilityElicitation: { type: "boolean", description: "Whether the agent supports elicitation capabilities" },
     },
     required: ["agentName", "agentDescription", "agentInstructions", "modelId", "modelTemperature"],
@@ -177,7 +175,6 @@ export function useLocalAgentsRuntime() {
                   destructiveHint: input.policyDestructive ?? false,
                 },
                 capabilities: {
-                  sampling: input.capabilitySampling ?? false,
                   elicitation: input.capabilityElicitation ?? false,
                 },
               },

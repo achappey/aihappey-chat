@@ -154,28 +154,6 @@ export const getPlaygroundUnsupportedAttachmentKinds = (
       return;
     }
 
-    if (endpointId === "/sampling") {
-      if (attachment.kind === "image") {
-        if (!attachment.dataUrl) {
-          kinds.add("image");
-        }
-        return;
-      }
-
-      if (attachment.kind === "audio") {
-        if (!attachment.base64) {
-          kinds.add("audio");
-        }
-        return;
-      }
-
-      if (!attachment.base64 && !attachment.textContent) {
-        kinds.add("file");
-      }
-
-      return;
-    }
-
     kinds.add(attachment.kind);
   });
 

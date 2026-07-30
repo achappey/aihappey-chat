@@ -109,7 +109,6 @@ export type McpServer = {
 };
 
 export type McpClientCapabilities = {
-    sampling?: any;
     elicitation?: any;
 };
 

@@ -80,17 +80,12 @@ async function _connectMcpBase(
         version: opts.clientVersion || "0.0.1",
     }, {
         capabilities: {
-            sampling: opts.onSample ? {} : undefined,
             elicitation: opts.onElicit ? {
                 form: {},
                 url: {},
             } : undefined
         }
     });
-
-    if (opts.onSample)
-        client.setRequestHandler("sampling/createMessage",
-            req => opts.onSample!(url, req as any));
 
     if (opts.onElicit)
         client.setRequestHandler("elicitation/create",

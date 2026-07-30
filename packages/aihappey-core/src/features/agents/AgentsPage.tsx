@@ -318,8 +318,7 @@ export const AgentsPage = () => {
             model: { id: "" },
             mcpClient: {
               capabilities: {
-                elicitation: {},
-                sampling: {}
+                elicitation: {}
               },
               policy: {
                 readOnlyHint: false,

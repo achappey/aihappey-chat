@@ -152,7 +152,6 @@ export const defaultEndpoints = {
   transcriptions: "/api/transcriptions",
   speech: "/api/speech",
   skills: "/v1/skills",
-  sampling: "/sampling",
   models: "/v1/models",
   reranking: "/api/rerank",
   chatCompletions: "/v1/chat/completions",

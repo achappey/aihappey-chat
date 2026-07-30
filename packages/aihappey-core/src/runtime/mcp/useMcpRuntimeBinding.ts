@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAppStore } from "aihappey-state";
 import { mcpRuntime } from "aihappey-state/dist/slices/uiSlice";
 import type {
-    CreateMessageRequest, CreateMessageResult,
+    CreateMessageRequest, 
     ElicitRequest
 } from "aihappey-mcp";
 import { acquireAccessToken } from "aihappey-auth";
 import { elicitRuntime } from "./elicitRuntime";
-import { samplingRuntime } from "./samplingRuntime";
 import { logRuntime } from "./logRuntime";
 import { useConversations } from "aihappey-conversations";
 import { progressRuntime } from "./progressRuntime";
@@ -62,7 +61,7 @@ export const applyModelHintsToParams = (
  * Keeps the MCP Runtime in sync with the enabled mcpServers from Zustand.
  */
 export function useMcpRuntimeBinding({
-    samplingApi,
+    inferenceApi,
     agentApi,
     agentScopes,
     clientVersion,
@@ -79,9 +78,8 @@ export function useMcpRuntimeBinding({
     const customHeadersRef = useRef(customHeaders);
     const enabledProvidersRef = useRef(enabledProviders);
     const authenticatedRef = useRef(authenticated);
-    const samplingApiRef = useRef(samplingApi);
+    const inferenceApiRef = useRef(inferenceApi);
     const conversations = useConversations()
-    const addSampling = useAppStore((s) => s.addSampling);
     const onElicit = (server: string, params: ElicitRequest) => elicitRuntime.onElicit(server, params);
     const onProgress = async (notif: any) => {
         progressRuntime.update(notif);
@@ -92,48 +90,10 @@ export function useMcpRuntimeBinding({
         customHeadersRef.current = customHeaders;
         enabledProvidersRef.current = enabledProviders;
         authenticatedRef.current = authenticated;
-        samplingApiRef.current = samplingApi;
-    }, [models, customHeaders, enabledProviders, authenticated, samplingApi]);
+        inferenceApiRef.current = inferenceApi;
+    }, [models, customHeaders, enabledProviders, authenticated, inferenceApi]);
 
     // const onProgress = async (notif: ProgressNotification) => addProgress(notif);
-
-    const onSample = useCallback(async (server: string, params: CreateMessageRequest) => {
-        const currentModels = modelsRef.current;
-        const currentCustomHeaders = customHeadersRef.current;
-        const currentEnabledProviders = enabledProvidersRef.current;
-        const currentSamplingApi = samplingApiRef.current;
-        const withModels = applyModelHintsToParams(params, currentModels);
-
-        if (!currentSamplingApi) {
-            throw new Error("Sampling endpoint is not configured");
-        }
-
-        const apiKeyHeaders: Record<string, string> = Object.fromEntries(
-            Object.entries(currentCustomHeaders)
-                .filter(([key]) => currentEnabledProviders.includes(key.split("-")[1]))
-        );
-        const { id, createdAt } = samplingRuntime.startSampling(server, withModels)
-        const accessToken = authenticatedRef.current ? await acquireAccessToken() : null;
-        const res = await fetch(currentSamplingApi, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-                ...apiKeyHeaders,
-            },
-            body: JSON.stringify(withModels.params),
-        });
-        samplingRuntime.finishSampling(id)
-        if (!res.ok) {
-            addSampling(id, createdAt, server, withModels, undefined)
-            throw new Error(`Sampling failed (${res.status})`);
-        }
-
-        const json: CreateMessageResult = await res.json();
-        addSampling(id, createdAt, server, withModels, json)
-
-        return json;
-    }, [addSampling]);
 
     const conversationImport = async (conversation: any) => {
         var current = await conversations.list();
@@ -177,7 +137,7 @@ export function useMcpRuntimeBinding({
                     let token;
                     if (
                         cfg.config?.url &&
-                        new URL(cfg.config.url).host === new URL(samplingApi).host
+                        new URL(cfg.config.url).host === new URL(inferenceApi).host
                     ) {
                         token = await acquireAccessToken();
                     } else if (
@@ -203,7 +163,6 @@ export function useMcpRuntimeBinding({
                         ...safeHeaders
                     },
                     handleOAuth: true,
-                    onSample,
                     onElicit,
                     onLogging,
                     onProgress,

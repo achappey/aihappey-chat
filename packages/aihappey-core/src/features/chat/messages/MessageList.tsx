@@ -98,7 +98,6 @@ export const MessageList = ({
 }: MessageListProps) => {
   const { i18n, t } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
-  const sampling = useAppStore((a) => a.sampling);
   const showMessageTokens = useAppStore((a) => a.showMessageTokens);
   const showMessageTemperature = useAppStore((a) => a.showMessageTemperature);
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
@@ -237,15 +236,6 @@ export const MessageList = ({
                 <AudioPlayer src={src} style={{ width: "100%" }} />
               </div>
             ) : null;
-          }
-
-          if (block?.type === "sampling") {
-            return (
-              <Markdown
-                text={((block.request?.params?.messages?.[0] as any).content as any)?.text}
-                streaming={streaming}
-              />
-            );
           }
 
           // fall back to MessageListComponent defaults
