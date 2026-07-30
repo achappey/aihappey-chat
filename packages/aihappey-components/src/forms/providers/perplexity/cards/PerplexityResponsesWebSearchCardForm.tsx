@@ -99,7 +99,7 @@ export const PerplexityResponsesWebSearchCardForm: React.FC<{
   return (
     <theme.Card
       size="small"
-      title={t("providers:perplexity.responsesWebSearch") + " (Agents)"}
+      title={t("providers:perplexity.responsesWebSearch")}
       headerActions={
         <theme.Switch
           id="perplexityResponsesWebSearch"

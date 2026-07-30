@@ -47,7 +47,6 @@
     "includeSearchResultsInStream": "Search results"
   },
   "perplexity": {
-    "academic": "Academic",
     "agent": "Agent",
     "web": "Web",
     "fast": "Fast",

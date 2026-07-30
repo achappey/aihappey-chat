@@ -40,7 +40,7 @@ export const PerplexityFetchUrlCardForm: React.FC<{
   return (
     <theme.Card
       size="small"
-      title={t("providers:perplexity.fetchUrl")  + " (Agents)"}
+      title={t("providers:perplexity.fetchUrl")}
       headerActions={
         <theme.Switch
           id="perplexityFetchUrl"
