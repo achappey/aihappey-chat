@@ -387,10 +387,12 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 @keyframes aih-shadcn-accordion-down { from { height: 0; } to { height: var(--radix-accordion-content-height); } }
 @keyframes aih-shadcn-accordion-up { from { height: var(--radix-accordion-content-height); } to { height: 0; } }
 
+.aih-shadcn-progress { display: grid; width: 100%; gap: .375rem; }
 .aih-shadcn-progress-root { position: relative; height: .5rem; overflow: hidden; border-radius: 999px; background: var(--aih-shadcn-secondary); width: 100%; }
 .aih-shadcn-progress-indicator { height: 100%; background: var(--aih-shadcn-primary); transition: width .2s ease; }
 .aih-shadcn-progress-indeterminate .aih-shadcn-progress-indicator { position: absolute; inset-block: 0; width: 42%; border-radius: inherit; background: linear-gradient(90deg, transparent, var(--aih-shadcn-primary), transparent); animation: aih-shadcn-progress-glow 1.25s ease-in-out infinite; }
 @keyframes aih-shadcn-progress-glow { 0% { transform: translateX(-120%); opacity: .35; } 50% { opacity: 1; } 100% { transform: translateX(260%); opacity: .35; } }
+.aih-shadcn-progress-label { color: var(--aih-shadcn-muted-foreground); font-size: .875rem; line-height: 1.25rem; }
 .aih-shadcn-spinner { display: inline-block; border-radius: 999px; border: 2px solid var(--aih-shadcn-muted); border-top-color: var(--aih-shadcn-primary); animation: aih-shadcn-spin .8s linear infinite; }
 @keyframes aih-shadcn-spin { to { transform: rotate(360deg); } }
 .aih-shadcn-skeleton { display: inline-block; background: var(--aih-shadcn-muted); position: relative; overflow: hidden; }
