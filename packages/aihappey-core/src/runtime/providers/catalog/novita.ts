@@ -12,6 +12,7 @@ export const novita: Provider = {
   urls: {
     homepage: "https://novita.ai",
     docs: "https://docs.novita.ai",
+    pricing: "https://novita.ai/pricing",
     privacyPolicy: "https://novita.ai/legal/privacy-policy",
     termsOfService: "https://novita.ai/legal/terms-of-service",
     console: "https://console.novita.ai"
