@@ -208,7 +208,6 @@ import { regraph } from "./catalog/regraph";
 import { electronhub } from "./catalog/electronhub";
 import { dandolo } from "./catalog/dandolo";
 import { glio } from "./catalog/glio";
-import { pixeldojo } from "./catalog/pixeldojo";
 import { navyai } from "./catalog/navyai";
 import { nearai } from "./catalog/nearai";
 import { parallel } from "./catalog/parallel";
@@ -923,7 +922,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   aibramha,
   websearchapi,
   nanogpt,
-  pixeldojo,
   uniapi,
   parallel,
   aihubmix,
