@@ -452,7 +452,7 @@ import { igpt } from "./catalog/igpt";
 import { groovedev } from "./catalog/groovedev";
 import { botverse } from "./catalog/botverse";
 import { vibekit } from "./catalog/vibekit";
-import { microsoft } from "./catalog/microsoft";
+import { copilot } from "./catalog/copilot";
 import { brave } from "./catalog/brave";
 import { terminalskills } from "./catalog/terminalskills";
 import { clawhub } from "./catalog/clawhub";
@@ -600,7 +600,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   picklyone,
   tembo,
   poolside,
-  microsoft,
+  copilot,
   wiro,
   tapas,
   oneinfer,

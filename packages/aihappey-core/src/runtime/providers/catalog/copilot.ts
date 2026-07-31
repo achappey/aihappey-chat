@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
-export const microsoft: Provider = {
-  name: "Microsoft",
+export const copilot: Provider = {
+  name: "Copilot",
   description: "Get an AI assistant for work with Microsoft 365 Copilot. See how an enterprise AI solution can support your business and learn more about Copilot plans and pricing.",
   icons: [{
     src: "https://upload.wikimedia.org/wikipedia/en/thumb/a/aa/Microsoft_Copilot_Icon.svg/250px-Microsoft_Copilot_Icon.svg.png"
