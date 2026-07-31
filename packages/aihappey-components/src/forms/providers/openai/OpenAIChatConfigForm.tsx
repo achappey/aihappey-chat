@@ -126,7 +126,7 @@ export const OpenAIChatConfigForm = ({
       )
     );
   };
-  const serviceTierOptions = ["auto", "default", "flex", "scale", "priority"];
+  const serviceTierOptions = ["auto", "default", "flex", "scale", "fast"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
   const programmaticToolCallingEnabled = !!resolvedConfig?.programmatic_tool_calling;

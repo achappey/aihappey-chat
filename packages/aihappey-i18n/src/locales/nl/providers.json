@@ -303,6 +303,7 @@
       "default": "Standaard",
       "flex": "Flexibel",
       "scale": "Schaal",
+      "fast": "Snel",
       "priority": "Prioriteit"
     },
     "container": "Container",

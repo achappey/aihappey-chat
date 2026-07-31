@@ -589,7 +589,8 @@
       "default": "Default",
       "flex": "Flexible",
       "scale": "Scalable",
-      "priority": "Priority"
+      "priority": "Priority",
+      "fast": "Fast"
     },
     "container": "Container",
     "customVoice": "Custom voice",
