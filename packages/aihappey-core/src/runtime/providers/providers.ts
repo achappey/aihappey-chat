@@ -576,6 +576,7 @@ import { meshapi } from "./catalog/meshapi";
 import { lara } from "./catalog/lara";
 import { opencodego } from "./catalog/opencodego";
 import { opencodezen } from "./catalog/opencodezen";
+import { foundry } from "./catalog/foundry";
 
 /**
  * UI-facing provider catalog.
@@ -932,6 +933,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   astica,
   hicap,
   modelslab,
+  foundry,
   zenlayer,
   thaura,
   arwriter,
