@@ -277,7 +277,7 @@
         "agentImportHint": "Импортировать ресурсы как агентов.",
         "conversationImport": "Диалоги",
         "conversationImportHint": "Импортировать ресурсы как диалоги.",
-        "apps": "Приложения OpenAI",
+        "apps": "Приложения MCP",
         "extractExif": "Извлечь EXIF",
         "tabGeneral": "Общие",
         "userLocation": "Местоположение",

@@ -745,7 +745,7 @@
         "agentImportHint": "Importeer bronnen als Agents.",
         "conversationImport": "Conversaties",
         "conversationImportHint": "Importeer bronnen als chat conversaties.",
-        "apps": "OpenAI Apps",
+        "apps": "MCP Apps",
         "extractExif": "EXIF uitlezen",
         "convertAttachmentsToText": "Bijlages omzetten naar tekst",
         "sendRawAttachments": "Onbewerkte bijlages versturen",
