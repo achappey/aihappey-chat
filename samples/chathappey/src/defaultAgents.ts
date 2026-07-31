@@ -16,7 +16,7 @@ Make sure the message is suitable for a professional or business context—tone 
 Only output the welcome message itself, no quotes or extra text.
 Do not use em-dashes (—) or similar punctuation in the output.`,
         model: {
-            id: "openai/gpt-5.4-nano",
+            id: "openai/gpt-5.6-luna",
             providerMetadata: {
 
             },
