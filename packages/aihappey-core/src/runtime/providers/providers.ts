@@ -415,7 +415,6 @@ import { therouterai } from "./catalog/therouterai";
 import { gatemind } from "./catalog/gatemind";
 import { lxg2it } from "./catalog/lxg2it";
 import { eugpt } from "./catalog/eugpt";
-import { moltkey } from "./catalog/moltkey";
 import { aichixia } from "./catalog/aichixia";
 import { teai } from "./catalog/teai";
 import { paul } from "./catalog/paul";
@@ -697,7 +696,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   aichixia,
   nataris,
   teai,
-  moltkey,
   eugpt,
   fred,
   anyrouter,
