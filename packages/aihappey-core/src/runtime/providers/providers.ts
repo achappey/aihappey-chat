@@ -400,7 +400,6 @@ import { uncensoredchat } from "./catalog/uncensoredchat";
 import { orbgpu } from "./catalog/orbgpu";
 import { opengateway } from "./catalog/opengateway";
 import { omniakey } from "./catalog/omniakey";
-import { nebulablock } from "./catalog/nebulablock";
 import { mumeai } from "./catalog/mumeai";
 import { nouswise } from "./catalog/nouswise";
 import { shengsuanyun } from "./catalog/shengsuanyun";
@@ -509,7 +508,6 @@ import { apipass } from "./catalog/apipass";
 import { virouter } from "./catalog/virouter";
 import { inferencespace } from "./catalog/inferencespace";
 import { scrapellm } from "./catalog/scrapellm";
-import { uumuse } from "./catalog/uumuse";
 import { freeinference } from "./catalog/freeinference";
 import { llmtr } from "./catalog/llmtr";
 import { llmstats } from "./catalog/llmstats";
@@ -642,7 +640,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   groovedev,
   monstergaming,
   apipass,
-  uumuse,
   inferencespace,
   scrapellm,
   secrypt,
@@ -706,7 +703,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   helyxai,
   mumeai,
   gatemind,
-  nebulablock,
   tinyfish,
   shengsuanyun,
   opensourceaihub,
