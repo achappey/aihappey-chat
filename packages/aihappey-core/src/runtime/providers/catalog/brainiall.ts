@@ -6,10 +6,12 @@ export const brainiall: Provider = {
   urls: {
     homepage: "https://app.brainiall.com",
     docs: "https://app.brainiall.com/docs-page",
+    termsOfService:"https://app.brainiall.com/en/terms",
+    privacyPolicy:"https://app.brainiall.com/en/privacy",
     pricing: "https://app.brainiall.com/pricing"
   },
-  providerCountry: "US",
-  category: "app_tools",
+  providerCountry: "BR",
+  category: "gateway_router",
   inferenceRegions: ["World"]
 };
 
