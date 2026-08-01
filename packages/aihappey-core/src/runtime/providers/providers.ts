@@ -393,7 +393,6 @@ import { embercloud } from "./catalog/embercloud";
 import { fortytwo } from "./catalog/fortytwo";
 import { oraicle } from "./catalog/oraicle";
 import { foureverland } from "./catalog/foureverland";
-import { key4u } from "./catalog/key4u";
 import { fivedock } from "./catalog/fivedock";
 import { magisterium } from "./catalog/magisterium";
 import { uncensoredchat } from "./catalog/uncensoredchat";
@@ -713,7 +712,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   orbgpu,
   ecoia,
   embercloud,
-  key4u,
   opengateway,
   tokonlab,
   holysheepai,
