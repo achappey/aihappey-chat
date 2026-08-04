@@ -496,10 +496,27 @@ export function VercelChatInner({
       .filter((m: any) => !!m);
   }, []);
   const getGatewayProviderHeaders = useCallback((body: any) => {
+    const getAgentHeaders = (agent: any): Record<string, any> | undefined => {
+      const value = agent?.model?.providerHeaders;
+      if (value == null || typeof value !== "object" || Array.isArray(value)) {
+        return undefined;
+      }
+
+      const providerKey = String(agent?.model?.id ?? "")
+        .trim()
+        .split("/")
+        .filter(Boolean)[0]
+        ?.toLowerCase();
+      const legacyValue = providerKey ? value[providerKey] : undefined;
+
+      return legacyValue != null && typeof legacyValue === "object" && !Array.isArray(legacyValue)
+        ? legacyValue
+        : value;
+    };
     const entries = [
       ...Object.values(body?.providerHeaders ?? {}),
       ...(body?.agents ?? []).flatMap((agent: any) =>
-        Object.values(agent?.model?.providerHeaders ?? {})
+        getAgentHeaders(agent) ? [getAgentHeaders(agent)] : []
       ),
     ];
 

@@ -10,7 +10,7 @@ import {
     useAppStore,
 } from "aihappey-state";
 import { ModelSelect } from "../models/ModelSelect";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { ServerManagement } from "aihappey-components";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useAgent } from "./useAgentMcpServers";
@@ -35,7 +35,7 @@ const hostnameOf = (url?: string) => {
 
 export interface AgentFormProps {
     agent: Agent;
-    onChange: (agent: Agent) => void;
+    onChange: Dispatch<SetStateAction<Agent>>;
     isEditing: boolean;
     onBusyChange?: (busy: boolean) => void;
 }
@@ -325,31 +325,22 @@ export const AgentForm = ({
     const providerKey = getAgentModelProviderKey(agent?.model?.id);
     const providerMeta = agent?.model?.providerMetadata ?? {};
     const providerHeaders = agent?.model?.providerHeaders ?? {};
-    const updateProviderMetadata = (patch: any) =>
-        onChange({
-            ...agent,
+    const updateProviderMetadata = (providerMetadata: any) =>
+        onChange((current) => ({
+            ...current,
             model: {
-                ...agent.model,
-                providerMetadata: {
-                    ...agent.model?.providerMetadata,
-                    ...patch,
-                },
+                ...current.model,
+                providerMetadata,
             },
-        });
+        }));
     const updateProviderHeaders = (headers: Record<string, string> | undefined) =>
-        onChange({
-            ...agent,
+        onChange((current) => ({
+            ...current,
             model: {
-                ...agent.model,
-                providerHeaders: headers && Object.keys(headers).length ? {
-                    ...(agent.model?.providerHeaders ?? {}),
-                    [providerKey]: headers,
-                } : Object.fromEntries(
-                    Object.entries(agent.model?.providerHeaders ?? {})
-                        .filter(([key]) => key !== providerKey)
-                ),
+                ...current.model,
+                providerHeaders: headers && Object.keys(headers).length ? headers : undefined,
             },
-        });
+        }));
 
     const enabled = new Set(Object.entries(agent.mcpServers ?? {})
         .filter(a => a[1].disabled !== true)
@@ -527,7 +518,7 @@ export const AgentForm = ({
                     {providerKey === "openai" && (
                         <OpenAIChatConfigForm
                             config={providerMeta}
-                            headers={providerHeaders[providerKey] ?? {}}
+                            headers={providerHeaders}
                             openAISkillOptions={openAISkillOptions}
                             resolveOpenAIShellSkill={resolveOpenAIShellSkill}
                             updateConfig={updateProviderMetadata}
@@ -545,7 +536,7 @@ export const AgentForm = ({
                     {providerKey === "openrouter" && (
                         <OpenRouterChatConfigForm
                             config={providerMeta}
-                            headers={providerHeaders[providerKey] ?? {}}
+                            headers={providerHeaders}
                             appTitle={chatConfig?.appName}
                             updateConfig={updateProviderMetadata}
                             updateHeaders={updateProviderHeaders}
@@ -555,7 +546,7 @@ export const AgentForm = ({
                     {providerKey === "requesty" && (
                         <RequestyChatConfigForm
                             config={providerMeta}
-                            headers={providerHeaders[providerKey] ?? {}}
+                            headers={providerHeaders}
                             appTitle={chatConfig?.appName}
                             updateConfig={updateProviderMetadata}
                             updateHeaders={updateProviderHeaders}
@@ -572,7 +563,7 @@ export const AgentForm = ({
                     {providerKey === "anthropic" && (
                         <AnthropicChatConfigForm
                             config={providerMeta}
-                            headers={providerHeaders[providerKey] ?? {}}
+                            headers={providerHeaders}
                             updateConfig={updateProviderMetadata}
                             updateHeaders={updateProviderHeaders}
                         />

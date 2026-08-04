@@ -7,7 +7,10 @@ import {
 import type { StateCreator } from "zustand";
 import { getConfiguredDefaultAgents } from "../appStoreConfig";
 import { ensureDefaultAgents } from "./defaultAgents";
-import { resolveAgentModelProviderMetadata } from "./agentModelProviderMetadata";
+import {
+    resolveAgentModelProviderHeaders,
+    resolveAgentModelProviderMetadata,
+} from "./agentModelProviderMetadata";
 
 export type AgentSlice = {
     agents: Agent[];
@@ -204,6 +207,12 @@ export const createAgentSlice: StateCreator<
                 previousProviderMetadata: prev.model?.providerMetadata,
                 nextProviderMetadata: agent.model?.providerMetadata,
             });
+            const providerHeaders = resolveAgentModelProviderHeaders({
+                previousModelId: prev.model?.id,
+                nextModelId: mergedModel.id,
+                previousProviderHeaders: prev.model?.providerHeaders,
+                nextProviderHeaders: agent.model?.providerHeaders,
+            });
 
             const next = [...state.agents];
 
@@ -214,6 +223,7 @@ export const createAgentSlice: StateCreator<
                 model: {
                     ...mergedModel,
                     providerMetadata,
+                    providerHeaders,
                 },
 
             };

@@ -1,5 +1,6 @@
 import type { Agent } from "aihappey-types";
 import type { LocalAgentHydrationResult } from "./types";
+import { normalizeAgent } from "./normalizeAgent";
 
 function normalizeAgents(items?: Agent[]): Agent[] {
   if (!Array.isArray(items)) return [];
@@ -14,10 +15,10 @@ function normalizeAgents(items?: Agent[]): Agent[] {
     if (!name || seenNames.has(name)) continue;
 
     seenNames.add(name);
-    normalized.push({
+    normalized.push(normalizeAgent({
       ...item,
       name,
-    });
+    }));
   }
 
   return normalized;

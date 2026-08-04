@@ -1,6 +1,7 @@
 import { del, get, set } from "idb-keyval";
 import type { Agent } from "aihappey-types";
 import type { LocalAgentStore } from "./types";
+import { normalizeAgent } from "./normalizeAgent";
 
 const DB_KEY = "aihappey_agents_v1";
 
@@ -17,10 +18,10 @@ function normalizeAgents(items?: Agent[]): Agent[] {
     if (!name || seenNames.has(name)) continue;
 
     seenNames.add(name);
-    normalized.push({
+    normalized.push(normalizeAgent({
       ...item,
       name,
-    });
+    }));
   }
 
   return normalized;

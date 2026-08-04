@@ -205,7 +205,7 @@ export const VideoPage = () => {
         } => !!frame
       );
 
-      const videoResult = await videoModel.doGenerate({
+      const videoResult = await videoModel.doGenerate!({
         prompt: content,
         n,
         seed,

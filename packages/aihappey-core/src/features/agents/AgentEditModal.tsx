@@ -16,7 +16,7 @@ export interface AgentEditModalProps {
 export const AgentEditModal = ({ open, onClose, agent, isEditing, onSave }: AgentEditModalProps) => {
     const { Modal, Button } = useTheme();
     const { t } = useTranslation();
-    const [draft, setDraft] = useState<Agent | undefined>(undefined);
+    const [draft, setDraft] = useState<Agent>(agent);
     const [busy, setBusy] = useState(false);
 
     const isValid = draft?.name
@@ -25,10 +25,7 @@ export const AgentEditModal = ({ open, onClose, agent, isEditing, onSave }: Agen
         && draft?.instructions;
 
     useEffect(() => {
-        if (!open)
-            setDraft(undefined)
-        else
-            setDraft(agent)
+        setDraft(agent)
     }, [open, agent])
 
     useEffect(() => {
@@ -50,10 +47,10 @@ export const AgentEditModal = ({ open, onClose, agent, isEditing, onSave }: Agen
                     onClick={() => draft && onSave(draft)}>{t("save")}</Button>
             </>}
             title={isEditing ? t('agentEdit.edit') : t('agentEdit.create')}>
-            {draft && <AgentForm agent={draft}
+            <AgentForm agent={draft}
                 onChange={setDraft}
                 onBusyChange={setBusy}
-                isEditing={isEditing} />}
+                isEditing={isEditing} />
         </Modal>
     );
 };
