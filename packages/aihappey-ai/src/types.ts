@@ -30,11 +30,11 @@ export interface VideoResponse {
   };
 }
 
-export interface VideoResponseFile {
-  type: "base64";
-  data: string
-  mimeType: string
-}
+export type VideoResponseFile =
+  | { type: "base64"; data: string; mimeType: string }
+  //| //{ type: "url"; url: string; mediaType: string }
+  //|// { type: "binary"; data: Uint8Array; mediaType: string }
+  ;
 
 export interface TranscriptionResponse {
   text: string;

@@ -4,7 +4,7 @@ import { useLibraryVideos, type LibraryVideoItem } from "./useLibraryVideos";
 import { VideoInput } from "./VideoInput";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useVideos } from "aihappey-videos";
 import { useVideoErrors } from "./useVideoErrors";
@@ -27,6 +27,43 @@ import {
 import { useTranslation } from "aihappey-i18n";
 import { useFiles } from "aihappey-files";
 import { useQueryModelId } from "../models/queryModelSelection";
+import {
+  createPendingVideoOperation,
+  loadPendingVideoOperations,
+  savePendingVideoOperations,
+  type PendingVideoOperation,
+} from "./pendingVideoOperations";
+
+const VIDEO_POLL_INTERVAL_MS = 5_000;
+
+const normalizeVideoResult = (videoResult: any) => ({
+  ...videoResult,
+  videos: (videoResult?.videos ?? []).map((video: any) => {
+    if (video?.type === "url") {
+      return {
+        type: "base64" as const,
+        data: video.url,
+        mimeType: video.mediaType ?? "video/mp4",
+      };
+    }
+
+    if (video?.type === "binary" && video.data instanceof Uint8Array) {
+      let binary = "";
+      video.data.forEach((byte: number) => { binary += String.fromCharCode(byte); });
+      return {
+        type: "base64" as const,
+        data: btoa(binary),
+        mimeType: video.mediaType ?? "video/mp4",
+      };
+    }
+
+    return {
+      type: "base64" as const,
+      data: video?.data ?? "",
+      mimeType: video?.mediaType ?? video?.mimeType ?? "video/mp4",
+    };
+  }),
+});
 
 export const VideoPage = () => {
   const videos = useLibraryVideos();
@@ -43,7 +80,12 @@ export const VideoPage = () => {
   const providerVideoMetadata = useAppStore((a: any) => a.providerVideoMetadata);
   const userPreferredVideoModel = useAppStore((a: any) => a.userPreferredVideoModel);
   const { config } = useChatContext();
-  const [itemsLoading, setItemsLoading] = useState<number>(0);
+  const [itemsStarting, setItemsStarting] = useState<number>(0);
+  const [pendingOperations, setPendingOperations] = useState<PendingVideoOperation[]>(
+    () => loadPendingVideoOperations(),
+  );
+  const pollingOperations = useRef(new Set<string>());
+  const terminalOperations = useRef(new Set<string>());
   const storageVideos = useVideos();
   const files = useFiles();
   const { t } = useTranslation();
@@ -70,9 +112,102 @@ export const VideoPage = () => {
     dismissWarning,
   } = useVideoErrors();
 
+  const itemsLoading = itemsStarting + pendingOperations.reduce(
+    (total, operation) => total + operation.requestedVideos,
+    0,
+  );
+
+  const replacePendingOperations = useCallback((update: (current: PendingVideoOperation[]) => PendingVideoOperation[]) => {
+    setPendingOperations((current) => {
+      const next = update(current);
+      savePendingVideoOperations(next);
+      return next;
+    });
+  }, []);
+
+  const createRequestHeaders = useCallback(async () => {
+    const merged = { ...(headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
+    if (getAccessToken) {
+      try {
+        merged.Authorization = `Bearer ${await getAccessToken()}`;
+      } catch { }
+    }
+    return merged;
+  }, [customHeaders, getAccessToken, headers]);
+
   useEffect(() => {
     if (queryModelId) setSelectedModel(queryModelId);
   }, [queryModelId]);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    const poll = async () => {
+      const operations = loadPendingVideoOperations();
+      if (!operations.length) return;
+
+      const requestHeaders = await createRequestHeaders();
+      if (abortController.signal.aborted) return;
+
+      await Promise.allSettled(operations.map(async (pending) => {
+        if (pollingOperations.current.has(pending.id) || terminalOperations.current.has(pending.id)) return;
+        pollingOperations.current.add(pending.id);
+
+        try {
+          const videoProvider = createVideoProvider({
+            baseUrl: config.baseUrl + (config.endpoints as any).videos,
+            headers: requestHeaders,
+          });
+          const videoModel = videoProvider.videoModel(pending.modelId);
+          const result = await videoModel.doStatus!({
+            operation: pending.operation,
+            abortSignal: abortController.signal,
+          });
+
+          if (result.status === "pending") {
+            const normalizedWarnings = (result.warnings ?? []).map((warning: any) => ({
+              message: warning?.details ?? warning?.message ?? String(warning?.type ?? "warning"),
+            }));
+            if (normalizedWarnings.length) addWarnings(normalizedWarnings);
+            return;
+          }
+
+          terminalOperations.current.add(pending.id);
+
+          if (result.status === "error") {
+            addVideoError(result.error);
+          } else {
+            const normalizedWarnings = (result.warnings ?? []).map((warning: any) => ({
+              message: warning?.details ?? warning?.message ?? String(warning?.type ?? "warning"),
+            }));
+            if (normalizedWarnings.length) addWarnings(normalizedWarnings);
+
+            if (result.videos.length) {
+              await storageVideos.add(normalizeVideoResult(result) as any);
+              storageVideos.refresh();
+            }
+          }
+
+          replacePendingOperations((current) => current.filter((item) => item.id !== pending.id));
+        } catch (error) {
+          if (!abortController.signal.aborted) {
+            console.warn("Video operation polling failed; it will be retried.", error);
+          }
+        } finally {
+          pollingOperations.current.delete(pending.id);
+          terminalOperations.current.delete(pending.id);
+        }
+      }));
+    };
+
+    void poll();
+    const interval = window.setInterval(() => { void poll(); }, VIDEO_POLL_INTERVAL_MS);
+
+    return () => {
+      abortController.abort();
+      window.clearInterval(interval);
+    };
+  }, [addVideoError, addWarnings, config.baseUrl, config.endpoints, createRequestHeaders, replacePendingOperations, storageVideos]);
 
   const [modalVideo, setModalVideo] = useState<VideoContent | undefined>(undefined);
   const [modalItem, setModalItem] = useState<LibraryVideoItem | undefined>(undefined);
@@ -136,12 +271,7 @@ export const VideoPage = () => {
   const onSend = async (content: string) => {
     clearWarnings();
     try {
-      let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
-      if (getAccessToken) {
-        try {
-          merged.Authorization = `Bearer ${await getAccessToken()}`;
-        } catch { }
-      }
+      const merged = await createRequestHeaders();
 
       const videoProvider = createVideoProvider({
         baseUrl: config.baseUrl + (config.endpoints as any).videos,
@@ -150,7 +280,7 @@ export const VideoPage = () => {
 
       const videoModel = videoProvider.videoModel(selectedModel, maxVideosPerCall);
 
-      setItemsLoading((prev) => prev + n);
+      setItemsStarting((prev) => prev + n);
 
       const attachment = attachments.find(isValidVideoAttachment);
       const imagePayload = attachment
@@ -205,52 +335,39 @@ export const VideoPage = () => {
         } => !!frame
       );
 
-      const videoResult = await videoModel.doGenerate!({
-        prompt: content,
-        n,
-        seed,
-        aspectRatio: aspectRatio as any,
-        resolution: resolution as any,
-        duration,
-        fps,
-        image: imagePayload,
-        inputReferences: inputReferences.length ? inputReferences : undefined,
-        frameImages: frameImages.length ? frameImages : undefined,
-        providerOptions: providerVideoMetadata,
-      } as any);
+      const max = maxVideosPerCall ?? n;
+      const batches = Math.ceil(n / max);
+      await Promise.all(Array.from({ length: batches }, async (_, index) => {
+        const batchN = Math.min(max, n - index * max);
+        const startResult = await videoModel.doStart!({
+          prompt: content,
+          n: batchN,
+          seed,
+          aspectRatio: aspectRatio as any,
+          resolution: resolution as any,
+          duration,
+          fps,
+          image: imagePayload,
+          inputReferences: inputReferences.length ? inputReferences : undefined,
+          frameImages: frameImages.length ? frameImages : undefined,
+          generateAudio: undefined,
+          providerOptions: providerVideoMetadata,
+        } as any);
+
+        const pending = createPendingVideoOperation(startResult.operation, selectedModel, batchN);
+        replacePendingOperations((current) => [...current, pending]);
+
+        const normalizedWarnings = (startResult.warnings ?? []).map((warning: any) => ({
+          message: warning?.details ?? warning?.message ?? String(warning?.type ?? "warning"),
+        }));
+        if (normalizedWarnings.length) addWarnings(normalizedWarnings);
+      }));
 
       setAttachments([]);
-
-      const normalizedWarnings = (videoResult?.warnings ?? []).map((w: any) => ({
-        message: w?.details ?? w?.message ?? String(w?.type ?? "warning"),
-      }));
-      addWarnings(normalizedWarnings);
-
-      const normalizedVideos = (videoResult?.videos ?? []).map((v: any) => {
-        if (v?.type === "url") {
-          return {
-            type: "base64" as const,
-            data: v.url,
-            mimeType: v.mediaType ?? "video/mp4",
-          };
-        }
-
-        return {
-          type: "base64" as const,
-          data: v?.data ?? "",
-          mimeType: v?.mimeType ?? "video/mp4",
-        };
-      });
-
-      await storageVideos.add({
-        ...videoResult,
-        videos: normalizedVideos,
-      });
-      storageVideos.refresh();
     } catch (err) {
       addVideoError(getStorageErrorMessage(err, "Video generation failed"));
     } finally {
-      setItemsLoading((prev) => prev - n);
+      setItemsStarting((prev) => Math.max(0, prev - n));
     }
   };
 

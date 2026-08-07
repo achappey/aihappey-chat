@@ -17,6 +17,7 @@ export type {
 } from "@ai-sdk/provider"
 
 export * from './types'
+export * from './videoModelV4'
 export * from './createBackendProvider'
 export * from './createImageProvider'
 export * from './createSpeechProvider'
