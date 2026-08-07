@@ -678,10 +678,10 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
   return label ? <Field label={label} hint={hint} required={required} style={style}>{element}</Field> : element;
 };
 
-export const SearchBox = ({ value, onChange, placeholder, className, style, ...rest }: any) => (
+export const SearchBox = ({ value, onChange, placeholder, className, style, autoFocus, ...rest }: any) => (
   <div style={{ position: "relative", ...style }}>
     <SearchIcon size={16} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--aih-shadcn-muted-foreground)" }} />
-    <input className={cn("aih-shadcn-input", className)} style={{ paddingLeft: 34 }} value={value} placeholder={placeholder} onChange={(e) => onChange?.(e.target.value)} {...rest} />
+    <input className={cn("aih-shadcn-input", className)} style={{ paddingLeft: 34 }} value={value} placeholder={placeholder} autoFocus={autoFocus} data-dialog-autofocus={autoFocus ? "true" : undefined} onChange={(e) => onChange?.(e.target.value)} {...rest} />
   </div>
 );
 
@@ -1138,6 +1138,14 @@ export const Modal = ({ open, show, onOpenChange, onHide, title, children, actio
           <DialogPrimitive.Overlay className="aih-shadcn-dialog-overlay" />
           <DialogPrimitive.Content
             className="aih-shadcn-dialog-content"
+            onOpenAutoFocus={(event) => {
+              const content = event.currentTarget as HTMLElement;
+              const autoFocusTarget = content.querySelector<HTMLElement>("[data-dialog-autofocus='true']");
+              if (!autoFocusTarget) return;
+
+              event.preventDefault();
+              window.requestAnimationFrame(() => autoFocusTarget.focus());
+            }}
             style={{
               width,
               ...(centered ? { display: "flex", flexDirection: "column", justifyContent: "center" } : {}),
