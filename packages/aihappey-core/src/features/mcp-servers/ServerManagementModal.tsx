@@ -67,6 +67,7 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
   }, [servers]);
 
   const [enabled, setEnabled] = useState<Set<string>>(() => new Set());
+  const [search, setSearch] = useState("");
   const knownKeysRef = useRef<Set<string>>(new Set());
 
   // Seed when modal opens (snapshot -> draft)
@@ -113,8 +114,14 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
     });
   }, []);
 
-  const handleOk = () => onHide(enabled);
-  const handleCancel = () => onHide(new Set(initiallyEnabled));
+  const handleOk = () => {
+    setSearch("");
+    onHide(enabled);
+  };
+  const handleCancel = () => {
+    setSearch("");
+    onHide(new Set(initiallyEnabled));
+  };
 
   return (
     <>
@@ -149,6 +156,9 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
           onToggle={toggle}
           mcpServers={mcpServers}
           onRemove={(name: any) => removeMcpServer(keyOf(name))}
+          search={search}
+          onSearchChange={setSearch}
+          searchAutoFocus
         />
       </Modal>
 
