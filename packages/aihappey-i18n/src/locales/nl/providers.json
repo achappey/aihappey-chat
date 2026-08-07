@@ -383,7 +383,10 @@
       }
     },
     "toolSearch": {
-      "title": "Tools zoeken"
+      "title": "Tools zoeken",
+      "executionMode": "Uitvoering",
+      "hosted": "Gehost",
+      "client": "Client"
     },
     "max_num_results": "Maximaal aantal resultaten",
     "vector_store_ids": "Ids van de documentenhubs",

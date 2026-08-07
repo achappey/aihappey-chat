@@ -117,6 +117,7 @@ const nativeFunctionTools = (body: GenericChatEndpointRequestBody) => {
         name,
         description: toolDescription(tool),
         parameters: toolParameters(tool),
+        defer_loading: tool?.defer_loading === true ? true : undefined,
       });
     })
     .filter(Boolean);
@@ -158,6 +159,7 @@ export const mapAnthropicMessagesTools = (body: GenericChatEndpointRequestBody) 
     name: tool.name,
     description: tool.description,
     input_schema: tool.parameters,
+    defer_loading: tool.defer_loading,
   }));
 
 export const mapGenericFunctionTools = (body: GenericChatEndpointRequestBody) =>

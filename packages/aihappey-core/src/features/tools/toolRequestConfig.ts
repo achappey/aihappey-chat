@@ -38,6 +38,20 @@ export const decorateToolsWithRequestConfig = (
   });
 };
 
+/** Anthropic client search requires all searchable candidates to be deferred. */
+export const deferClientToolSearchCandidates = (tools: unknown): any[] => {
+  if (!Array.isArray(tools)) return [];
+  const hasClientSearch = tools.some((tool: any) => tool?.name === "client_tool_search");
+  if (!hasClientSearch) return tools;
+
+  return tools.map((tool: any) => tool?.name === "client_tool_search"
+    ? (() => {
+      const { defer_loading: _deferLoading, ...searchTool } = tool ?? {};
+      return searchTool;
+    })()
+    : { ...tool, defer_loading: true });
+};
+
 const sanitizeNamespaceName = (value: unknown, fallback = "tools") => {
   const name = String(value ?? "").trim().toLowerCase()
     .replace(/[^a-z0-9_-]+/g, "_")

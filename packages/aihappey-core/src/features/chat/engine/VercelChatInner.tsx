@@ -22,7 +22,7 @@ import { ChatErrors } from "../layout/ChatErrors";
 import { useAccessToken } from "aihappey-auth";
 import { ToolDrawer } from "../../tools";
 import { getToolName, useTools } from "../../tools/useTools";
-import { shapeToolsForRequest } from "../../tools/toolRequestConfig";
+import { deferClientToolSearchCandidates, shapeToolsForRequest } from "../../tools/toolRequestConfig";
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
 import { conversationName as generateConversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
@@ -461,6 +461,7 @@ export function VercelChatInner({
     } : undefined, providerMetadata, effectiveTree ?? null, maxOutputTokens, catalogPromptOverride)
   }
 
+  const { tools } = useTools();
   const toolUse = useOnToolCall({
     api: config.baseUrl,
     getAccessToken,
@@ -468,15 +469,14 @@ export function VercelChatInner({
     headers,
     customFetch,
     callTool,
-    send: sendUiRequest
+    send: sendUiRequest,
+    tools,
   });
 
   const apiRef = useApiRef(api);
   apiRef.current = api;
   const effectiveChatEndpointRef = useRef(requestEndpoint);
   effectiveChatEndpointRef.current = requestEndpoint;
-  const { tools } = useTools();
-
   // Local UI overlay for edits/deletes (since `useChat()` doesn't expose `setMessages`).
   // We also re-use these overrides when building the next request body so deleted parts
   // are NOT sent to the backend on subsequent turns.
@@ -631,6 +631,18 @@ export function VercelChatInner({
               mergedBody.toolRequestConfig ?? toolRequestConfig,
               false,
             );
+            const providerKey = String(
+              (isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined)
+              ?? model?.split("/")[0]
+              ?? Object.keys(mergedBody.providerMetadata ?? {})[0]
+              ?? "",
+            ).trim().toLowerCase();
+            if (providerKey === "anthropic") {
+              mergedBody.tools = deferClientToolSearchCandidates(mergedBody.tools);
+            } else if (providerKey === "openai") {
+              // OpenAI uses its native provider-keyed tool_search definition.
+              mergedBody.tools = mergedBody.tools.filter((tool: any) => tool?.name !== "client_tool_search");
+            }
           }
 
           if (mergedBody.providerHeaders == null && baseBody.providerHeaders != null) {

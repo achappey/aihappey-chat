@@ -1,4 +1,8 @@
 import {
+  OPENAI_CLIENT_TOOL_SEARCH_NAME,
+  selectedToolsFromClientToolSearchResult,
+} from "../../../tools/clientToolSearch";
+import {
   compactObject,
   getProviderKeyFromRequestBody,
   hasConfiguredNativeTools,
@@ -169,11 +173,48 @@ const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolPa
   if (!callId) return [];
 
   const entries: any[] = [];
+  const toolName = toolPartName(part);
+  const providerMetadata = part?.callProviderMetadata?.openai
+    ?? part?.providerMetadata?.openai
+    ?? part?.resultProviderMetadata?.openai;
+  const isClientToolSearch = toolName === OPENAI_CLIENT_TOOL_SEARCH_NAME
+    && (providerMetadata?.type === "tool_search_call" || providerMetadata?.execution === "client");
+
+  if (isClientToolSearch) {
+    if (!isOutputOnlyToolPart(part)) {
+      entries.push(compactObject({
+        type: "tool_search_call" as const,
+        id: providerMetadata?.id,
+        execution: "client",
+        call_id: providerMetadata?.call_id ?? callId,
+        status: providerMetadata?.status,
+        arguments: toolPartInput(part),
+      }));
+    }
+
+    const selectedTools = selectedToolsFromClientToolSearchResult(toolPartOutput(part));
+    if (selectedTools) {
+      entries.push({
+        type: "tool_search_output" as const,
+        execution: "client",
+        call_id: providerMetadata?.call_id ?? callId,
+        status: "completed",
+        tools: selectedTools.map((tool: any) => ({
+          type: "function",
+          name: tool.name,
+          ...(tool.description ? { description: tool.description } : {}),
+          parameters: tool.inputSchema ?? { type: "object", properties: {} },
+        })),
+      });
+    }
+    return entries;
+  }
+
   if (!isOutputOnlyToolPart(part)) {
     entries.push(compactObject({
       type: "function_call" as const,
       call_id: callId,
-      name: toolPartName(part),
+      name: toolName,
       namespace: part?.namespace ?? part?.providerMetadata?.openai?.namespace,
       arguments: stringifyToolValue(toolPartInput(part)),
       caller: part?.caller ?? part?.providerMetadata?.openai?.caller,

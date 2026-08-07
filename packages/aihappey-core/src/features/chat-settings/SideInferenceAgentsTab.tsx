@@ -71,6 +71,11 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
           t("sideInference.explainToolCallAgent") ?? "Tool explanation agent",
           t("sideInference.explainToolCallAgentHint") ?? "Choose the agent for tool explanations.",
         )}
+        {renderSelect(
+          "toolSearchAgent",
+          t("sideInference.toolSearchAgent") ?? "Tool search agent",
+          t("sideInference.toolSearchAgentHint") ?? "Choose the agent that selects relevant tools for client tool search.",
+        )}
       </div>
     </theme.Card>
   );

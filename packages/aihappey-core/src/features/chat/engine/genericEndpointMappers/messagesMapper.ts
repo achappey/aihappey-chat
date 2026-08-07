@@ -23,6 +23,10 @@ import {
   toolPartOutput,
 } from "./toolParts";
 import { getSystemText, getTextFromPart, mapUiMessages, parseDataUrl } from "./uiMessageParts";
+import {
+  CLIENT_TOOL_SEARCH_NAME,
+  selectedToolsFromClientToolSearchResult,
+} from "../../../tools/clientToolSearch";
 
 const toAnthropicFileBlocks = (file: GenericMappedFilePart) => {
   if (file.mimeType.startsWith("image/") && file.dataUrl) {
@@ -136,12 +140,23 @@ const toAnthropicToolResultMessages = (message: GenericMappedMessage): any[] => 
     const toolUseId = toolPartCallId(part);
     if (!toolUseId) return undefined;
 
+    const output = toolPartOutput(part);
+    const isClientToolSearch = toolPartName(part, "tool") === CLIENT_TOOL_SEARCH_NAME;
+    const selectedTools = isClientToolSearch
+      ? selectedToolsFromClientToolSearchResult(output)
+      : undefined;
+
     return compactObject({
       role: "user" as const,
       content: [compactObject({
         type: "tool_result" as const,
         tool_use_id: toolUseId,
-        content: stringifyToolValue(toolPartOutput(part)),
+        content: selectedTools
+          ? selectedTools.map((tool: any) => ({
+            type: "tool_reference",
+            tool_name: tool.name,
+          }))
+          : stringifyToolValue(output),
         is_error: String(part?.state ?? "").toLowerCase() === "output-error" ? true : undefined,
       })],
     });

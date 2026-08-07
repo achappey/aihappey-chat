@@ -2,6 +2,7 @@ import type { Agent } from "aihappey-types";
 import {
     CONVERSATION_NAME_AGENT_NAME,
     EXPLAIN_TOOL_CALL_AGENT_NAME,
+    TOOL_SEARCH_AGENT_NAME,
     WELCOME_MESSAGE_AGENT_NAME,
 } from "aihappey-state";
 
@@ -73,4 +74,25 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
             },
         },
     },
+    {
+        name: TOOL_SEARCH_AGENT_NAME,
+        description: "Search tools",
+        instructions:
+            "Select the tools that best satisfy the supplied search goal from the supplied tool catalog. Return exactly one JSON object with the shape {\"selectedToolNames\":[\"exact_tool_name\"]}. Use only exact names present in the catalog, preserve relevance order, include no duplicates, select at most 10 tools, and include no markdown or text outside the JSON object.",
+        model: {
+            id: "openai/gpt-5.6-luna",
+            providerMetadata: {
+
+            },
+        },
+        mcpClient: {
+            capabilities: {},
+            policy: {
+                readOnlyHint: true,
+                openWorldHint: false,
+                idempotentHint: false,
+                destructiveHint: false,
+            },
+        },
+    }
 ];

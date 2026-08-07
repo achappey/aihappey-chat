@@ -10,7 +10,7 @@ import { isGenericChatEndpoint } from "../../features/chat/engine/genericChatEnd
 import { sanitizeProviderRequestConfigForProvider } from "../providers/providerRequestConfig";
 import { PROVIDERS } from "../providers/providerMetadata";
 
-type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall";
+type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall" | "toolSearch";
 
 export type SideInferenceAgentCallOptions = {
   baseUrl?: string;
@@ -24,6 +24,10 @@ export type SideInferenceAgentCallOptions = {
   models?: ModelOption[];
   agentName?: string;
   fallback?: string;
+  /** Model used when the configured app agent is absent. */
+  fallbackModelId?: string;
+  /** Instructions used by the plain Responses fallback when the configured app agent is absent. */
+  fallbackInstructions?: string;
 };
 
 type InvokeSideInferenceAgentArgs = SideInferenceAgentCallOptions & {
@@ -181,12 +185,12 @@ export const invokeSideInferenceAgent = async ({
   models = [],
   agentName,
   fallback,
+  fallbackModelId,
+  fallbackInstructions,
 }: InvokeSideInferenceAgentArgs): Promise<string | undefined> => {
   try {
     const selectedAgent = agents.find((agent) => agent.name === agentName);
-    if (!selectedAgent) throw new Error(`Side inference agent '${agentName}' not found`);
-
-    const modelId = selectedAgent.model?.id;
+    const modelId = selectedAgent?.model?.id ?? fallbackModelId;
     if (!modelId) throw new Error(`Side inference agent '${agentName}' has no model`);
     const exactGatewayModelOption = findGatewayModelOption(models, modelId);
     const selectedModelOption = gatewayEnabled
@@ -225,7 +229,7 @@ export const invokeSideInferenceAgent = async ({
       ? createProviderBearerHeadersForProviderKey(customHeaders, requestProviderKey, providers)
       : createChatAuthHeadersForModel(customHeaders, modelId, Boolean(accessToken), providers);
     const directProviderRequestConfig = isDirectProviderRequest
-      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent.model?.providerMetadata), requestProviderKey, {
+      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent?.model?.providerMetadata), requestProviderKey, {
         endpointId: "/v1/responses",
       }) ?? {})
       : {};
@@ -240,7 +244,7 @@ export const invokeSideInferenceAgent = async ({
     const body = compactObject({
       ...directProviderRequestConfig,
       model: requestModel,
-      instructions: selectedAgent.instructions,
+      instructions: selectedAgent?.instructions ?? fallbackInstructions,
       input: toInputText(input),
       stream: false,
     });

@@ -60,6 +60,10 @@ import { useSkills } from "aihappey-skills";
 import { buildSkillSearchPluginDef, SKILL_SEARCH_PLUGIN_ID, useSkillToolCall } from "./useSkillToolCall";
 import { mcpTaskPluginDef, useMcpTaskRuntime } from "./useMcpTaskToolCall";
 import { localSkillEditorPluginDef, useLocalSkillEditorRuntime } from "./useLocalSkillEditorToolCall";
+import {
+  clientToolSearchPluginDef,
+  useClientToolSearchRuntime,
+} from "./useClientToolSearchToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -69,6 +73,7 @@ export function useOnToolCall({
   headers,
   customFetch,
   send,
+  tools = [],
 }: {
   api: string;
   getAccessToken?: any;
@@ -83,6 +88,7 @@ export function useOnToolCall({
     signal?: AbortSignal
   ) => Promise<any>;
   send: any
+  tools?: unknown[];
 }) {
   const enableApps = useAppStore(a => a.enableApps);
   const mcpServerContent = useAppStore(a => a.mcpServerContent);
@@ -125,6 +131,13 @@ export function useOnToolCall({
   });
 
   const todoListRuntime = useLocalTodoRuntime(conversationId);
+  const clientToolSearchRuntime = useClientToolSearchRuntime({
+    api,
+    getAccessToken,
+    headers,
+    customFetch,
+    tools,
+  });
 
   const anthropicTextEditorConfig = useMemo(
     () => getAnthropicTextEditorConfig(activeProviderMetadata?.anthropic),
@@ -170,6 +183,7 @@ export function useOnToolCall({
       [localSkillEditorRuntime.name]: localSkillEditorRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
       [jsonRenderRuntime.name]: jsonRenderRuntime,
+      [clientToolSearchRuntime.name]: clientToolSearchRuntime,
       [searchSkillsPlugin.name]: searchSkillsPlugin,
     }),
     [
@@ -186,6 +200,7 @@ export function useOnToolCall({
       localRegistryRuntime,
       localImagesRuntime,
       jsonRenderRuntime,
+      clientToolSearchRuntime,
       vercelAIRuntime,
       localStructuredOutputsRuntime,
       localWebreaderRuntime,
@@ -218,6 +233,7 @@ export function useOnToolCall({
       buildSkillSearchPluginDef(skills.items ?? []),
       mcpTaskPluginDef,
       vercelAIPluginDef,
+      clientToolSearchPluginDef,
     ],
     [skills.items]
   );
@@ -263,6 +279,12 @@ export function useOnToolCall({
         }
 
         // 1) normal enabled plugins
+        // OpenAI's native client tool_search is runtime-only and must not require
+        // exposing a duplicate ordinary function definition.
+        if (toolCall.toolName === "tool_search") {
+          return await clientToolSearchRuntime.handle(toolCall, signal);
+        }
+
         const p = plugins.find(x => x.match(toolCall.toolName));
         if (p) return await p.handle(toolCall, signal);
 
@@ -302,6 +324,7 @@ export function useOnToolCall({
       enabledLocalTools,
       localToolsStore.items,
       plugins,
+      clientToolSearchRuntime,
       specialRuntimes,
       anthropicTextEditorPlugin,
       memoryPlugin,

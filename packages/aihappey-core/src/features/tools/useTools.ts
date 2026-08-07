@@ -31,6 +31,7 @@ import {
 } from "./toolcalls/useSkillToolCall";
 import { buildMcpTaskTools, mcpTaskPluginDef } from "./toolcalls/useMcpTaskToolCall";
 import { localSkillEditorPluginDef } from "./toolcalls/useLocalSkillEditorToolCall";
+import { clientToolSearchPluginDef } from "./toolcalls/useClientToolSearchToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -82,6 +83,7 @@ export function useTools() {
       buildSkillSearchPluginDef(skills.items ?? []),
       mcpTaskPluginDef,
       vercelAIPluginDef,
+      clientToolSearchPluginDef,
     ],
     [skills.items]
   );

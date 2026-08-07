@@ -24,12 +24,14 @@ export type SideInferenceAgentNames = {
   welcomeMessageAgent: string;
   conversationNameAgent: string;
   explainToolCallAgent: string;
+  toolSearchAgent: string;
 };
 
 export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
   welcomeMessageAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.welcomeMessage,
   conversationNameAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.conversationName,
   explainToolCallAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.explainToolCall,
+  toolSearchAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.toolSearch,
 };
 
 export type ChatSlice = ApiKeyEncryptionState & {

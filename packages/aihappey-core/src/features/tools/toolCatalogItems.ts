@@ -20,6 +20,7 @@ import { localImagesPluginDef } from "./toolcalls/useLocalImagesToolCall";
 import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall";
 import { localTodoPluginDef } from "./toolcalls/useLocalTodoListToolCall";
 import { SKILL_SEARCH_PLUGIN_ID } from "./toolcalls/useSkillToolCall";
+import { clientToolSearchPluginDef } from "./toolcalls/useClientToolSearchToolCall";
 
 export type ToolListItem = {
   key: string;
@@ -60,6 +61,7 @@ export const allBuiltInPluginDefs = [
   localRegistryPluginDef,
   localActionsPluginDef,
   localToolsPluginDef,
+  clientToolSearchPluginDef,
   vercelAIPluginDef,
 ];
 

@@ -178,6 +178,8 @@
         "conversationNameAgentHint": "Choose the agent for conversation names.",
         "explainToolCallAgent": "Tool explanation agent",
         "explainToolCallAgentHint": "Choose the agent for tool explanations.",
+        "toolSearchAgent": "Tool search agent",
+        "toolSearchAgentHint": "Choose the agent that selects relevant tools for client tool search.",
         "fallbackWelcome": "Welcome",
         "toolExplanationFallback": "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
     },
@@ -559,6 +561,7 @@
         "local-structured-outputs": "Structured outputs",
         "local-files": "Files",
         "local-tools": "Tools",
+        "client-tool-search": "Tool search",
         "skill-search": "Skill discovery",
         "local-conversations": "Chat history",
         "local-settings": "Chat settings",

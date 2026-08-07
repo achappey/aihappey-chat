@@ -670,7 +670,10 @@
       }
     },
     "toolSearch": {
-      "title": "Tool search"
+      "title": "Tool search",
+      "executionMode": "Execution mode",
+      "hosted": "Hosted",
+      "client": "Client"
     },
     "max_num_results": "Maximum number of results",
     "vector_store_ids": "Ids of the vector stores",

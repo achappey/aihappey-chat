@@ -34,6 +34,22 @@ const MIN_COMPACT_THRESHOLD = 1000;
 const OPENAI_BETA_HEADER = "OpenAI-Beta";
 const OPENAI_MULTI_AGENT_BETA = "responses_multi_agent=v1";
 const DEFAULT_MAX_CONCURRENT_SUBAGENTS = 3;
+const OPENAI_CLIENT_TOOL_SEARCH = {
+  type: "tool_search",
+  execution: "client",
+  description: "Search the available tool catalog for tools that satisfy a goal.",
+  parameters: {
+    type: "object",
+    properties: {
+      goal: {
+        type: "string",
+        description: "A concise description of the capability or task to find tools for.",
+      },
+    },
+    required: ["goal"],
+    additionalProperties: false,
+  },
+};
 
 type OpenAIContextManagementEntry = {
   type?: string;
@@ -131,6 +147,7 @@ export const OpenAIChatConfigForm = ({
   const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
   const programmaticToolCallingEnabled = !!resolvedConfig?.programmatic_tool_calling;
   const toolSearchEnabled = !!resolvedConfig?.tool_search;
+  const toolSearchMode = resolvedConfig?.tool_search?.execution === "client" ? "client" : "hosted";
   const multiAgentEnabled = !!resolvedConfig?.multi_agent?.enabled;
   const maxConcurrentSubagents = normalizePositiveIntegerInput(
     resolvedConfig?.multi_agent?.max_concurrent_subagents
@@ -302,11 +319,28 @@ export const OpenAIChatConfigForm = ({
             checked={toolSearchEnabled}
             onChange={(enabled: boolean) => submitConfig({
               ...resolvedConfig,
-              tool_search: enabled ? { type: "tool_search" } : undefined,
+              tool_search: enabled
+                ? (toolSearchMode === "client" ? OPENAI_CLIENT_TOOL_SEARCH : { type: "tool_search" })
+                : undefined,
             })}
           />
         }
       >
+        <theme.Select
+          label={t("providers:openai.toolSearch.executionMode") ?? "Execution mode"}
+          values={[toolSearchMode]}
+          valueTitle={toolSearchMode === "client"
+            ? (t("providers:openai.toolSearch.client") ?? "Client")
+            : (t("providers:openai.toolSearch.hosted") ?? "Hosted")}
+          disabled={!toolSearchEnabled}
+          onChange={(mode: string) => submitConfig({
+            ...resolvedConfig,
+            tool_search: mode === "client" ? OPENAI_CLIENT_TOOL_SEARCH : { type: "tool_search" },
+          })}
+        >
+          <option value="hosted">{t("providers:openai.toolSearch.hosted") ?? "Hosted"}</option>
+          <option value="client">{t("providers:openai.toolSearch.client") ?? "Client"}</option>
+        </theme.Select>
       </theme.Card>
       <theme.Card
         size="small"
