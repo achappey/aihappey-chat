@@ -10,6 +10,7 @@ import type {
   DataList,
   SkillArchiveExport,
   SkillCatalogItem,
+  SkillDraftDefinition,
   Skill,
   SkillFileWriteDefinition,
   SkillImportResult,
@@ -515,6 +516,106 @@ export class IndexedDBSkillStore implements SkillStore {
     this.syncSkillGroup(skillId, version);
     await save(this.data);
     return (await this.readVersion(skillId, version)) ?? stored;
+  };
+
+  saveSkillDraft = async (
+    skillId: string | undefined,
+    definition: SkillDraftDefinition
+  ): Promise<StoredSkill> => {
+    await this.ensureLoaded();
+
+    const current = skillId ? await this.read(skillId) : undefined;
+    if (skillId && !current) throw new Error(`Skill ${skillId} was not found locally.`);
+
+    const normalized = normalizeSkillWriteDefinition({
+      name: current?.name ?? definition.name ?? "",
+      description: definition.description,
+      instructions: definition.instructions,
+      skillId: current?.skillId,
+      license: current?.frontmatter.license,
+      compatibility: current?.frontmatter.compatibility,
+      metadata: current?.frontmatter.metadata,
+      allowedTools: current?.frontmatter.allowedTools,
+    });
+
+    if (!current) {
+      const existing = this.data.find(
+        (item) => item.name === normalized.name || item.skillId === normalized.skillId
+      );
+      if (existing) throw new Error(`Skill '${normalized.name}' already exists.`);
+    }
+
+    const seenPaths = new Set<string>();
+    const resourceFiles: StoredSkillFile[] = definition.files.map((file) => {
+      const path = validateSkillRelativePath(file.relativePath);
+      const pathKey = path.toLowerCase();
+      if (seenPaths.has(pathKey)) throw new Error(`Duplicate skill file path '${path}'.`);
+      seenPaths.add(pathKey);
+      const data = cloneBlob(file.data);
+      return { path, data, size: data.size };
+    });
+
+    const resolvedSkillId = current?.skillId || normalized.skillId || buildSkillId(normalized.name);
+    const version = current ? incrementVersion(current.latestVersion) : "1";
+    if (this.getSkillGroup(resolvedSkillId).some((item) => item.version === version)) {
+      throw new Error(`Could not create version '${version}' because it already exists.`);
+    }
+
+    const markdown = renderSkillMarkdown({
+      ...normalized,
+      skillId: resolvedSkillId,
+      version,
+      defaultVersion: version,
+      latestVersion: version,
+    });
+    const manifest = manifestBlob(markdown);
+    const now = Date.now();
+    const nextStored: StoredSkill = {
+      id: crypto.randomUUID(),
+      skillId: resolvedSkillId,
+      name: normalized.name,
+      description: normalized.description,
+      createdAt: now,
+      updatedAt: now,
+      origin: "local",
+      object: "skill",
+      version,
+      defaultVersion: version,
+      latestVersion: version,
+      remoteCreatedAt: current?.remoteCreatedAt,
+      source: current?.source ?? "local-zip",
+      rootPath: current?.rootPath ?? normalized.name,
+      entryPath: current?.entryPath ?? `${normalized.name}/SKILL.md`,
+      files: [{ path: "SKILL.md", data: manifest, size: manifest.size }, ...resourceFiles],
+      frontmatter: {
+        id: resolvedSkillId,
+        name: normalized.name,
+        description: normalized.description,
+        version,
+        defaultVersion: version,
+        latestVersion: version,
+        license: normalized.license,
+        compatibility: normalized.compatibility,
+        metadata: normalized.metadata,
+        allowedTools: normalized.allowedTools,
+      },
+      body: normalized.instructions ?? "",
+      diagnostics: [],
+    };
+
+    // Commit the complete version in one IndexedDB write and roll back the in-memory
+    // catalog if persistence fails.
+    const previousData = this.data;
+    try {
+      this.data = [nextStored, ...this.data];
+      this.syncSkillGroup(resolvedSkillId, version);
+      await save(this.data);
+    } catch (error) {
+      this.data = previousData;
+      throw error;
+    }
+
+    return (await this.readVersion(resolvedSkillId, version)) ?? nextStored;
   };
 
   inspectSkill = async (skillId: string, version?: string): Promise<SkillInspectionResult> => {

@@ -36,6 +36,7 @@ export type SkillDetailsModalProps = {
   error?: string | null;
   downloadingVersion?: string | null;
   onClose: () => void;
+  onEdit?: () => void;
   onSetDefaultVersion?: (version: string) => void | Promise<void>;
   onDownloadRemoteVersion?: (version: string) => void | Promise<void>;
 };
@@ -49,6 +50,7 @@ export const SkillDetailsModal = ({
   error,
   downloadingVersion,
   onClose,
+  onEdit,
   onSetDefaultVersion,
   onDownloadRemoteVersion,
 }: SkillDetailsModalProps) => {
@@ -98,6 +100,14 @@ export const SkillDetailsModal = ({
       onHide={onClose}
       title={skill?.name ?? (t("skills") ?? "Skills")}
       size="large"
+      actions={
+        <div style={{ display: "flex", gap: 8 }}>
+          {onEdit && skill?.origin === "local" ? (
+            <Button variant="primary" onClick={onEdit}>{tx("edit", "Edit")}</Button>
+          ) : null}
+          <Button variant="secondary" onClick={onClose}>{tx("close", "Close")}</Button>
+        </div>
+      }
     >
       {!skill ? (
         <div style={{ color: "#888" }}>{tx("noResults", "No results")}</div>

@@ -95,6 +95,19 @@
         "details": {
             "defaultVersion": "Default version",
             "selectDefaultVersion": "Choose which version is used by default."
+        },
+        "editor": {
+            "newTitle": "Add skill",
+            "nameHint": "1–64 lowercase letters, numbers, and single hyphens.",
+            "nameLocked": "Skill names cannot be changed.",
+            "description": "Description",
+            "instructions": "Markdown instructions",
+            "frontmatterManaged": "Name, description, and metadata frontmatter are managed automatically.",
+            "additionalFiles": "Additional files",
+            "dropFiles": "Drop files here or choose files to add or replace.",
+            "chooseFiles": "Choose files",
+            "created": "Skill created.",
+            "savedVersion": "Saved version {{version}}."
         }
     },
     "myImages": "My images",

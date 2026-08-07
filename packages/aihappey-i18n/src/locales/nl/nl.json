@@ -83,6 +83,19 @@
     "selectAgentForJob": "Selecteer minimaal één agent voor de opdracht.",
     "storageQuotaMessage": "Je browseropslag is vol. Verwijder enkele chats of andere items en probeer het opnieuw.",
     "skillsPage": {
+        "editor": {
+            "newTitle": "Skill toevoegen",
+            "nameHint": "1–64 kleine letters, cijfers en enkele koppeltekens.",
+            "nameLocked": "Skillnamen kunnen niet worden gewijzigd.",
+            "description": "Beschrijving",
+            "instructions": "Markdown-instructies",
+            "frontmatterManaged": "Naam, beschrijving en metadata-frontmatter worden automatisch beheerd.",
+            "additionalFiles": "Extra bestanden",
+            "dropFiles": "Sleep bestanden hierheen of kies bestanden om toe te voegen of te vervangen.",
+            "chooseFiles": "Bestanden kiezen",
+            "created": "Skill aangemaakt.",
+            "savedVersion": "Versie {{version}} opgeslagen."
+        },
         "versionBadge": "Versie {{version}}",
         "latestVersionBadge": "Laatste versie {{version}}",
         "description": "Een overzicht van alle beschikbare skills voor taken en workflows. Per skill zie je wat het doet, wanneer je het inzet en hoe het verschilt van andere skills. Zo kies je snel de juiste optie. Skills bundelen instructies, logica en uitvoering in één consistente aanpak, voor duidelijkheid, herhaalbaarheid en grip.",

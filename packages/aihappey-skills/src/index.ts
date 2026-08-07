@@ -33,6 +33,7 @@ export type {
   SkillArchiveExport,
   SkillCatalogItem,
   SkillDiagnostic,
+  SkillDraftDefinition,
   SkillDownloadState,
   SkillFrontmatter,
   SkillImportResult,

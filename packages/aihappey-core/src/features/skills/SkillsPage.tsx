@@ -2,7 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Provider } from "aihappey-types";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
-import { SkillCard, SkillDetailsModal, useTheme } from "aihappey-components";
+import {
+  SkillCard,
+  SkillDetailsModal,
+  SkillEditModal,
+  StickyHeaderActionBar,
+  useTheme,
+  type SkillEditModalValues,
+} from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import {
   useSkills,
@@ -72,6 +79,10 @@ export const SkillsPage = () => {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [downloadingVersion, setDownloadingVersion] = useState<string | null>(null);
+  const [editorMode, setEditorMode] = useState<"create" | "edit" | null>(null);
+  const [editorSkill, setEditorSkill] = useState<StoredSkill | undefined>(undefined);
+  const [editorSaving, setEditorSaving] = useState(false);
+  const [editorError, setEditorError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const q = normalizeText(search);
@@ -265,6 +276,55 @@ export const SkillsPage = () => {
     setDownloadingVersion(null);
   }, []);
 
+  const handleNewSkill = useCallback(() => {
+    setEditorSkill(undefined);
+    setEditorError(null);
+    setEditorMode("create");
+  }, []);
+
+  const handleEditSkill = useCallback(() => {
+    if (!selectedSkill || selectedSkill.origin !== "local" || !detailLocalSkill) return;
+    setEditorSkill(detailLocalSkill);
+    setEditorError(null);
+    setEditorMode("edit");
+    handleCloseDetails();
+  }, [detailLocalSkill, handleCloseDetails, selectedSkill]);
+
+  const handleCloseEditor = useCallback(() => {
+    if (editorSaving) return;
+    setEditorMode(null);
+    setEditorSkill(undefined);
+    setEditorError(null);
+  }, [editorSaving]);
+
+  const handleSaveEditor = useCallback(async (values: SkillEditModalValues) => {
+    setEditorSaving(true);
+    setEditorError(null);
+    try {
+      const stored = await skills.saveSkillDraft(
+        editorMode === "edit" ? editorSkill?.skillId : undefined,
+        {
+          name: values.name,
+          description: values.description,
+          instructions: values.instructions,
+          files: values.files.map((file) => ({ relativePath: file.path, data: file.data })),
+        }
+      );
+      if (editorMode === "create") {
+        setEnabledSkillIds(Array.from(new Set([...enabledSkillIds, stored.skillId])));
+      }
+      setFeedback(editorMode === "create"
+        ? (t("skillsPage.editor.created") ?? "Skill created.")
+        : (t("skillsPage.editor.savedVersion", { version: stored.version }) ?? `Saved version ${stored.version}.`));
+      setEditorMode(null);
+      setEditorSkill(undefined);
+    } catch (error) {
+      setEditorError(error instanceof Error ? error.message : "Could not save the skill.");
+    } finally {
+      setEditorSaving(false);
+    }
+  }, [editorMode, editorSkill?.skillId, enabledSkillIds, setEnabledSkillIds, skills, t]);
+
   const handleSetDefaultVersion = useCallback(
     async (version: string) => {
       if (!selectedSkill || selectedSkill.origin !== "local") return;
@@ -419,6 +479,10 @@ export const SkillsPage = () => {
         height: "100%",
       }}
     >
+      <StickyHeaderActionBar
+        actionLabel={t("add")}
+        onAction={handleNewSkill}
+      />
       <div style={{ background: "transparent" }}>
         <div
           style={{
@@ -483,10 +547,23 @@ export const SkillsPage = () => {
             error={detailsError}
             downloadingVersion={downloadingVersion}
             onClose={handleCloseDetails}
+            onEdit={selectedSkill?.origin === "local" && detailLocalSkill ? handleEditSkill : undefined}
             onSetDefaultVersion={selectedSkill?.origin === "local" ? handleSetDefaultVersion : undefined}
             onDownloadRemoteVersion={selectedSkill?.origin === "remote"
               ? handleDownloadRemoteVersion
               : undefined}
+          />
+          <SkillEditModal
+            open={editorMode !== null}
+            mode={editorMode ?? "create"}
+            name={editorSkill?.name}
+            description={editorSkill?.description}
+            instructions={editorSkill?.body}
+            files={editorSkill?.files}
+            saving={editorSaving}
+            error={editorError}
+            onClose={handleCloseEditor}
+            onSave={handleSaveEditor}
           />
         </div>
       </div>

@@ -19,6 +19,7 @@ import type {
   SkillDownloadState,
   SkillInspectionResult,
   SkillImportResult,
+  SkillDraftDefinition,
   SkillImportOptions,
   SkillImportSource,
   SkillListParams,
@@ -61,6 +62,7 @@ export type SkillsContextType = {
     options?: SkillImportOptions
   ) => Promise<SkillImportResult>;
   createSkill: (definition: SkillWriteDefinition) => Promise<StoredSkill>;
+  saveSkillDraft: (skillId: string | undefined, definition: SkillDraftDefinition) => Promise<StoredSkill>;
   inspectSkill: (skillId: string, version?: string) => Promise<SkillInspectionResult>;
   updateSkillManifest: (skillId: string, definition: SkillManifestUpdateDefinition) => Promise<StoredSkill>;
   upsertSkillFile: (skillId: string, file: SkillFileWriteDefinition) => Promise<StoredSkill>;
@@ -521,6 +523,14 @@ export const SkillsProvider = ({
     },
     createSkill: async (definition: SkillWriteDefinition) => {
       const result = await store.createSkill(definition);
+      setLocalItems(await store.listCatalogItems());
+      return result;
+    },
+    saveSkillDraft: async (skillId: string | undefined, definition: SkillDraftDefinition) => {
+      if (skillId && remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+        throw new Error("Remote skills are read-only.");
+      }
+      const result = await store.saveSkillDraft(skillId, definition);
       setLocalItems(await store.listCatalogItems());
       return result;
     },

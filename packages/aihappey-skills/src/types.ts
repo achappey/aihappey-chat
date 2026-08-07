@@ -198,6 +198,16 @@ export interface SkillFileWriteDefinition {
   data: Blob;
 }
 
+/** Complete editable snapshot used to create a local skill or append a version. */
+export interface SkillDraftDefinition {
+  /** Required when creating. Existing skill names are immutable and this value is ignored when editing. */
+  name?: string;
+  description: string;
+  instructions: string;
+  /** The complete resulting resource set, excluding SKILL.md. */
+  files: SkillFileWriteDefinition[];
+}
+
 export interface SkillInspectionResult {
   skill: StoredSkill;
   files: string[];
@@ -229,6 +239,7 @@ export interface SkillStore {
     options?: SkillImportOptions
   ): Promise<SkillImportResult>;
   createSkill(definition: SkillWriteDefinition): Promise<StoredSkill>;
+  saveSkillDraft(skillId: string | undefined, definition: SkillDraftDefinition): Promise<StoredSkill>;
   inspectSkill(skillId: string, version?: string): Promise<SkillInspectionResult>;
   updateSkillManifest(skillId: string, definition: SkillManifestUpdateDefinition): Promise<StoredSkill>;
   upsertSkillFile(skillId: string, file: SkillFileWriteDefinition): Promise<StoredSkill>;
