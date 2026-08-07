@@ -678,12 +678,37 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
   return label ? <Field label={label} hint={hint} required={required} style={style}>{element}</Field> : element;
 };
 
-export const SearchBox = ({ value, onChange, placeholder, className, style, autoFocus, ...rest }: any) => (
-  <div style={{ position: "relative", ...style }}>
-    <SearchIcon size={16} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--aih-shadcn-muted-foreground)" }} />
-    <input className={cn("aih-shadcn-input", className)} style={{ paddingLeft: 34 }} value={value} placeholder={placeholder} autoFocus={autoFocus} data-dialog-autofocus={autoFocus ? "true" : undefined} onChange={(e) => onChange?.(e.target.value)} {...rest} />
-  </div>
-);
+export const SearchBox = ({ value, onChange, placeholder, disabled, className, style, autoFocus, ...rest }: any) => {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const canClear = Boolean(value) && !disabled;
+
+  const handleClear = () => {
+    onChange?.("");
+    inputRef.current?.focus();
+  };
+
+  return (
+    <div className="aih-shadcn-searchbox" style={style}>
+      <SearchIcon className="aih-shadcn-searchbox-icon" size={16} aria-hidden="true" />
+      <input
+        ref={inputRef}
+        className={cn("aih-shadcn-input", "aih-shadcn-searchbox-input", canClear && "aih-shadcn-searchbox-input-clearable", className)}
+        value={value}
+        placeholder={placeholder}
+        disabled={disabled}
+        autoFocus={autoFocus}
+        data-dialog-autofocus={autoFocus ? "true" : undefined}
+        onChange={(event) => onChange?.(event.target.value)}
+        {...rest}
+      />
+      {canClear ? (
+        <button type="button" className="aih-shadcn-searchbox-clear" aria-label="Clear search" onClick={handleClear}>
+          <X size={14} aria-hidden="true" />
+        </button>
+      ) : null}
+    </div>
+  );
+};
 
 export const Switch = ({ checked, onChange, label, className, id, ...rest }: any) => (
   <label className={cn("aih-shadcn-label", className)} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
