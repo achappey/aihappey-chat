@@ -73,7 +73,7 @@ export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
 
             {/* Output */}
             <theme.Card size="small" title={t("imageSettings.output")}>
-                <div>
+                <div style={styles.outputGrid}>
                     <theme.Slider
                         label={t("imageSettings.n", { n: value.n })}
                         min={1}
@@ -172,4 +172,13 @@ export const ImageSettingsForm: React.FC<ImageSettingsFormProps> = ({
             </theme.Card>
         </div>
     );
+};
+
+const styles: Record<string, React.CSSProperties> = {
+    outputGrid: {
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: 12,
+        width: "100%",
+    },
 };
