@@ -1,5 +1,7 @@
 ﻿{
-    "streaming": { "title": "Streaming" },
+    "streaming": {
+        "title": "Streaming"
+    },
     "streamingTranscriptions": {
         "settings": "Instellingen",
         "output": "Streaming uitvoer",
@@ -113,7 +115,7 @@
     },
     "variation": "Variatie",
     "myImages": "Mijn afbeeldingen",
-    "myVideos": "Mijn video\u0027s",
+    "myVideos": "Mijn video's",
     "text": "Tekst",
     "new": "Nieuw",
     "pricing": "Prijzen",
@@ -173,7 +175,7 @@
     "recentlyUsed": "Eerder gebruikt",
     "totalTokens": "Totaal tokens",
     "images": "Afbeeldingen",
-    "videos": "Video\u0027s",
+    "videos": "Video's",
     "files": "Bestanden",
     "general": "Algemeen",
     "systemContext": "Systeem",
@@ -258,13 +260,14 @@
         "seed": "Seed"
     },
     "videoSettings": {
+        "generateAudio": "Genereer audio",
         "title": "Video-instellingen",
         "size": "Videoformaat",
         "width": "Breedte",
         "height": "Hoogte",
         "output": "Uitvoer",
-        "n": "Aantal video\u0027s ({{n}})",
-        "maxVideosPerCall": "Maximaal aantal video\u0027s per aanvraag",
+        "n": "Aantal video's ({{n}})",
+        "maxVideosPerCall": "Maximaal aantal video's per aanvraag",
         "parameters": "Parameters",
         "duration": "Duur (seconden)",
         "resolution": "Resolutie",
@@ -330,7 +333,7 @@
             },
             "media_voice": {
                 "label": "Media",
-                "description": "Richt zich op afbeelding-, video-, spraak-, audio- en andere creatieve generatie-API\u0027s."
+                "description": "Richt zich op afbeelding-, video-, spraak-, audio- en andere creatieve generatie-API's."
             },
             "search_data": {
                 "label": "Zoeken",
@@ -383,7 +386,7 @@
             "matrix": "Matrix",
             "providerModelMatrix": "Provider/model-berichtenmatrix",
             "legacy": "Legacy",
-            "legacyModelMessages": "Legacy model-id\u0027s",
+            "legacyModelMessages": "Legacy model-id's",
             "unknownProviderMessages": "Berichten met onbekende provider",
             "legacyDescription": "Berichten waarvan het model-id geen providerprefix bevatte.",
             "unknownProviderDescription": "Berichten in een veilige onbekend/legacy-bucket.",
@@ -414,7 +417,7 @@
             "title": "AI-mesh",
             "countryCoverage": "Landendekking",
             "regionCoverage": "AI-regiodekking",
-            "regionCoverageMap": "Kaart met dekking van ai-regio\u0027s per provider",
+            "regionCoverageMap": "Kaart met dekking van ai-regio's per provider",
             "activeCountriesView": "{{count}} landen",
             "worldProviders": "{{count}} providers met wereldwijde inferentieregio",
             "description": "De AI-mesh laat zien hoe de {{total}} modellen, providers en mogelijkheden met elkaar verbonden zijn binnen één netwerk. Je ziet per model waar het vandaan komt, hoe het zich verhoudt tot andere modellen en voor welk type taak het logisch is om het in te zetten. Dit maakt routering, vergelijking en keuze transparant zonder vast te zitten aan één provider.",

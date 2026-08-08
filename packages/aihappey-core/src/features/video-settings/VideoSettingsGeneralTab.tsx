@@ -67,6 +67,7 @@ export const VideoSettingsGeneralTab = ({ onEditProviderKeys }: any) => {
   const resolution = useAppStore((s: any) => s.resolution);
   const fps = useAppStore((s: any) => s.fps);
   const maxVideosPerCall = useAppStore((s: any) => s.maxVideosPerCall);
+  const generateAudio = useAppStore((s: any) => s.generateAudio);
   const setN = useAppStore((s: any) => s.setN);
   const setSeed = useAppStore((s: any) => s.setSeed);
   const setAspectRatio = useAppStore((s: any) => s.setAspectRatio);
@@ -74,6 +75,7 @@ export const VideoSettingsGeneralTab = ({ onEditProviderKeys }: any) => {
   const setResolution = useAppStore((s: any) => s.setResolution);
   const setFps = useAppStore((s: any) => s.setFps);
   const setMaxVideosPerCall = useAppStore((s: any) => s.setMaxVideosPerCall);
+  const setGenerateAudio = useAppStore((s: any) => s.setGenerateAudio);
   const files = useFiles();
   const getStorageErrorMessage = useStorageErrorMessage();
   const [inputReferences, setInputReferences] = useState<VideoSettingsFileInfo[]>([]);
@@ -218,6 +220,7 @@ export const VideoSettingsGeneralTab = ({ onEditProviderKeys }: any) => {
     if (next.resolution !== resolution) setResolution(next.resolution);
     if (next.fps !== fps) setFps(next.fps);
     if (next.maxVideosPerCall !== maxVideosPerCall) setMaxVideosPerCall(next.maxVideosPerCall);
+    if (next.generateAudio !== generateAudio) setGenerateAudio(next.generateAudio);
   };
 
   const settings: VideoSettings = {
@@ -228,6 +231,7 @@ export const VideoSettingsGeneralTab = ({ onEditProviderKeys }: any) => {
     resolution,
     fps,
     maxVideosPerCall,
+    generateAudio,
   };
 
   return (

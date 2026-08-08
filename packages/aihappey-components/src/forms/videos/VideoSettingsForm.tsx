@@ -14,6 +14,7 @@ export type VideoSettings = {
   n: number;
   seed?: number;
   maxVideosPerCall?: number;
+  generateAudio: boolean;
 };
 
 export type VideoFrameType = "first_frame" | "last_frame";
@@ -245,6 +246,7 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
 
       <theme.Card size="small" title={t("videoSettings.other")}>
         <div>
+
           <theme.Input
             label={t("videoSettings.duration")}
             type="number"
@@ -297,6 +299,14 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
                 ...value,
                 seed: Number.isFinite(parsed) ? parsed : undefined,
               });
+            }}
+          />
+          <theme.Switch
+            id="video-generate-audio"
+            label={t("videoSettings.generateAudio")}
+            checked={value.generateAudio}
+            onChange={(checked: boolean) => {
+              onChange({ ...value, generateAudio: checked });
             }}
           />
 

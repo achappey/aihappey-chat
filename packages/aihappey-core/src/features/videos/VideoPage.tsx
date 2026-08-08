@@ -77,6 +77,7 @@ export const VideoPage = () => {
   const fps = useAppStore((a: any) => a.fps);
   const aspectRatio = useAppStore((a: any) => a.aspectRatio);
   const seed = useAppStore((a: any) => a.seed);
+  const generateAudio = useAppStore((a: any) => a.generateAudio);
   const providerVideoMetadata = useAppStore((a: any) => a.providerVideoMetadata);
   const userPreferredVideoModel = useAppStore((a: any) => a.userPreferredVideoModel);
   const { config } = useChatContext();
@@ -350,7 +351,7 @@ export const VideoPage = () => {
           image: imagePayload,
           inputReferences: inputReferences.length ? inputReferences : undefined,
           frameImages: frameImages.length ? frameImages : undefined,
-          generateAudio: undefined,
+          generateAudio,
           providerOptions: providerVideoMetadata,
         } as any);
 

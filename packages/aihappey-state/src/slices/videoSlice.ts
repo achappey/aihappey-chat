@@ -8,6 +8,7 @@ export type VideoSlice = {
   aspectRatio?: string | undefined;
   n: number;
   maxVideosPerCall?: number;
+  generateAudio: boolean;
   providerVideoMetadata?: any;
   seed?: number | undefined;
   setSeed: (seed: number | undefined) => void;
@@ -17,6 +18,7 @@ export type VideoSlice = {
   setDuration: (duration: number | undefined) => void;
   setFps: (fps: number | undefined) => void;
   setMaxVideosPerCall: (maxVideosPerCall: number | undefined) => void;
+  setGenerateAudio: (generateAudio: boolean) => void;
   setProviderVideoMetadata: (metadata: any) => void;
 };
 
@@ -33,7 +35,12 @@ export const createVideoSlice: StateCreator<
   n: 1,
   seed: undefined,
   maxVideosPerCall: undefined,
+  generateAudio: false,
   providerVideoMetadata: defaultProviderVideoMetadata,
+  setGenerateAudio: (generateAudio) =>
+    set(() => ({
+      generateAudio,
+    })),
   setMaxVideosPerCall: (maxVideosPerCall) =>
     set(() => ({
       maxVideosPerCall,

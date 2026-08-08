@@ -84,6 +84,7 @@ export const withPersist = (
       videoFps: (s as any).fps,
       videoAspectRatio: (s as any).aspectRatio,
       videoMaxPerCall: (s as any).maxVideosPerCall,
+      generateAudio: (s as any).generateAudio,
       chatWithImageModels: s.chatWithImageModels,
       chatWithVideoModels: (s as any).chatWithVideoModels,
       chatWithSpeechModels: s.chatWithSpeechModels,

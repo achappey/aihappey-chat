@@ -297,6 +297,7 @@
         "seed": "Seed"
     },
     "videoSettings": {
+        "generateAudio": "Generate audio",
         "title": "Video settings",
         "size": "Video size",
         "width": "Width",
