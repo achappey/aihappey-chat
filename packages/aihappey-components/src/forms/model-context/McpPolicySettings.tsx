@@ -21,6 +21,7 @@ export const McpPolicySettings: React.FC<
           display: "grid",
           gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
           alignItems: "center",
+          gap: 4,
         }}
       >
         <Switch
