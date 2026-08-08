@@ -754,9 +754,22 @@ export const Header = ({ level = 1, className, children, style }: any) => {
   return <Tag className={className} style={{ margin: 0, fontWeight: 700, letterSpacing: "-.025em", ...style }}>{children}</Tag>;
 };
 
+const textFontSizes: Record<number, string> = {
+  100: "10px",
+  200: "12px",
+  300: "14px",
+  400: "16px",
+  500: "20px",
+  600: "24px",
+  700: "28px",
+  800: "32px",
+  900: "40px",
+  1000: "68px",
+};
+
 export const Text = ({ as = "span", children, style, weight, italic, underline, strikethrough, truncate, block, align, font, size, wrap }: any) => {
   const Tag = as as keyof React.JSX.IntrinsicElements;
-  return <Tag style={{ display: block ? "block" : undefined, fontWeight: weight === "bold" ? 700 : weight === "semibold" ? 600 : weight === "medium" ? 500 : undefined, fontStyle: italic ? "italic" : undefined, textDecoration: underline ? "underline" : strikethrough ? "line-through" : undefined, overflow: truncate ? "hidden" : undefined, textOverflow: truncate ? "ellipsis" : undefined, whiteSpace: truncate ? "nowrap" : wrap ? "normal" : undefined, textAlign: align, fontFamily: font === "monospace" ? "ui-monospace, SFMono-Regular, Menlo, monospace" : undefined, fontSize: size ? `${Number(size) / 100}rem` : undefined, ...style }}>{children}</Tag>;
+  return <Tag style={{ display: block ? "block" : undefined, fontWeight: weight === "bold" ? 700 : weight === "semibold" ? 600 : weight === "medium" ? 500 : undefined, fontStyle: italic ? "italic" : undefined, textDecoration: underline ? "underline" : strikethrough ? "line-through" : undefined, overflow: truncate ? "hidden" : undefined, textOverflow: truncate ? "ellipsis" : undefined, whiteSpace: truncate ? "nowrap" : wrap ? "normal" : undefined, textAlign: align, fontFamily: font === "monospace" ? "ui-monospace, SFMono-Regular, Menlo, monospace" : undefined, fontSize: size ? textFontSizes[Number(size)] : undefined, ...style }}>{children}</Tag>;
 };
 
 export const Paragraph = ({ children, className, style, ...rest }: any) => <p className={className} style={{ marginBlock: "0 1rem", color: "var(--aih-shadcn-muted-foreground)", ...style }} {...rest}>{children}</p>;
