@@ -88,7 +88,7 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
       />
 
       <theme.Card size="small" title={t("videoSettings.output")}>
-        <div>
+        <div style={styles.outputGrid}>
           <theme.Slider
             label={t("videoSettings.n", { n: value.n })}
             min={1}
@@ -108,6 +108,58 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
               onChange({ ...value, maxVideosPerCall: next });
             }}
           />
+        </div>
+      </theme.Card>
+
+      <theme.Card size="small" title={t("properties")}>
+        <div>
+          <div style={styles.outputGrid}>
+            <theme.Input
+              label={t("videoSettings.duration")}
+              type="number"
+              value={value.duration === undefined ? "" : String(value.duration)}
+              onChange={(e: any) => {
+                const raw = String(e.target.value ?? "").trim();
+                if (!raw) {
+                  onChange({ ...value, duration: undefined });
+                  return;
+                }
+                const parsed = Number(raw);
+                onChange({
+                  ...value,
+                  duration: Number.isFinite(parsed) ? parsed : undefined,
+                });
+              }}
+            />
+
+            <theme.Input
+              label={t("videoSettings.fps")}
+              type="number"
+              value={value.fps === undefined ? "" : String(value.fps)}
+              onChange={(e: any) => {
+                const raw = String(e.target.value ?? "").trim();
+                if (!raw) {
+                  onChange({ ...value, fps: undefined });
+                  return;
+                }
+                const parsed = Number(raw);
+                onChange({
+                  ...value,
+                  fps: Number.isFinite(parsed) ? parsed : undefined,
+                });
+              }}
+            />
+          </div>
+          <div style={{ paddingTop: 8 }}>
+            <theme.Switch
+              id="video-generate-audio"
+              label={t("videoSettings.generateAudio")}
+              checked={value.generateAudio}
+              onChange={(checked: boolean) => {
+                onChange({ ...value, generateAudio: checked });
+              }}
+            />
+          </div>
         </div>
       </theme.Card>
 
@@ -229,14 +281,12 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
                   <div style={styles.frameEmptyPreview}>{t("videoSettings.dropFrameImage")}</div>
                 )}
 
-                {frameFile ? (
+                {frameFile && (
                   <FileTags
                     size="extra-small"
                     icon="image"
                     files={[asImageFile(frameFile)]}
                   />
-                ) : (
-                  renderDropHint(t("videoSettings.frameImageHint"))
                 )}
               </div>
             );
@@ -246,44 +296,6 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
 
       <theme.Card size="small" title={t("videoSettings.other")}>
         <div>
-
-          <theme.Input
-            label={t("videoSettings.duration")}
-            type="number"
-            value={value.duration === undefined ? "" : String(value.duration)}
-            onChange={(e: any) => {
-              const raw = String(e.target.value ?? "").trim();
-              if (!raw) {
-                onChange({ ...value, duration: undefined });
-                return;
-              }
-              const parsed = Number(raw);
-              onChange({
-                ...value,
-                duration: Number.isFinite(parsed) ? parsed : undefined,
-              });
-            }}
-          />
-
-          <theme.Input
-            label={t("videoSettings.fps")}
-            type="number"
-            value={value.fps === undefined ? "" : String(value.fps)}
-            onChange={(e: any) => {
-              const raw = String(e.target.value ?? "").trim();
-              if (!raw) {
-                onChange({ ...value, fps: undefined });
-                return;
-              }
-              const parsed = Number(raw);
-              onChange({
-                ...value,
-                fps: Number.isFinite(parsed) ? parsed : undefined,
-              });
-            }}
-          />
-
-
           <theme.Input
             label={t("videoSettings.seed")}
             type="number"
@@ -301,15 +313,6 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
               });
             }}
           />
-          <theme.Switch
-            id="video-generate-audio"
-            label={t("videoSettings.generateAudio")}
-            checked={value.generateAudio}
-            onChange={(checked: boolean) => {
-              onChange({ ...value, generateAudio: checked });
-            }}
-          />
-
         </div>
       </theme.Card>
     </div>
@@ -317,6 +320,12 @@ export const VideoSettingsForm: React.FC<VideoSettingsFormProps> = ({
 };
 
 const styles: Record<string, React.CSSProperties> = {
+  outputGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: 12,
+    width: "100%",
+  },
   dropZone: {
     border: "1px dashed rgba(127,127,127,0.45)",
     borderRadius: 10,
