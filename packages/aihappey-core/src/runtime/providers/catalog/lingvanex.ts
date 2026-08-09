@@ -11,6 +11,7 @@ export const lingvanex: Provider = {
   urls: {
     homepage: "https://lingvanex.com",
     docs: "https://docs.lingvanex.com",
+    pricing: "https://docs.lingvanex.com/pricing",
     privacyPolicy: "https://lingvanex.com/privacy-policy",
     termsOfService: "https://lingvanex.com/terms-of-service"
   },
