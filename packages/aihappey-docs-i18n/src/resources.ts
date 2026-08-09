@@ -12,6 +12,7 @@ export const docsI18nResources = {
         sections: {
           overview: "Overview",
           authentication: "Authentication",
+          parameters: "Parameters",
           requestBody: "Request body",
           requestExamples: "Request examples",
           responses: "Responses",
@@ -138,6 +139,69 @@ export const docsI18nResources = {
             providerFailed: "The provider failed while creating the chat completion.",
           },
         },
+        aiSdk: {
+          title: "Chat",
+          surface: "AI SDK",
+          summary: "Stream AI SDK UI messages through the gateway chat endpoint.",
+          description: "Send AI SDK UI messages, tools, generation settings, and provider metadata to a provider-qualified model. This endpoint always returns the AI SDK UI message stream protocol as server-sent events and sets x-vercel-ai-ui-message-stream to v1.",
+          testLabel: "Test",
+          testModalTitle: "Test AI SDK chat",
+          testDescription: "Edit the bearer token, model, and UI messages, then send a live request. The modal displays the server-sent event stream as text.",
+          relatedOpenAiChat: "OpenAI-compatible chat completions",
+          relatedMessages: "Anthropic-compatible messages",
+          parameters: {
+            model: "Chat-capable provider-qualified model identifier.",
+            messages: "AI SDK UI messages containing roles and typed parts.",
+            parts: "Typed UI message parts, such as text, file, reasoning, or tool invocation parts.",
+            tools: "Optional AI SDK tool definitions. Duplicate tool names are removed by the gateway.",
+            toolChoice: "Optional tool selection policy.",
+            maxToolCalls: "Optional maximum number of tool calls for the request.",
+            temperature: "Sampling temperature. The default is 1.",
+            topP: "Optional nucleus sampling value.",
+            maxOutputTokens: "Optional maximum number of generated output tokens.",
+            providerMetadata: "Optional provider-specific metadata and generation options.",
+          },
+          responses: { sse: "An AI SDK UI message stream containing typed data parts is returned as server-sent events." },
+          errors: {
+            badRequest: "The model or UI message payload is invalid, or the selected model is unavailable.",
+            unauthorized: "The request did not include a valid bearer token.",
+            streamError: "Errors after streaming starts are emitted as AI SDK error parts in the successful SSE response.",
+          },
+        },
+      },
+      messages: {
+        anthropic: {
+          title: "Create message",
+          surface: "Anthropic compatible",
+          summary: "Create or stream a message using the Anthropic-compatible Messages API.",
+          description: "Send Anthropic Messages API payloads through the gateway with a provider-qualified model. The route supports text or structured content, system prompts, tools, thinking options, provider passthrough headers, and server-sent event streaming.",
+          testLabel: "Test",
+          testModalTitle: "Test Anthropic-compatible messages",
+          testDescription: "Edit the bearer token, model, maximum token count, and messages, then send a non-streaming live request. The anthropic-version compatibility header is included.",
+          relatedAiChat: "AI SDK chat",
+          relatedOpenAiChat: "OpenAI-compatible chat completions",
+          parameters: {
+            model: "Messages-capable provider-qualified model identifier.",
+            maxTokens: "Optional maximum number of output tokens. Provider requirements still apply.",
+            messages: "Conversation messages with user or assistant roles and text or structured content blocks.",
+            system: "Optional system prompt as text or structured content blocks.",
+            stream: "Set to true to receive Anthropic-compatible message events followed by [DONE].",
+            temperature: "Optional sampling temperature.",
+            tools: "Optional Anthropic-compatible tool definitions.",
+            toolChoice: "Optional tool choice configuration.",
+            thinking: "Optional extended-thinking configuration for supported models.",
+            metadata: "Optional request metadata, including supported user identifiers.",
+          },
+          responses: {
+            json: "A completed Anthropic-compatible message object is returned when stream is omitted or false.",
+            sse: "When stream is true, message events are returned as server-sent events and terminated with [DONE].",
+          },
+          errors: {
+            badRequest: "The model is missing or unavailable, or the Messages API payload is invalid.",
+            unauthorized: "The request did not include a valid bearer token.",
+            providerFailed: "The selected provider failed while creating the message.",
+          },
+        },
       },
       images: {
         openai: {
@@ -231,6 +295,12 @@ export const docsI18nResources = {
               badRequest: "The request is missing image input, uses invalid image counts, or selects an unavailable model.",
             },
           },
+        },
+        aiSdk: {
+          title: "Create images", surface: "AI SDK", summary: "Generate or edit images using the AI SDK gateway image endpoint.", description: "Send a provider-qualified image model, prompt, optional source files or mask, and generation settings. The gateway returns AI SDK-style image data, warnings, usage, response metadata, and provider metadata.",
+          testLabel: "Test", testModalTitle: "Test AI SDK images", testDescription: "Edit the bearer token, model, prompt, and image options, then send a live JSON request.", relatedOpenAi: "OpenAI-compatible image generation", relatedUi: "AI SDK UI",
+          parameters: { model: "Image-capable provider-qualified model identifier.", prompt: "Text description of the image or edit to produce.", size: "Optional output size such as 1024x1024.", aspectRatio: "Optional output aspect ratio when supported.", seed: "Optional deterministic generation seed.", n: "Optional number of images to generate.", files: "Optional source images, each with type, mediaType, and base64 data.", mask: "Optional mask file with type, mediaType, and base64 data.", providerOptions: "Optional provider-specific image settings." },
+          responses: { json: "Generated images as data URLs with warnings, usage, response metadata, and provider metadata." }, errors: { badRequest: "The model, prompt, files, mask, or image options are invalid.", unauthorized: "The request did not include a valid bearer token." },
         },
       },
       speech: {
@@ -446,16 +516,68 @@ export const docsI18nResources = {
           },
         },
       },
+      ui: {
+        aiSdk: {
+          title: "UI", surface: "AI SDK", summary: "Stream generated user-interface markup from a model.",
+          description: "Send a UI prompt, catalog instructions, optional context, and generation settings to a provider-qualified model. The gateway streams text deltas directly as a plain-text response.",
+          testLabel: "Test", testModalTitle: "Test AI SDK UI", testDescription: "Edit the bearer token and UI generation request, then inspect the streamed text response.",
+          relatedChat: "AI SDK chat", relatedImages: "AI SDK images",
+          parameters: { model: "UI-capable provider-qualified model identifier.", prompt: "Description of the interface to generate.", catalogPrompt: "Design-system or component-catalog instructions that constrain the output.", context: "Optional structured application or page context.", temperature: "Sampling temperature. The default is 1.", maxOutputTokens: "Optional maximum number of generated tokens.", providerMetadata: "Optional provider-specific generation settings." },
+          responses: { text: "A UTF-8 plain-text stream containing the generated UI markup or source." }, errors: { badRequest: "The model is unavailable or the UI request is invalid.", unauthorized: "The request did not include a valid bearer token." },
+        },
+      },
+      skills: {
+        common: {
+          surface: "OpenAI compatible", testLabel: "Test",
+          parameters: { skillId: "Provider-prefixed skill ID returned by the List skills endpoint, for example clawhub/example-skill.", version: "Exact skill version to download.", after: "Return items after this cursor identifier.", limit: "Maximum number of items to return.", order: "Creation-time order: asc or desc." },
+          errors: { unauthorized: "The request did not include a valid bearer token.", notFound: "The skill or requested version was not found.", providerFailed: "The skill provider failed while processing the request." },
+          relatedList: "List skills", relatedVersions: "List skill versions",
+        },
+        list: { title: "List skills", summary: "List skills available through configured gateway providers.", description: "Returns an OpenAI-style paginated list with provider-qualified skill IDs and version metadata.", testModalTitle: "Test list skills", testDescription: "Edit authentication and pagination query parameters, then request the skill catalog.", responses: { success: "A paginated list of normalized skill objects." } },
+        download: { title: "Download skill", summary: "Download the current content bundle for a skill.", description: "Use a skill ID returned by List skills to download its current content as a ZIP archive.", testModalTitle: "Test download skill", testDescription: "Replace the example with a skill ID returned by List skills, then download the ZIP bundle.", responses: { success: "A ZIP archive containing the skill content, including SKILL.md." } },
+        versions: { title: "List skill versions", summary: "List available versions for a skill.", description: "Use a skill ID returned by List skills to retrieve an OpenAI-style paginated list of its normalized versions.", testModalTitle: "Test list skill versions", testDescription: "Replace the example with a skill ID returned by List skills and edit pagination before requesting versions.", responses: { success: "A paginated list of skill.version objects." } },
+        "download-version": { title: "Download skill version", summary: "Download a specific version of a skill.", description: "Use a skill ID returned by List skills and an exact version to download that content bundle as a ZIP archive.", testModalTitle: "Test download skill version", testDescription: "Replace the example with a skill ID returned by List skills and the required version, then download the ZIP bundle.", responses: { success: "A ZIP archive containing the selected skill version." } },
+      },
       video: {
         aiSdk: {
-          title: "Generate video",
           surface: "AI SDK",
-          summary: "Generate videos from prompts and optional image inputs using the AI SDK gateway video endpoint.",
-          description: "Use the AI SDK video route to create videos through provider-qualified video models. The route accepts prompt, format, timing, image, frame, and provider-specific options, then returns generated videos as normalized response files with metadata and warnings.",
-          testLabel: "Test",
-          testModalTitle: "Test AI SDK video",
-          testDescription: "Edit the bearer token and JSON body, then send a live video generation request. Responses include generated video file data and metadata when the provider completes successfully.",
-          relatedRerank: "AI SDK rerank",
+          create: {
+            title: "Create video task",
+            summary: "Start an asynchronous video generation task.",
+            description: "Submit a prompt and optional visual inputs to a provider-qualified video model. The endpoint starts the asynchronous operation and immediately returns a provider-prefixed operation value that can be split into providerId and taskId for status polling.",
+            testLabel: "Test",
+            testModalTitle: "Test create video task",
+            testDescription: "Edit the bearer token and request body, then start a live video task. Save the operation value from the response for the Get video task endpoint.",
+            relatedGet: "Get video task",
+            responses: { json: "The task was started and an operation identifier, warnings, provider metadata, and response metadata are returned." },
+            errors: {
+              badRequest: "The model or request payload is invalid, the model is unavailable, or the provider rejects the task.",
+              notSupported: "The selected provider does not support asynchronous video generation.",
+            },
+          },
+          get: {
+            title: "Get video task",
+            summary: "Retrieve the current state and result of an asynchronous video task.",
+            description: "Poll a video task using the providerId and taskId extracted from the operation value returned by Create video task. The response is a discriminated status object: pending, completed with generated videos, or error with a provider message.",
+            testLabel: "Test",
+            testModalTitle: "Test get video task",
+            testDescription: "Replace the example URL with the provider ID and URL-encoded task ID returned by Create video task, then poll the task.",
+            relatedCreate: "Create video task",
+            parameters: {
+              providerId: "Gateway provider identifier, for example google. This selects the provider used to poll the task.",
+              taskId: "Provider-local task identifier. URL-encode this path segment when it contains reserved characters.",
+            },
+            responses: {
+              pending: "The task is still processing. Poll the same URL again after an appropriate delay.",
+              completed: "The task completed and generated video data is available in videos[].",
+              error: "The task reached a terminal provider error. The error field explains the failure.",
+            },
+            errors: {
+              badRequest: "The provider ID or task ID is empty, malformed, or rejected by the provider.",
+              notFound: "The provider ID is not available in this gateway.",
+              notSupported: "The selected provider does not support video task polling.",
+            },
+          },
           parameters: {
             model: "Video-capable model or provider-qualified model identifier.",
             prompt: "Text prompt describing the video to generate.",
@@ -476,7 +598,6 @@ export const docsI18nResources = {
           errors: {
             badRequest: "The selected model is not available, required request fields are missing, or the provider rejects the video payload.",
             unauthorized: "The request did not include a valid bearer token.",
-            rateLimited: "The selected provider or model deployment is currently rate limited.",
           },
         },
       },
@@ -495,6 +616,7 @@ export const docsI18nResources = {
         sections: {
           overview: "Overzicht",
           authentication: "Authenticatie",
+          parameters: "Parameters",
           requestBody: "Request body",
           requestExamples: "Requestvoorbeelden",
           responses: "Responses",
@@ -621,6 +743,19 @@ export const docsI18nResources = {
             providerFailed: "De provider faalde tijdens het maken van de chat completion.",
           },
         },
+        aiSdk: {
+          title: "Chat", surface: "AI SDK", summary: "Stream AI SDK UI messages via het gateway chat endpoint.", description: "Stuur AI SDK UI messages, tools, generatie-instellingen en provider metadata naar een provider-qualified model. Dit endpoint retourneert altijd het AI SDK UI message stream protocol als server-sent events en zet x-vercel-ai-ui-message-stream op v1.",
+          testLabel: "Testen", testModalTitle: "AI SDK chat testen", testDescription: "Pas de bearer token, model en UI messages aan en verzend daarna een live request. De modal toont de server-sent event stream als tekst.", relatedOpenAiChat: "OpenAI-compatible chat completions", relatedMessages: "Anthropic-compatible messages",
+          parameters: { model: "Chat-capable provider-qualified model identifier.", messages: "AI SDK UI messages met roles en typed parts.", parts: "Typed UI message parts, zoals text-, file-, reasoning- of tool invocation-parts.", tools: "Optionele AI SDK tool definitions. De gateway verwijdert dubbele toolnamen.", toolChoice: "Optionele tool selection policy.", maxToolCalls: "Optioneel maximaal aantal tool calls voor de request.", temperature: "Sampling temperature. De standaardwaarde is 1.", topP: "Optionele nucleus sampling waarde.", maxOutputTokens: "Optioneel maximaal aantal generated output tokens.", providerMetadata: "Optionele provider-specific metadata en generation options." },
+          responses: { sse: "Een AI SDK UI message stream met typed data parts wordt als server-sent events geretourneerd." }, errors: { badRequest: "Het model of de UI message payload is ongeldig, of het geselecteerde model is niet beschikbaar.", unauthorized: "De request bevatte geen geldige bearer token.", streamError: "Fouten nadat streaming is gestart, worden als AI SDK error parts in de succesvolle SSE-response ge-emit." },
+        },
+      },
+      messages: {
+        anthropic: {
+          title: "Message maken", surface: "Anthropic compatible", summary: "Maak of stream een message met de Anthropic-compatible Messages API.", description: "Stuur Anthropic Messages API payloads via de gateway met een provider-qualified model. De route ondersteunt tekst of structured content, system prompts, tools, thinking options, provider passthrough headers en server-sent event streaming.", testLabel: "Testen", testModalTitle: "Anthropic-compatible messages testen", testDescription: "Pas de bearer token, model, het maximale tokenaantal en messages aan en verzend daarna een non-streaming live request. De anthropic-version compatibility header is inbegrepen.", relatedAiChat: "AI SDK chat", relatedOpenAiChat: "OpenAI-compatible chat completions",
+          parameters: { model: "Messages-capable provider-qualified model identifier.", maxTokens: "Optioneel maximaal aantal output tokens. Providervereisten blijven van toepassing.", messages: "Conversatieberichten met user- of assistant-roles en tekst of structured content blocks.", system: "Optionele system prompt als tekst of structured content blocks.", stream: "Stel in op true om Anthropic-compatible message events gevolgd door [DONE] te ontvangen.", temperature: "Optionele sampling temperature.", tools: "Optionele Anthropic-compatible tool definitions.", toolChoice: "Optionele tool choice-configuratie.", thinking: "Optionele extended-thinking-configuratie voor ondersteunde modellen.", metadata: "Optionele request metadata, inclusief ondersteunde user identifiers." },
+          responses: { json: "Een completed Anthropic-compatible message object wordt geretourneerd wanneer stream ontbreekt of false is.", sse: "Wanneer stream true is, worden message events als server-sent events geretourneerd en afgesloten met [DONE]." }, errors: { badRequest: "Het model ontbreekt of is niet beschikbaar, of de Messages API payload is ongeldig.", unauthorized: "De request bevatte geen geldige bearer token.", providerFailed: "De geselecteerde provider faalde tijdens het maken van de message." },
+        },
       },
       images: {
         openai: {
@@ -714,6 +849,12 @@ export const docsI18nResources = {
               badRequest: "In de request ontbreekt image input, image counts zijn ongeldig, of het geselecteerde model is niet beschikbaar.",
             },
           },
+        },
+        aiSdk: {
+          title: "Afbeeldingen maken", surface: "AI SDK", summary: "Genereer of bewerk afbeeldingen met het AI SDK gateway image endpoint.", description: "Stuur een provider-qualified afbeeldingsmodel, prompt, optionele bronbestanden of mask en generatie-instellingen. De gateway retourneert AI SDK-style afbeeldingsdata, warnings, usage, response metadata en provider metadata.",
+          testLabel: "Testen", testModalTitle: "AI SDK afbeeldingen testen", testDescription: "Pas de bearer token, model, prompt en afbeeldingsopties aan en verzend daarna een live JSON-request.", relatedOpenAi: "OpenAI-compatible image generation", relatedUi: "AI SDK UI",
+          parameters: { model: "Image-capable provider-qualified model identifier.", prompt: "Tekstbeschrijving van de afbeelding of bewerking.", size: "Optionele output size zoals 1024x1024.", aspectRatio: "Optionele output aspect ratio wanneer ondersteund.", seed: "Optionele deterministic generation seed.", n: "Optioneel aantal afbeeldingen om te genereren.", files: "Optionele bronafbeeldingen, elk met type, mediaType en base64-data.", mask: "Optioneel maskbestand met type, mediaType en base64-data.", providerOptions: "Optionele provider-specific afbeeldingsinstellingen." },
+          responses: { json: "Gegenereerde afbeeldingen als data-URL's met warnings, usage, response metadata en provider metadata." }, errors: { badRequest: "Het model, de prompt, bestanden, het mask of de afbeeldingsopties zijn ongeldig.", unauthorized: "De request bevatte geen geldige bearer token." },
         },
       },
       speech: {
@@ -929,16 +1070,34 @@ export const docsI18nResources = {
           },
         },
       },
+      ui: {
+        aiSdk: {
+          title: "UI", surface: "AI SDK", summary: "Stream gegenereerde user-interface-markup vanuit een model.", description: "Stuur een UI-prompt, catalogusinstructies, optionele context en generatie-instellingen naar een provider-qualified model. De gateway streamt tekstdelta's direct als plain-text response.",
+          testLabel: "Testen", testModalTitle: "AI SDK UI testen", testDescription: "Pas de bearer token en UI-generatierequest aan en bekijk daarna de gestreamde tekstresponse.", relatedChat: "AI SDK chat", relatedImages: "AI SDK afbeeldingen",
+          parameters: { model: "UI-capable provider-qualified model identifier.", prompt: "Beschrijving van de interface die moet worden gegenereerd.", catalogPrompt: "Design-system- of componentcatalogusinstructies die de output begrenzen.", context: "Optionele gestructureerde applicatie- of paginacontext.", temperature: "Sampling temperature. De standaardwaarde is 1.", maxOutputTokens: "Optioneel maximaal aantal gegenereerde tokens.", providerMetadata: "Optionele provider-specific generatie-instellingen." },
+          responses: { text: "Een UTF-8 plain-text stream met de gegenereerde UI-markup of broncode." }, errors: { badRequest: "Het model is niet beschikbaar of de UI-request is ongeldig.", unauthorized: "De request bevatte geen geldige bearer token." },
+        },
+      },
+      skills: {
+        common: { surface: "OpenAI compatible", testLabel: "Testen", parameters: { skillId: "Provider-prefixed skill-ID uit het endpoint Skills weergeven, bijvoorbeeld clawhub/example-skill.", version: "Exacte skillversie om te downloaden.", after: "Retourneer items na deze cursor identifier.", limit: "Maximaal aantal items om te retourneren.", order: "Volgorde op aanmaaktijd: asc of desc." }, errors: { unauthorized: "De request bevatte geen geldige bearer token.", notFound: "De skill of gevraagde versie is niet gevonden.", providerFailed: "De skillprovider kon de request niet verwerken." }, relatedList: "Skills weergeven", relatedVersions: "Skillversies weergeven" },
+        list: { title: "Skills weergeven", summary: "Geef skills van geconfigureerde gatewayproviders weer.", description: "Retourneert een OpenAI-style gepagineerde lijst met provider-qualified skill-ID's en versiemetadata.", testModalTitle: "Skills weergeven testen", testDescription: "Pas authenticatie en pagination query parameters aan en vraag daarna de skillcatalogus op.", responses: { success: "Een gepagineerde lijst met genormaliseerde skillobjecten." } },
+        download: { title: "Skill downloaden", summary: "Download de actuele contentbundle van een skill.", description: "Gebruik een skill-ID uit Skills weergeven om de actuele content als ZIP-archief te downloaden.", testModalTitle: "Skill downloaden testen", testDescription: "Vervang het voorbeeld door een skill-ID uit Skills weergeven en download daarna de ZIP-bundle.", responses: { success: "Een ZIP-archief met de skillcontent, inclusief SKILL.md." } },
+        versions: { title: "Skillversies weergeven", summary: "Geef beschikbare versies van een skill weer.", description: "Gebruik een skill-ID uit Skills weergeven om een OpenAI-style gepagineerde lijst met genormaliseerde versies op te halen.", testModalTitle: "Skillversies weergeven testen", testDescription: "Vervang het voorbeeld door een skill-ID uit Skills weergeven, pas pagination aan en vraag daarna de versies op.", responses: { success: "Een gepagineerde lijst met skill.version-objecten." } },
+        "download-version": { title: "Skillversie downloaden", summary: "Download een specifieke versie van een skill.", description: "Gebruik een skill-ID uit Skills weergeven en een exacte versie om die contentbundle als ZIP-archief te downloaden.", testModalTitle: "Skillversie downloaden testen", testDescription: "Vervang het voorbeeld door een skill-ID uit Skills weergeven en de gewenste versie en download daarna de ZIP-bundle.", responses: { success: "Een ZIP-archief met de geselecteerde skillversie." } },
+      },
       video: {
         aiSdk: {
-          title: "Video genereren",
           surface: "AI SDK",
-          summary: "Genereer video's uit prompts en optionele image inputs met het AI SDK gateway video endpoint.",
-          description: "Gebruik de AI SDK video route om video's te maken via provider-qualified video models. De route accepteert prompt-, format-, timing-, image-, frame- en provider-specific options en retourneert gegenereerde video's als genormaliseerde response files met metadata en warnings.",
-          testLabel: "Testen",
-          testModalTitle: "AI SDK video testen",
-          testDescription: "Pas de bearer token en JSON body aan en verzend daarna een live video generation request. Responses bevatten generated video file data en metadata wanneer de provider succesvol afrondt.",
-          relatedRerank: "AI SDK rerank",
+          create: {
+            title: "Videotaak maken", summary: "Start een asynchrone videogeneratietaak.", description: "Stuur een prompt en optionele visual inputs naar een provider-qualified videomodel. Het endpoint start de asynchrone operatie en retourneert direct een provider-prefixed operation-waarde die je in providerId en taskId splitst om de status op te vragen.",
+            testLabel: "Testen", testModalTitle: "Videotaak maken testen", testDescription: "Pas de bearer token en request body aan en start een live videotaak. Bewaar de operation-waarde uit de response voor het endpoint Videotaak ophalen.", relatedGet: "Videotaak ophalen",
+            responses: { json: "De taak is gestart en een operation identifier, warnings, provider metadata en response metadata worden geretourneerd." }, errors: { badRequest: "Het model of de request payload is ongeldig, het model is niet beschikbaar, of de provider weigert de taak.", notSupported: "De geselecteerde provider ondersteunt geen asynchrone videogeneratie." },
+          },
+          get: {
+            title: "Videotaak ophalen", summary: "Haal de actuele status en het resultaat van een asynchrone videotaak op.", description: "Poll een videotaak met de providerId en taskId uit de operation-waarde van Videotaak maken. De response is een statusobject: pending, completed met gegenereerde video's, of error met een providermelding.",
+            testLabel: "Testen", testModalTitle: "Videotaak ophalen testen", testDescription: "Vervang de voorbeeld-URL door de provider-ID en URL-encoded task-ID uit Videotaak maken en poll daarna de taak.", relatedCreate: "Videotaak maken",
+            parameters: { providerId: "Gateway provider identifier, bijvoorbeeld google. Hiermee wordt de provider voor het pollen geselecteerd.", taskId: "Provider-local task identifier. URL-encode dit path segment wanneer het gereserveerde tekens bevat." }, responses: { pending: "De taak wordt nog verwerkt. Poll dezelfde URL opnieuw na een passende wachttijd.", completed: "De taak is afgerond en generated video data is beschikbaar in videos[].", error: "De taak eindigde met een providerfout. Het error-veld beschrijft de fout." }, errors: { badRequest: "De provider-ID of task-ID is leeg, ongeldig of door de provider geweigerd.", notFound: "De provider-ID is niet beschikbaar in deze gateway.", notSupported: "De geselecteerde provider ondersteunt het pollen van videotaken niet." },
+          },
           parameters: {
             model: "Video-capable model of provider-qualified model identifier.",
             prompt: "Tekstprompt die beschrijft welke video moet worden gegenereerd.",
@@ -959,7 +1118,6 @@ export const docsI18nResources = {
           errors: {
             badRequest: "Het geselecteerde model is niet beschikbaar, vereiste requestvelden ontbreken of de provider weigert de video payload.",
             unauthorized: "De request bevatte geen geldige bearer token.",
-            rateLimited: "De geselecteerde provider of model deployment is momenteel rate limited.",
           },
         },
       },

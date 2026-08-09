@@ -56,7 +56,6 @@ export const gatewayNavSections: DocsNavSection[] = [
             { id: "openai-transcriptions", label: "Transcriptions", href: "/gateway/openai/transcriptions", badge: { label: "POST", method: "POST" } },
             { id: "openai-create-image", label: "Create image", href: "/gateway/openai/create-image", badge: { label: "POST", method: "POST" } },
             { id: "openai-edit-image", label: "Edit image", href: "/gateway/openai/edit-image", badge: { label: "POST", method: "POST" } },
-            { id: "openai-create-variation", label: "Create variation", href: "/gateway/openai/create-variation", badge: { label: "POST", method: "POST" } },
             { id: "openai-list-skills", label: "List skills", href: "/gateway/openai/list-skills", badge: { label: "GET", method: "GET" } },
             { id: "openai-download-skill", label: "Download skill", href: "/gateway/openai/download-skill", badge: { label: "GET", method: "GET" } },
             { id: "openai-list-skill-versions", label: "List skill versions", href: "/gateway/openai/list-skill-versions", badge: { label: "GET", method: "GET" } },
@@ -80,7 +79,8 @@ export const gatewayNavSections: DocsNavSection[] = [
             { id: "ai-speech", label: "Speech", href: "/gateway/ai/speech", badge: { label: "POST", method: "POST" } },
             { id: "ai-transcriptions", label: "Transcriptions", href: "/gateway/ai/transcriptions", badge: { label: "POST", method: "POST" } },
             { id: "ai-ui", label: "UI", href: "/gateway/ai/ui", badge: { label: "POST", method: "POST" } },
-            { id: "ai-video", label: "Video", href: "/gateway/ai/video", badge: { label: "POST", method: "POST" } },
+            { id: "ai-create-video-task", label: "Create video task", href: "/gateway/ai/videos/create", badge: { label: "POST", method: "POST" } },
+            { id: "ai-get-video-task", label: "Get video task", href: "/gateway/ai/videos/get", badge: { label: "GET", method: "GET" } },
         ],
     },
 ];
@@ -116,7 +116,9 @@ export const agentNavSections: DocsNavSection[] = [
 
 type SpeechSurface = "openai" | "ai-sdk";
 type TranscriptionsSurface = "openai" | "ai-sdk";
-type OpenAiImageEndpoint = "generation" | "edit" | "variation";
+type OpenAiImageEndpoint = "generation" | "edit";
+export type VideoEndpoint = "create" | "get";
+export type SkillEndpoint = "list" | "download" | "versions" | "download-version";
 
 type CreateSpeechEndpointDocOptions = {
     apiBaseUrl?: string;
@@ -939,10 +941,10 @@ const createOpenAiChatDescription = (t: (key: string) => string): ReactNode => (
 );
 
 const createOpenAiImageDescription = (t: (key: string) => string, endpoint: OpenAiImageEndpoint): ReactNode => {
-    const key = endpoint === "generation" ? "generation" : endpoint === "edit" ? "edit" : "variation";
+    const key = endpoint === "generation" ? "generation" : "edit";
     return (
         <p style={{ margin: 0 }}>
-            {t(`images.openai.${key}.descriptionPrefix`)} {inlineCode(endpoint === "generation" ? "prompt" : endpoint === "edit" ? "images" : "image")} {t(`images.openai.${key}.descriptionMiddle`)} {inlineCode("stream")} {t(`images.openai.${key}.descriptionSuffix`)}
+            {t(`images.openai.${key}.descriptionPrefix`)} {inlineCode(endpoint === "generation" ? "prompt" : "images")} {t(`images.openai.${key}.descriptionMiddle`)} {inlineCode("stream")} {t(`images.openai.${key}.descriptionSuffix`)}
         </p>
     );
 };
@@ -1004,15 +1006,6 @@ const createOpenAiImageEditParameters = (t: (key: string) => string) => [
     { name: "output_format", type: "string", required: false, description: t("images.openai.common.parameters.outputFormat") },
     { name: "stream", type: "boolean", required: false, description: t("images.openai.edit.parameters.stream") },
     { name: "partial_images", type: "number", required: false, description: t("images.openai.common.parameters.partialImages") },
-    { name: "user", type: "string", required: false, description: t("images.openai.common.parameters.user") },
-];
-
-const createOpenAiImageVariationParameters = (t: (key: string) => string) => [
-    { name: "image", type: "object | file", required: true, description: t("images.openai.variation.parameters.image") },
-    { name: "model", type: "string", required: true, description: t("images.openai.variation.parameters.model") },
-    { name: "n", type: "number", required: false, description: t("images.openai.common.parameters.n") },
-    { name: "size", type: "string", required: false, description: t("images.openai.common.parameters.size") },
-    { name: "response_format", type: "string", required: false, description: t("images.openai.common.parameters.responseFormat") },
     { name: "user", type: "string", required: false, description: t("images.openai.common.parameters.user") },
 ];
 
@@ -1314,16 +1307,14 @@ data: [DONE]`,
 export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
     const t = options.t ?? fallbackT;
-    const path = endpoint === "generation" ? "/v1/images/generations" : endpoint === "edit" ? "/v1/images/edits" : "/v1/images/variations";
+    const path = endpoint === "generation" ? "/v1/images/generations" : "/v1/images/edits";
     const url = createApiUrl(apiBaseUrl, path);
     const key = endpoint === "generation" ? "generation" : endpoint;
-    const id = endpoint === "generation" ? "image-generation-openai" : endpoint === "edit" ? "image-edit-openai" : "image-variation-openai";
+    const id = endpoint === "generation" ? "image-generation-openai" : "image-edit-openai";
 
     const parameters = endpoint === "generation"
         ? createOpenAiImageGenerationParameters(t)
-        : endpoint === "edit"
-            ? createOpenAiImageEditParameters(t)
-            : createOpenAiImageVariationParameters(t);
+        : createOpenAiImageEditParameters(t);
 
     const body = endpoint === "generation"
         ? {
@@ -1332,15 +1323,9 @@ export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, opti
             size: "1024x1024",
             n: 1,
         }
-        : endpoint === "edit"
-            ? {
+        : {
                 model: "openai/gpt-image-1.5",
                 prompt: "Add warm sunrise lighting and keep the original composition.",
-                size: "1024x1024",
-                n: 1,
-            }
-            : {
-                model: "openai/dall-e-2",
                 size: "1024x1024",
                 n: 1,
             };
@@ -1348,9 +1333,7 @@ export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, opti
     const titleKey = `images.openai.${key}.title`;
     const requestPrompt = endpoint === "generation"
         ? `"prompt": "A friendly robot reading API documentation in a bright workspace.",`
-        : endpoint === "edit"
-            ? `"prompt": "Add warm sunrise lighting and keep the original composition.",\n    "images": [{ "image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." }],`
-            : `"image": { "image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." },`;
+        : `"prompt": "Add warm sunrise lighting and keep the original composition.",\n    "images": [{ "image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." }],`;
 
     return {
         id,
@@ -1374,16 +1357,11 @@ export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, opti
             ],
             ...(endpoint === "generation" ? { body } : {
                 bodyType: "form-data" as const,
-                fields: endpoint === "edit" ? [
+                fields: [
                     { name: "model", label: "model", value: "openai/gpt-image-1.5", required: true },
                     { name: "prompt", label: "prompt", value: "Add warm sunrise lighting and keep the original composition.", required: true },
                     { name: "image", label: "image", type: "file" as const, accept: "image/*", required: true, multiple: true },
                     { name: "mask", label: "mask", type: "file" as const, accept: "image/*" },
-                    { name: "size", label: "size", value: "1024x1024" },
-                    { name: "n", label: "n", value: "1" },
-                ] : [
-                    { name: "model", label: "model", value: "openai/dall-e-2", required: true },
-                    { name: "image", label: "image", type: "file" as const, accept: "image/*", required: true },
                     { name: "size", label: "size", value: "1024x1024" },
                     { name: "n", label: "n", value: "1" },
                 ],
@@ -1401,7 +1379,7 @@ export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, opti
     Authorization: \`Bearer \${token}\`,
   },
   body: JSON.stringify({
-    model: "${endpoint === "variation" ? "openai/dall-e-2" : "openai/gpt-image-1.5"}",
+    model: "openai/gpt-image-1.5",
     ${requestPrompt}
     size: "1024x1024",
     n: 1
@@ -1450,7 +1428,7 @@ const images = await response.json();`,
                     code: openAiImagesResponseExample,
                 },
             },
-            ...(endpoint === "variation" ? [] : [{
+            {
                 status: "200",
                 description: t(`images.openai.${key}.responses.sse`),
                 example: {
@@ -1467,7 +1445,7 @@ data: {"type":"image_edit.partial_image","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...
 event: image_edit.completed
 data: {"type":"image_edit.completed","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...","created_at":1784035200}`,
                 },
-            }]),
+            },
         ],
         errors: [
             { status: "400", description: t(`images.openai.${key}.errors.badRequest`) },
@@ -1478,9 +1456,7 @@ data: {"type":"image_edit.completed","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...","c
             { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
             endpoint === "generation"
                 ? { id: "openai-edit-image", label: t("images.openai.generation.relatedEdit"), href: "/gateway/openai/edit-image" }
-                : endpoint === "edit"
-                    ? { id: "openai-create-variation", label: t("images.openai.edit.relatedVariation"), href: "/gateway/openai/create-variation" }
-                    : { id: "openai-create-image", label: t("images.openai.variation.relatedGeneration"), href: "/gateway/openai/create-image" },
+                : { id: "openai-create-image", label: t("images.openai.edit.relatedGeneration"), href: "/gateway/openai/create-image" },
         ],
     };
 };
@@ -1496,9 +1472,9 @@ const createAiSdkRerankDescription = (t: (key: string) => string): ReactNode => 
     </p>
 );
 
-const createAiSdkVideoDescription = (t: (key: string) => string): ReactNode => (
+const createAiSdkVideoDescription = (t: (key: string) => string, endpoint: VideoEndpoint): ReactNode => (
     <p style={{ margin: 0 }}>
-        {t("video.aiSdk.description")}
+        {t(`video.aiSdk.${endpoint}.description`)}
     </p>
 );
 
@@ -1609,13 +1585,37 @@ const aiSdkRerankResponseExample = `{
   }
 }`;
 
-const aiSdkVideoResponseExample = `{
+const aiSdkVideoStartResponseExample = `{
+  "operation": "google/task_01hzyj8v5n9k6s3r2d4a",
+  "warnings": [],
   "providerMetadata": {
     "gateway": {
       "cost": 0.0456789
     },
     "google": {}
   },
+  "response": {
+    "timestamp": "2026-07-14T13:20:00Z",
+    "modelId": "google/veo-3.0-generate-preview",
+    "headers": {}
+  }
+}`;
+
+const aiSdkVideoPendingResponseExample = `{
+  "status": "pending",
+  "warnings": [],
+  "providerMetadata": {
+    "google": {}
+  },
+  "response": {
+    "timestamp": "2026-07-14T13:20:05Z",
+    "modelId": "google/veo-3.0-generate-preview",
+    "headers": {}
+  }
+}`;
+
+const aiSdkVideoCompletedResponseExample = `{
+  "status": "completed",
   "videos": [
     {
       "type": "base64",
@@ -1640,9 +1640,9 @@ const createAiSdkRerankTestDescription = (t: (key: string) => string): ReactNode
     </p>
 );
 
-const createAiSdkVideoTestDescription = (t: (key: string) => string): ReactNode => (
+const createAiSdkVideoTestDescription = (t: (key: string) => string, endpoint: VideoEndpoint): ReactNode => (
     <p style={{ margin: 0 }}>
-        {t("video.aiSdk.testDescription")}
+        {t(`video.aiSdk.${endpoint}.testDescription`)}
     </p>
 );
 
@@ -1754,31 +1754,96 @@ const rerank = await response.json();`,
         ],
         related: [
             { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
-            { id: "ai-video", label: t("rerank.aiSdk.relatedVideo"), href: "/gateway/ai/video" },
+            { id: "ai-create-video-task", label: t("rerank.aiSdk.relatedVideo"), href: "/gateway/ai/videos/create" },
         ],
     };
 };
 
-export const createVideoEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+export const createVideoEndpointDoc = (endpoint: VideoEndpoint, options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
     const t = options.t ?? fallbackT;
-    const aiSdkVideoUrl = createApiUrl(apiBaseUrl, "/api/videos");
+    const createUrl = createApiUrl(apiBaseUrl, "/api/videos");
+    const getPath = "/api/videos/{providerId}/{taskId}";
+    const getExampleUrl = createApiUrl(apiBaseUrl, "/api/videos/google/task_01hzyj8v5n9k6s3r2d4a");
+
+    if (endpoint === "get") {
+        return {
+            id: "video-task-get-ai-sdk",
+            title: t("video.aiSdk.get.title"),
+            surface: t("video.aiSdk.surface"),
+            method: "GET",
+            path: getPath,
+            url: getExampleUrl,
+            summary: t("video.aiSdk.get.summary"),
+            description: createAiSdkVideoDescription(t, "get"),
+            auth: createGatewayAuth(t),
+            parameters: [
+                { name: "providerId", type: "path", required: true, description: t("video.aiSdk.get.parameters.providerId") },
+                { name: "taskId", type: "path", required: true, description: t("video.aiSdk.get.parameters.taskId") },
+            ],
+            test: {
+                label: t("video.aiSdk.get.testLabel"),
+                modalTitle: t("video.aiSdk.get.testModalTitle"),
+                description: createAiSdkVideoTestDescription(t, "get"),
+                responseType: "json",
+                headers: [{ name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" }],
+            },
+            requestExamples: [
+                {
+                    id: "typescript-ai-sdk-video-task-get",
+                    label: "TypeScript",
+                    language: "ts",
+                    code: `const response = await fetch(\`${normalizeApiBaseUrl(apiBaseUrl)}/api/videos/\${providerId}/\${encodeURIComponent(taskId)}\`, {
+  headers: { Authorization: \`Bearer \${token}\` },
+});
+
+const task = await response.json();`,
+                },
+                {
+                    id: "curl-ai-sdk-video-task-get",
+                    label: "cURL",
+                    language: "bash",
+                    code: `curl ${getExampleUrl} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY"`,
+                },
+            ],
+            responses: [
+                { status: "200", description: t("video.aiSdk.get.responses.pending"), example: { id: "video-task-pending", label: "Pending", language: "json", code: aiSdkVideoPendingResponseExample } },
+                { status: "200", description: t("video.aiSdk.get.responses.completed"), example: { id: "video-task-completed", label: "Completed", language: "json", code: aiSdkVideoCompletedResponseExample } },
+                { status: "200", description: t("video.aiSdk.get.responses.error"), example: { id: "video-task-error", label: "Error", language: "json", code: `{
+  "status": "error",
+  "error": "The provider could not generate the video.",
+  "response": { "modelId": "google/veo-3.0-generate-preview" }
+}` } },
+            ],
+            errors: [
+                { status: "400", description: t("video.aiSdk.get.errors.badRequest") },
+                { status: "401", description: t("video.aiSdk.errors.unauthorized") },
+                { status: "404", description: t("video.aiSdk.get.errors.notFound") },
+                { status: "501", description: t("video.aiSdk.get.errors.notSupported") },
+            ],
+            related: [
+                { id: "ai-create-video-task", label: t("video.aiSdk.get.relatedCreate"), href: "/gateway/ai/videos/create" },
+                { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            ],
+        };
+    }
 
     return {
-        id: "video-ai-sdk",
-        title: t("video.aiSdk.title"),
+        id: "video-task-create-ai-sdk",
+        title: t("video.aiSdk.create.title"),
         surface: t("video.aiSdk.surface"),
         method: "POST",
         path: "/api/videos",
-        url: aiSdkVideoUrl,
-        summary: t("video.aiSdk.summary"),
-        description: createAiSdkVideoDescription(t),
+        url: createUrl,
+        summary: t("video.aiSdk.create.summary"),
+        description: createAiSdkVideoDescription(t, "create"),
         auth: createGatewayAuth(t),
         parameters: createAiSdkVideoParameters(t),
         test: {
-            label: t("video.aiSdk.testLabel"),
-            modalTitle: t("video.aiSdk.testModalTitle"),
-            description: createAiSdkVideoTestDescription(t),
+            label: t("video.aiSdk.create.testLabel"),
+            modalTitle: t("video.aiSdk.create.testModalTitle"),
+            description: createAiSdkVideoTestDescription(t, "create"),
             responseType: "json",
             downloadFileName: "video-response.json",
             headers: [
@@ -1798,7 +1863,7 @@ export const createVideoEndpointDoc = (options: CreateAiSdkEndpointDocOptions = 
                 id: "typescript-ai-sdk-video",
                 label: "TypeScript",
                 language: "ts",
-                code: `const response = await fetch("${aiSdkVideoUrl}", {
+                code: `const response = await fetch("${createUrl}", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -1813,13 +1878,13 @@ export const createVideoEndpointDoc = (options: CreateAiSdkEndpointDocOptions = 
   }),
 });
 
-const video = await response.json();`,
+const task = await response.json();`,
             },
             {
                 id: "curl-ai-sdk-video",
                 label: "cURL",
                 language: "bash",
-                code: `curl ${aiSdkVideoUrl} \\
+                code: `curl ${createUrl} \\
   -H "Authorization: Bearer $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1834,7 +1899,7 @@ const video = await response.json();`,
                 id: "typescript-ai-sdk-video-visual-inputs",
                 label: "TypeScript with visual inputs",
                 language: "ts",
-                code: `const response = await fetch("${aiSdkVideoUrl}", {
+                code: `const response = await fetch("${createUrl}", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -1869,30 +1934,307 @@ const video = await response.json();`,
   }),
 });
 
-const video = await response.json();`,
+const task = await response.json();`,
             },
         ],
         responses: [
             {
                 status: "200",
-                description: t("video.aiSdk.responses.json"),
+                description: t("video.aiSdk.create.responses.json"),
                 example: {
                     id: "ai-sdk-video-response",
                     label: "JSON",
                     language: "json",
-                    code: aiSdkVideoResponseExample,
+                    code: aiSdkVideoStartResponseExample,
                 },
             },
         ],
         errors: [
-            { status: "400", description: t("video.aiSdk.errors.badRequest") },
+            { status: "400", description: t("video.aiSdk.create.errors.badRequest") },
             { status: "401", description: t("video.aiSdk.errors.unauthorized") },
-            { status: "429", description: t("video.aiSdk.errors.rateLimited") },
+            { status: "501", description: t("video.aiSdk.create.errors.notSupported") },
         ],
         related: [
             { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
-            { id: "ai-rerank", label: t("video.aiSdk.relatedRerank"), href: "/gateway/ai/rerank" },
+            { id: "ai-get-video-task", label: t("video.aiSdk.create.relatedGet"), href: "/gateway/ai/videos/get" },
         ],
+    };
+};
+
+export const createAiSdkChatEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const url = createApiUrl(apiBaseUrl, "/api/chat");
+    const body = {
+        id: "chat_01hzyj8v5n9k6s3r2d4a",
+        model: "openai/gpt-4.1-mini",
+        messages: [{ id: "msg_01", role: "user", parts: [{ type: "text", text: "Explain gateway authentication in one sentence." }] }],
+        temperature: 0.7,
+    };
+
+    return {
+        id: "chat-ai-sdk",
+        title: t("chat.aiSdk.title"),
+        surface: t("chat.aiSdk.surface"),
+        method: "POST",
+        path: "/api/chat",
+        url,
+        summary: t("chat.aiSdk.summary"),
+        description: <p style={{ margin: 0 }}>{t("chat.aiSdk.description")}</p>,
+        auth: createGatewayAuth(t),
+        parameters: [
+            { name: "model", type: "string", required: true, description: t("chat.aiSdk.parameters.model") },
+            { name: "messages", type: "array", required: true, description: t("chat.aiSdk.parameters.messages") },
+            { name: "messages[].parts", type: "array", required: true, description: t("chat.aiSdk.parameters.parts") },
+            { name: "tools", type: "array", required: false, description: t("chat.aiSdk.parameters.tools") },
+            { name: "toolChoice", type: "string", required: false, description: t("chat.aiSdk.parameters.toolChoice") },
+            { name: "maxToolCalls", type: "number", required: false, description: t("chat.aiSdk.parameters.maxToolCalls") },
+            { name: "temperature", type: "number", required: false, description: t("chat.aiSdk.parameters.temperature") },
+            { name: "topP", type: "number", required: false, description: t("chat.aiSdk.parameters.topP") },
+            { name: "maxOutputTokens", type: "number", required: false, description: t("chat.aiSdk.parameters.maxOutputTokens") },
+            { name: "providerMetadata", type: "object", required: false, description: t("chat.aiSdk.parameters.providerMetadata") },
+        ],
+        test: {
+            label: t("chat.aiSdk.testLabel"),
+            modalTitle: t("chat.aiSdk.testModalTitle"),
+            description: <p style={{ margin: 0 }}>{t("chat.aiSdk.testDescription")}</p>,
+            responseType: "text",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body,
+        },
+        requestExamples: [
+            { id: "typescript-ai-sdk-chat", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {
+  method: "POST",
+  headers: { "Content-Type": "application/json", Authorization: \`Bearer \${token}\` },
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+
+const stream = response.body;` },
+            { id: "curl-ai-sdk-chat", label: "cURL", language: "bash", code: `curl ${url} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'` },
+        ],
+        responses: [{ status: "200", description: t("chat.aiSdk.responses.sse"), example: { id: "ai-sdk-chat-sse", label: "SSE", language: "text", code: `data: {"type":"start","messageId":"msg_02"}
+
+data: {"type":"text-start","id":"text_01"}
+
+data: {"type":"text-delta","id":"text_01","delta":"Send a bearer token with every request."}
+
+data: {"type":"finish"}` } }],
+        errors: [
+            { status: "400", description: t("chat.aiSdk.errors.badRequest") },
+            { status: "401", description: t("chat.aiSdk.errors.unauthorized") },
+            { status: "200", description: t("chat.aiSdk.errors.streamError") },
+        ],
+        related: [
+            { id: "openai-chat", label: t("chat.aiSdk.relatedOpenAiChat"), href: "/gateway/openai/chat-completions" },
+            { id: "anthropic-messages", label: t("chat.aiSdk.relatedMessages"), href: "/gateway/anthropic/messages" },
+        ],
+    };
+};
+
+export const createMessagesEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const url = createApiUrl(apiBaseUrl, "/v1/messages");
+    const body = {
+        model: "anthropic/claude-sonnet-4-5",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: "Explain gateway authentication in one sentence." }],
+    };
+
+    return {
+        id: "messages-anthropic",
+        title: t("messages.anthropic.title"),
+        surface: t("messages.anthropic.surface"),
+        method: "POST",
+        path: "/v1/messages",
+        url,
+        summary: t("messages.anthropic.summary"),
+        description: <p style={{ margin: 0 }}>{t("messages.anthropic.description")}</p>,
+        auth: createGatewayAuth(t),
+        parameters: [
+            { name: "model", type: "string", required: true, description: t("messages.anthropic.parameters.model") },
+            { name: "max_tokens", type: "number", required: false, description: t("messages.anthropic.parameters.maxTokens") },
+            { name: "messages", type: "array", required: true, description: t("messages.anthropic.parameters.messages") },
+            { name: "system", type: "string | array", required: false, description: t("messages.anthropic.parameters.system") },
+            { name: "stream", type: "boolean", required: false, description: t("messages.anthropic.parameters.stream") },
+            { name: "temperature", type: "number", required: false, description: t("messages.anthropic.parameters.temperature") },
+            { name: "tools", type: "array", required: false, description: t("messages.anthropic.parameters.tools") },
+            { name: "tool_choice", type: "object", required: false, description: t("messages.anthropic.parameters.toolChoice") },
+            { name: "thinking", type: "object", required: false, description: t("messages.anthropic.parameters.thinking") },
+            { name: "metadata", type: "object", required: false, description: t("messages.anthropic.parameters.metadata") },
+        ],
+        test: {
+            label: t("messages.anthropic.testLabel"),
+            modalTitle: t("messages.anthropic.testModalTitle"),
+            description: <p style={{ margin: 0 }}>{t("messages.anthropic.testDescription")}</p>,
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+                { name: "anthropic-version", value: "2023-06-01" },
+            ],
+            body,
+        },
+        requestExamples: [
+            { id: "typescript-anthropic-messages", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "anthropic-version": "2023-06-01",
+    Authorization: \`Bearer \${token}\`
+  },
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+
+const message = await response.json();` },
+            { id: "curl-anthropic-messages-stream", label: "cURL streaming", language: "bash", code: `curl ${url} \\
+  -H "Authorization: Bearer $ANTHROPIC_API_KEY" \\
+  -H "anthropic-version: 2023-06-01" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify({ ...body, stream: true }, null, 2)}'` },
+        ],
+        responses: [
+            { status: "200", description: t("messages.anthropic.responses.json"), example: { id: "anthropic-message-response", label: "JSON", language: "json", code: `{
+  "id": "msg_01hzyj8v5n9k6s3r2d4a",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5",
+  "content": [{ "type": "text", "text": "Send a bearer token with every gateway request." }],
+  "stop_reason": "end_turn",
+  "usage": { "input_tokens": 18, "output_tokens": 12 }
+}` } },
+            { status: "200", description: t("messages.anthropic.responses.sse"), example: { id: "anthropic-message-sse", label: "SSE", language: "text", code: `data: {"type":"message_start","message":{"id":"msg_01hzyj8v5n9k6s3r2d4a","type":"message","role":"assistant"}}
+
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Send a bearer token."}}
+
+data: {"type":"message_stop"}
+
+data: [DONE]` } },
+        ],
+        errors: [
+            { status: "400", description: t("messages.anthropic.errors.badRequest") },
+            { status: "401", description: t("messages.anthropic.errors.unauthorized") },
+            { status: "500", description: t("messages.anthropic.errors.providerFailed") },
+        ],
+        related: [
+            { id: "ai-chat", label: t("messages.anthropic.relatedAiChat"), href: "/gateway/ai/chat" },
+            { id: "openai-chat", label: t("messages.anthropic.relatedOpenAiChat"), href: "/gateway/openai/chat-completions" },
+        ],
+    };
+};
+
+const gatewayHeaders = [
+    { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+];
+
+export const createAiSdkImageEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+    const t = options.t ?? fallbackT;
+    const path = "/api/images";
+    const url = createApiUrl(normalizeApiBaseUrl(options.apiBaseUrl), path);
+    const body = {
+        model: "openai/gpt-image-1.5",
+        prompt: "A friendly robot reading API documentation.",
+        size: "1024x1024",
+        n: 1,
+    };
+    return {
+        id: "images-ai-sdk", title: t("images.aiSdk.title"), surface: t("images.aiSdk.surface"), method: "POST", path, url,
+        summary: t("images.aiSdk.summary"), description: <p style={{ margin: 0 }}>{t("images.aiSdk.description")}</p>, auth: createGatewayAuth(t),
+        parameters: [
+            { name: "model", type: "string", required: true, description: t("images.aiSdk.parameters.model") },
+            { name: "prompt", type: "string", required: true, description: t("images.aiSdk.parameters.prompt") },
+            { name: "size", type: "string", required: false, description: t("images.aiSdk.parameters.size") },
+            { name: "aspectRatio", type: "string", required: false, description: t("images.aiSdk.parameters.aspectRatio") },
+            { name: "seed", type: "number", required: false, description: t("images.aiSdk.parameters.seed") },
+            { name: "n", type: "number", required: false, description: t("images.aiSdk.parameters.n") },
+            { name: "files", type: "array", required: false, description: t("images.aiSdk.parameters.files") },
+            { name: "mask", type: "object", required: false, description: t("images.aiSdk.parameters.mask") },
+            { name: "providerOptions", type: "object", required: false, description: t("images.aiSdk.parameters.providerOptions") },
+        ],
+        test: { label: t("images.aiSdk.testLabel"), modalTitle: t("images.aiSdk.testModalTitle"), description: <p style={{ margin: 0 }}>{t("images.aiSdk.testDescription")}</p>, responseType: "json", headers: [...gatewayHeaders, { name: "Content-Type", value: "application/json" }], body },
+        requestExamples: [
+            { id: "typescript-ai-images", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {\n  method: "POST",\n  headers: { "Content-Type": "application/json", Authorization: \`Bearer \${token}\` },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst result = await response.json();` },
+            { id: "curl-ai-images", label: "cURL", language: "bash", code: `curl ${url} \\\n  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(body, null, 2)}'` },
+        ],
+        responses: [{ status: "200", description: t("images.aiSdk.responses.json"), example: { id: "ai-images-response", label: "JSON", language: "json", code: `{"images":["data:image/png;base64,iVBORw0KGgo..."],"warnings":[],"response":{"modelId":"gpt-image-1.5","timestamp":"2026-08-09T09:00:00Z","headers":{}},"usage":{"inputTokens":42,"outputTokens":1024,"totalTokens":1066},"providerMetadata":{"gateway":{"cost":0.04}}}` } }],
+        errors: [{ status: "400", description: t("images.aiSdk.errors.badRequest") }, { status: "401", description: t("images.aiSdk.errors.unauthorized") }],
+        related: [{ id: "openai-create-image", label: t("images.aiSdk.relatedOpenAi"), href: "/gateway/openai/create-image" }, { id: "ai-ui", label: t("images.aiSdk.relatedUi"), href: "/gateway/ai/ui" }],
+    };
+};
+
+export const createUiEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+    const t = options.t ?? fallbackT;
+    const path = "/api/generate";
+    const url = createApiUrl(normalizeApiBaseUrl(options.apiBaseUrl), path);
+    const body = { model: "openai/gpt-4.1-mini", prompt: "Create a pricing card component.", catalogPrompt: "Use accessible HTML and utility classes.", context: { framework: "React" }, temperature: 0.7, maxOutputTokens: 2048 };
+    return {
+        id: "ui-ai-sdk", title: t("ui.aiSdk.title"), surface: t("ui.aiSdk.surface"), method: "POST", path, url,
+        summary: t("ui.aiSdk.summary"), description: <p style={{ margin: 0 }}>{t("ui.aiSdk.description")}</p>, auth: createGatewayAuth(t),
+        parameters: [
+            { name: "model", type: "string", required: true, description: t("ui.aiSdk.parameters.model") },
+            { name: "prompt", type: "string", required: true, description: t("ui.aiSdk.parameters.prompt") },
+            { name: "catalogPrompt", type: "string", required: true, description: t("ui.aiSdk.parameters.catalogPrompt") },
+            { name: "context", type: "object", required: false, description: t("ui.aiSdk.parameters.context") },
+            { name: "temperature", type: "number", required: false, description: t("ui.aiSdk.parameters.temperature") },
+            { name: "maxOutputTokens", type: "number", required: false, description: t("ui.aiSdk.parameters.maxOutputTokens") },
+            { name: "providerMetadata", type: "object", required: false, description: t("ui.aiSdk.parameters.providerMetadata") },
+        ],
+        test: { label: t("ui.aiSdk.testLabel"), modalTitle: t("ui.aiSdk.testModalTitle"), description: <p style={{ margin: 0 }}>{t("ui.aiSdk.testDescription")}</p>, responseType: "text", headers: [...gatewayHeaders, { name: "Content-Type", value: "application/json" }], body },
+        requestExamples: [
+            { id: "typescript-ai-ui", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {\n  method: "POST",\n  headers: { "Content-Type": "application/json", Authorization: \`Bearer \${token}\` },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst generatedUi = await response.text();` },
+            { id: "curl-ai-ui", label: "cURL", language: "bash", code: `curl ${url} \\\n  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(body, null, 2)}'` },
+        ],
+        responses: [{ status: "200", description: t("ui.aiSdk.responses.text"), example: { id: "ai-ui-response", label: "Text stream", language: "html", code: `<section class="rounded-xl border p-6">\n  <h2>Pro plan</h2>\n  <p>Everything your team needs.</p>\n</section>` } }],
+        errors: [{ status: "400", description: t("ui.aiSdk.errors.badRequest") }, { status: "401", description: t("ui.aiSdk.errors.unauthorized") }],
+        related: [{ id: "ai-chat", label: t("ui.aiSdk.relatedChat"), href: "/gateway/ai/chat" }, { id: "ai-images", label: t("ui.aiSdk.relatedImages"), href: "/gateway/ai/images" }],
+    };
+};
+
+export const createSkillEndpointDoc = (endpoint: SkillEndpoint, options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
+    const t = options.t ?? fallbackT;
+    const paths: Record<SkillEndpoint, string> = {
+        list: "/v1/skills", download: "/v1/skills/{skillId}/content",
+        versions: "/v1/skills/{skillId}/versions", "download-version": "/v1/skills/{skillId}/versions/{version}/content",
+    };
+    const livePaths: Record<SkillEndpoint, string> = {
+        list: "/v1/skills?limit=20&order=desc", download: "/v1/skills/clawhub/example-skill/content",
+        versions: "/v1/skills/clawhub/example-skill/versions?limit=20&order=desc", "download-version": "/v1/skills/clawhub/example-skill/versions/1.0.0/content",
+    };
+    const path = paths[endpoint];
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const url = createApiUrl(apiBaseUrl, path);
+    const testUrl = createApiUrl(apiBaseUrl, livePaths[endpoint]);
+    const isList = endpoint === "list";
+    const isVersions = endpoint === "versions";
+    const isDownload = endpoint === "download" || endpoint === "download-version";
+    const parameters = [
+        ...(isList ? [
+            { name: "X-OpenAI-Key", type: "header", required: false, description: t("models.openai.parameters.xOpenAIKey") },
+            { name: "X-Anthropic-Key", type: "header", required: false, description: t("models.openai.parameters.xAnthropicKey") },
+            { name: "X-Google-Key", type: "header", required: false, description: t("models.openai.parameters.xGoogleKey") },
+            { name: "X-<Provider>-Key", type: "header", required: false, description: t("models.openai.parameters.providerKey") },
+        ] : [{ name: "skillId", type: "path", required: true, description: t("skills.common.parameters.skillId") }]),
+        ...(endpoint === "download-version" ? [{ name: "version", type: "path", required: true, description: t("skills.common.parameters.version") }] : []),
+        ...(isList || isVersions ? [{ name: "after", type: "query", required: false, description: t("skills.common.parameters.after") }, { name: "limit", type: "query", required: false, description: t("skills.common.parameters.limit") }, { name: "order", type: "query", required: false, description: t("skills.common.parameters.order") }] : []),
+    ];
+    const jsonExample = isVersions ? `{"object":"list","data":[{"id":"clawhub/example-skill:1.0.0","object":"skill.version","created_at":1786266000,"version":"1.0.0","name":"Example skill","description":"An example skill.","skill_id":"clawhub/example-skill"}],"first_id":"clawhub/example-skill:1.0.0","last_id":"clawhub/example-skill:1.0.0","has_more":false}` : `{"object":"list","data":[{"id":"clawhub/example-skill","object":"skill","created_at":1786266000,"default_version":"1.0.0","name":"Example skill","description":"An example skill.","latest_version":"1.0.0"}],"first_id":"clawhub/example-skill","last_id":"clawhub/example-skill","has_more":false}`;
+    return {
+        id: `skills-${endpoint}`, title: t(`skills.${endpoint}.title`), surface: t("skills.common.surface"), method: "GET", path, url,
+        summary: t(`skills.${endpoint}.summary`), description: <p style={{ margin: 0 }}>{t(`skills.${endpoint}.description`)}</p>, auth: isList ? createOpenAiModelsAuth(t) : createGatewayAuth(t), parametersTitle: t("api.sections.parameters"), parameters,
+        test: { label: t("skills.common.testLabel"), modalTitle: t(`skills.${endpoint}.testModalTitle`), description: <p style={{ margin: 0 }}>{t(`skills.${endpoint}.testDescription`)}</p>, url: testUrl, responseType: isDownload ? "auto" : "json", downloadFileName: endpoint === "download-version" ? "example-skill-1.0.0.zip" : "example-skill.zip", headers: isList ? [{ name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" }] : gatewayHeaders },
+        requestExamples: [
+            { id: `typescript-skills-${endpoint}`, label: "TypeScript", language: "ts", code: `const response = await fetch("${testUrl}", { headers: { ${isList ? '"X-OpenAI-Key": openAiApiKey' : "Authorization: `Bearer ${token}`"} } });\n${isDownload ? "const bundle = await response.blob();" : "const result = await response.json();"}` },
+            { id: `curl-skills-${endpoint}`, label: "cURL", language: "bash", code: `curl ${testUrl} -H "${isList ? "X-OpenAI-Key: $OPENAI_API_KEY" : "Authorization: Bearer $AIHAPPEY_API_KEY"}"${isDownload ? ` --output ${endpoint === "download-version" ? "example-skill-1.0.0.zip" : "example-skill.zip"}` : ""}` },
+        ],
+        responses: [{ status: "200", description: t(`skills.${endpoint}.responses.success`), example: isDownload ? { id: `skills-${endpoint}-zip`, label: "ZIP", language: "http", code: "HTTP/1.1 200 OK\nContent-Type: application/zip\nContent-Disposition: attachment; filename=example-skill.zip\n\n<binary ZIP bytes>" } : { id: `skills-${endpoint}-json`, label: "JSON", language: "json", code: jsonExample } }],
+        errors: [{ status: "401", description: t("skills.common.errors.unauthorized") }, ...(!isList ? [{ status: "404", description: t("skills.common.errors.notFound") }] : []), { status: "500", description: t("skills.common.errors.providerFailed") }],
+        related: endpoint === "list" ? [{ id: "skill-versions", label: t("skills.common.relatedVersions"), href: "/gateway/openai/list-skill-versions" }] : [{ id: "skills-list", label: t("skills.common.relatedList"), href: "/gateway/openai/list-skills" }],
     };
 };
 

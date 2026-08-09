@@ -6,7 +6,7 @@ export type OpenAiImageEndpointPageProps = {
   activePath: string;
   apiBaseUrl?: string;
   appTitle: string;
-  endpoint: "generation" | "edit" | "variation";
+  endpoint: "generation" | "edit";
 };
 
 export const OpenAiImageEndpointPage = ({ activePath, apiBaseUrl, appTitle, endpoint }: OpenAiImageEndpointPageProps) => {

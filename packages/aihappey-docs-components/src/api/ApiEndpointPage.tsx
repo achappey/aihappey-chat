@@ -47,7 +47,7 @@ export const ApiEndpointPage = ({ endpoint }: ApiEndpointPageProps) => {
 
       <ApiSection title={t("api.sections.overview")}>{endpoint.description}</ApiSection>
       {endpoint.auth ? <ApiSection title={t("api.sections.authentication")}>{endpoint.auth}</ApiSection> : null}
-      {endpoint.parameters?.length ? <ApiSection title={t("api.sections.requestBody")}><ParameterTable parameters={endpoint.parameters} /></ApiSection> : null}
+      {endpoint.parameters?.length ? <ApiSection title={endpoint.parametersTitle ?? t("api.sections.requestBody")}><ParameterTable parameters={endpoint.parameters} /></ApiSection> : null}
       {endpoint.requestExamples?.length ? <ApiSection title={t("api.sections.requestExamples")}><CodeExample examples={endpoint.requestExamples} /></ApiSection> : null}
       {endpoint.responses?.length ? <ApiSection title={t("api.sections.responses")}><ResponseExample responses={endpoint.responses} /></ApiSection> : null}
       {endpoint.errors?.length ? <ApiSection title={t("api.sections.errors")}><ResponseExample responses={endpoint.errors} /></ApiSection> : null}

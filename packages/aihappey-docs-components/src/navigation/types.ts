@@ -97,6 +97,7 @@ export type DocsEndpointDoc = {
   summary: string;
   description: ReactNode;
   auth?: ReactNode;
+  parametersTitle?: string;
   parameters?: DocsParameter[];
   requestExamples?: DocsCodeExample[];
   responses?: DocsEndpointResponse[];
