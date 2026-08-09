@@ -13,7 +13,6 @@ export const sargalay: Provider = {
   urls: {
     homepage: "https://www.sargalay.com",
     console: "https://www.sargalay.com/console",
-    docs: "https://www.sargalay.com/docs",
     pricing: "https://www.sargalay.com/pricing",
     privacyPolicy: "https://www.sargalay.com/privacy",
     termsOfService: "https://www.sargalay.com/terms"
