@@ -11,6 +11,7 @@ type McpServerCardProps = {
   checked: boolean
   registryItem?: McpRegistryServerResponse;
   renderDescription?: () => React.ReactElement
+  renderSettings?: () => React.ReactNode
   onToggle?: () => void;
   onRemove?: () => void;
 };
@@ -21,6 +22,7 @@ export const McpServerCard = ({ serverConfig,
   checked,
   onToggle,
   renderDescription,
+  renderSettings,
   onRemove }: McpServerCardProps) => {
   const url = serverConfig.url;
   const { Card, Switch } = useTheme();
@@ -49,6 +51,7 @@ export const McpServerCard = ({ serverConfig,
       }
     >
       <LimitedTextField text={registryItem?.server?.description} />
+      {renderSettings?.()}
     </Card>
   );
 };

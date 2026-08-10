@@ -105,6 +105,9 @@ export type McpServer = {
     type: "http";
     url: string;
     disabled?: boolean;
+    defer_loading?: boolean;
+    namespace?: boolean;
+    allowed_callers?: Array<"direct" | "programmatic">;
     headers?: Record<string, any>;
 };
 

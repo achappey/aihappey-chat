@@ -19,6 +19,7 @@ type Props = {
   search?: string;
   onSearchChange?: (value: string) => void;
   searchAutoFocus?: boolean;
+  renderServerSettings?: (key: string) => React.ReactNode;
 };
 
 export const ServerManagement = ({
@@ -29,6 +30,7 @@ export const ServerManagement = ({
   search,
   onSearchChange,
   searchAutoFocus = false,
+  renderServerSettings,
 }: Props) => {
   const { SearchBox } = useTheme();
   const { t } = useTranslation();
@@ -89,6 +91,7 @@ export const ServerManagement = ({
               serverConfig={server.config}
               checked={enabled.has(key)}
               renderDescription={renderDescription}
+              renderSettings={renderServerSettings ? () => renderServerSettings(key) : undefined}
               registryItem={server.registry}
               onToggle={() => onToggle(key)}
               onRemove={onRemove ? () => onRemove(key) : undefined}

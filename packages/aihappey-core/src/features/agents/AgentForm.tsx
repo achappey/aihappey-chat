@@ -45,7 +45,7 @@ export const AgentForm = ({
     isEditing,
     onChange,
     onBusyChange }: AgentFormProps) => {
-    const { Input, TextArea, Tabs, Tab, Button, Text } = useTheme();
+    const { Input, TextArea, Tabs, Tab, Button, Text, Select, Switch } = useTheme();
     const { t } = useTranslation();
     const { config: chatConfig } = useChatContext();
     const [activeTab, setActiveTab] = useState("general");
@@ -179,6 +179,90 @@ export const AgentForm = ({
             }
         })
     }
+
+    type McpToolCaller = "direct" | "programmatic";
+    const mcpToolCallers: McpToolCaller[] = ["direct", "programmatic"];
+
+    const updateMcpServer = (key: string, update: (server: McpServer) => McpServer) => {
+        const servers = agent.mcpServers ?? {};
+        const server = servers[key];
+        if (!server) return;
+
+        onChange({
+            ...agent,
+            mcpServers: {
+                ...servers,
+                [key]: update(server),
+            },
+        });
+    };
+
+    const renderMcpServerSettings = (key: string) => {
+        const server = agent.mcpServers?.[key];
+        if (!server) return null;
+
+        const callers = (server.allowed_callers ?? [])
+            .filter((caller): caller is McpToolCaller => mcpToolCallers.includes(caller as McpToolCaller));
+
+        return (
+            <div style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(180px, 1fr) auto auto",
+                alignItems: "end",
+                gap: 16,
+                marginTop: 16,
+            }}>
+                <Select
+                    label={t("toolConfiguration.allowedCallers")}
+                    disabled={server.disabled === true}
+                    multiselect
+                    values={callers}
+                    valueTitle={callers.length
+                        ? callers.map((caller) => t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${caller}`)).join(", ")
+                        : ""}
+                    options={mcpToolCallers.map((caller) => ({
+                        value: caller,
+                        label: t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${caller}`),
+                    }))}
+                    onChange={(caller: McpToolCaller) => {
+                        const next = callers.includes(caller)
+                            ? callers.filter((value) => value !== caller)
+                            : [...callers, caller];
+                        updateMcpServer(key, (current) => {
+                            const { allowed_callers: _, ...rest } = current;
+                            return next.length ? { ...rest, allowed_callers: next } : rest as McpServer;
+                        });
+                    }}
+                >
+                    {mcpToolCallers.map((caller) => (
+                        <option key={caller} value={caller}>
+                            {t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${caller}`)}
+                        </option>
+                    ))}
+                </Select>
+                <Switch
+                    id={`agent-mcp-defer-loading-${key}`}
+                    label={t("toolConfiguration.deferLoading")}
+                    disabled={server.disabled === true}
+                    checked={server.defer_loading === true}
+                    onChange={(checked: boolean) => updateMcpServer(key, (current) => {
+                        const { defer_loading: _, ...rest } = current;
+                        return checked ? { ...rest, defer_loading: true } : rest as McpServer;
+                    })}
+                />
+                <Switch
+                    id={`agent-mcp-namespace-${key}`}
+                    label={"Namespace"}
+                    disabled={server.disabled === true}
+                    checked={server.namespace === true}
+                    onChange={(checked: boolean) => updateMcpServer(key, (current) => {
+                        const { namespace: _, ...rest } = current;
+                        return checked ? { ...rest, namespace: true } : rest as McpServer;
+                    })}
+                />
+            </div>
+        );
+    };
 
     const installFromCatalog = (item: McpRegistryServerResponse) => {
         const remote = item.server.remotes?.find(r => r.type === "streamable-http")
@@ -483,6 +567,7 @@ export const AgentForm = ({
                         enabled={enabled}
                         onToggle={toggle}
                         mcpServers={mapToServerConfig(enrichedAgent?.mcpServers)}
+                        renderServerSettings={renderMcpServerSettings}
                         onRemove={remove} />
                     <Button
                         icon="catalog"
