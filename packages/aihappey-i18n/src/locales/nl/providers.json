@@ -746,6 +746,10 @@
         "pdf": "PDF"
       }
     },
+    "session": {
+      "title": "Budget (Managed Agents)",
+      "maxListCostUsd": "Maximaal budget (USD)"
+    },
     "userLocation": "Locatie",
     "locationType": "Locatietype",
     "locationApproximate": "Bij benadering",

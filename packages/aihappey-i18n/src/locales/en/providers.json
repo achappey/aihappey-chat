@@ -280,6 +280,10 @@
         "pdf": "PDF"
       }
     },
+    "session": {
+      "title": "Budget (Managed Agents)",
+      "maxListCostUsd": "Maximum budget (USD)"
+    },
     "userLocation": "Location",
     "locationType": "Location type",
     "locationApproximate": "Approximate",
