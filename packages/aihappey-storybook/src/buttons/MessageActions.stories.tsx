@@ -53,6 +53,29 @@ const sources: SourceUrlUIPart[] = [
   },
 ];
 
+const manySources: SourceUrlUIPart[] = [
+  ...Array.from({ length: 4 }, (_, index) => ({
+    type: "source-url" as const,
+    url: `https://example.com/article-${index + 1}`,
+    sourceId: `example-${index + 1}`,
+    title: `Example article ${index + 1}`,
+  })),
+  ...Array.from({ length: 3 }, (_, index) => ({
+    type: "source-url" as const,
+    url: `https://github.com/example/repository-${index + 1}`,
+    sourceId: `github-${index + 1}`,
+    title: `GitHub source ${index + 1}`,
+  })),
+  ...["microsoft.com", "wikipedia.org", "reuters.com", "bbc.co.uk", "openai.com", "anthropic.com"].map(
+    (domain) => ({
+      type: "source-url" as const,
+      url: `https://${domain}/source`,
+      sourceId: domain,
+      title: `${domain} source`,
+    }),
+  ),
+];
+
 const activityContent: UIMessagePart<any, any>[] = [
   {
     type: "text",
@@ -83,6 +106,21 @@ export const WithAttachmentsAndSources: Story = {
     onCopyMessage: async () => console.log("Copy message"),
     onShowAttachments: (files) => console.log("Attachments", files),
     onShowSources: (nextSources) => console.log("Sources", nextSources),
+    onSetPage: (next) => console.log("Set page", next),
+  },
+};
+
+export const WithManyRankedSourceDomains: Story = {
+  args: {
+    msg: {
+      ...baseAssistantMsg,
+      sources: manySources,
+    },
+    page: 0,
+    max: 0,
+    size: "small",
+    onCopyMessage: async () => console.log("Copy message"),
+    onShowSources: (nextSources) => console.log("Open sources drawer", nextSources),
     onSetPage: (next) => console.log("Set page", next),
   },
 };

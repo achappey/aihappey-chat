@@ -323,6 +323,14 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 .aih-shadcn-tag-remove:hover,
 .aih-shadcn-tag-remove:focus-visible { opacity: 1; background: color-mix(in srgb, currentColor 12%, transparent); outline: none; }
 
+.aih-shadcn-avatar-overflow-trigger { display: inline-flex; align-items: center; justify-content: center; min-width: 1.25rem; height: 1.25rem; margin-left: -.25rem; padding: 0 .25rem; border: 1px solid var(--aih-shadcn-background); border-radius: 999px; background: var(--aih-shadcn-secondary); color: var(--aih-shadcn-secondary-foreground); font: inherit; font-size: .6875rem; font-weight: 600; line-height: 1; cursor: pointer; }
+.aih-shadcn-avatar-overflow-trigger:hover { background: var(--aih-shadcn-accent); color: var(--aih-shadcn-accent-foreground); }
+.aih-shadcn-avatar-overflow-trigger:focus-visible { outline: 2px solid var(--aih-shadcn-ring); outline-offset: 2px; }
+.aih-shadcn-avatar-overflow-content { min-width: 12rem; max-height: min(var(--radix-dropdown-menu-content-available-height, 20rem), 20rem); overflow-y: auto; }
+.aih-shadcn-avatar-overflow-item { display: flex; align-items: center; gap: .5rem; min-width: 0; padding: .375rem .5rem; border-radius: calc(var(--aih-shadcn-radius) - 2px); font-size: .8125rem; line-height: 1.25rem; cursor: pointer; outline: none; }
+.aih-shadcn-avatar-overflow-item > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aih-shadcn-avatar-overflow-item[data-highlighted] { background: var(--aih-shadcn-accent); color: var(--aih-shadcn-accent-foreground); }
+
 .aih-shadcn-popover { z-index: var(--aih-shadcn-popover-z-index); min-width: 12rem; border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-popover); color: var(--aih-shadcn-popover-foreground); box-shadow: 0 10px 30px rgb(0 0 0 / .18); padding: .25rem; }
 .aih-shadcn-menu-content,
 .aih-shadcn-menu-sub-content { max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; }

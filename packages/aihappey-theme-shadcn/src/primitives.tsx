@@ -940,7 +940,54 @@ export const AvatarGroup: any = ({ children, layout = "stack", size = 32, classN
 })}</div>;
 AvatarGroup.Avatar = Avatar;
 AvatarGroup.Item = (props: any) => <Avatar {...props} style={{ marginLeft: -6, ...(props.style ?? {}) }} />;
-AvatarGroup.Popover = ({ children, count }: any) => <span className="aih-shadcn-badge aih-shadcn-badge-secondary">{children ?? `+${count ?? 0}`}</span>;
+AvatarGroup.Popover = ({ children, count, tooltip, className, ...rest }: any) => {
+  const items = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
+  const label = tooltip?.content ?? `Show ${count ?? items.length} more`;
+
+  return (
+    <DropdownMenuPrimitive.Root modal={false}>
+      <DropdownMenuPrimitive.Trigger asChild>
+        <button
+          type="button"
+          className={cn("aih-shadcn-avatar-overflow-trigger", className)}
+          aria-label={typeof label === "string" ? label : undefined}
+          title={typeof label === "string" ? label : undefined}
+          {...rest}
+        >
+          +{count ?? items.length}
+        </button>
+      </DropdownMenuPrimitive.Trigger>
+      <DropdownMenuPrimitive.Portal>
+        <PortalThemeScope>
+          <DropdownMenuPrimitive.Content
+            className="aih-shadcn-popover aih-shadcn-avatar-overflow-content"
+            align="end"
+            sideOffset={4}
+            collisionPadding={8}
+          >
+            {items.map((item, index) => {
+              const itemLabel = item.props.name ?? item.props.title ?? `Item ${index + 1}`;
+              return (
+                <DropdownMenuPrimitive.Item
+                  key={item.key ?? `${itemLabel}:${index}`}
+                  className="aih-shadcn-avatar-overflow-item"
+                  onSelect={() => item.props.onClick?.()}
+                >
+                  {React.cloneElement(item, {
+                    size: 20,
+                    onClick: undefined,
+                    style: { marginLeft: 0, ...(item.props.style ?? {}) },
+                  })}
+                  <span>{itemLabel}</span>
+                </DropdownMenuPrimitive.Item>
+              );
+            })}
+          </DropdownMenuPrimitive.Content>
+        </PortalThemeScope>
+      </DropdownMenuPrimitive.Portal>
+    </DropdownMenuPrimitive.Root>
+  );
+};
 AvatarGroup.partitionItems = <T,>({ items, maxInlineItems = 5 }: { items: readonly T[]; maxInlineItems?: number }) => ({ inlineItems: items.slice(0, maxInlineItems), overflowItems: items.length > maxInlineItems ? items.slice(maxInlineItems) : undefined });
 
 export const Tags = ({ items = [], onRemove, className, style }: any) => (
