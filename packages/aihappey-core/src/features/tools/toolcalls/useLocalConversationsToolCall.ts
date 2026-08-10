@@ -1,23 +1,15 @@
 import { useCallback } from "react";
 import type { ConversationsContextType } from "aihappey-conversations";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import { UIMessage } from "aihappey-ai";
 
-/* ============================================================
-   Result helpers
-============================================================ */
-
-type ToolTextResult = {
-  isError: boolean;
-  content: { type: "text"; text: string }[];
-};
-
-const ok = (text: string): ToolTextResult => ({
+const ok = (item: any): CallToolResult => ({
   isError: false,
-  content: [{ type: "text", text }],
+  structuredContent: item,
+  content: []
 });
 
-const fail = (err: unknown): ToolTextResult => ({
+const fail = (err: unknown): CallToolResult => ({
   isError: true,
   content: [{ type: "text", text: err instanceof Error ? err.message : String(err) }],
 });
@@ -267,16 +259,16 @@ export async function searchLocalConversationsText(
 
 type LocalConversationsToolCall = {
   toolName:
-    | "local_conversations_list_all"
-    | "local_conversations_search_text"
-    | "local_conversations_get_conversation"
-    | "local_conversations_delete_conversation";
+  | "local_conversations_list_all"
+  | "local_conversations_search_text"
+  | "local_conversations_get_conversation"
+  | "local_conversations_delete_conversation";
   input: any;
 };
 
 export function useLocalConversationsRuntime(conversations?: ConversationsContextType | null) {
   const handle = useCallback(
-    async (toolCall: LocalConversationsToolCall): Promise<ToolTextResult> => {
+    async (toolCall: LocalConversationsToolCall): Promise<CallToolResult> => {
       try {
         if (!conversations) throw new Error("Conversations context not available.");
 
@@ -287,7 +279,9 @@ export function useLocalConversationsRuntime(conversations?: ConversationsContex
               metadata: a.metadata,
               messageCount: a.messages?.length ?? 0,
             }));
-            return ok(JSON.stringify(items));
+            return ok({
+              conversations: items
+            });
           }
 
           case "local_conversations_get_conversation": {
@@ -297,7 +291,7 @@ export function useLocalConversationsRuntime(conversations?: ConversationsContex
             const convo =
               (conversations.items ?? []).find(a => a.id === conversationId) ?? null;
 
-            return ok(JSON.stringify(convo));
+            return ok(convo);
           }
 
           case "local_conversations_delete_conversation": {
@@ -307,7 +301,7 @@ export function useLocalConversationsRuntime(conversations?: ConversationsContex
             await conversations.remove(conversationId);
 
             return ok(
-              JSON.stringify({ deletedId: conversationId, status: "deleted" })
+              { deletedId: conversationId, status: "deleted" }
             );
           }
 
@@ -318,7 +312,7 @@ export function useLocalConversationsRuntime(conversations?: ConversationsContex
               query,
               toolCall.input?.limit
             );
-            return ok(JSON.stringify(payload));
+            return ok(payload);
           }
 
           default:

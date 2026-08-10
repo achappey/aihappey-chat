@@ -1,20 +1,10 @@
 import { useCallback } from "react";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import type { ModelOption, Provider } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 
-type ToolTextResult = {
-  isError: boolean;
-  content: { type: "text"; text: string }[];
-};
-
-const ok = (text: string): ToolTextResult => ({
-  isError: false,
-  content: [{ type: "text", text }],
-});
-
-const fail = (err: unknown): ToolTextResult => ({
+const fail = (err: unknown): CallToolResult => ({
   isError: true,
   content: [{ type: "text", text: err instanceof Error ? err.message : String(err) }],
 });
@@ -320,7 +310,7 @@ export function useLocalArtificialIntelligenceRuntime() {
   const models = (useAppStore(s => s.models) as ModelOption[] | undefined) ?? [];
 
   const handle = useCallback(
-    async (toolCall: LocalAiToolCall): Promise<ToolTextResult> => {
+    async (toolCall: LocalAiToolCall): Promise<CallToolResult> => {
       try {
         const input = toolCall.input ?? {};
         const providers = listProviderViews();
@@ -333,7 +323,10 @@ export function useLocalArtificialIntelligenceRuntime() {
             });
             const limit = parseLimit(input.limit);
             const items = applyLimit(filtered, limit);
-            return ok(JSON.stringify({ total: filtered.length, count: items.length, items }));
+            return {
+              structuredContent: { total: filtered.length, count: items.length, items },
+              content: []
+            };
           }
 
           case "local_ai_providers_search": {
@@ -349,7 +342,11 @@ export function useLocalArtificialIntelligenceRuntime() {
               inferenceRegionInput: input.inferenceRegion,
             });
             const items = applyLimit(filtered, limit);
-            return ok(JSON.stringify({ total: filtered.length, count: items.length, items }));
+            return {
+              structuredContent: { total: filtered.length, count: items.length, items },
+              content: []
+            };
+
           }
 
           case "local_ai_models_search": {
@@ -387,7 +384,10 @@ export function useLocalArtificialIntelligenceRuntime() {
 
             const sorted = sortModels(searched);
             const items = applyLimit(sorted, limit);
-            return ok(JSON.stringify({ total: sorted.length, count: items.length, items }));
+            return {
+              structuredContent: { data: items },
+              content: []
+            };
           }
 
           case "local_ai_models_list_by_provider": {
@@ -401,7 +401,10 @@ export function useLocalArtificialIntelligenceRuntime() {
             );
             const sorted = sortModels(filtered);
             const items = applyLimit(sorted, limit);
-            return ok(JSON.stringify({ total: sorted.length, count: items.length, items }));
+            return {
+              structuredContent: { total: sorted.length, count: items.length, data: items },
+              content: []
+            };
           }
 
           default:

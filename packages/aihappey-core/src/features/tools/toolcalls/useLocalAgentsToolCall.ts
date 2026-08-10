@@ -1,23 +1,14 @@
 import { useCallback } from "react";
 import { useAppStore } from "aihappey-state";
 import type { Agent } from "aihappey-types";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 
-/* ============================================================
-   Result helpers
-============================================================ */
-
-type ToolTextResult = {
-  isError: boolean;
-  content: { type: "text"; text: string }[];
-};
-
-const ok = (text: string): ToolTextResult => ({
+const ok = (text: string): CallToolResult => ({
   isError: false,
   content: [{ type: "text", text }],
 });
 
-const fail = (err: unknown): ToolTextResult => ({
+const fail = (err: unknown): CallToolResult => ({
   isError: true,
   content: [{ type: "text", text: err instanceof Error ? err.message : String(err) }],
 });
@@ -136,11 +127,16 @@ export function useLocalAgentsRuntime() {
   const deleteAgent = useAppStore(a => a.deleteAgent);
 
   const handle = useCallback(
-    async (toolCall: LocalAgentsToolCall): Promise<ToolTextResult> => {
+    async (toolCall: LocalAgentsToolCall): Promise<CallToolResult> => {
       try {
         switch (toolCall.toolName) {
           case "local_agents_list":
-            return ok(JSON.stringify(allAgents));
+            return {
+              structuredContent: {
+                agents: allAgents
+              },
+              content: []
+            };
 
           case "local_agents_delete": {
             const { agentName } = toolCall.input ?? {};
