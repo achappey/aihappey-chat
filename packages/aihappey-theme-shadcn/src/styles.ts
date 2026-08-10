@@ -357,7 +357,15 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 .aih-shadcn-dialog-header { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: space-between; gap: .5rem; padding: 1rem 1rem 0; }
 .aih-shadcn-dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1rem; }
 .aih-shadcn-dialog-footer { display: flex; flex: 0 0 auto; justify-content: flex-end; gap: .5rem; border-top: 1px solid var(--aih-shadcn-border); background: var(--aih-shadcn-background); padding: .75rem 1rem 1rem; }
-.aih-shadcn-drawer-content { position: fixed; inset-block: 0; right: 0; z-index: calc(var(--aih-shadcn-dialog-z-index) + 1); width: min(28rem, 90vw); border-left: 1px solid var(--aih-shadcn-border); background: var(--aih-shadcn-background); color: var(--aih-shadcn-foreground); box-shadow: -10px 0 30px rgb(0 0 0 / .18); padding: 1rem; overflow: auto; }
+.aih-shadcn-drawer-content { position: fixed; inset-block: 0; right: 0; z-index: calc(var(--aih-shadcn-dialog-z-index) + 1); display: flex; width: min(28rem, 90vw); flex-direction: column; overflow: hidden; border-left: 1px solid var(--aih-shadcn-border); background: var(--aih-shadcn-background); color: var(--aih-shadcn-foreground); box-shadow: -10px 0 30px rgb(0 0 0 / .18); }
+.aih-shadcn-drawer-small { width: min(28rem, 90vw); }
+.aih-shadcn-drawer-medium { width: min(36rem, 90vw); }
+.aih-shadcn-drawer-large { width: min(56rem, 90vw); }
+.aih-shadcn-drawer-full { width: 100vw; max-width: 100vw; }
+.aih-shadcn-drawer-header { display: flex; flex: 0 0 auto; flex-direction: column; gap: .5rem; padding: 1rem 1rem 0; }
+.aih-shadcn-drawer-navigation { display: flex; width: 100%; align-items: center; justify-content: flex-end; }
+.aih-shadcn-drawer-title-row { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .5rem; }
+.aih-shadcn-drawer-body { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: .75rem 1rem 1rem; }
 
 .aih-shadcn-tabs-scroll { width: 100%; max-width: 100%; min-width: 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--aih-shadcn-muted-foreground) 30%, transparent) transparent; padding-bottom: .125rem; }
 .aih-shadcn-tabs-scroll::-webkit-scrollbar { height: .375rem; }

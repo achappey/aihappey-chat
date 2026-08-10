@@ -96,7 +96,7 @@ import {
   type LucideProps,
 } from "lucide-react";
 import { format } from "timeago.js";
-import type { AihUiTheme, IconToken, ChatMessage, GenericDataGridColumn } from "aihappey-types";
+import type { AihUiTheme, IconToken, ChatMessage, DrawerProps, DrawerSize, GenericDataGridColumn } from "aihappey-types";
 import type { ButtonProps } from "aihappey-types/src/theme/Button";
 import type { CloseButtonProps } from "aihappey-types/src/theme/CloseButton";
 import type { ProviderCapability, UserMenuProps } from "aihappey-types/src/theme/UserMenu";
@@ -1201,17 +1201,46 @@ export const Modal = ({ open, show, onOpenChange, onHide, title, children, actio
     </DialogPrimitive.Root>
   );
 };
-export const Drawer = ({ open, isOpen, onOpenChange, onClose, title, children, actions }: any) => (
+type ShadcnDrawerProps = DrawerProps & {
+  /** Backwards-compatible aliases supported by the previous Shadcn drawer. */
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  actions?: React.ReactNode;
+};
+
+const drawerSizeClass: Partial<Record<DrawerSize, string>> = {
+  small: "aih-shadcn-drawer-small",
+  medium: "aih-shadcn-drawer-medium",
+  large: "aih-shadcn-drawer-large",
+  full: "aih-shadcn-drawer-full",
+};
+
+export const Drawer = ({
+  open,
+  isOpen,
+  onOpenChange,
+  onClose,
+  title,
+  headerNavigation,
+  children,
+  actions,
+  size,
+}: ShadcnDrawerProps) => (
   <DialogPrimitive.Root open={open ?? isOpen} onOpenChange={(v) => { onOpenChange?.(v); if (!v) onClose?.(); }}>
     <DialogPrimitive.Portal>
       <PortalThemeScope>
         <DialogPrimitive.Overlay className="aih-shadcn-dialog-overlay" />
-        <DialogPrimitive.Content className="aih-shadcn-drawer-content">
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-            {title ? <DialogPrimitive.Title className="aih-shadcn-card-title">{title}</DialogPrimitive.Title> : null}
-            <DialogPrimitive.Close asChild><CloseButtonBase /></DialogPrimitive.Close>
+        <DialogPrimitive.Content
+          className={cn("aih-shadcn-drawer-content", size && drawerSizeClass[size])}
+        >
+          <div className="aih-shadcn-drawer-header">
+            {headerNavigation ? <div className="aih-shadcn-drawer-navigation">{headerNavigation}</div> : null}
+            <div className="aih-shadcn-drawer-title-row">
+              {title ? <DialogPrimitive.Title className="aih-shadcn-card-title">{title}</DialogPrimitive.Title> : null}
+              <DialogPrimitive.Close asChild><CloseButtonBase aria-label="Close" /></DialogPrimitive.Close>
+            </div>
           </div>
-          <div style={{ marginTop: 12 }}>{children}</div>
+          <div className="aih-shadcn-drawer-body">{children}</div>
           {actions}
         </DialogPrimitive.Content>
       </PortalThemeScope>
