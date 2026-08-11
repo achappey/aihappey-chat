@@ -2,12 +2,11 @@ import type { Provider } from "aihappey-types";
 
 export const andyapi: Provider = {
   name: "AndyAPI",
-  description: "Distributed AI compute pool with OpenAI-compatible endpoints, automatic load balancing, and failover support.",
-  icons: [{
-    src: "https://andy.mindcraft-ce.com/static/favicon.ico"
-  }],
+  description: "Andy API — a small, production-minded OpenAI-compatible gateway.",
   urls: {
     homepage: "https://andy.mindcraft-ce.com",
+    termsOfService: "https://andy.mindcraft-ce.com/terms",
+    privacyPolicy: "https://andy.mindcraft-ce.com/privacy",
     docs: "https://andy.mindcraft-ce.com/andy-docs"
   },
   experimental: true,

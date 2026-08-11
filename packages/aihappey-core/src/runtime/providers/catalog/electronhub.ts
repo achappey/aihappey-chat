@@ -4,9 +4,6 @@ export const electronhub: Provider = {
   name: "ElectronHub",
   description:
     "Electron Hub provides unified access to the world's leading AI technologies in one seamless platform.",
-  icons: [{
-    src: "https://www.electronhub.ai/electron.png"
-  }],
   urls: {
     homepage: "https://www.electronhub.ai",
     docs: "https://docs.electronhub.ai",

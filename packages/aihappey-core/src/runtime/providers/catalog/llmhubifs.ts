@@ -3,9 +3,6 @@ import type { Provider } from "aihappey-types";
 export const llmhubifs: Provider = {
   name: "LLMHubIFS",
   description: "Access LLMs hosted by IFS. LLMHub is a platform to access and test out different LLMs over an API.",
-  icons: [{
-    src: "https://llmhub.infs.ai/favicon.svg"
-  }],
   urls: {
     homepage: "https://llmhub.infs.ai",
     docs: "https://llmhub.infs.ai/docs",

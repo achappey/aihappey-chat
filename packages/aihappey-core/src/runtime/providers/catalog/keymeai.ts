@@ -3,16 +3,6 @@ import type { Provider } from "aihappey-types";
 export const keymeai: Provider = {
   name: "KeyMeAI",
   description: "Access DeepSeek, Doubao, and Qwen through one OpenAI-compatible API. Auto failover. Singapore-based.",
-  icons: [
-    {
-      src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=",
-      theme: "dark",
-    },
-    {
-      src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=",
-      theme: "light",
-    },
-  ],
   urls: {
     homepage: "https://keymeai.com",
     docs: "https://keymeai.com/docs",
