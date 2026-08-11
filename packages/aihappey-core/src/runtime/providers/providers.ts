@@ -572,6 +572,7 @@ import { opencodego } from "./catalog/opencodego";
 import { opencodezen } from "./catalog/opencodezen";
 import { foundry } from "./catalog/foundry";
 import { zebracat } from "./catalog/zebracat";
+import { prunaai } from "./catalog/prunaai";
 
 /**
  * UI-facing provider catalog.
@@ -762,6 +763,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   teamday,
   jassieai,
   cailos,
+  prunaai,
   imagerouter,
   gaterouter,
   ultrasafe,
