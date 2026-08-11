@@ -221,6 +221,29 @@
   "anthropic": {
     "maxUses": "Maximum uses",
     "betaHeader": "Beta",
+    "other": {
+      "serviceTier": {
+        "title": "Service tier",
+        "options": {
+          "auto": "Priority when available",
+          "standard_only": "Standard only"
+        }
+      },
+      "speed": {
+        "title": "Speed",
+        "options": {
+          "standard": "Standard",
+          "fast": "Fast"
+        }
+      },
+      "inferenceGeo": {
+        "title": "Geography",
+        "options": {
+          "global": "Global",
+          "us": "United States"
+        }
+      }
+    },
     "memory": "Memory",
     "customSkills": "Custom skills",
     "allowedDomains": "Allowed domains",

@@ -12,6 +12,7 @@ import {
 } from "./cards/AnthropicContainerCard";
 import { AnthropicContextManagementCard } from "./cards/AnthropicContextManagementCard";
 import { AnthropicMemoryCard } from "./cards/AnthropicMemoryCard";
+import { AnthropicOtherCard } from "./cards/AnthropicOtherCard";
 import { AnthropicOutputConfigCard } from "./cards/AnthropicOutputConfigCard";
 import { AnthropicReasoningCard } from "./cards/AnthropicReasoningCard";
 import { AnthropicSessionCard } from "./cards/AnthropicSessionCard";
@@ -297,6 +298,7 @@ export const AnthropicChatConfigForm = ({
         updateConfig={submitConfig}
       />
       <AnthropicSessionCard config={resolvedConfig} updateConfig={submitConfig} />
+      <AnthropicOtherCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicBetaCard config={resolvedConfig} headers={headers} updateConfig={submitConfig} updateHeaders={submitHeaders} />
     </div>
   );

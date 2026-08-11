@@ -687,6 +687,29 @@
   "anthropic": {
     "maxUses": "Maximaal aantal keer",
     "betaHeader": "Beta",
+    "other": {
+      "serviceTier": {
+        "title": "Serviceniveau",
+        "options": {
+          "auto": "Prioriteit indien beschikbaar",
+          "standard_only": "Alleen standaard"
+        }
+      },
+      "speed": {
+        "title": "Snelheid",
+        "options": {
+          "standard": "Standaard",
+          "fast": "Snel"
+        }
+      },
+      "inferenceGeo": {
+        "title": "Locatie",
+        "options": {
+          "global": "Wereldwijd",
+          "us": "Verenigde Staten"
+        }
+      }
+    },
     "memory": "Geheugen",
     "customSkills": "Aangepaste vaardigheden",
     "allowedDomains": "Toegestane domeinen",
