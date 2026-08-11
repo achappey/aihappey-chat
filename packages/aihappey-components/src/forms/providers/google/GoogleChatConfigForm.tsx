@@ -59,6 +59,38 @@ const GOOGLE_VIDEO_TASK_OPTIONS = [
 const GOOGLE_AGENT_TYPE_OPTIONS = ["dynamic", "deep-research"] as const;
 const GOOGLE_AGENT_THINKING_SUMMARY_OPTIONS = ["auto", "none"] as const;
 const GOOGLE_SERVICE_TIER_OPTIONS = ["flex", "standard", "priority"] as const;
+const GOOGLE_SAFETY_METHOD_OPTIONS = ["severity", "probability"] as const;
+const GOOGLE_SAFETY_THRESHOLD_OPTIONS = [
+  "block_low_and_above",
+  "block_medium_and_above",
+  "block_only_high",
+  "block_none",
+  "off",
+] as const;
+const GOOGLE_HARM_CATEGORY_OPTIONS = [
+  "hate_speech",
+  "dangerous_content",
+  "harassment",
+  "sexually_explicit",
+  "civic_integrity",
+  "image_hate",
+  "image_dangerous_content",
+  "image_harassment",
+  "image_sexually_explicit",
+  "jailbreak",
+] as const;
+
+type GoogleSafetySetting = {
+  type: (typeof GOOGLE_HARM_CATEGORY_OPTIONS)[number];
+  method: (typeof GOOGLE_SAFETY_METHOD_OPTIONS)[number];
+  threshold: (typeof GOOGLE_SAFETY_THRESHOLD_OPTIONS)[number];
+};
+
+const DEFAULT_GOOGLE_SAFETY_SETTING: GoogleSafetySetting = {
+  type: "hate_speech",
+  method: "probability",
+  threshold: "block_medium_and_above",
+};
 
 enum BlockingConfidence {
   PhishBlockThresholdUnspecified = "PhishBlockThresholdUnspecified",
@@ -153,6 +185,10 @@ export const GoogleChatConfigForm = ({
   const videoConfig = resolvedConfig?.generation_config?.video_config;
   const agentConfig = resolvedConfig?.agent_config;
   const agentThinkingSummariesEnabled = agentConfig?.type === "deep-research";
+  const safetySettingsOn = Array.isArray(resolvedConfig?.safety_settings);
+  const safetySettings: GoogleSafetySetting[] = safetySettingsOn
+    ? resolvedConfig.safety_settings
+    : [];
 
   const blockingConfidenceOptions = [
     {
@@ -284,8 +320,26 @@ export const GoogleChatConfigForm = ({
   }));
   const serviceTierOptions = GOOGLE_SERVICE_TIER_OPTIONS.map((value) => ({
     value,
-    label: value,
+    label: t(`providers:google.serviceTiers.${value}`),
   }));
+  const safetyMethodOptions = GOOGLE_SAFETY_METHOD_OPTIONS.map((value) => ({
+    value,
+    label: t(`providers:google.safetySettings.methods.${value}`),
+  }));
+  const safetyThresholdOptions = GOOGLE_SAFETY_THRESHOLD_OPTIONS.map((value) => ({
+    value,
+    label: t(`providers:google.safetySettings.thresholds.${value}`),
+  }));
+  const harmCategoryOptions = GOOGLE_HARM_CATEGORY_OPTIONS.map((value) => ({
+    value,
+    label: t(`providers:google.safetySettings.categories.${value}`),
+  }));
+
+  const updateSafetySettings = (nextSafetySettings: GoogleSafetySetting[]) =>
+    submitConfig({
+      ...resolvedConfig,
+      safety_settings: nextSafetySettings,
+    });
 
   const selectedThinkingLevel = generationConfig.thinking_level;
   const selectedThinkingLevelLabel =
@@ -659,6 +713,160 @@ export const GoogleChatConfigForm = ({
 
       <theme.Card
         size="small"
+        title={t("providers:google.safetySettings.title")}
+        headerActions={
+          <theme.Switch
+            id="googleSafetySettings"
+            checked={safetySettingsOn}
+            onChange={(checked: boolean) =>
+              submitConfig({
+                ...resolvedConfig,
+                safety_settings: checked
+                  ? [{ ...DEFAULT_GOOGLE_SAFETY_SETTING }]
+                  : undefined,
+              })
+            }
+          />
+        }
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <theme.Button
+              type="button"
+              icon="add"
+              size="small"
+              variant="subtle"
+              title={t("providers:google.safetySettings.add")}
+              disabled={!safetySettingsOn}
+              onClick={() =>
+                updateSafetySettings([
+                  ...safetySettings,
+                  { ...DEFAULT_GOOGLE_SAFETY_SETTING },
+                ])
+              }
+            >
+              {t("providers:google.safetySettings.add")}
+            </theme.Button>
+          </div>
+
+          {safetySettings.map((setting, index) => (
+            <div
+              key={`google-safety-setting-${index}`}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                border: "1px solid rgba(0,0,0,0.08)",
+                borderRadius: 10,
+                padding: 10,
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                  gap: 12,
+                }}
+              >
+                <theme.Select
+                  label={t("providers:google.safetySettings.type")}
+                  disabled={!safetySettingsOn}
+                  values={[setting.type]}
+                  valueTitle={
+                    harmCategoryOptions.find((option) => option.value === setting.type)?.label
+                  }
+                  options={harmCategoryOptions}
+                  onChange={(value: string) => {
+                    const nextSettings = [...safetySettings];
+                    nextSettings[index] = {
+                      ...setting,
+                      type: value as GoogleSafetySetting["type"],
+                    };
+                    updateSafetySettings(nextSettings);
+                  }}
+                >
+                  {harmCategoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </theme.Select>
+
+                <theme.Select
+                  label={t("providers:google.safetySettings.method")}
+                  disabled={!safetySettingsOn}
+                  values={[setting.method]}
+                  valueTitle={
+                    safetyMethodOptions.find((option) => option.value === setting.method)?.label
+                  }
+                  options={safetyMethodOptions}
+                  onChange={(value: string) => {
+                    const nextSettings = [...safetySettings];
+                    nextSettings[index] = {
+                      ...setting,
+                      method: value as GoogleSafetySetting["method"],
+                    };
+                    updateSafetySettings(nextSettings);
+                  }}
+                >
+                  {safetyMethodOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </theme.Select>
+
+                <theme.Select
+                  label={t("providers:google.safetySettings.threshold")}
+                  disabled={!safetySettingsOn}
+                  values={[setting.threshold]}
+                  valueTitle={
+                    safetyThresholdOptions.find(
+                      (option) => option.value === setting.threshold
+                    )?.label
+                  }
+                  options={safetyThresholdOptions}
+                  onChange={(value: string) => {
+                    const nextSettings = [...safetySettings];
+                    nextSettings[index] = {
+                      ...setting,
+                      threshold: value as GoogleSafetySetting["threshold"],
+                    };
+                    updateSafetySettings(nextSettings);
+                  }}
+                >
+                  {safetyThresholdOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </theme.Select>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <theme.Button
+                  type="button"
+                  icon="delete"
+                  size="small"
+                  variant="danger"
+                  title={t("delete")}
+                  disabled={!safetySettingsOn}
+                  onClick={() =>
+                    updateSafetySettings(
+                      safetySettings.filter((_, settingIndex) => settingIndex !== index)
+                    )
+                  }
+                >
+                  {t("delete")}
+                </theme.Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </theme.Card>
+
+      <theme.Card
+        size="small"
         title={t("providers:google.responseModalities")}
       >
         <div
@@ -683,7 +891,11 @@ export const GoogleChatConfigForm = ({
       <theme.Select
         label={t("providers:google.service_tier")}
         values={resolvedConfig?.service_tier ? [resolvedConfig.service_tier] : []}
-        valueTitle={resolvedConfig?.service_tier}
+        valueTitle={
+          serviceTierOptions.find(
+            (option) => option.value === resolvedConfig?.service_tier
+          )?.label
+        }
         options={serviceTierOptions}
         onChange={(val: string) =>
           submitConfig({

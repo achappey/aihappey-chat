@@ -547,6 +547,41 @@
       }
     },
     "service_tier": "Servicelaag",
+    "serviceTiers": {
+      "flex": "Flexibel",
+      "standard": "Standaard",
+      "priority": "Prioriteit"
+    },
+    "safetySettings": {
+      "title": "Veiligheidsinstellingen",
+      "add": "Veiligheidsinstelling toevoegen",
+      "type": "Categorie",
+      "method": "Methode",
+      "threshold": "Drempel",
+      "methods": {
+        "severity": "Waarschijnlijkheid en ernst",
+        "probability": "Waarschijnlijkheid"
+      },
+      "thresholds": {
+        "block_low_and_above": "Laag en hoger blokkeren",
+        "block_medium_and_above": "Gemiddeld en hoger blokkeren",
+        "block_only_high": "Alleen hoog blokkeren",
+        "block_none": "Niets blokkeren",
+        "off": "Veiligheidsfilter uitschakelen"
+      },
+      "categories": {
+        "hate_speech": "Haatzaaien",
+        "dangerous_content": "Gevaarlijke inhoud",
+        "harassment": "Intimidatie",
+        "sexually_explicit": "Seksueel expliciet",
+        "civic_integrity": "Burgerlijke integriteit (verouderd)",
+        "image_hate": "Haatzaaiende afbeeldingen",
+        "image_dangerous_content": "Afbeeldingen met gevaarlijke inhoud",
+        "image_harassment": "Intimiderende afbeeldingen",
+        "image_sexually_explicit": "Seksueel expliciete afbeeldingen",
+        "jailbreak": "Jailbreak"
+      }
+    },
     "voice": "Stem",
     "language": "Taal",
     "speaker": "Spreker"

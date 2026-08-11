@@ -847,6 +847,41 @@
       }
     },
     "service_tier": "Service tier",
+    "serviceTiers": {
+      "flex": "Flex",
+      "standard": "Standard",
+      "priority": "Priority"
+    },
+    "safetySettings": {
+      "title": "Safety settings",
+      "add": "Add safety setting",
+      "type": "Category",
+      "method": "Method",
+      "threshold": "Threshold",
+      "methods": {
+        "severity": "Probability and severity",
+        "probability": "Probability"
+      },
+      "thresholds": {
+        "block_low_and_above": "Block low and above",
+        "block_medium_and_above": "Block medium and above",
+        "block_only_high": "Block only high",
+        "block_none": "Block none",
+        "off": "Turn safety filter off"
+      },
+      "categories": {
+        "hate_speech": "Hate speech",
+        "dangerous_content": "Dangerous content",
+        "harassment": "Harassment",
+        "sexually_explicit": "Sexually explicit",
+        "civic_integrity": "Civic integrity (deprecated)",
+        "image_hate": "Image hate speech",
+        "image_dangerous_content": "Image dangerous content",
+        "image_harassment": "Image harassment",
+        "image_sexually_explicit": "Image sexually explicit",
+        "jailbreak": "Jailbreak"
+      }
+    },
     "voice": "Voice",
     "language": "Language",
     "speaker": "Speaker"
