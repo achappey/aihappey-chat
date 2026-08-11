@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { tinycolor } from "@ctrl/tinycolor";
+import { TinyColor } from "@ctrl/tinycolor";
 import {
   ColorArea,
   ColorPicker,
@@ -86,7 +86,7 @@ export const FluentSettings = () => {
 
   const normalizedHex = useMemo(() => {
     try {
-      return tinycolor(draftHex).toHexString().toUpperCase();
+      return new TinyColor(draftHex).toHexString().toUpperCase();
     } catch {
       return DEFAULT_HEX;
     }
@@ -94,12 +94,12 @@ export const FluentSettings = () => {
 
   const canSave = useMemo(() => {
     const nameOk = (draftName ?? "").trim().length > 0;
-    const hexOk = tinycolor(normalizedHex).isValid;
+    const hexOk = new TinyColor(normalizedHex).isValid;
     return nameOk && hexOk;
   }, [draftName, normalizedHex]);
 
   const variants = useMemo(() => {
-    if (!tinycolor(normalizedHex).isValid) return null;
+    if (!new TinyColor(normalizedHex).isValid) return null;
     return brandVariantsFromDesignerParams({
       baseHex: normalizedHex,
       hueTorsion,
@@ -232,9 +232,9 @@ export const FluentSettings = () => {
 
                 <div className={styles.picker}>
                   <ColorPicker
-                    color={tinycolor(normalizedHex).toHsv()}
+                    color={new TinyColor(normalizedHex).toHsv()}
                     onColorChange={(_, data) => {
-                      const next = tinycolor(data.color).toHexString().toUpperCase();
+                      const next = new TinyColor(data.color).toHexString().toUpperCase();
                       setDraftHex(next);
                     }}
                   >
@@ -327,7 +327,7 @@ export const FluentSettings = () => {
                     <div
                       key={stop}
                       className={styles.swatch}
-                      style={{ background: hex, color: tinycolor(hex).isLight() ? "#111" : "#fff" }}
+                      style={{ background: hex, color: new TinyColor(hex).isLight() ? "#111" : "#fff" }}
                       title={`${stop}: ${hex}`}
                     >
                       <div className={styles.swatchLabel}>{stop}</div>
