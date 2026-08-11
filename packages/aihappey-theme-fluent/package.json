@@ -23,6 +23,7 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
+    "@ctrl/tinycolor": "^4.2.0",
     "@fluentui-contrib/react-chat": "^0.2.2",
     "@fluentui/react-components": "^9.64.0",
     "@fluentui/react-icons": "^2.0.301",
