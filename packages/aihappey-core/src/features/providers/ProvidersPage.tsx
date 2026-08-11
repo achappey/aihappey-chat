@@ -81,6 +81,9 @@ export const ProvidersPage = () => {
     const [activeTab, setActiveTab] = useState<string>("all");
     const providerRegistry = useProviderRegistry();
     const models = useAppStore((s) => s.models);
+    const enabledProvidersByType = useAppStore(
+        (s: any) => s.enabledProvidersByType as Record<string, string[]> | undefined
+    );
     const favoriteProviderIds = useAppStore((s: any) => s.favoriteProviderIds as string[] | undefined);
     const toggleFavoriteProvider = useAppStore((s: any) => s.toggleFavoriteProvider as (providerId: string) => void);
     const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
@@ -140,6 +143,37 @@ export const ProvidersPage = () => {
         items.sort((a, b) => collator.compare(a.name, b.name));
         return items;
     }, [collator, providerRegistry]);
+
+    const enabledProviderValues = useMemo(() => {
+        const values = new Set<string>();
+
+        Object.values(enabledProvidersByType ?? {}).forEach((providerNames) => {
+            (providerNames ?? []).forEach((providerName) => {
+                const normalized = String(providerName ?? "").trim().toLocaleLowerCase();
+                if (normalized) values.add(normalized);
+            });
+        });
+
+        return values;
+    }, [enabledProvidersByType]);
+
+    const enabledProviderKeys = useMemo(() => {
+        const keys = new Set<string>();
+
+        providers.forEach((provider) => {
+            const normalizedKey = provider.key.trim().toLocaleLowerCase();
+            const normalizedName = provider.name.trim().toLocaleLowerCase();
+
+            if (
+                enabledProviderValues.has(normalizedKey) ||
+                enabledProviderValues.has(normalizedName)
+            ) {
+                keys.add(provider.key);
+            }
+        });
+
+        return keys;
+    }, [enabledProviderValues, providers]);
 
     const providerCountryOptions = useMemo(() => {
         const values = new Set<string>();
@@ -544,6 +578,11 @@ export const ProvidersPage = () => {
         [favoriteProviderSet, filtered]
     );
 
+    const enabledFiltered = useMemo(
+        () => filtered.filter((p) => enabledProviderKeys.has(p.key)),
+        [enabledProviderKeys, filtered]
+    );
+
     useEffect(() => {
         setSelectedCategories((current) => {
             const next = keepAvailableSelection(current, categoryOptions, cleanupCounts.categories);
@@ -801,6 +840,10 @@ export const ProvidersPage = () => {
                                 <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
                                     <Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
                                         <div style={{ paddingTop: 12 }}>{renderProviderResults(filtered)}</div>
+                                    </Tab>
+
+                                    <Tab eventKey="enabled" title={`${t("enabled")} (${enabledFiltered.length})`}>
+                                        <div style={{ paddingTop: 12 }}>{renderProviderResults(enabledFiltered)}</div>
                                     </Tab>
 
                                     <Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
