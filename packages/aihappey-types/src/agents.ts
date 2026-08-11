@@ -10,7 +10,14 @@ export type Agent = {
     mcpServers?: Record<string, McpServer>
     mcpClient?: McpClient
     skills?: Skill[]
+    tools?: AgentTool[];
     icons?: Icon[];
+};
+
+/** Provider-neutral tools that are executed by the agent runtime. */
+export type AgentTool = {
+    type: string;
+    [key: string]: unknown;
 };
 
 export type RemoteAgentModel = {

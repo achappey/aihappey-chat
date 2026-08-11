@@ -1,4 +1,4 @@
-import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, MaritacaAIChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
+import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
@@ -32,6 +32,9 @@ const hostnameOf = (url?: string) => {
         return url;
     }
 };
+
+const AGENT_TOOL_SEARCH_TYPE = "tool_search";
+const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -595,6 +598,31 @@ export const AgentForm = ({
                             {skillFeedback ? <Text>{skillFeedback}</Text> : null}
                         </>
                     ) : null}
+                </Tab>
+
+                <Tab eventKey="tools" title={t("tools") ?? "Tools"}>
+                    <LocalToolsSettingsForm
+                        formTitle={t("tools") ?? "Tools"}
+                        items={[{
+                            id: AGENT_TOOL_SEARCH_TOGGLE_ID,
+                            label: t("plugins.client-tool-search") ?? "Tool search",
+                        }]}
+                        value={(agent.tools ?? []).some((tool) => tool?.type === AGENT_TOOL_SEARCH_TYPE)
+                            ? [AGENT_TOOL_SEARCH_TOGGLE_ID]
+                            : []}
+                        onChange={(value) => {
+                            const enabled = value.includes(AGENT_TOOL_SEARCH_TOGGLE_ID);
+                            const remainingTools = (agent.tools ?? [])
+                                .filter((tool) => tool?.type !== AGENT_TOOL_SEARCH_TYPE);
+
+                            onChange({
+                                ...agent,
+                                tools: enabled
+                                    ? [...remainingTools, { type: AGENT_TOOL_SEARCH_TYPE }]
+                                    : remainingTools.length ? remainingTools : undefined,
+                            });
+                        }}
+                    />
                 </Tab>
 
                 {/* ---------------- Provider Settings ---------------- */}
