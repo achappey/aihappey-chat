@@ -571,6 +571,7 @@ import { lara } from "./catalog/lara";
 import { opencodego } from "./catalog/opencodego";
 import { opencodezen } from "./catalog/opencodezen";
 import { foundry } from "./catalog/foundry";
+import { zebracat } from "./catalog/zebracat";
 
 /**
  * UI-facing provider catalog.
@@ -765,6 +766,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   gaterouter,
   ultrasafe,
   memoryrouter,
+  zebracat,
   messari,
   oodaai,
   dedaluslabs,
