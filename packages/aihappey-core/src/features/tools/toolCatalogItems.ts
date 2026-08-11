@@ -21,6 +21,7 @@ import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall
 import { localTodoPluginDef } from "./toolcalls/useLocalTodoListToolCall";
 import { SKILL_SEARCH_PLUGIN_ID } from "./toolcalls/useSkillToolCall";
 import { clientToolSearchPluginDef } from "./toolcalls/useClientToolSearchToolCall";
+import { clientResourceSearchPluginDef } from "./toolcalls/useClientResourceSearchToolCall";
 
 export type ToolListItem = {
   key: string;
@@ -62,6 +63,7 @@ export const allBuiltInPluginDefs = [
   localActionsPluginDef,
   localToolsPluginDef,
   clientToolSearchPluginDef,
+  clientResourceSearchPluginDef,
   vercelAIPluginDef,
 ];
 

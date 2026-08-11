@@ -76,6 +76,11 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
           t("sideInference.toolSearchAgent") ?? "Tool search agent",
           t("sideInference.toolSearchAgentHint") ?? "Choose the agent that selects relevant tools for client tool search.",
         )}
+        {renderSelect(
+          "resourceSearchAgent",
+          t("sideInference.resourceSearchAgent") ?? "Resource search agent",
+          t("sideInference.resourceSearchAgentHint") ?? "Choose the agent that selects relevant MCP resources for client resource search.",
+        )}
       </div>
     </theme.Card>
   );

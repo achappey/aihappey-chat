@@ -562,6 +562,7 @@
         "local-images": "Afbeeldingen",
         "local-tools": "Tools maken",
         "client-tool-search": "Tools zoeken",
+        "client-resource-search": "Resources zoeken",
         "local-conversations": "Chat geschiedenis",
         "local-settings": "Chat instellingen",
         "vercel-ai": "Vercel Agents",
@@ -865,6 +866,8 @@
         "explainToolCallAgentHint": "Kies de agent voor tooluitleg.",
         "toolSearchAgent": "Agent voor het zoeken naar tools",
         "toolSearchAgentHint": "Kies de agent die relevante tools selecteert wanneer via de client naar tools wordt gezocht.",
+        "resourceSearchAgent": "Agent voor het zoeken naar resources",
+        "resourceSearchAgentHint": "Kies de agent die relevante MCP-resources selecteert wanneer via de client naar resources wordt gezocht.",
         "fallbackWelcome": "Welkom",
         "toolExplanationFallback": "De toolaanroep kon niet worden uitgelegd. De geselecteerde uitlegagent is niet beschikbaar of gaf een fout terug."
     },

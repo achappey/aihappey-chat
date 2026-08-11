@@ -10,7 +10,7 @@ import { isGenericChatEndpoint } from "../../features/chat/engine/genericChatEnd
 import { sanitizeProviderRequestConfigForProvider } from "../providers/providerRequestConfig";
 import { PROVIDERS } from "../providers/providerMetadata";
 
-type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall" | "toolSearch";
+type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall" | "toolSearch" | "resourceSearch";
 
 export type SideInferenceAgentCallOptions = {
   baseUrl?: string;

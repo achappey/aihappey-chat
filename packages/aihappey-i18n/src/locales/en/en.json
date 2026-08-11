@@ -180,6 +180,8 @@
         "explainToolCallAgentHint": "Choose the agent for tool explanations.",
         "toolSearchAgent": "Tool search agent",
         "toolSearchAgentHint": "Choose the agent that selects relevant tools for client tool search.",
+        "resourceSearchAgent": "Resource search agent",
+        "resourceSearchAgentHint": "Choose the agent that selects relevant MCP resources for client resource search.",
         "fallbackWelcome": "Welcome",
         "toolExplanationFallback": "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
     },
@@ -562,6 +564,7 @@
         "local-files": "Files",
         "local-tools": "Tool creator",
         "client-tool-search": "Tool search",
+        "client-resource-search": "Resource search",
         "skill-search": "Skill discovery",
         "local-conversations": "Chat history",
         "local-settings": "Chat settings",

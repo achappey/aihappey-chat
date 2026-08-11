@@ -2,12 +2,14 @@ export const CONVERSATION_NAME_AGENT_NAME = "ConversationNameAgent";
 export const WELCOME_MESSAGE_AGENT_NAME = "WelcomeMessageAgent";
 export const EXPLAIN_TOOL_CALL_AGENT_NAME = "ExplainToolcallAgent";
 export const TOOL_SEARCH_AGENT_NAME = "ToolSearchAgent";
+export const RESOURCE_SEARCH_AGENT_NAME = "ResourceSearchAgent";
 
 export const SIDE_INFERENCE_DEFAULT_AGENT_NAMES = {
   conversationName: CONVERSATION_NAME_AGENT_NAME,
   welcomeMessage: WELCOME_MESSAGE_AGENT_NAME,
   explainToolCall: EXPLAIN_TOOL_CALL_AGENT_NAME,
   toolSearch: TOOL_SEARCH_AGENT_NAME,
+  resourceSearch: RESOURCE_SEARCH_AGENT_NAME,
 } as const;
 
 import type { Agent } from "aihappey-types";

@@ -2,6 +2,7 @@ import type { Agent } from "aihappey-types";
 import {
     CONVERSATION_NAME_AGENT_NAME,
     EXPLAIN_TOOL_CALL_AGENT_NAME,
+    RESOURCE_SEARCH_AGENT_NAME,
     TOOL_SEARCH_AGENT_NAME,
     WELCOME_MESSAGE_AGENT_NAME,
 } from "aihappey-state";
@@ -91,6 +92,27 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
                 readOnlyHint: true,
                 openWorldHint: false,
                 idempotentHint: false,
+                destructiveHint: false,
+            },
+        },
+    },
+    {
+        name: RESOURCE_SEARCH_AGENT_NAME,
+        description: "Search MCP resources",
+        instructions:
+            "Select the MCP resources and resource templates that best satisfy the supplied query from the supplied server-scoped catalog. Return exactly one JSON object with the shape {\"selectedResourceUris\":[\"exact_resource_uri\"],\"selectedResourceTemplateUriTemplates\":[\"exact_uri_template\"]}. Use only exact values present in the catalog, preserve relevance order, include no duplicates, select at most 20 entries in each array, and include no markdown or text outside the JSON object.",
+        model: {
+            id: "openai/gpt-5.6-luna",
+            providerMetadata: {
+
+            },
+        },
+        mcpClient: {
+            capabilities: {},
+            policy: {
+                readOnlyHint: true,
+                openWorldHint: false,
+                idempotentHint: true,
                 destructiveHint: false,
             },
         },

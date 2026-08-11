@@ -25,6 +25,7 @@ export type SideInferenceAgentNames = {
   conversationNameAgent: string;
   explainToolCallAgent: string;
   toolSearchAgent: string;
+  resourceSearchAgent: string;
 };
 
 export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
@@ -32,6 +33,7 @@ export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
   conversationNameAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.conversationName,
   explainToolCallAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.explainToolCall,
   toolSearchAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.toolSearch,
+  resourceSearchAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.resourceSearch,
 };
 
 export type ChatSlice = ApiKeyEncryptionState & {

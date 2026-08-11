@@ -80,7 +80,8 @@ export const buildSystemMessage = (
         preferredLanguage?: string,
         darkMode?: boolean
     },
-    availableSkills: AvailableSkill[] = []
+    availableSkills: AvailableSkill[] = [],
+    omitMcpResourceCatalogs = false,
 ): UIMessage => {
 
     var connects = Object.keys(allServers).filter(a => !allServers[a].config.disabled)
@@ -105,7 +106,7 @@ export const buildSystemMessage = (
                     ...(registry?._meta && { meta: registry._meta }),
                 },
 
-                resources:
+                resources: !omitMcpResourceCatalogs &&
                     res.length > 0
                         ? res.map((r: any) => ({
                             name: r.name,
@@ -119,7 +120,7 @@ export const buildSystemMessage = (
                         }))
                         : undefined,
 
-                resourceTemplates:
+                resourceTemplates: !omitMcpResourceCatalogs &&
                     resTemplates.length > 0
                         ? resTemplates.map((rt: any) => ({
                             name: rt.name,

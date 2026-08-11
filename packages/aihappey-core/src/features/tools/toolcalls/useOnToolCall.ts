@@ -64,6 +64,10 @@ import {
   clientToolSearchPluginDef,
   useClientToolSearchRuntime,
 } from "./useClientToolSearchToolCall";
+import {
+  clientResourceSearchPluginDef,
+  useClientResourceSearchRuntime,
+} from "./useClientResourceSearchToolCall";
 
 export function useOnToolCall({
   callTool,
@@ -138,6 +142,14 @@ export function useOnToolCall({
     customFetch,
     tools,
   });
+  const clientResourceSearchRuntime = useClientResourceSearchRuntime({
+    api,
+    getAccessToken,
+    headers,
+    customFetch,
+    mcpServerContent,
+    mcpServers,
+  });
 
   const anthropicTextEditorConfig = useMemo(
     () => getAnthropicTextEditorConfig(activeProviderMetadata?.anthropic),
@@ -184,6 +196,7 @@ export function useOnToolCall({
       [localImagesRuntime.name]: localImagesRuntime,
       [jsonRenderRuntime.name]: jsonRenderRuntime,
       [clientToolSearchRuntime.name]: clientToolSearchRuntime,
+      [clientResourceSearchRuntime.name]: clientResourceSearchRuntime,
       [searchSkillsPlugin.name]: searchSkillsPlugin,
     }),
     [
@@ -201,6 +214,7 @@ export function useOnToolCall({
       localImagesRuntime,
       jsonRenderRuntime,
       clientToolSearchRuntime,
+      clientResourceSearchRuntime,
       vercelAIRuntime,
       localStructuredOutputsRuntime,
       localWebreaderRuntime,
@@ -234,6 +248,7 @@ export function useOnToolCall({
       mcpTaskPluginDef,
       vercelAIPluginDef,
       clientToolSearchPluginDef,
+      clientResourceSearchPluginDef,
     ],
     [skills.items]
   );

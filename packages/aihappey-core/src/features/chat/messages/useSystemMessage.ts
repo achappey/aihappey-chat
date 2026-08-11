@@ -7,6 +7,7 @@ import { buildSystemMessage } from "./buildSystemMessage";
 import { useUserLocation } from "../../../shell/connectors/useUserLocation";
 import { useChatContext } from "../context/ChatContext";
 import { useSkills } from "aihappey-skills";
+import { CLIENT_RESOURCE_SEARCH_PLUGIN_ID } from "../../tools/clientResourceSearch";
 
 export function useSystemMessage() {
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
@@ -15,6 +16,7 @@ export function useSystemMessage() {
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const mcpServers = useAppStore((s) => s.mcpServers);
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const activePlugins = useAppStore((s) => s.activePlugins);
   const account = useAccount();
   useUserLocation(enableUserLocation);
   const { isDarkMode } = useDarkMode();
@@ -63,7 +65,8 @@ export function useSystemMessage() {
         accountLocation,
         config.appName,
         userContext,
-        enabledSkills
+        enabledSkills,
+        activePlugins.includes(CLIENT_RESOURCE_SEARCH_PLUGIN_ID),
       );
   }, [
     mcpServerContent,
@@ -77,6 +80,7 @@ export function useSystemMessage() {
     isDarkMode,
     account?.tenantId,
     enabledSkills,
+    activePlugins,
   ]);
   return systemMsg;
 }
