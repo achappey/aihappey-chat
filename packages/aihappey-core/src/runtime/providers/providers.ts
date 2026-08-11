@@ -263,7 +263,6 @@ import { ionrouter } from "./catalog/ionrouter";
 import { freedomgpt } from "./catalog/freedomgpt";
 import { kirha } from "./catalog/kirha";
 import { sufy } from "./catalog/sufy";
-import { llmhubifs } from "./catalog/llmhubifs";
 import { logicosllmhub } from "./catalog/logicosllmhub";
 import { shuttleai } from "./catalog/shuttleai";
 import { alphaneural } from "./catalog/alphaneural";
@@ -862,7 +861,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   freedomgpt,
   shuttleai,
   logicosllmhub,
-  llmhubifs,
   noiz,
   sufy,
   mia21,
