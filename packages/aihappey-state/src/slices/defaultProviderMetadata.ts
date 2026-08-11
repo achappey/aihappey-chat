@@ -106,7 +106,6 @@ export const defaultProviderMetadata = {
     }]
   },
   "anthropic": {
-    "speed": "standard",
     "service_tier": "auto",
     "cache_control": { "type": "ephemeral" },
     "tools": [

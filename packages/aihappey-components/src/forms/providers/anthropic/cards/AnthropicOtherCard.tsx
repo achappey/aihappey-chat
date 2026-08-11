@@ -3,7 +3,6 @@ import { useTheme } from "../../../../theme/ThemeContext";
 
 const DEFAULT_VALUE = "";
 const SERVICE_TIER_OPTIONS = [DEFAULT_VALUE, "auto", "standard_only"] as const;
-const SPEED_OPTIONS = ["standard", "fast"] as const;
 const INFERENCE_GEO_OPTIONS = [DEFAULT_VALUE, "global", "us"] as const;
 
 export const AnthropicOtherCard = ({
@@ -18,15 +17,12 @@ export const AnthropicOtherCard = ({
   const serviceTierValue = SERVICE_TIER_OPTIONS.includes(config?.service_tier)
     ? config.service_tier
     : DEFAULT_VALUE;
-  const speedValue = SPEED_OPTIONS.includes(config?.speed)
-    ? config.speed
-    : "standard";
   const inferenceGeoValue = INFERENCE_GEO_OPTIONS.includes(config?.inference_geo)
     ? config.inference_geo
     : DEFAULT_VALUE;
 
   const updateOptionalProperty = (
-    property: "service_tier" | "speed" | "inference_geo",
+    property: "service_tier" | "inference_geo",
     value: string,
   ) => {
     const nextConfig = { ...(config ?? {}) };
@@ -45,10 +41,6 @@ export const AnthropicOtherCard = ({
     label: value
       ? t(`providers:anthropic.other.serviceTier.options.${value}`)
       : t("providerDefault"),
-  }));
-  const speedOptions = SPEED_OPTIONS.map((value) => ({
-    value,
-    label: t(`providers:anthropic.other.speed.options.${value}`),
   }));
   const inferenceGeoOptions = INFERENCE_GEO_OPTIONS.map((value) => ({
     value,
@@ -74,25 +66,6 @@ export const AnthropicOtherCard = ({
         >
           {serviceTierOptions.map((option) => (
             <option key={option.value || "default"} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </theme.Select>
-
-        <theme.Select
-          label={t("providers:anthropic.other.speed.title")}
-          values={[speedValue]}
-          valueTitle={
-            speedOptions.find((option) => option.value === speedValue)?.label ??
-            t("providerDefault")
-          }
-          options={speedOptions}
-          onChange={(value: string) =>
-            updateOptionalProperty("speed", String(value ?? "standard"))
-          }
-        >
-          {speedOptions.map((option) => (
-            <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}

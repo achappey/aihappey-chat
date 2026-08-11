@@ -16,6 +16,7 @@ import { AnthropicOtherCard } from "./cards/AnthropicOtherCard";
 import { AnthropicOutputConfigCard } from "./cards/AnthropicOutputConfigCard";
 import { AnthropicReasoningCard } from "./cards/AnthropicReasoningCard";
 import { AnthropicSessionCard } from "./cards/AnthropicSessionCard";
+import { AnthropicSpeedCard } from "./cards/AnthropicSpeedCard";
 import { AnthropicTextEditorCard } from "./cards/AnthropicTextEditorCard";
 import { parseAnthropicNumberInput } from "./cards/AnthropicToolCardShared";
 import { AnthropicToolSearchBm25Card } from "./cards/AnthropicToolSearchBm25Card";
@@ -298,6 +299,7 @@ export const AnthropicChatConfigForm = ({
         updateConfig={submitConfig}
       />
       <AnthropicSessionCard config={resolvedConfig} updateConfig={submitConfig} />
+      <AnthropicSpeedCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicOtherCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicBetaCard config={resolvedConfig} headers={headers} updateConfig={submitConfig} updateHeaders={submitHeaders} />
     </div>
