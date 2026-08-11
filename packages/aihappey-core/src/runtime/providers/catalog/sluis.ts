@@ -7,7 +7,9 @@ export const sluis: Provider = {
     homepage: "https://sluis.ai",
     docs: "https://sluis.ai/docs",
     pricing: "https://sluis.ai/pricing",
-    console:"https://sluis.ai/console"
+    console: "https://sluis.ai/console",
+    termsOfService: "https://sluis.ai/terms",
+    privacyPolicy: "https://sluis.ai/privacy",
   },
   providerCountry: "NL",
   category: "gateway_router",
