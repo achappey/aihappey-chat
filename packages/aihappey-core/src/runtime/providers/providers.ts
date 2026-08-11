@@ -573,6 +573,7 @@ import { opencodezen } from "./catalog/opencodezen";
 import { foundry } from "./catalog/foundry";
 import { zebracat } from "./catalog/zebracat";
 import { prunaai } from "./catalog/prunaai";
+import { sovereigneg } from "./catalog/sovereigneg";
 
 /**
  * UI-facing provider catalog.
@@ -746,6 +747,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   akashml,
   morph,
   streamlake,
+  sovereigneg,
   runapi,
   relace,
   ollama,
