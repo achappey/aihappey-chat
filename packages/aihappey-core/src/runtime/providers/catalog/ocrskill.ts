@@ -6,9 +6,12 @@ export const ocrskill: Provider = {
   urls: {
     homepage: "https://www.ocrskill.com",
     docs: "https://www.ocrskill.com/#docs",
+    termsOfService: "https://ocrskill.com/terms",
+    privacyPolicy: "https://ocrskill.com/privacy",
     pricing: "https://www.ocrskill.com/#pricing"
   },
   category: "search_data",
+  providerCountry: "RO",
   inferenceRegions: ["World"]
 
 };
