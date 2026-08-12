@@ -15,7 +15,7 @@ export const netmind: Provider = {
     termsOfService: "https://www.netmind.ai/termsOfService"
   },
   providerCountry: "GB",
-  category: "gateway_router",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };
