@@ -510,7 +510,6 @@ import { freeinference } from "./catalog/freeinference";
 import { llmtr } from "./catalog/llmtr";
 import { llmstats } from "./catalog/llmstats";
 import { wafer } from "./catalog/wafer";
-import { freellmapikeys } from "./catalog/freellmapikeys";
 import { routera } from "./catalog/routera";
 import { orcarouter } from "./catalog/orcarouter";
 import { mara } from "./catalog/mara";
@@ -583,7 +582,6 @@ import { sovereigneg } from "./catalog/sovereigneg";
 export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   openai,
   citadelis,
-  freellmapikeys,
   zeroentropy,
   beastlabai,
   lelapaai,
