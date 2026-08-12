@@ -9,6 +9,7 @@ import { PerplexityFinanceSearchCardForm } from "./cards/PerplexityFinanceSearch
 import { PerplexityPeopleSearchCardForm } from "./cards/PerplexityPeopleSearchCardForm";
 import { PerplexityReasoningCardForm } from "./cards/PerplexityReasoningCardForm";
 import { PerplexityAgentCardForm } from "./cards/PerplexityAgentCardForm";
+import { PerplexitySandboxCardForm } from "./cards/PerplexitySandboxCardForm";
 import { withResolvedProviderTools } from "../providerToolConfig";
 
 const PERPLEXITY_TOOL_TYPES = [
@@ -16,6 +17,7 @@ const PERPLEXITY_TOOL_TYPES = [
   "fetch_url",
   "finance_search",
   "people_search",
+  "sandbox",
 ];
 
 export const PerplexityChatConfigForm = ({
@@ -58,7 +60,12 @@ export const PerplexityChatConfigForm = ({
         config={resolvedConfig}
         updateConfig={updateConfig}
       />
-     
+
+      <PerplexitySandboxCardForm
+        config={resolvedConfig}
+        updateConfig={updateConfig}
+      />
+      
     </div>
   );
 };
