@@ -7,12 +7,13 @@ export const perplexity: Provider = {
   urls: {
     homepage: "https://www.perplexity.ai/api-platform",
     docs: "https://docs.perplexity.ai",
+    pricing: "https://docs.perplexity.ai/docs/getting-started/pricing",
     privacyPolicy: "https://www.perplexity.ai/hub/legal/privacy-policy",
     termsOfService: "https://www.perplexity.ai/hub/legal/perplexity-api-terms-of-service",
     console: "https://www.perplexity.ai/settings/api"
   },
   providerCountry: "US",
-  category: "app_tools",
+  category: "search_data",
   inferenceRegions: ["World"]
 
 };
