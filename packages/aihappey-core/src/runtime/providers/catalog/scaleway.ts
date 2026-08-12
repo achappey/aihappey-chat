@@ -5,7 +5,7 @@ export const scaleway: Provider = {
   description:
     "Build, train, deploy and scale AI models and intelligent applications on a resilient and sustainable cloud ecosystem.",
   icons: [{
-    src: "https://www-uploads.scaleway.com/Scaleway_3_D_Logo_57e7fb833f.png"
+    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUm31jglhBhnZtoN2OG8LMZqYrIH7KdIyOzctVchkGXZOeDHyXylbP4ABi&s=10"
   }],
   urls: {
     homepage: "https://www.scaleway.com",

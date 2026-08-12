@@ -4,9 +4,6 @@ export const glio: Provider = {
   name: "Glio",
   description:
     "90+ AI models. One API. Cheapest on the market. Kling, Veo3, Midjourney, Runway, Suno. Pay-per-use, no subscriptions.",
-  icons: [{
-    src: "https://glio.io/og-image.png"
-  }],
   urls: {
     homepage: "https://glio.io",
     termsOfService: "https://glio.io/legal/terms",
