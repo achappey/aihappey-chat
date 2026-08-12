@@ -573,6 +573,7 @@ import { foundry } from "./catalog/foundry";
 import { zebracat } from "./catalog/zebracat";
 import { prunaai } from "./catalog/prunaai";
 import { sovereigneg } from "./catalog/sovereigneg";
+import { soniox } from "./catalog/soniox";
 
 /**
  * UI-facing provider catalog.
@@ -586,6 +587,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   beastlabai,
   lelapaai,
   wafer,
+  soniox,
   orcarouter,
   doubleword,
   routera,
