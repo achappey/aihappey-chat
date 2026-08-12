@@ -4,7 +4,7 @@ export const foundry: Provider = {
   name: "Foundry",
   description: "Microsoft Foundry is a unified platform to build, ground, and govern AI apps and agents that understand your business context. It brings together the full agent lifecycle with open development, built-in intelligence, and consistent security, compliance, and policy controls across every agent.",
   icons: [{
-    src: "https://devblogs.microsoft.com/foundry/wp-content/uploads/sites/89/2025/11/cropped-Microsoft-Foundry.2mb-scaled-1.webp"
+    src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCkIPADhN2Y4Pw6r2TjV8gTIrZ0-E1vqK5Jr6B7GIi1ffvP8O88U96qNw&s=10"
   }],
   urls: {
     homepage: "https://azure.microsoft.com/en-us/products/ai-foundry",
