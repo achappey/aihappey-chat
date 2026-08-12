@@ -10,7 +10,7 @@ export const ocrskill: Provider = {
     privacyPolicy: "https://ocrskill.com/privacy",
     pricing: "https://www.ocrskill.com/#pricing"
   },
-  category: "search_data",
+  category: "app_tools",
   providerCountry: "RO",
   inferenceRegions: ["World"]
 
