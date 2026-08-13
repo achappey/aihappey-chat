@@ -36,6 +36,8 @@ const hostnameOf = (url?: string) => {
 
 const AGENT_TOOL_SEARCH_TYPE = "tool_search";
 const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
+const AGENT_RESOURCE_SEARCH_TYPE = "resource_search";
+const AGENT_RESOURCE_SEARCH_TOGGLE_ID = "client-resource-search";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -605,23 +607,39 @@ export const AgentForm = ({
                 <Tab eventKey="tools" title={t("tools") ?? "Tools"}>
                     <LocalToolsSettingsForm
                         formTitle={t("tools") ?? "Tools"}
-                        items={[{
-                            id: AGENT_TOOL_SEARCH_TOGGLE_ID,
-                            label: t("plugins.client-tool-search") ?? "Tool search",
-                        }]}
-                        value={(agent.tools ?? []).some((tool) => tool?.type === AGENT_TOOL_SEARCH_TYPE)
-                            ? [AGENT_TOOL_SEARCH_TOGGLE_ID]
-                            : []}
+                        items={[
+                            {
+                                id: AGENT_TOOL_SEARCH_TOGGLE_ID,
+                                label: t("plugins.client-tool-search") ?? "Tool search",
+                            },
+                            {
+                                id: AGENT_RESOURCE_SEARCH_TOGGLE_ID,
+                                label: t("plugins.client-resource-search") ?? "Resource search",
+                            },
+                        ]}
+                        value={[
+                            ...((agent.tools ?? []).some((tool) => tool?.type === AGENT_TOOL_SEARCH_TYPE)
+                                ? [AGENT_TOOL_SEARCH_TOGGLE_ID]
+                                : []),
+                            ...((agent.tools ?? []).some((tool) => tool?.type === AGENT_RESOURCE_SEARCH_TYPE)
+                                ? [AGENT_RESOURCE_SEARCH_TOGGLE_ID]
+                                : []),
+                        ]}
                         onChange={(value) => {
-                            const enabled = value.includes(AGENT_TOOL_SEARCH_TOGGLE_ID);
+                            const toolSearchEnabled = value.includes(AGENT_TOOL_SEARCH_TOGGLE_ID);
+                            const resourceSearchEnabled = value.includes(AGENT_RESOURCE_SEARCH_TOGGLE_ID);
                             const remainingTools = (agent.tools ?? [])
-                                .filter((tool) => tool?.type !== AGENT_TOOL_SEARCH_TYPE);
+                                .filter((tool) => tool?.type !== AGENT_TOOL_SEARCH_TYPE
+                                    && tool?.type !== AGENT_RESOURCE_SEARCH_TYPE);
+                            const searchTools = [
+                                ...(toolSearchEnabled ? [{ type: AGENT_TOOL_SEARCH_TYPE }] : []),
+                                ...(resourceSearchEnabled ? [{ type: AGENT_RESOURCE_SEARCH_TYPE }] : []),
+                            ];
+                            const tools = [...remainingTools, ...searchTools];
 
                             onChange({
                                 ...agent,
-                                tools: enabled
-                                    ? [...remainingTools, { type: AGENT_TOOL_SEARCH_TYPE }]
-                                    : remainingTools.length ? remainingTools : undefined,
+                                tools: tools.length ? tools : undefined,
                             });
                         }}
                     />
