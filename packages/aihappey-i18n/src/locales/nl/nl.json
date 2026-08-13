@@ -806,7 +806,26 @@
         "endpointProviderMetadata": "Providermetadata meesturen",
         "endpointProviderMetadataHint": "Wanneer uitgeschakeld wordt provider-specifieke metadata niet meegestuurd met chatrequests naar overschreven endpoints.",
         "endpointProviderProfileAutomaticHint": "Providerprofielen versturen automatisch gateway-compatibele model-ID's en providermetadata van de geselecteerde gatewayprovider.",
-        "endpointDirectProviderAutomaticHint": "Directe provider gebruikt automatisch de provider van het geselecteerde model, verstuurt provider-compatibele model-ID's en past de bijbehorende API-sleutel toe."
+        "endpointDirectProviderAutomaticHint": "Directe provider gebruikt automatisch de provider van het geselecteerde model, verstuurt provider-compatibele model-ID's en past de bijbehorende API-sleutel toe.",
+        "tabExport": "Export",
+        "exportTitle": "Export",
+        "exporting": "Bezig met exporteren",
+        "exportFailed": "De export kon niet worden voorbereid.",
+        "exportItems": {
+            "all": "Alles",
+            "conversations": "Chats",
+            "images": "Afbeeldingen",
+            "transcriptions": "Transcripties",
+            "speech": "Spraak",
+            "reranks": "Rangschikkingen",
+            "videos": "Video's",
+            "jobs": "Taken",
+            "agents": "Agents",
+            "files": "Bestanden",
+            "skills": "Skills",
+            "structuredOutputs": "Structuur",
+            "tools": "Tools"
+        }
     },
     "providersPage": {
         "addProvider": "Provider toevoegen",

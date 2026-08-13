@@ -845,7 +845,26 @@
         "endpointProviderMetadata": "Include provider metadata",
         "endpointProviderMetadataHint": "When disabled, provider-specific metadata is omitted from chat requests sent to overridden endpoints.",
         "endpointProviderProfileAutomaticHint": "Provider profiles automatically send provider-compatible model IDs and provider metadata from the selected gateway provider.",
-        "endpointDirectProviderAutomaticHint": "Direct provider automatically uses the provider from the selected model, sends provider-compatible model IDs, and applies the matching API key."
+        "endpointDirectProviderAutomaticHint": "Direct provider automatically uses the provider from the selected model, sends provider-compatible model IDs, and applies the matching API key.",
+        "tabExport": "Export",
+        "exportTitle": "Export",
+        "exporting": "Exporting",
+        "exportFailed": "The export could not be prepared.",
+        "exportItems": {
+            "all": "All",
+            "conversations": "Chats",
+            "images": "Images",
+            "transcriptions": "Transcriptions",
+            "speech": "Speech",
+            "reranks": "Reranks",
+            "videos": "Videos",
+            "jobs": "Jobs",
+            "agents": "Agents",
+            "files": "Files",
+            "skills": "Skills",
+            "structuredOutputs": "Structure",
+            "tools": "Tools"
+        }
     },
     "providersPage": {
         "addProvider": "Add provider",

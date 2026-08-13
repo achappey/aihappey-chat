@@ -12,6 +12,7 @@ import { AppsSettings } from "./AppsSettings";
 import { useMultiTheme } from "aihappey-components";
 import { SideInferenceAgentsTab } from "../chat-settings/SideInferenceAgentsTab";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
+import { ExportSettings } from "./export/ExportSettings";
 
 export interface SettingsModalProps {
   open: boolean;
@@ -250,7 +251,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </Button>
                   </div>
                 ) : null}
-               
+
               </div>
             </theme.Tab>
 
@@ -261,6 +262,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             >
               <StorageSettings />
             </theme.Tab>
+
 
             <theme.Tab
               eventKey="connectors"
@@ -338,6 +340,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               </div>
             </theme.Tab>
+
+
+            <theme.Tab
+              eventKey="export"
+              icon={"download"}
+              title={t("settingsModal.tabExport") ?? "Export"}
+            >
+              <ExportSettings />
+            </theme.Tab>
+
           </theme.Tabs>
           <ProviderKeysModal open={providerKeysOpen} onClose={() => setProviderKeysOpen(false)} />
         </div>
