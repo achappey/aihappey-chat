@@ -57,8 +57,10 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
         onChange={onChange ? (_, data) => onChange(data.value) : undefined}
         style={{
           backgroundColor: isDarkMode ? "#141414" : undefined,
+          alignItems: "flex-start",
           ...style,
         }}
+        textarea={{ style: { textAlign: "start" } }}
         className={className}
         {...rest}
       />

@@ -4,6 +4,7 @@ import { UseVideoPromptInputOptions, useVideoInput } from "./useVideoInput";
 import { toSingleVideoAttachment } from "./videoAttachments";
 import { VideoSettingsButton } from "../video-settings/VideoSettingsButton";
 import { useAppStore } from "aihappey-state";
+import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 
 export const VideoInput = (props: UseVideoPromptInputOptions) => {
   const { Button, TextArea } = useTheme();
@@ -43,8 +44,9 @@ export const VideoInput = (props: UseVideoPromptInputOptions) => {
 
       {attachmentsElement}
 
-      <TextArea
-        ref={textareaRef}
+      <ResizableTextArea
+        TextArea={TextArea as any}
+        textareaRef={textareaRef}
         value={value}
         autoFocus
         onChange={handleChange}
@@ -102,9 +104,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
   },
   textArea: {
-    resize: "vertical",
-    maxHeight: 120,
-    flex: 1,
+    resize: "none",
+    width: "100%",
   },
   buttonRow: {
     display: "flex",

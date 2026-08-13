@@ -31,7 +31,7 @@ import { ContextSearchModal } from "./context-search/ContextSearchModal";
 import { useLocalTools } from "aihappey-tools";
 import { useSkills } from "aihappey-skills";
 import { buildLocalToolToggleItems, usePluginToggleItems } from "../../tools/toolCatalogItems";
-import { useResizableMessageInput } from "./useResizableMessageInput";
+import { ResizableTextArea } from "./ResizableTextArea";
 
 export type MessageInputProps = UseMessageInputOptions & {
   resizeResetKey?: string;
@@ -98,7 +98,6 @@ export const MessageInput = (props: MessageInputProps) => {
   } | null>(null);
   const [resourceTemplateModalOpen, setResourceTemplateModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const formRef = useRef<HTMLFormElement | null>(null);
   const {
     value,
     setValue,
@@ -112,11 +111,6 @@ export const MessageInput = (props: MessageInputProps) => {
     canSend,
     resetChatSettings,
   } = useMessageInput(props);
-  const resizable = useResizableMessageInput({
-    formRef,
-    textareaRef,
-    resetKey: props.resizeResetKey,
-  });
 
   const dictation = useDictation({
     disabled: props.disabled || props.streaming,
@@ -337,7 +331,7 @@ export const MessageInput = (props: MessageInputProps) => {
     ) : null;
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} style={styles.form}>
+    <form onSubmit={handleSubmit} style={styles.form}>
       {(attachmentsElement || serverElements || contextToolElements || approveAll || props.conversationCost !== undefined
         || (currentModel?.context_window && props.tokenUsage)
       ) ? (
@@ -359,39 +353,19 @@ export const MessageInput = (props: MessageInputProps) => {
         </div>
       ) : undefined}
 
-      <div style={styles.textAreaShell}>
-        <div
-          role="separator"
-          aria-label="Resize message input"
-          aria-orientation="horizontal"
-          aria-valuemin={resizable.minimumHeight || undefined}
-          aria-valuemax={resizable.maximumHeight || undefined}
-          aria-valuenow={(resizable.height ?? resizable.minimumHeight) || undefined}
-          tabIndex={0}
-          title="Drag or use the arrow keys to resize the message input"
-          data-dragging={resizable.dragging ? "true" : undefined}
-          onPointerDown={resizable.onPointerDown}
-          onKeyDown={resizable.onKeyDown}
-          style={styles.resizeHandle}
-        >
-          <span aria-hidden="true" style={styles.resizeGrip} />
-        </div>
-        <TextArea
-          ref={textareaRef}
-          value={value}
-          autoFocus
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onPaste={handlePaste}
-          placeholder={promptPlaceholder}
-          style={{
-            ...styles.textArea,
-            height: resizable.height,
-            minHeight: resizable.minimumHeight || undefined,
-            maxHeight: resizable.maximumHeight || undefined,
-          }}
-        />
-      </div>
+      <ResizableTextArea
+        TextArea={TextArea as any}
+        textareaRef={textareaRef}
+        direction="up"
+        resetKey={props.resizeResetKey}
+        value={value}
+        autoFocus
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
+        placeholder={promptPlaceholder}
+        style={styles.textArea}
+      />
 
       {/* SECOND ROW – CONTROLS */}
       <div style={styles.buttonRow}>
@@ -666,34 +640,6 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
     boxSizing: "border-box",
     display: "block",
-  },
-  textAreaShell: {
-    position: "relative",
-    width: "100%",
-    paddingTop: 5,
-  },
-  resizeHandle: {
-    position: "absolute",
-    zIndex: 1,
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 11,
-    cursor: "ns-resize",
-    touchAction: "none",
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "center",
-    outlineOffset: 1,
-  },
-  resizeGrip: {
-    display: "block",
-    width: 40,
-    height: 3,
-    marginTop: 1,
-    borderRadius: 999,
-    background: "currentColor",
-    opacity: 0.38,
   },
   buttonRow: {
     display: "flex",

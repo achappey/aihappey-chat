@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
@@ -26,18 +27,20 @@ type DragState = {
 };
 
 type UseResizableMessageInputOptions = {
-  formRef: RefObject<HTMLFormElement | null>;
+  containerRef: RefObject<HTMLElement | null>;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
   resetKey?: string;
+  direction?: "up" | "down";
 };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
 export const useResizableMessageInput = ({
-  formRef,
+  containerRef,
   textareaRef,
   resetKey,
+  direction = "up",
 }: UseResizableMessageInputOptions) => {
   const [height, setHeight] = useState<number>();
   const [minimumHeight, setMinimumHeight] = useState(0);
@@ -49,8 +52,18 @@ export const useResizableMessageInput = ({
   const frameRef = useRef<number | undefined>(undefined);
 
   const getResizeScope = useCallback(() =>
-    formRef.current?.closest<HTMLElement>("[data-chat-resize-scope]") ?? undefined,
-  [formRef]);
+    containerRef.current?.closest<HTMLElement>("[data-chat-resize-scope]") ?? undefined,
+  [containerRef]);
+
+  const getTextarea = useCallback(() => {
+    const textarea = textareaRef.current
+      ?? containerRef.current?.querySelector<HTMLTextAreaElement>("textarea")
+      ?? null;
+    if (textarea && !textareaRef.current) {
+      (textareaRef as MutableRefObject<HTMLTextAreaElement | null>).current = textarea;
+    }
+    return textarea;
+  }, [containerRef, textareaRef]);
 
   const getAvailableHeight = useCallback(() => {
     const scopeHeight = getResizeScope()?.clientHeight;
@@ -60,7 +73,7 @@ export const useResizableMessageInput = ({
   }, [getResizeScope]);
 
   const measureLimits = useCallback((remeasureMinimum = false) => {
-    const textarea = textareaRef.current;
+    const textarea = getTextarea();
     if (!textarea) return;
 
     if (remeasureMinimum || minimumHeightRef.current === 0) {
@@ -78,7 +91,7 @@ export const useResizableMessageInput = ({
     setHeight((current) => current === undefined
       ? current
       : clamp(current, minimumHeightRef.current, nextMaximum));
-  }, [getAvailableHeight, textareaRef]);
+  }, [getAvailableHeight, getTextarea]);
 
   const captureScrollAnchors = useCallback((): ScrollAnchor[] => {
     const scope = getResizeScope();
@@ -109,6 +122,18 @@ export const useResizableMessageInput = ({
     setHeight(clamp(nextHeight, min, max));
     restoreScrollAnchors(anchors);
   }, [restoreScrollAnchors]);
+
+  useLayoutEffect(() => {
+    const textarea = getTextarea();
+    if (!textarea) return;
+    textarea.style.resize = "none";
+    textarea.style.width = "100%";
+    textarea.style.boxSizing = "border-box";
+    textarea.style.display = "block";
+    textarea.style.minHeight = minimumHeight ? `${minimumHeight}px` : "";
+    textarea.style.maxHeight = maximumHeight ? `${maximumHeight}px` : "";
+    textarea.style.height = height === undefined ? "" : `${height}px`;
+  }, [getTextarea, height, maximumHeight, minimumHeight]);
 
   useLayoutEffect(() => {
     measureLimits(true);
@@ -153,7 +178,10 @@ export const useResizableMessageInput = ({
       const drag = dragRef.current;
       if (!drag || event.pointerId !== drag.pointerId) return;
       event.preventDefault();
-      resizeTo(drag.startHeight + drag.startY - event.clientY, drag.anchors);
+      const delta = direction === "up"
+        ? drag.startY - event.clientY
+        : event.clientY - drag.startY;
+      resizeTo(drag.startHeight + delta, drag.anchors);
     };
 
     const finishDrag = (event: PointerEvent) => {
@@ -176,11 +204,11 @@ export const useResizableMessageInput = ({
       document.body.style.removeProperty("cursor");
       document.body.style.removeProperty("user-select");
     };
-  }, [dragging, resizeTo]);
+  }, [direction, dragging, resizeTo]);
 
   const onPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
-    const textarea = textareaRef.current;
+    const textarea = getTextarea();
     if (!textarea) return;
 
     event.preventDefault();
@@ -195,10 +223,10 @@ export const useResizableMessageInput = ({
     document.body.style.cursor = "ns-resize";
     document.body.style.userSelect = "none";
     setDragging(true);
-  }, [captureScrollAnchors, measureLimits, textareaRef]);
+  }, [captureScrollAnchors, getTextarea, measureLimits]);
 
   const onKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
-    const textarea = textareaRef.current;
+    const textarea = getTextarea();
     if (!textarea) return;
 
     let nextHeight: number | undefined;
@@ -211,7 +239,7 @@ export const useResizableMessageInput = ({
     event.preventDefault();
     measureLimits();
     resizeTo(nextHeight, captureScrollAnchors());
-  }, [captureScrollAnchors, height, measureLimits, resizeTo, textareaRef]);
+  }, [captureScrollAnchors, getTextarea, height, measureLimits, resizeTo]);
 
   return {
     height,

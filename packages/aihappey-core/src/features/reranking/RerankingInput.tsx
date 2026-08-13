@@ -14,6 +14,7 @@ import { ServerSelectButton } from "../mcp-servers/ServerSelectButton";
 import { useResourceSelect } from "../chat/input/useResourceSelect";
 import { readResource } from "../../runtime/mcp/readResource";
 import { errorRuntime } from "../../runtime/chat-app/errorRuntime";
+import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 
 export const RerankingInput = ({
   value,
@@ -54,7 +55,8 @@ export const RerankingInput = ({
     <form onSubmit={handleSubmit} style={styles.form}>
       <h1>{t("reranking")}</h1>
 
-      <TextArea
+      <ResizableTextArea
+        TextArea={TextArea as any}
         value={value}
         autoFocus
         onChange={onChange}
@@ -167,9 +169,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
   },
   textArea: {
-    resize: "vertical",
-    maxHeight: 120,
-    flex: 1,
+    resize: "none",
+    width: "100%",
   },
   buttonRow: {
     display: "flex",

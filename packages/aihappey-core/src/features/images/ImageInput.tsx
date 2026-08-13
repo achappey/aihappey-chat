@@ -6,6 +6,7 @@ import { useFileAttachments, fileAttachmentRuntime } from "../../runtime/files/f
 import { useImageInput } from "./useImageInput";
 import { ImageSettingsButton } from "../image-settings/ImageSettingsButton";
 import { addFilesToRuntime } from "../chat/input/MessageInput";
+import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 
 export const ImageInput = (props: UseMessageInputOptions) => {
   const { Button, TextArea } = useTheme();
@@ -45,8 +46,9 @@ export const ImageInput = (props: UseMessageInputOptions) => {
       {/* TAG ROW  */}
       {attachmentsElement}
       {/* FIRST ROW – TEXT INPUT */}
-      <TextArea
-        ref={textareaRef}
+      <ResizableTextArea
+        TextArea={TextArea as any}
+        textareaRef={textareaRef}
         value={value}
         autoFocus
         onChange={handleChange}
@@ -100,9 +102,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
   },
   textArea: {
-    resize: "vertical",
-    maxHeight: 120,
-    flex: 1,
+    resize: "none",
+    width: "100%",
   },
   buttonRow: {
     display: "flex",

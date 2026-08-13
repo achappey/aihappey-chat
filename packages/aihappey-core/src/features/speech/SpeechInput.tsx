@@ -3,6 +3,7 @@ import { defaultProviderSpeechMetadata, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { useFileAttachments, fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { SpeechSettingsButton } from "../speech-settings/SpeechSettingsButton";
+import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 
 export const SpeechInput = ({
   onSend,
@@ -55,7 +56,8 @@ export const SpeechInput = ({
       {attachmentsElement}
       {/* FIRST ROW – TEXT INPUT */}
 
-      <TextArea
+      <ResizableTextArea
+        TextArea={TextArea as any}
         value={value}
         autoFocus
         onChange={onChange}
@@ -113,9 +115,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
   },
   textArea: {
-    resize: "vertical",
-    maxHeight: 120,
-    flex: 1,
+    resize: "none",
+    width: "100%",
   },
   buttonRow: {
     display: "flex",

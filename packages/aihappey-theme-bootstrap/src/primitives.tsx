@@ -59,13 +59,14 @@ import { Accordion } from "./primitives/Accordion";
 import { AvatarGroup } from "./primitives/AvatarGroup";
 import { useDarkMode } from "usehooks-ts";
 
-const TextArea = ({ rows, readOnly, value, onChange, style, className }: any) => {
+const TextArea = React.forwardRef<HTMLTextAreaElement, any>(({ rows, readOnly, value, onChange, style, className, ...rest }, ref) => {
   const { isDarkMode } = useDarkMode();
 
   return (
     <Form.Control
       as="textarea"
       rows={rows}
+      ref={ref}
       disabled={readOnly}
       value={value}
       className={className}
@@ -76,9 +77,10 @@ const TextArea = ({ rows, readOnly, value, onChange, style, className }: any) =>
         borderColor: isDarkMode ? "#495057" : undefined
       }}
       onChange={(e) => onChange?.(e.target.value)}
+      {...rest}
     />
   );
-};
+});
 
 const BootstrapTabs = (props: Parameters<AihUiTheme["Tabs"]>[0]): JSX.Element => {
   const { activeKey, onSelect, vertical, fill, className, style, children, ...rest } = props;

@@ -1,6 +1,7 @@
 import React from "react";
 import { AttachmentButton, FileTags, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
+import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 
 export const JobsInput = ({
   value,
@@ -42,7 +43,8 @@ export const JobsInput = ({
         </div>
       )}
 
-      <TextArea
+      <ResizableTextArea
+        TextArea={TextArea as any}
         value={value}
         autoFocus
         onChange={onChange}
@@ -90,9 +92,8 @@ const styles: Record<string, React.CSSProperties> = {
     width: "100%",
   },
   textArea: {
-    resize: "vertical",
-    maxHeight: 160,
-    flex: 1,
+    resize: "none",
+    width: "100%",
   },
   buttonRow: {
     display: "flex",
