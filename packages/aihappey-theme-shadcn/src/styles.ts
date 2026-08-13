@@ -335,14 +335,15 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 .aih-shadcn-menu-content,
 .aih-shadcn-menu-sub-content { max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; }
 .aih-shadcn-select-content { width: var(--radix-select-trigger-width, var(--radix-dropdown-menu-trigger-width)); max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow: hidden; }
+.aih-shadcn-select-content:not(.aih-shadcn-multiselect-content) { display: flex; flex-direction: column; }
 .aih-shadcn-multiselect-content { width: var(--radix-dropdown-menu-trigger-width); max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 .aih-shadcn-select-viewport { max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow-y: auto; padding: .25rem; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
-.aih-shadcn-dropdown-select-viewport { max-height: min(calc(var(--radix-dropdown-menu-content-available-height, 24rem) - 3rem), 21rem); overscroll-behavior: contain; }
-.aih-shadcn-select-search { position: relative; padding: .25rem .25rem .375rem; }
+.aih-shadcn-dropdown-select-viewport { flex: 1 1 auto; min-height: 0; max-height: none; overscroll-behavior: contain; }
+.aih-shadcn-select-search { position: relative; flex: 0 0 auto; padding: .25rem .25rem .375rem; }
 .aih-shadcn-select-search-icon { position: absolute; left: .875rem; top: 50%; transform: translateY(-50%); color: var(--aih-shadcn-muted-foreground); pointer-events: none; }
 .aih-shadcn-select-search-input { height: 2rem; padding-left: 2.125rem; }
 .aih-shadcn-select-empty { padding: .625rem .75rem; color: var(--aih-shadcn-muted-foreground); font-size: .875rem; text-align: center; }
-.aih-shadcn-select-scroll-button { display: flex; align-items: center; justify-content: center; width: 100%; height: 1.5rem; border: 0; border-radius: calc(var(--aih-shadcn-radius) - 2px); background: transparent; color: var(--aih-shadcn-muted-foreground); cursor: default; }
+.aih-shadcn-select-scroll-button { display: flex; flex: 0 0 1.5rem; align-items: center; justify-content: center; width: 100%; height: 1.5rem; border: 0; border-radius: calc(var(--aih-shadcn-radius) - 2px); background: transparent; color: var(--aih-shadcn-muted-foreground); cursor: default; }
 .aih-shadcn-select-scroll-button:not(:disabled) { cursor: pointer; }
 .aih-shadcn-select-scroll-button:not(:disabled):hover { background: var(--aih-shadcn-accent); color: var(--aih-shadcn-accent-foreground); }
 .aih-shadcn-select-scroll-button:disabled { opacity: .35; }
