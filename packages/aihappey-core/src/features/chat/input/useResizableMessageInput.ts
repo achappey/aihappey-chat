@@ -56,10 +56,13 @@ export const useResizableMessageInput = ({
   [containerRef]);
 
   const getTextarea = useCallback(() => {
-    const textarea = textareaRef.current
-      ?? containerRef.current?.querySelector<HTMLTextAreaElement>("textarea")
-      ?? null;
-    if (textarea && !textareaRef.current) {
+    const referencedElement = textareaRef.current as HTMLElement | null;
+    const textarea = referencedElement?.tagName === "TEXTAREA"
+      ? referencedElement as HTMLTextAreaElement
+      : referencedElement?.querySelector<HTMLTextAreaElement>("textarea")
+        ?? containerRef.current?.querySelector<HTMLTextAreaElement>("textarea")
+        ?? null;
+    if (textarea && textareaRef.current !== textarea) {
       (textareaRef as MutableRefObject<HTMLTextAreaElement | null>).current = textarea;
     }
     return textarea;
