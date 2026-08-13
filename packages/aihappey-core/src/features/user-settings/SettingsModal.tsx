@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useTheme } from "aihappey-components";
 import { CHAT_ENDPOINT_IDS, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
@@ -17,40 +17,6 @@ export interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
 }
-
-const formatHeadersForEditor = (headers?: Record<string, string>) =>
-  Object.entries(headers ?? {})
-    .filter(([key, value]) => key.trim().length > 0 && `${value ?? ""}`.trim().length > 0)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join("\n");
-
-const parseHeadersFromEditor = (value: string): { headers: Record<string, string>; invalidLine?: number } => {
-  const headers: Record<string, string> = {};
-  const lines = value.split(/\r?\n/);
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const rawLine = lines[index];
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    const separatorIndex = line.indexOf(":");
-    if (separatorIndex <= 0) {
-      return { headers, invalidLine: index + 1 };
-    }
-
-    const key = line.slice(0, separatorIndex).trim();
-    const headerValue = line.slice(separatorIndex + 1).trim();
-    if (!key) {
-      return { headers, invalidLine: index + 1 };
-    }
-
-    if (headerValue) {
-      headers[key] = headerValue;
-    }
-  }
-
-  return { headers };
-};
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   open,
