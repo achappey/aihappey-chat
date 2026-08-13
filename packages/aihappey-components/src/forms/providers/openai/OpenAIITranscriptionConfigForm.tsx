@@ -82,7 +82,7 @@ type RealtimeTurnDetectionSemanticVad = {
   eagerness?: "low" | "medium" | "high" | "auto";
 };
 
-type RealtimeTurnDetection = null | RealtimeTurnDetectionServerVad | RealtimeTurnDetectionSemanticVad;
+type RealtimeTurnDetection = RealtimeTurnDetectionServerVad | RealtimeTurnDetectionSemanticVad;
 
 type RealtimeTranscriptionSession = {
   type: "transcription";
@@ -129,14 +129,22 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
     const audioInput = session.audio?.input ?? {};
 
     const updateSession = (patch: Partial<RealtimeTranscriptionSession>) => {
+      const nextSession: RealtimeTranscriptionSession = {
+        ...(rt.session ?? { type: "transcription" }),
+        ...patch,
+        // enforce required constant
+        type: "transcription",
+      };
+
+      // Disabled turn detection must be omitted from the OpenAI payload. This
+      // also cleans up legacy configurations that persisted it as null.
+      if (nextSession.turn_detection == null) {
+        delete nextSession.turn_detection;
+      }
+
       updateRealtimeConfig({
         ...rt,
-        session: {
-          ...(rt.session ?? { type: "transcription" }),
-          ...patch,
-          // enforce required constant
-          type: "transcription",
-        },
+        session: nextSession,
       });
     };
 
@@ -172,8 +180,8 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
         : (audioInput.noise_reduction?.type ?? "__default__");
 
     const transcriptionOn = audioInput.transcription !== undefined && audioInput.transcription !== null;
-    const turnDetectionOn = session.turn_detection !== undefined && session.turn_detection !== null;
-    const turnDetectionType = (session.turn_detection && session.turn_detection !== null)
+    const turnDetectionOn = session.turn_detection !== undefined;
+    const turnDetectionType = session.turn_detection
       ? session.turn_detection.type
       : "server_vad";
 
@@ -329,12 +337,12 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
               headerActions={
                 <theme.Switch
                   id="openai-realtime-turn-detection-enable"
-                  checked={turnDetectionOn}
-                  onChange={(enabled) => {
-                    updateSession({
-                      turn_detection: enabled ? { type: "server_vad" } : null,
-                    });
-                  }}
+                   checked={turnDetectionOn}
+                   onChange={(enabled) => {
+                     updateSession({
+                       turn_detection: enabled ? { type: "server_vad" } : undefined,
+                     });
+                   }}
                 />
               }
             >
@@ -352,8 +360,8 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
                     const raw = String(val ?? "");
                     if (raw !== "server_vad" && raw !== "semantic_vad") return;
 
-                    const current = session.turn_detection;
-                    const base = (current && current !== null && typeof current === "object") ? current : undefined;
+                     const current = session.turn_detection;
+                     const base = current && typeof current === "object" ? current : undefined;
                     if (raw === "server_vad") {
                       updateSession({
                         turn_detection: {
@@ -381,10 +389,10 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
 
                 <theme.Switch
                   id="openai-realtime-turn-create-response"
-                  disabled={!turnDetectionOn}
-                  checked={
-                    !!(session.turn_detection && session.turn_detection !== null && (session.turn_detection as any).create_response !== false)
-                  }
+                   disabled={!turnDetectionOn}
+                   checked={
+                     !!(session.turn_detection && (session.turn_detection as any).create_response !== false)
+                   }
                   label={t("providers:openai.realtimeTurnCreateResponse")}
                   onChange={(enabled) => {
                     if (!turnDetectionOn) return;
@@ -399,10 +407,10 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
 
                 <theme.Switch
                   id="openai-realtime-turn-interrupt-response"
-                  disabled={!turnDetectionOn}
-                  checked={
-                    !!(session.turn_detection && session.turn_detection !== null && (session.turn_detection as any).interrupt_response !== false)
-                  }
+                   disabled={!turnDetectionOn}
+                   checked={
+                     !!(session.turn_detection && (session.turn_detection as any).interrupt_response !== false)
+                   }
                   label={t("providers:openai.realtimeTurnInterruptResponse")}
                   onChange={(enabled) => {
                     if (!turnDetectionOn) return;
