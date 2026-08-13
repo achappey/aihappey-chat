@@ -77,6 +77,21 @@ export const defaultProviderRealtimeMetadata = {
    */
   "assemblyai": {
     // Intentionally empty.
+  },
+  /**
+   * Soniox realtime WebSocket configuration.
+   *
+   * The browser transport supplies the temporary API key and fixed raw-audio
+   * settings (mono pcm_s16le at 16 kHz). This bucket deliberately remains
+   * empty but accepts Soniox start-message options such as language_hints,
+   * context, diarization, endpoint detection/tuning, and translation. That
+   * keeps it ready for a dedicated realtime settings form later.
+   *
+   * Non-realtime Soniox transcription options should live independently in
+   * defaultProviderTranscriptionMetadata when that capability is introduced.
+   */
+  "soniox": {
+    // Intentionally empty.
   }
 };
 

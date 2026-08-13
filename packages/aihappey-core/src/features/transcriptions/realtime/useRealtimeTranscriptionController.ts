@@ -74,6 +74,9 @@ export function useRealtimeTranscriptionController(args: {
   // For AssemblyAI we also don't have OpenAI item_ids; use a monotonically increasing counter.
   const assemblyAiCommitCounterRef = useRef<number>(0);
 
+  // Soniox returns finalized token batches once and has no OpenAI item_ids.
+  const sonioxCommitCounterRef = useRef<number>(0);
+
   const sessionInfoRef = useRef<any>(null);
 
   const providerId = useMemo(() => parseProviderIdFromModelId(selectedModel?.id), [selectedModel]);
@@ -316,6 +319,29 @@ export function useRealtimeTranscriptionController(args: {
     return { text, startSecond: 0, endSecond: 0 };
   }, []);
 
+  const parseSonioxFinalSegment = useCallback((event: any) => {
+    const tokens = Array.isArray(event?.tokens)
+      ? event.tokens.filter((token: any) => token?.is_final && token?.text && token.text !== "<fin>")
+      : [];
+    if (!tokens.length) return null;
+
+    const text = tokens.map((token: any) => String(token.text)).join("");
+    if (!text.trim()) return null;
+
+    const starts = tokens
+      .map((token: any) => Number(token?.start_ms))
+      .filter((value: number) => Number.isFinite(value));
+    const ends = tokens
+      .map((token: any) => Number(token?.end_ms))
+      .filter((value: number) => Number.isFinite(value));
+
+    return {
+      text,
+      startSecond: starts.length ? Math.max(0, Math.min(...starts) / 1000) : 0,
+      endSecond: ends.length ? Math.max(0, Math.max(...ends) / 1000) : 0,
+    };
+  }, []);
+
   const stop = useCallback(async () => {
     if (stopInFlightRef.current) {
       await stopInFlightRef.current;
@@ -343,6 +369,7 @@ export function useRealtimeTranscriptionController(args: {
         deepgramCommitCounterRef.current = 0;
         gladiaCommitCounterRef.current = 0;
         assemblyAiCommitCounterRef.current = 0;
+        sonioxCommitCounterRef.current = 0;
         resetRealtimeSessionState();
         stopInFlightRef.current = null;
       }
@@ -400,7 +427,7 @@ export function useRealtimeTranscriptionController(args: {
           // NOTE: ElevenLabs backend does NOT need providerOptions; OpenAI does.
           getEphemeralToken: () =>
              tokenClientFactory(
-              providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai"
+               providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai"
                  ? { model: selectedModel.id }
                  : {
                      model: selectedModel.id,
@@ -553,6 +580,30 @@ export function useRealtimeTranscriptionController(args: {
                 return;
               }
 
+              if (providerId === "soniox") {
+                if (event?.finished) {
+                  sessionInfoRef.current = event;
+                }
+
+                const segment = parseSonioxFinalSegment(event);
+                if (segment) {
+                  const index = ++sonioxCommitCounterRef.current;
+                  const key = `soniox-${index}`;
+                  segmentsRef.current.set(key, {
+                    itemId: key,
+                    text: segment.text,
+                    startMs: segment.startSecond * 1000,
+                    endMs: segment.endSecond * 1000,
+                  });
+                  if (created.id) {
+                    void persistUpdateNow(created.id, computeSnapshot({ preferText: bufferRef.current }));
+                  }
+                } else if (event?.finished && created.id) {
+                  void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+                }
+                return;
+              }
+
               const type = event?.type;
               const itemId = event?.item_id;
               if (!type || !itemId) return;
@@ -590,7 +641,7 @@ export function useRealtimeTranscriptionController(args: {
           onTranscriptText: (deltaText: string) => {
             // OpenAI emits deltas; ElevenLabs/Deepgram emit full-text snapshots (we pass the full text through).
             const next =
-              providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai"
+              providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox"
                 ? deltaText
                 : (bufferRef.current + deltaText).trimStart();
             bufferRef.current = next;
@@ -676,6 +727,8 @@ export function useRealtimeTranscriptionController(args: {
     onErrorAlert,
     computeSnapshot,
     providerId,
+    parseSonioxFinalSegment,
+    persistUpdateNow,
   ]);
 
   // Stop when leaving the page / unmounting.

@@ -5,6 +5,7 @@ import { startElevenLabsRealtimeWsSession } from "./startElevenLabsRealtimeWsSes
 import { startDeepgramRealtimeWsSession } from "./startDeepgramRealtimeWsSession";
 import { startGladiaRealtimeWsSession } from "./startGladiaRealtimeWsSession";
 import { startAssemblyAiRealtimeWsSession } from "./startAssemblyAiRealtimeWsSession";
+import { startSonioxRealtimeWsSession } from "./startSonioxRealtimeWsSession";
 
 export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
@@ -92,6 +93,21 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
       getEphemeralToken,
       modelId: assemblyAiModelId,
       config: assemblyAiConfig,
+      events,
+    });
+    return {
+      kind: "ws",
+      stop: session.stop,
+    };
+  }
+
+  if (providerId === "soniox") {
+    const sonioxConfig = (providerRealtimeMetadata as any)?.soniox ?? (providerRealtimeMetadata as any) ?? {};
+    const sonioxModelId = stripProviderPrefix(selectedModel);
+    const session = await startSonioxRealtimeWsSession({
+      getEphemeralToken,
+      modelId: sonioxModelId,
+      config: sonioxConfig,
       events,
     });
     return {
