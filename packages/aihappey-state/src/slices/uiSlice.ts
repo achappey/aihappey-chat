@@ -205,6 +205,7 @@ export type UiSlice = {
   transcriptionFileSplitEnabled?: boolean
   transcriptionFileSplitOverlapSeconds?: number
   transcriptionFileSplitMaxSizeMb?: number
+  videoPollingIntervalSeconds?: number
   elicitation?: any
   debugMode?: boolean
   showMessageTemperature?: boolean
@@ -234,6 +235,7 @@ export type UiSlice = {
   setTranscriptionFileSplitEnabled: (enabled: boolean) => void;
   setTranscriptionFileSplitOverlapSeconds: (seconds: number) => void;
   setTranscriptionFileSplitMaxSizeMb: (mb: number) => void;
+  setVideoPollingIntervalSeconds: (seconds: number) => void;
   toggleEliciation: () => void;
   toggleAgentImport: () => void;
   toggleConversationImport: () => void;
@@ -352,6 +354,7 @@ export const createUiSlice: StateCreator<
   transcriptionFileSplitEnabled: false,
   transcriptionFileSplitOverlapSeconds: 5,
   transcriptionFileSplitMaxSizeMb: 25,
+  videoPollingIntervalSeconds: 10,
   activitiesSize: "medium",
   quickSearches: ["Outlook", "SharePoint", "Microsoft", "Audio", "Images", "Video", "Web"],
   hiddenNavigationItemKeys: ["speech", "reranking", "videos", "jobs", "arena"],
@@ -425,6 +428,10 @@ export const createUiSlice: StateCreator<
   setTranscriptionFileSplitMaxSizeMb: (mb: number) =>
     set(() => ({
       transcriptionFileSplitMaxSizeMb: Math.max(1, mb),
+    })),
+  setVideoPollingIntervalSeconds: (seconds: number) =>
+    set(() => ({
+      videoPollingIntervalSeconds: Math.min(60, Math.max(5, seconds)),
     })),
   toggleEliciation: () =>
     set((s: any) => ({

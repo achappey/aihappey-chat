@@ -25,6 +25,8 @@ export const AiDefaultSettings: React.FC = () => {
 
   const userPreferredVideoModel = useAppStore((s) => s.userPreferredVideoModel);
   const setUserPreferredVideoModel = useAppStore((s) => s.setUserPreferredVideoModel);
+  const videoPollingIntervalSeconds = useAppStore((s) => s.videoPollingIntervalSeconds);
+  const setVideoPollingIntervalSeconds = useAppStore((s) => s.setVideoPollingIntervalSeconds);
 
   const userPreferredSpeechModel = useAppStore((s) => s.userPreferredSpeechModel);
   const setUserPreferredSpeechModel = useAppStore((s) => s.setUserPreferredSpeechModel);
@@ -224,6 +226,18 @@ export const AiDefaultSettings: React.FC = () => {
               label={t("chatWithVideoModels")}
               checked={chatWithVideoModels ?? false}
               onChange={toggleChatWithVideoModels}
+            />
+
+            <Slider
+              id="videoPollingIntervalSeconds-slider"
+              min={5}
+              max={60}
+              step={1}
+              value={videoPollingIntervalSeconds ?? 10}
+              onChange={setVideoPollingIntervalSeconds}
+              label={t("settingsModal.videoPollingIntervalSeconds")}
+              showValue={true}
+              valueFormat={(seconds) => `${seconds} s`}
             />
           </div>
         </theme.Tab>

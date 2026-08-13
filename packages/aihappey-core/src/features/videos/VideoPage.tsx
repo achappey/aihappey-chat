@@ -34,8 +34,6 @@ import {
   type PendingVideoOperation,
 } from "./pendingVideoOperations";
 
-const VIDEO_POLL_INTERVAL_MS = 5_000;
-
 const normalizeVideoResult = (videoResult: any) => ({
   ...videoResult,
   videos: (videoResult?.videos ?? []).map((video: any) => {
@@ -80,6 +78,7 @@ export const VideoPage = () => {
   const generateAudio = useAppStore((a: any) => a.generateAudio);
   const providerVideoMetadata = useAppStore((a: any) => a.providerVideoMetadata);
   const userPreferredVideoModel = useAppStore((a: any) => a.userPreferredVideoModel);
+  const videoPollingIntervalSeconds = useAppStore((a) => a.videoPollingIntervalSeconds);
   const { config } = useChatContext();
   const [itemsStarting, setItemsStarting] = useState<number>(0);
   const [pendingOperations, setPendingOperations] = useState<PendingVideoOperation[]>(
@@ -202,13 +201,16 @@ export const VideoPage = () => {
     };
 
     void poll();
-    const interval = window.setInterval(() => { void poll(); }, VIDEO_POLL_INTERVAL_MS);
+    const interval = window.setInterval(
+      () => { void poll(); },
+      (videoPollingIntervalSeconds ?? 10) * 1_000,
+    );
 
     return () => {
       abortController.abort();
       window.clearInterval(interval);
     };
-  }, [addVideoError, addWarnings, config.baseUrl, config.endpoints, createRequestHeaders, replacePendingOperations, storageVideos]);
+  }, [addVideoError, addWarnings, config.baseUrl, config.endpoints, createRequestHeaders, replacePendingOperations, storageVideos, videoPollingIntervalSeconds]);
 
   const [modalVideo, setModalVideo] = useState<VideoContent | undefined>(undefined);
   const [modalItem, setModalItem] = useState<LibraryVideoItem | undefined>(undefined);

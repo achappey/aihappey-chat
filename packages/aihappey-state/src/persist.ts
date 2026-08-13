@@ -33,7 +33,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 28,
+    version: 29,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -92,6 +92,7 @@ export const withPersist = (
       transcriptionFileSplitEnabled: (s as any).transcriptionFileSplitEnabled,
       transcriptionFileSplitOverlapSeconds: (s as any).transcriptionFileSplitOverlapSeconds,
       transcriptionFileSplitMaxSizeMb: (s as any).transcriptionFileSplitMaxSizeMb,
+      videoPollingIntervalSeconds: (s as any).videoPollingIntervalSeconds,
       toolAnnotations: s.toolAnnotations,
       enableUserLocation: s.enableUserLocation,
       enableApps: s.enableApps,
@@ -362,6 +363,15 @@ export const withPersist = (
           favoriteProviderIds: Array.isArray(safeState.favoriteProviderIds)
             ? Array.from(new Set(safeState.favoriteProviderIds.filter(Boolean)))
             : [],
+        };
+      }
+
+      if (version < 29) {
+        safeState = {
+          ...safeState,
+          videoPollingIntervalSeconds: typeof safeState.videoPollingIntervalSeconds === "number"
+            ? Math.min(60, Math.max(5, safeState.videoPollingIntervalSeconds))
+            : 10,
         };
       }
 

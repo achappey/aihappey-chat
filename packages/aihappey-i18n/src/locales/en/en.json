@@ -820,6 +820,7 @@
         "transcriptionFileSplitEnabled": "Split large transcription files",
         "transcriptionFileSplitOverlapSeconds": "Transcription split overlap",
         "transcriptionFileSplitMaxSizeMb": "Transcription split max chunk size",
+        "videoPollingIntervalSeconds": "Video task polling interval",
         "tabEndpoints": "Endpoints",
         "endpointProfile": "Endpoint profile",
         "endpointProfileHint": "Choose the configured app gateway, a provider catalog endpoint profile, or a custom override.",

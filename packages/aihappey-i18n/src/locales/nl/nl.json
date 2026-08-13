@@ -781,6 +781,7 @@
         "transcriptionFileSplitEnabled": "Grote transcriptiebestanden splitsen",
         "transcriptionFileSplitOverlapSeconds": "Overlap bij transcriptiesplitsing",
         "transcriptionFileSplitMaxSizeMb": "Maximale chunkgrootte voor transcriptiesplitsing",
+        "videoPollingIntervalSeconds": "Pollinterval voor videotaken",
         "tabEndpoints": "Endpoints",
         "endpointProfile": "Endpointprofiel",
         "endpointProfileHint": "Kies de ingestelde app-gateway, een endpointprofiel uit de providercatalogus of een aangepaste overschrijving.",
