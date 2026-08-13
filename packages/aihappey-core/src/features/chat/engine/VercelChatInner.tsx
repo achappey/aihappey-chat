@@ -878,7 +878,7 @@ export function VercelChatInner({
         height: "100%",
         width: "100%",
         flex: 1,
-        overflowY: "auto",
+        overflow: "hidden",
         minHeight: 0, // important for flex scroll containers!
       }}
     >
@@ -891,6 +891,7 @@ export function VercelChatInner({
         onClose={closeToast}
       />
       <div
+        data-chat-resize-scope
         style={{
           display: "flex",
           flexDirection: "column",
@@ -937,6 +938,7 @@ export function VercelChatInner({
         ) : undefined}
         <div style={{ paddingRight: 24, paddingLeft: 16, paddingTop: 8, boxSizing: "border-box" }}>
           <MessageInput
+            resizeResetKey={conversationId}
             onSend={async (msg) => {
               startRun()
               await handleSend(msg)

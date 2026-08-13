@@ -129,10 +129,13 @@ export function NewChatPage() {
           ? setSelectedAgents(selectedAgentNames.filter(a => a != name))
           : setSelectedAgents([...selectedAgentNames, name])} />
       <div
+        data-chat-resize-scope
         style={{
           display: "flex",
           flexDirection: "column",
           height: "100%",
+          minHeight: 0,
+          overflow: "hidden",
           alignItems: "center",
           justifyContent: "center",
           border: isOver ? "2px dotted" : undefined,

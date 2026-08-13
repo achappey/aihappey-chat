@@ -222,7 +222,8 @@ export const MessageList = ({
   return (
     <div
       id="chat-container"
-      style={{ flex: 1, overflowY: "auto", overflowX: "hidden", padding: 12 }}
+      data-chat-scroll-container
+      style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", padding: 12 }}
     >
       <div style={chatContentStyles}>
         {messagesWithMeta.length > 0 && (

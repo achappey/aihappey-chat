@@ -213,6 +213,7 @@ export function ChatArena({
 
   return (
     <div
+      data-chat-resize-scope
       ref={dropRef}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
