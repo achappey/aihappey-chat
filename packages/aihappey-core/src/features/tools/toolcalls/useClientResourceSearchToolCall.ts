@@ -12,7 +12,7 @@ import {
 } from "../clientResourceSearch";
 
 export const CLIENT_RESOURCE_SEARCH_INSTRUCTIONS =
-  "Select the MCP resources and resource templates that best satisfy the supplied query from the supplied server-scoped catalog. Return exactly one JSON object with the shape {\"selectedResourceUris\":[\"exact_resource_uri\"],\"selectedResourceTemplateUriTemplates\":[\"exact_uri_template\"]}. Use only exact values present in the catalog, preserve relevance order, include no duplicates, select at most 20 entries in each array, and include no markdown or text outside the JSON object.";
+  "Select the MCP resources and resource templates that are relevant to the supplied query from the supplied server-scoped catalog, using the MCP server instructions as additional context when provided. Prefer returning all clearly relevant entries; return empty arrays only when no catalog entry is reasonably related to the query. Return exactly one JSON object with the shape {\"selectedResourceUris\":[\"exact_resource_uri\"],\"selectedResourceTemplateUriTemplates\":[\"exact_uri_template\"]}. Use only exact values present in the catalog, preserve relevance order, include no duplicates, select at most 20 entries in each array, and include no markdown or text outside the JSON object.";
 
 export const clientResourceSearchTool: Tool = {
   name: CLIENT_RESOURCE_SEARCH_NAME,
@@ -109,7 +109,15 @@ export const useClientResourceSearchRuntime = ({
 
     const output = await invokeSideInferenceAgent({
       feature: "resourceSearch",
-      input: { query, serverUrl, ...catalog },
+      input: {
+        query,
+        serverUrl,
+        mcpServerInstructions: typeof mcpServerContent[serverName]?.instructions === "string"
+          && mcpServerContent[serverName].instructions.trim()
+            ? mcpServerContent[serverName].instructions.trim()
+            : null,
+        ...catalog,
+      },
       baseUrl: api,
       getAccessToken,
       customHeaders: Object.keys(customHeaders ?? {}).length ? customHeaders : headers,

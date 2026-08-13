@@ -100,7 +100,7 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
         name: RESOURCE_SEARCH_AGENT_NAME,
         description: "Search MCP resources",
         instructions:
-            "Select the MCP resources and resource templates that best satisfy the supplied query from the supplied server-scoped catalog. Return exactly one JSON object with the shape {\"selectedResourceUris\":[\"exact_resource_uri\"],\"selectedResourceTemplateUriTemplates\":[\"exact_uri_template\"]}. Use only exact values present in the catalog, preserve relevance order, include no duplicates, select at most 20 entries in each array, and include no markdown or text outside the JSON object.",
+            "Select the MCP resources and resource templates that are relevant to the supplied query from the supplied server-scoped catalog, using the MCP server instructions as additional context when provided. Prefer returning all clearly relevant entries; return empty arrays only when no catalog entry is reasonably related to the query. Return exactly one JSON object with the shape {\"selectedResourceUris\":[\"exact_resource_uri\"],\"selectedResourceTemplateUriTemplates\":[\"exact_uri_template\"]}. Use only exact values present in the catalog, preserve relevance order, include no duplicates, select at most 20 entries in each array, and include no markdown or text outside the JSON object.",
         model: {
             id: "openai/gpt-5.6-luna",
             providerMetadata: {
