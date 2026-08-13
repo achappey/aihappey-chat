@@ -23,6 +23,7 @@ import { useSkills } from "aihappey-skills";
 import { buildSkillMatchKey, buildStoredSkillMatchKey, createInlineAgentSkill, getInlineAgentSkillPayload, readInlineAgentSkillMetadata } from "./agentSkills";
 import { useChatContext } from "../chat/context/ChatContext";
 import { SkillToggleGroups } from "../skills/SkillToggleGroups";
+import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 
 const hostnameOf = (url?: string) => {
     if (!url) return "remote";
@@ -410,6 +411,7 @@ export const AgentForm = ({
     }
 
     const providerKey = getAgentModelProviderKey(agent?.model?.id);
+    const providerTitle = (PROVIDERS as Record<string, { name?: string }>)[providerKey]?.name ?? providerKey;
     const providerMeta = agent?.model?.providerMetadata ?? {};
     const providerHeaders = agent?.model?.providerHeaders ?? {};
     const updateProviderMetadata = (providerMetadata: any) =>
@@ -627,7 +629,7 @@ export const AgentForm = ({
 
                 {/* ---------------- Provider Settings ---------------- */}
                 <Tab eventKey="providers"
-                    title={providerKey}>
+                    title={providerTitle}>
                     {providerKey === "openai" && (
                         <OpenAIChatConfigForm
                             config={providerMeta}
