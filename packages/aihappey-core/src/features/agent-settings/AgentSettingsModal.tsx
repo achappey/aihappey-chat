@@ -186,7 +186,7 @@ const GeneralTab = ({
         <theme.Card size="small" title={t("chat")}>
           <div>
             <theme.Slider
-              label={t("throttle") + ` (${experimentalThrottle} ms)`}
+              label={t("throttle", { throttle: experimentalThrottle })}
               min={0}
               max={1000}
               step={10}
