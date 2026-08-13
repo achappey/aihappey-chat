@@ -2,15 +2,15 @@ import type { Provider } from "aihappey-types";
 
 export const litai: Provider = {
   name: "LitAI",
-  description: "LitAI is an LLM router (OpenAI format) and minimal agent framework. Chat with any model (ChatGPT, Anthropic, etc) in one line with retries, fallbacks, unified billing, and logging. Build agents with tool use in clean, testable Python - no magic, no flaky APIs, no heavy frameworks.",
-  icons: [{
-    src: "https://avatars.githubusercontent.com/u/58386951?s=200&v=4"
-  }],
+  description: "The all-in-one platform for AI development. Code together. Prototype. Train. Scale. Serve. From your browser - with zero setup. From the creators of PyTorch Lightning.",
   urls: {
-    homepage: "https://lightning.ai/docs/litai/home",
-    docs: "https://lightning.ai/docs/litai/api-reference/llm-api"
+    homepage: "https://lightning.ai",
+    pricing: "https://lightning.ai/pricing",
+    termsOfService:"https://lightning.ai/legal/terms-and-conditions",
+    privacyPolicy:"https://lightning.ai/legal/privacy",
+    docs: "https://lightning.ai/docs"
   },
-  category: "gateway_router",
+  category: "inference_compute",
   inferenceRegions: ["World"]
 
 };

@@ -574,6 +574,7 @@ import { zebracat } from "./catalog/zebracat";
 import { prunaai } from "./catalog/prunaai";
 import { sovereigneg } from "./catalog/sovereigneg";
 import { soniox } from "./catalog/soniox";
+import { nexosai } from "./catalog/nexosai";
 
 /**
  * UI-facing provider catalog.
@@ -587,6 +588,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   beastlabai,
   lelapaai,
   wafer,
+  nexosai,
   soniox,
   orcarouter,
   doubleword,
