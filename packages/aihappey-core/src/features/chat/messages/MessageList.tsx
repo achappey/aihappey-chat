@@ -12,7 +12,6 @@ import { useCallback, useMemo, useState } from "react";
 import { toChatMessages } from "./toChatMessages";
 import { getToolName, useTools } from "../../tools/useTools";
 import { McpProgressItem, progressRuntime, useMcpProgress } from "../../../runtime/mcp/progressRuntime";
-import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { getUiMessageIdFromChatMessageId } from "./getUiMessageIdFromChatMessageId";
 import { EditMessageModal } from "./EditMessageModal";
 import { useConversations } from "aihappey-conversations";
@@ -99,7 +98,6 @@ export const MessageList = ({
   const { i18n, t } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
   const showMessageTokens = useAppStore((a) => a.showMessageTokens);
-  const showMessageTemperature = useAppStore((a) => a.showMessageTemperature);
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
   const providers = useProviderRegistry();
@@ -111,8 +109,6 @@ export const MessageList = ({
     return m;
   }, [progress]);
   const { refresh } = useConversations();
-  const isDesktop = useIsDesktop()
-
   const [editUiMessageId, setEditUiMessageId] = useState<string | undefined>(undefined);
   const [modalImage, setModalImage] = useState<ImageContent | undefined>(undefined);
   const [speechToastOpen, setSpeechToastOpen] = useState(false);
@@ -149,8 +145,7 @@ export const MessageList = ({
         messages={chatMessages}
         onCopyMessage={copyClipboard}
         locale={i18n.language}
-        showTemperature={showMessageTemperature && isDesktop}
-        showTokens={showMessageTokens && isDesktop}
+        showTokens={showMessageTokens}
         disableProviderLogo={disableProviderLogo}
         providers={providers}
         tools={tools?.tools ?? []}

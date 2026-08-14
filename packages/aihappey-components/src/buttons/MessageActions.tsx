@@ -5,8 +5,6 @@ import { useTheme } from "../theme/ThemeContext";
 import { CostBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { SourcesButton } from "./SourcesButton";
-import { TemperatureBadge } from "../badges/TemperatureBadge";
-import { useMediaQuery } from "usehooks-ts";
 import { useTranslation } from "aihappey-i18n";
 
 interface MessageActionsProps {
@@ -14,7 +12,6 @@ interface MessageActionsProps {
   page: number;
   max: number;
   size?: string;
-  showTemperature?: boolean
   showTokens?: boolean
 
   onEditMessage?: (msg: ChatMessage) => void;
@@ -33,7 +30,6 @@ export const MessageActions = ({
   page,
   max,
   size,
-  showTemperature,
   showTokens,
   onEditMessage,
   onCopyMessage,
@@ -46,8 +42,6 @@ export const MessageActions = ({
 }: MessageActionsProps) => {
   const { Button } = useTheme();
   const { t } = useTranslation();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
-
   return (
     <div
       style={{ height: 16, paddingTop: 8, display: "flex", alignItems: "center" }}>
@@ -78,12 +72,6 @@ export const MessageActions = ({
           title={t("speakMessage")}
         />
       )}
-
-      {showTemperature
-        && msg.role === "assistant"
-        && msg.temperature != undefined && (
-          <TemperatureBadge temperature={msg.temperature} />
-        )}
 
       {showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
 

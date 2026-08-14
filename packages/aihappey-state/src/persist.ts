@@ -57,7 +57,6 @@ export const withPersist = (
       sendRawAttachments: s.sendRawAttachments,
       convertAttachmentsToText: s.convertAttachmentsToText,
       extractExif: s.extractExif,
-      showMessageTemperature: s.showMessageTemperature,
       showMessageTokens: s.showMessageTokens,
       disableProviderLogo: (s as any).disableProviderLogo,
       providerImageMetadata: s.providerImageMetadata,
@@ -123,7 +122,6 @@ export const withPersist = (
       endpointRawModelIds: (s as any).endpointRawModelIds,
       endpointProviderMetadataEnabled: (s as any).endpointProviderMetadataEnabled,
       remoteStorageConnected: s.remoteStorageConnected,
-      logLevel: s.logLevel,
     }),
     migrate: (persistedState, version) => {
       let safeState = isPlainRecord(persistedState)

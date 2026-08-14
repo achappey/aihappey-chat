@@ -69,10 +69,6 @@ export const localSettingsSetTool: Tool = {
         type: "boolean",
         description: "Enable or disable access to the user's location.",
       },
-      showTemperature: {
-        type: "boolean",
-        description: "Show or hide the temperature badge per assistant message.",
-      },
       showTokensPerMessage: {
         type: "boolean",
         description: "Show or hide the tokens badge per assistant message.",
@@ -250,9 +246,7 @@ export function useLocalSettingsRuntime() {
   const enableUserLocation = useAppStore(a => a.enableUserLocation);
   const setEnableUserLocation = useAppStore(a => a.setEnableUserLocation);
 
-  const showMessageTemperature = useAppStore(a => a.showMessageTemperature);
   const showMessageTokens = useAppStore(a => a.showMessageTokens);
-  const setShowMessageTemperature = useAppStore(a => a.setShowMessageTemperature);
   const setShowMessageTokens = useAppStore(a => a.setShowMessageTokens);
 
   const experimentalThrottle = useAppStore(a => a.experimentalThrottle);
@@ -318,7 +312,6 @@ export function useLocalSettingsRuntime() {
                 chatApp: {
                   enableUserLocation,
                   throttleInMs: experimentalThrottle,
-                  showTemperature: !!showMessageTemperature,
                   showTokensPerMessage: !!showMessageTokens,
                 },
                 ai: {
@@ -348,17 +341,6 @@ export function useLocalSettingsRuntime() {
 
             if (typeof input.enableUserLocation === "boolean") {
               setEnableUserLocation(input.enableUserLocation);
-            }
-
-            const nextShowTemperature =
-              typeof input.showTemperature === "boolean"
-                ? input.showTemperature
-                : typeof input.showMessageTemperature === "boolean"
-                  ? input.showMessageTemperature
-                  : undefined;
-
-            if (typeof nextShowTemperature === "boolean") {
-              setShowMessageTemperature(nextShowTemperature);
             }
 
             const nextShowTokensPerMessage =
@@ -486,7 +468,6 @@ export function useLocalSettingsRuntime() {
     },
     [
       enableUserLocation,
-      showMessageTemperature,
       showMessageTokens,
       experimentalThrottle,
       temperature,
@@ -507,7 +488,6 @@ export function useLocalSettingsRuntime() {
       languages,
       supportedLanguageCodes,
       setEnableUserLocation,
-      setShowMessageTemperature,
       setShowMessageTokens,
       setThrottle,
       setTemperature,

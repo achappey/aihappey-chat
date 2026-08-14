@@ -22,7 +22,6 @@ interface MessageListProps {
   tools?: Tool[]
   size?: string;
   locale?: string
-  showTemperature?: boolean
   showTokens?: boolean
   disableProviderLogo?: boolean
   providers?: Record<string, Provider>
@@ -59,7 +58,6 @@ export const MessageList = ({
   onEditMessage,
   tools,
   locale,
-  showTemperature,
   showTokens,
   disableProviderLogo,
   providers,
@@ -161,7 +159,6 @@ export const MessageList = ({
         msg={msg}
         page={page}
         max={max}
-        showTemperature={showTemperature}
         showTokens={showTokens}
         size={size}
         onCopyMessage={onCopyMessage}

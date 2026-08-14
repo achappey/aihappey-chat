@@ -2,18 +2,7 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { ModelContextClientSettingsForm } from "aihappey-components";
 
-type LogLevel =
-  | "debug"
-  | "info"
-  | "notice"
-  | "warning"
-  | "error"
-  | "critical"
-  | "alert"
-  | "emergency";
-
 type ModelContextClientSettings = {
-  logLevel: LogLevel;
   toolTimeoutMinutes: number;
   resetTimeoutOnProgress: boolean;
 };
@@ -25,7 +14,6 @@ const Wrapper = ({
 }) => {
   const [value, setValue] = useState<ModelContextClientSettings>(
     initialValue ?? {
-      logLevel: "info",
       toolTimeoutMinutes: 5,
       resetTimeoutOnProgress: true,
     }
@@ -34,9 +22,6 @@ const Wrapper = ({
   return (
     <ModelContextClientSettingsForm
       value={value}
-      onChangeLogLevel={(level) =>
-        setValue((prev) => ({ ...prev, logLevel: level }))
-      }
       onChangeTimeout={(minutes, resetOnProgress) =>
         setValue((prev) => ({
           ...prev,
@@ -70,7 +55,6 @@ export const MinTimeout: Story = {
   render: () => (
     <Wrapper
       initialValue={{
-        logLevel: "info",
         toolTimeoutMinutes: 1,
         resetTimeoutOnProgress: true,
       }}
@@ -85,8 +69,7 @@ export const MaxTimeout: Story = {
   render: () => (
     <Wrapper
       initialValue={{
-        logLevel: "warning",
-        toolTimeoutMinutes: 15,
+        toolTimeoutMinutes: 60,
         resetTimeoutOnProgress: false,
       }}
     />
@@ -97,7 +80,6 @@ export const ResetOnProgressOn: Story = {
   render: () => (
     <Wrapper
       initialValue={{
-        logLevel: "debug",
         toolTimeoutMinutes: 10,
         resetTimeoutOnProgress: true,
       }}
@@ -109,7 +91,6 @@ export const ResetOnProgressOff: Story = {
   render: () => (
     <Wrapper
       initialValue={{
-        logLevel: "debug",
         toolTimeoutMinutes: 10,
         resetTimeoutOnProgress: false,
       }}

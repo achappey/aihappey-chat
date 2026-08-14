@@ -56,7 +56,6 @@ async function _connectMcpBase(
         headers?: Record<string, string>;
         clientName?: string;
         clientVersion?: string;
-        logLevel?: any;
         onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult | CreateMessageResultWithTools>;
         onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
         onLogging?: (server: string, req: LoggingMessageNotification) => Promise<void>;
@@ -138,8 +137,6 @@ export async function connectMcpServer(
         headers?: Record<string, string>;
         clientName?: string;
         clientVersion?: string;
-        logLevel?: any;
-        logOptions?: any;
         onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult>;
         onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
         onLogging?: (server: string, req: LoggingMessageNotification) => Promise<void>;

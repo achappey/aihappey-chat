@@ -43,14 +43,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const maxAttachmentsSize = useAppStore((s) => s.maxAttachmentsSize);
   const setMaxAttachmentsSize = useAppStore((s) => s.setMaxAttachmentsSize);
 
-  const showMessageTemperature = useAppStore((s) => s.showMessageTemperature);
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
   const disableProviderLogo = useAppStore((s) => s.disableProviderLogo);
   const agents = useAppStore((s) => s.agents);
   const sideInferenceAgentNames = useAppStore((s) => s.sideInferenceAgentNames);
   const setSideInferenceAgentNames = useAppStore((s) => s.setSideInferenceAgentNames);
 
-  const setShowMessageTemperature = useAppStore((s) => s.setShowMessageTemperature);
   const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
   const setDisableProviderLogo = useAppStore((s) => s.setDisableProviderLogo);
   const configuredChatEndpoint = useAppStore((s) => s.configuredChatEndpoint);
@@ -184,13 +182,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               title={t("chat")}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                <Switch
-                  id="temperature-toggle"
-                  checked={!!showMessageTemperature}
-                  label={t("settingsModal.showTemperature")}
-                  onChange={setShowMessageTemperature}
-                />
-
                 <Switch
                   id="tokens-toggle"
                   checked={!!showMessageTokens}

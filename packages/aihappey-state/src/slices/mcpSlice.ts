@@ -5,7 +5,6 @@ import {
   type ServerCapabilities, type LoggingMessageNotification,
   ProgressNotification, type ElicitRequest, type Tool,
   Resource, ResourceTemplate, type ElicitResult,
-  type LoggingLevel,
   type Task,
   CallToolResultSchema,
 } from "aihappey-mcp";
@@ -53,7 +52,6 @@ export type ElicitRequestItem = [string, ElicitRequest, ElicitResult];
 
 export type McpSlice = {
   mcpErrors: Record<string, string | null>;
-  logLevel: LoggingLevel;
   toolTimeout: number
   safeHosts: string[]
   setSafeHosts: (safeHosts: string[]) => void;
@@ -71,7 +69,6 @@ export type McpSlice = {
   cancelMcpTask: (serverName: string, taskId: string, signal?: AbortSignal) => Promise<Task>;
   clearMcpContent: (name: string) => void;
 
-  setLogLevel: (logLevel: LoggingLevel) => Promise<void>;
   setMcpTimeout: (timeout: number, resetTimeoutOnProgress: boolean) => void;
   connectMcpServer: (name: string, url: string, opts: any, conversationImport?: any) => Promise<any>;
 };
@@ -86,7 +83,6 @@ export const createMcpSlice: StateCreator<
   prompts: {},
   mcpServerContent: {},
   safeHosts: [],
-  logLevel: "info",
   toolTimeout: 300000,
   resetTimeoutOnProgress: true,
   progress: [],
@@ -268,11 +264,6 @@ export const createMcpSlice: StateCreator<
       resetTimeoutOnProgress: resetTimeoutOnProgress
     }));
 
-  },
-  setLogLevel: async (logLevel: string) => {
-    set((state: any) => ({
-      logLevel: logLevel
-    }));
   },
   getMcpTask: async (serverName: string, taskId: string, signal?: AbortSignal) => {
     const { toolTimeout, resetTimeoutOnProgress } = get();

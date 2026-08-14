@@ -208,7 +208,6 @@ export type UiSlice = {
   videoPollingIntervalSeconds?: number
   elicitation?: any
   debugMode?: boolean
-  showMessageTemperature?: boolean
   showMessageTokens?: boolean
   disableProviderLogo?: boolean
   pinnedConversations?: string[]
@@ -217,7 +216,6 @@ export type UiSlice = {
   hideNavigationItem: (key: string) => void;
   showNavigationItem: (key: string) => void;
   toggleHiddenNavigationItem: (key: string) => void;
-  setShowMessageTemperature: (value: boolean) => void;
   setShowMessageTokens: (value: boolean) => void;
   setDisableProviderLogo: (value: boolean) => void;
 
@@ -388,10 +386,6 @@ export const createUiSlice: StateCreator<
           : [...current, key],
       };
     }),
-  setShowMessageTemperature: (value: boolean) =>
-    set((state: UiSlice) => ({
-      showMessageTemperature: value
-    })),
   setShowMessageTokens: (value: boolean) =>
     set((state: UiSlice) => ({
       showMessageTokens: value
