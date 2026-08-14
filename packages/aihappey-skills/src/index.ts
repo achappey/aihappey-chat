@@ -5,6 +5,7 @@ export {
 } from "./SkillsProvider";
 export { IndexedDBSkillStore } from "./stores/IndexedDBSkillStore";
 export { extractSkillsFromArchive } from "./importSkillsFromZip";
+export { reconcileSkillCatalogItems, reconcileSkillList } from "./skillCatalogReconciliation";
 export {
   buildDefaultSkillInstructions,
   normalizeSkillName,

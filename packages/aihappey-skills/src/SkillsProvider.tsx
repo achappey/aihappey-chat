@@ -31,6 +31,7 @@ import type {
   VersionListParams,
 } from "./types";
 import { IndexedDBSkillStore } from "./stores/IndexedDBSkillStore";
+import { reconcileSkillCatalogItems, reconcileSkillList } from "./skillCatalogReconciliation";
 
 const EMPTY_STRING_ARRAY: string[] = [];
 
@@ -85,19 +86,6 @@ type SkillsProviderProps = {
   fetch?: typeof globalThis.fetch;
 };
 
-function paginateList<T extends { id: string }>(items: T[], after?: string, limit?: number): DataList<T> {
-  const startIndex = after ? Math.max(items.findIndex((item) => item.id === after) + 1, 0) : 0;
-  const page = items.slice(startIndex, limit ? startIndex + limit : undefined);
-
-  return {
-    object: "list",
-    has_more: startIndex + page.length < items.length,
-    first_id: page[0]?.id,
-    last_id: page[page.length - 1]?.id,
-    data: page,
-  };
-}
-
 function splitRemoteSkillId(skillId: string) {
   const idx = String(skillId ?? "").indexOf("/");
   if (idx === -1) {
@@ -128,97 +116,6 @@ function appendQuery<T extends object>(url: string, query?: T) {
 
   const qs = search.toString();
   return qs ? `${url}?${qs}` : url;
-}
-
-function toRemoteCatalogItem(
-  skill: Skill,
-  downloadState: SkillDownloadState = "remote"
-): SkillCatalogItem {
-  const createdAt = Number(skill.created_at ?? 0) * 1000;
-  const defaultVersion = String(skill.default_version ?? skill.latest_version ?? "1");
-  const latestVersion = String(skill.latest_version ?? skill.default_version ?? defaultVersion);
-
-  return {
-    id: skill.id,
-    skillId: skill.id,
-    name: skill.name,
-    description: skill.description,
-    createdAt,
-    updatedAt: createdAt,
-    origin: "remote",
-    object: "skill",
-    version: latestVersion,
-    defaultVersion,
-    latestVersion,
-    remoteCreatedAt: createdAt,
-    downloadState,
-    isDownloaded: false,
-    source: "remote-archive",
-    rootPath: "",
-    entryPath: "",
-    fileCount: 0,
-    diagnostics: [],
-    versionCount: 0,
-    downloadedVersion: undefined,
-  };
-}
-
-function buildMergedSkillList(localSkills: Skill[], remoteSkills: Skill[], query?: SkillListParams) {
-  const merged = new Map<string, Skill>();
-  const byRemoteName = new Map<string, Skill>();
-
-  for (const remote of remoteSkills) {
-    merged.set(remote.id, remote);
-    byRemoteName.set(remote.name, remote);
-  }
-
-  for (const local of localSkills) {
-    const remote = merged.get(local.id) ?? byRemoteName.get(local.name);
-    merged.set(local.id, remote ?? local);
-  }
-
-  const direction = query?.order === "asc" ? 1 : -1;
-  const items = Array.from(merged.values()).sort(
-    (a, b) => direction * (a.created_at - b.created_at || a.name.localeCompare(b.name))
-  );
-
-  return paginateList(items, query?.after, query?.limit);
-}
-
-function buildMergedItems(
-  localItems: SkillCatalogItem[],
-  remoteItems: Skill[],
-  downloadStates: Record<string, SkillDownloadState>
-) {
-  const byRemoteIdentity = new Map<string, Skill>();
-  for (const item of remoteItems) {
-    byRemoteIdentity.set(item.id, item);
-    byRemoteIdentity.set(item.name, item);
-  }
-
-  const merged = new Map<string, SkillCatalogItem>();
-
-  for (const remote of remoteItems) {
-    const catalogItem = toRemoteCatalogItem(remote, downloadStates[remote.id] ?? "remote");
-    merged.set(catalogItem.skillId || catalogItem.name, catalogItem);
-  }
-
-  for (const local of localItems) {
-    const remote = byRemoteIdentity.get(local.skillId) ?? byRemoteIdentity.get(local.name);
-    const localWithRemote: SkillCatalogItem = {
-      ...local,
-      origin: remote ? "remote" : local.origin,
-      defaultVersion: remote?.default_version ?? local.defaultVersion,
-      latestVersion: remote?.latest_version ?? local.latestVersion,
-      remoteCreatedAt: remote ? remote.created_at * 1000 : local.remoteCreatedAt,
-      downloadState: downloadStates[local.skillId] ?? "downloaded",
-      isDownloaded: true,
-      version: local.downloadedVersion ?? local.version,
-    };
-    merged.set(localWithRemote.skillId || localWithRemote.name, localWithRemote);
-  }
-
-  return Array.from(merged.values()).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export const SkillsProvider = ({
@@ -309,7 +206,7 @@ export const SkillsProvider = ({
   }, [loadRemoteItems, store]);
 
   const mergedItems = useMemo(
-    () => buildMergedItems(localItems, remoteItems, downloadStates),
+    () => reconcileSkillCatalogItems(localItems, remoteItems, downloadStates),
     [downloadStates, localItems, remoteItems]
   );
 
@@ -322,7 +219,7 @@ export const SkillsProvider = ({
       const existing = version ? await store.readVersion(skillId, version) : await store.read(skillId);
       if (existing) return existing;
 
-      const remote = remoteItems.find((item) => item.id === skillId || item.name === skillId);
+      const remote = remoteItems.find((item) => item.id === skillId);
       if (!remote || !skillsApi) return undefined;
 
       const targetVersion = String(version ?? remote.latest_version ?? remote.default_version ?? "1");
@@ -424,15 +321,15 @@ export const SkillsProvider = ({
     refresh,
     list: async (query?: SkillListParams) => {
       const local = await store.listSkills({ order: query?.order });
-      return buildMergedSkillList(local.data, remoteItems, query);
+      return reconcileSkillList(local.data, remoteItems, query);
     },
     retrieve: async (skillId: string) => {
-      const remote = remoteItems.find((item) => item.id === skillId || item.name === skillId);
+      const remote = remoteItems.find((item) => item.id === skillId);
       if (remote) return remote;
       return store.retrieveSkill(skillId);
     },
     update: async (skillId: string, body: SkillUpdateParams) => {
-      if (remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+      if (remoteItems.some((item) => item.id === skillId)) {
         throw new Error("Remote skills are read-only.");
       }
 
@@ -452,7 +349,7 @@ export const SkillsProvider = ({
           });
         }
 
-        if (skillsApi && remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+        if (skillsApi && remoteItems.some((item) => item.id === skillId)) {
           return (customFetch ?? fetch)(buildRemoteSkillUrl(skillsApi, skillId, "/content"), {
             headers: await createRequestHeaders(),
           });
@@ -463,7 +360,7 @@ export const SkillsProvider = ({
     },
     versions: {
       list: async (skillId: string, query?: VersionListParams) => {
-        if (skillsApi && remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+        if (skillsApi && remoteItems.some((item) => item.id === skillId)) {
           try {
             return await loadRemoteSkillVersions(skillId, query);
           } catch {
@@ -487,7 +384,7 @@ export const SkillsProvider = ({
 
           if (
             skillsApi &&
-            remoteItems.some((item) => item.id === params.skill_id || item.name === params.skill_id)
+            remoteItems.some((item) => item.id === params.skill_id)
           ) {
             return (customFetch ?? fetch)(
               buildRemoteSkillUrl(
@@ -527,7 +424,7 @@ export const SkillsProvider = ({
       return result;
     },
     saveSkillDraft: async (skillId: string | undefined, definition: SkillDraftDefinition) => {
-      if (skillId && remoteItems.some((item) => item.id === skillId || item.name === skillId)) {
+      if (skillId && remoteItems.some((item) => item.id === skillId)) {
         throw new Error("Remote skills are read-only.");
       }
       const result = await store.saveSkillDraft(skillId, definition);
