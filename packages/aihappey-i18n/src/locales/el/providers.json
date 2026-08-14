@@ -113,7 +113,7 @@
     "researchMaximumNumberOfSeconds": "Μέγιστος αριθμός δευτερολέπτων",
     "researchMaximumNumberOfResultsPerQuery": "Μέγιστα αποτελέσματα ανά ερώτημα"
   },
-  "microsoft": {
+  "copilot": {
     "locationTitle": "Κείμενο υπόδειξης τοποθεσίας",
     "timeZone": "Ζώνη ώρας (IANA)",
     "countryOrRegion": "Χώρα ή περιοχή",

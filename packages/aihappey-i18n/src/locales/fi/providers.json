@@ -113,7 +113,7 @@
     "researchMaximumNumberOfSeconds": "Enimmäissekuntien määrä",
     "researchMaximumNumberOfResultsPerQuery": "Enimmäistulosten määrä kyselyä kohden"
   },
-  "microsoft": {
+  "copilot": {
     "locationTitle": "Sijaintivihjeen teksti",
     "timeZone": "Aikavyöhyke (IANA)",
     "countryOrRegion": "Maa tai alue",

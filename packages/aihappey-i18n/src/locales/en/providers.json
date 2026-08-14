@@ -134,7 +134,7 @@
     "researchMaximumNumberOfSeconds": "Max seconds",
     "researchMaximumNumberOfResultsPerQuery": "Max results per query"
   },
-  "microsoft": {
+  "copilot": {
     "locationTitle": "Location hint",
     "timeZone": "Time zone (IANA)",
     "countryOrRegion": "Country or region",

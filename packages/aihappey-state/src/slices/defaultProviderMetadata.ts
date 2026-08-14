@@ -246,7 +246,7 @@ export const defaultProviderMetadata = {
     },
     "parallel_tool_calls": true
   },
-  "microsoft": {
+  "copilot": {
     "locationHint": {
       "timeZone": "Europe/Amsterdam"
     }

@@ -135,7 +135,7 @@
     "researchMaximumNumberOfSeconds": "Max sekunder",
     "researchMaximumNumberOfResultsPerQuery": "Max resultat per fråga"
   },
-  "microsoft": {
+  "copilot": {
     "locationTitle": "Platstips",
     "timeZone": "Tidszon (IANA)",
     "countryOrRegion": "Land eller region",

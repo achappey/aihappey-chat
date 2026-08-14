@@ -113,7 +113,7 @@
     "researchMaximumNumberOfSeconds": "Maks. sekunder",
     "researchMaximumNumberOfResultsPerQuery": "Maks. resultater pr. forespørgsel"
   },
-  "microsoft": {
+  "copilot": {
     "locationTitle": "Placeringshint",
     "timeZone": "Tidszone (IANA)",
     "countryOrRegion": "Land eller region",

@@ -798,7 +798,7 @@ export const AgentForm = ({
                         />
                     )}
 
-                    {providerKey === "microsoft" && (
+                    {providerKey === "copilot" && (
                         <MicrosoftChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}

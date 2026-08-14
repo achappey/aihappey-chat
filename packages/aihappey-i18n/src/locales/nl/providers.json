@@ -52,7 +52,7 @@
       "maxTokensPerDoc": "Maximaal aantal tokens per document"
     }
   },
-  "microsoft": {
+  "copilot": {
     "locationTitle": "Locatiehint",
     "timeZone": "Tijdzone (IANA)",
     "countryOrRegion": "Land of regio",

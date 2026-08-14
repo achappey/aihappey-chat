@@ -184,8 +184,8 @@ export const PlaygroundSettingsDrawer = ({
         return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
       case "maritacaai":
         return <MaritacaAIChatConfigForm config={providerMetadata.maritacaai ?? {}} updateConfig={updateProviderConfig} />;
-      case "microsoft":
-        return <MicrosoftChatConfigForm config={providerMetadata.microsoft ?? {}} updateConfig={updateProviderConfig} />;
+      case "copilot":
+        return <MicrosoftChatConfigForm config={providerMetadata.copilot ?? {}} updateConfig={updateProviderConfig} />;
       case "ninjachat":
         return <NinjaChatChatConfigForm config={providerMetadata.ninjachat ?? {}} updateConfig={updateProviderConfig} />;
       case "openai":

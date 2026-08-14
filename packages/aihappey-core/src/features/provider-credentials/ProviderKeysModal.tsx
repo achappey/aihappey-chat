@@ -25,7 +25,7 @@ const EXCLUDED_API_KEY_PROVIDER_IDS = new Set([
   "pollinations",
   "echo",
   "azure",
-  "microsoft",
+  "copilot",
   "gtranslate",
 ]);
 
