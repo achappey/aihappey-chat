@@ -16,6 +16,7 @@ import {
   CohereChatConfigForm, GroqChatConfigForm,
   CortecsChatConfigForm,
   DepazaChatConfigForm,
+  InworldChatConfigForm,
   JinaChatConfigForm,
   LinkupChatConfigForm,
   MaritacaAIChatConfigForm,
@@ -263,6 +264,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       google: (google: any) => updateProviderConfig("google", google),
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
+      inworld: (inworld: any) => updateProviderConfig("inworld", inworld),
       maritacaai: (maritacaai: any) => updateProviderConfig("maritacaai", maritacaai),
       copilot: (microsoft: any) => updateProviderConfig("copilot", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
@@ -352,6 +354,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <GroqChatConfigForm config={draft.providerMetadata.groq ?? {}} updateConfig={providerConfigUpdaters.groq} />;
       case "jina":
         return <JinaChatConfigForm config={draft.providerMetadata.jina ?? {}} updateConfig={providerConfigUpdaters.jina} />;
+      case "inworld":
+        return <InworldChatConfigForm config={draft.providerMetadata.inworld ?? {}} updateConfig={providerConfigUpdaters.inworld} />;
       case "mistral":
         return <MistralChatConfigForm config={draft.providerMetadata.mistral ?? {}} updateConfig={providerConfigUpdaters.mistral} />;
       case "maritacaai":

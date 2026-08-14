@@ -11,6 +11,7 @@ import {
   CortecsChatConfigForm,
   DepazaChatConfigForm,
   GroqChatConfigForm,
+  InworldChatConfigForm,
   JinaChatConfigForm,
   MessagesEndpointConfigForm,
   MaritacaAIChatConfigForm,
@@ -180,6 +181,8 @@ export const PlaygroundSettingsDrawer = ({
         return <GroqChatConfigForm config={providerMetadata.groq ?? {}} updateConfig={updateProviderConfig} />;
       case "jina":
         return <JinaChatConfigForm config={providerMetadata.jina ?? {}} updateConfig={updateProviderConfig} />;
+      case "inworld":
+        return <InworldChatConfigForm config={providerMetadata.inworld ?? {}} updateConfig={updateProviderConfig} />;
       case "mistral":
         return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
       case "maritacaai":

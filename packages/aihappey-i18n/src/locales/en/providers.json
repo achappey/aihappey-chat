@@ -1,4 +1,39 @@
 {
+  "inworld": {
+    "webSearch": {
+      "title": "Web search",
+      "engine": "Search engine",
+      "maxResults": "Results per search",
+      "maxSteps": "Maximum search rounds",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      }
+    },
+    "modalities": {
+      "title": "Output modalities",
+      "text": "Text",
+      "image": "Image"
+    },
+    "imageConfig": {
+      "title": "Image configuration",
+      "aspectRatio": "Aspect ratio",
+      "imageSize": "Image size",
+      "partialImages": "Partial image previews",
+      "count": "Number of images"
+    },
+    "reasoning": {
+      "title": "Reasoning",
+      "effort": "Reasoning effort",
+      "efforts": {
+        "none": "None",
+        "low": "Low",
+        "minimal": "Minimal",
+        "medium": "Medium",
+        "high": "High"
+      }
+    }
+  },
   "webcrawlerapi": {
     "urls": "URLs",
     "costs": "Pricing",
