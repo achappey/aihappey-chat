@@ -30,6 +30,8 @@ const sortSkills = (items: SkillCatalogItem[]) => [...items].sort((left, right) 
   left.name.localeCompare(right.name, undefined, { sensitivity: "base", numeric: true })
 );
 
+const normalizeText = (value: unknown) => String(value ?? "").trim().toLowerCase();
+
 export const AgentSkillsEditor = ({
   items,
   favoriteSkillIds,
@@ -40,17 +42,25 @@ export const AgentSkillsEditor = ({
   onModeChange,
   onVersionChange,
 }: AgentSkillsEditorProps) => {
-  const { Card, Select, Switch, ToggleButton, Text } = useTheme();
+  const { Card, SearchBox, Select, Switch, ToggleButton, Text } = useTheme();
   const { t } = useTranslation();
+  const [search, setSearch] = useState("");
   const favoriteSet = useMemo(() => new Set(favoriteSkillIds), [favoriteSkillIds]);
   const disabledSet = useMemo(() => new Set(disabledSkillIds), [disabledSkillIds]);
   const [versionsBySkillId, setVersionsBySkillId] = useState<Record<string, string[]>>({});
   const [versionErrors, setVersionErrors] = useState<Record<string, boolean>>({});
+  const query = normalizeText(search);
 
-  const groups = useMemo(() => ({
-    favorites: sortSkills(items.filter((item) => favoriteSet.has(item.skillId))),
-    other: sortSkills(items.filter((item) => !favoriteSet.has(item.skillId))),
-  }), [favoriteSet, items]);
+  const groups = useMemo(() => {
+    const filteredItems = query
+      ? items.filter((item) => normalizeText(`${item.name} ${item.description}`).includes(query))
+      : items;
+
+    return {
+      favorites: sortSkills(filteredItems.filter((item) => favoriteSet.has(item.skillId))),
+      other: sortSkills(filteredItems.filter((item) => !favoriteSet.has(item.skillId))),
+    };
+  }, [favoriteSet, items, query]);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,48 +112,48 @@ export const AgentSkillsEditor = ({
         size="small"
         headerActions={enableSwitch}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, width: "100%" }}>
-          {item.origin === "remote" ? (
-            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-              <ToggleButton
-                size="small"
-                variant="subtle"
-                icon="attachment"
-                checked={value.mode === "inline"}
-                disabled={!value.enabled || disabled}
-                aria-label={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
-                title={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
-                onClick={() => onModeChange(item.skillId, "inline")}
-              />
-              <ToggleButton
-                size="small"
-                variant="subtle"
-                icon="link"
-                checked={value.mode === "reference"}
-                disabled={!value.enabled || disabled}
-                aria-label={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
-                title={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
-                onClick={() => onModeChange(item.skillId, "reference")}
-              />
-            </div>
-          ) : null}
-          {value.enabled ? (
+        {value.enabled ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, width: "100%" }}>
+            {item.origin === "remote" ? (
+              <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                <ToggleButton
+                  size="small"
+                  variant="subtle"
+                  icon="attachment"
+                  checked={value.mode === "inline"}
+                  disabled={disabled}
+                  aria-label={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
+                  title={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
+                  onClick={() => onModeChange(item.skillId, "inline")}
+                />
+                <ToggleButton
+                  size="small"
+                  variant="subtle"
+                  icon="link"
+                  checked={value.mode === "reference"}
+                  disabled={disabled}
+                  aria-label={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
+                  title={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
+                  onClick={() => onModeChange(item.skillId, "reference")}
+                />
+              </div>
+            ) : null}
             <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
-            <Select
-              aria-label={`${item.name} ${t("version") ?? "Version"}`}
-              values={[currentVersion]}
-              valueTitle={versionOptions.find((option) => option.value === currentVersion)?.label ?? currentVersion}
-              disabled={disabled}
-              style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
-              onChange={(version: string) => onVersionChange(item.skillId, String(version))}
-            >
-              {versionOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </Select>
+              <Select
+                aria-label={`${item.name} ${t("version") ?? "Version"}`}
+                values={[currentVersion]}
+                valueTitle={versionOptions.find((option) => option.value === currentVersion)?.label ?? currentVersion}
+                disabled={disabled}
+                style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
+                onChange={(version: string) => onVersionChange(item.skillId, String(version))}
+              >
+                {versionOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </Select>
             </div>
-          ) : <div style={{ minHeight: 32, flex: 1 }} />}
-        </div>
+          </div>
+        ) : null}
       </Card>
     );
   };
@@ -163,7 +173,16 @@ export const AgentSkillsEditor = ({
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
-      {renderSection(t("favorites") ?? "Favorites", groups.favorites)}
+      <div style={{ width: 360, maxWidth: "100%" }}>
+        <SearchBox
+          value={search}
+          onChange={setSearch}
+          placeholder={t("searchPlaceholder")}
+        />
+      </div>
+      {groups.favorites.length > 0
+        ? renderSection(t("favorites") ?? "Favorites", groups.favorites)
+        : null}
       {renderSection(t("skills") ?? "Skills", groups.other)}
     </div>
   );
