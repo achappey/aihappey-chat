@@ -16,7 +16,7 @@ export const recraft: Provider = {
   urls: {
     homepage: "https://www.recraft.ai",
     docs: "https://www.recraft.ai/docs",
-    pricing: "https://www.recraft.ai/pricing",
+    pricing: "https://www.recraft.ai/pricing?tab=api",
     privacyPolicy: "https://www.recraft.ai/privacy",
     termsOfService: "https://www.recraft.ai/terms",
     console: "https://app.recraft.ai"
