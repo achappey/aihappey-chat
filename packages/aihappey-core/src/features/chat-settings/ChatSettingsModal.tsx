@@ -41,7 +41,7 @@ import {
 import { GeneralTab } from "./GeneralTab";
 import { ToolsTab } from "./ToolsTab";
 import { ToolConfigurationTab, type ToolRequestConfig } from "./ToolConfigurationTab";
-import { SkillToggleGroups } from "../skills/SkillToggleGroups";
+import { ChatSkillsEditor } from "./ChatSkillsEditor";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
 import {
   buildOpenAISkillOptions,
@@ -189,16 +189,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     activePlugins: draft.activePlugins,
     enabledLocalTools: draft.enabledLocalTools,
   }).attachedTools;
-  const skillItems = useMemo(
-    () => skills.items.map((item) => {
-      return {
-        id: item.skillId,
-        label: `${item.name} (v${item.version})`,
-        origin: item.origin,
-      };
-    }),
-    [skills.items]
-  );
   const remoteSkillsHost = useMemo(
     () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
     [chatConfig.baseUrl, chatConfig.endpoints.skills]
@@ -614,13 +604,12 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         <theme.Tab eventKey="skills" title={t("skills") ?? "Skills"}>
           {activeTab === "skills" ? (
             <>
-              <SkillToggleGroups
+              <ChatSkillsEditor
                 value={draft.enabledSkillIds}
                 onChange={(next) => {
                   void handleSkillSelectionChange(next);
                 }}
-                columns={2}
-                items={skillItems}
+                items={skills.items}
                 favoriteSkillIds={favoriteSkillIds ?? []}
                 remoteTitle={remoteSkillsHost}
               />
