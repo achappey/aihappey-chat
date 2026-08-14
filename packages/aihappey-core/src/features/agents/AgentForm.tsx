@@ -191,7 +191,7 @@ export const AgentForm = ({
 
     const renderMcpServerSettings = (key: string) => {
         const server = agent.mcpServers?.[key];
-        if (!server) return null;
+        if (!server || server.disabled === true) return null;
 
         const callers = (server.allowed_callers ?? [])
             .filter((caller): caller is McpToolCaller => mcpToolCallers.includes(caller as McpToolCaller));
@@ -206,7 +206,6 @@ export const AgentForm = ({
             }}>
                 <Select
                     label={t("toolConfiguration.allowedCallers")}
-                    disabled={server.disabled === true}
                     multiselect
                     values={callers}
                     valueTitle={callers.length
@@ -235,7 +234,6 @@ export const AgentForm = ({
                 <Switch
                     id={`agent-mcp-defer-loading-${key}`}
                     label={t("toolConfiguration.deferLoading")}
-                    disabled={server.disabled === true}
                     checked={server.defer_loading === true}
                     onChange={(checked: boolean) => updateMcpServer(key, (current) => {
                         const { defer_loading: _, ...rest } = current;
@@ -245,7 +243,6 @@ export const AgentForm = ({
                 <Switch
                     id={`agent-mcp-namespace-${key}`}
                     label={"Namespace"}
-                    disabled={server.disabled === true}
                     checked={server.namespace === true}
                     onChange={(checked: boolean) => updateMcpServer(key, (current) => {
                         const { namespace: _, ...rest } = current;
