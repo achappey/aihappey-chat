@@ -7,6 +7,7 @@ import { invokeSideInferenceAgent } from "./sideInferenceAgentCall";
 
 export const conversationName = async (
     message: string,
+    language: string,
     options: SideInferenceAgentCallOptions = {}
 ) => {
     const state = store.getState();
@@ -22,6 +23,7 @@ export const conversationName = async (
         fallback: options.fallback ?? "New chat",
         input: {
             userMessage: message,
+            language,
         },
     });
 };

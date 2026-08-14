@@ -38,7 +38,7 @@ import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsLastAssistant";
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
-import { useTranslation } from "aihappey-i18n";
+import { languageNames, useTranslation } from "aihappey-i18n";
 import { useAttachmentsToaster } from "./useAttachmentsToaster";
 import {
   createCatalogFromStored,
@@ -143,7 +143,8 @@ export function VercelChatInner({
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer, Toast } = useTheme();
   const { config } = useChatContext();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const language = languageNames[i18n.language as keyof typeof languageNames] ?? i18n.language;
   const jsonRenderRegistry = useJsonRenderRegistry();
   const jsonRenderCatalog = useJsonRenderCatalog();
   const defaultCatalogs = useAppStore((s) => s.defaultCatalogs);
@@ -299,7 +300,7 @@ export function VercelChatInner({
   }, [customHeaders, requestEndpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint, endpointProfileProviderHeaders]);
 
   const createConversationName = useCallback(
-    (text: string) => generateConversationName(text, {
+    (text: string) => generateConversationName(text, language, {
       baseUrl: requestBaseUrl,
       fetch: config.fetch ?? customFetch,
       ...(isProviderEndpointProfile
@@ -326,6 +327,7 @@ export function VercelChatInner({
       requestEndpointProfile,
       providers,
       getAccessToken,
+      language,
       t,
     ]
   );
