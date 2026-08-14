@@ -26,6 +26,9 @@ export const McpServerCard = ({ serverConfig,
   onRemove }: McpServerCardProps) => {
   const url = serverConfig.url;
   const { Card, Switch } = useTheme();
+  const serverDescription = registryItem?.server?.description;
+  const settings = renderSettings?.();
+  const hasContent = Boolean(serverDescription || settings);
   const headerActions = onToggle ? <Switch
     id={`switch-${url}`}
     checked={checked}
@@ -50,8 +53,12 @@ export const McpServerCard = ({ serverConfig,
         />
       }
     >
-      <LimitedTextField text={registryItem?.server?.description} />
-      {renderSettings?.()}
+      {hasContent ? (
+        <>
+          {serverDescription ? <LimitedTextField text={serverDescription} /> : null}
+          {settings}
+        </>
+      ) : undefined}
     </Card>
   );
 };

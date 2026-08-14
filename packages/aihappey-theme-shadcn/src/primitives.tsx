@@ -805,6 +805,8 @@ export const Badge = ({ bg, color, appearance, variant = "default", icon, text, 
 
 export const Card = ({ title, text, description, children, actions, headerActions, image, className, style }: any) => {
   const hasHeader = image || title || description || headerActions;
+  const content = children ?? text;
+  const hasContent = content !== null && content !== undefined;
 
   return (
     <div className={cn("aih-shadcn-card", className)} style={style}>
@@ -818,7 +820,7 @@ export const Card = ({ title, text, description, children, actions, headerAction
           {headerActions ? <div className="aih-shadcn-card-header-actions">{headerActions}</div> : null}
         </div>
       ) : null}
-      <div className="aih-shadcn-card-content">{children ?? text}</div>
+      {hasContent ? <div className="aih-shadcn-card-content">{content}</div> : null}
       {actions ? <div className="aih-shadcn-card-footer">{actions}</div> : null}
     </div>
   );
