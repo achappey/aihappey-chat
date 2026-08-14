@@ -146,7 +146,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
   const skills = useSkills();
   const providers = useProviderRegistry();
-  const attachedTools = useTools().attachedTools;
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const createDraft = useCallback(
     (): ChatSettingsDraft => ({
@@ -185,6 +184,10 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     ]
   );
   const [draft, setDraft] = useState<ChatSettingsDraft>(() => createDraft());
+  const attachedTools = useTools({
+    activePlugins: draft.activePlugins,
+    enabledLocalTools: draft.enabledLocalTools,
+  }).attachedTools;
   const skillItems = useMemo(
     () => skills.items.map((item) => {
       return {
@@ -261,7 +264,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
       maritacaai: (maritacaai: any) => updateProviderConfig("maritacaai", maritacaai),
-      microsoft: (microsoft: any) => updateProviderConfig("microsoft", microsoft),
+      copilot: (microsoft: any) => updateProviderConfig("copilot", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
       ninjachat: (ninjachat: any) => updateProviderConfig("ninjachat", ninjachat),
       openai: (openai: any) => updateProviderConfig("openai", openai),
@@ -353,8 +356,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <MistralChatConfigForm config={draft.providerMetadata.mistral ?? {}} updateConfig={providerConfigUpdaters.mistral} />;
       case "maritacaai":
         return <MaritacaAIChatConfigForm config={draft.providerMetadata.maritacaai ?? {}} updateConfig={providerConfigUpdaters.maritacaai} />;
-      case "microsoft":
-        return <MicrosoftChatConfigForm config={draft.providerMetadata.microsoft ?? {}} updateConfig={providerConfigUpdaters.microsoft} />;
+      case "copilot":
+        return <MicrosoftChatConfigForm config={draft.providerMetadata.copilot ?? {}} updateConfig={providerConfigUpdaters.copilot} />;
       case "ninjachat":
         return <NinjaChatChatConfigForm config={draft.providerMetadata.ninjachat ?? {}} updateConfig={providerConfigUpdaters.ninjachat} />;
       case "openai":
@@ -441,7 +444,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   };
 
   const applyDraft = useCallback(() => {
-//    void setTemperature?.(draft.temperature);
+    //    void setTemperature?.(draft.temperature);
     setMaxOutputTokens(draft.maxOutputTokens);
     setStructuredOutputs(draft.structuredOutputs);
     setThrottle(draft.throttle);
@@ -469,7 +472,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setProviderMetadata,
     setStopTools,
     setStructuredOutputs,
-  //  setTemperature,
+    //  setTemperature,
     setThrottle,
     setToolAnnotations,
     setToolChoice,

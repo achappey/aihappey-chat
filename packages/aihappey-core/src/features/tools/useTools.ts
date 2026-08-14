@@ -45,12 +45,24 @@ export type AttachedToolSource = {
 
 export type AttachedTool = Tool & { source: AttachedToolSource };
 
-export function useTools() {
+export type UseToolsOptions = {
+  /**
+   * Optional selections used to preview a tool catalog before those selections
+   * are committed to the application store (for example, in a settings draft).
+   */
+  activePlugins?: string[];
+  enabledLocalTools?: string[];
+};
+
+export function useTools(options: UseToolsOptions = {}) {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
-  const enabledPlugins = useAppStore(s => s.activePlugins);
-  const enabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);
+  const storedActivePlugins = useAppStore(s => s.activePlugins);
+  const storedEnabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);
   const enabledSkillIds = useAppStore(s => s.enabledSkillIds);
+
+  const enabledPlugins = options.activePlugins ?? storedActivePlugins;
+  const enabledLocalTools = options.enabledLocalTools ?? storedEnabledLocalTools;
 
   const localTools = useLocalTools();
   const skills = useSkills();
