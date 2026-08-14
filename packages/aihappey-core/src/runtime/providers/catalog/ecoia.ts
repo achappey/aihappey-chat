@@ -6,6 +6,7 @@ export const ecoia: Provider = {
   urls: {
     homepage: "https://ecoia.ai",
     docs: "https://ecoia.ai/api",
+    pricing: "https://ecoia.ai/pricing",
     termsOfService: "https://ecoia.ai/terms",
     privacyPolicy: "https://ecoia.ai/privacy"
   },
