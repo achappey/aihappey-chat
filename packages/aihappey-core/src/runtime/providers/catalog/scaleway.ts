@@ -9,6 +9,7 @@ export const scaleway: Provider = {
   }],
   urls: {
     homepage: "https://www.scaleway.com",
+    pricing: "https://www.scaleway.com/en/pricing/model-as-a-service",
     docs: "https://www.scaleway.com/en/docs",
     privacyPolicy: "https://www.scaleway.com/en/privacy-policy",
     termsOfService: "https://www.scaleway.com/en/legal-notice",

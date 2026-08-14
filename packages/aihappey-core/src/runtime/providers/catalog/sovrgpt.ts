@@ -6,6 +6,7 @@ export const sovrgpt: Provider = {
   urls: {
     homepage: "https://sovrgpt.com",
     docs: "https://sovrgpt.com/docs",
+    pricing: "https://sovrgpt.com/#preise",
     privacyPolicy: "https://sovrgpt.com/datenschutz",
     termsOfService: "https://sovrgpt.com/impressum"
   },

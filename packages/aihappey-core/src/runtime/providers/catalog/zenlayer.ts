@@ -10,6 +10,7 @@ export const zenlayer: Provider = {
     homepage: "https://www.zenlayer.com",
     docs: "https://docs.console.zenlayer.com",
     console: "https://console.zenlayer.com",
+    pricing: "https://docs.console.zenlayer.com/welcome/pricing",
     privacyPolicy: "https://www.zenlayer.com/privacy-policy",
     termsOfService: "https://www.zenlayer.com/terms-of-use"
   },
