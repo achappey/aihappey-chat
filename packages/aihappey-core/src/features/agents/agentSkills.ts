@@ -1,5 +1,5 @@
 import { extractSkillsFromArchive, type StoredSkill } from "aihappey-skills";
-import type { Skill as AgentSkill } from "aihappey-types";
+import type { Skill as AgentSkill, SkillReference } from "aihappey-types";
 
 type SkillMatchShape = {
   name?: string;
@@ -42,9 +42,44 @@ export function getInlineAgentSkillPayload(skill?: AgentSkill) {
     : "";
 }
 
+export const AGENT_SKILL_DEFAULT_VERSION = "__default__";
+export const AGENT_SKILL_LATEST_VERSION = "latest";
+
+export function isAgentSkillReference(skill?: AgentSkill): skill is SkillReference {
+  return skill?.type === "skill_reference"
+    && typeof skill.skill_id === "string"
+    && skill.skill_id.trim().length > 0;
+}
+
+export function getAgentSkillReferenceVersion(skill?: AgentSkill) {
+  if (!isAgentSkillReference(skill)) return undefined;
+  return skill.version ?? AGENT_SKILL_DEFAULT_VERSION;
+}
+
+export function createAgentSkillReference(skillId: string, version: string): SkillReference {
+  return {
+    type: "skill_reference",
+    skill_id: skillId,
+    ...(version === AGENT_SKILL_DEFAULT_VERSION ? {} : { version }),
+  };
+}
+
+export function resolveInlineSkillVersion(
+  version: string,
+  versions: { defaultVersion?: string; latestVersion?: string; version?: string }
+) {
+  if (version === AGENT_SKILL_DEFAULT_VERSION) {
+    return versions.defaultVersion ?? versions.version ?? versions.latestVersion;
+  }
+  if (version === AGENT_SKILL_LATEST_VERSION) {
+    return versions.latestVersion ?? versions.version ?? versions.defaultVersion;
+  }
+  return version;
+}
+
 export async function readInlineAgentSkillMetadata(skill?: AgentSkill) {
   const payload = getInlineAgentSkillPayload(skill);
-  if (!payload) return undefined;
+  if (!payload || skill?.type !== "inline") return undefined;
 
   try {
     const archive = base64ToBlob(payload, skill?.source?.media_type ?? "application/zip");

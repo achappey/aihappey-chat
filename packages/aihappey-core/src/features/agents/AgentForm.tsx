@@ -1,7 +1,7 @@
 import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
-import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig } from "aihappey-types";
+import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig, type Skill as AgentSkill } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
     getAgentModelProviderKey,
@@ -20,19 +20,10 @@ import {
     createOpenAIShellSkillResolver,
 } from "../provider-config/openai/openAISkillOptions";
 import { useSkills } from "aihappey-skills";
-import { buildSkillMatchKey, buildStoredSkillMatchKey, createInlineAgentSkill, getInlineAgentSkillPayload, readInlineAgentSkillMetadata } from "./agentSkills";
+import { AGENT_SKILL_DEFAULT_VERSION, AGENT_SKILL_LATEST_VERSION, buildSkillMatchKey, buildStoredSkillMatchKey, createAgentSkillReference, createInlineAgentSkill, getInlineAgentSkillPayload, isAgentSkillReference, readInlineAgentSkillMetadata, resolveInlineSkillVersion } from "./agentSkills";
 import { useChatContext } from "../chat/context/ChatContext";
-import { SkillToggleGroups } from "../skills/SkillToggleGroups";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
-
-const hostnameOf = (url?: string) => {
-    if (!url) return "remote";
-    try {
-        return new URL(url).hostname;
-    } catch {
-        return url;
-    }
-};
+import { AgentSkillsEditor, type AgentSkillEditorValue, type AgentSkillMode } from "./AgentSkillsEditor";
 
 const AGENT_TOOL_SEARCH_TYPE = "tool_search";
 const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
@@ -58,25 +49,13 @@ export const AgentForm = ({
     const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
     const [skillSyncPending, setSkillSyncPending] = useState(false);
     const [hasHydratedSkillSelection, setHasHydratedSkillSelection] = useState(false);
-    const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
     const [selectedSkillPayloads, setSelectedSkillPayloads] = useState<Record<string, string>>({});
+    const [skillEditorValues, setSkillEditorValues] = useState<Record<string, AgentSkillEditorValue>>({});
+    const [pendingSkillIds, setPendingSkillIds] = useState<string[]>([]);
     const [initialPersistedSkills] = useState(() => agent.skills ?? []);
     const models = useAppStore((s) => s.models);
     const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
     const skills = useSkills();
-    const skillItems = useMemo(
-        () => skills.items.map((item) => ({
-            id: item.skillId,
-            label: `${item.name} (v${item.version ?? item.downloadedVersion ?? item.latestVersion})`,
-            origin: item.origin,
-            // description: item.description,
-        })),
-        [skills.items]
-    );
-    const remoteSkillsHost = useMemo(
-        () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
-        [chatConfig.baseUrl, chatConfig.endpoints.skills]
-    );
     const openAISkillOptions = useMemo(
         () => buildOpenAISkillOptions(skills.items ?? []),
         [skills.items]
@@ -90,27 +69,19 @@ export const AgentForm = ({
     const enrichedAgent = useAgent(agent)
 
     useEffect(() => {
-        onBusyChange?.(skillSyncPending);
-    }, [onBusyChange, skillSyncPending]);
+        const busy = skillSyncPending || pendingSkillIds.length > 0;
+        onBusyChange?.(busy);
+    }, [onBusyChange, pendingSkillIds.length, skillSyncPending]);
 
     useEffect(() => {
         if (hasHydratedSkillSelection) return;
 
         let cancelled = false;
 
-        const resolveSelectedSkillIds = async () => {
-            const persistedSkills = initialPersistedSkills.filter((skill) => getInlineAgentSkillPayload(skill));
-            if (persistedSkills.length === 0) {
-                if (!cancelled) {
-                    setSelectedSkillIds([]);
-                    setSelectedSkillPayloads({});
-                    setHasHydratedSkillSelection(true);
-                }
-                return;
-            }
-
-            const nextSelectedSkillIds: string[] = [];
+        const hydrateSkillEditor = async () => {
+            const persistedInlineSkills = initialPersistedSkills.filter((skill) => getInlineAgentSkillPayload(skill));
             const nextSelectedSkillPayloads: Record<string, string> = {};
+            const nextEditorValues: Record<string, AgentSkillEditorValue> = {};
             const downloadedCatalogItems = skills.items.filter((entry) => entry.isDownloaded);
             const downloadedSkills = await Promise.all(
                 downloadedCatalogItems.map(async (item) => ({
@@ -128,7 +99,18 @@ export const AgentForm = ({
                 skillIdsByMatchKey.set(key, [...current, downloaded.skillId]);
             }
 
-            for (const skill of persistedSkills) {
+            for (const skill of initialPersistedSkills) {
+                if (!isAgentSkillReference(skill)) continue;
+                const item = skills.items.find((candidate) => candidate.skillId === skill.skill_id);
+                if (!item) continue;
+                nextEditorValues[item.skillId] = {
+                    enabled: true,
+                    mode: "reference",
+                    version: skill.version ?? AGENT_SKILL_DEFAULT_VERSION,
+                };
+            }
+
+            for (const skill of persistedInlineSkills) {
                 try {
                     const metadata = await readInlineAgentSkillMetadata(skill);
                     const directSkillId = String(metadata?.skillId ?? "").trim();
@@ -148,20 +130,24 @@ export const AgentForm = ({
                     const skillId = directMatch || fallbackSkillId;
                     if (!skillId) continue;
 
-                    nextSelectedSkillIds.push(skillId);
                     nextSelectedSkillPayloads[skillId] = getInlineAgentSkillPayload(skill);
+                    nextEditorValues[skillId] = {
+                        enabled: true,
+                        mode: "inline",
+                        version: String(metadata?.version ?? AGENT_SKILL_DEFAULT_VERSION),
+                    };
                 } catch {
                     continue;
                 }
             }
 
             if (cancelled) return;
-            setSelectedSkillIds(nextSelectedSkillIds);
             setSelectedSkillPayloads(nextSelectedSkillPayloads);
+            setSkillEditorValues(nextEditorValues);
             setHasHydratedSkillSelection(true);
         };
 
-        void resolveSelectedSkillIds();
+        void hydrateSkillEditor();
 
         return () => {
             cancelled = true;
@@ -318,99 +304,130 @@ export const AgentForm = ({
         })
     }
 
-    const handleSkillSelectionChange = async (next: string[]) => {
-        setHasHydratedSkillSelection(true);
-        setSkillFeedback(null);
-        setSelectedSkillIds(next);
-        setSkillSyncPending(true);
-
-        const removed = selectedSkillIds.filter((skillId) => !next.includes(skillId));
-        const removedPayloadCounts = new Map<string, number>();
-        for (const skillId of removed) {
-            const payload = selectedSkillPayloads[skillId];
-            if (!payload) continue;
-            removedPayloadCounts.set(payload, (removedPayloadCounts.get(payload) ?? 0) + 1);
-        }
-
-        const retainedSkills = (agent.skills ?? []).filter((skill) => {
-            const payload = getInlineAgentSkillPayload(skill);
-            const remaining = removedPayloadCounts.get(payload) ?? 0;
-            if (remaining <= 0) return true;
-
-            if (remaining === 1) {
-                removedPayloadCounts.delete(payload);
-            } else {
-                removedPayloadCounts.set(payload, remaining - 1);
-            }
-
-            return false;
+    const removeMatchingConfiguredSkill = (configured: AgentSkill[], skillId: string) => {
+        const payload = selectedSkillPayloads[skillId];
+        return configured.filter((skill) => {
+            if (isAgentSkillReference(skill)) return skill.skill_id !== skillId;
+            return !payload || getInlineAgentSkillPayload(skill) !== payload;
         });
+    };
 
-        const added = next.filter((skillId) => !selectedSkillIds.includes(skillId));
-        if (added.length === 0) {
-            setSelectedSkillPayloads((current) => Object.fromEntries(
-                Object.entries(current).filter(([skillId]) => next.includes(skillId))
-            ));
-            onChange({
-                ...agent,
-                skills: retainedSkills.length > 0 ? retainedSkills : undefined,
+    const persistConfiguredSkill = (skillId: string, nextSkill?: AgentSkill) => {
+        onChange((current) => {
+            const retained = removeMatchingConfiguredSkill(current.skills ?? [], skillId);
+            const nextSkills = nextSkill ? [...retained, nextSkill] : retained;
+            return { ...current, skills: nextSkills.length ? nextSkills : undefined };
+        });
+    };
+
+    const setSkillPending = (skillId: string, pending: boolean) => {
+        setPendingSkillIds((current) => pending
+            ? Array.from(new Set([...current, skillId]))
+            : current.filter((id) => id !== skillId));
+    };
+
+    const createInlineSkillForVersion = async (skillId: string, selectedVersion: string) => {
+        const item = skills.items.find((candidate) => candidate.skillId === skillId);
+        if (!item) throw new Error(`Unknown skill ${skillId}.`);
+        const concreteVersion = resolveInlineSkillVersion(selectedVersion, item);
+        const storedSkill = await skills.ensureDownloaded(skillId, concreteVersion);
+        if (!storedSkill) throw new Error(`Could not download skill ${skillId}.`);
+        const archive = await skills.exportArchive(storedSkill.skillId);
+        if (!archive) throw new Error(`Could not load the skill archive for ${storedSkill.name}.`);
+        return createInlineAgentSkill(storedSkill, archive.blob);
+    };
+
+    const showSkillError = () => setSkillFeedback(
+        t("skillsPage.remoteDownloadFailed") ?? "A skill version could not be downloaded right now."
+    );
+
+    const handleSkillToggle = async (skillId: string, enabled: boolean) => {
+        const item = skills.items.find((candidate) => candidate.skillId === skillId);
+        if (!item) return;
+        setSkillFeedback(null);
+        if (!enabled) {
+            setSkillEditorValues((current) => ({
+                ...current,
+                [skillId]: { ...(current[skillId] ?? { mode: "inline", version: AGENT_SKILL_DEFAULT_VERSION }), enabled: false },
+            }));
+            persistConfiguredSkill(skillId);
+            setSelectedSkillPayloads((current) => {
+                const { [skillId]: _, ...rest } = current;
+                return rest;
             });
-            setSkillSyncPending(false);
             return;
         }
 
-        try {
-            const results = await Promise.allSettled(
-                added.map(async (skillId) => {
-                    const storedSkill = await skills.ensureDownloaded(skillId);
-                    if (!storedSkill) {
-                        throw new Error(`Could not download skill ${skillId}.`);
-                    }
-
-                    const archive = await skills.exportArchive(storedSkill.skillId);
-                    if (!archive) {
-                        throw new Error(`Could not load the skill archive for ${storedSkill.name}.`);
-                    }
-
-                    return {
-                        skillId,
-                        skill: await createInlineAgentSkill(storedSkill, archive.blob),
-                    };
-                })
-            );
-
-            const nextSkills = [...retainedSkills];
-            const nextPayloads = Object.fromEntries(
-                Object.entries(selectedSkillPayloads).filter(([skillId]) => next.includes(skillId))
-            );
-
-            for (const result of results) {
-                if (result.status !== "fulfilled") continue;
-
-                nextSkills.push(result.value.skill);
-                nextPayloads[result.value.skillId] = getInlineAgentSkillPayload(result.value.skill);
-            }
-
-            setSelectedSkillPayloads(nextPayloads);
-
-            onChange({
-                ...agent,
-                skills: nextSkills.length > 0 ? nextSkills : undefined,
-            });
-
-            const failed = results.filter((result) => result.status === "rejected").length;
-            if (failed > 0) {
-                setSkillFeedback(
-                    failed === 1
-                        ? (t("skillsPage.remoteDownloadFailed") ?? "A remote skill could not be downloaded right now. It will retry on first use.")
-                        : (t("skillsPage.remoteDownloadFailedMany", { count: failed }) ??
-                            `${failed} remote skills could not be downloaded right now. They will retry on first use.`)
-                );
-            }
-        } finally {
-            setSkillSyncPending(false);
+        const mode: AgentSkillMode = item.origin === "remote" ? "reference" : "inline";
+        const version = item.origin === "remote" ? AGENT_SKILL_LATEST_VERSION : AGENT_SKILL_DEFAULT_VERSION;
+        setSkillEditorValues((current) => ({ ...current, [skillId]: { enabled: true, mode, version } }));
+        if (mode === "reference") {
+            persistConfiguredSkill(skillId, createAgentSkillReference(skillId, version));
+            return;
         }
-    }
+
+        setSkillPending(skillId, true);
+        try {
+            const inlineSkill = await createInlineSkillForVersion(skillId, version);
+            setSelectedSkillPayloads((current) => ({ ...current, [skillId]: getInlineAgentSkillPayload(inlineSkill) }));
+            persistConfiguredSkill(skillId, inlineSkill);
+        } catch {
+            setSkillEditorValues((current) => ({ ...current, [skillId]: { ...current[skillId], enabled: false } }));
+            showSkillError();
+        } finally {
+            setSkillPending(skillId, false);
+        }
+    };
+
+    const handleSkillModeChange = async (skillId: string, mode: AgentSkillMode) => {
+        const currentValue = skillEditorValues[skillId];
+        if (!currentValue?.enabled || currentValue.mode === mode) return;
+        setSkillFeedback(null);
+        setSkillEditorValues((current) => ({ ...current, [skillId]: { ...currentValue, mode } }));
+        if (mode === "reference") {
+            persistConfiguredSkill(skillId, createAgentSkillReference(skillId, currentValue.version));
+            setSelectedSkillPayloads((current) => {
+                const { [skillId]: _, ...rest } = current;
+                return rest;
+            });
+            return;
+        }
+
+        setSkillPending(skillId, true);
+        try {
+            const inlineSkill = await createInlineSkillForVersion(skillId, currentValue.version);
+            setSelectedSkillPayloads((current) => ({ ...current, [skillId]: getInlineAgentSkillPayload(inlineSkill) }));
+            persistConfiguredSkill(skillId, inlineSkill);
+        } catch {
+            setSkillEditorValues((current) => ({ ...current, [skillId]: currentValue }));
+            showSkillError();
+        } finally {
+            setSkillPending(skillId, false);
+        }
+    };
+
+    const handleSkillVersionChange = async (skillId: string, version: string) => {
+        const currentValue = skillEditorValues[skillId];
+        if (!currentValue?.enabled || currentValue.version === version) return;
+        setSkillFeedback(null);
+        setSkillEditorValues((current) => ({ ...current, [skillId]: { ...currentValue, version } }));
+        if (currentValue.mode === "reference") {
+            persistConfiguredSkill(skillId, createAgentSkillReference(skillId, version));
+            return;
+        }
+
+        setSkillPending(skillId, true);
+        try {
+            const inlineSkill = await createInlineSkillForVersion(skillId, version);
+            setSelectedSkillPayloads((current) => ({ ...current, [skillId]: getInlineAgentSkillPayload(inlineSkill) }));
+            persistConfiguredSkill(skillId, inlineSkill);
+        } catch {
+            setSkillEditorValues((current) => ({ ...current, [skillId]: currentValue }));
+            showSkillError();
+        } finally {
+            setSkillPending(skillId, false);
+        }
+    };
 
     const providerKey = getAgentModelProviderKey(agent?.model?.id);
     const providerTitle = (PROVIDERS as Record<string, { name?: string }>)[providerKey]?.name ?? providerKey;
@@ -589,15 +606,24 @@ export const AgentForm = ({
                 <Tab eventKey="skills" title={t("skills") ?? "Skills"}>
                     {activeTab === "skills" ? (
                         <>
-                            <SkillToggleGroups
-                                value={selectedSkillIds}
-                                onChange={(next) => {
-                                    void handleSkillSelectionChange(next);
-                                }}
-                                columns={2}
-                                items={skillItems}
+                            <AgentSkillsEditor
+                                items={skills.items}
                                 favoriteSkillIds={favoriteSkillIds ?? []}
-                                remoteTitle={remoteSkillsHost}
+                                values={skillEditorValues}
+                                disabledSkillIds={pendingSkillIds}
+                                listVersions={async (skillId) => {
+                                    const data = [];
+                                    let after: string | undefined;
+                                    do {
+                                        const page = await skills.versions.list(skillId, { limit: 100, after });
+                                        data.push(...page.data);
+                                        after = page.has_more ? page.last_id : undefined;
+                                    } while (after);
+                                    return { data };
+                                }}
+                                onToggle={(skillId, enabled) => { void handleSkillToggle(skillId, enabled); }}
+                                onModeChange={(skillId, mode) => { void handleSkillModeChange(skillId, mode); }}
+                                onVersionChange={(skillId, version) => { void handleSkillVersionChange(skillId, version); }}
                             />
                             {skillFeedback ? <Text>{skillFeedback}</Text> : null}
                         </>

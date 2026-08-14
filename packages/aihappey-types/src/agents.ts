@@ -68,12 +68,22 @@ export const normalizeAgentSelectionValue = (
 };
 
 
-export type Skill = {
-    type: string;
+export type InlineSkill = {
+    type: "inline";
     name: string;
     description: string
     source: SkillSource
 };
+
+export type SkillReference = {
+    type: "skill_reference";
+    /** Exact catalog identifier returned by the skills gateway, including its provider prefix. */
+    skill_id: string;
+    /** Omitted means the gateway default version; "latest" tracks latest; other values pin a version. */
+    version?: string;
+};
+
+export type Skill = InlineSkill | SkillReference;
 
 export type SkillSource = {
     type: string;
