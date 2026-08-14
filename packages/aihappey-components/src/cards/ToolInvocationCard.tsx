@@ -4,6 +4,7 @@ import { CapabilityIcon } from "../images/CapabilityIcon";
 import type { Tool } from "aihappey-mcp";
 import { ViewButton } from "../buttons/ViewButton";
 import { ToolInvocationStateBadge } from "../badges/ToolInvocationStateBadge";
+import { formatFileSize } from "./formatFileSize";
 
 export interface ToolInvocationCardProps {
   invocation: {
@@ -29,9 +30,7 @@ export interface ToolInvocationCardProps {
 
 function prettySize(obj: any) {
   const bytes = new TextEncoder().encode(JSON.stringify(obj)).length;
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+  return formatFileSize(bytes);
 }
 
 export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({

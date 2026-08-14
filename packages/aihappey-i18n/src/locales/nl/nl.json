@@ -87,12 +87,9 @@
     "skillsPage": {
         "editor": {
             "newTitle": "Skill toevoegen",
-            "nameHint": "1–64 kleine letters, cijfers en enkele koppeltekens.",
-            "nameLocked": "Skillnamen kunnen niet worden gewijzigd.",
             "description": "Beschrijving",
-            "instructions": "Markdown-instructies",
-            "frontmatterManaged": "Naam, beschrijving en metadata-frontmatter worden automatisch beheerd.",
-            "additionalFiles": "Extra bestanden",
+            "instructions": "Instructies",
+            "files": "Bestanden",
             "dropFiles": "Sleep bestanden hierheen of kies bestanden om toe te voegen of te vervangen.",
             "chooseFiles": "Bestanden kiezen",
             "created": "Skill aangemaakt.",

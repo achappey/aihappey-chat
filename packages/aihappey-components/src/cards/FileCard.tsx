@@ -4,6 +4,7 @@ import type { MenuItemProps } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
 import { MimeTypeBadge } from "../badges";
 import { ViewButton } from "../buttons";
+import { formatFileSize } from "./formatFileSize";
 
 export type FileCardItem = {
   id: string;
@@ -18,17 +19,6 @@ export type FileCardProps = {
   onDelete?: () => void;
   onDownload?: () => void;
 };
-
-function formatBytes(bytes?: number): string {
-  if (bytes == null || !Number.isFinite(bytes)) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${kb.toFixed(1)} KB`;
-  const mb = kb / 1024;
-  if (mb < 1024) return `${mb.toFixed(1)} MB`;
-  const gb = mb / 1024;
-  return `${gb.toFixed(1)} GB`;
-}
 
 export const FileCard = ({ file, onView, onDelete, onDownload }: FileCardProps) => {
   const { Card, Button, Menu } = useTheme();
@@ -72,7 +62,7 @@ export const FileCard = ({ file, onView, onDelete, onDownload }: FileCardProps) 
     </>
   );
 
-  const sizeLabel = formatBytes(file.data?.size);
+  const sizeLabel = formatFileSize(file.data?.size);
   const mimeLabel = file.data?.type?.split(";")[0] || "";
 
   const description = (
