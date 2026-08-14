@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "aihappey-components";
+import { LimitedTextField, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import type { SkillCatalogItem, SkillVersion } from "aihappey-skills";
+import { useDarkMode } from "usehooks-ts";
 import {
   AGENT_SKILL_DEFAULT_VERSION,
   AGENT_SKILL_LATEST_VERSION,
 } from "./agentSkills";
+import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 
 export type AgentSkillMode = "inline" | "reference";
 
@@ -32,6 +34,11 @@ const sortSkills = (items: SkillCatalogItem[]) => [...items].sort((left, right) 
 
 const normalizeText = (value: unknown) => String(value ?? "").trim().toLowerCase();
 
+const getProviderKeyFromSkillId = (skillId: string) => {
+  const parts = skillId.split("/").filter(Boolean);
+  return parts.length > 1 ? parts[0].toLowerCase() : null;
+};
+
 export const AgentSkillsEditor = ({
   items,
   favoriteSkillIds,
@@ -42,8 +49,9 @@ export const AgentSkillsEditor = ({
   onModeChange,
   onVersionChange,
 }: AgentSkillsEditorProps) => {
-  const { Card, SearchBox, Select, Switch, ToggleButton, Text } = useTheme();
+  const { Card, Image, SearchBox, Select, Switch, ToggleButton, Text } = useTheme();
   const { t } = useTranslation();
+  const isDarkMode = useDarkMode();
   const [search, setSearch] = useState("");
   const favoriteSet = useMemo(() => new Set(favoriteSkillIds), [favoriteSkillIds]);
   const disabledSet = useMemo(() => new Set(disabledSkillIds), [disabledSkillIds]);
@@ -95,6 +103,14 @@ export const AgentSkillsEditor = ({
       ...concreteVersions.map((version) => ({ value: version, label: version })),
     ].filter((option, index, all) => all.findIndex((candidate) => candidate.value === option.value) === index);
     const currentVersion = value.version || AGENT_SKILL_DEFAULT_VERSION;
+    const providerKey = item.origin === "remote" ? getProviderKeyFromSkillId(item.skillId) : null;
+    const providerIcons = providerKey ? PROVIDERS[providerKey]?.icons : undefined;
+    const iconImage =
+      providerIcons?.find((icon) => icon.theme === (isDarkMode ? "dark" : "light"))?.src ??
+      providerIcons?.[0]?.src;
+    const image = iconImage ? (
+      <Image height={32} title={item.name} shape="square" src={iconImage} />
+    ) : undefined;
     const enableSwitch = (
       <Switch
         id={`agent-skill-${item.skillId}`}
@@ -110,50 +126,56 @@ export const AgentSkillsEditor = ({
         key={item.skillId}
         title={<span style={{ overflowWrap: "anywhere" }}>{item.name}</span>}
         size="small"
+        image={image}
         headerActions={enableSwitch}
       >
-        {value.enabled ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, width: "100%" }}>
-            {item.origin === "remote" ? (
-              <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                <ToggleButton
-                  size="small"
-                  variant="subtle"
-                  icon="attachment"
-                  checked={value.mode === "inline"}
+        <div style={{ display: "grid", gap: value.enabled ? 8 : 0 }}>
+          <LimitedTextField
+            text={item.description?.trim() || (t("agentSkills.noDescription") ?? "No description available.")}
+          />
+          {value.enabled ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, width: "100%" }}>
+              {item.origin === "remote" ? (
+                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                  <ToggleButton
+                    size="small"
+                    variant="subtle"
+                    icon="attachment"
+                    checked={value.mode === "inline"}
+                    disabled={disabled}
+                    aria-label={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
+                    title={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
+                    onClick={() => onModeChange(item.skillId, "inline")}
+                  />
+                  <ToggleButton
+                    size="small"
+                    variant="subtle"
+                    icon="link"
+                    checked={value.mode === "reference"}
+                    disabled={disabled}
+                    aria-label={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
+                    title={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
+                    onClick={() => onModeChange(item.skillId, "reference")}
+                  />
+                </div>
+              ) : null}
+              <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
+                <Select
+                  aria-label={`${item.name} ${t("version") ?? "Version"}`}
+                  values={[currentVersion]}
+                  valueTitle={versionOptions.find((option) => option.value === currentVersion)?.label ?? currentVersion}
                   disabled={disabled}
-                  aria-label={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
-                  title={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
-                  onClick={() => onModeChange(item.skillId, "inline")}
-                />
-                <ToggleButton
-                  size="small"
-                  variant="subtle"
-                  icon="link"
-                  checked={value.mode === "reference"}
-                  disabled={disabled}
-                  aria-label={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
-                  title={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
-                  onClick={() => onModeChange(item.skillId, "reference")}
-                />
+                  style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
+                  onChange={(version: string) => onVersionChange(item.skillId, String(version))}
+                >
+                  {versionOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </Select>
               </div>
-            ) : null}
-            <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
-              <Select
-                aria-label={`${item.name} ${t("version") ?? "Version"}`}
-                values={[currentVersion]}
-                valueTitle={versionOptions.find((option) => option.value === currentVersion)?.label ?? currentVersion}
-                disabled={disabled}
-                style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
-                onChange={(version: string) => onVersionChange(item.skillId, String(version))}
-              >
-                {versionOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </Select>
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </Card>
     );
   };
