@@ -19,7 +19,7 @@
     "typescript": "^6.0.3"
   },
   "allowScripts": {
-    "@swc/core@1.15.47": true,
-    "esbuild@0.28.2": true
+    "esbuild@0.28.2": true,
+    "@swc/core@1.16.0": true
   }
 }
