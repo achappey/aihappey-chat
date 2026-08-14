@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
+import { formatFileSize } from "../cards/formatFileSize";
 
 export type SkillEditFile = { path: string; data: Blob; size: number };
 
@@ -25,6 +26,16 @@ export type SkillEditModalProps = {
 };
 
 const SKILL_NAME_RE = /^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$/;
+
+export function normalizeSkillNameInput(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+/, "")
+    .slice(0, 64)
+    .replace(/-+$/, "");
+}
 
 function normalizedUploadPath(file: File) {
   const relative = String((file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name)
@@ -83,7 +94,8 @@ export const SkillEditModal = ({
     setIsDragging(false);
   }, [initialDescription, initialFiles, initialInstructions, initialName, open]);
 
-  const nameIsValid = mode === "edit" || SKILL_NAME_RE.test(name.trim());
+  const normalizedName = normalizeSkillNameInput(name);
+  const nameIsValid = mode === "edit" || SKILL_NAME_RE.test(normalizedName);
   const descriptionIsValid = description.trim().length > 0 && description.trim().length <= 1024;
   const canSave = nameIsValid && descriptionIsValid && !saving;
 
@@ -116,7 +128,7 @@ export const SkillEditModal = ({
             variant="primary"
             disabled={!canSave}
             onClick={() => void onSave({
-              name: mode === "create" ? name.trim() : undefined,
+              name: mode === "create" ? normalizedName : undefined,
               description: description.trim(),
               instructions,
               files,
@@ -139,15 +151,11 @@ export const SkillEditModal = ({
               value={name}
               disabled={mode === "edit"}
               onChange={(event: any) => setName(event?.target?.value ?? event ?? "")}
-              hint={mode === "create"
-                ? tx("skillsPage.editor.nameHint", "1–64 lowercase letters, numbers, and single hyphens.")
-                : tx("skillsPage.editor.nameLocked", "Skill names cannot be changed.")}
             />
             <TextArea
               label={tx("skillsPage.editor.description", "Description")}
               value={description}
               rows={5}
-              hint={`${description.trim().length}/1024`}
               onChange={(event: any) => setDescription(event?.target?.value ?? event ?? "")}
             />
           </div>
@@ -155,15 +163,14 @@ export const SkillEditModal = ({
         <Tab eventKey="content" title="SKILL.md">
           <div style={{ paddingTop: 12 }}>
             <TextArea
-              label={tx("skillsPage.editor.instructions", "Markdown instructions")}
+              label={tx("skillsPage.editor.instructions", "Instructions")}
               value={instructions}
               rows={20}
               onChange={(event: any) => setInstructions(event?.target?.value ?? event ?? "")}
-              hint={tx("skillsPage.editor.frontmatterManaged", "Name, description, and metadata frontmatter are managed automatically.")}
             />
           </div>
         </Tab>
-        <Tab eventKey="files" title={tx("skillsPage.editor.additionalFiles", "Additional files")}>
+        <Tab eventKey="files" title={tx("skillsPage.editor.files", "Files")}>
           <div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
             <input
               ref={inputRef}
@@ -199,14 +206,14 @@ export const SkillEditModal = ({
               </Button>
             </div>
             {sortedFiles.length === 0 ? (
-              <Card title={tx("skillsPage.editor.additionalFiles", "Additional files")}>
+              <Card title={tx("skillsPage.editor.files", "Files")}>
                 <div style={{ color: "#888" }}>{t("noResults")}</div>
               </Card>
             ) : sortedFiles.map((file) => (
               <Card
                 key={file.path}
                 title={file.path}
-                description={`${file.size.toLocaleString()} bytes`}
+                description={formatFileSize(file.size)}
                 actions={
                   <div style={{ display: "flex", gap: 4 }}>
                     <Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} />
