@@ -325,6 +325,11 @@
         "dropFrameImage": "Drop an image here"
     },
     "providerDefault": "Default",
+    "agentSkills": {
+        "inlineTooltip": "Skill as attachment",
+        "referenceTooltip": "Download Skill from the catalog",
+        "latest": "Latest"
+    },
     "custom": "Custom",
     "category": "Category",
     "filters": "Filters",

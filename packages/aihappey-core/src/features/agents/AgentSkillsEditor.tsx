@@ -71,7 +71,7 @@ export const AgentSkillsEditor = ({
     return () => { cancelled = true; };
   }, [items, listVersions, values, versionErrors, versionsBySkillId]);
 
-  const renderRow = (item: SkillCatalogItem) => {
+  const renderSkillCard = (item: SkillCatalogItem) => {
     const value = values[item.skillId] ?? {
       enabled: false,
       mode: item.origin === "remote" ? "reference" : "inline",
@@ -81,81 +81,90 @@ export const AgentSkillsEditor = ({
     const concreteVersions = versionsBySkillId[item.skillId] ?? [];
     const versionOptions = [
       { value: AGENT_SKILL_DEFAULT_VERSION, label: t("default") ?? "Default" },
-      { value: AGENT_SKILL_LATEST_VERSION, label: t("latest") ?? "Latest" },
+      { value: AGENT_SKILL_LATEST_VERSION, label: t("agentSkills.latest") ?? "Latest" },
       ...concreteVersions.map((version) => ({ value: version, label: version })),
     ].filter((option, index, all) => all.findIndex((candidate) => candidate.value === option.value) === index);
     const currentVersion = value.version || AGENT_SKILL_DEFAULT_VERSION;
+    const enableSwitch = (
+      <Switch
+        id={`agent-skill-${item.skillId}`}
+        label=""
+        checked={value.enabled}
+        disabled={disabled}
+        onChange={(checked: boolean) => onToggle(item.skillId, checked)}
+      />
+    );
 
     return (
-      <div
+      <Card
         key={item.skillId}
-        style={{
-          display: "grid",
-          gridTemplateColumns: "auto minmax(180px, 1fr) 190px minmax(150px, 190px)",
-          alignItems: "center",
-          gap: 12,
-          minHeight: 44,
-        }}
+        title={<span style={{ overflowWrap: "anywhere" }}>{item.name}</span>}
+        size="small"
+        headerActions={enableSwitch}
       >
-        <Switch
-          id={`agent-skill-${item.skillId}`}
-          label=""
-          checked={value.enabled}
-          disabled={disabled}
-          onChange={(checked: boolean) => onToggle(item.skillId, checked)}
-        />
-        <Text>{item.name}</Text>
-        <div style={{ display: "flex", gap: 6, visibility: item.origin === "remote" ? "visible" : "hidden" }}>
-          <ToggleButton
-            size="small"
-            variant="subtle"
-            checked={value.mode === "inline"}
-            disabled={!value.enabled || disabled}
-            onClick={() => onModeChange(item.skillId, "inline")}
-          >
-            Inline
-          </ToggleButton>
-          <ToggleButton
-            size="small"
-            variant="subtle"
-            checked={value.mode === "reference"}
-            disabled={!value.enabled || disabled}
-            onClick={() => onModeChange(item.skillId, "reference")}
-          >
-            Reference
-          </ToggleButton>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, width: "100%" }}>
+          {item.origin === "remote" ? (
+            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+              <ToggleButton
+                size="small"
+                variant="subtle"
+                icon="attachment"
+                checked={value.mode === "inline"}
+                disabled={!value.enabled || disabled}
+                aria-label={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
+                title={t("agentSkills.inlineTooltip") ?? "Skill as attachment"}
+                onClick={() => onModeChange(item.skillId, "inline")}
+              />
+              <ToggleButton
+                size="small"
+                variant="subtle"
+                icon="link"
+                checked={value.mode === "reference"}
+                disabled={!value.enabled || disabled}
+                aria-label={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
+                title={t("agentSkills.referenceTooltip") ?? "Download Skill from the catalog"}
+                onClick={() => onModeChange(item.skillId, "reference")}
+              />
+            </div>
+          ) : null}
+          {value.enabled ? (
+            <div style={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
+            <Select
+              aria-label={`${item.name} ${t("version") ?? "Version"}`}
+              values={[currentVersion]}
+              valueTitle={versionOptions.find((option) => option.value === currentVersion)?.label ?? currentVersion}
+              disabled={disabled}
+              style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
+              onChange={(version: string) => onVersionChange(item.skillId, String(version))}
+            >
+              {versionOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </Select>
+            </div>
+          ) : <div style={{ minHeight: 32, flex: 1 }} />}
         </div>
-        {value.enabled ? (
-          <Select
-            aria-label={`${item.name} ${t("version") ?? "Version"}`}
-            values={[currentVersion]}
-            valueTitle={versionOptions.find((option) => option.value === currentVersion)?.label ?? currentVersion}
-            disabled={disabled}
-            onChange={(version: string) => onVersionChange(item.skillId, String(version))}
-          >
-            {versionOptions.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </Select>
-        ) : <div />}
-      </div>
+      </Card>
     );
   };
 
-  const renderCard = (title: string, groupItems: SkillCatalogItem[]) => (
-    <Card title={title}>
+  const renderSection = (title: string, groupItems: SkillCatalogItem[]) => (
+    <section style={{ display: "grid", gap: 12 }}>
+      <Text><strong>{title}</strong></Text>
       {groupItems.length > 0 ? (
-        <div style={{ display: "grid", gap: 6 }}>{groupItems.map(renderRow)}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 330px), 1fr))", gap: 12 }}>
+          {groupItems.map(renderSkillCard)}
+        </div>
       ) : (
         <Text>{t("noResults") ?? "No results"}</Text>
       )}
-    </Card>
+    </section>
   );
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
-      {renderCard(t("favorites") ?? "Favorites", groups.favorites)}
-      {renderCard(t("skills") ?? "Skills", groups.other)}
+      {renderSection(t("favorites") ?? "Favorites", groups.favorites)}
+      {renderSection(t("skills") ?? "Skills", groups.other)}
     </div>
   );
 };

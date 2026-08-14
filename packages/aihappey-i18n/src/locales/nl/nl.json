@@ -287,6 +287,11 @@
     },
     "instructions": "Instructies",
     "providerDefault": "Standaard",
+    "agentSkills": {
+        "inlineTooltip": "Skill als bijlage",
+        "referenceTooltip": "Download Skill uit de catalogus",
+        "latest": "Nieuwste"
+    },
     "category": "Categorie",
     "favorites": "Favorieten",
     "favorite_model": "{{model}} toevoegen aan favorieten",
