@@ -289,8 +289,15 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
 .aih-shadcn-card-header-actions { display: inline-flex; align-items: flex-start; justify-content: flex-end; flex: none; min-width: 0; margin-left: auto; }
 .aih-shadcn-card-title { margin: 0; font-size: 1rem; font-weight: 600; }
 .aih-shadcn-card-description { color: var(--aih-shadcn-muted-foreground); font-size: .875rem; }
-.aih-shadcn-card-content { padding: 1rem; }
-.aih-shadcn-card-footer { border-top: 1px solid var(--aih-shadcn-border); padding: .75rem 1rem; }
+.aih-shadcn-card-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+}
+.aih-shadcn-card-footer { border-top: 1px solid var(--aih-shadcn-border); 
+padding: .5rem; 
+}
 
 .aih-shadcn-json-viewer { overflow: auto; max-width: 100%; border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-muted); padding: .75rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .875rem; line-height: 1.45; white-space: pre-wrap; }
 .aih-shadcn-json-viewer details { min-width: 0; }
