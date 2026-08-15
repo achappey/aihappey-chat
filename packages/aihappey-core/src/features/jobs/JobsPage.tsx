@@ -14,6 +14,7 @@ import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { Markdown } from "../../ui/markdown/Markdown";
 import { JobsInput } from "./JobsInput";
 import { useJobErrors } from "./useJobErrors";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 const fileToDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -38,6 +39,7 @@ const createFileContentPart = async (file: File): Promise<ResponseApiInputConten
 };
 
 export const JobsPage = () => {
+  const isDesktop = useIsDesktop();
   const { config } = useChatContext();
   const jobs = useJobs();
   const getStorageErrorMessage = useStorageErrorMessage();
@@ -186,8 +188,19 @@ export const JobsPage = () => {
   };
 
   return (
-    <div style={{ background: "transparent", width: "100%" }}>
-      <div style={{ paddingLeft: 12, paddingRight: 12, display: "flex", alignItems: "center" }}>
+    <div style={{
+      background: "transparent",
+      width: "100%",
+      paddingLeft: isDesktop ? 0 : 12,
+      paddingRight: isDesktop ? 0 : 12,
+      boxSizing: "border-box",
+    }}>
+      <div style={{
+        paddingLeft: isDesktop ? 12 : 0,
+        paddingRight: isDesktop ? 12 : 0,
+        display: "flex",
+        alignItems: "center",
+      }}>
         <AgentSelect
           localAgents={agents ?? []}
           remoteAgentModels={remoteAgentModels ?? []}
@@ -234,8 +247,18 @@ export const JobsPage = () => {
         />
       </div>
 
-      <div style={{ maxWidth: 1056, margin: "0 auto", padding: "0 12px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16, alignItems: "stretch" }}>
+      <div style={{
+        maxWidth: 1056,
+        margin: "0 auto",
+        padding: isDesktop ? "0 12px" : 0,
+        boxSizing: "border-box",
+      }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
+          gap: 16,
+          alignItems: "stretch",
+        }}>
           {Array.from({ length: itemsLoading }).map((_, i) => (
             <div key={`shimmer-${i}`} style={cellStyle}>
               <Skeleton style={{ width: "100%", height: "100%" }} />

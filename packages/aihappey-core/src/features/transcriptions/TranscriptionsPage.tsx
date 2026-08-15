@@ -30,6 +30,7 @@ import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { splitTranscriptionFile, type TranscriptionFileChunk } from "./transcriptionFileSplit";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { useQueryModelId } from "../models/queryModelSelection";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 const isTranscribableMedia = (file: File) => {
   const t = file.type;
@@ -107,6 +108,7 @@ const mergeChunkTranscriptions = (
 
 
 export const TranscriptionsPage = () => {
+  const isDesktop = useIsDesktop();
   const models = useAppStore((a) => a.models);
   const customHeaders = useAppStore((a) => a.customHeaders);
   const providerTranscriptionMetadata = useAppStore((a) => a.providerTranscriptionMetadata);
@@ -347,12 +349,15 @@ export const TranscriptionsPage = () => {
       style={{
         background: "transparent",
         width: "100%",
+        paddingLeft: isDesktop ? 0 : 12,
+        paddingRight: isDesktop ? 0 : 12,
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          paddingLeft: 12,
-          paddingRight: 12,
+          paddingLeft: isDesktop ? 12 : 0,
+          paddingRight: isDesktop ? 12 : 0,
           display: "flex",
           alignItems: "center",
         }}
@@ -409,12 +414,17 @@ export const TranscriptionsPage = () => {
 
       </div>
 
-      <div style={{ maxWidth: 1056, margin: "0 auto", padding: "0 12px" }}>
+      <div style={{
+        maxWidth: 1056,
+        margin: "0 auto",
+        padding: isDesktop ? "0 12px" : 0,
+        boxSizing: "border-box",
+      }}>
         <Tabs activeKey={activeTab} onSelect={setActiveTab}>
           <Tab eventKey="recorded" title={t("myTranscriptions")}>
             <div style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
               gap: 16,
               alignItems: "stretch",
               marginTop: 12,

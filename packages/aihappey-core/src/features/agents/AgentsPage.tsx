@@ -10,6 +10,7 @@ import { useDrop } from "react-dnd";
 import React from "react";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useChatContext } from "../chat/context/ChatContext";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 const getProviderIconsForModel = (modelId?: string): Agent["icons"] | undefined => {
   const providerKey = getAgentModelProviderKey(modelId);
@@ -50,6 +51,7 @@ export const AgentsPage = () => {
   const { SearchBox, Text, Tabs, Tab } = useTheme();
   const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
+  const isDesktop = useIsDesktop();
 
   //const agents = useAppStore((s) => s.agents as Record<string, AgentCardType>);
   const agents = useAppStore((s) => s.agents);
@@ -209,7 +211,7 @@ export const AgentsPage = () => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
         gap: 16,
         paddingTop: 12,
         width: "100%",
@@ -224,7 +226,14 @@ export const AgentsPage = () => {
         </div>
       ) : (
         items.map((card) =>
-          <div key={card.key} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+          <div
+            key={card.key}
+            style={{
+              maxWidth: isDesktop ? 320 : "100%",
+              minWidth: isDesktop ? 320 : 0,
+              width: "100%",
+            }}
+          >
             <AgentCard
               agent={card.agent}
               providerIcons={card.providerIcons}
@@ -261,6 +270,9 @@ export const AgentsPage = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            paddingLeft: isDesktop ? 0 : 12,
+            paddingRight: isDesktop ? 0 : 12,
+            boxSizing: "border-box",
           }}
         >
           <OverviewPageHeader

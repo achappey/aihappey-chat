@@ -662,6 +662,9 @@ export const ProvidersPage = () => {
                         : "1fr",
                     gap: 16,
                     width: "100%",
+                    maxWidth: "100%",
+                    minWidth: 0,
+                    boxSizing: "border-box",
                     marginBottom: 24,
                 }}
             >
@@ -674,7 +677,12 @@ export const ProvidersPage = () => {
                     return (
                         <div
                             key={p.key}
-                            style={{ width: "100%" }}
+                            style={{
+                                width: isDesktop ? "100%" : "auto",
+                                maxWidth: "100%",
+                                minWidth: 0,
+                                marginRight: isDesktop ? 0 : 4,
+                            }}
                         >
                             <ProviderCard
                                 name={p.name}
@@ -724,7 +732,7 @@ export const ProvidersPage = () => {
                         margin: "0 auto",
                         display: "flex",
                         flexDirection: "column",
-                        paddingLeft: 8,
+                        paddingLeft: isDesktop ? 8 : 0,
                         paddingRight: 0,
                         boxSizing: "border-box",
                     }}
@@ -799,6 +807,9 @@ export const ProvidersPage = () => {
                             style={{
                                 width: "100%",
                                 minWidth: 0,
+                                paddingLeft: isDesktop ? 0 : 12,
+                                paddingRight: isDesktop ? 0 : 12,
+                                boxSizing: "border-box",
                             }}
                         >
                             <div

@@ -201,12 +201,15 @@ export const ImagePage = () => {
       style={{
         background: "transparent",
         width: "100%",
+        paddingLeft: isDesktop ? 0 : 12,
+        paddingRight: isDesktop ? 0 : 12,
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          paddingLeft: 12,
-          paddingRight: 12,
+          paddingLeft: isDesktop ? 12 : 0,
+          paddingRight: isDesktop ? 12 : 0,
           display: "flex",
           alignItems: "center",
         }}
@@ -258,7 +261,8 @@ export const ImagePage = () => {
           maxWidth: "100%",
           margin: "0 auto",
           display: "flex",
-          padding: "0px 12px",
+          padding: isDesktop ? "0 12px" : 0,
+          boxSizing: "border-box",
           flexDirection: "column",
           alignItems: "center",
         }}

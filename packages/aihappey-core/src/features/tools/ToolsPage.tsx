@@ -8,6 +8,7 @@ import { useLocalTools } from "aihappey-tools";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useOnToolCall } from "./toolcalls/useOnToolCall";
 import { useChatContext } from "../chat/context/ChatContext";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import {
   buildLocalToolItems,
   buildModelContextToolSections,
@@ -19,6 +20,7 @@ import {
 export const ToolsPage = () => {
   const { SearchBox, Text, Tabs, Tab, Header } = useTheme();
   const { t } = useTranslation();
+  const isDesktop = useIsDesktop();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
 
@@ -121,7 +123,7 @@ export const ToolsPage = () => {
       <div
         style={{
           display: "grid",
-         gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
           gap: 16,
           width: "100%",
           maxWidth: 700,
@@ -130,7 +132,14 @@ export const ToolsPage = () => {
         }}
       >
         {items.map(item => (
-          <div key={item.key} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+          <div
+            key={item.key}
+            style={{
+              maxWidth: isDesktop ? 320 : "100%",
+              minWidth: isDesktop ? 320 : 0,
+              width: "100%",
+            }}
+          >
             <ToolCardAny
               id={item.key}
               name={item.name}
@@ -181,6 +190,9 @@ export const ToolsPage = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            paddingLeft: isDesktop ? 0 : 12,
+            paddingRight: isDesktop ? 0 : 12,
+            boxSizing: "border-box",
           }}
         >
           <OverviewPageHeader title={t("tools")} />

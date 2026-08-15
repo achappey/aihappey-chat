@@ -23,6 +23,7 @@ import { useAppStore } from "aihappey-state";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { PROVIDERS } from "../../runtime/providers/providers";
 import { useChatContext } from "../chat/context/ChatContext";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -65,6 +66,7 @@ export const SkillsPage = () => {
   const theme = useTheme();
   const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
+  const isDesktop = useIsDesktop();
   const skills = useSkills();
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
@@ -403,7 +405,7 @@ export const SkillsPage = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
             gap: 16,
             width: "100%",
             maxWidth: 760,
@@ -492,6 +494,9 @@ export const SkillsPage = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            paddingLeft: isDesktop ? 0 : 12,
+            paddingRight: isDesktop ? 0 : 12,
+            boxSizing: "border-box",
           }}
         >
           <OverviewPageHeader officialUrl={"https://agentskills.io"}

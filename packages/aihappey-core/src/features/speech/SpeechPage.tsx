@@ -15,6 +15,7 @@ import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { useQueryModelId } from "../models/queryModelSelection";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 const getProviderOptionsForSelectedModel = (
   selectedModel: string | undefined,
@@ -30,6 +31,7 @@ const getProviderOptionsForSelectedModel = (
 };
 
 export const SpeechPage = () => {
+  const isDesktop = useIsDesktop();
   const models = useAppStore((a) => a.models);
   const customHeaders = useAppStore((a) => a.customHeaders);
   const providerSpeechMetadata = useAppStore((a) => a.providerSpeechMetadata);
@@ -176,12 +178,15 @@ export const SpeechPage = () => {
       style={{
         background: "transparent",
         width: "100%",
+        paddingLeft: isDesktop ? 0 : 12,
+        paddingRight: isDesktop ? 0 : 12,
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          paddingLeft: 12,
-          paddingRight: 12,
+          paddingLeft: isDesktop ? 12 : 0,
+          paddingRight: isDesktop ? 12 : 0,
           display: "flex",
           alignItems: "center",
         }}
@@ -234,7 +239,8 @@ export const SpeechPage = () => {
       <div style={{
         maxWidth: 1056,
         margin: "0 auto",
-        padding: "0 12px",
+        padding: isDesktop ? "0 12px" : 0,
+        boxSizing: "border-box",
       }}>
         <div style={{
           display: "grid",

@@ -42,6 +42,9 @@ export const ConversationSidebar = ({
     // Reset current selection *before* navigating so ChatPage starts blank
     selectConversation(null);
     await navigate("/");
+    if (!isDesktop) {
+      setSidebarOpen(false);
+    }
   };
 
   const handleRemove = async (id: string) => {
@@ -485,6 +488,10 @@ export const ConversationSidebar = ({
       if (conv?.metadata?.name) {
         document.title = conv?.metadata?.name;
       }
+    }
+
+    if (!isDesktop) {
+      setSidebarOpen(false);
     }
   };
 

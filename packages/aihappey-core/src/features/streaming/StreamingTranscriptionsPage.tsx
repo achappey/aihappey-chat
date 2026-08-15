@@ -18,6 +18,7 @@ import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { buildStreamingHeaders, resolveStreamingUrl, streamingErrorMessage } from "./streamingRequest";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 type Settings = {
   language: string;
@@ -38,6 +39,7 @@ const initialSettings: Settings = {
 const isMedia = (file: File) => file.type.startsWith("audio/") || file.type.startsWith("video/");
 
 export const StreamingTranscriptionsPage = () => {
+  const isDesktop = useIsDesktop();
   const { t } = useTranslation();
   const { config } = useChatContext();
   const { Button, Input, Modal, Select, Switch, TextArea } = useTheme();
@@ -143,8 +145,13 @@ export const StreamingTranscriptionsPage = () => {
   }));
 
   return (
-    <div style={{ width: "100%" }}>
-      <div style={styles.header}>
+    <div style={{
+      width: "100%",
+      paddingLeft: isDesktop ? 0 : 12,
+      paddingRight: isDesktop ? 0 : 12,
+      boxSizing: "border-box",
+    }}>
+      <div style={{ ...styles.header, padding: isDesktop ? "0 12px" : 0 }}>
         <ModelSelect models={models ?? []} modelTypes={["transcription"]} value={selectedModel} onChange={setSelectedModel} />
         <ModelFavoriteToggleButton
           variant="subtle"
@@ -174,7 +181,7 @@ export const StreamingTranscriptionsPage = () => {
         </form>
       </div>
 
-      <section style={styles.output} aria-live="polite" aria-busy={processing}>
+      <section style={{ ...styles.output, padding: isDesktop ? "0 12px" : 0 }} aria-live="polite" aria-busy={processing}>
         <div style={styles.transcript}>{transcript}</div>
       </section>
 

@@ -3,6 +3,7 @@ import { StructuredOutputCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -11,6 +12,7 @@ function normalizeText(v: unknown) {
 export const StructuredOutputsPage = () => {
   const { SearchBox, Text } = useTheme();
   const { t } = useTranslation();
+  const isDesktop = useIsDesktop();
   const structuredOutputs = useStructuredOutputs();
 
   const [search, setSearch] = useState("");
@@ -48,6 +50,9 @@ export const StructuredOutputsPage = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          paddingLeft: isDesktop ? 0 : 12,
+          paddingRight: isDesktop ? 0 : 12,
+          boxSizing: "border-box",
         }}
       >
         <OverviewPageHeader title={t("structuredOutputs")} />
@@ -76,7 +81,7 @@ export const StructuredOutputsPage = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
             gap: 16,
             width: "100%",
             maxWidth: 700,
@@ -90,7 +95,14 @@ export const StructuredOutputsPage = () => {
             </div>
           ) : (
             filtered.map((item) => (
-              <div key={item.id} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+              <div
+                key={item.id}
+                style={{
+                  maxWidth: isDesktop ? 320 : "100%",
+                  minWidth: isDesktop ? 320 : 0,
+                  width: "100%",
+                }}
+              >
                 <StructuredOutputCard item={item} />
               </div>
             ))

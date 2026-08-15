@@ -20,10 +20,12 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { buildStreamingHeaders, resolveStreamingUrl, streamingErrorMessage } from "./streamingRequest";
 import { StreamingAudioVisualizer } from "./StreamingAudioVisualizer";
 import { createStreamingAudioPlayback, type StreamingAudioPlayback } from "./streamingAudioPlayback";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 type Settings = { voice: string; responseFormat: OpenAISpeechFormat; instructions: string; speed: string };
 
 export const StreamingSpeechPage = () => {
+  const isDesktop = useIsDesktop();
   const { t } = useTranslation();
   const { config } = useChatContext();
   const { AudioPlayer, Button, Input, Modal, Select, Slider, TextArea } = useTheme();
@@ -140,8 +142,13 @@ export const StreamingSpeechPage = () => {
   const isFavorite = !!selectedModel && (favoriteModelsByType?.speech ?? []).includes(selectedModel);
 
   return (
-    <div style={{ width: "100%" }}>
-      <div style={styles.header}>
+    <div style={{
+      width: "100%",
+      paddingLeft: isDesktop ? 0 : 12,
+      paddingRight: isDesktop ? 0 : 12,
+      boxSizing: "border-box",
+    }}>
+      <div style={{ ...styles.header, padding: isDesktop ? "0 12px" : 0 }}>
         <ModelSelect models={models ?? []} modelTypes={["speech"]} value={selectedModel} onChange={setSelectedModel} />
         <ModelFavoriteToggleButton
           variant="subtle"
@@ -168,7 +175,7 @@ export const StreamingSpeechPage = () => {
         </div>
       </form>
 
-      <section style={styles.output} aria-live="polite" aria-busy={processing}>
+      <section style={{ ...styles.output, padding: isDesktop ? "0 12px" : 0 }} aria-live="polite" aria-busy={processing}>
         <div style={styles.visualizer}>
           <StreamingAudioVisualizer analyser={analyser} />
           {completedAudioUrl && <AudioPlayer src={completedAudioUrl} style={{ width: "100%" }} />}

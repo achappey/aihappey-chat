@@ -10,6 +10,7 @@ import { FileDetailModal } from "./FileDetailModal";
 
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 function normalizeText(v: unknown) {
     return String(v ?? "").trim().toLowerCase();
@@ -19,6 +20,7 @@ export const FilesPage = () => {
     const PAGE_SIZE = 50;
     const { Button, SearchBox, Text } = useTheme();
     const { t } = useTranslation();
+    const isDesktop = useIsDesktop();
     const files = useFiles();
     const getStorageErrorMessage = useStorageErrorMessage();
     const [errors, setErrors] = useState<{ id: string; message: string }[]>([]);
@@ -202,6 +204,9 @@ export const FilesPage = () => {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
+                        paddingLeft: isDesktop ? 0 : 12,
+                        paddingRight: isDesktop ? 0 : 12,
+                        boxSizing: "border-box",
                     }}
                 >
                     <ErrorAlerts errors={errors} dismissError={dismissError} />
@@ -226,7 +231,7 @@ export const FilesPage = () => {
                     <div
                         style={{
                             display: "grid",
-                         gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                            gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
                             gap: 16,
                             width: "100%",
                             maxWidth: 700,
@@ -240,7 +245,14 @@ export const FilesPage = () => {
                             </div>
                         ) : (
                             filtered.slice(0, visibleCount).map((f) => (
-                                <div key={f.id} style={{ maxWidth: 320, minWidth: 320, width: "100%" }}>
+                                <div
+                                    key={f.id}
+                                    style={{
+                                        maxWidth: isDesktop ? 320 : "100%",
+                                        minWidth: isDesktop ? 320 : 0,
+                                        width: "100%",
+                                    }}
+                                >
                                     <FileCard
                                         file={f}
                                         onView={() => setSelectedFileId(f.id)}

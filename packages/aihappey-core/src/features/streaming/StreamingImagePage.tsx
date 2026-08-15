@@ -9,6 +9,7 @@ import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { buildStreamingHeaders, resolveStreamingUrl, streamingErrorMessage } from "./streamingRequest";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import {
   imageRequestSettings,
   initialStreamingImageSettings,
@@ -24,6 +25,7 @@ type StreamingImagePageProps = { mode: "create" | "edit" };
 const isImage = (file: File) => file.type.startsWith("image/");
 
 export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
+  const isDesktop = useIsDesktop();
   const { t } = useTranslation();
   const { config } = useChatContext();
   const { Button, Input, Modal, Select, Slider, TextArea } = useTheme();
@@ -144,8 +146,13 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
   ].map((image) => ({ data: image.data, mimeType: streamingImageBlob(image).type, type: "image" as const }));
 
   return (
-    <div style={{ width: "100%" }}>
-      <div style={styles.header}>
+    <div style={{
+      width: "100%",
+      paddingLeft: isDesktop ? 0 : 12,
+      paddingRight: isDesktop ? 0 : 12,
+      boxSizing: "border-box",
+    }}>
+      <div style={{ ...styles.header, padding: isDesktop ? "0 12px" : 0 }}>
         <ModelSelect models={models ?? []} modelTypes={["image"]} value={selectedModel} onChange={setSelectedModel} />
         <ModelFavoriteToggleButton variant="subtle" size="small" isFavorite={isFavorite} modelName={currentModel?.name ?? selectedModel} onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("image", selectedModel)} disabled={!selectedModel} />
         <div style={{ flex: 1 }} />
@@ -171,7 +178,7 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
         </form>
       </div>
 
-      <section style={styles.output} aria-live="polite" aria-busy={processing}>
+      <section style={{ ...styles.output, padding: isDesktop ? "0 12px" : 0 }} aria-live="polite" aria-busy={processing}>
         <ImageGrid items={previewItems} shimmers={processing && !previewItems.length ? 1 : 0} columns={1} fit="contain" shape="rounded" style={{ width: "100%" }} />
       </section>
 

@@ -838,8 +838,8 @@ export const ModelsPage = () => {
             margin: "0 auto",
             display: "flex",
             flexDirection: "column",
-            paddingLeft: 8,
-            paddingRight: 0,
+            paddingLeft: isDesktop ? 8 : 12,
+            paddingRight: isDesktop ? 0 : 12,
             boxSizing: "border-box",
           }}
         >
