@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import type { FilesContextType } from "aihappey-files";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import { extractTextFromFile } from "../../chat/files/file";
 import { extractTextFromZip } from "../../chat/files/fileConverters";
 
@@ -8,22 +8,25 @@ import { extractTextFromZip } from "../../chat/files/fileConverters";
    Result helpers
 ============================================================ */
 
-type ToolTextResult = {
-  isError: boolean;
-  content: { type: "text"; text: string }[];
-};
 
-const ok = (text: string): ToolTextResult => ({
+const structuredOk = (structuredContent: any): CallToolResult => ({
+  isError: false,
+  content: [],
+  structuredContent: structuredContent
+});
+
+
+const ok = (text: string): CallToolResult => ({
   isError: false,
   content: [{ type: "text", text }],
 });
 
-const okMany = (texts: string[]): ToolTextResult => ({
+const okMany = (texts: string[]): CallToolResult => ({
   isError: false,
   content: texts.map(text => ({ type: "text", text })),
 });
 
-const fail = (err: unknown): ToolTextResult => ({
+const fail = (err: unknown): CallToolResult => ({
   isError: true,
   content: [
     {
@@ -209,12 +212,12 @@ async function convertFileToText(asFile: File): Promise<string | undefined> {
 
 type LocalFileToolCall = {
   toolName:
-    | "local_file_list"
-    | "local_file_read"
-    | "local_file_create"
-    | "local_file_delete"
-    | "local_file_rename"
-    | "local_file_convert_to_text";
+  | "local_file_list"
+  | "local_file_read"
+  | "local_file_create"
+  | "local_file_delete"
+  | "local_file_rename"
+  | "local_file_convert_to_text";
   input?: any;
 };
 
@@ -224,16 +227,21 @@ type LocalFileToolCall = {
 
 export function useLocalFilesRuntime(files?: FilesContextType | null) {
   const handle = useCallback(
-    async (toolCall: LocalFileToolCall): Promise<ToolTextResult> => {
+    async (toolCall: LocalFileToolCall): Promise<CallToolResult> => {
       try {
         if (!files) throw new Error("Files context not available.");
 
         switch (toolCall.toolName) {
           case "local_file_list": {
-            const list = files.items
-              .map(f => `${f.name} (${new Date(f.createdAt).toISOString()})`)
-              .join("\n");
-            return ok(list || "No files.");
+            return structuredOk({
+              data: files.items.map(a => {
+                return {
+                  name: a.name,
+                  id: a.id,
+                  createdAt: a.createdAt
+                };
+              })
+            });
           }
 
           case "local_file_read": {
@@ -273,8 +281,8 @@ export function useLocalFilesRuntime(files?: FilesContextType | null) {
               data instanceof Blob
                 ? data
                 : new Blob([String(data)], {
-                    type: mimeType ?? "text/plain",
-                  });
+                  type: mimeType ?? "text/plain",
+                });
 
             await files.create({
               name,
