@@ -5,7 +5,7 @@ export function createBackendProvider(name: string, baseURL: string,
   getAccessToken?: () => Promise<string>) {
   return createOpenAI({
     name: name,                  // shows up as provider name
-    baseURL: baseURL,
+    baseURL: `${baseURL.replace(/\/$/, "")}/v1`,
     apiKey: "",
     //includeUsage: true,              // handy for streaming usage if supported
     fetch: async (input: any, init: any) => {

@@ -9,7 +9,7 @@ export const vercelClientAdapter: ClientAdapter = {
   invoke: async ({ endpoint, request }) => {
     const provider = createBackendProvider(
       new URL(request.baseUrl).hostname,
-      request.baseUrl + "/v1",
+      request.baseUrl,
       request.headers,
       request.getAccessToken,
     );
