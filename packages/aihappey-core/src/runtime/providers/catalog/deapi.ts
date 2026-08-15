@@ -12,6 +12,7 @@ export const deapi: Provider = {
   urls: {
     homepage: "https://deapi.ai",
     docs: "https://docs.deapi.ai",
+    pricing: "https://deapi.ai/pricing",
     console: "https://deapi.ai/dashboard",
     termsOfService: "https://deapi.ai/terms-of-service",
     privacyPolicy: "https://deapi.ai/privacy-policy"
