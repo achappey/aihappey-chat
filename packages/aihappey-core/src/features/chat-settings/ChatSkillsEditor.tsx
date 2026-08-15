@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LimitedTextField, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import type { SkillCatalogItem } from "aihappey-skills";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 
 type ChatSkillsEditorProps = {
   items: SkillCatalogItem[];
@@ -34,10 +35,22 @@ export const ChatSkillsEditor = ({
   const { Card, Image, SearchBox, Switch, Text } = useTheme();
   const { t } = useTranslation();
   const isDarkMode = useDarkMode();
+  const isDesktop = useIsDesktop();
+  const searchBoxContainerRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const query = normalizeText(search);
   const enabledSet = useMemo(() => new Set(value), [value]);
   const favoriteSet = useMemo(() => new Set(favoriteSkillIds), [favoriteSkillIds]);
+
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      searchBoxContainerRef.current?.querySelector<HTMLInputElement>("input")?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [isDesktop]);
 
   const groups = useMemo(() => {
     const filteredItems = query
@@ -109,7 +122,7 @@ export const ChatSkillsEditor = ({
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
-      <div style={{ width: 360, maxWidth: "100%" }}>
+      <div ref={searchBoxContainerRef} style={{ width: 360, maxWidth: "100%" }}>
         <SearchBox
           value={search}
           onChange={setSearch}
