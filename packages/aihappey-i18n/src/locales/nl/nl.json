@@ -169,7 +169,7 @@
         "useNamespaces": "Namespaces gebruiken",
         "namespace": "Namespace",
         "name": "Naam",
-        "allowedCallers": "Wie mag dit gebruiken",
+        "allowedCallers": "Gebruiksmethode",
         "deferLoading": "Zoeken",
         "allTools": "Alle tools",
         "applyAll": "Op alles toepassen",

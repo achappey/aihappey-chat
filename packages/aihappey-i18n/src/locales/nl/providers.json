@@ -376,7 +376,7 @@
     },
     "programmaticToolCalling": {
       "title": "Tools via code",
-      "allowedCallers": "Wie mag dit gebruiken",
+      "allowedCallers": "Gebruiksmethode",
       "allowedCallersOptions": {
         "direct": "Direct",
         "programmatic": "Code"
@@ -754,7 +754,7 @@
     "toolSearchBm25": "Tool zoeken (BM25)",
     "toolSearchRegex": "Tool zoeken (Regex)",
     "version": "Versie",
-    "allowedCallers": "Wie mag dit gebruiken",
+    "allowedCallers": "Gebruiksmethode",
     "none": "Geen",
     "cacheControl": "Promptcache",
     "cache": {

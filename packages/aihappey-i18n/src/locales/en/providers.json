@@ -288,7 +288,7 @@
     "toolSearchBm25": "Tool search (BM25)",
     "toolSearchRegex": "Tool search (Regex)",
     "version": "Version",
-    "allowedCallers": "Who can use it",
+    "allowedCallers": "Allowed callers",
     "none": "None",
     "cacheControl": "Prompt cache",
     "cache": {
@@ -725,7 +725,7 @@
     },
     "programmaticToolCalling": {
       "title": "Tools with code",
-      "allowedCallers": "Who can use it",
+      "allowedCallers": "Allowed callers",
       "allowedCallersOptions": {
         "direct": "Direct",
         "programmatic": "Code"

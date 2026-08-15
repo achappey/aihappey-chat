@@ -698,7 +698,7 @@
         "useNamespaces": "Use namespaces",
         "namespace": "Namespace",
         "name": "Name",
-        "allowedCallers": "Who can use it",
+        "allowedCallers": "Allowed callers",
         "deferLoading": "Search",
         "allTools": "All tools",
         "applyAll": "Apply to all",
