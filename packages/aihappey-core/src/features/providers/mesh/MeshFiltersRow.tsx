@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 type Props = {
   search: string;
   onSearchChange: (next: string) => void;
+  searchAutoFocus?: boolean;
   selectedCountries: string[];
   selectedRegions: string[];
   countryOptions: string[];
@@ -37,6 +38,7 @@ const getMultiSelectValueTitle = ({
 export const MeshFiltersRow = ({
   search,
   onSearchChange,
+  searchAutoFocus,
   selectedCountries,
   selectedRegions,
   countryOptions,
@@ -81,6 +83,7 @@ export const MeshFiltersRow = ({
           value={search}
           onChange={onSearchChange}
           placeholder={t("searchPlaceholder")}
+          autoFocus={searchAutoFocus}
         />
       </div>
 

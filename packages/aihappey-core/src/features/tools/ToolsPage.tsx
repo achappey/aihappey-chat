@@ -208,7 +208,12 @@ export const ToolsPage = () => {
             }}
           >
             <div style={{ width: 360, maxWidth: "100%" }}>
-              <SearchBox value={search} onChange={setSearch} placeholder={t("searchPlaceholder")} />
+              <SearchBox
+                value={search}
+                onChange={setSearch}
+                placeholder={t("searchPlaceholder")}
+                autoFocus={isDesktop}
+              />
             </div>
           </div>
 

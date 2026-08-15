@@ -838,6 +838,7 @@ export const ProvidersPage = () => {
                                 <MeshFiltersRow
                                     search={search}
                                     onSearchChange={setSearch}
+                                    searchAutoFocus={isDesktop}
                                     selectedCountries={selectedCountries}
                                     selectedRegions={selectedRegions}
                                     countryOptions={providerCountryOptions}

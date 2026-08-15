@@ -74,6 +74,7 @@ export const StructuredOutputsPage = () => {
               value={search}
               onChange={setSearch}
               placeholder={t("searchPlaceholder")}
+              autoFocus={isDesktop}
             />
           </div>
         </div>

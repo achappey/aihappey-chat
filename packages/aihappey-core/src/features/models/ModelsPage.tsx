@@ -952,6 +952,7 @@ export const ModelsPage = () => {
                       value={search}
                       onChange={setSearch}
                       placeholder={t("searchPlaceholder")}
+                      autoFocus={isDesktop}
                     />
                   </div>
 
