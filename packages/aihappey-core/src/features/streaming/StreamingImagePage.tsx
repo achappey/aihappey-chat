@@ -144,13 +144,25 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
     ...(partialImage ? [partialImage] : []),
     ...completedImages,
   ].map((image) => ({ data: image.data, mimeType: streamingImageBlob(image).type, type: "image" as const }));
+  const useFittedPreview = previewItems.length <= 1;
+  const fittedPreviewItem = previewItems[0];
+  const fittedPreviewSrc = fittedPreviewItem
+    ? fittedPreviewItem.data.startsWith("data:")
+      ? fittedPreviewItem.data
+      : `data:${fittedPreviewItem.mimeType};base64,${fittedPreviewItem.data}`
+    : undefined;
 
   return (
     <div style={{
       width: "100%",
+      height: useFittedPreview ? "100%" : undefined,
+      minHeight: 0,
       paddingLeft: isDesktop ? 0 : 12,
       paddingRight: isDesktop ? 0 : 12,
       boxSizing: "border-box",
+      display: useFittedPreview ? "flex" : undefined,
+      flexDirection: useFittedPreview ? "column" : undefined,
+      overflow: useFittedPreview ? "hidden" : undefined,
     }}>
       <div style={{ ...styles.header, padding: isDesktop ? "0 12px" : 0 }}>
         <ModelSelect models={models ?? []} modelTypes={["image"]} value={selectedModel} onChange={setSelectedModel} />
@@ -178,8 +190,27 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
         </form>
       </div>
 
-      <section style={{ ...styles.output, padding: isDesktop ? "0 12px" : 0 }} aria-live="polite" aria-busy={processing}>
-        <ImageGrid items={previewItems} shimmers={processing && !previewItems.length ? 1 : 0} columns={1} fit="contain" shape="rounded" style={{ width: "100%" }} />
+      <section
+        style={{
+          ...(useFittedPreview ? styles.fittedOutput : styles.output),
+          padding: isDesktop ? "0 12px 12px" : "0 0 12px",
+        }}
+        aria-live="polite"
+        aria-busy={processing}
+      >
+        {useFittedPreview ? (
+          fittedPreviewSrc ? (
+            <img
+              src={fittedPreviewSrc}
+              alt={pageTitle}
+              style={styles.fittedImage}
+            />
+          ) : processing ? (
+            <div style={styles.fittedShimmer} aria-hidden="true" />
+          ) : null
+        ) : (
+          <ImageGrid items={previewItems} columns={1} fit="contain" shape="rounded" style={{ width: "100%" }} />
+        )}
       </section>
 
       <Modal show={settingsOpen} onHide={() => setSettingsOpen(false)} title={t(`${prefix}.settings`)} actions={<Button onClick={() => setSettingsOpen(false)}>{t("close")}</Button>}>
@@ -223,5 +254,32 @@ const styles: Record<string, React.CSSProperties> = {
   tagRow: { display: "flex", gap: 8, marginBottom: 4, width: "100%" },
   buttonRow: { display: "flex", alignItems: "center", gap: 8 },
   output: { maxWidth: 1056, margin: "44px auto 0", padding: "0 12px" },
+  fittedOutput: {
+    width: "100%",
+    maxWidth: 1056,
+    minHeight: 0,
+    flex: 1,
+    margin: "44px auto 0",
+    boxSizing: "border-box",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  fittedImage: {
+    display: "block",
+    width: "auto",
+    height: "auto",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    objectFit: "contain",
+    borderRadius: 8,
+  },
+  fittedShimmer: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 8,
+    background: "rgba(127, 127, 127, 0.12)",
+  },
   settings: { display: "flex", flexDirection: "column", gap: 16 },
 };
