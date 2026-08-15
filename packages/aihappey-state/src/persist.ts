@@ -15,7 +15,7 @@ import { SpeechSlice } from "./slices/speechSlice";
 import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
-import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
+import { DEFAULT_CHAT_VERBOSITY, DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
 import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, readStoredChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
 import { normalizeCustomProviders } from "./slices/uiSlice";
 import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
@@ -38,6 +38,7 @@ export const withPersist = (
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
       structuredOutputs: s.structuredOutputs,
+      verbosity: s.verbosity,
       quickSearches: s.quickSearches,
       maxToolCalls: s.maxToolCalls,
       providerRealtimeMetadata: s.providerRealtimeMetadata,
@@ -383,6 +384,9 @@ export const withPersist = (
 
       return {
         ...safeState,
+        verbosity: safeState.verbosity === "low" || safeState.verbosity === "high"
+          ? safeState.verbosity
+          : DEFAULT_CHAT_VERBOSITY,
         configuredChatEndpointMode,
         selectedChatEndpointMode,
         effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(

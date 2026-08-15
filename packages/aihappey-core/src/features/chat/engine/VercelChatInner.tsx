@@ -238,6 +238,7 @@ export function VercelChatInner({
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
   const workflowType = useAppStore(a => a.workflowType)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
+  const verbosity = useAppStore(a => a.verbosity)
   const gatewayEnabled = useAppStore((a: any) => a.gatewayEnabled);
   const selectedAgentRequest = useMemo(
     () => buildSelectedAgentRequest(selectedAgentNames, agents, remoteAgentModels),
@@ -541,6 +542,7 @@ export function VercelChatInner({
     ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
     ...(chatMode === "agent" ? { workflowType } : {}),
     maxOutputTokens,
+    ...(!isGenericChatEndpoint(requestEndpoint) ? { verbosity } : {}),
     toolChoice,
     maxToolCalls,
     providerMetadata,
@@ -565,6 +567,7 @@ export function VercelChatInner({
     selectedAgentRequest.models,
     workflowType,
     maxOutputTokens,
+    verbosity,
     toolChoice,
     maxToolCalls,
     location.state?.responseFormat,
@@ -827,6 +830,7 @@ export function VercelChatInner({
       ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.6-luna" } : {}),
       tools,
       maxOutputTokens,
+      ...(!isGenericChatEndpoint(requestEndpoint) ? { verbosity } : {}),
       toolChoice,
       maxToolCalls,
       ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),

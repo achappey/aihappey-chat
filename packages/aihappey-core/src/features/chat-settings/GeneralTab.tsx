@@ -26,6 +26,8 @@ export const GeneralTab = ({
   setMaxOutputTokens,
   structuredOutputs,
   setStructuredOutputs,
+  verbosity,
+  setVerbosity,
   experimentalThrottle,
   setThrottle,
   toolAnnotations,
@@ -125,6 +127,8 @@ export const GeneralTab = ({
               ?.name ?? t("providerDefault")
           }
           structuredOutputValue={selectedStructuredOutputId || ""}
+          verbosity={verbosity}
+          onVerbosityChange={setVerbosity}
           onStructuredOutputChange={(selectedValue) => {
             if (!selectedValue) {
               setStructuredOutputs(undefined);

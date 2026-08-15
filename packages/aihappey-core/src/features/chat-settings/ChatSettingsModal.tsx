@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import {
   DEFAULT_CHAT_TOOL_ANNOTATIONS,
+  DEFAULT_CHAT_VERBOSITY,
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
   defaultProviderHeaders,
   defaultProviderMetadata,
   useAppStore,
+  type ChatVerbosity,
 } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
@@ -80,6 +82,7 @@ type ChatSettingsDraft = {
   temperature?: number;
   maxOutputTokens?: number;
   structuredOutputs?: any;
+  verbosity: ChatVerbosity;
   throttle: number;
   toolAnnotations?: ToolAnnotations;
   stopTools?: string[];
@@ -122,6 +125,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
   const setStructuredOutputs = useAppStore((s) => s.setStructuredOutputs);
+  const verbosity = useAppStore((s) => s.verbosity);
+  const setVerbosity = useAppStore((s) => s.setVerbosity);
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
   const setThrottle = useAppStore((s) => s.setThrottle);
   const toolAnnotations = useAppStore((s) => s.toolAnnotations);
@@ -153,6 +158,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       temperature,
       maxOutputTokens,
       structuredOutputs,
+      verbosity: verbosity ?? DEFAULT_CHAT_VERBOSITY,
       throttle: experimentalThrottle ?? 100,
       toolAnnotations: toolAnnotations ?? DEFAULT_CHAT_TOOL_ANNOTATIONS,
       stopTools: [...(stopTools ?? [])],
@@ -177,6 +183,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       providerMetadata,
       stopTools,
       structuredOutputs,
+      verbosity,
       temperature,
       toolAnnotations,
       toolRequestConfig,
@@ -441,6 +448,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     //    void setTemperature?.(draft.temperature);
     setMaxOutputTokens(draft.maxOutputTokens);
     setStructuredOutputs(draft.structuredOutputs);
+    setVerbosity(draft.verbosity);
     setThrottle(draft.throttle);
     setToolAnnotations(draft.toolAnnotations);
     setStopTools(draft.stopTools);
@@ -466,6 +474,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setProviderMetadata,
     setStopTools,
     setStructuredOutputs,
+    setVerbosity,
     //  setTemperature,
     setThrottle,
     setToolAnnotations,
@@ -476,6 +485,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setDraft((current) => ({
       ...current,
       temperature: 1,
+      verbosity: DEFAULT_CHAT_VERBOSITY,
       toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
       providerMetadata: { ...defaultProviderMetadata },
       providerHeaders: { ...defaultProviderHeaders },
@@ -526,6 +536,13 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
                 }));
               }}
               structuredOutputs={draft.structuredOutputs}
+              verbosity={draft.verbosity}
+              setVerbosity={(value: ChatVerbosity) => {
+                setDraft((current) => ({
+                  ...current,
+                  verbosity: value,
+                }));
+              }}
               setStructuredOutputs={(value: any) => {
                 setDraft((current) => ({
                   ...current,

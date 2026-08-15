@@ -131,10 +131,15 @@
     "template": "Template",
     "current": "Current",
     "realtime": "Realtime",
-    "verbosity": "Verbosity",
     "addToFiles": "Add to files",
     "fileAdded": "{{filename}} added",
     "maxOutputTokens": "Maximum output tokens",
+    "verbosity": "Verbosity",
+    "verbosityValues": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+    },
     "maxToolCalls": "Maximum tool calls",
     "stopTools": "Tools that end the chat turn",
     "toolChoice": "Tool choice",

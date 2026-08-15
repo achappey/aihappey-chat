@@ -21,6 +21,8 @@ type AiChatSettingsFormProps = {
     structuredOutputValueTitle?: string
     structuredOutputValue?: string
     onStructuredOutputChange?: (value: string) => void
+    verbosity?: "low" | "medium" | "high"
+    onVerbosityChange?: (value: "low" | "medium" | "high") => void
 };
 
 export const AiChatSettingsForm = memo(({
@@ -31,6 +33,8 @@ export const AiChatSettingsForm = memo(({
     structuredOutputValueTitle,
     structuredOutputValue,
     onStructuredOutputChange,
+    verbosity = "medium",
+    onVerbosityChange,
 }: AiChatSettingsFormProps) => {
     const theme = useTheme();
     const { t } = useTranslation();
@@ -59,6 +63,16 @@ export const AiChatSettingsForm = memo(({
         [onStructuredOutputChange]
     );
 
+    const handleVerbosityChange = useCallback(
+        (e: React.ChangeEvent<HTMLSelectElement> | any) => {
+            const selectedValue = e?.target?.value ?? e?.currentTarget?.value ?? e;
+            if (selectedValue === "low" || selectedValue === "medium" || selectedValue === "high") {
+                onVerbosityChange?.(selectedValue);
+            }
+        },
+        [onVerbosityChange]
+    );
+
     const structuredOutputOptionsMarkup = useMemo(
         () =>
             structuredOutputOptions?.map((item) => (
@@ -84,21 +98,38 @@ export const AiChatSettingsForm = memo(({
                         onChange={handleMaxTokensChange}
                     />
 
-                    {structuredOutputOptions && onStructuredOutputChange && (
-
-                        <SelectComponent
-                            values={[structuredOutputValue || ""]}
-                            label={t("structuredOutputs")}
-                            options={structuredOutputOptions}
-                            valueTitle={structuredOutputValueTitle ?? t("providerDefault")}
-                            onChange={handleStructuredOutputChange}
-                            aria-label={t("structuredOutputs")}
-                        >
-                            <option value="">{t("providerDefault")}</option>
-                            {structuredOutputOptionsMarkup}
-                        </SelectComponent>
-
-                    )}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {structuredOutputOptions && onStructuredOutputChange && (
+                            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+                                <SelectComponent
+                                    values={[structuredOutputValue || ""]}
+                                    label={t("structuredOutputs")}
+                                    options={structuredOutputOptions}
+                                    valueTitle={structuredOutputValueTitle ?? t("providerDefault")}
+                                    onChange={handleStructuredOutputChange}
+                                    aria-label={t("structuredOutputs")}
+                                >
+                                    <option value="">{t("providerDefault")}</option>
+                                    {structuredOutputOptionsMarkup}
+                                </SelectComponent>
+                            </div>
+                        )}
+                        {onVerbosityChange && (
+                            <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+                                <SelectComponent
+                                    values={[verbosity]}
+                                    label={t("verbosity")}
+                                    valueTitle={t(`verbosityValues.${verbosity}`)}
+                                    onChange={handleVerbosityChange}
+                                    aria-label={t("verbosity")}
+                                >
+                                    <option value="low">{t("verbosityValues.low")}</option>
+                                    <option value="medium">{t("verbosityValues.medium")}</option>
+                                    <option value="high">{t("verbosityValues.high")}</option>
+                                </SelectComponent>
+                            </div>
+                        )}
+                    </div>
 
                 </div>
             </theme.Card>

@@ -28,6 +28,9 @@ export type SideInferenceAgentNames = {
   resourceSearchAgent: string;
 };
 
+export type ChatVerbosity = "low" | "medium" | "high";
+export const DEFAULT_CHAT_VERBOSITY: ChatVerbosity = "medium";
+
 export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
   welcomeMessageAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.welcomeMessage,
   conversationNameAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.conversationName,
@@ -70,6 +73,8 @@ export type ChatSlice = ApiKeyEncryptionState & {
   experimentalThrottle?: number
   chatErrors?: string[]
   structuredOutputs?: any
+  verbosity: ChatVerbosity;
+  setVerbosity: (verbosity: ChatVerbosity) => void;
   activePlugins: string[]
   /** Enabled user-defined local tools (stored in IndexedDB via aihappey-tools). */
   enabledLocalTools: string[]
@@ -176,6 +181,7 @@ export const createChatSlice: StateCreator<
   apiKeySessionPassword: undefined,
   apiKeyEncryptionStatus: "none",
   structuredOutputs: undefined,
+  verbosity: DEFAULT_CHAT_VERBOSITY,
   toolAnnotations: DEFAULT_CHAT_TOOL_ANNOTATIONS,
   chatErrors: [],
   approveAll: false,
@@ -261,6 +267,11 @@ export const createChatSlice: StateCreator<
   setStructuredOutputs: (value) => {
     set((state: any) => ({
       structuredOutputs: value,
+    }));
+  },
+  setVerbosity: (value) => {
+    set(() => ({
+      verbosity: value,
     }));
   },
   setConfiguredChatEndpointMode: (value) => {
@@ -489,6 +500,7 @@ export const createChatSlice: StateCreator<
       providerHeaders: { ...defaultProviderHeaders },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       temperature: 1,
+      verbosity: DEFAULT_CHAT_VERBOSITY,
       selectedChatEndpointMode: undefined,
       effectiveChatEndpointMode: get().configuredChatEndpointMode ?? DEFAULT_CHAT_ENDPOINT_MODE,
       selectedEndpointProfileId: undefined,

@@ -61,10 +61,11 @@ export {
 } from "./slices/defaultProviderRealtimeMetadata";
 export * from "./slices/agentModelProviderMetadata";
 export {
+  DEFAULT_CHAT_VERBOSITY,
   DEFAULT_CHAT_TOOL_ANNOTATIONS,
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
 } from "./slices/chatSlice";
-export type { SideInferenceAgentNames } from "./slices/chatSlice";
+export type { ChatVerbosity, SideInferenceAgentNames } from "./slices/chatSlice";
 export type {
   ApiKeyEncryptionState,
   ApiKeyEncryptionStatus,

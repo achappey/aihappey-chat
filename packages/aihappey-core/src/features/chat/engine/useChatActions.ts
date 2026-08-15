@@ -24,6 +24,7 @@ import {
   validateEndpointProfileForModel,
 } from "./endpointProfiles";
 import { decorateToolsWithRequestConfig } from "../../tools/toolRequestConfig";
+import { isGenericChatEndpoint } from "./genericChatEndpoint";
 
 type ChatActionsProps = {
   // attachments: UiAttachment[];
@@ -65,6 +66,7 @@ export function useChatActions({
   const workflowType = useAppStore(a => a.workflowType)
   const handoffs = useAppStore(a => a.handoffs)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
+  const verbosity = useAppStore(a => a.verbosity)
   const toolRequestConfig = useAppStore(a => (a as any).toolRequestConfig)
   const useToolNamespaces = useAppStore(a => (a as any).useToolNamespaces)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
@@ -184,6 +186,7 @@ export function useChatActions({
               toolRequestConfig,
               useToolNamespaces,
               temperature,
+              ...(!isGenericChatEndpoint(requestEndpoint) ? { verbosity } : {}),
               providerMetadata,
               providerHeaders,
               ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),
@@ -218,6 +221,7 @@ export function useChatActions({
       selectedAgentRequest.models,
       workflowType,
       temperature,
+      verbosity,
       //    clearAttachments,
       requestModel,
       conversationId,
@@ -248,6 +252,7 @@ export function useChatActions({
               toolRequestConfig,
               useToolNamespaces,
               temperature,
+              ...(!isGenericChatEndpoint(requestEndpoint) ? { verbosity } : {}),
               providerMetadata,
               providerHeaders,
               ...(isProviderEndpointProfile && providerRequestConfig ? { providerRequestConfig } : {}),

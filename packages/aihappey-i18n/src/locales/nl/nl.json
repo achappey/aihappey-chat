@@ -121,6 +121,12 @@
     "console": "Beheeromgeving",
     "documentation": "Documentatie",
     "maxOutputTokens": "Maximaal aantal uitvoertokens",
+    "verbosity": "Detailniveau",
+    "verbosityValues": {
+        "low": "Laag",
+        "medium": "Medium",
+        "high": "Hoog"
+    },
     "maxToolCalls": "Maximaal aantal tool-aanroepen",
     "stopTools": "Tools die de chatbeurt beëindigen ",
     "toolChoice": "Toolkeuze",
@@ -577,7 +583,6 @@
     "structuredOutputs": "Gestructureerde uitvoer",
     "structuredOutputsPlaceholder": "JSON schema...",
     "fast": "Snel",
-    "verbosity": "Uitvoerigheid",
     "accurate": "Accuraat",
     "off": "Uit",
     "effortLevel": "Niveau",
