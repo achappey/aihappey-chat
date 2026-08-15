@@ -90,13 +90,13 @@ export const ToolConfigurationTab = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      {sortedTools.length > 0 && <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <theme.Switch id="use-tool-namespaces" label={t("toolConfiguration.useNamespaces")} checked={useNamespaces} onChange={onUseNamespacesChange} />
-      </div>
-      <div style={{ overflowX: "auto" }}>
+      </div>}
+      {sortedTools.length > 0 && <div style={{ overflowX: "auto" }}>
         <table style={{ borderCollapse: "collapse", width: "100%" }}>
           <thead><tr>
-            <th style={{ textAlign: "left", padding: 8 }}>{t("toolConfiguration.name")}</th>
+            <th style={{ textAlign: "left", padding: 8 }}></th>
             <th style={{ textAlign: "left", padding: 8 }}>{t("toolConfiguration.allowedCallers")}</th>
             <th style={{ textAlign: "left", padding: 8 }}>{t("toolConfiguration.deferLoading")}</th>
           </tr></thead>
@@ -134,6 +134,7 @@ export const ToolConfigurationTab = ({
           </tbody>
         </table>
       </div>
+      }
       {!sortedTools.length ? <div style={{ fontSize: 12, opacity: .7 }}>{t("toolConfiguration.empty")}</div> : null}
     </div>
   );
