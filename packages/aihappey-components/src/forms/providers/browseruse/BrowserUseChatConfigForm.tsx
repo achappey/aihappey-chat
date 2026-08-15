@@ -26,6 +26,17 @@ const cleanString = (value: string) => {
   return next.length ? next : undefined;
 };
 
+const cleanObject = (value: Record<string, unknown>) => {
+  const entries = Object.entries(value).filter(([, entry]) => entry !== undefined);
+  return entries.length ? Object.fromEntries(entries) : undefined;
+};
+
+const optionalNumber = (value: unknown) => {
+  if (value === "" || value == null) return undefined;
+  const next = Number(value);
+  return Number.isFinite(next) ? next : undefined;
+};
+
 export const BrowserUseChatConfigForm = ({
   config,
   updateConfig,
@@ -35,133 +46,138 @@ export const BrowserUseChatConfigForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const browserSettings = config?.browserSettings ?? {};
+  const judgeEnabled = config?.judge != null;
+
+  const updateBrowserSettings = (patch: Record<string, unknown>) => {
+    updateConfig({
+      ...config,
+      browserSettings: cleanObject({ ...browserSettings, ...patch }),
+    });
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card size="small" title={t("providers:browseruse.session") ?? "BrowserUse session"}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+      <theme.Card size="small" title={t("general")}>
+        <theme.Input
+          label={t("providers:browseruse.maxCostUsd") ?? "Maximum cost (USD)"}
+          type="number"
+          min={0.01}
+          step="0.01"
+          value={config?.maxCostUsd ?? ""}
+          onChange={(e: any) =>
+            updateConfig({
+              ...config,
+              maxCostUsd: optionalNumber(e.target.value),
+            })
+          }
+        />
+      </theme.Card>
+
+      <theme.Card size="small" title={t("providers:browseruse.browserSettings") ?? "Browser settings"}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Input
-            label={t("providers:browseruse.maxCostUsd") ?? "maxCostUsd"}
-            type="number"
-            min={0}
-            step="0.01"
-            value={config?.maxCostUsd ?? ""}
+            label={t("providers:browseruse.profileId") ?? "Profile ID"}
+            value={browserSettings.profileId ?? ""}
             onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                maxCostUsd: cleanString(String(e.target.value ?? "")),
-              })
+              updateBrowserSettings({ profileId: cleanString(e.target.value) })
             }
           />
 
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <theme.Input
-                label={t("providers:browseruse.profileId") ?? "profileId"}
-                value={config?.profileId ?? ""}
-                onChange={(e: any) =>
-                  updateConfig({
-                    ...config,
-                    profileId: cleanString(e.target.value),
-                  })
-                }
-              />
-            </div>
-
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <theme.Input
-                label={t("providers:browseruse.workspaceId") ?? "workspaceId"}
-                value={config?.workspaceId ?? ""}
-                onChange={(e: any) =>
-                  updateConfig({
-                    ...config,
-                    workspaceId: cleanString(e.target.value),
-                  })
-                }
-              />
-            </div>
-          </div>
-
           <theme.Select
-            label={t("providers:browseruse.proxyCountryCode") ?? "proxyCountryCode"}
-            value={config?.proxyCountryCode ?? ""}
+            label={t("providers:browseruse.proxyCountryCode") ?? "Proxy country"}
+            value={browserSettings.proxyCountryCode === null ? "__none__" : browserSettings.proxyCountryCode ?? ""}
             onChange={(e: any) =>
-              updateConfig({
-                ...config,
-                proxyCountryCode: cleanString(e.target.value),
+              updateBrowserSettings({
+                proxyCountryCode: e.target.value === "__none__"
+                  ? null
+                  : cleanString(e.target.value),
               })
             }
           >
             <option value="">{t("providerDefault")}</option>
+            <option value="__none__">{t("providers:browseruse.noProxy") ?? "No proxy"}</option>
             {PROXY_COUNTRY_CODES.map((countryCode) => (
               <option key={countryCode} value={countryCode}>
                 {countryCode.toUpperCase()}
               </option>
             ))}
           </theme.Select>
+
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <theme.Input
+              label={t("providers:browseruse.screenWidth") ?? "Screen width"}
+              type="number"
+              min={320}
+              max={6144}
+              step={1}
+              value={browserSettings.screenWidth ?? ""}
+              style={{ flex: "1 1 220px" }}
+              onChange={(e: any) =>
+                updateBrowserSettings({ screenWidth: optionalNumber(e.target.value) })
+              }
+            />
+            <theme.Input
+              label={t("providers:browseruse.screenHeight") ?? "Screen height"}
+              type="number"
+              min={320}
+              max={3456}
+              step={1}
+              value={browserSettings.screenHeight ?? ""}
+              style={{ flex: "1 1 220px" }}
+              onChange={(e: any) =>
+                updateBrowserSettings({ screenHeight: optionalNumber(e.target.value) })
+              }
+            />
+          </div>
+
+          <theme.Select
+            label={t("providers:browseruse.record") ?? "Record browser session"}
+            value={browserSettings.record === true ? "true" : browserSettings.record === false ? "false" : ""}
+            onChange={(e: any) =>
+              updateBrowserSettings({
+                record: e.target.value === "" ? undefined : e.target.value === "true",
+              })
+            }
+          >
+            <option value="">{t("providerDefault")}</option>
+            <option value="true">{t("enabled") ?? "Enabled"}</option>
+            <option value="false">{t("disabled") ?? "Disabled"}</option>
+          </theme.Select>
         </div>
       </theme.Card>
 
-      <theme.Card size="small" title={t("providers:browseruse.features") ?? "BrowserUse features"}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            width: "100%",
-          }}
-        >
+      <theme.Card
+        size="small"
+        title={t("providers:browseruse.judge") ?? "Judge"}
+        headerActions={
           <theme.Switch
-            id="browseruseEnableRecording"
-            label={t("providers:browseruse.enableRecording") ?? "enableRecording"}
-            checked={!!config?.enableRecording}
+            id="browseruseJudge"
+            label={t("providers:browseruse.enableJudge") ?? "Enable judge"}
+            checked={judgeEnabled}
             size="small"
             onChange={(value) =>
               updateConfig({
                 ...config,
-                enableRecording: value ? true : undefined,
+                judge: value ? {} : undefined,
               })
             }
           />
-
-          <theme.Switch
-            id="browseruseSkills"
-            label={t("providers:browseruse.skills") ?? "skills"}
-            checked={config?.skills !== false}
-            size="small"
-            onChange={(value) =>
+        }
+      >
+        {judgeEnabled && (
+          <theme.TextArea
+            label={t("providers:browseruse.judgeContext") ?? "Judge context"}
+            rows={4}
+            value={config.judge?.context ?? ""}
+            onChange={(e: any) =>
               updateConfig({
                 ...config,
-                skills: value ? true : false,
+                judge: cleanObject({ context: cleanString(e.target.value) }) ?? {},
               })
             }
           />
-
-          <theme.Switch
-            id="browseruseAgentmail"
-            label={t("providers:browseruse.agentmail") ?? "agentmail"}
-            checked={config?.agentmail !== false}
-            size="small"
-            onChange={(value) =>
-              updateConfig({
-                ...config,
-                agentmail: value ? true : false,
-              })
-            }
-          />
-
-          <theme.Switch
-            id="browseruseCacheScript"
-            label={t("providers:browseruse.cacheScript") ?? "cacheScript"}
-            checked={!!config?.cacheScript}
-            size="small"
-            onChange={(value) =>
-              updateConfig({
-                ...config,
-                cacheScript: value ? true : undefined,
-              })
-            }
-          />
-        </div>
+        )}
       </theme.Card>
     </div>
   );

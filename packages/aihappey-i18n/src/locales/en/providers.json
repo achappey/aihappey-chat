@@ -127,16 +127,18 @@
     }
   },
   "browseruse": {
-    "session": "Session",
-    "features": "Features",
+    "run": "Run",
+    "browserSettings": "Browser settings",
     "maxCostUsd": "Maximum cost (USD)",
-    "profileId": "Profile",
-    "workspaceId": "Workspace",
-    "proxyCountryCode": "Country where browser runs",
-    "enableRecording": "Enable recording",
-    "skills": "Enable skills",
-    "agentmail": "Enable AgentMail",
-    "cacheScript": "Cache script"
+    "profileId": "Profile ID",
+    "proxyCountryCode": "Location",
+    "noProxy": "No proxy",
+    "screenWidth": "Screen width",
+    "screenHeight": "Screen height",
+    "record": "Record browser session",
+    "judge": "Judge",
+    "enableJudge": "Enable judge",
+    "judgeContext": "Judge context"
   },
   "tembo": {
     "session": "Session",

@@ -217,16 +217,18 @@
     "returnRelatedQuestions": "Gerelateerde vragen retourneren"
   },
   "browseruse": {
-    "session": "Sessie",
-    "features": "Functies",
+    "run": "Run",
+    "browserSettings": "Browserinstellingen",
     "maxCostUsd": "Maximale kosten (USD)",
-    "profileId": "Profiel",
-    "workspaceId": "Workspace",
-    "proxyCountryCode": "Land waar de browser draait",
-    "enableRecording": "Opname inschakelen",
-    "skills": "Skills inschakelen",
-    "agentmail": "AgentMail inschakelen",
-    "cacheScript": "Script opslaan"
+    "profileId": "Profiel-ID",
+    "proxyCountryCode": "Locatie",
+    "noProxy": "Geen proxy",
+    "screenWidth": "Schermbreedte",
+    "screenHeight": "Schermhoogte",
+    "record": "Browsersessie opnemen",
+    "judge": "Beoordelaar",
+    "enableJudge": "Beoordelaar inschakelen",
+    "judgeContext": "Context voor beoordelaar"
   },
   "tembo": {
     "session": "Sessie",
