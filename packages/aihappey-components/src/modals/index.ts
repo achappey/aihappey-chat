@@ -12,3 +12,5 @@ export * from "./WizardStepHeader";
 export * from "./ProviderDetailModal";
 export * from "./SkillDetailsModal";
 export * from "./SkillEditModal";
+export * from "./PluginDetailsModal";
+export * from "./PluginEditModal";

@@ -25,6 +25,7 @@ export * from "./JobCard";
 export * from "./ToolCard";
 export * from "./FileCard";
 export * from "./SkillCard";
+export * from "./PluginCard";
 export * from "./RerankingDocumentCard";
 export * from "./RerankingCard";
 
