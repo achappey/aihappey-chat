@@ -19,7 +19,7 @@ export const contextTabTitle = (title: string, count: number) => `${title} (${co
 const styles: Record<string, React.CSSProperties> = {
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gridTemplateColumns: "minmax(0, 1fr)",
     gap: 12,
     width: "100%",
     marginTop: 12,

@@ -4,16 +4,19 @@ import { AuthorBadges, LimitedTextField, LocalToolsSettingsForm, RegistryServerC
 import { useTranslation } from "aihappey-i18n";
 import { useLocalTools } from "aihappey-tools";
 import { useSkills } from "aihappey-skills";
+import { usePlugins } from "aihappey-plugins";
 import { McpRegistryServerResponse } from "aihappey-types";
 import { useAccount } from "aihappey-auth";
+import { useDarkMode } from "usehooks-ts";
 import { useDefaultRegistries } from "../../../../shell/connectors/useDefaultRegistries";
+import { PROVIDERS } from "../../../../runtime/providers/providerMetadata";
 import { ContextSearchGrid, contextTabTitle } from "./ContextSearchGrid";
 import {
   allBuiltInPluginDefs,
   normalizeCatalogText,
 } from "../../../tools/toolCatalogItems";
 
-type ContextSearchTab = "tools" | "skills" | "catalog";
+type ContextSearchTab = "tools" | "skills" | "plugins" | "catalog";
 
 type Props = {
   open: boolean;
@@ -21,6 +24,11 @@ type Props = {
 };
 
 const keyOf = (name: string) => name.trim().toLowerCase();
+
+const getProviderKeyFromSkillId = (skillId: string) => {
+  const parts = skillId.split("/").filter(Boolean);
+  return parts.length > 1 ? parts[0].toLowerCase() : null;
+};
 
 function ownerNames(server: McpRegistryServerResponse) {
   return Object.values(server?._meta ?? {})
@@ -50,10 +58,11 @@ function matchesRegistryServer(server: McpRegistryServerResponse, search: string
 const CATALOG_PAGE_SIZE = 20;
 
 export const ContextSearchModal = ({ open, onClose }: Props) => {
-  const { Modal, Button, SearchBox, Tabs, Tab, Card, Switch, Text } = useTheme();
+  const { Modal, Button, SearchBox, Tabs, Tab, Card, Switch, Badge, Image } = useTheme();
   const { t } = useTranslation();
   const account = useAccount();
   const getRegistries = useDefaultRegistries();
+  const isDarkMode = useDarkMode();
 
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<ContextSearchTab>("tools");
@@ -67,6 +76,8 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
+  const enabledAgentPluginIds = useAppStore((s) => s.enabledAgentPluginIds);
+  const setEnabledAgentPluginIds = useAppStore((s) => s.setEnabledAgentPluginIds);
   const mcpRegistries = useAppStore((s) => s.mcpRegistries);
   const mcpServers = useAppStore((s) => s.mcpServers);
   const addMcpServer = useAppStore((s) => s.addMcpServer);
@@ -74,6 +85,8 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
 
   const localTools = useLocalTools();
   const skills = useSkills();
+  const plugins = usePlugins();
+  const [draftEnabledAgentPluginIds, setDraftEnabledAgentPluginIds] = useState<string[]>([]);
 
   const collator = useMemo(
     () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
@@ -88,17 +101,19 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
     if (!open) return;
     setCatalogInstallHappened(false);
     setCatalogVisibleCount(CATALOG_PAGE_SIZE);
-  }, [open]);
+    setDraftEnabledAgentPluginIds([...(enabledAgentPluginIds ?? [])]);
+  }, [enabledAgentPluginIds, open]);
 
   useEffect(() => {
     setCatalogVisibleCount(CATALOG_PAGE_SIZE);
   }, [search]);
 
   const close = useCallback(() => {
+    setEnabledAgentPluginIds(draftEnabledAgentPluginIds);
     setSearch("");
     setActiveTab("tools");
     onClose(catalogInstallHappened);
-  }, [catalogInstallHappened, onClose]);
+  }, [catalogInstallHappened, draftEnabledAgentPluginIds, onClose, setEnabledAgentPluginIds]);
 
   const q = normalizeCatalogText(search);
 
@@ -149,14 +164,15 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
   const skillItems = useMemo(
     () => (skills.items ?? []).map((item) => ({
       id: item.skillId,
-      label: `${item.name} (v${item.version})`,
+      name: item.name,
+      version: item.version,
       description: item.description,
       origin: item.origin,
-    })).sort((a, b) => collator.compare(a.label, b.label)),
+    })).sort((a, b) => collator.compare(a.name, b.name)),
     [collator, skills.items]
   );
   const visibleSkills = useMemo(
-    () => skillItems.filter((item) => !q || normalizeCatalogText(`${item.id} ${item.label} ${item.description ?? ""} ${item.origin ?? ""}`).includes(q)),
+    () => skillItems.filter((item) => !q || normalizeCatalogText(`${item.id} ${item.name} ${item.version ?? ""} ${item.description ?? ""} ${item.origin ?? ""}`).includes(q)),
     [q, skillItems]
   );
 
@@ -177,6 +193,25 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
         console.error("Failed to download enabled skill", err);
       }
     }
+  };
+
+  const visiblePlugins = useMemo(
+    () => (plugins.items ?? [])
+      .filter((plugin) => !q || normalizeCatalogText([
+        plugin.id,
+        plugin.name,
+        plugin.description,
+        plugin.version,
+        plugin.author?.name,
+        plugin.author?.email,
+        ...(plugin.keywords ?? []),
+      ].filter(Boolean).join(" ")).includes(q))
+      .sort((a, b) => collator.compare(a.name, b.name)),
+    [collator, plugins.items, q]
+  );
+
+  const handlePluginToggle = (pluginId: string, checked: boolean) => {
+    setDraftEnabledAgentPluginIds((current) => toggleArrayValue(current, pluginId, checked));
   };
 
   const catalogServers = useMemo(
@@ -250,28 +285,82 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
 
           <Tab eventKey="skills" icon="skills" title={contextTabTitle(t("skills") ?? "Skills", visibleSkills.length)}>
             <ContextSearchGrid empty={visibleSkills.length === 0}>
-              {visibleSkills.map((skill) => (
+              {visibleSkills.map((skill) => {
+                const providerKey = skill.origin === "remote" ? getProviderKeyFromSkillId(skill.id) : null;
+                const providerIcons = providerKey ? PROVIDERS[providerKey]?.icons : undefined;
+                const iconImage =
+                  providerIcons?.find((icon) => icon.theme === (isDarkMode ? "dark" : "light"))?.src ??
+                  providerIcons?.[0]?.src;
+                const image = iconImage ? (
+                  <Image height={32} title={skill.name} shape="square" src={iconImage} />
+                ) : undefined;
+
+                return (
+                  <Card
+                    key={skill.id}
+                    title={<span style={{ overflowWrap: "anywhere" }}>{skill.name}</span>}
+                    description={(
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                        {skill.version ? (
+                          <Badge size="small" bg="subtle">
+                            {t("skillsPage.versionBadge", { version: skill.version }) ?? `v${skill.version}`}
+                          </Badge>
+                        ) : null}
+                        {favoriteSkillSet.has(skill.id) ? <span>{t("favorites")}</span> : null}
+                      </div>
+                    )}
+                    size="small"
+                    image={image}
+                    headerActions={
+                      <Switch
+                        id={`context-skill-${skill.id}`}
+                        size="small"
+                        checked={(enabledSkillIds ?? []).includes(skill.id)}
+                        onChange={(checked: boolean) => void handleSkillToggle(skill.id, checked)}
+                      />
+                    }
+                  >
+                    {skill.description ? <LimitedTextField text={skill.description} rows={4} /> : null}
+                  </Card>
+                );
+              })}
+            </ContextSearchGrid>
+          </Tab>
+
+          <Tab eventKey="plugins" icon="plugins" title={contextTabTitle(t("pluginsPage.title") ?? "Plugins", visiblePlugins.length)}>
+            <ContextSearchGrid empty={visiblePlugins.length === 0}>
+              {visiblePlugins.map((plugin) => (
                 <Card
-                  key={skill.id}
-                  title={skill.label}
-                  description={[skill.origin, favoriteSkillSet.has(skill.id) ? t("favorites") : undefined].filter(Boolean).join(" · ")}
+                  key={plugin.id}
+                  title={<span style={{ overflowWrap: "anywhere" }}>{plugin.name}</span>}
                   size="small"
-                  headerActions={
+                  description={(
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {plugin.version ? <Badge size="small" bg="subtle">v{plugin.version}</Badge> : null}
+                      <Badge size="small" appearance="neutral" icon="skills">
+                        {t("pluginsPage.skillCount", { count: plugin.skillCount })}
+                      </Badge>
+                      <Badge size="small" appearance="neutral" icon="mcpServer">
+                        {t("pluginsPage.serverCount", { count: plugin.mcpServerCount })}
+                      </Badge>
+                    </div>
+                  )}
+                  headerActions={(
                     <Switch
-                      id={`context-skill-${skill.id}`}
+                      id={`context-agent-plugin-${plugin.id}`}
                       size="small"
-                      checked={(enabledSkillIds ?? []).includes(skill.id)}
-                      onChange={(checked: boolean) => void handleSkillToggle(skill.id, checked)}
+                      checked={draftEnabledAgentPluginIds.includes(plugin.id)}
+                      onChange={(checked: boolean) => handlePluginToggle(plugin.id, checked)}
                     />
-                  }
+                  )}
                 >
-                  {skill.description ? <LimitedTextField text={skill.description} rows={4} /> : null}
+                  <LimitedTextField text={plugin.description || (t("pluginsPage.noDescription") ?? "No description")} rows={4} />
                 </Card>
               ))}
             </ContextSearchGrid>
           </Tab>
 
-          <Tab eventKey="catalog" icon="mcpServer" title={contextTabTitle(t("manageServersModal.catalog") ?? "Model Context Catalog", visibleCatalogServers.length)}>
+          <Tab eventKey="catalog" icon="mcpServer" title={contextTabTitle(t("serverSelectModal.title") ?? "Model Context", visibleCatalogServers.length)}>
             <div style={styles.catalogList}>
               {visibleCatalogServers.length === 0 ? (
                 <div style={styles.empty}>{t("serverSelectModal.noServers") ?? t("noResults")}</div>
