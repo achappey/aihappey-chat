@@ -112,9 +112,9 @@
     },
     "pluginsPage": {
         "title": "Plugins",
-        "description": "Plugins bundelen skills en MCP-servers in één pakket. Zo voeg je complete sets van instructies, tools en mogelijkheden in één keer toe en kun je ze eenvoudig combineren, delen en hergebruiken.",
+        "description": "Plugins bundelen Skills en Model Context servers in één pakket. Zo voeg je complete sets van instructies, tools en mogelijkheden in één keer toe en kun je ze eenvoudig combineren, delen en hergebruiken.",
         "skillCount": "Skills: {{count}}",
-        "serverCount": "MCP-servers: {{count}}",
+        "serverCount": "MCP: {{count}}",
         "diagnosticCount": "Diagnostiek: {{count}}",
         "fileCount": "Bestanden: {{count}}",
         "noDescription": "Geen beschrijving",

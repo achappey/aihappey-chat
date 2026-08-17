@@ -109,9 +109,9 @@
     },
     "pluginsPage": {
         "title": "Plugins",
-        "description": "Plugins bundle skills and MCP servers into a single package. This lets you add complete sets of instructions, tools, and capabilities at once, and easily combine, share, and reuse them.",
+        "description": "Plugins bundle Skills and Model Context servers into a single package. This lets you add complete sets of instructions, tools, and capabilities at once, and easily combine, share, and reuse them.",
         "skillCount": "Skills: {{count}}",
-        "serverCount": "MCP servers: {{count}}",
+        "serverCount": "MCP: {{count}}",
         "diagnosticCount": "Diagnostics: {{count}}",
         "fileCount": "Files: {{count}}",
         "noDescription": "No description",
