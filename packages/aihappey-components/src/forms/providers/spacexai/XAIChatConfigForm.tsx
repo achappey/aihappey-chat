@@ -31,7 +31,19 @@ const DEFAULT_CODE_EXECUTION = {
   type: "code_execution",
 };
 
-const XAI_TOOL_TYPES = ["web_search", "x_search", "code_execution"];
+const DEFAULT_IMAGE_GENERATION = {
+  type: "image_generation",
+  action: "auto",
+};
+
+const IMAGE_GENERATION_ACTIONS = ["auto", "generate", "edit"] as const;
+
+const XAI_TOOL_TYPES = [
+  "web_search",
+  "x_search",
+  "code_execution",
+  "image_generation",
+];
 
 export const XAIChatConfigForm = ({
   config,
@@ -43,13 +55,30 @@ export const XAIChatConfigForm = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const resolvedConfig = withResolvedProviderTools(config, XAI_TOOL_TYPES);
-  const submitConfig = (nextConfig: any) =>
-    updateConfig(buildCanonicalProviderToolsConfig(nextConfig, XAI_TOOL_TYPES));
+  const submitConfig = (nextConfig: any) => {
+    const { instructions: _instructions, ...configWithoutInstructions } =
+      nextConfig ?? {};
+
+    updateConfig(
+      buildCanonicalProviderToolsConfig(
+        configWithoutInstructions,
+        XAI_TOOL_TYPES
+      )
+    );
+  };
 
   const reasoningOn = !!config?.reasoning;
   const webSearchOn = !!resolvedConfig?.web_search;
   const xSearchOn = !!resolvedConfig?.x_search;
   const codeExecutionOn = !!resolvedConfig?.code_execution;
+  const imageGenerationOn = !!resolvedConfig?.image_generation;
+  const imageGenerationAction =
+    resolvedConfig?.image_generation?.action ?? "auto";
+  const imageGenerationActionOptions = IMAGE_GENERATION_ACTIONS.map((value) => ({
+    value,
+    label:
+      value === "auto" ? t("auto") : t(`providers:openai.${value}`),
+  }));
 
   const serviceTierOptions = ["default", "priority"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "default";
@@ -59,8 +88,8 @@ export const XAIChatConfigForm = ({
       ? Array.from(new Set([...current, key]))
       : current.filter((value: any) => value !== key);
 
-    updateConfig({
-      ...config,
+    submitConfig({
+      ...resolvedConfig,
       include: next.length ? next : undefined,
     });
   };
@@ -75,8 +104,8 @@ export const XAIChatConfigForm = ({
             id="reasoning"
             checked={reasoningOn}
             onChange={(val) =>
-              updateConfig({
-                ...config,
+              submitConfig({
+                ...resolvedConfig,
                 reasoning: val ? { ...DEFAULT_REASONING } : undefined,
               })
             }
@@ -283,6 +312,54 @@ export const XAIChatConfigForm = ({
 
       <theme.Card
         size="small"
+        title={t("image_generation")}
+        headerActions={
+          <theme.Switch
+            id="imageGeneration"
+            checked={imageGenerationOn}
+            onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
+                image_generation: !val
+                  ? undefined
+                  : { ...DEFAULT_IMAGE_GENERATION },
+              })
+            }
+          />
+        }
+      >
+        <theme.Select
+          label={t("providers:openai.action")}
+          values={[imageGenerationAction]}
+          disabled={!imageGenerationOn}
+          valueTitle={
+            imageGenerationActionOptions.find(
+              ({ value }) => value === imageGenerationAction
+            )?.label ?? t("auto")
+          }
+          options={imageGenerationActionOptions}
+          onChange={(value: string) =>
+            submitConfig({
+              ...resolvedConfig,
+              image_generation: {
+                ...(resolvedConfig.image_generation ?? {
+                  ...DEFAULT_IMAGE_GENERATION,
+                }),
+                action: value,
+              },
+            })
+          }
+        >
+          {imageGenerationActionOptions.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </theme.Select>
+      </theme.Card>
+
+      <theme.Card
+        size="small"
         title={t("code_execution")}
         headerActions={
           <theme.Switch
@@ -352,18 +429,6 @@ export const XAIChatConfigForm = ({
       </theme.Card>
 
 
-      <theme.TextArea
-        label={t("providers:openai.instructions")}
-        placeholder={t("providers:openai.instructionsPlaceholder")}
-        rows={5}
-        value={config?.instructions}
-        onChange={(value) =>
-          updateConfig({
-            ...config,
-            instructions: value,
-          })
-        }
-      />
     </div>
   );
 };

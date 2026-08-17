@@ -114,22 +114,31 @@ export const CodeExecutionOnly: Story = {
   ),
 };
 
-export const ParallelToolsEnabled: Story = {
+export const ImageGenerationAuto: Story = {
   render: () => (
     <Wrapper
       config={{
-        parallel_tool_calls: true,
+        tools: [{ type: "image_generation", action: "auto" }],
       }}
     />
   ),
 };
 
-export const InstructionsOnly: Story = {
+export const ImageGenerationEditOnly: Story = {
   render: () => (
     <Wrapper
       config={{
-        instructions:
-          "You are a strict analyst. Prefer primary sources and cite URLs.",
+        tools: [{ type: "image_generation", action: "edit" }],
+      }}
+    />
+  ),
+};
+
+export const ParallelToolsEnabled: Story = {
+  render: () => (
+    <Wrapper
+      config={{
+        parallel_tool_calls: true,
       }}
     />
   ),
@@ -144,21 +153,24 @@ export const FullyLoaded: Story = {
           effort: "high",
           summary: "detailed",
         },
-        web_search: {
-          enable_image_understanding: true,
-          allowed_domains: ["x.ai", "openai.com"],
-          excluded_domains: ["reddit.com"],
-        },
-        x_search: {
-          enable_image_understanding: true,
-          enable_video_understanding: false,
-          allowed_x_handles: ["@xai"],
-          excluded_x_handles: ["@noise"],
-        },
-        code_execution: {},
+        tools: [
+          {
+            type: "web_search",
+            enable_image_understanding: true,
+            allowed_domains: ["x.ai", "openai.com"],
+            excluded_domains: ["reddit.com"],
+          },
+          {
+            type: "x_search",
+            enable_image_understanding: true,
+            enable_video_understanding: false,
+            allowed_x_handles: ["@xai"],
+            excluded_x_handles: ["@noise"],
+          },
+          { type: "image_generation", action: "generate" },
+          { type: "code_execution" },
+        ],
         parallel_tool_calls: true,
-        instructions:
-          "Act as a senior researcher. Verify claims using web and X search.",
       }}
     />
   ),
