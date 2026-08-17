@@ -169,6 +169,12 @@ export const ConversationSidebar = ({
       icon: "folder",
     },
     {
+      key: "plugins",
+      label: t("pluginsPage.title"),
+      href: "/plugins",
+      icon: "components",
+    },
+    {
       key: "skills",
       label: t("skills"),
       href: "/skills",
@@ -391,10 +397,12 @@ export const ConversationSidebar = ({
                     ? "files"
                     : location.pathname === "/skills"
                       ? "skills"
-                      : location.pathname === "/structured-outputs"
-                        ? "structured-outputs"
-                        : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
-                          ? "web-apps"
+                      : location.pathname === "/plugins"
+                        ? "plugins"
+                        : location.pathname === "/structured-outputs"
+                          ? "structured-outputs"
+                          : location.pathname === "/web-apps" || location.pathname.startsWith("/web-apps/")
+                            ? "web-apps"
                             : location.pathname === "/apps" || location.pathname.startsWith("/apps/")
                               ? "apps"
                               : location.pathname === "/catalogs"
@@ -405,25 +413,25 @@ export const ConversationSidebar = ({
                                     ? "reranking"
                                     : location.pathname === "/jobs"
                                       ? "jobs"
-                                        : location.pathname === "/images"
-                                          ? "images"
-                                          : location.pathname === "/streaming/images/create"
-                                            ? "streaming-image-create"
-                                            : location.pathname === "/streaming/images/edit"
-                                              ? "streaming-image-edit"
-                                          : location.pathname === "/transcriptions"
-                                          ? "transcriptions"
-                                          : location.pathname === "/streaming/transcriptions"
-                                            ? "streaming-transcriptions"
-                                            : location.pathname === "/streaming/speech"
-                                              ? "streaming-speech"
-                                          : location.pathname === "/speech"
-                                            ? "speech"
-                                            : location.pathname === "/videos"
-                                              ? "videos"
-                                              : location.pathname === "/realtime"
-                                                ? "realtime"
-                                                : conversationId ?? undefined
+                                      : location.pathname === "/images"
+                                        ? "images"
+                                        : location.pathname === "/streaming/images/create"
+                                          ? "streaming-image-create"
+                                          : location.pathname === "/streaming/images/edit"
+                                            ? "streaming-image-edit"
+                                            : location.pathname === "/transcriptions"
+                                              ? "transcriptions"
+                                              : location.pathname === "/streaming/transcriptions"
+                                                ? "streaming-transcriptions"
+                                                : location.pathname === "/streaming/speech"
+                                                  ? "streaming-speech"
+                                                  : location.pathname === "/speech"
+                                                    ? "speech"
+                                                    : location.pathname === "/videos"
+                                                      ? "videos"
+                                                      : location.pathname === "/realtime"
+                                                        ? "realtime"
+                                                        : conversationId ?? undefined
 
   // Handle navigation selection
   const handleSelect = async (id: string) => {
@@ -447,6 +455,8 @@ export const ConversationSidebar = ({
       await navigate("/files");
     } else if (id === "skills") {
       await navigate("/skills");
+    } else if (id === "plugins") {
+      await navigate("/plugins");
     } else if (id === "structured-outputs") {
       await navigate("/structured-outputs");
     } else if (id === "web-apps") {
@@ -605,3 +615,4 @@ export const ConversationSidebar = ({
     </div>
   );
 };
+

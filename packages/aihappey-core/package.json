@@ -30,6 +30,7 @@
     "aihappey-components": "*",
     "aihappey-conversations": "*",
     "aihappey-files": "*",
+    "aihappey-plugins": "*",
     "aihappey-http": "*",
     "aihappey-images": "*",
     "aihappey-json-render-apps": "*",

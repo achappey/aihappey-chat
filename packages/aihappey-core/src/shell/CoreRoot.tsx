@@ -42,6 +42,8 @@ import { StreamingTranscriptionsPage } from "../features/streaming/StreamingTran
 import { StreamingSpeechPage } from "../features/streaming/StreamingSpeechPage";
 import { StreamingImageGenerationPage } from "../features/streaming/StreamingImageGenerationPage";
 import { StreamingImageEditPage } from "../features/streaming/StreamingImageEditPage";
+import { PluginsPage } from "../features/plugins/PluginsPage";
+import type { PluginsConfig } from "aihappey-plugins";
 
 type CoreRootProps = {
   appName: string;
@@ -54,6 +56,7 @@ type CoreRootProps = {
   allowCustomLists?: boolean;
   chatConfig?: any & { defaultChatEndpoint?: string };
   authConfig?: AuthConfig;
+  pluginConfig?: PluginsConfig;
 };
 
 export const CoreRoot = ({
@@ -66,6 +69,7 @@ export const CoreRoot = ({
   agentEndpoint,
   appVersion,
   authConfig,
+  pluginConfig,
 }: CoreRootProps) => {
   const { Skeleton } = useTheme(); // Throws if no provider
 
@@ -108,6 +112,7 @@ export const CoreRoot = ({
           conversationScopes={conversationsScopes}
           agentScopes={agentScopes}
           chatConfig={mergedChatConfig}
+          pluginConfig={pluginConfig}
         />
       ),
       children: [
@@ -131,6 +136,7 @@ export const CoreRoot = ({
             { path: "videos", element: <VideoPage /> },
             { path: "files", element: <FilesPage /> },
             { path: "skills", element: <SkillsPage /> },
+            { path: "plugins", element: <PluginsPage /> },
             { path: "structured-outputs", element: <StructuredOutputsPage /> },
             { path: "transcriptions", element: <TranscriptionsPage /> },
             { path: "speech", element: <SpeechPage /> },

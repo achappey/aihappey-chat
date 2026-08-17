@@ -38,6 +38,7 @@ import { JsonRenderCatalogProvider } from "aihappey-json-render-catalog";
 import { JsonRenderAppsProvider } from "aihappey-json-render-apps";
 import { VideosProvider } from "aihappey-videos";
 import { SkillsProvider } from "aihappey-skills";
+import { PluginsProvider, type PluginsConfig } from "aihappey-plugins";
 import {
   localAgentStore,
   resolveAgentHydration as resolveLocalAgentHydration,
@@ -54,6 +55,7 @@ type Props = {
   apiUrl?: string;
   conversationScopes?: string[];
   agentScopes?: string[];
+  pluginConfig?: PluginsConfig;
 };
 
 export const CoreShell: React.FC<Props> = ({
@@ -61,6 +63,7 @@ export const CoreShell: React.FC<Props> = ({
   apiUrl,
   conversationScopes,
   agentScopes,
+  pluginConfig,
 }) => {
   const remoteStorageConnected = useRemoteStorageConnected();
   const [, token, error, refresh] = useAccessToken(conversationScopes ?? []);
@@ -345,6 +348,7 @@ export const CoreShell: React.FC<Props> = ({
                         headers={effectiveChatConfig?.headers}
                         fetch={effectiveChatConfig?.fetch}
                       >
+                        <PluginsProvider config={pluginConfig}>
                         <JsonRenderCatalogProvider>
                           <JsonRenderRegistryProvider>
                             <JsonRenderAppsProvider>
@@ -367,6 +371,7 @@ export const CoreShell: React.FC<Props> = ({
                             </JsonRenderAppsProvider>
                           </JsonRenderRegistryProvider>
                         </JsonRenderCatalogProvider>
+                        </PluginsProvider>
                       </SkillsProvider>
                     </VideosProvider>
                   </StructuredOutputsProvider>
