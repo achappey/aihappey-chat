@@ -50,6 +50,8 @@ import {
 import type { Agent } from "aihappey-types";
 import { ApiKeyUnlockHost } from "../features/provider-credentials/ApiKeyUnlockHost";
 
+const EMPTY_SKILL_NAMES: string[] = [];
+
 type Props = {
   chatConfig: ChatConfig;
   apiUrl?: string;
@@ -74,6 +76,9 @@ export const CoreShell: React.FC<Props> = ({
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const setProviderHeaders = useAppStore((s) => s.setProviderHeaders);
   const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
+  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
+  const legacyEnabledSkillNames = useAppStore((s: any) => (s.__legacyEnabledSkillNames as string[] | undefined) ?? EMPTY_SKILL_NAMES);
   const setConfiguredBaseUrl = useAppStore((s) => s.setConfiguredBaseUrl);
   const configuredChatEndpointMode = useAppStore((s) => s.configuredChatEndpointMode);
   const effectiveChatEndpointMode = useAppStore((s) => s.effectiveChatEndpointMode);
@@ -347,6 +352,10 @@ export const CoreShell: React.FC<Props> = ({
                         getAccessToken={effectiveChatConfig?.getAccessToken}
                         headers={effectiveChatConfig?.headers}
                         fetch={effectiveChatConfig?.fetch}
+                        enabledSkillIds={enabledSkillIds}
+                        setEnabledSkillIds={setEnabledSkillIds}
+                        legacyEnabledSkillNames={legacyEnabledSkillNames}
+                        setLegacyEnabledSkillNames={(skillNames) => appStore.setState({ __legacyEnabledSkillNames: skillNames } as any)}
                       >
                         <PluginsProvider config={pluginConfig}>
                         <JsonRenderCatalogProvider>

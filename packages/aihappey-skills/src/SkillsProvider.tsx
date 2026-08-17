@@ -8,7 +8,6 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import { store as appStore, useAppStore } from "aihappey-state";
 import type {
   ContentRetrieveParams,
   DataList,
@@ -84,6 +83,10 @@ type SkillsProviderProps = {
   getAccessToken?: () => Promise<string>;
   headers?: Record<string, string>;
   fetch?: typeof globalThis.fetch;
+  enabledSkillIds?: string[];
+  setEnabledSkillIds?: (skillIds: string[]) => void;
+  legacyEnabledSkillNames?: string[];
+  setLegacyEnabledSkillNames?: (skillNames: string[]) => void;
 };
 
 function splitRemoteSkillId(skillId: string) {
@@ -124,14 +127,11 @@ export const SkillsProvider = ({
   getAccessToken,
   headers,
   fetch: customFetch,
+  enabledSkillIds = EMPTY_STRING_ARRAY,
+  setEnabledSkillIds,
+  legacyEnabledSkillNames = EMPTY_STRING_ARRAY,
+  setLegacyEnabledSkillNames,
 }: SkillsProviderProps) => {
-  useAppStore((s) => s.conversationStorage);
-  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
-  const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
-  const legacyEnabledSkillNames = useAppStore(
-    (s) => ((s as any).__legacyEnabledSkillNames as string[] | undefined) ?? EMPTY_STRING_ARRAY
-  );
-
   const store = useMemo(() => indexedDbSkillStore, []);
   const [localItems, setLocalItems] = useState<SkillCatalogItem[]>([]);
   const [remoteItems, setRemoteItems] = useState<Skill[]>([]);
@@ -305,16 +305,14 @@ export const SkillsProvider = ({
     const unresolvedNames = legacyNames.filter((name) => !byName.has(name));
     const nextEnabledSkillIds = Array.from(new Set([...(enabledSkillIds ?? EMPTY_STRING_ARRAY), ...migratedSkillIds]));
 
-    if (migratedSkillIds.length > 0 && !arraysEqual(nextEnabledSkillIds, enabledSkillIds ?? EMPTY_STRING_ARRAY)) {
+    if (migratedSkillIds.length > 0 && setEnabledSkillIds && !arraysEqual(nextEnabledSkillIds, enabledSkillIds ?? EMPTY_STRING_ARRAY)) {
       setEnabledSkillIds(nextEnabledSkillIds);
     }
 
-    if (!arraysEqual(unresolvedNames, legacyNames)) {
-      appStore.setState({
-        __legacyEnabledSkillNames: unresolvedNames,
-      } as any);
+    if (setLegacyEnabledSkillNames && !arraysEqual(unresolvedNames, legacyNames)) {
+      setLegacyEnabledSkillNames(unresolvedNames);
     }
-  }, [enabledSkillIds, legacyEnabledSkillNames, mergedItems, setEnabledSkillIds]);
+  }, [enabledSkillIds, legacyEnabledSkillNames, mergedItems, setEnabledSkillIds, setLegacyEnabledSkillNames]);
 
   const ctxValue = useMemo<SkillsContextType>(() => ({
     items: mergedItems,
