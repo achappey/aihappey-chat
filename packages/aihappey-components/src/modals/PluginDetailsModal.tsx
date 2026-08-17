@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { McpRegistryServerResponse } from "aihappey-types";
 import { readClientExtension, type StoredPlugin, type StoredPluginFile } from "aihappey-plugins";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { formatFileSize } from "../cards/formatFileSize";
+import { LimitedTextField } from "../fields/LimitedTextField";
+import { CapabilityIcon } from "../images";
 
 export type PluginDetailsModalProps = {
   open: boolean;
   plugin?: StoredPlugin;
+  mcpRegistryItems?: McpRegistryServerResponse[];
   extensionNamespace?: string;
   loading?: boolean;
   onClose: () => void;
@@ -22,12 +26,13 @@ function downloadFile(file: StoredPluginFile) {
   } finally { URL.revokeObjectURL(url); }
 }
 
-export const PluginDetailsModal = ({ open, plugin, extensionNamespace, loading, onClose, onEdit, onDownload }: PluginDetailsModalProps) => {
+export const PluginDetailsModal = ({ open, plugin, mcpRegistryItems = [], extensionNamespace, loading, onClose, onEdit, onDownload }: PluginDetailsModalProps) => {
   const { Modal, Button, Card, Badge, Tabs, Tab } = useTheme();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("general");
   useEffect(() => { if (open) setActiveTab("general"); }, [open]);
   const servers = Object.entries(plugin?.mcp?.mcpServers ?? {});
+  const registryIndex = useMemo(() => Object.fromEntries(mcpRegistryItems.map((item) => [item.server.name.toLowerCase(), item])), [mcpRegistryItems]);
   const extensionSettings = plugin ? readClientExtension(plugin.manifest, extensionNamespace)?.mcpServers ?? {} : {};
   const badgeRow = { display: "flex", gap: 8, flexWrap: "wrap" as const, alignItems: "center" };
   const grid = { display: "grid", gap: 12, paddingTop: 12 };
@@ -58,8 +63,19 @@ export const PluginDetailsModal = ({ open, plugin, extensionNamespace, loading, 
           <Tab eventKey="modelContext" title={t("mcpPage.title")}><div style={grid}>
             {servers.length ? servers.map(([name, server]) => {
               const settings = extensionSettings[name];
-              return <Card key={name} title={name} description={<div style={badgeRow}><Badge size="small" bg={server.type === "streamable-http" ? "success" : "warning"}>{server.type}</Badge>{settings?.disabled ? <Badge size="small" bg="subtle">{t("pluginsPage.editor.disabled")}</Badge> : null}{settings?.defer_loading ? <Badge size="small" bg="subtle">{t("toolConfiguration.deferLoading")}</Badge> : null}</div>}>
+              const registryItem = registryIndex[name.toLowerCase()];
+              const catalogDescription = registryItem?.server.description?.trim();
+              return <Card
+                key={name}
+                title={registryItem?.server.title ?? registryItem?.server.name ?? name}
+                image={registryItem ? <CapabilityIcon icons={registryItem.server.icons} /> : undefined}
+                description={settings?.defer_loading || settings?.namespace ? <div style={badgeRow}>
+                  {settings.defer_loading ? <Badge size="small" appearance="neutral">{t("toolConfiguration.deferLoading")}</Badge> : null}
+                  {settings.namespace ? <Badge size="small" appearance="neutral">{t("toolConfiguration.namespace")}</Badge> : null}
+                </div> : undefined}
+              >
                 <div style={{ display: "grid", gap: 6 }}>
+                  {catalogDescription ? <LimitedTextField text={catalogDescription} /> : null}
                   <span>{server.type === "stdio" ? server.command : server.url}</span>
                   {settings?.allowed_callers?.length ? <span>{t("toolConfiguration.allowedCallers")}: {settings.allowed_callers.join(", ")}</span> : null}
                   {server.type !== "streamable-http" ? <span style={{ color: "#888" }}>{t("pluginsPage.unsupportedPreserved")}</span> : null}

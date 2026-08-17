@@ -6,8 +6,8 @@ import { McpServerCard } from "../../cards";
 import { useTheme } from "../../theme/ThemeContext";
 
 type Props = {
-  enabled: Set<string>;
-  onToggle: (key: string) => void;
+  enabled?: Set<string>;
+  onToggle?: (key: string) => void;
   mcpServers: Record<
     string,
     {
@@ -89,11 +89,11 @@ export const ServerManagement = ({
             <McpServerCard
               serverName={displayName}
               serverConfig={server.config}
-              checked={enabled.has(key)}
+              checked={enabled?.has(key) ?? true}
               renderDescription={renderDescription}
               renderSettings={renderServerSettings ? () => renderServerSettings(key) : undefined}
               registryItem={server.registry}
-              onToggle={() => onToggle(key)}
+              onToggle={onToggle ? () => onToggle(key) : undefined}
               onRemove={onRemove ? () => onRemove(key) : undefined}
             />
           </div>

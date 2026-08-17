@@ -42,6 +42,7 @@ export const PluginsPage = () => {
   const skills = useSkills();
   const favoriteSkillIds = useAppStore((state: any) => (state.favoriteSkillIds ?? []) as string[]);
   const mcpRegistries = useAppStore((state) => state.mcpRegistries);
+  const mcpRegistryItems = useMemo(() => Object.values(mcpRegistries).flat(), [mcpRegistries]);
   const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [details, setDetails] = useState<StoredPlugin | undefined>();
@@ -56,7 +57,7 @@ export const PluginsPage = () => {
   const [draftMcpOptions, setDraftMcpOptions] = useState<Array<{
     id: string;
     label: string;
-    config: { type: "http" | "sse"; url: string; headers?: Record<string, string>; disabled?: boolean };
+    config: { type: "http" | "sse"; url: string; headers?: Record<string, string> };
     registry?: any;
   }>>([]);
 
@@ -84,8 +85,7 @@ export const PluginsPage = () => {
   const initialSelectedMcpIds = useMemo(() => draftMcpOptions.map((item) => item.id), [draftMcpOptions]);
 
   const setEditorMcpFromPlugin = useCallback((plugin?: StoredPlugin) => {
-    const settings = plugin ? readClientExtension(plugin.manifest, plugins.extensionNamespace)?.mcpServers ?? {} : {};
-    const registryIndex = Object.values(mcpRegistries).flat().reduce<Record<string, any>>((index, item) => {
+    const registryIndex = mcpRegistryItems.reduce<Record<string, any>>((index, item) => {
       index[item.server.name.toLowerCase()] = item;
       return index;
     }, {});
@@ -94,11 +94,11 @@ export const PluginsPage = () => {
       return [{
         id,
         label: id,
-        config: { type: server.type === "sse" ? "sse" as const : "http" as const, url: server.url, headers: server.headers, disabled: settings[id]?.disabled },
+        config: { type: server.type === "sse" ? "sse" as const : "http" as const, url: server.url, headers: server.headers },
         registry: registryIndex[id.toLowerCase()],
       }];
     }));
-  }, [mcpRegistries, plugins.extensionNamespace]);
+  }, [mcpRegistryItems]);
 
   const openDetails = useCallback(async (id: string) => {
     setDetailsOpen(true); setDetailsLoading(true);
@@ -157,9 +157,6 @@ export const PluginsPage = () => {
           url: source.config.url,
           ...(source.config.headers ? { headers: source.config.headers } : {}),
         };
-        if (plugins.extensionNamespace && !extensionSettings[id] && typeof source.config.disabled === "boolean") {
-          extensionSettings[id] = { disabled: source.config.disabled };
-        }
       }
       const manifest = writeClientExtension(values.manifest, plugins.extensionNamespace, extensionSettings);
       const draft: PluginDraft = { manifest, files, ...(Object.keys(mcpServers).length ? { mcpServers } : {}) };
@@ -207,6 +204,7 @@ export const PluginsPage = () => {
         <PluginDetailsModal
           open={detailsOpen}
           plugin={details}
+          mcpRegistryItems={mcpRegistryItems}
           loading={detailsLoading}
           extensionNamespace={plugins.extensionNamespace}
           onClose={() => { setDetailsOpen(false); setDetails(undefined); }}
@@ -241,7 +239,7 @@ export const PluginsPage = () => {
             setDraftMcpOptions((current) => current.some((entry) => entry.id === id) ? current : [...current, {
               id,
               label: item.server.title || item.server.name,
-              config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url, disabled: plugins.extensionNamespace ? true : undefined },
+              config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url },
               registry: item,
             }]);
           }}

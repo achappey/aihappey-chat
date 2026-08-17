@@ -100,16 +100,7 @@ export const PluginEditModal = ({
     if (!open) return;
     const ids = mcpOptions.map((option) => option.id);
     setSelectedMcpIds(ids);
-    if (extensionNamespace) {
-    setServerSettings((current) => {
-        const next = { ...current };
-        mcpOptions.forEach((option) => {
-          if (!next[option.id] && typeof option.config.disabled === "boolean") next[option.id] = { disabled: option.config.disabled };
-        });
-        return next;
-      });
-    }
-  }, [extensionNamespace, mcpOptions, open]);
+  }, [mcpOptions, open]);
 
   const normalizedName = name.trim().toLowerCase();
   const canSave = !saving && normalizedName.length <= 64 && PLUGIN_NAME_PATTERN.test(normalizedName);
@@ -130,13 +121,18 @@ export const PluginEditModal = ({
   });
 
   const updateSetting = (id: string, patch: Partial<PluginServerExtension>) => setServerSettings((current) => ({ ...current, [id]: { ...current[id], ...patch } }));
+  const updateBooleanSetting = (id: string, key: "defer_loading" | "namespace", checked: boolean) => setServerSettings((current) => {
+    const nextEntry = { ...current[id] };
+    if (checked) nextEntry[key] = true;
+    else delete nextEntry[key];
+    return { ...current, [id]: nextEntry };
+  });
   const renderServerSettings = (id: string) => {
-    const option = mcpOptions.find((item) => item.id === id);
-    if (!extensionNamespace || (serverSettings[id]?.disabled ?? option?.config.disabled ?? false)) return null;
+    if (!extensionNamespace) return null;
     const callers = serverSettings[id]?.allowed_callers ?? [];
     const callerOptions: Array<"direct" | "programmatic"> = ["direct", "programmatic"];
     return (
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 1fr) auto", alignItems: "end", gap: 16, marginTop: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 1fr) auto auto", alignItems: "end", gap: 16, marginTop: 16 }}>
         <theme.Select
           label={t("toolConfiguration.allowedCallers")}
           multiselect
@@ -154,7 +150,13 @@ export const PluginEditModal = ({
           id={`plugin-defer-${id}`}
           label={t("toolConfiguration.deferLoading")}
           checked={serverSettings[id]?.defer_loading === true}
-          onChange={(checked: boolean) => updateSetting(id, { defer_loading: checked })}
+          onChange={(checked: boolean) => updateBooleanSetting(id, "defer_loading", checked)}
+        />
+        <theme.Switch
+          id={`plugin-namespace-${id}`}
+          label={t("toolConfiguration.namespace")}
+          checked={serverSettings[id]?.namespace === true}
+          onChange={(checked: boolean) => updateBooleanSetting(id, "namespace", checked)}
         />
       </div>
     );
@@ -192,12 +194,6 @@ export const PluginEditModal = ({
         </div></theme.Tab>
         <theme.Tab eventKey="modelContext" title={t("mcpPage.title")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
           <ServerManagement
-            enabled={new Set(mcpOptions.filter((option) => !(serverSettings[option.id]?.disabled ?? option.config.disabled ?? false)).map((option) => option.id))}
-            onToggle={(id) => {
-              if (!extensionNamespace) return;
-              const option = mcpOptions.find((item) => item.id === id);
-              updateSetting(id, { disabled: !(serverSettings[id]?.disabled ?? option?.config.disabled ?? false) });
-            }}
             onRemove={onRemoveMcpServer}
             mcpServers={serverItems}
             renderServerSettings={renderServerSettings}

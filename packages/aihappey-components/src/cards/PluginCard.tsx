@@ -23,8 +23,8 @@ export const PluginCard = ({ plugin, onView, onDownload, onDelete }: PluginCardP
       description={(
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {plugin.version ? <Badge size="small" bg="subtle">v{plugin.version}</Badge> : null}
-          <Badge size="small" bg="informative">{t("pluginsPage.skillCount", { count: plugin.skillCount })}</Badge>
-          <Badge size="small" bg="informative">{t("pluginsPage.serverCount", { count: plugin.mcpServerCount })}</Badge>
+          <Badge size="small" appearance="neutral" icon="skills">{t("pluginsPage.skillCount", { count: plugin.skillCount })}</Badge>
+          <Badge size="small" appearance="neutral" icon="mcpServer">{t("pluginsPage.serverCount", { count: plugin.mcpServerCount })}</Badge>
         </div>
       )}
       actions={(
