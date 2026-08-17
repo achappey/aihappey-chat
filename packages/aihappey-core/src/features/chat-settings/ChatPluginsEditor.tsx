@@ -8,10 +8,12 @@ export function ChatPluginsEditor({
   items,
   value,
   onChange,
+  disabledIds = [],
 }: {
   items: PluginCatalogItem[];
   value: string[];
   onChange: (next: string[]) => void;
+  disabledIds?: string[];
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -19,6 +21,7 @@ export function ChatPluginsEditor({
   const searchRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const selected = useMemo(() => new Set(value), [value]);
+  const disabled = useMemo(() => new Set(disabledIds), [disabledIds]);
   const query = search.trim().toLowerCase();
   const visible = useMemo(() => items
     .filter((item) => !query || `${item.name} ${item.description} ${item.keywords.join(" ")}`.toLowerCase().includes(query))
@@ -55,10 +58,11 @@ export function ChatPluginsEditor({
             )}
             headerActions={(
               <theme.Switch
-                id={`chat-agent-plugin-${plugin.id}`}
-                label=""
-                checked={selected.has(plugin.id)}
-                onChange={(checked: boolean) => onChange(checked
+                 id={`chat-agent-plugin-${plugin.id}`}
+                 label=""
+                 checked={selected.has(plugin.id)}
+                 disabled={disabled.has(plugin.id)}
+                 onChange={(checked: boolean) => onChange(checked
                   ? Array.from(new Set([...value, plugin.id]))
                   : value.filter((id) => id !== plugin.id))}
               />

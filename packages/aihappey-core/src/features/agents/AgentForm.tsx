@@ -1,7 +1,7 @@
 import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm, InworldChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
-import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig, type Skill as AgentSkill } from "aihappey-types";
+import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig, type AgentPluginFile, type Skill as AgentSkill } from "aihappey-types";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
     getAgentModelProviderKey,
@@ -24,6 +24,9 @@ import { AGENT_SKILL_DEFAULT_VERSION, AGENT_SKILL_LATEST_VERSION, buildSkillMatc
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { AgentSkillsEditor, type AgentSkillEditorValue, type AgentSkillMode } from "./AgentSkillsEditor";
+import { usePlugins } from "aihappey-plugins";
+import { ChatPluginsEditor } from "../chat-settings/ChatPluginsEditor";
+import { createEmbeddedAgentPlugin, getEmbeddedAgentPluginPayload, readEmbeddedAgentPluginName } from "./agentPlugins";
 
 const AGENT_TOOL_SEARCH_TYPE = "tool_search";
 const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
@@ -53,9 +56,15 @@ export const AgentForm = ({
     const [skillEditorValues, setSkillEditorValues] = useState<Record<string, AgentSkillEditorValue>>({});
     const [pendingSkillIds, setPendingSkillIds] = useState<string[]>([]);
     const [initialPersistedSkills] = useState(() => agent.skills ?? []);
+    const [pluginFeedback, setPluginFeedback] = useState<string | null>(null);
+    const [hasHydratedPluginSelection, setHasHydratedPluginSelection] = useState(false);
+    const [selectedPluginPayloads, setSelectedPluginPayloads] = useState<Record<string, string>>({});
+    const [pendingPluginIds, setPendingPluginIds] = useState<string[]>([]);
+    const [initialPersistedPlugins] = useState(() => agent.plugins ?? []);
     const models = useAppStore((s) => s.models);
     const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
     const skills = useSkills();
+    const plugins = usePlugins();
     const openAISkillOptions = useMemo(
         () => buildOpenAISkillOptions(skills.items ?? []),
         [skills.items]
@@ -69,9 +78,9 @@ export const AgentForm = ({
     const enrichedAgent = useAgent(agent)
 
     useEffect(() => {
-        const busy = skillSyncPending || pendingSkillIds.length > 0;
+        const busy = skillSyncPending || pendingSkillIds.length > 0 || pendingPluginIds.length > 0;
         onBusyChange?.(busy);
-    }, [onBusyChange, pendingSkillIds.length, skillSyncPending]);
+    }, [onBusyChange, pendingPluginIds.length, pendingSkillIds.length, skillSyncPending]);
 
     useEffect(() => {
         if (hasHydratedSkillSelection) return;
@@ -153,6 +162,29 @@ export const AgentForm = ({
             cancelled = true;
         };
     }, [hasHydratedSkillSelection, initialPersistedSkills, skills.items, skills.read]);
+
+    useEffect(() => {
+        if (hasHydratedPluginSelection) return;
+
+        let cancelled = false;
+        const hydratePluginEditor = async () => {
+            const entries = await Promise.all(initialPersistedPlugins.map(async (plugin) => ({
+                name: await readEmbeddedAgentPluginName(plugin),
+                payload: getEmbeddedAgentPluginPayload(plugin),
+            })));
+            if (cancelled) return;
+
+            const payloads: Record<string, string> = {};
+            for (const entry of entries) {
+                if (entry.name && entry.payload) payloads[entry.name] = entry.payload;
+            }
+            setSelectedPluginPayloads(payloads);
+            setHasHydratedPluginSelection(true);
+        };
+
+        void hydratePluginEditor();
+        return () => { cancelled = true; };
+    }, [hasHydratedPluginSelection, initialPersistedPlugins]);
 
     const toggle = (key: string) => {
         const servers = agent.mcpServers ?? {}
@@ -426,6 +458,50 @@ export const AgentForm = ({
         }
     };
 
+    const persistConfiguredPlugin = (pluginId: string, nextPlugin?: AgentPluginFile) => {
+        onChange((current) => {
+            const previousPayload = selectedPluginPayloads[pluginId];
+            const retained = (current.plugins ?? []).filter((plugin) =>
+                !previousPayload || getEmbeddedAgentPluginPayload(plugin) !== previousPayload);
+            const nextPlugins = nextPlugin ? [...retained, nextPlugin] : retained;
+            return { ...current, plugins: nextPlugins.length ? nextPlugins : undefined };
+        });
+    };
+
+    const setPluginPending = (pluginId: string, pending: boolean) => {
+        setPendingPluginIds((current) => pending
+            ? Array.from(new Set([...current, pluginId]))
+            : current.filter((id) => id !== pluginId));
+    };
+
+    const handlePluginToggle = async (pluginId: string, enabled: boolean) => {
+        setPluginFeedback(null);
+        if (!enabled) {
+            persistConfiguredPlugin(pluginId);
+            setSelectedPluginPayloads((current) => {
+                const { [pluginId]: _, ...rest } = current;
+                return rest;
+            });
+            return;
+        }
+
+        setPluginPending(pluginId, true);
+        try {
+            const archive = await plugins.exportArchive(pluginId);
+            if (!archive) throw new Error(`Could not export plugin ${pluginId}.`);
+            const embedded = await createEmbeddedAgentPlugin(archive.blob);
+            persistConfiguredPlugin(pluginId, embedded);
+            setSelectedPluginPayloads((current) => ({
+                ...current,
+                [pluginId]: embedded.data,
+            }));
+        } catch {
+            setPluginFeedback(t("pluginsPage.saveFailed") ?? "The plugin snapshot could not be created.");
+        } finally {
+            setPluginPending(pluginId, false);
+        }
+    };
+
     const providerKey = getAgentModelProviderKey(agent?.model?.id);
     const providerTitle = (PROVIDERS as Record<string, { name?: string }>)[providerKey]?.name ?? providerKey;
     const providerMeta = agent?.model?.providerMetadata ?? {};
@@ -623,6 +699,26 @@ export const AgentForm = ({
                                 onVersionChange={(skillId, version) => { void handleSkillVersionChange(skillId, version); }}
                             />
                             {skillFeedback ? <Text>{skillFeedback}</Text> : null}
+                        </>
+                    ) : null}
+                </Tab>
+
+                <Tab eventKey="agent-plugins" title={t("pluginsPage.title") ?? "Plugins"}>
+                    {activeTab === "agent-plugins" ? (
+                        <>
+                            <ChatPluginsEditor
+                                items={plugins.items}
+                                value={Object.keys(selectedPluginPayloads)}
+                                disabledIds={pendingPluginIds}
+                                onChange={(next) => {
+                                    const current = Object.keys(selectedPluginPayloads);
+                                    const added = next.find((id) => !current.includes(id));
+                                    const removed = current.find((id) => !next.includes(id));
+                                    if (added) void handlePluginToggle(added, true);
+                                    else if (removed) void handlePluginToggle(removed, false);
+                                }}
+                            />
+                            {pluginFeedback ? <Text>{pluginFeedback}</Text> : null}
                         </>
                     ) : null}
                 </Tab>

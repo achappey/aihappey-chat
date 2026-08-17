@@ -10,8 +10,16 @@ export type Agent = {
     mcpServers?: Record<string, McpServer>
     mcpClient?: McpClient
     skills?: Skill[]
+    plugins?: AgentPluginFile[];
     tools?: AgentTool[];
     icons?: Icon[];
+};
+
+/** Portable Agent Plugin package embedded as an immutable archive snapshot. */
+export type AgentPluginFile = {
+    data: string;
+    media_type: "application/zip";
+    type: "base64";
 };
 
 /** Provider-neutral tools that are executed by the agent runtime. */
