@@ -209,9 +209,9 @@ export function readClientExtension(manifest: PluginManifest, namespace?: string
       ? entry.allowed_callers.filter((item): item is "direct" | "programmatic" => item === "direct" || item === "programmatic")
       : undefined;
     mcpServers[name] = {
-      ...(typeof entry.disabled === "boolean" ? { disabled: entry.disabled } : {}),
       ...(callers?.length ? { allowed_callers: callers } : {}),
       ...(typeof entry.defer_loading === "boolean" ? { defer_loading: entry.defer_loading } : {}),
+      ...(entry.namespace === true ? { namespace: true } : {}),
     };
   }
   return { mcpServers };
@@ -227,9 +227,9 @@ export function writeClientExtension(
   const existing = isObject(extensions[namespace]) ? extensions[namespace] as JsonObject : {};
   const cleaned = Object.fromEntries(Object.entries(serverSettings ?? {}).flatMap(([name, value]) => {
     const entry = {
-      ...(typeof value.disabled === "boolean" ? { disabled: value.disabled } : {}),
       ...(value.allowed_callers?.length ? { allowed_callers: value.allowed_callers } : {}),
       ...(typeof value.defer_loading === "boolean" ? { defer_loading: value.defer_loading } : {}),
+      ...(value.namespace === true ? { namespace: true } : {}),
     };
     return Object.keys(entry).length ? [[name, entry]] : [];
   }));

@@ -42,9 +42,9 @@ export type PluginMcpConfiguration = {
 };
 
 export type PluginServerExtension = {
-  disabled?: boolean;
   allowed_callers?: Array<"direct" | "programmatic">;
   defer_loading?: boolean;
+  namespace?: boolean;
 };
 
 export type PluginClientExtension = {
