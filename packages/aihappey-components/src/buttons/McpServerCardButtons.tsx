@@ -50,6 +50,8 @@ export const McpServerCardButtons = ({ websiteUrl,
       <OpenLinkButton
         url={websiteUrl}
         variant="transparent"
+        icon="globe"
+        tooltip={t("website")}
         size="small"
       />
     )}
