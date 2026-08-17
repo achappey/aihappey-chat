@@ -17,6 +17,7 @@ declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
 declare const __CHATBOT_INSTRUCTIONS__: string;
 declare const __MCP_CATALOG_URLS__: string[];
+declare const __PLUGIN_EXTENSION_NAMESPACE__: string;
 
 configureAppStore({ defaultAgents: sampleDefaultAgents });
 
@@ -54,9 +55,12 @@ const App = () => {
         baseUrl={__API_BASE_URL__}
         agentEndpoint={__AGENT_ENDPOINT__}
         appVersion={__APP_VERSION__}
+        pluginConfig={{
+          extensionNamespace: __PLUGIN_EXTENSION_NAMESPACE__
+        }}
         chatConfig={{
           chatbotInstructions: __CHATBOT_INSTRUCTIONS__,
-        
+
           mcpCatalogUrls: __MCP_CATALOG_URLS__,
           defaultProvidersByType: {
             language: ["Pollinations", "GTranslate", "Echo", "UncloseAI", "AndyAPI"],

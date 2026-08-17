@@ -37,6 +37,7 @@ const defaultChatEndpoint = process.env.DEFAULT_CHAT_ENDPOINT || "/api/chat";
 const chatbotInstructions = process.env.CHATBOT_INSTRUCTIONS || "";
 const mcpCatalogUrls = parseList(process.env.MCP_CATALOG_URLS);
 const appInsightsConnectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || "";
+const pluginExtensionsNamespace = process.env.PLUGIN_EXTENSION_NAMESPACE || "net.aihappey.agents";
 
 
 // --- App version/tag op buildtijd (YYYYMMDD.HHmm) ---
@@ -64,6 +65,7 @@ const buildOptions = {
     "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
     "__DEFAULT_CHAT_ENDPOINT__": JSON.stringify(defaultChatEndpoint),
     "__CHATBOT_INSTRUCTIONS__": JSON.stringify(chatbotInstructions),
+    "__PLUGIN_EXTENSION_NAMESPACE__": JSON.stringify(pluginExtensionsNamespace),
     "__MCP_CATALOG_URLS__": JSON.stringify(mcpCatalogUrls),
     "__APPLICATIONINSIGHTS_CONNECTION_STRING__": JSON.stringify(appInsightsConnectionString),
   },
