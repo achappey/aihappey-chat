@@ -76,12 +76,14 @@ export type ChatSlice = ApiKeyEncryptionState & {
   verbosity: ChatVerbosity;
   setVerbosity: (verbosity: ChatVerbosity) => void;
   activePlugins: string[]
+  /** Enabled Agent Plugin packages. Kept separate from built-in tool plugins. */
+  enabledAgentPluginIds: string[]
   /** Enabled user-defined local tools (stored in IndexedDB via aihappey-tools). */
   enabledLocalTools: string[]
   /** Request-only OpenAI tool options. Intentionally excluded from persistence. */
   toolRequestConfig: Record<string, {
     allowed_callers?: Array<"direct" | "programmatic">;
-    defer_loading?: true;
+    defer_loading?: boolean;
   }>;
   useToolNamespaces: boolean;
   approveAll: boolean;
@@ -106,6 +108,7 @@ export type ChatSlice = ApiKeyEncryptionState & {
   toggleApproveAll: () => void;
   addAllowedTool: (name: string) => void;
   setActivePlugins: (names: string[]) => void;
+  setEnabledAgentPluginIds: (ids: string[]) => void;
   setEnabledLocalTools: (names: string[]) => void;
   setToolRequestConfig: (config: ChatSlice["toolRequestConfig"]) => void;
   setUseToolNamespaces: (enabled: boolean) => void;
@@ -187,6 +190,7 @@ export const createChatSlice: StateCreator<
   approveAll: false,
   allowedToolList: [],
   activePlugins: [],
+  enabledAgentPluginIds: [],
   enabledLocalTools: [],
   toolRequestConfig: {},
   useToolNamespaces: false,
@@ -243,6 +247,13 @@ export const createChatSlice: StateCreator<
   setActivePlugins: (value) => {
     set((state: any) => ({
       activePlugins: value,
+    }));
+  },
+  setEnabledAgentPluginIds: (value) => {
+    set(() => ({
+      enabledAgentPluginIds: Array.isArray(value)
+        ? Array.from(new Set(value.filter((id): id is string => typeof id === "string" && id.length > 0)))
+        : [],
     }));
   },
   setEnabledLocalTools: (value) => {

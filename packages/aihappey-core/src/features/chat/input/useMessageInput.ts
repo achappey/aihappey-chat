@@ -72,7 +72,12 @@ export function useMessageInput({
   const serverTags: TagItem[] = connected.map((url) => {
     // const remote = url.server.remotes?.find(a => a.type == "streamable-http");
     const version = mcpServerContent[url.name]?.version;
-    const name = version?.title || version?.name || url.name; // fallback to URL if name/title missing
+    const pluginSource = url.serverItem.source?.kind === "agent-plugin"
+      ? url.serverItem.source
+      : undefined;
+    const name = version?.title
+      || version?.name
+      || (pluginSource ? `${pluginSource.pluginName} · ${pluginSource.serverName}` : url.name);
     const selectedIcon = getIcon(version?.icons, isDarkMode);
 
     return {

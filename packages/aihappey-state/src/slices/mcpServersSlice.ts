@@ -4,6 +4,15 @@ import type { StateCreator } from "zustand";
 export type ServerItem = {
   config: ServerClientConfig;
   registry?: McpRegistryServerResponse;
+  source?: {
+    kind: "agent-plugin";
+    pluginId: string;
+    pluginName: string;
+    serverName: string;
+    allowed_callers?: Array<"direct" | "programmatic">;
+    defer_loading?: boolean;
+    namespace?: boolean;
+  };
 };
 
 export type McpServersSlice = {
@@ -12,6 +21,7 @@ export type McpServersSlice = {
   updateMcpServer: (name: string, cfg: ServerClientConfig) => void;
   removeMcpServer: (name: string) => void;
   updateMcpServers: (patches: Record<string, Partial<ServerClientConfig>>) => any
+  reconcileAgentPluginMcpServers: (enabledPluginIds: string[], servers: Record<string, ServerItem>) => void;
 };
 
 export const createMcpServersSlice: StateCreator<
@@ -70,6 +80,46 @@ export const createMcpServersSlice: StateCreator<
       }
 
       return { mcpServers: updated };
+    }),
+  reconcileAgentPluginMcpServers: (enabledPluginIds, servers) =>
+    set((state: any) => {
+      const next: Record<string, ServerItem> = {};
+      const desiredKeys = new Set(Object.keys(servers).map((key) => key.toLowerCase()));
+
+      for (const [key, item] of Object.entries(state.mcpServers as Record<string, ServerItem>)) {
+        if (item.source?.kind === "agent-plugin") continue;
+        next[key] = item;
+      }
+
+      for (const [rawKey, desired] of Object.entries(servers)) {
+        const key = rawKey.toLowerCase();
+        const current = (state.mcpServers as Record<string, ServerItem>)[key];
+        next[key] = {
+          ...desired,
+          config: {
+            ...desired.config,
+            disabled: current?.source?.kind === "agent-plugin"
+              ? current.config.disabled === true
+              : desired.config.disabled === true,
+          },
+        };
+      }
+
+      const mcpServerContent = { ...(state.mcpServerContent ?? {}) };
+      for (const [key, item] of Object.entries(state.mcpServers as Record<string, ServerItem>)) {
+        if (item.source?.kind === "agent-plugin" && !desiredKeys.has(key.toLowerCase())) {
+          delete mcpServerContent[key];
+        }
+      }
+
+      return {
+        enabledAgentPluginIds: Array.from(new Set(
+          (Array.isArray(enabledPluginIds) ? enabledPluginIds : [])
+            .filter((id): id is string => typeof id === "string" && id.length > 0),
+        )),
+        mcpServers: next,
+        mcpServerContent,
+      };
     }),
 
   removeMcpServer: (name) =>

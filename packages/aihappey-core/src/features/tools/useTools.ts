@@ -23,7 +23,6 @@ import { localJsonRenderPluginDef } from "./toolcalls/useLocalJsonRenderToolCall
 import { localWebPluginDef } from "./toolcalls/useLocalWebToolCall";
 import { localChartJsPluginDef } from "./toolcalls/useLocalChartJsToolCall";
 import { localArtificialIntelligencePluginDef } from "./toolcalls/useLocalArtificialIntelligenceToolCall";
-import { useSkills } from "aihappey-skills";
 import {
   buildActivateSkillTool,
   buildReadSkillResourceTool,
@@ -33,6 +32,8 @@ import { buildMcpTaskTools, mcpTaskPluginDef } from "./toolcalls/useMcpTaskToolC
 import { localSkillEditorPluginDef } from "./toolcalls/useLocalSkillEditorToolCall";
 import { clientToolSearchPluginDef } from "./toolcalls/useClientToolSearchToolCall";
 import { clientResourceSearchPluginDef } from "./toolcalls/useClientResourceSearchToolCall";
+import { useRuntimeSkills } from "../skills/useRuntimeSkills";
+import { readPluginFileTool } from "./toolcalls/usePluginFileToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -41,6 +42,11 @@ export type AttachedToolSource = {
   id: string;
   name: string;
   description?: string;
+  requestOptions?: {
+    allowed_callers?: Array<"direct" | "programmatic">;
+    defer_loading?: boolean;
+  };
+  namespace?: boolean;
 };
 
 export type AttachedTool = Tool & { source: AttachedToolSource };
@@ -56,23 +62,17 @@ export type UseToolsOptions = {
 
 export function useTools(options: UseToolsOptions = {}) {
   const mcpServerContent = useAppStore(s => s.mcpServerContent);
+  const mcpServers = useAppStore(s => s.mcpServers);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
   const storedActivePlugins = useAppStore(s => s.activePlugins);
   const storedEnabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);
-  const enabledSkillIds = useAppStore(s => s.enabledSkillIds);
 
   const enabledPlugins = options.activePlugins ?? storedActivePlugins;
   const enabledLocalTools = options.enabledLocalTools ?? storedEnabledLocalTools;
 
   const localTools = useLocalTools();
-  const skills = useSkills();
-
-  const enabledSkills = useMemo(() => {
-    const byId = new Map((skills.items ?? []).map((item) => [item.skillId, item] as const));
-    return (enabledSkillIds ?? [])
-      .map((skillId) => byId.get(skillId))
-      .filter((item): item is (typeof skills.items)[number] => !!item);
-  }, [enabledSkillIds, skills.items]);
+  const runtimeSkills = useRuntimeSkills();
+  const enabledSkills = runtimeSkills.enabled;
 
   const defsAll = useMemo(
     () => [
@@ -93,13 +93,13 @@ export function useTools(options: UseToolsOptions = {}) {
       localRegistryPluginDef,
       localActionsPluginDef,
       localToolsPluginDef,
-      buildSkillSearchPluginDef(skills.items ?? []),
+      buildSkillSearchPluginDef(runtimeSkills.searchable),
       mcpTaskPluginDef,
       vercelAIPluginDef,
       clientToolSearchPluginDef,
       clientResourceSearchPluginDef,
     ],
-    [skills.items]
+    [runtimeSkills.searchable]
   );
 
   // We don't need runtimes here; pass empty objects.
@@ -144,8 +144,19 @@ export function useTools(options: UseToolsOptions = {}) {
         source: {
           kind: "mcp" as const,
           id: serverId,
-          name: String(server.name ?? server.title ?? serverId),
-          description: server.description,
+          name: String(mcpServers[serverId]?.source?.serverName ?? server.name ?? server.title ?? serverId),
+          description: mcpServers[serverId]?.source?.kind === "agent-plugin"
+            ? `MCP tools provided by Agent Plugin ${mcpServers[serverId].source!.pluginName}.`
+            : server.description,
+          ...(mcpServers[serverId]?.source?.kind === "agent-plugin" ? {
+            requestOptions: {
+              ...(mcpServers[serverId].source!.allowed_callers?.length
+                ? { allowed_callers: mcpServers[serverId].source!.allowed_callers }
+                : {}),
+              ...(mcpServers[serverId].source!.defer_loading === true ? { defer_loading: true } : {}),
+            },
+            namespace: mcpServers[serverId].source!.namespace === true,
+          } : {}),
         },
       }))
     );
@@ -190,6 +201,10 @@ export function useTools(options: UseToolsOptions = {}) {
         seen.add(t.name);
         allTools.push({ ...t, source: { kind: "local", id: "local", name: "Local tools" } });
       }
+    }
+    if (runtimeSkills.plugins.some((plugin) => plugin.files.length > 0) && !seen.has(readPluginFileTool.name)) {
+      seen.add(readPluginFileTool.name);
+      allTools.push({ ...readPluginFileTool, source: { kind: "local", id: "local", name: "Local tools" } });
     }
     if (hasResources && !seen.has(resourceTool.name)) {
       allTools.push({ ...resourceTool, source: { kind: "local", id: "local", name: "Local tools" } });
@@ -244,9 +259,11 @@ export function useTools(options: UseToolsOptions = {}) {
     };
   }, [
     mcpServerContent,
+    mcpServers,
     injectedPluginTools,
     injectedStoredLocalTools,
     enabledSkills,
+    runtimeSkills.plugins,
     toolAnnotations,
   ]);
 }

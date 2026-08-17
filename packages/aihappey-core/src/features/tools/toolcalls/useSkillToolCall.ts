@@ -6,11 +6,13 @@ import {
   isTextSkillFile,
   listSkillResourcePaths,
   normalizeSkillRelativePath,
-  type SkillCatalogItem,
-  type SkillsContextType,
 } from "aihappey-skills";
 import { blobToBase64 } from "../../chat/files/file";
 import type { ToolPlugin, ToolPluginDef } from "./usePlugins";
+import type {
+  RuntimeSkillCatalogItem,
+  RuntimeSkillContent,
+} from "../../skills/useRuntimeSkills";
 
 type SkillToolResult = CallToolResult & {
   structuredContent?: Record<string, any>;
@@ -34,16 +36,16 @@ type SearchSkillsToolCall = {
 export const SKILL_SEARCH_PLUGIN_ID = "skill-search";
 
 function getEnabledSkills(
-  items: SkillCatalogItem[],
+  items: RuntimeSkillCatalogItem[],
   enabledSkillIds: string[]
 ) {
   const byId = new Map(items.map((item) => [item.skillId, item] as const));
   return (enabledSkillIds ?? [])
     .map((skillId) => byId.get(skillId))
-    .filter((item): item is SkillCatalogItem => !!item);
+    .filter((item): item is RuntimeSkillCatalogItem => !!item);
 }
 
-function buildSkillCatalog(skills: SkillCatalogItem[]) {
+function buildSkillCatalog(skills: RuntimeSkillCatalogItem[]) {
   return skills.map((skill) => `- ${skill.skillId} (${skill.name}): ${skill.description}`).join("\n");
 }
 
@@ -162,7 +164,7 @@ function scoreField(token: string, field: ReturnType<typeof buildFieldIndex>, we
   return 0;
 }
 
-function scoreSkillForSearch(skill: SkillCatalogItem, tokens: string[], index: number) {
+function scoreSkillForSearch(skill: RuntimeSkillCatalogItem, tokens: string[], index: number) {
   const fields = [
     { field: buildFieldIndex(skill.skillId), weight: 12 },
     { field: buildFieldIndex(skill.name), weight: 10 },
@@ -193,7 +195,7 @@ function scoreSkillForSearch(skill: SkillCatalogItem, tokens: string[], index: n
   };
 }
 
-function searchSkillCatalog(skills: SkillCatalogItem[], query: string, limit: number) {
+function searchSkillCatalog(skills: RuntimeSkillCatalogItem[], query: string, limit: number) {
   const normalizedQuery = normalizeSearchText(query);
   const tokens = tokenizeSearchText(normalizedQuery, { dropStopWords: true });
   const matches = tokens.length === 0
@@ -230,8 +232,8 @@ function buildSkillUri(skillId: string, path: string) {
 }
 
 async function resolveEnabledSkill(
-  skills: Pick<SkillsContextType, "read" | "ensureDownloaded">,
-  enabledSkills: SkillCatalogItem[],
+  readSkill: (skillId: string) => Promise<RuntimeSkillContent | undefined>,
+  enabledSkills: RuntimeSkillCatalogItem[],
   skillId: string
 ) {
   if (!skillId) throw new Error("Missing skill_id.");
@@ -243,10 +245,7 @@ async function resolveEnabledSkill(
     );
   }
 
-  let skill = await skills.read(enabledSkill.skillId);
-  if (!skill) {
-    skill = await skills.ensureDownloaded(enabledSkill.skillId);
-  }
+  const skill = await readSkill(enabledSkill.skillId);
   if (!skill) {
     throw new Error(`Skill \"${skillId}\" could not be loaded.`);
   }
@@ -254,7 +253,7 @@ async function resolveEnabledSkill(
   return skill;
 }
 
-export function buildActivateSkillTool(_skills: SkillCatalogItem[]): Tool {
+export function buildActivateSkillTool(_skills: RuntimeSkillCatalogItem[]): Tool {
   return {
     name: "activate_skill",
     title: "Activate an enabled skill",
@@ -281,7 +280,7 @@ export function buildActivateSkillTool(_skills: SkillCatalogItem[]): Tool {
   };
 }
 
-export function buildReadSkillResourceTool(_skills: SkillCatalogItem[]): Tool {
+export function buildReadSkillResourceTool(_skills: RuntimeSkillCatalogItem[]): Tool {
   return {
     name: "read_skill_resource",
     title: "Read a bundled skill resource",
@@ -342,7 +341,7 @@ export function buildSearchSkillsTool(): Tool {
   };
 }
 
-export function buildSkillSearchPluginDef(skills: SkillCatalogItem[] = []): ToolPluginDef {
+export function buildSkillSearchPluginDef(skills: RuntimeSkillCatalogItem[] = []): ToolPluginDef {
   return {
     name: SKILL_SEARCH_PLUGIN_ID,
     match: (toolName) => toolName === "search_skills" || toolName === "activate_skill" || toolName === "read_skill_resource",
@@ -357,18 +356,19 @@ export function buildSkillSearchPluginDef(skills: SkillCatalogItem[] = []): Tool
 export const skillSearchPluginDef = buildSkillSearchPluginDef();
 
 export function useSkillToolCall(opts: {
-  skills: Pick<SkillsContextType, "items" | "read" | "ensureDownloaded">;
-  enabledSkillIds: string[];
+  enabledSkills: RuntimeSkillCatalogItem[];
+  searchableSkills: RuntimeSkillCatalogItem[];
+  readSkill: (skillId: string) => Promise<RuntimeSkillContent | undefined>;
   skillSearchEnabled?: boolean;
 }) {
-  const { skills, enabledSkillIds, skillSearchEnabled = false } = opts;
+  const { enabledSkills: enabledSkillItems, searchableSkills, readSkill, skillSearchEnabled = false } = opts;
   const enabledSkills = useCallback(
-    () => getEnabledSkills(skills.items ?? [], enabledSkillIds),
-    [enabledSkillIds, skills.items]
+    () => enabledSkillItems,
+    [enabledSkillItems]
   );
   const availableSkills = useCallback(
-    () => skillSearchEnabled ? (skills.items ?? []) : enabledSkills(),
-    [enabledSkills, skillSearchEnabled, skills.items]
+    () => skillSearchEnabled ? searchableSkills : enabledSkills(),
+    [enabledSkills, searchableSkills, skillSearchEnabled]
   );
 
   const handleSearchSkills = useCallback(
@@ -378,7 +378,7 @@ export function useSkillToolCall(opts: {
       }
 
       const limit = clampSearchLimit(toolCall.input?.limit);
-      const result = searchSkillCatalog(skills.items ?? [], toolCall.input?.query ?? "", limit);
+      const result = searchSkillCatalog(searchableSkills, toolCall.input?.query ?? "", limit);
       const lines = result.skills.map((skill) => {
         const version = skill.version ?? skill.downloadedVersion ?? skill.latestVersion;
         const versionSuffix = version ? ` v${version}` : "";
@@ -420,12 +420,12 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [skillSearchEnabled, skills.items]
+    [searchableSkills, skillSearchEnabled]
   );
 
   const handleActivateSkill = useCallback(
     async (toolCall: ActivateSkillToolCall): Promise<SkillToolResult> => {
-      const skill = await resolveEnabledSkill(skills, availableSkills(), toolCall.input?.skill_id);
+      const skill = await resolveEnabledSkill(readSkill, availableSkills(), toolCall.input?.skill_id);
       const resourcePaths = listSkillResourcePaths(skill);
       const resourcesXml =
         resourcePaths.length > 0
@@ -463,12 +463,12 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [availableSkills, skills]
+    [availableSkills, readSkill]
   );
 
   const handleReadSkillResource = useCallback(
     async (toolCall: ReadSkillResourceToolCall): Promise<SkillToolResult> => {
-      const skill = await resolveEnabledSkill(skills, availableSkills(), toolCall.input?.skill_id);
+      const skill = await resolveEnabledSkill(readSkill, availableSkills(), toolCall.input?.skill_id);
       const relativePath = normalizeSkillRelativePath(toolCall.input?.path ?? "");
       if (!relativePath) {
         throw new Error("Missing path. Provide a relative path inside the skill directory.");
@@ -538,7 +538,7 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [availableSkills, skills]
+    [availableSkills, readSkill]
   );
 
   const searchSkillsPlugin: ToolPlugin = {

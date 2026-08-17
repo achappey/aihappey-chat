@@ -30,7 +30,7 @@ export const ToolsTab = ({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <LocalToolsSettingsForm
-        formTitle={t("localPlugins")}
+        formTitle={t("builtInLocalTools") ?? "Local tools"}
         items={items}
         value={activePlugins}
         onChange={setActivePlugins}

@@ -113,7 +113,12 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
   const functions = (Array.isArray(body.tools) ? body.tools : []).flatMap((tool: any) => {
     const name = typeof tool?.name === "string" ? tool.name.trim() : "";
     if (!name) return [];
-    const configured = requestConfig[name] ?? {};
+    const sourceConfigured = tool?.source?.requestOptions && typeof tool.source.requestOptions === "object"
+      ? tool.source.requestOptions
+      : {};
+    const configured = Object.prototype.hasOwnProperty.call(requestConfig, name)
+      ? requestConfig[name]
+      : sourceConfigured;
     const allowedCallers = Array.isArray(configured.allowed_callers)
       ? configured.allowed_callers.filter((caller: unknown) => caller === "direct" || caller === "programmatic")
       : [];
@@ -134,12 +139,18 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
     }];
   });
 
-  if (!body.useToolNamespaces) {
+  const hasForcedNamespaces = functions.some((tool: any) => tool?.source?.namespace === true);
+  if (!body.useToolNamespaces && !hasForcedNamespaces) {
     return functions.map(({ source: _source, ...tool }) => tool);
   }
 
   const groups = new Map<string, { name: string; description?: string; tools: Array<Record<string, any>> }>();
+  const ungrouped: Array<Record<string, any>> = [];
   for (const { source, ...tool } of functions) {
+    if (!body.useToolNamespaces && source?.namespace !== true) {
+      ungrouped.push(tool);
+      continue;
+    }
     const kind = source?.kind === "mcp" || source?.kind === "plugin" ? source.kind : "local";
     const id = kind === "local" ? "local" : String(source?.id ?? kind);
     const key = `${kind}:${id}`;
@@ -156,7 +167,7 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
 
   const names = uniqueNamespaceNames([...groups.keys()].map((key) => groups.get(key)!.name));
   const claimedNames = new Set<string>();
-  return [...groups.values()].map((group) => {
+  const namespaces = [...groups.values()].map((group) => {
     let name = names.get(group.name) ?? sanitizeNamespaceName(group.name);
     let suffix = 2;
     const base = name;
@@ -164,6 +175,7 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
     claimedNames.add(name);
     return { type: "namespace" as const, name, description: group.description, tools: group.tools };
   });
+  return [...ungrouped, ...namespaces];
 };
 
 const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolParts.flatMap((part: any) => {

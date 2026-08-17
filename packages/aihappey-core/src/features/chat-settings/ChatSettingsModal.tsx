@@ -55,6 +55,8 @@ import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { resolveEndpointProfileForSelectedModel } from "../chat/engine/endpointProfiles";
 import { useTools } from "../tools/useTools";
+import { usePlugins } from "aihappey-plugins";
+import { ChatPluginsEditor } from "./ChatPluginsEditor";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -89,6 +91,7 @@ type ChatSettingsDraft = {
   maxToolCalls?: number;
   toolChoice?: string;
   activePlugins: string[];
+  enabledAgentPluginIds: string[];
   enabledLocalTools: string[];
   toolRequestConfig: ToolRequestConfig;
   useToolNamespaces: boolean;
@@ -139,6 +142,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const setToolChoice = useAppStore((s) => s.setToolChoice);
   const activePlugins = useAppStore((s) => s.activePlugins);
   const setActivePlugins = useAppStore((s) => s.setActivePlugins);
+  const enabledAgentPluginIds = useAppStore((s) => s.enabledAgentPluginIds);
+  const setEnabledAgentPluginIds = useAppStore((s) => s.setEnabledAgentPluginIds);
   const enabledLocalTools = useAppStore((s) => (s as any).enabledLocalTools as string[]);
   const setEnabledLocalTools = useAppStore(
     (s) => (s as any).setEnabledLocalTools as (names: string[]) => void
@@ -151,6 +156,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
   const skills = useSkills();
+  const plugins = usePlugins();
   const providers = useProviderRegistry();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const createDraft = useCallback(
@@ -165,6 +171,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       maxToolCalls,
       toolChoice,
       activePlugins: [...(activePlugins ?? [])],
+      enabledAgentPluginIds: [...(enabledAgentPluginIds ?? [])],
       enabledLocalTools: [...(enabledLocalTools ?? [])],
       toolRequestConfig: { ...(toolRequestConfig ?? {}) },
       useToolNamespaces: !!useToolNamespaces,
@@ -174,6 +181,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     }),
     [
       activePlugins,
+      enabledAgentPluginIds,
       enabledLocalTools,
       enabledSkillIds,
       experimentalThrottle,
@@ -455,6 +463,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setMaxToolCalls(draft.maxToolCalls);
     setToolChoice(draft.toolChoice);
     setActivePlugins(draft.activePlugins);
+    setEnabledAgentPluginIds(draft.enabledAgentPluginIds);
     setEnabledLocalTools(draft.enabledLocalTools);
     setToolRequestConfig(draft.toolRequestConfig);
     setUseToolNamespaces(draft.useToolNamespaces);
@@ -464,6 +473,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   }, [
     draft,
     setActivePlugins,
+    setEnabledAgentPluginIds,
     setEnabledLocalTools,
     setToolRequestConfig,
     setUseToolNamespaces,
@@ -632,6 +642,15 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
               />
               {skillFeedback ? <theme.Text>{skillFeedback}</theme.Text> : null}
             </>
+          ) : null}
+        </theme.Tab>
+        <theme.Tab eventKey="agent-plugins" title={t("pluginsPage.title") ?? "Plugins"}>
+          {activeTab === "agent-plugins" ? (
+            <ChatPluginsEditor
+              items={plugins.items}
+              value={draft.enabledAgentPluginIds}
+              onChange={(value) => setDraft((current) => ({ ...current, enabledAgentPluginIds: value }))}
+            />
           ) : null}
         </theme.Tab>
         {activeProviderForm && activeProviderTitle ? (

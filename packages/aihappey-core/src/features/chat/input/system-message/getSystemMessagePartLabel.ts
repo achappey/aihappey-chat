@@ -20,6 +20,7 @@ export function getSystemMessagePartLabel(chatAppName: string, t: any,
         };
 
         if (parsed.availableSkills) return t('skills') ?? 'Skills';
+        if (parsed.availablePluginFiles) return t('pluginsPage.title') ?? 'Plugins';
 
         if (parsed.chatBotInstructions) return chatAppName;
         if (parsed.systemInformation) return t('systemContext');

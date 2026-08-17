@@ -533,11 +533,13 @@ export function VercelChatInner({
         .map(([key, value]) => [key, String(value)])
     );
   }, []);
+  const hasSourceNamespaces = tools.some((tool: any) => tool?.source?.namespace === true);
   const baseBody = useMemo(() => ({
     ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.6-luna" } : {}),
-    tools: useToolNamespaces ? [] : shapeToolsForRequest(tools, toolRequestConfig, false),
+    tools: useToolNamespaces || hasSourceNamespaces ? [] : shapeToolsForRequest(tools, toolRequestConfig, false),
     toolRequestConfig,
     useToolNamespaces,
+    hasSourceNamespaces,
     ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),
     ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
     ...(chatMode === "agent" ? { workflowType } : {}),
@@ -603,16 +605,18 @@ export function VercelChatInner({
           // `opts.body` can replace the memoized base tools. Decorate at the
           // final transport boundary so `/api/chat` always receives the two
           // request-only properties directly on each tool definition.
-          const namespacesEnabled = mergedBody.useToolNamespaces ?? useToolNamespaces;
+          const namespacesEnabled = (mergedBody.useToolNamespaces ?? useToolNamespaces) || hasSourceNamespaces;
           const sourceTools = namespacesEnabled && (!Array.isArray(mergedBody.tools) || mergedBody.tools.length === 0)
             ? tools
             : mergedBody.tools;
           if (namespacesEnabled) {
-            const namespaces = shapeToolsForRequest(
+            const shapedTools = shapeToolsForRequest(
               sourceTools,
               mergedBody.toolRequestConfig ?? toolRequestConfig,
-              true,
+              mergedBody.useToolNamespaces ?? useToolNamespaces,
             );
+            const namespaces = shapedTools.filter((tool: any) => tool?.type === "namespace");
+            const ordinaryTools = shapedTools.filter((tool: any) => tool?.type !== "namespace");
             const providerKey = String(
               (isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined)
               ?? model?.split("/")[0]
@@ -629,7 +633,10 @@ export function VercelChatInner({
             ];
             providerMetadata[providerKey] = providerConfig;
             mergedBody.providerMetadata = providerMetadata;
-            mergedBody.tools = [];
+            // Selective plugin/MCP namespaces must not pull ordinary client tools
+            // into provider metadata. Those keep using the established request
+            // tools path, while only native namespace entries are provider tools.
+            mergedBody.tools = ordinaryTools;
           } else {
             mergedBody.tools = shapeToolsForRequest(
               sourceTools,

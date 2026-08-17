@@ -49,6 +49,7 @@ import {
 } from "aihappey-provider-metadata";
 import type { Agent } from "aihappey-types";
 import { ApiKeyUnlockHost } from "../features/provider-credentials/ApiKeyUnlockHost";
+import { AgentPluginRuntimeBinding } from "../runtime/plugins/AgentPluginRuntimeBinding";
 
 const EMPTY_SKILL_NAMES: string[] = [];
 
@@ -77,6 +78,7 @@ export const CoreShell: React.FC<Props> = ({
   const setProviderHeaders = useAppStore((s) => s.setProviderHeaders);
   const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const enabledAgentPluginIds = useAppStore((s) => s.enabledAgentPluginIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const legacyEnabledSkillNames = useAppStore((s: any) => (s.__legacyEnabledSkillNames as string[] | undefined) ?? EMPTY_SKILL_NAMES);
   const setConfiguredBaseUrl = useAppStore((s) => s.setConfiguredBaseUrl);
@@ -357,7 +359,8 @@ export const CoreShell: React.FC<Props> = ({
                         legacyEnabledSkillNames={legacyEnabledSkillNames}
                         setLegacyEnabledSkillNames={(skillNames) => appStore.setState({ __legacyEnabledSkillNames: skillNames } as any)}
                       >
-                        <PluginsProvider config={pluginConfig}>
+                        <PluginsProvider config={pluginConfig} enabledPluginIds={enabledAgentPluginIds}>
+                        <AgentPluginRuntimeBinding />
                         <JsonRenderCatalogProvider>
                           <JsonRenderRegistryProvider>
                             <JsonRenderAppsProvider>

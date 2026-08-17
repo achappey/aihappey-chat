@@ -1,6 +1,6 @@
 export type ToolRequestOptions = {
   allowed_callers?: Array<"direct" | "programmatic">;
-  defer_loading?: true;
+  defer_loading?: boolean;
 };
 
 export type ToolRequestConfig = Record<string, ToolRequestOptions>;
@@ -20,7 +20,10 @@ export const decorateToolsWithRequestConfig = (
 
   return tools.map((tool: any) => {
     const name = typeof tool?.name === "string" ? tool.name : "";
-    const options = byName[name] ?? {};
+    const sourceOptions = tool?.source?.requestOptions && typeof tool.source.requestOptions === "object"
+      ? tool.source.requestOptions as ToolRequestOptions
+      : {};
+    const options = Object.prototype.hasOwnProperty.call(byName, name) ? byName[name] : sourceOptions;
     const callers = Array.isArray(options.allowed_callers)
       ? options.allowed_callers.filter((caller) => caller === "direct" || caller === "programmatic")
       : [];
@@ -73,11 +76,17 @@ export const shapeToolsForRequest = (
   useNamespaces: boolean,
 ): any[] => {
   const decorated = decorateToolsWithRequestConfig(tools, config);
-  if (!useNamespaces) return decorated;
+  const hasForcedNamespaces = decorated.some((tool) => tool?.source?.namespace === true);
+  if (!useNamespaces && !hasForcedNamespaces) return decorated;
 
   const groups = new Map<string, { proposedName: string; description: string; tools: any[] }>();
+  const ungrouped: any[] = [];
   for (const tool of decorated) {
     const source = tool?.source;
+    if (!useNamespaces && source?.namespace !== true) {
+      ungrouped.push(tool);
+      continue;
+    }
     const kind = source?.kind === "mcp" || source?.kind === "plugin" ? source.kind : "local";
     const id = kind === "local" ? "local" : String(source?.id ?? kind);
     const key = `${kind}:${id}`;
@@ -114,7 +123,7 @@ export const shapeToolsForRequest = (
   }
 
   const used = new Set<string>();
-  return [...groups.values()].map((group) => {
+  const namespaces = [...groups.values()].map((group) => {
     const base = sanitizeNamespaceName(group.proposedName);
     let name = base;
     let suffix = 2;
@@ -122,4 +131,5 @@ export const shapeToolsForRequest = (
     used.add(name);
     return { type: "namespace", name, description: group.description, tools: group.tools };
   });
+  return [...ungrouped, ...namespaces];
 };

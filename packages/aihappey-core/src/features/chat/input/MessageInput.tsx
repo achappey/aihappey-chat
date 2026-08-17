@@ -32,6 +32,7 @@ import { useLocalTools } from "aihappey-tools";
 import { useSkills } from "aihappey-skills";
 import { buildLocalToolToggleItems, usePluginToggleItems } from "../../tools/toolCatalogItems";
 import { ResizableTextArea } from "./ResizableTextArea";
+import { usePlugins as useAgentPlugins } from "aihappey-plugins";
 
 export type MessageInputProps = UseMessageInputOptions & {
   resizeResetKey?: string;
@@ -64,6 +65,8 @@ export const MessageInput = (props: MessageInputProps) => {
   const chatMode = useAppStore((s) => s.chatMode);
   const activePlugins = useAppStore((s) => s.activePlugins);
   const setActivePlugins = useAppStore((s) => s.setActivePlugins);
+  const enabledAgentPluginIds = useAppStore((s) => s.enabledAgentPluginIds);
+  const setEnabledAgentPluginIds = useAppStore((s) => s.setEnabledAgentPluginIds);
   const enabledLocalTools = useAppStore((s) => (s as any).enabledLocalTools as string[]);
   const setEnabledLocalTools = useAppStore((s) => (s as any).setEnabledLocalTools as (names: string[]) => void);
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
@@ -73,6 +76,7 @@ export const MessageInput = (props: MessageInputProps) => {
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const localTools = useLocalTools();
   const skills = useSkills();
+  const agentPlugins = useAgentPlugins();
   const pluginToggleItems = usePluginToggleItems({ includeSkillSearch: true, settingsScope: true });
   const selectedAgentEntries = resolveSelectedAgentEntries(
     selectedAgentNames,
@@ -150,6 +154,7 @@ export const MessageInput = (props: MessageInputProps) => {
     if (chatMode !== "chat") return [];
 
     const pluginLabels = new Map(pluginToggleItems.map((item) => [item.id, item.label] as const));
+    const agentPluginLabels = new Map(agentPlugins.items.map((item) => [item.id, item.name] as const));
     const localToolLabels = new Map(localToolToggleItems.map((item) => [item.id, item.label] as const));
     const skillLabels = new Map(
       (skills.items ?? []).map((item) => [item.skillId, item.name || item.skillId] as const)
@@ -159,6 +164,12 @@ export const MessageInput = (props: MessageInputProps) => {
       key: `plugin:${id}`,
       icon: "tool",
       label: pluginLabels.get(id) ?? id,
+    }));
+
+    const agentPluginTags: TagItem[] = (enabledAgentPluginIds ?? []).map((id) => ({
+      key: `agent-plugin:${id}`,
+      icon: "plugins",
+      label: agentPluginLabels.get(id) ?? id,
     }));
 
     const localToolTags: TagItem[] = (enabledLocalTools ?? []).map((id) => ({
@@ -173,10 +184,15 @@ export const MessageInput = (props: MessageInputProps) => {
       label: skillLabels.get(id) ?? id,
     }));
 
-    return [...skillTags, ...pluginTags, ...localToolTags];
-  }, [activePlugins, chatMode, enabledLocalTools, enabledSkillIds, localToolToggleItems, pluginToggleItems, skills.items]);
+    return [...skillTags, ...agentPluginTags, ...pluginTags, ...localToolTags];
+  }, [activePlugins, agentPlugins.items, chatMode, enabledAgentPluginIds, enabledLocalTools, enabledSkillIds, localToolToggleItems, pluginToggleItems, skills.items, t]);
 
   const removeContextToolTag = (key: string) => {
+    if (key.startsWith("agent-plugin:")) {
+      const id = key.slice("agent-plugin:".length);
+      setEnabledAgentPluginIds((enabledAgentPluginIds ?? []).filter((item) => item !== id));
+      return;
+    }
     if (key.startsWith("plugin:")) {
       const id = key.slice("plugin:".length);
       setActivePlugins((activePlugins ?? []).filter((item) => item !== id));

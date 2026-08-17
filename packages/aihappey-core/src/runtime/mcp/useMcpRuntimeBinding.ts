@@ -79,6 +79,7 @@ export function useMcpRuntimeBinding({
     const enabledProvidersRef = useRef(enabledProviders);
     const authenticatedRef = useRef(authenticated);
     const inferenceApiRef = useRef(inferenceApi);
+    const pendingConnectionsRef = useRef(new Map<string, Promise<any>>());
     const conversations = useConversations()
     const onElicit = (server: string, params: ElicitRequest) => elicitRuntime.onElicit(server, params);
     const onProgress = async (notif: any) => {
@@ -111,27 +112,44 @@ export function useMcpRuntimeBinding({
 
     useEffect(() => {
         if (!mcpServers) return;
-        const items: any[] = []
+        const items: Array<{ name: string; close: () => void }> = [];
+        let cancelled = false;
+
+        const configuredNames = new Set(
+            Object.entries(mcpServers)
+                .filter(([, cfg]) => cfg.config.disabled !== true)
+                .map(([name]) => name),
+        );
+        for (const [name, client] of mcpRuntime.entries()) {
+            if (configuredNames.has(name)) continue;
+            clearMcpContent(name);
+            mcpRuntime.delete(name);
+            void Promise.resolve(client.close()).catch(() => undefined);
+        }
 
         // Loop through all configured servers
-        Object.entries(mcpServers).map(async ([name, cfg]) => {
+        Object.entries(mcpServers).forEach(([name, cfg]) => {
             const isDisabled = cfg.config.disabled === true;
 
             if (isDisabled) {
                 // If disabled → ensure client is removed
                 clearMcpContent(name)
-                if (mcpRuntime.get(name)) {
+                const client = mcpRuntime.get(name);
+                if (client) {
                     mcpRuntime.delete(name);
+                    void Promise.resolve(client.close()).catch(() => undefined);
                 }
                 return;
             }
 
-            // If enabled → ensure client exists or reconnect if config changed
-            const existing = mcpRuntime.get(name);
+            const connect = async () => {
+                const previous = pendingConnectionsRef.current.get(name);
+                if (previous) {
+                    try { await previous; } catch { /* a fresh attempt follows */ }
+                }
+                if (cancelled || cfg.config.disabled === true || mcpRuntime.get(name)) return;
 
-            if (!existing) {
-
-                var safeHeaders = {}
+                var safeHeaders = {};
 
                 if (authenticated) {
                     let token;
@@ -156,7 +174,7 @@ export function useMcpRuntimeBinding({
                 }
 
                 // Create persistent SSE/streamable client
-                connectMcpServer(name, cfg.config.url, {
+                const pending = connectMcpServer(name, cfg.config.url, {
                     type: cfg.config.type,
                     headers: {
                         ...cfg.config.headers,
@@ -168,24 +186,36 @@ export function useMcpRuntimeBinding({
                     onProgress,
                     clientName,
                     clientVersion
-                }, conversationImport)
-                    .then((a: any) => items.push({
-                        ...a,
-                        name: name
-                    }));
+                }, conversationImport);
+                pendingConnectionsRef.current.set(name, pending);
+                try {
+                    const connection = await pending;
+                    if (cancelled) {
+                        connection.close();
+                        return;
+                    }
+                    items.push({ name, close: connection.close });
+                } finally {
+                    if (pendingConnectionsRef.current.get(name) === pending) {
+                        pendingConnectionsRef.current.delete(name);
+                    }
+                }
+            };
+
+            const existing = mcpRuntime.get(name);
+            if (!existing || pendingConnectionsRef.current.has(name)) {
+                void connect().catch(() => undefined);
             }
         });
 
         return () => {
+            cancelled = true;
             items.forEach((i) => {
                 try {
-                    i.close()
-                } catch (error) {
-                    if (mcpRuntime.get(i.name)) {
-                        mcpRuntime.delete(i.name);
-                    }
-
-                }
+                    i.close();
+                } catch { /* cleanup continues */ }
+                mcpRuntime.delete(i.name);
+                clearMcpContent(i.name);
             });
         }
     }, [mcpServers]);

@@ -57,6 +57,8 @@ import {
   useLocalArtificialIntelligenceRuntime,
 } from "./useLocalArtificialIntelligenceToolCall";
 import { useSkills } from "aihappey-skills";
+import { useRuntimeSkills } from "../../skills/useRuntimeSkills";
+import { usePluginFileToolCall } from "./usePluginFileToolCall";
 import { buildSkillSearchPluginDef, SKILL_SEARCH_PLUGIN_ID, useSkillToolCall } from "./useSkillToolCall";
 import { mcpTaskPluginDef, useMcpTaskRuntime } from "./useMcpTaskToolCall";
 import { localSkillEditorPluginDef, useLocalSkillEditorRuntime } from "./useLocalSkillEditorToolCall";
@@ -99,7 +101,6 @@ export function useOnToolCall({
   const mcpServers = useAppStore(a => a.mcpServers);
   const enabledPlugins = useAppStore(a => a.activePlugins); // string list
   const enabledLocalTools = useAppStore(a => (a as any).enabledLocalTools as string[]);
-  const enabledSkillIds = useAppStore(a => a.enabledSkillIds);
   const selectedModel = useAppStore(a => a.selectedModel);
   // const selectedConversationId = useAppStore(a => (a as any).selectedConversationId as string | null);
   const setActiveData = useAppStore(a => a.setActiveData);
@@ -110,6 +111,7 @@ export function useOnToolCall({
 
   const localToolsStore = useLocalTools();
   const skills = useSkills();
+  const runtimeSkills = useRuntimeSkills();
 
   // runtimes
   const localFilesRuntime = useLocalFilesRuntime(files);
@@ -169,10 +171,12 @@ export function useOnToolCall({
   const { memoryPlugin } = useMemoryToolCall(); // runtime only
   const { readResourcePlugin } = useReadResourceToolCall({ mcpServers }); // runtime exists always
   const { searchSkillsPlugin, activateSkillPlugin, readSkillResourcePlugin } = useSkillToolCall({
-    skills,
-    enabledSkillIds,
+    enabledSkills: runtimeSkills.enabled,
+    searchableSkills: runtimeSkills.searchable,
+    readSkill: runtimeSkills.read,
     skillSearchEnabled: enabledPlugins.includes(SKILL_SEARCH_PLUGIN_ID),
   });
+  const readPluginFilePlugin = usePluginFileToolCall(runtimeSkills.plugins);
 
   const runtimes = useMemo(
     () => ({
@@ -244,13 +248,13 @@ export function useOnToolCall({
       localRegistryPluginDef,
       localActionsPluginDef,
       localToolsPluginDef,
-      buildSkillSearchPluginDef(skills.items ?? []),
+      buildSkillSearchPluginDef(runtimeSkills.searchable),
       mcpTaskPluginDef,
       vercelAIPluginDef,
       clientToolSearchPluginDef,
       clientResourceSearchPluginDef,
     ],
-    [skills.items]
+    [runtimeSkills.searchable]
   );
 
   const specialRuntimes = useMemo(
@@ -261,8 +265,9 @@ export function useOnToolCall({
       [readResourcePlugin.name]: readResourcePlugin,
       [activateSkillPlugin.name]: activateSkillPlugin,
       [readSkillResourcePlugin.name]: readSkillResourcePlugin,
+      [readPluginFilePlugin.name]: readPluginFilePlugin,
     }),
-    [memoryPlugin, readResourcePlugin, activateSkillPlugin, readSkillResourcePlugin]
+    [memoryPlugin, readResourcePlugin, activateSkillPlugin, readSkillResourcePlugin, readPluginFilePlugin]
   );
 
   const { plugins } = usePlugins(enabledPlugins, defsAll, runtimes, specialRuntimes);
@@ -325,6 +330,9 @@ export function useOnToolCall({
         if (toolCall.toolName === "read_skill_resource") {
           return await readSkillResourcePlugin.handle(toolCall, signal);
         }
+        if (toolCall.toolName === "read_plugin_file") {
+          return await readPluginFilePlugin.handle(toolCall, signal);
+        }
         if (toolCall.toolName.startsWith("mcp_task_")) {
           return await mcpTaskRuntime.handle(toolCall);
         }
@@ -346,6 +354,7 @@ export function useOnToolCall({
       readResourcePlugin,
       activateSkillPlugin,
       readSkillResourcePlugin,
+      readPluginFilePlugin,
       mcpTaskRuntime,
       handleMcpPassthroughToolCall,
     ]

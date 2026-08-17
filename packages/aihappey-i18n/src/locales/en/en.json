@@ -110,6 +110,8 @@
     "pluginsPage": {
         "title": "Plugins",
         "description": "Plugins bundle Skills and Model Context servers into a single package. This lets you add complete sets of instructions, tools, and capabilities at once, and easily combine, share, and reuse them.",
+        "chatRuntimeDescription": "Enable plugins for this chat runtime. Their Skills become available automatically, supported MCP servers use the existing server toggles, and package files outside Skills can be read when needed.",
+        "readFileTool": "Read enabled plugin package files",
         "skillCount": "Skills: {{count}}",
         "serverCount": "MCP: {{count}}",
         "diagnosticCount": "Diagnostics: {{count}}",
@@ -624,6 +626,7 @@
         "local-chartjs": "Chart.js"
     },
     "localTools": "Custom tools",
+    "builtInLocalTools": "Local tools",
     "localToolsEmpty": "No custom tools found. Create one using the Tools plugin.",
     "localPlugins": "Plugins",
     "structure": "Structure",

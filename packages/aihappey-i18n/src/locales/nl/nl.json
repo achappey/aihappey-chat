@@ -113,6 +113,8 @@
     "pluginsPage": {
         "title": "Plugins",
         "description": "Plugins bundelen Skills en Model Context servers in één pakket. Zo voeg je complete sets van instructies, tools en mogelijkheden in één keer toe en kun je ze eenvoudig combineren, delen en hergebruiken.",
+        "chatRuntimeDescription": "Schakel plugins in voor deze chatruntime. Hun Skills worden automatisch beschikbaar, ondersteunde MCP-servers gebruiken de bestaande servertoggles en pakketbestanden buiten Skills kunnen indien nodig worden gelezen.",
+        "readFileTool": "Pakketbestanden van ingeschakelde plugins lezen",
         "skillCount": "Skills: {{count}}",
         "serverCount": "MCP: {{count}}",
         "diagnosticCount": "Diagnostiek: {{count}}",
@@ -622,6 +624,7 @@
         "local-chartjs": "Chart.js"
     },
     "localTools": "Aangepaste tools",
+    "builtInLocalTools": "Lokale tools",
     "localToolsEmpty": "Geen aangepaste tools gevonden. Gebruik de Tools plugin om aangepaste tools te maken.",
     "localPlugins": "Plugins",
     "disabled": "Uitgeschakeld",

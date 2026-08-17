@@ -7,7 +7,7 @@ import { namespaceNameForTool } from "../tools/toolRequestConfig";
 export type ToolCaller = "direct" | "programmatic";
 export type ToolRequestConfig = Record<string, {
   allowed_callers?: ToolCaller[];
-  defer_loading?: true;
+  defer_loading?: boolean;
 }>;
 
 const CALLERS: ToolCaller[] = ["direct", "programmatic"];
@@ -17,10 +17,19 @@ const cleanEntry = (entry: ToolRequestConfig[string]) => {
     ? entry.allowed_callers.filter((value): value is ToolCaller => CALLERS.includes(value as ToolCaller))
     : [];
   return {
-    ...(allowed.length ? { allowed_callers: allowed } : {}),
-    ...(entry.defer_loading ? { defer_loading: true as const } : {}),
+    ...(Array.isArray(entry.allowed_callers) ? { allowed_callers: allowed } : {}),
+    ...(typeof entry.defer_loading === "boolean" ? { defer_loading: entry.defer_loading } : {}),
   };
 };
+
+const sourceDefaults = (tool: AttachedTool): ToolRequestConfig[string] => ({
+  ...(Array.isArray(tool.source.requestOptions?.allowed_callers)
+    ? { allowed_callers: tool.source.requestOptions.allowed_callers }
+    : {}),
+  ...(typeof tool.source.requestOptions?.defer_loading === "boolean"
+    ? { defer_loading: tool.source.requestOptions.defer_loading }
+    : {}),
+});
 
 export const ToolConfigurationTab = ({
   tools,
@@ -39,7 +48,7 @@ export const ToolConfigurationTab = ({
   const { t } = useTranslation();
   const sortedTools = useMemo(
     () => [...tools].sort((a, b) => {
-      if (useNamespaces) {
+      if (useNamespaces || a.source.namespace === true || b.source.namespace === true) {
         const byNamespace = namespaceNameForTool(a).localeCompare(namespaceNameForTool(b));
         if (byNamespace) return byNamespace;
       }
@@ -59,7 +68,7 @@ export const ToolConfigurationTab = ({
   const updateAll = (patch: Partial<ToolRequestConfig[string]>) => {
     const result = { ...config };
     for (const tool of sortedTools) {
-      const clean = cleanEntry({ ...(result[tool.name] ?? {}), ...patch });
+      const clean = cleanEntry({ ...(result[tool.name] ?? sourceDefaults(tool)), ...patch });
       if (Object.keys(clean).length) result[tool.name] = clean;
       else delete result[tool.name];
     }
@@ -85,8 +94,9 @@ export const ToolConfigurationTab = ({
     </theme.Select>
   );
 
-  const allCallerValues = CALLERS.filter((caller) => sortedTools.length > 0 && sortedTools.every((tool) => config[tool.name]?.allowed_callers?.includes(caller)));
-  const allDeferred = sortedTools.length > 0 && sortedTools.every((tool) => config[tool.name]?.defer_loading);
+  const effectiveEntry = (tool: AttachedTool) => config[tool.name] ?? sourceDefaults(tool);
+  const allCallerValues = CALLERS.filter((caller) => sortedTools.length > 0 && sortedTools.every((tool) => effectiveEntry(tool).allowed_callers?.includes(caller)));
+  const allDeferred = sortedTools.length > 0 && sortedTools.every((tool) => effectiveEntry(tool).defer_loading === true);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -107,10 +117,13 @@ export const ToolConfigurationTab = ({
               <td style={{ padding: 8 }}><theme.Switch id="defer-all-tools" checked={allDeferred} onChange={(checked: boolean) => updateAll({ defer_loading: checked ? true : undefined })} /></td>
             </tr>
             {sortedTools.map((tool, index) => {
-              const entry = config[tool.name] ?? {};
+              const entry = effectiveEntry(tool);
               const callers = entry.allowed_callers ?? [];
               const namespace = namespaceNameForTool(tool);
-              const showNamespace = useNamespaces && (index === 0 || namespaceNameForTool(sortedTools[index - 1]) !== namespace);
+              const namespaceEnabled = useNamespaces || tool.source.namespace === true;
+              const previous = index > 0 ? sortedTools[index - 1] : undefined;
+              const previousNamespaceEnabled = !!previous && (useNamespaces || previous.source.namespace === true);
+              const showNamespace = namespaceEnabled && (!previousNamespaceEnabled || namespaceNameForTool(previous!) !== namespace);
               return <React.Fragment key={tool.name}>
                 {showNamespace ? <tr><td colSpan={3} style={{ padding: "12px 8px 6px", fontWeight: 700, opacity: .8 }}>{t("toolConfiguration.namespace")}: {namespace}</td></tr> : null}
                 <tr style={{ borderBottom: "1px solid rgba(127,127,127,.18)" }}>
@@ -127,7 +140,7 @@ export const ToolConfigurationTab = ({
                   }}>{tool.name}</div>
                     <div style={{ fontSize: 11, opacity: .65 }}>{tool.source.name}</div></td>
                   <td style={{ padding: 8 }}>{callerSelect(tool.name, callers)}</td>
-                  <td style={{ padding: 8 }}><theme.Switch id={`defer-tool-${tool.name}`} checked={!!entry.defer_loading} onChange={(checked: boolean) => updateTool(tool.name, { ...entry, defer_loading: checked ? true : undefined })} /></td>
+                  <td style={{ padding: 8 }}><theme.Switch id={`defer-tool-${tool.name}`} checked={entry.defer_loading === true} onChange={(checked: boolean) => updateTool(tool.name, { ...entry, defer_loading: checked })} /></td>
                 </tr>
               </React.Fragment>;
             })}

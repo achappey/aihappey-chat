@@ -62,6 +62,13 @@ type AvailableSkill = {
     description: string;
 };
 
+type AvailablePluginFiles = {
+    name: string;
+    description?: string;
+    version?: string;
+    files: string[];
+};
+
 const buildAvailableSkillActivationLines = (availableSkills: AvailableSkill[]) =>
     availableSkills.map((skill) => (
         `- skill_id=${skill.skillId}; name=${skill.name}: ${skill.description}`
@@ -81,6 +88,7 @@ export const buildSystemMessage = (
         darkMode?: boolean
     },
     availableSkills: AvailableSkill[] = [],
+    availablePluginFiles: AvailablePluginFiles[] = [],
     omitMcpResourceCatalogs = false,
 ): UIMessage => {
 
@@ -187,6 +195,19 @@ export const buildSystemMessage = (
                     })),
                 },
             })
+        });
+    }
+
+    if (availablePluginFiles.length > 0) {
+        parts.push({
+            type: "text",
+            text: JSON.stringify({
+                availablePluginFiles: {
+                    readTool: "read_plugin_file",
+                    instructions: "Use read_plugin_file only when a listed enabled plugin file is relevant. Pass the exact plugin_name and package-relative path. Skill files must be read through activate_skill and read_skill_resource instead.",
+                    plugins: availablePluginFiles,
+                },
+            }),
         });
     }
 

@@ -6,8 +6,8 @@ import { useDarkMode } from "usehooks-ts";
 import { buildSystemMessage } from "./buildSystemMessage";
 import { useUserLocation } from "../../../shell/connectors/useUserLocation";
 import { useChatContext } from "../context/ChatContext";
-import { useSkills } from "aihappey-skills";
 import { CLIENT_RESOURCE_SEARCH_PLUGIN_ID } from "../../tools/clientResourceSearch";
+import { useRuntimeSkills } from "../../skills/useRuntimeSkills";
 
 export function useSystemMessage() {
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
@@ -15,14 +15,13 @@ export function useSystemMessage() {
   const accountLocation = useAppStore((s) => s.accountLocation);
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const mcpServers = useAppStore((s) => s.mcpServers);
-  const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const activePlugins = useAppStore((s) => s.activePlugins);
   const account = useAccount();
   useUserLocation(enableUserLocation);
   const { isDarkMode } = useDarkMode();
   const { i18n } = useTranslation();
   const { config } = useChatContext();
-  const skills = useSkills();
+  const runtimeSkills = useRuntimeSkills();
   const chatbotInstructions = config.chatbotInstructions;
   const servers = Object.keys(mcpServers).map(z => ({
     name: z,
@@ -35,12 +34,9 @@ export function useSystemMessage() {
   );
 
   const enabledSkills = useMemo(() => {
-    const byId = new Map((skills.items ?? []).map((item) => [item.skillId, item] as const));
-    return (enabledSkillIds ?? [])
-      .map((skillId) => byId.get(skillId))
-      .filter((item): item is (typeof skills.items)[number] => !!item)
+    return runtimeSkills.enabled
       .map((item) => ({ skillId: item.skillId, name: item.name, description: item.description }));
-  }, [enabledSkillIds, skills.items]);
+  }, [runtimeSkills.enabled]);
 
   const systemMsg = useMemo(() => {
     const userContext = account
@@ -66,6 +62,14 @@ export function useSystemMessage() {
         config.appName,
         userContext,
         enabledSkills,
+        runtimeSkills.plugins
+          .filter((plugin) => plugin.files.length > 0)
+          .map((plugin) => ({
+            name: plugin.name,
+            description: plugin.description,
+            version: plugin.version,
+            files: plugin.files.map((file) => file.path),
+          })),
         activePlugins.includes(CLIENT_RESOURCE_SEARCH_PLUGIN_ID),
       );
   }, [
@@ -80,6 +84,7 @@ export function useSystemMessage() {
     isDarkMode,
     account?.tenantId,
     enabledSkills,
+    runtimeSkills.plugins,
     activePlugins,
   ]);
   return systemMsg;
