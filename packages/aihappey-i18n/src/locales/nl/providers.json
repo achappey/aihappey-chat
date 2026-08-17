@@ -306,7 +306,8 @@
       "flex": "Flexibel",
       "scale": "Schaal",
       "fast": "Snel",
-      "priority": "Prioriteit"
+      "priority": "Prioriteit",
+      "ultrafast": "Ultrasnel"
     },
     "container": "Container",
     "customVoice": "Aangepaste stem",

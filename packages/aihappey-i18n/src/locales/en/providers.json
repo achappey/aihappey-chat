@@ -654,7 +654,8 @@
       "flex": "Flexible",
       "scale": "Scalable",
       "priority": "Priority",
-      "fast": "Fast"
+      "fast": "Fast",
+      "ultrafast": "Ultrafast"
     },
     "container": "Container",
     "customVoice": "Custom voice",
