@@ -172,7 +172,7 @@ export const ConversationSidebar = ({
       key: "plugins",
       label: t("pluginsPage.title"),
       href: "/plugins",
-      icon: "components",
+      icon: "plugins",
     },
     {
       key: "skills",

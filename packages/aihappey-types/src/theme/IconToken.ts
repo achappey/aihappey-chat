@@ -27,6 +27,7 @@ export type IconToken =
   | "inference_compute"
   | "media_voice"
   | "search_data"
+  | "plugins"
   | "app_tools"
   | "storage"
   | "endpoint"

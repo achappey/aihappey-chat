@@ -33,6 +33,7 @@ import Hub from "@mui/icons-material/Hub";
 import Image from "@mui/icons-material/Image";
 import InsertChart from "@mui/icons-material/InsertChart";
 import Input from "@mui/icons-material/Input";
+import Inventory2 from "@mui/icons-material/Inventory2";
 import Key from "@mui/icons-material/Key";
 import Language from "@mui/icons-material/Language";
 import Link from "@mui/icons-material/Link";
@@ -127,6 +128,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   structuredOutputs: makeIcon(DataObject),
   webApps: makeIcon(WebAsset),
   components: makeIcon(Extension),
+  plugins: makeIcon(Inventory2),
   reranking: makeIcon(Sort),
   labs: makeIcon(Science),
   rerankingSettings: makeIcon(Settings),
