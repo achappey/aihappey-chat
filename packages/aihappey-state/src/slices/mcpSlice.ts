@@ -306,16 +306,16 @@ export const createMcpSlice: StateCreator<
     if (!client)
       throw new Error("Client not connected");
 
-       throw new Error(`Server ${serverName} tasks not supported`)
- /*   const taskClient = (client)?.experimental?.tasks;
-    if (!taskClient?.listTasks)
-      throw new Error(`Server ${serverName} does not expose MCP tasks/list`);
-
-    return await taskClient.listTasks(cursor, {
-      signal,
-      timeout: toolTimeout,
-      resetTimeoutOnProgress,
-    });*/
+    throw new Error(`Server ${serverName} tasks not supported`)
+    /*   const taskClient = (client)?.experimental?.tasks;
+       if (!taskClient?.listTasks)
+         throw new Error(`Server ${serverName} does not expose MCP tasks/list`);
+   
+       return await taskClient.listTasks(cursor, {
+         signal,
+         timeout: toolTimeout,
+         resetTimeoutOnProgress,
+       });*/
   },
   cancelMcpTask: async (serverName: string, taskId: string, signal?: AbortSignal) => {
     const { toolTimeout, resetTimeoutOnProgress } = get();
@@ -324,16 +324,16 @@ export const createMcpSlice: StateCreator<
     if (!client)
       throw new Error("Client not connected");
 
-     throw new Error(`Server ${serverName} tasks not supported`)
- /*   const taskClient = (client)?.experimental?.tasks;
-    if (!taskClient?.cancelTask)
-      throw new Error(`Server ${serverName} does not expose MCP tasks/cancel`);
-
-    return await taskClient.cancelTask(taskId, {
-      signal,
-      timeout: toolTimeout,
-      resetTimeoutOnProgress,
-    });*/
+    throw new Error(`Server ${serverName} tasks not supported`)
+    /*   const taskClient = (client)?.experimental?.tasks;
+       if (!taskClient?.cancelTask)
+         throw new Error(`Server ${serverName} does not expose MCP tasks/cancel`);
+   
+       return await taskClient.cancelTask(taskId, {
+         signal,
+         timeout: toolTimeout,
+         resetTimeoutOnProgress,
+       });*/
   },
   callTool: async (toolCallId: string | undefined, name: string,
     parameters: any,
@@ -403,12 +403,12 @@ export const createMcpSlice: StateCreator<
       name: name,
       arguments: parameters,
       ...(Object.keys(meta).length > 0 ? { _meta: meta } : {}),
-    }, undefined,
-      //  {
-      //   signal: signal,
-      //   timeout: toolTimeout,
-      //  resetTimeoutOnProgress,
-      // }
+    },
+      {
+        signal: signal,
+        timeout: toolTimeout,
+        resetTimeoutOnProgress,
+      }
     );
   },
 });
