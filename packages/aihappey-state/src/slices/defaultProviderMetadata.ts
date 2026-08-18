@@ -243,6 +243,7 @@ export const defaultProviderMetadata = {
         "reasoning.encrypted_content"
       ],
     "reasoning": {
+      "effort": "high"
     },
     "parallel_tool_calls": true
   },

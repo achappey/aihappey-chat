@@ -5,11 +5,12 @@ import {
   withResolvedProviderTools,
 } from "../providerToolConfig";
 
-const DEFAULT_REASONING = {
-};
-
-const EFFORTS = ["low", "medium", "high"] as const;
+const EFFORTS = ["low", "medium", "high", "xhigh"] as const;
 type Effort = (typeof EFFORTS)[number];
+
+const DEFAULT_REASONING: { effort: Effort } = {
+  effort: "high",
+};
 
 const DEFAULT_WEB_SEARCH = {
   type: "web_search",
@@ -68,6 +69,12 @@ export const XAIChatConfigForm = ({
   };
 
   const reasoningOn = !!config?.reasoning;
+  const reasoningEffort = (config?.reasoning?.effort ??
+    DEFAULT_REASONING.effort) as Effort;
+  const reasoningEffortOptions = EFFORTS.map((value) => ({
+    value,
+    label: t(value),
+  }));
   const webSearchOn = !!resolvedConfig?.web_search;
   const xSearchOn = !!resolvedConfig?.x_search;
   const codeExecutionOn = !!resolvedConfig?.code_execution;
@@ -112,7 +119,36 @@ export const XAIChatConfigForm = ({
           />
         }
       >
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <theme.Select
+            label={t("reasoningEffort", {
+              reasoningEffort: t(reasoningEffort),
+            })}
+            disabled={!reasoningOn}
+            values={[reasoningEffort]}
+            valueTitle={
+              reasoningEffortOptions.find(
+                ({ value }) => value === reasoningEffort
+              )?.label ?? t(DEFAULT_REASONING.effort)
+            }
+            options={reasoningEffortOptions}
+            onChange={(value: string) =>
+              submitConfig({
+                ...resolvedConfig,
+                reasoning: {
+                  ...(resolvedConfig?.reasoning ?? DEFAULT_REASONING),
+                  effort: value as Effort,
+                },
+              })
+            }
+          >
+            {reasoningEffortOptions.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </theme.Select>
+
           <theme.Switch
             id="xaiEncryptedContent"
             disabled={!reasoningOn}
@@ -329,7 +365,7 @@ export const XAIChatConfigForm = ({
         }
       >
         <theme.Select
-          label={t("providers:openai.action")}
+          label={t("mode")}
           values={[imageGenerationAction]}
           disabled={!imageGenerationOn}
           valueTitle={

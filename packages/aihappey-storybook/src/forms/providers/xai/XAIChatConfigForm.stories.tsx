@@ -46,6 +46,18 @@ export const ReasoningOnly: Story = {
   ),
 };
 
+export const MaximumReasoningEffort: Story = {
+  render: () => (
+    <Wrapper
+      config={{
+        reasoning: {
+          effort: "xhigh",
+        },
+      }}
+    />
+  ),
+};
+
 export const WebSearchEnabled: Story = {
   render: () => (
     <Wrapper
