@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import {
   PluginCard,
   PluginDetailsModal,
@@ -26,6 +26,70 @@ import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useChatContext } from "../chat/context/ChatContext";
 
+const PLUGIN_ALL_FILTER_VALUE = "__ALL__";
+const CONTENT_MAX_WIDTH = 760;
+
+type PluginFilterSelections = {
+  selectedKeywords: string[];
+  selectedAuthors: string[];
+};
+
+type PluginFilterFacet = "keyword" | "author";
+
+type PluginAuthor = {
+  name?: string;
+  email?: string;
+};
+
+const normalizeFilterValue = (value?: string) => value?.trim().toLowerCase() ?? "";
+
+const getAuthorKey = (author?: PluginAuthor) =>
+  normalizeFilterValue(author?.email) || normalizeFilterValue(author?.name);
+
+const getAuthorLabel = (author?: PluginAuthor) =>
+  author?.name?.trim() || author?.email?.trim() || "";
+
+const isAllFilterSelected = (selected: string[]) =>
+  selected.includes(PLUGIN_ALL_FILTER_VALUE);
+
+const sameSelection = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((value, index) => value === b[index]);
+
+const togglePluginMultiSelectValue = (current: string[], value: string) => {
+  if (value === PLUGIN_ALL_FILTER_VALUE) return [PLUGIN_ALL_FILTER_VALUE];
+
+  const active = isAllFilterSelected(current) ? [] : current;
+  const next = active.includes(value)
+    ? active.filter((item) => item !== value)
+    : [...active, value];
+
+  return next.length > 0 ? next : [PLUGIN_ALL_FILTER_VALUE];
+};
+
+const keepAvailableSelection = (
+  selected: string[],
+  options: string[],
+  counts: Record<string, number>
+) => {
+  if (isAllFilterSelected(selected)) return selected;
+
+  const optionSet = new Set(options);
+  const next = selected.filter(
+    (value) => optionSet.has(value) && (counts[value] ?? 0) > 0
+  );
+
+  return next.length > 0 ? next : [PLUGIN_ALL_FILTER_VALUE];
+};
+
+const getMultiSelectValueTitle = (
+  selected: string[],
+  labelsByValue: Map<string, string>,
+  allLabel: string
+) => {
+  if (isAllFilterSelected(selected)) return allLabel;
+  return selected.map((value) => labelsByValue.get(value) ?? value).join(", ");
+};
+
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   try {
@@ -52,6 +116,8 @@ export const PluginsPage = () => {
   const mcpRegistries = useAppStore((state) => state.mcpRegistries);
   const mcpRegistryItems = useMemo(() => Object.values(mcpRegistries).flat(), [mcpRegistries]);
   const [search, setSearch] = useState("");
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([PLUGIN_ALL_FILTER_VALUE]);
+  const [selectedAuthors, setSelectedAuthors] = useState<string[]>([PLUGIN_ALL_FILTER_VALUE]);
   const [activeTab, setActiveTab] = useState("all");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [details, setDetails] = useState<StoredPlugin | undefined>();
@@ -70,10 +136,153 @@ export const PluginsPage = () => {
     registry?: any;
   }>>([]);
 
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return plugins.items.filter((item) => !query || `${item.name} ${item.description} ${item.keywords.join(" ")}`.toLowerCase().includes(query));
-  }, [plugins.items, search]);
+  const collator = useMemo(
+    () => new Intl.Collator(undefined, { sensitivity: "base", numeric: true }),
+    []
+  );
+
+  const keywordOptions = useMemo(() => {
+    const labelsByValue = new Map<string, string>();
+    plugins.items.forEach((item) => {
+      item.keywords.forEach((keyword) => {
+        const label = keyword.trim();
+        const value = normalizeFilterValue(label);
+        if (value && !labelsByValue.has(value)) labelsByValue.set(value, label);
+      });
+    });
+
+    return Array.from(labelsByValue, ([value, label]) => ({ value, label }))
+      .sort((a, b) => collator.compare(a.label, b.label));
+  }, [collator, plugins.items]);
+
+  const authorOptions = useMemo(() => {
+    const labelsByValue = new Map<string, string>();
+    plugins.items.forEach((item) => {
+      const value = getAuthorKey(item.author);
+      const label = getAuthorLabel(item.author);
+      if (value && label && !labelsByValue.has(value)) labelsByValue.set(value, label);
+    });
+
+    return Array.from(labelsByValue, ([value, label]) => ({ value, label }))
+      .sort((a, b) => collator.compare(a.label, b.label));
+  }, [collator, plugins.items]);
+
+  const currentSelections = useMemo<PluginFilterSelections>(() => ({
+    selectedKeywords,
+    selectedAuthors,
+  }), [selectedAuthors, selectedKeywords]);
+
+  const normalizedSearch = useMemo(() => search.trim().toLowerCase(), [search]);
+
+  const pluginMatchesFilters = useCallback((
+    item: (typeof plugins.items)[number],
+    selections: PluginFilterSelections,
+    omittedFacet?: PluginFilterFacet,
+    includeSearch = true
+  ) => {
+    const haystack = `${item.name} ${item.description} ${item.keywords.join(" ")}`.toLowerCase();
+    const matchesSearch = !includeSearch || !normalizedSearch || haystack.includes(normalizedSearch);
+
+    const keywordValues = new Set(item.keywords.map(normalizeFilterValue).filter(Boolean));
+    const matchesKeywords =
+      omittedFacet === "keyword" ||
+      isAllFilterSelected(selections.selectedKeywords) ||
+      selections.selectedKeywords.every((keyword) => keywordValues.has(keyword));
+
+    const authorKey = getAuthorKey(item.author);
+    const matchesAuthor =
+      omittedFacet === "author" ||
+      isAllFilterSelected(selections.selectedAuthors) ||
+      (!!authorKey && selections.selectedAuthors.includes(authorKey));
+
+    return matchesSearch && matchesKeywords && matchesAuthor;
+  }, [normalizedSearch, plugins.items]);
+
+  const countPlugins = useCallback((
+    selections: PluginFilterSelections,
+    omittedFacet?: PluginFilterFacet,
+    includeSearch = true
+  ) => plugins.items.reduce(
+    (count, item) => count + (pluginMatchesFilters(item, selections, omittedFacet, includeSearch) ? 1 : 0),
+    0
+  ), [pluginMatchesFilters, plugins.items]);
+
+  const keywordCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const activeKeywords = isAllFilterSelected(selectedKeywords) ? [] : selectedKeywords;
+
+    keywordOptions.forEach(({ value }) => {
+      const nextKeywords = activeKeywords.includes(value)
+        ? activeKeywords
+        : [...activeKeywords, value];
+      counts[value] = countPlugins({
+        ...currentSelections,
+        selectedKeywords: nextKeywords.length > 0 ? nextKeywords : [PLUGIN_ALL_FILTER_VALUE],
+      });
+    });
+
+    return counts;
+  }, [countPlugins, currentSelections, keywordOptions, selectedKeywords]);
+
+  const authorCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    authorOptions.forEach(({ value }) => {
+      counts[value] = countPlugins({
+        ...currentSelections,
+        selectedAuthors: [value],
+      });
+    });
+    return counts;
+  }, [authorOptions, countPlugins, currentSelections]);
+
+  const cleanupCounts = useMemo(() => {
+    const keywords: Record<string, number> = {};
+    const activeKeywords = isAllFilterSelected(selectedKeywords) ? [] : selectedKeywords;
+    keywordOptions.forEach(({ value }) => {
+      const nextKeywords = activeKeywords.includes(value)
+        ? activeKeywords
+        : [...activeKeywords, value];
+      keywords[value] = countPlugins({
+        ...currentSelections,
+        selectedKeywords: nextKeywords.length > 0 ? nextKeywords : [PLUGIN_ALL_FILTER_VALUE],
+      }, undefined, false);
+    });
+
+    const authors: Record<string, number> = {};
+    authorOptions.forEach(({ value }) => {
+      authors[value] = countPlugins({
+        ...currentSelections,
+        selectedAuthors: [value],
+      }, undefined, false);
+    });
+
+    return { keywords, authors };
+  }, [authorOptions, countPlugins, currentSelections, keywordOptions, selectedKeywords]);
+
+  const filtered = useMemo(
+    () => plugins.items.filter((item) => pluginMatchesFilters(item, currentSelections)),
+    [currentSelections, pluginMatchesFilters, plugins.items]
+  );
+
+  useEffect(() => {
+    setSelectedKeywords((current) => {
+      const next = keepAvailableSelection(
+        current,
+        keywordOptions.map(({ value }) => value),
+        cleanupCounts.keywords
+      );
+      return sameSelection(current, next) ? current : next;
+    });
+
+    setSelectedAuthors((current) => {
+      const next = keepAvailableSelection(
+        current,
+        authorOptions.map(({ value }) => value),
+        cleanupCounts.authors
+      );
+      return sameSelection(current, next) ? current : next;
+    });
+  }, [authorOptions, cleanupCounts, keywordOptions]);
 
   const favoritePluginSet = useMemo(
     () => new Set((favoritePluginIds ?? []).filter(Boolean)),
@@ -213,6 +422,14 @@ export const PluginsPage = () => {
     </div>
   );
 
+  const SelectComponent = theme.Select || "select";
+  const keywordLabelsByValue = new Map(keywordOptions.map(({ value, label }) => [value, label]));
+  const authorLabelsByValue = new Map(authorOptions.map(({ value, label }) => [value, label]));
+  const resolveSelectionValue = (event: ChangeEvent<HTMLSelectElement> | any) =>
+    event?.target?.value ?? event?.currentTarget?.value ?? event;
+  const formatCountedLabel = (label: string, count?: number) =>
+    typeof count === "number" ? `${label} (${count})` : label;
+
   return (
     <div
       onDragEnter={(event) => { event.preventDefault(); setDragging(true); }}
@@ -222,68 +439,116 @@ export const PluginsPage = () => {
       style={{ minHeight: "100%", border: dragging ? "2px dotted #888" : "2px solid transparent", boxSizing: "border-box" }}
     >
       <StickyHeaderActionBar actionLabel={t("add")} onAction={() => { setEditorPlugin(undefined); setEditorMcpFromPlugin(undefined); setEditorError(null); setEditorMode("create"); }} />
-      <div style={{ width: 760, maxWidth: "100%", margin: "0 auto", padding: isDesktop ? 0 : 12, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <OverviewPageHeader title={t("pluginsPage.title")} officialUrl="https://agent-plugins.org/" docsUrl="https://agent-plugins.org/specification" />
-        <theme.Text as="p" align="center">{t("pluginsPage.description")}</theme.Text>
-        {feedback ? <div style={{ width: "100%", textAlign: "center", marginBottom: 12 }}>{feedback}</div> : null}
-        <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: 16 }}>
-          <div style={{ width: 360, maxWidth: "100%" }}><theme.SearchBox value={search} onChange={setSearch} placeholder={t("searchPlaceholder")} autoFocus={isDesktop} /></div>
-        </div>
-        <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-          <theme.Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
-            <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
-          </theme.Tab>
-          <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
-            <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
-          </theme.Tab>
-        </theme.Tabs>
-        <PluginDetailsModal
-          open={detailsOpen}
-          plugin={details}
-          mcpRegistryItems={mcpRegistryItems}
-          loading={detailsLoading}
-          extensionNamespace={plugins.extensionNamespace}
-          onClose={() => { setDetailsOpen(false); setDetails(undefined); }}
-          onDownload={details ? () => void downloadPlugin(details.id) : undefined}
-          onEdit={details ? () => { setEditorPlugin(details); setEditorMcpFromPlugin(details); setEditorError(null); setEditorMode("edit"); setDetailsOpen(false); } : undefined}
-        />
-        <PluginEditModal
-          open={editorMode !== null}
-          mode={editorMode ?? "create"}
-          plugin={editorPlugin}
-          skillOptions={skillOptions}
-          mcpOptions={draftMcpOptions}
-          initialSelectedSkillIds={initialSelectedSkillIds}
-          initialSelectedMcpIds={initialSelectedMcpIds}
-          extensionNamespace={plugins.extensionNamespace}
-          initialServerSettings={initialServerSettings}
-          authorIdentityName={hasAuthenticatedAuthorIdentity ? account?.name : undefined}
-          authorIdentityEmail={hasAuthenticatedAuthorIdentity ? account?.username : undefined}
-          authorIdentityReadOnly={hasAuthenticatedAuthorIdentity}
-          saving={saving}
-          error={editorError}
-          onOpenMcpCatalog={() => setShowMcpCatalog(true)}
-          onRemoveMcpServer={(id) => setDraftMcpOptions((current) => current.filter((item) => item.id !== id))}
-          onClose={() => { if (!saving) { setEditorMode(null); setEditorPlugin(undefined); setEditorError(null); } }}
-          onSave={savePlugin}
-        />
-        <ServerCatalogModal
-          show={showMcpCatalog}
-          onHide={() => setShowMcpCatalog(false)}
-          installedServerKeys={draftMcpOptions.map((item) => item.id)}
-          addMcpServer={(item) => {
-            const remote = item.server.remotes?.find((entry) => entry.type === "streamable-http") ?? item.server.remotes?.find((entry) => entry.type === "sse");
-            if (!remote) return;
-            const id = item.server.name.toLowerCase();
-            setDraftMcpOptions((current) => current.some((entry) => entry.id === id) ? current : [...current, {
-              id,
-              label: item.server.title || item.server.name,
-              config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url },
-              registry: item,
-            }]);
-          }}
-          removeMcpServer={(item) => setDraftMcpOptions((current) => current.filter((entry) => entry.id !== item.server.name.toLowerCase()))}
-        />
+      <div style={{ width: CONTENT_MAX_WIDTH, maxWidth: "100%", margin: "0 auto", padding: isDesktop ? 0 : 12, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <OverviewPageHeader title={t("pluginsPage.title")} officialUrl="https://agent-plugins.org/" docsUrl="https://agent-plugins.org/specification" />
+            <theme.Text as="p" align="center">{t("pluginsPage.description")}</theme.Text>
+            {feedback ? <div style={{ width: "100%", textAlign: "center", marginBottom: 12 }}>{feedback}</div> : null}
+            <div style={{ width: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+              <div style={{ flex: "1 1 280px", minWidth: 240, maxWidth: 360 }}>
+                <theme.SearchBox value={search} onChange={setSearch} placeholder={t("searchPlaceholder")} autoFocus={isDesktop} />
+              </div>
+              <div style={{ width: 180, maxWidth: "100%" }}>
+                <SelectComponent
+                  values={selectedKeywords}
+                  multiselect={true}
+                  size="small"
+                  label={t("pluginsPage.editor.keywords")}
+                  valueTitle={getMultiSelectValueTitle(selectedKeywords, keywordLabelsByValue, t("all"))}
+                  onChange={(event: ChangeEvent<HTMLSelectElement> | any) => {
+                    const value = resolveSelectionValue(event);
+                    if (typeof value !== "string") return;
+                    if (value !== PLUGIN_ALL_FILTER_VALUE && (keywordCounts[value] ?? 0) === 0 && !selectedKeywords.includes(value)) return;
+                    setSelectedKeywords((current) => togglePluginMultiSelectValue(current, value));
+                  }}
+                  aria-label="Plugin keyword filter"
+                >
+                  <option value={PLUGIN_ALL_FILTER_VALUE}>{t("all")}</option>
+                  {keywordOptions.map(({ value, label }) => (
+                    <option key={value} value={value} disabled={(keywordCounts[value] ?? 0) === 0 && !selectedKeywords.includes(value)}>
+                      {formatCountedLabel(label, keywordCounts[value])}
+                    </option>
+                  ))}
+                </SelectComponent>
+              </div>
+              <div style={{ width: 180, maxWidth: "100%" }}>
+                <SelectComponent
+                  values={selectedAuthors}
+                  multiselect={true}
+                  size="small"
+                  label={t("pluginsPage.editor.author")}
+                  valueTitle={getMultiSelectValueTitle(selectedAuthors, authorLabelsByValue, t("all"))}
+                  onChange={(event: ChangeEvent<HTMLSelectElement> | any) => {
+                    const value = resolveSelectionValue(event);
+                    if (typeof value !== "string") return;
+                    if (value !== PLUGIN_ALL_FILTER_VALUE && (authorCounts[value] ?? 0) === 0 && !selectedAuthors.includes(value)) return;
+                    setSelectedAuthors((current) => togglePluginMultiSelectValue(current, value));
+                  }}
+                  aria-label="Plugin author filter"
+                >
+                  <option value={PLUGIN_ALL_FILTER_VALUE}>{t("all")}</option>
+                  {authorOptions.map(({ value, label }) => (
+                    <option key={value} value={value} disabled={(authorCounts[value] ?? 0) === 0 && !selectedAuthors.includes(value)}>
+                      {formatCountedLabel(label, authorCounts[value])}
+                    </option>
+                  ))}
+                </SelectComponent>
+              </div>
+            </div>
+            <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
+              <theme.Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
+                <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
+              </theme.Tab>
+              <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
+                <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
+              </theme.Tab>
+            </theme.Tabs>
+            <PluginDetailsModal
+              open={detailsOpen}
+              plugin={details}
+              mcpRegistryItems={mcpRegistryItems}
+              loading={detailsLoading}
+              extensionNamespace={plugins.extensionNamespace}
+              onClose={() => { setDetailsOpen(false); setDetails(undefined); }}
+              onDownload={details ? () => void downloadPlugin(details.id) : undefined}
+              onEdit={details ? () => { setEditorPlugin(details); setEditorMcpFromPlugin(details); setEditorError(null); setEditorMode("edit"); setDetailsOpen(false); } : undefined}
+            />
+            <PluginEditModal
+              open={editorMode !== null}
+              mode={editorMode ?? "create"}
+              plugin={editorPlugin}
+              skillOptions={skillOptions}
+              mcpOptions={draftMcpOptions}
+              initialSelectedSkillIds={initialSelectedSkillIds}
+              initialSelectedMcpIds={initialSelectedMcpIds}
+              extensionNamespace={plugins.extensionNamespace}
+              initialServerSettings={initialServerSettings}
+              authorIdentityName={hasAuthenticatedAuthorIdentity ? account?.name : undefined}
+              authorIdentityEmail={hasAuthenticatedAuthorIdentity ? account?.username : undefined}
+              authorIdentityReadOnly={hasAuthenticatedAuthorIdentity}
+              saving={saving}
+              error={editorError}
+              onOpenMcpCatalog={() => setShowMcpCatalog(true)}
+              onRemoveMcpServer={(id) => setDraftMcpOptions((current) => current.filter((item) => item.id !== id))}
+              onClose={() => { if (!saving) { setEditorMode(null); setEditorPlugin(undefined); setEditorError(null); } }}
+              onSave={savePlugin}
+            />
+            <ServerCatalogModal
+              show={showMcpCatalog}
+              onHide={() => setShowMcpCatalog(false)}
+              installedServerKeys={draftMcpOptions.map((item) => item.id)}
+              addMcpServer={(item) => {
+                const remote = item.server.remotes?.find((entry) => entry.type === "streamable-http") ?? item.server.remotes?.find((entry) => entry.type === "sse");
+                if (!remote) return;
+                const id = item.server.name.toLowerCase();
+                setDraftMcpOptions((current) => current.some((entry) => entry.id === id) ? current : [...current, {
+                  id,
+                  label: item.server.title || item.server.name,
+                  config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url },
+                  registry: item,
+                }]);
+              }}
+              removeMcpServer={(item) => setDraftMcpOptions((current) => current.filter((entry) => entry.id !== item.server.name.toLowerCase()))}
+            />
       </div>
     </div>
   );
