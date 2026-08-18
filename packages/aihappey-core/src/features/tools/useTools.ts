@@ -34,6 +34,7 @@ import { clientToolSearchPluginDef } from "./toolcalls/useClientToolSearchToolCa
 import { clientResourceSearchPluginDef } from "./toolcalls/useClientResourceSearchToolCall";
 import { useRuntimeSkills } from "../skills/useRuntimeSkills";
 import { readPluginFileTool } from "./toolcalls/usePluginFileToolCall";
+import { localAgentPluginEditorPluginDef } from "./toolcalls/useLocalAgentPluginEditorToolCall";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -86,6 +87,7 @@ export function useTools(options: UseToolsOptions = {}) {
       localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
       localSkillEditorPluginDef,
+      localAgentPluginEditorPluginDef,
       localTodoPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDef,

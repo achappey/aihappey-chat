@@ -220,6 +220,32 @@ export async function createStoredPlugin(
   };
 }
 
+/**
+ * Creates a complete editable draft without dropping opaque extension data,
+ * unsupported-but-preserved MCP entries, or package files.
+ */
+export function storedPluginToDraft(plugin: StoredPlugin): PluginDraft {
+  return {
+    manifest: plugin.manifest,
+    ...(plugin.mcp ? { mcpServers: { ...plugin.mcp.mcpServers } } : {}),
+    files: plugin.files.slice(),
+  };
+}
+
+/**
+ * Replaces a package file set atomically by normalized path. Callers can use
+ * a prefix predicate to replace a complete component directory, such as one
+ * Agent Skill under skills/.
+ */
+export function replacePluginDraftFiles(
+  draft: PluginDraft,
+  remove: (file: StoredPluginFile) => boolean,
+  additions: StoredPluginFile[]
+): PluginDraft {
+  const files = [...draft.files.filter((file) => !remove(file)), ...additions];
+  return { ...draft, files };
+}
+
 export function pluginPackageEntries(plugin: StoredPlugin): PluginPackageEntry[] {
   return [
     { path: "plugin.json", data: `${JSON.stringify(plugin.manifest, null, 2)}\n` },

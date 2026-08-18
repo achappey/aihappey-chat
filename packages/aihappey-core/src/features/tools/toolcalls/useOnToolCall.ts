@@ -70,6 +70,11 @@ import {
   clientResourceSearchPluginDef,
   useClientResourceSearchRuntime,
 } from "./useClientResourceSearchToolCall";
+import {
+  localAgentPluginEditorPluginDef,
+  useLocalAgentPluginEditorRuntime,
+} from "./useLocalAgentPluginEditorToolCall";
+import { usePlugins as useAgentPlugins } from "aihappey-plugins";
 
 export function useOnToolCall({
   callTool,
@@ -111,6 +116,7 @@ export function useOnToolCall({
 
   const localToolsStore = useLocalTools();
   const skills = useSkills();
+  const agentPlugins = useAgentPlugins();
   const runtimeSkills = useRuntimeSkills();
 
   // runtimes
@@ -131,6 +137,7 @@ export function useOnToolCall({
   const localChartJsRuntime = useLocalChartJsRuntime();
   const localArtificialIntelligenceRuntime = useLocalArtificialIntelligenceRuntime();
   const localSkillEditorRuntime = useLocalSkillEditorRuntime(skills, files);
+  const localAgentPluginEditorRuntime = useLocalAgentPluginEditorRuntime(agentPlugins, skills);
   const jsonRenderRuntime = useLocalJsonRenderRuntime({
     setActiveData,
     send
@@ -197,6 +204,7 @@ export function useOnToolCall({
       [localChartJsRuntime.name]: localChartJsRuntime,
       [localArtificialIntelligenceRuntime.name]: localArtificialIntelligenceRuntime,
       [localSkillEditorRuntime.name]: localSkillEditorRuntime,
+      [localAgentPluginEditorRuntime.name]: localAgentPluginEditorRuntime,
       [localImagesRuntime.name]: localImagesRuntime,
       [jsonRenderRuntime.name]: jsonRenderRuntime,
       [clientToolSearchRuntime.name]: clientToolSearchRuntime,
@@ -225,6 +233,7 @@ export function useOnToolCall({
       localChartJsRuntime,
       localArtificialIntelligenceRuntime,
       localSkillEditorRuntime,
+      localAgentPluginEditorRuntime,
       searchSkillsPlugin,
     ]
   );
@@ -239,6 +248,7 @@ export function useOnToolCall({
       localChartJsPluginDef,
       localArtificialIntelligencePluginDef,
       localSkillEditorPluginDef,
+      localAgentPluginEditorPluginDef,
       localCanvasPluginDef,
       localJsonRenderPluginDef,
       localTodoPluginDef,

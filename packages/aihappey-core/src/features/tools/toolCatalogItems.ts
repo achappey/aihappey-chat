@@ -22,6 +22,7 @@ import { localTodoPluginDef } from "./toolcalls/useLocalTodoListToolCall";
 import { SKILL_SEARCH_PLUGIN_ID } from "./toolcalls/useSkillToolCall";
 import { clientToolSearchPluginDef } from "./toolcalls/useClientToolSearchToolCall";
 import { clientResourceSearchPluginDef } from "./toolcalls/useClientResourceSearchToolCall";
+import { localAgentPluginEditorPluginDef } from "./toolcalls/useLocalAgentPluginEditorToolCall";
 
 export type ToolListItem = {
   key: string;
@@ -57,6 +58,7 @@ export const allBuiltInPluginDefs = [
   localChartJsPluginDef,
   localArtificialIntelligencePluginDef,
   localSkillEditorPluginDef,
+  localAgentPluginEditorPluginDef,
   localStructuredOutputsPluginDef,
   localCatalogPluginDef,
   localRegistryPluginDef,

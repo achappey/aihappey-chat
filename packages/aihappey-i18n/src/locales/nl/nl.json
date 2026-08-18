@@ -616,6 +616,7 @@
     },
     "plugins": {
         "local-agents": "Agent Framework",
+        "local-agent-plugin-editor": "Plugin editor",
         "local-catalog": "Component catalogi",
         "local-todo": "Takenlijst",
         "skill-search": "Skill discovery",
