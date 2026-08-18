@@ -7,7 +7,7 @@ import type {
   StoredPlugin,
   StoredPluginFile,
 } from "aihappey-plugins";
-import { PLUGIN_NAME_PATTERN, PLUGIN_SCHEMA_URL } from "aihappey-plugins";
+import { normalizePluginName, PLUGIN_NAME_PATTERN, PLUGIN_SCHEMA_URL } from "aihappey-plugins";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { formatFileSize } from "../cards/formatFileSize";
@@ -81,6 +81,7 @@ export const PluginEditModal = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const fileInput = useRef<HTMLInputElement>(null);
+  const wasOpen = useRef(false);
   const [activeTab, setActiveTab] = useState("general");
   const [name, setName] = useState("");
   const [version, setVersion] = useState("");
@@ -100,7 +101,12 @@ export const PluginEditModal = ({
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      wasOpen.current = false;
+      return;
+    }
+    if (wasOpen.current) return;
+    wasOpen.current = true;
     setActiveTab("general"); setName(plugin?.manifest.name ?? ""); setVersion(plugin?.manifest.version ?? "");
     setDescription(plugin?.manifest.description ?? ""); setHomepage(plugin?.manifest.homepage ?? "");
     setRepository(plugin?.manifest.repository ?? "");
@@ -124,7 +130,7 @@ export const PluginEditModal = ({
     setSelectedMcpIds(ids);
   }, [mcpOptions, open]);
 
-  const normalizedName = name.trim().toLowerCase();
+  const normalizedName = normalizePluginName(name);
   const canSave = !saving && normalizedName.length <= 64 && PLUGIN_NAME_PATTERN.test(normalizedName);
   const sortedFiles = useMemo(() => files.slice().sort((a, b) => a.path.localeCompare(b.path)), [files]);
   const query = skillSearch.trim().toLowerCase();
@@ -230,7 +236,7 @@ export const PluginEditModal = ({
       {error ? <div style={{ color: "#c00", marginBottom: 12 }}>{error}</div> : null}
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
         <theme.Tab eventKey="general" title={t("general")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
-          <theme.Input label={t("name")} value={name} disabled={mode === "edit"} onChange={(value: any) => setName(inputValue(value))} />
+          <theme.Input label={t("name")} value={name} disabled={mode === "edit"} onChange={(value: any) => setName(inputValue(value))} onBlur={() => setName(normalizedName)} />
           <theme.Input label={t("pluginsPage.editor.version")} value={version} onChange={(value: any) => setVersion(inputValue(value))} />
           <theme.TextArea label={t("description")} value={description} rows={5} onChange={(value: any) => setDescription(inputValue(value))} />
           <theme.Input type="url" label={t("pluginsPage.editor.homepage")} value={homepage} onChange={(value: any) => setHomepage(inputValue(value))} />

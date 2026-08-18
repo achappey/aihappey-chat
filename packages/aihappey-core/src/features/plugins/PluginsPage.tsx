@@ -186,7 +186,6 @@ export const PluginsPage = () => {
       const draft: PluginDraft = { manifest, files, ...(Object.keys(mcpServers).length ? { mcpServers } : {}) };
       if (editorMode === "edit" && editorPlugin) await plugins.update(editorPlugin.id, draft);
       else await plugins.create(draft);
-      setFeedback(editorMode === "edit" ? t("pluginsPage.saved") : t("pluginsPage.created"));
       setEditorMode(null); setEditorPlugin(undefined);
     } catch (cause) {
       setEditorError(cause instanceof Error ? cause.message : t("pluginsPage.saveFailed"));
