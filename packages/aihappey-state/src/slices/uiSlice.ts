@@ -288,6 +288,10 @@ export type UiSlice = {
   toggleFavoriteProvider: (providerId: string) => void;
   setFavoriteProviderIds: (providerIds: string[]) => void;
 
+  favoritePluginIds: string[];
+  toggleFavoritePlugin: (pluginId: string) => void;
+  setFavoritePluginIds: (pluginIds: string[]) => void;
+
   customProviders: CustomProvidersByKey;
   setCustomProviders: (providers: CustomProvidersByKey) => void;
   upsertCustomProvider: (key: string, provider: Provider) => void;
@@ -343,6 +347,7 @@ export const createUiSlice: StateCreator<
   enabledSkillIds: [],
   favoriteSkillIds: [],
   favoriteProviderIds: [],
+  favoritePluginIds: [],
   selectedThemeId: undefined,
   chatWithImageModels: false,
   chatWithVideoModels: false,
@@ -601,6 +606,11 @@ export const createUiSlice: StateCreator<
       favoriteProviderIds: Array.from(new Set((providerIds ?? []).filter(Boolean))),
     })),
 
+  setFavoritePluginIds: (pluginIds: string[]) =>
+    set(() => ({
+      favoritePluginIds: Array.from(new Set((pluginIds ?? []).filter(Boolean))),
+    })),
+
   setCustomProviders: (customProviders: CustomProvidersByKey) =>
     set(() => ({
       customProviders: normalizeCustomProviders(customProviders),
@@ -653,6 +663,18 @@ export const createUiSlice: StateCreator<
         favoriteProviderIds: exists
           ? current.filter((id) => id !== providerId)
           : [...current, providerId],
+      };
+    }),
+
+  toggleFavoritePlugin: (pluginId: string) =>
+    set((state: UiSlice) => {
+      if (!pluginId) return state;
+      const current = state.favoritePluginIds ?? [];
+      const exists = current.includes(pluginId);
+      return {
+        favoritePluginIds: exists
+          ? current.filter((id) => id !== pluginId)
+          : [...current, pluginId],
       };
     }),
 

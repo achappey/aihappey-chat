@@ -15,3 +15,4 @@ export * from "./ModelFavoriteToggleButton";
 export * from "./AgentFavoriteToggleButton";
 export * from "./SkillFavoriteToggleButton";
 export * from "./ProviderFavoriteToggleButton";
+export * from "./PluginFavoriteToggleButton";

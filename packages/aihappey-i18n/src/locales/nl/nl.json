@@ -350,6 +350,8 @@
     "unfavorite_agent": "{{agent}} verwijderen uit favorieten",
     "favorite_provider": "{{provider}} toevoegen aan favorieten",
     "unfavorite_provider": "{{provider}} verwijderen uit favorieten",
+    "favorite_plugin": "{{plugin}} toevoegen aan favorieten",
+    "unfavorite_plugin": "{{plugin}} verwijderen uit favorieten",
     "custom": "Aangepast",
     "agentEdit": {
         "name": "Naam",

@@ -4,15 +4,18 @@ import type { PluginCatalogItem } from "aihappey-plugins";
 import { useTranslation } from "aihappey-i18n";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTheme } from "../theme/ThemeContext";
+import { PluginFavoriteToggleButton } from "../buttons/PluginFavoriteToggleButton";
 
 export type PluginCardProps = {
   plugin: PluginCatalogItem;
   onView: () => void;
   onDownload: () => void;
   onDelete?: () => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
 };
 
-export const PluginCard = ({ plugin, onView, onDownload, onDelete }: PluginCardProps) => {
+export const PluginCard = ({ plugin, onView, onDownload, onDelete, isFavorite = false, onToggleFavorite }: PluginCardProps) => {
   const { Card, Menu, Button, Badge } = useTheme();
   const { t } = useTranslation();
   const menuItems = useMemo<MenuItemProps[]>(() => onDelete ? [{ key: "delete", label: t("delete"), onClick: onDelete }] : [], [onDelete, t]);
@@ -31,6 +34,15 @@ export const PluginCard = ({ plugin, onView, onDownload, onDelete }: PluginCardP
         <>
           <Button icon="eye" size="small" variant="transparent" title={t("details")} onClick={onView} />
           <Button icon="download" size="small" variant="transparent" title={t("download")} onClick={onDownload} />
+          {onToggleFavorite ? (
+            <PluginFavoriteToggleButton
+              variant="transparent"
+              size="small"
+              pluginName={plugin.name}
+              isFavorite={isFavorite}
+              onToggleFavorite={onToggleFavorite}
+            />
+          ) : null}
         </>
       )}
       headerActions={onDelete ? <Menu items={menuItems} /> : undefined}

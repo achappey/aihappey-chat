@@ -391,6 +391,8 @@
     "unfavorite_skill": "Remove {{skill}} from favorites",
     "favorite_provider": "Add {{provider}} to favorites",
     "unfavorite_provider": "Remove {{provider}} from favorites",
+    "favorite_plugin": "Add {{plugin}} to favorites",
+    "unfavorite_plugin": "Remove {{plugin}} from favorites",
     "providers": "Providers",
     "mesh": "Mesh",
     "agents": {

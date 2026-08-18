@@ -41,9 +41,13 @@ export const PluginsPage = () => {
   const plugins = usePlugins();
   const skills = useSkills();
   const favoriteSkillIds = useAppStore((state: any) => (state.favoriteSkillIds ?? []) as string[]);
+  const favoritePluginIds = useAppStore((state) => state.favoritePluginIds);
+  const toggleFavoritePlugin = useAppStore((state) => state.toggleFavoritePlugin);
+  const setFavoritePluginIds = useAppStore((state) => state.setFavoritePluginIds);
   const mcpRegistries = useAppStore((state) => state.mcpRegistries);
   const mcpRegistryItems = useMemo(() => Object.values(mcpRegistries).flat(), [mcpRegistries]);
   const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [details, setDetails] = useState<StoredPlugin | undefined>();
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -65,6 +69,16 @@ export const PluginsPage = () => {
     const query = search.trim().toLowerCase();
     return plugins.items.filter((item) => !query || `${item.name} ${item.description} ${item.keywords.join(" ")}`.toLowerCase().includes(query));
   }, [plugins.items, search]);
+
+  const favoritePluginSet = useMemo(
+    () => new Set((favoritePluginIds ?? []).filter(Boolean)),
+    [favoritePluginIds]
+  );
+
+  const favoriteFiltered = useMemo(
+    () => filtered.filter((plugin) => favoritePluginSet.has(plugin.id)),
+    [favoritePluginSet, filtered]
+  );
 
   const skillOptions = useMemo(() => {
     const catalog = skills.items.map((item) => ({
@@ -110,6 +124,11 @@ export const PluginsPage = () => {
     const archive = await plugins.exportArchive(id);
     if (archive) downloadBlob(archive.blob, archive.filename);
   }, [plugins]);
+
+  const deletePlugin = useCallback(async (id: string) => {
+    await plugins.delete(id);
+    setFavoritePluginIds((favoritePluginIds ?? []).filter((pluginId) => pluginId !== id));
+  }, [favoritePluginIds, plugins, setFavoritePluginIds]);
 
   const importArchives = useCallback(async (files: File[]) => {
     const archives = files.filter((file) => file.name.toLowerCase().endsWith(".zip"));
@@ -174,6 +193,22 @@ export const PluginsPage = () => {
     [editorPlugin, plugins.extensionNamespace]
   );
 
+  const renderGrid = (items: typeof filtered) => (
+    <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 16, width: "100%", marginBottom: 24 }}>
+      {items.length ? items.map((plugin) => (
+        <PluginCard
+          key={plugin.id}
+          plugin={plugin}
+          onView={() => void openDetails(plugin.id)}
+          onDownload={() => void downloadPlugin(plugin.id)}
+          onDelete={() => void deletePlugin(plugin.id)}
+          isFavorite={favoritePluginSet.has(plugin.id)}
+          onToggleFavorite={() => toggleFavoritePlugin(plugin.id)}
+        />
+      )) : <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>{t("noResults")}</div>}
+    </div>
+  );
+
   return (
     <div
       onDragEnter={(event) => { event.preventDefault(); setDragging(true); }}
@@ -190,17 +225,14 @@ export const PluginsPage = () => {
         <div style={{ display: "flex", justifyContent: "center", width: "100%", marginBottom: 16 }}>
           <div style={{ width: 360, maxWidth: "100%" }}><theme.SearchBox value={search} onChange={setSearch} placeholder={t("searchPlaceholder")} autoFocus={isDesktop} /></div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 16, width: "100%", marginBottom: 24 }}>
-          {filtered.length ? filtered.map((plugin) => (
-            <PluginCard
-              key={plugin.id}
-              plugin={plugin}
-              onView={() => void openDetails(plugin.id)}
-              onDownload={() => void downloadPlugin(plugin.id)}
-              onDelete={() => void plugins.delete(plugin.id)}
-            />
-          )) : <div style={{ color: "#888", gridColumn: "1 / -1", textAlign: "center" }}>{t("noResults")}</div>}
-        </div>
+        <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
+          <theme.Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
+            <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
+          </theme.Tab>
+          <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
+            <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
+          </theme.Tab>
+        </theme.Tabs>
         <PluginDetailsModal
           open={detailsOpen}
           plugin={details}
