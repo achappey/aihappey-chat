@@ -60,6 +60,7 @@ export const withPersist = (
       extractExif: s.extractExif,
       showMessageTokens: s.showMessageTokens,
       disableProviderLogo: (s as any).disableProviderLogo,
+      chatDictationEnabled: s.chatDictationEnabled,
       providerImageMetadata: s.providerImageMetadata,
       providerVideoMetadata: (s as any).providerVideoMetadata,
       providerSpeechMetadata: s.providerSpeechMetadata,

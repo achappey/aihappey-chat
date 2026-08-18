@@ -855,6 +855,7 @@
         "showTemperature": "Show temperature",
         "showTokens": "Show tokens per message",
         "showProviderLogo": "Show provider logo",
+        "dictate": "Dictate",
         "agentImport": "Agents",
         "defaultModel": "Default model",
         "agentImportHint": "Import resources as Agents.",

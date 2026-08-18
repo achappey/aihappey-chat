@@ -45,12 +45,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
   const disableProviderLogo = useAppStore((s) => s.disableProviderLogo);
+  const chatDictationEnabled = useAppStore((s) => s.chatDictationEnabled);
   const agents = useAppStore((s) => s.agents);
   const sideInferenceAgentNames = useAppStore((s) => s.sideInferenceAgentNames);
   const setSideInferenceAgentNames = useAppStore((s) => s.setSideInferenceAgentNames);
 
   const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
   const setDisableProviderLogo = useAppStore((s) => s.setDisableProviderLogo);
+  const setChatDictationEnabled = useAppStore((s) => s.setChatDictationEnabled);
   const configuredChatEndpoint = useAppStore((s) => s.configuredChatEndpoint);
   const configuredBaseUrl = useAppStore((s) => s.configuredBaseUrl);
   const effectiveBaseUrl = useAppStore((s) => s.effectiveBaseUrl);
@@ -194,6 +196,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={!disableProviderLogo}
                   label={t("settingsModal.showProviderLogo") ?? "Show provider logo"}
                   onChange={(checked) => setDisableProviderLogo(!checked)}
+                />
+
+                <Switch
+                  id="chat-dictation-toggle"
+                  checked={chatDictationEnabled}
+                  label={t("settingsModal.dictate")}
+                  onChange={setChatDictationEnabled}
                 />
 
                 <SideInferenceAgentsTab

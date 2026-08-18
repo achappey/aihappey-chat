@@ -820,6 +820,7 @@
         "showTemperature": "Toon temperatuur",
         "showTokens": "Toon tokens per bericht",
         "showProviderLogo": "Toon providerlogo",
+        "dictate": "Dicteren",
         "tabTheme": "Thema",
         "agentImport": "Agents",
         "defaultModel": "Standaard model",

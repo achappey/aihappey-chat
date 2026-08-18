@@ -210,6 +210,7 @@ export type UiSlice = {
   debugMode?: boolean
   showMessageTokens?: boolean
   disableProviderLogo?: boolean
+  chatDictationEnabled: boolean
   pinnedConversations?: string[]
   hiddenNavigationItemKeys?: string[]
   togglePinnedConversation: (conversationId: string) => void;
@@ -218,6 +219,7 @@ export type UiSlice = {
   toggleHiddenNavigationItem: (key: string) => void;
   setShowMessageTokens: (value: boolean) => void;
   setDisableProviderLogo: (value: boolean) => void;
+  setChatDictationEnabled: (value: boolean) => void;
 
   quickSearches?: string[]
   addQuickSearch: (value: string) => void;
@@ -339,6 +341,7 @@ export const createUiSlice: StateCreator<
   enableUserLocation: false,
   extractExif: false,
   debugMode: false,
+  chatDictationEnabled: true,
   elicitation: {},
   accountLocation: undefined,
   enabledProvidersByType: createEmptyEnabledProvidersByType(),
@@ -398,6 +401,10 @@ export const createUiSlice: StateCreator<
   setDisableProviderLogo: (value: boolean) =>
     set((state: UiSlice) => ({
       disableProviderLogo: value
+    })),
+  setChatDictationEnabled: (value: boolean) =>
+    set(() => ({
+      chatDictationEnabled: value
     })),
 
   toggleChatWithImageModels: () =>

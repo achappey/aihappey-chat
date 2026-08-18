@@ -16,7 +16,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useResourceSelect } from "./useResourceSelect";
 import { readResource } from "../../../runtime/mcp/readResource";
 import { useDictation } from "./useDictation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ResourceTemplateArgumentsModal } from "./ResourceTemplateArgumentsModal";
 import { applyTemplateParams, extractTemplateParams } from "./resourceTemplateUri";
 import type { Prompt, ResourceTemplate } from "aihappey-state";
@@ -63,6 +63,7 @@ export const MessageInput = (props: MessageInputProps) => {
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const models = useAppStore((s) => s.models);
   const chatMode = useAppStore((s) => s.chatMode);
+  const chatDictationEnabled = useAppStore((s) => s.chatDictationEnabled);
   const activePlugins = useAppStore((s) => s.activePlugins);
   const setActivePlugins = useAppStore((s) => s.setActivePlugins);
   const enabledAgentPluginIds = useAppStore((s) => s.enabledAgentPluginIds);
@@ -117,7 +118,7 @@ export const MessageInput = (props: MessageInputProps) => {
   } = useMessageInput(props);
 
   const dictation = useDictation({
-    disabled: props.disabled || props.streaming,
+    disabled: props.disabled || props.streaming || !chatDictationEnabled,
     onTranscript: (text) => {
       setValue((prev) => {
         const sep = prev && !/\s$/.test(prev) ? " " : "";
@@ -138,6 +139,12 @@ export const MessageInput = (props: MessageInputProps) => {
       }, 0);
     },
   });
+
+  useEffect(() => {
+    if (!chatDictationEnabled && dictation.recording) {
+      dictation.stopRecording();
+    }
+  }, [chatDictationEnabled, dictation.recording]);
 
   const currentModel = models?.find(a => a.id == selectedModel);
   const resources = useSelectedResources(mcpResourceRuntime)
@@ -565,23 +572,25 @@ export const MessageInput = (props: MessageInputProps) => {
         {chatMode == "chat" && <SystemMessageButton />}
 
         {/* Dictation button (left of send/stop) */}
-        <Button
-          type="button"
-          size="large"
-          title={t("transcriptionRecord")}
-          variant={dictation.recording ? "primary" : "transparent"}
-          icon={dictation.recording ? "stop" : "transcription"}
-          disabled={dictation.recording
-            ? false
-            : props.disabled
-            || props.streaming
-            || !dictation.recordingSupported
-            || !dictation.transcriptionEnabled
-            || dictation.transcribing}
-          onClick={dictation.recording ? dictation.stopRecording : dictation.startRecording}
-        >
-          {dictation.recording ? dictation.elapsedLabel : undefined}
-        </Button>
+        {chatDictationEnabled && (
+          <Button
+            type="button"
+            size="large"
+            title={t("transcriptionRecord")}
+            variant={dictation.recording ? "primary" : "transparent"}
+            icon={dictation.recording ? "stop" : "transcription"}
+            disabled={dictation.recording
+              ? false
+              : props.disabled
+              || props.streaming
+              || !dictation.recordingSupported
+              || !dictation.transcriptionEnabled
+              || dictation.transcribing}
+            onClick={dictation.recording ? dictation.stopRecording : dictation.startRecording}
+          >
+            {dictation.recording ? dictation.elapsedLabel : undefined}
+          </Button>
+        )}
 
         {props.streaming ? (
           <Button
