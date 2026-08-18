@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { McpRegistryServerResponse, ServerClientConfig } from "aihappey-types";
+import type { McpRegistryServerResponse, ServerClientConfig, TagItem } from "aihappey-types";
 import type {
   PluginManifest,
   PluginMcpServer,
@@ -48,6 +48,9 @@ export type PluginEditModalProps = {
   initialSelectedMcpIds?: string[];
   extensionNamespace?: string;
   initialServerSettings?: Record<string, PluginServerExtension>;
+  authorIdentityName?: string;
+  authorIdentityEmail?: string;
+  authorIdentityReadOnly?: boolean;
   saving?: boolean;
   error?: string | null;
   onOpenMcpCatalog?: () => void;
@@ -72,7 +75,8 @@ function downloadFile(file: StoredPluginFile) {
 
 export const PluginEditModal = ({
   open, mode, plugin, skillOptions, mcpOptions, initialSelectedSkillIds = [], initialSelectedMcpIds = [],
-  extensionNamespace, initialServerSettings, saving, error, onOpenMcpCatalog, onRemoveMcpServer, onClose, onSave,
+  extensionNamespace, initialServerSettings, authorIdentityName, authorIdentityEmail, authorIdentityReadOnly = false,
+  saving, error, onOpenMcpCatalog, onRemoveMcpServer, onClose, onSave,
 }: PluginEditModalProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -81,6 +85,13 @@ export const PluginEditModal = ({
   const [name, setName] = useState("");
   const [version, setVersion] = useState("");
   const [description, setDescription] = useState("");
+  const [homepage, setHomepage] = useState("");
+  const [repository, setRepository] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [authorEmail, setAuthorEmail] = useState("");
+  const [authorUrl, setAuthorUrl] = useState("");
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [newKeyword, setNewKeyword] = useState("");
   const [files, setFiles] = useState<StoredPluginFile[]>([]);
   const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
   const [selectedMcpIds, setSelectedMcpIds] = useState<string[]>([]);
@@ -91,10 +102,21 @@ export const PluginEditModal = ({
   useEffect(() => {
     if (!open) return;
     setActiveTab("general"); setName(plugin?.manifest.name ?? ""); setVersion(plugin?.manifest.version ?? "");
-    setDescription(plugin?.manifest.description ?? ""); setFiles(plugin?.files ?? []);
+    setDescription(plugin?.manifest.description ?? ""); setHomepage(plugin?.manifest.homepage ?? "");
+    setRepository(plugin?.manifest.repository ?? "");
+    setAuthorName(authorIdentityReadOnly ? authorIdentityName ?? "" : plugin?.manifest.author?.name ?? "");
+    setAuthorEmail(authorIdentityReadOnly ? authorIdentityEmail ?? "" : plugin?.manifest.author?.email ?? "");
+    setAuthorUrl(plugin?.manifest.author?.url ?? ""); setKeywords(plugin?.manifest.keywords ?? []); setNewKeyword("");
+    setFiles(plugin?.files ?? []);
     setSelectedSkillIds(initialSelectedSkillIds); setSelectedMcpIds(initialSelectedMcpIds);
     setServerSettings(initialServerSettings ?? {}); setSkillSearch(""); setIsDragging(false);
-  }, [initialSelectedMcpIds, initialSelectedSkillIds, initialServerSettings, open, plugin]);
+  }, [authorIdentityReadOnly, initialSelectedMcpIds, initialSelectedSkillIds, initialServerSettings, open, plugin]);
+
+  useEffect(() => {
+    if (!open || !authorIdentityReadOnly) return;
+    setAuthorName(authorIdentityName ?? "");
+    setAuthorEmail(authorIdentityEmail ?? "");
+  }, [authorIdentityEmail, authorIdentityName, authorIdentityReadOnly, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -110,6 +132,14 @@ export const PluginEditModal = ({
     .filter((item) => !query || `${item.label} ${item.description ?? ""}`.toLowerCase().includes(query))
     .sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite) || a.label.localeCompare(b.label)), [query, skillOptions]);
   const serverItems = useMemo(() => Object.fromEntries(mcpOptions.map((option) => [option.id, { config: option.config, registry: option.registry }])), [mcpOptions]);
+  const keywordItems = useMemo<TagItem[]>(() => keywords.map((keyword) => ({ key: keyword, label: keyword })), [keywords]);
+
+  const addKeyword = () => {
+    const keyword = newKeyword.trim();
+    if (!keyword) return;
+    setKeywords((current) => current.includes(keyword) ? current : [...current, keyword]);
+    setNewKeyword("");
+  };
 
   const addFiles = (uploads: File[]) => setFiles((current) => {
     const next = new Map(current.map((file) => [file.path.toLowerCase(), file]));
@@ -163,8 +193,31 @@ export const PluginEditModal = ({
   };
 
   const buildManifest = (): PluginManifest => {
-    const { version: _oldVersion, description: _oldDescription, ...preserved } = plugin?.manifest ?? { $schema: PLUGIN_SCHEMA_URL, name: normalizedName };
-    return { ...preserved, $schema: PLUGIN_SCHEMA_URL, name: normalizedName, ...(version.trim() ? { version: version.trim() } : {}), ...(description.trim() ? { description: description.trim() } : {}) };
+    const {
+      version: _oldVersion,
+      description: _oldDescription,
+      homepage: _oldHomepage,
+      repository: _oldRepository,
+      author: _oldAuthor,
+      keywords: _oldKeywords,
+      ...preserved
+    } = plugin?.manifest ?? { $schema: PLUGIN_SCHEMA_URL, name: normalizedName };
+    const author = {
+      ...(authorName.trim() ? { name: authorName.trim() } : {}),
+      ...(authorEmail.trim() ? { email: authorEmail.trim() } : {}),
+      ...(authorUrl.trim() ? { url: authorUrl.trim() } : {}),
+    };
+    return {
+      ...preserved,
+      $schema: PLUGIN_SCHEMA_URL,
+      name: normalizedName,
+      ...(version.trim() ? { version: version.trim() } : {}),
+      ...(description.trim() ? { description: description.trim() } : {}),
+      ...(Object.keys(author).length ? { author } : {}),
+      ...(homepage.trim() ? { homepage: homepage.trim() } : {}),
+      ...(repository.trim() ? { repository: repository.trim() } : {}),
+      ...(keywords.length ? { keywords } : {}),
+    };
   };
 
   return (
@@ -180,6 +233,26 @@ export const PluginEditModal = ({
           <theme.Input label={t("name")} value={name} disabled={mode === "edit"} onChange={(value: any) => setName(inputValue(value))} />
           <theme.Input label={t("pluginsPage.editor.version")} value={version} onChange={(value: any) => setVersion(inputValue(value))} />
           <theme.TextArea label={t("description")} value={description} rows={5} onChange={(value: any) => setDescription(inputValue(value))} />
+          <theme.Input type="url" label={t("pluginsPage.editor.homepage")} value={homepage} onChange={(value: any) => setHomepage(inputValue(value))} />
+          <theme.Input type="url" label={t("pluginsPage.editor.repository")} value={repository} onChange={(value: any) => setRepository(inputValue(value))} />
+        </div></theme.Tab>
+        <theme.Tab eventKey="author" title={t("pluginsPage.editor.author")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+          <theme.Input label={t("pluginsPage.editor.authorName")} value={authorName} readOnly={authorIdentityReadOnly} onChange={(value: any) => setAuthorName(inputValue(value))} />
+          <theme.Input type="email" label={t("pluginsPage.editor.authorEmail")} value={authorEmail} readOnly={authorIdentityReadOnly} onChange={(value: any) => setAuthorEmail(inputValue(value))} />
+          <theme.Input type="url" label={t("pluginsPage.editor.authorUrl")} value={authorUrl} onChange={(value: any) => setAuthorUrl(inputValue(value))} />
+        </div></theme.Tab>
+        <theme.Tab eventKey="keywords" title={t("pluginsPage.editor.keywords")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
+            <theme.Input
+              label={t("pluginsPage.editor.keywords")}
+              placeholder={t("pluginsPage.editor.addKeyword")}
+              value={newKeyword}
+              onChange={(value: any) => setNewKeyword(inputValue(value))}
+              onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addKeyword(); } }}
+            />
+            <theme.Button icon="add" size="small" title={t("add")} variant="informative" disabled={!newKeyword.trim()} onClick={addKeyword} />
+          </div>
+          {keywordItems.length ? <theme.Tags size="small" items={keywordItems} onRemove={(keyword: string) => setKeywords((current) => current.filter((item) => item !== keyword))} /> : null}
         </div></theme.Tab>
         <theme.Tab eventKey="skills" title={t("skills")}><div style={{ display: "grid", gap: 18, paddingTop: 12 }}>
           <div style={{ width: 360, maxWidth: "100%" }}><theme.SearchBox value={skillSearch} onChange={setSkillSearch} placeholder={t("searchPlaceholder")} /></div>

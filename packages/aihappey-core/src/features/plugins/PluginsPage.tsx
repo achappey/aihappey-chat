@@ -20,9 +20,11 @@ import {
 import { useSkills } from "aihappey-skills";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
+import { useAccount } from "aihappey-auth";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
+import { useChatContext } from "../chat/context/ChatContext";
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -38,6 +40,9 @@ export const PluginsPage = () => {
   const theme = useTheme();
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
+  const account = useAccount();
+  const chat = useChatContext();
+  const hasAuthenticatedAuthorIdentity = chat.config.getAccessToken != null;
   const plugins = usePlugins();
   const skills = useSkills();
   const favoriteSkillIds = useAppStore((state: any) => (state.favoriteSkillIds ?? []) as string[]);
@@ -253,6 +258,9 @@ export const PluginsPage = () => {
           initialSelectedMcpIds={initialSelectedMcpIds}
           extensionNamespace={plugins.extensionNamespace}
           initialServerSettings={initialServerSettings}
+          authorIdentityName={hasAuthenticatedAuthorIdentity ? account?.name : undefined}
+          authorIdentityEmail={hasAuthenticatedAuthorIdentity ? account?.username : undefined}
+          authorIdentityReadOnly={hasAuthenticatedAuthorIdentity}
           saving={saving}
           error={editorError}
           onOpenMcpCatalog={() => setShowMcpCatalog(true)}
