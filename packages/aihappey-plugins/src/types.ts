@@ -97,6 +97,8 @@ export type PluginCatalogItem = {
   description: string;
   version?: string;
   author?: PluginAuthor;
+  homepage?: string;
+  repository?: string;
   keywords: string[];
   skillCount: number;
   mcpServerCount: number;

@@ -6,6 +6,7 @@ import { useTheme } from "../theme/ThemeContext";
 import { formatFileSize } from "../cards/formatFileSize";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { CapabilityIcon } from "../images";
+import { OpenLinkButton } from "../buttons/OpenLinkButton";
 
 export type PluginDetailsModalProps = {
   open: boolean;
@@ -36,6 +37,18 @@ export const PluginDetailsModal = ({ open, plugin, mcpRegistryItems = [], extens
   const extensionSettings = plugin ? readClientExtension(plugin.manifest, extensionNamespace)?.mcpServers ?? {} : {};
   const badgeRow = { display: "flex", gap: 8, flexWrap: "wrap" as const, alignItems: "center" };
   const grid = { display: "grid", gap: 12, paddingTop: 12 };
+  const homepageHost = (() => {
+    if (!plugin?.manifest.homepage) return "";
+    try { return new URL(plugin.manifest.homepage).hostname; }
+    catch { return plugin.manifest.homepage; }
+  })();
+  const metadataLinks = plugin ? (
+    <div style={badgeRow}>
+      {plugin.manifest.homepage ? <OpenLinkButton url={plugin.manifest.homepage} size="small" variant="subtle" icon="globe" tooltip={t("website")} text={homepageHost || t("website")} /> : null}
+      {plugin.manifest.repository ? <OpenLinkButton url={plugin.manifest.repository} size="small" variant="subtle" icon="code" tooltip={t("sourceCode")} text={t("sourceCode")} /> : null}
+      {plugin.manifest.author?.url ? <OpenLinkButton url={plugin.manifest.author.url} size="small" variant="subtle" icon="personalization" tooltip={t("pluginsPage.editor.authorUrl")} text={plugin.manifest.author.name || t("pluginsPage.editor.authorUrl")} /> : null}
+    </div>
+  ) : undefined;
 
   return (
     <Modal show={open} onHide={onClose} title={plugin?.name ?? t("pluginsPage.detailsTitle")} size="large" actions={(
@@ -48,11 +61,13 @@ export const PluginDetailsModal = ({ open, plugin, mcpRegistryItems = [], extens
       {loading ? <div>{t("loading")}</div> : plugin ? (
         <Tabs activeKey={activeTab} onSelect={setActiveTab}>
           <Tab eventKey="general" title={t("general")}><div style={grid}>
-            <Card title={plugin.name} description={<div style={badgeRow}>
+            <Card title={plugin.name} actions={metadataLinks} description={<div style={badgeRow}>
               {plugin.manifest.version ? <Badge size="small" bg="subtle">v{plugin.manifest.version}</Badge> : null}
               <Badge size="small" bg="informative">{t("pluginsPage.skillCount", { count: plugin.skills.filter((skill) => skill.valid).length })}</Badge>
               <Badge size="small" bg="informative">{t("pluginsPage.serverCount", { count: servers.length })}</Badge>
               <Badge size="small" bg="subtle">{t("pluginsPage.fileCount", { count: plugin.files.length })}</Badge>
+              {plugin.manifest.author?.name ? <Badge size="small" appearance="neutral" icon="personalization">{plugin.manifest.author.name}</Badge> : null}
+              {(plugin.manifest.keywords ?? []).map((keyword) => <Badge key={keyword} size="small" bg="subtle">{keyword}</Badge>)}
             </div>}>
               <div>{plugin.manifest.description || t("pluginsPage.noDescription")}</div>
             </Card>

@@ -5,6 +5,7 @@ import { useTranslation } from "aihappey-i18n";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTheme } from "../theme/ThemeContext";
 import { PluginFavoriteToggleButton } from "../buttons/PluginFavoriteToggleButton";
+import { OpenLinkButton } from "../buttons/OpenLinkButton";
 
 export type PluginCardProps = {
   plugin: PluginCatalogItem;
@@ -28,12 +29,16 @@ export const PluginCard = ({ plugin, onView, onDownload, onDelete, isFavorite = 
           {plugin.version ? <Badge size="small" bg="subtle">v{plugin.version}</Badge> : null}
           <Badge size="small" appearance="neutral" icon="skills">{t("pluginsPage.skillCount", { count: plugin.skillCount })}</Badge>
           <Badge size="small" appearance="neutral" icon="mcpServer">{t("pluginsPage.serverCount", { count: plugin.mcpServerCount })}</Badge>
+          {plugin.author?.name ? <Badge size="small" appearance="neutral" icon="personalization">{plugin.author.name}</Badge> : null}
+          {plugin.keywords.map((keyword) => <Badge key={keyword} size="small" bg="subtle">{keyword}</Badge>)}
         </div>
       )}
       actions={(
         <>
           <Button icon="eye" size="small" variant="transparent" title={t("details")} onClick={onView} />
           <Button icon="download" size="small" variant="transparent" title={t("download")} onClick={onDownload} />
+          {plugin.repository ? <OpenLinkButton url={plugin.repository} icon="code" size="small" variant="transparent" tooltip={t("sourceCode")} /> : null}
+          {plugin.homepage ? <OpenLinkButton url={plugin.homepage} icon="globe" size="small" variant="transparent" tooltip={t("website")} /> : null}
           {onToggleFavorite ? (
             <PluginFavoriteToggleButton
               variant="transparent"

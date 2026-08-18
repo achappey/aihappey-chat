@@ -21,6 +21,8 @@ function catalogItem(plugin: StoredPlugin): PluginCatalogItem {
     description: plugin.manifest.description ?? "",
     version: plugin.manifest.version,
     author: plugin.manifest.author,
+    homepage: plugin.manifest.homepage,
+    repository: plugin.manifest.repository,
     keywords: plugin.manifest.keywords ?? [],
     skillCount: plugin.skills.filter((skill) => skill.valid).length,
     mcpServerCount: servers.length,
