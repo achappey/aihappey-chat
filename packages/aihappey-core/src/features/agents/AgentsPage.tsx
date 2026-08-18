@@ -11,6 +11,12 @@ import React from "react";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { usePlugins } from "aihappey-plugins";
+import { useSkills } from "aihappey-skills";
+import {
+  AgentPluginConversionError,
+  convertAgentToPluginDraft,
+} from "./agentPluginConversion";
 
 const getProviderIconsForModel = (modelId?: string): Agent["icons"] | undefined => {
   const providerKey = getAgentModelProviderKey(modelId);
@@ -52,6 +58,8 @@ export const AgentsPage = () => {
   const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
   const isDesktop = useIsDesktop();
+  const plugins = usePlugins();
+  const skills = useSkills();
 
   //const agents = useAppStore((s) => s.agents as Record<string, AgentCardType>);
   const agents = useAppStore((s) => s.agents);
@@ -67,6 +75,8 @@ export const AgentsPage = () => {
   const [search, setSearch] = useState("");
   const [editingName, setEditingName] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all"); // "top" | "all"
+  const [convertingCardKey, setConvertingCardKey] = useState<string | null>(null);
+  const [pluginFeedback, setPluginFeedback] = useState<string | null>(null);
 
   const favoriteAgentSet = useMemo(
     () => new Set((favoriteAgentIds ?? []).filter(Boolean)),
@@ -207,6 +217,32 @@ export const AgentsPage = () => {
     [cards]
   );
 
+  const handleSaveAsPlugin = useCallback(async (cardKey: string, agent: Agent) => {
+    if (convertingCardKey) return;
+    setConvertingCardKey(cardKey);
+    setPluginFeedback(null);
+    try {
+      const draft = await convertAgentToPluginDraft(agent, {
+        existingPluginNames: plugins.items.map((item) => item.name),
+        extensionNamespace: plugins.extensionNamespace,
+        skills,
+      });
+      const created = await plugins.create(draft);
+      setPluginFeedback(t("agents.pluginCreated", { name: created.name }));
+    } catch (cause) {
+      if (cause instanceof AgentPluginConversionError && cause.code === "empty-agent") {
+        setPluginFeedback(t("agents.pluginEmpty"));
+      } else if (cause instanceof AgentPluginConversionError) {
+        setPluginFeedback(t("agents.pluginConversionFailed", { message: cause.message }));
+      } else {
+        const message = cause instanceof Error ? cause.message : t("pluginsPage.saveFailed");
+        setPluginFeedback(t("agents.pluginConversionFailed", { message }));
+      }
+    } finally {
+      setConvertingCardKey(null);
+    }
+  }, [convertingCardKey, plugins, skills, t]);
+
   const renderGrid = (items: typeof cards) => (
     <div
       style={{
@@ -239,6 +275,8 @@ export const AgentsPage = () => {
               providerIcons={card.providerIcons}
               onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
               onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
+              onSaveAsPlugin={() => handleSaveAsPlugin(card.key, card.agent)}
+              saveAsPluginDisabled={convertingCardKey !== null}
               isFavorite={favoriteAgentSet.has(card.key)}
               onToggleFavorite={() => toggleFavoriteAgent(card.key)}
             />
@@ -282,6 +320,12 @@ export const AgentsPage = () => {
           <Text as="p" align={"center"}>
             {t("agents.description")}
           </Text>
+
+          {pluginFeedback ? (
+            <Text as="p" align="center">
+              {pluginFeedback}
+            </Text>
+          ) : null}
 
           <div
             style={{

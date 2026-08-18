@@ -510,7 +510,11 @@
         "description": "Agents zijn autonome eenheden die vaardigheden, context en uitvoeringslogica samenbrengen in één model. Dat levert voorspelbaar gedrag op, maakt opschalen eenvoudig en zorgt voor een consistente inzet in verschillende omgevingen.",
         "mcpClientCapabilities": "Model Context mogelijkheden",
         "settings": "Instellingen",
-        "mcpServers": "Model Context"
+        "mcpServers": "Model Context",
+        "saveAsPlugin": "Opslaan als plugin",
+        "pluginCreated": "Plugin '{{name}}' is vanuit de agent gemaakt.",
+        "pluginEmpty": "Deze agent heeft geen directe skills of ingeschakelde MCP-servers om te verpakken.",
+        "pluginConversionFailed": "De agent kon niet als plugin worden opgeslagen: {{message}}"
     },
     "required": "Verplicht",
     "optional": "Optioneel",

@@ -402,7 +402,11 @@
         "description": "Agents are autonomous units that bring capabilities, context, and execution logic together in a single model. This delivers predictable behavior, makes scaling straightforward, and ensures consistent use across different environments.",
         "mcpClientCapabilities": "Model Context capabilities",
         "settings": "Settings",
-        "mcpServers": "Model Context servers"
+        "mcpServers": "Model Context servers",
+        "saveAsPlugin": "Save as plugin",
+        "pluginCreated": "Plugin '{{name}}' was created from the agent.",
+        "pluginEmpty": "This agent has no direct skills or enabled MCP servers to package.",
+        "pluginConversionFailed": "The agent could not be saved as a plugin: {{message}}"
     },
     "ai": {
         "title": "Artificial Intelligence",

@@ -10,19 +10,40 @@ type AgentCardProps = {
   providerIcons?: Agent["icons"];
   onEdit?: () => void
   onDelete?: () => void
+  onSaveAsPlugin?: () => void | Promise<void>;
+  saveAsPluginDisabled?: boolean;
   showExport?: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
 };
 
-export const AgentCard = ({ agent, providerIcons, onEdit, onDelete, showExport = true, isFavorite = false, onToggleFavorite }: AgentCardProps) => {
+export const AgentCard = ({
+  agent,
+  providerIcons,
+  onEdit,
+  onDelete,
+  onSaveAsPlugin,
+  saveAsPluginDisabled = false,
+  showExport = true,
+  isFavorite = false,
+  onToggleFavorite,
+}: AgentCardProps) => {
   const { Card, Button, Menu } = useTheme();
   const { t } = useTranslation();
-  const menuItems: MenuItemProps[] = [{
-    key: 'delete',
-    label: t("delete"),
-    onClick: onDelete
-  }]
+  const menuItems: MenuItemProps[] = [
+    ...(onSaveAsPlugin ? [{
+      key: "save-as-plugin",
+      label: t("agents.saveAsPlugin"),
+      onClick: onSaveAsPlugin,
+      disabled: saveAsPluginDisabled,
+    }] : []),
+    ...(onDelete ? [{
+      key: "delete",
+      label: t("delete"),
+      onClick: onDelete,
+      danger: true,
+    }] : []),
+  ];
 
 
   const handleExport = async () => {
@@ -55,7 +76,7 @@ export const AgentCard = ({ agent, providerIcons, onEdit, onDelete, showExport =
       onClick={handleExport} />
     : null;
 
-  const headerActions = onDelete && <Menu items={menuItems} />;
+  const headerActions = menuItems.length ? <Menu items={menuItems} /> : undefined;
   const editButton = onEdit
     ? <Button icon="edit"
       size="small"
