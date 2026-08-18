@@ -12,6 +12,7 @@ import { useFiles } from "aihappey-files";
 import { useSkills } from "aihappey-skills";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { useLocalTools } from "aihappey-tools";
+import { usePlugins } from "aihappey-plugins";
 import { useAppStore } from "aihappey-state";
 import type { IconToken } from "aihappey-types";
 import {
@@ -34,6 +35,7 @@ const EXPORT_ICONS: Record<ExportTargetId, IconToken> = {
   videos: "videos",
   jobs: "jobs",
   agents: "robot",
+  plugins: "plugins",
   files: "folder",
   skills: "skills",
   structuredOutputs: "structuredOutputs",
@@ -54,6 +56,7 @@ export const ExportSettings = () => {
   const skills = useSkills();
   const structuredOutputs = useStructuredOutputs();
   const tools = useLocalTools();
+  const plugins = usePlugins();
   const agents = useAppStore((state) => state.agents) ?? [];
   const [running, setRunning] = useState<RunningState>();
   const [error, setError] = useState<string>();
@@ -70,6 +73,10 @@ export const ExportSettings = () => {
     videos: videos.items,
     jobs: jobs.items,
     agents,
+    plugins: {
+      items: plugins.items,
+      read: plugins.read,
+    },
     files: files.items,
     skills: {
       items: skills.items,
@@ -96,6 +103,8 @@ export const ExportSettings = () => {
     files.items,
     images.items,
     jobs.items,
+    plugins.items,
+    plugins.read,
     reranks.items,
     skills,
     speech.items,

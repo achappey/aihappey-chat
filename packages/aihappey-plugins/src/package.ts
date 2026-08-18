@@ -15,6 +15,11 @@ import { validateMcpConfiguration, validatePluginManifest } from "./validation";
 
 const ROOT_FILES = new Set(["plugin.json", "mcp.json"]);
 
+export type PluginPackageEntry = {
+  path: string;
+  data: Blob | string;
+};
+
 export function normalizePluginFilePath(value: unknown) {
   const path = String(value ?? "").replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/+/g, "/");
   if (!path || path.startsWith("/") || path.includes("\0")) throw new Error("Plugin file path is invalid.");
@@ -215,13 +220,22 @@ export async function createStoredPlugin(
   };
 }
 
+export function pluginPackageEntries(plugin: StoredPlugin): PluginPackageEntry[] {
+  return [
+    { path: "plugin.json", data: `${JSON.stringify(plugin.manifest, null, 2)}\n` },
+    ...(plugin.mcp ? [{ path: "mcp.json", data: `${JSON.stringify(plugin.mcp, null, 2)}\n` }] : []),
+    ...plugin.files
+      .slice()
+      .sort((a, b) => a.path.localeCompare(b.path))
+      .map((file) => ({ path: normalizePluginFilePath(file.path), data: file.data })),
+  ];
+}
+
 export async function exportPluginArchive(plugin: StoredPlugin): Promise<PluginArchiveExport> {
   const zip = new JSZip();
   const date = new Date("1980-01-01T00:00:00.000Z");
-  zip.file("plugin.json", `${JSON.stringify(plugin.manifest, null, 2)}\n`, { date });
-  if (plugin.mcp) zip.file("mcp.json", `${JSON.stringify(plugin.mcp, null, 2)}\n`, { date });
-  for (const file of plugin.files.slice().sort((a, b) => a.path.localeCompare(b.path))) {
-    zip.file(normalizePluginFilePath(file.path), file.data, { date });
+  for (const entry of pluginPackageEntries(plugin)) {
+    zip.file(entry.path, entry.data, { date });
   }
   const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 }, platform: "UNIX" });
   return { filename: `${plugin.name}.zip`, blob };

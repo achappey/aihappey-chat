@@ -1,4 +1,9 @@
 import JSZip from "jszip";
+import {
+  pluginPackageEntries,
+  type PluginCatalogItem,
+  type StoredPlugin,
+} from "aihappey-plugins";
 
 export const EXPORT_CATEGORY_IDS = [
   "conversations",
@@ -9,6 +14,7 @@ export const EXPORT_CATEGORY_IDS = [
   "videos",
   "jobs",
   "agents",
+  "plugins",
   "files",
   "skills",
   "structuredOutputs",
@@ -32,6 +38,10 @@ export type ExportSources = {
   videos: any[];
   jobs: any[];
   agents: any[];
+  plugins: {
+    items: PluginCatalogItem[];
+    read: (id: string) => Promise<StoredPlugin | undefined>;
+  };
   files: any[];
   skills: {
     items: any[];
@@ -186,6 +196,29 @@ async function skillEntries(
   return entries;
 }
 
+async function pluginEntries(
+  sources: ExportSources,
+  signal: AbortSignal,
+  progress: ExportProgress,
+) {
+  const entries: ExportEntry[] = [];
+  const plugins = sources.plugins.items;
+  for (let index = 0; index < plugins.length; index += 1) {
+    abortIfNeeded(signal);
+    const plugin = await sources.plugins.read(plugins[index].id);
+    abortIfNeeded(signal);
+    if (plugin) {
+      const directory = safeFilename(plugin.name, "plugin");
+      for (const entry of pluginPackageEntries(plugin)) {
+        entries.push({ path: `${directory}/${entry.path}`, data: entry.data });
+      }
+    }
+    progress(plugins.length ? (index + 1) / plugins.length : 1);
+  }
+  if (!plugins.length) progress(1);
+  return entries;
+}
+
 export async function collectCategoryEntries(
   category: ExportCategoryId,
   sources: ExportSources,
@@ -233,6 +266,8 @@ export async function collectCategoryEntries(
     case "agents":
       entries = sources.agents.map((item, index) => ({ path: `${safeFilename(item.name || item.id, `agent-${index + 1}`)}.json`, data: json(item) }));
       break;
+    case "plugins":
+      return pluginEntries(sources, signal, progress);
     case "files":
       entries = sources.files.map((item, index) => ({ path: safeFilename(item.name, `file-${index + 1}`), data: item.data }));
       break;
