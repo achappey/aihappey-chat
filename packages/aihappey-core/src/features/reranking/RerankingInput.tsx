@@ -1,4 +1,4 @@
-import type { FormEvent } from "react";
+import { useRef, type FormEvent } from "react";
 
 import {
   AttachmentButton,
@@ -15,6 +15,7 @@ import { useResourceSelect } from "../chat/input/useResourceSelect";
 import { readResource } from "../../runtime/mcp/readResource";
 import { errorRuntime } from "../../runtime/chat-app/errorRuntime";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
+import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 
 export const RerankingInput = ({
   value,
@@ -38,6 +39,13 @@ export const RerankingInput = ({
   const { t } = useTranslation();
   const { Button, TextArea } = useTheme();
   const resourceSelect = useResourceSelect();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value,
+    onChange,
+    textareaRef,
+    disabled: processing,
+  });
 
   const providerRerankingMetadata = useAppStore((s) => s.providerRerankingMetadata);
   const enabledProviders = useAppStore((s) => s.enabledProvidersByType?.reranking ?? []);
@@ -57,6 +65,7 @@ export const RerankingInput = ({
 
       <ResizableTextArea
         TextArea={TextArea as any}
+        textareaRef={textareaRef}
         value={value}
         autoFocus
         onChange={onChange}
@@ -143,6 +152,8 @@ export const RerankingInput = ({
           />
         </div>
 
+        {dictationButton}
+
         <Button
           type="submit"
           size="large"
@@ -151,6 +162,8 @@ export const RerankingInput = ({
           title={processing ? "Reranking..." : "Send"}
         />
       </div>
+
+      {dictationError}
 
       <div style={{ marginTop: 44 }}>
         <h2>{t('rerankings')}</h2>

@@ -7,6 +7,7 @@ import { useImageInput } from "./useImageInput";
 import { ImageSettingsButton } from "../image-settings/ImageSettingsButton";
 import { addFilesToRuntime } from "../chat/input/MessageInput";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
+import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 
 export const ImageInput = (props: UseMessageInputOptions) => {
   const { Button, TextArea } = useTheme();
@@ -16,6 +17,7 @@ export const ImageInput = (props: UseMessageInputOptions) => {
 
   const {
     value,
+    setValue,
     textareaRef,
     handleChange,
     handleKeyDown,
@@ -23,6 +25,13 @@ export const ImageInput = (props: UseMessageInputOptions) => {
     handleSubmit,
     canSend,
   } = useImageInput(props);
+
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value,
+    onChange: setValue,
+    textareaRef,
+    disabled: props.disabled || props.streaming,
+  });
 
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
 
@@ -71,6 +80,8 @@ export const ImageInput = (props: UseMessageInputOptions) => {
           />
         </div>
 
+        {dictationButton}
+
         <Button
           type="submit"
           size="large"
@@ -78,6 +89,8 @@ export const ImageInput = (props: UseMessageInputOptions) => {
           icon="send"
         />
       </div>
+
+      {dictationError}
 
       <div style={{ marginTop: 44 }}>
         <h2>{t('myImages')}</h2>

@@ -6,6 +6,7 @@ import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
+import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { buildStreamingHeaders, resolveStreamingUrl, streamingErrorMessage } from "./streamingRequest";
@@ -45,8 +46,15 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
   const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState<Array<{ id: string; message: string }>>([]);
   const abortRef = useRef<AbortController>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isEdit = mode === "edit";
   const prefix = isEdit ? "streamingImageEdit" : "streamingImageCreate";
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value: prompt,
+    onChange: setPrompt,
+    textareaRef,
+    disabled: processing,
+  });
 
   const addError = useCallback((message: string) => {
     if (message) setErrors((current) => [...current, { id: crypto.randomUUID(), message }]);
@@ -179,14 +187,16 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
           {isEdit && inputImages.length > 0 && <div style={styles.tagRow}>
             <FileTags icon="image" files={inputImages} removeFile={(name) => setInputImages((current) => current.filter((image) => image.name !== name))} />
           </div>}
-          <TextArea value={prompt} autoFocus onChange={setPrompt} placeholder={t("imagePromptPlaceholder")} style={{ resize: "vertical", maxHeight: 160 }} />
+          <TextArea ref={textareaRef} value={prompt} autoFocus onChange={setPrompt} placeholder={t("imagePromptPlaceholder")} style={{ resize: "vertical", maxHeight: 160 }} />
           <div style={styles.buttonRow}>
             {isEdit && <AttachmentButton icon="attachment" onFilesSelected={chooseFiles} disabled={processing} />}
             <Button type="button" size="large" variant="transparent" icon="imageSettings" title={t("settings")} onClick={() => setSettingsOpen(true)} />
             <div style={{ flex: 1 }} />
             {processing && <Button type="button" size="large" icon="stop" title={t("stop")} onClick={() => abortRef.current?.abort()} />}
+            {dictationButton}
             <Button type="submit" size="large" icon="send" disabled={processing || !prompt.trim() || !selectedModel || (isEdit && !inputImages.length)} />
           </div>
+          {dictationError}
         </form>
       </div>
 

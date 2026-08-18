@@ -5,6 +5,7 @@ import { toSingleVideoAttachment } from "./videoAttachments";
 import { VideoSettingsButton } from "../video-settings/VideoSettingsButton";
 import { useAppStore } from "aihappey-state";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
+import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 
 export const VideoInput = (props: UseVideoPromptInputOptions) => {
   const { Button, TextArea } = useTheme();
@@ -14,6 +15,7 @@ export const VideoInput = (props: UseVideoPromptInputOptions) => {
 
   const {
     value,
+    setValue,
     textareaRef,
     handleChange,
     handleKeyDown,
@@ -23,6 +25,13 @@ export const VideoInput = (props: UseVideoPromptInputOptions) => {
   } = useVideoInput({
     ...props,
     onAddAttachments: props.onAddAttachments,
+  });
+
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value,
+    onChange: setValue,
+    textareaRef,
+    disabled: props.disabled || props.streaming,
   });
 
   const fileAttachments = props.attachments ?? [];
@@ -73,6 +82,8 @@ export const VideoInput = (props: UseVideoPromptInputOptions) => {
           />
         </div>
 
+        {dictationButton}
+
         <Button
           type="submit"
           size="large"
@@ -80,6 +91,8 @@ export const VideoInput = (props: UseVideoPromptInputOptions) => {
           icon="send"
         />
       </div>
+
+      {dictationError}
 
       <div style={{ marginTop: 44 }}>
         <h2>{t("myVideos")}</h2>

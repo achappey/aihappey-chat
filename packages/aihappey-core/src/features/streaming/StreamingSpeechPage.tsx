@@ -21,6 +21,7 @@ import { buildStreamingHeaders, resolveStreamingUrl, streamingErrorMessage } fro
 import { StreamingAudioVisualizer } from "./StreamingAudioVisualizer";
 import { createStreamingAudioPlayback, type StreamingAudioPlayback } from "./streamingAudioPlayback";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 
 type Settings = { voice: string; responseFormat: OpenAISpeechFormat; instructions: string; speed: string };
 
@@ -47,6 +48,13 @@ export const StreamingSpeechPage = () => {
   const completedAudioUrlRef = useRef<string>(null);
   const abortRef = useRef<AbortController>(null);
   const playbackRef = useRef<StreamingAudioPlayback>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value: text,
+    onChange: setText,
+    textareaRef,
+    disabled: processing,
+  });
 
   const addError = useCallback((message: string) => {
     if (message) setErrors((current) => [...current, { id: crypto.randomUUID(), message }]);
@@ -166,13 +174,15 @@ export const StreamingSpeechPage = () => {
 
       <form onSubmit={submit} style={styles.form}>
         <h1>{t("speech")}</h1>
-        <TextArea value={text} autoFocus onChange={setText} placeholder={t("speechPromptPlaceholder")} style={{ resize: "vertical", maxHeight: 160 }} />
+        <TextArea ref={textareaRef} value={text} autoFocus onChange={setText} placeholder={t("speechPromptPlaceholder")} style={{ resize: "vertical", maxHeight: 160 }} />
         <div style={styles.buttonRow}>
           <Button type="button" size="large" variant="transparent" icon="speechSettings" title={t("settings")} onClick={() => setSettingsOpen(true)} />
           <div style={{ flex: 1 }} />
           {processing && <Button type="button" size="large" icon="stop" title={t("stop")} onClick={() => abortRef.current?.abort()} />}
+          {dictationButton}
           <Button type="submit" size="large" icon="send" disabled={processing || !text.trim() || !selectedModel} />
         </div>
+        {dictationError}
       </form>
 
       <section style={{ ...styles.output, padding: isDesktop ? "0 12px" : 0 }} aria-live="polite" aria-busy={processing}>

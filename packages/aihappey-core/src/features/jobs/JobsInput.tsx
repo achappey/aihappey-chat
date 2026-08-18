@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useRef } from "react";
 import { AttachmentButton, FileTags, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
+import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 
 export const JobsInput = ({
   value,
@@ -22,6 +23,13 @@ export const JobsInput = ({
 }) => {
   const { Button, TextArea } = useTheme();
   const { t } = useTranslation();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value,
+    onChange,
+    textareaRef,
+    disabled,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +53,7 @@ export const JobsInput = ({
 
       <ResizableTextArea
         TextArea={TextArea as any}
+        textareaRef={textareaRef}
         value={value}
         autoFocus
         onChange={onChange}
@@ -61,6 +70,8 @@ export const JobsInput = ({
           />
         </div>
 
+        {dictationButton}
+
         <Button
           type="submit"
           size="large"
@@ -68,6 +79,8 @@ export const JobsInput = ({
           icon="send"
         />
       </div>
+
+      {dictationError}
 
       <div style={{ marginTop: 44 }}>
         <h2>{t("myJobs", "My jobs")}</h2>

@@ -3,7 +3,9 @@ import { defaultProviderSpeechMetadata, useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { useFileAttachments, fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { SpeechSettingsButton } from "../speech-settings/SpeechSettingsButton";
+import { useRef } from "react";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
+import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 
 export const SpeechInput = ({
   onSend,
@@ -24,8 +26,15 @@ export const SpeechInput = ({
   const providerSpeechMetadata = useAppStore((s) => s.providerSpeechMetadata);
   const setProviderSpeechMetadata = useAppStore((s) => s.setProviderSpeechMetadata);
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { Button, TextArea } = useTheme();
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value,
+    onChange,
+    textareaRef,
+    disabled,
+  });
   const attachmentsElement =
     fileAttachments.length > 0 ? (
       <div style={styles.tagRow}>
@@ -58,6 +67,7 @@ export const SpeechInput = ({
 
       <ResizableTextArea
         TextArea={TextArea as any}
+        textareaRef={textareaRef}
         value={value}
         autoFocus
         onChange={onChange}
@@ -83,6 +93,8 @@ export const SpeechInput = ({
           />
         </div>
 
+        {dictationButton}
+
         <Button
           type="submit"
           size="large"
@@ -91,6 +103,8 @@ export const SpeechInput = ({
         />
 
       </div>
+
+      {dictationError}
 
       <div style={{ marginTop: 44 }}>
         <h2>{t('mySpeechFiles')}</h2>

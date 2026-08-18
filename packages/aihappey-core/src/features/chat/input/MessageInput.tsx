@@ -15,8 +15,7 @@ import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/file
 import { useTranslation } from "aihappey-i18n";
 import { useResourceSelect } from "./useResourceSelect";
 import { readResource } from "../../../runtime/mcp/readResource";
-import { useDictation } from "./useDictation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ResourceTemplateArgumentsModal } from "./ResourceTemplateArgumentsModal";
 import { applyTemplateParams, extractTemplateParams } from "./resourceTemplateUri";
 import type { Prompt, ResourceTemplate } from "aihappey-state";
@@ -33,6 +32,7 @@ import { useSkills } from "aihappey-skills";
 import { buildLocalToolToggleItems, usePluginToggleItems } from "../../tools/toolCatalogItems";
 import { ResizableTextArea } from "./ResizableTextArea";
 import { usePlugins as useAgentPlugins } from "aihappey-plugins";
+import { usePromptDictationControls } from "./usePromptDictationControls";
 
 export type MessageInputProps = UseMessageInputOptions & {
   resizeResetKey?: string;
@@ -63,7 +63,6 @@ export const MessageInput = (props: MessageInputProps) => {
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const models = useAppStore((s) => s.models);
   const chatMode = useAppStore((s) => s.chatMode);
-  const chatDictationEnabled = useAppStore((s) => s.chatDictationEnabled);
   const activePlugins = useAppStore((s) => s.activePlugins);
   const setActivePlugins = useAppStore((s) => s.setActivePlugins);
   const enabledAgentPluginIds = useAppStore((s) => s.enabledAgentPluginIds);
@@ -117,34 +116,12 @@ export const MessageInput = (props: MessageInputProps) => {
     resetChatSettings,
   } = useMessageInput(props);
 
-  const dictation = useDictation({
-    disabled: props.disabled || props.streaming || !chatDictationEnabled,
-    onTranscript: (text) => {
-      setValue((prev) => {
-        const sep = prev && !/\s$/.test(prev) ? " " : "";
-        return `${prev}${sep}${text}`;
-      });
-
-      // Keep focus in the input and move cursor to end.
-      window.setTimeout(() => {
-        const el = textareaRef.current;
-        if (!el) return;
-        el.focus();
-        try {
-          const end = el.value.length;
-          el.setSelectionRange(end, end);
-        } catch {
-          // ignore
-        }
-      }, 0);
-    },
+  const { dictationButton, dictationError } = usePromptDictationControls({
+    value,
+    onChange: setValue,
+    textareaRef,
+    disabled: props.disabled || props.streaming,
   });
-
-  useEffect(() => {
-    if (!chatDictationEnabled && dictation.recording) {
-      dictation.stopRecording();
-    }
-  }, [chatDictationEnabled, dictation.recording]);
 
   const currentModel = models?.find(a => a.id == selectedModel);
   const resources = useSelectedResources(mcpResourceRuntime)
@@ -572,25 +549,7 @@ export const MessageInput = (props: MessageInputProps) => {
         {chatMode == "chat" && <SystemMessageButton />}
 
         {/* Dictation button (left of send/stop) */}
-        {chatDictationEnabled && (
-          <Button
-            type="button"
-            size="large"
-            title={t("transcriptionRecord")}
-            variant={dictation.recording ? "primary" : "transparent"}
-            icon={dictation.recording ? "stop" : "transcription"}
-            disabled={dictation.recording
-              ? false
-              : props.disabled
-              || props.streaming
-              || !dictation.recordingSupported
-              || !dictation.transcriptionEnabled
-              || dictation.transcribing}
-            onClick={dictation.recording ? dictation.stopRecording : dictation.startRecording}
-          >
-            {dictation.recording ? dictation.elapsedLabel : undefined}
-          </Button>
-        )}
+        {dictationButton}
 
         {props.streaming ? (
           <Button
@@ -609,11 +568,7 @@ export const MessageInput = (props: MessageInputProps) => {
         )}
       </div>
 
-      {dictation.error && (
-        <div style={{ marginTop: 8, color: "#b00020" }}>
-          {dictation.error}
-        </div>
-      )}
+      {dictationError}
     </form>
   );
 };
