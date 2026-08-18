@@ -277,6 +277,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(function But
   children,
   className,
   title,
+  "aria-label": ariaLabel,
   type,
   ...rest
 }, ref) {
@@ -291,7 +292,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(function But
         icon && !hasChildren && "aih-shadcn-btn-icon",
         className
       )}
-      title={title}
+      aria-label={ariaLabel ?? (icon && !hasChildren ? title : undefined)}
       {...rest}
     >
       {Icon && iconPosition === "left" ? <Icon size={16} /> : null}
