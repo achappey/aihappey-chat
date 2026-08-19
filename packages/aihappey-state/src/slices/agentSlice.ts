@@ -12,6 +12,13 @@ import {
     resolveAgentModelProviderMetadata,
 } from "./agentModelProviderMetadata";
 
+export type MagenticWorkflowSettings = {
+    maxRounds?: number;
+    maxResets?: number;
+    maxStalls?: number;
+    responseLanguage?: string;
+};
+
 export type AgentSlice = {
     agents: Agent[];
     remoteAgentModels: RemoteAgentModel[];
@@ -21,11 +28,16 @@ export type AgentSlice = {
     workflowType: string
     maximumIterationCount: number
     handoffs: any[]
+    magenticManagerAgentKey?: string
+    magentic: MagenticWorkflowSettings
     setAgents: (agents: Agent[]) => void
     setRemoteAgentModels: (models: RemoteAgentModel[]) => void
     setWorkflowType: (workflowType: string) => void
     setHandoffs: (handoffs: any[]) => void
     setMaximumIterationCount: (count: number) => void
+    setMagenticManagerAgentKey: (agentKey?: string) => void
+    setMagentic: (settings: MagenticWorkflowSettings) => void
+    resetAgentWorkflowSettings: () => void
     setSelectedAgents: (agents: string[]) => void
     setFavoriteAgentIds: (agentIds: string[]) => void
     toggleFavoriteAgent: (agentId: string) => void
@@ -52,6 +64,8 @@ export const createAgentSlice: StateCreator<
     favoriteAgentIds: [],
     maximumIterationCount: 5,
     handoffs: [],
+    magenticManagerAgentKey: undefined,
+    magentic: {},
     // in your create(...) slice implementation
     updateAgentPolicy: (agentName, key, value) =>
         set((state: AgentSlice) => ({
@@ -125,6 +139,21 @@ export const createAgentSlice: StateCreator<
     setWorkflowType: (workflowType) => {
         set((state: any) => ({
             workflowType: workflowType,
+        }));
+    },
+    setMagenticManagerAgentKey: (magenticManagerAgentKey) => {
+        set(() => ({ magenticManagerAgentKey }));
+    },
+    setMagentic: (magentic) => {
+        set(() => ({ magentic: { ...magentic } }));
+    },
+    resetAgentWorkflowSettings: () => {
+        set(() => ({
+            workflowType: "concurrent",
+            maximumIterationCount: 5,
+            handoffs: [],
+            magenticManagerAgentKey: undefined,
+            magentic: {},
         }));
     },
     setAgents: (agents) => {

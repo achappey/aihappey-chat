@@ -11,7 +11,7 @@ import { useChatErrors } from "../layout/useChatErrors";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
-import { buildSelectedAgentRequest } from "../../agents/agentSelection";
+import { buildSelectedAgentRequest, buildWorkflowMetadata } from "../../agents/agentSelection";
 import {
   resolveEndpointProfileForSelectedModel,
   resolveEndpointProfileChatEndpoint,
@@ -55,21 +55,23 @@ export function useChatActions({
   const agents = useAppStore(a => a.agents)
   const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
   const chatMode = useAppStore(a => a.chatMode)
-  const selectedAgentRequest = buildSelectedAgentRequest(
-    selectedAgentNames,
-    agents,
-    remoteAgentModels,
-  )
-
   const extractExif = useAppStore(a => a.extractExif)
   //const selectedAgents = useAppStore(a => a.selectedAgents)
   const workflowType = useAppStore(a => a.workflowType)
+  const magenticManagerAgentKey = useAppStore(a => a.magenticManagerAgentKey)
+  const magentic = useAppStore(a => a.magentic)
   const handoffs = useAppStore(a => a.handoffs)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
   const verbosity = useAppStore(a => a.verbosity)
   const toolRequestConfig = useAppStore(a => (a as any).toolRequestConfig)
   const useToolNamespaces = useAppStore(a => (a as any).useToolNamespaces)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
+  const selectedAgentRequest = buildSelectedAgentRequest(
+    selectedAgentNames,
+    agents,
+    remoteAgentModels,
+    { workflowType, managerAgentKey: magenticManagerAgentKey },
+  )
   const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
   const selectedEndpointProfileId = useAppStore(a => a.selectedEndpointProfileId)
   const selectedBaseUrl = useAppStore(a => a.selectedBaseUrl)
@@ -171,12 +173,13 @@ export function useChatActions({
 
       if (userMsg) {
         try {
+          if (selectedAgentRequest.error) throw new Error(selectedAgentRequest.error);
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
               ...(chatMode === "chat" ? { model: requestModel } : {}),
-              ...(chatMode === "agent" && selectedAgentRequest.localAgents.length > 0
-                ? { agents: selectedAgentRequest.localAgents }
+              ...(chatMode === "agent" && selectedAgentRequest.requestAgents.length > 0
+                ? { agents: selectedAgentRequest.requestAgents }
                 : {}),
               ...(chatMode === "agent" && selectedAgentRequest.models.length > 0
                 ? { models: selectedAgentRequest.models }
@@ -193,6 +196,7 @@ export function useChatActions({
               ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
               ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
               response_format: structuredOutputs,
+              workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
             },
           });
 
@@ -217,9 +221,12 @@ export function useChatActions({
       requestEndpointProfile,
       addChatError,
       chatMode,
-      selectedAgentRequest.localAgents,
+      selectedAgentRequest.requestAgents,
       selectedAgentRequest.models,
       workflowType,
+      magentic,
+      maximumIterationCount,
+      handoffs,
       temperature,
       verbosity,
       //    clearAttachments,
@@ -237,12 +244,13 @@ export function useChatActions({
       const userMsg = await buildFromText(text);
       if (userMsg) {
         try {
+          if (selectedAgentRequest.error) throw new Error(selectedAgentRequest.error);
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
               ...(chatMode === "chat" ? { model: requestModel } : {}),
-              ...(chatMode === "agent" && selectedAgentRequest.localAgents.length > 0
-                ? { agents: selectedAgentRequest.localAgents }
+              ...(chatMode === "agent" && selectedAgentRequest.requestAgents.length > 0
+                ? { agents: selectedAgentRequest.requestAgents }
                 : {}),
               ...(chatMode === "agent" && selectedAgentRequest.models.length > 0
                 ? { models: selectedAgentRequest.models }
@@ -259,14 +267,7 @@ export function useChatActions({
               ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
               ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
               response_format: structuredOutputs,
-              workflowMetadata: {
-                "groupchat": {
-                  "maximumIterationCount": maximumIterationCount
-                },
-                "handoff": {
-                  "handoffs": handoffs
-                },
-              }
+              workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
             },
           });
           fileAttachmentRuntime.clear()
@@ -283,9 +284,12 @@ export function useChatActions({
       sendMessage,
       chatMode,
       temperature,
-      selectedAgentRequest.localAgents,
+      selectedAgentRequest.requestAgents,
       selectedAgentRequest.models,
       workflowType,
+      magentic,
+      maximumIterationCount,
+      handoffs,
       providerMetadata,
       providerHeaders,
       providerRequestConfig,

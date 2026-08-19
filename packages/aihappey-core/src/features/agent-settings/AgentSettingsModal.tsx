@@ -28,6 +28,7 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
   const enrichedAgents = useAgents()
   const agents = useAppStore(a => a.agents)
   const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
+  const resetAgentWorkflowSettings = useAppStore(a => a.resetAgentWorkflowSettings)
   const selectedLocalAgents = resolveSelectedAgentEntries(
     selectedAgentNames,
     agents,
@@ -44,7 +45,10 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
       title={t("agents.settings")}
       actions={
         <>
-          <theme.Button variant="subtle" onClick={resetDefaults}>
+          <theme.Button variant="subtle" onClick={() => {
+            resetDefaults?.();
+            resetAgentWorkflowSettings();
+          }}>
             {t("resetDefaults")}
           </theme.Button>
           <theme.Button variant="secondary" onClick={onClose}>
@@ -165,6 +169,10 @@ const GeneralTab = ({
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
   const handoffs = useAppStore((s) => s.handoffs);
   const setHandoffs = useAppStore((s) => s.setHandoffs);
+  const magenticManagerAgentKey = useAppStore((s) => s.magenticManagerAgentKey);
+  const setMagenticManagerAgentKey = useAppStore((s) => s.setMagenticManagerAgentKey);
+  const magentic = useAppStore((s) => s.magentic);
+  const setMagentic = useAppStore((s) => s.setMagentic);
   const agents = useAppStore(a => a.agents)
   const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
   const selectedAgents = resolveSelectedAgentEntries(
@@ -177,8 +185,34 @@ const GeneralTab = ({
     { key: "concurrent", icon: "concurrent" },
     { key: "sequential", icon: "sequential" },
     { key: "groupchat", icon: "groupchat" },
-    { key: "handoff", icon: "handoff" }
+    { key: "handoff", icon: "handoff" },
+    { key: "magentic", icon: "groupchat" }
   ];
+
+  React.useEffect(() => {
+    if (workflowType !== "magentic" || selectedAgents.length === 0) return;
+    if (!selectedAgents.some((agent) => agent.key === magenticManagerAgentKey)) {
+      setMagenticManagerAgentKey(selectedAgents[0].key);
+    }
+  }, [workflowType, selectedAgents, magenticManagerAgentKey, setMagenticManagerAgentKey]);
+
+  const setOptionalNonNegativeInteger = (
+    key: "maxRounds" | "maxResets" | "maxStalls",
+    rawValue: unknown,
+  ) => {
+    const value = String(
+      (rawValue as any)?.target?.value
+      ?? (rawValue as any)?.currentTarget?.value
+      ?? rawValue
+      ?? "",
+    ).trim();
+    if (!value) {
+      setMagentic({ ...magentic, [key]: undefined });
+      return;
+    }
+    if (!/^\d+$/.test(value)) return;
+    setMagentic({ ...magentic, [key]: Number(value) });
+  };
 
   return (
     <>
@@ -281,6 +315,62 @@ const GeneralTab = ({
                 handoffs={handoffs as Handoff[]}
                 setHandoffs={setHandoffs}
               />
+            )}
+
+            {workflowType === "magentic" && selectedAgents.length > 1 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <theme.Select
+                  label={t("workflows.magenticSettings.managerAgent")}
+                  values={[magenticManagerAgentKey ?? selectedAgents[0].key]}
+                  valueTitle={selectedAgents.find((agent) => agent.key === magenticManagerAgentKey)?.label
+                    ?? selectedAgents[0].label}
+                  onChange={setMagenticManagerAgentKey}
+                  required
+                >
+                  {selectedAgents.map((agent) => (
+                    <option key={agent.key} value={agent.key}>{agent.label}</option>
+                  ))}
+                </theme.Select>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: 12 }}>
+                  <theme.Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    label={t("workflows.magenticSettings.maxRounds")}
+                    value={magentic.maxRounds ?? ""}
+                    onChange={(value: unknown) => setOptionalNonNegativeInteger("maxRounds", value)}
+                  />
+                  <theme.Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    label={t("workflows.magenticSettings.maxResets")}
+                    value={magentic.maxResets ?? ""}
+                    onChange={(value: unknown) => setOptionalNonNegativeInteger("maxResets", value)}
+                  />
+                  <theme.Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    label={t("workflows.magenticSettings.maxStalls")}
+                    value={magentic.maxStalls ?? ""}
+                    onChange={(value: unknown) => setOptionalNonNegativeInteger("maxStalls", value)}
+                  />
+                  <theme.Input
+                    label={t("workflows.magenticSettings.responseLanguage")}
+                    value={magentic.responseLanguage ?? ""}
+                    onChange={(value: unknown) => {
+                      const next = String(
+                        (value as any)?.target?.value
+                        ?? (value as any)?.currentTarget?.value
+                        ?? value
+                        ?? "",
+                      );
+                      setMagentic({ ...magentic, responseLanguage: next.trim() || undefined });
+                    }}
+                  />
+                </div>
+              </div>
             )}
           </div>
         </theme.Card>

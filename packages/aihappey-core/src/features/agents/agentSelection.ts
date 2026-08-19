@@ -8,6 +8,25 @@ import {
     toRemoteAgentSelectionKey,
 } from "aihappey-types";
 
+export type MagenticMetadata = {
+    maxRounds?: number;
+    maxResets?: number;
+    maxStalls?: number;
+    responseLanguage?: string;
+};
+
+export const buildWorkflowMetadata = (
+    maximumIterationCount: number,
+    handoffs: unknown[],
+    magentic: MagenticMetadata,
+) => ({
+    groupchat: { maximumIterationCount },
+    handoff: { handoffs },
+    magentic: Object.fromEntries(
+        Object.entries(magentic ?? {}).filter(([, value]) => value !== undefined && value !== "")
+    ),
+});
+
 export type AgentSelectionEntry = {
     key: string;
     kind: "local" | "remote";
@@ -116,21 +135,53 @@ export const buildSelectedAgentRequest = (
     selectedValues: string[] | undefined,
     localAgents: Agent[],
     remoteAgentModels: RemoteAgentModel[],
+    options?: {
+        workflowType?: string;
+        managerAgentKey?: string;
+    },
 ) => {
-    const entries = resolveSelectedAgentEntries(selectedValues, localAgents, remoteAgentModels);
+    const resolvedEntries = resolveSelectedAgentEntries(selectedValues, localAgents, remoteAgentModels);
+    const managerIndex = options?.workflowType === "magentic"
+        ? resolvedEntries.findIndex((entry) => entry.key === options.managerAgentKey)
+        : -1;
+    const entries = managerIndex > 0
+        ? [
+            resolvedEntries[managerIndex],
+            ...resolvedEntries.slice(0, managerIndex),
+            ...resolvedEntries.slice(managerIndex + 1),
+        ]
+        : resolvedEntries;
+    const localRequestAgents = entries
+        .filter((entry) => entry.kind === "local")
+        .map((entry) => entry.localAgent!)
+        .filter(Boolean);
+    const selectedRemoteModels = entries.filter((entry) => entry.kind === "remote");
+    const models = selectedRemoteModels.map((entry) => entry.backendId);
+    const isMixedMagentic = options?.workflowType === "magentic"
+        && localRequestAgents.length > 0
+        && selectedRemoteModels.length > 0;
+    const missingRemoteAgent = isMixedMagentic
+        ? selectedRemoteModels.find((entry) => !entry.remoteAgentModel?.agent)
+        : undefined;
+    const requestError = missingRemoteAgent
+        ? `Remote agent '${missingRemoteAgent.label}' does not expose the full agent configuration required for a mixed Magentic workflow.`
+        : undefined;
+    const requestAgents = isMixedMagentic && !requestError
+        ? entries.map((entry) => entry.kind === "local"
+            ? entry.localAgent
+            : entry.remoteAgentModel?.agent
+        ).filter((agent): agent is Agent => !!agent)
+        : localRequestAgents;
 
     return {
         entries,
-        localAgents: entries
-            .filter((entry) => entry.kind === "local")
-            .map((entry) => entry.localAgent!)
-            .filter(Boolean),
+        localAgents: localRequestAgents,
+        requestAgents: requestError ? [] : requestAgents,
         remoteAgentModels: entries
             .filter((entry) => entry.kind === "remote")
             .map((entry) => entry.remoteAgentModel!)
             .filter(Boolean),
-        models: entries
-            .filter((entry) => entry.kind === "remote")
-            .map((entry) => entry.backendId),
+        models: requestError || isMixedMagentic ? [] : models,
+        error: requestError,
     };
 };

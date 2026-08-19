@@ -513,7 +513,15 @@
         },
         "maximumIterationCount": "Maximaal aantal iteraties ({{maximumIterationCount}})",
         "workflow": "Werkstroom",
-        "groupchat": "Groepschat"
+        "groupchat": "Groepschat",
+        "magentic": "Teamcoördinatie",
+        "magenticSettings": {
+            "managerAgent": "Manageragent",
+            "maxRounds": "Maximaal aantal rondes",
+            "maxResets": "Maximaal aantal resets",
+            "maxStalls": "Maximaal aantal vastlopers",
+            "responseLanguage": "Antwoordtaal"
+        }
     },
     "agents": {
         "title": "Agents",

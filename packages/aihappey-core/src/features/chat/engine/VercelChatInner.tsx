@@ -49,7 +49,7 @@ import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useUIStream } from "../../json-render/useUIStream";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
-import { buildSelectedAgentRequest } from "../../agents/agentSelection";
+import { buildSelectedAgentRequest, buildWorkflowMetadata } from "../../agents/agentSelection";
 import {
   createChatAuthHeadersForModel,
   createMessagesEndpointAuthHeadersForModel,
@@ -237,13 +237,22 @@ export function VercelChatInner({
   const handoffs = useAppStore(a => a.handoffs)
   const maximumIterationCount = useAppStore(a => a.maximumIterationCount)
   const workflowType = useAppStore(a => a.workflowType)
+  const magenticManagerAgentKey = useAppStore(a => a.magenticManagerAgentKey)
+  const magentic = useAppStore(a => a.magentic)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
   const verbosity = useAppStore(a => a.verbosity)
   const gatewayEnabled = useAppStore((a: any) => a.gatewayEnabled);
   const selectedAgentRequest = useMemo(
-    () => buildSelectedAgentRequest(selectedAgentNames, agents, remoteAgentModels),
-    [selectedAgentNames, agents, remoteAgentModels],
+    () => buildSelectedAgentRequest(selectedAgentNames, agents, remoteAgentModels, {
+      workflowType,
+      managerAgentKey: magenticManagerAgentKey,
+    }),
+    [selectedAgentNames, agents, remoteAgentModels, workflowType, magenticManagerAgentKey],
   );
+
+  useEffect(() => {
+    if (selectedAgentRequest.error) addChatError(new Error(selectedAgentRequest.error));
+  }, [selectedAgentRequest.error, addChatError]);
 
   const addAttachmentWithTranscription = async (file: File) => {
 
@@ -540,7 +549,7 @@ export function VercelChatInner({
     toolRequestConfig,
     useToolNamespaces,
     hasSourceNamespaces,
-    ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),
+    ...(selectedAgentRequest.requestAgents.length > 0 ? { agents: selectedAgentRequest.requestAgents } : {}),
     ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
     ...(chatMode === "agent" ? { workflowType } : {}),
     maxOutputTokens,
@@ -554,10 +563,7 @@ export function VercelChatInner({
     ...(isProviderEndpointProfile && endpointProfileProviderHeaders ? { providerRequestHeaders: endpointProfileProviderHeaders } : {}),
     ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
     response_format: location.state?.responseFormat ?? structuredOutputs,
-    workflowMetadata: {
-      groupchat: { maximumIterationCount },
-      handoff: { handoffs },
-    },
+    workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
     temperature: location.state?.temperature ?? temperature,
   }), [
     chatMode,
@@ -565,7 +571,7 @@ export function VercelChatInner({
     tools,
     toolRequestConfig,
     useToolNamespaces,
-    selectedAgentRequest.localAgents,
+    selectedAgentRequest.requestAgents,
     selectedAgentRequest.models,
     workflowType,
     maxOutputTokens,
@@ -582,6 +588,7 @@ export function VercelChatInner({
     structuredOutputs,
     maximumIterationCount,
     handoffs,
+    magentic,
     temperature,
     location.state?.temperature,
   ]);
@@ -840,7 +847,7 @@ export function VercelChatInner({
       ...(!isGenericChatEndpoint(requestEndpoint) ? { verbosity } : {}),
       toolChoice,
       maxToolCalls,
-      ...(selectedAgentRequest.localAgents.length > 0 ? { agents: selectedAgentRequest.localAgents } : {}),
+      ...(selectedAgentRequest.requestAgents.length > 0 ? { agents: selectedAgentRequest.requestAgents } : {}),
       ...(selectedAgentRequest.models.length > 0 ? { models: selectedAgentRequest.models } : {}),
       ...(chatMode === "agent" ? { workflowType } : {}),
       providerMetadata,
@@ -850,10 +857,7 @@ export function VercelChatInner({
       ...(isProviderEndpointProfile && endpointProfileProviderHeaders ? { providerRequestHeaders: endpointProfileProviderHeaders } : {}),
       ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
       response_format: location.state?.responseFormat ?? structuredOutputs,
-      workflowMetadata: {
-        groupchat: { maximumIterationCount },
-        handoff: { handoffs },
-      },
+      workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
       temperature: location.state?.temperature ?? temperature,
     },
     files,

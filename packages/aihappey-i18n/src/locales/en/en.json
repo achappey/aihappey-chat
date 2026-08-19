@@ -560,7 +560,15 @@
             "to": "To"
         },
         "maximumIterationCount": "Maximum iteration count ({{maximumIterationCount}})",
-        "groupchat": "Groupchat"
+        "groupchat": "Groupchat",
+        "magentic": "Magentic",
+        "magenticSettings": {
+            "managerAgent": "Manager Agent",
+            "maxRounds": "Maximum rounds",
+            "maxResets": "Maximum resets",
+            "maxStalls": "Maximum stalls",
+            "responseLanguage": "Response language"
+        }
     },
     "copyClipboard": "Copy to clipboard",
     "newWindow": "Open in new window",

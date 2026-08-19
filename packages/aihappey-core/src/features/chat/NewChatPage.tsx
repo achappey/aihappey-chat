@@ -32,6 +32,7 @@ export function NewChatPage() {
   const selectedModel = useAppStore((s) => s.selectedModel);
   const setTemperature = useAppStore((s) => s.setTemperature);
   const workflowType = useAppStore((s) => s.workflowType);
+  const magenticManagerAgentKey = useAppStore((s) => s.magenticManagerAgentKey);
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
   const addAttachmentWithTranscription = async (file: File) => {
 
@@ -61,10 +62,12 @@ export function NewChatPage() {
     selectedAgentNames,
     agents,
     remoteAgentModels,
+    { workflowType, managerAgentKey: magenticManagerAgentKey },
   );
 
   const startNewConversation = async (userMsg: any) => {
     if (!userMsg) return;
+    if (selectedAgentRequest.error) throw new Error(selectedAgentRequest.error);
     const conv = await create("New chat", temperature);
     await navigate(`/${conv.id}`, {
       state: {
@@ -72,7 +75,7 @@ export function NewChatPage() {
         model: selectedModel,
         workflowType: workflowType,
         temperature,
-        agents: selectedAgentRequest.localAgents,
+        agents: selectedAgentRequest.requestAgents,
         models: selectedAgentRequest.models,
         responseFormat: structuredOutputs
       },
