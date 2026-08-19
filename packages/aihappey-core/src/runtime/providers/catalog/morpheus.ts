@@ -11,6 +11,7 @@ export const morpheus: Provider = {
   urls: {
     homepage: "https://mor.org",
     console: "https://app.mor.org",
+    pricing: "https://mor.org/inference-api/models",
     docs: "https://apidocs.mor.org",
     privacyPolicy: "https://mor.org/privacy"
   },
