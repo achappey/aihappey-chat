@@ -3,6 +3,7 @@ import type { JSX } from "react";
 
 export type ImageProps = {
   fit?: "none" | "center" | "contain" | "cover" | "default";
+  alt?: string;
   shadow?: boolean;
   block?: boolean;
   src?: string;

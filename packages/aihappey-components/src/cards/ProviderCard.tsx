@@ -42,7 +42,14 @@ export const ProviderCard = ({
     const websiteUrl = urls?.homepage;
 
     const imageItem = image ? (
-        <Image height={40} shape="square" src={image} />
+        <Image
+            alt={`${name} logo`}
+            fit="contain"
+            height={48}
+            shape="rounded"
+            src={image}
+            width={48}
+        />
     ) : undefined;
 
     const descriptionItem =
