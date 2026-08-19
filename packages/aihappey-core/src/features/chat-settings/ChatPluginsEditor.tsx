@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LimitedTextField, useTheme } from "aihappey-components";
+import { LimitedTextField, PluginMetadataBadges, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import type { PluginCatalogItem } from "aihappey-plugins";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
@@ -47,13 +47,11 @@ export function ChatPluginsEditor({
             size="small"
             description={(
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {plugin.version ? <theme.Badge size="small" bg="subtle">v{plugin.version}</theme.Badge> : null}
-                <theme.Badge size="small" appearance="neutral" icon="skills">
-                  {t("pluginsPage.skillCount", { count: plugin.skillCount })}
-                </theme.Badge>
-                <theme.Badge size="small" appearance="neutral" icon="mcpServer">
-                  {t("pluginsPage.serverCount", { count: plugin.mcpServerCount })}
-                </theme.Badge>
+                <PluginMetadataBadges
+                  version={plugin.version}
+                  skillCount={plugin.skillCount}
+                  mcpServerCount={plugin.mcpServerCount}
+                />
               </div>
             )}
             headerActions={(

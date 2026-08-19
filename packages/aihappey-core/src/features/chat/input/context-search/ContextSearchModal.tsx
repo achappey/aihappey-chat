@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppStore } from "aihappey-state";
-import { AuthorBadges, LimitedTextField, LocalToolsSettingsForm, RegistryServerCard, useTheme } from "aihappey-components";
+import { AuthorBadges, LimitedTextField, LocalToolsSettingsForm, PluginMetadataBadges, RegistryServerCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useLocalTools } from "aihappey-tools";
 import { useSkills } from "aihappey-skills";
@@ -334,15 +334,13 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
                   key={plugin.id}
                   title={<span style={{ overflowWrap: "anywhere" }}>{plugin.name}</span>}
                   size="small"
-                  description={(
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      {plugin.version ? <Badge size="small" bg="subtle">v{plugin.version}</Badge> : null}
-                      <Badge size="small" appearance="neutral" icon="skills">
-                        {t("pluginsPage.skillCount", { count: plugin.skillCount })}
-                      </Badge>
-                      <Badge size="small" appearance="neutral" icon="mcpServer">
-                        {t("pluginsPage.serverCount", { count: plugin.mcpServerCount })}
-                      </Badge>
+                    description={(
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      <PluginMetadataBadges
+                        version={plugin.version}
+                        skillCount={plugin.skillCount}
+                        mcpServerCount={plugin.mcpServerCount}
+                      />
                     </div>
                   )}
                   headerActions={(

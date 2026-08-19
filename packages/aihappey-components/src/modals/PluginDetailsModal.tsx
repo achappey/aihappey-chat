@@ -7,6 +7,7 @@ import { formatFileSize } from "../cards/formatFileSize";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { CapabilityIcon } from "../images";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
+import { PluginMetadataBadges } from "../badges/PluginMetadataBadges";
 
 export type PluginDetailsModalProps = {
   open: boolean;
@@ -62,9 +63,11 @@ export const PluginDetailsModal = ({ open, plugin, mcpRegistryItems = [], extens
         <Tabs activeKey={activeTab} onSelect={setActiveTab}>
           <Tab eventKey="general" title={t("general")}><div style={grid}>
             <Card title={plugin.name} actions={metadataLinks} description={<div style={badgeRow}>
-              {plugin.manifest.version ? <Badge size="small" bg="subtle">v{plugin.manifest.version}</Badge> : null}
-              <Badge size="small" bg="informative">{t("pluginsPage.skillCount", { count: plugin.skills.filter((skill) => skill.valid).length })}</Badge>
-              <Badge size="small" bg="informative">{t("pluginsPage.serverCount", { count: servers.length })}</Badge>
+              <PluginMetadataBadges
+                version={plugin.manifest.version}
+                skillCount={plugin.skills.filter((skill) => skill.valid).length}
+                mcpServerCount={servers.length}
+              />
               <Badge size="small" bg="subtle">{t("pluginsPage.fileCount", { count: plugin.files.length })}</Badge>
               {plugin.manifest.author?.name ? <Badge size="small" appearance="neutral" icon="personalization">{plugin.manifest.author.name}</Badge> : null}
               {(plugin.manifest.keywords ?? []).map((keyword) => <Badge key={keyword} size="small" bg="subtle">{keyword}</Badge>)}

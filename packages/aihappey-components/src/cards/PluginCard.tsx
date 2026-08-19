@@ -6,6 +6,7 @@ import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTheme } from "../theme/ThemeContext";
 import { PluginFavoriteToggleButton } from "../buttons/PluginFavoriteToggleButton";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
+import { PluginMetadataBadges } from "../badges/PluginMetadataBadges";
 
 export type PluginCardProps = {
   plugin: PluginCatalogItem;
@@ -26,9 +27,11 @@ export const PluginCard = ({ plugin, onView, onDownload, onDelete, isFavorite = 
       size="small"
       description={(
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {plugin.version ? <Badge size="small" bg="subtle">v{plugin.version}</Badge> : null}
-          <Badge size="small" appearance="neutral" icon="skills">{t("pluginsPage.skillCount", { count: plugin.skillCount })}</Badge>
-          <Badge size="small" appearance="neutral" icon="mcpServer">{t("pluginsPage.serverCount", { count: plugin.mcpServerCount })}</Badge>
+          <PluginMetadataBadges
+            version={plugin.version}
+            skillCount={plugin.skillCount}
+            mcpServerCount={plugin.mcpServerCount}
+          />
           {plugin.author?.name ? <Badge size="small" appearance="neutral" icon="personalization">{plugin.author.name}</Badge> : null}
           {plugin.keywords.map((keyword) => <Badge key={keyword} size="small" bg="subtle">{keyword}</Badge>)}
         </div>
