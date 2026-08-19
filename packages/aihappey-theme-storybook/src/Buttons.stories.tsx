@@ -7,15 +7,17 @@ type ButtonStoryArgs = {
   variant?: string;
   size?: string;
   disabled?: boolean;
+  icon?: string;
+  title?: string;
   children: string;
 };
 
 const ButtonStory = (args: ButtonStoryArgs) => {
-  const { variant, size, disabled, children } = args;
+  const { variant, size, disabled, icon, title, children } = args;
   const { Button } = useTheme() as unknown as Pick<AihUiTheme, "Button">;
 
   return (
-    <Button variant={variant} size={size} disabled={disabled}>
+    <Button variant={variant} size={size} disabled={disabled} icon={icon as any} title={title}>
       {children}
     </Button>
   );
@@ -34,6 +36,12 @@ const meta = {
     },
     disabled: {
       control: { type: "boolean" },
+    },
+    icon: {
+      control: { type: "text" },
+    },
+    title: {
+      control: { type: "text" },
     },
     children: {
       control: { type: "text" },
@@ -83,6 +91,27 @@ export const Outline: Story = {
 export const Disabled: Story = {
   args: {
     disabled: true,
+  },
+};
+
+export const CompactTitledIconAction: Story = {
+  args: {
+    variant: "subtle",
+    size: "small",
+    icon: "edit",
+    title: "Edit message",
+    children: "",
+  },
+};
+
+export const DisabledTitledIconAction: Story = {
+  args: {
+    variant: "subtle",
+    size: "small",
+    icon: "speech",
+    title: "Read aloud",
+    disabled: true,
+    children: "",
   },
 };
 

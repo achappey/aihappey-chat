@@ -8,6 +8,8 @@ type ToggleButtonStoryArgs = {
   disabled?: boolean;
   variant?: string;
   size?: string;
+  icon?: string;
+  title?: string;
   children: string;
 };
 
@@ -34,6 +36,8 @@ const meta = {
     disabled: { control: { type: "boolean" } },
     variant: { control: { type: "text" } },
     size: { control: { type: "select" }, options: ["small", "medium", "large"] },
+    icon: { control: { type: "text" } },
+    title: { control: { type: "text" } },
     children: { control: { type: "text" } },
   },
   args: {
@@ -58,6 +62,24 @@ export const Checked: Story = {
 export const Disabled: Story = {
   args: {
     disabled: true,
+  },
+};
+
+export const SelectedIconOnly: Story = {
+  args: {
+    checked: true,
+    icon: "brain",
+    title: "AI chat",
+    children: "",
+  },
+};
+
+export const UnselectedIconOnly: Story = {
+  args: {
+    checked: false,
+    icon: "robot",
+    title: "AI agents",
+    children: "",
   },
 };
 
