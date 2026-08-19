@@ -288,13 +288,20 @@ const modelRouteOf = (model: any): "gateway" | "direct" =>
 
 const mergeModelResponses = (responses: ModelResponse[]) => {
   const seen = new Set<string>();
-  const data = responses.flatMap((response) => response?.data ?? []).filter((model) => {
-    if (!model?.id || seen.has(model.id)) return false;
-    seen.add(model.id);
+  const enriched = enrichModelTypes(responses.flatMap((response) => response?.data ?? []));
+  const data = enriched.filter((model) => {
+    if (!model?.id) return false;
+
+    const normalizedId = model.id.trim().toLowerCase();
+    const normalizedType = String(model.type ?? "").trim().toLowerCase();
+    const identity = JSON.stringify([normalizedId, normalizedType]);
+    if (seen.has(identity)) return false;
+
+    seen.add(identity);
     return true;
   });
 
-  return { data: enrichModelTypes(data) } satisfies ModelResponse;
+  return { data } satisfies ModelResponse;
 };
 
 const enrichModelResponse = (response: ModelResponse) => ({
