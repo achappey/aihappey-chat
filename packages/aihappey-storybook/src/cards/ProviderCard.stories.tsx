@@ -38,7 +38,6 @@ export const LongName: Story = {
 export const WithViewAction: Story = {
   args: {
     name: "Anthropic",
-    url: "https://anthropic.com",
     urls: {
       homepage: "https://anthropic.com",
       docs: "https://docs.anthropic.com",
