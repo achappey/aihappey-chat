@@ -3,6 +3,7 @@ import type { Provider } from "aihappey-types";
 export const ezai: Provider = {
   name: "EzAI",
   description: "Access Claude, GPT & Gemini AI models at 50% less cost. One API endpoint for 20+ models. Works with Claude Code, Cursor & Cline. Free tier available",
+  icons: [{ src: "https://ezaiapi.com/apple-touch-icon.png" }],
   urls: {
     homepage: "https://ezaiapi.com",
     docs: "https://ezaiapi.com/docs",
