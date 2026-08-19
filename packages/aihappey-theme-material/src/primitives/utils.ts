@@ -30,9 +30,13 @@ export function mapSize(size?: string): "small" | "medium" | "large" {
   return "medium";
 }
 
-export function mapChipVariant(appearance?: string, variant?: string): ChipProps["variant"] {
+export function mapChipVariant(appearance?: string, variant?: string, color?: string): ChipProps["variant"] {
   if (variant === "outline" || appearance === "outline") return "outlined";
-  return "filled";
+  if (variant === "filled" || appearance === "filled") return "filled";
+  const semantic = color === "danger" || color === "destructive" || color === "error" || color === "severe"
+    || color === "success" || color === "warning" || color === "important"
+    || color === "informative" || color === "info" || color === "primary" || color === "secondary";
+  return semantic ? "filled" : "outlined";
 }
 
 export function mapModalSize(size?: string | number) {

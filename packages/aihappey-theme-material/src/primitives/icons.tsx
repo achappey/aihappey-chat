@@ -17,6 +17,7 @@ import Close from "@mui/icons-material/Close";
 import Code from "@mui/icons-material/Code";
 import Computer from "@mui/icons-material/Computer";
 import ContentCopy from "@mui/icons-material/ContentCopy";
+import CurrencyExchange from "@mui/icons-material/CurrencyExchange";
 import DataObject from "@mui/icons-material/DataObject";
 import Delete from "@mui/icons-material/Delete";
 import Description from "@mui/icons-material/Description";
@@ -140,7 +141,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   brain: makeIcon(Psychology),
   download: makeIcon(Download),
   print: makeIcon(Print),
-  pricing: makeIcon(PriorityHigh),
+  pricing: makeIcon(CurrencyExchange),
   explainTool: makeIcon(AutoAwesome),
   mail: makeIcon(Mail),
   theme: makeIcon(Palette),

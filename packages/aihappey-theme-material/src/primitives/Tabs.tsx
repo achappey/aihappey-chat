@@ -21,7 +21,7 @@ export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className,
           ? { flex: "0 0 auto", maxHeight: "100%", minHeight: 0, "& .MuiTabs-scroller": { overflowY: "auto !important" } }
           : { maxWidth: "100%", minWidth: 0, width: "100%", "& .MuiTabs-scrollButtons.Mui-disabled": { opacity: 0.3 } }}
       >
-        {tabs.map((tab) => <MuiTab key={tab.props.eventKey} value={tab.props.eventKey} disabled={tab.props.disabled} icon={tab.props.icon ? renderIcon(tab.props.icon as IconToken) : undefined} iconPosition="start" label={tab.props.title} />)}
+        {tabs.map((tab) => <MuiTab key={tab.props.eventKey} value={tab.props.eventKey} disabled={tab.props.disabled} icon={tab.props.icon ? renderIcon(tab.props.icon as IconToken) : undefined} iconPosition="top" label={tab.props.title} />)}
       </MuiTabs>
       {tabs.map((tab) => activeKey === tab.props.eventKey ? <Box key={tab.props.eventKey} sx={{ flex: 1, minWidth: 0, minHeight: 0, overflow: vertical ? "auto" : undefined, pt: vertical ? 0 : 2 }}>{tab.props.children}</Box> : null)}
     </Box>
