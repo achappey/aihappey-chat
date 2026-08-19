@@ -25,6 +25,7 @@ interface ModelSelectProps {
   disabled?: boolean;
   modelTypes?: string[];
   autoSelectFallback?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const ModelSelect: React.FC<ModelSelectProps> = (props) => {

@@ -89,14 +89,19 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           title={t('aiAgents')}
           checked={chatMode == "agent"}
           onClick={() => toggleMode("agent")} />
-        {chatMode == "agent" && <AgentSelect
-          localAgents={allAgents ?? []}
-          remoteAgentModels={remoteAgentModels ?? []}
-          values={agentValues ?? []}
-          onChange={onAgentChange}
-          favoriteAgentIds={favoriteAgentIds ?? []}
-          favoritesLabel={t("favorites")}
-        />}
+        {chatMode == "agent" && (
+          <div style={{ width: "clamp(170px, 24vw, 260px)", maxWidth: "100%", minWidth: 0 }}>
+            <AgentSelect
+              localAgents={allAgents ?? []}
+              remoteAgentModels={remoteAgentModels ?? []}
+              values={agentValues ?? []}
+              onChange={onAgentChange}
+              favoriteAgentIds={favoriteAgentIds ?? []}
+              favoritesLabel={t("favorites")}
+              style={{ width: "100%", minWidth: 0 }}
+            />
+          </div>
+        )}
         {chatMode == "agent" && (
           <div style={{ paddingLeft: 8 }}>
             <AgentFavoriteToggleButton
@@ -116,12 +121,15 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         ) : null}
         {chatMode == "chat" && hasLoadedModels ? (
           <>
-            <ModelSelect
-              models={models ?? []}
-              modelTypes={modelTypes}
-              value={selectedModel ?? ""}
-              onChange={setSelectedModel}
-            />
+            <div style={{ width: "clamp(170px, 24vw, 260px)", maxWidth: "100%", minWidth: 0 }}>
+              <ModelSelect
+                models={models ?? []}
+                modelTypes={modelTypes}
+                value={selectedModel ?? ""}
+                onChange={setSelectedModel}
+                style={{ width: "100%", minWidth: 0 }}
+              />
+            </div>
             <div style={{ paddingLeft: 8 }}>
               <ModelFavoriteToggleButton
                 variant="subtle"

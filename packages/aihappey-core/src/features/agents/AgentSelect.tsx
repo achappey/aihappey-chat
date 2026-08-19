@@ -32,6 +32,7 @@ interface AgentSelectProps {
   disabled?: boolean;
   favoriteAgentIds?: string[];
   favoritesLabel?: string;
+  style?: React.CSSProperties;
 }
 
 export const AgentSelect: React.FC<AgentSelectProps> = ({
@@ -42,6 +43,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   disabled,
   favoriteAgentIds = [],
   favoritesLabel,
+  style,
 }) => {
   const { Select } = useTheme();
   const { t } = useTranslation();
@@ -75,7 +77,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       icon={"robot"}
       valueTitle={selectedEntries.map((entry) => entry.label).join(", ")}
       multiselect={true}
-      //style={{ minWidth: isDesktop ? 260 : 200 }}
+      style={style}
       size="large"
       onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {
         const selectedValue =
