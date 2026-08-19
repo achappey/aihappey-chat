@@ -166,6 +166,29 @@ export const FilterByModelType: Story = {
   render: (args) => <Controlled {...(args as any)} />,
 };
 
+export const DuplicateIdsAcrossModelTypes: Story = {
+  args: {
+    initialValue: "openai/shared-model",
+    models: [
+      {
+        id: "openai/shared-model",
+        name: "Shared language model",
+        type: "language",
+        owned_by: "openai",
+      },
+      {
+        id: "openai/shared-model",
+        name: "Shared image model",
+        type: "image",
+        owned_by: "openai",
+      },
+    ],
+    modelTypes: ["language", "image"],
+    label: "Duplicate IDs across model types",
+  } as any,
+  render: (args) => <Controlled {...(args as any)} />,
+};
+
 export const Disabled: Story = {
   args: {
     initialValue: "anthropic/claude-3-5-sonnet",

@@ -44,6 +44,8 @@ const getModelRouteProviderKey = (model: ModelOption) => {
   return providerKey ? `${providerKey}:${route}` : providerKey;
 };
 
+const getModelOptionValue = (model: ModelOption) => JSON.stringify([model.type, model.id]);
+
 export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   models,
   value,
@@ -107,12 +109,19 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     }
   }
 
-  const selectedModel = models?.find((m) => m.id === value);
+  const modelIdByOptionValue = new Map(
+    visibleModels.map((model) => [getModelOptionValue(model), model.id]),
+  );
+  const selectedModel = visibleModels.find((model) => model.id === value)
+    ?? models?.find((model) => model.id === value);
+  const selectedOptionValue = selectedModel && visibleModels.includes(selectedModel)
+    ? getModelOptionValue(selectedModel)
+    : value;
   const displayValue = getModelDisplayName(selectedModel, value);
 
   return (
     <SelectComponent
-      values={[value]}
+      values={[selectedOptionValue]}
       valueTitle={displayValue}
       icon={icon}
       label={label}
@@ -126,14 +135,14 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
       style={{ ...(style ?? {}) }}
       onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {
         const selectedValue = e?.target?.value ?? e?.currentTarget?.value ?? e;
-        onChange(selectedValue);
+        onChange(modelIdByOptionValue.get(selectedValue) ?? selectedValue);
       }}
     >
       <>
         {favoriteModels.length > 0 && (
           <optgroup label={favoritesLabel}>
             {favoriteModels.map((model) => (
-              <option key={model.id} value={model.id}>
+              <option key={getModelOptionValue(model)} value={getModelOptionValue(model)}>
                 {getModelDisplayName(model)}
               </option>
             ))}
@@ -143,7 +152,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
         {Object.entries(grouped).map(([providerKey, list]) => (
           <optgroup key={providerKey} label={providerLabelByKey.get(providerKey) ?? providerKey}>
             {list.map((model) => (
-              <option key={model.id} value={model.id}>
+              <option key={getModelOptionValue(model)} value={getModelOptionValue(model)}>
                 {getModelDisplayName(model)}
               </option>
             ))}
@@ -151,7 +160,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
         ))}
 
         {ungrouped.map((model) => (
-          <option key={model.id} value={model.id}>
+          <option key={getModelOptionValue(model)} value={getModelOptionValue(model)}>
             {getModelDisplayName(model)}
           </option>
         ))}
