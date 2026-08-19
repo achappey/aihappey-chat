@@ -27,6 +27,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import Extension from "@mui/icons-material/Extension";
 import Folder from "@mui/icons-material/Folder";
+import ForkRight from "@mui/icons-material/ForkRight";
 import Functions from "@mui/icons-material/Functions";
 import Groups from "@mui/icons-material/Groups";
 import Hub from "@mui/icons-material/Hub";
@@ -198,7 +199,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: makeIcon(Key),
   star: makeIcon(StarBorder),
   starFilled: makeIcon(Star),
-  version: makeIcon(LocalOffer),
+  tag: makeIcon(LocalOffer),
+  version: makeIcon(ForkRight),
 };
 
 export function renderIcon(icon?: IconToken, size = 18) {

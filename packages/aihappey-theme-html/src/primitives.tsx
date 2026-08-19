@@ -32,6 +32,7 @@ import {
   FileKey,
   FileText,
   Folder,
+  GitBranch,
   Globe,
   Image as ImageIcon,
   ImagePlay,
@@ -211,7 +212,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: KeyRound,
   star: Star,
   starFilled: StarFilledIcon,
-  version: Tag,
+  tag: Tag,
+  version: GitBranch,
 };
 
 const icon = (token?: IconToken, size = 16) => {

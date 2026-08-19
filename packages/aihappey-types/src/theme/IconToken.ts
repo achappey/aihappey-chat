@@ -112,4 +112,5 @@ export type IconToken =
   | "logout"
   | "star"
   | "starFilled"
+  | "tag"
   | "version";

@@ -22,6 +22,7 @@ import {
   FaCog,
   FaComments,
   FaCompressAlt,
+  FaCodeBranch,
   FaCopy,
   FaCube,
   FaDatabase,
@@ -250,7 +251,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: makeIcon(FaSignOutAlt),
   star: makeIcon(FaRegStar),
   starFilled: makeIcon(FaStar),
-  version: makeIcon(FaTag),
+  tag: makeIcon(FaTag),
+  version: makeIcon(FaCodeBranch),
 };
 
 function renderIcon(icon?: IconToken, size = 16) {

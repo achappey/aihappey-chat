@@ -44,6 +44,7 @@ import {
   FileText,
   Folder,
   Globe,
+  GitBranch,
   Image as ImageIcon,
   ImagePlay,
   Images,
@@ -222,7 +223,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: KeyRound,
   star: Star,
   starFilled: StarFilledIcon,
-  version: Tag,
+  tag: Tag,
+  version: GitBranch,
 };
 
 function PlusIcon(props: LucideProps) {
