@@ -321,11 +321,14 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(function But
 export const Button = ButtonBase as unknown as (props: ButtonProps) => React.JSX.Element;
 
 export const ToggleButton = ({ checked = false, variant, className, icon, iconPosition = "left", children, ...rest }: any) => {
-  const checkedSubtle = checked && (variant === "subtle" || variant === "transparent" || variant === "ghost");
+  const normalizedVariant = variant === "informative" || variant === "info"
+    ? "subtle"
+    : variant;
+  const checkedSubtle = checked && (normalizedVariant === "subtle" || normalizedVariant === "transparent" || normalizedVariant === "ghost");
 
   return (
     <Button
-      variant={variant ?? (checked ? "primary" : "outline")}
+      variant={normalizedVariant ?? (checked ? "primary" : "outline")}
       icon={icon}
       iconPosition={iconPosition}
       aria-pressed={checked}
