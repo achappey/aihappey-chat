@@ -33,7 +33,7 @@ export const PluginCard = ({ plugin, onView, onDownload, onDelete, isFavorite = 
             mcpServerCount={plugin.mcpServerCount}
           />
           {plugin.author?.name ? <Badge size="small" appearance="neutral" icon="personalization">{plugin.author.name}</Badge> : null}
-          {plugin.keywords.map((keyword) => <Badge key={keyword} size="small" bg="subtle">{keyword}</Badge>)}
+          {plugin.keywords.map((keyword) => <Badge key={keyword} size="small" bg="subtle" icon="tag">{keyword}</Badge>)}
         </div>
       )}
       actions={(

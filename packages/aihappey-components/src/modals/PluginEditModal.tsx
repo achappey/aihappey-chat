@@ -141,7 +141,7 @@ export const PluginEditModal = ({
     .filter((item) => !query || `${item.label} ${item.description ?? ""}`.toLowerCase().includes(query))
     .sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite) || a.label.localeCompare(b.label)), [query, skillOptions]);
   const serverItems = useMemo(() => Object.fromEntries(mcpOptions.map((option) => [option.id, { config: option.config, registry: option.registry }])), [mcpOptions]);
-  const keywordItems = useMemo<TagItem[]>(() => keywords.map((keyword) => ({ key: keyword, label: keyword })), [keywords]);
+  const keywordItems = useMemo<TagItem[]>(() => keywords.map((keyword) => ({ key: keyword, label: keyword, icon: "tag" })), [keywords]);
 
   const addKeyword = () => {
     const keyword = newKeyword.trim();
@@ -250,7 +250,7 @@ export const PluginEditModal = ({
           <theme.Input type="email" label={t("pluginsPage.editor.authorEmail")} value={authorEmail} readOnly={authorIdentityReadOnly} onChange={(value: any) => setAuthorEmail(inputValue(value))} />
           <theme.Input type="url" label={t("pluginsPage.editor.authorUrl")} value={authorUrl} onChange={(value: any) => setAuthorUrl(inputValue(value))} />
         </div></theme.Tab>
-        <theme.Tab eventKey="keywords" icon="search" title={t("pluginsPage.editor.keywords")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+        <theme.Tab eventKey="keywords" icon="tag" title={t("pluginsPage.editor.keywords")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
             <theme.Input
               label={t("pluginsPage.editor.keywords")}

@@ -77,7 +77,7 @@ export const PluginDetailsModal = ({ open, plugin, mcpRegistryItems = [], extens
               />
               <Badge size="small" bg="subtle">{t("pluginsPage.fileCount", { count: plugin.files.length })}</Badge>
               {plugin.manifest.author?.name ? <Badge size="small" appearance="neutral" icon="personalization">{plugin.manifest.author.name}</Badge> : null}
-              {(plugin.manifest.keywords ?? []).map((keyword) => <Badge key={keyword} size="small" bg="subtle">{keyword}</Badge>)}
+              {(plugin.manifest.keywords ?? []).map((keyword) => <Badge key={keyword} size="small" bg="subtle" icon="tag">{keyword}</Badge>)}
             </div>}>
               <div>{plugin.manifest.description || t("pluginsPage.noDescription")}</div>
             </Card>
