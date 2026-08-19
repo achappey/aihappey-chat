@@ -103,6 +103,7 @@ import type {
 import type { TextProps } from "aihappey-types/src/theme/Text";
 import type { ToastProps } from "aihappey-types/src/theme/Toast";
 import type { UserMenuProps } from "aihappey-types/src/theme/UserMenu";
+import { ChakraSettings } from "./ChakraSettings";
 import { FaEllipsisVertical } from "react-icons/fa6";
 
 const Box = Chakra.Box as any;
@@ -679,7 +680,7 @@ export const Navigation = ({ items = [], activeKey, onSelect, appTitle, classNam
 
 export const UserMenu = ({ email, onCustomize, onSettings, onLogout, showApiKeysItem, onApiKeys, showChatEndpointsItem, chatEndpointOptions = [], selectedChatEndpoint, chatEndpointsDisabled, onSelectChatEndpoint, providers = [], providersDisabled, className, labels }: UserMenuProps) => <Menu className={className} items={[...(email ? [{ key: "email", label: email, disabled: true }] : []), ...(onCustomize ? [{ key: "customize", label: labels?.customize ?? "Customize", icon: "personalization" as IconToken, onClick: onCustomize }] : []), { key: "settings", label: labels?.settings ?? "Settings", icon: "settings" as IconToken, onClick: onSettings }, ...(showApiKeysItem ? [{ key: "apiKeys", label: labels?.apiKeys ?? "API keys", icon: "settings" as IconToken, onClick: onApiKeys }] : []), ...(showChatEndpointsItem ? [{ key: "chatEndpointLabel", label: labels?.chatEndpoint ?? "Chat endpoint", disabled: true }, ...(chatEndpointOptions.length > 0 ? chatEndpointOptions.map((option) => ({ key: `chat-endpoint:${option.value}`, label: `${option.value === selectedChatEndpoint ? "✓ " : ""}${option.label}`, disabled: !!chatEndpointsDisabled || !!option.disabled, onClick: () => onSelectChatEndpoint?.(option.value) })) : [{ key: "chatEndpointNone", label: labels?.noChatEndpoints ?? "No chat endpoints available", disabled: true }])] : []), ...providers.map((provider) => ({ key: provider, label: provider, disabled: providersDisabled })), { key: "logout", label: labels?.logout ?? "Logout", icon: "logout" as IconToken, danger: true, onClick: onLogout }]} trigger={<IconButtonBase variant="ghost" aria-label="User menu">{renderIcon("customize")}</IconButtonBase>} />;
 
-export const ThemeSettings = () => <TextBase fontSize="sm" color="fg.muted">Chakra theme settings are provided by ChakraProvider system props.</TextBase>;
+export const ThemeSettings = ChakraSettings;
 
 export const chakraTheme: AihUiTheme = {
   AvatarGroup,
