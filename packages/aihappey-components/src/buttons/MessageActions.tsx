@@ -6,6 +6,7 @@ import { CostBadge, TokenBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { SourcesButton } from "./SourcesButton";
 import { useTranslation } from "aihappey-i18n";
+import type { CSSProperties } from "react";
 
 interface MessageActionsProps {
   msg: ChatMessage;
@@ -23,6 +24,7 @@ interface MessageActionsProps {
   canSpeakMessage?: boolean;
   onSpeakMessage?: (msg: ChatMessage) => void;
   onSetPage: (nextPage: number) => void;
+  style?: CSSProperties;
 }
 
 export const MessageActions = ({
@@ -39,12 +41,24 @@ export const MessageActions = ({
   canSpeakMessage,
   onSpeakMessage,
   onSetPage,
+  style,
 }: MessageActionsProps) => {
   const { Button } = useTheme();
   const { t } = useTranslation();
   return (
     <div
-      style={{ height: 16, paddingTop: 8, display: "flex", alignItems: "center" }}>
+      style={{
+        minHeight: 32,
+        width: "fit-content",
+        maxWidth: "100%",
+        paddingTop: 8,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        flexWrap: "wrap",
+        gap: 4,
+        ...style,
+      }}>
 
       {onCopyMessage && (
         <CopyToClipboardButton
@@ -55,7 +69,7 @@ export const MessageActions = ({
       {onEditMessage && (
         <Button
           variant="subtle"
-          style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+          size="small"
           onClick={() => onEditMessage(msg)}
           icon={"edit"}
           title={t("editMessage")}
@@ -65,7 +79,7 @@ export const MessageActions = ({
       {onSpeakMessage && msg.role === "assistant" && (
         <Button
           variant="subtle"
-          style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+          size="small"
           disabled={!canSpeakMessage}
           onClick={() => onSpeakMessage(msg)}
           icon="speech"
@@ -93,7 +107,7 @@ export const MessageActions = ({
         && msg?.attachments?.length > 0 && (
           <Button
             variant="subtle"
-            style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+            size="small"
             onClick={() => onShowAttachments(msg.attachments ?? [])}
             icon={"attachment"}
             title={t("attachments")}
@@ -105,7 +119,7 @@ export const MessageActions = ({
       {max > 0 && (
         <Button
           variant="subtle"
-          size="large"
+          size="small"
           disabled={page <= 0}
           onClick={() => onSetPage(page - 1)}
           icon={"chevronLeft"}
@@ -117,7 +131,7 @@ export const MessageActions = ({
       {max > 0 && (
         <Button
           variant="subtle"
-          size="large"
+          size="small"
           disabled={page >= max}
           onClick={() => onSetPage(page + 1)}
           icon={"chevronRight"}
@@ -130,7 +144,7 @@ export const MessageActions = ({
         msg?.messageLabel && (
           <Button
             variant="subtle"
-            style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
+            size="small"
             onClick={() => onShowActivity(msg.content ?? [])}
             icon={"cardList"}
           />
