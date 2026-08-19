@@ -10,6 +10,8 @@ type CardStoryArgs = {
   text?: string;
   useChildren?: boolean;
   showImage?: boolean;
+  imageSrc?: string;
+  imageAlt?: string;
   showActions?: boolean;
   showHeaderActions?: boolean;
   className?: string;
@@ -22,10 +24,11 @@ const CardStory = (args: CardStoryArgs) => {
 
   const image = args.showImage ? (
     <Image
-      src="https://placehold.co/600x400"
+      src={args.imageSrc ?? "https://placehold.co/600x400/png?text=Card+image"}
+      alt={args.imageAlt ?? "Card preview"}
+      fit="contain"
       width={64}
       height={64}
-      style={{ objectFit: "cover" }}
     />
   ) : undefined;
 
@@ -148,6 +151,33 @@ export const WithChildren: Story = {
     showImage: true,
     showActions: true,
     style: { width: 420 },
+  },
+};
+
+export const WithWideTransparentImage: Story = {
+  args: {
+    size: "medium",
+    title: "Wide logo",
+    description: "Wide artwork is contained inside the card thumbnail.",
+    text: "The image keeps its proportions without taking over the card.",
+    showImage: true,
+    imageSrc: "https://placehold.co/640x160/transparent/2563eb/png?text=WIDE+LOGO",
+    imageAlt: "Wide sample logo",
+    showActions: true,
+  },
+};
+
+export const WithTallImage: Story = {
+  args: {
+    size: "small",
+    title: "Tall artwork",
+    description: "Tall artwork remains bounded and centered.",
+    text: "Compact cards preserve their layout with unusual image ratios.",
+    showImage: true,
+    imageSrc: "https://placehold.co/160x640/7c3aed/ffffff/png?text=TALL",
+    imageAlt: "Tall sample artwork",
+    showHeaderActions: true,
+    style: { width: 320 },
   },
 };
 
