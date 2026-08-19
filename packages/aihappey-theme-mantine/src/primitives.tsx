@@ -58,6 +58,7 @@ import type {
 import type { TextProps } from "aihappey-types/src/theme/Text";
 import type { ToastProps } from "aihappey-types/src/theme/Toast";
 import type { UserMenuProps } from "aihappey-types/src/theme/UserMenu";
+import { MantineSettings } from "./MantineSettings";
 
 type IconProps = { size?: number | string; style?: React.CSSProperties };
 type IconComponent = (props: IconProps) => React.JSX.Element;
@@ -939,7 +940,7 @@ export const UserMenu = ({ email, onCustomize, onSettings, onLogout, showApiKeys
   </MantineMenu>
 );
 
-export const ThemeSettings = () => <MantineText size="sm" c="dimmed">Mantine theme settings are provided by MantineProvider props.</MantineText>;
+export const ThemeSettings = MantineSettings;
 
 export const mantineTheme: AihUiTheme = {
   AvatarGroup,
