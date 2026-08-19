@@ -459,18 +459,66 @@ export const ProgressBar = ({ value, label, variant, striped, animated, classNam
 
 export const Skeleton = (props: any) => <MantineSkeleton {...props} radius={props.circle ? "50%" : props.radius} />;
 
-export const Card = ({ title, text, description, image, headerActions, children, actions, className, style, selected }: any) => (
-  <MantineCard withBorder shadow={selected ? "md" : "sm"} className={className} style={style}>
-    {image}
-    <Group justify="space-between" align="flex-start" mb="xs">
-      <MantineText fw={600}>{title}</MantineText>
-      {headerActions}
-    </Group>
-    {description ? <MantineText c="dimmed" size="sm" mb="xs">{description}</MantineText> : null}
-    {children ?? (text ? <MantineText size="sm">{text}</MantineText> : null)}
-    {actions ? <Group mt="md">{actions}</Group> : null}
-  </MantineCard>
-);
+export const Card = ({ title, text, description, image, headerActions, children, actions, className, style, selected, size }: any) => {
+  const compact = size === "small";
+  const mediaSize = compact ? 44 : 56;
+
+  return (
+    <MantineCard
+      withBorder
+      padding={compact ? "sm" : "md"}
+      radius="md"
+      shadow={selected ? "md" : "sm"}
+      className={className}
+      style={{ overflow: "hidden", ...style }}
+    >
+      {(title || image || headerActions) ? (
+        <Group justify="space-between" align="flex-start" gap="sm" wrap="nowrap">
+          <Group align="center" gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+            {image ? (
+              <Box
+                style={{
+                  alignItems: "center",
+                  background: "var(--mantine-color-default-hover)",
+                  border: "1px solid var(--mantine-color-default-border)",
+                  borderRadius: "var(--mantine-radius-md)",
+                  display: "inline-flex",
+                  flex: "0 0 auto",
+                  height: mediaSize,
+                  justifyContent: "center",
+                  overflow: "hidden",
+                  padding: 6,
+                  width: mediaSize,
+                }}
+              >
+                {React.isValidElement<any>(image)
+                  ? React.cloneElement(image, {
+                    style: {
+                      display: "block",
+                      height: "100%",
+                      maxHeight: "100%",
+                      maxWidth: "100%",
+                      objectFit: "contain",
+                      width: "100%",
+                      ...image.props.style,
+                    },
+                  })
+                  : image}
+              </Box>
+            ) : null}
+            <MantineText fw={600} lh={1.25} style={{ minWidth: 0, overflowWrap: "anywhere" }}>{title}</MantineText>
+          </Group>
+          {headerActions ? <Box style={{ flex: "0 0 auto" }}>{headerActions}</Box> : null}
+        </Group>
+      ) : null}
+      {description ? <Box c="dimmed" fz="sm" mt="xs">{description}</Box> : null}
+      <Box mt={(title || image || headerActions || description) ? "sm" : undefined} style={{ flex: 1 }}>
+        {children ?? (text ? <MantineText size="sm">{text}</MantineText> : null)}
+      </Box>
+      {actions ? <Group mt="md" gap="xs">{actions}</Group> : null}
+    </MantineCard>
+  );
+};
 
 export const Accordion = ({ items, openItems, defaultOpenItems, onToggle, multiple, variant, className, style }: AccordionProps) => (
   <MantineAccordion
@@ -576,7 +624,23 @@ export const Table = ({ striped, bordered, hover, children, className }: any) =>
 
 export const Switch = ({ id, label, checked, onChange, className, disabled }: any) => <MantineSwitch id={id} label={label} checked={checked} disabled={disabled} className={className} onChange={(event) => onChange?.(event.currentTarget.checked)} />;
 
-export const Image = ({ fit, ...props }: any) => <MantineImage fit={fit === "default" ? undefined : fit} {...props} />;
+export const Image = ({ fit, shadow, block, bordered, shape, style, alt = "", ...props }: any) => {
+  const radius = shape === "circular" ? "50%" : shape === "rounded" ? "var(--mantine-radius-md)" : undefined;
+  return (
+    <MantineImage
+      alt={alt}
+      fit={fit === "center" ? "none" : fit === "default" ? undefined : fit}
+      style={{
+        border: bordered ? "1px solid var(--mantine-color-default-border)" : undefined,
+        borderRadius: radius,
+        boxShadow: shadow ? "var(--mantine-shadow-md)" : undefined,
+        display: block ? "block" : undefined,
+        ...style,
+      }}
+      {...props}
+    />
+  );
+};
 
 export const Slider = ({ value, min, max, step, onChange, label, marks, disabled, className, style }: any) => (
   <Box className={className} style={style}>
