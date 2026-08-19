@@ -152,17 +152,3 @@ export const MessageActions = ({
     </div>
   );
 };
-
-/* {onShowSources
-        && msg?.sources
-        && msg?.sources?.length > 0 && (
-          <Button
-            variant="subtle"
-            style={{ minWidth: 10, paddingLeft: 5, paddingRight: 5 }}
-            onClick={() => onShowSources(msg.sources ?? [])}
-            icon={"sources"}
-          >
-            {msg.sources.length}
-          </Button>
-        )}
-*/
