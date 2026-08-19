@@ -95,6 +95,13 @@ export const Markdown = ({
           : {
             code: ({ node, className = "", children, ...props }) => {
               const match = /language-(\w+)/.exec(className);
+              const codeText = String(children ?? "");
+              const inline = !match && !codeText.includes("\n");
+
+              if (inline) {
+                return <code className={className || undefined} {...props}>{children}</code>;
+              }
+
               const language = match?.[1] ?? "plaintext";
 
               return (
