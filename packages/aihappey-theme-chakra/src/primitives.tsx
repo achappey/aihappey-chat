@@ -470,14 +470,55 @@ export const ProgressBar = ({ value, label, variant, className }: any) => (
 
 export const Skeleton = (props: any) => props.circle ? <Chakra.SkeletonCircle size={props.width ?? props.height ?? "10"} {...props} /> : <SkeletonBase {...props} />;
 
-export const Card = ({ title, text, description, image, headerActions, children, actions, className, style, selected }: any) => (
-  <CardRoot borderWidth="1px" boxShadow={selected ? "md" : "sm"} className={className} style={style}>
-    {image}
-    <CardHeader><HStack justify="space-between" align="start"><TextBase fontWeight="semibold">{title}</TextBase>{headerActions}</HStack>{description ? <TextBase color="fg.muted" fontSize="sm">{description}</TextBase> : null}</CardHeader>
-    <CardBody>{children ?? (text ? <TextBase fontSize="sm">{text}</TextBase> : null)}</CardBody>
-    {actions ? <CardFooter><HStack>{actions}</HStack></CardFooter> : null}
-  </CardRoot>
-);
+export const Card = ({ title, text, description, image, headerActions, children, actions, className, style, selected, size }: any) => {
+  const compact = size === "small";
+  const mediaSize = compact ? "11" : "14";
+
+  return (
+    <CardRoot
+      borderWidth="1px"
+      boxShadow={selected ? "md" : "sm"}
+      className={className}
+      overflow="hidden"
+      style={style}
+    >
+      {(title || image || headerActions) ? (
+        <CardHeader paddingBottom={description ? "2" : undefined}>
+          <HStack justify="space-between" align="flex-start" gap="3">
+            <HStack align="center" gap="3" minWidth="0" flex="1">
+              {image ? (
+                <Box
+                  alignItems="center"
+                  background="bg.muted"
+                  borderColor="border.muted"
+                  borderRadius="lg"
+                  borderWidth="1px"
+                  display="inline-flex"
+                  flex="0 0 auto"
+                  height={mediaSize}
+                  justifyContent="center"
+                  overflow="hidden"
+                  padding="1.5"
+                  width={mediaSize}
+                  css={{ "& img": { display: "block", height: "100%", maxHeight: "100%", maxWidth: "100%", objectFit: "contain", width: "100%" } }}
+                >
+                  {image}
+                </Box>
+              ) : null}
+              <TextBase fontWeight="semibold" lineHeight="short" overflowWrap="anywhere">{title}</TextBase>
+            </HStack>
+            {headerActions ? <Box flex="0 0 auto">{headerActions}</Box> : null}
+          </HStack>
+          {description ? <Box color="fg.muted" fontSize="sm" marginTop="2">{description}</Box> : null}
+        </CardHeader>
+      ) : null}
+      <CardBody paddingTop={(title || image || headerActions) ? "2" : undefined}>
+        {children ?? (text ? <TextBase fontSize="sm">{text}</TextBase> : null)}
+      </CardBody>
+      {actions ? <CardFooter paddingTop="2"><HStack gap="1" flexWrap="wrap">{actions}</HStack></CardFooter> : null}
+    </CardRoot>
+  );
+};
 
 export const Accordion = ({ items, openItems, defaultOpenItems, onToggle, multiple, className, style }: AccordionProps) => (
   <Chakra.Accordion.Root multiple={multiple} value={openItems as any} defaultValue={defaultOpenItems as any} onValueChange={(details: any) => onToggle?.(Array.isArray(details.value) ? details.value : details.value ? [details.value] : [])} className={className} style={style}>
@@ -525,7 +566,22 @@ export const Switch = ({ id, label, checked, onChange, className, disabled }: an
   <Chakra.Switch.Root id={id} checked={checked} disabled={disabled} className={className} onCheckedChange={(details: any) => onChange?.(details.checked)}><Chakra.Switch.HiddenInput /><Chakra.Switch.Control><Chakra.Switch.Thumb /></Chakra.Switch.Control>{label ? <Chakra.Switch.Label>{label}</Chakra.Switch.Label> : null}</Chakra.Switch.Root>
 );
 
-export const Image = ({ fit, ...props }: any) => <ImageBase objectFit={fit === "default" ? undefined : fit} {...props} />;
+export const Image = ({ fit, shadow, block, bordered, shape, style, alt = "", ...props }: any) => {
+  const borderRadius = shape === "circular" ? "full" : shape === "rounded" ? "md" : undefined;
+  return (
+    <ImageBase
+      alt={alt}
+      borderColor={bordered ? "border" : undefined}
+      borderRadius={borderRadius}
+      borderWidth={bordered ? "1px" : undefined}
+      boxShadow={shadow ? "md" : undefined}
+      display={block ? "block" : undefined}
+      objectFit={fit === "center" ? "none" : fit === "default" ? undefined : fit}
+      style={style}
+      {...props}
+    />
+  );
+};
 
 export const Slider = ({ value, min, max, step, onChange, label, marks, disabled, className, style }: any) => (
   <Box className={className} style={style}>{label ? <TextBase fontSize="sm">{label}</TextBase> : null}<Chakra.Slider.Root value={[value ?? min ?? 0]} min={min} max={max} step={step} disabled={disabled} onValueChange={(details: any) => onChange?.(details.value?.[0] ?? 0)}><Chakra.Slider.Control><Chakra.Slider.Track><Chakra.Slider.Range /></Chakra.Slider.Track><Chakra.Slider.Thumb index={0} /></Chakra.Slider.Control>{marks?.length ? <Chakra.Slider.MarkerGroup>{marks.map((mark: any) => <Chakra.Slider.Marker key={mark.value} value={mark.value}>{mark.label}</Chakra.Slider.Marker>)}</Chakra.Slider.MarkerGroup> : null}</Chakra.Slider.Root></Box>
