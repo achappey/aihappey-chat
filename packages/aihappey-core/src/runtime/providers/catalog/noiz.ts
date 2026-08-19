@@ -9,6 +9,7 @@ export const noiz: Provider = {
   urls: {
     homepage: "https://noiz.ai",
     docs: "https://developers.noiz.ai/",
+    pricing: "https://noiz.ai/pricing",
     privacyPolicy: "https://noiz.ai/resources/law/privacy-policy-en.html",
     termsOfService: "https://noiz.ai/resources/law/term-of-service-en.html"
   },
