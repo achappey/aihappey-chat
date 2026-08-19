@@ -96,6 +96,7 @@ import {
   Clipboard,
   ListTask,
   ThreeDotsVertical,
+  Tag,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -211,6 +212,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   copyClipboard: <Clipboard />, // Approximate
   star: <Star />,
   starFilled: <StarFill />,
+  version: <Tag />,
 };
 
 export const getIcon = (iconName?: IconToken) => {

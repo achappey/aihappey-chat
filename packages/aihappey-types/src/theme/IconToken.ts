@@ -111,4 +111,5 @@ export type IconToken =
   | "chevronRight"
   | "logout"
   | "star"
-  | "starFilled";
+  | "starFilled"
+  | "version";

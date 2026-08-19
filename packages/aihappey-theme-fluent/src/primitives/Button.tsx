@@ -113,6 +113,7 @@ import {
   ClipboardTaskRegular,
   StarRegular,
   StarFilled,
+  TagRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -227,6 +228,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   chevronRight: ChevronRightRegular,
   star: StarRegular,
   starFilled: StarFilled,
+  version: TagRegular,
 };
 
 export const Button = ({

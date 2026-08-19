@@ -408,8 +408,18 @@ export const bootstrapTheme: AihUiTheme = {
     );
   },
   Tabs: BootstrapTabs,
-  Tab: (props) => <Tab {...props} />,
-  Badge: (props) => <Badge {...props} />,
+  Tab: ({ icon, title, ...props }: any) => (
+    <Tab
+      {...props}
+      title={icon ? <span className="d-inline-flex align-items-center gap-2">{iconMap[icon as IconToken]}{title}</span> : title}
+    />
+  ),
+  Badge: ({ icon, text, children, ...props }: any) => (
+    <Badge {...props}>
+      {icon ? <span className="me-1">{iconMap[icon as IconToken]}</span> : null}
+      {children ?? text}
+    </Badge>
+  ),
   Table: (props) => <Table {...props} />,
   CloseButton: (props) => <CloseButton {...props} />,
 

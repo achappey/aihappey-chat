@@ -250,6 +250,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: makeIcon("⇥"),
   star: makeIcon("☆"),
   starFilled: makeIcon("★"),
+  version: makeIcon("#"),
 };
 
 function renderIcon(icon?: IconToken, size = 16) {

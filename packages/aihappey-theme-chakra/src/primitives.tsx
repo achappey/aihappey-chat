@@ -70,6 +70,7 @@ import {
   FaStop,
   FaSync,
   FaTable,
+  FaTag,
   FaTemperatureHigh,
   FaTerminal,
   FaTimes,
@@ -249,6 +250,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: makeIcon(FaSignOutAlt),
   star: makeIcon(FaRegStar),
   starFilled: makeIcon(FaStar),
+  version: makeIcon(FaTag),
 };
 
 function renderIcon(icon?: IconToken, size = 16) {

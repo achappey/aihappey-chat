@@ -69,6 +69,7 @@ import {
   Sparkles,
   Split,
   Star,
+  Tag,
   Table as TableIcon,
   Thermometer,
   Trash2,
@@ -210,6 +211,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: KeyRound,
   star: Star,
   starFilled: StarFilledIcon,
+  version: Tag,
 };
 
 const icon = (token?: IconToken, size = 16) => {

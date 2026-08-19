@@ -36,6 +36,7 @@ import Input from "@mui/icons-material/Input";
 import Inventory2 from "@mui/icons-material/Inventory2";
 import Key from "@mui/icons-material/Key";
 import Language from "@mui/icons-material/Language";
+import LocalOffer from "@mui/icons-material/LocalOffer";
 import Link from "@mui/icons-material/Link";
 import Mail from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -197,6 +198,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   logout: makeIcon(Key),
   star: makeIcon(StarBorder),
   starFilled: makeIcon(Star),
+  version: makeIcon(LocalOffer),
 };
 
 export function renderIcon(icon?: IconToken, size = 18) {
