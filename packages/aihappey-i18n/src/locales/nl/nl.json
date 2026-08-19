@@ -136,6 +136,12 @@
         "editor": {
             "newTitle": "Plugin toevoegen",
             "version": "Versie",
+            "namePlaceholder": "Korte, unieke naam voor deze plugin...",
+            "versionPlaceholder": "Versie van deze plugin, bijvoorbeeld 1.0.0...",
+            "descriptionPlaceholder": "Korte beschrijving van wat deze plugin biedt...",
+            "homepagePlaceholder": "Homepage-URL van deze plugin...",
+            "repositoryPlaceholder": "Repository-URL van deze plugin...",
+            "showSkillFiles": "Skillbestanden tonen",
             "author": "Auteur",
             "authorName": "Naam",
             "authorEmail": "E-mail",

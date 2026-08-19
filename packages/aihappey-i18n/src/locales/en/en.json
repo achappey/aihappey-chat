@@ -133,6 +133,12 @@
         "editor": {
             "newTitle": "Add plugin",
             "version": "Version",
+            "namePlaceholder": "Short, unique name for this plugin...",
+            "versionPlaceholder": "Version of this plugin, for example 1.0.0...",
+            "descriptionPlaceholder": "Brief description of what this plugin provides...",
+            "homepagePlaceholder": "Homepage URL for this plugin...",
+            "repositoryPlaceholder": "Repository URL for this plugin...",
+            "showSkillFiles": "Show Skill files",
             "author": "Author",
             "authorName": "Name",
             "authorEmail": "Email",

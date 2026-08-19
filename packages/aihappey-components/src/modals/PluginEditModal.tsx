@@ -61,6 +61,7 @@ export type PluginEditModalProps = {
 
 function inputValue(value: any) { return value?.target?.value ?? value ?? ""; }
 function toggleValue(id: string, values: string[]) { return values.includes(id) ? values.filter((item) => item !== id) : [...values, id]; }
+function isSkillFile(file: StoredPluginFile) { return /^skills\//i.test(file.path.replace(/\\/g, "/")); }
 function uploadPath(file: File) {
   return String((file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name)
     .replace(/\\/g, "/").replace(/^\/+/, "").split("/").filter((part) => part && part !== "." && part !== "..").join("/");
@@ -99,6 +100,7 @@ export const PluginEditModal = ({
   const [serverSettings, setServerSettings] = useState<Record<string, PluginServerExtension>>({});
   const [skillSearch, setSkillSearch] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [showSkillFiles, setShowSkillFiles] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -115,7 +117,7 @@ export const PluginEditModal = ({
     setAuthorUrl(plugin?.manifest.author?.url ?? ""); setKeywords(plugin?.manifest.keywords ?? []); setNewKeyword("");
     setFiles(plugin?.files ?? []);
     setSelectedSkillIds(initialSelectedSkillIds); setSelectedMcpIds(initialSelectedMcpIds);
-    setServerSettings(initialServerSettings ?? {}); setSkillSearch(""); setIsDragging(false);
+    setServerSettings(initialServerSettings ?? {}); setSkillSearch(""); setIsDragging(false); setShowSkillFiles(false);
   }, [authorIdentityReadOnly, initialSelectedMcpIds, initialSelectedSkillIds, initialServerSettings, open, plugin]);
 
   useEffect(() => {
@@ -133,6 +135,7 @@ export const PluginEditModal = ({
   const normalizedName = normalizePluginName(name);
   const canSave = !saving && normalizedName.length <= 64 && PLUGIN_NAME_PATTERN.test(normalizedName);
   const sortedFiles = useMemo(() => files.slice().sort((a, b) => a.path.localeCompare(b.path)), [files]);
+  const visibleFiles = useMemo(() => showSkillFiles ? sortedFiles : sortedFiles.filter((file) => !isSkillFile(file)), [showSkillFiles, sortedFiles]);
   const query = skillSearch.trim().toLowerCase();
   const visibleSkills = useMemo(() => skillOptions
     .filter((item) => !query || `${item.label} ${item.description ?? ""}`.toLowerCase().includes(query))
@@ -235,19 +238,19 @@ export const PluginEditModal = ({
     )}>
       {error ? <div style={{ color: "#c00", marginBottom: 12 }}>{error}</div> : null}
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-        <theme.Tab eventKey="general" title={t("general")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
-          <theme.Input label={t("name")} value={name} disabled={mode === "edit"} onChange={(value: any) => setName(inputValue(value))} onBlur={() => setName(normalizedName)} />
-          <theme.Input label={t("pluginsPage.editor.version")} value={version} onChange={(value: any) => setVersion(inputValue(value))} />
-          <theme.TextArea label={t("description")} value={description} rows={5} onChange={(value: any) => setDescription(inputValue(value))} />
-          <theme.Input type="url" label={t("pluginsPage.editor.homepage")} value={homepage} onChange={(value: any) => setHomepage(inputValue(value))} />
-          <theme.Input type="url" label={t("pluginsPage.editor.repository")} value={repository} onChange={(value: any) => setRepository(inputValue(value))} />
+        <theme.Tab eventKey="general" icon="settings" title={t("general")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+          <theme.Input label={t("name")} placeholder={t("pluginsPage.editor.namePlaceholder")} value={name} required disabled={mode === "edit"} onChange={(value: any) => setName(inputValue(value))} onBlur={() => setName(normalizedName)} />
+          <theme.Input label={t("pluginsPage.editor.version")} placeholder={t("pluginsPage.editor.versionPlaceholder")} value={version} onChange={(value: any) => setVersion(inputValue(value))} />
+          <theme.TextArea label={t("description")} placeholder={t("pluginsPage.editor.descriptionPlaceholder")} value={description} rows={5} onChange={(value: any) => setDescription(inputValue(value))} />
+          <theme.Input type="url" label={t("pluginsPage.editor.homepage")} placeholder={t("pluginsPage.editor.homepagePlaceholder")} value={homepage} onChange={(value: any) => setHomepage(inputValue(value))} />
+          <theme.Input type="url" label={t("pluginsPage.editor.repository")} placeholder={t("pluginsPage.editor.repositoryPlaceholder")} value={repository} onChange={(value: any) => setRepository(inputValue(value))} />
         </div></theme.Tab>
-        <theme.Tab eventKey="author" title={t("pluginsPage.editor.author")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+        <theme.Tab eventKey="author" icon="personalization" title={t("pluginsPage.editor.author")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
           <theme.Input label={t("pluginsPage.editor.authorName")} value={authorName} readOnly={authorIdentityReadOnly} onChange={(value: any) => setAuthorName(inputValue(value))} />
           <theme.Input type="email" label={t("pluginsPage.editor.authorEmail")} value={authorEmail} readOnly={authorIdentityReadOnly} onChange={(value: any) => setAuthorEmail(inputValue(value))} />
           <theme.Input type="url" label={t("pluginsPage.editor.authorUrl")} value={authorUrl} onChange={(value: any) => setAuthorUrl(inputValue(value))} />
         </div></theme.Tab>
-        <theme.Tab eventKey="keywords" title={t("pluginsPage.editor.keywords")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+        <theme.Tab eventKey="keywords" icon="search" title={t("pluginsPage.editor.keywords")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
             <theme.Input
               label={t("pluginsPage.editor.keywords")}
@@ -260,7 +263,7 @@ export const PluginEditModal = ({
           </div>
           {keywordItems.length ? <theme.Tags size="small" items={keywordItems} onRemove={(keyword: string) => setKeywords((current) => current.filter((item) => item !== keyword))} /> : null}
         </div></theme.Tab>
-        <theme.Tab eventKey="skills" title={t("skills")}><div style={{ display: "grid", gap: 18, paddingTop: 12 }}>
+        <theme.Tab eventKey="skills" icon="skills" title={t("skills")}><div style={{ display: "grid", gap: 18, paddingTop: 12 }}>
           <div style={{ width: 360, maxWidth: "100%" }}><theme.SearchBox value={skillSearch} onChange={setSkillSearch} placeholder={t("searchPlaceholder")} /></div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 330px), 1fr))", gap: 12 }}>
             {visibleSkills.map((option) => (
@@ -271,7 +274,7 @@ export const PluginEditModal = ({
           </div>
           {!visibleSkills.length ? <theme.Text>{t("noResults")}</theme.Text> : null}
         </div></theme.Tab>
-        <theme.Tab eventKey="modelContext" title={t("mcpPage.title")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+        <theme.Tab eventKey="modelContext" icon="mcpServer" title={t("mcpPage.title")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
           <ServerManagement
             onRemove={onRemoveMcpServer}
             mcpServers={serverItems}
@@ -280,13 +283,16 @@ export const PluginEditModal = ({
           {onOpenMcpCatalog ? <div><theme.Button icon="catalog" variant="subtle" onClick={onOpenMcpCatalog}>{t("manageServersModal.catalog")}</theme.Button></div> : null}
           {!extensionNamespace ? <theme.Text>{t("pluginsPage.editor.noExtensionNamespace")}</theme.Text> : null}
         </div></theme.Tab>
-        <theme.Tab eventKey="files" title={t("files")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+        <theme.Tab eventKey="files" icon="folder" title={t("files")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <theme.Switch id="plugin-editor-show-skill-files" label={t("pluginsPage.editor.showSkillFiles")} checked={showSkillFiles} onChange={setShowSkillFiles} />
+          </div>
           <input ref={fileInput} type="file" multiple style={{ display: "none" }} onChange={(event) => { addFiles(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
           <div style={{ border: `2px dashed ${isDragging ? "currentColor" : "rgba(127,127,127,.45)"}`, borderRadius: 8, padding: 24, textAlign: "center" }} onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setIsDragging(false)} onDrop={(event) => { event.preventDefault(); setIsDragging(false); addFiles(Array.from(event.dataTransfer.files)); }}>
             <div style={{ marginBottom: 8 }}>{t("skillsPage.editor.dropFiles")}</div>
             <theme.Button variant="secondary" onClick={() => fileInput.current?.click()}>{t("skillsPage.editor.chooseFiles")}</theme.Button>
           </div>
-          {sortedFiles.length ? sortedFiles.map((file) => <theme.Card key={file.path} title={file.path} description={formatFileSize(file.size)} actions={<div style={{ display: "flex", gap: 4 }}><theme.Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} /><theme.Button icon="delete" size="small" variant="transparent" title={t("delete")} onClick={() => setFiles((items) => items.filter((item) => item.path !== file.path))} /></div>} />) : <theme.Card title={t("files")}><div style={{ color: "#888" }}>{t("noResults")}</div></theme.Card>}
+          {visibleFiles.length ? visibleFiles.map((file) => <theme.Card key={file.path} title={file.path} description={formatFileSize(file.size)} actions={<div style={{ display: "flex", gap: 4 }}><theme.Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} /><theme.Button icon="delete" size="small" variant="transparent" title={t("delete")} onClick={() => setFiles((items) => items.filter((item) => item.path !== file.path))} /></div>} />) : <theme.Card title={t("files")}><div style={{ color: "#888" }}>{t("noResults")}</div></theme.Card>}
         </div></theme.Tab>
       </theme.Tabs>
     </theme.Modal>
