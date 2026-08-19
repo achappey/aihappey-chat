@@ -3,6 +3,7 @@ import type { Provider } from "aihappey-types";
 export const atlascloud: Provider = {
   name: "AtlasCloud",
   description: "World's first full-modal inference platform. Chat, image, video, audio—all through one unified API. 300+ models, OpenAI-compatible.",
+  icons: [{ src: "https://avatars.githubusercontent.com/u/249862100?s=200&v=4" }],
   urls: {
     homepage: "https://www.atlascloud.ai",
     docs: "https://www.atlascloud.ai/docs",
