@@ -18,10 +18,11 @@ export const RegistryServerCard = ({ serverItem,
   renderDescription,
   onInstall }: RegistryServerCardProps) => {
   const { name, websiteUrl, remotes,
-    description, title } = serverItem.server;
+    description, title, version } = serverItem.server;
   const url = remotes?.find(a => a.type == "streamable-http")?.url;
-  const { Card, Button } = useTheme();
+  const { Card, Button, Badge } = useTheme();
   const { t } = useTranslation();
+  const renderedDescription = renderDescription?.();
   
   const headerActions = onRemove ? <Button
     size="small"
@@ -39,8 +40,12 @@ export const RegistryServerCard = ({ serverItem,
   return (
     <Card
       title={title ?? name}
-      description={renderDescription
-        ? renderDescription() : undefined}
+      description={version ? (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <Badge size="small" bg="subtle" icon="version">{version}</Badge>
+          {renderedDescription}
+        </div>
+      ) : renderedDescription}
       image={<CapabilityIcon icons={serverItem?.server?.icons} />}
       size="small"
       headerActions={headerActions}
