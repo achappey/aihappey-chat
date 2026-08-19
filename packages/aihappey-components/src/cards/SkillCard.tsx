@@ -76,14 +76,9 @@ export const SkillCard = ({ skill, onDelete, onDownload, onView, isFavorite = fa
 
   const description = (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      {typeof skill.fileCount === "number" && skill.fileCount > 0 ? (
-        <Badge size="small" bg="informative">
-          {t("skillsPage.fileCountBadge", { count: skill.fileCount })}
-        </Badge>
-      ) : null}
       {skill.version ? (
-        <Badge size="small" bg="subtle">
-          {(t("skillsPage.versionBadge", { version: skill.version }) ?? `v${skill.version}`)}
+        <Badge size="small" bg="subtle" icon="version">
+          {skill.version}
         </Badge>
       ) : null}
       {skill.downloadState === "error" ? (

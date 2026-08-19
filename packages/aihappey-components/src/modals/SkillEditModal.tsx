@@ -144,33 +144,38 @@ export const SkillEditModal = ({
     >
       {error ? <div style={{ color: "#c00", marginBottom: 12 }}>{error}</div> : null}
       <Tabs activeKey={activeTab} onSelect={setActiveTab}>
-        <Tab eventKey="general" title={t("general")}>
+        <Tab eventKey="general" icon="settings" title={t("general")}>
           <div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
             <Input
               label={t("name")}
+              placeholder={tx("skillsPage.editor.namePlaceholder", "Short, unique name for this skill...")}
               value={name}
+              required
               disabled={mode === "edit"}
               onChange={(event: any) => setName(event?.target?.value ?? event ?? "")}
             />
             <TextArea
               label={tx("skillsPage.editor.description", "Description")}
+              placeholder={tx("skillsPage.editor.descriptionPlaceholder", "Brief description of what this skill provides...")}
               value={description}
+              required
               rows={5}
               onChange={(event: any) => setDescription(event?.target?.value ?? event ?? "")}
             />
           </div>
         </Tab>
-        <Tab eventKey="content" title="SKILL.md">
+        <Tab eventKey="content" icon="docs" title="SKILL.md">
           <div style={{ paddingTop: 12 }}>
             <TextArea
               label={tx("skillsPage.editor.instructions", "Instructions")}
+              placeholder={tx("skillsPage.editor.instructionsPlaceholder", "Explain how and when this skill should be used...")}
               value={instructions}
               rows={20}
               onChange={(event: any) => setInstructions(event?.target?.value ?? event ?? "")}
             />
           </div>
         </Tab>
-        <Tab eventKey="files" title={tx("skillsPage.editor.files", "Files")}>
+        <Tab eventKey="files" icon="folder" title={tx("skillsPage.editor.files", "Files")}>
           <div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
             <input
               ref={inputRef}

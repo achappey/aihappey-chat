@@ -89,6 +89,9 @@
             "newTitle": "Skill toevoegen",
             "description": "Beschrijving",
             "instructions": "Instructies",
+            "namePlaceholder": "Korte, unieke naam voor deze skill...",
+            "descriptionPlaceholder": "Korte beschrijving van wat deze skill biedt...",
+            "instructionsPlaceholder": "Leg uit hoe en wanneer deze skill moet worden gebruikt...",
             "files": "Bestanden",
             "dropFiles": "Sleep bestanden hierheen of kies bestanden om toe te voegen of te vervangen.",
             "chooseFiles": "Bestanden kiezen",
@@ -96,7 +99,7 @@
             "savedVersion": "Versie {{version}} opgeslagen."
         },
         "versionBadge": "Versie {{version}}",
-        "latestVersionBadge": "Laatste versie {{version}}",
+        "latestVersionBadge": "Nieuwste {{version}}",
         "description": "Een overzicht van alle beschikbare skills voor taken en workflows. Per skill zie je wat het doet, wanneer je het inzet en hoe het verschilt van andere skills. Zo kies je snel de juiste optie. Skills bundelen instructies, logica en uitvoering in één consistente aanpak, voor duidelijkheid, herhaalbaarheid en grip.",
         "fileCountBadge": "Bestanden: {{count}}",
         "importZipOnly": "Alleen ZIP-archieven kunnen als skills worden geïmporteerd.",

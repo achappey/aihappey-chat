@@ -113,7 +113,7 @@ export const SkillDetailsModal = ({
         <div style={{ color: "#888" }}>{tx("noResults", "No results")}</div>
       ) : (
         <Tabs activeKey={activeTab} onSelect={setActiveTab}>
-          <Tab eventKey="overview" title={t("general")}>
+          <Tab eventKey="overview" icon="settings" title={t("general")}>
             <div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
 
               <Card
@@ -121,12 +121,16 @@ export const SkillDetailsModal = ({
                 description={
                   <div style={badgeRowStyle}>
                     {skill.version ? (
-                      <Badge size="small" bg="subtle">
-                        {tx("skillsPage.versionBadge", `Version ${skill.version}`, { version: skill.version })}
+                      <Badge size="small" bg="subtle" icon="version">
+                        {skill.version}
                       </Badge>
                     ) : null}
-                    <Badge size="small" bg="subtle">
-                      {tx("skillsPage.latestVersionBadge", `Version ${skill.latestVersion}`, { version: skill.latestVersion })}
+                    <Badge size="small" bg="subtle" icon="version">
+                      {tx(
+                        "skillsPage.latestVersionBadge",
+                        `Latest ${skill.latestVersion}`,
+                        { version: skill.latestVersion }
+                      )}
                     </Badge>
                   </div>
                 }
@@ -136,7 +140,7 @@ export const SkillDetailsModal = ({
             </div>
           </Tab>
 
-          <Tab eventKey="versions" title={t("versions")}>
+          <Tab eventKey="versions" icon="version" title={t("versions")}>
             <div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
               {canSetDefaultVersion ? (
                 <Card
@@ -231,7 +235,7 @@ export const SkillDetailsModal = ({
             </div>
           </Tab>
 
-          <Tab eventKey="content" title={"SKILL.md"}>
+          <Tab eventKey="content" icon="docs" title={"SKILL.md"}>
             {localSkill ? (
               <div style={markdownContainerStyle}>
                 <ReactMarkdown>{localSkill.body}</ReactMarkdown>

@@ -17,7 +17,7 @@ export const PluginMetadataBadges = ({
 
   return (
     <>
-      {version ? <Badge size="small" bg="subtle">{version}</Badge> : null}
+      {version ? <Badge size="small" bg="subtle" icon="version">{version}</Badge> : null}
       {skillCount > 0 ? (
         <Badge size="small" appearance="neutral" icon="skills">{t("skills")}</Badge>
       ) : null}
