@@ -4,6 +4,15 @@ import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../theme/ThemeContext";
 import { GoogleEnvironmentCard } from "./GoogleEnvironmentCard";
 import {
+  GoogleInteractionSpeechCard,
+  GoogleInteractionTranscriptionCard,
+  normalizeGoogleResponseFormatValue,
+  GoogleResponseFormatCard,
+  GoogleRetrievalSearchCard,
+  type GoogleRetrievalTool,
+  type GoogleResponseFormat,
+} from "./GoogleInteractionConfigCards";
+import {
   buildCanonicalProviderToolsConfig,
   withResolvedProviderTools,
 } from "../providerToolConfig";
@@ -20,18 +29,12 @@ const GOOGLE_TOOL_TYPES = [
   "url_context",
   "google_maps",
   "google_search",
+  "retrieval",
 ];
 const GOOGLE_SEARCH_TYPES = [
   "web_search",
   "image_search",
   "enterprise_web_search",
-] as const;
-const GOOGLE_RESPONSE_MODALITIES = [
-  "text",
-  "image",
-  "audio",
-  "video",
-  "document",
 ] as const;
 const GOOGLE_IMAGE_ASPECT_RATIO_OPTIONS = [
   "1:1",
@@ -118,16 +121,10 @@ export type GoogleChatConfigFormTranslations = {
   reasoningEffort?: string;
   budget?: string;
   webSearch?: string;
-  responseModalities?: string;
   code_execution?: string;
   web_search?: string;
   image_search?: string;
   enterprise_web_search?: string;
-  text?: string;
-  image?: string;
-  audio?: string;
-  video?: string;
-  document?: string;
   low?: string;
   medium?: string;
   high?: string;
@@ -176,13 +173,30 @@ export const GoogleChatConfigForm = ({
   const { t } = useTranslation();
   const resolvedConfig = withResolvedProviderTools(config, GOOGLE_TOOL_TYPES);
   const submitConfig = (nextConfig: any) =>
-    updateConfig(buildCanonicalProviderToolsConfig(nextConfig, GOOGLE_TOOL_TYPES));
+    updateConfig(
+      buildCanonicalProviderToolsConfig(
+        nextConfig?.response_format === undefined
+          ? nextConfig
+          : {
+              ...nextConfig,
+              response_format: normalizeGoogleResponseFormatValue(nextConfig.response_format),
+            },
+        GOOGLE_TOOL_TYPES,
+      ),
+    );
   const generationConfig = {
     ...DEFAULT_GOOGLE_GENERATION_CONFIG,
     ...(resolvedConfig?.generation_config ?? {}),
   };
   const imageConfig = resolvedConfig?.generation_config?.image_config;
   const videoConfig = resolvedConfig?.generation_config?.video_config;
+  const speechConfig = resolvedConfig?.generation_config?.speech_config;
+  const transcriptionConfig = resolvedConfig?.generation_config?.transcription_config;
+  const responseFormat = resolvedConfig?.response_format as
+    | GoogleResponseFormat
+    | GoogleResponseFormat[]
+    | undefined;
+  const retrieval = resolvedConfig?.retrieval as GoogleRetrievalTool | undefined;
   const agentConfig = resolvedConfig?.agent_config;
   const agentThinkingSummariesEnabled = agentConfig?.type === "deep-research";
   const safetySettingsOn = Array.isArray(resolvedConfig?.safety_settings);
@@ -232,9 +246,6 @@ export const GoogleChatConfigForm = ({
   const googleSearchTypes = Array.isArray(resolvedConfig?.google_search?.search_types)
     ? resolvedConfig.google_search.search_types
     : [];
-  const responseModalities = Array.isArray(resolvedConfig?.response_modalities)
-    ? resolvedConfig.response_modalities
-    : [];
 
   const toggleGoogleSearchType = (
     searchType: (typeof GOOGLE_SEARCH_TYPES)[number],
@@ -256,20 +267,40 @@ export const GoogleChatConfigForm = ({
     });
   };
 
-  const toggleResponseModality = (
-    modality: (typeof GOOGLE_RESPONSE_MODALITIES)[number],
-    enabled: boolean
+  const updateRetrievalSearch = (
+    provider: "exa" | "parallel",
+    enabled: boolean,
+    apiKey?: string
   ) => {
-    const currentModalities = Array.isArray(resolvedConfig?.response_modalities)
-      ? resolvedConfig.response_modalities
+    const retrievalType = provider === "exa" ? "exa_ai_search" : "parallel_ai_search";
+    const configKey =
+      provider === "exa" ? "exa_ai_search_config" : "parallel_ai_search_config";
+    const currentRetrieval = retrieval ?? { type: "retrieval" };
+    const currentTypes = Array.isArray(currentRetrieval.retrieval_types)
+      ? currentRetrieval.retrieval_types
       : [];
-    const nextModalities = enabled
-      ? Array.from(new Set([...currentModalities, modality]))
-      : currentModalities.filter((value: string) => value !== modality);
+    const nextTypes = enabled
+      ? Array.from(new Set([...currentTypes, retrievalType]))
+      : currentTypes.filter((type) => type !== retrievalType);
+    const nextProviderConfig = enabled
+      ? {
+        ...(currentRetrieval[configKey] ?? {}),
+        api_key: apiKey?.trim() || undefined,
+      }
+      : undefined;
+    const nextRetrieval: GoogleRetrievalTool = {
+      ...currentRetrieval,
+      type: currentRetrieval.type ?? "retrieval",
+      retrieval_types: nextTypes.length ? nextTypes : undefined,
+      [configKey]: nextProviderConfig,
+    };
+    const hasRemainingConfig = Object.entries(nextRetrieval).some(
+      ([key, value]) => key !== "type" && value !== undefined
+    );
 
     submitConfig({
       ...resolvedConfig,
-      response_modalities: nextModalities,
+      retrieval: hasRemainingConfig ? nextRetrieval : undefined,
     });
   };
 
@@ -409,8 +440,6 @@ export const GoogleChatConfigForm = ({
         </div>
       </theme.Card>
 
-
-
       <theme.Card
         size="small"
         title={translations?.webSearch ?? "webSearch"}
@@ -432,6 +461,7 @@ export const GoogleChatConfigForm = ({
             style={{
               display: "flex",
               flexDirection: "column",
+              gap: 8,
             }}
           >
             {GOOGLE_SEARCH_TYPES.map((searchType) => (
@@ -626,6 +656,78 @@ export const GoogleChatConfigForm = ({
 
       <theme.Card
         size="small"
+        title={translations?.url_context ?? "url_context"}
+        headerActions={
+          <theme.Switch
+            id="urlContext"
+            checked={urlContextOn}
+            onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
+                url_context: !val ? undefined : { ...DEFAULT_URL_CONTEXT },
+              })
+            }
+          />
+        }
+      />
+
+      <theme.Card
+        size="small"
+        title={translations?.code_execution ?? "code_execution"}
+        headerActions={
+          <theme.Switch
+            id="codeExecution"
+            checked={codeExecutionOn}
+            onChange={(val) =>
+              submitConfig({
+                ...resolvedConfig,
+                code_execution: !val ? undefined : { ...DEFAULT_CODE_EXECUTION },
+              })
+            }
+          />
+        }
+      />
+
+
+
+      <GoogleResponseFormatCard
+        value={responseFormat}
+        onChange={(response_format) =>
+          submitConfig({
+            ...resolvedConfig,
+            response_format,
+          })
+        }
+      />
+
+      <GoogleInteractionSpeechCard
+        value={Array.isArray(speechConfig) ? speechConfig : undefined}
+        onChange={(speech_config) =>
+          submitConfig({
+            ...resolvedConfig,
+            generation_config: {
+              ...generationConfig,
+              speech_config,
+            },
+          })
+        }
+      />
+
+      <GoogleInteractionTranscriptionCard
+        value={transcriptionConfig}
+        onChange={(transcription_config) =>
+          submitConfig({
+            ...resolvedConfig,
+            generation_config: {
+              ...generationConfig,
+              transcription_config,
+            },
+          })
+        }
+      />
+
+      <theme.Card
+        size="small"
         title={translations?.videoConfig ?? t("providers:google.videoConfig.title")}
         headerActions={
           <theme.Switch
@@ -675,39 +777,25 @@ export const GoogleChatConfigForm = ({
         </theme.Select>
       </theme.Card>
 
-      <theme.Card
-        size="small"
-        title={translations?.url_context ?? "url_context"}
-        headerActions={
-          <theme.Switch
-            id="urlContext"
-            checked={urlContextOn}
-            onChange={(val) =>
-              submitConfig({
-                ...resolvedConfig,
-                url_context: !val ? undefined : { ...DEFAULT_URL_CONTEXT },
-              })
-            }
-          />
+
+      <GoogleRetrievalSearchCard
+        provider="parallel"
+        value={retrieval}
+        onChange={(enabled, apiKey) =>
+          updateRetrievalSearch("parallel", enabled, apiKey)
         }
       />
 
-      <theme.Card
-        size="small"
-        title={translations?.code_execution ?? "code_execution"}
-        headerActions={
-          <theme.Switch
-            id="codeExecution"
-            checked={codeExecutionOn}
-            onChange={(val) =>
-              submitConfig({
-                ...resolvedConfig,
-                code_execution: !val ? undefined : { ...DEFAULT_CODE_EXECUTION },
-              })
-            }
-          />
-        }
+      <GoogleRetrievalSearchCard
+        provider="exa"
+        value={retrieval}
+        onChange={(enabled, apiKey) => updateRetrievalSearch("exa", enabled, apiKey)}
       />
+
+
+
+
+
 
       <GoogleEnvironmentCard config={resolvedConfig} updateConfig={submitConfig} />
 
@@ -865,51 +953,50 @@ export const GoogleChatConfigForm = ({
         </div>
       </theme.Card>
 
-      <theme.Card
-        size="small"
-        title={t("providers:google.responseModalities")}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-          }}
-        >
-          {GOOGLE_RESPONSE_MODALITIES.map((modality) => (
-            <theme.Switch
-              key={modality}
-              id={`googleResponseModality_${modality}`}
-              size="small"
-              checked={responseModalities.includes(modality)}
-              label={t(`providers:google.modalities.${modality}`)}
-              onChange={(value) => toggleResponseModality(modality, !!value)}
-            />
-          ))}
+      <theme.Card size="small" title={t("other")}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <theme.Select
+            label={t("providers:google.service_tier")}
+            values={resolvedConfig?.service_tier ? [resolvedConfig.service_tier] : []}
+            valueTitle={
+              serviceTierOptions.find(
+                (option) => option.value === resolvedConfig?.service_tier
+              )?.label
+            }
+            options={serviceTierOptions}
+            onChange={(val: string) =>
+              submitConfig({
+                ...resolvedConfig,
+                service_tier: val || undefined,
+              })
+            }
+          >
+            {serviceTierOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+
+          <theme.Input
+            id="googleInteractionSeed"
+            type="number"
+            step={1}
+            label={t("providers:google.interactions.other.seed")}
+            value={generationConfig.seed ?? ""}
+            onChange={(event: any) => {
+              const raw = String(event?.target?.value ?? "").trim();
+              submitConfig({
+                ...resolvedConfig,
+                generation_config: {
+                  ...generationConfig,
+                  seed: raw ? Number(raw) : undefined,
+                },
+              });
+            }}
+          />
         </div>
       </theme.Card>
-
-      <theme.Select
-        label={t("providers:google.service_tier")}
-        values={resolvedConfig?.service_tier ? [resolvedConfig.service_tier] : []}
-        valueTitle={
-          serviceTierOptions.find(
-            (option) => option.value === resolvedConfig?.service_tier
-          )?.label
-        }
-        options={serviceTierOptions}
-        onChange={(val: string) =>
-          submitConfig({
-            ...resolvedConfig,
-            service_tier: val || undefined,
-          })
-        }
-      >
-        {serviceTierOptions.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </theme.Select>
     </div>
   );
 };

@@ -816,6 +816,49 @@
       "video": "Video",
       "document": "Document"
     },
+    "interactions": {
+      "speech": {
+        "title": "Speech",
+        "language": "Language",
+        "speaker": "Speaker name",
+        "voice": "Voice",
+        "addSpeaker": "Add speaker"
+      },
+      "transcription": {
+        "title": "Transcription",
+        "languageCodes": "Language hints",
+        "customVocabulary": "Custom vocabulary",
+        "speakerDiarization": "Identify speakers",
+        "wordTimestamps": "Include word timestamps"
+      },
+      "responseFormat": {
+        "title": "Response format",
+        "mimeType": "MIME type",
+        "sampleRate": "Sample rate (Hz)",
+        "bitRate": "Bit rate (bps)",
+        "aspectRatio": "Aspect ratio",
+        "imageSize": "Image size",
+        "duration": "Duration",
+        "types": {
+          "text": "Text",
+          "audio": "Audio",
+          "image": "Image",
+          "video": "Video"
+        }
+      },
+      "retrieval": {
+        "apiKey": "API key",
+        "parallel": {
+          "title": "Parallel Search"
+        },
+        "exa": {
+          "title": "Exa Search"
+        }
+      },
+      "other": {
+        "seed": "Seed"
+      }
+    },
     "enable_widget": "Enable widget",
     "includeThoughts": "Include thoughts",
     "dynamicThinking": "Dynamic thinking",

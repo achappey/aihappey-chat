@@ -480,6 +480,49 @@
       "video": "Video",
       "document": "Document"
     },
+    "interactions": {
+      "speech": {
+        "title": "Spraak",
+        "language": "Taal",
+        "speaker": "Sprekersnaam",
+        "voice": "Stem",
+        "addSpeaker": "Spreker toevoegen"
+      },
+      "transcription": {
+        "title": "Transcriptie",
+        "languageCodes": "Taalhints",
+        "customVocabulary": "Aangepaste woordenlijst",
+        "speakerDiarization": "Sprekers herkennen",
+        "wordTimestamps": "Tijdstempels per woord opnemen"
+      },
+      "responseFormat": {
+        "title": "Antwoordformaat",
+        "mimeType": "MIME-type",
+        "sampleRate": "Samplesnelheid (Hz)",
+        "bitRate": "Bitsnelheid (bps)",
+        "aspectRatio": "Beeldverhouding",
+        "imageSize": "Afbeeldingsgrootte",
+        "duration": "Duur",
+        "types": {
+          "text": "Tekst",
+          "audio": "Audio",
+          "image": "Afbeelding",
+          "video": "Video"
+        }
+      },
+      "retrieval": {
+        "apiKey": "API-sleutel",
+        "parallel": {
+          "title": "Parallel Search"
+        },
+        "exa": {
+          "title": "Exa Search"
+        }
+      },
+      "other": {
+        "seed": "Seed"
+      }
+    },
     "enable_widget": "Widget inschakelen",
     "url_context": "URL context",
     "includeThoughts": "Toon gedachten",
