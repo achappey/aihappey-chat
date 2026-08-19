@@ -2,7 +2,7 @@
 import { useTheme } from "../theme/ThemeContext";
 import type { ChatMessage, ChatMessageProviderIcon, IconToken, Provider } from "aihappey-types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessagePart } from "aihappey-ai";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Ref } from "react";
 import { ToolContent } from "../fields/ToolContent";
 import { MessageActions } from "../buttons/MessageActions";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
@@ -11,6 +11,7 @@ import { useDarkMode } from "usehooks-ts";
 
 interface MessageListProps {
   messages: ChatMessage[];
+  scrollContainerRef?: Ref<HTMLDivElement>;
   onRenderMarkdown: (text: string) => React.ReactElement;
   onCopyMessage?: (msg: ChatMessage) => Promise<void>;
   onEditMessage?: (msg: ChatMessage) => void;
@@ -53,6 +54,7 @@ const BLOCK_META: Record<string, { icon: IconToken; label: string }> = {
 
 export const MessageList = ({
   messages,
+  scrollContainerRef,
   size,
   onCopyMessage,
   onEditMessage,
@@ -218,6 +220,7 @@ export const MessageList = ({
 
   return (
     <div
+      ref={scrollContainerRef}
       id="chat-container"
       data-chat-scroll-container
       style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", padding: 12 }}

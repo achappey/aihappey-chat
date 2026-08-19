@@ -8,7 +8,7 @@ import type { VideoContent } from "aihappey-components";
 import type { ImageContent } from "@modelcontextprotocol/sdk/types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { ChatMessage } from "aihappey-types";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type Ref } from "react";
 import { toChatMessages } from "./toChatMessages";
 import { getToolName, useTools } from "../../tools/useTools";
 import { McpProgressItem, progressRuntime, useMcpProgress } from "../../../runtime/mcp/progressRuntime";
@@ -26,6 +26,7 @@ interface MessageListProps {
   showActivity?: (content: UIMessagePart<any, any>[]) => void;
   conversationId?: string;
   messages: UIMessage[];
+  scrollContainerRef?: Ref<HTMLDivElement>;
   sendMessage?: any;
   streaming?: boolean;
 
@@ -91,6 +92,7 @@ export const MessageList = ({
   showAttachments,
   conversationId,
   messages,
+  scrollContainerRef,
   sendMessage,
   streaming,
   onUiMessagePatched,
@@ -142,6 +144,7 @@ export const MessageList = ({
       />
       <MessageListComponent
         key={uiVersion}
+        scrollContainerRef={scrollContainerRef}
         messages={chatMessages}
         onCopyMessage={copyClipboard}
         locale={i18n.language}

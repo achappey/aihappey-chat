@@ -78,6 +78,7 @@ import {
   validateEndpointProfileForModel,
 } from "./endpointProfiles";
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
+import { useChatScrollToBottom } from "../layout/useChatScrollToBottom";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -141,9 +142,10 @@ export function VercelChatInner({
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const includeSystem = chatMode !== "agent";
-  const { Spinner, JsonViewer, Toast } = useTheme();
+  const { Spinner, JsonViewer, Toast, Button } = useTheme();
   const { config } = useChatContext();
   const { t, i18n } = useTranslation();
+  const { hasContentBelow, scrollContainerRef, scrollToBottom } = useChatScrollToBottom();
   const language = languageNames[i18n.language as keyof typeof languageNames] ?? i18n.language;
   const jsonRenderRegistry = useJsonRenderRegistry();
   const jsonRenderCatalog = useJsonRenderCatalog();
@@ -928,6 +930,7 @@ export function VercelChatInner({
           : <MessageList
             // NOTE: `useChat()` doesn't expose `setMessages` in this codebase,
             // so we keep a local overlay for edits/deletes.
+            scrollContainerRef={scrollContainerRef}
             messages={uiMessages}
             streaming={status === "submitted" || status === "streaming"}
             sendMessage={async (msg: any) => {
@@ -951,6 +954,23 @@ export function VercelChatInner({
             <Spinner
               label={toolName}
             />
+          </div>
+        ) : undefined}
+        {hasContentBelow ? (
+          <div style={scrollToBottomAnchorStyles}>
+            <div style={scrollToBottomButtonStyles}>
+              <Button
+                type="button"
+                variant="secondary"
+                size="small"
+                shape="circular"
+                icon="down"
+                title={t("scrollToBottom")}
+                aria-label={t("scrollToBottom")}
+                onClick={scrollToBottom}
+                style={scrollToBottomControlStyles}
+              />
+            </div>
           </div>
         ) : undefined}
         <div style={{ paddingRight: 24, paddingLeft: 16, paddingTop: 8, boxSizing: "border-box" }}>
@@ -1021,4 +1041,29 @@ const streamingIndicatorStyles = {
   alignItems: "center",
   width: "100%",
   padding: "8px 0 0",
+} as const;
+
+const scrollToBottomAnchorStyles = {
+  position: "relative",
+  zIndex: 2,
+  height: 0,
+  display: "flex",
+  justifyContent: "center",
+  pointerEvents: "none",
+} as const;
+
+const scrollToBottomButtonStyles = {
+  position: "absolute",
+  bottom: 8,
+  pointerEvents: "auto",
+} as const;
+
+const scrollToBottomControlStyles = {
+  width: 36,
+  minWidth: 36,
+  maxWidth: 36,
+  height: 36,
+  padding: 0,
+  borderRadius: "50%",
+  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.18)",
 } as const;
