@@ -28,11 +28,17 @@ export const Chat = ({ messages, renderMessage, renderReactions, locale, aiGener
           msg.role === "user" ? ChatMyMessage : ChatMessage;
         const streaming = msg.content.find(a => a.type == "text" && a.state == "streaming")
 
+        const renderedReactions = (renderReactions ? renderReactions(msg) : undefined) as
+          | React.ReactElement<{ style?: React.CSSProperties }>
+          | undefined;
         const reactions = streaming ? <div
           style={{ paddingTop: 10, width: "100%" }}>
           <ProgressBar shape="square" style={{ height: 6 }} />
-        </div> :
-          renderReactions ? renderReactions(msg) : undefined;
+        </div> : renderedReactions
+          ? React.cloneElement(renderedReactions, {
+            style: { ...(renderedReactions.props.style ?? {}), paddingTop: 0 },
+          })
+          : undefined;
         const IconCmp = msg.messageIcon ? iconMap[msg.messageIcon] : undefined;
         const icon = IconCmp ? <IconCmp /> : undefined;
         const providerAvatar = !disableProviderLogo && msg.role === "assistant" && msg.providerIcon?.src
