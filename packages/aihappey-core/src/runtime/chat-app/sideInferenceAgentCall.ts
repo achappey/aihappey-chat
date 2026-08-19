@@ -12,6 +12,9 @@ import { PROVIDERS } from "../providers/providerMetadata";
 
 type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall" | "toolSearch" | "resourceSearch";
 
+const supportsAgentProviderMetadata = (feature: SideInferenceFeature) =>
+  feature !== "toolSearch" && feature !== "resourceSearch";
+
 export type SideInferenceAgentCallOptions = {
   baseUrl?: string;
   getAccessToken?: () => Promise<string | null | undefined>;
@@ -228,11 +231,22 @@ export const invokeSideInferenceAgent = async ({
     const apiKeyHeaders = isDirectProviderRequest
       ? createProviderBearerHeadersForProviderKey(customHeaders, requestProviderKey, providers)
       : createChatAuthHeadersForModel(customHeaders, modelId, Boolean(accessToken), providers);
-    const directProviderRequestConfig = isDirectProviderRequest
-      ? (sanitizeProviderRequestConfigForProvider(asRecord(selectedAgent?.model?.providerMetadata), requestProviderKey, {
+    const agentProviderRequestConfig = sanitizeProviderRequestConfigForProvider(
+      asRecord(selectedAgent?.model?.providerMetadata),
+      providerKey,
+      {
         endpointId: "/v1/responses",
-      }) ?? {})
+      },
+    );
+    const directProviderRequestConfig = isDirectProviderRequest
+      ? (agentProviderRequestConfig ?? {})
       : {};
+    const gatewayProviderMetadata = !isDirectProviderRequest
+      && supportsAgentProviderMetadata(feature)
+      && providerKey
+      && agentProviderRequestConfig
+      ? { [providerKey]: agentProviderRequestConfig }
+      : undefined;
     const requestModel = isDirectProviderRequest
       ? resolveProviderRequestModelId({
         modelId,
@@ -247,6 +261,7 @@ export const invokeSideInferenceAgent = async ({
       instructions: selectedAgent?.instructions ?? fallbackInstructions,
       input: toInputText(input),
       stream: false,
+      metadata: gatewayProviderMetadata,
     });
 
     const response = await doFetch(url, {
