@@ -232,8 +232,8 @@ export const PluginEditModal = ({
   return (
     <theme.Modal show={open} onHide={onClose} title={mode === "create" ? t("pluginsPage.editor.newTitle") : plugin?.name ?? "New plugin"} size="large" actions={(
       <div style={{ display: "flex", gap: 8 }}>
+        <theme.Button variant="subtle" disabled={!!saving} onClick={onClose}>{t("cancel")}</theme.Button>
         <theme.Button variant="primary" disabled={!canSave} onClick={() => void onSave({ manifest: buildManifest(), files, mcpServers: plugin?.mcp?.mcpServers ?? {}, selectedSkillIds, selectedMcpIds, serverSettings })}>{saving ? t("saving") : t("save")}</theme.Button>
-        <theme.Button variant="secondary" disabled={!!saving} onClick={onClose}>{t("close")}</theme.Button>
       </div>
     )}>
       {error ? <div style={{ color: "#c00", marginBottom: 12 }}>{error}</div> : null}

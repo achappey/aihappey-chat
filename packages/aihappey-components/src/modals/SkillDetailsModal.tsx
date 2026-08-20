@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { useTheme } from "../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
+import { VersionBadge } from "../badges/VersionBadge";
 
 type SkillDetailsCatalogItem = {
   skillId: string;
@@ -121,17 +122,15 @@ export const SkillDetailsModal = ({
                 description={
                   <div style={badgeRowStyle}>
                     {skill.version ? (
-                      <Badge size="small" bg="subtle" icon="version">
-                        {skill.version}
-                      </Badge>
+                      <VersionBadge version={skill.version} />
                     ) : null}
-                    <Badge size="small" bg="subtle" icon="version">
-                      {tx(
+                    <VersionBadge
+                      version={tx(
                         "skillsPage.latestVersionBadge",
                         `Latest ${skill.latestVersion}`,
                         { version: skill.latestVersion }
                       )}
-                    </Badge>
+                    />
                   </div>
                 }
               >

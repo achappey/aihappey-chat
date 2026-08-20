@@ -124,6 +124,9 @@ export const SkillEditModal = ({
       size="large"
       actions={
         <div style={{ display: "flex", gap: 8 }}>
+          <Button variant="subtle" disabled={!!saving} onClick={onClose}>
+            {t("cancel")}
+          </Button>
           <Button
             variant="primary"
             disabled={!canSave}
@@ -135,9 +138,6 @@ export const SkillEditModal = ({
             })}
           >
             {saving ? tx("saving", "Saving…") : t("save")}
-          </Button>
-          <Button variant="secondary" disabled={!!saving} onClick={onClose}>
-            {tx("close", "Close")}
           </Button>
         </div>
       }
