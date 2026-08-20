@@ -13,11 +13,13 @@ import { useTheme } from "../theme/ThemeContext";
 import { formatFileSize } from "../cards/formatFileSize";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { ServerManagement } from "../forms/model-context/ServerManagement";
+import { VersionBadge } from "../badges/VersionBadge";
 
 export type PluginSkillOption = {
   id: string;
   label: string;
   description?: string;
+  version?: string;
   favorite?: boolean;
   iconUrl?: string;
 };
@@ -265,9 +267,9 @@ export const PluginEditModal = ({
         </div></theme.Tab>
         <theme.Tab eventKey="skills" icon="skills" title={t("skills")}><div style={{ display: "grid", gap: 18, paddingTop: 12 }}>
           <div style={{ width: 360, maxWidth: "100%" }}><theme.SearchBox value={skillSearch} onChange={setSkillSearch} placeholder={t("searchPlaceholder")} /></div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 330px), 1fr))", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
             {visibleSkills.map((option) => (
-              <theme.Card key={option.id} title={<span style={{ overflowWrap: "anywhere" }}>{option.label}</span>} size="small" image={option.iconUrl ? <theme.Image height={32} title={option.label} shape="square" src={option.iconUrl} /> : undefined} headerActions={<theme.Switch id={`plugin-skill-${option.id}`} label="" checked={selectedSkillIds.includes(option.id)} onChange={() => setSelectedSkillIds((current) => toggleValue(option.id, current))} />}>
+              <theme.Card key={option.id} title={<span style={{ overflowWrap: "anywhere" }}>{option.label}</span>} description={option.version ? <VersionBadge version={option.version} /> : undefined} size="small" image={option.iconUrl ? <theme.Image height={32} title={option.label} shape="square" src={option.iconUrl} /> : undefined} headerActions={<theme.Switch id={`plugin-skill-${option.id}`} label="" checked={selectedSkillIds.includes(option.id)} onChange={() => setSelectedSkillIds((current) => toggleValue(option.id, current))} />}>
                 <LimitedTextField text={option.description?.trim() || t("agentSkills.noDescription")} />
               </theme.Card>
             ))}

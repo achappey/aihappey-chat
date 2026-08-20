@@ -25,9 +25,16 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useChatContext } from "../chat/context/ChatContext";
+import { useDarkMode } from "usehooks-ts";
+import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 
 const PLUGIN_ALL_FILTER_VALUE = "__ALL__";
 const CONTENT_MAX_WIDTH = 760;
+
+const getProviderKeyFromSkillId = (skillId: string) => {
+  const parts = skillId.split("/").filter(Boolean);
+  return parts.length > 1 ? parts[0].toLowerCase() : null;
+};
 
 type PluginFilterSelections = {
   selectedKeywords: string[];
@@ -104,6 +111,7 @@ export const PluginsPage = () => {
   const theme = useTheme();
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
+  const isDarkMode = useDarkMode();
   const account = useAccount();
   const chat = useChatContext();
   const hasAuthenticatedAuthorIdentity = chat.config.getAccessToken != null;
@@ -295,17 +303,27 @@ export const PluginsPage = () => {
   );
 
   const skillOptions = useMemo(() => {
-    const catalog = skills.items.map((item) => ({
-    id: item.skillId,
-    label: item.name,
-    description: item.description,
-    favorite: favoriteSkillIds.includes(item.skillId),
-  }));
+    const catalog = skills.items.map((item) => {
+      const providerKey = item.origin === "remote" ? getProviderKeyFromSkillId(item.skillId) : null;
+      const providerIcons = providerKey ? PROVIDERS[providerKey]?.icons : undefined;
+      const iconUrl =
+        providerIcons?.find((icon) => icon.theme === (isDarkMode ? "dark" : "light"))?.src ??
+        providerIcons?.[0]?.src;
+
+      return {
+        id: item.skillId,
+        label: item.name,
+        description: item.description,
+        version: item.version,
+        favorite: favoriteSkillIds.includes(item.skillId),
+        iconUrl,
+      };
+    });
     const embedded = (editorPlugin?.skills ?? [])
       .filter((skill) => !catalog.some((item) => item.label === skill.name))
       .map((skill) => ({ id: `embedded:${skill.directory}`, label: skill.name, description: skill.description, favorite: false }));
     return [...catalog, ...embedded].sort((a, b) => a.label.localeCompare(b.label));
-  }, [editorPlugin?.skills, favoriteSkillIds, skills.items]);
+  }, [editorPlugin?.skills, favoriteSkillIds, isDarkMode, skills.items]);
 
   const initialSelectedSkillIds = useMemo(() => (editorPlugin?.skills ?? []).map((skill) =>
     skills.items.find((item) => item.name === skill.name)?.skillId ?? `embedded:${skill.directory}`
