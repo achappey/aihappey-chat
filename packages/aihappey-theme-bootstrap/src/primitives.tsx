@@ -10,9 +10,11 @@ import {
   CloseButton,
   Modal,
   Nav,
+  OverlayTrigger,
   Tab,
   Table,
   Tabs,
+  Tooltip,
 } from "react-bootstrap";
 import type { ComponentProps, JSX } from "react";
 import type { AihUiTheme, IconToken } from "aihappey-types";
@@ -414,12 +416,19 @@ export const bootstrapTheme: AihUiTheme = {
       title={icon ? <span className="d-inline-flex align-items-center gap-2">{iconMap[icon as IconToken]}{title}</span> : title}
     />
   ),
-  Badge: ({ icon, text, children, ...props }: any) => (
-    <Badge {...props}>
-      {icon ? <span className="me-1">{iconMap[icon as IconToken]}</span> : null}
-      {children ?? text}
-    </Badge>
-  ),
+  Badge: ({ icon, text, children, title, ...props }: any) => {
+    const badge = (
+      <Badge {...props}>
+        {icon ? <span className="me-1">{iconMap[icon as IconToken]}</span> : null}
+        {children ?? text}
+      </Badge>
+    );
+    return title ? (
+      <OverlayTrigger placement="top" overlay={<Tooltip>{title}</Tooltip>}>
+        {badge}
+      </OverlayTrigger>
+    ) : badge;
+  },
   Table: (props) => <Table {...props} />,
   CloseButton: (props) => <CloseButton {...props} />,
 

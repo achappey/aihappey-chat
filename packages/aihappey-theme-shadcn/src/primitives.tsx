@@ -793,7 +793,7 @@ const getBadgeToneClass = (tone?: string) => {
   return undefined;
 };
 
-export const Badge = ({ bg, color, appearance, variant = "default", icon, text, children, className, ...rest }: any) => {
+export const Badge = ({ bg, color, appearance, variant = "default", icon, text, children, className, title, ...rest }: any) => {
   const Icon = icon ? iconMap[icon as IconToken] : undefined;
   const tone = color ?? bg ?? (variant !== "default" ? variant : undefined) ?? (appearance !== "filled" ? appearance : undefined);
   const toneClass = getBadgeToneClass(tone);
@@ -810,7 +810,19 @@ export const Badge = ({ bg, color, appearance, variant = "default", icon, text, 
             : undefined;
   const mapped = visualVariant ?? toneClass ?? (tone ? "secondary" : "primary");
   const shouldApplyTone = Boolean(toneClass && mapped !== "ghost" && mapped !== "subtle" && mapped !== toneClass);
-  return <span className={cn("aih-shadcn-badge", `aih-shadcn-badge-${mapped}`, shouldApplyTone && `aih-shadcn-badge-tone-${toneClass}`, className)} {...rest}>{Icon ? <Icon size={12} /> : null}{children ?? text}</span>;
+  const badge = <span className={cn("aih-shadcn-badge", `aih-shadcn-badge-${mapped}`, shouldApplyTone && `aih-shadcn-badge-tone-${toneClass}`, className)} {...rest}>{Icon ? <Icon size={12} /> : null}{children ?? text}</span>;
+  return title ? (
+    <TooltipPrimitive.Provider>
+      <TooltipPrimitive.Root>
+        <TooltipPrimitive.Trigger asChild>{badge}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Portal>
+          <PortalThemeScope>
+            <TooltipPrimitive.Content className="aih-shadcn-popover aih-shadcn-tooltip-content" side="top" sideOffset={4}>{title}</TooltipPrimitive.Content>
+          </PortalThemeScope>
+        </TooltipPrimitive.Portal>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
+  ) : badge;
 };
 
 export const Card = ({ title, text, description, children, actions, headerActions, image, className, style }: any) => {

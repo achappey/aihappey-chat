@@ -607,8 +607,8 @@ function mapBadgeVariant(appearance?: string, variant?: string): any {
   return variant ?? "light";
 }
 
-export const Badge = ({ bg, color, appearance, variant, size, icon, text, children, style, ...rest }: any) => (
-  <MantineBadge
+export const Badge = ({ bg, color, appearance, variant, size, icon, text, children, style, title, ...rest }: any) => {
+  const badge = <MantineBadge
     color={mapColor(color ?? bg) ?? color ?? bg}
     variant={mapBadgeVariant(appearance, variant)}
     size={mapBadgeSize(size)}
@@ -618,8 +618,9 @@ export const Badge = ({ bg, color, appearance, variant, size, icon, text, childr
     {...rest}
   >
     {children ?? text}
-  </MantineBadge>
-);
+  </MantineBadge>;
+  return title ? <Tooltip label={title} position="top">{badge}</Tooltip> : badge;
+};
 
 export const Table = ({ striped, bordered, hover, children, className }: any) => <MantineTable striped={striped} withTableBorder={bordered} highlightOnHover={hover} className={className}>{children}</MantineTable>;
 

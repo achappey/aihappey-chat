@@ -557,9 +557,15 @@ export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className,
 
 export const Tab = ({ children }: any) => <>{children}</>;
 
-export const Badge = ({ bg, color, appearance, variant, size, icon, text, children, style, ...rest }: any) => (
-  <BadgeBase colorPalette={mapColor(color ?? bg) ?? color ?? bg ?? "gray"} variant={variant === "outline" || appearance === "outline" ? "outline" : appearance === "ghost" || appearance === "subtle" || appearance === "tint" ? "subtle" : "solid"} size={mapSize(size)} style={{ textTransform: "none", verticalAlign: "middle", ...style }} {...rest}>{icon ? renderIcon(icon, 12) : null}{children ?? text}</BadgeBase>
-);
+export const Badge = ({ bg, color, appearance, variant, size, icon, text, children, style, title, ...rest }: any) => {
+  const badge = <BadgeBase colorPalette={mapColor(color ?? bg) ?? color ?? bg ?? "gray"} variant={variant === "outline" || appearance === "outline" ? "outline" : appearance === "ghost" || appearance === "subtle" || appearance === "tint" ? "subtle" : "solid"} size={mapSize(size)} style={{ textTransform: "none", verticalAlign: "middle", ...style }} {...rest}>{icon ? renderIcon(icon, 12) : null}{children ?? text}</BadgeBase>;
+  return title ? (
+    <Chakra.Tooltip.Root positioning={{ placement: "top" }}>
+      <Chakra.Tooltip.Trigger asChild>{badge}</Chakra.Tooltip.Trigger>
+      <Chakra.Portal><Chakra.Tooltip.Positioner><Chakra.Tooltip.Content>{title}</Chakra.Tooltip.Content></Chakra.Tooltip.Positioner></Chakra.Portal>
+    </Chakra.Tooltip.Root>
+  ) : badge;
+};
 
 export const Table = ({ striped, bordered, hover, children, className }: any) => <Chakra.Table.Root striped={striped} interactive={hover} showColumnBorder={bordered} className={className}>{children}</Chakra.Table.Root>;
 
