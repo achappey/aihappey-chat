@@ -968,6 +968,7 @@
     "experimental": "Experimental",
     "execute": "Execute",
     "save": "Save",
+    "version": "Version",
     "storage": {
         "title": "Storage",
         "unavailable": "Unavailable",

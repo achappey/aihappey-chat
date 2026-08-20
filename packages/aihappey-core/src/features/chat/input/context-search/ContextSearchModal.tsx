@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppStore } from "aihappey-state";
-import { AuthorBadges, LimitedTextField, LocalToolsSettingsForm, PluginMetadataBadges, RegistryServerCard, useTheme } from "aihappey-components";
+import { AuthorBadges, LimitedTextField, LocalToolsSettingsForm, PluginMetadataBadges, RegistryServerCard, VersionBadge, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useLocalTools } from "aihappey-tools";
 import { useSkills } from "aihappey-skills";
@@ -302,9 +302,7 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
                     description={(
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
                         {skill.version ? (
-                          <Badge size="small" bg="subtle" icon="version">
-                            {skill.version}
-                          </Badge>
+                          <VersionBadge version={skill.version} />
                         ) : null}
                       </div>
                     )}

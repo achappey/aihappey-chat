@@ -5,6 +5,7 @@ import { LimitedTextField } from "../fields/LimitedTextField";
 import { CapabilityIcon } from "../images/CapabilityIcon";
 import { useTranslation } from "aihappey-i18n";
 import { getRepositoryUrl } from "./getRepositoryUrl";
+import { VersionBadge } from "../badges/VersionBadge";
 
 type RegistryServerCardProps = {
   serverItem: McpRegistryServerResponse;
@@ -20,7 +21,7 @@ export const RegistryServerCard = ({ serverItem,
   const { name, websiteUrl, remotes,
     description, title, version } = serverItem.server;
   const url = remotes?.find(a => a.type == "streamable-http")?.url;
-  const { Card, Button, Badge } = useTheme();
+  const { Card, Button } = useTheme();
   const { t } = useTranslation();
   const renderedDescription = renderDescription?.();
   
@@ -42,7 +43,7 @@ export const RegistryServerCard = ({ serverItem,
       title={title ?? name}
       description={version ? (
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <Badge size="small" bg="subtle" icon="version">{version}</Badge>
+          <VersionBadge version={version} />
           {renderedDescription}
         </div>
       ) : renderedDescription}

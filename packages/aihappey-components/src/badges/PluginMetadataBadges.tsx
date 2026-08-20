@@ -1,5 +1,6 @@
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
+import { VersionBadge } from "./VersionBadge";
 
 export type PluginMetadataBadgesProps = {
   version?: string;
@@ -17,7 +18,7 @@ export const PluginMetadataBadges = ({
 
   return (
     <>
-      {version ? <Badge size="small" bg="subtle" icon="version">{version}</Badge> : null}
+      {version ? <VersionBadge version={version} /> : null}
       {skillCount > 0 ? (
         <Badge size="small" appearance="neutral" icon="skills">{t("skills")}</Badge>
       ) : null}

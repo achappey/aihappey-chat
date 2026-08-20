@@ -5,6 +5,7 @@ import { useDarkMode } from "usehooks-ts";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTheme } from "../theme/ThemeContext";
 import { SkillFavoriteToggleButton } from "../buttons/SkillFavoriteToggleButton";
+import { VersionBadge } from "../badges/VersionBadge";
 
 export type SkillCardItem = {
   id: string;
@@ -77,9 +78,7 @@ export const SkillCard = ({ skill, onDelete, onDownload, onView, isFavorite = fa
   const description = (
     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
       {skill.version ? (
-        <Badge size="small" bg="subtle" icon="version">
-          {skill.version}
-        </Badge>
+        <VersionBadge version={skill.version} />
       ) : null}
       {skill.downloadState === "error" ? (
         <Badge size="small" bg="danger">

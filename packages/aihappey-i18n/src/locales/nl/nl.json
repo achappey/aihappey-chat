@@ -301,6 +301,7 @@
     "video": "Video",
     "audio": "Audio",
     "save": "Opslaan",
+    "version": "Versie",
     "sources": "Bronnen",
     "addToFiles": "Toevoegen aan bestanden",
     "fileAdded": "{{filename}} toegevoegd",
