@@ -302,11 +302,10 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
                     description={(
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
                         {skill.version ? (
-                          <Badge size="small" bg="subtle">
-                            {t("skillsPage.versionBadge", { version: skill.version }) ?? `v${skill.version}`}
+                          <Badge size="small" bg="subtle" icon="version">
+                            {skill.version}
                           </Badge>
                         ) : null}
-                        {favoriteSkillSet.has(skill.id) ? <span>{t("favorites")}</span> : null}
                       </div>
                     )}
                     size="small"
