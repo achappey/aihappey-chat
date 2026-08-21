@@ -39,8 +39,13 @@ export function useReadResourceToolCall(opts: {
       const { serverUrl, uri, cursor, limit } = toolCall.input ?? {};
 
       if (!serverUrl) throw new Error("Missing serverUrl.");
+
+      if (connectedUrls.length === 0) {
+        throw new Error("No MCP servers are connected.");
+      }
+
       if (!connectedUrls.includes(serverUrl)) {
-        throw new Error("Invalid url. Connected servers: " + connectedUrls.join("\n"));
+        throw new Error("Invalid url. Connected MCP servers: " + connectedUrls.join("\n"));
       }
 
       if (!uri) throw new Error("Missing uri.");
