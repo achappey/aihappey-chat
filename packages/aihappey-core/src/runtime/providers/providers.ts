@@ -314,7 +314,7 @@ import { gonkagate } from "./catalog/gonkagate";
 import { agentaigateway } from "./catalog/agentaigateway";
 import { aicredits } from "./catalog/aicredits";
 import { fastrouter } from "./catalog/fastrouter";
-import { dubrify } from "./catalog/dubrify";
+import { lazu } from "./catalog/lazu";
 import { andyapi } from "./catalog/andyapi";
 import { aki } from "./catalog/aki";
 import { getgoapi } from "./catalog/getgoapi";
@@ -816,7 +816,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   kimrel,
   agentaigateway,
   ezai,
-  dubrify,
+  lazu,
   askcodi,
   martian,
   huggingface,
