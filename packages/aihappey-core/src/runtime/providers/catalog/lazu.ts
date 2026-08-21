@@ -2,9 +2,9 @@ import type { Provider } from "aihappey-types";
 
 export const lazu: Provider = {
   name: "Lazu",
-  description: "Everyon's AI calls run through lazu: hand out per-person quota, issue API keys, and see exactly who spent what.",
+  description: "Everyone's AI calls run through lazu: hand out per-person quota, issue API keys, and see exactly who spent what.",
   icons: [{
-    src: "https://dubrify.com/favicon-32x32.png"
+    src: "https://lazu.ai/apple-touch-icon.png"
   }],
   urls: {
     homepage: "https://lazu.ai",

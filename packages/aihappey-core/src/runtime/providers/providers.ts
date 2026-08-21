@@ -281,7 +281,6 @@ import { nrpnautilus } from "./catalog/nrpnautilus";
 import { eagm } from "./catalog/eagm";
 import { edgee } from "./catalog/edgee";
 import { viablelab } from "./catalog/viablelab";
-import { dreamgen } from "./catalog/dreamgen";
 import { llm7 } from "./catalog/llm7";
 import { kimrel } from "./catalog/kimrel";
 import { keyplex } from "./catalog/keyplex";
@@ -835,7 +834,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   llmkiwi,
   viablelab,
   llm7,
-  dreamgen,
   unbound,
   airouter,
   edgee,
