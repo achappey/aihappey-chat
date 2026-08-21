@@ -358,7 +358,6 @@ import { runapi } from "./catalog/runapi";
 import { gaterouter } from "./catalog/gaterouter";
 import { baseapi } from "./catalog/baseapi";
 import { teamday } from "./catalog/teamday";
-import { oxoapi } from "./catalog/oxoapi";
 import { chutes } from "./catalog/chutes";
 import { vivgrid } from "./catalog/vivgrid";
 import { ambient } from "./catalog/ambient";
@@ -759,7 +758,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   miapi,
   ambient,
   baseapi,
-  oxoapi,
   preapi,
   mljunction,
   addisai,
