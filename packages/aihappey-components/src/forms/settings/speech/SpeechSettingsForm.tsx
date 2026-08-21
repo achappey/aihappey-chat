@@ -31,6 +31,7 @@ export const SpeechSettingsForm: React.FC<SpeechSettingsFormProps> = ({
     { value: "flac", label: "FLAC" },
     { value: "pcm", label: "PCM" },
   ];
+  const selectedOutputFormat = value.outputFormat || "auto";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -38,6 +39,7 @@ export const SpeechSettingsForm: React.FC<SpeechSettingsFormProps> = ({
         <div>
           <theme.Input
             label={t("speechSettings.voice")}
+            placeholder={t("speechSettings.voicePlaceholder")}
             value={value.voice ?? ""}
             onChange={(e: any) => {
               const raw = String(e.target.value ?? "").trim();
@@ -45,29 +47,50 @@ export const SpeechSettingsForm: React.FC<SpeechSettingsFormProps> = ({
             }}
           />
 
-          <theme.Input
-            label={t("outputFormat")}
-            value={value.outputFormat}
-            onChange={(val) =>
-              onChange({
-                ...value,
-                outputFormat: val.target.value === "auto" ? undefined : val.target.value,
-              })
-            }
-          />
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: 12,
+              width: "100%",
+            }}
+          >
+            <theme.Select
+              label={t("outputFormat")}
+              values={[selectedOutputFormat]}
+              valueTitle={
+                outputFormatOptions.find(
+                  (option) => option.value === selectedOutputFormat
+                )?.label ?? t("providerDefault")
+              }
+              options={outputFormatOptions}
+              onChange={(selected: string) =>
+                onChange({
+                  ...value,
+                  outputFormat: selected === "auto" ? undefined : selected,
+                })
+              }
+            >
+              {outputFormatOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </theme.Select>
 
-          <theme.Input
-            label={t("speechSettings.speed", { speed: value.speed ?? 1 })}
-            type="number"
-            value={value.speed ?? ""}
-            onChange={(v) => onChange({
-              ...value, speed: v.target.value && v.target.value.length > 0 ?
-                Number(v.target.value) : undefined
-            })}
-          />
+            <theme.Slider
+              label={t("speechSettings.speedWithValue", { speed: value.speed ?? 1 })}
+              min={0.5}
+              max={2.0}
+              step={0.1}
+              value={value.speed ?? 1}
+              onChange={(speed: number) => onChange({ ...value, speed })}
+            />
+          </div>
 
           <theme.Input
             label={t("language")}
+            placeholder={t("speechSettings.languagePlaceholder")}
             value={value.language ?? ""}
             onChange={(e: any) => {
               const raw = String(e.target.value ?? "").trim();
@@ -77,6 +100,7 @@ export const SpeechSettingsForm: React.FC<SpeechSettingsFormProps> = ({
 
           <theme.TextArea
             label={t("instructions")}
+            placeholder={t("speechSettings.instructionsPlaceholder")}
             rows={4}
             value={value.instructions ?? ""}
             onChange={(v: string) =>

@@ -222,6 +222,9 @@
     "speechSettings": {
         "title": "Speech settings",
         "voice": "Voice",
+        "voicePlaceholder": "Enter a provider-specific voice ID or name...",
+        "languagePlaceholder": "Enter an ISO 639-1 language code, e.g. en, es, or fr...",
+        "instructionsPlaceholder": "Describe how the generated speech should sound...",
         "sampleRate": "Sample rate",
         "outputFormat": "Output format",
         "volume": "Volume",

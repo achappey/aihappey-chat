@@ -273,6 +273,9 @@
     "speechSettings": {
         "title": "Spraakinstellingen",
         "voice": "Stem",
+        "voicePlaceholder": "Voer een providerspecifieke stem-ID of naam in...",
+        "languagePlaceholder": "Voer een ISO 639-1-taalcode in, bijv. nl, en of fr...",
+        "instructionsPlaceholder": "Beschrijf hoe de gegenereerde spraak moet klinken...",
         "sampleRate": "Samplefrequentie",
         "speed": "Snelheid",
         "speedWithValue": "Snelheid ({{speed}}x)"
