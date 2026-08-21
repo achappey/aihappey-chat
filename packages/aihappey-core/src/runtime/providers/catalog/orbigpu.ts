@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
-export const orbgpu: Provider = {
-  name: "OrbGPU",
+export const orbigpu: Provider = {
+  name: "OrbiGPU",
   description: "Access GPT-4o, Claude, Gemini, DeepSeek and 10+ top AI models through one OpenAI-compatible API.",
   urls: {
     homepage: "https://orbigpu.com",

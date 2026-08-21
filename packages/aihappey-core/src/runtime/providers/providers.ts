@@ -393,7 +393,7 @@ import { foureverland } from "./catalog/foureverland";
 import { fivedock } from "./catalog/fivedock";
 import { magisterium } from "./catalog/magisterium";
 import { uncensoredchat } from "./catalog/uncensoredchat";
-import { orbgpu } from "./catalog/orbgpu";
+import { orbigpu } from "./catalog/orbigpu";
 import { opengateway } from "./catalog/opengateway";
 import { omniakey } from "./catalog/omniakey";
 import { mumeai } from "./catalog/mumeai";
@@ -709,7 +709,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   trustedrouter,
   nouswise,
   clawhub,
-  orbgpu,
+  orbigpu,
   ecoia,
   embercloud,
   opengateway,
