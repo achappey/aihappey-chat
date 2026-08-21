@@ -8,6 +8,7 @@ export const fastrouter: Provider = {
   }],
   urls: {
     homepage: "https://fastrouter.ai",
+    pricing: "https://fastrouter.ai/pricing",
     docs: "https://docs.fastrouter.ai",
     privacyPolicy: "https://fastrouter.ai/privacy",
     termsOfService: "https://fastrouter.ai/terms"
