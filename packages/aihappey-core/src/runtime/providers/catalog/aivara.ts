@@ -4,6 +4,7 @@ export const aivara: Provider = {
   name: "Aivara",
   description:
     "Aivara is your curated AI tools directory – like a playstore for AI. Discover the best AI tools, compare pricing, read reviews, and learn how to use them with tutorials and guides.",
+  icons: [{ src: "https://www.aivara-ai.com/lovable-uploads/b82302f7-e3fc-4f22-9792-8d1d460a6e49.png" }],
   urls: {
     homepage: "https://www.aivara-ai.com",
     docs: "https://developers.aivara-ai.com/docs",
