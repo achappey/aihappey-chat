@@ -239,7 +239,7 @@ import { ishi } from "./catalog/ishi";
 import { payperq } from "./catalog/payperq";
 import { swarms } from "./catalog/swarms";
 import { docsrouter } from "./catalog/docsrouter";
-import { skillboss } from "./catalog/skillboss";
+import { agentsky } from "./catalog/agentsky";
 import { ocrskill } from "./catalog/ocrskill";
 import { nexusify } from "./catalog/nexusify";
 import { litai } from "./catalog/litai";
@@ -883,7 +883,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   nexusify,
   docsrouter,
   tokenflux,
-  skillboss,
+  agentsky,
   ishi,
   pixcode,
   payperq,
