@@ -399,7 +399,7 @@ import { omniakey } from "./catalog/omniakey";
 import { mumeai } from "./catalog/mumeai";
 import { nouswise } from "./catalog/nouswise";
 import { shengsuanyun } from "./catalog/shengsuanyun";
-import { opensourceaihub } from "./catalog/opensourceaihub";
+import { occludra } from "./catalog/occludra";
 import { citadelis } from "./catalog/citadelis";
 import { finora } from "./catalog/finora";
 import { geekai } from "./catalog/geekai";
@@ -497,7 +497,6 @@ import { callmissed } from "./catalog/callmissed";
 import { realrouter } from "./catalog/realrouter";
 import { picklyone } from "./catalog/picklyone";
 import { opengate } from "./catalog/opengate";
-import { keymeai } from "./catalog/keymeai";
 import { mycoai } from "./catalog/mycoai";
 import { scalixworld } from "./catalog/scalixworld";
 import { apipass } from "./catalog/apipass";
@@ -647,7 +646,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   merge,
   virouter,
   zyloapi,
-  keymeai,
   chatqt,
   opuscode,
   opengate,
@@ -706,7 +704,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   gatemind,
   tinyfish,
   shengsuanyun,
-  opensourceaihub,
+  occludra,
   omniakey,
   trustedrouter,
   nouswise,
