@@ -85,7 +85,54 @@
     "local": "Local",
     "storageQuotaMessage": "Your browser storage is full. Remove some chats or other items and try again.",
     "vectorStorePage": {
-        "description": "Document hubs bring information from different documents together in one place. This helps you quickly find and use the right information when you need it. Your knowledge stays organized, up to date, and easy to use across different applications."
+        "description": "Document hubs bring information from different documents together in one place. This helps you quickly find and use the right information when you need it. Your knowledge stays organized, up to date, and easy to use across different applications.",
+        "overview": {
+            "searchPlaceholder": "Search document hubs...",
+            "empty": "No document hubs found."
+        },
+        "tabs": {
+            "general": "General",
+            "documents": "Documents",
+            "search": "Search"
+        },
+        "fields": {
+            "embeddingModel": "Embedding model",
+            "vectorSize": "Vector size",
+            "chunks": "Chunks",
+            "characters": "Characters",
+            "chunkSize": "Chunk size (characters)",
+            "chunkOverlap": "Chunk overlap (characters)"
+        },
+        "documents": {
+            "add": "Add documents",
+            "empty": "Add documents to make this hub searchable."
+        },
+        "general": {
+            "noDescription": "No description"
+        },
+        "search": {
+            "query": "Search query",
+            "placeholder": "Search this document hub...",
+            "limit": "Maximum results",
+            "similarity": "Minimum similarity",
+            "searching": "Searching…",
+            "noMatches": "No matching document content found."
+        },
+        "edit": {
+            "action": "Edit",
+            "title": "Edit document hub",
+            "newTitle": "New document hub",
+            "saving": "Saving…",
+            "chunkSettingsLocked": "Chunk settings are read-only while this hub contains documents.",
+            "dropDocuments": "Drop documents here or choose documents to add.",
+            "chooseDocuments": "Choose documents",
+            "stagedDocument": "Ready to index after saving"
+        },
+        "processing": "Processing…",
+        "errors": {
+            "unsupportedDocument": "Unsupported or empty document: {{name}}",
+            "noChunks": "No text chunks were produced."
+        }
     },
     "skillsPage": {
         "description": "An overview of all available skills for tasks and workflows. For each skill, you see what it does, when to use it, and how it differs from others. This helps you quickly choose the right option. Skills combine instructions, logic, and execution in a consistent structure for clarity, repeatability, and control.",

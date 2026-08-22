@@ -467,6 +467,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ email, onCustomize, onSettin
     { key: "speech", label: labels.speech ?? "Speech", providers: providerGroups.speech ?? [] },
     { key: "reranking", label: labels.reranking ?? "Reranking", providers: providerGroups.reranking ?? [] },
     { key: "video", label: labels.video ?? "Video", providers: providerGroups.video ?? [] },
+    { key: "embedding", label: labels.embedding ?? "Embedding", providers: providerGroups.embedding ?? [] },
   ];
   const capabilities = capabilityDefinitions.filter((capability) => capability.providers.length > 0);
   return (

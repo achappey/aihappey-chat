@@ -27,9 +27,10 @@ export interface ChatConfig extends AiChatConfig {
   defaultChatEndpoint?: ChatEndpointId;
   gatewayEnabled?: boolean;
   defaultProvidersByType?: Partial<{
-    language: string[];
-    image: string[];
-    audio: string[];
+   language: string[];
+   image: string[];
+    embedding: string[];
+   audio: string[];
     transcription: string[];
     speech: string[];
     reranking: string[];

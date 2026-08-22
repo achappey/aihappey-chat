@@ -50,7 +50,7 @@ import {
 import type { Agent } from "aihappey-types";
 import { ApiKeyUnlockHost } from "../features/provider-credentials/ApiKeyUnlockHost";
 import { AgentPluginRuntimeBinding } from "../runtime/plugins/AgentPluginRuntimeBinding";
-import { DocumentHubsProvider } from "aihappey-embeddings";
+import { VectorStoresProvider } from "aihappey-embeddings";
 
 const EMPTY_SKILL_NAMES: string[] = [];
 
@@ -344,7 +344,7 @@ export const CoreShell: React.FC<Props> = ({
       <DndProvider backend={HTML5Backend}>
         <McpServerBootstrap />
         <ImagesProvider storageKind={"indexeddb"}>
-          <DocumentHubsProvider>
+          <VectorStoresProvider>
             <ToolsProvider storageKind={"indexeddb"}>
             <FilesProvider>
               <RerankingProvider>
@@ -393,7 +393,7 @@ export const CoreShell: React.FC<Props> = ({
               </RerankingProvider>
             </FilesProvider>
             </ToolsProvider>
-          </DocumentHubsProvider>
+          </VectorStoresProvider>
         </ImagesProvider>
       </DndProvider>
     </I18nProvider >

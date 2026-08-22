@@ -96,6 +96,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         providers: g.reranking ?? [],
       },
       { key: "video", label: labels.video ?? "Video", providers: g.video ?? [] },
+      { key: "embedding", label: labels.embedding ?? "Embedding", providers: g.embedding ?? [] },
     ];
 
     return defs

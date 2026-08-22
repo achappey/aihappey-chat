@@ -6,6 +6,7 @@ import type { UserMenuLabels } from "../i18n";
 export type ProviderCapability =
   | "language"
   | "image"
+  | "embedding"
   | "audio"
   | "transcription"
   | "speech"
@@ -51,7 +52,7 @@ export type UserMenuProps = {
   /**
    * Optional provider groups for capability-based menus.
    *
-   * Key is the capability / model type (e.g. "language", "image", "audio", "speech",
+   * Key is the capability / model type (e.g. "language", "image", "embedding", "audio", "speech",
    * "transcription", "reranking"). Values are provider display names.
    *
    * Providers may appear in multiple groups if they support multiple capabilities.

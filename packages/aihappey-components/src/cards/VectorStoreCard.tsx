@@ -6,10 +6,9 @@ export type VectorStoreCardProps = {
   description?: string;
   model: string;
   chunks: number;
-  onOpen: () => void;
-  onEdit: () => void;
+  onView: () => void;
   onDelete: () => void;
-  labels?: { chunks?: string; edit?: string; delete?: string };
+  labels?: { chunks?: string; view?: string; delete?: string };
 };
 
 export const VectorStoreCard = ({
@@ -17,23 +16,20 @@ export const VectorStoreCard = ({
   description,
   model,
   chunks,
-  onOpen,
-  onEdit,
+  onView,
   onDelete,
   labels,
 }: VectorStoreCardProps) => {
   const { Card, Button, Menu } = useTheme();
   return (
-    <div onClick={onOpen} role="button" tabIndex={0} onKeyDown={(event) => event.key === "Enter" && onOpen()}>
-      <Card
+    <Card
         title={name}
         description={`${model} · ${chunks} ${labels?.chunks ?? "chunks"}`}
         size="small"
-        actions={<Button icon="edit" size="small" variant="transparent" title={labels?.edit ?? "Edit"} onClick={(event: any) => { event.stopPropagation(); onEdit(); }} />}
-        headerActions={<div onClick={(event) => event.stopPropagation()}><Menu items={[{ key: "delete", label: labels?.delete ?? "Delete", danger: true, onClick: onDelete }]} /></div>}
+        actions={<Button icon="eye" size="small" variant="transparent" title={labels?.view ?? "View"} onClick={onView} />}
+        headerActions={<Menu items={[{ key: "delete", label: labels?.delete ?? "Delete", danger: true, onClick: onDelete }]} />}
       >
         <LimitedTextField text={description || " "} />
       </Card>
-    </div>
   );
 };

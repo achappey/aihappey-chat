@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { VectorStoreCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import {
   getVectorStoreChunkCount,
+  chunkText,
+  insertVectorStoreChunks,
+  removeVectorStoreSource,
   useVectorStores,
   type VectorStore,
 } from "aihappey-embeddings";
@@ -10,14 +12,17 @@ import { useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { VectorStoreEditModal, type VectorStoreFormValue } from "./VectorStoreEditModal";
+import { VectorStoreEditModal, type VectorStoreEditSaveValue } from "./VectorStoreEditModal";
 import { createVectorStoreEmbeddingClient } from "./embeddingClient";
 import { useTranslation } from "aihappey-i18n";
+import { VectorStoreDetailModal } from "./VectorStoreDetailModal";
+import { extractTextFromFile } from "../chat/files/file";
+
+const EMBEDDING_BATCH_SIZE = 32;
 
 export const VectorStoresPage = () => {
   const { SearchBox, Text } = useTheme();
   const isDesktop = useIsDesktop();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const hubs = useVectorStores();
   const models = useAppStore((state) => state.models);
@@ -26,6 +31,7 @@ export const VectorStoresPage = () => {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<VectorStore | undefined>();
+  const [viewingId, setViewingId] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -37,18 +43,39 @@ export const VectorStoresPage = () => {
 
   const openCreate = () => { setEditing(undefined); setError(undefined); setModalOpen(true); };
   const openEdit = (hub: VectorStore) => { setEditing(hub); setError(undefined); setModalOpen(true); };
-  const saveHub = async (value: VectorStoreFormValue) => {
+  const saveHub = async (value: VectorStoreEditSaveValue) => {
     setBusy(true);
     setError(undefined);
     try {
+      const { addedFiles, removedSources, ...formValue } = value;
+      let saved: VectorStore;
       if (editing) {
-        await hubs.update(editing.id, value);
+        saved = await hubs.update(editing.id, formValue);
       } else {
         const embed = createVectorStoreEmbeddingClient(config, customHeaders);
         const probeText = [value.name.trim(), value.description.trim()].filter(Boolean).join("\n\n");
         const [vector] = await embed(value.model, [probeText || value.name]);
-        await hubs.add({ ...value, vectorSize: vector.length });
+        saved = await hubs.add({ ...formValue, vectorSize: vector.length });
       }
+      for (const filename of removedSources) saved = await removeVectorStoreSource(saved, filename);
+      if (addedFiles.length) {
+        const embed = createVectorStoreEmbeddingClient(config, customHeaders);
+        const plainChunks: { filename: string; content: string }[] = [];
+        for (const file of addedFiles) {
+          const content = await extractTextFromFile(file);
+          if (!content?.trim()) throw new Error(t("vectorStorePage.errors.unsupportedDocument", { name: file.name }));
+          for (const contentChunk of chunkText(content, saved.chunkSize, saved.chunkOverlap)) plainChunks.push({ filename: file.name, content: contentChunk });
+        }
+        if (!plainChunks.length) throw new Error(t("vectorStorePage.errors.noChunks"));
+        const chunks: { filename: string; content: string; embedding: number[] }[] = [];
+        for (let start = 0; start < plainChunks.length; start += EMBEDDING_BATCH_SIZE) {
+          const batch = plainChunks.slice(start, start + EMBEDDING_BATCH_SIZE);
+          const vectors = await embed(saved.model, batch.map((chunk) => chunk.content));
+          vectors.forEach((embedding, index) => chunks.push({ ...batch[index], embedding }));
+        }
+        saved = await insertVectorStoreChunks(saved, chunks);
+      }
+      if (removedSources.length || addedFiles.length) await hubs.replace(saved);
       setModalOpen(false);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -59,19 +86,20 @@ export const VectorStoresPage = () => {
 
   return (
     <>
-      <StickyHeaderActionBar actionLabel="Add" onAction={openCreate} />
+      <StickyHeaderActionBar actionLabel={t("add")} onAction={openCreate} />
       <div style={{ width: 900, maxWidth: "100%", margin: "0 auto", padding: isDesktop ? 0 : 12, boxSizing: "border-box" }}>
         <OverviewPageHeader title={t('vectorStores')} />
         <Text as="p" align="center">{t('vectorStorePage.description')}</Text>
         <div style={{ width: 360, maxWidth: "100%", margin: "0 auto 20px" }}>
           <SearchBox value={search} onChange={setSearch}
-            placeholder="Search document hubs" autoFocus={isDesktop} />
+            placeholder={t("vectorStorePage.overview.searchPlaceholder")} autoFocus={isDesktop} />
         </div>
         {visible.length ? <div style={{ width: "100%", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 16 }}>
-          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} chunks={getVectorStoreChunkCount(hub)} onOpen={() => navigate(`/file-search/${encodeURIComponent(hub.id)}`)} onEdit={() => openEdit(hub)} onDelete={() => void hubs.delete(hub.id)} />)}
-        </div> : <Text as="p" align="center">No document hubs found.</Text>}
+          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} chunks={getVectorStoreChunkCount(hub)} onView={() => setViewingId(hub.id)} onDelete={() => void hubs.delete(hub.id)} labels={{ chunks: t("vectorStorePage.fields.chunks").toLocaleLowerCase(), view: t("view"), delete: t("delete") }} />)}
+        </div> : <Text as="p" align="center">{t("vectorStorePage.overview.empty")}</Text>}
       </div>
-      <VectorStoreEditModal open={modalOpen} hub={editing} hasChunks={editing ? getVectorStoreChunkCount(editing) > 0 : false} models={models ?? []} busy={busy} error={error} onClose={() => setModalOpen(false)} onSave={saveHub} />
+      <VectorStoreEditModal open={modalOpen} hub={editing} models={models ?? []} busy={busy} error={error} onClose={() => setModalOpen(false)} onSave={saveHub} />
+      <VectorStoreDetailModal open={!!viewingId} hub={hubs.items.find((hub) => hub.id === viewingId)} onClose={() => setViewingId(undefined)} onEdit={(hub) => { setViewingId(undefined); openEdit(hub); }} onReplace={hubs.replace} />
     </>
   );
 };

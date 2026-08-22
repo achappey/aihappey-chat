@@ -116,6 +116,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
     const byCap: Record<ProviderCapability, Set<string>> = {
       language: new Set<string>(),
       image: new Set<string>(),
+      embedding: new Set<string>(),
       audio: new Set<string>(),
       speech: new Set<string>(),
       transcription: new Set<string>(),
@@ -201,6 +202,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
           // Capability submenu labels (translated in the parent).
           language: t("language"),
           image: t("image"),
+          embedding: t("embedding"),
           audio: t("realtime"),
           speech: t("speech"),
           next: t("next"),

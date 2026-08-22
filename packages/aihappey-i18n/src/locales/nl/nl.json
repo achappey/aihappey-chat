@@ -88,7 +88,54 @@
     "selectAgentForJob": "Selecteer minimaal één agent voor de opdracht.",
     "storageQuotaMessage": "Je browseropslag is vol. Verwijder enkele chats of andere items en probeer het opnieuw.",
     "vectorStorePage": {
-        "description": "Documenthubs brengen informatie uit verschillende documenten samen op één plek. Zo kan je snel de juiste informatie vinden en gebruiken wanneer die nodig is. Je houdt kennis overzichtelijk, actueel en eenvoudig beschikbaar voor verschillende toepassingen."
+        "description": "Documenthubs brengen informatie uit verschillende documenten samen op één plek. Zo kan je snel de juiste informatie vinden en gebruiken wanneer die nodig is. Je houdt kennis overzichtelijk, actueel en eenvoudig beschikbaar voor verschillende toepassingen.",
+        "overview": {
+            "searchPlaceholder": "Documenthubs zoeken...",
+            "empty": "Geen documenthubs gevonden."
+        },
+        "tabs": {
+            "general": "Algemeen",
+            "documents": "Bestanden",
+            "search": "Zoeken"
+        },
+        "fields": {
+            "embeddingModel": "Embeddingmodel",
+            "vectorSize": "Vectorgrootte",
+            "chunks": "Fragmenten",
+            "characters": "Tekens",
+            "chunkSize": "Fragmentgrootte (tekens)",
+            "chunkOverlap": "Fragmentoverlap (tekens)"
+        },
+        "documents": {
+            "add": "Documenten toevoegen",
+            "empty": "Voeg documenten toe om deze hub doorzoekbaar te maken."
+        },
+        "general": {
+            "noDescription": "Geen beschrijving"
+        },
+        "search": {
+            "query": "Zoekopdracht",
+            "placeholder": "Zoek in deze documenthub...",
+            "limit": "Maximumaantal resultaten",
+            "similarity": "Minimale overeenkomst",
+            "searching": "Zoeken…",
+            "noMatches": "Geen overeenkomende documentinhoud gevonden."
+        },
+        "edit": {
+            "action": "Bewerken",
+            "title": "Documenthub bewerken",
+            "newTitle": "Nieuwe documenthub",
+            "saving": "Opslaan…",
+            "chunkSettingsLocked": "Fragmentinstellingen zijn alleen-lezen zolang deze hub documenten bevat.",
+            "dropDocuments": "Sleep documenten hierheen of kies documenten om toe te voegen.",
+            "chooseDocuments": "Documenten kiezen",
+            "stagedDocument": "Klaar om na het opslaan te indexeren"
+        },
+        "processing": "Verwerken…",
+        "errors": {
+            "unsupportedDocument": "Niet-ondersteund of leeg document: {{name}}",
+            "noChunks": "Er zijn geen tekstfragmenten gemaakt."
+        }
     },
     "skillsPage": {
         "editor": {

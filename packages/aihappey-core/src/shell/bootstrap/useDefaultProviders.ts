@@ -16,6 +16,20 @@ export function useDefaultProviders(defaultProvidersByType?: DefaultProvidersByT
     const hasAnyEnabled = Object.values(current).some((list) => (list?.length ?? 0) > 0);
     if (!hasAnyEnabled) {
       setEnabledProvidersByType(defaultProvidersByType ?? {});
+      return;
+    }
+
+    const missingDefaults = Object.fromEntries(
+      Object.entries(defaultProvidersByType ?? {}).filter(
+        ([capability]) => !Object.prototype.hasOwnProperty.call(current, capability),
+      ),
+    ) as DefaultProvidersByType;
+
+    if (Object.keys(missingDefaults).length > 0) {
+      setEnabledProvidersByType({
+        ...current,
+        ...missingDefaults,
+      });
     }
   }, [defaultProvidersByType, enabledProvidersByType, setEnabledProvidersByType]);
 }

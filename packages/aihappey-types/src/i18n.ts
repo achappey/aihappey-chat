@@ -13,6 +13,7 @@ export interface UserMenuLabels {
   /** Optional labels for provider capability submenus (Fluent theme). */
   language?: string;
   image?: string;
+  embedding?: string;
   audio?: string;
   speech?: string;
   transcription?: string;

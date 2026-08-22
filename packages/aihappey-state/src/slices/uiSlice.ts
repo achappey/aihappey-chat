@@ -97,6 +97,7 @@ export const mcpRuntime = new Map<string, Client>();
 export const PROVIDER_CAPABILITIES = [
   "language",
   "image",
+  "embedding",
   "audio",
   "transcription",
   "speech",
@@ -154,6 +155,7 @@ export const normalizeCustomProviders = (providers: unknown): CustomProvidersByK
 export const createEmptyEnabledProvidersByType = (): EnabledProvidersByType => ({
   language: [],
   image: [],
+  embedding: [],
   audio: [],
   transcription: [],
   speech: [],
@@ -164,6 +166,7 @@ export const createEmptyEnabledProvidersByType = (): EnabledProvidersByType => (
 export const createEmptyFavoriteModelsByType = (): FavoriteModelsByType => ({
   language: [],
   image: [],
+  embedding: [],
   audio: [],
   transcription: [],
   speech: [],
