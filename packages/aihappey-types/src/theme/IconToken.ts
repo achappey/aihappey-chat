@@ -26,6 +26,8 @@ export type IconToken =
   | "gateway_router"
   | "inference_compute"
   | "media_voice"
+  | "vectorStore"
+  | "embedding"
   | "search_data"
   | "plugins"
   | "app_tools"

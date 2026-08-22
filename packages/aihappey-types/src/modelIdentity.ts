@@ -34,5 +34,3 @@ export const getModelDisplayId = (model?: ModelOption | null, fallbackModelId?: 
 export const getModelDisplayName = (model?: ModelOption | null, fallbackModelId?: string) =>
   model?.name || getModelDisplayId(model, fallbackModelId);
 
-export const isUserVisibleModel = (model?: ModelOption | null) => model?.type !== "embedding";
-
