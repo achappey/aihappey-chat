@@ -25,6 +25,7 @@
     "aihappey-ai-components-default": "*",
     "aihappey-ai-components-openapi": "*",
     "aihappey-auth": "*",
+    "aihappey-embeddings": "*",
     "aihappey-clients": "^0.1.0",
     "aihappey-jobs": "^0.1.0",
     "aihappey-components": "*",
