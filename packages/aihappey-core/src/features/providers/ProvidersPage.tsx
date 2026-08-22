@@ -17,7 +17,7 @@ import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { MeshFiltersRow } from "./mesh/MeshFiltersRow";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { AddProviderModal } from "./AddProviderModal";
-import { getModelProviderKey, isUserVisibleModel } from "aihappey-types";
+import { getModelProviderKey } from "aihappey-types";
 
 type ProviderListItem = {
     key: string;
@@ -96,7 +96,7 @@ export const ProvidersPage = () => {
     const orderedModels = useMemo(() => {
         if (!models) return [];
 
-        return models.filter(isUserVisibleModel).sort((a, b) =>
+        return models.sort((a, b) =>
             t(a.type).localeCompare(t(b.type))
         );
     }, [models]);
@@ -278,7 +278,7 @@ export const ProvidersPage = () => {
             isAllFilterSelected(selections.selectedCategories) ||
             (!!p.category && selections.selectedCategories.includes(p.category));
 
-            const providerModelTypes = effectiveModelTypesByProvider[p.key] ?? [];
+        const providerModelTypes = effectiveModelTypesByProvider[p.key] ?? [];
         const matchesModelType =
             omittedFacet === "modelType" ||
             isAllFilterSelected(selections.selectedModelTypes) ||

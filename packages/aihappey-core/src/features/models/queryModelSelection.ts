@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLocation } from "react-router";
-import { isUserVisibleModel, type ModelOption } from "aihappey-types";
+import { type ModelOption } from "aihappey-types";
 
 const getModelQueryValue = (search: string) => {
   try {
@@ -21,8 +21,7 @@ const resolveQueryModelId = (
 
   const queryModel = models.find((model) =>
     model.id === queryModelId &&
-    model.type === modelType &&
-    isUserVisibleModel(model)
+    model.type === modelType
   );
 
   return queryModel?.id;

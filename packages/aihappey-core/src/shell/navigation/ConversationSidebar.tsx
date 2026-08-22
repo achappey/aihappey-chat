@@ -169,6 +169,12 @@ export const ConversationSidebar = ({
       icon: "folder",
     },
     {
+      key: "file-search",
+      label: t("vectorStores"),
+      href: "/file-search",
+      icon: "vectorStore",
+    },
+    {
       key: "plugins",
       label: t("pluginsPage.title"),
       href: "/plugins",

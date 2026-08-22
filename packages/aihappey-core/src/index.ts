@@ -5,3 +5,4 @@ export { MultiThemeProvider, ThemeContext, useMultiTheme } from "aihappey-compon
 export type { AihThemeEntry, MultiThemeProviderProps } from "aihappey-components";
 
 export * from "./features/reranking/RerankingPage";
+export * from "./features/vector-stores";

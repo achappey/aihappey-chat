@@ -14,7 +14,7 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useNavigate } from "react-router";
-import { getModelDisplayName, getModelProviderKey, isUserVisibleModel, type GenericDataGridColumn, type ModelOption } from "aihappey-types";
+import { getModelDisplayName, getModelProviderKey, type GenericDataGridColumn, type ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { getModelLaunchConfig, getModelLaunchPath } from "./modelLaunch";
 
@@ -201,7 +201,7 @@ export const ModelsPage = () => {
   const navigate = useNavigate();
   const models = useAppStore((s) => s.models);
   const visibleModels = useMemo(
-    () => (models ?? []).filter(isUserVisibleModel),
+    () => (models ?? []),
     [models],
   );
   const modelsLoadingProgress = useAppStore((s: any) => s.modelsLoadingProgress as { completed: number; total: number; active: boolean } | undefined);
