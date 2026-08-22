@@ -151,6 +151,7 @@ export const defaultEndpoints = {
   videos: "/api/videos",
   transcriptions: "/api/transcriptions",
   speech: "/api/speech",
+  embeddings: "/api/embeddings",
   skills: "/v1/skills",
   models: "/v1/models",
   reranking: "/api/rerank",
@@ -160,5 +161,6 @@ export const defaultEndpoints = {
   oaiSpeech: "/v1/audio/speech",
   oaiImageGeneration: "/v1/images/generations",
   oaiImageEdits: "/v1/images/edits",
+  oaiEmbeddings: "/v1/embeddings",
   realtime: "/v1/realtime/client_secrets"
 }
