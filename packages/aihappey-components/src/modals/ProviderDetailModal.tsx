@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import { getModelProviderKey, isUserVisibleModel, type IconToken, type ModelOption, type Provider, type ProviderUrls } from "aihappey-types";
+import { getModelProviderKey, type IconToken, type ModelOption, type Provider, type ProviderUrls } from "aihappey-types";
 
 import { ModelCard } from "../cards/ModelCard";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
@@ -82,7 +82,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     }, [providerUrls]);
     const providerModels = useMemo(
         () => (models ?? []).filter((m) =>
-            isUserVisibleModel(m) && getModelProviderKey(m.id, m) === providerKey,
+            getModelProviderKey(m.id, m) === providerKey,
         ),
         [models, providerKey]
     );

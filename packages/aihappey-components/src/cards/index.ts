@@ -28,6 +28,9 @@ export * from "./SkillCard";
 export * from "./PluginCard";
 export * from "./RerankingDocumentCard";
 export * from "./RerankingCard";
+export * from "./VectorStoreCard";
+export * from "./DocumentSourceCard";
+export * from "./DocumentSearchResultCard";
 
 export * from "./JsonRenderAppCard";
 export * from "./JsonRenderCatalogComponentCard";

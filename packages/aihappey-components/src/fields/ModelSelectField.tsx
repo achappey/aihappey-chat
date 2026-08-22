@@ -1,6 +1,6 @@
 import React from "react";
 import type { ModelOption } from "aihappey-types";
-import { getModelDisplayName, getModelProviderKey as getSharedModelProviderKey, isUserVisibleModel } from "aihappey-types";
+import { getModelDisplayName, getModelProviderKey as getSharedModelProviderKey } from "aihappey-types";
 import { useTheme } from "../theme/ThemeContext";
 
 export type ProviderOption = {
@@ -81,7 +81,6 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   const favoriteSet = new Set((favoriteModelIds ?? []).filter(Boolean));
 
   const visibleModels = (models ?? []).filter((m) => {
-    if (!isUserVisibleModel(m)) return false;
     if (!modelTypes.includes(m.type)) return false;
 
     // Favorites must always remain visible even if provider is currently disabled.
