@@ -253,7 +253,6 @@ import { llmwise } from "./catalog/llmwise";
 import { casedev } from "./catalog/casedev";
 import { smartaipi } from "./catalog/smartaipi";
 import { apiairforce } from "./catalog/apiairforce";
-import { multiverseai } from "./catalog/multiverseai";
 import { modelrouter } from "./catalog/modelrouter";
 import { rime } from "./catalog/rime";
 import { noiz } from "./catalog/noiz";
@@ -873,7 +872,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   kirha,
   modelrouter,
   casedev,
-  multiverseai,
   smartaipi,
   assisters,
   apipod,
