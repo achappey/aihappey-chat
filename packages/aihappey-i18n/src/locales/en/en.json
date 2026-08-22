@@ -68,6 +68,8 @@
     "more": "More",
     "default": "Default",
     "loaded": "Loaded",
+    "vectorStore": "Document hub",
+    "vectorStores": "Document hubs",
     "welcome": "How can I help?",
     "chats": "Chats",
     "imagePromptPlaceholder": "Describe a new image",
@@ -79,8 +81,12 @@
     "versions": "Versions",
     "download": "Download",
     "other": "Other",
+    "embedding": "Search",
     "local": "Local",
     "storageQuotaMessage": "Your browser storage is full. Remove some chats or other items and try again.",
+    "vectorStorePage": {
+        "description": "Document hubs bring information from different documents together in one place. This helps you quickly find and use the right information when you need it. Your knowledge stays organized, up to date, and easy to use across different applications."
+    },
     "skillsPage": {
         "description": "An overview of all available skills for tasks and workflows. For each skill, you see what it does, when to use it, and how it differs from others. This helps you quickly choose the right option. Skills combine instructions, logic, and execution in a consistent structure for clarity, repeatability, and control.",
         "fileCountBadge": "Files: {{count}}",

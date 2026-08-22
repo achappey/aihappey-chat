@@ -78,12 +78,18 @@
     "messagePrice": "Indicatief. Werkelijke kosten kunnen afwijken.",
     "versions": "Versies",
     "other": "Overig",
+    "vectorStore": "Documentenhub",
+    "vectorStores": "Documentenhubs",
     "local": "Lokaal",
+    "embedding": "Zoeken",
     "jobs": "Opdrachten",
     "myJobs": "Mijn opdrachten",
     "jobsPromptPlaceholder": "Vraag een agent om een achtergrondopdracht uit te voeren",
     "selectAgentForJob": "Selecteer minimaal één agent voor de opdracht.",
     "storageQuotaMessage": "Je browseropslag is vol. Verwijder enkele chats of andere items en probeer het opnieuw.",
+    "vectorStorePage": {
+        "description": "Documenthubs brengen informatie uit verschillende documenten samen op één plek. Zo kan je snel de juiste informatie vinden en gebruiken wanneer die nodig is. Je houdt kennis overzichtelijk, actueel en eenvoudig beschikbaar voor verschillende toepassingen."
+    },
     "skillsPage": {
         "editor": {
             "newTitle": "Skill toevoegen",
