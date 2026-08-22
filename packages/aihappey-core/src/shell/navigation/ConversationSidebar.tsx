@@ -83,7 +83,7 @@ export const ConversationSidebar = ({
     return items;
   };
 
-  // Build navigation items: primary links, content links, categories, then chats
+  // Build navigation items: AI primitives, agentic features, resources, categories, then chats
   const firstBlockItems: NavigationItem[] = [
     {
       key: "new",
@@ -149,13 +149,34 @@ export const ConversationSidebar = ({
     },
   ];
 
-  const secondBlockItems: NavigationItem[] = [
+  const agentBlockItems: NavigationItem[] = [
     {
       key: "agents",
       label: t("agents.title"),
       href: "/agents",
       icon: "robot",
     },
+    {
+      key: "plugins",
+      label: t("pluginsPage.title"),
+      href: "/plugins",
+      icon: "plugins",
+    },
+    {
+      key: "servers",
+      label: t("mcpPage.title"),
+      href: "/model-context-catalog",
+      icon: "mcpServer",
+    },
+    {
+      key: "skills",
+      label: t("skills"),
+      href: "/skills",
+      icon: "skills",
+    },
+  ];
+
+  const secondBlockItems: NavigationItem[] = [
     {
       key: "apps",
       label: t("webApps"),
@@ -172,19 +193,7 @@ export const ConversationSidebar = ({
       key: "file-search",
       label: t("vectorStores"),
       href: "/file-search",
-      icon: "vectorStore",
-    },
-    {
-      key: "plugins",
-      label: t("pluginsPage.title"),
-      href: "/plugins",
-      icon: "plugins",
-    },
-    {
-      key: "skills",
-      label: t("skills"),
-      href: "/skills",
-      icon: "skills",
+      icon: "embedding",
     },
     {
       key: "structured-outputs",
@@ -242,19 +251,6 @@ export const ConversationSidebar = ({
     },
     {
       key: "category",
-      label: t("mcpPage.title"),
-      icon: "mcpServer",
-      children: [
-        {
-          key: "servers",
-          label: t("manageServersModal.catalog"),
-          href: "/model-context-catalog",
-          icon: "server",
-        },
-      ],
-    },
-    {
-      key: "category",
       label: t("streaming.title"),
       icon: "realtime",
       children: [
@@ -307,11 +303,18 @@ export const ConversationSidebar = ({
 
   const hiddenNavigationKeySet = new Set(hiddenNavigationItemKeys);
   const configurableFirstBlockItems = markConfigurableNavigationItems(firstBlockItems, hiddenNavigationItemKeys);
+  const configurableAgentBlockItems = markConfigurableNavigationItems(agentBlockItems, hiddenNavigationItemKeys);
   const configurableSecondBlockItems = markConfigurableNavigationItems(secondBlockItems, hiddenNavigationItemKeys);
   const staticNavItems: NavigationItem[] = [
     ...buildCustomizableNavigationBlock(
       configurableFirstBlockItems.filter((item) => !hiddenNavigationKeySet.has(item.key)),
       configurableFirstBlockItems.filter((item) => hiddenNavigationKeySet.has(item.key)),
+    ),
+    { key: "divider", label: "" },
+    { key: "section:agents", label: t("agents.title") },
+    ...buildCustomizableNavigationBlock(
+      configurableAgentBlockItems.filter((item) => !hiddenNavigationKeySet.has(item.key)),
+      configurableAgentBlockItems.filter((item) => hiddenNavigationKeySet.has(item.key)),
     ),
     { key: "divider", label: "" },
     ...buildCustomizableNavigationBlock(
