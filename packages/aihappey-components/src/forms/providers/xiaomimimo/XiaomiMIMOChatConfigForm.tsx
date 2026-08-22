@@ -2,10 +2,9 @@ import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 const THINKING_TYPES = ["enabled", "disabled"] as const;
-const AUDIO_FORMATS = ["wav", "mp3", "pcm", "pcm16"] as const;
 
 type ThinkingType = (typeof THINKING_TYPES)[number];
-type AudioFormat = (typeof AUDIO_FORMATS)[number];
+type AudioFormat = "wav" | "mp3" | "pcm" | "pcm16";
 
 export type XiaomiMIMOWebSearchTool = {
     type: "web_search";
@@ -39,10 +38,6 @@ const DEFAULT_THINKING: NonNullable<XiaomiMIMOChatConfig["thinking"]> = {
     type: "enabled",
 };
 
-const DEFAULT_AUDIO: NonNullable<XiaomiMIMOChatConfig["audio"]> = {
-    format: "wav",
-};
-
 const DEFAULT_WEB_SEARCH: XiaomiMIMOWebSearchTool = {
     type: "web_search",
     force_search: "false",
@@ -61,16 +56,6 @@ const twoColumnGrid = {
 const optionalString = (value: string) => {
     const trimmed = String(value ?? "").trim();
     return trimmed ? trimmed : undefined;
-};
-
-const normalizeNumberInput = (value: string, min: number, max: number) => {
-    const raw = String(value ?? "").trim();
-    if (!raw) return undefined;
-
-    const parsed = Number(raw);
-    if (!Number.isFinite(parsed)) return undefined;
-
-    return Math.min(max, Math.max(min, Math.trunc(parsed)));
 };
 
 const normalizeFloatInput = (value: string) => {
@@ -137,10 +122,10 @@ export const XiaomiMIMOChatConfigForm = ({
     const { t } = useTranslation();
     const thinkingOn = !!config?.thinking;
     const thinkingType = config?.thinking?.type ?? DEFAULT_THINKING.type;
-    const audioOn = !!config?.audio;
-    const audioFormat = config?.audio?.format ?? DEFAULT_AUDIO.format;
     const webSearch = getWebSearchTool(config);
     const webSearchOn = !!webSearch;
+    const maxKeyword = webSearch?.max_keyword ?? DEFAULT_WEB_SEARCH.max_keyword!;
+    const resultLimit = webSearch?.limit ?? DEFAULT_WEB_SEARCH.limit!;
     const userLocation = webSearch?.user_location;
 
     const updateThinking = (patch: Partial<NonNullable<XiaomiMIMOChatConfig["thinking"]>>) =>
@@ -148,15 +133,6 @@ export const XiaomiMIMOChatConfigForm = ({
             ...config,
             thinking: {
                 ...(config?.thinking ?? DEFAULT_THINKING),
-                ...patch,
-            },
-        });
-
-    const updateAudio = (patch: Partial<NonNullable<XiaomiMIMOChatConfig["audio"]>>) =>
-        updateConfig({
-            ...config,
-            audio: {
-                ...(config?.audio ?? DEFAULT_AUDIO),
                 ...patch,
             },
         });
@@ -219,59 +195,6 @@ export const XiaomiMIMOChatConfigForm = ({
 
             <theme.Card
                 size="small"
-                title={t("audio") ?? "Audio"}
-                headerActions={
-                    <theme.Switch
-                        id="xiaomimimo-audio"
-                        checked={audioOn}
-                        onChange={(value) =>
-                            updateConfig({
-                                ...config,
-                                audio: value ? { ...DEFAULT_AUDIO } : undefined,
-                            })
-                        }
-                    />
-                }
-            >
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div style={twoColumnGrid}>
-                        <theme.Select
-                            label={t("format") ?? "Format"}
-                            disabled={!audioOn}
-                            values={[audioFormat ?? "wav"]}
-                            valueTitle={audioFormat ?? "wav"}
-                            options={AUDIO_FORMATS.map((value) => ({ value, label: value }))}
-                            onChange={(value: string) => updateAudio({ format: value as AudioFormat })}
-                        >
-                            {AUDIO_FORMATS.map((value) => (
-                                <option key={value} value={value}>
-                                    {value}
-                                </option>
-                            ))}
-                        </theme.Select>
-
-                        <theme.Switch
-                            id="xiaomimimo-audio-optimize-text-preview"
-                            disabled={!audioOn}
-                            checked={!!config?.audio?.optimize_text_preview}
-                            label="Optimize text preview"
-                            onChange={(value) => updateAudio({ optimize_text_preview: !!value })}
-                        />
-                    </div>
-
-                    <theme.Input
-                        id="xiaomimimo-audio-voice"
-                        label={t("voice") ?? "Voice"}
-                        placeholder="mimo_default"
-                        disabled={!audioOn}
-                        value={config?.audio?.voice ?? ""}
-                        onChange={(e: any) => updateAudio({ voice: optionalString(e?.target?.value) })}
-                    />
-                </div>
-            </theme.Card>
-
-            <theme.Card
-                size="small"
                 title={t("webSearch")}
                 headerActions={
                     <theme.Switch
@@ -284,41 +207,37 @@ export const XiaomiMIMOChatConfigForm = ({
                 }
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div style={twoColumnGrid}>
+                    <div>
                         <theme.Switch
                             id="xiaomimimo-force-search"
                             disabled={!webSearchOn}
                             checked={(webSearch?.force_search ?? DEFAULT_WEB_SEARCH.force_search) === "true"}
-                            label="Force search"
+                            label={t("forceSearch")}
                             onChange={(value) => updateWebSearch({ force_search: value ? "true" : "false" })}
                         />
+                    </div>
 
-                        <theme.Input
+                    <div style={twoColumnGrid}>
+                        <theme.Slider
                             id="xiaomimimo-max-keyword"
-                            type="number"
                             min={1}
                             max={50}
                             step={1}
-                            label="Max keywords"
+                            label={`${t("maxKeywords")} (${maxKeyword})`}
                             disabled={!webSearchOn}
-                            value={webSearch?.max_keyword ?? ""}
-                            onChange={(e: any) =>
-                                updateWebSearch({ max_keyword: normalizeNumberInput(e?.target?.value, 1, 50) })
-                            }
+                            value={maxKeyword}
+                            onChange={(value: number) => updateWebSearch({ max_keyword: value })}
                         />
 
-                        <theme.Input
+                        <theme.Slider
                             id="xiaomimimo-web-search-limit"
-                            type="number"
                             min={1}
                             max={50}
                             step={1}
-                            label="Result limit"
+                            label={`${t("resultLimit")} (${resultLimit})`}
                             disabled={!webSearchOn}
-                            value={webSearch?.limit ?? ""}
-                            onChange={(e: any) =>
-                                updateWebSearch({ limit: normalizeNumberInput(e?.target?.value, 1, 50) })
-                            }
+                            value={resultLimit}
+                            onChange={(value: number) => updateWebSearch({ limit: value })}
                         />
                     </div>
 

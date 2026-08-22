@@ -7,11 +7,6 @@ const Wrapper = () => {
     thinking: {
       type: "enabled",
     },
-    audio: {
-      format: "wav",
-      optimize_text_preview: false,
-      voice: "mimo_default",
-    },
     tools: [
       {
         type: "web_search",
