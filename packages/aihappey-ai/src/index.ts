@@ -12,6 +12,7 @@ export type {
 
 export type {
         ImageModelV4, SharedV4Warning, RerankingModelV4, RerankingModelV4CallOptions,
+        EmbeddingModelV4,
         TranscriptionModelV4, SpeechModelV4CallOptions,
         ImageModelV4CallOptions
 } from "@ai-sdk/provider"
@@ -23,6 +24,7 @@ export * from './createImageProvider'
 export * from './createSpeechProvider'
 export * from './createRerankProvider'
 export * from './createTranscriptionProvider'
+export * from './createEmbeddingsProvider'
 export * from './createVideoProvider'
 export * from './createResponsesProvider'
 export * from './getRealtimeToken'
