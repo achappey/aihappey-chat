@@ -7,6 +7,7 @@ import ArrowUpward from "@mui/icons-material/ArrowUpward";
 import AttachFile from "@mui/icons-material/AttachFile";
 import AutoAwesome from "@mui/icons-material/AutoAwesome";
 import Book from "@mui/icons-material/Book";
+import ManageSearch from "@mui/icons-material/ManageSearch";
 import Build from "@mui/icons-material/Build";
 import CallSplit from "@mui/icons-material/CallSplit";
 import ChatBubbleOutline from "@mui/icons-material/ChatBubbleOutlined";
@@ -149,6 +150,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   chatSettings: makeIcon(Settings),
   databaseGear: makeIcon(Storage),
   code: makeIcon(Code),
+  embedding: makeIcon(ManageSearch),
   chart: makeIcon(InsertChart),
   arena: makeIcon(Groups),
   openLink: makeIcon(OpenInNew),
@@ -176,6 +178,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   handoff: makeIcon(CallSplit),
   disconnect: makeIcon(Power),
   contextWindow: makeIcon(Storage),
+  vectorStore: makeIcon(Book),
   docs: makeIcon(Description),
   terms: makeIcon(Key),
   privacy: makeIcon(Shield),

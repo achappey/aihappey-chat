@@ -98,6 +98,7 @@ import {
   ThreeDotsVertical,
   Tag,
   Git,
+  Book,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -112,6 +113,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   prompts: <BSChatIcon />,
   preview: <Eye />,
   code: <Code />,
+  embedding: <Search />,
   globe: <Globe />,
   download: <Download />,
   brain: <CpuFill />,
@@ -173,6 +175,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   databaseGear: <DatabaseGear />,
   personalization: <PersonHeart />,
   contextWindow: <Hdd />,
+  vectorStore: <Book />,
   realtime: <Broadcast />,
   maxOutputTokens: <BoxArrowUp />,
   language: <ChatDots />,
