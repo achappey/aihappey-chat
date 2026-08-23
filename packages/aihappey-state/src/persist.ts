@@ -48,6 +48,7 @@ export const withPersist = (
       userPreferredAudioModel: s.userPreferredAudioModel,
       userPreferredVideoModel: s.userPreferredVideoModel,
       userPreferredRerankingModel: s.userPreferredRerankingModel,
+      userPreferredEmbeddingModel: s.userPreferredEmbeddingModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,
       pinnedConversations: s.pinnedConversations,
       hiddenNavigationItemKeys: (s as any).hiddenNavigationItemKeys,

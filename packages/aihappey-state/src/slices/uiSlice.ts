@@ -320,6 +320,9 @@ export type UiSlice = {
   userPreferredRerankingModel?: string;
   setUserPreferredRerankingModel: (model: string) => void;
 
+  userPreferredEmbeddingModel?: string;
+  setUserPreferredEmbeddingModel: (model: string) => void;
+
   userPreferredTranscriptionModel?: string;
   setUserPreferredTranscriptionModel: (model: string) => void;
 
@@ -501,6 +504,11 @@ export const createUiSlice: StateCreator<
         userPreferredRerankingModel: model
       }
     }),
+
+  setUserPreferredEmbeddingModel: (model) =>
+    set(() => ({
+      userPreferredEmbeddingModel: model
+    })),
 
   setUserPreferredSpeechModel: (model) =>
     set((state: any) => {
