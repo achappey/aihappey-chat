@@ -5,7 +5,6 @@ export const codzen: Provider = {
   description: "Access the world's leading AI models through a unified API gateway. Enterprise-ready, scalable, and secure.",
   urls: {
     homepage: "https://codzen.ai",
-    docs: "https://codzen.ai/docs",
     pricing: "https://codzen.ai/pricing",
     privacyPolicy: "https://codzen.ai/privacy",
     termsOfService: "https://codzen.ai/terms"

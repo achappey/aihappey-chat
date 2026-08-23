@@ -9,6 +9,7 @@ export const nagaai: Provider = {
   urls: {
     homepage: "https://naga.ac",
     docs: "https://docs.naga.ac",
+    pricing:"https://naga.ac/pricing",
     privacyPolicy: "https://naga.ac/legal/privacy",
     termsOfService: "https://naga.ac/legal/terms"
   },
