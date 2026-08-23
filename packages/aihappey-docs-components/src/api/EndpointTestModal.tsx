@@ -4,6 +4,7 @@ import type { DocsEndpointDoc, DocsEndpointTestConfig, DocsEndpointTestField, Do
 import { docsBorderStyle, docsCodeStyle, docsMutedTextStyle, docsSubtleSurfaceStyle } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
 import { useDocsTranslation } from "aihappey-docs-i18n";
+import { useDocsRequest } from "./DocsRequestContext";
 
 type HeaderRow = DocsEndpointTestHeader & {
   id: string;
@@ -116,6 +117,7 @@ const formatBytes = (size: number) => {
 export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalProps) => {
   const { Badge, Button, Input, Modal, TextArea } = useDocsTheme();
   const { t } = useDocsTranslation();
+  const requestConfig = useDocsRequest();
   const config: DocsEndpointTestConfig = endpoint.test ?? {};
   const [method, setMethod] = useState(config.method ?? endpoint.method);
   const [url, setUrl] = useState(config.url ?? endpoint.url ?? endpoint.path);
@@ -261,9 +263,16 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
         requestBody = canSendBody && body.trim() ? body : undefined;
       }
 
-      const response = await fetch(trimmedUrl, {
+      const injectedHeaders = { ...(requestConfig.headers ?? {}) };
+      if (requestConfig.getAccessToken) {
+        const accessToken = await requestConfig.getAccessToken();
+        if (accessToken) injectedHeaders.Authorization = `Bearer ${accessToken}`;
+      }
+
+      const requestFetch = requestConfig.fetch ?? globalThis.fetch;
+      const response = await requestFetch(trimmedUrl, {
         method: trimmedMethod,
-        headers: requestHeadersRecord,
+        headers: { ...requestHeadersRecord, ...injectedHeaders },
         body: requestBody,
       });
       const elapsedMs = Math.round(performance.now() - startedAt);
@@ -306,7 +315,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     } finally {
       setIsSending(false);
     }
-  }, [body, canSendBody, fields, fileValues, headersRecord, method, requestHeadersRecord, responseType, result?.blobUrl, t, url, usesFormData]);
+  }, [body, canSendBody, fields, fileValues, headersRecord, method, requestConfig, requestHeadersRecord, responseType, result?.blobUrl, t, url, usesFormData]);
 
   const modalTitle = config.modalTitle ?? `Test ${endpoint.title}`;
   const downloadFileName = config.downloadFileName ?? `${endpoint.id}-response.bin`;

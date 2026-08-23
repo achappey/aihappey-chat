@@ -117,6 +117,153 @@ export const agentNavSections: DocsNavSection[] = [
     },
 ];
 
+export type AgentEndpoint = "models" | "create-response" | "retrieve-response" | "delete-response" | "list-responses" | "chat";
+
+const agentResponseId = "resp_01hzyj8v5n9k6s3r2d4a";
+const agentModelId = "ResearchAgent";
+
+const agentModelsExample = `{
+  "object": "list",
+  "data": [{
+    "id": "ResearchAgent",
+    "object": "model",
+    "owned_by": "aihappey",
+    "name": "ResearchAgent",
+    "description": "Research and summarize with configured tools.",
+    "type": "agent",
+    "agent": {
+      "name": "ResearchAgent",
+      "description": "Research and summarize with configured tools.",
+      "instructions": "Research the request and cite sources.",
+      "model": { "id": "openai/gpt-4.1-mini" }
+    }
+  }]
+}`;
+
+const agentResponseExample = `{
+  "id": "${agentResponseId}",
+  "object": "response",
+  "status": "completed",
+  "model": "${agentModelId}",
+  "output": [{
+    "type": "message",
+    "role": "assistant",
+    "content": [{ "type": "output_text", "text": "The agent completed the research task." }]
+  }]
+}`;
+
+const agentCreateBody = {
+    model: agentModelId,
+    input: "Summarize the benefits of an agent runtime in two sentences.",
+};
+
+const agentChatBody = {
+    id: "docs-agent-chat",
+    workflowType: "sequential",
+    agents: [{
+        name: "ResearchAgent",
+        description: "Research and summarize",
+        instructions: "Be concise and cite sources when available.",
+        model: { id: "openai/gpt-4.1-mini", options: { temperature: 0.2 } },
+        mcpServers: {},
+    }],
+    messages: [{ id: "message-1", role: "user", parts: [{ type: "text", text: "Explain this agent runtime in one sentence." }] }],
+};
+
+export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const paths: Record<AgentEndpoint, string> = {
+        models: "/v1/models",
+        "create-response": "/v1/responses",
+        "retrieve-response": "/v1/responses/{responseId}",
+        "delete-response": "/v1/responses/{responseId}",
+        "list-responses": "/v1/responses",
+        chat: "/api/chat",
+    };
+    const methods: Record<AgentEndpoint, DocsEndpointDoc["method"]> = {
+        models: "GET", "create-response": "POST", "retrieve-response": "GET",
+        "delete-response": "DELETE", "list-responses": "GET", chat: "POST",
+    };
+    const key = endpoint.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+    const path = paths[endpoint];
+    const livePath = path.replace("{responseId}", agentResponseId);
+    const url = createApiUrl(apiBaseUrl, livePath);
+    const isBodyEndpoint = endpoint === "create-response" || endpoint === "chat";
+    const body = endpoint === "chat" ? agentChatBody : endpoint === "create-response" ? agentCreateBody : undefined;
+    const responseType = endpoint === "chat" ? "text" : "json";
+    const parameters = endpoint === "models" ? [
+        { name: "X-*", type: "header", required: false, description: t("agents.endpoints.models.parameters.forwardedHeaders") },
+    ] : endpoint === "create-response" ? [
+        { name: "input", type: "string | array", required: true, description: t("agents.endpoints.createResponse.parameters.input") },
+        { name: "model", type: "string", required: false, description: t("agents.endpoints.createResponse.parameters.model") },
+        { name: "models", type: "array", required: false, description: t("agents.endpoints.createResponse.parameters.models") },
+        { name: "metadata.agents", type: "array", required: false, description: t("agents.endpoints.createResponse.parameters.agents") },
+        { name: "stream", type: "boolean", required: false, description: t("agents.endpoints.createResponse.parameters.stream") },
+        { name: "background", type: "boolean", required: false, description: t("agents.endpoints.createResponse.parameters.background") },
+    ] : endpoint === "retrieve-response" || endpoint === "delete-response" ? [
+        { name: "responseId", type: "path", required: true, description: t(`agents.endpoints.${key}.parameters.responseId`) },
+    ] : endpoint === "chat" ? [
+        { name: "id", type: "string", required: true, description: t("agents.endpoints.chat.parameters.id") },
+        { name: "messages", type: "array", required: true, description: t("agents.endpoints.chat.parameters.messages") },
+        { name: "agents", type: "array", required: false, description: t("agents.endpoints.chat.parameters.agents") },
+        { name: "model", type: "string", required: false, description: t("agents.endpoints.chat.parameters.model") },
+        { name: "models", type: "array", required: false, description: t("agents.endpoints.chat.parameters.models") },
+        { name: "workflowType", type: "string", required: false, description: t("agents.endpoints.chat.parameters.workflowType") },
+        { name: "workflowFile", type: "string", required: false, description: t("agents.endpoints.chat.parameters.workflowFile") },
+        { name: "workflowMetadata", type: "object", required: false, description: t("agents.endpoints.chat.parameters.workflowMetadata") },
+    ] : [];
+    const responseCode = endpoint === "delete-response"
+        ? `{ "id": "${agentResponseId}", "object": "response", "deleted": true }`
+        : endpoint === "list-responses" ? `{ "object": "list", "data": [] }`
+        : endpoint === "models" ? agentModelsExample
+        : endpoint === "chat" ? `data: {"type":"start","messageId":"message-1"}\n\ndata: {"type":"text-delta","id":"text-1","delta":"The agent runtime orchestrates agents and tools."}\n\ndata: {"type":"finish"}\n\ndata: [DONE]`
+        : agentResponseExample;
+
+    return {
+        id: `agents-${endpoint}`,
+        title: t(`agents.endpoints.${key}.title`),
+        surface: t(`agents.endpoints.${key}.surface`),
+        method: methods[endpoint], path, url,
+        summary: t(`agents.endpoints.${key}.summary`),
+        description: <p style={{ margin: 0 }}>{t(`agents.endpoints.${key}.description`)}</p>,
+        auth: <p style={{ margin: 0 }}>{t("agents.common.auth")}</p>,
+        parameters,
+        test: {
+            label: t(`agents.endpoints.${key}.testLabel`),
+            modalTitle: t(`agents.endpoints.${key}.testModalTitle`),
+            description: <p style={{ margin: 0 }}>{t(`agents.endpoints.${key}.testDescription`)}</p>,
+            responseType,
+            headers: [
+                ...(isBodyEndpoint ? [{ name: "Content-Type", value: "application/json" }] : []),
+                { name: "X-OpenAI-Key", value: "", placeholder: "Optional downstream provider key" },
+            ],
+            ...(body ? { body } : {}),
+        },
+        requestExamples: [
+            {
+                id: `typescript-agents-${endpoint}`, label: "TypeScript", language: "ts",
+                code: `const response = await fetch("${url}", {\n  method: "${methods[endpoint]}",\n  headers: {${isBodyEndpoint ? '\n    "Content-Type": "application/json",' : ""}\n    "X-OpenAI-Key": openAiApiKey\n  }${body ? `,\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})` : ""}\n});\n\n${responseType === "text" ? "const stream = response.body;" : "const result = await response.json();"}`,
+            },
+            {
+                id: `curl-agents-${endpoint}`, label: responseType === "text" ? "cURL streaming" : "cURL", language: "bash",
+                code: `curl${responseType === "text" ? " -N" : ""} -X ${methods[endpoint]} ${url} \\\n  -H "X-OpenAI-Key: $OPENAI_API_KEY"${isBodyEndpoint ? ' \\\n  -H "Content-Type: application/json"' : ""}${body ? ` \\\n  -d '${JSON.stringify(body, null, 2)}'` : ""}`,
+            },
+        ],
+        responses: [{ status: "200", description: t(`agents.endpoints.${key}.responses.success`), example: { id: `agents-${endpoint}-response`, label: responseType === "text" ? "SSE" : "JSON", language: responseType === "text" ? "text" : "json", code: responseCode } }],
+        errors: [
+            ...(!["models", "list-responses"].includes(endpoint) ? [{ status: "400", description: t(`agents.endpoints.${key}.errors.badRequest`) }] : []),
+            { status: "401", description: t("agents.common.errors.unauthorized") },
+            ...(["retrieve-response", "delete-response"].includes(endpoint) ? [{ status: "404", description: t(`agents.endpoints.${key}.errors.notFound`) }] : []),
+            ...(["create-response", "chat"].includes(endpoint) ? [{ status: "500", description: t(`agents.endpoints.${key}.errors.server`) }] : []),
+        ],
+        related: [
+            { id: "agents-overview", label: t("agents.common.relatedOverview"), href: "/agents" },
+            ...(endpoint === "create-response" ? [{ id: "agents-openai-retrieve-response", label: t("agents.endpoints.createResponse.relatedRetrieve"), href: "/agents/openai/responses/retrieve" }] : []),
+        ],
+    };
+};
+
 type SpeechSurface = "openai" | "ai-sdk";
 type TranscriptionsSurface = "openai" | "ai-sdk";
 type EmbeddingsSurface = "openai" | "ai-sdk";

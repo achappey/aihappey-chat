@@ -43,7 +43,11 @@ const App = () => {
       selectedThemeId={selectedThemeId}
       onThemeChange={setSelectedThemeId}
     >
-      <DocsRoot appTitle={__APP_NAME__ || "aihappey Developers"} apiBaseUrl={__API_BASE_URL__} />
+      <DocsRoot
+        appTitle={__APP_NAME__ || "aihappey Developers"}
+        apiBaseUrl={__API_BASE_URL__}
+        agentApiBaseUrl={__AGENT_ENDPOINT__}
+      />
     </MultiThemeProvider>
   );
 };

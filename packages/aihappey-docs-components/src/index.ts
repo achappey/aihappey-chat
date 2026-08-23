@@ -14,6 +14,7 @@ export * from "./home/DocsCardGrid";
 export * from "./api/ApiReferenceLayout";
 export * from "./api/ApiEndpointPage";
 export * from "./api/EndpointTestModal";
+export * from "./api/DocsRequestContext";
 export * from "./api/ApiSection";
 export * from "./api/CodeExample";
 export * from "./api/ParameterTable";

@@ -1,5 +1,6 @@
 import { useMemo, type ReactElement } from "react";
 import { DocsI18nProvider } from "aihappey-docs-i18n";
+import { DocsRequestProvider } from "aihappey-docs-components";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router";
 import { AgentsOverviewPage } from "./pages/AgentsOverviewPage";
 import { AiSdkChatEndpointPage } from "./pages/AiSdkChatEndpointPage";
@@ -21,10 +22,15 @@ import { SkillEndpointPage } from "./pages/SkillEndpointPage";
 import { UiEndpointPage } from "./pages/UiEndpointPage";
 import { EmbeddingsEndpointPage } from "./pages/EmbeddingsEndpointPage";
 import { StreamingTranscriptionsEndpointPage } from "./pages/StreamingTranscriptionsEndpointPage";
+import { AgentEndpointPage } from "./pages/AgentEndpointPage";
 
 export type DocsRootProps = {
   appTitle?: string;
   apiBaseUrl?: string;
+  agentApiBaseUrl?: string;
+  headers?: Record<string, string>;
+  getAccessToken?: () => Promise<string | null | undefined>;
+  fetch?: typeof globalThis.fetch;
 };
 
 const withLocation = (render: (activePath: string) => ReactElement) => {
@@ -36,13 +42,19 @@ const withLocation = (render: (activePath: string) => ReactElement) => {
   return <RouteElement />;
 };
 
-export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl }: DocsRootProps) => {
+export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentApiBaseUrl, headers, getAccessToken, fetch }: DocsRootProps) => {
   const router = useMemo(
     () =>
       createBrowserRouter([
         { path: "/", element: withLocation((activePath) => <HomePage activePath={activePath} appTitle={appTitle} />) },
         { path: "/gateway", element: withLocation((activePath) => <GatewayOverviewPage activePath={activePath} appTitle={appTitle} />) },
         { path: "/agents", element: withLocation((activePath) => <AgentsOverviewPage activePath={activePath} appTitle={appTitle} />) },
+        { path: "/agents/openai/models", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="models" />) },
+        { path: "/agents/openai/responses/create", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="create-response" />) },
+        { path: "/agents/openai/responses/retrieve", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="retrieve-response" />) },
+        { path: "/agents/openai/responses/delete", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="delete-response" />) },
+        { path: "/agents/openai/responses/list", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="list-responses" />) },
+        { path: "/agents/ai/chat", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="chat" />) },
         { path: "/gateway/openai/models", element: withLocation((activePath) => <ModelsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/openai/embeddings", element: withLocation((activePath) => <EmbeddingsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="openai" />) },
         { path: "/gateway/openai/chat-completions", element: withLocation((activePath) => <ChatCompletionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
@@ -69,12 +81,14 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl }: DocsR
         { path: "/gateway/ai/videos/get", element: withLocation((activePath) => <VideoEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="get" />) },
         { path: "*", element: withLocation((activePath) => <ComingSoonPage activePath={activePath} appTitle={appTitle} />) },
       ]),
-    [apiBaseUrl, appTitle]
+    [agentApiBaseUrl, apiBaseUrl, appTitle]
   );
 
   return (
     <DocsI18nProvider>
-      <RouterProvider router={router} />
+      <DocsRequestProvider headers={headers} getAccessToken={getAccessToken} fetch={fetch}>
+        <RouterProvider router={router} />
+      </DocsRequestProvider>
     </DocsI18nProvider>
   );
 };
