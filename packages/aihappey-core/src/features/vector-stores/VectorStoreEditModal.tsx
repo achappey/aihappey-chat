@@ -19,10 +19,11 @@ export type VectorStoreEditSaveValue = VectorStoreFormValue & {
   removedSources: string[];
 };
 
-export const VectorStoreEditModal = ({ open, hub, models, busy, error, onClose, onSave }: {
+export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, error, onClose, onSave }: {
   open: boolean;
   hub?: VectorStore;
   models: ModelOption[];
+  defaultModel?: string;
   busy?: boolean;
   error?: string;
   onClose: () => void;
@@ -41,13 +42,13 @@ export const VectorStoreEditModal = ({ open, hub, models, busy, error, onClose, 
   useEffect(() => {
     if (!open) return;
     setActiveTab("general");
-    setValue(hub ? { name: hub.name, description: hub.description, chunkSize: hub.chunkSize, chunkOverlap: hub.chunkOverlap, model: hub.model } : { name: "", description: "", chunkSize: 1000, chunkOverlap: 200, model: "" });
+    setValue(hub ? { name: hub.name, description: hub.description, chunkSize: hub.chunkSize, chunkOverlap: hub.chunkOverlap, model: hub.model } : { name: "", description: "", chunkSize: 1000, chunkOverlap: 200, model: defaultModel ?? "" });
     setAddedFiles([]);
     setRemovedSources([]);
     setIsDragging(false);
     if (hub) void listVectorStoreSources(hub).then(setSources);
     else setSources([]);
-  }, [hub, open]);
+  }, [defaultModel, hub, open]);
 
   const visibleSources = sources.filter((source) => !removedSources.includes(source.filename));
   const hasDocuments = visibleSources.length > 0;

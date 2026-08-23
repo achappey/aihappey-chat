@@ -37,6 +37,9 @@ export const AiDefaultSettings: React.FC = () => {
   const userPreferredRerankingModel = useAppStore((s) => s.userPreferredRerankingModel);
   const setUserPreferredRerankingModel = useAppStore((s) => s.setUserPreferredRerankingModel);
 
+  const userPreferredEmbeddingModel = useAppStore((s) => s.userPreferredEmbeddingModel);
+  const setUserPreferredEmbeddingModel = useAppStore((s) => s.setUserPreferredEmbeddingModel);
+
   const toggleChatWithImageModels = useAppStore((s) => s.toggleChatWithImageModels);
   const chatWithImageModels = useAppStore((s) => s.chatWithImageModels);
 
@@ -84,6 +87,19 @@ export const AiDefaultSettings: React.FC = () => {
               value={value}
               label={t("settingsModal.defaultModel")}
               onChange={setUserPreferredModel}
+              autoSelectFallback={false}
+            />
+          </div>
+        </theme.Tab>
+
+        <theme.Tab eventKey="embedding" title={t("embedding")}>
+          <div style={formStyle}>
+            <ModelSelect
+              models={models ?? []}
+              modelTypes={["embedding"]}
+              value={userPreferredEmbeddingModel ?? ""}
+              label={t("settingsModal.defaultModel")}
+              onChange={setUserPreferredEmbeddingModel}
               autoSelectFallback={false}
             />
           </div>
