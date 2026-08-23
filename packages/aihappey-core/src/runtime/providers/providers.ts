@@ -243,7 +243,7 @@ import { agentsky } from "./catalog/agentsky";
 import { ocrskill } from "./catalog/ocrskill";
 import { nexusify } from "./catalog/nexusify";
 import { litai } from "./catalog/litai";
-import { pixcode } from "./catalog/pixcode";
+import { onlypixai } from "./catalog/onlypixai";
 import { apipod } from "./catalog/apipod";
 import { tokenflux } from "./catalog/tokenflux";
 import { tokenlab } from "./catalog/tokenlab";
@@ -885,7 +885,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tokenflux,
   agentsky,
   ishi,
-  pixcode,
+  onlypixai,
   payperq,
   libertai,
   jules,
