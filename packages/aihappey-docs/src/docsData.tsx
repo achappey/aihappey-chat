@@ -49,6 +49,7 @@ export const gatewayNavSections: DocsNavSection[] = [
         title: "OpenAI compatible",
         items: [
             { id: "openai-models", label: "Models", href: "/gateway/openai/models", badge: { label: "GET", method: "GET" } },
+            { id: "openai-embeddings", label: "Embeddings", href: "/gateway/openai/embeddings", badge: { label: "POST", method: "POST" } },
             { id: "openai-chat", label: "Chat completions", href: "/gateway/openai/chat-completions", badge: { label: "POST", method: "POST" } },
             { id: "openai-responses", label: "Responses", href: "/gateway/openai/responses", badge: { label: "POST", method: "POST" } },
             { id: "openai-realtime", label: "Realtime", href: "/gateway/openai/realtime", badge: { label: "POST", method: "POST" } },
@@ -74,10 +75,12 @@ export const gatewayNavSections: DocsNavSection[] = [
         title: "AI SDK",
         items: [
             { id: "ai-chat", label: "Chat", href: "/gateway/ai/chat", badge: { label: "POST", method: "POST" } },
+            { id: "ai-embeddings", label: "Embeddings", href: "/gateway/ai/embeddings", badge: { label: "POST", method: "POST" } },
             { id: "ai-images", label: "Images", href: "/gateway/ai/images", badge: { label: "POST", method: "POST" } },
             { id: "ai-rerank", label: "Rerank", href: "/gateway/ai/rerank", badge: { label: "POST", method: "POST" } },
             { id: "ai-speech", label: "Speech", href: "/gateway/ai/speech", badge: { label: "POST", method: "POST" } },
             { id: "ai-transcriptions", label: "Transcriptions", href: "/gateway/ai/transcriptions", badge: { label: "POST", method: "POST" } },
+            { id: "ai-streaming-transcriptions", label: "Streaming transcriptions", href: "/gateway/ai/transcriptions/stream", badge: { label: "POST", method: "POST" } },
             { id: "ai-ui", label: "UI", href: "/gateway/ai/ui", badge: { label: "POST", method: "POST" } },
             { id: "ai-create-video-task", label: "Create video task", href: "/gateway/ai/videos/create", badge: { label: "POST", method: "POST" } },
             { id: "ai-get-video-task", label: "Get video task", href: "/gateway/ai/videos/get", badge: { label: "GET", method: "GET" } },
@@ -116,6 +119,7 @@ export const agentNavSections: DocsNavSection[] = [
 
 type SpeechSurface = "openai" | "ai-sdk";
 type TranscriptionsSurface = "openai" | "ai-sdk";
+type EmbeddingsSurface = "openai" | "ai-sdk";
 type OpenAiImageEndpoint = "generation" | "edit";
 export type VideoEndpoint = "create" | "get";
 export type SkillEndpoint = "list" | "download" | "versions" | "download-version";
@@ -740,6 +744,251 @@ const transcription = await response.json();`,
         related: [
             { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
             { id: "other-surface", label: t("transcriptions.aiSdk.relatedOpenAiTranscriptions"), href: "/gateway/openai/transcriptions" },
+        ],
+    };
+};
+
+const openAiEmbeddingsResponseExample = `{
+  "object": "list",
+  "data": [
+    {
+      "object": "embedding",
+      "embedding": [0.0023064255, -0.009327292, 0.015797377],
+      "index": 0
+    },
+    {
+      "object": "embedding",
+      "embedding": [-0.006929283, -0.005336422, 0.011040215],
+      "index": 1
+    }
+  ],
+  "model": "text-embedding-3-small",
+  "usage": {
+    "prompt_tokens": 8,
+    "total_tokens": 8
+  }
+}`;
+
+const aiSdkEmbeddingsResponseExample = `{
+  "embeddings": [
+    [0.0023064255, -0.009327292, 0.015797377],
+    [-0.006929283, -0.005336422, 0.011040215]
+  ],
+  "usage": {
+    "tokens": 8
+  },
+  "providerMetadata": {
+    "gateway": {
+      "cost": 0.00000016
+    },
+    "openai": {}
+  },
+  "response": {
+    "headers": {
+      "x-request-id": "req_01hzyj8v5n9k6s3r2d4a"
+    }
+  },
+  "warnings": []
+}`;
+
+export const createEmbeddingsEndpointDoc = (surface: EmbeddingsSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const isOpenAi = surface === "openai";
+    const path = isOpenAi ? "/v1/embeddings" : "/api/embeddings";
+    const url = createApiUrl(apiBaseUrl, path);
+    const key = isOpenAi ? "openai" : "aiSdk";
+    const body = isOpenAi
+        ? {
+            model: "openai/text-embedding-3-small",
+            input: ["Gateway documentation", "Semantic search"],
+            encoding_format: "float",
+        }
+        : {
+            model: "openai/text-embedding-3-small",
+            values: ["Gateway documentation", "Semantic search"],
+        };
+
+    return {
+        id: `embeddings-${isOpenAi ? "openai" : "ai-sdk"}`,
+        title: t(`embeddings.${key}.title`),
+        surface: t(`embeddings.${key}.surface`),
+        method: "POST",
+        path,
+        url,
+        summary: t(`embeddings.${key}.summary`),
+        description: <p style={{ margin: 0 }}>{t(`embeddings.${key}.description`)}</p>,
+        auth: createGatewayAuth(t),
+        parameters: isOpenAi
+            ? [
+                { name: "model", type: "string", required: true, description: t("embeddings.openai.parameters.model") },
+                { name: "input", type: "string | array", required: true, description: t("embeddings.openai.parameters.input") },
+                { name: "dimensions", type: "number", required: false, description: t("embeddings.openai.parameters.dimensions") },
+                { name: "encoding_format", type: "string", required: false, description: t("embeddings.openai.parameters.encodingFormat") },
+                { name: "user", type: "string", required: false, description: t("embeddings.openai.parameters.user") },
+            ]
+            : [
+                { name: "model", type: "string", required: true, description: t("embeddings.aiSdk.parameters.model") },
+                { name: "values", type: "array", required: true, description: t("embeddings.aiSdk.parameters.values") },
+                { name: "providerOptions", type: "object", required: false, description: t("embeddings.aiSdk.parameters.providerOptions") },
+            ],
+        test: {
+            label: t(`embeddings.${key}.testLabel`),
+            modalTitle: t(`embeddings.${key}.testModalTitle`),
+            description: <p style={{ margin: 0 }}>{t(`embeddings.${key}.testDescription`)}</p>,
+            responseType: "json",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body,
+        },
+        requestExamples: [
+            {
+                id: `typescript-${isOpenAi ? "openai" : "ai-sdk"}-embeddings`,
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${url}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+
+const result = await response.json();`,
+            },
+            {
+                id: `curl-${isOpenAi ? "openai" : "ai-sdk"}-embeddings`,
+                label: "cURL",
+                language: "bash",
+                code: `curl ${url} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'`,
+            },
+        ],
+        responses: [{
+            status: "200",
+            description: t(`embeddings.${key}.responses.json`),
+            example: {
+                id: `${isOpenAi ? "openai" : "ai-sdk"}-embeddings-response`,
+                label: "JSON",
+                language: "json",
+                code: isOpenAi ? openAiEmbeddingsResponseExample : aiSdkEmbeddingsResponseExample,
+            },
+        }],
+        errors: [
+            { status: "400", description: t(`embeddings.${key}.errors.badRequest`) },
+            { status: "401", description: t(`embeddings.${key}.errors.unauthorized`) },
+            { status: isOpenAi ? "500" : "429", description: t(`embeddings.${key}.errors.providerFailed`) },
+        ],
+        related: [
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+            isOpenAi
+                ? { id: "ai-embeddings", label: t("embeddings.openai.relatedAiSdk"), href: "/gateway/ai/embeddings" }
+                : { id: "openai-embeddings", label: t("embeddings.aiSdk.relatedOpenAi"), href: "/gateway/openai/embeddings" },
+        ],
+    };
+};
+
+const streamingTranscriptionsResponseExample = `data: {"type":"stream-start","warnings":[]}
+
+data: {"type":"response-metadata","timestamp":"2026-07-14T13:20:00Z","modelId":"whisper-1","headers":{}}
+
+data: {"type":"transcript-delta","id":"segment-0","delta":"Welcome to "}
+
+data: {"type":"transcript-delta","id":"segment-0","delta":"the gateway docs."}
+
+data: {"type":"transcript-final","id":"segment-0","text":"Welcome to the gateway docs.","startSecond":0,"endSecond":2.8}
+
+data: {"type":"finish","text":"Welcome to the gateway docs.","segments":[],"language":"en","durationInSeconds":2.8}
+
+data: [DONE]`;
+
+export const createStreamingTranscriptionsEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const t = options.t ?? fallbackT;
+    const path = "/api/transcriptions/stream";
+    const url = createApiUrl(apiBaseUrl, path);
+    const body = {
+        model: "openai/whisper-1",
+        audio: "SUQzBAAAAAAA...",
+        inputAudioFormat: { type: "mp3" },
+        includeRawChunks: false,
+    };
+
+    return {
+        id: "streaming-transcriptions-ai-sdk",
+        title: t("transcriptions.streaming.title"),
+        surface: t("transcriptions.streaming.surface"),
+        method: "POST",
+        path,
+        url,
+        summary: t("transcriptions.streaming.summary"),
+        description: <p style={{ margin: 0 }}>{t("transcriptions.streaming.description")}</p>,
+        auth: createGatewayAuth(t),
+        parameters: [
+            { name: "model", type: "string", required: true, description: t("transcriptions.streaming.parameters.model") },
+            { name: "audio", type: "string", required: true, description: t("transcriptions.streaming.parameters.audio") },
+            { name: "inputAudioFormat", type: "object", required: true, description: t("transcriptions.streaming.parameters.inputAudioFormat") },
+            { name: "inputAudioFormat.type", type: "string", required: true, description: t("transcriptions.streaming.parameters.type") },
+            { name: "inputAudioFormat.rate", type: "number", required: false, description: t("transcriptions.streaming.parameters.rate") },
+            { name: "providerOptions", type: "object", required: false, description: t("transcriptions.streaming.parameters.providerOptions") },
+            { name: "includeRawChunks", type: "boolean", required: false, description: t("transcriptions.streaming.parameters.includeRawChunks") },
+        ],
+        test: {
+            label: t("transcriptions.streaming.testLabel"),
+            modalTitle: t("transcriptions.streaming.testModalTitle"),
+            description: <p style={{ margin: 0 }}>{t("transcriptions.streaming.testDescription")}</p>,
+            responseType: "text",
+            headers: [
+                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "Content-Type", value: "application/json" },
+            ],
+            body,
+        },
+        requestExamples: [
+            {
+                id: "typescript-ai-sdk-streaming-transcriptions",
+                label: "TypeScript",
+                language: "ts",
+                code: `const response = await fetch("${url}", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: \`Bearer \${token}\`,
+  },
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+
+const reader = response.body?.getReader();
+// Decode and parse each SSE data line until data: [DONE].`,
+            },
+            {
+                id: "curl-ai-sdk-streaming-transcriptions",
+                label: "cURL streaming",
+                language: "bash",
+                code: `curl -N ${url} \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'`,
+            },
+        ],
+        responses: [{
+            status: "200",
+            description: t("transcriptions.streaming.responses.sse"),
+            example: { id: "ai-sdk-streaming-transcriptions-response", label: "SSE", language: "text", code: streamingTranscriptionsResponseExample },
+        }],
+        errors: [
+            { status: "400", description: t("transcriptions.streaming.errors.badRequest") },
+            { status: "401", description: t("transcriptions.streaming.errors.unauthorized") },
+            { status: "200", description: t("transcriptions.streaming.errors.streamError") },
+        ],
+        related: [
+            { id: "ai-transcriptions", label: t("transcriptions.streaming.relatedTranscriptions"), href: "/gateway/ai/transcriptions" },
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
         ],
     };
 };

@@ -19,6 +19,8 @@ import { VideoEndpointPage } from "./pages/VideoEndpointPage";
 import { AiSdkImageEndpointPage } from "./pages/AiSdkImageEndpointPage";
 import { SkillEndpointPage } from "./pages/SkillEndpointPage";
 import { UiEndpointPage } from "./pages/UiEndpointPage";
+import { EmbeddingsEndpointPage } from "./pages/EmbeddingsEndpointPage";
+import { StreamingTranscriptionsEndpointPage } from "./pages/StreamingTranscriptionsEndpointPage";
 
 export type DocsRootProps = {
   appTitle?: string;
@@ -42,6 +44,7 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl }: DocsR
         { path: "/gateway", element: withLocation((activePath) => <GatewayOverviewPage activePath={activePath} appTitle={appTitle} />) },
         { path: "/agents", element: withLocation((activePath) => <AgentsOverviewPage activePath={activePath} appTitle={appTitle} />) },
         { path: "/gateway/openai/models", element: withLocation((activePath) => <ModelsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
+        { path: "/gateway/openai/embeddings", element: withLocation((activePath) => <EmbeddingsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="openai" />) },
         { path: "/gateway/openai/chat-completions", element: withLocation((activePath) => <ChatCompletionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/openai/realtime", element: withLocation((activePath) => <RealtimeEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/openai/responses", element: withLocation((activePath) => <ResponsesEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
@@ -55,11 +58,13 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl }: DocsR
         { path: "/gateway/openai/download-skill-version", element: withLocation((activePath) => <SkillEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="download-version" />) },
         { path: "/gateway/anthropic/messages", element: withLocation((activePath) => <MessagesEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/chat", element: withLocation((activePath) => <AiSdkChatEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
+        { path: "/gateway/ai/embeddings", element: withLocation((activePath) => <EmbeddingsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="ai-sdk" />) },
         { path: "/gateway/ai/images", element: withLocation((activePath) => <AiSdkImageEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/ui", element: withLocation((activePath) => <UiEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/rerank", element: withLocation((activePath) => <RerankEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/speech", element: withLocation((activePath) => <SpeechEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="ai-sdk" />) },
         { path: "/gateway/ai/transcriptions", element: withLocation((activePath) => <TranscriptionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="ai-sdk" />) },
+        { path: "/gateway/ai/transcriptions/stream", element: withLocation((activePath) => <StreamingTranscriptionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/videos/create", element: withLocation((activePath) => <VideoEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="create" />) },
         { path: "/gateway/ai/videos/get", element: withLocation((activePath) => <VideoEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="get" />) },
         { path: "*", element: withLocation((activePath) => <ComingSoonPage activePath={activePath} appTitle={appTitle} />) },
