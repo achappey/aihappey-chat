@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { VectorStoreCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import {
-  getVectorStoreChunkCount,
   chunkText,
   insertVectorStoreChunks,
   removeVectorStoreSource,
@@ -26,6 +25,7 @@ export const VectorStoresPage = () => {
   const { t } = useTranslation();
   const hubs = useVectorStores();
   const models = useAppStore((state) => state.models);
+  const userPreferredEmbeddingModel = useAppStore((state) => state.userPreferredEmbeddingModel);
   const customHeaders = useAppStore((state) => state.customHeaders);
   const { config } = useChatContext();
   const [search, setSearch] = useState("");
@@ -94,11 +94,11 @@ export const VectorStoresPage = () => {
           <SearchBox value={search} onChange={setSearch}
             placeholder={t("vectorStorePage.overview.searchPlaceholder")} autoFocus={isDesktop} />
         </div>
-        {visible.length ? <div style={{ width: "100%", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 16 }}>
-          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} chunks={getVectorStoreChunkCount(hub)} onView={() => setViewingId(hub.id)} onDelete={() => void hubs.delete(hub.id)} labels={{ chunks: t("vectorStorePage.fields.chunks").toLocaleLowerCase(), view: t("view"), delete: t("delete") }} />)}
+        {visible.length ? <div style={{ width: "100%", display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 16 }}>
+          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} size={new TextEncoder().encode(JSON.stringify(hub)).length} onView={() => setViewingId(hub.id)} onDelete={() => void hubs.delete(hub.id)} labels={{ view: t("view"), delete: t("delete") }} />)}
         </div> : <Text as="p" align="center">{t("vectorStorePage.overview.empty")}</Text>}
       </div>
-      <VectorStoreEditModal open={modalOpen} hub={editing} models={models ?? []} busy={busy} error={error} onClose={() => setModalOpen(false)} onSave={saveHub} />
+      <VectorStoreEditModal open={modalOpen} hub={editing} models={models ?? []} defaultModel={userPreferredEmbeddingModel} busy={busy} error={error} onClose={() => setModalOpen(false)} onSave={saveHub} />
       <VectorStoreDetailModal open={!!viewingId} hub={hubs.items.find((hub) => hub.id === viewingId)} onClose={() => setViewingId(undefined)} onEdit={(hub) => { setViewingId(undefined); openEdit(hub); }} onReplace={hubs.replace} />
     </>
   );
