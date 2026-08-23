@@ -571,6 +571,7 @@ import { prunaai } from "./catalog/prunaai";
 import { sovereigneg } from "./catalog/sovereigneg";
 import { soniox } from "./catalog/soniox";
 import { nexosai } from "./catalog/nexosai";
+import { hetzner } from "./catalog/hetzner";
 
 /**
  * UI-facing provider catalog.
@@ -612,6 +613,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   sovrgpt,
   brave,
   radiance,
+  hetzner,
   melious,
   ninjachat,
   botverse,
