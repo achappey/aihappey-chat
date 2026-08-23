@@ -1,5 +1,4 @@
 import { useMemo, type ReactElement } from "react";
-import { DocsI18nProvider } from "aihappey-docs-i18n";
 import { DocsRequestProvider } from "aihappey-docs-components";
 import { createBrowserRouter, RouterProvider, useLocation } from "react-router";
 import { AgentsOverviewPage } from "./pages/AgentsOverviewPage";
@@ -85,11 +84,9 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentAp
   );
 
   return (
-    <DocsI18nProvider>
-      <DocsRequestProvider headers={headers} getAccessToken={getAccessToken} fetch={fetch}>
-        <RouterProvider router={router} />
-      </DocsRequestProvider>
-    </DocsI18nProvider>
+    <DocsRequestProvider headers={headers} getAccessToken={getAccessToken} fetch={fetch}>
+      <RouterProvider router={router} />
+    </DocsRequestProvider>
   );
 };
 

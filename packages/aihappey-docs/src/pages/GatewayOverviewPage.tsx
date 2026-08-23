@@ -37,3 +37,4 @@ export const GatewayOverviewPage = ({ activePath, appTitle }: GatewayOverviewPag
   );
 };
 
+

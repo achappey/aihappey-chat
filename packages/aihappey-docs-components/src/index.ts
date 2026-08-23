@@ -6,7 +6,6 @@ export * from "./navigation/types";
 export * from "./layout/DocsLink";
 export * from "./layout/DocsTopNav";
 export * from "./layout/DocsHeader";
-export * from "./layout/DocsLanguageSelector";
 export * from "./layout/DocsSidebar";
 export * from "./layout/DocsLayout";
 export * from "./layout/ThemeSelector";

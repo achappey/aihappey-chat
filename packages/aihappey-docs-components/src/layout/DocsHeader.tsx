@@ -3,10 +3,8 @@ import type { DocsTopNavItem } from "../navigation/types";
 import { docsBorderStyle } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
 import { DocsLink } from "./DocsLink";
-import { DocsLanguageSelector } from "./DocsLanguageSelector";
 import { DocsTopNav } from "./DocsTopNav";
 import { ThemeSelector } from "./ThemeSelector";
-import { useDocsTranslation } from "aihappey-docs-i18n";
 
 export type DocsHeaderProps = {
   title: string;
@@ -18,7 +16,6 @@ export type DocsHeaderProps = {
 
 export const DocsHeader = ({ title, activePath, navItems, dashboardHref, actions }: DocsHeaderProps) => {
   const { Button, SearchBox } = useDocsTheme();
-  const { t } = useDocsTranslation();
 
   return (
     <header
@@ -46,12 +43,11 @@ export const DocsHeader = ({ title, activePath, navItems, dashboardHref, actions
         </DocsLink>
         <DocsTopNav items={navItems} activePath={activePath} />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
-          <SearchBox value="" onChange={() => undefined} placeholder={t("header.searchPlaceholder")} style={{ width: "min(280px, 100%)" }} />
+          <SearchBox value="" onChange={() => undefined} placeholder="Search docs" style={{ width: "min(280px, 100%)" }} />
           <ThemeSelector />
-          <DocsLanguageSelector />
           {dashboardHref ? (
             <DocsLink href={dashboardHref} target={dashboardHref.startsWith("http") ? "_blank" : undefined}>
-              <Button type="button">{t("header.dashboard")}</Button>
+              <Button type="button">Dashboard ↗</Button>
             </DocsLink>
           ) : null}
           {actions}

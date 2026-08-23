@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { docsInlineCodeStyle, type DocsEndpointDoc, type DocsHomeCard, type DocsNavSection, type DocsTopNavItem } from "aihappey-docs-components";
+import { getDocsContent } from "./docsContent";
 
 const inlineCode = (value: string) => <code style={docsInlineCodeStyle}>{value}</code>;
+const t = getDocsContent;
 
 export const docsTopNavItems: DocsTopNavItem[] = [
     { id: "home", label: "Home", href: "/" },
@@ -172,7 +174,6 @@ const agentChatBody = {
 
 export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const paths: Record<AgentEndpoint, string> = {
         models: "/v1/models",
         "create-response": "/v1/responses",
@@ -273,7 +274,6 @@ export type SkillEndpoint = "list" | "download" | "versions" | "download-version
 
 type CreateSpeechEndpointDocOptions = {
     apiBaseUrl?: string;
-    t?: (key: string) => string;
 };
 
 const fallbackApiBaseUrl = "http://localhost:3010";
@@ -285,8 +285,6 @@ const normalizeApiBaseUrl = (apiBaseUrl?: string) => {
 };
 
 const createApiUrl = (apiBaseUrl: string, path: string) => `${normalizeApiBaseUrl(apiBaseUrl)}${path}`;
-
-const fallbackT = (key: string) => key;
 
 const createOpenAiSpeechDescription = (t: (key: string) => string): ReactNode => (
     <p style={{ margin: 0 }}>
@@ -371,7 +369,6 @@ const createAiSdkSpeechTestDescription = (t: (key: string) => string): ReactNode
 
 export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const openAiSpeechUrl = createApiUrl(apiBaseUrl, "/v1/audio/speech");
     const aiSdkSpeechUrl = createApiUrl(apiBaseUrl, "/api/speech");
 
@@ -725,7 +722,6 @@ const createRealtimeTestDescription = (t: (key: string) => string): ReactNode =>
 
 export const createTranscriptionsEndpointDoc = (surface: TranscriptionsSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const openAiTranscriptionsUrl = createApiUrl(apiBaseUrl, "/v1/audio/transcriptions");
     const aiSdkTranscriptionsUrl = createApiUrl(apiBaseUrl, "/api/transcriptions");
 
@@ -940,7 +936,6 @@ const aiSdkEmbeddingsResponseExample = `{
 
 export const createEmbeddingsEndpointDoc = (surface: EmbeddingsSurface, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const isOpenAi = surface === "openai";
     const path = isOpenAi ? "/v1/embeddings" : "/api/embeddings";
     const url = createApiUrl(apiBaseUrl, path);
@@ -1056,7 +1051,6 @@ data: [DONE]`;
 
 export const createStreamingTranscriptionsEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const path = "/api/transcriptions/stream";
     const url = createApiUrl(apiBaseUrl, path);
     const body = {
@@ -1142,7 +1136,6 @@ const reader = response.body?.getReader();
 
 export const createResponsesEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const openAiResponsesUrl = createApiUrl(apiBaseUrl, "/v1/responses");
 
     return {
@@ -1243,7 +1236,6 @@ data: [DONE]`,
 
 export const createRealtimeEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const openAiRealtimeUrl = createApiUrl(apiBaseUrl, "/v1/realtime/client_secrets");
 
     return {
@@ -1525,7 +1517,6 @@ const createOpenAiImageTestDescription = (t: (key: string) => string, endpoint: 
 
 export const createModelsEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const openAiModelsUrl = createApiUrl(apiBaseUrl, "/v1/models");
 
     return {
@@ -1595,7 +1586,6 @@ const models = await response.json();`,
 
 export const createChatCompletionsEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const openAiChatUrl = createApiUrl(apiBaseUrl, "/v1/chat/completions");
 
     return {
@@ -1702,7 +1692,6 @@ data: [DONE]`,
 
 export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const path = endpoint === "generation" ? "/v1/images/generations" : "/v1/images/edits";
     const url = createApiUrl(apiBaseUrl, path);
     const key = endpoint === "generation" ? "generation" : endpoint;
@@ -1859,7 +1848,6 @@ data: {"type":"image_edit.completed","b64_json":"iVBORw0KGgoAAAANSUhEUgAA...","c
 
 type CreateAiSdkEndpointDocOptions = {
     apiBaseUrl?: string;
-    t?: (key: string) => string;
 };
 
 const createAiSdkRerankDescription = (t: (key: string) => string): ReactNode => (
@@ -2044,7 +2032,6 @@ const createAiSdkVideoTestDescription = (t: (key: string) => string, endpoint: V
 
 export const createRerankEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const aiSdkRerankUrl = createApiUrl(apiBaseUrl, "/api/rerank");
 
     return {
@@ -2157,7 +2144,6 @@ const rerank = await response.json();`,
 
 export const createVideoEndpointDoc = (endpoint: VideoEndpoint, options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const createUrl = createApiUrl(apiBaseUrl, "/api/videos");
     const getPath = "/api/videos/{providerId}/{taskId}";
     const getExampleUrl = createApiUrl(apiBaseUrl, "/api/videos/google/task_01hzyj8v5n9k6s3r2d4a");
@@ -2359,7 +2345,6 @@ const task = await response.json();`,
 
 export const createAiSdkChatEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const url = createApiUrl(apiBaseUrl, "/api/chat");
     const body = {
         id: "chat_01hzyj8v5n9k6s3r2d4a",
@@ -2435,7 +2420,6 @@ data: {"type":"finish"}` } }],
 
 export const createMessagesEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
     const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
-    const t = options.t ?? fallbackT;
     const url = createApiUrl(apiBaseUrl, "/v1/messages");
     const body = {
         model: "anthropic/claude-sonnet-4-5",
@@ -2530,7 +2514,6 @@ const gatewayHeaders = [
 ];
 
 export const createAiSdkImageEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
-    const t = options.t ?? fallbackT;
     const path = "/api/images";
     const url = createApiUrl(normalizeApiBaseUrl(options.apiBaseUrl), path);
     const body = {
@@ -2565,7 +2548,6 @@ export const createAiSdkImageEndpointDoc = (options: CreateAiSdkEndpointDocOptio
 };
 
 export const createUiEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
-    const t = options.t ?? fallbackT;
     const path = "/api/generate";
     const url = createApiUrl(normalizeApiBaseUrl(options.apiBaseUrl), path);
     const body = { model: "openai/gpt-4.1-mini", prompt: "Create a pricing card component.", catalogPrompt: "Use accessible HTML and utility classes.", context: { framework: "React" }, temperature: 0.7, maxOutputTokens: 2048 };
@@ -2593,7 +2575,6 @@ export const createUiEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {})
 };
 
 export const createSkillEndpointDoc = (endpoint: SkillEndpoint, options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
-    const t = options.t ?? fallbackT;
     const paths: Record<SkillEndpoint, string> = {
         list: "/v1/skills", download: "/v1/skills/{skillId}/content",
         versions: "/v1/skills/{skillId}/versions", "download-version": "/v1/skills/{skillId}/versions/{version}/content",
@@ -2633,4 +2614,5 @@ export const createSkillEndpointDoc = (endpoint: SkillEndpoint, options: CreateA
         related: endpoint === "list" ? [{ id: "skill-versions", label: t("skills.common.relatedVersions"), href: "/gateway/openai/list-skill-versions" }] : [{ id: "skills-list", label: t("skills.common.relatedList"), href: "/gateway/openai/list-skills" }],
     };
 };
+
 

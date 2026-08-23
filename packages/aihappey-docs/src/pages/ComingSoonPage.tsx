@@ -21,3 +21,4 @@ export const ComingSoonPage = ({ activePath, appTitle }: ComingSoonPageProps) =>
   );
 };
 
+

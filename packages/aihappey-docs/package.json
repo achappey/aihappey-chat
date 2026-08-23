@@ -8,8 +8,7 @@
     "dist"
   ],
   "dependencies": {
-    "aihappey-docs-components": "*",
-    "aihappey-docs-i18n": "*"
+    "aihappey-docs-components": "*"
   },
   "scripts": {
     "build": "tsc",

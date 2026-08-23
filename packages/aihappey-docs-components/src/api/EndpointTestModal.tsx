@@ -3,7 +3,6 @@ import type { CSSProperties, FormEvent } from "react";
 import type { DocsEndpointDoc, DocsEndpointTestConfig, DocsEndpointTestField, DocsEndpointTestHeader, DocsEndpointTestResponseType } from "../navigation/types";
 import { docsBorderStyle, docsCodeStyle, docsMutedTextStyle, docsSubtleSurfaceStyle } from "../theme/docsThemeStyles";
 import { useDocsTheme } from "../theme/useDocsTheme";
-import { useDocsTranslation } from "aihappey-docs-i18n";
 import { useDocsRequest } from "./DocsRequestContext";
 
 type HeaderRow = DocsEndpointTestHeader & {
@@ -116,7 +115,6 @@ const formatBytes = (size: number) => {
 
 export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalProps) => {
   const { Badge, Button, Input, Modal, TextArea } = useDocsTheme();
-  const { t } = useDocsTranslation();
   const requestConfig = useDocsRequest();
   const config: DocsEndpointTestConfig = endpoint.test ?? {};
   const [method, setMethod] = useState(config.method ?? endpoint.method);
@@ -200,9 +198,9 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
       setBody(JSON.stringify(JSON.parse(body), null, 2));
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("api.test.invalidJsonBody"));
+      setError(err instanceof Error ? err.message : "Request body is not valid JSON.");
     }
-  }, [body, t]);
+  }, [body]);
 
   const sendRequest = useCallback(async (event?: FormEvent) => {
     event?.preventDefault();
@@ -213,7 +211,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     const trimmedMethod = method.trim().toUpperCase() || "GET";
     const trimmedUrl = url.trim();
     if (!trimmedUrl) {
-      setError(t("api.test.missingUrl"));
+      setError("Enter an endpoint URL before sending the request.");
       return;
     }
 
@@ -223,7 +221,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
       try {
         JSON.parse(body);
       } catch (err) {
-        setError(err instanceof Error ? t("api.test.invalidRequestBodyJson", { message: err.message }) : t("api.test.invalidRequestBodyJsonFallback"));
+        setError(err instanceof Error ? `Request body JSON is invalid: ${err.message}` : "Request body JSON is invalid.");
         return;
       }
     }
@@ -241,7 +239,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
           if (field.type === "file") {
             const files = fileValues[field.id];
             if (field.required && (!files || files.length === 0)) {
-              setError(t("api.test.missingRequiredFile", { name }));
+              setError(`Choose a file for required field ${name}.`);
               setIsSending(false);
               return;
             }
@@ -251,7 +249,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
           }
 
           if (field.required && !field.value?.trim()) {
-            setError(t("api.test.missingRequiredField", { name }));
+            setError(`Enter a value for required field ${name}.`);
             setIsSending(false);
             return;
           }
@@ -291,7 +289,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
           elapsedMs,
           contentType: responseContentType,
           headers: formatHeaderValue(response.headers),
-          bodyText: blobType ? t("api.test.receivedBlob", { size: formatBytes(blob.size), type: blobType }) : t("api.test.receivedBinary", { size: formatBytes(blob.size) }),
+          bodyText: blobType ? `Received ${formatBytes(blob.size)} (${blobType}).` : `Received ${formatBytes(blob.size)} binary response.`,
           blobUrl,
           blobType,
           blobSize: blob.size,
@@ -311,11 +309,11 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
         bodyText: formatResponseText(text, responseContentType),
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("api.test.requestFailed"));
+      setError(err instanceof Error ? err.message : "The request failed before a response was returned.");
     } finally {
       setIsSending(false);
     }
-  }, [body, canSendBody, fields, fileValues, headersRecord, method, requestConfig, requestHeadersRecord, responseType, result?.blobUrl, t, url, usesFormData]);
+  }, [body, canSendBody, fields, fileValues, headersRecord, method, requestConfig, requestHeadersRecord, responseType, result?.blobUrl, url, usesFormData]);
 
   const modalTitle = config.modalTitle ?? `Test ${endpoint.title}`;
   const downloadFileName = config.downloadFileName ?? `${endpoint.id}-response.bin`;
@@ -329,9 +327,9 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
       size="large"
       actions={(
         <>
-          <Button variant="secondary" type="button" onClick={resetForm} disabled={isSending}>{t("api.test.reset")}</Button>
-          <Button variant="secondary" type="button" onClick={onHide} disabled={isSending}>{t("api.test.close")}</Button>
-          <Button type="submit" form="endpoint-test-form" disabled={isSending}>{isSending ? t("api.test.sending") : t("api.test.sendRequest")}</Button>
+          <Button variant="secondary" type="button" onClick={resetForm} disabled={isSending}>Reset</Button>
+          <Button variant="secondary" type="button" onClick={onHide} disabled={isSending}>Close</Button>
+          <Button type="submit" form="endpoint-test-form" disabled={isSending}>{isSending ? "Sending…" : "Send request"}</Button>
         </>
       )}
     >
@@ -340,30 +338,30 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
           {config.description ? <div style={docsMutedTextStyle}>{config.description}</div> : null}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
             <Badge appearance="primary">{method || endpoint.method}</Badge>
-            <Badge appearance="secondary">{t("api.test.responseType", { responseType })}</Badge>
+            <Badge appearance="secondary">Response: {responseType}</Badge>
             {usesFormData ? <Badge appearance="secondary">multipart/form-data</Badge> : null}
           </div>
         </div>
 
         <section style={sectionStyle}>
-          <strong>{t("api.test.endpoint")}</strong>
+          <strong>Endpoint</strong>
           <div style={twoColumnStyle}>
-            <Input label={t("api.test.method")} value={method} onChange={(event) => setMethod(event.currentTarget.value)} />
-            <Input label={t("api.test.url")} value={url} onChange={(event) => setUrl(event.currentTarget.value)} />
+            <Input label="Method" value={method} onChange={(event) => setMethod(event.currentTarget.value)} />
+            <Input label="URL" value={url} onChange={(event) => setUrl(event.currentTarget.value)} />
           </div>
         </section>
 
         <section style={sectionStyle}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
-            <strong>{t("api.test.headers")}</strong>
-            <Button type="button" variant="secondary" size="small" onClick={addHeader}>{t("api.test.addHeader")}</Button>
+            <strong>Headers</strong>
+            <Button type="button" variant="secondary" size="small" onClick={addHeader}>Add header</Button>
           </div>
           <div style={{ display: "grid", gap: 10 }}>
             {headers.map((header) => (
               <div key={header.id} style={{ display: "grid", gridTemplateColumns: "minmax(8rem, 0.42fr) minmax(10rem, 1fr) auto", gap: 10, alignItems: "end" }}>
-                <Input label={t("api.test.name")} value={header.name} placeholder={t("api.test.headerNamePlaceholder")} onChange={(event) => updateHeader(header.id, { name: event.currentTarget.value })} />
-                <Input label={t("api.test.value")} value={header.value ?? ""} placeholder={header.placeholder ?? t("api.test.headerValuePlaceholder")} onChange={(event) => updateHeader(header.id, { value: event.currentTarget.value })} />
-                <Button type="button" variant="secondary" size="small" onClick={() => removeHeader(header.id)} disabled={headers.length <= 1}>{t("api.test.remove")}</Button>
+                <Input label="Name" value={header.name} placeholder="Header name" onChange={(event) => updateHeader(header.id, { name: event.currentTarget.value })} />
+                <Input label="Value" value={header.value ?? ""} placeholder={header.placeholder ?? "Header value"} onChange={(event) => updateHeader(header.id, { value: event.currentTarget.value })} />
+                <Button type="button" variant="secondary" size="small" onClick={() => removeHeader(header.id)} disabled={headers.length <= 1}>Remove</Button>
               </div>
             ))}
           </div>
@@ -371,8 +369,8 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
 
         {usesFormData ? (
           <section style={sectionStyle}>
-            <strong>{t("api.test.formData")}</strong>
-            {!canSendBody ? <p style={{ ...docsMutedTextStyle, margin: 0 }}>{t("api.test.noRequestBody")}</p> : null}
+            <strong>Form data</strong>
+            {!canSendBody ? <p style={{ ...docsMutedTextStyle, margin: 0 }}>This method does not send a request body.</p> : null}
             <div style={{ display: "grid", gap: 10 }}>
               {fields.map((field) => field.type === "file" ? (
                 <Input
@@ -399,12 +397,12 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
         ) : (
           <section style={sectionStyle}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
-              <strong>{t("api.test.body")}</strong>
-              <Button type="button" variant="secondary" size="small" onClick={formatRequestBody} disabled={!body.trim()}>{t("api.test.formatJson")}</Button>
+              <strong>Body</strong>
+              <Button type="button" variant="secondary" size="small" onClick={formatRequestBody} disabled={!body.trim()}>Format JSON</Button>
             </div>
-            {!canSendBody ? <p style={{ ...docsMutedTextStyle, margin: 0 }}>{t("api.test.noRequestBody")}</p> : null}
+            {!canSendBody ? <p style={{ ...docsMutedTextStyle, margin: 0 }}>This method does not send a request body.</p> : null}
             <TextArea
-              label={t("api.test.requestBody")}
+              label="Request body"
               rows={10}
               value={body}
               readOnly={!canSendBody}
@@ -423,7 +421,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
         {result ? (
           <section style={sectionStyle}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <strong>{t("api.test.response")}</strong>
+              <strong>Response</strong>
               <Badge appearance={result.ok ? "primary" : "secondary"}>{result.status} {result.statusText}</Badge>
               <Badge appearance="secondary">{result.elapsedMs} ms</Badge>
               {result.contentType ? <Badge appearance="secondary">{result.contentType}</Badge> : null}
@@ -432,20 +430,20 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
             {result.isAudio && result.blobUrl ? (
               <div style={{ display: "grid", gap: 10 }}>
                 <audio controls src={result.blobUrl} style={{ width: "100%" }} />
-                <a href={result.blobUrl} download={downloadFileName} style={{ color: "inherit", fontWeight: 700 }}>{t("api.test.downloadAudio")}</a>
+                <a href={result.blobUrl} download={downloadFileName} style={{ color: "inherit", fontWeight: 700 }}>Download audio</a>
               </div>
             ) : result.blobUrl ? (
-              <a href={result.blobUrl} download={downloadFileName} style={{ color: "inherit", fontWeight: 700 }}>{t("api.test.downloadResponseFile")}</a>
+              <a href={result.blobUrl} download={downloadFileName} style={{ color: "inherit", fontWeight: 700 }}>Download response file</a>
             ) : null}
 
             <div style={{ display: "grid", gap: 8 }}>
-              <strong>{t("api.test.responseBody")}</strong>
-              <pre style={responsePreStyle}>{result.bodyText || t("api.test.emptyResponse")}</pre>
+              <strong>Response body</strong>
+              <pre style={responsePreStyle}>{result.bodyText || "<empty response>"}</pre>
             </div>
 
             <div style={{ display: "grid", gap: 8 }}>
-              <strong>{t("api.test.responseHeaders")}</strong>
-              <pre style={responsePreStyle}>{result.headers.map((header) => `${header.name}: ${header.value}`).join("\n") || t("api.test.noResponseHeaders")}</pre>
+              <strong>Response headers</strong>
+              <pre style={responsePreStyle}>{result.headers.map((header) => `${header.name}: ${header.value}`).join("\n") || "<no response headers>"}</pre>
             </div>
           </section>
         ) : null}
