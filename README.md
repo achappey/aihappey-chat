@@ -4,6 +4,8 @@ A browser-based AI chat client with streaming, provider switching, Agents, [MCP]
 
 Connect compatible AI APIs, agent runtimes and MCP servers directly from the client.
 
+[![aihappey-chat](https://achappey.github.io/aihappey-chat/images/screenshot_chat.png)](https://chat.aihappey.com)
+
 The chat client supports:
 
 - **Streaming chat** with rich incremental message rendering
@@ -21,4 +23,3 @@ The chat client supports:
 Documentation: https://docs.aihappey.com/chat  
 App: https://chat.aihappey.com
 
-[![aihappey-chat](https://achappey.github.io/aihappey-chat/images/screenshot_chat.png)](https://chat.aihappey.com)
