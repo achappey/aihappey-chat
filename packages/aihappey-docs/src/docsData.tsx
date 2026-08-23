@@ -9,7 +9,14 @@ export const docsTopNavItems: DocsTopNavItem[] = [
     { id: "home", label: "Home", href: "/" },
     { id: "gateway", label: "Gateway", href: "/gateway" },
     { id: "agents", label: "Agents", href: "/agents" },
-    { id: "resources", label: "Resources", href: "/resources" },
+    { id: "chat", label: "Chat", href: "/chat" },
+    {
+        id: "model-context", label: "Model Context", href: "/model-context",
+        items: [
+            { id: "model-context-servers", label: "Servers", href: "/model-context/servers" },
+            { id: "model-context-registry", label: "Registry", href: "/model-context/registry" },
+        ],
+    },
 ];
 
 export const docsHomeCards: DocsHomeCard[] = [
@@ -115,6 +122,21 @@ export const agentNavSections: DocsNavSection[] = [
         title: "AI SDK",
         items: [
             { id: "agents-ai-sdk-chat", label: "Chat", href: "/agents/ai/chat", badge: { label: "POST", method: "POST" } }
+        ],
+    },
+];
+
+export const chatNavSections: DocsNavSection[] = [
+    {
+        id: "chat-start",
+        title: "",
+        items: [
+            { id: "chat-overview", label: "Overview", href: "/chat" },
+            { id: "chat-agents", label: "Agents", href: "/chat/agents" },
+            { id: "chat-conversations", label: "Conversations", href: "/chat/conversations" },
+            { id: "chat-model-context", label: "Model Context", href: "/chat/model-context" },
+            { id: "chat-skills", label: "Skills", href: "/chat/skills" },
+            { id: "chat-plugins", label: "Plugins", href: "/chat/plugins" },
         ],
     },
 ];

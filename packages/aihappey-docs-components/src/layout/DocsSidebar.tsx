@@ -21,11 +21,8 @@ export const DocsSidebar = ({ title, sections, activePath, collapsed, onToggleCo
 
   const items = useMemo<NavigationItem[]>(
     () =>
-      sections.map((section) => ({
-        key: "category",
-        eventKey: section.id,
-        label: section.title,
-        children: section.items.map((item) => ({
+      sections.flatMap((section): NavigationItem[] => {
+        const children: NavigationItem[] = section.items.map((item) => ({
           key: item.href,
           eventKey: item.href,
           label: item.label,
@@ -35,8 +32,12 @@ export const DocsSidebar = ({ title, sections, activePath, collapsed, onToggleCo
             event?.preventDefault?.();
             navigate(item.href);
           },
-        })),
-      })),
+        }));
+
+        return section.title
+          ? [{ key: "category", eventKey: section.id, label: section.title, children } as NavigationItem]
+          : children;
+      }),
     [navigate, sections]
   );
 

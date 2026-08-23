@@ -22,6 +22,7 @@ import { UiEndpointPage } from "./pages/UiEndpointPage";
 import { EmbeddingsEndpointPage } from "./pages/EmbeddingsEndpointPage";
 import { StreamingTranscriptionsEndpointPage } from "./pages/StreamingTranscriptionsEndpointPage";
 import { AgentEndpointPage } from "./pages/AgentEndpointPage";
+import { ChatDocsPage } from "./pages/ChatDocsPage";
 
 export type DocsRootProps = {
   appTitle?: string;
@@ -54,6 +55,14 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentAp
         { path: "/agents/openai/responses/delete", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="delete-response" />) },
         { path: "/agents/openai/responses/list", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="list-responses" />) },
         { path: "/agents/ai/chat", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="chat" />) },
+        { path: "/chat", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="overview" />) },
+        { path: "/chat/agents", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="agents" />) },
+        { path: "/chat/conversations", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="conversations" />) },
+        { path: "/chat/model-context", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="model-context" />) },
+        { path: "/chat/skills", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="skills" />) },
+        { path: "/chat/plugins", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="plugins" />) },
+        { path: "/model-context/servers", element: withLocation((activePath) => <ComingSoonPage activePath={activePath} appTitle={appTitle} />) },
+        { path: "/model-context/registry", element: withLocation((activePath) => <ComingSoonPage activePath={activePath} appTitle={appTitle} />) },
         { path: "/gateway/openai/models", element: withLocation((activePath) => <ModelsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/openai/embeddings", element: withLocation((activePath) => <EmbeddingsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="openai" />) },
         { path: "/gateway/openai/chat-completions", element: withLocation((activePath) => <ChatCompletionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
