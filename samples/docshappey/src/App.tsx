@@ -47,6 +47,7 @@ const App = () => {
         appTitle={__APP_NAME__ || "aihappey Developers"}
         apiBaseUrl={__API_BASE_URL__}
         agentApiBaseUrl={__AGENT_ENDPOINT__}
+        authMode="provider-key"
       />
     </MultiThemeProvider>
   );

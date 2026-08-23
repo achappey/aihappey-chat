@@ -1,5 +1,6 @@
 import { ApiEndpointPage, ApiReferenceLayout } from "aihappey-docs-components";
-import { agentNavSections, createAgentEndpointDoc, docsTopNavItems, type AgentEndpoint } from "../docsData";
+import { createAgentEndpointDoc, docsTopNavItems, getAgentNavSections, type AgentEndpoint } from "../docsData";
+import { useDocsAuthMode } from "../DocsAuthContext";
 
 export type AgentEndpointPageProps = {
   activePath: string;
@@ -9,9 +10,10 @@ export type AgentEndpointPageProps = {
 };
 
 export const AgentEndpointPage = ({ activePath, apiBaseUrl, appTitle, endpoint }: AgentEndpointPageProps) => {
+  const authMode = useDocsAuthMode();
   return (
-    <ApiReferenceLayout appTitle={appTitle} activePath={activePath} topNavItems={docsTopNavItems} sidebarTitle="Agent API" sections={agentNavSections}>
-      <ApiEndpointPage endpoint={createAgentEndpointDoc(endpoint, { apiBaseUrl })} />
+    <ApiReferenceLayout appTitle={appTitle} activePath={activePath} topNavItems={docsTopNavItems} sidebarTitle="Agents API" sections={getAgentNavSections(authMode)}>
+      <ApiEndpointPage endpoint={createAgentEndpointDoc(endpoint, { apiBaseUrl, authMode })} />
     </ApiReferenceLayout>
   );
 };

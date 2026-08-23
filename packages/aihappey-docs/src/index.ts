@@ -1,4 +1,5 @@
 export * from "./DocsRoot";
+export * from "./DocsAuthContext";
 export * from "./docsData";
 export * from "./pages/HomePage";
 export * from "./pages/GatewayOverviewPage";

@@ -23,6 +23,7 @@ import { EmbeddingsEndpointPage } from "./pages/EmbeddingsEndpointPage";
 import { StreamingTranscriptionsEndpointPage } from "./pages/StreamingTranscriptionsEndpointPage";
 import { AgentEndpointPage } from "./pages/AgentEndpointPage";
 import { ChatDocsPage } from "./pages/ChatDocsPage";
+import { DocsAuthProvider, type DocsAuthMode } from "./DocsAuthContext";
 
 export type DocsRootProps = {
   appTitle?: string;
@@ -31,6 +32,8 @@ export type DocsRootProps = {
   headers?: Record<string, string>;
   getAccessToken?: () => Promise<string | null | undefined>;
   fetch?: typeof globalThis.fetch;
+  /** Authentication documentation and live-request mode for this consuming app. */
+  authMode: DocsAuthMode;
 };
 
 const withLocation = (render: (activePath: string) => ReactElement) => {
@@ -42,18 +45,18 @@ const withLocation = (render: (activePath: string) => ReactElement) => {
   return <RouteElement />;
 };
 
-export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentApiBaseUrl, headers, getAccessToken, fetch }: DocsRootProps) => {
+export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentApiBaseUrl, headers, getAccessToken, fetch, authMode }: DocsRootProps) => {
   const router = useMemo(
     () =>
       createBrowserRouter([
         { path: "/", element: withLocation((activePath) => <HomePage activePath={activePath} appTitle={appTitle} />) },
-        { path: "/gateway", element: withLocation((activePath) => <GatewayOverviewPage activePath={activePath} appTitle={appTitle} />) },
-        { path: "/agents", element: withLocation((activePath) => <AgentsOverviewPage activePath={activePath} appTitle={appTitle} />) },
+        { path: "/gateway", element: withLocation((activePath) => <GatewayOverviewPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
+        { path: "/agents", element: withLocation((activePath) => <AgentsOverviewPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} />) },
         { path: "/agents/openai/models", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="models" />) },
         { path: "/agents/openai/responses/create", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="create-response" />) },
         { path: "/agents/openai/responses/retrieve", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="retrieve-response" />) },
         { path: "/agents/openai/responses/delete", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="delete-response" />) },
-        { path: "/agents/openai/responses/list", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="list-responses" />) },
+        ...(authMode === "azure-ad" ? [{ path: "/agents/openai/responses/list", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="list-responses" />) }] : []),
         { path: "/agents/ai/chat", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="chat" />) },
         { path: "/chat", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="overview" />) },
         { path: "/chat/agents", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="agents" />) },
@@ -89,13 +92,19 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentAp
         { path: "/gateway/ai/videos/get", element: withLocation((activePath) => <VideoEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="get" />) },
         { path: "*", element: withLocation((activePath) => <ComingSoonPage activePath={activePath} appTitle={appTitle} />) },
       ]),
-    [agentApiBaseUrl, apiBaseUrl, appTitle]
+    [agentApiBaseUrl, apiBaseUrl, appTitle, authMode]
   );
 
   return (
-    <DocsRequestProvider headers={headers} getAccessToken={getAccessToken} fetch={fetch}>
-      <RouterProvider router={router} />
-    </DocsRequestProvider>
+    <DocsAuthProvider mode={authMode}>
+      <DocsRequestProvider
+        headers={authMode === "provider-key" ? headers : undefined}
+        getAccessToken={authMode === "azure-ad" ? getAccessToken : undefined}
+        fetch={fetch}
+      >
+        <RouterProvider router={router} />
+      </DocsRequestProvider>
+    </DocsAuthProvider>
   );
 };
 

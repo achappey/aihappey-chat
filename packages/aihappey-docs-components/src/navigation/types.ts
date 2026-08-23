@@ -30,6 +30,7 @@ export type DocsHomeCard = {
   id: string;
   title: string;
   description: string;
+  details?: string;
   href: string;
   icon?: ReactNode;
 };

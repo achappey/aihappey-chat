@@ -15,7 +15,7 @@ export type DocsHeaderProps = {
 };
 
 export const DocsHeader = ({ title, activePath, navItems, dashboardHref, actions }: DocsHeaderProps) => {
-  const { Button, SearchBox } = useDocsTheme();
+  const { Button } = useDocsTheme();
 
   return (
     <header
@@ -33,7 +33,7 @@ export const DocsHeader = ({ title, activePath, navItems, dashboardHref, actions
           minHeight: 76,
           padding: "0.85rem clamp(1rem, 2vw, 2rem)",
           display: "grid",
-          gridTemplateColumns: "minmax(220px, 1fr) auto minmax(260px, 1fr)",
+          gridTemplateColumns: "minmax(220px, 1fr) auto minmax(180px, 1fr)",
           gap: 18,
           alignItems: "center",
         }}
@@ -43,7 +43,6 @@ export const DocsHeader = ({ title, activePath, navItems, dashboardHref, actions
         </DocsLink>
         <DocsTopNav items={navItems} activePath={activePath} />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, flexWrap: "wrap" }}>
-          <SearchBox value="" onChange={() => undefined} placeholder="Search docs" style={{ width: "min(280px, 100%)" }} />
           <ThemeSelector />
           {dashboardHref ? (
             <DocsLink href={dashboardHref} target={dashboardHref.startsWith("http") ? "_blank" : undefined}>

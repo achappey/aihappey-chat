@@ -10,36 +10,32 @@ export const docsTopNavItems: DocsTopNavItem[] = [
     { id: "gateway", label: "Gateway", href: "/gateway" },
     { id: "agents", label: "Agents", href: "/agents" },
     { id: "chat", label: "Chat", href: "/chat" },
-    {
-        id: "model-context", label: "Model Context", href: "/model-context",
-        items: [
-            { id: "model-context-servers", label: "Servers", href: "/model-context/servers" },
-            { id: "model-context-registry", label: "Registry", href: "/model-context/registry" },
-        ],
-    },
 ];
 
 export const docsHomeCards: DocsHomeCard[] = [
     {
         id: "gateway",
         title: "Gateway API",
-        description: "OpenAI-compatible, Anthropic-compatible, and AI SDK routes for model, audio, and tool workflows.",
+        description: "Route chat, embeddings, media, reranking and skills through OpenAI-compatible, Anthropic-compatible and AI SDK APIs.",
+        details: "Reference pages include request fields, live test forms, JSON and SSE response examples, error cases and related routes.",
         href: "/gateway",
         icon: "▦",
     },
     {
         id: "agents",
-        title: "Agent API",
-        description: "Agent endpoints, runs, tools, memory, and orchestration docs with a separate reference navigation.",
+        title: "Agents API",
+        description: "Run catalog agents and multi-agent workflows through Responses or AI SDK streaming endpoints.",
+        details: "The reference covers model discovery, response creation and storage, streaming, inline agent definitions and workflow selection.",
         href: "/agents",
         icon: "◉",
     },
     {
-        id: "examples",
-        title: "Examples",
-        description: "Reusable examples for frontend integrations, SDK snippets, and endpoint-specific request flows.",
-        href: "/gateway/openai/speech",
-        icon: "⌁",
+        id: "chat",
+        title: "Chat platform",
+        description: "Configure and extend the aihappey chat client with agents, conversations, skills and plugins.",
+        details: "The application guides describe the client data structures and configuration points currently exposed by the chat packages.",
+        href: "/chat",
+        icon: "◇",
     },
 ];
 
@@ -125,6 +121,14 @@ export const agentNavSections: DocsNavSection[] = [
         ],
     },
 ];
+
+export const getAgentNavSections = (authMode: "provider-key" | "azure-ad"): DocsNavSection[] =>
+    authMode === "azure-ad"
+        ? agentNavSections
+        : agentNavSections.map((section) => ({
+            ...section,
+            items: section.items.filter((item) => item.id !== "agents-openai-list-responses"),
+        }));
 
 export const chatNavSections: DocsNavSection[] = [
     {
@@ -213,9 +217,10 @@ export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateS
     const livePath = path.replace("{responseId}", agentResponseId);
     const url = createApiUrl(apiBaseUrl, livePath);
     const isBodyEndpoint = endpoint === "create-response" || endpoint === "chat";
+    const isUnauthenticatedModels = endpoint === "models" && options.authMode !== "azure-ad";
     const body = endpoint === "chat" ? agentChatBody : endpoint === "create-response" ? agentCreateBody : undefined;
     const responseType = endpoint === "chat" ? "text" : "json";
-    const parameters = endpoint === "models" ? [
+    const parameters = endpoint === "models" && !isUnauthenticatedModels ? [
         { name: "X-*", type: "header", required: false, description: t("agents.endpoints.models.parameters.forwardedHeaders") },
     ] : endpoint === "create-response" ? [
         { name: "input", type: "string | array", required: true, description: t("agents.endpoints.createResponse.parameters.input") },
@@ -250,7 +255,9 @@ export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateS
         method: methods[endpoint], path, url,
         summary: t(`agents.endpoints.${key}.summary`),
         description: <p style={{ margin: 0 }}>{t(`agents.endpoints.${key}.description`)}</p>,
-        auth: <p style={{ margin: 0 }}>{t("agents.common.auth")}</p>,
+        auth: isUnauthenticatedModels
+            ? <p style={{ margin: 0 }}>No authentication is required for this route in a provider-key Agents API deployment.</p>
+            : <p style={{ margin: 0 }}>{t("agents.common.auth")}</p>,
         parameters,
         test: {
             label: t(`agents.endpoints.${key}.testLabel`),
@@ -259,14 +266,16 @@ export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateS
             responseType,
             headers: [
                 ...(isBodyEndpoint ? [{ name: "Content-Type", value: "application/json" }] : []),
-                { name: "X-OpenAI-Key", value: "", placeholder: "Optional downstream provider key" },
+                ...(!isUnauthenticatedModels ? [{ name: "X-OpenAI-Key", value: "", placeholder: "Downstream provider key" }] : []),
             ],
             ...(body ? { body } : {}),
         },
         requestExamples: [
             {
                 id: `typescript-agents-${endpoint}`, label: "TypeScript", language: "ts",
-                code: `const response = await fetch("${url}", {\n  method: "${methods[endpoint]}",\n  headers: {${isBodyEndpoint ? '\n    "Content-Type": "application/json",' : ""}\n    "X-OpenAI-Key": openAiApiKey\n  }${body ? `,\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})` : ""}\n});\n\n${responseType === "text" ? "const stream = response.body;" : "const result = await response.json();"}`,
+                code: isUnauthenticatedModels
+                    ? `const response = await fetch("${url}");\nconst result = await response.json();`
+                    : `const response = await fetch("${url}", {\n  method: "${methods[endpoint]}",\n  headers: {${isBodyEndpoint ? '\n    "Content-Type": "application/json",' : ""}\n    "X-OpenAI-Key": openAiApiKey\n  }${body ? `,\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})` : ""}\n});\n\n${responseType === "text" ? "const stream = response.body;" : "const result = await response.json();"}`,
             },
             {
                 id: `curl-agents-${endpoint}`, label: responseType === "text" ? "cURL streaming" : "cURL", language: "bash",
@@ -276,7 +285,7 @@ export const createAgentEndpointDoc = (endpoint: AgentEndpoint, options: CreateS
         responses: [{ status: "200", description: t(`agents.endpoints.${key}.responses.success`), example: { id: `agents-${endpoint}-response`, label: responseType === "text" ? "SSE" : "JSON", language: responseType === "text" ? "text" : "json", code: responseCode } }],
         errors: [
             ...(!["models", "list-responses"].includes(endpoint) ? [{ status: "400", description: t(`agents.endpoints.${key}.errors.badRequest`) }] : []),
-            { status: "401", description: t("agents.common.errors.unauthorized") },
+            ...(!isUnauthenticatedModels ? [{ status: "401", description: t("agents.common.errors.unauthorized") }] : []),
             ...(["retrieve-response", "delete-response"].includes(endpoint) ? [{ status: "404", description: t(`agents.endpoints.${key}.errors.notFound`) }] : []),
             ...(["create-response", "chat"].includes(endpoint) ? [{ status: "500", description: t(`agents.endpoints.${key}.errors.server`) }] : []),
         ],
@@ -296,6 +305,7 @@ export type SkillEndpoint = "list" | "download" | "versions" | "download-version
 
 type CreateSpeechEndpointDocOptions = {
     apiBaseUrl?: string;
+    authMode?: "provider-key" | "azure-ad";
 };
 
 const fallbackApiBaseUrl = "http://localhost:3010";
@@ -413,7 +423,7 @@ export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateS
                 responseType: "audio",
                 downloadFileName: "speech.mp3",
                 headers: [
-                    { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                    { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                     { name: "Content-Type", value: "application/json" },
                 ],
                 body: {
@@ -429,7 +439,7 @@ export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateS
                     label: "cURL",
                     language: "bash",
                     code: `curl ${openAiSpeechUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   --output speech.mp3 \\
   -d '{
@@ -444,7 +454,7 @@ export const createSpeechEndpointDoc = (surface: SpeechSurface, options: CreateS
                     label: "cURL streaming",
                     language: "bash",
                     code: `curl ${openAiSpeechUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/tts-1",
@@ -513,7 +523,7 @@ data: [DONE]`,
             responseType: "auto",
             downloadFileName: "speech-response.bin",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body: {
@@ -532,7 +542,7 @@ data: [DONE]`,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "openai/tts-1",
@@ -549,7 +559,7 @@ const speech = await response.json();`,
                 label: "cURL",
                 language: "bash",
                 code: `curl ${aiSdkSpeechUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/tts-1",
@@ -765,7 +775,7 @@ export const createTranscriptionsEndpointDoc = (surface: TranscriptionsSurface, 
                     label: "cURL",
                     language: "bash",
                     code: `curl ${openAiTranscriptionsUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -F file=@meeting.mp3 \\
   -F model=openai/whisper-1 \\
   -F response_format=json`,
@@ -775,7 +785,7 @@ export const createTranscriptionsEndpointDoc = (surface: TranscriptionsSurface, 
                     label: "cURL streaming",
                     language: "bash",
                     code: `curl ${openAiTranscriptionsUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -F file=@meeting.mp3 \\
   -F model=openai/whisper-1 \\
   -F stream=true`,
@@ -846,7 +856,7 @@ data: [DONE]`,
             description: createTranscriptionsTestDescription(t, "ai-sdk"),
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body: {
@@ -864,7 +874,7 @@ data: [DONE]`,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "openai/whisper-1",
@@ -880,7 +890,7 @@ const transcription = await response.json();`,
                 label: "cURL",
                 language: "bash",
                 code: `curl ${aiSdkTranscriptionsUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/whisper-1",
@@ -1002,7 +1012,7 @@ export const createEmbeddingsEndpointDoc = (surface: EmbeddingsSurface, options:
             description: <p style={{ margin: 0 }}>{t(`embeddings.${key}.testDescription`)}</p>,
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body,
@@ -1016,7 +1026,7 @@ export const createEmbeddingsEndpointDoc = (surface: EmbeddingsSurface, options:
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify(${JSON.stringify(body, null, 2)})
 });
@@ -1028,7 +1038,7 @@ const result = await response.json();`,
                 label: "cURL",
                 language: "bash",
                 code: `curl ${url} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify(body, null, 2)}'`,
             },
@@ -1107,7 +1117,7 @@ export const createStreamingTranscriptionsEndpointDoc = (options: CreateSpeechEn
             description: <p style={{ margin: 0 }}>{t("transcriptions.streaming.testDescription")}</p>,
             responseType: "text",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body,
@@ -1121,7 +1131,7 @@ export const createStreamingTranscriptionsEndpointDoc = (options: CreateSpeechEn
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify(${JSON.stringify(body, null, 2)})
 });
@@ -1134,7 +1144,7 @@ const reader = response.body?.getReader();
                 label: "cURL streaming",
                 language: "bash",
                 code: `curl -N ${url} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify(body, null, 2)}'`,
             },
@@ -1177,7 +1187,7 @@ export const createResponsesEndpointDoc = (options: CreateSpeechEndpointDocOptio
             description: createResponsesTestDescription(t),
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body: {
@@ -1194,7 +1204,7 @@ export const createResponsesEndpointDoc = (options: CreateSpeechEndpointDocOptio
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "openai/gpt-4.1-mini",
@@ -1209,7 +1219,7 @@ const result = await response.json();`,
                 label: "cURL streaming",
                 language: "bash",
                 code: `curl ${openAiResponsesUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/gpt-4.1-mini",
@@ -1277,7 +1287,7 @@ export const createRealtimeEndpointDoc = (options: CreateSpeechEndpointDocOption
             description: createRealtimeTestDescription(t),
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body: {
@@ -1293,7 +1303,7 @@ export const createRealtimeEndpointDoc = (options: CreateSpeechEndpointDocOption
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "openai/gpt-4o-realtime-preview"
@@ -1307,7 +1317,7 @@ const clientSecret = await response.json();`,
                 label: "cURL",
                 language: "bash",
                 code: `curl ${openAiRealtimeUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/gpt-4o-realtime-preview"
@@ -1428,7 +1438,7 @@ const openAiModelsResponseExample = `{
       "created": 1715367049,
       "owned_by": "openai",
       "name": "GPT-4.1 mini",
-      "description": "Fast, cost-efficient text and vision model for chat, tools, and structured outputs.",
+      "description": "Fast, cost-efficient text and vision model for chat, tools and structured outputs.",
       "context_window": 1047576,
       "max_tokens": 32768,
       "type": "language",
@@ -1627,7 +1637,7 @@ export const createChatCompletionsEndpointDoc = (options: CreateSpeechEndpointDo
             description: createOpenAiChatTestDescription(t),
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body: {
@@ -1646,7 +1656,7 @@ export const createChatCompletionsEndpointDoc = (options: CreateSpeechEndpointDo
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "openai/gpt-4.1-mini",
@@ -1663,7 +1673,7 @@ const completion = await response.json();`,
                 label: "cURL streaming",
                 language: "bash",
                 code: `curl ${openAiChatUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/gpt-4.1-mini",
@@ -1759,7 +1769,7 @@ export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, opti
             description: createOpenAiImageTestDescription(t, endpoint),
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 ...(endpoint === "generation" ? [{ name: "Content-Type", value: "application/json" }] : []),
             ],
             ...(endpoint === "generation" ? { body } : {
@@ -1783,7 +1793,7 @@ export const createOpenAiImageEndpointDoc = (endpoint: OpenAiImageEndpoint, opti
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "openai/gpt-image-1.5",
@@ -1800,7 +1810,7 @@ const images = await response.json();`,
                 label: "cURL streaming",
                 language: "bash",
                 code: `curl ${url} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/gpt-image-1.5",
@@ -1813,12 +1823,12 @@ const images = await response.json();`,
                 label: "cURL multipart",
                 language: "bash",
                 code: endpoint === "edit" ? `curl ${url} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -F model=openai/gpt-image-1.5 \\
   -F prompt="Add warm sunrise lighting and keep the original composition." \\
   -F image=@source.png \\
   -F size=1024x1024` : `curl ${url} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -F model=openai/dall-e-2 \\
   -F image=@source.png \\
   -F size=1024x1024`,
@@ -2073,7 +2083,7 @@ export const createRerankEndpointDoc = (options: CreateAiSdkEndpointDocOptions =
             description: createAiSdkRerankTestDescription(t),
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body: {
@@ -2084,7 +2094,7 @@ export const createRerankEndpointDoc = (options: CreateAiSdkEndpointDocOptions =
                     values: [
                         "Send a bearer token with every request to authenticate against the gateway.",
                         "The speech endpoint generates audio from text.",
-                        "Video generation can use prompts, images, and provider options."
+                        "Video generation can use prompts, images and provider options."
                     ]
                 },
                 topN: 2,
@@ -2099,7 +2109,7 @@ export const createRerankEndpointDoc = (options: CreateAiSdkEndpointDocOptions =
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "cohere/rerank-v3.5",
@@ -2109,7 +2119,7 @@ export const createRerankEndpointDoc = (options: CreateAiSdkEndpointDocOptions =
       values: [
         "Send a bearer token with every request to authenticate against the gateway.",
         "The speech endpoint generates audio from text.",
-        "Video generation can use prompts, images, and provider options."
+        "Video generation can use prompts, images and provider options."
       ]
     },
     topN: 2
@@ -2123,7 +2133,7 @@ const rerank = await response.json();`,
                 label: "cURL",
                 language: "bash",
                 code: `curl ${aiSdkRerankUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "cohere/rerank-v3.5",
@@ -2133,7 +2143,7 @@ const rerank = await response.json();`,
       "values": [
         "Send a bearer token with every request to authenticate against the gateway.",
         "The speech endpoint generates audio from text.",
-        "Video generation can use prompts, images, and provider options."
+        "Video generation can use prompts, images and provider options."
       ]
     },
     "topN": 2
@@ -2190,7 +2200,7 @@ export const createVideoEndpointDoc = (endpoint: VideoEndpoint, options: CreateA
                 modalTitle: t("video.aiSdk.get.testModalTitle"),
                 description: createAiSdkVideoTestDescription(t, "get"),
                 responseType: "json",
-                headers: [{ name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" }],
+                headers: [{ name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" }],
             },
             requestExamples: [
                 {
@@ -2198,7 +2208,7 @@ export const createVideoEndpointDoc = (endpoint: VideoEndpoint, options: CreateA
                     label: "TypeScript",
                     language: "ts",
                     code: `const response = await fetch(\`${normalizeApiBaseUrl(apiBaseUrl)}/api/videos/\${providerId}/\${encodeURIComponent(taskId)}\`, {
-  headers: { Authorization: \`Bearer \${token}\` },
+  headers: { "X-OpenAI-Key": openAiApiKey },
 });
 
 const task = await response.json();`,
@@ -2208,7 +2218,7 @@ const task = await response.json();`,
                     label: "cURL",
                     language: "bash",
                     code: `curl ${getExampleUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY"`,
+  -H "X-OpenAI-Key: $OPENAI_API_KEY"`,
                 },
             ],
             responses: [
@@ -2251,7 +2261,7 @@ const task = await response.json();`,
             responseType: "json",
             downloadFileName: "video-response.json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body: {
@@ -2271,7 +2281,7 @@ const task = await response.json();`,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "google/veo-3.0-generate-preview",
@@ -2289,7 +2299,7 @@ const task = await response.json();`,
                 label: "cURL",
                 language: "bash",
                 code: `curl ${createUrl} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "google/veo-3.0-generate-preview",
@@ -2307,7 +2317,7 @@ const task = await response.json();`,
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    Authorization: \`Bearer \${token}\`,
+    "X-OpenAI-Key": openAiApiKey,
   },
   body: JSON.stringify({
     model: "google/veo-3.0-generate-preview",
@@ -2403,7 +2413,7 @@ export const createAiSdkChatEndpointDoc = (options: CreateAiSdkEndpointDocOption
             description: <p style={{ margin: 0 }}>{t("chat.aiSdk.testDescription")}</p>,
             responseType: "text",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
             ],
             body,
@@ -2411,13 +2421,13 @@ export const createAiSdkChatEndpointDoc = (options: CreateAiSdkEndpointDocOption
         requestExamples: [
             { id: "typescript-ai-sdk-chat", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {
   method: "POST",
-  headers: { "Content-Type": "application/json", Authorization: \`Bearer \${token}\` },
+  headers: { "Content-Type": "application/json", "X-OpenAI-Key": openAiApiKey },
   body: JSON.stringify(${JSON.stringify(body, null, 2)})
 });
 
 const stream = response.body;` },
             { id: "curl-ai-sdk-chat", label: "cURL", language: "bash", code: `curl ${url} \\
-  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify(body, null, 2)}'` },
         ],
@@ -2477,7 +2487,7 @@ export const createMessagesEndpointDoc = (options: CreateAiSdkEndpointDocOptions
             description: <p style={{ margin: 0 }}>{t("messages.anthropic.testDescription")}</p>,
             responseType: "json",
             headers: [
-                { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+                { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
                 { name: "Content-Type", value: "application/json" },
                 { name: "anthropic-version", value: "2023-06-01" },
             ],
@@ -2489,14 +2499,14 @@ export const createMessagesEndpointDoc = (options: CreateAiSdkEndpointDocOptions
   headers: {
     "Content-Type": "application/json",
     "anthropic-version": "2023-06-01",
-    Authorization: \`Bearer \${token}\`
+    "X-OpenAI-Key": openAiApiKey
   },
   body: JSON.stringify(${JSON.stringify(body, null, 2)})
 });
 
 const message = await response.json();` },
             { id: "curl-anthropic-messages-stream", label: "cURL streaming", language: "bash", code: `curl ${url} \\
-  -H "Authorization: Bearer $ANTHROPIC_API_KEY" \\
+  -H "X-Anthropic-Key: $ANTHROPIC_API_KEY" \\
   -H "anthropic-version: 2023-06-01" \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({ ...body, stream: true }, null, 2)}'` },
@@ -2532,7 +2542,7 @@ data: [DONE]` } },
 };
 
 const gatewayHeaders = [
-    { name: "Authorization", value: "Bearer ", placeholder: "Bearer your-token" },
+    { name: "X-OpenAI-Key", value: "", placeholder: "OpenAI provider API key" },
 ];
 
 export const createAiSdkImageEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {}): DocsEndpointDoc => {
@@ -2560,8 +2570,8 @@ export const createAiSdkImageEndpointDoc = (options: CreateAiSdkEndpointDocOptio
         ],
         test: { label: t("images.aiSdk.testLabel"), modalTitle: t("images.aiSdk.testModalTitle"), description: <p style={{ margin: 0 }}>{t("images.aiSdk.testDescription")}</p>, responseType: "json", headers: [...gatewayHeaders, { name: "Content-Type", value: "application/json" }], body },
         requestExamples: [
-            { id: "typescript-ai-images", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {\n  method: "POST",\n  headers: { "Content-Type": "application/json", Authorization: \`Bearer \${token}\` },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst result = await response.json();` },
-            { id: "curl-ai-images", label: "cURL", language: "bash", code: `curl ${url} \\\n  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(body, null, 2)}'` },
+            { id: "typescript-ai-images", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {\n  method: "POST",\n  headers: { "Content-Type": "application/json", "X-OpenAI-Key": openAiApiKey },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst result = await response.json();` },
+            { id: "curl-ai-images", label: "cURL", language: "bash", code: `curl ${url} \\\n  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(body, null, 2)}'` },
         ],
         responses: [{ status: "200", description: t("images.aiSdk.responses.json"), example: { id: "ai-images-response", label: "JSON", language: "json", code: `{"images":["data:image/png;base64,iVBORw0KGgo..."],"warnings":[],"response":{"modelId":"gpt-image-1.5","timestamp":"2026-08-09T09:00:00Z","headers":{}},"usage":{"inputTokens":42,"outputTokens":1024,"totalTokens":1066},"providerMetadata":{"gateway":{"cost":0.04}}}` } }],
         errors: [{ status: "400", description: t("images.aiSdk.errors.badRequest") }, { status: "401", description: t("images.aiSdk.errors.unauthorized") }],
@@ -2587,8 +2597,8 @@ export const createUiEndpointDoc = (options: CreateAiSdkEndpointDocOptions = {})
         ],
         test: { label: t("ui.aiSdk.testLabel"), modalTitle: t("ui.aiSdk.testModalTitle"), description: <p style={{ margin: 0 }}>{t("ui.aiSdk.testDescription")}</p>, responseType: "text", headers: [...gatewayHeaders, { name: "Content-Type", value: "application/json" }], body },
         requestExamples: [
-            { id: "typescript-ai-ui", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {\n  method: "POST",\n  headers: { "Content-Type": "application/json", Authorization: \`Bearer \${token}\` },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst generatedUi = await response.text();` },
-            { id: "curl-ai-ui", label: "cURL", language: "bash", code: `curl ${url} \\\n  -H "Authorization: Bearer $AIHAPPEY_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(body, null, 2)}'` },
+            { id: "typescript-ai-ui", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {\n  method: "POST",\n  headers: { "Content-Type": "application/json", "X-OpenAI-Key": openAiApiKey },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst generatedUi = await response.text();` },
+            { id: "curl-ai-ui", label: "cURL", language: "bash", code: `curl ${url} \\\n  -H "X-OpenAI-Key: $OPENAI_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(body, null, 2)}'` },
         ],
         responses: [{ status: "200", description: t("ui.aiSdk.responses.text"), example: { id: "ai-ui-response", label: "Text stream", language: "html", code: `<section class="rounded-xl border p-6">\n  <h2>Pro plan</h2>\n  <p>Everything your team needs.</p>\n</section>` } }],
         errors: [{ status: "400", description: t("ui.aiSdk.errors.badRequest") }, { status: "401", description: t("ui.aiSdk.errors.unauthorized") }],

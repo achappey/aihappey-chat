@@ -31,7 +31,7 @@ export const DocsCardGrid = ({ cards }: DocsCardGridProps) => {
         >
           <div style={{ display: "grid", gap: 16 }}>
             {card.icon ? <div style={{ fontSize: 28 }}>{card.icon}</div> : null}
-            <p style={{ margin: 0, lineHeight: 1.7, opacity: 0.78 }}>{card.description}</p>
+            {card.details ? <p style={{ margin: 0, lineHeight: 1.7, opacity: 0.78 }}>{card.details}</p> : null}
           </div>
         </Card>
       ))}
