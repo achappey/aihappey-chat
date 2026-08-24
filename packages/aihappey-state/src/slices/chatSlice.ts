@@ -131,6 +131,7 @@ export type ChatSlice = ApiKeyEncryptionState & {
   resetChatSettings: () => void;
   addChatError: (error: Error) => void
   dismissChatError: (error: string) => void
+  clearChatErrors: () => void
   toolAnnotations?: ToolAnnotations;
   customHeaders: Record<string, string>;
   encryptedApiKeys?: EncryptedApiKeys;
@@ -463,6 +464,9 @@ export const createChatSlice: StateCreator<
     set((state: any) => ({
       chatErrors: state.chatErrors.filter((e: any) => e !== error),
     }));
+  },
+  clearChatErrors: () => {
+    set(() => ({ chatErrors: [] }));
   },
   setToolAnnotations: (toolAnnotations) =>
     set(() => ({

@@ -80,8 +80,6 @@ export function NewChatPage() {
         responseFormat: structuredOutputs
       },
     });
-    fileAttachmentRuntime.clear()
-    mcpResourceRuntime.clear();
   };
 
   const handleFirstSend = useCallback(

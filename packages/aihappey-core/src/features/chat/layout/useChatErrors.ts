@@ -5,5 +5,6 @@ export function useChatErrors() {
   const errors = useAppStore((s) => s.chatErrors);
   const addChatError = useAppStore((s) => s.addChatError);
   const dismissError = useAppStore((s) => s.dismissChatError);
-  return { errors, dismissError, addChatError };
+  const clearChatErrors = useAppStore((s) => s.clearChatErrors);
+  return { errors, dismissError, addChatError, clearChatErrors };
 }

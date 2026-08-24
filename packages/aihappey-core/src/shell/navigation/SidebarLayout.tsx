@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Outlet } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Outlet, useLocation } from "react-router";
 import { useNavigate } from "react-router";
 import { useAppStore } from "aihappey-state";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -8,9 +8,20 @@ import { ConversationSearchModal } from "../../features/conversation-search";
 
 export const SidebarLayout = () => {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
+  const clearChatErrors = useAppStore((s) => s.clearChatErrors);
   const navigate = useNavigate();
+  const location = useLocation();
+  const route = `${location.pathname}${location.search}${location.hash}`;
+  const previousRoute = useRef(route);
 
   const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (previousRoute.current === route) return;
+
+    previousRoute.current = route;
+    clearChatErrors();
+  }, [clearChatErrors, route]);
 
   return (
     <>
