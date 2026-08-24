@@ -253,10 +253,10 @@ export function useDocumentHubSearchRuntime() {
         if (mode !== "fulltext" && (!Number.isFinite(similarity) || similarity < 0 || similarity > 1)) {
           throw new Error("similarity must be between 0 and 1.");
         }
-        const selected = Array.isArray(input.hubIds) && input.hubIds.length
+        const selected: VectorStore[] = Array.isArray(input.hubIds) && input.hubIds.length
           ? input.hubIds.map((reference: unknown) => resolveHub(hubs.items, reference))
           : hubs.items;
-        const unique = Array.from(new Map(selected.map((hub) => [hub.id, hub])).values());
+        const unique = Array.from(new Map<string, VectorStore>(selected.map((hub) => [hub.id, hub])).values());
         const searchable = unique.filter((hub) => getVectorStoreChunkCount(hub) > 0);
         const vectors = new Map<string, number[]>();
         if (mode !== "fulltext") {
