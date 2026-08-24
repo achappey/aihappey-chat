@@ -95,6 +95,15 @@ export class IndexedDBVectorStoreStore implements VectorStoreStore {
     return hub;
   };
 
+  upsert = async (hub: VectorStore) => {
+    await this.ensureLoaded();
+    this.data = this.data.some((item) => item.id === hub.id)
+      ? this.data.map((item) => item.id === hub.id ? hub : item)
+      : [hub, ...this.data];
+    await persist(this.data);
+    return hub;
+  };
+
   delete = async (id: string) => {
     await this.ensureLoaded();
     this.data = this.data.filter((hub) => hub.id !== id);

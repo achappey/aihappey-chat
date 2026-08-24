@@ -129,6 +129,13 @@
             "stagedDocument": "Ready to index after saving"
         },
         "processing": "Processing…",
+        "import": {
+            "invalidType": "{{name}} is not a JSON file.",
+            "invalidJson": "{{name}} does not contain valid JSON.",
+            "invalidHub": "{{name}} is not a valid document hub.",
+            "invalidIndex": "{{name}} contains an invalid vector index.",
+            "failed": "{{name}} could not be imported."
+        },
         "errors": {
             "unsupportedDocument": "Unsupported or empty document: {{name}}",
             "noChunks": "No text chunks were produced."
@@ -1037,7 +1044,8 @@
             "files": "Files",
             "skills": "Skills",
             "structuredOutputs": "Structure",
-            "tools": "Tools"
+            "tools": "Tools",
+            "documentHubs": "Document hubs"
         }
     },
     "providersPage": {

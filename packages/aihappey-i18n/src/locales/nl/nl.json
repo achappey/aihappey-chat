@@ -132,6 +132,13 @@
             "stagedDocument": "Klaar om na het opslaan te indexeren"
         },
         "processing": "Verwerken…",
+        "import": {
+            "invalidType": "{{name}} is geen JSON-bestand.",
+            "invalidJson": "{{name}} bevat geen geldige JSON.",
+            "invalidHub": "{{name}} is geen geldige documenthub.",
+            "invalidIndex": "{{name}} bevat een ongeldige vectorindex.",
+            "failed": "{{name}} kon niet worden geïmporteerd."
+        },
         "errors": {
             "unsupportedDocument": "Niet-ondersteund of leeg document: {{name}}",
             "noChunks": "Er zijn geen tekstfragmenten gemaakt."
@@ -999,7 +1006,8 @@
             "files": "Bestanden",
             "skills": "Skills",
             "structuredOutputs": "Structuur",
-            "tools": "Tools"
+            "tools": "Tools",
+            "documentHubs": "Documenthubs"
         }
     },
     "providersPage": {

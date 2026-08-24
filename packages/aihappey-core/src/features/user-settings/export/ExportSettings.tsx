@@ -13,6 +13,7 @@ import { useSkills } from "aihappey-skills";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { useLocalTools } from "aihappey-tools";
 import { usePlugins } from "aihappey-plugins";
+import { useVectorStores } from "aihappey-embeddings";
 import { useAppStore } from "aihappey-state";
 import type { IconToken } from "aihappey-types";
 import {
@@ -40,6 +41,7 @@ const EXPORT_ICONS: Record<ExportTargetId, IconToken> = {
   skills: "skills",
   structuredOutputs: "structuredOutputs",
   tools: "tool",
+  documentHubs: "embedding",
 };
 
 export const ExportSettings = () => {
@@ -57,6 +59,7 @@ export const ExportSettings = () => {
   const structuredOutputs = useStructuredOutputs();
   const tools = useLocalTools();
   const plugins = usePlugins();
+  const documentHubs = useVectorStores();
   const agents = useAppStore((state) => state.agents) ?? [];
   const [running, setRunning] = useState<RunningState>();
   const [error, setError] = useState<string>();
@@ -97,9 +100,11 @@ export const ExportSettings = () => {
     },
     structuredOutputs: structuredOutputs.items,
     tools: tools.items,
+    documentHubs: documentHubs.items,
   }), [
     agents,
     conversations.items,
+    documentHubs.items,
     files.items,
     images.items,
     jobs.items,

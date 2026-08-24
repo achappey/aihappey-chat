@@ -3,8 +3,12 @@ import { VectorStoreCard, StickyHeaderActionBar, useTheme } from "aihappey-compo
 import {
   chunkText,
   insertVectorStoreChunks,
+  parseVectorStore,
   removeVectorStoreSource,
+  serializeVectorStore,
   useVectorStores,
+  vectorStoreJsonFilename,
+  VectorStoreJsonError,
   type VectorStore,
 } from "aihappey-embeddings";
 import { useAppStore } from "aihappey-state";
@@ -20,7 +24,7 @@ import { extractTextFromFile } from "../chat/files/file";
 const EMBEDDING_BATCH_SIZE = 32;
 
 export const VectorStoresPage = () => {
-  const { SearchBox, Text } = useTheme();
+  const { Alert, SearchBox, Text } = useTheme();
   const isDesktop = useIsDesktop();
   const { t } = useTranslation();
   const hubs = useVectorStores();
@@ -34,6 +38,8 @@ export const VectorStoresPage = () => {
   const [viewingId, setViewingId] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [importError, setImportError] = useState<string>();
+  const [isDragging, setIsDragging] = useState(false);
 
   const visible = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
@@ -43,6 +49,42 @@ export const VectorStoresPage = () => {
 
   const openCreate = () => { setEditing(undefined); setError(undefined); setModalOpen(true); };
   const openEdit = (hub: VectorStore) => { setEditing(hub); setError(undefined); setModalOpen(true); };
+
+  const downloadHub = (hub: VectorStore) => {
+    const blob = new Blob([serializeVectorStore(hub)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = vectorStoreJsonFilename(hub);
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  };
+
+  const importHubs = async (files: File[]) => {
+    setImportError(undefined);
+    const failures: string[] = [];
+    for (const file of files) {
+      if (!file.name.toLocaleLowerCase().endsWith(".json")) {
+        failures.push(t("vectorStorePage.import.invalidType", { name: file.name }));
+        continue;
+      }
+      try {
+        const hub = parseVectorStore(await file.text());
+        await hubs.upsert(hub);
+      } catch (cause) {
+        const key = cause instanceof VectorStoreJsonError
+          ? cause.code === "invalid-json"
+            ? "invalidJson"
+            : cause.code === "invalid-index"
+              ? "invalidIndex"
+              : "invalidHub"
+          : "failed";
+        failures.push(t(`vectorStorePage.import.${key}`, { name: file.name }));
+      }
+    }
+    if (failures.length) setImportError(failures.join(" "));
+  };
+
   const saveHub = async (value: VectorStoreEditSaveValue) => {
     setBusy(true);
     setError(undefined);
@@ -85,21 +127,34 @@ export const VectorStoresPage = () => {
   };
 
   return (
-    <>
+    <div
+      onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
+      onDragOver={(event) => event.preventDefault()}
+      onDragLeave={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsDragging(false);
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        setIsDragging(false);
+        void importHubs(Array.from(event.dataTransfer.files));
+      }}
+      style={{ minHeight: "100%", border: isDragging ? "2px dashed #888" : "2px solid transparent", boxSizing: "border-box" }}
+    >
       <StickyHeaderActionBar actionLabel={t("add")} onAction={openCreate} />
       <div style={{ width: 900, maxWidth: "100%", margin: "0 auto", padding: isDesktop ? 0 : 12, boxSizing: "border-box" }}>
         <OverviewPageHeader title={t('vectorStores')} />
         <Text as="p" align="center">{t('vectorStorePage.description')}</Text>
+        {importError && <Alert variant="danger"><span role="alert">{importError}</span></Alert>}
         <div style={{ width: 360, maxWidth: "100%", margin: "0 auto 20px" }}>
           <SearchBox value={search} onChange={setSearch}
             placeholder={t("vectorStorePage.overview.searchPlaceholder")} autoFocus={isDesktop} />
         </div>
         {visible.length ? <div style={{ width: "100%", display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 16 }}>
-          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} size={new TextEncoder().encode(JSON.stringify(hub)).length} onView={() => setViewingId(hub.id)} onDelete={() => void hubs.delete(hub.id)} labels={{ view: t("view"), delete: t("delete") }} />)}
+          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} size={new TextEncoder().encode(JSON.stringify(hub)).length} onView={() => setViewingId(hub.id)} onDownload={() => downloadHub(hub)} onDelete={() => void hubs.delete(hub.id)} labels={{ view: t("view"), download: t("download"), delete: t("delete") }} />)}
         </div> : <Text as="p" align="center">{t("vectorStorePage.overview.empty")}</Text>}
       </div>
       <VectorStoreEditModal open={modalOpen} hub={editing} models={models ?? []} defaultModel={userPreferredEmbeddingModel} busy={busy} error={error} onClose={() => setModalOpen(false)} onSave={saveHub} />
       <VectorStoreDetailModal open={!!viewingId} hub={hubs.items.find((hub) => hub.id === viewingId)} onClose={() => setViewingId(undefined)} onEdit={(hub) => { setViewingId(undefined); openEdit(hub); }} onReplace={hubs.replace} />
-    </>
+    </div>
   );
 };

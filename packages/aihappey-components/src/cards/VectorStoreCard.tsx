@@ -8,8 +8,9 @@ export type VectorStoreCardProps = {
   model: string;
   size: number;
   onView: () => void;
+  onDownload?: () => void;
   onDelete: () => void;
-  labels?: { view?: string; delete?: string };
+  labels?: { view?: string; download?: string; delete?: string };
 };
 
 export const VectorStoreCard = ({
@@ -18,6 +19,7 @@ export const VectorStoreCard = ({
   model,
   size,
   onView,
+  onDownload,
   onDelete,
   labels,
 }: VectorStoreCardProps) => {
@@ -32,7 +34,12 @@ export const VectorStoreCard = ({
           </div>
         )}
         size="small"
-        actions={<Button icon="eye" size="small" variant="transparent" title={labels?.view ?? "View"} onClick={onView} />}
+        actions={(
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Button icon="eye" size="small" variant="transparent" title={labels?.view ?? "View"} onClick={onView} />
+            {onDownload && <Button icon="download" size="small" variant="transparent" title={labels?.download ?? "Download"} onClick={onDownload} />}
+          </div>
+        )}
         headerActions={<Menu items={[{ key: "delete", label: labels?.delete ?? "Delete", onClick: onDelete }]} />}
       >
         <LimitedTextField text={description || " "} />

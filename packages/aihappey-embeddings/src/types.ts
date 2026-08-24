@@ -66,5 +66,7 @@ export interface  VectorStoreStore {
   add(input: CreateVectorStoreInput): Promise<VectorStore>;
   update(id: string, input: UpdateVectorStoreInput): Promise<VectorStore>;
   replace(hub: VectorStore): Promise<VectorStore>;
+  /** Inserts an imported hub, or replaces the persisted hub with the same ID. */
+  upsert(hub: VectorStore): Promise<VectorStore>;
   delete(id: string): Promise<void>;
 }

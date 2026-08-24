@@ -4,6 +4,11 @@ import {
   type PluginCatalogItem,
   type StoredPlugin,
 } from "aihappey-plugins";
+import {
+  serializeVectorStore,
+  vectorStoreJsonFilename,
+  type VectorStore,
+} from "aihappey-embeddings";
 
 export const EXPORT_CATEGORY_IDS = [
   "conversations",
@@ -19,6 +24,7 @@ export const EXPORT_CATEGORY_IDS = [
   "skills",
   "structuredOutputs",
   "tools",
+  "documentHubs",
 ] as const;
 
 export type ExportCategoryId = (typeof EXPORT_CATEGORY_IDS)[number];
@@ -50,6 +56,7 @@ export type ExportSources = {
   };
   structuredOutputs: any[];
   tools: any[];
+  documentHubs: VectorStore[];
 };
 
 export type ExportProgress = (value: number) => void;
@@ -282,6 +289,12 @@ export async function collectCategoryEntries(
       break;
     case "tools":
       entries = sources.tools.map((item, index) => ({ path: `${safeFilename(item.title || item.id, `tool-${index + 1}`)}.js`, data: toolModule(item) }));
+      break;
+    case "documentHubs":
+      entries = sources.documentHubs.map((hub) => ({
+        path: vectorStoreJsonFilename(hub),
+        data: serializeVectorStore(hub),
+      }));
       break;
   }
   progress(1);

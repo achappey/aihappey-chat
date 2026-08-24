@@ -51,6 +51,13 @@ export const VectorStoresProvider = ({ children }: { children: ReactNode }) => {
       setItems((current) => current.map((item) => item.id === hub.id ? updated : item));
       return updated;
     },
+    upsert: async (hub: VectorStore) => {
+      const updated = await store.upsert(hub);
+      setItems((current) => current.some((item) => item.id === hub.id)
+        ? current.map((item) => item.id === hub.id ? updated : item)
+        : [updated, ...current]);
+      return updated;
+    },
     delete: async (id: string) => {
       await store.delete(id);
       setItems((current) => current.filter((item) => item.id !== id));
