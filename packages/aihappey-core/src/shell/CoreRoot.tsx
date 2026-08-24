@@ -147,7 +147,7 @@ export const CoreRoot = ({
             { path: "streaming/speech", element: <StreamingSpeechPage /> },
             { path: "jobs", element: <JobsPage /> },
             { path: "reranking", element: <RerankingPage /> },
-            { path: "file-search", element: <VectorStoresPage /> },
+            { path: "document-hubs", element: <VectorStoresPage /> },
             { path: "apps", element: <WebAppsPage /> },
             { path: "apps/:appId", element: <WebAppDetailPage /> },
             { path: "catalogs", element: <CatalogsPage /> },

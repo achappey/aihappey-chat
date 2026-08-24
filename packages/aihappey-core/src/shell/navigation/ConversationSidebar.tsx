@@ -190,10 +190,10 @@ export const ConversationSidebar = ({
       icon: "folder",
     },
     {
-      key: "file-search",
+      key: "document-hubs",
       label: t("vectorStores"),
-      href: "/file-search",
-      icon: "embedding",
+      href: "/document-hubs",
+      icon: "vectorStore",
     },
     {
       key: "structured-outputs",
