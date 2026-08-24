@@ -26,6 +26,7 @@ import { deferClientToolSearchCandidates, shapeToolsForRequest } from "../../too
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
 import { conversationName as generateConversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
+import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { MessageActivityDrawer } from "../activity/drawer/MessageActivityDrawer";
 import { ToolCallResultModal } from "../activity/content/ToolCallResultModal";
 import { useAuthFetch } from "./useAuthFetch";
@@ -100,6 +101,7 @@ export function VercelChatInner({
   const { conversationId } = useParams<{ conversationId: string }>();
   const location = useLocation();
   const { addChatError } = useChatErrors();
+  const pendingInitialMessageRef = useRef<any>(location.state?.pendingMessage);
   const getStorageErrorMessage = useStorageErrorMessage();
   const [sources, setSources] = useState<(SourceUrlUIPart | SourceDocumentUIPart)[] | undefined>(undefined);
   const [messageActivity, setMessageActivity] = useState<any[] | undefined>(undefined);
@@ -747,7 +749,9 @@ export function VercelChatInner({
     id: chatInstanceId,
     transport,
     experimental_throttle: experimentalThrottle,
-    onError: addChatError,
+    onError: (error) => {
+      addChatError(error);
+    },
 
     onToolCall: async ({ toolCall }) => {
       const result = await (toolUse.onToolCall as any)({
@@ -766,6 +770,9 @@ export function VercelChatInner({
     sendAutomaticallyWhen,
     messages: seededMessages,
     onFinish: async ({ message, isDisconnect, isAbort }) => {
+      if (pendingInitialMessageRef.current && !isAbort) {
+        handleInitialSendSuccess();
+      }
       if (!isAbort) {
         if (message.role === "assistant")
           // await addMessage(conversationId!, message as UIMessage);
@@ -831,6 +838,12 @@ export function VercelChatInner({
     ?.metadata;
   const latestTotalTokens = totalTokens?.usage?.totalTokens ?? totalTokens?.totalTokens;
 
+  const handleInitialSendSuccess = useCallback(() => {
+    pendingInitialMessageRef.current = undefined;
+    fileAttachmentRuntime.clear();
+    mcpResourceRuntime.clear();
+  }, []);
+
   usePendingMessageAutoSend({
     conversationId,
     locationState: location.state,
@@ -863,6 +876,9 @@ export function VercelChatInner({
       temperature: location.state?.temperature ?? temperature,
     },
     files,
+    onFailure: (error) => addChatError(
+      error instanceof Error ? error : new Error(String(error))
+    ),
   });
 
   const { onPromptExecute, handleSend } = useChatActions({

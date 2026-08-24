@@ -16,6 +16,7 @@ type Args = {
     conversationName: (text: string) => Promise<string | undefined>;
     body: any;
     files?: FileStore & { items?: FileItem[] };
+    onFailure?: (error: unknown) => void;
 };
 
 export function usePendingMessageAutoSend({
@@ -31,6 +32,7 @@ export function usePendingMessageAutoSend({
     conversationName,
     body,
     files,
+    onFailure,
 }: Args) {
     const didRef = useRef(false);
 
@@ -91,7 +93,8 @@ export function usePendingMessageAutoSend({
             await getConversation(conversationId);
         };
 
-        run();
+        void run().catch((error) => onFailure?.(error));
     }, [conversationId, locationState, messages, addMessage,
-        sendMessage, startRun, navigate, rename, getConversation, conversationName, body, files]);
+        sendMessage, startRun, navigate, rename, getConversation, conversationName, body, files,
+        onFailure]);
 }
