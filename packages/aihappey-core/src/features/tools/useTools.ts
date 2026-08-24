@@ -35,6 +35,10 @@ import { clientResourceSearchPluginDef } from "./toolcalls/useClientResourceSear
 import { useRuntimeSkills } from "../skills/useRuntimeSkills";
 import { readPluginFileTool } from "./toolcalls/usePluginFileToolCall";
 import { localAgentPluginEditorPluginDef } from "./toolcalls/useLocalAgentPluginEditorToolCall";
+import {
+  documentHubEditorPluginDef,
+  documentHubSearchPluginDef,
+} from "./toolcalls/useDocumentHubToolCalls";
 
 export const getToolName = (type: string) => type.replace("tool-", "")
 
@@ -88,6 +92,8 @@ export function useTools(options: UseToolsOptions = {}) {
       localArtificialIntelligencePluginDef,
       localSkillEditorPluginDef,
       localAgentPluginEditorPluginDef,
+      documentHubSearchPluginDef,
+      documentHubEditorPluginDef,
       localTodoPluginDef,
       localSettingsPluginDef,
       localStructuredOutputsPluginDef,

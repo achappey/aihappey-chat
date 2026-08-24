@@ -735,6 +735,8 @@
         "local-canvas": "Canvas",
         "local-structured-outputs": "Gestructureerde uitvoer",
         "local-files": "Bestanden",
+        "document-hub-search": "Documentenhub zoeken",
+        "document-hub-editor": "Documentenhub editor",
         "local-images": "Afbeeldingen",
         "local-tools": "Tools maken",
         "client-tool-search": "Tools zoeken",

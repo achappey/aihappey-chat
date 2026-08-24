@@ -23,6 +23,10 @@ import { SKILL_SEARCH_PLUGIN_ID } from "./toolcalls/useSkillToolCall";
 import { clientToolSearchPluginDef } from "./toolcalls/useClientToolSearchToolCall";
 import { clientResourceSearchPluginDef } from "./toolcalls/useClientResourceSearchToolCall";
 import { localAgentPluginEditorPluginDef } from "./toolcalls/useLocalAgentPluginEditorToolCall";
+import {
+  documentHubEditorPluginDef,
+  documentHubSearchPluginDef,
+} from "./toolcalls/useDocumentHubToolCalls";
 
 export type ToolListItem = {
   key: string;
@@ -59,6 +63,8 @@ export const allBuiltInPluginDefs = [
   localArtificialIntelligencePluginDef,
   localSkillEditorPluginDef,
   localAgentPluginEditorPluginDef,
+  documentHubSearchPluginDef,
+  documentHubEditorPluginDef,
   localStructuredOutputsPluginDef,
   localCatalogPluginDef,
   localRegistryPluginDef,
