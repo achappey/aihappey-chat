@@ -106,6 +106,12 @@ export const ConversationSidebar = ({
       onClick: onSearch,
     },
     {
+      key: "hub-search",
+      label: t("hubSearch.title"),
+      href: "/hub-search",
+      icon: "embedding"
+    },
+    {
       key: "images",
       label: t("images"),
       href: "/images",
@@ -193,7 +199,7 @@ export const ConversationSidebar = ({
       key: "document-hubs",
       label: t("vectorStores"),
       href: "/document-hubs",
-      icon: "vectorStore",
+      icon: "vectorStore"
     },
     {
       key: "structured-outputs",

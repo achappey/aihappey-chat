@@ -44,7 +44,7 @@ import { StreamingImageGenerationPage } from "../features/streaming/StreamingIma
 import { StreamingImageEditPage } from "../features/streaming/StreamingImageEditPage";
 import { PluginsPage } from "../features/plugins/PluginsPage";
 import type { PluginsConfig } from "aihappey-plugins";
-import { VectorStoresPage } from "../features/vector-stores";
+import { HubSearchPage, VectorStoresPage } from "../features/vector-stores";
 
 type CoreRootProps = {
   appName: string;
@@ -147,6 +147,7 @@ export const CoreRoot = ({
             { path: "streaming/speech", element: <StreamingSpeechPage /> },
             { path: "jobs", element: <JobsPage /> },
             { path: "reranking", element: <RerankingPage /> },
+            { path: "hub-search", element: <HubSearchPage /> },
             { path: "document-hubs", element: <VectorStoresPage /> },
             { path: "apps", element: <WebAppsPage /> },
             { path: "apps/:appId", element: <WebAppDetailPage /> },

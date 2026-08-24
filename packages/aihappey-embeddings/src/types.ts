@@ -46,6 +46,17 @@ export interface VectorStoreSearchResult {
   score: number;
 }
 
+export type VectorStoreSearchMode = "fulltext" | "hybrid" | "vector";
+
+export interface VectorStoreModeSearchOptions {
+  mode: VectorStoreSearchMode;
+  /** Required for vector and hybrid search; ignored for full-text search. */
+  vector?: number[];
+  limit?: number;
+  /** Orama vector similarity threshold. Used only by vector and hybrid search. */
+  similarity?: number;
+}
+
 export type VectorStoreStorageKind = "indexeddb";
 
 export interface  VectorStoreStore {

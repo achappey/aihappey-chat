@@ -134,6 +134,36 @@
             "noChunks": "No text chunks were produced."
         }
     },
+    "hubSearch": {
+        "title": "Search documents",
+        "description": "Search across one or more document hubs to quickly find the most relevant documents and information.",
+        "query": "Hub search query",
+        "placeholder": "Search document hubs...",
+        "searching": "Searching…",
+        "dropAttachments": "Drop files to add them to the query",
+        "unsupportedAttachment": "Could not convert attachment to text: {{name}}",
+        "noHubs": "Create a document hub and add documents before searching.",
+        "selectHub": "Select at least one document hub in the search settings.",
+        "noSearchableHubs": "The selected document hubs do not contain searchable documents.",
+        "noMatches": "No matching document content found.",
+        "modes": {
+            "fulltext": "Full text",
+            "hybrid": "Hybrid",
+            "vector": "Vector"
+        },
+        "settings": {
+            "title": "Hub search settings",
+            "hubs": "Document hubs",
+            "allHubs": "All document hubs",
+            "selectedHubs": "{{count}} document hubs selected",
+            "noHubsSelected": "No document hubs selected",
+            "mode": "Search type",
+            "limit": "Maximum results",
+            "similarity": "Minimum relevance",
+            "invalidLimit": "Maximum results must be a positive whole number.",
+            "invalidSimilarity": "Minimum relevance must be between 0 and 1."
+        }
+    },
     "skillsPage": {
         "description": "An overview of all available skills for tasks and workflows. For each skill, you see what it does, when to use it, and how it differs from others. This helps you quickly choose the right option. Skills combine instructions, logic, and execution in a consistent structure for clarity, repeatability, and control.",
         "fileCountBadge": "Files: {{count}}",

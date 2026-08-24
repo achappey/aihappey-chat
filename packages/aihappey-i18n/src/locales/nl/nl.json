@@ -137,6 +137,36 @@
             "noChunks": "Er zijn geen tekstfragmenten gemaakt."
         }
     },
+    "hubSearch": {
+        "title": "Documenten zoeken",
+        "description": "Doorzoek de inhoud van één of meer documenthubs en vind snel de meest relevante informatie.",
+        "query": "Zoekopdracht voor hubs",
+        "placeholder": "Documenthubs doorzoeken...",
+        "searching": "Zoeken…",
+        "dropAttachments": "Sleep bestanden hierheen om ze aan de zoekopdracht toe te voegen",
+        "unsupportedAttachment": "Bijlage kon niet naar tekst worden omgezet: {{name}}",
+        "noHubs": "Maak eerst een documenthub en voeg documenten toe om te kunnen zoeken.",
+        "selectHub": "Selecteer minimaal één documenthub in de zoekinstellingen.",
+        "noSearchableHubs": "De geselecteerde documenthubs bevatten geen doorzoekbare documenten.",
+        "noMatches": "Geen overeenkomende documentinhoud gevonden.",
+        "modes": {
+            "fulltext": "Volledige tekst",
+            "hybrid": "Hybride",
+            "vector": "Vector"
+        },
+        "settings": {
+            "title": "Instellingen voor hubs doorzoeken",
+            "hubs": "Documenthubs",
+            "allHubs": "Alle documenthubs",
+            "selectedHubs": "{{count}} documenthubs geselecteerd",
+            "noHubsSelected": "Geen documenthubs geselecteerd",
+            "mode": "Zoektype",
+            "limit": "Maximumaantal resultaten",
+            "similarity": "Minimale relevantie",
+            "invalidLimit": "Het maximumaantal resultaten moet een positief geheel getal zijn.",
+            "invalidSimilarity": "De minimale relevantie moet tussen 0 en 1 liggen."
+        }
+    },
     "skillsPage": {
         "editor": {
             "newTitle": "Skill toevoegen",

@@ -13,6 +13,7 @@ import type {
   VectorStoreSearchResult,
   VectorStoreSource,
   VectorStoreChunk,
+  VectorStoreModeSearchOptions,
 } from "./types";
 
 type ChunkDocument = VectorStoreChunk;
@@ -115,6 +116,61 @@ export const searchVectorStore = async (
     limit: options?.limit ?? 20,
     includeVectors: false,
   } as any);
+  return result.hits.map((hit) => ({
+    id: hit.id,
+    filename: hit.document.filename,
+    content: hit.document.content,
+    score: hit.score,
+  }));
+};
+
+/**
+ * Searches a document hub using any Orama search mode.
+ *
+ * This is intentionally separate from searchVectorStore so the original
+ * vector-only public API remains backward compatible.
+ */
+export const searchVectorStoreByMode = async (
+  hub: VectorStore,
+  query: string,
+  options: VectorStoreModeSearchOptions,
+): Promise<VectorStoreSearchResult[]> => {
+  const term = query.trim();
+  const limit = options.limit ?? 20;
+  const db = hydrateVectorStoreDatabase(hub);
+  let params: Record<string, unknown>;
+
+  if (options.mode === "fulltext") {
+    params = {
+      mode: "fulltext",
+      term,
+      properties: ["filename", "content"],
+      limit,
+      includeVectors: false,
+    };
+  } else {
+    const vector = options.vector;
+    if (!vector) {
+      throw new Error(`A query embedding is required for ${options.mode} search.`);
+    }
+    const vectorSize = getVectorSizeFromRawData(hub);
+    if (vector.length !== vectorSize) {
+      throw new Error(`Embedding dimension mismatch: expected ${vectorSize}, received ${vector.length}.`);
+    }
+
+    params = {
+      mode: options.mode,
+      ...(options.mode === "hybrid"
+        ? { term, properties: ["filename", "content"] }
+        : {}),
+      vector: { value: vector, property: "embedding" },
+      similarity: options.similarity ?? 0.7,
+      limit,
+      includeVectors: false,
+    };
+  }
+
+  const result = await search<ReturnType<typeof hydrateVectorStoreDatabase>, ChunkDocument>(db, params as any);
   return result.hits.map((hit) => ({
     id: hit.id,
     filename: hit.document.filename,
