@@ -22,6 +22,7 @@ interface ModelSelectProps {
   label?: string;
   onChange: (id: string) => void;
   disabled?: boolean;
+  required?: boolean;
   modelTypes?: string[];
   autoSelectFallback?: boolean;
   style?: React.CSSProperties;

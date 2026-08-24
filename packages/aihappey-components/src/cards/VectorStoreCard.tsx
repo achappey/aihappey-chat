@@ -7,10 +7,11 @@ export type VectorStoreCardProps = {
   description?: string;
   model: string;
   size: number;
+  fileCount: number;
   onView: () => void;
   onDownload?: () => void;
   onDelete: () => void;
-  labels?: { view?: string; download?: string; delete?: string };
+  labels?: { files?: string; view?: string; download?: string; delete?: string };
 };
 
 export const VectorStoreCard = ({
@@ -18,18 +19,23 @@ export const VectorStoreCard = ({
   description,
   model,
   size,
+  fileCount,
   onView,
   onDownload,
   onDelete,
   labels,
 }: VectorStoreCardProps) => {
   const { Card, Button, Menu, Badge } = useTheme();
+  const formattedFileCount = new Intl.NumberFormat(typeof navigator !== "undefined" ? navigator.languages : undefined).format(fileCount);
   return (
     <Card
         title={name}
         description={(
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
             <Badge title={model} icon="brain" size="small" appearance="tint">{model}</Badge>
+            <Badge icon="folder" size="small" appearance="neutral" title={`${formattedFileCount} ${labels?.files?.toLocaleLowerCase() ?? "files"}`}>
+              {formattedFileCount}
+            </Badge>
             <Badge size="small" appearance="neutral">{formatFileSize(size)}</Badge>
           </div>
         )}

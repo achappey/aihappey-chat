@@ -23,6 +23,7 @@ export type ModelSelectFieldProps = {
   placeholder?: string;
 
   disabled?: boolean;
+  required?: boolean;
   icon?: string;
   size?: "small" | "medium" | "large";
 
@@ -61,6 +62,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   placeholder = "Select a model",
 
   disabled,
+  required,
   icon = "brain",
   size = "large",
 
@@ -127,6 +129,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
       size={size}
       placeholder={placeholder}
       disabled={disabled}
+      required={required}
       aria-label={ariaLabel}
       searchable={searchable}
       searchPlaceholder={searchPlaceholder}

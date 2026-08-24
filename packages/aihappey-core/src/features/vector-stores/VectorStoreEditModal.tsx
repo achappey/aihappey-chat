@@ -29,11 +29,11 @@ export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, er
   onClose: () => void;
   onSave: (value: VectorStoreEditSaveValue) => void | Promise<void>;
 }) => {
-  const { Modal, Button, Tabs, Tab, Input, TextArea, Text, Card } = useTheme();
+  const { Modal, Button, Tabs, Tab, Input, TextArea, Text, Card, Slider } = useTheme();
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState("general");
-  const [value, setValue] = useState<VectorStoreFormValue>({ name: "", description: "", chunkSize: 1000, chunkOverlap: 200, model: "" });
+  const [value, setValue] = useState<VectorStoreFormValue>({ name: "", description: "", chunkSize: 2000, chunkOverlap: 200, model: "" });
   const [sources, setSources] = useState<VectorStoreSource[]>([]);
   const [addedFiles, setAddedFiles] = useState<File[]>([]);
   const [removedSources, setRemovedSources] = useState<string[]>([]);
@@ -42,7 +42,7 @@ export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, er
   useEffect(() => {
     if (!open) return;
     setActiveTab("general");
-    setValue(hub ? { name: hub.name, description: hub.description, chunkSize: hub.chunkSize, chunkOverlap: hub.chunkOverlap, model: hub.model } : { name: "", description: "", chunkSize: 1000, chunkOverlap: 200, model: defaultModel ?? "" });
+    setValue(hub ? { name: hub.name, description: hub.description, chunkSize: hub.chunkSize, chunkOverlap: hub.chunkOverlap, model: hub.model } : { name: "", description: "", chunkSize: 2000, chunkOverlap: 200, model: defaultModel ?? "" });
     setAddedFiles([]);
     setRemovedSources([]);
     setIsDragging(false);
@@ -52,7 +52,10 @@ export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, er
 
   const visibleSources = sources.filter((source) => !removedSources.includes(source.filename));
   const hasDocuments = visibleSources.length > 0;
-  const valid = value.name.trim() && value.model.trim() && value.chunkSize > 0 && value.chunkOverlap >= 0 && value.chunkOverlap < value.chunkSize;
+  const valid = value.name.trim() && value.model.trim()
+    && value.chunkSize >= 500 && value.chunkSize <= 10000
+    && value.chunkOverlap >= 0 && value.chunkOverlap <= 5000
+    && value.chunkOverlap <= value.chunkSize / 2;
   const addFiles = (files: File[]) => setAddedFiles((current) => {
     const next = new Map(current.map((file) => [file.name.toLocaleLowerCase(), file]));
     files.forEach((file) => next.set(file.name.toLocaleLowerCase(), file));
@@ -64,10 +67,12 @@ export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, er
     <Tabs activeKey={activeTab} onSelect={setActiveTab}>
       <Tab eventKey="general" icon="settings" title={t("general")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
         <Input label={t("name")} value={value.name} required onChange={(event) => setValue((current) => ({ ...current, name: event.target.value }))} />
+        <ModelSelect label={t("model")} models={models} modelTypes={["embedding"]} value={value.model} onChange={(model) => setValue((current) => ({ ...current, model }))} disabled={!!hub} required />
         <TextArea label={t("description")} value={value.description} rows={5} onChange={(description) => setValue((current) => ({ ...current, description }))} />
-        <ModelSelect label={t("model")} models={models} modelTypes={["embedding"]} value={value.model} onChange={(model) => setValue((current) => ({ ...current, model }))} disabled={!!hub} />
-        <Input label={t("vectorStorePage.fields.chunkSize")} type="number" min={1} value={value.chunkSize} disabled={hasDocuments} onChange={(event) => setValue((current) => ({ ...current, chunkSize: Number(event.target.value) }))} />
-        <Input label={t("vectorStorePage.fields.chunkOverlap")} type="number" min={0} value={value.chunkOverlap} disabled={hasDocuments} onChange={(event) => setValue((current) => ({ ...current, chunkOverlap: Number(event.target.value) }))} />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
+          <Slider id="vector-store-chunk-size" label={t("vectorStorePage.fields.chunkSize")} min={500} max={10000} step={1} value={value.chunkSize} disabled={hasDocuments} showValue onChange={(chunkSize: number) => setValue((current) => ({ ...current, chunkSize, chunkOverlap: Math.min(current.chunkOverlap, Math.floor(chunkSize / 2)) }))} />
+          <Slider id="vector-store-chunk-overlap" label={t("vectorStorePage.fields.chunkOverlap")} min={0} max={Math.min(5000, Math.floor(value.chunkSize / 2))} step={1} value={value.chunkOverlap} disabled={hasDocuments} showValue onChange={(chunkOverlap: number) => setValue((current) => ({ ...current, chunkOverlap: Math.min(chunkOverlap, Math.floor(current.chunkSize / 2)) }))} />
+        </div>
         {hasDocuments ? <Text as="p">{t("vectorStorePage.edit.chunkSettingsLocked")}</Text> : null}
       </div></Tab>
       <Tab eventKey="documents" icon="folder" title={t("vectorStorePage.tabs.documents")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>

@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { VectorStoreCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import {
   chunkText,
   insertVectorStoreChunks,
+  listVectorStoreSources,
   parseVectorStore,
   removeVectorStoreSource,
   serializeVectorStore,
@@ -40,6 +41,15 @@ export const VectorStoresPage = () => {
   const [error, setError] = useState<string>();
   const [importError, setImportError] = useState<string>();
   const [isDragging, setIsDragging] = useState(false);
+  const [fileCounts, setFileCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    let active = true;
+    void Promise.all(hubs.items.map(async (hub) => [hub.id, (await listVectorStoreSources(hub)).length] as const))
+      .then((entries) => { if (active) setFileCounts(Object.fromEntries(entries)); })
+      .catch(() => { if (active) setFileCounts({}); });
+    return () => { active = false; };
+  }, [hubs.items]);
 
   const visible = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
@@ -150,7 +160,7 @@ export const VectorStoresPage = () => {
             placeholder={t("vectorStorePage.overview.searchPlaceholder")} autoFocus={isDesktop} />
         </div>
         {visible.length ? <div style={{ width: "100%", display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 16 }}>
-          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} size={new TextEncoder().encode(JSON.stringify(hub)).length} onView={() => setViewingId(hub.id)} onDownload={() => downloadHub(hub)} onDelete={() => void hubs.delete(hub.id)} labels={{ view: t("view"), download: t("download"), delete: t("delete") }} />)}
+          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} size={new TextEncoder().encode(JSON.stringify(hub)).length} fileCount={fileCounts[hub.id] ?? 0} onView={() => setViewingId(hub.id)} onDownload={() => downloadHub(hub)} onDelete={() => void hubs.delete(hub.id)} labels={{ files: t("vectorStorePage.tabs.documents"), view: t("view"), download: t("download"), delete: t("delete") }} />)}
         </div> : <Text as="p" align="center">{t("vectorStorePage.overview.empty")}</Text>}
       </div>
       <VectorStoreEditModal open={modalOpen} hub={editing} models={models ?? []} defaultModel={userPreferredEmbeddingModel} busy={busy} error={error} onClose={() => setModalOpen(false)} onSave={saveHub} />

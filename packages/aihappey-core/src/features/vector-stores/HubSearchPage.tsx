@@ -24,7 +24,7 @@ type HubSearchResult = VectorStoreSearchResult & {
 
 const DEFAULT_SETTINGS: HubSearchSettings = {
   hubIds: [],
-  mode: "fulltext",
+  mode: "hybrid",
   limit: 20,
   similarity: 0.4,
 };
