@@ -72,7 +72,7 @@ export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, er
       </div></Tab>
       <Tab eventKey="documents" icon="folder" title={t("vectorStorePage.tabs.documents")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
         <input ref={inputRef} hidden multiple type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.epub,.pptx,.txt,.md,.log,.eml,.msg,text/*" onChange={(event) => { addFiles(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
-        <div style={{ border: `2px dashed ${isDragging ? "currentColor" : "rgba(127,127,127,.45)"}`, borderRadius: 8, padding: 24, textAlign: "center" }} onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={() => setIsDragging(false)} onDrop={(event) => { event.preventDefault(); setIsDragging(false); addFiles(Array.from(event.dataTransfer.files)); }}>
+        <div style={{ border: `2px dashed ${isDragging ? "currentColor" : "rgba(127,127,127,.45)"}`, borderRadius: 8, padding: 24, textAlign: "center" }} onDragEnter={(event) => { event.preventDefault(); event.stopPropagation(); setIsDragging(true); }} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); }} onDragLeave={(event) => { event.stopPropagation(); setIsDragging(false); }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); setIsDragging(false); addFiles(Array.from(event.dataTransfer.files)); }}>
           <div style={{ marginBottom: 8 }}>{t("vectorStorePage.edit.dropDocuments")}</div>
           <Button variant="secondary" onClick={() => inputRef.current?.click()}>{t("vectorStorePage.edit.chooseDocuments")}</Button>
         </div>
