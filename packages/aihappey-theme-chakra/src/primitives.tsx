@@ -49,6 +49,7 @@ import {
   FaLayerGroup,
   FaLink,
   FaList,
+  FaListUl,
   FaMagic,
   FaMicrochip,
   FaMicrophone,
@@ -83,6 +84,7 @@ import {
   FaVideo,
   FaVolumeUp,
   FaWrench,
+  FaFont,
 } from "react-icons/fa";
 import { format } from "timeago.js";
 import type {
@@ -163,6 +165,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   table: makeIcon(FaTable),
   transcription: makeIcon(FaMicrophone),
   language: makeIcon(FaLanguage),
+  chunks: makeIcon(FaListUl),
+  characters: makeIcon(FaFont),
   model_provider: makeIcon(FaCircle),
   gateway_router: makeIcon(FaExchangeAlt),
   inference_compute: makeIcon(FaMicrochip),

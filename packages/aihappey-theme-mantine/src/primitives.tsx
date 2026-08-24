@@ -181,6 +181,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   table: makeIcon("▦"),
   transcription: makeIcon("🎙"),
   language: makeIcon("文"),
+  chunks: makeIcon("☷"),
+  characters: makeIcon("Aa"),
   model_provider: makeIcon("◉"),
   gateway_router: makeIcon("⇄"),
   inference_compute: makeIcon("◎"),

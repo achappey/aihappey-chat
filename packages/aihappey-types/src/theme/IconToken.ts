@@ -22,6 +22,8 @@ export type IconToken =
   | "table"
   | "transcription"
   | "language"
+  | "chunks"
+  | "characters"
   | "model_provider"
   | "gateway_router"
   | "inference_compute"

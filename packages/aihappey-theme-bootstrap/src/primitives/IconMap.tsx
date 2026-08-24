@@ -99,6 +99,8 @@ import {
   Tag,
   Git,
   Book,
+  ListNested,
+  Fonts,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
@@ -179,6 +181,8 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   realtime: <Broadcast />,
   maxOutputTokens: <BoxArrowUp />,
   language: <ChatDots />,
+  chunks: <ListNested />,
+  characters: <Fonts />,
   explainTool: <ChatQuote />,
   mcpServer: <Plug />,
   tool: <Wrench />,

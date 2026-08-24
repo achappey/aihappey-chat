@@ -77,6 +77,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VolumeUp from "@mui/icons-material/VolumeUp";
 import WebAsset from "@mui/icons-material/WebAsset";
 import Work from "@mui/icons-material/Work";
+import AccountTree from "@mui/icons-material/AccountTree";
+import TextFields from "@mui/icons-material/TextFields";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import type { IconToken } from "aihappey-types";
 import { MoreVert } from "@mui/icons-material";
@@ -111,6 +113,8 @@ export const iconMap: Record<IconToken, IconComponent> = {
   table: makeIcon(TableChart),
   transcription: makeIcon(Mic),
   language: makeIcon(Language),
+  chunks: makeIcon(AccountTree),
+  characters: makeIcon(TextFields),
   model_provider: makeIcon(Psychology),
   gateway_router: makeIcon(Router),
   inference_compute: makeIcon(Hub),
