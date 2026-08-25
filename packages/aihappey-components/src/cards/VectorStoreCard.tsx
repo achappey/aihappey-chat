@@ -2,6 +2,7 @@ import { useTheme } from "../theme/ThemeContext";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { formatFileSize } from "./formatFileSize";
 import { CapabilityIcon, type CapabilityIconProps } from "../images/CapabilityIcon";
+import { getModelDisplayId } from "./getModelDisplayId";
 
 export type VectorStoreCardProps = {
   name: string;
@@ -30,14 +31,16 @@ export const VectorStoreCard = ({
 }: VectorStoreCardProps) => {
   const { Card, Button, Menu, Badge } = useTheme();
   const formattedFileCount = new Intl.NumberFormat(typeof navigator !== "undefined" ? navigator.languages : undefined).format(fileCount);
-  const image = providerIcons?.length ? <CapabilityIcon icons={providerIcons} /> : undefined;
+  const hasProviderIcons = !!providerIcons?.length;
+  const image = hasProviderIcons ? <CapabilityIcon icons={providerIcons} /> : undefined;
+  const modelDisplayId = getModelDisplayId(model, hasProviderIcons);
   return (
     <Card
         title={name}
         image={image}
         description={(
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-            <Badge title={model} icon="brain" size="small" appearance="tint">{model}</Badge>
+            <Badge title={model} icon="brain" size="small" appearance="tint">{modelDisplayId}</Badge>
             <Badge icon="folder" size="small" appearance="neutral" title={`${formattedFileCount} ${labels?.files?.toLocaleLowerCase() ?? "files"}`}>
               {formattedFileCount}
             </Badge>

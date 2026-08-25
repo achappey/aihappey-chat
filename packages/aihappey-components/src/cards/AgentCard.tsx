@@ -4,6 +4,7 @@ import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTranslation } from "aihappey-i18n";
 import { CapabilityIcon } from "../images/CapabilityIcon";
 import { AgentFavoriteToggleButton } from "../buttons/AgentFavoriteToggleButton";
+import { getModelDisplayId } from "./getModelDisplayId";
 
 type AgentCardProps = {
   agent: Agent;
@@ -28,7 +29,7 @@ export const AgentCard = ({
   isFavorite = false,
   onToggleFavorite,
 }: AgentCardProps) => {
-  const { Card, Button, Menu } = useTheme();
+  const { Card, Button, Menu, Badge } = useTheme();
   const { t } = useTranslation();
   const menuItems: MenuItemProps[] = [
     ...(onSaveAsPlugin ? [{
@@ -94,6 +95,10 @@ export const AgentCard = ({
 
   const imageIcons = agent?.icons?.length ? agent.icons : providerIcons;
   const image = imageIcons?.length ? <CapabilityIcon icons={imageIcons} /> : undefined;
+  const modelId = agent?.model?.id;
+  const modelDisplayId = modelId
+    ? getModelDisplayId(modelId, !!providerIcons?.length)
+    : undefined;
 
   const actions = exportButton || editButton || favoriteButton ? <>{exportButton}{editButton}{favoriteButton}</> : undefined
 
@@ -103,7 +108,11 @@ export const AgentCard = ({
       image={image}
       actions={actions}
       headerActions={headerActions}
-      description={agent?.model?.id}
+      description={modelId ? (
+        <Badge title={modelId} icon="brain" size="small" appearance="tint">
+          {modelDisplayId}
+        </Badge>
+      ) : undefined}
       size="small"
     >
       <LimitedTextField text={agent?.description} />
