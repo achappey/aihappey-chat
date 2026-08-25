@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { isStoredToolValid, parseStoredToolInputSchema } from "./localStoredTools";
 import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
-import { localAgentsPluginDef } from "./toolcalls/useLocalAgentsToolCall";
+import { localAgentsEditorPluginDef, localAgentsRuntimePluginDef } from "./toolcalls/useLocalAgentsToolCall";
 import { localConversationsPluginDef } from "./toolcalls/useLocalConversationsToolCall";
 import { localCanvasPluginDef } from "./toolcalls/useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./toolcalls/useLocalSettingsToolCall";
@@ -51,7 +51,8 @@ export const normalizeCatalogText = (v: unknown) =>
 
 export const allBuiltInPluginDefs = [
   localFilesPluginDef,
-  localAgentsPluginDef,
+  localAgentsEditorPluginDef,
+  localAgentsRuntimePluginDef,
   localConversationsPluginDef,
   localCanvasPluginDef,
   localSettingsPluginDef,

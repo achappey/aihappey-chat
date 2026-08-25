@@ -726,7 +726,8 @@
         }
     },
     "plugins": {
-        "local-agents": "Agent Framework",
+        "local-agents-editor": "Agent Framework editor",
+        "local-agents-runtime": "Agent Framework runtime",
         "local-agent-plugin-editor": "Plugin editor",
         "local-catalog": "Component catalogi",
         "local-todo": "Takenlijst",

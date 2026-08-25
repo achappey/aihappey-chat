@@ -1,7 +1,11 @@
 import { useCallback } from "react";
 import { useAppStore } from "aihappey-state";
+import { createResponsesProvider } from "aihappey-ai";
+import type { ResponseApiCreateRequest, ResponseApiInputContent } from "aihappey-ai";
+import type { FilesContextType } from "aihappey-files";
 import type { Agent } from "aihappey-types";
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
+import { useChatContext } from "../../chat/context/ChatContext";
 
 const ok = (text: string): CallToolResult => ({
   isError: false,
@@ -94,10 +98,38 @@ export const localAgentsListTool: Tool = {
    Plugin DEFINITION (STATIC)
 ============================================================ */
 
-export const localAgentsPluginDef = {
-  name: "local-agents",
-  match: (toolName: string) => toolName.startsWith("local_agents_"),
+export const localAgentsEditorPluginDef = {
+  name: "local-agents-editor",
+  match: (toolName: string) => ["local_agents_create", "local_agents_delete", "local_agents_list"].includes(toolName),
   tools: [localAgentsCreateTool, localAgentsDeleteTool, localAgentsListTool],
+};
+
+export const localAgentsRunTool: Tool = {
+  name: "local_agents_run",
+  title: "Run Agent Framework agent",
+  description: "Call a local or remote Agent Framework agent through the OpenAI-compatible Responses API.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      agentId: { type: "string", description: "Local agent name or remote agent model ID." },
+      prompt: { type: "string", description: "Prompt to send to the agent." },
+      filename: { type: "string", description: "Optional exact name of a file in local file storage to attach." },
+      background: { type: "boolean", description: "Run asynchronously and return the background response object." },
+    },
+    required: ["agentId", "prompt"],
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
+};
+
+export const localAgentsRuntimePluginDef = {
+  name: "local-agents-runtime",
+  match: (toolName: string) => toolName === localAgentsRunTool.name,
+  tools: [localAgentsRunTool],
 };
 
 /* ============================================================
@@ -121,7 +153,7 @@ function toServerConfigRecord(urls: string[] | undefined) {
    Plugin RUNTIME (execution only)
 ============================================================ */
 
-export function useLocalAgentsRuntime() {
+export function useLocalAgentsEditorRuntime() {
   const allAgents = useAppStore(a => a.agents);
   const setAgents = useAppStore(a => a.setAgents);
   const deleteAgent = useAppStore(a => a.deleteAgent);
@@ -192,7 +224,86 @@ export function useLocalAgentsRuntime() {
   );
 
   return {
-    name: localAgentsPluginDef.name,
+    name: localAgentsEditorPluginDef.name,
     handle,
   };
+}
+
+const blobToDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(String(reader.result));
+  reader.onerror = () => reject(reader.error ?? new Error("Could not read local file."));
+  reader.readAsDataURL(blob);
+});
+
+type LocalAgentsRunToolCall = {
+  toolName: "local_agents_run";
+  input?: {
+    agentId?: string;
+    prompt?: string;
+    filename?: string;
+    background?: boolean;
+  };
+};
+
+export function useLocalAgentsRuntime(files?: FilesContextType | null) {
+  const { config } = useChatContext();
+  const localAgents = useAppStore(a => a.agents);
+  const remoteAgentModels = useAppStore(a => a.remoteAgentModels);
+  const customHeaders = useAppStore(a => a.customHeaders);
+
+  const handle = useCallback(async (toolCall: LocalAgentsRunToolCall): Promise<CallToolResult> => {
+    try {
+      const agentId = toolCall.input?.agentId?.trim();
+      const prompt = toolCall.input?.prompt?.trim();
+      const filename = toolCall.input?.filename?.trim();
+      const background = toolCall.input?.background ?? false;
+      if (!agentId) throw new Error("Missing agentId.");
+      if (!prompt) throw new Error("Missing prompt.");
+
+      // Deliberately prefer a local agent when a remote model has the same bare ID.
+      const localAgent = localAgents.find(agent => agent.name === agentId);
+      const remoteAgent = localAgent ? undefined : remoteAgentModels.find(agent => agent.id === agentId);
+      if (!localAgent && !remoteAgent) throw new Error(`Agent '${agentId}' not found.`);
+
+      const content: ResponseApiInputContent[] = [{ type: "input_text", text: prompt }];
+      if (filename) {
+        if (!files) throw new Error("Files context not available.");
+        const file = files.items.find(item => item.name === filename);
+        if (!file) throw new Error(`Local file '${filename}' not found.`);
+        const stored = await files.read(file.id);
+        if (!stored) throw new Error(`Local file '${filename}' not found.`);
+        content.push({
+          type: "input_file",
+          file_data: await blobToDataUrl(stored.data),
+          filename: file.name,
+        });
+      }
+
+      const headers = { ...(config.headers ?? {}), ...(customHeaders ?? {}) };
+      const getAccessToken = config.agentEndpoint
+        ? (config.getAgentAccessToken ?? config.getAccessToken)
+        : config.getAccessToken;
+      if (getAccessToken) headers.Authorization = `Bearer ${await getAccessToken()}`;
+
+      const request: ResponseApiCreateRequest = {
+        input: [{ role: "user", content }],
+        background,
+        store: background,
+        stream: false,
+        ...(localAgent ? { metadata: { agents: [localAgent] } } : { model: remoteAgent!.id }),
+      };
+      const client = createResponsesProvider({
+        baseUrl: (config.agentEndpoint ?? config.baseUrl) + config.endpoints.responses,
+        headers,
+        fetch: config.fetch,
+      });
+      const response = await client.create(request);
+      return { isError: false, content: [], structuredContent: response };
+    } catch (error) {
+      return fail(error);
+    }
+  }, [config, customHeaders, files, localAgents, remoteAgentModels]);
+
+  return { name: localAgentsRuntimePluginDef.name, handle };
 }

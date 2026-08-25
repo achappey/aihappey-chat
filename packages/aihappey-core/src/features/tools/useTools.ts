@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { useAppStore } from "aihappey-state";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
-import { localAgentsPluginDef } from "./toolcalls/useLocalAgentsToolCall";
+import { localAgentsEditorPluginDef, localAgentsRuntimePluginDef } from "./toolcalls/useLocalAgentsToolCall";
 import { localCanvasPluginDef } from "./toolcalls/useLocalCanvasToolCall";
 import { localConversationsPluginDef } from "./toolcalls/useLocalConversationsToolCall";
 import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
@@ -82,7 +82,8 @@ export function useTools(options: UseToolsOptions = {}) {
   const defsAll = useMemo(
     () => [
       localFilesPluginDef,
-      localAgentsPluginDef,
+      localAgentsEditorPluginDef,
+      localAgentsRuntimePluginDef,
       localConversationsPluginDef,
       localCanvasPluginDef,
       localJsonRenderPluginDef,

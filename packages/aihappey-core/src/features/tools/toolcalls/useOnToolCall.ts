@@ -16,7 +16,7 @@ import {
 } from "./useAnthropicTextEditorToolCall";
 
 import { useLocalFilesRuntime } from "./useLocalFileToolCall";
-import { useLocalAgentsRuntime } from "./useLocalAgentsToolCall";
+import { useLocalAgentsEditorRuntime, useLocalAgentsRuntime } from "./useLocalAgentsToolCall";
 import { useLocalConversationsRuntime } from "./useLocalConversationsToolCall";
 import { useLocalCanvasRuntime } from "./useLocalCanvasToolCall";
 import { useLocalSettingsRuntime } from "./useLocalSettingsToolCall";
@@ -38,7 +38,7 @@ import { usePlugins } from "./usePlugins";
 
 // import *defs* for normal plugins
 import { localFilesPluginDef } from "./useLocalFileToolCall";
-import { localAgentsPluginDef } from "./useLocalAgentsToolCall";
+import { localAgentsEditorPluginDef, localAgentsRuntimePluginDef } from "./useLocalAgentsToolCall";
 import { localConversationsPluginDef } from "./useLocalConversationsToolCall";
 import { localCanvasPluginDef } from "./useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./useLocalSettingsToolCall";
@@ -127,7 +127,8 @@ export function useOnToolCall({
 
   // runtimes
   const localFilesRuntime = useLocalFilesRuntime(files);
-  const localAgentsRuntime = useLocalAgentsRuntime();
+  const localAgentsEditorRuntime = useLocalAgentsEditorRuntime();
+  const localAgentsRuntime = useLocalAgentsRuntime(files);
   const localConversationsRuntime = useLocalConversationsRuntime(conversations);
   const localCanvasRuntime = useLocalCanvasRuntime(files);
   const localSettingsRuntime = useLocalSettingsRuntime();
@@ -196,6 +197,7 @@ export function useOnToolCall({
   const runtimes = useMemo(
     () => ({
       [localFilesRuntime.name]: localFilesRuntime,
+      [localAgentsEditorRuntime.name]: localAgentsEditorRuntime,
       [localAgentsRuntime.name]: localAgentsRuntime,
       [localConversationsRuntime.name]: localConversationsRuntime,
       [localCanvasRuntime.name]: localCanvasRuntime,
@@ -223,6 +225,7 @@ export function useOnToolCall({
     }),
     [
       localFilesRuntime,
+      localAgentsEditorRuntime,
       localAgentsRuntime,
       localConversationsRuntime,
       localCanvasRuntime,
@@ -253,7 +256,8 @@ export function useOnToolCall({
   const defsAll = useMemo(
     () => [
       localFilesPluginDef,
-      localAgentsPluginDef,
+      localAgentsEditorPluginDef,
+      localAgentsRuntimePluginDef,
       localConversationsPluginDef,
       localImagesPluginDef,
       localWebPluginDef,

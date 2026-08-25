@@ -42,9 +42,9 @@ export function createResponsesProvider(config: {
         method: "POST",
         body: JSON.stringify({
           ...request,
-          background: true,
-          store: true,
-          stream: false,
+          background: request.background ?? true,
+          store: request.store ?? (request.background ?? true),
+          stream: request.stream ?? false,
         }),
       }),
 
