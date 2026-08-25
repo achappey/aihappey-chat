@@ -84,8 +84,27 @@ export const localAgentsListTool: Tool = {
   name: "local_agents_list",
   title: "List local Agents",
   description:
-    "List all local AI Agents available. Local agents are Microsoft Agent Framework agents that the user can run in this chat app.",
+    "List the names and descriptions of all local AI Agents available. Local agents are Microsoft Agent Framework agents that the user can run in this chat app.",
   inputSchema: { type: "object", properties: {}, required: [] },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
+};
+
+export const localAgentsGetTool: Tool = {
+  name: "local_agents_get",
+  title: "Get local Agent",
+  description: "Get the complete configuration of one local AI Agent by its exact name.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      agentName: { type: "string", description: "Exact name of the agent" },
+    },
+    required: ["agentName"],
+  },
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
@@ -100,8 +119,9 @@ export const localAgentsListTool: Tool = {
 
 export const localAgentsEditorPluginDef = {
   name: "local-agents-editor",
-  match: (toolName: string) => ["local_agents_create", "local_agents_delete", "local_agents_list"].includes(toolName),
-  tools: [localAgentsCreateTool, localAgentsDeleteTool, localAgentsListTool],
+  match: (toolName: string) =>
+    ["local_agents_create", "local_agents_delete", "local_agents_list", "local_agents_get"].includes(toolName),
+  tools: [localAgentsCreateTool, localAgentsDeleteTool, localAgentsListTool, localAgentsGetTool],
 };
 
 export const localAgentsRunTool: Tool = {
@@ -137,7 +157,7 @@ export const localAgentsRuntimePluginDef = {
 ============================================================ */
 
 type LocalAgentsToolCall = {
-  toolName: "local_agents_list" | "local_agents_create" | "local_agents_delete";
+  toolName: "local_agents_list" | "local_agents_get" | "local_agents_create" | "local_agents_delete";
   input?: any;
 };
 
@@ -165,10 +185,23 @@ export function useLocalAgentsEditorRuntime() {
           case "local_agents_list":
             return {
               structuredContent: {
-                agents: allAgents
+                agents: allAgents.map(({ name, description }) => ({ name, description }))
               },
               content: []
             };
+
+          case "local_agents_get": {
+            const { agentName } = toolCall.input ?? {};
+            if (!agentName) throw new Error("Missing agentName.");
+
+            const agent = allAgents.find(a => a.name === agentName);
+            if (!agent) throw new Error(`Agent with name '${agentName}' not found.`);
+
+            return {
+              structuredContent: { agent },
+              content: []
+            };
+          }
 
           case "local_agents_delete": {
             const { agentName } = toolCall.input ?? {};
