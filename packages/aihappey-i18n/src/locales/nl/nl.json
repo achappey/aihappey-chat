@@ -881,7 +881,7 @@
         "description": "Een overzicht van alle beschikbare tools: ingebouwde plugin-tools, je eigen aangepaste tools en tools van verbonden Model Context."
     },
     "filesPage": {
-        "description": "Een overzicht van alle lokaal beschikbare bestanden. Sleep bestanden naar deze pagina om ze toe te voegen en laat AI bestanden lezen en aanmaken via plugins."
+        "description": "Een overzicht van alle lokaal beschikbare bestanden. Sleep bestanden naar deze pagina om ze toe te voegen en laat AI bestanden lezen en aanmaken via tools."
     },
     "mcp": {
         "accept": "Accepteer",

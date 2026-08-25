@@ -916,7 +916,7 @@
     "notFound": "Not found",
     "lastUpdated": "Last updated",
     "filesPage": {
-        "description": "An overview of all locally available files. Drag and drop files onto this page to add them and allow AI to read and create files through plugins."
+        "description": "An overview of all locally available files. Drag and drop files onto this page to add them and allow AI to read and create files through tools."
     },
     "mcp": {
         "accept": "Accept",
