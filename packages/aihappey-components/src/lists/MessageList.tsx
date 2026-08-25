@@ -46,6 +46,20 @@ const chatContentStyles = {
   margin: "0 auto",
 } satisfies React.CSSProperties;
 
+export const getChatMessageDisplayAuthor = (
+  msg: ChatMessage,
+  providerIcon?: ChatMessageProviderIcon,
+) => {
+  if (msg.role !== "assistant" || !providerIcon || !msg.providerKey || typeof msg.author !== "string") {
+    return msg.author;
+  }
+
+  const prefix = `${msg.providerKey}/`;
+  return msg.author.startsWith(prefix) && msg.author.length > prefix.length
+    ? msg.author.slice(prefix.length)
+    : msg.author;
+};
+
 const BLOCK_META: Record<string, { icon: IconToken; label: string }> = {
   //text: { icon: "text", label: "Text" },
   reasoning: { icon: "brain", label: "reasoning" },
@@ -205,15 +219,17 @@ export const MessageList = ({
     const page = getPage(msg);
     const block = msg.content?.[page];
     const meta = getBlockMeta(block);
+    const providerIcon = getProviderIcon(msg);
 
     const label = meta.label ?? msg.messageLabel;
 
     return {
       ...msg,
+      author: getChatMessageDisplayAuthor(msg, providerIcon),
       messageIcon: meta.icon ?? msg.messageIcon,
       messageLabel: t(label),
       providerName: msg.providerKey ? providers?.[msg.providerKey]?.name : msg.providerName,
-      providerIcon: getProviderIcon(msg),
+      providerIcon,
     };
   });
 
