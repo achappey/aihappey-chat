@@ -13,3 +13,4 @@ export * from "./ModelTypeBadge";
 export * from "./ProviderCategoryBadge";
 export * from "./PluginMetadataBadges";
 export * from "./VersionBadge";
+export * from "./SizeBadge";

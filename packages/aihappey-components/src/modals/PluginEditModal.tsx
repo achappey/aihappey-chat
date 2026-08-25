@@ -10,10 +10,10 @@ import type {
 import { normalizePluginName, PLUGIN_NAME_PATTERN, PLUGIN_SCHEMA_URL } from "aihappey-plugins";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
-import { formatFileSize } from "../cards/formatFileSize";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { ServerManagement } from "../forms/model-context/ServerManagement";
 import { VersionBadge } from "../badges/VersionBadge";
+import { SizeBadge } from "../badges/SizeBadge";
 
 export type PluginSkillOption = {
   id: string;
@@ -294,7 +294,7 @@ export const PluginEditModal = ({
             <div style={{ marginBottom: 8 }}>{t("skillsPage.editor.dropFiles")}</div>
             <theme.Button variant="secondary" onClick={() => fileInput.current?.click()}>{t("skillsPage.editor.chooseFiles")}</theme.Button>
           </div>
-          {visibleFiles.length ? visibleFiles.map((file) => <theme.Card key={file.path} title={file.path} description={formatFileSize(file.size)} actions={<div style={{ display: "flex", gap: 4 }}><theme.Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} /><theme.Button icon="delete" size="small" variant="transparent" title={t("delete")} onClick={() => setFiles((items) => items.filter((item) => item.path !== file.path))} /></div>} />) : <theme.Card title={t("files")}><div style={{ color: "#888" }}>{t("noResults")}</div></theme.Card>}
+          {visibleFiles.length ? visibleFiles.map((file) => <theme.Card key={file.path} title={file.path} description={<SizeBadge bytes={file.size} />} actions={<div style={{ display: "flex", gap: 4 }}><theme.Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} /><theme.Button icon="delete" size="small" variant="transparent" title={t("delete")} onClick={() => setFiles((items) => items.filter((item) => item.path !== file.path))} /></div>} />) : <theme.Card title={t("files")}><div style={{ color: "#888" }}>{t("noResults")}</div></theme.Card>}
         </div></theme.Tab>
       </theme.Tabs>
     </theme.Modal>

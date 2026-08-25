@@ -4,7 +4,7 @@ import { CapabilityIcon } from "../images/CapabilityIcon";
 import type { Tool } from "aihappey-mcp";
 import { ViewButton } from "../buttons/ViewButton";
 import { ToolInvocationStateBadge } from "../badges/ToolInvocationStateBadge";
-import { formatFileSize } from "./formatFileSize";
+import { SizeBadge } from "../badges/SizeBadge";
 
 export interface ToolInvocationCardProps {
   invocation: {
@@ -28,9 +28,8 @@ export interface ToolInvocationCardProps {
   onShowOutput?: (data: any) => void
 }
 
-function prettySize(obj: any) {
-  const bytes = new TextEncoder().encode(JSON.stringify(obj)).length;
-  return formatFileSize(bytes);
+function byteSize(obj: any) {
+  return new TextEncoder().encode(JSON.stringify(obj)).length;
 }
 
 export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
@@ -62,7 +61,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
       isError={invocation.output?.isError} />
 
     {isCompleted && !invocation.output?.isError
-      && <Badge size={"small"} bg="informative">{prettySize(invocation.output)}</Badge>}
+      && <SizeBadge bytes={byteSize(invocation.output)} />}
 
     {task && <Badge size={"small"} bg="warning">task: {task.status}</Badge>}
   </div>;

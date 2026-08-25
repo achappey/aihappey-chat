@@ -3,11 +3,11 @@ import type { McpRegistryServerResponse } from "aihappey-types";
 import { readClientExtension, type StoredPlugin, type StoredPluginFile } from "aihappey-plugins";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
-import { formatFileSize } from "../cards/formatFileSize";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { CapabilityIcon } from "../images";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
 import { PluginMetadataBadges } from "../badges/PluginMetadataBadges";
+import { SizeBadge } from "../badges/SizeBadge";
 
 export type PluginDetailsModalProps = {
   open: boolean;
@@ -112,7 +112,7 @@ export const PluginDetailsModal = ({ open, plugin, mcpRegistryItems = [], extens
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <Switch id="plugin-details-show-skill-files" label={t("pluginsPage.editor.showSkillFiles")} checked={showSkillFiles} onChange={setShowSkillFiles} />
             </div>
-            {visibleFiles.length ? visibleFiles.map((file) => <Card key={file.path} title={file.path} description={formatFileSize(file.size)} actions={<Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} />} />) : <div style={{ color: "#888" }}>{t("noResults")}</div>}
+            {visibleFiles.length ? visibleFiles.map((file) => <Card key={file.path} title={file.path} description={<SizeBadge bytes={file.size} />} actions={<Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} />} />) : <div style={{ color: "#888" }}>{t("noResults")}</div>}
           </div></Tab>
           {plugin.diagnostics.length ? <Tab eventKey="diagnostics" icon="warning" title={t("pluginsPage.diagnostics")}><div style={grid}>
             {plugin.diagnostics.map((item, index) => <Card key={`${item.code}-${index}`} title={item.code} description={<Badge size="small" bg={item.severity === "error" ? "danger" : item.severity === "warning" ? "warning" : "informative"}>{item.severity}</Badge>}><div>{item.message}{item.path ? ` (${item.path})` : ""}</div></Card>)}

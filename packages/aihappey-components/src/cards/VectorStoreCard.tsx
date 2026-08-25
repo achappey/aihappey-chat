@@ -1,8 +1,8 @@
 import { useTheme } from "../theme/ThemeContext";
 import { LimitedTextField } from "../fields/LimitedTextField";
-import { formatFileSize } from "./formatFileSize";
 import { CapabilityIcon, type CapabilityIconProps } from "../images/CapabilityIcon";
 import { getModelDisplayId } from "./getModelDisplayId";
+import { SizeBadge } from "../badges/SizeBadge";
 
 export type VectorStoreCardProps = {
   name: string;
@@ -44,7 +44,7 @@ export const VectorStoreCard = ({
             <Badge icon="folder" size="small" appearance="neutral" title={`${formattedFileCount} ${labels?.files?.toLocaleLowerCase() ?? "files"}`}>
               {formattedFileCount}
             </Badge>
-            <Badge size="small" appearance="neutral">{formatFileSize(size)}</Badge>
+            <SizeBadge bytes={size} />
           </div>
         )}
         size="small"

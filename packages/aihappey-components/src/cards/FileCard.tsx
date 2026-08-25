@@ -2,9 +2,8 @@ import { useMemo } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import type { MenuItemProps } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
-import { MimeTypeBadge } from "../badges";
+import { MimeTypeBadge, SizeBadge } from "../badges";
 import { ViewButton } from "../buttons";
-import { formatFileSize } from "./formatFileSize";
 
 export type FileCardItem = {
   id: string;
@@ -62,13 +61,12 @@ export const FileCard = ({ file, onView, onDelete, onDownload }: FileCardProps) 
     </>
   );
 
-  const sizeLabel = formatFileSize(file.data?.size);
   const mimeLabel = file.data?.type?.split(";")[0] || "";
 
   const description = (
     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
       {mimeLabel ? <MimeTypeBadge mimeType={mimeLabel} /> : undefined}
-      <span style={{ color: "#666" }}>{sizeLabel}</span>
+      <SizeBadge bytes={file.data?.size} />
     </div>
   );
 

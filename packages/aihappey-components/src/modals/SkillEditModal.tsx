@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import { formatFileSize } from "../cards/formatFileSize";
+import { SizeBadge } from "../badges/SizeBadge";
 
 export type SkillEditFile = { path: string; data: Blob; size: number };
 
@@ -218,7 +218,7 @@ export const SkillEditModal = ({
               <Card
                 key={file.path}
                 title={file.path}
-                description={formatFileSize(file.size)}
+                description={<SizeBadge bytes={file.size} />}
                 actions={
                   <div style={{ display: "flex", gap: 4 }}>
                     <Button icon="download" size="small" variant="transparent" title={t("download")} onClick={() => downloadFile(file)} />
