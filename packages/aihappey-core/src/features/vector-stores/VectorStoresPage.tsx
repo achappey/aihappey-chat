@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { VectorStoreCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
+import { VectorStoreCard, StickyHeaderActionBar, useTheme, type VectorStoreCardProps } from "aihappey-components";
 import {
   chunkText,
   insertVectorStoreChunks,
@@ -12,7 +12,7 @@ import {
   VectorStoreJsonError,
   type VectorStore,
 } from "aihappey-embeddings";
-import { useAppStore } from "aihappey-state";
+import { getAgentModelProviderKey, useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
@@ -21,8 +21,16 @@ import { createVectorStoreEmbeddingClient } from "./embeddingClient";
 import { useTranslation } from "aihappey-i18n";
 import { VectorStoreDetailModal } from "./VectorStoreDetailModal";
 import { extractTextFromFile } from "../chat/files/file";
+import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 
 const EMBEDDING_BATCH_SIZE = 32;
+
+const getProviderIconsForModel = (modelId?: string): VectorStoreCardProps["providerIcons"] => {
+  const providerKey = getAgentModelProviderKey(modelId);
+  if (!providerKey) return undefined;
+
+  return PROVIDERS[providerKey]?.icons;
+};
 
 export const VectorStoresPage = () => {
   const { Alert, SearchBox, Text } = useTheme();
@@ -160,7 +168,7 @@ export const VectorStoresPage = () => {
             placeholder={t("vectorStorePage.overview.searchPlaceholder")} autoFocus={isDesktop} />
         </div>
         {visible.length ? <div style={{ width: "100%", display: "grid", gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr", gap: 16 }}>
-          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} size={new TextEncoder().encode(JSON.stringify(hub)).length} fileCount={fileCounts[hub.id] ?? 0} onView={() => setViewingId(hub.id)} onDownload={() => downloadHub(hub)} onDelete={() => void hubs.delete(hub.id)} labels={{ files: t("vectorStorePage.tabs.documents"), view: t("view"), download: t("download"), delete: t("delete") }} />)}
+          {visible.map((hub) => <VectorStoreCard key={hub.id} name={hub.name} description={hub.description} model={hub.model} providerIcons={getProviderIconsForModel(hub.model)} size={new TextEncoder().encode(JSON.stringify(hub)).length} fileCount={fileCounts[hub.id] ?? 0} onView={() => setViewingId(hub.id)} onDownload={() => downloadHub(hub)} onDelete={() => void hubs.delete(hub.id)} labels={{ files: t("vectorStorePage.tabs.documents"), view: t("view"), download: t("download"), delete: t("delete") }} />)}
         </div> : <Text as="p" align="center">{t("vectorStorePage.overview.empty")}</Text>}
       </div>
       <VectorStoreEditModal open={modalOpen} hub={editing} models={models ?? []} defaultModel={userPreferredEmbeddingModel} busy={busy} error={error} onClose={() => setModalOpen(false)} onSave={saveHub} />
