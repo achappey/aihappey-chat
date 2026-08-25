@@ -137,7 +137,7 @@ export function useOnToolCall({
   const localActionsRuntime = useLocalActionsRuntime();
   const localCatalogRuntime = useLocalCatalogRuntime();
   const localRegistryRuntime = useLocalRegistryRuntime();
-  const localStructuredOutputsRuntime = useLocalStructuredOutputsRuntime(api, getAccessToken, headers);
+  const localStructuredOutputsRuntime = useLocalStructuredOutputsRuntime(api, getAccessToken, headers, files);
   const localImagesRuntime = useLocalImagesRuntime(files);
   const vercelAIRuntime = useVercelAIToolCall(api, getAccessToken, headers, customFetch);
   const localWebreaderRuntime = useLocalWebreaderRuntime();

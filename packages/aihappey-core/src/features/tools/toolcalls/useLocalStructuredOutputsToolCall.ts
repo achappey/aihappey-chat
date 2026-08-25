@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import {
     createBackendProvider,
     generateText,
@@ -7,23 +7,26 @@ import {
     Output,
 } from "aihappey-ai";
 import { useAppStore } from "aihappey-state";
+import type { FilesContextType } from "aihappey-files";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 
 /* ============================================================
    Result helpers
 ============================================================ */
 
-type ToolTextResult = {
-    isError: boolean;
-    content: { type: "text"; text: string }[];
-};
 
-const ok = (text: string): ToolTextResult => ({
+const okStructured = (val: any): CallToolResult => ({
+    isError: false,
+    structuredContent: val,
+    content: [],
+});
+
+const ok = (text: string): CallToolResult => ({
     isError: false,
     content: [{ type: "text", text }],
 });
 
-const fail = (err: unknown): ToolTextResult => ({
+const fail = (err: unknown): CallToolResult => ({
     isError: true,
     content: [{ type: "text", text: JSON.stringify(err) }],
 });
@@ -131,6 +134,10 @@ export const localStructuredOutputsExecuteTool: Tool = {
                 type: "string",
                 description: "Optional model override (e.g. openai/gpt-5-mini)",
             },
+            filename: {
+                type: "string",
+                description: "Optional exact name of a file in local file storage to attach.",
+            },
         },
         required: ["schemaId", "prompt"],
     },
@@ -187,6 +194,13 @@ function parseSchemaString(schema: unknown) {
     }
 }
 
+const blobToDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error ?? new Error("Could not read local file."));
+    reader.readAsDataURL(blob);
+});
+
 async function validateSchema(
     api: string,
     headers: Record<string, string>,
@@ -218,12 +232,17 @@ async function validateSchema(
    Plugin RUNTIME (execution only)
 ============================================================ */
 
-export function useLocalStructuredOutputsRuntime(api: string, getAccessToken?: any, headers?: any) {
+export function useLocalStructuredOutputsRuntime(
+    api: string,
+    getAccessToken?: any,
+    headers?: any,
+    files?: FilesContextType | null
+) {
     const customHeaders = useAppStore(a => a.customHeaders);
     const store = useStructuredOutputs();
 
     const handle = useCallback(
-        async (toolCall: LocalStructuredOutputsToolCall): Promise<ToolTextResult> => {
+        async (toolCall: LocalStructuredOutputsToolCall): Promise<CallToolResult> => {
             try {
                 switch (toolCall.toolName) {
                     case "local_structured_outputs_execute": {
@@ -231,6 +250,7 @@ export function useLocalStructuredOutputsRuntime(api: string, getAccessToken?: a
                         const schemaId = input.schemaId;
                         const prompt = input.prompt;
                         const modelId = input.model ?? "openai/gpt-5-mini";
+                        const filename = input.filename?.trim();
 
                         if (!schemaId) throw new Error("Missing schemaId.");
                         if (!prompt) throw new Error("Missing prompt.");
@@ -250,14 +270,37 @@ export function useLocalStructuredOutputsRuntime(api: string, getAccessToken?: a
                         const parsed = parseSchemaString(item.json_schema);
                         const schema = jsonSchema(parsed);
 
+                        const messages = filename
+                            ? [{
+                                role: "user" as const,
+                                content: await (async () => {
+                                    if (!files) throw new Error("Files context not available.");
+                                    const file = files.items.find(candidate => candidate.name === filename);
+                                    if (!file) throw new Error(`Local file '${filename}' not found.`);
+                                    const stored = await files.read(file.id);
+                                    if (!stored) throw new Error(`Local file '${filename}' not found.`);
+
+                                    return [
+                                        { type: "text" as const, text: prompt },
+                                        {
+                                            type: "file" as const,
+                                            data: await blobToDataUrl(stored.data),
+                                            mediaType: stored.data.type || "application/octet-stream",
+                                            filename: file.name,
+                                        },
+                                    ];
+                                })(),
+                            }]
+                            : undefined;
+
                         const response = await generateText({
                             model,
-                            prompt,
+                            ...(messages ? { messages } : { prompt }),
                             output: Output.object({ schema }),
                             tools: {},
                         });
 
-                        return ok(JSON.stringify(response.output ?? response));
+                        return okStructured(response.output ?? response);
                     }
 
 
@@ -322,7 +365,7 @@ export function useLocalStructuredOutputsRuntime(api: string, getAccessToken?: a
                 return fail(e);
             }
         },
-        [api, customHeaders, getAccessToken, headers, store]
+        [api, customHeaders, files, getAccessToken, headers, store]
     );
 
     return {
