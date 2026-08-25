@@ -7,6 +7,7 @@ export const literouter: Provider = {
   urls: {
     homepage: "https://literouter.com",
     docs: "https://literouter.com/api_docs",
+    pricing: "https://literouter.com/#pricing",
     termsOfService: "https://literouter.com/terms",
     privacyPolicy: "https://literouter.com/privacy",
     console: "https://literouter.com/api_dashboard.php"
