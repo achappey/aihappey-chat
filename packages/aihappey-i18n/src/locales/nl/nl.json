@@ -162,7 +162,7 @@
             "vector": "Vector"
         },
         "settings": {
-            "title": "Instellingen voor hubs doorzoeken",
+            "title": "Instellingen voor documenten zoeken",
             "hubs": "Documenthubs",
             "allHubs": "Alle documenthubs",
             "selectedHubs": "{{count}} documenthubs geselecteerd",

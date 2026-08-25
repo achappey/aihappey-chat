@@ -159,7 +159,7 @@
             "vector": "Vector"
         },
         "settings": {
-            "title": "Hub search settings",
+            "title": "Settings",
             "hubs": "Document hubs",
             "allHubs": "All document hubs",
             "selectedHubs": "{{count}} document hubs selected",
