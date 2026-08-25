@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LimitedTextField, useTheme } from "aihappey-components";
+import { LimitedTextField, useTheme, VersionBadge } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import type { SkillCatalogItem } from "aihappey-skills";
 import { useDarkMode } from "usehooks-ts";
@@ -83,6 +83,7 @@ export const ChatSkillsEditor = ({
       <Card
         key={item.skillId}
         title={<span style={{ overflowWrap: "anywhere" }}>{item.name}</span>}
+        description={item.version ? <VersionBadge version={item.version} /> : undefined}
         size="small"
         image={image}
         headerActions={
