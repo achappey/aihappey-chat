@@ -7,7 +7,7 @@ export const mixedbread: Provider = {
   urls: {
     homepage: "https://www.mixedbread.com",
     docs: "https://www.mixedbread.com/docs",
-    pricing:"https://www.mixedbread.com/pricing",
+    pricing: "https://www.mixedbread.com/pricing",
     privacyPolicy: "https://www.mixedbread.com/pages/privacy",
     termsOfService: "https://www.mixedbread.com/pages/terms"
   },
