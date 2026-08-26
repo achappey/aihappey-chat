@@ -3,20 +3,10 @@ import type { Provider } from "aihappey-types";
 export const jina: Provider = {
   name: "Jina",
   description:
-    "Best-in-class embeddings, rerankers, web reader, deepsearch, small language models. Search AI for multilingual and multimodal data",
-  icons: [
-    {
-      src: "https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/jina.png",
-      theme: "dark",
-    },
-    {
-      src: "https://registry.npmmirror.com/@lobehub/icons-static-png/1.74.0/files/light/jina.png",
-      theme: "light",
-    },
-  ],
+    "Best-in-class embeddings, rerankers, web reader, deepsearch, small language models. Search AI for multilingual and multimodal data.",
   urls: {
     homepage: "https://jina.ai",
-    docs: "https://jina.ai/docs",
+    docs: "https://api.jina.ai/scalar",
     privacyPolicy: "https://jina.ai/legal/#privacy-policy",
     termsOfService: "https://jina.ai/legal/#terms-and-conditions"
   },
