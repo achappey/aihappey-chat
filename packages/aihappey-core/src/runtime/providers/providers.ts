@@ -573,6 +573,7 @@ import { soniox } from "./catalog/soniox";
 import { nexosai } from "./catalog/nexosai";
 import { hetzner } from "./catalog/hetzner";
 import { leaperone } from "./catalog/leaperone";
+import { mixedbread } from "./catalog/mixedbread";
 
 /**
  * UI-facing provider catalog.
@@ -874,6 +875,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   rime,
   kirha,
   modelrouter,
+  mixedbread,
   casedev,
   smartaipi,
   assisters,
