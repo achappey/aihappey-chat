@@ -77,6 +77,11 @@ export function useRealtimeTranscriptionController(args: {
   // Soniox returns finalized token batches once and has no OpenAI item_ids.
   const sonioxCommitCounterRef = useRef<number>(0);
 
+  // Google emits utterance-level final transcripts without item IDs or timestamps.
+  const googleCommitCounterRef = useRef<number>(0);
+  const googleSessionStartedAtRef = useRef<number>(0);
+  const googleLastSegmentEndMsRef = useRef<number>(0);
+
   const sessionInfoRef = useRef<any>(null);
 
   const providerId = useMemo(() => parseProviderIdFromModelId(selectedModel?.id), [selectedModel]);
@@ -370,6 +375,9 @@ export function useRealtimeTranscriptionController(args: {
         gladiaCommitCounterRef.current = 0;
         assemblyAiCommitCounterRef.current = 0;
         sonioxCommitCounterRef.current = 0;
+        googleCommitCounterRef.current = 0;
+        googleSessionStartedAtRef.current = 0;
+        googleLastSegmentEndMsRef.current = 0;
         resetRealtimeSessionState();
         stopInFlightRef.current = null;
       }
@@ -604,6 +612,46 @@ export function useRealtimeTranscriptionController(args: {
                 return;
               }
 
+              if (providerId === "google") {
+                if (event?.setupComplete) {
+                  googleSessionStartedAtRef.current = Date.now();
+                  sessionInfoRef.current = {
+                    provider: "google",
+                    setupComplete: true,
+                  };
+                  if (created.id) {
+                    void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+                  }
+                  return;
+                }
+
+                const finalText = typeof event?.serverContent?.inputTranscription?.text === "string"
+                  ? event.serverContent.inputTranscription.text.trim()
+                  : "";
+                if (finalText) {
+                  const elapsedMs = Math.max(
+                    googleLastSegmentEndMsRef.current,
+                    Date.now() - (googleSessionStartedAtRef.current || Date.now()),
+                  );
+                  const index = ++googleCommitCounterRef.current;
+                  const key = `google-${index}`;
+                  segmentsRef.current.set(key, {
+                    itemId: key,
+                    text: finalText,
+                    startMs: googleLastSegmentEndMsRef.current,
+                    endMs: elapsedMs,
+                  });
+                  googleLastSegmentEndMsRef.current = elapsedMs;
+                  if (created.id) {
+                    // Final Google inputTranscription is authoritative. Do not
+                    // prefer the interim preview that was rendered immediately
+                    // before this final event.
+                    void persistUpdateNow(created.id, computeSnapshot());
+                  }
+                }
+                return;
+              }
+
               const type = event?.type;
               const itemId = event?.item_id;
               if (!type || !itemId) return;
@@ -639,9 +687,9 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onTranscriptText: (deltaText: string) => {
-            // OpenAI emits deltas; ElevenLabs/Deepgram emit full-text snapshots (we pass the full text through).
-            const next =
-              providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox"
+             // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
+             const next =
+               providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google"
                 ? deltaText
                 : (bufferRef.current + deltaText).trimStart();
             bufferRef.current = next;
@@ -653,6 +701,9 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onSessionCreated: (session: any) => {
+            if (providerId === "google" && !googleSessionStartedAtRef.current) {
+              googleSessionStartedAtRef.current = Date.now();
+            }
             sessionInfoRef.current = session;
             if (created.id) void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
           },

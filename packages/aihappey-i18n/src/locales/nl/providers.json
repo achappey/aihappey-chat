@@ -523,6 +523,17 @@
         "seed": "Seed"
       }
     },
+    "realtimeTranscription": {
+      "title": "Live transcriptie",
+      "hint": "Deze opties gelden alleen voor Gemini Live-transcriptie en blijven gescheiden van instellingen voor bestandstranscriptie. Automatische spraakactiviteitsdetectie is ingeschakeld.",
+      "languageCodes": "Taalaanwijzingen (één per regel of kommagescheiden)",
+      "customVocabulary": "Aangepaste woordenlijst (één term per regel of kommagescheiden)",
+      "mode": "Transcriptiemodus",
+      "modes": {
+        "verbatim": "Letterlijk",
+        "smart": "Slim"
+      }
+    },
     "enable_widget": "Widget inschakelen",
     "url_context": "URL context",
     "includeThoughts": "Toon gedachten",

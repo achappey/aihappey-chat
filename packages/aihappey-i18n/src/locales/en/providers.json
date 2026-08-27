@@ -859,6 +859,17 @@
         "seed": "Seed"
       }
     },
+    "realtimeTranscription": {
+      "title": "Live transcription",
+      "hint": "These options apply only to Gemini Live transcription and remain separate from file transcription settings. Automatic voice activity detection is enabled.",
+      "languageCodes": "Language hints (one per line or comma-separated)",
+      "customVocabulary": "Custom vocabulary (one term per line or comma-separated)",
+      "mode": "Transcription mode",
+      "modes": {
+        "verbatim": "Verbatim",
+        "smart": "Smart"
+      }
+    },
     "enable_widget": "Enable widget",
     "includeThoughts": "Include thoughts",
     "dynamicThinking": "Dynamic thinking",

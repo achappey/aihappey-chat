@@ -18,6 +18,7 @@ import {
     DeepInfraTranscriptionConfigForm,
     XAITranscriptionConfigForm,
     CohereTranscriptionConfigForm,
+    GoogleRealtimeTranscriptionConfigForm,
 } from "../forms";
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
@@ -219,6 +220,22 @@ export const TranscriptionSettingsModal: React.FC<
                                     setProviderMetadata({
                                         ...providerMetadata,
                                         cohere,
+                                    })
+                                }
+                            />
+                        </theme.Tab>
+                    )}
+
+                    {enabledProviders.includes("Google") && (
+                        <theme.Tab eventKey="google" title="Google">
+                            <GoogleRealtimeTranscriptionConfigForm
+                                // Deliberately separate from providerMetadata.google:
+                                // that object is reserved for non-realtime transcription.
+                                config={realtimeProviderMetadata.google ?? {}}
+                                updateConfig={(google) =>
+                                    setRealtimeProviderMetadata({
+                                        ...realtimeProviderMetadata,
+                                        google,
                                     })
                                 }
                             />

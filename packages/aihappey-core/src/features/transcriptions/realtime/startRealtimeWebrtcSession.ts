@@ -6,6 +6,7 @@ import { startDeepgramRealtimeWsSession } from "./startDeepgramRealtimeWsSession
 import { startGladiaRealtimeWsSession } from "./startGladiaRealtimeWsSession";
 import { startAssemblyAiRealtimeWsSession } from "./startAssemblyAiRealtimeWsSession";
 import { startSonioxRealtimeWsSession } from "./startSonioxRealtimeWsSession";
+import { startGoogleRealtimeWsSession } from "./startGoogleRealtimeWsSession";
 
 export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
@@ -108,6 +109,21 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
       getEphemeralToken,
       modelId: sonioxModelId,
       config: sonioxConfig,
+      events,
+    });
+    return {
+      kind: "ws",
+      stop: session.stop,
+    };
+  }
+
+  if (providerId === "google") {
+    const googleConfig = (providerRealtimeMetadata as any)?.google ?? {};
+    const googleModelId = stripProviderPrefix(selectedModel);
+    const session = await startGoogleRealtimeWsSession({
+      getEphemeralToken,
+      modelId: googleModelId,
+      config: googleConfig,
       events,
     });
     return {
