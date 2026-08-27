@@ -115,8 +115,7 @@ for (const item of sorted) {
   console.log(`\n\n=== Building ${item.name} ===`);
 
   const result = spawnSync(
-    "npm",
-    ["run", "build", "--workspace", item.name],
+    `npm run build --workspace "${item.name}"`,
     {
       stdio: "inherit",
       shell: true,
