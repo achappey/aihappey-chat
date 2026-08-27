@@ -585,13 +585,22 @@ function renderMultiSelectOption(option: ShadcnSelectOption, selectedValues: str
   );
 }
 
-export const Select = ({ values = [], value, onChange, label, hint, required, children, disabled, valueTitle, style, className, icon, multiselect, placeholder, size, searchable, searchPlaceholder = "Search...", noResultsText = "No results", ...rest }: any) => {
+export const Select = ({ values = [], value, onChange, onFilter, freeform = false, label, hint, required, children, disabled, valueTitle, style, className, icon, multiselect, placeholder, size, searchable, searchPlaceholder = "Search...", noResultsText = "No results", ...rest }: any) => {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
+  // `freeform` is retained for parity with the Fluent theme, but in Shadcn it
+  // only opts a Select with `onFilter` into remote query mode. Query text is
+  // never committed as the field value; callers still receive selected options
+  // exclusively through `onChange`.
+  const asyncSearch = Boolean(freeform && onFilter);
+  const showSearch = Boolean(searchable || asyncSearch);
   const optionNodes = React.useMemo(() => parseSelectNodes(children), [children]);
-  const filteredOptionNodes = React.useMemo(() => filterSelectNodes(optionNodes, searchable ? search : ""), [optionNodes, search, searchable]);
+  const filteredOptionNodes = React.useMemo(
+    () => asyncSearch ? optionNodes : filterSelectNodes(optionNodes, searchable ? search : ""),
+    [asyncSearch, optionNodes, search, searchable]
+  );
   const options = React.useMemo(() => flattenSelectOptions(children), [children]);
   const filteredOptionCount = React.useMemo(() => countSelectOptions(filteredOptionNodes), [filteredOptionNodes]);
   const selectedValues = React.useMemo(() => {
@@ -639,12 +648,12 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
     if (disabled && open) handleOpenChange(false);
   }, [disabled, handleOpenChange, open]);
   React.useEffect(() => {
-    if (!open || !searchable) return;
+    if (!open || !showSearch) return;
 
     const frame = requestAnimationFrame(() => searchInputRef.current?.focus());
     return () => cancelAnimationFrame(frame);
-  }, [open, searchable]);
-  const searchBox = searchable ? (
+  }, [open, showSearch]);
+  const searchBox = showSearch ? (
     <div className="aih-shadcn-select-search">
       <SearchIcon className="aih-shadcn-select-search-icon" size={16} />
       <input
@@ -653,7 +662,11 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
         value={search}
         placeholder={searchPlaceholder}
         aria-label={searchPlaceholder}
-        onChange={(event) => setSearch(event.target.value)}
+        onChange={(event) => {
+          const nextSearch = event.target.value;
+          setSearch(nextSearch);
+          if (asyncSearch) void onFilter(nextSearch);
+        }}
         onKeyDown={(event) => {
           if (event.key !== "Escape") event.stopPropagation();
         }}
@@ -661,10 +674,11 @@ export const Select = ({ values = [], value, onChange, label, hint, required, ch
       />
     </div>
   ) : null;
-  const noResults = searchable && filteredOptionCount === 0 ? <div className="aih-shadcn-select-empty">{noResultsText}</div> : null;
+  const noResults = showSearch && filteredOptionCount === 0 ? <div className="aih-shadcn-select-empty">{noResultsText}</div> : null;
   // Keep a dropdown opened from a modal inside that modal's DOM subtree. Radix
   // Dialog's scroll lock otherwise treats a body-portalled menu as external and
-  // suppresses wheel/touch scrolling over it.
+  // suppresses wheel/touch scrolling over it. CSS relaxes the dialog's clipping
+  // only while this portalled Select content is present.
   const portalContainer = triggerRef.current?.closest<HTMLElement>(".aih-shadcn-dialog-content") ?? undefined;
   const multiselectDropdown = (
     <DropdownMenuPrimitive.Root modal={false} open={open} onOpenChange={handleOpenChange}>

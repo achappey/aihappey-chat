@@ -44,10 +44,7 @@ export const ResourceTemplateArgumentsForm = ({
                 value={values[name] ?? ""}
                 freeform
                 label={name}
-                onFilter={async (z: string) => {
-                  onChange(name, z);
-                  await onFilter?.(name, z);
-                }}
+                onFilter={(query: string) => onFilter?.(name, query)}
                 onChange={(v: string) => onChange(name, v)}
                 disabled={pending}
               >

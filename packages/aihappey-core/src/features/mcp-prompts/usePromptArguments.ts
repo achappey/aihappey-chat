@@ -76,6 +76,8 @@ export function usePromptArguments({ prompt, onPromptExecute }: any) {
               { arguments: buildContext(arg.name, values) }
             );
 
+            // Only arguments for which the server provides initial completion
+            // values become Selects; all other prompt arguments remain Inputs.
             if (result?.completion?.values?.length && !cancelled) {
               setCompletions((c) => ({ ...c, [arg.name]: result.completion.values as string[] }));
             }

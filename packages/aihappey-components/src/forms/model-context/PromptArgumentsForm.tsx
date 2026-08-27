@@ -53,10 +53,7 @@ export const PromptArgumentsForm = ({
                 label={arg.name}
                 required={arg.required}
                 hint={arg.description}
-                onFilter={async (z: string) => {
-                  onChange(arg.name, z);
-                  await onFilter?.(arg.name, z);
-                }}
+                onFilter={(query: string) => onFilter?.(arg.name, query)}
                 onChange={(v: string) => onChange(arg.name, v)}
                 disabled={pending}
               >

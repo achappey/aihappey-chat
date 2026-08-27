@@ -370,6 +370,7 @@ padding: .5rem;
 
 .aih-shadcn-dialog-overlay { position: fixed; inset: 0; z-index: var(--aih-shadcn-dialog-z-index); background: rgb(0 0 0 / .55); }
 .aih-shadcn-dialog-content { position: fixed; left: 50%; top: 50%; z-index: calc(var(--aih-shadcn-dialog-z-index) + 1); display: flex; width: min(calc(100vw - 2rem), 36rem); max-height: min(calc(100dvh - 2rem), calc(100vh - 2rem)); flex-direction: column; overflow: hidden; transform: translate(-50%, -50%); border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-background); color: var(--aih-shadcn-foreground); box-shadow: 0 20px 60px rgb(0 0 0 / .25); }
+.aih-shadcn-dialog-content:has(.aih-shadcn-select-content) { overflow: visible; }
 .aih-shadcn-dialog-header { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: space-between; gap: .5rem; padding: 1rem 1rem 0; }
 .aih-shadcn-dialog-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 1rem; }
 .aih-shadcn-dialog-footer { display: flex; flex: 0 0 auto; justify-content: flex-end; gap: .5rem; border-top: 1px solid var(--aih-shadcn-border); background: var(--aih-shadcn-background); padding: .75rem 1rem 1rem; }

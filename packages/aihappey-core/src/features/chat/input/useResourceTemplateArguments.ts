@@ -98,6 +98,9 @@ export function useResourceTemplateArguments({
               { arguments: buildContext(argumentName, valuesRef.current) }
             );
 
+            // The presence of this key tells the form that this particular
+            // argument supports completion. Keep ordinary arguments as Inputs
+            // when the server returns no initial suggestions.
             if (result?.completion?.values?.length && !cancelled) {
               setCompletions((c) => ({
                 ...c,
