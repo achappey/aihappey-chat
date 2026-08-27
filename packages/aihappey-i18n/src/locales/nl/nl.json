@@ -259,6 +259,7 @@
             "addSkillFolder": "Skillmap toevoegen",
             "includeServer": "Servermomentopname opnemen",
             "addHttpServer": "Streamable HTTP-server toevoegen",
+            "allServerSettings": "Alle servers",
             "noExtensionNamespace": "Configureer pluginConfig.extensionNamespace op de applicatieroot om disabled, allowed_callers en defer_loading te bewerken.",
             "addPackageFiles": "Pakketbestanden toevoegen",
             "skillSnapshotFailed": "Skill {{skill}} kon niet worden gedownload voor de pluginmomentopname."

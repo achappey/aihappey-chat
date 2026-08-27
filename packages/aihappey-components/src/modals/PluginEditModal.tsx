@@ -145,6 +145,11 @@ export const PluginEditModal = ({
     .filter((item) => !query || `${item.label} ${item.description ?? ""}`.toLowerCase().includes(query))
     .sort((a, b) => Number(!!b.favorite) - Number(!!a.favorite) || a.label.localeCompare(b.label)), [query, skillOptions]);
   const serverItems = useMemo(() => Object.fromEntries(mcpOptions.map((option) => [option.id, { config: option.config, registry: option.registry }])), [mcpOptions]);
+  const serverIds = useMemo(() => mcpOptions.map((option) => option.id), [mcpOptions]);
+  const callerOptions: Array<"direct" | "programmatic"> = ["direct", "programmatic"];
+  const allServerCallers = callerOptions.filter((caller) => serverIds.every((id) => serverSettings[id]?.allowed_callers?.includes(caller)));
+  const allServersDeferLoading = serverIds.every((id) => serverSettings[id]?.defer_loading === true);
+  const allServersNamespace = serverIds.every((id) => serverSettings[id]?.namespace === true);
   const keywordItems = useMemo<TagItem[]>(() => keywords.map((keyword) => ({ key: keyword, label: keyword, icon: "tag" })), [keywords]);
 
   const addKeyword = () => {
@@ -170,10 +175,30 @@ export const PluginEditModal = ({
     else delete nextEntry[key];
     return { ...current, [id]: nextEntry };
   });
+  const updateAllCallerSettings = (caller: "direct" | "programmatic", checked: boolean) => setServerSettings((current) => {
+    const next = { ...current };
+    serverIds.forEach((id) => {
+      const callers = current[id]?.allowed_callers ?? [];
+      const allowed_callers = checked
+        ? Array.from(new Set([...callers, caller]))
+        : callers.filter((item) => item !== caller);
+      next[id] = { ...current[id], allowed_callers };
+    });
+    return next;
+  });
+  const updateAllBooleanSettings = (key: "defer_loading" | "namespace", checked: boolean) => setServerSettings((current) => {
+    const next = { ...current };
+    serverIds.forEach((id) => {
+      const nextEntry = { ...current[id] };
+      if (checked) nextEntry[key] = true;
+      else delete nextEntry[key];
+      next[id] = nextEntry;
+    });
+    return next;
+  });
   const renderServerSettings = (id: string) => {
     if (!extensionNamespace) return null;
     const callers = serverSettings[id]?.allowed_callers ?? [];
-    const callerOptions: Array<"direct" | "programmatic"> = ["direct", "programmatic"];
     return (
       <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 1fr) auto auto", alignItems: "end", gap: 16, marginTop: 16 }}>
         <theme.Select
@@ -279,6 +304,35 @@ export const PluginEditModal = ({
           {!visibleSkills.length ? <theme.Text>{t("noResults")}</theme.Text> : null}
         </div></theme.Tab>
         <theme.Tab eventKey="modelContext" icon="mcpServer" title={t("mcpPage.title")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+          {extensionNamespace && serverIds.length > 1 ? (
+            <theme.Card title={t("pluginsPage.editor.allServerSettings")} size="small">
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 1fr) auto auto", alignItems: "end", gap: 16, marginTop: 16 }}>
+                <theme.Select
+                  label={t("toolConfiguration.allowedCallers")}
+                  multiselect
+                  values={allServerCallers}
+                  valueTitle={allServerCallers.length ? allServerCallers.map((caller) => t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${caller}`)).join(", ") : ""}
+                  onChange={(caller: "direct" | "programmatic") => updateAllCallerSettings(caller, !allServerCallers.includes(caller))}
+                >
+                  {callerOptions.map((caller) => (
+                    <option key={caller} value={caller}>{t(`providers:openai.programmaticToolCalling.allowedCallersOptions.${caller}`)}</option>
+                  ))}
+                </theme.Select>
+                <theme.Switch
+                  id="plugin-defer-all"
+                  label={t("toolConfiguration.deferLoading")}
+                  checked={allServersDeferLoading}
+                  onChange={(checked: boolean) => updateAllBooleanSettings("defer_loading", checked)}
+                />
+                <theme.Switch
+                  id="plugin-namespace-all"
+                  label={t("toolConfiguration.namespace")}
+                  checked={allServersNamespace}
+                  onChange={(checked: boolean) => updateAllBooleanSettings("namespace", checked)}
+                />
+              </div>
+            </theme.Card>
+          ) : null}
           <ServerManagement
             onRemove={onRemoveMcpServer}
             mcpServers={serverItems}

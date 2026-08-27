@@ -256,6 +256,7 @@
             "addSkillFolder": "Add skill folder",
             "includeServer": "Include server snapshot",
             "addHttpServer": "Add Streamable HTTP server",
+            "allServerSettings": "All servers",
             "noExtensionNamespace": "Configure pluginConfig.extensionNamespace on the application root to edit disabled, allowed_callers, and defer_loading.",
             "addPackageFiles": "Add package files",
             "skillSnapshotFailed": "Skill {{skill}} could not be downloaded for the plugin snapshot."
