@@ -377,7 +377,6 @@ import { selinaai } from "./catalog/selinaai";
 import { lmrouter } from "./catalog/lmrouter";
 import { openpipe } from "./catalog/openpipe";
 import { nonkycai } from "./catalog/nonkycai";
-import { tokonlab } from "./catalog/tokonlab";
 import { modelbridge } from "./catalog/modelbridge";
 import { simplellm } from "./catalog/simplellm";
 import { tensorx } from "./catalog/tensorx";
@@ -714,7 +713,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   ecoia,
   embercloud,
   opengateway,
-  tokonlab,
   holysheepai,
   lyceum,
   foureverland,
