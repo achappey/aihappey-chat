@@ -154,7 +154,7 @@ const MODEL_TYPE_ICONS: Record<string, IconToken> = {
   language: "language",
   transcription: "transcription",
   video: "video",
-  search: "search",
+  embedding: "embedding",
 };
 type ModelFilterFacet = "tags";
 
