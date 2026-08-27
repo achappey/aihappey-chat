@@ -115,6 +115,16 @@ export const PluginsPage = () => {
   const account = useAccount();
   const chat = useChatContext();
   const hasAuthenticatedAuthorIdentity = chat.config.getAccessToken != null;
+  const authorIdentityUrl = useMemo(() => {
+    if (
+      !hasAuthenticatedAuthorIdentity ||
+      !account?.localAccountId ||
+      !account.tenantId ||
+      !account.username
+    ) return undefined;
+
+    return `https://m365.cloud.microsoft/search/overview?pp=${account.localAccountId}@${account.tenantId}|${account.username}`;
+  }, [account?.localAccountId, account?.tenantId, account?.username, hasAuthenticatedAuthorIdentity]);
   const plugins = usePlugins();
   const skills = useSkills();
   const favoriteSkillIds = useAppStore((state: any) => (state.favoriteSkillIds ?? []) as string[]);
@@ -542,6 +552,7 @@ export const PluginsPage = () => {
               initialServerSettings={initialServerSettings}
               authorIdentityName={hasAuthenticatedAuthorIdentity ? account?.name : undefined}
               authorIdentityEmail={hasAuthenticatedAuthorIdentity ? account?.username : undefined}
+              authorIdentityUrl={authorIdentityUrl}
               authorIdentityReadOnly={hasAuthenticatedAuthorIdentity}
               saving={saving}
               error={editorError}

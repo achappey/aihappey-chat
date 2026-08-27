@@ -52,6 +52,7 @@ export type PluginEditModalProps = {
   initialServerSettings?: Record<string, PluginServerExtension>;
   authorIdentityName?: string;
   authorIdentityEmail?: string;
+  authorIdentityUrl?: string;
   authorIdentityReadOnly?: boolean;
   saving?: boolean;
   error?: string | null;
@@ -78,7 +79,7 @@ function downloadFile(file: StoredPluginFile) {
 
 export const PluginEditModal = ({
   open, mode, plugin, skillOptions, mcpOptions, initialSelectedSkillIds = [], initialSelectedMcpIds = [],
-  extensionNamespace, initialServerSettings, authorIdentityName, authorIdentityEmail, authorIdentityReadOnly = false,
+  extensionNamespace, initialServerSettings, authorIdentityName, authorIdentityEmail, authorIdentityUrl, authorIdentityReadOnly = false,
   saving, error, onOpenMcpCatalog, onRemoveMcpServer, onClose, onSave,
 }: PluginEditModalProps) => {
   const theme = useTheme();
@@ -116,7 +117,7 @@ export const PluginEditModal = ({
     setRepository(plugin?.manifest.repository ?? "");
     setAuthorName(authorIdentityReadOnly ? authorIdentityName ?? "" : plugin?.manifest.author?.name ?? "");
     setAuthorEmail(authorIdentityReadOnly ? authorIdentityEmail ?? "" : plugin?.manifest.author?.email ?? "");
-    setAuthorUrl(plugin?.manifest.author?.url ?? ""); setKeywords(plugin?.manifest.keywords ?? []); setNewKeyword("");
+    setAuthorUrl(authorIdentityReadOnly ? authorIdentityUrl ?? "" : plugin?.manifest.author?.url ?? ""); setKeywords(plugin?.manifest.keywords ?? []); setNewKeyword("");
     setFiles(plugin?.files ?? []);
     setSelectedSkillIds(initialSelectedSkillIds); setSelectedMcpIds(initialSelectedMcpIds);
     setServerSettings(initialServerSettings ?? {}); setSkillSearch(""); setIsDragging(false); setShowSkillFiles(false);
@@ -126,7 +127,8 @@ export const PluginEditModal = ({
     if (!open || !authorIdentityReadOnly) return;
     setAuthorName(authorIdentityName ?? "");
     setAuthorEmail(authorIdentityEmail ?? "");
-  }, [authorIdentityEmail, authorIdentityName, authorIdentityReadOnly, open]);
+    setAuthorUrl(authorIdentityUrl ?? "");
+  }, [authorIdentityEmail, authorIdentityName, authorIdentityReadOnly, authorIdentityUrl, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -247,11 +249,11 @@ export const PluginEditModal = ({
           <theme.Input type="url" label={t("pluginsPage.editor.homepage")} placeholder={t("pluginsPage.editor.homepagePlaceholder")} value={homepage} onChange={(value: any) => setHomepage(inputValue(value))} />
           <theme.Input type="url" label={t("pluginsPage.editor.repository")} placeholder={t("pluginsPage.editor.repositoryPlaceholder")} value={repository} onChange={(value: any) => setRepository(inputValue(value))} />
         </div></theme.Tab>
-        <theme.Tab eventKey="author" icon="personalization" title={t("pluginsPage.editor.author")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
-          <theme.Input label={t("pluginsPage.editor.authorName")} value={authorName} readOnly={authorIdentityReadOnly} onChange={(value: any) => setAuthorName(inputValue(value))} />
-          <theme.Input type="email" label={t("pluginsPage.editor.authorEmail")} value={authorEmail} readOnly={authorIdentityReadOnly} onChange={(value: any) => setAuthorEmail(inputValue(value))} />
+        {!authorIdentityReadOnly ? <theme.Tab eventKey="author" icon="personalization" title={t("pluginsPage.editor.author")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
+          <theme.Input label={t("pluginsPage.editor.authorName")} value={authorName} onChange={(value: any) => setAuthorName(inputValue(value))} />
+          <theme.Input type="email" label={t("pluginsPage.editor.authorEmail")} value={authorEmail} onChange={(value: any) => setAuthorEmail(inputValue(value))} />
           <theme.Input type="url" label={t("pluginsPage.editor.authorUrl")} value={authorUrl} onChange={(value: any) => setAuthorUrl(inputValue(value))} />
-        </div></theme.Tab>
+        </div></theme.Tab> : null}
         <theme.Tab eventKey="keywords" icon="tag" title={t("pluginsPage.editor.keywords")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
             <theme.Input
