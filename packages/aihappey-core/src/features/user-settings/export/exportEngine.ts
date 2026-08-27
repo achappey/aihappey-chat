@@ -20,11 +20,11 @@ export const EXPORT_CATEGORY_IDS = [
   "jobs",
   "agents",
   "plugins",
-  "files",
   "skills",
+  "files",
+  "documentHubs",
   "structuredOutputs",
   "tools",
-  "documentHubs",
 ] as const;
 
 export type ExportCategoryId = (typeof EXPORT_CATEGORY_IDS)[number];
