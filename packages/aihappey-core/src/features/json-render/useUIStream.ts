@@ -82,7 +82,6 @@ export function useUIStream({
     const [error, setError] = useState<Error | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
     const specRef = useRef<Spec | null>(null);
-    const compilerRef = useRef<ReturnType<typeof createSpecStreamCompiler<Spec>> | null>(null);
     const hasSeededRef = useRef(false);
 
     useEffect(() => {
@@ -113,13 +112,16 @@ export function useUIStream({
         ) => {
             // Abort any existing request
             abortControllerRef.current?.abort();
-            abortControllerRef.current = new AbortController();
+            const abortController = new AbortController();
+            abortControllerRef.current = abortController;
 
             setIsStreaming(true);
             setError(null);
             let currentSpec: Spec =
                 baseTree ?? specRef.current ?? initialTree ?? { root: "", elements: {} };
-            compilerRef.current = createSpecStreamCompiler<Spec>(currentSpec);
+            // Keep request-owned state local. A later send may replace the active
+            // request while this one is unwinding after being aborted.
+            const compiler = createSpecStreamCompiler<Spec>(currentSpec);
             if (baseTree || (!specRef.current && initialTree)) {
                 specRef.current = currentSpec;
                 setSpec(currentSpec);
@@ -140,7 +142,7 @@ export function useUIStream({
                         maxOutputTokens,
                         providerMetadata
                     }),
-                    signal: abortControllerRef.current.signal,
+                    signal: abortController.signal,
                 });
 
                 if (!response.ok) {
@@ -160,8 +162,6 @@ export function useUIStream({
 
                     const chunk = decoder.decode(value, { stream: true });
                     if (!chunk) continue;
-                    const compiler = compilerRef.current;
-                    if (!compiler) continue;
                     const { result, newPatches } = compiler.push(chunk);
                     if (newPatches.length > 0) {
                         currentSpec = result;
@@ -170,13 +170,10 @@ export function useUIStream({
                     }
                 }
 
-                const compiler = compilerRef.current;
-                if (compiler) {
-                    const finalResult = compiler.getResult();
-                    currentSpec = finalResult;
-                    specRef.current = finalResult;
-                    setSpec({ ...finalResult });
-                }
+                const finalResult = compiler.getResult();
+                currentSpec = finalResult;
+                specRef.current = finalResult;
+                setSpec({ ...finalResult });
 
                 onComplete?.(currentSpec);
 
@@ -189,7 +186,11 @@ export function useUIStream({
                 setError(error);
                 onError?.(error);
             } finally {
-                setIsStreaming(false);
+                // An older aborted request must not mark a newer request idle.
+                if (abortControllerRef.current === abortController) {
+                    abortControllerRef.current = null;
+                    setIsStreaming(false);
+                }
             }
         },
         [

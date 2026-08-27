@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useLocation, useParams } from "react-router";
 import { useJsonRenderApps } from "aihappey-json-render-apps";
@@ -108,6 +108,7 @@ export const WebAppDetailPage = () => {
   const [streaming, setStreaming] = useState(false);
   const [chatStreaming, setChatStreaming] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const autoStreamStartedRef = useRef<string | null>(null);
 
   const streamState = (location.state as any)?.stream as
     | {
@@ -271,12 +272,17 @@ export const WebAppDetailPage = () => {
     return stored.prompt();
   }, [defaultCatalogs, streamState?.catalogs, app, jsonRenderCatalog.items, jsonRenderRegistry.actions]);
 
+  const apiKeyHeaders = useMemo(
+    () => createChatAuthHeadersForModel(customHeaders, selectedModel, Boolean(config?.getAccessToken)),
+    [customHeaders, selectedModel, config?.getAccessToken],
+  );
+
   const { spec: streamedTree, send, isStreaming, error: uiStreamError } = useUIStream({
     api: (config?.baseUrl ?? "") + "/api/generate",
     catalogPrompt: effectiveCatalogPrompt,
     model: selectedModel,
     getAccessToken: config?.getAccessToken,
-    customHeaders: createChatAuthHeadersForModel(customHeaders, selectedModel, Boolean(config?.getAccessToken)),
+    customHeaders: apiKeyHeaders,
     initialTree: tree ?? null,
   });
 
@@ -298,6 +304,11 @@ export const WebAppDetailPage = () => {
 
   useEffect(() => {
     if (!appId || !streamState?.prompt || !app || hasStreamed) return;
+    const streamKey = `${appId}:${streamState.prompt}`;
+    if (autoStreamStartedRef.current === streamKey) return;
+    // Claim this one-shot stream synchronously, before the first await. This
+    // prevents dependency changes during rendering from starting a duplicate.
+    autoStreamStartedRef.current = streamKey;
     let cancelled = false;
     async function runStream() {
       setStreamingError(undefined);
