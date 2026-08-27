@@ -14,7 +14,7 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useNavigate } from "react-router";
-import { getModelDisplayName, getModelProviderKey, type GenericDataGridColumn, type ModelOption } from "aihappey-types";
+import { getModelDisplayName, getModelProviderKey, type GenericDataGridColumn, type IconToken, type ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { getModelLaunchConfig, getModelLaunchPath } from "./modelLaunch";
 
@@ -146,6 +146,16 @@ const getEnabledProviderKeysForModels = (
 
 const PRICE_PER_MILLION_TOKENS_MULTIPLIER = 1_000_000;
 const ENABLED_PROVIDERS_FILTER_VALUE = "__ENABLED_PROVIDERS__";
+const MODEL_TYPE_ICONS: Record<string, IconToken> = {
+  image: "image",
+  reranking: "reranking",
+  audio: "realtime",
+  speech: "speech",
+  language: "language",
+  transcription: "transcription",
+  video: "video",
+  search: "search",
+};
 type ModelFilterFacet = "tags";
 
 type ModelFilterData = {
@@ -1030,6 +1040,7 @@ export const ModelsPage = () => {
                   {types.map(type => (
                     <Tab key={type}
                       eventKey={type}
+                      icon={MODEL_TYPE_ICONS[type]}
                       title={t(type === "audio" ? "realtime" : type)
                         + " (" + (filteredModelCountByType[type] ?? 0) + ")"}>
                       {(() => {
