@@ -204,13 +204,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   label={t("settingsModal.dictate")}
                   onChange={setChatDictationEnabled}
                 />
-
-                <SideInferenceAgentsTab
-                  agents={agents ?? []}
-                  value={sideInferenceAgentNames}
-                  onChange={setSideInferenceAgentNames}
-                />
               </div>
+            </theme.Tab>
+
+            <theme.Tab
+              eventKey="agents"
+              icon={"robot"}
+              title={t("agents.title") ?? "Agents"}
+            >
+              <SideInferenceAgentsTab
+                agents={agents ?? []}
+                value={sideInferenceAgentNames}
+                onChange={setSideInferenceAgentNames}
+              />
             </theme.Tab>
 
             <theme.Tab
