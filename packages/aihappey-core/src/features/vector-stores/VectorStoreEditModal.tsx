@@ -19,17 +19,25 @@ export type VectorStoreEditSaveValue = VectorStoreFormValue & {
   removedSources: string[];
 };
 
-export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, error, onClose, onSave }: {
+export type VectorStoreSaveProgress = {
+  value: number;
+  stage: "saving" | "extracting" | "embedding" | "finalizing";
+  completed: number;
+  total: number;
+};
+
+export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, progress, error, onClose, onSave }: {
   open: boolean;
   hub?: VectorStore;
   models: ModelOption[];
   defaultModel?: string;
   busy?: boolean;
+  progress?: VectorStoreSaveProgress;
   error?: string;
   onClose: () => void;
   onSave: (value: VectorStoreEditSaveValue) => void | Promise<void>;
 }) => {
-  const { Modal, Button, Tabs, Tab, Input, TextArea, Text, Card, Slider } = useTheme();
+  const { Modal, Button, Tabs, Tab, Input, TextArea, Text, Card, Slider, ProgressBar } = useTheme();
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState("general");
@@ -56,34 +64,44 @@ export const VectorStoreEditModal = ({ open, hub, models, defaultModel, busy, er
     && value.chunkSize >= 500 && value.chunkSize <= 10000
     && value.chunkOverlap >= 0 && value.chunkOverlap <= 5000
     && value.chunkOverlap <= value.chunkSize / 2;
-  const addFiles = (files: File[]) => setAddedFiles((current) => {
+  const addFiles = (files: File[]) => {
+    if (busy) return;
+    setAddedFiles((current) => {
     const next = new Map(current.map((file) => [file.name.toLocaleLowerCase(), file]));
     files.forEach((file) => next.set(file.name.toLocaleLowerCase(), file));
     return Array.from(next.values());
-  });
+    });
+  };
 
-  return <Modal show={open} size="large" onHide={onClose} title={hub?.name ?? t("vectorStorePage.edit.newTitle")} actions={<div style={{ display: "flex", gap: 8 }}><Button variant="subtle" disabled={busy} onClick={onClose}>{t("cancel")}</Button><Button variant="primary" disabled={!valid || busy} onClick={() => onSave({ ...value, addedFiles, removedSources })}>{busy ? t("vectorStorePage.edit.saving") : t("save")}</Button></div>}>
+  const progressLabel = progress
+    ? t(`vectorStorePage.edit.progress.${progress.stage}`, { completed: progress.completed, total: progress.total })
+    : undefined;
+
+  return <Modal show={open} size="large" onHide={() => { if (!busy) onClose(); }} title={hub?.name ?? t("vectorStorePage.edit.newTitle")} actions={<div style={{ display: "flex", gap: 8 }}><Button variant="subtle" disabled={busy} onClick={onClose}>{t("cancel")}</Button><Button variant="primary" disabled={!valid || busy} onClick={() => onSave({ ...value, addedFiles, removedSources })}>{busy ? t("vectorStorePage.edit.saving") : t("save")}</Button></div>}>
     {error ? <Text as="p">{error}</Text> : null}
+    {busy && progress ? <div role="status" aria-live="polite" style={{ marginBottom: 12 }}>
+      <ProgressBar value={progress.value} label={progressLabel} />
+    </div> : null}
     <Tabs activeKey={activeTab} onSelect={setActiveTab}>
       <Tab eventKey="general" icon="settings" title={t("general")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
-        <Input label={t("name")} value={value.name} required onChange={(event) => setValue((current) => ({ ...current, name: event.target.value }))} />
-        <ModelSelect label={t("model")} models={models} modelTypes={["embedding"]} value={value.model} onChange={(model) => setValue((current) => ({ ...current, model }))} disabled={!!hub} required />
-        <TextArea label={t("description")} value={value.description} rows={5} onChange={(description) => setValue((current) => ({ ...current, description }))} />
+        <Input label={t("name")} value={value.name} required disabled={busy} onChange={(event) => setValue((current) => ({ ...current, name: event.target.value }))} />
+        <ModelSelect label={t("model")} models={models} modelTypes={["embedding"]} value={value.model} onChange={(model) => setValue((current) => ({ ...current, model }))} disabled={!!hub || busy} required />
+        <TextArea label={t("description")} value={value.description} rows={5} readOnly={busy} onChange={(description) => setValue((current) => ({ ...current, description }))} />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16 }}>
-          <Slider id="vector-store-chunk-size" label={t("vectorStorePage.fields.chunkSize")} min={500} max={10000} step={1} value={value.chunkSize} disabled={hasDocuments} showValue onChange={(chunkSize: number) => setValue((current) => ({ ...current, chunkSize, chunkOverlap: Math.min(current.chunkOverlap, Math.floor(chunkSize / 2)) }))} />
-          <Slider id="vector-store-chunk-overlap" label={t("vectorStorePage.fields.chunkOverlap")} min={0} max={Math.min(5000, Math.floor(value.chunkSize / 2))} step={1} value={value.chunkOverlap} disabled={hasDocuments} showValue onChange={(chunkOverlap: number) => setValue((current) => ({ ...current, chunkOverlap: Math.min(chunkOverlap, Math.floor(current.chunkSize / 2)) }))} />
+          <Slider id="vector-store-chunk-size" label={t("vectorStorePage.fields.chunkSize")} min={500} max={10000} step={1} value={value.chunkSize} disabled={hasDocuments || busy} showValue onChange={(chunkSize: number) => setValue((current) => ({ ...current, chunkSize, chunkOverlap: Math.min(current.chunkOverlap, Math.floor(chunkSize / 2)) }))} />
+          <Slider id="vector-store-chunk-overlap" label={t("vectorStorePage.fields.chunkOverlap")} min={0} max={Math.min(5000, Math.floor(value.chunkSize / 2))} step={1} value={value.chunkOverlap} disabled={hasDocuments || busy} showValue onChange={(chunkOverlap: number) => setValue((current) => ({ ...current, chunkOverlap: Math.min(chunkOverlap, Math.floor(current.chunkSize / 2)) }))} />
         </div>
         {hasDocuments ? <Text as="p">{t("vectorStorePage.edit.chunkSettingsLocked")}</Text> : null}
       </div></Tab>
       <Tab eventKey="documents" icon="folder" title={t("vectorStorePage.tabs.documents")}><div style={{ display: "grid", gap: 12, paddingTop: 12 }}>
-        <input ref={inputRef} hidden multiple type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.epub,.pptx,.txt,.md,.log,.eml,.msg,text/*" onChange={(event) => { addFiles(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
+        <input ref={inputRef} hidden multiple disabled={busy} type="file" accept=".pdf,.docx,.xlsx,.xls,.csv,.epub,.pptx,.txt,.md,.log,.eml,.msg,text/*" onChange={(event) => { addFiles(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
         <div style={{ border: `2px dashed ${isDragging ? "currentColor" : "rgba(127,127,127,.45)"}`, borderRadius: 8, padding: 24, textAlign: "center" }} onDragEnter={(event) => { event.preventDefault(); event.stopPropagation(); setIsDragging(true); }} onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); }} onDragLeave={(event) => { event.stopPropagation(); setIsDragging(false); }} onDrop={(event) => { event.preventDefault(); event.stopPropagation(); setIsDragging(false); addFiles(Array.from(event.dataTransfer.files)); }}>
           <div style={{ marginBottom: 8 }}>{t("vectorStorePage.edit.dropDocuments")}</div>
-          <Button variant="secondary" onClick={() => inputRef.current?.click()}>{t("vectorStorePage.edit.chooseDocuments")}</Button>
+          <Button variant="secondary" disabled={busy} onClick={() => inputRef.current?.click()}>{t("vectorStorePage.edit.chooseDocuments")}</Button>
         </div>
         {!visibleSources.length && !addedFiles.length ? <Card title={t("vectorStorePage.tabs.documents")}><div style={{ color: "#888" }}>{t("noResults")}</div></Card> : null}
-        {visibleSources.map((source) => <DocumentSourceCard key={source.filename} {...source} labels={{ chunks: t("vectorStorePage.fields.chunks").toLocaleLowerCase(), characters: t("vectorStorePage.fields.characters").toLocaleLowerCase(), delete: t("delete") }} onDelete={() => setRemovedSources((current) => [...current, source.filename])} />)}
-        {addedFiles.map((file) => <Card key={file.name} title={file.name} description={t("vectorStorePage.edit.stagedDocument")} actions={<Button icon="delete" size="small" variant="transparent" title={t("delete")} onClick={() => setAddedFiles((current) => current.filter((item) => item !== file))} />} />)}
+        {visibleSources.map((source) => <DocumentSourceCard key={source.filename} {...source} labels={{ chunks: t("vectorStorePage.fields.chunks").toLocaleLowerCase(), characters: t("vectorStorePage.fields.characters").toLocaleLowerCase(), delete: t("delete") }} onDelete={() => { if (!busy) setRemovedSources((current) => [...current, source.filename]); }} />)}
+        {addedFiles.map((file) => <Card key={file.name} title={file.name} description={t("vectorStorePage.edit.stagedDocument")} actions={<Button icon="delete" size="small" variant="transparent" title={t("delete")} disabled={busy} onClick={() => setAddedFiles((current) => current.filter((item) => item !== file))} />} />)}
       </div></Tab>
     </Tabs>
   </Modal>;

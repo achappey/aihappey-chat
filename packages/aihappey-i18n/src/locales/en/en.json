@@ -123,6 +123,12 @@
             "title": "Edit document hub",
             "newTitle": "New document hub",
             "saving": "Saving…",
+            "progress": {
+                "saving": "Preparing document hub ({{completed}}/{{total}})",
+                "extracting": "Extracting document text ({{completed}}/{{total}})",
+                "embedding": "Creating search vectors ({{completed}}/{{total}} batches)",
+                "finalizing": "Storing document index ({{completed}}/{{total}})"
+            },
             "chunkSettingsLocked": "Chunk settings are read-only while this hub contains documents.",
             "dropDocuments": "Drop documents here or choose documents to add.",
             "chooseDocuments": "Choose documents",

@@ -126,6 +126,12 @@
             "title": "Documenthub bewerken",
             "newTitle": "Nieuwe documenthub",
             "saving": "Opslaan…",
+            "progress": {
+                "saving": "Documenthub voorbereiden ({{completed}}/{{total}})",
+                "extracting": "Documenttekst uitlezen ({{completed}}/{{total}})",
+                "embedding": "Zoekvectoren maken ({{completed}}/{{total}} batches)",
+                "finalizing": "Documentindex opslaan ({{completed}}/{{total}})"
+            },
             "chunkSettingsLocked": "Fragmentinstellingen zijn alleen-lezen zolang deze hub documenten bevat.",
             "dropDocuments": "Sleep documenten hierheen of kies documenten om toe te voegen.",
             "chooseDocuments": "Documenten kiezen",
