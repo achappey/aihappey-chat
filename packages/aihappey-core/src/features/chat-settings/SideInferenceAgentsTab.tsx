@@ -54,28 +54,28 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {renderSelect(
         "welcomeMessageAgent",
-        t("sideInference.welcomeMessageAgent") ?? "Welcome message agent",
-        t("sideInference.welcomeMessageAgentHint") ?? "Choose the agent for welcome messages.",
+        t("sideInference.welcomeMessageAgent"),
+        t("sideInference.welcomeMessageAgentHint"),
       )}
       {renderSelect(
         "conversationNameAgent",
-        t("sideInference.conversationNameAgent") ?? "Conversation name agent",
-        t("sideInference.conversationNameAgentHint") ?? "Choose the agent for conversation names.",
+        t("sideInference.conversationNameAgent"),
+        t("sideInference.conversationNameAgentHint"),
       )}
       {renderSelect(
         "explainToolCallAgent",
-        t("sideInference.explainToolCallAgent") ?? "Tool explanation agent",
-        t("sideInference.explainToolCallAgentHint") ?? "Choose the agent for tool explanations.",
+        t("sideInference.explainToolCallAgent"),
+        t("sideInference.explainToolCallAgentHint"),
       )}
       {renderSelect(
         "toolSearchAgent",
-        t("sideInference.toolSearchAgent") ?? "Tool search agent",
-        t("sideInference.toolSearchAgentHint") ?? "Choose the agent that selects relevant tools for client tool search.",
+        t("sideInference.toolSearchAgent"),
+        t("sideInference.toolSearchAgentHint"),
       )}
       {renderSelect(
         "resourceSearchAgent",
-        t("sideInference.resourceSearchAgent") ?? "Resource search agent",
-        t("sideInference.resourceSearchAgentHint") ?? "Choose the agent that selects relevant MCP resources for client resource search.",
+        t("sideInference.resourceSearchAgent"),
+        t("sideInference.resourceSearchAgentHint"),
       )}
     </div>
   );
