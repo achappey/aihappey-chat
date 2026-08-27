@@ -421,7 +421,6 @@ import { llama } from "./catalog/llama";
 import { ninjachat } from "./catalog/ninjachat";
 import { mimicxai } from "./catalog/mimicxai";
 import { runtimo } from "./catalog/runtimo";
-import { codzen } from "./catalog/codzen";
 import { opuscode } from "./catalog/opuscode";
 import { concentrate } from "./catalog/concentrate";
 import { lumecoder } from "./catalog/lumecoder";
@@ -654,7 +653,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   opengate,
   pioneer,
   agen,
-  codzen,
   llama,
   blink,
   tierup,
