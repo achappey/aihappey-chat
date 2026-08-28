@@ -5,6 +5,7 @@ import {
   BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
+  CerebrasChatConfigForm,
   ChatSettingsForm,
   ChatCompletionsEndpointConfigForm,
   CohereChatConfigForm,
@@ -15,7 +16,7 @@ import {
   JinaChatConfigForm,
   MessagesEndpointConfigForm,
   MaritacaAIChatConfigForm,
-  MicrosoftChatConfigForm,
+  CopilotChatConfigForm,
   MistralChatConfigForm,
   NinjaChatChatConfigForm,
   OpenAIChatConfigForm,
@@ -175,6 +176,8 @@ export const PlaygroundSettingsDrawer = ({
         return <BrowserUseChatConfigForm config={providerMetadata.browseruse ?? {}} updateConfig={updateProviderConfig} />;
       case "brave":
         return <BraveChatConfigForm config={providerMetadata.brave ?? {}} updateConfig={updateProviderConfig} />;
+      case "cerebras":
+        return <CerebrasChatConfigForm config={providerMetadata.cerebras ?? {}} updateConfig={updateProviderConfig} />;
       case "google":
         return <GoogleChatConfig google={providerMetadata.google ?? {}} updateGoogle={updateProviderConfig} />;
       case "groq":
@@ -188,7 +191,7 @@ export const PlaygroundSettingsDrawer = ({
       case "maritacaai":
         return <MaritacaAIChatConfigForm config={providerMetadata.maritacaai ?? {}} updateConfig={updateProviderConfig} />;
       case "copilot":
-        return <MicrosoftChatConfigForm config={providerMetadata.copilot ?? {}} updateConfig={updateProviderConfig} />;
+        return <CopilotChatConfigForm config={providerMetadata.copilot ?? {}} updateConfig={updateProviderConfig} />;
       case "ninjachat":
         return <NinjaChatChatConfigForm config={providerMetadata.ninjachat ?? {}} updateConfig={updateProviderConfig} />;
       case "openai":

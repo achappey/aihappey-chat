@@ -1,4 +1,17 @@
-import { AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm, BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm, CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm, InworldChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm, LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings, MicrosoftChatConfigForm, MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm, OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm, PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm, TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm, RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm, ZaiChatConfigForm } from "aihappey-components";
+import {
+    AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
+    BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm,
+    CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
+    InworldChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
+    LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings,
+    CopilotChatConfigForm,
+    MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
+    OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm,
+    PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm,
+    TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm,
+    RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm,
+    ZaiChatConfigForm
+} from "aihappey-components";
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig, type AgentPluginFile, type Skill as AgentSkill } from "aihappey-types";
@@ -899,7 +912,7 @@ export const AgentForm = ({
                     )}
 
                     {providerKey === "copilot" && (
-                        <MicrosoftChatConfigForm
+                        <CopilotChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

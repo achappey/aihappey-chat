@@ -15,6 +15,7 @@ import {
   BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
+  CerebrasChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
   CortecsChatConfigForm,
   DepazaChatConfigForm,
@@ -22,7 +23,7 @@ import {
   JinaChatConfigForm,
   LinkupChatConfigForm,
   MaritacaAIChatConfigForm,
-  MicrosoftChatConfigForm,
+  CopilotChatConfigForm,
   MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
   OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
@@ -266,6 +267,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       depaza: (depaza: any) => updateProviderConfig("depaza", depaza),
       browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
       brave: (brave: any) => updateProviderConfig("brave", brave),
+      cerebras: (cerebras: any) => updateProviderConfig("cerebras", cerebras),
       google: (google: any) => updateProviderConfig("google", google),
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
@@ -353,6 +355,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <BrowserUseChatConfigForm config={draft.providerMetadata.browseruse ?? {}} updateConfig={providerConfigUpdaters.browseruse} />;
       case "brave":
         return <BraveChatConfigForm config={draft.providerMetadata.brave ?? {}} updateConfig={providerConfigUpdaters.brave} />;
+      case "cerebras":
+        return <CerebrasChatConfigForm config={draft.providerMetadata.cerebras ?? {}} updateConfig={providerConfigUpdaters.cerebras} />;
       case "google":
         return <GoogleChatConfig google={draft.providerMetadata.google ?? {}} updateGoogle={providerConfigUpdaters.google} />;
       case "groq":
@@ -366,7 +370,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       case "maritacaai":
         return <MaritacaAIChatConfigForm config={draft.providerMetadata.maritacaai ?? {}} updateConfig={providerConfigUpdaters.maritacaai} />;
       case "copilot":
-        return <MicrosoftChatConfigForm config={draft.providerMetadata.copilot ?? {}} updateConfig={providerConfigUpdaters.copilot} />;
+        return <CopilotChatConfigForm config={draft.providerMetadata.copilot ?? {}} updateConfig={providerConfigUpdaters.copilot} />;
       case "ninjachat":
         return <NinjaChatChatConfigForm config={draft.providerMetadata.ninjachat ?? {}} updateConfig={providerConfigUpdaters.ninjachat} />;
       case "openai":

@@ -55,7 +55,7 @@ export * from "./verda";
 export * from "./freepik";
 
 export * from "./murfai";
-export * from "./microsoft";
+export * from "./copilot";
 export * from "./venice";
 export * from "./linkup";
 export * from "./webcrawlerapi";
@@ -68,5 +68,6 @@ export * from "./tinyfish";
 export * from "./cortecs";
 export * from "./maritacaai";
 export * from "./inworld";
+export * from "./cerebras";
     
     

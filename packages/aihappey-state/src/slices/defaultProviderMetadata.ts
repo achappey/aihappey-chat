@@ -3,7 +3,8 @@ export const defaultProviderMetadata = {
     "reasoning_effort": "low"
   },
   "cerebras": {
-
+    "reasoning_effort": "medium",
+    "parallel_tool_calls": true
   },
   "openai": {
     "tools":
