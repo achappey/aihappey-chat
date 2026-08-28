@@ -198,6 +198,9 @@ export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, provider
       title={provider?.name ?? providerKey}
     />
   ) : undefined;
+  const modelDisplayId = providerImage && modelId?.includes("/")
+    ? modelId.slice(modelId.indexOf("/") + 1)
+    : modelId;
 
   useEffect(() => {
     const { src, revoke } = normalizeAudioSource(speech.audio as AudioSourceInput);
@@ -224,7 +227,7 @@ export const SpeechCard = ({ speech, speechInput, speechItem, onDelete, provider
 
   return (
     <>
-      <Card title={modelId}
+      <Card title={modelDisplayId}
         description={<div style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
           <span style={{ display: "inline-flex", alignItems: "center" }}>
             {format(speech?.response?.timestamp, i18n.language)}
