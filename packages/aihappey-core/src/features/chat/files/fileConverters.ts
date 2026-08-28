@@ -15,16 +15,32 @@ GlobalWorkerOptions.workerSrc = `//cdn.jsdelivr.net/npm/pdfjs-dist@${version}/bu
  */
 export const pdfFileToText = async (file: File): Promise<string> => {
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await getDocument({ data: arrayBuffer }).promise;
-  let text = "";
 
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-    const page = await pdf.getPage(pageNum);
-    const content = await page.getTextContent();
-    text += content.items.map((item: any) => item.str).join(" ") + "\n";
+  const loadingTask = getDocument({
+    data: new Uint8Array(arrayBuffer),
+  });
+
+  const pdf = await loadingTask.promise;
+
+  try {
+    const textParts: string[] = [];
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const content = await page.getTextContent();
+
+      const pageText = content.items
+        .map((item) => ("str" in item ? item.str : ""))
+        .filter(Boolean)
+        .join(" ");
+
+      textParts.push(pageText);
+    }
+
+    return textParts.join("\n");
+  } finally {
+    await loadingTask.destroy();
   }
-
-  return text;
 };
 
 /**

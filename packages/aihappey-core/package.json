@@ -68,7 +68,7 @@
     "mammoth": "^1.9.1",
     "marked": "^18.0.2",
     "mime": "^4.1.0",
-    "pdfjs-dist": "^5.3.31",
+    "pdfjs-dist": "^6.2.108",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-error-boundary": "^6.0.0",
