@@ -33,7 +33,9 @@ export const EmbeddedResourceContent: React.FC<EmbeddedResourceContentProps> = (
 
   // Video
   if (mimeType?.startsWith("video/")) {
-    const src = uri || (blob ? `data:${mimeType};base64,${blob}` : undefined);
+    // MCP resource URIs may use non-browser schemes (for example video://).
+    // Prefer the embedded payload when available and retain URI-only support.
+    const src = blob ? `data:${mimeType};base64,${blob}` : uri;
     if (src)
       return (
         <video src={src} controls style={{ maxWidth: "100%", borderRadius: 8 }} />

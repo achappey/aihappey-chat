@@ -185,6 +185,9 @@ export function toChatMessages(
     let imageRun: FileUIPart[] = [];
     let imageRunStartIndex: number | null = null;
 
+    let embeddedVideoRun: FileUIPart[] = [];
+    let embeddedVideoRunStartIndex: number | null = null;
+
     const flushActivity = () => {
       if (!activityRun.length) return;
 
@@ -241,6 +244,33 @@ export function toChatMessages(
       imageRunStartIndex = null;
     };
 
+    const flushEmbeddedVideos = () => {
+      if (!embeddedVideoRun.length) return;
+
+      embeddedVideoRun.forEach((item, index) => {
+        out.push({
+          id: `${baseId}:embedded-video:${embeddedVideoRunStartIndex ?? 0}:${index}`,
+          role: z.role,
+          content: [
+            {
+              type: "video",
+              item,
+            } as any,
+          ],
+          createdAt: ts((embeddedVideoRunStartIndex ?? 0) + index),
+          author,
+          temperature,
+          totalTokens,
+          usage,
+          cost: effectiveCost,
+          providerKey,
+        } as any);
+      });
+
+      embeddedVideoRun = [];
+      embeddedVideoRunStartIndex = null;
+    };
+
     const startImageRunIfNeeded = (i: number) => {
       if (imageRunStartIndex === null) imageRunStartIndex = i;
     };
@@ -265,6 +295,7 @@ export function toChatMessages(
       if (isVideoFilePart(p)) {
         flushActivity();
         flushImages();
+        flushEmbeddedVideos();
 
         out.push({
           id: `${baseId}:video:${i}`,
@@ -291,6 +322,7 @@ export function toChatMessages(
       if (isAudioFilePart(p)) {
         flushActivity();
         flushImages();
+        flushEmbeddedVideos();
 
         out.push({
           id: `${baseId}:audio:${i}`,
@@ -319,6 +351,7 @@ export function toChatMessages(
       // 2) Text: flush activity, then push text message
       if (t === "text") {
         flushActivity();
+        flushEmbeddedVideos();
 
         out.push({
           id: `${baseId}:text:${i}`,
@@ -353,6 +386,24 @@ export function toChatMessages(
           });
           // item is correctly typed from CallToolResult["content"]
         });
+
+        part.output.content.forEach((item: any) => {
+          const resource = item?.type === "resource" ? item.resource : undefined;
+          const mimeType = resource?.mimeType;
+          if (!mimeType?.startsWith("video/")) return;
+
+          const url = resource.blob
+            ? `data:${mimeType};base64,${resource.blob}`
+            : resource.uri;
+          if (!url) return;
+
+          if (embeddedVideoRunStartIndex === null) embeddedVideoRunStartIndex = i;
+          embeddedVideoRun.push({
+            type: "file",
+            mediaType: mimeType,
+            url,
+          });
+        });
       }
 
 
@@ -363,6 +414,7 @@ export function toChatMessages(
         ((p as ToolUIPart).output as any)?._meta?.["chat/html"]
       ) {
         flushActivity();
+        flushEmbeddedVideos();
 
         out.push({
           id: `${baseId}:widget:${i}:${(p as any)?.toolCallId ?? ""}`,
@@ -391,6 +443,7 @@ export function toChatMessages(
 
     // Flush any trailing buffers
     flushActivity();
+    flushEmbeddedVideos();
     flushImages();
   }
 
