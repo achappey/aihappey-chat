@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { SettingsActionButtons, SpeechifySpeechConfig, SpeechifySpeechConfigForm, useTheme } from "aihappey-components";
 import { SpeechSettingsGeneralTab } from "./SpeechSettingsGeneralTab";
 import { useAppStore } from "aihappey-state";
+import { getModelProviderKey } from "aihappey-types";
 import {
   DeepInfraSpeechConfigForm,
   DeepgramSpeechConfigForm,
@@ -61,7 +62,60 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
 
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
-  const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.speech ?? []);
+  const models = useAppStore((a) => a.models);
+  const selectedModelOption = useMemo(
+    () => models?.find((model) => model.id === selectedModel),
+    [models, selectedModel]
+  );
+  const activeProviderKey = getModelProviderKey(selectedModel, selectedModelOption);
+
+  const activeProvider = useMemo(() => {
+    const update = (providerKey: string, config: unknown) =>
+      setProviderMetadata({ ...providerMetadata, [providerKey]: config });
+
+    switch (activeProviderKey) {
+      case "async":
+        return { title: "Async", form: <AsyncSpeechConfigForm config={providerMetadata.async ?? {}} updateConfig={(config: AsyncSpeechConfig) => update("async", config)} /> };
+      case "audixa":
+        return { title: "Audixa", form: <AudixaSpeechConfigForm config={providerMetadata.audixa ?? {}} updateConfig={(config: AudixaSpeechConfig) => update("audixa", config)} /> };
+      case "deepgram":
+        return { title: "Deepgram", form: <DeepgramSpeechConfigForm config={providerMetadata.deepgram ?? {}} updateConfig={(config: DeepgramSpeechConfig) => update("deepgram", config)} /> };
+      case "deepinfra":
+        return { title: "DeepInfra", form: <DeepInfraSpeechConfigForm config={providerMetadata.deepinfra ?? {}} updateConfig={(config: DeepInfraSpeechConfig) => update("deepinfra", config)} /> };
+      case "freepik":
+        return { title: "Freepik", form: <FreepikSpeechConfigForm config={providerMetadata.freepik ?? {}} updateConfig={(config: FreepikSpeechConfig) => update("freepik", config)} /> };
+      case "runway":
+        return { title: "Runway", form: <RunwaySpeechConfigForm config={providerMetadata.runway ?? {}} updateConfig={(config: RunwaySpeechConfig) => update("runway", config)} /> };
+      case "elevenlabs":
+        return { title: "ElevenLabs", form: <ElevenLabsSpeechConfigForm config={providerMetadata.elevenlabs ?? {}} updateConfig={(config: ElevenLabsSpeechConfig) => update("elevenlabs", config)} /> };
+      case "google":
+        return { title: "Google", form: <GoogleSpeechConfigForm config={providerMetadata.google ?? {}} updateConfig={(config: GoogleSpeechConfig) => update("google", config)} /> };
+      case "groq":
+        return { title: "Groq", form: <GroqSpeechConfigForm config={providerMetadata.groq ?? {}} updateConfig={(config: GroqSpeechConfig) => update("groq", config)} /> };
+      case "minimax":
+        return { title: "MiniMax", form: <MiniMaxSpeechConfigForm config={providerMetadata.minimax ?? {}} updateConfig={(config: MiniMaxSpeechConfig) => update("minimax", config)} /> };
+      case "novita":
+        return { title: "Novita", form: <NovitaSpeechConfigForm config={providerMetadata.novita ?? {}} updateConfig={(config: NovitaSpeechConfig) => update("novita", config)} /> };
+      case "openai":
+        return { title: "OpenAI", form: <OpenAISpeechConfigForm config={providerMetadata.openai ?? {}} updateConfig={(config: OpenAISpeechConfig) => update("openai", config)} /> };
+      case "speechify":
+        return { title: "Speechify", form: <SpeechifySpeechConfigForm config={providerMetadata.speechify ?? {}} updateConfig={(config: SpeechifySpeechConfig) => update("speechify", config)} /> };
+      case "stabilityai":
+        return { title: "StabilityAI", form: <StabilityAISpeechConfigForm config={providerMetadata.stabilityai ?? {}} updateConfig={(config: StabilityAISpeechConfig) => update("stabilityai", config)} /> };
+      case "together":
+        return { title: "Together", form: <TogetherSpeechConfigForm config={providerMetadata.together ?? {}} updateConfig={(config: any) => update("together", config)} /> };
+      case "resembleai":
+        return { title: "ResembleAI", form: <ResembleAISpeechConfigForm config={providerMetadata.resembleai ?? {}} updateConfig={(config: ResembleAISpeechConfig) => update("resembleai", config)} /> };
+      case "murfai":
+        return { title: "MurfAI", form: <MurfAISpeechConfigForm config={providerMetadata.murfai ?? {}} updateConfig={(config: MurfAISpeechConfig) => update("murfai", config)} /> };
+      default:
+        return undefined;
+    }
+  }, [activeProviderKey, providerMetadata, setProviderMetadata]);
+
+  useEffect(() => {
+    if (activeTab === "provider" && !activeProvider) setActiveTab(defaultTab);
+  }, [activeProvider, activeTab]);
 
   const close = () => {
     onClose();
@@ -83,198 +137,11 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
         </theme.Tab>
 
 
-        {enabledProviders.includes("Async") && (
-          <theme.Tab eventKey="async" title="Async">
-            <AsyncSpeechConfigForm
-              config={providerMetadata.async ?? {}}
-              updateConfig={(async: AsyncSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, async })
-              }
-            />
+        {activeProvider ? (
+          <theme.Tab eventKey="provider" title={activeProvider.title}>
+            {activeProvider.form}
           </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Audixa") && (
-          <theme.Tab eventKey="audixa" title="Audixa">
-            <AudixaSpeechConfigForm
-              config={providerMetadata.audixa ?? {}}
-              updateConfig={(audixa: AudixaSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, audixa })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Deepgram") && (
-          <theme.Tab eventKey="deepgram" title="Deepgram">
-            <DeepgramSpeechConfigForm
-              config={providerMetadata.deepgram ?? {}}
-              updateConfig={(deepgram: DeepgramSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, deepgram })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("DeepInfra") && (
-          <theme.Tab eventKey="deepinfra" title="DeepInfra">
-            <DeepInfraSpeechConfigForm
-              config={providerMetadata.deepinfra ?? {}}
-              updateConfig={(deepinfra: DeepInfraSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, deepinfra })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Freepik") && (
-          <theme.Tab eventKey="freepik" title="Freepik">
-            <FreepikSpeechConfigForm
-              config={providerMetadata.freepik ?? {}}
-              updateConfig={(freepik: FreepikSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, freepik })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Runway") && (
-          <theme.Tab eventKey="runway" title="Runway">
-            <RunwaySpeechConfigForm
-              config={providerMetadata.runway ?? {}}
-              updateConfig={(runway: RunwaySpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, runway })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("ElevenLabs") && (
-          <theme.Tab eventKey="elevenlabs" title="ElevenLabs">
-            <ElevenLabsSpeechConfigForm
-              config={providerMetadata.elevenlabs ?? {}}
-              updateConfig={(elevenlabs: ElevenLabsSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, elevenlabs })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Google") && (
-          <theme.Tab eventKey="google" title="Google">
-            <GoogleSpeechConfigForm
-              config={providerMetadata.google ?? {}}
-              updateConfig={(google: GoogleSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, google })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Groq") && (
-          <theme.Tab eventKey="groq" title="Groq">
-            <GroqSpeechConfigForm
-              config={providerMetadata.groq ?? {}}
-              updateConfig={(groq: GroqSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, groq })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("MiniMax") && (
-          <theme.Tab eventKey="minimax" title="MiniMax">
-            <MiniMaxSpeechConfigForm
-              config={providerMetadata.minimax ?? {}}
-              updateConfig={(minimax: MiniMaxSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, minimax })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Novita") && (
-          <theme.Tab eventKey="novita" title="Novita">
-            <NovitaSpeechConfigForm
-              config={providerMetadata.novita ?? {}}
-              updateConfig={(novita: NovitaSpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, novita })
-              }
-            />
-          </theme.Tab>
-        )}
-
-
-        {enabledProviders.includes("OpenAI") && (
-          <theme.Tab eventKey="openai" title="OpenAI">
-            <OpenAISpeechConfigForm
-              config={providerMetadata.openai ?? {}}
-              updateConfig={(openai: OpenAISpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, openai })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Speechify") && (
-          <theme.Tab eventKey="speechify" title="Speechify">
-            <SpeechifySpeechConfigForm
-              config={providerMetadata.minimax ?? {}}
-              updateConfig={(speechify: SpeechifySpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, speechify })
-              }
-            />
-          </theme.Tab>
-        )}
-
-
-        {enabledProviders.includes("StabilityAI") && (
-          <theme.Tab eventKey="stabilityai" title="StabilityAI">
-            <StabilityAISpeechConfigForm
-              config={providerMetadata.stabilityai ?? {}}
-              updateConfig={(stabilityai: StabilityAISpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, stabilityai })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("Together") && (
-          <theme.Tab eventKey="together" title="Together">
-            <TogetherSpeechConfigForm
-              config={providerMetadata.together ?? {}}
-              updateConfig={(together: any) =>
-                setProviderMetadata({ ...providerMetadata, together })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("ResembleAI") && (
-          <theme.Tab eventKey="resembleai" title="ResembleAI">
-            <ResembleAISpeechConfigForm
-              config={providerMetadata.resembleai ?? {}}
-              updateConfig={(resembleai: ResembleAISpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, resembleai })
-              }
-            />
-          </theme.Tab>
-        )}
-
-        {enabledProviders.includes("MurfAI") && (
-          <theme.Tab eventKey="murfai" title="MurfAI">
-            <MurfAISpeechConfigForm
-              config={providerMetadata.murfai ?? {}}
-              updateConfig={(murfai: MurfAISpeechConfig) =>
-                setProviderMetadata({ ...providerMetadata, murfai })
-              }
-            />
-          </theme.Tab>
-        )}
-
-
-
-
+        ) : null}
       </theme.Tabs>
     </theme.Modal>
   );
