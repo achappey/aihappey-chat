@@ -17,7 +17,7 @@ export const orqagentruntime: Provider = {
     privacyPolicy: "https://orq.ai/legal/privacy"
   },
   providerCountry: "NL",
-  category: "inference_compute",
+  category: "app_tools",
   inferenceRegions: ["World"]
 };
 
