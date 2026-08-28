@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
-import type { ModelOption, Provider } from "aihappey-types";
+import type { ModelOption, Provider, ProviderUrls } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
 import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 
@@ -196,6 +196,7 @@ type ProviderView = {
   experimental?: boolean;
   providerCountry?: string;
   inferenceRegions?: string[];
+  urls?: ProviderUrls 
 };
 
 const providerViewFromEntry = ([key, provider]: [string, Provider]): ProviderView => ({
@@ -205,6 +206,7 @@ const providerViewFromEntry = ([key, provider]: [string, Provider]): ProviderVie
   experimental: provider.experimental,
   providerCountry: provider.providerCountry,
   inferenceRegions: provider.inferenceRegions,
+  urls: provider.urls,
 });
 
 const listProviderViews = (): ProviderView[] => {
