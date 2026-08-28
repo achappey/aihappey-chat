@@ -20,11 +20,12 @@ export const EmbeddedResourceView = ({ block }: EmbeddedResourceViewProps) => {
   const { t } = useTranslation();
   const { resource } = block;
   const { uri, blob, mimeType, text } = resource;
+  const isWebUri = !!uri && /^https?:\/\//i.test(uri);
 
   let buttonLabel = t("open");
-  if (uri) {
+  if (isWebUri) {
     try {
-      buttonLabel = new URL(uri).hostname.replace(/^www\./, "");
+      buttonLabel = new URL(uri!).hostname.replace(/^www\./, "");
     } catch { }
   }
 
@@ -49,10 +50,10 @@ export const EmbeddedResourceView = ({ block }: EmbeddedResourceViewProps) => {
     ) : null;
 
   // Build optional open link button
-  const openButton = uri ? (
+  const openButton = isWebUri ? (
     <OpenLinkButton
       size="small"
-      url={uri}
+      url={uri!}
       text={buttonLabel}
       variant="transparent"
     />
