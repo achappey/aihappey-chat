@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AttachmentButton, ErrorAlerts, FileTags, ImageGrid, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
+import { AttachmentButton, ErrorAlerts, FileTags, ImageGrid, ImageSizeSettingsForm, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { createTimestampedFileName, readOpenAISse } from "aihappey-ai";
 import { useFiles } from "aihappey-files";
 import { useTranslation } from "aihappey-i18n";
@@ -29,7 +29,7 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
   const isDesktop = useIsDesktop();
   const { t } = useTranslation();
   const { config } = useChatContext();
-  const { Button, Input, Modal, Select, Slider, TextArea } = useTheme();
+  const { Button, Card, Modal, Select, Slider, TextArea } = useTheme();
   const models = useAppStore((state) => state.models);
   const customHeaders = useAppStore((state) => state.customHeaders);
   const preferredModel = useAppStore((state) => state.userPreferredImageModel);
@@ -190,7 +190,7 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
           <TextArea ref={textareaRef} value={prompt} autoFocus onChange={setPrompt} placeholder={t("imagePromptPlaceholder")} style={{ resize: "vertical", maxHeight: 160 }} />
           <div style={styles.buttonRow}>
             {isEdit && <AttachmentButton icon="attachment" onFilesSelected={chooseFiles} disabled={processing} />}
-            <Button type="button" size="large" variant="transparent" icon="imageSettings" title={t("settings")} onClick={() => setSettingsOpen(true)} />
+            <Button type="button" size="large" variant="transparent" icon="imageSettings" title={t(`${prefix}.settings`)} onClick={() => setSettingsOpen(true)} />
             <div style={{ flex: 1 }} />
             {processing && <Button type="button" size="large" icon="stop" title={t("stop")} onClick={() => abortRef.current?.abort()} />}
             {dictationButton}
@@ -225,32 +225,43 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
 
       <Modal show={settingsOpen} onHide={() => setSettingsOpen(false)} title={t(`${prefix}.settings`)} actions={<Button onClick={() => setSettingsOpen(false)}>{t("close")}</Button>}>
         <div style={styles.settings}>
-          <Input label={t("streamingImage.size")} value={settings.size} onChange={(event: any) => setSettings({ ...settings, size: event.target.value })} />
-          <Slider id="streaming-image-count" label={t("streamingImage.count")} min={1} max={20} step={1} value={Number(settings.n)} onChange={(value: number) => setSettings({ ...settings, n: String(value) })} showValue />
-          <Select
-            label={t("streamingImage.quality")}
-            values={[settings.quality]}
-            valueTitle={settings.quality ? t(`streamingImage.quality${settings.quality.charAt(0).toUpperCase()}${settings.quality.slice(1)}`) : t("default")}
-            onChange={(value: string) => setSettings({ ...settings, quality: value })}
-          >
-            <option value="">{t("default")}</option>
-            {(["auto", "high", "medium", "low"] as const).map((value) => <option key={value} value={value}>{t(`streamingImage.quality${value.charAt(0).toUpperCase()}${value.slice(1)}`)}</option>)}
-          </Select>
-          <Select label={t("streamingImage.outputFormat")} values={[settings.outputFormat]} valueTitle={settings.outputFormat ? settings.outputFormat.toUpperCase() : t("default")} onChange={(value: string) => setSettings({ ...settings, outputFormat: value as StreamingImageSettings["outputFormat"] })}>
-            <option value="">{t("default")}</option>
-            {(["png", "jpeg", "webp"] as const).map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}
-          </Select>
-          <Slider id="streaming-image-output-compression" label={t("streamingImage.outputCompression")} min={0} max={100} step={1} value={Number(settings.outputCompression)} onChange={(value: number) => setSettings({ ...settings, outputCompression: String(value) })} showValue />
-          <Select
-            label={t("streamingImage.moderation")}
-            values={[settings.moderation]}
-            valueTitle={settings.moderation ? t(`streamingImage.moderation${settings.moderation.charAt(0).toUpperCase()}${settings.moderation.slice(1)}`) : t("default")}
-            onChange={(value: string) => setSettings({ ...settings, moderation: value as StreamingImageSettings["moderation"] })}
-          >
-            <option value="">{t("default")}</option>
-            {(["auto", "low"] as const).map((value) => <option key={value} value={value}>{t(`streamingImage.moderation${value.charAt(0).toUpperCase()}${value.slice(1)}`)}</option>)}
-          </Select>
-          <Slider id="streaming-image-partial-images" label={t("streamingImage.partialImages")} min={0} max={3} step={1} value={Number(settings.partialImages)} onChange={(value: number) => setSettings({ ...settings, partialImages: String(value) })} showValue />
+          <ImageSizeSettingsForm
+            value={{ size: settings.size || undefined }}
+            onChange={({ size }) => setSettings({ ...settings, size: size ?? "" })}
+          />
+          <Card size="small" title={t("imageSettings.other")}>
+            <div style={styles.otherSettings}>
+              <Slider id="streaming-image-count" label={t("streamingImage.count")} min={1} max={20} step={1} value={Number(settings.n)} onChange={(value: number) => setSettings({ ...settings, n: String(value) })} showValue />
+              <div style={{ ...styles.settingsRow, gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "minmax(0, 1fr)" }}>
+                <Select
+                  label={t("streamingImage.quality")}
+                  values={[settings.quality]}
+                  valueTitle={settings.quality ? t(`streamingImage.quality${settings.quality.charAt(0).toUpperCase()}${settings.quality.slice(1)}`) : t("default")}
+                  onChange={(value: string) => setSettings({ ...settings, quality: value })}
+                >
+                  <option value="">{t("default")}</option>
+                  {(["auto", "high", "medium", "low"] as const).map((value) => <option key={value} value={value}>{t(`streamingImage.quality${value.charAt(0).toUpperCase()}${value.slice(1)}`)}</option>)}
+                </Select>
+                <Select label={t("streamingImage.outputFormat")} values={[settings.outputFormat]} valueTitle={settings.outputFormat ? settings.outputFormat.toUpperCase() : t("default")} onChange={(value: string) => setSettings({ ...settings, outputFormat: value as StreamingImageSettings["outputFormat"] })}>
+                  <option value="">{t("default")}</option>
+                  {(["png", "jpeg", "webp"] as const).map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}
+                </Select>
+              </div>
+              <div style={{ ...styles.settingsRow, gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "minmax(0, 1fr)" }}>
+                <Select
+                  label={t("streamingImage.moderation")}
+                  values={[settings.moderation]}
+                  valueTitle={settings.moderation ? t(`streamingImage.moderation${settings.moderation.charAt(0).toUpperCase()}${settings.moderation.slice(1)}`) : t("default")}
+                  onChange={(value: string) => setSettings({ ...settings, moderation: value as StreamingImageSettings["moderation"] })}
+                >
+                  <option value="">{t("default")}</option>
+                  {(["auto", "low"] as const).map((value) => <option key={value} value={value}>{t(`streamingImage.moderation${value.charAt(0).toUpperCase()}${value.slice(1)}`)}</option>)}
+                </Select>
+                <Slider id="streaming-image-output-compression" label={t("streamingImage.outputCompression")} min={0} max={100} step={1} value={Number(settings.outputCompression)} onChange={(value: number) => setSettings({ ...settings, outputCompression: String(value) })} showValue />
+              </div>
+              <Slider id="streaming-image-partial-images" label={t("streamingImage.partialImages")} min={0} max={3} step={1} value={Number(settings.partialImages)} onChange={(value: number) => setSettings({ ...settings, partialImages: String(value) })} showValue />
+            </div>
+          </Card>
         </div>
       </Modal>
     </div>
@@ -292,4 +303,6 @@ const styles: Record<string, React.CSSProperties> = {
     background: "rgba(127, 127, 127, 0.12)",
   },
   settings: { display: "flex", flexDirection: "column", gap: 16 },
+  otherSettings: { display: "flex", flexDirection: "column", gap: 16 },
+  settingsRow: { display: "grid", gap: 12, width: "100%", alignItems: "end" },
 };
