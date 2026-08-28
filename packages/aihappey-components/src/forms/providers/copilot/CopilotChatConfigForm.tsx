@@ -35,7 +35,7 @@ const cleanAdditionalContext = (additionalContext: MicrosoftAdditionalContext[])
     .map((entry) => ({ text: cleanString(entry?.text) }))
     .filter((entry) => !!entry.text);
 
-export const MicrosoftChatConfigForm = ({
+export const CopilotChatConfigForm = ({
   config,
   updateConfig,
 }: {
@@ -149,17 +149,17 @@ export const MicrosoftChatConfigForm = ({
   };
 
   const webContextOptions = [
-    { value: "unset", label: t("providers:microsoft.webContextUnset") },
-    { value: "true", label: t("providers:microsoft.webContextEnabled") },
-    { value: "false", label: t("providers:microsoft.webContextDisabled") },
+    { value: "unset", label: t("providers:copilot.webContextUnset") },
+    { value: "true", label: t("providers:copilot.webContextEnabled") },
+    { value: "false", label: t("providers:copilot.webContextDisabled") },
   ];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card size="small" title={t("providers:microsoft.locationTitle")}>
+      <theme.Card size="small" title={t("providers:copilot.locationTitle")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Input
-            label={t("providers:microsoft.timeZone")}
+            label={t("providers:copilot.timeZone")}
             required
             value={locationHint.timeZone ?? DEFAULT_TIME_ZONE}
             placeholder="America/New_York"
@@ -168,7 +168,7 @@ export const MicrosoftChatConfigForm = ({
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <theme.Input
-              label={t("providers:microsoft.countryOrRegion")}
+              label={t("providers:copilot.countryOrRegion")}
               style={{ flex: 1, minWidth: 160 }}
               value={locationHint.countryOrRegion ?? ""}
               placeholder="US"
@@ -177,7 +177,7 @@ export const MicrosoftChatConfigForm = ({
               }
             />
             <theme.Input
-              label={t("providers:microsoft.countryOrRegionConfidence")}
+              label={t("providers:copilot.countryOrRegionConfidence")}
               type="number"
               min={0}
               max={1}
@@ -193,7 +193,7 @@ export const MicrosoftChatConfigForm = ({
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <theme.Input
-              label={t("providers:microsoft.latitude")}
+              label={t("providers:copilot.latitude")}
               type="number"
               step="any"
               style={{ flex: 1, minWidth: 160 }}
@@ -202,7 +202,7 @@ export const MicrosoftChatConfigForm = ({
               onChange={(e: any) => updateLocationHint({ latitude: e.target.value })}
             />
             <theme.Input
-              label={t("providers:microsoft.longitude")}
+              label={t("providers:copilot.longitude")}
               type="number"
               step="any"
               style={{ flex: 1, minWidth: 160 }}
@@ -218,11 +218,11 @@ export const MicrosoftChatConfigForm = ({
 
       <theme.Card
         size="small"
-        title={t("providers:microsoft.contextualResourcesTitle")}
+        title={t("providers:copilot.contextualResourcesTitle")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
-            label={t("providers:microsoft.webContext")}
+            label={t("providers:copilot.webContext")}
             values={[webEnabledValue]}
             valueTitle={
               webContextOptions.find((option) => option.value === webEnabledValue)
@@ -240,7 +240,7 @@ export const MicrosoftChatConfigForm = ({
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div style={{ fontSize: 12, opacity: 0.78 }}>
-              {t("providers:microsoft.filesDescription")}
+              {t("providers:copilot.filesDescription")}
             </div>
 
             {fileDrafts.map((file: MicrosoftFileResource, index: number) => (
@@ -249,7 +249,7 @@ export const MicrosoftChatConfigForm = ({
                 style={{ display: "flex", gap: 8, alignItems: "flex-end" }}
               >
                 <theme.Input
-                  label={t("providers:microsoft.fileUri", { index: index + 1 })}
+                  label={t("providers:copilot.fileUri", { index: index + 1 })}
                   style={{ flex: 1 }}
                   value={file?.uri ?? ""}
                   placeholder="https://contoso.sharepoint.com/sites/Engineering/Shared%20Documents/Specs/Business-Model.docx"
@@ -278,10 +278,10 @@ export const MicrosoftChatConfigForm = ({
                 icon="add"
                 size="small"
                 variant="subtle"
-                title={t("providers:microsoft.addFile")}
+                title={t("providers:copilot.addFile")}
                 onClick={() => setFileDrafts([...fileDrafts, { uri: "" }])}
               >
-                {t("providers:microsoft.addFile")}
+                {t("providers:copilot.addFile")}
               </theme.Button>
             </div>
           </div>
@@ -290,11 +290,11 @@ export const MicrosoftChatConfigForm = ({
 
       <theme.Card
         size="small"
-        title={t("providers:microsoft.additionalContextTitle")}
+        title={t("providers:copilot.additionalContextTitle")}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ fontSize: 12, opacity: 0.78 }}>
-            {t("providers:microsoft.additionalContextDescription")}
+            {t("providers:copilot.additionalContextDescription")}
           </div>
 
           {additionalContextDrafts.map(
@@ -304,7 +304,7 @@ export const MicrosoftChatConfigForm = ({
                 style={{ display: "flex", flexDirection: "column", gap: 8 }}
               >
                 <theme.TextArea
-                  label={t("providers:microsoft.additionalContextEntry", {
+                  label={t("providers:copilot.additionalContextEntry", {
                     index: index + 1,
                   })}
                   rows={3}
@@ -342,7 +342,7 @@ export const MicrosoftChatConfigForm = ({
               icon="add"
               size="small"
               variant="subtle"
-              title={t("providers:microsoft.addAdditionalContext")}
+              title={t("providers:copilot.addAdditionalContext")}
               onClick={() =>
                 setAdditionalContextDrafts([
                   ...additionalContextDrafts,
@@ -350,7 +350,7 @@ export const MicrosoftChatConfigForm = ({
                 ])
               }
             >
-              {t("providers:microsoft.addAdditionalContext")}
+              {t("providers:copilot.addAdditionalContext")}
             </theme.Button>
           </div>
         </div>

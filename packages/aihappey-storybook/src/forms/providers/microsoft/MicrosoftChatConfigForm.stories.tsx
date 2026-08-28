@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { MicrosoftChatConfigForm } from "aihappey-components";
+import { CopilotChatConfigForm } from "aihappey-components";
 
 type WrapperProps = {
   initialConfig?: any;
@@ -9,17 +9,17 @@ type WrapperProps = {
 const Wrapper: React.FC<WrapperProps> = ({ initialConfig }) => {
   const [config, setConfig] = useState<any>(initialConfig ?? {});
 
-  return <MicrosoftChatConfigForm config={config} updateConfig={setConfig} />;
+  return <CopilotChatConfigForm config={config} updateConfig={setConfig} />;
 };
 
-const meta: Meta<typeof MicrosoftChatConfigForm> = {
-  title: "Forms/Providers/Microsoft/MicrosoftChatConfigForm",
-  component: MicrosoftChatConfigForm,
+const meta: Meta<typeof CopilotChatConfigForm> = {
+  title: "Forms/Providers/Copilot/CopilotChatConfigForm",
+  component: CopilotChatConfigForm,
 };
 
 export default meta;
 
-type Story = StoryObj<typeof MicrosoftChatConfigForm>;
+type Story = StoryObj<typeof CopilotChatConfigForm>;
 
 export const Default: Story = {
   render: () => <Wrapper />,
