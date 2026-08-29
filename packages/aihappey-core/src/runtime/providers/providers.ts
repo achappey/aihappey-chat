@@ -572,6 +572,9 @@ import { nexosai } from "./catalog/nexosai";
 import { hetzner } from "./catalog/hetzner";
 import { leaperone } from "./catalog/leaperone";
 import { mixedbread } from "./catalog/mixedbread";
+import { sovinfra } from "./catalog/sovinfra";
+import { xpersona } from "./catalog/xpersona";
+import { entrim } from "./catalog/entrim";
 
 /**
  * UI-facing provider catalog.
@@ -833,6 +836,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   airouter,
   edgee,
   cline,
+  entrim,
   shakespeare,
   ainative,
   token360,
@@ -848,7 +852,9 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   openlimits,
   bastiongpt,
   arkroute,
+  xpersona,
   eliza,
+  sovinfra,
   ionrouter,
   claudible,
   llmwise,
