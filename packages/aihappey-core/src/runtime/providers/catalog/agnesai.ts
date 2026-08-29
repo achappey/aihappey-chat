@@ -8,7 +8,8 @@ export const agnesai: Provider = {
   }],
   urls: {
     homepage: "https://agnes-ai.com",
-    docs: "https://agnes-ai.com/doc",
+    docs: "https://agnes-ai.com/en/docs",
+    pricing: "https://agnes-ai.com/en/docs/pricing",
     privacyPolicy: "https://agnes-ai.com/doc/privacy-policy",
     termsOfService: "https://agnes-ai.com/doc/terms-of-service"
   },

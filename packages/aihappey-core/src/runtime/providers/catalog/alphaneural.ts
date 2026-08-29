@@ -9,8 +9,8 @@ export const alphaneural: Provider = {
   urls: {
     homepage: "https://www.alphaneural.io",
     docs: "https://docs.alphaneural.io",
-    privacyPolicy: "https://www.alphaneural.io/privacy-policy",
-    termsOfService: "https://www.alphaneural.io/terms-and-conditions"
+    privacyPolicy: "https://app.alphaneural.io/privacy-policy",
+    termsOfService: "https://app.alphaneural.io/terms-and-conditions"
   },
   providerCountry: "CH",
   category: "inference_compute",

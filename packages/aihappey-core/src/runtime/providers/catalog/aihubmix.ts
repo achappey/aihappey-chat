@@ -10,8 +10,7 @@ export const aihubmix: Provider = {
     homepage: "https://aihubmix.com",
     docs: "https://docs.aihubmix.com",
     pricing: "https://aihubmix.com/models",
-    privacyPolicy: "https://docs.aihubmix.com/en/terms-and-privacy/Privacy",
-    termsOfService: "https://docs.aihubmix.com/en/terms-and-privacy/Terms"
+    termsOfService: "https://docs.aihubmix.com/cn/terms-of-use"
   },
   providerCountry: "US",
   category: "gateway_router",
