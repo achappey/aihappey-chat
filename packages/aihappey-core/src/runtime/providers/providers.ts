@@ -575,6 +575,7 @@ import { mixedbread } from "./catalog/mixedbread";
 import { sovinfra } from "./catalog/sovinfra";
 import { xpersona } from "./catalog/xpersona";
 import { entrim } from "./catalog/entrim";
+import { paxalabs } from "./catalog/paxalabs";
 
 /**
  * UI-facing provider catalog.
@@ -836,6 +837,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   airouter,
   edgee,
   cline,
+  paxalabs,  
   entrim,
   shakespeare,
   ainative,
