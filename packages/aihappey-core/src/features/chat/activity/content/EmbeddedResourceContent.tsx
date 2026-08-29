@@ -26,7 +26,9 @@ export const EmbeddedResourceContent: React.FC<EmbeddedResourceContentProps> = (
 
   // Audio
   if (mimeType?.startsWith("audio/")) {
-    const src = uri || (blob ? `data:${mimeType};base64,${blob}` : undefined);
+    // MCP resource URIs may use non-browser schemes (for example audio://).
+    // Prefer the embedded payload when available and retain URI-only support.
+    const src = blob ? `data:${mimeType};base64,${blob}` : uri;
     if (src)
       return <AudioPlayer src={src} />;
   }
