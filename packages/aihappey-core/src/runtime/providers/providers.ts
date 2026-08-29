@@ -273,7 +273,6 @@ import { setapp } from "./catalog/setapp";
 import { surfercloud } from "./catalog/surfercloud";
 import { claudible } from "./catalog/claudible";
 import { brainiall } from "./catalog/brainiall";
-import { agabeyogluai } from "./catalog/agabeyogluai";
 import { airouter } from "./catalog/airouter";
 import { agentics } from "./catalog/agentics";
 import { nrpnautilus } from "./catalog/nrpnautilus";
@@ -732,7 +731,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   modelbridge,
   openpipe,
   magisterium,
-  agabeyogluai,
   nonkycai,
   tensorx,
   embyai,
