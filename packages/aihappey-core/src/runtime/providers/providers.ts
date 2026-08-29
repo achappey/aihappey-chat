@@ -164,7 +164,6 @@ import { orqrouter } from "./catalog/orqrouter";
 import { typecast } from "./catalog/typecast";
 import { unrealspeech } from "./catalog/unrealspeech";
 import { everypixellabs } from "./catalog/everypixellabs";
-import { supertone } from "./catalog/supertone";
 import { uvoiceai } from "./catalog/uvoiceai";
 import { astica } from "./catalog/astica";
 import { heygen } from "./catalog/heygen";
@@ -940,7 +939,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   nearai,
   aiml,
   smooth,
-  supertone,
   anthropic,
   heygen,
   ionet,
