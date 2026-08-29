@@ -79,6 +79,15 @@ const fileToAudioSrc = (f: FileUIPart): string | undefined => {
   return `data:${f?.mediaType ?? "audio/mpeg"};base64,${url}`;
 };
 
+const tryParseJsonObjectOrArray = (text: string): object | undefined => {
+  try {
+    const parsed: unknown = JSON.parse(text);
+    return typeof parsed === "object" && parsed !== null ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 
 /**
  * App-layer MessageList:
@@ -103,7 +112,7 @@ export const MessageList = ({
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
   const providers = useProviderRegistry();
-  const { AudioPlayer, Image, Toast } = useTheme()
+  const { AudioPlayer, Image, JsonViewer, Toast } = useTheme()
   const progress = useMcpProgress(progressRuntime);
   const progressByToken = useMemo(() => {
     const m = new Map<string | number, McpProgressItem>();
@@ -162,7 +171,14 @@ export const MessageList = ({
           setEditUiMessageId(uiMessageId);
         }}
         onRenderMarkdown={(text) => <Markdown text={text} streaming={streaming} />}
-        renderBlock={({ block }: any) => {
+        renderBlock={({ msg, block }: any) => {
+
+          if (!streaming && msg.role === "assistant" && block.type === "text") {
+            const parsedJson = tryParseJsonObjectOrArray(block.text);
+            if (parsedJson !== undefined) {
+              return <JsonViewer value={parsedJson} />;
+            }
+          }
 
           if (block.type?.startsWith("tool-")
             && block.output?._meta?.["chat/html"]) {
