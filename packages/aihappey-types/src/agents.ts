@@ -6,7 +6,7 @@ export type Agent = {
     description: string;
     instructions: string;
     argumentHint?: string;
-    outputSchema?: OutputSchema;
+    responseFormat?: ResponseFormat;
     mcpServers?: Record<string, McpServer>
     mcpClient?: McpClient
     skills?: Skill[]
@@ -100,14 +100,14 @@ export type SkillSource = {
 };
 
 
-export type OutputSchema = {
-    properties?: Record<string, Property>;
-};
-
-export type Property = {
-    type: string;
-    required?: boolean;
-    description?: string
+export type ResponseFormat = {
+    type: "json_schema";
+    json_schema: {
+        name: string;
+        description?: string;
+        schema: Record<string, unknown>;
+        strict?: boolean;
+    };
 };
 
 export type AiModel = {

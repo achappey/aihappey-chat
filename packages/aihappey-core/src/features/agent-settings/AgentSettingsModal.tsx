@@ -135,12 +135,12 @@ const AgentTab = ({
         }
       />
 
-      {agent?.agent.outputSchema?.properties &&
+      {agent?.agent.responseFormat?.json_schema?.schema &&
         <theme.Card
           size="small"
           title={t('structuredOutputs')}>
           <theme.JsonViewer
-            value={JSON.stringify(agent?.agent.outputSchema?.properties)} />
+            value={JSON.stringify(agent.agent.responseFormat)} />
         </theme.Card>}
 
       <theme.Card size="small"

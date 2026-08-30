@@ -132,7 +132,7 @@ const content: Record<ChatDocsTopic, TopicContent> = {
       },
       {
         title: "Optional capabilities", body: list([
-          <><code>argumentHint</code>, <code>outputSchema</code>, and <code>icons</code> provide invocation and presentation metadata.</>,
+          <><code>argumentHint</code>, <code>responseFormat</code>, and <code>icons</code> provide invocation and presentation metadata.</>,
           <><code>mcpServers</code> maps names to remote HTTP server configurations; <code>mcpClient.capabilities.elicitation</code> declares client support.</>,
           <><code>skills</code> accepts inline bundles or gateway <code>skill_reference</code> values.</>,
           <><code>plugins</code> embeds immutable Agent Plugin ZIP snapshots as base64; <code>tools</code> carries provider-neutral runtime tool definitions.</>,

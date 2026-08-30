@@ -8,7 +8,7 @@ import { useCallback, useMemo } from "react";
 import { useTools } from "../tools/useTools";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 
-function toValidSchemaName(name: string): string {
+export function toValidSchemaName(name: string): string {
   return name
     .normalize("NFKD")              // normalize unicode
     .replace(/[\u0300-\u036f]/g, "") // strip accents

@@ -40,6 +40,8 @@ import { AgentSkillsEditor, type AgentSkillEditorValue, type AgentSkillMode } fr
 import { usePlugins } from "aihappey-plugins";
 import { ChatPluginsEditor } from "../chat-settings/ChatPluginsEditor";
 import { createEmbeddedAgentPlugin, getEmbeddedAgentPluginPayload, readEmbeddedAgentPluginName } from "./agentPlugins";
+import { useStructuredOutputs } from "aihappey-structured-outputs";
+import { toValidSchemaName } from "../chat-settings/GeneralTab";
 
 const AGENT_TOOL_SEARCH_TYPE = "tool_search";
 const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
@@ -78,6 +80,24 @@ export const AgentForm = ({
     const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
     const skills = useSkills();
     const plugins = usePlugins();
+    const structuredOutputsStore = useStructuredOutputs();
+    const structuredOutputOptions = useMemo(
+        () => (structuredOutputsStore.items ?? []).slice().sort((a, b) => a.name.localeCompare(b.name)),
+        [structuredOutputsStore.items]
+    );
+    const selectedStructuredOutputId = useMemo(() => {
+        const current = agent.responseFormat?.json_schema;
+        if (!current) return "";
+
+        return structuredOutputOptions.find((item) => {
+            if (toValidSchemaName(item.name) !== current.name) return false;
+            try {
+                return JSON.stringify(JSON.parse(item.json_schema)) === JSON.stringify(current.schema);
+            } catch {
+                return false;
+            }
+        })?.id ?? "";
+    }, [agent.responseFormat, structuredOutputOptions]);
     const openAISkillOptions = useMemo(
         () => buildOpenAISkillOptions(skills.items ?? []),
         [skills.items]
@@ -630,6 +650,47 @@ export const AgentForm = ({
                             onChange({ ...agent, argumentHint: v.target.value })
                         }
                     />
+                    <Select
+                        label={t("structuredOutputs")}
+                        values={[selectedStructuredOutputId]}
+                        valueTitle={
+                            structuredOutputOptions.find((item) => item.id === selectedStructuredOutputId)?.name
+                            ?? t("providerDefault")
+                        }
+                        options={[
+                            { value: "", label: t("providerDefault") },
+                            ...structuredOutputOptions.map((item) => ({ value: item.id, label: item.name })),
+                        ]}
+                        onChange={(selectedValue: string) => {
+                            if (!selectedValue) {
+                                onChange({ ...agent, responseFormat: undefined });
+                                return;
+                            }
+
+                            const selected = structuredOutputOptions.find((item) => item.id === selectedValue);
+                            if (!selected) return;
+
+                            try {
+                                onChange({
+                                    ...agent,
+                                    responseFormat: {
+                                        type: "json_schema",
+                                        json_schema: {
+                                            name: toValidSchemaName(selected.name),
+                                            schema: JSON.parse(selected.json_schema),
+                                        },
+                                    },
+                                });
+                            } catch {
+                                onChange({ ...agent, responseFormat: undefined });
+                            }
+                        }}
+                    >
+                        <option value="">{t("providerDefault")}</option>
+                        {structuredOutputOptions.map((item) => (
+                            <option key={item.id} value={item.id}>{item.name}</option>
+                        ))}
+                    </Select>
 
                     <div style={{ marginTop: 12 }}>
                         <McpPolicySettings
