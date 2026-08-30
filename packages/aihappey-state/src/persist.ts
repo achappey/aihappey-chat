@@ -15,7 +15,7 @@ import { SpeechSlice } from "./slices/speechSlice";
 import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
-import { DEFAULT_CHAT_VERBOSITY, DEFAULT_SIDE_INFERENCE_AGENT_SELECTION } from "./slices/chatSlice";
+import { DEFAULT_CHAT_VERBOSITY, DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS } from "./slices/chatSlice";
 import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, readStoredChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
 import { normalizeCustomProviders } from "./slices/uiSlice";
 import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
@@ -58,6 +58,7 @@ export const withPersist = (
       maxAttachmentsSize: s.maxAttachmentsSize,
       sendRawAttachments: s.sendRawAttachments,
       convertAttachmentsToText: s.convertAttachmentsToText,
+      toolOutputContentSettings: s.toolOutputContentSettings,
       extractExif: s.extractExif,
       showMessageTokens: s.showMessageTokens,
       disableProviderLogo: (s as any).disableProviderLogo,
@@ -439,6 +440,16 @@ export const withPersist = (
           ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
           ...(isPlainRecord(safeState.sideInferenceAgentNames)
             ? safeState.sideInferenceAgentNames
+            : {}),
+        },
+        toolOutputContentSettings: {
+          ...DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS,
+          ...(isPlainRecord(safeState.toolOutputContentSettings)
+            ? Object.fromEntries(
+              Object.keys(DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS)
+                .filter((key) => typeof safeState.toolOutputContentSettings[key] === "boolean")
+                .map((key) => [key, safeState.toolOutputContentSettings[key]]),
+            )
             : {}),
         },
         favoriteAgentIds: Array.isArray(safeState.favoriteAgentIds)

@@ -80,6 +80,7 @@ import {
 } from "./endpointProfiles";
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 import { useChatScrollToBottom } from "../layout/useChatScrollToBottom";
+import { mapToolOutputContentForRequest } from "./mapToolOutputContentForRequest";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -117,6 +118,7 @@ export function VercelChatInner({
   const stopTools = useAppStore((a) => a.stopTools);
   const toolChoice = useAppStore((a) => a.toolChoice);
   const maxToolCalls = useAppStore((a) => a.maxToolCalls);
+  const toolOutputContentSettings = useAppStore((a) => a.toolOutputContentSettings);
   const activeData = useAppStore((a) => a.activeData);
   const maxOutputTokens = useAppStore((a) => a.maxOutputTokens);
   const toolRequestConfig = useAppStore((a) => (a as any).toolRequestConfig);
@@ -604,12 +606,13 @@ export function VercelChatInner({
         fetch: isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent" ? authFetch : chatFetch,
         prepareSendMessagesRequest: (opts: any) => {
           const patchedMessages = applyOverrides(opts.messages as any);
+          const requestMessages = mapToolOutputContentForRequest(patchedMessages, toolOutputContentSettings);
 
           const mergedBody: any = {
             ...baseBody,          // default body (includes toolChoice)
             ...(opts.body ?? {}), // per-call overrides
             id: conversationId ?? opts.id,
-            messages: patchedMessages,
+            messages: requestMessages,
             trigger: opts.trigger,
             messageId: opts.messageId,
           };
@@ -674,11 +677,11 @@ export function VercelChatInner({
 
           const completedToolCalls =
             typeof maxToolCalls === "number"
-              ? countCompletedToolCallsLastAssistant(patchedMessages as any[])
+              ? countCompletedToolCallsLastAssistant(requestMessages as any[])
               : 0;
 
           const forceNone =
-            shouldForceToolChoiceNone(patchedMessages as any[], stopTools) ||
+            shouldForceToolChoiceNone(requestMessages as any[], stopTools) ||
             (typeof maxToolCalls === "number" && completedToolCalls >= maxToolCalls);
 
           const effectiveToolChoice = forceNone ? "none" : mergedBody.toolChoice;
@@ -735,7 +738,7 @@ export function VercelChatInner({
         )
         : new DefaultChatTransport(transportOptions);
     },
-    [chatFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api]
+    [chatFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings]
   );
 
   const {

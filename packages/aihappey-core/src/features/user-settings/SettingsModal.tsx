@@ -24,7 +24,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
 }) => {
   const theme = useTheme();
-  const { Modal, Select, Switch, Slider, Input, Button } = theme;
+  const { Modal, Select, Switch, Slider, Input, Button, Card } = theme;
   const { t } = useTranslation(); // Uncomment when i18n is ready
   const [activeTab, setActiveTab] = useState("general");
   const multiTheme = useMultiTheme();
@@ -46,6 +46,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
   const disableProviderLogo = useAppStore((s) => s.disableProviderLogo);
   const chatDictationEnabled = useAppStore((s) => s.chatDictationEnabled);
+  const toolOutputContentSettings = useAppStore((s) => s.toolOutputContentSettings);
+  const setToolOutputContentSettings = useAppStore((s) => s.setToolOutputContentSettings);
   const agents = useAppStore((s) => s.agents);
   const sideInferenceAgentNames = useAppStore((s) => s.sideInferenceAgentNames);
   const setSideInferenceAgentNames = useAppStore((s) => s.setSideInferenceAgentNames);
@@ -204,6 +206,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   label={t("settingsModal.dictate")}
                   onChange={setChatDictationEnabled}
                 />
+
+                <Card size="small" title={t("settingsModal.toolOutputContent") ?? "Tool output sent to AI"}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {([
+                      ["text", t("text") ?? "Text"],
+                      ["images", t("images") ?? "Images"],
+                      ["audio", t("audio") ?? "Audio"],
+                      ["video", t("video") ?? "Video"],
+                      ["documents", t("settingsModal.documents") ?? "Documents"],
+                    ] as const).map(([key, label]) => (
+                      <Switch
+                        key={key}
+                        id={`tool-output-${key}-toggle`}
+                        checked={toolOutputContentSettings[key]}
+                        label={label}
+                        onChange={(checked) => setToolOutputContentSettings({ [key]: checked })}
+                      />
+                    ))}
+                  </div>
+                </Card>
               </div>
             </theme.Tab>
 

@@ -31,6 +31,22 @@ export type SideInferenceAgentNames = {
 export type ChatVerbosity = "low" | "medium" | "high";
 export const DEFAULT_CHAT_VERBOSITY: ChatVerbosity = "medium";
 
+export type ToolOutputContentSettings = {
+  text: boolean;
+  images: boolean;
+  audio: boolean;
+  video: boolean;
+  documents: boolean;
+};
+
+export const DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS: ToolOutputContentSettings = {
+  text: true,
+  images: false,
+  audio: false,
+  video: false,
+  documents: false,
+};
+
 export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
   welcomeMessageAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.welcomeMessage,
   conversationNameAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.conversationName,
@@ -94,9 +110,12 @@ export type ChatSlice = ApiKeyEncryptionState & {
   sendRawAttachments?: boolean
   maxAttachmentsSize?: number
 
+  toolOutputContentSettings: ToolOutputContentSettings;
+
   setConvertAttachmentsToText: (value?: boolean) => void;
   setSendRawAttachments: (value?: boolean) => void;
   setMaxAttachmentsSize: (value?: number) => void;
+  setToolOutputContentSettings: (value: Partial<ToolOutputContentSettings>) => void;
 
   stopTools?: string[]
   setStopTools: (stopTools?: string[]) => void;
@@ -199,6 +218,7 @@ export const createChatSlice: StateCreator<
   convertAttachmentsToText: true,
   maxAttachmentsSize: 25 * 1024 * 1024,
   sendRawAttachments: true,
+  toolOutputContentSettings: { ...DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS },
   setConvertAttachmentsToText: (value?: boolean) => {
     set((state: ChatSlice) => ({
       convertAttachmentsToText: value
@@ -213,6 +233,14 @@ export const createChatSlice: StateCreator<
   setMaxAttachmentsSize: (value?: number) => {
     set((state: ChatSlice) => ({
       maxAttachmentsSize: value
+    }));
+  },
+  setToolOutputContentSettings: (value) => {
+    set((state: ChatSlice) => ({
+      toolOutputContentSettings: {
+        ...state.toolOutputContentSettings,
+        ...value,
+      },
     }));
   },
   setStopTools: (value) => {

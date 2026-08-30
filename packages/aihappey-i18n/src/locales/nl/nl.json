@@ -947,6 +947,8 @@
         "showTokens": "Toon tokens per bericht",
         "showProviderLogo": "Toon providerlogo",
         "dictate": "Dicteren",
+        "toolOutputContent": "Types tooluitvoer",
+        "documents": "Documenten",
         "tabTheme": "Thema",
         "agentImport": "Agents",
         "defaultModel": "Standaard model",

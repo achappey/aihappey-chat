@@ -19,6 +19,7 @@ import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
 import { sendAutomaticallyWhen } from "../engine/sendAutomaticallyWhen";
+import { mapToolOutputContentForRequest } from "../engine/mapToolOutputContentForRequest";
 
 export function ChatArena({
   api,
@@ -46,6 +47,7 @@ export function ChatArena({
   const models = useAppStore((s) => s.models);
   const customHeaders = useAppStore((s) => s.customHeaders);
   const callTool = useAppStore((a) => a.callTool);
+  const toolOutputContentSettings = useAppStore((a) => a.toolOutputContentSettings);
   const { onToolCall } = useOnToolCall({
     callTool,
     api: api ?? "",
@@ -87,8 +89,23 @@ export function ChatArena({
   }, [getAccessToken, headers, customFetch, customHeaders]);
 
   const transport = useMemo(
-    () => new DefaultChatTransport({ api, fetch: authFetch }),
-    [api, authFetch]
+    () => new DefaultChatTransport({
+      api,
+      fetch: authFetch,
+      prepareSendMessagesRequest: (opts: any) => ({
+        api,
+        headers: opts.headers,
+        credentials: opts.credentials,
+        body: {
+          ...(opts.body ?? {}),
+          id: opts.id,
+          messages: mapToolOutputContentForRequest(opts.messages, toolOutputContentSettings),
+          trigger: opts.trigger,
+          messageId: opts.messageId,
+        },
+      }),
+    }),
+    [api, authFetch, toolOutputContentSettings]
   );
 
   const systemMessage = useSystemMessage();

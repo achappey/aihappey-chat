@@ -30,6 +30,7 @@ import {
 import { PlaygroundInput } from "./PlaygroundInput";
 import { PlaygroundSettingsDrawer } from "./PlaygroundSettingsDrawer";
 import { encodePlaygroundAttachment, getPlaygroundUnsupportedAttachmentKinds } from "./playgroundAttachments";
+import { mapToolOutputContentForRequest } from "../chat/engine/mapToolOutputContentForRequest";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
 import {
   createChatAuthHeadersForModel,
@@ -56,6 +57,7 @@ export const PlaygroundPage = () => {
   const maxOutputTokensFromStore = useAppStore((s) => s.maxOutputTokens);
   const temperatureFromStore = useAppStore((s) => s.temperature);
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
+  const toolOutputContentSettings = useAppStore((s) => s.toolOutputContentSettings);
   const setThrottle = useAppStore((s) => s.setThrottle);
 
   const [selectedEndpoint, setSelectedEndpoint] = useState("/v1/responses");
@@ -241,7 +243,9 @@ export const PlaygroundPage = () => {
           ...(opts.body ?? {}),
           id: opts.id,
           messageId: opts.messageId,
-          messages: toPlaygroundApiChatMessages(opts.messages as UIMessage[]),
+          messages: toPlaygroundApiChatMessages(
+            mapToolOutputContentForRequest(opts.messages as UIMessage[], toolOutputContentSettings),
+          ),
           trigger: opts.trigger,
           model: playgroundRequestModel,
           temperature,
@@ -250,7 +254,7 @@ export const PlaygroundPage = () => {
         },
       }),
     }),
-    [baseUrl, maxOutputTokens, playgroundFetch, playgroundRequestModel, resolvedProviderMetadata, temperature],
+    [baseUrl, maxOutputTokens, playgroundFetch, playgroundRequestModel, resolvedProviderMetadata, temperature, toolOutputContentSettings],
   );
 
   const {

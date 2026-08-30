@@ -981,6 +981,8 @@
         "showTokens": "Show tokens per message",
         "showProviderLogo": "Show provider logo",
         "dictate": "Dictate",
+        "toolOutputContent": "Tool output types",
+        "documents": "Documents",
         "agentImport": "Agents",
         "defaultModel": "Default model",
         "agentImportHint": "Import resources as Agents.",
