@@ -574,6 +574,7 @@ import { sovinfra } from "./catalog/sovinfra";
 import { xpersona } from "./catalog/xpersona";
 import { entrim } from "./catalog/entrim";
 import { paxalabs } from "./catalog/paxalabs";
+import { crusoe } from "./catalog/crusoe";
 
 /**
  * UI-facing provider catalog.
@@ -773,6 +774,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   dedaluslabs,
   stealthgpt,
   ofoxai,
+  crusoe,
   routerlink,
   yougetai,
   yollomi,
