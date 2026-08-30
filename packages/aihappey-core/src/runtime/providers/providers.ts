@@ -575,6 +575,7 @@ import { xpersona } from "./catalog/xpersona";
 import { entrim } from "./catalog/entrim";
 import { paxalabs } from "./catalog/paxalabs";
 import { crusoe } from "./catalog/crusoe";
+import { interfaze } from "./catalog/interfaze";
 
 /**
  * UI-facing provider catalog.
@@ -770,6 +771,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   memoryrouter,
   zebracat,
   messari,
+  interfaze,
   oodaai,
   dedaluslabs,
   stealthgpt,
