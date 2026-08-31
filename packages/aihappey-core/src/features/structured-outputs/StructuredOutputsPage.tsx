@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { StructuredOutputCard, useTheme } from "aihappey-components";
+import { StickyHeaderActionBar, StructuredOutputCard, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { useStructuredOutputs } from "aihappey-structured-outputs";
+import { useStructuredOutputs, type StructuredOutputsItem } from "aihappey-structured-outputs";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { StructuredOutputEditModal, type StructuredOutputEditValues } from "./StructuredOutputEditModal";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -16,6 +17,11 @@ export const StructuredOutputsPage = () => {
   const structuredOutputs = useStructuredOutputs();
 
   const [search, setSearch] = useState("");
+  const [editorMode, setEditorMode] = useState<"create" | "edit" | null>(null);
+  const [editingItem, setEditingItem] = useState<StructuredOutputsItem | undefined>();
+  const [saving, setSaving] = useState(false);
+  const [editorError, setEditorError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const q = normalizeText(search);
 
   const collator = useMemo(
@@ -40,8 +46,48 @@ export const StructuredOutputsPage = () => {
       .sort((a, b) => collator.compare(a.name ?? "", b.name ?? ""));
   }, [collator, q, structuredOutputs.items]);
 
+  const openCreate = () => {
+    setEditingItem(undefined);
+    setEditorError(null);
+    setEditorMode("create");
+  };
+
+  const openEdit = (item: StructuredOutputsItem) => {
+    setEditingItem(item);
+    setEditorError(null);
+    setEditorMode("edit");
+  };
+
+  const closeEditor = () => {
+    if (saving) return;
+    setEditorMode(null);
+    setEditingItem(undefined);
+    setEditorError(null);
+  };
+
+  const saveEditor = async (values: StructuredOutputEditValues) => {
+    setSaving(true);
+    setEditorError(null);
+    try {
+      if (editorMode === "edit" && editingItem) {
+        await structuredOutputs.update(editingItem.id, values.name, values.json_schema);
+        setFeedback(t("structuredOutputsPage.editor.updated"));
+      } else {
+        await structuredOutputs.add(values.name, values.json_schema);
+        setFeedback(t("structuredOutputsPage.editor.created"));
+      }
+      setEditorMode(null);
+      setEditingItem(undefined);
+    } catch (error) {
+      setEditorError(error instanceof Error ? error.message : t("structuredOutputsPage.editor.saveError"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div style={{ background: "transparent" }}>
+      <StickyHeaderActionBar actionLabel={t("add")} onAction={openCreate} />
       <div
         style={{
           width: 700,
@@ -60,6 +106,8 @@ export const StructuredOutputsPage = () => {
         <Text as="p" align={"center"}>
           {t("structuredOutputsPage.description")}
         </Text>
+
+        {feedback ? <Text as="p" align="center">{feedback}</Text> : null}
 
         <div
           style={{
@@ -104,12 +152,21 @@ export const StructuredOutputsPage = () => {
                   width: "100%",
                 }}
               >
-                <StructuredOutputCard item={item} />
+                <StructuredOutputCard item={item} onEdit={() => openEdit(item)} />
               </div>
             ))
           )}
         </div>
       </div>
+      <StructuredOutputEditModal
+        open={editorMode !== null}
+        mode={editorMode ?? "create"}
+        item={editingItem}
+        saving={saving}
+        error={editorError}
+        onClose={closeEditor}
+        onSave={saveEditor}
+      />
     </div>
   );
 };

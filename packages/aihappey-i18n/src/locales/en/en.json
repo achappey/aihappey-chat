@@ -21,7 +21,7 @@
         "emptyResult": "The stream completed without audio.",
         "failed": "Streaming speech failed.",
         "filePrefix": "streaming-speech",
-        "receiving": "Receiving audio… {{bytes}} bytes",
+        "receiving": "Receiving audio... {{bytes}} bytes",
         "ready": "The generated audio appears here."
     },
     "streamingImage": {
@@ -115,14 +115,14 @@
             "placeholder": "Search this document hub...",
             "limit": "Maximum results",
             "similarity": "Minimum similarity",
-            "searching": "Searching…",
+            "searching": "Searching...",
             "noMatches": "No matching document content found."
         },
         "edit": {
             "action": "Edit",
             "title": "Edit document hub",
             "newTitle": "New document hub",
-            "saving": "Saving…",
+            "saving": "Saving...",
             "progress": {
                 "saving": "Preparing document hub ({{completed}}/{{total}})",
                 "extracting": "Extracting document text ({{completed}}/{{total}})",
@@ -134,7 +134,7 @@
             "chooseDocuments": "Choose documents",
             "stagedDocument": "Ready to index after saving"
         },
-        "processing": "Processing…",
+        "processing": "Processing...",
         "import": {
             "invalidType": "{{name}} is not a JSON file.",
             "invalidJson": "{{name}} does not contain valid JSON.",
@@ -152,7 +152,7 @@
         "description": "Search across one or more document hubs to quickly find the most relevant documents and information.",
         "query": "Hub search query",
         "placeholder": "Search document hubs...",
-        "searching": "Searching…",
+        "searching": "Searching...",
         "dropAttachments": "Drop files to add them to the query",
         "unsupportedAttachment": "Could not convert attachment to text: {{name}}",
         "noHubs": "Create a document hub and add documents before searching.",
@@ -899,7 +899,46 @@
         "description": "An overview of all available tools: built-in plugin tools, your own custom tools, and tools coming from connected Model Context."
     },
     "structuredOutputsPage": {
-        "description": "An overview of all stored structured output schemas. Use these schemas to guide model outputs and enforce consistent structure."
+        "description": "An overview of all stored structured output schemas. Use these schemas to guide model outputs and enforce consistent structure.",
+        "editor": {
+            "createTitle": "Create structured output",
+            "editTitle": "Edit structured output",
+            "namePlaceholder": "For example: Customer profile",
+            "nameRequired": "Enter a name for this structured output.",
+            "builderTab": "Builder",
+            "advancedTab": "Advanced JSON",
+            "jsonSchema": "JSON Schema",
+            "validateJson": "Apply and validate JSON",
+            "validationTitle": "Fix the following before saving:",
+            "type": "Type",
+            "advancedType": "Advanced definition",
+            "descriptionPlaceholder": "Explain what this value contains",
+            "propertyName": "Property name",
+            "required": "Required",
+            "addProperty": "Add property",
+            "noProperties": "No properties yet. Add the first field to this object.",
+            "arrayItems": "Array item structure",
+            "advancedNodeHelp": "This node uses an advanced schema definition. Edit it in Advanced JSON, or select a type to replace its guided structure.",
+            "advancedItemsHelp": "Tuple or boolean array items can be maintained in Advanced JSON.",
+            "booleanSchemaHelp": "This boolean schema is preserved and can be maintained in Advanced JSON.",
+            "convertToGuided": "Convert to field",
+            "enumValues": "Allowed values (JSON array, optional)",
+            "applyEnum": "Apply allowed values",
+            "enumArrayError": "Allowed values must be a non-empty JSON array.",
+            "enumTypeError": "Every allowed value must match the selected field type.",
+            "created": "Structured output created.",
+            "updated": "Structured output updated.",
+            "saveError": "The structured output could not be saved.",
+            "types": {
+                "string": "Text",
+                "number": "Number",
+                "integer": "Whole number",
+                "boolean": "True / false",
+                "object": "Object",
+                "array": "Array",
+                "null": "Null"
+            }
+        }
     },
     "webApps": "Apps",
     "newApp": "New app",

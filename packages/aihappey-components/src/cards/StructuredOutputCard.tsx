@@ -12,9 +12,10 @@ export type StructuredOutputCardItem = {
 
 export type StructuredOutputCardProps = {
   item: StructuredOutputCardItem;
+  onEdit?: () => void;
 };
 
-export const StructuredOutputCard = ({ item }: StructuredOutputCardProps) => {
+export const StructuredOutputCard = ({ item, onEdit }: StructuredOutputCardProps) => {
   const { Card, Modal, Button, JsonViewer } = useTheme();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -32,13 +33,22 @@ export const StructuredOutputCard = ({ item }: StructuredOutputCardProps) => {
       <Card
         title={item.name}
         size="small"
-        actions={
+        actions={<>
           <ViewButton
             size="small"
             variant="transparent"
             onClick={() => setOpen(true)}
           />
-        }
+          {onEdit ? (
+            <Button
+              icon="edit"
+              title={t("edit")}
+              size="small"
+              variant="transparent"
+              onClick={onEdit}
+            />
+          ) : null}
+        </>}
       >
         <LimitedTextField text={item.json_schema} />
       </Card>

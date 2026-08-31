@@ -21,7 +21,7 @@
         "emptyResult": "De stream is voltooid zonder audio.",
         "failed": "Streaming spraak is mislukt.",
         "filePrefix": "streaming-spraak",
-        "receiving": "Audio ontvangen… {{bytes}} bytes"
+        "receiving": "Audio ontvangen... {{bytes}} bytes"
     },
     "streamingImage": {
         "size": "Afmeting",
@@ -118,14 +118,14 @@
             "placeholder": "Zoek in deze documenthub...",
             "limit": "Maximumaantal resultaten",
             "similarity": "Minimale overeenkomst",
-            "searching": "Zoeken…",
+            "searching": "Zoeken...",
             "noMatches": "Geen overeenkomende documentinhoud gevonden."
         },
         "edit": {
             "action": "Bewerken",
             "title": "Documenthub bewerken",
             "newTitle": "Nieuwe documenthub",
-            "saving": "Opslaan…",
+            "saving": "Opslaan...",
             "progress": {
                 "saving": "Documenthub voorbereiden ({{completed}}/{{total}})",
                 "extracting": "Documenttekst uitlezen ({{completed}}/{{total}})",
@@ -137,7 +137,7 @@
             "chooseDocuments": "Documenten kiezen",
             "stagedDocument": "Klaar om na het opslaan te indexeren"
         },
-        "processing": "Verwerken…",
+        "processing": "Verwerken...",
         "import": {
             "invalidType": "{{name}} is geen JSON-bestand.",
             "invalidJson": "{{name}} bevat geen geldige JSON.",
@@ -155,7 +155,7 @@
         "description": "Doorzoek de inhoud van één of meer documenthubs en vind snel de meest relevante informatie.",
         "query": "Zoekopdracht voor hubs",
         "placeholder": "Documenthubs doorzoeken...",
-        "searching": "Zoeken…",
+        "searching": "Zoeken...",
         "dropAttachments": "Sleep bestanden hierheen om ze aan de zoekopdracht toe te voegen",
         "unsupportedAttachment": "Bijlage kon niet naar tekst worden omgezet: {{name}}",
         "noHubs": "Maak eerst een documenthub en voeg documenten toe om te kunnen zoeken.",
@@ -690,7 +690,46 @@
     "add": "Toevoegen",
     "newApp": "Nieuwe app",
     "structuredOutputsPage": {
-        "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschema's. Gebruik deze schema's om modeluitvoer te sturen en een consistente structuur af te dwingen."
+        "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschema's. Gebruik deze schema's om modeluitvoer te sturen en een consistente structuur af te dwingen.",
+        "editor": {
+            "createTitle": "Gestructureerde uitvoer maken",
+            "editTitle": "Gestructureerde uitvoer bewerken",
+            "namePlaceholder": "Bijvoorbeeld: Klantprofiel",
+            "nameRequired": "Voer een naam in voor deze gestructureerde uitvoer.",
+            "builderTab": "Builder",
+            "advancedTab": "Geavanceerde JSON",
+            "jsonSchema": "JSON Schema",
+            "validateJson": "JSON toepassen en valideren",
+            "validationTitle": "Los het volgende op voordat je opslaat:",
+            "type": "Type",
+            "advancedType": "Geavanceerde definitie",
+            "descriptionPlaceholder": "Leg uit wat deze waarde bevat",
+            "propertyName": "Naam van eigenschap",
+            "required": "Verplicht",
+            "addProperty": "Eigenschap toevoegen",
+            "noProperties": "Nog geen eigenschappen. Voeg het eerste veld aan dit object toe.",
+            "arrayItems": "Structuur van array-item",
+            "advancedNodeHelp": "Dit onderdeel gebruikt een geavanceerde schemadefinitie. Bewerk deze in Geavanceerde JSON of selecteer een type om de begeleide structuur te vervangen.",
+            "advancedItemsHelp": "Tuple- of booleaanse array-items kunnen in Geavanceerde JSON worden onderhouden.",
+            "booleanSchemaHelp": "Dit booleaanse schema blijft behouden en kan in Geavanceerde JSON worden onderhouden.",
+            "convertToGuided": "Omzetten naar veld",
+            "enumValues": "Toegestane waarden (JSON-array, optioneel)",
+            "applyEnum": "Toegestane waarden toepassen",
+            "enumArrayError": "Toegestane waarden moeten een niet-lege JSON-array zijn.",
+            "enumTypeError": "Elke toegestane waarde moet overeenkomen met het geselecteerde veldtype.",
+            "created": "Gestructureerde uitvoer gemaakt.",
+            "updated": "Gestructureerde uitvoer bijgewerkt.",
+            "saveError": "De gestructureerde uitvoer kon niet worden opgeslagen.",
+            "types": {
+                "string": "Tekst",
+                "number": "Getal",
+                "integer": "Geheel getal",
+                "boolean": "Waar / onwaar",
+                "object": "Object",
+                "array": "Array",
+                "null": "Null"
+            }
+        }
     },
     "webApps": "Apps",
     "webAppsPage": {
