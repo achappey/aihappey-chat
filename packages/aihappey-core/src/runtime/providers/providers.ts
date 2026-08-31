@@ -576,6 +576,7 @@ import { entrim } from "./catalog/entrim";
 import { paxalabs } from "./catalog/paxalabs";
 import { crusoe } from "./catalog/crusoe";
 import { interfaze } from "./catalog/interfaze";
+import { agent37 } from "./catalog/agent37";
 
 /**
  * UI-facing provider catalog.
@@ -763,6 +764,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   addisai,
   teamday,
   jassieai,
+  agent37,
   cailos,
   prunaai,
   imagerouter,
