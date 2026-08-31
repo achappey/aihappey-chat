@@ -11,6 +11,7 @@ export const klingai: Provider = {
   ],
   urls: {
     homepage: "https://klingai.com",
+    docs: "https://kling.ai/document-api/guides/get-started/overview",
     pricing: "https://klingai.com/global/dev/pricing",
     privacyPolicy: "https://klingai.com/privacy",
     termsOfService: "https://klingai.com/terms"
