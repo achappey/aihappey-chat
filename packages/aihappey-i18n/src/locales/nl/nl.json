@@ -690,7 +690,7 @@
     "add": "Toevoegen",
     "newApp": "Nieuwe app",
     "structuredOutputsPage": {
-        "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschemaâ€™s. Gebruik deze schemaâ€™s om modeluitvoer te sturen en een consistente structuur af te dwingen."
+        "description": "Een overzicht van alle opgeslagen gestructureerde uitvoerschema's. Gebruik deze schema's om modeluitvoer te sturen en een consistente structuur af te dwingen."
     },
     "webApps": "Apps",
     "webAppsPage": {
