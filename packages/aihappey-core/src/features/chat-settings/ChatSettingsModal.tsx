@@ -20,6 +20,7 @@ import {
   CortecsChatConfigForm,
   DepazaChatConfigForm,
   InworldChatConfigForm,
+  InterfazeChatConfigForm,
   JinaChatConfigForm,
   LinkupChatConfigForm,
   MaritacaAIChatConfigForm,
@@ -272,6 +273,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
       inworld: (inworld: any) => updateProviderConfig("inworld", inworld),
+      interfaze: (interfaze: any) => updateProviderConfig("interfaze", interfaze),
       maritacaai: (maritacaai: any) => updateProviderConfig("maritacaai", maritacaai),
       copilot: (microsoft: any) => updateProviderConfig("copilot", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
@@ -300,6 +302,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const providerHeaderUpdaters = useMemo(
     () => ({
       anthropic: (headers: Record<string, string> | undefined) => updateProviderHeaders("anthropic", headers),
+      interfaze: (headers: Record<string, string> | undefined) => updateProviderHeaders("interfaze", headers),
       openai: (headers: Record<string, string> | undefined) => updateProviderHeaders("openai", headers),
       openrouter: (headers: Record<string, string> | undefined) => updateProviderHeaders("openrouter", headers),
       requesty: (headers: Record<string, string> | undefined) => updateProviderHeaders("requesty", headers),
@@ -365,6 +368,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <JinaChatConfigForm config={draft.providerMetadata.jina ?? {}} updateConfig={providerConfigUpdaters.jina} />;
       case "inworld":
         return <InworldChatConfigForm config={draft.providerMetadata.inworld ?? {}} updateConfig={providerConfigUpdaters.inworld} />;
+      case "interfaze":
+        return <InterfazeChatConfigForm config={draft.providerMetadata.interfaze ?? {}} headers={draft.providerHeaders.interfaze ?? {}} updateConfig={providerConfigUpdaters.interfaze} updateHeaders={providerHeaderUpdaters.interfaze} />;
       case "mistral":
         return <MistralChatConfigForm config={draft.providerMetadata.mistral ?? {}} updateConfig={providerConfigUpdaters.mistral} />;
       case "maritacaai":

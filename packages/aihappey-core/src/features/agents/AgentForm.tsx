@@ -2,7 +2,7 @@ import {
     AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
     BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm,
     CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
-    InworldChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
+    InworldChatConfigForm, InterfazeChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
     LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings,
     CopilotChatConfigForm,
     MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
@@ -962,6 +962,15 @@ export const AgentForm = ({
                         <InworldChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "interfaze" && (
+                        <InterfazeChatConfigForm
+                            config={providerMeta}
+                            headers={providerHeaders}
+                            updateConfig={updateProviderMetadata}
+                            updateHeaders={updateProviderHeaders}
                         />
                     )}
 

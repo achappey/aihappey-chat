@@ -1,4 +1,24 @@
 {
+  "interfaze": {
+    "reasoning": {
+      "title": "Reasoning",
+      "effort": "Reasoning effort",
+      "efforts": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    },
+    "other": {
+      "title": "Other",
+      "headers": {
+        "x-show-additional-info": "Include additional precontext in streamed responses",
+        "x-interfaze-zdr": "Zero data retention",
+        "x-interfaze-bypass-cache": "Bypass verified cache",
+        "x-interfaze-bypass-moa": "Bypass MoA"
+      }
+    }
+  },
   "inworld": {
     "webSearch": {
       "title": "Web search",

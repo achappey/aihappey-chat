@@ -1,4 +1,24 @@
 {
+  "interfaze": {
+    "reasoning": {
+      "title": "Redeneren",
+      "effort": "Redeneerinspanning",
+      "efforts": {
+        "low": "Laag",
+        "medium": "Gemiddeld",
+        "high": "Hoog"
+      }
+    },
+    "other": {
+      "title": "Overig",
+      "headers": {
+        "x-show-additional-info": "Extra precontext opnemen in gestreamde antwoorden",
+        "x-interfaze-zdr": "Geen gegevens bewaren",
+        "x-interfaze-bypass-cache": "Geverifieerde cache omzeilen",
+        "x-interfaze-bypass-moa": "MoA omzeilen"
+      }
+    }
+  },
   "webcrawlerapi": {
     "urls": "URLs",
     "costs": "Kosten",
