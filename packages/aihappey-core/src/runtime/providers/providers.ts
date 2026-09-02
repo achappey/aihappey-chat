@@ -373,7 +373,6 @@ import { sudorouter } from "./catalog/sudorouter";
 import { clauddy } from "./catalog/clauddy";
 import { selinaai } from "./catalog/selinaai";
 import { lmrouter } from "./catalog/lmrouter";
-import { openpipe } from "./catalog/openpipe";
 import { nonkycai } from "./catalog/nonkycai";
 import { modelbridge } from "./catalog/modelbridge";
 import { simplellm } from "./catalog/simplellm";
@@ -731,7 +730,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   depaza,
   gptsapi,
   modelbridge,
-  openpipe,
   magisterium,
   nonkycai,
   tensorx,
