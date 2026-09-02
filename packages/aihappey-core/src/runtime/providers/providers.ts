@@ -576,6 +576,7 @@ import { paxalabs } from "./catalog/paxalabs";
 import { crusoe } from "./catalog/crusoe";
 import { interfaze } from "./catalog/interfaze";
 import { agent37 } from "./catalog/agent37";
+import { roxy } from "./catalog/roxy";
 
 /**
  * UI-facing provider catalog.
@@ -741,6 +742,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   sudorouter,
   mulerun,
   baidu,
+  roxy,
   perceptron,
   cortex,
   akashml,
