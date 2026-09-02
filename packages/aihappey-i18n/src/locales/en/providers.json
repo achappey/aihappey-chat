@@ -858,6 +858,7 @@
         "bitRate": "Bit rate (bps)",
         "aspectRatio": "Aspect ratio",
         "imageSize": "Image size",
+        "resolution": "Resolution",
         "duration": "Duration",
         "types": {
           "text": "Text",
@@ -926,7 +927,8 @@
         "text_to_video": "Text to video",
         "image_to_video": "Image to video",
         "reference_to_video": "Reference to video",
-        "edit": "Edit"
+        "edit": "Edit",
+        "extend": "Extend"
       }
     },
     "environment": {

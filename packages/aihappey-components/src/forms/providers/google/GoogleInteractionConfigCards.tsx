@@ -80,6 +80,7 @@ const IMAGE_ASPECT_RATIO_OPTIONS = [
 ] as const;
 const IMAGE_SIZE_OPTIONS = ["512", "1K", "2K", "4K"] as const;
 const VIDEO_ASPECT_RATIO_OPTIONS = ["16:9", "9:16"] as const;
+const VIDEO_RESOLUTION_OPTIONS = ["360p", "720p", "1080p", "4k"] as const;
 
 const cardStackStyle = {
   display: "flex",
@@ -471,6 +472,11 @@ const ResponseFormatFields = ({
           "aspect_ratio",
           t("providers:google.interactions.responseFormat.aspectRatio"),
           VIDEO_ASPECT_RATIO_OPTIONS,
+        )}
+        {renderSelect(
+          "resolution",
+          t("providers:google.interactions.responseFormat.resolution"),
+          VIDEO_RESOLUTION_OPTIONS,
         )}
         <theme.Input
           label={t("providers:google.interactions.responseFormat.duration")}

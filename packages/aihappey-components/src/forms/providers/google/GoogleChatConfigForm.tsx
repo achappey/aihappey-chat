@@ -58,6 +58,7 @@ const GOOGLE_VIDEO_TASK_OPTIONS = [
   "image_to_video",
   "reference_to_video",
   "edit",
+  "extend",
 ] as const;
 const GOOGLE_AGENT_TYPE_OPTIONS = ["dynamic", "deep-research"] as const;
 const GOOGLE_AGENT_THINKING_SUMMARY_OPTIONS = ["auto", "none"] as const;
@@ -148,6 +149,7 @@ export type GoogleChatConfigFormTranslations = {
   videoTask_image_to_video?: string;
   videoTask_reference_to_video?: string;
   videoTask_edit?: string;
+  videoTask_extend?: string;
 
   // blockingConfidence (used in options list, even though select is currently false-gated)
   blockingConfidence_unspecified?: string;

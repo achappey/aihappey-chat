@@ -522,6 +522,7 @@
         "bitRate": "Bitsnelheid (bps)",
         "aspectRatio": "Beeldverhouding",
         "imageSize": "Afbeeldingsgrootte",
+        "resolution": "Resolutie",
         "duration": "Duur",
         "types": {
           "text": "Tekst",
@@ -591,7 +592,8 @@
         "text_to_video": "Tekst naar video",
         "image_to_video": "Afbeelding naar video",
         "reference_to_video": "Referentie naar video",
-        "edit": "Bewerken"
+        "edit": "Bewerken",
+        "extend": "Verlengen"
       }
     },
     "environment": {
