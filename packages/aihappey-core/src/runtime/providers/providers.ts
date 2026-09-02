@@ -577,6 +577,7 @@ import { crusoe } from "./catalog/crusoe";
 import { interfaze } from "./catalog/interfaze";
 import { agent37 } from "./catalog/agent37";
 import { roxy } from "./catalog/roxy";
+import { select } from "./catalog/select";
 
 /**
  * UI-facing provider catalog.
@@ -722,6 +723,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   lyceum,
   foureverland,
   ilmu,
+  select,
   fivedock,
   schatziai,
   fortytwo,
