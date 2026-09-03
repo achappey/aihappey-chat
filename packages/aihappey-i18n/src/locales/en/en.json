@@ -756,6 +756,7 @@
         "client-resource-search": "Resource search",
         "skill-search": "Skill discovery",
         "local-conversations": "Chat history",
+        "chat-management": "Chat management",
         "local-settings": "Chat settings",
         "vercel-ai": "Vercel Agents",
         "local-chartjs": "Chart.js"

@@ -4,6 +4,7 @@ import { isStoredToolValid, parseStoredToolInputSchema } from "./localStoredTool
 import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
 import { localAgentsEditorPluginDef, localAgentsRuntimePluginDef } from "./toolcalls/useLocalAgentsToolCall";
 import { localConversationsPluginDef } from "./toolcalls/useLocalConversationsToolCall";
+import { chatManagementPluginDef } from "./toolcalls/useChatManagementToolCall";
 import { localCanvasPluginDef } from "./toolcalls/useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./toolcalls/useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./toolcalls/useLocalToolsToolCall";
@@ -54,6 +55,7 @@ export const allBuiltInPluginDefs = [
   localAgentsEditorPluginDef,
   localAgentsRuntimePluginDef,
   localConversationsPluginDef,
+  chatManagementPluginDef,
   localCanvasPluginDef,
   localSettingsPluginDef,
   localImagesPluginDef,

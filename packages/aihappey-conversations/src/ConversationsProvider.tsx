@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import type { ConversationStore, ConversationSummary } from "./types";
+import type { ConversationStore, ConversationSummary, StorageKind } from "./types";
 import { RemoteConversationStore } from "./stores/RemoteConversationStore";
 import { useAppStore } from "aihappey-state";
 import { useAccessToken } from "aihappey-auth";
@@ -18,6 +18,7 @@ export type ConversationsContextType = ConversationStore & {
   /** Lightweight records only. Full conversations are returned by get/loadAll. */
   items: ConversationSummary[];
   refresh: () => Promise<void>;
+  getStore: (kind: StorageKind) => ConversationStore;
 };
 
 const ConversationsContext = createContext<ConversationsContextType | null>(null);
@@ -56,11 +57,15 @@ export const ConversationsProvider = ({
 }) => {
   const conversationStorage = useAppStore((s) => s.conversationStorage);
   const [, , , refreshToken] = useAccessToken(scopes);
+  const remoteStore = useMemo<ConversationStore>(
+    () => new RemoteConversationStore(apiUrl, refreshToken),
+    [apiUrl, refreshToken]
+  );
   const store = useMemo<ConversationStore>(
     () => conversationStorage === "remote"
-      ? new RemoteConversationStore(apiUrl, refreshToken)
+      ? remoteStore
       : localConversationStore,
-    [apiUrl, conversationStorage, refreshToken]
+    [conversationStorage, remoteStore]
   );
 
   const [items, setItems] = useState<ConversationSummary[]>([]);
@@ -77,7 +82,8 @@ export const ConversationsProvider = ({
   }, []);
 
   const ctxValue = useMemo<ConversationsContextType>(() => {
-    const ctx = Object.assign(Object.create(Object.getPrototypeOf(store)), store, { items, refresh }) as ConversationsContextType;
+    const getStore = (kind: StorageKind) => kind === "remote" ? remoteStore : localConversationStore;
+    const ctx = Object.assign(Object.create(Object.getPrototypeOf(store)), store, { items, refresh, getStore }) as ConversationsContextType;
 
     ctx.create = async (name: string, defaultTemperature?: number, mcpServers?: string[]) => {
       const conversation = await store.create(name, defaultTemperature, mcpServers);
@@ -133,7 +139,7 @@ export const ConversationsProvider = ({
       if (conversation) patchSummary(id, toSummary(conversation));
     };
     return ctx;
-  }, [items, patchSummary, refresh, store]);
+  }, [items, patchSummary, refresh, remoteStore, store]);
 
   return <ConversationsContext.Provider value={ctxValue}>{children}</ConversationsContext.Provider>;
 };

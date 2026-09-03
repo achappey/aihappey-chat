@@ -5,6 +5,7 @@ import type { Tool } from "@modelcontextprotocol/sdk/types";
 import { localAgentsEditorPluginDef, localAgentsRuntimePluginDef } from "./toolcalls/useLocalAgentsToolCall";
 import { localCanvasPluginDef } from "./toolcalls/useLocalCanvasToolCall";
 import { localConversationsPluginDef } from "./toolcalls/useLocalConversationsToolCall";
+import { chatManagementPluginDef } from "./toolcalls/useChatManagementToolCall";
 import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
 import { localSettingsPluginDef } from "./toolcalls/useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./toolcalls/useLocalToolsToolCall";
@@ -85,6 +86,7 @@ export function useTools(options: UseToolsOptions = {}) {
       localAgentsEditorPluginDef,
       localAgentsRuntimePluginDef,
       localConversationsPluginDef,
+      chatManagementPluginDef,
       localCanvasPluginDef,
       localJsonRenderPluginDef,
       localImagesPluginDef,

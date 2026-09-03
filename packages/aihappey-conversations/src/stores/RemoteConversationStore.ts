@@ -19,7 +19,31 @@ export class RemoteConversationStore implements ConversationStore {
   ) { }
 
   import = async (conv: Conversation): Promise<string> => {
-    throw new Error("Not implemented")
+    const summaries = await this.list();
+    const id = summaries.some((item) => item.id === conv.id)
+      ? crypto.randomUUID()
+      : conv.id;
+    const imported: Conversation = {
+      ...conv,
+      id,
+      messages: conv.messages ?? [],
+      metadata: {
+        ...conv.metadata,
+        name: conv.metadata?.name ?? "Imported chat",
+        temperature: conv.metadata?.temperature ?? 1,
+        mcpServers: conv.metadata?.mcpServers ?? [],
+      },
+    };
+    const res = await fetch(this.apiUrl, {
+      method: "POST",
+      headers: { ...await this._headers(), "Content-Type": "application/json" },
+      body: JSON.stringify(imported),
+    });
+    if (!res.ok) throw new Error("Failed to import conversation");
+    const created = await res.json().catch(() => imported);
+    const createdId = typeof created?.id === "string" ? created.id : id;
+    this.cache.set(createdId, { ...imported, ...created, id: createdId });
+    return createdId;
   }
 
   list: () => Promise<ConversationSummary[]> = async () => {

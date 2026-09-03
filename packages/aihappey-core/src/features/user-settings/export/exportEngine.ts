@@ -113,6 +113,27 @@ function json(value: unknown) {
   }, 2);
 }
 
+export function conversationExportEntries(conversations: any[]): ExportEntry[] {
+  return conversations.map((item, index) => ({
+    path: `Conversation_${safeFilename(item.id, String(index + 1))}_${safeFilename(item.metadata?.name, "conversation")}.json`,
+    data: json(item),
+  }));
+}
+
+export async function createConversationExportArchive(conversations: any[]): Promise<Blob> {
+  const zip = new JSZip();
+  const used = new Set<string>();
+  for (const entry of conversationExportEntries(conversations)) {
+    zip.file(uniquePath(entry.path, used), entry.data);
+  }
+  return zip.generateAsync({
+    type: "blob",
+    compression: "DEFLATE",
+    compressionOptions: { level: 6 },
+    streamFiles: true,
+  });
+}
+
 function abortIfNeeded(signal: AbortSignal) {
   if (signal.aborted) throw new DOMException("Export cancelled", "AbortError");
 }
@@ -239,10 +260,7 @@ export async function collectCategoryEntries(
       const conversations = typeof sources.conversations === "function"
         ? await sources.conversations()
         : sources.conversations;
-      entries = conversations.map((item, index) => ({
-        path: `Conversation_${safeFilename(item.id, String(index + 1))}_${safeFilename(item.metadata?.name, "conversation")}.json`,
-        data: json(item),
-      }));
+      entries = conversationExportEntries(conversations);
       break;
     case "images":
       entries = sources.images.flatMap((item, itemIndex) => (item.imageResponse?.images ?? []).map((image: unknown, imageIndex: number) => {

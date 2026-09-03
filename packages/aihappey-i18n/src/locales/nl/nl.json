@@ -789,6 +789,7 @@
         "client-tool-search": "Tools zoeken",
         "client-resource-search": "Bronnen zoeken",
         "local-conversations": "Chat geschiedenis",
+        "chat-management": "Chat beheer",
         "local-settings": "Chat instellingen",
         "vercel-ai": "Vercel Agents",
         "local-chartjs": "Chart.js"

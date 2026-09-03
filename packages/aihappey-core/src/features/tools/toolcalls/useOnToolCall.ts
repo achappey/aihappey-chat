@@ -18,6 +18,7 @@ import {
 import { useLocalFilesRuntime } from "./useLocalFileToolCall";
 import { useLocalAgentsEditorRuntime, useLocalAgentsRuntime } from "./useLocalAgentsToolCall";
 import { useLocalConversationsRuntime } from "./useLocalConversationsToolCall";
+import { useChatManagementRuntime } from "./useChatManagementToolCall";
 import { useLocalCanvasRuntime } from "./useLocalCanvasToolCall";
 import { useLocalSettingsRuntime } from "./useLocalSettingsToolCall";
 import { useLocalToolsRuntime } from "./useLocalToolsToolCall";
@@ -40,6 +41,7 @@ import { usePlugins } from "./usePlugins";
 import { localFilesPluginDef } from "./useLocalFileToolCall";
 import { localAgentsEditorPluginDef, localAgentsRuntimePluginDef } from "./useLocalAgentsToolCall";
 import { localConversationsPluginDef } from "./useLocalConversationsToolCall";
+import { chatManagementPluginDef } from "./useChatManagementToolCall";
 import { localCanvasPluginDef } from "./useLocalCanvasToolCall";
 import { localSettingsPluginDef } from "./useLocalSettingsToolCall";
 import { localToolsPluginDef } from "./useLocalToolsToolCall";
@@ -130,6 +132,7 @@ export function useOnToolCall({
   const localAgentsEditorRuntime = useLocalAgentsEditorRuntime();
   const localAgentsRuntime = useLocalAgentsRuntime(files);
   const localConversationsRuntime = useLocalConversationsRuntime(conversations);
+  const chatManagementRuntime = useChatManagementRuntime(conversations);
   const localCanvasRuntime = useLocalCanvasRuntime(files);
   const localSettingsRuntime = useLocalSettingsRuntime();
   const localToolsRuntime = useLocalToolsRuntime();
@@ -200,6 +203,7 @@ export function useOnToolCall({
       [localAgentsEditorRuntime.name]: localAgentsEditorRuntime,
       [localAgentsRuntime.name]: localAgentsRuntime,
       [localConversationsRuntime.name]: localConversationsRuntime,
+      [chatManagementRuntime.name]: chatManagementRuntime,
       [localCanvasRuntime.name]: localCanvasRuntime,
       [localSettingsRuntime.name]: localSettingsRuntime,
       [todoListRuntime.name]: todoListRuntime,
@@ -228,6 +232,7 @@ export function useOnToolCall({
       localAgentsEditorRuntime,
       localAgentsRuntime,
       localConversationsRuntime,
+      chatManagementRuntime,
       localCanvasRuntime,
       localSettingsRuntime,
       localToolsRuntime,
@@ -259,6 +264,7 @@ export function useOnToolCall({
       localAgentsEditorPluginDef,
       localAgentsRuntimePluginDef,
       localConversationsPluginDef,
+      chatManagementPluginDef,
       localImagesPluginDef,
       localWebPluginDef,
       localChartJsPluginDef,
