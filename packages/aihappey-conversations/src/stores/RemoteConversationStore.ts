@@ -11,6 +11,7 @@ export class RemoteConversationStore implements ConversationStore {
   readonly kind = "remote";
   private cache = new Map<string, Conversation>();
   private inflight = new Map<string, Promise<Conversation | undefined>>();
+  private granularMessageMutations: Promise<boolean> | undefined;
 
   constructor(
     private apiUrl: string,
@@ -159,27 +160,90 @@ export class RemoteConversationStore implements ConversationStore {
 
   addMessage: (cid: string, msg: UIMessage) => Promise<void> = async (cid, msg) => {
     const conv = await this._getCached(cid);
-    conv.messages.push(msg);
-    await this._putConversation(conv);
-    this.cache.set(cid, conv);
+    const next = { ...conv, messages: [...conv.messages, msg] };
+
+    if (await this._supportsGranularMessageMutations()) {
+      await this._sendMessageMutation(`${this.apiUrl}/${encodeURIComponent(cid)}/messages`, "POST", msg);
+    } else {
+      await this._putConversation(next);
+    }
+
+    this.cache.set(cid, next);
   };
 
   updateMessage: (cid: string, mid: string, up: Partial<UIMessage>) => Promise<void> = async (cid, mid, up) => {
     const conv = await this._getCached(cid);
     const idx = conv.messages.findIndex(m => m.id === mid);
     if (idx === -1) throw new Error("Message not found");
-    conv.messages[idx] = { ...conv.messages[idx], ...up };
-    await this._putConversation(conv);
-    this.cache.set(cid, conv);
+    const messages = [...conv.messages];
+    messages[idx] = { ...messages[idx], ...up, id: messages[idx].id };
+    const next = { ...conv, messages };
+
+    if (await this._supportsGranularMessageMutations()) {
+      await this._sendMessageMutation(
+        `${this.apiUrl}/${encodeURIComponent(cid)}/messages/${encodeURIComponent(mid)}`,
+        "PATCH",
+        up,
+      );
+    } else {
+      await this._putConversation(next);
+    }
+
+    this.cache.set(cid, next);
   };
 
   removeMessage: (cid: string, mid: string) => Promise<void> = async (cid, mid) => {
     const conv = await this._getCached(cid);
-    conv.messages = conv.messages.filter(m => m.id !== mid);
-   
-    await this._putConversation(conv);
-    this.cache.set(cid, conv);
+    if (!conv.messages.some(m => m.id === mid)) throw new Error("Message not found");
+    const next = { ...conv, messages: conv.messages.filter(m => m.id !== mid) };
+
+    if (await this._supportsGranularMessageMutations()) {
+      await this._sendMessageMutation(
+        `${this.apiUrl}/${encodeURIComponent(cid)}/messages/${encodeURIComponent(mid)}`,
+        "DELETE",
+      );
+    } else {
+      await this._putConversation(next);
+    }
+
+    this.cache.set(cid, next);
   };
+
+  private async _supportsGranularMessageMutations(): Promise<boolean> {
+    this.granularMessageMutations ??= (async () => {
+      const res = await fetch(`${this.apiUrl}/capabilities`, {
+        headers: await this._headers()
+      });
+      if (res.status === 404 || res.status === 405) return false;
+      if (!res.ok) throw new Error("Failed to determine conversation storage capabilities");
+      const capabilities = await res.json();
+      return capabilities?.granularMessageMutations === true;
+    })();
+
+    try {
+      return await this.granularMessageMutations;
+    } catch (error) {
+      // Permit a later operation to retry a transient failed capability check.
+      this.granularMessageMutations = undefined;
+      throw error;
+    }
+  }
+
+  private async _sendMessageMutation(
+    url: string,
+    method: "POST" | "PATCH" | "DELETE",
+    body?: UIMessage | Partial<UIMessage>,
+  ): Promise<void> {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        ...await this._headers(),
+        ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+    if (!res.ok) throw new Error(`Failed to ${method.toLowerCase()} conversation message`);
+  }
 
   private async _getCached(id: string): Promise<Conversation> {
     if (this.cache.has(id)) {
