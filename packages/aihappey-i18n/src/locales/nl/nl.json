@@ -1078,6 +1078,12 @@
         "used": "Gebruikt",
         "quota": "Quota",
         "title": "Opslag",
+        "breakdownTitle": "Opslag",
+        "breakdownDescription": "Geschatte ruimte die deze app in je browser bewaart. Browser- en systeemopslag zijn niet meegerekend.",
+        "estimatedTotal": "Geschat totaal",
+        "calculating": "Opslaggebruik berekenen…",
+        "empty": "Er zijn nog geen lokale appgegevens die opslag gebruiken.",
+        "partial": "Sommige categorieën konden niet worden gemeten. Het weergegeven totaal kan lager zijn dan het werkelijke gebruik.",
         "remote": "Remote Storage"
     },
     "catalogModal": {

@@ -1126,6 +1126,12 @@
         "free": "Free",
         "used": "Used",
         "quota": "Quota",
+        "breakdownTitle": "Storage",
+        "breakdownDescription": "Estimated space saved by this app in your browser. Browser and system storage are not included.",
+        "estimatedTotal": "Estimated total",
+        "calculating": "Calculating storage use…",
+        "empty": "No local app data is using storage yet.",
+        "partial": "Some categories could not be measured. The displayed total may be lower than the actual amount.",
         "local": "Local Storage",
         "remote": "Remote Storage"
     },
