@@ -172,7 +172,7 @@ function RealtimeConversationPage() {
   const { conversationId } = useParams<{ conversationId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const { get, items } = useConversations();
+  const { get } = useConversations();
   const { config } = useChatContext();
   const { addChatError } = useChatErrors();
   const { Spinner, JsonViewer } = useTheme();
@@ -188,7 +188,7 @@ function RealtimeConversationPage() {
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!effectiveModel && (favoriteModelsByType?.audio ?? []).includes(effectiveModel);
-  const [initialMessages, setInitialMessages] = useState<UIMessage[]>(items.find((c) => c.id === conversationId)?.messages ?? []);
+  const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
   const [started, setStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const getAttachmentParts = useAttachmentParts();

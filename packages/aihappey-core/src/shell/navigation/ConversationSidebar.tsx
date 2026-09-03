@@ -336,7 +336,7 @@ export const ConversationSidebar = ({
   }
 
   const handleExport = async (id: string) => {
-    const conv = conversations.items.find((c) => c.id === id);
+    const conv = await conversations.get(id);
     if (!conv) return;
 
     // Full object (metadata + messages + anything else)
@@ -372,20 +372,15 @@ export const ConversationSidebar = ({
         return bPinned - aPinned;
       }
 
-      // 2️⃣ within same group → sort by last message timestamp desc
-      const ta = new Date(
-        a.messages?.[a.messages.length - 1]?.metadata?.timestamp ?? 0
-      ).getTime();
-
-      const tb = new Date(
-        b.messages?.[b.messages.length - 1]?.metadata?.timestamp ?? 0
-      ).getTime();
+      // 2️⃣ within same group → sort by persisted activity timestamp desc
+      const ta = new Date(a.activityAt ?? 0).getTime();
+      const tb = new Date(b.activityAt ?? 0).getTime();
 
       return tb - ta;
     })
     .map((conv) => ({
       key: conv.id,
-      label: conv.metadata?.name ?? "New chat",
+      label: conv.name ?? "New chat",
       conversationItem: true,
       pinned: pinnedConversations?.includes(conv.id),
     }));
@@ -510,8 +505,8 @@ export const ConversationSidebar = ({
       await navigate(`/${id}`);
 
       var conv = conversations.items.find(a => a.id == id);
-      if (conv?.metadata?.name) {
-        document.title = conv?.metadata?.name;
+      if (conv?.name) {
+        document.title = conv.name;
       }
     }
 

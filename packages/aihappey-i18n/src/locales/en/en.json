@@ -557,6 +557,8 @@
         "usage": {
             "nav": "Usage",
             "title": "AI usage",
+            "loading": "Loading conversation usage data…",
+            "loadFailed": "Conversation usage data could not be loaded.",
             "description": "A local dashboard built from {{conversations}} conversations, {{messages}} messages, and {{parts}} UI parts. It analyzes model, provider, token, cost, tool, content, and conversation patterns without requiring a backend.",
             "noDataDescription": "No usage data is available for this chart yet.",
             "tabOverview": "Overview",

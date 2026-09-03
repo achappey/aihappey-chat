@@ -1,8 +1,40 @@
 import { get, set } from "idb-keyval";
 import type { Conversation, UIMessage } from "aihappey-types/src/chat";
-import type { ConversationStore } from "../types";
+import type {
+  ConversationLoadAllOptions,
+  ConversationReadOptions,
+  ConversationSearchResult,
+  ConversationStore,
+  ConversationSummary,
+} from "../types";
 
 const DB_KEY = "aihappey_conversations_v1";
+
+const timestamp = (value: unknown): string | undefined => {
+  if (typeof value !== "string" || !value.trim()) return undefined;
+  return Number.isNaN(Date.parse(value)) ? undefined : new Date(value).toISOString();
+};
+
+const activityAt = (conversation: Conversation): string => {
+  for (let index = (conversation.messages ?? []).length - 1; index >= 0; index -= 1) {
+    const value = timestamp(conversation.messages[index]?.metadata?.timestamp);
+    if (value) return value;
+  }
+  return new Date(0).toISOString();
+};
+
+const summary = (conversation: Conversation): ConversationSummary => ({
+  id: conversation.id,
+  name: conversation.metadata?.name ?? "New chat",
+  messageCount: conversation.messages?.length ?? 0,
+  activityAt: activityAt(conversation),
+  // The existing local format has no record update timestamp.
+  updatedAt: activityAt(conversation),
+});
+
+const textParts = (message: UIMessage): string[] => (message.parts ?? [])
+  .filter((part) => part?.type === "text" && typeof part.text === "string")
+  .map((part) => part.text);
 
 async function load(): Promise<Conversation[]> {
   if (typeof window === "undefined") return [];
@@ -64,16 +96,67 @@ export class IndexedDBConversationStore implements ConversationStore {
   };
 
 
-  list = async (): Promise<Conversation[]> => {
+  list = async (): Promise<ConversationSummary[]> => {
     await this.ensureLoaded();
-
-    return this.data;
+    return this.data.map(summary).sort((a, b) => b.activityAt.localeCompare(a.activityAt));
   };
 
-  get = async (id: string): Promise<Conversation | undefined> => {
+  get = async (id: string, options?: ConversationReadOptions): Promise<Conversation | undefined> => {
 
     await this.ensureLoaded();
+    if (options?.signal?.aborted) throw new DOMException("Loading cancelled", "AbortError");
     return this.data.find((c) => c.id === id);
+  };
+
+  loadAll = async (options: ConversationLoadAllOptions = {}): Promise<Conversation[]> => {
+    await this.ensureLoaded();
+    if (options.signal?.aborted) throw new DOMException("Loading cancelled", "AbortError");
+    options.onProgress?.(this.data.length, this.data.length);
+    return [...this.data];
+  };
+
+  search = async (
+    query: string,
+    limit = 20,
+    options?: ConversationReadOptions,
+  ): Promise<ConversationSearchResult> => {
+    await this.ensureLoaded();
+    if (options?.signal?.aborted) throw new DOMException("Loading cancelled", "AbortError");
+    const q = query.trim();
+    if (!q) throw new Error("Missing query.");
+    const terms = Array.from(new Set(q.toLocaleLowerCase().split(/\s+/).filter(Boolean)));
+    const cappedLimit = Math.max(1, Math.min(50, Number(limit ?? 20)));
+    const results: ConversationSearchResult["results"] = [];
+
+    for (const conversation of this.data) {
+      for (let messageIndex = 0; messageIndex < conversation.messages.length; messageIndex += 1) {
+        const message = conversation.messages[messageIndex];
+        const parts = textParts(message);
+        for (let partIndex = 0; partIndex < parts.length; partIndex += 1) {
+          const text = parts[partIndex];
+          const haystack = text.toLocaleLowerCase();
+          const indexes = terms.map((term) => haystack.indexOf(term));
+          if (indexes.some((index) => index < 0)) continue;
+          const first = Math.min(...indexes);
+          const compact = text.replace(/\s+/g, " ").trim();
+          const start = compact.length > 320 ? Math.max(0, first - 90) : 0;
+          const excerpt = compact.slice(start, compact.length > 320 ? start + 260 : undefined);
+          results.push({
+            conversationId: conversation.id,
+            messageId: message.id ?? null,
+            messageIndex,
+            role: message.role ?? "unknown",
+            partIndex,
+            matchIndex: first,
+            snippet: `${start ? "…" : ""}${excerpt}${start + excerpt.length < compact.length ? "…" : ""}`,
+          });
+          if (results.length >= cappedLimit) break;
+        }
+        if (results.length >= cappedLimit) break;
+      }
+      if (results.length >= cappedLimit) break;
+    }
+    return { query: q, total: results.length, limit: cappedLimit, results };
   };
 
   create = async (name: string, temperature?: number): Promise<Conversation> => {

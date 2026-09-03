@@ -1,9 +1,16 @@
 import type { Conversation, UIMessage } from "aihappey-types/src/chat";
-import type { ConversationStore } from "../types";
+import type {
+  ConversationLoadAllOptions,
+  ConversationReadOptions,
+  ConversationSearchResult,
+  ConversationStore,
+  ConversationSummary,
+} from "../types";
 
 export class RemoteConversationStore implements ConversationStore {
   readonly kind = "remote";
   private cache = new Map<string, Conversation>();
+  private inflight = new Map<string, Promise<Conversation | undefined>>();
 
   constructor(
     private apiUrl: string,
@@ -14,27 +21,71 @@ export class RemoteConversationStore implements ConversationStore {
     throw new Error("Not implemented")
   }
 
-  list: () => Promise<Conversation[]> = async () => {
-    const res = await fetch(this.apiUrl, {
+  list: () => Promise<ConversationSummary[]> = async () => {
+    const res = await fetch(`${this.apiUrl}/summaries`, {
       headers: await this._headers()
     });
     if (!res.ok) throw new Error("Failed to fetch conversations");
-    const list: Conversation[] = await res.json();
-    list.forEach((c) => this.cache.set(c.id, c));
-    return list;
+    return await res.json();
   };
 
-  get: (id: string) => Promise<Conversation | undefined> = async (id) => {
+  get: (id: string, options?: ConversationReadOptions) => Promise<Conversation | undefined> = async (id, options) => {
     if (this.cache.has(id)) {
       return this.cache.get(id);
     }
-    const res = await fetch(`${this.apiUrl}/${id}`, {
-      headers: await this._headers()
+    const existing = this.inflight.get(id);
+    if (existing) return existing;
+
+    const request = (async () => {
+      const res = await fetch(`${this.apiUrl}/${id}`, {
+        headers: await this._headers(),
+        signal: options?.signal,
+      });
+      if (res.status === 404) return undefined;
+      if (!res.ok) throw new Error("Failed to fetch conversation");
+      const conv: Conversation = await res.json();
+      this.cache.set(id, conv);
+      return conv;
+    })().finally(() => this.inflight.delete(id));
+
+    this.inflight.set(id, request);
+    return request;
+  };
+
+  loadAll = async (options: ConversationLoadAllOptions = {}): Promise<Conversation[]> => {
+    const summaries = await this.list();
+    const output = new Array<Conversation | undefined>(summaries.length);
+    const concurrency = Math.max(1, Math.min(options.concurrency ?? 4, 12));
+    let next = 0;
+    let loaded = 0;
+    options.onProgress?.(0, summaries.length);
+
+    const worker = async () => {
+      while (true) {
+        if (options.signal?.aborted) throw new DOMException("Loading cancelled", "AbortError");
+        const index = next++;
+        if (index >= summaries.length) return;
+        output[index] = await this.get(summaries[index].id, options);
+        loaded += 1;
+        options.onProgress?.(loaded, summaries.length);
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(concurrency, summaries.length) }, worker));
+    return output.filter((item): item is Conversation => !!item);
+  };
+
+  search = async (
+    query: string,
+    limit = 20,
+    options?: ConversationReadOptions,
+  ): Promise<ConversationSearchResult> => {
+    const params = new URLSearchParams({ query, limit: String(limit) });
+    const res = await fetch(`${this.apiUrl}/search?${params}`, {
+      headers: await this._headers(),
+      signal: options?.signal,
     });
-    if (!res.ok) return undefined;
-    const conv = await res.json();
-    this.cache.set(id, conv);
-    return conv;
+    if (!res.ok) throw new Error("Failed to search conversations");
+    return await res.json();
   };
 
   create: (name: string, temperature?: number, mcpServers?: string[]) => Promise<Conversation> = async (name, temperature, mcpServers) => {

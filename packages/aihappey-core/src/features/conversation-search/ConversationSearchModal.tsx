@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme, ConversationSearchResults } from "aihappey-components";
 import { useConversations } from "aihappey-conversations";
-import { searchLocalConversationsText } from "../tools/toolcalls/useLocalConversationsToolCall";
 
 export type ConversationSearchModalProps = {
   open: boolean;
@@ -47,7 +46,7 @@ export const ConversationSearchModal = ({
 
     const handle = window.setTimeout(async () => {
       try {
-        const payload = await searchLocalConversationsText(conversations, q, 50);
+        const payload = await conversations.search(q, 50);
         if (cancelled) return;
         setHits(
           (payload.results ?? []).map((r) => ({
@@ -70,33 +69,6 @@ export const ConversationSearchModal = ({
     };
   }, [open, query, conversations]);
 
-  const getLastMessageTimestamp = (conv: any): string | undefined => {
-    // Timestamp is stored on the message metadata (ISO string).
-    // Walk backwards to find the most recent timestamp.
-    const msgs = conv?.messages ?? [];
-    for (let idx = msgs.length - 1; idx >= 0; idx--) {
-      const ts = (msgs[idx]?.metadata as any)?.timestamp;
-      if (typeof ts === "string" && ts.trim()) {
-        return ts;
-      }
-    }
-    return undefined;
-  };
-
-  const getLastTextSnippet = (conv: any): string | undefined => {
-    const msgs = conv?.messages ?? [];
-    for (let msgIdx = msgs.length - 1; msgIdx >= 0; msgIdx--) {
-      const parts = msgs[msgIdx]?.parts ?? [];
-      for (let partIdx = parts.length - 1; partIdx >= 0; partIdx--) {
-        const p = parts[partIdx];
-        if (p?.type === "text" && typeof p?.text === "string" && p.text.trim()) {
-          return p.text;
-        }
-      }
-    }
-    return undefined;
-  };
-
   // Group first match per conversation (simple UX).
   const resultItems = useMemo(() => {
     const firstByConversation = new Map<
@@ -114,10 +86,9 @@ export const ConversationSearchModal = ({
 
     return Array.from(firstByConversation.entries()).map(([conversationId, v]) => {
       const conv = (conversations.items ?? []).find((c) => c.id === conversationId);
-      const title = conv?.metadata?.name ?? t("newChat");
-      const messageCount = conv?.messages?.length ?? 0;
-
-      const lastMessageTimestamp = getLastMessageTimestamp(conv);
+      const title = conv?.name ?? t("newChat");
+      const messageCount = conv?.messageCount ?? 0;
+      const lastMessageTimestamp = conv?.activityAt;
 
       return {
         conversationId,
@@ -132,16 +103,14 @@ export const ConversationSearchModal = ({
 
   const recentItems = useMemo(() => {
     const items = (conversations.items ?? []).map((conv) => {
-      const title = conv?.metadata?.name ?? t("newChat");
-      const messageCount = conv?.messages?.length ?? 0;
-      const lastMessageTimestamp = getLastMessageTimestamp(conv);
-      const snippet = getLastTextSnippet(conv);
+      const title = conv?.name ?? t("newChat");
+      const messageCount = conv?.messageCount ?? 0;
+      const lastMessageTimestamp = conv?.activityAt;
 
       return {
         conversationId: conv.id,
         title,
         subtitle: `${messageCount} ${t("messages").toLocaleLowerCase()}`,
-        snippet,
         lastMessageTimestamp,
         conversationUrl: `/${conv.id}`,
       };

@@ -68,7 +68,14 @@ export const ExportSettings = () => {
   useEffect(() => () => abortRef.current?.abort(), []);
 
   const sources = useMemo<ExportSources>(() => ({
-    conversations: conversations.items,
+    conversations: async () => conversations.loadAll({
+      signal: abortRef.current?.signal,
+      concurrency: 4,
+      onProgress: (loaded, total) => setRunning((current) => current ? {
+        ...current,
+        progress: total ? Math.min(60, Math.round(loaded / total * 60)) : 60,
+      } : current),
+    }),
     images: images.items,
     transcriptions: transcriptions.items,
     speech: speech.items,

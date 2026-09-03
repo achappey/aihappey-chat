@@ -36,7 +36,7 @@ export type ExportEntry = {
 };
 
 export type ExportSources = {
-  conversations: any[];
+  conversations: any[] | (() => Promise<any[]>);
   images: any[];
   transcriptions: any[];
   speech: any[];
@@ -236,7 +236,10 @@ export async function collectCategoryEntries(
   let entries: ExportEntry[] = [];
   switch (category) {
     case "conversations":
-      entries = sources.conversations.map((item, index) => ({
+      const conversations = typeof sources.conversations === "function"
+        ? await sources.conversations()
+        : sources.conversations;
+      entries = conversations.map((item, index) => ({
         path: `Conversation_${safeFilename(item.id, String(index + 1))}_${safeFilename(item.metadata?.name, "conversation")}.json`,
         data: json(item),
       }));

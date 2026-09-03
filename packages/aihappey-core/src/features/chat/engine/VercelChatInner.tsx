@@ -109,7 +109,7 @@ export function VercelChatInner({
   const [showToolCall, setShowToolCall] = useState<any | undefined>(undefined);
   const [messageAttachments, setMessageAttachments] = useState<FileUIPart[] | undefined>(undefined);
   const [usedTools, setUsedTool] = useState<any[] | undefined>(undefined);
-  const { addMessage, rename, updateMessage, get, items } = useConversations();
+  const { addMessage, rename, updateMessage, get } = useConversations();
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
   const customHeaders = useAppStore((s) => s.customHeaders);
   const navigate = useNavigate();
@@ -275,15 +275,12 @@ export function VercelChatInner({
   }, [drop]);
 
   const persistedMessages = useMemo(() => {
-    const conversationMessages = items.find(a => a.id == conversationId)?.messages;
-    const sourceMessages = conversationMessages?.length ? conversationMessages : initial;
-
-    return [...(sourceMessages ?? [])].sort(
+    return [...(initial ?? [])].sort(
       (a: any, b: any) =>
         new Date(a.metadata?.timestamp ?? 0).getTime() -
         new Date(b.metadata?.timestamp ?? 0).getTime()
     );
-  }, [conversationId, items, initial]);
+  }, [initial]);
   const systemMessage = useSystemMessage();
   const seededMessages = useMemo(() => {
     const nonSystem = persistedMessages.filter((a) => a.role !== SYSTEM_ROLE);

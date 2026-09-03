@@ -1,4 +1,3 @@
-import { useConversations } from "aihappey-conversations";
 import type { VideoItem } from "aihappey-videos";
 import { useVideos } from "aihappey-videos";
 import { useMemo } from "react";
@@ -30,7 +29,6 @@ const normalizeVideoData = (input: string) => {
 };
 
 export function useLibraryVideos(): LibraryVideoItem[] {
-  const conversations = useConversations();
   const videos = useVideos();
 
   return useMemo(() => {
@@ -60,5 +58,5 @@ export function useLibraryVideos(): LibraryVideoItem[] {
     // Conversation parsing for videos can be added when chat responses include video parts.
 
     return out;
-  }, [conversations.items, videos.items]);
+  }, [videos.items]);
 }

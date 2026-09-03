@@ -209,48 +209,7 @@ export async function searchLocalConversationsText(
 
   const cappedLimit = Math.max(1, Math.min(50, Number(limit ?? 20)));
 
-  const results: LocalConversationTextSearchHit[] = [];
-  const conversationItems = await conversations.list();
-
-  for (const convo of conversationItems) {
-    const messages = convo?.messages ?? [];
-
-    for (let messageIndex = 0; messageIndex < messages.length; messageIndex++) {
-      const msg = messages[messageIndex];
-      const role = msg?.role ?? msg?.metadata?.author ?? "unknown";
-      const msgId = msg?.id ?? null;
-
-      const textParts = extractTextParts(msg as any);
-      for (let partIndex = 0; partIndex < textParts.length; partIndex++) {
-        const text = textParts[partIndex];
-        const matches = getSearchTermMatches(text, terms);
-        if (!matches) continue;
-
-        results.push({
-          conversationId: convo.id,
-          messageId: msgId,
-          messageIndex,
-          role,
-          partIndex,
-          matchIndex: matches[0]?.index ?? 0,
-          snippet: createSearchSnippet(text, matches),
-        });
-
-        if (results.length >= cappedLimit) break;
-      }
-
-      if (results.length >= cappedLimit) break;
-    }
-
-    if (results.length >= cappedLimit) break;
-  }
-
-  return {
-    query: q,
-    total: results.length,
-    limit: cappedLimit,
-    results,
-  };
+  return conversations.search(q, cappedLimit);
 }
 
 /* ============================================================
@@ -276,8 +235,9 @@ export function useLocalConversationsRuntime(conversations?: ConversationsContex
           case "local_conversations_list_all": {
             const items = (conversations.items ?? []).map(a => ({
               id: a.id,
-              metadata: a.metadata,
-              messageCount: a.messages?.length ?? 0,
+              metadata: { name: a.name },
+              messageCount: a.messageCount,
+              activityAt: a.activityAt,
             }));
             return ok({
               conversations: items
@@ -288,8 +248,7 @@ export function useLocalConversationsRuntime(conversations?: ConversationsContex
             const { conversationId } = toolCall.input ?? {};
             if (!conversationId) throw new Error("Missing conversationId.");
 
-            const convo =
-              (conversations.items ?? []).find(a => a.id === conversationId) ?? null;
+            const convo = await conversations.get(conversationId) ?? null;
 
             return ok(convo);
           }
