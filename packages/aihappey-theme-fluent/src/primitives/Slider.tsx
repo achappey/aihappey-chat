@@ -43,7 +43,8 @@ export const Slider = ({
   className,
   style,
 }: SliderProps): JSX.Element => {
-  const sliderId = id || useId();
+  const generatedId = useId();
+  const sliderId = id || generatedId;
   const formattedValue = valueFormat ? valueFormat(value) : value;
 
   const handleChange: Parameters<typeof FluentSlider>[0]["onChange"] = (
@@ -59,11 +60,19 @@ export const Slider = ({
       value={value}
       min={min}
       max={max}
-      step={step}
+      // Fluent uses its top-level `step` both for native stepping and to draw
+      // separators on the rail. Fine-grained ranges can therefore paint
+      // thousands of separators and visually cover the official rail. Put the
+      // step on the official input slot instead: keyboard/pointer stepping is
+      // preserved without opting into those decorative separators.
+      input={{ step }}
       onChange={handleChange}
       disabled={disabled}
       className={className}
-      style={!label ? style : undefined}
+      // Fluent's Slider root is an inline grid. Give that official root an
+      // explicit width so it cannot collapse to its thumb in grid/flex forms.
+      // Rail, progress, thumb, and interaction styling remain entirely Fluent.
+      style={{ width: "100%", ...(!label ? style : undefined) }}
       aria-valuetext={
         typeof formattedValue === "string"
           ? formattedValue
@@ -74,7 +83,7 @@ export const Slider = ({
 
   return label ? (
     <Field
-      style={style}
+      style={{ width: "100%", minWidth: 0, ...style }}
       label={
         <>
           {label}
@@ -116,7 +125,8 @@ export const Range = ({
   className,
   style,
 }: RangeProps): JSX.Element => {
-  const rangeId = id || useId();
+  const generatedId = useId();
+  const rangeId = id || generatedId;
   const current: [number, number] = Array.isArray(value)
     ? [Number(value[0] ?? min), Number(value[1] ?? max)]
     : [min, max];
@@ -128,11 +138,12 @@ export const Range = ({
       value={current[0]}
       min={min}
       max={max}
-      step={step}
+      input={{ step }}
       onChange={(_, data) => onChange([Math.min(data.value, current[1]), current[1]])}
       disabled={disabled}
       aria-label={minLabel}
       aria-valuetext={String(formatValue(current[0]))}
+      style={{ width: "100%" }}
     />
   );
 
@@ -142,18 +153,19 @@ export const Range = ({
       value={current[1]}
       min={min}
       max={max}
-      step={step}
+      input={{ step }}
       onChange={(_, data) => onChange([current[0], Math.max(data.value, current[0])])}
       disabled={disabled}
       aria-label={maxLabel}
       aria-valuetext={String(formatValue(current[1]))}
+      style={{ width: "100%" }}
     />
   );
 
   return (
     <Field
       className={className}
-      style={style}
+      style={{ width: "100%", minWidth: 0, ...style }}
       label={
         label ? (
           <>
