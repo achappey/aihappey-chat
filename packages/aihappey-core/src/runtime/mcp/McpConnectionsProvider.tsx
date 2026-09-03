@@ -6,6 +6,8 @@ type McpConnectionsProviderProps = {
   inferenceApi?: string
   agentApi: string
   agentScopes: string[]
+  conversationsApi?: string;
+  conversationScopes?: string[];
   clientName?: string;
   clientVersion?: string;
   authenticated?: boolean;
@@ -21,11 +23,22 @@ export const McpConnectionsProvider = ({
   children,
   agentApi,
   agentScopes,
+  conversationsApi,
+  conversationScopes,
   clientVersion,
   authenticated,
   clientName,
 }: McpConnectionsProviderProps) => {
-  useMcpRuntimeBinding({ inferenceApi, agentApi, agentScopes, clientVersion, authenticated, clientName });
+  useMcpRuntimeBinding({
+    inferenceApi,
+    agentApi,
+    agentScopes,
+    conversationsApi,
+    conversationScopes,
+    clientVersion,
+    authenticated,
+    clientName,
+  });
 
   return <>{children}</>;
 };

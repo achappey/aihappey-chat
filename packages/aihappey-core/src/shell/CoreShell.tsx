@@ -373,6 +373,8 @@ export const CoreShell: React.FC<Props> = ({
                                       clientName={effectiveChatConfig?.appName}
                                       agentScopes={agentScopes ?? []}
                                       agentApi={effectiveChatConfig?.agentEndpoint!}
+                                      conversationsApi={apiUrl}
+                                      conversationScopes={conversationScopes ?? []}
                                       authenticated={effectiveChatConfig?.getAccessToken != null}
                                       clientVersion={effectiveChatConfig?.appVersion}
                                       inferenceApi={inferenceApi}

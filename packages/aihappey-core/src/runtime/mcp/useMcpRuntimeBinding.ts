@@ -12,6 +12,16 @@ import { useConversations } from "aihappey-conversations";
 import { progressRuntime } from "./progressRuntime";
 import { ModelOption } from "aihappey-types";
 
+const getUrlHost = (url: string | undefined): string | undefined => {
+    if (!url) return undefined;
+
+    try {
+        return new URL(url).host;
+    } catch {
+        return undefined;
+    }
+};
+
 export const applyModelHintsToParams = (
     params: CreateMessageRequest,
     models: ModelOption[] | undefined
@@ -64,6 +74,8 @@ export function useMcpRuntimeBinding({
     inferenceApi,
     agentApi,
     agentScopes,
+    conversationsApi,
+    conversationScopes,
     clientVersion,
     authenticated,
     clientName,
@@ -153,18 +165,27 @@ export function useMcpRuntimeBinding({
 
                 if (authenticated) {
                     let token;
+                    const mcpHost = getUrlHost(cfg.config?.url);
+
                     if (
-                        cfg.config?.url &&
-                        new URL(cfg.config.url).host === new URL(inferenceApi).host
+                        mcpHost &&
+                        mcpHost === getUrlHost(inferenceApi)
                     ) {
                         token = await acquireAccessToken();
                     } else if (
-                        cfg.config?.url &&
+                        mcpHost &&
                         agentScopes &&
                         agentScopes.length > 0 &&
-                        new URL(cfg.config.url).host === new URL(agentApi).host
+                        mcpHost === getUrlHost(agentApi)
                     ) {
                         token = await acquireAccessToken(agentScopes);
+                    } else if (
+                        mcpHost &&
+                        conversationScopes &&
+                        conversationScopes.length > 0 &&
+                        mcpHost === getUrlHost(conversationsApi)
+                    ) {
+                        token = await acquireAccessToken(conversationScopes);
                     }
 
                     if (token)
@@ -218,7 +239,19 @@ export function useMcpRuntimeBinding({
                 clearMcpContent(i.name);
             });
         }
-    }, [mcpServers]);
+    }, [
+        mcpServers,
+        inferenceApi,
+        agentApi,
+        agentScopes,
+        conversationsApi,
+        conversationScopes,
+        authenticated,
+        clientName,
+        clientVersion,
+        clearMcpContent,
+        connectMcpServer,
+    ]);
 }
 
 
