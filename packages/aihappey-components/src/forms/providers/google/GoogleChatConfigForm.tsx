@@ -186,9 +186,10 @@ export const GoogleChatConfigForm = ({
         GOOGLE_TOOL_TYPES,
       ),
     );
+  const configuredGenerationConfig = resolvedConfig?.generation_config;
   const generationConfig = {
     ...DEFAULT_GOOGLE_GENERATION_CONFIG,
-    ...(resolvedConfig?.generation_config ?? {}),
+    ...(configuredGenerationConfig ?? {}),
   };
   const imageConfig = resolvedConfig?.generation_config?.image_config;
   const videoConfig = resolvedConfig?.generation_config?.video_config;
@@ -238,7 +239,9 @@ export const GoogleChatConfigForm = ({
   ];
 
   const searchOn = !!resolvedConfig?.google_search;
-  const thinkingOn = true;
+  const thinkingOn =
+    configuredGenerationConfig?.thinking_level !== undefined ||
+    configuredGenerationConfig?.thinking_summaries !== undefined;
   const imageOn = !!imageConfig;
   const videoOn = !!videoConfig;
   const agentOn = !!agentConfig;
@@ -374,6 +377,30 @@ export const GoogleChatConfigForm = ({
       safety_settings: nextSafetySettings,
     });
 
+  const toggleReasoning = (enabled: boolean) => {
+    const nextGenerationConfig = { ...(configuredGenerationConfig ?? {}) };
+
+    if (enabled) {
+      nextGenerationConfig.thinking_level =
+        nextGenerationConfig.thinking_level ?? DEFAULT_GOOGLE_GENERATION_CONFIG.thinking_level;
+      nextGenerationConfig.thinking_summaries =
+        nextGenerationConfig.thinking_summaries ??
+        DEFAULT_GOOGLE_GENERATION_CONFIG.thinking_summaries;
+    } else {
+      delete nextGenerationConfig.thinking_level;
+      delete nextGenerationConfig.thinking_summaries;
+    }
+
+    const hasRemainingGenerationConfig = Object.values(nextGenerationConfig).some(
+      (value) => value !== undefined
+    );
+
+    submitConfig({
+      ...resolvedConfig,
+      generation_config: hasRemainingGenerationConfig ? nextGenerationConfig : undefined,
+    });
+  };
+
   const selectedThinkingLevel = generationConfig.thinking_level;
   const selectedThinkingLevelLabel =
     thinkingLevelOptions.find((option) => option.value === selectedThinkingLevel)?.label ??
@@ -381,7 +408,17 @@ export const GoogleChatConfigForm = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <theme.Card size="small" title={translations?.reasoning ?? t("reasoning")}>
+      <theme.Card
+        size="small"
+        title={translations?.reasoning ?? t("reasoning")}
+        headerActions={
+          <theme.Switch
+            id="googleReasoning"
+            checked={thinkingOn}
+            onChange={(value) => toggleReasoning(!!value)}
+          />
+        }
+      >
         <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
           <theme.Select
             label={t("reasoningEffort", {
