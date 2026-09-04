@@ -35,7 +35,7 @@ export const defaultProviderImageMetadata = {
     },
   },
   "spacexai": {
-
+    "quality": "auto"
   }
   ,
   "freepik": {

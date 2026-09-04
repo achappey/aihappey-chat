@@ -5,7 +5,8 @@ import {
   OpenAIImageConfigForm, PollinationsImageConfigForm,
   RunwayImageConfigForm, SettingsActionButtons,
   StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme,
-  FireworksImageConfigForm, VerdaImageConfigForm, FreepikImageConfigForm, ErrorAlerts
+  FireworksImageConfigForm, VerdaImageConfigForm, FreepikImageConfigForm, ErrorAlerts,
+  XAIImageConfigForm
 } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
@@ -122,6 +123,18 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
               config={providerMetadata.openai ?? {}}
               updateConfig={(openai) =>
                 setProviderMetadata({ ...providerMetadata, openai })
+              }
+            />
+          </theme.Tab>
+        }
+
+        {enabledProviders.includes("SpaceXAI") &&
+          <theme.Tab eventKey="spacexai"
+            title="SpaceXAI">
+            <XAIImageConfigForm
+              config={providerMetadata.spacexai ?? { quality: "auto" }}
+              updateConfig={(spacexai) =>
+                setProviderMetadata({ ...providerMetadata, spacexai })
               }
             />
           </theme.Tab>
