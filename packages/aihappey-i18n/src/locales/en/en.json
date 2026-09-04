@@ -790,6 +790,7 @@
     "docx": "Word",
     "pdf": "PDF",
     "attachments": "Attachments",
+    "attachmentSizeExceeded": "These files were not attached because they exceed the {{limit}} attachment size limit: {{filenames}}",
     "input": "Input",
     "data": "Data",
     "type": "Type",

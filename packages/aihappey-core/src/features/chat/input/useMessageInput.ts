@@ -7,6 +7,7 @@ import { useChatContext } from "../context/ChatContext";
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime, useSelectedResources } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/files/fileAttachmentRuntime";
+import { useChatAttachmentAdmission } from "./useChatAttachmentAdmission";
 
 export interface UseMessageInputOptions {
   model?: string;
@@ -51,6 +52,7 @@ export function useMessageInput({
   const mcpServers = useAppStore((s) => s.mcpServers);
   const resources = useSelectedResources(mcpResourceRuntime)
   const attachments = useFileAttachments(fileAttachmentRuntime)
+  const addAttachments = useChatAttachmentAdmission();
   const connected = Object.keys(mcpServers)
     .filter(z => !mcpServers[z].config.disabled)
     .map(z => ({
@@ -95,13 +97,15 @@ export function useMessageInput({
 
   const handlePaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
     if (e.clipboardData && e.clipboardData.items) {
+      const files: File[] = [];
       for (let i = 0; i < e.clipboardData.items.length; i++) {
         const item = e.clipboardData.items[i];
         if (item.kind === "file") {
           const file = item.getAsFile();
-          if (file) fileAttachmentRuntime.add(file);
+          if (file) files.push(file);
         }
       }
+      if (files.length > 0) addAttachments(files);
     }
     // Do not preventDefault, so text paste works as normal
   };

@@ -5,6 +5,8 @@ import { DefaultChatTransport, useChat } from "aihappey-ai";
 import { MessageInput } from "../input/MessageInput";
 import { useAppStore } from "aihappey-state";
 import { useChatFileDrop } from "../input/useChatFileDrop";
+import { useChatAttachmentAdmission } from "../input/useChatAttachmentAdmission";
+import { ChatErrors } from "../layout/ChatErrors";
 import { useParams } from "react-router";
 import { useConversations } from "aihappey-conversations";
 import { useAttachmentParts } from "../messages/useAttachmentParts";
@@ -58,13 +60,11 @@ export function ChatArena({
     send: undefined
   });
 
-  const addAttachmentWithTranscription = async (file: File) => {
-    // Fallback: just add as normal file attachment
-    fileAttachmentRuntime.add(file);
-  };
+  const addAttachments = useChatAttachmentAdmission();
 
   const { isOver, dropRef: drop, handleDrop, handleDragOver } = useChatFileDrop(
-    addAttachmentWithTranscription
+    (file) => addAttachments([file]),
+    addAttachments,
   );
 
 
@@ -324,6 +324,7 @@ export function ChatArena({
           boxSizing: "border-box",
         }}
       >
+        <ChatErrors />
         <MessageInput
           onSend={handleSend}
           onPromptExecute={onPromptExecute}

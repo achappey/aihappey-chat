@@ -849,6 +849,7 @@
     "close": "Sluiten",
     "file": "Bijlage",
     "attachments": "Bijlages",
+    "attachmentSizeExceeded": "Deze bestanden zijn niet toegevoegd omdat ze groter zijn dan de limiet van {{limit}} voor bijlagen: {{filenames}}",
     "messages": "Berichten",
     "data": "Data",
     "quickSearch": "Snelzoeken",

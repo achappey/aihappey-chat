@@ -17,6 +17,7 @@ import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { buildSelectedAgentRequest } from "../agents/agentSelection";
+import { useChatAttachmentAdmission } from "./input/useChatAttachmentAdmission";
 
 export function NewChatPage() {
   const navigate = useNavigate();
@@ -34,14 +35,11 @@ export function NewChatPage() {
   const workflowType = useAppStore((s) => s.workflowType);
   const magenticManagerAgentKey = useAppStore((s) => s.magenticManagerAgentKey);
   const setSelectedAgents = useAppStore((s) => s.setSelectedAgents);
-  const addAttachmentWithTranscription = async (file: File) => {
-
-    // Fallback: just add as normal file attachment
-    fileAttachmentRuntime.add(file);
-  };
+  const addAttachments = useChatAttachmentAdmission();
 
   const { isOver, dropRef: drop, handleDrop, handleDragOver } = useChatFileDrop(
-    addAttachmentWithTranscription
+    (file) => addAttachments([file]),
+    addAttachments,
   );
 
 

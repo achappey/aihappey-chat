@@ -50,6 +50,7 @@ import { useJsonRenderRegistry } from "aihappey-json-render-registry";
 import { useJsonRenderCatalog } from "aihappey-json-render-catalog";
 import { useUIStream } from "../../json-render/useUIStream";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
+import { useChatAttachmentAdmission } from "../input/useChatAttachmentAdmission";
 import { buildSelectedAgentRequest, buildWorkflowMetadata } from "../../agents/agentSelection";
 import {
   createChatAuthHeadersForModel,
@@ -260,14 +261,11 @@ export function VercelChatInner({
     if (selectedAgentRequest.error) addChatError(new Error(selectedAgentRequest.error));
   }, [selectedAgentRequest.error, addChatError]);
 
-  const addAttachmentWithTranscription = async (file: File) => {
-
-    // Fallback: just add as normal file attachment
-    fileAttachmentRuntime.add(file);
-  };
+  const addAttachments = useChatAttachmentAdmission();
 
   const { isOver, dropRef: drop, handleDrop, handleDragOver } = useChatFileDrop(
-    addAttachmentWithTranscription
+    (file) => addAttachments([file]),
+    addAttachments,
   );
 
   const dropRef = useCallback((node: HTMLDivElement | null) => {

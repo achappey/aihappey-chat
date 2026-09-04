@@ -33,6 +33,7 @@ import { buildLocalToolToggleItems, usePluginToggleItems } from "../../tools/too
 import { ResizableTextArea } from "./ResizableTextArea";
 import { usePlugins as useAgentPlugins } from "aihappey-plugins";
 import { usePromptDictationControls } from "./usePromptDictationControls";
+import { useChatAttachmentAdmission } from "./useChatAttachmentAdmission";
 
 export type MessageInputProps = UseMessageInputOptions & {
   resizeResetKey?: string;
@@ -102,6 +103,7 @@ export const MessageInput = (props: MessageInputProps) => {
   } | null>(null);
   const [resourceTemplateModalOpen, setResourceTemplateModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const addChatAttachments = useChatAttachmentAdmission();
   const {
     value,
     setValue,
@@ -401,7 +403,7 @@ export const MessageInput = (props: MessageInputProps) => {
               hidden
               onChange={(e) => {
                 if (!e.target.files) return;
-                addFilesToRuntime(Array.from(e.target.files));
+                addChatAttachments(e.target.files);
                 e.target.value = "";
               }}
             />
