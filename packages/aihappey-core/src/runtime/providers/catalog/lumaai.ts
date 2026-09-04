@@ -10,7 +10,7 @@ export const lumaai: Provider = {
   ],
   urls: {
     homepage: "https://lumalabs.ai",
-    docs: "https://docs.lumalabs.ai",
+    docs: "https://docs.agents.lumalabs.ai",
     pricing: "https://lumalabs.ai/pricing",
     termsOfService: "https://lumalabs.ai/legal/tos",
     privacyPolicy: "https://lumalabs.ai/legal/privacy"
