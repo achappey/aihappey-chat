@@ -7,7 +7,7 @@ export const zebracat: Provider = {
   urls: {
     homepage: "https://www.zebracat.ai",
     docs: "https://docs.zebracat.ai",
-    pricing:"https://www.zebracat.ai/pricing",
+    pricing:"https://www.zebracat.ai/api",
     privacyPolicy: "https://www.zebracat.ai/privacy-policy",
     termsOfService: "https://www.zebracat.ai/terms-and-conditions"
   },
