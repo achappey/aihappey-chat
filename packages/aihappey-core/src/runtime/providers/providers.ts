@@ -411,7 +411,6 @@ import { paul } from "./catalog/paul";
 import { radient } from "./catalog/radient";
 import { aihorde } from "./catalog/aihorde";
 import { wiserouter } from "./catalog/wiserouter";
-import { pellet } from "./catalog/pellet";
 import { commonstack } from "./catalog/commonstack";
 import { llama } from "./catalog/llama";
 import { ninjachat } from "./catalog/ninjachat";
@@ -680,7 +679,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   generalcompute,
   uncloseai,
   summa,
-  pellet,
   neuralring,
   cognitivessai,
   lumecoder,
