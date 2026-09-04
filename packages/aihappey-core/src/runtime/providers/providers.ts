@@ -579,6 +579,7 @@ import { agent37 } from "./catalog/agent37";
 import { roxy } from "./catalog/roxy";
 import { select } from "./catalog/select";
 import { pawaai } from "./catalog/pawaai";
+import { empiriolabsai } from "./catalog/empiriolabsai";
 
 /**
  * UI-facing provider catalog.
@@ -802,6 +803,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   pawaai,
   youcom,
   aiduet,
+  empiriolabsai,
   infercom,
   atxp,
   sargalay,
