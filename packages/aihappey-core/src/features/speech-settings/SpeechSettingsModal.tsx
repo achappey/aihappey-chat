@@ -21,6 +21,7 @@ import {
   MiniMaxSpeechConfigForm,
   ResembleAISpeechConfigForm,
   MurfAISpeechConfigForm,
+  StepFunSpeechConfigForm,
   type DeepInfraSpeechConfig,
   type ElevenLabsSpeechConfig,
   type DeepgramSpeechConfig,
@@ -36,6 +37,7 @@ import {
   type MiniMaxSpeechConfig,
   type ResembleAISpeechConfig,
   type MurfAISpeechConfig,
+  type StepFunSpeechConfig,
 } from "aihappey-components";
 
 export interface SpeechSettingsModalProps {
@@ -108,6 +110,8 @@ export const SpeechSettingsModal: React.FC<SpeechSettingsModalProps> = ({
         return { title: "ResembleAI", form: <ResembleAISpeechConfigForm config={providerMetadata.resembleai ?? {}} updateConfig={(config: ResembleAISpeechConfig) => update("resembleai", config)} /> };
       case "murfai":
         return { title: "MurfAI", form: <MurfAISpeechConfigForm config={providerMetadata.murfai ?? {}} updateConfig={(config: MurfAISpeechConfig) => update("murfai", config)} /> };
+      case "stepfun":
+        return { title: "StepFun", form: <StepFunSpeechConfigForm config={providerMetadata.stepfun ?? {}} updateConfig={(config: StepFunSpeechConfig) => update("stepfun", config)} /> };
       default:
         return undefined;
     }

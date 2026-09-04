@@ -1248,6 +1248,18 @@
     "music": "Muziek",
     "lyrics": "Songtekst"
   },
+  "stepfun": {
+    "audioSettings": "Audio-instellingen",
+    "volume": "Volume",
+    "volumePlaceholder": "Providerstandaard (1,0; bereik 0,1–2,0)",
+    "sampleRate": "Samplefrequentie (Hz)",
+    "sampleRatePlaceholder": "Providerstandaard (24000)",
+    "sampleRateHint": "Ondersteunde waarden: 8000, 16000, 22050, 24000 en 48000.",
+    "pronunciationMap": "Uitspraakregels",
+    "toneHint": "Voeg uitspraakregels toe als tekst/uitspraak. Chinese tonen gebruiken de cijfers 1–5.",
+    "addTone": "Uitspraakregel toevoegen",
+    "addTonePlaceholder": "bijv. LOL/laugh out loudly"
+  },
   "audixa": {
     "speech": {
       "baseVoices": "Base stemmen",

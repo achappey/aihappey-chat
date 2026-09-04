@@ -1338,6 +1338,18 @@
     "music": "Music",
     "lyrics": "Lyrics"
   },
+  "stepfun": {
+    "audioSettings": "Audio settings",
+    "volume": "Volume",
+    "volumePlaceholder": "Provider default (1.0; range 0.1–2.0)",
+    "sampleRate": "Sample rate (Hz)",
+    "sampleRatePlaceholder": "Provider default (24000)",
+    "sampleRateHint": "Supported values: 8000, 16000, 22050, 24000, and 48000.",
+    "pronunciationMap": "Pronunciation map",
+    "toneHint": "Add pronunciation rules in the form text/pronunciation. Chinese tones use numbers 1–5.",
+    "addTone": "Add pronunciation rule",
+    "addTonePlaceholder": "e.g. LOL/laugh out loudly"
+  },
   "audixa": {
     "speech": {
       "baseVoices": "Base voices",
