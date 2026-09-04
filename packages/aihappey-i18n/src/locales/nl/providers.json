@@ -1218,6 +1218,8 @@
     "languageConfigCodeSwitching": "Code-switching"
   },
   "minimax": {
+    "promptOptimizer": "Promptoptimalisatie",
+    "promptOptimizerHint": "Optimaliseer de prompt automatisch voordat afbeeldingen worden gegenereerd.",
     "languageBoost": "Taalboost",
     "subtitleEnable": "Ondertiteling inschakelen",
     "voiceSetting": "Steminstellingen",

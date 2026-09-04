@@ -6,7 +6,7 @@ import {
   RunwayImageConfigForm, SettingsActionButtons,
   StabilityAIImageForm, TogetherImageConfigForm, HyperbolicImageConfigForm, NebiusImageConfigForm, useTheme,
   FireworksImageConfigForm, VerdaImageConfigForm, FreepikImageConfigForm, ErrorAlerts,
-  XAIImageConfigForm
+  MiniMaxImageConfigForm, XAIImageConfigForm
 } from "aihappey-components";
 import { ImageSettingsGeneralTab } from "./ImageSettingsGeneralTab";
 
@@ -111,6 +111,18 @@ export const ImageSettingsModal: React.FC<ImageSettingsModalProps> = ({
               config={providerMetadata.nebius ?? {}}
               updateConfig={(nebius) =>
                 setProviderMetadata({ ...providerMetadata, nebius })
+              }
+            />
+          </theme.Tab>
+        }
+
+        {enabledProviders.includes("MiniMax") &&
+          <theme.Tab eventKey="minimax"
+            title="MiniMax">
+            <MiniMaxImageConfigForm
+              config={providerMetadata.minimax ?? { prompt_optimizer: false }}
+              updateConfig={(minimax) =>
+                setProviderMetadata({ ...providerMetadata, minimax })
               }
             />
           </theme.Tab>

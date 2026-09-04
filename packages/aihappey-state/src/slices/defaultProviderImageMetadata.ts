@@ -14,6 +14,9 @@ export const defaultProviderImageMetadata = {
   "mistral": {
 
   },
+  "minimax": {
+    "prompt_optimizer": false
+  },
   "stabilityai": {
     "negative_prompt": undefined,
     "style_preset": undefined

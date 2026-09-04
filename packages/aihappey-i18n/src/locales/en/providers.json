@@ -1308,6 +1308,8 @@
     }
   },
   "minimax": {
+    "promptOptimizer": "Prompt optimizer",
+    "promptOptimizerHint": "Automatically optimize the prompt before generating images.",
     "languageBoost": "Language boost",
     "subtitleEnable": "Enable subtitles",
     "voiceSetting": "Voice settings",
