@@ -578,6 +578,7 @@ import { interfaze } from "./catalog/interfaze";
 import { agent37 } from "./catalog/agent37";
 import { roxy } from "./catalog/roxy";
 import { select } from "./catalog/select";
+import { pawaai } from "./catalog/pawaai";
 
 /**
  * UI-facing provider catalog.
@@ -798,6 +799,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   chainhub,
   zeabur,
   neuralwatt,
+  pawaai,
   youcom,
   aiduet,
   infercom,
