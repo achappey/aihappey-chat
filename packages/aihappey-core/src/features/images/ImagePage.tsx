@@ -1,5 +1,5 @@
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { ImageGrid, ModelFavoriteToggleButton } from "aihappey-components";
+import { ImageGrid, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
@@ -27,6 +27,7 @@ export const ImagePage = () => {
   const images = useLibraryImages();
   const isDesktop = useIsDesktop();
   const models = useAppStore((a) => a.models);
+  const modelsLoaded = useAppStore((a) => a.modelsLoaded);
   const customHeaders = useAppStore((a) => a.customHeaders);
   const seed = useAppStore((a) => a.seed);
   const n = useAppStore((a) => a.n);
@@ -40,6 +41,7 @@ export const ImagePage = () => {
   const userPreferredImageModel = useAppStore((a) => a.userPreferredImageModel);
   const files = useFiles()
   const { t } = useTranslation();
+  const { Skeleton } = useTheme();
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "image");
   const [selectedModel, setSelectedModel] = useState<string>(
@@ -48,6 +50,7 @@ export const ImagePage = () => {
     (getAccessToken ?
       "openai/chatgpt-image-latest" : "pollinations/flux"));
   const selectedModelOption = models?.find((model) => model.id === selectedModel);
+  const hasLoadedImageModels = modelsLoaded && (models?.some((model) => model.type === "image") ?? false);
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
@@ -214,22 +217,34 @@ export const ImagePage = () => {
           alignItems: "center",
         }}
       >
-        <ModelSelect
-          models={models ?? []}
-          modelTypes={["image"]}
-          value={selectedModel ?? ""}
-          onChange={setSelectedModel}
-        />
-        <div style={{ paddingLeft: 8 }}>
-          <ModelFavoriteToggleButton
-            variant="subtle"
-            size="small"
-            isFavorite={isFavorite}
-            modelName={selectedModelOption?.name ?? selectedModel}
-            onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("image", selectedModel)}
-            disabled={!selectedModel}
-          />
-        </div>
+        {!modelsLoaded ? (
+          <div style={{ width: "clamp(170px, 24vw, 260px)" }}>
+            <Skeleton width="100%" height={32} />
+          </div>
+        ) : null}
+        {hasLoadedImageModels ? (
+          <>
+            <div style={{ width: "clamp(170px, 24vw, 260px)", maxWidth: "100%", minWidth: 0 }}>
+              <ModelSelect
+                models={models ?? []}
+                modelTypes={["image"]}
+                value={selectedModel ?? ""}
+                onChange={setSelectedModel}
+                style={{ width: "100%", minWidth: 0 }}
+              />
+            </div>
+            <div style={{ paddingLeft: 8 }}>
+              <ModelFavoriteToggleButton
+                variant="subtle"
+                size="small"
+                isFavorite={isFavorite}
+                modelName={selectedModelOption?.name ?? selectedModel}
+                onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("image", selectedModel)}
+                disabled={!selectedModel}
+              />
+            </div>
+          </>
+        ) : null}
         <div style={{ flex: 1 }} />
         <div style={{ paddingLeft: 16 }}>
           <UserMenuInline />
@@ -252,7 +267,7 @@ export const ImagePage = () => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}>
 
-        <ImageInput onSend={onSend} />
+        <ImageInput onSend={onSend} selectedModel={selectedModel} />
 
       </div>
 

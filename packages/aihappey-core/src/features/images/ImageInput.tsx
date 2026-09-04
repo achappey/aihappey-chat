@@ -9,7 +9,11 @@ import { addFilesToRuntime } from "../chat/input/MessageInput";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
 
-export const ImageInput = (props: UseMessageInputOptions) => {
+type ImageInputProps = UseMessageInputOptions & {
+  selectedModel?: string;
+};
+
+export const ImageInput = (props: ImageInputProps) => {
   const { Button, TextArea } = useTheme();
   const { t } = useTranslation();
   const providerImageMetadata = useAppStore((s) => s.providerImageMetadata);
@@ -70,6 +74,7 @@ export const ImageInput = (props: UseMessageInputOptions) => {
       <div style={styles.buttonRow}>
         <div style={styles.leftGroup}>
           <ImageSettingsButton
+            selectedModel={props.selectedModel}
             providerMetadata={providerImageMetadata}
             setProviderMetadata={setProviderImageMetadata} />
 

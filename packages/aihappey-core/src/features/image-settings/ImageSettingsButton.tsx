@@ -5,6 +5,7 @@ import { ImageSettingsModal } from "./ImageSettingsModal";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 
 export interface ImageSettingsButtonOptions {
+  selectedModel?: string;
   temperature?: number;
   temperatureChanged?: any;
   resetDefaults?: any;
@@ -14,6 +15,7 @@ export interface ImageSettingsButtonOptions {
 
 export const ImageSettingsButton = (props: ImageSettingsButtonOptions) => {
   const {
+    selectedModel,
     temperature,
     temperatureChanged,
     providerMetadata,
@@ -36,6 +38,7 @@ export const ImageSettingsButton = (props: ImageSettingsButtonOptions) => {
         title={t("imageSettings.title")}
       />
       <ImageSettingsModal
+        selectedModel={selectedModel}
         open={open && !showProviderKeys}
         onClose={() => setOpen(false)}
         setTemperature={temperatureChanged}
