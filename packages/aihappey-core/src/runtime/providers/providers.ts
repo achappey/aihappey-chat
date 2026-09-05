@@ -591,6 +591,7 @@ import { circuitnotion } from "./catalog/circuitnotion";
 import { quantanova } from "./catalog/quantanova";
 import { flatseek } from "./catalog/flatseek";
 import { omneity } from "./catalog/omneity";
+import { epho } from "./catalog/epho";
 
 /**
  * UI-facing provider catalog.
@@ -601,6 +602,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   openai,
   citadelis,
   zeroentropy,
+  epho,
   beastlabai,
   lelapaai,
   wafer,
