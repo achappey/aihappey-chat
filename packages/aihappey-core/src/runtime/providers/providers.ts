@@ -587,6 +587,7 @@ import { sennoric } from "./catalog/sennoric";
 import { cheaperinference } from "./catalog/cheaperinference";
 import { critique } from "./catalog/critique";
 import { maxlayer } from "./catalog/maxlayer";
+import { hinow } from "./catalog/hinow";
 
 /**
  * UI-facing provider catalog.
@@ -680,6 +681,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   cheaperinference,
   paul,
   ramprouter,
+  hinow,
   logfare,
   mimicxai,
   runtimo,
