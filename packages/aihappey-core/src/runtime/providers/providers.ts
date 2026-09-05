@@ -580,6 +580,7 @@ import { select } from "./catalog/select";
 import { pawaai } from "./catalog/pawaai";
 import { empiriolabsai } from "./catalog/empiriolabsai";
 import { standardcompute } from "./catalog/standardcompute";
+import { tiarina } from "./catalog/tiarina";
 
 /**
  * UI-facing provider catalog.
@@ -673,6 +674,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   mimicxai,
   runtimo,
   wiserouter,
+  tiarina,
   nodion,
   darkbloom,
   scalixworld,
