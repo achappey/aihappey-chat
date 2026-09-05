@@ -8,7 +8,7 @@ import {
     MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
     OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm,
     PoolsideChatConfigForm, PollinationsChatConfigForm, SambanovaChatConfigForm,
-    TemboChatConfigForm, TogetherChatConfigForm, useTheme, XAIChatConfigForm,
+    TemboChatConfigForm, TogetherChatConfigForm, UpstageChatConfigForm, useTheme, XAIChatConfigForm,
     RequestyChatConfigForm, WebCrawlerAPIChatConfigForm, XiaomiMIMOChatConfigForm,
     ZaiChatConfigForm
 } from "aihappey-components";
@@ -1033,6 +1033,13 @@ export const AgentForm = ({
 
                     {providerKey === "together" && (
                         <TogetherChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "upstage" && (
+                        <UpstageChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

@@ -36,6 +36,7 @@ import {
   SambanovaChatConfigForm,
   TemboChatConfigForm,
   TinyFishChatConfigForm,
+  UpstageChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
   useTheme, XAIChatConfigForm,
   RequestyChatConfigForm,
@@ -292,6 +293,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       sambanova: (sambanova: any) => updateProviderConfig("sambanova", sambanova),
       tembo: (tembo: any) => updateProviderConfig("tembo", tembo),
       tinyfish: (tinyfish: any) => updateProviderConfig("tinyfish", tinyfish),
+      upstage: (upstage: any) => updateProviderConfig("upstage", upstage),
       spacexai: (spacexai: any) => updateProviderConfig("spacexai", spacexai),
       requesty: (requesty: any) => updateProviderConfig("requesty", requesty),
       venice: (venice: any) => updateProviderConfig("venice", venice),
@@ -417,6 +419,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <TemboChatConfigForm config={draft.providerMetadata.tembo ?? {}} updateConfig={providerConfigUpdaters.tembo} />;
       case "tinyfish":
         return <TinyFishChatConfigForm config={draft.providerMetadata.tinyfish ?? {}} updateConfig={providerConfigUpdaters.tinyfish} />;
+      case "upstage":
+        return <UpstageChatConfigForm config={draft.providerMetadata.upstage ?? {}} updateConfig={providerConfigUpdaters.upstage} />;
       case "venice":
         return <VeniceChatConfigForm config={draft.providerMetadata.venice ?? {}} updateConfig={providerConfigUpdaters.venice} />;
       case "linkup":

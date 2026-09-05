@@ -1,4 +1,19 @@
 {
+  "upstage": {
+    "reasoning": {
+      "title": "Nadenken",
+      "effort": "Niveau",
+      "efforts": {
+        "none": "Geen",
+        "minimal": "Minimaal",
+        "low": "Laag",
+        "medium": "Gemiddeld",
+        "high": "Hoog",
+        "xhigh": "Extra hoog",
+        "max": "Maximaal"
+      }
+    }
+  },
   "interfaze": {
     "reasoning": {
       "title": "Redeneren",

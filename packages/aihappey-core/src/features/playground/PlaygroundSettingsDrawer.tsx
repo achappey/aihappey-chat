@@ -32,6 +32,7 @@ import {
   SambanovaChatConfigForm,
   TemboChatConfigForm,
   TogetherChatConfigForm,
+  UpstageChatConfigForm,
   LinkupChatConfigForm,
   useTheme,
   XAIChatConfigForm,
@@ -232,6 +233,8 @@ export const PlaygroundSettingsDrawer = ({
         return <TemboChatConfigForm config={providerMetadata.tembo ?? {}} updateConfig={updateProviderConfig} />;
       case "together":
         return <TogetherChatConfigForm config={providerMetadata.together ?? {}} updateConfig={updateProviderConfig} />;
+      case "upstage":
+        return <UpstageChatConfigForm config={providerMetadata.upstage ?? {}} updateConfig={updateProviderConfig} />;
       case "venice":
         return <VeniceChatConfigForm config={providerMetadata.venice ?? {}} updateConfig={updateProviderConfig} />;
       case "linkup":

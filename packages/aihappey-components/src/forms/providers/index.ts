@@ -73,5 +73,6 @@ export * from "./cerebras";
 export * from "./deepseek";
 export * from "./interfaze";
 export * from "./stepfun";
+export * from "./upstage";
     
     
