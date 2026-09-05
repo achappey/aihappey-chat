@@ -591,6 +591,7 @@ import { hinow } from "./catalog/hinow";
 import { vikasit } from "./catalog/vikasit";
 import { circuitnotion } from "./catalog/circuitnotion";
 import { quantanova } from "./catalog/quantanova";
+import { flatseek } from "./catalog/flatseek";
 
 /**
  * UI-facing provider catalog.
@@ -1110,6 +1111,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   quantanova,
   circuitnotion,
   lumaai,
+  flatseek,
   neosantara,
   meganova,
   haimaker,
