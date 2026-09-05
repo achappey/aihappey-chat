@@ -6,6 +6,7 @@ export const logfare: Provider = {
   urls: {
     homepage: "https://logfare.ai",
     docs: "https://logfare.ai/docs",
+    console: "https://logfare.ai/dashboard",
     termsOfService: "https://logfare.ai/tos",
     privacyPolicy: "https://logfare.ai/privacy"
   },
