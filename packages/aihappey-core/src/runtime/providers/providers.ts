@@ -493,7 +493,6 @@ import { mycoai } from "./catalog/mycoai";
 import { scalixworld } from "./catalog/scalixworld";
 import { apipass } from "./catalog/apipass";
 import { virouter } from "./catalog/virouter";
-import { inferencespace } from "./catalog/inferencespace";
 import { scrapellm } from "./catalog/scrapellm";
 import { freeinference } from "./catalog/freeinference";
 import { llmtr } from "./catalog/llmtr";
@@ -661,7 +660,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   groovedev,
   monstergaming,
   apipass,
-  inferencespace,
   scrapellm,
   secrypt,
   merge,
