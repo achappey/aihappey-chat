@@ -1,5 +1,5 @@
 import {
-    AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
+    AbliterationChatConfigForm, AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
     BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm,
     CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
     InworldChatConfigForm, InterfazeChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
@@ -841,6 +841,13 @@ export const AgentForm = ({
                 {/* ---------------- Provider Settings ---------------- */}
                 <Tab eventKey="providers"
                     title={providerTitle}>
+                    {providerKey === "abliteration" && (
+                        <AbliterationChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
                     {providerKey === "openai" && (
                         <OpenAIChatConfigForm
                             config={providerMeta}

@@ -265,6 +265,45 @@
     "autoCache": "Auto caching",
     "autoCacheDescription": "Explicitly sends Requesty's requesty.auto_cache flag. When enabled, supported providers such as Anthropic and Gemini can reuse long prompts and repeated content to reduce cost."
   },
+  "abliteration": {
+    "reasoning": {
+      "title": "Reasoning",
+      "enabled": "Enable reasoning",
+      "effort": "Effort",
+      "maxTokens": "Maximum reasoning tokens",
+      "exclude": "Exclude reasoning from the response",
+      "efforts": {
+        "none": "None",
+        "minimal": "Minimal",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "xhigh": "Extra high",
+        "max": "Maximum",
+        "ultracode": "Ultracode"
+      }
+    },
+    "other": {
+      "title": "Other",
+      "flaggedCategories": "Safety categories to block",
+      "noneSelected": "No categories selected"
+    },
+    "categories": {
+      "harassment": "Harassment",
+      "harassment/threatening": "Harassment - threatening",
+      "hate": "Hate",
+      "hate/threatening": "Hate - threatening",
+      "illicit": "Illicit activity",
+      "illicit/violent": "Illicit activity - violent",
+      "self-harm": "Self-harm",
+      "self-harm/intent": "Self-harm - intent",
+      "self-harm/instructions": "Self-harm - instructions",
+      "sexual": "Sexual content",
+      "sexual/minors": "Sexual content - minors",
+      "violence": "Violence",
+      "violence/graphic": "Violence - graphic"
+    }
+  },
   "blackbox": {
     "notSet": "Not set",
     "zdr": "Zero Data Retention",

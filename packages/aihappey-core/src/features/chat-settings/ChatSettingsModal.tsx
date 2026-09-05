@@ -11,6 +11,7 @@ import {
 } from "aihappey-state";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
+  AbliterationChatConfigForm,
   AnthropicChatConfigForm,
   BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
@@ -262,6 +263,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
 
   const providerConfigUpdaters = useMemo(
     () => ({
+      abliteration: (abliteration: any) => updateProviderConfig("abliteration", abliteration),
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
       blackbox: (blackbox: any) => updateProviderConfig("blackbox", blackbox),
       cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
@@ -346,6 +348,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
 
   const activeProviderForm = useMemo(() => {
     switch (activeProviderKey) {
+      case "abliteration":
+        return <AbliterationChatConfigForm config={draft.providerMetadata.abliteration ?? {}} updateConfig={providerConfigUpdaters.abliteration} />;
       case "anthropic":
         return <AnthropicChatConfigForm config={draft.providerMetadata.anthropic ?? {}} headers={draft.providerHeaders.anthropic ?? {}} updateConfig={providerConfigUpdaters.anthropic} updateHeaders={providerHeaderUpdaters.anthropic} />;
       case "blackbox":

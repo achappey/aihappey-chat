@@ -182,6 +182,45 @@
     "autoCache": "Automatisch cachen",
     "autoCacheDescription": "Stuurt Requesty's requesty.auto_cache-vlag expliciet mee. Wanneer ingeschakeld kunnen ondersteunde providers zoals Anthropic en Gemini lange prompts en herhaalde content hergebruiken om kosten te verlagen."
   },
+  "abliteration": {
+    "reasoning": {
+      "title": "Nadenken",
+      "enabled": "Nadenken inschakelen",
+      "effort": "Niveau",
+      "maxTokens": "Maximaal aantal redeneertokens",
+      "exclude": "Redenering weglaten uit het antwoord",
+      "efforts": {
+        "none": "Geen",
+        "minimal": "Minimaal",
+        "low": "Laag",
+        "medium": "Gemiddeld",
+        "high": "Hoog",
+        "xhigh": "Extra hoog",
+        "max": "Maximaal",
+        "ultracode": "Ultracode"
+      }
+    },
+    "other": {
+      "title": "Overig",
+      "flaggedCategories": "Te blokkeren veiligheidscategorieën",
+      "noneSelected": "Geen categorieën geselecteerd"
+    },
+    "categories": {
+      "harassment": "Intimidatie",
+      "harassment/threatening": "Intimidatie - bedreigend",
+      "hate": "Haat",
+      "hate/threatening": "Haat - bedreigend",
+      "illicit": "Illegale activiteiten",
+      "illicit/violent": "Illegale activiteiten - gewelddadig",
+      "self-harm": "Zelfbeschadiging",
+      "self-harm/intent": "Zelfbeschadiging - intentie",
+      "self-harm/instructions": "Zelfbeschadiging - instructies",
+      "sexual": "Seksuele inhoud",
+      "sexual/minors": "Seksuele inhoud - minderjarigen",
+      "violence": "Geweld",
+      "violence/graphic": "Geweld - grafisch"
+    }
+  },
   "blackbox": {
     "notSet": "Niet ingesteld",
     "zdr": "Zero Data Retention",
