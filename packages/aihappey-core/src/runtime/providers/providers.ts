@@ -586,6 +586,7 @@ import { ramprouter } from "./catalog/ramprouter";
 import { sennoric } from "./catalog/sennoric";
 import { cheaperinference } from "./catalog/cheaperinference";
 import { critique } from "./catalog/critique";
+import { maxlayer } from "./catalog/maxlayer";
 
 /**
  * UI-facing provider catalog.
@@ -685,6 +686,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   wiserouter,
   tiarina,
   nodion,
+  maxlayer,
   critique,
   darkbloom,
   scalixworld,
