@@ -584,6 +584,7 @@ import { tiarina } from "./catalog/tiarina";
 import { logfare } from "./catalog/logfare";
 import { ramprouter } from "./catalog/ramprouter";
 import { sennoric } from "./catalog/sennoric";
+import { cheaperinference } from "./catalog/cheaperinference";
 
 /**
  * UI-facing provider catalog.
@@ -674,6 +675,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tensorblock,
   sennoric,
   commonstack,
+  cheaperinference,
   paul,
   ramprouter,
   logfare,
