@@ -592,6 +592,7 @@ import { quantanova } from "./catalog/quantanova";
 import { flatseek } from "./catalog/flatseek";
 import { omneity } from "./catalog/omneity";
 import { epho } from "./catalog/epho";
+import { shadowos } from "./catalog/shadowos";
 
 /**
  * UI-facing provider catalog.
@@ -603,6 +604,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   citadelis,
   zeroentropy,
   epho,
+  shadowos,
   beastlabai,
   lelapaai,
   wafer,
