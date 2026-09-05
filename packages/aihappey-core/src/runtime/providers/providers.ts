@@ -330,7 +330,6 @@ import { knoxchat } from "./catalog/knoxchat";
 import { vlmrun } from "./catalog/vlmrun";
 import { vogent } from "./catalog/vogent";
 import { preapi } from "./catalog/preapi";
-import { yougetai } from "./catalog/yougetai";
 import { tikhubai } from "./catalog/tikhubai";
 import { vultr } from "./catalog/vultr";
 import { ofoxai } from "./catalog/ofoxai";
@@ -806,7 +805,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   ofoxai,
   crusoe,
   routerlink,
-  yougetai,
   yollomi,
   vultr,
   tikhubai,
