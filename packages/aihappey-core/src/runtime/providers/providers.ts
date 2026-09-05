@@ -581,6 +581,7 @@ import { pawaai } from "./catalog/pawaai";
 import { empiriolabsai } from "./catalog/empiriolabsai";
 import { standardcompute } from "./catalog/standardcompute";
 import { tiarina } from "./catalog/tiarina";
+import { logfare } from "./catalog/logfare";
 
 /**
  * UI-facing provider catalog.
@@ -671,6 +672,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tensorblock,
   commonstack,
   paul,
+  logfare,
   mimicxai,
   runtimo,
   wiserouter,
