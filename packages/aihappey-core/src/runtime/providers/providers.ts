@@ -593,6 +593,7 @@ import { flatseek } from "./catalog/flatseek";
 import { omneity } from "./catalog/omneity";
 import { epho } from "./catalog/epho";
 import { shadowos } from "./catalog/shadowos";
+import { harnessrouter } from "./catalog/harnessrouter";
 
 /**
  * UI-facing provider catalog.
@@ -606,6 +607,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   epho,
   shadowos,
   beastlabai,
+  harnessrouter,
   lelapaai,
   wafer,
   nexosai,
