@@ -585,6 +585,7 @@ import { logfare } from "./catalog/logfare";
 import { ramprouter } from "./catalog/ramprouter";
 import { sennoric } from "./catalog/sennoric";
 import { cheaperinference } from "./catalog/cheaperinference";
+import { critique } from "./catalog/critique";
 
 /**
  * UI-facing provider catalog.
@@ -684,6 +685,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   wiserouter,
   tiarina,
   nodion,
+  critique,
   darkbloom,
   scalixworld,
   meshapi,
