@@ -583,6 +583,7 @@ import { standardcompute } from "./catalog/standardcompute";
 import { tiarina } from "./catalog/tiarina";
 import { logfare } from "./catalog/logfare";
 import { ramprouter } from "./catalog/ramprouter";
+import { sennoric } from "./catalog/sennoric";
 
 /**
  * UI-facing provider catalog.
@@ -671,6 +672,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   opencodego,
   wayscloud,
   tensorblock,
+  sennoric,
   commonstack,
   paul,
   ramprouter,
