@@ -10,6 +10,7 @@ import {
   ChatCompletionsEndpointConfigForm,
   CohereChatConfigForm,
   CortecsChatConfigForm,
+  DeepSeekChatConfigForm,
   DepazaChatConfigForm,
   GroqChatConfigForm,
   InworldChatConfigForm,
@@ -179,6 +180,8 @@ export const PlaygroundSettingsDrawer = ({
         return <BraveChatConfigForm config={providerMetadata.brave ?? {}} updateConfig={updateProviderConfig} />;
       case "cerebras":
         return <CerebrasChatConfigForm config={providerMetadata.cerebras ?? {}} updateConfig={updateProviderConfig} />;
+      case "deepseek":
+        return <DeepSeekChatConfigForm config={providerMetadata.deepseek ?? {}} updateConfig={updateProviderConfig} />;
       case "google":
         return <GoogleChatConfig google={providerMetadata.google ?? {}} updateGoogle={updateProviderConfig} />;
       case "groq":

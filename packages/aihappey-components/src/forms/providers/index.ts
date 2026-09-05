@@ -69,6 +69,7 @@ export * from "./cortecs";
 export * from "./maritacaai";
 export * from "./inworld";
 export * from "./cerebras";
+export * from "./deepseek";
 export * from "./interfaze";
 export * from "./stepfun";
     

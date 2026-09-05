@@ -18,6 +18,7 @@ import {
   CerebrasChatConfigForm,
   CohereChatConfigForm, GroqChatConfigForm,
   CortecsChatConfigForm,
+  DeepSeekChatConfigForm,
   DepazaChatConfigForm,
   InworldChatConfigForm,
   InterfazeChatConfigForm,
@@ -269,6 +270,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
       brave: (brave: any) => updateProviderConfig("brave", brave),
       cerebras: (cerebras: any) => updateProviderConfig("cerebras", cerebras),
+      deepseek: (deepseek: any) => updateProviderConfig("deepseek", deepseek),
       google: (google: any) => updateProviderConfig("google", google),
       groq: (groq: any) => updateProviderConfig("groq", groq),
       jina: (jina: any) => updateProviderConfig("jina", jina),
@@ -360,6 +362,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <BraveChatConfigForm config={draft.providerMetadata.brave ?? {}} updateConfig={providerConfigUpdaters.brave} />;
       case "cerebras":
         return <CerebrasChatConfigForm config={draft.providerMetadata.cerebras ?? {}} updateConfig={providerConfigUpdaters.cerebras} />;
+      case "deepseek":
+        return <DeepSeekChatConfigForm config={draft.providerMetadata.deepseek ?? {}} updateConfig={providerConfigUpdaters.deepseek} />;
       case "google":
         return <GoogleChatConfig google={draft.providerMetadata.google ?? {}} updateGoogle={providerConfigUpdaters.google} />;
       case "groq":

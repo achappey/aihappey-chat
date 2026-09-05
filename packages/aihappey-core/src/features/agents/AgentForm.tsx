@@ -1,7 +1,7 @@
 import {
     AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
     BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm,
-    CortecsChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
+    CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
     InworldChatConfigForm, InterfazeChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
     LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings,
     CopilotChatConfigForm,
@@ -925,6 +925,13 @@ export const AgentForm = ({
 
                     {providerKey === "brave" && (
                         <BraveChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "deepseek" && (
+                        <DeepSeekChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />
