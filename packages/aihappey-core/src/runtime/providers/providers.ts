@@ -589,6 +589,8 @@ import { critique } from "./catalog/critique";
 import { maxlayer } from "./catalog/maxlayer";
 import { hinow } from "./catalog/hinow";
 import { vikasit } from "./catalog/vikasit";
+import { circuitnotion } from "./catalog/circuitnotion";
+import { quantanova } from "./catalog/quantanova";
 
 /**
  * UI-facing provider catalog.
@@ -1105,6 +1107,8 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   redpill,
   browseruse,
   monica,
+  quantanova,
+  circuitnotion,
   lumaai,
   neosantara,
   meganova,
