@@ -579,6 +579,7 @@ import { roxy } from "./catalog/roxy";
 import { select } from "./catalog/select";
 import { pawaai } from "./catalog/pawaai";
 import { empiriolabsai } from "./catalog/empiriolabsai";
+import { standardcompute } from "./catalog/standardcompute";
 
 /**
  * UI-facing provider catalog.
@@ -681,6 +682,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   summa,
   neuralring,
   cognitivessai,
+  standardcompute,
   lumecoder,
   radient,
   aihorde,
