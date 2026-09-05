@@ -592,6 +592,7 @@ import { vikasit } from "./catalog/vikasit";
 import { circuitnotion } from "./catalog/circuitnotion";
 import { quantanova } from "./catalog/quantanova";
 import { flatseek } from "./catalog/flatseek";
+import { omneity } from "./catalog/omneity";
 
 /**
  * UI-facing provider catalog.
@@ -1109,6 +1110,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   browseruse,
   monica,
   quantanova,
+  omneity,
   circuitnotion,
   lumaai,
   flatseek,
