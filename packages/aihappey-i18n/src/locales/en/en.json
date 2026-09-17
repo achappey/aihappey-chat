@@ -179,6 +179,10 @@
     },
     "skillsPage": {
         "description": "An overview of all available skills for tasks and workflows. For each skill, you see what it does, when to use it, and how it differs from others. This helps you quickly choose the right option. Skills combine instructions, logic, and execution in a consistent structure for clarity, repeatability, and control.",
+        "actions": {
+            "import": "Import skill",
+            "create": "Create new skill"
+        },
         "fileCountBadge": "Files: {{count}}",
         "versionBadge": "Version {{version}}",
         "latestVersionBadge": "Latest {{version}}",

@@ -181,6 +181,10 @@
         }
     },
     "skillsPage": {
+        "actions": {
+            "import": "Skill importeren",
+            "create": "Nieuwe skill maken"
+        },
         "editor": {
             "newTitle": "Skill toevoegen",
             "description": "Beschrijving",

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Provider } from "aihappey-types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { IconToken, MenuItemProps, Provider } from "aihappey-types";
 import { useDrop } from "react-dnd";
 import { NativeTypes } from "react-dnd-html5-backend";
 import {
@@ -87,6 +87,7 @@ export const SkillsPage = () => {
   const [editorError, setEditorError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const q = normalizeText(search);
 
   const remoteSkillsHost = useMemo(
@@ -398,6 +399,30 @@ export const SkillsPage = () => {
     [onImportFiles]
   );
 
+  const handleFileSelect = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(event.target.files ?? []);
+      event.target.value = "";
+      if (files.length > 0) await onImportFiles(files);
+    },
+    [onImportFiles]
+  );
+
+  const actionMenuItems: MenuItemProps[] = [
+    {
+      key: "import-skill",
+      label: t("skillsPage.actions.import") ?? "Import skill package",
+      icon: "attachment" as IconToken,
+      onClick: () => fileInputRef.current?.click(),
+    },
+    {
+      key: "create-skill",
+      label: t("skillsPage.actions.create") ?? "Create new skill",
+      icon: "add" as IconToken,
+      onClick: handleNewSkill,
+    },
+  ];
+
   const renderGrid = (items: SkillCatalogItem[]) => {
     const visible = items.slice(0, visibleCount);
     return (
@@ -482,8 +507,31 @@ export const SkillsPage = () => {
       }}
     >
       <StickyHeaderActionBar
-        actionLabel={t("add")}
-        onAction={handleNewSkill}
+        actionContent={
+          <theme.Menu
+            align="right"
+            direction="bottom"
+            size="medium"
+            items={actionMenuItems}
+            trigger={
+              <theme.Button
+                type="button"
+                variant="primary"
+                icon="add"
+                title={t("add") ?? "Add"}
+                aria-label={t("add") ?? "Add"}
+              />
+            }
+          />
+        }
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".zip,application/zip"
+        multiple
+        hidden
+        onChange={handleFileSelect}
       />
       <div style={{ background: "transparent" }}>
         <div

@@ -4,13 +4,14 @@ import { useTheme } from "../theme/ThemeContext";
 import { useDarkMode } from "usehooks-ts";
 
 export type StickyHeaderActionBarProps = {
-  actionLabel: string;
-  onAction: () => void;
+  actionLabel?: string;
+  onAction?: () => void;
   actionIcon?: IconToken;
   actionVariant?: string;
   actionDisabled?: boolean;
   leftContent?: ReactNode;
   rightContent?: ReactNode;
+  actionContent?: ReactNode;
 };
 
 export const StickyHeaderActionBar = ({
@@ -21,6 +22,7 @@ export const StickyHeaderActionBar = ({
   actionDisabled,
   leftContent,
   rightContent,
+  actionContent,
 }: StickyHeaderActionBarProps) => {
   const { Button } = useTheme();
   const { isDarkMode } = useDarkMode();
@@ -40,15 +42,17 @@ export const StickyHeaderActionBar = ({
       <div style={{ flex: 1 }}>{leftContent}</div>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         {rightContent}
-        <Button
-          type="button"
-          variant={actionVariant as any}
-          icon={actionIcon}
-          disabled={actionDisabled}
-          onClick={onAction}
-        >
-          {actionLabel}
-        </Button>
+        {actionContent ?? (
+          <Button
+            type="button"
+            variant={actionVariant as any}
+            icon={actionIcon}
+            disabled={actionDisabled}
+            onClick={onAction}
+          >
+            {actionLabel}
+          </Button>
+        )}
       </div>
     </div>
   );
