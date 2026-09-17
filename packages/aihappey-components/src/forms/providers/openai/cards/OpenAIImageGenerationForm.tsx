@@ -27,6 +27,8 @@ export const OpenAIImageGenerationForm = ({
 
   const modelOptions = [
     { value: "chatgpt-image-latest", label: "chatgpt-image-latest" },
+    { value: "gpt-image-2.5-sunburst", label: "gpt-image-2.5 Sunburst" },
+    { value: "gpt-image-2.5-flare", label: "gpt-image-2.5 Flare" },
     { value: "gpt-image-2", label: "gpt-image-2" },
     { value: "gpt-image-1.5", label: "gpt-image-1.5" },
     { value: "gpt-image-1", label: "gpt-image-1" },
@@ -44,6 +46,8 @@ export const OpenAIImageGenerationForm = ({
     { value: "low", label: t("low") },
     { value: "medium", label: t("medium") },
     { value: "high", label: t("high") },
+    { value: "xhigh", label: t("xhigh") },
+    { value: "max", label: t("max") },
   ];
 
   const backgroundOptions = [
@@ -104,7 +108,7 @@ export const OpenAIImageGenerationForm = ({
                 image_generation: {
                   ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
                   model: val,
-                  input_fidelity: val == "gpt-image-2" ? undefined :
+                  input_fidelity: val.startsWith("gpt-image-2") ? undefined :
                     config.image_generation?.input_fidelity
                 },
               })
@@ -138,33 +142,6 @@ export const OpenAIImageGenerationForm = ({
         </div>
 
         <div style={{ display: "flex", flexDirection: "row" }}>
-          <theme.Select
-            label={t("input_fidelity")}
-            style={{ flex: "1 1 0" }}
-            values={[config?.image_generation?.input_fidelity || ""]}
-            disabled={!imageGenerationOn}
-            valueTitle={
-              fidelityOptions.find(
-                (a) => a.value === config?.image_generation?.input_fidelity
-              )?.label
-            }
-            options={fidelityOptions}
-            onChange={(val: string) =>
-              updateConfig({
-                ...config,
-                image_generation: {
-                  ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
-                  input_fidelity: val,
-                },
-              })
-            }
-          >
-            {fidelityOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </theme.Select>
 
           <theme.Select
             label={t("quality")}
@@ -193,6 +170,35 @@ export const OpenAIImageGenerationForm = ({
               </option>
             ))}
           </theme.Select>
+
+          <theme.Select
+            label={t("input_fidelity")}
+            style={{ flex: "1 1 0" }}
+            values={[config?.image_generation?.input_fidelity || ""]}
+            disabled={!imageGenerationOn || config?.image_generation?.model?.startsWith("gpt-image-2")}
+            valueTitle={
+              fidelityOptions.find(
+                (a) => a.value === config?.image_generation?.input_fidelity
+              )?.label
+            }
+            options={fidelityOptions}
+            onChange={(val: string) =>
+              updateConfig({
+                ...config,
+                image_generation: {
+                  ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
+                  input_fidelity: val,
+                },
+              })
+            }
+          >
+            {fidelityOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </theme.Select>
+
         </div>
 
         <div style={{ display: "flex", flexDirection: "row" }}>
