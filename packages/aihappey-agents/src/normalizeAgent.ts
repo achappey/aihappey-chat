@@ -47,6 +47,21 @@ export const normalizeAgentProviderHeaders = (
   return cleanHeaders(value);
 };
 
+/**
+ * Removes agent-scoped capabilities that are now configured by the MCP client.
+ * Unknown capability keys are deliberately preserved for forward compatibility.
+ */
+const normalizeMcpClient = (value: Agent["mcpClient"]): Agent["mcpClient"] => {
+  if (!isPlainRecord(value) || !isPlainRecord(value.capabilities)) return value;
+
+  const { capabilities: _legacyCapabilities, ...mcpClient } = value;
+  const { elicitation: _legacyElicitation, ...capabilities } = value.capabilities;
+
+  return Object.keys(capabilities).length > 0
+    ? { ...mcpClient, capabilities }
+    : mcpClient;
+};
+
 export const normalizeAgent = (agent: Agent): Agent => {
   const providerHeaders = normalizeAgentProviderHeaders(
     agent.model?.id,
@@ -59,5 +74,6 @@ export const normalizeAgent = (agent: Agent): Agent => {
       ...agent.model,
       providerHeaders,
     },
+    mcpClient: normalizeMcpClient(agent.mcpClient),
   };
 };
