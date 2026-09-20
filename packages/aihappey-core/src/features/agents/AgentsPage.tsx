@@ -374,9 +374,6 @@ export const AgentsPage = () => {
             instructions: "",
             model: { id: "" },
             mcpClient: {
-              capabilities: {
-                elicitation: {}
-              },
               policy: {
                 readOnlyHint: false,
                 openWorldHint: true,

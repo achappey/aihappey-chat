@@ -5,6 +5,7 @@ import {
     toLocalAgentSelectionKey,
 } from "aihappey-types";
 import type { StateCreator } from "zustand";
+import { normalizeAgent } from "aihappey-agents";
 import { getConfiguredDefaultAgents } from "../appStoreConfig";
 import { ensureDefaultAgents } from "./defaultAgents";
 import {
@@ -57,7 +58,7 @@ export const createAgentSlice: StateCreator<
     [],
     AgentSlice
 > = (set, get, store) => ({
-    agents: getConfiguredDefaultAgents(),
+    agents: getConfiguredDefaultAgents().map(normalizeAgent),
     remoteAgentModels: [],
     remoteAgentModelsLoaded: false,
     selectedAgentNames: [],
@@ -90,7 +91,7 @@ export const createAgentSlice: StateCreator<
             agents: state.agents.map(a =>
                 a.name !== agentName
                     ? a
-                    : {
+                    : normalizeAgent({
                         ...a,
                         mcpClient: {
                             ...(a.mcpClient ?? {}),
@@ -99,7 +100,7 @@ export const createAgentSlice: StateCreator<
                                 [key]: value
                             }
                         }
-                    }
+                    })
             )
         })),
 
@@ -158,7 +159,7 @@ export const createAgentSlice: StateCreator<
     },
     setAgents: (agents) => {
         set((state: any) => ({
-            agents: agents,
+            agents: (agents ?? []).map(normalizeAgent),
         }));
     },
     setRemoteAgentModels: (models) => {
@@ -200,17 +201,18 @@ export const createAgentSlice: StateCreator<
     },
     restoreDefaultAgents: () => {
         set((state: AgentSlice) => ({
-            agents: ensureDefaultAgents(state.agents, getConfiguredDefaultAgents()),
+            agents: ensureDefaultAgents(state.agents, getConfiguredDefaultAgents()).map(normalizeAgent),
         }));
     },
     createAgent: (agent) =>
         set((state: AgentSlice) => {
-            if (state.agents.some((a) => a.name === agent.name)) {
-                throw new Error(`Agent with name '${agent.name}' already exists`);
+            const normalizedAgent = normalizeAgent(agent);
+            if (state.agents.some((a) => a.name === normalizedAgent.name)) {
+                throw new Error(`Agent with name '${normalizedAgent.name}' already exists`);
             }
 
             return {
-                agents: [...state.agents, agent],
+                agents: [...state.agents, normalizedAgent],
             };
         }),
 
@@ -245,7 +247,7 @@ export const createAgentSlice: StateCreator<
 
             const next = [...state.agents];
 
-            next[index] = {
+            next[index] = normalizeAgent({
                 ...prev,
                 ...agent,
                 name, // hard lock
@@ -255,7 +257,7 @@ export const createAgentSlice: StateCreator<
                     providerHeaders,
                 },
 
-            };
+            });
 
             return { agents: next };
         }),

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ClientCapabilitiesForm, McpPolicySettings, useTheme } from "aihappey-components";
+import { McpPolicySettings, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
 import { IconToken } from "aihappey-types";
@@ -24,7 +24,6 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
   const toggleAgentMcpServer = useAppStore(a => a.toggleAgentMcpServer)
   const updateAgentPolicy = useAppStore(a => a.updateAgentPolicy)
-  const updateAgentClientCapabilities = useAppStore(a => a.updateAgentClientCapabilities)
   const enrichedAgents = useAgents()
   const agents = useAppStore(a => a.agents)
   const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
@@ -67,7 +66,6 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
             title={a.agent.name}>
             <AgentTab agent={a}
               toggleMcpServer={toggleAgentMcpServer}
-              updateMcpClientCapabilities={updateAgentClientCapabilities}
               updatePolicy={updateAgentPolicy} />
           </theme.Tab>
         })}
@@ -78,12 +76,10 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
 
 const AgentTab = ({
   agent,
-  updateMcpClientCapabilities,
   updatePolicy,
   toggleMcpServer,
 }: {
   agent: AgentWithMcpServers,
-  updateMcpClientCapabilities: any,
   updatePolicy: any,
   toggleMcpServer: any
 }) => {
@@ -127,13 +123,6 @@ const AgentTab = ({
 
       <McpPolicySettings policySettings={agent?.agent.mcpClient?.policy}
         toggle={toggle} />
-
-      <ClientCapabilitiesForm
-        capabilities={agent.agent?.mcpClient?.capabilities}
-        onChange={(key, value) =>
-          updateMcpClientCapabilities(agent.agent.name, key, value)
-        }
-      />
 
       {agent?.agent.responseFormat?.json_schema?.schema &&
         <theme.Card

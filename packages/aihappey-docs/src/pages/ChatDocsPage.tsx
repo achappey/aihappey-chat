@@ -133,7 +133,7 @@ const content: Record<ChatDocsTopic, TopicContent> = {
       {
         title: "Optional capabilities", body: list([
           <><code>argumentHint</code>, <code>responseFormat</code>, and <code>icons</code> provide invocation and presentation metadata.</>,
-          <><code>mcpServers</code> maps names to remote HTTP server configurations; <code>mcpClient.capabilities.elicitation</code> declares client support.</>,
+          <><code>mcpServers</code> maps names to remote HTTP server configurations; <code>mcpClient.policy</code> supplies tool-use policy hints.</>,
           <><code>skills</code> accepts inline bundles or gateway <code>skill_reference</code> values.</>,
           <><code>plugins</code> embeds immutable Agent Plugin ZIP snapshots as base64; <code>tools</code> carries provider-neutral runtime tool definitions.</>,
         ])
@@ -171,7 +171,7 @@ const content: Record<ChatDocsTopic, TopicContent> = {
       },
       {
         title: "Client capabilities", body: list([
-          <>Elicitation handlers support both form and URL modes when configured.</>,
+          <>Elicitation handlers support both form and URL modes when enabled in the global Model Context client settings.</>,
           <>Prompt listing/get and MCP completion are available where advertised; resources and templates can be selected and read for model context.</>,
           <>Trusted hosts can expose agent and conversation resources with <code>application/vnd.agent+json</code>, <code>application/vnd.agents+json</code>, <code>application/vnd.conversation+json</code>, or <code>application/vnd.conversations+json</code>.</>,
         ])

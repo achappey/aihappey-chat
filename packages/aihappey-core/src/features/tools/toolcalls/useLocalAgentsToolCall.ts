@@ -49,7 +49,6 @@ export const localAgentsCreateTool: Tool = {
       policyIdempotent: { type: "boolean", description: "Whether the agent is idempotent" },
       policyOpenWorld: { type: "boolean", description: "Whether the agent can query external/unknown resources" },
       policyDestructive: { type: "boolean", description: "Whether the agent can make destructive changes" },
-      capabilityElicitation: { type: "boolean", description: "Whether the agent supports elicitation capabilities" },
     },
     required: ["agentName", "agentDescription", "agentInstructions", "modelId", "modelTemperature"],
   },
@@ -234,9 +233,6 @@ export function useLocalAgentsEditorRuntime() {
                   idempotentHint: input.policyIdempotent ?? false,
                   openWorldHint: input.policyOpenWorld ?? false,
                   destructiveHint: input.policyDestructive ?? false,
-                },
-                capabilities: {
-                  elicitation: input.capabilityElicitation ?? false,
                 },
               },
               mcpServers: toServerConfigRecord(input.mcpServerUrls),

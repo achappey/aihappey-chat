@@ -1,6 +1,6 @@
 import {
     AbliterationChatConfigForm, AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
-    BraveChatConfigForm, ClientCapabilitiesForm, CohereChatConfigForm,
+    BraveChatConfigForm, CohereChatConfigForm,
     CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
     InworldChatConfigForm, InterfazeChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
     LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings,
@@ -705,23 +705,6 @@ export const AgentForm = ({
                                         policy: {
                                             ...agent.mcpClient?.policy,
                                             [meta]: !current,
-                                        },
-                                    },
-                                });
-                            }}
-                        />
-                    </div>
-                    <div style={{ marginTop: 12 }}>
-                        <ClientCapabilitiesForm
-                            capabilities={agent.mcpClient?.capabilities}
-                            onChange={(key, value) => {
-                                onChange({
-                                    ...agent,
-                                    mcpClient: {
-                                        ...(agent.mcpClient ?? {}),
-                                        capabilities: {
-                                            ...(agent.mcpClient?.capabilities ?? {}),
-                                            [key]: value,
                                         },
                                     },
                                 });
