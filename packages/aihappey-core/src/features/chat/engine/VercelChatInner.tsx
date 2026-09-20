@@ -343,19 +343,32 @@ export function VercelChatInner({
     ]
   );
 
-  const getAgentApiKeyHeaders = useCallback((agents: any[] | undefined) => {
+  const agentApiKeyHeaders = useMemo(() => {
+    // Agent-scoped Entra authentication owns this request path. Provider API
+    // keys are only forwarded for the BYOK variant of the optional backend.
+    if (config.agentScopes?.length) return {};
+
+    const selectedAgents = selectedAgentRequest.entries
+      .map((entry) => entry.kind === "local"
+        ? entry.localAgent
+        : entry.remoteAgentModel?.agent
+      )
+      .filter(Boolean);
     const providerKeys = Array.from(
       new Set(
-        (agents ?? [])
-          .map((agent: any) => getProviderKeyFromModelId(agent?.model?.id))
-          .filter(Boolean)
+        selectedAgents
+          .map((agent: any) => {
+            const modelId = String(agent?.model?.id ?? "").trim();
+            return modelId.includes("/") ? getProviderKeyFromModelId(modelId) : undefined;
+          })
+          .filter((providerKey): providerKey is string => !!providerKey && !!providers[providerKey])
       )
     );
 
     return Object.fromEntries(
       providerKeys.flatMap((providerKey) => getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers))
     );
-  }, [customHeaders, providers]);
+  }, [config.agentScopes, customHeaders, providers, selectedAgentRequest.entries]);
 
   const authFetchCustomHeaders = chatMode === "agent"
     ? undefined
@@ -687,7 +700,7 @@ export function VercelChatInner({
               if (value != null) requestHeaders.set(key, String(value));
             });
 
-            Object.entries(getAgentApiKeyHeaders(mergedBody.agents) ?? {}).forEach(([key, value]) => {
+            Object.entries(agentApiKeyHeaders).forEach(([key, value]) => {
               if (value != null) requestHeaders.set(key, String(value));
             });
           }
@@ -733,7 +746,7 @@ export function VercelChatInner({
         )
         : new DefaultChatTransport(transportOptions);
     },
-    [chatFetch, applyOverrides, baseBody, chatMode, headers, getAgentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings]
+    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings]
   );
 
   const {
