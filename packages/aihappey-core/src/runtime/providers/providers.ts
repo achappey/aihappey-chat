@@ -594,6 +594,8 @@ import { omneity } from "./catalog/omneity";
 import { epho } from "./catalog/epho";
 import { shadowos } from "./catalog/shadowos";
 import { harnessrouter } from "./catalog/harnessrouter";
+import { bananapeel } from "./catalog/bananapeel";
+import { softref } from "./catalog/softref";
 
 /**
  * UI-facing provider catalog.
@@ -648,6 +650,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   concentrate,
   rebytemodels,
   rebytetasks,
+  bananapeel,
   rewindai,
   moleapi,
   hostyourai,
@@ -939,6 +942,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   cloudferro,
   jigsawstack,
   eachlabs,
+  softref,
   nimbleway,
   aigateway,
   llmstats,
