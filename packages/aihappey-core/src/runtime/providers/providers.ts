@@ -596,6 +596,7 @@ import { shadowos } from "./catalog/shadowos";
 import { harnessrouter } from "./catalog/harnessrouter";
 import { bananapeel } from "./catalog/bananapeel";
 import { softref } from "./catalog/softref";
+import { vanceai } from "./catalog/vanceai";
 
 /**
  * UI-facing provider catalog.
@@ -989,6 +990,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   literouter,
   orqagentruntime,
   typecast,
+  vanceai,
   jiekouai,
   qiniu,
   uvoiceai,
