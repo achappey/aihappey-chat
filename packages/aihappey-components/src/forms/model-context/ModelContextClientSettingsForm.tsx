@@ -4,24 +4,38 @@ import { useTheme } from "../../theme/ThemeContext";
 type ModelContextClientSettings = {
     toolTimeoutMinutes: number;
     resetTimeoutOnProgress: boolean;
+    enableElicitation: boolean;
 };
 
 type ModelContextClientSettingsFormProps = {
     value: ModelContextClientSettings;
+    elicitationDisabled?: boolean;
     onChangeTimeout: (minutes: number, resetOnProgress: boolean) => void;
     onToggleResetOnProgress: (enabled: boolean) => void;
+    onToggleElicitation: (enabled: boolean) => void;
 };
 
 export const ModelContextClientSettingsForm = ({
     value,
+    elicitationDisabled = false,
     onChangeTimeout,
     onToggleResetOnProgress,
+    onToggleElicitation,
 }: ModelContextClientSettingsFormProps) => {
     const { Slider, Switch } = useTheme();
     const { t } = useTranslation();
 
     return (
         <>
+            <Switch
+                size="small"
+                id="enableMcpElicitation"
+                checked={value.enableElicitation}
+                disabled={elicitationDisabled}
+                label={t("elicit")}
+                onChange={onToggleElicitation}
+            />
+
             <Slider
                 min={1}
                 max={60}

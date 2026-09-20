@@ -5,23 +5,28 @@ import { ModelContextClientSettingsForm } from "aihappey-components";
 type ModelContextClientSettings = {
   toolTimeoutMinutes: number;
   resetTimeoutOnProgress: boolean;
+  enableElicitation: boolean;
 };
 
 const Wrapper = ({
   initialValue,
+  elicitationDisabled = false,
 }: {
   initialValue?: ModelContextClientSettings;
+  elicitationDisabled?: boolean;
 }) => {
   const [value, setValue] = useState<ModelContextClientSettings>(
     initialValue ?? {
       toolTimeoutMinutes: 5,
       resetTimeoutOnProgress: true,
+      enableElicitation: true,
     }
   );
 
   return (
     <ModelContextClientSettingsForm
       value={value}
+      elicitationDisabled={elicitationDisabled}
       onChangeTimeout={(minutes, resetOnProgress) =>
         setValue((prev) => ({
           ...prev,
@@ -31,6 +36,9 @@ const Wrapper = ({
       }
       onToggleResetOnProgress={(enabled) =>
         setValue((prev) => ({ ...prev, resetTimeoutOnProgress: enabled }))
+      }
+      onToggleElicitation={(enabled) =>
+        setValue((prev) => ({ ...prev, enableElicitation: enabled }))
       }
     />
   );
@@ -57,6 +65,7 @@ export const MinTimeout: Story = {
       initialValue={{
         toolTimeoutMinutes: 1,
         resetTimeoutOnProgress: true,
+        enableElicitation: true,
       }}
     />
   ),
@@ -71,6 +80,7 @@ export const MaxTimeout: Story = {
       initialValue={{
         toolTimeoutMinutes: 60,
         resetTimeoutOnProgress: false,
+        enableElicitation: true,
       }}
     />
   ),
@@ -82,6 +92,7 @@ export const ResetOnProgressOn: Story = {
       initialValue={{
         toolTimeoutMinutes: 10,
         resetTimeoutOnProgress: true,
+        enableElicitation: true,
       }}
     />
   ),
@@ -93,7 +104,24 @@ export const ResetOnProgressOff: Story = {
       initialValue={{
         toolTimeoutMinutes: 10,
         resetTimeoutOnProgress: false,
+        enableElicitation: true,
       }}
     />
   ),
+};
+
+export const ElicitationOff: Story = {
+  render: () => (
+    <Wrapper
+      initialValue={{
+        toolTimeoutMinutes: 5,
+        resetTimeoutOnProgress: true,
+        enableElicitation: false,
+      }}
+    />
+  ),
+};
+
+export const ElicitationLockedWhileConnected: Story = {
+  render: () => <Wrapper elicitationDisabled />,
 };

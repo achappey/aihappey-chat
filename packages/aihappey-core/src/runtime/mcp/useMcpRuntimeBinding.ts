@@ -82,6 +82,7 @@ export function useMcpRuntimeBinding({
 }: any) {
     const mcpServers = useAppStore((s) => s.mcpServers);
     const connectMcpServer = useAppStore((s) => s.connectMcpServer);
+    const enableMcpElicitation = useAppStore((s) => s.enableMcpElicitation);
     const customHeaders = useAppStore((s) => s.customHeaders);
     const clearMcpContent = useAppStore((s) => s.clearMcpContent);
     const enabledProviders = useAppStore((s) => s.enabledProvidersByType?.language ?? []);
@@ -202,7 +203,7 @@ export function useMcpRuntimeBinding({
                         ...safeHeaders
                     },
                     handleOAuth: true,
-                    onElicit,
+                    onElicit: enableMcpElicitation !== false ? onElicit : undefined,
                     onLogging,
                     onProgress,
                     clientName,
@@ -249,6 +250,7 @@ export function useMcpRuntimeBinding({
         authenticated,
         clientName,
         clientVersion,
+        enableMcpElicitation,
         clearMcpContent,
         connectMcpServer,
     ]);

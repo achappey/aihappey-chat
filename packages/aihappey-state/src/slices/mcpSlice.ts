@@ -56,6 +56,7 @@ export type McpSlice = {
   safeHosts: string[]
   setSafeHosts: (safeHosts: string[]) => void;
   resetTimeoutOnProgress: boolean
+  enableMcpElicitation: boolean
 
   tokens: Record<string, string>;
   mcpServerContent: Record<string, McpContents>;
@@ -70,6 +71,7 @@ export type McpSlice = {
   clearMcpContent: (name: string) => void;
 
   setMcpTimeout: (timeout: number, resetTimeoutOnProgress: boolean) => void;
+  setMcpElicitationEnabled: (enabled: boolean) => void;
   connectMcpServer: (name: string, url: string, opts: any, conversationImport?: any) => Promise<any>;
 };
 
@@ -85,6 +87,7 @@ export const createMcpSlice: StateCreator<
   safeHosts: [],
   toolTimeout: 300000,
   resetTimeoutOnProgress: true,
+  enableMcpElicitation: true,
   progress: [],
   setSafeHosts: async (hosts) => {
     set((state: any) => ({
@@ -264,6 +267,9 @@ export const createMcpSlice: StateCreator<
       resetTimeoutOnProgress: resetTimeoutOnProgress
     }));
 
+  },
+  setMcpElicitationEnabled: (enabled: boolean) => {
+    set({ enableMcpElicitation: enabled });
   },
   getMcpTask: async (serverName: string, taskId: string, signal?: AbortSignal) => {
     const { toolTimeout, resetTimeoutOnProgress } = get();
