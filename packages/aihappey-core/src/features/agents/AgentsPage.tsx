@@ -1,10 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { getAgentModelProviderKey, useAppStore } from "aihappey-state";
 import { AgentCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { AgentEditModal } from "./AgentEditModal";
-import { Agent, RemoteAgentModel } from "aihappey-types";
+import type { Agent, IconToken, MenuItemProps, RemoteAgentModel } from "aihappey-types";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
 import React from "react";
@@ -54,7 +54,8 @@ const hostnameOf = (url?: string) => {
 // --- Component ---------------------------------------------------------------
 
 export const AgentsPage = () => {
-  const { SearchBox, Text, Tabs, Tab } = useTheme();
+  const theme = useTheme();
+  const { SearchBox, Text, Tabs, Tab } = theme;
   const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
   const isDesktop = useIsDesktop();
@@ -77,6 +78,7 @@ export const AgentsPage = () => {
   const [activeTab, setActiveTab] = useState<string>("all"); // "top" | "all"
   const [convertingCardKey, setConvertingCardKey] = useState<string | null>(null);
   const [pluginFeedback, setPluginFeedback] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const favoriteAgentSet = useMemo(
     () => new Set((favoriteAgentIds ?? []).filter(Boolean)),
@@ -136,15 +138,10 @@ export const AgentsPage = () => {
   }, [drop]);
 
 
-  const handleFileDrop = async (item: any) => {
-    const files: FileList | undefined = item?.dataTransfer?.files;
-    if (!files || files.length === 0) return;
-
-    const importedIds: string[] = [];
-
-    for (const file of Array.from(files)) {
+  const importAgentFiles = useCallback(async (files: File[]) => {
+    for (const file of files) {
       if (!file.name.toLowerCase().endsWith(".json")) {
-        console.warn("Skipping non-chat file:", file.name);
+        console.warn("Skipping non-agent file:", file.name);
         continue;
       }
 
@@ -152,13 +149,25 @@ export const AgentsPage = () => {
         const text = await file.text();
         const data = JSON.parse(text);
         if (data?.name && data?.description && data?.instructions) {
-          createAgent(data)
+          createAgent(data);
         }
       } catch (err) {
-        console.error("Failed to import conversation", file.name, err);
+        console.error("Failed to import agent", file.name, err);
       }
     }
-  };
+  }, [createAgent]);
+
+  const handleFileDrop = useCallback(async (item: any) => {
+    const files: FileList | undefined = item?.dataTransfer?.files;
+    if (!files || files.length === 0) return;
+    await importAgentFiles(Array.from(files));
+  }, [importAgentFiles]);
+
+  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    if (files.length > 0) await importAgentFiles(files);
+  }, [importAgentFiles]);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -243,6 +252,21 @@ export const AgentsPage = () => {
     }
   }, [convertingCardKey, plugins, skills, t]);
 
+  const actionMenuItems: MenuItemProps[] = [
+    {
+      key: "import-agent",
+      label: t("agents.actions.import") ?? "Import agent",
+      icon: "attachment" as IconToken,
+      onClick: () => fileInputRef.current?.click(),
+    },
+    {
+      key: "create-agent",
+      label: t("agents.actions.create") ?? "Create new agent",
+      icon: "add" as IconToken,
+      onClick: handleCreate,
+    },
+  ];
+
   const renderGrid = (items: typeof cards) => (
     <div
       style={{
@@ -296,8 +320,31 @@ export const AgentsPage = () => {
       }}
       onDragOver={handleDragOver}>
       <StickyHeaderActionBar
-        actionLabel={t("add")}
-        onAction={handleCreate}
+        actionContent={
+          <theme.Menu
+            align="right"
+            direction="bottom"
+            size="medium"
+            items={actionMenuItems}
+            trigger={
+              <theme.Button
+                type="button"
+                variant="primary"
+                icon="add"
+                title={t("add") ?? "Add"}
+                aria-label={t("add") ?? "Add"}
+              />
+            }
+          />
+        }
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,application/json"
+        multiple
+        hidden
+        onChange={handleFileSelect}
       />
       <div style={{ background: "transparent" }}>
         <div

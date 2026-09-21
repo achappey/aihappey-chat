@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   PluginCard,
   PluginDetailsModal,
@@ -27,6 +27,7 @@ import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
+import type { IconToken, MenuItemProps } from "aihappey-types";
 
 const PLUGIN_ALL_FILTER_VALUE = "__ALL__";
 const CONTENT_MAX_WIDTH = 760;
@@ -147,6 +148,7 @@ export const PluginsPage = () => {
   const [editorError, setEditorError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [showMcpCatalog, setShowMcpCatalog] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [draftMcpOptions, setDraftMcpOptions] = useState<Array<{
     id: string;
     label: string;
@@ -385,6 +387,34 @@ export const PluginsPage = () => {
     setFeedback(imported ? t("pluginsPage.imported", { count: imported }) : messages[0] || t("pluginsPage.importFailed"));
   }, [plugins, t]);
 
+  const handleFileSelect = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    if (files.length > 0) await importArchives(files);
+  }, [importArchives]);
+
+  const handleCreatePlugin = useCallback(() => {
+    setEditorPlugin(undefined);
+    setEditorMcpFromPlugin(undefined);
+    setEditorError(null);
+    setEditorMode("create");
+  }, [setEditorMcpFromPlugin]);
+
+  const actionMenuItems: MenuItemProps[] = [
+    {
+      key: "import-plugin",
+      label: t("pluginsPage.actions.import") ?? "Import plugin",
+      icon: "attachment" as IconToken,
+      onClick: () => fileInputRef.current?.click(),
+    },
+    {
+      key: "create-plugin",
+      label: t("pluginsPage.actions.create") ?? "Create new plugin",
+      icon: "add" as IconToken,
+      onClick: handleCreatePlugin,
+    },
+  ];
+
   const snapshotSkill = useCallback(async (skillId: string): Promise<StoredPluginFile[]> => {
     if (skillId.startsWith("embedded:")) {
       const directory = skillId.slice("embedded:".length);
@@ -466,7 +496,33 @@ export const PluginsPage = () => {
       onDrop={(event) => { event.preventDefault(); setDragging(false); void importArchives(Array.from(event.dataTransfer.files)); }}
       style={{ minHeight: "100%", border: dragging ? "2px dotted #888" : "2px solid transparent", boxSizing: "border-box" }}
     >
-      <StickyHeaderActionBar actionLabel={t("add")} onAction={() => { setEditorPlugin(undefined); setEditorMcpFromPlugin(undefined); setEditorError(null); setEditorMode("create"); }} />
+      <StickyHeaderActionBar
+        actionContent={
+          <theme.Menu
+            align="right"
+            direction="bottom"
+            size="medium"
+            items={actionMenuItems}
+            trigger={
+              <theme.Button
+                type="button"
+                variant="primary"
+                icon="add"
+                title={t("add") ?? "Add"}
+                aria-label={t("add") ?? "Add"}
+              />
+            }
+          />
+        }
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".zip,application/zip"
+        multiple
+        hidden
+        onChange={handleFileSelect}
+      />
       <div style={{ width: CONTENT_MAX_WIDTH, maxWidth: "100%", margin: "0 auto", padding: isDesktop ? 0 : 12, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <OverviewPageHeader title={t("pluginsPage.title")} officialUrl="https://agent-plugins.org/" docsUrl="https://agent-plugins.org/specification" />
             <theme.Text as="p" align="center">{t("pluginsPage.description")}</theme.Text>

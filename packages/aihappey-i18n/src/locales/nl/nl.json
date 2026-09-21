@@ -216,6 +216,10 @@
     "pluginsPage": {
         "title": "Plugins",
         "description": "Plugins bundelen Skills en Model Context servers in één pakket. Zo voeg je complete sets van instructies, tools en mogelijkheden in één keer toe en kun je ze eenvoudig combineren, delen en hergebruiken.",
+        "actions": {
+            "import": "Plugin importeren",
+            "create": "Nieuwe plugin maken"
+        },
         "chatRuntimeDescription": "Schakel plugins in voor deze chatruntime. Hun Skills worden automatisch beschikbaar, ondersteunde MCP-servers gebruiken de bestaande servertoggles en pakketbestanden buiten Skills kunnen indien nodig worden gelezen.",
         "readFileTool": "Pakketbestanden van ingeschakelde plugins lezen",
         "skillCount": "Skills: {{count}}",
@@ -631,6 +635,10 @@
     "agents": {
         "title": "Agents",
         "description": "Agents zijn autonome eenheden die vaardigheden, context en uitvoeringslogica samenbrengen in één model. Dat levert voorspelbaar gedrag op, maakt opschalen eenvoudig en zorgt voor een consistente inzet in verschillende omgevingen.",
+        "actions": {
+            "import": "Agent importeren",
+            "create": "Nieuwe agent maken"
+        },
         "mcpClientCapabilities": "Model Context mogelijkheden",
         "settings": "Instellingen",
         "mcpServers": "Model Context",

@@ -213,6 +213,10 @@
     "pluginsPage": {
         "title": "Plugins",
         "description": "Plugins bundle Skills and Model Context servers into a single package. This lets you add complete sets of instructions, tools, and capabilities at once, and easily combine, share, and reuse them.",
+        "actions": {
+            "import": "Import plugin",
+            "create": "Create new plugin"
+        },
         "chatRuntimeDescription": "Enable plugins for this chat runtime. Their Skills become available automatically, supported MCP servers use the existing server toggles, and package files outside Skills can be read when needed.",
         "readFileTool": "Read enabled plugin package files",
         "skillCount": "Skills: {{count}}",
@@ -514,6 +518,10 @@
     "agents": {
         "title": "Agents",
         "description": "Agents are autonomous units that bring capabilities, context, and execution logic together in a single model. This delivers predictable behavior, makes scaling straightforward, and ensures consistent use across different environments.",
+        "actions": {
+            "import": "Import agent",
+            "create": "Create new agent"
+        },
         "mcpClientCapabilities": "Model Context capabilities",
         "settings": "Settings",
         "mcpServers": "Model Context servers",
