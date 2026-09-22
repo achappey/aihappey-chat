@@ -65,6 +65,24 @@ export const localAiProvidersListTool: Tool = {
   },
 };
 
+export const localAiProviderCountriesListTool: Tool = {
+  name: "local_ai_provider_countries_list",
+  title: "List local AI provider countries",
+  description:
+    "List the unique ISO country codes represented in the local runtime provider catalog, including the number of providers for each country.",
+  inputSchema: {
+    type: "object",
+    properties: {},
+    required: [],
+  },
+  annotations: {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  },
+};
+
 export const localAiProvidersSearchTool: Tool = {
   name: "local_ai_providers_search",
   title: "Search local AI providers",
@@ -172,6 +190,7 @@ export const localArtificialIntelligencePluginDef = {
   match: (toolName: string) => toolName.startsWith("local_ai_"),
   tools: [
     localAiProvidersListTool,
+    localAiProviderCountriesListTool,
     localAiProvidersSearchTool,
     localAiModelsSearchTool,
     localAiModelsListByProviderTool,
@@ -180,6 +199,7 @@ export const localArtificialIntelligencePluginDef = {
 
 type LocalAiToolName =
   | "local_ai_providers_list"
+  | "local_ai_provider_countries_list"
   | "local_ai_providers_search"
   | "local_ai_models_search"
   | "local_ai_models_list_by_provider";
@@ -223,6 +243,28 @@ const listProviderViews = (): ProviderView[] => {
         numeric: true,
       });
     });
+};
+
+type ProviderCountryView = {
+  code: string;
+  providerCount: number;
+};
+
+const listProviderCountryViews = (providers: ProviderView[]): ProviderCountryView[] => {
+  const providerCountByCode = new Map<string, number>();
+
+  providers.forEach(provider => {
+    const code = String(provider.providerCountry ?? "").trim().toUpperCase();
+    if (!code) return;
+
+    providerCountByCode.set(code, (providerCountByCode.get(code) ?? 0) + 1);
+  });
+
+  return Array.from(providerCountByCode, ([code, providerCount]) => ({ code, providerCount }))
+    .sort((a, b) => a.code.localeCompare(b.code, undefined, {
+      sensitivity: "base",
+      numeric: true,
+    }));
 };
 
 const filterProviderViews = (
@@ -327,6 +369,14 @@ export function useLocalArtificialIntelligenceRuntime() {
             const items = applyLimit(filtered, limit);
             return {
               structuredContent: { total: filtered.length, count: items.length, items },
+              content: []
+            };
+          }
+
+          case "local_ai_provider_countries_list": {
+            const items = listProviderCountryViews(providers);
+            return {
+              structuredContent: { total: items.length, count: items.length, items },
               content: []
             };
           }
