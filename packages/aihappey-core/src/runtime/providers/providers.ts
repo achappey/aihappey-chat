@@ -600,6 +600,7 @@ import { vanceai } from "./catalog/vanceai";
 import { ellipsis } from "./catalog/ellipsis";
 import { mireye } from "./catalog/mireye";
 import { carouter } from "./catalog/carouter";
+import { tokenspend } from "./catalog/tokenspend";
 
 /**
  * UI-facing provider catalog.
@@ -821,6 +822,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tikhubai,
   inferlink,
   knoxchat,
+  tokenspend,
   auriko,
   vlmrun,
   raxai,
