@@ -601,6 +601,9 @@ import { ellipsis } from "./catalog/ellipsis";
 import { mireye } from "./catalog/mireye";
 import { carouter } from "./catalog/carouter";
 import { tokenspend } from "./catalog/tokenspend";
+import { canrouter } from "./catalog/canrouter";
+import { mintrouter } from "./catalog/mintrouter";
+import { hush } from "./catalog/hush";
 
 /**
  * UI-facing provider catalog.
@@ -819,6 +822,9 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   routerlink,
   yollomi,
   vultr,
+  canrouter,
+  mintrouter,
+  hush,
   tikhubai,
   inferlink,
   knoxchat,
