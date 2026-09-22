@@ -195,7 +195,13 @@
     "coordinatesTitle": "Latitude and longitude",
     "coordinatesHint": "Provide both coordinates. Selecting this option removes the address.",
     "latitude": "Latitude",
-    "longitude": "Longitude"
+    "longitude": "Longitude",
+    "getCurrent": "Get current",
+    "gettingCurrent": "Getting current location...",
+    "geolocationUnsupported": "Current location is not supported by this browser.",
+    "geolocationDenied": "Location permission was denied.",
+    "geolocationUnavailable": "Your current location could not be determined.",
+    "geolocationTimeout": "Getting your current location timed out."
   },
   "brave": {
     "notSet": "Not set",

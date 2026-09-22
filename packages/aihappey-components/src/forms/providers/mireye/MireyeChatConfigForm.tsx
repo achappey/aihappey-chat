@@ -8,6 +8,7 @@ export type MireyeChatConfig =
   | { address?: never; lat?: number; lng?: number };
 
 type LocationMode = "address" | "coordinates";
+type GeolocationFeedback = "unsupported" | "denied" | "unavailable" | "timeout";
 
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value);
@@ -43,6 +44,9 @@ export const MireyeChatConfigForm = ({
   const [longitudeDraft, setLongitudeDraft] = useState(
     isFiniteNumber(config?.lng) ? String(config.lng) : ""
   );
+  const [isLocating, setIsLocating] = useState(false);
+  const [geolocationFeedback, setGeolocationFeedback] =
+    useState<GeolocationFeedback | undefined>();
 
   useEffect(() => {
     if (typeof config?.address === "string") {
@@ -93,6 +97,58 @@ export const MireyeChatConfigForm = ({
     const lng = parseCoordinate(nextLongitude, -180, 180);
     updateConfig(lat !== undefined && lng !== undefined ? { lat, lng } : {});
   };
+
+  const getCurrentLocation = () => {
+    setMode("coordinates");
+    setAddressDraft("");
+    setGeolocationFeedback(undefined);
+    updateConfig({});
+
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeolocationFeedback("unsupported");
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const lat = coords.latitude;
+        const lng = coords.longitude;
+        setLatitudeDraft(String(lat));
+        setLongitudeDraft(String(lng));
+        setIsLocating(false);
+        updateConfig({ lat, lng });
+      },
+      (error) => {
+        setIsLocating(false);
+        setGeolocationFeedback(
+          error.code === error.PERMISSION_DENIED
+            ? "denied"
+            : error.code === error.TIMEOUT
+              ? "timeout"
+              : "unavailable"
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
+  const geolocationMessage = geolocationFeedback
+    ? {
+        unsupported:
+          t("providers:mireye.geolocationUnsupported") ??
+          "Current location is not supported by this browser.",
+        denied:
+          t("providers:mireye.geolocationDenied") ??
+          "Location permission was denied.",
+        unavailable:
+          t("providers:mireye.geolocationUnavailable") ??
+          "Your current location could not be determined.",
+        timeout:
+          t("providers:mireye.geolocationTimeout") ??
+          "Getting your current location timed out.",
+      }[geolocationFeedback]
+    : undefined;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -180,6 +236,24 @@ export const MireyeChatConfigForm = ({
               updateCoordinates(latitudeDraft, value);
             }}
           />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, marginTop: 12 }}>
+          <theme.Button
+            type="button"
+            size="small"
+            variant="subtle"
+            disabled={isLocating}
+            onClick={getCurrentLocation}
+          >
+            {isLocating
+              ? t("providers:mireye.gettingCurrent") ?? "Getting current location..."
+              : t("providers:mireye.getCurrent") ?? "Get current"}
+          </theme.Button>
+          {geolocationMessage ? (
+            <theme.Text as="p" style={{ margin: 0 }}>
+              {geolocationMessage}
+            </theme.Text>
+          ) : null}
         </div>
       </theme.Card>
     </div>

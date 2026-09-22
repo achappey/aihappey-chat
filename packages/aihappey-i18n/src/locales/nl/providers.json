@@ -316,6 +316,22 @@
     "addRepository": "Repository-URL toevoegen",
     "noRepositories": "Er zijn nog geen repositories toegevoegd."
   },
+  "mireye": {
+    "addressTitle": "Adres",
+    "addressHint": "Gebruik een volledig Amerikaans straatadres. Als je deze optie selecteert, worden eventuele coördinaten verwijderd.",
+    "address": "Adres",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "coordinatesTitle": "Breedte- en lengtegraad",
+    "coordinatesHint": "Vul beide coördinaten in. Als je deze optie selecteert, wordt het adres verwijderd.",
+    "latitude": "Breedtegraad",
+    "longitude": "Lengtegraad",
+    "getCurrent": "Huidige locatie ophalen",
+    "gettingCurrent": "Huidige locatie ophalen...",
+    "geolocationUnsupported": "De huidige locatie wordt niet ondersteund door deze browser.",
+    "geolocationDenied": "Toegang tot de locatie is geweigerd.",
+    "geolocationUnavailable": "Je huidige locatie kon niet worden bepaald.",
+    "geolocationTimeout": "Het ophalen van je huidige locatie duurde te lang."
+  },
   "brave": {
     "notSet": "Niet ingesteld",
     "safesearch": "Veilig zoeken",
