@@ -604,6 +604,7 @@ import { tokenspend } from "./catalog/tokenspend";
 import { canrouter } from "./catalog/canrouter";
 import { mintrouter } from "./catalog/mintrouter";
 import { hush } from "./catalog/hush";
+import { agentcontainer } from "./catalog/agentcontainer";
 
 /**
  * UI-facing provider catalog.
@@ -813,6 +814,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   memoryrouter,
   zebracat,
   messari,
+  agentcontainer,
   interfaze,
   oodaai,
   dedaluslabs,
