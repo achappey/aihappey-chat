@@ -598,6 +598,7 @@ import { bananapeel } from "./catalog/bananapeel";
 import { softref } from "./catalog/softref";
 import { vanceai } from "./catalog/vanceai";
 import { ellipsis } from "./catalog/ellipsis";
+import { mireye } from "./catalog/mireye";
 
 /**
  * UI-facing provider catalog.
@@ -991,6 +992,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   dandolo,
   literouter,
   orqagentruntime,
+  mireye,
   typecast,
   vanceai,
   jiekouai,
