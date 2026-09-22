@@ -26,6 +26,7 @@ import {
   JinaChatConfigForm,
   LinkupChatConfigForm,
   MaritacaAIChatConfigForm,
+  MireyeChatConfigForm,
   CopilotChatConfigForm,
   MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
   OpenHandsChatConfigForm,
@@ -280,6 +281,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       inworld: (inworld: any) => updateProviderConfig("inworld", inworld),
       interfaze: (interfaze: any) => updateProviderConfig("interfaze", interfaze),
       maritacaai: (maritacaai: any) => updateProviderConfig("maritacaai", maritacaai),
+      mireye: (mireye: any) => updateProviderConfig("mireye", mireye),
       copilot: (microsoft: any) => updateProviderConfig("copilot", microsoft),
       mistral: (mistral: any) => updateProviderConfig("mistral", mistral),
       ninjachat: (ninjachat: any) => updateProviderConfig("ninjachat", ninjachat),
@@ -384,6 +386,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <MistralChatConfigForm config={draft.providerMetadata.mistral ?? {}} updateConfig={providerConfigUpdaters.mistral} />;
       case "maritacaai":
         return <MaritacaAIChatConfigForm config={draft.providerMetadata.maritacaai ?? {}} updateConfig={providerConfigUpdaters.maritacaai} />;
+      case "mireye":
+        return <MireyeChatConfigForm config={draft.providerMetadata.mireye ?? {}} updateConfig={providerConfigUpdaters.mireye} />;
       case "copilot":
         return <CopilotChatConfigForm config={draft.providerMetadata.copilot ?? {}} updateConfig={providerConfigUpdaters.copilot} />;
       case "ninjachat":

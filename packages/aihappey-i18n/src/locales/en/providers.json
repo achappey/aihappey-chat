@@ -187,6 +187,16 @@
     "addRepository": "Add repository URL",
     "noRepositories": "No repositories added yet."
   },
+  "mireye": {
+    "addressTitle": "Address",
+    "addressHint": "Use a complete US street address. Selecting this option removes any coordinates.",
+    "address": "Address",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "coordinatesTitle": "Latitude and longitude",
+    "coordinatesHint": "Provide both coordinates. Selecting this option removes the address.",
+    "latitude": "Latitude",
+    "longitude": "Longitude"
+  },
   "brave": {
     "notSet": "Not set",
     "safesearch": "Safe search",

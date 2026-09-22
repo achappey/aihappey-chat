@@ -3,7 +3,7 @@ import {
     BraveChatConfigForm, CohereChatConfigForm,
     CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
     InworldChatConfigForm, InterfazeChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
-    LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings,
+    LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings, MireyeChatConfigForm,
     CopilotChatConfigForm,
     MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
     OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm,
@@ -973,6 +973,13 @@ export const AgentForm = ({
 
                     {providerKey === "maritacaai" && (
                         <MaritacaAIChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "mireye" && (
+                        <MireyeChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

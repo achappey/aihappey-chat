@@ -19,6 +19,7 @@ import {
   JinaChatConfigForm,
   MessagesEndpointConfigForm,
   MaritacaAIChatConfigForm,
+  MireyeChatConfigForm,
   CopilotChatConfigForm,
   MistralChatConfigForm,
   NinjaChatChatConfigForm,
@@ -207,6 +208,8 @@ export const PlaygroundSettingsDrawer = ({
         return <MistralChatConfigForm config={providerMetadata.mistral ?? {}} updateConfig={updateProviderConfig} />;
       case "maritacaai":
         return <MaritacaAIChatConfigForm config={providerMetadata.maritacaai ?? {}} updateConfig={updateProviderConfig} />;
+      case "mireye":
+        return <MireyeChatConfigForm config={providerMetadata.mireye ?? {}} updateConfig={updateProviderConfig} />;
       case "copilot":
         return <CopilotChatConfigForm config={providerMetadata.copilot ?? {}} updateConfig={updateProviderConfig} />;
       case "ninjachat":
