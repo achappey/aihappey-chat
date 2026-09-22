@@ -86,6 +86,8 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       }}
       disabled={disabled}
       aria-label="Agent"
+      searchable
+      searchPlaceholder={t("searchPlaceholder")}
     >
       <>
         {favoriteVisibleAgents.length > 0 && (
