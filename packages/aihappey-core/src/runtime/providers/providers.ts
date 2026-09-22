@@ -599,6 +599,7 @@ import { softref } from "./catalog/softref";
 import { vanceai } from "./catalog/vanceai";
 import { ellipsis } from "./catalog/ellipsis";
 import { mireye } from "./catalog/mireye";
+import { carouter } from "./catalog/carouter";
 
 /**
  * UI-facing provider catalog.
@@ -989,6 +990,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   euqai,
   glio,
   orqrouter,
+  carouter,
   dandolo,
   literouter,
   orqagentruntime,
