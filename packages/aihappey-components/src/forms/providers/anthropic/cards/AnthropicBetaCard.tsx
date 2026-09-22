@@ -61,11 +61,13 @@ const SORTED_BETA_OPTIONS = [...BETA_OPTIONS].sort((a, b) =>
 export const AnthropicBetaCard = ({
     config,
     headers,
+    disabledOptions = [],
     updateConfig,
     updateHeaders,
 }: {
     config: any;
     headers?: Record<string, string>;
+    disabledOptions?: string[];
     updateConfig: (val: any) => void;
     updateHeaders?: (val: Record<string, string> | undefined) => void;
 }) => {
@@ -104,11 +106,12 @@ export const AnthropicBetaCard = ({
                     <div key={option}>
                         <theme.Switch
                             id={option}
-                            label={option}
-                            size="small"
-                            checked={enabled.includes(option)}
-                            onChange={(val: boolean) => toggleOption(option, val)}
-                        />
+                             label={option}
+                             size="small"
+                             checked={enabled.includes(option)}
+                             disabled={disabledOptions.includes(option)}
+                             onChange={(val: boolean) => toggleOption(option, val)}
+                         />
                     </div>
                 ))}
             </div>

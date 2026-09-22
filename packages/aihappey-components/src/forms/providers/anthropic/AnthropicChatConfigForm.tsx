@@ -6,6 +6,7 @@ import { AnthropicBashCard } from "./cards/AnthropicBashCard";
 import { AnthropicBetaCard } from "./cards/AnthropicBetaCard";
 import { AnthropicCacheCard } from "./cards/AnthropicCacheCard";
 import { AnthropicCodeExecutionCard } from "./cards/AnthropicCodeExecutionCard";
+import { AnthropicCompactionCard } from "./cards/AnthropicCompactionCard";
 import {
   AnthropicContainerCard,
   normalizeAnthropicContainer,
@@ -42,6 +43,7 @@ const ANTHROPIC_TOOL_TYPES = [
 
 const REQUIRED_CONTEXT_MANAGEMENT_BETA = "context-management-2025-06-27";
 const REQUIRED_ADVISOR_BETA = "advisor-tool-2026-03-01";
+const REQUIRED_COMPACTION_BETA = "compact-2026-09-04";
 
 const parseAnthropicBeta = (value: unknown): string[] => {
   if (Array.isArray(value)) {
@@ -82,6 +84,9 @@ const hasContextManagementEdits = (value: any) =>
 
 const hasAdvisorTool = (value: any) => !!value?.advisor;
 
+const hasCompaction = (value: any) =>
+  value?.compaction?.type === "summarize";
+
 const normalizeAnthropicContainerConfig = (nextConfig: any) => ({
   ...nextConfig,
   container:
@@ -118,8 +123,14 @@ const normalizeAnthropicContextManagementConfig = (
   const nextHasContextManagement = nextContextManagementEdits.length > 0;
   const currentHasAdvisor = hasAdvisorTool(previousConfig);
   const nextHasAdvisor = hasAdvisorTool(nextConfig);
+  const currentHasCompaction = hasCompaction(previousConfig);
+  const requestedNextHasCompaction = hasCompaction(nextConfig);
   const currentBetas = parseAnthropicBeta(previousHeaders?.["anthropic-beta"] ?? previousConfig?.["anthropic-beta"]);
   const requestedNextBetas = parseAnthropicBeta(nextHeaders?.["anthropic-beta"] ?? nextConfig?.["anthropic-beta"]);
+  const currentHasCompactionBeta = currentBetas.includes(REQUIRED_COMPACTION_BETA);
+  const requestedNextHasCompactionBeta = requestedNextBetas.includes(REQUIRED_COMPACTION_BETA);
+  const compactionConfigChanged = currentHasCompaction !== requestedNextHasCompaction;
+  const compactionBetaChanged = currentHasCompactionBeta !== requestedNextHasCompactionBeta;
   const betaListChanged =
     serializeAnthropicBeta(currentBetas) !== serializeAnthropicBeta(requestedNextBetas);
 
@@ -167,8 +178,21 @@ const normalizeAnthropicContextManagementConfig = (
     autoManagedAdvisorBeta.current = false;
   }
 
+  const nextHasCompaction = nextHasContextManagement
+    ? false
+    : compactionConfigChanged
+      ? requestedNextHasCompaction
+      : compactionBetaChanged
+        ? requestedNextHasCompactionBeta
+        : requestedNextHasCompaction || requestedNextHasCompactionBeta;
+
+  if (nextHasCompaction && !nextBetas.includes(REQUIRED_COMPACTION_BETA)) {
+    nextBetas = [...nextBetas, REQUIRED_COMPACTION_BETA];
+  }
+
   return {
     ...nextConfig,
+    compaction: nextHasCompaction ? { type: "summarize" } : undefined,
     context_management: nextHasContextManagement
       ? {
         ...(nextConfig?.context_management ?? {}),
@@ -231,7 +255,10 @@ export const AnthropicChatConfigForm = ({
       autoManagedAdvisorBeta
     );
 
-    updateHeaders?.(cleanProviderHeaders((normalized as any).providerHeaders));
+    const { providerHeaders, ...bodyConfig } = normalized as any;
+
+    updateConfig(withoutAnthropicBetaBody(bodyConfig));
+    updateHeaders?.(cleanProviderHeaders(providerHeaders));
   };
 
   const updateMaxTokens = (value: string) => {
@@ -264,6 +291,11 @@ export const AnthropicChatConfigForm = ({
       />
 
       <AnthropicCacheCard config={resolvedConfig} updateConfig={submitConfig} />
+      <AnthropicCompactionCard
+        config={resolvedConfig}
+        disabled={hasContextManagementEdits(resolvedConfig)}
+        updateConfig={submitConfig}
+      />
 
       <AnthropicReasoningCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicOutputConfigCard config={resolvedConfig} updateConfig={submitConfig} />
@@ -301,7 +333,17 @@ export const AnthropicChatConfigForm = ({
       <AnthropicSessionCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicSpeedCard config={resolvedConfig} updateConfig={submitConfig} />
       <AnthropicOtherCard config={resolvedConfig} updateConfig={submitConfig} />
-      <AnthropicBetaCard config={resolvedConfig} headers={headers} updateConfig={submitConfig} updateHeaders={submitHeaders} />
+      <AnthropicBetaCard
+        config={resolvedConfig}
+        headers={headers}
+        disabledOptions={
+          hasContextManagementEdits(resolvedConfig)
+            ? [REQUIRED_COMPACTION_BETA]
+            : []
+        }
+        updateConfig={submitConfig}
+        updateHeaders={submitHeaders}
+      />
     </div>
   );
 };

@@ -898,6 +898,9 @@
         "1h": "1 uur"
       }
     },
+    "compaction": {
+      "title": "Context comprimeren"
+    },
     "deferLoading": "Later laden",
     "strictValidation": "Strikt",
     "cacheControlType": "Cachetype",

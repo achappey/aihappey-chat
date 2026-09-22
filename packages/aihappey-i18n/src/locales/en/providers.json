@@ -375,6 +375,9 @@
         "1h": "1 hour"
       }
     },
+    "compaction": {
+      "title": "Compact context"
+    },
     "deferLoading": "Defer loading",
     "strictValidation": "Strict",
     "cacheControlType": "Cache type",

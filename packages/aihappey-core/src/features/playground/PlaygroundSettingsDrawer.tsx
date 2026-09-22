@@ -169,7 +169,14 @@ export const PlaygroundSettingsDrawer = ({
       case "abliteration":
         return <AbliterationChatConfigForm config={providerMetadata.abliteration ?? {}} updateConfig={updateProviderConfig} />;
       case "anthropic":
-        return <AnthropicChatConfigForm config={providerMetadata.anthropic ?? {}} updateConfig={updateProviderConfig} />;
+        return (
+          <AnthropicChatConfigForm
+            config={providerMetadata.anthropic ?? {}}
+            headers={providerHeaders.anthropic ?? {}}
+            updateConfig={updateProviderConfig}
+            updateHeaders={updateProviderHeaders}
+          />
+        );
       case "blackbox":
         return <BlackboxChatConfigForm config={providerMetadata.blackbox ?? {}} updateConfig={updateProviderConfig} />;
       case "cohere":

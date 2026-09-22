@@ -12,17 +12,42 @@ type Story = StoryObj<typeof AnthropicChatConfigForm>;
 
 const Wrapper = (props: any) => {
   const [config, setConfig] = useState(props.config ?? {});
+  const [headers, setHeaders] = useState(props.headers ?? {});
   return (
     <AnthropicChatConfigForm
       {...props}
       config={config}
+      headers={headers}
       updateConfig={setConfig}
+      updateHeaders={setHeaders}
     />
   );
 };
 
 export const Default: Story = {
   render: () => <Wrapper />,
+};
+
+export const CompactionEnabled: Story = {
+  render: () => (
+    <Wrapper
+      config={{ compaction: { type: "summarize" } }}
+      headers={{ "anthropic-beta": "compact-2026-09-04" }}
+    />
+  ),
+};
+
+export const CompactionUnavailableWithContextManagement: Story = {
+  render: () => (
+    <Wrapper
+      config={{
+        context_management: {
+          edits: [{ type: "compact_20260112" }],
+        },
+      }}
+      headers={{ "anthropic-beta": "context-management-2025-06-27" }}
+    />
+  ),
 };
 
 export const Populated: Story = {
