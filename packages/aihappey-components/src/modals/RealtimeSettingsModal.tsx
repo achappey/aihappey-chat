@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 import { SettingsActionButtons } from "../buttons";
-import { AssemblyAIRealtimeConversationConfigForm, OpenAIRealtimeConversationConfigForm, XAIRealtimeConversationConfigForm } from "../forms";
+import { AssemblyAIRealtimeConversationConfigForm, GoogleRealtimeConversationConfigForm, OpenAIRealtimeConversationConfigForm, XAIRealtimeConversationConfigForm } from "../forms";
 import { useTheme } from "../theme/ThemeContext";
 
 const getDefaultProviderTab = (enabledProviders?: string[]): string => {
@@ -22,13 +22,13 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
   open,
   providerMetadata,
   setProviderMetadata,
-  enabledProviders = ["OpenAI", "xAI", "AssemblyAI", "AgentPhone"],
+  enabledProviders = ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone"],
   resetDefaults,
   onClose,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI", "xAI", "AssemblyAI", "AgentPhone"];
+  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone"];
   const defaultTab = getDefaultProviderTab(normalizedEnabledProviders);
   const [activeTab, setActiveTab] = useState(defaultTab);
 
@@ -83,6 +83,17 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
               updateConfig={(assemblyai) => setProviderMetadata({
                 ...providerMetadata,
                 assemblyai,
+              })}
+            />
+          </theme.Tab>
+        )}
+        {normalizedEnabledProviders.includes("Google") && (
+          <theme.Tab eventKey="google" title="Google">
+            <GoogleRealtimeConversationConfigForm
+              config={providerMetadata.google ?? {}}
+              updateConfig={(google) => setProviderMetadata({
+                ...providerMetadata,
+                google,
               })}
             />
           </theme.Tab>

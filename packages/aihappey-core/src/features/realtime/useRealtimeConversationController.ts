@@ -73,6 +73,7 @@ export function useRealtimeConversationController(args: {
   const [status, setStatus] = useState<RealtimeStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
+  const [cameraEnabled, setCameraEnabledState] = useState(false);
   const [messages, setMessages] = useState<UIMessage[]>(initialMessages ?? []);
   const [events, setEvents] = useState<any[]>([]);
 
@@ -230,6 +231,7 @@ export function useRealtimeConversationController(args: {
       item: {
         type: "function_call_output",
         call_id: callId,
+        name: functionCallArgsRef.current[callId]?.name,
         output: JSON.stringify(result),
       },
     });
@@ -666,6 +668,19 @@ export function useRealtimeConversationController(args: {
     sessionRef.current?.setMicrophoneEnabled(!nextMuted);
   }, []);
 
+  const setCameraEnabled = useCallback(async (enabled: boolean) => {
+    const session = sessionRef.current;
+    if (!session?.setCameraEnabled) return;
+    try {
+      await session.setCameraEnabled(enabled);
+      setCameraEnabledState(enabled);
+    } catch (e) {
+      const message = `Failed to ${enabled ? "start" : "stop"} camera: ${describeError(e)}`;
+      setError(message);
+      addChatError(new Error(message));
+    }
+  }, [addChatError]);
+
   const sendMessage = useCallback(
     async (message: UIMessage) => {
       const content = uiMessageToRealtimeContent(message);
@@ -712,15 +727,18 @@ export function useRealtimeConversationController(args: {
       status,
       error,
       muted,
+      cameraEnabled,
+      cameraSupported: model.toLowerCase().startsWith("google/"),
       messages,
       events,
       tools,
       start,
       stop,
       setMicrophoneMuted,
+      setCameraEnabled,
       sendMessage,
     }),
-    [error, events, messages, muted, sendMessage, setMicrophoneMuted, start, status, stop, tools]
+    [cameraEnabled, error, events, messages, model, muted, sendMessage, setCameraEnabled, setMicrophoneMuted, start, status, stop, tools]
   );
 }
 

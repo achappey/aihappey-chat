@@ -948,6 +948,28 @@
         "smart": "Smart"
       }
     },
+    "realtimeConversation": {
+      "title": "Gemini Live conversation",
+      "hint": "Direct browser-to-Gemini Live audio using a backend-issued ephemeral token. Gemini Live is a preview API.",
+      "inputTranscription": "Transcribe microphone audio",
+      "outputTranscription": "Transcribe Gemini audio",
+      "googleSearch": "Google Search grounding",
+      "turnDetection": "Voice activity detection",
+      "automaticVad": "Automatic voice activity detection",
+      "prefixPaddingMs": "Prefix padding (ms)",
+      "silenceDurationMs": "Silence duration (ms)",
+      "sessionManagement": "Session management",
+      "contextCompression": "Context window compression",
+      "triggerTokens": "Compression trigger tokens",
+      "sessionResumption": "Resume across WebSocket connections",
+      "tokenExpiry": "Ephemeral token expiry",
+      "camera": "Camera input",
+      "cameraHint": "Camera starts off. When enabled during a session, JPEG frames are sent at no more than 1 FPS. Audio-plus-video sessions have a shorter service session limit.",
+      "cameraFps": "Camera frames per second",
+      "jpegQuality": "JPEG quality",
+      "startCamera": "Start camera",
+      "stopCamera": "Stop camera"
+    },
     "enable_widget": "Enable widget",
     "includeThoughts": "Include thoughts",
     "dynamicThinking": "Dynamic thinking",

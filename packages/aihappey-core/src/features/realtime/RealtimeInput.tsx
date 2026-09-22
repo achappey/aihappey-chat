@@ -24,6 +24,8 @@ type RealtimeInputProps = {
   connected?: boolean;
   busy?: boolean;
   muted?: boolean;
+  cameraEnabled?: boolean;
+  cameraSupported?: boolean;
   tokenUsage?: number;
   temperature?: number;
   temperatureChanged?: any;
@@ -31,6 +33,7 @@ type RealtimeInputProps = {
   onSend: (content: string) => void | Promise<void>;
   onStop?: () => void | Promise<void>;
   onMuteChange?: (muted: boolean) => void;
+  onCameraChange?: (enabled: boolean) => void;
   onPromptExecute?: (prompt: PromptWithSource, args: any) => void | Promise<void>;
 };
 
@@ -245,6 +248,20 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
           disabled={!props.connected}
           onClick={() => props.onMuteChange?.(!props.muted)}
         />
+
+        {props.cameraSupported ? (
+          <Button
+            type="button"
+            size="large"
+            title={props.cameraEnabled
+              ? t("providers:google.realtimeConversation.stopCamera")
+              : t("providers:google.realtimeConversation.startCamera")}
+            variant={props.cameraEnabled ? "primary" : "transparent"}
+            icon="video"
+            disabled={!props.connected}
+            onClick={() => props.onCameraChange?.(!props.cameraEnabled)}
+          />
+        ) : null}
 
         {props.connected ? (
           <Button

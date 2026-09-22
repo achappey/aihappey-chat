@@ -297,10 +297,13 @@ function RealtimeConversationPage() {
             connected={connected}
             busy={busy}
             muted={controller.muted}
+            cameraEnabled={controller.cameraEnabled}
+            cameraSupported={controller.cameraSupported}
             onStart={() => controller.start()}
             onSend={handleSend}
             onStop={() => void handleStop()}
             onMuteChange={(muted) => controller.setMicrophoneMuted(muted)}
+            onCameraChange={(enabled) => void controller.setCameraEnabled(enabled)}
             temperature={temperature}
             temperatureChanged={setTemperature}
             onPromptExecute={async (prompt, args) => {

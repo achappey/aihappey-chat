@@ -187,6 +187,38 @@ export const defaultProviderRealtimeConversationMetadata = {
       }
     }
   },
+  "google": {
+    "uses": 1,
+    "expireTime": "10m",
+    "cameraFrameRate": 1,
+    "jpegQuality": 0.8,
+    "liveConnectConstraints": {
+      "config": {
+        "responseModalities": ["AUDIO"],
+        "inputAudioTranscription": {},
+        "outputAudioTranscription": {},
+        "speechConfig": {
+          "voiceConfig": {
+            "prebuiltVoiceConfig": {
+              "voiceName": "Kore"
+            }
+          }
+        },
+        "tools": [{ "googleSearch": {} }],
+        "contextWindowCompression": {
+          "slidingWindow": {}
+        },
+        "sessionResumption": {},
+        "realtimeInputConfig": {
+          "automaticActivityDetection": {
+            "disabled": false,
+            "prefixPaddingMs": 20,
+            "silenceDurationMs": 800
+          }
+        }
+      }
+    }
+  },
   "agentphone": {
     "expires_after": {
       "anchor": "created_at",

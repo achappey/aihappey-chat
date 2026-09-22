@@ -609,6 +609,28 @@
         "smart": "Slim"
       }
     },
+    "realtimeConversation": {
+      "title": "Gemini Live-gesprek",
+      "hint": "Directe audio van browser naar Gemini Live met een tijdelijke token van de backend. Gemini Live is een preview-API.",
+      "inputTranscription": "Microfoonaudio transcriberen",
+      "outputTranscription": "Gemini-audio transcriberen",
+      "googleSearch": "Google Search-grounding",
+      "turnDetection": "Spraakactiviteitsdetectie",
+      "automaticVad": "Automatische spraakactiviteitsdetectie",
+      "prefixPaddingMs": "Voorloopbuffer (ms)",
+      "silenceDurationMs": "Stilteduur (ms)",
+      "sessionManagement": "Sessiebeheer",
+      "contextCompression": "Contextvenstercompressie",
+      "triggerTokens": "Tokens voor starten compressie",
+      "sessionResumption": "Hervatten over WebSocket-verbindingen",
+      "tokenExpiry": "Vervaltijd tijdelijke token",
+      "camera": "Camera-invoer",
+      "cameraHint": "De camera start uitgeschakeld. Na inschakelen worden JPEG-frames met maximaal 1 FPS verzonden. Sessies met audio en video hebben een kortere servicelimiet.",
+      "cameraFps": "Cameraframes per seconde",
+      "jpegQuality": "JPEG-kwaliteit",
+      "startCamera": "Camera starten",
+      "stopCamera": "Camera stoppen"
+    },
     "enable_widget": "Widget inschakelen",
     "url_context": "URL context",
     "includeThoughts": "Toon gedachten",

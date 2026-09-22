@@ -7,6 +7,8 @@ export type RealtimeConversationWebrtcSession = {
   stream: MediaStream;
   send: (event: any) => void;
   setMicrophoneEnabled: (enabled: boolean) => void;
+  setCameraEnabled?: (enabled: boolean) => Promise<void>;
+  readonly cameraEnabled?: boolean;
   stop: () => Promise<void>;
 };
 
@@ -16,6 +18,8 @@ export type RealtimeConversationWsSession = {
   stream: MediaStream;
   send: (event: any) => void;
   setMicrophoneEnabled: (enabled: boolean) => void;
+  setCameraEnabled?: (enabled: boolean) => Promise<void>;
+  readonly cameraEnabled?: boolean;
   stop: () => Promise<void>;
 };
 
@@ -25,6 +29,8 @@ export type RealtimeConversationSdkSession = {
   client: unknown;
   send: (event: any) => void;
   setMicrophoneEnabled: (enabled: boolean) => void;
+  setCameraEnabled?: (enabled: boolean) => Promise<void>;
+  readonly cameraEnabled?: boolean;
   stop: () => Promise<void>;
 };
 
