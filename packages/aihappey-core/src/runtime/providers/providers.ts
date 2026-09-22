@@ -597,6 +597,7 @@ import { harnessrouter } from "./catalog/harnessrouter";
 import { bananapeel } from "./catalog/bananapeel";
 import { softref } from "./catalog/softref";
 import { vanceai } from "./catalog/vanceai";
+import { ellipsis } from "./catalog/ellipsis";
 
 /**
  * UI-facing provider catalog.
@@ -983,6 +984,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   anthropic,
   heygen,
   ionet,
+  ellipsis,
   euqai,
   glio,
   orqrouter,
