@@ -1057,6 +1057,7 @@
     },
     "service_tier": "Service tier",
     "serviceTiers": {
+      "providerDefault": "Provider default",
       "flex": "Flex",
       "standard": "Standard",
       "priority": "Priority"

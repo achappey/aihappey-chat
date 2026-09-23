@@ -719,6 +719,7 @@
     },
     "service_tier": "Servicelaag",
     "serviceTiers": {
+      "providerDefault": "Standaard (provider)",
       "flex": "Flexibel",
       "standard": "Standaard",
       "priority": "Prioriteit"

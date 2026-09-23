@@ -354,10 +354,17 @@ export const GoogleChatConfigForm = ({
     value,
     label: t(value),
   }));
-  const serviceTierOptions = GOOGLE_SERVICE_TIER_OPTIONS.map((value) => ({
-    value,
-    label: t(`providers:google.serviceTiers.${value}`),
-  }));
+  const serviceTierValue = resolvedConfig?.service_tier ?? "";
+  const serviceTierOptions = [
+    {
+      value: "",
+      label: t("providers:google.serviceTiers.providerDefault"),
+    },
+    ...GOOGLE_SERVICE_TIER_OPTIONS.map((value) => ({
+      value,
+      label: t(`providers:google.serviceTiers.${value}`),
+    })),
+  ];
   const safetyMethodOptions = GOOGLE_SAFETY_METHOD_OPTIONS.map((value) => ({
     value,
     label: t(`providers:google.safetySettings.methods.${value}`),
@@ -920,22 +927,29 @@ export const GoogleChatConfigForm = ({
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select
             label={t("providers:google.service_tier")}
-            values={resolvedConfig?.service_tier ? [resolvedConfig.service_tier] : []}
+            values={[serviceTierValue]}
             valueTitle={
               serviceTierOptions.find(
-                (option) => option.value === resolvedConfig?.service_tier
-              )?.label
+                (option) => option.value === serviceTierValue
+              )?.label ?? t("providers:google.serviceTiers.providerDefault")
             }
             options={serviceTierOptions}
-            onChange={(val: string) =>
-              submitConfig({
-                ...resolvedConfig,
-                service_tier: val || undefined,
-              })
-            }
+            onChange={(val: string) => {
+              if (val) {
+                submitConfig({
+                  ...resolvedConfig,
+                  service_tier: val,
+                });
+                return;
+              }
+
+              const { service_tier: _serviceTier, ...configWithoutServiceTier } =
+                resolvedConfig;
+              submitConfig(configWithoutServiceTier);
+            }}
           >
             {serviceTierOptions.map((o) => (
-              <option key={o.value} value={o.value}>
+              <option key={o.value || "provider-default"} value={o.value}>
                 {o.label}
               </option>
             ))}

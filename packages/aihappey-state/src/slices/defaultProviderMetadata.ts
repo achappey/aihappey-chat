@@ -15,7 +15,7 @@ export const defaultProviderMetadata = {
         },
         {
           "type": "image_generation",
-          "model": "gpt-image-2",
+          "model": "gpt-image-2.5-sunburst",
           "partial_images": 3,
           "quality": "auto",
           "action": "auto",
@@ -88,7 +88,6 @@ export const defaultProviderMetadata = {
     "enable_research": false
   },
   "google": {
-    "service_tier": "standard",
     "generation_config": {
       "thinking_level": "low",
       "thinking_summaries": "auto",
