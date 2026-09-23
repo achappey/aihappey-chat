@@ -2,19 +2,11 @@ import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../../theme/ThemeContext";
 
 const BETA_OPTIONS = [
-    "message-batches-2024-09-24",
-    "computer-use-2025-01-24",
-    "pdfs-2024-09-25",
-    "token-efficient-tools-2025-02-19",
-    "output-128k-2025-02-19",
     "mcp-client-2025-11-20",
-    "dev-full-thinking-2025-05-14",
     "interleaved-thinking-2025-05-14",
     "context-management-2025-06-27",
     "model-context-window-exceeded-2025-08-26",
-    "fine-grained-tool-streaming-2025-05-14",
     "fast-mode-2026-02-01",
-    "output-300k-2026-03-24",
     "mid-conversation-tool-changes-2026-07-01",
     "managed-agents-2026-04-01",
     "task-budgets-2026-03-13",
