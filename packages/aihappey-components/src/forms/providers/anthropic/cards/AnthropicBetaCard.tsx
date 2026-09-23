@@ -25,7 +25,9 @@ const BETA_OPTIONS = [
     "mid-conversation-system-clear-at-2026-08-21",
     "mid-conversation-output-config-2026-07-01",
     "thinking-binding-controls-2026-08-01",
-    "compact-2026-09-04"
+    "compact-2026-09-04",
+    "inline-tools-2026-09-15",
+    "mcp-client-2026-09-15"
 ];
 
 const parseAnthropicBeta = (value: unknown): string[] => {
@@ -106,12 +108,12 @@ export const AnthropicBetaCard = ({
                     <div key={option}>
                         <theme.Switch
                             id={option}
-                             label={option}
-                             size="small"
-                             checked={enabled.includes(option)}
-                             disabled={disabledOptions.includes(option)}
-                             onChange={(val: boolean) => toggleOption(option, val)}
-                         />
+                            label={option}
+                            size="small"
+                            checked={enabled.includes(option)}
+                            disabled={disabledOptions.includes(option)}
+                            onChange={(val: boolean) => toggleOption(option, val)}
+                        />
                     </div>
                 ))}
             </div>
