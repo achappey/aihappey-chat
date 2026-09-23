@@ -1,4 +1,9 @@
 export const defaultProviderMetadata = {
+  "apertis": {
+    "compression": {
+      "enabled": false
+    }
+  },
   "pollinations": {
     "reasoning_effort": "low"
   },

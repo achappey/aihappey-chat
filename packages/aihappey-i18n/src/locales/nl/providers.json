@@ -1,4 +1,23 @@
 {
+  "apertis": {
+    "notSet": "Niet ingesteld",
+    "reasoning": "Nadenken",
+    "effort": "Niveau",
+    "efforts": { "low": "Laag", "medium": "Gemiddeld", "high": "Hoog" },
+    "summary": "Samenvatting",
+    "summaries": { "auto": "Automatisch", "concise": "Beknopt", "detailed": "Gedetailleerd" },
+    "compression": "Contextcompressie",
+    "strategy": "Strategie",
+    "strategies": {
+      "default": "Standaard (gebalanceerd)",
+      "on": "Gebalanceerd",
+      "conservative": "Conservatief",
+      "aggressive": "Agressief"
+    },
+    "threshold": "Tokendrempel",
+    "keepTurns": "Te bewaren recente beurten",
+    "model": "Compressiemodel"
+  },
   "upstage": {
     "reasoning": {
       "title": "Nadenken",

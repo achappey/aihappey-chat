@@ -1,4 +1,5 @@
 import {
+    ApertisChatConfigForm,
     AbliterationChatConfigForm, AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
     BraveChatConfigForm, CohereChatConfigForm,
     CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
@@ -973,6 +974,13 @@ export const AgentForm = ({
 
                     {providerKey === "maritacaai" && (
                         <MaritacaAIChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "apertis" && (
+                        <ApertisChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

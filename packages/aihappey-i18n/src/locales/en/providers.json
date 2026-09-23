@@ -1,4 +1,23 @@
 {
+  "apertis": {
+    "notSet": "Not set",
+    "reasoning": "Reasoning",
+    "effort": "Effort",
+    "efforts": { "low": "Low", "medium": "Medium", "high": "High" },
+    "summary": "Summary",
+    "summaries": { "auto": "Auto", "concise": "Concise", "detailed": "Detailed" },
+    "compression": "Context compression",
+    "strategy": "Strategy",
+    "strategies": {
+      "default": "Default (balanced)",
+      "on": "Balanced",
+      "conservative": "Conservative",
+      "aggressive": "Aggressive"
+    },
+    "threshold": "Token threshold",
+    "keepTurns": "Recent turns to preserve",
+    "model": "Compression model"
+  },
   "upstage": {
     "reasoning": {
       "title": "Reasoning",

@@ -3,6 +3,7 @@ import {
   AbliterationChatConfigForm,
   AiChatSettingsForm,
   AnthropicChatConfigForm,
+  ApertisChatConfigForm,
   BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
@@ -178,6 +179,8 @@ export const PlaygroundSettingsDrawer = ({
             updateHeaders={updateProviderHeaders}
           />
         );
+      case "apertis":
+        return <ApertisChatConfigForm config={providerMetadata.apertis ?? {}} updateConfig={updateProviderConfig} />;
       case "blackbox":
         return <BlackboxChatConfigForm config={providerMetadata.blackbox ?? {}} updateConfig={updateProviderConfig} />;
       case "cohere":

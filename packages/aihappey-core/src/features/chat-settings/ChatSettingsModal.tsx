@@ -13,6 +13,7 @@ import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
   AbliterationChatConfigForm,
   AnthropicChatConfigForm,
+  ApertisChatConfigForm,
   BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
@@ -267,6 +268,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     () => ({
       abliteration: (abliteration: any) => updateProviderConfig("abliteration", abliteration),
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
+      apertis: (apertis: any) => updateProviderConfig("apertis", apertis),
       blackbox: (blackbox: any) => updateProviderConfig("blackbox", blackbox),
       cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
       cortecs: (cortecs: any) => updateProviderConfig("cortecs", cortecs),
@@ -356,6 +358,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <AbliterationChatConfigForm config={draft.providerMetadata.abliteration ?? {}} updateConfig={providerConfigUpdaters.abliteration} />;
       case "anthropic":
         return <AnthropicChatConfigForm config={draft.providerMetadata.anthropic ?? {}} headers={draft.providerHeaders.anthropic ?? {}} updateConfig={providerConfigUpdaters.anthropic} updateHeaders={providerHeaderUpdaters.anthropic} />;
+      case "apertis":
+        return <ApertisChatConfigForm config={draft.providerMetadata.apertis ?? {}} updateConfig={providerConfigUpdaters.apertis} />;
       case "blackbox":
         return <BlackboxChatConfigForm config={draft.providerMetadata.blackbox ?? {}} updateConfig={providerConfigUpdaters.blackbox} />;
       case "cohere":
