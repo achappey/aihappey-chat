@@ -1,6 +1,6 @@
 import { getDocument, GlobalWorkerOptions, version } from "pdfjs-dist";
 import * as mammoth from "mammoth";
-import * as XLSX from "xlsx";
+import readExcelFile from "read-excel-file/browser";
 import { strFromU8, unzipSync } from "fflate";
 import { toMarkdownLinkSmart } from "./markdown";
 import { msgToPlainText } from "./msgConverter";
@@ -76,22 +76,43 @@ export const docxFileToText = async (file: File): Promise<string> => {
   return value;
 };
 
-/**
- * Converts an Excel File (XLSX/XLS/CSV) to plain text (CSV).
- * @param file Excel File object
- * @returns Promise<string> containing the extracted text in CSV format
- */
 export const excelFileToText = async (file: File): Promise<string> => {
-  const arrayBuffer = await file.arrayBuffer();
-  const workbook = XLSX.read(arrayBuffer, { type: "array" });
+  const ext = file.name.split(".").pop()?.toLowerCase();
 
-  const allText: string[] = workbook.SheetNames.map((sheetName) => {
-    const sheet = workbook.Sheets[sheetName];
-    const csv = XLSX.utils.sheet_to_csv(sheet);
-    return `--- Sheet: ${sheetName} ---\n${csv.trim()}\n`;
-  });
+  if (ext === "csv") {
+    return (await file.text()).trim();
+  }
 
-  return allText.join("\n");
+  if (ext !== "xlsx") {
+    throw new Error(`Unsupported spreadsheet format: ${ext}`);
+  }
+
+  const sheets = await readExcelFile(file);
+
+  return sheets
+    .map(({ sheet, data }) => {
+      const csv = data
+        .map((row) =>
+          row
+            .map((value) => {
+              if (value == null) return "";
+
+              const text =
+                value instanceof Date
+                  ? value.toISOString()
+                  : String(value);
+
+              return /[",\r\n]/.test(text)
+                ? `"${text.replace(/"/g, '""')}"`
+                : text;
+            })
+            .join(",")
+        )
+        .join("\n");
+
+      return `--- Sheet: ${sheet} ---\n${csv.trim()}\n`;
+    })
+    .join("\n");
 };
 
 /**
@@ -215,7 +236,7 @@ export const extractTextFromZip = async (
     try {
       if (ext === "pdf") text = await pdfFileToText(f);
       else if (ext === "docx") text = await docxFileToText(f);
-      else if (["xlsx", "xls", "csv"].includes(ext || "")) text = await excelFileToText(f);
+      else if (["xlsx", "csv"].includes(ext || "")) text = await excelFileToText(f);
       else if (["txt", "md", "log"].includes(ext || "")) text = await f.text();
       else if (["pptx"].includes(ext || "")) text = await pptxFileToText(f);
       else if (["msg"].includes(ext || "")) text = await msgToPlainText(f)
