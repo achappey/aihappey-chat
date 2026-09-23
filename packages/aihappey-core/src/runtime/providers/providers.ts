@@ -605,6 +605,8 @@ import { canrouter } from "./catalog/canrouter";
 import { mintrouter } from "./catalog/mintrouter";
 import { hush } from "./catalog/hush";
 import { agentcontainer } from "./catalog/agentcontainer";
+import { devicai } from "./catalog/devicai";
+import { yutori } from "./catalog/yutori";
 
 /**
  * UI-facing provider catalog.
@@ -806,6 +808,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   teamday,
   jassieai,
   agent37,
+  yutori,
   cailos,
   prunaai,
   imagerouter,
@@ -814,6 +817,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   memoryrouter,
   zebracat,
   messari,
+  devicai,
   agentcontainer,
   interfaze,
   oodaai,
