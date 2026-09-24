@@ -320,4 +320,5 @@ export const defaultProviderMetadata = {
     "enable_model_fallback": true,
     "parallel_tool_calls": true
   },
+  "neuralwatt": {},
 };

@@ -30,6 +30,7 @@ import {
   MireyeChatConfigForm,
   CopilotChatConfigForm,
   MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
+  NeuralwattChatConfigForm,
   OpenHandsChatConfigForm,
   OpenRouterChatConfigForm,
   PerplexityChatConfigForm,
@@ -269,6 +270,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       abliteration: (abliteration: any) => updateProviderConfig("abliteration", abliteration),
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
       apertis: (apertis: any) => updateProviderConfig("apertis", apertis),
+      neuralwatt: (neuralwatt: any) => updateProviderConfig("neuralwatt", neuralwatt),
       blackbox: (blackbox: any) => updateProviderConfig("blackbox", blackbox),
       cohere: (cohere: any) => updateProviderConfig("cohere", cohere),
       cortecs: (cortecs: any) => updateProviderConfig("cortecs", cortecs),
@@ -392,6 +394,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <MaritacaAIChatConfigForm config={draft.providerMetadata.maritacaai ?? {}} updateConfig={providerConfigUpdaters.maritacaai} />;
       case "mireye":
         return <MireyeChatConfigForm config={draft.providerMetadata.mireye ?? {}} updateConfig={providerConfigUpdaters.mireye} />;
+      case "neuralwatt":
+        return <NeuralwattChatConfigForm config={draft.providerMetadata.neuralwatt ?? {}} updateConfig={providerConfigUpdaters.neuralwatt} />;
       case "copilot":
         return <CopilotChatConfigForm config={draft.providerMetadata.copilot ?? {}} updateConfig={providerConfigUpdaters.copilot} />;
       case "ninjachat":

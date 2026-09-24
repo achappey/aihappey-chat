@@ -867,6 +867,35 @@
         "allowZeroDataRetention": "Zero-data-retention providers only",
         "enableModelFallback": "Enable model fallback"
     },
+    "neuralwatt": {
+        "reasoning": {
+            "title": "Reasoning",
+            "effort": "Reasoning effort",
+            "efforts": {
+                "none": "None",
+                "minimal": "Minimal",
+                "low": "Low",
+                "medium": "Medium",
+                "high": "High",
+                "xhigh": "Extra high",
+                "max": "Maximum"
+            }
+        },
+        "thinkingTokenBudget": {
+            "title": "Thinking token budget",
+            "label": "Maximum reasoning tokens"
+        },
+        "serviceTier": {
+            "title": "Service tier",
+            "label": "Service tier",
+            "providerDefault": "Default (provider)",
+            "options": {
+                "auto": "Auto",
+                "default": "Default",
+                "flex": "Flex"
+            }
+        }
+    },
     "disclaimer": "{{appName}} can make mistakes. Check important information.",
     "select": "Select",
     "code_execution": "Code execution",

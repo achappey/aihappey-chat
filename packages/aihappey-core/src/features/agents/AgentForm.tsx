@@ -5,6 +5,7 @@ import {
     CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
     InworldChatConfigForm, InterfazeChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
     LocalToolsSettingsForm, MaritacaAIChatConfigForm, McpPolicySettings, MireyeChatConfigForm,
+    NeuralwattChatConfigForm,
     CopilotChatConfigForm,
     MistralChatConfigForm, NinjaChatChatConfigForm, OpenAIChatConfigForm,
     OpenHandsChatConfigForm, OpenRouterChatConfigForm, PerplexityChatConfigForm,
@@ -895,6 +896,13 @@ export const AgentForm = ({
 
                     {providerKey === "cortecs" && (
                         <CortecsChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "neuralwatt" && (
+                        <NeuralwattChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

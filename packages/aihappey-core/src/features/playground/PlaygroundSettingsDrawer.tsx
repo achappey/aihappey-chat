@@ -23,6 +23,7 @@ import {
   MireyeChatConfigForm,
   CopilotChatConfigForm,
   MistralChatConfigForm,
+  NeuralwattChatConfigForm,
   NinjaChatChatConfigForm,
   OpenAIChatConfigForm,
   OpenHandsChatConfigForm,
@@ -213,6 +214,8 @@ export const PlaygroundSettingsDrawer = ({
         return <MaritacaAIChatConfigForm config={providerMetadata.maritacaai ?? {}} updateConfig={updateProviderConfig} />;
       case "mireye":
         return <MireyeChatConfigForm config={providerMetadata.mireye ?? {}} updateConfig={updateProviderConfig} />;
+      case "neuralwatt":
+        return <NeuralwattChatConfigForm config={providerMetadata.neuralwatt ?? {}} updateConfig={updateProviderConfig} />;
       case "copilot":
         return <CopilotChatConfigForm config={providerMetadata.copilot ?? {}} updateConfig={updateProviderConfig} />;
       case "ninjachat":

@@ -902,6 +902,35 @@
         "allowZeroDataRetention": "Alleen providers zonder gegevensbewaring",
         "enableModelFallback": "Automatische modelwissel inschakelen"
     },
+    "neuralwatt": {
+        "reasoning": {
+            "title": "Redeneren",
+            "effort": "Redeneerniveau",
+            "efforts": {
+                "none": "Geen",
+                "minimal": "Minimaal",
+                "low": "Laag",
+                "medium": "Gemiddeld",
+                "high": "Hoog",
+                "xhigh": "Extra hoog",
+                "max": "Maximaal"
+            }
+        },
+        "thinkingTokenBudget": {
+            "title": "Tokenbudget voor redeneren",
+            "label": "Maximum aantal redeneertokens"
+        },
+        "serviceTier": {
+            "title": "Serviceniveau",
+            "label": "Serviceniveau",
+            "providerDefault": "Providerstandaard",
+            "options": {
+                "auto": "Automatisch",
+                "default": "Standaard",
+                "flex": "Flexibel"
+            }
+        }
+    },
     "code_execution": "Code uitvoeren",
     "disclaimer": "{{appName}} kan fouten maken. Controleer belangrijke informatie.",
     "annotations": {
