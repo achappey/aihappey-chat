@@ -74,6 +74,7 @@ export function useRealtimeConversationController(args: {
   const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
   const [cameraEnabled, setCameraEnabledState] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [messages, setMessages] = useState<UIMessage[]>(initialMessages ?? []);
   const [events, setEvents] = useState<any[]>([]);
 
@@ -637,6 +638,8 @@ export function useRealtimeConversationController(args: {
         const full = describeError(e);
         setStatus("error");
         setError(full);
+        setCameraEnabledState(false);
+        setCameraStream(null);
         addChatError(new Error(full));
         startedRef.current = false;
       }
@@ -648,6 +651,8 @@ export function useRealtimeConversationController(args: {
 
   const stop = useCallback(async () => {
     if (!sessionRef.current) {
+      setCameraEnabledState(false);
+      setCameraStream(null);
       setStatus("idle");
       startedRef.current = false;
       return;
@@ -655,6 +660,8 @@ export function useRealtimeConversationController(args: {
     setStatus("stopping");
     const session = sessionRef.current;
     sessionRef.current = null;
+    setCameraEnabledState(false);
+    setCameraStream(null);
     try {
       await session.stop();
     } finally {
@@ -671,10 +678,20 @@ export function useRealtimeConversationController(args: {
   const setCameraEnabled = useCallback(async (enabled: boolean) => {
     const session = sessionRef.current;
     if (!session?.setCameraEnabled) return;
+    if (!enabled) {
+      setCameraEnabledState(false);
+      setCameraStream(null);
+    }
     try {
       await session.setCameraEnabled(enabled);
-      setCameraEnabledState(enabled);
+      const isEnabled = session.cameraEnabled ?? enabled;
+      setCameraEnabledState(isEnabled);
+      setCameraStream(isEnabled ? (session.localCameraStream ?? null) : null);
     } catch (e) {
+      if (enabled) {
+        setCameraEnabledState(false);
+        setCameraStream(null);
+      }
       const message = `Failed to ${enabled ? "start" : "stop"} camera: ${describeError(e)}`;
       setError(message);
       addChatError(new Error(message));
@@ -728,6 +745,7 @@ export function useRealtimeConversationController(args: {
       error,
       muted,
       cameraEnabled,
+      cameraStream,
       cameraSupported: model.toLowerCase().startsWith("google/"),
       messages,
       events,
@@ -738,7 +756,7 @@ export function useRealtimeConversationController(args: {
       setCameraEnabled,
       sendMessage,
     }),
-    [cameraEnabled, error, events, messages, model, muted, sendMessage, setCameraEnabled, setMicrophoneMuted, start, status, stop, tools]
+    [cameraEnabled, cameraStream, error, events, messages, model, muted, sendMessage, setCameraEnabled, setMicrophoneMuted, start, status, stop, tools]
   );
 }
 

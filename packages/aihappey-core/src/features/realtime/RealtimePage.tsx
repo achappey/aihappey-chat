@@ -22,6 +22,7 @@ import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { buildSelectedAgentRequest } from "../agents/agentSelection";
 import { useRealtimeConversationController } from "./useRealtimeConversationController";
 import { RealtimeInput } from "./RealtimeInput";
+import { LocalCameraPreview } from "./LocalCameraPreview";
 import { useTranslation } from "aihappey-i18n";
 
 const addAttachmentWithTranscription = async (file: File) => {
@@ -273,12 +274,14 @@ function RealtimeConversationPage() {
         style={{
           display: "flex",
           flexDirection: "column",
+          position: "relative",
           height: "100%",
           minHeight: 0,
           border: isOver ? "2px dotted" : undefined,
           borderColor: isOver ? "#888" : "transparent",
         }}
       >
+        <LocalCameraPreview stream={controller.cameraStream} />
         <ChatErrors />
         {debugMode ? <JsonViewer value={JSON.stringify(controller.events, null, 2)} /> : (
           <MessageList

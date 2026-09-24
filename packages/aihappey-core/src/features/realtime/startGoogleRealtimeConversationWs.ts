@@ -355,6 +355,7 @@ export async function startGoogleRealtimeConversationWsSession(args: {
     kind: "ws",
     get ws() { return currentWs; },
     get stream() { return microphoneStream!; },
+    get localCameraStream() { return cameraStream; },
     get cameraEnabled() { return !!cameraStream; },
     send: safeSend,
     setMicrophoneEnabled: (enabled) => microphoneStream?.getAudioTracks().forEach((track) => { track.enabled = enabled; }),
