@@ -908,7 +908,12 @@
     "transcriptionFillerWords": "Vulwoorden opnemen",
     "transcriptionVadThreshold": "Drempelwaarde voor spraakactiviteitsdetectie ({{value}})",
     "transcriptionKeyterm": "Sleuteltermen",
-    "transcriptionKeytermPlaceholder": "Voer een door komma's gescheiden lijst met sleuteltermen in"
+    "transcriptionKeytermPlaceholder": "Voer een door komma's gescheiden lijst met sleuteltermen in",
+    "toolSearch": {
+      "title": "Tools zoeken",
+      "executionMode": "Uitvoering",
+      "server": "Server"
+    }
   },
   "anthropic": {
     "maxUses": "Maximaal aantal keer",

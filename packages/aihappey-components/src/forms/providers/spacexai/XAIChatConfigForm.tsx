@@ -32,6 +32,10 @@ const DEFAULT_CODE_EXECUTION = {
   type: "code_execution",
 };
 
+const DEFAULT_TOOL_SEARCH = {
+  type: "tool_search",
+};
+
 const DEFAULT_IMAGE_GENERATION = {
   type: "image_generation",
   action: "auto",
@@ -44,6 +48,7 @@ const XAI_TOOL_TYPES = [
   "x_search",
   "code_execution",
   "image_generation",
+  "tool_search",
 ];
 
 export const XAIChatConfigForm = ({
@@ -79,6 +84,7 @@ export const XAIChatConfigForm = ({
   const xSearchOn = !!resolvedConfig?.x_search;
   const codeExecutionOn = !!resolvedConfig?.code_execution;
   const imageGenerationOn = !!resolvedConfig?.image_generation;
+  const toolSearchOn = !!resolvedConfig?.tool_search;
   const imageGenerationAction =
     resolvedConfig?.image_generation?.action ?? "auto";
   const imageGenerationActionOptions = IMAGE_GENERATION_ACTIONS.map((value) => ({
@@ -421,6 +427,35 @@ export const XAIChatConfigForm = ({
             }
           />
         </div>
+      </theme.Card>
+
+      <theme.Card
+        size="small"
+        title={t("providers:spacexai.toolSearch.title")}
+        headerActions={
+          <theme.Switch
+            id="xai-tool-search-enabled"
+            checked={toolSearchOn}
+            onChange={(enabled: boolean) =>
+              submitConfig({
+                ...resolvedConfig,
+                tool_search: enabled ? { ...DEFAULT_TOOL_SEARCH } : undefined,
+              })
+            }
+          />
+        }
+      >
+        <theme.Select
+          label={t("providers:spacexai.toolSearch.executionMode")}
+          values={["server"]}
+          valueTitle={t("providers:spacexai.toolSearch.server")}
+          disabled
+          onChange={() => undefined}
+        >
+          <option value="server">
+            {t("providers:spacexai.toolSearch.server")}
+          </option>
+        </theme.Select>
       </theme.Card>
 
       <theme.Card size="small" title={t("other")}>

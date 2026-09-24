@@ -716,7 +716,12 @@
     "transcriptionFillerWords": "Include filler words",
     "transcriptionVadThreshold": "Voice activity detection threshold ({{value}})",
     "transcriptionKeyterm": "Key terms",
-    "transcriptionKeytermPlaceholder": "Enter a comma-separated list of key terms"
+    "transcriptionKeytermPlaceholder": "Enter a comma-separated list of key terms",
+    "toolSearch": {
+      "title": "Tool search",
+      "executionMode": "Execution mode",
+      "server": "Server"
+    }
   },
   "openai": {
     "shell": "Shell",
