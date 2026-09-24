@@ -14,7 +14,11 @@ const toGoogleFunctionDeclaration = (tool: any) => {
   return compactUndefined({
     name: normalized.name,
     description: normalized.description,
-    parameters: normalized.parameters,
+    // MCP exposes full JSON Schema, including nullable union type arrays.
+    // Google's proto Schema (`parameters`) accepts only a restricted scalar
+    // type enum; `parametersJsonSchema` is the SDK-supported field for MCP
+    // schemas and is preserved by both auth-token constraints and Live setup.
+    parametersJsonSchema: normalized.parameters,
   });
 };
 
