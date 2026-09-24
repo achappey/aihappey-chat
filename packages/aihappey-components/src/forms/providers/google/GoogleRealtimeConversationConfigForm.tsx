@@ -5,6 +5,7 @@ import { useTheme } from "../../../theme/ThemeContext";
 export type GoogleRealtimeConversationConfig = {
   uses?: number;
   expireTime?: string;
+  newSessionExpireTime?: string;
   cameraFrameRate?: number;
   jpegQuality?: number;
   liveConnectConstraints?: {

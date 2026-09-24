@@ -12,6 +12,7 @@ export type GoogleRealtimeTranscriptionMode = "VERBATIM" | "SMART";
 export type GoogleRealtimeTranscriptionConfig = {
   uses?: number;
   expireTime?: string;
+  newSessionExpireTime?: string;
   liveConnectConstraints?: {
     model?: string;
     config?: {

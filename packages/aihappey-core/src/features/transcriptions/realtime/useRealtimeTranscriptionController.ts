@@ -8,6 +8,7 @@ import { startRealtimeWebrtcSession } from "./startRealtimeWebrtcSession";
 import { parseProviderIdFromModelId } from "./realtimeProviders";
 import { getTranscriptionErrorMessage } from "../transcriptionErrors";
 import { ModelOption } from "aihappey-types";
+import { buildGoogleLiveTokenPayload } from "../../realtime/googleLiveConfig";
 
 const describeError = (e: unknown) => {
   if (!e) return "unknown";
@@ -437,6 +438,28 @@ export function useRealtimeTranscriptionController(args: {
              tokenClientFactory(
                providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai"
                  ? { model: selectedModel.id }
+                 : providerId === "google"
+                 ? {
+                     model: selectedModel.id,
+                     providerOptions: {
+                       google: buildGoogleLiveTokenPayload({
+                         modelId: selectedModel.id,
+                         config: {
+                           responseModalities: ["TEXT"],
+                           inputAudioTranscription: {
+                             languageCodes: providerRealtimeMetadata?.google?.liveConnectConstraints?.config?.inputAudioTranscription?.languageCodes ?? [],
+                             ...(providerRealtimeMetadata?.google?.liveConnectConstraints?.config?.inputAudioTranscription?.customVocabulary?.length
+                               ? { customVocabulary: providerRealtimeMetadata.google.liveConnectConstraints.config.inputAudioTranscription.customVocabulary }
+                               : {}),
+                             ...(providerRealtimeMetadata?.google?.liveConnectConstraints?.config?.inputAudioTranscription?.mode
+                               ? { mode: providerRealtimeMetadata.google.liveConnectConstraints.config.inputAudioTranscription.mode }
+                               : {}),
+                           },
+                         },
+                         tokenConfig: providerRealtimeMetadata?.google,
+                       }),
+                     },
+                   }
                  : {
                      model: selectedModel.id,
                      providerOptions: providerRealtimeMetadata,

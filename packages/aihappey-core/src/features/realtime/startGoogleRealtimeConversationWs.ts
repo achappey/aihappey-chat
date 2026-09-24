@@ -1,8 +1,9 @@
 import type { RealtimeResponse } from "aihappey-ai";
 import type { RealtimeConversationEvents, RealtimeConversationWsSession } from "./startRealtimeConversationWebrtc";
+import { parseGoogleLiveMessageData } from "./googleLiveConfig";
 
 const GOOGLE_LIVE_CONSTRAINED_URL =
-  "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained";
+  "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained";
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 24000;
 
@@ -66,8 +67,7 @@ const float32FromPcm16leBase64 = (value: string) => {
 const dataUrlPayload = (value: string) => value.slice(value.indexOf(",") + 1);
 
 export async function startGoogleRealtimeConversationWsSession(args: {
-  model: string;
-  config: Record<string, any>;
+  setup: Record<string, any>;
   getEphemeralToken: () => Promise<RealtimeResponse>;
   cameraFrameRate?: number;
   jpegQuality?: number;
@@ -94,6 +94,8 @@ export async function startGoogleRealtimeConversationWsSession(args: {
   let responseId = crypto.randomUUID();
   const playbackNodes = new Set<AudioBufferSourceNode>();
   const intentionallyClosed = new WeakSet<WebSocket>();
+  const token = await args.getEphemeralToken();
+  if (!token?.value) throw new Error("Google Live token response did not contain a value.");
 
   const cancelPlayback = () => {
     for (const node of playbackNodes) {
@@ -199,10 +201,9 @@ export async function startGoogleRealtimeConversationWsSession(args: {
   };
 
   const connect = async (handle?: string) => {
-    const token = await args.getEphemeralToken();
-    if (!token?.value) throw new Error("Google Live token response did not contain a value.");
     const url = `${GOOGLE_LIVE_CONSTRAINED_URL}?access_token=${encodeURIComponent(token.value)}`;
     const ws = new WebSocket(url);
+    ws.binaryType = "arraybuffer";
     await new Promise<void>((resolve, reject) => {
       let ready = false;
       const fail = (reason: string) => {
@@ -210,17 +211,16 @@ export async function startGoogleRealtimeConversationWsSession(args: {
       };
       ws.addEventListener("open", () => {
         const setup = {
-          ...args.config,
-          model: args.model,
-          ...(args.config.sessionResumption !== undefined
-            ? { sessionResumption: { ...(args.config.sessionResumption ?? {}), ...(handle ? { handle } : {}) } }
+          ...args.setup,
+          ...(args.setup.sessionResumption !== undefined
+            ? { sessionResumption: { ...(args.setup.sessionResumption ?? {}), ...(handle ? { handle } : {}) } }
             : {}),
         };
         ws.send(JSON.stringify({ setup }));
       });
-      ws.addEventListener("message", (event) => {
+      ws.addEventListener("message", async (event) => {
         try {
-          const message = JSON.parse(String(event.data));
+          const message = await parseGoogleLiveMessageData(event.data);
           if (message?.setupComplete && !ready) {
             ready = true;
             resolve();

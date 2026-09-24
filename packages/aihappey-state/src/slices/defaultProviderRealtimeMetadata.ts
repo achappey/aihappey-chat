@@ -92,6 +92,19 @@ export const defaultProviderRealtimeMetadata = {
    */
   "soniox": {
     // Intentionally empty.
+  },
+  "google": {
+    "uses": 1,
+    "expireTime": "30m",
+    "newSessionExpireTime": "1m",
+    "liveConnectConstraints": {
+      "config": {
+        "responseModalities": ["TEXT"],
+        "inputAudioTranscription": {
+          "languageCodes": []
+        }
+      }
+    }
   }
 };
 
@@ -189,7 +202,8 @@ export const defaultProviderRealtimeConversationMetadata = {
   },
   "google": {
     "uses": 1,
-    "expireTime": "10m",
+    "expireTime": "30m",
+    "newSessionExpireTime": "1m",
     "cameraFrameRate": 1,
     "jpegQuality": 0.8,
     "liveConnectConstraints": {

@@ -17,7 +17,7 @@ export const getRealtimeToken = async (config: {
         })
 
         if (!result.ok) {
-            throw new Error(`Reranking failed (${await result.text()})`);
+            throw new Error(`Realtime token request failed (${result.status}): ${await result.text()}`);
         }
 
         return result.json();

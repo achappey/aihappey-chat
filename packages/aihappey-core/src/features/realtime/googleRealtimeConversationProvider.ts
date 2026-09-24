@@ -2,16 +2,12 @@ import { getRealtimeToken, type RealtimeResponse } from "aihappey-ai";
 import { buildRealtimeBackendHeaders, compactUndefined, deepMerge } from "./realtimeConversationConfig";
 import { mcpToolToRealtimeFunctionTool, stripProviderPrefix } from "./realtimeMessageParts";
 import { startGoogleRealtimeConversationWsSession } from "./startGoogleRealtimeConversationWs";
+import { buildGoogleLiveSetup, buildGoogleLiveTokenPayload, normalizeGoogleLiveModel } from "./googleLiveConfig";
 import type {
   RealtimeConversationProviderRuntime,
   RealtimeConversationProviderSessionConfigArgs,
   StartRealtimeConversationProviderSessionArgs,
 } from "./realtimeConversationProviderTypes";
-
-const normalizeModel = (modelId: string) => {
-  const model = stripProviderPrefix(modelId);
-  return model.startsWith("models/") ? model : `models/${model}`;
-};
 
 const toGoogleFunctionDeclaration = (tool: any) => {
   const normalized = mcpToolToRealtimeFunctionTool(tool);
@@ -56,28 +52,22 @@ const startGoogleRealtimeConversation = async (args: StartRealtimeConversationPr
     headers,
   });
   const googleMetadata = (args.providerRealtimeConversationMetadata as any)?.google ?? {};
-  const model = normalizeModel(args.model);
+  const model = normalizeGoogleLiveModel(args.model);
   const sessionConfig = buildGoogleRealtimeSessionConfig(args);
-  const tokenProviderOptions = {
-    ...(args.providerRealtimeConversationMetadata ?? {}),
-    google: {
-      ...googleMetadata,
-      liveConnectConstraints: {
-        ...(googleMetadata.liveConnectConstraints ?? {}),
-        model,
-        config: sessionConfig,
-      },
-    },
-  };
+  const setup = buildGoogleLiveSetup(model, sessionConfig);
+  const tokenPayload = buildGoogleLiveTokenPayload({
+    modelId: model,
+    config: sessionConfig,
+    tokenConfig: googleMetadata,
+  });
 
   return startGoogleRealtimeConversationWsSession({
-    model,
-    config: sessionConfig,
+    setup,
     cameraFrameRate: googleMetadata.cameraFrameRate,
     jpegQuality: googleMetadata.jpegQuality,
     getEphemeralToken: () => tokenClientFactory({
       model: args.model,
-      providerOptions: tokenProviderOptions,
+      providerOptions: { google: tokenPayload },
     }) as Promise<RealtimeResponse>,
     events: args.events,
   });

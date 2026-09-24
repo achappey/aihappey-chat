@@ -1,8 +1,9 @@
 import type { RealtimeResponse } from "aihappey-ai";
 import type { RealtimeTranscriptionEvents } from "./startRealtimeWebrtcSession";
+import { buildGoogleLiveSetup, normalizeGoogleLiveModel, parseGoogleLiveMessageData } from "../../realtime/googleLiveConfig";
 
 const GOOGLE_LIVE_WEBSOCKET_URL =
-  "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent";
+  "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained";
 const GOOGLE_SAMPLE_RATE = 16000;
 const FINAL_TRANSCRIPT_WAIT_MS = 1500;
 
@@ -38,11 +39,6 @@ const describeError = (error: unknown): string => {
   } catch {
     return String(error);
   }
-};
-
-const normalizeModel = (modelId: string): string => {
-  const withoutProvider = modelId.includes("/") ? modelId.slice(modelId.indexOf("/") + 1) : modelId;
-  return withoutProvider.startsWith("models/") ? withoutProvider : `models/${withoutProvider}`;
 };
 
 const resampleLinear = (input: Float32Array, fromRate: number, toRate: number): Float32Array => {
@@ -100,10 +96,12 @@ export async function startGoogleRealtimeWsSession(args: {
 }): Promise<GoogleRealtimeWsSession> {
   const { events } = args;
   const token = await args.getEphemeralToken();
-  const model = normalizeModel(args.modelId);
+  const model = normalizeGoogleLiveModel(args.modelId);
   const liveConfig = getLiveConfig(args.config);
+  const setup = buildGoogleLiveSetup(model, liveConfig);
   const url = `${GOOGLE_LIVE_WEBSOCKET_URL}?access_token=${encodeURIComponent(token.value)}`;
   const ws = new WebSocket(url);
+  ws.binaryType = "arraybuffer";
 
   let stream: MediaStream | undefined;
   let audioContext: AudioContext | undefined;
@@ -126,11 +124,7 @@ export async function startGoogleRealtimeWsSession(args: {
       cleanup();
       try {
         ws.send(JSON.stringify({
-          setup: {
-            model,
-            generationConfig: { responseModalities: liveConfig.responseModalities },
-            inputAudioTranscription: liveConfig.inputAudioTranscription,
-          },
+          setup,
         }));
         resolve();
       } catch (error) {
@@ -149,10 +143,9 @@ export async function startGoogleRealtimeWsSession(args: {
     ws.addEventListener("close", onClose);
   });
 
-  ws.addEventListener("message", (event) => {
+  ws.addEventListener("message", async (event) => {
     try {
-      if (typeof event.data !== "string") return;
-      const message = JSON.parse(event.data);
+      const message = await parseGoogleLiveMessageData(event.data);
       events?.onEvent?.(message);
 
       if (message?.error) {
