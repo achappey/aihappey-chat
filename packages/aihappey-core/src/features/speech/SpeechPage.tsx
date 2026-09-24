@@ -244,7 +244,7 @@ export const SpeechPage = () => {
       }}>
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
           gap: 16,
           alignItems: "stretch",
         }}>
@@ -283,11 +283,11 @@ export const SpeechPage = () => {
 
 const cellStyle: React.CSSProperties = {
   width: "100%",
-  aspectRatio: "1 / 1",
+  height: "100%",
+  minHeight: 140,
   position: "relative",
   overflow: "hidden",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  height: 99
 };
