@@ -52,6 +52,8 @@ const multiPageMsg: ChatMessage = {
   id: "3",
   role: "assistant",
   createdAt: new Date().toISOString(),
+  totalTokens: 256,
+  cost: 0.01,
   content: [
     {
       type: "reasoning",
@@ -115,6 +117,9 @@ export const Pagination: Story = {
       messages={[multiPageMsg]}
       onRenderMarkdown={renderMarkdown}
       onCopyMessage={async () => { }}
+      onSpeakMessage={() => { }}
+      canSpeakMessage
+      showTokens
     />
   ),
 };

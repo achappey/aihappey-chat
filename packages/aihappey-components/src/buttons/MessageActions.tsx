@@ -14,6 +14,7 @@ interface MessageActionsProps {
   max: number;
   size?: string;
   showTokens?: boolean
+  hideAssistantUsageActions?: boolean;
 
   onEditMessage?: (msg: ChatMessage) => void;
 
@@ -34,6 +35,7 @@ export const MessageActions = ({
   max,
   size,
   showTokens,
+  hideAssistantUsageActions,
   onEditMessage,
   onCopyMessage,
   onShowAttachments,
@@ -84,7 +86,7 @@ export const MessageActions = ({
         />
       )}
 
-      {onSpeakMessage && msg.role === "assistant" && (
+      {!hideAssistantUsageActions && onSpeakMessage && msg.role === "assistant" && (
         <Button
           variant="subtle"
           size="small"
@@ -95,9 +97,9 @@ export const MessageActions = ({
         />
       )}
 
-      {showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
+      {!hideAssistantUsageActions && showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
 
-      {msg.role === "assistant" && <CostBadge cost={msg.cost} />}
+      {!hideAssistantUsageActions && msg.role === "assistant" && <CostBadge cost={msg.cost} />}
 
       {onShowEvaluations && evaluationSummary && msg.evaluations && (
         <button

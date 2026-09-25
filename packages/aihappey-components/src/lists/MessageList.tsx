@@ -171,6 +171,9 @@ export const MessageList = ({
   const renderActions = (msg: ChatMessage) => {
     const page = getPage(msg);
     const max = getMaxPage(msg);
+    const blockType = msg.content?.[page]?.type;
+    const hideAssistantUsageActions = blockType === "reasoning"
+      || (typeof blockType === "string" && blockType.startsWith("tool-"));
 
     return (
       <MessageActions
@@ -178,6 +181,7 @@ export const MessageList = ({
         page={page}
         max={max}
         showTokens={showTokens}
+        hideAssistantUsageActions={hideAssistantUsageActions}
         size={size}
         onCopyMessage={onCopyMessage}
         onEditMessage={onEditMessage}
