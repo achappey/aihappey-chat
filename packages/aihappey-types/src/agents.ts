@@ -13,6 +13,34 @@ export type Agent = {
     plugins?: AgentPluginFile[];
     tools?: AgentTool[];
     icons?: Icon[];
+    evaluations?: AgentEvaluations;
+};
+
+/** Optional runtime checks evaluated after an agent response completes. */
+export type AgentEvaluations = {
+    localEvaluator?: AgentLocalEvaluator;
+};
+
+export type AgentLocalEvaluator = {
+    nonEmpty?: AgentNonEmptyCheck;
+    keywordCheck?: AgentKeywordCheck;
+    toolCallsPresent?: true;
+    toolCalledCheck?: AgentToolCalledCheck;
+    hasImageContent?: true;
+};
+
+export type AgentNonEmptyCheck = {
+    minLength?: number;
+};
+
+export type AgentKeywordCheck = {
+    keywords: string[];
+    caseSensitive?: boolean;
+};
+
+export type AgentToolCalledCheck = {
+    toolNames: string[];
+    mode?: "All" | "Any";
 };
 
 /** Portable Agent Plugin package embedded as an immutable archive snapshot. */

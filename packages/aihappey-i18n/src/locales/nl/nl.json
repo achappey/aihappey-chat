@@ -513,6 +513,41 @@
         "descriptionPlaceholder": "Korte beschrijving van wat deze agent doet...",
         "instructionsPlaceholder": "Beschrijf hoe de agent zich moet gedragen en wat hij wel of niet mag doen..."
     },
+    "agentChecks": {
+        "title": "Controles",
+        "onePerLine": "Voer één item per regel in.",
+        "nonEmpty": {
+            "title": "Niet-leeg antwoord",
+            "description": "Controleer of de agent voldoende tekst teruggeeft.",
+            "minLength": "Minimale lengte"
+        },
+        "keywords": {
+            "title": "Vereiste trefwoorden",
+            "description": "Controleer of het antwoord de ingestelde trefwoorden bevat.",
+            "keywords": "Trefwoorden",
+            "placeholder": "goedgekeurd\nvoltooid",
+            "caseSensitive": "Hoofdlettergevoelig"
+        },
+        "toolCallsPresent": {
+            "title": "Toolaanroep aanwezig",
+            "description": "Controleer of de agent ten minste één tool aanroept."
+        },
+        "namedTools": {
+            "title": "Specifieke tools aangeroepen",
+            "description": "Controleer of de agent specifieke tools aanroept.",
+            "toolNames": "Toolnamen",
+            "placeholder": "zoeken\nrapport_maken",
+            "mode": "Overeenkomstmodus",
+            "modes": {
+                "All": "Alle tools",
+                "Any": "Een van de tools"
+            }
+        },
+        "imageContent": {
+            "title": "Afbeeldingsinhoud aanwezig",
+            "description": "Controleer of het antwoord afbeeldingsinhoud bevat."
+        }
+    },
     "ai": {
         "title": "Artificial Intelligence",
         "providers": "Een overzicht van alle {{total}} beschikbare AI-providers. Per provider zie je wat deze biedt, voor welke toepassingen hij geschikt is en wanneer het logisch is om hem te gebruiken. Dit helpt je om per taak of workflow de juiste provider te kiezen op een duidelijke en consistente manier.",

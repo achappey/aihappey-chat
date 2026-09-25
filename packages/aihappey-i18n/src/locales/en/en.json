@@ -938,6 +938,41 @@
         "descriptionPlaceholder": "Brief description of what this agent does...",
         "instructionsPlaceholder": "Explain how the agent should behave and what it is allowed to do..."
     },
+    "agentChecks": {
+        "title": "Checks",
+        "onePerLine": "Enter one item per line.",
+        "nonEmpty": {
+            "title": "Non-empty response",
+            "description": "Check that the agent returns enough text.",
+            "minLength": "Minimum length"
+        },
+        "keywords": {
+            "title": "Required keywords",
+            "description": "Check that the response contains the configured keywords.",
+            "keywords": "Keywords",
+            "placeholder": "approved\ncompleted",
+            "caseSensitive": "Case-sensitive"
+        },
+        "toolCallsPresent": {
+            "title": "Tool call present",
+            "description": "Check that the agent makes at least one tool call."
+        },
+        "namedTools": {
+            "title": "Named tools called",
+            "description": "Check that specific tools are called by the agent.",
+            "toolNames": "Tool names",
+            "placeholder": "search\ncreate_report",
+            "mode": "Match mode",
+            "modes": {
+                "All": "All tools",
+                "Any": "Any tool"
+            }
+        },
+        "imageContent": {
+            "title": "Image content present",
+            "description": "Check that the response contains image content."
+        }
+    },
     "annotations": {
         "readOnly": "Read-only",
         "idempotent": "Idempotent",

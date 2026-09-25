@@ -44,6 +44,7 @@ import { ChatPluginsEditor } from "../chat-settings/ChatPluginsEditor";
 import { createEmbeddedAgentPlugin, getEmbeddedAgentPluginPayload, readEmbeddedAgentPluginName } from "./agentPlugins";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { toValidSchemaName } from "../chat-settings/GeneralTab";
+import { AgentChecks } from "./AgentChecks";
 
 const AGENT_TOOL_SEARCH_TYPE = "tool_search";
 const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
@@ -820,6 +821,13 @@ export const AgentForm = ({
                                 tools: tools.length ? tools : undefined,
                             });
                         }}
+                    />
+                </Tab>
+
+                <Tab eventKey="checks" title={t("agentChecks.title") ?? "Checks"}>
+                    <AgentChecks
+                        value={agent.evaluations}
+                        onChange={(evaluations) => onChange({ ...agent, evaluations })}
                     />
                 </Tab>
 

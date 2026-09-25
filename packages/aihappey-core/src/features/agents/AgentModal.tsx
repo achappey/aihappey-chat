@@ -3,6 +3,7 @@ import { useTheme } from "aihappey-components";
 
 import { useTranslation } from "aihappey-i18n";
 import { Agent } from "aihappey-types";
+import { AgentChecks, hasAgentChecks } from "./AgentChecks";
 
 export interface AgentModalProps {
     open: boolean;
@@ -40,6 +41,11 @@ export const AgentModal = ({ open, onClose, agent }: AgentModalProps) => {
                         </Card>
                     </div>
                 </Tab>
+                {hasAgentChecks(agent.evaluations) ? (
+                    <Tab eventKey="checks" title={t("agentChecks.title") ?? "Checks"}>
+                        <AgentChecks value={agent.evaluations} readOnly />
+                    </Tab>
+                ) : null}
             </Tabs>
         </Modal>
     );
