@@ -50,9 +50,24 @@ export type AgentPluginFile = {
     type: "base64";
 };
 
-/** Provider-neutral tools that are executed by the agent runtime. */
-export type AgentTool = {
+export type AgentToolCaller = "direct" | "programmatic";
+
+/** Request options supported by provider-neutral agent tools. */
+export type AgentToolRequestOptions = {
+    allowed_callers?: AgentToolCaller[];
+    defer_loading?: boolean;
+};
+
+/**
+ * Provider-neutral tools that are executed by the agent runtime.
+ *
+ * MCP functions are addressed by `{ type: "function", name }`. Runtime-owned
+ * tools such as tool/resource search and read_resource use their type as their
+ * identity and intentionally do not need a name.
+ */
+export type AgentTool = AgentToolRequestOptions & {
     type: string;
+    name?: string;
     [key: string]: unknown;
 };
 

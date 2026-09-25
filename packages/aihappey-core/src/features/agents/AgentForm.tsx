@@ -45,10 +45,15 @@ import { createEmbeddedAgentPlugin, getEmbeddedAgentPluginPayload, readEmbeddedA
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { toValidSchemaName } from "../chat-settings/GeneralTab";
 import { AgentChecks } from "./AgentChecks";
+import { AgentToolConfigurationTab, type ConfigurableAgentTool } from "./AgentToolConfigurationTab";
+import {
+    AGENT_FUNCTION_TYPE,
+    AGENT_READ_RESOURCE_TYPE,
+    AGENT_RESOURCE_SEARCH_TYPE,
+    AGENT_TOOL_SEARCH_TYPE,
+} from "./agentToolConfiguration";
 
-const AGENT_TOOL_SEARCH_TYPE = "tool_search";
 const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
-const AGENT_RESOURCE_SEARCH_TYPE = "resource_search";
 const AGENT_RESOURCE_SEARCH_TOGGLE_ID = "client-resource-search";
 
 export interface AgentFormProps {
@@ -575,6 +580,64 @@ export const AgentForm = ({
         return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
     }, [agent.mcpServers, mcpServerContent]);
 
+    const configurableAgentTools = useMemo<ConfigurableAgentTool[]>(() => {
+        const rows: ConfigurableAgentTool[] = [];
+        const configuredTools = agent.tools ?? [];
+
+        if (configuredTools.some((tool) => tool.type === AGENT_TOOL_SEARCH_TYPE)) {
+            rows.push({
+                key: AGENT_TOOL_SEARCH_TYPE,
+                label: t("plugins.client-tool-search") ?? "Tool search",
+                source: t("builtInLocalTools") ?? "Local tools",
+                identity: { type: AGENT_TOOL_SEARCH_TYPE },
+            });
+        }
+        if (configuredTools.some((tool) => tool.type === AGENT_RESOURCE_SEARCH_TYPE)) {
+            rows.push({
+                key: AGENT_RESOURCE_SEARCH_TYPE,
+                label: t("plugins.client-resource-search") ?? "Resource search",
+                source: t("builtInLocalTools") ?? "Local tools",
+                identity: { type: AGENT_RESOURCE_SEARCH_TYPE },
+            });
+        }
+
+        const seenNames = new Set<string>();
+        let hasResources = false;
+        for (const [serverKey, server] of Object.entries(agent.mcpServers ?? {})) {
+            if (server.disabled === true) continue;
+            const content = mcpServerContent[serverKey.trim().toLowerCase()];
+            if (!content) continue;
+            hasResources ||= (content.resources?.length ?? 0) > 0 || (content.resourceTemplates?.length ?? 0) > 0;
+
+            for (const tool of content.tools ?? []) {
+                const name = tool.name?.trim();
+                if (!name || seenNames.has(name)) continue;
+                seenNames.add(name);
+                rows.push({
+                    key: `${AGENT_FUNCTION_TYPE}:${name}`,
+                    label: name,
+                    source: serverKey,
+                    identity: { type: AGENT_FUNCTION_TYPE, name },
+                    defaults: {
+                        ...(server.allowed_callers?.length ? { allowed_callers: server.allowed_callers } : {}),
+                        ...(typeof server.defer_loading === "boolean" ? { defer_loading: server.defer_loading } : {}),
+                    },
+                });
+            }
+        }
+
+        if (hasResources) {
+            rows.push({
+                key: AGENT_READ_RESOURCE_TYPE,
+                label: AGENT_READ_RESOURCE_TYPE,
+                source: t("builtInLocalTools") ?? "Local tools",
+                identity: { type: AGENT_READ_RESOURCE_TYPE },
+            });
+        }
+
+        return rows;
+    }, [agent.mcpServers, agent.tools, mcpServerContent, t]);
+
     const mapToServerConfig = (
         items: {
             key: string
@@ -819,12 +882,14 @@ export const AgentForm = ({
                         onChange={(value) => {
                             const toolSearchEnabled = value.includes(AGENT_TOOL_SEARCH_TOGGLE_ID);
                             const resourceSearchEnabled = value.includes(AGENT_RESOURCE_SEARCH_TOGGLE_ID);
-                            const remainingTools = (agent.tools ?? [])
-                                .filter((tool) => tool?.type !== AGENT_TOOL_SEARCH_TYPE
-                                    && tool?.type !== AGENT_RESOURCE_SEARCH_TYPE);
+                            const currentTools = agent.tools ?? [];
+                            const remainingTools = currentTools.filter((tool) => tool?.type !== AGENT_TOOL_SEARCH_TYPE
+                                && tool?.type !== AGENT_RESOURCE_SEARCH_TYPE);
                             const searchTools = [
-                                ...(toolSearchEnabled ? [{ type: AGENT_TOOL_SEARCH_TYPE }] : []),
-                                ...(resourceSearchEnabled ? [{ type: AGENT_RESOURCE_SEARCH_TYPE }] : []),
+                                ...(toolSearchEnabled ? [currentTools.find((tool) => tool.type === AGENT_TOOL_SEARCH_TYPE)
+                                    ?? { type: AGENT_TOOL_SEARCH_TYPE }] : []),
+                                ...(resourceSearchEnabled ? [currentTools.find((tool) => tool.type === AGENT_RESOURCE_SEARCH_TYPE)
+                                    ?? { type: AGENT_RESOURCE_SEARCH_TYPE }] : []),
                             ];
                             const tools = [...remainingTools, ...searchTools];
 
@@ -834,6 +899,14 @@ export const AgentForm = ({
                             });
                         }}
                     />
+                </Tab>
+
+                <Tab eventKey="tool-configuration" title={t("toolConfiguration.title") ?? "Tool configuration"}>
+                    {activeTab === "tool-configuration" ? <AgentToolConfigurationTab
+                        availableTools={configurableAgentTools}
+                        tools={agent.tools}
+                        onChange={(tools) => onChange({ ...agent, tools })}
+                    /> : null}
                 </Tab>
 
                 <Tab eventKey="checks" title={t("agentChecks.title") ?? "Checks"}>
