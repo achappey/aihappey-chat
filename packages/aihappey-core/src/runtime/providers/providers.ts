@@ -608,6 +608,7 @@ import { agentcontainer } from "./catalog/agentcontainer";
 import { devicai } from "./catalog/devicai";
 import { yutori } from "./catalog/yutori";
 import { openference } from "./catalog/openference";
+import { sandbase } from "./catalog/sandbase";
 
 /**
  * UI-facing provider catalog.
@@ -802,6 +803,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   sunbirdai,
   miapi,
   ambient,
+  sandbase,
   openference,
   baseapi,
   preapi,
