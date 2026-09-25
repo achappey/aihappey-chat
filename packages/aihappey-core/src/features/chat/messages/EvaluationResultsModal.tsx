@@ -12,7 +12,6 @@ export type EvaluationResultsModalProps = {
 type MetricViewModel = {
   id: string;
   name: string;
-  type?: string;
   reason?: string;
   rating?: number;
   failed?: boolean;
@@ -46,7 +45,6 @@ const extractMetrics = (evaluations?: Record<string, unknown>): MetricViewModel[
         return [{
           id: `${evaluatorKey}-${itemIndex}-${metricKey}`,
           name: asString(metric.name) ?? metricKey,
-          type: asString(metric.$type),
           reason: asString(metric.reason),
           rating: typeof interpretation?.rating === "number" && Number.isFinite(interpretation.rating)
             ? interpretation.rating
@@ -69,11 +67,6 @@ export const EvaluationResultsModal = ({
   const translatedMetricName = (name: string) => {
     const key = `messageEvaluations.metricNames.${name}`;
     return t(key, { defaultValue: humanize(name) });
-  };
-
-  const translatedType = (type: string) => {
-    const key = `messageEvaluations.types.${type}`;
-    return t(key, { defaultValue: humanize(type) });
   };
 
   const translatedRating = (rating: number) => {
@@ -99,11 +92,6 @@ export const EvaluationResultsModal = ({
               description={metric.reason}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                {metric.type ? (
-                  <Badge bg="subtle" size="small">
-                    {translatedType(metric.type)}
-                  </Badge>
-                ) : null}
                 {metric.rating !== undefined ? (
                   <Badge bg="subtle" size="small">
                     {translatedRating(metric.rating)}

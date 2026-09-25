@@ -72,11 +72,6 @@
             "non_empty": "Niet-leeg antwoord",
             "keyword_check": "Trefwoordcontrole"
         },
-        "types": {
-            "boolean": "Ja/nee",
-            "string": "Tekst",
-            "number": "Getal"
-        },
         "ratings": {
             "0": "Onbekend",
             "1": "Geen uitsluitsel",

@@ -72,11 +72,6 @@ export function parseGatewayCost(value: unknown): number | undefined {
   return undefined;
 }
 
-const parseEvaluationCount = (value: unknown): number =>
-  typeof value === "number" && Number.isFinite(value) && value >= 0
-    ? Math.floor(value)
-    : 0;
-
 export function summarizeEvaluations(evaluations: unknown): ChatMessageEvaluationSummary | undefined {
   if (!evaluations || typeof evaluations !== "object" || Array.isArray(evaluations)) return undefined;
 
@@ -86,8 +81,22 @@ export function summarizeEvaluations(evaluations: unknown): ChatMessageEvaluatio
   for (const result of Object.values(evaluations as Record<string, unknown>)) {
     if (!result || typeof result !== "object" || Array.isArray(result)) continue;
     const evaluator = result as Record<string, unknown>;
-    passed += parseEvaluationCount(evaluator.passed);
-    failed += parseEvaluationCount(evaluator.failed);
+    if (!Array.isArray(evaluator.items)) continue;
+
+    for (const item of evaluator.items) {
+      if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+      const metrics = (item as Record<string, unknown>).metrics;
+      if (!metrics || typeof metrics !== "object" || Array.isArray(metrics)) continue;
+
+      for (const metric of Object.values(metrics as Record<string, unknown>)) {
+        if (!metric || typeof metric !== "object" || Array.isArray(metric)) continue;
+        const interpretation = (metric as Record<string, unknown>).interpretation;
+        if (!interpretation || typeof interpretation !== "object" || Array.isArray(interpretation)) continue;
+        const metricFailed = (interpretation as Record<string, unknown>).failed;
+        if (metricFailed === true) failed += 1;
+        if (metricFailed === false) passed += 1;
+      }
+    }
   }
 
   const total = passed + failed;

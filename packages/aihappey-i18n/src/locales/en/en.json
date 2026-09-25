@@ -73,11 +73,6 @@
             "non_empty": "Non-empty response",
             "keyword_check": "Keyword check"
         },
-        "types": {
-            "boolean": "Boolean",
-            "string": "Text",
-            "number": "Number"
-        },
         "ratings": {
             "0": "Unknown",
             "1": "Inconclusive",
