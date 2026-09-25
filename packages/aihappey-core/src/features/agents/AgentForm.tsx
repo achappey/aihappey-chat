@@ -80,6 +80,7 @@ export const AgentForm = ({
     const [pendingPluginIds, setPendingPluginIds] = useState<string[]>([]);
     const [initialPersistedPlugins] = useState(() => agent.plugins ?? []);
     const models = useAppStore((s) => s.models);
+    const mcpServerContent = useAppStore((s) => s.mcpServerContent);
     const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
     const skills = useSkills();
     const plugins = usePlugins();
@@ -563,6 +564,17 @@ export const AgentForm = ({
         .filter(a => a[1].disabled !== true)
         .map(a => a[0]))
 
+    const availableAgentToolNames = useMemo(() => {
+        const names = Object.entries(agent.mcpServers ?? {})
+            .filter(([, server]) => server.disabled !== true)
+            .flatMap(([serverKey]) => {
+                const content = mcpServerContent[serverKey.trim().toLowerCase()];
+                return (content?.tools ?? []).map((tool) => tool.name.trim()).filter(Boolean);
+            });
+
+        return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
+    }, [agent.mcpServers, mcpServerContent]);
+
     const mapToServerConfig = (
         items: {
             key: string
@@ -827,6 +839,7 @@ export const AgentForm = ({
                 <Tab eventKey="checks" title={t("agentChecks.title") ?? "Checks"}>
                     <AgentChecks
                         value={agent.evaluations}
+                        availableToolNames={availableAgentToolNames}
                         onChange={(evaluations) => onChange({ ...agent, evaluations })}
                     />
                 </Tab>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import type { AgentEvaluations, AgentLocalEvaluator } from "aihappey-types";
@@ -6,13 +7,13 @@ export type AgentChecksProps = {
   value?: AgentEvaluations;
   onChange?: (value: AgentEvaluations | undefined) => void;
   readOnly?: boolean;
+  availableToolNames?: string[];
 };
 
-const parseLines = (value: string) => Array.from(new Set(
-  value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean)
-));
-
-const formatLines = (value?: string[]) => (value ?? []).join("\n");
+const appendUniqueItem = (items: string[], item: string) => {
+  const normalized = item.trim();
+  return normalized && !items.includes(normalized) ? [...items, normalized] : items;
+};
 
 export const hasAgentChecks = (value?: AgentEvaluations) => {
   const local = value?.localEvaluator;
@@ -25,10 +26,12 @@ export const hasAgentChecks = (value?: AgentEvaluations) => {
   );
 };
 
-export const AgentChecks = ({ value, onChange, readOnly = false }: AgentChecksProps) => {
-  const { Card, Input, Select, Switch, Text, TextArea } = useTheme();
+export const AgentChecks = ({ value, onChange, readOnly = false, availableToolNames = [] }: AgentChecksProps) => {
+  const { Button, Card, Input, Select, Switch, Tags, Text } = useTheme();
   const { t } = useTranslation();
   const local = value?.localEvaluator;
+  const [keywordInput, setKeywordInput] = useState("");
+  const [toolNameInput, setToolNameInput] = useState("");
 
   const updateLocal = (update: (current: AgentLocalEvaluator) => AgentLocalEvaluator) => {
     if (!onChange) return;
@@ -51,6 +54,99 @@ export const AgentChecks = ({ value, onChange, readOnly = false }: AgentChecksPr
       <Text>{content}</Text>
     </div>
   );
+
+  const itemEditor = ({
+    items,
+    input,
+    label,
+    placeholder,
+    setInput,
+    onItemsChange,
+  }: {
+    items: string[];
+    input: string;
+    label: string;
+    placeholder: string;
+    setInput: (value: string) => void;
+    onItemsChange: (items: string[]) => void;
+  }) => {
+    const addItem = () => {
+      const next = appendUniqueItem(items, input);
+      if (next !== items) onItemsChange(next);
+      setInput("");
+    };
+
+    return (
+      <div style={{ display: "grid", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
+          <Input
+            label={label}
+            placeholder={placeholder}
+            value={input}
+            onChange={(event: any) => setInput(event.target.value)}
+            onKeyDown={(event: any) => {
+              if (event.key !== "Enter") return;
+              event.preventDefault();
+              addItem();
+            }}
+          />
+          <Button
+            type="button"
+            icon="add"
+            size="small"
+            variant="informative"
+            title={t("add")}
+            disabled={!input.trim()}
+            onClick={addItem}
+          />
+        </div>
+        {items.length ? (
+          <Tags
+            size="small"
+            items={items.map((item) => ({ key: item, label: item }))}
+            onRemove={(item: string) => onItemsChange(items.filter((current) => current !== item))}
+          />
+        ) : null}
+      </div>
+    );
+  };
+
+  const toolNameEditor = (items: string[], onItemsChange: (items: string[]) => void) => {
+    if (!availableToolNames.length) {
+      return itemEditor({
+        items,
+        input: toolNameInput,
+        label: t("agentChecks.namedTools.toolNames"),
+        placeholder: t("agentChecks.namedTools.placeholder"),
+        setInput: setToolNameInput,
+        onItemsChange,
+      });
+    }
+
+    return (
+      <div style={{ display: "grid", gap: 8 }}>
+        <Select
+          label={t("agentChecks.namedTools.toolNames")}
+          values={[]}
+          placeholder={t("agentChecks.namedTools.selectTool")}
+          searchable
+          options={availableToolNames.map((toolName) => ({ value: toolName, label: toolName }))}
+          onChange={(toolName: string) => onItemsChange(appendUniqueItem(items, toolName))}
+        >
+          {availableToolNames.map((toolName) => (
+            <option key={toolName} value={toolName}>{toolName}</option>
+          ))}
+        </Select>
+        {items.length ? (
+          <Tags
+            size="small"
+            items={items.map((item) => ({ key: item, label: item }))}
+            onRemove={(item: string) => onItemsChange(items.filter((current) => current !== item))}
+          />
+        ) : null}
+      </div>
+    );
+  };
 
   const cards = [
     (!readOnly || local?.nonEmpty !== undefined) ? (
@@ -97,17 +193,17 @@ export const AgentChecks = ({ value, onChange, readOnly = false }: AgentChecksPr
           </div>
         ) : (
           <div style={{ display: "grid", gap: 12 }}>
-            <TextArea
-              rows={4}
-              label={t("agentChecks.keywords.keywords")}
-              hint={t("agentChecks.onePerLine")}
-              placeholder={t("agentChecks.keywords.placeholder")}
-              value={formatLines(local.keywordCheck.keywords)}
-              onChange={(text) => updateLocal((current) => ({
+            {itemEditor({
+              items: local.keywordCheck.keywords,
+              input: keywordInput,
+              label: t("agentChecks.keywords.keywords"),
+              placeholder: t("agentChecks.keywords.placeholder"),
+              setInput: setKeywordInput,
+              onItemsChange: (keywords) => updateLocal((current) => ({
                 ...current,
-                keywordCheck: { ...current.keywordCheck!, keywords: parseLines(text) },
-              }))}
-            />
+                keywordCheck: { ...current.keywordCheck!, keywords },
+              })),
+            })}
             <Switch
               id="agent-check-keywords-case-sensitive"
               label={t("agentChecks.keywords.caseSensitive")}
@@ -151,17 +247,10 @@ export const AgentChecks = ({ value, onChange, readOnly = false }: AgentChecksPr
           </div>
         ) : (
           <div style={{ display: "grid", gap: 12 }}>
-            <TextArea
-              rows={4}
-              label={t("agentChecks.namedTools.toolNames")}
-              hint={t("agentChecks.onePerLine")}
-              placeholder={t("agentChecks.namedTools.placeholder")}
-              value={formatLines(local.toolCalledCheck.toolNames)}
-              onChange={(text) => updateLocal((current) => ({
+            {toolNameEditor(local.toolCalledCheck.toolNames, (toolNames) => updateLocal((current) => ({
                 ...current,
-                toolCalledCheck: { ...current.toolCalledCheck!, toolNames: parseLines(text) },
-              }))}
-            />
+                toolCalledCheck: { ...current.toolCalledCheck!, toolNames },
+              })))}
             <Select
               label={t("agentChecks.namedTools.mode")}
               values={[local.toolCalledCheck.mode ?? "All"]}

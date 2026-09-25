@@ -951,7 +951,7 @@
             "title": "Required keywords",
             "description": "Check that the response contains the configured keywords.",
             "keywords": "Keywords",
-            "placeholder": "approved\ncompleted",
+            "placeholder": "Add a keyword",
             "caseSensitive": "Case-sensitive"
         },
         "toolCallsPresent": {
@@ -962,7 +962,8 @@
             "title": "Named tools called",
             "description": "Check that specific tools are called by the agent.",
             "toolNames": "Tool names",
-            "placeholder": "search\ncreate_report",
+            "placeholder": "Add a tool name",
+            "selectTool": "Select a connected tool",
             "mode": "Match mode",
             "modes": {
                 "All": "All tools",

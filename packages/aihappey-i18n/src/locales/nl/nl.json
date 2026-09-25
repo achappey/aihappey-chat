@@ -525,7 +525,7 @@
             "title": "Vereiste trefwoorden",
             "description": "Controleer of het antwoord de ingestelde trefwoorden bevat.",
             "keywords": "Trefwoorden",
-            "placeholder": "goedgekeurd\nvoltooid",
+            "placeholder": "Voeg een trefwoord toe",
             "caseSensitive": "Hoofdlettergevoelig"
         },
         "toolCallsPresent": {
@@ -536,7 +536,8 @@
             "title": "Specifieke tools aangeroepen",
             "description": "Controleer of de agent specifieke tools aanroept.",
             "toolNames": "Toolnamen",
-            "placeholder": "zoeken\nrapport_maken",
+            "placeholder": "Voeg een toolnaam toe",
+            "selectTool": "Selecteer een verbonden tool",
             "mode": "Overeenkomstmodus",
             "modes": {
                 "All": "Alle tools",
