@@ -13,6 +13,15 @@ export type ChatMessageProviderIcon = {
   alt?: string;
 };
 
+export type ChatMessageEvaluationStatus = "passed" | "mixed" | "failed";
+
+export type ChatMessageEvaluationSummary = {
+  passed: number;
+  failed: number;
+  total: number;
+  status: ChatMessageEvaluationStatus;
+};
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
@@ -30,6 +39,8 @@ export interface ChatMessage {
   totalTokens?: number;
   usage?: any;
   cost?: number;
+  evaluations?: Record<string, unknown>;
+  evaluationSummary?: ChatMessageEvaluationSummary;
 }
 
 export interface UIMessage {

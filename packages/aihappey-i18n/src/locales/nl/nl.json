@@ -61,6 +61,16 @@
     "messageSpeech": {
         "failed": "Dit bericht kon niet worden afgespeeld. Controleer je spraakinstellingen en probeer het opnieuw."
     },
+    "messageEvaluations": {
+        "badge": "{{passed}}/{{total}}",
+        "open": "Evaluatieresultaten bekijken: {{passed}} van {{total}} geslaagd",
+        "title": "Evaluatieresultaten",
+        "status": {
+            "passed": "Alle {{total}} evaluaties zijn geslaagd",
+            "mixed": "{{passed}} geslaagd en {{failed}} mislukt",
+            "failed": "Alle {{total}} evaluaties zijn mislukt"
+        }
+    },
     "cancel": "Annuleer",
     "hide": "Verbergen",
     "show": "Tonen",

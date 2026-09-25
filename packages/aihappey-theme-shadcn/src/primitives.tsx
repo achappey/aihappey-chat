@@ -812,6 +812,7 @@ const getBadgeToneClass = (tone?: string) => {
   const normalizedTone = tone?.toLowerCase();
   if (normalizedTone === "error" || normalizedTone === "danger" || normalizedTone === "destructive" || normalizedTone === "severe") return "danger";
   if (normalizedTone === "success") return "success";
+  if (normalizedTone === "warning" || normalizedTone === "important") return "warning";
   if (normalizedTone === "info" || normalizedTone === "informative") return "info";
   if (normalizedTone === "primary" || normalizedTone === "brand") return "primary";
   return undefined;

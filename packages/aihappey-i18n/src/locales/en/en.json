@@ -62,6 +62,16 @@
     "messageSpeech": {
         "failed": "Could not play this message. Check your speech settings and try again."
     },
+    "messageEvaluations": {
+        "badge": "{{passed}}/{{total}}",
+        "open": "View evaluation results: {{passed}} of {{total}} passed",
+        "title": "Evaluation results",
+        "status": {
+            "passed": "All {{total}} evaluations passed",
+            "mixed": "{{passed}} passed and {{failed}} failed",
+            "failed": "All {{total}} evaluations failed"
+        }
+    },
     "cancel": "Cancel",
     "hide": "Hide",
     "show": "Show",

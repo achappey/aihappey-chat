@@ -112,7 +112,7 @@ export const MessageList = ({
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
   const providers = useProviderRegistry();
-  const { AudioPlayer, Image, JsonViewer, Toast } = useTheme()
+  const { AudioPlayer, Button, Image, JsonViewer, Modal, Toast } = useTheme()
   const progress = useMcpProgress(progressRuntime);
   const progressByToken = useMemo(() => {
     const m = new Map<string | number, McpProgressItem>();
@@ -122,6 +122,7 @@ export const MessageList = ({
   const { refresh } = useConversations();
   const [editUiMessageId, setEditUiMessageId] = useState<string | undefined>(undefined);
   const [modalImage, setModalImage] = useState<ImageContent | undefined>(undefined);
+  const [evaluationMessage, setEvaluationMessage] = useState<ChatMessage | undefined>(undefined);
   const [speechToastOpen, setSpeechToastOpen] = useState(false);
   const showSpeechError = useCallback(() => setSpeechToastOpen(true), []);
   const { canSpeak, speak } = useMessageSpeechPlayback({ onError: showSpeechError });
@@ -162,6 +163,7 @@ export const MessageList = ({
         providers={providers}
         tools={tools?.tools ?? []}
         onShowActivity={showActivity}
+        onShowEvaluations={setEvaluationMessage}
         onShowSources={showCitations}
         onShowAttachments={showAttachments}
         canSpeakMessage={canSpeak}
@@ -286,6 +288,22 @@ export const MessageList = ({
           onDownload={() => downloadImageContent(modalImage)}
           onClose={() => setModalImage(undefined)}
         />
+      ) : null}
+
+      {evaluationMessage?.evaluations ? (
+        <Modal
+          show
+          size="large"
+          title={t("messageEvaluations.title")}
+          onHide={() => setEvaluationMessage(undefined)}
+          actions={(
+            <Button variant="secondary" onClick={() => setEvaluationMessage(undefined)}>
+              {t("close")}
+            </Button>
+          )}
+        >
+          <JsonViewer value={evaluationMessage.evaluations} />
+        </Modal>
       ) : null}
     </>
   );

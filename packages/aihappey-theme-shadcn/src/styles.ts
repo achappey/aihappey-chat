@@ -22,6 +22,8 @@ export const shadcnThemeStyles = `
   --aih-shadcn-info-foreground: hsl(210 40% 98%);
   --aih-shadcn-success: hsl(142.1 76.2% 36.3%);
   --aih-shadcn-success-foreground: hsl(355.7 100% 97.3%);
+  --aih-shadcn-warning: hsl(38 92% 50%);
+  --aih-shadcn-warning-foreground: hsl(26 83.3% 14.1%);
   --aih-shadcn-border: hsl(214.3 31.8% 91.4%);
   --aih-shadcn-input: hsl(214.3 31.8% 91.4%);
   --aih-shadcn-ring: hsl(222.2 84% 4.9%);
@@ -62,6 +64,8 @@ html[data-theme="dark"] .aih-shadcn-portal-root:not(.light) {
   --aih-shadcn-info-foreground: hsl(222.2 47.4% 11.2%);
   --aih-shadcn-success: hsl(142.1 70.6% 45.3%);
   --aih-shadcn-success-foreground: hsl(144.9 80.4% 10%);
+  --aih-shadcn-warning: hsl(47.9 95.8% 53.1%);
+  --aih-shadcn-warning-foreground: hsl(26 83.3% 14.1%);
   --aih-shadcn-border: hsl(217.2 32.6% 17.5%);
   --aih-shadcn-input: hsl(217.2 32.6% 17.5%);
   --aih-shadcn-ring: hsl(212.7 26.8% 83.9%);
@@ -317,6 +321,7 @@ padding: .5rem;
 .aih-shadcn-badge-danger { background: var(--aih-shadcn-destructive); color: var(--aih-shadcn-destructive-foreground); }
 .aih-shadcn-badge-info { background: var(--aih-shadcn-info); color: var(--aih-shadcn-info-foreground); }
 .aih-shadcn-badge-success { background: var(--aih-shadcn-success); color: var(--aih-shadcn-success-foreground); }
+.aih-shadcn-badge-warning { background: var(--aih-shadcn-warning); color: var(--aih-shadcn-warning-foreground); }
 .aih-shadcn-badge-outline.aih-shadcn-badge-tone-primary { border-color: color-mix(in srgb, var(--aih-shadcn-primary) 64%, transparent); color: var(--aih-shadcn-primary); }
 .aih-shadcn-badge-outline.aih-shadcn-badge-tone-info { border-color: color-mix(in srgb, var(--aih-shadcn-info) 64%, transparent); color: var(--aih-shadcn-info); }
 .aih-shadcn-badge-outline.aih-shadcn-badge-tone-success { border-color: color-mix(in srgb, var(--aih-shadcn-success) 64%, transparent); color: var(--aih-shadcn-success); }

@@ -1,4 +1,4 @@
-import { ChatMessage, type Provider, SYSTEM_ROLE } from "aihappey-types";
+import { ChatMessage, type ChatMessageEvaluationSummary, type Provider, SYSTEM_ROLE } from "aihappey-types";
 import type { FileUIPart, ToolUIPart, UIMessage, UIMessagePart } from "aihappey-ai";
 import { CallToolResult } from "aihappey-mcp";
 
@@ -70,6 +70,35 @@ export function parseGatewayCost(value: unknown): number | undefined {
   }
 
   return undefined;
+}
+
+const parseEvaluationCount = (value: unknown): number =>
+  typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? Math.floor(value)
+    : 0;
+
+export function summarizeEvaluations(evaluations: unknown): ChatMessageEvaluationSummary | undefined {
+  if (!evaluations || typeof evaluations !== "object" || Array.isArray(evaluations)) return undefined;
+
+  let passed = 0;
+  let failed = 0;
+
+  for (const result of Object.values(evaluations as Record<string, unknown>)) {
+    if (!result || typeof result !== "object" || Array.isArray(result)) continue;
+    const evaluator = result as Record<string, unknown>;
+    passed += parseEvaluationCount(evaluator.passed);
+    failed += parseEvaluationCount(evaluator.failed);
+  }
+
+  const total = passed + failed;
+  if (total === 0) return undefined;
+
+  return {
+    passed,
+    failed,
+    total,
+    status: failed === 0 ? "passed" : passed === 0 ? "failed" : "mixed",
+  };
 }
 
 export type GatewayCostSummary = {
@@ -154,9 +183,19 @@ export function toChatMessages(
     const temperature = meta?.temperature;
     const usage = meta?.usage;
     const totalTokens = usage?.totalTokens ?? meta?.totalTokens;
+    const evaluations = z.role === "assistant"
+      && meta?.evaluations
+      && typeof meta.evaluations === "object"
+      && !Array.isArray(meta.evaluations)
+      ? meta.evaluations as Record<string, unknown>
+      : undefined;
+    const evaluationSummary = summarizeEvaluations(evaluations);
     const parts = collapseGeneratedImagePreviews(((z.parts ?? [])).filter(
       (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
     ));
+    const evaluationPartIndex = evaluationSummary
+      ? parts.findLastIndex((part) => part?.type === "text")
+      : -1;
 
     const messageCostSummary = summarizeAssistantGatewayCost({
       role: z.role,
@@ -399,6 +438,9 @@ export function toChatMessages(
           usage,
           cost: effectiveCost,
           providerKey,
+          ...(i === evaluationPartIndex && evaluations && evaluationSummary
+            ? { evaluations, evaluationSummary }
+            : {}),
         } as any);
 
         continue;

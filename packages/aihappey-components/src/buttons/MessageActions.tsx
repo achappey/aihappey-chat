@@ -21,6 +21,7 @@ interface MessageActionsProps {
   onShowAttachments?: (files: FileUIPart[]) => void;
   onShowActivity?: (content: UIMessagePart<any, any>[]) => void;
   onShowSources?: (sources: (SourceDocumentUIPart | SourceUrlUIPart)[]) => void;
+  onShowEvaluations?: (msg: ChatMessage) => void;
   canSpeakMessage?: boolean;
   onSpeakMessage?: (msg: ChatMessage) => void;
   onSetPage: (nextPage: number) => void;
@@ -38,13 +39,20 @@ export const MessageActions = ({
   onShowAttachments,
   onShowActivity,
   onShowSources,
+  onShowEvaluations,
   canSpeakMessage,
   onSpeakMessage,
   onSetPage,
   style,
 }: MessageActionsProps) => {
-  const { Button } = useTheme();
+  const { Badge, Button } = useTheme();
   const { t } = useTranslation();
+  const evaluationSummary = msg.role === "assistant" ? msg.evaluationSummary : undefined;
+  const evaluationTone = evaluationSummary?.status === "passed"
+    ? "success"
+    : evaluationSummary?.status === "mixed"
+      ? "warning"
+      : "danger";
   return (
     <div
       style={{
@@ -90,6 +98,44 @@ export const MessageActions = ({
       {showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
 
       {msg.role === "assistant" && <CostBadge cost={msg.cost} />}
+
+      {onShowEvaluations && evaluationSummary && msg.evaluations && (
+        <button
+          type="button"
+          onClick={() => onShowEvaluations(msg)}
+          aria-label={t("messageEvaluations.open", {
+            passed: evaluationSummary.passed,
+            total: evaluationSummary.total,
+          })}
+          style={{
+            appearance: "none",
+            background: "none",
+            border: 0,
+            color: "inherit",
+            cursor: "pointer",
+            display: "inline-flex",
+            font: "inherit",
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          <Badge
+            size="small"
+            bg={evaluationTone}
+            icon={evaluationSummary.status === "passed" ? "check" : "warning"}
+            title={t(`messageEvaluations.status.${evaluationSummary.status}`, {
+              passed: evaluationSummary.passed,
+              failed: evaluationSummary.failed,
+              total: evaluationSummary.total,
+            })}
+          >
+            {t("messageEvaluations.badge", {
+              passed: evaluationSummary.passed,
+              total: evaluationSummary.total,
+            })}
+          </Badge>
+        </button>
+      )}
 
       {onShowSources &&
         msg?.sources &&
