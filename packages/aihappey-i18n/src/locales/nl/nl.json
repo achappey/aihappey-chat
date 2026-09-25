@@ -65,6 +65,8 @@
         "badge": "{{passed}}/{{total}}",
         "open": "Evaluatieresultaten bekijken: {{passed}} van {{total}} geslaagd",
         "title": "Evaluatieresultaten",
+        "resultsTab": "Resultaten",
+        "jsonTab": "JSON",
         "metricPassed": "Geslaagd",
         "metricFailed": "Mislukt",
         "empty": "Er zijn geen evaluatiedetails beschikbaar.",

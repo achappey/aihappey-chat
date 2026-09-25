@@ -1,5 +1,6 @@
 import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
+import { useEffect, useMemo, useState } from "react";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -55,14 +56,31 @@ const extractMetrics = (evaluations?: Record<string, unknown>): MetricViewModel[
     });
   });
 
+const omitInputItems = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(omitInputItems);
+  if (!isRecord(value)) return value;
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => key !== "inputItems")
+      .map(([key, item]) => [key, omitInputItems(item)]),
+  );
+};
+
 export const EvaluationResultsModal = ({
   open,
   evaluations,
   onClose,
 }: EvaluationResultsModalProps) => {
   const { t } = useTranslation();
-  const { Alert, Badge, Button, Card, Modal } = useTheme();
+  const { Alert, Badge, Button, Card, JsonViewer, Modal, Tab, Tabs } = useTheme();
+  const [activeTab, setActiveTab] = useState("results");
   const metrics = extractMetrics(evaluations);
+  const debugEvaluations = useMemo(() => omitInputItems(evaluations ?? {}), [evaluations]);
+
+  useEffect(() => {
+    if (open) setActiveTab("results");
+  }, [open, evaluations]);
 
   const translatedMetricName = (name: string) => {
     const key = `messageEvaluations.metricNames.${name}`;
@@ -82,39 +100,50 @@ export const EvaluationResultsModal = ({
       onHide={onClose}
       actions={<Button variant="secondary" onClick={onClose}>{t("close")}</Button>}
     >
-      {metrics.length ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
-          {metrics.map((metric) => (
-            <Card
-              key={metric.id}
-              size="small"
-              title={translatedMetricName(metric.name)}
-              description={metric.reason}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                {metric.rating !== undefined ? (
-                  <Badge bg="subtle" size="small">
-                    {translatedRating(metric.rating)}
-                  </Badge>
-                ) : null}
-                {metric.failed !== undefined ? (
-                  <Badge
-                    bg={metric.failed ? "error" : "success"}
-                    icon={metric.failed ? "warning" : "check"}
+      <Tabs activeKey={activeTab} onSelect={setActiveTab}>
+        <Tab eventKey="results" title={t("messageEvaluations.resultsTab")}>
+          <div style={{ paddingTop: 12 }}>
+            {metrics.length ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+                {metrics.map((metric) => (
+                  <Card
+                    key={metric.id}
                     size="small"
+                    title={translatedMetricName(metric.name)}
+                    description={metric.reason}
                   >
-                    {t(metric.failed
-                      ? "messageEvaluations.metricFailed"
-                      : "messageEvaluations.metricPassed")}
-                  </Badge>
-                ) : null}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      {metric.rating !== undefined ? (
+                        <Badge bg="subtle" size="small">
+                          {translatedRating(metric.rating)}
+                        </Badge>
+                      ) : null}
+                      {metric.failed !== undefined ? (
+                        <Badge
+                          bg={metric.failed ? "error" : "success"}
+                          icon={metric.failed ? "warning" : "check"}
+                          size="small"
+                        >
+                          {t(metric.failed
+                            ? "messageEvaluations.metricFailed"
+                            : "messageEvaluations.metricPassed")}
+                        </Badge>
+                      ) : null}
+                    </div>
+                  </Card>
+                ))}
               </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Alert variant="warning">{t("messageEvaluations.empty")}</Alert>
-      )}
+            ) : (
+              <Alert variant="warning">{t("messageEvaluations.empty")}</Alert>
+            )}
+          </div>
+        </Tab>
+        <Tab eventKey="json" title={t("messageEvaluations.jsonTab")}>
+          <div style={{ paddingTop: 12 }}>
+            <JsonViewer value={debugEvaluations} />
+          </div>
+        </Tab>
+      </Tabs>
     </Modal>
   );
 };

@@ -66,6 +66,8 @@
         "badge": "{{passed}}/{{total}}",
         "open": "View evaluation results: {{passed}} of {{total}} passed",
         "title": "Evaluation results",
+        "resultsTab": "Results",
+        "jsonTab": "JSON",
         "metricPassed": "Passed",
         "metricFailed": "Failed",
         "empty": "No evaluation details are available.",
