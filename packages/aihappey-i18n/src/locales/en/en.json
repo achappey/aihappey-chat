@@ -66,6 +66,27 @@
         "badge": "{{passed}}/{{total}}",
         "open": "View evaluation results: {{passed}} of {{total}} passed",
         "title": "Evaluation results",
+        "metricPassed": "Passed",
+        "metricFailed": "Failed",
+        "empty": "No evaluation details are available.",
+        "metricNames": {
+            "non_empty": "Non-empty response",
+            "keyword_check": "Keyword check"
+        },
+        "types": {
+            "boolean": "Boolean",
+            "string": "Text",
+            "number": "Number"
+        },
+        "ratings": {
+            "0": "Unknown",
+            "1": "Inconclusive",
+            "2": "Unacceptable",
+            "3": "Poor",
+            "4": "Average",
+            "5": "Good",
+            "6": "Exceptional"
+        },
         "status": {
             "passed": "All {{total}} evaluations passed",
             "mixed": "{{passed}} passed and {{failed}} failed",

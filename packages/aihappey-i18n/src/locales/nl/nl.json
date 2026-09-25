@@ -65,6 +65,27 @@
         "badge": "{{passed}}/{{total}}",
         "open": "Evaluatieresultaten bekijken: {{passed}} van {{total}} geslaagd",
         "title": "Evaluatieresultaten",
+        "metricPassed": "Geslaagd",
+        "metricFailed": "Mislukt",
+        "empty": "Er zijn geen evaluatiedetails beschikbaar.",
+        "metricNames": {
+            "non_empty": "Niet-leeg antwoord",
+            "keyword_check": "Trefwoordcontrole"
+        },
+        "types": {
+            "boolean": "Ja/nee",
+            "string": "Tekst",
+            "number": "Getal"
+        },
+        "ratings": {
+            "0": "Onbekend",
+            "1": "Geen uitsluitsel",
+            "2": "Onacceptabel",
+            "3": "Matig",
+            "4": "Gemiddeld",
+            "5": "Goed",
+            "6": "Uitzonderlijk"
+        },
         "status": {
             "passed": "Alle {{total}} evaluaties zijn geslaagd",
             "mixed": "{{passed}} geslaagd en {{failed}} mislukt",

@@ -19,6 +19,7 @@ import { ImageModal } from "../../images/ImageModal";
 import { downloadImageContent, imageContentToSrc } from "../../images/imageContentUtils";
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 import { useMessageSpeechPlayback } from "./useMessageSpeechPlayback";
+import { EvaluationResultsModal } from "./EvaluationResultsModal";
 
 interface MessageListProps {
   showCitations: (items: (SourceUrlUIPart | SourceDocumentUIPart)[]) => void;
@@ -112,7 +113,7 @@ export const MessageList = ({
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
   const providers = useProviderRegistry();
-  const { AudioPlayer, Button, Image, JsonViewer, Modal, Toast } = useTheme()
+  const { AudioPlayer, Image, JsonViewer, Toast } = useTheme()
   const progress = useMcpProgress(progressRuntime);
   const progressByToken = useMemo(() => {
     const m = new Map<string | number, McpProgressItem>();
@@ -290,21 +291,11 @@ export const MessageList = ({
         />
       ) : null}
 
-      {evaluationMessage?.evaluations ? (
-        <Modal
-          show
-          size="large"
-          title={t("messageEvaluations.title")}
-          onHide={() => setEvaluationMessage(undefined)}
-          actions={(
-            <Button variant="secondary" onClick={() => setEvaluationMessage(undefined)}>
-              {t("close")}
-            </Button>
-          )}
-        >
-          <JsonViewer value={evaluationMessage.evaluations} />
-        </Modal>
-      ) : null}
+      <EvaluationResultsModal
+        open={!!evaluationMessage?.evaluations}
+        evaluations={evaluationMessage?.evaluations}
+        onClose={() => setEvaluationMessage(undefined)}
+      />
     </>
   );
 };
