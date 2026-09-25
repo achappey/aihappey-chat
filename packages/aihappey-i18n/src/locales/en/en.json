@@ -64,13 +64,13 @@
     },
     "messageEvaluations": {
         "badge": "{{passed}}/{{total}}",
-        "open": "View evaluation results: {{passed}} of {{total}} passed",
+        "open": "View test results: {{passed}} of {{total}} passed",
         "title": "Evaluation results",
         "resultsTab": "Results",
         "jsonTab": "JSON",
         "metricPassed": "Passed",
         "metricFailed": "Failed",
-        "empty": "No evaluation details are available.",
+        "empty": "No test details are available.",
         "metricNames": {
             "non_empty": "Non-empty response",
             "keyword_check": "Keyword check"
@@ -85,9 +85,9 @@
             "6": "Exceptional"
         },
         "status": {
-            "passed": "All {{total}} evaluations passed",
+            "passed": "All {{total}} tests passed",
             "mixed": "{{passed}} passed and {{failed}} failed",
-            "failed": "All {{total}} evaluations failed"
+            "failed": "All {{total}} tests failed"
         }
     },
     "cancel": "Cancel",
@@ -940,7 +940,7 @@
         "instructionsPlaceholder": "Explain how the agent should behave and what it is allowed to do..."
     },
     "agentChecks": {
-        "title": "Evals",
+        "title": "Tests",
         "onePerLine": "Enter one item per line.",
         "nonEmpty": {
             "title": "Non-empty response",

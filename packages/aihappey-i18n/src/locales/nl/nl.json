@@ -63,8 +63,8 @@
     },
     "messageEvaluations": {
         "badge": "{{passed}}/{{total}}",
-        "open": "Checks bekijken: {{passed}} van {{total}} geslaagd",
-        "title": "Checkresultaten",
+        "open": "Tests bekijken: {{passed}} van {{total}} geslaagd",
+        "title": "Testresultaten",
         "resultsTab": "Resultaten",
         "jsonTab": "JSON",
         "metricPassed": "Geslaagd",
@@ -84,9 +84,9 @@
             "6": "Uitzonderlijk"
         },
         "status": {
-            "passed": "Alle {{total}} checks zijn geslaagd",
+            "passed": "Alle {{total}} tests zijn geslaagd",
             "mixed": "{{passed}} geslaagd en {{failed}} mislukt",
-            "failed": "Alle {{total}} checks zijn mislukt"
+            "failed": "Alle {{total}} tests zijn mislukt"
         }
     },
     "cancel": "Annuleer",
