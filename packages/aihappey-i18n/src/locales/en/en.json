@@ -940,7 +940,7 @@
         "instructionsPlaceholder": "Explain how the agent should behave and what it is allowed to do..."
     },
     "agentChecks": {
-        "title": "Checks",
+        "title": "Evals",
         "onePerLine": "Enter one item per line.",
         "nonEmpty": {
             "title": "Non-empty response",

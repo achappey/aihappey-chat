@@ -63,13 +63,13 @@
     },
     "messageEvaluations": {
         "badge": "{{passed}}/{{total}}",
-        "open": "Evaluatieresultaten bekijken: {{passed}} van {{total}} geslaagd",
-        "title": "Evaluatieresultaten",
+        "open": "Checks bekijken: {{passed}} van {{total}} geslaagd",
+        "title": "Checkresultaten",
         "resultsTab": "Resultaten",
         "jsonTab": "JSON",
         "metricPassed": "Geslaagd",
         "metricFailed": "Mislukt",
-        "empty": "Er zijn geen evaluatiedetails beschikbaar.",
+        "empty": "Er zijn geen details beschikbaar.",
         "metricNames": {
             "non_empty": "Niet-leeg antwoord",
             "keyword_check": "Trefwoordcontrole"
@@ -84,9 +84,9 @@
             "6": "Uitzonderlijk"
         },
         "status": {
-            "passed": "Alle {{total}} evaluaties zijn geslaagd",
+            "passed": "Alle {{total}} checks zijn geslaagd",
             "mixed": "{{passed}} geslaagd en {{failed}} mislukt",
-            "failed": "Alle {{total}} evaluaties zijn mislukt"
+            "failed": "Alle {{total}} checks zijn mislukt"
         }
     },
     "cancel": "Annuleer",
@@ -514,7 +514,7 @@
         "instructionsPlaceholder": "Beschrijf hoe de agent zich moet gedragen en wat hij wel of niet mag doen..."
     },
     "agentChecks": {
-        "title": "Controles",
+        "title": "Checks",
         "onePerLine": "Voer één item per regel in.",
         "nonEmpty": {
             "title": "Niet-leeg antwoord",
