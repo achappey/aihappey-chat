@@ -1,4 +1,20 @@
 {
+  "baseten": {
+    "enableThinking": "Enable thinking",
+    "enableThinkingValue": "Send enable_thinking",
+    "searchProvider": "Search provider",
+    "searchTool": "Search",
+    "fetchTool": "Fetch pages",
+    "advancedSearchTool": "Advanced search",
+    "limitIterations": "Set iteration limit",
+    "maxReactIterations": "Maximum reasoning and tool iterations",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You.com"
+    }
+  },
   "apertis": {
     "notSet": "Not set",
     "reasoning": "Reasoning",

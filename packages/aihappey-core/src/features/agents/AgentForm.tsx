@@ -1,5 +1,5 @@
 import {
-    ApertisChatConfigForm,
+    ApertisChatConfigForm, BasetenChatConfigForm,
     AbliterationChatConfigForm, AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
     BraveChatConfigForm, CohereChatConfigForm,
     CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
@@ -1020,6 +1020,15 @@ export const AgentForm = ({
                         <BraveChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "baseten" && (
+                        <BasetenChatConfigForm
+                            config={providerMeta}
+                            headers={providerHeaders}
+                            updateConfig={updateProviderMetadata}
+                            updateHeaders={updateProviderHeaders}
                         />
                     )}
 

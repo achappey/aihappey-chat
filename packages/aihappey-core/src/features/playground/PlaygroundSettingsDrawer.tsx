@@ -4,6 +4,7 @@ import {
   AiChatSettingsForm,
   AnthropicChatConfigForm,
   ApertisChatConfigForm,
+  BasetenChatConfigForm,
   BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
@@ -194,6 +195,8 @@ export const PlaygroundSettingsDrawer = ({
         return <BrowserUseChatConfigForm config={providerMetadata.browseruse ?? {}} updateConfig={updateProviderConfig} />;
       case "brave":
         return <BraveChatConfigForm config={providerMetadata.brave ?? {}} updateConfig={updateProviderConfig} />;
+      case "baseten":
+        return <BasetenChatConfigForm config={providerMetadata.baseten ?? {}} headers={providerHeaders.baseten ?? {}} updateConfig={updateProviderConfig} updateHeaders={updateProviderHeaders} />;
       case "cerebras":
         return <CerebrasChatConfigForm config={providerMetadata.cerebras ?? {}} updateConfig={updateProviderConfig} />;
       case "deepseek":

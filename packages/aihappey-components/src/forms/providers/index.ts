@@ -77,5 +77,6 @@ export * from "./stepfun";
 export * from "./upstage";
 export * from "./mireye";
 export * from "./neuralwatt";
+export * from "./baseten";
     
     

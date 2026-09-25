@@ -1,4 +1,20 @@
 {
+  "baseten": {
+    "enableThinking": "Nadenken inschakelen",
+    "enableThinkingValue": "enable_thinking meesturen",
+    "searchProvider": "Zoekprovider",
+    "searchTool": "Zoeken",
+    "fetchTool": "Pagina's ophalen",
+    "advancedSearchTool": "Geavanceerd zoeken",
+    "limitIterations": "Iteratielimiet instellen",
+    "maxReactIterations": "Maximaal aantal redeneer- en tooliteraties",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You.com"
+    }
+  },
   "apertis": {
     "notSet": "Niet ingesteld",
     "reasoning": "Nadenken",

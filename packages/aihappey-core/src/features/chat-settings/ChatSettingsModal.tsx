@@ -14,6 +14,7 @@ import {
   AbliterationChatConfigForm,
   AnthropicChatConfigForm,
   ApertisChatConfigForm,
+  BasetenChatConfigForm,
   BlackboxChatConfigForm,
   BrowserUseChatConfigForm,
   BraveChatConfigForm,
@@ -277,6 +278,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       depaza: (depaza: any) => updateProviderConfig("depaza", depaza),
       browseruse: (browseruse: any) => updateProviderConfig("browseruse", browseruse),
       brave: (brave: any) => updateProviderConfig("brave", brave),
+      baseten: (baseten: any) => updateProviderConfig("baseten", baseten),
       cerebras: (cerebras: any) => updateProviderConfig("cerebras", cerebras),
       deepseek: (deepseek: any) => updateProviderConfig("deepseek", deepseek),
       google: (google: any) => updateProviderConfig("google", google),
@@ -314,6 +316,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const providerHeaderUpdaters = useMemo(
     () => ({
       anthropic: (headers: Record<string, string> | undefined) => updateProviderHeaders("anthropic", headers),
+      baseten: (headers: Record<string, string> | undefined) => updateProviderHeaders("baseten", headers),
       interfaze: (headers: Record<string, string> | undefined) => updateProviderHeaders("interfaze", headers),
       openai: (headers: Record<string, string> | undefined) => updateProviderHeaders("openai", headers),
       openrouter: (headers: Record<string, string> | undefined) => updateProviderHeaders("openrouter", headers),
@@ -374,6 +377,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return <BrowserUseChatConfigForm config={draft.providerMetadata.browseruse ?? {}} updateConfig={providerConfigUpdaters.browseruse} />;
       case "brave":
         return <BraveChatConfigForm config={draft.providerMetadata.brave ?? {}} updateConfig={providerConfigUpdaters.brave} />;
+      case "baseten":
+        return <BasetenChatConfigForm config={draft.providerMetadata.baseten ?? {}} headers={draft.providerHeaders.baseten ?? {}} updateConfig={providerConfigUpdaters.baseten} updateHeaders={providerHeaderUpdaters.baseten} />;
       case "cerebras":
         return <CerebrasChatConfigForm config={draft.providerMetadata.cerebras ?? {}} updateConfig={providerConfigUpdaters.cerebras} />;
       case "deepseek":
