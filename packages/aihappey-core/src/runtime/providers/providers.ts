@@ -607,6 +607,7 @@ import { hush } from "./catalog/hush";
 import { agentcontainer } from "./catalog/agentcontainer";
 import { devicai } from "./catalog/devicai";
 import { yutori } from "./catalog/yutori";
+import { openference } from "./catalog/openference";
 
 /**
  * UI-facing provider catalog.
@@ -801,6 +802,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   sunbirdai,
   miapi,
   ambient,
+  openference,
   baseapi,
   preapi,
   mljunction,
