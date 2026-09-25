@@ -303,7 +303,6 @@ import { mia21 } from "./catalog/mia21";
 import { textsynth } from "./catalog/textsynth";
 import { modelsync } from "./catalog/modelsync";
 import { huggingface } from "./catalog/huggingface";
-import { ezai } from "./catalog/ezai";
 import { martian } from "./catalog/martian";
 import { askcodi } from "./catalog/askcodi";
 import { gonkagate } from "./catalog/gonkagate";
@@ -871,7 +870,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   lilac,
   kimrel,
   agentaigateway,
-  ezai,
   lazu,
   askcodi,
   martian,
