@@ -553,6 +553,7 @@
         "mcpClientCapabilities": "Model Context capabilities",
         "settings": "Settings",
         "mcpServers": "Model Context servers",
+        "connectMcp": "Connect MCP",
         "saveAsPlugin": "Save as plugin",
         "pluginCreated": "Plugin '{{name}}' was created from the agent.",
         "pluginEmpty": "This agent has no direct skills or enabled MCP servers to package.",

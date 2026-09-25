@@ -68,6 +68,9 @@ export const AgentsPage = () => {
   const createAgent = useAppStore((s) => s.createAgent);
   const updateAgent = useAppStore((s) => s.updateAgent);
   const deleteAgent = useAppStore((s) => s.deleteAgent);
+  const mcpServers = useAppStore((s) => s.mcpServers);
+  const addMcpServer = useAppStore((s) => s.addMcpServer);
+  const updateMcpServer = useAppStore((s) => s.updateMcpServer);
   const favoriteAgentIds = useAppStore((s: any) => s.favoriteAgentIds as string[] | undefined);
   const toggleFavoriteAgent = useAppStore((s: any) => s.toggleFavoriteAgent as (agentId: string) => void);
   // rankings stats could come from the store OR from the tool TEXT response we parse locally
@@ -226,6 +229,26 @@ export const AgentsPage = () => {
     [cards]
   );
 
+  const handleConnectMcp = useCallback((agent: Agent) => {
+    Object.entries(agent.mcpServers ?? {})
+      .filter(([name, server]) => name.trim().length > 0 && server.disabled !== true)
+      .forEach(([name, server]) => {
+        const key = name.trim().toLowerCase();
+        const config = {
+          type: "http" as const,
+          url: server.url,
+          disabled: false,
+          ...(server.headers ? { headers: server.headers } : {}),
+        };
+
+        if (mcpServers[key]) {
+          updateMcpServer(key, config);
+        } else {
+          addMcpServer(key, { config });
+        }
+      });
+  }, [addMcpServer, mcpServers, updateMcpServer]);
+
   const handleSaveAsPlugin = useCallback(async (cardKey: string, agent: Agent) => {
     if (convertingCardKey) return;
     setConvertingCardKey(cardKey);
@@ -286,25 +309,33 @@ export const AgentsPage = () => {
         </div>
       ) : (
         items.map((card) =>
-          <div
-            key={card.key}
-            style={{
-              maxWidth: isDesktop ? 320 : "100%",
-              minWidth: isDesktop ? 320 : 0,
-              width: "100%",
-            }}
-          >
-            <AgentCard
-              agent={card.agent}
-              providerIcons={card.providerIcons}
-              onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
-              onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
-              onSaveAsPlugin={() => handleSaveAsPlugin(card.key, card.agent)}
-              saveAsPluginDisabled={convertingCardKey !== null}
-              isFavorite={favoriteAgentSet.has(card.key)}
-              onToggleFavorite={() => toggleFavoriteAgent(card.key)}
-            />
-          </div>)
+          {
+            const hasEnabledMcpServers = Object.entries(card.agent.mcpServers ?? {})
+              .some(([name, server]) => name.trim().length > 0 && server.disabled !== true);
+
+            return (
+              <div
+                key={card.key}
+                style={{
+                  maxWidth: isDesktop ? 320 : "100%",
+                  minWidth: isDesktop ? 320 : 0,
+                  width: "100%",
+                }}
+              >
+                <AgentCard
+                  agent={card.agent}
+                  providerIcons={card.providerIcons}
+                  onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
+                  onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
+                  onConnectMcp={hasEnabledMcpServers ? () => handleConnectMcp(card.agent) : undefined}
+                  onSaveAsPlugin={() => handleSaveAsPlugin(card.key, card.agent)}
+                  saveAsPluginDisabled={convertingCardKey !== null}
+                  isFavorite={favoriteAgentSet.has(card.key)}
+                  onToggleFavorite={() => toggleFavoriteAgent(card.key)}
+                />
+              </div>
+            );
+          })
       )}
     </div>
   );

@@ -705,6 +705,7 @@
         "mcpClientCapabilities": "Model Context mogelijkheden",
         "settings": "Instellingen",
         "mcpServers": "Model Context",
+        "connectMcp": "MCP verbinden",
         "saveAsPlugin": "Opslaan als plugin",
         "pluginCreated": "Plugin '{{name}}' is vanuit de agent gemaakt.",
         "pluginEmpty": "Deze agent heeft geen directe skills of ingeschakelde MCP-servers om te verpakken.",

@@ -11,6 +11,7 @@ type AgentCardProps = {
   providerIcons?: Agent["icons"];
   onEdit?: () => void
   onDelete?: () => void
+  onConnectMcp?: () => void;
   onSaveAsPlugin?: () => void | Promise<void>;
   saveAsPluginDisabled?: boolean;
   showExport?: boolean;
@@ -23,6 +24,7 @@ export const AgentCard = ({
   providerIcons,
   onEdit,
   onDelete,
+  onConnectMcp,
   onSaveAsPlugin,
   saveAsPluginDisabled = false,
   showExport = true,
@@ -32,6 +34,11 @@ export const AgentCard = ({
   const { Card, Button, Menu, Badge } = useTheme();
   const { t } = useTranslation();
   const menuItems: MenuItemProps[] = [
+    ...(onConnectMcp ? [{
+      key: "connect-mcp",
+      label: t("agents.connectMcp"),
+      onClick: onConnectMcp,
+    }] : []),
     ...(onSaveAsPlugin ? [{
       key: "save-as-plugin",
       label: t("agents.saveAsPlugin"),
