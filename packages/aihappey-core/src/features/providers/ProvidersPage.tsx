@@ -18,6 +18,7 @@ import { MeshFiltersRow } from "./mesh/MeshFiltersRow";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { AddProviderModal } from "./AddProviderModal";
 import { getModelProviderKey } from "aihappey-types";
+import { hasProviderTypeSettings, ProviderTypeSettings } from "./ProviderTypeSettings";
 
 type ProviderListItem = {
     key: string;
@@ -934,6 +935,8 @@ export const ProvidersPage = () => {
                             modelTypes={selectedProviderModelTypes}
                             models={orderedModels}
                             provider={selectedProvider}
+                            providerSettingsTypes={(selectedProviderModelTypes ?? []).filter((type) => hasProviderTypeSettings(selectedProvider.key, type))}
+                            renderProviderSettings={(type) => <ProviderTypeSettings providerKey={selectedProvider.key} type={type} models={orderedModels} />}
                             isModelFavorite={(model) => (favoriteModelsByType?.[model.type] ?? []).includes(model.id)}
                             onToggleModelFavorite={(model) => toggleFavoriteModelForType(model.type, model.id)}
                         />

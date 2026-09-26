@@ -23,6 +23,9 @@ export type ProviderDetailModalProps = {
     onToggleModelFavorite?: (model: ModelOption) => void;
 
     provider?: Provider;
+    /** Only types with an existing provider form should appear here. */
+    renderProviderSettings?: (type: string) => React.ReactNode;
+    providerSettingsTypes?: string[];
     size?: "small" | "medium" | "large";
 };
 
@@ -42,6 +45,56 @@ const PROVIDER_LINKS: ProviderLinkConfig[] = [
 ];
 
 const uniq = (values: string[]) => Array.from(new Set(values));
+
+const visuallyHidden: React.CSSProperties = {
+    position: "absolute", width: 1, height: 1, padding: 0, margin: -1,
+    overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0,
+};
+
+const ProviderModelTypeContent: React.FC<{
+    models: ModelOption[];
+    provider?: Provider;
+    isModelFavorite?: (model: ModelOption) => boolean;
+    onToggleModelFavorite?: (model: ModelOption) => void;
+    openModelInNewWindow: (model: ModelOption) => void;
+    settings?: React.ReactNode;
+}> = ({ models, provider, isModelFavorite, onToggleModelFavorite, openModelInNewWindow, settings }) => {
+    const { t } = useTranslation();
+    const { Tabs, Tab, Alert } = useTheme();
+    const [view, setView] = useState("models");
+    const cards = (
+        <div style={{ paddingTop: 12 }}>
+            {models.length === 0 ? <Alert variant="warning">{t("none")}</Alert> : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+                    {models.map((model) => (
+                        <div key={model.id}>
+                            <ModelCard
+                                model={model}
+                                provider={provider}
+                                onLaunch={MODEL_LAUNCH_BY_TYPE[model.type] ? () => openModelInNewWindow(model) : undefined}
+                                launchIcon={MODEL_LAUNCH_BY_TYPE[model.type]?.icon}
+                                isFavorite={isModelFavorite?.(model) ?? false}
+                                onToggleFavorite={onToggleModelFavorite ? () => onToggleModelFavorite(model) : undefined}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+
+    if (!settings) return cards;
+    return (
+        <Tabs vertical activeKey={view} onSelect={setView} style={{ width: "100%", minWidth: 0 }}>
+            <Tab eventKey="models" icon="cardList" title={<span style={visuallyHidden}>{t("models")}</span>}>
+                {cards}
+            </Tab>
+            <Tab eventKey="settings" icon="settings" title={<span style={visuallyHidden}>{t("settings")}</span>}>
+                <div style={{ minWidth: 0, paddingTop: 12 }}>{view === "settings" ? settings : null}</div>
+            </Tab>
+        </Tabs>
+    );
+};
 
 const MODEL_LAUNCH_BY_TYPE: Partial<Record<string, { icon: IconToken; path: string }>> = {
     language: { icon: "chat", path: "/" },
@@ -66,6 +119,8 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     isModelFavorite,
     onToggleModelFavorite,
     provider,
+    renderProviderSettings,
+    providerSettingsTypes,
     size = "large",
 }) => {
     const { t } = useTranslation();
@@ -197,36 +252,15 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                     return (
                         <Tab key={type} eventKey={type} icon={getModelTypeIcon(type)}
                             title={getModelTypeLabel(type, typeModels.length)}>
-                            <div style={{ paddingTop: 12 }}>
-                                {typeModels.length === 0 ? (
-                                    <Alert variant="warning">{t("none")}</Alert>
-                                ) : (
-                                    <div
-                                        style={{
-                                            display: "grid",
-                                            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                                            gap: 12,
-                                        }}
-                                    >
-                                        {typeModels.map((model) => (
-                                            <div key={model.id}>
-                                                <ModelCard
-                                                    model={model}
-                                                    provider={provider}
-                                                    onLaunch={MODEL_LAUNCH_BY_TYPE[model.type]
-                                                        ? () => openModelInNewWindow(model)
-                                                        : undefined}
-                                                    launchIcon={MODEL_LAUNCH_BY_TYPE[model.type]?.icon}
-                                                    isFavorite={isModelFavorite?.(model) ?? false}
-                                                    onToggleFavorite={onToggleModelFavorite
-                                                        ? () => onToggleModelFavorite(model)
-                                                        : undefined}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                            <ProviderModelTypeContent
+                                key={`${providerKey}:${type}`}
+                                models={typeModels}
+                                provider={provider}
+                                isModelFavorite={isModelFavorite}
+                                onToggleModelFavorite={onToggleModelFavorite}
+                                openModelInNewWindow={openModelInNewWindow}
+                                settings={providerSettingsTypes?.includes(type) ? renderProviderSettings?.(type) : undefined}
+                            />
                         </Tab>
                     );
                 })}
