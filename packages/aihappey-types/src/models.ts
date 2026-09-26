@@ -1,3 +1,22 @@
+import type { IconToken } from "./theme/IconToken";
+
+/** Display metadata for model-type UI only; model.type remains the backend value. */
+export const getModelTypeLabelKey = (type: string): string =>
+  type === "audio" ? "realtime" : type;
+
+const MODEL_TYPE_ICONS: Record<string, IconToken> = {
+  language: "language",
+  embedding: "embedding",
+  image: "image",
+  audio: "realtime",
+  transcription: "transcription",
+  speech: "speech",
+  reranking: "reranking",
+  video: "video",
+};
+
+export const getModelTypeIcon = (type: string): IconToken | undefined =>
+  MODEL_TYPE_ICONS[type];
 
 export interface ModelResponse {
   data: ModelOption[];

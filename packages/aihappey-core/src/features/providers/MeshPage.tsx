@@ -5,6 +5,7 @@ import {
 } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
+import { getModelTypeIcon, getModelTypeLabelKey } from "aihappey-types";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { MeshAnalysisTabs } from "./mesh/MeshAnalysisTabs";
@@ -142,7 +143,7 @@ export const MeshPage = () => {
             const signature = `${type}|${count}|${search.trim().toLowerCase()}|${selectedCountries.join(",")}|${selectedRegions.join(",")}`;
 
             return (
-              <Tab key={type} eventKey={type} title={`${t(type)} (${count})`}>
+              <Tab key={type} eventKey={type} icon={getModelTypeIcon(type)} title={`${t(getModelTypeLabelKey(type))} (${count})`}>
                 <div style={{ width: "100%", maxWidth: 980, paddingTop: 12 }}>
                   <MeshAnalysisTabs
                     models={modelsForType}

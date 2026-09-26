@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
-import { getModelProviderKey, type IconToken, type ModelOption, type Provider, type ProviderUrls } from "aihappey-types";
+import { getModelProviderKey, getModelTypeIcon, getModelTypeLabelKey, type IconToken, type ModelOption, type Provider, type ProviderUrls } from "aihappey-types";
 
 import { ModelCard } from "../cards/ModelCard";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
@@ -114,7 +114,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     }, [open]);
 
     const getModelTypeLabel = (type: string, count: number) => {
-        const translated = t(type);
+        const translated = t(getModelTypeLabelKey(type));
         return (translated && translated.trim().length > 0 ? translated : type)
             + ` (${count})`;
     };
@@ -195,7 +195,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                     const typeModels = modelGroups.get(type) ?? [];
 
                     return (
-                        <Tab key={type} eventKey={type}
+                        <Tab key={type} eventKey={type} icon={getModelTypeIcon(type)}
                             title={getModelTypeLabel(type, typeModels.length)}>
                             <div style={{ paddingTop: 12 }}>
                                 {typeModels.length === 0 ? (

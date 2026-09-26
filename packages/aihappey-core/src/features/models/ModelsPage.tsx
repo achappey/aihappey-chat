@@ -14,7 +14,7 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useNavigate } from "react-router";
-import { getModelDisplayName, getModelProviderKey, type GenericDataGridColumn, type IconToken, type ModelOption } from "aihappey-types";
+import { getModelDisplayName, getModelProviderKey, getModelTypeIcon, getModelTypeLabelKey, type GenericDataGridColumn, type ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { getModelLaunchConfig, getModelLaunchPath } from "./modelLaunch";
 
@@ -146,16 +146,6 @@ const getEnabledProviderKeysForModels = (
 
 const PRICE_PER_MILLION_TOKENS_MULTIPLIER = 1_000_000;
 const ENABLED_PROVIDERS_FILTER_VALUE = "__ENABLED_PROVIDERS__";
-const MODEL_TYPE_ICONS: Record<string, IconToken> = {
-  image: "image",
-  reranking: "reranking",
-  audio: "realtime",
-  speech: "speech",
-  language: "language",
-  transcription: "transcription",
-  video: "video",
-  embedding: "embedding",
-};
 type ModelFilterFacet = "tags";
 
 type ModelFilterData = {
@@ -583,9 +573,9 @@ export const ModelsPage = () => {
     () => Array
       .from(new Set(visibleModels.map(m => m.type)))
       .sort((a, b) =>
-        t(a === "audio" ? "realtime" : a)
+        t(getModelTypeLabelKey(a))
           .localeCompare(
-            t(b === "audio" ? "realtime" : b)
+            t(getModelTypeLabelKey(b))
           )
       ),
     [t, visibleModels]
@@ -1040,8 +1030,8 @@ export const ModelsPage = () => {
                   {types.map(type => (
                     <Tab key={type}
                       eventKey={type}
-                      icon={MODEL_TYPE_ICONS[type]}
-                      title={t(type === "audio" ? "realtime" : type)
+                      icon={getModelTypeIcon(type)}
+                      title={t(getModelTypeLabelKey(type))
                         + " (" + (filteredModelCountByType[type] ?? 0) + ")"}>
                       {(() => {
                         const tabFiltered = filteredModels.filter(m => m.type === type) as ModelOption[] | undefined;

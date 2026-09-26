@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
+import { getModelTypeIcon, getModelTypeLabelKey } from "aihappey-types";
 
 import { ModelSelect } from "../models/ModelSelect";
 import { useTheme } from "aihappey-components";
@@ -79,7 +80,7 @@ export const AiDefaultSettings: React.FC = () => {
       }}
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-        <theme.Tab eventKey="language" title={t("language")}>
+        <theme.Tab eventKey="language" icon={getModelTypeIcon("language")} title={t(getModelTypeLabelKey("language"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -92,7 +93,7 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="embedding" title={t("embedding")}>
+        <theme.Tab eventKey="embedding" icon={getModelTypeIcon("embedding")} title={t(getModelTypeLabelKey("embedding"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -105,7 +106,7 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="image" title={t("image")}>
+        <theme.Tab eventKey="image" icon={getModelTypeIcon("image")} title={t(getModelTypeLabelKey("image"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -125,7 +126,7 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="audio" title={t("realtime")}>
+        <theme.Tab eventKey="audio" icon={getModelTypeIcon("audio")} title={t(getModelTypeLabelKey("audio"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -138,7 +139,7 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="transcription" title={t("transcription")}>
+        <theme.Tab eventKey="transcription" icon={getModelTypeIcon("transcription")} title={t(getModelTypeLabelKey("transcription"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -191,7 +192,7 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="speech" title={t("speech")}>
+        <theme.Tab eventKey="speech" icon={getModelTypeIcon("speech")} title={t(getModelTypeLabelKey("speech"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -213,7 +214,7 @@ export const AiDefaultSettings: React.FC = () => {
 
 
 
-        <theme.Tab eventKey="reranking" title={t("reranking")}>
+        <theme.Tab eventKey="reranking" icon={getModelTypeIcon("reranking")} title={t(getModelTypeLabelKey("reranking"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}
@@ -226,7 +227,7 @@ export const AiDefaultSettings: React.FC = () => {
           </div>
         </theme.Tab>
 
-        <theme.Tab eventKey="video" title={t("video")}>
+        <theme.Tab eventKey="video" icon={getModelTypeIcon("video")} title={t(getModelTypeLabelKey("video"))}>
           <div style={formStyle}>
             <ModelSelect
               models={models ?? []}

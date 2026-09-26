@@ -1,4 +1,5 @@
 import { useTranslation } from "aihappey-i18n";
+import { getModelTypeIcon, getModelTypeLabelKey } from "aihappey-types";
 import { useTheme } from "../theme/ThemeContext";
 
 interface ModelTypeBadgeProps {
@@ -13,9 +14,9 @@ export const ModelTypeBadge: React.FC<ModelTypeBadgeProps> = ({
 
   return <Badge
     size="small"
-    icon={modelType as any}
+    icon={getModelTypeIcon(modelType)}
     appearance="neutral"
   >
-    {t(modelType)}
+    {t(getModelTypeLabelKey(modelType))}
   </Badge>
 };

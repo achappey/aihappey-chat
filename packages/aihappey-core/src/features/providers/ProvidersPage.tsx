@@ -11,7 +11,7 @@ import {
 import { useTranslation } from "aihappey-i18n";
 import { useDarkMode } from "usehooks-ts";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
-import type { Provider, ProviderCategory } from "aihappey-types";
+import { getModelTypeLabelKey, type Provider, type ProviderCategory } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { MeshFiltersRow } from "./mesh/MeshFiltersRow";
@@ -224,7 +224,7 @@ export const ProvidersPage = () => {
         providers.forEach((provider) => {
             const discovered = modelTypesByProvider[provider.key] ?? [];
             if (discovered.length > 0) {
-                byProvider[provider.key] = [...discovered].sort((a, b) => collator.compare(t(a), t(b)));
+                byProvider[provider.key] = [...discovered].sort((a, b) => collator.compare(t(getModelTypeLabelKey(a)), t(getModelTypeLabelKey(b))));
             }
         });
 
@@ -242,7 +242,7 @@ export const ProvidersPage = () => {
             });
         });
 
-        return Array.from(values).sort((a, b) => collator.compare(t(a), t(b)));
+        return Array.from(values).sort((a, b) => collator.compare(t(getModelTypeLabelKey(a)), t(getModelTypeLabelKey(b))));
     }, [collator, effectiveModelTypesByProvider, t]);
 
     const currentSelections = useMemo<ProviderFilterSelections>(() => ({
@@ -461,7 +461,7 @@ export const ProvidersPage = () => {
 
                     return {
                         id: `model-type-${modelType}`,
-                        label: t(modelType),
+                        label: t(getModelTypeLabelKey(modelType)),
                         count,
                         checked,
                         disabled: count === 0 && !checked,
