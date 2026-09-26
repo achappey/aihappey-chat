@@ -558,7 +558,7 @@ export function VercelChatInner({
   }, []);
   const hasSourceNamespaces = tools.some((tool: any) => tool?.source?.namespace === true);
   const baseBody = useMemo(() => ({
-    ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.6-luna" } : {}),
+    ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-6-luna" } : {}),
     tools: useToolNamespaces || hasSourceNamespaces ? [] : shapeToolsForRequest(tools, toolRequestConfig, false),
     toolRequestConfig,
     useToolNamespaces,
@@ -867,7 +867,7 @@ export function VercelChatInner({
     getConversation: get,
     conversationName: createConversationName,
     body: {
-      ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-5.6-luna" } : {}),
+      ...(chatMode === "chat" ? { model: requestModel ?? "openai/gpt-6-luna" } : {}),
       tools,
       maxOutputTokens,
       ...(!isGenericChatEndpoint(requestEndpoint) ? { verbosity } : {}),

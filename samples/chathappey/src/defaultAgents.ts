@@ -18,7 +18,7 @@ Make sure the message is suitable for a professional or business context—tone 
 Only output the welcome message itself, no quotes or extra text.
 Do not use em-dashes (—) or similar punctuation in the output.`,
         model: {
-            id: "openai/gpt-5.6-luna",
+            id: "openai/gpt-6-luna",
             providerMetadata: {
 
             },
@@ -81,7 +81,7 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
         instructions:
             "Select the tools that best satisfy the supplied search goal from the supplied tool catalog. Return exactly one JSON object with the shape {\"selectedToolNames\":[\"exact_tool_name\"]}. Use only exact names present in the catalog, preserve relevance order, include no duplicates, select at most 10 tools, and include no markdown or text outside the JSON object.",
         model: {
-            id: "openai/gpt-5.6-luna",
+            id: "openai/gpt-6-luna",
             providerMetadata: {
 
             },
@@ -102,7 +102,7 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
         instructions:
             "Select the MCP resources and resource templates that are relevant to the supplied query from the supplied server-scoped catalog, using the MCP server instructions as additional context when provided. Prefer returning all clearly relevant entries; return empty arrays only when no catalog entry is reasonably related to the query. Return exactly one JSON object with the shape {\"selectedResourceUris\":[\"exact_resource_uri\"],\"selectedResourceTemplateUriTemplates\":[\"exact_uri_template\"]}. Use only exact values present in the catalog, preserve relevance order, include no duplicates, select at most 20 entries in each array, and include no markdown or text outside the JSON object.",
         model: {
-            id: "openai/gpt-5.6-luna",
+            id: "openai/gpt-6-luna",
             providerMetadata: {
 
             },
