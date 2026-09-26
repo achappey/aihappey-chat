@@ -607,6 +607,7 @@ import { yutori } from "./catalog/yutori";
 import { openference } from "./catalog/openference";
 import { sandbase } from "./catalog/sandbase";
 import { ainvented } from "./catalog/ainvented";
+import { plori } from "./catalog/plori";
 
 /**
  * UI-facing provider catalog.
@@ -621,6 +622,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   shadowos,
   beastlabai,
   ainvented,
+  plori,
   harnessrouter,
   lelapaai,
   wafer,
