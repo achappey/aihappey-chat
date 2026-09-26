@@ -165,10 +165,7 @@ export const VideoPage = () => {
           });
 
           if (result.status === "pending") {
-            const normalizedWarnings = (result.warnings ?? []).map((warning: any) => ({
-              message: warning?.details ?? warning?.message ?? String(warning?.type ?? "warning"),
-            }));
-            if (normalizedWarnings.length) addWarnings(normalizedWarnings);
+            addWarnings(result.warnings);
             return;
           }
 
@@ -177,10 +174,7 @@ export const VideoPage = () => {
           if (result.status === "error") {
             addVideoError(result.error);
           } else {
-            const normalizedWarnings = (result.warnings ?? []).map((warning: any) => ({
-              message: warning?.details ?? warning?.message ?? String(warning?.type ?? "warning"),
-            }));
-            if (normalizedWarnings.length) addWarnings(normalizedWarnings);
+            addWarnings(result.warnings);
 
             if (result.videos.length) {
               await storageVideos.add(normalizeVideoResult(result) as any);
@@ -360,10 +354,7 @@ export const VideoPage = () => {
         const pending = createPendingVideoOperation(startResult.operation, selectedModel, batchN);
         replacePendingOperations((current) => [...current, pending]);
 
-        const normalizedWarnings = (startResult.warnings ?? []).map((warning: any) => ({
-          message: warning?.details ?? warning?.message ?? String(warning?.type ?? "warning"),
-        }));
-        if (normalizedWarnings.length) addWarnings(normalizedWarnings);
+        addWarnings(startResult.warnings);
       }));
 
       setAttachments([]);

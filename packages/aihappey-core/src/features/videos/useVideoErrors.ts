@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { SharedV4Warning } from "aihappey-ai";
 
 export type VideoError = {
   id: string;
@@ -7,8 +8,7 @@ export type VideoError = {
 
 export type VideoWarning = {
   id: string;
-  message: string;
-  raw: unknown;
+  raw: SharedV4Warning;
 };
 
 export function useVideoErrors() {
@@ -22,16 +22,12 @@ export function useVideoErrors() {
     ]);
   };
 
-  const addWarnings = (items: Array<{ message?: string }>) => {
-    const mapped = (items ?? [])
-      .map((w) => w?.message)
-      .filter(Boolean)
-      .map((message, index) => ({
-        id: crypto.randomUUID(),
-        message: message as string,
-        raw: items[index],
-      }));
-    if (mapped.length) setWarnings((prev) => [...prev, ...mapped]);
+  const addWarnings = (items: SharedV4Warning[] | undefined | null) => {
+    if (!items?.length) return;
+    setWarnings((prev) => [
+      ...prev,
+      ...items.map((raw) => ({ id: crypto.randomUUID(), raw })),
+    ]);
   };
 
   const clearWarnings = () => setWarnings([]);
