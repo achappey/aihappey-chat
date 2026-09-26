@@ -606,6 +606,7 @@ import { devicai } from "./catalog/devicai";
 import { yutori } from "./catalog/yutori";
 import { openference } from "./catalog/openference";
 import { sandbase } from "./catalog/sandbase";
+import { ainvented } from "./catalog/ainvented";
 
 /**
  * UI-facing provider catalog.
@@ -619,6 +620,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   epho,
   shadowos,
   beastlabai,
+  ainvented,
   harnessrouter,
   lelapaai,
   wafer,
