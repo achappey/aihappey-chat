@@ -400,7 +400,6 @@ import { aimagicx } from "./catalog/aimagicx";
 import { octagon } from "./catalog/octagon";
 import { nataris } from "./catalog/nataris";
 import { therouterai } from "./catalog/therouterai";
-import { gatemind } from "./catalog/gatemind";
 import { lxg2it } from "./catalog/lxg2it";
 import { eugpt } from "./catalog/eugpt";
 import { aichixia } from "./catalog/aichixia";
@@ -485,7 +484,6 @@ import { ourtoken } from "./catalog/ourtoken";
 import { hyperrouter } from "./catalog/hyperrouter";
 import { clawlite } from "./catalog/clawlite";
 import { callmissed } from "./catalog/callmissed";
-import { realrouter } from "./catalog/realrouter";
 import { picklyone } from "./catalog/picklyone";
 import { opengate } from "./catalog/opengate";
 import { mycoai } from "./catalog/mycoai";
@@ -631,7 +629,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   routera,
   mara,
   mycoai,
-  realrouter,
   picklyone,
   tembo,
   poolside,
@@ -749,7 +746,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   runway,
   helyxai,
   mumeai,
-  gatemind,
   tinyfish,
   shengsuanyun,
   occludra,
