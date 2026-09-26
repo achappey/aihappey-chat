@@ -1,4 +1,15 @@
 {
+  "akumi": {
+    "other": "Other",
+    "cache": "Cache",
+    "tags": "Tags",
+    "tag": "New tag",
+    "firewall": "Firewall",
+    "sendFirewall": "Send firewall settings",
+    "firewallEnabled": "EU routing",
+    "firewallLanguage": "Analysis language",
+    "languages": { "auto": "Auto-detect", "nl": "Dutch", "en": "English", "fr": "French", "de": "German" }
+  },
   "baseten": {
     "enableThinking": "Enable thinking",
     "enableThinkingValue": "Send enable_thinking",

@@ -1,4 +1,15 @@
 {
+  "akumi": {
+    "other": "Overig",
+    "cache": "Cache",
+    "tags": "Labels",
+    "tag": "Nieuw label",
+    "firewall": "Firewall",
+    "sendFirewall": "Firewallinstellingen meesturen",
+    "firewallEnabled": "EU-router",
+    "firewallLanguage": "Analysetaal",
+    "languages": { "auto": "Automatisch herkennen", "nl": "Nederlands", "en": "Engels", "fr": "Frans", "de": "Duits" }
+  },
   "baseten": {
     "enableThinking": "Nadenken inschakelen",
     "enableThinkingValue": "enable_thinking meesturen",

@@ -1,4 +1,5 @@
 export * from "./ProviderKeysForm";
+export * from "./akumi";
 
 export * from "./apertis";
 export * from "./abliteration";

@@ -1,6 +1,6 @@
 import {
     ApertisChatConfigForm, BasetenChatConfigForm,
-    AbliterationChatConfigForm, AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
+    AbliterationChatConfigForm, AkumiChatConfigForm, AnthropicChatConfigForm, BlackboxChatConfigForm, BrowserUseChatConfigForm,
     BraveChatConfigForm, CohereChatConfigForm,
     CortecsChatConfigForm, DeepSeekChatConfigForm, DepazaChatConfigForm, GroqChatConfigForm,
     InworldChatConfigForm, InterfazeChatConfigForm, JinaChatConfigForm, LinkupChatConfigForm,
@@ -922,6 +922,13 @@ export const AgentForm = ({
                     title={providerTitle}>
                     {providerKey === "abliteration" && (
                         <AbliterationChatConfigForm
+                            config={providerMeta}
+                            updateConfig={updateProviderMetadata}
+                        />
+                    )}
+
+                    {providerKey === "akumi" && (
+                        <AkumiChatConfigForm
                             config={providerMeta}
                             updateConfig={updateProviderMetadata}
                         />

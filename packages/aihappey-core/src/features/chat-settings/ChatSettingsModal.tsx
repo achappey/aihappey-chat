@@ -12,6 +12,7 @@ import {
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
   AbliterationChatConfigForm,
+  AkumiChatConfigForm,
   AnthropicChatConfigForm,
   ApertisChatConfigForm,
   BasetenChatConfigForm,
@@ -269,6 +270,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const providerConfigUpdaters = useMemo(
     () => ({
       abliteration: (abliteration: any) => updateProviderConfig("abliteration", abliteration),
+      akumi: (akumi: any) => updateProviderConfig("akumi", akumi),
       anthropic: (anthropic: any) => updateProviderConfig("anthropic", anthropic),
       apertis: (apertis: any) => updateProviderConfig("apertis", apertis),
       neuralwatt: (neuralwatt: any) => updateProviderConfig("neuralwatt", neuralwatt),
@@ -361,6 +363,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     switch (activeProviderKey) {
       case "abliteration":
         return <AbliterationChatConfigForm config={draft.providerMetadata.abliteration ?? {}} updateConfig={providerConfigUpdaters.abliteration} />;
+      case "akumi":
+        return <AkumiChatConfigForm config={draft.providerMetadata.akumi ?? {}} updateConfig={providerConfigUpdaters.akumi} />;
       case "anthropic":
         return <AnthropicChatConfigForm config={draft.providerMetadata.anthropic ?? {}} headers={draft.providerHeaders.anthropic ?? {}} updateConfig={providerConfigUpdaters.anthropic} updateHeaders={providerHeaderUpdaters.anthropic} />;
       case "apertis":

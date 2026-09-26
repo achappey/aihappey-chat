@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import {
   AbliterationChatConfigForm,
+  AkumiChatConfigForm,
   AiChatSettingsForm,
   AnthropicChatConfigForm,
   ApertisChatConfigForm,
@@ -172,6 +173,8 @@ export const PlaygroundSettingsDrawer = ({
     switch (providerKey) {
       case "abliteration":
         return <AbliterationChatConfigForm config={providerMetadata.abliteration ?? {}} updateConfig={updateProviderConfig} />;
+      case "akumi":
+        return <AkumiChatConfigForm config={providerMetadata.akumi ?? {}} updateConfig={updateProviderConfig} />;
       case "anthropic":
         return (
           <AnthropicChatConfigForm
