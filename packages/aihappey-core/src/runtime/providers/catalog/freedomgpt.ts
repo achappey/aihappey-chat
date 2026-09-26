@@ -12,7 +12,7 @@ export const freedomgpt: Provider = {
     privacyPolicy: "https://www.freedomgpt.com/privacy-policy",
     termsOfService: "https://www.freedomgpt.com/terms-of-service"
   },
-  experimental: true,
+  
   category: "app_tools",
   inferenceRegions: ["World"]
 

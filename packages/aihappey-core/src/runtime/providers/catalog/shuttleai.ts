@@ -9,7 +9,7 @@ export const shuttleai: Provider = {
   },
   providerCountry: "US",
   category: "gateway_router",
-  experimental: true,
+  
   inferenceRegions: ["World"]
 
 };

@@ -11,7 +11,7 @@ export const routmy: Provider = {
     privacyPolicy: "https://rout.my/privacy",
     termsOfService: "https://rout.my/terms"
   },
-  experimental: true,
+  
   category: "gateway_router",
   inferenceRegions: ["World"]
 

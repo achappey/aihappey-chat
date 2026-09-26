@@ -2,7 +2,7 @@ import type { Provider } from "aihappey-types";
 
 export const nvidia: Provider = {
   name: "NVIDIA",
-  experimental: true,
+  
   description:
     "NVIDIA invents GPUs and drives advances in AI, high-performance computing, gaming, and autonomous systems.",
   icons: [

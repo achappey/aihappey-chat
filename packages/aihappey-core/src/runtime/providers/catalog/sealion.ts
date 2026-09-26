@@ -14,7 +14,7 @@ export const sealion: Provider = {
     docs: "https://docs.sea-lion.ai",
     console: "https://playground.sea-lion.ai"
   },
-  experimental: true,
+  
   providerCountry: "SG",
   category: "gateway_router",
   inferenceRegions: ["World"]

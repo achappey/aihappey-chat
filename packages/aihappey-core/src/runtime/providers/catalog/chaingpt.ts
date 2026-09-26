@@ -16,7 +16,7 @@ export const chaingpt: Provider = {
     privacyPolicy: "https://www.chaingpt.org/privacy-policy",
     termsOfService: "https://www.chaingpt.org/tos"
   },
-  experimental: true,
+  
   providerCountry: "PA",
   category: "gateway_router",
   inferenceRegions: ["World"]

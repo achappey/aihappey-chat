@@ -7,7 +7,7 @@ export const agentaigateway: Provider = {
     homepage: "https://www.agentaigateway.com",
     docs: "https://www.agentaigateway.com/docs"
   },
-  experimental: true,
+  
   category: "gateway_router",
   inferenceRegions: ["World"]
 

@@ -2,7 +2,7 @@ import type { Provider } from "aihappey-types";
 
 export const pollinations: Provider = {
   name: "Pollinations",
-  experimental: true,
+  
   description: "AI creation playground - Generate images, text & audio with open source models.",
   icons: [
     {

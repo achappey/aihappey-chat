@@ -2,7 +2,7 @@ import type { Provider } from "aihappey-types";
 
 export const echo: Provider = {
   name: "Echo",
-  experimental: true,
+  
   description: "The server sends back an identical copy of the data it received.",
   icons: [
     {

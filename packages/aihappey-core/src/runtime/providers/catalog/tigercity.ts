@@ -11,7 +11,7 @@ export const tigercity: Provider = {
     console: "https://tigercity.ai/playground"
   },
   providerCountry: "NO",
-  experimental: true,
+  
   category: "gateway_router",
   inferenceRegions: ["World"]
 

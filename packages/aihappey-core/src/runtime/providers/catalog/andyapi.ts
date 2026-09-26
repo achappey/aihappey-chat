@@ -9,7 +9,7 @@ export const andyapi: Provider = {
     privacyPolicy: "https://andy.mindcraft-ce.com/privacy",
     docs: "https://andy.mindcraft-ce.com/docs"
   },
-  experimental: true,
+  
   category: "inference_compute",
   inferenceRegions: ["World"]
 
