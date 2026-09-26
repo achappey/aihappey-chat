@@ -608,6 +608,7 @@ import { openference } from "./catalog/openference";
 import { sandbase } from "./catalog/sandbase";
 import { ainvented } from "./catalog/ainvented";
 import { plori } from "./catalog/plori";
+import { runtype } from "./catalog/runtype";
 
 /**
  * UI-facing provider catalog.
@@ -619,6 +620,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   citadelis,
   zeroentropy,
   epho,
+  runtype,
   shadowos,
   beastlabai,
   ainvented,
