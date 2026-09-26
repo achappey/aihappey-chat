@@ -609,6 +609,7 @@ import { sandbase } from "./catalog/sandbase";
 import { ainvented } from "./catalog/ainvented";
 import { plori } from "./catalog/plori";
 import { runtype } from "./catalog/runtype";
+import { connect0 } from "./catalog/connect0";
 
 /**
  * UI-facing provider catalog.
@@ -625,6 +626,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   beastlabai,
   ainvented,
   plori,
+  connect0,
   harnessrouter,
   lelapaai,
   wafer,
