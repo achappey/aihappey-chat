@@ -5,10 +5,10 @@ export const eugpt: Provider = {
   description: "AI for organizations built on European values. Compliance with legislation is our starting point, not an afterthought.",
   urls: {
     homepage: "https://www.eugpt.ai",
-    docs: "https://www.eugpt.ai/en/api",
+    docs: "https://www.eugpt.ai/api",
     pricing:"https://eugpt.ai/pricing",
-    privacyPolicy: "https://www.eugpt.ai/en/privacy",
-    termsOfService: "https://www.eugpt.ai/en/terms"
+    privacyPolicy: "https://www.eugpt.ai/privacy",
+    termsOfService: "https://www.eugpt.ai/terms"
   },
   providerCountry: "NL",
   category: "gateway_router",
