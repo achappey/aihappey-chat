@@ -1861,13 +1861,14 @@ export const Navigation = ({ items = [], appTitle, activeKey, onSelect, classNam
 };
 
 export const Tab = ({ children }: any) => <>{children}</>;
-export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className, style }: any) => {
+export const Tabs = ({ activeKey, onSelect, vertical, iconOnly, fill, children, className, style }: any) => {
   const tabs = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
   const tabsList = (
     <TabsPrimitive.List
       className={cn(
         "aih-shadcn-tabs-list",
         vertical ? "aih-shadcn-tabs-list-vertical" : "aih-shadcn-tabs-list-horizontal",
+        vertical && iconOnly && "aih-shadcn-tabs-list-icon-only",
         fill && !vertical && "aih-shadcn-tabs-list-fill"
       )}
     >
@@ -1875,7 +1876,7 @@ export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className,
         const Icon = tab.props.icon ? iconMap[tab.props.icon as IconToken] : undefined;
         return (
           <TabsPrimitive.Trigger key={tab.props.eventKey} value={tab.props.eventKey} disabled={tab.props.disabled} className="aih-shadcn-tabs-trigger">
-            {Icon ? <Icon size={14} /> : null}
+            {Icon ? <Icon size={vertical && iconOnly ? 18 : 14} /> : null}
             <span className="aih-shadcn-tabs-trigger-label">{tab.props.title}</span>
           </TabsPrimitive.Trigger>
         );

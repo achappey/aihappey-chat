@@ -63,7 +63,7 @@ const ProviderModelTypeContent: React.FC<{
     const { Tabs, Tab, Alert } = useTheme();
     const [view, setView] = useState("models");
     const cards = (
-        <div style={{ paddingTop: 12 }}>
+        <div style={{ paddingTop: settings ? 0 : 12 }}>
             {models.length === 0 ? <Alert variant="warning">{t("none")}</Alert> : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
                     {models.map((model) => (
@@ -85,12 +85,12 @@ const ProviderModelTypeContent: React.FC<{
 
     if (!settings) return cards;
     return (
-        <Tabs vertical activeKey={view} onSelect={setView} style={{ width: "100%", minWidth: 0 }}>
-            <Tab eventKey="models" icon="cardList" title={<span style={visuallyHidden}>{t("models")}</span>}>
+        <Tabs vertical iconOnly activeKey={view} onSelect={setView} style={{ width: "100%", minWidth: 0, marginTop: 12 }}>
+            <Tab eventKey="models" icon="brain" title={<span style={visuallyHidden}>{t("models")}</span>}>
                 {cards}
             </Tab>
             <Tab eventKey="settings" icon="settings" title={<span style={visuallyHidden}>{t("settings")}</span>}>
-                <div style={{ minWidth: 0, paddingTop: 12 }}>{view === "settings" ? settings : null}</div>
+                <div style={{ minWidth: 0 }}>{view === "settings" ? settings : null}</div>
             </Tab>
         </Tabs>
     );

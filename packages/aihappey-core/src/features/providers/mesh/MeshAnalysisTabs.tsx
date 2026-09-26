@@ -52,6 +52,7 @@ export const MeshAnalysisTabs = ({
     <Tabs
       activeKey={activeAnalysisTab}
       vertical
+      iconOnly
       onSelect={(k: string) => setActiveAnalysisTab(k)}
       style={{ width: "100%", minHeight: 420 }}
     >

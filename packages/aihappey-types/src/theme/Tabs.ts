@@ -5,6 +5,8 @@ export type TabsProps = {
   style?: React.CSSProperties;
   activeKey: string;
   vertical?: boolean;
+  /** Use a compact navigation rail when vertical tabs contain only icons. */
+  iconOnly?: boolean;
   fill?: any
   size?: "small" | "medium" | "large";
   onSelect: (k: string) => void;
