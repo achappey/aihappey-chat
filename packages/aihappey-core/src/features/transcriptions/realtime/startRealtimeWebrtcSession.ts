@@ -7,6 +7,7 @@ import { startGladiaRealtimeWsSession } from "./startGladiaRealtimeWsSession";
 import { startAssemblyAiRealtimeWsSession } from "./startAssemblyAiRealtimeWsSession";
 import { startSonioxRealtimeWsSession } from "./startSonioxRealtimeWsSession";
 import { startGoogleRealtimeWsSession } from "./startGoogleRealtimeWsSession";
+import { startCartesiaRealtimeWsSession } from "./startCartesiaRealtimeWsSession";
 
 export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
@@ -130,6 +131,14 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
       kind: "ws",
       stop: session.stop,
     };
+  }
+
+  if (providerId === "cartesia") {
+    const session = await startCartesiaRealtimeWsSession({
+      getEphemeralToken, modelId: selectedModel,
+      config: providerRealtimeMetadata?.cartesia ?? {}, events,
+    });
+    return { kind: "ws", stop: session.stop };
   }
 
   throw new Error(`Realtime transcription is not supported for provider '${providerId}'.`);

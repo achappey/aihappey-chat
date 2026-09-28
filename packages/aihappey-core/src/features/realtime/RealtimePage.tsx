@@ -64,6 +64,7 @@ function RealtimeStartPage() {
   const { addChatError } = useChatErrors();
   const { models, model, setModel } = useRealtimeModelSelection();
   const selectedModelOption = models?.find((m: any) => m.id === model);
+  const cartesiaAudioOnly = model.startsWith("cartesia/agents/");
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const agents = useAppStore((s) => s.agents);
@@ -150,6 +151,7 @@ function RealtimeStartPage() {
         <div style={{ width: "95%" }}>
           <WelcomeMessage />
           <RealtimeInput
+            audioOnly={cartesiaAudioOnly}
             temperature={temperature}
             temperatureChanged={setTemperature}
             onStart={() => startConversation()}
@@ -185,6 +187,7 @@ function RealtimeConversationPage() {
   const extractExif = useAppStore((s) => s.extractExif);
   const { models, model, setModel } = useRealtimeModelSelection();
   const effectiveModel = String((location.state as any)?.model ?? model);
+  const cartesiaAudioOnly = effectiveModel.startsWith("cartesia/agents/");
   const effectiveModelOption = models?.find((m: any) => m.id === effectiveModel);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
@@ -295,8 +298,13 @@ function RealtimeConversationPage() {
           />
         )}
         {busy ? <Spinner label={controller.status} /> : null}
+        {cartesiaAudioOnly && <div style={{ padding: 8 }}>Cartesia agents accept microphone audio only. Text, files and session instructions are not supported over this connection.</div>}
+        {cartesiaAudioOnly && connected && <div style={{ padding: 8, display: "flex", flexWrap: "wrap", gap: 4 }} aria-label="Cartesia DTMF keypad">
+          {"123456789*0#".split("").map((digit) => <button key={digit} type="button" onClick={() => controller.sendDtmf(digit)} aria-label={`Send DTMF ${digit}`}>{digit}</button>)}
+        </div>}
         <div style={{ paddingRight: 24, paddingTop: 8, boxSizing: "border-box" }}>
           <RealtimeInput
+            audioOnly={cartesiaAudioOnly}
             connected={connected}
             busy={busy}
             muted={controller.muted}

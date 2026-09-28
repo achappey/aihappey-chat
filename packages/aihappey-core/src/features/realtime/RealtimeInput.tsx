@@ -20,6 +20,7 @@ import { useMessageInput } from "../chat/input/useMessageInput";
 import { RealtimeSettingsButton } from "./RealtimeSettingsButton";
 
 type RealtimeInputProps = {
+  audioOnly?: boolean;
   disabled?: boolean;
   connected?: boolean;
   busy?: boolean;
@@ -62,7 +63,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
     serverTags,
     disconnectServer,
   } = useMessageInput({
-    disabled: props.disabled || props.busy,
+    disabled: props.disabled || props.busy || props.audioOnly,
     onSend: async (content) => {
       if (content.trim()) {
         await props.onSend(content);
@@ -111,7 +112,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      {(attachmentsElement || serverElements || approveAll || (currentModel?.context_window && props.tokenUsage)) ? (
+      {!props.audioOnly && (attachmentsElement || serverElements || approveAll || (currentModel?.context_window && props.tokenUsage)) ? (
         <div style={styles.metaRow}>
           <div style={styles.metaLeft}>
             {attachmentsElement}
@@ -128,7 +129,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
         </div>
       ) : undefined}
 
-      <TextArea
+      {!props.audioOnly && <TextArea
         ref={textareaRef}
         value={value}
         autoFocus
@@ -137,10 +138,10 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
         onPaste={handlePaste}
         placeholder={props.connected ? t("promptPlaceholder") : "Start realtime or type a first message…"}
         style={styles.textArea}
-      />
+      />}
 
       <div style={styles.buttonRow}>
-        <div style={styles.leftGroup}>
+        {!props.audioOnly && <div style={styles.leftGroup}>
           <ServerSelectButton />
 
           <PromptSelectButton
@@ -235,9 +236,9 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
             disabled={props.disabled}
             onFilesSelected={addFilesToRuntime}
           />
-        </div>
+        </div>}
 
-        <SystemMessageButton />
+        {!props.audioOnly && <SystemMessageButton />}
 
         <Button
           type="button"
@@ -273,13 +274,13 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
           />
         ) : null}
 
-        <Button
+        {!props.audioOnly && <Button
           type="submit"
           size="large"
           title={sendButtonTitle}
           disabled={disabled}
           icon={sendButtonIcon}
-        />
+        />}
       </div>
     </form>
   );

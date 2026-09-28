@@ -99,6 +99,9 @@ export function useRealtimeConversationController(args: {
   const toolExecutionQueueRef = useRef<Promise<void>>(Promise.resolve());
   const assemblyAiToolResultsPendingReplyDoneRef = useRef<Array<{ callId: string; result: any }>>([]);
   const isAssemblyAiRealtime = model.toLowerCase().startsWith("assemblyai/");
+  const isCartesiaRealtime = model.toLowerCase().startsWith("cartesia/agents/");
+  const cartesiaTurnsRef = useRef<Map<number, UIMessage>>(new Map());
+  const cartesiaToolExpectsResponseRef = useRef<Map<string, boolean>>(new Map());
 
   useEffect(() => {
     setMessages(initialMessages ?? []);
@@ -222,6 +225,15 @@ export function useRealtimeConversationController(args: {
   }, [sendEvent]);
 
   const submitFunctionCallOutput = useCallback((callId: string, result: any) => {
+    if (isCartesiaRealtime) {
+      if (cartesiaToolExpectsResponseRef.current.get(callId)) {
+        let output = JSON.stringify(result);
+        if (new TextEncoder().encode(output).length > 4096) output = "Tool result exceeds Cartesia's 4096-byte limit.";
+        sendEvent({ type: "client_tool_result", tool_call_id: callId, result: output, is_error: !!result?.isError });
+      }
+      cartesiaToolExpectsResponseRef.current.delete(callId);
+      return;
+    }
     if (isAssemblyAiRealtime) {
       assemblyAiToolResultsPendingReplyDoneRef.current.push({ callId, result });
       return;
@@ -239,7 +251,7 @@ export function useRealtimeConversationController(args: {
 
     functionCallOutputsSubmittedRef.current.add(callId);
     maybeCreateContinuationForResponse(functionCallResponseIdsRef.current[callId] ?? "");
-  }, [isAssemblyAiRealtime, maybeCreateContinuationForResponse, sendEvent]);
+  }, [isAssemblyAiRealtime, isCartesiaRealtime, maybeCreateContinuationForResponse, sendEvent]);
 
   const runToolCallSequentially = useCallback(<T,>(run: () => Promise<T>) => {
     const resultPromise = toolExecutionQueueRef.current
@@ -329,6 +341,7 @@ export function useRealtimeConversationController(args: {
   }, [instructions, maxOutputTokens, model, providerMetadata, providerRealtimeConversationMetadata, sendEvent, toolChoice, tools]);
 
   const flushPendingQueue = useCallback(() => {
+    if (isCartesiaRealtime) { pendingQueueRef.current = []; return; }
     const pending = pendingQueueRef.current.splice(0);
     for (const message of pending) {
       const content = uiMessageToRealtimeContent(message);
@@ -343,12 +356,51 @@ export function useRealtimeConversationController(args: {
       });
       sendEvent({ type: "response.create" });
     }
-  }, [sendEvent]);
+  }, [isCartesiaRealtime, sendEvent]);
 
   const handleRealtimeEvent = useCallback(
     (event: any) => {
       setEvents((prev) => [event, ...prev].slice(0, 60));
       const type = String(event?.type ?? "");
+
+      if (isCartesiaRealtime) {
+        if (type === "error") {
+          const message = String(event.message ?? event.code ?? "Cartesia agent error");
+          setError(message);
+          addChatError(new Error(message));
+          return;
+        }
+        if (type === "client_tool_call") {
+          const id = String(event.tool_call_id ?? "");
+          if (id) {
+            cartesiaToolExpectsResponseRef.current.set(id, event.expects_response === true);
+            void executeFunctionCall({ call_id: id, name: event.tool_name, arguments: event.parameters });
+          }
+          return;
+        }
+        if (type === "turn_started" && Number.isInteger(event.turn)) {
+          const role = event.role === "user" ? "user" : "assistant";
+          const draft = newUiMessage(role, [{ type: "text", text: role === "user" ? "Listening…" : "Speaking…" }], { realtime: true, model, turn: event.turn });
+          cartesiaTurnsRef.current.set(event.turn, draft);
+          upsertLocalDraft(draft);
+          return;
+        }
+        if (type === "turn_output_text_delta" && Number.isInteger(event.turn)) {
+          const draft = cartesiaTurnsRef.current.get(event.turn) ?? newUiMessage("assistant", [], { realtime: true, model });
+          const previous = String((draft.parts[0] as any)?.text ?? "");
+          const next = { ...draft, parts: [{ type: "text", text: previous === "Speaking…" ? event.text : previous + String(event.text ?? "") }] };
+          cartesiaTurnsRef.current.set(event.turn, next);
+          upsertLocalDraft(next);
+          return;
+        }
+        if (type === "turn_ended" && Number.isInteger(event.turn)) {
+          const draft = cartesiaTurnsRef.current.get(event.turn) ?? newUiMessage(event.role === "user" ? "user" : "assistant", [], { realtime: true, model });
+          cartesiaTurnsRef.current.delete(event.turn);
+          void persistMessage({ ...draft, parts: [{ type: "text", text: String(event.text ?? "") }], metadata: { ...draft.metadata, model, realtime: true, turn: event.turn, interrupted: event.interrupted, start_time: event.start_time, end_time: event.end_time, tool_calls: event.tool_calls } });
+          return;
+        }
+        return; // Unknown Cartesia telemetry must not be interpreted as OpenAI protocol.
+      }
 
       if (type === "error") {
         const message = event?.error?.message ?? event?.message ?? "Realtime session error";
@@ -577,12 +629,13 @@ export function useRealtimeConversationController(args: {
         }
       }
     },
-    [addChatError, executeFunctionCall, getFunctionCallResponseId, maybeCreateContinuationForResponse, model, persistMessage, registerFunctionCallForResponse, submitAssemblyAiPendingToolResults, upsertLocalDraft]
+    [addChatError, executeFunctionCall, getFunctionCallResponseId, maybeCreateContinuationForResponse, isCartesiaRealtime, model, persistMessage, registerFunctionCallForResponse, submitAssemblyAiPendingToolResults, upsertLocalDraft]
   );
 
   const start = useCallback(
     async (initialMessage?: UIMessage) => {
       if (startedRef.current || sessionRef.current || status === "starting" || !model) return;
+      if (isCartesiaRealtime && initialMessage) throw new Error("Cartesia agents accept audio only; remove the initial text message.");
       startedRef.current = true;
       setStatus("starting");
       setError(null);
@@ -596,7 +649,7 @@ export function useRealtimeConversationController(args: {
           },
         };
         await persistMessage(persisted);
-        pendingQueueRef.current.push(persisted);
+        if (!isCartesiaRealtime) pendingQueueRef.current.push(persisted);
       }
 
       try {
@@ -644,7 +697,7 @@ export function useRealtimeConversationController(args: {
         startedRef.current = false;
       }
     },
-    [addChatError, audioRef, config, configureSession, customHeaders,
+    [addChatError, audioRef, config, configureSession, customHeaders, isCartesiaRealtime,
       flushPendingQueue, handleRealtimeEvent, maxOutputTokens, model,
       muted, providerMetadata, providerRealtimeConversationMetadata, status, toolChoice, tools, instructions]
   );
@@ -700,6 +753,7 @@ export function useRealtimeConversationController(args: {
 
   const sendMessage = useCallback(
     async (message: UIMessage) => {
+      if (isCartesiaRealtime) throw new Error("Cartesia agents do not support text input.");
       const content = uiMessageToRealtimeContent(message);
       if (content.length === 0) return;
 
@@ -716,7 +770,7 @@ export function useRealtimeConversationController(args: {
 
       if (!sessionRef.current || status !== "connected") {
         pendingQueueRef.current.push(persisted);
-        if (status === "idle" || status === "error") void start();
+    if (status === "idle" || status === "error") void start();
         return;
       }
 
@@ -730,8 +784,13 @@ export function useRealtimeConversationController(args: {
       });
       sendEvent({ type: "response.create" });
     },
-    [model, persistMessage, sendEvent, start, status]
+    [isCartesiaRealtime, model, persistMessage, sendEvent, start, status]
   );
+
+  const sendDtmf = useCallback((digit: string) => {
+    if (!isCartesiaRealtime || !/^[0-9*#]$/.test(digit)) throw new Error("Invalid Cartesia DTMF digit");
+    sendEvent({ type: "dtmf_input", digit });
+  }, [isCartesiaRealtime, sendEvent]);
 
   useEffect(() => {
     return () => {
@@ -742,6 +801,7 @@ export function useRealtimeConversationController(args: {
   return useMemo(
     () => ({
       status,
+      sendDtmf,
       error,
       muted,
       cameraEnabled,
@@ -756,7 +816,7 @@ export function useRealtimeConversationController(args: {
       setCameraEnabled,
       sendMessage,
     }),
-    [cameraEnabled, cameraStream, error, events, messages, model, muted, sendMessage, setCameraEnabled, setMicrophoneMuted, start, status, stop, tools]
+    [cameraEnabled, cameraStream, error, events, messages, model, muted, sendDtmf, sendMessage, setCameraEnabled, setMicrophoneMuted, start, status, stop, tools]
   );
 }
 

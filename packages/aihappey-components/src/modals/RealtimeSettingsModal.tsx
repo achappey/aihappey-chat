@@ -22,13 +22,13 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
   open,
   providerMetadata,
   setProviderMetadata,
-  enabledProviders = ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone"],
+  enabledProviders = ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone", "Cartesia"],
   resetDefaults,
   onClose,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone"];
+  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone", "Cartesia"];
   const defaultTab = getDefaultProviderTab(normalizedEnabledProviders);
   const [activeTab, setActiveTab] = useState(defaultTab);
 
@@ -54,6 +54,21 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
       )}
     >
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
+        {normalizedEnabledProviders.includes("Cartesia") && (
+          <theme.Tab eventKey="cartesia" title="Cartesia">
+            <theme.Card size="small" title="Managed agent audio" description="Cartesia managed agents accept microphone audio and DTMF. Dynamic variables are unavailable with browser access tokens.">
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <theme.Input id="cartesia-agent-expires" type="number" min={1} max={3600} label="Token lifetime (seconds)" value={providerMetadata.cartesia?.expires_in ?? 600}
+                  onChange={(event) => setProviderMetadata({ ...providerMetadata, cartesia: { ...providerMetadata.cartesia, expires_in: Number(event.target.value) } })} />
+                <label htmlFor="cartesia-agent-delivery">Audio delivery</label>
+                <select id="cartesia-agent-delivery" value={providerMetadata.cartesia?.audio?.output_delivery ?? "speaking_pace"}
+                  onChange={(event) => setProviderMetadata({ ...providerMetadata, cartesia: { ...providerMetadata.cartesia, audio: { input_format: "pcm_16000", output_delivery: event.target.value } } })}>
+                  <option value="speaking_pace">Speaking pace</option><option value="as_available">As available (not supported for background sound)</option>
+                </select>
+              </div>
+            </theme.Card>
+          </theme.Tab>
+        )}
         {normalizedEnabledProviders.includes("OpenAI") && (
           <theme.Tab eventKey="openai" title="OpenAI">
             <OpenAIRealtimeConversationConfigForm

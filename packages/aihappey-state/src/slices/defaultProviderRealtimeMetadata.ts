@@ -93,6 +93,11 @@ export const defaultProviderRealtimeMetadata = {
   "soniox": {
     // Intentionally empty.
   },
+  "cartesia": {
+    // Mode and model are derived from the selected realtime transcription model.
+    // keyterm, language, turn thresholds and expires_in are optional.
+    expires_in: 600,
+  },
   "google": {
     "uses": 1,
     "expireTime": "30m",
@@ -232,6 +237,10 @@ export const defaultProviderRealtimeConversationMetadata = {
         }
       }
     }
+  },
+  "cartesia": {
+    expires_in: 600,
+    audio: { input_format: "pcm_16000", output_delivery: "speaking_pace" },
   },
   "agentphone": {
     "expires_after": {

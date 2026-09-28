@@ -182,6 +182,24 @@ export const TranscriptionSettingsModal: React.FC<
                         </theme.Tab>
                     )}
 
+                    {enabledProviders.includes("Cartesia") && (
+                        <theme.Tab eventKey="cartesia" title="Cartesia">
+                            <theme.Card size="small" title="Realtime speech to text" description="Select the auto or manual model in the transcription model selector. Audio is captured as mono PCM16 at 16 kHz.">
+                                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                    <theme.Input id="cartesia-stt-keyterms" label="Keyterms (comma-separated)" value={(realtimeProviderMetadata.cartesia?.keyterm ?? []).join(", ")}
+                                        onChange={(event) => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, cartesia: { ...realtimeProviderMetadata.cartesia, keyterm: event.target.value.split(",").map((x: string) => x.trim()).filter(Boolean) } })} />
+                                    <theme.Input id="cartesia-stt-language" label="Language (ink-whisper manual only)" value={realtimeProviderMetadata.cartesia?.language ?? ""}
+                                        onChange={(event) => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, cartesia: { ...realtimeProviderMetadata.cartesia, language: event.target.value || undefined } })} />
+                                    {(["turn_start_threshold", "turn_eager_end_threshold", "turn_end_threshold", "turn_end_timeout_ms", "min_volume", "max_silence_duration_secs"] as const).map((key) => (
+                                        <theme.Input key={key} id={`cartesia-${key}`} label={key.replaceAll("_", " ")} type="number" step={key.includes("ms") ? 1 : 0.01}
+                                            value={realtimeProviderMetadata.cartesia?.[key] ?? ""}
+                                            onChange={(event) => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, cartesia: { ...realtimeProviderMetadata.cartesia, [key]: event.target.value === "" ? undefined : Number(event.target.value) } })} />
+                                    ))}
+                                </div>
+                            </theme.Card>
+                        </theme.Tab>
+                    )}
+
                     {enabledProviders.includes("Fireworks") && (
                         <theme.Tab eventKey="fireworks" title="Fireworks">
                             <FireworksTranscriptionConfigForm

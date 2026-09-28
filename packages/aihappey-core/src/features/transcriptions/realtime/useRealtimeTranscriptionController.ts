@@ -82,6 +82,11 @@ export function useRealtimeTranscriptionController(args: {
   const googleCommitCounterRef = useRef<number>(0);
   const googleSessionStartedAtRef = useRef<number>(0);
   const googleLastSegmentEndMsRef = useRef<number>(0);
+  const cartesiaCommitCounterRef = useRef(0);
+  const cartesiaManualCommittedRef = useRef("");
+  const cartesiaAutoCommittedRef = useRef("");
+  const cartesiaTurnStartMsRef = useRef(0);
+  const cartesiaStartedAtRef = useRef(0);
 
   const sessionInfoRef = useRef<any>(null);
 
@@ -379,6 +384,11 @@ export function useRealtimeTranscriptionController(args: {
         googleCommitCounterRef.current = 0;
         googleSessionStartedAtRef.current = 0;
         googleLastSegmentEndMsRef.current = 0;
+        cartesiaCommitCounterRef.current = 0;
+        cartesiaManualCommittedRef.current = "";
+        cartesiaAutoCommittedRef.current = "";
+        cartesiaTurnStartMsRef.current = 0;
+        cartesiaStartedAtRef.current = 0;
         resetRealtimeSessionState();
         stopInFlightRef.current = null;
       }
@@ -635,6 +645,37 @@ export function useRealtimeTranscriptionController(args: {
                 return;
               }
 
+              if (providerId === "cartesia") {
+                const type = String(event?.type ?? "");
+                const manual = selectedModel.id.includes("/realtime/manual/");
+                if (type === "connected") {
+                  cartesiaStartedAtRef.current = Date.now();
+                  sessionInfoRef.current = { provider: "cartesia", request_id: event.request_id };
+                }
+                if (type === "turn.start") cartesiaTurnStartMsRef.current = Date.now() - cartesiaStartedAtRef.current;
+                const text = manual
+                  ? type === "transcript" && event.is_final ? String(event.text ?? "") : ""
+                  : type === "turn.end" ? String(event.transcript ?? "") : "";
+                if (text) {
+                  if (manual) {
+                    // Cartesia manual final chunks are exact deltas, not repeated snapshots.
+                    cartesiaManualCommittedRef.current += text;
+                  } else {
+                    cartesiaAutoCommittedRef.current = [cartesiaAutoCommittedRef.current, text].filter(Boolean).join(" ");
+                  }
+                  const index = ++cartesiaCommitCounterRef.current;
+                  const key = `cartesia-${index}`;
+                  const end = Date.now() - cartesiaStartedAtRef.current;
+                  segmentsRef.current.set(key, {
+                    itemId: key, text,
+                    startMs: manual ? 0 : cartesiaTurnStartMsRef.current,
+                    endMs: end,
+                  });
+                  if (created.id) void persistUpdateNow(created.id, computeSnapshot({ preferText: manual ? cartesiaManualCommittedRef.current : cartesiaAutoCommittedRef.current }));
+                }
+                return;
+              }
+
               if (providerId === "google") {
                 if (event?.setupComplete) {
                   googleSessionStartedAtRef.current = Date.now();
@@ -712,7 +753,7 @@ export function useRealtimeTranscriptionController(args: {
           onTranscriptText: (deltaText: string) => {
              // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
              const next =
-               providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google"
+               providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia"
                 ? deltaText
                 : (bufferRef.current + deltaText).trimStart();
             bufferRef.current = next;
