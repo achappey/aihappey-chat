@@ -608,6 +608,7 @@ import { ainvented } from "./catalog/ainvented";
 import { plori } from "./catalog/plori";
 import { runtype } from "./catalog/runtype";
 import { connect0 } from "./catalog/connect0";
+import { agentdiscuss } from "./catalog/agentdiscuss";
 
 /**
  * UI-facing provider catalog.
@@ -1124,6 +1125,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   openhands,
   ai302,
   crazyrouter,
+  agentdiscuss,
   aether,
   blackbox,
   primeintellect,
