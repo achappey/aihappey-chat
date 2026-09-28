@@ -372,7 +372,6 @@ import { clauddy } from "./catalog/clauddy";
 import { selinaai } from "./catalog/selinaai";
 import { lmrouter } from "./catalog/lmrouter";
 import { nonkycai } from "./catalog/nonkycai";
-import { modelbridge } from "./catalog/modelbridge";
 import { simplellm } from "./catalog/simplellm";
 import { tensorx } from "./catalog/tensorx";
 import { schatziai } from "./catalog/schatziai";
@@ -778,7 +777,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   terminalskills,
   depaza,
   gptsapi,
-  modelbridge,
   magisterium,
   nonkycai,
   tensorx,

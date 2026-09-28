@@ -8,7 +8,7 @@ export const ainative: Provider = {
   }],
   urls: {
     homepage: "https://www.ainative.studio",
-    docs: "https://docs.ainative.studio/",
+    docs: "https://docs.ainative.studio",
     pricing: "https://www.ainative.studio/pricing",
     privacyPolicy: "https://www.ainative.studio/privacy",
     termsOfService: "https://www.ainative.studio/terms"
