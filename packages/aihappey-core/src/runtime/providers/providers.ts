@@ -609,6 +609,7 @@ import { plori } from "./catalog/plori";
 import { runtype } from "./catalog/runtype";
 import { connect0 } from "./catalog/connect0";
 import { agentdiscuss } from "./catalog/agentdiscuss";
+import { researchagent } from "./catalog/researchagent";
 
 /**
  * UI-facing provider catalog.
@@ -1046,6 +1047,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   spacexai,
   hyperrouter,
   together,
+  researchagent,
   ourtoken,
   googletranslate,
   infomaniak,
