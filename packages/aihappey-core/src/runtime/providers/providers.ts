@@ -498,7 +498,6 @@ import { routera } from "./catalog/routera";
 import { orcarouter } from "./catalog/orcarouter";
 import { mara } from "./catalog/mara";
 import { inceptron } from "./catalog/inceptron";
-import { crofai } from "./catalog/crofai";
 import { commandcode } from "./catalog/commandcode";
 import { lilac } from "./catalog/lilac";
 import { openadapter } from "./catalog/openadapter";
@@ -1129,7 +1128,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   blackbox,
   primeintellect,
   inceptionlabs,
-  crofai,
   commandcode,
   aionlabs,
   databricks,
