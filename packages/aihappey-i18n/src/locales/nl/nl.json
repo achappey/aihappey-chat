@@ -514,7 +514,7 @@
         "instructionsPlaceholder": "Beschrijf hoe de agent zich moet gedragen en wat hij wel of niet mag doen..."
     },
     "agentChecks": {
-        "title": "Checks",
+        "title": "Tests",
         "onePerLine": "Voer één item per regel in.",
         "nonEmpty": {
             "title": "Niet-leeg antwoord",
