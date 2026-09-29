@@ -8,7 +8,13 @@
     "sendFirewall": "Firewallinstellingen meesturen",
     "firewallEnabled": "EU-router",
     "firewallLanguage": "Analysetaal",
-    "languages": { "auto": "Automatisch herkennen", "nl": "Nederlands", "en": "Engels", "fr": "Frans", "de": "Duits" }
+    "languages": {
+      "auto": "Automatisch herkennen",
+      "nl": "Nederlands",
+      "en": "Engels",
+      "fr": "Frans",
+      "de": "Duits"
+    }
   },
   "baseten": {
     "enableThinking": "Nadenken inschakelen",
@@ -30,9 +36,17 @@
     "notSet": "Niet ingesteld",
     "reasoning": "Nadenken",
     "effort": "Niveau",
-    "efforts": { "low": "Laag", "medium": "Gemiddeld", "high": "Hoog" },
+    "efforts": {
+      "low": "Laag",
+      "medium": "Gemiddeld",
+      "high": "Hoog"
+    },
     "summary": "Samenvatting",
-    "summaries": { "auto": "Automatisch", "concise": "Beknopt", "detailed": "Gedetailleerd" },
+    "summaries": {
+      "auto": "Automatisch",
+      "concise": "Beknopt",
+      "detailed": "Gedetailleerd"
+    },
     "compression": "Contextcompressie",
     "strategy": "Strategie",
     "strategies": {
@@ -1042,14 +1056,21 @@
     "locationType": "Locatietype",
     "locationApproximate": "Bij benadering",
     "thinkingDisplay": "Weergave gedachten",
+    "prefixMismatchBehavior": "Gedrag bij afwijkende denkblokken",
+    "prefixMismatchBehaviorOptions": {
+      "error": "Fout",
+      "drop_block": "Verwijderen"
+    },
     "thinkingModes": {
       "enabled": "Ingeschakeld",
       "disabled": "Uitgeschakeld",
+      "between_tools": "Tussen tools",
       "adaptive": "Adaptief"
     },
     "thinkingDisplayModes": {
       "summarized": "Samengevat",
-      "omitted": "Weggelaten"
+      "omitted": "Weggelaten",
+      "updates": "Updates"
     },
     "contextManagement": {
       "title": "Contextbeheer",

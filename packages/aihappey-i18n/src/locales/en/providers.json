@@ -8,7 +8,13 @@
     "sendFirewall": "Send firewall settings",
     "firewallEnabled": "EU routing",
     "firewallLanguage": "Analysis language",
-    "languages": { "auto": "Auto-detect", "nl": "Dutch", "en": "English", "fr": "French", "de": "German" }
+    "languages": {
+      "auto": "Auto-detect",
+      "nl": "Dutch",
+      "en": "English",
+      "fr": "French",
+      "de": "German"
+    }
   },
   "baseten": {
     "enableThinking": "Enable thinking",
@@ -30,9 +36,17 @@
     "notSet": "Not set",
     "reasoning": "Reasoning",
     "effort": "Effort",
-    "efforts": { "low": "Low", "medium": "Medium", "high": "High" },
+    "efforts": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
     "summary": "Summary",
-    "summaries": { "auto": "Auto", "concise": "Concise", "detailed": "Detailed" },
+    "summaries": {
+      "auto": "Auto",
+      "concise": "Concise",
+      "detailed": "Detailed"
+    },
     "compression": "Context compression",
     "strategy": "Strategy",
     "strategies": {
@@ -491,14 +505,21 @@
     "locationType": "Location type",
     "locationApproximate": "Approximate",
     "thinkingDisplay": "Thinking detail",
+    "prefixMismatchBehavior": "Thinking prefix mismatch behavior",
+    "prefixMismatchBehaviorOptions": {
+      "error": "Error",
+      "drop_block": "Drop"
+    },
     "thinkingModes": {
       "enabled": "Enabled",
       "disabled": "Disabled",
+      "between_tools": "Between tools",
       "adaptive": "Adaptive"
     },
     "thinkingDisplayModes": {
       "summarized": "Summarized",
-      "omitted": "Omitted"
+      "omitted": "Omitted",
+      "updates": "Updates"
     },
     "contextManagement": {
       "title": "Context management",
@@ -573,7 +594,7 @@
       "priority": "Priority",
       "maxTokensPerDoc": "Maximum tokens per document"
     }
-  }, 
+  },
   "deepinfra": {
     "transcription": {
       "task": "Task",

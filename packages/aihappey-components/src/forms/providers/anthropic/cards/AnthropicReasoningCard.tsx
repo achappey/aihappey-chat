@@ -2,8 +2,9 @@ import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../../../../theme/ThemeContext";
 import { parseAnthropicNumberInput } from "./AnthropicToolCardShared";
 
-const THINKING_DISPLAY_OPTIONS = ["summarized", "omitted"] as const;
-const THINKING_MODE_OPTIONS = ["enabled", "disabled", "adaptive"] as const;
+const THINKING_DISPLAY_OPTIONS = ["summarized", "omitted", "updates"] as const;
+const THINKING_MODE_OPTIONS = ["enabled", "disabled", "between_tools", "adaptive"] as const;
+const PREFIX_MISMATCH_BEHAVIOR_OPTIONS = ["error", "drop_block"] as const;
 
 const DEFAULT_THINKING = {
   type: "enabled",
@@ -27,6 +28,24 @@ export const AnthropicReasoningCard = ({
   const thinkingType = thinking?.type ?? "enabled";
   const thinkingDisplay = thinking?.display ?? "summarized";
   const isEnabledMode = thinkingType === "enabled";
+  const supportsBlockBinding = isEnabledMode || thinkingType === "adaptive";
+  const prefixMismatchBehavior = thinking?.block_binding?.prefix_mismatch_behavior ?? "";
+
+  const updatePrefixMismatchBehavior = (value: string) => {
+    const { prefix_mismatch_behavior: _previous, ...remainingBlockBinding } =
+      thinking?.block_binding ?? {};
+    const blockBinding = value
+      ? { ...remainingBlockBinding, prefix_mismatch_behavior: value }
+      : remainingBlockBinding;
+
+    updateConfig({
+      ...config,
+      thinking: {
+        ...thinking,
+        block_binding: Object.keys(blockBinding).length ? blockBinding : undefined,
+      },
+    });
+  };
 
   return (
     <theme.Card
@@ -45,7 +64,7 @@ export const AnthropicReasoningCard = ({
         />
       }
     >
-      <div style={{ display: "flex", flexDirection: "column"}}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <theme.Select
           label={t("mode")}
           disabled={!thinkingOn}
@@ -56,13 +75,23 @@ export const AnthropicReasoningCard = ({
               ...config,
               thinking: {
                 ...(value === "enabled"
-                  ? createDefaultThinking()
+                  ? {
+                    ...createDefaultThinking(),
+                    ...(thinking?.block_binding != null
+                      ? { block_binding: thinking.block_binding }
+                      : {}),
+                  }
                   : {
-                      type: value,
-                      ...(value === "adaptive"
-                        ? { display: thinkingDisplay }
-                        : {}),
-                    }),
+                    type: value,
+                    ...(value === "adaptive"
+                      ? {
+                        display: thinkingDisplay,
+                        ...(thinking?.block_binding != null
+                          ? { block_binding: thinking.block_binding }
+                          : {}),
+                      }
+                      : {}),
+                  }),
               },
             })
           }
@@ -74,28 +103,51 @@ export const AnthropicReasoningCard = ({
           ))}
         </theme.Select>
 
-        {thinkingType !== "disabled" ? (
-          <theme.Select
-            label={t("providers:anthropic.thinkingDisplay")}
-            disabled={!thinkingOn}
-            values={[thinkingDisplay]}
-            valueTitle={t(`providers:anthropic.thinkingDisplayModes.${thinkingDisplay}`)}
-            onChange={(value: string) =>
-              updateConfig({
-                ...config,
-                thinking: {
-                  ...thinking,
-                  display: value,
-                },
-              })
-            }
-          >
-            {THINKING_DISPLAY_OPTIONS.map((value) => (
-              <option key={`anthropic-thinking-display-${value}`} value={value}>
-                {t(`providers:anthropic.thinkingDisplayModes.${value}`)}
-              </option>
-            ))}
-          </theme.Select>
+        {supportsBlockBinding ? (
+          <div style={{ display: "flex", gap: 12, width: "100%" }}>
+            <theme.Select
+              label={t("providers:anthropic.thinkingDisplay")}
+              disabled={!thinkingOn}
+              values={[thinkingDisplay]}
+              style={{ flex: "1 1 0", minWidth: 0 }}
+              valueTitle={t(`providers:anthropic.thinkingDisplayModes.${thinkingDisplay}`)}
+              onChange={(value: string) =>
+                updateConfig({
+                  ...config,
+                  thinking: {
+                    ...thinking,
+                    display: value,
+                  },
+                })
+              }
+            >
+              {THINKING_DISPLAY_OPTIONS.map((value) => (
+                <option key={`anthropic-thinking-display-${value}`} value={value}>
+                  {t(`providers:anthropic.thinkingDisplayModes.${value}`)}
+                </option>
+              ))}
+            </theme.Select>
+
+            <theme.Select
+              label={t("providers:anthropic.prefixMismatchBehavior")}
+              disabled={!thinkingOn}
+              values={[prefixMismatchBehavior]}
+              style={{ flex: "1 1 0", minWidth: 0 }}
+              valueTitle={
+                prefixMismatchBehavior
+                  ? t(`providers:anthropic.prefixMismatchBehaviorOptions.${prefixMismatchBehavior}`)
+                  : t("providers:anthropic.defaultOption")
+              }
+              onChange={updatePrefixMismatchBehavior}
+            >
+              <option value="">{t("providers:anthropic.defaultOption")}</option>
+              {PREFIX_MISMATCH_BEHAVIOR_OPTIONS.map((value) => (
+                <option key={`anthropic-prefix-mismatch-${value}`} value={value}>
+                  {t(`providers:anthropic.prefixMismatchBehaviorOptions.${value}`)}
+                </option>
+              ))}
+            </theme.Select>
+          </div>
         ) : null}
 
         {isEnabledMode ? (
