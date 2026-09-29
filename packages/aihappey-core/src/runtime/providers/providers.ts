@@ -612,6 +612,7 @@ import { agentdiscuss } from "./catalog/agentdiscuss";
 import { researchagent } from "./catalog/researchagent";
 import { waslo } from "./catalog/waslo";
 import { founden } from "./catalog/founden";
+import { amnt } from "./catalog/amnt";
 
 /**
  * UI-facing provider catalog.
@@ -1014,6 +1015,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   carouter,
   dandolo,
   literouter,
+  amnt,
   orqagentruntime,
   mireye,
   typecast,
