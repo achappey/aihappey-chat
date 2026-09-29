@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "aihappey-i18n";
 
 import { useTheme } from "../../../theme/ThemeContext";
@@ -34,6 +34,7 @@ type ReasoningEffort = (typeof REASONING_EFFORTS)[number];
 type FlaggedCategory = (typeof FLAGGED_CATEGORIES)[number];
 
 const DEFAULT_REASONING_EFFORT: ReasoningEffort = "medium";
+const DEFAULT_POLICY_ID = "default-policy";
 
 const parseOptionalInteger = (value: unknown) => {
   const trimmed = String(value ?? "").trim();
@@ -50,6 +51,66 @@ const withoutProperty = (value: Record<string, any> | undefined, property: strin
   return next;
 };
 
+const PolicyListEditor = ({
+  id,
+  label,
+  disabled,
+  items,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  disabled: boolean;
+  items: string[];
+  onChange: (items: string[]) => void;
+}) => {
+  const theme = useTheme();
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState("");
+  const value = draft.trim();
+
+  const addItem = () => {
+    if (disabled || !value) return;
+    if (!items.includes(value)) onChange([...items, value]);
+    setDraft("");
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div>
+        <theme.Input
+          id={id}
+          label={label}
+          disabled={disabled}
+          value={draft}
+          onChange={(event: any) => setDraft(event.target.value)}
+          onKeyDown={(event: any) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              addItem();
+            }
+          }}
+        />
+        <theme.Button
+          icon="add"
+          size="small"
+          title={t("add")}
+          variant="informative"
+          disabled={disabled || !value}
+          onClick={addItem}
+        />
+      </div>
+      {items.length > 0 && (
+        <theme.Tags
+          size="small"
+          items={items.map((item) => ({ key: item, label: item }))}
+          onRemove={disabled ? undefined : (item: string) => onChange(items.filter((value) => value !== item))}
+        />
+      )}
+    </div>
+  );
+};
+
 export const AbliterationChatConfigForm = ({
   config,
   updateConfig,
@@ -60,13 +121,23 @@ export const AbliterationChatConfigForm = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const reasoningOn = config?.reasoning !== undefined;
-  const categoriesOn = config?.flagged_categories !== undefined;
+  const policyOn = config?.policy !== undefined;
   const reasoning = config?.reasoning ?? {};
-  const selectedCategories: FlaggedCategory[] = Array.isArray(config?.flagged_categories)
-    ? config.flagged_categories.filter((value: unknown): value is FlaggedCategory =>
+  const policy = config?.policy ?? {};
+  const rules = policy.rules ?? {};
+  const [policyIdDraft, setPolicyIdDraft] = useState(policy.policy_id ?? DEFAULT_POLICY_ID);
+  useEffect(() => {
+    setPolicyIdDraft(policy.policy_id ?? DEFAULT_POLICY_ID);
+  }, [policyOn, policy.policy_id]);
+  const selectedCategories: FlaggedCategory[] = Array.isArray(rules.flagged_categories)
+    ? rules.flagged_categories.filter((value: unknown): value is FlaggedCategory =>
         FLAGGED_CATEGORIES.includes(value as FlaggedCategory),
       )
     : [];
+  const allowlist: string[] = Array.isArray(rules.allowlist) ? rules.allowlist : [];
+  const denylist: string[] = Array.isArray(rules.denylist) ? rules.denylist : [];
+
+  const cleanConfig = withoutProperty(config, "flagged_categories");
 
   const effortOptions = useMemo(
     () => REASONING_EFFORTS.map((value) => ({
@@ -85,12 +156,22 @@ export const AbliterationChatConfigForm = ({
 
   const updateReasoning = (patch: Record<string, any>) =>
     updateConfig({
-      ...(config ?? {}),
+      ...cleanConfig,
       reasoning: {
         ...reasoning,
         ...patch,
       },
     });
+
+  const updatePolicy = (patch: Record<string, any>) =>
+    updateConfig({ ...cleanConfig, policy: { ...policy, ...patch } });
+
+  const updateRule = (key: string, value: unknown) => {
+    const nextRules = value === undefined
+      ? withoutProperty(rules, key)
+      : { ...rules, [key]: value };
+    updatePolicy({ rules: nextRules });
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -104,10 +185,10 @@ export const AbliterationChatConfigForm = ({
             onChange={(enabled: boolean) =>
               updateConfig(enabled
                 ? {
-                    ...(config ?? {}),
+                    ...cleanConfig,
                     reasoning: { enabled: true, effort: DEFAULT_REASONING_EFFORT },
                   }
-                : withoutProperty(config, "reasoning"))
+                : withoutProperty(cleanConfig, "reasoning"))
             }
           />
         }
@@ -158,42 +239,78 @@ export const AbliterationChatConfigForm = ({
 
       <theme.Card
         size="small"
-        title={t("providers:abliteration.other.title")}
+        title={t("providers:abliteration.policy.title")}
         headerActions={
           <theme.Switch
-            id="abliterationFlaggedCategories"
-            checked={categoriesOn}
+            id="abliterationPolicy"
+            checked={policyOn}
             onChange={(enabled: boolean) =>
               updateConfig(enabled
-                ? { ...(config ?? {}), flagged_categories: [...FLAGGED_CATEGORIES] }
-                : withoutProperty(config, "flagged_categories"))
+                ? { ...cleanConfig, policy: { policy_id: DEFAULT_POLICY_ID, rules: {} } }
+                : withoutProperty(cleanConfig, "policy"))
             }
           />
         }
       >
-        <theme.Select
-          label={t("providers:abliteration.other.flaggedCategories")}
-          disabled={!categoriesOn}
-          multiselect
-          values={selectedCategories}
-          valueTitle={selectedCategories.length
-            ? selectedCategories
-                .map((value) => t(`providers:abliteration.categories.${value}`))
-                .join(", ")
-            : t("providers:abliteration.other.noneSelected")}
-          options={categoryOptions}
-          onChange={(category: string) => {
-            const value = category as FlaggedCategory;
-            const nextCategories = selectedCategories.includes(value)
-              ? selectedCategories.filter((item) => item !== value)
-              : [...selectedCategories, value];
-            updateConfig({ ...(config ?? {}), flagged_categories: nextCategories });
-          }}
-        >
-          {categoryOptions.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
-          ))}
-        </theme.Select>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <theme.Input
+            id="abliterationPolicyId"
+            label={t("providers:abliteration.policy.id")}
+            required
+            disabled={!policyOn}
+            value={policyIdDraft}
+            onChange={(event: any) => {
+              const draft = String(event.target.value);
+              setPolicyIdDraft(draft);
+              if (draft.trim()) updatePolicy({ policy_id: draft.trim() });
+            }}
+            onBlur={() => setPolicyIdDraft(policy.policy_id ?? DEFAULT_POLICY_ID)}
+          />
+          <PolicyListEditor
+            id="abliterationPolicyAllowlist"
+            label={t("providers:abliteration.policy.allowlist")}
+            disabled={!policyOn}
+            items={allowlist}
+            onChange={(items) => updateRule("allowlist", items.length ? items : undefined)}
+          />
+          <PolicyListEditor
+            id="abliterationPolicyDenylist"
+            label={t("providers:abliteration.policy.denylist")}
+            disabled={!policyOn}
+            items={denylist}
+            onChange={(items) => updateRule("denylist", items.length ? items : undefined)}
+          />
+          <theme.Select
+            label={t("providers:abliteration.policy.flaggedCategories")}
+            disabled={!policyOn}
+            multiselect
+            values={selectedCategories}
+            valueTitle={selectedCategories.length
+              ? selectedCategories
+                  .map((value) => t(`providers:abliteration.categories.${value}`))
+                  .join(", ")
+              : t("providers:abliteration.policy.noneSelected")}
+            options={categoryOptions}
+            onChange={(category: string) => {
+              const value = category as FlaggedCategory;
+              const nextCategories = selectedCategories.includes(value)
+                ? selectedCategories.filter((item) => item !== value)
+                : [...selectedCategories, value];
+              updateRule("flagged_categories", nextCategories.length ? nextCategories : undefined);
+            }}
+          >
+            {categoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </theme.Select>
+          <theme.Switch
+            id="abliterationPolicyRedactPii"
+            label={t("providers:abliteration.policy.redactPii")}
+            disabled={!policyOn}
+            checked={rules.redact_pii === true}
+            onChange={(enabled: boolean) => updateRule("redact_pii", enabled || undefined)}
+          />
+        </div>
       </theme.Card>
     </div>
   );

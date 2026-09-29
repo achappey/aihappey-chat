@@ -261,10 +261,14 @@
         "ultracode": "Ultracode"
       }
     },
-    "other": {
-      "title": "Overig",
-      "flaggedCategories": "Te blokkeren veiligheidscategorieën",
-      "noneSelected": "Geen categorieën geselecteerd"
+    "policy": {
+      "title": "Beleid",
+      "id": "Beleids-ID",
+      "allowlist": "Item voor de toestaanlijst",
+      "denylist": "Item voor de blokkerenlijst",
+      "flaggedCategories": "Gemarkeerde categorieën",
+      "noneSelected": "Geen categorieën geselecteerd",
+      "redactPii": "Persoonsgegevens anonimiseren"
     },
     "categories": {
       "harassment": "Intimidatie",

@@ -360,10 +360,14 @@
         "ultracode": "Ultracode"
       }
     },
-    "other": {
-      "title": "Other",
-      "flaggedCategories": "Safety categories to block",
-      "noneSelected": "No categories selected"
+    "policy": {
+      "title": "Policy",
+      "id": "Policy ID",
+      "allowlist": "Allowlist entry",
+      "denylist": "Denylist entry",
+      "flaggedCategories": "Flagged categories",
+      "noneSelected": "No categories selected",
+      "redactPii": "Redact personal information"
     },
     "categories": {
       "harassment": "Harassment",

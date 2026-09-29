@@ -10,6 +10,7 @@ export const sanitizeProviderRequestConfigForProvider = (
       const normalizedKey = key.trim().toLowerCase();
       if (!normalizedKey || value === undefined) return false;
       if (normalizedKey === "headers") return false;
+      if (providerKey?.trim().toLowerCase() === "abliteration" && normalizedKey === "flagged_categories") return false;
       if (providerKey?.trim().toLowerCase() === "anthropic" && normalizedKey === "anthropic-beta") return false;
       if (providerKey?.trim().toLowerCase() === "openai" && normalizedKey === "openai-beta") return false;
       return true;
