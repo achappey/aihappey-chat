@@ -3,6 +3,13 @@ import type { Provider } from "aihappey-types";
 export const agen: Provider = {
   name: "Agen",
   description: "Assign a task, get a merge-ready PR with a live app preview in 20 minutes. Self-fixing pipelines, unlimited parallel agents, zero local setup.",
+  icons: [{
+    theme: "light", src: "https://agenhq.com/favicon-light.svg"
+
+  }, {
+    theme: "dark", src: "https://agenhq.com/favicon-dark.svg"
+
+  }],
   urls: {
     homepage: "https://agenhq.com",
     docs: "https://docs.agenhq.com",
