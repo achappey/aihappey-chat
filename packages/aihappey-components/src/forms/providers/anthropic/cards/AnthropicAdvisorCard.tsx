@@ -6,7 +6,10 @@ import {
   parseAnthropicNumberInput,
 } from "./AnthropicToolCardShared";
 
-const ADVISOR_MODELS = ["claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-4-6"];
+const ADVISOR_MODELS = ["claude-sonnet-5-5",
+  "claude-opus-5-5",
+  "claude-fable-5-1", "claude-opus-5", "claude-opus-4-8",
+  "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-4-6"];
 
 const createDefaultAdvisorTool = () => ({
   type: "advisor_20260301",
