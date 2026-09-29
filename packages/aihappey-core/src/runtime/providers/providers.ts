@@ -611,6 +611,7 @@ import { connect0 } from "./catalog/connect0";
 import { agentdiscuss } from "./catalog/agentdiscuss";
 import { researchagent } from "./catalog/researchagent";
 import { waslo } from "./catalog/waslo";
+import { founden } from "./catalog/founden";
 
 /**
  * UI-facing provider catalog.
@@ -1016,6 +1017,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   orqagentruntime,
   mireye,
   typecast,
+  founden,
   vanceai,
   jiekouai,
   qiniu,
