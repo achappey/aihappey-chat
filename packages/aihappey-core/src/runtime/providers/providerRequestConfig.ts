@@ -1,3 +1,5 @@
+import { canonicalizeAnthropicTools } from "aihappey-components";
+
 export const sanitizeProviderRequestConfigForProvider = (
   config?: Record<string, any>,
   providerKey?: string,
@@ -16,6 +18,10 @@ export const sanitizeProviderRequestConfigForProvider = (
       return true;
     }),
   );
+
+  if (providerKey?.trim().toLowerCase() === "anthropic") {
+    return Object.keys(sanitized).length ? canonicalizeAnthropicTools(sanitized) : undefined;
+  }
 
   return Object.keys(sanitized).length ? sanitized : undefined;
 };

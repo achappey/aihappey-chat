@@ -25,11 +25,7 @@ const createDefaultWebSearchTool = () => ({
   name: "web_search",
   type: WEB_SEARCH_VERSIONS[0],
   max_uses: 5,
-  allowed_domains: null,
-  blocked_domains: null,
-  user_location: null,
   allowed_callers: ["direct"]
-  //user_location: createDefaultUserLocation(),
 });
 
 export const AnthropicWebSearchCard = ({

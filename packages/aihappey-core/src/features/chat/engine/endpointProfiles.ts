@@ -364,7 +364,12 @@ export const resolveEndpointProfileRequestMetadata = ({
   fallbackProviderMetadataEnabled: boolean;
 }) => {
   if (endpointProfile?.kind !== "provider") {
-    return fallbackProviderMetadataEnabled ? activeProviderMetadata : undefined;
+    if (!fallbackProviderMetadataEnabled || !activeProviderMetadata) return undefined;
+    if (!activeProviderMetadata.anthropic) return activeProviderMetadata;
+    return {
+      ...activeProviderMetadata,
+      anthropic: sanitizeProviderRequestConfigForProvider(activeProviderMetadata.anthropic, "anthropic") ?? {},
+    };
   }
 
   const profileProviderKey = endpointProfile.providerKey;

@@ -19,8 +19,6 @@ const createDefaultWebFetchTool = () => ({
   name: "web_fetch",
   type: WEB_FETCH_VERSIONS[0],
   max_uses: 5,
-  allowed_domains: null,
-  blocked_domains: null,
   citations: {
     enabled: true,
   },

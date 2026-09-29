@@ -112,18 +112,13 @@ export const defaultProviderMetadata = {
         "name": "web_search",
         "type": "web_search_20260318",
         "max_uses": 5,
-        "allowed_callers": ["direct"],
-        "allowed_domains": null,
-        "blocked_domains": null,
-        "user_location": null
+        "allowed_callers": ["direct"]
       },
       {
         "name": "web_fetch",
         "type": "web_fetch_20260318",
         "max_uses": 5,
         "allowed_callers": ["direct"],
-        "allowed_domains": null,
-        "blocked_domains": null,
         "citations": {
           "enabled": true,
         },

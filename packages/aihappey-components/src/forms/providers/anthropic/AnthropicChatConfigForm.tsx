@@ -24,22 +24,8 @@ import { AnthropicToolSearchBm25Card } from "./cards/AnthropicToolSearchBm25Card
 import { AnthropicToolSearchRegexCard } from "./cards/AnthropicToolSearchRegexCard";
 import { AnthropicWebFetchCard } from "./cards/AnthropicWebFetchCard";
 import { AnthropicWebSearchCard } from "./cards/AnthropicWebSearchCard";
-import {
-  buildCanonicalProviderToolsConfig,
-  withResolvedProviderTools,
-} from "../providerToolConfig";
-
-const ANTHROPIC_TOOL_TYPES = [
-  "advisor",
-  "bash",
-  "code_execution",
-  "memory",
-  "text_editor",
-  "web_fetch",
-  "web_search",
-  "tool_search_tool_bm25",
-  "tool_search_tool_regex",
-];
+import { withResolvedProviderTools } from "../providerToolConfig";
+import { ANTHROPIC_TOOL_TYPES, canonicalizeAnthropicTools } from "./anthropicToolConfig";
 
 const REQUIRED_CONTEXT_MANAGEMENT_BETA = "context-management-2025-06-27";
 const REQUIRED_ADVISOR_BETA = "advisor-tool-2026-03-01";
@@ -223,10 +209,10 @@ export const AnthropicChatConfigForm = ({
   const { t } = useTranslation();
   const autoManagedContextManagementBeta = useRef(false);
   const autoManagedAdvisorBeta = useRef(false);
-  const resolvedConfig = withResolvedProviderTools(config, ANTHROPIC_TOOL_TYPES);
+  const resolvedConfig = withResolvedProviderTools(config, [...ANTHROPIC_TOOL_TYPES]);
   const submitConfig = (nextConfig: any, nextHeaders: Record<string, string> | undefined = headers) => {
     const normalized =
-      buildCanonicalProviderToolsConfig(
+      canonicalizeAnthropicTools(
         normalizeAnthropicContainerConfig(
           normalizeAnthropicContextManagementConfig(
             resolvedConfig,
@@ -237,7 +223,7 @@ export const AnthropicChatConfigForm = ({
             autoManagedAdvisorBeta
           )
         ),
-        ANTHROPIC_TOOL_TYPES
+        true
       );
     const { providerHeaders, ...bodyConfig } = normalized as any;
 
@@ -257,7 +243,7 @@ export const AnthropicChatConfigForm = ({
 
     const { providerHeaders, ...bodyConfig } = normalized as any;
 
-    updateConfig(withoutAnthropicBetaBody(bodyConfig));
+    updateConfig(canonicalizeAnthropicTools(withoutAnthropicBetaBody(bodyConfig), true));
     updateHeaders?.(cleanProviderHeaders(providerHeaders));
   };
 
