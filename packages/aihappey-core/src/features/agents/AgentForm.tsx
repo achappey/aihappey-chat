@@ -770,9 +770,15 @@ export const AgentForm = ({
                             <option key={item.id} value={item.id}>{item.name}</option>
                         ))}
                     </Select>
+                </Tab>
 
+                {/* ---------------- Model Context ---------------- */}
+                {isEditing && <Tab
+                    eventKey="modelContext"
+                    title={t("serverSelectModal.title")}>
                     <div style={{ marginTop: 12 }}>
                         <McpPolicySettings
+                            title={t("agentEdit.policy")}
                             policySettings={agent.mcpClient?.policy}
                             toggle={(meta: keyof ToolAnnotations) => {
                                 const current = agent.mcpClient?.policy?.[meta] ?? false;
@@ -790,7 +796,7 @@ export const AgentForm = ({
                             }}
                         />
                     </div>
-                    <div style={{ marginTop: 12 }}>
+                    <div style={{ marginTop: 12, marginBottom: 12 }}>
                         <Card
                             size="small"
                             title={t("elicit")}
@@ -820,12 +826,6 @@ export const AgentForm = ({
                             </div>
                         </Card>
                     </div>
-                </Tab>
-
-                {/* ---------------- Model Context ---------------- */}
-                {isEditing && <Tab
-                    eventKey="modelContext"
-                    title={t("serverSelectModal.title")}>
                     <ServerManagement
                         enabled={enabled}
                         onToggle={toggle}

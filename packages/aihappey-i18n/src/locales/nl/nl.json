@@ -504,6 +504,7 @@
     "custom": "Aangepast",
     "agentEdit": {
         "name": "Naam",
+        "policy": "Beleid",
         "argumentHint": "Invoerhint",
         "argumentHintPlaceholder": "Tekst die gebruikers helpt bij het invoeren van een bericht...",
         "create": "Agent maken",

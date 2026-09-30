@@ -932,6 +932,7 @@
     "code_execution": "Code execution",
     "agentEdit": {
         "name": "Name",
+        "policy": "Policy",
         "argumentHint": "Input hint",
         "argumentHintPlaceholder": "Text shown in the chat input field to guide the user...",
         "create": "Create Agent",

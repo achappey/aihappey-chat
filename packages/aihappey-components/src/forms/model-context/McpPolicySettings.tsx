@@ -4,18 +4,19 @@ import { useTheme } from "../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
 
 export interface McpPolicySettingsProps {
+  title?: string;
   policySettings?: Partial<ToolAnnotations>;
   toggle: (meta: keyof ToolAnnotations) => void;
 }
 
 export const McpPolicySettings: React.FC<
   McpPolicySettingsProps
-> = ({ policySettings, toggle }) => {
+> = ({ title, policySettings, toggle }) => {
   const { Card, Switch } = useTheme();
   const { t } = useTranslation();
 
   return (
-    <Card size="small" title={t("mcpPage.policy")}>
+    <Card size="small" title={title ?? t("mcpPage.policy")}>
       <div
         style={{
           display: "grid",
