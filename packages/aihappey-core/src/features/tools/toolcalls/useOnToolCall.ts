@@ -61,6 +61,8 @@ import {
 import { useSkills } from "aihappey-skills";
 import { useRuntimeSkills } from "../../skills/useRuntimeSkills";
 import { usePluginFileToolCall } from "./usePluginFileToolCall";
+import { elicitRuntime } from "../../../runtime/mcp/elicitRuntime";
+import type { ElicitRequest } from "aihappey-mcp";
 import { buildSkillSearchPluginDef, SKILL_SEARCH_PLUGIN_ID, useSkillToolCall } from "./useSkillToolCall";
 import { mcpTaskPluginDef, useMcpTaskRuntime } from "./useMcpTaskToolCall";
 import { localSkillEditorPluginDef, useLocalSkillEditorRuntime } from "./useLocalSkillEditorToolCall";
@@ -316,6 +318,19 @@ export function useOnToolCall({
   const onToolCall = useCallback(
     async ({ toolCall, signal }: any) => {
       try {
+        // Provider-initiated elicitation is a synthetic client tool, not an MCP
+        // tool to be dispatched to a connected server. Keep the MCP request and
+        // result shapes intact across the chat history round trip.
+        if (toolCall.toolName === "ai_input_required") {
+          const input = toolCall.input;
+          if (input?.method !== "elicitation/create" || !input?.params || input.params.mode === "url")
+            throw new Error("Unsupported input-required request; expected an MCP form elicitation.");
+          const result = await elicitRuntime.onElicit("ai_input_required", {
+            method: "elicitation/create", params: input.params,
+          } as ElicitRequest);
+          return { content: [], structuredContent: result };
+        }
+
         // 0) user-defined stored local tools (enabled by user)
         const enabled = Array.isArray(enabledLocalTools) ? enabledLocalTools : [];
         if (enabled.includes(toolCall.toolName)) {
