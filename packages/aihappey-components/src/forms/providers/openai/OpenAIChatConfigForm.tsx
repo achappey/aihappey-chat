@@ -8,6 +8,8 @@ import { OpenAIWebSearchForm } from "./cards/OpenAIWebSearchForm";
 import { OpenAIImageGenerationForm } from "./cards/OpenAIImageGenerationForm";
 import { OpenAICodeInterpreterForm } from "./cards/OpenAICodeInterpreterForm";
 import { OpenAIFileSearchForm } from "./cards/OpenAIFileSearchForm";
+import { OpenAIAgentSessionCard } from "./cards/OpenAIAgentSessionCard";
+import { OpenAIEnvironmentSessionCard } from "./cards/OpenAIEnvironmentSessionCard";
 import {
   OpenAIShellForm,
   type OpenAISkillOption,
@@ -577,6 +579,9 @@ export const OpenAIChatConfigForm = ({
           />
         </div>
       </theme.Card>
+
+      <OpenAIAgentSessionCard config={resolvedConfig} updateConfig={submitConfig} />
+      <OpenAIEnvironmentSessionCard config={resolvedConfig} updateConfig={submitConfig} />
 
       <theme.Card size="small" title={t("other")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
