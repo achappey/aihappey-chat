@@ -78,6 +78,9 @@ async function _connectMcpBase(
         name: toMcpClientName(opts.clientName || "test-client"),
         version: opts.clientVersion || "0.0.1",
     }, {
+        versionNegotiation: {
+            mode: "auto",
+        },
         capabilities: {
             elicitation: opts.onElicit ? {
                 form: {},
