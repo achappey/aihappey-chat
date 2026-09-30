@@ -8,6 +8,15 @@ const SUMMARIES = ["concise", "detailed", "auto"];
 const TIERS = ["auto", "default", "flex", "priority", "fast", "ultrafast"];
 const VERBOSITIES = ["low", "medium", "high"];
 
+const twoColumnGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  columnGap: 0,
+  rowGap: 12,
+  width: "100%",
+  alignItems: "end",
+} as const;
+
 export const OpenAIAgentSessionCard = ({ config, updateConfig }: { config: any; updateConfig: (value: any) => void }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -50,18 +59,22 @@ export const OpenAIAgentSessionCard = ({ config, updateConfig }: { config: any; 
         onChange={(e: any) => patch({ model: optionalString(e.target.value) })} />
       <theme.TextArea label={tr("instructions")} rows={3} value={agent?.instructions ?? ""}
         onChange={(e: any) => patch({ instructions: optionalString(e.target.value) })} />
-      {select(tr("effort"), agent?.reasoning?.effort ?? "", EFFORTS,
-        (effort) => patch({ reasoning: { ...agent?.reasoning, effort: effort || undefined } }))}
-      {select(tr("summary"), agent?.reasoning?.summary ?? "", SUMMARIES,
-        (summary) => patch({ reasoning: { ...agent?.reasoning, summary: summary || undefined } }))}
+      <div style={twoColumnGrid}>
+        {select(tr("effort"), agent?.reasoning?.effort ?? "", EFFORTS,
+          (effort) => patch({ reasoning: { ...agent?.reasoning, effort: effort || undefined } }))}
+        {select(tr("summary"), agent?.reasoning?.summary ?? "", SUMMARIES,
+          (summary) => patch({ reasoning: { ...agent?.reasoning, summary: summary || undefined } }))}
+      </div>
       {select(tr("serviceTier"), agent?.service_tier ?? "", TIERS,
         (service_tier) => patch({ service_tier: service_tier || undefined }))}
-      {select(tr("verbosity"), agent?.text?.verbosity ?? "", VERBOSITIES,
-        (verbosity) => patch({ text: { ...agent?.text, verbosity: verbosity || undefined } }))}
-      {select(tr("format"), format?.type ?? "", ["text", "json_schema"], (type) => {
-        setSchemaDraft(undefined);
-        patch({ text: { ...agent?.text, format: type === "json_schema" ? { type, schema: {} } : type === "text" ? { type } : undefined } });
-      })}
+      <div style={twoColumnGrid}>
+        {select(tr("verbosity"), agent?.text?.verbosity ?? "", VERBOSITIES,
+          (verbosity) => patch({ text: { ...agent?.text, verbosity: verbosity || undefined } }))}
+        {select(tr("format"), format?.type ?? "", ["text", "json_schema"], (type) => {
+          setSchemaDraft(undefined);
+          patch({ text: { ...agent?.text, format: type === "json_schema" ? { type, schema: {} } : type === "text" ? { type } : undefined } });
+        })}
+      </div>
       {format?.type === "json_schema" && <theme.TextArea label={tr("schema")} rows={5}
         value={schemaValue} onChange={(e: any) => {
           const raw = String(e.target.value);
@@ -93,16 +106,21 @@ export const OpenAIAgentSessionCard = ({ config, updateConfig }: { config: any; 
         disabled={!enabled} checked={programmatic.enabled !== false}
         onChange={(on: boolean) => patchTool("programmatic_tool_calling", { enabled: on })} />}
       {webSearch && <>
-        {select(tr("searchMode"), webSearch.mode ?? "", ["disabled", "cached", "live"],
-          (mode) => patchTool("web_search", { mode: mode || undefined }))}
-        {select(tr("searchContext"), webSearch.context_size ?? "", ["low", "medium", "high"],
-          (context_size) => patchTool("web_search", { context_size: context_size || undefined }))}
+        <div style={twoColumnGrid}>
+          {select(tr("searchMode"), webSearch.mode ?? "", ["disabled", "cached", "live"],
+            (mode) => patchTool("web_search", { mode: mode || undefined }))}
+          {select(tr("searchContext"), webSearch.context_size ?? "", ["low", "medium", "high"],
+            (context_size) => patchTool("web_search", { context_size: context_size || undefined }))}
+        </div>
         <theme.TextArea label={tr("allowedDomains")} rows={2}
           value={(webSearch.allowed_domains ?? []).join("\n")}
           onChange={(e: any) => patchTool("web_search", { allowed_domains: optionalLines(e.target.value).length ? optionalLines(e.target.value) : undefined })} />
-        {(["city", "country", "region", "timezone"] as const).map((key) => <theme.Input key={key} label={tr(key)} disabled={!enabled}
-          value={webSearch.location?.[key] ?? ""} onChange={(e: any) =>
-            patchTool("web_search", { location: { ...webSearch.location, [key]: optionalString(e.target.value) } })} />)}
+        <div style={{ display: "flex", gap: 12 }}>
+          {(["country", "region", "city", "timezone"] as const).map((key) => <theme.Input key={key} label={tr(key)} disabled={!enabled}
+            style={{ minWidth: key === "country" ? 70 : key === "timezone" ? 140 : 110 }}
+            value={webSearch.location?.[key] ?? ""} onChange={(e: any) =>
+              patchTool("web_search", { location: { ...webSearch.location, [key]: optionalString(e.target.value) } })} />)}
+        </div>
       </>}
     </div>
   </theme.Card>;

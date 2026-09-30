@@ -13,7 +13,9 @@ export const OpenAIEnvironmentSessionCard = ({ config, updateConfig }: { config:
   const save = (next?: any) => updateConfig(updateSessionConfig(config, "environment", next));
   const patch = (next: any) => save({ ...environment, ...next });
   const select = (label: string, value: string, options: string[], onChange: (value: string) => void) => (
-    <theme.Select label={label} values={[value]} valueTitle={tr(value)} disabled={!enabled} onChange={onChange}>
+    <theme.Select label={label} values={[options.includes(value) ? value : ""]}
+      valueTitle={options.includes(value) ? tr(value) : tr("type")}
+      disabled={!enabled} onChange={onChange}>
       {options.map((option) => <option key={option} value={option}>{tr(option)}</option>)}
     </theme.Select>
   );
@@ -23,8 +25,8 @@ export const OpenAIEnvironmentSessionCard = ({ config, updateConfig }: { config:
       onChange={(on: boolean) => save(on ? { type: "openai_hosted" } : undefined)} />
   }>
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {select(tr("type"), environment?.type ?? "openai_hosted", ["none", "openai_hosted", "self_hosted"],
-        (type) => save(changeEnvironmentType(environment, type as "none" | "openai_hosted" | "self_hosted")))}
+      {select(tr("type"), environment?.type ?? "openai_hosted", ["none", "openai_hosted"],
+        (type) => save(changeEnvironmentType(environment, type as "none" | "openai_hosted")))}
       {hosted && <>
         <theme.Input label={tr("templateId")} disabled={!enabled} value={environment.environment_template_id ?? ""}
           onChange={(e: any) => patch({ environment_template_id: optionalString(e.target.value) })} />
@@ -63,9 +65,6 @@ export const OpenAIEnvironmentSessionCard = ({ config, updateConfig }: { config:
             }} />
         </>}
       </>}
-      {environment?.type === "self_hosted" && <theme.Input label={tr("workspaceDirectory")}
-        disabled={!enabled} value={environment.workspace_directory ?? ""}
-        onChange={(e: any) => patch({ workspace_directory: e.target.value })} />}
     </div>
   </theme.Card>;
 };

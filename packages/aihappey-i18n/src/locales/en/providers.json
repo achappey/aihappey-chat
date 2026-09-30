@@ -834,10 +834,10 @@
       "searchMode": "Web search mode",
       "searchContext": "Search context size",
       "allowedDomains": "Search allowed domains (one per line)",
-      "city": "Search city",
-      "country": "Search country code",
-      "region": "Search region",
-      "timezone": "Search timezone"
+      "city": "City",
+      "country": "Country",
+      "region": "Region",
+      "timezone": "Timezone"
     },
     "sessionEnvironment": {
       "title": "Environment (Agent)",

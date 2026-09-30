@@ -476,10 +476,10 @@
       "searchMode": "Webzoekmodus",
       "searchContext": "Grootte van zoekcontext",
       "allowedDomains": "Toegestane zoekdomeinen (één per regel)",
-      "city": "Zoekstad",
-      "country": "Landcode voor zoeken",
-      "region": "Zoekregio",
-      "timezone": "Tijdzone voor zoeken"
+      "city": "Plaats",
+      "country": "Land",
+      "region": "Regio",
+      "timezone": "Tijdzone"
     },
     "sessionEnvironment": {
       "title": "Omgeving (Agent)",

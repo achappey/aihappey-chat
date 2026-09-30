@@ -21,9 +21,8 @@ export const updateAgentTool = (tools: unknown, type: typeof AGENT_TOOL_TYPES[nu
   return enabled ? [...remaining, { type }] : remaining;
 };
 
-export const changeEnvironmentType = (environment: any, type: "none" | "openai_hosted" | "self_hosted") => {
+export const changeEnvironmentType = (environment: any, type: "none" | "openai_hosted") => {
   if (environment?.type === type) return environment;
-  if (type === "self_hosted") return { type, workspace_directory: "/workspace" };
   return { type };
 };
 
