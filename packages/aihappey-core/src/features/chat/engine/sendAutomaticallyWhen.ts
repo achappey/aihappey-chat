@@ -23,6 +23,6 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
         lastPart.type.startsWith("tool-") &&
         (lastPart.state === "output-available" ||
             lastPart.state === "approval-responded") &&
-        (!lastPart.providerExecuted || lastPart.output == undefined)
+        (!lastPart.providerExecuted || (lastPart.providerExecuted && lastPart.output == undefined))
     );
 }
