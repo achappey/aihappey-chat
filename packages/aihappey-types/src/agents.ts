@@ -179,8 +179,13 @@ export type McpServer = {
     headers?: Record<string, any>;
 };
 
-/** Extensible agent-scoped MCP capabilities. Elicitation is configured globally. */
-export type McpClientCapabilities = Record<string, unknown>;
+/** Agent-scoped MCP capabilities; other capability keys remain extensible. */
+export type McpClientCapabilities = Record<string, unknown> & {
+    elicitation?: {
+        form?: Record<string, unknown>;
+        url?: Record<string, unknown>;
+    };
+};
 
 export type McpPolicy = {
     readOnlyHint?: boolean;

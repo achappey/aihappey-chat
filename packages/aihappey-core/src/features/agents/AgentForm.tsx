@@ -17,6 +17,7 @@ import {
 import { VeniceChatConfigForm } from "aihappey-components/src/forms/providers/venice";
 import { useTranslation } from "aihappey-i18n";
 import { Agent, McpRegistryServerResponse, McpServer, ServerClientConfig, type AgentPluginFile, type Skill as AgentSkill } from "aihappey-types";
+import { setAgentElicitationEnabled, setAgentElicitationFormEnabled } from "aihappey-agents";
 import { ToolAnnotations } from "@modelcontextprotocol/sdk/types";
 import {
     getAgentModelProviderKey,
@@ -68,7 +69,7 @@ export const AgentForm = ({
     isEditing,
     onChange,
     onBusyChange }: AgentFormProps) => {
-    const { Input, TextArea, Tabs, Tab, Button, Text, Select, Switch } = useTheme();
+    const { Input, TextArea, Tabs, Tab, Button, Card, Text, Select, Switch } = useTheme();
     const { t } = useTranslation();
     const { config: chatConfig } = useChatContext();
     const [activeTab, setActiveTab] = useState("general");
@@ -788,6 +789,36 @@ export const AgentForm = ({
                                 });
                             }}
                         />
+                    </div>
+                    <div style={{ marginTop: 12 }}>
+                        <Card
+                            size="small"
+                            title={t("elicit")}
+                            headerActions={
+                                <Switch
+                                    id="agent-elicitation-enabled"
+                                    checked={agent.mcpClient?.capabilities?.elicitation != null}
+                                    onChange={(checked) => onChange((current) => setAgentElicitationEnabled(current, checked))}
+                                />
+                            }
+                        >
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 4 }}>
+                                <Switch
+                                    id="agent-elicitation-form"
+                                    label={t("agents.elicitationForm")}
+                                    checked={agent.mcpClient?.capabilities?.elicitation?.form != null}
+                                    disabled={agent.mcpClient?.capabilities?.elicitation == null}
+                                    onChange={(checked) => onChange((current) => setAgentElicitationFormEnabled(current, checked))}
+                                />
+                                <Switch
+                                    id="agent-elicitation-url"
+                                    label={t("agents.elicitationUrl")}
+                                    checked={agent.mcpClient?.capabilities?.elicitation?.url != null}
+                                    disabled
+                                    onChange={() => {}}
+                                />
+                            </div>
+                        </Card>
                     </div>
                 </Tab>
 

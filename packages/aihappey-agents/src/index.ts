@@ -3,3 +3,4 @@ export * from "./IndexedDBAgentStore";
 export * from "./resolveAgentHydration";
 export * from "./localAgentStore";
 export * from "./normalizeAgent";
+export * from "./agentElicitation";

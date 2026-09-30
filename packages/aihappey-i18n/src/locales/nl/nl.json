@@ -704,6 +704,8 @@
             "create": "Nieuwe agent maken"
         },
         "mcpClientCapabilities": "Model Context mogelijkheden",
+        "elicitationForm": "Formulier",
+        "elicitationUrl": "URL",
         "settings": "Instellingen",
         "mcpServers": "Model Context",
         "connectMcp": "MCP verbinden",

@@ -551,6 +551,8 @@
             "create": "Create new agent"
         },
         "mcpClientCapabilities": "Model Context capabilities",
+        "elicitationForm": "Form",
+        "elicitationUrl": "URL",
         "settings": "Settings",
         "mcpServers": "Model Context servers",
         "connectMcp": "Connect MCP",
