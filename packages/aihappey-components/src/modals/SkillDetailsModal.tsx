@@ -35,6 +35,8 @@ export type SkillDetailsModalProps = {
   localSkill?: SkillDetailsStoredSkill;
   loadingVersions?: boolean;
   error?: string | null;
+  /** Optional provenance for a connected MCP skill, shown without changing its identity. */
+  source?: string;
   downloadingVersion?: string | null;
   onClose: () => void;
   onEdit?: () => void;
@@ -49,6 +51,7 @@ export const SkillDetailsModal = ({
   localSkill,
   loadingVersions,
   error,
+  source,
   downloadingVersion,
   onClose,
   onEdit,
@@ -124,17 +127,20 @@ export const SkillDetailsModal = ({
                     {skill.version ? (
                       <VersionBadge version={skill.version} />
                     ) : null}
-                    <VersionBadge
-                      version={tx(
-                        "skillsPage.latestVersionBadge",
-                        `Latest ${skill.latestVersion}`,
-                        { version: skill.latestVersion }
-                      )}
-                    />
+                     {skill.latestVersion ? (
+                       <VersionBadge
+                         version={tx(
+                           "skillsPage.latestVersionBadge",
+                           `Latest ${skill.latestVersion}`,
+                           { version: skill.latestVersion }
+                         )}
+                       />
+                     ) : null}
                   </div>
                 }
               >
                 <div>{skill.description}</div>
+                {source ? <div style={{ overflowWrap: "anywhere" }}>{source}</div> : null}
               </Card>
             </div>
           </Tab>
@@ -234,8 +240,12 @@ export const SkillDetailsModal = ({
             </div>
           </Tab>
 
-          <Tab eventKey="content" icon="docs" title={"SKILL.md"}>
-            {localSkill ? (
+           <Tab eventKey="content" icon="docs" title={"SKILL.md"}>
+             {loadingVersions ? (
+               <Card title={tx("loading", "Loading…")} />
+             ) : error ? (
+               <Card title={tx("error", "Error")}><div style={{ color: "#c00" }}>{error}</div></Card>
+             ) : localSkill ? (
               <div style={markdownContainerStyle}>
                 <ReactMarkdown>{localSkill.body}</ReactMarkdown>
               </div>

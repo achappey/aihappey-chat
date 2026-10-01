@@ -24,7 +24,8 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { PROVIDERS } from "../../runtime/providers/providers";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
-import { connectedMcpSkills, archiveConnectedSkill } from "./connectedMcpSkills";
+import { connectedMcpSkills, archiveConnectedSkill, connectedSkillLabel, readConnectedSkillFile } from "./connectedMcpSkills";
+import type { ConnectedMcpSkill } from "aihappey-mcp";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -72,7 +73,12 @@ export const SkillsPage = () => {
   const mcpCatalog = useAppStore((s) => s.mcpSkills);
   const mcpErrors = useAppStore((s) => s.mcpSkillErrors);
   const mcpSkills = useMemo(() => connectedMcpSkills(mcpCatalog), [mcpCatalog]);
-  const [installingMcp, setInstallingMcp] = useState<string | null>(null);
+  const [downloadingMcp, setDownloadingMcp] = useState<string | null>(null);
+  const [mcpDownloadError, setMcpDownloadError] = useState<string | null>(null);
+  const [detailsMcp, setDetailsMcp] = useState<ConnectedMcpSkill | null>(null);
+  const [mcpPreview, setMcpPreview] = useState<{ body: string } | undefined>();
+  const [mcpPreviewLoading, setMcpPreviewLoading] = useState(false);
+  const [mcpPreviewError, setMcpPreviewError] = useState<string | null>(null);
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
@@ -252,22 +258,38 @@ export const SkillsPage = () => {
     [skills, t]
   );
 
-  const installMcpSkill = useCallback(async (skill: (typeof mcpSkills)[number]) => {
-    setInstallingMcp(skill.skillId);
+  const openMcpDetails = useCallback(async (skill: ConnectedMcpSkill) => {
+    setDetailsMcp(skill);
+    setMcpPreview(undefined);
+    setMcpPreviewError(null);
+    setMcpPreviewLoading(true);
+    try {
+      const body = await (await readConnectedSkillFile(skill, skill.entry.uri)).text();
+      setMcpPreview({ body });
+    } catch (error) {
+      setMcpPreviewError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setMcpPreviewLoading(false);
+    }
+  }, []);
+
+  const downloadMcpSkill = useCallback(async (skill: ConnectedMcpSkill) => {
+    setDownloadingMcp(skill.skillId);
+    setMcpDownloadError(null);
     try {
       const archive = await archiveConnectedSkill(skill);
-      const result = await skills.importArchive(archive, "local-zip", {
-        skillId: `mcp_${Array.from(new TextEncoder().encode(skill.skillId)).map((byte) => byte.toString(16).padStart(2, "0")).join("")}`,
-      });
-      if (!result.imported.length) throw new Error(result.diagnostics[0]?.message ?? "Skill import failed");
-      setEnabledSkillIds(Array.from(new Set([...enabledSkillIds, ...result.imported.map((item) => item.skillId)])));
-      setFeedback(`Installed ${skill.entry.frontmatter.name} from ${skill.serverKey}.`);
+      const url = URL.createObjectURL(archive);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${skill.entry.frontmatter.name}-${skill.serverKey.replace(/[^a-z0-9_-]/gi, "-")}.zip`;
+      anchor.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (error) {
-      setFeedback(error instanceof Error ? error.message : String(error));
+      setMcpDownloadError(error instanceof Error ? error.message : String(error));
     } finally {
-      setInstallingMcp(null);
+      setDownloadingMcp(null);
     }
-  }, [skills, enabledSkillIds, setEnabledSkillIds]);
+  }, []);
 
   const handleDeleteSkill = useCallback(
     async (item: SkillCatalogItem) => {
@@ -615,24 +637,19 @@ export const SkillsPage = () => {
             <theme.Tab eventKey="connected-mcps" title={`${t("skillsPage.modelContext") || "Model Context"} (${mcpSkills.length})`}>
               <div style={{ paddingTop: 12, display: "grid", gap: 12 }}>
                 {Object.entries(mcpErrors).map(([server, error]) => <theme.Text key={server}>{server}: {error}</theme.Text>)}
+                {mcpDownloadError ? <theme.Text>{mcpDownloadError}</theme.Text> : null}
                 {mcpSkills.filter((skill) => !q || normalizeText(`${skill.entry.frontmatter.name} ${skill.entry.frontmatter.description} ${skill.serverKey} ${skill.entry.uri}`).includes(q))
                   .map((skill) => (
                     <div key={skill.skillId} style={{ maxWidth: 760, width: "100%" }}>
                       <SkillCard
-                        skill={{ id: skill.skillId, name: skill.entry.frontmatter.name,
+                        skill={{ id: skill.skillId, name: connectedSkillLabel(skill, mcpSkills),
                           description: `${skill.entry.frontmatter.description} — ${skill.serverKey} (${skill.entry.uri})`,
                           origin: "remote", fileCount: skill.entry.resources === "dynamic" ? undefined : skill.entry.resources.length,
                           isDownloaded: false, downloadState: "remote" }}
-                        onView={() => void installMcpSkill(skill)}
-                        onDownload={() => void installMcpSkill(skill)}
+                        onView={() => void openMcpDetails(skill)}
+                        onDownload={() => void downloadMcpSkill(skill)}
                       />
-                      <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <input type="checkbox" checked={enabledSkillIds.includes(skill.skillId)}
-                          onChange={(event) => setEnabledSkillIds(event.target.checked
-                            ? [...enabledSkillIds, skill.skillId]
-                            : enabledSkillIds.filter((id) => id !== skill.skillId))} />
-                        {skill.serverKey} · {skill.entry.uri} {installingMcp === skill.skillId ? "(Installing…)" : ""}
-                      </label>
+                      {downloadingMcp === skill.skillId ? <theme.Text>{t("loading") || "Loading…"}</theme.Text> : null}
                     </div>
                   ))}
               </div>
@@ -653,6 +670,21 @@ export const SkillsPage = () => {
             onDownloadRemoteVersion={selectedSkill?.origin === "remote"
               ? handleDownloadRemoteVersion
               : undefined}
+          />
+          <SkillDetailsModal
+            open={!!detailsMcp}
+            skill={detailsMcp ? {
+              skillId: connectedSkillLabel(detailsMcp, mcpSkills),
+              name: detailsMcp.entry.frontmatter.name,
+              description: detailsMcp.entry.frontmatter.description,
+              origin: "remote", defaultVersion: "", latestVersion: "", isDownloaded: false,
+            } : undefined}
+            versions={[]}
+            localSkill={mcpPreview}
+            loadingVersions={mcpPreviewLoading}
+            error={mcpPreviewError}
+            source={detailsMcp ? `${detailsMcp.serverKey} · ${detailsMcp.entry.uri}` : undefined}
+            onClose={() => { setDetailsMcp(null); setMcpPreview(undefined); setMcpPreviewError(null); }}
           />
           <SkillEditModal
             open={editorMode !== null}

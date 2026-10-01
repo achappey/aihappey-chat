@@ -160,16 +160,16 @@ export const ChatSkillsEditor = ({
       {groups.favorites.length > 0
         ? renderSection(t("favorites") ?? "Favorites", groups.favorites)
         : null}
-      {groups.local.length > 0
-        ? renderSection(t("local") ?? "Local", groups.local)
-        : null}
-      {renderSection(remoteTitle, groups.remote)}
       {groups.mcp.length > 0 ? (
         <section style={{ display: "grid", gap: 12 }}>
           <Text><strong>{t("skillsPage.modelContext") || "Model Context"}</strong></Text>
           <div style={{ display: "grid", gap: 12 }}>{groups.mcp.map(renderMcpSkillCard)}</div>
         </section>
       ) : null}
+      {groups.local.length > 0
+        ? renderSection(t("local") ?? "Local", groups.local)
+        : null}
+      {renderSection(remoteTitle, groups.remote)}
     </div>
   );
 };
