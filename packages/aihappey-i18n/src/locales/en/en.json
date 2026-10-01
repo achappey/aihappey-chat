@@ -65,7 +65,7 @@
     "messageEvaluations": {
         "badge": "{{passed}}/{{total}}",
         "open": "View test results: {{passed}} of {{total}} passed",
-        "title": "Evaluation results",
+        "title": "Test results",
         "resultsTab": "Results",
         "jsonTab": "JSON",
         "metricPassed": "Passed",
