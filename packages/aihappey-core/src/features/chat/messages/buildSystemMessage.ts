@@ -60,6 +60,7 @@ type AvailableSkill = {
     skillId: string;
     name: string;
     description: string;
+    displayName?: string;
 };
 
 type AvailablePluginFiles = {
@@ -190,6 +191,7 @@ export const buildSystemMessage = (
                         skill_id: skill.skillId,
                         exact_skill_id_to_activate: skill.skillId,
                         name: skill.name,
+                        ...(skill.displayName && { displayName: skill.displayName }),
                         description: skill.description,
                         activation: `Call activate_skill with skill_id \"${skill.skillId}\".`,
                     })),

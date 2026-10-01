@@ -67,6 +67,7 @@ import { resolveEndpointProfileForSelectedModel } from "../chat/engine/endpointP
 import { useTools } from "../tools/useTools";
 import { usePlugins } from "aihappey-plugins";
 import { ChatPluginsEditor } from "./ChatPluginsEditor";
+import { connectedMcpSkills } from "../skills/connectedMcpSkills";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -166,6 +167,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
   const skills = useSkills();
+  const mcpCatalog = useAppStore((s) => s.mcpSkills);
+  const mcpSkills = useMemo(() => connectedMcpSkills(mcpCatalog), [mcpCatalog]);
   const plugins = usePlugins();
   const providers = useProviderRegistry();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
@@ -480,7 +483,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     if (added.length === 0) return;
 
     const results = await Promise.allSettled(
-      added.map((skillId) => skills.ensureDownloaded(skillId))
+      added.filter((skillId) => !skillId.startsWith("mcp:"))
+        .map((skillId) => skills.ensureDownloaded(skillId))
     );
 
     const failed = results.filter((result) => result.status === "rejected").length;
@@ -679,6 +683,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
                   void handleSkillSelectionChange(next);
                 }}
                 items={skills.items}
+                mcpSkills={mcpSkills}
                 favoriteSkillIds={favoriteSkillIds ?? []}
                 remoteTitle={remoteSkillsHost}
               />

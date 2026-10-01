@@ -5,9 +5,12 @@ import type { SkillCatalogItem } from "aihappey-skills";
 import { useDarkMode } from "usehooks-ts";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { connectedSkillLabel } from "../skills/connectedMcpSkills";
+import type { ConnectedMcpSkill } from "aihappey-mcp";
 
 type ChatSkillsEditorProps = {
   items: SkillCatalogItem[];
+  mcpSkills?: ConnectedMcpSkill[];
   favoriteSkillIds: string[];
   value: string[];
   remoteTitle: string;
@@ -27,6 +30,7 @@ const getProviderKeyFromSkillId = (skillId: string) => {
 
 export const ChatSkillsEditor = ({
   items,
+  mcpSkills = [],
   favoriteSkillIds,
   value,
   remoteTitle,
@@ -65,8 +69,11 @@ export const ChatSkillsEditor = ({
       remote: sortSkills(filteredItems.filter(
         (item) => item.origin === "remote" && !favoriteSet.has(item.skillId)
       )),
+      mcp: mcpSkills.filter((skill) => !query || normalizeText(
+        `${skill.entry.frontmatter.name} ${skill.entry.frontmatter.description} ${skill.serverKey} ${skill.entry.uri}`
+      ).includes(query)).sort((left, right) => left.entry.frontmatter.name.localeCompare(right.entry.frontmatter.name)),
     };
-  }, [favoriteSet, items, query]);
+  }, [favoriteSet, items, mcpSkills, query]);
 
   const renderSkillCard = (item: SkillCatalogItem) => {
     const providerKey = item.origin === "remote" ? getProviderKeyFromSkillId(item.skillId) : null;
@@ -108,6 +115,26 @@ export const ChatSkillsEditor = ({
     );
   };
 
+  const renderMcpSkillCard = (skill: ConnectedMcpSkill) => (
+    <Card
+      key={skill.skillId}
+      title={<span style={{ overflowWrap: "anywhere" }}>{connectedSkillLabel(skill, mcpSkills)}</span>}
+      size="small"
+      headerActions={
+        <Switch
+          id={`chat-skill-${skill.skillId}`}
+          label=""
+          checked={enabledSet.has(skill.skillId)}
+          onChange={(checked: boolean) => onChange(checked
+            ? Array.from(new Set([...value, skill.skillId]))
+            : value.filter((id) => id !== skill.skillId))}
+        />
+      }
+    >
+      <LimitedTextField text={skill.entry.frontmatter.description} />
+    </Card>
+  );
+
   const renderSection = (title: string, groupItems: SkillCatalogItem[]) => (
     <section style={{ display: "grid", gap: 12 }}>
       <Text><strong>{title}</strong></Text>
@@ -137,6 +164,12 @@ export const ChatSkillsEditor = ({
         ? renderSection(t("local") ?? "Local", groups.local)
         : null}
       {renderSection(remoteTitle, groups.remote)}
+      {groups.mcp.length > 0 ? (
+        <section style={{ display: "grid", gap: 12 }}>
+          <Text><strong>{t("skillsPage.modelContext") || "Model Context"}</strong></Text>
+          <div style={{ display: "grid", gap: 12 }}>{groups.mcp.map(renderMcpSkillCard)}</div>
+        </section>
+      ) : null}
     </div>
   );
 };

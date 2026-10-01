@@ -612,7 +612,7 @@ export const SkillsPage = () => {
             <theme.Tab eventKey="local" title={`${t("local")} (${localFiltered.length})`}>
               <div style={{ paddingTop: 12 }}>{renderGrid(localFiltered)}</div>
             </theme.Tab>
-            <theme.Tab eventKey="connected-mcps" title={`Connected MCPs (${mcpSkills.length})`}>
+            <theme.Tab eventKey="connected-mcps" title={`${t("skillsPage.modelContext") || "Model Context"} (${mcpSkills.length})`}>
               <div style={{ paddingTop: 12, display: "grid", gap: 12 }}>
                 {Object.entries(mcpErrors).map(([server, error]) => <theme.Text key={server}>{server}: {error}</theme.Text>)}
                 {mcpSkills.filter((skill) => !q || normalizeText(`${skill.entry.frontmatter.name} ${skill.entry.frontmatter.description} ${skill.serverKey} ${skill.entry.uri}`).includes(q))

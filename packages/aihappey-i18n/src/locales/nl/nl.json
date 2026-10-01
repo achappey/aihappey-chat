@@ -223,6 +223,7 @@
         }
     },
     "skillsPage": {
+        "modelContext": "Modelcontext",
         "actions": {
             "import": "Skill importeren",
             "create": "Nieuwe skill maken"

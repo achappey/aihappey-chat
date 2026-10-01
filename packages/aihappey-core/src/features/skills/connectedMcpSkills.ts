@@ -8,6 +8,29 @@ export function connectedMcpSkills(catalog: Record<string, ConnectedMcpSkill[]>)
   return Object.values(catalog).flat().filter((skill) => mcpRuntime.has(skill.serverKey));
 }
 
+/** Display-only label. Identity remains the server key + full URI (skillId). */
+export function connectedSkillLabel(skill: ConnectedMcpSkill, skills: ConnectedMcpSkill[]): string {
+  const name = skill.entry.frontmatter.name;
+  const duplicates = skills.filter((item) => item.serverKey === skill.serverKey && item.entry.frontmatter.name === name);
+  const path = duplicates.length > 1 ? ` · ${skill.entry.uri.slice(0, -"/SKILL.md".length)}` : "";
+  return `${name} (${skill.serverKey}${path})`;
+}
+
+/** Preserve readable tags for previously selected MCP skills while their server is disconnected. */
+export function disconnectedSkillLabel(skillId: string): string {
+  if (!skillId.startsWith("mcp:")) return skillId;
+  try {
+    const separator = skillId.indexOf(":", 4);
+    if (separator < 0) return skillId;
+    const server = decodeURIComponent(skillId.slice(4, separator));
+    const uri = decodeURIComponent(skillId.slice(separator + 1));
+    const name = uri.endsWith("/SKILL.md") ? uri.slice(0, -"/SKILL.md".length).split("/").at(-1) : undefined;
+    return name ? `${name} (${server})` : skillId;
+  } catch {
+    return skillId;
+  }
+}
+
 function assertConnected(skill: ConnectedMcpSkill) {
   const client = mcpRuntime.get(skill.serverKey);
   if (!client || !validateMcpSkillEntry(skill.entry)) throw new Error(`MCP skill from ${skill.serverKey} is unavailable`);

@@ -8,6 +8,7 @@ import { useUserLocation } from "../../../shell/connectors/useUserLocation";
 import { useChatContext } from "../context/ChatContext";
 import { CLIENT_RESOURCE_SEARCH_PLUGIN_ID } from "../../tools/clientResourceSearch";
 import { useRuntimeSkills } from "../../skills/useRuntimeSkills";
+import { connectedSkillLabel } from "../../skills/connectedMcpSkills";
 
 export function useSystemMessage() {
   const mcpServerContent = useAppStore((s) => s.mcpServerContent);
@@ -35,8 +36,18 @@ export function useSystemMessage() {
 
   const enabledSkills = useMemo(() => {
     return runtimeSkills.enabled
-      .map((item) => ({ skillId: item.skillId, name: item.name, description: item.description }));
-  }, [runtimeSkills.enabled]);
+      .map((item) => ({
+        skillId: item.skillId,
+        name: item.name,
+        description: item.description,
+        displayName: item.origin === "mcp"
+          ? (() => {
+            const skill = runtimeSkills.mcpSkills.find((candidate) => candidate.skillId === item.skillId);
+            return skill ? connectedSkillLabel(skill, runtimeSkills.mcpSkills) : undefined;
+          })()
+          : undefined,
+      }));
+  }, [runtimeSkills.enabled, runtimeSkills.mcpSkills]);
 
   const systemMsg = useMemo(() => {
     const userContext = account

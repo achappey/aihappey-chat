@@ -29,6 +29,7 @@ import type { IconToken, MenuItemProps, TagItem } from "aihappey-types";
 import { ContextSearchModal } from "./context-search/ContextSearchModal";
 import { useLocalTools } from "aihappey-tools";
 import { useSkills } from "aihappey-skills";
+import { connectedMcpSkills, connectedSkillLabel, disconnectedSkillLabel } from "../../skills/connectedMcpSkills";
 import { buildLocalToolToggleItems, usePluginToggleItems } from "../../tools/toolCatalogItems";
 import { ResizableTextArea } from "./ResizableTextArea";
 import { usePlugins as useAgentPlugins } from "aihappey-plugins";
@@ -74,6 +75,7 @@ export const MessageInput = (props: MessageInputProps) => {
   const enabledLocalTools = useAppStore((s) => (s as any).enabledLocalTools as string[]);
   const setEnabledLocalTools = useAppStore((s) => (s as any).setEnabledLocalTools as (names: string[]) => void);
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
+  const mcpSkills = useAppStore((s) => s.mcpSkills);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
@@ -150,6 +152,8 @@ export const MessageInput = (props: MessageInputProps) => {
     const skillLabels = new Map(
       (skills.items ?? []).map((item) => [item.skillId, item.name || item.skillId] as const)
     );
+    const connected = connectedMcpSkills(mcpSkills);
+    for (const skill of connected) skillLabels.set(skill.skillId, connectedSkillLabel(skill, connected));
 
     const pluginTags: TagItem[] = (activePlugins ?? []).map((id) => ({
       key: `plugin:${id}`,
@@ -172,11 +176,11 @@ export const MessageInput = (props: MessageInputProps) => {
     const skillTags: TagItem[] = (enabledSkillIds ?? []).map((id) => ({
       key: `skill:${id}`,
       icon: "skills",
-      label: skillLabels.get(id) ?? id,
+      label: skillLabels.get(id) ?? disconnectedSkillLabel(id),
     }));
 
     return [...skillTags, ...agentPluginTags, ...pluginTags, ...localToolTags];
-  }, [activePlugins, agentPlugins.items, chatMode, enabledAgentPluginIds, enabledLocalTools, enabledSkillIds, localToolToggleItems, pluginToggleItems, skills.items, t]);
+  }, [activePlugins, agentPlugins.items, chatMode, enabledAgentPluginIds, enabledLocalTools, enabledSkillIds, localToolToggleItems, pluginToggleItems, skills.items, mcpSkills, t]);
 
   const removeContextToolTag = (key: string) => {
     if (key.startsWith("agent-plugin:")) {
