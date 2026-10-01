@@ -13,6 +13,8 @@ import type {
   RuntimeSkillCatalogItem,
   RuntimeSkillContent,
 } from "../../skills/useRuntimeSkills";
+import { connectedMcpSkills, readConnectedSkillFile, skillResourcePaths } from "../../skills/connectedMcpSkills";
+import { useAppStore } from "aihappey-state";
 
 type SkillToolResult = CallToolResult & {
   structuredContent?: Record<string, any>;
@@ -362,6 +364,7 @@ export function useSkillToolCall(opts: {
   skillSearchEnabled?: boolean;
 }) {
   const { enabledSkills: enabledSkillItems, searchableSkills, readSkill, skillSearchEnabled = false } = opts;
+  const mcpSkills = useAppStore((state) => state.mcpSkills);
   const enabledSkills = useCallback(
     () => enabledSkillItems,
     [enabledSkillItems]
@@ -427,11 +430,13 @@ export function useSkillToolCall(opts: {
     async (toolCall: ActivateSkillToolCall): Promise<SkillToolResult> => {
       const skill = await resolveEnabledSkill(readSkill, availableSkills(), toolCall.input?.skill_id);
       const resourcePaths = listSkillResourcePaths(skill);
+      const mcp = skill.origin === "mcp" ? connectedMcpSkills(mcpSkills).find((item) => item.skillId === skill.skillId) : undefined;
+      const paths = mcp ? skillResourcePaths(mcp.entry) : resourcePaths;
       const resourcesXml =
-        resourcePaths.length > 0
+        paths.length > 0
           ? [
             "<skill_resources>",
-            ...resourcePaths.map((path) => `  <file>${path}</file>`),
+            ...paths.map((path) => `  <file>${path}</file>`),
             "</skill_resources>",
           ].join("\n")
           : "<skill_resources />";
@@ -444,7 +449,9 @@ export function useSkillToolCall(opts: {
             skill_id: skill.skillId,
             name: skill.name,
             description: skill.description,
-            resourcePaths,
+            resourcePaths: paths,
+            server: mcp?.serverKey,
+            uri: mcp?.entry.uri,
             instructions: skill.body,
           },
         },
@@ -452,7 +459,7 @@ export function useSkillToolCall(opts: {
           {
             type: "text",
             text: [
-              `<skill_content skill_id="${escapeAttribute(skill.skillId)}" name="${escapeAttribute(skill.name)}">`,
+              `<skill_content skill_id="${escapeAttribute(skill.skillId)}" name="${escapeAttribute(skill.name)}"${mcp ? ` server="${escapeAttribute(mcp.serverKey)}" uri="${escapeAttribute(mcp.entry.uri)}"` : ""}>`,
               skill.body,
               "",
               "Use read_skill_resource with this skill_id and a relative path from the resource list when you need bundled files referenced by the instructions.",
@@ -463,7 +470,7 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [availableSkills, readSkill]
+    [availableSkills, readSkill, mcpSkills]
   );
 
   const handleReadSkillResource = useCallback(
@@ -472,6 +479,18 @@ export function useSkillToolCall(opts: {
       const relativePath = normalizeSkillRelativePath(toolCall.input?.path ?? "");
       if (!relativePath) {
         throw new Error("Missing path. Provide a relative path inside the skill directory.");
+      }
+
+      if (skill.origin === "mcp") {
+        const mcp = connectedMcpSkills(mcpSkills).find((item) => item.skillId === skill.skillId);
+        if (!mcp) throw new Error("MCP skill is disconnected");
+        const uri = mcp.entry.uri.slice(0, -"SKILL.md".length) + relativePath;
+        const blob = await readConnectedSkillFile(mcp, uri);
+        return {
+          isError: false,
+          structuredContent: { skillResource: { skillName: skill.name, server: mcp.serverKey, uri, path: relativePath } },
+          content: [{ type: "text", text: `<skill_resource server="${escapeAttribute(mcp.serverKey)}" uri="${escapeAttribute(uri)}" path="${escapeAttribute(relativePath)}">\n${await blob.text()}\n</skill_resource>` }],
+        };
       }
 
       const file = getStoredSkillFile(skill, relativePath);
@@ -538,7 +557,7 @@ export function useSkillToolCall(opts: {
         ],
       };
     },
-    [availableSkills, readSkill]
+    [availableSkills, readSkill, mcpSkills]
   );
 
   const searchSkillsPlugin: ToolPlugin = {

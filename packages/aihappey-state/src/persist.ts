@@ -112,6 +112,7 @@ export const withPersist = (
       favoriteModelsByType: (s as any).favoriteModelsByType,
       favoriteAgentIds: (s as any).favoriteAgentIds,
       enabledSkillIds: (s as any).enabledSkillIds,
+      seenMcpSkillIds: (s as any).seenMcpSkillIds,
       favoriteSkillIds: (s as any).favoriteSkillIds,
       enabledAgentPluginIds: (s as any).enabledAgentPluginIds,
       favoriteProviderIds: (s as any).favoriteProviderIds,

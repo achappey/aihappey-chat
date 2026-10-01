@@ -1,5 +1,6 @@
 export * from "./mcpTester";
 export * from "./mcpConnector";
+export * from "./skills";
 export {
     CreateMessageRequest,
     CreateMessageRequestSchema, LoggingMessageNotification,

@@ -7,6 +7,8 @@ import {
   Resource, ResourceTemplate, type ElicitResult,
   type Task,
   CallToolResultSchema,
+  listMcpSkills, mcpSkillId, supportsSkills, validateMcpSkillEntry,
+  type ConnectedMcpSkill,
 } from "aihappey-mcp";
 import { connectServerPersistent, mcpRuntime } from "./uiSlice";
 import { AGENT_RESOURCE_TYPE, AGENTS_RESOURCE_TYPE, CONVERSATION_RESOURCE_TYPE, CONVERSATIONS_RESOURCE_TYPE } from "aihappey-types";
@@ -60,6 +62,9 @@ export type McpSlice = {
 
   tokens: Record<string, string>;
   mcpServerContent: Record<string, McpContents>;
+  mcpSkills: Record<string, ConnectedMcpSkill[]>;
+  mcpSkillErrors: Record<string, string>;
+  seenMcpSkillIds: string[];
   setToken: (url: string, token: string) => void;
   clearToken: (url: string) => void;
   callTool: (toolCallId: string | undefined, name: string, parameters: any, locale?: string, signal?: AbortSignal)
@@ -84,6 +89,9 @@ export const createMcpSlice: StateCreator<
   mcpErrors: {},
   prompts: {},
   mcpServerContent: {},
+  mcpSkills: {},
+  mcpSkillErrors: {},
+  seenMcpSkillIds: [],
   safeHosts: [],
   toolTimeout: 300000,
   resetTimeoutOnProgress: true,
@@ -95,7 +103,7 @@ export const createMcpSlice: StateCreator<
     }))
   },
   clearMcpContent: async (name) => {
-    const { mcpServerContent } = get();
+    const { mcpServerContent, mcpSkills, mcpSkillErrors } = get();
     const newClients = { ...mcpServerContent };
 
     if (newClients[name.toLowerCase()])
@@ -104,7 +112,9 @@ export const createMcpSlice: StateCreator<
     set((state: any) => ({
       mcpServerContent: {
         ...newClients,
-      }
+      },
+      mcpSkills: Object.fromEntries(Object.entries(mcpSkills).filter(([key]) => key !== name.toLowerCase())),
+      mcpSkillErrors: Object.fromEntries(Object.entries(mcpSkillErrors).filter(([key]) => key !== name.toLowerCase())),
     }))
   },
 
@@ -244,6 +254,35 @@ export const createMcpSlice: StateCreator<
         }
       }
     }))
+
+    // Only the negotiated extension is queried; failures never block normal MCP discovery.
+    if (supportsSkills(client)) {
+      try {
+        const entries = await listMcpSkills(client);
+        if (mcpRuntime.get(name.toLowerCase()) === client) {
+          const discovered = entries.filter(validateMcpSkillEntry).map((entry) => ({
+            serverKey: name.toLowerCase(), skillId: mcpSkillId(name.toLowerCase(), entry.uri), entry,
+          }));
+          set((state: any) => ({
+            mcpSkills: {
+              ...state.mcpSkills,
+              [name.toLowerCase()]: discovered,
+            },
+            enabledSkillIds: Array.from(new Set([
+              ...state.enabledSkillIds,
+              ...discovered.filter((skill) => !state.seenMcpSkillIds.includes(skill.skillId)).map((skill) => skill.skillId),
+            ])),
+            seenMcpSkillIds: Array.from(new Set([...state.seenMcpSkillIds, ...discovered.map((skill) => skill.skillId)])),
+            mcpSkillErrors: Object.fromEntries(Object.entries(state.mcpSkillErrors).filter(([key]) => key !== name.toLowerCase())),
+          }));
+        }
+      } catch (error) {
+        if (mcpRuntime.get(name.toLowerCase()) === client) set((state: any) => ({
+          mcpSkills: { ...state.mcpSkills, [name.toLowerCase()]: [] },
+          mcpSkillErrors: { ...state.mcpSkillErrors, [name.toLowerCase()]: error instanceof Error ? error.message : String(error) },
+        }));
+      }
+    }
 
     return result;
   },

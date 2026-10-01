@@ -24,6 +24,7 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { PROVIDERS } from "../../runtime/providers/providers";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { connectedMcpSkills, archiveConnectedSkill } from "./connectedMcpSkills";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -68,6 +69,10 @@ export const SkillsPage = () => {
   const { config: chatConfig } = useChatContext();
   const isDesktop = useIsDesktop();
   const skills = useSkills();
+  const mcpCatalog = useAppStore((s) => s.mcpSkills);
+  const mcpErrors = useAppStore((s) => s.mcpSkillErrors);
+  const mcpSkills = useMemo(() => connectedMcpSkills(mcpCatalog), [mcpCatalog]);
+  const [installingMcp, setInstallingMcp] = useState<string | null>(null);
   const enabledSkillIds = useAppStore((s) => s.enabledSkillIds);
   const setEnabledSkillIds = useAppStore((s) => s.setEnabledSkillIds);
   const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
@@ -246,6 +251,23 @@ export const SkillsPage = () => {
     },
     [skills, t]
   );
+
+  const installMcpSkill = useCallback(async (skill: (typeof mcpSkills)[number]) => {
+    setInstallingMcp(skill.skillId);
+    try {
+      const archive = await archiveConnectedSkill(skill);
+      const result = await skills.importArchive(archive, "local-zip", {
+        skillId: `mcp_${Array.from(new TextEncoder().encode(skill.skillId)).map((byte) => byte.toString(16).padStart(2, "0")).join("")}`,
+      });
+      if (!result.imported.length) throw new Error(result.diagnostics[0]?.message ?? "Skill import failed");
+      setEnabledSkillIds(Array.from(new Set([...enabledSkillIds, ...result.imported.map((item) => item.skillId)])));
+      setFeedback(`Installed ${skill.entry.frontmatter.name} from ${skill.serverKey}.`);
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : String(error));
+    } finally {
+      setInstallingMcp(null);
+    }
+  }, [skills, enabledSkillIds, setEnabledSkillIds]);
 
   const handleDeleteSkill = useCallback(
     async (item: SkillCatalogItem) => {
@@ -589,6 +611,31 @@ export const SkillsPage = () => {
 
             <theme.Tab eventKey="local" title={`${t("local")} (${localFiltered.length})`}>
               <div style={{ paddingTop: 12 }}>{renderGrid(localFiltered)}</div>
+            </theme.Tab>
+            <theme.Tab eventKey="connected-mcps" title={`Connected MCPs (${mcpSkills.length})`}>
+              <div style={{ paddingTop: 12, display: "grid", gap: 12 }}>
+                {Object.entries(mcpErrors).map(([server, error]) => <theme.Text key={server}>{server}: {error}</theme.Text>)}
+                {mcpSkills.filter((skill) => !q || normalizeText(`${skill.entry.frontmatter.name} ${skill.entry.frontmatter.description} ${skill.serverKey} ${skill.entry.uri}`).includes(q))
+                  .map((skill) => (
+                    <div key={skill.skillId} style={{ maxWidth: 760, width: "100%" }}>
+                      <SkillCard
+                        skill={{ id: skill.skillId, name: skill.entry.frontmatter.name,
+                          description: `${skill.entry.frontmatter.description} — ${skill.serverKey} (${skill.entry.uri})`,
+                          origin: "remote", fileCount: skill.entry.resources === "dynamic" ? undefined : skill.entry.resources.length,
+                          isDownloaded: false, downloadState: "remote" }}
+                        onView={() => void installMcpSkill(skill)}
+                        onDownload={() => void installMcpSkill(skill)}
+                      />
+                      <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <input type="checkbox" checked={enabledSkillIds.includes(skill.skillId)}
+                          onChange={(event) => setEnabledSkillIds(event.target.checked
+                            ? [...enabledSkillIds, skill.skillId]
+                            : enabledSkillIds.filter((id) => id !== skill.skillId))} />
+                        {skill.serverKey} · {skill.entry.uri} {installingMcp === skill.skillId ? "(Installing…)" : ""}
+                      </label>
+                    </div>
+                  ))}
+              </div>
             </theme.Tab>
           </theme.Tabs>
 

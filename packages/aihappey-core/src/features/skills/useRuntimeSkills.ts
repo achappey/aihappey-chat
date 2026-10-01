@@ -6,12 +6,16 @@ import {
   type RuntimePluginSkill,
 } from "aihappey-plugins";
 import { useAppStore } from "aihappey-state";
+import { connectedMcpSkills, readConnectedSkillFile, skillResourcePaths } from "./connectedMcpSkills";
+import type { ConnectedMcpSkill } from "aihappey-mcp";
 
 export type RuntimeSkillCatalogItem = {
   skillId: string;
   name: string;
   description: string;
-  origin: "local" | "remote" | "plugin";
+  origin: "local" | "remote" | "plugin" | "mcp";
+  serverKey?: string;
+  uri?: string;
   version?: string;
   defaultVersion?: string;
   latestVersion?: string;
@@ -43,6 +47,8 @@ export function useRuntimeSkills() {
   const skills = useSkills();
   const plugins = usePlugins();
   const enabledSkillIds = useAppStore((state) => state.enabledSkillIds);
+  const mcpSkills = useAppStore((state) => state.mcpSkills);
+  const liveMcpSkills = useMemo(() => connectedMcpSkills(mcpSkills), [mcpSkills]);
 
   const standaloneCatalog = useMemo<RuntimeSkillCatalogItem[]>(() =>
     (skills.items ?? []).map((skill) => ({
@@ -61,20 +67,36 @@ export function useRuntimeSkills() {
     plugins.enabled.flatMap((plugin) => plugin.skills.map((skill) => pluginCatalogItem(skill, plugin.version))),
   [plugins.enabled]);
 
+  const mcpCatalog = useMemo<RuntimeSkillCatalogItem[]>(() => liveMcpSkills.map((skill) => ({
+    skillId: skill.skillId,
+    name: skill.entry.frontmatter.name,
+    description: skill.entry.frontmatter.description,
+    origin: "mcp",
+    serverKey: skill.serverKey,
+    uri: skill.entry.uri,
+    isDownloaded: false,
+  })), [liveMcpSkills]);
+
   const enabled = useMemo(() => {
     const selected = new Set(enabledSkillIds ?? []);
     return [
       ...standaloneCatalog.filter((skill) => selected.has(skill.skillId)),
       ...pluginCatalog,
+      ...mcpCatalog.filter((skill) => selected.has(skill.skillId)),
     ];
-  }, [enabledSkillIds, pluginCatalog, standaloneCatalog]);
+  }, [enabledSkillIds, pluginCatalog, standaloneCatalog, mcpCatalog]);
 
   const searchable = useMemo(
-    () => [...standaloneCatalog, ...pluginCatalog],
-    [pluginCatalog, standaloneCatalog],
+    () => [...standaloneCatalog, ...pluginCatalog, ...mcpCatalog],
+    [pluginCatalog, standaloneCatalog, mcpCatalog],
   );
 
   const read = useCallback(async (skillId: string): Promise<RuntimeSkillContent | undefined> => {
+    const mcp = liveMcpSkills.find((item) => item.skillId === skillId);
+    if (mcp) {
+      const body = await (await readConnectedSkillFile(mcp, mcp.entry.uri)).text();
+      return { ...mcpCatalog.find((item) => item.skillId === skillId)!, body, files: [] };
+    }
     const plugin = plugins.enabled.find((item) => item.skills.some((skill) => skill.skillId === skillId));
     if (plugin) {
       const content = await readRuntimePluginSkill(plugin, skillId);
@@ -93,7 +115,7 @@ export function useRuntimeSkills() {
       body: stored.body,
       files: stored.files,
     };
-  }, [plugins.enabled, skills, standaloneCatalog]);
+  }, [plugins.enabled, skills, standaloneCatalog, liveMcpSkills, mcpCatalog]);
 
-  return { enabled, searchable, read, plugins: plugins.enabled };
+  return { enabled, searchable, read, plugins: plugins.enabled, mcpSkills: liveMcpSkills };
 }
