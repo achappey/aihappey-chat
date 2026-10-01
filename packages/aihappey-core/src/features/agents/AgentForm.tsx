@@ -286,8 +286,8 @@ export const AgentForm = ({
             : allowedTools.length === 0 ? t("agentEdit.noTools") : allowedTools.join(", ");
 
         return (
-            <div style={{ marginTop: 16 }}>
-                {server.disabled !== true && <div style={{
+            server.disabled !== true && <div style={{ marginTop: 16 }}>
+                <div style={{
                     display: "grid",
                     gridTemplateColumns: "minmax(180px, 1fr) auto auto",
                     alignItems: "end",
@@ -338,7 +338,7 @@ export const AgentForm = ({
                         return checked ? { ...rest, namespace: true } : rest as McpServer;
                     })}
                 />
-                </div>}
+                </div>
                 <div style={{
                     display: "grid",
                     gridTemplateColumns: "minmax(180px, 1fr) auto",
