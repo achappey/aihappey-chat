@@ -85,6 +85,7 @@
     "timeago.js": "^4.0.2",
     "topojson-client": "^3.1.0",
     "usehooks-ts": "^3.1.1",
+    "yaml": "^1.10.3",
     "zod": "^4.3.6"
   },
   "scripts": {
