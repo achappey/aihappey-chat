@@ -8,6 +8,7 @@ import { fileToDataUrl } from "../files/file";
 import { useResourceParts } from "./useResourceParts";
 import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/files/fileAttachmentRuntime";
 import { getPrompt } from "../../../runtime/mcp/mcpPrompts";
+import { useUrlAttachments } from "../../../runtime/files/urlAttachmentRuntime";
 
 type AttachmentPart = {
   type: "file";
@@ -35,6 +36,7 @@ export function useUserMessageBuilder({
 }: UseUserMessageBuilderProps) {
   const resourceParts = useResourceParts();
   const attachments = useFileAttachments(fileAttachmentRuntime)
+  const urlAttachments = useUrlAttachments();
 
   const sendRawAttachments = useAppStore((s) => s.sendRawAttachments);
   const maxAttachmentsSize = useAppStore((s) => s.maxAttachmentsSize);
@@ -90,11 +92,12 @@ export function useUserMessageBuilder({
         ...(resourceParts ?? []),
         ...(extractedTextParts ?? []),
         ...rawAttachmentParts,
+        ...urlAttachments,
         ...(opts.promptParts ?? []),
         ...(opts.text && opts.text.trim() ? [{ type: 'text', text: opts.text }] : []),
       ];
     },
-    [attachments, resourceParts, getAttachmentParts, extractExif, sendRawAttachments, maxSize]
+    [attachments, urlAttachments, resourceParts, getAttachmentParts, extractExif, sendRawAttachments, maxSize]
   );
 
 

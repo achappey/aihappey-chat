@@ -9,7 +9,8 @@ interface ImageCardProps {
 
 export const ImageCard = ({ image, fit, size }: ImageCardProps) => {
   const { Card, Image } = useTheme();
-  const src = `data:${image.mimeType};base64,${image.data}`;
+  const src = /^(data:|https?:\/\/)/i.test(image.data)
+    ? image.data : `data:${image.mimeType};base64,${image.data}`;
   
   return (
     <Card title={image.mimeType} size={size}>

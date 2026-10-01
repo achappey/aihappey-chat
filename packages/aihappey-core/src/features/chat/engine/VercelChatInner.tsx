@@ -26,6 +26,7 @@ import { deferClientToolSearchCandidates, shapeToolsForRequest } from "../../too
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
 import { conversationName as generateConversationName } from "../../../runtime/chat-app/conversationName";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
+import { urlAttachmentRuntime } from "../../../runtime/files/urlAttachmentRuntime";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { MessageActivityDrawer } from "../activity/drawer/MessageActivityDrawer";
 import { ToolCallResultModal } from "../activity/content/ToolCallResultModal";
@@ -852,6 +853,7 @@ export function VercelChatInner({
   const handleInitialSendSuccess = useCallback(() => {
     pendingInitialMessageRef.current = undefined;
     fileAttachmentRuntime.clear();
+    urlAttachmentRuntime.clear();
     mcpResourceRuntime.clear();
   }, []);
 

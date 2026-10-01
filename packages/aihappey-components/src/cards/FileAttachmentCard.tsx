@@ -44,11 +44,22 @@ export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardPro
   const { t } = useTranslation();
   const { mediaType, url, providerMetadata } = file
 
-  const filename = tryGetFilename(providerMetadata);
+  const remote = /^https?:\/\//i.test(url ?? "");
+  const filename = file.filename ?? tryGetFilename(providerMetadata) ?? (remote ? (() => {
+    try {
+      const parsed = new URL(url);
+      return decodeURIComponent(parsed.pathname.split("/").filter(Boolean).pop() ?? "") || parsed.hostname;
+    } catch { return undefined; }
+  })() : undefined);
 
   // helper to download
   const handleDownload = () => {
     try {
+      if (remote) {
+        // Do not decode or fetch a hosted URL as if it were base64.
+        window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
       // remove possible data URL prefix (data:...;base64,)
       if (!url) return;
 
@@ -88,11 +99,11 @@ export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardPro
   return (
     <Card
       title={filename ?? t(`mimeTypes:${mediaType}`)}
-      description={base64SizeInKB(url!).toFixed(2) + ' KB'}
+      description={remote ? url : base64SizeInKB(url!).toFixed(2) + ' KB'}
       size={"small"}
       actions={
         <>
-          {url && (
+          {url && !remote && (
             <Button
               icon="download"
               size="small"

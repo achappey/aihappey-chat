@@ -30,7 +30,7 @@ export const imageContentToSrc = (image: ImageContent | string | undefined) => {
   if (typeof image === "string") return image;
 
   const data = image.data ?? "";
-  if (data.startsWith("data:")) return data;
+  if (/^(data:|https?:\/\/)/i.test(data)) return data;
 
   return `data:${getImageContentMimeType(image)};base64,${data}`;
 };

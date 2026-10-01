@@ -8,6 +8,7 @@ import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime, useSelectedResources } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime, useFileAttachments } from "../../../runtime/files/fileAttachmentRuntime";
 import { useChatAttachmentAdmission } from "./useChatAttachmentAdmission";
+import { useUrlAttachments } from "../../../runtime/files/urlAttachmentRuntime";
 
 export interface UseMessageInputOptions {
   model?: string;
@@ -52,6 +53,7 @@ export function useMessageInput({
   const mcpServers = useAppStore((s) => s.mcpServers);
   const resources = useSelectedResources(mcpResourceRuntime)
   const attachments = useFileAttachments(fileAttachmentRuntime)
+  const urlAttachments = useUrlAttachments();
   const addAttachments = useChatAttachmentAdmission();
   const connected = Object.keys(mcpServers)
     .filter(z => !mcpServers[z].config.disabled)
@@ -126,13 +128,13 @@ export function useMessageInput({
     }
   };
 
-  const canSend = canSendOverride ?? ((!!value.trim() || attachments.length > 0 || resources.length > 0)
+  const canSend = canSendOverride ?? ((!!value.trim() || attachments.length > 0 || urlAttachments.length > 0 || resources.length > 0)
     && (chatMode == "chat" || selectedAgents.length > 0));
 
   const handleSend = () => {
     const trimmed = value.trim();
     if (!canSend) return;
-    if (!allowEmptySubmit && !trimmed && attachments.length === 0 && resources.length === 0) return;
+    if (!allowEmptySubmit && !trimmed && attachments.length === 0 && urlAttachments.length === 0 && resources.length === 0) return;
     if (streaming && onStop) onStop();
     onSend(trimmed);
     setValue("");

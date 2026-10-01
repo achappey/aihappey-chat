@@ -1,4 +1,18 @@
 ﻿{
+    "urlAttachment": {
+        "title": "URL",
+        "url": "URL (publicly accessible)",
+        "mediaType": "Media type",
+        "detecting": "Checking media type...",
+        "detected": "Detected: {{mediaType}}",
+        "useDetected": "Use detected media type",
+        "chooseMediaType": "Select a media type",
+        "selectMediaType": "Choose a media type if it could not be detected.",
+        "custom": "Other MIME type...",
+        "customMediaType": "MIME type (e.g. application/xml)",
+        "invalidUrl": "Enter a valid HTTP or HTTPS URL.",
+        "invalidMediaType": "Enter a valid MIME type (type/subtype), not application/octet-stream."
+    },
     "streaming": {
         "title": "Streaming"
     },

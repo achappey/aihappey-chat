@@ -1,4 +1,18 @@
 ﻿{
+    "urlAttachment": {
+        "title": "URL",
+        "url": "URL (publiek toegankelijk)",
+        "mediaType": "Inhoudstype",
+        "detecting": "Inhoudstype controleren...",
+        "detected": "Gevonden: {{mediaType}}",
+        "useDetected": "Gevonden inhoudstype gebruiken",
+        "chooseMediaType": "Selecteer een inhoudstype",
+        "selectMediaType": "Kies een inhoudstype als het niet kon worden vastgesteld.",
+        "custom": "Ander inhoudstype...",
+        "customMediaType": "Inhoudstype (bijv. application/xml)",
+        "invalidUrl": "Voer een geldige HTTP- of HTTPS-URL in.",
+        "invalidMediaType": "Voer een geldig inhoudstype in (type/subtype), niet application/octet-stream."
+    },
     "streaming": {
         "title": "Streaming"
     },

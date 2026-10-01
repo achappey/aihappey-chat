@@ -20,6 +20,7 @@ import { useTools } from "../../tools/useTools";
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
+import { urlAttachmentRuntime } from "../../../runtime/files/urlAttachmentRuntime";
 import { sendAutomaticallyWhen } from "../engine/sendAutomaticallyWhen";
 import { mapToolOutputContentForRequest } from "../engine/mapToolOutputContentForRequest";
 
@@ -179,6 +180,7 @@ export function ChatArena({
         ]);
 
         fileAttachmentRuntime.clear();
+        urlAttachmentRuntime.clear();
         mcpResourceRuntime.clear();
       }
     },
@@ -214,6 +216,7 @@ export function ChatArena({
         ]);
 
         fileAttachmentRuntime.clear();
+        urlAttachmentRuntime.clear();
         mcpResourceRuntime.clear();
       }
     },

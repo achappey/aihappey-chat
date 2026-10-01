@@ -11,6 +11,7 @@ import { useChatErrors } from "../layout/useChatErrors";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
+import { urlAttachmentRuntime } from "../../../runtime/files/urlAttachmentRuntime";
 import { buildSelectedAgentRequest, buildWorkflowMetadata } from "../../agents/agentSelection";
 import {
   resolveEndpointProfileForSelectedModel,
@@ -202,6 +203,7 @@ export function useChatActions({
 
           //clearAttachments();
           fileAttachmentRuntime.clear()
+          urlAttachmentRuntime.clear();
           mcpResourceRuntime.clear();
         } catch (err) {
           addChatError(getStorageErrorMessage(err, "Failed to save your message"));
@@ -271,6 +273,7 @@ export function useChatActions({
             },
           });
           fileAttachmentRuntime.clear()
+          urlAttachmentRuntime.clear();
           mcpResourceRuntime.clear();
         } catch (err) {
           addChatError(getStorageErrorMessage(err, "Failed to save your message"));

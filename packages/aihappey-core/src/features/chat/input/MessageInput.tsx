@@ -34,6 +34,9 @@ import { ResizableTextArea } from "./ResizableTextArea";
 import { usePlugins as useAgentPlugins } from "aihappey-plugins";
 import { usePromptDictationControls } from "./usePromptDictationControls";
 import { useChatAttachmentAdmission } from "./useChatAttachmentAdmission";
+import { urlAttachmentRuntime, useUrlAttachments } from "../../../runtime/files/urlAttachmentRuntime";
+import { UrlAttachmentModal } from "../../attachments/UrlAttachmentModal";
+import { urlFilename } from "../../attachments/urlAttachment";
 
 export type MessageInputProps = UseMessageInputOptions & {
   resizeResetKey?: string;
@@ -94,6 +97,7 @@ export const MessageInput = (props: MessageInputProps) => {
   const [resourceLoading, setResourceLoading] = useState(false);
   const [serverManagementOpen, setServerManagementOpen] = useState(false);
   const [contextSearchOpen, setContextSearchOpen] = useState(false);
+  const [urlModalOpen, setUrlModalOpen] = useState(false);
   const [prompts, setPrompts] = useState<PromptWithSource[]>([]);
   const [promptSelectOpen, setPromptSelectOpen] = useState(false);
   const [argumentPrompt, setArgumentPrompt] = useState<PromptWithSource | undefined>(undefined);
@@ -128,6 +132,7 @@ export const MessageInput = (props: MessageInputProps) => {
   const currentModel = models?.find(a => a.id == selectedModel);
   const resources = useSelectedResources(mcpResourceRuntime)
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
+  const urlAttachments = useUrlAttachments();
   const localToolToggleItems = useMemo(
     () => buildLocalToolToggleItems(localTools.items ?? [], t),
     [localTools.items, t]
@@ -270,6 +275,12 @@ export const MessageInput = (props: MessageInputProps) => {
       onClick: () => fileInputRef.current?.click(),
     },
     {
+      key: "add-url",
+      label: t("urlAttachment.title"),
+      icon: "attachment" as IconToken,
+      onClick: () => setUrlModalOpen(true),
+    },
+    {
       key: "prompts",
       label: t("promptSelectModal.title"),
       icon: "prompts" as IconToken,
@@ -295,7 +306,7 @@ export const MessageInput = (props: MessageInputProps) => {
   ];
 
   const attachmentsElement =
-    resources.length > 0 || fileAttachments.length > 0 ? (
+    resources.length > 0 || fileAttachments.length > 0 || urlAttachments.length > 0 ? (
       <div style={styles.tagRow}>
         {resources.length > 0 && (
           <ResourceTags resources={resources}
@@ -307,6 +318,11 @@ export const MessageInput = (props: MessageInputProps) => {
             removeFile={(a) => fileAttachmentRuntime.remove(a)}
           />
         )}
+        {urlAttachments.length > 0 && <Tags size="small" items={urlAttachments.map(part => ({
+          key: part.url,
+          icon: "attachment",
+          label: part.filename ?? urlFilename(part.url) ?? part.url,
+        }))} onRemove={urlAttachmentRuntime.remove} />}
       </div>
     ) : null;
 
@@ -409,6 +425,8 @@ export const MessageInput = (props: MessageInputProps) => {
             />
 
             <ServerManagementModal show={serverManagementOpen} onHide={onServerManagementHide} />
+            <UrlAttachmentModal open={urlModalOpen} onHide={() => setUrlModalOpen(false)}
+              onAdd={urlAttachmentRuntime.add} />
 
             <ContextSearchModal
               open={contextSearchOpen}

@@ -64,7 +64,7 @@ export const ImageGrid = ({
       ))}
 
       {items.map((item, idx) => {
-        const src = item.data.startsWith("data:")
+        const src = /^(data:|https?:\/\/)/i.test(item.data)
           ? item.data
           : `data:${item.mimeType};base64,${item.data}`;
         const cost = item._meta?.cost;

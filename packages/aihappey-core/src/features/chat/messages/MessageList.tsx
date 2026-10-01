@@ -48,6 +48,10 @@ const fileToImageContent = (f: FileUIPart): ImageContent => {
     return { type: "image", mimeType: m[1], data: m[2] } as any;
   }
 
+  if (/^https?:\/\//i.test(url)) {
+    return { type: "image", mimeType: mt, data: url } as any;
+  }
+
   // If url is already base64 without prefix, pass through
   return { type: "image", mimeType: mt, data: url } as any;
 };
