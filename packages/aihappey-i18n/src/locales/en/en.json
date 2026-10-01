@@ -933,6 +933,9 @@
     "agentEdit": {
         "name": "Name",
         "policy": "Policy",
+        "allowedTools": "Allowed tools",
+        "noTools": "No tools",
+        "required": "Required",
         "argumentHint": "Input hint",
         "argumentHintPlaceholder": "Text shown in the chat input field to guide the user...",
         "create": "Create Agent",

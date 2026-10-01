@@ -505,6 +505,9 @@
     "agentEdit": {
         "name": "Naam",
         "policy": "Beleid",
+        "allowedTools": "Tools toegestaan",
+        "noTools": "Geen tools",
+        "required": "Verplicht",
         "argumentHint": "Invoerhint",
         "argumentHintPlaceholder": "Tekst die gebruikers helpt bij het invoeren van een bericht...",
         "create": "Agent maken",

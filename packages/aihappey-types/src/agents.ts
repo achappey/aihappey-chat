@@ -173,6 +173,9 @@ export type McpServer = {
     type: "http";
     url: string;
     disabled?: boolean;
+    required?: boolean;
+    /** Omitted allows all tools; an empty list allows none. */
+    allowed_tools?: string[];
     defer_loading?: boolean;
     namespace?: boolean;
     allowed_callers?: Array<"direct" | "programmatic">;

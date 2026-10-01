@@ -56,6 +56,8 @@ import {
 
 const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
 const AGENT_RESOURCE_SEARCH_TOGGLE_ID = "client-resource-search";
+const ALL_MCP_TOOLS = "__agent_all_mcp_tools__";
+const NO_MCP_TOOLS = "__agent_no_mcp_tools__";
 
 export interface AgentFormProps {
     agent: Agent;
@@ -266,19 +268,31 @@ export const AgentForm = ({
 
     const renderMcpServerSettings = (key: string) => {
         const server = agent.mcpServers?.[key];
-        if (!server || server.disabled === true) return null;
+        if (!server) return null;
 
         const callers = (server.allowed_callers ?? [])
             .filter((caller): caller is McpToolCaller => mcpToolCallers.includes(caller as McpToolCaller));
+        const content = mcpServerContent[key.trim().toLowerCase()];
+        const connected = content != null && server.disabled !== true;
+        const availableTools = Array.from(new Set((content?.tools ?? [])
+            .map((tool) => tool.name?.trim()).filter((name): name is string => Boolean(name))))
+            .sort((a, b) => a.localeCompare(b));
+        const allowedTools = server.allowed_tools;
+        const selectedTools = allowedTools === undefined
+            ? [ALL_MCP_TOOLS]
+            : allowedTools.length === 0 ? [NO_MCP_TOOLS] : allowedTools;
+        const allowedToolsTitle = allowedTools === undefined
+            ? t("toolConfiguration.allTools")
+            : allowedTools.length === 0 ? t("agentEdit.noTools") : allowedTools.join(", ");
 
         return (
-            <div style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(180px, 1fr) auto auto",
-                alignItems: "end",
-                gap: 16,
-                marginTop: 16,
-            }}>
+            <div style={{ marginTop: 16 }}>
+                {server.disabled !== true && <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(180px, 1fr) auto auto",
+                    alignItems: "end",
+                    gap: 16,
+                }}>
                 <Select
                     label={t("toolConfiguration.allowedCallers")}
                     multiselect
@@ -324,6 +338,56 @@ export const AgentForm = ({
                         return checked ? { ...rest, namespace: true } : rest as McpServer;
                     })}
                 />
+                </div>}
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(180px, 1fr) auto",
+                    alignItems: "end",
+                    gap: 16,
+                    marginTop: 16,
+                }}>
+                    <Select
+                        label={t("agentEdit.allowedTools")}
+                        multiselect
+                        disabled={!connected}
+                        values={selectedTools}
+                        valueTitle={allowedToolsTitle}
+                        options={[
+                            { value: ALL_MCP_TOOLS, label: t("toolConfiguration.allTools") },
+                            { value: NO_MCP_TOOLS, label: t("agentEdit.noTools") },
+                            ...availableTools.map((name) => ({ value: name, label: name })),
+                        ]}
+                        onChange={(name: string) => {
+                            if (!connected) return;
+                            updateMcpServer(key, (current) => {
+                                if (name === ALL_MCP_TOOLS) {
+                                    const { allowed_tools: _, ...rest } = current;
+                                    return rest as McpServer;
+                                }
+                                if (name === NO_MCP_TOOLS) return { ...current, allowed_tools: [] };
+                                if (!availableTools.includes(name)) return current;
+                                const selected = current.allowed_tools ?? [];
+                                const next = selected.includes(name)
+                                    ? selected.filter((tool) => tool !== name)
+                                    : [...selected, name];
+                                return { ...current, allowed_tools: next };
+                            });
+                        }}
+                    >
+                        <option value={ALL_MCP_TOOLS}>{t("toolConfiguration.allTools")}</option>
+                        <option value={NO_MCP_TOOLS}>{t("agentEdit.noTools")}</option>
+                        {availableTools.map((name) => <option key={name} value={name}>{name}</option>)}
+                    </Select>
+                    <Switch
+                        id={`agent-mcp-required-${key}`}
+                        label={t("agentEdit.required")}
+                        checked={server.required === true}
+                        onChange={(checked: boolean) => updateMcpServer(key, (current) => ({
+                            ...current,
+                            required: checked,
+                        }))}
+                    />
+                </div>
             </div>
         );
     };
