@@ -759,7 +759,7 @@ export function VercelChatInner({
   } = useChat({
     id: chatInstanceId,
     transport,
-    experimental_throttle: experimentalThrottle,
+    throttle: experimentalThrottle,
     onError: (error) => {
       addChatError(error);
     },

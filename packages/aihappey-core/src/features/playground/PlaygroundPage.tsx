@@ -265,7 +265,7 @@ export const PlaygroundPage = () => {
   } = useChat({
     id: `playground-${playgroundChatRevision}`,
     transport: playgroundTransport,
-    experimental_throttle: experimentalThrottle,
+    throttle: experimentalThrottle,
     messages,
   });
 
