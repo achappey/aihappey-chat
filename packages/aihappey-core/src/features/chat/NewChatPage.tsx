@@ -13,8 +13,6 @@ import { useAttachmentParts } from "./messages/useAttachmentParts";
 import { ChatErrors } from "./layout/ChatErrors";
 import { useChatErrors } from "./layout/useChatErrors";
 import { PromptWithSource } from "../mcp-prompts/PromptSelectButton";
-import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
-import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
 import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { buildSelectedAgentRequest } from "../agents/agentSelection";
 import { useChatAttachmentAdmission } from "./input/useChatAttachmentAdmission";
