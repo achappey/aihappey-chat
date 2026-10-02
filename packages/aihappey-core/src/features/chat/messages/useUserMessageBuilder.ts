@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { UIMessage, MessageRole } from "aihappey-types";
-import { useAppStore } from "aihappey-state";
+import { useAppStore, withFileProviderMetadata } from "aihappey-state";
 import * as exifr from 'exifr';
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { toMarkdownLinkSmart } from "../files/markdown";
@@ -40,6 +40,7 @@ export function useUserMessageBuilder({
 
   const sendRawAttachments = useAppStore((s) => s.sendRawAttachments);
   const maxAttachmentsSize = useAppStore((s) => s.maxAttachmentsSize);
+  const providerFileMetadata = useAppStore((s) => s.providerFileMetadata);
 
   const maxSize = typeof maxAttachmentsSize === "number" ? maxAttachmentsSize : 25 * 1024 * 1024;
 
@@ -95,9 +96,11 @@ export function useUserMessageBuilder({
         ...urlAttachments,
         ...(opts.promptParts ?? []),
         ...(opts.text && opts.text.trim() ? [{ type: 'text', text: opts.text }] : []),
-      ];
+      ].map((part) => part.type === "file"
+        ? withFileProviderMetadata(part, providerFileMetadata)
+        : part);
     },
-    [attachments, urlAttachments, resourceParts, getAttachmentParts, extractExif, sendRawAttachments, maxSize]
+    [attachments, urlAttachments, resourceParts, getAttachmentParts, extractExif, sendRawAttachments, maxSize, providerFileMetadata]
   );
 
 

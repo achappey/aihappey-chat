@@ -6,6 +6,7 @@ export * from "./mcp";
 export * from "./agents";
 export * from "./models";
 export * from "./modelIdentity";
+export * from "./providerFiles";
 
 /**
  * Primary provider category used for UI filtering and catalog grouping.

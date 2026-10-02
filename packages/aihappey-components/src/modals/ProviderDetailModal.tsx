@@ -26,6 +26,8 @@ export type ProviderDetailModalProps = {
     /** Only types with an existing provider form should appear here. */
     renderProviderSettings?: (type: string) => React.ReactNode;
     providerSettingsTypes?: string[];
+    /** Optional per-file input forms; unrelated to model generation settings. */
+    fileSettings?: React.ReactNode;
     size?: "small" | "medium" | "large";
 };
 
@@ -121,6 +123,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     provider,
     renderProviderSettings,
     providerSettingsTypes,
+    fileSettings,
     size = "large",
 }) => {
     const { t } = useTranslation();
@@ -245,6 +248,10 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                         </Card>
                     </div>
                 </Tab>
+
+                {fileSettings && <Tab eventKey="files" icon="attachment" title={t("files")}>
+                    {fileSettings}
+                </Tab>}
 
                 {supportedModelTypes.map((type) => {
                     const typeModels = modelGroups.get(type) ?? [];

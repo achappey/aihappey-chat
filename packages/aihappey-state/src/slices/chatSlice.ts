@@ -1,7 +1,8 @@
 import type { StateCreator } from "zustand";
 import { defaultProviderMetadata } from "./defaultProviderMetadata";
 import { defaultProviderHeaders } from "./defaultProviderHeaders";
-import type { ModelOption } from "aihappey-types";
+import { defaultProviderFileMetadata } from "./defaultProviderFileMetadata";
+import type { ModelOption, ProviderFileMetadata } from "aihappey-types";
 import { ToolAnnotations } from "aihappey-mcp";
 import { SIDE_INFERENCE_DEFAULT_AGENT_NAMES } from "./defaultAgents";
 import type { ApiKeyEncryptionState, EncryptedApiKeys } from "./apiKeyEncryption";
@@ -142,6 +143,8 @@ export type ChatSlice = ApiKeyEncryptionState & {
   setThrottle: (throttle: number) => void;
   providerMetadata?: any
   setProviderMetadata: (metadata: any | ((current: any) => any)) => void;
+  providerFileMetadata: ProviderFileMetadata;
+  setProviderFileMetadata: (metadata: ProviderFileMetadata | ((current: ProviderFileMetadata) => ProviderFileMetadata)) => void;
   providerHeaders?: Record<string, Record<string, string>>;
   setProviderHeaders: (headers: Record<string, Record<string, string>> | ((current: Record<string, Record<string, string>> | undefined) => Record<string, Record<string, string>> | undefined)) => void;
   sideInferenceAgentNames: SideInferenceAgentNames;
@@ -178,6 +181,10 @@ export const createChatSlice: StateCreator<
 > = (set, get) => ({
   selectedConversationId: null,
   providerMetadata: defaultProviderMetadata,
+  providerFileMetadata: structuredClone(defaultProviderFileMetadata),
+  setProviderFileMetadata: (metadata) => set((state: ChatSlice) => ({
+    providerFileMetadata: typeof metadata === "function" ? metadata(state.providerFileMetadata) : { ...metadata },
+  })),
   providerHeaders: defaultProviderHeaders,
   sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
   temperature: 1,

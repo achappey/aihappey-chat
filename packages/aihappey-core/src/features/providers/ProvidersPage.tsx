@@ -19,6 +19,7 @@ import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry
 import { AddProviderModal } from "./AddProviderModal";
 import { getModelProviderKey } from "aihappey-types";
 import { hasProviderTypeSettings, ProviderTypeSettings } from "./ProviderTypeSettings";
+import { hasProviderFileSettings, ProviderFileSettings } from "./ProviderFileSettings";
 
 type ProviderListItem = {
     key: string;
@@ -937,6 +938,8 @@ export const ProvidersPage = () => {
                             provider={selectedProvider}
                             providerSettingsTypes={(selectedProviderModelTypes ?? []).filter((type) => hasProviderTypeSettings(selectedProvider.key, type))}
                             renderProviderSettings={(type) => <ProviderTypeSettings providerKey={selectedProvider.key} type={type} models={orderedModels} />}
+                            fileSettings={hasProviderFileSettings(selectedProvider.key)
+                                ? <ProviderFileSettings key={selectedProvider.key} providerKey={selectedProvider.key} /> : undefined}
                             isModelFavorite={(model) => (favoriteModelsByType?.[model.type] ?? []).includes(model.id)}
                             onToggleModelFavorite={(model) => toggleFavoriteModelForType(model.type, model.id)}
                         />

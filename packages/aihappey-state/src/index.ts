@@ -53,6 +53,8 @@ export {
   SIDE_INFERENCE_DEFAULT_AGENT_NAMES,
 } from "./slices/defaultAgents";
 export { defaultProviderMetadata } from "./slices/defaultProviderMetadata";
+export { defaultProviderFileMetadata } from "./slices/defaultProviderFileMetadata";
+export * from "./slices/providerFileMetadata";
 export { defaultProviderHeaders } from "./slices/defaultProviderHeaders";
 export * from "./slices/providerHeaders";
 export {

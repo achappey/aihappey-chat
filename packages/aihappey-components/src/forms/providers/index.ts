@@ -1,4 +1,7 @@
 export * from "./ProviderKeysForm";
+export * from "./openai/OpenAIFileConfigForm";
+export * from "./anthropic/AnthropicFileConfigForms";
+export * from "./google/GoogleFileConfigForms";
 export * from "./akumi";
 
 export * from "./apertis";
