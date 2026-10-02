@@ -6,6 +6,7 @@ type ModelContextExtensionsSettings = {
   enableApps: boolean;
   enableAgentImport: boolean;
   enableConversationImport: boolean;
+  enableMcpSkills?: boolean;
 };
 
 const Wrapper = ({
@@ -18,6 +19,7 @@ const Wrapper = ({
       enableApps: false,
       enableAgentImport: false,
       enableConversationImport: false,
+      enableMcpSkills: true,
     }
   );
 
@@ -32,6 +34,9 @@ const Wrapper = ({
       }
       onToggleConversationImport={(enabled) =>
         setValue((prev) => ({ ...prev, enableConversationImport: enabled }))
+      }
+      onToggleMcpSkills={(enabled) =>
+        setValue((prev) => ({ ...prev, enableMcpSkills: enabled }))
       }
     />
   );
@@ -49,7 +54,7 @@ type Story = StoryObj<typeof ModelContextExtensionsSettingsForm>;
  * ALL OFF — minimal surface
  */
 export const AllOff: Story = {
-  render: () => <Wrapper />,
+  render: () => <Wrapper initialValue={{ enableApps: false, enableAgentImport: false, enableConversationImport: false, enableMcpSkills: false }} />,
 };
 
 /**
@@ -93,6 +98,18 @@ export const Interactive: Story = {
         enableAgentImport: true,
         enableConversationImport: false,
       }}
+    />
+  ),
+};
+
+/** Existing consumers that do not supply the new optional props remain valid. */
+export const LegacyConsumer: Story = {
+  render: () => (
+    <ModelContextExtensionsSettingsForm
+      value={{ enableApps: true, enableAgentImport: false, enableConversationImport: false }}
+      onToggleApps={() => {}}
+      onToggleAgentImport={() => {}}
+      onToggleConversationImport={() => {}}
     />
   ),
 };

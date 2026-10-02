@@ -204,6 +204,7 @@ export function useMcpRuntimeBinding({
                     },
                     handleOAuth: true,
                     onElicit: enableMcpElicitation !== false ? onElicit : undefined,
+                    elicitationModes: { form: {} },
                     onLogging,
                     onProgress,
                     clientName,

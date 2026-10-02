@@ -33,7 +33,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 32,
+    version: 33,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -108,6 +108,7 @@ export const withPersist = (
       toolTimeout: s.toolTimeout,
       resetTimeoutOnProgress: s.resetTimeoutOnProgress,
       enableMcpElicitation: s.enableMcpElicitation,
+      enableMcpSkills: s.enableMcpSkills,
       conversationStorage: s.conversationStorage,
       enabledProvidersByType: (s as any).enabledProvidersByType,
       favoriteModelsByType: (s as any).favoriteModelsByType,
@@ -444,6 +445,7 @@ export const withPersist = (
         ),
         gatewayEnabled: safeState.gatewayEnabled !== false,
         enableMcpElicitation: safeState.enableMcpElicitation !== false,
+        enableMcpSkills: safeState.enableMcpSkills !== false,
         endpointRawModelIds: safeState.endpointRawModelIds === true,
         endpointProviderMetadataEnabled: safeState.endpointProviderMetadataEnabled !== false,
         providerHeaders: normalizeProviderHeaders(safeState.providerHeaders),

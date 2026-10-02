@@ -5,6 +5,7 @@ type ModelContextExtensionsSettings = {
   enableApps: boolean;
   enableAgentImport: boolean;
   enableConversationImport: boolean;
+  enableMcpSkills?: boolean;
 };
 
 type ModelContextExtensionsSettingsFormProps = {
@@ -12,6 +13,7 @@ type ModelContextExtensionsSettingsFormProps = {
   onToggleApps: (enabled: boolean) => void;
   onToggleAgentImport: (enabled: boolean) => void;
   onToggleConversationImport: (enabled: boolean) => void;
+  onToggleMcpSkills?: (enabled: boolean) => void;
 };
 
 export const ModelContextExtensionsSettingsForm = ({
@@ -19,12 +21,15 @@ export const ModelContextExtensionsSettingsForm = ({
   onToggleApps,
   onToggleAgentImport,
   onToggleConversationImport,
+  onToggleMcpSkills,
 }: ModelContextExtensionsSettingsFormProps) => {
-  const { Switch } = useTheme();
+  const { Card, Switch } = useTheme();
   const { t } = useTranslation();
 
   return (
     <>
+      <Card size="small" title={t("settingsModal.officialExtensions")}>
+        <div style={{ display: "grid", gap: 12 }}>
       <Switch
         id="enableApps"
         size="small"
@@ -32,7 +37,19 @@ export const ModelContextExtensionsSettingsForm = ({
         label={t("settingsModal.apps")}
         onChange={onToggleApps}
       />
-
+          <Switch
+            id="enableMcpSkills"
+            size="small"
+            checked={value.enableMcpSkills !== false}
+            disabled={!onToggleMcpSkills}
+            label={t("skills")}
+            hint={t("settingsModal.mcpSkillsHint")}
+            onChange={enabled => onToggleMcpSkills?.(enabled)}
+          />
+        </div>
+      </Card>
+      <Card size="small" title={t("custom")}>
+        <div style={{ display: "grid", gap: 12 }}>
       <Switch
         id="enableAgentImport"
         size="small"
@@ -50,6 +67,8 @@ export const ModelContextExtensionsSettingsForm = ({
         hint={t("settingsModal.conversationImportHint")}
         onChange={onToggleConversationImport}
       />
+        </div>
+      </Card>
     </>
   );
 };

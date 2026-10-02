@@ -58,6 +58,7 @@ async function _connectMcpBase(
         clientVersion?: string;
         onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult | CreateMessageResultWithTools>;
         onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
+        elicitationModes?: { form?: {}; url?: {} };
         onLogging?: (server: string, req: LoggingMessageNotification) => Promise<void>;
         onProgress?: (req: ProgressNotification) => Promise<void>;
         onTaskStatus?: (server: string, req: TaskStatusNotification["params"]) => Promise<void>;
@@ -82,7 +83,7 @@ async function _connectMcpBase(
             mode: "auto",
         },
         capabilities: {
-            elicitation: opts.onElicit ? {
+            elicitation: opts.onElicit ? opts.elicitationModes ?? {
                 form: {},
                 url: {},
             } : undefined
@@ -90,8 +91,14 @@ async function _connectMcpBase(
     });
 
     if (opts.onElicit)
-        client.setRequestHandler("elicitation/create",
-            req => opts.onElicit!(url, req as any));
+        client.setRequestHandler("elicitation/create", req => {
+            const mode = (req.params as { mode?: string }).mode ?? "form";
+            const modes = opts.elicitationModes;
+            if (modes && !(mode === "form" ? modes.form : mode === "url" ? modes.url : undefined)) {
+                return Promise.resolve({ action: "decline" as const });
+            }
+            return opts.onElicit!(url, req as any);
+        });
 
     if (opts.onProgress)
         client.setNotificationHandler("notifications/progress",
@@ -142,6 +149,7 @@ export async function connectMcpServer(
         clientVersion?: string;
         onSample?: (server: string, req: CreateMessageRequest) => Promise<CreateMessageResult>;
         onElicit?: (server: string, req: ElicitRequest) => Promise<ElicitResult>;
+        elicitationModes?: { form?: {}; url?: {} };
         onLogging?: (server: string, req: LoggingMessageNotification) => Promise<void>;
         onProgress?: (req: ProgressNotification) => Promise<void>;
         onTaskStatus?: (server: string, req: TaskStatusNotification["params"]) => Promise<void>;

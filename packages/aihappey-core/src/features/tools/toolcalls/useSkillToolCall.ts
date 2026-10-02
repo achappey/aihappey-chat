@@ -14,7 +14,7 @@ import type {
   RuntimeSkillContent,
 } from "../../skills/useRuntimeSkills";
 import { connectedMcpSkills, readConnectedSkillFile, skillResourcePaths } from "../../skills/connectedMcpSkills";
-import { useAppStore } from "aihappey-state";
+import { store, useAppStore } from "aihappey-state";
 
 type SkillToolResult = CallToolResult & {
   structuredContent?: Record<string, any>;
@@ -357,6 +357,10 @@ export function buildSkillSearchPluginDef(skills: RuntimeSkillCatalogItem[] = []
 
 export const skillSearchPluginDef = buildSkillSearchPluginDef();
 
+// Also enforce the preference for handlers retained by an in-flight chat turn.
+const availableMcpSkills = (skills: RuntimeSkillCatalogItem[]) =>
+  store.getState().enableMcpSkills === false ? skills.filter(skill => skill.origin !== "mcp") : skills;
+
 export function useSkillToolCall(opts: {
   enabledSkills: RuntimeSkillCatalogItem[];
   searchableSkills: RuntimeSkillCatalogItem[];
@@ -366,11 +370,11 @@ export function useSkillToolCall(opts: {
   const { enabledSkills: enabledSkillItems, searchableSkills, readSkill, skillSearchEnabled = false } = opts;
   const mcpSkills = useAppStore((state) => state.mcpSkills);
   const enabledSkills = useCallback(
-    () => enabledSkillItems,
+    () => availableMcpSkills(enabledSkillItems),
     [enabledSkillItems]
   );
   const availableSkills = useCallback(
-    () => skillSearchEnabled ? searchableSkills : enabledSkills(),
+    () => skillSearchEnabled ? availableMcpSkills(searchableSkills) : enabledSkills(),
     [enabledSkills, searchableSkills, skillSearchEnabled]
   );
 
@@ -381,7 +385,7 @@ export function useSkillToolCall(opts: {
       }
 
       const limit = clampSearchLimit(toolCall.input?.limit);
-      const result = searchSkillCatalog(searchableSkills, toolCall.input?.query ?? "", limit);
+      const result = searchSkillCatalog(availableMcpSkills(searchableSkills), toolCall.input?.query ?? "", limit);
       const lines = result.skills.map((skill) => {
         const version = skill.version ?? skill.downloadedVersion ?? skill.latestVersion;
         const versionSuffix = version ? ` v${version}` : "";
@@ -431,6 +435,7 @@ export function useSkillToolCall(opts: {
       const skill = await resolveEnabledSkill(readSkill, availableSkills(), toolCall.input?.skill_id);
       const resourcePaths = listSkillResourcePaths(skill);
       const mcp = skill.origin === "mcp" ? connectedMcpSkills(mcpSkills).find((item) => item.skillId === skill.skillId) : undefined;
+      if (skill.origin === "mcp" && !mcp) throw new Error("MCP skill is disabled or disconnected");
       const paths = mcp ? skillResourcePaths(mcp.entry) : resourcePaths;
       const resourcesXml =
         paths.length > 0

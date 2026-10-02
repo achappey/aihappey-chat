@@ -5,7 +5,7 @@ import {
   usePlugins,
   type RuntimePluginSkill,
 } from "aihappey-plugins";
-import { useAppStore } from "aihappey-state";
+import { store, useAppStore } from "aihappey-state";
 import { connectedMcpSkills, readConnectedSkillFile, skillResourcePaths } from "./connectedMcpSkills";
 import type { ConnectedMcpSkill } from "aihappey-mcp";
 
@@ -95,6 +95,7 @@ export function useRuntimeSkills() {
     const mcp = liveMcpSkills.find((item) => item.skillId === skillId);
     if (mcp) {
       const body = await (await readConnectedSkillFile(mcp, mcp.entry.uri)).text();
+      if (store.getState().enableMcpSkills === false) throw new Error("MCP Skills are disabled in settings");
       return { ...mcpCatalog.find((item) => item.skillId === skillId)!, body, files: [] };
     }
     const plugin = plugins.enabled.find((item) => item.skills.some((skill) => skill.skillId === skillId));

@@ -1135,6 +1135,10 @@
         "title": "Prompts"
     },
     "settingsModal": {
+        "officialExtensions": "Officieel",
+        "mcpSkillsHint": "Gebruik skills van verbonden MCP-servers. Andere skillbronnen blijven ongewijzigd.",
+        "elicitationConnectedHint": "Verbreek de MCP-verbindingen om formulierondersteuning te wijzigen.",
+        "elicitationUrlUnavailable": "URL-elicitatie wordt nog niet ondersteund.",
         "title": "Instellingen",
         "showTemperature": "Toon temperatuur",
         "showTokens": "Toon tokens per bericht",
@@ -1148,7 +1152,7 @@
         "agentImportHint": "Importeer bronnen als Agents.",
         "conversationImport": "Conversaties",
         "conversationImportHint": "Importeer bronnen als chat conversaties.",
-        "apps": "MCP Apps",
+        "apps": "Apps",
         "extractExif": "EXIF uitlezen",
         "convertAttachmentsToText": "Bijlages omzetten naar tekst",
         "sendRawAttachments": "Onbewerkte bijlages versturen",

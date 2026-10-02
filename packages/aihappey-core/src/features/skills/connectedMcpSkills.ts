@@ -1,10 +1,11 @@
 import JSZip from "jszip";
 import { parseDocument } from "yaml";
 import { getMcpSkill, validateMcpSkillEntry, type ConnectedMcpSkill, type McpSkillEntry } from "aihappey-mcp";
-import { mcpRuntime } from "aihappey-state";
+import { mcpRuntime, store } from "aihappey-state";
 import { readResource } from "../../runtime/mcp/readResource";
 
 export function connectedMcpSkills(catalog: Record<string, ConnectedMcpSkill[]>): ConnectedMcpSkill[] {
+  if (store.getState().enableMcpSkills === false) return [];
   return Object.values(catalog).flat().filter((skill) => mcpRuntime.has(skill.serverKey));
 }
 
@@ -32,6 +33,7 @@ export function disconnectedSkillLabel(skillId: string): string {
 }
 
 function assertConnected(skill: ConnectedMcpSkill) {
+  if (store.getState().enableMcpSkills === false) throw new Error("MCP Skills are disabled in settings");
   const client = mcpRuntime.get(skill.serverKey);
   if (!client || !validateMcpSkillEntry(skill.entry)) throw new Error(`MCP skill from ${skill.serverKey} is unavailable`);
   return client;
@@ -39,6 +41,7 @@ function assertConnected(skill: ConnectedMcpSkill) {
 
 export async function refreshConnectedSkill(skill: ConnectedMcpSkill): Promise<McpSkillEntry> {
   const entry = await getMcpSkill(assertConnected(skill), skill.entry.uri);
+  assertConnected(skill);
   if (!validateMcpSkillEntry(entry)) throw new Error("Invalid MCP skill manifest");
   return entry;
 }
@@ -59,6 +62,7 @@ export async function readConnectedSkillFile(skill: ConnectedMcpSkill, uri: stri
   const manifest = entry.resources === "dynamic" ? undefined : entry.resources.find((file) => file.uri === uri);
   if (entry.resources !== "dynamic" && !manifest) throw new Error("Resource is not in the MCP skill manifest");
   const response = await readResource(skill.serverKey, uri);
+  assertConnected(skill);
   const content = response.contents.find((item) => item.uri === uri);
   if (!content) throw new Error("MCP server did not return the requested resource");
   const blob = "blob" in content && typeof content.blob === "string"
@@ -83,6 +87,7 @@ export async function readConnectedSkillFile(skill: ConnectedMcpSkill, uri: stri
       throw new Error("MCP skill frontmatter does not match its manifest");
     }
   }
+  assertConnected(skill);
   return blob;
 }
 

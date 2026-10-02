@@ -49,14 +49,20 @@ export function supportsSkills(client: Client) {
   return !!caps?.resources && !!caps.extensions && Object.hasOwn(caps.extensions, SKILLS_EXTENSION);
 }
 
-export async function listMcpSkills(client: Client): Promise<McpSkillEntry[]> {
+export async function listMcpSkills(
+  client: Client,
+  options?: { signal?: AbortSignal; isActive?: () => boolean },
+): Promise<McpSkillEntry[]> {
   if (!supportsSkills(client)) return [];
   const result: McpSkillEntry[] = [];
   const cursors = new Set<string>();
   let cursor: string | undefined;
   do {
+    if (options?.signal?.aborted || options?.isActive?.() === false) return [];
     // The JS client does not yet expose typed Skills helpers.
-    const page = await client.request({ method: "skills/list", params: cursor ? { cursor } : {} }, listResult);
+    const page = await client.request({ method: "skills/list", params: cursor ? { cursor } : {} }, listResult,
+      options?.signal ? { signal: options.signal } : undefined);
+    if (options?.signal?.aborted || options?.isActive?.() === false) return [];
     result.push(...page.skills);
     cursor = page.nextCursor;
     if (cursor && cursors.has(cursor)) throw new Error("MCP skills/list returned a repeated cursor");

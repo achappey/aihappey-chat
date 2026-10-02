@@ -1170,6 +1170,10 @@
         "description": "Model Context Protocol gives you one structured way to work with prompts, resources and tools, no matter where the information comes from. You always work clearly, transparently and in the same way."
     },
     "settingsModal": {
+        "officialExtensions": "Official",
+        "mcpSkillsHint": "Enable skills provided by connected MCP servers. Other skill sources are unaffected.",
+        "elicitationConnectedHint": "Disconnect MCP servers to change Form support.",
+        "elicitationUrlUnavailable": "URL elicitation is not supported yet.",
         "title": "Settings",
         "gatewayEnabled": "Enable gateway",
         "showTemperature": "Show temperature",
@@ -1183,7 +1187,7 @@
         "agentImportHint": "Import resources as Agents.",
         "conversationImport": "Conversations",
         "conversationImportHint": "Import resources as conversations.",
-        "apps": "MCP Apps",
+        "apps": "Apps",
         "extractExif": "Extract EXIF",
         "convertAttachmentsToText": "Convert attachments to text",
         "sendRawAttachments": "Send raw attachments",

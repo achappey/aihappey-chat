@@ -22,20 +22,35 @@ export const ModelContextClientSettingsForm = ({
     onToggleResetOnProgress,
     onToggleElicitation,
 }: ModelContextClientSettingsFormProps) => {
-    const { Slider, Switch } = useTheme();
+    const { Card, Slider, Switch } = useTheme();
     const { t } = useTranslation();
 
     return (
         <>
+            <Card size="small" title={t("elicit")}>
+                <div style={{ display: "grid", gap: 12 }}>
             <Switch
                 size="small"
                 id="enableMcpElicitation"
                 checked={value.enableElicitation}
                 disabled={elicitationDisabled}
-                label={t("elicit")}
+                label={t("agents.elicitationForm")}
+                hint={elicitationDisabled ? t("settingsModal.elicitationConnectedHint") : undefined}
                 onChange={onToggleElicitation}
             />
-
+                    <Switch
+                        size="small"
+                        id="enableMcpUrlElicitation"
+                        checked={false}
+                        disabled
+                        label={t("agents.elicitationUrl")}
+                        hint={t("settingsModal.elicitationUrlUnavailable")}
+                        onChange={() => {}}
+                    />
+                </div>
+            </Card>
+            <Card size="small" title={t("tools")}>
+                <div style={{ display: "grid", gap: 12 }}>
             <Slider
                 min={1}
                 max={60}
@@ -54,6 +69,8 @@ export const ModelContextClientSettingsForm = ({
                 label={t("mcpPage.resetTimeoutOnProgress")}
                 onChange={onToggleResetOnProgress}
             />
+                </div>
+            </Card>
         </>
     );
 };

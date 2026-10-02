@@ -1,5 +1,4 @@
 import { useAppStore } from "aihappey-state";
-import { useTranslation } from "aihappey-i18n";
 import { ModelContextExtensionsSettingsForm } from "aihappey-components";
 
 export const ModelContextExtensionsSettings = () => {
@@ -11,6 +10,8 @@ export const ModelContextExtensionsSettings = () => {
 
   const enableConversationImport = useAppStore(s => s.enableConversationImport);
   const toggleConversationImport = useAppStore(s => s.toggleConversationImport);
+  const enableMcpSkills = useAppStore(s => s.enableMcpSkills);
+  const setMcpSkillsEnabled = useAppStore(s => s.setMcpSkillsEnabled);
 
   return (
     <ModelContextExtensionsSettingsForm
@@ -18,10 +19,12 @@ export const ModelContextExtensionsSettings = () => {
         enableApps,
         enableAgentImport,
         enableConversationImport,
+        enableMcpSkills,
       }}
       onToggleApps={setEnableApps}
       onToggleAgentImport={toggleAgentImport}
       onToggleConversationImport={toggleConversationImport}
+      onToggleMcpSkills={setMcpSkillsEnabled}
     />
   );
 };
