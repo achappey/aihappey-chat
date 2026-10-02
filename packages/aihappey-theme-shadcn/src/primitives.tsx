@@ -1875,7 +1875,8 @@ export const Tabs = ({ activeKey, onSelect, vertical, iconOnly, fill, children, 
       {tabs.map((tab) => {
         const Icon = tab.props.icon ? iconMap[tab.props.icon as IconToken] : undefined;
         return (
-          <TabsPrimitive.Trigger key={tab.props.eventKey} value={tab.props.eventKey} disabled={tab.props.disabled} className="aih-shadcn-tabs-trigger">
+          <TabsPrimitive.Trigger key={tab.props.eventKey} value={tab.props.eventKey} disabled={tab.props.disabled} className="aih-shadcn-tabs-trigger"
+            title={vertical && iconOnly && typeof tab.props.title === "string" ? tab.props.title : undefined}>
             {Icon ? <Icon size={vertical && iconOnly ? 18 : 14} /> : null}
             <span className="aih-shadcn-tabs-trigger-label">{tab.props.title}</span>
           </TabsPrimitive.Trigger>
