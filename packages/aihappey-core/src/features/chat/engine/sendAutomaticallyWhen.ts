@@ -5,6 +5,7 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
 
     const parts = (lastMessage.parts?.filter((a: any) =>
         !a.type.startsWith("data-")
+        && !a.type.startsWith("source-url")
         && !(a.type === "reasoning" && a.state === "done")) ?? []) as any[];
     if (parts.length === 0) return false;
 
@@ -22,7 +23,6 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
         typeof lastPart?.type === "string" &&
         lastPart.type.startsWith("tool-") &&
         (lastPart.state === "output-available" ||
-            lastPart.state === "approval-responded") &&
-        (!lastPart.providerExecuted || (lastPart.providerExecuted && lastPart.output == undefined))
+            lastPart.state === "approval-responded")
     );
 }
