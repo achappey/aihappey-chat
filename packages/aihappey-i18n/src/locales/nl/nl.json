@@ -1,7 +1,7 @@
 ﻿{
     "urlAttachment": {
-        "title": "URL",
-        "url": "URL (publiek toegankelijk)",
+        "title": "Link",
+        "url": "Link (publiek toegankelijk)",
         "mediaType": "Inhoudstype",
         "detecting": "Inhoudstype controleren...",
         "detected": "Gevonden: {{mediaType}}",
