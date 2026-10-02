@@ -6,6 +6,7 @@ import {
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
   defaultProviderHeaders,
   defaultProviderMetadata,
+  defaultProviderFileMetadata,
   useAppStore,
   type ChatVerbosity,
 } from "aihappey-state";
@@ -43,6 +44,7 @@ import {
   TinyFishChatConfigForm,
   UpstageChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
+  ProviderSettingsTabs,
   useTheme, XAIChatConfigForm,
   RequestyChatConfigForm,
   VeniceChatConfigForm,
@@ -68,6 +70,8 @@ import { useTools } from "../tools/useTools";
 import { usePlugins } from "aihappey-plugins";
 import { ChatPluginsEditor } from "./ChatPluginsEditor";
 import { connectedMcpSkills } from "../skills/connectedMcpSkills";
+import { useProviderFileSettingsTabs } from "../providers/ProviderFileSettings";
+import type { ProviderFileMetadata } from "aihappey-types";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -108,6 +112,7 @@ type ChatSettingsDraft = {
   useToolNamespaces: boolean;
   enabledSkillIds: string[];
   providerMetadata: Record<string, any>;
+  providerFileMetadata: ProviderFileMetadata;
   providerHeaders: Record<string, Record<string, string>>;
 };
 
@@ -129,6 +134,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const defaultTab = "general";
   const [activeTab, setActiveTab] = useState(defaultTab);
   const models = useAppStore((a) => a.models);
+  const providerFileMetadata = useAppStore((s) => s.providerFileMetadata);
+  const setProviderFileMetadata = useAppStore((s) => s.setProviderFileMetadata);
   const agents = useAppStore((a) => a.agents);
   const selectedModel = useAppStore((a) => a.selectedModel);
   const selectedEndpointProfileId = useAppStore((a) => a.selectedEndpointProfileId);
@@ -190,6 +197,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       useToolNamespaces: !!useToolNamespaces,
       enabledSkillIds: [...(enabledSkillIds ?? [])],
       providerMetadata: { ...(providerMetadata ?? {}) },
+      providerFileMetadata: structuredClone(providerFileMetadata ?? defaultProviderFileMetadata),
       providerHeaders: { ...(providerHeaders ?? {}) },
     }),
     [
@@ -202,6 +210,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       maxToolCalls,
       providerHeaders,
       providerMetadata,
+      providerFileMetadata,
       stopTools,
       structuredOutputs,
       verbosity,
@@ -352,6 +361,13 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     const key = ((selectedModelOption as any)?.sourceProviderKey ?? (selectedModelOption as any)?.providerKey ?? selectedModel?.split("/")[0])?.trim().toLowerCase();
     return key || undefined;
   }, [configuredChatEndpoint, effectiveChatEndpoint, providers, selectedBaseUrl, selectedEndpointProfileId, selectedModel, selectedModelOption]);
+
+  const fileSettingsTabs = useProviderFileSettingsTabs(activeProviderKey ?? "", {
+    metadata: draft.providerFileMetadata,
+    updateMetadata: (update) => setDraft((current) => ({
+      ...current, providerFileMetadata: update(current.providerFileMetadata),
+    })),
+  });
 
   const activeProviderTitle = useMemo(() => {
     if (!activeProviderKey) return undefined;
@@ -516,6 +532,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setEnabledSkillIds(draft.enabledSkillIds);
     setProviderMetadata(draft.providerMetadata);
     setProviderHeaders(draft.providerHeaders);
+    setProviderFileMetadata(draft.providerFileMetadata);
   }, [
     draft,
     setActivePlugins,
@@ -525,6 +542,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setUseToolNamespaces,
     setEnabledSkillIds,
     setProviderHeaders,
+    setProviderFileMetadata,
     setMaxOutputTokens,
     setMaxToolCalls,
     setProviderMetadata,
@@ -544,6 +562,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       verbosity: DEFAULT_CHAT_VERBOSITY,
       toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
       providerMetadata: { ...defaultProviderMetadata },
+      providerFileMetadata: structuredClone(defaultProviderFileMetadata),
       providerHeaders: { ...defaultProviderHeaders },
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       toolRequestConfig: {},
@@ -700,9 +719,12 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
             />
           ) : null}
         </theme.Tab>
-        {activeProviderForm && activeProviderTitle ? (
+        {(activeProviderForm || fileSettingsTabs.length > 0) && activeProviderTitle ? (
           <theme.Tab eventKey="provider" title={activeProviderTitle}>
-            {activeTab === "provider" ? activeProviderForm : null}
+            {activeTab === "provider" ? <ProviderSettingsTabs key={activeProviderKey} tabs={[
+              ...(activeProviderForm ? [{ id: "settings", icon: "settings" as const, title: t("settings"), content: activeProviderForm }] : []),
+              ...fileSettingsTabs,
+            ]} /> : null}
           </theme.Tab>
         ) : null}
       </theme.Tabs>

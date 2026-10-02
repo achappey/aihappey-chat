@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { UIMessage, MessageRole } from "aihappey-types";
-import { useAppStore, withFileProviderMetadata } from "aihappey-state";
+import { store, useAppStore, withFileProviderMetadata } from "aihappey-state";
 import * as exifr from 'exifr';
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { toMarkdownLinkSmart } from "../files/markdown";
@@ -40,7 +40,6 @@ export function useUserMessageBuilder({
 
   const sendRawAttachments = useAppStore((s) => s.sendRawAttachments);
   const maxAttachmentsSize = useAppStore((s) => s.maxAttachmentsSize);
-  const providerFileMetadata = useAppStore((s) => s.providerFileMetadata);
 
   const maxSize = typeof maxAttachmentsSize === "number" ? maxAttachmentsSize : 25 * 1024 * 1024;
 
@@ -89,6 +88,9 @@ export function useUserMessageBuilder({
         }
       }
 
+      // Read once after async extraction/conversion, not from a stale render closure.
+      // The resolver snapshots native config, keeping already-built messages immutable.
+      const providerFileMetadata = store.getState().providerFileMetadata;
       return [
         ...(resourceParts ?? []),
         ...(extractedTextParts ?? []),
@@ -100,7 +102,7 @@ export function useUserMessageBuilder({
         ? withFileProviderMetadata(part, providerFileMetadata)
         : part);
     },
-    [attachments, urlAttachments, resourceParts, getAttachmentParts, extractExif, sendRawAttachments, maxSize, providerFileMetadata]
+    [attachments, urlAttachments, resourceParts, getAttachmentParts, extractExif, sendRawAttachments, maxSize]
   );
 
 

@@ -5,6 +5,7 @@ import { getModelProviderKey, getModelTypeIcon, getModelTypeLabelKey, type IconT
 import { ModelCard } from "../cards/ModelCard";
 import { OpenLinkButton } from "../buttons/OpenLinkButton";
 import { useTheme } from "../theme/ThemeContext";
+import { ProviderSettingsTabs, type ProviderSettingsTab } from "../layout/ProviderSettingsTabs";
 
 export type ProviderDetailModalProps = {
     open: boolean;
@@ -28,6 +29,8 @@ export type ProviderDetailModalProps = {
     providerSettingsTypes?: string[];
     /** Optional per-file input forms; unrelated to model generation settings. */
     fileSettings?: React.ReactNode;
+    /** File-input forms integrated into the language model navigation rail. */
+    fileSettingsTabs?: ProviderSettingsTab[];
     size?: "small" | "medium" | "large";
 };
 
@@ -48,11 +51,6 @@ const PROVIDER_LINKS: ProviderLinkConfig[] = [
 
 const uniq = (values: string[]) => Array.from(new Set(values));
 
-const visuallyHidden: React.CSSProperties = {
-    position: "absolute", width: 1, height: 1, padding: 0, margin: -1,
-    overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0,
-};
-
 const ProviderModelTypeContent: React.FC<{
     models: ModelOption[];
     provider?: Provider;
@@ -60,12 +58,13 @@ const ProviderModelTypeContent: React.FC<{
     onToggleModelFavorite?: (model: ModelOption) => void;
     openModelInNewWindow: (model: ModelOption) => void;
     settings?: React.ReactNode;
-}> = ({ models, provider, isModelFavorite, onToggleModelFavorite, openModelInNewWindow, settings }) => {
+    fileSettingsTabs?: ProviderSettingsTab[];
+}> = ({ models, provider, isModelFavorite, onToggleModelFavorite, openModelInNewWindow, settings, fileSettingsTabs = [] }) => {
     const { t } = useTranslation();
-    const { Tabs, Tab, Alert } = useTheme();
-    const [view, setView] = useState("models");
+    const { Alert } = useTheme();
+    const hasTabs = !!settings || fileSettingsTabs.length > 0;
     const cards = (
-        <div style={{ paddingTop: settings ? 0 : 12 }}>
+        <div style={{ paddingTop: hasTabs ? 0 : 12 }}>
             {models.length === 0 ? <Alert variant="warning">{t("none")}</Alert> : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
                     {models.map((model) => (
@@ -85,17 +84,12 @@ const ProviderModelTypeContent: React.FC<{
         </div>
     );
 
-    if (!settings) return cards;
-    return (
-        <Tabs vertical iconOnly activeKey={view} onSelect={setView} style={{ width: "100%", minWidth: 0, marginTop: 12 }}>
-            <Tab eventKey="models" icon="brain" title={<span style={visuallyHidden}>{t("models")}</span>}>
-                {cards}
-            </Tab>
-            <Tab eventKey="settings" icon="settings" title={<span style={visuallyHidden}>{t("settings")}</span>}>
-                <div style={{ minWidth: 0 }}>{view === "settings" ? settings : null}</div>
-            </Tab>
-        </Tabs>
-    );
+    if (!hasTabs) return cards;
+    return <ProviderSettingsTabs tabs={[
+        { id: "models", icon: "brain", title: t("models"), content: cards },
+        ...(settings ? [{ id: "settings", icon: "settings" as IconToken, title: t("settings"), content: settings }] : []),
+        ...fileSettingsTabs,
+    ]} />;
 };
 
 const MODEL_LAUNCH_BY_TYPE: Partial<Record<string, { icon: IconToken; path: string }>> = {
@@ -124,6 +118,7 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
     renderProviderSettings,
     providerSettingsTypes,
     fileSettings,
+    fileSettingsTabs,
     size = "large",
 }) => {
     const { t } = useTranslation();
@@ -149,8 +144,11 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
         const discovered = providerModels.map((m) => m.type).filter(Boolean);
         const source = modelTypes?.length ? modelTypes : discovered;
         const discoveredSet = new Set(discovered);
-        return uniq(source).filter((type) => discoveredSet.has(type));
-    }, [modelTypes, providerModels]);
+        const types = uniq(source).filter((type) => discoveredSet.has(type));
+        // File-only providers still need somewhere to expose their input options.
+        if ((fileSettingsTabs?.length || fileSettings) && !types.includes("language")) types.push("language");
+        return types;
+    }, [modelTypes, providerModels, fileSettingsTabs, fileSettings]);
 
     const modelGroups = useMemo(() => {
         const groups = new Map<string, ModelOption[]>();
@@ -249,10 +247,6 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                     </div>
                 </Tab>
 
-                {fileSettings && <Tab eventKey="files" icon="attachment" title={t("files")}>
-                    {fileSettings}
-                </Tab>}
-
                 {supportedModelTypes.map((type) => {
                     const typeModels = modelGroups.get(type) ?? [];
 
@@ -267,6 +261,9 @@ export const ProviderDetailModal: React.FC<ProviderDetailModalProps> = ({
                                 onToggleModelFavorite={onToggleModelFavorite}
                                 openModelInNewWindow={openModelInNewWindow}
                                 settings={providerSettingsTypes?.includes(type) ? renderProviderSettings?.(type) : undefined}
+                                fileSettingsTabs={type === "language" ? fileSettingsTabs ?? (fileSettings
+                                    ? [{ id: "files", icon: "attachment", title: t("files"), content: fileSettings }]
+                                    : []) : undefined}
                             />
                         </Tab>
                     );

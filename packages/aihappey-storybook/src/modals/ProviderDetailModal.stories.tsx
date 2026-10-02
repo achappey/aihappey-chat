@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import type { ModelOption, Provider } from "aihappey-types";
-import { ProviderDetailModal } from "aihappey-components";
+import { OpenAIChatConfigForm, OpenAIFileConfigForm, ProviderDetailModal } from "aihappey-components";
 
 const SAMPLE_PROVIDER: Provider = {
   name: "OpenAI",
@@ -115,6 +115,49 @@ export const IgnoresUnavailableModelTypes: Story = {
         tags: [],
         description: "Reranking model",
       },
+    ],
+  } as any,
+  render: (args) => <Controlled {...(args as any)} />,
+};
+
+const WithFileForms: React.FC<ControlledProps> = (args) => {
+  const [chatConfig, setChatConfig] = useState({});
+  const [imageConfig, setImageConfig] = useState({});
+  const [defaultConfig, setDefaultConfig] = useState({});
+  return <Controlled {...args}
+    providerSettingsTypes={["language"]}
+    renderProviderSettings={() => <OpenAIChatConfigForm config={chatConfig} updateConfig={setChatConfig} />}
+    fileSettingsTabs={[
+      { id: "file:image", icon: "image", title: "Image", content: <OpenAIFileConfigForm image config={imageConfig} updateConfig={setImageConfig} /> },
+      { id: "file:default", icon: "attachment", title: "Default files", content: <OpenAIFileConfigForm config={defaultConfig} updateConfig={setDefaultConfig} /> },
+    ]} />;
+};
+
+export const LanguageWithFileInputs: Story = {
+  args: { initialOpen: true } as any,
+  render: (args) => <WithFileForms {...(args as any)} />,
+};
+
+export const FileInputsWithoutModels: Story = {
+  args: { initialOpen: true, models: [], modelTypes: [] } as any,
+  render: (args) => <WithFileForms {...(args as any)} />,
+};
+
+export const FileInputsWithoutLanguageSettings: Story = {
+  args: {
+    initialOpen: true,
+    fileSettingsTabs: [{ id: "file:image", icon: "image", title: "Image", content: "Image input configuration" }],
+  } as any,
+  render: (args) => <Controlled {...(args as any)} />,
+};
+
+export const LanguageWithTextFallback: Story = {
+  args: {
+    initialOpen: true,
+    providerSettingsTypes: ["language"],
+    renderProviderSettings: () => "Language configuration",
+    fileSettingsTabs: [
+      { id: "file:custom", title: "Custom input", content: "No unique icon: all tabs show their labels." },
     ],
   } as any,
   render: (args) => <Controlled {...(args as any)} />,

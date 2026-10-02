@@ -23,6 +23,7 @@ interface TabsProps {
   className?: string;
   style?: React.CSSProperties;
   vertical?: boolean;
+  iconOnly?: boolean;
   size?: "small" | "medium" | "large"
   minimumVisible?: number;
   fill?: boolean;
@@ -95,6 +96,7 @@ export const Tabs: React.FC<TabsProps> = ({
   activeKey,
   onSelect,
   vertical,
+  iconOnly,
   style,
   size,
   className,
@@ -125,8 +127,10 @@ export const Tabs: React.FC<TabsProps> = ({
         id={eventKey}
         priority={eventKey === activeKey ? 2 : 1}
       >
-        <FluentTab disabled={disabled} value={eventKey} icon={IconElement && <IconElement />}>
-          {title}
+        <FluentTab disabled={disabled} value={eventKey} icon={IconElement && <IconElement />}
+          title={vertical && iconOnly && typeof title === "string" ? title : undefined}
+          aria-label={vertical && iconOnly && typeof title === "string" ? title : undefined}>
+          {vertical && iconOnly && IconElement ? null : title}
         </FluentTab>
       </OverflowItem>
     );
@@ -144,7 +148,7 @@ export const Tabs: React.FC<TabsProps> = ({
         <div
           style={
             vertical || fill
-              ? { flex: 1, minHeight: 0, overflow: "hidden" }
+              ? { flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden" }
               : {}
           }
         >
@@ -157,7 +161,7 @@ export const Tabs: React.FC<TabsProps> = ({
   return (
     <div
       className={className}
-      style={vertical ? { ...style, display: "flex" } : {...style}}
+      style={vertical ? { ...style, display: "flex", gap: 12 } : {...style}}
     >
       <Overflow
         minimumVisible={minimumVisible}
