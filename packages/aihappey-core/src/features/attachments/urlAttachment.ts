@@ -1,6 +1,14 @@
 import type { FileUIPart } from "aihappey-ai";
 import mime from "mime";
 
+export type UrlAttachment = { type: "url"; url: string };
+
+export const createUrlAttachment = (value: string): UrlAttachment => {
+  const url = value.trim();
+  if (!isHttpUrl(url)) throw new Error("Invalid URL");
+  return { type: "url", url };
+};
+
 export const isHttpUrl = (value: string): boolean => {
   try {
     return ["http:", "https:"].includes(new URL(value).protocol);

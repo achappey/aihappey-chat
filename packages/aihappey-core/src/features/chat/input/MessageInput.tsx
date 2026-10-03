@@ -37,7 +37,7 @@ import { usePromptDictationControls } from "./usePromptDictationControls";
 import { useChatAttachmentAdmission } from "./useChatAttachmentAdmission";
 import { urlAttachmentRuntime, useUrlAttachments } from "../../../runtime/files/urlAttachmentRuntime";
 import { UrlAttachmentModal } from "../../attachments/UrlAttachmentModal";
-import { urlFilename } from "../../attachments/urlAttachment";
+import { UrlAttachmentTags } from "../../attachments/UrlAttachmentTags";
 
 export type MessageInputProps = UseMessageInputOptions & {
   resizeResetKey?: string;
@@ -322,11 +322,8 @@ export const MessageInput = (props: MessageInputProps) => {
             removeFile={(a) => fileAttachmentRuntime.remove(a)}
           />
         )}
-        {urlAttachments.length > 0 && <Tags size="small" items={urlAttachments.map(part => ({
-          key: part.url,
-          icon: "attachment",
-          label: part.filename ?? urlFilename(part.url) ?? part.url,
-        }))} onRemove={urlAttachmentRuntime.remove} />}
+        {urlAttachments.length > 0 && <UrlAttachmentTags attachments={urlAttachments}
+          onRemove={urlAttachmentRuntime.remove} />}
       </div>
     ) : null;
 

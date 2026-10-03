@@ -1,16 +1,20 @@
-import { AttachmentButton, FileTags, useTheme } from "aihappey-components";
+import { FileTags, useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
-import { UseMessageInputOptions } from "../chat/input/useMessageInput";
 import { useFileAttachments, fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
-import { useImageInput } from "./useImageInput";
+import { useImageInput, type UseImagePromptInputOptions } from "./useImageInput";
 import { ImageSettingsButton } from "../image-settings/ImageSettingsButton";
-import { addFilesToRuntime } from "../chat/input/MessageInput";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
+import { MediaAttachmentMenu } from "../attachments/MediaAttachmentMenu";
+import { UrlAttachmentTags } from "../attachments/UrlAttachmentTags";
+import type { UrlAttachment } from "../attachments/urlAttachment";
 
-type ImageInputProps = UseMessageInputOptions & {
+type ImageInputProps = UseImagePromptInputOptions & {
   selectedModel?: string;
+  urlAttachments: UrlAttachment[];
+  onAddUrl: (part: UrlAttachment) => void;
+  onRemoveUrl: (url: string) => void;
 };
 
 export const ImageInput = (props: ImageInputProps) => {
@@ -40,15 +44,18 @@ export const ImageInput = (props: ImageInputProps) => {
   const fileAttachments = useFileAttachments(fileAttachmentRuntime)
 
   const attachmentsElement =
-    fileAttachments.length > 0 ? (
+    fileAttachments.length > 0 || props.urlAttachments.length > 0 ? (
       <div style={styles.tagRow}>
         {fileAttachments.length > 0 && (
           <FileTags
+            size="small"
             icon="image"
             files={fileAttachments}
             removeFile={(a) => fileAttachmentRuntime.remove(a)}
           />
         )}
+        {props.urlAttachments.length > 0 && <UrlAttachmentTags
+          attachments={props.urlAttachments} onRemove={props.onRemoveUrl} />}
       </div>
     ) : null;
 
@@ -73,16 +80,14 @@ export const ImageInput = (props: ImageInputProps) => {
 
       <div style={styles.buttonRow}>
         <div style={styles.leftGroup}>
+          <MediaAttachmentMenu disabled={props.disabled}
+            onFilesSelected={(files) => files.forEach(file => fileAttachmentRuntime.add(file))}
+            onAddUrl={props.onAddUrl} />
           <ImageSettingsButton
             selectedModel={props.selectedModel}
             providerMetadata={providerImageMetadata}
             setProviderMetadata={setProviderImageMetadata} />
 
-          <AttachmentButton
-            disabled={props.disabled}
-            icon="attachment"
-            onFilesSelected={addFilesToRuntime}
-          />
         </div>
 
         {dictationButton}
@@ -115,6 +120,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tagRow: {
     display: "flex",
+    flexWrap: "wrap",
     gap: 8,
     marginBottom: 4,
     width: "100%",

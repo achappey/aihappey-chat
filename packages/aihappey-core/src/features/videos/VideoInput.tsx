@@ -1,4 +1,4 @@
-import { AttachmentButton, FileTags, useTheme } from "aihappey-components";
+import { FileTags, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { UseVideoPromptInputOptions, useVideoInput } from "./useVideoInput";
 import { toSingleVideoAttachment } from "./videoAttachments";
@@ -6,8 +6,17 @@ import { VideoSettingsButton } from "../video-settings/VideoSettingsButton";
 import { useAppStore } from "aihappey-state";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
+import { MediaAttachmentMenu } from "../attachments/MediaAttachmentMenu";
+import { UrlAttachmentTags } from "../attachments/UrlAttachmentTags";
+import type { UrlAttachment } from "../attachments/urlAttachment";
 
-export const VideoInput = (props: UseVideoPromptInputOptions) => {
+type VideoInputProps = UseVideoPromptInputOptions & {
+  urlAttachments: UrlAttachment[];
+  onAddUrl: (part: UrlAttachment) => void;
+  onRemoveUrl: (url: string) => void;
+};
+
+export const VideoInput = (props: VideoInputProps) => {
   const { Button, TextArea } = useTheme();
   const { t } = useTranslation();
   const providerVideoMetadata = useAppStore((s) => s.providerVideoMetadata);
@@ -37,13 +46,16 @@ export const VideoInput = (props: UseVideoPromptInputOptions) => {
   const fileAttachments = props.attachments ?? [];
 
   const attachmentsElement =
-    fileAttachments.length > 0 ? (
+    fileAttachments.length > 0 || props.urlAttachments.length > 0 ? (
       <div style={styles.tagRow}>
-        <FileTags
+        {fileAttachments.length > 0 && <FileTags
+          size="small"
           icon="image"
           files={fileAttachments}
           removeFile={props.onRemoveAttachment}
-        />
+        />}
+        {props.urlAttachments.length > 0 && <UrlAttachmentTags
+          attachments={props.urlAttachments} onRemove={props.onRemoveUrl} />}
       </div>
     ) : null;
 
@@ -67,19 +79,16 @@ export const VideoInput = (props: UseVideoPromptInputOptions) => {
 
       <div style={styles.buttonRow}>
         <div style={styles.leftGroup}>
+          <MediaAttachmentMenu disabled={props.disabled} onAddUrl={props.onAddUrl}
+            onFilesSelected={(files) => {
+              const next = toSingleVideoAttachment(files);
+              if (next) props.onAddAttachments?.([next]);
+            }} />
           <VideoSettingsButton
             providerMetadata={providerVideoMetadata}
             setProviderMetadata={setProviderVideoMetadata}
           />
 
-          <AttachmentButton
-            disabled={props.disabled}
-            icon="attachment"
-            onFilesSelected={(files) => {
-              const next = toSingleVideoAttachment(files);
-              if (next) props.onAddAttachments?.([next]);
-            }}
-          />
         </div>
 
         {dictationButton}
@@ -112,6 +121,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tagRow: {
     display: "flex",
+    flexWrap: "wrap",
     gap: 8,
     marginBottom: 4,
     width: "100%",

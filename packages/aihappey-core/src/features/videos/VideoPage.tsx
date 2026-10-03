@@ -27,6 +27,8 @@ import {
 import { useTranslation } from "aihappey-i18n";
 import { useFiles } from "aihappey-files";
 import { useQueryModelId } from "../models/queryModelSelection";
+import type { VideoModelV4File } from "aihappey-ai/src/videoModelV4";
+import { useMediaUrlAttachments } from "../attachments/useMediaUrlAttachments";
 import {
   createPendingVideoOperation,
   loadPendingVideoOperations,
@@ -243,6 +245,7 @@ export const VideoPage = () => {
   };
 
   const [attachments, setAttachments] = useState<File[]>([]);
+  const { urlAttachments, addUrlAttachment, removeUrlAttachment, clearUrlAttachments } = useMediaUrlAttachments();
   const addAttachments = (files: File[]) => {
     const next = toSingleVideoAttachment(files);
     if (!next) return;
@@ -288,7 +291,7 @@ export const VideoPage = () => {
         }
         : undefined;
 
-      const inputReferences = (
+      const inputReferences: VideoModelV4File[] = (
         await Promise.all(
           (files.items ?? [])
             .filter((file) => file.name.startsWith(VIDEO_INPUT_REFERENCE_PREFIX))
@@ -303,6 +306,7 @@ export const VideoPage = () => {
             })
         )
       ).filter((file): file is { type: "file"; mediaType: string; data: string } => !!file);
+      inputReferences.push(...urlAttachments);
 
       const frameImages = (
         await Promise.all(
@@ -358,6 +362,7 @@ export const VideoPage = () => {
       }));
 
       setAttachments([]);
+      clearUrlAttachments();
     } catch (err) {
       addVideoError(getStorageErrorMessage(err, "Video generation failed"));
     } finally {
@@ -448,6 +453,9 @@ export const VideoPage = () => {
           attachments={attachments}
           onAddAttachments={addAttachments}
           onRemoveAttachment={removeAttachment}
+          urlAttachments={urlAttachments}
+          onAddUrl={addUrlAttachment}
+          onRemoveUrl={removeUrlAttachment}
         />
       </div>
 

@@ -22,6 +22,8 @@ import { useStorageErrorMessage } from "../storage/storageErrorMessage";
 import { useTranslation } from "aihappey-i18n";
 import { downloadImageContent, getImageContentMimeType, getImageFileExtension, imageContentToSrc } from "./imageContentUtils";
 import { useQueryModelId } from "../models/queryModelSelection";
+import type { ImageModelV4File } from "@ai-sdk/provider";
+import { useMediaUrlAttachments } from "../attachments/useMediaUrlAttachments";
 
 export const ImagePage = () => {
   const images = useLibraryImages();
@@ -108,6 +110,7 @@ export const ImagePage = () => {
   };
 
   const attachments = useFileAttachments(fileAttachmentRuntime);
+  const { urlAttachments, addUrlAttachment, removeUrlAttachment } = useMediaUrlAttachments();
   const addAttachment = async (file: File) => {
 
     // Fallback: just add as normal file attachment
@@ -148,13 +151,14 @@ export const ImagePage = () => {
         prev + n
       )
 
-      const files: any[] = await Promise.all(
+      const files: ImageModelV4File[] = await Promise.all(
         attachments.map(async (z) => ({
-          type: "file",
+          type: "file" as const,
           mediaType: z.type,
           data: await fileToBase64(z),
         }))
       );
+      files.push(...urlAttachments);
 
       const imageResult = await imageModel.doGenerate({
         prompt: content,
@@ -267,7 +271,8 @@ export const ImagePage = () => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}>
 
-        <ImageInput onSend={onSend} selectedModel={selectedModel} />
+        <ImageInput onSend={onSend} selectedModel={selectedModel}
+          urlAttachments={urlAttachments} onAddUrl={addUrlAttachment} onRemoveUrl={removeUrlAttachment} />
 
       </div>
 

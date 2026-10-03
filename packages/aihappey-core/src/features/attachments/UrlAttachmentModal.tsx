@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import type { FileUIPart } from "aihappey-ai";
 import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { createUrlFilePart, isHttpUrl, resolveUrlMediaType, validMediaType } from "./urlAttachment";
+import { createUrlAttachment, createUrlFilePart, isHttpUrl, resolveUrlMediaType, validMediaType, type UrlAttachment } from "./urlAttachment";
 
-type Props = { open: boolean; onHide: () => void; onAdd: (part: FileUIPart) => void };
+type Props = { open: boolean; onHide: () => void } & (
+  | { mode?: "file"; onAdd: (part: FileUIPart) => void }
+  | { mode: "url"; onAdd: (part: UrlAttachment) => void }
+);
 
-/** Reusable on any page that accepts file UI parts; no chat runtime dependency. */
-export const UrlAttachmentModal = ({ open, onHide, onAdd }: Props) => {
+/** Chat requires a media type; image/video URL inputs deliberately do not. */
+export const UrlAttachmentModal = (props: Props) => {
+  const { open, onHide } = props;
+  const requiresMediaType = props.mode !== "url";
   const { Modal, Button, Input, Select, Alert, Spinner } = useTheme();
   const { t } = useTranslation();
   const [url, setUrl] = useState("");
@@ -18,7 +23,7 @@ export const UrlAttachmentModal = ({ open, onHide, onAdd }: Props) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!open || !isHttpUrl(url.trim())) {
+    if (!requiresMediaType || !open || !isHttpUrl(url.trim())) {
       setDetected(undefined);
       setPending(false);
       return;
@@ -34,17 +39,21 @@ export const UrlAttachmentModal = ({ open, onHide, onAdd }: Props) => {
       });
     }, 400);
     return () => { current = false; clearTimeout(timer); };
-  }, [open, url]);
+  }, [open, url, requiresMediaType]);
 
   const close = () => {
-    setUrl(""); setDetected(undefined); setSelected(""); setCustom(""); setError("");
+    setUrl(""); setDetected(undefined); setSelected(""); setCustom(""); setPending(false); setError("");
     onHide();
   };
   const mediaType = selected === "custom" ? validMediaType(custom) : selected || detected;
   const submit = () => {
     if (!isHttpUrl(url.trim())) { setError(t("urlAttachment.invalidUrl")); return; }
-    if (!mediaType || pending) { setError(t("urlAttachment.selectMediaType")); return; }
-    onAdd(createUrlFilePart(url, mediaType));
+    if (props.mode === "url") {
+      props.onAdd(createUrlAttachment(url));
+    } else {
+      if (!mediaType || pending) { setError(t("urlAttachment.selectMediaType")); return; }
+      props.onAdd(createUrlFilePart(url, mediaType));
+    }
     close();
   };
   const common = ["text/html", "text/plain", "application/pdf", "application/json", "image/png", "image/jpeg", "image/webp", "audio/mpeg", "video/mp4"];
@@ -52,10 +61,11 @@ export const UrlAttachmentModal = ({ open, onHide, onAdd }: Props) => {
   return <Modal show={open} onHide={close} title={t("urlAttachment.title")}
     actions={<>
       <Button type="button" variant="secondary" onClick={close}>{t("cancel")}</Button>
-      <Button type="button" onClick={submit} disabled={pending || !isHttpUrl(url.trim()) || !mediaType}>{t("add")}</Button>
+      <Button type="button" onClick={submit} disabled={!isHttpUrl(url.trim()) || (requiresMediaType && (pending || !mediaType))}>{t("add")}</Button>
     </>}>
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <Input label={t("urlAttachment.url")} type="url" value={url} onChange={(e: any) => { setUrl(e.target.value); setError(""); }} />
+      {requiresMediaType && <>
       {pending && <div><Spinner size="sm" /> {t("urlAttachment.detecting")}</div>}
       {detected && <div>{t("urlAttachment.detected", { mediaType: detected })}</div>}
       <Select value={selected} label={t("urlAttachment.mediaType")}
@@ -68,6 +78,7 @@ export const UrlAttachmentModal = ({ open, onHide, onAdd }: Props) => {
         onChange={(e: any) => { setCustom(e.target.value); setError(""); }} />}
       {!detected && !pending && isHttpUrl(url.trim()) && <div>{t("urlAttachment.selectMediaType")}</div>}
       {selected === "custom" && custom && !validMediaType(custom) && <Alert variant="danger">{t("urlAttachment.invalidMediaType")}</Alert>}
+      </>}
       {error && <Alert variant="danger">{error}</Alert>}
     </div>
   </Modal>;
