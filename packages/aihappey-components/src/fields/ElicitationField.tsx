@@ -41,7 +41,7 @@ export const ElicitationField = ({
     return (
       <div style={{ marginBottom: 12 }}>
         <Select
-          values={[value]}
+          values={value === undefined || value === null ? [] : [value]}
           valueTitle={field.oneOf.find((a: any) => a.const == value)?.title ?? value}
           hint={field.description}
           options={options}
