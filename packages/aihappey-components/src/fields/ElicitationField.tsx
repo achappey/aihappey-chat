@@ -97,7 +97,7 @@ export const ElicitationField = ({
               ? selectedValues.filter((v: string) => v !== selectedValue)
               : [...selectedValues, selectedValue];
 
-            onChange(nextValues.length > 0 ? nextValues : "");
+            onChange(nextValues.length > 0 ? nextValues : undefined);
           }}
           aria-label={label}
         >
@@ -124,15 +124,25 @@ export const ElicitationField = ({
               ? "datetime-local"
               : "text";
 
+  const isMultiline =
+    field.type === "string" &&
+    !field.format &&
+    (
+      (typeof field.maxLength === "number" && field.maxLength > 255) ||
+      (typeof field.minLength === "number" && field.minLength > 80)
+    );
+
   const input =
-    type == "text" ? (
+    type == "text" && isMultiline ? (
       <TextArea
         hint={field.description}
         value={value}
-        rows={3}
+        rows={10}
         required={required}
         label={label}
-        onChange={onChange}
+        onChange={(value) =>
+          onChange(!required && value === "" ? undefined : value)
+        }
       />
     ) : (
       <Input
@@ -140,10 +150,16 @@ export const ElicitationField = ({
         hint={field.description}
         value={value}
         label={label}
-        onChange={(e) =>
-          onChange(type === "number" ? Number(e.target.value)
-            : e.target.value)
-        }
+        onChange={(e) => {
+          const raw = e.target.value;
+
+          if (!required && raw === "") {
+            onChange(undefined);
+            return;
+          }
+
+          onChange(type === "number" ? Number(raw) : raw);
+        }}
         min={field.minimum}
         max={field.maximum}
         step={field.maximum > 1 ? 1 : 0.1}

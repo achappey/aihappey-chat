@@ -93,17 +93,27 @@ export const ElicitationForm = ({ params, onChange, onRenderMarkdown }: Props) =
   const { requestedSchema, message }: any = params;
   const { properties, required }: any = requestedSchema;
 
+
   const [values, setValues] = useState<Record<string, any>>(() => {
     const v: Record<string, any> = {};
+
     Object.entries(properties).forEach(([k, s]: any) => {
-      if (s.default ?? s.defaultValue) {
-        v[k] = coerceValueBySchema(s, s.default ?? s.defaultValue);
-      } else if (s.type === "boolean") {
-        v[k] = false;
-      } else {
-        v[k] = "";
+      const isRequired = required?.includes(k);
+
+      const defaultValue =
+        s.default !== undefined
+          ? s.default
+          : s.defaultValue !== undefined
+            ? s.defaultValue
+            : undefined;
+
+      if (defaultValue !== undefined) {
+        v[k] = coerceValueBySchema(s, defaultValue);
+      } else if (isRequired) {
+        v[k] = s.type === "boolean" ? false : "";
       }
     });
+
     return v;
   });
 
@@ -135,7 +145,15 @@ export const ElicitationForm = ({ params, onChange, onRenderMarkdown }: Props) =
           value={values[k]}
           required={required?.includes(k)}
           onChange={(val) =>
-            setValues((v) => ({ ...v, [k]: val }))
+            setValues((v) => {
+              if (val === undefined) {
+                const next = { ...v };
+                delete next[k];
+                return next;
+              }
+
+              return { ...v, [k]: val };
+            })
           }
         />
       ))}
