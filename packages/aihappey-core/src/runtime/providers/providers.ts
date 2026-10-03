@@ -615,6 +615,7 @@ import { founden } from "./catalog/founden";
 import { amnt } from "./catalog/amnt";
 import { cursor } from "./catalog/cursor";
 import { manus } from "./catalog/manus";
+import { skyvern } from "./catalog/skyvern";
 
 /**
  * UI-facing provider catalog.
@@ -735,6 +736,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   cognitivessai,
   standardcompute,
   cursor,
+  skyvern,
   lumecoder,
   radient,
   aihorde,
