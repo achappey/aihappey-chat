@@ -613,6 +613,8 @@ import { researchagent } from "./catalog/researchagent";
 import { waslo } from "./catalog/waslo";
 import { founden } from "./catalog/founden";
 import { amnt } from "./catalog/amnt";
+import { cursor } from "./catalog/cursor";
+import { manus } from "./catalog/manus";
 
 /**
  * UI-facing provider catalog.
@@ -721,6 +723,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   tiarina,
   nodion,
   maxlayer,
+  manus,
   critique,
   darkbloom,
   scalixworld,
@@ -731,6 +734,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   neuralring,
   cognitivessai,
   standardcompute,
+  cursor,
   lumecoder,
   radient,
   aihorde,
