@@ -1,5 +1,6 @@
 import type {
-    SpeechModelV4
+    SpeechModelV4,
+    SpeechModelV4CallOptions
 } from "@ai-sdk/provider"
 
 export function createSpeechProvider(config: {
@@ -13,7 +14,7 @@ export function createSpeechProvider(config: {
                 provider: modelId.split("/")?.[0],
                 modelId,
 
-                async doGenerate(options) {
+                async doGenerate(options: SpeechModelV4CallOptions) {
                     const {
                         text,
                         voice,

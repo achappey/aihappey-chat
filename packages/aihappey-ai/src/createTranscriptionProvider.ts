@@ -1,6 +1,7 @@
 import type {
     TranscriptionModelV4,
-    Experimental_TranscriptionModelV4StreamPart
+    Experimental_TranscriptionModelV4StreamPart,
+    TranscriptionModelV4CallOptions
 } from "@ai-sdk/provider"
 
 function parseSseStream(
@@ -83,7 +84,7 @@ export function createTranscriptionProvider(config: {
                 provider: modelId.split("/")?.[0],
                 modelId,
 
-                async doGenerate(options) {
+                async doGenerate(options: TranscriptionModelV4CallOptions) {
                     const {
                         audio,
                         mediaType,

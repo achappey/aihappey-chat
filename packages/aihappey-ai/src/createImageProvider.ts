@@ -1,5 +1,6 @@
 import type {
     ImageModelV4,
+    ImageModelV4CallOptions,
     ImageModelV4Usage
 } from "@ai-sdk/provider"
 
@@ -105,7 +106,7 @@ export function createImageProvider(config: {
                 maxImagesPerCall: maxImagesPerCall,
                 modelId,
 
-                async doGenerate(options) {
+                async doGenerate(options: ImageModelV4CallOptions) {
                     const {
                         prompt,
                         size,
