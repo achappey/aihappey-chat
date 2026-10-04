@@ -618,6 +618,7 @@ import { skyvern } from "./catalog/skyvern";
 import { m8tes } from "./catalog/m8tes";
 import { camelai } from "./catalog/camelai";
 import { agdev } from "./catalog/agdev";
+import { appnz } from "./catalog/appnz";
 
 /**
  * UI-facing provider catalog.
@@ -641,6 +642,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   nexosai,
   soniox,
   orcarouter,
+  appnz,
   doubleword,
   routera,
   mara,

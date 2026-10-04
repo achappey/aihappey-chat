@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
 export const m8tes: Provider = {
-  name: "m8tes",
+  name: "M8tes",
   description:
     "Make everyone on your team a 10x operator. Agents do the recurring work in your real tools, and your team approves the moves that matter.",
   urls: {

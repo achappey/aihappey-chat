@@ -1,7 +1,7 @@
 import type { Provider } from "aihappey-types";
 
 export const agdev: Provider = {
-  name: "Ag.dev",
+  name: "AgDev",
   description:
     "Build, test, and scale autonomous agents to automate any task — no code required.",
   urls: {
