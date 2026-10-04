@@ -266,7 +266,6 @@ import { shuttleai } from "./catalog/shuttleai";
 import { alphaneural } from "./catalog/alphaneural";
 import { routstr } from "./catalog/routstr";
 import { writer } from "./catalog/writer";
-import { glama } from "./catalog/glama";
 import { hanzo } from "./catalog/hanzo";
 import { setapp } from "./catalog/setapp";
 import { surfercloud } from "./catalog/surfercloud";
@@ -933,7 +932,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   claudible,
   llmwise,
   hanzo,
-  glama,
   ocrskill,
   writer,
   routstr,
