@@ -617,6 +617,7 @@ import { manus } from "./catalog/manus";
 import { skyvern } from "./catalog/skyvern";
 import { m8tes } from "./catalog/m8tes";
 import { camelai } from "./catalog/camelai";
+import { agdev } from "./catalog/agdev";
 
 /**
  * UI-facing provider catalog.
@@ -645,6 +646,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   mara,
   mycoai,
   picklyone,
+  agdev,
   tembo,
   poolside,
   copilot,
