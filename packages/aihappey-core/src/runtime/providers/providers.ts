@@ -544,7 +544,6 @@ import { akumi } from "./catalog/akumi";
 import { impossibl } from "./catalog/impossibl";
 import { sluis } from "./catalog/sluis";
 import { neuralring } from "./catalog/neuralring";
-import { episcloud } from "./catalog/episcloud";
 import { cognitivessai } from "./catalog/cognitivessai";
 import { summa } from "./catalog/summa";
 import { meshapi } from "./catalog/meshapi";
@@ -751,7 +750,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   octagon,
   aimagicx,
   impossibl,
-  episcloud,
   sluis,
   sailresearch,
   hyperbrowser,
