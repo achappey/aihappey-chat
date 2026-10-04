@@ -401,18 +401,19 @@ export const PluginsPage = () => {
   }, [setEditorMcpFromPlugin]);
 
   const actionMenuItems: MenuItemProps[] = [
-    {
-      key: "import-plugin",
-      label: t("pluginsPage.actions.import") ?? "Import plugin",
-      icon: "attachment" as IconToken,
-      onClick: () => fileInputRef.current?.click(),
-    },
+
     {
       key: "create-plugin",
       label: t("pluginsPage.actions.create") ?? "Create new plugin",
       icon: "add" as IconToken,
       onClick: handleCreatePlugin,
     },
+    {
+      key: "import-plugin",
+      label: t("pluginsPage.actions.import") ?? "Import plugin",
+      icon: "attachment" as IconToken,
+      onClick: () => fileInputRef.current?.click(),
+    }
   ];
 
   const snapshotSkill = useCallback(async (skillId: string): Promise<StoredPluginFile[]> => {
@@ -524,116 +525,116 @@ export const PluginsPage = () => {
         onChange={handleFileSelect}
       />
       <div style={{ width: CONTENT_MAX_WIDTH, maxWidth: "100%", margin: "0 auto", padding: isDesktop ? 0 : 12, boxSizing: "border-box", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <OverviewPageHeader title={t("pluginsPage.title")} officialUrl="https://agent-plugins.org/" docsUrl="https://agent-plugins.org/specification" />
-            <theme.Text as="p" align="center">{t("pluginsPage.description")}</theme.Text>
-            {feedback ? <div style={{ width: "100%", textAlign: "center", marginBottom: 12 }}>{feedback}</div> : null}
-            <div style={{ width: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
-              <div style={{ flex: "1 1 280px", minWidth: 240, maxWidth: 360 }}>
-                <theme.SearchBox value={search} onChange={setSearch} placeholder={t("searchPlaceholder")} autoFocus={isDesktop} />
-              </div>
-              <div style={{ width: 180, maxWidth: "100%" }}>
-                <SelectComponent
-                  values={selectedKeywords}
-                  multiselect={true}
-                  size="small"
-                  label={t("pluginsPage.editor.keywords")}
-                  valueTitle={getMultiSelectValueTitle(selectedKeywords, keywordLabelsByValue, t("all"))}
-                  onChange={(event: ChangeEvent<HTMLSelectElement> | any) => {
-                    const value = resolveSelectionValue(event);
-                    if (typeof value !== "string") return;
-                    if (value !== PLUGIN_ALL_FILTER_VALUE && (keywordCounts[value] ?? 0) === 0 && !selectedKeywords.includes(value)) return;
-                    setSelectedKeywords((current) => togglePluginMultiSelectValue(current, value));
-                  }}
-                  aria-label="Plugin keyword filter"
-                >
-                  <option value={PLUGIN_ALL_FILTER_VALUE}>{t("all")}</option>
-                  {keywordOptions.map(({ value, label }) => (
-                    <option key={value} value={value} disabled={(keywordCounts[value] ?? 0) === 0 && !selectedKeywords.includes(value)}>
-                      {formatCountedLabel(label, keywordCounts[value])}
-                    </option>
-                  ))}
-                </SelectComponent>
-              </div>
-              <div style={{ width: 180, maxWidth: "100%" }}>
-                <SelectComponent
-                  values={selectedAuthors}
-                  multiselect={true}
-                  size="small"
-                  label={t("pluginsPage.editor.author")}
-                  valueTitle={getMultiSelectValueTitle(selectedAuthors, authorLabelsByValue, t("all"))}
-                  onChange={(event: ChangeEvent<HTMLSelectElement> | any) => {
-                    const value = resolveSelectionValue(event);
-                    if (typeof value !== "string") return;
-                    if (value !== PLUGIN_ALL_FILTER_VALUE && (authorCounts[value] ?? 0) === 0 && !selectedAuthors.includes(value)) return;
-                    setSelectedAuthors((current) => togglePluginMultiSelectValue(current, value));
-                  }}
-                  aria-label="Plugin author filter"
-                >
-                  <option value={PLUGIN_ALL_FILTER_VALUE}>{t("all")}</option>
-                  {authorOptions.map(({ value, label }) => (
-                    <option key={value} value={value} disabled={(authorCounts[value] ?? 0) === 0 && !selectedAuthors.includes(value)}>
-                      {formatCountedLabel(label, authorCounts[value])}
-                    </option>
-                  ))}
-                </SelectComponent>
-              </div>
-            </div>
-            <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
-              <theme.Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
-                <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
-              </theme.Tab>
-              <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
-                <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
-              </theme.Tab>
-            </theme.Tabs>
-            <PluginDetailsModal
-              open={detailsOpen}
-              plugin={details}
-              mcpRegistryItems={mcpRegistryItems}
-              loading={detailsLoading}
-              extensionNamespace={plugins.extensionNamespace}
-              onClose={() => { setDetailsOpen(false); setDetails(undefined); }}
-              onDownload={details ? () => void downloadPlugin(details.id) : undefined}
-              onEdit={details ? () => { setEditorPlugin(details); setEditorMcpFromPlugin(details); setEditorError(null); setEditorMode("edit"); setDetailsOpen(false); } : undefined}
-            />
-            <PluginEditModal
-              open={editorMode !== null}
-              mode={editorMode ?? "create"}
-              plugin={editorPlugin}
-              skillOptions={skillOptions}
-              mcpOptions={draftMcpOptions}
-              initialSelectedSkillIds={initialSelectedSkillIds}
-              initialSelectedMcpIds={initialSelectedMcpIds}
-              extensionNamespace={plugins.extensionNamespace}
-              initialServerSettings={initialServerSettings}
-              authorIdentityName={hasAuthenticatedAuthorIdentity ? account?.name : undefined}
-              authorIdentityEmail={hasAuthenticatedAuthorIdentity ? account?.username : undefined}
-              authorIdentityUrl={authorIdentityUrl}
-              authorIdentityReadOnly={hasAuthenticatedAuthorIdentity}
-              saving={saving}
-              error={editorError}
-              onOpenMcpCatalog={() => setShowMcpCatalog(true)}
-              onRemoveMcpServer={(id) => setDraftMcpOptions((current) => current.filter((item) => item.id !== id))}
-              onClose={() => { if (!saving) { setEditorMode(null); setEditorPlugin(undefined); setEditorError(null); } }}
-              onSave={savePlugin}
-            />
-            <ServerCatalogModal
-              show={showMcpCatalog}
-              onHide={() => setShowMcpCatalog(false)}
-              installedServerKeys={draftMcpOptions.map((item) => item.id)}
-              addMcpServer={(item) => {
-                const remote = item.server.remotes?.find((entry) => entry.type === "streamable-http") ?? item.server.remotes?.find((entry) => entry.type === "sse");
-                if (!remote) return;
-                const id = item.server.name.toLowerCase();
-                setDraftMcpOptions((current) => current.some((entry) => entry.id === id) ? current : [...current, {
-                  id,
-                  label: item.server.title || item.server.name,
-                  config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url },
-                  registry: item,
-                }]);
+        <OverviewPageHeader title={t("pluginsPage.title")} officialUrl="https://agent-plugins.org/" docsUrl="https://agent-plugins.org/specification" />
+        <theme.Text as="p" align="center">{t("pluginsPage.description")}</theme.Text>
+        {feedback ? <div style={{ width: "100%", textAlign: "center", marginBottom: 12 }}>{feedback}</div> : null}
+        <div style={{ width: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+          <div style={{ flex: "1 1 280px", minWidth: 240, maxWidth: 360 }}>
+            <theme.SearchBox value={search} onChange={setSearch} placeholder={t("searchPlaceholder")} autoFocus={isDesktop} />
+          </div>
+          <div style={{ width: 180, maxWidth: "100%" }}>
+            <SelectComponent
+              values={selectedKeywords}
+              multiselect={true}
+              size="small"
+              label={t("pluginsPage.editor.keywords")}
+              valueTitle={getMultiSelectValueTitle(selectedKeywords, keywordLabelsByValue, t("all"))}
+              onChange={(event: ChangeEvent<HTMLSelectElement> | any) => {
+                const value = resolveSelectionValue(event);
+                if (typeof value !== "string") return;
+                if (value !== PLUGIN_ALL_FILTER_VALUE && (keywordCounts[value] ?? 0) === 0 && !selectedKeywords.includes(value)) return;
+                setSelectedKeywords((current) => togglePluginMultiSelectValue(current, value));
               }}
-              removeMcpServer={(item) => setDraftMcpOptions((current) => current.filter((entry) => entry.id !== item.server.name.toLowerCase()))}
-            />
+              aria-label="Plugin keyword filter"
+            >
+              <option value={PLUGIN_ALL_FILTER_VALUE}>{t("all")}</option>
+              {keywordOptions.map(({ value, label }) => (
+                <option key={value} value={value} disabled={(keywordCounts[value] ?? 0) === 0 && !selectedKeywords.includes(value)}>
+                  {formatCountedLabel(label, keywordCounts[value])}
+                </option>
+              ))}
+            </SelectComponent>
+          </div>
+          <div style={{ width: 180, maxWidth: "100%" }}>
+            <SelectComponent
+              values={selectedAuthors}
+              multiselect={true}
+              size="small"
+              label={t("pluginsPage.editor.author")}
+              valueTitle={getMultiSelectValueTitle(selectedAuthors, authorLabelsByValue, t("all"))}
+              onChange={(event: ChangeEvent<HTMLSelectElement> | any) => {
+                const value = resolveSelectionValue(event);
+                if (typeof value !== "string") return;
+                if (value !== PLUGIN_ALL_FILTER_VALUE && (authorCounts[value] ?? 0) === 0 && !selectedAuthors.includes(value)) return;
+                setSelectedAuthors((current) => togglePluginMultiSelectValue(current, value));
+              }}
+              aria-label="Plugin author filter"
+            >
+              <option value={PLUGIN_ALL_FILTER_VALUE}>{t("all")}</option>
+              {authorOptions.map(({ value, label }) => (
+                <option key={value} value={value} disabled={(authorCounts[value] ?? 0) === 0 && !selectedAuthors.includes(value)}>
+                  {formatCountedLabel(label, authorCounts[value])}
+                </option>
+              ))}
+            </SelectComponent>
+          </div>
+        </div>
+        <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
+          <theme.Tab eventKey="all" icon="cardList" title={`${t("all")} (${filtered.length})`}>
+            <div style={{ paddingTop: 12 }}>{renderGrid(filtered)}</div>
+          </theme.Tab>
+          <theme.Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteFiltered.length})`}>
+            <div style={{ paddingTop: 12 }}>{renderGrid(favoriteFiltered)}</div>
+          </theme.Tab>
+        </theme.Tabs>
+        <PluginDetailsModal
+          open={detailsOpen}
+          plugin={details}
+          mcpRegistryItems={mcpRegistryItems}
+          loading={detailsLoading}
+          extensionNamespace={plugins.extensionNamespace}
+          onClose={() => { setDetailsOpen(false); setDetails(undefined); }}
+          onDownload={details ? () => void downloadPlugin(details.id) : undefined}
+          onEdit={details ? () => { setEditorPlugin(details); setEditorMcpFromPlugin(details); setEditorError(null); setEditorMode("edit"); setDetailsOpen(false); } : undefined}
+        />
+        <PluginEditModal
+          open={editorMode !== null}
+          mode={editorMode ?? "create"}
+          plugin={editorPlugin}
+          skillOptions={skillOptions}
+          mcpOptions={draftMcpOptions}
+          initialSelectedSkillIds={initialSelectedSkillIds}
+          initialSelectedMcpIds={initialSelectedMcpIds}
+          extensionNamespace={plugins.extensionNamespace}
+          initialServerSettings={initialServerSettings}
+          authorIdentityName={hasAuthenticatedAuthorIdentity ? account?.name : undefined}
+          authorIdentityEmail={hasAuthenticatedAuthorIdentity ? account?.username : undefined}
+          authorIdentityUrl={authorIdentityUrl}
+          authorIdentityReadOnly={hasAuthenticatedAuthorIdentity}
+          saving={saving}
+          error={editorError}
+          onOpenMcpCatalog={() => setShowMcpCatalog(true)}
+          onRemoveMcpServer={(id) => setDraftMcpOptions((current) => current.filter((item) => item.id !== id))}
+          onClose={() => { if (!saving) { setEditorMode(null); setEditorPlugin(undefined); setEditorError(null); } }}
+          onSave={savePlugin}
+        />
+        <ServerCatalogModal
+          show={showMcpCatalog}
+          onHide={() => setShowMcpCatalog(false)}
+          installedServerKeys={draftMcpOptions.map((item) => item.id)}
+          addMcpServer={(item) => {
+            const remote = item.server.remotes?.find((entry) => entry.type === "streamable-http") ?? item.server.remotes?.find((entry) => entry.type === "sse");
+            if (!remote) return;
+            const id = item.server.name.toLowerCase();
+            setDraftMcpOptions((current) => current.some((entry) => entry.id === id) ? current : [...current, {
+              id,
+              label: item.server.title || item.server.name,
+              config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url },
+              registry: item,
+            }]);
+          }}
+          removeMcpServer={(item) => setDraftMcpOptions((current) => current.filter((entry) => entry.id !== item.server.name.toLowerCase()))}
+        />
       </div>
     </div>
   );

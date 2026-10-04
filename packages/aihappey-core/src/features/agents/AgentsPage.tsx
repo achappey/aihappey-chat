@@ -277,17 +277,17 @@ export const AgentsPage = () => {
 
   const actionMenuItems: MenuItemProps[] = [
     {
-      key: "import-agent",
-      label: t("agents.actions.import") ?? "Import agent",
-      icon: "attachment" as IconToken,
-      onClick: () => fileInputRef.current?.click(),
-    },
-    {
       key: "create-agent",
       label: t("agents.actions.create") ?? "Create new agent",
       icon: "add" as IconToken,
       onClick: handleCreate,
     },
+    {
+      key: "import-agent",
+      label: t("agents.actions.import") ?? "Import agent",
+      icon: "attachment" as IconToken,
+      onClick: () => fileInputRef.current?.click(),
+    }
   ];
 
   const renderGrid = (items: typeof cards) => (

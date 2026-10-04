@@ -454,17 +454,17 @@ export const SkillsPage = () => {
 
   const actionMenuItems: MenuItemProps[] = [
     {
-      key: "import-skill",
-      label: t("skillsPage.actions.import") ?? "Import skill package",
-      icon: "attachment" as IconToken,
-      onClick: () => fileInputRef.current?.click(),
-    },
-    {
       key: "create-skill",
       label: t("skillsPage.actions.create") ?? "Create new skill",
       icon: "add" as IconToken,
       onClick: handleNewSkill,
     },
+    {
+      key: "import-skill",
+      label: t("skillsPage.actions.import") ?? "Import skill package",
+      icon: "attachment" as IconToken,
+      onClick: () => fileInputRef.current?.click(),
+    }
   ];
 
   const renderGrid = (items: SkillCatalogItem[]) => {
@@ -642,10 +642,12 @@ export const SkillsPage = () => {
                   .map((skill) => (
                     <div key={skill.skillId} style={{ maxWidth: 760, width: "100%" }}>
                       <SkillCard
-                        skill={{ id: skill.skillId, name: connectedSkillLabel(skill, mcpSkills),
+                        skill={{
+                          id: skill.skillId, name: connectedSkillLabel(skill, mcpSkills),
                           description: `${skill.entry.frontmatter.description} — ${skill.serverKey} (${skill.entry.uri})`,
                           origin: "remote", fileCount: skill.entry.resources === "dynamic" ? undefined : skill.entry.resources.length,
-                          isDownloaded: false, downloadState: "remote" }}
+                          isDownloaded: false, downloadState: "remote"
+                        }}
                         onView={() => void openMcpDetails(skill)}
                         onDownload={() => void downloadMcpSkill(skill)}
                       />
