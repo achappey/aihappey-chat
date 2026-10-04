@@ -26,7 +26,7 @@
     },
     "urlAttachment": {
         "title": "Link",
-        "url": "Link (publiek toegankelijk)",
+        "url": "URL (publiek toegankelijk)",
         "mediaType": "Inhoudstype",
         "detecting": "Inhoudstype controleren...",
         "detected": "Gevonden: {{mediaType}}",

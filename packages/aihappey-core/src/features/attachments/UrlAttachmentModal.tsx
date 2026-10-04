@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FileUIPart } from "aihappey-ai";
-import { useTheme } from "aihappey-components";
+import { MimeTypeBadge, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { createUrlAttachment, createUrlFilePart, isHttpUrl, resolveUrlMediaType, validMediaType, type UrlAttachment } from "./urlAttachment";
 
@@ -20,9 +20,11 @@ export const UrlAttachmentModal = (props: Props) => {
   const [selected, setSelected] = useState("");
   const [custom, setCustom] = useState("");
   const [pending, setPending] = useState(false);
+  const [checkedUrl, setCheckedUrl] = useState<string>();
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setCheckedUrl(undefined);
     if (!requiresMediaType || !open || !isHttpUrl(url.trim())) {
       setDetected(undefined);
       setPending(false);
@@ -35,17 +37,21 @@ export const UrlAttachmentModal = (props: Props) => {
       void resolveUrlMediaType(url.trim()).then((type) => {
         if (current) setDetected(type);
       }).finally(() => {
-        if (current) setPending(false);
+        if (current) {
+          setCheckedUrl(url.trim());
+          setPending(false);
+        }
       });
     }, 400);
     return () => { current = false; clearTimeout(timer); };
   }, [open, url, requiresMediaType]);
 
   const close = () => {
-    setUrl(""); setDetected(undefined); setSelected(""); setCustom(""); setPending(false); setError("");
+    setUrl(""); setDetected(undefined); setSelected(""); setCustom(""); setPending(false); setCheckedUrl(undefined); setError("");
     onHide();
   };
-  const mediaType = selected === "custom" ? validMediaType(custom) : selected || detected;
+  const detectionComplete = !pending && isHttpUrl(url.trim()) && checkedUrl === url.trim();
+  const mediaType = detectionComplete ? detected || (selected === "custom" ? validMediaType(custom) : selected) : undefined;
   const submit = () => {
     if (!isHttpUrl(url.trim())) { setError(t("urlAttachment.invalidUrl")); return; }
     if (props.mode === "url") {
@@ -67,17 +73,19 @@ export const UrlAttachmentModal = (props: Props) => {
       <Input label={t("urlAttachment.url")} type="url" value={url} onChange={(e: any) => { setUrl(e.target.value); setError(""); }} />
       {requiresMediaType && <>
       {pending && <div><Spinner size="sm" /> {t("urlAttachment.detecting")}</div>}
-      {detected && <div>{t("urlAttachment.detected", { mediaType: detected })}</div>}
+      {detectionComplete && detected && <div><MimeTypeBadge mimeType={detected} /></div>}
+      {detectionComplete && !detected && <>
       <Select value={selected} label={t("urlAttachment.mediaType")}
         onChange={(value: any) => { setSelected(typeof value === "string" ? value : value?.target?.value ?? ""); setError(""); }}>
-        <option value="">{detected ? t("urlAttachment.useDetected") : t("urlAttachment.chooseMediaType")}</option>
+        <option value="">{t("urlAttachment.chooseMediaType")}</option>
         {common.map(type => <option value={type} key={type}>{type}</option>)}
         <option value="custom">{t("urlAttachment.custom")}</option>
       </Select>
       {selected === "custom" && <Input label={t("urlAttachment.customMediaType")} value={custom}
         onChange={(e: any) => { setCustom(e.target.value); setError(""); }} />}
-      {!detected && !pending && isHttpUrl(url.trim()) && <div>{t("urlAttachment.selectMediaType")}</div>}
+      <div>{t("urlAttachment.selectMediaType")}</div>
       {selected === "custom" && custom && !validMediaType(custom) && <Alert variant="danger">{t("urlAttachment.invalidMediaType")}</Alert>}
+      </>}
       </>}
       {error && <Alert variant="danger">{error}</Alert>}
     </div>
