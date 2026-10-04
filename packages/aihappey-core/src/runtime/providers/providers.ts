@@ -475,7 +475,6 @@ import { aigateway } from "./catalog/aigateway";
 import { miapi } from "./catalog/miapi";
 import { rodiumai } from "./catalog/rodiumai";
 import { miromind } from "./catalog/miromind";
-import { serverspace } from "./catalog/serverspace";
 import { thalam } from "./catalog/thalam";
 import { ourtoken } from "./catalog/ourtoken";
 import { hyperrouter } from "./catalog/hyperrouter";
@@ -556,7 +555,6 @@ import { sovereigneg } from "./catalog/sovereigneg";
 import { soniox } from "./catalog/soniox";
 import { nexosai } from "./catalog/nexosai";
 import { hetzner } from "./catalog/hetzner";
-import { leaperone } from "./catalog/leaperone";
 import { mixedbread } from "./catalog/mixedbread";
 import { sovinfra } from "./catalog/sovinfra";
 import { xpersona } from "./catalog/xpersona";
@@ -970,7 +968,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   swarms,
   infron,
   edenai,
-  leaperone,
   maritacaai,
   dataforseo,
   cloudferro,
@@ -1122,7 +1119,6 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   electronhub,
   ohmygpt,
   thalam,
-  serverspace,
   tavily,
   opeai,
   arceeai,
