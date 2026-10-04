@@ -4,7 +4,7 @@ export const copilot: Provider = {
   name: "Copilot",
   description: "Get an AI assistant for work with Microsoft 365 Copilot. See how an enterprise AI solution can support your business and learn more about Copilot plans and pricing.",
   icons: [{
-    src: "https://upload.wikimedia.org/wikipedia/en/thumb/a/aa/Microsoft_Copilot_Icon.svg/250px-Microsoft_Copilot_Icon.svg.png"
+    src: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Microsoft-copilot-2026-seeklogo.svg/1280px-Microsoft-copilot-2026-seeklogo.svg.png"
   }],
   urls: {
     homepage: "https://www.microsoft.com/en-us/microsoft-365-copilot",

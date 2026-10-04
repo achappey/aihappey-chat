@@ -616,6 +616,8 @@ import { amnt } from "./catalog/amnt";
 import { cursor } from "./catalog/cursor";
 import { manus } from "./catalog/manus";
 import { skyvern } from "./catalog/skyvern";
+import { m8tes } from "./catalog/m8tes";
+import { camelai } from "./catalog/camelai";
 
 /**
  * UI-facing provider catalog.
@@ -731,6 +733,8 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   meshapi,
   generalcompute,
   uncloseai,
+  camelai,
+  m8tes,
   summa,
   neuralring,
   cognitivessai,
