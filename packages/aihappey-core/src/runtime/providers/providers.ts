@@ -317,7 +317,6 @@ import { blockrun } from "./catalog/blockrun";
 import { neuralwatt } from "./catalog/neuralwatt";
 import { toapis } from "./catalog/toapis";
 import { onekey } from "./catalog/onekey";
-import { atxp } from "./catalog/atxp";
 import { nagaai } from "./catalog/nagaai";
 import { sargalay } from "./catalog/sargalay";
 import { zeabur } from "./catalog/zeabur";
@@ -868,8 +867,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   youcom,
   aiduet,
   empiriolabsai,
-  infercom,
-  atxp,
+  infercom,  
   sargalay,
   piapi,
   nagaai,
