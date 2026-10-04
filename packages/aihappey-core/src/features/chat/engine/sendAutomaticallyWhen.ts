@@ -2,10 +2,11 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
     const messages = (options?.messages ?? []) as any[];
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage || lastMessage.role !== "assistant") return false;
-
+    console.log(messages)
     const parts = (lastMessage.parts?.filter((a: any) =>
         !a.type.startsWith("data-")
         && !a.type.startsWith("source-url")
+        && !a.type.endsWith("google_antigravity_state")
         && !(a.type === "reasoning" && a.state === "done")) ?? []) as any[];
     if (parts.length === 0) return false;
 
