@@ -10,7 +10,8 @@
     "dev": "npm run -ws dev",
     "build:packages": "npm run -w packages --if-present build",
     "watch:packages": "npm run -w packages --if-present watch",
-    "clean": "rimraf --glob \"packages/*/dist\" \"samples/*/dist\" \"samples/*/public/bundle.js\" \"samples/*/public/bundle.js.map\""
+    "clean": "rimraf --glob \"packages/*/dist\" \"samples/*/dist\" \"samples/*/public/bundle.js\" \"samples/*/public/bundle.js.map\"",
+    "test": "node --test scripts/*.test.cjs"
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
