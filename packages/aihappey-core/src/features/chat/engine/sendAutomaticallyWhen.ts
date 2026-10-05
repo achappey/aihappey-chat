@@ -6,8 +6,8 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
     const parts = (lastMessage.parts?.filter((a: any) =>
         !a.type.startsWith("data-")
         && !a.type.startsWith("source-url")
-        && !a.type.endsWith("google_antigravity_state")
-        && !a.type.endsWith("environment_ready")        
+        && !a.type.endsWith("tool-google_antigravity_state")
+        && !a.type.endsWith("tool-environment_ready")        
         && !(a.type === "reasoning" && a.state === "done")) ?? []) as any[];
     if (parts.length === 0) return false;
 
