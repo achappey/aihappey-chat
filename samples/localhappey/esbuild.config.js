@@ -29,10 +29,10 @@ function parseList(str) {
     .filter(Boolean);
 }
 
-const agentEndpoint = process.env.AGENT_ENDPOINT || "http://localhost:3036";
+const agentEndpoint = process.env.AGENT_ENDPOINT || "http://localhost:5001";
 const appName = process.env.APP_NAME || "YACB";
 const conversationsApi = process.env.CONVERSATIONS_API_URL || "http://localhost:3021/conversations";
-const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3010";
+const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:5000";
 const defaultChatEndpoint = process.env.DEFAULT_CHAT_ENDPOINT || "/api/chat";
 const chatbotInstructions = process.env.CHATBOT_INSTRUCTIONS || "";
 const mcpCatalogUrls = parseList(process.env.MCP_CATALOG_URLS);
