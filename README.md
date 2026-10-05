@@ -23,3 +23,13 @@ The chat client supports:
 Documentation: https://docs.aihappey.com/chat  
 App: https://chat.aihappey.com
 
+## Local mode
+
+Use [local.aihappey.com](https://local.aihappey.com) with the standalone Windows runtimes:
+
+- [aihappey-ai](https://github.com/achappey/aihappey-ai/releases/latest)
+- [aihappey-agents](https://github.com/achappey/aihappey-agents)
+
+The UI is hosted while requests, credentials and agent execution run on your local machine.
+
+
