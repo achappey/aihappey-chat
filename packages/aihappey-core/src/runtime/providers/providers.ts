@@ -615,6 +615,7 @@ import { m8tes } from "./catalog/m8tes";
 import { camelai } from "./catalog/camelai";
 import { agdev } from "./catalog/agdev";
 import { appnz } from "./catalog/appnz";
+import { notte } from "./catalog/notte";
 
 /**
  * UI-facing provider catalog.
@@ -637,6 +638,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   wafer,
   nexosai,
   soniox,
+  notte,
   orcarouter,
   appnz,
   doubleword,
