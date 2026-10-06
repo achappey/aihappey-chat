@@ -1,0 +1,17 @@
+import type { Provider } from "aihappey-types";
+
+export const codebase: Provider = {
+  name: "Codebase",
+  description:
+    "Build anything. Own everything. Describe an app, watch the AI build it live, then download the source. Open-source CLI. No training on your code.",
+  urls: {
+    homepage: "https://codebase.design",
+    docs: "https://codebase.design/docs",
+    pricing: "https://codebase.design/pricing",
+    privacyPolicy: "https://codebase.design/privacy",
+    termsOfService: "https://codebase.design/terms"
+  },
+  providerCountry: "US",
+  category: "app_tools",
+  inferenceRegions: ["World"]
+};

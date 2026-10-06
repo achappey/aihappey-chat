@@ -617,6 +617,7 @@ import { agdev } from "./catalog/agdev";
 import { appnz } from "./catalog/appnz";
 import { notte } from "./catalog/notte";
 import { hcompany } from "./catalog/hcompany";
+import { codebase } from "./catalog/codebase";
 
 /**
  * UI-facing provider catalog.
@@ -630,6 +631,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   epho,
   runtype,
   shadowos,
+  codebase,
   hcompany,
   beastlabai,
   ainvented,
