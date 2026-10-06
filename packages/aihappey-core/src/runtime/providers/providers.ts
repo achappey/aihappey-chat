@@ -616,6 +616,7 @@ import { camelai } from "./catalog/camelai";
 import { agdev } from "./catalog/agdev";
 import { appnz } from "./catalog/appnz";
 import { notte } from "./catalog/notte";
+import { hcompany } from "./catalog/hcompany";
 
 /**
  * UI-facing provider catalog.
@@ -629,6 +630,7 @@ export const PROVIDERS: Record<string, Provider> = withProviderIconFallbacks({
   epho,
   runtype,
   shadowos,
+  hcompany,
   beastlabai,
   ainvented,
   plori,
