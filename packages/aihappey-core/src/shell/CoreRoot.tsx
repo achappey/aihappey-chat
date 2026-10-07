@@ -28,6 +28,7 @@ import { SpeechPage } from "../features/speech/SpeechPage";
 import { JobsPage } from "../features/jobs/JobsPage";
 import { ToolsPage } from "../features/tools/ToolsPage";
 import { FilesPage } from "../features/files/FilesPage";
+import { DecisionsPage } from "../features/decisions/DecisionsPage";
 import { RerankingPage } from "../features/reranking/RerankingPage";
 import { StructuredOutputsPage } from "../features/structured-outputs/StructuredOutputsPage";
 import { SkillsPage } from "../features/skills/SkillsPage";
@@ -146,6 +147,7 @@ export const CoreRoot = ({
             { path: "streaming/transcriptions", element: <StreamingTranscriptionsPage /> },
             { path: "streaming/speech", element: <StreamingSpeechPage /> },
             { path: "jobs", element: <JobsPage /> },
+            { path: "decisions", element: <DecisionsPage /> },
             { path: "reranking", element: <RerankingPage /> },
             { path: "hub-search", element: <HubSearchPage /> },
             { path: "document-hubs", element: <VectorStoresPage /> },

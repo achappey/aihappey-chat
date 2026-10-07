@@ -47,6 +47,7 @@ export const withPersist = (
       userPreferredImageModel: s.userPreferredImageModel,
       userPreferredAudioModel: s.userPreferredAudioModel,
       userPreferredVideoModel: s.userPreferredVideoModel,
+      userPreferredDecisionModel: s.userPreferredDecisionModel,
       userPreferredRerankingModel: s.userPreferredRerankingModel,
       userPreferredEmbeddingModel: s.userPreferredEmbeddingModel,
       userPreferredSpeechModel: s.userPreferredSpeechModel,
@@ -253,6 +254,9 @@ export const withPersist = (
               : [],
             speech: Array.isArray(favoriteModelsByType.speech)
               ? favoriteModelsByType.speech.filter(Boolean)
+              : [],
+            decision: Array.isArray(favoriteModelsByType.decision)
+              ? favoriteModelsByType.decision.filter(Boolean)
               : [],
             reranking: Array.isArray(favoriteModelsByType.reranking)
               ? favoriteModelsByType.reranking.filter(Boolean)

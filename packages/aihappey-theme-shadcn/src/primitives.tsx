@@ -161,6 +161,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   webApps: AppWindow,
   components: Puzzle,
   plugins: PackageOpen,
+  decision: Split,
   reranking: ArrowDownAZ,
   labs: Beaker,
   rerankingSettings: Settings,
@@ -1463,6 +1464,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
       { key: "audio", label: labels.audio ?? labels.realtime ?? "Realtime", providers: providerGroups.audio ?? [] },
       { key: "transcription", label: labels.transcription ?? "Transcription", providers: providerGroups.transcription ?? [] },
       { key: "speech", label: labels.speech ?? "Speech", providers: providerGroups.speech ?? [] },
+      { key: "decision", label: labels.decision ?? "Decision", providers: providerGroups.decision ?? [] },
       { key: "reranking", label: labels.reranking ?? "Reranking", providers: providerGroups.reranking ?? [] },
       { key: "video", label: labels.video ?? "Video", providers: providerGroups.video ?? [] },
       { key: "embedding", label: labels.embedding ?? "Embedding", providers: providerGroups.embedding ?? [] }

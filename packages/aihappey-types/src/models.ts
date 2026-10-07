@@ -11,6 +11,7 @@ const MODEL_TYPE_ICONS: Record<string, IconToken> = {
   audio: "realtime",
   transcription: "transcription",
   speech: "speech",
+  decision: "decision",
   reranking: "reranking",
   video: "video",
 };

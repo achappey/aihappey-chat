@@ -17,6 +17,7 @@ export interface UserMenuLabels {
   audio?: string;
   speech?: string;
   transcription?: string;
+  decision?: string;
   reranking?: string;
   video?: string;
 }

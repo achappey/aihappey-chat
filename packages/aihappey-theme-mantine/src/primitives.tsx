@@ -205,6 +205,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   webApps: makeIcon("▢"),
   components: makeIcon("▦"),
   plugins: makeIcon("📦"),
+  decision: makeIcon("⑂"),
   reranking: makeIcon("⇅"),
   labs: makeIcon("⚗"),
   rerankingSettings: makeIcon("⚙"),

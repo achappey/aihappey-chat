@@ -190,6 +190,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   preview: EyeRegular,
   toolResult: DocumentTextToolboxRegular,
   stop: StopFilled,
+  decision: ArrowSplitRegular,
   reranking: ArrowSortDownLinesRegular,
   rerankingSettings: TextBulletListSquareSettingsRegular,
   navigationMenu: Hamburger,

@@ -20,3 +20,4 @@ export * from "./layout/ProviderSettingsTabs";
 export * from "./forms/providers/venice";
 export * from "./forms/providers/linkup";
 export * from "./forms/providers/mireye";
+export * from "./decisions";

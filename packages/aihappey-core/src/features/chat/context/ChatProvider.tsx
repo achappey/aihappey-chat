@@ -33,6 +33,7 @@ export interface ChatConfig extends AiChatConfig {
    audio: string[];
     transcription: string[];
     speech: string[];
+    decision: string[];
     reranking: string[];
     video: string[];
   }>;

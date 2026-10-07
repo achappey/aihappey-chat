@@ -29,6 +29,7 @@ import { JobsProvider } from "aihappey-jobs";
 import { ToolsProvider } from "aihappey-tools";
 import { FilesProvider } from "aihappey-files";
 import { TranscriptionsProvider } from "aihappey-transcriptions";
+import { DecisionsProvider } from "aihappey-decisions";
 import { RerankingProvider } from "aihappey-reranking";
 import { SpeechProvider } from "aihappey-speech";
 import { ErrorLog } from "./bootstrap/ErrorLog";
@@ -347,7 +348,7 @@ export const CoreShell: React.FC<Props> = ({
           <VectorStoresProvider>
             <ToolsProvider storageKind={"indexeddb"}>
             <FilesProvider>
-              <RerankingProvider>
+              <DecisionsProvider><RerankingProvider>
                 <TranscriptionsProvider>
                   <StructuredOutputsProvider>
                     <VideosProvider>
@@ -392,7 +393,7 @@ export const CoreShell: React.FC<Props> = ({
                     </VideosProvider>
                   </StructuredOutputsProvider>
                 </TranscriptionsProvider>
-              </RerankingProvider>
+              </RerankingProvider></DecisionsProvider>
             </FilesProvider>
             </ToolsProvider>
           </VectorStoresProvider>

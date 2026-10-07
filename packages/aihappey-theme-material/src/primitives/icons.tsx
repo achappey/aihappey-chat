@@ -137,6 +137,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   webApps: makeIcon(WebAsset),
   components: makeIcon(Extension),
   plugins: makeIcon(Inventory2),
+  decision: makeIcon(AccountTree),
   reranking: makeIcon(Sort),
   labs: makeIcon(Science),
   rerankingSettings: makeIcon(Settings),

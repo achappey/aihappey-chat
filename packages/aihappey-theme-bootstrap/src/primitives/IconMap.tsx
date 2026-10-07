@@ -197,6 +197,7 @@ export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
   send: <Send />,
   chevronLeft: <ChevronLeft />,
   chevronRight: <ChevronRight />,
+  decision: <SignpostSplit />,
   reranking: <SortDown />,
   rerankingSettings: <Sliders />,
   priority: <ExclamationCircle />,

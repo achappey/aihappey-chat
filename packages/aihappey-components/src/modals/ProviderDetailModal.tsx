@@ -97,7 +97,8 @@ const MODEL_LAUNCH_BY_TYPE: Partial<Record<string, { icon: IconToken; path: stri
     video: { icon: "video", path: "/videos" },
     speech: { icon: "speech", path: "/speech" },
     transcription: { icon: "transcription", path: "/transcriptions" },
-    reranking: { icon: "reranking", path: "/reranking" },
+    decision: { icon: "decision", path: "/decisions" },
+  reranking: { icon: "reranking", path: "/reranking" },
     image: { icon: "image", path: "/images" },
 };
 

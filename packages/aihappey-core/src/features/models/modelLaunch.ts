@@ -10,6 +10,7 @@ const MODEL_LAUNCH_BY_TYPE: Partial<Record<string, ModelLaunchConfig>> = {
   video: { icon: "video", path: "/videos" },
   speech: { icon: "speech", path: "/speech" },
   transcription: { icon: "transcription", path: "/transcriptions" },
+  decision: { icon: "decision", path: "/decisions" },
   reranking: { icon: "reranking", path: "/reranking" },
   image: { icon: "image", path: "/images" },
 };

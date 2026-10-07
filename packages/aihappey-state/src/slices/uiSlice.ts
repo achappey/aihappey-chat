@@ -101,6 +101,7 @@ export const PROVIDER_CAPABILITIES = [
   "audio",
   "transcription",
   "speech",
+  "decision",
   "reranking",
   "video",
 ] as const;
@@ -159,6 +160,7 @@ export const createEmptyEnabledProvidersByType = (): EnabledProvidersByType => (
   audio: [],
   transcription: [],
   speech: [],
+  decision: [],
   reranking: [],
   video: [],
 });
@@ -170,6 +172,7 @@ export const createEmptyFavoriteModelsByType = (): FavoriteModelsByType => ({
   audio: [],
   transcription: [],
   speech: [],
+  decision: [],
   reranking: [],
   video: [],
 });
@@ -316,6 +319,9 @@ export type UiSlice = {
 
   userPreferredVideoModel?: string;
   setUserPreferredVideoModel: (model: string) => void;
+
+  userPreferredDecisionModel?: string;
+  setUserPreferredDecisionModel: (model: string) => void;
 
   userPreferredRerankingModel?: string;
   setUserPreferredRerankingModel: (model: string) => void;
@@ -497,6 +503,8 @@ export const createUiSlice: StateCreator<
         userPreferredVideoModel: model
       }
     }),
+
+  setUserPreferredDecisionModel: (model) => set(() => ({ userPreferredDecisionModel: model })),
 
   setUserPreferredRerankingModel: (model) =>
     set((state: any) => {

@@ -48,6 +48,7 @@ export type IconToken =
   | "structuredOutputs"
   | "webApps"
   | "components"
+  | "decision"
   | "reranking"
   | "labs"
   | "rerankingSettings"

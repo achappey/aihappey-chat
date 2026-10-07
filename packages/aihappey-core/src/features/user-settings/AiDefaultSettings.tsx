@@ -37,6 +37,8 @@ export const AiDefaultSettings: React.FC = () => {
 
   const userPreferredRerankingModel = useAppStore((s) => s.userPreferredRerankingModel);
   const setUserPreferredRerankingModel = useAppStore((s) => s.setUserPreferredRerankingModel);
+  const userPreferredDecisionModel = useAppStore((s) => s.userPreferredDecisionModel);
+  const setUserPreferredDecisionModel = useAppStore((s) => s.setUserPreferredDecisionModel);
 
   const userPreferredEmbeddingModel = useAppStore((s) => s.userPreferredEmbeddingModel);
   const setUserPreferredEmbeddingModel = useAppStore((s) => s.setUserPreferredEmbeddingModel);
@@ -213,6 +215,16 @@ export const AiDefaultSettings: React.FC = () => {
         </theme.Tab>
 
 
+
+        <theme.Tab eventKey="decision" icon={getModelTypeIcon("decision")} title={t("decision")}>
+          <div style={formStyle}>
+            <ModelSelect models={models ?? []} modelTypes={["decision"]}
+              value={userPreferredDecisionModel ?? ""}
+              label={t("settingsModal.defaultModel")}
+              onChange={setUserPreferredDecisionModel}
+              autoSelectFallback={false} />
+          </div>
+        </theme.Tab>
 
         <theme.Tab eventKey="reranking" icon={getModelTypeIcon("reranking")} title={t(getModelTypeLabelKey("reranking"))}>
           <div style={formStyle}>

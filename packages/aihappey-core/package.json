@@ -28,6 +28,7 @@
     "aihappey-clients": "^0.1.0",
     "aihappey-components": "*",
     "aihappey-conversations": "*",
+    "aihappey-decisions": "*",
     "aihappey-embeddings": "*",
     "aihappey-files": "*",
     "aihappey-http": "*",

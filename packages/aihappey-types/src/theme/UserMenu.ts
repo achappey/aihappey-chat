@@ -10,6 +10,7 @@ export type ProviderCapability =
   | "audio"
   | "transcription"
   | "speech"
+  | "decision"
   | "reranking"
   | "video";
 

@@ -189,6 +189,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   webApps: makeIcon(FaDesktop),
   components: makeIcon(FaLayerGroup),
   plugins: makeIcon(FaBoxOpen),
+  decision: makeIcon(FaCodeBranch),
   reranking: makeIcon(FaSortAmountDown),
   labs: makeIcon(FaFlask),
   rerankingSettings: makeIcon(FaCog),

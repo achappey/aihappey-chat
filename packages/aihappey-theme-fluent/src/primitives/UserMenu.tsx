@@ -91,6 +91,11 @@ export const UserMenu: React.FC<UserMenuProps> = ({
       },
       { key: "speech", label: labels.speech ?? "Speech", providers: g.speech ?? [] },
       {
+        key: "decision",
+        label: labels.decision ?? "Decision",
+        providers: g.decision ?? [],
+      },
+      {
         key: "reranking",
         label: labels.reranking ?? "Reranking",
         providers: g.reranking ?? [],

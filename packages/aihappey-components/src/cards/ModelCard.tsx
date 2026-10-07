@@ -23,6 +23,7 @@ const DEFAULT_LAUNCH_ICON_BY_MODEL_TYPE: Partial<Record<string, IconToken>> = {
   video: "video",
   speech: "speech",
   transcription: "transcription",
+  decision: "decision",
   reranking: "reranking",
   image: "image",
 };

@@ -120,6 +120,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
       audio: new Set<string>(),
       speech: new Set<string>(),
       transcription: new Set<string>(),
+      decision: new Set<string>(),
       reranking: new Set<string>(),
       video: new Set<string>(),
     };
@@ -208,6 +209,7 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
           next: t("next"),
           previous: t("previous"),
           transcription: t("transcription"),
+          decision: t("decision"),
           reranking: t("reranking"),
           video: t("video"),
         }}

@@ -569,6 +569,7 @@ export const createChatSlice: StateCreator<
         audio: [],
         transcription: [],
         speech: [],
+        decision: [],
         reranking: [],
         video: [],
       },

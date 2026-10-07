@@ -130,6 +130,12 @@ export const ConversationSidebar = ({
       icon: "speech",
     },
     {
+      key: "decisions",
+      label: t("decisions"),
+      href: "/decisions",
+      icon: "decision",
+    },
+    {
       key: "reranking",
       label: t("reranking"),
       href: "/reranking",
@@ -419,7 +425,9 @@ export const ConversationSidebar = ({
                                 ? "catalogs"
                                 : location.pathname === "/registries"
                                   ? "registries"
-                                  : location.pathname === "/reranking"
+                                  : location.pathname === "/decisions"
+                                    ? "decisions"
+                                    : location.pathname === "/reranking"
                                     ? "reranking"
                                     : location.pathname === "/jobs"
                                       ? "jobs"
@@ -475,6 +483,8 @@ export const ConversationSidebar = ({
       await navigate("/catalogs");
     } else if (id === "registries") {
       await navigate("/registries");
+    } else if (id === "decisions") {
+      await navigate("/decisions");
     } else if (id === "reranking") {
       await navigate("/reranking");
     } else if (id === "realtime") {

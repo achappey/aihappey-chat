@@ -126,6 +126,15 @@ const MinimalNavBar = ({
 
 
       <Button
+        icon="decision"
+        size="small"
+        variant="transparent"
+        title={t("decisions")}
+        aria-label={t("decisions")}
+        style={{ marginBottom: 8 }}
+        onClick={() => navigate("/decisions")}
+      />
+      <Button
         icon="reranking"
         size="small"
         variant="transparent"

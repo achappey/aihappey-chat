@@ -4,6 +4,7 @@ const MODEL_TYPES = [
   "language",
   "transcription",
   "speech",
+  "decision",
   "reranking",
   "embedding",
   "image",
