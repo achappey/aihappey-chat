@@ -33,15 +33,6 @@ export function useDecisionsController() {
   const [questions, setQuestionsState] = useState<DecisionQuestion[]>([]);
   const [images, setImages] = useState<DecisionImage[]>([]);
   const [result, setResult] = useState<DecisionResponse>();
-  const [providerOptionsText, setOptionsText] = useState("{}");
-  const providerOptions = useMemo<Record<string, any> | undefined>(() => {
-    try {
-      const value = JSON.parse(providerOptionsText);
-      return value && typeof value === "object" && !Array.isArray(value)
-        && Object.values(value).every(v => v && typeof v === "object" && !Array.isArray(v)) ? value : undefined;
-    } catch { return undefined; }
-  }, [providerOptionsText]);
-  const providerOptionsValid = providerOptions !== undefined;
   const [processing, setProcessing] = useState(false);
   const [readingImages, setReadingImages] = useState(false);
   const [errors, setErrors] = useState<{ id: string; message: string }[]>([]);
@@ -57,7 +48,6 @@ export function useDecisionsController() {
   const setSelectedModel = useCallback((value: string) => { invalidate(); setModel(value); }, [invalidate]);
   const setPrompt = useCallback((value: string) => { invalidate(); setPromptState(value); }, [invalidate]);
   const setQuestions = useCallback((value: DecisionQuestion[]) => { invalidate(); setQuestionsState(structuredClone(value)); }, [invalidate]);
-  const setProviderOptionsText = useCallback((value: string) => { invalidate(); setOptionsText(value); }, [invalidate]);
   useEffect(() => { if (queryModel) setSelectedModel(queryModel); }, [queryModel, setSelectedModel]);
   const input = useMemo<DecisionInput>(() => images.length ? [{ role: "user", content: [
     ...(prompt.trim() ? [{ type: "input_text" as const, text: prompt }] : []),
@@ -66,7 +56,7 @@ export function useDecisionsController() {
   const modelValid = !!models?.some(m => m.id === selectedModel && m.type === "decision" && m.route !== "direct");
   const gatewayAvailable = !!config.baseUrl && config.gatewayEnabled !== false;
   const canSend = gatewayAvailable && modelValid && !processing && !readingImages && isValidDecisionInput(input)
-    && isValidDecisionQuestions(questions) && providerOptionsValid;
+    && isValidDecisionQuestions(questions);
 
   const addImages = useCallback(async (files: File[]) => {
     if (!files.length || busy.current || reading.current) return;
@@ -84,7 +74,7 @@ export function useDecisionsController() {
   const onSend = useCallback(async () => {
     if (!canSend || busy.current || reading.current) return;
     busy.current = true; setProcessing(true); setResult(undefined);
-    const request = structuredClone({ model: selectedModel, input, questions, providerOptions });
+    const request = structuredClone({ model: selectedModel, input, questions });
     const requestRevision = revision.current;
     const controller = new AbortController(); abort.current = controller;
     try {
@@ -97,7 +87,7 @@ export function useDecisionsController() {
         headers: Object.fromEntries(headers.entries()), fetch: config.fetch,
       });
       const response = await client.decisionModel(request.model).doDecide({ state: request.input,
-        questions: toWireQuestions(request.questions), providerOptions: request.providerOptions, abortSignal: controller.signal });
+        questions: toWireQuestions(request.questions), abortSignal: controller.signal });
       if (!isValidDecisionResponse(response, request.questions)) throw new Error(t("decisionsPage.invalidResponse"));
       if (!mounted.current) return;
       if (revision.current === requestRevision) setResult(response);
@@ -109,8 +99,8 @@ export function useDecisionsController() {
       busy.current = false;
       if (mounted.current) setProcessing(false);
     }
-  }, [canSend, selectedModel, input, questions, providerOptions, config, customHeaders, store, addError, storageError, t]);
+  }, [canSend, selectedModel, input, questions, config, customHeaders, store, addError, storageError, t]);
   return { models, selectedModel, setSelectedModel, prompt, setPrompt, questions, setQuestions, images,
     addImages, removeImage, result, processing, readingImages, canSend, gatewayAvailable,
-    providerOptionsText, setProviderOptionsText, providerOptionsValid, errors, addError, dismissError, onSend };
+    errors, addError, dismissError, onSend };
 }

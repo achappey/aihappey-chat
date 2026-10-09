@@ -2,6 +2,7 @@
   "decision": "Decision",
   "decisions": "Decisions",
   "decisionsPage": {
+    "overview": "Overview",
     "questionSets": "Question sets",
     "questionType": "Question type",
     "predicate": "Predicate",

@@ -2,6 +2,7 @@
     "decision": "Beslissing",
     "decisions": "Beslissingen",
     "decisionsPage": {
+        "overview": "Overzicht",
         "questionSets": "Vragensets",
         "questionType": "Vraagtype",
         "predicate": "Predicaat",

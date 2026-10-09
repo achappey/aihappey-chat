@@ -68,11 +68,6 @@ export function DecisionsPage() {
           actions={<Button type="button" icon="delete" variant="transparent" size="small" title={t("delete")} disabled={locked} onClick={() => c.removeImage(image.id)} />}>
           <img src={image.image_url} alt={image.name} style={{ maxWidth: "100%", maxHeight: 180, objectFit: "contain" }} />
         </Card>)}</div>}
-        <details style={{ marginTop: 16 }}><summary>{t("decisionsPage.providerOptions", { defaultValue: "Provider options (JSON)" })}</summary>
-          <TextArea value={c.providerOptionsText} onChange={locked ? undefined : c.setProviderOptionsText} readOnly={locked} rows={4}
-            label={t("decisionsPage.providerOptions", { defaultValue: "Provider options (JSON)" })} />
-          {!c.providerOptionsValid && <Alert variant="warning">{t("decisionsPage.invalidOptions", { defaultValue: "Enter a JSON object keyed by provider name." })}</Alert>}
-        </details>
       </form>
       <h2 style={{ marginTop: 44 }}>{t("decisionsPage.questionsAndAnswers")}</h2>
       <Tabs activeKey={activeTab} onSelect={setActiveTab}>
