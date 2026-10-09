@@ -52,7 +52,7 @@ export function DecisionsPage() {
         <div onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragging(true); } }} onDragLeave={() => setDragging(false)}
           onDrop={e => { e.preventDefault(); setDragging(false); void c.addImages(Array.from(e.dataTransfer.files)); }}
           style={{ outline: dragging ? "2px dashed currentColor" : undefined }}>
-          <TextArea label={t("decisionsPage.input")} value={c.prompt} onChange={locked ? undefined : c.setPrompt} readOnly={locked}
+          <TextArea value={c.prompt} onChange={locked ? undefined : c.setPrompt} readOnly={locked}
             rows={5} placeholder={t("decisionsPage.inputPlaceholder")} style={{ width: "100%", resize: "vertical" }} />
         </div>
         <input ref={fileInput} type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }} onChange={e => {
