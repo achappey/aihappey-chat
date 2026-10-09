@@ -12,7 +12,7 @@ import { useDecisionsController } from "./useDecisionsController";
 const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 16, marginTop: 16 };
 
 export function DecisionsPage() {
-  const { Tabs, Tab, TextArea, Button, Card, Alert } = useTheme();
+  const { Tabs, Tab, TextArea, Button, Card, Alert, Tags } = useTheme();
   const { t } = useTranslation();
   const c = useDecisionsController();
   const store = useDecisions();
@@ -25,7 +25,7 @@ export function DecisionsPage() {
   const [editingSet, setEditingSet] = useState<QuestionSet | "new">();
   const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
-  const locked = c.processing || c.readingImages;
+  const locked = c.processing || c.readingAttachments;
   const model = c.models?.find(m => m.id === c.selectedModel);
   useEffect(() => { if (store.error) { c.addError(storageError(store.error, t("decisionsPage.loadFailed"))); store.clearError(); } }, [store.error, store.clearError, c.addError, storageError, t]);
   const storageAction = async (action: () => Promise<void>) => {
@@ -49,21 +49,29 @@ export function DecisionsPage() {
         <h1>{t("decisions")}</h1>
         {!c.gatewayAvailable && <Alert variant="warning">{t("decisionsPage.gatewayRequired")}</Alert>}
         {!c.models?.some(m => m.type === "decision" && m.route !== "direct") && <Alert variant="info">{t("decisionsPage.noModels")}</Alert>}
-        <div onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); setDragging(true); } }} onDragLeave={() => setDragging(false)}
-          onDrop={e => { e.preventDefault(); setDragging(false); void c.addImages(Array.from(e.dataTransfer.files)); }}
+        <div onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); if (!locked) setDragging(true); } }} onDragLeave={() => setDragging(false)}
+          onDrop={e => { e.preventDefault(); setDragging(false); if (!locked) void c.addAttachments(Array.from(e.dataTransfer.files)); }}
           style={{ outline: dragging ? "2px dashed currentColor" : undefined }}>
           <TextArea value={c.prompt} onChange={locked ? undefined : c.setPrompt} readOnly={locked}
             rows={5} placeholder={t("decisionsPage.inputPlaceholder")} style={{ width: "100%", resize: "vertical" }} />
         </div>
-        <input ref={fileInput} type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }} onChange={e => {
-          const files = Array.from(e.target.files ?? []); e.target.value = ""; void c.addImages(files);
+        <input ref={fileInput} type="file" multiple disabled={locked} style={{ display: "none" }} onChange={e => {
+          const files = Array.from(e.target.files ?? []); e.target.value = ""; if (!locked) void c.addAttachments(files);
         }} />
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 8 }}>
-          <Button type="button" icon="attachment" variant="subtle" size="large" disabled={locked} title={t("decisionsPage.addImages")} onClick={() => fileInput.current?.click()} />
+          <Button type="button" icon="attachment" variant="subtle" size="large" disabled={locked} title={t("decisionsPage.addAttachments")} onClick={() => fileInput.current?.click()} />
           {!!c.images.length && <span>{t("decisionsPage.imageCount", { count: c.images.length })}</span>}
           <div style={{ flex: 1 }} />
           <Button type="submit" icon="send" size="large" disabled={!c.canSend} title={t(c.processing ? "decisionsPage.processing" : "decisionsPage.send")} />
         </div>
+        {c.readingAttachments && <div role="status" style={{ marginTop: 8 }}>{t("decisionsPage.preparingAttachments")}</div>}
+        {!!c.documents.length && <div style={{ marginTop: 8 }}>
+          <Tags size="small" items={c.documents.map(document => ({ key: document.id, label: document.name, icon: "attachment",
+            description: t("decisionsPage.extractedDocument") }))} onRemove={locked ? undefined : c.removeDocument} />
+        </div>}
+        {c.attachmentWarnings.map(warning => <div key={warning.id} style={{ marginTop: 8 }}>
+          <Alert variant="warning" onDismiss={() => c.dismissAttachmentWarning(warning.id)}>{warning.message}</Alert>
+        </div>)}
         {!!c.images.length && <div style={grid}>{c.images.map(image => <Card key={image.id} size="small" title={image.name}
           actions={<Button type="button" icon="delete" variant="transparent" size="small" title={t("delete")} disabled={locked} onClick={() => c.removeImage(image.id)} />}>
           <img src={image.image_url} alt={image.name} style={{ maxWidth: "100%", maxHeight: 180, objectFit: "contain" }} />
