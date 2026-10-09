@@ -1,5 +1,5 @@
 import { ModelSelect } from "../models/ModelSelect";
-import { useAppStore } from "aihappey-state";
+import { useAppStore, normalizeProviderTranscriptionMetadata } from "aihappey-state";
 import { useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
 import { useChatFileDrop } from "../chat/input/useChatFileDrop";
@@ -9,14 +9,6 @@ import { useTranscriptions } from "aihappey-transcriptions";
 import { ErrorAlerts, ModelFavoriteToggleButton, TranscriptionCard, useTheme, WarningAlerts } from "aihappey-components";
 import { TranscriptionInput } from "./TranscriptionInput";
 import { fileToBase64 } from "../chat/files/file";
-import { useFiles } from "aihappey-files";
-import {
-  deleteKnownSpeakerReferenceSamples,
-  getLatestKnownSpeakerReferenceItem,
-  migrateKnownSpeakerReferenceSample,
-  saveKnownSpeakerReferenceSample,
-} from "aihappey-files";
-import { withOpenAiKnownSpeakerReferences } from "./knownSpeakersProviderMetadata";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useTranscriptionErrors } from "./useTranscriptionErrors";
 import { getTranscriptionErrorMessage } from "./transcriptionErrors";
@@ -122,7 +114,7 @@ export const TranscriptionsPage = () => {
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "transcription");
   const [selectedModel, setSelectedModel] = useState<string>(queryModelId ?? userPreferredTranscriptionModel
-    ?? (getAccessToken ? "openai/gpt-4o-transcribe-diarize" : ""));
+    ?? (getAccessToken ? "openai/gpt-transcribe" : ""));
   const headers = config?.headers;
   const { Skeleton, Tabs, Tab } = useTheme() as unknown as Pick<AihUiTheme, "Skeleton" | "Tabs" | "Tab">;
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
@@ -131,7 +123,6 @@ export const TranscriptionsPage = () => {
   const { t } = useTranslation()
   const getStorageErrorMessage = useStorageErrorMessage();
   const storageTranscriptions = useTranscriptions()
-  const files = useFiles();
   const providers = useProviderRegistry();
   const currentModel = models?.find(a => a.id == selectedModel);
   useEffect(() => {
@@ -166,54 +157,6 @@ export const TranscriptionsPage = () => {
     onErrorAlert: addError,
   });
 
-  const knownSpeakerSamples = {
-    getSampleInfo: (speakerName: string) => {
-      const item = getLatestKnownSpeakerReferenceItem(files.items, speakerName);
-      return {
-        exists: !!item,
-        tagLabel: item?.name,
-      };
-    },
-    onUploadSample: async (speakerName: string, selected: File[]) => {
-      if (!selected.length) return;
-      const file = selected[0];
-      try {
-        await saveKnownSpeakerReferenceSample(files, speakerName, file);
-        files.refresh();
-      } catch (err) {
-        addError(getStorageErrorMessage(err, "Failed to save speaker sample"));
-      }
-    },
-    onClearSample: async (speakerName: string) => {
-      try {
-        await deleteKnownSpeakerReferenceSamples(files, speakerName);
-        files.refresh();
-      } catch (err) {
-        addError(getStorageErrorMessage(err, "Failed to clear speaker sample"));
-      }
-    },
-    onRenameSample: async (fromName: string, toName: string) => {
-      try {
-        await migrateKnownSpeakerReferenceSample(files, fromName, toName);
-        files.refresh();
-      } catch (err) {
-        addError(getStorageErrorMessage(err, "Failed to rename speaker sample"));
-      }
-    },
-    onPreviewSample: async (speakerName: string) => {
-      const item = getLatestKnownSpeakerReferenceItem(files.items, speakerName);
-      if (!item) return;
-      const stored = await files.read(item.id);
-      if (!stored) return;
-
-      const url = URL.createObjectURL(stored.data);
-      const audio = new Audio(url);
-      audio.onended = () => URL.revokeObjectURL(url);
-      audio.onerror = () => URL.revokeObjectURL(url);
-      void audio.play();
-    },
-  };
-
   //const attachments = useFileAttachments(fileAttachmentRuntime);
   const addAttachment = async (file: File) => {
     await transcribeFiles([file]);
@@ -230,7 +173,6 @@ export const TranscriptionsPage = () => {
 
   const [processing, setProcessing] = useState(false);
 
-  const knownSpeakerNames = providerTranscriptionMetadata?.openai?.known_speaker_names;
 
   const transcribeFiles = async (inputFiles: File[]) => {
     if (!inputFiles.length) return;
@@ -265,15 +207,7 @@ export const TranscriptionsPage = () => {
 
       const model = provider.transcriptionModel(selectedModel);
 
-      const hydratedProviderOptions = await withOpenAiKnownSpeakerReferences(
-        providerTranscriptionMetadata,
-        {
-          items: files.items,
-          files,
-          knownSpeakerNames,
-        }
-      );
-
+      const providerOptions = normalizeProviderTranscriptionMetadata(providerTranscriptionMetadata);
 
       const transcribeChunk = async (chunk: TranscriptionFileChunk): Promise<ChunkTranscriptionResult> => {
         const audioBase64 = await fileToBase64(chunk.file);
@@ -282,7 +216,7 @@ export const TranscriptionsPage = () => {
           audio: audioBase64,
           mediaType: chunk.file.type || "application/octet-stream",
           providerOptions: {
-            ...(hydratedProviderOptions ?? providerTranscriptionMetadata),
+            ...providerOptions,
           },
         }) as TranscriptionResponse;
 
@@ -400,7 +334,6 @@ export const TranscriptionsPage = () => {
         <TranscriptionInput
           disabled={processing}
           onFilesSelected={transcribeFiles}
-          knownSpeakerSamples={knownSpeakerSamples}
           realtime={{
             canStart: realtimeController.canStart,
             status: realtimeController.realtimeStatus,

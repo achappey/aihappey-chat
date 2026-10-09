@@ -1,5 +1,5 @@
 import type { StateCreator } from "zustand";
-import { defaultProviderTranscriptionMetadata } from "./defaultProviderTranscriptionMetadata";
+import { defaultProviderTranscriptionMetadata, normalizeProviderTranscriptionMetadata } from "./defaultProviderTranscriptionMetadata";
 
 export type TranscriptionSlice = {
   providerTranscriptionMetadata?: any
@@ -16,6 +16,6 @@ export const createTranscriptionSlice: StateCreator<
  
   setProviderTranscriptionMetadata: (providerMetadata) =>
     set(() => ({
-      providerTranscriptionMetadata: { ...providerMetadata },
+      providerTranscriptionMetadata: normalizeProviderTranscriptionMetadata(providerMetadata),
     })),
 });

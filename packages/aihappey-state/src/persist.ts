@@ -20,6 +20,7 @@ import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl,
 import { normalizeCustomProviders } from "./slices/uiSlice";
 import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
 import { normalizeProviderHeaders, splitLegacyProviderHeadersFromMetadata } from "./slices/providerHeaders";
+import { normalizeProviderTranscriptionMetadata } from "./slices/defaultProviderTranscriptionMetadata";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -33,7 +34,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 33,
+    version: 34,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -68,7 +69,7 @@ export const withPersist = (
       providerFileMetadata: s.providerFileMetadata,
       providerVideoMetadata: (s as any).providerVideoMetadata,
       providerSpeechMetadata: s.providerSpeechMetadata,
-      providerTranscriptionMetadata: s.providerTranscriptionMetadata,
+      providerTranscriptionMetadata: normalizeProviderTranscriptionMetadata(s.providerTranscriptionMetadata),
       providerRerankingMetadata: s.providerRerankingMetadata,
       providerHeaders: (s as any).providerHeaders,
       topN: s.topN,
@@ -138,6 +139,8 @@ export const withPersist = (
       let safeState = isPlainRecord(persistedState)
         ? { ...(persistedState as Record<string, any>) }
         : {};
+
+      safeState.providerTranscriptionMetadata = normalizeProviderTranscriptionMetadata(safeState.providerTranscriptionMetadata);
 
       // On version bump, reset endpoints, servers, and selected
       if (version < 5) {

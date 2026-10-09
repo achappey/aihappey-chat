@@ -307,11 +307,6 @@ export const TranscriptionSettingsModal: React.FC<
                                         openai,
                                     })
                                 }
-                                getSampleInfo={knownSpeakerSamples?.getSampleInfo}
-                                onUploadSample={knownSpeakerSamples?.onUploadSample}
-                                onClearSample={knownSpeakerSamples?.onClearSample}
-                                onRenameSample={knownSpeakerSamples?.onRenameSample}
-                                onPreviewSample={knownSpeakerSamples?.onPreviewSample}
                             />
                         </theme.Tab>
                     )}

@@ -1,34 +1,13 @@
 import React, { ChangeEvent } from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
-import { KnownSpeakersCard } from "./known-speakers";
-import type { KnownSpeakerSampleHandlers } from "./known-speakers/KnownSpeakersCard";
-import { TemperatureField } from "../../../fields";
-import { TimestampGranularitiesForm } from "../../settings/transcriptions/TimestampGranularitiesForm";
 
 export type OpenAIITranscriptionConfig = {
   language?: string;
   prompt?: string;
-
-  /**
-   * Controls sampling randomness for transcription.
-   * When undefined, provider default is used.
-   */
-  temperature?: number;
-
-  /**
-   * Timestamp granularities to populate.
-   * OpenAI requires response_format=verbose_json for these to have effect.
-   * When undefined, provider default is used.
-   */
-  timestamp_granularities?: Array<"word" | "segment">;
-
-  /**
-   * Optional list of speaker names used for known speaker diarization.
-   * Samples are stored in FILES by name mapping (no IDs stored here).
-   */
-  known_speaker_names?: string[];
-
+  keywords?: string[];
+  languages?: string[];
+  response_format?: "json" | "text" | "srt" | "verbose_json" | "vtt" | "diarized_json";
 };
 
 type RealtimeExpiresAfter = {
@@ -109,16 +88,11 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
   updateConfig: (val: OpenAIITranscriptionConfig) => void;
   realtimeConfig: OpenAIRealtimeTranscriptionConfig;
   updateRealtimeConfig: (val: OpenAIRealtimeTranscriptionConfig) => void;
-} & KnownSpeakerSampleHandlers> = ({
+}> = ({
   config,
   updateConfig,
   realtimeConfig,
-  updateRealtimeConfig,
-  getSampleInfo,
-  onUploadSample,
-  onClearSample,
-  onRenameSample,
-  onPreviewSample,
+  updateRealtimeConfig
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
@@ -202,15 +176,27 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
             >
             </theme.Input>
 
-            <TemperatureField
-              value={config?.temperature ?? 0}
-              onChange={(temperature) =>
-                updateConfig({
-                  ...config,
-                  temperature,
-                })
-              }
+            <theme.Input
+              label={t("providers:openai.transcriptionLanguages")}
+              placeholder={t("providers:openai.transcriptionLanguagesPlaceholder")}
+              value={(config?.languages ?? []).join(", ")}
+              onChange={(event) => updateConfig({ ...config, languages: event.target.value.split(",").map(value => value.trim()).filter(Boolean) })}
             />
+
+            <theme.TextArea
+              label={t("providers:openai.transcriptionKeywords")}
+              placeholder={t("providers:openai.transcriptionKeywordsPlaceholder")}
+              rows={3}
+              value={(config?.keywords ?? []).join("\n")}
+              onChange={(value) => updateConfig({ ...config, keywords: value.split("\n").map(item => item.trim()).filter(Boolean) })}
+            />
+
+            <theme.Select label={t("providers:openai.transcriptionResponseFormat")}
+              values={[config?.response_format ?? "json"]}
+              valueTitle={config?.response_format ?? "json"}
+              onChange={(value: string) => updateConfig({ ...config, response_format: value as OpenAIITranscriptionConfig["response_format"] })}>
+              {["json", "text", "srt", "verbose_json", "vtt", "diarized_json"].map(value => <option key={value} value={value}>{value}</option>)}
+            </theme.Select>
 
             <theme.TextArea
               label={t("providers:openai.prompt")}
@@ -230,28 +216,6 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
 
           </div>
         </theme.Card>
-
-
-        <TimestampGranularitiesForm
-          idPrefix="openai-transcription-timestamp"
-          value={config?.timestamp_granularities}
-          onChange={(timestamp_granularities) =>
-            updateConfig({
-              ...config,
-              timestamp_granularities,
-            })
-          }
-        />
-
-        <KnownSpeakersCard
-          config={config}
-          updateConfig={updateConfig}
-          getSampleInfo={getSampleInfo}
-          onUploadSample={onUploadSample}
-          onClearSample={onClearSample}
-          onRenameSample={onRenameSample}
-          onPreviewSample={onPreviewSample}
-        />
 
 
         <theme.Card
