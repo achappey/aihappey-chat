@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DecisionQuestion } from "aihappey-ai";
-import { isValidDecisionQuestion } from "aihappey-decisions";
+import { isValidDecisionQuestion, newDecisionQuestion, type DecisionQuestion } from "aihappey-decisions";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { DecisionQuestionForm } from "./DecisionQuestionForm";
@@ -10,8 +9,8 @@ export function DecisionQuestionEditModal({ open, question, onClose, onSave }: {
 }) {
   const { Modal, Button } = useTheme();
   const { t } = useTranslation();
-  const [value, setValue] = useState<DecisionQuestion>({ type: "predicate", instructions: "" });
-  useEffect(() => { if (open) setValue(structuredClone(question ?? { type: "predicate", instructions: "" })); }, [open, question]);
+  const [value, setValue] = useState<DecisionQuestion>(newDecisionQuestion);
+  useEffect(() => { if (open) setValue(structuredClone(question ?? newDecisionQuestion())); }, [open, question]);
   return <Modal show={open} onHide={onClose} size="large" title={t(question ? "decisionsPage.editQuestion" : "decisionsPage.addQuestion")}
     actions={<div style={{ display: "flex", gap: 8 }}>
       <Button variant="subtle" onClick={onClose}>{t("cancel")}</Button>

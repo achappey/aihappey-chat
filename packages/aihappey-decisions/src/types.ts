@@ -1,6 +1,15 @@
-import type { DecisionInput, DecisionQuestion, DecisionResponse } from "aihappey-ai";
+import type { UniversalDecisionState, UniversalDecisionQuestion, UniversalDecisionResponse, UniversalDecisionAnswer } from "aihappey-ai";
 
-/** Questions are the exact ordered OpenAI wire objects; metadata belongs only to the set. */
+export type DecisionInput = UniversalDecisionState;
+/** ID and optional display name are UI metadata, never part of the wire question. */
+export type DecisionQuestion = UniversalDecisionQuestion & { id: string; name?: string };
+export type DecisionResponse = UniversalDecisionResponse;
+export type DecisionAnswer = UniversalDecisionAnswer;
+export const decisionText = (value: unknown): string => typeof value === "string" ? value : value == null ? "" : JSON.stringify(value, null, 2);
+export const newDecisionQuestion = (): DecisionQuestion => ({ id: crypto.randomUUID(), type: "boolean", instructions: "" });
+export const toWireQuestions = (questions: DecisionQuestion[]) => Object.fromEntries(questions.map(({ id, name: _, ...question }) => [id, question]));
+
+/** Ordered UI questions, serialized to a named question map at the provider boundary. */
 export interface QuestionSet {
   id: string;
   name: string;

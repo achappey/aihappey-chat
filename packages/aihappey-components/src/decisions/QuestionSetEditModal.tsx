@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DecisionQuestion } from "aihappey-ai";
-import { isValidDecisionQuestion, type QuestionSet } from "aihappey-decisions";
+import { isValidDecisionQuestion, isValidDecisionQuestions, newDecisionQuestion, type DecisionQuestion, type QuestionSet } from "aihappey-decisions";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { DecisionQuestionForm } from "./DecisionQuestionForm";
@@ -20,7 +19,7 @@ export function QuestionSetEditModal({ open, set, initialQuestions, onClose, onS
   useEffect(() => {
     if (open) { setName(set?.name ?? ""); setQuestions(structuredClone(set?.questions ?? initialQuestions ?? [])); setEditing(undefined); setFailed(false); }
   }, [open, set, initialQuestions]);
-  const valid = name.trim() && questions.length && questions.every(isValidDecisionQuestion) && !editing;
+  const valid = name.trim() && isValidDecisionQuestions(questions) && !editing;
   const move = (index: number, offset: number) => setQuestions(current => {
     const next = [...current]; [next[index], next[index + offset]] = [next[index + offset], next[index]]; return next;
   });
@@ -54,7 +53,7 @@ export function QuestionSetEditModal({ open, set, initialQuestions, onClose, onS
             onDelete={() => setQuestions(current => current.filter((_, i) => i !== index))}
             onMoveUp={index > 0 ? () => move(index, -1) : undefined}
             onMoveDown={index < questions.length - 1 ? () => move(index, 1) : undefined} />)}
-          <Button icon="add" variant="subtle" onClick={() => setEditing({ index: questions.length, question: { type: "predicate", instructions: "" } })}>{t("decisionsPage.addQuestion")}</Button>
+          <Button icon="add" variant="subtle" onClick={() => setEditing({ index: questions.length, question: newDecisionQuestion() })}>{t("decisionsPage.addQuestion")}</Button>
           {!questions.length && <div>{t("decisionsPage.noQuestions")}</div>}
         </>}
       </fieldset>

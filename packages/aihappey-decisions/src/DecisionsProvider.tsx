@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { DecisionInput, DecisionQuestion, DecisionResponse } from "aihappey-ai";
+import type { DecisionInput, DecisionQuestion, DecisionResponse } from "./types";
 import type { DecisionItem, DecisionsStore, QuestionSet, QuestionSetsStore } from "./types";
 import { IndexedDBDecisionsStore, IndexedDBQuestionSetsStore } from "./stores/IndexedDBDecisionsStore";
 

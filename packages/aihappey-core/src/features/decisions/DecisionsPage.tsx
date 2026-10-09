@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { DecisionCard, DecisionQuestionCard, DecisionQuestionEditModal, ErrorAlerts, ModelFavoriteToggleButton, QuestionSetCard, QuestionSetEditModal, useTheme } from "aihappey-components";
+import { DecisionCard, DecisionResultDetails, DecisionQuestionCard, DecisionQuestionEditModal, ErrorAlerts, ModelFavoriteToggleButton, QuestionSetCard, QuestionSetEditModal, useTheme } from "aihappey-components";
 import { useDecisions, type QuestionSet } from "aihappey-decisions";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
@@ -68,6 +68,11 @@ export function DecisionsPage() {
           actions={<Button type="button" icon="delete" variant="transparent" size="small" title={t("delete")} disabled={locked} onClick={() => c.removeImage(image.id)} />}>
           <img src={image.image_url} alt={image.name} style={{ maxWidth: "100%", maxHeight: 180, objectFit: "contain" }} />
         </Card>)}</div>}
+        <details style={{ marginTop: 16 }}><summary>{t("decisionsPage.providerOptions", { defaultValue: "Provider options (JSON)" })}</summary>
+          <TextArea value={c.providerOptionsText} onChange={locked ? undefined : c.setProviderOptionsText} readOnly={locked} rows={4}
+            label={t("decisionsPage.providerOptions", { defaultValue: "Provider options (JSON)" })} />
+          {!c.providerOptionsValid && <Alert variant="warning">{t("decisionsPage.invalidOptions", { defaultValue: "Enter a JSON object keyed by provider name." })}</Alert>}
+        </details>
       </form>
       <h2 style={{ marginTop: 44 }}>{t("decisionsPage.questionsAndAnswers")}</h2>
       <Tabs activeKey={activeTab} onSelect={setActiveTab}>
@@ -77,11 +82,12 @@ export function DecisionsPage() {
             <Button variant="subtle" disabled={locked || !c.questions.length} onClick={() => setEditingSet("new")}>{t("decisionsPage.saveAsSet")}</Button>
           </div>
           {!c.questions.length && <div style={{ marginTop: 16 }}><Card title={t("decisionsPage.noQuestions")}><div>{t("decisionsPage.noQuestionsHint")}</div></Card></div>}
-          <div style={grid}>{c.questions.map((question, index) => <DecisionQuestionCard key={index} question={question} number={index + 1} answer={c.result?.answers[index]}
+          <div style={grid}>{c.questions.map((question, index) => <DecisionQuestionCard key={question.id} question={question} number={index + 1} answer={c.result?.answers[question.id]}
             onEdit={locked ? undefined : () => setEditingQuestion(index)}
             onDelete={locked ? undefined : () => c.setQuestions(c.questions.filter((_, i) => i !== index))}
             onMoveUp={!locked && index > 0 ? () => move(index, -1) : undefined}
             onMoveDown={!locked && index < c.questions.length - 1 ? () => move(index, 1) : undefined} />)}</div>
+          {c.result && <div style={{ marginTop: 16 }}><DecisionResultDetails decision={c.result} providers={providers} /></div>}
         </Tab>
         <Tab eventKey="saved" title={t("saved", { total: store.items.length })}>
           <div style={{ display: "grid", gap: 16, marginTop: 16 }}>

@@ -1,73 +1,69 @@
-import type { DecisionQuestion } from "aihappey-ai";
+import { useEffect, useState } from "react";
+import { decisionText, type DecisionQuestion } from "aihappey-decisions";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 
 const valueOf = (event: any): string => String(event?.target?.value ?? event ?? "");
-
-/** The form edits wire objects directly. Choice value types and score-level order are explicit. */
 export function DecisionQuestionForm({ value, onChange }: {
   value: DecisionQuestion; onChange: (question: DecisionQuestion) => void;
 }) {
   const { Input, TextArea, Select, Button, Card } = useTheme();
   const { t } = useTranslation();
+  // Draft rows retain duplicate/empty option names without collapsing them into a map.
+  const [choices, setChoices] = useState<[string, any][]>([]);
+  useEffect(() => {
+    if (value.type === "choice") setChoices(Object.keys(value.criteria).length ? Object.entries(value.criteria) : [["", null], ["", null]]);
+  }, [value.id, value.type]);
+  const commitChoices = (rows: [string, any][]) => {
+    setChoices(rows);
+    if (value.type === "choice") onChange({ ...value, criteria: rows.every(([key]) => key.trim()) && new Set(rows.map(([key]) => key)).size === rows.length
+      ? Object.fromEntries(rows) : {} });
+  };
   const changeType = (type: DecisionQuestion["type"]) => {
-    const common = { instructions: value.instructions, ...(value.name !== undefined ? { name: value.name } : {}) };
-    onChange(type === "predicate" ? { ...common, type } : type === "choice"
-      ? { ...common, type, choices: [{ value: "" }, { value: "" }] }
-      : { ...common, type, levels: [{ label: "" }, { label: "" }] });
+    const common = { id: value.id, name: value.name, instructions: value.instructions };
+    onChange(type === "boolean" ? { ...common, type } : type === "choice" ? { ...common, type, criteria: {} } : { ...common, type, criteria: ["", ""] });
   };
-  const updateRow = (index: number, row: any) => {
-    if (value.type === "choice") onChange({ ...value, choices: value.choices.map((c, i) => i === index ? row : c) });
-    if (value.type === "score") onChange({ ...value, levels: value.levels.map((l, i) => i === index ? row : l) });
+  const rows = value.type === "choice" ? choices : value.type === "score" ? value.criteria.map((v, i) => [String(i), v] as [string, any]) : [];
+  const update = (index: number, key: string, description: any) => {
+    if (value.type === "choice") commitChoices(choices.map((row, i) => i === index ? [key, description] : row));
+    if (value.type === "score") onChange({ ...value, criteria: value.criteria.map((row, i) => i === index ? description : row) });
   };
-  const moveRow = (index: number, offset: number) => {
-    if (value.type === "predicate") return;
-    const rows = value.type === "choice" ? [...value.choices] : [...value.levels];
-    [rows[index], rows[index + offset]] = [rows[index + offset], rows[index]];
-    onChange(value.type === "choice" ? { ...value, choices: rows as typeof value.choices } : { ...value, levels: rows as typeof value.levels });
+  const reorder = (index: number, offset: number) => {
+    const next = [...rows]; [next[index], next[index + offset]] = [next[index + offset], next[index]];
+    if (value.type === "choice") commitChoices(next);
+    if (value.type === "score") onChange({ ...value, criteria: next.map(([, description]) => description) });
   };
-  const rows = value.type === "choice" ? value.choices : value.type === "score" ? value.levels : [];
   return <div style={{ display: "grid", gap: 12 }}>
     <Select label={t("decisionsPage.questionType")} value={value.type} onChange={(e: any) => changeType(valueOf(e) as DecisionQuestion["type"])}>
-      {["predicate", "choice", "score"].map(type => <option key={type} value={type}>{t(`decisionsPage.${type}`)}</option>)}
+      {["boolean", "choice", "score"].map(type => <option key={type} value={type}>{t(`decisionsPage.${type === "boolean" ? "predicate" : type}`)}</option>)}
     </Select>
-    <Input label={t("decisionsPage.optionalName")} value={value.name ?? ""} onChange={e => {
-      const name = e.target.value;
-      const { name: _, ...question } = value;
-      onChange(name ? { ...question, name } : question as DecisionQuestion);
-    }} />
-    <TextArea label={t("decisionsPage.instructions")} value={value.instructions} rows={4} required
-      onChange={instructions => onChange({ ...value, instructions })} />
-    {value.type !== "predicate" && <>
+    <Input label={t("decisionsPage.optionalName")} value={value.name ?? ""} onChange={e => onChange({ ...value, name: e.target.value || undefined })} />
+    <TextArea label={t("decisionsPage.instructions")} value={decisionText(value.instructions)} rows={4} required onChange={instructions => onChange({ ...value, instructions })} />
+    {value.type === "boolean" && (["true", "false"] as const).map(key => <TextArea key={key}
+      label={t("decisionsPage.booleanCriterion", { defaultValue: `Definition of ${key} (optional)`, value: key })}
+      value={decisionText(value.criteria?.[key])} rows={2} onChange={description => {
+        const criteria = { ...value.criteria };
+        if (description) criteria[key] = description; else delete criteria[key];
+        onChange({ ...value, criteria: Object.keys(criteria).length ? criteria : undefined });
+      }} />)}
+    {value.type !== "boolean" && <>
       <div>{t(value.type === "choice" ? "decisionsPage.choicesHint" : "decisionsPage.levelsHint")}</div>
-      {rows.map((row, index) => <Card key={index} size="small" title={t(value.type === "choice" ? "decisionsPage.choiceNumber" : "decisionsPage.levelNumber", { number: index + 1 })}
+      {rows.map(([key, description], index) => <Card key={index} size="small" title={t(value.type === "choice" ? "decisionsPage.choiceNumber" : "decisionsPage.levelNumber", { number: index + 1 })}
         actions={<div style={{ display: "flex", gap: 8 }}>
-          <Button icon="up" title={t("decisionsPage.moveUp")} variant="transparent" size="small" disabled={index === 0} onClick={() => moveRow(index, -1)} />
-          <Button icon="down" title={t("decisionsPage.moveDown")} variant="transparent" size="small" disabled={index === rows.length - 1} onClick={() => moveRow(index, 1)} />
-          <Button icon="delete" title={t("delete")} variant="transparent" size="small" disabled={rows.length <= 2} onClick={() => {
-            if (value.type === "choice") onChange({ ...value, choices: value.choices.filter((_, i) => i !== index) });
-            if (value.type === "score") onChange({ ...value, levels: value.levels.filter((_, i) => i !== index) });
+          <Button icon="up" title={t("decisionsPage.moveUp")} variant="transparent" size="small" disabled={!index} onClick={() => reorder(index, -1)} />
+          <Button icon="down" title={t("decisionsPage.moveDown")} variant="transparent" size="small" disabled={index === rows.length - 1} onClick={() => reorder(index, 1)} />
+          <Button icon="delete" title={t("delete")} variant="transparent" size="small" disabled={rows.length <= (value.type === "score" ? 2 : 1)} onClick={() => {
+            if (value.type === "choice") commitChoices(rows.filter((_, i) => i !== index));
+            if (value.type === "score") onChange({ ...value, criteria: value.criteria.filter((_, i) => i !== index) });
           }} />
         </div>}>
-        <div style={{ display: "grid", gap: 12 }}>
-          {"value" in row ? <>
-            <Select label={t("decisionsPage.valueType")} value={typeof row.value} onChange={(e: any) => updateRow(index, { ...row, value: valueOf(e) === "boolean" ? false : "" })}>
-              <option value="string">{t("decisionsPage.string")}</option><option value="boolean">{t("decisionsPage.boolean")}</option>
-            </Select>
-            {typeof row.value === "boolean" ? <Select label={t("decisionsPage.value")} value={String(row.value)}
-              onChange={(e: any) => updateRow(index, { ...row, value: valueOf(e) === "true" })}>
-              <option value="true">true</option><option value="false">false</option>
-            </Select> : <Input label={t("decisionsPage.value")} value={row.value} required onChange={e => updateRow(index, { ...row, value: e.target.value })} />}
-          </> : <Input label={t("decisionsPage.levelLabel")} value={row.label} required onChange={e => updateRow(index, { ...row, label: e.target.value })} />}
-          <TextArea label={t("decisionsPage.optionalDescription")} value={row.description ?? ""} rows={2} onChange={description => {
-            const { description: _, ...rest } = row;
-            updateRow(index, description ? { ...rest, description } : rest);
-          }} />
-        </div>
+        {value.type === "choice" && <Input label={t("decisionsPage.value")} value={key} required onChange={e => update(index, e.target.value, description)} />}
+        <TextArea label={t(value.type === "choice" ? "decisionsPage.optionalDescription" : "decisionsPage.levelLabel")}
+          value={decisionText(description)} rows={2} onChange={text => update(index, key, value.type === "choice" ? text || null : text)} />
       </Card>)}
       <Button variant="subtle" icon="add" onClick={() => {
-        if (value.type === "choice") onChange({ ...value, choices: [...value.choices, { value: "" }] });
-        if (value.type === "score") onChange({ ...value, levels: [...value.levels, { label: "" }] });
+        if (value.type === "choice") commitChoices([...choices, ["", null]]);
+        if (value.type === "score") onChange({ ...value, criteria: [...value.criteria, ""] });
       }}>{t(value.type === "choice" ? "decisionsPage.addChoice" : "decisionsPage.addLevel")}</Button>
     </>}
   </div>;

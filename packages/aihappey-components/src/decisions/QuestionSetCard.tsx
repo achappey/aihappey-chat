@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { serializeQuestionSet, type QuestionSet } from "aihappey-decisions";
+import { decisionText, serializeQuestionSet, type QuestionSet } from "aihappey-decisions";
 import { useTranslation } from "aihappey-i18n";
 import { useTheme } from "../theme/ThemeContext";
 import { ViewButton } from "../buttons/ViewButton";
@@ -34,7 +34,7 @@ export function QuestionSetCard({ set, onEdit, onDelete, onLoad }: {
         <Button variant="transparent" size="small" icon="download" title={t("download")} onClick={() => downloadQuestionSet(set)} />
         {onLoad && <Button size="small" variant="subtle" icon="add" onClick={onLoad}>{t("decisionsPage.useSet")}</Button>}
       </div>}>
-      <div style={{ display: "grid", gap: 4 }}>{set.questions.slice(0, 3).map((q, i) => <div key={i} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{q.name || q.instructions}</div>)}</div>
+      <div style={{ display: "grid", gap: 4 }}>{set.questions.slice(0, 3).map(q => <div key={q.id} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{q.name || decisionText(q.instructions)}</div>)}</div>
     </Card>
     <Modal show={open} onHide={() => setOpen(false)} title={set.name} size="large"
       actions={<Button variant="subtle" onClick={() => setOpen(false)}>{t("close")}</Button>}>

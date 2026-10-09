@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createOpenAIDecisionProvider, defaultEndpoints, type DecisionInput, type DecisionQuestion, type DecisionResponse } from "aihappey-ai";
-import { isInlineDecisionImage, isValidDecisionInput, isValidDecisionQuestion, isValidDecisionResponse, MAX_DECISION_IMAGES, useDecisions } from "aihappey-decisions";
+import { createDecisionProvider, defaultEndpoints } from "aihappey-ai";
+import { isInlineDecisionImage, isValidDecisionInput, isValidDecisionQuestions, isValidDecisionResponse, MAX_DECISION_IMAGES, toWireQuestions, useDecisions, type DecisionInput, type DecisionQuestion, type DecisionResponse } from "aihappey-decisions";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -33,6 +33,15 @@ export function useDecisionsController() {
   const [questions, setQuestionsState] = useState<DecisionQuestion[]>([]);
   const [images, setImages] = useState<DecisionImage[]>([]);
   const [result, setResult] = useState<DecisionResponse>();
+  const [providerOptionsText, setOptionsText] = useState("{}");
+  const providerOptions = useMemo<Record<string, any> | undefined>(() => {
+    try {
+      const value = JSON.parse(providerOptionsText);
+      return value && typeof value === "object" && !Array.isArray(value)
+        && Object.values(value).every(v => v && typeof v === "object" && !Array.isArray(v)) ? value : undefined;
+    } catch { return undefined; }
+  }, [providerOptionsText]);
+  const providerOptionsValid = providerOptions !== undefined;
   const [processing, setProcessing] = useState(false);
   const [readingImages, setReadingImages] = useState(false);
   const [errors, setErrors] = useState<{ id: string; message: string }[]>([]);
@@ -48,6 +57,7 @@ export function useDecisionsController() {
   const setSelectedModel = useCallback((value: string) => { invalidate(); setModel(value); }, [invalidate]);
   const setPrompt = useCallback((value: string) => { invalidate(); setPromptState(value); }, [invalidate]);
   const setQuestions = useCallback((value: DecisionQuestion[]) => { invalidate(); setQuestionsState(structuredClone(value)); }, [invalidate]);
+  const setProviderOptionsText = useCallback((value: string) => { invalidate(); setOptionsText(value); }, [invalidate]);
   useEffect(() => { if (queryModel) setSelectedModel(queryModel); }, [queryModel, setSelectedModel]);
   const input = useMemo<DecisionInput>(() => images.length ? [{ role: "user", content: [
     ...(prompt.trim() ? [{ type: "input_text" as const, text: prompt }] : []),
@@ -56,7 +66,7 @@ export function useDecisionsController() {
   const modelValid = !!models?.some(m => m.id === selectedModel && m.type === "decision" && m.route !== "direct");
   const gatewayAvailable = !!config.baseUrl && config.gatewayEnabled !== false;
   const canSend = gatewayAvailable && modelValid && !processing && !readingImages && isValidDecisionInput(input)
-    && questions.length > 0 && questions.every(isValidDecisionQuestion);
+    && isValidDecisionQuestions(questions) && providerOptionsValid;
 
   const addImages = useCallback(async (files: File[]) => {
     if (!files.length || busy.current || reading.current) return;
@@ -74,7 +84,7 @@ export function useDecisionsController() {
   const onSend = useCallback(async () => {
     if (!canSend || busy.current || reading.current) return;
     busy.current = true; setProcessing(true); setResult(undefined);
-    const request = structuredClone({ model: selectedModel, input, questions });
+    const request = structuredClone({ model: selectedModel, input, questions, providerOptions });
     const requestRevision = revision.current;
     const controller = new AbortController(); abort.current = controller;
     try {
@@ -82,11 +92,12 @@ export function useDecisionsController() {
       // Authentication failure is an error, never an unauthenticated fallback request.
       if (config.getAccessToken) headers.set("Authorization", `Bearer ${await config.getAccessToken()}`);
       if (controller.signal.aborted) return;
-      const client = createOpenAIDecisionProvider({
-        baseUrl: config.baseUrl.replace(/\/+$/, "") + (config.endpoints.oaiDecisions ?? defaultEndpoints.oaiDecisions),
+      const client = createDecisionProvider({
+        baseUrl: config.baseUrl.replace(/\/+$/, "") + (config.endpoints.decisions ?? defaultEndpoints.decisions),
         headers: Object.fromEntries(headers.entries()), fetch: config.fetch,
       });
-      const response = await client.create(request, controller.signal);
+      const response = await client.decisionModel(request.model).doDecide({ state: request.input,
+        questions: toWireQuestions(request.questions), providerOptions: request.providerOptions, abortSignal: controller.signal });
       if (!isValidDecisionResponse(response, request.questions)) throw new Error(t("decisionsPage.invalidResponse"));
       if (!mounted.current) return;
       if (revision.current === requestRevision) setResult(response);
@@ -98,8 +109,8 @@ export function useDecisionsController() {
       busy.current = false;
       if (mounted.current) setProcessing(false);
     }
-  }, [canSend, selectedModel, input, questions, config, customHeaders, store, addError, storageError, t]);
+  }, [canSend, selectedModel, input, questions, providerOptions, config, customHeaders, store, addError, storageError, t]);
   return { models, selectedModel, setSelectedModel, prompt, setPrompt, questions, setQuestions, images,
     addImages, removeImage, result, processing, readingImages, canSend, gatewayAvailable,
-    errors, addError, dismissError, onSend };
+    providerOptionsText, setProviderOptionsText, providerOptionsValid, errors, addError, dismissError, onSend };
 }
