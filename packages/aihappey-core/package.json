@@ -90,8 +90,10 @@
     "zod": "^4.3.6"
   },
   "scripts": {
-    "build": "node scripts/generate-provider-pricing-index.cjs && tsc",
-    "watch": "node scripts/generate-provider-pricing-index.cjs && tsc --watch"
+    "generate:providers": "node scripts/generate-provider-catalog.cjs",
+    "check:providers": "node scripts/generate-provider-catalog.cjs --check",
+    "build": "node scripts/generate-provider-catalog.cjs && node scripts/generate-provider-pricing-index.cjs && tsc",
+    "watch": "node scripts/generate-provider-catalog.cjs && node scripts/generate-provider-pricing-index.cjs && tsc --watch"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

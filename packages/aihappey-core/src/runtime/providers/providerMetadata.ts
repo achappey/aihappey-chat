@@ -1,5 +1,3 @@
-import type { Icon } from "@modelcontextprotocol/sdk/types";
-
 /**
  * Compatibility re-export.
  *

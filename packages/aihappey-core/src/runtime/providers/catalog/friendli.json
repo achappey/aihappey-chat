@@ -1,0 +1,22 @@
+{
+  "name": "Friendli",
+  "description": "Let your team focus on building great AI products. FriendliAI will make sure your AI runs fast, affordable, and reliable at scale. Leave the hassle of AI inference to FriendliAI.",
+  "icons": [
+    {
+      "src": "https://friendli.ai/favicon/apple-touch-icon.png"
+    }
+  ],
+  "urls": {
+    "homepage": "https://friendli.ai",
+    "docs": "https://docs.friendli.ai",
+    "pricing": "https://friendli.ai/pricing",
+    "privacyPolicy": "https://friendli.ai/privacy",
+    "termsOfService": "https://friendli.ai/terms",
+    "console": "https://console.friendli.ai"
+  },
+  "providerCountry": "US",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "World"
+  ]
+}

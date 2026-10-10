@@ -1,0 +1,16 @@
+{
+  "name": "Hyperbolic",
+  "description": "Access open-source inference and compute at a fraction of the cost. Build with us.",
+  "urls": {
+    "homepage": "https://www.hyperbolic.ai",
+    "docs": "https://docs.hyperbolic.ai",
+    "privacyPolicy": "https://www.hyperbolic.ai/privacy",
+    "termsOfService": "https://www.hyperbolic.ai/terms",
+    "console": "https://app.hyperbolic.ai"
+  },
+  "providerCountry": "US",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "World"
+  ]
+}

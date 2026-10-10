@@ -1,0 +1,21 @@
+{
+  "name": "EUrouter",
+  "description": "Integrate 60+ AI models via one unified API with guaranteed EU data residency. Zero data retention, and full GDPR compliance.",
+  "icons": [
+    {
+      "src": "https://www.eurouter.ai/favicon.ico"
+    }
+  ],
+  "urls": {
+    "homepage": "https://www.eurouter.ai",
+    "docs": "https://www.eurouter.ai/docs",
+    "pricing": "https://www.eurouter.ai/pricing",
+    "privacyPolicy": "https://www.eurouter.ai/privacy",
+    "termsOfService": "https://www.eurouter.ai/terms"
+  },
+  "providerCountry": "NL",
+  "category": "gateway_router",
+  "inferenceRegions": [
+    "Europe"
+  ]
+}

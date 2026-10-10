@@ -1,0 +1,27 @@
+{
+  "name": "OpenRouter",
+  "description": "The unified interface for LLMs. Find the best models & prices for your prompts.",
+  "icons": [
+    {
+      "src": "https://pbs.twimg.com/profile_images/2076693957258727424/AyRghTGJ_400x400.jpg"
+    }
+  ],
+  "urls": {
+    "homepage": "https://openrouter.ai",
+    "docs": "https://openrouter.ai/docs",
+    "pricing": "https://openrouter.ai/pricing",
+    "privacyPolicy": "https://openrouter.ai/privacy",
+    "termsOfService": "https://openrouter.ai/terms"
+  },
+  "providerCountry": "US",
+  "category": "gateway_router",
+  "inferenceRegions": [
+    "World"
+  ],
+  "apiBaseUrl": "https://openrouter.ai/api",
+  "chatEndpoints": [
+    "/v1/chat/completions",
+    "/v1/responses",
+    "/v1/messages"
+  ]
+}

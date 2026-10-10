@@ -1,0 +1,21 @@
+{
+  "name": "Nextbit",
+  "description": "Run inference, fine-tune models, and deploy AI applications—fully managed, with predictable costs and no DevOps required.",
+  "icons": [
+    {
+      "src": "https://www.nextbit256.com/Nextbit_mark_Main@2x.png"
+    }
+  ],
+  "urls": {
+    "homepage": "https://www.nextbit256.com",
+    "docs": "https://www.nextbit256.com/docs",
+    "pricing": "https://www.nextbit256.com/#models",
+    "privacyPolicy": "https://www.nextbit256.com/docs/privacy-policy",
+    "termsOfService": "https://www.nextbit256.com/docs/privacy-policy"
+  },
+  "providerCountry": "ES",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "Europe"
+  ]
+}

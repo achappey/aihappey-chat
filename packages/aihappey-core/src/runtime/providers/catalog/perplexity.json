@@ -1,0 +1,17 @@
+{
+  "name": "Perplexity",
+  "description": "Build with the best AI answer engine API, created by Perplexity. Power your products with the fastest, cheapest offering out there. Delivering unparalleled real-time, web-wide research and Q&A capabilities.",
+  "urls": {
+    "homepage": "https://www.perplexity.ai/api-platform",
+    "docs": "https://docs.perplexity.ai",
+    "pricing": "https://docs.perplexity.ai/docs/getting-started/pricing",
+    "privacyPolicy": "https://www.perplexity.ai/hub/legal/privacy-policy",
+    "termsOfService": "https://www.perplexity.ai/hub/legal/perplexity-api-terms-of-service",
+    "console": "https://www.perplexity.ai/settings/api"
+  },
+  "providerCountry": "US",
+  "category": "search_data",
+  "inferenceRegions": [
+    "World"
+  ]
+}

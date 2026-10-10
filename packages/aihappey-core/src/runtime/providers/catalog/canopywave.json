@@ -1,0 +1,22 @@
+{
+  "name": "CanopyWave",
+  "description": "As a trusted LLM API Provider and AI service company, we offer high-performance and secure solutions tailored to your data science and AI needs.",
+  "icons": [
+    {
+      "src": "https://canopywave.com/canopy.png"
+    }
+  ],
+  "urls": {
+    "homepage": "https://canopywave.com",
+    "console": "https://cloud.canopywave.io",
+    "docs": "https://canopywave.com/docs",
+    "pricing": "https://canopywave.com/pricing",
+    "privacyPolicy": "https://canopywave.com/privacy",
+    "termsOfService": "https://canopywave.com/terms"
+  },
+  "providerCountry": "US",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "World"
+  ]
+}

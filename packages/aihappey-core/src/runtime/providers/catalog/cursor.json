@@ -1,0 +1,16 @@
+{
+  "name": "Cursor",
+  "description": "Built to make you extraordinarily productive, agents turn ideas into code. Accelerate development by handing off tasks to Cursor.",
+  "urls": {
+    "homepage": "https://cursor.com",
+    "docs": "https://cursor.com/docs",
+    "pricing": "https://cursor.com/pricing",
+    "privacyPolicy": "https://cursor.com/en-US/privacy",
+    "termsOfService": "https://cursor.com/en-US/terms-of-service"
+  },
+  "providerCountry": "US",
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

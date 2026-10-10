@@ -1,0 +1,16 @@
+{
+  "name": "AppNZ",
+  "description": "Repos, models, GPUs, hosting, and editors on one account, on one credit balance.",
+  "urls": {
+    "homepage": "https://app.nz",
+    "docs": "https://app.nz/docs",
+    "pricing": "https://app.nz/pricing",
+    "privacyPolicy": "https://app.nz/privacy",
+    "termsOfService": "https://app.nz/terms"
+  },
+  "providerCountry": "NZ",
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

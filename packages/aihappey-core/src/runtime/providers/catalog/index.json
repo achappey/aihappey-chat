@@ -1,0 +1,2474 @@
+[
+  {
+    "id": "openai",
+    "file": "openai.json"
+  },
+  {
+    "id": "citadelis",
+    "file": "citadelis.json"
+  },
+  {
+    "id": "zeroentropy",
+    "file": "zeroentropy.json"
+  },
+  {
+    "id": "epho",
+    "file": "epho.json"
+  },
+  {
+    "id": "runtype",
+    "file": "runtype.json"
+  },
+  {
+    "id": "shadowos",
+    "file": "shadowos.json"
+  },
+  {
+    "id": "codebase",
+    "file": "codebase.json"
+  },
+  {
+    "id": "hcompany",
+    "file": "hcompany.json"
+  },
+  {
+    "id": "beastlabai",
+    "file": "beastlabai.json"
+  },
+  {
+    "id": "ainvented",
+    "file": "ainvented.json"
+  },
+  {
+    "id": "plori",
+    "file": "plori.json"
+  },
+  {
+    "id": "connect0",
+    "file": "connect0.json"
+  },
+  {
+    "id": "harnessrouter",
+    "file": "harnessrouter.json"
+  },
+  {
+    "id": "lelapaai",
+    "file": "lelapaai.json"
+  },
+  {
+    "id": "wafer",
+    "file": "wafer.json"
+  },
+  {
+    "id": "nexosai",
+    "file": "nexosai.json"
+  },
+  {
+    "id": "soniox",
+    "file": "soniox.json"
+  },
+  {
+    "id": "notte",
+    "file": "notte.json"
+  },
+  {
+    "id": "orcarouter",
+    "file": "orcarouter.json"
+  },
+  {
+    "id": "appnz",
+    "file": "appnz.json"
+  },
+  {
+    "id": "doubleword",
+    "file": "doubleword.json"
+  },
+  {
+    "id": "routera",
+    "file": "routera.json"
+  },
+  {
+    "id": "mara",
+    "file": "mara.json"
+  },
+  {
+    "id": "mycoai",
+    "file": "mycoai.json"
+  },
+  {
+    "id": "picklyone",
+    "file": "picklyone.json"
+  },
+  {
+    "id": "agdev",
+    "file": "agdev.json"
+  },
+  {
+    "id": "tembo",
+    "file": "tembo.json"
+  },
+  {
+    "id": "poolside",
+    "file": "poolside.json"
+  },
+  {
+    "id": "copilot",
+    "file": "copilot.json"
+  },
+  {
+    "id": "wiro",
+    "file": "wiro.json"
+  },
+  {
+    "id": "tapas",
+    "file": "tapas.json"
+  },
+  {
+    "id": "oneinfer",
+    "file": "oneinfer.json"
+  },
+  {
+    "id": "igpt",
+    "file": "igpt.json"
+  },
+  {
+    "id": "lara",
+    "file": "lara.json"
+  },
+  {
+    "id": "herma",
+    "file": "herma.json"
+  },
+  {
+    "id": "openadapter",
+    "file": "openadapter.json"
+  },
+  {
+    "id": "router9",
+    "file": "router9.json"
+  },
+  {
+    "id": "linkup",
+    "file": "linkup.json"
+  },
+  {
+    "id": "theoldapi",
+    "file": "theoldapi.json"
+  },
+  {
+    "id": "sapiom",
+    "file": "sapiom.json"
+  },
+  {
+    "id": "agnesai",
+    "file": "agnesai.json"
+  },
+  {
+    "id": "augure",
+    "file": "augure.json"
+  },
+  {
+    "id": "sovrgpt",
+    "file": "sovrgpt.json"
+  },
+  {
+    "id": "brave",
+    "file": "brave.json"
+  },
+  {
+    "id": "radiance",
+    "file": "radiance.json"
+  },
+  {
+    "id": "hetzner",
+    "file": "hetzner.json"
+  },
+  {
+    "id": "melious",
+    "file": "melious.json"
+  },
+  {
+    "id": "ninjachat",
+    "file": "ninjachat.json"
+  },
+  {
+    "id": "botverse",
+    "file": "botverse.json"
+  },
+  {
+    "id": "pixserp",
+    "file": "pixserp.json"
+  },
+  {
+    "id": "humeai",
+    "file": "humeai.json"
+  },
+  {
+    "id": "aiapiworld",
+    "file": "aiapiworld.json"
+  },
+  {
+    "id": "concentrate",
+    "file": "concentrate.json"
+  },
+  {
+    "id": "rebytemodels",
+    "file": "rebytemodels.json"
+  },
+  {
+    "id": "rebytetasks",
+    "file": "rebytetasks.json"
+  },
+  {
+    "id": "bananapeel",
+    "file": "bananapeel.json"
+  },
+  {
+    "id": "rewindai",
+    "file": "rewindai.json"
+  },
+  {
+    "id": "moleapi",
+    "file": "moleapi.json"
+  },
+  {
+    "id": "hostyourai",
+    "file": "hostyourai.json"
+  },
+  {
+    "id": "myrouter",
+    "file": "myrouter.json"
+  },
+  {
+    "id": "osiris",
+    "file": "osiris.json"
+  },
+  {
+    "id": "skypooltoken",
+    "file": "skypooltoken.json"
+  },
+  {
+    "id": "luminoai",
+    "file": "luminoai.json"
+  },
+  {
+    "id": "llmtr",
+    "file": "llmtr.json"
+  },
+  {
+    "id": "tokenhub",
+    "file": "tokenhub.json"
+  },
+  {
+    "id": "ltx",
+    "file": "ltx.json"
+  },
+  {
+    "id": "vibekit",
+    "file": "vibekit.json"
+  },
+  {
+    "id": "callmissed",
+    "file": "callmissed.json"
+  },
+  {
+    "id": "freeinference",
+    "file": "freeinference.json"
+  },
+  {
+    "id": "langbaseagent",
+    "file": "langbaseagent.json"
+  },
+  {
+    "id": "langbasepipe",
+    "file": "langbasepipe.json"
+  },
+  {
+    "id": "groovedev",
+    "file": "groovedev.json"
+  },
+  {
+    "id": "monstergaming",
+    "file": "monstergaming.json"
+  },
+  {
+    "id": "apipass",
+    "file": "apipass.json"
+  },
+  {
+    "id": "scrapellm",
+    "file": "scrapellm.json"
+  },
+  {
+    "id": "secrypt",
+    "file": "secrypt.json"
+  },
+  {
+    "id": "merge",
+    "file": "merge.json"
+  },
+  {
+    "id": "virouter",
+    "file": "virouter.json"
+  },
+  {
+    "id": "zyloapi",
+    "file": "zyloapi.json"
+  },
+  {
+    "id": "chatqt",
+    "file": "chatqt.json"
+  },
+  {
+    "id": "opuscode",
+    "file": "opuscode.json"
+  },
+  {
+    "id": "opengate",
+    "file": "opengate.json"
+  },
+  {
+    "id": "pioneer",
+    "file": "pioneer.json"
+  },
+  {
+    "id": "agen",
+    "file": "agen.json"
+  },
+  {
+    "id": "llama",
+    "file": "llama.json"
+  },
+  {
+    "id": "blink",
+    "file": "blink.json"
+  },
+  {
+    "id": "tierup",
+    "file": "tierup.json"
+  },
+  {
+    "id": "llmbase",
+    "file": "llmbase.json"
+  },
+  {
+    "id": "evidencemd",
+    "file": "evidencemd.json"
+  },
+  {
+    "id": "opencodego",
+    "file": "opencodego.json"
+  },
+  {
+    "id": "wayscloud",
+    "file": "wayscloud.json"
+  },
+  {
+    "id": "tensorblock",
+    "file": "tensorblock.json"
+  },
+  {
+    "id": "sennoric",
+    "file": "sennoric.json"
+  },
+  {
+    "id": "commonstack",
+    "file": "commonstack.json"
+  },
+  {
+    "id": "cheaperinference",
+    "file": "cheaperinference.json"
+  },
+  {
+    "id": "paul",
+    "file": "paul.json"
+  },
+  {
+    "id": "ramprouter",
+    "file": "ramprouter.json"
+  },
+  {
+    "id": "hinow",
+    "file": "hinow.json"
+  },
+  {
+    "id": "logfare",
+    "file": "logfare.json"
+  },
+  {
+    "id": "vikasit",
+    "file": "vikasit.json"
+  },
+  {
+    "id": "mimicxai",
+    "file": "mimicxai.json"
+  },
+  {
+    "id": "runtimo",
+    "file": "runtimo.json"
+  },
+  {
+    "id": "wiserouter",
+    "file": "wiserouter.json"
+  },
+  {
+    "id": "tiarina",
+    "file": "tiarina.json"
+  },
+  {
+    "id": "nodion",
+    "file": "nodion.json"
+  },
+  {
+    "id": "maxlayer",
+    "file": "maxlayer.json"
+  },
+  {
+    "id": "manus",
+    "file": "manus.json"
+  },
+  {
+    "id": "critique",
+    "file": "critique.json"
+  },
+  {
+    "id": "darkbloom",
+    "file": "darkbloom.json"
+  },
+  {
+    "id": "scalixworld",
+    "file": "scalixworld.json"
+  },
+  {
+    "id": "meshapi",
+    "file": "meshapi.json"
+  },
+  {
+    "id": "generalcompute",
+    "file": "generalcompute.json"
+  },
+  {
+    "id": "uncloseai",
+    "file": "uncloseai.json"
+  },
+  {
+    "id": "camelai",
+    "file": "camelai.json"
+  },
+  {
+    "id": "m8tes",
+    "file": "m8tes.json"
+  },
+  {
+    "id": "summa",
+    "file": "summa.json"
+  },
+  {
+    "id": "neuralring",
+    "file": "neuralring.json"
+  },
+  {
+    "id": "cognitivessai",
+    "file": "cognitivessai.json"
+  },
+  {
+    "id": "standardcompute",
+    "file": "standardcompute.json"
+  },
+  {
+    "id": "cursor",
+    "file": "cursor.json"
+  },
+  {
+    "id": "skyvern",
+    "file": "skyvern.json"
+  },
+  {
+    "id": "lumecoder",
+    "file": "lumecoder.json"
+  },
+  {
+    "id": "radient",
+    "file": "radient.json"
+  },
+  {
+    "id": "aihorde",
+    "file": "aihorde.json"
+  },
+  {
+    "id": "akumi",
+    "file": "akumi.json"
+  },
+  {
+    "id": "octagon",
+    "file": "octagon.json"
+  },
+  {
+    "id": "aimagicx",
+    "file": "aimagicx.json"
+  },
+  {
+    "id": "impossibl",
+    "file": "impossibl.json"
+  },
+  {
+    "id": "sluis",
+    "file": "sluis.json"
+  },
+  {
+    "id": "sailresearch",
+    "file": "sailresearch.json"
+  },
+  {
+    "id": "hyperbrowser",
+    "file": "hyperbrowser.json"
+  },
+  {
+    "id": "therouterai",
+    "file": "therouterai.json"
+  },
+  {
+    "id": "clankie",
+    "file": "clankie.json"
+  },
+  {
+    "id": "shannonai",
+    "file": "shannonai.json"
+  },
+  {
+    "id": "aichixia",
+    "file": "aichixia.json"
+  },
+  {
+    "id": "nataris",
+    "file": "nataris.json"
+  },
+  {
+    "id": "teai",
+    "file": "teai.json"
+  },
+  {
+    "id": "eugpt",
+    "file": "eugpt.json"
+  },
+  {
+    "id": "fred",
+    "file": "fred.json"
+  },
+  {
+    "id": "anyrouter",
+    "file": "anyrouter.json"
+  },
+  {
+    "id": "geekai",
+    "file": "geekai.json"
+  },
+  {
+    "id": "finora",
+    "file": "finora.json"
+  },
+  {
+    "id": "lxg2it",
+    "file": "lxg2it.json"
+  },
+  {
+    "id": "runway",
+    "file": "runway.json"
+  },
+  {
+    "id": "helyxai",
+    "file": "helyxai.json"
+  },
+  {
+    "id": "mumeai",
+    "file": "mumeai.json"
+  },
+  {
+    "id": "tinyfish",
+    "file": "tinyfish.json"
+  },
+  {
+    "id": "shengsuanyun",
+    "file": "shengsuanyun.json"
+  },
+  {
+    "id": "occludra",
+    "file": "occludra.json"
+  },
+  {
+    "id": "omniakey",
+    "file": "omniakey.json"
+  },
+  {
+    "id": "trustedrouter",
+    "file": "trustedrouter.json"
+  },
+  {
+    "id": "nouswise",
+    "file": "nouswise.json"
+  },
+  {
+    "id": "clawhub",
+    "file": "clawhub.json"
+  },
+  {
+    "id": "orbigpu",
+    "file": "orbigpu.json"
+  },
+  {
+    "id": "ecoia",
+    "file": "ecoia.json"
+  },
+  {
+    "id": "embercloud",
+    "file": "embercloud.json"
+  },
+  {
+    "id": "opengateway",
+    "file": "opengateway.json"
+  },
+  {
+    "id": "holysheepai",
+    "file": "holysheepai.json"
+  },
+  {
+    "id": "lyceum",
+    "file": "lyceum.json"
+  },
+  {
+    "id": "foureverland",
+    "file": "foureverland.json"
+  },
+  {
+    "id": "ilmu",
+    "file": "ilmu.json"
+  },
+  {
+    "id": "select",
+    "file": "select.json"
+  },
+  {
+    "id": "fivedock",
+    "file": "fivedock.json"
+  },
+  {
+    "id": "schatziai",
+    "file": "schatziai.json"
+  },
+  {
+    "id": "fortytwo",
+    "file": "fortytwo.json"
+  },
+  {
+    "id": "simplellm",
+    "file": "simplellm.json"
+  },
+  {
+    "id": "oraicle",
+    "file": "oraicle.json"
+  },
+  {
+    "id": "terminalskills",
+    "file": "terminalskills.json"
+  },
+  {
+    "id": "depaza",
+    "file": "depaza.json"
+  },
+  {
+    "id": "gptsapi",
+    "file": "gptsapi.json"
+  },
+  {
+    "id": "magisterium",
+    "file": "magisterium.json"
+  },
+  {
+    "id": "nonkycai",
+    "file": "nonkycai.json"
+  },
+  {
+    "id": "tensorx",
+    "file": "tensorx.json"
+  },
+  {
+    "id": "embyai",
+    "file": "embyai.json"
+  },
+  {
+    "id": "lmrouter",
+    "file": "lmrouter.json"
+  },
+  {
+    "id": "uncensoredchat",
+    "file": "uncensoredchat.json"
+  },
+  {
+    "id": "selinaai",
+    "file": "selinaai.json"
+  },
+  {
+    "id": "clauddy",
+    "file": "clauddy.json"
+  },
+  {
+    "id": "sudorouter",
+    "file": "sudorouter.json"
+  },
+  {
+    "id": "mulerun",
+    "file": "mulerun.json"
+  },
+  {
+    "id": "baidu",
+    "file": "baidu.json"
+  },
+  {
+    "id": "roxy",
+    "file": "roxy.json"
+  },
+  {
+    "id": "perceptron",
+    "file": "perceptron.json"
+  },
+  {
+    "id": "cortex",
+    "file": "cortex.json"
+  },
+  {
+    "id": "akashml",
+    "file": "akashml.json"
+  },
+  {
+    "id": "morph",
+    "file": "morph.json"
+  },
+  {
+    "id": "streamlake",
+    "file": "streamlake.json"
+  },
+  {
+    "id": "sovereigneg",
+    "file": "sovereigneg.json"
+  },
+  {
+    "id": "runapi",
+    "file": "runapi.json"
+  },
+  {
+    "id": "relace",
+    "file": "relace.json"
+  },
+  {
+    "id": "ollama",
+    "file": "ollama.json"
+  },
+  {
+    "id": "xiaomimimo",
+    "file": "xiaomimimo.json"
+  },
+  {
+    "id": "vivgrid",
+    "file": "vivgrid.json"
+  },
+  {
+    "id": "chutes",
+    "file": "chutes.json"
+  },
+  {
+    "id": "sunbirdai",
+    "file": "sunbirdai.json"
+  },
+  {
+    "id": "miapi",
+    "file": "miapi.json"
+  },
+  {
+    "id": "ambient",
+    "file": "ambient.json"
+  },
+  {
+    "id": "sandbase",
+    "file": "sandbase.json"
+  },
+  {
+    "id": "openference",
+    "file": "openference.json"
+  },
+  {
+    "id": "baseapi",
+    "file": "baseapi.json"
+  },
+  {
+    "id": "preapi",
+    "file": "preapi.json"
+  },
+  {
+    "id": "mljunction",
+    "file": "mljunction.json"
+  },
+  {
+    "id": "addisai",
+    "file": "addisai.json"
+  },
+  {
+    "id": "teamday",
+    "file": "teamday.json"
+  },
+  {
+    "id": "jassieai",
+    "file": "jassieai.json"
+  },
+  {
+    "id": "agent37",
+    "file": "agent37.json"
+  },
+  {
+    "id": "yutori",
+    "file": "yutori.json"
+  },
+  {
+    "id": "cailos",
+    "file": "cailos.json"
+  },
+  {
+    "id": "prunaai",
+    "file": "prunaai.json"
+  },
+  {
+    "id": "imagerouter",
+    "file": "imagerouter.json"
+  },
+  {
+    "id": "gaterouter",
+    "file": "gaterouter.json"
+  },
+  {
+    "id": "ultrasafe",
+    "file": "ultrasafe.json"
+  },
+  {
+    "id": "memoryrouter",
+    "file": "memoryrouter.json"
+  },
+  {
+    "id": "zebracat",
+    "file": "zebracat.json"
+  },
+  {
+    "id": "messari",
+    "file": "messari.json"
+  },
+  {
+    "id": "devicai",
+    "file": "devicai.json"
+  },
+  {
+    "id": "agentcontainer",
+    "file": "agentcontainer.json"
+  },
+  {
+    "id": "interfaze",
+    "file": "interfaze.json"
+  },
+  {
+    "id": "oodaai",
+    "file": "oodaai.json"
+  },
+  {
+    "id": "dedaluslabs",
+    "file": "dedaluslabs.json"
+  },
+  {
+    "id": "stealthgpt",
+    "file": "stealthgpt.json"
+  },
+  {
+    "id": "ofoxai",
+    "file": "ofoxai.json"
+  },
+  {
+    "id": "crusoe",
+    "file": "crusoe.json"
+  },
+  {
+    "id": "routerlink",
+    "file": "routerlink.json"
+  },
+  {
+    "id": "yollomi",
+    "file": "yollomi.json"
+  },
+  {
+    "id": "vultr",
+    "file": "vultr.json"
+  },
+  {
+    "id": "canrouter",
+    "file": "canrouter.json"
+  },
+  {
+    "id": "mintrouter",
+    "file": "mintrouter.json"
+  },
+  {
+    "id": "hush",
+    "file": "hush.json"
+  },
+  {
+    "id": "tikhubai",
+    "file": "tikhubai.json"
+  },
+  {
+    "id": "inferlink",
+    "file": "inferlink.json"
+  },
+  {
+    "id": "knoxchat",
+    "file": "knoxchat.json"
+  },
+  {
+    "id": "tokenspend",
+    "file": "tokenspend.json"
+  },
+  {
+    "id": "auriko",
+    "file": "auriko.json"
+  },
+  {
+    "id": "vlmrun",
+    "file": "vlmrun.json"
+  },
+  {
+    "id": "raxai",
+    "file": "raxai.json"
+  },
+  {
+    "id": "vogent",
+    "file": "vogent.json"
+  },
+  {
+    "id": "aicredits",
+    "file": "aicredits.json"
+  },
+  {
+    "id": "cheapgrok",
+    "file": "cheapgrok.json"
+  },
+  {
+    "id": "railwail",
+    "file": "railwail.json"
+  },
+  {
+    "id": "chainhub",
+    "file": "chainhub.json"
+  },
+  {
+    "id": "zeabur",
+    "file": "zeabur.json"
+  },
+  {
+    "id": "neuralwatt",
+    "file": "neuralwatt.json"
+  },
+  {
+    "id": "pawaai",
+    "file": "pawaai.json"
+  },
+  {
+    "id": "youcom",
+    "file": "youcom.json"
+  },
+  {
+    "id": "aiduet",
+    "file": "aiduet.json"
+  },
+  {
+    "id": "empiriolabsai",
+    "file": "empiriolabsai.json"
+  },
+  {
+    "id": "infercom",
+    "file": "infercom.json"
+  },
+  {
+    "id": "sargalay",
+    "file": "sargalay.json"
+  },
+  {
+    "id": "piapi",
+    "file": "piapi.json"
+  },
+  {
+    "id": "nagaai",
+    "file": "nagaai.json"
+  },
+  {
+    "id": "fastrouter",
+    "file": "fastrouter.json"
+  },
+  {
+    "id": "novai",
+    "file": "novai.json"
+  },
+  {
+    "id": "andyapi",
+    "file": "andyapi.json"
+  },
+  {
+    "id": "onekey",
+    "file": "onekey.json"
+  },
+  {
+    "id": "toapis",
+    "file": "toapis.json"
+  },
+  {
+    "id": "iapp",
+    "file": "iapp.json"
+  },
+  {
+    "id": "blockrun",
+    "file": "blockrun.json"
+  },
+  {
+    "id": "getgoapi",
+    "file": "getgoapi.json"
+  },
+  {
+    "id": "gonkagate",
+    "file": "gonkagate.json"
+  },
+  {
+    "id": "aki",
+    "file": "aki.json"
+  },
+  {
+    "id": "lilac",
+    "file": "lilac.json"
+  },
+  {
+    "id": "kimrel",
+    "file": "kimrel.json"
+  },
+  {
+    "id": "agentaigateway",
+    "file": "agentaigateway.json"
+  },
+  {
+    "id": "lazu",
+    "file": "lazu.json"
+  },
+  {
+    "id": "askcodi",
+    "file": "askcodi.json"
+  },
+  {
+    "id": "martian",
+    "file": "martian.json"
+  },
+  {
+    "id": "huggingface",
+    "file": "huggingface.json"
+  },
+  {
+    "id": "agentphone",
+    "file": "agentphone.json"
+  },
+  {
+    "id": "textsynth",
+    "file": "textsynth.json"
+  },
+  {
+    "id": "keyplex",
+    "file": "keyplex.json"
+  },
+  {
+    "id": "modelsync",
+    "file": "modelsync.json"
+  },
+  {
+    "id": "jkaihub",
+    "file": "jkaihub.json"
+  },
+  {
+    "id": "fal",
+    "file": "fal.json"
+  },
+  {
+    "id": "agentics",
+    "file": "agentics.json"
+  },
+  {
+    "id": "lumenfall",
+    "file": "lumenfall.json"
+  },
+  {
+    "id": "puter",
+    "file": "puter.json"
+  },
+  {
+    "id": "routeplex",
+    "file": "routeplex.json"
+  },
+  {
+    "id": "nrpnautilus",
+    "file": "nrpnautilus.json"
+  },
+  {
+    "id": "bazaarlink",
+    "file": "bazaarlink.json"
+  },
+  {
+    "id": "llmkiwi",
+    "file": "llmkiwi.json"
+  },
+  {
+    "id": "viablelab",
+    "file": "viablelab.json"
+  },
+  {
+    "id": "llm7",
+    "file": "llm7.json"
+  },
+  {
+    "id": "unbound",
+    "file": "unbound.json"
+  },
+  {
+    "id": "airouter",
+    "file": "airouter.json"
+  },
+  {
+    "id": "edgee",
+    "file": "edgee.json"
+  },
+  {
+    "id": "cline",
+    "file": "cline.json"
+  },
+  {
+    "id": "paxalabs",
+    "file": "paxalabs.json"
+  },
+  {
+    "id": "entrim",
+    "file": "entrim.json"
+  },
+  {
+    "id": "shakespeare",
+    "file": "shakespeare.json"
+  },
+  {
+    "id": "ainative",
+    "file": "ainative.json"
+  },
+  {
+    "id": "token360",
+    "file": "token360.json"
+  },
+  {
+    "id": "lexico",
+    "file": "lexico.json"
+  },
+  {
+    "id": "eagm",
+    "file": "eagm.json"
+  },
+  {
+    "id": "setapp",
+    "file": "setapp.json"
+  },
+  {
+    "id": "verbatik",
+    "file": "verbatik.json"
+  },
+  {
+    "id": "aibadgr",
+    "file": "aibadgr.json"
+  },
+  {
+    "id": "webcrawlerapi",
+    "file": "webcrawlerapi.json"
+  },
+  {
+    "id": "shareai",
+    "file": "shareai.json"
+  },
+  {
+    "id": "brainiall",
+    "file": "brainiall.json"
+  },
+  {
+    "id": "surfercloud",
+    "file": "surfercloud.json"
+  },
+  {
+    "id": "openlimits",
+    "file": "openlimits.json"
+  },
+  {
+    "id": "bastiongpt",
+    "file": "bastiongpt.json"
+  },
+  {
+    "id": "arkroute",
+    "file": "arkroute.json"
+  },
+  {
+    "id": "xpersona",
+    "file": "xpersona.json"
+  },
+  {
+    "id": "eliza",
+    "file": "eliza.json"
+  },
+  {
+    "id": "sovinfra",
+    "file": "sovinfra.json"
+  },
+  {
+    "id": "ionrouter",
+    "file": "ionrouter.json"
+  },
+  {
+    "id": "claudible",
+    "file": "claudible.json"
+  },
+  {
+    "id": "llmwise",
+    "file": "llmwise.json"
+  },
+  {
+    "id": "hanzo",
+    "file": "hanzo.json"
+  },
+  {
+    "id": "ocrskill",
+    "file": "ocrskill.json"
+  },
+  {
+    "id": "writer",
+    "file": "writer.json"
+  },
+  {
+    "id": "routstr",
+    "file": "routstr.json"
+  },
+  {
+    "id": "alphaneural",
+    "file": "alphaneural.json"
+  },
+  {
+    "id": "voiceai",
+    "file": "voiceai.json"
+  },
+  {
+    "id": "freedomgpt",
+    "file": "freedomgpt.json"
+  },
+  {
+    "id": "shuttleai",
+    "file": "shuttleai.json"
+  },
+  {
+    "id": "logicosllmhub",
+    "file": "logicosllmhub.json"
+  },
+  {
+    "id": "noiz",
+    "file": "noiz.json"
+  },
+  {
+    "id": "sufy",
+    "file": "sufy.json"
+  },
+  {
+    "id": "mia21",
+    "file": "mia21.json"
+  },
+  {
+    "id": "gradium",
+    "file": "gradium.json"
+  },
+  {
+    "id": "apiairforce",
+    "file": "apiairforce.json"
+  },
+  {
+    "id": "arliai",
+    "file": "arliai.json"
+  },
+  {
+    "id": "rime",
+    "file": "rime.json"
+  },
+  {
+    "id": "kirha",
+    "file": "kirha.json"
+  },
+  {
+    "id": "modelrouter",
+    "file": "modelrouter.json"
+  },
+  {
+    "id": "mixedbread",
+    "file": "mixedbread.json"
+  },
+  {
+    "id": "casedev",
+    "file": "casedev.json"
+  },
+  {
+    "id": "smartaipi",
+    "file": "smartaipi.json"
+  },
+  {
+    "id": "assisters",
+    "file": "assisters.json"
+  },
+  {
+    "id": "apipod",
+    "file": "apipod.json"
+  },
+  {
+    "id": "fullai",
+    "file": "fullai.json"
+  },
+  {
+    "id": "litai",
+    "file": "litai.json"
+  },
+  {
+    "id": "tokenlab",
+    "file": "tokenlab.json"
+  },
+  {
+    "id": "nexusify",
+    "file": "nexusify.json"
+  },
+  {
+    "id": "docsrouter",
+    "file": "docsrouter.json"
+  },
+  {
+    "id": "tokenflux",
+    "file": "tokenflux.json"
+  },
+  {
+    "id": "agentsky",
+    "file": "agentsky.json"
+  },
+  {
+    "id": "ishi",
+    "file": "ishi.json"
+  },
+  {
+    "id": "onlypixai",
+    "file": "onlypixai.json"
+  },
+  {
+    "id": "payperq",
+    "file": "payperq.json"
+  },
+  {
+    "id": "libertai",
+    "file": "libertai.json"
+  },
+  {
+    "id": "jules",
+    "file": "jules.json"
+  },
+  {
+    "id": "antbase",
+    "file": "antbase.json"
+  },
+  {
+    "id": "swarms",
+    "file": "swarms.json"
+  },
+  {
+    "id": "infron",
+    "file": "infron.json"
+  },
+  {
+    "id": "edenai",
+    "file": "edenai.json"
+  },
+  {
+    "id": "maritacaai",
+    "file": "maritacaai.json"
+  },
+  {
+    "id": "dataforseo",
+    "file": "dataforseo.json"
+  },
+  {
+    "id": "cloudferro",
+    "file": "cloudferro.json"
+  },
+  {
+    "id": "jigsawstack",
+    "file": "jigsawstack.json"
+  },
+  {
+    "id": "eachlabs",
+    "file": "eachlabs.json"
+  },
+  {
+    "id": "softref",
+    "file": "softref.json"
+  },
+  {
+    "id": "nimbleway",
+    "file": "nimbleway.json"
+  },
+  {
+    "id": "aigateway",
+    "file": "aigateway.json"
+  },
+  {
+    "id": "llmstats",
+    "file": "llmstats.json"
+  },
+  {
+    "id": "synthetic",
+    "file": "synthetic.json"
+  },
+  {
+    "id": "longcat",
+    "file": "longcat.json"
+  },
+  {
+    "id": "renderful",
+    "file": "renderful.json"
+  },
+  {
+    "id": "apekey",
+    "file": "apekey.json"
+  },
+  {
+    "id": "askarc",
+    "file": "askarc.json"
+  },
+  {
+    "id": "poe",
+    "file": "poe.json"
+  },
+  {
+    "id": "aisa",
+    "file": "aisa.json"
+  },
+  {
+    "id": "everypixellabs",
+    "file": "everypixellabs.json"
+  },
+  {
+    "id": "routmy",
+    "file": "routmy.json"
+  },
+  {
+    "id": "evolinkai",
+    "file": "evolinkai.json"
+  },
+  {
+    "id": "aibramha",
+    "file": "aibramha.json"
+  },
+  {
+    "id": "websearchapi",
+    "file": "websearchapi.json"
+  },
+  {
+    "id": "nanogpt",
+    "file": "nanogpt.json"
+  },
+  {
+    "id": "uniapi",
+    "file": "uniapi.json"
+  },
+  {
+    "id": "parallel",
+    "file": "parallel.json"
+  },
+  {
+    "id": "aihubmix",
+    "file": "aihubmix.json"
+  },
+  {
+    "id": "megallm",
+    "file": "megallm.json"
+  },
+  {
+    "id": "unrealspeech",
+    "file": "unrealspeech.json"
+  },
+  {
+    "id": "tigercity",
+    "file": "tigercity.json"
+  },
+  {
+    "id": "astica",
+    "file": "astica.json"
+  },
+  {
+    "id": "hicap",
+    "file": "hicap.json"
+  },
+  {
+    "id": "modelslab",
+    "file": "modelslab.json"
+  },
+  {
+    "id": "foundry",
+    "file": "foundry.json"
+  },
+  {
+    "id": "zenlayer",
+    "file": "zenlayer.json"
+  },
+  {
+    "id": "thaura",
+    "file": "thaura.json"
+  },
+  {
+    "id": "arwriter",
+    "file": "arwriter.json"
+  },
+  {
+    "id": "quiverai",
+    "file": "quiverai.json"
+  },
+  {
+    "id": "navyai",
+    "file": "navyai.json"
+  },
+  {
+    "id": "apertis",
+    "file": "apertis.json"
+  },
+  {
+    "id": "modal",
+    "file": "modal.json"
+  },
+  {
+    "id": "nearai",
+    "file": "nearai.json"
+  },
+  {
+    "id": "aiml",
+    "file": "aiml.json"
+  },
+  {
+    "id": "smooth",
+    "file": "smooth.json"
+  },
+  {
+    "id": "anthropic",
+    "file": "anthropic.json"
+  },
+  {
+    "id": "heygen",
+    "file": "heygen.json"
+  },
+  {
+    "id": "ionet",
+    "file": "ionet.json"
+  },
+  {
+    "id": "ellipsis",
+    "file": "ellipsis.json"
+  },
+  {
+    "id": "euqai",
+    "file": "euqai.json"
+  },
+  {
+    "id": "glio",
+    "file": "glio.json"
+  },
+  {
+    "id": "orqrouter",
+    "file": "orqrouter.json"
+  },
+  {
+    "id": "carouter",
+    "file": "carouter.json"
+  },
+  {
+    "id": "dandolo",
+    "file": "dandolo.json"
+  },
+  {
+    "id": "literouter",
+    "file": "literouter.json"
+  },
+  {
+    "id": "amnt",
+    "file": "amnt.json"
+  },
+  {
+    "id": "orqagentruntime",
+    "file": "orqagentruntime.json"
+  },
+  {
+    "id": "mireye",
+    "file": "mireye.json"
+  },
+  {
+    "id": "typecast",
+    "file": "typecast.json"
+  },
+  {
+    "id": "founden",
+    "file": "founden.json"
+  },
+  {
+    "id": "vanceai",
+    "file": "vanceai.json"
+  },
+  {
+    "id": "jiekouai",
+    "file": "jiekouai.json"
+  },
+  {
+    "id": "qiniu",
+    "file": "qiniu.json"
+  },
+  {
+    "id": "uvoiceai",
+    "file": "uvoiceai.json"
+  },
+  {
+    "id": "vapi",
+    "file": "vapi.json"
+  },
+  {
+    "id": "waslo",
+    "file": "waslo.json"
+  },
+  {
+    "id": "lovo",
+    "file": "lovo.json"
+  },
+  {
+    "id": "laozhang",
+    "file": "laozhang.json"
+  },
+  {
+    "id": "valyu",
+    "file": "valyu.json"
+  },
+  {
+    "id": "lunos",
+    "file": "lunos.json"
+  },
+  {
+    "id": "fishaudio",
+    "file": "fishaudio.json"
+  },
+  {
+    "id": "netmind",
+    "file": "netmind.json"
+  },
+  {
+    "id": "apiyi",
+    "file": "apiyi.json"
+  },
+  {
+    "id": "zenmux",
+    "file": "zenmux.json"
+  },
+  {
+    "id": "smallestai",
+    "file": "smallestai.json"
+  },
+  {
+    "id": "rekaai",
+    "file": "rekaai.json"
+  },
+  {
+    "id": "aicc",
+    "file": "aicc.json"
+  },
+  {
+    "id": "cartesia",
+    "file": "cartesia.json"
+  },
+  {
+    "id": "yourvoic",
+    "file": "yourvoic.json"
+  },
+  {
+    "id": "google",
+    "file": "google.json"
+  },
+  {
+    "id": "segmind",
+    "file": "segmind.json"
+  },
+  {
+    "id": "mistral",
+    "file": "mistral.json"
+  },
+  {
+    "id": "lectoai",
+    "file": "lectoai.json"
+  },
+  {
+    "id": "gmicloud",
+    "file": "gmicloud.json"
+  },
+  {
+    "id": "byteplus",
+    "file": "byteplus.json"
+  },
+  {
+    "id": "bytespace",
+    "file": "bytespace.json"
+  },
+  {
+    "id": "clawlite",
+    "file": "clawlite.json"
+  },
+  {
+    "id": "cohere",
+    "file": "cohere.json"
+  },
+  {
+    "id": "kissapi",
+    "file": "kissapi.json"
+  },
+  {
+    "id": "groq",
+    "file": "groq.json"
+  },
+  {
+    "id": "spacexai",
+    "file": "spacexai.json"
+  },
+  {
+    "id": "hyperrouter",
+    "file": "hyperrouter.json"
+  },
+  {
+    "id": "together",
+    "file": "together.json"
+  },
+  {
+    "id": "researchagent",
+    "file": "researchagent.json"
+  },
+  {
+    "id": "ourtoken",
+    "file": "ourtoken.json"
+  },
+  {
+    "id": "googletranslate",
+    "file": "googletranslate.json"
+  },
+  {
+    "id": "infomaniak",
+    "file": "infomaniak.json"
+  },
+  {
+    "id": "siliconflow",
+    "file": "siliconflow.json"
+  },
+  {
+    "id": "deepbricks",
+    "file": "deepbricks.json"
+  },
+  {
+    "id": "ovhcloud",
+    "file": "ovhcloud.json"
+  },
+  {
+    "id": "inworld",
+    "file": "inworld.json"
+  },
+  {
+    "id": "cometapi",
+    "file": "cometapi.json"
+  },
+  {
+    "id": "arklabs",
+    "file": "arklabs.json"
+  },
+  {
+    "id": "lingvanex",
+    "file": "lingvanex.json"
+  },
+  {
+    "id": "nextbit",
+    "file": "nextbit.json"
+  },
+  {
+    "id": "cortecs",
+    "file": "cortecs.json"
+  },
+  {
+    "id": "opperai",
+    "file": "opperai.json"
+  },
+  {
+    "id": "eurouter",
+    "file": "eurouter.json"
+  },
+  {
+    "id": "upstage",
+    "file": "upstage.json"
+  },
+  {
+    "id": "deapi",
+    "file": "deapi.json"
+  },
+  {
+    "id": "ionos",
+    "file": "ionos.json"
+  },
+  {
+    "id": "bergetai",
+    "file": "bergetai.json"
+  },
+  {
+    "id": "regoloai",
+    "file": "regoloai.json"
+  },
+  {
+    "id": "pollinations",
+    "file": "pollinations.json"
+  },
+  {
+    "id": "nlpcloud",
+    "file": "nlpcloud.json"
+  },
+  {
+    "id": "hyperstack",
+    "file": "hyperstack.json"
+  },
+  {
+    "id": "requesty",
+    "file": "requesty.json"
+  },
+  {
+    "id": "recraft",
+    "file": "recraft.json"
+  },
+  {
+    "id": "perplexity",
+    "file": "perplexity.json"
+  },
+  {
+    "id": "json2video",
+    "file": "json2video.json"
+  },
+  {
+    "id": "deepl",
+    "file": "deepl.json"
+  },
+  {
+    "id": "speechmatics",
+    "file": "speechmatics.json"
+  },
+  {
+    "id": "gtranslate",
+    "file": "gtranslate.json"
+  },
+  {
+    "id": "gooseai",
+    "file": "gooseai.json"
+  },
+  {
+    "id": "synexa",
+    "file": "synexa.json"
+  },
+  {
+    "id": "moonshot",
+    "file": "moonshot.json"
+  },
+  {
+    "id": "greenpt",
+    "file": "greenpt.json"
+  },
+  {
+    "id": "decart",
+    "file": "decart.json"
+  },
+  {
+    "id": "venice",
+    "file": "venice.json"
+  },
+  {
+    "id": "relaxai",
+    "file": "relaxai.json"
+  },
+  {
+    "id": "horayai",
+    "file": "horayai.json"
+  },
+  {
+    "id": "tencenthunyuan",
+    "file": "tencenthunyuan.json"
+  },
+  {
+    "id": "digitalocean",
+    "file": "digitalocean.json"
+  },
+  {
+    "id": "atlascloud",
+    "file": "atlascloud.json"
+  },
+  {
+    "id": "bineric",
+    "file": "bineric.json"
+  },
+  {
+    "id": "parasail",
+    "file": "parasail.json"
+  },
+  {
+    "id": "asione",
+    "file": "asione.json"
+  },
+  {
+    "id": "sealion",
+    "file": "sealion.json"
+  },
+  {
+    "id": "apipie",
+    "file": "apipie.json"
+  },
+  {
+    "id": "ideogram",
+    "file": "ideogram.json"
+  },
+  {
+    "id": "mancerai",
+    "file": "mancerai.json"
+  },
+  {
+    "id": "stepfun",
+    "file": "stepfun.json"
+  },
+  {
+    "id": "helicone",
+    "file": "helicone.json"
+  },
+  {
+    "id": "jina",
+    "file": "jina.json"
+  },
+  {
+    "id": "amazonbedrock",
+    "file": "amazonbedrock.json"
+  },
+  {
+    "id": "sunoapi",
+    "file": "sunoapi.json"
+  },
+  {
+    "id": "regraph",
+    "file": "regraph.json"
+  },
+  {
+    "id": "nousresearch",
+    "file": "nousresearch.json"
+  },
+  {
+    "id": "bytez",
+    "file": "bytez.json"
+  },
+  {
+    "id": "morpheus",
+    "file": "morpheus.json"
+  },
+  {
+    "id": "matterai",
+    "file": "matterai.json"
+  },
+  {
+    "id": "electronhub",
+    "file": "electronhub.json"
+  },
+  {
+    "id": "ohmygpt",
+    "file": "ohmygpt.json"
+  },
+  {
+    "id": "thalam",
+    "file": "thalam.json"
+  },
+  {
+    "id": "tavily",
+    "file": "tavily.json"
+  },
+  {
+    "id": "opeai",
+    "file": "opeai.json"
+  },
+  {
+    "id": "arceeai",
+    "file": "arceeai.json"
+  },
+  {
+    "id": "daglo",
+    "file": "daglo.json"
+  },
+  {
+    "id": "paraloncloud",
+    "file": "paraloncloud.json"
+  },
+  {
+    "id": "rodiumai",
+    "file": "rodiumai.json"
+  },
+  {
+    "id": "publicai",
+    "file": "publicai.json"
+  },
+  {
+    "id": "miromind",
+    "file": "miromind.json"
+  },
+  {
+    "id": "exa",
+    "file": "exa.json"
+  },
+  {
+    "id": "nscale",
+    "file": "nscale.json"
+  },
+  {
+    "id": "kilo",
+    "file": "kilo.json"
+  },
+  {
+    "id": "featherless",
+    "file": "featherless.json"
+  },
+  {
+    "id": "openrouter",
+    "file": "openrouter.json"
+  },
+  {
+    "id": "cambai",
+    "file": "cambai.json"
+  },
+  {
+    "id": "infraxa",
+    "file": "infraxa.json"
+  },
+  {
+    "id": "openhands",
+    "file": "openhands.json"
+  },
+  {
+    "id": "ai302",
+    "file": "302ai.json"
+  },
+  {
+    "id": "crazyrouter",
+    "file": "crazyrouter.json"
+  },
+  {
+    "id": "agentdiscuss",
+    "file": "agentdiscuss.json"
+  },
+  {
+    "id": "aether",
+    "file": "aether.json"
+  },
+  {
+    "id": "blackbox",
+    "file": "blackbox.json"
+  },
+  {
+    "id": "primeintellect",
+    "file": "primeintellect.json"
+  },
+  {
+    "id": "inceptionlabs",
+    "file": "inceptionlabs.json"
+  },
+  {
+    "id": "commandcode",
+    "file": "commandcode.json"
+  },
+  {
+    "id": "aionlabs",
+    "file": "aionlabs.json"
+  },
+  {
+    "id": "databricks",
+    "file": "databricks.json"
+  },
+  {
+    "id": "inceptron",
+    "file": "inceptron.json"
+  },
+  {
+    "id": "blackforestlabs",
+    "file": "blackforestlabs.json"
+  },
+  {
+    "id": "resembleai",
+    "file": "resembleai.json"
+  },
+  {
+    "id": "abliteration",
+    "file": "abliteration.json"
+  },
+  {
+    "id": "truefoundry",
+    "file": "truefoundry.json"
+  },
+  {
+    "id": "redpill",
+    "file": "redpill.json"
+  },
+  {
+    "id": "browseruse",
+    "file": "browseruse.json"
+  },
+  {
+    "id": "monica",
+    "file": "monica.json"
+  },
+  {
+    "id": "quantanova",
+    "file": "quantanova.json"
+  },
+  {
+    "id": "omneity",
+    "file": "omneity.json"
+  },
+  {
+    "id": "circuitnotion",
+    "file": "circuitnotion.json"
+  },
+  {
+    "id": "lumaai",
+    "file": "lumaai.json"
+  },
+  {
+    "id": "flatseek",
+    "file": "flatseek.json"
+  },
+  {
+    "id": "neosantara",
+    "file": "neosantara.json"
+  },
+  {
+    "id": "meganova",
+    "file": "meganova.json"
+  },
+  {
+    "id": "haimaker",
+    "file": "haimaker.json"
+  },
+  {
+    "id": "supa",
+    "file": "supa.json"
+  },
+  {
+    "id": "llmgateway",
+    "file": "llmgateway.json"
+  },
+  {
+    "id": "assemblyai",
+    "file": "assemblyai.json"
+  },
+  {
+    "id": "mixlayer",
+    "file": "mixlayer.json"
+  },
+  {
+    "id": "gladia",
+    "file": "gladia.json"
+  },
+  {
+    "id": "alltoken",
+    "file": "alltoken.json"
+  },
+  {
+    "id": "clod",
+    "file": "clod.json"
+  },
+  {
+    "id": "wai",
+    "file": "wai.json"
+  },
+  {
+    "id": "opencodezen",
+    "file": "opencodezen.json"
+  },
+  {
+    "id": "chaingpt",
+    "file": "chaingpt.json"
+  },
+  {
+    "id": "azerion",
+    "file": "azerion.json"
+  },
+  {
+    "id": "mulerouter",
+    "file": "mulerouter.json"
+  },
+  {
+    "id": "runcrate",
+    "file": "runcrate.json"
+  },
+  {
+    "id": "modelmax",
+    "file": "modelmax.json"
+  },
+  {
+    "id": "gptproto",
+    "file": "gptproto.json"
+  },
+  {
+    "id": "runpod",
+    "file": "runpod.json"
+  },
+  {
+    "id": "portkey",
+    "file": "portkey.json"
+  },
+  {
+    "id": "routeway",
+    "file": "routeway.json"
+  },
+  {
+    "id": "minimax",
+    "file": "minimax.json"
+  },
+  {
+    "id": "tetrate",
+    "file": "tetrate.json"
+  },
+  {
+    "id": "sarvam",
+    "file": "sarvam.json"
+  },
+  {
+    "id": "deepgram",
+    "file": "deepgram.json"
+  },
+  {
+    "id": "speechactors",
+    "file": "speechactors.json"
+  },
+  {
+    "id": "zyphra",
+    "file": "zyphra.json"
+  },
+  {
+    "id": "nodebyt",
+    "file": "nodebyt.json"
+  },
+  {
+    "id": "pinecone",
+    "file": "pinecone.json"
+  },
+  {
+    "id": "voyageai",
+    "file": "voyageai.json"
+  },
+  {
+    "id": "friendli",
+    "file": "friendli.json"
+  },
+  {
+    "id": "picsart",
+    "file": "picsart.json"
+  },
+  {
+    "id": "lucidquery",
+    "file": "lucidquery.json"
+  },
+  {
+    "id": "bria",
+    "file": "bria.json"
+  },
+  {
+    "id": "murfai",
+    "file": "murfai.json"
+  },
+  {
+    "id": "replicate",
+    "file": "replicate.json"
+  },
+  {
+    "id": "simplismart",
+    "file": "simplismart.json"
+  },
+  {
+    "id": "async",
+    "file": "async.json"
+  },
+  {
+    "id": "azure",
+    "file": "azure.json"
+  },
+  {
+    "id": "deepseek",
+    "file": "deepseek.json"
+  },
+  {
+    "id": "llmlayer",
+    "file": "llmlayer.json"
+  },
+  {
+    "id": "reve",
+    "file": "reve.json"
+  },
+  {
+    "id": "freepik",
+    "file": "freepik.json"
+  },
+  {
+    "id": "ai21",
+    "file": "ai21.json"
+  },
+  {
+    "id": "avian",
+    "file": "avian.json"
+  },
+  {
+    "id": "cloudrift",
+    "file": "cloudrift.json"
+  },
+  {
+    "id": "baseten",
+    "file": "baseten.json"
+  },
+  {
+    "id": "echo",
+    "file": "echo.json"
+  },
+  {
+    "id": "tinfoil",
+    "file": "tinfoil.json"
+  },
+  {
+    "id": "llmapi",
+    "file": "llmapi.json"
+  },
+  {
+    "id": "nebius",
+    "file": "nebius.json"
+  },
+  {
+    "id": "audixa",
+    "file": "audixa.json"
+  },
+  {
+    "id": "klingai",
+    "file": "klingai.json"
+  },
+  {
+    "id": "vidu",
+    "file": "vidu.json"
+  },
+  {
+    "id": "deepinfra",
+    "file": "deepinfra.json"
+  },
+  {
+    "id": "nvidia",
+    "file": "nvidia.json"
+  },
+  {
+    "id": "runware",
+    "file": "runware.json"
+  },
+  {
+    "id": "cencori",
+    "file": "cencori.json"
+  },
+  {
+    "id": "canopywave",
+    "file": "canopywave.json"
+  },
+  {
+    "id": "alibaba",
+    "file": "alibaba.json"
+  },
+  {
+    "id": "cirrascale",
+    "file": "cirrascale.json"
+  },
+  {
+    "id": "aivara",
+    "file": "aivara.json"
+  },
+  {
+    "id": "inferencenet",
+    "file": "inferencenet.json"
+  },
+  {
+    "id": "condensechat",
+    "file": "condensechat.json"
+  },
+  {
+    "id": "fikra",
+    "file": "fikra.json"
+  },
+  {
+    "id": "telnyx",
+    "file": "telnyx.json"
+  },
+  {
+    "id": "stabilityai",
+    "file": "stabilityai.json"
+  },
+  {
+    "id": "novita",
+    "file": "novita.json"
+  },
+  {
+    "id": "speechify",
+    "file": "speechify.json"
+  },
+  {
+    "id": "scaleway",
+    "file": "scaleway.json"
+  },
+  {
+    "id": "sambanova",
+    "file": "sambanova.json"
+  },
+  {
+    "id": "ttsreader",
+    "file": "ttsreader.json"
+  },
+  {
+    "id": "samtal",
+    "file": "samtal.json"
+  },
+  {
+    "id": "verda",
+    "file": "verda.json"
+  },
+  {
+    "id": "fireworks",
+    "file": "fireworks.json"
+  },
+  {
+    "id": "cerebras",
+    "file": "cerebras.json"
+  },
+  {
+    "id": "zai",
+    "file": "zai.json"
+  },
+  {
+    "id": "hyperbolic",
+    "file": "hyperbolic.json"
+  },
+  {
+    "id": "elevenlabs",
+    "file": "elevenlabs.json"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "name": "Brave",
+  "description": "The only search API with its own Web index at scale. Truly independent, lightning-fast, and built to power AI apps. Private and secure, your queries never leave Brave.",
+  "urls": {
+    "homepage": "https://brave.com/search/api",
+    "docs": "https://api-dashboard.search.brave.com/app/documentation",
+    "privacyPolicy": "https://search.brave.com/help/privacy-policy",
+    "termsOfService": "https://brave.com/terms-of-use"
+  },
+  "providerCountry": "US",
+  "category": "search_data",
+  "inferenceRegions": [
+    "World"
+  ]
+}

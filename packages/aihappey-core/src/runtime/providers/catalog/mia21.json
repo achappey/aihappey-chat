@@ -1,0 +1,21 @@
+{
+  "name": "Mia21",
+  "description": "Build AI companion apps with persistent memory, voice conversations, and native mobile SDKs. Your AI remembers every conversation. Launch in one afternoon.",
+  "icons": [
+    {
+      "src": "https://mia21.com/favicon.ico"
+    }
+  ],
+  "urls": {
+    "homepage": "https://mia21.com",
+    "console": "https://app.mia21.com",
+    "docs": "https://docs.mia21.com",
+    "privacyPolicy": "https://app.mia21.com/privacy",
+    "termsOfService": "https://app.mia21.com/terms"
+  },
+  "providerCountry": "US",
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

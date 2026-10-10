@@ -20,7 +20,7 @@ function load(relativePath, mocks = {}) {
     return module.exports;
 }
 
-const { aether } = load("packages/aihappey-core/src/runtime/providers/catalog/aether.ts");
+const aether = require("../packages/aihappey-core/src/runtime/providers/catalog/aether.json");
 const { HIDDEN_DIRECT_MODEL_ID_SUFFIX } = load("packages/aihappey-types/src/modelIdentity.ts");
 const { createHttpClient } = load("packages/aihappey-http/src/index.ts");
 const modelTypes = load("packages/aihappey-core/src/features/models/modelTypeEnrichment.ts");

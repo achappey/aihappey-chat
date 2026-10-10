@@ -1,0 +1,16 @@
+{
+  "name": "LogicosLLMHub",
+  "description": "One API for 200+ models from OpenAI, Anthropic, Google, and more.",
+  "urls": {
+    "homepage": "https://www.llmhub.one",
+    "docs": "https://www.llmhub.one/docs",
+    "pricing": "https://www.llmhub.one/#pricing",
+    "privacyPolicy": "https://www.llmhub.one/privacy",
+    "termsOfService": "https://www.llmhub.one/terms"
+  },
+  "providerCountry": "NL",
+  "category": "gateway_router",
+  "inferenceRegions": [
+    "World"
+  ]
+}
