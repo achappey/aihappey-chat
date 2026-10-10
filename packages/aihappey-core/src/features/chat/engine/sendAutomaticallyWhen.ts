@@ -7,7 +7,8 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
         !a.type.startsWith("data-")
         && !a.type.startsWith("source-url")
         && !a.type.endsWith("tool-google_antigravity_state")
-        && !a.type.endsWith("tool-environment_ready")        
+        && !a.type.endsWith("tool-download_file")
+        && !a.type.endsWith("tool-environment_ready")
         && !(a.type === "reasoning" && a.state === "done")) ?? []) as any[];
     if (parts.length === 0) return false;
 
