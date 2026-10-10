@@ -30,6 +30,17 @@ Use [local.aihappey.com](https://local.aihappey.com) with the standalone Windows
 - [aihappey-ai](https://github.com/achappey/aihappey-ai/releases/latest)
 - [aihappey-agents](https://github.com/achappey/aihappey-agents)
 
-The UI is hosted while requests, credentials and agent execution run on your local machine.
+The browser app connects to AI and Agents running on your own PC.
+
+## Windows desktop
+
+A standalone, Windows 11 native application built with WinUI 3. The AI gateway and Agents runtime runs on your own machine.
+
+- Streaming chat with model and agent switching
+- MCP tools and resources, Skills and local conversation history
+- Native Windows UI with light, dark and high-contrast themes
+- Local and remote runtime switching
+
+**Repository:** [aihappey-windows](https://github.com/achappey/aihappey-windows)
 
 
