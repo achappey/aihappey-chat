@@ -162,6 +162,10 @@ export type ChatSlice = ApiKeyEncryptionState & {
   setToolAnnotations: (value?: ToolAnnotations) => void
 
   selectedModel?: string;
+  /** Session-only picker preferences; selections above remain real model/agent IDs. */
+  favoriteModelRouter: boolean;
+  favoriteAgentRouter: boolean;
+  favoriteRouterDeciding: boolean;
   setSelectedModel: (model?: string) => void;
 
 };
@@ -180,6 +184,9 @@ export const createChatSlice: StateCreator<
   ChatSlice
 > = (set, get) => ({
   selectedConversationId: null,
+  favoriteModelRouter: false,
+  favoriteAgentRouter: false,
+  favoriteRouterDeciding: false,
   providerMetadata: defaultProviderMetadata,
   providerFileMetadata: structuredClone(defaultProviderFileMetadata),
   setProviderFileMetadata: (metadata) => set((state: ChatSlice) => ({

@@ -56,6 +56,7 @@ export function useChatActions({
   const agents = useAppStore(a => a.agents)
   const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
   const chatMode = useAppStore(a => a.chatMode)
+  const favoriteAgentRouter = useAppStore(a => a.favoriteAgentRouter)
   const extractExif = useAppStore(a => a.extractExif)
   //const selectedAgents = useAppStore(a => a.selectedAgents)
   const workflowType = useAppStore(a => a.workflowType)
@@ -174,7 +175,7 @@ export function useChatActions({
 
       if (userMsg) {
         try {
-          if (selectedAgentRequest.error) throw new Error(selectedAgentRequest.error);
+          if (selectedAgentRequest.error && !(chatMode === "agent" && favoriteAgentRouter)) throw new Error(selectedAgentRequest.error);
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
@@ -223,6 +224,7 @@ export function useChatActions({
       requestEndpointProfile,
       addChatError,
       chatMode,
+      favoriteAgentRouter,
       selectedAgentRequest.requestAgents,
       selectedAgentRequest.models,
       workflowType,
@@ -246,7 +248,7 @@ export function useChatActions({
       const userMsg = await buildFromText(text);
       if (userMsg) {
         try {
-          if (selectedAgentRequest.error) throw new Error(selectedAgentRequest.error);
+          if (selectedAgentRequest.error && !(chatMode === "agent" && favoriteAgentRouter)) throw new Error(selectedAgentRequest.error);
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
             body: {
@@ -286,6 +288,7 @@ export function useChatActions({
       addMessage,
       sendMessage,
       chatMode,
+      favoriteAgentRouter,
       temperature,
       selectedAgentRequest.requestAgents,
       selectedAgentRequest.models,

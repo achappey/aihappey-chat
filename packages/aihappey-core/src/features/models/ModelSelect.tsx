@@ -1,10 +1,12 @@
 import React from "react";
 import { ModelSelectField } from "aihappey-components";
-import { useAppStore } from "aihappey-state";
+import { store, useAppStore } from "aihappey-state";
 import type { ModelOption } from "aihappey-types";
+import { getModelDisplayName } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { FAVORITE_MODEL_ROUTER } from "../chat/engine/favoriteRouter";
 
 type ProviderOption = { key: string; label: string };
 
@@ -25,11 +27,12 @@ interface ModelSelectProps {
   required?: boolean;
   modelTypes?: string[];
   autoSelectFallback?: boolean;
+  allowFavoriteRouter?: boolean;
   style?: React.CSSProperties;
 }
 
 export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
-  const { autoSelectFallback = true, ...fieldProps } = props;
+  const { autoSelectFallback = true, allowFavoriteRouter = false, ...fieldProps } = props;
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
   const providers = useProviderRegistry();
@@ -69,7 +72,13 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
+  const preferredDecisionModel = useAppStore(s => s.userPreferredDecisionModel);
+  const routerSelected = useAppStore(s => s.favoriteModelRouter);
+  const deciding = useAppStore(s => s.favoriteRouterDeciding);
   const modelTypes = React.useMemo(() => props.modelTypes ?? ["language"], [props.modelTypes]);
+  const routerAvailable = allowFavoriteRouter && !!preferredDecisionModel
+    && new Set(props.models.filter(model => modelTypes.includes(model.type)
+      && favoriteModelsByType?.[model.type]?.includes(model.id)).map(model => model.id)).size >= 2;
   const enabledProviderKeys = React.useMemo(() => {
     const types = modelTypes;
     const names = new Set<string>();
@@ -103,7 +112,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
 
   React.useEffect(() => {
     if (!modelsLoaded) return;
-    if (!autoSelectFallback) return;
+    if (!autoSelectFallback || (allowFavoriteRouter && routerSelected)) return;
 
     const currentValue = props.value;
     const currentExists = !!currentValue && props.models.some((model) =>
@@ -117,11 +126,23 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     if (currentValue !== nextValue) {
       props.onChange(nextValue);
     }
-  }, [autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value]);
+  }, [allowFavoriteRouter, routerSelected, autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value]);
 
   return (
     <ModelSelectField
       {...fieldProps}
+      disabled={props.disabled || (allowFavoriteRouter && deciding)}
+      valueTitle={allowFavoriteRouter && routerSelected
+        ? `${getModelDisplayName(props.models.find(model => model.id === props.value), props.value)} · ${t("favoriteModelRouter", "Favorite model router")}`
+        : undefined}
+      virtualOptions={routerAvailable ? [{ id: FAVORITE_MODEL_ROUTER, label: t("favoriteModelRouter", "Favorite model router") }] : []}
+      onChange={(id) => {
+        if (allowFavoriteRouter) {
+          store.setState({ favoriteModelRouter: id === FAVORITE_MODEL_ROUTER });
+          if (id === FAVORITE_MODEL_ROUTER) return;
+        }
+        props.onChange(id);
+      }}
       models={(props.models ?? [])}
       providers={providerOptions}
       enabledProviderKeys={enabledProviderKeys}

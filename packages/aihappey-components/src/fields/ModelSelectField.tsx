@@ -18,6 +18,8 @@ export type ModelSelectFieldProps = {
   modelTypes?: string[];          // default ["language"]
   favoriteModelIds?: string[];
   favoritesLabel?: string;
+  virtualOptions?: { id: string; label: string }[];
+  valueTitle?: string;
 
   label?: string;
   placeholder?: string;
@@ -57,6 +59,8 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   modelTypes = ["language"],
   favoriteModelIds,
   favoritesLabel = "Favorites",
+  virtualOptions = [],
+  valueTitle,
 
   label,
   placeholder = "Select a model",
@@ -123,7 +127,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   return (
     <SelectComponent
       values={[selectedOptionValue]}
-      valueTitle={displayValue}
+      valueTitle={valueTitle ?? displayValue}
       icon={icon}
       label={label}
       size={size}
@@ -141,6 +145,9 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
       }}
     >
       <>
+        {virtualOptions.map(option => (
+          <option key={option.id} value={option.id}>{option.label}</option>
+        ))}
         {favoriteModels.length > 0 && (
           <optgroup label={favoritesLabel}>
             {favoriteModels.map((model) => (
