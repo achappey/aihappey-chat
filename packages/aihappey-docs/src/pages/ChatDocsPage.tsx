@@ -142,7 +142,7 @@ const content: Record<ChatDocsTopic, TopicContent> = {
         title: "Chat client MCP tools", body: list([
           <>Managed agent chat adds tools from enabled, connected Chat MCP servers to the request without changing the agent JSON or its server-side tools. Client resources, templates, prompts, and skills are not included.</>,
           <>The agent <code>/api/chat</code> endpoint must accept the existing top-level MCP <code>tools</code> definitions and AI SDK UI message stream. Tool names are stable client aliases scoped to the owning server; return the advertised name unchanged.</>,
-          <>Client calls use <code>tool-input-available</code>; approval requests use the existing <code>tool-approval-request</code> event before the stream finishes. Chat waits for the final approval state, reuses the approval dialog and explicit BRRR Mode, and sends MCP results back in UI message tool parts before continuing the streamed run.</>,
+          <>Client calls use <code>tool-input-available</code>. Chat executes unresolved calls after the stream finishes and sends MCP results back in UI message tool parts. The backend then requests post-execution approval using the existing <code>tool-approval-request</code> event with the result. Chat reuses the approval dialog and explicit BRRR Mode; approval or rejection continues the run without executing the tool again.</>,
           <>Mark agent-configured server-side calls as <code>providerExecuted</code>. Chat executes only its advertised client tools and never routes server-side calls to a client MCP server.</>,
         ])
       },

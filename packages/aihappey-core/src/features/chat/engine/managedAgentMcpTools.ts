@@ -84,13 +84,12 @@ const clientToolParts = (messages: any[]) => {
     : [];
 };
 
-// The SDK invokes onToolCall before reading a following approval request.
-// Wait for the full stream and use its final approval state before dispatch.
+// Approval requests contain an already executed result, not a new client call.
+// Wait for the full stream so only unresolved inputs are dispatched.
 export function pendingManagedAgentMcpCalls(messages: any[], status: string) {
   if (status !== "ready") return [];
   return clientToolParts(messages)
-    .filter((part: any) => part.state === "input-available"
-      || (part.state === "approval-responded" && part.approval?.approved === true))
+    .filter((part: any) => part.state === "input-available")
     .map((part: any) => ({
       toolCallId: part.toolCallId,
       toolName: part.toolName ?? part.type.slice("tool-".length),
@@ -101,8 +100,7 @@ export function pendingManagedAgentMcpCalls(messages: any[], status: string) {
 export function managedAgentMcpCallsPending(messages: any[]) {
   return clientToolParts(messages).some((part: any) =>
     part.state === "input-streaming" || part.state === "input-available"
-    || part.state === "approval-requested"
-    || (part.state === "approval-responded" && part.approval?.approved === true));
+    || part.state === "approval-requested");
 }
 
 export function managedAgentStopTools(catalog: ManagedAgentMcpCatalog, stopTools?: string[]) {

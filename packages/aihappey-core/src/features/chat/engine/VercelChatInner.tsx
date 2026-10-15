@@ -88,6 +88,7 @@ import {
   managedAgentMcpCallsPending, managedAgentStopTools,
 } from "./managedAgentMcpTools";
 import { useManagedAgentMcpToolCalls } from "./useManagedAgentMcpToolCalls";
+import { ManagedAgentChatTransport } from "./ManagedAgentChatTransport";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -777,7 +778,9 @@ export function VercelChatInner({
           providers,
           transportOptions,
         )
-        : new DefaultChatTransport(transportOptions);
+        : chatMode === "agent"
+          ? new ManagedAgentChatTransport(transportOptions)
+          : new DefaultChatTransport(transportOptions);
     },
     [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings, managedAgentMcpCatalog]
   );
