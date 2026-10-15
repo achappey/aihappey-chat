@@ -350,7 +350,7 @@ export const AgentsPage = () => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: isDesktop ? "repeat(2, minmax(0, 1fr))" : "1fr",
+        gridTemplateColumns: isDesktop ? "repeat(auto-fit, minmax(min(100%, 320px), 1fr))" : "1fr",
         gap: 16,
         paddingTop: 12,
         width: "100%",
@@ -374,7 +374,7 @@ export const AgentsPage = () => {
                 key={card.key}
                 style={{
                   maxWidth: isDesktop ? 320 : "100%",
-                  minWidth: isDesktop ? 320 : 0,
+                  minWidth: 0,
                   width: "100%",
                 }}
               >
@@ -446,6 +446,7 @@ export const AgentsPage = () => {
         <div
           style={{
             width: 700,
+            minWidth: 0,
             maxWidth: "100%",
             margin: "0 auto",
             display: "flex",

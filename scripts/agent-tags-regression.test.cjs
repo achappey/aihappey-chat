@@ -59,6 +59,26 @@ test("tag values are dynamic, trimmed, unique and tolerate absent or malformed t
     assert.deepEqual(normalizeAgent({ ...agents[0], tags: [] }).tags, []);
 });
 
+test("remote discovery preserves provided tags without manufacturing categories for untagged agents", async () => {
+    let discovered;
+    const state = { setRemoteAgentModels: value => { discovered = value; } };
+    const { useRemoteAgentModels } = load(feature + "useRemoteAgentModels.ts", {
+        react: { useEffect: effect => effect() },
+        "aihappey-state": { useAppStore: selector => selector(state) },
+        "aihappey-http": { createHttpClient: () => ({
+            get: async () => ({ data: [
+                { id: "untagged" },
+                { id: "tagged", tags: ["writing", 3], agent: local("Nested", ["shared"]) },
+            ] }),
+        }) },
+    });
+    useRemoteAgentModels("https://agents.example/models");
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(discovered[0].tags, undefined);
+    assert.deepEqual(tags.getAgentTags(discovered[0]), []);
+    assert.deepEqual(tags.getAgentTags(discovered[1], discovered[1].agent), ["writing", "shared"]);
+});
+
 test("selector groups agents under every tag and reserves hosts for untagged agents", () => {
     const state = { enabledProvidersByType: { language: ["test"] } };
     const { AgentSelect } = load(feature + "AgentSelect.tsx", {
