@@ -120,29 +120,10 @@ const getEnabledProviderBucketForModelType = (
   enabledProviderKeysByType: Record<string, string[]>,
   type?: string,
 ) => {
-  const primary = type ? enabledProviderKeysByType[type] : undefined;
-  if (primary?.length) return primary;
-
-  if (type === "audio") {
-    const realtime = enabledProviderKeysByType.realtime;
-    if (realtime?.length) return realtime;
-  }
-
-  const language = enabledProviderKeysByType.language;
-  if (language?.length) return language;
-
-  return primary ?? [];
+  return (type ? enabledProviderKeysByType[type] : undefined)
+    ?? (type === "audio" ? enabledProviderKeysByType.realtime : undefined)
+    ?? [];
 };
-
-const getAllEnabledProviderKeys = (enabledProviderKeysByType: Record<string, string[]>) =>
-  Array.from(new Set(Object.values(enabledProviderKeysByType).flat()));
-
-const getEnabledProviderKeysForModels = (
-  enabledProviderKeysByType: Record<string, string[]>,
-  models: ModelOption[],
-) => Array.from(new Set(models.flatMap((model) =>
-  getEnabledProviderBucketForModelType(enabledProviderKeysByType, model.type)
-)));
 
 const PRICE_PER_MILLION_TOKENS_MULTIPLIER = 1_000_000;
 const ENABLED_PROVIDERS_FILTER_VALUE = "__ENABLED_PROVIDERS__";
@@ -183,12 +164,11 @@ export const ModelsPage = () => {
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedProviderKeys, setSelectedProviderKeys] = useState<string[]>([
-    PROVIDER_LOCATION_ALL_FILTER_VALUE,
+    ENABLED_PROVIDERS_FILTER_VALUE,
   ]);
   const [selectedTags, setSelectedTags] = useState<string[]>([
     PROVIDER_LOCATION_ALL_FILTER_VALUE,
   ]);
-  const [providerFilterTouched, setProviderFilterTouched] = useState(false);
   const [contextFilterEnabled, setContextFilterEnabled] = useState(false);
   const [priceFilterEnabled, setPriceFilterEnabled] = useState(false);
   const [contextMin, setContextMin] = useState<number | null>(null);
@@ -367,11 +347,6 @@ export const ModelsPage = () => {
     [activeTab, visibleModelFilterData]
   );
 
-  const activeTabModels = useMemo(
-    () => activeTabModelData.map(({ model }) => model),
-    [activeTabModelData]
-  );
-
   const tagOptions = useMemo(() => {
     const values = new Set<string>();
 
@@ -382,15 +357,6 @@ export const ModelsPage = () => {
     return Array.from(values).sort((a, b) => collator.compare(a, b));
   }, [activeTabModelData, collator]);
 
-  const enabledProviderKeysForActiveTab = useMemo(() => {
-    return getEnabledProviderKeysForModels(enabledProviderKeysByType, activeTabModels);
-  }, [activeTabModels, enabledProviderKeysByType]);
-
-  const allEnabledProviderKeysSet = useMemo(
-    () => new Set(getAllEnabledProviderKeys(enabledProviderKeysByType)),
-    [enabledProviderKeysByType]
-  );
-
   const selectedProviderKeySet = useMemo(
     () => new Set(selectedProviderKeys),
     [selectedProviderKeys]
@@ -400,8 +366,6 @@ export const ModelsPage = () => {
     () => new Set(selectedTags),
     [selectedTags]
   );
-
-  const hasEnabledProvidersForActiveTab = enabledProviderKeysForActiveTab.length > 0;
 
   const contextRange = useMemo(
     () => createNumericRange(activeTabModelData.map((data) => data.context)),
@@ -461,7 +425,8 @@ export const ModelsPage = () => {
     }
 
     if (selectedProviderKeys.includes(ENABLED_PROVIDERS_FILTER_VALUE)) {
-      if (!allEnabledProviderKeysSet.has(data.providerId)) return false;
+      if (!getEnabledProviderBucketForModelType(enabledProviderKeysByType, data.model.type)
+        .includes(data.providerId)) return false;
     } else if (!isAllFilterSelected(selectedProviderKeys)) {
       if (!selectedProviderKeySet.has(data.providerId)) return false;
     }
@@ -491,7 +456,7 @@ export const ModelsPage = () => {
 
     return true;
   }, [
-    allEnabledProviderKeysSet,
+    enabledProviderKeysByType,
     contextFilterEnabled,
     effectiveContextRange,
     effectiveInputPriceRange,
@@ -598,21 +563,13 @@ export const ModelsPage = () => {
 
   useEffect(() => {
     setSelectedProviderKeys((current) => {
-      if (!providerFilterTouched && hasEnabledProvidersForActiveTab) {
-        return sameSelection(current, [ENABLED_PROVIDERS_FILTER_VALUE])
-          ? current
-          : [ENABLED_PROVIDERS_FILTER_VALUE];
-      }
-
       const next = keepAvailableSelection(
         current,
-        hasEnabledProvidersForActiveTab
-          ? [ENABLED_PROVIDERS_FILTER_VALUE, ...providerOptionKeys]
-          : providerOptionKeys
+        [ENABLED_PROVIDERS_FILTER_VALUE, ...providerOptionKeys]
       );
       return sameSelection(current, next) ? current : next;
     });
-  }, [hasEnabledProvidersForActiveTab, providerFilterTouched, providerOptionKeys]);
+  }, [providerOptionKeys]);
 
   useEffect(() => {
     setSelectedTags((current) => {
@@ -973,8 +930,6 @@ export const ModelsPage = () => {
                         const selectedValue = resolveSelectionValue(e);
                         if (typeof selectedValue !== "string") return;
 
-                        setProviderFilterTouched(true);
-
                         if (selectedValue === ENABLED_PROVIDERS_FILTER_VALUE) {
                           setSelectedProviderKeys([ENABLED_PROVIDERS_FILTER_VALUE]);
                           return;
@@ -991,9 +946,7 @@ export const ModelsPage = () => {
                       aria-label="Model provider filter"
                     >
                       <option value={PROVIDER_LOCATION_ALL_FILTER_VALUE}>{t("all")}</option>
-                      {hasEnabledProvidersForActiveTab ? (
-                        <option value={ENABLED_PROVIDERS_FILTER_VALUE}>{t("enabled")}</option>
-                      ) : null}
+                      <option value={ENABLED_PROVIDERS_FILTER_VALUE}>{t("enabled")}</option>
                       {providerOptions.map((provider) => (
                         <option key={provider.key} value={provider.key}>
                           {`${provider.label} (${provider.count})`}
