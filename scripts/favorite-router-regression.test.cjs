@@ -674,6 +674,7 @@ test("agent picker exposes only current favorites, retains real values, and opts
         "aihappey-i18n": { useTranslation: () => ({ t: (key, fallback) => fallback ?? key }) },
         "../../shell/responsive/useIsDesktop": { useIsDesktop: () => true },
         "./agentSelection": agentSelection,
+        "./agentTags": load(root + "agents/agentTags.ts"),
         "../chat/context/ChatContext": { useChatContext: () => ({ config: { endpoints: {} } }) },
         "../chat/engine/favoriteRouter": helper,
     });

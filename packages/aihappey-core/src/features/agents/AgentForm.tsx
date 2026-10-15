@@ -46,6 +46,7 @@ import { createEmbeddedAgentPlugin, getEmbeddedAgentPluginPayload, readEmbeddedA
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { toValidSchemaName } from "../chat-settings/GeneralTab";
 import { AgentChecks } from "./AgentChecks";
+import { collectAgentTags, getAgentTags } from "./agentTags";
 import { AgentToolConfigurationTab, type ConfigurableAgentTool } from "./AgentToolConfigurationTab";
 import {
     AGENT_FUNCTION_TYPE,
@@ -71,7 +72,7 @@ export const AgentForm = ({
     isEditing,
     onChange,
     onBusyChange }: AgentFormProps) => {
-    const { Input, TextArea, Tabs, Tab, Button, Card, Text, Select, Switch } = useTheme();
+    const { Input, TextArea, Tabs, Tab, Button, Card, Text, Select, Switch, Tags } = useTheme();
     const { t } = useTranslation();
     const { config: chatConfig } = useChatContext();
     const [activeTab, setActiveTab] = useState("general");
@@ -88,6 +89,18 @@ export const AgentForm = ({
     const [pendingPluginIds, setPendingPluginIds] = useState<string[]>([]);
     const [initialPersistedPlugins] = useState(() => agent.plugins ?? []);
     const models = useAppStore((s) => s.models);
+    const agents = useAppStore((s) => s.agents);
+    const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
+    const [tagInput, setTagInput] = useState("");
+    const tags = getAgentTags(agent);
+    const availableTags = useMemo(
+        () => collectAgentTags(agents, remoteAgentModels),
+        [agents, remoteAgentModels]
+    );
+    const addTag = (value: string) => {
+        onChange((current) => ({ ...current, tags: getAgentTags(current, { tags: [value] }) }));
+        setTagInput("");
+    };
     const mcpServerContent = useAppStore((s) => s.mcpServerContent);
     const favoriteSkillIds = useAppStore((s: any) => s.favoriteSkillIds as string[] | undefined);
     const skills = useSkills();
@@ -752,6 +765,41 @@ export const AgentForm = ({
                             onChange({ ...agent, description: v.target.value })
                         }
                     />
+                    <div style={{ display: "grid", gap: 8 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
+                            <Input
+                                label={t("providers:tags")}
+                                value={tagInput}
+                                onChange={(event: any) => setTagInput(event.target.value)}
+                                onKeyDown={(event: any) => {
+                                    if (event.key !== "Enter") return;
+                                    event.preventDefault();
+                                    addTag(tagInput);
+                                }}
+                            />
+                            <Button type="button" icon="add" size="small" variant="informative"
+                                title={t("add")} disabled={!tagInput.trim()} onClick={() => addTag(tagInput)} />
+                        </div>
+                        {availableTags.length > 0 && (
+                            <Select
+                                aria-label={t("providers:tags")}
+                                values={[]}
+                                searchable
+                                placeholder={t("providers:tags")}
+                                onChange={(value: string) => addTag(value)}
+                            >
+                                {availableTags.filter((tag) => !tags.includes(tag)).map((tag) => (
+                                    <option key={tag} value={tag}>{tag}</option>
+                                ))}
+                            </Select>
+                        )}
+                        {tags.length > 0 && (
+                            <Tags size="small" items={tags.map((tag) => ({ key: tag, label: tag }))}
+                                onRemove={(tag: string) => onChange((current) => ({
+                                    ...current, tags: getAgentTags(current).filter((item) => item !== tag),
+                                }))} />
+                        )}
+                    </div>
                     <ModelSelect
                         models={models ?? []}
                         label={t('model')}

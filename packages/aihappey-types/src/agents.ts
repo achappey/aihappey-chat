@@ -5,6 +5,7 @@ export type Agent = {
     model: AiModel;
     description: string;
     instructions: string;
+    tags?: string[];
     argumentHint?: string;
     responseFormat?: ResponseFormat;
     mcpServers?: Record<string, McpServer>
