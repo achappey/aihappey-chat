@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAgentModelProviderKey, useAppStore } from "aihappey-state";
-import { AgentCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
+import { AgentCard, FilterDrawerPanel, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { AgentEditModal } from "./AgentEditModal";
@@ -13,6 +13,7 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { usePlugins } from "aihappey-plugins";
 import { useSkills } from "aihappey-skills";
+import { collectAgentTags, getAgentTags } from "./agentTags";
 import {
   AgentPluginConversionError,
   convertAgentToPluginDraft,
@@ -34,6 +35,7 @@ const buildRemoteAgentCardAgent = (remoteAgentModel: RemoteAgentModel): Agent =>
 
   return {
     ...remoteAgent,
+    tags: getAgentTags(remoteAgentModel, remoteAgent),
     name: remoteAgentModel.name ?? remoteAgent?.name ?? remoteAgentModel.id,
     description: remoteAgentModel.description ?? remoteAgent?.description ?? "",
     instructions: remoteAgent?.instructions ?? "",
@@ -55,7 +57,7 @@ const hostnameOf = (url?: string) => {
 
 export const AgentsPage = () => {
   const theme = useTheme();
-  const { SearchBox, Text, Tabs, Tab } = theme;
+  const { SearchBox, Text, Tabs, Tab, Drawer, Switch } = theme;
   const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
   const isDesktop = useIsDesktop();
@@ -77,11 +79,23 @@ export const AgentsPage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [editingName, setEditingName] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all"); // "top" | "all"
   const [convertingCardKey, setConvertingCardKey] = useState<string | null>(null);
   const [pluginFeedback, setPluginFeedback] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const tagOptions = useMemo(
+    () => collectAgentTags(agents, remoteAgentModels),
+    [agents, remoteAgentModels]
+  );
+  useEffect(() => {
+    setSelectedTags((current) => {
+      const next = current.filter((tag) => tagOptions.includes(tag));
+      return next.length === current.length ? current : next;
+    });
+  }, [tagOptions]);
 
   const favoriteAgentSet = useMemo(
     () => new Set((favoriteAgentIds ?? []).filter(Boolean)),
@@ -214,19 +228,61 @@ export const AgentsPage = () => {
     });
   }, [agents, remoteAgentModels, search]);
 
+  const filteredCards = useMemo(
+    () => cards.filter((card) => !selectedTags.length
+      || getAgentTags(card.agent).some((tag) => selectedTags.includes(tag))),
+    [cards, selectedTags]
+  );
+
   const localCards = useMemo(
-    () => cards.filter((card) => card.kind === "local"),
-    [cards]
+    () => filteredCards.filter((card) => card.kind === "local"),
+    [filteredCards]
   );
 
   const favoriteCards = useMemo(
-    () => cards.filter((card) => favoriteAgentSet.has(card.key)),
-    [cards, favoriteAgentSet]
+    () => filteredCards.filter((card) => favoriteAgentSet.has(card.key)),
+    [filteredCards, favoriteAgentSet]
   );
 
   const remoteCards = useMemo(
-    () => cards.filter((card) => card.kind === "remote"),
-    [cards]
+    () => filteredCards.filter((card) => card.kind === "remote"),
+    [filteredCards]
+  );
+
+  const tabCards = cards.filter((card) => activeTab === "all"
+    || (activeTab === "favorites" ? favoriteAgentSet.has(card.key)
+      : activeTab === "local" ? card.kind === "local" : card.kind === "remote"));
+  const tagFilterSection = {
+    id: "agent-tag-filters",
+    label: t("providers:tags"),
+    allOption: {
+      id: "all-agent-tags",
+      label: t("all"),
+      count: tabCards.length,
+      checked: selectedTags.length === 0,
+      onChange: () => setSelectedTags([]),
+    },
+    items: tagOptions.map((tag) => {
+      const count = tabCards.filter((card) => getAgentTags(card.agent).includes(tag)).length;
+      const checked = selectedTags.includes(tag);
+      return {
+        id: `agent-tag-${tag}`,
+        label: tag,
+        count,
+        checked,
+        disabled: count === 0 && !checked,
+        onChange: () => setSelectedTags((current) => current.includes(tag)
+          ? current.filter((item) => item !== tag) : [...current, tag]),
+      };
+    }),
+  };
+  const renderFilters = () => (
+    <Drawer open={filtersOpen} title={t("filters")} overlay={!isDesktop}
+      position="end" size={isDesktop ? "medium" : "small"} onClose={() => setFiltersOpen(false)}>
+      <div style={{ width: "100%", boxSizing: "border-box", padding: 16 }}>
+        <FilterDrawerPanel sections={[tagFilterSection]} />
+      </div>
+    </Drawer>
   );
 
   const handleConnectMcp = useCallback((agent: Agent) => {
@@ -352,21 +408,25 @@ export const AgentsPage = () => {
       onDragOver={handleDragOver}>
       <StickyHeaderActionBar
         actionContent={
-          <theme.Menu
-            align="right"
-            direction="bottom"
-            size="medium"
-            items={actionMenuItems}
-            trigger={
-              <theme.Button
-                type="button"
-                variant="primary"
-                icon="add"
-                title={t("add") ?? "Add"}
-                aria-label={t("add") ?? "Add"}
-              />
-            }
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Switch id="agents-filters-toggle" label={t("filters")}
+              checked={filtersOpen} onChange={setFiltersOpen} />
+            <theme.Menu
+              align="right"
+              direction="bottom"
+              size="medium"
+              items={actionMenuItems}
+              trigger={
+                <theme.Button
+                  type="button"
+                  variant="primary"
+                  icon="add"
+                  title={t("add") ?? "Add"}
+                  aria-label={t("add") ?? "Add"}
+                />
+              }
+            />
+          </div>
         }
       />
       <input
@@ -377,7 +437,12 @@ export const AgentsPage = () => {
         hidden
         onChange={handleFileSelect}
       />
-      <div style={{ background: "transparent" }}>
+      <div style={{
+        background: "transparent",
+        display: filtersOpen && isDesktop ? "grid" : "block",
+        gridTemplateColumns: filtersOpen && isDesktop ? "minmax(0, 1fr) 320px" : undefined,
+        alignItems: "stretch",
+      }}>
         <div
           style={{
             width: 700,
@@ -424,8 +489,8 @@ export const AgentsPage = () => {
           </div>
 
           <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
-            <Tab eventKey="all" icon="cardList" title={`${t("all")} (${cards.length})`}>
-              {renderGrid(cards)}
+            <Tab eventKey="all" icon="cardList" title={`${t("all")} (${filteredCards.length})`}>
+              {renderGrid(filteredCards)}
             </Tab>
 
             <Tab eventKey="favorites" icon="starFilled" title={`${t("favorites")} (${favoriteCards.length})`}>
@@ -442,7 +507,13 @@ export const AgentsPage = () => {
             </Tab>
           </Tabs>
         </div>
+        {filtersOpen && isDesktop ? (
+          <div style={{ width: 320, maxWidth: "100%", height: "100%" }}>
+            {renderFilters()}
+          </div>
+        ) : null}
       </div>
+      {!isDesktop ? renderFilters() : null}
       <AgentEditModal
         open={showModal}
         agent={

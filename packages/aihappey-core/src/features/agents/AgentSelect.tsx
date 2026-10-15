@@ -12,6 +12,7 @@ import {
 } from "./agentSelection";
 import { useChatContext } from "../chat/context/ChatContext";
 import { FAVORITE_AGENT_ROUTER } from "../chat/engine/favoriteRouter";
+import { getAgentTags } from "./agentTags";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -76,8 +77,14 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   );
   const favoriteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => favoriteSet.has(agent.key)));
   const routerAvailable = allowFavoriteRouter && !!preferredDecisionModel && favoriteVisibleAgents.length >= 2;
-  const localVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "local" && !favoriteSet.has(agent.key)));
-  const remoteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => agent.kind === "remote" && !favoriteSet.has(agent.key)));
+  const tagGroups = new Map<string, typeof visibleAgents>();
+  const untaggedAgents = visibleAgents.filter((agent) => {
+    const tags = getAgentTags(agent.localAgent, agent.remoteAgentModel, agent.remoteAgentModel?.agent);
+    tags.forEach((tag) => tagGroups.set(tag, [...(tagGroups.get(tag) ?? []), agent]));
+    return tags.length === 0;
+  });
+  const localVisibleAgents = sortAgentsByLabel(untaggedAgents.filter((agent) => agent.kind === "local" && !favoriteSet.has(agent.key)));
+  const remoteVisibleAgents = sortAgentsByLabel(untaggedAgents.filter((agent) => agent.kind === "remote" && !favoriteSet.has(agent.key)));
 
   return (
     <SelectComponent
@@ -122,6 +129,14 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
             ))}
           </optgroup>
         )}
+
+        {[...tagGroups].sort(([a], [b]) => a.localeCompare(b)).map(([tag, agents]) => (
+          <optgroup key={`tag:${tag}`} label={tag}>
+            {sortAgentsByLabel(agents).map((agent) => (
+              <option key={agent.key} value={agent.key}>{agent.label}</option>
+            ))}
+          </optgroup>
+        ))}
 
         {remoteVisibleAgents.length > 0 && (
           <optgroup label={remoteAgentsHost}>
