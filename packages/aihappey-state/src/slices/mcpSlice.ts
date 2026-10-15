@@ -69,7 +69,7 @@ export type McpSlice = {
   seenMcpSkillIds: string[];
   setToken: (url: string, token: string) => void;
   clearToken: (url: string) => void;
-  callTool: (toolCallId: string | undefined, name: string, parameters: any, locale?: string, signal?: AbortSignal)
+  callTool: (toolCallId: string | undefined, name: string, parameters: any, locale?: string, signal?: AbortSignal, serverId?: string)
     => Promise<any | undefined>;
   getMcpTask: (serverName: string, taskId: string, signal?: AbortSignal) => Promise<Task>;
   getMcpTaskResult: (serverName: string, taskId: string, signal?: AbortSignal) => Promise<any>;
@@ -370,11 +370,17 @@ export const createMcpSlice: StateCreator<
   callTool: async (toolCallId: string | undefined, name: string,
     parameters: any,
     locale?: string,
-    signal?: AbortSignal) => {
+    signal?: AbortSignal,
+    serverId?: string) => {
     // Find the server URL that owns this resource
     const { toolTimeout, resetTimeoutOnProgress, mcpServerContent } = get();
-    const serverName = Object.keys(mcpServerContent)
+    const serverName = serverId ?? Object.keys(mcpServerContent)
       .find(z => mcpServerContent[z].tools.find((a: Tool) => a.name == name) != undefined)
+
+    if (serverId && (get().mcpServers[serverId]?.config.disabled
+      || !get().mcpServers[serverId]
+      || !mcpServerContent[serverId]?.tools.some((tool: Tool) => tool.name === name)))
+      throw new Error("Client MCP tool is unavailable or disabled")
 
     if (!serverName || !mcpRuntime.has(serverName))
       throw new Error("Server not found or not connected")

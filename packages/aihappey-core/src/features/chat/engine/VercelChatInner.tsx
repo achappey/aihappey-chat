@@ -1,6 +1,6 @@
 import { DefaultChatTransport, FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
-import { useAppStore } from "aihappey-state";
+import { mcpRuntime, useAppStore } from "aihappey-state";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
@@ -83,6 +83,7 @@ import { useProviderRegistry } from "../../../runtime/providers/useProviderRegis
 import { useChatScrollToBottom } from "../layout/useChatScrollToBottom";
 import { mapToolOutputContentForRequest } from "./mapToolOutputContentForRequest";
 import { useFavoriteRouterTransport } from "./useFavoriteRouterTransport";
+import { buildManagedAgentMcpCatalog, executeManagedAgentMcpTool } from "./managedAgentMcpTools";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -133,6 +134,9 @@ export function VercelChatInner({
   const endpointRawModelIds = useAppStore((a) => a.endpointRawModelIds);
   const endpointProviderMetadataEnabled = useAppStore((a) => a.endpointProviderMetadataEnabled);
   const callTool = useAppStore((a) => a.callTool);
+  const mcpServerContent = useAppStore((a) => a.mcpServerContent);
+  const mcpServers = useAppStore((a) => a.mcpServers);
+  const toolAnnotations = useAppStore((a) => a.toolAnnotations);
   const activeProviderMetadata = useActiveProviderMetadata();
   const allProviderMetadata = useAppStore((a) => a.providerMetadata);
   const allProviderHeaders = useAppStore((a) => a.providerHeaders);
@@ -486,7 +490,15 @@ export function VercelChatInner({
     } : undefined, providerMetadata, effectiveTree ?? null, maxOutputTokens, catalogPromptOverride)
   }
 
-  const { tools } = useTools();
+  const { tools: regularTools } = useTools();
+  const managedAgentMcpCatalog = useMemo(
+    () => chatMode === "agent"
+      ? buildManagedAgentMcpCatalog({ mcpServerContent, mcpServers, toolAnnotations }, mcpRuntime)
+      : { tools: [], routes: new Map() },
+    [chatMode, mcpServerContent, mcpServers, toolAnnotations],
+  );
+  const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
+  const tools = chatMode === "agent" ? managedAgentMcpCatalog.tools : regularTools;
   const toolUse = useOnToolCall({
     api: config.baseUrl,
     getAccessToken,
@@ -622,11 +634,17 @@ export function VercelChatInner({
           // `opts.body` can replace the memoized base tools. Decorate at the
           // final transport boundary so `/api/chat` always receives the two
           // request-only properties directly on each tool definition.
-          const namespacesEnabled = (mergedBody.useToolNamespaces ?? useToolNamespaces) || hasSourceNamespaces;
+          const namespacesEnabled = chatMode !== "agent"
+            && ((mergedBody.useToolNamespaces ?? useToolNamespaces) || hasSourceNamespaces);
           const sourceTools = namespacesEnabled && (!Array.isArray(mergedBody.tools) || mergedBody.tools.length === 0)
             ? tools
             : mergedBody.tools;
-          if (namespacesEnabled) {
+          if (chatMode === "agent") {
+            // Use the existing /api/chat tools and UIMessage result contract,
+            // never the agent's configured tools or provider-native namespaces.
+            agentToolCatalogRef.current = managedAgentMcpCatalog;
+            mergedBody.tools = managedAgentMcpCatalog.tools;
+          } else if (namespacesEnabled) {
             const shapedTools = shapeToolsForRequest(
               sourceTools,
               mergedBody.toolRequestConfig ?? toolRequestConfig,
@@ -740,7 +758,7 @@ export function VercelChatInner({
         )
         : new DefaultChatTransport(transportOptions);
     },
-    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings]
+    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings, managedAgentMcpCatalog]
   );
 
   const routedTransport = useFavoriteRouterTransport(transport, baseBody, applyOverrides, files);
@@ -760,11 +778,18 @@ export function VercelChatInner({
     },
 
     onToolCall: async ({ toolCall }) => {
-      const result = await (toolUse.onToolCall as any)({
+      if (chatMode === "agent" && toolCall.providerExecuted) return;
+      const signal = abortRef.current?.signal;
+      const result = chatMode === "agent" && toolCall.toolName !== "ai_input_required"
+        ? await executeManagedAgentMcpTool(
+          agentToolCatalogRef.current, toolCall, callTool, i18n.language, signal,
+        )
+        : await (toolUse.onToolCall as any)({
         toolCall,
-        signal: abortRef.current?.signal
+        signal,
       });
 
+      if (chatMode === "agent" && signal?.aborted) return;
       addToolOutput({
         tool: toolCall.toolName,
         toolCallId: toolCall.toolCallId,
