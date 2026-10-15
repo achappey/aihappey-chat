@@ -1,11 +1,5 @@
 // useAuthFetch.ts
-import { useEffect, useMemo, useRef } from "react";
-
-function useLatestRef<T>(value: T) {
-    const r = useRef(value);
-    useEffect(() => { r.current = value; }, [value]);
-    return r;
-}
+import { useMemo } from "react";
 
 function normalizeContentType(headers: Headers) {
     const contentType = headers.get("Content-Type") ?? headers.get("content-type");
@@ -44,27 +38,21 @@ export function useAuthFetch({
     customHeaders,
     customFetch,
 }: UseAuthFetchArgs) {
-    const chatModeRef = useLatestRef(chatMode);
-    const getAccessTokenRef = useLatestRef(getAccessToken);
-    const refreshTokenRef = useLatestRef(refreshToken);
-    const headersRef = useLatestRef(headers);
-    const customHeadersRef = useLatestRef(customHeaders);
-    const customFetchRef = useLatestRef(customFetch);
-
+    // A transport pins this credential snapshot for its entire run, including tool continuations.
     return useMemo(() => {
         if (
-            !getAccessTokenRef.current &&
-            !refreshTokenRef.current &&
-            !headersRef.current &&
-            !customHeadersRef.current &&
-            !customFetchRef.current
+            !getAccessToken &&
+            !refreshToken &&
+            !headers &&
+            !customHeaders &&
+            !customFetch
         ) return undefined;
 
         return async (input: RequestInfo | URL, init?: RequestInit) => {
-            const mode = chatModeRef.current;
+            const mode = chatMode;
 
             const h = new Headers();
-            const base = { ...(headersRef.current ?? {}), ...(customHeadersRef.current ?? {}) };
+            const base = { ...(headers ?? {}), ...(customHeaders ?? {}) };
             Object.entries(base).forEach(([k, v]) => { if (v != null) h.set(k, String(v)); });
 
             if (init?.headers) {
@@ -72,11 +60,11 @@ export function useAuthFetch({
             }
 
             try {
-                if (mode === "chat" && getAccessTokenRef.current && !h.has("Authorization") && !h.has("x-api-key")) {
-                    const token = await getAccessTokenRef.current();
+                if (mode === "chat" && getAccessToken && !h.has("Authorization") && !h.has("x-api-key")) {
+                    const token = await getAccessToken();
                     if (token) h.set("Authorization", `Bearer ${token}`);
-                } else if (mode === "agent" && refreshTokenRef.current && !h.has("Authorization")) {
-                    const token = await refreshTokenRef.current();
+                } else if (mode === "agent" && refreshToken && !h.has("Authorization")) {
+                    const token = await refreshToken();
                     if (token) h.set("Authorization", `Bearer ${token}`);
                 }
             } catch {
@@ -85,7 +73,7 @@ export function useAuthFetch({
 
             normalizeContentType(h);
 
-            const f = customFetchRef.current ?? fetch;
+            const f = customFetch ?? fetch;
             if (typeof Request !== "undefined" && input instanceof Request) {
                 const request = new Request(input, { ...init, headers: h });
                 return f(request);
@@ -93,5 +81,5 @@ export function useAuthFetch({
 
             return f(input, { ...init, headers: h });
         };
-    }, []);
+    }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch]);
 }

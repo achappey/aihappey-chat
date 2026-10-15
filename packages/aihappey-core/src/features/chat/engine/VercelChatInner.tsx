@@ -33,7 +33,6 @@ import { ToolCallResultModal } from "../activity/content/ToolCallResultModal";
 import { useAuthFetch } from "./useAuthFetch";
 import { usePendingMessageAutoSend } from "./usePendingMessageAutoSend";
 import { useAbortRun } from "./useAbortRun";
-import { useApiRef } from "./useApiRef";
 import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
 import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
@@ -83,6 +82,7 @@ import {
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 import { useChatScrollToBottom } from "../layout/useChatScrollToBottom";
 import { mapToolOutputContentForRequest } from "./mapToolOutputContentForRequest";
+import { useFavoriteRouterTransport } from "./useFavoriteRouterTransport";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -147,6 +147,7 @@ export function VercelChatInner({
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
+  const favoriteAgentRouter = useAppStore((s) => s.favoriteAgentRouter);
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer, Toast, Button } = useTheme();
   const { config } = useChatContext();
@@ -259,8 +260,8 @@ export function VercelChatInner({
   );
 
   useEffect(() => {
-    if (selectedAgentRequest.error) addChatError(new Error(selectedAgentRequest.error));
-  }, [selectedAgentRequest.error, addChatError]);
+    if (selectedAgentRequest.error && !favoriteAgentRouter) addChatError(new Error(selectedAgentRequest.error));
+  }, [selectedAgentRequest.error, favoriteAgentRouter, addChatError]);
 
   const addAttachments = useChatAttachmentAdmission();
 
@@ -403,9 +404,6 @@ export function VercelChatInner({
     : isGenericChatEndpoint(requestEndpoint)
       ? resolveGenericChatEndpointUrl(requestBaseUrl, requestEndpoint)
       : config.baseUrl + config.endpoints.chat;
-  const chatInstanceId = isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
-    ? `${conversationId ?? "chat"}:generic:${requestEndpoint}:${isProviderEndpointProfile ? requestEndpointProfile.providerKey : "gateway"}`
-    : conversationId;
 
   const systemPrompt = useMemo(
     () => {
@@ -500,10 +498,6 @@ export function VercelChatInner({
     tools,
   });
 
-  const apiRef = useApiRef(api);
-  apiRef.current = api;
-  const effectiveChatEndpointRef = useRef(requestEndpoint);
-  effectiveChatEndpointRef.current = requestEndpoint;
   // Local UI overlay for edits/deletes (since `useChat()` doesn't expose `setMessages`).
   // We also re-use these overrides when building the next request body so deleted parts
   // are NOT sent to the backend on subsequent turns.
@@ -706,14 +700,13 @@ export function VercelChatInner({
             });
           }
 
-          if (!isGenericChatEndpoint(effectiveChatEndpointRef.current)) {
+          if (!isGenericChatEndpoint(requestEndpoint)) {
             Object.entries(getGatewayProviderHeaders(mergedBody)).forEach(([key, value]) => {
               requestHeaders.set(key, value);
             });
           }
 
-          const requestApi = apiRef.current;
-          const requestEndpoint = effectiveChatEndpointRef.current;
+          const requestApi = api;
           const requestBody = isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
             ? buildGenericChatEndpointBody(requestEndpoint, {
               ...mergedBody,
@@ -750,6 +743,7 @@ export function VercelChatInner({
     [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings]
   );
 
+  const routedTransport = useFavoriteRouterTransport(transport, baseBody, applyOverrides, files);
   const {
     messages,
     sendMessage,
@@ -758,8 +752,8 @@ export function VercelChatInner({
     stop,
     addToolApprovalResponse,
   } = useChat({
-    id: chatInstanceId,
-    transport,
+    id: conversationId,
+    transport: routedTransport,
     throttle: experimentalThrottle,
     onError: (error) => {
       addChatError(error);
