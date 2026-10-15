@@ -170,6 +170,7 @@ test("overview filters across multiple tags, composes search, and preserves save
     nodes(page.tree(), "AgentEditModal")[0].props.onSave(agents[0]);
     assert.deepEqual(page.saved().tags, ["writing", "shared"]);
     assert.equal(nodes(page.tree(), "Drawer")[0].props.overlay, false);
+    assert.equal(nodes(page.tree(), "Drawer")[0].props.size, "small");
 });
 
 test("overview uses an overlay filter drawer on mobile", () => {

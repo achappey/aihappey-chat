@@ -278,7 +278,7 @@ export const AgentsPage = () => {
   };
   const renderFilters = () => (
     <Drawer open={filtersOpen} title={t("filters")} overlay={!isDesktop}
-      position="end" size={isDesktop ? "medium" : "small"} onClose={() => setFiltersOpen(false)}>
+      position="end" size="small" onClose={() => setFiltersOpen(false)}>
       <div style={{ width: "100%", boxSizing: "border-box", padding: 16 }}>
         <FilterDrawerPanel sections={[tagFilterSection]} />
       </div>
