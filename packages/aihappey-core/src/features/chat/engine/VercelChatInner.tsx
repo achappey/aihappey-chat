@@ -83,7 +83,11 @@ import { useProviderRegistry } from "../../../runtime/providers/useProviderRegis
 import { useChatScrollToBottom } from "../layout/useChatScrollToBottom";
 import { mapToolOutputContentForRequest } from "./mapToolOutputContentForRequest";
 import { useFavoriteRouterTransport } from "./useFavoriteRouterTransport";
-import { buildManagedAgentMcpCatalog, executeManagedAgentMcpTool } from "./managedAgentMcpTools";
+import {
+  buildManagedAgentMcpCatalog, executeManagedAgentMcpTool,
+  managedAgentMcpCallsPending, managedAgentStopTools,
+} from "./managedAgentMcpTools";
+import { useManagedAgentMcpToolCalls } from "./useManagedAgentMcpToolCalls";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -498,6 +502,7 @@ export function VercelChatInner({
     [chatMode, mcpServerContent, mcpServers, toolAnnotations],
   );
   const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
+  const agentToolSignalRef = useRef<AbortSignal | undefined>(undefined);
   const tools = chatMode === "agent" ? managedAgentMcpCatalog.tools : regularTools;
   const toolUse = useOnToolCall({
     api: config.baseUrl,
@@ -642,8 +647,11 @@ export function VercelChatInner({
           if (chatMode === "agent") {
             // Use the existing /api/chat tools and UIMessage result contract,
             // never the agent's configured tools or provider-native namespaces.
-            agentToolCatalogRef.current = managedAgentMcpCatalog;
-            mergedBody.tools = managedAgentMcpCatalog.tools;
+            if (requestMessages.at(-1)?.role !== "assistant") {
+              agentToolCatalogRef.current = managedAgentMcpCatalog;
+              agentToolSignalRef.current = abortRef.current?.signal;
+            }
+            mergedBody.tools = agentToolCatalogRef.current.tools;
           } else if (namespacesEnabled) {
             const shapedTools = shapeToolsForRequest(
               sourceTools,
@@ -701,8 +709,11 @@ export function VercelChatInner({
               ? countCompletedToolCallsLastAssistant(requestMessages as any[])
               : 0;
 
+          const effectiveStopTools = chatMode === "agent"
+            ? managedAgentStopTools(agentToolCatalogRef.current, stopTools)
+            : stopTools;
           const forceNone =
-            shouldForceToolChoiceNone(requestMessages as any[], stopTools) ||
+            shouldForceToolChoiceNone(requestMessages as any[], effectiveStopTools) ||
             (typeof maxToolCalls === "number" && completedToolCalls >= maxToolCalls);
 
           const effectiveToolChoice = forceNone ? "none" : mergedBody.toolChoice;
@@ -778,13 +789,9 @@ export function VercelChatInner({
     },
 
     onToolCall: async ({ toolCall }) => {
-      if (chatMode === "agent" && toolCall.providerExecuted) return;
+      if (chatMode === "agent" && toolCall.toolName !== "ai_input_required") return;
       const signal = abortRef.current?.signal;
-      const result = chatMode === "agent" && toolCall.toolName !== "ai_input_required"
-        ? await executeManagedAgentMcpTool(
-          agentToolCatalogRef.current, toolCall, callTool, i18n.language, signal,
-        )
-        : await (toolUse.onToolCall as any)({
+      const result = await (toolUse.onToolCall as any)({
         toolCall,
         signal,
       });
@@ -798,7 +805,9 @@ export function VercelChatInner({
 
       return result;
     },
-    sendAutomaticallyWhen,
+    sendAutomaticallyWhen: (options) =>
+      !(chatMode === "agent" && managedAgentMcpCallsPending(options.messages))
+      && sendAutomaticallyWhen(options),
     messages: seededMessages,
     onFinish: async ({ message, isDisconnect, isAbort }) => {
       if (pendingInitialMessageRef.current && !isAbort) {
@@ -821,6 +830,21 @@ export function VercelChatInner({
             }
           }
       }
+    },
+  });
+
+  useManagedAgentMcpToolCalls({
+    enabled: chatMode === "agent",
+    messages,
+    status,
+    execute: async (toolCall, lifetimeSignal) => {
+      const runSignal = agentToolSignalRef.current;
+      const signal = runSignal ? AbortSignal.any([runSignal, lifetimeSignal]) : lifetimeSignal;
+      const result = await executeManagedAgentMcpTool(
+        agentToolCatalogRef.current, toolCall, callTool, i18n.language, signal,
+      );
+      if (signal?.aborted) return;
+      addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output: result });
     },
   });
 

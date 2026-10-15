@@ -138,6 +138,14 @@ const content: Record<ChatDocsTopic, TopicContent> = {
           <><code>plugins</code> embeds immutable Agent Plugin ZIP snapshots as base64; <code>tools</code> carries provider-neutral runtime tool definitions.</>,
         ])
       },
+      {
+        title: "Chat client MCP tools", body: list([
+          <>Managed agent chat adds tools from enabled, connected Chat MCP servers to the request without changing the agent JSON or its server-side tools. Client resources, templates, prompts, and skills are not included.</>,
+          <>The agent <code>/api/chat</code> endpoint must accept the existing top-level MCP <code>tools</code> definitions and AI SDK UI message stream. Tool names are stable client aliases scoped to the owning server; return the advertised name unchanged.</>,
+          <>Client calls use <code>tool-input-available</code>; approval requests use the existing <code>tool-approval-request</code> event before the stream finishes. Chat waits for the final approval state, reuses the approval dialog and explicit BRRR Mode, and sends MCP results back in UI message tool parts before continuing the streamed run.</>,
+          <>Mark agent-configured server-side calls as <code>providerExecuted</code>. Chat executes only its advertised client tools and never routes server-side calls to a client MCP server.</>,
+        ])
+      },
       { title: "Example", body: <p style={{ margin: 0 }}>Unknown fields should be treated conservatively. Keep credentials out of portable files and inject headers at runtime.</p>, examples: [{ id: "agent-json", label: "Agent", language: "json", code: agentExample }] },
       { title: "Related specifications", body: <p style={{ margin: 0 }}>{external("https://modelcontextprotocol.io", "MCP documentation index")} · {external("https://agentskills.io", "Agent Skills documentation index")} · {external("https://agent-plugins.org", "Agent Plugins")}</p> },
     ],

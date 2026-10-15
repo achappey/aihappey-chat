@@ -73,3 +73,42 @@ export async function executeManagedAgentMcpTool(
     };
   }
 }
+
+const clientToolParts = (messages: any[]) => {
+  const last = messages.at(-1);
+  return last?.role === "assistant"
+    ? (last.parts ?? []).filter((part: any) =>
+      (part.type?.startsWith("tool-") || part.type === "dynamic-tool")
+      && !part.providerExecuted && part.toolName !== "ai_input_required"
+      && part.type !== "tool-ai_input_required")
+    : [];
+};
+
+// The SDK invokes onToolCall before reading a following approval request.
+// Wait for the full stream and use its final approval state before dispatch.
+export function pendingManagedAgentMcpCalls(messages: any[], status: string) {
+  if (status !== "ready") return [];
+  return clientToolParts(messages)
+    .filter((part: any) => part.state === "input-available"
+      || (part.state === "approval-responded" && part.approval?.approved === true))
+    .map((part: any) => ({
+      toolCallId: part.toolCallId,
+      toolName: part.toolName ?? part.type.slice("tool-".length),
+      input: part.input,
+    }));
+}
+
+export function managedAgentMcpCallsPending(messages: any[]) {
+  return clientToolParts(messages).some((part: any) =>
+    part.state === "input-streaming" || part.state === "input-available"
+    || part.state === "approval-requested"
+    || (part.state === "approval-responded" && part.approval?.approved === true));
+}
+
+export function managedAgentStopTools(catalog: ManagedAgentMcpCatalog, stopTools?: string[]) {
+  const names = new Set((stopTools ?? []).map(name => name.trim().toLowerCase()));
+  return [
+    ...(stopTools ?? []),
+    ...[...catalog.routes].filter(([, route]) => names.has(route.toolName.toLowerCase())).map(([name]) => name),
+  ];
+}
