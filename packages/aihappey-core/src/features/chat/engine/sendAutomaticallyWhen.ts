@@ -4,7 +4,8 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
     if (!lastMessage || lastMessage.role !== "assistant") return false;
     console.log(messages)
     const parts = (lastMessage.parts?.filter((a: any) =>
-        !a.type.startsWith("data-")
+        a.type !== "step-start"
+        && !a.type.startsWith("data-")
         && !a.type.startsWith("source-url")
         && !a.type.endsWith("tool-google_antigravity_state")
         && !a.type.endsWith("tool-download_file")

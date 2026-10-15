@@ -20,6 +20,9 @@ function evaluate(source, mocks = {}, bindings = {}) {
 }
 const load = (path, mocks) => evaluate(fs.readFileSync(path, "utf8"), mocks);
 const managedTools = load(root + "chat/engine/managedAgentMcpTools.ts");
+const { ManagedAgentChatTransport } = load(root + "chat/engine/ManagedAgentChatTransport.ts", {
+    "aihappey-ai": { DefaultChatTransport },
+});
 const {
     buildManagedAgentMcpCatalog, executeManagedAgentMcpTool,
     pendingManagedAgentMcpCalls, managedAgentMcpCallsPending, managedAgentStopTools,
@@ -267,7 +270,7 @@ test("real SDK streaming returns MCP results to agent backend and continues; pro
         onError: error => errors.push(error),
     });
     await chat.sendMessage({ text: "Look up a record" });
-    assert.equal(h.calls.length, 0, "execution waits until the stream's final approval state is known");
+    assert.equal(h.calls.length, 0, "execution waits until streamed inputs are complete");
     const hook = managedHookHarness();
     const flush = () => hook.render({
         enabled: true, messages: chat.messages, messageId: chat.messages.at(-1).id, status: chat.status,
@@ -290,27 +293,44 @@ test("real SDK streaming returns MCP results to agent backend and continues; pro
     hook.unmount();
 });
 
-test("approval events following input never execute prematurely; denial never executes and approval waits for a result", async () => {
+for (const decision of ["approve", "reject", "BRRR", "streaming BRRR"]) {
+test(`post-execution ${decision} continues multiple MCP calls without re-execution`, async () => {
     const h = runtimeHarness();
     h.ref = { current: h.catalog };
-    const toolName = h.catalog.tools[0].name;
+    const hook = managedHookHarness();
+    const toolNames = h.catalog.tools.map(tool => tool.name);
     const errors = [], requests = [];
+    let finishApprovalStream;
+    const results = toolNames.map((_, i) => ({ content: [{ type: "text", text: `Reviewed result ${i}` }] }));
     const chat = new Chat({
         id: "approval-conversation",
-        transport: new DefaultChatTransport({
+        transport: new ManagedAgentChatTransport({
             fetch: async (_, options) => {
                 requests.push(JSON.parse(options.body));
-                const chunks = requests.length === 1 ? [
-                { type: "start", messageId: "assistant" }, { type: "start-step" },
-                { type: "tool-input-available", toolCallId: "client", toolName, input: {} },
-                { type: "tool-approval-request", toolCallId: "client", approvalId: "approve" },
-                { type: "finish-step" }, { type: "finish", finishReason: "tool-calls" },
-                ] : [
-                    { type: "start", messageId: "assistant" }, { type: "start-step" },
-                    { type: "text-start", id: "answer" }, { type: "text-delta", id: "answer", delta: "Approved result" }, { type: "text-end", id: "answer" },
-                    { type: "finish-step" }, { type: "finish", finishReason: "stop" },
-                ];
-                return new Response(chunks.map(c => `data: ${JSON.stringify(c)}\n\n`).join("") + "data: [DONE]\n\n", { headers: { "Content-Type": "text/event-stream" } });
+                const chunks = [{ type: "start", messageId: "assistant" }, { type: "start-step" }];
+                if (requests.length === 1) {
+                    for (const [i, toolName] of toolNames.entries()) chunks.push(
+                        { type: "tool-input-start", toolCallId: `client-${i}`, toolName },
+                        { type: "tool-input-delta", toolCallId: `client-${i}`, inputTextDelta: '{"query":"q"}' },
+                        { type: "tool-input-available", toolCallId: `client-${i}`, toolName, input: { query: "q" } },
+                    );
+                } else if (requests.length === 2) {
+                    for (const i of [1, 0]) chunks.push({
+                        type: "tool-approval-request", toolCallId: `client-${i}`, approvalId: `approve-${i}`, output: results[i],
+                    });
+                } else {
+                    chunks.push({ type: "text-start", id: "answer" }, { type: "text-delta", id: "answer", delta: "Done" }, { type: "text-end", id: "answer" });
+                }
+                chunks.push({ type: "finish-step" }, { type: "finish", finishReason: requests.length < 3 ? "tool-calls" : "stop" });
+                const bytes = new TextEncoder().encode(chunks.map(c => `data: ${JSON.stringify(c)}\n\n`).join("") + "data: [DONE]\n\n");
+                return new Response(new ReadableStream({
+                    start(controller) {
+                        for (let i = 0; i < bytes.length; i += 17) controller.enqueue(bytes.slice(i, i + 17));
+                        if (decision === "streaming BRRR" && requests.length === 2) {
+                            finishApprovalStream = () => controller.close();
+                        } else controller.close();
+                    },
+                }), { headers: { "Content-Type": "text/event-stream" } });
             },
         }),
         onToolCall: engineCallback("onToolCall", { chatMode: "agent" }),
@@ -318,37 +338,84 @@ test("approval events following input never execute prematurely; denial never ex
         onError: error => errors.push(error),
     });
     await chat.sendMessage({ text: "Use MCP" });
-    assert.deepEqual(errors, []);
     assert.equal(h.calls.length, 0);
-    assert.deepEqual(pendingManagedAgentMcpCalls(chat.messages, "ready"), []);
-    assert.equal(managedAgentMcpCallsPending(chat.messages), true);
-    const message = structuredClone(chat.messages.at(-1));
-    const part = message.parts.find(p => p.toolCallId === "client");
-    part.state = "approval-responded";
-    part.approval.approved = false;
-    assert.deepEqual(pendingManagedAgentMcpCalls([message], "ready"), []);
-    assert.equal(managedAgentMcpCallsPending([message]), false);
-    part.approval.approved = true;
-    assert.deepEqual(pendingManagedAgentMcpCalls([message], "streaming"), []);
-    assert.equal(pendingManagedAgentMcpCalls([message], "ready").length, 1);
-    assert.equal(managedAgentMcpCallsPending([message]), true);
-    await chat.addToolApprovalResponse({ id: "approve", approved: true, reason: "BRRR" });
-    assert.equal(requests.length, 1, "approval alone cannot resume the backend before the client result");
-    await dispatchTool(h, output => { void chat.addToolOutput(output); }, new AbortController().signal)({
-        toolCall: pendingManagedAgentMcpCalls(chat.messages, chat.status)[0],
+    const flush = () => hook.render({
+        enabled: true, messages: chat.messages, messageId: "assistant", status: chat.status,
+        execute: (call, signal) => dispatchTool(h, output => { void chat.addToolOutput(output); })({ toolCall: call }, signal),
     });
-    for (let i = 0; i < 30 && (requests.length < 2 || chat.status !== "ready"); i++) {
+    flush();
+    flush();
+    for (let i = 0; i < 50 && (requests.length < 2 || chat.status !== "ready"); i++) {
+        await new Promise(resolve => setImmediate(resolve));
+    }
+    assert.equal(requests.length, 2);
+    assert.equal(h.calls.length, 2, "both tools execute before approval");
+    for (const [i, toolName] of toolNames.entries()) {
+        const executed = requests[1].messages.at(-1).parts.find(p => p.toolCallId === `client-${i}`);
+        assert.equal(executed.state, "output-available");
+        assert.equal(executed.output.structuredContent.server, i === 0 ? "alpha" : "beta");
+        const part = chat.messages.at(-1).parts.find(p => p.toolCallId === `client-${i}`);
+        assert.equal(part.state, "approval-requested");
+        assert.deepEqual(part.output, results[i], "approval result is preserved by the SDK and available to the existing UI");
+        assert.equal(part.type, `tool-${toolName}`);
+    }
+    for (const i of [1, 0]) {
+        flush();
+        assert.deepEqual(pendingManagedAgentMcpCalls(chat.messages, chat.status), []);
+        if (decision.includes("BRRR")) {
+            const decisions = [];
+            approvalHost(chat.messages, { approveAll: true, allowedToolList: [] }, d => decisions.push(d));
+            assert.equal(decisions.length, 1);
+            assert.equal(decisions[0].reason, "BRRR");
+            await chat.addToolApprovalResponse(decisions[0]);
+        } else {
+            await chat.addToolApprovalResponse({ id: `approve-${i}`, approved: decision === "approve", reason: decision });
+        }
+        if (i === 1) assert.equal(requests.length, 2, "all approvals must be resolved before continuation");
+    }
+    if (finishApprovalStream) {
+        assert.equal(chat.status, "streaming");
+        assert.equal(requests.length, 2, "BRRR decisions during streaming wait for the stream to finish");
+        finishApprovalStream();
+    }
+    for (let i = 0; i < 50 && (requests.length < 3 || chat.status !== "ready"); i++) {
+        flush();
         await new Promise(resolve => setImmediate(resolve));
     }
     assert.deepEqual(errors, []);
-    assert.equal(h.calls.length, 1);
-    assert.equal(requests.length, 2);
-    const result = requests[1].messages.at(-1).parts.find(p => p.toolCallId === "client");
-    assert.equal(result.state, "output-available");
-    assert.equal(result.approval.approved, true);
-    assert.deepEqual(result.output.structuredContent, { server: "alpha" });
-    part.state = "output-available";
-    assert.equal(managedAgentMcpCallsPending([message]), false);
+    assert.equal(requests.length, 3);
+    assert.equal(h.calls.length, 2, "approval responses never dispatch MCP calls again");
+    for (const [i, output] of results.entries()) {
+        const part = requests[2].messages.at(-1).parts.find(p => p.toolCallId === `client-${i}`);
+        assert.equal(part.state, "approval-responded");
+        assert.equal(part.approval.approved, decision !== "reject");
+        assert.deepEqual(part.output, output);
+    }
+    hook.unmount();
+});
+}
+
+test("only unresolved inputs execute; streaming and mixed pending calls block continuation, not approval responses", () => {
+    const part = { type: "tool-client", toolCallId: "client", input: {} };
+    const messages = parts => [{ role: "assistant", parts }];
+    for (const state of ["approval-requested", "approval-responded", "output-available", "output-error", "output-denied"]) {
+        for (const approved of [false, true]) {
+            const input = messages([{ ...part, state, approval: { id: "approval", approved } }]);
+            assert.deepEqual(pendingManagedAgentMcpCalls(input, "ready"), []);
+            assert.equal(managedAgentMcpCallsPending(input), state === "approval-requested");
+        }
+    }
+    const input = messages([{ ...part, state: "input-available" }]);
+    assert.equal(pendingManagedAgentMcpCalls(input, "ready").length, 1);
+    assert.deepEqual(pendingManagedAgentMcpCalls(input, "streaming"), []);
+    const mixed = messages([
+        { ...part, state: "input-available" },
+        { ...part, toolCallId: "other", state: "approval-responded", approval: { approved: true } },
+    ]);
+    assert.equal(managedAgentMcpCallsPending(mixed), true);
+    assert.deepEqual(pendingManagedAgentMcpCalls(messages([
+        { ...part, state: "input-available", providerExecuted: true },
+    ]), "ready"), []);
 });
 
 test("stopping an agent run suppresses late tool results and auto-continuation", async () => {
