@@ -503,6 +503,14 @@ export function VercelChatInner({
   );
   const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
   const agentToolSignalRef = useRef<AbortSignal | undefined>(undefined);
+  const agentToolMessageRef = useRef<string | undefined>(undefined);
+  const agentToolRunActiveRef = useRef(false);
+  useEffect(() => {
+    if (chatMode !== "agent") {
+      agentToolMessageRef.current = undefined;
+      agentToolRunActiveRef.current = false;
+    }
+  }, [chatMode]);
   const tools = chatMode === "agent" ? managedAgentMcpCatalog.tools : regularTools;
   const toolUse = useOnToolCall({
     api: config.baseUrl,
@@ -650,6 +658,8 @@ export function VercelChatInner({
             if (requestMessages.at(-1)?.role !== "assistant") {
               agentToolCatalogRef.current = managedAgentMcpCatalog;
               agentToolSignalRef.current = abortRef.current?.signal;
+              agentToolMessageRef.current = undefined;
+              agentToolRunActiveRef.current = true;
             }
             mergedBody.tools = agentToolCatalogRef.current.tools;
           } else if (namespacesEnabled) {
@@ -810,6 +820,11 @@ export function VercelChatInner({
       && sendAutomaticallyWhen(options),
     messages: seededMessages,
     onFinish: async ({ message, isDisconnect, isAbort }) => {
+      if (chatMode === "agent") {
+        agentToolMessageRef.current = !isAbort && !isDisconnect && agentToolRunActiveRef.current
+          ? message.id : undefined;
+        if (isAbort || isDisconnect) agentToolRunActiveRef.current = false;
+      }
       if (pendingInitialMessageRef.current && !isAbort) {
         handleInitialSendSuccess();
       }
@@ -833,9 +848,10 @@ export function VercelChatInner({
     },
   });
 
-  useManagedAgentMcpToolCalls({
+  const managedMcpExecuting = useManagedAgentMcpToolCalls({
     enabled: chatMode === "agent",
     messages,
+    messageId: agentToolMessageRef.current,
     status,
     execute: async (toolCall, lifetimeSignal) => {
       const runSignal = agentToolSignalRef.current;
@@ -847,6 +863,7 @@ export function VercelChatInner({
       addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output: result });
     },
   });
+  const chatBusy = status === "submitted" || status === "streaming" || managedMcpExecuting;
 
   const uiMessages = useMemo(() => {
     return (messages ?? [])
@@ -1004,7 +1021,7 @@ export function VercelChatInner({
             // so we keep a local overlay for edits/deletes.
             scrollContainerRef={scrollContainerRef}
             messages={uiMessages}
-            streaming={status === "submitted" || status === "streaming"}
+            streaming={chatBusy}
             sendMessage={async (msg: any) => {
               startRun()
               await handleSend(msg.prompt)
@@ -1021,7 +1038,7 @@ export function VercelChatInner({
             }}
           />}
 
-        {status === "submitted" || status === "streaming" || lastPart ? (
+        {chatBusy || lastPart ? (
           <div style={streamingIndicatorStyles}>
             <Spinner
               label={toolName}
@@ -1058,8 +1075,8 @@ export function VercelChatInner({
             temperature={temperature}
             temperatureChanged={temperatureChanged}
             onPromptExecute={onPromptExecute}
-            disabled={status === "submitted" || status === "streaming"}
-            streaming={status === "submitted" || status === "streaming"}
+            disabled={chatBusy}
+            streaming={chatBusy}
           />
         </div>
       </div>

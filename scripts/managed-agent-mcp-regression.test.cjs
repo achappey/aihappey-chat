@@ -160,6 +160,8 @@ function prepareRequest(h, chatMode = "agent") {
         conversationId: "conversation", useToolNamespaces: true, hasSourceNamespaces: true,
         tools: h.catalog.tools, toolRequestConfig: {}, chatMode, managedAgentMcpCatalog: h.catalog, agentToolCatalogRef: h.ref,
         agentToolSignalRef: { current: undefined }, abortRef: { current: undefined },
+        agentToolMessageRef: { current: undefined },
+        agentToolRunActiveRef: { current: false },
         shapeToolsForRequest: load(root + "tools/toolRequestConfig.ts").shapeToolsForRequest,
         deferClientToolSearchCandidates: tools => tools,
         isProviderEndpointProfile: false, requestEndpointProfile: undefined, model: "openai/model",
@@ -176,7 +178,42 @@ function dispatchTool(h, addToolOutput, signal) {
         chatMode: "agent", agentToolSignalRef: { current: signal }, agentToolCatalogRef: h.ref,
         executeManagedAgentMcpTool, callTool: h.state.callTool, i18n: { language: "en" }, addToolOutput,
     });
-    return ({ toolCall }) => execute(toolCall, new AbortController().signal);
+    return ({ toolCall }, lifetimeSignal = new AbortController().signal) => execute(toolCall, lifetimeSignal);
+}
+
+function managedHookHarness() {
+    const slots = [];
+    let index = 0, effects = [];
+    const { useManagedAgentMcpToolCalls } = load(root + "chat/engine/useManagedAgentMcpToolCalls.ts", {
+        react: {
+            useRef: value => slots[index++] ??= { current: value },
+            useState: value => {
+                const slot = index++;
+                slots[slot] ??= value;
+                return [slots[slot], update => { slots[slot] = typeof update === "function" ? update(slots[slot]) : update; }];
+            },
+            useEffect: (fn, deps) => {
+                const slot = index++, previous = slots[slot];
+                if (!previous || deps.some((dep, i) => !Object.is(dep, previous.deps[i]))) {
+                    effects.push(() => {
+                        previous?.cleanup?.();
+                        slots[slot] = { deps, cleanup: fn() };
+                    });
+                }
+            },
+        },
+        "./managedAgentMcpTools": managedTools,
+    });
+    return {
+        render(options) {
+            index = 0;
+            effects = [];
+            const busy = useManagedAgentMcpToolCalls(options);
+            for (const effect of effects) effect();
+            return busy;
+        },
+        unmount() { for (const slot of slots) slot?.cleanup?.(); },
+    };
 }
 
 test("agent transport keeps tools top-level despite namespace settings/overrides and never changes agent configuration", () => {
@@ -231,28 +268,11 @@ test("real SDK streaming returns MCP results to agent backend and continues; pro
     });
     await chat.sendMessage({ text: "Look up a record" });
     assert.equal(h.calls.length, 0, "execution waits until the stream's final approval state is known");
-    const slots = [], cleanups = [];
-    let index = 0;
-    const { useManagedAgentMcpToolCalls } = load(root + "chat/engine/useManagedAgentMcpToolCalls.ts", {
-        react: {
-            useRef: value => slots[index++] ??= { current: value },
-            useEffect: (fn, deps) => {
-                const slot = index++;
-                if (deps.length || !slots[slot]) {
-                    slots[slot] = true;
-                    cleanups.push(fn());
-                }
-            },
-        },
-        "./managedAgentMcpTools": managedTools,
+    const hook = managedHookHarness();
+    const flush = () => hook.render({
+        enabled: true, messages: chat.messages, messageId: chat.messages.at(-1).id, status: chat.status,
+        execute: (call, signal) => dispatchTool(h, output => { void chat.addToolOutput(output); }, new AbortController().signal)({ toolCall: call }, signal),
     });
-    const flush = () => {
-        index = 0;
-        useManagedAgentMcpToolCalls({
-            enabled: true, messages: chat.messages, status: chat.status,
-            execute: call => dispatchTool(h, output => { void chat.addToolOutput(output); }, new AbortController().signal)({ toolCall: call }),
-        });
-    };
     flush();
     flush();
     for (let i = 0; i < 30 && (requests.length < 2 || chat.status !== "ready"); i++) {
@@ -267,7 +287,7 @@ test("real SDK streaming returns MCP results to agent backend and continues; pro
     assert.equal(part.state, "output-available");
     assert.deepEqual(part.output.structuredContent, { server: "beta" });
     assert.ok(chat.messages.at(-1).parts.some(p => p.type === "text" && p.text === "Done"));
-    for (const cleanup of cleanups) cleanup?.();
+    hook.unmount();
 });
 
 test("approval events following input never execute prematurely; denial never executes and approval waits for a result", async () => {
@@ -344,6 +364,41 @@ test("stopping an agent run suppresses late tool results and auto-continuation",
     finish({ content: [{ type: "text", text: "Late" }] });
     await pending;
     assert.deepEqual(outputs, []);
+});
+
+test("seeded history never executes; live execution keeps Stop available and aborts on mode switch or unmount", async () => {
+    for (const cancellation of ["mode", "unmount"]) {
+        const h = runtimeHarness(), hook = managedHookHarness(), outputs = [];
+        h.ref = { current: h.catalog };
+        let finish, executionSignal;
+        h.state.callTool = (_, __, ___, ____, signal) => {
+            executionSignal = signal;
+            return new Promise(resolve => { finish = resolve; });
+        };
+        const message = { id: "history", role: "assistant", parts: [{ type: `tool-${h.catalog.tools[0].name}`, toolCallId: "client", state: "input-available", input: {} }] };
+        const options = {
+            enabled: true, messages: [message], status: "ready",
+            execute: (call, signal) => dispatchTool(h, output => outputs.push(output), undefined)({ toolCall: call }, signal),
+        };
+        hook.render(options);
+        await Promise.resolve();
+        assert.equal(executionSignal, undefined);
+        hook.render({ ...options, messageId: "different-live-message" });
+        await Promise.resolve();
+        assert.equal(executionSignal, undefined);
+        const live = { ...options, messageId: "history" };
+        hook.render(live);
+        await Promise.resolve();
+        assert.equal(hook.render(live), true);
+        assert.match(engineSource, /disabled=\{chatBusy\}\s+streaming=\{chatBusy\}/);
+        if (cancellation === "mode") assert.equal(hook.render({ ...live, enabled: false }), false);
+        else hook.unmount();
+        assert.equal(executionSignal.aborted, true);
+        finish({ content: [{ type: "text", text: "Late result" }] });
+        await new Promise(resolve => setImmediate(resolve));
+        assert.deepEqual(outputs, []);
+        hook.unmount();
+    }
 });
 
 function approvalHost(messages, state, respond) {
