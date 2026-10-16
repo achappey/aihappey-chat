@@ -40,7 +40,7 @@ export const AttachmentsActivity = ({ messages }: { messages?: UIMessage[] }) =>
       })
       .catch(() => { if (!cancelled) setError(true); });
     return () => { cancelled = true; };
-  }, [current, t]);
+  }, [current, selected, t]);
 
   return (
     <div style={{ padding: 8, display: "flex", gap: 12, minWidth: 0 }}>

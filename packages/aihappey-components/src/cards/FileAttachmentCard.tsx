@@ -66,6 +66,15 @@ export const FileAttachmentCard = ({ file, size, onPreview, onAddToFiles }: File
   const handleDownload = async () => {
     try {
       if (!url || !canDownload) return;
+      if (remote) {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename ?? "";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.click();
+        return;
+      }
       const response = await fetch(previewUrl);
       if (!response.ok) throw new Error(`Download failed: ${response.status}`);
       const blob = await response.blob();
@@ -87,11 +96,6 @@ export const FileAttachmentCard = ({ file, size, onPreview, onAddToFiles }: File
 
       URL.revokeObjectURL(blobUrl);
     } catch (err) {
-      if (remote) {
-        // Hosted files may not allow cross-origin downloads.
-        window.open(url, "_blank", "noopener,noreferrer");
-        return;
-      }
       console.error('Download failed', err);
     }
   };

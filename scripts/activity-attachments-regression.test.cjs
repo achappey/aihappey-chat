@@ -147,7 +147,7 @@ test("Input/Output navigation is compact, accessible, keyboard-operable, and fol
     assert.equal(findAll(tree, n => n.type === "FileDetailModal")[0].props.open, false);
 });
 
-test("attachment cards expose MIME/known sizes, preview and download, but never actions for unsafe resource schemes", async () => {
+test("attachment cards expose MIME/known sizes, preview and download, but never actions for unsafe resource schemes", async t => {
     const theme = {
         Card: ({ title, description, actions }) => React.createElement("article", null, title, description, actions),
         Button: props => React.createElement("button", props),
@@ -181,4 +181,35 @@ test("attachment cards expose MIME/known sizes, preview and download, but never 
     ])]).output[0];
     const response = await fetch(textResource.url);
     assert.equal(await response.text(), "hello é");
+    const previousDocument = global.document;
+    t.after(() => {
+        global.document = previousDocument;
+    });
+    let downloaded, revoked, clicked = false;
+    const link = { click: () => { clicked = true; } };
+    global.document = {
+        createElement: () => link,
+        body: { appendChild() {}, removeChild() {} },
+    };
+    t.mock.method(URL, "createObjectURL", blob => { downloaded = blob; return "blob:download"; });
+    t.mock.method(URL, "revokeObjectURL", url => { revoked = url; });
+    const card = FileAttachmentCard({ file: { ...textResource, filename: "notes.txt" } });
+    const download = findAll(card.props.actions, n => n.props.icon === "download")[0];
+    await download.props.onClick();
+    assert.equal(await downloaded.text(), "hello é");
+    assert.equal(downloaded.type, "text/plain");
+    assert.equal(link.download, "notes.txt");
+    assert.equal(clicked, true);
+    assert.equal(revoked, "blob:download");
+
+    const fetchMock = t.mock.method(global, "fetch", async () => { throw new Error("No remote fetch expected"); });
+    clicked = false;
+    const hosted = FileAttachmentCard({ file: file("https://example.com/note.txt") });
+    await findAll(hosted.props.actions, n => n.props.icon === "download")[0].props.onClick();
+    assert.equal(fetchMock.mock.callCount(), 0);
+    assert.equal(link.href, "https://example.com/note.txt");
+    assert.equal(link.download, "note.txt");
+    assert.equal(link.target, "_blank");
+    assert.equal(link.rel, "noopener noreferrer");
+    assert.equal(clicked, true);
 });
