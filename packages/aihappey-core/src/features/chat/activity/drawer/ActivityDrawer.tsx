@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useAppStore } from "aihappey-state";
 import { ToolInvocationsActivity } from "../content/ToolInvocationsActivity";
-import { UIMessage } from "aihappey-ai";
+import { DataUIPart, UIMessage } from "aihappey-ai";
 import { useTranslation } from "aihappey-i18n";
 import { CanvasActivity } from "../tabs/CanvasActivity";
 import { DataActivity } from "../content/DataActivity";
@@ -197,7 +197,7 @@ const extractLocalCanvasResources = (toolInvocations: any[]) => {
 export const toArray = (val: any) =>
   Array.isArray(val) ? val : val ? [val] : [];
 
-export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiOutput?: any; currentModel?: string }) => {
+export const ActivityDrawer = (props: { messages?: UIMessage[], debugParts?: DataUIPart<any>[]; uiTree: any; uiOutput?: any; currentModel?: string }) => {
   const { Drawer, Tabs, Tab, Button } = useTheme();
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
@@ -255,13 +255,15 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], uiTree: any; uiO
     })
   );
 
-  const dataCards =
-    messages?.flatMap((z) =>
+  const dataCards = [
+    ...(messages?.flatMap((z) =>
       z?.parts
         ?.filter(
           (a) => a.type.startsWith("data-")
         )
-    ) ?? [];
+    ) ?? []),
+    ...(props.debugParts ?? []),
+  ];
   // 2) group by URI
   const groupedByUri = new Map<string, any[]>();
   for (const r of [...flatResources, ...localCanvasResources]) {

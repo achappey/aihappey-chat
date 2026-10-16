@@ -89,6 +89,7 @@ import {
 } from "./managedAgentMcpTools";
 import { useManagedAgentMcpToolCalls } from "./useManagedAgentMcpToolCalls";
 import { ManagedAgentChatTransport } from "./ManagedAgentChatTransport";
+import { getApiDebugEnabled, useTransientDebugParts } from "./useTransientDebugParts";
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -108,6 +109,7 @@ export function VercelChatInner({
   initial: UIMessage[];
 }) {
   const { conversationId } = useParams<{ conversationId: string }>();
+  const { onData, debugParts } = useTransientDebugParts(conversationId);
   const location = useLocation();
   const { addChatError } = useChatErrors();
   const pendingInitialMessageRef = useRef<any>(location.state?.pendingMessage);
@@ -396,6 +398,7 @@ export function VercelChatInner({
     headers,
     customHeaders: authFetchCustomHeaders,
     customFetch,
+    getDebugEnabled: getApiDebugEnabled,
   });
 
   const chatFetch = useMemo(() => {
@@ -797,6 +800,7 @@ export function VercelChatInner({
     id: conversationId,
     transport: routedTransport,
     throttle: experimentalThrottle,
+    onData,
     onError: (error) => {
       addChatError(error);
     },
@@ -1101,7 +1105,7 @@ export function VercelChatInner({
         onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
-      <ActivityDrawer messages={uiMessages} uiTree={effectiveUiTree} uiOutput={activeData} currentModel={model} />
+      <ActivityDrawer messages={uiMessages} debugParts={debugParts} uiTree={effectiveUiTree} uiOutput={activeData} currentModel={model} />
 
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}
