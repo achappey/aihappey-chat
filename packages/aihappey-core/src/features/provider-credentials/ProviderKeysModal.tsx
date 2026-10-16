@@ -281,20 +281,22 @@ export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
           onDragOver={handleDragOver}
           style={{ width: "100%" }}
         >
-          <ProviderKeysForm
-            title={t("providers")}
-            apiKeyLabel={t("apiKey")}
-            items={items}
-            values={customHeaders ?? {}}
-            onChange={handleHeaderChange}
-            onRemove={handleHeaderRemove}
-            disabled={!keysEditable}
-            disabledMessage={passwordRequired
-              ? t("apiKeysPassword.setPasswordRequired")
-              : !keysEditable
-                ? t("apiKeysPassword.unlockRequired")
-                : undefined}
-          />
+          {open ? (
+            <ProviderKeysForm
+              title={t("providers")}
+              apiKeyLabel={t("apiKey")}
+              items={items}
+              values={customHeaders ?? {}}
+              onChange={handleHeaderChange}
+              onRemove={handleHeaderRemove}
+              disabled={!keysEditable}
+              disabledMessage={passwordRequired
+                ? t("apiKeysPassword.setPasswordRequired")
+                : !keysEditable
+                  ? t("apiKeysPassword.unlockRequired")
+                  : undefined}
+            />
+          ) : null}
         </div>
       </theme.Modal>
       {passwordMode ? (

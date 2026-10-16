@@ -66,6 +66,203 @@ function find(node, predicate) {
 }
 const children = (node) => React.Children.toArray(node.props.children);
 
+function providerKeysHarness(initialValues = { "X-OpenAI-Key": "configured-key" }) {
+    const h = hooks();
+    const { ProviderKeysForm } = load("packages/aihappey-components/src/forms/providers/ProviderKeysForm.tsx", {
+        react: h.react, "aihappey-i18n": i18n, "../../theme/ThemeContext": components,
+    });
+    const calls = [];
+    const props = {
+        items: [
+            { id: "openai", name: "OpenAI", header: "X-OpenAI-Key" },
+            { id: "anthropic", name: "Anthropic", header: "X-Anthropic-Key", searchText: "claude console" },
+            { id: "google", name: "Google", header: "X-Google-Key" },
+        ],
+        values: { ...initialValues },
+        onChange: async (header, value) => {
+            calls.push(["change", header, value]);
+            props.values = { ...props.values, [header]: value };
+        },
+        onRemove: (header) => {
+            calls.push(["remove", header]);
+            const { [header]: _, ...next } = props.values;
+            props.values = next;
+        },
+    };
+    const render = () => {
+        const tree = h.render(ProviderKeysForm, props);
+        h.flush();
+        return tree;
+    };
+    return { props, calls, render };
+}
+
+test("provider keys lists only configured keys, masks by default, and searches unconfigured providers", async () => {
+    const { render, calls } = providerKeysHarness({
+        "X-OpenAI-Key": "configured-key", "X-Google-Key": "   ",
+    });
+    let tree = render();
+    let input = find(tree, (node) => node.type === "Input");
+    assert.equal(input.props.value, "configured-key");
+    assert.equal(input.props.type, "password");
+    assert.equal(input.props.readOnly, true);
+    assert.equal(find(tree, (node) => node.type === "Select"), undefined);
+    assert.equal(find(tree, (node) => node.type === "SearchBox"), undefined);
+
+    find(tree, (node) => node.props.icon === "add").props.onClick();
+    tree = render();
+    let select = find(tree, (node) => node.type === "Select");
+    assert.deepEqual(children(select).map((option) => option.props.children), ["Anthropic", "Google"]);
+    find(tree, (node) => node.type === "SearchBox").props.onChange(" CLAUDE ");
+    tree = render();
+    select = find(tree, (node) => node.type === "Select");
+    assert.deepEqual(children(select).map((option) => option.props.children), ["Anthropic"]);
+    select.props.onChange("X-Anthropic-Key");
+    tree = render();
+    input = find(tree, (node) => node.type === "Input" && !node.props.readOnly);
+    assert.equal(input.props.type, "password");
+    assert.equal(find(tree, (node) => node.props.children === "save").props.disabled, true);
+    input.props.onChange({ target: { value: "   " } });
+    tree = render();
+    assert.equal(find(tree, (node) => node.props.children === "save").props.disabled, true);
+    find(tree, (node) => node.type === "Input" && !node.props.readOnly).props.onChange({ target: { value: "new-key" } });
+    assert.deepEqual(calls, []);
+    tree = render();
+    await find(tree, (node) => node.props.children === "save").props.onClick();
+    tree = render();
+    assert.deepEqual(calls, [["change", "X-Anthropic-Key", "new-key"]]);
+    assert.equal(find(tree, (node) => node.type === "Select"), undefined);
+    assert.equal(find(tree, (node) => node.type === "Input" && node.props.value === "new-key").props.type, "password");
+});
+
+test("provider keys supports cancel, explicit edits, reveal, and removal without modifying other keys", async () => {
+    const { render, calls, props } = providerKeysHarness({
+        "X-OpenAI-Key": "configured-key", "X-Anthropic-Key": "other-key",
+    });
+    let tree = render();
+    find(tree, (node) => node.props.icon === "eye").props.onClick();
+    tree = render();
+    assert.equal(find(tree, (node) => node.type === "Input").props.type, "text");
+    find(tree, (node) => node.props.icon === "edit").props.onClick();
+    tree = render();
+    assert.equal(find(tree, (node) => node.type === "Select"), undefined);
+    let editor = find(tree, (node) => node.type === "Input" && !node.props.readOnly);
+    assert.equal(editor.props.type, "password");
+    assert.equal(editor.props.value, "configured-key");
+    editor.props.onChange({ target: { value: "discarded" } });
+    tree = render();
+    find(tree, (node) => node.props.children === "cancel").props.onClick();
+    assert.deepEqual(calls, []);
+    tree = render();
+    assert.equal(find(tree, (node) => node.type === "Input" && !node.props.readOnly), undefined);
+    find(tree, (node) => node.props.icon === "edit").props.onClick();
+    tree = render();
+    find(tree, (node) => node.type === "Input" && !node.props.readOnly).props.onChange({ target: { value: "replacement" } });
+    tree = render();
+    await find(tree, (node) => node.props.children === "save").props.onClick();
+    tree = render();
+    assert.equal(find(tree, (node) => node.type === "Input").props.type, "password");
+    assert.deepEqual(calls, [["change", "X-OpenAI-Key", "replacement"]]);
+    assert.equal(props.values["X-Anthropic-Key"], "other-key");
+    find(tree, (node) => node.props.icon === "delete").props.onClick();
+    tree = render();
+    assert.equal(find(tree, (node) => node.type === "Input").props.value, "other-key");
+    assert.deepEqual(calls[1], ["remove", "X-OpenAI-Key"]);
+    find(tree, (node) => node.props.icon === "add").props.onClick();
+    tree = render();
+    assert.ok(children(find(tree, (node) => node.type === "Select")).some((option) => option.props.value === "X-OpenAI-Key"));
+});
+
+test("provider key editor handles empty lists, unavailable providers, save failures, and locked state", async () => {
+    const { render, props, calls } = providerKeysHarness({});
+    let tree = render();
+    assert.equal(find(tree, (node) => node.type === "Input"), undefined);
+    find(tree, (node) => node.props.icon === "add").props.onClick();
+    tree = render();
+    find(tree, (node) => node.type === "SearchBox").props.onChange("not-a-provider");
+    tree = render();
+    assert.deepEqual(children(find(tree, (node) => node.type === "Select")), []);
+    assert.ok(find(tree, (node) => node.props.children === "noResults"));
+    find(tree, (node) => node.type === "SearchBox").props.onChange("");
+    tree = render();
+    find(tree, (node) => node.type === "Select").props.onChange({ target: { value: "X-OpenAI-Key" } });
+    find(tree, (node) => node.type === "Input").props.onChange({ target: { value: "draft-key" } });
+    props.onChange = async () => { throw new Error("Storage failed"); };
+    tree = render();
+    await find(tree, (node) => node.props.children === "save").props.onClick();
+    tree = render();
+    assert.ok(find(tree, (node) => node.type === "Alert" && node.props.children === "error"));
+    assert.equal(find(tree, (node) => node.type === "Input").props.value, "draft-key");
+    assert.equal(find(tree, (node) => node.props.children === "save").props.disabled, false);
+    props.disabled = true;
+    tree = render();
+    assert.equal(find(tree, (node) => node.type === "Select"), undefined);
+    assert.equal(find(tree, (node) => node.props.icon === "add").props.disabled, true);
+    props.disabled = false;
+    tree = render();
+    assert.equal(find(tree, (node) => node.type === "Input"), undefined);
+    props.values = Object.fromEntries(props.items.map((item) => [item.header, "configured"]));
+    tree = render();
+    assert.equal(find(tree, (node) => node.props.icon === "add").props.disabled, true);
+    assert.deepEqual(calls, []);
+});
+
+test("provider keys modal preserves encrypted persistence and provider enablement, and unmounts keys on close", async () => {
+    const h = hooks();
+    const encrypted = [];
+    const state = {
+        customHeaders: { "X-OpenAI-Key": "old-key", "X-Other": "untouched" },
+        encryptedApiKeys: { ciphertext: "existing" },
+        apiKeyEncryptionStatus: "unlocked",
+        apiKeySessionPassword: "session-password",
+        enabledProvidersByType: { language: [], image: [] },
+        setEncryptedApiKeys: (value) => { state.encryptedApiKeys = value; },
+        addCustomHeader: (header, value) => { state.customHeaders = { ...state.customHeaders, [header]: value }; },
+        removeCustomHeader: (header) => { const { [header]: _, ...next } = state.customHeaders; state.customHeaders = next; },
+        setEnabledProvidersForType: (type, names) => { state.enabledProvidersByType[type] = names; },
+    };
+    const { ProviderKeysModal } = load("packages/aihappey-core/src/features/provider-credentials/ProviderKeysModal.tsx", {
+        react: { ...h.react, useRef: (value) => h.react.useMemo(() => ({ current: value }), []) },
+        "aihappey-components": components, "aihappey-i18n": i18n,
+        "aihappey-state": { useAppStore: (selector) => selector(state), PROVIDER_CAPABILITIES: ["language", "image"] },
+        "usehooks-ts": { useDarkMode: () => ({ isDarkMode: false }) },
+        "./providerAuthHeaders": { getProviderApiKeyHeaderName: () => "X-OpenAI-Key" },
+        "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => ({ openai: { name: "OpenAI" } }) },
+        "./ApiKeyPasswordModal": { ApiKeyPasswordModal: "ApiKeyPasswordModal" },
+        "./apiKeyEncryption": {
+            decryptApiKeys: async () => state.customHeaders,
+            encryptApiKeys: async (headers, password) => {
+                encrypted.push({ headers, password });
+                return { ciphertext: `encrypted-${encrypted.length}` };
+            },
+        },
+    });
+    const render = (open = true) => {
+        const tree = h.render(ProviderKeysModal, { open, onClose() {} });
+        h.flush();
+        return tree;
+    };
+    let form = find(render(), (node) => node.type === "ProviderKeysForm");
+    await form.props.onChange("X-OpenAI-Key", "updated-key");
+    assert.deepEqual(encrypted[0], {
+        headers: { "X-OpenAI-Key": "updated-key", "X-Other": "untouched" }, password: "session-password",
+    });
+    assert.deepEqual(state.encryptedApiKeys, { ciphertext: "encrypted-1" });
+    assert.deepEqual(state.enabledProvidersByType, { language: ["OpenAI"], image: ["OpenAI"] });
+    form = find(render(), (node) => node.type === "ProviderKeysForm");
+    await form.props.onRemove("X-OpenAI-Key");
+    assert.deepEqual(encrypted[1].headers, { "X-Other": "untouched" });
+    assert.deepEqual(state.customHeaders, { "X-Other": "untouched" });
+    assert.deepEqual(state.enabledProvidersByType, { language: [], image: [] });
+    assert.equal(find(render(false), (node) => node.type === "ProviderKeysForm"), undefined);
+    state.apiKeyEncryptionStatus = "locked";
+    form = find(render(), (node) => node.type === "ProviderKeysForm");
+    assert.equal(form.props.disabled, true);
+    await form.props.onChange("X-OpenAI-Key", "blocked-key");
+    assert.equal(encrypted.length, 2);
+    assert.deepEqual(state.customHeaders, { "X-Other": "untouched" });
+});
+
 test("shared rail selects the first tab, preserves selection, and falls back for missing/duplicate icons", () => {
     const h = hooks();
     const { ProviderSettingsTabs } = load("packages/aihappey-components/src/layout/ProviderSettingsTabs.tsx", {
