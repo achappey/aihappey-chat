@@ -9,7 +9,7 @@ export const DataActivity: React.FC<{
   dataCards?: any[];
 }> = (props: { dataCards?: DataUIPart<any>[] }) => {
   const { dataCards } = props;
-  var values = dataCards?.reverse();
+  const values = dataCards?.toReversed();
   return (
     <div
       style={{ padding: 8, display: "flex", flexDirection: "column", gap: 12 }}

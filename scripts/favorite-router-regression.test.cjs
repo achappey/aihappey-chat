@@ -508,6 +508,7 @@ test("direct-provider auth fetches retain their own credential snapshot across a
     const requests = [];
     const { useAuthFetch } = load(root + "chat/engine/useAuthFetch.ts", {
         react: { useMemo: factory => factory() },
+        "./apiDebug": load(root + "chat/engine/apiDebug.ts"),
     });
     const customFetch = async (url, options) => { requests.push({ url, headers: new Headers(options.headers) }); };
     const first = useAuthFetch({
@@ -537,6 +538,7 @@ test("real SDK Chat retains messages and stops the pinned cross-profile tool con
     };
     const { useAuthFetch } = load(root + "chat/engine/useAuthFetch.ts", {
         react: { useMemo: factory => factory() },
+        "./apiDebug": load(root + "chat/engine/apiDebug.ts"),
     });
     h = harness(() => response(++decisionCount === 1 ? "b/model" : "a/model"), snapshot => {
         const profile = profiles[snapshot.model] ?? profiles["a/model"];

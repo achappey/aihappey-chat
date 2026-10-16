@@ -1,5 +1,6 @@
 // useAuthFetch.ts
 import { useMemo } from "react";
+import { setApiDebugHeader } from "./apiDebug";
 
 function normalizeContentType(headers: Headers) {
     const contentType = headers.get("Content-Type") ?? headers.get("content-type");
@@ -28,6 +29,7 @@ type UseAuthFetchArgs = {
     headers?: Record<string, string>;
     customHeaders?: Record<string, string>;
     customFetch?: typeof fetch;
+    getDebugEnabled?: () => boolean;
 };
 
 export function useAuthFetch({
@@ -37,6 +39,7 @@ export function useAuthFetch({
     headers,
     customHeaders,
     customFetch,
+    getDebugEnabled,
 }: UseAuthFetchArgs) {
     // A transport pins this credential snapshot for its entire run, including tool continuations.
     return useMemo(() => {
@@ -45,7 +48,8 @@ export function useAuthFetch({
             !refreshToken &&
             !headers &&
             !customHeaders &&
-            !customFetch
+            !customFetch &&
+            !getDebugEnabled
         ) return undefined;
 
         return async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -72,6 +76,7 @@ export function useAuthFetch({
             }
 
             normalizeContentType(h);
+            if (getDebugEnabled) setApiDebugHeader(h, input, getDebugEnabled());
 
             const f = customFetch ?? fetch;
             if (typeof Request !== "undefined" && input instanceof Request) {
@@ -81,5 +86,5 @@ export function useAuthFetch({
 
             return f(input, { ...init, headers: h });
         };
-    }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch]);
+    }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch, getDebugEnabled]);
 }
