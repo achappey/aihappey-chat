@@ -211,6 +211,7 @@ test("Data tab combines message data and debug events once without mutating eith
         "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
         "../content/ToolInvocationsActivity": { ToolInvocationsActivity: () => null },
         "../tabs/CanvasActivity": { CanvasActivity: () => null },
+        "../tabs/AttachmentsActivity": { AttachmentsActivity: () => null },
         "../content/DataActivity": { DataActivity },
         "../../../../shell/responsive/useIsDesktop": { useIsDesktop: () => true },
     });

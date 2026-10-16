@@ -3,9 +3,12 @@ import mime from 'mime'; // <-- default import
 import { useTheme } from "../theme/ThemeContext";
 import { OpenLinkButton } from "../buttons";
 import { useTranslation } from "aihappey-i18n";
+import { MimeTypeBadge, SizeBadge } from "../badges";
 
 interface FileAttachmentCardProps {
   file: FileUIPart;
+  size?: number;
+  onPreview?: () => void;
   /** Optional action: persist this attachment into the app-wide Files runtime. */
   onAddToFiles?: (file: FileUIPart) => void | Promise<void>;
 }
@@ -39,12 +42,19 @@ function tryGetFilename(providerMetadata: Record<string, any> | undefined): stri
   return undefined;
 }
 
-export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardProps) => {
+export const FileAttachmentCard = ({ file, size, onPreview, onAddToFiles }: FileAttachmentCardProps) => {
   const { Card, Button, Image } = useTheme();
   const { t } = useTranslation();
   const { mediaType, url, providerMetadata } = file
 
   const remote = /^https?:\/\//i.test(url ?? "");
+  const inline = url?.startsWith("data:") || url?.startsWith("blob:");
+  const rawBase64 = !!url && !/^[A-Za-z][A-Za-z\d+.-]*:/.test(url);
+  const canDownload = remote || inline || rawBase64;
+  const previewUrl = rawBase64 ? `data:${mediaType};base64,${url}` : url;
+  const bytes = size ?? (rawBase64 || /^data:[^,]*;base64,/i.test(url ?? "")
+    ? base64SizeInKB(url) * 1024
+    : undefined);
   const filename = file.filename ?? tryGetFilename(providerMetadata) ?? (remote ? (() => {
     try {
       const parsed = new URL(url);
@@ -53,27 +63,12 @@ export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardPro
   })() : undefined);
 
   // helper to download
-  const handleDownload = () => {
+  const handleDownload = async () => {
     try {
-      if (remote) {
-        // Do not decode or fetch a hosted URL as if it were base64.
-        window.open(url, "_blank", "noopener,noreferrer");
-        return;
-      }
-      // remove possible data URL prefix (data:...;base64,)
-      if (!url) return;
-
-      // Remove "data:...;base64," if present
-      const base64Data = url.split(',').pop() ?? url;
-
-      const byteChars = atob(base64Data);
-      const byteNumbers = new Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) {
-        byteNumbers[i] = byteChars.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-
-      const blob = new Blob([byteArray], { type: mediaType || 'application/octet-stream' });
+      if (!url || !canDownload) return;
+      const response = await fetch(previewUrl);
+      if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+      const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
       const fileExt = mime.getExtension(mediaType!) ?? 'bin';
       const link = document.createElement('a');
@@ -92,6 +87,11 @@ export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardPro
 
       URL.revokeObjectURL(blobUrl);
     } catch (err) {
+      if (remote) {
+        // Hosted files may not allow cross-origin downloads.
+        window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
       console.error('Download failed', err);
     }
   };
@@ -99,15 +99,23 @@ export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardPro
   return (
     <Card
       title={filename ?? t(`mimeTypes:${mediaType}`)}
-      description={remote ? url : base64SizeInKB(url!).toFixed(2) + ' KB'}
+      description={<div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        {mediaType && <MimeTypeBadge mimeType={mediaType} />}
+        <SizeBadge bytes={bytes} />
+      </div>}
       size={"small"}
       actions={
         <>
-          {url && !remote && (
+          {inline && onPreview && (
+            <Button icon="preview" size="small" title={t("view")} aria-label={t("view")}
+              variant="subtle" onClick={onPreview} />
+          )}
+          {canDownload && (
             <Button
               icon="download"
               size="small"
               title={t('download')}
+              aria-label={t('download')}
               variant="subtle"
               onClick={handleDownload}
             ></Button>
@@ -122,7 +130,7 @@ export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardPro
             ></Button>
           )}
           {url
-            && url.startsWith("http")
+            && remote
             && (
               <OpenLinkButton
                 size="small"
@@ -133,7 +141,7 @@ export const FileAttachmentCard = ({ file, onAddToFiles }: FileAttachmentCardPro
         </>
       }
     >
-      {mediaType?.startsWith("image/") && <Image fit="contain" src={url} />}
+      {mediaType?.startsWith("image/") && canDownload && <Image fit="contain" src={previewUrl} />}
     </Card>
   );
 };
