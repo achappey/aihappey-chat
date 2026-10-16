@@ -65,6 +65,7 @@ export const withPersist = (
       showMessageTokens: s.showMessageTokens,
       disableProviderLogo: (s as any).disableProviderLogo,
       chatDictationEnabled: s.chatDictationEnabled,
+      apiDebugEnabled: s.apiDebugEnabled,
       providerImageMetadata: s.providerImageMetadata,
       providerFileMetadata: s.providerFileMetadata,
       providerVideoMetadata: (s as any).providerVideoMetadata,
