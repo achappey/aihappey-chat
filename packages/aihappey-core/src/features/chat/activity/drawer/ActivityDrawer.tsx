@@ -5,6 +5,7 @@ import { ToolInvocationsActivity } from "../content/ToolInvocationsActivity";
 import { DataUIPart, UIMessage } from "aihappey-ai";
 import { useTranslation } from "aihappey-i18n";
 import { CanvasActivity } from "../tabs/CanvasActivity";
+import { AttachmentsActivity } from "../tabs/AttachmentsActivity";
 import { DataActivity } from "../content/DataActivity";
 import { useIsDesktop } from "../../../../shell/responsive/useIsDesktop";
 
@@ -355,7 +356,13 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], debugParts?: Dat
       label: t("dataParts"),
       component: DataActivity,
       getProps: () => ({ dataCards }),
-    }  
+    },
+    {
+      key: "attachments",
+      label: t("attachments"),
+      component: AttachmentsActivity,
+      getProps: () => ({ messages }),
+    },
   ];
 
   if (!showActivities) {
