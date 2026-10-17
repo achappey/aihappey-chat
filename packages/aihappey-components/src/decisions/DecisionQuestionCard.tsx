@@ -11,6 +11,7 @@ export function DecisionAnswerDetails({ answer }: { answer: DecisionAnswer }) {
   const percent = (n: number) => new Intl.NumberFormat(i18n.language, { style: "percent", maximumFractionDigits: 2 }).format(n);
   if (answer.type === "refusal") return <div role="status">{t("decisionsPage.refusal")}</div>;
   if (answer.type === "boolean") return <div>{t("decisionsPage.probability")}: <strong>{percent(answer.probability)}</strong></div>;
+  if (answer.type === "box") return <div>{JSON.stringify(answer.box)}</div>;
   return <div style={{ display: "grid", gap: 8 }}>
     <div>{t(answer.type === "choice" ? "decisionsPage.selectedChoice" : "decisionsPage.score")}: <strong>{answer.type === "choice" ? JSON.stringify(answer.choice) : answer.score}</strong></div>
     <dl style={{ margin: 0 }}>

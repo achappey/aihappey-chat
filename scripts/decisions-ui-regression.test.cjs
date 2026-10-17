@@ -100,6 +100,46 @@ function cardHarness() {
     return { ...h, ...exports };
 }
 
+const { DecisionAnswerDetails } = load("packages/aihappey-components/src/decisions/DecisionQuestionCard.tsx", {
+    react: React, "aihappey-decisions": decisions, "aihappey-i18n": i18n,
+    "../theme/ThemeContext": themeContext,
+    "../buttons/ViewButton": { ViewButton: "ViewButton" },
+    "../fields/LimitedTextField": { LimitedTextField: "LimitedTextField" },
+});
+
+test("box answers render all coordinates without score or probability details", () => {
+    const box = { top: 0.1, bottom: 0.9, left: 0, right: 1 };
+    const node = DecisionAnswerDetails({ answer: { type: "box", box } });
+    assert.deepEqual(JSON.parse(node.props.children), box);
+    assert.equal(byType(node, "strong"), undefined);
+    assert.equal(byType(node, "dl"), undefined);
+});
+
+test("refusal and boolean answers retain their status and localized probability", () => {
+    const refusal = DecisionAnswerDetails({ answer: { type: "refusal" } });
+    assert.equal(refusal.props.role, "status");
+    assert.equal(refusal.props.children, t("decisionsPage.refusal"));
+    const boolean = DecisionAnswerDetails({ answer: { type: "boolean", probability: 0.7525 } });
+    assert.equal(boolean.props.children[0], t("decisionsPage.probability"));
+    assert.equal(byType(boolean, "strong").props.children, "75.25%");
+});
+
+test("choice and score answers retain their value and optional probability distribution", () => {
+    for (const [answer, label, value] of [
+        [{ type: "choice", choice: "yes" }, "decisionsPage.selectedChoice", '"yes"'],
+        [{ type: "score", score: 0 }, "decisionsPage.score", 0],
+    ]) {
+        for (const probabilities of [undefined, { yes: 0.7525, no: 0.2475 }]) {
+            const node = DecisionAnswerDetails({ answer: { ...answer, probabilities } });
+            assert.equal(React.Children.toArray(node.props.children)[0].props.children[0], t(label));
+            assert.equal(byType(node, "strong").props.children, value);
+            const rows = React.Children.toArray(byType(node, "dl").props.children);
+            assert.deepEqual(rows.map(row => byType(row, "dt").props.children), probabilities ? ["yes", "no"] : []);
+            assert.deepEqual(rows.map(row => byType(row, "dd").props.children), probabilities ? ["75.25%", "24.75%"] : []);
+        }
+    }
+});
+
 test("decision modal keeps evidence, images, answers, warnings, and usage in Overview, not provider diagnostics", () => {
     const h = cardHarness();
     const node = h.render(h.DecisionCard, { item, providers });
