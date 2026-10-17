@@ -619,6 +619,9 @@ import provider614 from "./catalog/cerebras.json";
 import provider615 from "./catalog/zai.json";
 import provider616 from "./catalog/hyperbolic.json";
 import provider617 from "./catalog/elevenlabs.json";
+import provider618 from "./catalog/dust.json";
+import provider619 from "./catalog/hedra.json";
+import provider620 from "./catalog/getimg.json";
 
 export const PROVIDER_CATALOG = {
   "openai": provider0,
@@ -1239,4 +1242,7 @@ export const PROVIDER_CATALOG = {
   "zai": provider615,
   "hyperbolic": provider616,
   "elevenlabs": provider617,
+  "dust": provider618,
+  "hedra": provider619,
+  "getimg": provider620,
 } as Record<string, Omit<Provider, "createGatewayMetadata">>;
