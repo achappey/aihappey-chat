@@ -29,7 +29,7 @@ const { useAuthFetch } = load(engine + "useAuthFetch.ts", {
     react: { useMemo: factory => factory() }, "./apiDebug": apiDebug,
 });
 
-function debugHarness() {
+function transientDataHarness() {
     let enabled = true, index = 0, effects = [], slots = [];
     const same = (a, b) => a && b && a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
     const react = {
@@ -53,23 +53,24 @@ function debugHarness() {
             });
         },
     };
-    const state = () => ({ apiDebugEnabled: enabled });
-    const { useTransientDebugParts } = load(engine + "useTransientDebugParts.ts", {
-        react, "aihappey-state": { store: { getState: state }, useAppStore: selector => selector(state()) },
+    const { useTransientDataParts } = load(engine + "useTransientDataParts.ts", {
+        react,
     });
     return {
         render(id = "one") {
             index = 0;
-            const result = useTransientDebugParts(id);
+            const result = useTransientDataParts(id);
             effects.splice(0).forEach(effect => effect());
             return result;
         },
         setEnabled(value) { enabled = value; },
+        getEnabled() { return enabled; },
         unmount() { slots.forEach(slot => slot?.cleanup?.()); },
     };
 }
 
-const debugPart = (data = "request") => ({ type: "data-debug", transient: true, data: { event: data } });
+const debugPart = (data = "request") => ({ type: "data-aihappey-debug", id: "trace:debug", transient: true, data: { event: data } });
+const statusPart = () => ({ type: "data-status", id: "progress", transient: true, data: { status: "working" } });
 
 test("API debug defaults off and only the preference belongs to persisted settings", () => {
     const { createUiSlice } = load("packages/aihappey-state/src/slices/uiSlice.ts", { "aihappey-mcp": {} });
@@ -82,7 +83,7 @@ test("API debug defaults off and only the preference belongs to persisted settin
     assert.match(settings, /id="api-debug-toggle"[\s\S]*?checked=\{apiDebugEnabled\}[\s\S]*?onChange=\{setApiDebugEnabled\}/);
     const persist = fs.readFileSync(path.join(root, "packages/aihappey-state/src/persist.ts"), "utf8");
     assert.match(persist, /apiDebugEnabled: s.apiDebugEnabled/);
-    assert.doesNotMatch(persist, /debugParts|data-debug/);
+    assert.doesNotMatch(persist, /debugParts|transientDataParts|data-aihappey-debug|data-debug/);
 });
 
 test("pinned auth fetch reads current opt-in and removes debug headers for other endpoints or when disabled", async () => {
@@ -131,45 +132,76 @@ test("disabling during asynchronous authentication omits the debug header", asyn
     assert.equal(headers.has("X-AIHappey-Debug"), false);
 });
 
-test("transient debug state clears on navigation, disable, and unmount; late callbacks cannot repopulate it", () => {
-    const h = debugHarness();
-    const first = h.render().onData;
-    first(debugPart());
-    first({ type: "data-metadata", transient: true, data: {} });
-    first({ type: "data-debug", data: {} });
-    assert.equal(h.render().debugParts.length, 1);
-    assert.deepEqual(h.render("two").debugParts, []);
-    first(debugPart("late"));
-    assert.deepEqual(h.render("two").debugParts, []);
-    const second = h.render("two").onData;
-    second(debugPart());
-    h.setEnabled(false);
-    second(debugPart("before rerender"));
-    assert.deepEqual(h.render("two").debugParts, []);
-    h.setEnabled(true);
-    assert.deepEqual(h.render("two").debugParts, []);
-    second(debugPart("after reenable"));
-    assert.deepEqual(h.render("two").debugParts, []);
-    const last = h.render("two").onData;
+test("all transient data types are buffered in arrival order, including repeated IDs; persistent and non-data parts are excluded", () => {
+    const h = transientDataHarness();
+    const { onData } = h.render();
+    const parts = [debugPart(), statusPart(), debugPart("response"), { type: "data-debug", transient: true, data: {} }];
+    parts.forEach(onData);
+    onData({ type: "data-metadata", data: {} });
+    onData({ ...debugPart(), transient: false });
+    onData({ type: "data-status", data: {} });
+    onData({ type: "text", transient: true, text: "not data" });
+    assert.deepEqual(h.render().transientDataParts, parts);
     h.unmount();
-    last(debugPart("after unmount"));
-    assert.deepEqual(h.render("two").debugParts, []);
 });
 
-test("real SDK transient debug events reach onData but never history, finish persistence, or later requests", async () => {
-    const h = debugHarness(), requests = [], persisted = [];
+test("transient data collection and visibility are independent of the API debug toggle", () => {
+    const h = transientDataHarness();
+    h.setEnabled(false);
+    const first = h.render().onData;
+    const parts = [statusPart(), debugPart(), debugPart("after enable"), statusPart()];
+    first(parts[0]);
+    first(parts[1]);
+    assert.deepEqual(h.render().transientDataParts, parts.slice(0, 2));
+    h.setEnabled(true);
+    assert.equal(h.render().onData, first);
+    first(parts[2]);
+    h.setEnabled(false);
+    first(parts[3]);
+    assert.equal(h.render().onData, first);
+    assert.deepEqual(h.render().transientDataParts, parts);
+    h.unmount();
+});
+
+test("transient data clears on navigation and unmount; late callbacks cannot repopulate it", () => {
+    const h = transientDataHarness();
+    const first = h.render().onData;
+    first(debugPart());
+    first(statusPart());
+    assert.equal(h.render().transientDataParts.length, 2);
+    assert.deepEqual(h.render("two").transientDataParts, []);
+    first(debugPart("late"));
+    assert.deepEqual(h.render("two").transientDataParts, []);
+    const second = h.render("two").onData;
+    second(statusPart());
+    assert.equal(h.render("two").transientDataParts.length, 1);
+    assert.deepEqual(h.render("one").transientDataParts, []);
+    second(debugPart("after return to first conversation"));
+    assert.deepEqual(h.render("one").transientDataParts, []);
+    const last = h.render("one").onData;
+    h.unmount();
+    last(debugPart("after unmount"));
+    assert.deepEqual(h.render("one").transientDataParts, []);
+});
+
+for (const enabled of [true, false]) {
+test(`real SDK transient data reaches onData but never history, finish persistence, or later requests (API debug ${enabled})`, async () => {
+    const h = transientDataHarness(), requests = [], persisted = [];
+    h.setEnabled(enabled);
     const chat = new Chat({
         id: "one", onData: h.render().onData,
         onFinish: ({ message }) => persisted.push(JSON.parse(JSON.stringify(message))),
         transport: new DefaultChatTransport({
             api: "https://backend/api/chat",
             fetch: useAuthFetch({
-                chatMode: "chat", getDebugEnabled: () => true,
+                chatMode: "chat", getDebugEnabled: h.getEnabled,
                 customFetch: async (_, init) => {
                     requests.push({ headers: new Headers(init.headers), body: JSON.parse(init.body) });
                     const chunks = [
+                        debugPart("request"),
                         { type: "start", messageId: `assistant-${requests.length}` },
-                        debugPart("request"), debugPart("response"),
+                        debugPart("response"), statusPart(),
+                        { type: "data-debug", transient: true, data: { event: "legacy" } },
                         { type: "data-metadata", id: "metadata", data: { value: 1 } },
                         { type: "data-metadata", id: "metadata", data: { value: 2 } },
                         { type: "text-start", id: "text" },
@@ -185,18 +217,34 @@ test("real SDK transient debug events reach onData but never history, finish per
         }),
     });
     await chat.sendMessage({ text: "First" });
-    assert.equal(h.render().debugParts.length, 2);
-    assert.equal(chat.messages.at(-1).parts.filter(p => p.type === "data-metadata").length, 1);
+    assert.equal(h.render().transientDataParts.length, 4);
+    assert.deepEqual(h.render().transientDataParts.map(part => part.type), [
+        "data-aihappey-debug", "data-aihappey-debug", "data-status", "data-debug",
+    ]);
+    assert.deepEqual(chat.messages.at(-1).parts.filter(p => p.type === "data-metadata"), [
+        { type: "data-metadata", id: "metadata", data: { value: 2 } },
+    ]);
     await chat.sendMessage({ text: "Second" });
-    assert.equal(h.render().debugParts.length, 4);
-    assert.equal(requests[0].headers.get("X-AIHappey-Debug"), "true");
+    assert.equal(h.render().transientDataParts.length, 8);
+    assert.equal(persisted.length, 2);
+    for (const request of requests) {
+        assert.equal(request.headers.get("X-AIHappey-Debug"), enabled ? "true" : null);
+    }
     for (const value of [chat.messages, persisted, requests.map(request => request.body)]) {
-        assert.doesNotMatch(JSON.stringify(value), /data-debug|transient/);
+        assert.doesNotMatch(JSON.stringify(value), /data-aihappey-debug|data-status|data-debug|transient/);
     }
     h.unmount();
 });
+}
 
-test("Data tab combines message data and debug events once without mutating either input", () => {
+test("chat wires the transient data callback and buffer to the Data tab", () => {
+    const inner = fs.readFileSync(path.join(root, engine, "VercelChatInner.tsx"), "utf8");
+    assert.match(inner, /const \{ onData, transientDataParts \} = useTransientDataParts\(conversationId\)/);
+    assert.match(inner, /useChat\(\{[\s\S]*?\bonData,/);
+    assert.match(inner, /<ActivityDrawer[^>]*transientDataParts=\{transientDataParts\}/);
+});
+
+test("Data tab combines message data and all transient events once without mutating either input, even with API debug disabled", () => {
     const cards = [];
     const { DataActivity } = load("packages/aihappey-core/src/features/chat/activity/content/DataActivity.tsx", {
         react: React, "aihappey-components": {
@@ -217,12 +265,18 @@ test("Data tab combines message data and debug events once without mutating eith
     });
     const persistent = { type: "data-metadata", data: { value: 2 } };
     const messages = [{ id: "assistant", role: "assistant", parts: [persistent] }];
-    const debugParts = Object.freeze([debugPart()]);
+    const h = transientDataHarness();
+    h.setEnabled(false);
+    const { onData } = h.render();
+    onData(debugPart());
+    onData(statusPart());
+    const transientDataParts = Object.freeze(h.render().transientDataParts);
     for (let i = 0; i < 2; i++) {
         cards.length = 0;
-        renderToStaticMarkup(React.createElement(ActivityDrawer, { messages, debugParts, uiTree: null }));
-        assert.deepEqual(cards, [debugParts[0], persistent]);
+        renderToStaticMarkup(React.createElement(ActivityDrawer, { messages, transientDataParts, uiTree: null }));
+        assert.deepEqual(cards, [transientDataParts[1], transientDataParts[0], persistent]);
         assert.deepEqual(messages[0].parts, [persistent]);
-        assert.equal(debugParts.length, 1);
+        assert.equal(transientDataParts.length, 2);
     }
+    h.unmount();
 });

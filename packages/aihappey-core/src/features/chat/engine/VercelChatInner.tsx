@@ -1,6 +1,6 @@
 import { DefaultChatTransport, FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
-import { mcpRuntime, useAppStore } from "aihappey-state";
+import { mcpRuntime, store, useAppStore } from "aihappey-state";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
@@ -89,7 +89,9 @@ import {
 } from "./managedAgentMcpTools";
 import { useManagedAgentMcpToolCalls } from "./useManagedAgentMcpToolCalls";
 import { ManagedAgentChatTransport } from "./ManagedAgentChatTransport";
-import { getApiDebugEnabled, useTransientDebugParts } from "./useTransientDebugParts";
+import { useTransientDataParts } from "./useTransientDataParts";
+
+const getApiDebugEnabled = () => store.getState().apiDebugEnabled;
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -109,7 +111,7 @@ export function VercelChatInner({
   initial: UIMessage[];
 }) {
   const { conversationId } = useParams<{ conversationId: string }>();
-  const { onData, debugParts } = useTransientDebugParts(conversationId);
+  const { onData, transientDataParts } = useTransientDataParts(conversationId);
   const location = useLocation();
   const { addChatError } = useChatErrors();
   const pendingInitialMessageRef = useRef<any>(location.state?.pendingMessage);
@@ -1105,7 +1107,7 @@ export function VercelChatInner({
         onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
-      <ActivityDrawer messages={uiMessages} debugParts={debugParts} uiTree={effectiveUiTree} uiOutput={activeData} currentModel={model} />
+      <ActivityDrawer messages={uiMessages} transientDataParts={transientDataParts} uiTree={effectiveUiTree} uiOutput={activeData} currentModel={model} />
 
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}

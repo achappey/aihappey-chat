@@ -198,7 +198,7 @@ const extractLocalCanvasResources = (toolInvocations: any[]) => {
 export const toArray = (val: any) =>
   Array.isArray(val) ? val : val ? [val] : [];
 
-export const ActivityDrawer = (props: { messages?: UIMessage[], debugParts?: DataUIPart<any>[]; uiTree: any; uiOutput?: any; currentModel?: string }) => {
+export const ActivityDrawer = (props: { messages?: UIMessage[], transientDataParts?: DataUIPart<any>[]; uiTree: any; uiOutput?: any; currentModel?: string }) => {
   const { Drawer, Tabs, Tab, Button } = useTheme();
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
@@ -263,7 +263,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], debugParts?: Dat
           (a) => a.type.startsWith("data-")
         )
     ) ?? []),
-    ...(props.debugParts ?? []),
+    ...(props.transientDataParts ?? []),
   ];
   // 2) group by URI
   const groupedByUri = new Map<string, any[]>();

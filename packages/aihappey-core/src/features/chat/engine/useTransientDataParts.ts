@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DataUIPart } from "aihappey-ai";
-import { store, useAppStore } from "aihappey-state";
 
-export const getApiDebugEnabled = () => store.getState().apiDebugEnabled;
-
-export function useTransientDebugParts(conversationId?: string) {
-  const enabled = useAppStore((s) => s.apiDebugEnabled);
-  const scope = useMemo(() => ({ active: false }), [conversationId, enabled]);
+export function useTransientDataParts(conversationId?: string) {
+  const scope = useMemo(() => ({ active: false }), [conversationId]);
   const currentScope = useRef(scope);
   currentScope.current = scope;
   const [snapshot, setSnapshot] = useState<{ scope: typeof scope; parts: DataUIPart<any>[] }>({
@@ -22,17 +18,18 @@ export function useTransientDebugParts(conversationId?: string) {
 
   const onData = useCallback((part: DataUIPart<any>) => {
     // Persistent data remains owned by message.parts, not this UI-only buffer.
-    if (!scope.active || currentScope.current !== scope || !enabled || !getApiDebugEnabled()
-      || part.type !== "data-debug" || !(part as { transient?: boolean }).transient) return;
+    // The API debug preference controls requests, not incoming transient data.
+    if (!scope.active || currentScope.current !== scope
+      || !part.type.startsWith("data-") || (part as { transient?: boolean }).transient !== true) return;
 
     setSnapshot((previous) => ({
       scope,
       parts: [...(previous.scope === scope ? previous.parts : []), part],
     }));
-  }, [scope, enabled]);
+  }, [scope]);
 
   return {
     onData,
-    debugParts: enabled && snapshot.scope === scope ? snapshot.parts : [],
+    transientDataParts: snapshot.scope === scope ? snapshot.parts : [],
   };
 }
