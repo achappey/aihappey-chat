@@ -1,0 +1,11 @@
+{
+  "name": "getimg",
+  "description": "Generate and edit images and videos with AI models using getimg.ai's creative platform.",
+  "urls": {
+    "homepage": "https://getimg.ai"
+  },
+  "category": "media_voice",
+  "inferenceRegions": [
+    "World"
+  ]
+}
