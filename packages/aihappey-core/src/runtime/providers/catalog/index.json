@@ -12,18 +12,6 @@
     "file": "zeroentropy.json"
   },
   {
-    "id": "dust",
-    "file": "dust.json"
-  },
-  {
-    "id": "hedra",
-    "file": "hedra.json"
-  },
-  {
-    "id": "getimg",
-    "file": "getimg.json"
-  },
-  {
     "id": "epho",
     "file": "epho.json"
   },
@@ -2482,5 +2470,17 @@
   {
     "id": "elevenlabs",
     "file": "elevenlabs.json"
+  },
+  {
+    "id": "dust",
+    "file": "dust.json"
+  },
+  {
+    "id": "hedra",
+    "file": "hedra.json"
+  },
+  {
+    "id": "getimg",
+    "file": "getimg.json"
   }
 ]
