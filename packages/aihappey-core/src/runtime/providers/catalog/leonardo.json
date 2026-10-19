@@ -1,0 +1,9 @@
+{
+  "name": "Leonardo.Ai",
+  "description": "Generative AI tools and APIs for creating images and video.",
+  "urls": {
+    "homepage": "https://leonardo.ai",
+    "docs": "https://docs.leonardo.ai/"
+  },
+  "category": "media_voice"
+}

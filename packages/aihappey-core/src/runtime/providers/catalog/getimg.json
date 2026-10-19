@@ -2,7 +2,8 @@
   "name": "getimg",
   "description": "Generate and edit images and videos with AI models using getimg.ai's creative platform.",
   "urls": {
-    "homepage": "https://getimg.ai"
+    "homepage": "https://getimg.ai",
+    "docs": "https://docs.getimg.ai/"
   },
   "category": "media_voice",
   "inferenceRegions": [

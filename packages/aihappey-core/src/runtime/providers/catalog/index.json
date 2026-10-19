@@ -2482,5 +2482,41 @@
   {
     "id": "getimg",
     "file": "getimg.json"
+  },
+  {
+    "id": "Vercel",
+    "file": "vercel.json"
+  },
+  {
+    "id": "Cloudflare",
+    "file": "cloudflare.json"
+  },
+  {
+    "id": "nomic",
+    "file": "nomic.json"
+  },
+  {
+    "id": "wavespeed",
+    "file": "wavespeed.json"
+  },
+  {
+    "id": "lighton",
+    "file": "lighton.json"
+  },
+  {
+    "id": "clarifai",
+    "file": "clarifai.json"
+  },
+  {
+    "id": "mangoboost",
+    "file": "mangoboost.json"
+  },
+  {
+    "id": "modelscope",
+    "file": "modelscope.json"
+  },
+  {
+    "id": "leonardo",
+    "file": "leonardo.json"
   }
 ]

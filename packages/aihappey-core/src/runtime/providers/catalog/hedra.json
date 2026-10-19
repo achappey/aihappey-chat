@@ -2,7 +2,8 @@
   "name": "Hedra",
   "description": "Create AI-generated videos and expressive digital characters from text, images, and audio.",
   "urls": {
-    "homepage": "https://www.hedra.com"
+    "homepage": "https://www.hedra.com",
+    "docs": "https://www.hedra.com/docs/pages/developer/v3/quickstart"
   },
   "category": "media_voice",
   "inferenceRegions": [
