@@ -1,0 +1,9 @@
+{
+  "name": "Nomic",
+  "description": "APIs for embedding, searching, and working with text and images.",
+  "urls": {
+    "homepage": "https://www.nomic.ai",
+    "docs": "https://docs.nomic.ai/api/overview"
+  },
+  "category": "model_provider"
+}

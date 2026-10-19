@@ -1,0 +1,9 @@
+{
+  "name": "WaveSpeed",
+  "description": "API access to generative AI models for images, video, and audio.",
+  "urls": {
+    "homepage": "https://wavespeed.ai",
+    "docs": "https://wavespeed.ai/docs/docs-api"
+  },
+  "category": "media_voice"
+}

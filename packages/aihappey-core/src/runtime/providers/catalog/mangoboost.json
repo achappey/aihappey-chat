@@ -1,0 +1,9 @@
+{
+  "name": "MangoBoost",
+  "description": "AI inference services and APIs.",
+  "urls": {
+    "homepage": "https://mangoboost.io",
+    "docs": "https://inference.mangoboost.io/docs/"
+  },
+  "category": "inference_compute"
+}

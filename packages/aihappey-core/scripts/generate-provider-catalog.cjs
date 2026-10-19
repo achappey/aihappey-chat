@@ -44,7 +44,7 @@ function readCatalog(directory = catalogRoot) {
     assert.ok(entry && typeof entry === "object" && !Array.isArray(entry), "Invalid index entry");
     assert.deepEqual(Object.keys(entry).sort(), ["file", "id"], "Index entries must contain only id and file");
     assert.equal(typeof entry.id, "string");
-    assert.match(entry.id, /^[a-z][a-z0-9]*$/, "Invalid provider ID");
+    assert.match(entry.id, /^[A-Za-z][A-Za-z0-9]*$/, "Invalid provider ID");
     assert.notEqual(entry.id, "__proto__");
     assert.equal(typeof entry.file, "string");
     assert.match(entry.file, /^[a-z0-9][a-z0-9-]*\.json$/, "Provider file must be a local JSON filename");

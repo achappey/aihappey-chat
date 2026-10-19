@@ -1,0 +1,9 @@
+{
+  "name": "LightOn",
+  "description": "Enterprise generative AI models and APIs.",
+  "urls": {
+    "homepage": "https://www.lighton.ai",
+    "docs": "https://www.lighton.ai/developers"
+  },
+  "category": "model_provider"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Clarifai",
+  "description": "A platform for deploying and using AI models through APIs.",
+  "urls": {
+    "homepage": "https://www.clarifai.com",
+    "docs": "https://docs.clarifai.com/resources/api-overview/"
+  },
+  "category": "model_provider"
+}
