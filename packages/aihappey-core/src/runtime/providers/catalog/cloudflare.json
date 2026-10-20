@@ -1,5 +1,5 @@
 {
-  "name": "Cloudflare Workers AI",
+  "name": "Cloudflare",
   "description": "Run serverless AI models on Cloudflare's global network.",
   "urls": {
     "homepage": "https://www.cloudflare.com",
