@@ -2484,11 +2484,11 @@
     "file": "getimg.json"
   },
   {
-    "id": "Vercel",
+    "id": "vercel",
     "file": "vercel.json"
   },
   {
-    "id": "Cloudflare",
+    "id": "cloudflare",
     "file": "cloudflare.json"
   },
   {
