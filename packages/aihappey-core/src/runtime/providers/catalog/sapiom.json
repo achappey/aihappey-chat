@@ -1,11 +1,6 @@
 {
   "name": "Sapiom",
   "description": "Intelligence is here. Access is not. The execution engine that converts your agent's intent into outcomes.",
-  "icons": [
-    {
-      "src": "https://www.sapiom.ai/favicon.png"
-    }
-  ],
   "urls": {
     "homepage": "https://www.sapiom.ai",
     "docs": "https://docs.sapiom.ai",
