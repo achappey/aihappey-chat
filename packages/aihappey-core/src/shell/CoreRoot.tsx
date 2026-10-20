@@ -46,11 +46,14 @@ import { StreamingImageEditPage } from "../features/streaming/StreamingImageEdit
 import { PluginsPage } from "../features/plugins/PluginsPage";
 import type { PluginsConfig } from "aihappey-plugins";
 import { HubSearchPage, VectorStoresPage } from "../features/vector-stores";
+import { PrivacyPolicyPage } from "../features/privacy/PrivacyPolicyPage";
+import type { PrivacyPolicyConfig } from "../features/privacy/privacyPolicy";
 
 type CoreRootProps = {
   appName: string;
   baseUrl?: string;
   appVersion?: string;
+  privacyPolicy?: PrivacyPolicyConfig;
   agentEndpoint?: string
   conversationsApi?: string;
   conversationsScopes?: string[];
@@ -70,6 +73,7 @@ export const CoreRoot = ({
   agentScopes,
   agentEndpoint,
   appVersion,
+  privacyPolicy,
   authConfig,
   pluginConfig,
 }: CoreRootProps) => {
@@ -90,6 +94,7 @@ export const CoreRoot = ({
       ...chatConfig,
       appName,
       appVersion,
+      privacyPolicy,
       agentEndpoint,
       agentScopes,
       baseUrl: baseUrl,
@@ -98,7 +103,7 @@ export const CoreRoot = ({
       getAccessToken: authConfig != null ?
         () => acquireAccessToken(authConfig.msal.scopes) : undefined,
     };
-  }, [chatConfig, authConfig, appName]);
+  }, [chatConfig, authConfig, appName, appVersion, privacyPolicy, agentEndpoint, agentScopes, baseUrl]);
 
   // Core routes for internal navigation
   const routes = [
@@ -122,6 +127,7 @@ export const CoreRoot = ({
           element: <SidebarLayout />,
           children: [
             { index: true, element: <NewChatPage /> },
+            { path: "privacy", element: <PrivacyPolicyPage /> },
             { path: "realtime", element: <RealtimePage /> },
             { path: "realtime/:conversationId", element: <RealtimePage /> },
             { path: ":conversationId", element: <ChatPage /> },

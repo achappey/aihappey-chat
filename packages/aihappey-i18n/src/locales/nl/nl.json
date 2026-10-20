@@ -1,4 +1,8 @@
 ﻿{
+    "privacyPolicy": {
+        "title": "Privacy",
+        "externalLink": "Bekijk het externe privacybeleid"
+    },
     "decision": "Beslissen",
     "decisions": "Beslissen",
     "decisionsPage": {

@@ -1,15 +1,18 @@
 // Simple disclaimer bar for chat, sticky at bottom, i18n text, appName and version from context
 import { useChatContext } from "../context/ChatContext";
 import { useTranslation } from "aihappey-i18n";
-import { useMediaQuery } from "usehooks-ts";
+import { Link } from "react-router";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
+import { normalizePrivacyPolicy } from "../../privacy/privacyPolicy";
 
 const DisclaimerBar = () => {
   const { config } = useChatContext();
   const { t } = useTranslation();
-  const appName = config.appName ?? "AIHappey";
+  const appName = config.appName ?? "aihappey";
   const appVersion = config.appVersion ?? "";
   const isDesktop = useIsDesktop();
+  const policy = normalizePrivacyPolicy(config.privacyPolicy);
+  const linkStyle = { color: "inherit", textDecoration: "underline" };
 
   return (
     <div
@@ -20,6 +23,8 @@ const DisclaimerBar = () => {
         left: 0,
         fontSize: 10,
         display: "flex",
+        flexWrap: "wrap",
+        rowGap: 4,
         alignItems: "center",
         justifyContent: "center",
         zIndex: 2,
@@ -28,17 +33,30 @@ const DisclaimerBar = () => {
       }}
       data-testid="disclaimer-bar"
     >
-      <span style={{ flex: 1, textAlign: "center" }}>
+      <span style={{ flex: "1 1 240px", textAlign: "center" }}>
         {t("disclaimer", { appName })}
       </span>
-      {isDesktop && appVersion && (
+      {(policy || (isDesktop && appVersion)) && (
         <span
           style={{
             marginLeft: "auto",
             paddingLeft: 16,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            flexShrink: 0,
           }}
         >
-          {appVersion}
+          {policy?.markdown ? (
+            <Link to="/privacy" style={linkStyle}>
+              {t("privacyPolicy.title")}
+            </Link>
+          ) : policy?.url ? (
+            <a href={policy.url} target="_blank" rel="noopener noreferrer" style={linkStyle}>
+              {t("privacyPolicy.title")}
+            </a>
+          ) : null}
+          {isDesktop && appVersion && <span>{appVersion}</span>}
         </span>
       )}
     </div>

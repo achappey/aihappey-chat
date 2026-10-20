@@ -5,6 +5,7 @@ import { ChatContext } from "./ChatContext";
 import type { ReactNode, FC } from "react";
 import { defaultEndpoints } from "aihappey-ai";
 import type { ChatEndpointId } from "aihappey-state";
+import type { PrivacyPolicyConfig } from "../../privacy/privacyPolicy";
 
 export interface AiChatConfig {
  // api?: string;
@@ -24,6 +25,7 @@ export interface ChatConfig extends AiChatConfig {
   agentEndpoint?: string;
   agentScopes?: string[];
   appVersion?: string;
+  privacyPolicy?: PrivacyPolicyConfig;
   defaultChatEndpoint?: ChatEndpointId;
   gatewayEnabled?: boolean;
   defaultProvidersByType?: Partial<{
