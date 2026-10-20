@@ -73,11 +73,11 @@ export const isProviderHeader = (header: string, providerKey?: string, providers
     return true;
   }
 
-  if (normalizedProviderName && normalizedHeader.includes(normalizedProviderName)) {
-    return true;
-  }
-
-  return normalizedProviderKey.length >= 3 && normalizedHeader.includes(normalizedProviderKey);
+  // Credential ownership must never use substring matching: Google is not
+  // GoogleTranslate and OpenAI is not OpenAIHK.
+  return [normalizedProviderKey, normalizedProviderName].some(name =>
+    !!name && normalizedHeader === `x${name}key`,
+  );
 };
 
 const isNonEmptyHeader = ([, value]: [string, string]) =>
@@ -88,6 +88,7 @@ export const getConfiguredProviderHeaderEntries = (customHeaders?: Record<string
 
 export const getEndpointHeaderEntries = (customHeaders?: Record<string, string>, providers?: Record<string, ProviderLike>) =>
   getConfiguredProviderHeaderEntries(customHeaders).filter(([header]) =>
+    (!/^x-.+-key$/i.test(header) || /^(x-api-key|x-goog-api-key)$/i.test(header)) &&
     !Object.keys(providerRegistryOrDefault(providers)).some((providerKey) => isProviderHeader(header, providerKey, providers)),
   );
 
@@ -283,6 +284,35 @@ export const createProviderHeaderSubsetForModel = (
   return Object.fromEntries(getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers));
 };
 
+/** Scope the complete merged header collection, not just the saved-key store. */
+export const scopeHeadersForModels = (
+  headers: Record<string, string> | undefined,
+  modelIds: string | readonly string[] | undefined,
+  providers?: Record<string, ProviderLike>,
+): Record<string, string> => ({
+  ...createEndpointHeaders(headers, providers),
+  ...Object.fromEntries((typeof modelIds === "string" ? [modelIds] : modelIds ?? [])
+    .filter(model => !!getProvider(getProviderKeyFromModelId(model), providers))
+    .flatMap(model => getProviderApiKeyHeaderEntries(headers, getProviderKeyFromModelId(model), providers))),
+});
+
+export const buildOperationHeaders = async (
+  config: { headers?: Record<string, string>; getAccessToken?: () => Promise<string> },
+  customHeaders?: Record<string, string>,
+  modelIds?: string | readonly string[],
+  providers?: Record<string, ProviderLike>,
+  ignoreTokenErrors = false,
+) => {
+  // Headers implements case-insensitive precedence without duplicate credentials.
+  const merged = new Headers(config.headers);
+  new Headers(customHeaders).forEach((value, name) => merged.set(name, value));
+  if (config.getAccessToken) {
+    try { merged.set("Authorization", `Bearer ${await config.getAccessToken()}`); }
+    catch (error) { if (!ignoreTokenErrors) throw error; }
+  }
+  return scopeHeadersForModels(Object.fromEntries(merged.entries()), modelIds, providers);
+};
+
 const modelRouteOf = (model: any): "gateway" | "direct" =>
   model?.route === "direct" ? "direct" : "gateway";
 
@@ -429,7 +459,11 @@ export const listModelsWithSplitProviderHeaders = async ({
     : [];
   const providerHeaderEntries = providerKey
     ? getProviderApiKeyHeaderEntries(customHeaders, providerKey, providers)
-    : getConfiguredProviderHeaderEntries(customHeaders);
+    : Object.entries(customHeaders ?? {}).filter(entry =>
+      isNonEmptyHeader(entry) && Object.keys(providerRegistryOrDefault(providers))
+        .some(key => isProviderHeader(entry[0], key, providers)),
+    );
+  const endpointHeaders = createEndpointHeaders(customHeaders, providers);
   const includeAnonymousRequest = shouldIncludeGatewayModels && !getAccessToken && !providerKey;
   const gatewayRequestTotal = shouldIncludeGatewayModels
     ? getAccessToken
@@ -487,17 +521,17 @@ export const listModelsWithSplitProviderHeaders = async ({
 
   if (shouldIncludeGatewayModels) {
     if (getAccessToken) {
-      await requestModels(customHeaders, undefined, "gateway");
+      await requestModels(createEndpointHeaders(customHeaders, providers), undefined, "gateway");
     } else if (includeAnonymousRequest) {
-      await requestModels(undefined, undefined, "gateway");
+      await requestModels(endpointHeaders, undefined, "gateway");
     }
 
     if (!getAccessToken) {
       if (providerKey) {
-        await requestModels(createProviderHeaderSubsetForModel(customHeaders, providerKey, providers), undefined, "gateway");
+        await requestModels({ ...endpointHeaders, ...createProviderHeaderSubsetForModel(customHeaders, providerKey, providers) }, undefined, "gateway");
       } else {
         for (const [header, value] of providerHeaderEntries) {
-          await requestModels({ [header]: value }, undefined, "gateway");
+          await requestModels({ ...endpointHeaders, [header]: value }, undefined, "gateway");
         }
       }
     }

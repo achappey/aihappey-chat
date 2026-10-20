@@ -1,3 +1,4 @@
+import { createCredentialScopedFetch } from "../../provider-credentials/scopedRequest";
 // useAuthFetch.ts
 import { useMemo } from "react";
 import { setApiDebugHeader } from "./apiDebug";
@@ -81,10 +82,10 @@ export function useAuthFetch({
             const f = customFetch ?? fetch;
             if (typeof Request !== "undefined" && input instanceof Request) {
                 const request = new Request(input, { ...init, headers: h });
-                return f(request);
+                return createCredentialScopedFetch(f)(request);
             }
 
-            return f(input, { ...init, headers: h });
+            return createCredentialScopedFetch(f)(input, { ...init, headers: h });
         };
     }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch, getDebugEnabled]);
 }

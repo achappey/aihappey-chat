@@ -1,15 +1,15 @@
 import type { ChatConfig } from "../chat/context/ChatProvider";
+import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 
 export const buildStreamingHeaders = async (
   config: ChatConfig,
   customHeaders?: Record<string, string>,
+  modelId?: string,
 ) => {
   const headers = new Headers({
-    ...(config.headers ?? {}),
-    ...(customHeaders ?? {}),
+    ...await buildOperationHeaders(config, customHeaders, modelId),
     Accept: "text/event-stream",
   });
-  if (config.getAccessToken) headers.set("Authorization", `Bearer ${await config.getAccessToken()}`);
   return headers;
 };
 

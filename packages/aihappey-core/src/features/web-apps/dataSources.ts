@@ -1,6 +1,7 @@
+import { createBackendProvider } from "../provider-credentials/scopedBackendProvider";
 import type { JsonRenderAppDataSource } from "aihappey-json-render-apps";
 import type { StructuredOutputsItem } from "aihappey-structured-outputs";
-import { createBackendProvider, generateText, jsonSchema, Output } from "aihappey-ai";
+import { generateText, jsonSchema, Output } from "aihappey-ai";
 import { readResource } from "../../runtime/mcp/readResource";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
 import type { Resource, ResourceTemplate } from "aihappey-state";

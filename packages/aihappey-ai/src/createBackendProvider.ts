@@ -2,7 +2,8 @@ import { createOpenAI } from "@ai-sdk/openai";
 
 export function createBackendProvider(name: string, baseURL: string,
   customHeaders?: Record<string, string>,
-  getAccessToken?: () => Promise<string>) {
+  getAccessToken?: () => Promise<string>,
+  fetcher: typeof fetch = fetch) {
   return createOpenAI({
     name: name,                  // shows up as provider name
     baseURL: `${baseURL.replace(/\/$/, "")}/v1`,
@@ -22,7 +23,7 @@ export function createBackendProvider(name: string, baseURL: string,
         });
       }
 
-      return fetch(input, { ...init, headers });
+      return fetcher(input, { ...init, headers });
     },
   });
 }

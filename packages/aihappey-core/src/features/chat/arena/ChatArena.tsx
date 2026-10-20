@@ -1,3 +1,4 @@
+import { createCredentialScopedFetch } from "../../provider-credentials/scopedRequest";
 import { useCallback, useMemo, useState } from "react";
 import { MessageList } from "../messages/MessageList";
 import { useTheme } from "aihappey-components";
@@ -85,7 +86,7 @@ export function ChatArena({
         } catch { }
       }
       if (init?.headers) merged = { ...merged, ...(init.headers as any) };
-      return (customFetch ?? fetch)(input, { ...init, headers: merged });
+      return createCredentialScopedFetch(customFetch ?? fetch)(input, { ...init, headers: merged });
     };
   }, [getAccessToken, headers, customFetch, customHeaders]);
 

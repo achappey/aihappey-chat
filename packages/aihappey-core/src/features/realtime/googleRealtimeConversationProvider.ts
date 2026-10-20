@@ -50,7 +50,7 @@ export const buildGoogleRealtimeSessionConfig = (args: RealtimeConversationProvi
 };
 
 const startGoogleRealtimeConversation = async (args: StartRealtimeConversationProviderSessionArgs) => {
-  const headers = await buildRealtimeBackendHeaders(args.config, args.customHeaders);
+  const headers = await buildRealtimeBackendHeaders(args.config, args.customHeaders, args.model);
   const tokenClientFactory = await getRealtimeToken({
     baseUrl: args.config.baseUrl + args.config.endpoints.realtime,
     headers,

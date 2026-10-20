@@ -1,4 +1,5 @@
 import type { ChatConfig } from "../chat/context/ChatContext";
+import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 
 export const isPlainRecord = (value: any): value is Record<string, any> => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -31,11 +32,6 @@ export const deepMerge = (...values: any[]) => {
   return out;
 };
 
-export const buildRealtimeBackendHeaders = async (config: ChatConfig, customHeaders?: Record<string, string>) => {
-  const merged = { ...(config?.headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
-  if (config?.getAccessToken) {
-    merged.Authorization = `Bearer ${await config.getAccessToken()}`;
-  }
-  return merged;
-};
+export const buildRealtimeBackendHeaders = (config: ChatConfig, customHeaders?: Record<string, string>, modelId?: string) =>
+  buildOperationHeaders(config, customHeaders, modelId);
 

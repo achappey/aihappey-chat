@@ -1,3 +1,4 @@
+import { scopeOperationHeaders as scopeHeadersForModels } from "../provider-credentials/scopedRequest";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createDecisionProvider, defaultEndpoints } from "aihappey-ai";
 import { isValidDecisionInput, isValidDecisionQuestions, isValidDecisionResponse, toWireQuestions, useDecisions, type DecisionQuestion, type DecisionResponse } from "aihappey-decisions";
@@ -81,7 +82,7 @@ export function useDecisionsController() {
     const requestRevision = revision.current;
     const controller = new AbortController(); abort.current = controller;
     try {
-      const headers = new Headers({ ...config.headers, ...customHeaders });
+      const headers = new Headers(scopeHeadersForModels({ ...config.headers, ...customHeaders }, selectedModel));
       // Authentication failure is an error, never an unauthenticated fallback request.
       if (config.getAccessToken) headers.set("Authorization", `Bearer ${await config.getAccessToken()}`);
       if (controller.signal.aborted) return;

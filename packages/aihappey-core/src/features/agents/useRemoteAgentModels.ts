@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { createHttpClient } from "aihappey-http";
+import { createEndpointHeaders } from "../provider-credentials/providerAuthHeaders";
 import type { RemoteAgentModel } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
 
@@ -25,7 +26,7 @@ export const useRemoteAgentModels = (
   useEffect(() => {
     if (!modelsApi || remoteAgentModelsLoaded) return;
 
-    const client = createHttpClient({ getAccessToken, headers: customHeaders });
+    const client = createHttpClient({ getAccessToken, headers: createEndpointHeaders(customHeaders) });
 
     client
       .get<any>(modelsApi)

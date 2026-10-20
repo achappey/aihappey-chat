@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore, normalizeProviderTranscriptionMetadata } from "aihappey-state";
 import { useState } from "react";
@@ -194,11 +195,7 @@ export const TranscriptionsPage = () => {
     setItemsLoading(accepted.length);
 
     try {
-      let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
-
-      if (getAccessToken) {
-        merged.Authorization = `Bearer ${await getAccessToken()}`;
-      }
+      const merged = await buildOperationHeaders(config, customHeaders, selectedModel);
 
       const provider = createTranscriptionProvider({
         baseUrl: config.baseUrl + config.endpoints.transcriptions,

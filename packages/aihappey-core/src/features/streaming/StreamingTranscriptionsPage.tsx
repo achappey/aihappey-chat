@@ -100,7 +100,7 @@ export const StreamingTranscriptionsPage = () => {
       if (settings.temperature !== "") body.set("temperature", settings.temperature);
       settings.timestampGranularities.forEach((value) => body.append("timestamp_granularities[]", value));
 
-      const headers = await buildStreamingHeaders(config, customHeaders);
+      const headers = await buildStreamingHeaders(config, customHeaders, selectedModel);
       headers.delete("Content-Type");
 
       await readOpenAISse<OpenAITranscriptionStreamEvent>({

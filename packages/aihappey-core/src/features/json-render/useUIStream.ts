@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { Spec, UIElement, FlatElement } from "@json-render/core";
 import { createSpecStreamCompiler } from "@json-render/core";
+import { scopeOperationHeaders } from "../provider-credentials/scopedRequest";
 
 /**
  * Options for useUIStream
@@ -51,14 +52,14 @@ export interface UseUIStreamReturn {
 
 
 
-export async function makeHeaders(getAccessToken: any, customHeaders?: any) {
+export async function makeHeaders(getAccessToken: any, customHeaders?: any, modelId?: string) {
     const tokenHeaders = getAccessToken
         ? { "Authorization": "Bearer " + await getAccessToken() }  // must return an object like { Authorization: "Bearer ..." }
         : {};
 
     return {
         "Content-Type": "application/json",
-        ...(customHeaders ?? {}),
+        ...scopeOperationHeaders(customHeaders, modelId),
         ...tokenHeaders
 
     };
@@ -129,7 +130,7 @@ export function useUIStream({
             // if (spec == null)
             //  setSpec(currentSpec);
 
-            const headers: any = await makeHeaders(getAccessToken, customHeaders);
+            const headers: any = await makeHeaders(getAccessToken, customHeaders, model);
             try {
                 const response = await fetch(api, {
                     method: "POST",

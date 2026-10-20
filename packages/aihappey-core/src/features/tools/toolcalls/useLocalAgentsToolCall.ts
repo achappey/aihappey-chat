@@ -1,3 +1,4 @@
+import { createCredentialScopedFetch } from "../../provider-credentials/scopedRequest";
 import { useCallback } from "react";
 import { useAppStore } from "aihappey-state";
 import { createResponsesProvider } from "aihappey-ai";
@@ -325,7 +326,7 @@ export function useLocalAgentsRuntime(files?: FilesContextType | null) {
       const client = createResponsesProvider({
         baseUrl: (config.agentEndpoint ?? config.baseUrl) + config.endpoints.responses,
         headers,
-        fetch: config.fetch,
+        fetch: createCredentialScopedFetch(config.fetch),
       });
       const response = await client.create(request);
       return { isError: false, content: [], structuredContent: response };

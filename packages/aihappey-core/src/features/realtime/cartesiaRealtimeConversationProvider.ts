@@ -7,7 +7,7 @@ export const cartesiaRealtimeConversationProvider: RealtimeConversationProviderR
   start: async (args: StartRealtimeConversationProviderSessionArgs) => {
     const client = await getRealtimeToken({
       baseUrl: args.config.baseUrl + args.config.endpoints.realtime,
-      headers: await buildRealtimeBackendHeaders(args.config, args.customHeaders),
+      headers: await buildRealtimeBackendHeaders(args.config, args.customHeaders, args.model),
     });
     const settings = args.providerRealtimeConversationMetadata?.cartesia ?? {};
     return startCartesiaRealtimeConversationWsSession({

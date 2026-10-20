@@ -6,13 +6,13 @@ export interface HttpClientConfig {
 
 export const createHttpClient = (cfg: HttpClientConfig = {}) => {
   const doFetch = async (input: RequestInfo, init: RequestInit = {}) => {
-    let headers: Record<string, string> = { ...(cfg.headers || {}) };
+    const headers = new Headers(cfg.headers);
 
     if (cfg.getAccessToken) {
       const token = await cfg.getAccessToken();
-      headers['Authorization'] = `Bearer ${token}`;
+      headers.set('Authorization', `Bearer ${token}`);
     }
-    if (init.headers) headers = { ...headers, ...(init.headers as any) };
+    new Headers(init.headers).forEach((value, name) => headers.set(name, value));
 
     return (cfg.fetch || fetch)(input, { ...init, headers });
   };

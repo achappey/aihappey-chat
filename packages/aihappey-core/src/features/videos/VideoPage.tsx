@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { ModelFavoriteToggleButton, VideoGrid, VideoModal } from "aihappey-components";
 import { useLibraryVideos, type LibraryVideoItem } from "./useLibraryVideos";
@@ -127,15 +128,9 @@ export const VideoPage = () => {
     });
   }, []);
 
-  const createRequestHeaders = useCallback(async () => {
-    const merged = { ...(headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
-    if (getAccessToken) {
-      try {
-        merged.Authorization = `Bearer ${await getAccessToken()}`;
-      } catch { }
-    }
-    return merged;
-  }, [customHeaders, getAccessToken, headers]);
+  const createRequestHeaders = useCallback(async (modelId: string) => {
+    return buildOperationHeaders(config, customHeaders, modelId, true);
+  }, [customHeaders, config]);
 
   useEffect(() => {
     if (queryModelId) setSelectedModel(queryModelId);
@@ -148,14 +143,13 @@ export const VideoPage = () => {
       const operations = loadPendingVideoOperations();
       if (!operations.length) return;
 
-      const requestHeaders = await createRequestHeaders();
-      if (abortController.signal.aborted) return;
-
       await Promise.allSettled(operations.map(async (pending) => {
         if (pollingOperations.current.has(pending.id) || terminalOperations.current.has(pending.id)) return;
         pollingOperations.current.add(pending.id);
 
         try {
+          const requestHeaders = await createRequestHeaders(String(pending.operation).split("/")[0]);
+          if (abortController.signal.aborted) return;
           const videoProvider = createVideoProvider({
             baseUrl: config.baseUrl + (config.endpoints as any).videos,
             headers: requestHeaders,
@@ -271,7 +265,7 @@ export const VideoPage = () => {
   const onSend = async (content: string) => {
     clearWarnings();
     try {
-      const merged = await createRequestHeaders();
+      const merged = await createRequestHeaders(selectedModel);
 
       const videoProvider = createVideoProvider({
         baseUrl: config.baseUrl + (config.endpoints as any).videos,

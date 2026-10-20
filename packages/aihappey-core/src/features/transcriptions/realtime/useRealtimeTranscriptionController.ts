@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../../provider-credentials/scopedRequest";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { getRealtimeToken } from "aihappey-ai";
 import { useAppStore } from "aihappey-state";
@@ -409,10 +410,7 @@ export function useRealtimeTranscriptionController(args: {
     });
 
     try {
-      let merged = { ...(config?.headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
-      if (config?.getAccessToken) {
-        merged.Authorization = `Bearer ${await config.getAccessToken()}`;
-      }
+      const merged = await buildOperationHeaders(config, customHeaders, selectedModel.id);
 
       const tokenClientFactory = await getRealtimeToken({
         baseUrl: config.baseUrl + config.endpoints.realtime,

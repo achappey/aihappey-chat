@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createRerankProvider } from "aihappey-ai";
 import { useAppStore } from "aihappey-state";
@@ -128,14 +129,7 @@ export function useRerankingController() {
     setProcessing(true);
     clearWarnings();
     try {
-      let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) } as any;
-      if (getAccessToken) {
-        try {
-          merged.Authorization = `Bearer ${await getAccessToken()}`;
-        } catch {
-          // ignore
-        }
-      }
+      const merged = await buildOperationHeaders(config, customHeaders, selectedModel, true);
 
       const provider = createRerankProvider({ baseUrl, headers: merged });
       const model = provider.rerankingModel(selectedModel);

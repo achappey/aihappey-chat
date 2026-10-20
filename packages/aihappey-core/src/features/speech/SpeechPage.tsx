@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 import { ModelSelect } from "../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
 import { useCallback, useEffect, useState } from "react";
@@ -114,11 +115,7 @@ export const SpeechPage = () => {
     setItemsLoading(1);
 
     try {
-      let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
-
-      if (getAccessToken) {
-        merged.Authorization = `Bearer ${await getAccessToken()}`;
-      }
+      const merged = await buildOperationHeaders(config, customHeaders, selectedModel);
 
       const provider = createSpeechProvider({
         baseUrl: config.baseUrl + config.endpoints.speech,

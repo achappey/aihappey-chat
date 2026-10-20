@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { ImageGrid, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
@@ -133,12 +134,7 @@ export const ImagePage = () => {
   const onSend = async (content: string) => {
     clearWarnings();
     try {
-      let merged = { ...(headers ?? {}), ...(customHeaders ?? {}) };
-      if (getAccessToken) {
-        try {
-          merged.Authorization = `Bearer ${await getAccessToken()}`;
-        } catch { }
-      }
+      const merged = await buildOperationHeaders(config, customHeaders, selectedModel, true);
 
       const imageProvider = createImageProvider({
         baseUrl: config.baseUrl + config.endpoints.images,

@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../../provider-credentials/scopedRequest";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useChatContext } from "../context/ChatContext";
 import { useAppStore } from "aihappey-state";
@@ -97,15 +98,7 @@ export function useDictation(options: UseDictationOptions) {
 
     const requestId = `dictation_${Date.now()}_${Math.random().toString(16).slice(2)}`;
     try {
-      let merged = { ...(config?.headers ?? {}), ...(customHeaders ?? {}) } as Record<string, string>;
-      if (config?.getAccessToken) {
-        try {
-          const token = await config.getAccessToken();
-          merged.Authorization = `Bearer ${token}`;
-        } catch (e) {
-          throw e;
-        }
-      }
+      const merged = await buildOperationHeaders(config, customHeaders, resolvedModelId);
 
       const provider = createTranscriptionProvider({
         baseUrl: config.baseUrl + config.endpoints.transcriptions,

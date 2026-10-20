@@ -45,7 +45,7 @@ export const buildXAiRealtimeSessionConfig = (args: RealtimeConversationProvider
 };
 
 const startXAiRealtimeConversation = async (args: StartRealtimeConversationProviderSessionArgs) => {
-  const headers = await buildRealtimeBackendHeaders(args.config, args.customHeaders);
+  const headers = await buildRealtimeBackendHeaders(args.config, args.customHeaders, args.model);
   const tokenClientFactory = await getRealtimeToken({
     baseUrl: args.config.baseUrl + args.config.endpoints.realtime,
     headers,

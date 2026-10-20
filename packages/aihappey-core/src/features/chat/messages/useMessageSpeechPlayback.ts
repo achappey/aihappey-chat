@@ -1,3 +1,4 @@
+import { buildOperationHeaders } from "../../provider-credentials/scopedRequest";
 import {
   base64ToUint8Array,
   createSpeechProvider,
@@ -74,7 +75,7 @@ export const useMessageSpeechPlayback = ({ onError }: UseMessageSpeechPlaybackOp
       audioRef.current = audio;
       playbackRef.current = playback;
       const chunks: Uint8Array[] = [];
-      const headers = await buildStreamingHeaders(config, customHeaders);
+      const headers = await buildStreamingHeaders(config, customHeaders, model);
       headers.set("Content-Type", "application/json");
 
       await readOpenAISse<OpenAISpeechStreamEvent>({
@@ -110,11 +111,7 @@ export const useMessageSpeechPlayback = ({ onError }: UseMessageSpeechPlaybackOp
     }
 
     try {
-      const headers = {
-        ...(config.headers ?? {}),
-        ...(customHeaders ?? {}),
-      } as Record<string, string>;
-      if (config.getAccessToken) headers.Authorization = `Bearer ${await config.getAccessToken()}`;
+      const headers = await buildOperationHeaders(config, customHeaders, model);
 
       const provider = createSpeechProvider({
         baseUrl: resolveStreamingUrl(config.baseUrl, config.endpoints.speech),

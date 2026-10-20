@@ -93,7 +93,7 @@ export const StreamingSpeechPage = () => {
     const chunks: Uint8Array[] = [];
 
     try {
-      const headers = await buildStreamingHeaders(config, customHeaders);
+      const headers = await buildStreamingHeaders(config, customHeaders, selectedModel);
       headers.set("Content-Type", "application/json");
 
       await readOpenAISse<OpenAISpeechStreamEvent>({

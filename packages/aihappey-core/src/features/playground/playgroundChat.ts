@@ -1,5 +1,6 @@
 import type { PlaygroundAttachment, PreparedPlaygroundInvocation } from "aihappey-clients";
 import type { UIMessage } from "aihappey-ai";
+import { createCredentialScopedFetch } from "../provider-credentials/scopedRequest";
 
 export type PlaygroundPayloadMessage = {
   role: "system" | "user" | "assistant";
@@ -144,7 +145,7 @@ export const createPlaygroundFetch = ({
       });
     }
 
-    return (customFetch ?? fetch)(input, {
+    return createCredentialScopedFetch(customFetch ?? fetch)(input, {
       ...init,
       headers: requestHeaders,
     });

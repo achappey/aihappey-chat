@@ -89,7 +89,7 @@ export const StreamingImagePage = ({ mode }: StreamingImagePageProps) => {
     let completedImageCount = 0;
 
     try {
-      const headers = await buildStreamingHeaders(config, customHeaders);
+      const headers = await buildStreamingHeaders(config, customHeaders, selectedModel);
       const requestSettings = imageRequestSettings(settings);
       let body: BodyInit;
 

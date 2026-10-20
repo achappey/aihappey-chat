@@ -37,7 +37,7 @@ export const buildOpperAiRealtimeSessionConfig = (args: RealtimeConversationProv
 };
 
 const startOpperAiRealtimeConversation = async (args: StartRealtimeConversationProviderSessionArgs) => {
-  const headers = await buildRealtimeBackendHeaders(args.config, args.customHeaders);
+  const headers = await buildRealtimeBackendHeaders(args.config, args.customHeaders, args.model);
   const tokenClient = await getRealtimeToken({
     baseUrl: args.config.baseUrl + args.config.endpoints.realtime,
     headers,

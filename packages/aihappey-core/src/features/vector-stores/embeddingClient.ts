@@ -1,3 +1,4 @@
+import { scopeOperationHeaders as scopeHeadersForModels } from "../provider-credentials/scopedRequest";
 import type { ChatConfig } from "../chat/context/ChatProvider";
 
 export const createVectorStoreEmbeddingClient = (
@@ -9,8 +10,8 @@ export const createVectorStoreEmbeddingClient = (
   if (!values.length) return [];
   const headers = new Headers({
     "Content-Type": "application/json",
-    ...(config.headers ?? {}),
-    ...(customHeaders ?? {}),
+    ...scopeHeadersForModels(config.headers, model),
+    ...scopeHeadersForModels(customHeaders, model),
   });
   if (config.getAccessToken) {
     const token = await config.getAccessToken();

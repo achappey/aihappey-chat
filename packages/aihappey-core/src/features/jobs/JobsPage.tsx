@@ -1,3 +1,4 @@
+import { createCredentialScopedFetch } from "../provider-credentials/scopedRequest";
 import React, { useCallback, useState } from "react";
 import { createResponsesProvider } from "aihappey-ai";
 import type { ResponseApiCreateRequest, ResponseApiInputContent } from "aihappey-ai";
@@ -100,7 +101,7 @@ export const JobsPage = () => {
     return createResponsesProvider({
       baseUrl: (config.agentEndpoint ?? config.baseUrl) + config.endpoints.responses,
       headers,
-      fetch: config.fetch,
+      fetch: createCredentialScopedFetch(config.fetch),
     });
   };
 

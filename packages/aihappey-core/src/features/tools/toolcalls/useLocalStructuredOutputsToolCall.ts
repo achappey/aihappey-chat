@@ -1,7 +1,7 @@
+import { createBackendProvider } from "../../provider-credentials/scopedBackendProvider";
 import { useCallback } from "react";
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import {
-    createBackendProvider,
     generateText,
     jsonSchema,
     Output,
