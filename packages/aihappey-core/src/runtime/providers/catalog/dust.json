@@ -1,0 +1,12 @@
+{
+  "name": "Dust",
+  "description": "Create and deploy AI agents that connect to company knowledge and tools to automate work.",
+  "urls": {
+    "homepage": "https://dust.tt",
+    "docs": "https://docs.dust.tt/"
+  },
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

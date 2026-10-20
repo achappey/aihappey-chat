@@ -48,6 +48,7 @@ export function useMessageInput({
   const updateMcpServer = useAppStore((s) => s.updateMcpServer);
   const setEnabledProvidersForType = useAppStore((s) => s.setEnabledProvidersForType);
   const selectedAgents = useAppStore((s) => s.selectedAgentNames);
+  const favoriteAgentRouter = useAppStore((s) => s.favoriteAgentRouter);
   const chatMode = useAppStore((s) => s.chatMode);
   const { isDarkMode } = useDarkMode();
   const mcpServers = useAppStore((s) => s.mcpServers);
@@ -129,7 +130,7 @@ export function useMessageInput({
   };
 
   const canSend = canSendOverride ?? ((!!value.trim() || attachments.length > 0 || urlAttachments.length > 0 || resources.length > 0)
-    && (chatMode == "chat" || selectedAgents.length > 0));
+    && (chatMode == "chat" || favoriteAgentRouter || selectedAgents.length > 0));
 
   const handleSend = () => {
     const trimmed = value.trim();

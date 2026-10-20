@@ -24,6 +24,8 @@ export function NewChatPage() {
   const getStorageErrorMessage = useStorageErrorMessage();
   const [creating, setCreating] = useState(false);
   const selectedAgentNames = useAppStore(a => a.selectedAgentNames)
+  const favoriteAgentRouter = useAppStore(a => a.favoriteAgentRouter)
+  const chatMode = useAppStore(a => a.chatMode)
   const agents = useAppStore(a => a.agents)
   const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
   const temperature = useAppStore((s) => s.temperature);
@@ -63,7 +65,7 @@ export function NewChatPage() {
 
   const startNewConversation = async (userMsg: any) => {
     if (!userMsg) return;
-    if (selectedAgentRequest.error) throw new Error(selectedAgentRequest.error);
+    if (selectedAgentRequest.error && !(chatMode === "agent" && favoriteAgentRouter)) throw new Error(selectedAgentRequest.error);
     const conv = await create("New chat", temperature);
     await navigate(`/${conv.id}`, {
       state: {

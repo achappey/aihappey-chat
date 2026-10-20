@@ -1,0 +1,9 @@
+{
+  "name": "Vercel AI Gateway",
+  "description": "A unified gateway for discovering, using, and observing AI models.",
+  "urls": {
+    "homepage": "https://vercel.com",
+    "docs": "https://vercel.com/docs/ai-gateway"
+  },
+  "category": "gateway_router"
+}

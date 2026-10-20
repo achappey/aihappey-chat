@@ -1266,6 +1266,7 @@
         "showTokens": "Show tokens per message",
         "showProviderLogo": "Show provider logo",
         "dictate": "Dictate",
+        "debug": "Debug",
         "toolOutputContent": "Tool output types",
         "documents": "Documents",
         "agentImport": "Agents",

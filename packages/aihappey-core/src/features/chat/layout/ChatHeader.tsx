@@ -10,6 +10,7 @@ import { useDarkMode } from "usehooks-ts";
 import { AgentSelect } from "../../agents/AgentSelect";
 import { normalizeSelectedAgentKeys, resolveSelectedAgentEntries } from "../../agents/agentSelection";
 import { useTranslation } from "aihappey-i18n";
+import { favoriteRouterModelTypes } from "../engine/favoriteRouter";
 
 interface ChatHeaderProps {
   agentValues?: string[];
@@ -53,13 +54,9 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     : undefined;
   const isSelectedAgentFavorite = !!selectedAgentKey && (favoriteAgentIds ?? []).includes(selectedAgentKey);
 
-  const modelTypes = [
-    "language",
-    ...(chatWithImageModels ? ["image"] as const : []),
-    ...(chatWithVideoModels ? ["video"] as const : []),
-    ...(chatWithSpeechModels ? ["speech"] as const : []),
-    ...(chatWithTranscriptionModels ? ["transcription"] as const : []),
-  ];
+  const modelTypes = favoriteRouterModelTypes({
+    chatWithImageModels, chatWithVideoModels, chatWithSpeechModels, chatWithTranscriptionModels,
+  });
 
   const toggleMode = (value: string) => {
     if (value != chatMode)
@@ -92,6 +89,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         {chatMode == "agent" && (
           <div style={{ width: "clamp(170px, 24vw, 260px)", maxWidth: "100%", minWidth: 0 }}>
             <AgentSelect
+              allowFavoriteRouter
               localAgents={allAgents ?? []}
               remoteAgentModels={remoteAgentModels ?? []}
               values={agentValues ?? []}
@@ -123,6 +121,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           <>
             <div style={{ width: "clamp(170px, 24vw, 260px)", maxWidth: "100%", minWidth: 0 }}>
               <ModelSelect
+                allowFavoriteRouter
                 models={models ?? []}
                 modelTypes={modelTypes}
                 value={selectedModel ?? ""}

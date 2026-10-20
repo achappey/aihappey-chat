@@ -1,0 +1,9 @@
+{
+  "name": "ModelScope",
+  "description": "A platform for accessing and using AI models and inference APIs.",
+  "urls": {
+    "homepage": "https://www.modelscope.ai",
+    "docs": "https://www.modelscope.ai/docs/model-service/API-Inference/limits"
+  },
+  "category": "model_provider"
+}

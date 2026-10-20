@@ -46,6 +46,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
   const disableProviderLogo = useAppStore((s) => s.disableProviderLogo);
   const chatDictationEnabled = useAppStore((s) => s.chatDictationEnabled);
+  const apiDebugEnabled = useAppStore((s) => s.apiDebugEnabled);
+  const setApiDebugEnabled = useAppStore((s) => s.setApiDebugEnabled);
   const toolOutputContentSettings = useAppStore((s) => s.toolOutputContentSettings);
   const setToolOutputContentSettings = useAppStore((s) => s.setToolOutputContentSettings);
   const agents = useAppStore((s) => s.agents);
@@ -205,6 +207,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={chatDictationEnabled}
                   label={t("settingsModal.dictate")}
                   onChange={setChatDictationEnabled}
+                />
+
+                <Switch
+                  id="api-debug-toggle"
+                  checked={apiDebugEnabled}
+                  label={t("settingsModal.debug")}
+                  onChange={setApiDebugEnabled}
                 />
 
                 <Card size="small" title={t("settingsModal.toolOutputContent") ?? "Tool output sent to AI"}>

@@ -1,0 +1,9 @@
+{
+  "name": "Cloudflare Workers AI",
+  "description": "Run serverless AI models on Cloudflare's global network.",
+  "urls": {
+    "homepage": "https://www.cloudflare.com",
+    "docs": "https://developers.cloudflare.com/workers-ai/"
+  },
+  "category": "inference_compute"
+}

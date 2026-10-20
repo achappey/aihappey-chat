@@ -619,6 +619,18 @@ import provider614 from "./catalog/cerebras.json";
 import provider615 from "./catalog/zai.json";
 import provider616 from "./catalog/hyperbolic.json";
 import provider617 from "./catalog/elevenlabs.json";
+import provider618 from "./catalog/dust.json";
+import provider619 from "./catalog/hedra.json";
+import provider620 from "./catalog/getimg.json";
+import provider621 from "./catalog/vercel.json";
+import provider622 from "./catalog/cloudflare.json";
+import provider623 from "./catalog/nomic.json";
+import provider624 from "./catalog/wavespeed.json";
+import provider625 from "./catalog/lighton.json";
+import provider626 from "./catalog/clarifai.json";
+import provider627 from "./catalog/mangoboost.json";
+import provider628 from "./catalog/modelscope.json";
+import provider629 from "./catalog/leonardo.json";
 
 export const PROVIDER_CATALOG = {
   "openai": provider0,
@@ -1239,4 +1251,16 @@ export const PROVIDER_CATALOG = {
   "zai": provider615,
   "hyperbolic": provider616,
   "elevenlabs": provider617,
+  "dust": provider618,
+  "hedra": provider619,
+  "getimg": provider620,
+  "Vercel": provider621,
+  "Cloudflare": provider622,
+  "nomic": provider623,
+  "wavespeed": provider624,
+  "lighton": provider625,
+  "clarifai": provider626,
+  "mangoboost": provider627,
+  "modelscope": provider628,
+  "leonardo": provider629,
 } as Record<string, Omit<Provider, "createGatewayMetadata">>;

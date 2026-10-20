@@ -1,6 +1,6 @@
 import { DefaultChatTransport, FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, useChat } from "aihappey-ai";
 import { useConversations } from "aihappey-conversations";
-import { useAppStore } from "aihappey-state";
+import { mcpRuntime, store, useAppStore } from "aihappey-state";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { AttachmentsDrawer, MessageSourcesDrawer, useTheme } from "aihappey-components";
@@ -33,7 +33,6 @@ import { ToolCallResultModal } from "../activity/content/ToolCallResultModal";
 import { useAuthFetch } from "./useAuthFetch";
 import { usePendingMessageAutoSend } from "./usePendingMessageAutoSend";
 import { useAbortRun } from "./useAbortRun";
-import { useApiRef } from "./useApiRef";
 import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
 import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
@@ -83,6 +82,16 @@ import {
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 import { useChatScrollToBottom } from "../layout/useChatScrollToBottom";
 import { mapToolOutputContentForRequest } from "./mapToolOutputContentForRequest";
+import { useFavoriteRouterTransport } from "./useFavoriteRouterTransport";
+import {
+  buildManagedAgentMcpCatalog, executeManagedAgentMcpTool,
+  managedAgentMcpCallsPending, managedAgentStopTools,
+} from "./managedAgentMcpTools";
+import { useManagedAgentMcpToolCalls } from "./useManagedAgentMcpToolCalls";
+import { ManagedAgentChatTransport } from "./ManagedAgentChatTransport";
+import { useTransientDataParts } from "./useTransientDataParts";
+
+const getApiDebugEnabled = () => store.getState().apiDebugEnabled;
 
 /*────────────────────────  INNER CHAT  ───────────────────────────*/
 export function VercelChatInner({
@@ -102,6 +111,7 @@ export function VercelChatInner({
   initial: UIMessage[];
 }) {
   const { conversationId } = useParams<{ conversationId: string }>();
+  const { onData, transientDataParts } = useTransientDataParts(conversationId);
   const location = useLocation();
   const { addChatError } = useChatErrors();
   const pendingInitialMessageRef = useRef<any>(location.state?.pendingMessage);
@@ -133,6 +143,9 @@ export function VercelChatInner({
   const endpointRawModelIds = useAppStore((a) => a.endpointRawModelIds);
   const endpointProviderMetadataEnabled = useAppStore((a) => a.endpointProviderMetadataEnabled);
   const callTool = useAppStore((a) => a.callTool);
+  const mcpServerContent = useAppStore((a) => a.mcpServerContent);
+  const mcpServers = useAppStore((a) => a.mcpServers);
+  const toolAnnotations = useAppStore((a) => a.toolAnnotations);
   const activeProviderMetadata = useActiveProviderMetadata();
   const allProviderMetadata = useAppStore((a) => a.providerMetadata);
   const allProviderHeaders = useAppStore((a) => a.providerHeaders);
@@ -147,6 +160,7 @@ export function VercelChatInner({
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
+  const favoriteAgentRouter = useAppStore((s) => s.favoriteAgentRouter);
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer, Toast, Button } = useTheme();
   const { config } = useChatContext();
@@ -259,8 +273,8 @@ export function VercelChatInner({
   );
 
   useEffect(() => {
-    if (selectedAgentRequest.error) addChatError(new Error(selectedAgentRequest.error));
-  }, [selectedAgentRequest.error, addChatError]);
+    if (selectedAgentRequest.error && !favoriteAgentRouter) addChatError(new Error(selectedAgentRequest.error));
+  }, [selectedAgentRequest.error, favoriteAgentRouter, addChatError]);
 
   const addAttachments = useChatAttachmentAdmission();
 
@@ -386,6 +400,7 @@ export function VercelChatInner({
     headers,
     customHeaders: authFetchCustomHeaders,
     customFetch,
+    getDebugEnabled: getApiDebugEnabled,
   });
 
   const chatFetch = useMemo(() => {
@@ -403,9 +418,6 @@ export function VercelChatInner({
     : isGenericChatEndpoint(requestEndpoint)
       ? resolveGenericChatEndpointUrl(requestBaseUrl, requestEndpoint)
       : config.baseUrl + config.endpoints.chat;
-  const chatInstanceId = isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
-    ? `${conversationId ?? "chat"}:generic:${requestEndpoint}:${isProviderEndpointProfile ? requestEndpointProfile.providerKey : "gateway"}`
-    : conversationId;
 
   const systemPrompt = useMemo(
     () => {
@@ -488,7 +500,24 @@ export function VercelChatInner({
     } : undefined, providerMetadata, effectiveTree ?? null, maxOutputTokens, catalogPromptOverride)
   }
 
-  const { tools } = useTools();
+  const { tools: regularTools } = useTools();
+  const managedAgentMcpCatalog = useMemo(
+    () => chatMode === "agent"
+      ? buildManagedAgentMcpCatalog({ mcpServerContent, mcpServers, toolAnnotations }, mcpRuntime)
+      : { tools: [], routes: new Map() },
+    [chatMode, mcpServerContent, mcpServers, toolAnnotations],
+  );
+  const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
+  const agentToolSignalRef = useRef<AbortSignal | undefined>(undefined);
+  const agentToolMessageRef = useRef<string | undefined>(undefined);
+  const agentToolRunActiveRef = useRef(false);
+  useEffect(() => {
+    if (chatMode !== "agent") {
+      agentToolMessageRef.current = undefined;
+      agentToolRunActiveRef.current = false;
+    }
+  }, [chatMode]);
+  const tools = chatMode === "agent" ? managedAgentMcpCatalog.tools : regularTools;
   const toolUse = useOnToolCall({
     api: config.baseUrl,
     getAccessToken,
@@ -500,10 +529,6 @@ export function VercelChatInner({
     tools,
   });
 
-  const apiRef = useApiRef(api);
-  apiRef.current = api;
-  const effectiveChatEndpointRef = useRef(requestEndpoint);
-  effectiveChatEndpointRef.current = requestEndpoint;
   // Local UI overlay for edits/deletes (since `useChat()` doesn't expose `setMessages`).
   // We also re-use these overrides when building the next request body so deleted parts
   // are NOT sent to the backend on subsequent turns.
@@ -628,11 +653,22 @@ export function VercelChatInner({
           // `opts.body` can replace the memoized base tools. Decorate at the
           // final transport boundary so `/api/chat` always receives the two
           // request-only properties directly on each tool definition.
-          const namespacesEnabled = (mergedBody.useToolNamespaces ?? useToolNamespaces) || hasSourceNamespaces;
+          const namespacesEnabled = chatMode !== "agent"
+            && ((mergedBody.useToolNamespaces ?? useToolNamespaces) || hasSourceNamespaces);
           const sourceTools = namespacesEnabled && (!Array.isArray(mergedBody.tools) || mergedBody.tools.length === 0)
             ? tools
             : mergedBody.tools;
-          if (namespacesEnabled) {
+          if (chatMode === "agent") {
+            // Use the existing /api/chat tools and UIMessage result contract,
+            // never the agent's configured tools or provider-native namespaces.
+            if (requestMessages.at(-1)?.role !== "assistant") {
+              agentToolCatalogRef.current = managedAgentMcpCatalog;
+              agentToolSignalRef.current = abortRef.current?.signal;
+              agentToolMessageRef.current = undefined;
+              agentToolRunActiveRef.current = true;
+            }
+            mergedBody.tools = agentToolCatalogRef.current.tools;
+          } else if (namespacesEnabled) {
             const shapedTools = shapeToolsForRequest(
               sourceTools,
               mergedBody.toolRequestConfig ?? toolRequestConfig,
@@ -689,8 +725,11 @@ export function VercelChatInner({
               ? countCompletedToolCallsLastAssistant(requestMessages as any[])
               : 0;
 
+          const effectiveStopTools = chatMode === "agent"
+            ? managedAgentStopTools(agentToolCatalogRef.current, stopTools)
+            : stopTools;
           const forceNone =
-            shouldForceToolChoiceNone(requestMessages as any[], stopTools) ||
+            shouldForceToolChoiceNone(requestMessages as any[], effectiveStopTools) ||
             (typeof maxToolCalls === "number" && completedToolCalls >= maxToolCalls);
 
           const effectiveToolChoice = forceNone ? "none" : mergedBody.toolChoice;
@@ -706,14 +745,13 @@ export function VercelChatInner({
             });
           }
 
-          if (!isGenericChatEndpoint(effectiveChatEndpointRef.current)) {
+          if (!isGenericChatEndpoint(requestEndpoint)) {
             Object.entries(getGatewayProviderHeaders(mergedBody)).forEach(([key, value]) => {
               requestHeaders.set(key, value);
             });
           }
 
-          const requestApi = apiRef.current;
-          const requestEndpoint = effectiveChatEndpointRef.current;
+          const requestApi = api;
           const requestBody = isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent"
             ? buildGenericChatEndpointBody(requestEndpoint, {
               ...mergedBody,
@@ -745,11 +783,14 @@ export function VercelChatInner({
           providers,
           transportOptions,
         )
-        : new DefaultChatTransport(transportOptions);
+        : chatMode === "agent"
+          ? new ManagedAgentChatTransport(transportOptions)
+          : new DefaultChatTransport(transportOptions);
     },
-    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings]
+    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings, managedAgentMcpCatalog]
   );
 
+  const routedTransport = useFavoriteRouterTransport(transport, baseBody, applyOverrides, files);
   const {
     messages,
     sendMessage,
@@ -758,19 +799,23 @@ export function VercelChatInner({
     stop,
     addToolApprovalResponse,
   } = useChat({
-    id: chatInstanceId,
-    transport,
+    id: conversationId,
+    transport: routedTransport,
     throttle: experimentalThrottle,
+    onData,
     onError: (error) => {
       addChatError(error);
     },
 
     onToolCall: async ({ toolCall }) => {
+      if (chatMode === "agent" && toolCall.toolName !== "ai_input_required") return;
+      const signal = abortRef.current?.signal;
       const result = await (toolUse.onToolCall as any)({
         toolCall,
-        signal: abortRef.current?.signal
+        signal,
       });
 
+      if (chatMode === "agent" && signal?.aborted) return;
       addToolOutput({
         tool: toolCall.toolName,
         toolCallId: toolCall.toolCallId,
@@ -779,9 +824,16 @@ export function VercelChatInner({
 
       return result;
     },
-    sendAutomaticallyWhen,
+    sendAutomaticallyWhen: (options) =>
+      !(chatMode === "agent" && managedAgentMcpCallsPending(options.messages))
+      && sendAutomaticallyWhen(options),
     messages: seededMessages,
     onFinish: async ({ message, isDisconnect, isAbort }) => {
+      if (chatMode === "agent") {
+        agentToolMessageRef.current = !isAbort && !isDisconnect && agentToolRunActiveRef.current
+          ? message.id : undefined;
+        if (isAbort || isDisconnect) agentToolRunActiveRef.current = false;
+      }
       if (pendingInitialMessageRef.current && !isAbort) {
         handleInitialSendSuccess();
       }
@@ -804,6 +856,23 @@ export function VercelChatInner({
       }
     },
   });
+
+  const managedMcpExecuting = useManagedAgentMcpToolCalls({
+    enabled: chatMode === "agent",
+    messages,
+    messageId: agentToolMessageRef.current,
+    status,
+    execute: async (toolCall, lifetimeSignal) => {
+      const runSignal = agentToolSignalRef.current;
+      const signal = runSignal ? AbortSignal.any([runSignal, lifetimeSignal]) : lifetimeSignal;
+      const result = await executeManagedAgentMcpTool(
+        agentToolCatalogRef.current, toolCall, callTool, i18n.language, signal,
+      );
+      if (signal?.aborted) return;
+      addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output: result });
+    },
+  });
+  const chatBusy = status === "submitted" || status === "streaming" || managedMcpExecuting;
 
   const uiMessages = useMemo(() => {
     return (messages ?? [])
@@ -961,7 +1030,7 @@ export function VercelChatInner({
             // so we keep a local overlay for edits/deletes.
             scrollContainerRef={scrollContainerRef}
             messages={uiMessages}
-            streaming={status === "submitted" || status === "streaming"}
+            streaming={chatBusy}
             sendMessage={async (msg: any) => {
               startRun()
               await handleSend(msg.prompt)
@@ -978,7 +1047,7 @@ export function VercelChatInner({
             }}
           />}
 
-        {status === "submitted" || status === "streaming" || lastPart ? (
+        {chatBusy || lastPart ? (
           <div style={streamingIndicatorStyles}>
             <Spinner
               label={toolName}
@@ -1015,8 +1084,8 @@ export function VercelChatInner({
             temperature={temperature}
             temperatureChanged={temperatureChanged}
             onPromptExecute={onPromptExecute}
-            disabled={status === "submitted" || status === "streaming"}
-            streaming={status === "submitted" || status === "streaming"}
+            disabled={chatBusy}
+            streaming={chatBusy}
           />
         </div>
       </div>
@@ -1038,7 +1107,7 @@ export function VercelChatInner({
         onAddToFiles={addAttachmentToFiles}
         onClose={() => setMessageAttachments(undefined)} />
 
-      <ActivityDrawer messages={uiMessages} uiTree={effectiveUiTree} uiOutput={activeData} currentModel={model} />
+      <ActivityDrawer messages={uiMessages} transientDataParts={transientDataParts} uiTree={effectiveUiTree} uiOutput={activeData} currentModel={model} />
 
       <MessageActivityDrawer open={messageActivity != undefined}
         content={messageActivity ?? []}

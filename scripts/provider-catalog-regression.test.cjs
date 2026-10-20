@@ -147,6 +147,7 @@ test("index validation rejects duplicates, traversal, missing files, unindexed f
   const entry = { id: "example", file: "example.json" };
   const valid = withFixture(t, [entry]);
   assert.equal(readCatalog(valid).length, 1);
+  assert.equal(readCatalog(withFixture(t, [{ id: "Vercel", file: "example.json" }]))[0].id, "Vercel");
   assert.throws(() => readCatalog(withFixture(t, [entry, entry])), /Duplicate provider ID/);
   assert.throws(() => readCatalog(withFixture(t, [entry, { id: "other", file: "example.json" }])), /Duplicate provider file/);
   assert.throws(() => readCatalog(withFixture(t, [{ id: "example", file: "../example.json" }])), /local JSON filename/);
