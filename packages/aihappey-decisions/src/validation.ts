@@ -5,16 +5,19 @@ export const isInlineDecisionImage = (url: string) => /^data:image\/[a-z0-9.+-]+
 const object = (v: unknown): v is Record<string, any> => !!v && typeof v === "object" && !Array.isArray(v);
 const content = (v: unknown): boolean => typeof v === "string" || object(v) || Array.isArray(v);
 const probability = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 1;
+const hasInstructions = (v: unknown) => content(v) && (typeof v !== "string" || !!v.trim());
 
 export function isValidDecisionQuestion(value: unknown): value is DecisionQuestion {
-  if (!object(value) || typeof value.id !== "string" || !value.id.trim() || !content(value.instructions)
-    || (typeof value.instructions === "string" && !value.instructions.trim())
+  if (!object(value) || typeof value.id !== "string" || !value.id.trim()
+    || (value.instructions != null && !content(value.instructions))
     || (value.name !== undefined && typeof value.name !== "string")) return false;
-  if (value.type === "boolean") return value.criteria === undefined || (object(value.criteria)
-    && Object.entries(value.criteria).every(([key, v]) => ["true", "false"].includes(key) && (v === null || content(v))));
+  if (value.type === "box") return hasInstructions(value.instructions);
+  if (value.type === "boolean") return (value.criteria === undefined || (object(value.criteria)
+    && Object.entries(value.criteria).every(([key, v]) => ["true", "false"].includes(key) && (v === null || content(v)))))
+    && (hasInstructions(value.instructions) || (object(value.criteria) && Object.values(value.criteria).some(v => v != null && content(v))));
   if (value.type === "choice") return object(value.criteria) && Object.keys(value.criteria).length > 0
     && Object.entries(value.criteria).every(([key, v]) => !!key.trim() && (v === null || content(v)));
-  if (value.type === "score") return Array.isArray(value.criteria) && value.criteria.length >= 2
+  if (value.type === "score") return Array.isArray(value.criteria) && value.criteria.length >= 1
     && value.criteria.every((v: unknown) => v === null || content(v));
   return false;
 }
@@ -56,6 +59,9 @@ export function isValidDecisionResponse(response: DecisionResponse, questions: D
     if (!a || a.type === "refusal") return !!a;
     if (a.type !== q.type) return false;
     if (a.type === "boolean") return probability(a.probability);
+    if (a.type === "box") return object(a.box)
+      && [a.box.top, a.box.bottom, a.box.left, a.box.right].every(probability)
+      && a.box.top <= a.box.bottom && a.box.left <= a.box.right;
     if (a.type === "choice" && q.type === "choice" && !Object.hasOwn(q.criteria, a.choice)) return false;
     if (a.type === "score" && q.type === "score" && (!Number.isFinite(a.score) || a.score < 0 || a.score > q.criteria.length - 1)) return false;
     if (a.type !== "choice" && a.type !== "score") return false;

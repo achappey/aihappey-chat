@@ -21,7 +21,13 @@ export function DecisionQuestionForm({ value, onChange }: {
   };
   const changeType = (type: DecisionQuestion["type"]) => {
     const common = { id: value.id, name: value.name, instructions: value.instructions };
-    onChange(type === "boolean" ? { ...common, type } : type === "choice" ? { ...common, type, criteria: {} } : { ...common, type, criteria: ["", ""] });
+    switch (type) {
+      case "boolean": onChange({ ...common, type }); break;
+      case "choice": onChange({ ...common, type, criteria: {} }); break;
+      case "score": onChange({ ...common, type, criteria: ["", ""] }); break;
+      case "box": onChange({ ...common, type, instructions: value.instructions ?? "" }); break;
+      default: { const exhaustive: never = type; throw new Error(`Unsupported question type: ${exhaustive}`); }
+    }
   };
   const rows = value.type === "choice" ? choices : value.type === "score" ? value.criteria.map((v, i) => [String(i), v] as [string, any]) : [];
   const update = (index: number, key: string, description: any) => {
@@ -35,10 +41,11 @@ export function DecisionQuestionForm({ value, onChange }: {
   };
   return <div style={{ display: "grid", gap: 12 }}>
     <Select label={t("decisionsPage.questionType")} value={value.type} onChange={(e: any) => changeType(valueOf(e) as DecisionQuestion["type"])}>
-      {["boolean", "choice", "score"].map(type => <option key={type} value={type}>{t(`decisionsPage.${type === "boolean" ? "predicate" : type}`)}</option>)}
+      {(["boolean", "choice", "score", "box"] as const).map(type => <option key={type} value={type}>{t(`decisionsPage.${type === "boolean" ? "predicate" : type}`)}</option>)}
     </Select>
     <Input label={t("decisionsPage.optionalName")} value={value.name ?? ""} onChange={e => onChange({ ...value, name: e.target.value || undefined })} />
-    <TextArea label={t("decisionsPage.instructions")} value={decisionText(value.instructions)} rows={4} required onChange={instructions => onChange({ ...value, instructions })} />
+    <TextArea label={t("decisionsPage.instructions")} value={decisionText(value.instructions)} rows={4} required={value.type === "box"}
+      onChange={instructions => onChange(value.type === "box" ? { ...value, instructions } : { ...value, instructions: instructions || undefined })} />
     {value.type === "boolean" && (["true", "false"] as const).map(key => <TextArea key={key}
       label={t("decisionsPage.booleanCriterion", { defaultValue: `Definition of ${key} (optional)`, value: key })}
       value={decisionText(value.criteria?.[key])} rows={2} onChange={description => {
@@ -46,13 +53,13 @@ export function DecisionQuestionForm({ value, onChange }: {
         if (description) criteria[key] = description; else delete criteria[key];
         onChange({ ...value, criteria: Object.keys(criteria).length ? criteria : undefined });
       }} />)}
-    {value.type !== "boolean" && <>
+    {(value.type === "choice" || value.type === "score") && <>
       <div>{t(value.type === "choice" ? "decisionsPage.choicesHint" : "decisionsPage.levelsHint")}</div>
       {rows.map(([key, description], index) => <Card key={index} size="small" title={t(value.type === "choice" ? "decisionsPage.choiceNumber" : "decisionsPage.levelNumber", { number: index + 1 })}
         actions={<div style={{ display: "flex", gap: 8 }}>
           <Button icon="up" title={t("decisionsPage.moveUp")} variant="transparent" size="small" disabled={!index} onClick={() => reorder(index, -1)} />
           <Button icon="down" title={t("decisionsPage.moveDown")} variant="transparent" size="small" disabled={index === rows.length - 1} onClick={() => reorder(index, 1)} />
-          <Button icon="delete" title={t("delete")} variant="transparent" size="small" disabled={rows.length <= (value.type === "score" ? 2 : 1)} onClick={() => {
+          <Button icon="delete" title={t("delete")} variant="transparent" size="small" disabled={rows.length <= 1} onClick={() => {
             if (value.type === "choice") commitChoices(rows.filter((_, i) => i !== index));
             if (value.type === "score") onChange({ ...value, criteria: value.criteria.filter((_, i) => i !== index) });
           }} />
