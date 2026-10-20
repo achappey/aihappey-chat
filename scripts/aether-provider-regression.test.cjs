@@ -33,7 +33,7 @@ function modelLoader(data) {
             createHttpClient: (config) => createHttpClient({
                 ...config,
                 fetch: async (url, init) => {
-                    calls.push({ url, headers: init.headers });
+                    calls.push({ url, headers: Object.fromEntries(new Headers(init.headers).entries()) });
                     return new Response(JSON.stringify({ object: "list", data }));
                 },
             }),
@@ -72,7 +72,7 @@ test("a configured Aether key fetches direct models with isolated bearer authent
     });
     assert.deepEqual(api.calls, [{
         url: "https://api.aetherapi.dev/v1/models",
-        headers: { Authorization: "Bearer test-aether-key" },
+        headers: { authorization: "Bearer test-aether-key" },
     }]);
     assert.equal(response.data.length, 3);
     assert.deepEqual(response.data.map((model) => model.type), ["language", "embedding", "image"]);
@@ -109,7 +109,7 @@ test("Aether preserves already-prefixed model IDs and avoids a duplicated bearer
         includeGatewayModels: false,
         providers: { aether },
     });
-    assert.equal(api.calls[0].headers.Authorization, "Bearer test-aether-key");
+    assert.equal(api.calls[0].headers.authorization, "Bearer test-aether-key");
     assert.equal(response.data[0].id, `aether/example-chat${HIDDEN_DIRECT_MODEL_ID_SUFFIX}`);
     assert.equal(response.data[0].providerModelId, "aether/example-chat");
 });

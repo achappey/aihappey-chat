@@ -14,6 +14,8 @@ function load(filename, mocks = {}) {
     new Function("require", "module", "exports", output)((id) => {
         if (id === "react/jsx-runtime") return require(id);
         if (id in mocks) return mocks[id];
+        if (id.endsWith("/providerAuthHeaders")) return require("./credential-test-loader.cjs").auth;
+        if (id.endsWith("/scopedRequest")) return require("./credential-test-loader.cjs").scoped;
         throw new Error(`Unmocked import ${id} in ${filename}`);
     }, module, module.exports);
     return module.exports;
