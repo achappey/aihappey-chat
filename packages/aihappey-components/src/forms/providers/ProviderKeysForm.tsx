@@ -34,7 +34,6 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const [search, setSearch] = useState("");
   const [editingHeader, setEditingHeader] = useState<string | undefined>();
   const [selectedHeader, setSelectedHeader] = useState("");
   const [draftKey, setDraftKey] = useState("");
@@ -48,7 +47,6 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
     setEditingHeader(undefined);
     setSelectedHeader("");
     setDraftKey("");
-    setSearch("");
     setSaveError(false);
   };
 
@@ -60,18 +58,10 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
   }, [disabled]);
 
   const configuredItems = items.filter((item) => values[item.header]?.trim());
-  const filteredItems = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return items.filter((item) => {
-      if (values[item.header]?.trim()) return false;
-      const haystack = [item.id, item.name, item.header, item.url, item.searchText]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return haystack.includes(query);
-    });
-  }, [items, search, values]);
+  const availableItems = useMemo(
+    () => items.filter((item) => !values[item.header]?.trim()),
+    [items, values]
+  );
 
   const selectedItem = items.find((item) => item.header === selectedHeader);
   const canSave = !disabled && !saving && !!draftKey.trim() && !!selectedItem
@@ -142,29 +132,22 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
         {editingHeader !== undefined && !disabled ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {editingHeader === "" ? (
-              <>
-                <theme.SearchBox
-                  value={search}
-                  placeholder={t("search")}
-                  aria-label={t("search")}
-                  disabled={saving}
-                  onChange={(value: string) => setSearch(value)}
-                />
                 <theme.Select
                   values={selectedHeader ? [selectedHeader] : []}
                   valueTitle={selectedItem?.name}
                   label={t("providers")}
                   placeholder={t("providers")}
                   aria-label={t("providers")}
+                  searchable
+                  searchPlaceholder={t("searchPlaceholder")}
+                  noResultsText={t("noResults")}
                   disabled={saving}
                   onChange={(value: any) => setSelectedHeader(value?.target?.value ?? value)}
                 >
-                  {filteredItems.map((item) => (
+                  {availableItems.map((item) => (
                     <option key={item.header} value={item.header}>{item.name}</option>
                   ))}
                 </theme.Select>
-                {filteredItems.length === 0 ? <span>{t("noResults")}</span> : null}
-              </>
             ) : <strong>{selectedItem?.name}</strong>}
             <theme.Input
               type="password"

@@ -68,6 +68,28 @@ export const WithTitle: Story = {
   ),
 };
 
+export const SearchableProviderPicker: Story = {
+  render: () => (
+    <Wrapper
+      title="Add a provider key"
+      items={[
+        ...baseItems,
+        { id: "google", name: "Google AI", header: "X-Google-Key" },
+        { id: "groq", name: "Groq", header: "X-Groq-Key" },
+        { id: "mistral", name: "Mistral AI", header: "X-Mistral-Key" },
+      ]}
+      values={{ Authorization: "sk-example-123" }}
+    />
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: "Click Add, open the provider dropdown, and search by provider name or header. Configured providers are excluded. Try an unmatched query to see the dropdown's empty state.",
+      },
+    },
+  },
+};
+
 export const ManyProviders: Story = {
   render: () => (
     <Wrapper
