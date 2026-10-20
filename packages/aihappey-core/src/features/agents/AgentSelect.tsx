@@ -90,10 +90,9 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
     <SelectComponent
       values={normalizedValues}
       icon={"robot"}
-      valueTitle={[
-        selectedEntries.map((entry) => entry.label).join(", "),
-        allowFavoriteRouter && routerSelected ? t("favoriteAgentRouter", "Favorite agent router") : "",
-      ].filter(Boolean).join(" · ")}
+      valueTitle={allowFavoriteRouter && routerSelected
+        ? t("favoriteAgentRouter", "Favorite agent router")
+        : selectedEntries.map((entry) => entry.label).join(", ")}
       multiselect={true}
       style={style}
       size="large"

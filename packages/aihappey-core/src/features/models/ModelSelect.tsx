@@ -2,7 +2,6 @@ import React from "react";
 import { ModelSelectField } from "aihappey-components";
 import { store, useAppStore } from "aihappey-state";
 import type { ModelOption } from "aihappey-types";
-import { getModelDisplayName } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
@@ -133,7 +132,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
       {...fieldProps}
       disabled={props.disabled || (allowFavoriteRouter && deciding)}
       valueTitle={allowFavoriteRouter && routerSelected
-        ? `${getModelDisplayName(props.models.find(model => model.id === props.value), props.value)} · ${t("favoriteModelRouter", "Favorite model router")}`
+        ? t("favoriteModelRouter", "Favorite model router")
         : undefined}
       virtualOptions={routerAvailable ? [{ id: FAVORITE_MODEL_ROUTER, label: t("favoriteModelRouter", "Favorite model router") }] : []}
       onChange={(id) => {

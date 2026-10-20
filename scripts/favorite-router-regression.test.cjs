@@ -649,16 +649,23 @@ test("picker routing is explicit opt-in and never passes virtual IDs to the actu
     const props = { models: state.models, value: state.selectedModel, onChange: id => { selected = id; } };
     let field = ModelSelect(props);
     assert.deepEqual(field.props.virtualOptions, []);
+    assert.equal(field.props.valueTitle, undefined);
     field = ModelSelect({ ...props, allowFavoriteRouter: true });
     assert.equal(field.props.virtualOptions.length, 1);
     field.props.onChange(helper.FAVORITE_MODEL_ROUTER);
     assert.equal(selected, undefined);
     assert.equal(state.selectedModel, "old/model");
     assert.equal(state.favoriteModelRouter, true);
-    assert.match(ModelSelect({ ...props, allowFavoriteRouter: true }).props.valueTitle, /old\/model.*Favorite model router/);
+    assert.equal(ModelSelect({ ...props, allowFavoriteRouter: true }).props.valueTitle, "Favorite model router");
+    for (const value of ["a/model", "b/model", ""]) {
+        const routed = ModelSelect({ ...props, value, allowFavoriteRouter: true });
+        assert.equal(routed.props.valueTitle, "Favorite model router");
+        assert.equal(routed.props.value, value);
+    }
     field.props.onChange("a/model");
     assert.equal(selected, "a/model");
     assert.equal(state.favoriteModelRouter, false);
+    assert.equal(ModelSelect({ ...props, allowFavoriteRouter: true }).props.valueTitle, undefined);
     state.favoriteModelsByType.language = ["a/model"];
     assert.deepEqual(ModelSelect({ ...props, allowFavoriteRouter: true }).props.virtualOptions, []);
     state.favoriteModelsByType.image = ["image"];
@@ -688,17 +695,25 @@ test("agent picker exposes only current favorites, retains real values, and opts
         return node.type === "option" ? [node.props.value] : React.Children.toArray(node.props.children).flatMap(optionValues);
     }
     assert.ok(!optionValues(AgentSelect(props)).includes(helper.FAVORITE_AGENT_ROUTER));
+    assert.equal(AgentSelect(props).props.valueTitle, "Local");
     let picker = AgentSelect({ ...props, allowFavoriteRouter: true });
     assert.ok(optionValues(picker).includes(helper.FAVORITE_AGENT_ROUTER));
     picker.props.onChange(helper.FAVORITE_AGENT_ROUTER);
     assert.equal(selected, undefined);
     picker = AgentSelect({ ...props, allowFavoriteRouter: true });
     assert.deepEqual(picker.props.values, ["local:Local"]);
-    assert.match(picker.props.valueTitle, /Local.*Favorite agent router/);
+    assert.equal(picker.props.valueTitle, "Favorite agent router");
+    for (const values of [["remote:Remote"], ["local:Local", "remote:Remote"], []]) {
+        const routed = AgentSelect({ ...props, values, allowFavoriteRouter: true });
+        assert.equal(routed.props.valueTitle, "Favorite agent router");
+        assert.deepEqual(routed.props.values, values);
+    }
+    assert.equal(AgentSelect(props).props.valueTitle, "Local");
     picker.props.onChange("local:Local");
     assert.deepEqual(state.selectedAgentNames, ["local:Local"]);
     assert.equal(selected, undefined);
     assert.equal(state.favoriteAgentRouter, false);
+    assert.equal(AgentSelect({ ...props, allowFavoriteRouter: true }).props.valueTitle, "Local");
     AgentSelect({ ...props, allowFavoriteRouter: true }).props.onChange("remote:Remote");
     assert.equal(selected, "remote:Remote");
     assert.ok(!optionValues(AgentSelect({ ...props, allowFavoriteRouter: true, favoriteAgentIds: ["local:Local", "missing"] })).includes(helper.FAVORITE_AGENT_ROUTER));

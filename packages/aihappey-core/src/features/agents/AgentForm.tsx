@@ -768,7 +768,7 @@ export const AgentForm = ({
                     <div style={{ display: "grid", gap: 8 }}>
                         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
                             <Input
-                                label={t("providers:tags")}
+                                label={t("agentEdit.tags")}
                                 value={tagInput}
                                 onChange={(event: any) => setTagInput(event.target.value)}
                                 onKeyDown={(event: any) => {
@@ -782,10 +782,10 @@ export const AgentForm = ({
                         </div>
                         {availableTags.length > 0 && (
                             <Select
-                                aria-label={t("providers:tags")}
+                                aria-label={t("agentEdit.tags")}
                                 values={[]}
                                 searchable
-                                placeholder={t("providers:tags")}
+                                placeholder={t("agentEdit.tags")}
                                 onChange={(value: string) => addTag(value)}
                             >
                                 {availableTags.filter((tag) => !tags.includes(tag)).map((tag) => (

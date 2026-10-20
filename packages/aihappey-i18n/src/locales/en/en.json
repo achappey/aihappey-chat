@@ -960,6 +960,8 @@
     "docx": "Word",
     "pdf": "PDF",
     "attachments": "Attachments",
+    "activityAttachmentsEmpty": "No attachments.",
+    "activityAttachmentPreviewError": "Unable to preview this attachment. You can still download it.",
     "attachmentSizeExceeded": "These files were not attached because they exceed the {{limit}} attachment size limit: {{filenames}}",
     "input": "Input",
     "data": "Data",
@@ -1059,6 +1061,7 @@
     "code_execution": "Code execution",
     "agentEdit": {
         "name": "Name",
+        "tags": "Tags",
         "policy": "Policy",
         "allowedTools": "Allowed tools",
         "noTools": "No tools",

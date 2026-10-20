@@ -631,6 +631,7 @@
     "custom": "Aangepast",
     "agentEdit": {
         "name": "Naam",
+        "tags": "Tags",
         "policy": "Beleid",
         "allowedTools": "Tools toegestaan",
         "noTools": "Geen tools",
@@ -1059,6 +1060,8 @@
     "close": "Sluiten",
     "file": "Bijlage",
     "attachments": "Bijlages",
+    "activityAttachmentsEmpty": "Geen bijlagen.",
+    "activityAttachmentPreviewError": "Kan geen voorbeeld van deze bijlage weergeven. Je kunt deze nog wel downloaden.",
     "attachmentSizeExceeded": "Deze bestanden zijn niet toegevoegd omdat ze groter zijn dan de limiet van {{limit}} voor bijlagen: {{filenames}}",
     "messages": "Berichten",
     "data": "Data",
