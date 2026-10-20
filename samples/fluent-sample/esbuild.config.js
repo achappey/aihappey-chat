@@ -2,6 +2,7 @@
 // esbuild.config.js
 
 const esbuild = require("esbuild");
+const fs = require("fs");
 const path = require("path");
 const { copyI18nLocalesToPublic } = require("../../packages/aihappey-i18n/scripts/copy-locales.cjs");
 const isWatch = process.argv.includes("--watch");
@@ -26,6 +27,12 @@ let defaultA2AUrls = safeParseJSON(defaultA2AUrlsEnv, ["http://localhost:3025/ag
 
 const chatApi = process.env.CHAT_API_URL || "http://localhost:3010/api/chat";
 const appName = process.env.APP_NAME || "YACB";
+// URL-only by default; policy Markdown can optionally be supplied by this app.
+const privacyPolicyFile = (process.env.PRIVACY_POLICY_MARKDOWN_FILE ?? "").trim();
+const privacyPolicyMarkdown = process.env.PRIVACY_POLICY_MARKDOWN ?? (
+  privacyPolicyFile ? fs.readFileSync(path.resolve(__dirname, privacyPolicyFile), "utf8") : ""
+);
+const privacyPolicyUrl = process.env.PRIVACY_POLICY_URL ?? "https://example.com/privacy";
 const modelsApi = process.env.MODELS_API_URL || "http://localhost:3010/models";
 const samplingApi = process.env.SAMPLING_API_URL || "http://localhost:3010/sampling";
 const conversationsApi = process.env.CONVERSATIONS_API_URL || "http://localhost:3021/conversations";
@@ -65,6 +72,8 @@ const buildOptions = {
     "__APP_VERSION__": JSON.stringify(`${buildDateVersion}.fluent`),
     "__MODELS_API__": JSON.stringify(modelsApi),
     "__APP_NAME__": JSON.stringify(appName),
+    "__PRIVACY_POLICY_MARKDOWN__": JSON.stringify(privacyPolicyMarkdown),
+    "__PRIVACY_POLICY_URL__": JSON.stringify(privacyPolicyUrl),
     "__CHAT_APP_MCP__": JSON.stringify(chatAppMcp),
     "__A2A_APP_MCP__": JSON.stringify(a2aAppMcp),
     "__SAMPLING_API__": JSON.stringify(samplingApi),

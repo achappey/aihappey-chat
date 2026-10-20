@@ -7,6 +7,8 @@ declare const __CHAT_API__: string;
 declare const __API_BASE_URL__: string;
 declare const __APP_NAME__: string;
 declare const __APP_VERSION__: string;
+declare const __PRIVACY_POLICY_MARKDOWN__: string;
+declare const __PRIVACY_POLICY_URL__: string;
 declare const __CONVERSATIONS_API_URL__: string;
 declare const __CONVERSATIONS_SCOPES__: string[];
 
@@ -18,6 +20,10 @@ const App = () => (
       appName={__APP_NAME__}
       baseUrl={__API_BASE_URL__}
       appVersion={__APP_VERSION__}
+      privacyPolicy={{
+        markdown: __PRIVACY_POLICY_MARKDOWN__,
+        url: __PRIVACY_POLICY_URL__,
+      }}
       conversationsApi={__CONVERSATIONS_API_URL__}
       conversationsScopes={__CONVERSATIONS_SCOPES__}
       chatConfig={{

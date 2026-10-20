@@ -36,9 +36,14 @@ const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3010";
 const defaultChatEndpoint = process.env.DEFAULT_CHAT_ENDPOINT || "/api/chat";
 const chatbotInstructions = process.env.CHATBOT_INSTRUCTIONS || "";
 const mcpCatalogUrls = parseList(process.env.MCP_CATALOG_URLS);
-const appInsightsConnectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || "";
 const pluginExtensionsNamespace = process.env.PLUGIN_EXTENSION_NAMESPACE || "net.aihappey.agents";
 
+// Policy content belongs to this app. An explicitly empty value disables the page.
+const privacyPolicyFile = (process.env.PRIVACY_POLICY_MARKDOWN_FILE ?? "PRIVACY.md").trim();
+const privacyPolicyMarkdown = process.env.PRIVACY_POLICY_MARKDOWN ?? (
+  privacyPolicyFile ? fs.readFileSync(path.resolve(__dirname, privacyPolicyFile), "utf8") : ""
+);
+const privacyPolicyUrl = process.env.PRIVACY_POLICY_URL ?? "";
 
 // --- App version/tag op buildtijd (YYYYMMDD.HHmm) ---
 const now = new Date();
@@ -62,12 +67,13 @@ const buildOptions = {
     "__AGENT_ENDPOINT__": JSON.stringify(agentEndpoint),
     "__APP_VERSION__": JSON.stringify(`${buildDateVersion}.chathappey`),
     "__APP_NAME__": JSON.stringify(appName),
+    "__PRIVACY_POLICY_MARKDOWN__": JSON.stringify(privacyPolicyMarkdown),
+    "__PRIVACY_POLICY_URL__": JSON.stringify(privacyPolicyUrl),
     "__API_BASE_URL__": JSON.stringify(apiBaseUrl),
     "__DEFAULT_CHAT_ENDPOINT__": JSON.stringify(defaultChatEndpoint),
     "__CHATBOT_INSTRUCTIONS__": JSON.stringify(chatbotInstructions),
     "__PLUGIN_EXTENSION_NAMESPACE__": JSON.stringify(pluginExtensionsNamespace),
     "__MCP_CATALOG_URLS__": JSON.stringify(mcpCatalogUrls),
-    "__APPLICATIONINSIGHTS_CONNECTION_STRING__": JSON.stringify(appInsightsConnectionString),
   },
   loader: { ".tsx": "tsx", ".ts": "ts" },
 };
