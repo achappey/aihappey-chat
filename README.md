@@ -20,12 +20,6 @@ The chat client supports:
 - **Multi-theme UI** with interchangeable Shadcn, Fluent, Bootstrap, Mantine, Material and Chakra implementations
 - **Model capabilities** including speech, transcription, embeddings, reranking, images, video and other supported modalities
 
-To inspect API request/response debug events, enable **User Settings → Chat → Debug**
-and open the chat sidebar's **Data** tab. Debugging is off by default and applies to
-`/api/chat` requests. Events stay in memory only: they are never saved in conversation
-history or sent on later turns, and are cleared when switching conversations or turning
-Debug off.
-
 Documentation: https://docs.aihappey.com/chat  
 App: https://chat.aihappey.com
 
