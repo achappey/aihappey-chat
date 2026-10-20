@@ -7,11 +7,6 @@ Model Context Protocol (MCP) host. It does not require an aihappey sign-in for
 ordinary use. Windows applications, AzureAuth deployments and independently
 operated installations are outside this policy's scope.
 
-**Publication note:** the clearly marked operator-completion fields in sections
-3, 8 and 10 require deployment or legal information that cannot be established
-from the application source. They must be completed before this notice is
-published as the final notice for a live service.
-
 ## 1. Who is responsible and how to contact us
 
 The controller for this public service is [achappey](https://achappey.nl), a sole proprietorship
@@ -158,10 +153,36 @@ already performed by an external service.
 BYOK means that you supply credentials issued by your chosen provider. The
 provider authenticates and, where applicable, bills usage on your account. It
 does **not** mean that the key stays exclusively on your device: it is sent to
-the configured gateway or agent service and used for downstream requests.
-The browser can send its configured credential headers together; do not assume
-that a gateway receives only the key for the currently selected model. Changing
-an endpoint changes the service receiving those headers.
+the configured gateway or agent service and used for downstream requests. A
+direct-provider request instead sends the required credential to that provider.
+Changing an endpoint changes the service receiving the applicable credentials.
+
+The updated browser client scopes saved provider API keys to the selected
+provider and operation rather than forwarding the whole saved key collection.
+This applies to chat and agent requests, speech, transcription and dictation,
+images and video, streaming and real-time sessions, embeddings, reranking,
+decisions and supported auxiliary AI calls. Video status checks use the provider
+of each pending operation, not a newly selected model. Provider model discovery
+uses separate provider-scoped requests where keys are required; ordinary agent
+catalogue requests and background-response retrieval do not send execution keys.
+
+A workflow can legitimately require keys for more than one selected agent or
+provider. The client sends only the known required set, and the updated agents
+runtime narrows inherited provider keys to each executing agent's model. When
+provider requirements cannot be determined, the client does not fall back to
+sending all saved provider keys: the request can proceed with endpoint
+authentication, and the backend may report missing credentials. MCP connections
+use credentials explicitly configured or required for that connection, not the
+whole inherited inference-key collection. Endpoint authentication and applicable
+OAuth tokens are handled separately from saved provider keys.
+
+These checks apply to recognised credential headers and the supported request
+paths in the updated client and services. They do not detect every secret placed
+in ordinary content, metadata, custom configuration or tool output, and do not
+recall credentials previously transmitted by an older version. Required
+credentials remain visible to their intended gateway, runtime or provider;
+credential scoping is not end-to-end encryption or a guarantee about a separately
+operated or older installation.
 
 The dedicated saved-provider-key feature encrypts the saved key collection in
 your browser with **AES-256-GCM**, using a password-derived key. The unlocking
