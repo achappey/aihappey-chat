@@ -505,7 +505,7 @@
     "locationType": "Location type",
     "locationApproximate": "Approximate",
     "thinkingDisplay": "Thinking detail",
-    "prefixMismatchBehavior": "Thinking prefix mismatch behavior",
+    "prefixMismatchBehavior": "Thinking mismatch",
     "prefixMismatchBehaviorOptions": {
       "error": "Error",
       "drop_block": "Drop"
