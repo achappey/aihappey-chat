@@ -50,6 +50,69 @@ export interface ProviderKeysModalProps {
 export const ProviderKeysModal: React.FC<ProviderKeysModalProps> = ({
   open,
   onClose,
+}) => open ? <ProviderKeysSession onClose={onClose} /> : null;
+
+// Mount a fresh verification boundary on every opening. The settings (including
+// the key form and export action) must not mount before verification succeeds.
+const ProviderKeysSession = ({ onClose }: { onClose: () => void }) => {
+  const { t } = useTranslation();
+  const encryptedApiKeys = useAppStore((s: any) => s.encryptedApiKeys);
+  const [verified, setVerified] = useState(() => !encryptedApiKeys);
+  const [closed, setClosed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const verificationRequest = useRef(0);
+
+  useEffect(() => () => {
+    verificationRequest.current += 1;
+  }, []);
+
+  const handleClose = () => {
+    verificationRequest.current += 1;
+    setClosed(true);
+    onClose();
+  };
+
+  const handleVerify = async ({ password }: { password: string }) => {
+    if (!encryptedApiKeys || busy || closed) return;
+    const request = ++verificationRequest.current;
+    setBusy(true);
+    setError(undefined);
+    try {
+      // Check the supplied password against the encrypted payload, not the
+      // session-wide unlocked flag or the cached startup password.
+      await decryptApiKeys(encryptedApiKeys, password);
+      if (request === verificationRequest.current) setVerified(true);
+    } catch {
+      if (request === verificationRequest.current) {
+        setError(t("apiKeysPassword.invalidPassword"));
+      }
+    } finally {
+      if (request === verificationRequest.current) setBusy(false);
+    }
+  };
+
+  if (closed) return null;
+  if (!verified && encryptedApiKeys) {
+    return (
+      <ApiKeyPasswordModal
+        open
+        mode="unlock"
+        allowCancel
+        busy={busy}
+        error={error}
+        onSubmit={handleVerify}
+        onClose={handleClose}
+      />
+    );
+  }
+
+  return <ProviderKeysSettingsModal open onClose={handleClose} />;
+};
+
+const ProviderKeysSettingsModal: React.FC<ProviderKeysModalProps> = ({
+  open,
+  onClose,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();

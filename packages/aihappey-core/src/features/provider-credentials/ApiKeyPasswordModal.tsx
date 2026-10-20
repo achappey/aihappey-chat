@@ -12,6 +12,7 @@ export type ApiKeyPasswordModalSubmitValues = {
 export type ApiKeyPasswordModalProps = {
   open: boolean;
   mode: ApiKeyPasswordModalMode;
+  allowCancel?: boolean;
   busy?: boolean;
   error?: string;
   onSubmit: (values: ApiKeyPasswordModalSubmitValues) => void | Promise<void>;
@@ -21,6 +22,7 @@ export type ApiKeyPasswordModalProps = {
 export const ApiKeyPasswordModal = ({
   open,
   mode,
+  allowCancel = mode !== "unlock",
   busy = false,
   error,
   onSubmit,
@@ -74,10 +76,10 @@ export const ApiKeyPasswordModal = ({
         if (!busy) onClose();
       }}
       title={title}
-      modalType={mode === "unlock" ? "alert" : undefined}
+      modalType={mode === "unlock" && !allowCancel ? "alert" : undefined}
       actions={(
         <>
-          {mode !== "unlock" ? (
+          {allowCancel ? (
             <Button variant="secondary" disabled={busy} onClick={onClose}>
               {t("cancel")}
             </Button>
