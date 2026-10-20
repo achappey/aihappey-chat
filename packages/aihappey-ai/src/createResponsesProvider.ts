@@ -37,9 +37,10 @@ export function createResponsesProvider(config: {
   };
 
   return {
-    create: async (request: ResponseApiCreateRequest): Promise<ResponseApiResponse> =>
+    create: async (request: ResponseApiCreateRequest, options?: { signal?: AbortSignal }): Promise<ResponseApiResponse> =>
       requestJson<ResponseApiResponse>(baseUrl, {
         method: "POST",
+        signal: options?.signal,
         body: JSON.stringify({
           ...request,
           background: request.background ?? true,

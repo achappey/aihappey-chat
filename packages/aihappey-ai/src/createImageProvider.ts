@@ -97,7 +97,9 @@ const mergeProviderMetadata = (results: any[]) => {
 export function createImageProvider(config: {
     baseUrl: string;
     headers?: any;
+    fetch?: typeof fetch;
 }) {
+    const fetchImpl = config.fetch ?? fetch;
     return {
         imageModel(modelId: string, maxImagesPerCall?: number | undefined): ImageModelV4 {
             return {
@@ -118,14 +120,19 @@ export function createImageProvider(config: {
                         providerOptions
                     } = options;
 
+                    options.abortSignal?.throwIfAborted();
                     const max = maxImagesPerCall ?? n;
+                    if (!Number.isInteger(n) || n <= 0 || !Number.isInteger(max) || max <= 0) {
+                        throw new Error("Image counts must be positive integers.");
+                    }
                     const batches = Math.ceil(n / max);
 
                     const requests = Array.from({ length: batches }, (_, i) => {
                         const batchN = Math.min(max, n - i * max);
 
-                        return fetch(config.baseUrl, {
+                        return fetchImpl(config.baseUrl, {
                             method: 'POST',
+                            signal: options.abortSignal,
                             headers: {
                                 'Content-Type': 'application/json',
                                 ...(config.headers ?? {})

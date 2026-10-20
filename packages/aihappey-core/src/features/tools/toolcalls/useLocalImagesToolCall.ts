@@ -1,6 +1,10 @@
 import { useCallback } from "react";
 import type { FilesContextType } from "aihappey-files";
-import type { Tool } from "@modelcontextprotocol/sdk/types";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
+import { store } from "aihappey-state";
+import { useImages } from "aihappey-images";
+import { useChatContext } from "../../chat/context/ChatContext";
+import { executeLocalImagesTool, localImageTools } from "./localImages";
 
 /* ============================================================
    Result helpers (copy-paste compatible)
@@ -43,7 +47,7 @@ export const localMaskCreateTool: Tool = {
             height: { type: "number", description: "Image height in pixels" },
             boxes: {
                 type: "array",
-                description: "Rectangular edit regions (transparent holes)",
+                description: "Rectangular edit regions (transparent holes). An empty array keeps the entire image opaque.",
                 items: {
                     type: "object",
                     properties: {
@@ -72,8 +76,8 @@ export const localMaskCreateTool: Tool = {
 
 export const localImagesPluginDef = {
     name: "local-images",
-    match: (toolName: string) => toolName === "local_mask_create",
-    tools: [localMaskCreateTool],
+    match: (toolName: string) => toolName === "local_mask_create" || localImageTools.some(tool => tool.name === toolName),
+    tools: [localMaskCreateTool, ...localImageTools],
 };
 
 /* ============================================================
@@ -109,18 +113,21 @@ async function canvasToBlob(
    Runtime
 ============================================================ */
 
-type LocalMaskToolCall = {
-    toolName: "local_mask_create";
+type LocalImagesToolCall = {
+    toolName: string;
     input?: any;
 };
 
 export function useLocalImagesRuntime(files?: FilesContextType | null) {
+    const { config } = useChatContext();
+    const images = useImages();
     const handle = useCallback(
-        async (toolCall: LocalMaskToolCall): Promise<ToolTextResult> => {
+        async (toolCall: LocalImagesToolCall, signal?: AbortSignal): Promise<CallToolResult> => {
             try {
-                if (!files) throw new Error("Files context not available.");
+                signal?.throwIfAborted();
                 if (toolCall.toolName !== "local_mask_create")
-                    throw new Error(`Unsupported tool: ${toolCall.toolName}`);
+                    return await executeLocalImagesTool(toolCall, { config, files, images, settings: store.getState() }, signal);
+                if (!files) throw new Error("Files context not available.");
 
                 const { name, width, height, boxes } = toolCall.input ?? {};
 
@@ -130,8 +137,8 @@ export function useLocalImagesRuntime(files?: FilesContextType | null) {
                 if (!name) throw new Error("Missing mask file name.");
                 if (!Number.isFinite(w) || w <= 0) throw new Error("Invalid width.");
                 if (!Number.isFinite(h) || h <= 0) throw new Error("Invalid height.");
-                if (!Array.isArray(boxes) || !boxes.length)
-                    throw new Error("boxes must be a non-empty array.");
+                if (!Array.isArray(boxes))
+                    throw new Error("boxes must be an array.");
 
                 const canvas = createCanvas(w, h);
                 const ctx = (canvas as any).getContext("2d");
@@ -166,19 +173,23 @@ export function useLocalImagesRuntime(files?: FilesContextType | null) {
                 ctx.globalCompositeOperation = "source-over";
 
                 const blob = await canvasToBlob(canvas);
+                signal?.throwIfAborted();
 
-                await files.create({
+                const saved = await files.create({
                     name,
                     mimeType: "image/png",
                     data: blob,
                 });
 
-                return ok(`Mask created: ${name}`);
+                return {
+                    ...ok(`Mask created: ${name}. File ID: ${saved.id}`),
+                    structuredContent: { image: { source: "files", id: saved.id }, name },
+                };
             } catch (e) {
                 return fail(e);
             }
         },
-        [files]
+        [config, files, images]
     );
 
     return {
