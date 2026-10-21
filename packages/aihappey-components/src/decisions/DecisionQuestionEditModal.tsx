@@ -17,6 +17,5 @@ export function DecisionQuestionEditModal({ open, question, onClose, onSave }: {
       <Button variant="primary" disabled={!isValidDecisionQuestion(value)} onClick={() => onSave(value)}>{t("save")}</Button>
     </div>}>
     <DecisionQuestionForm value={value} onChange={setValue} />
-    {!isValidDecisionQuestion(value) && <div role="status" style={{ marginTop: 12 }}>{t("decisionsPage.questionValidation")}</div>}
   </Modal>;
 }

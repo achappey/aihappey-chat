@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { decisionText, isInlineDecisionImage, type DecisionInput, type DecisionItem, type DecisionResponse } from "aihappey-decisions";
 import type { Provider } from "aihappey-types";
 import { useTranslation } from "aihappey-i18n";
@@ -7,6 +7,7 @@ import { useTheme } from "../theme/ThemeContext";
 import { useDarkMode } from "usehooks-ts";
 import { ViewButton } from "../buttons/ViewButton";
 import { LimitedTextField } from "../fields/LimitedTextField";
+import { TokenBadge } from "../badges/TokenBadge";
 import { DecisionQuestionCard } from "./DecisionQuestionCard";
 import { getProviderResultVisibility, ProviderResultCards } from "../modals/ProviderResultCards";
 
@@ -33,37 +34,43 @@ function getDecisionProviderResult(decision: DecisionResponse, providers?: Recor
   return { providerMetadata: decision.providerMetadata, providers, providerKey, headers, body: decision.response?.body };
 }
 
-function DecisionResultSummary({ decision }: { decision: DecisionResponse }) {
-  const { Card, Alert } = useTheme();
+export function DecisionResultDetails({ decision, providers, children }: {
+  decision: DecisionResponse; providers?: Record<string, Provider>; children?: ReactNode;
+}) {
+  const { Tabs, Tab, Alert } = useTheme();
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState("overview");
+  useEffect(() => { setActiveTab("overview"); }, [decision]);
+  const providerResult = getDecisionProviderResult(decision, providers);
+  const provider = providerResult.providerKey ? providers?.[providerResult.providerKey] : undefined;
+  const providerDisplayName = provider?.name ?? providerResult.providerKey ?? t("provider", "Provider");
+  const hasProviderResult = getProviderResultVisibility(providerResult).hasAny;
+  const totalTokens = [decision.usage?.inputTokens, decision.usage?.outputTokens]
+    .reduce<number>((total, count) => total + (typeof count === "number" && Number.isFinite(count) && count > 0 ? count : 0), 0);
   return <div style={{ display: "grid", gap: 12 }}>
-    {decision.warnings.map((warning, i) => <Alert key={i} variant="warning">{decisionText(warning)}</Alert>)}
-    {decision.usage && <Card size="small" title={t("decisionsPage.usage")}><dl style={{ margin: 0 }}>
-      {decision.usage.inputTokens !== undefined && <><dt>{t("decisionsPage.inputTokens")}</dt><dd>{decision.usage.inputTokens}</dd></>}
-      {decision.usage.outputTokens !== undefined && <><dt>{t("decisionsPage.outputTokens")}</dt><dd>{decision.usage.outputTokens}</dd></>}
-    </dl></Card>}
-  </div>;
-}
-
-export function DecisionResultDetails({ decision, providers }: { decision: DecisionResponse; providers?: Record<string, Provider> }) {
-  return <div style={{ display: "grid", gap: 12 }}>
-    <DecisionResultSummary decision={decision} />
-    <ProviderResultCards {...getDecisionProviderResult(decision, providers)} />
+    <Tabs activeKey={hasProviderResult ? activeTab : "overview"} onSelect={setActiveTab}>
+      <Tab eventKey="overview" title={t("decisionsPage.overview")}>
+        <div style={{ display: "grid", gap: 16, paddingTop: 12 }}>
+          {totalTokens > 0 && <div><TokenBadge totalTokens={totalTokens} /></div>}
+          {children}
+          {decision.warnings.map((warning, i) => <Alert key={i} variant="warning">{decisionText(warning)}</Alert>)}
+        </div>
+      </Tab>
+      {hasProviderResult && <Tab eventKey="providerResult" title={t("providerResult", "{{provider}} result", { provider: providerDisplayName })}>
+        <div style={{ paddingTop: 12 }}><ProviderResultCards {...providerResult} /></div>
+      </Tab>}
+    </Tabs>
   </div>;
 }
 
 export function DecisionCard({ item, providers, onDelete }: { item: DecisionItem; providers?: Record<string, Provider>; onDelete?: () => void }) {
-  const { Card, Menu, Modal, Button, Image, Tabs, Tab } = useTheme();
+  const { Card, Menu, Modal, Button, Image } = useTheme();
   const { t, i18n } = useTranslation();
   const { isDarkMode } = useDarkMode();
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-  useEffect(() => { if (open) setActiveTab("overview"); }, [open, item.id]);
   const model = item.decision.response?.modelId ?? "";
   const providerResult = getDecisionProviderResult(item.decision, providers);
   const provider = providerResult.providerKey ? providers?.[providerResult.providerKey] : undefined;
-  const providerDisplayName = provider?.name ?? providerResult.providerKey ?? t("provider", "Provider");
-  const hasProviderResult = getProviderResultVisibility(providerResult).hasAny;
   const icon = provider?.icons?.find(i => i.theme === (isDarkMode ? "dark" : "light")) ?? provider?.icons?.[0];
   const { text, images } = evidence(item.input);
   return <>
@@ -76,19 +83,11 @@ export function DecisionCard({ item, providers, onDelete }: { item: DecisionItem
     </Card>
     <Modal show={open} onHide={() => setOpen(false)} title={model || t("decisions")} size="large"
       actions={<Button variant="subtle" onClick={() => setOpen(false)}>{t("close")}</Button>}>
-      <Tabs activeKey={hasProviderResult ? activeTab : "overview"} onSelect={setActiveTab}>
-        <Tab eventKey="overview" title={t("decisionsPage.overview")}>
-          <div style={{ display: "grid", gap: 16, paddingTop: 12 }}>
-            <div style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{text}</div>
-            {!!images.length && <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{images.map((url, i) => <img key={i} src={url} alt={t("decisionsPage.imageNumber", { number: i + 1 })} style={{ maxWidth: 160, maxHeight: 160, objectFit: "contain" }} />)}</div>}
-            {item.questions.map((question, i) => <DecisionQuestionCard key={question.id} question={question} number={i + 1} answer={item.decision.answers[question.id]} />)}
-            <DecisionResultSummary decision={item.decision} />
-          </div>
-        </Tab>
-        {hasProviderResult && <Tab eventKey="providerResult" title={t("providerResult", "{{provider}} result", { provider: providerDisplayName })}>
-          <div style={{ paddingTop: 12 }}><ProviderResultCards {...providerResult} /></div>
-        </Tab>}
-      </Tabs>
+      {open && <DecisionResultDetails key={item.id} decision={item.decision} providers={providers}>
+        <div style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{text}</div>
+        {!!images.length && <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{images.map((url, i) => <img key={i} src={url} alt={t("decisionsPage.imageNumber", { number: i + 1 })} style={{ maxWidth: 160, maxHeight: 160, objectFit: "contain" }} />)}</div>}
+        {item.questions.map((question, i) => <DecisionQuestionCard key={question.id} question={question} number={i + 1} answer={item.decision.answers[question.id]} />)}
+      </DecisionResultDetails>}
     </Modal>
   </>;
 }

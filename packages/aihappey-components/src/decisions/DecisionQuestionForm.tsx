@@ -43,11 +43,11 @@ export function DecisionQuestionForm({ value, onChange }: {
     <Select label={t("decisionsPage.questionType")} value={value.type} onChange={(e: any) => changeType(valueOf(e) as DecisionQuestion["type"])}>
       {(["boolean", "choice", "score", "box"] as const).map(type => <option key={type} value={type}>{t(`decisionsPage.${type === "boolean" ? "predicate" : type}`)}</option>)}
     </Select>
-    <Input label={t("decisionsPage.optionalName")} value={value.name ?? ""} onChange={e => onChange({ ...value, name: e.target.value || undefined })} />
+    <Input label={t("decisionsPage.name")} value={value.name ?? ""} onChange={e => onChange({ ...value, name: e.target.value || undefined })} />
     <TextArea label={t("decisionsPage.instructions")} value={decisionText(value.instructions)} rows={4} required={value.type === "box"}
       onChange={instructions => onChange(value.type === "box" ? { ...value, instructions } : { ...value, instructions: instructions || undefined })} />
     {value.type === "boolean" && (["true", "false"] as const).map(key => <TextArea key={key}
-      label={t("decisionsPage.booleanCriterion", { defaultValue: `Definition of ${key} (optional)`, value: key })}
+      label={t(key === "true" ? "decisionsPage.trueDefinition" : "decisionsPage.falseDefinition")}
       value={decisionText(value.criteria?.[key])} rows={2} onChange={description => {
         const criteria = { ...value.criteria };
         if (description) criteria[key] = description; else delete criteria[key];
@@ -65,7 +65,7 @@ export function DecisionQuestionForm({ value, onChange }: {
           }} />
         </div>}>
         {value.type === "choice" && <Input label={t("decisionsPage.value")} value={key} required onChange={e => update(index, e.target.value, description)} />}
-        <TextArea label={t(value.type === "choice" ? "decisionsPage.optionalDescription" : "decisionsPage.levelLabel")}
+        <TextArea label={t(value.type === "choice" ? "decisionsPage.description" : "decisionsPage.levelLabel")}
           value={decisionText(description)} rows={2} onChange={text => update(index, key, value.type === "choice" ? text || null : text)} />
       </Card>)}
       <Button variant="subtle" icon="add" onClick={() => {

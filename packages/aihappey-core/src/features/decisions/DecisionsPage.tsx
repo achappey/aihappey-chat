@@ -34,6 +34,14 @@ export function DecisionsPage() {
   const move = (index: number, offset: number) => {
     const questions = [...c.questions]; [questions[index], questions[index + offset]] = [questions[index + offset], questions[index]]; c.setQuestions(questions);
   };
+  const questionOverview = <div>
+    {!c.questions.length && <div style={{ marginTop: 16 }}><Card title={t("decisionsPage.noQuestions")}><div>{t("decisionsPage.noQuestionsHint")}</div></Card></div>}
+    <div style={grid}>{c.questions.map((question, index) => <DecisionQuestionCard key={question.id} question={question} number={index + 1} answer={c.result?.answers[question.id]}
+      onEdit={locked ? undefined : () => setEditingQuestion(index)}
+      onDelete={locked ? undefined : () => c.setQuestions(c.questions.filter((_, i) => i !== index))}
+      onMoveUp={!locked && index > 0 ? () => move(index, -1) : undefined}
+      onMoveDown={!locked && index < c.questions.length - 1 ? () => move(index, 1) : undefined} />)}</div>
+  </div>;
   return <div style={{ background: "transparent", width: "100%", minHeight: "100vh" }}>
     <div style={{ padding: "0 12px", display: "flex", alignItems: "center", gap: 8 }}>
       <fieldset disabled={locked} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
@@ -84,13 +92,7 @@ export function DecisionsPage() {
             <Button icon="add" variant="subtle" disabled={locked} onClick={() => setEditingQuestion(c.questions.length)}>{t("decisionsPage.addQuestion")}</Button>
             <Button variant="subtle" disabled={locked || !c.questions.length} onClick={() => setEditingSet("new")}>{t("decisionsPage.saveAsSet")}</Button>
           </div>
-          {!c.questions.length && <div style={{ marginTop: 16 }}><Card title={t("decisionsPage.noQuestions")}><div>{t("decisionsPage.noQuestionsHint")}</div></Card></div>}
-          <div style={grid}>{c.questions.map((question, index) => <DecisionQuestionCard key={question.id} question={question} number={index + 1} answer={c.result?.answers[question.id]}
-            onEdit={locked ? undefined : () => setEditingQuestion(index)}
-            onDelete={locked ? undefined : () => c.setQuestions(c.questions.filter((_, i) => i !== index))}
-            onMoveUp={!locked && index > 0 ? () => move(index, -1) : undefined}
-            onMoveDown={!locked && index < c.questions.length - 1 ? () => move(index, 1) : undefined} />)}</div>
-          {c.result && <div style={{ marginTop: 16 }}><DecisionResultDetails decision={c.result} providers={providers} /></div>}
+          {c.result ? <div style={{ marginTop: 16 }}><DecisionResultDetails decision={c.result} providers={providers}>{questionOverview}</DecisionResultDetails></div> : questionOverview}
         </Tab>
         <Tab eventKey="saved" title={t("saved", { total: store.items.length })}>
           <div style={{ display: "grid", gap: 16, marginTop: 16 }}>

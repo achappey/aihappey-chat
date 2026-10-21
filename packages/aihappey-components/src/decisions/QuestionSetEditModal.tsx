@@ -39,7 +39,6 @@ export function QuestionSetEditModal({ open, set, initialQuestions, onClose, onS
         <Input label={t("name")} value={name} required onChange={e => setName(e.target.value)} />
         {editing ? <>
           <DecisionQuestionForm value={editing.question} onChange={question => setEditing({ ...editing, question })} />
-          {!isValidDecisionQuestion(editing.question) && <div role="status">{t("decisionsPage.questionValidation")}</div>}
           <div style={{ display: "flex", gap: 8 }}>
             <Button variant="subtle" onClick={() => setEditing(undefined)}>{t("cancel")}</Button>
             <Button disabled={!isValidDecisionQuestion(editing.question)} onClick={() => {

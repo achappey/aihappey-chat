@@ -23,7 +23,7 @@ export function QuestionSetCard({ set, onEdit, onDelete, onLoad }: {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const items = [
-    ...(onEdit ? [{ key: "edit", label: t("edit"), onClick: onEdit }] : []),
+    ...(onEdit ? [{ key: "edit", label: t("decisionsPage.edit"), onClick: onEdit }] : []),
     { key: "download", label: t("download"), onClick: () => downloadQuestionSet(set) },
     ...(onDelete ? [{ key: "delete", label: t("delete"), onClick: onDelete }] : []),
   ];
