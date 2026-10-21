@@ -688,7 +688,9 @@ export const Select = ({ values = [], value, onChange, onFilter, freeform = fals
         <PortalThemeScope>
           <DropdownMenuPrimitive.Content className="aih-shadcn-popover aih-shadcn-select-content aih-shadcn-multiselect-content" align="start" sideOffset={4} collisionPadding={8}>
             {searchBox}
-            {noResults ?? renderMultiSelectNodes(filteredOptionNodes, selectedValues, onChange)}
+            <SelectDropdownViewport>
+              {open ? noResults ?? renderMultiSelectNodes(filteredOptionNodes, selectedValues, onChange) : null}
+            </SelectDropdownViewport>
           </DropdownMenuPrimitive.Content>
         </PortalThemeScope>
       </DropdownMenuPrimitive.Portal>

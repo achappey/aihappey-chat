@@ -251,11 +251,12 @@ export const createAgentSlice: StateCreator<
                 ...prev,
                 ...agent,
                 name, // hard lock
-                model: {
+                model: mergedModel.id ? {
                     ...mergedModel,
+                    id: mergedModel.id,
                     providerMetadata,
                     providerHeaders,
-                },
+                } : undefined,
 
             });
 

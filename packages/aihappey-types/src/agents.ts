@@ -2,7 +2,8 @@ import { Icon } from "@modelcontextprotocol/sdk/types";
 
 export type Agent = {
     name: string;
-    model: AiModel;
+    model?: AiModel;
+    models?: AiModel[];
     description: string;
     instructions: string;
     tags?: string[];
@@ -156,6 +157,8 @@ export type ResponseFormat = {
 
 export type AiModel = {
     id: string;
+    /** Catalog hint for display/offline fallback; the backend verifies router types from its catalog. */
+    type?: string;
     options?: AiModelOptions;
     providerMetadata?: Record<string, any>;
     providerHeaders?: Record<string, string>;

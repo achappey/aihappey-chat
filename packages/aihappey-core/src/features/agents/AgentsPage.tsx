@@ -5,6 +5,7 @@ import { useTranslation } from "aihappey-i18n";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { AgentEditModal } from "./AgentEditModal";
 import type { Agent, IconToken, MenuItemProps, RemoteAgentModel } from "aihappey-types";
+import { getAgentModels } from "aihappey-types";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
 import React from "react";
@@ -26,8 +27,9 @@ const getProviderIconsForModel = (modelId?: string): Agent["icons"] | undefined 
   return (PROVIDERS as Record<string, { icons?: Agent["icons"] }>)[providerKey]?.icons;
 };
 
-const getProviderIconsForAgentModel = (agent?: Pick<Agent, "model">): Agent["icons"] | undefined => {
-  return getProviderIconsForModel(agent?.model?.id);
+const getProviderIconsForAgentModel = (agent?: Pick<Agent, "model" | "models">): Agent["icons"] | undefined => {
+  return Array.from(new Map(getAgentModels(agent).flatMap(model => getProviderIconsForModel(model.id) ?? [])
+    .map(icon => [icon.src, icon])).values());
 };
 
 const buildRemoteAgentCardAgent = (remoteAgentModel: RemoteAgentModel): Agent => {
@@ -218,7 +220,7 @@ export const AgentsPage = () => {
       const haystack = [
         card.agent.name,
         card.agent.description,
-        card.agent.model?.id,
+        ...getAgentModels(card.agent).map(model => model.id),
       ]
         .filter(Boolean)
         .join(" ")

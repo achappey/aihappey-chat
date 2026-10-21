@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { Agent } from "aihappey-types";
+import { getAgentModels, type Agent } from "aihappey-types";
 import { AgentForm } from "./AgentForm";
 import { CancelButton } from "../../ui/buttons/CancelButton";
 
@@ -21,7 +21,7 @@ export const AgentEditModal = ({ open, onClose, agent, isEditing, onSave }: Agen
 
     const isValid = draft?.name
         && draft?.description
-        && draft?.model?.id
+        && getAgentModels(draft).length > 0
         && draft?.instructions;
 
     useEffect(() => {

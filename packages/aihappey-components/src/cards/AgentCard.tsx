@@ -1,5 +1,5 @@
 import { useTheme } from "../theme/ThemeContext";
-import { Agent, MenuItemProps } from "aihappey-types";
+import { Agent, MenuItemProps, getAgentModels } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTranslation } from "aihappey-i18n";
 import { CapabilityIcon } from "../images/CapabilityIcon";
@@ -102,10 +102,7 @@ export const AgentCard = ({
 
   const imageIcons = agent?.icons?.length ? agent.icons : providerIcons;
   const image = imageIcons?.length ? <CapabilityIcon icons={imageIcons} /> : undefined;
-  const modelId = agent?.model?.id;
-  const modelDisplayId = modelId
-    ? getModelDisplayId(modelId, !!providerIcons?.length)
-    : undefined;
+  const modelIds = getAgentModels(agent).map(model => model.id);
 
   const actions = exportButton || editButton || favoriteButton ? <>{exportButton}{editButton}{favoriteButton}</> : undefined
 
@@ -115,11 +112,11 @@ export const AgentCard = ({
       image={image}
       actions={actions}
       headerActions={headerActions}
-      description={modelId ? (
-        <Badge title={modelId} icon="brain" size="small" appearance="tint">
-          {modelDisplayId}
-        </Badge>
-      ) : undefined}
+      description={modelIds.length ? <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+        {modelIds.map(modelId => <Badge key={modelId} title={modelId} icon="brain" size="small" appearance="tint">
+          {getModelDisplayId(modelId, modelIds.length === 1 && !!providerIcons?.length)}
+        </Badge>)}
+      </div> : undefined}
       size="small"
     >
       <LimitedTextField text={agent?.description} />

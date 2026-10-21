@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTheme } from "aihappey-components";
 
 import { useTranslation } from "aihappey-i18n";
-import { Agent } from "aihappey-types";
+import { Agent, getAgentModels } from "aihappey-types";
 import { AgentChecks, hasAgentChecks } from "./AgentChecks";
 
 export interface AgentModalProps {
@@ -33,12 +33,12 @@ export const AgentModal = ({ open, onClose, agent }: AgentModalProps) => {
                             <p style={{ marginTop: 0 }}>{agent.description}</p>
                         ) : null}
 
-                        <Card
-                            title={agent?.model?.id}
+                        {getAgentModels(agent).map(model => <Card key={model.id}
+                            title={model.id}
                             size="small"
                         >
-                            <div style={{ fontSize: 12, color: "#888" }}>{agent?.model?.id}</div>
-                        </Card>
+                            <div style={{ fontSize: 12, color: "#888" }}>{model.id}</div>
+                        </Card>)}
                     </div>
                 </Tab>
                 {hasAgentChecks(agent.evaluations) ? (

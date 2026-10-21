@@ -2,6 +2,7 @@ import { scopeOperationHeaders as scopeHeadersForModels } from "../../provider-c
 import { createDecisionProvider, defaultEndpoints } from "aihappey-ai";
 import { isValidDecisionResponse, toWireQuestions, type DecisionQuestion } from "aihappey-decisions";
 import type { Agent, ModelOption, RemoteAgentModel } from "aihappey-types";
+import { getAgentModels } from "aihappey-types";
 import { resolveSelectedAgentEntries } from "../../agents/agentSelection";
 
 export const FAVORITE_MODEL_ROUTER = "favorite-model-router";
@@ -48,7 +49,8 @@ export function favoriteRouterCandidates(state: RouterState, kind: "model" | "ag
         id: entry.key, name: entry.label, description: entry.description,
         tags: entry.remoteAgentModel?.tags,
         instructions: agent?.instructions, argumentHint: agent?.argumentHint,
-        model: modelMetadata(state.models?.find(model => model.id === agent?.model.id)),
+        models: getAgentModels(agent).map(config => ({ id: config.id,
+          ...modelMetadata(state.models?.find(model => model.id === config.id)) })),
         tools: agent?.tools?.map(tool => ({ type: tool.type, name: tool.name, description: tool.description })),
         skills: agent?.skills?.map(skill => skill.type === "skill_reference"
           ? { skill_id: skill.skill_id } : { name: skill.name, description: skill.description }),

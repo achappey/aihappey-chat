@@ -637,6 +637,7 @@
     "unfavorite_plugin": "{{plugin}} verwijderen uit favorieten",
     "custom": "Aangepast",
     "agentEdit": {
+        "modelRoutingHint": "Selecteer antwoordmodellen en eventueel een beslissingsmodel om ertussen te kiezen. Zonder router wordt het eerste antwoordmodel gebruikt.",
         "name": "Naam",
         "tags": "Tags",
         "policy": "Beleid",

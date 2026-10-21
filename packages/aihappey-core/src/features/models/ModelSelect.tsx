@@ -20,6 +20,8 @@ const newestModelOfTypes = (models: ModelOption[], modelTypes: string[]) => {
 interface ModelSelectProps {
   models: ModelOption[];
   value: string;
+  values?: string[];
+  multiselect?: boolean;
   label?: string;
   onChange: (id: string) => void;
   disabled?: boolean;
@@ -78,19 +80,17 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const routerAvailable = allowFavoriteRouter && !!preferredDecisionModel
     && new Set(props.models.filter(model => modelTypes.includes(model.type)
       && favoriteModelsByType?.[model.type]?.includes(model.id)).map(model => model.id)).size >= 2;
-  const enabledProviderKeys = React.useMemo(() => {
-    const types = modelTypes;
-    const names = new Set<string>();
-    for (const type of types) {
+  const enabledProviderKeysByType = React.useMemo(() => {
+    return Object.fromEntries(modelTypes.map(type => {
       const bucket = (enabledProvidersByType as any)?.[type]
         ?? (type === "audio" ? (enabledProvidersByType as any)?.realtime : undefined)
         ?? [];
-      for (const name of bucket) {
-        names.add(name);
-      }
-    }
-    return Array.from(names).map((name) => providerNameToKey[name]).filter(Boolean);
-  }, [enabledProvidersByType, modelTypes]);
+      return [type, bucket.map((name: string) => providerNameToKey[name]).filter(Boolean)];
+    }));
+  }, [enabledProvidersByType, modelTypes, providerNameToKey]);
+  const enabledProviderKeys = React.useMemo(() => Array.from(new Set<string>(
+    Object.values(enabledProviderKeysByType).flat(),
+  )), [enabledProviderKeysByType]);
 
   const favoriteModelIds = React.useMemo(() => {
     const types = modelTypes;
@@ -111,6 +111,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
 
   React.useEffect(() => {
     if (!modelsLoaded) return;
+    if (props.multiselect) return;
     if (!autoSelectFallback || (allowFavoriteRouter && routerSelected)) return;
 
     const currentValue = props.value;
@@ -125,7 +126,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     if (currentValue !== nextValue) {
       props.onChange(nextValue);
     }
-  }, [allowFavoriteRouter, routerSelected, autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value]);
+  }, [allowFavoriteRouter, routerSelected, autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value, props.multiselect]);
 
   return (
     <ModelSelectField
@@ -145,6 +146,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
       models={(props.models ?? [])}
       providers={providerOptions}
       enabledProviderKeys={enabledProviderKeys}
+      enabledProviderKeysByType={enabledProviderKeysByType}
       favoriteModelIds={favoriteModelIds}
       favoritesLabel={t("favorites")}
       placeholder={t("selectModelPlaceholder")}

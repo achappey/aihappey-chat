@@ -13,7 +13,7 @@ import { useOnToolCall } from "../../tools/toolcalls/useOnToolCall";
 import { findLatestLocalJsonRenderTree } from "../../tools/toolcalls/useLocalJsonRenderToolCall";
 import { MessageList } from "../messages/MessageList";
 import { conversationGatewayCostTotal } from "../messages/toChatMessages";
-import { SYSTEM_ROLE, type UIMessage } from "aihappey-types";
+import { SYSTEM_ROLE, getAgentCredentialModels, type UIMessage } from "aihappey-types";
 import { useChatActions } from "./useChatActions";
 import { useSystemMessage } from "../messages/useSystemMessage";
 import { useChatContext } from "../context/ChatContext";
@@ -372,8 +372,9 @@ export function VercelChatInner({
     const providerKeys = Array.from(
       new Set(
         selectedAgents
-          .map((agent: any) => {
-            const modelId = String(agent?.model?.id ?? "").trim();
+          .flatMap((agent: any) => getAgentCredentialModels(agent))
+          .map((model) => {
+            const modelId = String(model.id ?? "").trim();
             return modelId.includes("/") ? getProviderKeyFromModelId(modelId) : undefined;
           })
           .filter((providerKey): providerKey is string => !!providerKey && !!providers[providerKey])
@@ -549,6 +550,8 @@ export function VercelChatInner({
   }, []);
   const getGatewayProviderHeaders = useCallback((body: any) => {
     const getAgentHeaders = (agent: any): Record<string, any> | undefined => {
+      // Multi-model headers belong to each configuration in the payload, never to a merged outer header map.
+      if (agent?.models?.length) return undefined;
       const value = agent?.model?.providerHeaders;
       if (value == null || typeof value !== "object" || Array.isArray(value)) {
         return undefined;

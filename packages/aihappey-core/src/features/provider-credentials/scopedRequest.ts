@@ -1,4 +1,5 @@
 import { store } from "aihappey-state";
+import { getAgentCredentialModels } from "aihappey-types";
 import { getProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { buildOperationHeaders as buildHeaders, scopeHeadersForModels } from "./providerAuthHeaders";
 
@@ -19,7 +20,7 @@ export const requestCredentialModels = (body: any, remoteModels: any[] = []): st
     if (typeof value !== "string" || !value.trim()) return;
     const remote = remoteModels.find(item => item.id === value);
     if (remote) {
-      if (typeof remote.agent?.model?.id === "string") models.push(remote.agent.model.id);
+      for (const model of getAgentCredentialModels(remote.agent)) models.push(model.id);
     } else if (value.includes("/")) models.push(value);
   };
   add(body?.model);
@@ -27,7 +28,7 @@ export const requestCredentialModels = (body: any, remoteModels: any[] = []): st
   for (const agent of [
     ...(Array.isArray(body?.agents) ? body.agents : []),
     ...(Array.isArray(body?.metadata?.agents) ? body.metadata.agents : []),
-  ]) add(agent?.model?.id);
+  ]) for (const model of getAgentCredentialModels(agent)) add(model.id);
   return models;
 };
 

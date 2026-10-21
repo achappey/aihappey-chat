@@ -6,6 +6,8 @@ import {
     normalizeAgentSelectionValue,
     toLocalAgentSelectionKey,
     toRemoteAgentSelectionKey,
+    getAgentModels,
+    getPrimaryAgentModel,
 } from "aihappey-types";
 
 export type MagenticMetadata = {
@@ -45,7 +47,7 @@ const createLocalEntry = (agent: Agent): AgentSelectionEntry => ({
     label: agent.name,
     backendId: agent.name,
     description: agent.description,
-    modelId: agent.model?.id,
+    modelId: getPrimaryAgentModel(agent)?.id,
     argumentHint: agent.argumentHint,
     localAgent: agent,
 });
@@ -92,8 +94,8 @@ export const buildAvailableAgentSelectionEntries = (
     const visibleLocalAgents = localAgents.filter((agent) => {
         if (alwaysVisibleSet.has(toLocalAgentSelectionKey(agent.name))) return true;
 
-        const providerKey = String(agent.model?.id ?? "").split("/")[0]?.toLowerCase();
-        return enabledProviderKeys.includes(providerKey);
+        return getAgentModels(agent).filter(model => model.type !== "decision")
+            .some(model => enabledProviderKeys.includes(model.id.split("/")[0]?.toLowerCase()));
     });
 
     return [

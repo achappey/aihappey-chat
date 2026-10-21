@@ -11,10 +11,13 @@ export type ProviderOption = {
 export type ModelSelectFieldProps = {
   models: ModelOption[];
   value: string;
+  values?: string[];
+  multiselect?: boolean;
   onChange: (id: string) => void;
 
   providers: ProviderOption[];
   enabledProviderKeys?: string[]; // optional filter
+  enabledProviderKeysByType?: Record<string, string[]>;
   modelTypes?: string[];          // default ["language"]
   favoriteModelIds?: string[];
   favoritesLabel?: string;
@@ -52,10 +55,13 @@ const getModelOptionValue = (model: ModelOption) => JSON.stringify([model.type, 
 export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   models,
   value,
+  values,
+  multiselect = false,
   onChange,
 
   providers,
   enabledProviderKeys,
+  enabledProviderKeysByType,
   modelTypes = ["language"],
   favoriteModelIds,
   favoritesLabel = "Favorites",
@@ -80,9 +86,11 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   const { Select } = useTheme();
   const SelectComponent = Select || "select";
 
-  const enabledSet = enabledProviderKeys?.length
+  const enabledSet = enabledProviderKeys !== undefined
     ? new Set(enabledProviderKeys)
     : null;
+  const enabledSetsByType = new Map(Object.entries(enabledProviderKeysByType ?? {})
+    .map(([type, keys]) => [type, new Set(keys)]));
 
   const favoriteSet = new Set((favoriteModelIds ?? []).filter(Boolean));
 
@@ -93,7 +101,8 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     if (favoriteSet.has(m.id)) return true;
 
     const providerKey = getModelProviderKey(m);
-    return !enabledSet || (!!providerKey && enabledSet.has(providerKey));
+    const enabled = enabledSetsByType.get(m.type) ?? enabledSet;
+    return !enabled || (!!providerKey && enabled.has(providerKey));
   });
 
   const providerLabelByKey = new Map(providers.map((p) => [p.key, p.label]));
@@ -117,16 +126,19 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   const modelIdByOptionValue = new Map(
     visibleModels.map((model) => [getModelOptionValue(model), model.id]),
   );
-  const selectedModel = visibleModels.find((model) => model.id === value)
-    ?? models?.find((model) => model.id === value);
-  const selectedOptionValue = selectedModel && visibleModels.includes(selectedModel)
-    ? getModelOptionValue(selectedModel)
-    : value;
-  const displayValue = getModelDisplayName(selectedModel, value);
+  const selectedIds = multiselect ? values ?? [] : [value];
+  const visibleModelById = new Map(visibleModels.map(model => [model.id, model]));
+  const modelById = new Map((models ?? []).map(model => [model.id, model]));
+  const selectedOptionValues = selectedIds.map(id => {
+    const model = visibleModelById.get(id);
+    return model ? getModelOptionValue(model) : id;
+  });
+  const displayValue = selectedIds.map(id => getModelDisplayName(visibleModelById.get(id) ?? modelById.get(id), id)).join(", ");
 
   return (
     <SelectComponent
-      values={[selectedOptionValue]}
+      values={selectedOptionValues}
+      multiselect={multiselect}
       valueTitle={valueTitle ?? displayValue}
       icon={icon}
       label={label}

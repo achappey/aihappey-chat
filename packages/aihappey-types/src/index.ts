@@ -4,6 +4,7 @@ export * from "./chat";
 export * from "./theme";
 export * from "./mcp";
 export * from "./agents";
+export * from "./agentModels";
 export * from "./models";
 export * from "./modelIdentity";
 export * from "./providerFiles";

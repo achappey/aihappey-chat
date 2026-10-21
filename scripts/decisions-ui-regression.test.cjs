@@ -154,7 +154,7 @@ test("score probabilities include their level labels while preserving the numeri
     const answer = { type: "score", score: 0.75, probabilities: { 0: 0.25, 1: 0.75, 2: 0, 3: 0 } };
     const node = DecisionAnswerDetails({ answer, question });
     assert.equal(byType(node, "strong").props.children, 0.75);
-    assert.deepEqual(findAll(node, child => child.type === "dt").map(row => row.props.children), ["0 — Low", "1 — High", "2", "3"]);
+    assert.deepEqual(findAll(node, child => child.type === "dt").map(row => row.props.children), ["0 - Low", "1 - High", "2", "3"]);
     assert.deepEqual(findAll(node, child => child.type === "dd").map(row => row.props.children), ["25%", "75%", "0%", "0%"]);
     assert.equal(find(node, child => child.props.role === "meter"), undefined);
     for (const context of [undefined, { ...question, criteria: [] }, { id: "other", type: "boolean" }]) {

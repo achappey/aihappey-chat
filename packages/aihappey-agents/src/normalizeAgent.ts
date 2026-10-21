@@ -1,4 +1,4 @@
-import type { Agent } from "aihappey-types";
+import { getAgentModels, type Agent, type AiModel } from "aihappey-types";
 
 const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -61,17 +61,15 @@ const normalizeMcpClient = (value: Agent["mcpClient"]): Agent["mcpClient"] => {
 };
 
 export const normalizeAgent = (agent: Agent): Agent => {
-  const providerHeaders = normalizeAgentProviderHeaders(
-    agent.model?.id,
-    agent.model?.providerHeaders as unknown as Record<string, unknown> | undefined
-  );
+  const normalizeModel = (model: AiModel): AiModel => ({
+    ...model,
+    providerHeaders: normalizeAgentProviderHeaders(model.id, model.providerHeaders),
+  });
 
   return {
     ...agent,
-    model: {
-      ...agent.model,
-      providerHeaders,
-    },
+    model: agent.model ? normalizeModel(agent.model) : undefined,
+    ...(agent.models ? { models: getAgentModels({ models: agent.models }).map(normalizeModel) } : {}),
     mcpClient: normalizeMcpClient(agent.mcpClient),
   };
 };

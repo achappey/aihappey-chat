@@ -25,6 +25,7 @@ import {
     resolveAgentModelProviderMetadata,
     useAppStore,
 } from "aihappey-state";
+import { getAgentModels, getPrimaryAgentModel, type AiModel } from "aihappey-types";
 import { ModelSelect } from "../models/ModelSelect";
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { ServerManagement } from "aihappey-components";
@@ -59,6 +60,7 @@ const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
 const AGENT_RESOURCE_SEARCH_TOGGLE_ID = "client-resource-search";
 const ALL_MCP_TOOLS = "__agent_all_mcp_tools__";
 const NO_MCP_TOOLS = "__agent_no_mcp_tools__";
+const AGENT_MODEL_TYPES = ["language", "decision"];
 
 export interface AgentFormProps {
     agent: Agent;
@@ -76,6 +78,7 @@ export const AgentForm = ({
     const { t } = useTranslation();
     const { config: chatConfig } = useChatContext();
     const [activeTab, setActiveTab] = useState("general");
+    const [settingsModelId, setSettingsModelId] = useState("");
     const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
     const [skillSyncPending, setSkillSyncPending] = useState(false);
     const [hasHydratedSkillSelection, setHasHydratedSkillSelection] = useState(false);
@@ -622,26 +625,26 @@ export const AgentForm = ({
         }
     };
 
-    const providerKey = getAgentModelProviderKey(agent?.model?.id);
+    const selectedModels = getAgentModels(agent);
+    const availableModels = useMemo(() => (models ?? []).filter(model => model.route !== "direct"), [models]);
+    const settingsModel = selectedModels.find(model => model.id === settingsModelId) ?? selectedModels[0];
+    const setModelConfigurations = (current: Agent, configurations: AiModel[]): Agent => ({
+        ...current,
+        models: configurations,
+        // Keep a pre-existing legacy field useful, but collection-only documents stay collection-only.
+        model: current.model ? getPrimaryAgentModel({ models: configurations }) : undefined,
+    });
+    const updateSettingsModel = (patch: Partial<AiModel>) => onChange(current =>
+        setModelConfigurations(current, getAgentModels(current).map(model =>
+            model.id === settingsModel?.id ? { ...model, ...patch } : model)));
+    const providerKey = getAgentModelProviderKey(settingsModel?.id);
     const providerTitle = (PROVIDERS as Record<string, { name?: string }>)[providerKey]?.name ?? providerKey;
-    const providerMeta = agent?.model?.providerMetadata ?? {};
-    const providerHeaders = agent?.model?.providerHeaders ?? {};
+    const providerMeta = settingsModel?.providerMetadata ?? {};
+    const providerHeaders = settingsModel?.providerHeaders ?? {};
     const updateProviderMetadata = (providerMetadata: any) =>
-        onChange((current) => ({
-            ...current,
-            model: {
-                ...current.model,
-                providerMetadata,
-            },
-        }));
+        updateSettingsModel({ providerMetadata });
     const updateProviderHeaders = (headers: Record<string, string> | undefined) =>
-        onChange((current) => ({
-            ...current,
-            model: {
-                ...current.model,
-                providerHeaders: headers && Object.keys(headers).length ? headers : undefined,
-            },
-        }));
+        updateSettingsModel({ providerHeaders: headers && Object.keys(headers).length ? headers : undefined });
 
     const enabled = new Set(Object.entries(agent.mcpServers ?? {})
         .filter(a => a[1].disabled !== true)
@@ -766,29 +769,22 @@ export const AgentForm = ({
                         }
                     />
                     <ModelSelect
-                        models={models ?? []}
-                        label={t('model')}
-                        value={agent.model?.id ?? ""}
-                        onChange={(id) =>
-                            onChange({
-                                ...agent,
-                                model: {
-                                    ...(agent.model ?? {}),
-                                    id,
-                                    providerMetadata: resolveAgentModelProviderMetadata({
-                                        previousModelId: agent.model?.id,
-                                        nextModelId: id,
-                                        previousProviderMetadata: agent.model?.providerMetadata,
-                                    }),
-                                    providerHeaders: resolveAgentModelProviderHeaders({
-                                        previousModelId: agent.model?.id,
-                                        nextModelId: id,
-                                        previousProviderMetadata: agent.model?.providerMetadata,
-                                        previousProviderHeaders: agent.model?.providerHeaders,
-                                    }),
-                                },
-                            })
-                        }
+                        label={t('models')}
+                        models={availableModels}
+                        modelTypes={AGENT_MODEL_TYPES}
+                        value={selectedModels[0]?.id ?? ""}
+                        values={selectedModels.map(model => model.id)}
+                        multiselect
+                        autoSelectFallback={false}
+                        onChange={(value: string) => onChange(current => {
+                            const selected = getAgentModels(current);
+                            const info = models?.find(model => model.id === value);
+                            const next = selected.some(model => model.id === value)
+                                ? selected.filter(model => model.id !== value)
+                                : [...selected, { id: value, type: info?.type,
+                                    providerMetadata: resolveAgentModelProviderMetadata({ nextModelId: value }) }];
+                            return setModelConfigurations(current, next);
+                        })}
                     />
                     <TextArea label={t('instructions')}
                         placeholder={t('agentEdit.instructionsPlaceholder')}
@@ -1066,6 +1062,13 @@ export const AgentForm = ({
                 {/* ---------------- Provider Settings ---------------- */}
                 <Tab eventKey="providers"
                     title={providerTitle}>
+                    <Select label={t("model")} values={settingsModel ? [settingsModel.id] : []}
+                        valueTitle={settingsModel?.id}
+                        options={selectedModels.map(model => ({ value: model.id, label: model.id }))}
+                        onChange={setSettingsModelId}>
+                        {selectedModels.map(model => <option key={model.id} value={model.id}>{model.id}</option>)}
+                    </Select>
+                    <div key={settingsModel?.id}>
                     {providerKey === "abliteration" && (
                         <AbliterationChatConfigForm
                             config={providerMeta}
@@ -1362,6 +1365,7 @@ export const AgentForm = ({
                             updateConfig={updateProviderMetadata}
                         />
                     )}
+                    </div>
                 </Tab>
 
             </Tabs>

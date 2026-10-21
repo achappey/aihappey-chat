@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { McpPolicySettings, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import { IconToken } from "aihappey-types";
+import { IconToken, getAgentModels } from "aihappey-types";
 import { Handoff, HandoffsEditor } from "../agents/HandoffsEditor";
 import { AgentWithMcpServers, useAgents } from "../agents/useAgentMcpServers";
 import { resolveSelectedAgentEntries } from "../agents/agentSelection";
@@ -132,12 +132,12 @@ const AgentTab = ({
             value={JSON.stringify(agent.agent.responseFormat)} />
         </theme.Card>}
 
-      <theme.Card size="small"
-        title={agent.agent.model.id}>
-        {agent.agent.model.providerMetadata
+      {getAgentModels(agent.agent).map(model => <theme.Card key={model.id} size="small"
+        title={model.id}>
+        {model.providerMetadata
           && <theme.JsonViewer
-            value={JSON.stringify(agent.agent.model.providerMetadata)} />}
-      </theme.Card>
+            value={JSON.stringify(model.providerMetadata)} />}
+      </theme.Card>)}
     </div>
   </>
 }
