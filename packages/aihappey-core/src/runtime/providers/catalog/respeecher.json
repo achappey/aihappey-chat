@@ -1,0 +1,17 @@
+
+{
+  "name": "Respeecher",
+  "description": "Professional AI voice generator for real production workflows, with free testing and flexible integration for studios and media teams.",
+  "urls": {
+    "homepage": "https://www.respeecher.com",
+    "docs": "https://space.respeecher.com/docs",
+    "pricing": "https://www.respeecher.com/marketplace/pricing",
+    "termsOfService": "https://www.respeecher.com/marketplace/terms-of-use",
+    "privacyPolicy": "https://www.respeecher.com/privacy-policy"
+  },
+  "category": "media_voice",
+  "providerCountry": "UA",
+  "inferenceRegions": [
+    "World"
+  ]
+}

@@ -1,0 +1,18 @@
+
+{
+  "name": "Yandex",
+  "description": "A unified environment for building, running, and scaling AI products. Leverage ready-to-use AI services, AI platform, and GPU infrastructure. Available as a cloud, hybrid, and on-premise solution.",
+  "urls": {
+    "homepage": "https://yandex.cloud/en/infra-ai",
+    "docs": "https://yandex.cloud/en/docs/ai-studio",
+    "pricing": "https://aistudio.yandex.ru/en/docs/ai-studio/pricing",
+    "termsOfService": "https://yandex.cloud/en/docs/billing/concepts/contract",
+    "privacyPolicy": "https://yandex.cloud/en/security/data-privacy"
+  },
+  "category": "model_provider",
+  "providerCountry": "RU",
+  "inferenceRegions": [
+    "Asia",
+    "Europe"
+  ]
+}

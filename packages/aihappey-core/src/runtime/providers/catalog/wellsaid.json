@@ -1,0 +1,16 @@
+{
+  "name": "WellSaid",
+  "description": "Most Realistic AI Voice Generator.",
+  "urls": {
+    "homepage": "https://www.wellsaid.io",
+    "docs": "https://docs.wellsaidlabs.com",
+    "pricing": "https://www.wellsaid.io/ai-voice-pricing",
+    "termsOfService": "https://www.wellsaid.io/terms-of-use",
+    "privacyPolicy": "https://www.wellsaid.io/privacy-policy"
+  },
+  "category": "media_voice",
+  "providerCountry": "US",
+  "inferenceRegions": [
+    "World"
+  ]
+}

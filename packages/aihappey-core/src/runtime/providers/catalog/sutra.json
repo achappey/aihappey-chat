@@ -1,0 +1,16 @@
+
+{
+  "name": "Sutra",
+  "description": "NUMERIC is a new kind of computing company, building AI-first devices and experiences.",
+  "urls": {
+    "homepage": "https://www.two.ai",
+    "docs": "https://docs.two.ai",
+    "termsOfService": "https://www.two.ai/legal/terms",
+    "privacyPolicy": "https://www.two.ai/legal/privacy"
+  },
+  "category": "model_provider",
+  "providerCountry": "US",
+  "inferenceRegions": [
+    "World"
+  ]
+}

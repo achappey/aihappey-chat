@@ -2518,5 +2518,21 @@
   {
     "id": "leonardo",
     "file": "leonardo.json"
+  },
+  {
+    "id": "sutra",
+    "file": "sutra.json"
+  },
+  {
+    "id": "wellsaid",
+    "file": "wellsaid.json"
+  },
+  {
+    "id": "respeecher",
+    "file": "respeecher.json"
+  },
+  {
+    "id": "yandex",
+    "file": "yandex.json"
   }
 ]

@@ -631,6 +631,10 @@ import provider626 from "./catalog/clarifai.json";
 import provider627 from "./catalog/mangoboost.json";
 import provider628 from "./catalog/modelscope.json";
 import provider629 from "./catalog/leonardo.json";
+import provider630 from "./catalog/sutra.json";
+import provider631 from "./catalog/wellsaid.json";
+import provider632 from "./catalog/respeecher.json";
+import provider633 from "./catalog/yandex.json";
 
 export const PROVIDER_CATALOG = {
   "openai": provider0,
@@ -1263,4 +1267,8 @@ export const PROVIDER_CATALOG = {
   "mangoboost": provider627,
   "modelscope": provider628,
   "leonardo": provider629,
+  "sutra": provider630,
+  "wellsaid": provider631,
+  "respeecher": provider632,
+  "yandex": provider633,
 } as Record<string, Omit<Provider, "createGatewayMetadata">>;
