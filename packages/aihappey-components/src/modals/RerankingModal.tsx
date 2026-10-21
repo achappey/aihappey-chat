@@ -195,11 +195,11 @@ export const RerankingModal: React.FC<RerankingModalProps> = ({
                                         return (
                                             <tr key={`${r.name}-${r.index}`} style={{ borderTop: "1px solid rgba(0,0,0,0.08)" }}>
                                                 <td style={{ padding: 10, fontSize: 12, opacity: r.rank ? 1 : 0.6 }}>
-                                                    {r.rank ?? "—"}
+                                                    {r.rank ?? "-"}
                                                 </td>
                                                 <td style={{ padding: 10, fontSize: 12, wordBreak: "break-word" }}>{r.name}</td>
                                                 <td style={{ padding: 10, fontSize: 12, textAlign: "right", opacity: scoreLabel ? 1 : 0.6 }}>
-                                                    {scoreLabel || "—"}
+                                                    {scoreLabel || "-"}
                                                 </td>
                                             </tr>
                                         );

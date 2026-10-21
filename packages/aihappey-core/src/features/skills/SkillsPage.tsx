@@ -644,7 +644,7 @@ export const SkillsPage = () => {
                       <SkillCard
                         skill={{
                           id: skill.skillId, name: connectedSkillLabel(skill, mcpSkills),
-                          description: `${skill.entry.frontmatter.description} — ${skill.serverKey} (${skill.entry.uri})`,
+                          description: `${skill.entry.frontmatter.description} - ${skill.serverKey} (${skill.entry.uri})`,
                           origin: "remote", fileCount: skill.entry.resources === "dynamic" ? undefined : skill.entry.resources.length,
                           isDownloaded: false, downloadState: "remote"
                         }}

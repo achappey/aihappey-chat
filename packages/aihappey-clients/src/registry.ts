@@ -39,7 +39,7 @@ const clientAdapters: ClientAdapter[] = [
 const explicitOptions: PlaygroundClientOption[] = [
   {
     id: "vercel-api-chat",
-    label: "/api/chat — Current Vercel-style client",
+    label: "/api/chat - Current Vercel-style client",
     endpoint: "/api/chat",
     client: "vercel-ai-sdk",
   },
@@ -51,7 +51,7 @@ const registryOptions: PlaygroundClientOption[] = endpointAdapters
     .filter((client) => client.supportsEndpoint(endpoint))
     .map((client) => ({
       id: `${String(client.id).replace(/[^a-z0-9]+/gi, "-")}-${String(endpoint.id).replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "")}`.toLowerCase(),
-      label: `${endpoint.label} — ${client.label}`,
+      label: `${endpoint.label} - ${client.label}`,
       endpoint: endpoint.id,
       client: client.id,
     })));

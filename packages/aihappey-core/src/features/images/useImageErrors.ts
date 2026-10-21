@@ -17,7 +17,7 @@ const formatWarning = (w: SharedV4Warning) => {
   if (w.type === "deprecated") return w.message;
 
   const prefix = w.type === "unsupported" ? "Unsupported" : "Compatibility";
-  const details = w.details ? ` — ${w.details}` : "";
+  const details = w.details ? `- ${w.details}` : "";
   return `${prefix}: ${w.feature}${details}`;
 };
 
