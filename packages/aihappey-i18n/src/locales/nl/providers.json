@@ -427,7 +427,7 @@
       "in-memory": "Tijdelijk",
       "title": "Promptcache",
       "mode": "Modus",
-      "ttl": "Minimale cacheduur",
+      "ttl": "Cacheduur",
       "modes": {
         "implicit": "Impliciet",
         "explicit": "Expliciet"

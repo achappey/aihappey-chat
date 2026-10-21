@@ -784,7 +784,7 @@
       "in-memory": "In-memory",
       "title": "Prompt cache",
       "mode": "Mode",
-      "ttl": "Minimum cache lifetime",
+      "ttl": "Cache lifetime",
       "modes": {
         "implicit": "Implicit",
         "explicit": "Explicit"
