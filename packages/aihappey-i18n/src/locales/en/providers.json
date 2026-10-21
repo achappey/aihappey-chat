@@ -790,7 +790,8 @@
         "explicit": "Explicit"
       },
       "ttls": {
-        "30m": "30 minutes"
+        "30m": "30 minutes",
+        "12h": "12 hours"
       }
     },
     "moderation": {

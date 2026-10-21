@@ -40,7 +40,7 @@ function nodes(node, predicate) {
     ];
 }
 
-test("agent tag input label, existing-tag accessible name and placeholder resolve to capitalized Tags", async () => {
+test("agent Tags tab title, input label, existing-tag accessible name and placeholder resolve to capitalized Tags", async () => {
     const filename = "packages/aihappey-core/src/features/agents/AgentForm.tsx";
     const source = ts.createSourceFile(filename, read(filename), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
     const attributes = [];
@@ -55,7 +55,7 @@ test("agent tag input label, existing-tag accessible name and placeholder resolv
         ts.forEachChild(node, visit);
     }
     visit(source);
-    assert.deepEqual(attributes.map(attribute => attribute.name).sort(), ["aria-label", "label", "placeholder"]);
+    assert.deepEqual(attributes.map(attribute => attribute.name).sort(), ["aria-label", "label", "placeholder", "title"]);
     assert.doesNotMatch(read(filename), /providers:tags/);
     for (const language of ["en", "nl"]) {
         const t = await translator(language);

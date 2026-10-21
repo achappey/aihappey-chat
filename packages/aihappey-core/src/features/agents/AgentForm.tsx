@@ -765,41 +765,6 @@ export const AgentForm = ({
                             onChange({ ...agent, description: v.target.value })
                         }
                     />
-                    <div style={{ display: "grid", gap: 8 }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
-                            <Input
-                                label={t("agentEdit.tags")}
-                                value={tagInput}
-                                onChange={(event: any) => setTagInput(event.target.value)}
-                                onKeyDown={(event: any) => {
-                                    if (event.key !== "Enter") return;
-                                    event.preventDefault();
-                                    addTag(tagInput);
-                                }}
-                            />
-                            <Button type="button" icon="add" size="small" variant="informative"
-                                title={t("add")} disabled={!tagInput.trim()} onClick={() => addTag(tagInput)} />
-                        </div>
-                        {availableTags.length > 0 && (
-                            <Select
-                                aria-label={t("agentEdit.tags")}
-                                values={[]}
-                                searchable
-                                placeholder={t("agentEdit.tags")}
-                                onChange={(value: string) => addTag(value)}
-                            >
-                                {availableTags.filter((tag) => !tags.includes(tag)).map((tag) => (
-                                    <option key={tag} value={tag}>{tag}</option>
-                                ))}
-                            </Select>
-                        )}
-                        {tags.length > 0 && (
-                            <Tags size="small" items={tags.map((tag) => ({ key: tag, label: tag }))}
-                                onRemove={(tag: string) => onChange((current) => ({
-                                    ...current, tags: getAgentTags(current).filter((item) => item !== tag),
-                                }))} />
-                        )}
-                    </div>
                     <ModelSelect
                         models={models ?? []}
                         label={t('model')}
@@ -882,6 +847,44 @@ export const AgentForm = ({
                             <option key={item.id} value={item.id}>{item.name}</option>
                         ))}
                     </Select>
+                </Tab>
+
+                <Tab eventKey="tags" title={t("agentEdit.tags")}>
+                    <div style={{ display: "grid", gap: 8 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
+                            <Input
+                                label={t("agentEdit.tags")}
+                                value={tagInput}
+                                onChange={(event: any) => setTagInput(event.target.value)}
+                                onKeyDown={(event: any) => {
+                                    if (event.key !== "Enter") return;
+                                    event.preventDefault();
+                                    addTag(tagInput);
+                                }}
+                            />
+                            <Button type="button" icon="add" size="small" variant="informative"
+                                title={t("add")} disabled={!tagInput.trim()} onClick={() => addTag(tagInput)} />
+                        </div>
+                        {availableTags.length > 0 && (
+                            <Select
+                                aria-label={t("agentEdit.tags")}
+                                values={[]}
+                                searchable
+                                placeholder={t("agentEdit.tags")}
+                                onChange={(value: string) => addTag(value)}
+                            >
+                                {availableTags.filter((tag) => !tags.includes(tag)).map((tag) => (
+                                    <option key={tag} value={tag}>{tag}</option>
+                                ))}
+                            </Select>
+                        )}
+                        {tags.length > 0 && (
+                            <Tags size="small" items={tags.map((tag) => ({ key: tag, label: tag }))}
+                                onRemove={(tag: string) => onChange((current) => ({
+                                    ...current, tags: getAgentTags(current).filter((item) => item !== tag),
+                                }))} />
+                        )}
+                    </div>
                 </Tab>
 
                 {/* ---------------- Model Context ---------------- */}

@@ -306,7 +306,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               icon={"connector"}
               title={t("settingsModal.tabConnectors")}
             >
-              <div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                 <Switch
                   id="location-toggle"
                   checked={enableUserLocation}
@@ -365,15 +365,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   />
                 </div>
 
-                <h4>{t("images")}</h4>
-                <Switch
-                  id="setExtractExif-toggle"
-                  checked={extractExif}
-                  label={t("settingsModal.extractExif")}
-                  onChange={() =>
-                    setExtractExif(!extractExif)
-                  }
-                />
+                <Card size="small" title={t("images")}>
+                  <Switch
+                    id="setExtractExif-toggle"
+                    checked={extractExif}
+                    label={t("settingsModal.extractExif")}
+                    onChange={() =>
+                      setExtractExif(!extractExif)
+                    }
+                  />
+                </Card>
 
               </div>
             </theme.Tab>

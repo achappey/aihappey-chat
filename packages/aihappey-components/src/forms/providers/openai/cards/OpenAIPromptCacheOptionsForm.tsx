@@ -8,7 +8,7 @@ const DEFAULT_PROMPT_CACHE_OPTIONS = {
 
 const PROMPT_CACHE_MODES = ["implicit", "explicit"] as const;
 type PromptCacheMode = (typeof PROMPT_CACHE_MODES)[number];
-const PROMPT_CACHE_TTLS = ["30m"] as const;
+const PROMPT_CACHE_TTLS = ["30m", "12h"] as const;
 type PromptCacheTtl = (typeof PROMPT_CACHE_TTLS)[number];
 
 const toPromptCacheMode = (value: unknown): PromptCacheMode =>
