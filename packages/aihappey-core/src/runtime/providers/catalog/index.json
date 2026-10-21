@@ -2534,5 +2534,45 @@
   {
     "id": "yandex",
     "file": "yandex.json"
+  },
+  {
+    "id": "krutrim",
+    "file": "krutrim.json"
+  },
+  {
+    "id": "plamo",
+    "file": "plamo.json"
+  },
+  {
+    "id": "mammouth",
+    "file": "mammouth.json"
+  },
+  {
+    "id": "narakeet",
+    "file": "narakeet.json"
+  },
+  {
+    "id": "neuphonic",
+    "file": "neuphonic.json"
+  },
+  {
+    "id": "gwdg",
+    "file": "gwdg.json"
+  },
+  {
+    "id": "twelvelabs",
+    "file": "twelvelabs.json"
+  },
+  {
+    "id": "isaacus",
+    "file": "isaacus.json"
+  },
+  {
+    "id": "infermatic",
+    "file": "infermatic.json"
+  },
+  {
+    "id": "gigachat",
+    "file": "gigachat.json"
   }
 ]

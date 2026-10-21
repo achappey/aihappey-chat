@@ -1,0 +1,16 @@
+{
+  "name": "Isaacus",
+  "description": "Legal AI model provider offering specialized embeddings, reranking, document classification, answer extraction, and legal document enrichment through APIs.",
+  "urls": {
+    "homepage": "https://www.isaacus.com",
+    "docs": "https://www.isaacus.com/docs",
+    "pricing": "https://www.isaacus.com/pricing",
+    "termsOfService": "https://isaacus.com/terms",
+    "privacyPolicy": "https://isaacus.com/privacy"
+  },
+  "category": "model_provider",
+  "providerCountry": "AU",
+  "inferenceRegions": [
+    "World"
+  ]
+}

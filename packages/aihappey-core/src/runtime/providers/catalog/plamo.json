@@ -1,0 +1,16 @@
+{
+  "name": "PLaMo",
+  "description": "PLaMoは、Preferred Networks (PFN)が独自に開発する国産の生成AI基盤モデルです。無料のChatやAPI経由ですぐにご利用可能です。",
+  "urls": {
+    "homepage": "https://plamo.preferredai.jp",
+    "docs": "https://docs.plamo.preferredai.jp/en/",
+    "pricing": "https://plamo.preferredai.jp/api",
+    "termsOfService": "https://plamo.preferredai.jp/info/terms",
+    "privacyPolicy": "https://www.preferred.jp/en/policy/"
+  },
+  "category": "model_provider",
+  "providerCountry": "JP",
+  "inferenceRegions": [
+    "World"
+  ]
+}

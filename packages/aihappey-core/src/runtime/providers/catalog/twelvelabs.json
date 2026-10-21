@@ -1,0 +1,16 @@
+{
+  "name": "TwelveLabs",
+  "description": "Multimodal AI models and APIs for video understanding, semantic search, video analysis, segmentation, and embeddings.",
+  "urls": {
+    "homepage": "https://www.twelvelabs.io",
+    "docs": "https://docs.twelvelabs.io",
+    "pricing": "https://www.twelvelabs.io/pricing",
+    "termsOfService": "https://www.twelvelabs.io/legal/terms-of-use",
+    "privacyPolicy": "https://www.twelvelabs.io/legal/privacy-policy"
+  },
+  "category": "model_provider",
+  "providerCountry": "US",
+  "inferenceRegions": [
+    "World"
+  ]
+}

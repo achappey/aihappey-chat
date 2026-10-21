@@ -1,0 +1,16 @@
+{
+  "name": "Mammouth",
+  "description": "The best GenAI models in one subscription. Access GPT, Claude, Gemini, Mistral, Llama, Nano Banana, GPT-image, FLUX, and stay up to date with AI.",
+  "urls": {
+    "homepage": "https://mammouth.ai",
+    "docs": "https://info.mammouth.ai/docs/api-quick-start/",
+    "pricing": "https://mammouth.ai/pricing",
+    "termsOfService": "https://info.mammouth.ai/docs/terms-of-service/",
+    "privacyPolicy": "https://info.mammouth.ai/docs/privacy-policy/"
+  },
+  "category": "gateway_router",
+  "providerCountry": "FR",
+  "inferenceRegions": [
+    "World"
+  ]
+}

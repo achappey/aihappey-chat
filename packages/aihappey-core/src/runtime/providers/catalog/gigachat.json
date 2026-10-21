@@ -1,0 +1,14 @@
+
+{
+  "name": "GigaChat",
+  "description": "ГигаЧат — диалоговая AI-модель, которая отвечает на вопросы, сочиняет тексты, пишет код и рисует картинки. Говорит на русском и понимает английский.",
+  "urls": {
+    "homepage": "https://giga.chat",
+    "docs": "https://developers.sber.ru/docs/ru/gigachat/api/main",
+    "pricing": "https://developers.sber.ru/docs/ru/gigachat/api/tariffs",
+    "termsOfService": "https://developers.sber.ru/docs/ru/policies/gigachat-agreement/general"
+  },
+  "category": "model_provider",
+  "providerCountry": "RU",
+  "inferenceRegions": ["Asia"]
+}

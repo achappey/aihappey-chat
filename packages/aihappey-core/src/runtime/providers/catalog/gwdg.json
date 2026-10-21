@@ -1,0 +1,15 @@
+{
+  "name": "GWDG",
+  "description": "German research computing provider offering privacy-focused AI inference, language models, speech transcription, image generation, and OpenAI-compatible APIs through its SAIA platform.",
+  "urls": {
+    "homepage": "https://gwdg.de",
+    "docs": "https://docs.hpc.gwdg.de/services/ai-services/index.html",
+    "privacyPolicy": "https://docs.hpc.gwdg.de/services/ai-services/chat-ai/data-privacy/index.html"
+  },
+  "category": "gateway_router",
+  "providerCountry": "DE",
+  "inferenceRegions": [
+    "Europe",
+    "World"
+  ]
+}

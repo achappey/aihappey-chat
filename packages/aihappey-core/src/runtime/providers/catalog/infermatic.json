@@ -1,0 +1,16 @@
+{
+  "name": "Infermatic",
+  "description": "AI inference platform providing OpenAI-compatible access to hosted open-weight language models through subscription-based APIs.",
+  "urls": {
+    "homepage": "https://infermatic.ai",
+    "docs": "https://ui.infermatic.ai/docs",
+    "pricing": "https://infermatic.ai/pricing/",
+    "termsOfService": "https://infermatic.ai/terms-and-conditions/",
+    "privacyPolicy": "https://infermatic.ai/privacy-policy/"
+  },
+  "category": "gateway_router",
+  "providerCountry": "US",
+  "inferenceRegions": [
+    "World"
+  ]
+}

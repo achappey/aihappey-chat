@@ -635,6 +635,16 @@ import provider630 from "./catalog/sutra.json";
 import provider631 from "./catalog/wellsaid.json";
 import provider632 from "./catalog/respeecher.json";
 import provider633 from "./catalog/yandex.json";
+import provider634 from "./catalog/krutrim.json";
+import provider635 from "./catalog/plamo.json";
+import provider636 from "./catalog/mammouth.json";
+import provider637 from "./catalog/narakeet.json";
+import provider638 from "./catalog/neuphonic.json";
+import provider639 from "./catalog/gwdg.json";
+import provider640 from "./catalog/twelvelabs.json";
+import provider641 from "./catalog/isaacus.json";
+import provider642 from "./catalog/infermatic.json";
+import provider643 from "./catalog/gigachat.json";
 
 export const PROVIDER_CATALOG = {
   "openai": provider0,
@@ -1271,4 +1281,14 @@ export const PROVIDER_CATALOG = {
   "wellsaid": provider631,
   "respeecher": provider632,
   "yandex": provider633,
+  "krutrim": provider634,
+  "plamo": provider635,
+  "mammouth": provider636,
+  "narakeet": provider637,
+  "neuphonic": provider638,
+  "gwdg": provider639,
+  "twelvelabs": provider640,
+  "isaacus": provider641,
+  "infermatic": provider642,
+  "gigachat": provider643,
 } as Record<string, Omit<Provider, "createGatewayMetadata">>;

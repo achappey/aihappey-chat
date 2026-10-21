@@ -1,0 +1,16 @@
+{
+  "name": "Krutrim",
+  "description": "India's AI-first cloud platform - Industry Leading. Future Ready. India Native. Developer First.",
+  "urls": {
+    "homepage": "https://www.olakrutrim.com",
+    "docs": "https://docs.cloud.olakrutrim.com",
+    "pricing": "https://docs.cloud.olakrutrim.com/basics/ai-studio/billing-for-ai-studio",
+    "termsOfService": "https://www.olakrutrim.com/terms-and-conditions",
+    "privacyPolicy": "https://www.olakrutrim.com/privacy-policy"
+  },
+  "category": "inference_compute",
+  "providerCountry": "IN",
+  "inferenceRegions": [
+    "Asia"
+  ]
+}

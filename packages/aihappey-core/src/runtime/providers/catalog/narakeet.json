@@ -1,0 +1,15 @@
+
+{
+  "name": "Narakeet",
+  "description": "AI-powered text-to-speech, audio transcription, and automated video generation platform with REST APIs for multilingual content production.",
+  "urls": {
+    "homepage": "https://www.narakeet.com",
+    "docs": "https://www.narakeet.com/docs/automating/rest/",
+    "pricing": "https://www.narakeet.com/docs/pricing/",
+    "termsOfService": "https://www.narakeet.com/legal/terms/",
+    "privacyPolicy": "https://www.narakeet.com/legal/privacy/"
+  },
+  "category": "media_voice",
+  "providerCountry": "GB",
+  "inferenceRegions": ["World"]
+}

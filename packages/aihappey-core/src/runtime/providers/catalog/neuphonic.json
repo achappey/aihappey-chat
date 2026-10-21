@@ -1,0 +1,16 @@
+{
+  "name": "Neuphonic",
+  "description": "Low-latency speech AI platform providing streaming text-to-speech, multilingual voice synthesis, voice cloning, and conversational voice APIs.",
+  "urls": {
+    "homepage": "https://www.neuphonic.com",
+    "docs": "https://docs.neuphonic.com",
+    "pricing": "https://neuphonic.com/pricing",
+    "termsOfService": "https://www.neuphonic.com/legal/terms-of-service",
+    "privacyPolicy": "https://www.neuphonic.com/legal/privacy-policy"
+  },
+  "category": "media_voice",
+  "providerCountry": "GB",
+  "inferenceRegions": [
+    "World"
+  ]
+}
