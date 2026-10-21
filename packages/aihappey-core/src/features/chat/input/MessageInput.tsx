@@ -266,12 +266,12 @@ export const MessageInput = (props: MessageInputProps) => {
   });
 
   const chatInputMenuItems: MenuItemProps[] = [
-    {
+    ...(chatMode === "chat" ? [{
       key: "search-context",
       label: t("search") ?? "Search",
       icon: "search" as IconToken,
       onClick: () => setContextSearchOpen(true),
-    },
+    }] : []),
     {
       key: "select-file",
       label: t("attachments"),
@@ -291,7 +291,7 @@ export const MessageInput = (props: MessageInputProps) => {
       disabled: !hasPrompts,
       onClick: openPromptSelect,
     },
-    {
+    ...(chatMode === "chat" ? [{
       key: "resources",
       label: t("mcp.resources"),
       icon: "resources" as IconToken,
@@ -300,7 +300,7 @@ export const MessageInput = (props: MessageInputProps) => {
         if (!resourceSelect.hasResources) return;
         resourceSelect.setOpen(true);
       },
-    },
+    }] : []),
     {
       key: "model-context",
       label: "Model Context",
@@ -389,13 +389,7 @@ export const MessageInput = (props: MessageInputProps) => {
       {/* SECOND ROW – CONTROLS */}
       <div style={styles.buttonRow}>
         <div style={styles.leftGroup}>
-          {chatMode == "agent" && <>
-            <AgentSettingsButton
-              resetDefaults={resetChatSettings}
-            />
-          </>
-          }
-          {chatMode == "chat" && <>
+          {(chatMode == "chat" || chatMode == "agent") && <>
             <Menu
               align="left"
               direction="top"
@@ -429,11 +423,6 @@ export const MessageInput = (props: MessageInputProps) => {
             <UrlAttachmentModal open={urlModalOpen} onHide={() => setUrlModalOpen(false)}
               onAdd={urlAttachmentRuntime.add} />
 
-            <ContextSearchModal
-              open={contextSearchOpen}
-              onClose={closeContextSearch}
-            />
-
             <PromptSelectModal
               open={promptSelectOpen}
               prompts={prompts}
@@ -463,6 +452,17 @@ export const MessageInput = (props: MessageInputProps) => {
                 }}
               />
             )}
+          </>}
+
+          {chatMode == "agent" && <AgentSettingsButton
+            resetDefaults={resetChatSettings}
+          />}
+
+          {chatMode == "chat" && <>
+            <ContextSearchModal
+              open={contextSearchOpen}
+              onClose={closeContextSearch}
+            />
 
             <ResourceSelectModal
               open={resourceSelect.open}
