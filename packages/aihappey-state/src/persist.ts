@@ -116,6 +116,7 @@ export const withPersist = (
       enabledProvidersByType: (s as any).enabledProvidersByType,
       favoriteModelsByType: (s as any).favoriteModelsByType,
       favoriteAgentIds: (s as any).favoriteAgentIds,
+      workflowDecisionModel: s.workflowDecisionModel,
       enabledSkillIds: (s as any).enabledSkillIds,
       seenMcpSkillIds: (s as any).seenMcpSkillIds,
       favoriteSkillIds: (s as any).favoriteSkillIds,

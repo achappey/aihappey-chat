@@ -261,6 +261,7 @@ export function VercelChatInner({
   const workflowType = useAppStore(a => a.workflowType)
   const magenticManagerAgentKey = useAppStore(a => a.magenticManagerAgentKey)
   const magentic = useAppStore(a => a.magentic)
+  const workflowDecisionModel = useAppStore(a => a.workflowDecisionModel)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
   const verbosity = useAppStore(a => a.verbosity)
   const gatewayEnabled = useAppStore((a: any) => a.gatewayEnabled);
@@ -606,7 +607,7 @@ export function VercelChatInner({
     ...(isProviderEndpointProfile && endpointProfileProviderHeaders ? { providerRequestHeaders: endpointProfileProviderHeaders } : {}),
     ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
     response_format: location.state?.responseFormat ?? structuredOutputs,
-    workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
+    workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic, chatMode === "agent" ? workflowType : undefined, workflowDecisionModel),
     temperature: location.state?.temperature ?? temperature,
   }), [
     chatMode,
@@ -632,6 +633,7 @@ export function VercelChatInner({
     maximumIterationCount,
     handoffs,
     magentic,
+    workflowDecisionModel,
     temperature,
     location.state?.temperature,
   ]);
@@ -957,7 +959,7 @@ export function VercelChatInner({
       ...(isProviderEndpointProfile && endpointProfileProviderHeaders ? { providerRequestHeaders: endpointProfileProviderHeaders } : {}),
       ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
       response_format: location.state?.responseFormat ?? structuredOutputs,
-      workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
+      workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic, chatMode === "agent" ? workflowType : undefined, workflowDecisionModel),
       temperature: location.state?.temperature ?? temperature,
     },
     files,

@@ -24,6 +24,9 @@ export const requestCredentialModels = (body: any, remoteModels: any[] = []): st
     } else if (value.includes("/")) models.push(value);
   };
   add(body?.model);
+  if ((body?.workflowType ?? body?.workflow_type) === "decisions") {
+    add((body?.workflowMetadata ?? body?.workflow_metadata)?.decisions?.model);
+  }
   for (const model of Array.isArray(body?.models) ? body.models : []) add(model);
   for (const agent of [
     ...(Array.isArray(body?.agents) ? body.agents : []),

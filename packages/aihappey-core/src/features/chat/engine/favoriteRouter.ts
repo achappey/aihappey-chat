@@ -89,7 +89,7 @@ export const favoriteRouterContext = (messages: any[]) => messages.map(message =
 export function replaceRoutedRequestBody(body: any, currentBody: any) {
   const next = { ...body };
   // Per-call bodies were assembled before the decision. Never reuse their route-specific fields.
-  for (const key of ["model", "agents", "models", "workflowType", "providerMetadata", "providerHeaders",
+  for (const key of ["model", "agents", "models", "workflowType", "workflowMetadata", "providerMetadata", "providerHeaders",
     "providerRequestConfig", "providerRequestConfigProviderKey", "providerRequestHeaders", "omitProviderMetadataInNativeMetadata"]) {
     delete next[key];
     if (Object.hasOwn(currentBody, key)) next[key] = currentBody[key];

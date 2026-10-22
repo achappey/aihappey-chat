@@ -31,6 +31,7 @@ export type AgentSlice = {
     handoffs: any[]
     magenticManagerAgentKey?: string
     magentic: MagenticWorkflowSettings
+    workflowDecisionModel?: string
     setAgents: (agents: Agent[]) => void
     setRemoteAgentModels: (models: RemoteAgentModel[]) => void
     setWorkflowType: (workflowType: string) => void
@@ -38,6 +39,7 @@ export type AgentSlice = {
     setMaximumIterationCount: (count: number) => void
     setMagenticManagerAgentKey: (agentKey?: string) => void
     setMagentic: (settings: MagenticWorkflowSettings) => void
+    setWorkflowDecisionModel: (model: string) => void
     resetAgentWorkflowSettings: () => void
     setSelectedAgents: (agents: string[]) => void
     setFavoriteAgentIds: (agentIds: string[]) => void
@@ -67,6 +69,7 @@ export const createAgentSlice: StateCreator<
     handoffs: [],
     magenticManagerAgentKey: undefined,
     magentic: {},
+    workflowDecisionModel: undefined,
     // in your create(...) slice implementation
     updateAgentPolicy: (agentName, key, value) =>
         set((state: AgentSlice) => ({
@@ -148,6 +151,9 @@ export const createAgentSlice: StateCreator<
     setMagentic: (magentic) => {
         set(() => ({ magentic: { ...magentic } }));
     },
+    setWorkflowDecisionModel: (workflowDecisionModel) => {
+        set(() => ({ workflowDecisionModel }));
+    },
     resetAgentWorkflowSettings: () => {
         set(() => ({
             workflowType: "concurrent",
@@ -155,6 +161,7 @@ export const createAgentSlice: StateCreator<
             handoffs: [],
             magenticManagerAgentKey: undefined,
             magentic: {},
+            workflowDecisionModel: undefined,
         }));
     },
     setAgents: (agents) => {

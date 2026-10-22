@@ -6,6 +6,7 @@ import { IconToken, getAgentModels } from "aihappey-types";
 import { Handoff, HandoffsEditor } from "../agents/HandoffsEditor";
 import { AgentWithMcpServers, useAgents } from "../agents/useAgentMcpServers";
 import { resolveSelectedAgentEntries } from "../agents/agentSelection";
+import { ModelSelect } from "../models/ModelSelect";
 
 export interface AgentSettingsModalProps {
   open: boolean;
@@ -151,6 +152,10 @@ const GeneralTab = ({
   const experimentalThrottle = useAppStore((s) => s.experimentalThrottle);
   const workflowType = useAppStore((s) => s.workflowType);
   const setWorkflowType = useAppStore((s) => s.setWorkflowType);
+  const workflowDecisionModel = useAppStore((s) => s.workflowDecisionModel);
+  const setWorkflowDecisionModel = useAppStore((s) => s.setWorkflowDecisionModel);
+  const models = useAppStore((s) => s.models);
+  const decisionModels = (models ?? []).filter((model) => model.type === "decision" && model.route !== "direct");
 
   const maximumIterationCount = useAppStore((s) => s.maximumIterationCount);
   const setMaximumIterationCount = useAppStore((s) => s.setMaximumIterationCount);
@@ -175,6 +180,7 @@ const GeneralTab = ({
     { key: "sequential", icon: "sequential" },
     { key: "groupchat", icon: "groupchat" },
     { key: "handoff", icon: "handoff" },
+    { key: "decisions", icon: "groupchat" },
     { key: "magentic", icon: "groupchat" }
   ];
 
@@ -229,13 +235,29 @@ const GeneralTab = ({
                   disabled={selectedAgents.length < 2}
                   checked={workflowType === option.key}
                   onClick={() => setWorkflowType(option.key)}
-                  title={t(`workflows.${option.key}`)}
+                  title={t(option.key === "decisions" ? "decisions" : `workflows.${option.key}`)}
                   icon={option.icon as IconToken}
                 >
-                  {t(`workflows.${option.key}`)}
+                  {t(option.key === "decisions" ? "decisions" : `workflows.${option.key}`)}
                 </theme.ToggleButton>
               ))}
             </div>
+            {workflowType === "decisions" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <ModelSelect
+                  models={decisionModels}
+                  modelTypes={["decision"]}
+                  value={workflowDecisionModel ?? ""}
+                  label={`${t("decision")} · ${t("model")}`}
+                  onChange={setWorkflowDecisionModel}
+                  autoSelectFallback={false}
+                  required
+                />
+                {decisionModels.length === 0 && <div role="status">{t("decisionsPage.noModels")}</div>}
+                {decisionModels.length > 0 && !decisionModels.some(model => model.id === workflowDecisionModel)
+                  && <div role="status">{t("required")}: {t("selectModelPlaceholder")}</div>}
+              </div>
+            )}
             {workflowType === "sequential" && selectedAgents.length > 1 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
 

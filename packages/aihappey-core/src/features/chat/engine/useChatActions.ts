@@ -62,6 +62,7 @@ export function useChatActions({
   const workflowType = useAppStore(a => a.workflowType)
   const magenticManagerAgentKey = useAppStore(a => a.magenticManagerAgentKey)
   const magentic = useAppStore(a => a.magentic)
+  const workflowDecisionModel = useAppStore(a => a.workflowDecisionModel)
   const handoffs = useAppStore(a => a.handoffs)
   const structuredOutputs = useAppStore(a => a.structuredOutputs)
   const verbosity = useAppStore(a => a.verbosity)
@@ -198,7 +199,7 @@ export function useChatActions({
               ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
               ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
               response_format: structuredOutputs,
-              workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
+              workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic, chatMode === "agent" ? workflowType : undefined, workflowDecisionModel),
             },
           });
 
@@ -271,7 +272,7 @@ export function useChatActions({
               ...(isProviderEndpointProfile ? { providerRequestConfigProviderKey: requestEndpointProfile.providerKey } : {}),
               ...(isProviderEndpointProfile ? { omitProviderMetadataInNativeMetadata: true } : {}),
               response_format: structuredOutputs,
-              workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic),
+              workflowMetadata: buildWorkflowMetadata(maximumIterationCount, handoffs, magentic, chatMode === "agent" ? workflowType : undefined, workflowDecisionModel),
             },
           });
           fileAttachmentRuntime.clear()

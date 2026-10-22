@@ -21,7 +21,10 @@ export const buildWorkflowMetadata = (
     maximumIterationCount: number,
     handoffs: unknown[],
     magentic: MagenticMetadata,
+    workflowType?: string,
+    decisionModel?: string,
 ) => ({
+    ...(workflowType === "decisions" ? { decisions: { model: decisionModel } } : {}),
     groupchat: { maximumIterationCount },
     handoff: { handoffs },
     magentic: Object.fromEntries(
