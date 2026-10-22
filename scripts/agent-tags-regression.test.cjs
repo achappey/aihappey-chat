@@ -24,8 +24,12 @@ function load(filename, mocks = {}) {
 
 const feature = "packages/aihappey-core/src/features/agents/";
 const tags = load(feature + "agentTags.ts");
+const agentTypes = {
+    ...load("packages/aihappey-types/src/agents.ts"),
+    ...load("packages/aihappey-types/src/agentModels.ts"),
+};
 const selection = load(feature + "agentSelection.ts", {
-    "aihappey-types": load("packages/aihappey-types/src/agents.ts"),
+    "aihappey-types": agentTypes,
 });
 const local = (name, agentTags) => ({
     name, description: name, instructions: "Assist", model: { id: "test/model" },
@@ -39,6 +43,7 @@ const remoteAgentModels = [
 const t = key => key;
 const theme = new Proxy({}, { get: (_, key) => key });
 const common = {
+    "aihappey-types": agentTypes,
     "aihappey-components": { useTheme: () => theme, AgentCard: "AgentCard", FilterDrawerPanel: "FilterDrawerPanel", StickyHeaderActionBar: "StickyHeaderActionBar" },
     "aihappey-i18n": { useTranslation: () => ({ t }) },
     "../chat/context/ChatContext": { useChatContext: () => ({ config: { agentEndpoint: "https://agents.example", endpoints: { models: "/models" } } }) },
@@ -55,7 +60,7 @@ function nodes(node, type) {
 test("tag values are dynamic, trimmed, unique and tolerate absent or malformed tags", () => {
     assert.deepEqual(tags.getAgentTags(undefined, {}, { tags: null }, { tags: [" shared ", "", "shared", 3] }), ["shared"]);
     assert.deepEqual(tags.collectAgentTags(agents, remoteAgentModels), ["research", "shared", "writing"]);
-    const { normalizeAgent } = load("packages/aihappey-agents/src/normalizeAgent.ts");
+    const { normalizeAgent } = load("packages/aihappey-agents/src/normalizeAgent.ts", { "aihappey-types": agentTypes });
     assert.deepEqual(normalizeAgent(agents[0]).tags, ["writing", "shared"]);
     assert.equal(normalizeAgent(agents[1]).tags, undefined);
     assert.deepEqual(normalizeAgent({ ...agents[0], tags: [] }).tags, []);
@@ -86,10 +91,11 @@ test("selector groups agents under every tag and reserves hosts for untagged age
     const { AgentSelect } = load(feature + "AgentSelect.tsx", {
         ...common,
         react: { ...React, useMemo: factory => factory() },
-        "aihappey-state": { useAppStore: selector => selector(state), store: {} },
+        "aihappey-state": { useAppStore: selector => selector(state), store: {},
+            DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: { selectFavoriteAgent: "SelectFavoriteAgent" } },
         "../../shell/responsive/useIsDesktop": { useIsDesktop: () => true },
         "./agentSelection": selection,
-        "../chat/engine/favoriteRouter": { FAVORITE_AGENT_ROUTER: "__router__" },
+        "../chat/engine/favoriteRouter": { FAVORITE_AGENT_ROUTER: "__router__", favoriteRouterModel: () => undefined },
     });
     let selected;
     const picker = AgentSelect({

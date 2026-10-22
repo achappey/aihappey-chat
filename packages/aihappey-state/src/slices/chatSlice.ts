@@ -27,6 +27,8 @@ export type SideInferenceAgentNames = {
   explainToolCallAgent: string;
   toolSearchAgent: string;
   resourceSearchAgent: string;
+  selectModelAgent: string;
+  selectFavoriteAgent: string;
 };
 
 export type ChatVerbosity = "low" | "medium" | "high";
@@ -54,6 +56,8 @@ export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
   explainToolCallAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.explainToolCall,
   toolSearchAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.toolSearch,
   resourceSearchAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.resourceSearch,
+  selectModelAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.selectModel,
+  selectFavoriteAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.selectFavorite,
 };
 
 export type ChatSlice = ApiKeyEncryptionState & {

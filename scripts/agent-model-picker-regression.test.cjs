@@ -42,7 +42,7 @@ function modelPicker(state, effects = []) {
         "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
         "../../shell/responsive/useIsDesktop": { useIsDesktop: () => true },
         "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => providers },
-        "../chat/engine/favoriteRouter": { FAVORITE_MODEL_ROUTER: "__router__" },
+        "../chat/engine/favoriteRouter": { SELECT_ALL_FAVORITE_MODELS: "__router__", favoriteRouterModel: () => undefined },
     });
     return { ModelSelect, render(props) { const field = ModelSelect(props); return field.type(field.props); } };
 }

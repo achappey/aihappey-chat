@@ -25,7 +25,6 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
   const renderSelect = (
     key: keyof SideInferenceAgentNames,
     label: string,
-    hint: string,
   ) => {
     const selected = value?.[key] ?? "";
     const selectedAgent = sortedAgents.find((agent) => agent.name === selected);
@@ -55,27 +54,30 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
       {renderSelect(
         "welcomeMessageAgent",
         t("sideInference.welcomeMessageAgent"),
-        t("sideInference.welcomeMessageAgentHint"),
       )}
       {renderSelect(
         "conversationNameAgent",
         t("sideInference.conversationNameAgent"),
-        t("sideInference.conversationNameAgentHint"),
       )}
       {renderSelect(
         "explainToolCallAgent",
         t("sideInference.explainToolCallAgent"),
-        t("sideInference.explainToolCallAgentHint"),
       )}
       {renderSelect(
         "toolSearchAgent",
         t("sideInference.toolSearchAgent"),
-        t("sideInference.toolSearchAgentHint"),
       )}
       {renderSelect(
         "resourceSearchAgent",
         t("sideInference.resourceSearchAgent"),
-        t("sideInference.resourceSearchAgentHint"),
+      )}
+      {renderSelect(
+        "selectModelAgent",
+        t("sideInference.selectModelAgent"),
+      )}
+      {renderSelect(
+        "selectFavoriteAgent",
+        t("sideInference.selectFavoriteAgent"),
       )}
     </div>
   );

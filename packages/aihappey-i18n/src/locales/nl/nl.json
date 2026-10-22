@@ -1385,6 +1385,8 @@
         "toolSearchAgentHint": "Kies de agent die relevante tools selecteert wanneer via de client naar tools wordt gezocht.",
         "resourceSearchAgent": "Agent voor het zoeken naar bronnen",
         "resourceSearchAgentHint": "Kies de agent die relevante MCP-bronnen selecteert wanneer via de client naar bronnen wordt gezocht.",
+        "selectModelAgent": "Agent voor modelselectie",
+        "selectFavoriteAgent": "Agent voor selectie van favoriete agents",
         "fallbackWelcome": "Welkom",
         "toolExplanationFallback": "De toolaanroep kon niet worden uitgelegd. De geselecteerde uitlegagent is niet beschikbaar of gaf een fout terug."
     },

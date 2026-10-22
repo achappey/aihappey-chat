@@ -10,7 +10,7 @@ import { useDarkMode } from "usehooks-ts";
 import { AgentSelect } from "../../agents/AgentSelect";
 import { normalizeSelectedAgentKeys, resolveSelectedAgentEntries } from "../../agents/agentSelection";
 import { useTranslation } from "aihappey-i18n";
-import { favoriteRouterModelTypes } from "../engine/favoriteRouter";
+import { favoriteRouterModel, favoriteRouterModelTypes } from "../engine/favoriteRouter";
 
 interface ChatHeaderProps {
   agentValues?: string[];
@@ -34,7 +34,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
   const selectedChatModelIds = useAppStore((a) => a.selectedChatModelIds);
   const setSelectedChatModelIds = useAppStore((a) => a.setSelectedChatModelIds);
-  const preferredDecisionModel = useAppStore((a) => a.userPreferredDecisionModel);
+  const routingDecisionModel = useAppStore((a) => favoriteRouterModel(a, "model"));
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const favoriteAgentIds = useAppStore((a: any) => a.favoriteAgentIds as string[] | undefined);
@@ -60,13 +60,13 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const modelTypes = favoriteRouterModelTypes({
     chatWithImageModels, chatWithVideoModels, chatWithSpeechModels, chatWithTranscriptionModels,
   });
-  const modelValues = preferredDecisionModel && selectedChatModelIds !== undefined
+  const modelValues = routingDecisionModel && selectedChatModelIds !== undefined
     ? selectedChatModelIds : selectedModel ? [selectedModel] : [];
   const singleModelSelected = modelValues.length === 1;
 
   // Reconcile catalog/type changes, without treating each routing winner as a new selection.
   useEffect(() => {
-    if (!preferredDecisionModel || !modelsLoaded || chatMode !== "chat") return;
+    if (!routingDecisionModel || !modelsLoaded || chatMode !== "chat") return;
     const validModels = (models ?? []).filter(model => modelTypes.includes(model.type));
     const ids = selectedChatModelIds ?? (selectedModel ? [selectedModel] : []);
     const validIds = ids.filter(id => validModels.some(model => model.id === id));
@@ -76,7 +76,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     }
     const fallback = [...validModels].sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0];
     if (fallback) setSelectedModel(fallback.id);
-  }, [preferredDecisionModel, modelsLoaded, models, chatMode, selectedChatModelIds, selectedModel,
+  }, [routingDecisionModel, modelsLoaded, models, chatMode, selectedChatModelIds, selectedModel,
     chatWithImageModels, chatWithVideoModels, chatWithSpeechModels, chatWithTranscriptionModels,
     setSelectedChatModelIds, setSelectedModel]);
 
@@ -148,10 +148,10 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 modelTypes={modelTypes}
                 value={selectedModel ?? ""}
                 values={modelValues}
-                multiselect={!!preferredDecisionModel}
+                multiselect={!!routingDecisionModel}
                 onValuesChange={setSelectedChatModelIds}
                 onChange={(id) => {
-                  if (!preferredDecisionModel) return setSelectedModel(id);
+                  if (!routingDecisionModel) return setSelectedModel(id);
                   const next = modelValues.includes(id) ? modelValues.filter(value => value !== id) : [...modelValues, id];
                   // Keep a valid selection when the last checkbox is clicked.
                   if (next.length) setSelectedChatModelIds(next);

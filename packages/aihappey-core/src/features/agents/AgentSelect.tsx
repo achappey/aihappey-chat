@@ -2,7 +2,7 @@ import React from "react";
 import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 
-import { store, useAppStore } from "aihappey-state";
+import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, store, useAppStore } from "aihappey-state";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import type { Agent, RemoteAgentModel } from "aihappey-types";
 import {
@@ -11,7 +11,7 @@ import {
   resolveSelectedAgentEntries,
 } from "./agentSelection";
 import { useChatContext } from "../chat/context/ChatContext";
-import { FAVORITE_AGENT_ROUTER } from "../chat/engine/favoriteRouter";
+import { favoriteRouterModel, FAVORITE_AGENT_ROUTER } from "../chat/engine/favoriteRouter";
 import { getAgentTags } from "./agentTags";
 
 const hostnameOf = (url?: string) => {
@@ -55,7 +55,9 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   const isDesktop = useIsDesktop();
   const SelectComponent = Select || "select";
   const enabledProviders = useAppStore((a) => a.enabledProvidersByType?.language ?? []);
-  const preferredDecisionModel = useAppStore(s => s.userPreferredDecisionModel);
+  const routingDecisionModel = useAppStore(s => favoriteRouterModel(s, "agent"));
+  const routingAgentName = useAppStore(s => s.sideInferenceAgentNames?.selectFavoriteAgent)
+    ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION.selectFavoriteAgent;
   const routerSelected = useAppStore(s => s.favoriteAgentRouter);
   const setSelectedAgents = useAppStore(s => s.setSelectedAgents);
   const deciding = useAppStore(s => s.favoriteRouterDeciding);
@@ -76,7 +78,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
     [favoriteAgentIds]
   );
   const favoriteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => favoriteSet.has(agent.key)));
-  const routerAvailable = allowFavoriteRouter && !!preferredDecisionModel && favoriteVisibleAgents.length >= 2;
+  const routerAvailable = allowFavoriteRouter && !!routingDecisionModel && favoriteVisibleAgents.length >= 2;
   const tagGroups = new Map<string, typeof visibleAgents>();
   const untaggedAgents = visibleAgents.filter((agent) => {
     const tags = getAgentTags(agent.localAgent, agent.remoteAgentModel, agent.remoteAgentModel?.agent);
@@ -91,7 +93,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       values={normalizedValues}
       icon={"robot"}
       valueTitle={allowFavoriteRouter && routerSelected
-        ? t("favoriteAgentRouter", "Favorite agent router")
+        ? routingAgentName
         : selectedEntries.map((entry) => entry.label).join(", ")}
       multiselect={true}
       style={style}
@@ -117,7 +119,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
     >
       <>
         {routerAvailable && (
-          <option value={FAVORITE_AGENT_ROUTER}>{t("favoriteAgentRouter", "Favorite agent router")}</option>
+          <option value={FAVORITE_AGENT_ROUTER}>{routingAgentName}</option>
         )}
         {favoriteVisibleAgents.length > 0 && (
           <optgroup label={favoritesLabel ?? t("favorites")}>

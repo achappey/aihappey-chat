@@ -513,6 +513,8 @@
         "toolSearchAgentHint": "Choose the agent that selects relevant tools for client tool search.",
         "resourceSearchAgent": "Resource search agent",
         "resourceSearchAgentHint": "Choose the agent that selects relevant MCP resources for client resource search.",
+        "selectModelAgent": "Model selection agent",
+        "selectFavoriteAgent": "Favorite-agent selection agent",
         "fallbackWelcome": "Welcome",
         "toolExplanationFallback": "The tool call could not be explained. The selected explanation agent is unavailable or returned an error."
     },

@@ -5,7 +5,7 @@ import type { ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
-import { SELECT_ALL_FAVORITE_MODELS } from "../chat/engine/favoriteRouter";
+import { favoriteRouterModel, SELECT_ALL_FAVORITE_MODELS } from "../chat/engine/favoriteRouter";
 
 type ProviderOption = { key: string; label: string };
 
@@ -74,12 +74,12 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
-  const preferredDecisionModel = useAppStore(s => s.userPreferredDecisionModel);
+  const routingDecisionModel = useAppStore(s => favoriteRouterModel(s, "model"));
   const deciding = useAppStore(s => s.favoriteRouterDeciding);
   const modelTypes = React.useMemo(() => props.modelTypes ?? ["language"], [props.modelTypes]);
   const currentFavoriteIds = Array.from(new Set(props.models.filter(model => modelTypes.includes(model.type)
     && favoriteModelsByType?.[model.type]?.includes(model.id)).map(model => model.id)));
-  const favoritesShortcutAvailable = allowFavoriteRouter && props.multiselect && !!preferredDecisionModel
+  const favoritesShortcutAvailable = allowFavoriteRouter && props.multiselect && !!routingDecisionModel
     && !!onValuesChange && currentFavoriteIds.length > 0;
   const enabledProviderKeysByType = React.useMemo(() => {
     return Object.fromEntries(modelTypes.map(type => {

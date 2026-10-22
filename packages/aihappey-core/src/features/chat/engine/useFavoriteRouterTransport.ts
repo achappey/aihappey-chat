@@ -5,7 +5,7 @@ import type { DefaultChatTransport } from "aihappey-ai";
 import type { FileItem, FileStore } from "aihappey-files";
 import { useChatContext } from "../context/ChatContext";
 import { withOpenAiKnownSpeakerReferences } from "../../transcriptions/knownSpeakersProviderMetadata";
-import { chatModelCandidateIds, decideFavorite, favoriteRouterCandidates, modelRouterCandidates, favoriteRouterContext, isNewFavoriteRouterTurn, replaceRoutedRequestBody } from "./favoriteRouter";
+import { chatModelCandidateIds, decideFavorite, favoriteRouterCandidates, favoriteRouterInstructions, favoriteRouterModel, modelRouterCandidates, favoriteRouterContext, isNewFavoriteRouterTurn, replaceRoutedRequestBody } from "./favoriteRouter";
 
 type Transport = Pick<DefaultChatTransport<any>, "sendMessages" | "reconnectToStream">;
 
@@ -32,9 +32,9 @@ export function useFavoriteRouterTransport(
         const state = store.getState();
         const kind = state.chatMode === "agent" ? "agent" : "model";
         const enabled = kind === "agent" ? state.favoriteAgentRouter
-          : !!state.userPreferredDecisionModel && chatModelCandidateIds(state).length > 1;
+          : chatModelCandidateIds(state).length > 1;
         if (isNewFavoriteRouterTurn(options)) {
-          if (kind === "model" && state.userPreferredDecisionModel && state.selectedChatModelIds !== undefined
+          if (kind === "model" && state.selectedChatModelIds !== undefined
             && (!chatModelCandidateIds(state).length
               || modelRouterCandidates(state).length !== chatModelCandidateIds(state).length)) {
             throw new Error("Select at least one available chat model before sending.");
@@ -58,8 +58,9 @@ export function useFavoriteRouterTransport(
               const latest = store.getState();
               return JSON.stringify({
                 kind: latest.chatMode, selectedChatModelIds: latest.selectedChatModelIds, agentRouter: latest.favoriteAgentRouter,
-                preferred: latest.userPreferredDecisionModel, models: latest.models,
+                decisionModel: favoriteRouterModel(latest, kind), models: latest.models,
                 candidates: kind === "model" ? modelRouterCandidates(latest) : favoriteRouterCandidates(latest, kind),
+                instructions: favoriteRouterInstructions(latest, kind),
                 selectedModel: latest.selectedModel, selectedAgents: latest.selectedAgentNames,
                 endpoint: [latest.selectedEndpointProfileId, latest.selectedBaseUrl, latest.effectiveChatEndpoint],
                 customHeaders: latest.customHeaders,
