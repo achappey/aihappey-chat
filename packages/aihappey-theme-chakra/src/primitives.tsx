@@ -561,10 +561,14 @@ export const Drawer = ({ open, onClose, title, children, headerNavigation, posit
   </Chakra.Drawer.Root>
 );
 
-export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className, style }: any) => (
-  <Chakra.Tabs.Root value={activeKey} onValueChange={(details: any) => details.value && onSelect?.(details.value)} orientation={vertical ? "vertical" : "horizontal"} className={className} style={style}>
-    <Chakra.Tabs.List width={fill ? "100%" : undefined}>{React.Children.map(children, (child) => React.isValidElement<any>(child) ? <Chakra.Tabs.Trigger flex={fill ? 1 : undefined} value={child.props.eventKey} disabled={child.props.disabled}>{renderIcon(child.props.icon)}{child.props.title}</Chakra.Tabs.Trigger> : null)}</Chakra.Tabs.List>
-    {React.Children.map(children, (child) => React.isValidElement<any>(child) ? <Chakra.Tabs.Content value={child.props.eventKey}>{child.props.children}</Chakra.Tabs.Content> : null)}
+export const Tabs = ({ activeKey, onSelect, vertical, iconOnly, fill, children, className, style }: any) => (
+  <Chakra.Tabs.Root value={activeKey} onValueChange={(details: any) => details.value && onSelect?.(details.value)} orientation={vertical ? "vertical" : "horizontal"} className={className} style={{ minWidth: 0, gap: vertical ? 12 : undefined, ...style }}>
+    <Chakra.Tabs.List width={vertical && iconOnly ? "44px" : fill ? "100%" : undefined} flexShrink={0} alignSelf={vertical ? "flex-start" : undefined}>{React.Children.map(children, (child) => React.isValidElement<any>(child) ? <Chakra.Tabs.Trigger flex={fill ? 1 : undefined} value={child.props.eventKey} disabled={child.props.disabled}
+      title={vertical && iconOnly && typeof child.props.title === "string" ? child.props.title : undefined}
+      aria-label={vertical && iconOnly && typeof child.props.title === "string" ? child.props.title : undefined}
+      style={vertical && iconOnly ? { width: 44, height: 44, padding: 0, justifyContent: "center" } : undefined}
+    >{renderIcon(child.props.icon)}{vertical && iconOnly && child.props.icon ? null : child.props.title}</Chakra.Tabs.Trigger> : null)}</Chakra.Tabs.List>
+    {React.Children.map(children, (child) => React.isValidElement<any>(child) ? <Chakra.Tabs.Content value={child.props.eventKey} style={{ minWidth: 0, flex: 1 }}>{child.props.children}</Chakra.Tabs.Content> : null)}
   </Chakra.Tabs.Root>
 );
 

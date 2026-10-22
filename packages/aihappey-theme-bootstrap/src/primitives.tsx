@@ -85,7 +85,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, any>(({ rows, readOnly, v
 });
 
 const BootstrapTabs = (props: Parameters<AihUiTheme["Tabs"]>[0]): JSX.Element => {
-  const { activeKey, onSelect, vertical, fill, className, style, children, ...rest } = props;
+  const { activeKey, onSelect, vertical, iconOnly, fill, className, style, children, ...rest } = props;
   const handleSelect = (k: string | null) => {
     if (onSelect && typeof onSelect === "function" && k) {
       onSelect(k as string);
@@ -126,7 +126,7 @@ const BootstrapTabs = (props: Parameters<AihUiTheme["Tabs"]>[0]): JSX.Element =>
         <Nav
           variant="pills"
           className="flex-column flex-shrink-0"
-          style={{ minWidth: 220 }}
+          style={{ minWidth: iconOnly ? 44 : 220, width: iconOnly ? 44 : undefined, alignSelf: "flex-start" }}
           role="tablist"
         >
           {tabItems.map((child) => {
@@ -137,9 +137,12 @@ const BootstrapTabs = (props: Parameters<AihUiTheme["Tabs"]>[0]): JSX.Element =>
                   eventKey={eventKey}
                   disabled={disabled}
                   className="d-flex align-items-center gap-2"
+                  title={iconOnly && typeof title === "string" ? title : undefined}
+                  aria-label={iconOnly && typeof title === "string" ? title : undefined}
+                  style={iconOnly ? { width: 44, height: 44, padding: 0, justifyContent: "center" } : undefined}
                 >
                   {icon && iconMap[icon as IconToken]}
-                  <span>{title}</span>
+                  {iconOnly && icon ? null : <span>{title}</span>}
                 </Nav.Link>
               </Nav.Item>
             );

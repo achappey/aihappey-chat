@@ -1,12 +1,5 @@
 import type { Conversation, UIMessage } from "aihappey-types/src/chat";
 
-type ModelOptionLike = {
-  id?: string;
-  name?: string;
-  type?: string;
-  owned_by?: string;
-};
-
 type ProviderLike = {
   name?: string;
 };
@@ -37,8 +30,6 @@ export type UsageModelStat = {
   count: number;
   tokens: number;
   cost: number;
-  legacy: boolean;
-  unknownProvider: boolean;
 };
 
 export type UsageProviderStat = {
@@ -48,8 +39,6 @@ export type UsageProviderStat = {
   models: Set<string>;
   tokens: number;
   cost: number;
-  legacyMessages: number;
-  unknownMessages: number;
 };
 
 export type UsageToolStat = {
@@ -81,8 +70,11 @@ export type UsageMessageFact = {
   textChars: number;
   partCount: number;
   toolCount: number;
-  legacyModel: boolean;
-  unknownProvider: boolean;
+  entityKind?: "model" | "agent";
+  entityKey?: string;
+  entityLabel?: string;
+  ttft?: number;
+  tps?: number;
 };
 
 export type UsageConversationFact = {
@@ -104,6 +96,7 @@ export type UsageAnalytics = {
   textChars: number;
   roleCounts: Map<string, number>;
   modelStats: Map<string, UsageModelStat>;
+  agentStats: Map<string, UsageModelStat>;
   providerStats: Map<string, UsageProviderStat>;
   tokenTotals: UsageTokenTotals;
   totalCost: number;
@@ -121,8 +114,6 @@ export type UsageAnalytics = {
   temperatureCounts: Map<string, number>;
   finishReasonCounts: Map<string, number>;
   errorCounts: Map<string, number>;
-  legacyModelMessages: number;
-  unknownProviderMessages: number;
   messagesWithModel: number;
   messagesWithCost: number;
   messagesWithTools: number;
@@ -135,7 +126,6 @@ export type UsageAnalytics = {
 };
 
 const UNKNOWN_PROVIDER = "unknown";
-const LEGACY_PROVIDER = "legacy";
 
 const asArray = <T,>(value: T[] | undefined | null): T[] =>
   Array.isArray(value) ? value : [];
@@ -264,91 +254,32 @@ const normalizeProviderLabel = (
   providerKey: string,
   providers: Record<string, ProviderLike>
 ) => {
-  if (providerKey === UNKNOWN_PROVIDER) return "Unknown provider";
-  if (providerKey === LEGACY_PROVIDER) return "Legacy / inferred";
+  if (providerKey === UNKNOWN_PROVIDER) return "—";
   return providers[providerKey]?.name ?? providerKey;
-};
-
-const buildKnownModelIndex = (models: ModelOptionLike[]) => {
-  const byFullId = new Map<string, ModelOptionLike>();
-  const byBareId = new Map<string, ModelOptionLike[]>();
-  for (const model of models) {
-    const id = toStringValue(model.id)?.toLowerCase();
-    if (!id) continue;
-    byFullId.set(id, model);
-    const bare = id.includes("/") ? id.split("/").slice(1).join("/") : id;
-    byBareId.set(bare, [...(byBareId.get(bare) ?? []), model]);
-  }
-  return { byFullId, byBareId };
 };
 
 const normalizeModelReference = ({
   rawModel,
   rawProvider,
-  models,
   providers,
 }: {
   rawModel?: string;
   rawProvider?: string;
-  models: ReturnType<typeof buildKnownModelIndex>;
   providers: Record<string, ProviderLike>;
 }) => {
   const providerInput = rawProvider?.trim().toLowerCase();
   const modelInput = rawModel?.trim();
-
-  if (!modelInput) {
-    const providerKey = providerInput || UNKNOWN_PROVIDER;
-    return {
-      key: providerKey === UNKNOWN_PROVIDER ? undefined : `${providerKey}/unknown-model`,
-      label: providerKey === UNKNOWN_PROVIDER ? undefined : `${providerKey}/unknown-model`,
-      providerKey,
-      providerLabel: normalizeProviderLabel(providerKey, providers),
-      modelId: "unknown-model",
-      legacy: false,
-      unknownProvider: providerKey === UNKNOWN_PROVIDER,
-    };
-  }
-
-  const lower = modelInput.toLowerCase();
-  const fullMatch = models.byFullId.get(lower);
-  if (modelInput.includes("/")) {
-    const providerKey = modelInput.split("/")[0]?.toLowerCase() || providerInput || UNKNOWN_PROVIDER;
-    const modelId = modelInput.split("/").slice(1).join("/") || modelInput;
-    return {
-      key: fullMatch?.id ?? modelInput,
-      label: fullMatch?.id ?? modelInput,
-      providerKey,
-      providerLabel: normalizeProviderLabel(providerKey, providers),
-      modelId,
-      legacy: false,
-      unknownProvider: providerKey === UNKNOWN_PROVIDER,
-    };
-  }
-
-  const bareMatches = models.byBareId.get(lower) ?? [];
-  if (bareMatches.length === 1 && bareMatches[0]?.id?.includes("/")) {
-    const fullId = bareMatches[0].id!;
-    const providerKey = fullId.split("/")[0]?.toLowerCase() || providerInput || LEGACY_PROVIDER;
-    return {
-      key: fullId,
-      label: `${modelInput} (${normalizeProviderLabel(providerKey, providers)})`,
-      providerKey,
-      providerLabel: normalizeProviderLabel(providerKey, providers),
-      modelId: modelInput,
-      legacy: true,
-      unknownProvider: false,
-    };
-  }
-
-  const providerKey = providerInput || LEGACY_PROVIDER;
+  const prefix = modelInput?.includes("/") ? modelInput.split("/")[0].toLowerCase() : undefined;
+  // A direct provider may return a bare model ID, or an organization/model ID.
+  // Explicit provider metadata takes precedence; a slash alone never identifies an agent.
+  const providerKey = providerInput || prefix || UNKNOWN_PROVIDER;
+  const modelId = prefix === providerKey ? modelInput!.slice(modelInput!.indexOf("/") + 1) : modelInput;
   return {
-    key: `${providerKey}/${modelInput}`,
-    label: providerKey === LEGACY_PROVIDER ? `${modelInput} (legacy)` : `${providerKey}/${modelInput}`,
+    key: modelId ? (providerKey === UNKNOWN_PROVIDER ? modelId : `${providerKey}/${modelId}`) : undefined,
+    label: modelInput,
     providerKey,
     providerLabel: normalizeProviderLabel(providerKey, providers),
-    modelId: modelInput,
-    legacy: true,
-    unknownProvider: providerKey === LEGACY_PROVIDER || providerKey === UNKNOWN_PROVIDER,
+    modelId: modelId ?? "",
   };
 };
 
@@ -367,7 +298,7 @@ const extractModelId = (message: UIMessage, conversation: Conversation) => {
   );
 };
 
-const extractProviderId = (message: UIMessage) => {
+const extractProviderId = (message: UIMessage, providers: Record<string, ProviderLike>) => {
   const metadata = asObject(message.metadata);
   return (
     toStringValue(metadata.providerId) ??
@@ -376,6 +307,7 @@ const extractProviderId = (message: UIMessage) => {
     toStringValue(metadata.gateway?.provider) ??
     toStringValue(metadata.request?.provider) ??
     toStringValue(metadata.response?.provider) ??
+    Object.keys(asObject(metadata.providerMetadata)).find((key) => key !== "gateway" && !!providers[key]) ??
     findStringByKeys(metadata, ["providerId", "providerKey", "provider"], 3)
   );
 };
@@ -437,6 +369,7 @@ const emptyAnalytics = (): UsageAnalytics => ({
   textChars: 0,
   roleCounts: new Map(),
   modelStats: new Map(),
+  agentStats: new Map(),
   providerStats: new Map(),
   tokenTotals: { input: 0, output: 0, total: 0, messagesWithUsage: 0 },
   totalCost: 0,
@@ -454,8 +387,6 @@ const emptyAnalytics = (): UsageAnalytics => ({
   temperatureCounts: new Map(),
   finishReasonCounts: new Map(),
   errorCounts: new Map(),
-  legacyModelMessages: 0,
-  unknownProviderMessages: 0,
   messagesWithModel: 0,
   messagesWithCost: 0,
   messagesWithTools: 0,
@@ -469,15 +400,12 @@ const emptyAnalytics = (): UsageAnalytics => ({
 
 export const buildUsageAnalytics = ({
   conversations,
-  models = [],
   providers = {},
 }: {
   conversations: Conversation[];
-  models?: ModelOptionLike[];
   providers?: Record<string, ProviderLike>;
 }): UsageAnalytics => {
   const analytics = emptyAnalytics();
-  const modelIndex = buildKnownModelIndex(models);
   analytics.conversations = conversations.length;
 
   for (const conversation of conversations) {
@@ -501,14 +429,19 @@ export const buildUsageAnalytics = ({
       const day = timestamp ? dayKey(timestamp) : undefined;
       const hour = timestamp ? timestamp.getHours() : undefined;
       const role = String(message.role ?? "unknown");
-      const rawModel = extractModelId(message, conversation);
-      const rawProvider = extractProviderId(message);
+      const rawModel = role === "assistant" ? extractModelId(message, conversation) : undefined;
+      const rawProvider = role === "assistant" ? extractProviderId(message, providers) : undefined;
       const modelRef = normalizeModelReference({
         rawModel,
         rawProvider,
-        models: modelIndex,
         providers,
       });
+      const author = typeof metadata.author === "string" ? metadata.author.trim() : "";
+      const entityKind = role === "assistant" ? (author ? "agent" : "model") : undefined;
+      const entityKey = entityKind === "agent" ? author : modelRef.key;
+      const entityLabel = entityKind === "agent" ? author : modelRef.label;
+      const gateway = asObject(metadata.providerMetadata?.gateway ?? metadata.gateway);
+      const metric = (value: unknown) => role === "assistant" && typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : undefined;
       const tokens = getUsageNumbers(metadata);
       const cost = getCost(metadata);
       let messageTextChars = 0;
@@ -549,48 +482,40 @@ export const buildUsageAnalytics = ({
       conversationFact.tokens += tokens.total;
       conversationFact.cost += cost;
 
-      if (modelRef.key) {
+      if (entityKey) {
         analytics.messagesWithModel += 1;
-        const modelStat = analytics.modelStats.get(modelRef.key) ?? {
-          key: modelRef.key,
-          label: modelRef.label ?? modelRef.key,
+        const stats = entityKind === "agent" ? analytics.agentStats : analytics.modelStats;
+        const modelStat = stats.get(entityKey) ?? {
+          key: entityKey,
+          label: entityLabel ?? entityKey,
           providerKey: modelRef.providerKey,
           providerLabel: modelRef.providerLabel,
           modelId: modelRef.modelId,
           count: 0,
           tokens: 0,
           cost: 0,
-          legacy: modelRef.legacy,
-          unknownProvider: modelRef.unknownProvider,
         };
         modelStat.count += 1;
         modelStat.tokens += tokens.total;
         modelStat.cost += cost;
-        modelStat.legacy = modelStat.legacy || modelRef.legacy;
-        modelStat.unknownProvider = modelStat.unknownProvider || modelRef.unknownProvider;
-        analytics.modelStats.set(modelRef.key, modelStat);
+        stats.set(entityKey, modelStat);
       }
 
-      const providerStat = analytics.providerStats.get(modelRef.providerKey) ?? {
+      if (role === "assistant" && modelRef.providerKey !== UNKNOWN_PROVIDER) {
+        const providerStat = analytics.providerStats.get(modelRef.providerKey) ?? {
         key: modelRef.providerKey,
         label: modelRef.providerLabel,
         count: 0,
         models: new Set<string>(),
         tokens: 0,
         cost: 0,
-        legacyMessages: 0,
-        unknownMessages: 0,
       };
       providerStat.count += 1;
       if (modelRef.key) providerStat.models.add(modelRef.key);
       providerStat.tokens += tokens.total;
       providerStat.cost += cost;
-      if (modelRef.legacy) providerStat.legacyMessages += 1;
-      if (modelRef.unknownProvider) providerStat.unknownMessages += 1;
       analytics.providerStats.set(modelRef.providerKey, providerStat);
-
-      if (modelRef.legacy) analytics.legacyModelMessages += 1;
-      if (modelRef.unknownProvider) analytics.unknownProviderMessages += 1;
+      }
 
       const temperature = toNumber(metadata.temperature);
       if (temperature !== undefined) addToMap(analytics.temperatureCounts, temperature.toFixed(1));
@@ -672,8 +597,11 @@ export const buildUsageAnalytics = ({
         textChars: messageTextChars,
         partCount: parts.length,
         toolCount: messageToolCount,
-        legacyModel: modelRef.legacy,
-        unknownProvider: modelRef.unknownProvider,
+        entityKind,
+        entityKey,
+        entityLabel,
+        ttft: metric(gateway.ttft),
+        tps: metric(gateway.tps),
       });
     }
 
@@ -706,4 +634,17 @@ export const topToolStats = (map: Map<string, UsageToolStat>, limit = 12) =>
 
 export const sortedMapEntries = (map: Map<string, number>) =>
   Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+
+/** Each recorded assistant response is one sample, including valid zero values. */
+export const summarizeMetric = (values: Array<number | undefined>) => {
+  const samples = values.filter((value): value is number => typeof value === "number" && Number.isFinite(value) && value >= 0).sort((a, b) => a - b);
+  if (!samples.length) return undefined;
+  const middle = Math.floor(samples.length / 2);
+  return {
+    count: samples.length,
+    mean: samples.reduce((sum, value) => sum + value, 0) / samples.length,
+    median: samples.length % 2 ? samples[middle] : (samples[middle - 1] + samples[middle]) / 2,
+    p95: samples[Math.ceil(samples.length * 0.95) - 1],
+  };
+};
 

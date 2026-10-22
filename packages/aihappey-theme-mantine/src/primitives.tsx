@@ -613,10 +613,14 @@ export const Drawer = ({ open, onClose, title, children, headerNavigation, posit
   </MantineDrawer>
 );
 
-export const Tabs = ({ activeKey, onSelect, vertical, fill, children, className, style }: any) => (
-  <MantineTabs value={activeKey} onChange={(key) => key && onSelect?.(key)} orientation={vertical ? "vertical" : "horizontal"} className={className} style={style}>
-    <MantineTabs.List grow={fill}>{React.Children.map(children, (child) => React.isValidElement<any>(child) ? <MantineTabs.Tab value={child.props.eventKey} disabled={child.props.disabled} leftSection={renderIcon(child.props.icon)}>{child.props.title}</MantineTabs.Tab> : null)}</MantineTabs.List>
-    {React.Children.map(children, (child) => React.isValidElement<any>(child) ? <MantineTabs.Panel value={child.props.eventKey} pt="sm">{child.props.children}</MantineTabs.Panel> : null)}
+export const Tabs = ({ activeKey, onSelect, vertical, iconOnly, fill, children, className, style }: any) => (
+  <MantineTabs value={activeKey} onChange={(key) => key && onSelect?.(key)} orientation={vertical ? "vertical" : "horizontal"} className={className} style={{ minWidth: 0, gap: vertical ? 12 : undefined, ...style }}>
+    <MantineTabs.List grow={fill} style={vertical && iconOnly ? { flex: "0 0 44px", alignSelf: "flex-start" } : undefined}>{React.Children.map(children, (child) => React.isValidElement<any>(child) ? <MantineTabs.Tab value={child.props.eventKey} disabled={child.props.disabled} leftSection={renderIcon(child.props.icon)}
+      title={vertical && iconOnly && typeof child.props.title === "string" ? child.props.title : undefined}
+      aria-label={vertical && iconOnly && typeof child.props.title === "string" ? child.props.title : undefined}
+      styles={vertical && iconOnly ? { tab: { width: 44, height: 44, padding: 0, justifyContent: "center" }, tabSection: { margin: 0 } } : undefined}
+    >{vertical && iconOnly && child.props.icon ? null : child.props.title}</MantineTabs.Tab> : null)}</MantineTabs.List>
+    {React.Children.map(children, (child) => React.isValidElement<any>(child) ? <MantineTabs.Panel value={child.props.eventKey} pt="sm" style={{ minWidth: 0, flex: 1 }}>{child.props.children}</MantineTabs.Panel> : null)}
   </MantineTabs>
 );
 

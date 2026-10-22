@@ -523,10 +523,32 @@ export const Navigation = ({ items = [], appTitle, activeKey, onSelect, onClose,
 };
 
 export const Tab = ({ children }: any) => <>{children}</>;
-export const Tabs = ({ activeKey, onSelect, children, ...rest }: any) => {
+export const Tabs = ({ activeKey, onSelect, children, vertical, iconOnly, fill, style, ...rest }: any) => {
   const tabs = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
   const selectedKey = activeKey ?? tabs[0]?.props.eventKey;
-  return <div {...rest}><div role="tablist">{tabs.map((tab) => <button key={tab.props.eventKey} type="button" role="tab" aria-selected={tab.props.eventKey === selectedKey} disabled={tab.props.disabled} onClick={() => onSelect?.(tab.props.eventKey)}>{icon(tab.props.icon)}{tab.props.icon ? " " : null}{tab.props.title}</button>)}</div>{tabs.map((tab) => <section key={tab.props.eventKey} hidden={tab.props.eventKey !== selectedKey}>{tab.props.children}</section>)}</div>;
+  const id = React.useId();
+  return <div {...rest} style={{ display: vertical ? "flex" : undefined, gap: 12, minWidth: 0, ...style }}>
+    <div role="tablist" aria-orientation={vertical ? "vertical" : "horizontal"} style={{ display: "flex", flexDirection: vertical ? "column" : "row", flexShrink: 0, alignSelf: "flex-start", overflowX: vertical ? undefined : "auto" }}>
+      {tabs.map((tab, index) => <button key={tab.props.eventKey} id={`${id}-tab-${index}`} aria-controls={`${id}-panel-${index}`} type="button" role="tab"
+        aria-selected={tab.props.eventKey === selectedKey} tabIndex={tab.props.eventKey === selectedKey ? 0 : -1}
+        title={vertical && iconOnly && typeof tab.props.title === "string" ? tab.props.title : undefined}
+        aria-label={vertical && iconOnly && typeof tab.props.title === "string" ? tab.props.title : undefined}
+        style={vertical && iconOnly ? { width: 44, height: 44, padding: 0 } : { flex: fill ? 1 : undefined }}
+        disabled={tab.props.disabled} onClick={() => onSelect?.(tab.props.eventKey)}
+        onKeyDown={(event) => {
+          const keys = vertical ? ["ArrowUp", "ArrowDown"] : ["ArrowLeft", "ArrowRight"];
+          if (![...keys, "Home", "End"].includes(event.key)) return;
+          event.preventDefault();
+          const enabled = tabs.map((item, i) => ({ item, i })).filter(({ item }) => !item.props.disabled);
+          const current = enabled.findIndex(({ i }) => i === index);
+          const next = event.key === "Home" ? 0 : event.key === "End" ? enabled.length - 1 : (current + (event.key === keys[0] ? -1 : 1) + enabled.length) % enabled.length;
+          const target = enabled[next];
+          if (target) { onSelect?.(target.item.props.eventKey); document.getElementById(`${id}-tab-${target.i}`)?.focus(); }
+        }}
+      >{icon(tab.props.icon)}{vertical && iconOnly && tab.props.icon ? null : tab.props.title}</button>)}
+    </div>
+    {tabs.map((tab, index) => <section key={tab.props.eventKey} id={`${id}-panel-${index}`} role="tabpanel" aria-labelledby={`${id}-tab-${index}`} hidden={tab.props.eventKey !== selectedKey} style={{ flex: 1, minWidth: 0 }}>{tab.props.children}</section>)}
+  </div>;
 };
 
 export const Accordion = ({ items = [], openItems, defaultOpenItems = [], onToggle, ...rest }: any) => <div {...rest}>{items.map((item: any) => <details key={item.key} open={(openItems ?? defaultOpenItems).includes(item.key)} onToggle={(event) => onToggle?.((event.currentTarget as HTMLDetailsElement).open ? [...(openItems ?? []), item.key] : (openItems ?? []).filter((key: string) => key !== item.key))}><summary>{item.header}</summary>{item.content}</details>)}</div>;
