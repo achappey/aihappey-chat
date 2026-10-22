@@ -1,0 +1,17 @@
+
+{
+  "name": "Prediction Guard",
+  "description": "Enterprise AI platform providing secure, private model inference and agent governance through OpenAI-compatible and Anthropic-compatible APIs. Supports chat completions, responses, embeddings, transcription, reranking, PII protection, toxicity detection, prompt injection filtering, and self-hosted deployments.",
+  "urls": {
+    "homepage": "https://predictionguard.com",
+    "pricing": "https://predictionguard.com/pricing",
+    "privacyPolicy": "https://predictionguard.com/privacy-policy",
+    "termsOfService": "https://predictionguard.com/terms-and-conditions",
+    "docs": "https://docs.predictionguard.com"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}

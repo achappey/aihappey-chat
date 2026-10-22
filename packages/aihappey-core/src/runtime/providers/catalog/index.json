@@ -2468,6 +2468,14 @@
     "file": "hyperbolic.json"
   },
   {
+    "id": "predictionguard",
+    "file": "predictionguard.json"
+  },
+  {
+    "id": "astria",
+    "file": "astria.json"
+  },
+  {
     "id": "elevenlabs",
     "file": "elevenlabs.json"
   },

@@ -1,0 +1,17 @@
+
+{
+  "name": "Astria",
+  "description": "AI image and video generation platform offering custom model fine-tuning, LoRA training, image editing, and personalized visual content. Provides a REST API for creating, managing, and generating images and videos, with asynchronous processing and callbacks.",
+  "urls": {
+    "homepage": "https://www.astria.ai",
+    "pricing": "https://www.astria.ai/pricing",
+    "privacyPolicy": "https://www.astria.ai/privacy",
+    "termsOfService": "https://www.astria.ai/terms",
+    "docs": "https://docs.astria.ai"
+  },
+  "providerCountry": "IL",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}
