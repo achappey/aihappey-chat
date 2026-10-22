@@ -8,11 +8,31 @@ type ReasoningEffort = (typeof REASONING_EFFORTS)[number];
 const DEFAULT_REASONING_EFFORT: ReasoningEffort = "high";
 
 export type DeepSeekChatConfig = {
-  thinking?: {
-    type: "enabled" | "disabled";
+  reasoning?: {
+    effort?: ReasoningEffort | "none";
+    [key: string]: unknown;
   };
-  reasoning_effort?: ReasoningEffort;
+  tools?: { type: string; [key: string]: unknown }[];
   [key: string]: unknown;
+};
+
+export const normalizeDeepSeekChatConfig = (config: DeepSeekChatConfig): DeepSeekChatConfig => {
+  const { thinking, reasoning_effort, ...next } = config;
+  if (!("reasoning" in next) && (thinking !== undefined || reasoning_effort !== undefined)) {
+    next.reasoning = {
+      effort: (thinking as { type?: string } | undefined)?.type === "disabled"
+        ? "none"
+        : (reasoning_effort ?? DEFAULT_REASONING_EFFORT) as ReasoningEffort,
+    };
+  }
+  return next;
+};
+
+export const setDeepSeekWebSearch = (config: DeepSeekChatConfig, enabled: boolean): DeepSeekChatConfig => {
+  const next = normalizeDeepSeekChatConfig(config);
+  const existing = next.tools?.find((tool) => tool.type === "web_search");
+  const otherTools = next.tools?.filter((tool) => tool.type !== "web_search") ?? [];
+  return { ...next, tools: enabled ? [...otherTools, existing ?? { type: "web_search" }] : otherTools };
 };
 
 export const DeepSeekChatConfigForm = ({
@@ -24,9 +44,10 @@ export const DeepSeekChatConfigForm = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const reasoningOn = config?.thinking?.type !== "disabled";
-  const reasoningEffort = REASONING_EFFORTS.includes(config?.reasoning_effort as ReasoningEffort)
-    ? (config.reasoning_effort as ReasoningEffort)
+  const normalized = normalizeDeepSeekChatConfig(config ?? {});
+  const reasoningOn = normalized.reasoning?.effort !== "none";
+  const reasoningEffort = REASONING_EFFORTS.includes(normalized.reasoning?.effort as ReasoningEffort)
+    ? (normalized.reasoning!.effort as ReasoningEffort)
     : DEFAULT_REASONING_EFFORT;
   const options = REASONING_EFFORTS.map((value) => ({
     value,
@@ -34,21 +55,14 @@ export const DeepSeekChatConfigForm = ({
   }));
 
   const toggleReasoning = (enabled: boolean) => {
-    const nextConfig: DeepSeekChatConfig = {
-      ...(config ?? {}),
-      thinking: { type: enabled ? "enabled" : "disabled" },
-    };
-
-    if (enabled) {
-      nextConfig.reasoning_effort = DEFAULT_REASONING_EFFORT;
-    } else {
-      delete nextConfig.reasoning_effort;
-    }
-
-    updateConfig(nextConfig);
+    updateConfig({
+      ...normalized,
+      reasoning: { ...normalized.reasoning, effort: enabled ? DEFAULT_REASONING_EFFORT : "none" },
+    });
   };
 
   return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
     <theme.Card
       size="small"
       title={t("reasoning")}
@@ -70,9 +84,8 @@ export const DeepSeekChatConfigForm = ({
         options={options}
         onChange={(value: string) =>
           updateConfig({
-            ...(config ?? {}),
-            thinking: { type: "enabled" },
-            reasoning_effort: value as ReasoningEffort,
+            ...normalized,
+            reasoning: { ...normalized.reasoning, effort: value as ReasoningEffort },
           })
         }
       >
@@ -83,5 +96,18 @@ export const DeepSeekChatConfigForm = ({
         ))}
       </theme.Select>
     </theme.Card>
+    <theme.Card
+      size="small"
+      title={t("webSearch")}
+      headerActions={
+        <theme.Switch
+          id="deepseek-web-search"
+          checked={normalized.tools?.some((tool) => tool.type === "web_search") ?? false}
+          onChange={(enabled) => updateConfig(setDeepSeekWebSearch(normalized, enabled))}
+        />
+      }
+    >
+    </theme.Card>
+    </div>
   );
 };

@@ -29,16 +29,20 @@ export const Default: Story = {
 
 export const Enabled: Story = {
   render: () => (
-    <Wrapper initialConfig={{ thinking: { type: "enabled" }, reasoning_effort: "high" }} />
+    <Wrapper initialConfig={{ reasoning: { effort: "high" } }} />
   ),
 };
 
 export const MaximumEffort: Story = {
   render: () => (
-    <Wrapper initialConfig={{ thinking: { type: "enabled" }, reasoning_effort: "max" }} />
+    <Wrapper initialConfig={{ reasoning: { effort: "max" } }} />
   ),
 };
 
 export const Disabled: Story = {
-  render: () => <Wrapper initialConfig={{ thinking: { type: "disabled" } }} />,
+  render: () => <Wrapper initialConfig={{ reasoning: { effort: "none" } }} />,
+};
+
+export const WebSearch: Story = {
+  render: () => <Wrapper initialConfig={{ reasoning: { effort: "high" }, tools: [{ type: "web_search" }] }} />,
 };
