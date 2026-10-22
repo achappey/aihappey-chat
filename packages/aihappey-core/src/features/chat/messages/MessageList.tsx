@@ -114,6 +114,7 @@ export const MessageList = ({
   const { i18n, t } = useTranslation();
   const callTool = useAppStore((s) => s.callTool);
   const showMessageTokens = useAppStore((a) => a.showMessageTokens);
+  const showMessageMetrics = useAppStore((a) => a.showMessageMetrics);
   const disableProviderLogo = useAppStore((a) => a.disableProviderLogo);
   const tools = useTools()
   const providers = useProviderRegistry();
@@ -164,6 +165,7 @@ export const MessageList = ({
         onCopyMessage={copyClipboard}
         locale={i18n.language}
         showTokens={showMessageTokens}
+        showMetrics={showMessageMetrics}
         disableProviderLogo={disableProviderLogo}
         providers={providers}
         tools={tools?.tools ?? []}

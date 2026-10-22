@@ -13,6 +13,8 @@ import * as ToastPrimitive from "@radix-ui/react-toast";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import {
   Activity,
+  Timer,
+  Gauge,
   AppWindow,
   ArrowDown,
   ArrowDownAZ,
@@ -118,6 +120,8 @@ type ShadcnColorMode = "light" | "dark";
 export const ShadcnColorModeContext = React.createContext<ShadcnColorMode>("light");
 
 export const iconMap: Record<IconToken, IconComponent> = {
+  timeToFirstToken: Timer,
+  tokensPerSecond: Gauge,
   add: PlusIcon,
   edit: Pencil,
   delete: Trash2,

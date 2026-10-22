@@ -44,6 +44,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const setMaxAttachmentsSize = useAppStore((s) => s.setMaxAttachmentsSize);
 
   const showMessageTokens = useAppStore((s) => s.showMessageTokens);
+  const showMessageMetrics = useAppStore((s) => s.showMessageMetrics);
   const disableProviderLogo = useAppStore((s) => s.disableProviderLogo);
   const chatDictationEnabled = useAppStore((s) => s.chatDictationEnabled);
   const apiDebugEnabled = useAppStore((s) => s.apiDebugEnabled);
@@ -55,6 +56,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const setSideInferenceAgentNames = useAppStore((s) => s.setSideInferenceAgentNames);
 
   const setShowMessageTokens = useAppStore((s) => s.setShowMessageTokens);
+  const setShowMessageMetrics = useAppStore((s) => s.setShowMessageMetrics);
   const setDisableProviderLogo = useAppStore((s) => s.setDisableProviderLogo);
   const setChatDictationEnabled = useAppStore((s) => s.setChatDictationEnabled);
   const configuredChatEndpoint = useAppStore((s) => s.configuredChatEndpoint);
@@ -195,6 +197,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onChange={setShowMessageTokens}
                 />
 
+
                 <Switch
                   id="provider-logo-toggle"
                   checked={!disableProviderLogo}
@@ -207,6 +210,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   checked={chatDictationEnabled}
                   label={t("settingsModal.dictate")}
                   onChange={setChatDictationEnabled}
+                />
+
+                <Switch
+                  id="metrics-toggle"
+                  checked={!!showMessageMetrics}
+                  label={t("settingsModal.showMetrics")}
+                  onChange={setShowMessageMetrics}
                 />
 
                 <Switch

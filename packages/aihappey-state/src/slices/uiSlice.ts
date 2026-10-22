@@ -215,6 +215,7 @@ export type UiSlice = {
   elicitation?: any
   debugMode?: boolean
   showMessageTokens?: boolean
+  showMessageMetrics: boolean
   disableProviderLogo?: boolean
   chatDictationEnabled: boolean
   apiDebugEnabled: boolean
@@ -225,6 +226,7 @@ export type UiSlice = {
   showNavigationItem: (key: string) => void;
   toggleHiddenNavigationItem: (key: string) => void;
   setShowMessageTokens: (value: boolean) => void;
+  setShowMessageMetrics: (value: boolean) => void;
   setDisableProviderLogo: (value: boolean) => void;
   setChatDictationEnabled: (value: boolean) => void;
   setApiDebugEnabled: (value: boolean) => void;
@@ -355,6 +357,7 @@ export const createUiSlice: StateCreator<
   enableUserLocation: false,
   extractExif: false,
   debugMode: false,
+  showMessageMetrics: false,
   chatDictationEnabled: true,
   apiDebugEnabled: false,
   elicitation: {},
@@ -412,6 +415,10 @@ export const createUiSlice: StateCreator<
   setShowMessageTokens: (value: boolean) =>
     set((state: UiSlice) => ({
       showMessageTokens: value
+    })),
+  setShowMessageMetrics: (value: boolean) =>
+    set(() => ({
+      showMessageMetrics: value
     })),
   setDisableProviderLogo: (value: boolean) =>
     set((state: UiSlice) => ({

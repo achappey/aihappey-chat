@@ -102,10 +102,14 @@ import {
   Book,
   ListNested,
   Fonts,
+  Stopwatch,
+  Speedometer2,
 } from "react-bootstrap-icons";
 import { Image } from "react-bootstrap";
 
 export const iconMap: Partial<Record<IconToken, JSX.Element>> = {
+  timeToFirstToken: <Stopwatch />,
+  tokensPerSecond: <Speedometer2 />,
   robot: <Robot />,
   warning: <ExclamationTriangle />,
   add: <Plus />, // Default fallback or specific mapping

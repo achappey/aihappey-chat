@@ -159,7 +159,29 @@ function BranchIcon({ size = 16, style }: IconProps) {
   );
 }
 
+function StopwatchIcon({ size = 16, style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={style}>
+      <path d="M9 2h6M12 2v3M18 5l2 2M12 9v4l2 2" />
+      <circle cx={12} cy={14} r={8} />
+    </svg>
+  );
+}
+
+function SpeedometerIcon({ size = 16, style }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={style}>
+      <path d="M4.9 19a10 10 0 1 1 14.2 0ZM12 13l4-4M4 12h1M7 5l1 1M12 2v2M19 5l-1 1M20 12h1" />
+      <circle cx={12} cy={13} r={1} />
+    </svg>
+  );
+}
+
 export const iconMap: Record<IconToken, IconComponent> = {
+  timeToFirstToken: StopwatchIcon,
+  tokensPerSecond: SpeedometerIcon,
   add: makeIcon("+"),
   edit: makeIcon("✎"),
   delete: makeIcon("🗑"),

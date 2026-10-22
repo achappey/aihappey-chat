@@ -85,6 +85,8 @@ import {
   FaVolumeUp,
   FaWrench,
   FaFont,
+  FaStopwatch,
+  FaTachometerAlt,
 } from "react-icons/fa";
 import { format } from "timeago.js";
 import type {
@@ -144,6 +146,8 @@ const iconStyle: React.CSSProperties = { display: "inline-block", flex: "0 0 aut
 const makeIcon = (Icon: React.ComponentType<{ size?: number | string; style?: React.CSSProperties }>): IconComponent => ({ size = 16, style }) => <Icon aria-hidden size={size} style={{ ...iconStyle, ...style }} />;
 
 export const iconMap: Record<IconToken, IconComponent> = {
+  timeToFirstToken: makeIcon(FaStopwatch),
+  tokensPerSecond: makeIcon(FaTachometerAlt),
   add: makeIcon(FaPlus),
   edit: makeIcon(FaEdit),
   delete: makeIcon(FaTrash),

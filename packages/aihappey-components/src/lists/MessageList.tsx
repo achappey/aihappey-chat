@@ -25,6 +25,7 @@ interface MessageListProps {
   size?: string;
   locale?: string
   showTokens?: boolean
+  showMetrics?: boolean
   disableProviderLogo?: boolean
   providers?: Record<string, Provider>
 
@@ -76,6 +77,7 @@ export const MessageList = ({
   tools,
   locale,
   showTokens,
+  showMetrics,
   disableProviderLogo,
   providers,
   onRenderMarkdown,
@@ -181,6 +183,7 @@ export const MessageList = ({
         page={page}
         max={max}
         showTokens={showTokens}
+        showMetrics={showMetrics}
         hideAssistantUsageActions={hideAssistantUsageActions}
         size={size}
         onCopyMessage={onCopyMessage}

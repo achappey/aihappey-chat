@@ -237,6 +237,8 @@
     "customTools": "Aangepaste tools",
     "download": "Download",
     "messagePrice": "Indicatief. Werkelijke kosten kunnen afwijken.",
+    "timeToFirstToken": "Tijd tot eerste token",
+    "tokensPerSecond": "Tokens per seconde",
     "versions": "Versies",
     "other": "Overig",
     "vectorStore": "Documentenhub",
@@ -1210,16 +1212,6 @@
         "settings": "Instellingen",
         "logout": "Uitloggen"
     },
-    "logLevels": {
-        "error": "Fout",
-        "debug": "Foutopsporing",
-        "info": "Info",
-        "notice": "Kennisgeving",
-        "warning": "Waarschuwing",
-        "critical": "Kritiek",
-        "alert": "Alarm",
-        "emergency": "Noodgeval"
-    },
     "mcpPage": {
         "title": "Model Context",
         "policy": "Model Context beleid",
@@ -1239,8 +1231,10 @@
         "elicitationConnectedHint": "Verbreek de MCP-verbindingen om formulierondersteuning te wijzigen.",
         "elicitationUrlUnavailable": "URL-elicitatie wordt nog niet ondersteund.",
         "title": "Instellingen",
+        "debug": "Foutopsporing",
         "showTemperature": "Toon temperatuur",
         "showTokens": "Toon tokens per bericht",
+        "showMetrics": "Toon metingen",
         "showProviderLogo": "Toon providerlogo",
         "dictate": "Dicteren",
         "toolOutputContent": "Types tooluitvoer",

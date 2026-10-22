@@ -39,6 +39,10 @@ export interface ChatMessage {
   totalTokens?: number;
   usage?: any;
   cost?: number;
+  /** Gateway time to first token, in seconds. */
+  ttft?: number;
+  /** Gateway generation throughput, in tokens per second. */
+  tps?: number;
   evaluations?: Record<string, unknown>;
   evaluationSummary?: ChatMessageEvaluationSummary;
 }

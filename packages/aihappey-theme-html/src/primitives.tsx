@@ -2,6 +2,8 @@ import * as React from "react";
 import { format } from "timeago.js";
 import {
   Activity,
+  Timer,
+  Gauge,
   AppWindow,
   ArrowDown,
   ArrowDownAZ,
@@ -106,6 +108,8 @@ function StarFilledIcon(props: LucideProps) {
 }
 
 export const iconMap: Record<IconToken, IconComponent> = {
+  timeToFirstToken: Timer,
+  tokensPerSecond: Gauge,
   add: PlusIcon,
   edit: Pencil,
   delete: Trash2,

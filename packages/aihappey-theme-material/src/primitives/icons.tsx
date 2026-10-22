@@ -81,7 +81,7 @@ import AccountTree from "@mui/icons-material/AccountTree";
 import TextFields from "@mui/icons-material/TextFields";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import type { IconToken } from "aihappey-types";
-import { MoreHoriz, MoreVert } from "@mui/icons-material";
+import { MoreHoriz, MoreVert, Timer, Speed } from "@mui/icons-material";
 
 export type IconProps = { size?: number | string; style?: React.CSSProperties };
 export type IconComponent = (props: IconProps) => React.JSX.Element;
@@ -92,6 +92,8 @@ function makeIcon(Icon: MuiIconComponent): IconComponent {
 }
 
 export const iconMap: Record<IconToken, IconComponent> = {
+  timeToFirstToken: makeIcon(Timer),
+  tokensPerSecond: makeIcon(Speed),
   add: makeIcon(Add),
   edit: makeIcon(Edit),
   delete: makeIcon(Delete),

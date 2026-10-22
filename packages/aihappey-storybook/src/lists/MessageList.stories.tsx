@@ -108,6 +108,19 @@ export const Conversation: Story = {
   ),
 };
 
+export const PerformanceMetrics: Story = {
+  args: {
+    messages: [userMsg, {
+      ...assistantMsg,
+      cost: 0.00081375,
+      ttft: 1.9497438,
+      tps: 4557.565558827654,
+    }],
+    showMetrics: true,
+    onRenderMarkdown: renderMarkdown,
+  },
+};
+
 /**
  * PAGINATION — multi-block message
  */

@@ -59,6 +59,8 @@ export type IconToken =
   | "download"
   | "print"
   | "pricing"
+  | "timeToFirstToken"
+  | "tokensPerSecond"
   | "explainTool"
   | "mail"
   | "theme"

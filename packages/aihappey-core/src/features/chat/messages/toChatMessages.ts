@@ -72,6 +72,12 @@ export function parseGatewayCost(value: unknown): number | undefined {
   return undefined;
 }
 
+function parseGatewayMetric(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? value
+    : undefined;
+}
+
 export function summarizeEvaluations(evaluations: unknown): ChatMessageEvaluationSummary | undefined {
   if (!evaluations || typeof evaluations !== "object" || Array.isArray(evaluations)) return undefined;
 
@@ -192,6 +198,16 @@ export function toChatMessages(
     const temperature = meta?.temperature;
     const usage = meta?.usage;
     const totalTokens = usage?.totalTokens ?? meta?.totalTokens;
+    const ttft = z.role === "assistant"
+      ? parseGatewayMetric(meta?.providerMetadata?.gateway?.ttft ?? meta?.gateway?.ttft)
+      : undefined;
+    const tps = z.role === "assistant"
+      ? parseGatewayMetric(meta?.providerMetadata?.gateway?.tps ?? meta?.gateway?.tps)
+      : undefined;
+    const performanceMetrics = {
+      ...(ttft !== undefined ? { ttft } : {}),
+      ...(tps !== undefined ? { tps } : {}),
+    };
     const evaluations = z.role === "assistant"
       && meta?.evaluations
       && typeof meta.evaluations === "object"
@@ -265,6 +281,7 @@ export function toChatMessages(
         totalTokens,
         usage,
         cost: effectiveCost,
+        ...performanceMetrics,
       } as any);
 
       activityRun = [];
@@ -289,6 +306,7 @@ export function toChatMessages(
         totalTokens,
         usage,
         cost: effectiveCost,
+        ...performanceMetrics,
       } as any);
 
       imageRun = [];
@@ -314,6 +332,7 @@ export function toChatMessages(
           totalTokens,
           usage,
           cost: effectiveCost,
+          ...performanceMetrics,
           providerKey,
         } as any);
       });
@@ -341,6 +360,7 @@ export function toChatMessages(
           totalTokens,
           usage,
           cost: effectiveCost,
+          ...performanceMetrics,
           providerKey,
         } as any);
       });
@@ -391,6 +411,7 @@ export function toChatMessages(
           totalTokens,
           usage,
           cost: effectiveCost,
+          ...performanceMetrics,
           providerKey,
         } as any);
 
@@ -419,6 +440,7 @@ export function toChatMessages(
           totalTokens,
           usage,
           cost: effectiveCost,
+          ...performanceMetrics,
           providerKey,
         } as any);
 
@@ -446,6 +468,7 @@ export function toChatMessages(
           totalTokens,
           usage,
           cost: effectiveCost,
+          ...performanceMetrics,
           providerKey,
           ...(i === evaluationPartIndex && evaluations && evaluationSummary
             ? { evaluations, evaluationSummary }
@@ -522,6 +545,7 @@ export function toChatMessages(
           totalTokens,
           usage,
           cost: effectiveCost,
+          ...performanceMetrics,
         } as any);
 
         continue;

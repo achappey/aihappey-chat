@@ -2,7 +2,7 @@
 import type { ChatMessage } from "aihappey-types";
 import type { FileUIPart, SourceDocumentUIPart, SourceUrlUIPart, UIMessagePart } from "aihappey-ai";
 import { useTheme } from "../theme/ThemeContext";
-import { CostBadge, TokenBadge } from "../badges";
+import { CostBadge, TokenBadge, TimeToFirstTokenBadge, TokensPerSecondBadge } from "../badges";
 import { CopyToClipboardButton } from "../buttons";
 import { SourcesButton } from "./SourcesButton";
 import { useTranslation } from "aihappey-i18n";
@@ -14,6 +14,7 @@ interface MessageActionsProps {
   max: number;
   size?: string;
   showTokens?: boolean
+  showMetrics?: boolean
   hideAssistantUsageActions?: boolean;
 
   onEditMessage?: (msg: ChatMessage) => void;
@@ -35,6 +36,7 @@ export const MessageActions = ({
   max,
   size,
   showTokens,
+  showMetrics,
   hideAssistantUsageActions,
   onEditMessage,
   onCopyMessage,
@@ -100,6 +102,13 @@ export const MessageActions = ({
       {!hideAssistantUsageActions && showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
 
       {!hideAssistantUsageActions && msg.role === "assistant" && <CostBadge cost={msg.cost} />}
+
+      {!hideAssistantUsageActions && showMetrics && msg.role === "assistant" && (
+        <>
+          <TimeToFirstTokenBadge value={msg.ttft} />
+          <TokensPerSecondBadge value={msg.tps} />
+        </>
+      )}
 
       {onShowEvaluations && evaluationSummary && msg.evaluations && (
         <button

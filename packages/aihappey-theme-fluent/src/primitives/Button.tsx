@@ -121,9 +121,13 @@ import {
   BranchForkRegular,
   TagRegular,
   MoreHorizontalRegular,
+  TimerRegular,
+  TopSpeedRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
+  timeToFirstToken: TimerRegular,
+  tokensPerSecond: TopSpeedRegular,
   add: AddRegular,
   edit: EditRegular,
   delete: DeleteRegular,

@@ -445,6 +445,8 @@
     "next": "Next",
     "pricing": "Pricing",
     "messagePrice": "Indicative. Actual provider charges may vary.",
+    "timeToFirstToken": "Time to first token",
+    "tokensPerSecond": "Tokens per second",
     "aiRegion": "AI region",
     "countryOfOrigin": "Country of origin",
     "showMore": "Show more",
@@ -1245,16 +1247,6 @@
         "structuredContent": "Structured content"
     },
     "searchPlaceholder": "Search...",
-    "logLevels": {
-        "error": "Error",
-        "debug": "Debug",
-        "info": "Info",
-        "notice": "Notice",
-        "warning": "Warning",
-        "critical": "Critical",
-        "alert": "Alert",
-        "emergency": "Emergency"
-    },
     "userMenu": {
         "personalization": "Personalization",
         "settings": "Settings",
@@ -1279,6 +1271,7 @@
         "gatewayEnabled": "Enable gateway",
         "showTemperature": "Show temperature",
         "showTokens": "Show tokens per message",
+        "showMetrics": "Show metrics",
         "showProviderLogo": "Show provider logo",
         "dictate": "Dictate",
         "debug": "Debug",

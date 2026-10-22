@@ -5,6 +5,7 @@ export * from "./PriorityBadge";
 export * from "./ToolInvocationStateBadge";
 export * from "./TokenBadge";
 export * from "./CostBadge";
+export * from "./PerformanceBadges";
 export * from "./BrrrBadge";
 export * from "./ExperimentalBadge";
 export * from "./ContextWindowBadge";
