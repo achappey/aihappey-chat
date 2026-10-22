@@ -16,6 +16,7 @@ import { Markdown } from "../../ui/markdown/Markdown";
 import { JobsInput } from "./JobsInput";
 import { useJobErrors } from "./useJobErrors";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { useMediaUrlAttachments } from "../attachments/useMediaUrlAttachments";
 
 const fileToDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -48,6 +49,7 @@ export const JobsPage = () => {
   const { Skeleton } = useTheme();
   const [prompt, setPrompt] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const { urlAttachments, addUrlAttachment, removeUrlAttachment, clearUrlAttachments } = useMediaUrlAttachments();
   const [itemsLoading, setItemsLoading] = useState(0);
   const [processing, setProcessing] = useState(false);
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
@@ -115,6 +117,7 @@ export const JobsPage = () => {
 
     if (text.trim()) content.push({ type: "input_text", text: text.trim() });
     content.push(...await Promise.all(files.map(createFileContentPart)));
+    content.push(...urlAttachments.map(({ url }) => ({ type: "input_file" as const, file_url: url })));
 
     const metadata: Record<string, any> = {};
     if (selectedAgentRequest.localAgents.length > 0) {
@@ -153,9 +156,13 @@ export const JobsPage = () => {
       const request = await buildRequest(text);
       const client = await createClient();
       const response = await client.create(request);
-      await jobs.add(request, response, text || files.map((file) => file.name).join(", "));
+      await jobs.add(request, response, text || [
+        ...files.map((file) => file.name),
+        ...urlAttachments.map(({ url }) => url),
+      ].join(", "));
       jobs.refresh();
       setFiles([]);
+      clearUrlAttachments();
     } catch (err) {
       addError(getStorageErrorMessage(err, "Job request failed"));
       addWarnings((err as any)?.warnings);
@@ -244,6 +251,9 @@ export const JobsPage = () => {
           files={files}
           onFilesSelected={addAttachments}
           onRemoveFile={removeFile}
+          urlAttachments={urlAttachments}
+          onAddUrl={addUrlAttachment}
+          onRemoveUrl={removeUrlAttachment}
           disabled={processing}
         />
       </div>

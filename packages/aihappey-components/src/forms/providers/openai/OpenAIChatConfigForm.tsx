@@ -30,7 +30,6 @@ const OPENAI_TOOL_TYPES = [
   "tool_search",
 ];
 
-const IMAGE_INPUT_DETAIL_OPTIONS = ["auto", "low", "high", "original"] as const;
 const CONTEXT_MANAGEMENT_TYPE_OPTIONS = ["compaction"] as const;
 const MIN_COMPACT_THRESHOLD = 1000;
 const OPENAI_BETA_HEADER = "OpenAI-Beta";
@@ -146,7 +145,6 @@ export const OpenAIChatConfigForm = ({
   };
   const serviceTierOptions = ["auto", "default", "flex", "scale", "fast", "ultrafast"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";
-  const imageInputDetailValue = resolvedConfig?.inputImageDetail ?? "auto";
   const programmaticToolCallingEnabled = !!resolvedConfig?.programmatic_tool_calling;
   const toolSearchEnabled = !!resolvedConfig?.tool_search;
   const toolSearchMode = resolvedConfig?.tool_search?.execution === "client" ? "client" : "hosted";
@@ -585,28 +583,6 @@ export const OpenAIChatConfigForm = ({
 
       <theme.Card size="small" title={t("other")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-
-          <theme.Select
-            label={t("providers:openai.imageInputDetail.title")}
-            values={[imageInputDetailValue]}
-            valueTitle={t(`providers:openai.imageInputDetail.${imageInputDetailValue}`)}
-            options={IMAGE_INPUT_DETAIL_OPTIONS.map((value) => ({
-              value,
-              label: t(`providers:openai.imageInputDetail.${value}`),
-            }))}
-            onChange={(value: string) =>
-              submitConfig({
-                ...resolvedConfig,
-                inputImageDetail: String(value ?? "auto"),
-              })
-            }
-          >
-            {IMAGE_INPUT_DETAIL_OPTIONS.map((value) => (
-              <option key={value} value={value}>
-                {t(`providers:openai.imageInputDetail.${value}`)}
-              </option>
-            ))}
-          </theme.Select>
 
           <theme.Select
             label={t("providers:openai.serviceTier.title")}

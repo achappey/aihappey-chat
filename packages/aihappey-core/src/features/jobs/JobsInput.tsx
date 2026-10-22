@@ -1,8 +1,11 @@
 import React, { useRef } from "react";
-import { AttachmentButton, FileTags, useTheme } from "aihappey-components";
+import { FileTags, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { ResizableTextArea } from "../chat/input/ResizableTextArea";
 import { usePromptDictationControls } from "../chat/input/usePromptDictationControls";
+import { MediaAttachmentMenu } from "../attachments/MediaAttachmentMenu";
+import { UrlAttachmentTags } from "../attachments/UrlAttachmentTags";
+import type { UrlAttachment } from "../attachments/urlAttachment";
 
 export const JobsInput = ({
   value,
@@ -11,6 +14,9 @@ export const JobsInput = ({
   files,
   onFilesSelected,
   onRemoveFile,
+  urlAttachments,
+  onAddUrl,
+  onRemoveUrl,
   disabled,
 }: {
   value: string;
@@ -19,6 +25,9 @@ export const JobsInput = ({
   files: File[];
   onFilesSelected: (files: File[]) => void;
   onRemoveFile: (name: string) => void;
+  urlAttachments: UrlAttachment[];
+  onAddUrl: (part: UrlAttachment) => void;
+  onRemoveUrl: (url: string) => void;
   disabled?: boolean;
 }) => {
   const { Button, TextArea } = useTheme();
@@ -30,10 +39,11 @@ export const JobsInput = ({
     textareaRef,
     disabled,
   });
+  const canSend = !!value.trim() || files.length > 0 || urlAttachments.length > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!value.trim() && files.length === 0) return;
+    if (disabled || !canSend) return;
     await onSend(value.trim());
   };
 
@@ -41,13 +51,19 @@ export const JobsInput = ({
     <form onSubmit={handleSubmit} style={styles.form}>
       <h1>{t("jobs", "Jobs")}</h1>
 
-      {files.length > 0 && (
+      {(files.length > 0 || urlAttachments.length > 0) && (
         <div style={styles.tagRow}>
-          <FileTags
-            icon="attachment"
-            files={files}
-            removeFile={onRemoveFile}
-          />
+          {files.length > 0 && (
+            <FileTags
+              size="small"
+              icon="attachment"
+              files={files}
+              removeFile={onRemoveFile}
+            />
+          )}
+          {urlAttachments.length > 0 && (
+            <UrlAttachmentTags attachments={urlAttachments} onRemove={onRemoveUrl} />
+          )}
         </div>
       )}
 
@@ -63,9 +79,9 @@ export const JobsInput = ({
 
       <div style={styles.buttonRow}>
         <div style={styles.leftGroup}>
-          <AttachmentButton
-            icon="attachment"
+          <MediaAttachmentMenu
             onFilesSelected={onFilesSelected}
+            onAddUrl={onAddUrl}
             disabled={disabled}
           />
         </div>
@@ -75,7 +91,7 @@ export const JobsInput = ({
         <Button
           type="submit"
           size="large"
-          disabled={disabled || (!value.trim() && files.length === 0)}
+          disabled={disabled || !canSend}
           icon="send"
         />
       </div>
@@ -100,6 +116,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tagRow: {
     display: "flex",
+    flexWrap: "wrap",
     gap: 8,
     marginBottom: 4,
     width: "100%",

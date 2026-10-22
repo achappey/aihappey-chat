@@ -113,6 +113,7 @@ export type ResponseApiInputContent =
   | { type: "input_text"; text: string }
   | { type: "input_image"; image_url: string; detail?: string }
   | { type: "input_file"; file_data: string; filename?: string }
+  | { type: "input_file"; file_url: string; filename?: string }
   | Record<string, any>;
 
 export interface ResponseApiInputMessage {
