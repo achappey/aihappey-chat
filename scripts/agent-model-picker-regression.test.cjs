@@ -248,6 +248,31 @@ test("Shadcn multiselect uses the chat scroll viewport and does not render list 
     assert.match(text, /open\s*\?\s*noResults\s*\?\?\s*renderMultiSelectNodes/);
 });
 
+test("Shadcn single- and multiselect constrain scrolling to the option viewport", () => {
+    const { shadcnThemeStyles } = load("packages/aihappey-theme-shadcn/src/styles.ts");
+    const rules = [...shadcnThemeStyles.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+    const declarations = selector => Object.fromEntries(rules
+        .filter(([, selectors]) => selectors.split(",").some(value => value.trim() === selector))
+        .flatMap(([, , body]) => body.split(";").filter(value => value.includes(":"))
+            .map(value => value.split(/:(.*)/s).slice(0, 2).map(part => part.trim()))));
+    const content = declarations(".aih-shadcn-select-content");
+    const multiselect = { ...content, ...declarations(".aih-shadcn-multiselect-content") };
+    for (const panel of [content, multiselect]) {
+        assert.equal(panel.display, "flex", "Both variants must constrain their shared option viewport");
+        assert.equal(panel["flex-direction"], "column");
+        assert.equal(panel.overflow, "hidden");
+        assert.ok(!["auto", "scroll"].includes(panel["overflow-y"]), "The outer panel must not compete with its viewport for scrolling");
+        assert.ok(panel["max-height"].includes("--radix-dropdown-menu-content-available-height"));
+    }
+    const viewport = { ...declarations(".aih-shadcn-select-viewport"), ...declarations(".aih-shadcn-dropdown-select-viewport") };
+    assert.equal(viewport["overflow-y"], "auto");
+    assert.equal(viewport.flex, "1 1 auto");
+    assert.equal(viewport["min-height"], "0");
+    assert.equal(viewport["overscroll-behavior"], "contain");
+    assert.match(declarations(".aih-shadcn-select-search").flex, /^0 0 /);
+    assert.match(declarations(".aih-shadcn-select-scroll-button").flex, /^0 0 /);
+});
+
 function modalHarness(agent) {
     const slots = [];
     let index = 0;

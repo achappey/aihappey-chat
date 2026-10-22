@@ -346,9 +346,8 @@ padding: .5rem;
 .aih-shadcn-popover { z-index: var(--aih-shadcn-popover-z-index); min-width: 12rem; border: 1px solid var(--aih-shadcn-border); border-radius: var(--aih-shadcn-radius); background: var(--aih-shadcn-popover); color: var(--aih-shadcn-popover-foreground); box-shadow: 0 10px 30px rgb(0 0 0 / .18); padding: .25rem; }
 .aih-shadcn-menu-content,
 .aih-shadcn-menu-sub-content { max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; }
-.aih-shadcn-select-content { width: var(--radix-select-trigger-width, var(--radix-dropdown-menu-trigger-width)); max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow: hidden; }
-.aih-shadcn-select-content:not(.aih-shadcn-multiselect-content) { display: flex; flex-direction: column; }
-.aih-shadcn-multiselect-content { width: var(--radix-dropdown-menu-trigger-width); max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+/* Both variants must constrain the inner viewport; an outer scroller traps wheel input behind its overscroll containment. */
+.aih-shadcn-select-content { display: flex; flex-direction: column; width: var(--radix-select-trigger-width, var(--radix-dropdown-menu-trigger-width)); max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow: hidden; }
 .aih-shadcn-select-viewport { max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow-y: auto; padding: .25rem; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 .aih-shadcn-dropdown-select-viewport { flex: 1 1 auto; min-height: 0; max-height: none; overscroll-behavior: contain; }
 .aih-shadcn-select-search { position: relative; flex: 0 0 auto; padding: .25rem .25rem .375rem; }
