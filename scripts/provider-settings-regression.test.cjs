@@ -338,58 +338,154 @@ test("file-form functional edits preserve other providers, sibling configs, and 
     assert.equal(draft.openai[0].config.detail, "auto");
 });
 
-test("main chat settings stages file edits, preserves other draft edits, saves on close, and restores defaults in draft only", () => {
+function chatSettingsHarness(overrides = {}, defaults = { openai: [{ id: "image", config: {} }] }) {
     const h = hooks();
-    const defaults = { openai: [{ id: "image", config: {} }] };
-    const state = { models: [{ id: "openai/chat" }], selectedModel: "openai/chat", providerFileMetadata: { openai: [{ id: "image", config: { detail: "low" } }] } };
+    const state = { models: [{ id: "openai/chat" }], selectedModel: "openai/chat", providerFileMetadata: { openai: [{ id: "image", config: { detail: "low" } }] }, ...overrides };
     const calls = {};
     const setters = new Proxy(state, { get: (target, key) => target[key] ?? (String(key).startsWith("set") ? (value) => { calls[key] = value; } : undefined) });
     setters.setProviderFileMetadata = (value) => { state.providerFileMetadata = value; };
     const store = (selector) => selector(setters);
     const local = new Proxy({}, { get: (_, name) => name });
+    const fileSettings = load("packages/aihappey-core/src/features/providers/ProviderFileSettings.tsx", {
+        react: React, "aihappey-components": components, "aihappey-i18n": i18n,
+        "aihappey-state": { useAppStore: store, defaultProviderFileMetadata: defaults },
+    });
     const { ChatSettingsModal } = load("packages/aihappey-core/src/features/chat-settings/ChatSettingsModal.tsx", {
         react: h.react, "aihappey-components": components, "aihappey-i18n": i18n,
         "aihappey-state": { useAppStore: store, defaultProviderFileMetadata: defaults, defaultProviderMetadata: {}, defaultProviderHeaders: {} },
+        "aihappey-types": load("packages/aihappey-types/src/modelIdentity.ts"),
         "./GeneralTab": local, "./ToolsTab": local, "./ToolConfigurationTab": local, "./ChatSkillsEditor": local, "./ChatPluginsEditor": local,
         "../provider-config/google/GoogleChatConfig": local,
         "../provider-config/openai/openAISkillOptions": { buildOpenAISkillOptions: () => [], createOpenAIShellSkillResolver: () => undefined },
         "aihappey-skills": { useSkills: () => ({ items: [] }) }, "aihappey-plugins": { usePlugins: () => ({ items: [] }) },
         "../chat/context/ChatContext": { useChatContext: () => ({ config: { baseUrl: "", endpoints: { skills: "/skills" } } }) },
-        "../../runtime/providers/providerMetadata": { PROVIDERS: { openai: { name: "OpenAI" } } },
-        "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => [] },
-        "../chat/engine/endpointProfiles": { resolveEndpointProfileForSelectedModel: () => undefined },
+        "../../runtime/providers/providerMetadata": { PROVIDERS: { openai: { name: "OpenAI" }, mistral: { name: "Mistral" }, anthropic: { name: "Anthropic" } } },
         "../tools/useTools": { useTools: () => ({ attachedTools: [] }) }, "../skills/connectedMcpSkills": { connectedMcpSkills: () => [] },
-        "../providers/ProviderFileSettings": { useProviderFileSettingsTabs: (_, controlled) => [{ id: "file:image", icon: "image", title: "Image", content: controlled }] },
+        "../providers/ProviderFileSettings": fileSettings,
     });
-    let savedChat;
-    const props = { open: true, providerMetadata: {}, providerHeaders: {}, setProviderMetadata: (value) => { savedChat = value; }, setProviderHeaders() {}, resetDefaults: true, onClose() {} };
-    let modal = h.render(ChatSettingsModal, props);
-    h.flush();
-    modal = h.render(ChatSettingsModal, props);
+    let savedChat, savedHeaders;
+    const props = { open: true, providerMetadata: {}, providerHeaders: {}, setProviderMetadata: (value) => { savedChat = value; }, setProviderHeaders: (value) => { savedHeaders = value; }, resetDefaults: true, onClose() {} };
+    const render = () => { h.render(ChatSettingsModal, props); h.flush(); return h.render(ChatSettingsModal, props); };
+    const tabs = (modal) => children(find(modal, (node) => node.type === "Tabs")).filter((node) => node.props.eventKey.startsWith("provider:"));
+    const rail = (modal) => {
+        const content = find(modal, (node) => node.props.providerKey && typeof node.type === "function");
+        return content?.type(content.props);
+    };
+    const select = (key) => { find(render(), (node) => node.type === "Tabs").props.onSelect(`provider:${key}`); return render(); };
+    return { state, calls, props, defaults, render, tabs, rail, select, get savedChat() { return savedChat; }, get savedHeaders() { return savedHeaders; } };
+}
+
+test("main chat settings stages file edits, preserves other draft edits, saves on close, and restores defaults in draft only", () => {
+    const h = chatSettingsHarness();
+    let modal = h.render();
     find(modal, (node) => node.type === "GeneralTab").props.setMaxOutputTokens(123);
-    find(modal, (node) => node.type === "Tabs").props.onSelect("provider");
-    modal = h.render(ChatSettingsModal, props);
-    let rail = find(modal, (node) => node.type === "ProviderSettingsTabs");
+    modal = h.select("openai");
+    let rail = h.rail(modal);
     assert.deepEqual(rail.props.tabs.map((tab) => tab.id), ["settings", "file:image"]);
     rail.props.tabs[0].content.props.updateConfig({ reasoning: { effort: "high" } });
-    rail.props.tabs[1].content.updateMetadata(() => ({ openai: [{ id: "image", config: { detail: "high" } }] }));
-    modal = h.render(ChatSettingsModal, props);
-    h.flush();
-    modal = h.render(ChatSettingsModal, props);
-    rail = find(modal, (node) => node.type === "ProviderSettingsTabs");
+    find(rail.props.tabs[1].content, (node) => node.type === "OpenAIFileConfigForm").props.updateConfig({ detail: "high" });
+    modal = h.render();
+    rail = h.rail(modal);
     assert.equal(rail.props.tabs[0].content.props.config.reasoning.effort, "high");
-    assert.equal(state.providerFileMetadata.openai[0].config.detail, "low");
+    assert.equal(h.state.providerFileMetadata.openai[0].config.detail, "low");
     modal.props.onHide();
-    assert.equal(state.providerFileMetadata.openai[0].config.detail, "high");
-    assert.equal(savedChat.openai.reasoning.effort, "high");
-    assert.equal(calls.setMaxOutputTokens, 123);
+    assert.equal(h.state.providerFileMetadata.openai[0].config.detail, "high");
+    assert.equal(h.savedChat.openai.reasoning.effort, "high");
+    assert.equal(h.calls.setMaxOutputTokens, 123);
 
     // Restore only mutates the draft until the next close, including file options.
     modal.props.actions.props.onRestoreDefaults();
-    modal = h.render(ChatSettingsModal, props);
-    assert.equal(state.providerFileMetadata.openai[0].config.detail, "high");
+    modal = h.render();
+    assert.equal(h.state.providerFileMetadata.openai[0].config.detail, "high");
     modal.props.actions.props.onClose();
-    assert.deepEqual(state.providerFileMetadata, defaults);
+    assert.deepEqual(h.state.providerFileMetadata, h.defaults);
+});
+
+test("multi-model chat settings shows one provider tab in selection order, not the last winner or deciding model", () => {
+    const h = chatSettingsHarness({
+        models: [{ id: "openai/chat" }, { id: "openai/other" }, { id: "mistral/chat" }, { id: "anthropic/decide", type: "decision" }],
+        selectedModel: "mistral/chat", selectedChatModelIds: ["openai/chat", "mistral/chat", "openai/other", "openai/chat"],
+        userPreferredDecisionModel: "anthropic/decide",
+    });
+    assert.deepEqual(h.tabs(h.render()).map((tab) => [tab.props.eventKey, tab.props.title]), [
+        ["provider:openai", "OpenAI"], ["provider:mistral", "Mistral"],
+    ]);
+    assert.deepEqual(h.rail(h.select("openai")).props.tabs.map((tab) => tab.id), ["settings", "file:image"]);
+    const mistral = h.rail(h.select("mistral"));
+    assert.deepEqual(mistral.props.tabs.map((tab) => tab.id), ["settings"]);
+    assert.equal(mistral.props.tabs[0].content.type, "MistralChatConfigForm");
+    h.state.selectedModel = "openai/chat";
+    assert.deepEqual(h.tabs(h.render()).map((tab) => tab.props.title), ["OpenAI", "Mistral"]);
+});
+
+test("provider tabs use explicit normalized identity for direct models and omit unsupported providers", () => {
+    const h = chatSettingsHarness({
+        models: [
+            { id: "alias/chat__direct", route: "direct", sourceProviderKey: " OpenAI ", providerKey: "mistral" },
+            { id: "alias/other", providerKey: " MISTRAL " }, { id: "unknown/chat" },
+        ],
+        selectedChatModelIds: ["alias/chat__direct", "alias/other", "openai/fallback", "unknown/chat"],
+    });
+    assert.deepEqual(h.tabs(h.render()).map((tab) => tab.props.title), ["OpenAI", "Mistral"]);
+    h.state.selectedChatModelIds = undefined;
+    h.state.selectedModel = "mistral/fallback";
+    assert.deepEqual(h.tabs(h.render()).map((tab) => tab.props.title), ["Mistral"]);
+    h.state.selectedChatModelIds = [];
+    assert.deepEqual(h.tabs(h.render()), []);
+    h.state.selectedChatModelIds = undefined;
+    h.state.selectedModel = undefined;
+    assert.deepEqual(h.tabs(h.render()), []);
+});
+
+test("removing the active provider returns to General; retaining it preserves its stable tab key", () => {
+    const h = chatSettingsHarness({ selectedChatModelIds: ["openai/chat", "mistral/chat"] });
+    h.select("mistral");
+    h.state.selectedChatModelIds = ["mistral/chat", "openai/chat"];
+    let modal = h.render();
+    assert.equal(find(modal, (node) => node.type === "Tabs").props.activeKey, "provider:mistral");
+    h.state.selectedChatModelIds = ["openai/chat"];
+    modal = h.render();
+    assert.equal(find(modal, (node) => node.type === "Tabs").props.activeKey, "general");
+    assert.ok(find(modal, (node) => node.type === "GeneralTab"));
+});
+
+test("switching provider tabs preserves isolated chat, header and file drafts and saves all providers on close", () => {
+    const defaults = load("packages/aihappey-state/src/slices/defaultProviderFileMetadata.ts").defaultProviderFileMetadata;
+    const h = chatSettingsHarness({ selectedChatModelIds: ["openai/chat", "mistral/chat", "anthropic/chat"], providerFileMetadata: structuredClone(defaults) }, defaults);
+    h.props.providerMetadata = { unrelated: { keep: true } };
+    h.props.providerHeaders = { unrelated: { keep: "true" } };
+    let rail = h.rail(h.select("openai"));
+    rail.props.tabs[0].content.props.updateConfig({ reasoning: { effort: "high" } });
+    rail.props.tabs[0].content.props.updateHeaders({ "OpenAI-Beta": "test" });
+    find(rail.props.tabs[1].content, (node) => node.type === "OpenAIFileConfigForm").props.updateConfig({ detail: "high" });
+    rail = h.rail(h.select("mistral"));
+    rail.props.tabs[0].content.props.updateConfig({ safe_prompt: true });
+    rail = h.rail(h.select("anthropic"));
+    rail.props.tabs[0].content.props.updateConfig({ thinking: { type: "adaptive" } });
+    rail.props.tabs[0].content.props.updateHeaders({ "anthropic-beta": "test" });
+    find(rail.props.tabs[1].content, (node) => node.type === "AnthropicImageFileConfigForm").props.updateConfig({ test: "anthropic" });
+    let modal = h.select("openai");
+    rail = h.rail(modal);
+    assert.equal(rail.props.tabs[0].content.props.config.reasoning.effort, "high");
+    assert.equal(rail.props.tabs[0].content.props.headers["OpenAI-Beta"], "test");
+    assert.equal(find(rail.props.tabs[1].content, (node) => node.type === "OpenAIFileConfigForm").props.config.detail, "high");
+    assert.deepEqual(h.state.providerFileMetadata, defaults);
+    assert.equal(h.savedChat, undefined);
+    assert.equal(h.savedHeaders, undefined);
+    modal.props.onHide();
+    assert.deepEqual(h.savedChat, { unrelated: { keep: true }, openai: { reasoning: { effort: "high" } }, mistral: { safe_prompt: true }, anthropic: { thinking: { type: "adaptive" } } });
+    assert.deepEqual(h.savedHeaders, { unrelated: { keep: "true" }, openai: { "OpenAI-Beta": "test" }, anthropic: { "anthropic-beta": "test" } });
+    assert.equal(h.state.providerFileMetadata.openai[0].config.detail, "high");
+    assert.equal(h.state.providerFileMetadata.anthropic[0].config.test, "anthropic");
+    assert.deepEqual(h.state.providerFileMetadata.openai[1], defaults.openai[1]);
+    assert.deepEqual(h.state.providerFileMetadata.google, defaults.google);
+    modal.props.actions.props.onRestoreDefaults();
+    modal = h.render();
+    assert.equal(h.savedChat.mistral.safe_prompt, true);
+    modal.props.onHide();
+    assert.deepEqual(h.savedChat, {});
+    assert.deepEqual(h.savedHeaders, {});
+    assert.deepEqual(h.state.providerFileMetadata, defaults);
 });
 
 test("new file parts use latest saved options after async extraction; sent parts remain immutable", async () => {

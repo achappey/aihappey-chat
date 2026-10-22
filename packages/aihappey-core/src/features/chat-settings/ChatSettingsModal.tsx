@@ -64,14 +64,12 @@ import {
 import { useSkills } from "aihappey-skills";
 import { useChatContext } from "../chat/context/ChatContext";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
-import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
-import { resolveEndpointProfileForSelectedModel } from "../chat/engine/endpointProfiles";
 import { useTools } from "../tools/useTools";
 import { usePlugins } from "aihappey-plugins";
 import { ChatPluginsEditor } from "./ChatPluginsEditor";
 import { connectedMcpSkills } from "../skills/connectedMcpSkills";
-import { useProviderFileSettingsTabs } from "../providers/ProviderFileSettings";
-import type { ProviderFileMetadata } from "aihappey-types";
+import { hasProviderFileSettings, useProviderFileSettingsTabs } from "../providers/ProviderFileSettings";
+import { getModelProviderKey, type ProviderFileMetadata } from "aihappey-types";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -116,6 +114,19 @@ type ChatSettingsDraft = {
   providerHeaders: Record<string, Record<string, string>>;
 };
 
+const ProviderTabContent: React.FC<{
+  providerKey: string;
+  form: React.ReactNode;
+  fileSettings: NonNullable<Parameters<typeof useProviderFileSettingsTabs>[1]>;
+}> = ({ providerKey, form, fileSettings }) => {
+  const { t } = useTranslation();
+  const fileSettingsTabs = useProviderFileSettingsTabs(providerKey, fileSettings);
+  return <ProviderSettingsTabs tabs={[
+    ...(form ? [{ id: "settings", icon: "settings" as const, title: t("settings"), content: form }] : []),
+    ...fileSettingsTabs,
+  ]} />;
+};
+
 export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   open,
   providerMetadata,
@@ -138,10 +149,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const setProviderFileMetadata = useAppStore((s) => s.setProviderFileMetadata);
   const agents = useAppStore((a) => a.agents);
   const selectedModel = useAppStore((a) => a.selectedModel);
-  const selectedEndpointProfileId = useAppStore((a) => a.selectedEndpointProfileId);
-  const selectedBaseUrl = useAppStore((a) => a.selectedBaseUrl);
-  const configuredChatEndpoint = useAppStore((a) => a.configuredChatEndpoint);
-  const effectiveChatEndpoint = useAppStore((a) => a.effectiveChatEndpoint);
+  const selectedChatModelIds = useAppStore((a) => a.selectedChatModelIds);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
@@ -177,7 +185,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const mcpCatalog = useAppStore((s) => s.mcpSkills);
   const mcpSkills = useMemo(() => connectedMcpSkills(mcpCatalog), [mcpCatalog]);
   const plugins = usePlugins();
-  const providers = useProviderRegistry();
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const createDraft = useCallback(
     (): ChatSettingsDraft => ({
@@ -339,47 +346,14 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     [updateProviderHeaders]
   );
 
-  const selectedModelOption = useMemo(
-    () => models?.find((model) => model.id === selectedModel),
-    [models, selectedModel]
-  );
+  const selectedProviderKeys = useMemo(() => {
+    const ids = selectedChatModelIds ?? (selectedModel ? [selectedModel] : []);
+    return Array.from(new Set(ids.map((id) => getModelProviderKey(id, models?.find((model) => model.id === id)))
+      .filter((key): key is string => !!key)));
+  }, [models, selectedChatModelIds, selectedModel]);
 
-  const activeProviderKey = useMemo(() => {
-    const endpointProfile = resolveEndpointProfileForSelectedModel({
-      modelId: selectedModel,
-      model: selectedModelOption,
-      selectedEndpointProfileId,
-      selectedBaseUrl,
-      selectedChatEndpoint: effectiveChatEndpoint,
-      configuredChatEndpoint,
-      providers,
-    });
-    if (endpointProfile?.kind === "provider" && endpointProfile.providerKey) {
-      return endpointProfile.providerKey;
-    }
-
-    const key = ((selectedModelOption as any)?.sourceProviderKey ?? (selectedModelOption as any)?.providerKey ?? selectedModel?.split("/")[0])?.trim().toLowerCase();
-    return key || undefined;
-  }, [configuredChatEndpoint, effectiveChatEndpoint, providers, selectedBaseUrl, selectedEndpointProfileId, selectedModel, selectedModelOption]);
-
-  const fileSettingsTabs = useProviderFileSettingsTabs(activeProviderKey ?? "", {
-    metadata: draft.providerFileMetadata,
-    updateMetadata: (update) => setDraft((current) => ({
-      ...current, providerFileMetadata: update(current.providerFileMetadata),
-    })),
-  });
-
-  const activeProviderTitle = useMemo(() => {
-    if (!activeProviderKey) return undefined;
-
-    return (
-      (PROVIDERS as Record<string, any>)[activeProviderKey]?.name
-      || activeProviderKey
-    );
-  }, [activeProviderKey, selectedModelOption]);
-
-  const activeProviderForm = useMemo(() => {
-    switch (activeProviderKey) {
+  const renderProviderForm = useCallback((providerKey: string) => {
+    switch (providerKey) {
       case "abliteration":
         return <AbliterationChatConfigForm config={draft.providerMetadata.abliteration ?? {}} updateConfig={providerConfigUpdaters.abliteration} />;
       case "akumi":
@@ -477,7 +451,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return null;
     }
   }, [
-    activeProviderKey,
     chatConfig?.appName,
     draft.providerHeaders,
     draft.providerMetadata,
@@ -487,6 +460,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     providerHeaderUpdaters,
     resolveOpenAIShellSkill,
   ]);
+
+  const providerTabs = useMemo(() => selectedProviderKeys
+    .map((key) => ({ key, form: renderProviderForm(key) }))
+    .filter(({ key, form }) => form || hasProviderFileSettings(key)), [selectedProviderKeys, renderProviderForm]);
+
+  useEffect(() => {
+    if (activeTab.startsWith("provider:") && !providerTabs.some(({ key }) => activeTab === `provider:${key}`)) {
+      setActiveTab(defaultTab);
+    }
+  }, [activeTab, providerTabs]);
 
   const handleSkillSelectionChange = async (next: string[]) => {
     setDraft((current) => ({
@@ -719,14 +702,16 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
             />
           ) : null}
         </theme.Tab>
-        {(activeProviderForm || fileSettingsTabs.length > 0) && activeProviderTitle ? (
-          <theme.Tab eventKey="provider" title={activeProviderTitle}>
-            {activeTab === "provider" ? <ProviderSettingsTabs key={activeProviderKey} tabs={[
-              ...(activeProviderForm ? [{ id: "settings", icon: "settings" as const, title: t("settings"), content: activeProviderForm }] : []),
-              ...fileSettingsTabs,
-            ]} /> : null}
+        {providerTabs.map(({ key, form }) => (
+          <theme.Tab key={key} eventKey={`provider:${key}`} title={(PROVIDERS as Record<string, any>)[key]?.name || key}>
+            {activeTab === `provider:${key}` ? <ProviderTabContent key={key} providerKey={key} form={form} fileSettings={{
+              metadata: draft.providerFileMetadata,
+              updateMetadata: (update) => setDraft((current) => ({
+                ...current, providerFileMetadata: update(current.providerFileMetadata),
+              })),
+            }} /> : null}
           </theme.Tab>
-        ) : null}
+        ))}
       </theme.Tabs>
     </theme.Modal>
   );
