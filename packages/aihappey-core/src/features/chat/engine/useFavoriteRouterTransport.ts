@@ -5,7 +5,7 @@ import type { DefaultChatTransport } from "aihappey-ai";
 import type { FileItem, FileStore } from "aihappey-files";
 import { useChatContext } from "../context/ChatContext";
 import { withOpenAiKnownSpeakerReferences } from "../../transcriptions/knownSpeakersProviderMetadata";
-import { decideFavorite, favoriteRouterCandidates, favoriteRouterContext, isNewFavoriteRouterTurn, replaceRoutedRequestBody } from "./favoriteRouter";
+import { chatModelCandidateIds, decideFavorite, favoriteRouterCandidates, modelRouterCandidates, favoriteRouterContext, isNewFavoriteRouterTurn, replaceRoutedRequestBody } from "./favoriteRouter";
 
 type Transport = Pick<DefaultChatTransport<any>, "sendMessages" | "reconnectToStream">;
 
@@ -31,8 +31,14 @@ export function useFavoriteRouterTransport(
         if (deciding.current) throw new Error("A favorite routing decision is already in progress.");
         const state = store.getState();
         const kind = state.chatMode === "agent" ? "agent" : "model";
-        const enabled = kind === "agent" ? state.favoriteAgentRouter : state.favoriteModelRouter;
+        const enabled = kind === "agent" ? state.favoriteAgentRouter
+          : !!state.userPreferredDecisionModel && chatModelCandidateIds(state).length > 1;
         if (isNewFavoriteRouterTurn(options)) {
+          if (kind === "model" && state.userPreferredDecisionModel && state.selectedChatModelIds !== undefined
+            && (!chatModelCandidateIds(state).length
+              || modelRouterCandidates(state).length !== chatModelCandidateIds(state).length)) {
+            throw new Error("Select at least one available chat model before sending.");
+          }
           if (enabled) {
             const controller = new AbortController();
             deciding.current = controller;
@@ -51,9 +57,9 @@ export function useFavoriteRouterTransport(
             const signature = () => {
               const latest = store.getState();
               return JSON.stringify({
-                kind: latest.chatMode, modelRouter: latest.favoriteModelRouter, agentRouter: latest.favoriteAgentRouter,
+                kind: latest.chatMode, selectedChatModelIds: latest.selectedChatModelIds, agentRouter: latest.favoriteAgentRouter,
                 preferred: latest.userPreferredDecisionModel, models: latest.models,
-                candidates: favoriteRouterCandidates(latest, kind),
+                candidates: kind === "model" ? modelRouterCandidates(latest) : favoriteRouterCandidates(latest, kind),
                 selectedModel: latest.selectedModel, selectedAgents: latest.selectedAgentNames,
                 endpoint: [latest.selectedEndpointProfileId, latest.selectedBaseUrl, latest.effectiveChatEndpoint],
                 customHeaders: latest.customHeaders,
@@ -73,7 +79,7 @@ export function useFavoriteRouterTransport(
               controller.signal.throwIfAborted();
               // Both transport/auth and the request body must render with the real winner before dispatch.
               flushSync(() => {
-                if (kind === "model") store.getState().setSelectedModel(winner);
+                if (kind === "model") store.setState({ selectedModel: winner });
                 else store.getState().setSelectedAgents([winner]);
               });
               const selected = current.current;

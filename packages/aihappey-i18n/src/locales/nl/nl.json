@@ -627,6 +627,7 @@
     },
     "category": "Categorie",
     "favorites": "Favorieten",
+    "selectAllFavorites": "Alle favorieten selecteren",
     "favorite_model": "{{model}} toevoegen aan favorieten",
     "unfavorite_model": "{{model}} verwijderen uit favorieten",
     "favorite_agent": "{{agent}} toevoegen aan favorieten",

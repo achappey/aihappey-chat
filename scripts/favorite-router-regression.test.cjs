@@ -22,7 +22,8 @@ function load(filename, mocks = {}) {
 
 const root = "packages/aihappey-core/src/features/";
 const agentTypes = load("packages/aihappey-types/src/agents.ts");
-const agentSelection = load(root + "agents/agentSelection.ts", { "aihappey-types": agentTypes });
+const agentModels = load("packages/aihappey-types/src/agentModels.ts");
+const agentSelection = load(root + "agents/agentSelection.ts", { "aihappey-types": { ...agentTypes, ...agentModels } });
 const decisions = {
     ...load("packages/aihappey-decisions/src/types.ts"),
     ...load("packages/aihappey-decisions/src/validation.ts"),
@@ -31,7 +32,7 @@ const model = (id, type = "language") => ({ id, name: id, type, tags: ["vision",
 const message = text => ({ id: text, role: "user", parts: [{ type: "text", text }] });
 const response = choice => ({ answers: { favorite: { type: "choice", choice } }, warnings: [] });
 const initialState = () => ({
-    chatMode: "chat", favoriteModelRouter: true, favoriteAgentRouter: false,
+    chatMode: "chat", selectedChatModelIds: ["a/model", "b/model"], favoriteAgentRouter: false,
     selectedModel: "old/model", selectedAgentNames: [],
     models: [model("a/model"), model("b/model"), model("d/decide", "decision"), model("image", "image")],
     userPreferredDecisionModel: "d/decide",
@@ -55,6 +56,7 @@ function helpers(doDecide) {
             },
         },
         "aihappey-decisions": decisions,
+        "aihappey-types": agentModels,
         "../../agents/agentSelection": agentSelection,
     });
     return { ...router, calls };
@@ -69,7 +71,11 @@ function harness(decide, createTransport, getDecisionMessages, files) {
         getState: () => state,
         setState: patch => { Object.assign(state, patch); },
     };
-    state.setSelectedModel = winner => { state.selectedModel = winner; };
+    state.setSelectedModel = winner => { state.selectedModel = winner; state.selectedChatModelIds = undefined; };
+    state.setSelectedChatModelIds = ids => {
+        state.selectedChatModelIds = [...new Set(ids)];
+        if (!ids.includes(state.selectedModel)) state.selectedModel = ids[0];
+    };
     state.setSelectedAgents = winners => { state.selectedAgentNames = winners; };
     const react = {
         useRef(value) { const i = index++; return slots[i] ??= { current: value }; },
@@ -157,6 +163,7 @@ test("each enabled non-language favorite can win using the same shared decision 
         const h = harness(() => response(winner));
         h.state.models.push(model(winner, type));
         h.state.favoriteModelsByType = { language: ["a/model"], [type]: [winner] };
+        h.state.selectedChatModelIds = ["a/model", winner];
         h.state[flag] = true;
         h.render();
         await h.send(`Generate ${type}`);
@@ -172,6 +179,7 @@ test("a disabled model-type flag invalidates its pending winner instead of dispa
     const h = harness(() => new Promise(resolve => { finish = resolve; }));
     h.state.chatWithImageModels = true;
     h.state.favoriteModelsByType = { language: ["a/model"], image: ["image"] };
+    h.state.selectedChatModelIds = ["a/model", "image"];
     const pending = h.send();
     await new Promise(resolve => setImmediate(resolve));
     h.state.chatWithImageModels = false;
@@ -188,6 +196,7 @@ test("routing to OpenAI transcription hydrates known-speaker metadata after sele
     h.state.models.push(model("openai/transcribe", "transcription"));
     h.state.chatWithTranscriptionModels = true;
     h.state.favoriteModelsByType = { language: ["a/model"], transcription: ["openai/transcribe"] };
+    h.state.selectedChatModelIds = ["a/model", "openai/transcribe"];
     await h.send();
     assert.equal(listed, 1);
     assert.equal(h.generation[0].options.body.model, "openai/transcribe");
@@ -201,7 +210,7 @@ test("routing uses configured authenticated Decisions API and actual choice wire
         { ...message("Analyze an image"), parts: [{ type: "text", text: "Analyze an image" }, { type: "file", mediaType: "image/png", filename: "chart.png", url: "data:private" }] },
     ] });
     assert.equal(h.state.selectedModel, "b/model");
-    assert.equal(h.state.favoriteModelRouter, true);
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model", "b/model"]);
     const call = h.helper.calls[0];
     assert.equal(call.config.baseUrl, "https://gateway/api/decisions");
     assert.equal(call.config.headers.authorization, ["Bearer", "decision-token"].join(" "));
@@ -250,28 +259,27 @@ test("agent router uses identical decision logic and replaces the agent list wit
 for (const [name, decide] of [
     ["malformed response", () => ({ answers: {} })],
     ["refusal", () => ({ answers: { favorite: { type: "refusal", reason: "Cannot decide" } }, warnings: [] })],
-    ["nonfavorite winner", () => response("unrelated/model")],
+    ["unselected winner", () => response("unrelated/model")],
     ["network failure", () => { throw new Error("Network failed"); }],
 ]) test(`${name} fails visibly without any generation or fallback`, async () => {
     const h = harness(decide);
     await assert.rejects(h.send());
     assert.equal(h.generation.length, 0);
     assert.equal(h.state.selectedModel, "old/model");
-    assert.equal(h.state.favoriteModelRouter, true);
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model", "b/model"]);
     assert.equal(h.state.favoriteRouterDeciding, false);
 });
 
-test("missing/invalid decision configuration and disappearing favorites do not silently become manual selection", async () => {
+test("invalid decision configuration and disappearing candidates do not silently become manual selection", async () => {
     for (const patch of [
-        { userPreferredDecisionModel: undefined },
         { userPreferredDecisionModel: "missing" },
-        { favoriteModelsByType: { language: ["a/model", "missing"] } },
+        { selectedChatModelIds: ["a/model", "missing"] },
     ]) {
         const h = harness();
         Object.assign(h.state, patch);
         await assert.rejects(h.send());
         assert.equal(h.generation.length, 0);
-        assert.equal(h.state.favoriteModelRouter, true);
+        assert.ok(h.state.selectedChatModelIds.length > 1);
     }
     const h = harness();
     h.setConfig({ gatewayEnabled: false });
@@ -279,10 +287,10 @@ test("missing/invalid decision configuration and disappearing favorites do not s
     assert.equal(h.generation.length, 0);
 });
 
-test("favorites or preference changed during decision invalidate a stale winner", async () => {
+test("candidate selection or preference changed during decision invalidate a stale winner", async () => {
     for (const change of [
-        h => { h.state.favoriteModelsByType.language = ["a/model"]; },
-        h => { h.state.favoriteModelRouter = false; },
+        h => { h.state.selectedChatModelIds = ["a/model"]; },
+        h => { h.state.selectedChatModelIds = undefined; },
         h => { h.state.userPreferredDecisionModel = undefined; },
         h => { h.state.selectedModel = "a/model"; },
         h => { h.state.selectedAgentNames = ["local:Local"]; },
@@ -347,7 +355,7 @@ test("stop, unmount, and concurrent sends cannot dispatch a late decision winner
 
 test("manual sends bypass decisions and retain their existing request overrides", async () => {
     const h = harness();
-    h.state.favoriteModelRouter = false;
+    h.state.selectedChatModelIds = undefined;
     await h.send();
     assert.equal(h.helper.calls.length, 0);
     assert.equal(h.generation[0].options.body.model, "stale");
@@ -356,7 +364,7 @@ test("manual sends bypass decisions and retain their existing request overrides"
 
 test("manual regeneration uses the latest selected transport instead of pinning the previous manual turn", async () => {
     const h = harness();
-    h.state.favoriteModelRouter = false;
+    h.state.selectedChatModelIds = undefined;
     await h.send();
     h.state.setSelectedModel("a/model");
     h.render();
@@ -374,7 +382,6 @@ test("manual regeneration uses the latest selected transport instead of pinning 
 test("disabling routing retains the routed run for regeneration but a new manual turn releases its pin", async () => {
     const h = harness();
     await h.send();
-    h.state.favoriteModelRouter = false;
     h.state.setSelectedModel("a/model");
     h.render();
     await h.transport.sendMessages({ trigger: "regenerate-message", messages: [message("Help")] });
@@ -593,8 +600,8 @@ test("real SDK Chat retains messages and stops the pinned cross-profile tool con
         sendAutomaticallyWhen: ({ messages }) => requests.length === 1
             && messages.at(-1).parts.some(part => part.type === "tool-lookup" && part.state === "output-available"),
         onToolCall: async ({ toolCall }) => {
-            // The independently rendered header may select another profile while this run is active.
-            h.state.setSelectedModel("a/model");
+            // An active-model update must not affect the pinned run or its candidate selection.
+            h.state.selectedModel = "a/model";
             h.render();
             void chat.addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output: "Tool result" });
         },
@@ -634,9 +641,9 @@ test("engine chat identity and captured endpoints cannot change when the routing
     assert.doesNotMatch(engine, /chatInstanceId|apiRef\.current|effectiveChatEndpointRef\.current/);
 });
 
-test("picker routing is explicit opt-in and never passes virtual IDs to the actual selection", () => {
+test("favorite shortcut is explicit opt-in and replaces selection with a snapshot, never a virtual ID", () => {
     const state = initialState(), helper = helpers();
-    let selected;
+    let selected, selectedIds;
     const hooks = { ...React, useMemo: factory => factory(), useEffect() {} };
     const store = { setState: patch => Object.assign(state, patch) };
     const { ModelSelect } = load(root + "models/ModelSelect.tsx", {
@@ -648,31 +655,218 @@ test("picker routing is explicit opt-in and never passes virtual IDs to the actu
         "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => ({}) },
         "../chat/engine/favoriteRouter": helper,
     });
-    const props = { models: state.models, value: state.selectedModel, onChange: id => { selected = id; } };
+    const props = { models: state.models, value: state.selectedModel, values: ["b/model"], multiselect: true,
+        onChange: id => { selected = id; }, onValuesChange: ids => { selectedIds = ids; } };
     let field = ModelSelect(props);
     assert.deepEqual(field.props.virtualOptions, []);
-    assert.equal(field.props.valueTitle, undefined);
     field = ModelSelect({ ...props, allowFavoriteRouter: true });
     assert.equal(field.props.virtualOptions.length, 1);
-    field.props.onChange(helper.FAVORITE_MODEL_ROUTER);
+    assert.equal(field.props.virtualOptions[0].label, "Select all favorites");
+    field.props.onChange(helper.SELECT_ALL_FAVORITE_MODELS);
     assert.equal(selected, undefined);
+    assert.deepEqual(selectedIds, ["a/model", "b/model"]);
     assert.equal(state.selectedModel, "old/model");
-    assert.equal(state.favoriteModelRouter, true);
-    assert.equal(ModelSelect({ ...props, allowFavoriteRouter: true }).props.valueTitle, "Favorite model router");
-    for (const value of ["a/model", "b/model", ""]) {
-        const routed = ModelSelect({ ...props, value, allowFavoriteRouter: true });
-        assert.equal(routed.props.valueTitle, "Favorite model router");
-        assert.equal(routed.props.value, value);
-    }
     field.props.onChange("a/model");
     assert.equal(selected, "a/model");
-    assert.equal(state.favoriteModelRouter, false);
+    assert.deepEqual(selectedIds, ["a/model", "b/model"]);
     assert.equal(ModelSelect({ ...props, allowFavoriteRouter: true }).props.valueTitle, undefined);
+    assert.deepEqual(ModelSelect({ ...props, multiselect: false, allowFavoriteRouter: true }).props.virtualOptions, []);
+    assert.deepEqual(ModelSelect({ ...props, onValuesChange: undefined, allowFavoriteRouter: true }).props.virtualOptions, []);
     state.favoriteModelsByType.language = ["a/model"];
-    assert.deepEqual(ModelSelect({ ...props, allowFavoriteRouter: true }).props.virtualOptions, []);
+    // Subsequent favorite changes do not mutate the previous snapshot.
+    assert.deepEqual(selectedIds, ["a/model", "b/model"]);
+    ModelSelect({ ...props, allowFavoriteRouter: true }).props.onChange(helper.SELECT_ALL_FAVORITE_MODELS);
+    assert.deepEqual(selectedIds, ["a/model"]);
     state.favoriteModelsByType.image = ["image"];
-    assert.equal(ModelSelect({ ...props, allowFavoriteRouter: true, modelTypes: ["language", "image"] }).props.virtualOptions.length, 1);
+    ModelSelect({ ...props, allowFavoriteRouter: true, modelTypes: ["language", "image"] })
+        .props.onChange(helper.SELECT_ALL_FAVORITE_MODELS);
+    assert.deepEqual(selectedIds, ["a/model", "image"]);
+    state.favoriteModelsByType.language = [];
     assert.deepEqual(ModelSelect({ ...props, allowFavoriteRouter: true }).props.virtualOptions, []);
+    state.userPreferredDecisionModel = undefined;
+    assert.deepEqual(ModelSelect({ ...props, allowFavoriteRouter: true, modelTypes: ["image"] }).props.virtualOptions, []);
+});
+
+test("arbitrary selected models route independently of favorites and keep their candidate set across turns", async () => {
+    let count = 0;
+    const h = harness(() => response(++count === 1 ? "custom/model" : "a/model"));
+    h.state.models.push(model("custom/model"));
+    h.state.setSelectedChatModelIds(["custom/model", "a/model", "custom/model"]);
+    h.render();
+    await h.send();
+    assert.equal(h.state.selectedModel, "custom/model");
+    assert.deepEqual(h.state.selectedChatModelIds, ["custom/model", "a/model"]);
+    assert.deepEqual(Object.keys(h.helper.calls[0].options.questions.favorite.criteria), ["custom/model", "a/model"]);
+    h.state.favoriteModelsByType = {};
+    await h.send("Next request");
+    assert.equal(h.state.selectedModel, "a/model");
+    assert.deepEqual(h.state.selectedChatModelIds, ["custom/model", "a/model"]);
+    assert.equal(h.helper.calls.length, 2);
+    assert.deepEqual(h.generation.map(entry => entry.options.body.model), ["custom/model", "a/model"]);
+});
+
+test("favorite changes while deciding do not invalidate a candidate snapshot", async () => {
+    let finish;
+    const h = harness(() => new Promise(resolve => { finish = resolve; }));
+    const pending = h.send();
+    await new Promise(resolve => setImmediate(resolve));
+    h.state.favoriteModelsByType = {};
+    finish(response("b/model"));
+    await pending;
+    assert.equal(h.generation.length, 1);
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model", "b/model"]);
+});
+
+test("one selected candidate executes directly; removing the default decision model keeps legacy manual behavior", async () => {
+    for (const ids of [undefined, ["a/model"]]) {
+        const h = harness();
+        h.state.setSelectedModel("a/model");
+        if (ids) h.state.setSelectedChatModelIds(ids);
+        h.render();
+        await h.send(undefined, { body: { model: "a/model" } });
+        assert.equal(h.helper.calls.length, 0);
+        assert.equal(h.generation[0].snapshot.model, "a/model");
+    }
+    const h = harness();
+    h.state.userPreferredDecisionModel = undefined;
+    await h.send();
+    assert.equal(h.helper.calls.length, 0);
+    assert.equal(h.generation[0].options.body.model, "stale");
+});
+
+test("empty, unavailable, and disabled-type explicit selections never dispatch an unselected model", async () => {
+    for (const ids of [[], ["missing"], ["a/model", "missing"], ["image"], ["a/model", "image"]]) {
+        const h = harness();
+        h.state.selectedChatModelIds = ids;
+        await assert.rejects(h.send(), /available/);
+        assert.equal(h.helper.calls.length, 0);
+        assert.equal(h.generation.length, 0);
+    }
+});
+
+function stateHarness() {
+    const slices = "packages/aihappey-state/src/slices/";
+    const { createChatSlice } = load(slices + "chatSlice.ts", {
+        "./defaultProviderMetadata": { defaultProviderMetadata: {} },
+        "./defaultProviderHeaders": { defaultProviderHeaders: {} },
+        "./defaultProviderFileMetadata": { defaultProviderFileMetadata: {} },
+        "./defaultAgents": { SIDE_INFERENCE_DEFAULT_AGENT_NAMES: {} },
+        "./chatEndpoint": load(slices + "chatEndpoint.ts"),
+    });
+    const { createUiSlice } = load(slices + "uiSlice.ts", { "aihappey-mcp": {} });
+    let state;
+    const set = patch => Object.assign(state, typeof patch === "function" ? patch(state) : patch);
+    state = { ...createChatSlice(set, () => state), ...createUiSlice(set, () => state) };
+    return state;
+}
+
+test("session candidate actions preserve real active IDs, reset for explicit model selection, and collapse when default is cleared", () => {
+    const state = stateHarness();
+    assert.equal(state.selectedChatModelIds, undefined);
+    state.setSelectedModel("a/model");
+    state.setSelectedChatModelIds(["a/model", "b/model", "a/model", ""]);
+    assert.deepEqual(state.selectedChatModelIds, ["a/model", "b/model"]);
+    assert.equal(state.selectedModel, "a/model");
+    state.setSelectedChatModelIds(["b/model"]);
+    assert.equal(state.selectedModel, "b/model");
+    state.setSelectedChatModelIds(["a/model", "b/model"]);
+    state.setUserPreferredDecisionModel("d/decide");
+    assert.deepEqual(state.selectedChatModelIds, ["a/model", "b/model"]);
+    state.setUserPreferredDecisionModel("");
+    assert.equal(state.selectedChatModelIds, undefined);
+    assert.equal(state.selectedModel, "b/model");
+    state.setSelectedChatModelIds(["a/model", "b/model"]);
+    state.setSelectedModel("url/model");
+    assert.equal(state.selectedChatModelIds, undefined);
+    assert.equal(state.selectedModel, "url/model");
+    state.setSelectedChatModelIds(["a/model", "b/model"]);
+    state.resetModels({ keepSelectedModel: true });
+    assert.deepEqual(state.selectedChatModelIds, ["a/model", "b/model"]);
+    state.resetModels();
+    assert.equal(state.selectedChatModelIds, undefined);
+    assert.equal(state.selectedModel, undefined);
+    const persist = fs.readFileSync("packages/aihappey-state/src/persist.ts", "utf8");
+    assert.doesNotMatch(persist, /selectedChatModelIds|favoriteModelRouter/);
+});
+
+function findElement(node, predicate) {
+    if (!React.isValidElement(node)) return;
+    if (predicate(node)) return node;
+    for (const child of React.Children.toArray(node.props.children)) {
+        const found = findElement(child, predicate);
+        if (found) return found;
+    }
+}
+
+function headerHarness() {
+    const state = Object.assign(stateHarness(), initialState(), { modelsLoaded: true, selectedModel: "a/model" });
+    const effects = [];
+    const { ChatHeader } = load(root + "chat/layout/ChatHeader.tsx", {
+        react: { useState: value => [value, () => {}], useEffect: effect => effects.push(effect) },
+        "../../models/ModelSelect": { ModelSelect: "ModelSelect" },
+        "aihappey-state": { useAppStore: selector => selector(state) },
+        "aihappey-components": { AgentFavoriteToggleButton: "AgentFavoriteToggleButton", ModelFavoriteToggleButton: "ModelFavoriteToggleButton",
+            useTheme: () => ({ Switch: "Switch", ToggleButton: "ToggleButton", Skeleton: "Skeleton" }) },
+        "../../user-settings/UserMenuButton": { UserMenuButton: "UserMenuButton" },
+        "../../user-settings/SettingsModal": { default: "SettingsModal", __esModule: true },
+        "aihappey-auth": { useAccount: () => undefined },
+        "react-router": { useLocation: () => ({ pathname: "/" }) },
+        "usehooks-ts": { useDarkMode: () => ({ isDarkMode: false }) },
+        "../../agents/AgentSelect": { AgentSelect: "AgentSelect" },
+        "../../agents/agentSelection": agentSelection,
+        "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
+        "../engine/favoriteRouter": helpers(),
+    });
+    return { state, render() {
+        effects.length = 0;
+        const node = ChatHeader({ onAgentChange() {} });
+        return { select: findElement(node, child => child.type === "ModelSelect"),
+            favorite: findElement(node, child => child.type === "ModelFavoriteToggleButton") };
+    }, runEffects() { effects.forEach(effect => effect()); } };
+}
+
+test("chat header enables multiselect only with a default decision model and supports manual toggles after favorites", () => {
+    const h = headerHarness();
+    let view = h.render();
+    assert.equal(view.select.props.multiselect, true);
+    assert.deepEqual(view.select.props.values, ["a/model", "b/model"]);
+    assert.equal(view.favorite.props.disabled, true);
+    view.select.props.onChange("a/model");
+    view = h.render();
+    assert.deepEqual(view.select.props.values, ["b/model"]);
+    assert.equal(h.state.selectedModel, "b/model");
+    assert.equal(view.favorite.props.disabled, false);
+    view.select.props.onChange("b/model");
+    assert.deepEqual(h.state.selectedChatModelIds, ["b/model"]);
+    view.select.props.onValuesChange(["a/model", "b/model"]);
+    h.render().select.props.onChange("b/model");
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model"]);
+    h.state.setUserPreferredDecisionModel("");
+    view = h.render();
+    assert.equal(view.select.props.multiselect, false);
+    view.select.props.onChange("b/model");
+    assert.equal(h.state.selectedModel, "b/model");
+    assert.equal(h.state.selectedChatModelIds, undefined);
+    h.state.setUserPreferredDecisionModel("d/decide");
+    assert.deepEqual(h.render().select.props.values, ["b/model"]);
+});
+
+test("header reconciles missing models and disabled types, but does not collapse candidates after a routed winner", () => {
+    const h = headerHarness();
+    h.state.selectedModel = "b/model";
+    h.render(); h.runEffects();
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model", "b/model"]);
+    h.state.models = h.state.models.filter(model => model.id !== "b/model");
+    h.render(); h.runEffects();
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model"]);
+    h.state.chatWithImageModels = true;
+    h.state.setSelectedChatModelIds(["image", "a/model"]);
+    h.state.chatWithImageModels = false;
+    h.render(); h.runEffects();
+    assert.deepEqual(h.state.selectedChatModelIds, ["a/model"]);
+    h.state.setSelectedModel(undefined);
+    h.render(); h.runEffects();
+    assert.equal(h.state.selectedModel, "a/model");
 });
 
 test("agent picker exposes only current favorites, retains real values, and opts out on manual choice", () => {

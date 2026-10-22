@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModelSelect } from "../../models/ModelSelect";
 import { useAppStore } from "aihappey-state";
 import { AgentFavoriteToggleButton, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
@@ -32,6 +32,9 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const remoteAgentModels = useAppStore((a) => a.remoteAgentModels);
   const switchChatMode = useAppStore((a) => a.switchChatMode);
   const setSelectedModel = useAppStore((a) => a.setSelectedModel);
+  const selectedChatModelIds = useAppStore((a) => a.selectedChatModelIds);
+  const setSelectedChatModelIds = useAppStore((a) => a.setSelectedChatModelIds);
+  const preferredDecisionModel = useAppStore((a) => a.userPreferredDecisionModel);
   const favoriteModelsByType = useAppStore((a: any) => a.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((a: any) => a.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const favoriteAgentIds = useAppStore((a: any) => a.favoriteAgentIds as string[] | undefined);
@@ -57,6 +60,25 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   const modelTypes = favoriteRouterModelTypes({
     chatWithImageModels, chatWithVideoModels, chatWithSpeechModels, chatWithTranscriptionModels,
   });
+  const modelValues = preferredDecisionModel && selectedChatModelIds !== undefined
+    ? selectedChatModelIds : selectedModel ? [selectedModel] : [];
+  const singleModelSelected = modelValues.length === 1;
+
+  // Reconcile catalog/type changes, without treating each routing winner as a new selection.
+  useEffect(() => {
+    if (!preferredDecisionModel || !modelsLoaded || chatMode !== "chat") return;
+    const validModels = (models ?? []).filter(model => modelTypes.includes(model.type));
+    const ids = selectedChatModelIds ?? (selectedModel ? [selectedModel] : []);
+    const validIds = ids.filter(id => validModels.some(model => model.id === id));
+    if (validIds.length) {
+      if (validIds.length !== ids.length) setSelectedChatModelIds(validIds);
+      return;
+    }
+    const fallback = [...validModels].sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0];
+    if (fallback) setSelectedModel(fallback.id);
+  }, [preferredDecisionModel, modelsLoaded, models, chatMode, selectedChatModelIds, selectedModel,
+    chatWithImageModels, chatWithVideoModels, chatWithSpeechModels, chatWithTranscriptionModels,
+    setSelectedChatModelIds, setSelectedModel]);
 
   const toggleMode = (value: string) => {
     if (value != chatMode)
@@ -125,7 +147,15 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 models={models ?? []}
                 modelTypes={modelTypes}
                 value={selectedModel ?? ""}
-                onChange={setSelectedModel}
+                values={modelValues}
+                multiselect={!!preferredDecisionModel}
+                onValuesChange={setSelectedChatModelIds}
+                onChange={(id) => {
+                  if (!preferredDecisionModel) return setSelectedModel(id);
+                  const next = modelValues.includes(id) ? modelValues.filter(value => value !== id) : [...modelValues, id];
+                  // Keep a valid selection when the last checkbox is clicked.
+                  if (next.length) setSelectedChatModelIds(next);
+                }}
                 style={{ width: "100%", minWidth: 0 }}
               />
             </div>
@@ -136,7 +166,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 isFavorite={isSelectedModelFavorite}
                 modelName={selectedModelOption?.name ?? selectedModel}
                 onToggleFavorite={() => selectedModel && toggleFavoriteModelForType(selectedModelType, selectedModel)}
-                disabled={!selectedModel}
+                disabled={!selectedModel || !singleModelSelected}
               />
             </div>
           </>

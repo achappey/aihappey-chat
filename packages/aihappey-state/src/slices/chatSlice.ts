@@ -162,8 +162,10 @@ export type ChatSlice = ApiKeyEncryptionState & {
   setToolAnnotations: (value?: ToolAnnotations) => void
 
   selectedModel?: string;
-  /** Session-only picker preferences; selections above remain real model/agent IDs. */
-  favoriteModelRouter: boolean;
+  /** Session-only chat candidates. Undefined follows the existing single selected model. */
+  selectedChatModelIds?: string[];
+  setSelectedChatModelIds: (ids: string[]) => void;
+  /** Session-only agent router preference. */
   favoriteAgentRouter: boolean;
   favoriteRouterDeciding: boolean;
   setSelectedModel: (model?: string) => void;
@@ -184,7 +186,7 @@ export const createChatSlice: StateCreator<
   ChatSlice
 > = (set, get) => ({
   selectedConversationId: null,
-  favoriteModelRouter: false,
+  selectedChatModelIds: undefined,
   favoriteAgentRouter: false,
   favoriteRouterDeciding: false,
   providerMetadata: defaultProviderMetadata,
@@ -315,9 +317,18 @@ export const createChatSlice: StateCreator<
   setSelectedModel: (model) =>
     set((state: any) => {
       return {
-        selectedModel: typeof model === "string" && model.trim().length ? model : undefined
+        selectedModel: typeof model === "string" && model.trim().length ? model : undefined,
+        selectedChatModelIds: undefined,
       }
     }),
+  setSelectedChatModelIds: (ids) => set((state: ChatSlice) => {
+    const selectedChatModelIds = Array.from(new Set(ids.filter(id => typeof id === "string" && id.trim().length)));
+    return {
+      selectedChatModelIds,
+      selectedModel: selectedChatModelIds.includes(state.selectedModel ?? "")
+        ? state.selectedModel : selectedChatModelIds[0],
+    };
+  }),
   setStructuredOutputs: (value) => {
     set((state: any) => ({
       structuredOutputs: value,
@@ -481,7 +492,7 @@ export const createChatSlice: StateCreator<
       models: [],
       modelsLoaded: false,
       modelsLoadingProgress: undefined,
-      ...(options?.keepSelectedModel ? {} : { selectedModel: undefined }),
+      ...(options?.keepSelectedModel ? {} : { selectedModel: undefined, selectedChatModelIds: undefined }),
     }));
   },
   setModelsLoadingProgress: (progress) => {

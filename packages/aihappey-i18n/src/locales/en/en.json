@@ -665,6 +665,7 @@
     "category": "Category",
     "filters": "Filters",
     "favorites": "Favorites",
+    "selectAllFavorites": "Select all favorites",
     "favorite_model": "Add {{model}} to favorites",
     "unfavorite_model": "Remove {{model}} from favorites",
     "favorite_agent": "Add {{agent}} to favorites",

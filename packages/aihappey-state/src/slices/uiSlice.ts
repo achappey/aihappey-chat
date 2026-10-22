@@ -511,7 +511,10 @@ export const createUiSlice: StateCreator<
       }
     }),
 
-  setUserPreferredDecisionModel: (model) => set(() => ({ userPreferredDecisionModel: model })),
+  setUserPreferredDecisionModel: (model) => set(() => ({
+    userPreferredDecisionModel: model,
+    ...(!model ? { selectedChatModelIds: undefined } : {}),
+  })),
 
   setUserPreferredRerankingModel: (model) =>
     set((state: any) => {

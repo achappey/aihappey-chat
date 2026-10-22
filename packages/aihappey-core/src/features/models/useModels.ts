@@ -121,6 +121,9 @@ export const useModels = (
         setModels(loadedModels)
         setModelsLoadingProgress?.(undefined)
 
+        // Refreshing credentials/catalogs must not replace an explicit chat candidate selection.
+        if (!selectionRef.current.model && appStore.getState().selectedChatModelIds !== undefined) return;
+
         const {
           model: latestUrlModel,
           selectedModel: latestSelectedModel,

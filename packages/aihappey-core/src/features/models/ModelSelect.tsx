@@ -1,11 +1,11 @@
 import React from "react";
 import { ModelSelectField } from "aihappey-components";
-import { store, useAppStore } from "aihappey-state";
+import { useAppStore } from "aihappey-state";
 import type { ModelOption } from "aihappey-types";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
-import { FAVORITE_MODEL_ROUTER } from "../chat/engine/favoriteRouter";
+import { SELECT_ALL_FAVORITE_MODELS } from "../chat/engine/favoriteRouter";
 
 type ProviderOption = { key: string; label: string };
 
@@ -24,6 +24,7 @@ interface ModelSelectProps {
   multiselect?: boolean;
   label?: string;
   onChange: (id: string) => void;
+  onValuesChange?: (ids: string[]) => void;
   disabled?: boolean;
   required?: boolean;
   modelTypes?: string[];
@@ -33,7 +34,7 @@ interface ModelSelectProps {
 }
 
 export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
-  const { autoSelectFallback = true, allowFavoriteRouter = false, ...fieldProps } = props;
+  const { autoSelectFallback = true, allowFavoriteRouter = false, onValuesChange, ...fieldProps } = props;
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
   const providers = useProviderRegistry();
@@ -74,12 +75,12 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const preferredDecisionModel = useAppStore(s => s.userPreferredDecisionModel);
-  const routerSelected = useAppStore(s => s.favoriteModelRouter);
   const deciding = useAppStore(s => s.favoriteRouterDeciding);
   const modelTypes = React.useMemo(() => props.modelTypes ?? ["language"], [props.modelTypes]);
-  const routerAvailable = allowFavoriteRouter && !!preferredDecisionModel
-    && new Set(props.models.filter(model => modelTypes.includes(model.type)
-      && favoriteModelsByType?.[model.type]?.includes(model.id)).map(model => model.id)).size >= 2;
+  const currentFavoriteIds = Array.from(new Set(props.models.filter(model => modelTypes.includes(model.type)
+    && favoriteModelsByType?.[model.type]?.includes(model.id)).map(model => model.id)));
+  const favoritesShortcutAvailable = allowFavoriteRouter && props.multiselect && !!preferredDecisionModel
+    && !!onValuesChange && currentFavoriteIds.length > 0;
   const enabledProviderKeysByType = React.useMemo(() => {
     return Object.fromEntries(modelTypes.map(type => {
       const bucket = (enabledProvidersByType as any)?.[type]
@@ -112,7 +113,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   React.useEffect(() => {
     if (!modelsLoaded) return;
     if (props.multiselect) return;
-    if (!autoSelectFallback || (allowFavoriteRouter && routerSelected)) return;
+    if (!autoSelectFallback) return;
 
     const currentValue = props.value;
     const currentExists = !!currentValue && props.models.some((model) =>
@@ -126,20 +127,18 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     if (currentValue !== nextValue) {
       props.onChange(nextValue);
     }
-  }, [allowFavoriteRouter, routerSelected, autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value, props.multiselect]);
+  }, [autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value, props.multiselect]);
 
   return (
     <ModelSelectField
       {...fieldProps}
       disabled={props.disabled || (allowFavoriteRouter && deciding)}
-      valueTitle={allowFavoriteRouter && routerSelected
-        ? t("favoriteModelRouter", "Favorite model router")
-        : undefined}
-      virtualOptions={routerAvailable ? [{ id: FAVORITE_MODEL_ROUTER, label: t("favoriteModelRouter", "Favorite model router") }] : []}
+      virtualOptions={favoritesShortcutAvailable
+        ? [{ id: SELECT_ALL_FAVORITE_MODELS, label: t("selectAllFavorites", "Select all favorites") }] : []}
       onChange={(id) => {
-        if (allowFavoriteRouter) {
-          store.setState({ favoriteModelRouter: id === FAVORITE_MODEL_ROUTER });
-          if (id === FAVORITE_MODEL_ROUTER) return;
+        if (id === SELECT_ALL_FAVORITE_MODELS) {
+          if (favoritesShortcutAvailable) onValuesChange?.(currentFavoriteIds);
+          return;
         }
         props.onChange(id);
       }}
