@@ -12,7 +12,7 @@ import {
 } from "./agentSelection";
 import { useChatContext } from "../chat/context/ChatContext";
 import { favoriteRouterModel, FAVORITE_AGENT_ROUTER } from "../chat/engine/favoriteRouter";
-import { getAgentTags } from "./agentTags";
+import { getAgentGroups } from "./agentTags";
 
 const hostnameOf = (url?: string) => {
   if (!url) return "remote";
@@ -81,7 +81,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   const routerAvailable = allowFavoriteRouter && !!routingDecisionModel && favoriteVisibleAgents.length >= 2;
   const tagGroups = new Map<string, typeof visibleAgents>();
   const untaggedAgents = visibleAgents.filter((agent) => {
-    const tags = getAgentTags(agent.localAgent, agent.remoteAgentModel, agent.remoteAgentModel?.agent);
+    const tags = getAgentGroups(agent.localAgent, agent.remoteAgentModel, agent.remoteAgentModel?.agent);
     tags.forEach((tag) => tagGroups.set(tag, [...(tagGroups.get(tag) ?? []), agent]));
     return tags.length === 0;
   });

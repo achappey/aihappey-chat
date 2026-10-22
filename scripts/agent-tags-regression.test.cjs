@@ -66,6 +66,21 @@ test("tag values are dynamic, trimmed, unique and tolerate absent or malformed t
     assert.deepEqual(normalizeAgent({ ...agents[0], tags: [] }).tags, []);
 });
 
+test("owners are free text, trimmed, unique suggestions and only group agents without tags", () => {
+    assert.equal(tags.getAgentOwner(undefined, {}, { owned_by: null }, { owned_by: 3 }, { owned_by: " Team " }), "Team");
+    assert.equal(tags.getAgentOwner({ owned_by: " " }, { owned_by: "Nested" }), "Nested");
+    assert.equal(tags.getAgentOwner({ owned_by: "Listing" }, { owned_by: "Nested" }), "Listing");
+    assert.deepEqual(tags.collectAgentOwners([{ owned_by: " Team " }], [
+        { owned_by: "Team", agent: { owned_by: " Research " } }, { owned_by: "" },
+    ]), ["Research", "Team"]);
+    assert.deepEqual(tags.getAgentGroups({ tags: [" a ", "b", "a"], owned_by: "Team" }), ["a", "b"]);
+    assert.deepEqual(tags.getAgentGroups({ tags: [" "], owned_by: " Team " }), ["Team"]);
+    assert.deepEqual(tags.getAgentGroups({ tags: [], owned_by: " " }), []);
+    const { normalizeAgent } = load("packages/aihappey-agents/src/normalizeAgent.ts", { "aihappey-types": agentTypes });
+    const restored = normalizeAgent(JSON.parse(JSON.stringify({ ...local("Owned"), owned_by: "Any team" })));
+    assert.equal(restored.owned_by, "Any team");
+});
+
 test("remote discovery preserves provided tags without manufacturing categories for untagged agents", async () => {
     let discovered;
     const state = { setRemoteAgentModels: value => { discovered = value; } };
@@ -99,13 +114,17 @@ test("selector groups agents under every tag and reserves hosts for untagged age
     });
     let selected;
     const picker = AgentSelect({
-        localAgents: agents, remoteAgentModels, values: ["local:Writer"],
+        localAgents: [...agents, { ...local("Owned"), owned_by: " Team " }, { ...local("Tagged", ["writing"]), owned_by: "Ignored owner" }],
+        remoteAgentModels: [...remoteAgentModels, { id: "owned", source: "remote", owned_by: "Team" }, { id: "nested", source: "remote", agent: { ...local("Nested"), owned_by: "Embedded" } }], values: ["local:Writer"],
         favoriteAgentIds: ["local:Writer"], onChange: value => { selected = value; },
     });
     const groups = Object.fromEntries(nodes(picker, "optgroup").map(group => [
         group.props.label, nodes(group, "option").map(option => option.props.value),
     ]));
-    assert.deepEqual(groups.writing, ["local:Writer"]);
+    assert.deepEqual(groups.writing, ["local:Tagged", "local:Writer"]);
+    assert.deepEqual(groups.Team, ["local:Owned", "remote:owned"]);
+    assert.deepEqual(groups.Embedded, ["remote:nested"]);
+    assert.equal(groups["Ignored owner"], undefined);
     assert.deepEqual(groups.shared, ["local:Writer", "remote:remote-writer"]);
     assert.deepEqual(groups.research, ["remote:remote-writer"]);
     assert.deepEqual(groups.Local, ["local:Empty", "local:Plain"]);

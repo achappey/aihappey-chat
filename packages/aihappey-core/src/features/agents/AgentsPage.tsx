@@ -14,7 +14,7 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { usePlugins } from "aihappey-plugins";
 import { useSkills } from "aihappey-skills";
-import { collectAgentTags, getAgentTags } from "./agentTags";
+import { collectAgentTags, getAgentTags, getAgentOwner } from "./agentTags";
 import {
   AgentPluginConversionError,
   convertAgentToPluginDraft,
@@ -49,6 +49,7 @@ const buildRemoteAgentCardAgent = (remoteAgentModel: RemoteAgentModel): Agent =>
   return {
     ...remoteAgent,
     tags: getAgentTags(remoteAgentModel, remoteAgent),
+    owned_by: getAgentOwner(remoteAgentModel, remoteAgent) || undefined,
     name: remoteAgentModel.name ?? remoteAgent?.name ?? remoteAgentModel.id,
     description: remoteAgentModel.description ?? remoteAgent?.description ?? "",
     instructions: remoteAgent?.instructions ?? "",

@@ -7,6 +7,7 @@ export type Agent = {
     description: string;
     instructions: string;
     tags?: string[];
+    owned_by?: string;
     argumentHint?: string;
     responseFormat?: ResponseFormat;
     mcpServers?: Record<string, McpServer>

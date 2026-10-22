@@ -47,7 +47,7 @@ import { createEmbeddedAgentPlugin, getEmbeddedAgentPluginPayload, readEmbeddedA
 import { useStructuredOutputs } from "aihappey-structured-outputs";
 import { toValidSchemaName } from "../chat-settings/GeneralTab";
 import { AgentChecks } from "./AgentChecks";
-import { collectAgentTags, getAgentTags } from "./agentTags";
+import { collectAgentOwners, collectAgentTags, getAgentTags } from "./agentTags";
 import { AgentToolConfigurationTab, type ConfigurableAgentTool } from "./AgentToolConfigurationTab";
 import {
     AGENT_FUNCTION_TYPE,
@@ -95,7 +95,16 @@ export const AgentForm = ({
     const agents = useAppStore((s) => s.agents);
     const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
     const [tagInput, setTagInput] = useState("");
+    const [customOwner, setCustomOwner] = useState(false);
     const tags = getAgentTags(agent);
+    const availableOwners = useMemo(
+        () => collectAgentOwners(agents, remoteAgentModels),
+        [agents, remoteAgentModels]
+    );
+    const owner = agent.owned_by?.trim() ?? "";
+    // Include a saved/imported owner even if its source is no longer in the catalog.
+    const ownerOptions = Array.from(new Set([...availableOwners, ...(owner ? [owner] : [])]))
+        .sort((a, b) => a.localeCompare(b));
     const availableTags = useMemo(
         () => collectAgentTags(agents, remoteAgentModels),
         [agents, remoteAgentModels]
@@ -768,6 +777,34 @@ export const AgentForm = ({
                             onChange({ ...agent, description: v.target.value })
                         }
                     />
+                    <div style={{ display: "grid", gap: 8, marginBottom: 8 }}>
+                        <Select
+                            label={t("agentEdit.ownedBy")}
+                            values={[customOwner ? "custom" : owner ? `owner:${owner}` : "none"]}
+                            valueTitle={customOwner ? t("agentEdit.ownedByCustom") : owner || t("agentEdit.ownedByNone")}
+                            style={{ width: "100%" }}
+                            searchable
+                            onChange={(value: string) => {
+                                setCustomOwner(value === "custom");
+                                if (value === "custom") return;
+                                onChange((current) => ({ ...current, owned_by: value === "none" ? undefined : value.slice("owner:".length) }));
+                            }}
+                        >
+                            <option value="none">{t("agentEdit.ownedByNone")}</option>
+                            {ownerOptions.map((value) => (
+                                <option key={value} value={`owner:${value}`}>{value}</option>
+                            ))}
+                            <option value="custom">{t("agentEdit.ownedByCustom")}</option>
+                        </Select>
+                        {customOwner && (
+                            <Input label={t("agentEdit.ownedByNew")}
+                                value={agent.owned_by ?? ""}
+                                autoFocus
+                                onChange={(event) => onChange((current) => ({ ...current, owned_by: event.target.value }))}
+                                onBlur={() => onChange((current) => ({ ...current, owned_by: current.owned_by?.trim() || undefined }))}
+                            />
+                        )}
+                    </div>
                     <ModelSelect
                         label={t('models')}
                         models={availableModels}

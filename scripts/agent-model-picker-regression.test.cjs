@@ -91,7 +91,7 @@ function harness(initialAgent = {}, models = catalog, settings = {}) {
         "./useAgentMcpServers": { useAgent: () => ({ mcpServers: [] }) },
         "../chat/context/ChatContext": { useChatContext: () => ({ config: {} }) },
         "../provider-config/openai/openAISkillOptions": { buildOpenAISkillOptions: () => [], createOpenAIShellSkillResolver: () => () => {} },
-        "./agentTags": { getAgentTags: () => [], collectAgentTags: () => [] },
+        "./agentTags": load("packages/aihappey-core/src/features/agents/agentTags.ts"),
         "../../runtime/providers/providerMetadata": { PROVIDERS: {} },
         "../mcp-catalog/ServerCatalogModal": components,
         "../provider-config/google/GoogleChatConfig": components,
@@ -117,6 +117,55 @@ const picker = node => {
     const field = modelSelect.type(modelSelect.props);
     return field.type(field.props);
 };
+
+test("owner starts as one full-width select and reveals free text only for Custom", () => {
+    const h = harness({}, catalog, { agents: [{ owned_by: " Local team " }], remoteAgentModels: [
+        { owned_by: "Remote team", agent: { owned_by: "Embedded team" } }, { owned_by: "Local team" },
+    ] });
+    const select = () => find(h.render(), child => child.type === "Select" && child.props.label === "agentEdit.ownedBy");
+    const input = () => find(h.render(), child => child.type === "Input" && child.props.label === "agentEdit.ownedByNew");
+    assert.equal(input(), undefined);
+    assert.equal(select().props.style.width, "100%");
+    assert.deepEqual(select().props.values, ["none"]);
+    assert.deepEqual(optionNodes(select()).map(node => node.props.value), ["none", "owner:Embedded team", "owner:Local team", "owner:Remote team", "custom"]);
+    select().props.onChange("owner:Remote team");
+    assert.equal(h.agent.owned_by, "Remote team");
+    assert.equal(input(), undefined);
+    select().props.onChange("custom");
+    assert.equal(input().props.autoFocus, true);
+    assert.equal(input().props.value, "Remote team");
+    input().props.onChange({ target: { value: "  My new team  " } });
+    input().props.onBlur();
+    assert.equal(h.agent.owned_by, "My new team");
+    assert.deepEqual(select().props.values, ["custom"]);
+    select().props.onChange("owner:Local team");
+    assert.equal(input(), undefined);
+    assert.equal(h.agent.owned_by, "Local team");
+    select().props.onChange("none");
+    assert.equal(input(), undefined);
+    assert.equal(h.agent.owned_by, undefined);
+});
+
+test("owner select preserves imported values, has Custom without suggestions, and never stores UI sentinel values", () => {
+    for (const value of ["Unavailable owner", "custom", "none", "owner:Team"]) {
+        const h = harness({ owned_by: value });
+        const select = find(h.render(), child => child.type === "Select" && child.props.label === "agentEdit.ownedBy");
+        assert.equal(select.props.valueTitle, value);
+        assert.deepEqual(select.props.values, [`owner:${value}`]);
+        assert.ok(optionNodes(select).some(node => node.props.value === `owner:${value}`));
+        select.props.onChange(`owner:${value}`);
+        assert.equal(h.agent.owned_by, value);
+    }
+    const h = harness();
+    const select = () => find(h.render(), child => child.type === "Select" && child.props.label === "agentEdit.ownedBy");
+    assert.deepEqual(optionNodes(select()).map(node => node.props.value), ["none", "custom"]);
+    select().props.onChange("custom");
+    assert.equal(h.agent.owned_by, undefined);
+    const input = () => find(h.render(), child => child.type === "Input" && child.props.label === "agentEdit.ownedByNew");
+    input().props.onChange({ target: { value: "   " } }); input().props.onBlur();
+    assert.equal(h.agent.owned_by, undefined);
+    assert.deepEqual(select().props.values, ["custom"]);
+});
 function optionNodes(node) {
     if (!React.isValidElement(node)) return [];
     return node.type === "option" ? [node] : React.Children.toArray(node.props.children).flatMap(optionNodes);
