@@ -242,6 +242,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   preview: makeIcon("👁"),
   navigationMenu: makeIcon("☰"),
   contextMenu: makeIcon("⋮"),
+  moreHorizontal: makeIcon("⋯"),
   globe: makeIcon("◎"),
   connect: makeIcon("🔌"),
   refresh: makeIcon("↻"),

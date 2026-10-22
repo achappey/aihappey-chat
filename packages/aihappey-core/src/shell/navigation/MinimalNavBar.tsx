@@ -2,31 +2,43 @@ import { useTheme } from "aihappey-components";
 import { useNavigate } from "react-router";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
+import type { MenuItemProps } from "aihappey-types";
 
 const MinimalNavBar = ({
   onSearch,
 }: {
   onSearch: () => void;
 }) => {
-  //const MinimalNavBar = (): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const selectConversation = useAppStore((s) => s.selectConversation);
-  const { Button } = useTheme();
+  const { Button, Menu } = useTheme();
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
+  const hiddenNavigationItemKeys = useAppStore((s) => s.hiddenNavigationItemKeys);
 
   const handleNewChat = () => {
     selectConversation(null);
     navigate("/");
   };
 
-  const handleLibrary = () => {
-    navigate("/images");
-  };
-
-  const handleReranking = () => {
-    navigate("/reranking");
-  };
+  // Keep the first category's order, labels, routes, and icons aligned with ConversationSidebar.
+  const items: MenuItemProps[] = [
+    { key: "new", label: t("newChat"), icon: "add", onClick: handleNewChat },
+    { key: "realtime", label: t("realtime"), icon: "realtime", onClick: () => navigate("/realtime") },
+    { key: "search-conversations", label: t("conversationSearch"), icon: "search", onClick: onSearch },
+    { key: "hub-search", label: t("hubSearch.title"), icon: "embedding", onClick: () => navigate("/hub-search") },
+    { key: "images", label: t("images"), icon: "images", onClick: () => navigate("/images") },
+    { key: "transcriptions", label: t("transcriptions"), icon: "transcription", onClick: () => navigate("/transcriptions") },
+    { key: "speech", label: t("speech"), icon: "speech", onClick: () => navigate("/speech") },
+    { key: "decisions", label: t("decisions"), icon: "decision", onClick: () => navigate("/decisions") },
+    { key: "reranking", label: t("reranking"), icon: "reranking", onClick: () => navigate("/reranking") },
+    { key: "videos", label: t("videos"), icon: "videos", onClick: () => navigate("/videos") },
+    { key: "jobs", label: t("jobs", "Jobs"), icon: "jobs", onClick: () => navigate("/jobs") },
+    { key: "arena", label: t("arena"), icon: "arena", onClick: () => navigate("/arena") },
+  ];
+  const hiddenKeys = new Set(hiddenNavigationItemKeys ?? []);
+  const visibleItems = items.filter((item) => !hiddenKeys.has(item.key));
+  const hiddenItems = items.filter((item) => hiddenKeys.has(item.key));
 
   return (
     <nav
@@ -51,110 +63,34 @@ const MinimalNavBar = ({
         onClick={toggleSidebar}
         style={{ marginBottom: 8 }}
       />
-      <Button
-        icon="add"
-        size="small"
-        variant="transparent"
-        aria-label={t("newChat")}
-        title={t("newChat")}
-        onClick={handleNewChat}
-        style={{ marginBottom: 8 }}
-      />
-      <Button
-        icon="realtime"
-        size="small"
-        variant="transparent"
-        title={t("realtime")}
-        aria-label={t("realtime")}
-        style={{ marginBottom: 8 }}
-        onClick={() =>
-          navigate("/realtime")
-        }
-      />
-
-      <Button
-        icon="search"
-        size="small"
-        variant="transparent"
-        aria-label={t("conversationSearch")}
-        title={t("conversationSearch")}
-        onClick={onSearch}
-        style={{ marginBottom: 8 }}
-      />
-      <Button
-        icon="images"
-        size="small"
-        variant="transparent"
-        title={t("images")}
-        aria-label={t("images")}
-        style={{ marginBottom: 8 }}
-        onClick={handleLibrary}
-      />
-      <Button
-        icon="transcription"
-        size="small"
-        variant="transparent"
-        title={t("transcriptions")}
-        style={{ marginBottom: 8 }}
-        aria-label={t("transcriptions")}
-        onClick={() =>
-          navigate("/transcriptions")
-        }
-      />
-      <Button
-        icon="speech"
-        size="small"
-        variant="transparent"
-        title={t("speech")}
-        aria-label={t("speech")}
-        style={{ marginBottom: 8 }}
-        onClick={() =>
-          navigate("/speech")
-        }
-      />
-      <Button
-        icon="jobs"
-        size="small"
-        variant="transparent"
-        title={t("jobs", "Jobs")}
-        aria-label={t("jobs", "Jobs")}
-        style={{ marginBottom: 8 }}
-        onClick={() =>
-          navigate("/jobs")
-        }
-      />
-
-
-      <Button
-        icon="decision"
-        size="small"
-        variant="transparent"
-        title={t("decisions")}
-        aria-label={t("decisions")}
-        style={{ marginBottom: 8 }}
-        onClick={() => navigate("/decisions")}
-      />
-      <Button
-        icon="reranking"
-        size="small"
-        variant="transparent"
-        title={t("reranking")}
-        aria-label={t("reranking")}
-        style={{ marginBottom: 8 }}
-        onClick={handleReranking}
-      />
-
-      <Button
-        icon="video"
-        size="small"
-        variant="transparent"
-        title={t("videos")}
-        aria-label={t("videos")}
-        style={{ marginBottom: 8 }}
-        onClick={() =>
-          navigate("/videos")
-        }
-      />
+      {visibleItems.map((item) => (
+        <Button
+          key={item.key}
+          icon={item.icon}
+          size="small"
+          variant="transparent"
+          aria-label={item.label}
+          title={item.label}
+          onClick={item.onClick}
+          style={{ marginBottom: 8 }}
+        />
+      ))}
+      {hiddenItems.length > 0 && (
+        <Menu
+          items={hiddenItems}
+          align="left"
+          trigger={
+            <Button
+              icon="moreHorizontal"
+              size="small"
+              variant="transparent"
+              aria-label={t("more")}
+              title={t("more")}
+              style={{ marginBottom: 8 }}
+            />
+          }
+        />
+      )}
     </nav>
   );
 };

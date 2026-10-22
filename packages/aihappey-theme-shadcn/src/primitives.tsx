@@ -197,6 +197,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   agentSettings: Settings,
   preview: Eye,
   contextMenu: MoreVertical,
+  moreHorizontal: MoreHorizontal,
   navigationMenu: MenuIcon,
   globe: Globe,
   connect: PlugZap,

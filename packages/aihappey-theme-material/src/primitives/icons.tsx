@@ -81,7 +81,7 @@ import AccountTree from "@mui/icons-material/AccountTree";
 import TextFields from "@mui/icons-material/TextFields";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 import type { IconToken } from "aihappey-types";
-import { MoreVert } from "@mui/icons-material";
+import { MoreHoriz, MoreVert } from "@mui/icons-material";
 
 export type IconProps = { size?: number | string; style?: React.CSSProperties };
 export type IconComponent = (props: IconProps) => React.JSX.Element;
@@ -174,6 +174,7 @@ export const iconMap: Record<IconToken, IconComponent> = {
   preview: makeIcon(Visibility),
   navigationMenu: makeIcon(MenuIcon),
   contextMenu: makeIcon(MoreVert),
+  moreHorizontal: makeIcon(MoreHoriz),
   globe: makeIcon(Language),
   connect: makeIcon(Power),
   refresh: makeIcon(Refresh),

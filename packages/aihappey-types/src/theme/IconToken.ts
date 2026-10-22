@@ -84,6 +84,7 @@ export type IconToken =
   | "preview"
   | "navigationMenu"
   | "contextMenu"
+  | "moreHorizontal"
   | "globe"
   | "connect"
   | "refresh"

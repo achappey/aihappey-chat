@@ -120,6 +120,7 @@ import {
   StarFilled,
   BranchForkRegular,
   TagRegular,
+  MoreHorizontalRegular,
 } from "@fluentui/react-icons";
 
 export const iconMap: Record<IconToken, React.ComponentType<any>> = {
@@ -195,6 +196,7 @@ export const iconMap: Record<IconToken, React.ComponentType<any>> = {
   rerankingSettings: TextBulletListSquareSettingsRegular,
   navigationMenu: Hamburger,
   contextMenu: Hamburger,
+  moreHorizontal: MoreHorizontalRegular,
   attachment: AttachRegular,
   concurrent: ArrowSplitRegular,
   realtime: LiveRegular,
