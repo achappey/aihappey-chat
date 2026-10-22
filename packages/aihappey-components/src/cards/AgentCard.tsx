@@ -5,10 +5,12 @@ import { useTranslation } from "aihappey-i18n";
 import { CapabilityIcon } from "../images/CapabilityIcon";
 import { AgentFavoriteToggleButton } from "../buttons/AgentFavoriteToggleButton";
 import { getModelDisplayId } from "./getModelDisplayId";
+import { useDarkMode } from "usehooks-ts";
+import { selectCapabilityIcon } from "../images/selectCapabilityIcon";
 
 type AgentCardProps = {
   agent: Agent;
-  providerIcons?: Agent["icons"];
+  providerIcons?: (NonNullable<Agent["icons"]>[number] & { providerId?: string })[];
   onEdit?: () => void
   onDelete?: () => void
   onConnectMcp?: () => void;
@@ -33,6 +35,7 @@ export const AgentCard = ({
 }: AgentCardProps) => {
   const { Card, Button, Menu, Badge } = useTheme();
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkMode();
   const menuItems: MenuItemProps[] = [
     ...(onConnectMcp ? [{
       key: "connect-mcp",
@@ -102,6 +105,9 @@ export const AgentCard = ({
 
   const imageIcons = agent?.icons?.length ? agent.icons : providerIcons;
   const image = imageIcons?.length ? <CapabilityIcon icons={imageIcons} /> : undefined;
+  // Custom agent artwork is not evidence of a provider identity.
+  const providerIcon = !agent?.icons?.length ? selectCapabilityIcon(providerIcons, isDarkMode) : undefined;
+  const displayedProviderId = providerIcon?.src ? providerIcon.providerId : undefined;
   const modelIds = getAgentModels(agent).map(model => model.id);
 
   const actions = exportButton || editButton || favoriteButton ? <>{exportButton}{editButton}{favoriteButton}</> : undefined
@@ -114,7 +120,7 @@ export const AgentCard = ({
       headerActions={headerActions}
       description={modelIds.length ? <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
         {modelIds.map(modelId => <Badge key={modelId} title={modelId} icon="brain" size="small" appearance="tint">
-          {getModelDisplayId(modelId, modelIds.length === 1 && !!providerIcons?.length)}
+          {getModelDisplayId(modelId, !!displayedProviderId && modelId.startsWith(`${displayedProviderId}/`))}
         </Badge>)}
       </div> : undefined}
       size="small"

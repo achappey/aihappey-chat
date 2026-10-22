@@ -27,9 +27,20 @@ const getProviderIconsForModel = (modelId?: string): Agent["icons"] | undefined 
   return (PROVIDERS as Record<string, { icons?: Agent["icons"] }>)[providerKey]?.icons;
 };
 
-const getProviderIconsForAgentModel = (agent?: Pick<Agent, "model" | "models">): Agent["icons"] | undefined => {
-  return Array.from(new Map(getAgentModels(agent).flatMap(model => getProviderIconsForModel(model.id) ?? [])
-    .map(icon => [icon.src, icon])).values());
+const getProviderIconsForAgentModel = (agent?: Pick<Agent, "model" | "models">) => {
+  const icons = new Map<string, NonNullable<Agent["icons"]>[number] & { providerId?: string }>();
+  for (const model of getAgentModels(agent)) {
+    const providerId = getAgentModelProviderKey(model.id);
+    for (const icon of getProviderIconsForModel(model.id) ?? []) {
+      const previous = icons.get(icon.src);
+      icons.set(icon.src, {
+        ...icon,
+        // A shared logo URL cannot identify one provider unambiguously.
+        providerId: previous && previous.providerId !== providerId ? undefined : providerId,
+      });
+    }
+  }
+  return Array.from(icons.values());
 };
 
 const buildRemoteAgentCardAgent = (remoteAgentModel: RemoteAgentModel): Agent => {

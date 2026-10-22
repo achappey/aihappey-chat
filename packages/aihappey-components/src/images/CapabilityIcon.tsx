@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDarkMode } from "usehooks-ts";
 import { useTheme } from "../theme/ThemeContext";
+import { selectCapabilityIcon } from "./selectCapabilityIcon";
 
 export interface CapabilityIconProps {
   icons?: {
@@ -14,8 +15,7 @@ export const CapabilityIcon: React.FC<CapabilityIconProps> = ({
 }) => {
   const { Image } = useTheme();
   const { isDarkMode } = useDarkMode();
-  const icon = icons?.find((i: any) => i.theme === (isDarkMode ? "dark" : "light"))?.src
-    ?? icons?.[0]?.src;
+  const icon = selectCapabilityIcon(icons, isDarkMode)?.src;
 
   return icon ? <Image src={icon} height={32} shape="square"></Image> : undefined;
 };
