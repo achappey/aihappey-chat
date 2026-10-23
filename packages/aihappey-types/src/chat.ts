@@ -28,6 +28,8 @@ export interface ChatMessage {
   content: (TextUIPart | ReasoningUIPart | ToolUIPart | DataUIPart<any>)[]
   attachments?: FileUIPart[]
   sources?: (SourceUrlUIPart | SourceDocumentUIPart)[]
+  /** Hide message-level usage badges, sources, and attachments on non-summary cards. */
+  hideMessageSummaryActions?: boolean;
   createdAt: string;
   author?: string;
   temperature?: number;

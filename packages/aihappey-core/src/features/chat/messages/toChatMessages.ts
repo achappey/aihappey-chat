@@ -183,6 +183,7 @@ export function toChatMessages(
   for (let zi = 0; zi < messages.length; zi++) {
     const z = messages[zi];
     if (z.role === SYSTEM_ROLE) continue;
+    const messageStartIndex = out.length;
     const rawId = (z as any).id ?? (z as any).messageId;
     const baseId =
       typeof rawId === "string" || typeof rawId === "number"
@@ -218,9 +219,7 @@ export function toChatMessages(
     const parts = collapseGeneratedImagePreviews(((z.parts ?? [])).filter(
       (p) => p?.type !== "step-start" && hasReasoningText(p as UIMessagePart<any, any>)
     ));
-    const evaluationPartIndex = evaluationSummary
-      ? parts.findLastIndex((part) => part?.type === "text")
-      : -1;
+    const lastTextPartIndex = parts.findLastIndex((part) => part?.type === "text");
 
     const messageCostSummary = summarizeAssistantGatewayCost({
       role: z.role,
@@ -470,7 +469,7 @@ export function toChatMessages(
           cost: effectiveCost,
           ...performanceMetrics,
           providerKey,
-          ...(i === evaluationPartIndex && evaluations && evaluationSummary
+          ...(i === lastTextPartIndex && evaluations && evaluationSummary
             ? { evaluations, evaluationSummary }
             : {}),
         } as any);
@@ -566,6 +565,15 @@ export function toChatMessages(
     flushEmbeddedVideos();
     flushEmbeddedAudio();
     flushImages();
+
+    // Keep metadata on every card, but display message-level controls only once.
+    // Media-only responses retain their existing summary behavior.
+    if (z.role === "assistant" && lastTextPartIndex >= 0) {
+      const summaryMessageId = `${baseId}:text:${lastTextPartIndex}`;
+      for (let i = messageStartIndex; i < out.length; i++) {
+        out[i].hideMessageSummaryActions = out[i].id !== summaryMessageId;
+      }
+    }
   }
 
   return out;

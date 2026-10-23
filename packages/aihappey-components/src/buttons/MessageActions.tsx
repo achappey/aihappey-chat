@@ -51,6 +51,7 @@ export const MessageActions = ({
 }: MessageActionsProps) => {
   const { Badge, Button } = useTheme();
   const { t } = useTranslation();
+  const showMessageSummaryActions = !msg.hideMessageSummaryActions;
   const evaluationSummary = msg.role === "assistant" ? msg.evaluationSummary : undefined;
   const evaluationTone = evaluationSummary?.status === "passed"
     ? "success"
@@ -99,11 +100,11 @@ export const MessageActions = ({
         />
       )}
 
-      {!hideAssistantUsageActions && showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
+      {showMessageSummaryActions && !hideAssistantUsageActions && showTokens && <TokenBadge totalTokens={msg.usage?.totalTokens ?? msg.totalTokens} />}
 
-      {!hideAssistantUsageActions && msg.role === "assistant" && <CostBadge cost={msg.cost} />}
+      {showMessageSummaryActions && !hideAssistantUsageActions && msg.role === "assistant" && <CostBadge cost={msg.cost} />}
 
-      {!hideAssistantUsageActions && showMetrics && msg.role === "assistant" && (
+      {showMessageSummaryActions && !hideAssistantUsageActions && showMetrics && msg.role === "assistant" && (
         <>
           <TimeToFirstTokenBadge value={msg.ttft} />
           <TokensPerSecondBadge value={msg.tps} />
@@ -148,7 +149,7 @@ export const MessageActions = ({
         </button>
       )}
 
-      {onShowSources &&
+      {showMessageSummaryActions && onShowSources &&
         msg?.sources &&
         msg.sources.length > 0 && (
           <SourcesButton
@@ -159,7 +160,7 @@ export const MessageActions = ({
         )}
 
 
-      {onShowAttachments
+      {showMessageSummaryActions && onShowAttachments
         && msg?.attachments
         && msg?.attachments?.length > 0 && (
           <Button
