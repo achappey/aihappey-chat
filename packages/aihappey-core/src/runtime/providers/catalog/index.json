@@ -16,6 +16,10 @@
     "file": "epho.json"
   },
   {
+    "id": "humanbrowser",
+    "file": "humanbrowser.json"
+  },
+  {
     "id": "runtype",
     "file": "runtype.json"
   },

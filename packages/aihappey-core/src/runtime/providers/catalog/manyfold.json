@@ -1,6 +1,6 @@
 {
   "name": "Manyfold",
-  "description": "Host and run Claude Code, Codex, Gemini CLI, Hermes, and other AI agents through an OpenAI-compatible API, with persistent sessions, streaming, files, workspaces, and dynamic agent discovery.",
+  "description": "Run Claude Code, Codex, Gemini CLI and more in one AI agent workspace: hosted sandboxes, persistent sessions, chat, files, terminal and team channels.",
   "urls": {
     "homepage": "https://manyfold.ai",
     "docs": "https://docs.manyfold.ai",

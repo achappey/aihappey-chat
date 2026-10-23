@@ -1,0 +1,17 @@
+
+{
+  "name": "HumanBrowser",
+  "description": "An AI browser your agent drives like a human. A vision LLM (Claude, ChatGPT, Codex, Cursor, Gemini, Kimi) clicks, scrolls and types through real cloud Chrome. Handles Cloudflare Turnstile, hCaptcha, reCAPTCHA, DataDome, PerimeterX on residential IPs.",
+  "urls": {
+    "homepage": "https://humanbrowser.cloud",
+    "pricing": "https://humanbrowser.cloud/pricing",
+    "privacyPolicy": "https://virixlabs.com/privacy",
+    "termsOfService": "https://virixlabs.com/terms",
+    "docs": "https://humanbrowser.cloud/docs"
+  },
+  "providerCountry": "GB",
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}
