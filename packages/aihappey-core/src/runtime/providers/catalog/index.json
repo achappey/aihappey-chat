@@ -48,6 +48,10 @@
     "file": "connect0.json"
   },
   {
+    "id": "manyfold",
+    "file": "manyfold.json"
+  },
+  {
     "id": "harnessrouter",
     "file": "harnessrouter.json"
   },
