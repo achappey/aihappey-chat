@@ -19,6 +19,10 @@
     "id": "humanbrowser",
     "file": "humanbrowser.json"
   },
+    {
+    "id": "docketrouter",
+    "file": "docketrouter.json"
+  },
   {
     "id": "runtype",
     "file": "runtype.json"

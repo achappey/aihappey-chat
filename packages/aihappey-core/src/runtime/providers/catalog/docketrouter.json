@@ -1,0 +1,16 @@
+{
+  "name": "DocketRouter",
+  "description": "Legal AI that shows its work: keep your model, and every citation it produces is checked against 615,391 Texas appellate decisions before you see it. Anything unverifiable is removed and disclosed.",
+  "urls": {
+    "homepage": "https://docketrouter.ai",
+    "pricing": "https://docketrouter.ai/pricing",
+    "privacyPolicy": "https://docketrouter.ai/policy",
+    "termsOfService": "https://docketrouter.ai/terms",
+    "docs": "https://docketrouter.ai/docs"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "US"
+  ]
+}
