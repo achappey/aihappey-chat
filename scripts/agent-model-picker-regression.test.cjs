@@ -56,7 +56,7 @@ function find(node, predicate) {
     }
 }
 
-function harness(initialAgent = {}, models = catalog, settings = {}) {
+function harness(initialAgent = {}, models = catalog, settings = {}, isEditing = true) {
     let agent = { name: "Example", description: "Example agent", instructions: "Help", ...initialAgent };
     const slots = [];
     let index = 0;
@@ -104,7 +104,7 @@ function harness(initialAgent = {}, models = catalog, settings = {}) {
     return {
         render() {
             index = 0;
-            return AgentForm({ agent, isEditing: true, onChange: update => { agent = typeof update === "function" ? update(agent) : update; } });
+            return AgentForm({ agent, isEditing, onChange: update => { agent = typeof update === "function" ? update(agent) : update; } });
         },
         get agent() { return agent; },
         state,
@@ -117,6 +117,54 @@ const picker = node => {
     const field = modelSelect.type(modelSelect.props);
     return field.type(field.props);
 };
+
+test("create and edit forms put Owner above Tags on the second Details tab, not General", () => {
+    for (const isEditing of [false, true]) {
+        const h = harness({ owned_by: "Imported team", tags: ["saved"] }, catalog, {}, isEditing);
+        const tree = h.render();
+        const tabs = React.Children.toArray(find(tree, node => node.type === "Tabs").props.children).filter(React.isValidElement);
+        assert.deepEqual(tabs.slice(0, 2).map(tab => [tab.props.eventKey, tab.props.title]), [["general", "general"], ["details", "details"]]);
+        const owner = node => node.type === "Select" && node.props.label === "agentEdit.ownedBy";
+        const tagInput = node => node.type === "Input" && node.props.label === "agentEdit.tags";
+        assert.equal(find(tabs[0], owner), undefined);
+        assert.equal(find(tabs[0], tagInput), undefined);
+        const sections = React.Children.toArray(tabs[1].props.children);
+        assert.equal(find(sections[0], owner).props.valueTitle, "Imported team");
+        assert.equal(find(sections[1], tagInput).props.value, "");
+        assert.deepEqual(h.agent.tags, ["saved"]);
+        assert.equal(h.agent.owned_by, "Imported team");
+        find(tree, node => node.type === "Tabs").props.onSelect("details");
+        assert.equal(find(h.render(), node => node.type === "Tabs").props.activeKey, "details");
+    }
+});
+
+test("Details retains tag add, suggestion, and removal behavior independently of the owner", () => {
+    const h = harness({ owned_by: "Team", tags: ["saved"] }, catalog, { agents: [{ tags: ["suggested"] }] });
+    const details = () => find(h.render(), node => node.type === "Tab" && node.props.eventKey === "details");
+    const input = () => find(details(), node => node.type === "Input" && node.props.label === "agentEdit.tags");
+    input().props.onChange({ target: { value: "  new tag  " } });
+    let prevented = false;
+    input().props.onKeyDown({ key: "Enter", preventDefault() { prevented = true; } });
+    assert.equal(prevented, true);
+    assert.deepEqual(h.agent.tags, ["saved", "new tag"]);
+    assert.equal(input().props.value, "");
+    find(details(), node => node.type === "Select" && node.props["aria-label"] === "agentEdit.tags").props.onChange("suggested");
+    find(details(), node => node.type === "Tags").props.onRemove("saved");
+    assert.deepEqual(h.agent.tags, ["new tag", "suggested"]);
+    assert.equal(h.agent.owned_by, "Team");
+    find(details(), node => node.type === "Select" && node.props.label === "agentEdit.ownedBy").props.onChange("none");
+    assert.equal(h.agent.owned_by, undefined);
+    assert.deepEqual(h.agent.tags, ["new tag", "suggested"]);
+});
+
+test("English and Dutch agent labels use Owner/Eigenaar and Details", () => {
+    for (const [locale, owner] of [["en", "Owner"], ["nl", "Eigenaar"]]) {
+        const text = JSON.parse(fs.readFileSync(`packages/aihappey-i18n/src/locales/${locale}/${locale}.json`, "utf8").replace(/^\uFEFF/, ""));
+        assert.equal(text.agentEdit.ownedBy, owner);
+        assert.equal(text.details, "Details");
+        assert.equal(text.agentChecks.title, "Tests");
+    }
+});
 
 test("owner starts as one full-width select and reveals free text only for Custom", () => {
     const h = harness({}, catalog, { agents: [{ owned_by: " Local team " }], remoteAgentModels: [

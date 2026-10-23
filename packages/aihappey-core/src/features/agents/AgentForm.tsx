@@ -777,34 +777,6 @@ export const AgentForm = ({
                             onChange({ ...agent, description: v.target.value })
                         }
                     />
-                    <div style={{ display: "grid", gap: 8, marginBottom: 8 }}>
-                        <Select
-                            label={t("agentEdit.ownedBy")}
-                            values={[customOwner ? "custom" : owner ? `owner:${owner}` : "none"]}
-                            valueTitle={customOwner ? t("agentEdit.ownedByCustom") : owner || t("agentEdit.ownedByNone")}
-                            style={{ width: "100%" }}
-                            searchable
-                            onChange={(value: string) => {
-                                setCustomOwner(value === "custom");
-                                if (value === "custom") return;
-                                onChange((current) => ({ ...current, owned_by: value === "none" ? undefined : value.slice("owner:".length) }));
-                            }}
-                        >
-                            <option value="none">{t("agentEdit.ownedByNone")}</option>
-                            {ownerOptions.map((value) => (
-                                <option key={value} value={`owner:${value}`}>{value}</option>
-                            ))}
-                            <option value="custom">{t("agentEdit.ownedByCustom")}</option>
-                        </Select>
-                        {customOwner && (
-                            <Input label={t("agentEdit.ownedByNew")}
-                                value={agent.owned_by ?? ""}
-                                autoFocus
-                                onChange={(event) => onChange((current) => ({ ...current, owned_by: event.target.value }))}
-                                onBlur={() => onChange((current) => ({ ...current, owned_by: current.owned_by?.trim() || undefined }))}
-                            />
-                        )}
-                    </div>
                     <ModelSelect
                         label={t('models')}
                         models={availableModels}
@@ -882,7 +854,35 @@ export const AgentForm = ({
                     </Select>
                 </Tab>
 
-                <Tab eventKey="tags" title={t("agentEdit.tags")}>
+                <Tab eventKey="details" title={t("details")}>
+                    <div style={{ display: "grid", gap: 8, marginBottom: 8 }}>
+                        <Select
+                            label={t("agentEdit.ownedBy")}
+                            values={[customOwner ? "custom" : owner ? `owner:${owner}` : "none"]}
+                            valueTitle={customOwner ? t("agentEdit.ownedByCustom") : owner || t("agentEdit.ownedByNone")}
+                            style={{ width: "100%" }}
+                            searchable
+                            onChange={(value: string) => {
+                                setCustomOwner(value === "custom");
+                                if (value === "custom") return;
+                                onChange((current) => ({ ...current, owned_by: value === "none" ? undefined : value.slice("owner:".length) }));
+                            }}
+                        >
+                            <option value="none">{t("agentEdit.ownedByNone")}</option>
+                            {ownerOptions.map((value) => (
+                                <option key={value} value={`owner:${value}`}>{value}</option>
+                            ))}
+                            <option value="custom">{t("agentEdit.ownedByCustom")}</option>
+                        </Select>
+                        {customOwner && (
+                            <Input label={t("agentEdit.ownedByNew")}
+                                value={agent.owned_by ?? ""}
+                                autoFocus
+                                onChange={(event) => onChange((current) => ({ ...current, owned_by: event.target.value }))}
+                                onBlur={() => onChange((current) => ({ ...current, owned_by: current.owned_by?.trim() || undefined }))}
+                            />
+                        )}
+                    </div>
                     <div style={{ display: "grid", gap: 8 }}>
                         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", alignItems: "end", gap: 8 }}>
                             <Input
