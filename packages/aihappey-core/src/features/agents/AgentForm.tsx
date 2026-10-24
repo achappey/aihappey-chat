@@ -25,7 +25,7 @@ import {
     resolveAgentModelProviderMetadata,
     useAppStore,
 } from "aihappey-state";
-import { getAgentModels, getPrimaryAgentModel, type AiModel } from "aihappey-types";
+import { getAgentModels, type AiModel } from "aihappey-types";
 import { ModelSelect } from "../models/ModelSelect";
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { ServerManagement } from "aihappey-components";
@@ -49,6 +49,7 @@ import { toValidSchemaName } from "../chat-settings/GeneralTab";
 import { AgentChecks } from "./AgentChecks";
 import { collectAgentOwners, collectAgentTags, getAgentTags } from "./agentTags";
 import { AgentToolConfigurationTab, type ConfigurableAgentTool } from "./AgentToolConfigurationTab";
+import { getAgentEditorModels, setAgentEditorModels } from "./agentEditorModels";
 import {
     AGENT_FUNCTION_TYPE,
     AGENT_READ_RESOURCE_TYPE,
@@ -60,7 +61,8 @@ const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
 const AGENT_RESOURCE_SEARCH_TOGGLE_ID = "client-resource-search";
 const ALL_MCP_TOOLS = "__agent_all_mcp_tools__";
 const NO_MCP_TOOLS = "__agent_no_mcp_tools__";
-const AGENT_MODEL_TYPES = ["language", "decision"];
+const AGENT_MODEL_TYPES = ["language"];
+const DECISION_MODEL_TYPES = ["decision"];
 
 export interface AgentFormProps {
     agent: Agent;
@@ -635,14 +637,16 @@ export const AgentForm = ({
     };
 
     const selectedModels = getAgentModels(agent);
+    const { answers: answerModels, decisions: decisionModels } = getAgentEditorModels(agent, models);
     const availableModels = useMemo(() => (models ?? []).filter(model => model.route !== "direct"), [models]);
     const settingsModel = selectedModels.find(model => model.id === settingsModelId) ?? selectedModels[0];
-    const setModelConfigurations = (current: Agent, configurations: AiModel[]): Agent => ({
-        ...current,
-        models: configurations,
-        // Keep a pre-existing legacy field useful, but collection-only documents stay collection-only.
-        model: current.model ? getPrimaryAgentModel({ models: configurations }) : undefined,
-    });
+    const setModelConfigurations = (current: Agent, configurations: AiModel[]): Agent =>
+        setAgentEditorModels(current, configurations, models);
+    useEffect(() => {
+        if (answerModels.length <= 1 && decisionModels.length > 0) {
+            onChange(current => setAgentEditorModels(current, getAgentModels(current), models));
+        }
+    }, [agent, models, onChange]);
     const updateSettingsModel = (patch: Partial<AiModel>) => onChange(current =>
         setModelConfigurations(current, getAgentModels(current).map(model =>
             model.id === settingsModel?.id ? { ...model, ...patch } : model)));
@@ -781,13 +785,15 @@ export const AgentForm = ({
                         label={t('models')}
                         models={availableModels}
                         modelTypes={AGENT_MODEL_TYPES}
-                        value={selectedModels[0]?.id ?? ""}
-                        values={selectedModels.map(model => model.id)}
+                        value={answerModels[0]?.id ?? ""}
+                        values={answerModels.map(model => model.id)}
                         multiselect
+                        required
                         autoSelectFallback={false}
                         onChange={(value: string) => onChange(current => {
                             const selected = getAgentModels(current);
-                            const info = models?.find(model => model.id === value);
+                            const info = models?.find(model => model.id === value && model.type === "language");
+                            if (info?.type !== "language" && !getAgentEditorModels(current, models).answers.some(model => model.id === value)) return current;
                             const next = selected.some(model => model.id === value)
                                 ? selected.filter(model => model.id !== value)
                                 : [...selected, { id: value, type: info?.type,
@@ -795,6 +801,27 @@ export const AgentForm = ({
                             return setModelConfigurations(current, next);
                         })}
                     />
+                    {answerModels.length > 1 && <>
+                        <ModelSelect
+                            label={t("agentEdit.decisionModel")}
+                            models={availableModels.filter(model => model.type === "decision" && !answerModels.some(answer => answer.id === model.id))}
+                            modelTypes={DECISION_MODEL_TYPES}
+                            value={decisionModels[0]?.id ?? ""}
+                            required
+                            autoSelectFallback={false}
+                            onChange={(value: string) => onChange(current => {
+                                const info = availableModels.find(model => model.id === value && model.type === "decision");
+                                if (value && !info) return current;
+                                const { answers, decisions } = getAgentEditorModels(current, models);
+                                const existing = decisions.find(model => model.id === value);
+                                const decision = value ? { ...(existing ?? {
+                                    id: value,
+                                    providerMetadata: resolveAgentModelProviderMetadata({ nextModelId: value }),
+                                }), type: "decision" } : undefined;
+                                return setModelConfigurations(current, [...answers, ...(decision ? [decision] : [])]);
+                            })}
+                        />
+                    </>}
                     <TextArea label={t('instructions')}
                         placeholder={t('agentEdit.instructionsPlaceholder')}
                         value={agent.instructions}

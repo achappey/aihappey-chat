@@ -1092,7 +1092,7 @@
     "select": "Select",
     "code_execution": "Code execution",
     "agentEdit": {
-        "modelRoutingHint": "Select answer models and optionally a decision model to choose between them. Without a router, the first answer model is used.",
+        "decisionModel": "Decision",
         "name": "Name",
         "tags": "Tags",
         "ownedBy": "Owner",

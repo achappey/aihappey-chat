@@ -19,6 +19,7 @@ function load(filename, mocks = {}) {
 }
 
 const agentModels = load("packages/aihappey-types/src/agentModels.ts");
+const editorModels = load("packages/aihappey-core/src/features/agents/agentEditorModels.ts", { "aihappey-types": agentModels });
 const modelIdentity = load("packages/aihappey-types/src/modelIdentity.ts");
 const components = new Proxy({}, { get: (_, name) => name });
 const providerMetadata = { defaults: true };
@@ -77,6 +78,7 @@ function harness(initialAgent = {}, models = catalog, settings = {}, isEditing =
         "aihappey-components": new Proxy({ useTheme: () => components }, { get: (target, name) => target[name] ?? name }),
         "aihappey-components/src/forms/providers/venice": components,
         "aihappey-types": agentModels,
+        "./agentEditorModels": editorModels,
         "../models/ModelSelect": shared,
         "aihappey-agents": {},
         "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
@@ -112,8 +114,9 @@ function harness(initialAgent = {}, models = catalog, settings = {}, isEditing =
     };
 }
 
-const picker = node => {
-    const modelSelect = find(node, child => typeof child.type === "function" && child.type.name === "ModelSelect");
+const picker = (node, label = "models") => {
+    const modelSelect = find(node, child => typeof child.type === "function" && child.type.name === "ModelSelect" && child.props.label === label);
+    if (!modelSelect) return undefined;
     const field = modelSelect.type(modelSelect.props);
     return field.type(field.props);
 };
@@ -237,7 +240,6 @@ test("agent reuses the chat model picker with active-provider filtering, groupin
     assert.deepEqual(options(select), [
         { value: "openai/first", label: "First answer" },
         { value: "other/second", label: "Second answer" },
-        { value: "router/decision", label: "Router" },
     ]);
     assert.ok(find(select, node => node.type === "optgroup" && node.props.label === "OpenAI"));
     assert.equal(select.props.onFilter, undefined);
@@ -245,28 +247,37 @@ test("agent reuses the chat model picker with active-provider filtering, groupin
     assert.equal(find(node, child => child.props.children === "agentEdit.modelRoutingHint"), undefined);
 });
 
-test("agent model picker toggles multiple answer and decision models without losing existing configuration", () => {
+test("agent separates required decision selection from answer multiselect and clears it below two answers", () => {
     const original = { id: "openai/first", type: "language", providerMetadata: { configured: true }, providerHeaders: { "x-custom": "value" } };
     const h = harness({ model: original });
+    assert.equal(picker(h.render(), "agentEdit.decisionModel"), undefined);
     toggle(picker(h.render()), "other/second");
     assert.deepEqual(h.agent.models.map(model => model.id), ["openai/first", "other/second"]);
     assert.deepEqual(h.agent.models[0], original);
     assert.deepEqual(h.agent.models[1], { id: "other/second", type: "language", providerMetadata });
-    toggle(picker(h.render()), "router/decision");
+    let decision = picker(h.render(), "agentEdit.decisionModel");
+    assert.equal(decision.props.multiselect, false);
+    assert.equal(decision.props.required, true);
+    assert.deepEqual(options(decision).map(option => option.value), ["router/decision"]);
+    assert.deepEqual(selectedIds(decision), [""]);
+    assert.equal(find(h.render(), child => child.props.label === "agentEdit.decisionModel").props.autoSelectFallback, false);
+    toggle(decision, "router/decision");
     assert.deepEqual(h.agent.models.map(model => model.type), ["language", "language", "decision"]);
-    assert.deepEqual(selectedIds(picker(h.render())), ["openai/first", "other/second", "router/decision"]);
+    assert.deepEqual(selectedIds(picker(h.render())), ["openai/first", "other/second"]);
+    assert.deepEqual(selectedIds(picker(h.render(), "agentEdit.decisionModel")), ["router/decision"]);
     toggle(picker(h.render()), "other/second");
-    assert.deepEqual(h.agent.models.map(model => model.id), ["openai/first", "router/decision"]);
+    assert.deepEqual(h.agent.models.map(model => model.id), ["openai/first"]);
+    assert.equal(picker(h.render(), "agentEdit.decisionModel"), undefined);
     assert.deepEqual(h.agent.model, original);
     toggle(picker(h.render()), "openai/first");
-    assert.deepEqual(h.agent.models.map(model => model.id), ["router/decision"]);
+    assert.deepEqual(h.agent.models, []);
     assert.equal(h.agent.model, undefined);
 });
 
 test("saved selections retain their title and configuration without injecting disabled or missing models into the list", () => {
     const h = harness({ models: [{ id: "retired/model" }, { id: "direct/model" }, { id: "openai/first" }] });
     const values = options(picker(h.render())).map(option => option.value);
-    assert.deepEqual(values, ["openai/first", "other/second", "router/decision"]);
+    assert.deepEqual(values, ["openai/first", "other/second"]);
     assert.equal(new Set(values).size, values.length);
     assert.match(picker(h.render()).props.valueTitle, /retired\/model/);
     h.setModels(undefined);
@@ -295,7 +306,7 @@ test("new agents can select models and the provider settings picker renders and 
 test("a large local catalogue renders only enabled-provider models and reacts to local provider settings", () => {
     const disabledModels = Array.from({ length: 12000 }, (_, index) => ({ id: `disabled/${index}`, name: `Disabled ${index}`, type: "language" }));
     const h = harness({}, [...catalog, ...disabledModels]);
-    assert.equal(options(picker(h.render())).length, 3);
+    assert.equal(options(picker(h.render())).length, 2);
     h.state.enabledProvidersByType = { language: ["OpenAI"], decision: [] };
     assert.deepEqual(options(picker(h.render())).map(option => option.value), ["openai/first"]);
     h.state.enabledProvidersByType = { language: [], decision: [] };
@@ -309,8 +320,10 @@ test("provider filters remain independent by type and favorites follow the same 
         { id: "disabled/favorite", name: "Favorite", type: "language" },
     ], { enabledProvidersByType: { language: ["OpenAI"], decision: ["Router"] }, favoriteModelsByType: { language: ["disabled/favorite"] } });
     const select = picker(h.render());
-    assert.deepEqual(options(select).map(option => option.value), ["disabled/favorite", "openai/first", "router/decision"]);
+    assert.deepEqual(options(select).map(option => option.value), ["disabled/favorite", "openai/first"]);
     assert.ok(find(select, node => node.type === "optgroup" && node.props.label === "favorites"));
+    toggle(select, "disabled/favorite"); toggle(picker(h.render()), "openai/first");
+    assert.deepEqual(options(picker(h.render(), "agentEdit.decisionModel")).map(option => option.value), ["router/decision"]);
 });
 
 test("multiselect never automatically selects or refreshes models, while the existing single-select fallback still works", () => {
@@ -370,7 +383,7 @@ test("Shadcn single- and multiselect constrain scrolling to the option viewport"
     assert.match(declarations(".aih-shadcn-select-scroll-button").flex, /^0 0 /);
 });
 
-function modalHarness(agent) {
+function modalHarness(agent, models = catalog) {
     const slots = [];
     let index = 0;
     const saved = [];
@@ -386,6 +399,8 @@ function modalHarness(agent) {
         "aihappey-components": { useTheme: () => components },
         "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
         "aihappey-types": agentModels,
+        "aihappey-state": { useAppStore: selector => selector({ models }) },
+        "./agentEditorModels": editorModels,
         "./AgentForm": { AgentForm: "AgentForm" },
         "../../ui/buttons/CancelButton": { CancelButton: "CancelButton" },
     });
@@ -404,6 +419,7 @@ test("new-agent modal can save the actual multiselect form's collection-only dra
     const form = harness();
     toggle(picker(form.render()), "openai/first");
     toggle(picker(form.render()), "other/second");
+    toggle(picker(form.render(), "agentEdit.decisionModel"), "router/decision");
     assert.equal(form.agent.model, undefined);
     const modal = modalHarness({ name: "", description: "", instructions: "" });
     let node = modal.render();
@@ -413,8 +429,8 @@ test("new-agent modal can save the actual multiselect form's collection-only dra
     assert.equal(saveButton(node).props.disabled, false);
     saveButton(node).props.onClick();
     assert.equal(modal.saved.length, 1);
-    assert.equal(modal.saved[0], form.agent);
-    assert.deepEqual(modal.saved[0].models.map(model => model.id), ["openai/first", "other/second"]);
+    assert.deepEqual(modal.saved[0], form.agent);
+    assert.deepEqual(modal.saved[0].models.map(model => model.id), ["openai/first", "other/second", "router/decision"]);
 });
 
 test("agent-save validation accepts legacy and collection models but rejects missing fields and empty model selections", () => {
@@ -434,7 +450,80 @@ test("agent-save remains disabled while form work is busy and re-enables when it
     const form = find(node, child => child.type === "AgentForm");
     assert.equal(saveButton(node).props.disabled, false);
     form.props.onBusyChange(true);
-    assert.equal(saveButton(modal.render()).props.disabled, true);
+    const busy = saveButton(modal.render());
+    assert.equal(busy.props.disabled, true);
+    busy.props.onClick();
+    assert.deepEqual(modal.saved, []);
     form.props.onBusyChange(false);
     assert.equal(saveButton(modal.render()).props.disabled, false);
+});
+
+test("decision replacement preserves answer and retained router metadata and never creates a new contract field", () => {
+    const answer = { id: "openai/first", providerMetadata: { future: true }, providerHeaders: { "x-keep": "yes" } };
+    const router = { id: "router/decision", type: "decision", providerMetadata: { route: true }, providerHeaders: { "x-router": "yes" }, future: 7 };
+    const h = harness({ models: [answer, { id: "other/second" }, router], future: { keep: true } },
+        [...catalog, { id: "router/replacement", name: "Replacement", type: "decision" }]);
+    toggle(picker(h.render(), "agentEdit.decisionModel"), router.id);
+    assert.deepEqual(h.agent.models[2], router);
+    toggle(picker(h.render(), "agentEdit.decisionModel"), "router/replacement");
+    assert.deepEqual(h.agent.models.map(model => model.id), [answer.id, "other/second", "router/replacement"]);
+    assert.deepEqual(h.agent.models[0], answer);
+    assert.equal(h.agent.models[2].type, "decision");
+    assert.deepEqual(h.agent.future, { keep: true });
+    assert.equal(h.agent.model, undefined);
+    assert.equal("decisionModel" in h.agent, false);
+    // Clearing cannot fall back to an automatically selected router.
+    picker(h.render(), "agentEdit.decisionModel").props.onChange("");
+    assert.deepEqual(h.agent.models, [answer, { id: "other/second" }]);
+    assert.deepEqual(selectedIds(picker(h.render(), "agentEdit.decisionModel")), [""]);
+});
+
+test("existing multi-answer agents need exactly one router and disabled Save cannot be bypassed by its callback", () => {
+    const base = { name: "Saved", description: "Description", instructions: "Help" };
+    const answers = [{ id: "openai/first" }, { id: "other/second" }];
+    const router = { id: "router/decision", type: "decision" };
+    for (const models of [answers, [...answers, router, { id: "router/extra", type: "decision" }], [router], []]) {
+        const modal = modalHarness({ ...base, models });
+        const save = saveButton(modal.render());
+        assert.equal(save.props.disabled, true);
+        save.props.onClick();
+        assert.deepEqual(modal.saved, []);
+    }
+    const valid = modalHarness({ ...base, models: [...answers, router] });
+    assert.equal(saveButton(valid.render()).props.disabled, false);
+    saveButton(valid.render()).props.onClick();
+    assert.deepEqual(valid.saved[0].models, [...answers, router]);
+    const h = harness({ models: [...answers, router, { id: "router/extra", type: "decision" }] });
+    toggle(picker(h.render(), "agentEdit.decisionModel"), router.id);
+    assert.deepEqual(h.agent.models, [...answers, router]);
+});
+
+test("catalog fallback recognizes legacy routers; saved unavailable routers remain visible and keep configuration", () => {
+    const answers = [{ id: "openai/first" }, { id: "other/second" }];
+    const legacyRouter = { id: "router/decision", providerHeaders: { "x-keep": "yes" } };
+    const h = harness({ models: [...answers, legacyRouter] });
+    assert.deepEqual(selectedIds(picker(h.render())), answers.map(model => model.id));
+    assert.deepEqual(selectedIds(picker(h.render(), "agentEdit.decisionModel")), [legacyRouter.id]);
+    const modal = modalHarness(h.agent);
+    assert.equal(saveButton(modal.render()).props.disabled, false);
+    saveButton(modal.render()).props.onClick();
+    assert.deepEqual(modal.saved[0].models[2], { ...legacyRouter, type: "decision" });
+    const missing = { id: "retired/router", type: "decision", providerMetadata: { custom: true } };
+    const saved = harness({ models: [...answers, missing] }, undefined);
+    saved.setModels(undefined);
+    assert.match(picker(saved.render(), "agentEdit.decisionModel").props.valueTitle, /retired\/router/);
+    assert.deepEqual(options(picker(saved.render(), "agentEdit.decisionModel")), []);
+    assert.equal(editorModels.hasValidAgentEditorModels(saved.agent), true);
+    assert.deepEqual(saved.agent.models[2], missing);
+    const single = editorModels.setAgentEditorModels(saved.agent, [answers[0], missing]);
+    assert.deepEqual(single.models, [answers[0]]);
+    assert.deepEqual(editorModels.setAgentEditorModels({ ...single, model: answers[0] }, []).models, []);
+});
+
+test("Decision model labels and required feedback are localized in English and Dutch", () => {
+    for (const [locale, label] of [["en", "Decision model"], ["nl", "Beslissingsmodel"]]) {
+        const text = JSON.parse(fs.readFileSync(`packages/aihappey-i18n/src/locales/${locale}/${locale}.json`, "utf8").replace(/^\uFEFF/, ""));
+        assert.equal(text.agentEdit.decisionModel, label);
+        assert.ok(text.agentEdit.decisionModelRequired.length > 0);
+    }
 });
