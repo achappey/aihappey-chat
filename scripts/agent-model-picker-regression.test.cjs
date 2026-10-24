@@ -358,7 +358,7 @@ test("Shadcn multiselect uses the chat scroll viewport and does not render list 
     assert.match(text, /open\s*\?\s*noResults\s*\?\?\s*renderMultiSelectNodes/);
 });
 
-test("Shadcn single- and multiselect constrain scrolling to the option viewport", () => {
+test("Shadcn single- and multiselect use available screen height and constrain scrolling to the option viewport", () => {
     const { shadcnThemeStyles } = load("packages/aihappey-theme-shadcn/src/styles.ts");
     const rules = [...shadcnThemeStyles.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^{}]*)\}/g)];
     const declarations = selector => Object.fromEntries(rules
@@ -367,18 +367,26 @@ test("Shadcn single- and multiselect constrain scrolling to the option viewport"
             .map(value => value.split(/:(.*)/s).slice(0, 2).map(part => part.trim()))));
     const content = declarations(".aih-shadcn-select-content");
     const multiselect = { ...content, ...declarations(".aih-shadcn-multiselect-content") };
+    const availableHeight = "min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, calc(100dvh - 16px))), calc(100dvh - 16px))";
     for (const panel of [content, multiselect]) {
         assert.equal(panel.display, "flex", "Both variants must constrain their shared option viewport");
         assert.equal(panel["flex-direction"], "column");
         assert.equal(panel.overflow, "hidden");
         assert.ok(!["auto", "scroll"].includes(panel["overflow-y"]), "The outer panel must not compete with its viewport for scrolling");
-        assert.ok(panel["max-height"].includes("--radix-dropdown-menu-content-available-height"));
+        assert.equal(panel["max-height"], availableHeight, "Use positioned space on desktop and mobile, with viewport-safe fallback and no fixed cap");
+        assert.equal(panel.height, undefined, "Short and filtered menus must remain content-sized");
+        assert.equal(panel["min-height"], undefined, "Do not force short menus to fill the available space");
+        assert.equal(panel.width, "var(--radix-select-trigger-width, var(--radix-dropdown-menu-trigger-width))");
     }
+    assert.equal(declarations(".aih-shadcn-select-viewport")["max-height"], availableHeight);
     const viewport = { ...declarations(".aih-shadcn-select-viewport"), ...declarations(".aih-shadcn-dropdown-select-viewport") };
     assert.equal(viewport["overflow-y"], "auto");
     assert.equal(viewport.flex, "1 1 auto");
     assert.equal(viewport["min-height"], "0");
+    assert.equal(viewport["max-height"], "none", "The shared options viewport must shrink around fixed search and scroll controls");
     assert.equal(viewport["overscroll-behavior"], "contain");
+    assert.equal(viewport["touch-action"], "pan-y");
+    assert.equal(viewport["-webkit-overflow-scrolling"], "touch");
     assert.match(declarations(".aih-shadcn-select-search").flex, /^0 0 /);
     assert.match(declarations(".aih-shadcn-select-scroll-button").flex, /^0 0 /);
 });
@@ -521,7 +529,7 @@ test("catalog fallback recognizes legacy routers; saved unavailable routers rema
 });
 
 test("Decision model labels and required feedback are localized in English and Dutch", () => {
-    for (const [locale, label] of [["en", "Decision model"], ["nl", "Beslissingsmodel"]]) {
+    for (const [locale, label] of [["en", "Decision"], ["nl", "Beslissing"]]) {
         const text = JSON.parse(fs.readFileSync(`packages/aihappey-i18n/src/locales/${locale}/${locale}.json`, "utf8").replace(/^\uFEFF/, ""));
         assert.equal(text.agentEdit.decisionModel, label);
         assert.ok(text.agentEdit.decisionModelRequired.length > 0);

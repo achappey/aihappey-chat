@@ -347,8 +347,9 @@ padding: .5rem;
 .aih-shadcn-menu-content,
 .aih-shadcn-menu-sub-content { max-height: min(var(--radix-dropdown-menu-content-available-height, 24rem), 24rem); overflow-y: auto; }
 /* Both variants must constrain the inner viewport; an outer scroller traps wheel input behind its overscroll containment. */
-.aih-shadcn-select-content { display: flex; flex-direction: column; width: var(--radix-select-trigger-width, var(--radix-dropdown-menu-trigger-width)); max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow: hidden; }
-.aih-shadcn-select-viewport { max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, 24rem)), 24rem); overflow-y: auto; padding: .25rem; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+/* Use the positioned space rather than a fixed cap; the dynamic viewport fallback keeps an 8px gap at each screen edge. */
+.aih-shadcn-select-content { display: flex; flex-direction: column; width: var(--radix-select-trigger-width, var(--radix-dropdown-menu-trigger-width)); max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, calc(100dvh - 16px))), calc(100dvh - 16px)); overflow: hidden; }
+.aih-shadcn-select-viewport { max-height: min(var(--radix-select-content-available-height, var(--radix-dropdown-menu-content-available-height, calc(100dvh - 16px))), calc(100dvh - 16px)); overflow-y: auto; padding: .25rem; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 .aih-shadcn-dropdown-select-viewport { flex: 1 1 auto; min-height: 0; max-height: none; overscroll-behavior: contain; }
 .aih-shadcn-select-search { position: relative; flex: 0 0 auto; padding: .25rem .25rem .375rem; }
 .aih-shadcn-select-search-icon { position: absolute; left: .875rem; top: 50%; transform: translateY(-50%); color: var(--aih-shadcn-muted-foreground); pointer-events: none; }
