@@ -295,12 +295,12 @@ export const CoreShell: React.FC<Props> = ({
 
   useEffect(() => {
     (resetModels as any)({ keepSelectedModel: true });
-  }, [customHeaders, effectiveChatEndpointMode, effectiveGatewayEnabled, modelsApi, providers, resetModels, selectedChatEndpoint, selectedEndpointProfileId]);
+  }, [customHeaders, effectiveChatConfig?.headers, effectiveChatEndpointMode, effectiveGatewayEnabled, modelsApi, providers, resetModels, selectedChatEndpoint, selectedEndpointProfileId]);
 
   useModels(
     modelsApi,
     effectiveChatConfig?.getAccessToken,
-    { gatewayEnabled: effectiveGatewayEnabled }
+    { gatewayEnabled: effectiveGatewayEnabled, headers: effectiveChatConfig?.headers }
   );
 
   useRemoteAgentModels(

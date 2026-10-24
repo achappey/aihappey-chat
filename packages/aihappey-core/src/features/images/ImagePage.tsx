@@ -4,6 +4,7 @@ import { ImageGrid, ModelFavoriteToggleButton, useTheme } from "aihappey-compone
 import { LibraryImageItem, useLibraryImages } from "./useLibraryImages";
 import { ImageInput } from "./ImageInput";
 import { ModelSelect } from "../models/ModelSelect";
+import { usePrimitiveModelSelection } from "../models/usePrimitiveModelSelection";
 import { useAppStore } from "aihappey-state";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -47,11 +48,12 @@ export const ImagePage = () => {
   const { Skeleton } = useTheme();
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "image");
-  const [selectedModel, setSelectedModel] = useState<string>(
+  const routing = usePrimitiveModelSelection("image",
     queryModelId ??
     userPreferredImageModel ??
     (getAccessToken ?
       "openai/chatgpt-image-latest" : "pollinations/flux"));
+  const { selectedModel, setSelectedModel } = routing;
   const selectedModelOption = models?.find((model) => model.id === selectedModel);
   const hasLoadedImageModels = modelsLoaded && (models?.some((model) => model.type === "image") ?? false);
   const headers = config?.headers;
@@ -132,16 +134,18 @@ export const ImagePage = () => {
   );
 
   const onSend = async (content: string) => {
+    if (routing.isRunning()) return;
     clearWarnings();
     try {
-      const merged = await buildOperationHeaders(config, customHeaders, selectedModel, true);
+      await routing.run(content, async (modelId, abortSignal) => {
+      const merged = await buildOperationHeaders(config, customHeaders, modelId, true);
 
       const imageProvider = createImageProvider({
         baseUrl: config.baseUrl + config.endpoints.images,
         headers: merged
       })
 
-      const imageModel = imageProvider.imageModel(selectedModel, maxImagesPerCall);
+      const imageModel = imageProvider.imageModel(modelId, maxImagesPerCall);
 
       setItemsLoading((prev) =>
         prev + n
@@ -157,6 +161,7 @@ export const ImagePage = () => {
       files.push(...urlAttachments);
 
       const imageResult = await imageModel.doGenerate({
+        abortSignal,
         prompt: content,
         n: n,
         size: size as any,
@@ -170,13 +175,15 @@ export const ImagePage = () => {
         files: files,
         providerOptions: providerImageMetadata
       })
+      abortSignal.throwIfAborted();
       addWarnings(imageResult.warnings);
       await storageImages.add(imageResult)
       storageImages.refresh()
+      });
     } catch (err) {
       addChatError(getStorageErrorMessage(err, "Image generation failed"));
     } finally {
-      setItemsLoading((prev) => prev - n);
+      setItemsLoading((prev) => Math.max(0, prev - n));
     }
   }
 
@@ -229,7 +236,7 @@ export const ImagePage = () => {
                 models={models ?? []}
                 modelTypes={["image"]}
                 value={selectedModel ?? ""}
-                onChange={setSelectedModel}
+                {...routing.selectionProps}
                 style={{ width: "100%", minWidth: 0 }}
               />
             </div>
@@ -240,7 +247,7 @@ export const ImagePage = () => {
                 isFavorite={isFavorite}
                 modelName={selectedModelOption?.name ?? selectedModel}
                 onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("image", selectedModel)}
-                disabled={!selectedModel}
+                disabled={!selectedModel || !routing.singleModelSelected || routing.processing}
               />
             </div>
           </>

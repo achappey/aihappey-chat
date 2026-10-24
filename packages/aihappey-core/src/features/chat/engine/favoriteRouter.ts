@@ -132,7 +132,7 @@ export function replaceRoutedRequestBody(body: any, currentBody: any) {
 }
 
 export async function decideFavorite({
-  state, kind, messages, config, customHeaders, abortSignal,
+  state, kind, messages, config, customHeaders, abortSignal, modelTypes,
 }: {
   state: RouterState;
   kind: "model" | "agent";
@@ -143,14 +143,21 @@ export async function decideFavorite({
   };
   customHeaders: Record<string, string>;
   abortSignal: AbortSignal;
+  /** Explicit primitive scope; omitted by chat to preserve its configured mixed-model scope. */
+  modelTypes?: string[];
 }) {
-  const candidates = kind === "model" ? modelRouterCandidates(state) : favoriteRouterCandidates(state, kind);
+  const candidates = kind === "model" && modelTypes
+    ? chatModelCandidateIds(state).flatMap(id => {
+      const candidate = state.models?.find(item => item.id === id && modelTypes.includes(item.type));
+      return candidate ? [{ id, ...modelMetadata(candidate) }] : [];
+    })
+    : kind === "model" ? modelRouterCandidates(state) : favoriteRouterCandidates(state, kind);
   const model = favoriteRouterModel(state, kind);
   if (!model || !config.baseUrl || config.gatewayEnabled === false) {
     throw new Error("Favorite router requires its selected app agent to have an available gateway decision model.");
   }
   if (kind === "model" && candidates.length !== chatModelCandidateIds(state).length) {
-    throw new Error("A selected routing model is no longer available for chat. Please update the model selection.");
+    throw new Error("A selected routing model is no longer available for this operation. Please update the model selection.");
   }
   if (candidates.length < 2) throw new Error(`${kind} router requires at least two available candidates.`);
   const questions: DecisionQuestion[] = [{

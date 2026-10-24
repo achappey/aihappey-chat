@@ -4,6 +4,7 @@ import { ModelFavoriteToggleButton, VideoGrid, VideoModal } from "aihappey-compo
 import { useLibraryVideos, type LibraryVideoItem } from "./useLibraryVideos";
 import { VideoInput } from "./VideoInput";
 import { ModelSelect } from "../models/ModelSelect";
+import { usePrimitiveModelSelection } from "../models/usePrimitiveModelSelection";
 import { useAppStore } from "aihappey-state";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -94,11 +95,12 @@ export const VideoPage = () => {
   const { t } = useTranslation();
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "video");
-  const [selectedModel, setSelectedModel] = useState<string>(
+  const routing = usePrimitiveModelSelection("video",
     queryModelId ??
     userPreferredVideoModel ??
     (getAccessToken ? "openai/sora-2" : "")
   );
+  const { selectedModel, setSelectedModel } = routing;
   const selectedModelOption = models?.find((model) => model.id === selectedModel);
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
@@ -263,16 +265,18 @@ export const VideoPage = () => {
   );
 
   const onSend = async (content: string) => {
+    if (routing.isRunning()) return;
     clearWarnings();
     try {
-      const merged = await createRequestHeaders(selectedModel);
+      await routing.run(content, async (modelId, abortSignal) => {
+      const merged = await createRequestHeaders(modelId);
 
       const videoProvider = createVideoProvider({
         baseUrl: config.baseUrl + (config.endpoints as any).videos,
         headers: merged,
       });
 
-      const videoModel = videoProvider.videoModel(selectedModel, maxVideosPerCall);
+      const videoModel = videoProvider.videoModel(modelId, maxVideosPerCall);
 
       setItemsStarting((prev) => prev + n);
 
@@ -335,6 +339,7 @@ export const VideoPage = () => {
       await Promise.all(Array.from({ length: batches }, async (_, index) => {
         const batchN = Math.min(max, n - index * max);
         const startResult = await videoModel.doStart!({
+          abortSignal,
           prompt: content,
           n: batchN,
           seed,
@@ -349,7 +354,7 @@ export const VideoPage = () => {
           providerOptions: providerVideoMetadata,
         } as any);
 
-        const pending = createPendingVideoOperation(startResult.operation, selectedModel, batchN);
+        const pending = createPendingVideoOperation(startResult.operation, modelId, batchN);
         replacePendingOperations((current) => [...current, pending]);
 
         addWarnings(startResult.warnings);
@@ -357,6 +362,7 @@ export const VideoPage = () => {
 
       setAttachments([]);
       clearUrlAttachments();
+      });
     } catch (err) {
       addVideoError(getStorageErrorMessage(err, "Video generation failed"));
     } finally {
@@ -411,7 +417,7 @@ export const VideoPage = () => {
           models={models ?? []}
           modelTypes={["video"]}
           value={selectedModel ?? ""}
-          onChange={setSelectedModel}
+          {...routing.selectionProps}
         />
         <div style={{ paddingLeft: 8 }}>
           <ModelFavoriteToggleButton
@@ -420,7 +426,7 @@ export const VideoPage = () => {
             isFavorite={isFavorite}
             modelName={selectedModelOption?.name ?? selectedModel}
             onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("video", selectedModel)}
-            disabled={!selectedModel}
+            disabled={!selectedModel || !routing.singleModelSelected || routing.processing}
           />
         </div>
         <div style={{ flex: 1 }} />

@@ -886,7 +886,7 @@ test("agent picker exposes only current favorites, retains real values, and opts
     const state = initialState(), helper = helpers();
     state.setSelectedAgents = values => { state.selectedAgentNames = values; };
     const { AgentSelect } = load(root + "agents/AgentSelect.tsx", {
-        react: { ...React, useMemo: factory => factory() },
+        react: { ...React, useMemo: factory => factory(), useEffect: () => {} },
         "aihappey-components": { useTheme: () => ({ Select: "Select" }) },
         "aihappey-state": { ...chatSlice, store: { setState: patch => Object.assign(state, patch) }, useAppStore: selector => selector(state) },
         "aihappey-i18n": { useTranslation: () => ({ t: (key, fallback) => fallback ?? key }) },
@@ -1177,9 +1177,9 @@ test("app-agent selectors show labels and dropdowns only; routing selections upd
     }
     for (const key of ["selectModelAgent", "selectFavoriteAgent"]) {
         const field = select(key);
-        assert.equal(field.props.disabled, false);
+        assert.notEqual(field.props.disabled, true);
         assert.deepEqual(React.Children.toArray(field.props.children).map(option => option.props.value),
-            [chatSlice.DEFAULT_SIDE_INFERENCE_AGENT_SELECTION[key], "Alpha", "Zebra"]);
+            ["", chatSlice.DEFAULT_SIDE_INFERENCE_AGENT_SELECTION[key], "Alpha", "Zebra"]);
     }
     select("selectModelAgent").props.onChange("Alpha");
     assert.equal(value.selectFavoriteAgent, "SelectFavoriteAgent");

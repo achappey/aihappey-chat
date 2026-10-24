@@ -89,9 +89,9 @@ test("SDK-created requests scope at send time and retain AzureAuth token and cus
 test("media pages and shared callers remain connected to operation/final-boundary scoping", () => {
     const base = "packages/aihappey-core/src/features/";
     for (const [file, expected] of [
-        ["speech/SpeechPage.tsx", "buildOperationHeaders(config, customHeaders, selectedModel"],
+        ["speech/SpeechPage.tsx", "buildOperationHeaders(config, customHeaders, modelId"],
         ["transcriptions/TranscriptionsPage.tsx", "buildOperationHeaders(config, customHeaders, selectedModel"],
-        ["images/ImagePage.tsx", "buildOperationHeaders(config, customHeaders, selectedModel"],
+        ["images/ImagePage.tsx", "buildOperationHeaders(config, customHeaders, modelId"],
         ["chat/input/useDictation.ts", "buildOperationHeaders(config, customHeaders, resolvedModelId"],
         ["chat/messages/useMessageSpeechPlayback.ts", "buildStreamingHeaders(config, customHeaders, model)"],
         ["transcriptions/realtime/useRealtimeTranscriptionController.ts", "buildOperationHeaders(config, customHeaders, selectedModel.id"],

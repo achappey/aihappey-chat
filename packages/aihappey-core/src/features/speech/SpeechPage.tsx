@@ -1,5 +1,6 @@
 import { buildOperationHeaders } from "../provider-credentials/scopedRequest";
 import { ModelSelect } from "../models/ModelSelect";
+import { usePrimitiveModelSelection } from "../models/usePrimitiveModelSelection";
 import { useAppStore } from "aihappey-state";
 import { useCallback, useEffect, useState } from "react";
 import { useChatContext } from "../chat/context/ChatContext";
@@ -48,8 +49,9 @@ export const SpeechPage = () => {
   const userPreferredSpeechModel = useAppStore((a) => a.userPreferredSpeechModel);
   const getAccessToken = config?.getAccessToken;
   const queryModelId = useQueryModelId(models ?? [], "speech");
-  const [selectedModel, setSelectedModel] = useState<string>(queryModelId ?? userPreferredSpeechModel ?? (getAccessToken ?
+  const routing = usePrimitiveModelSelection("speech", queryModelId ?? userPreferredSpeechModel ?? (getAccessToken ?
     "openai/gpt-4o-mini-tts" : ""));
+  const { selectedModel, setSelectedModel } = routing;
   const selectedModelOption = models?.find((model) => model.id === selectedModel);
   const headers = config?.headers;
   const getStorageErrorMessage = useStorageErrorMessage();
@@ -109,26 +111,28 @@ export const SpeechPage = () => {
 
 
   const sendSpeech = async (text: string) => {
-    if (!text) return;
+    if (!text || routing.isRunning()) return;
 
     setProcessing(true);
     setItemsLoading(1);
 
     try {
-      const merged = await buildOperationHeaders(config, customHeaders, selectedModel);
+      await routing.run(text, async (modelId, abortSignal) => {
+      const merged = await buildOperationHeaders(config, customHeaders, modelId);
 
       const provider = createSpeechProvider({
         baseUrl: config.baseUrl + config.endpoints.speech,
         headers: merged,
       });
 
-      const model = provider.speechModel(selectedModel);
+      const model = provider.speechModel(modelId);
       const scopedProviderOptions = getProviderOptionsForSelectedModel(
-        selectedModel,
+        modelId,
         providerSpeechMetadata
       );
 
       const result = await model.doGenerate({
+        abortSignal,
         text,
         voice,
         outputFormat,
@@ -137,13 +141,14 @@ export const SpeechPage = () => {
         language,
         providerOptions: scopedProviderOptions,
       });
+      abortSignal.throwIfAborted();
 
       // Surface provider warnings (do NOT clear on new send; user dismisses).
       addWarnings(result.warnings);
 
       await speech.add(
         {
-          model: selectedModel,
+          model: modelId,
           text,
           voice,
           outputFormat,
@@ -155,6 +160,7 @@ export const SpeechPage = () => {
         result
       );
       speech.refresh();
+      });
     } catch (err: any) {
       // Bubble up backend errors into page-level errors
       addError(getStorageErrorMessage(err, "Speech request failed"));
@@ -192,7 +198,7 @@ export const SpeechPage = () => {
           models={models ?? []}
           modelTypes={["speech"]}
           value={selectedModel ?? ""}
-          onChange={setSelectedModel}
+                {...routing.selectionProps}
         />
         <div style={{ paddingLeft: 8 }}>
           <ModelFavoriteToggleButton
@@ -201,7 +207,7 @@ export const SpeechPage = () => {
             isFavorite={isFavorite}
             modelName={selectedModelOption?.name ?? selectedModel}
             onToggleFavorite={() => selectedModel && toggleFavoriteModelForType("speech", selectedModel)}
-            disabled={!selectedModel}
+                disabled={!selectedModel || !routing.singleModelSelected || routing.processing}
           />
         </div>
         <div style={{ flex: 1 }} />
