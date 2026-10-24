@@ -6,6 +6,7 @@ import {
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
   defaultProviderHeaders,
   defaultProviderMetadata,
+  defaultProviderRealtimeConversationMetadata,
   defaultProviderFileMetadata,
   useAppStore,
   type ChatVerbosity,
@@ -45,6 +46,9 @@ import {
   UpstageChatConfigForm,
   SettingsActionButtons, TogetherChatConfigForm,
   ProviderSettingsTabs,
+  RealtimeProviderConfigForm,
+  hasRealtimeProviderConfig,
+  normalizeRealtimeSettingsProviderKey,
   useTheme, XAIChatConfigForm,
   RequestyChatConfigForm,
   VeniceChatConfigForm,
@@ -81,6 +85,7 @@ const hostnameOf = (url?: string) => {
 };
 
 export interface ProviderSettingsModalProps {
+  realtimeModel?: string;
   open: boolean;
   setTemperature?: any;
   temperature?: any;
@@ -110,6 +115,7 @@ type ChatSettingsDraft = {
   useToolNamespaces: boolean;
   enabledSkillIds: string[];
   providerMetadata: Record<string, any>;
+  providerRealtimeConversationMetadata: Record<string, any>;
   providerFileMetadata: ProviderFileMetadata;
   providerHeaders: Record<string, Record<string, string>>;
 };
@@ -128,6 +134,7 @@ const ProviderTabContent: React.FC<{
 };
 
 export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
+  realtimeModel,
   open,
   providerMetadata,
   providerHeaders,
@@ -150,6 +157,12 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const agents = useAppStore((a) => a.agents);
   const selectedModel = useAppStore((a) => a.selectedModel);
   const selectedChatModelIds = useAppStore((a) => a.selectedChatModelIds);
+  const providerRealtimeConversationMetadata = useAppStore((s) => s.providerRealtimeConversationMetadata);
+  const setProviderRealtimeConversationMetadata = useAppStore((s) => s.setProviderRealtimeConversationMetadata);
+  const isRealtime = realtimeModel !== undefined;
+  const realtimeProviderKey = normalizeRealtimeSettingsProviderKey(
+    getModelProviderKey(realtimeModel, models?.find((model) => model.id === realtimeModel)) ?? ""
+  );
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const setMaxOutputTokens = useAppStore((s) => s.setMaxOutputTokens);
   const structuredOutputs = useAppStore((s) => s.structuredOutputs);
@@ -204,6 +217,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       useToolNamespaces: !!useToolNamespaces,
       enabledSkillIds: [...(enabledSkillIds ?? [])],
       providerMetadata: { ...(providerMetadata ?? {}) },
+      providerRealtimeConversationMetadata: structuredClone(providerRealtimeConversationMetadata ?? {}),
       providerFileMetadata: structuredClone(providerFileMetadata ?? defaultProviderFileMetadata),
       providerHeaders: { ...(providerHeaders ?? {}) },
     }),
@@ -217,6 +231,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       maxToolCalls,
       providerHeaders,
       providerMetadata,
+      providerRealtimeConversationMetadata,
       providerFileMetadata,
       stopTools,
       structuredOutputs,
@@ -347,12 +362,25 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   );
 
   const selectedProviderKeys = useMemo(() => {
+    if (isRealtime) return realtimeProviderKey ? [realtimeProviderKey] : [];
     const ids = selectedChatModelIds ?? (selectedModel ? [selectedModel] : []);
     return Array.from(new Set(ids.map((id) => getModelProviderKey(id, models?.find((model) => model.id === id)))
       .filter((key): key is string => !!key)));
-  }, [models, selectedChatModelIds, selectedModel]);
+  }, [isRealtime, realtimeProviderKey, models, selectedChatModelIds, selectedModel]);
 
   const renderProviderForm = useCallback((providerKey: string) => {
+    if (isRealtime) {
+      return hasRealtimeProviderConfig(providerKey) ? (
+        <RealtimeProviderConfigForm
+          providerKey={providerKey}
+          providerMetadata={draft.providerRealtimeConversationMetadata}
+          setProviderMetadata={(metadata) => setDraft((current) => ({
+            ...current,
+            providerRealtimeConversationMetadata: metadata,
+          }))}
+        />
+      ) : null;
+    }
     switch (providerKey) {
       case "abliteration":
         return <AbliterationChatConfigForm config={draft.providerMetadata.abliteration ?? {}} updateConfig={providerConfigUpdaters.abliteration} />;
@@ -451,6 +479,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
         return null;
     }
   }, [
+    isRealtime,
+    draft.providerRealtimeConversationMetadata,
     chatConfig?.appName,
     draft.providerHeaders,
     draft.providerMetadata,
@@ -463,7 +493,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
 
   const providerTabs = useMemo(() => selectedProviderKeys
     .map((key) => ({ key, form: renderProviderForm(key) }))
-    .filter(({ key, form }) => form || hasProviderFileSettings(key)), [selectedProviderKeys, renderProviderForm]);
+    .filter(({ key, form }) => form || (!isRealtime && hasProviderFileSettings(key))), [isRealtime, selectedProviderKeys, renderProviderForm]);
 
   useEffect(() => {
     if (activeTab.startsWith("provider:") && !providerTabs.some(({ key }) => activeTab === `provider:${key}`)) {
@@ -513,11 +543,26 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setToolRequestConfig(draft.toolRequestConfig);
     setUseToolNamespaces(draft.useToolNamespaces);
     setEnabledSkillIds(draft.enabledSkillIds);
-    setProviderMetadata(draft.providerMetadata);
-    setProviderHeaders(draft.providerHeaders);
-    setProviderFileMetadata(draft.providerFileMetadata);
+    if (isRealtime) {
+      if (hasRealtimeProviderConfig(realtimeProviderKey)) {
+        setProviderRealtimeConversationMetadata({
+          ...(providerRealtimeConversationMetadata ?? {}),
+          [realtimeProviderKey]: draft.providerRealtimeConversationMetadata[realtimeProviderKey]
+            ?? (realtimeProviderKey === "xai" ? draft.providerRealtimeConversationMetadata.spacexai : undefined)
+            ?? {},
+        });
+      }
+    } else {
+      setProviderMetadata(draft.providerMetadata);
+      setProviderHeaders(draft.providerHeaders);
+      setProviderFileMetadata(draft.providerFileMetadata);
+    }
   }, [
     draft,
+    isRealtime,
+    realtimeProviderKey,
+    providerRealtimeConversationMetadata,
+    setProviderRealtimeConversationMetadata,
     setActivePlugins,
     setEnabledAgentPluginIds,
     setEnabledLocalTools,
@@ -544,16 +589,27 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       temperature: 1,
       verbosity: DEFAULT_CHAT_VERBOSITY,
       toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
-      providerMetadata: { ...defaultProviderMetadata },
-      providerFileMetadata: structuredClone(defaultProviderFileMetadata),
-      providerHeaders: { ...defaultProviderHeaders },
+      ...(isRealtime ? {
+        providerRealtimeConversationMetadata: {
+          ...current.providerRealtimeConversationMetadata,
+          [realtimeProviderKey]: structuredClone(
+            (defaultProviderRealtimeConversationMetadata as Record<string, any>)[realtimeProviderKey]
+              ?? (realtimeProviderKey === "xai" ? defaultProviderRealtimeConversationMetadata.spacexai : undefined)
+              ?? {}
+          ),
+        },
+      } : {
+        providerMetadata: { ...defaultProviderMetadata },
+        providerFileMetadata: structuredClone(defaultProviderFileMetadata),
+        providerHeaders: { ...defaultProviderHeaders },
+      }),
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },
       toolRequestConfig: {},
       useToolNamespaces: false,
     }));
 
     setSkillFeedback(null);
-  }, []);
+  }, [isRealtime, realtimeProviderKey]);
 
   const close = () => {
     applyDraft();
@@ -703,13 +759,13 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
           ) : null}
         </theme.Tab>
         {providerTabs.map(({ key, form }) => (
-          <theme.Tab key={key} eventKey={`provider:${key}`} title={(PROVIDERS as Record<string, any>)[key]?.name || key}>
-            {activeTab === `provider:${key}` ? <ProviderTabContent key={key} providerKey={key} form={form} fileSettings={{
+          <theme.Tab key={key} eventKey={`provider:${key}`} title={(PROVIDERS as Record<string, any>)[key]?.name || (key === "xai" ? "xAI" : key)}>
+            {activeTab === `provider:${key}` ? (isRealtime ? form : <ProviderTabContent key={key} providerKey={key} form={form} fileSettings={{
               metadata: draft.providerFileMetadata,
               updateMetadata: (update) => setDraft((current) => ({
                 ...current, providerFileMetadata: update(current.providerFileMetadata),
               })),
-            }} /> : null}
+            }} />) : null}
           </theme.Tab>
         ))}
       </theme.Tabs>

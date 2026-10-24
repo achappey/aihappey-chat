@@ -5,6 +5,7 @@ import { ChatSettingsModal } from "./ChatSettingsModal";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 
 export interface ChatSettingsButtonOptions {
+  realtimeModel?: string;
   temperature?: number;
   temperatureChanged?: any;
   resetDefaults?: any;
@@ -40,6 +41,7 @@ export const ChatSettingsButton = (props: ChatSettingsButtonOptions) => {
         title={t("chatSettings")}
       />
       <ChatSettingsModal
+        realtimeModel={props.realtimeModel}
         open={open && !showProviderKeys}
         onClose={() => setOpen(false)}
         setTemperature={temperatureChanged}

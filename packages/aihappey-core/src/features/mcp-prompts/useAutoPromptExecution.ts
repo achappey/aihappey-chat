@@ -4,6 +4,7 @@ import type { PromptWithSource } from "./PromptSelectButton";
 import { getPrompts } from "../../runtime/mcp/mcpPrompts";
 
 type UseAutoPromptExecutionProps = {
+    enabled?: boolean;
     //allPrompts: PromptWithSource[];
     onPromptExecute: (prompt: PromptWithSource, args?: Record<string, string>) => void;
     setArgumentPrompt?: (prompt: PromptWithSource | undefined) => void;
@@ -11,6 +12,7 @@ type UseAutoPromptExecutionProps = {
 };
 
 export const useAutoPromptExecution = ({
+    enabled = true,
     // allPrompts,
     onPromptExecute,
     setArgumentPrompt,
@@ -22,6 +24,7 @@ export const useAutoPromptExecution = ({
     const mcpServers = useAppStore((s) => s.mcpServers);
 
     useEffect(() => {
+        if (!enabled) return;
         const executeAutoPrompt = async () => {
             const pendingPromptName = localStorage.getItem("aihappey:pendingPromptName");
             const pendingServerUrl = localStorage.getItem("aihappey:pendingMcpServer");
@@ -85,7 +88,7 @@ export const useAutoPromptExecution = ({
 
         void executeAutoPrompt();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mcpServerContent]);
+    }, [enabled, mcpServerContent]);
 
     return { isAutoExecuting: isLoading };
 };

@@ -18,6 +18,7 @@ import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { ElicitationModalHost } from "../elicitation/ElicitationModalHost";
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
+import { urlAttachmentRuntime } from "../../runtime/files/urlAttachmentRuntime";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
 import { buildSelectedAgentRequest } from "../agents/agentSelection";
 import { useRealtimeConversationController } from "./useRealtimeConversationController";
@@ -85,7 +86,7 @@ function RealtimeStartPage() {
 
   const startConversation = useCallback(
     async (pendingMessage?: UIMessage) => {
-      if (creating) return;
+      if (creating) return false;
       setCreating(true);
       try {
         const selectedAgentRequest = buildSelectedAgentRequest(selectedAgentNames, agents, remoteAgentModels);
@@ -98,8 +99,10 @@ function RealtimeStartPage() {
             models: selectedAgentRequest.models,
           },
         });
+        return true;
       } catch (e: any) {
         addChatError(e?.message ?? "Failed to start realtime conversation");
+        return false;
       } finally {
         setCreating(false);
       }
@@ -110,9 +113,11 @@ function RealtimeStartPage() {
   const handleFirstSend = useCallback(
     async (content: string) => {
       const message = await buildFromText(content);
-      await startConversation(message);
-      fileAttachmentRuntime.clear();
-      mcpResourceRuntime.clear();
+      if (message && await startConversation(message)) {
+        fileAttachmentRuntime.clear();
+        mcpResourceRuntime.clear();
+        urlAttachmentRuntime.clear();
+      }
     },
     [buildFromText, startConversation]
   );
@@ -151,16 +156,19 @@ function RealtimeStartPage() {
         <div style={{ width: "95%" }}>
           <WelcomeMessage />
           <RealtimeInput
+            model={model}
             audioOnly={cartesiaAudioOnly}
             temperature={temperature}
             temperatureChanged={setTemperature}
-            onStart={() => startConversation()}
+            onStart={async () => { await startConversation(); }}
             onSend={handleFirstSend}
             onPromptExecute={async (prompt, args) => {
               const message = await buildFromPrompt(prompt, args);
-              await startConversation(message);
-              fileAttachmentRuntime.clear();
-              mcpResourceRuntime.clear();
+              if (message && await startConversation(message)) {
+                fileAttachmentRuntime.clear();
+                mcpResourceRuntime.clear();
+                urlAttachmentRuntime.clear();
+              }
             }}
             disabled={creating || !model}
           />
@@ -240,6 +248,7 @@ function RealtimeConversationPage() {
         await controller.sendMessage(message);
         fileAttachmentRuntime.clear();
         mcpResourceRuntime.clear();
+        urlAttachmentRuntime.clear();
       } catch (e: any) {
         addChatError(e?.message ?? "Failed to send realtime message");
       }
@@ -304,6 +313,7 @@ function RealtimeConversationPage() {
         </div>}
         <div style={{ paddingRight: 24, paddingTop: 8, boxSizing: "border-box" }}>
           <RealtimeInput
+            model={effectiveModel}
             audioOnly={cartesiaAudioOnly}
             connected={connected}
             busy={busy}
@@ -319,9 +329,11 @@ function RealtimeConversationPage() {
             temperatureChanged={setTemperature}
             onPromptExecute={async (prompt, args) => {
               const message = await buildFromPrompt(prompt, args);
-              if (message) await controller.sendMessage(message);
+              if (!message) return;
+              await controller.sendMessage(message);
               fileAttachmentRuntime.clear();
               mcpResourceRuntime.clear();
+              urlAttachmentRuntime.clear();
             }}
             disabled={!connected && controller.status !== "idle" && controller.status !== "error"}
           />

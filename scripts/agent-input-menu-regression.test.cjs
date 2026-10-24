@@ -22,13 +22,16 @@ function findAll(node, predicate) {
 function setup(chatMode = "agent") {
     const slots = [];
     let index = 0;
-    const admitted = [], addedUrls = [], executedPrompts = [], promptRequests = [], serverUpdates = [];
+    const admitted = [], addedUrls = [], executedPrompts = [], promptRequests = [], serverUpdates = [], resourceReads = [], addedResources = [];
     const state = {
         chatMode, mcpServerContent: {}, mcpServers: {}, models: [], agents: [], remoteAgentModels: [],
         selectedAgentNames: [], mcpSkills: [],
         updateMcpServers: updates => serverUpdates.push(updates),
     };
     const resourceSelect = { hasResources: false, resources: [], resourceTemplates: [], open: false };
+    resourceSelect.setOpen = value => { resourceSelect.open = value; };
+    resourceSelect.resolve = uri => ({ serverKey: "docs", resource: { uri, name: "Documentation" } });
+    resourceSelect.resolveTemplate = uriTemplate => ({ serverKey: "docs", resourceTemplate: { uriTemplate, name: "Template" } });
     const useSlot = initial => {
         const i = index++;
         if (!(i in slots)) slots[i] = initial;
@@ -55,7 +58,9 @@ function setup(chatMode = "agent") {
         "./usePromptDictationControls": { usePromptDictationControls: () => ({}) },
         "../../agents/agentSelection": { resolveSelectedAgentEntries: () => [] },
         "../../mcp-prompts/useAutoPromptExecution": { useAutoPromptExecution() {} },
-        "../../../runtime/mcp/mcpResourceRuntime": { useSelectedResources: () => [] },
+        "../../../runtime/mcp/mcpResourceRuntime": {
+            useSelectedResources: () => [], mcpResourceRuntime: { add: (...args) => addedResources.push(args) },
+        },
         "../../../runtime/files/fileAttachmentRuntime": { useFileAttachments: () => [] },
         "../../../runtime/files/urlAttachmentRuntime": {
             useUrlAttachments: () => [], urlAttachmentRuntime: { add: url => addedUrls.push(url) },
@@ -83,10 +88,26 @@ function setup(chatMode = "agent") {
         };
         mocks[modules[name] ?? `./${name}`] = { [name]: name };
     }
-    // These helpers are only used after resource selection, which remains chat-only.
-    mocks["../../../runtime/mcp/readResource"] = {};
-    mocks["./resourceTemplateUri"] = {};
+    mocks["../../../runtime/mcp/readResource"] = { readResource: async (server, uri) => {
+        resourceReads.push([server, uri]);
+        return { contents: [{ uri, text: "Resource content" }] };
+    } };
+    mocks["./resourceTemplateUri"] = {
+        extractTemplateParams: uri => [...uri.matchAll(/\{(\w+)\}/g)].map(match => match[1]),
+        applyTemplateParams: (uri, args) => uri.replace(/\{(\w+)\}/g, (_, key) => args[key]),
+    };
     mocks["../../skills/connectedMcpSkills"] = { connectedMcpSkills: () => [] };
+    const menuFilename = "packages/aihappey-core/src/features/chat/input/useChatInputMenu.tsx";
+    const menuOutput = ts.transpileModule(fs.readFileSync(path.resolve(__dirname, "..", menuFilename), "utf8"), {
+        fileName: menuFilename,
+        compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
+    }).outputText;
+    const menuModule = { exports: {} };
+    new Function("require", "module", "exports", menuOutput)(id => {
+        if (id in mocks) return mocks[id];
+        throw new Error(`Unmocked menu import ${id}`);
+    }, menuModule, menuModule.exports);
+    mocks["./useChatInputMenu"] = menuModule.exports;
     const module = { exports: {} };
     new Function("require", "module", "exports", output)(id => {
         if (id in mocks) return mocks[id];
@@ -96,14 +117,16 @@ function setup(chatMode = "agent") {
     let tree;
     const render = overrides => {
         index = 0;
-        tree = module.exports.MessageInput({ ...props, ...overrides });
+        tree = chatMode === "realtime"
+            ? menuModule.exports.useChatInputMenu({ ...props, ...overrides, mode: "realtime" }).controls
+            : module.exports.MessageInput({ ...props, ...overrides });
         return tree;
     };
     const all = type => findAll(tree, node => node.type === type);
     const one = type => { const nodes = all(type); assert.equal(nodes.length, 1, type); return nodes[0]; };
     const item = key => one("Menu").props.items.find(item => item.key === key);
     render();
-    return { render, all, one, item, state, resourceSelect, admitted, addedUrls, executedPrompts, promptRequests, serverUpdates };
+    return { render, all, one, item, state, resourceSelect, admitted, addedUrls, executedPrompts, promptRequests, serverUpdates, resourceReads, addedResources };
 }
 
 test("agent composer exposes only the four requested actions and preserves agent settings", () => {
@@ -135,7 +158,51 @@ test("regular chat retains its full menu, dialogs, settings, and resource availa
     assert.equal(h.one("ContextSearchModal").props.open, true);
 });
 
-for (const mode of ["agent", "chat"]) {
+test("realtime reuses the full normal chat plus menu independent of the stored chat mode", () => {
+    const h = setup("realtime");
+    assert.deepEqual(h.one("Menu").props.items.map(item => item.key), ["search-context", "select-file", "add-url", "prompts", "resources", "model-context"]);
+    assert.equal(h.one("Menu").props.trigger.props.icon, "add");
+    assert.equal(h.one("Menu").props.direction, "top");
+    h.one("ContextSearchModal");
+    h.one("ResourceSelectModal");
+    h.one("ResourceTemplateArgumentsModal");
+    h.render({ disabled: true });
+    assert.equal(h.one("Menu").props.trigger.props.disabled, true);
+});
+
+for (const mode of ["chat", "realtime"]) {
+    test(`${mode} menu preserves resources, resource templates, and template argument cancellation`, async () => {
+        const h = setup(mode);
+        h.resourceSelect.hasResources = true;
+        h.render();
+        h.item("resources").onClick();
+        h.render();
+        assert.equal(h.one("ResourceSelectModal").props.open, true);
+        await h.one("ResourceSelectModal").props.onSelect("docs://intro");
+        h.render();
+        assert.equal(h.one("ResourceSelectModal").props.open, false);
+        assert.deepEqual(h.resourceReads, [["docs", "docs://intro"]]);
+        assert.equal(h.addedResources[0][0].name, "Documentation");
+        await h.one("ResourceSelectModal").props.onSelectTemplate("docs://static");
+        assert.equal(h.addedResources[1][0].uri, "docs://static");
+        await h.one("ResourceSelectModal").props.onSelectTemplate("docs://{topic}");
+        h.render();
+        assert.equal(h.one("ResourceTemplateArgumentsModal").props.open, true);
+        h.one("ResourceTemplateArgumentsModal").props.onHide();
+        h.render();
+        assert.equal(h.one("ResourceTemplateArgumentsModal").props.open, false);
+        assert.equal(h.one("ResourceSelectModal").props.open, true);
+        await h.one("ResourceSelectModal").props.onSelectTemplate("docs://{topic}");
+        h.render();
+        await h.one("ResourceTemplateArgumentsModal").props.onExecute({ topic: "testing" });
+        h.render();
+        assert.equal(h.addedResources[2][0].uri, "docs://testing");
+        assert.equal(h.addedResources[2][0].name, "Template");
+        assert.deepEqual(h.resourceReads.at(-1), ["docs", "docs://testing"]);
+    });
+}
+
+for (const mode of ["agent", "chat", "realtime"]) {
     test(`${mode} menu reuses file admission, link attachments, and Model Context management`, () => {
         const h = setup(mode);
         const input = h.one("input");

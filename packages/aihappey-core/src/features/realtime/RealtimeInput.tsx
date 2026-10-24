@@ -1,25 +1,21 @@
-import { useState } from "react";
 import {
-  AttachmentButton, BrrrBadge, ContextProgressBar, FileTags,
-  ResourceSelectButton, ResourceSelectModal, ResourceTags, useTheme
+  BrrrBadge, ContextProgressBar, FileTags,
+  ResourceTags, useTheme
 } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { useAppStore } from "aihappey-state";
-import type { ResourceTemplate } from "aihappey-state";
 import { fileAttachmentRuntime, useFileAttachments } from "../../runtime/files/fileAttachmentRuntime";
 import { mcpResourceRuntime, useSelectedResources } from "../../runtime/mcp/mcpResourceRuntime";
-import { readResource } from "../../runtime/mcp/readResource";
-import { ServerSelectButton } from "../mcp-servers/ServerSelectButton";
-import { PromptSelectButton, type PromptWithSource } from "../mcp-prompts/PromptSelectButton";
 import { SystemMessageButton } from "../chat/input/system-message/SystemMessageButton";
-import { useResourceSelect } from "../chat/input/useResourceSelect";
-import { applyTemplateParams, extractTemplateParams } from "../chat/input/resourceTemplateUri";
-import { ResourceTemplateArgumentsModal } from "../chat/input/ResourceTemplateArgumentsModal";
-import { addFilesToRuntime } from "../chat/input/MessageInput";
+import type { PromptWithSource } from "../mcp-prompts/PromptSelectButton";
+import { useChatInputMenu } from "../chat/input/useChatInputMenu";
+import { ChatSettingsButton } from "../chat-settings/ChatSettingsButton";
+import { urlAttachmentRuntime, useUrlAttachments } from "../../runtime/files/urlAttachmentRuntime";
+import { UrlAttachmentTags } from "../attachments/UrlAttachmentTags";
 import { useMessageInput } from "../chat/input/useMessageInput";
-import { RealtimeSettingsButton } from "./RealtimeSettingsButton";
 
 type RealtimeInputProps = {
+  model: string;
   audioOnly?: boolean;
   disabled?: boolean;
   connected?: boolean;
@@ -42,17 +38,15 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
   const { Button, Tags, TextArea, Spinner } = useTheme();
   const { t } = useTranslation();
   const approveAll = useAppStore((s) => s.approveAll);
-  const selectedModel = useAppStore((s) => s.selectedModel);
+  const providerMetadata = useAppStore((s) => s.providerMetadata);
+  const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
+  const providerHeaders = useAppStore((s) => s.providerHeaders);
+  const setProviderHeaders = useAppStore((s) => s.setProviderHeaders);
   const maxOutputTokens = useAppStore((s) => s.maxOutputTokens);
   const models = useAppStore((s) => s.models);
-  const resourceSelect = useResourceSelect();
-  const [resourceLoading, setResourceLoading] = useState(false);
-  const [selectedResourceTemplate, setSelectedResourceTemplate] = useState<{
-    serverKey: string;
-    resourceTemplate: ResourceTemplate;
-  } | null>(null);
-  const [resourceTemplateModalOpen, setResourceTemplateModalOpen] = useState(false);
-
+  const resources = useSelectedResources(mcpResourceRuntime);
+  const fileAttachments = useFileAttachments(fileAttachmentRuntime);
+  const urlAttachments = useUrlAttachments();
   const {
     value,
     textareaRef,
@@ -62,26 +56,31 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
     handleSubmit,
     serverTags,
     disconnectServer,
+    resetChatSettings,
   } = useMessageInput({
     disabled: props.disabled || props.busy || props.audioOnly,
     onSend: async (content) => {
-      if (content.trim()) {
+      if (props.disabled || props.busy || props.audioOnly) return;
+      if (content.trim() || resources.length > 0 || fileAttachments.length > 0 || urlAttachments.length > 0) {
         await props.onSend(content);
-      } else {
+      } else if (!props.connected) {
         await props.onStart();
       }
     },
-    canSendOverride: true,
+    canSendOverride: !props.disabled && !props.busy && !props.audioOnly,
     allowEmptySubmit: true,
   });
 
-  const currentModel = models?.find(a => a.id == selectedModel);
-  const resources = useSelectedResources(mcpResourceRuntime);
-  const fileAttachments = useFileAttachments(fileAttachmentRuntime);
+  const inputMenu = useChatInputMenu({
+    mode: "realtime",
+    disabled: props.disabled || props.busy || props.audioOnly,
+    onPromptExecute: props.onPromptExecute,
+  });
+  const currentModel = models?.find(a => a.id === props.model);
   const hasText = !!value.trim();
-  const canSendActiveMessage = hasText || resources.length > 0 || fileAttachments.length > 0;
+  const canSendActiveMessage = hasText || resources.length > 0 || fileAttachments.length > 0 || urlAttachments.length > 0;
 
-  const attachmentsElement = resources.length > 0 || fileAttachments.length > 0 ? (
+  const attachmentsElement = resources.length > 0 || fileAttachments.length > 0 || urlAttachments.length > 0 ? (
     <div style={styles.tagRow}>
       {resources.length > 0 && (
         <ResourceTags resources={resources}
@@ -93,6 +92,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
           removeFile={(a) => fileAttachmentRuntime.remove(a)}
         />
       )}
+      {urlAttachments.length > 0 && <UrlAttachmentTags attachments={urlAttachments} onRemove={urlAttachmentRuntime.remove} />}
     </div>
   ) : null;
 
@@ -120,7 +120,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
           </div>
 
           <div style={styles.metaRight}>
-            {resourceLoading && <Spinner />}
+            {inputMenu.resourceLoading && <Spinner />}
             <ContextProgressBar tokenUsage={props.tokenUsage}
               max_output_tokens={maxOutputTokens ?? currentModel?.max_tokens}
               context_window={currentModel?.context_window} />
@@ -131,6 +131,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
 
       {!props.audioOnly && <TextArea
         ref={textareaRef}
+        disabled={props.disabled || props.busy}
         value={value}
         autoFocus
         onChange={handleChange}
@@ -141,102 +142,19 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
       />}
 
       <div style={styles.buttonRow}>
-        {!props.audioOnly && <div style={styles.leftGroup}>
-          <ServerSelectButton />
-
-          <PromptSelectButton
-            onPromptExecute={props.onPromptExecute}
+        <div style={styles.leftGroup}>
+          {!props.audioOnly && inputMenu.controls}
+          <ChatSettingsButton
+            realtimeModel={props.model}
+            providerMetadata={providerMetadata}
+            setProviderMetadata={setProviderMetadata}
+            providerHeaders={providerHeaders ?? {}}
+            setProviderHeaders={setProviderHeaders}
+            temperature={props.temperature}
+            temperatureChanged={props.temperatureChanged}
+            resetDefaults={resetChatSettings}
           />
-
-          <ResourceSelectButton disabled={!resourceSelect.hasResources}
-            onClick={() => resourceSelect.setOpen(true)}
-          />
-
-          <ResourceSelectModal
-            open={resourceSelect.open}
-            resources={resourceSelect.resources}
-            resourceTemplates={resourceSelect.resourceTemplates}
-            onHide={() => resourceSelect.setOpen(false)}
-            onSelect={async (uri) => {
-              resourceSelect.setOpen(false);
-              const hit = resourceSelect.resolve(uri);
-              if (!hit) return;
-
-              try {
-                setResourceLoading(true);
-                const result = await readResource(hit.serverKey, uri);
-                mcpResourceRuntime.add(hit.resource, result);
-              } finally {
-                setResourceLoading(false);
-              }
-            }}
-            onSelectTemplate={async (uriTemplate) => {
-              resourceSelect.setOpen(false);
-              const hit = resourceSelect.resolveTemplate(uriTemplate);
-              if (!hit) return;
-
-              const argNames = extractTemplateParams(uriTemplate);
-              if (argNames.length === 0) {
-                try {
-                  setResourceLoading(true);
-                  const resolvedUri = applyTemplateParams(uriTemplate, {});
-                  const result = await readResource(hit.serverKey, resolvedUri);
-                  mcpResourceRuntime.add({
-                    uri: resolvedUri,
-                    name: hit.resourceTemplate.name,
-                    title: hit.resourceTemplate.title,
-                    description: hit.resourceTemplate.description,
-                    mimeType: hit.resourceTemplate.mimeType,
-                    annotations: hit.resourceTemplate.annotations,
-                  } as any, result);
-                } finally {
-                  setResourceLoading(false);
-                }
-                return;
-              }
-
-              setSelectedResourceTemplate(hit);
-              setResourceTemplateModalOpen(true);
-            }}
-          />
-
-          <ResourceTemplateArgumentsModal
-            open={resourceTemplateModalOpen}
-            serverKey={selectedResourceTemplate?.serverKey}
-            resourceTemplate={selectedResourceTemplate?.resourceTemplate}
-            onHide={() => {
-              setResourceTemplateModalOpen(false);
-              setSelectedResourceTemplate(null);
-              resourceSelect.setOpen(true);
-            }}
-            onExecute={async (argumentsMap) => {
-              if (!selectedResourceTemplate) return;
-              const resolvedUri = applyTemplateParams(selectedResourceTemplate.resourceTemplate.uriTemplate, argumentsMap);
-
-              try {
-                setResourceLoading(true);
-                const result = await readResource(selectedResourceTemplate.serverKey, resolvedUri);
-                mcpResourceRuntime.add({
-                  uri: resolvedUri,
-                  name: selectedResourceTemplate.resourceTemplate.name,
-                  title: selectedResourceTemplate.resourceTemplate.title,
-                  description: selectedResourceTemplate.resourceTemplate.description,
-                  mimeType: selectedResourceTemplate.resourceTemplate.mimeType,
-                  annotations: selectedResourceTemplate.resourceTemplate.annotations,
-                } as any, result);
-              } finally {
-                setResourceLoading(false);
-              }
-            }}
-          />
-
-          <RealtimeSettingsButton />
-
-          <AttachmentButton
-            disabled={props.disabled}
-            onFilesSelected={addFilesToRuntime}
-          />
-        </div>}
+        </div>
 
         {!props.audioOnly && <SystemMessageButton />}
 
@@ -337,4 +255,3 @@ const styles: Record<string, React.CSSProperties> = {
     flex: 1,
   },
 };
-

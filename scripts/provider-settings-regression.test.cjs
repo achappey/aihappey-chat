@@ -346,13 +346,19 @@ function chatSettingsHarness(overrides = {}, defaults = { openai: [{ id: "image"
     setters.setProviderFileMetadata = (value) => { state.providerFileMetadata = value; };
     const store = (selector) => selector(setters);
     const local = new Proxy({}, { get: (_, name) => name });
+    const realtimeSettings = load("packages/aihappey-components/src/modals/RealtimeSettingsModal.tsx", {
+        react: h.react, "aihappey-i18n": i18n, "../buttons": local, "../forms": local,
+        "../theme/ThemeContext": components,
+    });
+    const realtimeDefaults = load("packages/aihappey-state/src/slices/defaultProviderRealtimeMetadata.ts").defaultProviderRealtimeConversationMetadata;
+    const chatComponents = new Proxy({ useTheme: components.useTheme, ...realtimeSettings }, { get: (target, name) => target[name] ?? name });
     const fileSettings = load("packages/aihappey-core/src/features/providers/ProviderFileSettings.tsx", {
         react: React, "aihappey-components": components, "aihappey-i18n": i18n,
         "aihappey-state": { useAppStore: store, defaultProviderFileMetadata: defaults },
     });
     const { ChatSettingsModal } = load("packages/aihappey-core/src/features/chat-settings/ChatSettingsModal.tsx", {
-        react: h.react, "aihappey-components": components, "aihappey-i18n": i18n,
-        "aihappey-state": { useAppStore: store, defaultProviderFileMetadata: defaults, defaultProviderMetadata: {}, defaultProviderHeaders: {} },
+        react: h.react, "aihappey-components": chatComponents, "aihappey-i18n": i18n,
+        "aihappey-state": { useAppStore: store, defaultProviderFileMetadata: defaults, defaultProviderMetadata: {}, defaultProviderHeaders: {}, defaultProviderRealtimeConversationMetadata: realtimeDefaults },
         "aihappey-types": load("packages/aihappey-types/src/modelIdentity.ts"),
         "./GeneralTab": local, "./ToolsTab": local, "./ToolConfigurationTab": local, "./ChatSkillsEditor": local, "./ChatPluginsEditor": local,
         "../provider-config/google/GoogleChatConfig": local,
@@ -486,6 +492,91 @@ test("switching provider tabs preserves isolated chat, header and file drafts an
     assert.deepEqual(h.savedChat, {});
     assert.deepEqual(h.savedHeaders, {});
     assert.deepEqual(h.state.providerFileMetadata, defaults);
+});
+
+test("realtime settings retains normal settings tabs but shows only the effective realtime provider", () => {
+    const providers = [
+        ["openai", "OpenAIRealtimeConversationConfigForm"], ["google", "GoogleRealtimeConversationConfigForm"],
+        ["xai", "XAIRealtimeConversationConfigForm"], ["assemblyai", "AssemblyAIRealtimeConversationConfigForm"],
+        ["agentphone", "Card"], ["cartesia", "Card"],
+    ];
+    for (const [provider, form] of providers) {
+        const h = chatSettingsHarness({
+            selectedModel: "mistral/chat", selectedChatModelIds: ["mistral/chat", "anthropic/chat"],
+            enabledProvidersByType: { audio: ["OpenAI", "Google", "xAI"] },
+        });
+        h.props.realtimeModel = `${provider}/realtime`;
+        const modal = h.render();
+        assert.deepEqual(h.tabs(modal).map(tab => tab.props.eventKey), [`provider:${provider}`]);
+        const tabKeys = children(find(modal, node => node.type === "Tabs")).map(tab => tab.props.eventKey);
+        for (const key of ["general", "tools", "tool-configuration", "skills", "agent-plugins"]) assert.ok(tabKeys.includes(key));
+        assert.equal(h.rail(h.select(provider)).type, form);
+    }
+});
+
+test("realtime provider selection follows model switching and explicit provider identity, never unrelated chat models", () => {
+    const h = chatSettingsHarness({ models: [{ id: "alias/live", sourceProviderKey: " Google " }] });
+    h.props.realtimeModel = "alias/live";
+    assert.deepEqual(h.tabs(h.render()).map(tab => tab.props.eventKey), ["provider:google"]);
+    h.select("google");
+    h.props.realtimeModel = "openai/realtime";
+    const modal = h.render();
+    assert.deepEqual(h.tabs(modal).map(tab => tab.props.eventKey), ["provider:openai"]);
+    assert.equal(find(modal, node => node.type === "Tabs").props.activeKey, "general");
+    for (const model of ["unknown/live", "opperai/live", ""]) {
+        h.props.realtimeModel = model;
+        assert.deepEqual(h.tabs(h.render()), []);
+    }
+});
+
+test("realtime settings stages edits and restores only the active provider without touching chat configuration", () => {
+    const saved = { google: { cameraFrameRate: 1 }, openai: { session: { voice: "marin" } }, custom: { keep: true } };
+    const h = chatSettingsHarness({ providerRealtimeConversationMetadata: structuredClone(saved) });
+    h.props.realtimeModel = "google/live";
+    h.props.providerMetadata = { openai: { reasoning: { effort: "high" } } };
+    h.props.providerHeaders = { openai: { keep: "header" } };
+    find(h.render(), node => node.type === "GeneralTab").props.setMaxOutputTokens(456);
+    let form = h.rail(h.select("google"));
+    form.props.updateConfig({ cameraFrameRate: 3, session: { voice: "test" } });
+    let modal = h.render();
+    assert.deepEqual(h.state.providerRealtimeConversationMetadata, saved);
+    assert.equal(h.calls.setProviderRealtimeConversationMetadata, undefined);
+    assert.equal(h.rail(modal).props.config.cameraFrameRate, 3);
+    modal.props.onHide();
+    assert.equal(h.calls.setMaxOutputTokens, 456);
+    assert.deepEqual(h.calls.setProviderRealtimeConversationMetadata, {
+        ...saved, google: { cameraFrameRate: 3, session: { voice: "test" } },
+    });
+    assert.equal(h.savedChat, undefined);
+    assert.equal(h.savedHeaders, undefined);
+    const fileOptions = structuredClone(h.state.providerFileMetadata);
+    modal.props.actions.props.onRestoreDefaults();
+    modal = h.render();
+    assert.equal(h.calls.setProviderRealtimeConversationMetadata.google.cameraFrameRate, 3);
+    modal.props.actions.props.onClose();
+    const defaults = load("packages/aihappey-state/src/slices/defaultProviderRealtimeMetadata.ts").defaultProviderRealtimeConversationMetadata;
+    assert.deepEqual(h.calls.setProviderRealtimeConversationMetadata.google, defaults.google);
+    assert.deepEqual(h.calls.setProviderRealtimeConversationMetadata.openai, saved.openai);
+    assert.deepEqual(h.calls.setProviderRealtimeConversationMetadata.custom, saved.custom);
+    assert.deepEqual(h.state.providerFileMetadata, fileOptions);
+    assert.equal(h.savedChat, undefined);
+});
+
+test("xAI settings accepts its legacy identity and restores legacy defaults under the runtime key", () => {
+    const h = chatSettingsHarness({ providerRealtimeConversationMetadata: { spacexai: { session: { voice: "legacy" } }, google: { keep: true } } });
+    h.props.realtimeModel = "spacexai/live";
+    assert.deepEqual(h.tabs(h.render()).map(tab => tab.props.eventKey), ["provider:xai"]);
+    let modal = h.select("xai");
+    assert.equal(h.rail(modal).props.config.session.voice, "legacy");
+    h.rail(modal).props.updateConfig({ session: { voice: "eve" } });
+    modal = h.render();
+    modal.props.onHide();
+    assert.equal(h.calls.setProviderRealtimeConversationMetadata.xai.session.voice, "eve");
+    assert.equal(h.calls.setProviderRealtimeConversationMetadata.google.keep, true);
+    modal.props.actions.props.onRestoreDefaults();
+    h.render().props.onHide();
+    const defaults = load("packages/aihappey-state/src/slices/defaultProviderRealtimeMetadata.ts").defaultProviderRealtimeConversationMetadata;
+    assert.deepEqual(h.calls.setProviderRealtimeConversationMetadata.xai, defaults.spacexai);
 });
 
 test("new file parts use latest saved options after async extraction; sent parts remain immutable", async () => {
