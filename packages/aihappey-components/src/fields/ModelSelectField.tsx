@@ -10,6 +10,8 @@ export type ProviderOption = {
 
 export type ModelSelectFieldProps = {
   models: ModelOption[];
+  /** Opt-in saved selections that must remain available for explicit deselection. */
+  selectedOptions?: ModelOption[];
   value: string;
   values?: string[];
   multiselect?: boolean;
@@ -54,6 +56,7 @@ const getModelOptionValue = (model: ModelOption) => JSON.stringify([model.type, 
 
 export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   models,
+  selectedOptions = [],
   value,
   values,
   multiselect = false,
@@ -93,6 +96,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     .map(([type, keys]) => [type, new Set(keys)]));
 
   const favoriteSet = new Set((favoriteModelIds ?? []).filter(Boolean));
+  const selectedIds = multiselect ? values ?? [] : [value];
 
   const visibleModels = (models ?? []).filter((m) => {
     if (!modelTypes.includes(m.type)) return false;
@@ -104,6 +108,13 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     const enabled = enabledSetsByType.get(m.type) ?? enabledSet;
     return !enabled || (!!providerKey && enabled.has(providerKey));
   });
+  // Agent editors need to uncheck saved models even when their provider is disabled
+  // or the model is no longer in the catalog. Other pickers keep their normal filters.
+  for (const model of selectedOptions) {
+    if (selectedIds.includes(model.id) && !visibleModels.some(option => option.id === model.id)) {
+      visibleModels.push(model);
+    }
+  }
 
   const providerLabelByKey = new Map(providers.map((p) => [p.key, p.label]));
   const favoriteModels = visibleModels.filter((model) => favoriteSet.has(model.id));
@@ -126,7 +137,6 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   const modelIdByOptionValue = new Map(
     visibleModels.map((model) => [getModelOptionValue(model), model.id]),
   );
-  const selectedIds = multiselect ? values ?? [] : [value];
   const visibleModelById = new Map(visibleModels.map(model => [model.id, model]));
   const modelById = new Map((models ?? []).map(model => [model.id, model]));
   const selectedOptionValues = selectedIds.map(id => {

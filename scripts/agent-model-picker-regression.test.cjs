@@ -60,6 +60,7 @@ function find(node, predicate) {
 function harness(initialAgent = {}, models = catalog, settings = {}, isEditing = true) {
     let agent = { name: "Example", description: "Example agent", instructions: "Help", ...initialAgent };
     const slots = [];
+    const effects = [];
     let index = 0;
     const react = {
         useState(initial) {
@@ -68,7 +69,7 @@ function harness(initialAgent = {}, models = catalog, settings = {}, isEditing =
             return [slots[slot], value => { slots[slot] = typeof value === "function" ? value(slots[slot]) : value; }];
         },
         useMemo: factory => factory(),
-        useEffect() {},
+        useEffect(effect) { effects.push(effect); },
     };
     const state = { models, agents: [], remoteAgentModels: [], mcpServerContent: {}, modelsLoaded: true,
         enabledProvidersByType: { language: ["OpenAI", "Other"], decision: ["Router"] }, favoriteModelsByType: {}, ...settings };
@@ -109,6 +110,7 @@ function harness(initialAgent = {}, models = catalog, settings = {}, isEditing =
             return AgentForm({ agent, isEditing, onChange: update => { agent = typeof update === "function" ? update(agent) : update; } });
         },
         get agent() { return agent; },
+        async flushEffects() { for (const effect of effects.splice(0)) await effect(); },
         state,
         setModels(next) { state.models = next; },
     };
@@ -240,6 +242,7 @@ test("agent reuses the chat model picker with active-provider filtering, groupin
     assert.deepEqual(options(select), [
         { value: "openai/first", label: "First answer" },
         { value: "other/second", label: "Second answer" },
+        { value: "router/decision", label: "Router" },
     ]);
     assert.ok(find(select, node => node.type === "optgroup" && node.props.label === "OpenAI"));
     assert.equal(select.props.onFilter, undefined);
@@ -247,7 +250,7 @@ test("agent reuses the chat model picker with active-provider filtering, groupin
     assert.equal(find(node, child => child.props.children === "agentEdit.modelRoutingHint"), undefined);
 });
 
-test("agent separates required decision selection from answer multiselect and clears it below two answers", () => {
+test("agent separates routing selection and retains it visibly until explicitly removed below two answers", () => {
     const original = { id: "openai/first", type: "language", providerMetadata: { configured: true }, providerHeaders: { "x-custom": "value" } };
     const h = harness({ model: original });
     assert.equal(picker(h.render(), "agentEdit.decisionModel"), undefined);
@@ -266,22 +269,27 @@ test("agent separates required decision selection from answer multiselect and cl
     assert.deepEqual(selectedIds(picker(h.render())), ["openai/first", "other/second"]);
     assert.deepEqual(selectedIds(picker(h.render(), "agentEdit.decisionModel")), ["router/decision"]);
     toggle(picker(h.render()), "other/second");
-    assert.deepEqual(h.agent.models.map(model => model.id), ["openai/first"]);
+    assert.deepEqual(h.agent.models.map(model => model.id), ["openai/first", "router/decision"]);
+    assert.deepEqual(selectedIds(picker(h.render())), ["openai/first", "router/decision"]);
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), false);
+    assert.equal(find(h.render(), node => node.props.role === "status" && node.props.children === "agentEdit.invalidModelCombination"), undefined);
     assert.equal(picker(h.render(), "agentEdit.decisionModel"), undefined);
     assert.deepEqual(h.agent.model, original);
+    toggle(picker(h.render()), "router/decision");
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), true);
     toggle(picker(h.render()), "openai/first");
     assert.deepEqual(h.agent.models, []);
     assert.equal(h.agent.model, undefined);
 });
 
-test("saved selections retain their title and configuration without injecting disabled or missing models into the list", () => {
+test("saved selections remain in the dropdown for explicit removal without changing their configuration", () => {
     const h = harness({ models: [{ id: "retired/model" }, { id: "direct/model" }, { id: "openai/first" }] });
     const values = options(picker(h.render())).map(option => option.value);
-    assert.deepEqual(values, ["openai/first", "other/second"]);
+    assert.deepEqual(new Set(values), new Set(["openai/first", "other/second", "router/decision", "retired/model", "direct/model"]));
     assert.equal(new Set(values).size, values.length);
     assert.match(picker(h.render()).props.valueTitle, /retired\/model/);
     h.setModels(undefined);
-    assert.deepEqual(options(picker(h.render())), []);
+    assert.deepEqual(new Set(options(picker(h.render())).map(option => option.value)), new Set(["retired/model", "direct/model", "openai/first"]));
     assert.deepEqual(h.agent.models.map(model => model.id), ["retired/model", "direct/model", "openai/first"]);
     assert.equal(h.agent.model, undefined);
 });
@@ -306,7 +314,7 @@ test("new agents can select models and the provider settings picker renders and 
 test("a large local catalogue renders only enabled-provider models and reacts to local provider settings", () => {
     const disabledModels = Array.from({ length: 12000 }, (_, index) => ({ id: `disabled/${index}`, name: `Disabled ${index}`, type: "language" }));
     const h = harness({}, [...catalog, ...disabledModels]);
-    assert.equal(options(picker(h.render())).length, 2);
+    assert.equal(options(picker(h.render())).length, 3);
     h.state.enabledProvidersByType = { language: ["OpenAI"], decision: [] };
     assert.deepEqual(options(picker(h.render())).map(option => option.value), ["openai/first"]);
     h.state.enabledProvidersByType = { language: [], decision: [] };
@@ -320,7 +328,7 @@ test("provider filters remain independent by type and favorites follow the same 
         { id: "disabled/favorite", name: "Favorite", type: "language" },
     ], { enabledProvidersByType: { language: ["OpenAI"], decision: ["Router"] }, favoriteModelsByType: { language: ["disabled/favorite"] } });
     const select = picker(h.render());
-    assert.deepEqual(options(select).map(option => option.value), ["disabled/favorite", "openai/first"]);
+    assert.deepEqual(options(select).map(option => option.value), ["disabled/favorite", "openai/first", "router/decision"]);
     assert.ok(find(select, node => node.type === "optgroup" && node.props.label === "favorites"));
     toggle(select, "disabled/favorite"); toggle(picker(h.render()), "openai/first");
     assert.deepEqual(options(picker(h.render(), "agentEdit.decisionModel")).map(option => option.value), ["router/decision"]);
@@ -490,7 +498,7 @@ test("existing multi-answer agents need exactly one router and disabled Save can
     const base = { name: "Saved", description: "Description", instructions: "Help" };
     const answers = [{ id: "openai/first" }, { id: "other/second" }];
     const router = { id: "router/decision", type: "decision" };
-    for (const models of [answers, [...answers, router, { id: "router/extra", type: "decision" }], [router], []]) {
+    for (const models of [answers, [...answers, router, { id: "router/extra", type: "decision" }], [answers[0], router], [router, { id: "router/extra", type: "decision" }], []]) {
         const modal = modalHarness({ ...base, models });
         const save = saveButton(modal.render());
         assert.equal(save.props.disabled, true);
@@ -515,7 +523,7 @@ test("catalog fallback recognizes legacy routers; saved unavailable routers rema
     const modal = modalHarness(h.agent);
     assert.equal(saveButton(modal.render()).props.disabled, false);
     saveButton(modal.render()).props.onClick();
-    assert.deepEqual(modal.saved[0].models[2], { ...legacyRouter, type: "decision" });
+    assert.deepEqual(modal.saved[0].models[2], legacyRouter);
     const missing = { id: "retired/router", type: "decision", providerMetadata: { custom: true } };
     const saved = harness({ models: [...answers, missing] }, undefined);
     saved.setModels(undefined);
@@ -524,14 +532,128 @@ test("catalog fallback recognizes legacy routers; saved unavailable routers rema
     assert.equal(editorModels.hasValidAgentEditorModels(saved.agent), true);
     assert.deepEqual(saved.agent.models[2], missing);
     const single = editorModels.setAgentEditorModels(saved.agent, [answers[0], missing]);
-    assert.deepEqual(single.models, [answers[0]]);
+    assert.deepEqual(single.models, [answers[0], missing]);
+    assert.equal(editorModels.hasValidAgentEditorModels(single), false);
     assert.deepEqual(editorModels.setAgentEditorModels({ ...single, model: answers[0] }, []).models, []);
 });
 
-test("Decision model labels and required feedback are localized in English and Dutch", () => {
+test("Decision model labels are localized in English and Dutch", () => {
     for (const [locale, label] of [["en", "Decision"], ["nl", "Beslissing"]]) {
         const text = JSON.parse(fs.readFileSync(`packages/aihappey-i18n/src/locales/${locale}/${locale}.json`, "utf8").replace(/^\uFEFF/, ""));
         assert.equal(text.agentEdit.decisionModel, label);
-        assert.ok(text.agentEdit.decisionModelRequired.length > 0);
+    }
+});
+
+test("decision-only agents open and save unchanged in legacy, collection, and combined formats", async () => {
+    const decision = { id: "router/decision", type: "decision", providerMetadata: { custom: true },
+        providerHeaders: { "x-keep": "yes" }, futureModel: { keep: 7 } };
+    for (const configuration of [{ model: decision }, { models: [decision] }, { model: decision, models: [decision] },
+        { model: { ...decision, type: undefined } }]) {
+        for (const models of [catalog, [], undefined]) {
+            const h = harness({ ...configuration, future: { keep: true } });
+            h.setModels(models);
+            const original = JSON.stringify(h.agent);
+            const tree = h.render();
+            await h.flushEffects();
+            assert.equal(JSON.stringify(h.agent), original, "opening and effects must not rewrite the configuration");
+            assert.deepEqual(selectedIds(picker(tree)), [decision.id]);
+            assert.equal(picker(tree, "agentEdit.decisionModel"), undefined);
+            const modal = modalHarness(h.agent, models);
+            const save = saveButton(modal.render());
+            assert.equal(save.props.disabled, false);
+            save.props.onClick();
+            assert.equal(JSON.stringify(modal.saved[0]), original);
+        }
+    }
+});
+
+test("decision-only create, edit, clear, and language transitions never replace or discard retained models", () => {
+    const h = harness();
+    toggle(picker(h.render()), "router/decision");
+    const decision = h.agent.models[0];
+    assert.equal(decision.type, "decision");
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), true);
+    assert.equal(picker(h.render(), "agentEdit.decisionModel"), undefined);
+    const settings = find(h.render(), node => node.type === "Select" && node.props.label === "model");
+    assert.deepEqual(settings.props.values, [decision.id]);
+    toggle(picker(h.render()), "openai/first");
+    assert.deepEqual(h.agent.models[0], decision);
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), false);
+    assert.equal(picker(h.render(), "agentEdit.decisionModel"), undefined);
+    toggle(picker(h.render()), "other/second");
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), true);
+    assert.deepEqual(h.agent.models[0], decision);
+    assert.deepEqual(selectedIds(picker(h.render(), "agentEdit.decisionModel")), [decision.id]);
+    toggle(picker(h.render()), "openai/first");
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), false);
+    toggle(picker(h.render()), "other/second");
+    assert.deepEqual(h.agent.models, [decision]);
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), true);
+    toggle(picker(h.render()), decision.id);
+    assert.deepEqual(h.agent.models, []);
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), false);
+});
+
+test("unavailable or disabled saved decisions can be unchecked in the dropdown without badges", () => {
+    const decision = { id: "router/decision", type: "decision", providerHeaders: { "x-keep": "yes" } };
+    for (const models of [catalog, []]) {
+        const h = harness({ models: [{ id: "openai/first" }, decision] }, models,
+            { enabledProvidersByType: { language: ["OpenAI"], decision: [] } });
+        const tree = h.render();
+        assert.ok(options(picker(tree)).some(option => option.value === decision.id));
+        assert.deepEqual(selectedIds(picker(tree)), ["openai/first", decision.id]);
+        assert.equal(find(tree, node => node.type === "Tags" && node.props.items.some(item => item.key === decision.id)), undefined);
+        toggle(picker(tree), decision.id);
+        assert.deepEqual(h.agent.models, [{ id: "openai/first" }]);
+        assert.equal(editorModels.hasValidAgentEditorModels(h.agent, models), true);
+        assert.ok(!options(picker(h.render())).some(option => option.value === decision.id), "unselected disabled or missing models stay filtered out");
+    }
+});
+
+test("primary-model synchronization preserves decision metadata and legacy-field presence", () => {
+    const decision = { id: "router/decision", type: "decision", providerMetadata: { future: true } };
+    assert.deepEqual(agentModels.getPrimaryAgentModel({ models: [decision] }), decision);
+    for (const base of [{ model: decision }, { models: [decision] }]) {
+        const changed = editorModels.setAgentEditorModels(base, [{ ...decision, providerHeaders: { "x-new": "yes" } }], catalog);
+        assert.deepEqual(changed.models[0].providerMetadata, decision.providerMetadata);
+        assert.deepEqual(changed.model, base.model ? changed.models[0] : undefined);
+    }
+});
+
+test("editing standalone decision provider settings retains its type and legacy primary configuration", () => {
+    const decision = { id: "openai/decision", type: "decision", future: 7, providerHeaders: { "x-keep": "yes" } };
+    const h = harness({ model: decision });
+    const form = find(h.render(), node => node.type === "OpenAIChatConfigForm");
+    form.props.updateConfig({ reasoning: { effort: "low" }, future: true });
+    assert.deepEqual(h.agent.models, [{ ...decision, providerMetadata: { reasoning: { effort: "low" }, future: true } }]);
+    assert.deepEqual(h.agent.model, h.agent.models[0]);
+    assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), true);
+});
+
+test("catalog type collisions prefer saved types, or language for untyped legacy models", () => {
+    const sharedCatalog = [{ id: "shared/model", type: "decision" }, { id: "shared/model", type: "language" }];
+    assert.equal(editorModels.getAgentEditorModels({ models: [{ id: "shared/model" }] }, sharedCatalog).answers.length, 1);
+    assert.equal(editorModels.getAgentEditorModels({ models: [{ id: "shared/model", type: "decision" }] }, sharedCatalog).decisions.length, 1);
+});
+
+test("model fields have no badges or explanatory paragraph while routing remains required and Save stays guarded", () => {
+    const answers = [{ id: "openai/first", type: "language" }, { id: "other/second", type: "language" }];
+    for (const models of [answers, [...answers, { id: "router/decision", type: "decision" }], [answers[0], { id: "router/decision", type: "decision" }]]) {
+        const h = harness({ models });
+        const tree = h.render();
+        const general = find(tree, node => node.type === "Tab" && node.props.eventKey === "general");
+        assert.equal(find(general, node => node.type === "Tags"), undefined);
+        assert.equal(find(general, node => node.props.role === "status"), undefined);
+        assert.equal(picker(tree).props.required, true);
+        if (models.length === 2 && models[1].type === "decision") {
+            assert.equal(picker(tree, "agentEdit.decisionModel"), undefined);
+        } else {
+            assert.equal(picker(tree, "agentEdit.decisionModel").props.required, true);
+        }
+        const modal = modalHarness(h.agent);
+        const save = saveButton(modal.render());
+        assert.equal(save.props.disabled, models.length !== 3);
+        save.props.onClick();
+        assert.equal(modal.saved.length, models.length === 3 ? 1 : 0);
     }
 });

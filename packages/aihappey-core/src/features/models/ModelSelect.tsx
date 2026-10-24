@@ -19,6 +19,7 @@ const newestModelOfTypes = (models: ModelOption[], modelTypes: string[]) => {
 
 interface ModelSelectProps {
   models: ModelOption[];
+  selectedOptions?: ModelOption[];
   value: string;
   values?: string[];
   multiselect?: boolean;

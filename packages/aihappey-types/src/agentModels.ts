@@ -15,4 +15,4 @@ export const getAgentCredentialModels = (agent?: Pick<Agent, "model" | "models">
   [...getAgentModels(agent), ...(agent?.model?.id ? [agent.model] : [])];
 
 export const getPrimaryAgentModel = (agent?: Pick<Agent, "model" | "models">): AiModel | undefined =>
-  getAgentModels(agent).find(model => model.type !== "decision") ?? agent?.model;
+  getAgentModels(agent).find(model => model.type !== "decision") ?? getAgentModels(agent)[0] ?? agent?.model;

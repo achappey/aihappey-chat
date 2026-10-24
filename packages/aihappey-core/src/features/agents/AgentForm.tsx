@@ -61,7 +61,7 @@ const AGENT_TOOL_SEARCH_TOGGLE_ID = "client-tool-search";
 const AGENT_RESOURCE_SEARCH_TOGGLE_ID = "client-resource-search";
 const ALL_MCP_TOOLS = "__agent_all_mcp_tools__";
 const NO_MCP_TOOLS = "__agent_no_mcp_tools__";
-const AGENT_MODEL_TYPES = ["language"];
+const AGENT_MODEL_TYPES = ["language", "decision"];
 const DECISION_MODEL_TYPES = ["decision"];
 
 export interface AgentFormProps {
@@ -638,15 +638,14 @@ export const AgentForm = ({
 
     const selectedModels = getAgentModels(agent);
     const { answers: answerModels, decisions: decisionModels } = getAgentEditorModels(agent, models);
+    // A single router belongs in Models. Only a unique routing decision for multiple
+    // answers is represented exclusively by the separate selector.
+    const mainModels = answerModels.length > 1 && decisionModels.length === 1 ? answerModels : selectedModels;
+    const routingIds = new Set(selectedModels.filter(model => !mainModels.includes(model)).map(model => model.id));
     const availableModels = useMemo(() => (models ?? []).filter(model => model.route !== "direct"), [models]);
     const settingsModel = selectedModels.find(model => model.id === settingsModelId) ?? selectedModels[0];
     const setModelConfigurations = (current: Agent, configurations: AiModel[]): Agent =>
         setAgentEditorModels(current, configurations, models);
-    useEffect(() => {
-        if (answerModels.length <= 1 && decisionModels.length > 0) {
-            onChange(current => setAgentEditorModels(current, getAgentModels(current), models));
-        }
-    }, [agent, models, onChange]);
     const updateSettingsModel = (patch: Partial<AiModel>) => onChange(current =>
         setModelConfigurations(current, getAgentModels(current).map(model =>
             model.id === settingsModel?.id ? { ...model, ...patch } : model)));
@@ -783,17 +782,23 @@ export const AgentForm = ({
                     />
                     <ModelSelect
                         label={t('models')}
-                        models={availableModels}
+                        models={availableModels.filter(model => !routingIds.has(model.id))}
+                        selectedOptions={mainModels.map(model => {
+                            const type = model.type ?? (decisionModels.includes(model) ? "decision" : "language");
+                            return availableModels.find(option => option.id === model.id && option.type === type)
+                                ?? { id: model.id, name: model.id, type, owned_by: "", tags: [] };
+                        })}
                         modelTypes={AGENT_MODEL_TYPES}
-                        value={answerModels[0]?.id ?? ""}
-                        values={answerModels.map(model => model.id)}
+                        value={mainModels[0]?.id ?? ""}
+                        values={mainModels.map(model => model.id)}
                         multiselect
                         required
                         autoSelectFallback={false}
                         onChange={(value: string) => onChange(current => {
                             const selected = getAgentModels(current);
-                            const info = models?.find(model => model.id === value && model.type === "language");
-                            if (info?.type !== "language" && !getAgentEditorModels(current, models).answers.some(model => model.id === value)) return current;
+                            const info = availableModels.find(model => model.id === value && model.type === "language")
+                                ?? availableModels.find(model => model.id === value && model.type === "decision");
+                            if (!info && !selected.some(model => model.id === value)) return current;
                             const next = selected.some(model => model.id === value)
                                 ? selected.filter(model => model.id !== value)
                                 : [...selected, { id: value, type: info?.type,
@@ -812,13 +817,19 @@ export const AgentForm = ({
                             onChange={(value: string) => onChange(current => {
                                 const info = availableModels.find(model => model.id === value && model.type === "decision");
                                 if (value && !info) return current;
-                                const { answers, decisions } = getAgentEditorModels(current, models);
+                                const selected = getAgentModels(current);
+                                const { decisions } = getAgentEditorModels(current, models);
                                 const existing = decisions.find(model => model.id === value);
-                                const decision = value ? { ...(existing ?? {
+                                const decision = value ? existing ?? {
                                     id: value,
+                                    type: "decision",
                                     providerMetadata: resolveAgentModelProviderMetadata({ nextModelId: value }),
-                                }), type: "decision" } : undefined;
-                                return setModelConfigurations(current, [...answers, ...(decision ? [decision] : [])]);
+                                } : undefined;
+                                // Retained models keep their order and opaque configuration. Only
+                                // an explicit router replacement removes the previous decisions.
+                                const next = selected.filter(model => !decisions.includes(model) || model === existing);
+                                if (decision && !existing) next.push(decision);
+                                return setModelConfigurations(current, next);
                             })}
                         />
                     </>}

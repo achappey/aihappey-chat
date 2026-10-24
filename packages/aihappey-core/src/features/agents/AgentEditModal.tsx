@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
-import { getAgentModels, type Agent } from "aihappey-types";
+import { type Agent } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
-import { hasValidAgentEditorModels, setAgentEditorModels } from "./agentEditorModels";
+import { hasValidAgentEditorModels } from "./agentEditorModels";
 import { AgentForm } from "./AgentForm";
 import { CancelButton } from "../../ui/buttons/CancelButton";
 
@@ -47,7 +47,7 @@ export const AgentEditModal = ({ open, onClose, agent, isEditing, onSave }: Agen
             actions={<>
                 <CancelButton onClick={onClose} />
                 <Button disabled={!isValid || busy}
-                    onClick={() => isValid && !busy && onSave(setAgentEditorModels(draft, getAgentModels(draft), models))}>{t("save")}</Button>
+                    onClick={() => isValid && !busy && onSave(draft)}>{t("save")}</Button>
             </>}
             title={isEditing ? t('agentEdit.edit') : t('agentEdit.create')}>
             <AgentForm agent={draft}

@@ -131,7 +131,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
 
       {!props.audioOnly && <TextArea
         ref={textareaRef}
-        disabled={props.disabled || props.busy}
+        readOnly={props.disabled || props.busy}
         value={value}
         autoFocus
         onChange={handleChange}
