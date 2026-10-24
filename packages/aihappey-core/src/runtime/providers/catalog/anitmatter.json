@@ -1,0 +1,16 @@
+
+{
+  "name": "Antimatter",
+  "description": "Every model is a planet. Antimatter is the drive: chart every language model, talk to any of them, then build on one OpenAI-compatible API behind a key your wallet mints.",
+  "urls": {
+    "homepage": "https://useantimatter.com",
+    "docs": "https://useantimatter.com/docs",
+    "pricing": "https://useantimatter.com/pricing",
+    "privacyPolicy": "https://useantimatter.com/privacy",
+    "console": "https://useantimatter.com/dashboard"
+  },
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}

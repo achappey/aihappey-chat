@@ -19,7 +19,7 @@
     "id": "humanbrowser",
     "file": "humanbrowser.json"
   },
-    {
+  {
     "id": "docketrouter",
     "file": "docketrouter.json"
   },
@@ -318,12 +318,16 @@
   {
     "id": "merge",
     "file": "merge.json"
-  }, 
+  },
+  {
+    "id": "antimatter",
+    "file": "antimatter.json"
+  },
   {
     "id": "zyloapi",
     "file": "zyloapi.json"
   },
-   {
+  {
     "id": "lovelyrouter",
     "file": "lovelyrouter.json"
   },
