@@ -2524,6 +2524,10 @@
     "file": "wavespeed.json"
   },
   {
+    "id": "lightcone",
+    "file": "lightcone.json"
+  },
+  {
     "id": "lighton",
     "file": "lighton.json"
   },

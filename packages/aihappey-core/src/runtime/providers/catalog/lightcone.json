@@ -1,0 +1,17 @@
+{
+  "name": "Lightcone",
+  "description": "Build real computer use agents with Lightcone-1, optimized for speed and accuracy. Used by 800+ developer teams.",
+  "urls": {
+    "homepage": "https://lightcone.ai",
+    "docs": "https://docs.lightcone.ai",
+    "pricing": "https://docs.lightcone.ai/guides/pricing",
+    "privacyPolicy": "https://www.tzafon.ai/legal",
+    "termsOfService": "https://lightcone.ai/terms_of_service",
+    "console": "https://lightcone.ai/dashboard"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}
