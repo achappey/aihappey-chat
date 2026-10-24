@@ -318,11 +318,7 @@
   {
     "id": "merge",
     "file": "merge.json"
-  },
-  {
-    "id": "virouter",
-    "file": "virouter.json"
-  },
+  }, 
   {
     "id": "zyloapi",
     "file": "zyloapi.json"
