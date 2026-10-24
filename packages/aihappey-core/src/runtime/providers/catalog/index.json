@@ -323,6 +323,10 @@
     "id": "zyloapi",
     "file": "zyloapi.json"
   },
+   {
+    "id": "lovelyrouter",
+    "file": "lovelyrouter.json"
+  },
   {
     "id": "chatqt",
     "file": "chatqt.json"
