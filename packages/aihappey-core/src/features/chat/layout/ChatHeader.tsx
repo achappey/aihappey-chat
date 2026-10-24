@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ModelSelect } from "../../models/ModelSelect";
-import { useAppStore } from "aihappey-state";
+import { singleChatModelId, store, useAppStore } from "aihappey-state";
 import { AgentFavoriteToggleButton, ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { UserMenuButton } from "../../user-settings/UserMenuButton";
 import { useAccount } from "aihappey-auth";
@@ -66,7 +66,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
   // Reconcile catalog/type changes, without treating each routing winner as a new selection.
   useEffect(() => {
-    if (!routingDecisionModel || !modelsLoaded || chatMode !== "chat") return;
+    if (!modelsLoaded || chatMode !== "chat") return;
+    if (!routingDecisionModel) {
+      if (selectedChatModelIds !== undefined) setSelectedModel(singleChatModelId(store.getState()));
+      return;
+    }
     const validModels = (models ?? []).filter(model => modelTypes.includes(model.type));
     const ids = selectedChatModelIds ?? (selectedModel ? [selectedModel] : []);
     const validIds = ids.filter(id => validModels.some(model => model.id === id));

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
-import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, useAppStore } from "aihappey-state";
+import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, store, useAppStore } from "aihappey-state";
 import { invokeSideInferenceAgent } from "../../../runtime/chat-app/sideInferenceAgentCall";
 import {
   CLIENT_TOOL_SEARCH_NAME,
@@ -75,6 +75,8 @@ export const useClientToolSearchRuntime = ({
   const catalog = useMemo(() => toCanonicalToolCatalog(tools), [tools]);
 
   const handle = useCallback(async (toolCall: any, _signal?: AbortSignal) => {
+    if (store.getState().sideInferenceAgentNames?.toolSearchAgent === "")
+      return toCallToolResult(EMPTY_CLIENT_TOOL_SEARCH_RESULT);
     const goal = clientToolSearchGoal(toolCall?.input);
     if (!goal || catalog.length === 0) return toCallToolResult(EMPTY_CLIENT_TOOL_SEARCH_RESULT);
 
@@ -93,7 +95,8 @@ export const useClientToolSearchRuntime = ({
       fallbackInstructions: CLIENT_TOOL_SEARCH_INSTRUCTIONS,
     });
 
-    return toCallToolResult(parseClientToolSearchSelection(output, catalog));
+    return toCallToolResult(store.getState().sideInferenceAgentNames?.toolSearchAgent === ""
+      ? EMPTY_CLIENT_TOOL_SEARCH_RESULT : parseClientToolSearchSelection(output, catalog));
   }, [agentName, agents, api, catalog, customFetch, customHeaders, gatewayEnabled, getAccessToken, headers, models, selectedModel]);
 
   return useMemo(() => ({

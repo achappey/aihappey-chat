@@ -79,6 +79,13 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   );
   const favoriteVisibleAgents = sortAgentsByLabel(visibleAgents.filter((agent) => favoriteSet.has(agent.key)));
   const routerAvailable = allowFavoriteRouter && !!routingDecisionModel && favoriteVisibleAgents.length >= 2;
+  React.useEffect(() => {
+    if (allowFavoriteRouter && routingAgentName === "" && routerSelected) {
+      store.setState({ favoriteAgentRouter: false });
+      if (!normalizedValues.length && favoriteVisibleAgents.length)
+        setSelectedAgents([favoriteVisibleAgents[0].key]);
+    }
+  }, [allowFavoriteRouter, routingAgentName, routerSelected, normalizedValues.length, favoriteVisibleAgents[0]?.key, setSelectedAgents]);
   const tagGroups = new Map<string, typeof visibleAgents>();
   const untaggedAgents = visibleAgents.filter((agent) => {
     const tags = getAgentGroups(agent.localAgent, agent.remoteAgentModel, agent.remoteAgentModel?.agent);
@@ -92,7 +99,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
     <SelectComponent
       values={normalizedValues}
       icon={"robot"}
-      valueTitle={allowFavoriteRouter && routerSelected
+      valueTitle={routerAvailable && routerSelected
         ? routingAgentName
         : selectedEntries.map((entry) => entry.label).join(", ")}
       multiselect={true}

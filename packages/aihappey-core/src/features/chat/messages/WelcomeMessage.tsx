@@ -123,6 +123,8 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const account = useAccount()
   const { config } = useChatContext();
   const models = useAppStore((s) => s.models);
+  const agents = useAppStore((s) => s.agents);
+  const agentName = useAppStore((s) => s.sideInferenceAgentNames?.welcomeMessageAgent);
   const customHeaders = useAppStore((s) => s.customHeaders);
   const gatewayEnabled = useAppStore((s: any) => s.gatewayEnabled);
   const providers = useProviderRegistry();
@@ -134,7 +136,10 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const sizing = welcomeSizing[resolveWelcomeThemeId(multiTheme?.selectedThemeId)];
 
   useEffect(() => {
-    if (models && models?.length > 0)
+    let active = true;
+    const fallback = t("sideInference.fallbackWelcome") ?? "Welcome";
+    setWelcomeMessage(fallback);
+    if (agentName !== "" && models && models?.length > 0)
       fetchWelcomeMessage((languageNames as any)[i18n.language as any],
         account?.name,
         {
@@ -142,24 +147,25 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
           fetch: config.fetch,
           getAccessToken: config.getAccessToken,
           models,
+          agents,
+          agentName,
           customHeaders,
           gatewayEnabled: (config as any)?.gatewayEnabled !== false && gatewayEnabled !== false,
           providers,
-          fallback: t("sideInference.fallbackWelcome") ?? "Welcome",
+          fallback,
         })
-        .then(a =>
-          setWelcomeMessage(a)
-        );
+        .then(a => { if (active) setWelcomeMessage(a ?? fallback); });
 
-  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, customHeaders, gatewayEnabled, i18n.language, models, providers, t]);
+    return () => { active = false; };
+  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, customHeaders, gatewayEnabled, i18n.language, models, agents, agentName, providers, t]);
 
   return (
     <div style={getWelcomeSlotStyle(isDesktop, sizing)}>
-      {welcomeMessage ? (
+      {agentName === "" || welcomeMessage ? (
         isDesktop ? (
-          <h1 style={{ ...welcomeTextStyle, fontSize: sizing.desktopFontSize }}>{welcomeMessage}</h1>
+          <h1 style={{ ...welcomeTextStyle, fontSize: sizing.desktopFontSize }}>{agentName === "" ? t("sideInference.fallbackWelcome") : welcomeMessage}</h1>
         ) : (
-          <h2 style={{ ...mobileWelcomeTextStyle, fontSize: sizing.mobileFontSize }}>{welcomeMessage}</h2>
+          <h2 style={{ ...mobileWelcomeTextStyle, fontSize: sizing.mobileFontSize }}>{agentName === "" ? t("sideInference.fallbackWelcome") : welcomeMessage}</h2>
         )
       ) : (
         <Skeleton

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { flushSync } from "react-dom";
-import { store } from "aihappey-state";
+import { singleChatModelId, store } from "aihappey-state";
 import type { DefaultChatTransport } from "aihappey-ai";
 import type { FileItem, FileStore } from "aihappey-files";
 import { useChatContext } from "../context/ChatContext";
@@ -29,7 +29,19 @@ export function useFavoriteRouterTransport(
     return {
       async sendMessages(options) {
         if (deciding.current) throw new Error("A favorite routing decision is already in progress.");
-        const state = store.getState();
+        let state = store.getState();
+        let manualFallback = false;
+        if (isNewFavoriteRouterTurn(options)) {
+          const assignments = state.sideInferenceAgentNames;
+          if (assignments?.selectModelAgent === "" && state.selectedChatModelIds !== undefined) {
+            flushSync(() => state.setSelectedModel(singleChatModelId(state)));
+            manualFallback = true;
+          }
+          if (assignments?.selectFavoriteAgent === "" && state.favoriteAgentRouter) {
+            flushSync(() => store.setState({ favoriteAgentRouter: false }));
+          }
+          state = store.getState();
+        }
         const kind = state.chatMode === "agent" ? "agent" : "model";
         const enabled = kind === "agent" ? state.favoriteAgentRouter
           : chatModelCandidateIds(state).length > 1;
@@ -107,7 +119,7 @@ export function useFavoriteRouterTransport(
               store.setState({ favoriteRouterDeciding: false });
             }
           }
-          if (!enabled) pinned = undefined;
+          if (!enabled) pinned = manualFallback ? { ...current.current, routed: true } : undefined;
         }
         const target = pinned ?? { ...current.current, routed: false };
         return target.transport.sendMessages({

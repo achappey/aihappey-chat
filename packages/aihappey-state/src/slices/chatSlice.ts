@@ -60,6 +60,25 @@ export const DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: SideInferenceAgentNames = {
   selectFavoriteAgent: SIDE_INFERENCE_DEFAULT_AGENT_NAMES.selectFavorite,
 };
 
+/** Deterministic manual fallback when automatic model selection is switched off. */
+export function singleChatModelId(state: Pick<ChatSlice, "models" | "selectedModel" | "selectedChatModelIds"> & {
+  userPreferredModel?: string;
+  chatWithImageModels?: boolean;
+  chatWithVideoModels?: boolean;
+  chatWithSpeechModels?: boolean;
+  chatWithTranscriptionModels?: boolean;
+}) {
+  const types = ["language", ...(state.chatWithImageModels ? ["image"] : []),
+    ...(state.chatWithVideoModels ? ["video"] : []), ...(state.chatWithSpeechModels ? ["speech"] : []),
+    ...(state.chatWithTranscriptionModels ? ["transcription"] : [])];
+  const models = (state.models ?? []).filter(model => types.includes(model.type));
+  const exists = (id?: string) => !!id && models.some(model => model.id === id);
+  return exists(state.selectedModel) ? state.selectedModel
+    : state.selectedChatModelIds?.find(exists)
+      ?? (exists(state.userPreferredModel) ? state.userPreferredModel : undefined)
+      ?? [...models].sort((a, b) => (b.created ?? 0) - (a.created ?? 0))[0]?.id;
+}
+
 export type ChatSlice = ApiKeyEncryptionState & {
   selectedConversationId: string | null;
   selectConversation: (id: string | null) => void;
@@ -556,12 +575,19 @@ export const createChatSlice: StateCreator<
       };
     }),
   setSideInferenceAgentNames: (agentNames) =>
-    set((state: ChatSlice) => ({
-      sideInferenceAgentNames: {
+    set((state: ChatSlice) => {
+      const assignments = {
         ...(state.sideInferenceAgentNames ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION),
         ...(agentNames ?? {}),
-      },
-    })),
+      };
+      return {
+        sideInferenceAgentNames: assignments,
+        ...(assignments.selectModelAgent === "" ? {
+          selectedModel: singleChatModelId(state), selectedChatModelIds: undefined,
+        } : {}),
+        ...(assignments.selectFavoriteAgent === "" ? { favoriteAgentRouter: false } : {}),
+      };
+    }),
   resetSideInferenceAgentNames: () =>
     set(() => ({
       sideInferenceAgentNames: { ...DEFAULT_SIDE_INFERENCE_AGENT_SELECTION },

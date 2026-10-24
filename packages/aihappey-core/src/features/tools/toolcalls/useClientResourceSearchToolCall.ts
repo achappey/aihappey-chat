@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
-import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, useAppStore } from "aihappey-state";
+import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, store, useAppStore } from "aihappey-state";
 import { invokeSideInferenceAgent } from "../../../runtime/chat-app/sideInferenceAgentCall";
 import {
   CLIENT_RESOURCE_SEARCH_NAME,
@@ -84,6 +84,8 @@ export const useClientResourceSearchRuntime = ({
     ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION.resourceSearchAgent;
 
   const handle = useCallback(async (toolCall: any, _signal?: AbortSignal): Promise<CallToolResult> => {
+    if (store.getState().sideInferenceAgentNames?.resourceSearchAgent === "")
+      return toCallToolResult(EMPTY_CLIENT_RESOURCE_SEARCH_RESULT);
     const serverUrl = typeof toolCall?.input?.serverUrl === "string"
       ? toolCall.input.serverUrl.trim()
       : "";
@@ -130,7 +132,8 @@ export const useClientResourceSearchRuntime = ({
       fallbackInstructions: CLIENT_RESOURCE_SEARCH_INSTRUCTIONS,
     });
 
-    return toCallToolResult(parseClientResourceSearchSelection(output, catalog));
+    return toCallToolResult(store.getState().sideInferenceAgentNames?.resourceSearchAgent === ""
+      ? EMPTY_CLIENT_RESOURCE_SEARCH_RESULT : parseClientResourceSearchSelection(output, catalog));
   }, [agentName, agents, api, customFetch, customHeaders, gatewayEnabled, getAccessToken, headers, mcpServerContent, mcpServers, models, selectedModel]);
 
   return useMemo(() => ({

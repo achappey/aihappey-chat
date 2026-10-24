@@ -191,6 +191,8 @@ export const invokeSideInferenceAgent = async ({
   fallbackModelId,
   fallbackInstructions,
 }: InvokeSideInferenceAgentArgs): Promise<string | undefined> => {
+  // An explicit None is not a missing definition: never use the chat-model fallback.
+  if (agentName?.trim() === "") return fallback;
   try {
     const selectedAgent = agents.find((agent) => agent.name === agentName);
     const modelId = selectedAgent?.model?.id ?? fallbackModelId;

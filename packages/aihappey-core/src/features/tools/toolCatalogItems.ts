@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "aihappey-i18n";
+import { useAppStore } from "aihappey-state";
 import { isStoredToolValid, parseStoredToolInputSchema } from "./localStoredTools";
 import { localFilesPluginDef } from "./toolcalls/useLocalFileToolCall";
 import { localAgentsEditorPluginDef, localAgentsRuntimePluginDef } from "./toolcalls/useLocalAgentsToolCall";
@@ -45,6 +46,8 @@ export type ToolListItem = {
 export type ToggleCatalogItem = {
   id: string;
   label: string;
+  disabled?: boolean;
+  description?: string;
 };
 
 export const normalizeCatalogText = (v: unknown) =>
@@ -84,12 +87,19 @@ export const chatSettingsPluginDefs = allBuiltInPluginDefs.filter(
 
 export function usePluginToggleItems(options?: { includeSkillSearch?: boolean; settingsScope?: boolean }) {
   const { t } = useTranslation();
+  const toolSearchAgent = useAppStore(s => s.sideInferenceAgentNames?.toolSearchAgent);
+  const resourceSearchAgent = useAppStore(s => s.sideInferenceAgentNames?.resourceSearchAgent);
   const defs = options?.settingsScope ? chatSettingsPluginDefs : allBuiltInPluginDefs;
 
   return useMemo(() => {
-    const items = defs.map((d) => ({
+    const items: ToggleCatalogItem[] = defs.map((d) => ({
       id: d.name,
       label: t("plugins." + d.name),
+      ...((d.name === clientToolSearchPluginDef.name && toolSearchAgent === ""
+        || d.name === clientResourceSearchPluginDef.name && resourceSearchAgent === "") ? {
+        disabled: true,
+        description: t("sideInference.searchDisabled"),
+      } : {}),
     }));
 
     if (options?.includeSkillSearch) {
@@ -100,7 +110,7 @@ export function usePluginToggleItems(options?: { includeSkillSearch?: boolean; s
     }
 
     return items.sort((a, b) => a.label.localeCompare(b.label));
-  }, [defs, options?.includeSkillSearch, t]);
+  }, [defs, options?.includeSkillSearch, toolSearchAgent, resourceSearchAgent, t]);
 }
 
 export function buildLocalToolToggleItems(localTools: any[], t: (key: string) => string): ToggleCatalogItem[] {

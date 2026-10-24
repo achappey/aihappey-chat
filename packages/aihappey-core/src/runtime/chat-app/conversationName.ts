@@ -11,7 +11,8 @@ export const conversationName = async (
     options: SideInferenceAgentCallOptions = {}
 ) => {
     const state = store.getState();
-    return invokeSideInferenceAgent({
+    const assignment = state.sideInferenceAgentNames?.conversationNameAgent;
+    const result = await invokeSideInferenceAgent({
         ...options,
         feature: "conversationName",
         agents: options.agents ?? state.agents,
@@ -26,4 +27,7 @@ export const conversationName = async (
             language,
         },
     });
+    // Do not publish an old helper result after the user changes/disables its assignment.
+    return store.getState().sideInferenceAgentNames?.conversationNameAgent === assignment
+        ? result : undefined;
 };

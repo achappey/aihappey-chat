@@ -6,6 +6,7 @@ import { explainToolCall } from "../../../../runtime/chat-app/explainToolCall";
 import { Markdown } from "../../../../ui/markdown/Markdown";
 import { useChatContext } from "../../context/ChatContext";
 import { useProviderRegistry } from "../../../../runtime/providers/useProviderRegistry";
+import { useAppStore } from "aihappey-state";
 
 export interface ToolInvocationCardProps {
   invocation: any;
@@ -21,6 +22,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   const { i18n, t } = useTranslation();
   const { config } = useChatContext();
   const providers = useProviderRegistry();
+  const explanationAgent = useAppStore(s => s.sideInferenceAgentNames?.explainToolCallAgent);
   const [output, setOutput] = useState<any | null>(null);
   const getToolExplanation = async (invocation: any, tool: any) => await explainToolCall(
     JSON.stringify({ toolcall: invocation, tool }),
@@ -40,7 +42,8 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
         invocation={invocation}
         tool={tool}
         providerIcons={providerIcons}
-        getToolExplanation={getToolExplanation}
+        key={explanationAgent}
+        getToolExplanation={explanationAgent === "" ? undefined : getToolExplanation}
         renderToolExplanation={(expl: any) => <Markdown text={expl} />}
         onShowOutput={(result: any) => setOutput(result)}
       />

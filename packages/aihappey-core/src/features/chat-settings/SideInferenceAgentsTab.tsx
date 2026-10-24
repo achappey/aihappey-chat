@@ -33,10 +33,10 @@ export const SideInferenceAgentsTab: React.FC<SideInferenceAgentsTabProps> = ({
       <theme.Select
         label={label}
         values={[selected]}
-        valueTitle={selectedAgent?.name ?? selected}
+        valueTitle={selected ? selectedAgent?.name ?? selected : t("none")}
         onChange={(next: string) => onChange({ ...value, [key]: next })}
-        disabled={sortedAgents.length === 0}
       >
+        <option value="">{t("none")}</option>
         {selected && !selectedAgent ? (
           <option value={selected}>{selected}</option>
         ) : null}

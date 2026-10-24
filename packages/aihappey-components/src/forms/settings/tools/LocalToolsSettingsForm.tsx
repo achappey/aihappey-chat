@@ -5,6 +5,7 @@ export type PluginToggleItem = {
   id: string;      // plugin id, e.g. "local-files"
   label: string;   // UI label
   description?: string;
+  disabled?: boolean;
 };
 
 export type LocalToolsSettingsFormProps = {
@@ -34,6 +35,7 @@ export const LocalToolsSettingsForm = ({
   const list = useMemo(() => items ?? [], [items]);
 
   const toggle = (id: string) => {
+    if (list.find(item => item.id === id)?.disabled) return;
     const has = enabled.includes(id);
     const next = has ? enabled.filter(x => x !== id) : [...enabled, id];
     onChange(next);
@@ -49,7 +51,7 @@ export const LocalToolsSettingsForm = ({
         }}
       >
         {list.map((item) => {
-          const checked = enabled.includes(item.id);
+          const checked = !item.disabled && enabled.includes(item.id);
           return (
             <div key={item.id}>
               <Switch
@@ -57,6 +59,7 @@ export const LocalToolsSettingsForm = ({
                 id={item.id}
                 label={item.label}
                 checked={checked}
+                disabled={item.disabled}
                 onChange={() => toggle(item.id)}
               />
               {item.description ? (

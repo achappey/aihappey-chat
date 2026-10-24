@@ -17,6 +17,7 @@ export function useSystemMessage() {
   const enableUserLocation = useAppStore((s) => s.enableUserLocation);
   const mcpServers = useAppStore((s) => s.mcpServers);
   const activePlugins = useAppStore((s) => s.activePlugins);
+  const resourceSearchAgent = useAppStore(s => s.sideInferenceAgentNames?.resourceSearchAgent);
   const account = useAccount();
   useUserLocation(enableUserLocation);
   const { isDarkMode } = useDarkMode();
@@ -81,7 +82,7 @@ export function useSystemMessage() {
             version: plugin.version,
             files: plugin.files.map((file) => file.path),
           })),
-        activePlugins.includes(CLIENT_RESOURCE_SEARCH_PLUGIN_ID),
+        resourceSearchAgent !== "" && activePlugins.includes(CLIENT_RESOURCE_SEARCH_PLUGIN_ID),
       );
   }, [
     mcpServerContent,
@@ -97,6 +98,7 @@ export function useSystemMessage() {
     enabledSkills,
     runtimeSkills.plugins,
     activePlugins,
+    resourceSearchAgent,
   ]);
   return systemMsg;
 }

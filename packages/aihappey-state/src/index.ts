@@ -69,6 +69,7 @@ export {
   DEFAULT_CHAT_TOOL_ANNOTATIONS,
   DEFAULT_SIDE_INFERENCE_AGENT_SELECTION,
   DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS,
+  singleChatModelId,
 } from "./slices/chatSlice";
 export type { ChatVerbosity, SideInferenceAgentNames, ToolOutputContentSettings } from "./slices/chatSlice";
 export type {

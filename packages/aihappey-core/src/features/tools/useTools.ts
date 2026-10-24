@@ -71,9 +71,13 @@ export function useTools(options: UseToolsOptions = {}) {
   const mcpServers = useAppStore(s => s.mcpServers);
   const toolAnnotations = useAppStore(s => s.toolAnnotations);
   const storedActivePlugins = useAppStore(s => s.activePlugins);
+  const toolSearchAgent = useAppStore(s => s.sideInferenceAgentNames?.toolSearchAgent);
+  const resourceSearchAgent = useAppStore(s => s.sideInferenceAgentNames?.resourceSearchAgent);
   const storedEnabledLocalTools = useAppStore(s => (s as any).enabledLocalTools as string[]);
 
-  const enabledPlugins = options.activePlugins ?? storedActivePlugins;
+  const enabledPlugins = (options.activePlugins ?? storedActivePlugins).filter(id =>
+    !(id === clientToolSearchPluginDef.name && toolSearchAgent === "")
+    && !(id === clientResourceSearchPluginDef.name && resourceSearchAgent === ""));
   const enabledLocalTools = options.enabledLocalTools ?? storedEnabledLocalTools;
 
   const localTools = useLocalTools();
