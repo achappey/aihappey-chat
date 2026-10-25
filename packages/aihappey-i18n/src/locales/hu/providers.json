@@ -1,7 +1,18 @@
 {
   "perplexity": {
+    "agent": "Ügynök",
     "academic": "Akadémiai",
     "web": "Web",
+    "fast": "Gyors",
+    "pro": "Pro",
+    "media": "Média",
+    "responsesWebSearch": "Webes keresés",
+    "fetchUrl": "Weboldalak beolvasása",
+    "financeSearch": "Pénzügyi keresés",
+    "peopleSearch": "Személyek keresése",
+    "searchType": "Típus",
+    "searchDomainFilter": "Domain szűrése",
+    "enableMediaClassifier": "Médiatartalom-osztályozó",
     "improveImageRelevance": "Képek relevanciájának javítása",
     "enableSearchClassifier": "Keresési osztályozó",
     "dateSearchSettings": "Dátumszűrők",
@@ -11,9 +22,28 @@
     "lastUpdatedAfterFilter": "Utoljára frissítve dátum után",
     "lastUpdatedBeforeFilter": "Utoljára frissítve dátum előtt",
     "sonarDeepResearch": "Sonar mélyreható kutatás",
+    "instructions": "Utasítások",
+    "languagePreference": "Preferált nyelv",
+    "languagePreferencePlaceholder": "pl. hu",
+    "maxOutputTokens": "Kimeneti tokenek maximális száma",
+    "maxSteps": "Lépések maximális száma",
+    "models": "Modellek (legfeljebb 5)",
+    "noModelsAvailable": "Nincsenek elérhető Perplexity-modellek",
+    "maxTokens": "Tokenek maximális száma",
+    "maxTokensPerPage": "Tokenek maximális száma oldalanként",
+    "maxResultsPerQuery": "Találatok maximális száma lekérdezésenként",
+    "maxResultsPerRequest": "Találatok maximális száma kérésenként",
+    "maxUrls": "Oldalak maximális száma",
     "returnImages": "Képek visszaadása",
     "returnVideos": "Videók visszaadása",
-    "returnRelatedQuestions": "Kapcsolódó kérdések visszaadása"
+    "returnRelatedQuestions": "Kapcsolódó kérdések visszaadása",
+    "recency": {
+      "hour": "Óra",
+      "day": "Nap",
+      "week": "Hét",
+      "month": "Hónap",
+      "year": "Év"
+    }
   },
   "pollinations": {
     "enhance": "Javítás",
@@ -30,12 +60,189 @@
   },
   "anthropic": {
     "maxUses": "Felhasználások maximális száma",
+    "betaHeader": "Béta",
+    "other": {
+      "serviceTier": {
+        "title": "Szolgáltatási szint",
+        "options": {
+          "auto": "Prioritás, ha elérhető",
+          "standard_only": "Csak normál"
+        }
+      },
+      "speed": {
+        "title": "Sebesség",
+        "options": {
+          "standard": "Normál",
+          "fast": "Gyors"
+        }
+      },
+      "inferenceGeo": {
+        "title": "Földrajzi régió",
+        "options": {
+          "global": "Globális",
+          "us": "Egyesült Államok"
+        }
+      }
+    },
+    "memory": "Memória",
     "customSkills": "Egyedi készségek",
     "allowedDomains": "Engedélyezett domainek",
-    "blockedDomains": "Tiltott domainek"
+    "blockedDomains": "Tiltott domainek",
+    "shell": "Parancsértelmező",
+    "textEditor": "Szövegszerkesztő",
+    "toolSearchBm25": "Eszközkeresés (BM25)",
+    "toolSearchRegex": "Eszközkeresés (reguláris kifejezés)",
+    "version": "Verzió",
+    "allowedCallers": "Engedélyezett hívók",
+    "none": "Nincs",
+    "cacheControl": "Prompt-gyorsítótár",
+    "cache": {
+      "title": "Gyorsítótár",
+      "ttl": "Időtartam",
+      "ttlOptions": {
+        "5m": "5 perc",
+        "1h": "1 óra"
+      }
+    },
+    "compaction": {
+      "title": "Kontextus tömörítése"
+    },
+    "deferLoading": "Betöltés késleltetése",
+    "strictValidation": "Szigorú",
+    "cacheControlType": "Gyorsítótár típusa",
+    "cacheDuration": "Gyorsítótár időtartama",
+    "defaultOption": "Alapértelmezett",
+    "ephemeral": "Ideiglenes",
+    "outputConfig": {
+      "title": "Kimeneti beállítások",
+      "effort": "Ráfordítás ({{effort}})",
+      "taskBudget": "Feladatkeret"
+    },
+    "advisor": {
+      "title": "Tanácsadó",
+      "toolName": "Eszköz neve",
+      "model": "Modell",
+      "maxTokens": "Tokenek maximális száma",
+      "caching": "Tanácsadói prompt gyorsítótárazása"
+    },
+    "inputExamples": "Bemeneti példák",
+    "maxCharacters": "Karakterek maximális száma",
+    "maxContentTokens": "Tartalmi tokenek maximális száma",
+    "citations": "Hivatkozások",
+    "useCache": "Gyorsítótár használata",
+    "responseInclusion": "Válaszba foglalás",
+    "container": "Konténer",
+    "containerPlaceholder": "Opcionális konténerazonosító",
+    "containerSettings": {
+      "title": "Konténer",
+      "id": "Konténerazonosító",
+      "idPlaceholder": "Opcionális konténerazonosító",
+      "customSkillIds": "Egyéni készségazonosítók",
+      "customSkillIdsPlaceholder": "skill_custom_a, skill_custom_b",
+      "skills": {
+        "pptx": "PowerPoint",
+        "xlsx": "Excel",
+        "docx": "Word",
+        "pdf": "PDF"
+      }
+    },
+    "session": {
+      "title": "Keret (felügyelt ügynökök)",
+      "maxListCostUsd": "Maximális keret (USD)"
+    },
+    "userLocation": "Hely",
+    "locationType": "Helytípus",
+    "locationApproximate": "Hozzávetőleges",
+    "thinkingDisplay": "Gondolkodás részletessége",
+    "prefixMismatchBehavior": "Gondolkodási előtag eltérése",
+    "prefixMismatchBehaviorOptions": {
+      "error": "Hiba",
+      "drop_block": "Eldobás"
+    },
+    "thinkingModes": {
+      "enabled": "Engedélyezve",
+      "disabled": "Letiltva",
+      "between_tools": "Eszközhívások között",
+      "adaptive": "Adaptív"
+    },
+    "thinkingDisplayModes": {
+      "summarized": "Összefoglalva",
+      "omitted": "Kihagyva",
+      "updates": "Frissítések"
+    },
+    "contextManagement": {
+      "title": "Kontextus kezelése",
+      "empty": "Még nincsenek beállítva kontextuskezelési módosítások.",
+      "add": "Kontextusmódosítás hozzáadása",
+      "type": "Módosítás típusa",
+      "trigger": "Aktiválási feltétel",
+      "triggerValue": "Aktiválási érték",
+      "keep": "Megtartás",
+      "keepValue": "Megtartandó érték",
+      "clearAtLeast": "Legalább ennyi törlése",
+      "clearAtLeastValue": "Törlendő tokenek minimális száma",
+      "clearToolInputs": "Eszközbemenetek törlése",
+      "clearToolInputsValue": "Logikai érték",
+      "clearToolInputsList": "Megadott eszközbemenetek",
+      "clearToolInputsPlaceholder": "input_a, input_b",
+      "excludeTools": "Kizárt eszközök",
+      "excludeToolsPlaceholder": "tool_a, tool_b",
+      "instructions": "Utasítások",
+      "instructionsPlaceholder": "Opcionális további utasítások az összefoglaló tömörítéséhez.",
+      "pauseAfterCompaction": "Szünet a tömörítés után",
+      "types": {
+        "clear_tool_uses_20250919": "Eszközhasználatok törlése (2025-09-19)",
+        "clear_thinking_20251015": "Gondolkodás törlése (2025-10-15)",
+        "compact_20260112": "Kontextus tömörítése (2026-01-12)"
+      },
+      "modes": {
+        "none": "Nincs beállítva",
+        "boolean": "Logikai érték",
+        "list": "Megadott eszközbemenetek",
+        "input_tokens": "Bemeneti tokenek",
+        "tool_uses": "Eszközhasználatok",
+        "thinking_turns": "Gondolkodási fordulók",
+        "all_object": "Objektum: { type: \"all\" }",
+        "all_literal": "Szöveg: \"all\""
+      },
+      "booleanValues": {
+        "true": "Igaz",
+        "false": "Hamis"
+      },
+      "booleanModes": {
+        "none": "Nincs beállítva",
+        "true": "Igaz",
+        "false": "Hamis"
+      },
+      "validation": {
+        "invalid": "A kontextusmódosítás mentése előtt töltsd ki az összes kiválasztott numerikus mezőt."
+      },
+      "summaries": {
+        "noOptionalFields": "Nincsenek beállítva opcionális mezők.",
+        "triggerInputTokens": "Aktiválás: {{value}} bemeneti tokennél",
+        "triggerToolUses": "Aktiválás: {{value}} eszközhasználatnál",
+        "keepToolUses": "Megtartás: {{value}} eszközhasználat",
+        "clearAtLeast": "Legalább ennyi törlése: {{value}} bemeneti token",
+        "clearToolInputsTrue": "Eszközbemenetek törlése: igaz",
+        "clearToolInputsFalse": "Eszközbemenetek törlése: hamis",
+        "clearToolInputsList": "Eszközbemenetek törlése: {{value}}",
+        "excludeTools": "Kizárt eszközök: {{value}}",
+        "keepThinkingTurns": "Gondolkodás megtartása: {{value}} forduló",
+        "keepAllObject": "Gondolkodás megtartása: objektum { type: \"all\" }",
+        "keepAllLiteral": "Gondolkodás megtartása: szöveg \"all\"",
+        "compactDefaultTrigger": "Aktiválás: alapértelmezés szerint {{value}} bemeneti tokennél",
+        "pauseAfterCompactionTrue": "Szünet a tömörítés után: igaz",
+        "pauseAfterCompactionFalse": "Szünet a tömörítés után: hamis",
+        "instructions": "Utasítások megadva"
+      }
+    }
   },
   "cohere": {
-    "citationOptions": "Hivatkozások"
+    "citationOptions": "Hivatkozások",
+    "reranking": {
+      "priority": "Prioritás",
+      "maxTokensPerDoc": "Tokenek maximális száma dokumentumonként"
+    }
   },
   "xSearch": "Keresés az X-en",
   "spacexai": {
@@ -44,35 +251,53 @@
     "allowedDomains": "Engedélyezett domainek",
     "excludedDomains": "Kizárt domainek",
     "allowed_x_handles": "Engedélyezett X-fiókok",
-    "excluded_x_handles": "Kizárt X-fiókok"
+    "excluded_x_handles": "Kizárt X-fiókok",
+    "imageSearch": "Képkeresés",
+    "transcriptionFormat": "Szöveg formázása",
+    "transcriptionDiarize": "Beszélők elkülönítése",
+    "audioInput": "Bemeneti hang",
+    "audioFormat": "Hangformátum",
+    "sampleRate": "Mintavételezési frekvencia",
+    "channels": "Csatornák",
+    "transcriptionMultichannel": "Többcsatornás mód",
+    "channelCount": "Csatornák száma",
+    "transcriptionFillerWords": "Töltelékszavak hozzáadása",
+    "transcriptionVadThreshold": "Beszédtevékenység-felismerési küszöbérték ({{value}})",
+    "transcriptionKeyterm": "Kulcsszavak",
+    "transcriptionKeytermPlaceholder": "Vesszővel elválasztott kulcsszólistát adj meg",
+    "toolSearch": {
+      "title": "Eszközkeresés",
+      "executionMode": "Végrehajtási mód",
+      "server": "Szerver"
+    }
   },
   "openai": {
     "container": "Konténer",
-    "includeOutputs": "Kimenetek belefoglalása",
-    "includeSources": "Források belefoglalása",
-    "includeSearchResults": "Keresési eredmények belefoglalása",
-    "encryptedContent": "Titkosítás belefoglalása",
+    "includeOutputs": "Kimenetek hozzáadása",
+    "includeSources": "Források hozzáadása",
+    "includeSearchResults": "Keresési találatok hozzáadása",
+    "encryptedContent": "Titkosított tartalom hozzáadása",
     "instructions": "Utasítások",
     "instructionsPlaceholder": "A modell kontextusába beszúrt rendszer- (vagy fejlesztői) üzenet.",
     "imageInputDetail": {
-      "title": "Input image detail",
-      "auto": "Auto",
-      "low": "Low",
-      "high": "High",
-      "original": "Original"
+      "title": "Bemeneti kép részletessége",
+      "auto": "Automatikus",
+      "low": "Alacsony",
+      "high": "Magas",
+      "original": "Eredeti"
     },
     "contextManagement": {
-      "title": "Context management",
-      "description": "Configure how the Responses API should compact earlier context during a request.",
-      "empty": "No context management entries configured yet.",
-      "add": "Add context rule",
-      "type": "Type",
-      "compactThreshold": "Compact threshold",
-      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
-      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
-      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "title": "Kontextus kezelése",
+      "description": "Állítsd be, hogyan tömörítse a Responses API a korábbi kontextust egy kérés során.",
+      "empty": "Még nincsenek beállítva kontextuskezelési elemek.",
+      "add": "Kontextusszabály hozzáadása",
+      "type": "Típus",
+      "compactThreshold": "Tömörítési küszöbérték",
+      "compactThresholdHelp": "Akkor indítja el a tömörítést, amikor a kérés kontextusa eléri ezt a tokenküszöböt.",
+      "compactThresholdInvalid": "A tömörítési küszöbérték legalább {{min}} legyen.",
+      "entrySummary": "Kontextus tömörítése {{threshold}} tokennél.",
       "types": {
-        "compaction": "Compaction"
+        "compaction": "Tömörítés"
       }
     },
     "max_num_results": "Eredmények maximális száma",
@@ -86,14 +311,311 @@
     "knownSpeakersNameExists": "Ez a név már létezik.",
     "knownSpeakersMax": "Legfeljebb 4 beszélőt adhatsz hozzá.",
     "knownSpeakersDeleteConfirm": "Ennek a beszélőnek van mentett mintája. Törlöd a beszélőt és a mintát?",
-    "knownSpeakersSampleDuration": "A felvételnek 2 és 10 másodperc között kell lennie."
+    "knownSpeakersSampleDuration": "A felvételnek 2 és 10 másodperc közötti hosszúságúnak kell lennie.",
+    "shell": "Parancsértelmező",
+    "promptCacheRetention": "Prompt-gyorsítótár megőrzési ideje",
+    "promptCacheKey": "Prompt-gyorsítótár azonosítója",
+    "promptCacheOptions": {
+      "24h": "24 óra",
+      "in-memory": "Memóriában",
+      "title": "Prompt-gyorsítótár",
+      "mode": "Mód",
+      "ttl": "Gyorsítótár élettartama",
+      "modes": {
+        "implicit": "Implicit",
+        "explicit": "Explicit"
+      },
+      "ttls": {
+        "30m": "30 perc",
+        "12h": "12 óra"
+      }
+    },
+    "moderation": {
+      "title": "Tartalomellenőrzés",
+      "model": "Moderációs modell",
+      "inputMode": "Bemeneti szabályzat",
+      "outputMode": "Kimeneti szabályzat",
+      "modes": {
+        "score": "Pontozás",
+        "block": "Blokkolás"
+      }
+    },
+    "betaHeader": "Béta",
+    "multiAgent": {
+      "title": "Többügynökös mód",
+      "description": "Lehetővé teszi, hogy a fő modell összetett Responses API-feladatoknál párhuzamosan koordinálja az alügynököket. A funkció engedélyezése a szükséges OpenAI bétafejlécet is hozzáadja.",
+      "maxConcurrentSubagents": "Alügynökök maximális párhuzamos száma",
+      "maxConcurrentSubagentsHelp": "Korlátozza az aktív alügynökök számát a teljes ügynökhierarchiában. Az OpenAI által javasolt alapérték 3."
+    },
+    "sessionAgent": {
+      "title": "Ügynök",
+      "inherit": "Nincs megadva",
+      "model": "Modell",
+      "instructions": "Utasítások",
+      "effort": "Következtetési ráfordítás",
+      "summary": "Következtetés összefoglalása",
+      "serviceTier": "Szolgáltatási szint",
+      "verbosity": "Szöveg részletessége",
+      "format": "Szövegformátum",
+      "schema": "JSON-séma",
+      "invalidSchema": "Érvényes JSON-séma objektumot adj meg.",
+      "multiAgent": "Alügynökök engedélyezése",
+      "maxSubagents": "Alügynökök maximális párhuzamos száma",
+      "tools": "Ügynök eszközei",
+      "computer_use": "Számítógép használata",
+      "web_search": "Webes keresés",
+      "programmatic_tool_calling": "Programozott eszközhívás",
+      "tool_search": "Eszközkeresés",
+      "screenshots": "Képernyőképek hozzáadása",
+      "programmaticEnabled": "Generált kódból indított hívások engedélyezése",
+      "searchMode": "Webes keresés módja",
+      "searchContext": "Keresési kontextus mérete",
+      "allowedDomains": "Engedélyezett keresési domainek (soronként egy)",
+      "city": "Város",
+      "country": "Ország",
+      "region": "Régió",
+      "timezone": "Időzóna"
+    },
+    "sessionEnvironment": {
+      "title": "Környezet (ügynök)",
+      "type": "Környezettípus",
+      "none": "Nincs",
+      "openai_hosted": "OpenAI által üzemeltetett",
+      "self_hosted": "Saját üzemeltetésű",
+      "templateId": "Környezet sablonazonosítója",
+      "containerSize": "Konténer mérete",
+      "inherit": "Nincs megadva",
+      "small": "Kicsi",
+      "medium": "Közepes",
+      "large": "Nagy",
+      "desktop": "Asztali környezet és böngészőproxy létrehozása",
+      "network": "Hálózati hozzáférés",
+      "enabled": "Engedélyezve",
+      "disabled": "Letiltva",
+      "restricted": "Korlátozott",
+      "domainHelp": "Vagy az engedélyezett, vagy a tiltott domaineket használd, egyszerre mindkettőt ne. Helyettesítő karakterek nem támogatottak.",
+      "allowedDomains": "Engedélyezett domainek (soronként egy)",
+      "blockedDomains": "Tiltott domainek (soronként egy)",
+      "workspaceDirectory": "Abszolút munkakönyvtár"
+    },
+    "promptCache": "Prompt-gyorsítótár",
+    "truncation": {
+      "title": "Csonkolás",
+      "auto": "Automatikus",
+      "disabled": "Letiltva"
+    },
+    "serviceTier": {
+      "title": "Szolgáltatási szint",
+      "auto": "Automatikus",
+      "default": "Alapértelmezett",
+      "flex": "Rugalmas",
+      "scale": "Skálázható",
+      "priority": "Prioritás",
+      "fast": "Gyors",
+      "ultrafast": "Ultragyors"
+    },
+    "customVoice": "Egyéni hang",
+    "output_compression": "Kimenet tömörítése",
+    "action": "Művelet",
+    "generate": "Létrehozás",
+    "edit": "Szerkesztés",
+    "prompt": "Prompt",
+    "allowedDomains": "Engedélyezett domainek",
+    "searchContentTypes": {
+      "text": "Szöveges keresési találatok",
+      "image": "Képes keresési találatok"
+    },
+    "imageSettings": {
+      "maxResults": "Képtalálatok maximális száma",
+      "caption": "Feliratok hozzáadása"
+    },
+    "topP": "Top-p",
+    "transcriptionLanguagePlaceholder": "A bemeneti hang nyelve ISO-639-1 formátumban (pl. en)",
+    "transcriptionLanguages": "Lehetséges nyelvek",
+    "transcriptionLanguagesPlaceholder": "Vesszővel elválasztott ISO-639-1 kódok, pl. en, nl",
+    "transcriptionKeywords": "Kulcsszavak",
+    "transcriptionKeywordsPlaceholder": "Soronként egy szó vagy kifejezés az átírás irányításához",
+    "transcriptionResponseFormat": "Válaszformátum",
+    "speechPromptPlaceholder": "Opcionális szöveg a modell stílusának irányításához vagy egy korábbi hangszegmens folytatásához",
+    "transcriptionTemperature": "Hőmérséklet",
+    "timestampGranularities": "Időbélyegek részletessége",
+    "timestampGranularitiesSegment": "Szegmens",
+    "timestampGranularitiesWord": "Szó",
+    "returnTokenBudget": "Visszaadott tokenkeret",
+    "returnTokenBudgetOptions": {
+      "default": "Alapértelmezett",
+      "unlimited": "Korlátlan"
+    },
+    "externalWebAccess": "Élő internet-hozzáférés",
+    "responsesIncludeTitle": "Hozzáadás",
+    "responsesIncludeImageUrls": "Számítógépkimenet képeinek URL-je",
+    "responsesIncludeInputImageUrls": "Bemeneti üzenetek képeinek URL-je",
+    "responsesIncludeOutputLogprobs": "Kimeneti log-valószínűségek hozzáadása",
+    "responsesIncludeDescriptions": {
+      "webSearchSources": "A webes keresőeszköz hívása által visszaadott források hozzáadása.",
+      "codeInterpreterOutputs": "A kódértelmező eszközhívásaiban futtatott Python-kód kimenetének hozzáadása.",
+      "computerCallImageUrls": "A számítógépes hívások kimeneteiből visszaadott kép-URL-ek hozzáadása.",
+      "fileSearchResults": "A fájlkereső eszköz hívása által visszaadott találatok hozzáadása.",
+      "inputImageUrls": "A bemeneti üzenetek képeinek URL-je.",
+      "outputTextLogprobs": "A valószínűségi értékek hozzáadása az asszisztens szöveges válaszaihoz.",
+      "reasoningEncryptedContent": "Titkosított következtetési tokenek hozzáadása, hogy az állapot nélküli, többfordulós Responses API-beszélgetésekben újra felhasználhatók legyenek a következtetési elemek."
+    },
+    "programmaticToolCalling": {
+      "title": "Eszközök kóddal",
+      "allowedCallers": "Engedélyezett hívók",
+      "allowedCallersOptions": {
+        "direct": "Közvetlen",
+        "programmatic": "Kód"
+      }
+    },
+    "toolSearch": {
+      "title": "Eszközkeresés",
+      "executionMode": "Végrehajtási mód",
+      "hosted": "Szolgáltató által üzemeltetett",
+      "client": "Kliens"
+    },
+    "shellEnvironment": "Környezet",
+    "shellEnvironmentContainerAuto": "Üzemeltetett konténer (automatikus)",
+    "shellEnvironmentContainerReference": "Üzemeltetett konténer (hivatkozás)",
+    "shellEnvironmentLocal": "Helyi futtatókörnyezet",
+    "shellFileIds": "Fájlazonosítók",
+    "shellMemoryLimit": "Memóriakorlát",
+    "shellNoMemoryLimit": "Alapértelmezett memória",
+    "shellNetworkPolicy": "Hálózati szabályzat",
+    "shellNetworkPolicyDisabled": "Letiltva",
+    "shellNetworkPolicyAllowlist": "Engedélyezési lista",
+    "shellAllowedDomains": "Engedélyezett domainek",
+    "shellSecretDomain": "Titkos adat domainje",
+    "shellSecretName": "Titkos adat neve",
+    "shellSecretValue": "Titkos adat értéke",
+    "shellAddDomainSecret": "Domainhez tartozó titkos adat hozzáadása",
+    "shellSkillType": "Készség típusa",
+    "shellSkillReference": "Készséghivatkozás",
+    "shellInlineSkill": "Beágyazott készség",
+    "shellSkillId": "Készség",
+    "shellSelectSkill": "Készség kiválasztása",
+    "shellNoSkillsAvailable": "A megosztott készségkatalógusban nem érhető el OpenAI-parancsértelmezőhöz használható készség.",
+    "shellAddSkillReference": "Készséghivatkozás hozzáadása",
+    "shellAddInlineSkill": "Beágyazott készség hozzáadása",
+    "shellInlineUploadHelp": "Húzz ide egy ZIP-archívumot, vagy válaszd ki a beágyazott készség forrásaként való csatoláshoz.",
+    "shellUploadArchive": "ZIP-archívum feltöltése",
+    "shellReplaceArchive": "ZIP-archívum cseréje",
+    "shellRemoveArchive": "Archívum eltávolítása",
+    "shellArchiveSelected": "Kiválasztott archívum: {{fileName}}",
+    "shellNoArchiveSelected": "Nincs kiválasztva ZIP-archívum",
+    "realtimeTranscriptionTitle": "Valós idejű átírás",
+    "realtimeSessionType": "Munkamenet típusa",
+    "realtimeAudioInputFormat": "Bemeneti hangformátum",
+    "realtimeNoiseReduction": "Zajcsökkentés",
+    "realtimeInputTranscription": "Bemeneti hang átírása",
+    "realtimeTranscriptionPrompt": "Átírási prompt",
+    "realtimeTurnDetection": "Fordulófelismerés",
+    "realtimeTurnDetectionType": "Fordulófelismerés típusa",
+    "realtimeTurnCreateResponse": "Válasz automatikus létrehozása beszéd végén",
+    "realtimeTurnInterruptResponse": "Folyamatban lévő válasz megszakítása beszéd kezdetekor",
+    "realtimeVadThreshold": "VAD-küszöbérték (0,0–1,0)",
+    "realtimeVadPrefixPaddingMs": "Előtag kitöltése (ms)",
+    "realtimeVadSilenceDurationMs": "Csend időtartama (ms)",
+    "realtimeVadIdleTimeoutMs": "Inaktivitási időkorlát (ms)",
+    "realtimeSemanticEagerness": "Gyorsaság",
+    "realtimeIncludeLogprobs": "Bemeneti átírás log-valószínűségeinek hozzáadása",
+    "realtimeTokenTtlSeconds": "Token élettartama (másodperc)"
   },
   "google": {
     "enableEnhancedCivicAnswers": "Továbbfejlesztett állampolgári válaszok",
     "unspecified": "Nincs megadva",
     "mediaResolution": "Képminőség",
+    "responseModalities": "Válaszmodalitások",
     "url_context": "URL-kontekstus",
     "googleMaps": "Google Térkép",
+    "web_search": "Webes keresés",
+    "image_search": "Képkeresés",
+    "enterprise_web_search": "Vállalati webes keresés",
+    "modalities": {
+      "text": "Szöveg",
+      "image": "Kép",
+      "audio": "Hang",
+      "video": "Videó",
+      "document": "Dokumentum"
+    },
+    "interactions": {
+      "speech": {
+        "title": "Beszéd",
+        "language": "Nyelv",
+        "speaker": "Beszélő neve",
+        "voice": "Hang",
+        "addSpeaker": "Beszélő hozzáadása"
+      },
+      "transcription": {
+        "title": "Átírás",
+        "languageCodes": "Nyelvi tippek",
+        "customVocabulary": "Egyéni szókészlet",
+        "speakerDiarization": "Beszélők azonosítása",
+        "wordTimestamps": "Szavak időbélyegeinek hozzáadása"
+      },
+      "responseFormat": {
+        "title": "Válaszformátum",
+        "mimeType": "MIME-típus",
+        "sampleRate": "Mintavételezési frekvencia (Hz)",
+        "bitRate": "Bitráta (bps)",
+        "aspectRatio": "Képarány",
+        "imageSize": "Képméret",
+        "resolution": "Felbontás",
+        "duration": "Időtartam",
+        "types": {
+          "text": "Szöveg",
+          "audio": "Hang",
+          "image": "Kép",
+          "video": "Videó"
+        }
+      },
+      "retrieval": {
+        "apiKey": "API-kulcs",
+        "parallel": {
+          "title": "Parallel keresés"
+        },
+        "exa": {
+          "title": "Exa keresés"
+        }
+      },
+      "other": {
+        "seed": "Kezdőérték"
+      }
+    },
+    "realtimeTranscription": {
+      "title": "Élő átírás",
+      "hint": "Ezek a beállítások kizárólag a Gemini Live átírásra vonatkoznak, és elkülönülnek a fájlátírás beállításaitól. Az automatikus beszédtevékenység-felismerés be van kapcsolva.",
+      "languageCodes": "Nyelvi tippek (soronként vagy vesszővel elválasztva)",
+      "customVocabulary": "Egyéni szókészlet (soronként vagy vesszővel elválasztva)",
+      "mode": "Átírás módja",
+      "modes": {
+        "verbatim": "Szó szerinti",
+        "smart": "Intelligens"
+      }
+    },
+    "realtimeConversation": {
+      "title": "Gemini Live-beszélgetés",
+      "hint": "Közvetlen hangkapcsolat a böngésző és a Gemini Live között, a háttérrendszer által kiadott ideiglenes tokennel. A Gemini Live előzetes verziójú API.",
+      "inputTranscription": "Mikrofonhang átírása",
+      "outputTranscription": "Gemini hangjának átírása",
+      "googleSearch": "Google Keresés használata",
+      "turnDetection": "Beszédtevékenység felismerése",
+      "automaticVad": "Automatikus beszédtevékenység-felismerés",
+      "prefixPaddingMs": "Előtag kitöltése (ms)",
+      "silenceDurationMs": "Csend időtartama (ms)",
+      "sessionManagement": "Munkamenet kezelése",
+      "contextCompression": "Kontextusablak tömörítése",
+      "triggerTokens": "Tömörítést kiváltó tokenek",
+      "sessionResumption": "Folytatás WebSocket-kapcsolatok között",
+      "tokenExpiry": "Ideiglenes token lejárata",
+      "camera": "Kamerabemenet",
+      "cameraHint": "A kamera alapértelmezés szerint ki van kapcsolva. Ha a munkamenet során bekapcsolod, legfeljebb másodpercenként egy JPEG-képkocka kerül elküldésre. A hang- és videóalapú munkamenetek szolgáltatói időkorlátja rövidebb.",
+      "cameraFps": "Kameraképkockák másodpercenként",
+      "jpegQuality": "JPEG-minőség",
+      "startCamera": "Kamera bekapcsolása",
+      "stopCamera": "Kamera kikapcsolása"
+    },
+    "enable_widget": "Widget engedélyezése",
     "includeThoughts": "Gondolatok belefoglalása",
     "dynamicThinking": "Dinamikus gondolkodás",
     "intervalStart": "Kezdő dátum",
@@ -108,30 +630,276 @@
       "veryHighAndAbove": "Rendkívül magastól felfelé blokkol",
       "onlyExtremelyHigh": "Csak rendkívül magasat blokkol"
     }
+    ,
+    "speech": {
+      "title": "Beszéd",
+      "seed": "Kezdőérték",
+      "multiSpeaker": "Több beszélő",
+      "speakers": "Beszélők",
+      "addSpeaker": "Beszélő hozzáadása",
+      "speakerNamePlaceholder": "pl. Anna"
+    },
+    "image": {
+      "title": "Kép",
+      "aspect_ratio": "Képarány",
+      "image_size": "Képméret"
+    },
+    "videoConfig": {
+      "title": "Videó",
+      "task": "Feladat",
+      "providerDefault": "Szolgáltatói alapértelmezés (a prompt alapján)",
+      "tasks": {
+        "text_to_video": "Szövegből videó",
+        "image_to_video": "Képből videó",
+        "reference_to_video": "Referenciából videó",
+        "edit": "Szerkesztés",
+        "extend": "Bővítés"
+      }
+    },
+    "environment": {
+      "title": "Környezet (ügynökök)",
+      "description": "Felügyelt Linux-sandbox beállítása a Google ügynökeihez. Források és hálózati beállítások nélkül új távoli környezet jön létre.",
+      "environmentId": "Környezetazonosító",
+      "environmentIdHelp": "Ha megadsz egy környezetazonosítót, a forrás- és hálózati beállítások letiltásra kerülnek, és a rendszer újra felhasználja a meglévő sandboxot.",
+      "sources": "Források",
+      "sourceType": "Forrás típusa",
+      "source": "Forrás",
+      "target": "Cél elérési útja",
+      "inlineContent": "Beágyazott tartalom",
+      "addSource": "Forrás hozzáadása",
+      "noSources": "Nincsenek beállított források. Adhatsz hozzá kódtárakat, Cloud Storage-útvonalakat vagy beágyazott fájlokat egy új sandboxhoz.",
+      "network": "Hálózat",
+      "networkMode": "Hálózati mód",
+      "allowlistHelp": "Engedélyezési lista esetén csak a felsorolt domainek érhetők el. A többi forgalom engedélyezéséhez adj hozzá * bejegyzést.",
+      "domain": "Domain",
+      "transform": "Fejléc-átalakítás JSON",
+      "addAllowlistRule": "Szabály hozzáadása",
+      "sourceTypes": {
+        "repository": "Git-kódtár",
+        "gcs": "Cloud Storage",
+        "inline": "Beágyazott tartalom"
+      },
+      "networkModes": {
+        "default": "Alapértelmezett, korlátozás nélküli hozzáférés",
+        "disabled": "Letiltva",
+        "allowlist": "Engedélyezési lista"
+      }
+    },
+    "service_tier": "Szolgáltatási szint",
+    "serviceTiers": {
+      "providerDefault": "Szolgáltatói alapértelmezés",
+      "flex": "Rugalmas",
+      "standard": "Normál",
+      "priority": "Prioritás"
+    },
+    "safetySettings": {
+      "title": "Biztonsági beállítások",
+      "add": "Biztonsági beállítás hozzáadása",
+      "type": "Kategória",
+      "method": "Módszer",
+      "threshold": "Küszöbérték",
+      "methods": {
+        "severity": "Valószínűség és súlyosság",
+        "probability": "Valószínűség"
+      },
+      "thresholds": {
+        "block_low_and_above": "Alacsony és magasabb blokkolása",
+        "block_medium_and_above": "Közepes és magasabb blokkolása",
+        "block_only_high": "Csak a magas blokkolása",
+        "block_none": "Semmi blokkolása",
+        "off": "Biztonsági szűrő kikapcsolása"
+      },
+      "categories": {
+        "hate_speech": "Gyűlöletbeszéd",
+        "dangerous_content": "Veszélyes tartalom",
+        "harassment": "Zaklatás",
+        "sexually_explicit": "Szexuális tartalom",
+        "civic_integrity": "Választási tisztaság (elavult)",
+        "image_hate": "Képen szereplő gyűlöletbeszéd",
+        "image_dangerous_content": "Képen szereplő veszélyes tartalom",
+        "image_harassment": "Képen szereplő zaklatás",
+        "image_sexually_explicit": "Képen szereplő szexuális tartalom",
+        "jailbreak": "Védelmi korlátozás megkerülése"
+      }
+    },
+    "voice": "Hang",
+    "language": "Nyelv",
+    "speaker": "Beszélő"
   },
   "jina": {
     "max_returned_urls": "Visszaadott URL-ek maximális száma",
-    "search_provider": "Optimalizált Arxiv keresés",
-    "team_size": "Agentikus csapat mérete",
-    "goodDomains": "Erősített domainek",
-    "badDomains": "Rossz domainek",
-    "onlyDomains": "Keresés korlátozása ezekre a domainekre"
+    "search_provider": "Optimalizált arXiv-keresés",
+    "team_size": "Ügynökcsapat mérete",
+    "goodDomains": "Előnyben részesített domainek",
+    "badDomains": "Kizárt domainek",
+    "onlyDomains": "Keresés korlátozása ezekre a domainekre",
+    "reranking": {
+      "returnDocuments": "Dokumentumok visszaadása",
+      "truncation": "Csonkolás",
+      "maxDocLength": "Dokumentum maximális hossza",
+      "returnEmbeddings": "Beágyazások visszaadása"
+    }
   },
   "together": {
     "guidanceScale": "Irányítási skála",
     "steps": "Lépések",
     "negativePrompt": "Negatív prompt",
-    "disableSafetyChecker": "Biztonsági ellenőrző kikapcsolása"
+    "disableSafetyChecker": "Biztonsági ellenőrző kikapcsolása",
+    "reranking": {
+      "returnDocuments": "Dokumentumok visszaadása",
+      "rankFields": "Rangsorolási mezők",
+      "addRankField": "Rangsorolási mező hozzáadása"
+    },
+    "speech": {
+      "encoding": "Kódolás"
+    }
+  },
+  "voyageai": {
+    "reranking": {
+      "returnDocuments": "Dokumentumok visszaadása",
+      "truncation": "Csonkolás"
+    }
+  },
+  "nebius": {
+    "responseExtension": "Kimeneti formátum"
   },
   "runway": {
     "contentModeration": "Tartalommoderálás",
-    "publicFigureThreshold": "Közszereplő küszöbérték"
+    "publicFigureThreshold": "Közszereplő küszöbérték",
+    "speech": {
+      "soundEffects": {
+        "title": "Hangeffektek",
+        "duration": "Időtartam (másodperc)",
+        "durationHint": "Opcionális. Ha nincs megadva, a Runway választ megfelelő időtartamot.",
+        "loop": "Ismétlés"
+      }
+    }
+  },
+  "zai": {
+    "clearThinking": "Korábbi gondolatmenet törlése",
+    "generalTranslation": "Általános fordítóügynök",
+    "popularSpecialEffectsVideos": "Népszerű vizuáliseffektus-videók ügynöke",
+    "videoTemplate": "Effektsablon",
+    "sourceLanguage": "Forrásnyelv",
+    "targetLanguage": "Célnyelv",
+    "translationStrategy": "Fordítási stratégia",
+    "glossary": "Szójegyzék azonosítója",
+    "glossaryPlaceholder": "Opcionális szójegyzék-azonosító",
+    "translationSuggestion": "Fordítási javaslatok",
+    "translationSuggestionPlaceholder": "Opcionális terminológiai megfeleltetés, stílusútmutató vagy fordítási követelmény",
+    "reasonLanguage": "Következtetés nyelve",
+    "translationStrategies": {
+      "general": "Általános fordítás",
+      "paraphrase": "Átfogalmazó fordítás",
+      "two_step": "Kétlépéses fordítás",
+      "three_step": "Háromlépéses fordítás",
+      "reflection": "Önellenőrző fordítás",
+      "cot": "Gondolatmenet-alapú fordítás"
+    },
+    "reasonLanguages": {
+      "from": "Forrásnyelv",
+      "to": "Célnyelv"
+    },
+    "videoTemplates": {
+      "french_kiss": "Francia csók",
+      "bodyshake": "Testrázó tánc",
+      "sexy_me": "Csábító én"
+    },
+    "translationLanguages": {
+      "auto": "Automatikus felismerés",
+      "zh-CN": "Egyszerűsített kínai",
+      "zh-TW": "Hagyományos kínai",
+      "wyw": "Klasszikus kínai",
+      "yue": "Kantoni",
+      "en": "Angol",
+      "en-GB": "Brit angol",
+      "en-US": "Amerikai angol",
+      "ja": "Japán",
+      "ko": "Koreai",
+      "fr": "Francia",
+      "de": "Német",
+      "es": "Spanyol",
+      "ru": "Orosz",
+      "pt": "Portugál",
+      "it": "Olasz",
+      "ar": "Arab",
+      "hi": "Hindi",
+      "bg": "Bolgár",
+      "cs": "Cseh",
+      "da": "Dán",
+      "el": "Görög",
+      "et": "Észt",
+      "fi": "Finn",
+      "hu": "Magyar",
+      "id": "Indonéz",
+      "lt": "Litván",
+      "lv": "Lett",
+      "nl": "Holland",
+      "no": "Norvég bokmål",
+      "pl": "Lengyel",
+      "ro": "Román",
+      "sk": "Szlovák",
+      "sl": "Szlovén",
+      "sv": "Svéd",
+      "th": "Thai",
+      "tr": "Török",
+      "uk": "Ukrán",
+      "vi": "Vietnámi",
+      "my": "Burmai",
+      "ms": "Maláj",
+      "Pinyin": "Pinjin",
+      "IPA": "Nemzetközi fonetikai ábécé"
+    },
+    "searchQuery": "Keresőkifejezés",
+    "searchQueryPlaceholder": "A webes keresést kikényszerítő lekérdezés",
+    "searchEngine": "Keresőmotor",
+    "resultCount": "Találatok száma",
+    "recencyFilter": "Frissességi szűrő",
+    "contentSize": "Tartalom mérete",
+    "resultSequence": "Találatok sorrendje",
+    "domainFilter": "Domain szűrése",
+    "returnSearchResults": "Keresési találatok visszaadása",
+    "requireSearchGrounding": "Keresési források megkövetelése",
+    "searchPrompt": "Keresési prompt",
+    "searchPromptPlaceholder": "Opcionális prompt a keresési találatok feldolgozásához",
+    "toolStream": "Eszköz adatfolyama",
+    "thinkingTypes": {
+      "enabled": "Engedélyezve",
+      "disabled": "Letiltva"
+    },
+    "searchEngines": {
+      "search_pro_jina": "Search Pro (Jina)"
+    },
+    "recencyFilters": {
+      "oneDay": "Elmúlt nap",
+      "oneWeek": "Elmúlt hét",
+      "oneMonth": "Elmúlt hónap",
+      "oneYear": "Elmúlt év",
+      "noLimit": "Nincs korlátozás"
+    },
+    "contentSizes": {
+      "medium": "Közepes",
+      "high": "Magas"
+    },
+    "resultSequences": {
+      "before": "Válasz előtt",
+      "after": "Válasz után"
+    }
   },
   "stabilityai": {
     "style_presetLabel": "Stílus-előbeállítás",
     "negativePrompt": "Negatív prompt",
     "no_style_preset": "Nincs stílus-előbeállítás",
     "style_presetHint": "A képmodellt egy adott stílus felé tereli.",
+    "speech": {
+      "duration": "Időtartam (másodperc)",
+      "durationHint": "A létrehozott hang időtartamának szabályozása másodpercben.",
+      "seed": "Kezdőérték",
+      "seedHint": "A létrehozás véletlenszerűségét befolyásoló érték. Véletlenszerű kezdőértékhez hagyd üresen, vagy adj meg 0-t.",
+      "stepsHint": "A mintavételezési lépések számának szabályozása.",
+      "cfgScale": "Osztályozó nélküli útmutatás erőssége",
+      "cfgScaleHint": "A diffúziós folyamat promptkövetésének szigorúsága. Magasabb értéknél a hang jobban illeszkedik a prompthoz."
+    },
     "style_preset": {
       "3d-model": "3D modell",
       "analog-film": "Analóg film",
@@ -151,5 +919,799 @@
       "pixel-art": "Pixel art",
       "tile-texture": "Csempe textúra"
     }
+  },
+  "akumi": {
+    "other": "Egyéb",
+    "cache": "Gyorsítótár",
+    "tags": "Címkék",
+    "tag": "Új címke",
+    "firewall": "Tűzfal",
+    "sendFirewall": "Tűzfalbeállítások küldése",
+    "firewallEnabled": "EU-s útválasztás",
+    "firewallLanguage": "Elemzés nyelve",
+    "languages": {
+      "auto": "Automatikus felismerés",
+      "nl": "Holland",
+      "en": "Angol",
+      "fr": "Francia",
+      "de": "Német"
+    }
+  },
+  "baseten": {
+    "enableThinking": "Gondolkodás engedélyezése",
+    "enableThinkingValue": "enable_thinking küldése",
+    "searchProvider": "Keresőszolgáltató",
+    "searchTool": "Keresés",
+    "fetchTool": "Oldalak lekérése",
+    "advancedSearchTool": "Speciális keresés",
+    "limitIterations": "Iterációkorlát beállítása",
+    "maxReactIterations": "Következtetési és eszköziterációk maximális száma",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You.com"
+    }
+  },
+  "apertis": {
+    "notSet": "Nincs beállítva",
+    "reasoning": "Következtetés",
+    "effort": "Ráfordítás",
+    "efforts": {
+      "low": "Alacsony",
+      "medium": "Közepes",
+      "high": "Magas"
+    },
+    "summary": "Összefoglaló",
+    "summaries": {
+      "auto": "Automatikus",
+      "concise": "Tömör",
+      "detailed": "Részletes"
+    },
+    "compression": "Kontextustömörítés",
+    "strategy": "Stratégia",
+    "strategies": {
+      "default": "Alapértelmezett (kiegyensúlyozott)",
+      "on": "Kiegyensúlyozott",
+      "conservative": "Óvatos",
+      "aggressive": "Agresszív"
+    },
+    "threshold": "Tokenküszöb",
+    "keepTurns": "Megtartandó legutóbbi fordulók",
+    "model": "Tömörítési modell"
+  },
+  "upstage": {
+    "reasoning": {
+      "title": "Következtetés",
+      "effort": "Következtetési ráfordítás",
+      "efforts": {
+        "none": "Nincs",
+        "minimal": "Minimális",
+        "low": "Alacsony",
+        "medium": "Közepes",
+        "high": "Magas",
+        "xhigh": "Kiemelkedően magas",
+        "max": "Maximum"
+      }
+    }
+  },
+  "interfaze": {
+    "reasoning": {
+      "title": "Következtetés",
+      "effort": "Következtetési ráfordítás",
+      "efforts": {
+        "low": "Alacsony",
+        "medium": "Közepes",
+        "high": "Magas"
+      }
+    },
+    "other": {
+      "title": "Egyéb",
+      "headers": {
+        "x-show-additional-info": "További előzetes kontextus hozzáadása a streamelt válaszokhoz",
+        "x-interfaze-zdr": "Nulla adatmegőrzés",
+        "x-interfaze-bypass-cache": "Ellenőrzött gyorsítótár megkerülése",
+        "x-interfaze-bypass-moa": "MoA megkerülése"
+      }
+    }
+  },
+  "inworld": {
+    "webSearch": {
+      "title": "Webes keresés",
+      "engine": "Keresőmotor",
+      "maxResults": "Találatok keresésenként",
+      "maxSteps": "Keresési fordulók maximális száma",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      }
+    },
+    "modalities": {
+      "title": "Kimeneti modalitások",
+      "text": "Szöveg",
+      "image": "Kép"
+    },
+    "imageConfig": {
+      "title": "Képbeállítások",
+      "aspectRatio": "Képarány",
+      "imageSize": "Képméret",
+      "partialImages": "Részleges képek előnézete",
+      "count": "Képek száma"
+    },
+    "reasoning": {
+      "title": "Következtetés",
+      "effort": "Következtetési ráfordítás",
+      "efforts": {
+        "none": "Nincs",
+        "low": "Alacsony",
+        "minimal": "Minimális",
+        "medium": "Közepes",
+        "high": "Magas"
+      }
+    }
+  },
+  "webcrawlerapi": {
+    "urls": "URL-ek",
+    "costs": "Árazás",
+    "sources": "Források",
+    "maxSpendUsd": "Maximális költés (USD)",
+    "seedUrlsOnly": "Csak a megadott URL-ek használata"
+  },
+  "ninjachat": {
+    "search": "Keresés",
+    "group": "Forrás",
+    "maxResults": "Találatok maximális száma",
+    "searchDepth": "Keresés mélysége",
+    "includeImages": "Képek hozzáadása",
+    "topic": "Téma",
+    "groupOptions": {
+      "web": "Web",
+      "academic": "Akadémiai",
+      "news": "Hírek"
+    },
+    "searchDepthOptions": {
+      "basic": "Alap",
+      "advanced": "Speciális"
+    },
+    "topicOptions": {
+      "general": "Általános",
+      "news": "Hírek",
+      "finance": "Pénzügyek"
+    }
+  },
+  "venice": {
+    "webSearchModes": {
+      "auto": "Automatikus",
+      "on": "Be",
+      "off": "Ki"
+    },
+    "includeSystemPrompt": "Venice rendszerprompt",
+    "webCitations": "Webes hivatkozások",
+    "webScraping": "Weboldalak adatainak kinyerése",
+    "xSearch": "Keresés az X-en",
+    "stripThinking": "Gondolatmenet eltávolítása",
+    "seedPlaceholder": "Opcionális kezdőérték az ismételhető eredményekhez",
+    "enableE2EE": "Végpontok közötti titkosítás",
+    "returnSearchResultsAsDocuments": "Keresési találatok visszaadása dokumentumként",
+    "characterSlug": "Karakter",
+    "disableThinking": "Gondolkodás letiltása",
+    "includeSearchResultsInStream": "Keresési találatok"
+  },
+  "browseruse": {
+    "run": "Futtatás",
+    "browserSettings": "Böngészőbeállítások",
+    "maxCostUsd": "Maximális költség (USD)",
+    "profileId": "Profilazonosító",
+    "proxyCountryCode": "Hely",
+    "noProxy": "Proxy nélkül",
+    "screenWidth": "Képernyő szélessége",
+    "screenHeight": "Képernyő magassága",
+    "record": "Böngésző-munkamenet rögzítése",
+    "judge": "Értékelő",
+    "enableJudge": "Értékelő engedélyezése",
+    "judgeContext": "Értékelési kontextus"
+  },
+  "tembo": {
+    "session": "Munkamenet",
+    "description": "Leírás",
+    "descriptionPlaceholder": "A Tembo által elvégzendő munka részletes leírása",
+    "targetBranch": "Célág",
+    "branchName": "Munkaág",
+    "queueRightAway": "Azonnali sorba állítás",
+    "repositories": "Kódtárak",
+    "repositoriesHint": "Add meg azoknak a GitHub- vagy Git-kódtáraknak az URL-jét, amelyeken a Tembónak dolgoznia kell.",
+    "addRepository": "Kódtár URL-jének hozzáadása",
+    "noRepositories": "Még nincsenek hozzáadva kódtárak."
+  },
+  "mireye": {
+    "addressTitle": "Cím",
+    "addressHint": "Teljes egyesült államokbeli utcacímet adj meg. Ennek a lehetőségnek a kiválasztása törli a koordinátákat.",
+    "address": "Cím",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "coordinatesTitle": "Földrajzi szélesség és hosszúság",
+    "coordinatesHint": "Mindkét koordinátát add meg. Ennek a lehetőségnek a kiválasztása törli a címet.",
+    "latitude": "Földrajzi szélesség",
+    "longitude": "Földrajzi hosszúság",
+    "getCurrent": "Jelenlegi hely lekérése",
+    "gettingCurrent": "Jelenlegi hely lekérése...",
+    "geolocationUnsupported": "Ez a böngésző nem támogatja a jelenlegi hely meghatározását.",
+    "geolocationDenied": "A helymeghatározási engedély megtagadva.",
+    "geolocationUnavailable": "Nem sikerült meghatározni a jelenlegi helyet.",
+    "geolocationTimeout": "A jelenlegi hely lekérése túllépte az időkorlátot."
+  },
+  "brave": {
+    "notSet": "Nincs beállítva",
+    "safesearch": "Biztonságos keresés",
+    "safesearchOptions": {
+      "off": "Ki",
+      "moderate": "Közepes",
+      "strict": "Szigorú"
+    },
+    "answerEnrichment": "Válasz kiegészítése",
+    "enableEntities": "Entitások engedélyezése",
+    "enableCitations": "Hivatkozások engedélyezése",
+    "research": "Kutatás",
+    "researchAllowThinking": "Gondolkodás engedélyezése",
+    "researchMaximumNumberOfTokensPerQuery": "Tokenek maximális száma lekérdezésenként",
+    "researchMaximumNumberOfQueries": "Lekérdezések maximális száma",
+    "researchMaximumNumberOfIterations": "Iterációk maximális száma",
+    "researchMaximumNumberOfSeconds": "Másodpercek maximális száma",
+    "researchMaximumNumberOfResultsPerQuery": "Találatok maximális száma lekérdezésenként"
+  },
+  "copilot": {
+    "locationTitle": "Helyadatok",
+    "timeZone": "Időzóna (IANA)",
+    "countryOrRegion": "Ország vagy régió",
+    "countryOrRegionConfidence": "Országba vagy régióba vetett bizalom",
+    "latitude": "Földrajzi szélesség",
+    "longitude": "Földrajzi hosszúság",
+    "contextualResourcesTitle": "Kontextuális erőforrások",
+    "webContext": "Webes keresés",
+    "webContextUnset": "Nincs beállítva",
+    "webContextEnabled": "Engedélyezve",
+    "webContextDisabled": "Letiltva",
+    "filesDescription": "OneDrive- vagy SharePoint-fájlok hivatkozásainak hozzáadása kontextuális forrásként",
+    "fileUri": "{{index}}. fájl hivatkozása",
+    "addFile": "Fájl hivatkozásának hozzáadása",
+    "additionalContextTitle": "További kontextus",
+    "additionalContextDescription": "További kontextusként küldendő szövegrészletek hozzáadása.",
+    "additionalContextEntry": "{{index}}. kontextus",
+    "addAdditionalContext": "Kontextus hozzáadása"
+  },
+  "openrouter": {
+    "notSet": "Nincs beállítva",
+    "appAttribution": "Alkalmazás megjelölése",
+    "zdr": "Nulla adatmegőrzés",
+    "webSearchServerTool": "Webes keresés",
+    "webFetchServerTool": "Webes lekérés",
+    "datetimeServerTool": "Aktuális dátum és idő",
+    "imageGenerationServerTool": "Képgenerálás",
+    "responseHealingPlugin": "Válasz javítása",
+    "responseHealingDescription": "Automatikusan ellenőrzi és kijavítja az AI-modellek hibás JSON-válaszait.",
+    "pdfInputsPlugin": "PDF-bemenetek",
+    "engine": "Motor",
+    "contextCompressionPlugin": "Kontextustömörítés",
+    "searchContextSize": "Keresési kontextus mérete",
+    "maxResults": "Találatok maximális száma",
+    "maxTotalResults": "Találatok maximális összesített száma",
+    "maxUses": "Használatok maximális száma",
+    "maxContentTokens": "Tartalmi tokenek maximális száma",
+    "allowedDomains": "Engedélyezett domainek",
+    "excludedDomains": "Kizárt domainek",
+    "blockedDomains": "Tiltott domainek",
+    "userCity": "Város",
+    "userCountry": "Ország",
+    "userRegion": "Régió",
+    "userTimezone": "Időzóna",
+    "timezone": "Időzóna",
+    "imageModel": "Modell",
+    "quality": "Minőség",
+    "size": "Méret",
+    "aspectRatio": "Képarány",
+    "background": "Háttér",
+    "outputFormat": "Kimeneti formátum",
+    "outputCompression": "Kimeneti tömörítés",
+    "moderation": "Tartalomellenőrzés",
+    "pdfEngine": "PDF-motor"
+  },
+  "requesty": {
+    "appAttribution": "Alkalmazás megjelölése",
+    "autoCache": "Automatikus gyorsítótárazás",
+    "autoCacheDescription": "Kifejezetten elküldi a Requesty requesty.auto_cache jelzőjét. Bekapcsolva az olyan támogatott szolgáltatók, mint az Anthropic és a Gemini, újra felhasználhatják a hosszú promptokat és az ismétlődő tartalmakat a költségek csökkentésére."
+  },
+  "abliteration": {
+    "reasoning": {
+      "title": "Következtetés",
+      "enabled": "Következtetés engedélyezése",
+      "effort": "Ráfordítás",
+      "maxTokens": "Következtetési tokenek maximális száma",
+      "exclude": "Következtetés kihagyása a válaszból",
+      "efforts": {
+        "none": "Nincs",
+        "minimal": "Minimális",
+        "low": "Alacsony",
+        "medium": "Közepes",
+        "high": "Magas",
+        "xhigh": "Kiemelkedően magas",
+        "max": "Maximum",
+        "ultracode": "Ultrakód"
+      }
+    },
+    "policy": {
+      "title": "Irányelv",
+      "id": "Irányelvazonosító",
+      "allowlist": "Engedélyezési lista bejegyzése",
+      "denylist": "Tiltólista bejegyzése",
+      "flaggedCategories": "Megjelölt kategóriák",
+      "noneSelected": "Nincs kiválasztva kategória",
+      "redactPii": "Személyes adatok kitakarása"
+    },
+    "categories": {
+      "harassment": "Zaklatás",
+      "harassment/threatening": "Zaklatás – fenyegető",
+      "hate": "Gyűlölet",
+      "hate/threatening": "Gyűlölet – fenyegető",
+      "illicit": "Tiltott tevékenység",
+      "illicit/violent": "Tiltott tevékenység – erőszakos",
+      "self-harm": "Önsértés",
+      "self-harm/intent": "Önsértés – szándék",
+      "self-harm/instructions": "Önsértés – útmutatás",
+      "sexual": "Szexuális tartalom",
+      "sexual/minors": "Szexuális tartalom – kiskorúak",
+      "violence": "Erőszak",
+      "violence/graphic": "Erőszak – naturális"
+    }
+  },
+  "blackbox": {
+    "notSet": "Nincs beállítva",
+    "zdr": "Nulla adatmegőrzés",
+    "reasoning": "Következtetés",
+    "enabled": "Alapértelmezett következtetés engedélyezése",
+    "effort": "Ráfordítás",
+    "maxTokens": "Következtetési tokenek maximális száma",
+    "exclude": "Következtetés kihagyása a válaszból",
+    "summary": "Összefoglaló"
+  },
+  "deepinfra": {
+    "transcription": {
+      "task": "Feladat",
+      "taskTranscribe": "Átírás",
+      "taskTranslate": "Fordítás",
+      "initialPrompt": "Kezdő prompt",
+      "chunkingTitle": "Darabolás",
+      "chunkLevel": "Darabolás szintje",
+      "chunkLevelSegment": "Szegmens",
+      "chunkLevelWord": "Szó",
+      "chunkLengthSeconds": "Darab hossza (másodperc)"
+    },
+    "reranking": {
+      "instruction": "Utasítás",
+      "serviceTier": "Szolgáltatási szint"
+    },
+    "speech": {
+      "serviceTier": "Szolgáltatási szint",
+      "voiceId": "Hang",
+      "voiceIdPlaceholder": "pl. deepinfra-voice-123",
+      "maxTokens": "Tokenek maximális száma",
+      "languageId": "Nyelv",
+      "speakerAudio": "Beszélő hangja",
+      "speakerTranscript": "Beszélő átirata",
+      "maxAudioLengthMs": "Hang maximális hossza (ms)",
+      "languageIdPlaceholder": "pl. hu",
+      "presetVoicePlaceholder": "pl. af_bella",
+      "speed": "Sebesség",
+      "returnTimestamps": "Időbélyegek visszaadása",
+      "targetMinTokens": "Cél minimális tokenszám",
+      "targetMaxTokens": "Cél maximális tokenszám",
+      "absoluteMaxTokens": "Abszolút maximális tokenszám",
+      "advanced": "Speciális",
+      "speakerRate": "Beszédtempó",
+      "exaggeration": "Túlzás",
+      "cfg": "Osztályozó nélküli útmutatás erőssége",
+      "seed": "Kezdőérték",
+      "minP": "Minimális P",
+      "repetitionPenalty": "Ismétlési büntetés",
+      "topK": "Top-K"
+    }
+  },
+  "sambanova": {
+    "chat_template_kwargs": "Csevegéssablon paraméterei",
+    "chat_template_kwargs_placeholder": "{\n  \"enable_thinking\": true\n}",
+    "invalid_json": "Érvénytelen JSON"
+  },
+  "novita": {
+    "pitch": "Hangmagasság ({{pitch}})",
+    "transcriptionPrompt": "Prompt",
+    "transcriptionPromptPlaceholder": "Hosszú szövegek esetén a korábbi átiratok megadhatók kontextusként. Legfeljebb 8000 karakter ajánlott.",
+    "hotwords": "Fontos kifejezések",
+    "hotwordsHint": "A szakterületi szókincs felismerésének javítására szolgáló kifejezéslista.",
+    "addHotword": "Kifejezés hozzáadása",
+    "addHotwordPlaceholder": "pl. terméknév"
+  },
+  "fireworks": {
+    "audioProcessing": "Hangfeldolgozás",
+    "alignmentModel": "Igazítási modell",
+    "preprocessing": "Előfeldolgozás",
+    "diarization": "Beszélők elkülönítése",
+    "vadModel": "Beszédtevékenység-felismerési modell",
+    "minSpeakers": "Beszélők minimális száma",
+    "maxSpeakers": "Beszélők maximális száma",
+    "webhookUrl": "Webhook",
+    "webhookUrlHint": "Az értesítéseket fogadó URL.",
+    "promptUpsampling": "Prompt felbontásának növelése",
+    "promptUpsamplingHint": "Bekapcsolva kreatívabb eredmény érdekében módosítja a promptot.",
+    "safetyTolerance": "Biztonsági tűrésszint",
+    "safetyToleranceHint": "A bemeneti és kimeneti tartalomellenőrzés tűrésszintje 0 (szigorú) és 6 (engedékeny) között. Képből kép esetén legfeljebb 2.",
+    "reranking": {
+      "task": "Feladat",
+      "taskPlaceholder": "Például: „Releváns szövegrészek lekérése egy webes keresőkifejezés megválaszolásához”",
+      "taskHint": "Opcionális feladatleírás az újrarendezés irányításához.",
+      "returnDocuments": "Dokumentumok visszaadása"
+    }
+  },
+  "elevenlabs": {
+    "enableLogging": "Naplózás engedélyezése",
+    "realtimeToken": "Token",
+    "realtimeTokenPlaceholder": "Egyszer használatos token (opcionális)",
+    "realtimeIncludeTimestamps": "Időbélyegek hozzáadása",
+    "realtimeIncludeLanguageDetection": "Nyelvfelismerés hozzáadása",
+    "realtimeAudioFormat": "Hangformátum",
+    "realtimeCommitStrategy": "Rögzítési stratégia",
+    "realtimeVadSilenceThresholdSecs": "VAD csendküszöb (másodperc)",
+    "realtimeVadThreshold": "VAD-küszöbérték",
+    "realtimeMinSpeechDurationMs": "Beszéd minimális időtartama (ms)",
+    "realtimeMinSilenceDurationMs": "Csend minimális időtartama (ms)",
+    "seed": "Kezdőérték",
+    "voiceSettings": "Hangbeállítások",
+    "stability": "Stabilitás ({{value}})",
+    "similarityBoost": "Hasonlóságerősítés ({{value}})",
+    "style": "Stílus ({{value}})",
+    "useSpeakerBoost": "Beszélőkiemelés használata",
+    "continuity": "Folytonosság",
+    "previousText": "Előző szöveg",
+    "nextText": "Következő szöveg",
+    "textNormalization": "Szövegnormalizálás",
+    "applyTextNormalization": "Szövegnormalizálás alkalmazása",
+    "applyLanguageTextNormalization": "Nyelvspecifikus szövegnormalizálás alkalmazása",
+    "music": "Zene",
+    "musicLengthMs": "Zene hossza (ms)",
+    "forceInstrumental": "Instrumentális mód kényszerítése",
+    "respectSectionsDurations": "Szakaszok időtartamának megtartása",
+    "storeForInpainting": "Mentés inpaintinghez",
+    "signWithC2pa": "Aláírás C2PA-val",
+    "fileFormat": "Fájlformátum",
+    "tagAudioEvents": "Hangesemények címkézése",
+    "useMultiChannel": "Többcsatornás hang használata",
+    "timestamps": "Időbélyegek",
+    "timestampsGranularity": "Időbélyegek részletessége",
+    "diarization": "Beszélők elkülönítése",
+    "numSpeakers": "Beszélők száma",
+    "diarizationThreshold": "Beszélő-elkülönítési küszöbérték ({{value}})",
+    "dialogue": "Párbeszéd",
+    "dialogueHint": "Több párbeszédsort adhatsz meg a párbeszédmodellekhez.",
+    "dialogueAddLine": "Sor hozzáadása",
+    "dialogueVoiceIdPlaceholder": "pl. JBFqnCBsd6RMkjVDRZzb",
+    "dialogueText": "Szöveg",
+    "dialogueStability": "Párbeszéd stabilitása ({{value}})",
+    "dialogueStabilityReset": "Szolgáltatói alapértelmezés használata"
+  },
+  "async": {
+    "speech": {
+      "encoding": "Kódolás",
+      "bitRateMp3Only": "Bitráta (csak MP3)",
+      "experimental": "Kísérleti",
+      "overrideSpeedControl": "Sebességszabályozás felülbírálása",
+      "speedControl": "Sebességszabályozás",
+      "overrideStability": "Stabilitás felülbírálása",
+      "stability": "Stabilitás"
+    }
+  },
+  "deepgram": {
+    "language": "Nyelv",
+    "punctuate": "Írásjelek hozzáadása",
+    "smartFormat": "Intelligens formázás",
+    "paragraphs": "Bekezdések",
+    "utterances": "Megnyilatkozások",
+    "diarize": "Beszélők elkülönítése",
+    "multichannel": "Többcsatornás mód",
+    "detectEntities": "Entitások felismerése",
+    "topics": "Témák",
+    "intents": "Szándékok",
+    "sentiment": "Érzelem",
+    "mipOptOut": "Kilépés a modellfejlesztési programból",
+    "detectLanguage": "Nyelv felismerése",
+    "tags": "Címkék",
+    "addTag": "Címke hozzáadása",
+    "addTagPlaceholder": "pl. ugyfel-123",
+    "speech": {
+      "encoding": "Kódolás",
+      "container": "Konténer",
+      "bitRate": "Bitráta (bps)",
+      "mipOptOut": "Kilépés a modellfejlesztési programból",
+      "callback": "Visszahívási URL",
+      "callbackMethod": "Visszahívás metódusa",
+      "singleTagDetected": "Meglévő egyedi címke észlelve: {{tag}}. Címkék hozzáadásával vagy eltávolításával listává alakíthatod."
+    }
+  },
+  "resembleai": {
+    "queryLabel": "Lekérdezés",
+    "queryHint": "Opcionális kérdés az átírás utáni elemzéshez.",
+    "queryPlaceholder": "pl. Milyen teendőkről esett szó?",
+    "speech": {
+      "voiceUuid": "Hang",
+      "voiceUuidPlaceholder": "pl. 55592656",
+      "projectUuid": "Projekt",
+      "projectUuidHint": "Opcionális projektazonosító a létrehozott hangklip mentéséhez.",
+      "projectUuidPlaceholder": "pl. 7df0c0c2-5b9c-4f3d-9b6c-7d4b3f5d1a2b",
+      "title": "Cím",
+      "titleHint": "Opcionális cím a létrehozott hangkliphez.",
+      "titlePlaceholder": "pl. Üdvözlő üzenet",
+      "precision": "Pontosság (WAV)",
+      "useHd": "HD használata"
+    }
+  },
+  "gladia": {
+    "customVocabulary": "Egyéni szókészlet",
+    "customVocabularyHint": "A szakterületi kifejezések pontosabb felismeréséhez adj meg szókészletet.",
+    "customVocabularyMode": "Szókészlet módja",
+    "customVocabularyModeConfig": "Beállítás (custom_vocabulary_config)",
+    "customVocabularyModeInline": "Beágyazott lista (custom_vocabulary tömb)",
+    "customVocabularyDefaultIntensity": "Alapértelmezett hangsúly",
+    "customVocabularyList": "Szókészlet",
+    "customVocabularyAddItem": "Szókészleti elem hozzáadása",
+    "customVocabularyEmpty": "Még nincsenek szókészleti elemek.",
+    "customVocabularyItemType": "Elem típusa",
+    "customVocabularyItemTypeString": "Szöveg",
+    "customVocabularyItemTypeObject": "Objektum",
+    "customVocabularyValue": "Érték",
+    "customVocabularyIntensity": "Hangsúly",
+    "customVocabularyPronunciations": "Kiejtések",
+    "customVocabularyLanguage": "Nyelv",
+    "subtitles": "Feliratok",
+    "subtitlesHint": "Feliratfájlok létrehozása ehhez az átirathoz.",
+    "subtitlesMinDuration": "Minimális időtartam (másodperc)",
+    "subtitlesMaxDuration": "Maximális időtartam (másodperc)",
+    "subtitlesMaxCharsPerRow": "Karakterek maximális száma soronként",
+    "subtitlesMaxRowsPerCaption": "Sorok maximális száma feliratonként",
+    "subtitlesStyle": "Stílus",
+    "subtitlesStyle.default": "Alapértelmezett",
+    "subtitlesStyle.compliance": "Megfelelőségi",
+    "diarization": "Beszélők elkülönítése",
+    "diarizationHint": "Beszélők azonosítása a hangban.",
+    "diarizationNumberOfSpeakers": "Beszélők pontos száma",
+    "diarizationMinSpeakers": "Beszélők minimális száma",
+    "diarizationMaxSpeakers": "Beszélők maximális száma",
+    "translation": "Fordítás",
+    "translationHint": "Átirat fordítása egy vagy több célnyelvre.",
+    "translationTargetLanguages": "Célnyelvek",
+    "translationModel": "Fordítási modell",
+    "translationModel.base": "Alap",
+    "translationModel.enhanced": "Továbbfejlesztett",
+    "translationMatchOriginalUtterances": "Eredeti megnyilatkozásokhoz igazítás",
+    "translationLipsync": "Szájmozgás-szinkron engedélyezése",
+    "translationContextAdaptation": "Kontextushoz igazítás",
+    "translationContext": "Kontextus",
+    "translationContextPlaceholder": "Opcionális kontextus a fordítás pontosságának javításához",
+    "translationInformal": "Közvetlen hangvétel használata",
+    "summarization": "Összefoglalás",
+    "summarizationHint": "Átirat összefoglalásának létrehozása.",
+    "summarizationType": "Összefoglaló típusa",
+    "summarizationType.general": "Általános",
+    "summarizationType.bullet_points": "Felsorolás",
+    "summarizationType.concise": "Tömör",
+    "analysis": "Elemzés",
+    "moderation": "Tartalomellenőrzés",
+    "namedEntityRecognition": "Névelemmel jelölt entitások felismerése",
+    "chapterization": "Fejezetekre bontás",
+    "nameConsistency": "Nevek következetessége",
+    "sentimentAnalysis": "Hangulatelemzés",
+    "customSpelling": "Egyéni írásmód",
+    "customSpellingHint": "Egyéni írásmódok megadása a felismerés javításához.",
+    "customSpellingTerm": "Kifejezés",
+    "customSpellingVariants": "Írásváltozatok",
+    "customSpellingAddEntry": "Kifejezés hozzáadása",
+    "customSpellingEmpty": "Még nincsenek egyéni írásmódok.",
+    "structuredDataExtraction": "Strukturált adatok kinyerése",
+    "structuredDataHint": "Strukturált osztályok kinyerése az átiratból.",
+    "structuredDataClasses": "Kinyerendő osztályok",
+    "structuredDataClassesPlaceholder": "pl. Személyek",
+    "audioToLlm": "Hang feldolgozása LLM-mel",
+    "audioToLlmHint": "LLM-promptok futtatása az átiraton.",
+    "audioToLlmPrompts": "Promptok",
+    "audioToLlmAddPrompt": "Prompt hozzáadása",
+    "audioToLlmEmpty": "Még nincsenek promptok.",
+    "audioToLlmPromptLabel": "{{index}}. prompt",
+    "output": "Kimenet",
+    "sentences": "Mondatok",
+    "displayMode": "Megjelenítés módja",
+    "punctuationEnhanced": "Továbbfejlesztett írásjelezés",
+    "languageConfig": "Nyelvi beállítások",
+    "languageConfigHint": "Adj meg nyelveket, vagy engedélyezd a nyelvváltás felismerését.",
+    "languageConfigLanguages": "Nyelvek",
+    "languageConfigCodeSwitching": "Nyelvváltás"
+  },
+  "speechify": {
+    "speech": {
+      "voiceIdPlaceholder": "pl. 2e19b1e2-...",
+      "audioFormat": "Hangformátum",
+      "options": "Beállítások",
+      "loudnessNormalization": "Hangerő normalizálása",
+      "loudnessNormalizationHint": "A hang erősségének szabványos szintre normalizálása (-14 LUFS / -2 dBTP). Növelheti a késleltetést.",
+      "textNormalization": "Szövegnormalizálás",
+      "textNormalizationHint": "A szöveg (számok, dátumok stb.) szavakká alakítása. Növelheti a késleltetést."
+    }
+  },
+  "minimax": {
+    "promptOptimizer": "Promptoptimalizáló",
+    "promptOptimizerHint": "A képgenerálás előtt automatikusan optimalizálja a promptot.",
+    "languageBoost": "Nyelvi kiemelés",
+    "subtitleEnable": "Feliratok engedélyezése",
+    "voiceSetting": "Hangbeállítások",
+    "voiceId": "Hang",
+    "speedWithValue": "Sebesség ({{value}}×)",
+    "volumeWithValue": "Hangerő ({{value}}×)",
+    "pitchWithValue": "Hangmagasság ({{value}})",
+    "emotion": "Érzelem",
+    "textNormalization": "Szövegnormalizálás",
+    "latexRead": "LaTeX felolvasása",
+    "audioSetting": "Hangbeállítások",
+    "audioFormat": "Hangformátum",
+    "bitrate": "Bitráta",
+    "channel": "Csatorna",
+    "forceCbr": "Állandó bitráta kényszerítése",
+    "pronunciationDict": "Kiejtés",
+    "toneHint": "Hanglejtési megfeleltetés hozzáadása token/csere formában",
+    "addTone": "Hanglejtés hozzáadása",
+    "addTonePlaceholder": "pl. omg/ó, te jó ég",
+    "weight": "Súly",
+    "voiceModify": "Hangeffektek",
+    "voiceModifyPitchWithValue": "Hangmagasság ({{value}})",
+    "voiceModifyIntensityWithValue": "Intenzitás ({{value}})",
+    "voiceModifyTimbreWithValue": "Hangszín ({{value}})",
+    "soundEffects": "Hangeffektek",
+    "music": "Zene",
+    "lyrics": "Dalszöveg"
+  },
+  "stepfun": {
+    "audioSettings": "Hangbeállítások",
+    "volume": "Hangerő",
+    "volumePlaceholder": "Szolgáltatói alapértelmezés (1,0; tartomány: 0,1–2,0)",
+    "sampleRate": "Mintavételezési frekvencia (Hz)",
+    "sampleRatePlaceholder": "Szolgáltatói alapértelmezés (24000)",
+    "sampleRateHint": "Támogatott értékek: 8000, 16000, 22050, 24000 és 48000.",
+    "pronunciationMap": "Kiejtési megfeleltetés",
+    "toneHint": "Kiejtési szabályok hozzáadása szöveg/kiejtés formában. A kínai tónusokat 1–5 közötti szám jelöli.",
+    "addTone": "Kiejtési szabály hozzáadása",
+    "addTonePlaceholder": "pl. LOL/hangosan nevet"
+  },
+  "audixa": {
+    "speech": {
+      "baseVoices": "Alaphangok",
+      "advanceVoices": "Speciális hangok",
+      "customVoiceId": "Egyéni hang",
+      "customVoicePlaceholder": "pl. af_bella",
+      "emotion": "Érzelem"
+    }
+  },
+  "freepik": {
+    "speech": {
+      "soundEffects": {
+        "title": "Hangeffektek",
+        "durationSeconds": "Időtartam másodpercben",
+        "promptInfluence": "Prompt hatása",
+        "loop": "Ismétlés",
+        "durationSecondsHint": "A létrehozott hang időtartama.",
+        "promptInfluenceHint": "A prompt hatása a létrehozott hangra.",
+        "loopHint": "Folyamatosan ismételhető hangeffektus létrehozása."
+      }
+    },
+    "image": {
+      "shared": {
+        "sharpen": "Élesítés",
+        "smartGrain": "Intelligens szemcsézettség",
+        "ultraDetail": "Extra részletesség"
+      },
+      "imageExpand": {
+        "title": "Kép kiterjesztése",
+        "left": "Balra (px)",
+        "right": "Jobbra (px)",
+        "top": "Felfelé (px)",
+        "bottom": "Lefelé (px)"
+      },
+      "skinEnhancerCreative": {
+        "title": "Bőrfeljavítás (kreatív)"
+      },
+      "skinEnhancerFaithful": {
+        "title": "Bőrfeljavítás (élethű)",
+        "skinDetail": "Bőrrészletesség"
+      },
+      "skinEnhancerFlexible": {
+        "title": "Bőrfeljavítás (rugalmas)",
+        "optimizedFor": "Optimalizálás erre"
+      },
+      "upscalerCreative": {
+        "title": "Kreatív felskálázás",
+        "scaleFactor": "Nagyítás mértéke",
+        "optimizedFor": "Optimalizálás erre",
+        "prompt": "Prompt",
+        "creativity": "Kreativitás",
+        "hdr": "HDR",
+        "resemblance": "Hasonlóság",
+        "fractality": "Fraktalitás",
+        "engine": "Motor"
+      },
+      "upscalerPrecision": {
+        "title": "Precíz felskálázás"
+      },
+      "upscalerPrecisionV2": {
+        "title": "Precíz felskálázás V2",
+        "flavor": "Változat",
+        "scaleFactor": "Nagyítás mértéke"
+      }
+    }
+  },
+  "assemblyai": {
+    "realtime": "Valós idejű",
+    "realtimeHint": "Az AssemblyAI adatfolyam-alapú (WebSocket) beállításai.",
+    "realtimeSampleRate": "Mintavételezési frekvencia",
+    "realtimeEncoding": "Kódolás",
+    "realtimeVadThreshold": "VAD-küszöbérték (0,0–1,0)",
+    "realtimeEndOfTurnConfidenceThreshold": "Fordulóvég-bizonyossági küszöbérték (0,0–1,0)",
+    "realtimeMinEndOfTurnSilence": "Fordulóvégi csend minimális hossza (ms-szöveg)",
+    "realtimeMaxTurnSilence": "Forduló csendjének maximális hossza (ms-szöveg)",
+    "realtimeFormatTurns": "Fordulók formázása",
+    "realtimeInactivityTimeout": "Inaktivitási időkorlát (másodperc)",
+    "realtimeLanguageDetection": "Nyelvfelismerés",
+    "realtimeKeytermsPrompt": "Kulcskifejezések promptja",
+    "mediaTrimming": "Média vágása",
+    "audioStartFrom": "Hang kezdete (ms)",
+    "audioEndAt": "Hang vége (ms)",
+    "language": "Nyelv",
+    "languageHint": "Válaszd ki a hangfájl nyelvét, vagy hagyd az alapértelmezett beállítást.",
+    "languageCode": "Nyelvkód",
+    "languageDetection": "Automatikus nyelvfelismerés",
+    "languageConfidenceThreshold": "Nyelvfelismerési bizonyossági küszöbérték",
+    "outputFormatting": "Kimenet formázása",
+    "punctuate": "Írásjelek hozzáadása",
+    "formatText": "Szöveg formázása",
+    "disfluencies": "Beszédakadás",
+    "channelsAndDiarization": "Csatornák és beszélők elkülönítése",
+    "channelsAndDiarizationHint": "Többcsatornás átírás és a beszélők elkülönítésének beállításai.",
+    "multichannel": "Többcsatornás mód",
+    "speakerLabels": "Beszélőcímkék",
+    "speakersExpected": "Várható beszélők száma",
+    "enrichments": "Kiegészítő elemzések",
+    "enrichmentsHint": "További elemzések és információk engedélyezése.",
+    "autoChapters": "Automatikus fejezetek",
+    "autoHighlights": "Automatikus kiemelések",
+    "entityDetection": "Entitásfelismerés",
+    "sentimentAnalysis": "Hangulatelemzés",
+    "iabCategories": "IAB-kategóriák",
+    "safetyAndPii": "Biztonság és személyes adatok",
+    "safetyAndPiiHint": "Trágárságszűrés, tartalomellenőrzés és személyes adatok kitakarása.",
+    "filterProfanity": "Trágárság szűrése",
+    "contentSafety": "Tartalombiztonság",
+    "contentSafetyConfidence": "Tartalombiztonsági bizonyosság (25–100)",
+    "redactPii": "Személyes adatok kitakarása",
+    "redactPiiSub": "Személyes adatok helyettesítése",
+    "redactPiiPolicies": "Személyesadat-szabályzatok",
+    "redactPiiPoliciesHint": "Válassz ki egy vagy több kitakarási szabályzatot.",
+    "addPolicy": "Szabályzat hozzáadása",
+    "redactPiiAudio": "Személyes adatok kitakarása a hangból",
+    "redactPiiAudioQuality": "Kitakart hang minősége",
+    "summarization": "Összefoglalás",
+    "summaryModel": "Összefoglaló modell",
+    "summaryType": "Összefoglaló típusa",
+    "accuracy": "Pontosság",
+    "accuracyHint": "Küszöbértékekkel, kulcskifejezésekkel és írásmód-felülbírálással javíthatod a felismerés pontosságát.",
+    "speechThreshold": "Beszédküszöb (0,0–1,0)",
+    "keytermsPrompt": "Kulcskifejezések promptja",
+    "keytermsPromptPlaceholder": "pl. terméknév",
+    "customSpelling": "Egyéni írásmód",
+    "customSpellingTo": "Csere erre",
+    "customSpellingFrom": "Ezek cseréje",
+    "customSpellingFromPlaceholder": "pl. Sequel",
+    "customSpellingAdd": "Csere hozzáadása",
+    "customSpellingEmpty": "Még nincsenek egyéni írásmódok."
   }
 }
