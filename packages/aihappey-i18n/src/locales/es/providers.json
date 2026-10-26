@@ -13,7 +13,37 @@
     "sonarDeepResearch": "Sonar investigación profunda",
     "returnImages": "Devolver imágenes",
     "returnVideos": "Devolver vídeos",
-    "returnRelatedQuestions": "Devolver preguntas relacionadas"
+    "returnRelatedQuestions": "Devolver preguntas relacionadas",
+    "agent": "Agente",
+    "fast": "Rápido",
+    "pro": "Pro",
+    "media": "Contenido multimedia",
+    "responsesWebSearch": "Búsqueda web",
+    "fetchUrl": "Leer sitios web",
+    "financeSearch": "Búsqueda financiera",
+    "peopleSearch": "Búsqueda de personas",
+    "searchType": "Tipo",
+    "searchDomainFilter": "Filtro de dominios",
+    "enableMediaClassifier": "Clasificador de contenido multimedia",
+    "instructions": "Instrucciones",
+    "languagePreference": "Preferencia de idioma",
+    "languagePreferencePlaceholder": "Por ejemplo, en",
+    "maxOutputTokens": "Máximo de tokens de salida",
+    "maxSteps": "Máximo de pasos",
+    "models": "Modelos (máximo 5)",
+    "noModelsAvailable": "No hay modelos de Perplexity disponibles",
+    "maxTokens": "Máximo de tokens",
+    "maxTokensPerPage": "Máximo de tokens por página",
+    "maxResultsPerQuery": "Máximo de resultados por consulta",
+    "maxResultsPerRequest": "Máximo de resultados por solicitud",
+    "maxUrls": "Número máximo de páginas",
+    "recency": {
+      "hour": "Hora",
+      "day": "Día",
+      "week": "Semana",
+      "month": "Mes",
+      "year": "Año"
+    }
   },
   "mistral": {
     "webSearchPremium": "Premium",
@@ -26,10 +56,187 @@
     "maxUses": "Usos máximos",
     "customSkills": "Habilidades personalizadas",
     "allowedDomains": "Dominios permitidos",
-    "blockedDomains": "Dominios bloqueados"
+    "blockedDomains": "Dominios bloqueados",
+    "betaHeader": "Beta",
+    "other": {
+      "serviceTier": {
+        "title": "Nivel de servicio",
+        "options": {
+          "auto": "Prioridad, si está disponible",
+          "standard_only": "Solo estándar"
+        }
+      },
+      "speed": {
+        "title": "Velocidad",
+        "options": {
+          "standard": "Estándar",
+          "fast": "Rápido"
+        }
+      },
+      "inferenceGeo": {
+        "title": "Geografía",
+        "options": {
+          "global": "Global",
+          "us": "Estados Unidos"
+        }
+      }
+    },
+    "memory": "Memoria",
+    "shell": "Shell",
+    "textEditor": "Editor de texto",
+    "toolSearchBm25": "Búsqueda de herramientas (BM25)",
+    "toolSearchRegex": "Búsqueda de herramientas (Regex)",
+    "version": "Versión",
+    "allowedCallers": "Quién puede llamar a la herramienta",
+    "none": "Ninguno",
+    "cacheControl": "Caché de prompts",
+    "cache": {
+      "title": "Caché",
+      "ttl": "Duración",
+      "ttlOptions": {
+        "5m": "5 minutos",
+        "1h": "1 hora"
+      }
+    },
+    "compaction": {
+      "title": "Compactar contexto"
+    },
+    "deferLoading": "Aplazar carga",
+    "strictValidation": "Estricto",
+    "cacheControlType": "Tipo de caché",
+    "cacheDuration": "Duración de la caché",
+    "defaultOption": "Predeterminado",
+    "ephemeral": "Temporal",
+    "outputConfig": {
+      "title": "Configuración de salida",
+      "effort": "Esfuerzo ({{effort}})",
+      "taskBudget": "Presupuesto de la tarea"
+    },
+    "advisor": {
+      "title": "Asesor",
+      "toolName": "Nombre de la herramienta",
+      "model": "Modelo",
+      "maxTokens": "Máximo de tokens",
+      "caching": "Caché de prompts del asesor"
+    },
+    "inputExamples": "Ejemplos de entrada",
+    "maxCharacters": "Número máximo de caracteres",
+    "maxContentTokens": "Máximo de tokens de contenido",
+    "citations": "Citas",
+    "useCache": "Usar caché",
+    "responseInclusion": "Campos incluidos en la respuesta",
+    "container": "Contenedor",
+    "containerPlaceholder": "Identificador opcional del contenedor",
+    "containerSettings": {
+      "title": "Contenedor",
+      "id": "Identificador del contenedor",
+      "idPlaceholder": "Identificador opcional del contenedor",
+      "customSkillIds": "Identificadores de habilidades personalizados",
+      "customSkillIdsPlaceholder": "skill_custom_a, skill_custom_b",
+      "skills": {
+        "pptx": "PowerPoint",
+        "xlsx": "Excel",
+        "docx": "Word",
+        "pdf": "PDF"
+      }
+    },
+    "session": {
+      "title": "Presupuesto (agentes administrados)",
+      "maxListCostUsd": "Presupuesto máximo (USD)"
+    },
+    "userLocation": "Ubicación",
+    "locationType": "Tipo de ubicación",
+    "locationApproximate": "Aproximado",
+    "thinkingDisplay": "Nivel de detalle del razonamiento",
+    "prefixMismatchBehavior": "Incoherencia en el razonamiento",
+    "prefixMismatchBehaviorOptions": {
+      "error": "Error",
+      "drop_block": "Soltar"
+    },
+    "thinkingModes": {
+      "enabled": "Habilitado",
+      "disabled": "Deshabilitado",
+      "between_tools": "Entre herramientas",
+      "adaptive": "Adaptativo"
+    },
+    "thinkingDisplayModes": {
+      "summarized": "Resumido",
+      "omitted": "Omitido",
+      "updates": "Actualizaciones"
+    },
+    "contextManagement": {
+      "title": "Gestión del contexto",
+      "empty": "Todavía no se han configurado cambios de gestión del contexto.",
+      "add": "Editar contexto",
+      "type": "Tipo de edición",
+      "trigger": "Activador",
+      "triggerValue": "Valor del activador",
+      "keep": "Conservar",
+      "keepValue": "Valor que se conservará",
+      "clearAtLeast": "Borrar como mínimo",
+      "clearAtLeastValue": "Mínimo de tokens que se borrarán",
+      "clearToolInputs": "Borrar entradas de herramientas",
+      "clearToolInputsValue": "Valor booleano",
+      "clearToolInputsList": "Entradas de herramientas específicas",
+      "clearToolInputsPlaceholder": "input_a, input_b",
+      "excludeTools": "Excluir herramientas",
+      "excludeToolsPlaceholder": "tool_a, tool_b",
+      "instructions": "Instrucciones",
+      "instructionsPlaceholder": "Instrucciones adicionales opcionales para resumir durante la compresión.",
+      "pauseAfterCompaction": "Pausar después de compactar",
+      "types": {
+        "clear_tool_uses_20250919": "Borrar uso de herramientas (2025-09-19)",
+        "clear_thinking_20251015": "Borrar el razonamiento (2025-10-15)",
+        "compact_20260112": "Compactar contexto (2026-01-12)"
+      },
+      "modes": {
+        "none": "Sin configurar",
+        "boolean": "Booleano",
+        "list": "Entradas de herramientas específicas",
+        "input_tokens": "Tokens de entrada",
+        "tool_uses": "Usos de herramientas",
+        "thinking_turns": "Turnos de razonamiento",
+        "all_object": "Objeto: { type: \"all\" }",
+        "all_literal": "Literal: «all»"
+      },
+      "booleanValues": {
+        "true": "Verdadero",
+        "false": "Falso"
+      },
+      "booleanModes": {
+        "none": "Sin configurar",
+        "true": "Verdadero",
+        "false": "Falso"
+      },
+      "validation": {
+        "invalid": "Completa todos los campos numéricos seleccionados antes de guardar los cambios del contexto."
+      },
+      "summaries": {
+        "noOptionalFields": "No se han configurado campos opcionales.",
+        "triggerInputTokens": "Activador: {{value}} tokens de entrada",
+        "triggerToolUses": "Activador: {{value}} usos de herramientas",
+        "keepToolUses": "Conservar: {{value}} usos de herramientas",
+        "clearAtLeast": "Borrar como mínimo: {{value}} tokens de entrada",
+        "clearToolInputsTrue": "Borrar entradas de herramientas: verdadero",
+        "clearToolInputsFalse": "Borrar entradas de herramientas: falso",
+        "clearToolInputsList": "Borrar entradas de herramientas: {{value}}",
+        "excludeTools": "Excluir herramientas: {{value}}",
+        "keepThinkingTurns": "Mantener razonamiento: {{value}} turnos",
+        "keepAllObject": "Mantener razonamiento: objeto { type: \"all\" }",
+        "keepAllLiteral": "Mantener razonamiento: texto literal «all»",
+        "compactDefaultTrigger": "Activador: {{value}} tokens de entrada predeterminados",
+        "pauseAfterCompactionTrue": "Pausar después de compactar: verdadero",
+        "pauseAfterCompactionFalse": "Pausar después de compactar: falso",
+        "instructions": "Conjunto de instrucciones"
+      }
+    }
   },
   "cohere": {
-    "citationOptions": "Citas"
+    "citationOptions": "Citas",
+    "reranking": {
+      "priority": "Prioridad",
+      "maxTokensPerDoc": "Máximo de tokens por documento"
+    }
   },
   "xSearch": "Buscar en X",
   "spacexai": {
@@ -38,7 +245,25 @@
     "allowedDomains": "Dominios permitidos",
     "excludedDomains": "Dominios excluidos",
     "allowed_x_handles": "Cuentas de X permitidas",
-    "excluded_x_handles": "Cuentas de X excluidas"
+    "excluded_x_handles": "Cuentas de X excluidas",
+    "imageSearch": "Búsqueda de imágenes",
+    "transcriptionFormat": "Dar formato al texto",
+    "transcriptionDiarize": "Diarización de interlocutores",
+    "audioInput": "Entrada de audio",
+    "audioFormat": "Formato de audio",
+    "sampleRate": "Frecuencia de muestreo",
+    "channels": "Canales",
+    "transcriptionMultichannel": "Multicanal",
+    "channelCount": "Número de canales",
+    "transcriptionFillerWords": "Incluir muletillas",
+    "transcriptionVadThreshold": "Umbral de detección de actividad de voz ({{value}})",
+    "transcriptionKeyterm": "Términos clave",
+    "transcriptionKeytermPlaceholder": "Introduce una lista de términos clave separados por comas",
+    "toolSearch": {
+      "title": "Búsqueda de herramientas",
+      "executionMode": "Modo de ejecución",
+      "server": "Servidor"
+    }
   },
   "openai": {
     "container": "Contenedor",
@@ -49,24 +274,24 @@
     "instructions": "Instrucciones",
     "instructionsPlaceholder": "Mensaje de sistema (o desarrollador) insertado en el contexto del modelo.",
     "imageInputDetail": {
-      "title": "Input image detail",
-      "auto": "Auto",
-      "low": "Low",
-      "high": "High",
+      "title": "Detalle de imagen de entrada",
+      "auto": "Automático",
+      "low": "Bajo",
+      "high": "Alto",
       "original": "Original"
     },
     "contextManagement": {
-      "title": "Context management",
-      "description": "Configure how the Responses API should compact earlier context during a request.",
-      "empty": "No context management entries configured yet.",
-      "add": "Add context rule",
-      "type": "Type",
-      "compactThreshold": "Compact threshold",
-      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
-      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
-      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "title": "Gestión del contexto",
+      "description": "Configura cómo debe compactar la API Responses el contexto anterior durante una solicitud.",
+      "empty": "Todavía no se han configurado reglas de gestión del contexto.",
+      "add": "Añadir regla de contexto",
+      "type": "Tipo",
+      "compactThreshold": "Umbral de compactación",
+      "compactThresholdHelp": "La compactación se activa cuando el contexto de la solicitud alcanza este umbral de tokens.",
+      "compactThresholdInvalid": "El umbral de compactación debe ser {{min}} o superior.",
+      "entrySummary": "Compacta el contexto al alcanzar {{threshold}} tokens.",
       "types": {
-        "compaction": "Compaction"
+        "compaction": "Compactación"
       }
     },
     "max_num_results": "Número máximo de resultados",
@@ -80,7 +305,215 @@
     "knownSpeakersNameExists": "Este nombre ya existe.",
     "knownSpeakersMax": "Puedes añadir hasta 4 oradores.",
     "knownSpeakersDeleteConfirm": "Este orador tiene una muestra guardada. ¿Eliminar el orador y su muestra?",
-    "knownSpeakersSampleDuration": "La grabación debe durar entre 2 y 10 segundos."
+    "knownSpeakersSampleDuration": "La grabación debe durar entre 2 y 10 segundos.",
+    "shell": "Shell",
+    "promptCacheRetention": "Duración de la caché de prompts",
+    "promptCacheKey": "Identificador de la caché de prompts",
+    "promptCacheOptions": {
+      "24h": "24 horas",
+      "in-memory": "En memoria",
+      "title": "Caché de prompts",
+      "mode": "Modo",
+      "ttl": "Tiempo de vida de la caché",
+      "modes": {
+        "implicit": "Implícito",
+        "explicit": "Explícito"
+      },
+      "ttls": {
+        "30m": "30 minutos",
+        "12h": "12 horas"
+      }
+    },
+    "moderation": {
+      "title": "Moderación",
+      "model": "Modelo de moderación",
+      "inputMode": "Política de entrada",
+      "outputMode": "Política de salida",
+      "modes": {
+        "score": "Puntuación",
+        "block": "Bloquear"
+      }
+    },
+    "betaHeader": "Beta",
+    "multiAgent": {
+      "title": "Multiagente",
+      "description": "Permite que el modelo raíz coordine subagentes en paralelo para tareas complejas de la API Responses. Al activarlo, también se añade el encabezado beta necesario de OpenAI.",
+      "maxConcurrentSubagents": "Máximo de subagentes simultáneos",
+      "maxConcurrentSubagentsHelp": "Limita el número de subagentes activos en todo el árbol de agentes. El valor predeterminado recomendado por OpenAI es 3."
+    },
+    "sessionAgent": {
+      "title": "Agente",
+      "inherit": "No especificado",
+      "model": "Modelo",
+      "instructions": "Instrucciones",
+      "effort": "Esfuerzo de razonamiento",
+      "summary": "Resumen del razonamiento",
+      "serviceTier": "Nivel de servicio",
+      "verbosity": "Nivel de detalle del texto",
+      "format": "Formato de texto",
+      "schema": "Esquema JSON",
+      "invalidSchema": "Introduce un objeto de esquema JSON válido.",
+      "multiAgent": "Habilitar subagentes",
+      "maxSubagents": "Máximo de subagentes simultáneos",
+      "tools": "Herramientas del agente",
+      "computer_use": "Uso del ordenador",
+      "web_search": "Búsqueda web",
+      "programmatic_tool_calling": "Llamada programática a herramientas",
+      "tool_search": "Búsqueda de herramientas",
+      "screenshots": "Incluir capturas de pantalla",
+      "programmaticEnabled": "Habilitar llamadas desde el código generado",
+      "searchMode": "Modo de búsqueda web",
+      "searchContext": "Tamaño del contexto de búsqueda",
+      "allowedDomains": "Buscar en los dominios permitidos (uno por línea)",
+      "city": "Ciudad",
+      "country": "País",
+      "region": "Región",
+      "timezone": "Zona horaria"
+    },
+    "sessionEnvironment": {
+      "title": "Entorno (agente)",
+      "type": "Tipo de entorno",
+      "none": "Ninguno",
+      "openai_hosted": "Alojado por OpenAI",
+      "self_hosted": "Alojado por el usuario",
+      "templateId": "Identificador de la plantilla de entorno",
+      "containerSize": "Tamaño del contenedor",
+      "inherit": "No especificado",
+      "small": "Pequeño",
+      "medium": "Medio",
+      "large": "Grande",
+      "desktop": "Configurar un proxy para el escritorio y el navegador",
+      "network": "Acceso a la red",
+      "enabled": "Habilitado",
+      "disabled": "Deshabilitado",
+      "restricted": "Restringido",
+      "domainHelp": "Usa dominios permitidos o bloqueados, pero no ambos. No se admiten comodines.",
+      "allowedDomains": "Dominios permitidos (uno por línea)",
+      "blockedDomains": "Dominios bloqueados (uno por línea)",
+      "workspaceDirectory": "Ruta absoluta del espacio de trabajo"
+    },
+    "promptCache": "Caché de prompts",
+    "truncation": {
+      "title": "Truncamiento",
+      "auto": "Automática",
+      "disabled": "Deshabilitado"
+    },
+    "serviceTier": {
+      "title": "Nivel de servicio",
+      "auto": "Automática",
+      "default": "Predeterminado",
+      "flex": "Flexible",
+      "scale": "Escalable",
+      "priority": "Prioridad",
+      "fast": "Rápido",
+      "ultrafast": "Ultrarrápido"
+    },
+    "customVoice": "Voz personalizada",
+    "output_compression": "Compresión de salida",
+    "action": "Acción",
+    "generate": "Generar",
+    "edit": "Editar",
+    "prompt": "Prompt",
+    "allowedDomains": "Dominios permitidos",
+    "searchContentTypes": {
+      "text": "Resultados de búsqueda de texto",
+      "image": "Resultados de búsqueda de imágenes"
+    },
+    "imageSettings": {
+      "maxResults": "Máximo de resultados de imagen",
+      "caption": "Incluir subtítulos"
+    },
+    "topP": "Top-p",
+    "transcriptionLanguagePlaceholder": "Idioma del audio de entrada en formato ISO-639-1 (por ejemplo, en)",
+    "transcriptionLanguages": "Idiomas posibles",
+    "transcriptionLanguagesPlaceholder": "Códigos ISO-639-1 separados por comas, por ejemplo, en, nl",
+    "transcriptionKeywords": "Palabras clave",
+    "transcriptionKeywordsPlaceholder": "Una palabra o frase por línea para orientar la transcripción",
+    "transcriptionResponseFormat": "Formato de respuesta",
+    "speechPromptPlaceholder": "Texto opcional para orientar el estilo del modelo o continuar un segmento de audio anterior",
+    "transcriptionTemperature": "Temperatura",
+    "timestampGranularities": "Granularidad de las marcas de tiempo",
+    "timestampGranularitiesSegment": "Segmento",
+    "timestampGranularitiesWord": "Palabra",
+    "returnTokenBudget": "Devolver presupuesto de tokens",
+    "returnTokenBudgetOptions": {
+      "default": "Predeterminado",
+      "unlimited": "Ilimitado"
+    },
+    "externalWebAccess": "Acceso a Internet en tiempo real",
+    "responsesIncludeTitle": "Incluir",
+    "responsesIncludeImageUrls": "Incluir URL de imágenes de la salida del ordenador",
+    "responsesIncludeInputImageUrls": "Incluir URL de imágenes de los mensajes de entrada",
+    "responsesIncludeOutputLogprobs": "Incluir logaritmos de probabilidades de salida",
+    "responsesIncludeDescriptions": {
+      "webSearchSources": "Incluir las fuentes devueltas por la herramienta de búsqueda web.",
+      "codeInterpreterOutputs": "Incluir los resultados de la ejecución de código Python en las llamadas a la herramienta del intérprete de código.",
+      "computerCallImageUrls": "Incluir URL de imágenes devueltas por las llamadas al ordenador.",
+      "fileSearchResults": "Incluir los resultados de búsqueda devueltos por la herramienta de búsqueda de archivos.",
+      "inputImageUrls": "Incluir URL de imágenes de los mensajes de entrada.",
+      "outputTextLogprobs": "Incluir logaritmos de probabilidades en las respuestas de texto del asistente.",
+      "reasoningEncryptedContent": "Incluir tokens de razonamiento cifrados para poder reutilizar elementos de razonamiento en conversaciones de varios turnos sin estado con la API Responses."
+    },
+    "programmaticToolCalling": {
+      "title": "Herramientas con código",
+      "allowedCallers": "Quién puede llamar a la herramienta",
+      "allowedCallersOptions": {
+        "direct": "Directo",
+        "programmatic": "Código"
+      }
+    },
+    "toolSearch": {
+      "title": "Búsqueda de herramientas",
+      "executionMode": "Modo de ejecución",
+      "hosted": "Alojado",
+      "client": "Cliente"
+    },
+    "shellEnvironment": "Entorno",
+    "shellEnvironmentContainerAuto": "Contenedor alojado (automático)",
+    "shellEnvironmentContainerReference": "Contenedor alojado (referencia)",
+    "shellEnvironmentLocal": "Entorno de ejecución local",
+    "shellFileIds": "Identificadores de los archivos",
+    "shellMemoryLimit": "Límite de memoria",
+    "shellNoMemoryLimit": "Memoria predeterminada",
+    "shellNetworkPolicy": "Política de red",
+    "shellNetworkPolicyDisabled": "Deshabilitado",
+    "shellNetworkPolicyAllowlist": "Lista de permitidos",
+    "shellAllowedDomains": "Dominios permitidos",
+    "shellSecretDomain": "Dominio secreto",
+    "shellSecretName": "Nombre del secreto",
+    "shellSecretValue": "Valor del secreto",
+    "shellAddDomainSecret": "Añadir secreto del dominio",
+    "shellSkillType": "Tipo de habilidad",
+    "shellSkillReference": "Referencia a una habilidad",
+    "shellInlineSkill": "Habilidad integrada",
+    "shellSkillId": "Habilidad",
+    "shellSelectSkill": "Selecciona una habilidad",
+    "shellNoSkillsAvailable": "No hay habilidades de shell de OpenAI disponibles en el catálogo compartido.",
+    "shellAddSkillReference": "Añadir referencia a una habilidad",
+    "shellAddInlineSkill": "Añadir habilidad integrada",
+    "shellInlineUploadHelp": "Suelta aquí un archivo ZIP o selecciónalo para adjuntarlo como fuente de habilidad integrada.",
+    "shellUploadArchive": "Subir archivo ZIP",
+    "shellReplaceArchive": "Reemplazar archivo ZIP",
+    "shellRemoveArchive": "Eliminar archivo",
+    "shellArchiveSelected": "Archivo seleccionado: {{fileName}}",
+    "shellNoArchiveSelected": "No se ha seleccionado ningún archivo ZIP",
+    "realtimeTranscriptionTitle": "Transcripción en tiempo real",
+    "realtimeSessionType": "Tipo de sesión",
+    "realtimeAudioInputFormat": "Formato del audio de entrada",
+    "realtimeNoiseReduction": "Reducción de ruido",
+    "realtimeInputTranscription": "Transcripción del audio de entrada",
+    "realtimeTranscriptionPrompt": "Prompt de transcripción",
+    "realtimeTurnDetection": "Detección de turnos",
+    "realtimeTurnDetectionType": "Tipo de detección de turnos",
+    "realtimeTurnCreateResponse": "Crear una respuesta automáticamente al detenerse el habla",
+    "realtimeTurnInterruptResponse": "Interrumpir la respuesta en curso cuando empiece a hablar",
+    "realtimeVadThreshold": "Umbral de VAD (0,0–1,0)",
+    "realtimeVadPrefixPaddingMs": "Relleno inicial (ms)",
+    "realtimeVadSilenceDurationMs": "Duración del silencio (ms)",
+    "realtimeVadIdleTimeoutMs": "Tiempo de espera por inactividad (ms)",
+    "realtimeSemanticEagerness": "Nivel de autonomía",
+    "realtimeIncludeLogprobs": "Incluir logaritmos de probabilidades de la transcripción de entrada",
+    "realtimeTokenTtlSeconds": "Duración del token (segundos)"
   },
   "google": {
     "enableEnhancedCivicAnswers": "Respuestas cívicas mejoradas",
@@ -103,12 +536,188 @@
       "onlyExtremelyHigh": "Bloquear solo extremadamente alto"
     },
     "speech": {
-      "seed": "Seed",
+      "seed": "Semilla",
       "multiSpeaker": "Varios oradores",
       "speakers": "Oradores",
       "addSpeaker": "Añadir orador",
-      "speakerNamePlaceholder": "p. ej., Alicia"
-    }
+      "speakerNamePlaceholder": "p. ej., Alicia",
+      "title": "Voz"
+    },
+    "responseModalities": "Modalidades de respuesta",
+    "web_search": "Búsqueda web",
+    "image_search": "Búsqueda de imágenes",
+    "enterprise_web_search": "Búsqueda empresarial en la web",
+    "modalities": {
+      "text": "Texto",
+      "image": "Imagen",
+      "audio": "Audio",
+      "video": "Vídeo",
+      "document": "Documento"
+    },
+    "interactions": {
+      "speech": {
+        "title": "Voz",
+        "language": "Idioma",
+        "speaker": "Nombre del interlocutor",
+        "voice": "Voz",
+        "addSpeaker": "Añadir interlocutor"
+      },
+      "transcription": {
+        "title": "Transcripción",
+        "languageCodes": "Indicaciones de idioma",
+        "customVocabulary": "Vocabulario personalizado",
+        "speakerDiarization": "Identificar interlocutores",
+        "wordTimestamps": "Incluir marcas de tiempo por palabra"
+      },
+      "responseFormat": {
+        "title": "Formato de respuesta",
+        "mimeType": "Tipo MIME",
+        "sampleRate": "Frecuencia de muestreo (Hz)",
+        "bitRate": "Velocidad de bits (bps)",
+        "aspectRatio": "Relación de aspecto",
+        "imageSize": "Tamaño de imagen",
+        "resolution": "Resolución",
+        "duration": "Duración",
+        "types": {
+          "text": "Texto",
+          "audio": "Audio",
+          "image": "Imagen",
+          "video": "Vídeo"
+        }
+      },
+      "retrieval": {
+        "apiKey": "Clave API",
+        "parallel": {
+          "title": "Búsqueda paralela"
+        },
+        "exa": {
+          "title": "Búsqueda de Exa"
+        }
+      },
+      "other": {
+        "seed": "Semilla"
+      }
+    },
+    "realtimeTranscription": {
+      "title": "Transcripción en directo",
+      "hint": "Estas opciones solo se aplican a la transcripción de Gemini Live y son independientes de la configuración de transcripción de archivos. La detección automática de actividad de voz está habilitada.",
+      "languageCodes": "Indicaciones de idioma (una por línea o separadas por comas)",
+      "customVocabulary": "Vocabulario personalizado (un término por línea o separados por comas)",
+      "mode": "Modo de transcripción",
+      "modes": {
+        "verbatim": "Literal",
+        "smart": "Inteligente"
+      }
+    },
+    "realtimeConversation": {
+      "title": "Conversación de Gemini Live",
+      "hint": "Audio directo entre el navegador y Gemini Live mediante un token efímero emitido por el servidor. Gemini Live es una API en fase preliminar.",
+      "inputTranscription": "Transcribir audio del micrófono",
+      "outputTranscription": "Transcribir audio de Gemini",
+      "googleSearch": "Fundamentación con la Búsqueda de Google",
+      "turnDetection": "Detección de actividad de voz",
+      "automaticVad": "Detección automática de actividad de voz",
+      "prefixPaddingMs": "Relleno inicial (ms)",
+      "silenceDurationMs": "Duración del silencio (ms)",
+      "sessionManagement": "Gestión de sesiones",
+      "contextCompression": "Compresión de la ventana de contexto",
+      "triggerTokens": "Tokens para activar la compresión",
+      "sessionResumption": "Reanudar entre conexiones WebSocket",
+      "tokenExpiry": "Caducidad del token efímero",
+      "camera": "Entrada de cámara",
+      "cameraHint": "La cámara se inicia apagada. Si la activas durante una sesión, se enviarán fotogramas JPEG a un máximo de 1 FPS. Las sesiones de audio y vídeo tienen un límite de duración menor.",
+      "cameraFps": "Fotogramas por segundo de la cámara",
+      "jpegQuality": "Calidad JPEG",
+      "startCamera": "Iniciar cámara",
+      "stopCamera": "Detener cámara"
+    },
+    "enable_widget": "Habilitar widget",
+    "image": {
+      "title": "Imagen",
+      "aspect_ratio": "Relación de aspecto",
+      "image_size": "Tamaño de imagen"
+    },
+    "videoConfig": {
+      "title": "Vídeo",
+      "task": "Tarea",
+      "providerDefault": "Valor predeterminado del proveedor (deducir del prompt)",
+      "tasks": {
+        "text_to_video": "Texto a vídeo",
+        "image_to_video": "Imagen a vídeo",
+        "reference_to_video": "Referencia al vídeo",
+        "edit": "Editar",
+        "extend": "Ampliar"
+      }
+    },
+    "environment": {
+      "title": "Entorno (agentes)",
+      "description": "Configura un entorno aislado de Linux administrado para los agentes de Google. Si no se especifican fuentes ni ajustes de red, se usará un entorno remoto nuevo.",
+      "environmentId": "Identificador del entorno",
+      "environmentIdHelp": "Si se establece un identificador de entorno, se desactivan las fuentes y la configuración de red, y se reutiliza el entorno aislado existente.",
+      "sources": "Fuentes",
+      "sourceType": "Tipo de fuente",
+      "source": "Fuente",
+      "target": "Ruta de destino",
+      "inlineContent": "Contenido integrado",
+      "addSource": "Añadir fuente",
+      "noSources": "No hay fuentes configuradas. Añade repositorios, rutas de Cloud Storage o archivos integrados para montarlos en un entorno aislado nuevo.",
+      "network": "Red",
+      "networkMode": "Modo de red",
+      "allowlistHelp": "Si se selecciona la lista de permitidos, solo se permiten los dominios incluidos. Añade * como regla general para permitir el resto del tráfico.",
+      "domain": "Dominio",
+      "transform": "JSON para transformar encabezados",
+      "addAllowlistRule": "Añadir regla",
+      "sourceTypes": {
+        "repository": "Repositorio Git",
+        "gcs": "Almacenamiento en la nube",
+        "inline": "Contenido integrado"
+      },
+      "networkModes": {
+        "default": "Acceso sin restricciones predeterminado",
+        "disabled": "Deshabilitado",
+        "allowlist": "Lista de permitidos"
+      }
+    },
+    "service_tier": "Nivel de servicio",
+    "serviceTiers": {
+      "providerDefault": "Valor predeterminado del proveedor",
+      "flex": "Flexible",
+      "standard": "Estándar",
+      "priority": "Prioridad"
+    },
+    "safetySettings": {
+      "title": "Configuración de seguridad",
+      "add": "Añadir configuración de seguridad",
+      "type": "Categoría",
+      "method": "Método",
+      "threshold": "Umbral",
+      "methods": {
+        "severity": "Probabilidad y gravedad",
+        "probability": "Probabilidad"
+      },
+      "thresholds": {
+        "block_low_and_above": "Bloquear nivel bajo o superior",
+        "block_medium_and_above": "Bloquear nivel medio o superior",
+        "block_only_high": "Bloquear solo el nivel alto",
+        "block_none": "No bloquear",
+        "off": "Desactivar el filtro de seguridad de turnos"
+      },
+      "categories": {
+        "hate_speech": "Discurso de odio",
+        "dangerous_content": "Contenido peligroso",
+        "harassment": "Acoso",
+        "sexually_explicit": "Contenido sexual explícito",
+        "civic_integrity": "Integridad cívica (obsoleto)",
+        "image_hate": "Discurso de odio en imágenes",
+        "image_dangerous_content": "Contenido de imagen peligroso",
+        "image_harassment": "Acoso en imágenes",
+        "image_sexually_explicit": "Contenido sexual explícito en imágenes",
+        "jailbreak": "Intento de eludir las medidas de seguridad"
+      }
+    },
+    "voice": "Voz",
+    "language": "Idioma",
+    "speaker": "Interlocutor"
   },
   "jina": {
     "max_returned_urls": "Máx. URLs devueltas",
@@ -116,17 +725,39 @@
     "team_size": "Tamaño del equipo agéntico",
     "goodDomains": "Dominios potenciados",
     "badDomains": "Dominios negativos",
-    "onlyDomains": "Restringir búsqueda a estos dominios"
+    "onlyDomains": "Restringir búsqueda a estos dominios",
+    "reranking": {
+      "returnDocuments": "Devolver documentos",
+      "truncation": "Truncamiento",
+      "maxDocLength": "Longitud máxima del documento",
+      "returnEmbeddings": "Devolver embeddings"
+    }
   },
   "together": {
     "guidanceScale": "Escala de guía",
     "steps": "Pasos",
     "negativePrompt": "Prompt negativo",
-    "disableSafetyChecker": "Desactivar comprobación de seguridad"
+    "disableSafetyChecker": "Desactivar comprobación de seguridad",
+    "reranking": {
+      "returnDocuments": "Devolver documentos",
+      "rankFields": "Campos de clasificación",
+      "addRankField": "Añadir campo de clasificación"
+    },
+    "speech": {
+      "encoding": "Codificación"
+    }
   },
   "runway": {
     "contentModeration": "Moderación de contenido",
-    "publicFigureThreshold": "Umbral de figuras públicas"
+    "publicFigureThreshold": "Umbral de figuras públicas",
+    "speech": {
+      "soundEffects": {
+        "title": "Efectos de sonido",
+        "duration": "Duración (segundos)",
+        "durationHint": "Opcional. Si se omite, Runway elegirá una duración adecuada.",
+        "loop": "Bucle"
+      }
+    }
   },
   "pollinations": {
     "enhance": "Mejorar",
@@ -150,13 +781,938 @@
       "fantasy-art": "Arte fantástico",
       "isometric": "Isométrico",
       "line-art": "Dibujo lineal",
-      "low-poly": "Low poly",
+      "low-poly": "Poligonal baja",
       "modeling-compound": "Plastilina",
       "neon-punk": "Neón punk",
       "origami": "Origami",
       "photographic": "Fotográfico",
       "pixel-art": "Arte píxel",
       "tile-texture": "Textura de baldosas"
+    },
+    "speech": {
+      "duration": "Duración (segundos)",
+      "durationHint": "Controla la duración, en segundos, del audio generado.",
+      "seed": "Semilla",
+      "seedHint": "Un valor específico que se usa para ajustar la aleatoriedad de la generación. (Omite este parámetro o usa 0 para elegir una semilla aleatoria).",
+      "stepsHint": "Controla el número de pasos de muestreo.",
+      "cfgScale": "Escala de orientación sin clasificador",
+      "cfgScaleHint": "Controla cuánto se ajusta el proceso de difusión al texto del prompt. Con valores más altos, el audio se parecerá más a lo que pide el prompt."
     }
+  },
+  "deepseek": {},
+  "akumi": {
+    "other": "Otros",
+    "cache": "Caché",
+    "tags": "Etiquetas",
+    "tag": "Nueva etiqueta",
+    "firewall": "Cortafuegos",
+    "sendFirewall": "Enviar configuración del firewall",
+    "firewallEnabled": "Enrutamiento en la UE",
+    "firewallLanguage": "Idioma del análisis",
+    "languages": {
+      "auto": "Detección automática",
+      "nl": "Neerlandés",
+      "en": "Inglés",
+      "fr": "Francés",
+      "de": "Alemán"
+    }
+  },
+  "baseten": {
+    "enableThinking": "Habilitar razonamiento",
+    "enableThinkingValue": "Enviar enable_thinking",
+    "searchProvider": "Proveedor de búsqueda",
+    "searchTool": "Buscar",
+    "fetchTool": "Obtener páginas",
+    "advancedSearchTool": "Búsqueda avanzada",
+    "limitIterations": "Establecer límite de iteraciones",
+    "maxReactIterations": "Máximo de iteraciones de razonamiento y herramientas",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Paralelo",
+      "youcom": "You.com"
+    }
+  },
+  "apertis": {
+    "notSet": "Sin configurar",
+    "reasoning": "Razonamiento",
+    "effort": "Esfuerzo",
+    "efforts": {
+      "low": "Bajo",
+      "medium": "Medio",
+      "high": "Alto"
+    },
+    "summary": "Resumen",
+    "summaries": {
+      "auto": "Automático",
+      "concise": "Conciso",
+      "detailed": "Detallado"
+    },
+    "compression": "Compresión del contexto",
+    "strategy": "Estrategia",
+    "strategies": {
+      "default": "Predeterminado (equilibrado)",
+      "on": "Equilibrado",
+      "conservative": "Conservador",
+      "aggressive": "Agresivo"
+    },
+    "threshold": "Umbral de tokens",
+    "keepTurns": "Turnos recientes que se conservarán",
+    "model": "Modelo de compresión"
+  },
+  "upstage": {
+    "reasoning": {
+      "title": "Razonamiento",
+      "effort": "Esfuerzo de razonamiento",
+      "efforts": {
+        "none": "Ninguno",
+        "minimal": "Mínimo",
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto",
+        "xhigh": "Muy alto",
+        "max": "Máximo"
+      }
+    }
+  },
+  "interfaze": {
+    "reasoning": {
+      "title": "Razonamiento",
+      "effort": "Esfuerzo de razonamiento",
+      "efforts": {
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto"
+      }
+    },
+    "other": {
+      "title": "Otros",
+      "headers": {
+        "x-show-additional-info": "Incluir contexto adicional en las respuestas transmitidas",
+        "x-interfaze-zdr": "Retención cero de datos",
+        "x-interfaze-bypass-cache": "Omitir caché verificada",
+        "x-interfaze-bypass-moa": "Omitir MoA"
+      }
+    }
+  },
+  "inworld": {
+    "webSearch": {
+      "title": "Búsqueda web",
+      "engine": "Motor de búsqueda",
+      "maxResults": "Resultados por búsqueda",
+      "maxSteps": "Máximo de rondas de búsqueda",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      }
+    },
+    "modalities": {
+      "title": "Modalidades de salida",
+      "text": "Texto",
+      "image": "Imagen"
+    },
+    "imageConfig": {
+      "title": "Configuración de imagen",
+      "aspectRatio": "Relación de aspecto",
+      "imageSize": "Tamaño de imagen",
+      "partialImages": "Vistas previas parciales de imágenes",
+      "count": "Número de imágenes"
+    },
+    "reasoning": {
+      "title": "Razonamiento",
+      "effort": "Esfuerzo de razonamiento",
+      "efforts": {
+        "none": "Ninguno",
+        "low": "Bajo",
+        "minimal": "Mínimo",
+        "medium": "Medio",
+        "high": "Alto"
+      }
+    }
+  },
+  "webcrawlerapi": {
+    "urls": "URL",
+    "costs": "Precios",
+    "sources": "Fuentes",
+    "maxSpendUsd": "Gasto máximo (USD)",
+    "seedUrlsOnly": "Usar solo las URL indicadas"
+  },
+  "ninjachat": {
+    "search": "Buscar",
+    "group": "Fuente",
+    "maxResults": "Máximo de resultados",
+    "searchDepth": "Profundidad de búsqueda",
+    "includeImages": "Incluir imágenes",
+    "topic": "Tema",
+    "groupOptions": {
+      "web": "Web",
+      "academic": "Académico",
+      "news": "Noticias"
+    },
+    "searchDepthOptions": {
+      "basic": "Básico",
+      "advanced": "Avanzado"
+    },
+    "topicOptions": {
+      "general": "General",
+      "news": "Noticias",
+      "finance": "Finanzas"
+    }
+  },
+  "venice": {
+    "webSearchModes": {
+      "auto": "Automática",
+      "on": "Activado",
+      "off": "Desactivado"
+    },
+    "includeSystemPrompt": "Prompt del sistema de Venice",
+    "webCitations": "Citas web",
+    "webScraping": "Rastreo web",
+    "xSearch": "Búsqueda X",
+    "stripThinking": "Eliminar razonamiento",
+    "seedPlaceholder": "Semilla opcional para obtener resultados reproducibles",
+    "enableE2EE": "Cifrado de extremo a extremo",
+    "returnSearchResultsAsDocuments": "Resultados de búsqueda como documentos",
+    "characterSlug": "Carácter",
+    "disableThinking": "Desactivar el razonamiento",
+    "includeSearchResultsInStream": "Resultados de búsqueda"
+  },
+  "browseruse": {
+    "run": "Ejecutar",
+    "browserSettings": "Configuración del navegador",
+    "maxCostUsd": "Coste máximo (USD)",
+    "profileId": "Identificador del perfil",
+    "proxyCountryCode": "Ubicación",
+    "noProxy": "Sin proxy",
+    "screenWidth": "Ancho de pantalla",
+    "screenHeight": "Alto de pantalla",
+    "record": "Grabar la sesión del navegador",
+    "judge": "Evaluador",
+    "enableJudge": "Habilitar evaluador",
+    "judgeContext": "Contexto del evaluador"
+  },
+  "tembo": {
+    "session": "Sesión",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Descripción detallada del trabajo que debe realizar Tembo",
+    "targetBranch": "Rama de destino",
+    "branchName": "Rama de trabajo",
+    "queueRightAway": "Añadir a la cola inmediatamente",
+    "repositories": "Repositorios",
+    "repositoriesHint": "Añade las URL de GitHub o del repositorio Git en los que debe trabajar Tembo.",
+    "addRepository": "Añadir URL del repositorio",
+    "noRepositories": "Todavía no se han añadido repositorios."
+  },
+  "mireye": {
+    "addressTitle": "Dirección",
+    "addressHint": "Usa una dirección postal completa de Estados Unidos. Al elegir esta opción, se eliminan las coordenadas.",
+    "address": "Dirección",
+    "addressPlaceholder": "350 5th Ave, Nueva York, NY 10118",
+    "coordinatesTitle": "Latitud y longitud",
+    "coordinatesHint": "Proporciona ambas coordenadas. Al elegir esta opción, se elimina la dirección.",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "getCurrent": "Obtener ubicación actual",
+    "gettingCurrent": "Obteniendo la ubicación actual...",
+    "geolocationUnsupported": "Este navegador no admite la ubicación actual.",
+    "geolocationDenied": "Se denegó el permiso para acceder a la ubicación.",
+    "geolocationUnavailable": "No se pudo determinar tu ubicación actual.",
+    "geolocationTimeout": "Se agotó el tiempo de espera al obtener tu ubicación actual."
+  },
+  "brave": {
+    "notSet": "Sin configurar",
+    "safesearch": "Búsqueda segura",
+    "safesearchOptions": {
+      "off": "Desactivado",
+      "moderate": "Moderado",
+      "strict": "Estricto"
+    },
+    "answerEnrichment": "Mejora de respuestas",
+    "enableEntities": "Habilitar entidades",
+    "enableCitations": "Habilitar citas",
+    "research": "Investigación",
+    "researchAllowThinking": "Permitir razonamiento",
+    "researchMaximumNumberOfTokensPerQuery": "Máximo de tokens por consulta",
+    "researchMaximumNumberOfQueries": "Máximo de consultas",
+    "researchMaximumNumberOfIterations": "Máximo de iteraciones",
+    "researchMaximumNumberOfSeconds": "Máximo de segundos",
+    "researchMaximumNumberOfResultsPerQuery": "Máximo de resultados por consulta"
+  },
+  "copilot": {
+    "locationTitle": "Indicación de ubicación",
+    "timeZone": "Zona horaria (IANA)",
+    "countryOrRegion": "País o región",
+    "countryOrRegionConfidence": "Confianza en el país o la región",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "contextualResourcesTitle": "Recursos contextuales",
+    "webContext": "Búsqueda web",
+    "webContextUnset": "Sin configurar",
+    "webContextEnabled": "Habilitado",
+    "webContextDisabled": "Deshabilitado",
+    "filesDescription": "Añade enlaces a archivos de OneDrive o SharePoint para enviarlos como contexto",
+    "fileUri": "Enlace al archivo {{index}}",
+    "addFile": "Añadir enlace a archivo",
+    "additionalContextTitle": "Contexto adicional",
+    "additionalContextDescription": "Añade fragmentos de texto que se enviarán como contexto adicional.",
+    "additionalContextEntry": "Contexto {{index}}",
+    "addAdditionalContext": "Añadir contexto"
+  },
+  "openrouter": {
+    "notSet": "Sin configurar",
+    "appAttribution": "Atribución de la aplicación",
+    "zdr": "Sin retención de datos",
+    "webSearchServerTool": "Búsqueda web",
+    "webFetchServerTool": "Obtención de páginas web",
+    "datetimeServerTool": "Fecha y hora actuales",
+    "imageGenerationServerTool": "Generación de imágenes",
+    "responseHealingPlugin": "Corrección de respuestas",
+    "responseHealingDescription": "Valida y corrige automáticamente las respuestas JSON mal formadas de los modelos de IA.",
+    "pdfInputsPlugin": "Entradas PDF",
+    "engine": "Motor",
+    "contextCompressionPlugin": "Compresión del contexto",
+    "searchContextSize": "Tamaño del contexto de búsqueda",
+    "maxResults": "Máximo de resultados",
+    "maxTotalResults": "Máximo de resultados totales",
+    "maxUses": "Máximo de usos",
+    "maxContentTokens": "Máximo de tokens de contenido",
+    "allowedDomains": "Dominios permitidos",
+    "excludedDomains": "Dominios excluidos",
+    "blockedDomains": "Dominios bloqueados",
+    "userCity": "Ciudad",
+    "userCountry": "País",
+    "userRegion": "Región",
+    "userTimezone": "Zona horaria",
+    "timezone": "Zona horaria",
+    "imageModel": "Modelo",
+    "quality": "Calidad",
+    "size": "Tamaño",
+    "aspectRatio": "Relación de aspecto",
+    "background": "Fondo",
+    "outputFormat": "Formato de salida",
+    "outputCompression": "Compresión de salida",
+    "moderation": "Moderación",
+    "pdfEngine": "Motor de PDF"
+  },
+  "requesty": {
+    "appAttribution": "Atribución de la aplicación",
+    "autoCache": "Caché automática",
+    "autoCacheDescription": "Envía explícitamente el indicador requesty.auto_cache de Requesty. Si se activa, los proveedores compatibles, como Anthropic y Gemini, pueden reutilizar prompts largos y contenido repetido para reducir costes."
+  },
+  "abliteration": {
+    "reasoning": {
+      "title": "Razonamiento",
+      "enabled": "Habilitar razonamiento",
+      "effort": "Esfuerzo",
+      "maxTokens": "Máximo de tokens de razonamiento",
+      "exclude": "Excluir el razonamiento de la respuesta",
+      "efforts": {
+        "none": "Ninguno",
+        "minimal": "Mínimo",
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto",
+        "xhigh": "Muy alto",
+        "max": "Máximo",
+        "ultracode": "Ultracódigo"
+      }
+    },
+    "policy": {
+      "title": "Política",
+      "id": "Identificador de la política",
+      "allowlist": "Elemento de la lista de permitidos",
+      "denylist": "Entrada de la lista de bloqueados",
+      "flaggedCategories": "Categorías señaladas",
+      "noneSelected": "No se han seleccionado categorías",
+      "redactPii": "Ocultar información personal"
+    },
+    "categories": {
+      "harassment": "Acoso",
+      "harassment/threatening": "Acoso: amenazas",
+      "hate": "Odio",
+      "hate/threatening": "Odio: amenazas",
+      "illicit": "Actividad ilícita",
+      "illicit/violent": "Actividad ilícita: violencia",
+      "self-harm": "Autolesiones",
+      "self-harm/intent": "Autolesiones: intención",
+      "self-harm/instructions": "Autolesiones: instrucciones",
+      "sexual": "Contenido sexual",
+      "sexual/minors": "Contenido sexual: menores",
+      "violence": "Violencia",
+      "violence/graphic": "Violencia gráfica"
+    }
+  },
+  "blackbox": {
+    "notSet": "Sin configurar",
+    "zdr": "Sin retención de datos",
+    "reasoning": "Razonamiento",
+    "enabled": "Habilitar valores de razonamiento predeterminados",
+    "effort": "Esfuerzo",
+    "maxTokens": "Máximo de tokens de razonamiento",
+    "exclude": "Excluir el razonamiento de la respuesta",
+    "summary": "Resumen"
+  },
+  "deepinfra": {
+    "transcription": {
+      "task": "Tarea",
+      "taskTranscribe": "Transcribir",
+      "taskTranslate": "Traducir",
+      "initialPrompt": "Prompt inicial",
+      "chunkingTitle": "Fragmentación",
+      "chunkLevel": "Nivel de fragmentación",
+      "chunkLevelSegment": "Segmento",
+      "chunkLevelWord": "Palabra",
+      "chunkLengthSeconds": "Duración del fragmento (segundos)"
+    },
+    "reranking": {
+      "instruction": "Instrucción",
+      "serviceTier": "Nivel de servicio"
+    },
+    "speech": {
+      "serviceTier": "Nivel de servicio",
+      "voiceId": "Voz",
+      "voiceIdPlaceholder": "Por ejemplo, deepinfra-voice-123",
+      "maxTokens": "Máximo de tokens",
+      "languageId": "Idioma",
+      "speakerAudio": "Audio del interlocutor",
+      "speakerTranscript": "Transcripción del interlocutor",
+      "maxAudioLengthMs": "Duración máxima del audio (ms)",
+      "languageIdPlaceholder": "Por ejemplo, en",
+      "presetVoicePlaceholder": "Por ejemplo, af_bella",
+      "speed": "Velocidad",
+      "returnTimestamps": "Devolver marcas de tiempo",
+      "targetMinTokens": "Mínimo de tokens objetivo",
+      "targetMaxTokens": "Máximo de tokens objetivo",
+      "absoluteMaxTokens": "Máximo absoluto de tokens",
+      "advanced": "Avanzado",
+      "speakerRate": "Velocidad de habla",
+      "exaggeration": "Exageración",
+      "cfg": "Escala de orientación sin clasificador",
+      "seed": "Semilla",
+      "minP": "Probabilidad mínima P",
+      "repetitionPenalty": "Penalización por repetición",
+      "topK": "K superior"
+    }
+  },
+  "zai": {
+    "clearThinking": "Borrar el razonamiento anterior",
+    "generalTranslation": "Agente de traducción general",
+    "popularSpecialEffectsVideos": "Agente de vídeos con efectos especiales populares",
+    "videoTemplate": "Plantilla de efectos",
+    "sourceLanguage": "Idioma de origen",
+    "targetLanguage": "Idioma de destino",
+    "translationStrategy": "Estrategia de traducción",
+    "glossary": "Identificador del glosario",
+    "glossaryPlaceholder": "Identificador opcional del glosario",
+    "translationSuggestion": "Sugerencias de traducción",
+    "translationSuggestionPlaceholder": "Asignación terminológica, pautas de estilo o requisitos de traducción opcionales",
+    "reasonLanguage": "Idioma del razonamiento",
+    "translationStrategies": {
+      "general": "Traducción general",
+      "paraphrase": "Traducción parafraseada",
+      "two_step": "Traducción en dos etapas",
+      "three_step": "Traducción en tres etapas",
+      "reflection": "Traducción reflexiva",
+      "cot": "Traducción de COT"
+    },
+    "reasonLanguages": {
+      "from": "Idioma de origen",
+      "to": "Idioma de destino"
+    },
+    "videoTemplates": {
+      "french_kiss": "Beso francés",
+      "bodyshake": "Baile con movimientos de hombros",
+      "sexy_me": "Seductor/a"
+    },
+    "translationLanguages": {
+      "auto": "Detectar automáticamente",
+      "zh-CN": "Chino simplificado",
+      "zh-TW": "Chino tradicional",
+      "wyw": "Chino clásico",
+      "yue": "Cantonés",
+      "en": "Inglés",
+      "en-GB": "Inglés (Reino Unido)",
+      "en-US": "Inglés (Estados Unidos)",
+      "ja": "Japonés",
+      "ko": "Coreano",
+      "fr": "Francés",
+      "de": "Alemán",
+      "es": "Español",
+      "ru": "Ruso",
+      "pt": "Portugués",
+      "it": "Italiano",
+      "ar": "Árabe",
+      "hi": "Hindi",
+      "bg": "Búlgaro",
+      "cs": "Checo",
+      "da": "Danés",
+      "el": "Griego",
+      "et": "Estonio",
+      "fi": "Finés",
+      "hu": "Húngaro",
+      "id": "Indonesio",
+      "lt": "Lituano",
+      "lv": "Letón",
+      "nl": "Neerlandés",
+      "no": "Noruego bokmål",
+      "pl": "Polaco",
+      "ro": "Rumano",
+      "sk": "Eslovaco",
+      "sl": "Esloveno",
+      "sv": "Sueco",
+      "th": "Tailandés",
+      "tr": "Turco",
+      "uk": "Ucraniano",
+      "vi": "Vietnamita",
+      "my": "Birmano",
+      "ms": "Malayo",
+      "Pinyin": "Pinyin",
+      "IPA": "Alfabeto Fonético Internacional"
+    },
+    "searchQuery": "Consulta de búsqueda",
+    "searchQueryPlaceholder": "Consulta que fuerza la búsqueda web",
+    "searchEngine": "Motor de búsqueda",
+    "resultCount": "Número de resultados",
+    "recencyFilter": "Filtro de actualidad",
+    "contentSize": "Tamaño del contenido",
+    "resultSequence": "Orden de los resultados",
+    "domainFilter": "Filtro de dominios",
+    "returnSearchResults": "Devolver resultados de búsqueda",
+    "requireSearchGrounding": "Exigir fundamentación en la búsqueda",
+    "searchPrompt": "Prompt de búsqueda",
+    "searchPromptPlaceholder": "Prompt opcional para procesar los resultados de búsqueda",
+    "toolStream": "Transmisión de herramientas",
+    "thinkingTypes": {
+      "enabled": "Habilitado",
+      "disabled": "Deshabilitado"
+    },
+    "searchEngines": {
+      "search_pro_jina": "Búsqueda Pro (Jina)"
+    },
+    "recencyFilters": {
+      "oneDay": "Último día",
+      "oneWeek": "Última semana",
+      "oneMonth": "Último mes",
+      "oneYear": "Último año",
+      "noLimit": "Sin límite"
+    },
+    "contentSizes": {
+      "medium": "Medio",
+      "high": "Alto"
+    },
+    "resultSequences": {
+      "before": "Antes de la respuesta",
+      "after": "Después de la respuesta"
+    }
+  },
+  "voyageai": {
+    "reranking": {
+      "returnDocuments": "Devolver documentos",
+      "truncation": "Truncamiento"
+    }
+  },
+  "hyperbolic": {},
+  "nebius": {
+    "responseExtension": "Formato de salida"
+  },
+  "sambanova": {
+    "chat_template_kwargs": "Parámetros de plantilla de chat",
+    "chat_template_kwargs_placeholder": "{\n  \"enable_thinking\": true\n}",
+    "invalid_json": "JSON no válido"
+  },
+  "novita": {
+    "pitch": "Tono ({{pitch}})",
+    "transcriptionPrompt": "Prompt",
+    "transcriptionPromptPlaceholder": "En escenarios con textos largos, puedes proporcionar como contexto transcripciones anteriores. Se recomienda no superar los 8000 caracteres.",
+    "hotwords": "Palabras clave",
+    "hotwordsHint": "Lista de palabras clave para mejorar la precisión del reconocimiento de vocabulario específico de un dominio.",
+    "addHotword": "Añadir palabra clave",
+    "addHotwordPlaceholder": "Por ejemplo, nombre del producto"
+  },
+  "fireworks": {
+    "audioProcessing": "Procesamiento de audio",
+    "alignmentModel": "Modelo de alineación",
+    "preprocessing": "Preprocesamiento",
+    "diarization": "Diarización",
+    "vadModel": "Modelo de detección de actividad de voz",
+    "minSpeakers": "Número mínimo de interlocutores",
+    "maxSpeakers": "Número máximo de interlocutores",
+    "webhookUrl": "Webhook",
+    "webhookUrlHint": "URL para recibir notificaciones de webhook.",
+    "promptUpsampling": "Ampliación del prompt",
+    "promptUpsamplingHint": "Si se activa, modifica el prompt para generar resultados más creativos.",
+    "safetyTolerance": "Nivel de tolerancia de seguridad",
+    "safetyToleranceHint": "Nivel de tolerancia para la moderación de entrada y salida. Entre 0 (estricto) y 6 (flexible). El máximo es 2 para la conversión de imagen a imagen.",
+    "reranking": {
+      "task": "Tarea",
+      "taskPlaceholder": "Ejemplo: «Dada una consulta de búsqueda web, recupera pasajes relevantes que respondan a la consulta»",
+      "taskHint": "Descripción opcional de la tarea para orientar el proceso de reordenamiento.",
+      "returnDocuments": "Devolver documentos"
+    }
+  },
+  "elevenlabs": {
+    "enableLogging": "Habilitar registro",
+    "realtimeToken": "Token",
+    "realtimeTokenPlaceholder": "Token de un solo uso (opcional)",
+    "realtimeIncludeTimestamps": "Incluir marcas de tiempo",
+    "realtimeIncludeLanguageDetection": "Incluir detección de idioma",
+    "realtimeAudioFormat": "Formato de audio",
+    "realtimeCommitStrategy": "Estrategia de confirmación",
+    "realtimeVadSilenceThresholdSecs": "Umbral de silencio de VAD (segundos)",
+    "realtimeVadThreshold": "Umbral de VAD",
+    "realtimeMinSpeechDurationMs": "Duración mínima del habla (ms)",
+    "realtimeMinSilenceDurationMs": "Duración mínima del silencio (ms)",
+    "seed": "Semilla",
+    "voiceSettings": "Configuración de voz",
+    "stability": "Estabilidad ({{value}})",
+    "similarityBoost": "Aumento de similitud ({{value}})",
+    "style": "Estilo ({{value}})",
+    "useSpeakerBoost": "Usar realce de voz",
+    "continuity": "Continuidad",
+    "previousText": "Texto anterior",
+    "nextText": "Texto siguiente",
+    "textNormalization": "Normalización del texto",
+    "applyTextNormalization": "Aplicar normalización del texto",
+    "applyLanguageTextNormalization": "Aplicar normalización lingüística al texto",
+    "music": "Música",
+    "musicLengthMs": "Duración de la música (ms)",
+    "forceInstrumental": "Forzar modo instrumental",
+    "respectSectionsDurations": "Respetar la duración de las secciones",
+    "storeForInpainting": "Guardar para rellenar",
+    "signWithC2pa": "Firmar con C2PA",
+    "fileFormat": "Formato de archivo",
+    "tagAudioEvents": "Etiquetar eventos de audio",
+    "useMultiChannel": "Usar varios canales",
+    "timestamps": "Marcas de tiempo",
+    "timestampsGranularity": "Granularidad de las marcas de tiempo",
+    "diarization": "Diarización",
+    "numSpeakers": "Número de interlocutores",
+    "diarizationThreshold": "Umbral de diarización ({{value}})",
+    "dialogue": "Diálogo",
+    "dialogueHint": "Añade varias líneas de diálogo para los modelos de diálogo.",
+    "dialogueAddLine": "Añadir línea",
+    "dialogueVoiceIdPlaceholder": "Por ejemplo, JBFqnCBsd6RMkjVDRZzb",
+    "dialogueText": "Texto",
+    "dialogueStability": "Estabilidad del diálogo ({{value}})",
+    "dialogueStabilityReset": "Usar valor predeterminado del proveedor"
+  },
+  "async": {
+    "speech": {
+      "encoding": "Codificación",
+      "bitRateMp3Only": "Velocidad de bits (solo MP3)",
+      "experimental": "Experimental",
+      "overrideSpeedControl": "Anular el control de velocidad",
+      "speedControl": "Control de velocidad",
+      "overrideStability": "Anular la estabilidad",
+      "stability": "Estabilidad"
+    }
+  },
+  "deepgram": {
+    "language": "Idioma",
+    "punctuate": "Puntuar",
+    "smartFormat": "Formato inteligente",
+    "paragraphs": "Párrafos",
+    "utterances": "Enunciados",
+    "diarize": "Identificar interlocutores",
+    "multichannel": "Multicanal",
+    "detectEntities": "Detectar entidades",
+    "topics": "Temas",
+    "intents": "Intenciones",
+    "sentiment": "Sentimiento",
+    "mipOptOut": "Excluirse del Programa de mejora de modelos",
+    "detectLanguage": "Detectar idioma",
+    "tags": "Etiquetas",
+    "addTag": "Añadir etiqueta",
+    "addTagPlaceholder": "Por ejemplo, customer-123",
+    "speech": {
+      "encoding": "Codificación",
+      "container": "Contenedor",
+      "bitRate": "Velocidad de bits (bps)",
+      "mipOptOut": "Excluirse del Programa de mejora de modelos",
+      "callback": "URL de devolución de llamada",
+      "callbackMethod": "Método de devolución de llamada",
+      "singleTagDetected": "Se ha detectado una etiqueta individual existente: {{tag}}. Añade o elimina etiquetas para convertirla en una lista."
+    }
+  },
+  "resembleai": {
+    "queryLabel": "Consulta",
+    "queryHint": "Pregunta opcional para evaluar la transcripción.",
+    "queryPlaceholder": "Por ejemplo, ¿Qué tareas se comentaron?",
+    "speech": {
+      "voiceUuid": "Voz",
+      "voiceUuidPlaceholder": "Por ejemplo, 55592656",
+      "projectUuid": "Proyecto",
+      "projectUuidHint": "Identificador de proyecto opcional para guardar el clip generado.",
+      "projectUuidPlaceholder": "Por ejemplo, 7df0c0c2-5b9c-4f3d-9b6c-7d4b3f5d1a2b",
+      "title": "Título",
+      "titleHint": "Título opcional para el clip generado.",
+      "titlePlaceholder": "Por ejemplo, mensaje de bienvenida",
+      "precision": "Precisión (WAV)",
+      "useHd": "Usar alta definición"
+    }
+  },
+  "gladia": {
+    "customVocabulary": "Vocabulario personalizado",
+    "customVocabularyHint": "Proporciona vocabulario para mejorar el reconocimiento de términos del dominio.",
+    "customVocabularyMode": "Modo de vocabulario",
+    "customVocabularyModeConfig": "Configuración (custom_vocabulary_config)",
+    "customVocabularyModeInline": "Lista integrada (matriz custom_vocabulary)",
+    "customVocabularyDefaultIntensity": "Intensidad predeterminada",
+    "customVocabularyList": "Lista de vocabulario",
+    "customVocabularyAddItem": "Añadir elemento de vocabulario",
+    "customVocabularyEmpty": "Todavía no hay elementos de vocabulario.",
+    "customVocabularyItemType": "Tipo de elemento",
+    "customVocabularyItemTypeString": "Cadena de texto",
+    "customVocabularyItemTypeObject": "Objeto",
+    "customVocabularyValue": "Valor",
+    "customVocabularyIntensity": "Intensidad",
+    "customVocabularyPronunciations": "Pronunciaciones",
+    "customVocabularyLanguage": "Idioma",
+    "subtitles": "Subtítulos",
+    "subtitlesHint": "Genera archivos de subtítulos para esta transcripción.",
+    "subtitlesMinDuration": "Duración mínima (segundos)",
+    "subtitlesMaxDuration": "Duración máxima (segundos)",
+    "subtitlesMaxCharsPerRow": "Número máximo de caracteres por fila",
+    "subtitlesMaxRowsPerCaption": "Máximo de filas por subtítulo",
+    "subtitlesStyle": "Estilo",
+    "subtitlesStyle.default": "Predeterminado",
+    "subtitlesStyle.compliance": "Cumplimiento normativo",
+    "diarization": "Diarización",
+    "diarizationHint": "Identifica a los interlocutores del audio.",
+    "diarizationNumberOfSpeakers": "Número exacto de interlocutores",
+    "diarizationMinSpeakers": "Mínimo de interlocutores",
+    "diarizationMaxSpeakers": "Máximo de interlocutores",
+    "translation": "Traducción",
+    "translationHint": "Traduce la transcripción a uno o varios idiomas de destino.",
+    "translationTargetLanguages": "Idiomas de destino",
+    "translationModel": "Modelo de traducción",
+    "translationModel.base": "Base",
+    "translationModel.enhanced": "Mejorado",
+    "translationMatchOriginalUtterances": "Coincidir con las expresiones originales",
+    "translationLipsync": "Habilitar sincronización labial",
+    "translationContextAdaptation": "Adaptación del contexto",
+    "translationContext": "Contexto",
+    "translationContextPlaceholder": "Contexto opcional para mejorar la precisión de la traducción",
+    "translationInformal": "Usar lenguaje informal",
+    "summarization": "Resumen",
+    "summarizationHint": "Genera un resumen de la transcripción.",
+    "summarizationType": "Tipo de resumen",
+    "summarizationType.general": "General",
+    "summarizationType.bullet_points": "Viñetas",
+    "summarizationType.concise": "Conciso",
+    "analysis": "Análisis",
+    "moderation": "Moderación",
+    "namedEntityRecognition": "Reconocimiento de entidades nombradas",
+    "chapterization": "División en capítulos",
+    "nameConsistency": "Coherencia de nombres",
+    "sentimentAnalysis": "Análisis de sentimiento",
+    "customSpelling": "Ortografía personalizada",
+    "customSpellingHint": "Proporciona correcciones ortográficas para términos específicos del dominio.",
+    "customSpellingTerm": "Término",
+    "customSpellingVariants": "Variantes ortográficas",
+    "customSpellingAddEntry": "Añadir término",
+    "customSpellingEmpty": "Todavía no hay reglas ortográficas personalizadas.",
+    "structuredDataExtraction": "Extracción de datos estructurados",
+    "structuredDataHint": "Extrae clases estructuradas de la transcripción.",
+    "structuredDataClasses": "Clases que se extraerán",
+    "structuredDataClassesPlaceholder": "Por ejemplo, personas",
+    "audioToLlm": "Audio al modelo de lenguaje",
+    "audioToLlmHint": "Ejecuta prompts de LLM sobre la transcripción.",
+    "audioToLlmPrompts": "Prompts",
+    "audioToLlmAddPrompt": "Añadir prompt",
+    "audioToLlmEmpty": "Todavía no hay prompts.",
+    "audioToLlmPromptLabel": "Prompt {{index}}",
+    "output": "Salida",
+    "sentences": "Oraciones",
+    "displayMode": "Modo de visualización",
+    "punctuationEnhanced": "Puntuación mejorada",
+    "languageConfig": "Configuración del idioma",
+    "languageConfigHint": "Especifica idiomas o activa la detección de alternancia de idiomas.",
+    "languageConfigLanguages": "Idiomas",
+    "languageConfigCodeSwitching": "Alternancia de idiomas"
+  },
+  "speechify": {
+    "speech": {
+      "voiceIdPlaceholder": "Por ejemplo, 2e19b1e2-...",
+      "audioFormat": "Formato de audio",
+      "options": "Opciones",
+      "loudnessNormalization": "Normalización de volumen",
+      "loudnessNormalizationHint": "Normaliza el volumen del audio a un nivel estándar (-14 LUFS / -2 dBTP). Puede aumentar la latencia.",
+      "textNormalization": "Normalización del texto",
+      "textNormalizationHint": "Convierte números, fechas y otros elementos del texto a palabras. Puede aumentar la latencia."
+    }
+  },
+  "minimax": {
+    "promptOptimizer": "Optimizador de prompts",
+    "promptOptimizerHint": "Optimiza automáticamente el prompt antes de generar imágenes.",
+    "languageBoost": "Refuerzo del idioma",
+    "subtitleEnable": "Habilitar subtítulos",
+    "voiceSetting": "Configuración de voz",
+    "voiceId": "Voz",
+    "speedWithValue": "Velocidad ({{value}}x)",
+    "volumeWithValue": "Volumen ({{value}}x)",
+    "pitchWithValue": "Tono ({{value}})",
+    "emotion": "Emoción",
+    "textNormalization": "Normalización del texto",
+    "latexRead": "Lectura de LaTeX",
+    "audioSetting": "Configuración de audio",
+    "audioFormat": "Formato de audio",
+    "bitrate": "Velocidad de bits",
+    "channel": "Canal",
+    "forceCbr": "Forzar tasa de bits constante",
+    "pronunciationDict": "Pronunciación",
+    "toneHint": "Añade asignaciones de tono con el formato token/sustitución",
+    "addTone": "Añadir tono",
+    "addTonePlaceholder": "Por ejemplo, omg/oh Dios mío",
+    "weight": "Peso",
+    "voiceModify": "Efectos de voz",
+    "voiceModifyPitchWithValue": "Tono ({{value}})",
+    "voiceModifyIntensityWithValue": "Intensidad ({{value}})",
+    "voiceModifyTimbreWithValue": "Timbre ({{value}})",
+    "soundEffects": "Efectos de sonido",
+    "music": "Música",
+    "lyrics": "Letra"
+  },
+  "stepfun": {
+    "audioSettings": "Configuración de audio",
+    "volume": "Volumen",
+    "volumePlaceholder": "Valor predeterminado del proveedor (1,0; intervalo: 0,1–2,0)",
+    "sampleRate": "Frecuencia de muestreo (Hz)",
+    "sampleRatePlaceholder": "Valor predeterminado del proveedor (24000)",
+    "sampleRateHint": "Valores admitidos: 8000, 16000, 22050, 24000 y 48000.",
+    "pronunciationMap": "Mapa de pronunciación",
+    "toneHint": "Añade reglas de pronunciación con el formato texto/pronunciación. Para los tonos chinos, usa números del 1 al 5.",
+    "addTone": "Añadir regla de pronunciación",
+    "addTonePlaceholder": "Por ejemplo, LOL/reír a carcajadas"
+  },
+  "audixa": {
+    "speech": {
+      "baseVoices": "Voces básicas",
+      "advanceVoices": "Voces avanzadas",
+      "customVoiceId": "Voz personalizada",
+      "customVoicePlaceholder": "Por ejemplo, af_bella",
+      "emotion": "Emoción"
+    }
+  },
+  "freepik": {
+    "speech": {
+      "soundEffects": {
+        "title": "Efectos de sonido",
+        "durationSeconds": "Duración en segundos",
+        "promptInfluence": "Influencia del prompt",
+        "loop": "Bucle",
+        "durationSecondsHint": "Duración del audio generado.",
+        "promptInfluenceHint": "Influencia del prompt en el audio generado.",
+        "loopHint": "Indica si se debe crear un efecto de sonido que se repita sin interrupciones."
+      }
+    },
+    "image": {
+      "shared": {
+        "sharpen": "Enfocar",
+        "smartGrain": "Grano inteligente",
+        "ultraDetail": "Máximo detalle"
+      },
+      "imageExpand": {
+        "title": "Ampliación de imagen",
+        "left": "Izquierda (px)",
+        "right": "Derecha (px)",
+        "top": "Parte superior (px)",
+        "bottom": "Parte inferior (px)"
+      },
+      "skinEnhancerCreative": {
+        "title": "Mejora de piel (creativa)"
+      },
+      "skinEnhancerFaithful": {
+        "title": "Mejora de piel (fiel)",
+        "skinDetail": "Detalle de la piel"
+      },
+      "skinEnhancerFlexible": {
+        "title": "Mejora de piel (flexible)",
+        "optimizedFor": "Optimizado para"
+      },
+      "upscalerCreative": {
+        "title": "Reescalador (creativo)",
+        "scaleFactor": "Factor de escala",
+        "optimizedFor": "Optimizado para",
+        "prompt": "Prompt",
+        "creativity": "Creatividad",
+        "hdr": "HDR",
+        "resemblance": "Semejanza",
+        "fractality": "Fractalidad",
+        "engine": "Motor"
+      },
+      "upscalerPrecision": {
+        "title": "Reescalador (precisión)"
+      },
+      "upscalerPrecisionV2": {
+        "title": "Reescalador (precisión V2)",
+        "flavor": "Sabor",
+        "scaleFactor": "Factor de escala"
+      }
+    }
+  },
+  "assemblyai": {
+    "realtime": "Tiempo real",
+    "realtimeHint": "Configuración de streaming (WebSocket) para AssemblyAI.",
+    "realtimeSampleRate": "Frecuencia de muestreo",
+    "realtimeEncoding": "Codificación",
+    "realtimeVadThreshold": "Umbral de VAD (0,0–1,0)",
+    "realtimeEndOfTurnConfidenceThreshold": "Umbral de confianza para finalizar el turno (0,0–1,0)",
+    "realtimeMinEndOfTurnSilence": "Silencio mínimo al final del turno (texto en ms)",
+    "realtimeMaxTurnSilence": "Silencio máximo entre turnos (texto en ms)",
+    "realtimeFormatTurns": "Dar formato a los turnos",
+    "realtimeInactivityTimeout": "Tiempo de espera por inactividad (segundos)",
+    "realtimeLanguageDetection": "Detección de idioma",
+    "realtimeKeytermsPrompt": "Prompt para términos clave",
+    "mediaTrimming": "Recorte de contenido multimedia",
+    "audioStartFrom": "Inicio del audio (ms)",
+    "audioEndAt": "Final del audio (ms)",
+    "language": "Idioma",
+    "languageHint": "Selecciona el idioma del archivo de audio o deja el valor predeterminado.",
+    "languageCode": "Código de idioma",
+    "languageDetection": "Detección automática del idioma",
+    "languageConfidenceThreshold": "Umbral de confianza de detección del idioma",
+    "outputFormatting": "Formato de salida",
+    "punctuate": "Puntuar",
+    "formatText": "Dar formato al texto",
+    "disfluencies": "Disfluencias",
+    "channelsAndDiarization": "Canales y diarización",
+    "channelsAndDiarizationHint": "Configuración de transcripción multicanal y diarización de interlocutores.",
+    "multichannel": "Multicanal",
+    "speakerLabels": "Etiquetas de interlocutor",
+    "speakersExpected": "Número previsto de interlocutores",
+    "enrichments": "Mejoras",
+    "enrichmentsHint": "Habilita información y análisis adicionales.",
+    "autoChapters": "Capítulos automáticos",
+    "autoHighlights": "Momentos destacados automáticos",
+    "entityDetection": "Detección de entidades",
+    "sentimentAnalysis": "Análisis de sentimiento",
+    "iabCategories": "Categorías de IAB",
+    "safetyAndPii": "Seguridad y datos personales",
+    "safetyAndPiiHint": "Filtrado de lenguaje malsonante, moderación de contenido y ocultación de datos personales.",
+    "filterProfanity": "Filtrar lenguaje malsonante",
+    "contentSafety": "Seguridad del contenido",
+    "contentSafetyConfidence": "Confianza en la seguridad del contenido (25–100)",
+    "redactPii": "Ocultar datos personales",
+    "redactPiiSub": "Sustitución de datos personales",
+    "redactPiiPolicies": "Políticas de datos personales",
+    "redactPiiPoliciesHint": "Selecciona una o varias políticas para ocultar datos.",
+    "addPolicy": "Añadir política",
+    "redactPiiAudio": "Ocultar datos personales del audio",
+    "redactPiiAudioQuality": "Calidad del audio con datos ocultos",
+    "summarization": "Resumen",
+    "summaryModel": "Modelo para resúmenes",
+    "summaryType": "Tipo de resumen",
+    "accuracy": "Precisión",
+    "accuracyHint": "Mejora la precisión del reconocimiento con umbrales, términos clave y reglas ortográficas personalizadas.",
+    "speechThreshold": "Umbral de voz (0,0–1,0)",
+    "keytermsPrompt": "Prompt para términos clave",
+    "keytermsPromptPlaceholder": "Por ejemplo, nombre del producto",
+    "customSpelling": "Ortografía personalizada",
+    "customSpellingTo": "Reemplazar por",
+    "customSpellingFrom": "Reemplazar estos elementos",
+    "customSpellingFromPlaceholder": "Por ejemplo, secuela",
+    "customSpellingAdd": "Añadir sustitución",
+    "customSpellingEmpty": "Todavía no hay reglas ortográficas personalizadas."
   }
 }
