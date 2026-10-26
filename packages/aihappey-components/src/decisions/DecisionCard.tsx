@@ -8,6 +8,7 @@ import { useDarkMode } from "usehooks-ts";
 import { ViewButton } from "../buttons/ViewButton";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { TokenBadge } from "../badges/TokenBadge";
+import { CostBadge } from "../badges/CostBadge";
 import { DecisionQuestionCard } from "./DecisionQuestionCard";
 import { getProviderResultVisibility, ProviderResultCards } from "../modals/ProviderResultCards";
 
@@ -47,11 +48,16 @@ export function DecisionResultDetails({ decision, providers, children }: {
   const hasProviderResult = getProviderResultVisibility(providerResult).hasAny;
   const totalTokens = [decision.usage?.inputTokens, decision.usage?.outputTokens]
     .reduce<number>((total, count) => total + (typeof count === "number" && Number.isFinite(count) && count > 0 ? count : 0), 0);
+  const cost = decision.providerMetadata?.gateway?.cost;
+  const gatewayCost = typeof cost === "number" && Number.isFinite(cost) ? cost : undefined;
   return <div style={{ display: "grid", gap: 12 }}>
     <Tabs activeKey={hasProviderResult ? activeTab : "overview"} onSelect={setActiveTab}>
       <Tab eventKey="overview" title={t("decisionsPage.overview")}>
         <div style={{ display: "grid", gap: 16, paddingTop: 12 }}>
-          {totalTokens > 0 && <div><TokenBadge totalTokens={totalTokens} /></div>}
+          {(totalTokens > 0 || gatewayCost !== undefined) && <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            {totalTokens > 0 && <TokenBadge totalTokens={totalTokens} />}
+            {gatewayCost !== undefined && <CostBadge cost={gatewayCost} />}
+          </div>}
           {children}
           {decision.warnings.map((warning, i) => <Alert key={i} variant="warning">{decisionText(warning)}</Alert>)}
         </div>

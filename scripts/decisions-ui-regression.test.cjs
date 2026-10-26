@@ -104,6 +104,7 @@ function cardHarness() {
         "usehooks-ts": { useDarkMode: () => ({ isDarkMode: false }) },
         "../buttons/ViewButton": { ViewButton: "ViewButton" }, "../fields/LimitedTextField": { LimitedTextField: "LimitedTextField" },
         "../badges/TokenBadge": { TokenBadge: "TokenBadge" },
+        "../badges/CostBadge": { CostBadge: "CostBadge" },
         "./DecisionQuestionCard": { DecisionQuestionCard: "DecisionQuestionCard" }, "../modals/ProviderResultCards": providerCards,
     });
     return { ...h, ...exports };
@@ -322,6 +323,71 @@ test("shared results show the chat token badge first inside Overview and hide ab
     assert.equal(badge.props.appearance, "neutral");
     assert.equal(badge.props.title, t("totalTokens"));
     assert.equal(badge.props.children, 15);
+});
+
+test("decision overview shows optional gateway costs beside tokens without adding provider diagnostics", () => {
+    for (const cost of [0.12, 0.0000249, 0]) {
+        const h = cardHarness();
+        const decision = { ...response, providerMetadata: { gateway: { cost } } };
+        const node = h.render(h.DecisionResultDetails, { decision });
+        assert.equal(tabs(node).length, 1);
+        const overview = tabs(node)[0];
+        const row = React.Children.toArray(overview.props.children.props.children)[0];
+        assert.deepEqual(React.Children.toArray(row.props.children).map(badge => badge.type), ["TokenBadge", "CostBadge"]);
+        assert.equal(byType(row, "CostBadge").props.cost, cost);
+        assert.equal(row.props.style.flexWrap, "wrap");
+        assert.equal(row.props.style.alignItems, "center");
+    }
+    const { CostBadge } = load("packages/aihappey-components/src/badges/CostBadge.tsx", {
+        "aihappey-i18n": i18n, "../theme/ThemeContext": themeContext,
+    });
+    for (const [cost, expected] of [[0.12, "0.12"], [0.0000249, "0.00>"], [0, "0.00"]]) {
+        const badge = CostBadge({ cost });
+        assert.equal(badge.type, "Badge");
+        assert.equal(badge.props.icon, "pricing");
+        assert.equal(badge.props.appearance, "neutral");
+        assert.equal(badge.props.size, "large");
+        assert.equal(badge.props.title, t("messagePrice"));
+        assert.equal(badge.props.children, expected);
+    }
+});
+
+test("gateway cost badges work without token usage and omit missing or invalid costs and empty rows", () => {
+    for (const providerMetadata of [
+        undefined, {}, { gateway: {} }, { gateway: null }, { openai: { cost: 0.12 } },
+        ...[undefined, null, "0.12", NaN, Infinity, -Infinity].map(cost => ({ gateway: { cost } })),
+        { gateway: { cost: 0 } }, { gateway: { cost: 0.12 } },
+    ]) {
+        for (const usage of [undefined, { inputTokens: 0, outputTokens: 0 }, { inputTokens: 10 }]) {
+            const h = cardHarness();
+            const children = React.createElement("QuestionCards");
+            const node = h.render(h.DecisionResultDetails, { decision: { ...response, usage, providerMetadata, warnings: [] }, children });
+            const cost = providerMetadata?.gateway?.cost;
+            const validCost = typeof cost === "number" && Number.isFinite(cost);
+            assert.equal(byType(node, "CostBadge")?.props.cost, validCost ? cost : undefined);
+            const content = React.Children.toArray(tabs(node)[0].props.children.props.children);
+            assert.equal(content.length, usage?.inputTokens > 0 || validCost ? 2 : 1);
+            assert.equal(content.at(-1).type, children.type);
+            assert.equal(content.at(-1).props, children.props);
+            assert.equal(byType(node, "TokenBadge")?.props.totalTokens, usage?.inputTokens > 0 ? 10 : undefined);
+        }
+    }
+});
+
+test("saved decision details retain gateway costs alongside token usage only in Overview", () => {
+    const h = cardHarness();
+    const saved = { ...item, decision: { ...item.decision, providerMetadata: { ...item.decision.providerMetadata, gateway: { cost: 0.0000249 } } } };
+    let card = h.render(h.DecisionCard, { item: saved, providers });
+    byType(card, "Card").props.actions.props.onClick();
+    card = h.render(h.DecisionCard, { item: saved, providers });
+    const details = byType(card, h.DecisionResultDetails);
+    const resultHarness = cardHarness();
+    const node = resultHarness.render(resultHarness.DecisionResultDetails, details.props);
+    const [overview, raw] = tabs(node);
+    assert.equal(byType(overview, "CostBadge").props.cost, 0.0000249);
+    assert.equal(byType(overview, "TokenBadge").props.totalTokens, 12);
+    assert.equal(byType(raw, "CostBadge"), undefined);
+    assert.ok(byType(raw, providerCards.ProviderResultCards));
 });
 
 function pageHarness(overrides = {}) {
