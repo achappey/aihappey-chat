@@ -316,12 +316,25 @@ export function useOnToolCall({
   });
 
   const onToolCall = useCallback(
-    async ({ toolCall, signal }: any) => {
+    async ({ toolCall, signal, source }: any) => {
       try {
+        // Managed-agent calls carry an explicit owner from the advertised run
+        // catalog. Never let local dispatch fall through to MCP or another group.
+        if (source) {
+          signal?.throwIfAborted();
+          if (source.kind === "plugin") {
+            const plugin = plugins.find(p => p.name === source.id
+              && p.tools?.some(tool => tool.name === toolCall.toolName));
+            if (!plugin) throw new Error("Local tool group is unavailable or disabled");
+            return await plugin.handle(toolCall, signal);
+          }
+          if (source.kind !== "local" || !enabledLocalTools?.includes(toolCall.toolName)
+            || source.id !== toolCall.toolName) throw new Error("Local tool is unavailable or disabled");
+        }
         // Provider-initiated elicitation is a synthetic client tool, not an MCP
         // tool to be dispatched to a connected server. Keep the MCP request and
         // result shapes intact across the chat history round trip.
-        if (toolCall.toolName === "ai_input_required") {
+        if (!source && toolCall.toolName === "ai_input_required") {
           const input = toolCall.input;
           if (input?.method !== "elicitation/create" || !input?.params || input.params.mode === "url")
             throw new Error("Unsupported input-required request; expected an MCP form elicitation.");
@@ -346,6 +359,7 @@ export function useOnToolCall({
           const output = await fn(parsed);
           return normalizeToolResult(output);
         }
+        if (source) throw new Error("Local tool is unavailable or disabled");
 
         // 1) normal enabled plugins
         // OpenAI's native client tool_search is runtime-only and must not require

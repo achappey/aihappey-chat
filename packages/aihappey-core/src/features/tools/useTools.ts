@@ -152,6 +152,15 @@ export function useTools(options: UseToolsOptions = {}) {
     return result;
   }, [enabledLocalTools, localTools.items]);
 
+  // Keep explicit local selections separate from the ordinary name-deduplicated
+  // catalog: an MCP tool with the same name must not hide a local tool in Agents.
+  const selectedLocalTools = useMemo(() => [
+    ...injectedPluginTools.map(({ tool, source }) => ({ ...tool, source })),
+    ...injectedStoredLocalTools.map(tool => ({
+      ...tool, source: { kind: "local" as const, id: tool.name, name: "Local tools" },
+    })),
+  ], [injectedPluginTools, injectedStoredLocalTools]);
+
   return useMemo(() => {
     const baseTools = Object.entries(mcpServerContent).flatMap(([serverId, server]: [string, any]) =>
       (server.tools ?? []).map((tool: Tool) => ({
@@ -270,6 +279,7 @@ export function useTools(options: UseToolsOptions = {}) {
       // OpenAI Responses mapper uses it to build optional namespaces.
       tools: enabledTools,
       attachedTools: enabledTools,
+      selectedLocalTools,
       disabledTools: disabledMap,
     };
   }, [
@@ -277,6 +287,7 @@ export function useTools(options: UseToolsOptions = {}) {
     mcpServers,
     injectedPluginTools,
     injectedStoredLocalTools,
+    selectedLocalTools,
     enabledSkills,
     runtimeSkills.plugins,
     toolAnnotations,

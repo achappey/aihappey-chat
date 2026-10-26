@@ -502,12 +502,12 @@ export function VercelChatInner({
     } : undefined, providerMetadata, effectiveTree ?? null, maxOutputTokens, catalogPromptOverride)
   }
 
-  const { tools: regularTools } = useTools();
+  const { tools: regularTools, selectedLocalTools } = useTools();
   const managedAgentMcpCatalog = useMemo(
     () => chatMode === "agent"
-      ? buildManagedAgentMcpCatalog({ mcpServerContent, mcpServers, toolAnnotations }, mcpRuntime)
+      ? buildManagedAgentMcpCatalog({ mcpServerContent, mcpServers, toolAnnotations }, mcpRuntime, selectedLocalTools)
       : { tools: [], routes: new Map() },
-    [chatMode, mcpServerContent, mcpServers, toolAnnotations],
+    [chatMode, mcpServerContent, mcpServers, toolAnnotations, selectedLocalTools],
   );
   const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
   const agentToolSignalRef = useRef<AbortSignal | undefined>(undefined);
@@ -872,6 +872,7 @@ export function VercelChatInner({
       const signal = runSignal ? AbortSignal.any([runSignal, lifetimeSignal]) : lifetimeSignal;
       const result = await executeManagedAgentMcpTool(
         agentToolCatalogRef.current, toolCall, callTool, i18n.language, signal,
+        options => toolUse.onToolCall(options),
       );
       if (signal?.aborted) return;
       addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output: result });

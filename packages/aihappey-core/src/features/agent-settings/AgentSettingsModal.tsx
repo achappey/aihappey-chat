@@ -7,6 +7,7 @@ import { Handoff, HandoffsEditor } from "../agents/HandoffsEditor";
 import { AgentWithMcpServers, useAgents } from "../agents/useAgentMcpServers";
 import { resolveSelectedAgentEntries } from "../agents/agentSelection";
 import { ModelSelect } from "../models/ModelSelect";
+import { ToolsTab } from "../chat-settings/ToolsTab";
 
 export interface AgentSettingsModalProps {
   open: boolean;
@@ -29,6 +30,10 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
   const agents = useAppStore(a => a.agents)
   const remoteAgentModels = useAppStore(a => a.remoteAgentModels)
   const resetAgentWorkflowSettings = useAppStore(a => a.resetAgentWorkflowSettings)
+  const activePlugins = useAppStore(a => a.activePlugins);
+  const setActivePlugins = useAppStore(a => a.setActivePlugins);
+  const enabledLocalTools = useAppStore(a => a.enabledLocalTools);
+  const setEnabledLocalTools = useAppStore(a => a.setEnabledLocalTools);
   const selectedLocalAgents = resolveSelectedAgentEntries(
     selectedAgentNames,
     agents,
@@ -60,6 +65,14 @@ export const AgentSettingsModal: React.FC<AgentSettingsModalProps> = ({
       <theme.Tabs activeKey={activeTab} onSelect={setActiveTab}>
         <theme.Tab eventKey="general" title={t("general")}>
           <GeneralTab />
+        </theme.Tab>
+        <theme.Tab eventKey="tools" title={t("tools") ?? "Tools"}>
+          {activeTab === "tools" ? <ToolsTab
+            activePlugins={activePlugins}
+            setActivePlugins={setActivePlugins}
+            enabledLocalTools={enabledLocalTools}
+            setEnabledLocalTools={setEnabledLocalTools}
+          /> : null}
         </theme.Tab>
         {selectedLocalAgents.map(a => {
           return <theme.Tab key={a.agent.name}
