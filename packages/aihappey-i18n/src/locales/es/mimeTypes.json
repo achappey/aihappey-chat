@@ -1,4 +1,5 @@
 {
+    "mimeType": "Tipo de archivo",
     "text/plain": "Texto",
     "image/png": "Imagen (PNG)",
     "application/pdf": "Documento PDF",
@@ -8,5 +9,12 @@
     "application/json": "JSON",
     "application/vnd.agents+json": "Agentes",
     "application/vnd.agent+json": "Agente",
-    "text/html+skybridge": "Aplicación OpenAI"
+    "text/html+skybridge": "Aplicación OpenAI",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": "Presentación de PowerPoint",
+    "text/html": "HTML",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Hoja de cálculo de Excel",
+    "audio/webm": "Audio WebM",
+    "audio/mpeg": "Audio MPEG",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Documento de Word",
+    "text/html;profile=mcp-app": "Aplicación MCP"
 }
