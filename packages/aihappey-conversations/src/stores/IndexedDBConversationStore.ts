@@ -82,6 +82,7 @@ export class IndexedDBConversationStore implements ConversationStore {
       id,
       messages: conv.messages ?? [],
       metadata: {
+        ...conv.metadata,
         name: conv.metadata?.name ?? "Imported chat",
         temperature: conv.metadata?.temperature ?? 1,
         mcpServers: conv.metadata?.mcpServers ?? []
