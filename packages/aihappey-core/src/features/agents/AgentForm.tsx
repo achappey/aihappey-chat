@@ -50,6 +50,7 @@ import { AgentChecks } from "./AgentChecks";
 import { collectAgentOwners, collectAgentTags, getAgentTags } from "./agentTags";
 import { AgentToolConfigurationTab, type ConfigurableAgentTool } from "./AgentToolConfigurationTab";
 import { getAgentEditorModels, setAgentEditorModels } from "./agentEditorModels";
+import { AgentIconsForm } from "./AgentIconsForm";
 import {
     AGENT_FUNCTION_TYPE,
     AGENT_READ_RESOURCE_TYPE,
@@ -953,9 +954,10 @@ export const AgentForm = ({
                             <Tags size="small" items={tags.map((tag) => ({ key: tag, label: tag }))}
                                 onRemove={(tag: string) => onChange((current) => ({
                                     ...current, tags: getAgentTags(current).filter((item) => item !== tag),
-                                }))} />
+                                    }))} />
                         )}
                     </div>
+                    <AgentIconsForm agent={agent} onChange={onChange} />
                 </Tab>
 
                 {/* ---------------- Model Context ---------------- */}

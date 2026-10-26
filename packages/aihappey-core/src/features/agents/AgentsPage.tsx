@@ -505,7 +505,7 @@ export const AgentsPage = () => {
                 autoFocus={isDesktop}
               />
             </div>
-            {renderMetadataFilter("tags", t("providers:tags"), tagOptions, selectedTags, setSelectedTags)}
+            {renderMetadataFilter("tags", t("agentEdit.tags"), tagOptions, selectedTags, setSelectedTags)}
             {renderMetadataFilter("owners", t("agentEdit.ownedBy"), ownerOptions, selectedOwners, setSelectedOwners)}
           </div>
 

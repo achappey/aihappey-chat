@@ -194,10 +194,10 @@ function overview(desktop = true, overrides = {}) {
 
 test("overview dropdowns OR tags, compose search, reset, and preserve save payloads", () => {
     const page = overview();
-    assert.deepEqual(nodes(page.filter("providers:tags"), "option").map(option => option.props.value), ["", "value:research", "value:shared", "value:writing"]);
-    page.choose("providers:tags", "shared");
+    assert.deepEqual(nodes(page.filter("agentEdit.tags"), "option").map(option => option.props.value), ["", "value:research", "value:shared", "value:writing"]);
+    page.choose("agentEdit.tags", "shared");
     assert.equal(page.allCards().length, 2);
-    page.choose("providers:tags", "research");
+    page.choose("agentEdit.tags", "research");
     assert.equal(page.allCards().length, 2);
     nodes(page.tree(), "SearchBox")[0].props.onChange("test/model");
     page.render();
@@ -206,7 +206,7 @@ test("overview dropdowns OR tags, compose search, reset, and preserve save paylo
     page.render();
     assert.equal(page.allCards().length, 0);
     nodes(page.tree(), "SearchBox")[0].props.onChange("");
-    page.choose("providers:tags", null);
+    page.choose("agentEdit.tags", null);
     assert.equal(page.allCards().length, 5);
     nodes(page.tree(), "AgentEditModal")[0].props.onSave(agents[0]);
     assert.deepEqual(page.saved().tags, ["writing", "shared"]);
@@ -228,7 +228,7 @@ test("metadata filters compose across existing and per-value tabs with effective
         remoteAgentModels: [{ id: "writer", owned_by: "Team", tags: ["shared"], agent: { ...local("Remote", ["research"]), owned_by: "Shadowed" } }],
     });
     assert.deepEqual(nodes(page.filter("agentEdit.ownedBy"), "option").map(option => option.props.value), ["", "value:Research", "value:Team"]);
-    page.choose("providers:tags", "shared");
+    page.choose("agentEdit.tags", "shared");
     page.choose("agentEdit.ownedBy", "Team");
     assert.equal(page.allCards().length, 2);
     for (const key of ["favorites", "local", "remote:agents.example"]) {
@@ -243,7 +243,7 @@ test("metadata filters compose across existing and per-value tabs with effective
     assert.equal(nodes(page.tab("owner:Team"), "AgentCard").length, 2);
     assert.equal(nodes(page.tree(), "section").length, 0, "per-value tabs render flat card grids");
     page.choose("agentEdit.ownedBy", "Research");
-    page.choose("providers:tags", "research");
+    page.choose("agentEdit.tags", "research");
     assert.equal(page.allCards().length, 3, "both facets allow multiple OR selections");
     nodes(page.tree(), "SearchBox")[0].props.onChange("Shadowed"); page.render();
     assert.equal(page.allCards().length, 0, "overridden nested owner is not searchable");
@@ -267,14 +267,14 @@ test("one flat tab per nonblank tag and owner reuses existing cards and actions"
 
 test("catalog refresh cleans stale selections and safely falls back from removed value tabs", () => {
     const page = overview(true, { agents: [{ ...local("Tagged", ["x"]), owned_by: "Team" }], remoteAgentModels: [] });
-    page.choose("providers:tags", "x"); page.choose("agentEdit.ownedBy", "Team"); page.selectTab("tag:x");
+    page.choose("agentEdit.tags", "x"); page.choose("agentEdit.ownedBy", "Team"); page.selectTab("tag:x");
     page.state.agents = [local("Plain", [" ", ""])]; page.render();
     assert.equal(page.tab("tag:x"), undefined); assert.equal(page.tab("owner:Team"), undefined);
     assert.equal(nodes(page.tree(), "Tabs")[0].props.activeKey, "all");
-    assert.deepEqual(page.filter("providers:tags").props.values, [""]);
+    assert.deepEqual(page.filter("agentEdit.tags").props.values, [""]);
     assert.deepEqual(page.filter("agentEdit.ownedBy").props.values, [""]);
     assert.equal(page.allCards().length, 1);
-    assert.equal(page.filter("providers:tags").props.disabled, true);
+    assert.equal(page.filter("agentEdit.tags").props.disabled, true);
     page.state.agents = [{ ...local("Owned"), owned_by: "Team" }]; page.render(); page.selectTab("owner:Team");
     page.state.agents = [local("Plain")]; page.render();
     assert.equal(nodes(page.tree(), "Tabs")[0].props.activeKey, "all", "removed owner tab also falls back");
@@ -282,8 +282,8 @@ test("catalog refresh cleans stale selections and safely falls back from removed
 
 test("metadata values cannot collide with the All option or tab identities", () => {
     const page = overview(true, { agents: [{ ...local("Special", ["__ALL__", "all", "owners"]), owned_by: "all" }], remoteAgentModels: [] });
-    page.choose("providers:tags", "__ALL__"); page.choose("agentEdit.ownedBy", "all");
-    assert.deepEqual(page.filter("providers:tags").props.values, ["value:__ALL__"]);
+    page.choose("agentEdit.tags", "__ALL__"); page.choose("agentEdit.ownedBy", "all");
+    assert.deepEqual(page.filter("agentEdit.tags").props.values, ["value:__ALL__"]);
     assert.equal(page.allCards().length, 1);
     assert.notEqual(page.tab("tag:all").props.eventKey, page.tab("owner:all").props.eventKey);
     assert.equal(page.tab("tag:all").props.title, "all (1)");

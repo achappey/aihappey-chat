@@ -13,6 +13,7 @@ function load(filename, mocks = {}) {
     new Function("require", "module", "exports", output)(id => {
         if (id === "react/jsx-runtime") return require(id);
         if (id in mocks) return mocks[id];
+        if (id === "./agentIcons") return load("packages/aihappey-core/src/features/agents/agentIcons.ts");
         throw new Error(`Unmocked import ${id}`);
     }, module, module.exports);
     return module.exports;
@@ -99,6 +100,7 @@ function harness(initialAgent = {}, models = catalog, settings = {}, isEditing =
         "../mcp-catalog/ServerCatalogModal": components,
         "../provider-config/google/GoogleChatConfig": components,
         "./AgentSkillsEditor": components,
+        "./AgentIconsForm": components,
         "../chat-settings/ChatPluginsEditor": components,
         "./AgentChecks": components,
         "./AgentToolConfigurationTab": components,
@@ -136,6 +138,8 @@ test("create and edit forms put Owner above Tags on the second Details tab, not 
         const sections = React.Children.toArray(tabs[1].props.children);
         assert.equal(find(sections[0], owner).props.valueTitle, "Imported team");
         assert.equal(find(sections[1], tagInput).props.value, "");
+        assert.equal(sections[2].type, "AgentIconsForm");
+        assert.equal(find(tabs[0], node => node.type === "AgentIconsForm"), undefined);
         assert.deepEqual(h.agent.tags, ["saved"]);
         assert.equal(h.agent.owned_by, "Imported team");
         find(tree, node => node.type === "Tabs").props.onSelect("details");

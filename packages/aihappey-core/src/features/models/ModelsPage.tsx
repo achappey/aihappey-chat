@@ -493,7 +493,7 @@ export const ModelsPage = () => {
 
   const tagFilterSection = useMemo(() => ({
     id: "model-tag-filters",
-    label: t("providers:tags"),
+    label: t("agentEdit.tags"),
     allOption: {
       id: "all-model-tags",
       label: t("all"),

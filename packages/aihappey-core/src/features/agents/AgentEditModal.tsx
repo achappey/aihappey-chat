@@ -5,6 +5,7 @@ import { type Agent } from "aihappey-types";
 import { useAppStore } from "aihappey-state";
 import { hasValidAgentEditorModels } from "./agentEditorModels";
 import { AgentForm } from "./AgentForm";
+import { prepareAgentIconsForSave } from "./agentIcons";
 import { CancelButton } from "../../ui/buttons/CancelButton";
 
 export interface AgentEditModalProps {
@@ -47,7 +48,7 @@ export const AgentEditModal = ({ open, onClose, agent, isEditing, onSave }: Agen
             actions={<>
                 <CancelButton onClick={onClose} />
                 <Button disabled={!isValid || busy}
-                    onClick={() => isValid && !busy && onSave(draft)}>{t("save")}</Button>
+                    onClick={() => isValid && !busy && onSave(prepareAgentIconsForSave(draft))}>{t("save")}</Button>
             </>}
             title={isEditing ? t('agentEdit.edit') : t('agentEdit.create')}>
             <AgentForm agent={draft}

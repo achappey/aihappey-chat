@@ -27,6 +27,7 @@ const iconSelection = load(components + "images/selectCapabilityIcon.ts");
 const theme = new Proxy({}, { get: (_, name) => name });
 let darkMode = false;
 const shared = {
+    react: React,
     "usehooks-ts": { useDarkMode: () => ({ isDarkMode: darkMode }) },
     "../theme/ThemeContext": { useTheme: () => theme },
     "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
