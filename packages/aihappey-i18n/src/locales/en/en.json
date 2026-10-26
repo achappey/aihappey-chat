@@ -1366,6 +1366,7 @@
             "images": "Images",
             "transcriptions": "Transcriptions",
             "speech": "Speech",
+            "decisions": "Decisions",
             "reranks": "Reranks",
             "videos": "Videos",
             "jobs": "Jobs",

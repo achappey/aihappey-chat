@@ -1,4 +1,5 @@
 import JSZip from "jszip";
+import type { DecisionItem, QuestionSet } from "aihappey-decisions";
 import {
   pluginPackageEntries,
   type PluginCatalogItem,
@@ -15,6 +16,7 @@ export const EXPORT_CATEGORY_IDS = [
   "images",
   "transcriptions",
   "speech",
+  "decisions",
   "reranks",
   "videos",
   "jobs",
@@ -40,6 +42,10 @@ export type ExportSources = {
   images: any[];
   transcriptions: any[];
   speech: any[];
+  decisions: {
+    items: DecisionItem[];
+    questionSets: QuestionSet[];
+  };
   reranks: any[];
   videos: any[];
   jobs: any[];
@@ -278,6 +284,18 @@ export async function collectCategoryEntries(
         const media = mediaData(wrapped?.base64 ?? wrapped?.data ?? audio, wrapped?.mimeType || `audio/${wrapped?.format || "mpeg"}`);
         return media ? [{ path: `speech-${safeFilename(item.id, String(index + 1))}.${extensionFor(media.mime, wrapped?.format || "mp3")}`, data: media.data }] : [];
       });
+      break;
+    case "decisions":
+      entries = [
+        ...sources.decisions.questionSets.map((set, index) => ({
+          path: `question-sets/${safeFilename(set.name || set.id, `question-set-${index + 1}`)}.json`,
+          data: json(set),
+        })),
+        ...sources.decisions.items.map((item, index) => ({
+          path: `history/decision-${safeFilename(item.id, String(index + 1))}.json`,
+          data: json(item),
+        })),
+      ];
       break;
     case "reranks":
       entries = sources.reranks.map((item, index) => ({ path: `rerank-${safeFilename(item.id, String(index + 1))}.json`, data: json(item.reranking) }));

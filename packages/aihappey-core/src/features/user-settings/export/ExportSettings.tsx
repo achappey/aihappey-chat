@@ -5,6 +5,7 @@ import { useConversations } from "aihappey-conversations";
 import { useImages } from "aihappey-images";
 import { useTranscriptions } from "aihappey-transcriptions";
 import { useSpeech } from "aihappey-speech";
+import { useDecisions } from "aihappey-decisions";
 import { useReranking } from "aihappey-reranking";
 import { useVideos } from "aihappey-videos";
 import { useJobs } from "aihappey-jobs";
@@ -32,6 +33,7 @@ const EXPORT_ICONS: Record<ExportTargetId, IconToken> = {
   images: "images",
   transcriptions: "transcription",
   speech: "speech",
+  decisions: "decision",
   reranks: "reranking",
   videos: "videos",
   jobs: "jobs",
@@ -51,6 +53,7 @@ export const ExportSettings = () => {
   const images = useImages();
   const transcriptions = useTranscriptions();
   const speech = useSpeech();
+  const decisions = useDecisions();
   const reranks = useReranking();
   const videos = useVideos();
   const jobs = useJobs();
@@ -79,6 +82,10 @@ export const ExportSettings = () => {
     images: images.items,
     transcriptions: transcriptions.items,
     speech: speech.items,
+    decisions: {
+      items: decisions.items,
+      questionSets: decisions.questionSets,
+    },
     reranks: reranks.items,
     videos: videos.items,
     jobs: jobs.items,
@@ -111,6 +118,8 @@ export const ExportSettings = () => {
   }), [
     agents,
     conversations.items,
+    decisions.items,
+    decisions.questionSets,
     documentHubs.items,
     files.items,
     images.items,
