@@ -25,7 +25,6 @@
     "includeSearchResultsInStream": "Søgeresultater"
   },
   "perplexity": {
-    "academic": "Akademisk",
     "agent": "Agent",
     "web": "Web",
     "fast": "Hurtig",
@@ -71,16 +70,18 @@
     }
   },
   "browseruse": {
-    "session": "Session",
-    "features": "Funktioner",
     "maxCostUsd": "Maksimale omkostninger (USD)",
     "profileId": "Profil",
-    "workspaceId": "Arbejdsområde",
     "proxyCountryCode": "Land hvor browseren kører",
-    "enableRecording": "Aktivér optagelse",
-    "skills": "Aktivér færdigheder",
-    "agentmail": "Aktivér AgentMail",
-    "cacheScript": "Cache-script"
+    "browserSettings": "Browserindstillinger",
+    "enableJudge": "Aktivér evaluering",
+    "judge": "Evaluator",
+    "judgeContext": "Evalueringskontekst",
+    "noProxy": "Ingen proxy",
+    "record": "Optag browsersession",
+    "run": "Kør",
+    "screenHeight": "Skærmhøjde",
+    "screenWidth": "Skærmbredde"
   },
   "tembo": {
     "session": "Session",
@@ -244,15 +245,16 @@
     "thinkingModes": {
       "enabled": "Aktiveret",
       "disabled": "Deaktiveret",
-      "adaptive": "Adaptiv"
+      "adaptive": "Adaptiv",
+      "between_tools": "Mellem værktøjer"
     },
     "thinkingDisplayModes": {
       "summarized": "Opsummeret",
-      "omitted": "Udeladt"
+      "omitted": "Udeladt",
+      "updates": "Opdateringer"
     },
     "contextManagement": {
       "title": "Kontekststyring",
-      "description": "Konfigurér Anthropics kontekststyring på root context_management-objektet. Det genererede payload forbliver justeret med det dokumenterede passthrough-skema.",
       "empty": "Ingen kontekststyringsjusteringer konfigureret endnu.",
       "add": "Tilføj kontekstredigering",
       "type": "Redigeringstype",
@@ -316,6 +318,63 @@
         "pauseAfterCompactionFalse": "Pause efter kompaktering: falsk",
         "instructions": "Instruktioner angivet"
       }
+    },
+    "advisor": {
+      "caching": "Promptcache for rådgiver",
+      "maxTokens": "Maksimalt antal tokens",
+      "model": "Model",
+      "toolName": "Værktøjsnavn",
+      "title": "Rådgiver"
+    },
+    "cache": {
+      "title": "Cache",
+      "ttl": "Varighed",
+      "ttlOptions": {
+        "1h": "1 time",
+        "5m": "5 minutter"
+      }
+    },
+    "compaction": {
+      "title": "Komprimer kontekst"
+    },
+    "memory": "Hukommelse",
+    "other": {
+      "inferenceGeo": {
+        "options": {
+          "global": "Global",
+          "us": "USA"
+        },
+        "title": "Geografi"
+      },
+      "serviceTier": {
+        "options": {
+          "auto": "Prioritet, når tilgængelig",
+          "standard_only": "Kun standard"
+        },
+        "title": "Serviceniveau"
+      },
+      "speed": {
+        "options": {
+          "fast": "Hurtig",
+          "standard": "Standard"
+        },
+        "title": "Hastighed"
+      }
+    },
+    "outputConfig": {
+      "effort": "Niveau ({{effort}})",
+      "taskBudget": "Opgavebudget",
+      "title": "Outputkonfiguration"
+    },
+    "prefixMismatchBehavior": "Uoverensstemmelse i tænkning",
+    "prefixMismatchBehaviorOptions": {
+      "drop_block": "Fjern",
+      "error": "Fejl"
+    },
+    "responseInclusion": "Medtagelse i svar",
+    "session": {
+      "maxListCostUsd": "Maksimalt budget (USD)",
+      "title": "Budget (administrerede agenter)"
     }
   },
   "cohere": {
@@ -324,7 +383,7 @@
       "priority": "Prioritet",
       "maxTokensPerDoc": "Maksimale tokens pr. dokument"
     }
-  }, 
+  },
   "deepinfra": {
     "transcription": {
       "task": "Opgave",
@@ -486,17 +545,24 @@
     "excludedDomains": "Ekskluderede domæner",
     "allowed_x_handles": "Tilladte X-håndtag",
     "excluded_x_handles": "Ekskluderede X-håndtag",
-    "transcriptionGeneralHint": "Konfigurér xAI tale-til-tekst-indstillinger. Uploadet lyd leveres af transskriptionsflowet.",
     "transcriptionFormat": "Formattekst",
     "transcriptionDiarize": "Højttalerdiarisering",
     "audioInput": "Lydinput",
-    "audioInputHint": "Angiv kun audio_format for råt/headerløst lyd. Containerformater registreres automatisk af xAI.",
     "audioFormat": "Lydformat",
     "sampleRate": "Samplingshastighed",
     "channels": "Kanaler",
-    "channelsHint": "For containerformater registreres kanalantal automatisk. For multikanal råt lyd, angiv 2 til 8 kanaler.",
     "transcriptionMultichannel": "Multikanal",
-    "channelCount": "Kanalantal"
+    "channelCount": "Kanalantal",
+    "imageSearch": "Billedsøgning",
+    "toolSearch": {
+      "executionMode": "Kørselstilstand",
+      "server": "Server",
+      "title": "Værktøjssøgning"
+    },
+    "transcriptionFillerWords": "Medtag fyldord",
+    "transcriptionKeyterm": "Nøglebegreber",
+    "transcriptionKeytermPlaceholder": "Indtast en kommasepareret liste over nøglebegreber",
+    "transcriptionVadThreshold": "Tærskel for registrering af taleaktivitet ({{value}})"
   },
   "openai": {
     "shell": "Shell",
@@ -504,7 +570,18 @@
     "promptCacheKey": "Prompt-cache-id",
     "promptCacheOptions": {
       "24h": "24 timer",
-      "in-memory": "I hukommelsen"
+      "in-memory": "I hukommelsen",
+      "mode": "Tilstand",
+      "modes": {
+        "explicit": "Eksplicit",
+        "implicit": "Implicit"
+      },
+      "title": "Promptcache",
+      "ttl": "Cachevarighed",
+      "ttls": {
+        "12h": "12 timer",
+        "30m": "30 minutter"
+      }
     },
     "promptCache": "Prompt-cache",
     "truncation": {
@@ -518,7 +595,9 @@
       "default": "Standard",
       "flex": "Fleksibel",
       "scale": "Skalerbar",
-      "priority": "Prioritet"
+      "priority": "Prioritet",
+      "fast": "Hurtig",
+      "ultrafast": "Ultrahurtig"
     },
     "container": "Container",
     "customVoice": "Tilpasset stemme",
@@ -638,7 +717,102 @@
     "realtimeVadIdleTimeoutMs": "Inaktiv timeout (ms)",
     "realtimeSemanticEagerness": "Iver",
     "realtimeIncludeLogprobs": "Inkludér input-transskription logprobs",
-    "realtimeTokenTtlSeconds": "Token-levetid (sekunder)"
+    "realtimeTokenTtlSeconds": "Token-levetid (sekunder)",
+    "moderation": {
+      "inputMode": "Inputpolitik",
+      "model": "Moderationsmodel",
+      "modes": {
+        "block": "Bloker",
+        "score": "Score"
+      },
+      "outputMode": "Outputpolitik",
+      "title": "Moderering"
+    },
+    "multiAgent": {
+      "description": "Tillad rodmodellen at koordinere underagenter parallelt til komplekse Responses API-opgaver. Når funktionen aktiveres, tilføjes også den påkrævede OpenAI-betaheader.",
+      "maxConcurrentSubagents": "Maks. antal samtidige underagenter",
+      "maxConcurrentSubagentsHelp": "Begrænser antallet af aktive underagenter i hele agenttræet. OpenAI anbefaler standardværdien 3.",
+      "title": "Flere agenter"
+    },
+    "programmaticToolCalling": {
+      "allowedCallers": "Tilladte kaldere",
+      "allowedCallersOptions": {
+        "direct": "Direkte",
+        "programmatic": "Kode"
+      },
+      "title": "Værktøjer med kode"
+    },
+    "searchContentTypes": {
+      "image": "Billedsøgeresultater",
+      "text": "Tekstsøgeresultater"
+    },
+    "sessionAgent": {
+      "allowedDomains": "Tilladte søgedomæner (ét pr. linje)",
+      "city": "By",
+      "computer_use": "Computerstyring",
+      "country": "Land",
+      "effort": "Ræsonneringsniveau",
+      "format": "Tekstformat",
+      "inherit": "Ikke angivet",
+      "instructions": "Instruktioner",
+      "invalidSchema": "Indtast et gyldigt JSON Schema-objekt.",
+      "maxSubagents": "Maks. antal samtidige underagenter",
+      "model": "Model",
+      "multiAgent": "Aktivér underagenter",
+      "programmaticEnabled": "Aktivér kald fra genereret kode",
+      "programmatic_tool_calling": "Programmatisk værktøjskald",
+      "region": "Region",
+      "schema": "JSON Schema",
+      "screenshots": "Medtag skærmbilleder",
+      "searchContext": "Størrelse på søgekontekst",
+      "searchMode": "Websøgetilstand",
+      "serviceTier": "Serviceniveau",
+      "summary": "Resumé af ræsonnering",
+      "timezone": "Tidszone",
+      "title": "Agent",
+      "tool_search": "Værktøjssøgning",
+      "tools": "Agentværktøjer",
+      "verbosity": "Tekstdetaljeringsniveau",
+      "web_search": "Websøgning"
+    },
+    "sessionEnvironment": {
+      "allowedDomains": "Tilladte domæner (ét pr. linje)",
+      "blockedDomains": "Blokerede domæner (ét pr. linje)",
+      "containerSize": "Containerstørrelse",
+      "desktop": "Klargør skrivebord og browserproxy",
+      "disabled": "Deaktiveret",
+      "domainHelp": "Brug enten tilladte eller blokerede domæner, ikke begge dele. Jokertegn understøttes ikke.",
+      "enabled": "Aktiveret",
+      "inherit": "Ikke angivet",
+      "large": "Stor",
+      "medium": "Mellem",
+      "network": "Netværksadgang",
+      "none": "Ingen",
+      "openai_hosted": "Hostet af OpenAI",
+      "restricted": "Begrænset",
+      "self_hosted": "Selvhostet",
+      "small": "Lille",
+      "templateId": "Miljøskabelon-id",
+      "title": "Miljø (agent)",
+      "type": "Miljøtype",
+      "workspaceDirectory": "Absolut arbejdsområdemappe"
+    },
+    "toolSearch": {
+      "client": "Klient",
+      "executionMode": "Kørselstilstand",
+      "hosted": "Hostet",
+      "title": "Værktøjssøgning"
+    },
+    "transcriptionKeywordsPlaceholder": "Ét ord eller udtryk pr. linje til at styre transskriptionen",
+    "transcriptionLanguages": "Mulige sprog",
+    "transcriptionLanguagesPlaceholder": "Kommaseparerede ISO-639-1-koder, f.eks. en, nl",
+    "transcriptionResponseFormat": "Svarformat",
+    "betaHeader": "Beta",
+    "imageSettings": {
+      "caption": "Medtag billedtekster",
+      "maxResults": "Maks. antal billedresultater"
+    },
+    "transcriptionKeywords": "Nøgleord"
   },
   "google": {
     "enableEnhancedCivicAnswers": "Forbedrede civile svar",
@@ -717,7 +891,132 @@
     "service_tier": "Serviceniveau",
     "voice": "Stemme",
     "language": "Sprog",
-    "speaker": "Taler"
+    "speaker": "Taler",
+    "interactions": {
+      "other": {
+        "seed": "Seed"
+      },
+      "responseFormat": {
+        "aspectRatio": "Billedformat",
+        "bitRate": "Bitrate (bps)",
+        "duration": "Varighed",
+        "imageSize": "Billedstørrelse",
+        "mimeType": "MIME-type",
+        "resolution": "Opløsning",
+        "sampleRate": "Samplingsfrekvens (Hz)",
+        "title": "Svarformat",
+        "types": {
+          "audio": "Lyd",
+          "image": "Billede",
+          "text": "Tekst",
+          "video": "Video"
+        }
+      },
+      "retrieval": {
+        "apiKey": "API-nøgle",
+        "exa": {
+          "title": "Exa-søgning"
+        },
+        "parallel": {
+          "title": "Parallel søgning"
+        }
+      },
+      "speech": {
+        "addSpeaker": "Tilføj taler",
+        "language": "Sprog",
+        "speaker": "Talernavn",
+        "title": "Tale",
+        "voice": "Stemme"
+      },
+      "transcription": {
+        "customVocabulary": "Brugerdefineret ordforråd",
+        "languageCodes": "Sproghints",
+        "speakerDiarization": "Identificer talere",
+        "wordTimestamps": "Medtag tidsstempler for ord",
+        "title": "Transskription"
+      }
+    },
+    "realtimeConversation": {
+      "automaticVad": "Automatisk registrering af taleaktivitet",
+      "camera": "Kamerainput",
+      "cameraFps": "Kamerabilleder pr. sekund",
+      "cameraHint": "Kameraet er som standard slukket. Når det aktiveres under en session, sendes JPEG-billeder med højst 1 FPS. Sessioner med både lyd og video har en kortere tidsgrænse.",
+      "contextCompression": "Komprimering af kontekstvindue",
+      "googleSearch": "Forankring via Google Søgning",
+      "hint": "Direkte lyd fra browser til Gemini Live ved hjælp af et midlertidigt token fra backend. Gemini Live er en API i forhåndsvisning.",
+      "inputTranscription": "Transskriber lyd fra mikrofon",
+      "jpegQuality": "JPEG-kvalitet",
+      "outputTranscription": "Transskriber Gemini-lyd",
+      "prefixPaddingMs": "Præfikspolstring (ms)",
+      "sessionManagement": "Sessionsadministration",
+      "sessionResumption": "Genoptag på tværs af WebSocket-forbindelser",
+      "silenceDurationMs": "Tavshedsvarighed (ms)",
+      "startCamera": "Start kamera",
+      "stopCamera": "Stop kamera",
+      "title": "Gemini Live-samtale",
+      "tokenExpiry": "Udløb af midlertidigt token",
+      "triggerTokens": "Tokens, der udløser komprimering",
+      "turnDetection": "Registrering af taleaktivitet"
+    },
+    "realtimeTranscription": {
+      "customVocabulary": "Brugerdefineret ordforråd (ét udtryk pr. linje eller kommasepareret)",
+      "hint": "Disse indstillinger gælder kun for Gemini Live-transskription og er adskilt fra indstillingerne for filtransskription. Automatisk registrering af taleaktivitet er aktiveret.",
+      "languageCodes": "Sproghints (ét pr. linje eller kommasepareret)",
+      "mode": "Transskriptionstilstand",
+      "modes": {
+        "smart": "Smart",
+        "verbatim": "Ordret"
+      },
+      "title": "Live-transskription"
+    },
+    "safetySettings": {
+      "add": "Tilføj sikkerhedsindstilling",
+      "categories": {
+        "civic_integrity": "Samfundsmæssig integritet (forældet)",
+        "dangerous_content": "Farligt indhold",
+        "harassment": "Chikane",
+        "hate_speech": "Hadefuld tale",
+        "image_dangerous_content": "Farligt billedindhold",
+        "image_harassment": "Chikane i billeder",
+        "image_hate": "Hadefuld tale i billeder",
+        "image_sexually_explicit": "Seksuelt eksplicit billedindhold",
+        "jailbreak": "Jailbreak",
+        "sexually_explicit": "Seksuelt eksplicit"
+      },
+      "method": "Metode",
+      "methods": {
+        "probability": "Sandsynlighed",
+        "severity": "Sandsynlighed og alvor"
+      },
+      "threshold": "Tærskel",
+      "thresholds": {
+        "block_low_and_above": "Bloker lavt og højere",
+        "block_medium_and_above": "Bloker middel og højere",
+        "block_none": "Bloker intet",
+        "block_only_high": "Bloker kun højt",
+        "off": "Slå sikkerhedsfilter fra"
+      },
+      "title": "Sikkerhedsindstillinger",
+      "type": "Kategori"
+    },
+    "serviceTiers": {
+      "flex": "Fleksibel",
+      "priority": "Prioritet",
+      "providerDefault": "Udbyderens standard",
+      "standard": "Standard"
+    },
+    "videoConfig": {
+      "providerDefault": "Udbyderens standard (udledt af prompten)",
+      "task": "Opgave",
+      "tasks": {
+        "edit": "Rediger",
+        "extend": "Udvid",
+        "image_to_video": "Billede til video",
+        "reference_to_video": "Reference til video",
+        "text_to_video": "Tekst til video"
+      },
+      "title": "Video"
+    }
   },
   "jina": {
     "max_returned_urls": "Maks. returnerede URL'er",
@@ -1053,7 +1352,9 @@
     "voiceModifyTimbreWithValue": "Klangfarve ({{value}})",
     "soundEffects": "Lydeffekter",
     "music": "Musik",
-    "lyrics": "Sangtekster"
+    "lyrics": "Sangtekster",
+    "promptOptimizer": "Promptoptimering",
+    "promptOptimizerHint": "Optimer automatisk prompten, før billeder genereres."
   },
   "audixa": {
     "speech": {
@@ -1184,5 +1485,228 @@
     "customSpellingFromPlaceholder": "f.eks. Sequel",
     "customSpellingAdd": "Tilføj erstatning",
     "customSpellingEmpty": "Ingen tilpassede stavningsposter endnu."
+  },
+  "abliteration": {
+    "categories": {
+      "harassment": "Chikane",
+      "harassment/threatening": "Chikane – truende",
+      "hate": "Had",
+      "hate/threatening": "Had – truende",
+      "illicit": "Ulovlig aktivitet",
+      "illicit/violent": "Ulovlig aktivitet – voldelig",
+      "self-harm": "Selvskade",
+      "self-harm/instructions": "Selvskade – instruktioner",
+      "self-harm/intent": "Selvskade – hensigt",
+      "sexual": "Seksuelt indhold",
+      "sexual/minors": "Seksuelt indhold – mindreårige",
+      "violence": "Vold",
+      "violence/graphic": "Vold – grafisk"
+    },
+    "policy": {
+      "allowlist": "Tilladt post",
+      "denylist": "Afvist post",
+      "flaggedCategories": "Markerede kategorier",
+      "id": "Politik-id",
+      "noneSelected": "Ingen kategorier valgt",
+      "redactPii": "Slør personlige oplysninger",
+      "title": "Politik"
+    },
+    "reasoning": {
+      "effort": "Niveau",
+      "efforts": {
+        "high": "Høj",
+        "low": "Lav",
+        "max": "Maksimum",
+        "medium": "Mellem",
+        "minimal": "Minimal",
+        "none": "Ingen",
+        "ultracode": "Ultracode",
+        "xhigh": "Meget høj"
+      },
+      "enabled": "Aktivér ræsonnering",
+      "exclude": "Udelad ræsonnering fra svaret",
+      "maxTokens": "Maksimalt antal ræsonneringstokens",
+      "title": "Ræsonnering"
+    }
+  },
+  "akumi": {
+    "cache": "Cache",
+    "firewall": "Firewall",
+    "firewallEnabled": "Ruting via EU",
+    "firewallLanguage": "Analysesprog",
+    "languages": {
+      "auto": "Registrer automatisk",
+      "de": "Tysk",
+      "en": "Engelsk",
+      "fr": "Fransk",
+      "nl": "Hollandsk"
+    },
+    "other": "Andet",
+    "sendFirewall": "Send firewallindstillinger",
+    "tag": "Nyt tag",
+    "tags": "Tags"
+  },
+  "apertis": {
+    "compression": "Komprimering af kontekst",
+    "effort": "Niveau",
+    "efforts": {
+      "high": "Høj",
+      "low": "Lav",
+      "medium": "Mellem"
+    },
+    "keepTurns": "Seneste ture, der skal bevares",
+    "model": "Komprimeringsmodel",
+    "notSet": "Ikke angivet",
+    "reasoning": "Ræsonnering",
+    "strategies": {
+      "aggressive": "Aggressiv",
+      "conservative": "Konservativ",
+      "default": "Standard (afbalanceret)",
+      "on": "Afbalanceret"
+    },
+    "strategy": "Strategi",
+    "summaries": {
+      "auto": "Automatisk",
+      "concise": "Kortfattet",
+      "detailed": "Detaljeret"
+    },
+    "summary": "Resumé",
+    "threshold": "Token-grænse"
+  },
+  "baseten": {
+    "advancedSearchTool": "Avanceret søgning",
+    "enableThinking": "Aktivér tænkning",
+    "enableThinkingValue": "Send enable_thinking",
+    "fetchTool": "Hent sider",
+    "limitIterations": "Angiv iterationsgrænse",
+    "maxReactIterations": "Maksimalt antal ræsonnerings- og værktøjsiterationer",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You.com"
+    },
+    "searchProvider": "Søgeudbyder",
+    "searchTool": "Søg"
+  },
+  "interfaze": {
+    "other": {
+      "headers": {
+        "x-interfaze-bypass-cache": "Omgå verificeret cache",
+        "x-interfaze-bypass-moa": "Omgå MoA",
+        "x-interfaze-zdr": "Ingen datalagring",
+        "x-show-additional-info": "Medtag yderligere forudgående kontekst i streamede svar"
+      },
+      "title": "Andet"
+    },
+    "reasoning": {
+      "effort": "Ræsonneringsniveau",
+      "efforts": {
+        "high": "Høj",
+        "low": "Lav",
+        "medium": "Mellem"
+      },
+      "title": "Ræsonnering"
+    }
+  },
+  "inworld": {
+    "imageConfig": {
+      "aspectRatio": "Billedformat",
+      "count": "Antal billeder",
+      "imageSize": "Billedstørrelse",
+      "partialImages": "Forhåndsvisning af delvise billeder",
+      "title": "Billedkonfiguration"
+    },
+    "modalities": {
+      "image": "Billede",
+      "text": "Tekst",
+      "title": "Outputmodaliteter"
+    },
+    "reasoning": {
+      "effort": "Ræsonneringsniveau",
+      "efforts": {
+        "high": "Høj",
+        "low": "Lav",
+        "medium": "Mellem",
+        "minimal": "Minimal",
+        "none": "Ingen"
+      },
+      "title": "Ræsonnering"
+    },
+    "webSearch": {
+      "engine": "Søgemaskine",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      },
+      "maxResults": "Resultater pr. søgning",
+      "maxSteps": "Maksimalt antal søgerunder",
+      "title": "Websøgning"
+    }
+  },
+  "mireye": {
+    "address": "Adresse",
+    "addressHint": "Brug en fuld amerikansk gadeadresse. Hvis du vælger denne mulighed, fjernes eventuelle koordinater.",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "addressTitle": "Adresse",
+    "coordinatesHint": "Angiv begge koordinater. Hvis du vælger denne mulighed, fjernes adressen.",
+    "coordinatesTitle": "Bredde- og længdegrad",
+    "geolocationDenied": "Adgang til placering blev afvist.",
+    "geolocationTimeout": "Det tog for lang tid at hente din aktuelle placering.",
+    "geolocationUnavailable": "Din aktuelle placering kunne ikke bestemmes.",
+    "geolocationUnsupported": "Denne browser understøtter ikke hentning af aktuel placering.",
+    "getCurrent": "Hent aktuel placering",
+    "gettingCurrent": "Henter aktuel placering...",
+    "latitude": "Breddegrad",
+    "longitude": "Længdegrad"
+  },
+  "ninjachat": {
+    "group": "Kilde",
+    "groupOptions": {
+      "academic": "Akademisk",
+      "news": "Nyheder",
+      "web": "Web"
+    },
+    "includeImages": "Medtag billeder",
+    "maxResults": "Maks. antal resultater",
+    "search": "Søg",
+    "searchDepth": "Søgedybde",
+    "searchDepthOptions": {
+      "advanced": "Avanceret",
+      "basic": "Grundlæggende"
+    },
+    "topic": "Emne",
+    "topicOptions": {
+      "finance": "Finans",
+      "general": "Generelt",
+      "news": "Nyheder"
+    }
+  },
+  "stepfun": {
+    "addTone": "Tilføj udtaleregel",
+    "addTonePlaceholder": "f.eks. LOL/grin højt",
+    "audioSettings": "Lydindstillinger",
+    "pronunciationMap": "Udtalekort",
+    "sampleRate": "Samplingsfrekvens (Hz)",
+    "sampleRateHint": "Understøttede værdier: 8000, 16000, 22050, 24000 og 48000.",
+    "sampleRatePlaceholder": "Udbyderens standard (24000)",
+    "toneHint": "Tilføj udtaleregler i formatet tekst/udtale. Kinesiske toner angives med tallene 1–5.",
+    "volume": "Lydstyrke",
+    "volumePlaceholder": "Udbyderens standard (1,0; interval 0,1–2,0)"
+  },
+  "upstage": {
+    "reasoning": {
+      "effort": "Ræsonneringsniveau",
+      "efforts": {
+        "high": "Høj",
+        "low": "Lav",
+        "max": "Maksimum",
+        "medium": "Mellem",
+        "minimal": "Minimal",
+        "none": "Ingen",
+        "xhigh": "Meget høj"
+      },
+      "title": "Ræsonnering"
+    }
   }
 }
