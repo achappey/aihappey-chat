@@ -105,7 +105,7 @@ test("selector groups agents under every tag and reserves hosts for untagged age
     const state = { enabledProvidersByType: { language: ["test"] } };
     const { AgentSelect } = load(feature + "AgentSelect.tsx", {
         ...common,
-        react: { ...React, useMemo: factory => factory() },
+        react: { ...React, useMemo: factory => factory(), useEffect: () => {} },
         "aihappey-state": { useAppStore: selector => selector(state), store: {},
             DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: { selectFavoriteAgent: "SelectFavoriteAgent" } },
         "../../shell/responsive/useIsDesktop": { useIsDesktop: () => true },
@@ -135,22 +135,32 @@ test("selector groups agents under every tag and reserves hosts for untagged age
     assert.equal(selected, "remote:remote-writer");
 });
 
-function overview(desktop = true) {
+function overview(desktop = true, overrides = {}) {
     const slots = [];
-    let index, tree, saved;
+    let index, tree, saved, dirty, effects;
     const hooks = {
         ...React,
         useMemo: factory => factory(),
         useCallback: callback => callback,
         useRef: () => ({ current: null }),
-        useEffect: () => {},
+        useEffect(effect, deps) {
+            const slot = index++;
+            if (!slots[slot] || deps.some((dep, i) => !Object.is(dep, slots[slot][i]))) {
+                slots[slot] = deps;
+                effects.push(effect);
+            }
+        },
         useState(initial) {
             const slot = index++;
             if (!(slot in slots)) slots[slot] = typeof initial === "function" ? initial() : initial;
-            return [slots[slot], next => { slots[slot] = typeof next === "function" ? next(slots[slot]) : next; }];
+            return [slots[slot], next => {
+                const value = typeof next === "function" ? next(slots[slot]) : next;
+                dirty ||= !Object.is(value, slots[slot]);
+                slots[slot] = value;
+            }];
         },
     };
-    const state = { agents, remoteAgentModels, favoriteAgentIds: ["local:Writer"], createAgent: agent => { saved = agent; } };
+    const state = { agents, remoteAgentModels, favoriteAgentIds: ["local:Writer"], createAgent: agent => { saved = agent; }, ...overrides };
     const { AgentsPage } = load(feature + "AgentsPage.tsx", {
         ...common,
         react: hooks,
@@ -165,24 +175,29 @@ function overview(desktop = true) {
         "aihappey-skills": { useSkills: () => ({ items: [] }) },
         "./agentPluginConversion": {},
     });
-    const render = () => { index = 0; tree = AgentsPage(); return tree; };
+    const render = () => {
+        let passes = 0;
+        do {
+            dirty = false; index = 0; effects = []; tree = AgentsPage(); effects.forEach(effect => effect());
+            assert.ok(++passes < 10, "effects settle without a render loop");
+        } while (dirty);
+        return tree;
+    };
     const allCards = () => nodes(nodes(tree, "Tab").find(tab => tab.props.eventKey === "all"), "AgentCard");
     render();
-    nodes(tree, "StickyHeaderActionBar")[0].props.actionContent.props.children[0].props.onChange(true);
-    render();
-    return { render, allCards, tree: () => tree, saved: () => saved };
+    const filter = label => nodes(tree, "Select").find(select => select.props.label === label);
+    const choose = (label, value) => { filter(label).props.onChange({ target: { value: value === null ? "" : `value:${value}` } }); render(); };
+    const tab = key => nodes(tree, "Tab").find(tab => tab.props.eventKey === key);
+    const selectTab = key => { nodes(tree, "Tabs")[0].props.onSelect(key); render(); };
+    return { render, allCards, filter, choose, tab, selectTab, state, tree: () => tree, saved: () => saved };
 }
 
-test("overview filters across multiple tags, composes search, and preserves save payloads", () => {
+test("overview dropdowns OR tags, compose search, reset, and preserve save payloads", () => {
     const page = overview();
-    const panel = () => nodes(page.tree(), "FilterDrawerPanel")[0].props.sections[0];
-    assert.deepEqual(panel().items.map(item => item.label), ["research", "shared", "writing"]);
-    assert.equal(panel().allOption.count, 5);
-    panel().items.find(item => item.label === "shared").onChange(true);
-    page.render();
+    assert.deepEqual(nodes(page.filter("providers:tags"), "option").map(option => option.props.value), ["", "value:research", "value:shared", "value:writing"]);
+    page.choose("providers:tags", "shared");
     assert.equal(page.allCards().length, 2);
-    panel().items.find(item => item.label === "research").onChange(true);
-    page.render();
+    page.choose("providers:tags", "research");
     assert.equal(page.allCards().length, 2);
     nodes(page.tree(), "SearchBox")[0].props.onChange("test/model");
     page.render();
@@ -191,21 +206,94 @@ test("overview filters across multiple tags, composes search, and preserves save
     page.render();
     assert.equal(page.allCards().length, 0);
     nodes(page.tree(), "SearchBox")[0].props.onChange("");
-    panel().allOption.onChange(true);
-    page.render();
+    page.choose("providers:tags", null);
     assert.equal(page.allCards().length, 5);
     nodes(page.tree(), "AgentEditModal")[0].props.onSave(agents[0]);
     assert.deepEqual(page.saved().tags, ["writing", "shared"]);
-    assert.equal(nodes(page.tree(), "Drawer")[0].props.overlay, false);
-    assert.equal(nodes(page.tree(), "Drawer")[0].props.size, "small");
+    assert.equal(nodes(page.tree(), "Drawer").length, 0);
+    assert.equal(nodes(page.tree(), "Switch").length, 0);
+    assert.equal(nodes(page.tree(), "FilterDrawerPanel").length, 0);
 });
 
-test("overview uses an overlay filter drawer on mobile", () => {
+test("mobile overview has only the two inline filters, with no drawer or toggle", () => {
     const page = overview(false);
-    const drawer = nodes(page.tree(), "Drawer")[0];
-    assert.equal(drawer.props.overlay, true);
-    assert.equal(drawer.props.open, true);
-    drawer.props.onClose();
-    page.render();
-    assert.equal(nodes(page.tree(), "Drawer")[0].props.open, false);
+    assert.equal(nodes(page.tree(), "Select").length, 2);
+    assert.equal(nodes(page.tree(), "Drawer").length, 0);
+    assert.equal(nodes(page.tree(), "Switch").length, 0);
+});
+
+test("metadata filters compose across existing and per-value tabs with effective remote ownership", () => {
+    const page = overview(true, {
+        agents: [{ ...local("Writer", [" shared ", "writing", "shared"]), owned_by: " Team " }, { ...local("Research", ["research"]), owned_by: "Research" }, local("Plain")],
+        remoteAgentModels: [{ id: "writer", owned_by: "Team", tags: ["shared"], agent: { ...local("Remote", ["research"]), owned_by: "Shadowed" } }],
+    });
+    assert.deepEqual(nodes(page.filter("agentEdit.ownedBy"), "option").map(option => option.props.value), ["", "value:Research", "value:Team"]);
+    page.choose("providers:tags", "shared");
+    page.choose("agentEdit.ownedBy", "Team");
+    assert.equal(page.allCards().length, 2);
+    for (const key of ["favorites", "local", "remote:agents.example"]) {
+        page.selectTab(key);
+        assert.equal(nodes(page.tab(key), "AgentCard").length, 1);
+        assert.equal(page.allCards().length, 2, "tab switching does not reset shared filters");
+    }
+    page.selectTab("tag:shared");
+    assert.equal(nodes(page.tab("tag:shared"), "AgentCard").length, 2);
+    assert.equal(page.tab("tag:shared").props.title, "shared (2)");
+    page.selectTab("owner:Team");
+    assert.equal(nodes(page.tab("owner:Team"), "AgentCard").length, 2);
+    assert.equal(nodes(page.tree(), "section").length, 0, "per-value tabs render flat card grids");
+    page.choose("agentEdit.ownedBy", "Research");
+    page.choose("providers:tags", "research");
+    assert.equal(page.allCards().length, 3, "both facets allow multiple OR selections");
+    nodes(page.tree(), "SearchBox")[0].props.onChange("Shadowed"); page.render();
+    assert.equal(page.allCards().length, 0, "overridden nested owner is not searchable");
+});
+
+test("one flat tab per nonblank tag and owner reuses existing cards and actions", () => {
+    const page = overview(true, {
+        agents: [{ ...local("Both", ["b", " a ", "a", ""]), owned_by: " Team " }, { ...local("Owned"), owned_by: "Team" }, local("Plain")],
+        remoteAgentModels: [],
+    });
+    assert.deepEqual(nodes(page.tree(), "Tab").map(tab => tab.props.eventKey), ["all", "favorites", "remote:agents.example", "local", "tag:a", "tag:b", "owner:Team"]);
+    assert.equal(nodes(page.tab("tag:a"), "AgentCard").length, 1);
+    assert.equal(nodes(page.tab("tag:b"), "AgentCard").length, 1);
+    const owned = nodes(page.tab("owner:Team"), "AgentCard");
+    assert.equal(owned.length, 2, "tagged agents also belong to their owner tab");
+    assert.ok(owned.every(card => typeof card.props.onEdit === "function" && typeof card.props.onSaveAsPlugin === "function"));
+    assert.equal(page.tab("tag:a").props.title, "a (1)");
+    assert.equal(page.tab("owner:Team").props.title, "Team (2)");
+    assert.equal(page.tab("tags"), undefined); assert.equal(page.tab("owners"), undefined);
+});
+
+test("catalog refresh cleans stale selections and safely falls back from removed value tabs", () => {
+    const page = overview(true, { agents: [{ ...local("Tagged", ["x"]), owned_by: "Team" }], remoteAgentModels: [] });
+    page.choose("providers:tags", "x"); page.choose("agentEdit.ownedBy", "Team"); page.selectTab("tag:x");
+    page.state.agents = [local("Plain", [" ", ""])]; page.render();
+    assert.equal(page.tab("tag:x"), undefined); assert.equal(page.tab("owner:Team"), undefined);
+    assert.equal(nodes(page.tree(), "Tabs")[0].props.activeKey, "all");
+    assert.deepEqual(page.filter("providers:tags").props.values, [""]);
+    assert.deepEqual(page.filter("agentEdit.ownedBy").props.values, [""]);
+    assert.equal(page.allCards().length, 1);
+    assert.equal(page.filter("providers:tags").props.disabled, true);
+    page.state.agents = [{ ...local("Owned"), owned_by: "Team" }]; page.render(); page.selectTab("owner:Team");
+    page.state.agents = [local("Plain")]; page.render();
+    assert.equal(nodes(page.tree(), "Tabs")[0].props.activeKey, "all", "removed owner tab also falls back");
+});
+
+test("metadata values cannot collide with the All option or tab identities", () => {
+    const page = overview(true, { agents: [{ ...local("Special", ["__ALL__", "all", "owners"]), owned_by: "all" }], remoteAgentModels: [] });
+    page.choose("providers:tags", "__ALL__"); page.choose("agentEdit.ownedBy", "all");
+    assert.deepEqual(page.filter("providers:tags").props.values, ["value:__ALL__"]);
+    assert.equal(page.allCards().length, 1);
+    assert.notEqual(page.tab("tag:all").props.eventKey, page.tab("owner:all").props.eventKey);
+    assert.equal(page.tab("tag:all").props.title, "all (1)");
+    assert.equal(page.tab("owner:all").props.title, "all (1)");
+    for (const key of ["tag:__ALL__", "tag:all", "owner:all"]) {
+        page.selectTab(key); assert.equal(nodes(page.tab(key), "AgentCard").length, 1);
+    }
+    nodes(page.tree(), "SearchBox")[0].props.onChange("absent"); page.render();
+    assert.ok(page.tab("tag:all"), "empty search results do not remove valid value tabs");
+    assert.equal(page.tab("tag:all").props.title, "all (0)");
+    assert.equal(nodes(page.tab("tag:all"), "AgentCard").length, 0);
+    assert.equal(page.allCards().length, 0);
 });

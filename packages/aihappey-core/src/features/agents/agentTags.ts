@@ -25,3 +25,13 @@ export const getAgentGroups = (...sources: ({ tags?: string[]; owned_by?: string
     const owner = getAgentOwner(...sources);
     return tags.length ? tags : owner ? [owner] : [];
 };
+
+export const matchesAgentMetadata = (agent: Agent, tags: string[], owners: string[]): boolean =>
+    (!tags.length || getAgentTags(agent).some((tag) => tags.includes(tag)))
+    && (!owners.length || owners.includes(getAgentOwner(agent)));
+
+export const getAgentMetadataTabKey = (facet: "tag" | "owner", value: string): string => `${facet}:${value}`;
+
+export const matchesAgentMetadataTab = (agent: Agent, key: string): boolean =>
+    key.startsWith("tag:") ? getAgentTags(agent).includes(key.slice(4))
+        : key.startsWith("owner:") ? getAgentOwner(agent) === key.slice(6) : true;

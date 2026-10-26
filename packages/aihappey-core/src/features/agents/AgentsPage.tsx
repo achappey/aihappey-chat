@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAgentModelProviderKey, useAppStore } from "aihappey-state";
-import { AgentCard, FilterDrawerPanel, StickyHeaderActionBar, useTheme } from "aihappey-components";
+import { AgentCard, StickyHeaderActionBar, useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { AgentEditModal } from "./AgentEditModal";
@@ -14,7 +14,7 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { usePlugins } from "aihappey-plugins";
 import { useSkills } from "aihappey-skills";
-import { collectAgentTags, getAgentTags, getAgentOwner } from "./agentTags";
+import { collectAgentTags, getAgentTags, getAgentOwner, matchesAgentMetadata, getAgentMetadataTabKey, matchesAgentMetadataTab } from "./agentTags";
 import {
   AgentPluginConversionError,
   convertAgentToPluginDraft,
@@ -71,7 +71,7 @@ const hostnameOf = (url?: string) => {
 
 export const AgentsPage = () => {
   const theme = useTheme();
-  const { SearchBox, Text, Tabs, Tab, Drawer, Switch } = theme;
+  const { SearchBox, Text, Tabs, Tab, Select } = theme;
   const { t } = useTranslation();
   const { config: chatConfig } = useChatContext();
   const isDesktop = useIsDesktop();
@@ -93,10 +93,10 @@ export const AgentsPage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
   const [editingName, setEditingName] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("all"); // "top" | "all"
+  const [activeTab, setActiveTab] = useState<string>("all");
   const [convertingCardKey, setConvertingCardKey] = useState<string | null>(null);
   const [pluginFeedback, setPluginFeedback] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,12 +104,29 @@ export const AgentsPage = () => {
     () => collectAgentTags(agents, remoteAgentModels),
     [agents, remoteAgentModels]
   );
+  const ownerOptions = useMemo(() => Array.from(new Set([
+    ...agents.map((agent) => getAgentOwner(agent)),
+    ...remoteAgentModels.map((model) => getAgentOwner(model, model.agent)),
+  ].filter(Boolean))).sort((a, b) => a.localeCompare(b)), [agents, remoteAgentModels]);
   useEffect(() => {
     setSelectedTags((current) => {
       const next = current.filter((tag) => tagOptions.includes(tag));
       return next.length === current.length ? current : next;
     });
   }, [tagOptions]);
+  useEffect(() => {
+    setSelectedOwners((current) => {
+      const next = current.filter((owner) => ownerOptions.includes(owner));
+      return next.length === current.length ? current : next;
+    });
+  }, [ownerOptions]);
+  // Availability follows the catalog, not the current search/filter result.
+  useEffect(() => {
+    if ((activeTab.startsWith("tag:") && !tagOptions.includes(activeTab.slice(4)))
+      || (activeTab.startsWith("owner:") && !ownerOptions.includes(activeTab.slice(6)))) {
+      setActiveTab("all");
+    }
+  }, [activeTab, tagOptions, ownerOptions]);
 
   const favoriteAgentSet = useMemo(
     () => new Set((favoriteAgentIds ?? []).filter(Boolean)),
@@ -233,6 +250,8 @@ export const AgentsPage = () => {
         card.agent.name,
         card.agent.description,
         ...getAgentModels(card.agent).map(model => model.id),
+        ...getAgentTags(card.agent),
+        getAgentOwner(card.agent),
       ]
         .filter(Boolean)
         .join(" ")
@@ -243,9 +262,8 @@ export const AgentsPage = () => {
   }, [agents, remoteAgentModels, search]);
 
   const filteredCards = useMemo(
-    () => cards.filter((card) => !selectedTags.length
-      || getAgentTags(card.agent).some((tag) => selectedTags.includes(tag))),
-    [cards, selectedTags]
+    () => cards.filter((card) => matchesAgentMetadata(card.agent, selectedTags, selectedOwners)),
+    [cards, selectedTags, selectedOwners]
   );
 
   const localCards = useMemo(
@@ -263,40 +281,31 @@ export const AgentsPage = () => {
     [filteredCards]
   );
 
-  const tabCards = cards.filter((card) => activeTab === "all"
-    || (activeTab === "favorites" ? favoriteAgentSet.has(card.key)
-      : activeTab === "local" ? card.kind === "local" : card.kind === "remote"));
-  const tagFilterSection = {
-    id: "agent-tag-filters",
-    label: t("providers:tags"),
-    allOption: {
-      id: "all-agent-tags",
-      label: t("all"),
-      count: tabCards.length,
-      checked: selectedTags.length === 0,
-      onChange: () => setSelectedTags([]),
-    },
-    items: tagOptions.map((tag) => {
-      const count = tabCards.filter((card) => getAgentTags(card.agent).includes(tag)).length;
-      const checked = selectedTags.includes(tag);
-      return {
-        id: `agent-tag-${tag}`,
-        label: tag,
-        count,
-        checked,
-        disabled: count === 0 && !checked,
-        onChange: () => setSelectedTags((current) => current.includes(tag)
-          ? current.filter((item) => item !== tag) : [...current, tag]),
-      };
-    }),
-  };
-  const renderFilters = () => (
-    <Drawer open={filtersOpen} title={t("filters")} overlay={!isDesktop}
-      position="end" size="small" onClose={() => setFiltersOpen(false)}>
-      <div style={{ width: "100%", boxSizing: "border-box", padding: 16 }}>
-        <FilterDrawerPanel sections={[tagFilterSection]} />
-      </div>
-    </Drawer>
+  const renderMetadataFilter = (facet: "tags" | "owners", label: string, options: string[], selected: string[],
+    onChange: React.Dispatch<React.SetStateAction<string[]>>) => (
+    <div style={{ flex: "1 1 150px", minWidth: 0, maxWidth: "100%" }}>
+      <Select values={selected.length ? selected.map((value) => `value:${value}`) : [""]}
+        multiselect size="small" label={label} aria-label={label}
+        valueTitle={selected.length ? selected.join(", ") : t("all")}
+        disabled={!options.length}
+        onChange={(event: any) => {
+          const value = event?.target?.value ?? event?.currentTarget?.value ?? event;
+          if (value === "") onChange([]);
+          else if (typeof value === "string" && value.startsWith("value:") && options.includes(value.slice(6))) {
+            const item = value.slice(6);
+            onChange((current) => current.includes(item) ? current.filter((entry) => entry !== item) : [...current, item]);
+          }
+        }}>
+        <option value="">{t("all")}</option>
+        {options.map((value) => {
+          const count = cards.filter((card) => matchesAgentMetadata(card.agent,
+            facet === "tags" ? [value] : selectedTags, facet === "owners" ? [value] : selectedOwners)).length;
+          return <option key={value} value={`value:${value}`} disabled={!count && !selected.includes(value)}>
+            {`${value} (${count})`}
+          </option>;
+        })}
+      </Select>
+    </div>
   );
 
   const handleConnectMcp = useCallback((agent: Agent) => {
@@ -423,8 +432,6 @@ export const AgentsPage = () => {
       <StickyHeaderActionBar
         actionContent={
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Switch id="agents-filters-toggle" label={t("filters")}
-              checked={filtersOpen} onChange={setFiltersOpen} />
             <theme.Menu
               align="right"
               direction="bottom"
@@ -451,12 +458,6 @@ export const AgentsPage = () => {
         hidden
         onChange={handleFileSelect}
       />
-      <div style={{
-        background: "transparent",
-        display: filtersOpen && isDesktop ? "grid" : "block",
-        gridTemplateColumns: filtersOpen && isDesktop ? "minmax(0, 1fr) 320px" : undefined,
-        alignItems: "stretch",
-      }}>
         <div
           style={{
             width: 700,
@@ -489,11 +490,14 @@ export const AgentsPage = () => {
             style={{
               width: "100%",
               display: "flex",
+              alignItems: "flex-end",
               justifyContent: "center",
+              flexWrap: "wrap",
+              gap: 12,
               marginBottom: 16,
             }}
           >
-            <div style={{ width: 360, maxWidth: "100%" }}>
+            <div style={{ flex: "2 1 260px", minWidth: 0, maxWidth: "100%" }}>
               <SearchBox
                 value={search}
                 onChange={setSearch}
@@ -501,6 +505,8 @@ export const AgentsPage = () => {
                 autoFocus={isDesktop}
               />
             </div>
+            {renderMetadataFilter("tags", t("providers:tags"), tagOptions, selectedTags, setSelectedTags)}
+            {renderMetadataFilter("owners", t("agentEdit.ownedBy"), ownerOptions, selectedOwners, setSelectedOwners)}
           </div>
 
           <Tabs activeKey={activeTab} onSelect={(k: string) => setActiveTab(k)}>
@@ -520,15 +526,13 @@ export const AgentsPage = () => {
             <Tab eventKey="local" title={`${t("local")} (${localCards.length})`}>
               {renderGrid(localCards)}
             </Tab>
+            {(["tag", "owner"] as const).flatMap((facet) => (facet === "tag" ? tagOptions : ownerOptions).map((value) => {
+              const key = getAgentMetadataTabKey(facet, value);
+              const items = filteredCards.filter((card) => matchesAgentMetadataTab(card.agent, key));
+              return <Tab key={key} eventKey={key} title={`${value} (${items.length})`}>{renderGrid(items)}</Tab>;
+            }))}
           </Tabs>
         </div>
-        {filtersOpen && isDesktop ? (
-          <div style={{ width: 320, maxWidth: "100%", height: "100%" }}>
-            {renderFilters()}
-          </div>
-        ) : null}
-      </div>
-      {!isDesktop ? renderFilters() : null}
       <AgentEditModal
         open={showModal}
         agent={
