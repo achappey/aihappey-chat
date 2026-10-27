@@ -258,9 +258,11 @@ function RealtimeConversationPage() {
   );
 
   const handleStop = useCallback(async () => {
-    await controller.stop();
-    navigate(`/${conversationId}`);
-  }, [controller, conversationId, navigate]);
+    try {
+      await controller.stop();
+      await navigate(`/${conversationId}`);
+    } catch (error) { addChatError(error instanceof Error ? error : new Error('Failed to save realtime conversation.')); }
+  }, [addChatError, controller, conversationId, navigate]);
 
   const connected = controller.status === "connected";
   const busy = controller.status === "starting" || controller.status === "stopping";

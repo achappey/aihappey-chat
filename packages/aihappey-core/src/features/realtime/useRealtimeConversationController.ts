@@ -5,6 +5,7 @@ import { usesOpenAiLiveProtocol } from './liveSessionConfig';
 import { LiveConversationRuntime } from './liveConversationRuntime';
 import { runLiveClientDelegation } from './runLiveClientDelegation';
 import { useRealtimeToolApprovals } from './useRealtimeToolApprovals';
+import { RealtimeHistoryWriter } from './realtimeHistoryWriter';
 import type { UIMessage } from "aihappey-types";
 import type { ChatConfig } from "../chat/context/ChatContext";
 import { useChatErrors } from "../chat/layout/useChatErrors";
@@ -90,10 +91,16 @@ export function useRealtimeConversationController(args: {
   const sessionRef = useRef<RealtimeConversationSession | null>(null);
   const liveRef = useRef<LiveConversationRuntime | null>(null);
   const startupRef = useRef<AbortController | null>(null);
-  const liveSaveRef = useRef(Promise.resolve());
+  const stoppingRef = useRef(false);
+  const stopPromiseRef = useRef<Promise<void> | null>(null);
+  const historyRef = useRef<RealtimeHistoryWriter | null>(null);
+  if (!historyRef.current) historyRef.current = new RealtimeHistoryWriter({
+    add: message => addMessage(conversationId, message),
+    update: message => updateMessage(conversationId, message.id, message),
+    error: error => addChatError(new Error(`Failed to save realtime message: ${describeError(error)}`)),
+  });
   const startedRef = useRef(false);
   const pendingQueueRef = useRef<UIMessage[]>([]);
-  const persistedIdsRef = useRef<Set<string>>(new Set((initialMessages ?? []).map((m) => m.id)));
   const assistantDraftRef = useRef<UIMessage | null>(null);
   const assistantTextRef = useRef("");
   const userAudioDraftRef = useRef<UIMessage | null>(null);
@@ -116,8 +123,8 @@ export function useRealtimeConversationController(args: {
   const cartesiaToolExpectsResponseRef = useRef<Map<string, boolean>>(new Map());
 
   useEffect(() => {
-    setMessages(initialMessages ?? []);
-    persistedIdsRef.current = new Set((initialMessages ?? []).map((m) => m.id));
+    historyRef.current!.seed(initialMessages ?? []);
+    setMessages(current => startedRef.current ? [...(initialMessages ?? []).filter(message => !current.some(existing => existing.id === message.id)), ...current] : initialMessages ?? []);
   }, [initialMessages]);
 
   const persistMessage = useCallback(
@@ -132,23 +139,14 @@ export function useRealtimeConversationController(args: {
         return [...prev, message];
       });
 
-      try {
-        if (persistedIdsRef.current.has(message.id)) {
-          await updateMessage(conversationId, message.id, message);
-        } else {
-          persistedIdsRef.current.add(message.id);
-          await addMessage(conversationId, message);
-        }
-        refresh();
-      } catch (e) {
-        addChatError(new Error(`Failed to save realtime message: ${describeError(e)}`));
-      }
+      await historyRef.current!.save(message);
     },
-    [addChatError, addMessage, conversationId, refresh, updateMessage]
+    []
   );
 
   const upsertLocalDraft = useCallback((message: UIMessage | null) => {
     if (!message) return;
+    historyRef.current!.remember(message);
     setMessages((prev) => {
       const idx = prev.findIndex((m) => m.id === message.id);
       if (idx >= 0) {
@@ -652,6 +650,7 @@ export function useRealtimeConversationController(args: {
       if (startedRef.current || sessionRef.current || status === "starting" || !model) return;
       if (isCartesiaRealtime && initialMessage) throw new Error("Cartesia agents accept audio only; remove the initial text message.");
       startedRef.current = true;
+      stoppingRef.current = false; stopPromiseRef.current = null;
       setStatus("starting");
       setError(null);
       if (initialMessage) {
@@ -692,11 +691,19 @@ export function useRealtimeConversationController(args: {
               output: JSON.stringify(decision.approved ? result : { isError: true, content: [{ type: 'text', text: decision.reason ?? 'Tool result was not approved.' }] }), ...(item.caller ? { caller: item.caller } : {}) };
           };
           liveRef.current = new LiveConversationRuntime({ send: sendEvent,
-            message: message => { upsertLocalDraft(message); liveSaveRef.current = liveSaveRef.current.then(() => persistMessage(message)); },
-            error: message => addChatError(new Error(message)), execute,
+            message: message => { void persistMessage({ ...message, metadata: { ...message.metadata, model, realtime: true } }); },
+            error: message => { if (!stoppingRef.current) addChatError(new Error(message)); }, execute,
             runClient: (messages, signal) => runLiveClientDelegation({ config, state: { ...store.getState(), tools }, messages, signal, execute: executeTool, review: approvals.review }),
-            closed: event => { setStatus('idle'); startupRef.current?.abort(); void sessionRef.current?.stop(); sessionRef.current = null; startedRef.current = false;
-              void persistMessage(newUiMessage('assistant', [], { realtime: true, model, liveSession: event.session?.id, usage: event.usage, closeReason: event.reason })); },
+            closed: event => {
+              const last = historyRef.current!.lastAssistant();
+              if (last) void persistMessage({ ...last, metadata: { ...last.metadata, liveSession: event.session?.id, liveUsage: event.usage, closeReason: event.reason } });
+              if (!stoppingRef.current) {
+                stoppingRef.current = true; approvals.cancel();
+                const session = sessionRef.current; sessionRef.current = null;
+                void (async () => { await session?.stop(); await historyRef.current!.flush(); await refresh(); })().catch(error => addChatError(error));
+                startedRef.current = false; setStatus('idle');
+              }
+            },
           }, providerRealtimeConversationMetadata?.openai?.session?.delegation?.type === 'responses' ? 'responses' : 'client', initialMessages);
         }
         const session = await startRealtimeConversationProviderSession({
@@ -725,6 +732,7 @@ export function useRealtimeConversationController(args: {
             },
             onEvent: handleRealtimeEvent,
             onError: (message: string, err?: unknown) => {
+              if (stoppingRef.current) return;
               const full = `${message}${err ? `: ${describeError(err)}` : ""}`;
               setStatus("error");
               setError(full);
@@ -753,31 +761,29 @@ export function useRealtimeConversationController(args: {
       isLive, modelTags, initialMessages, persistMessage, sendEvent, toolUse.onToolCall, upsertLocalDraft, approvals.review]
   );
 
-  const stop = useCallback(async () => {
-    approvals.cancel();
-    liveRef.current?.stop();
-    if (!sessionRef.current) startupRef.current?.abort();
-    if (!sessionRef.current) {
-      setCameraEnabledState(false);
-      setCameraStream(null);
-      setStatus("idle");
-      startedRef.current = false;
-      return;
-    }
-    setStatus("stopping");
-    const session = sessionRef.current;
-    sessionRef.current = null;
-    setCameraEnabledState(false);
-    setCameraStream(null);
-    try {
-      await session.stop();
-      liveRef.current = null;
-      await liveSaveRef.current;
-    } finally {
-      startedRef.current = false;
-      setStatus("idle");
-    }
-  }, [approvals.cancel]);
+  const stop = useCallback(() => {
+    if (stopPromiseRef.current) return stopPromiseRef.current;
+    stoppingRef.current = true; approvals.cancel(); liveRef.current?.beginClose();
+    const session = sessionRef.current; sessionRef.current = null;
+    if (!session) startupRef.current?.abort();
+    setStatus('stopping'); setCameraEnabledState(false); setCameraStream(null);
+    const stopping = (async () => {
+      try {
+        await session?.stop();
+        liveRef.current?.stop(); liveRef.current = null;
+        if (assistantDraftRef.current) await persistMessage(assistantDraftRef.current);
+        if (userAudioDraftRef.current) await persistMessage(userAudioDraftRef.current);
+        await historyRef.current!.flush();
+        await refresh();
+        if (audioRef.current) { audioRef.current.pause(); audioRef.current.srcObject = null; }
+        setError(null);
+      } finally { startedRef.current = false; setStatus('idle'); }
+    })();
+    stopPromiseRef.current = stopping;
+    // Retain failed snapshots and allow another Stop to retry storage, not inference.
+    void stopping.catch(() => { stopPromiseRef.current = null; });
+    return stopping;
+  }, [approvals.cancel, audioRef, persistMessage, refresh]);
 
   const setMicrophoneMuted = useCallback((nextMuted: boolean) => {
     setMuted(nextMuted);
@@ -851,9 +857,9 @@ export function useRealtimeConversationController(args: {
 
   useEffect(() => {
     return () => {
-      void stop();
+      void stop().catch(error => addChatError(error));
     };
-  }, [stop]);
+  }, [stop, addChatError]);
 
   return useMemo(
     () => ({

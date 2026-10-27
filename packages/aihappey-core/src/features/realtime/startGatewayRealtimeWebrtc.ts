@@ -9,6 +9,9 @@ export async function startGatewayRealtimeWebrtc(args: {
   const lifetime = new AbortController();
   let stream: MediaStream | undefined;
   let stopped = false;
+  let stopping = false;
+  let finalEventReceived = false;
+  let stopPromise: Promise<void> | undefined;
   let closed!: () => void;
   const finalized = new Promise<void>(resolve => { closed = resolve; });
   const live = args.model.capabilities?.conversation === 'continuous';
@@ -16,7 +19,10 @@ export async function startGatewayRealtimeWebrtc(args: {
   const dc = pc.createDataChannel(args.model.getWebRTCConfig?.().dataChannelLabel ?? 'oai-events');
   const cleanup = () => {
     if (stopped) return;
-    stopped = true; lifetime.abort(); dc.close();
+    stopped = true; lifetime.abort();
+    dc.onopen = null; dc.onerror = null; dc.onclose = null; dc.onmessage = null;
+    pc.onconnectionstatechange = null; pc.ontrack = null;
+    dc.close();
     clearTimeout(startupTimeout);
     stream?.getTracks().forEach(track => track.stop()); pc.close();
     args.signal?.removeEventListener('abort', cleanup);
@@ -39,20 +45,20 @@ export async function startGatewayRealtimeWebrtc(args: {
     let negotiated = false;
     const ready = () => { if (open && negotiated && !stopped) setTimeout(() => { if (!stopped) args.events?.onOpen?.(); }, 0); };
     dc.onopen = () => { open = true; ready(); };
-    dc.onerror = error => args.events?.onError?.('Realtime data channel failed.', error);
-    dc.onclose = () => { closed(); if (!stopped) args.events?.onError?.('Realtime data channel closed.'); cleanup(); };
+    dc.onerror = error => { if (!stopping && !stopped && !finalEventReceived) args.events?.onError?.('Realtime data channel failed.', error); };
+    dc.onclose = () => { closed(); if (!stopping && !stopped && !finalEventReceived) args.events?.onError?.('Realtime data channel closed.'); cleanup(); };
     dc.onmessage = event => {
       try {
         const raw = JSON.parse(String(event.data));
         // The installed SDK exposes unsupported native Live envelopes as custom events.
         // Retain the raw event for native Responses tools and newer provider fields.
         args.model.parseServerEvent(raw);
-        if (raw.type === 'session.closed') closed();
+        if (raw.type === 'session.closed') { finalEventReceived = true; closed(); }
         args.events?.onEvent?.(raw);
       } catch (error) { args.events?.onError?.('Invalid realtime event.', error); }
     };
     pc.onconnectionstatechange = () => {
-      if (pc.connectionState === 'failed') { args.events?.onError?.('Realtime WebRTC connection failed.'); cleanup(); }
+      if (pc.connectionState === 'failed') { if (!stopping && !stopped && !finalEventReceived) args.events?.onError?.('Realtime WebRTC connection failed.'); cleanup(); }
     };
     const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
     const answer = await args.model.doCreateWebRTCSession!({ sdp: pc.localDescription!.sdp, sessionConfig: args.sessionConfig, abortSignal: lifetime.signal });
@@ -61,14 +67,20 @@ export async function startGatewayRealtimeWebrtc(args: {
     negotiated = true; clearTimeout(startupTimeout); ready();
     return { kind: 'webrtc', pc, dc, stream, send,
       setMicrophoneEnabled(enabled) { stream!.getAudioTracks().forEach(track => { track.enabled = enabled; }); if (live && dc.readyState === 'open') send({ type: enabled ? 'session.input_audio.unmute' : 'session.input_audio.mute', event_id: crypto.randomUUID() }); },
-      async stop() {
-        if (stopped) return;
-        try {
-          if (live && dc.readyState === 'open') {
-            send({ type: 'session.close', event_id: crypto.randomUUID() });
-            await Promise.race([finalized, new Promise(resolve => setTimeout(resolve, 1500))]);
-          }
-        } finally { cleanup(); }
+      stop() {
+        if (stopPromise) return stopPromise;
+        stopping = true;
+        stopPromise = (async () => {
+          if (stopped) return;
+          let timeout: ReturnType<typeof setTimeout> | undefined;
+          try {
+            if (live && dc.readyState === 'open' && !finalEventReceived) {
+              send({ type: 'session.close', event_id: crypto.randomUUID() });
+              await Promise.race([finalized, new Promise<void>(resolve => { timeout = setTimeout(resolve, 1500); })]);
+            }
+          } finally { if (timeout) clearTimeout(timeout); cleanup(); }
+        })();
+        return stopPromise;
       },
     };
   } catch (error) { cleanup(); throw error; }

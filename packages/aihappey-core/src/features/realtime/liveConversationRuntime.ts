@@ -22,12 +22,13 @@ export class LiveConversationRuntime {
   private queue = Promise.resolve();
   private mode: 'client' | 'responses';
   private stopped = false;
+  private closing = false;
   constructor(private callbacks: LiveRuntimeCallbacks, mode: 'client' | 'responses', initial: UIMessage[] = []) {
     this.mode = mode;
     this.timeline = initial.map(message => ({ message, end: 0 }));
   }
   private send(type: string, fields: Record<string, any> = {}) {
-    if (!this.stopped) this.callbacks.send({ type, event_id: crypto.randomUUID(), ...fields });
+    if (!this.stopped && !this.closing) this.callbacks.send({ type, event_id: crypto.randomUUID(), ...fields });
   }
   private append(channel: 'thinking' | 'commentary', text: string, delegationId: string | null) {
     // A byte is an upper bound on token count. Keep each append below the 500-token limit
@@ -81,12 +82,14 @@ export class LiveConversationRuntime {
       if (this.timeline.length > 1000) this.timeline.shift();
       this.callbacks.message(this.draft);
     } else if (event.type === 'session.delegation.created') {
+      if (this.closing) return;
       const id = event.delegation?.id;
       if (!id || this.calls.has('delegation:' + id)) return;
       this.calls.add('delegation:' + id);
       if (event.delegation.target === 'client' && this.mode === 'client') this.delegate(id, event.offset_ms);
       if (event.delegation.response_id) this.responseByDelegation.set(id, event.delegation.response_id);
     } else if (event.type === 'response.event' && this.mode === 'responses') {
+      if (this.closing) return;
       this.responseEvent(event);
     } else if (event.type === 'error') {
       this.callbacks.error(event.error?.message ?? 'Live command failed.');
@@ -102,9 +105,9 @@ export class LiveConversationRuntime {
       if (this.stopped || revision !== this.revision) return;
       try {
         const result = await this.callbacks.runClient(snapshot, this.lifetime.signal);
-        if (!this.stopped && revision === this.revision) this.append('commentary', result, id);
+        if (!this.stopped && !this.closing && revision === this.revision) this.append('commentary', result, id);
       } catch (error) {
-        if (!this.stopped && revision === this.revision) {
+        if (!this.stopped && !this.closing && revision === this.revision) {
           this.callbacks.error(error instanceof Error ? error.message : 'Client delegation failed.');
           this.append('commentary', 'The requested operation could not be verified. No successful outcome is confirmed.', id);
         }
@@ -145,5 +148,6 @@ export class LiveConversationRuntime {
       if (!this.stopped) this.send('response.create');
     } catch (error) { if (!this.stopped) this.callbacks.error(error instanceof Error ? error.message : 'Tool result failed.'); }
   }
-  stop() { this.stopped = true; this.lifetime.abort(); this.responses.clear(); this.responseByDelegation.clear(); }
+  beginClose() { this.closing = true; this.lifetime.abort(); }
+  stop() { this.beginClose(); this.stopped = true; this.responses.clear(); this.responseByDelegation.clear(); }
 }
