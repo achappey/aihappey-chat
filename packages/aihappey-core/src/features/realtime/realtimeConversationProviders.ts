@@ -26,7 +26,7 @@ const describeUnsupportedProvider = (providerId: string) =>
 
 const normalizeRealtimeProviderId = (providerId: string): RealtimeConversationProviderId => {
   const normalized = providerId.toLowerCase();
-  return normalized === "spacexai" ? "xai" : normalized;
+  return normalized === "xai" ? "spacexai" : normalized;
 };
 
 export const parseRealtimeProviderIdFromModelId = (modelId?: string): RealtimeConversationProviderId | null => {
@@ -38,7 +38,7 @@ export const parseRealtimeProviderIdFromModelId = (modelId?: string): RealtimeCo
 
 const providers: Record<string, RealtimeConversationProviderRuntime> = {
   openai: openAiRealtimeConversationProvider,
-  xai: xAiRealtimeConversationProvider,
+  spacexai: xAiRealtimeConversationProvider,
   assemblyai: assemblyAiRealtimeConversationProvider,
   agentphone: agentPhoneRealtimeConversationProvider,
   google: googleRealtimeConversationProvider,

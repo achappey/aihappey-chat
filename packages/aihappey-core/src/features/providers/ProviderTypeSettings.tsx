@@ -69,22 +69,29 @@ const providerForms: Record<string, Record<string, React.ComponentType<any>>> = 
     },
 };
 
+const normalizeProviderKey = (key: string) => key.toLowerCase() === "xai" ? "spacexai" : key.toLowerCase();
+
 /** Controlled version for portable agent settings: never reads or writes global preferences. */
 export const AudioProviderSettings = ({ providerKey, type, metadata, onChange }: {
     providerKey: string; type: "speech" | "transcription";
     metadata: Record<string, any>; onChange: (metadata: Record<string, any>) => void;
 }) => {
-    const Form = providerForms[type]?.[providerKey];
+    const key = normalizeProviderKey(providerKey);
+    const Form = providerForms[type]?.[key];
     if (!Form) return null;
-    const entry = type === "transcription" && providerKey === "spacexai" ? "xai" : providerKey;
-    const update = (config: any) => onChange({ ...metadata, [entry]: config });
-    return <Form config={metadata[entry] ?? {}} updateConfig={update}
+    const config = metadata[key] ?? (key === "spacexai" ? metadata.xai : undefined) ?? {};
+    const update = (config: any) => {
+        const next = { ...metadata, [key]: config };
+        if (key === "spacexai") delete next.xai;
+        onChange(next);
+    };
+    return <Form config={config} updateConfig={update}
         realtimeOnly={type === "transcription"}
-        realtimeConfig={metadata[entry] ?? {}} updateRealtimeConfig={update} />;
+        realtimeConfig={config} updateRealtimeConfig={update} />;
 };
 
 export const hasProviderTypeSettings = (providerKey: string, type: string) =>
-    !!providerForms[type]?.[providerKey.toLowerCase()];
+    !!providerForms[type]?.[normalizeProviderKey(providerKey)];
 
 const metadataByType: Record<string, [string, string]> = {
     language: ["providerMetadata", "setProviderMetadata"],
@@ -95,7 +102,7 @@ const metadataByType: Record<string, [string, string]> = {
 };
 
 export const ProviderTypeSettings: React.FC<{ providerKey: string; type: string; models?: any[] }> = ({ providerKey, type, models }) => {
-    const key = providerKey.toLowerCase();
+    const key = normalizeProviderKey(providerKey);
     const Form = providerForms[type]?.[key];
     const { config: chatConfig } = useChatContext();
     const metadata = useAppStore((state) => (state as any)[metadataByType[type]?.[0]]) as Record<string, any> | undefined;
@@ -108,18 +115,18 @@ export const ProviderTypeSettings: React.FC<{ providerKey: string; type: string;
     const update = (field: string, setter: string, entry: string, value: any) => {
         const state = store.getState() as any;
         const next = { ...(state[field] ?? {}) };
+        if (entry === "spacexai" && field !== "providerHeaders") delete next.xai;
         if (value === undefined && field === "providerHeaders") delete next[entry];
         else next[entry] = value;
         state[setter](next);
     };
     const [field, setter] = metadataByType[type];
-    const entry = type === "transcription" && key === "spacexai" ? "xai" : key;
-    const updateConfig = (value: any) => update(field, setter, entry, value);
+    const updateConfig = (value: any) => update(field, setter, key, value);
     const updateRealtimeConfig = (value: any) => update("providerRealtimeMetadata", "setProviderRealtimeMetadata", key, value);
     const updateHeaders = (value: Record<string, string> | undefined) => update("providerHeaders", "setProviderHeaders", key, value);
     const config = type === "transcription" && key === "google"
         ? realtime?.google ?? {}
-        : metadata?.[entry] ?? (type === "image" && key === "minimax" ? { prompt_optimizer: false } :
+        : metadata?.[key] ?? (key === "spacexai" ? metadata?.xai : undefined) ?? (type === "image" && key === "minimax" ? { prompt_optimizer: false } :
             type === "image" && key === "spacexai" ? { quality: "auto" } : {});
 
     if (type === "language" && key === "google") return <GoogleChatConfig google={config} updateGoogle={updateConfig} />;

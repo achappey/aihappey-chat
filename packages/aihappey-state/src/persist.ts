@@ -21,6 +21,7 @@ import { normalizeCustomProviders } from "./slices/uiSlice";
 import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
 import { normalizeProviderHeaders, splitLegacyProviderHeadersFromMetadata } from "./slices/providerHeaders";
 import { normalizeProviderTranscriptionMetadata } from "./slices/defaultProviderTranscriptionMetadata";
+import { normalizeSpaceXAiProviderMetadata } from "./slices/providerMetadataAliases";
 
 type RootState = ChatSlice & McpSlice & ImageSlice & VideoSlice & RealtimeSlice & TranscriptionSlice & SpeechSlice
   & UiSlice & AgentSlice & McpServersSlice & McpRegistrySlice & RerankingSlice & JsonRenderSlice;
@@ -34,7 +35,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 35,
+    version: 36,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -42,8 +43,8 @@ export const withPersist = (
       verbosity: s.verbosity,
       quickSearches: s.quickSearches,
       maxToolCalls: s.maxToolCalls,
-      providerRealtimeMetadata: s.providerRealtimeMetadata,
-      providerRealtimeConversationMetadata: s.providerRealtimeConversationMetadata,
+      providerRealtimeMetadata: normalizeSpaceXAiProviderMetadata(s.providerRealtimeMetadata),
+      providerRealtimeConversationMetadata: normalizeSpaceXAiProviderMetadata(s.providerRealtimeConversationMetadata),
       liveClientTarget: s.liveClientTarget,
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
@@ -145,6 +146,9 @@ export const withPersist = (
         : {};
 
       safeState.providerTranscriptionMetadata = normalizeProviderTranscriptionMetadata(safeState.providerTranscriptionMetadata);
+      for (const field of ["providerRealtimeMetadata", "providerRealtimeConversationMetadata"]) {
+        if (isPlainRecord(safeState[field])) safeState[field] = normalizeSpaceXAiProviderMetadata(safeState[field]);
+      }
 
       // On version bump, reset endpoints, servers, and selected
       if (version < 5) {

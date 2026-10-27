@@ -555,12 +555,14 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     if (isRealtime) {
       setLiveClientTarget(draft.liveClientTarget);
       if (hasRealtimeProviderConfig(realtimeProviderKey)) {
-        setProviderRealtimeConversationMetadata({
+        const metadata = {
           ...(providerRealtimeConversationMetadata ?? {}),
           [realtimeProviderKey]: draft.providerRealtimeConversationMetadata[realtimeProviderKey]
-            ?? (realtimeProviderKey === "xai" ? draft.providerRealtimeConversationMetadata.spacexai : undefined)
+            ?? (realtimeProviderKey === "spacexai" ? draft.providerRealtimeConversationMetadata.xai : undefined)
             ?? {},
-        });
+        };
+        if (realtimeProviderKey === "spacexai") delete metadata.xai;
+        setProviderRealtimeConversationMetadata(metadata);
       }
     } else {
       setProviderMetadata(draft.providerMetadata);
@@ -606,7 +608,6 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
           ...current.providerRealtimeConversationMetadata,
           [realtimeProviderKey]: structuredClone(
             (defaultProviderRealtimeConversationMetadata as Record<string, any>)[realtimeProviderKey]
-              ?? (realtimeProviderKey === "xai" ? defaultProviderRealtimeConversationMetadata.spacexai : undefined)
               ?? {}
           ),
         },
@@ -771,7 +772,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
           ) : null}
         </theme.Tab>
         {providerTabs.map(({ key, form }) => (
-          <theme.Tab key={key} eventKey={`provider:${key}`} title={(PROVIDERS as Record<string, any>)[key]?.name || (key === "xai" ? "xAI" : key)}>
+          <theme.Tab key={key} eventKey={`provider:${key}`} title={(PROVIDERS as Record<string, any>)[key]?.name || key}>
             {activeTab === `provider:${key}` ? (isRealtime ? form : <ProviderTabContent key={key} providerKey={key} form={form} fileSettings={{
               metadata: draft.providerFileMetadata,
               updateMetadata: (update) => setDraft((current) => ({

@@ -107,8 +107,8 @@ export const OpenAIAndElevenLabs: Story = {
 export const XAIOnly: Story = {
   args: {
     initialOpen: true,
-    enabledProviders: ["xAI"],
-    initialProviderMetadata: { xai: {} },
+    enabledProviders: ["SpaceXAI"],
+    initialProviderMetadata: { spacexai: {} },
   } as any,
   render: (args) => <Controlled {...(args as any)} />,
 };
@@ -118,7 +118,7 @@ export const MultipleProvidersScroll: Story = {
     initialOpen: true,
     enabledProviders: [
       "OpenAI",
-      "xAI",
+      "SpaceXAI",
       "ElevenLabs",
       "Fireworks",
       "Groq",
@@ -133,7 +133,7 @@ export const MultipleProvidersScroll: Story = {
     ],
     initialProviderMetadata: {
       openai: {},
-      xai: {},
+      spacexai: {},
       elevenlabs: {},
       fireworks: {},
       groq: {},

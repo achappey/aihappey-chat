@@ -27,7 +27,7 @@ import { AzureTranscriptionConfigForm } from "../forms/providers/azure/AzureTran
 const getDefaultProviderTab = (enabledProviders?: string[]): string => {
     const firstProvider = enabledProviders?.[0];
     return typeof firstProvider === "string"
-        ? firstProvider.toLocaleLowerCase()
+        ? (firstProvider.toLowerCase() === "xai" ? "spacexai" : firstProvider.toLowerCase())
         : "";
 };
 
@@ -320,16 +320,14 @@ export const TranscriptionSettingsModal: React.FC<
                         </theme.Tab>
                     )}
 
-                    {enabledProviders.includes("SpaceXAI") && (
+                    {(enabledProviders.includes("SpaceXAI") || enabledProviders.includes("xAI")) && (
                         <theme.Tab eventKey="spacexai" title="SpaceXAI">
                             <XAITranscriptionConfigForm
-                                config={providerMetadata.xai ?? {}}
-                                updateConfig={(xai) =>
-                                    setProviderMetadata({
-                                        ...providerMetadata,
-                                        xai,
-                                    })
-                                }
+                                config={providerMetadata.spacexai ?? providerMetadata.xai ?? {}}
+                                updateConfig={(spacexai) => {
+                                    const { xai, ...metadata } = providerMetadata;
+                                    setProviderMetadata({ ...metadata, spacexai });
+                                }}
                             />
                         </theme.Tab>
                     )}

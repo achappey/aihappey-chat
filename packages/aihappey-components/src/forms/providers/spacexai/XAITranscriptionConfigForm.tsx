@@ -26,7 +26,7 @@ type XAISampleRate = (typeof SAMPLE_RATES)[number];
 type XAIStringBoolean = "true" | "false";
 
 /**
- * UI config bucket for xAI transcription metadata: `providerTranscriptionMetadata.xai`.
+ * UI config bucket for SpaceX AI transcription metadata: `providerTranscriptionMetadata.spacexai`.
  * Keys intentionally match the official `/v1/stt` multipart field names.
  */
 export type XAITranscriptionConfig = {

@@ -368,6 +368,7 @@ function chatSettingsHarness(overrides = {}, defaults = { openai: [{ id: "image"
         "../../runtime/providers/providerMetadata": { PROVIDERS: { openai: { name: "OpenAI" }, mistral: { name: "Mistral" }, anthropic: { name: "Anthropic" } } },
         "../tools/useTools": { useTools: () => ({ attachedTools: [] }) }, "../skills/connectedMcpSkills": { connectedMcpSkills: () => [] },
         "../providers/ProviderFileSettings": fileSettings,
+        "../realtime/LiveClientTargetSelect": local,
     });
     let savedChat, savedHeaders;
     const props = { open: true, providerMetadata: {}, providerHeaders: {}, setProviderMetadata: (value) => { savedChat = value; }, setProviderHeaders: (value) => { savedHeaders = value; }, resetDefaults: true, onClose() {} };
@@ -497,13 +498,13 @@ test("switching provider tabs preserves isolated chat, header and file drafts an
 test("realtime settings retains normal settings tabs but shows only the effective realtime provider", () => {
     const providers = [
         ["openai", "OpenAIRealtimeConversationConfigForm"], ["google", "GoogleRealtimeConversationConfigForm"],
-        ["xai", "XAIRealtimeConversationConfigForm"], ["assemblyai", "AssemblyAIRealtimeConversationConfigForm"],
+        ["spacexai", "XAIRealtimeConversationConfigForm"], ["assemblyai", "AssemblyAIRealtimeConversationConfigForm"],
         ["agentphone", "Card"], ["cartesia", "Card"],
     ];
     for (const [provider, form] of providers) {
         const h = chatSettingsHarness({
             selectedModel: "mistral/chat", selectedChatModelIds: ["mistral/chat", "anthropic/chat"],
-            enabledProvidersByType: { audio: ["OpenAI", "Google", "xAI"] },
+            enabledProvidersByType: { audio: ["OpenAI", "Google", "SpaceXAI"] },
         });
         h.props.realtimeModel = `${provider}/realtime`;
         const modal = h.render();
@@ -562,21 +563,22 @@ test("realtime settings stages edits and restores only the active provider witho
     assert.equal(h.savedChat, undefined);
 });
 
-test("xAI settings accepts its legacy identity and restores legacy defaults under the runtime key", () => {
-    const h = chatSettingsHarness({ providerRealtimeConversationMetadata: { spacexai: { session: { voice: "legacy" } }, google: { keep: true } } });
-    h.props.realtimeModel = "spacexai/live";
-    assert.deepEqual(h.tabs(h.render()).map(tab => tab.props.eventKey), ["provider:xai"]);
-    let modal = h.select("xai");
+test("SpaceX AI settings accepts legacy xAI identity and restores defaults under the canonical key", () => {
+    const h = chatSettingsHarness({ providerRealtimeConversationMetadata: { xai: { session: { voice: "legacy" } }, google: { keep: true } } });
+    h.props.realtimeModel = "xai/live";
+    assert.deepEqual(h.tabs(h.render()).map(tab => tab.props.eventKey), ["provider:spacexai"]);
+    let modal = h.select("spacexai");
     assert.equal(h.rail(modal).props.config.session.voice, "legacy");
     h.rail(modal).props.updateConfig({ session: { voice: "eve" } });
     modal = h.render();
     modal.props.onHide();
-    assert.equal(h.calls.setProviderRealtimeConversationMetadata.xai.session.voice, "eve");
+    assert.equal(h.calls.setProviderRealtimeConversationMetadata.spacexai.session.voice, "eve");
+    assert.equal(Object.hasOwn(h.calls.setProviderRealtimeConversationMetadata, "xai"), false);
     assert.equal(h.calls.setProviderRealtimeConversationMetadata.google.keep, true);
     modal.props.actions.props.onRestoreDefaults();
     h.render().props.onHide();
     const defaults = load("packages/aihappey-state/src/slices/defaultProviderRealtimeMetadata.ts").defaultProviderRealtimeConversationMetadata;
-    assert.deepEqual(h.calls.setProviderRealtimeConversationMetadata.xai, defaults.spacexai);
+    assert.deepEqual(h.calls.setProviderRealtimeConversationMetadata.spacexai, defaults.spacexai);
 });
 
 test("new file parts use latest saved options after async extraction; sent parts remain immutable", async () => {

@@ -28,6 +28,6 @@ test('legacy OpenAI startup retains Realtime audio, VAD, voice, tools and explic
 });
 test('other realtime provider implementations remain independently registered', () => {
   const source = fs.readFileSync(path.resolve(__dirname, '..', root + 'realtimeConversationProviders.ts'), 'utf8');
-  for (const provider of ['google', 'xai', 'cartesia', 'assemblyai']) assert.match(source, new RegExp(provider + ':'));
+  for (const provider of ['google', 'spacexai', 'cartesia', 'assemblyai']) assert.match(source, new RegExp(provider + ':'));
 });
 module.exports = { load };

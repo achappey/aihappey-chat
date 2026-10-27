@@ -95,6 +95,7 @@ test("the preference defaults off, toggles independently, and survives persisten
         "./slices/chatSlice": {}, "./slices/chatEndpoint": {}, "./slices/uiSlice": ui,
         "./slices/apiKeyEncryption": {}, "./slices/providerHeaders": {},
         "./slices/defaultProviderTranscriptionMetadata": { normalizeProviderTranscriptionMetadata: value => value },
+        "./slices/providerMetadataAliases": load("packages/aihappey-state/src/slices/providerMetadataAliases.ts"),
     });
     withPersist(ui.createUiSlice);
     let stored;

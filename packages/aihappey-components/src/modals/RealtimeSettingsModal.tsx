@@ -5,10 +5,10 @@ import { AssemblyAIRealtimeConversationConfigForm, GoogleRealtimeConversationCon
 import { useTheme } from "../theme/ThemeContext";
 
 export const normalizeRealtimeSettingsProviderKey = (key: string) =>
-  key.toLowerCase() === "spacexai" ? "xai" : key.toLowerCase();
+  key.toLowerCase() === "xai" ? "spacexai" : key.toLowerCase();
 
 export const hasRealtimeProviderConfig = (key: string) =>
-  ["openai", "xai", "assemblyai", "google", "agentphone", "cartesia"].includes(normalizeRealtimeSettingsProviderKey(key));
+  ["openai", "spacexai", "assemblyai", "google", "agentphone", "cartesia"].includes(normalizeRealtimeSettingsProviderKey(key));
 
 export const RealtimeProviderConfigForm: React.FC<{
   providerKey: string;
@@ -45,14 +45,14 @@ export const RealtimeProviderConfigForm: React.FC<{
           })}
         />
       );
-    case "xai":
+    case "spacexai":
       return (
         <XAIRealtimeConversationConfigForm
-          config={providerMetadata.xai ?? providerMetadata.spacexai ?? {}}
-          updateConfig={(xai) => setProviderMetadata({
-            ...providerMetadata,
-            xai,
-          })}
+          config={providerMetadata.spacexai ?? providerMetadata.xai ?? {}}
+          updateConfig={(spacexai) => {
+            const { xai, ...metadata } = providerMetadata;
+            setProviderMetadata({ ...metadata, spacexai });
+          }}
         />
       );
     case "assemblyai":
@@ -144,8 +144,7 @@ export const RealtimeProviderConfigForm: React.FC<{
 
 const getDefaultProviderTab = (enabledProviders?: string[]): string => {
   const firstProvider = enabledProviders?.[0];
-  const key = typeof firstProvider === "string" ? normalizeRealtimeSettingsProviderKey(firstProvider) : "openai";
-  return key === "xai" ? "spacexai" : key;
+  return typeof firstProvider === "string" ? normalizeRealtimeSettingsProviderKey(firstProvider) : "openai";
 };
 
 export interface RealtimeSettingsModalProps {
@@ -161,13 +160,13 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
   open,
   providerMetadata,
   setProviderMetadata,
-  enabledProviders = ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone", "Cartesia"],
+  enabledProviders = ["OpenAI", "SpaceXAI", "AssemblyAI", "Google", "AgentPhone", "Cartesia"],
   resetDefaults,
   onClose,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI", "xAI", "AssemblyAI", "Google", "AgentPhone", "Cartesia"];
+  const normalizedEnabledProviders = enabledProviders.length ? enabledProviders : ["OpenAI", "SpaceXAI", "AssemblyAI", "Google", "AgentPhone", "Cartesia"];
   const defaultTab = getDefaultProviderTab(normalizedEnabledProviders);
   const [activeTab, setActiveTab] = useState(defaultTab);
 
@@ -205,7 +204,7 @@ export const RealtimeSettingsModal: React.FC<RealtimeSettingsModalProps> = ({
         )}
         {(normalizedEnabledProviders.includes("SpaceXAI") || normalizedEnabledProviders.includes("xAI")) && (
           <theme.Tab eventKey="spacexai" title="SpaceXAI">
-            <RealtimeProviderConfigForm providerKey="xai" providerMetadata={providerMetadata} setProviderMetadata={setProviderMetadata} />
+            <RealtimeProviderConfigForm providerKey="spacexai" providerMetadata={providerMetadata} setProviderMetadata={setProviderMetadata} />
           </theme.Tab>
         )}
         {normalizedEnabledProviders.includes("AssemblyAI") && (

@@ -3,12 +3,14 @@ const { test } = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');
+const React = require('react');
 
 const root = 'packages/aihappey-core/src/features/realtime/';
 function load(file, mocks = {}, globals = {}) {
   const source = fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8');
   const code = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    fileName: file,
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React, esModuleInterop: true },
   }).outputText;
   const module = { exports: {} };
   new Function('require', 'module', 'exports', ...Object.keys(globals), code)(id => {
@@ -23,7 +25,7 @@ test('SpaceX AI and xAI aliases share lookup, startup and session updates withou
   const mocks = {};
   const calls = [];
   const providers = [
-    ['openAi', 'openai'], ['xAi', 'xai'], ['assemblyAi', 'assemblyai'],
+    ['openAi', 'openai'], ['xAi', 'spacexai'], ['assemblyAi', 'assemblyai'],
     ['agentPhone', 'agentphone'], ['google', 'google'], ['cartesia', 'cartesia'], ['opperAi', 'opperai'],
   ];
   for (const [name, id] of providers) {
@@ -38,11 +40,11 @@ test('SpaceX AI and xAI aliases share lookup, startup and session updates withou
   const runtime = registry.getRealtimeConversationProvider('xai');
   for (const name of ['xai', 'spacexai', 'SpaceXAI', 'XAI']) {
     const args = { model: `${name}/grok-voice-think-fast`, config: {} };
-    assert.equal(registry.parseRealtimeProviderIdFromModelId(args.model), 'xai');
+    assert.equal(registry.parseRealtimeProviderIdFromModelId(args.model), 'spacexai');
     assert.equal(registry.getRealtimeConversationProvider(name), runtime);
-    assert.deepEqual(await registry.startRealtimeConversationProviderSession(args), { provider: 'xai' });
+    assert.deepEqual(await registry.startRealtimeConversationProviderSession(args), { provider: 'spacexai' });
     assert.equal(calls.at(-1), args);
-    assert.deepEqual(registry.buildRealtimeConversationSessionUpdateEvent(args), { provider: 'xai', model: args.model });
+    assert.deepEqual(registry.buildRealtimeConversationSessionUpdateEvent(args), { provider: 'spacexai', model: args.model });
   }
   for (const [, id] of providers) assert.equal((await registry.startRealtimeConversationProviderSession({ model: `${id}/model` })).provider, id);
   await assert.rejects(registry.startRealtimeConversationProviderSession({ model: 'unsupported/model' }), /not supported/);
@@ -76,15 +78,15 @@ function xaiHarness() {
   return { ...runtime, requests, headers, connections };
 }
 
-test('xAI runtime reads legacy SpaceX AI settings and retains original secrets routing and options', async () => {
+for (const key of ['spacexai', 'xai']) test(`SpaceX AI secrets use only the official metadata key when reading ${key} settings`, async () => {
   const h = xaiHarness();
-  const metadata = { spacexai: { voice: 'legacy-voice', expires_after: { seconds: 120 }, session: { turn_detection: null } } };
+  const metadata = { [key]: { voice: 'saved-voice', expires_after: { seconds: 120 }, session: { turn_detection: null } }, google: { keep: true } };
   const args = {
-    model: 'spacexai/grok-voice-think-fast',
+    model: `${key}/grok-voice-think-fast`,
     config: { baseUrl: 'https://backend.test', endpoints: { realtime: '/v1/realtime/client_secrets' } },
     customHeaders: { 'x-custom': 'value' },
     providerRealtimeConversationMetadata: metadata,
-    providerMetadata: { spacexai: { instructions: 'Legacy chat instructions' } },
+    providerMetadata: { [key]: { instructions: 'Saved chat instructions' } },
   };
   await h.xAiRealtimeConversationProvider.start(args);
   assert.equal(h.headers[0][2], args.model);
@@ -92,29 +94,163 @@ test('xAI runtime reads legacy SpaceX AI settings and retains original secrets r
   assert.equal(h.requests[0].config.baseUrl, 'https://backend.test/v1/realtime/client_secrets');
   assert.equal(h.requests[0].request.model, args.model);
   const options = h.requests[0].request.providerOptions;
-  assert.equal(options.xai.voice, 'legacy-voice');
-  assert.equal(options.xai.expires_after.seconds, 120);
-  assert.equal(options.xai.session.instructions, 'Legacy chat instructions');
-  assert.equal(options.xai.session.turn_detection, null);
-  assert.equal(options.spacexai, metadata.spacexai);
+  assert.equal(options.spacexai.voice, 'saved-voice');
+  assert.equal(options.spacexai.expires_after.seconds, 120);
+  assert.equal(options.spacexai.session.instructions, 'Saved chat instructions');
+  assert.equal(options.spacexai.session.turn_detection, null);
+  assert.equal(Object.hasOwn(options, 'xai'), false);
+  assert.equal(options.google, metadata.google);
   assert.equal(h.connections[0].model, 'grok-voice-think-fast');
-  assert.equal(h.connections[0].session, options.xai.session);
-  assert.deepEqual(metadata.spacexai.session, { turn_detection: null });
+  assert.equal(h.connections[0].session, options.spacexai.session);
+  assert.deepEqual(metadata[key].session, { turn_detection: null });
 });
 
-test('canonical xAI settings take precedence over legacy SpaceX AI settings in startup and updates', async () => {
+test('canonical SpaceX AI settings take precedence over legacy xAI settings in startup, secrets and updates', async () => {
   const h = xaiHarness();
   const args = {
-    model: 'xai/grok-voice',
-    providerRealtimeConversationMetadata: { xai: { voice: 'new-voice' }, spacexai: { voice: 'old-voice' } },
-    providerMetadata: { xai: { instructions: 'New instructions' }, spacexai: { instructions: 'Old instructions' } },
+    model: 'spacexai/grok-voice',
+    config: { baseUrl: '', endpoints: { realtime: '/v1/realtime/client_secrets' } },
+    providerRealtimeConversationMetadata: { spacexai: { voice: 'new-voice' }, xai: { voice: 'old-voice' } },
+    providerMetadata: { spacexai: { instructions: 'New instructions' }, xai: { instructions: 'Old instructions' } },
   };
   const config = h.buildXAiRealtimeSessionConfig(args);
   assert.equal(config.voice, 'new-voice');
   assert.equal(config.instructions, 'New instructions');
   assert.deepEqual(h.xAiRealtimeConversationProvider.createSessionUpdateEvent(args), { type: 'session.update', session: config });
+  await h.xAiRealtimeConversationProvider.start(args);
+  assert.equal(h.requests[0].request.providerOptions.spacexai.session.voice, 'new-voice');
+  assert.equal(Object.hasOwn(h.requests[0].request.providerOptions, 'xai'), false);
   assert.equal(h.buildXAiRealtimeSessionConfig({ ...args, instructions: 'Explicit instructions' }).instructions, 'Explicit instructions');
   assert.equal(h.buildXAiRealtimeSessionConfig({ model: args.model }).voice, 'eve');
+});
+
+test('metadata normalization preserves legacy settings, prefers SpaceX AI and does not mutate other providers', () => {
+  const { normalizeSpaceXAiProviderMetadata: normalize } = load('packages/aihappey-state/src/slices/providerMetadataAliases.ts');
+  const legacy = { xai: { voice: 'legacy' }, google: { keep: true } };
+  assert.deepEqual(normalize(legacy), { spacexai: legacy.xai, google: legacy.google });
+  assert.equal(normalize(legacy).google, legacy.google);
+  assert.equal(legacy.xai.voice, 'legacy');
+  assert.deepEqual(normalize({ ...legacy, spacexai: { voice: 'canonical' } }), { spacexai: { voice: 'canonical' }, google: legacy.google });
+  assert.deepEqual(normalize({ ...legacy, spacexai: {} }).spacexai, {});
+  for (const invalid of [undefined, null, [], 'invalid']) assert.deepEqual(normalize(invalid), {});
+  const { normalizeProviderTranscriptionMetadata } = load('packages/aihappey-state/src/slices/defaultProviderTranscriptionMetadata.ts');
+  const transcription = normalizeProviderTranscriptionMetadata(legacy);
+  assert.equal(Object.hasOwn(transcription, 'xai'), false);
+  assert.deepEqual(transcription.spacexai, legacy.xai);
+  assert.equal(transcription.openai.response_format, 'json');
+});
+
+test('realtime stores accept old xAI input but keep only canonical SpaceX AI settings', () => {
+  const { createRealtimeSlice } = load('packages/aihappey-state/src/slices/realtimeSlice.ts');
+  let state;
+  state = createRealtimeSlice(patch => { state = { ...state, ...(typeof patch === 'function' ? patch(state) : patch) }; }, () => state);
+  for (const setter of ['setProviderRealtimeMetadata', 'setProviderRealtimeConversationMetadata']) {
+    const field = setter[3].toLowerCase() + setter.slice(4);
+    state[setter]({ xai: { voice: 'legacy' }, google: { keep: true } });
+    assert.deepEqual(state[field], { spacexai: { voice: 'legacy' }, google: { keep: true } });
+  }
+});
+
+test('persisted xAI metadata migrates to SpaceX AI and is never serialized under the old key', () => {
+  const { withPersist } = load('packages/aihappey-state/src/persist.ts', {
+    'zustand/middleware': { persist: (_, options) => options },
+    './slices/chatSlice': { DEFAULT_CHAT_VERBOSITY: 'medium', DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: {}, DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS: {} },
+    './slices/uiSlice': { normalizeCustomProviders: value => value ?? {} },
+    './slices/apiKeyEncryption': { resolveApiKeyEncryptionStatus: () => 'unconfigured' },
+    './slices/providerHeaders': { normalizeProviderHeaders: value => value ?? {} },
+  });
+  const options = withPersist(() => ({}));
+  assert.ok(options.version > 35);
+  const saved = {
+    providerRealtimeMetadata: { xai: { token: 'legacy-stt-option' }, google: { keep: true } },
+    providerRealtimeConversationMetadata: { xai: { voice: 'legacy' }, openai: { keep: true } },
+    providerTranscriptionMetadata: { xai: { language: 'en' } },
+  };
+  const migrated = options.migrate(saved, 35);
+  const serialized = options.partialize(saved);
+  for (const result of [migrated, serialized]) {
+    for (const field of Object.keys(saved)) assert.equal(Object.hasOwn(result[field], 'xai'), false);
+    assert.equal(result.providerRealtimeMetadata.spacexai.token, 'legacy-stt-option');
+    assert.equal(result.providerRealtimeConversationMetadata.spacexai.voice, 'legacy');
+    assert.equal(result.providerTranscriptionMetadata.spacexai.language, 'en');
+    assert.equal(result.providerRealtimeMetadata.google.keep, true);
+    assert.equal(result.providerRealtimeConversationMetadata.openai.keep, true);
+  }
+  assert.equal(saved.providerRealtimeConversationMetadata.xai.voice, 'legacy');
+});
+
+const theme = new Proxy({}, { get: (_, name) => name });
+const components = new Proxy({ useTheme: () => theme }, { get: (target, name) => target[name] ?? name });
+const staticReact = { ...React, useState: initial => [initial, () => {}], useEffect: () => {} };
+const i18n = { useTranslation: () => ({ t: key => key }) };
+function find(node, predicate) {
+  if (!React.isValidElement(node)) return;
+  if (predicate(node)) return node;
+  for (const child of React.Children.toArray(node.props.children)) {
+    const result = find(child, predicate);
+    if (result) return result;
+  }
+}
+
+test('realtime provider forms read legacy xAI, prefer SpaceX AI and write only the canonical key', () => {
+  const settings = load('packages/aihappey-components/src/modals/RealtimeSettingsModal.tsx', {
+    react: staticReact, 'aihappey-i18n': i18n, '../theme/ThemeContext': components, '../forms': components, '../buttons': components,
+  });
+  for (const providerKey of ['spacexai', 'SpaceXAI', 'xai', 'xAI']) {
+    assert.equal(settings.normalizeRealtimeSettingsProviderKey(providerKey), 'spacexai');
+    assert.equal(settings.hasRealtimeProviderConfig(providerKey), true);
+    const metadata = { xai: { voice: 'legacy' }, google: { keep: true } };
+    let saved;
+    let form = settings.RealtimeProviderConfigForm({ providerKey, providerMetadata: metadata, setProviderMetadata: value => { saved = value; } });
+    assert.equal(form.type, 'XAIRealtimeConversationConfigForm');
+    assert.equal(form.props.config.voice, 'legacy');
+    form.props.updateConfig({ voice: 'new' });
+    assert.deepEqual(saved, { spacexai: { voice: 'new' }, google: metadata.google });
+    form = settings.RealtimeProviderConfigForm({ providerKey, providerMetadata: { ...metadata, spacexai: { voice: 'canonical' } }, setProviderMetadata() {} });
+    assert.equal(form.props.config.voice, 'canonical');
+  }
+});
+
+test('transcription modal reads the legacy key and saves only SpaceX AI, including old enabled-provider names', () => {
+  const { TranscriptionSettingsModal } = load('packages/aihappey-components/src/modals/TranscriptionSettingsModal.tsx', {
+    react: staticReact, 'aihappey-i18n': i18n, '../theme/ThemeContext': components, '../forms': components, '../buttons': components,
+    '../forms/providers/azure/AzureTranscriptionConfigForm': components,
+  });
+  for (const name of ['SpaceXAI', 'xAI']) {
+    let saved;
+    const tree = TranscriptionSettingsModal({
+      enabledProviders: [name], providerMetadata: { xai: { language: 'en' }, google: { keep: true } },
+      realtimeProviderMetadata: {}, setProviderMetadata: value => { saved = value; }, onClose() {},
+    });
+    assert.equal(find(tree, node => node.type === 'Tabs').props.activeKey, 'spacexai');
+    const form = find(tree, node => node.type === 'XAITranscriptionConfigForm');
+    assert.equal(form.props.config.language, 'en');
+    form.props.updateConfig({ language: 'nl' });
+    assert.deepEqual(saved, { spacexai: { language: 'nl' }, google: { keep: true } });
+  }
+});
+
+test('agent and global provider transcription settings consistently read/write the SpaceX AI key', () => {
+  let saved;
+  const state = { providerTranscriptionMetadata: { xai: { language: 'en' }, google: { keep: true } } };
+  state.setProviderTranscriptionMetadata = value => { saved = value; };
+  const settings = load(root + '../providers/ProviderTypeSettings.tsx', {
+    react: React, 'aihappey-components': components,
+    'aihappey-state': { useAppStore: selector => selector(state), store: { getState: () => state } },
+    '../chat/context/ChatContext': { useChatContext: () => ({ config: {} }) },
+    '../provider-config/google/GoogleChatConfig': components,
+  });
+  for (const providerKey of ['spacexai', 'xai']) {
+    assert.equal(settings.hasProviderTypeSettings(providerKey, 'transcription'), true);
+    const form = settings.AudioProviderSettings({ providerKey, type: 'transcription', metadata: state.providerTranscriptionMetadata, onChange: value => { saved = value; } });
+    assert.equal(form.props.config.language, 'en');
+    form.props.updateConfig({ language: 'nl' });
+    assert.deepEqual(saved, { spacexai: { language: 'nl' }, google: { keep: true } });
+    const globalForm = settings.ProviderTypeSettings({ providerKey, type: 'transcription' });
+    assert.equal(globalForm.props.config.language, 'en');
+    globalForm.props.updateConfig({ language: 'de' });
+    assert.deepEqual(saved, { spacexai: { language: 'de' }, google: { keep: true } });
+  }
 });
 
 const flush = () => new Promise(resolve => setImmediate(resolve));

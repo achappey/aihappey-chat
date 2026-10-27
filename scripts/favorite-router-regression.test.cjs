@@ -1143,6 +1143,7 @@ test("the persistence version bump fills both new selections for existing users 
         "./slices/providerHeaders": { normalizeProviderHeaders: value => value ?? {},
             splitLegacyProviderHeadersFromMetadata: value => value },
         "./slices/defaultProviderTranscriptionMetadata": { normalizeProviderTranscriptionMetadata: value => value ?? {} },
+        "./slices/providerMetadataAliases": load(slices + "providerMetadataAliases.ts"),
     });
     const options = withPersist(() => ({}));
     assert.ok(options.version > 34, "Existing version-34 users must run the defaults-merging migration");

@@ -9,9 +9,9 @@ import type {
 } from "./realtimeConversationProviderTypes";
 
 export const buildXAiRealtimeSessionConfig = (args: RealtimeConversationProviderSessionConfigArgs) => {
-  const realtimeXAiMetadata = args.providerRealtimeConversationMetadata?.xai
-    ?? args.providerRealtimeConversationMetadata?.spacexai ?? {};
-  const chatXAiMetadata = args.providerMetadata?.xai ?? args.providerMetadata?.spacexai ?? {};
+  const realtimeXAiMetadata = args.providerRealtimeConversationMetadata?.spacexai
+    ?? args.providerRealtimeConversationMetadata?.xai ?? {};
+  const chatXAiMetadata = args.providerMetadata?.spacexai ?? args.providerMetadata?.xai ?? {};
   const sessionOverrides = realtimeXAiMetadata?.session && typeof realtimeXAiMetadata.session === "object"
     ? realtimeXAiMetadata.session
     : {};
@@ -51,8 +51,9 @@ const startXAiRealtimeConversation = async (args: StartRealtimeConversationProvi
     baseUrl: args.config.baseUrl + args.config.endpoints.realtime,
     headers,
   });
-  const realtimeXAiMetadata = args.providerRealtimeConversationMetadata?.xai
-    ?? args.providerRealtimeConversationMetadata?.spacexai ?? {};
+  // Accept the old key when reading saved settings, but never emit both keys.
+  const { xai: legacyMetadata, ...providerMetadata } = args.providerRealtimeConversationMetadata ?? {};
+  const realtimeXAiMetadata = providerMetadata.spacexai ?? legacyMetadata ?? {};
   const sessionConfig = buildXAiRealtimeSessionConfig(args);
 
   return startXAiRealtimeConversationWsSession({
@@ -62,8 +63,8 @@ const startXAiRealtimeConversation = async (args: StartRealtimeConversationProvi
       tokenClientFactory({
         model: args.model,
         providerOptions: {
-          ...(args.providerRealtimeConversationMetadata ?? {}),
-          xai: {
+          ...providerMetadata,
+          spacexai: {
             ...realtimeXAiMetadata,
             session: sessionConfig,
           },

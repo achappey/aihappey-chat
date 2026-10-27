@@ -3,6 +3,7 @@ import {
   defaultProviderRealtimeConversationMetadata,
   defaultProviderRealtimeMetadata,
 } from "./defaultProviderRealtimeMetadata";
+import { normalizeSpaceXAiProviderMetadata } from "./providerMetadataAliases";
 
 export type RealtimeSlice = {
   /** Application-only execution reference. Never belongs in provider options. */
@@ -46,12 +47,12 @@ export const createRealtimeSlice: StateCreator<
 
   setProviderRealtimeMetadata: (providerMetadata) =>
     set(() => ({
-      providerRealtimeMetadata: { ...providerMetadata },
+      providerRealtimeMetadata: normalizeSpaceXAiProviderMetadata(providerMetadata),
     })),
 
   setProviderRealtimeConversationMetadata: (providerMetadata) =>
     set(() => ({
-      providerRealtimeConversationMetadata: { ...providerMetadata },
+      providerRealtimeConversationMetadata: normalizeSpaceXAiProviderMetadata(providerMetadata),
     })),
 
   realtimeStatus: "idle",
