@@ -69,6 +69,8 @@ export const normalizeAgent = (agent: Agent): Agent => {
   return {
     ...agent,
     model: agent.model ? normalizeModel(agent.model) : undefined,
+    ...(agent.transcriptionModel ? { transcriptionModel: normalizeModel(agent.transcriptionModel) } : {}),
+    ...(agent.speechModel ? { speechModel: normalizeModel(agent.speechModel) } : {}),
     ...(agent.models ? { models: getAgentModels({ models: agent.models }).map(normalizeModel) } : {}),
     mcpClient: normalizeMcpClient(agent.mcpClient),
   };

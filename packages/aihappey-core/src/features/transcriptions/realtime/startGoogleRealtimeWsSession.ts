@@ -90,6 +90,8 @@ const getLiveConfig = (config?: GoogleRealtimeConfig) => {
 
 export async function startGoogleRealtimeWsSession(args: {
   getEphemeralToken: () => Promise<RealtimeResponse>;
+  microphoneStream?: MediaStream;
+  signal?: AbortSignal;
   modelId: string;
   config?: GoogleRealtimeConfig;
   events?: RealtimeTranscriptionEvents;
@@ -101,6 +103,9 @@ export async function startGoogleRealtimeWsSession(args: {
   const setup = buildGoogleLiveSetup(model, liveConfig);
   const url = `${GOOGLE_LIVE_WEBSOCKET_URL}?access_token=${encodeURIComponent(token.value)}`;
   const ws = new WebSocket(url);
+  args.signal?.addEventListener("abort", () => ws.close(), { once: true });
+  if (args.signal) ws.addEventListener("close", () => { if (!args.signal!.aborted) args.events?.onError?.("Realtime transcription connection closed."); });
+  if (args.signal?.aborted) { ws.close(); args.signal.throwIfAborted(); }
   ws.binaryType = "arraybuffer";
 
   let stream: MediaStream | undefined;
@@ -199,10 +204,11 @@ export async function startGoogleRealtimeWsSession(args: {
   });
 
   await opened;
+  args.signal?.throwIfAborted();
   await setupReady;
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream = await (args.microphoneStream ? Promise.resolve(args.microphoneStream) : navigator.mediaDevices.getUserMedia({ audio: true }));
     if (!stream.getAudioTracks()[0]) throw new Error("No microphone audio track available");
     audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     source = audioContext.createMediaStreamSource(stream);

@@ -4,6 +4,8 @@ export type Agent = {
     name: string;
     model?: AiModel;
     models?: AiModel[];
+    transcriptionModel?: AiModel;
+    speechModel?: AiModel;
     description: string;
     instructions: string;
     tags?: string[];

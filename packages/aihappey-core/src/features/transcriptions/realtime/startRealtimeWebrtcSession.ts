@@ -13,12 +13,16 @@ export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
   kind: "webrtc" | "ws";
   stop: () => Promise<void>;
+  /** Explicit end-of-turn for transcription models without provider-side VAD. */
+  commitAudio?: () => void;
 };
 
 export type RealtimeTranscriptionEvents = OpenAiRealtimeWebrtcEvents;
 
 export type StartRealtimeSessionArgs = {
   providerId: string;
+  microphoneStream?: MediaStream;
+  signal?: AbortSignal;
   /** Full selected model id (e.g. `openai/gpt-4o-realtime-preview` or `elevenlabs/scribe_v2_realtime`). */
   selectedModel: string;
   getEphemeralToken: () => Promise<RealtimeResponse>;
@@ -35,13 +39,17 @@ const stripProviderPrefix = (modelId: string): string => {
 export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs): Promise<RealtimeTranscriptionSession> {
   const { providerId, getEphemeralToken, events, selectedModel, providerRealtimeMetadata } = args;
 
+  const capture = { microphoneStream: args.microphoneStream, signal: args.signal };
   // Today only OpenAI is implemented.
   // Adding other providers later should happen here (or via a provider registry).
   if (providerId === "openai") {
-    const session = await startOpenAiRealtimeWebrtcSession({ getEphemeralToken, events });
+    const session = await startOpenAiRealtimeWebrtcSession({ getEphemeralToken, events, ...capture });
     return {
       kind: "webrtc",
       stop: session.stop,
+      commitAudio: () => {
+        if (session.dc.readyState === "open") session.dc.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
+      },
     };
   }
 
@@ -49,6 +57,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
     const elevenConfig = (providerRealtimeMetadata as any)?.elevenlabs ?? (providerRealtimeMetadata as any) ?? {};
     const elevenModelId = stripProviderPrefix(selectedModel);
     const session = await startElevenLabsRealtimeWsSession({
+      ...capture,
       getEphemeralToken,
       modelId: elevenModelId,
       config: elevenConfig,
@@ -64,6 +73,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
     const deepgramConfig = (providerRealtimeMetadata as any)?.deepgram ?? (providerRealtimeMetadata as any) ?? {};
     const deepgramModelId = stripProviderPrefix(selectedModel);
     const session = await startDeepgramRealtimeWsSession({
+      ...capture,
       getEphemeralToken,
       modelId: deepgramModelId,
       config: deepgramConfig,
@@ -78,6 +88,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
   if (providerId === "gladia") {
     const gladiaConfig = (providerRealtimeMetadata as any)?.gladia ?? (providerRealtimeMetadata as any) ?? {};
     const session = await startGladiaRealtimeWsSession({
+      ...capture,
       getEphemeralToken,
       config: gladiaConfig,
       events,
@@ -92,6 +103,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
     const assemblyAiConfig = (providerRealtimeMetadata as any)?.assemblyai ?? (providerRealtimeMetadata as any) ?? {};
     const assemblyAiModelId = stripProviderPrefix(selectedModel);
     const session = await startAssemblyAiRealtimeWsSession({
+      ...capture,
       getEphemeralToken,
       modelId: assemblyAiModelId,
       config: assemblyAiConfig,
@@ -107,6 +119,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
     const sonioxConfig = (providerRealtimeMetadata as any)?.soniox ?? (providerRealtimeMetadata as any) ?? {};
     const sonioxModelId = stripProviderPrefix(selectedModel);
     const session = await startSonioxRealtimeWsSession({
+      ...capture,
       getEphemeralToken,
       modelId: sonioxModelId,
       config: sonioxConfig,
@@ -122,6 +135,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
     const googleConfig = (providerRealtimeMetadata as any)?.google ?? {};
     const googleModelId = stripProviderPrefix(selectedModel);
     const session = await startGoogleRealtimeWsSession({
+      ...capture,
       getEphemeralToken,
       modelId: googleModelId,
       config: googleConfig,
@@ -135,6 +149,7 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
 
   if (providerId === "cartesia") {
     const session = await startCartesiaRealtimeWsSession({
+      ...capture,
       getEphemeralToken, modelId: selectedModel,
       config: providerRealtimeMetadata?.cartesia ?? {}, events,
     });

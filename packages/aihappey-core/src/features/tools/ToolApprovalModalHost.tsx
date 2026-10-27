@@ -5,7 +5,7 @@ import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
 import { ContentBlockView } from "../chat/activity/content/ContentBlockView";
 import { StructuredOutputView } from "../chat/activity/content/StructuredOutputView";
-import { getToolName } from "./useTools";
+import { approvalToolName, pendingToolApprovals } from "../chat/engine/toolApprovalState";
 
 type ApprovalToolPart = {
     type: string;
@@ -16,41 +16,11 @@ type ApprovalToolPart = {
     output?: any;
     errorText?: string;
     providerExecuted?: boolean
+    toolName?: string
 };
 
 function findPendingApproval(messages: UIMessage[]) {
-    const lastAssistant = [...messages].reverse().find(m => m.role === "assistant");
-    if (!lastAssistant) return undefined;
-
-    const parts = (lastAssistant.parts ?? []) as any[];
-
-    const approvalPart = [...parts]
-        .reverse()
-        .find(
-            (p) =>
-                typeof p?.type === "string" &&
-                p.type.startsWith("tool-") &&
-                p.state === "approval-requested" &&
-                p.approval?.id
-        );
-
-    if (approvalPart) {
-        return { tool: approvalPart as ApprovalToolPart, approvalId: approvalPart.approval.id };
-    }
-
-    if (
-        parts.some(
-            (p) =>
-                typeof p?.type === "string" &&
-                p.type.startsWith("tool-") &&
-                p.state === "input-available" &&
-                !p.providerExecuted
-        )
-    ) {
-        return undefined;
-    }
-
-    return undefined;
+    return pendingToolApprovals(messages)[0];
 }
 
 function shouldAutoApprove(
@@ -60,14 +30,13 @@ function shouldAutoApprove(
 ) {
     if (approveAll) return true;
 
-    const toolName = getToolName(tool.type);
+    const toolName = approvalToolName(tool);
     return allowedToolList.includes(toolName);
 }
 
 export function ToolApprovalModalHost({
     messages,
     tools,
-    status,
     addToolApprovalResponse,
 }: {
     messages: UIMessage[];
@@ -89,7 +58,7 @@ export function ToolApprovalModalHost({
 
     const active = useMemo(() => findPendingApproval(messages), [messages]);
 
-    const toolName = active?.tool?.type?.replace("tool-", "");
+    const toolName = active ? approvalToolName(active.tool) : undefined;
     const toolTitle =
         toolName ? tools.find((x) => x.name === toolName)?.annotations?.title : undefined;
 
@@ -121,9 +90,10 @@ export function ToolApprovalModalHost({
     // 🔁 AUTO APPROVAL (with reason)
     useEffect(() => {
         if (!active || !autoApprove) return;
-        if (lastAutoApprovedId.current === active.approvalId) return;
+        const identity = JSON.stringify([active.message.id, active.approvalId]);
+        if (lastAutoApprovedId.current === identity) return;
 
-        lastAutoApprovedId.current = active.approvalId;
+        lastAutoApprovedId.current = identity;
 
         addToolApprovalResponse({
             id: active.approvalId,
@@ -134,7 +104,7 @@ export function ToolApprovalModalHost({
 
     const showModal = (!!active && !autoApprove);
   //  if (!showModal) return null;
-    if (!showModal || status == "streaming") return null;
+    if (!showModal) return null;
 
     const respondAllow = () => {
         if (!active?.approvalId) return;

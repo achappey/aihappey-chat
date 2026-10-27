@@ -1,4 +1,18 @@
 ﻿{
+  "agentRealtime": {
+    "description": "Geef deze agent een realtime-transcriptiemodel om hem op de pagina Realtime te gebruiken. Spraakuitvoer is optioneel.",
+    "transcriptionModel": "Transcriptiemodel",
+    "speechModel": "Spraakmodel",
+    "transcriptionRequired": "Vereist voor realtime-spraakinvoer.",
+    "speechOptional": "Optioneel. Zonder spraakmodel antwoordt de agent alleen met tekst.",
+    "transcription": "Transcriptie",
+    "speech": "Spraak",
+    "customAgents": "Eigen agents",
+    "selectAgent": "Selecteer een realtime-agent",
+    "noAgents": "Voeg een realtime-transcriptiemodel toe aan een agent om deze hier beschikbaar te maken.",
+    "unavailable": "Deze realtime-agent of het transcriptiemodel is niet meer beschikbaar. Ga terug naar Realtime en selecteer een beschikbare agent.",
+    "speechFailed": "Het antwoord kon niet worden afgespeeld. Je kunt het gesprek voortzetten."
+  },
     "privacyPolicy": {
         "title": "Privacy",
         "externalLink": "Bekijk het externe privacybeleid"

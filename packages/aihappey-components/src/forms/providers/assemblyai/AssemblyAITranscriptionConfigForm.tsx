@@ -17,11 +17,13 @@ export const AssemblyAITranscriptionConfigForm: React.FC<{
   updateConfig: (val: AssemblyAITranscriptionConfig) => void;
   realtimeConfig: AssemblyAIRealtimeConfig;
   updateRealtimeConfig: (val: AssemblyAIRealtimeConfig) => void;
-}> = ({ config, updateConfig, realtimeConfig, updateRealtimeConfig }) => {
+  realtimeOnly?: boolean;
+}> = ({ config, updateConfig, realtimeConfig, updateRealtimeConfig, realtimeOnly }) => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <AssemblyAIRealtimeCardForm config={realtimeConfig ?? {}} updateConfig={updateRealtimeConfig} />
 
+      {!realtimeOnly && <>
       <AssemblyAIMediaTrimmingCardForm config={config} updateConfig={updateConfig} />
       <AssemblyAILanguageCardForm config={config} updateConfig={updateConfig} />
       <AssemblyAIOutputFormattingCardForm config={config} updateConfig={updateConfig} />
@@ -30,6 +32,7 @@ export const AssemblyAITranscriptionConfigForm: React.FC<{
       <AssemblyAISafetyAndPiiCardForm config={config} updateConfig={updateConfig} />
       <AssemblyAISummarizationCardForm config={config} updateConfig={updateConfig} />
       <AssemblyAIAccuracyCardForm config={config} updateConfig={updateConfig} />
+      </>}
     </div>
   );
 };

@@ -136,6 +136,8 @@ const buildAssemblyAiUrl = (args: { token: string; modelId?: string; config: any
 
 export async function startAssemblyAiRealtimeWsSession(args: {
   getEphemeralToken: () => Promise<RealtimeResponse>;
+  microphoneStream?: MediaStream;
+  signal?: AbortSignal;
   /** Model suffix mapped to AssemblyAI `speech_model` query param. */
   modelId: string;
   /** Optional UI-configured query params. */
@@ -147,6 +149,9 @@ export async function startAssemblyAiRealtimeWsSession(args: {
   const connect = buildAssemblyAiUrl({ token: token.value, modelId: args.modelId, config: args.config });
 
   const ws = new WebSocket(connect.url);
+  args.signal?.addEventListener("abort", () => ws.close(), { once: true });
+  if (args.signal) ws.addEventListener("close", () => { if (!args.signal!.aborted) args.events?.onError?.("Realtime transcription connection closed."); });
+  if (args.signal?.aborted) { ws.close(); args.signal.throwIfAborted(); }
   ws.binaryType = "arraybuffer";
 
   // Create media/audio nodes lazily (only after socket is confirmed open).
@@ -228,9 +233,10 @@ export async function startAssemblyAiRealtimeWsSession(args: {
   });
 
   await opened;
+  args.signal?.throwIfAborted();
 
   // Only now do we acquire the microphone and start producing audio.
-  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  stream = await (args.microphoneStream ? Promise.resolve(args.microphoneStream) : navigator.mediaDevices.getUserMedia({ audio: true }));
   const track = stream.getAudioTracks()[0];
   if (!track) throw new Error("No microphone audio track available");
 

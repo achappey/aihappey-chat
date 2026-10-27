@@ -40,6 +40,7 @@ type RealtimeInputTranscription =
   | null
   | {
     language?: string;
+    languages?: string[];
     /** model intentionally omitted (backend-controlled) */
     prompt?: string;
   };
@@ -70,9 +71,11 @@ type RealtimeTranscriptionSession = {
       format?: RealtimeAudioInputFormat;
       noise_reduction?: RealtimeNoiseReduction;
       transcription?: RealtimeInputTranscription;
+      turn_detection?: RealtimeTurnDetection | null;
     };
   };
-  turn_detection?: RealtimeTurnDetection;
+  /** Legacy import shape. New edits store this on audio.input. */
+  turn_detection?: RealtimeTurnDetection | null;
   include?: string[];
 };
 
@@ -88,17 +91,24 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
   updateConfig: (val: OpenAIITranscriptionConfig) => void;
   realtimeConfig: OpenAIRealtimeTranscriptionConfig;
   updateRealtimeConfig: (val: OpenAIRealtimeTranscriptionConfig) => void;
+  realtimeOnly?: boolean;
 }> = ({
   config,
   updateConfig,
   realtimeConfig,
-  updateRealtimeConfig
+  updateRealtimeConfig,
+  realtimeOnly
 }) => {
     const theme = useTheme();
     const { t } = useTranslation();
 
     const rt = (realtimeConfig ?? {}) as OpenAIRealtimeTranscriptionConfig;
-    const session = (rt.session ?? { type: "transcription" }) as RealtimeTranscriptionSession;
+    const storedSession = rt.session ?? { type: "transcription" };
+    const storedInput = storedSession.audio?.input;
+    const session: RealtimeTranscriptionSession = { ...storedSession,
+      turn_detection: storedInput && Object.hasOwn(storedInput, "turn_detection")
+        ? storedInput.turn_detection : storedSession.turn_detection,
+    };
     const expiresAfter = rt.expires_after ?? {};
     const audioInput = session.audio?.input ?? {};
 
@@ -110,11 +120,15 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
         type: "transcription",
       };
 
-      // Disabled turn detection must be omitted from the OpenAI payload. This
-      // also cleans up legacy configurations that persisted it as null.
-      if (nextSession.turn_detection == null) {
-        delete nextSession.turn_detection;
-      }
+      // The UI accepts legacy imports, but writes the current OpenAI request shape.
+      // An explicit disable wins over both the legacy and nested saved values.
+      const input = { ...nextSession.audio?.input };
+      const turnDetection = Object.hasOwn(patch, "turn_detection") ? patch.turn_detection
+        : Object.hasOwn(input, "turn_detection") ? input.turn_detection : nextSession.turn_detection;
+      delete nextSession.turn_detection;
+      if (turnDetection == null) delete input.turn_detection;
+      else input.turn_detection = turnDetection;
+      nextSession.audio = { ...nextSession.audio, input };
 
       updateRealtimeConfig({
         ...rt,
@@ -153,15 +167,14 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
         ? "__off__"
         : (audioInput.noise_reduction?.type ?? "__default__");
 
-    const transcriptionOn = audioInput.transcription !== undefined && audioInput.transcription !== null;
-    const turnDetectionOn = session.turn_detection !== undefined;
+    const turnDetectionOn = session.turn_detection != null;
     const turnDetectionType = session.turn_detection
       ? session.turn_detection.type
       : "server_vad";
 
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        <theme.Card size="small" title={t("general")}>
+        {!realtimeOnly && <theme.Card size="small" title={t("general")}>
           <div>
             <theme.Input
               label={t("language")}
@@ -215,7 +228,7 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
 
 
           </div>
-        </theme.Card>
+        </theme.Card>}
 
 
         <theme.Card
@@ -265,14 +278,14 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
             <theme.Input
               label={t("language")}
               placeholder={t("providers:openai.transcriptionLanguagePlaceholder")}
-              disabled={!transcriptionOn}
-              value={transcriptionOn ? (audioInput.transcription as any)?.language ?? "" : ""}
+              value={(audioInput.transcription as any)?.language ?? (audioInput.transcription as any)?.languages?.join(", ") ?? ""}
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 const raw = String(e.target.value ?? "").trim();
                 updateAudioInput({
                   transcription: {
                     ...(typeof audioInput.transcription === "object"
                       && audioInput.transcription ? audioInput.transcription : {}),
+                    languages: undefined,
                     language: raw.length ? raw : undefined,
                   },
                 });
@@ -283,9 +296,8 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
               label={t("providers:openai.realtimeTranscriptionPrompt")}
               placeholder={t("providers:openai.speechPromptPlaceholder")}
               rows={3}
-              value={transcriptionOn ? (audioInput.transcription as any)?.prompt ?? "" : ""}
+              value={(audioInput.transcription as any)?.prompt ?? ""}
               onChange={(value) => {
-                if (!transcriptionOn) return;
                 const raw = String(value ?? "");
                 updateAudioInput({
                   transcription: {
@@ -498,7 +510,6 @@ export const OpenAIITranscriptionConfigForm: React.FC<{
 
             <theme.Switch
               id="openai-realtime-include-logprobs"
-              disabled={!transcriptionOn}
               checked={Array.isArray(session.include) && session.include.includes(INCLUDE_LOGPROBS_KEY)}
               label={t("providers:openai.realtimeIncludeLogprobs")}
               onChange={(enabled) => toggleInclude(INCLUDE_LOGPROBS_KEY, !!enabled)}

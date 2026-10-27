@@ -108,6 +108,8 @@ type DeepgramMetadataMsg = { type?: "Metadata" } & Record<string, any>;
 
 export async function startDeepgramRealtimeWsSession(args: {
     getEphemeralToken: () => Promise<RealtimeResponse>;
+  microphoneStream?: MediaStream;
+  signal?: AbortSignal;
     modelId: string;
     config: any;
     events?: RealtimeTranscriptionEvents;
@@ -117,6 +119,9 @@ export async function startDeepgramRealtimeWsSession(args: {
     const token = await args.getEphemeralToken();
     const url = buildDeepgramUrl({ modelId: args.modelId, config: args.config });
     const ws = new WebSocket(url, ['bearer', token.value]);
+  args.signal?.addEventListener("abort", () => ws.close(), { once: true });
+  if (args.signal) ws.addEventListener("close", () => { if (!args.signal!.aborted) args.events?.onError?.("Realtime transcription connection closed."); });
+  if (args.signal?.aborted) { ws.close(); args.signal.throwIfAborted(); }
 
     ws.binaryType = "arraybuffer";
 
@@ -190,6 +195,7 @@ export async function startDeepgramRealtimeWsSession(args: {
                         lastFinalTranscript = nextFinal;
 
                         events?.onEvent?.({
+                            __synthetic: true,
                             type: "Results",
                             is_final: true,
                             speech_final: true,
@@ -245,9 +251,10 @@ export async function startDeepgramRealtimeWsSession(args: {
     });
 
     await opened;
+  args.signal?.throwIfAborted();
 
     // Only now do we acquire the microphone and start producing audio.
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream = await (args.microphoneStream ? Promise.resolve(args.microphoneStream) : navigator.mediaDevices.getUserMedia({ audio: true }));
     const track = stream.getAudioTracks()[0];
     if (!track) throw new Error("No microphone audio track available");
 

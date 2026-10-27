@@ -51,6 +51,8 @@ import { collectAgentOwners, collectAgentTags, getAgentTags } from "./agentTags"
 import { AgentToolConfigurationTab, type ConfigurableAgentTool } from "./AgentToolConfigurationTab";
 import { getAgentEditorModels, setAgentEditorModels } from "./agentEditorModels";
 import { AgentIconsForm } from "./AgentIconsForm";
+import { AgentRealtimeSettings } from "./AgentRealtimeSettings";
+import { AudioProviderSettings, hasProviderTypeSettings } from "../providers/ProviderTypeSettings";
 import {
     AGENT_FUNCTION_TYPE,
     AGENT_READ_RESOURCE_TYPE,
@@ -959,6 +961,22 @@ export const AgentForm = ({
                     </div>
                     <AgentIconsForm agent={agent} onChange={onChange} />
                 </Tab>
+
+                <Tab eventKey="realtime" title={t("realtime")}>
+                    <AgentRealtimeSettings agent={agent} models={models ?? []} onChange={onChange} />
+                </Tab>
+                {(["transcription", "speech"] as const).map(type => {
+                    const field = type === "transcription" ? "transcriptionModel" : "speechModel";
+                    const audioModel = agent[field];
+                    const key = getAgentModelProviderKey(audioModel?.id);
+                    return audioModel && hasProviderTypeSettings(key, type) ? <Tab key={type} eventKey={`audio-${type}`} title={t(`agentRealtime.${type}`)}>
+                        <AudioProviderSettings key={audioModel.id} providerKey={key} type={type}
+                            metadata={audioModel.providerMetadata ?? {}}
+                            onChange={providerMetadata => onChange(current => ({ ...current,
+                                [field]: { ...current[field]!, providerMetadata },
+                            }))} />
+                    </Tab> : null;
+                })}
 
                 {/* ---------------- Model Context ---------------- */}
                 {isEditing && <Tab

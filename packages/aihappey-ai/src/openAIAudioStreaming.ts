@@ -153,6 +153,7 @@ export const readOpenAISse = async <T>({
 
     if (!finished && buffer.trim()) await consume(buffer);
   } finally {
+    await reader.cancel().catch(() => undefined);
     reader.releaseLock();
   }
 };

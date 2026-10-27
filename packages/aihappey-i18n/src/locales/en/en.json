@@ -1,4 +1,18 @@
 ﻿{
+  "agentRealtime": {
+    "description": "Give this agent a real-time transcription model to use it on the Real-time page. Speech output is optional.",
+    "transcriptionModel": "Transcription model",
+    "speechModel": "Speech model",
+    "transcriptionRequired": "Required for real-time voice input.",
+    "speechOptional": "Optional. Without a speech model, the agent replies with text only.",
+    "transcription": "Transcription",
+    "speech": "Speech",
+    "customAgents": "Custom agents",
+    "selectAgent": "Select a real-time agent",
+    "noAgents": "Add a real-time transcription model to an agent to make it available here.",
+    "unavailable": "This real-time agent or its transcription model is no longer available. Return to Real-time and select an available agent.",
+    "speechFailed": "The reply could not be played. You can continue the conversation."
+  },
   "privacyPolicy": {
     "title": "Privacy",
     "externalLink": "View the external privacy policy"

@@ -36,6 +36,7 @@ interface AgentSelectProps {
   favoritesLabel?: string;
   style?: React.CSSProperties;
   allowFavoriteRouter?: boolean;
+  multiselect?: boolean;
 }
 
 export const AgentSelect: React.FC<AgentSelectProps> = ({
@@ -48,6 +49,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
   favoritesLabel,
   style,
   allowFavoriteRouter = false,
+  multiselect = true,
 }) => {
   const { Select } = useTheme();
   const { t } = useTranslation();
@@ -102,7 +104,7 @@ export const AgentSelect: React.FC<AgentSelectProps> = ({
       valueTitle={routerAvailable && routerSelected
         ? routingAgentName
         : selectedEntries.map((entry) => entry.label).join(", ")}
-      multiselect={true}
+      multiselect={multiselect}
       style={style}
       size="large"
       onChange={(e: React.ChangeEvent<HTMLSelectElement> | any) => {

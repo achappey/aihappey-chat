@@ -2,8 +2,15 @@ import { DefaultChatTransport } from "aihappey-ai";
 
 export class ManagedAgentChatTransport extends DefaultChatTransport<any> {
   protected processResponseStream(stream: ReadableStream<Uint8Array>) {
+    const approvalIds = new Set<string>();
     return super.processResponseStream(stream).pipeThrough(new TransformStream({
       transform(chunk, controller) {
+        if (chunk.type === "tool-approval-request") {
+          // A replayed control event must not reset a decision already made while streaming.
+          const identity = JSON.stringify([chunk.toolCallId, chunk.approvalId]);
+          if (approvalIds.has(identity)) return;
+          approvalIds.add(identity);
+        }
         // The SDK retains existing output on approval, but ignores output on the request itself.
         if (chunk.type === "tool-approval-request" && Object.hasOwn(chunk, "output")) {
           controller.enqueue({

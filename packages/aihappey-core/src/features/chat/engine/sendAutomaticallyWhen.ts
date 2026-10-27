@@ -2,7 +2,6 @@ export function sendAutomaticallyWhen(options?: { messages?: any[] }): boolean {
     const messages = (options?.messages ?? []) as any[];
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage || lastMessage.role !== "assistant") return false;
-    console.log(messages)
     const parts = (lastMessage.parts?.filter((a: any) =>
         a.type !== "step-start"
         && !a.type.startsWith("data-")

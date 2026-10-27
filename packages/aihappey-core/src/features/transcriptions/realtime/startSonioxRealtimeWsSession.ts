@@ -142,6 +142,8 @@ const describeProtocolError = (message: SonioxRealtimeResponse): string => {
 
 export async function startSonioxRealtimeWsSession(args: {
   getEphemeralToken: () => Promise<RealtimeResponse>;
+  microphoneStream?: MediaStream;
+  signal?: AbortSignal;
   modelId: string;
   config?: SonioxRealtimeConfig;
   events?: RealtimeTranscriptionEvents;
@@ -155,6 +157,9 @@ export async function startSonioxRealtimeWsSession(args: {
   });
 
   const ws = new WebSocket(SONIOX_WEBSOCKET_URL);
+  args.signal?.addEventListener("abort", () => ws.close(), { once: true });
+  if (args.signal) ws.addEventListener("close", () => { if (!args.signal!.aborted) args.events?.onError?.("Realtime transcription connection closed."); });
+  if (args.signal?.aborted) { ws.close(); args.signal.throwIfAborted(); }
   ws.binaryType = "arraybuffer";
 
   let stream: MediaStream | undefined;
@@ -249,9 +254,10 @@ export async function startSonioxRealtimeWsSession(args: {
   });
 
   await opened;
+  args.signal?.throwIfAborted();
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream = await (args.microphoneStream ? Promise.resolve(args.microphoneStream) : navigator.mediaDevices.getUserMedia({ audio: true }));
     if (!stream.getAudioTracks()[0]) throw new Error("No microphone audio track available");
 
     audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
-import type { UIMessage } from "aihappey-types";
+import { getPrimaryAgentModel, type UIMessage } from "aihappey-types";
 import { ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { useChatContext } from "../chat/context/ChatContext";
 import { DisclaimerBar } from "../chat/layout/DisclaimerBar";
@@ -21,7 +21,10 @@ import { ToolApprovalModalHost } from '../tools/ToolApprovalModalHost';
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { urlAttachmentRuntime } from "../../runtime/files/urlAttachmentRuntime";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
-import { buildSelectedAgentRequest } from "../agents/agentSelection";
+import { buildSelectedAgentRequest, type AgentSelectionEntry } from "../agents/agentSelection";
+import { getRealtimeAgentEntries } from "../agents/agentAudioModels";
+import { AgentSelect } from "../agents/AgentSelect";
+import { useAgentRealtimeConversationController } from "./useAgentRealtimeConversationController";
 import { useRealtimeConversationController } from "./useRealtimeConversationController";
 import { RealtimeInput } from "./RealtimeInput";
 import { LocalCameraPreview } from "./LocalCameraPreview";
@@ -71,6 +74,12 @@ function RealtimeStartPage() {
   const selectedAgentNames = useAppStore((s) => s.selectedAgentNames);
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
+  const [customAgents, setCustomAgents] = useState(false);
+  const [agentKey, setAgentKey] = useState("");
+  const eligibleAgents = getRealtimeAgentEntries(agents, remoteAgentModels, models ?? []);
+  const selectedRealtimeAgent = eligibleAgents.find(entry => entry.key === agentKey);
+  const { ToggleButton, Text } = useTheme();
+  const favoriteAgentIds = useAppStore(state => state.favoriteAgentIds);
   const temperature = useAppStore((s) => s.temperature);
   const setTemperature = useAppStore((s) => s.setTemperature);
   const extractExif = useAppStore((s) => s.extractExif);
@@ -90,9 +99,10 @@ function RealtimeStartPage() {
       if (creating) return false;
       setCreating(true);
       try {
+        if (customAgents && !selectedRealtimeAgent) throw new Error(t("agentRealtime.selectAgent"));
         const selectedAgentRequest = buildSelectedAgentRequest(selectedAgentNames, agents, remoteAgentModels);
         const conv = await create("Realtime conversation", temperature);
-        await navigate(`/realtime/${conv.id}`, {
+        await navigate(`/realtime/${conv.id}${customAgents ? `?agent=${encodeURIComponent(agentKey)}` : ""}`, {
           state: {
             model,
             pendingRealtimeMessage: pendingMessage,
@@ -108,7 +118,7 @@ function RealtimeStartPage() {
         setCreating(false);
       }
     },
-    [addChatError, agents, create, creating, model, navigate, remoteAgentModels, selectedAgentNames, temperature]
+    [addChatError, agents, create, creating, model, navigate, remoteAgentModels, selectedAgentNames, temperature, customAgents, selectedRealtimeAgent, agentKey, t]
   );
 
   const handleFirstSend = useCallback(
@@ -126,7 +136,21 @@ function RealtimeStartPage() {
   return (
     <div style={{ height: "100dvh", minHeight: 0, minWidth: 0, display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "0px 12px", display: "flex", alignItems: "center", gap: 8 }}>
-        <ModelSelect models={models ?? []} modelTypes={["audio"]} value={model} onChange={setModel} />
+        <ToggleButton icon="brain" variant="subtle" title={t("aiChat")}
+          checked={!customAgents} disabled={creating} onClick={() => setCustomAgents(false)} />
+        <ToggleButton icon="robot" variant="subtle" title={t("aiAgents")}
+          checked={customAgents} disabled={creating} onClick={() => setCustomAgents(true)} />
+        {customAgents ? <>
+          <div style={{ width: "clamp(170px, 24vw, 260px)", maxWidth: "100%", minWidth: 0 }}>
+            <AgentSelect
+              localAgents={eligibleAgents.flatMap(entry => entry.localAgent ? [entry.localAgent] : [])}
+              remoteAgentModels={eligibleAgents.flatMap(entry => entry.remoteAgentModel ? [entry.remoteAgentModel] : [])}
+              values={agentKey ? [agentKey] : []} onChange={setAgentKey} multiselect={false}
+              favoriteAgentIds={favoriteAgentIds ?? []} favoritesLabel={t("favorites")}
+              disabled={creating} style={{ width: "100%", minWidth: 0 }} />
+          </div>
+          {!eligibleAgents.length && <Text>{t("agentRealtime.noAgents")}</Text>}
+        </> : <><ModelSelect models={models ?? []} modelTypes={["audio"]} value={model} onChange={setModel} />
         <ModelFavoriteToggleButton
           variant="subtle"
           size="small"
@@ -134,7 +158,7 @@ function RealtimeStartPage() {
           modelName={selectedModelOption?.name ?? model}
           onToggleFavorite={() => model && toggleFavoriteModelForType("audio", model)}
           disabled={!model}
-        />
+        /></>}
         <div style={{ flex: 1 }} />
         <UserMenuInline />
       </div>
@@ -157,8 +181,9 @@ function RealtimeStartPage() {
         <div style={{ width: "95%" }}>
           <WelcomeMessage />
           <RealtimeInput
-            model={model}
-            audioOnly={cartesiaAudioOnly}
+            model={customAgents ? getPrimaryAgentModel(selectedRealtimeAgent?.localAgent ?? selectedRealtimeAgent?.remoteAgentModel?.agent)?.id ?? "" : model}
+            customAgent={customAgents}
+            audioOnly={!customAgents && cartesiaAudioOnly}
             temperature={temperature}
             temperatureChanged={setTemperature}
             onStart={async () => { await startConversation(); }}
@@ -171,7 +196,7 @@ function RealtimeStartPage() {
                 urlAttachmentRuntime.clear();
               }
             }}
-            disabled={creating || !model}
+            disabled={creating || (customAgents ? !selectedRealtimeAgent : !model)}
           />
         </div>
       </div>
@@ -181,6 +206,27 @@ function RealtimeStartPage() {
 }
 
 function RealtimeConversationPage() {
+  const location = useLocation();
+  const { Spinner, Text } = useTheme();
+  const { t } = useTranslation();
+  const agents = useAppStore(state => state.agents);
+  const remote = useAppStore(state => state.remoteAgentModels);
+  const models = useAppStore(state => state.models);
+  const modelsLoaded = useAppStore(state => state.modelsLoaded);
+  const remoteLoaded = useAppStore(state => state.remoteAgentModelsLoaded);
+  const key = new URLSearchParams(location.search).get("agent");
+  if (!key) return <RealtimeConversationView key="native" />;
+  if (!modelsLoaded || (key.startsWith("remote:") && !remoteLoaded)) return <Spinner />;
+  const entry = getRealtimeAgentEntries(agents, remote, models ?? []).find(entry => entry.key === key);
+  if (!entry) return <Text>{t("agentRealtime.unavailable")}</Text>;
+  return <RealtimeConversationView key={key} agentEntry={entry} useController={useAgentRealtimeConversationController} />;
+}
+
+// Only one controller is mounted. The component key pins its hook implementation for the entire session.
+function RealtimeConversationView({ agentEntry, useController = useRealtimeConversationController }: {
+  agentEntry?: AgentSelectionEntry;
+  useController?: (args: any) => ReturnType<typeof useRealtimeConversationController> | ReturnType<typeof useAgentRealtimeConversationController>;
+}) {
   const { conversationId } = useParams<{ conversationId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -195,13 +241,15 @@ function RealtimeConversationPage() {
   const setTemperature = useAppStore((s) => s.setTemperature);
   const extractExif = useAppStore((s) => s.extractExif);
   const { models, model, setModel } = useRealtimeModelSelection();
-  const effectiveModel = String((location.state as any)?.model ?? model);
-  const cartesiaAudioOnly = effectiveModel.startsWith("cartesia/agents/");
+  const agent = agentEntry?.localAgent ?? agentEntry?.remoteAgentModel?.agent;
+  const effectiveModel = agent ? getPrimaryAgentModel(agent)?.id ?? "" : String((location.state as any)?.model ?? model);
+  const cartesiaAudioOnly = !agent && effectiveModel.startsWith("cartesia/agents/");
   const effectiveModelOption = models?.find((m: any) => m.id === effectiveModel);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const toggleFavoriteModelForType = useAppStore((s: any) => s.toggleFavoriteModelForType as (type: string, modelId: string) => void);
   const isFavorite = !!effectiveModel && (favoriteModelsByType?.audio ?? []).includes(effectiveModel);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [started, setStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const getAttachmentParts = useAttachmentParts();
@@ -222,24 +270,30 @@ function RealtimeConversationPage() {
 
   useEffect(() => {
     if (!conversationId) return;
-    void get(conversationId).then((conv) => setInitialMessages(conv?.messages ?? []));
-  }, [conversationId, get]);
+    let cancelled = false;
+    void get(conversationId).then((conv) => {
+      if (!cancelled) { setInitialMessages(conv?.messages ?? []); setHistoryLoaded(true); }
+    }).catch(error => { if (!cancelled) addChatError(error); });
+    return () => { cancelled = true; };
+  }, [conversationId, get, addChatError]);
 
-  const controller = useRealtimeConversationController({
+  const controller = useController({
     config,
     conversationId: conversationId!,
     initialMessages,
     model: effectiveModel,
     instructions: systemInstructions,
     audioRef,
+    agent,
+    agentKey: agentEntry?.key,
   });
 
   useEffect(() => {
-    if (started || !conversationId) return;
+    if (started || !conversationId || !historyLoaded) return;
     setStarted(true);
     const pending = (location.state as any)?.pendingRealtimeMessage as UIMessage | undefined;
-    void controller.start(pending);
-  }, [controller, conversationId, location.state, started]);
+    void controller.start(pending && !initialMessages.some(message => message.id === pending.id) ? pending : undefined);
+  }, [controller, conversationId, location.state, started, historyLoaded, initialMessages]);
 
   const handleSend = useCallback(
     async (content: string) => {
@@ -270,7 +324,7 @@ function RealtimeConversationPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
-        <ModelSelect models={models ?? []} modelTypes={["audio"]} value={effectiveModel} onChange={setModel} disabled={connected || busy} />
+        {agentEntry ? <span>{agentEntry.label}</span> : <><ModelSelect models={models ?? []} modelTypes={["audio"]} value={effectiveModel} onChange={setModel} disabled={connected || busy} />
         <ModelFavoriteToggleButton
           variant="subtle"
           size="small"
@@ -278,7 +332,7 @@ function RealtimeConversationPage() {
           modelName={effectiveModelOption?.name ?? effectiveModel}
           onToggleFavorite={() => effectiveModel && toggleFavoriteModelForType("audio", effectiveModel)}
           disabled={connected || busy || !effectiveModel}
-        />
+        /></>}
         <div style={{ flex: 1 }} />
       </div>
       <audio ref={audioRef} autoPlay />
@@ -301,7 +355,7 @@ function RealtimeConversationPage() {
         {debugMode ? <JsonViewer value={JSON.stringify(controller.events, null, 2)} /> : (
           <MessageList
             messages={controller.messages}
-            streaming={connected}
+            streaming={"streaming" in controller ? controller.streaming : connected}
             showCitations={() => undefined}
             showAttachments={() => undefined}
             showActivity={() => undefined}
@@ -317,6 +371,7 @@ function RealtimeConversationPage() {
         <div style={{ paddingRight: 24, paddingTop: 8, boxSizing: "border-box" }}>
           <RealtimeInput
             model={effectiveModel}
+            customAgent={!!agent}
             audioOnly={cartesiaAudioOnly}
             connected={connected}
             busy={busy}

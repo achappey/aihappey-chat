@@ -16,6 +16,7 @@ import { useMessageInput } from "../chat/input/useMessageInput";
 
 type RealtimeInputProps = {
   model: string;
+  customAgent?: boolean;
   audioOnly?: boolean;
   disabled?: boolean;
   connected?: boolean;
@@ -145,7 +146,7 @@ export const RealtimeInput = (props: RealtimeInputProps) => {
         <div style={styles.leftGroup}>
           {!props.audioOnly && inputMenu.controls}
           <ChatSettingsButton
-            realtimeModel={props.model}
+            realtimeModel={props.customAgent ? undefined : props.model}
             providerMetadata={providerMetadata}
             setProviderMetadata={setProviderMetadata}
             providerHeaders={providerHeaders ?? {}}

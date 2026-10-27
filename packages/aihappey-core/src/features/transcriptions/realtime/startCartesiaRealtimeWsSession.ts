@@ -37,6 +37,8 @@ export function buildCartesiaSttUrl(modelId: string, token: string, config: Cart
 
 export async function startCartesiaRealtimeWsSession(args: {
   getEphemeralToken: () => Promise<RealtimeResponse>;
+  microphoneStream?: MediaStream;
+  signal?: AbortSignal;
   modelId: string;
   config?: CartesiaSttConfig;
   events?: RealtimeTranscriptionEvents;
@@ -44,6 +46,9 @@ export async function startCartesiaRealtimeWsSession(args: {
   const token = await args.getEphemeralToken();
   const mode = args.modelId.split("/").at(-2);
   const ws = new WebSocket(buildCartesiaSttUrl(args.modelId, token.value, args.config).toString());
+  args.signal?.addEventListener("abort", () => ws.close(), { once: true });
+  if (args.signal) ws.addEventListener("close", () => { if (!args.signal!.aborted) args.events?.onError?.("Realtime transcription connection closed."); });
+  if (args.signal?.aborted) { ws.close(); args.signal.throwIfAborted(); }
   const events = args.events;
   let stream: MediaStream | undefined;
   let context: AudioContext | undefined;
@@ -94,7 +99,7 @@ export async function startCartesiaRealtimeWsSession(args: {
       ws.addEventListener("error", () => reject(new Error("Cartesia STT connection failed")), { once: true });
     });
     events?.onSessionCreated?.({ provider: "cartesia", mode, model: args.modelId, sample_rate: RATE });
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream = await (args.microphoneStream ? Promise.resolve(args.microphoneStream) : navigator.mediaDevices.getUserMedia({ audio: true }));
     context = new AudioContext();
     source = context.createMediaStreamSource(stream);
     processor = context.createScriptProcessor(2048, 1, 1);

@@ -90,6 +90,8 @@ import {
 import { useManagedAgentMcpToolCalls } from "./useManagedAgentMcpToolCalls";
 import { ManagedAgentChatTransport } from "./ManagedAgentChatTransport";
 import { useTransientDataParts } from "./useTransientDataParts";
+import { createAgentChatContinuation } from "./agentChatContinuation";
+import { activeAssistantMessages, agentRequestMessages } from "./toolApprovalState";
 
 const getApiDebugEnabled = () => store.getState().apiDebugEnabled;
 
@@ -510,6 +512,7 @@ export function VercelChatInner({
     [chatMode, mcpServerContent, mcpServers, toolAnnotations, selectedLocalTools],
   );
   const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
+  const agentContinuationRef = useRef(createAgentChatContinuation());
   const agentToolSignalRef = useRef<AbortSignal | undefined>(undefined);
   const agentToolMessageRef = useRef<string | undefined>(undefined);
   const agentToolRunActiveRef = useRef(false);
@@ -645,7 +648,7 @@ export function VercelChatInner({
         fetch: isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent" ? authFetch : chatFetch,
         prepareSendMessagesRequest: (opts: any) => {
           const patchedMessages = applyOverrides(opts.messages as any);
-          const requestMessages = mapToolOutputContentForRequest(patchedMessages, toolOutputContentSettings);
+          const requestMessages = mapToolOutputContentForRequest(chatMode === "agent" ? agentRequestMessages(patchedMessages) : patchedMessages, toolOutputContentSettings);
 
           const mergedBody: any = {
             ...baseBody,          // default body (includes toolChoice)
@@ -664,6 +667,7 @@ export function VercelChatInner({
             ? tools
             : mergedBody.tools;
           if (chatMode === "agent") {
+            agentContinuationRef.current.submitted(requestMessages);
             // Use the existing /api/chat tools and UIMessage result contract,
             // never the agent's configured tools or provider-native namespaces.
             if (requestMessages.at(-1)?.role !== "assistant") {
@@ -829,15 +833,25 @@ export function VercelChatInner({
 
       return result;
     },
-    sendAutomaticallyWhen: (options) =>
-      !(chatMode === "agent" && managedAgentMcpCallsPending(options.messages))
-      && sendAutomaticallyWhen(options),
+    sendAutomaticallyWhen: (options) => chatMode === "agent"
+      ? !agentToolSignalRef.current?.aborted && agentContinuationRef.current.shouldSend(options)
+      : sendAutomaticallyWhen(options),
     messages: seededMessages,
-    onFinish: async ({ message, isDisconnect, isAbort }) => {
+    onFinish: async ({ message, messages: finishedMessages, isDisconnect, isAbort }) => {
       if (chatMode === "agent") {
         agentToolMessageRef.current = !isAbort && !isDisconnect && agentToolRunActiveRef.current
           ? message.id : undefined;
         if (isAbort || isDisconnect) agentToolRunActiveRef.current = false;
+        if (isAbort) {
+          const interrupted = activeAssistantMessages(finishedMessages).map(item => ({ ...item,
+            metadata: { ...item.metadata, interrupted: true },
+          }));
+          for (const item of interrupted) {
+            uiMessageOverridesRef.current[item.id] = item;
+            await updateMessage(conversationId!, item.id, item).catch(() => addMessage(conversationId!, item));
+          }
+          setUiMessageOverrides(current => ({ ...current, ...Object.fromEntries(interrupted.map(item => [item.id, item])) }));
+        }
       }
       if (pendingInitialMessageRef.current && !isAbort) {
         handleInitialSendSuccess();
@@ -1127,7 +1141,7 @@ export function VercelChatInner({
       />
 
       <ToolApprovalModalHost
-        messages={uiMessages}
+        messages={chatMode === "agent" && agentToolSignalRef.current?.aborted ? [] : uiMessages}
         tools={tools}
         status={status}
         addToolApprovalResponse={addToolApprovalResponse}

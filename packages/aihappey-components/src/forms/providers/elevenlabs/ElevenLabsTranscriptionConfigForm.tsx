@@ -69,7 +69,8 @@ export const ElevenLabsTranscriptionConfigForm: React.FC<{
   updateConfig: (val: ElevenLabsTranscriptionConfig) => void;
   realtimeConfig?: ElevenLabsRealtimeTranscriptionConfig;
   updateRealtimeConfig?: (val: ElevenLabsRealtimeTranscriptionConfig) => void;
-}> = ({ config, updateConfig, realtimeConfig, updateRealtimeConfig }) => {
+  realtimeOnly?: boolean;
+}> = ({ config, updateConfig, realtimeConfig, updateRealtimeConfig, realtimeOnly }) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -134,6 +135,7 @@ export const ElevenLabsTranscriptionConfigForm: React.FC<{
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
+      {!realtimeOnly && <>
       <theme.Card size="small" title={t("general")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Switch
@@ -303,6 +305,7 @@ export const ElevenLabsTranscriptionConfigForm: React.FC<{
       </theme.Card>
 
 
+      </>}
       <theme.Card size="small" title={t("realtime")}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Switch

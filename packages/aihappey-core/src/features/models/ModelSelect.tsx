@@ -8,6 +8,7 @@ import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry
 import { favoriteRouterModel, SELECT_ALL_FAVORITE_MODELS } from "../chat/engine/favoriteRouter";
 
 type ProviderOption = { key: string; label: string };
+const NO_MODEL_SELECTED = "__aihappey_no_model__";
 
 const newestModelOfTypes = (models: ModelOption[], modelTypes: string[]) => {
   const candidates = (models ?? []).filter((model) => modelTypes.includes(model.type));
@@ -31,11 +32,12 @@ interface ModelSelectProps {
   modelTypes?: string[];
   autoSelectFallback?: boolean;
   allowFavoriteRouter?: boolean;
+  allowNone?: boolean;
   style?: React.CSSProperties;
 }
 
 export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
-  const { autoSelectFallback = true, allowFavoriteRouter = false, onValuesChange, ...fieldProps } = props;
+  const { autoSelectFallback = true, allowFavoriteRouter = false, allowNone = false, onValuesChange, ...fieldProps } = props;
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
   const providers = useProviderRegistry();
@@ -114,7 +116,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
   React.useEffect(() => {
     if (!modelsLoaded) return;
     if (props.multiselect) return;
-    if (!autoSelectFallback) return;
+    if (!autoSelectFallback || allowNone) return;
 
     const currentValue = props.value;
     const currentExists = !!currentValue && props.models.some((model) =>
@@ -128,15 +130,20 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
     if (currentValue !== nextValue) {
       props.onChange(nextValue);
     }
-  }, [autoSelectFallback, modelTypes, modelsLoaded, props.models, props.onChange, props.value, props.multiselect]);
+  }, [autoSelectFallback, allowNone, modelTypes, modelsLoaded, props.models, props.onChange, props.value, props.multiselect]);
 
   return (
     <ModelSelectField
       {...fieldProps}
       disabled={props.disabled || (allowFavoriteRouter && deciding)}
-      virtualOptions={favoritesShortcutAvailable
-        ? [{ id: SELECT_ALL_FAVORITE_MODELS, label: t("selectAllFavorites", "Select all favorites") }] : []}
+      value={allowNone && !props.value ? NO_MODEL_SELECTED : props.value}
+      valueTitle={allowNone && !props.value ? t("none") : undefined}
+      virtualOptions={[
+        ...(allowNone && !props.multiselect ? [{ id: NO_MODEL_SELECTED, label: t("none") }] : []),
+        ...(favoritesShortcutAvailable ? [{ id: SELECT_ALL_FAVORITE_MODELS, label: t("selectAllFavorites", "Select all favorites") }] : []),
+      ]}
       onChange={(id) => {
+        if (allowNone && id === NO_MODEL_SELECTED) { props.onChange(""); return; }
         if (id === SELECT_ALL_FAVORITE_MODELS) {
           if (favoritesShortcutAvailable) onValuesChange?.(currentFavoriteIds);
           return;

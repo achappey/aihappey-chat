@@ -1,5 +1,6 @@
 import type { Tool } from "aihappey-mcp";
 import type { store } from "aihappey-state";
+import { activeAssistantMessages, isAgentToolPart, pendingToolApprovals } from "./toolApprovalState";
 
 export type LocalToolSource = { kind: "plugin" | "local"; id: string };
 export type ManagedAgentLocalTool = Tool & { source: LocalToolSource };
@@ -112,13 +113,10 @@ export async function executeManagedAgentMcpTool(
 }
 
 const clientToolParts = (messages: any[]) => {
-  const last = messages.at(-1);
-  return last?.role === "assistant"
-    ? (last.parts ?? []).filter((part: any) =>
-      (part.type?.startsWith("tool-") || part.type === "dynamic-tool")
+  return activeAssistantMessages(messages).flatMap(message => (message.parts ?? []).filter((part: any) =>
+      isAgentToolPart(part)
       && !part.providerExecuted && part.toolName !== "ai_input_required"
-      && part.type !== "tool-ai_input_required")
-    : [];
+      && part.type !== "tool-ai_input_required"));
 };
 
 // Approval requests contain an already executed result, not a new client call.
@@ -126,7 +124,7 @@ const clientToolParts = (messages: any[]) => {
 export function pendingManagedAgentMcpCalls(messages: any[], status: string) {
   if (status !== "ready") return [];
   return clientToolParts(messages)
-    .filter((part: any) => part.state === "input-available")
+    .filter((part: any) => part.state === "input-available" && part.output === undefined)
     .map((part: any) => ({
       toolCallId: part.toolCallId,
       toolName: part.toolName ?? part.type.slice("tool-".length),
@@ -135,7 +133,7 @@ export function pendingManagedAgentMcpCalls(messages: any[], status: string) {
 }
 
 export function managedAgentMcpCallsPending(messages: any[]) {
-  return clientToolParts(messages).some((part: any) =>
+  return pendingToolApprovals(messages).length > 0 || clientToolParts(messages).some((part: any) =>
     part.state === "input-streaming" || part.state === "input-available"
     || part.state === "approval-requested");
 }

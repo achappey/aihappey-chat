@@ -32,6 +32,8 @@ const describeError = (e: unknown) => {
  */
 export async function startOpenAiRealtimeWebrtcSession(args: {
   getEphemeralToken: () => Promise<RealtimeResponse>;
+  microphoneStream?: MediaStream;
+  signal?: AbortSignal;
   events?: OpenAiRealtimeWebrtcEvents;
 }): Promise<OpenAiRealtimeWebrtcSession> {
   const { events } = args;
@@ -39,9 +41,11 @@ export async function startOpenAiRealtimeWebrtcSession(args: {
   const EPHEMERAL_KEY = token.value;
 
   const pc = new RTCPeerConnection();
+  args.signal?.addEventListener("abort", () => pc.close(), { once: true });
+  args.signal?.throwIfAborted();
 
   // Add local mic track
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const stream = await (args.microphoneStream ? Promise.resolve(args.microphoneStream) : navigator.mediaDevices.getUserMedia({ audio: true }));
   const tracks = stream.getTracks();
   if (tracks[0]) pc.addTrack(tracks[0]);
 
@@ -71,6 +75,7 @@ export async function startOpenAiRealtimeWebrtcSession(args: {
   const sdpResponse = await fetch("https://api.openai.com/v1/realtime/calls", {
     method: "POST",
     body: offer.sdp,
+    signal: args.signal,
     headers: {
       Authorization: `Bearer ${EPHEMERAL_KEY}`,
       "Content-Type": "application/sdp",
@@ -87,6 +92,23 @@ export async function startOpenAiRealtimeWebrtcSession(args: {
     sdp: await sdpResponse.text(),
   };
   await pc.setRemoteDescription(answer);
+
+  if (args.signal) {
+    const signal = args.signal;
+    if (dc.readyState !== "open") await new Promise<void>((resolve, reject) => {
+      const cleanup = () => {
+        dc.removeEventListener("open", opened); dc.removeEventListener("close", closed);
+        signal.removeEventListener("abort", aborted);
+      };
+      const opened = () => { cleanup(); resolve(); };
+      const closed = () => { cleanup(); reject(new Error("Transcription data channel closed before opening.")); };
+      const aborted = () => { cleanup(); reject(signal.reason); };
+      dc.addEventListener("open", opened, { once: true }); dc.addEventListener("close", closed, { once: true });
+      signal.addEventListener("abort", aborted, { once: true });
+      if (signal.aborted) aborted();
+    });
+    dc.addEventListener("close", () => { if (!signal.aborted) events?.onError?.("Realtime transcription connection closed."); });
+  }
 
   const stop = async () => {
     try {

@@ -31,6 +31,26 @@ const getDefaultProviderTab = (enabledProviders?: string[]): string => {
         : "";
 };
 
+/** Shared by the transcription page and the agent editor; configuration is entirely caller-owned. */
+export const CartesiaRealtimeTranscriptionConfigForm = ({ config, updateConfig }: {
+    config: Record<string, any>; updateConfig: (config: Record<string, any>) => void;
+}) => {
+    const theme = useTheme();
+    const { t } = useTranslation();
+    return <theme.Card size="small" title="Realtime speech to text" description="Select the auto or manual model in the transcription model selector. Audio is captured as mono PCM16 at 16 kHz.">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <theme.Input id="cartesia-stt-keyterms" label="Keyterms (comma-separated)" value={(config.keyterm ?? []).join(", ")}
+                onChange={event => updateConfig({ ...config, keyterm: event.target.value.split(",").map((value: string) => value.trim()).filter(Boolean) })} />
+            <theme.Input id="cartesia-stt-language" label="Language (ink-whisper manual only)" value={config.language ?? ""}
+                onChange={event => updateConfig({ ...config, language: event.target.value || undefined })} />
+            {(["turn_start_threshold", "turn_eager_end_threshold", "turn_end_threshold", "turn_end_timeout_ms", "min_volume", "max_silence_duration_secs"] as const).map(key => (
+                <theme.Input key={key} id={`cartesia-${key}`} label={key.replaceAll("_", " ")} type="number" step={key.includes("ms") ? 1 : 0.01}
+                    value={config[key] ?? ""} onChange={event => updateConfig({ ...config, [key]: event.target.value === "" ? undefined : Number(event.target.value) })} />
+            ))}
+        </div>
+    </theme.Card>;
+};
+
 export interface TranscriptionSettingsModalProps {
     open: boolean;
 
@@ -184,19 +204,8 @@ export const TranscriptionSettingsModal: React.FC<
 
                     {enabledProviders.includes("Cartesia") && (
                         <theme.Tab eventKey="cartesia" title="Cartesia">
-                            <theme.Card size="small" title="Realtime speech to text" description="Select the auto or manual model in the transcription model selector. Audio is captured as mono PCM16 at 16 kHz.">
-                                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                    <theme.Input id="cartesia-stt-keyterms" label="Keyterms (comma-separated)" value={(realtimeProviderMetadata.cartesia?.keyterm ?? []).join(", ")}
-                                        onChange={(event) => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, cartesia: { ...realtimeProviderMetadata.cartesia, keyterm: event.target.value.split(",").map((x: string) => x.trim()).filter(Boolean) } })} />
-                                    <theme.Input id="cartesia-stt-language" label="Language (ink-whisper manual only)" value={realtimeProviderMetadata.cartesia?.language ?? ""}
-                                        onChange={(event) => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, cartesia: { ...realtimeProviderMetadata.cartesia, language: event.target.value || undefined } })} />
-                                    {(["turn_start_threshold", "turn_eager_end_threshold", "turn_end_threshold", "turn_end_timeout_ms", "min_volume", "max_silence_duration_secs"] as const).map((key) => (
-                                        <theme.Input key={key} id={`cartesia-${key}`} label={key.replaceAll("_", " ")} type="number" step={key.includes("ms") ? 1 : 0.01}
-                                            value={realtimeProviderMetadata.cartesia?.[key] ?? ""}
-                                            onChange={(event) => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, cartesia: { ...realtimeProviderMetadata.cartesia, [key]: event.target.value === "" ? undefined : Number(event.target.value) } })} />
-                                    ))}
-                                </div>
-                            </theme.Card>
+                            <CartesiaRealtimeTranscriptionConfigForm config={realtimeProviderMetadata.cartesia ?? {}}
+                                updateConfig={cartesia => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, cartesia })} />
                         </theme.Tab>
                     )}
 

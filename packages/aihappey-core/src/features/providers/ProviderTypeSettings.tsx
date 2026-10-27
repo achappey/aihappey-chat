@@ -50,6 +50,7 @@ const providerForms: Record<string, Record<string, React.ComponentType<any>>> = 
         murfai: forms.MurfAISpeechConfigForm, stepfun: forms.StepFunSpeechConfigForm,
     },
     transcription: {
+        cartesia: forms.CartesiaRealtimeTranscriptionConfigForm,
         azure: forms.AzureTranscriptionConfigForm, deepgram: forms.DeepgramTranscriptionConfigForm,
         deepinfra: forms.DeepInfraTranscriptionConfigForm, elevenlabs: forms.ElevenLabsTranscriptionConfigForm,
         assemblyai: forms.AssemblyAITranscriptionConfigForm, fireworks: forms.FireworksTranscriptionConfigForm,
@@ -66,6 +67,20 @@ const providerForms: Record<string, Record<string, React.ComponentType<any>>> = 
         fireworks: forms.FireworksRerankingConfigForm, jina: forms.JinaRerankingConfigForm,
         together: forms.TogetherRerankingConfigForm, voyageai: forms.VoyageAIRerankingConfigForm,
     },
+};
+
+/** Controlled version for portable agent settings: never reads or writes global preferences. */
+export const AudioProviderSettings = ({ providerKey, type, metadata, onChange }: {
+    providerKey: string; type: "speech" | "transcription";
+    metadata: Record<string, any>; onChange: (metadata: Record<string, any>) => void;
+}) => {
+    const Form = providerForms[type]?.[providerKey];
+    if (!Form) return null;
+    const entry = type === "transcription" && providerKey === "spacexai" ? "xai" : providerKey;
+    const update = (config: any) => onChange({ ...metadata, [entry]: config });
+    return <Form config={metadata[entry] ?? {}} updateConfig={update}
+        realtimeOnly={type === "transcription"}
+        realtimeConfig={metadata[entry] ?? {}} updateRealtimeConfig={update} />;
 };
 
 export const hasProviderTypeSettings = (providerKey: string, type: string) =>
@@ -123,7 +138,7 @@ export const ProviderTypeSettings: React.FC<{ providerKey: string; type: string;
             extra.realtimeConfig = realtime?.[key] ?? {};
             extra.updateRealtimeConfig = updateRealtimeConfig;
         }
-        if (key === "google") return <Form config={config} updateConfig={updateRealtimeConfig} />;
+        if (["google", "cartesia"].includes(key)) return <Form config={realtime?.[key] ?? {}} updateConfig={updateRealtimeConfig} />;
     }
     return <Form config={config} updateConfig={updateConfig} {...extra} />;
 };
