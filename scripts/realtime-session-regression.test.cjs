@@ -18,6 +18,7 @@ const root = 'packages/aihappey-core/src/features/realtime/';
 test('legacy OpenAI startup retains Realtime audio, VAD, voice, tools and explicit null overrides', () => {
   const { buildOpenAiRealtimeSessionConfig } = load(root + 'openAiRealtimeConversationProvider.ts', {
     'aihappey-ai': {}, './startRealtimeConversationWebrtc': {},
+    '../provider-credentials/scopedRequest': { buildOperationHeaders: async () => ({}) },
     './realtimeMessageParts': { stripProviderPrefix: s => s.slice(s.indexOf('/') + 1), mcpToolToRealtimeFunctionTool: t => ({ ...t, type: 'function' }) },
   });
   const result = buildOpenAiRealtimeSessionConfig({ model: 'openai/gpt-realtime-2', instructions: 'hello', tools: [{ name: 'lookup' }], providerRealtimeConversationMetadata: { openai: { session: { type: 'realtime', audio: { input: { turn_detection: null }, output: { voice: 'cedar' } } } } } });

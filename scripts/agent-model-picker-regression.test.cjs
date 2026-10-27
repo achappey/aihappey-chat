@@ -101,6 +101,8 @@ function harness(initialAgent = {}, models = catalog, settings = {}, isEditing =
         "../provider-config/google/GoogleChatConfig": components,
         "./AgentSkillsEditor": components,
         "./AgentIconsForm": components,
+        "./AgentRealtimeSettings": components,
+        "../providers/ProviderTypeSettings": { AudioProviderSettings: "AudioProviderSettings", hasProviderTypeSettings: () => false },
         "../chat-settings/ChatPluginsEditor": components,
         "./AgentChecks": components,
         "./AgentToolConfigurationTab": components,

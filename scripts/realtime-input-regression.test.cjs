@@ -119,7 +119,7 @@ test("realtime attachment tags include URLs and busy/disabled input cannot submi
     for (const key of ["disabled", "busy"]) {
         h.props[key] = true;
         h.render();
-        assert.equal(h.one("TextArea").props.disabled, true);
+        assert.equal(h.one("TextArea").props.readOnly, true);
         assert.equal(h.button("realtime").props.disabled, true);
         assert.equal(h.menuOptions.at(-1).disabled, true);
         await h.send("hello");
@@ -160,7 +160,7 @@ test("both realtime pages explicitly pass their own selected/effective model to 
         ts.forEachChild(node, visit);
     }
     visit(source);
-    assert.deepEqual(models, ["model", "effectiveModel"]);
+    assert.deepEqual(models, ['customAgents ? getPrimaryAgentModel(selectedRealtimeAgent?.localAgent ?? selectedRealtimeAgent?.remoteAgentModel?.agent)?.id ?? "" : model', "effectiveModel"]);
 });
 
 test("disabled auto-prompt execution does not consume pending prompts for audio-only realtime", () => {

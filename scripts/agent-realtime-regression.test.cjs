@@ -1,0 +1,310 @@
+const assert = require('node:assert/strict');
+const { test } = require('node:test');
+const fs = require('node:fs');
+const { load } = require('./credential-test-loader.cjs');
+const root = 'packages/aihappey-core/src/features/';
+const { AgentTranscriptionTurns } = load(root + 'realtime/agentTranscriptionTurns.ts');
+const { AgentSpeechQueue, CompletedAgentText } = load(root + 'realtime/agentSpeechQueue.ts');
+const { streamSpeech } = load('packages/aihappey-ai/src/speechStreaming.ts');
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function turns(provider) {
+    const result = { starts: 0, previews: [], turns: [] };
+    result.controller = new AgentTranscriptionTurns(provider, {
+        start: () => result.starts++, preview: text => result.previews.push(text), turn: text => result.turns.push(text),
+    });
+    return result;
+}
+
+test('eligibility includes local and catalog definitions, not batch-only or hidden definitions', () => {
+    const { getRealtimeAgentEntries, selectAgentAudioModel } = load(root + 'agents/agentAudioModels.ts');
+    const audio = { id: 'openai/stt', type: 'transcription', tags: ['real-time'] };
+    const agent = { name: 'Local', model: { id: 'openai/chat' }, transcriptionModel: { id: audio.id } };
+    const result = getRealtimeAgentEntries([agent, { ...agent, name: 'Batch', transcriptionModel: { id: 'openai/batch' } }],
+        [{ id: 'remote/one', agent }, { id: 'remote/no-definition' }], [audio]);
+    assert.deepEqual(result.map(entry => entry.key), ['local:Local', 'remote:remote/one']);
+    const saved = { id: audio.id, providerMetadata: { openai: { custom: true } }, providerHeaders: { custom: 'value' } };
+    assert.equal(selectAgentAudioModel(saved, audio.id, 'transcription'), saved);
+    assert.equal(selectAgentAudioModel(saved, '', 'transcription'), undefined);
+    assert.deepEqual(selectAgentAudioModel(saved, 'other/stt', 'transcription'), { id: 'other/stt', type: 'transcription' });
+});
+
+test('audio configuration round-trips without entering answer model routing', () => {
+    const types = load('packages/aihappey-types/src/index.ts');
+    const { normalizeAgent } = load('packages/aihappey-agents/src/normalizeAgent.ts', { 'aihappey-types': types });
+    const agent = { name: 'Voice', model: { id: 'openai/chat' },
+        transcriptionModel: { id: 'deepgram/stt', providerMetadata: { deepgram: { endpointing: 500, opaque: [1, 2] } }, providerHeaders: { deepgram: { test: '1' } } },
+        speechModel: { id: 'openai/speech', providerMetadata: { openai: { voice: 'cedar' } } } };
+    const normalized = normalizeAgent(JSON.parse(JSON.stringify(agent)));
+    assert.deepEqual(normalized.transcriptionModel.providerMetadata, agent.transcriptionModel.providerMetadata);
+    assert.deepEqual(normalized.transcriptionModel.providerHeaders, { test: '1' });
+    assert.deepEqual(types.getAgentModels(normalized).map(model => model.id), ['openai/chat']);
+});
+
+test('Deepgram final fragments wait for endpointing and synthetic duplicates are ignored', async () => {
+    const result = turns('deepgram');
+    const event = (text, start, final) => ({ type: 'Results', is_final: true, speech_final: final, start, duration: 1, channel: { alternatives: [{ transcript: text }] } });
+    result.controller.event(event('Please look', 0, false));
+    result.controller.event({ ...event('Please look', 0, true), __synthetic: true });
+    result.controller.event(event('Please look', 0, false));
+    await sleep(950);
+    assert.deepEqual(result.turns, []);
+    result.controller.event(event('this up', 1, true));
+    assert.deepEqual(result.turns, ['Please look this up']);
+    result.controller.dispose();
+});
+
+test('only non-empty new transcription interrupts once per utterance; OpenAI submits exactly once', () => {
+    const result = turns('openai');
+    result.controller.activity(true);
+    result.controller.event({ type: 'input_audio_buffer.speech_started', item_id: 'one' });
+    assert.equal(result.starts, 0);
+    result.controller.event({ type: 'conversation.item.input_audio_transcription.delta', item_id: 'one', delta: 'Hello' });
+    const final = { type: 'conversation.item.input_audio_transcription.completed', item_id: 'one', transcript: 'Hello' };
+    result.controller.event(final); result.controller.event(final);
+    assert.equal(result.starts, 1);
+    assert.deepEqual(result.turns, ['Hello']);
+    result.controller.dispose();
+});
+
+for (const [provider, partial, final] of [
+    ['openai', id => ({ type: 'conversation.item.input_audio_transcription.delta', item_id: id, delta: 'Again' }),
+        id => ({ type: 'conversation.item.input_audio_transcription.completed', item_id: id, transcript: 'Again' })],
+    ['assemblyai', id => ({ type: 'Turn', turn_order: id, transcript: 'Again' }),
+        id => ({ type: 'Turn', turn_order: id, end_of_turn: true, transcript: 'Again' })],
+    ['gladia', id => ({ type: 'transcript', data: { utterance: { start: id, text: 'Again' } } }),
+        id => ({ type: 'transcript', data: { is_final: true, utterance: { start: id, end: id + 1, text: 'Again' } } })],
+    ['cartesia', id => ({ type: 'turn.update', turn_id: id, transcript: 'Again' }),
+        id => ({ type: 'turn.end', turn_id: id, transcript: 'Again' })],
+]) test(`${provider}: late partial/final replays cannot interrupt a submitted turn; identical words in a new utterance are allowed`, () => {
+    const result = turns(provider);
+    result.controller.event(partial(1)); result.controller.event(final(1));
+    assert.equal(result.starts, 1); assert.deepEqual(result.turns, ['Again']);
+    result.controller.activity(true); result.controller.activity(false);
+    result.controller.event(partial(1)); result.controller.event(final(1));
+    assert.equal(result.starts, 1); assert.deepEqual(result.turns, ['Again']);
+    result.controller.event(partial(2));
+    result.controller.event(partial(1)); result.controller.event(final(1));
+    result.controller.event(final(2)); result.controller.event(final(2));
+    assert.equal(result.starts, 2); assert.deepEqual(result.turns, ['Again', 'Again']);
+    result.controller.dispose();
+});
+
+test('OpenAI replayed delta event IDs do not duplicate words and empty completions close only their own item', () => {
+    const result = turns('openai');
+    const delta = { type: 'conversation.item.input_audio_transcription.delta', item_id: 'new', event_id: 'delta:1', delta: 'Hello' };
+    result.controller.event(delta); result.controller.event(delta);
+    result.controller.event({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'noise', transcript: '' });
+    result.controller.event({ type: 'conversation.item.input_audio_transcription.delta', item_id: 'noise', delta: 'late noise' });
+    assert.equal(result.starts, 1); assert.deepEqual(result.previews, ['Hello']);
+    result.controller.event({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'new', transcript: 'Hello' });
+    assert.deepEqual(result.turns, ['Hello']); result.controller.dispose();
+});
+
+test('OpenAI overlapping item transcription does not retire another pending utterance', () => {
+    const result = turns('openai');
+    const delta = (id, text) => ({ type: 'conversation.item.input_audio_transcription.delta', item_id: id, delta: text });
+    const final = (id, text) => ({ type: 'conversation.item.input_audio_transcription.completed', item_id: id, transcript: text });
+    result.controller.event(delta('first', 'First'));
+    result.controller.event(delta('second', 'Second'));
+    result.controller.event(final('first', 'First question'));
+    result.controller.event(delta('first', 'late'));
+    const starts = result.starts;
+    result.controller.event(delta('second', ''));
+    assert.equal(result.starts, starts, 'an empty delta cannot promote buffered text into a new interruption');
+    result.controller.event(delta('second', ' question'));
+    result.controller.event(final('second', 'Second question'));
+    result.controller.event(final('first', 'First question'));
+    result.controller.event(final('second', 'Second question'));
+    assert.deepEqual(result.turns, ['First question', 'Second question']);
+    assert.equal(result.previews.includes('Second question'), true); result.controller.dispose();
+});
+
+test('Deepgram old timed results cannot interrupt after endpointing but new identical words can', () => {
+    const result = turns('deepgram');
+    const event = (start, final) => ({ type: 'Results', start, duration: 1, is_final: final, speech_final: final, channel: { alternatives: [{ transcript: 'Again' }] } });
+    result.controller.event(event(0, true));
+    result.controller.activity(true); result.controller.activity(false);
+    result.controller.event(event(0, false)); result.controller.event(event(0, true));
+    assert.equal(result.starts, 1); assert.deepEqual(result.turns, ['Again']);
+    result.controller.event(event(1, false)); result.controller.event(event(1, true));
+    assert.equal(result.starts, 2); assert.deepEqual(result.turns, ['Again', 'Again']); result.controller.dispose();
+});
+
+test('a delayed Deepgram endpoint cannot prematurely submit a newer utterance', () => {
+    const result = turns('deepgram');
+    const event = (start, text, end) => ({ type: 'Results', start, duration: 1, is_final: true, speech_final: end, channel: { alternatives: [{ transcript: text }] } });
+    result.controller.event(event(0, 'First', true));
+    result.controller.event(event(2, 'Second', false));
+    result.controller.event({ type: 'UtteranceEnd', last_word_end: 1 });
+    assert.deepEqual(result.turns, ['First']);
+    result.controller.event(event(3, 'question', true));
+    assert.deepEqual(result.turns, ['First', 'Second question']); result.controller.dispose();
+});
+
+test('Soniox old timed tokens never interrupt or duplicate words after submission', () => {
+    const result = turns('soniox');
+    const token = (start, end, text, final = true) => ({ start_ms: start, end_ms: end, text, is_final: final });
+    const first = { tokens: [token(0, 1000, 'Again'), { text: '<end>', is_final: true }] };
+    result.controller.event(first); result.controller.activity(true); result.controller.activity(false);
+    result.controller.event({ tokens: [token(0, 1000, 'Again', false)] }); result.controller.event(first);
+    assert.equal(result.starts, 1); assert.deepEqual(result.turns, ['Again']);
+    result.controller.event({ tokens: [token(1000, 2000, 'Again'), { text: '<end>', is_final: true }] });
+    assert.equal(result.starts, 2); assert.deepEqual(result.turns, ['Again', 'Again']); result.controller.dispose();
+});
+
+test('ElevenLabs paired and repeated commits are deduplicated without a time window; fresh activity allows repeated words', () => {
+    const result = turns('elevenlabs');
+    result.controller.event({ message_type: 'committed_transcript', text: 'Again' });
+    for (let i = 0; i < 3; i++) {
+        result.controller.event({ message_type: 'partial_transcript', text: 'Again' });
+        result.controller.event({ message_type: 'committed_transcript_with_timestamps', text: 'Again' });
+        result.controller.event({ message_type: 'committed_transcript', text: 'Again' });
+    }
+    assert.equal(result.starts, 1); assert.deepEqual(result.turns, ['Again']);
+    result.controller.activity(true); result.controller.activity(false);
+    result.controller.event({ message_type: 'committed_transcript', text: 'Again' });
+    assert.equal(result.starts, 2); assert.deepEqual(result.turns, ['Again', 'Again']); result.controller.dispose();
+});
+
+test('AssemblyAI formatted final does not submit a duplicate turn', () => {
+    const result = turns('assemblyai');
+    result.controller.event({ type: 'Turn', turn_order: 0, end_of_turn: false, transcript: 'hello' });
+    result.controller.event({ type: 'Turn', turn_order: 0, end_of_turn: true, transcript: 'Hello' });
+    result.controller.event({ type: 'Turn', turn_order: 0, end_of_turn: true, turn_is_formatted: true, transcript: 'Hello.' });
+    assert.deepEqual(result.turns, ['Hello']); result.controller.dispose();
+});
+
+test('ElevenLabs accepts timestamp-only commits and deduplicates paired commit variants', () => {
+    const result = turns('elevenlabs');
+    result.controller.event({ message_type: 'committed_transcript_with_timestamps', text: 'Hello' });
+    result.controller.event({ message_type: 'committed_transcript', text: 'Hello' });
+    assert.deepEqual(result.turns, ['Hello']); result.controller.dispose();
+});
+
+test('Gladia final utterances and Cartesia auto turns use their final text', () => {
+    const gladia = turns('gladia');
+    const event = { type: 'transcript', data: { id: 'one', is_final: true, utterance: { text: 'Hello', start: 0, end: 1 } } };
+    gladia.controller.event(event); gladia.controller.event(event);
+    assert.deepEqual(gladia.turns, ['Hello']); gladia.controller.dispose();
+    const cartesia = turns('cartesia');
+    cartesia.controller.event({ type: 'turn.start' });
+    cartesia.controller.event({ type: 'turn.eager_end', transcript: 'Wrong preview' });
+    assert.deepEqual(cartesia.turns, []);
+    cartesia.controller.event({ type: 'turn.end', transcript: 'Final text' });
+    assert.deepEqual(cartesia.turns, ['Final text']); cartesia.controller.dispose();
+});
+
+test('Soniox token batches preserve mid-word boundaries and submit on endpoint markers', () => {
+    const result = turns('soniox');
+    result.controller.event({ tokens: [{ is_final: true, text: 'Hel' }] });
+    result.controller.event({ tokens: [{ is_final: true, text: 'lo world' }, { is_final: true, text: '<end>' }] });
+    assert.deepEqual(result.turns, ['Hello world']); result.controller.dispose();
+});
+
+test('Google final transcription supersedes interim text and waits for turnComplete', () => {
+    const result = turns('google');
+    result.controller.event({ serverContent: { interimInputTranscription: { text: 'preview' } } });
+    result.controller.event({ serverContent: { inputTranscription: { text: 'Final text' }, turnComplete: true } });
+    assert.deepEqual(result.turns, ['Final text']); result.controller.dispose();
+});
+
+test('fallback turn timer is cancelled on disposal and never submits interim-only text', async () => {
+    const result = turns('cartesia');
+    result.controller.event({ type: 'transcript', is_final: false, text: 'interim' });
+    await sleep(950); assert.deepEqual(result.turns, []);
+    result.controller.event({ type: 'transcript', is_final: true, text: 'final' });
+    result.controller.dispose(); await sleep(950); assert.deepEqual(result.turns, []);
+});
+
+test('completed intermediate text is spoken before a later tool call, not at turn finish', () => {
+    const spoken = [];
+    const observer = new CompletedAgentText((key, text) => spoken.push([key, text]));
+    observer.handle({ type: 'text-start', id: 'before-tools' });
+    observer.handle({ type: 'text-delta', id: 'before-tools', delta: 'Let me check.' });
+    assert.deepEqual(spoken, []);
+    observer.handle({ type: 'text-end', id: 'before-tools' });
+    assert.deepEqual(spoken, [['before-tools', 'Let me check.']]);
+    observer.handle({ type: 'tool-input-available', toolName: 'search' });
+    observer.handle({ type: 'reasoning-delta', id: 'reasoning', delta: 'private' });
+    observer.handle({ type: 'text-end', id: 'before-tools' });
+    observer.finish({ id: 'answer', parts: [{ type: 'text', text: 'Let me check.' }] });
+    assert.equal(spoken.length, 1);
+});
+
+test('older transports speak only final completed assistant text, never reasoning', () => {
+    const spoken = [];
+    new CompletedAgentText((key, text) => spoken.push(text)).finish({ id: 'one', parts: [
+        { type: 'text', text: 'Answer' }, { type: 'reasoning', text: 'private' }, { type: 'tool-search', output: 'tool result' },
+    ] });
+    assert.deepEqual(spoken, ['Answer']);
+});
+
+test('speech is ordered, deduplicated, and cancellation clears current and queued audio', async () => {
+    const played = [], errors = [];
+    const queue = new AgentSpeechQueue(async (text, signal) => {
+        played.push(text);
+        if (text === 'one') await new Promise((resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('cancelled', 'AbortError')), { once: true }));
+    }, error => errors.push(error));
+    queue.enqueue('a', 'one'); queue.enqueue('a', 'one'); queue.enqueue('b', 'two');
+    await sleep(0); assert.deepEqual(played, ['one']);
+    queue.clear(); queue.enqueue('c', 'new turn'); await sleep(0);
+    assert.deepEqual(played, ['one', 'new turn']); assert.deepEqual(errors, []);
+    queue.clear();
+});
+
+test('a failed speech item does not poison later queued messages', async () => {
+    const played = [], errors = [];
+    const queue = new AgentSpeechQueue(async text => { played.push(text); if (text === 'bad') throw new Error('failed'); }, error => errors.push(error));
+    queue.enqueue('a', 'bad'); queue.enqueue('b', 'next'); await sleep(0);
+    assert.deepEqual(played, ['bad', 'next']); assert.equal(errors.length, 1); queue.clear();
+});
+
+function sse(parts) {
+    return new Response(parts.map(part => `data: ${typeof part === 'string' ? part : JSON.stringify(part)}\n\n`).join(''),
+        { headers: { 'content-type': 'text/event-stream' } });
+}
+test('new speech stream sends ordered text parts and receives typed audio/finish events', async () => {
+    let body; const audio = [];
+    await streamSpeech({ url: '/api/speech/stream', model: 'openai/tts', text: 'Hello', providerOptions: { openai: { voice: 'cedar' } },
+        signal: new AbortController().signal, fetch: async (_, init) => {
+            body = JSON.parse(init.body);
+            return sse([{ type: 'audio', audio: 'AQI=', audioFormat: { type: 'audio/pcm', rate: 16000 } }, { type: 'finish' }, '[DONE]']);
+        }, onAudio: part => audio.push(part),
+    });
+    assert.deepEqual(body.text, [{ type: 'text', text: 'Hello' }]);
+    assert.equal(body.providerOptions.openai.voice, 'cedar'); assert.equal(audio[0].audioFormat.rate, 16000);
+});
+
+test('truncated streams and SSE errors fail even with HTTP 200', async () => {
+    const args = { url: '/api/speech/stream', model: 'p/m', text: 'Hi', signal: new AbortController().signal, onAudio() {} };
+    await assert.rejects(streamSpeech({ ...args, fetch: async () => sse([{ type: 'audio', audio: 'AA==', audioFormat: { type: 'audio/mpeg' } }]) }), /finish/);
+    await assert.rejects(streamSpeech({ ...args, fetch: async () => sse([{ type: 'error', error: 'unsupported' }]) }), /unsupported/);
+});
+
+test('speech fallback is silent on streaming failure, preserves model options, and is abort-aware', async () => {
+    const calls = [];
+    const { AgentAudioOutput } = load(root + 'realtime/agentSpeechPlayback.ts', {
+        'aihappey-ai': { streamSpeech: async () => { throw new Error('unsupported'); }, base64ToUint8Array: () => new Uint8Array([1, 2]) },
+    });
+    const output = new AgentAudioOutput(); output.playBytes = async (...args) => calls.push(args);
+    await output.speak({ baseUrl: 'https://api.example', endpoints: { speech: '/api/speech' }, fetch: async (url, init) => {
+        calls.push([url, JSON.parse(init.body)]); return Response.json({ audio: { base64: 'AQI=', mimeType: 'audio/mpeg' } });
+    } }, {}, { id: 'openai/tts', providerMetadata: { openai: { voice: 'cedar' }, unrelated: { secret: true } } }, 'Hello', new AbortController().signal);
+    assert.equal(calls[0][0], 'https://api.example/api/speech');
+    assert.deepEqual(calls[0][1].providerOptions, { openai: { voice: 'cedar' } });
+    assert.equal(calls.length, 2);
+    const abort = new AbortController(); abort.abort();
+    await assert.rejects(output.speak({}, {}, { id: 'openai/tts' }, 'Hello', abort.signal), { name: 'AbortError' });
+    assert.equal(calls.length, 2);
+});
+
+test('editor uses draft-only settings and the page retains the native controller and explicit agent target', () => {
+    const editor = fs.readFileSync(root + 'agents/AgentForm.tsx', 'utf8');
+    const page = fs.readFileSync(root + 'realtime/RealtimePage.tsx', 'utf8');
+    assert.match(editor, /AgentRealtimeSettings/); assert.match(editor, /AudioProviderSettings/);
+    assert.match(page, /useController = useRealtimeConversationController/);
+    assert.match(page, /\?agent=\$\{encodeURIComponent\(agentKey\)\}/);
+    assert.match(page, /if \(!entry\) return/);
+    assert.match(page, /!historyLoaded/);
+});

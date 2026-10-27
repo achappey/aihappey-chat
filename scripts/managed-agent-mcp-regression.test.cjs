@@ -19,7 +19,8 @@ function evaluate(source, mocks = {}, bindings = {}) {
     return module.exports;
 }
 const load = (path, mocks) => evaluate(fs.readFileSync(path, "utf8"), mocks);
-const managedTools = load(root + "chat/engine/managedAgentMcpTools.ts");
+const approvalState = load(root + "chat/engine/toolApprovalState.ts");
+const managedTools = load(root + "chat/engine/managedAgentMcpTools.ts", { "./toolApprovalState": approvalState });
 const { ManagedAgentChatTransport } = load(root + "chat/engine/ManagedAgentChatTransport.ts", {
     "aihappey-ai": { DefaultChatTransport },
 });
@@ -28,6 +29,9 @@ const {
     pendingManagedAgentMcpCalls, managedAgentMcpCallsPending, managedAgentStopTools,
 } = managedTools;
 const { sendAutomaticallyWhen } = evaluate(fs.readFileSync(root + "chat/engine/sendAutomaticallyWhen.ts", "utf8"), {}, { console: { log() {} } });
+const { createAgentChatContinuation } = load(root + "chat/engine/agentChatContinuation.ts", {
+    "./toolApprovalState": approvalState, "./sendAutomaticallyWhen": { sendAutomaticallyWhen },
+});
 const tool = (name = "lookup", annotations) => ({
     name, description: "Look up a record", inputSchema: { type: "object", properties: { query: { type: "string" } } },
     ...(annotations ? { annotations } : {}),
@@ -154,7 +158,10 @@ function engineCallback(name, bindings) {
     }
     visit(engine);
     assert.ok(expression, `Missing engine callback ${name}`);
-    return evaluate(`module.exports = ${expression};`, {}, bindings);
+    return evaluate(`module.exports = ${expression};`, {}, {
+        agentToolSignalRef: { current: undefined }, agentRequestMessages: approvalState.agentRequestMessages,
+        ...bindings,
+    });
 }
 function prepareRequest(h, chatMode = "agent") {
     return engineCallback("prepareSendMessagesRequest", {
@@ -165,6 +172,7 @@ function prepareRequest(h, chatMode = "agent") {
         agentToolSignalRef: { current: undefined }, abortRef: { current: undefined },
         agentToolMessageRef: { current: undefined },
         agentToolRunActiveRef: { current: false },
+        agentContinuationRef: { current: createAgentChatContinuation() },
         shapeToolsForRequest: load(root + "tools/toolRequestConfig.ts").shapeToolsForRequest,
         deferClientToolSearchCandidates: tools => tools,
         isProviderEndpointProfile: false, requestEndpointProfile: undefined, model: "openai/model",
@@ -265,7 +273,7 @@ test("real SDK streaming returns MCP results to agent backend and continues; pro
     });
     chat = new Chat({
         id: "conversation", transport,
-        sendAutomaticallyWhen: engineCallback("sendAutomaticallyWhen", { chatMode: "agent", managedAgentMcpCallsPending, sendAutomaticallyWhen }),
+        sendAutomaticallyWhen: engineCallback("sendAutomaticallyWhen", { chatMode: "agent", managedAgentMcpCallsPending, sendAutomaticallyWhen, agentContinuationRef: { current: createAgentChatContinuation() } }),
         onToolCall: engineCallback("onToolCall", { chatMode: "agent" }),
         onError: error => errors.push(error),
     });
@@ -334,7 +342,7 @@ test(`post-execution ${decision} continues multiple MCP calls without re-executi
             },
         }),
         onToolCall: engineCallback("onToolCall", { chatMode: "agent" }),
-        sendAutomaticallyWhen: engineCallback("sendAutomaticallyWhen", { chatMode: "agent", managedAgentMcpCallsPending, sendAutomaticallyWhen }),
+        sendAutomaticallyWhen: engineCallback("sendAutomaticallyWhen", { chatMode: "agent", managedAgentMcpCallsPending, sendAutomaticallyWhen, agentContinuationRef: { current: createAgentChatContinuation() } }),
         onError: error => errors.push(error),
     });
     await chat.sendMessage({ text: "Use MCP" });
@@ -470,6 +478,7 @@ test("seeded history never executes; live execution keeps Stop available and abo
 
 function approvalHost(messages, state, respond) {
     const { ToolApprovalModalHost } = load(root + "tools/ToolApprovalModalHost.tsx", {
+        "../chat/engine/toolApprovalState": approvalState,
         react: {
             useMemo: fn => fn(), useRef: value => ({ current: value }), useState: value => [value, () => {}],
             useEffect: fn => fn(),
