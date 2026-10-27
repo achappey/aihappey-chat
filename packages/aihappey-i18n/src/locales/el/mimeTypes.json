@@ -1,5 +1,5 @@
 {
-    "mimeType": "Τύπος αρχείου",
+    "mimeType": "Τύπος MIME",
     "text/plain": "Κείμενο",
     "audio/webm": "Web Movie",
     "audio/mpeg": "MPEG Audio Layer 3",
@@ -13,6 +13,7 @@
     "application/vnd.agents+json": "Πράκτορες",
     "application/vnd.agent+json": "Πράκτορας",
     "text/html+skybridge": "Εφαρμογή OpenAI",
+    "text/html;profile=mcp-app": "Εφαρμογή MCP",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation": "PowerPoint",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel"

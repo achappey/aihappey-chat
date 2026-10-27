@@ -80,7 +80,16 @@
     "enableRecording": "Ενεργοποίηση εγγραφής",
     "skills": "Ενεργοποίηση δεξιοτήτων",
     "agentmail": "Ενεργοποίηση AgentMail",
-    "cacheScript": "Προσωρινή αποθήκευση σεναρίου"
+    "cacheScript": "Προσωρινή αποθήκευση σεναρίου",
+    "browserSettings": "Ρυθμίσεις προγράμματος περιήγησης",
+    "enableJudge": "Ενεργοποίηση αξιολογητή",
+    "judge": "Αξιολογητής",
+    "judgeContext": "Πλαίσιο αξιολόγησης",
+    "noProxy": "Χωρίς διακομιστή μεσολάβησης",
+    "record": "Καταγραφή συνεδρίας προγράμματος περιήγησης",
+    "run": "Εκτέλεση",
+    "screenHeight": "Ύψος οθόνης",
+    "screenWidth": "Πλάτος οθόνης"
   },
   "tembo": {
     "session": "Συνεδρία",
@@ -244,11 +253,13 @@
     "thinkingModes": {
       "enabled": "Ενεργοποιημένο",
       "disabled": "Απενεργοποιημένο",
-      "adaptive": "Προσαρμοστικό"
+      "adaptive": "Προσαρμοστικό",
+      "between_tools": "Μεταξύ εργαλείων"
     },
     "thinkingDisplayModes": {
       "summarized": "Συνοπτικό",
-      "omitted": "Παραλειπόμενο"
+      "omitted": "Παραλειπόμενο",
+      "updates": "Ενημερώσεις"
     },
     "contextManagement": {
       "title": "Διαχείριση πλαισίου",
@@ -316,6 +327,63 @@
         "pauseAfterCompactionFalse": "Παύση μετά τη συμπύκνωση: ψευδές",
         "instructions": "Οι οδηγίες έχουν οριστεί"
       }
+    },
+    "advisor": {
+      "caching": "Προσωρινή αποθήκευση υποδείξεων συμβούλου",
+      "maxTokens": "Μέγιστα tokens",
+      "model": "Μοντέλο",
+      "title": "Σύμβουλος",
+      "toolName": "Όνομα εργαλείου"
+    },
+    "cache": {
+      "title": "Προσωρινή μνήμη",
+      "ttl": "Διάρκεια",
+      "ttlOptions": {
+        "1h": "1 ώρα",
+        "5m": "5 λεπτά"
+      }
+    },
+    "compaction": {
+      "title": "Συμπύκνωση πλαισίου"
+    },
+    "memory": "Μνήμη",
+    "other": {
+      "inferenceGeo": {
+        "options": {
+          "global": "Παγκόσμια",
+          "us": "Ηνωμένες Πολιτείες"
+        },
+        "title": "Γεωγραφική περιοχή"
+      },
+      "serviceTier": {
+        "options": {
+          "auto": "Προτεραιότητα όταν είναι διαθέσιμη",
+          "standard_only": "Μόνο τυπική"
+        },
+        "title": "Επίπεδο υπηρεσίας"
+      },
+      "speed": {
+        "options": {
+          "fast": "Γρήγορη",
+          "standard": "Τυπική"
+        },
+        "title": "Ταχύτητα"
+      }
+    },
+    "outputConfig": {
+      "effort": "Ένταση ({{effort}})",
+      "taskBudget": "Όριο εργασίας",
+      "title": "Ρυθμίσεις εξόδου"
+    },
+    "prefixMismatchBehavior": "Αναντιστοιχία σκέψης",
+    "prefixMismatchBehaviorOptions": {
+      "drop_block": "Απόρριψη",
+      "error": "Σφάλμα"
+    },
+    "responseInclusion": "Συμπερίληψη στην απόκριση",
+    "session": {
+      "maxListCostUsd": "Μέγιστος προϋπολογισμός (USD)",
+      "title": "Προϋπολογισμός (διαχειριζόμενοι πράκτορες)"
     }
   },
   "cohere": {
@@ -328,7 +396,7 @@
   "deepinfra": {
     "transcription": {
       "task": "Εργασία",
-      "taskTranscribe": "Μεταγραφή",
+      "taskTranscribe": "Απομαγνητοφώνηση",
       "taskTranslate": "Μετάφραση",
       "initialPrompt": "Αρχική υπόδειξη",
       "chunkingTitle": "Κατάτμηση",
@@ -348,7 +416,7 @@
       "maxTokens": "Μέγιστα tokens",
       "languageId": "Γλώσσα",
       "speakerAudio": "Ήχος ομιλητή",
-      "speakerTranscript": "Μεταγραφή ομιλητή",
+      "speakerTranscript": "Κείμενο απομαγνητοφώνησης ομιλητή",
       "maxAudioLengthMs": "Μέγιστο μήκος ήχου (ms)",
       "languageIdPlaceholder": "π.χ. el",
       "presetVoicePlaceholder": "π.χ. af_bella",
@@ -486,7 +554,7 @@
     "excludedDomains": "Εξαιρούμενοι τομείς",
     "allowed_x_handles": "Επιτρεπόμενα X handles",
     "excluded_x_handles": "Εξαιρούμενα X handles",
-    "transcriptionGeneralHint": "Ρυθμίστε τις παραμέτρους ομιλίας-σε-κείμενο xAI. Ο φορτωμένος ήχος θα παραδοθεί μέσω της ροής εργασίας μεταγραφής.",
+    "transcriptionGeneralHint": "Ρυθμίστε την αναγνώριση ομιλίας της xAI. Ο φορτωμένος ήχος θα αποσταλεί για απομαγνητοφώνηση.",
     "transcriptionFormat": "Μορφή κειμένου",
     "transcriptionDiarize": "Διαχωρισμός ομιλητών",
     "audioInput": "Είσοδος ήχου",
@@ -496,7 +564,17 @@
     "channels": "Κανάλια",
     "channelsHint": "Για μορφές κοντέινερ, ο αριθμός καναλιών ανιχνεύεται αυτόματα. Για ακατέργαστο πολυκαναλικό ήχο, ορίστε 2-8 κανάλια.",
     "transcriptionMultichannel": "Πολυκαναλικό",
-    "channelCount": "Αριθμός καναλιών"
+    "channelCount": "Αριθμός καναλιών",
+    "imageSearch": "Αναζήτηση εικόνων",
+    "toolSearch": {
+      "executionMode": "Λειτουργία εκτέλεσης",
+      "server": "Διακομιστής",
+      "title": "Αναζήτηση εργαλείων"
+    },
+    "transcriptionFillerWords": "Συμπερίληψη λέξεων πλήρωσης",
+    "transcriptionKeyterm": "Λέξεις-κλειδιά",
+    "transcriptionKeytermPlaceholder": "Εισαγάγετε λέξεις-κλειδιά χωρισμένες με κόμμα",
+    "transcriptionVadThreshold": "Όριο ανίχνευσης φωνητικής δραστηριότητας ({{value}})"
   },
   "openai": {
     "shell": "Κέλυφος",
@@ -504,7 +582,18 @@
     "promptCacheKey": "Κλειδί προσωρινής αποθήκευσης υπόδειξης",
     "promptCacheOptions": {
       "24h": "24 ώρες",
-      "in-memory": "Στη μνήμη"
+      "in-memory": "Στη μνήμη",
+      "mode": "Λειτουργία",
+      "modes": {
+        "explicit": "Ρητή",
+        "implicit": "Έμμεση"
+      },
+      "title": "Προσωρινή μνήμη υποδείξεων",
+      "ttl": "Διάρκεια προσωρινής μνήμης",
+      "ttls": {
+        "12h": "12 ώρες",
+        "30m": "30 λεπτά"
+      }
     },
     "promptCache": "Προσωρινή αποθήκευση υπόδειξης",
     "truncation": {
@@ -518,7 +607,9 @@
       "default": "Προεπιλογή",
       "flex": "Ευέλικτο",
       "scale": "Κλιμακούμενο",
-      "priority": "Προτεραιότητα"
+      "priority": "Προτεραιότητα",
+      "fast": "Γρήγορο",
+      "ultrafast": "Πολύ γρήγορο"
     },
     "container": "Κοντέινερ",
     "customVoice": "Προσαρμοσμένη φωνή",
@@ -622,12 +713,12 @@
     "knownSpeakersMax": "Μπορείτε να προσθέσετε έως 4 ομιλητές.",
     "knownSpeakersDeleteConfirm": "Αυτός ο ομιλητής έχει αποθηκευμένο δείγμα. Να διαγραφεί ο ομιλητής και το δείγμα του;",
     "knownSpeakersSampleDuration": "Η εγγραφή πρέπει να είναι 2–10 δευτερόλεπτα.",
-    "realtimeTranscriptionTitle": "Μεταγραφή σε πραγματικό χρόνο",
+    "realtimeTranscriptionTitle": "Απομαγνητοφώνηση σε πραγματικό χρόνο",
     "realtimeSessionType": "Τύπος συνεδρίας",
     "realtimeAudioInputFormat": "Μορφή εισόδου ήχου",
     "realtimeNoiseReduction": "Μείωση θορύβου",
-    "realtimeInputTranscription": "Μεταγραφή εισόδου ήχου",
-    "realtimeTranscriptionPrompt": "Υπόδειξη μεταγραφής",
+    "realtimeInputTranscription": "Απομαγνητοφώνηση εισερχόμενου ήχου",
+    "realtimeTranscriptionPrompt": "Οδηγίες απομαγνητοφώνησης",
     "realtimeTurnDetection": "Ανίχνευση σειράς",
     "realtimeTurnDetectionType": "Τύπος ανίχνευσης σειράς",
     "realtimeTurnCreateResponse": "Αυτόματη δημιουργία απόκρισης στο τέλος της ομιλίας",
@@ -637,8 +728,103 @@
     "realtimeVadSilenceDurationMs": "Διάρκεια σιωπής (ms)",
     "realtimeVadIdleTimeoutMs": "Χρονικό όριο αδράνειας (ms)",
     "realtimeSemanticEagerness": "Ενθουσιασμός",
-    "realtimeIncludeLogprobs": "Συμπερίληψη τμημάτων μεταγραφής εισόδου",
-    "realtimeTokenTtlSeconds": "Χρόνος ζωής token (δευτερόλεπτα)"
+    "realtimeIncludeLogprobs": "Συμπερίληψη τμημάτων απομαγνητοφώνησης εισόδου",
+    "realtimeTokenTtlSeconds": "Χρόνος ζωής token (δευτερόλεπτα)",
+    "betaHeader": "Beta",
+    "imageSettings": {
+      "caption": "Συμπερίληψη λεζάντας",
+      "maxResults": "Μέγιστα αποτελέσματα εικόνων"
+    },
+    "moderation": {
+      "inputMode": "Πολιτική εισόδου",
+      "model": "Μοντέλο ελέγχου περιεχομένου",
+      "modes": {
+        "block": "Αποκλεισμός",
+        "score": "Βαθμολόγηση"
+      },
+      "outputMode": "Πολιτική εξόδου",
+      "title": "Έλεγχος περιεχομένου"
+    },
+    "multiAgent": {
+      "description": "Επιτρέπει στο βασικό μοντέλο να συντονίζει παράλληλα υποπράκτορες για σύνθετες εργασίες του Responses API. Η ενεργοποίηση προσθέτει επίσης την απαιτούμενη κεφαλίδα beta της OpenAI.",
+      "maxConcurrentSubagents": "Μέγιστος αριθμός ταυτόχρονων υποπρακτόρων",
+      "maxConcurrentSubagentsHelp": "Περιορίζει τον αριθμό ενεργών υποπρακτόρων σε ολόκληρο το δέντρο πρακτόρων. Η προτεινόμενη από την OpenAI προεπιλογή είναι 3.",
+      "title": "Πολλαπλοί πράκτορες"
+    },
+    "programmaticToolCalling": {
+      "allowedCallers": "Επιτρεπόμενοι καλούντες",
+      "allowedCallersOptions": {
+        "direct": "Άμεση κλήση",
+        "programmatic": "Κώδικας"
+      },
+      "title": "Εργαλεία με κώδικα"
+    },
+    "searchContentTypes": {
+      "image": "Αποτελέσματα αναζήτησης εικόνων",
+      "text": "Αποτελέσματα αναζήτησης κειμένου"
+    },
+    "sessionAgent": {
+      "allowedDomains": "Επιτρεπόμενοι τομείς αναζήτησης (ένας ανά γραμμή)",
+      "city": "Πόλη",
+      "computer_use": "Χρήση υπολογιστή",
+      "country": "Χώρα",
+      "effort": "Ένταση συλλογισμού",
+      "format": "Μορφή κειμένου",
+      "inherit": "Δεν έχει οριστεί",
+      "instructions": "Οδηγίες",
+      "invalidSchema": "Εισαγάγετε έγκυρο αντικείμενο JSON Schema.",
+      "maxSubagents": "Μέγιστος αριθμός ταυτόχρονων υποπρακτόρων",
+      "model": "Μοντέλο",
+      "multiAgent": "Ενεργοποίηση υποπρακτόρων",
+      "programmaticEnabled": "Ενεργοποίηση κλήσεων από κώδικα που δημιουργήθηκε",
+      "programmatic_tool_calling": "Προγραμματιστική κλήση εργαλείων",
+      "region": "Περιοχή",
+      "schema": "JSON Schema",
+      "screenshots": "Συμπερίληψη στιγμιότυπων οθόνης",
+      "searchContext": "Μέγεθος πλαισίου αναζήτησης",
+      "searchMode": "Λειτουργία αναζήτησης ιστού",
+      "serviceTier": "Επίπεδο υπηρεσίας",
+      "summary": "Σύνοψη συλλογισμού",
+      "timezone": "Ζώνη ώρας",
+      "title": "Πράκτορας",
+      "tool_search": "Αναζήτηση εργαλείων",
+      "tools": "Εργαλεία πράκτορα",
+      "verbosity": "Λεπτομέρεια κειμένου",
+      "web_search": "Αναζήτηση στο διαδίκτυο"
+    },
+    "sessionEnvironment": {
+      "allowedDomains": "Επιτρεπόμενοι τομείς (ένας ανά γραμμή)",
+      "blockedDomains": "Αποκλεισμένοι τομείς (ένας ανά γραμμή)",
+      "containerSize": "Μέγεθος κοντέινερ",
+      "desktop": "Δημιουργία επιφάνειας εργασίας και διακομιστή μεσολάβησης προγράμματος περιήγησης",
+      "disabled": "Απενεργοποιημένο",
+      "domainHelp": "Χρησιμοποιήστε είτε επιτρεπόμενους είτε αποκλεισμένους τομείς, όχι και τα δύο. Δεν υποστηρίζονται χαρακτήρες μπαλαντέρ.",
+      "enabled": "Ενεργοποιημένο",
+      "inherit": "Δεν έχει οριστεί",
+      "large": "Μεγάλο",
+      "medium": "Μεσαίο",
+      "network": "Πρόσβαση δικτύου",
+      "none": "Καμία",
+      "openai_hosted": "Φιλοξενείται από την OpenAI",
+      "restricted": "Περιορισμένη",
+      "self_hosted": "Αυτοφιλοξενούμενο",
+      "small": "Μικρό",
+      "templateId": "Αναγνωριστικό προτύπου περιβάλλοντος",
+      "title": "Περιβάλλον (πράκτορας)",
+      "type": "Τύπος περιβάλλοντος",
+      "workspaceDirectory": "Απόλυτη διαδρομή καταλόγου εργασίας"
+    },
+    "toolSearch": {
+      "client": "Εφαρμογή-πελάτης",
+      "executionMode": "Λειτουργία εκτέλεσης",
+      "hosted": "Φιλοξενούμενο",
+      "title": "Αναζήτηση εργαλείων"
+    },
+    "transcriptionKeywords": "Λέξεις-κλειδιά",
+    "transcriptionKeywordsPlaceholder": "Μία λέξη ή φράση ανά γραμμή για καθοδήγηση της απομαγνητοφώνησης",
+    "transcriptionLanguages": "Πιθανές γλώσσες",
+    "transcriptionLanguagesPlaceholder": "Κωδικοί ISO-639-1 χωρισμένοι με κόμμα, π.χ. en, nl",
+    "transcriptionResponseFormat": "Μορφή απόκρισης"
   },
   "google": {
     "enableEnhancedCivicAnswers": "Βελτιωμένες πολιτικές απαντήσεις",
@@ -717,7 +903,132 @@
     "service_tier": "Επίπεδο υπηρεσίας",
     "voice": "Φωνή",
     "language": "Γλώσσα",
-    "speaker": "Ομιλητής"
+    "speaker": "Ομιλητής",
+    "interactions": {
+      "other": {
+        "seed": "Σπόρος"
+      },
+      "responseFormat": {
+        "aspectRatio": "Αναλογία εικόνας",
+        "bitRate": "Ρυθμός bit (bps)",
+        "duration": "Διάρκεια",
+        "imageSize": "Μέγεθος εικόνας",
+        "mimeType": "Τύπος MIME",
+        "resolution": "Ανάλυση",
+        "sampleRate": "Ρυθμός δειγματοληψίας (Hz)",
+        "title": "Μορφή απόκρισης",
+        "types": {
+          "audio": "Ήχος",
+          "image": "Εικόνα",
+          "text": "Κείμενο",
+          "video": "Βίντεο"
+        }
+      },
+      "retrieval": {
+        "apiKey": "Κλειδί API",
+        "exa": {
+          "title": "Αναζήτηση Exa"
+        },
+        "parallel": {
+          "title": "Αναζήτηση Parallel"
+        }
+      },
+      "speech": {
+        "addSpeaker": "Προσθήκη ομιλητή",
+        "language": "Γλώσσα",
+        "speaker": "Όνομα ομιλητή",
+        "title": "Ομιλία",
+        "voice": "Φωνή"
+      },
+      "transcription": {
+        "customVocabulary": "Προσαρμοσμένο λεξιλόγιο",
+        "languageCodes": "Υποδείξεις γλώσσας",
+        "speakerDiarization": "Αναγνώριση ομιλητών",
+        "title": "Απομαγνητοφώνηση",
+        "wordTimestamps": "Συμπερίληψη χρονικών σημάνσεων λέξεων"
+      }
+    },
+    "realtimeConversation": {
+      "automaticVad": "Αυτόματη ανίχνευση φωνητικής δραστηριότητας",
+      "camera": "Είσοδος κάμερας",
+      "cameraFps": "Καρέ κάμερας ανά δευτερόλεπτο",
+      "cameraHint": "Η κάμερα είναι αρχικά απενεργοποιημένη. Όταν ενεργοποιηθεί κατά τη συνεδρία, αποστέλλονται καρέ JPEG με ρυθμό έως 1 ανά δευτερόλεπτο. Οι συνεδρίες ήχου και βίντεο έχουν μικρότερο χρονικό όριο.",
+      "contextCompression": "Συμπίεση παραθύρου πλαισίου",
+      "googleSearch": "Τεκμηρίωση μέσω Google Search",
+      "hint": "Άμεση μετάδοση ήχου από το πρόγραμμα περιήγησης στο Gemini Live με προσωρινό token που εκδίδεται από το backend. Το Gemini Live είναι API προεπισκόπησης.",
+      "inputTranscription": "Απομαγνητοφώνηση ήχου μικροφώνου",
+      "jpegQuality": "Ποιότητα JPEG",
+      "outputTranscription": "Απομαγνητοφώνηση ήχου Gemini",
+      "prefixPaddingMs": "Padding προθέματος (ms)",
+      "sessionManagement": "Διαχείριση συνεδρίας",
+      "sessionResumption": "Συνέχιση μεταξύ συνδέσεων WebSocket",
+      "silenceDurationMs": "Διάρκεια σιωπής (ms)",
+      "startCamera": "Έναρξη κάμερας",
+      "stopCamera": "Διακοπή κάμερας",
+      "title": "Συνομιλία Gemini Live",
+      "tokenExpiry": "Λήξη προσωρινού token",
+      "triggerTokens": "Tokens ενεργοποίησης συμπίεσης",
+      "turnDetection": "Ανίχνευση φωνητικής δραστηριότητας"
+    },
+    "realtimeTranscription": {
+      "customVocabulary": "Προσαρμοσμένο λεξιλόγιο (ένας όρος ανά γραμμή ή διαχωρισμένοι με κόμμα)",
+      "hint": "Αυτές οι επιλογές ισχύουν μόνο για απομαγνητοφώνηση Gemini Live και είναι ανεξάρτητες από τις ρυθμίσεις απομαγνητοφώνησης αρχείων. Η αυτόματη ανίχνευση φωνητικής δραστηριότητας είναι ενεργοποιημένη.",
+      "languageCodes": "Υποδείξεις γλώσσας (μία ανά γραμμή ή διαχωρισμένες με κόμμα)",
+      "mode": "Λειτουργία απομαγνητοφώνησης",
+      "modes": {
+        "smart": "Έξυπνη",
+        "verbatim": "Κατά λέξη"
+      },
+      "title": "Απομαγνητοφώνηση σε πραγματικό χρόνο"
+    },
+    "safetySettings": {
+      "add": "Προσθήκη ρύθμισης ασφάλειας",
+      "categories": {
+        "civic_integrity": "Ακεραιότητα δημόσιου διαλόγου (παρωχημένο)",
+        "dangerous_content": "Επικίνδυνο περιεχόμενο",
+        "harassment": "Παρενόχληση",
+        "hate_speech": "Ρητορική μίσους",
+        "image_dangerous_content": "Επικίνδυνο περιεχόμενο σε εικόνες",
+        "image_harassment": "Παρενόχληση σε εικόνες",
+        "image_hate": "Ρητορική μίσους σε εικόνες",
+        "image_sexually_explicit": "Σεξουαλικά explicit περιεχόμενο σε εικόνες",
+        "jailbreak": "Παράκαμψη περιορισμών",
+        "sexually_explicit": "Σεξουαλικά explicit περιεχόμενο"
+      },
+      "method": "Μέθοδος",
+      "methods": {
+        "probability": "Πιθανότητα",
+        "severity": "Πιθανότητα και σοβαρότητα"
+      },
+      "threshold": "Όριο",
+      "thresholds": {
+        "block_low_and_above": "Αποκλεισμός χαμηλού και υψηλότερου",
+        "block_medium_and_above": "Αποκλεισμός μεσαίου και υψηλότερου",
+        "block_none": "Χωρίς αποκλεισμό",
+        "block_only_high": "Αποκλεισμός μόνο υψηλού",
+        "off": "Απενεργοποίηση φίλτρου ασφάλειας"
+      },
+      "title": "Ρυθμίσεις ασφάλειας",
+      "type": "Κατηγορία"
+    },
+    "serviceTiers": {
+      "flex": "Ευέλικτο",
+      "priority": "Προτεραιότητα",
+      "providerDefault": "Προεπιλογή παρόχου",
+      "standard": "Τυπικό"
+    },
+    "videoConfig": {
+      "providerDefault": "Προεπιλογή παρόχου (συμπεραίνεται από την υπόδειξη)",
+      "task": "Εργασία",
+      "tasks": {
+        "edit": "Επεξεργασία",
+        "extend": "Επέκταση",
+        "image_to_video": "Εικόνα σε βίντεο",
+        "reference_to_video": "Αναφορά σε βίντεο",
+        "text_to_video": "Κείμενο σε βίντεο"
+      },
+      "title": "Βίντεο"
+    }
   },
   "jina": {
     "max_returned_urls": "Μέγιστος αριθμός επιστρεφόμενων URLs",
@@ -807,7 +1118,7 @@
   "novita": {
     "pitch": "Τόνος ({{pitch}})",
     "transcriptionPrompt": "Υπόδειξη",
-    "transcriptionPromptPlaceholder": "Σε σενάρια μακρού κειμένου, μπορείτε να δώσετε προηγούμενα αποτελέσματα μεταγραφής ως πλαίσιο. Συνιστάται κάτω από 8000 χαρακτήρες.",
+    "transcriptionPromptPlaceholder": "Για μεγάλα κείμενα, μπορείτε να προσθέσετε προηγούμενα αποτελέσματα απομαγνητοφώνησης ως πλαίσιο. Συνιστάται να μην υπερβαίνουν τους 8.000 χαρακτήρες.",
     "hotwords": "Λέξεις-κλειδιά",
     "hotwordsHint": "Λίστα λέξεων-κλειδιών για βελτίωση ακρίβειας αναγνώρισης κλαδικού λεξιλογίου.",
     "addHotword": "Προσθήκη λέξης-κλειδί",
@@ -920,7 +1231,7 @@
   },
   "resembleai": {
     "queryLabel": "Ερώτημα",
-    "queryHint": "Προαιρετική ευφυής ερώτηση για αξιολόγηση μετά τη μεταγραφή.",
+    "queryHint": "Προαιρετική ερώτηση για αξιολόγηση μετά την απομαγνητοφώνηση.",
     "queryPlaceholder": "π.χ. Ποια σημεία δράσης συζητήθηκαν;",
     "speech": {
       "voiceUuid": "Φωνή",
@@ -953,7 +1264,7 @@
     "customVocabularyPronunciations": "Προφορές",
     "customVocabularyLanguage": "Γλώσσα",
     "subtitles": "Υπότιτλοι",
-    "subtitlesHint": "Δημιουργία αρχείων υποτίτλων για αυτή τη μεταγραφή.",
+    "subtitlesHint": "Δημιουργία αρχείων υποτίτλων για αυτή την απομαγνητοφώνηση.",
     "subtitlesMinDuration": "Ελάχιστη διάρκεια (δευτερόλεπτα)",
     "subtitlesMaxDuration": "Μέγιστη διάρκεια (δευτερόλεπτα)",
     "subtitlesMaxCharsPerRow": "Μέγιστοι χαρακτήρες ανά γραμμή",
@@ -967,7 +1278,7 @@
     "diarizationMinSpeakers": "Ελάχιστοι ομιλητές",
     "diarizationMaxSpeakers": "Μέγιστοι ομιλητές",
     "translation": "Μετάφραση",
-    "translationHint": "Μετάφραση της μεταγραφής σε μία ή περισσότερες γλώσσες στόχους.",
+    "translationHint": "Μετάφραση του κειμένου απομαγνητοφώνησης σε μία ή περισσότερες γλώσσες-στόχους.",
     "translationTargetLanguages": "Γλώσσες στόχοι",
     "translationModel": "Μοντέλο μετάφρασης",
     "translationModel.base": "Βάση",
@@ -979,7 +1290,7 @@
     "translationContextPlaceholder": "Προαιρετικό πλαίσιο για βελτίωση ακρίβειας μετάφρασης",
     "translationInformal": "Χρήση ανεπίσημης γλώσσας",
     "summarization": "Σύνοψη",
-    "summarizationHint": "Δημιουργία σύνοψης της μεταγραφής.",
+    "summarizationHint": "Δημιουργία σύνοψης του κειμένου απομαγνητοφώνησης.",
     "summarizationType": "Τύπος σύνοψης",
     "summarizationType.general": "Γενικό",
     "summarizationType.bullet_points": "Κουκκίδες",
@@ -997,11 +1308,11 @@
     "customSpellingAddEntry": "Προσθήκη όρου",
     "customSpellingEmpty": "Δεν υπάρχουν προσαρμοσμένες ορθογραφικές καταχωρίσεις ακόμα.",
     "structuredDataExtraction": "Εξαγωγή δομημένων δεδομένων",
-    "structuredDataHint": "Εξαγωγή δομημένων κατηγοριών από τη μεταγραφή.",
+    "structuredDataHint": "Εξαγωγή δομημένων κατηγοριών από το κείμενο απομαγνητοφώνησης.",
     "structuredDataClasses": "Κατηγορίες προς εξαγωγή",
     "structuredDataClassesPlaceholder": "π.χ. Άτομα",
     "audioToLlm": "Ήχος σε LLM",
-    "audioToLlmHint": "Εκτέλεση υποδείξεων LLM μέσω μεταγραφής.",
+    "audioToLlmHint": "Εκτέλεση υποδείξεων LLM με βάση το κείμενο απομαγνητοφώνησης.",
     "audioToLlmPrompts": "Υποδείξεις",
     "audioToLlmAddPrompt": "Προσθήκη υπόδειξης",
     "audioToLlmEmpty": "Δεν υπάρχουν υποδείξεις ακόμα.",
@@ -1053,6 +1364,8 @@
     "voiceModifyTimbreWithValue": "Χρώμα φωνής ({{value}})",
     "soundEffects": "Ηχητικά εφέ",
     "music": "Μουσική",
+    "promptOptimizer": "Βελτιστοποίηση υπόδειξης",
+    "promptOptimizerHint": "Αυτόματη βελτιστοποίηση της υπόδειξης πριν από τη δημιουργία εικόνων.",
     "lyrics": "Στίχοι"
   },
   "audixa": {
@@ -1105,6 +1418,7 @@
         "scaleFactor": "Συντελεστής κλίμακας",
         "optimizedFor": "Βελτιστοποιημένο για",
         "prompt": "Υπόδειξη",
+        "promptHint": "Υπόδειξη για να καθοδηγήσετε τη διαδικασία μεγέθυνσης εικόνας.",
         "creativity": "Δημιουργικότητα",
         "hdr": "HDR",
         "resemblance": "Ομοιότητα",
@@ -1147,7 +1461,7 @@
     "formatText": "Μορφοποίηση κειμένου",
     "disfluencies": "Δυσχέρειες ομιλίας",
     "channelsAndDiarization": "Κανάλια και διαχωρισμός ομιλητών",
-    "channelsAndDiarizationHint": "Ρυθμίσεις πολυκαναλικής μεταγραφής και διαχωρισμού ομιλητών.",
+    "channelsAndDiarizationHint": "Ρυθμίσεις πολυκαναλικής απομαγνητοφώνησης και διαχωρισμού ομιλητών.",
     "multichannel": "Πολυκαναλικό",
     "speakerLabels": "Ετικέτες ομιλητών",
     "speakersExpected": "Αναμενόμενοι ομιλητές",
@@ -1183,6 +1497,229 @@
     "customSpellingFrom": "Αντικατάσταση αυτών",
     "customSpellingFromPlaceholder": "π.χ. Sequel",
     "customSpellingAdd": "Προσθήκη αντικατάστασης",
-    "customSpellingEmpty": "Δεν υπάρχουν προσαρμοσμένες ορθογραφικές καταχωρίσεις ακόμα."
+    "customSpellingEmpty": "Δεν υπάρχουν ακόμη προσαρμοσμένες καταχωρίσεις ορθογραφίας."
+  },
+  "abliteration": {
+    "categories": {
+      "harassment": "Παρενόχληση",
+      "harassment/threatening": "Απειλητική παρενόχληση",
+      "hate": "Μίσος",
+      "hate/threatening": "Απειλητικό περιεχόμενο μίσους",
+      "illicit": "Παράνομη δραστηριότητα",
+      "illicit/violent": "Βίαιη παράνομη δραστηριότητα",
+      "self-harm": "Αυτοτραυματισμός",
+      "self-harm/instructions": "Οδηγίες αυτοτραυματισμού",
+      "self-harm/intent": "Πρόθεση αυτοτραυματισμού",
+      "sexual": "Σεξουαλικό περιεχόμενο",
+      "sexual/minors": "Σεξουαλικό περιεχόμενο με ανηλίκους",
+      "violence": "Βία",
+      "violence/graphic": "Σκληρή απεικόνιση βίας"
+    },
+    "policy": {
+      "allowlist": "Καταχώριση λίστας επιτρεπόμενων",
+      "denylist": "Καταχώριση λίστας αποκλεισμού",
+      "flaggedCategories": "Κατηγορίες που επισημάνθηκαν",
+      "id": "Αναγνωριστικό πολιτικής",
+      "noneSelected": "Δεν έχουν επιλεγεί κατηγορίες",
+      "redactPii": "Απόκρυψη προσωπικών πληροφοριών",
+      "title": "Πολιτική"
+    },
+    "reasoning": {
+      "effort": "Ένταση συλλογισμού",
+      "efforts": {
+        "high": "Υψηλή",
+        "low": "Χαμηλή",
+        "max": "Μέγιστη",
+        "medium": "Μεσαία",
+        "minimal": "Ελάχιστη",
+        "none": "Καμία",
+        "ultracode": "Ultracode",
+        "xhigh": "Πολύ υψηλή"
+      },
+      "enabled": "Ενεργοποίηση συλλογισμού",
+      "exclude": "Εξαίρεση συλλογισμού από την απόκριση",
+      "maxTokens": "Μέγιστα tokens συλλογισμού",
+      "title": "Συλλογισμός"
+    }
+  },
+  "akumi": {
+    "cache": "Προσωρινή μνήμη",
+    "firewall": "Τείχος προστασίας",
+    "firewallEnabled": "Δρομολόγηση μέσω ΕΕ",
+    "firewallLanguage": "Γλώσσα ανάλυσης",
+    "languages": {
+      "auto": "Αυτόματος εντοπισμός",
+      "de": "Γερμανικά",
+      "en": "Αγγλικά",
+      "fr": "Γαλλικά",
+      "nl": "Ολλανδικά"
+    },
+    "other": "Άλλο",
+    "sendFirewall": "Αποστολή ρυθμίσεων τείχους προστασίας",
+    "tag": "Νέα ετικέτα",
+    "tags": "Ετικέτες"
+  },
+  "apertis": {
+    "compression": "Συμπίεση πλαισίου",
+    "effort": "Ένταση συλλογισμού",
+    "efforts": {
+      "high": "Υψηλή",
+      "low": "Χαμηλή",
+      "medium": "Μεσαία"
+    },
+    "keepTurns": "Πρόσφατοι γύροι προς διατήρηση",
+    "model": "Μοντέλο συμπίεσης",
+    "notSet": "Δεν έχει οριστεί",
+    "reasoning": "Συλλογισμός",
+    "strategies": {
+      "aggressive": "Επιθετική",
+      "conservative": "Συντηρητική",
+      "default": "Προεπιλογή (ισορροπημένη)",
+      "on": "Ισορροπημένη"
+    },
+    "strategy": "Στρατηγική",
+    "summaries": {
+      "auto": "Αυτόματη",
+      "concise": "Συνοπτική",
+      "detailed": "Λεπτομερής"
+    },
+    "summary": "Σύνοψη",
+    "threshold": "Όριο tokens"
+  },
+  "baseten": {
+    "advancedSearchTool": "Σύνθετη αναζήτηση",
+    "enableThinking": "Ενεργοποίηση συλλογισμού",
+    "enableThinkingValue": "Αποστολή enable_thinking",
+    "fetchTool": "Ανάκτηση σελίδων",
+    "limitIterations": "Ορισμός ορίου επαναλήψεων",
+    "maxReactIterations": "Μέγιστες επαναλήψεις συλλογισμού και εργαλείων",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You.com"
+    },
+    "searchProvider": "Πάροχος αναζήτησης",
+    "searchTool": "Αναζήτηση"
+  },
+  "inworld": {
+    "imageConfig": {
+      "aspectRatio": "Αναλογία εικόνας",
+      "count": "Αριθμός εικόνων",
+      "imageSize": "Μέγεθος εικόνας",
+      "partialImages": "Προεπισκοπήσεις εικόνων σε εξέλιξη",
+      "title": "Ρυθμίσεις εικόνας"
+    },
+    "modalities": {
+      "image": "Εικόνα",
+      "text": "Κείμενο",
+      "title": "Τρόποι εξόδου"
+    },
+    "reasoning": {
+      "effort": "Ένταση συλλογισμού",
+      "efforts": {
+        "high": "Υψηλή",
+        "low": "Χαμηλή",
+        "medium": "Μεσαία",
+        "minimal": "Ελάχιστη",
+        "none": "Καμία"
+      },
+      "title": "Συλλογισμός"
+    },
+    "webSearch": {
+      "engine": "Μηχανή αναζήτησης",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      },
+      "maxResults": "Αποτελέσματα ανά αναζήτηση",
+      "maxSteps": "Μέγιστοι γύροι αναζήτησης",
+      "title": "Αναζήτηση στο διαδίκτυο"
+    }
+  },
+  "interfaze": {
+    "other": {
+      "headers": {
+        "x-interfaze-bypass-cache": "Παράκαμψη επαληθευμένης προσωρινής μνήμης",
+        "x-interfaze-bypass-moa": "Παράκαμψη MoA",
+        "x-interfaze-zdr": "Μη διατήρηση δεδομένων",
+        "x-show-additional-info": "Συμπερίληψη πρόσθετου προλόγου στις αποκρίσεις ροής"
+      },
+      "title": "Άλλες ρυθμίσεις"
+    },
+    "reasoning": {
+      "effort": "Ένταση συλλογισμού",
+      "efforts": {
+        "high": "Υψηλή",
+        "low": "Χαμηλή",
+        "medium": "Μεσαία"
+      },
+      "title": "Συλλογισμός"
+    }
+  },
+  "mireye": {
+    "address": "Διεύθυνση",
+    "addressHint": "Χρησιμοποιήστε πλήρη ταχυδρομική διεύθυνση στις ΗΠΑ. Αν επιλέξετε αυτή την επιλογή, αφαιρούνται οι συντεταγμένες.",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "addressTitle": "Διεύθυνση",
+    "coordinatesHint": "Δώστε και τις δύο συντεταγμένες. Αν επιλέξετε αυτή την επιλογή, αφαιρείται η διεύθυνση.",
+    "coordinatesTitle": "Γεωγραφικό πλάτος και μήκος",
+    "geolocationDenied": "Δεν δόθηκε άδεια πρόσβασης στην τοποθεσία.",
+    "geolocationTimeout": "Έληξε το χρονικό όριο για τον εντοπισμό της τρέχουσας τοποθεσίας.",
+    "geolocationUnavailable": "Δεν ήταν δυνατός ο εντοπισμός της τρέχουσας τοποθεσίας.",
+    "geolocationUnsupported": "Αυτό το πρόγραμμα περιήγησης δεν υποστηρίζει τον εντοπισμό τρέχουσας τοποθεσίας.",
+    "getCurrent": "Εντοπισμός τρέχουσας τοποθεσίας",
+    "gettingCurrent": "Εντοπισμός τρέχουσας τοποθεσίας...",
+    "latitude": "Γεωγραφικό πλάτος",
+    "longitude": "Γεωγραφικό μήκος"
+  },
+  "ninjachat": {
+    "group": "Πηγή",
+    "groupOptions": {
+      "academic": "Ακαδημαϊκές πηγές",
+      "news": "Ειδήσεις",
+      "web": "Ιστός"
+    },
+    "includeImages": "Συμπερίληψη εικόνων",
+    "maxResults": "Μέγιστα αποτελέσματα",
+    "search": "Αναζήτηση",
+    "searchDepth": "Βάθος αναζήτησης",
+    "searchDepthOptions": {
+      "advanced": "Σύνθετη",
+      "basic": "Βασική"
+    },
+    "topic": "Θέμα",
+    "topicOptions": {
+      "finance": "Οικονομικά",
+      "general": "Γενικά",
+      "news": "Ειδήσεις"
+    }
+  },
+  "stepfun": {
+    "addTone": "Προσθήκη κανόνα προφοράς",
+    "addTonePlaceholder": "π.χ. LOL/γέλα δυνατά",
+    "audioSettings": "Ρυθμίσεις ήχου",
+    "pronunciationMap": "Αντιστοιχίσεις προφοράς",
+    "sampleRate": "Ρυθμός δειγματοληψίας (Hz)",
+    "sampleRateHint": "Υποστηριζόμενες τιμές: 8000, 16000, 22050, 24000 και 48000.",
+    "sampleRatePlaceholder": "Προεπιλογή παρόχου (24000)",
+    "toneHint": "Προσθέστε κανόνες προφοράς με τη μορφή κείμενο/προφορά. Οι κινεζικοί τόνοι χρησιμοποιούν αριθμούς 1–5.",
+    "volume": "Ένταση",
+    "volumePlaceholder": "Προεπιλογή παρόχου (1.0, εύρος 0.1–2.0)"
+  },
+  "upstage": {
+    "reasoning": {
+      "effort": "Ένταση συλλογισμού",
+      "efforts": {
+        "high": "Υψηλή",
+        "low": "Χαμηλή",
+        "max": "Μέγιστη",
+        "medium": "Μεσαία",
+        "minimal": "Ελάχιστη",
+        "none": "Καμία",
+        "xhigh": "Πολύ υψηλή"
+      },
+      "title": "Συλλογισμός"
+    }
   }
 }
