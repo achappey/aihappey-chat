@@ -24,11 +24,16 @@ export type {
 const describeUnsupportedProvider = (providerId: string) =>
   `Realtime audio conversation is not supported for provider '${providerId}'.`;
 
+const normalizeRealtimeProviderId = (providerId: string): RealtimeConversationProviderId => {
+  const normalized = providerId.toLowerCase();
+  return normalized === "spacexai" ? "xai" : normalized;
+};
+
 export const parseRealtimeProviderIdFromModelId = (modelId?: string): RealtimeConversationProviderId | null => {
   if (!modelId) return null;
   const idx = modelId.indexOf("/");
   if (idx <= 0) return null;
-  return modelId.slice(0, idx).toLowerCase();
+  return normalizeRealtimeProviderId(modelId.slice(0, idx));
 };
 
 const providers: Record<string, RealtimeConversationProviderRuntime> = {
@@ -41,7 +46,7 @@ const providers: Record<string, RealtimeConversationProviderRuntime> = {
   opperai: opperAiRealtimeConversationProvider,
 };
 
-export const getRealtimeConversationProvider = (providerId: string) => providers[providerId];
+export const getRealtimeConversationProvider = (providerId: string) => providers[normalizeRealtimeProviderId(providerId)];
 
 export const startRealtimeConversationProviderSession = async (
   args: StartRealtimeConversationProviderSessionArgs

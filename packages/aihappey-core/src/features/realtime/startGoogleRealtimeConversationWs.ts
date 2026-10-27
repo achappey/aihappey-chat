@@ -6,6 +6,7 @@ const GOOGLE_LIVE_CONSTRAINED_URL =
   "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained";
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 24000;
+const SETUP_TIMEOUT_MS = 30_000;
 
 const describeError = (error: unknown) => {
   if (error instanceof Error) return error.message || error.name;
@@ -97,6 +98,23 @@ export async function startGoogleRealtimeConversationWsSession(args: {
   const token = await args.getEphemeralToken();
   if (!token?.value) throw new Error("Google Live token response did not contain a value.");
 
+  // Server diagnostics can echo request URLs. Never send credentials (or the
+  // credential-bearing WebSocket/Event objects) to the UI error callbacks.
+  const sanitizeDiagnostic = (value: string) => {
+    let result = value;
+    for (const secret of [token.value, encodeURIComponent(token.value)]) {
+      result = result.split(secret).join("[redacted]");
+    }
+    return result.replace(/\b(?:wss?|https?):\/\/[^\s"'<>]+/gi, (url) => url.replace(/[?#].*$/, "?[redacted]"));
+  };
+  const connectionError = (message: string, stage: string) => sanitizeDiagnostic(
+    `Google Live ${message} (model '${args.setup.model}', API v1alpha, ephemeral-token connection; stage: ${stage}).`
+  );
+  const serverErrorDetails = (error: any) => {
+    const code = [error?.status, error?.code].filter((value) => value !== undefined && value !== null).join(", ");
+    return `${code ? `[${code}] ` : ""}${error?.message ?? describeError(error)}`;
+  };
+
   const cancelPlayback = () => {
     for (const node of playbackNodes) {
       try { node.stop(); } catch { /* already stopped */ }
@@ -149,10 +167,6 @@ export async function startGoogleRealtimeConversationWsSession(args: {
 
   const handleMessage = (message: any, ws: WebSocket) => {
     events?.onEvent?.({ type: "google.live.event", message });
-    if (message?.error) {
-      events?.onError?.(`Google Live: ${message.error?.message ?? describeError(message.error)}`, message.error);
-      return;
-    }
 
     const update = message?.sessionResumptionUpdate;
     if (update?.resumable && update?.newHandle) latestHandle = update.newHandle;
@@ -202,42 +216,118 @@ export async function startGoogleRealtimeConversationWsSession(args: {
 
   const connect = async (handle?: string) => {
     const url = `${GOOGLE_LIVE_CONSTRAINED_URL}?access_token=${encodeURIComponent(token.value)}`;
-    const ws = new WebSocket(url);
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(url);
+    } catch (error) {
+      throw new Error(connectionError(`could not create WebSocket: ${describeError(error)}`, "opening WebSocket"));
+    }
     ws.binaryType = "arraybuffer";
     await new Promise<void>((resolve, reject) => {
       let ready = false;
-      const fail = (reason: string) => {
-        if (!ready) reject(new Error(reason));
+      let settled = false;
+      let closed = false;
+      let serverErrorReported = false;
+      let transportError = false;
+      let stage = "opening WebSocket";
+      // Blob decoding is asynchronous. Preserve frame order and let an error
+      // frame finish decoding before a subsequent close can hide its details.
+      let pendingMessages = Promise.resolve();
+      const timeout = setTimeout(() => {
+        fail(connectionError(`setup timed out after ${SETUP_TIMEOUT_MS / 1000}s${transportError ? " following a WebSocket transport error" : ""}`, stage));
+      }, SETUP_TIMEOUT_MS);
+      const cleanup = () => {
+        clearTimeout(timeout);
+        ws.removeEventListener("open", onOpen);
+        ws.removeEventListener("message", onMessage);
+        ws.removeEventListener("error", onError);
+        ws.removeEventListener("close", onClose);
       };
-      ws.addEventListener("open", () => {
-        const setup = {
-          ...args.setup,
-          ...(args.setup.sessionResumption !== undefined
-            ? { sessionResumption: { ...(args.setup.sessionResumption ?? {}), ...(handle ? { handle } : {}) } }
-            : {}),
-        };
-        ws.send(JSON.stringify({ setup }));
-      });
-      ws.addEventListener("message", async (event) => {
+      const fail = (reason: string) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        intentionallyClosed.add(ws);
+        try { ws.close(); } catch { /* best effort, including CONNECTING sockets */ }
+        reject(new Error(reason));
+      };
+      const onOpen = () => {
+        if (settled) return;
         try {
-          const message = await parseGoogleLiveMessageData(event.data);
-          if (message?.setupComplete && !ready) {
-            ready = true;
-            resolve();
-          }
-          handleMessage(message, ws);
+          const setup = {
+            ...args.setup,
+            ...(args.setup.sessionResumption !== undefined
+              ? { sessionResumption: { ...(args.setup.sessionResumption ?? {}), ...(handle ? { handle } : {}) } }
+              : {}),
+          };
+          stage = "sending setup";
+          ws.send(JSON.stringify({ setup }));
+          stage = "waiting for setupComplete";
         } catch (error) {
-          events?.onError?.(`Failed to parse Google Live event: ${describeError(error)}`, error);
+          fail(connectionError(`failed to send setup: ${describeError(error)}`, stage));
         }
-      });
-      ws.addEventListener("error", (error) => {
-        fail("Google Live websocket failed before setup completed.");
-        if (!stopped) events?.onError?.("Google Live websocket error", error);
-      });
-      ws.addEventListener("close", () => {
-        fail("Google Live websocket closed before setup completed.");
-        if (!stopped && !intentionallyClosed.has(ws) && ws === currentWs) void reconnect();
-      });
+      };
+      const onMessage = (event: MessageEvent) => {
+        pendingMessages = pendingMessages.then(async () => {
+          if (settled && !ready) return;
+          try {
+            const message = await parseGoogleLiveMessageData(event.data);
+            if (settled && !ready) return;
+            if (message?.error) {
+              const messageText = connectionError(`server error: ${serverErrorDetails(message.error)}`, stage);
+              if (!ready) fail(messageText);
+              else {
+                serverErrorReported = true;
+                events?.onError?.(messageText);
+              }
+              return;
+            }
+            if (message?.setupComplete && !ready && !closed) {
+              ready = true;
+              settled = true;
+              stage = "connected";
+              clearTimeout(timeout);
+              resolve();
+            }
+            if (!closed) handleMessage(message, ws);
+          } catch (error) {
+            // SyntaxError messages can contain fragments of the raw frame.
+            const detail = error instanceof SyntaxError ? "invalid JSON" : describeError(error);
+            const messageText = connectionError(`failed to parse event: ${detail}`, stage);
+            if (!ready) fail(messageText);
+            else events?.onError?.(messageText);
+          }
+        });
+      };
+      const onError = () => {
+        // Browsers expose no useful details on this event. The following close
+        // carries the code/reason; the setup timeout bounds a missing close.
+        transportError = true;
+      };
+      const onClose = (event: CloseEvent) => {
+        closed = true;
+        void pendingMessages.then(() => {
+          const reason = event.reason ? `, reason: ${event.reason}` : ", no close reason supplied";
+          const hint = event.code === 1006
+            ? " The browser did not disclose a server reason; check network access and the token's validity/new-session expiry."
+            : "";
+          const messageText = connectionError(
+            `WebSocket closed${ready ? "" : " before setup completed"} (code ${event.code}${reason}, clean: ${event.wasClean})${hint}`,
+            stage,
+          );
+          if (!ready) fail(messageText);
+          else {
+            cleanup();
+            if (stopped || intentionallyClosed.has(ws) || ws !== currentWs || serverErrorReported) return;
+            if (latestHandle) void reconnect();
+            else events?.onError?.(messageText);
+          }
+        });
+      };
+      ws.addEventListener("open", onOpen);
+      ws.addEventListener("message", onMessage);
+      ws.addEventListener("error", onError);
+      ws.addEventListener("close", onClose);
     });
     return ws;
   };
@@ -255,34 +345,53 @@ export async function startGoogleRealtimeConversationWsSession(args: {
       }
       events?.onEvent?.({ type: "session.resumed", handle: latestHandle });
     } catch (error) {
-      events?.onError?.(`Failed to resume Google Live session: ${describeError(error)}`, error);
+      events?.onError?.(sanitizeDiagnostic(`Failed to resume Google Live session: ${describeError(error)}`));
     } finally {
       reconnecting = false;
     }
   };
 
-  currentWs = await connect();
-  microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  inputContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  microphoneSource = inputContext.createMediaStreamSource(microphoneStream);
-  processor = inputContext.createScriptProcessor(2048, 1, 1);
-  silentGain = inputContext.createGain();
-  silentGain.gain.value = 0;
-  microphoneSource.connect(processor);
-  processor.connect(silentGain);
-  silentGain.connect(inputContext.destination);
-  processor.onaudioprocess = (event) => {
-    if (stopped || currentWs.readyState !== WebSocket.OPEN) return;
-    const samples = resampleGooglePcm(event.inputBuffer.getChannelData(0), inputContext!.sampleRate, INPUT_SAMPLE_RATE);
-    currentWs.send(JSON.stringify({
-      realtimeInput: {
-        audio: {
-          data: base64FromBytes(googlePcm16leFromFloat32(samples)),
-          mimeType: `audio/pcm;rate=${INPUT_SAMPLE_RATE}`,
-        },
-      },
-    }));
+  const stopMicrophone = async () => {
+    if (processor) processor.onaudioprocess = null;
+    try { processor?.disconnect(); } catch { /* ignore */ }
+    try { microphoneSource?.disconnect(); } catch { /* ignore */ }
+    try { silentGain?.disconnect(); } catch { /* ignore */ }
+    microphoneStream?.getTracks().forEach((track) => track.stop());
+    await inputContext?.close().catch(() => undefined);
   };
+
+  currentWs = await connect();
+  try {
+    microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    inputContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    microphoneSource = inputContext.createMediaStreamSource(microphoneStream);
+    processor = inputContext.createScriptProcessor(2048, 1, 1);
+    silentGain = inputContext.createGain();
+    silentGain.gain.value = 0;
+    microphoneSource.connect(processor);
+    processor.connect(silentGain);
+    silentGain.connect(inputContext.destination);
+    processor.onaudioprocess = (event) => {
+      if (stopped || currentWs.readyState !== WebSocket.OPEN) return;
+      const samples = resampleGooglePcm(event.inputBuffer.getChannelData(0), inputContext!.sampleRate, INPUT_SAMPLE_RATE);
+      currentWs.send(JSON.stringify({
+        realtimeInput: {
+          audio: {
+            data: base64FromBytes(googlePcm16leFromFloat32(samples)),
+            mimeType: `audio/pcm;rate=${INPUT_SAMPLE_RATE}`,
+          },
+        },
+      }));
+    };
+  } catch (error) {
+    stopped = true;
+    intentionallyClosed.add(currentWs);
+    try { currentWs.close(); } catch { /* best effort */ }
+    await stopMicrophone();
+    cancelPlayback();
+    await outputContext?.close().catch(() => undefined);
+    throw new Error(sanitizeDiagnostic(`Google Live microphone startup failed: ${describeError(error)}`));
+  }
 
   const stopCamera = () => {
     if (cameraTimer !== undefined) window.clearInterval(cameraTimer);
@@ -367,17 +476,12 @@ export async function startGoogleRealtimeConversationWsSession(args: {
       try {
         if (currentWs.readyState === WebSocket.OPEN) currentWs.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } }));
       } catch { /* best effort */ }
-      if (processor) processor.onaudioprocess = null;
-      try { processor?.disconnect(); } catch { /* ignore */ }
-      try { microphoneSource?.disconnect(); } catch { /* ignore */ }
-      try { silentGain?.disconnect(); } catch { /* ignore */ }
-      microphoneStream?.getTracks().forEach((track) => track.stop());
-      await inputContext?.close().catch(() => undefined);
+      await stopMicrophone();
       await outputContext?.close().catch(() => undefined);
       try { intentionallyClosed.add(currentWs); currentWs.close(1000); } catch { /* ignore */ }
     },
   };
 
-  setTimeout(() => events?.onOpen?.(), 0);
+  setTimeout(() => { if (!stopped) events?.onOpen?.(); }, 0);
   return session;
 }

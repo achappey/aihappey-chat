@@ -9,8 +9,9 @@ import type {
 } from "./realtimeConversationProviderTypes";
 
 export const buildXAiRealtimeSessionConfig = (args: RealtimeConversationProviderSessionConfigArgs) => {
-  const realtimeXAiMetadata = (args.providerRealtimeConversationMetadata as any)?.xai ?? {};
-  const chatXAiMetadata = (args.providerMetadata as any)?.xai ?? {};
+  const realtimeXAiMetadata = args.providerRealtimeConversationMetadata?.xai
+    ?? args.providerRealtimeConversationMetadata?.spacexai ?? {};
+  const chatXAiMetadata = args.providerMetadata?.xai ?? args.providerMetadata?.spacexai ?? {};
   const sessionOverrides = realtimeXAiMetadata?.session && typeof realtimeXAiMetadata.session === "object"
     ? realtimeXAiMetadata.session
     : {};
@@ -50,7 +51,8 @@ const startXAiRealtimeConversation = async (args: StartRealtimeConversationProvi
     baseUrl: args.config.baseUrl + args.config.endpoints.realtime,
     headers,
   });
-  const realtimeXAiMetadata = (args.providerRealtimeConversationMetadata as any)?.xai ?? {};
+  const realtimeXAiMetadata = args.providerRealtimeConversationMetadata?.xai
+    ?? args.providerRealtimeConversationMetadata?.spacexai ?? {};
   const sessionConfig = buildXAiRealtimeSessionConfig(args);
 
   return startXAiRealtimeConversationWsSession({
