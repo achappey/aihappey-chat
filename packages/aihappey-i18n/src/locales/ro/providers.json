@@ -1,4 +1,4 @@
-{
+﻿{
   "perplexity": {
     "academic": "Academic",
     "web": "Web",
@@ -13,7 +13,37 @@
     "sonarDeepResearch": "Cercetare aprofundată Sonar",
     "returnImages": "Returnează imagini",
     "returnVideos": "Returnează videoclipuri",
-    "returnRelatedQuestions": "Returnează întrebări conexe"
+    "returnRelatedQuestions": "Returnează întrebări conexe",
+    "agent": "Agent",
+    "fast": "Rapid",
+    "pro": "Pro",
+    "media": "Media",
+    "responsesWebSearch": "Căutare web",
+    "searchType": "Tip",
+    "instructions": "Instrucțiuni",
+    "maxOutputTokens": "Număr maxim de tokeni la ieșire",
+    "enableMediaClassifier": "Clasificator media",
+    "fetchUrl": "Citește site-uri web",
+    "financeSearch": "Căutare financiară",
+    "languagePreference": "Preferință de limbă",
+    "languagePreferencePlaceholder": "de ex. ro",
+    "maxResultsPerQuery": "Număr maxim de rezultate per interogare",
+    "maxResultsPerRequest": "Număr maxim de rezultate per solicitare",
+    "maxSteps": "Număr maxim de pași",
+    "maxTokens": "Număr maxim de tokeni",
+    "maxTokensPerPage": "Număr maxim de tokeni per pagină",
+    "maxUrls": "Număr maxim de pagini",
+    "models": "Modele (maxim 5)",
+    "noModelsAvailable": "Nu sunt disponibile modele Perplexity",
+    "peopleSearch": "Căutare de persoane",
+    "recency": {
+      "day": "Zi",
+      "hour": "Oră",
+      "month": "Lună",
+      "week": "Săptămână",
+      "year": "An"
+    },
+    "searchDomainFilter": "Filtru de domenii"
   },
   "pollinations": {
     "enhance": "Îmbunătățește",
@@ -32,10 +62,187 @@
     "maxUses": "Număr maxim de utilizări",
     "customSkills": "Abilități personalizate",
     "allowedDomains": "Domenii permise",
-    "blockedDomains": "Domenii blocate"
+    "blockedDomains": "Domenii blocate",
+    "other": {
+      "serviceTier": {
+        "title": "Nivelul serviciului",
+        "options": {
+          "auto": "Prioritate când este disponibilă",
+          "standard_only": "Doar standard"
+        }
+      },
+      "speed": {
+        "title": "Viteză",
+        "options": {
+          "standard": "Standard",
+          "fast": "Rapid"
+        }
+      },
+      "inferenceGeo": {
+        "title": "Geografie",
+        "options": {
+          "global": "Globală",
+          "us": "Statele Unite"
+        }
+      }
+    },
+    "memory": "Memorie",
+    "version": "Versiune",
+    "allowedCallers": "Apelanți autorizați",
+    "advisor": {
+      "model": "Model",
+      "title": "Consultant",
+      "toolName": "Numele instrumentului",
+      "maxTokens": "Număr maxim de tokeni",
+      "caching": "Cache pentru promptul consultantului"
+    },
+    "citations": "Citații",
+    "containerSettings": {
+      "skills": {
+        "pptx": "PowerPoint",
+        "xlsx": "Excel",
+        "docx": "Word",
+        "pdf": "PDF"
+      },
+      "title": "Container",
+      "id": "ID-ul containerului",
+      "idPlaceholder": "ID de container opțional",
+      "customSkillIds": "ID-uri de competențe personalizate",
+      "customSkillIdsPlaceholder": "skill_custom_a, skill_custom_b"
+    },
+    "userLocation": "Locație",
+    "prefixMismatchBehaviorOptions": {
+      "error": "Eroare",
+      "drop_block": "Elimină"
+    },
+    "thinkingModes": {
+      "enabled": "Activat",
+      "disabled": "Dezactivat",
+      "between_tools": "Între instrumente",
+      "adaptive": "Adaptiv"
+    },
+    "contextManagement": {
+      "instructions": "Instrucțiuni",
+      "modes": {
+        "boolean": "Boolean",
+        "input_tokens": "Tokeni de intrare",
+        "none": "Nesetat",
+        "list": "Intrări specifice ale instrumentelor",
+        "tool_uses": "Utilizări ale instrumentelor",
+        "thinking_turns": "Runde de raționament",
+        "all_object": "Obiect: { type: \"all\" }",
+        "all_literal": "Text literal: \"all\""
+      },
+      "title": "Gestionarea contextului",
+      "empty": "Nu este configurată nicio modificare a gestionării contextului.",
+      "add": "Adaugă o modificare a contextului",
+      "type": "Tipul modificării",
+      "trigger": "Declanșator",
+      "triggerValue": "Valoarea declanșatorului",
+      "keep": "Păstrează",
+      "keepValue": "Valoarea de păstrat",
+      "clearAtLeast": "Șterge cel puțin",
+      "clearAtLeastValue": "Numărul minim de tokeni de șters",
+      "clearToolInputs": "Șterge intrările instrumentelor",
+      "clearToolInputsValue": "Valoare booleană",
+      "clearToolInputsList": "Intrări specifice ale instrumentelor",
+      "clearToolInputsPlaceholder": "input_a, input_b",
+      "excludeTools": "Exclude instrumente",
+      "excludeToolsPlaceholder": "tool_a, tool_b",
+      "instructionsPlaceholder": "Instrucțiuni suplimentare, opționale, pentru rezumarea la comprimare.",
+      "pauseAfterCompaction": "Întrerupe după comprimare",
+      "types": {
+        "clear_tool_uses_20250919": "Șterge utilizările instrumentelor (2025-09-19)",
+        "clear_thinking_20251015": "Șterge raționamentul (2025-10-15)",
+        "compact_20260112": "Comprimă contextul (2026-01-12)"
+      },
+      "booleanValues": {
+        "true": "Adevărat",
+        "false": "Fals"
+      },
+      "booleanModes": {
+        "none": "Nesetat",
+        "true": "Adevărat",
+        "false": "Fals"
+      },
+      "validation": {
+        "invalid": "Completează toate câmpurile numerice selectate înainte de a salva această modificare a contextului."
+      },
+      "summaries": {
+        "noOptionalFields": "Nu sunt configurate câmpuri opționale.",
+        "triggerInputTokens": "Declanșator: {{value}} tokeni de intrare",
+        "triggerToolUses": "Declanșator: {{value}} utilizări ale instrumentelor",
+        "keepToolUses": "Păstrează: {{value}} utilizări ale instrumentelor",
+        "clearAtLeast": "Șterge cel puțin: {{value}} tokeni de intrare",
+        "clearToolInputsTrue": "Șterge intrările instrumentelor: da",
+        "clearToolInputsFalse": "Șterge intrările instrumentelor: nu",
+        "clearToolInputsList": "Șterge intrările instrumentelor: {{value}}",
+        "excludeTools": "Exclude instrumente: {{value}}",
+        "keepThinkingTurns": "Păstrează raționamentul: {{value}} runde",
+        "keepAllObject": "Păstrează raționamentul: obiect { type: \"all\" }",
+        "keepAllLiteral": "Păstrează raționamentul: textul literal \"all\"",
+        "compactDefaultTrigger": "Declanșator: valoarea implicită de {{value}} tokeni de intrare",
+        "pauseAfterCompactionTrue": "Întrerupe după comprimare: da",
+        "pauseAfterCompactionFalse": "Întrerupe după comprimare: nu",
+        "instructions": "Instrucțiuni configurate"
+      }
+    },
+    "betaHeader": "Beta",
+    "shell": "Terminal",
+    "textEditor": "Editor de text",
+    "toolSearchBm25": "Căutare de instrumente (BM25)",
+    "toolSearchRegex": "Căutare de instrumente (Regex)",
+    "none": "Niciunul",
+    "cacheControl": "Cache pentru prompturi",
+    "cache": {
+      "title": "Cache",
+      "ttl": "Durată",
+      "ttlOptions": {
+        "5m": "5 minute",
+        "1h": "1 oră"
+      }
+    },
+    "compaction": {
+      "title": "Comprimă contextul"
+    },
+    "deferLoading": "Amână încărcarea",
+    "strictValidation": "Strictă",
+    "cacheControlType": "Tipul cache-ului",
+    "cacheDuration": "Durata cache-ului",
+    "defaultOption": "Implicit",
+    "ephemeral": "Temporar",
+    "outputConfig": {
+      "title": "Configurarea ieșirii",
+      "effort": "Nivel de efort ({{effort}})",
+      "taskBudget": "Bugetul sarcinii"
+    },
+    "inputExamples": "Exemple de intrare",
+    "maxCharacters": "Număr maxim de caractere",
+    "maxContentTokens": "Număr maxim de tokeni în conținut",
+    "useCache": "Folosește cache-ul",
+    "responseInclusion": "Includerea în răspuns",
+    "container": "Container",
+    "containerPlaceholder": "ID de container opțional",
+    "session": {
+      "title": "Buget (agenți gestionați)",
+      "maxListCostUsd": "Buget maxim (USD)"
+    },
+    "locationType": "Tipul locației",
+    "locationApproximate": "Aproximativă",
+    "thinkingDisplay": "Detalii despre raționament",
+    "prefixMismatchBehavior": "Nepotrivire în raționament",
+    "thinkingDisplayModes": {
+      "summarized": "Rezumat",
+      "omitted": "Omis",
+      "updates": "Actualizări"
+    }
   },
   "cohere": {
-    "citationOptions": "Citații"
+    "citationOptions": "Citații",
+    "reranking": {
+      "priority": "Prioritate",
+      "maxTokensPerDoc": "Număr maxim de tokeni per document"
+    }
   },
   "xSearch": "Caută pe X",
   "spacexai": {
@@ -44,7 +251,25 @@
     "allowedDomains": "Domenii permise",
     "excludedDomains": "Domenii excluse",
     "allowed_x_handles": "Conturi X permise",
-    "excluded_x_handles": "Conturi X excluse"
+    "excluded_x_handles": "Conturi X excluse",
+    "sampleRate": "Frecvență de eșantionare",
+    "toolSearch": {
+      "title": "Căutare de instrumente",
+      "server": "Server",
+      "executionMode": "Modul de execuție"
+    },
+    "audioFormat": "Format audio",
+    "audioInput": "Intrare audio",
+    "channelCount": "Număr de canale",
+    "channels": "Canale",
+    "imageSearch": "Căutare de imagini",
+    "transcriptionDiarize": "Identificarea vorbitorilor",
+    "transcriptionFillerWords": "Include cuvinte de umplutură",
+    "transcriptionFormat": "Formatează textul",
+    "transcriptionKeyterm": "Termeni-cheie",
+    "transcriptionKeytermPlaceholder": "Introdu o listă de termeni-cheie separați prin virgulă",
+    "transcriptionMultichannel": "Multicanal",
+    "transcriptionVadThreshold": "Pragul de detectare a activității vocale ({{value}})"
   },
   "openai": {
     "container": "Container",
@@ -55,24 +280,24 @@
     "instructions": "Instrucțiuni",
     "instructionsPlaceholder": "Mesaj de sistem (sau dezvoltator) inserat în contextul modelului.",
     "imageInputDetail": {
-      "title": "Input image detail",
+      "title": "Detalii despre imaginea de intrare",
       "auto": "Auto",
-      "low": "Low",
-      "high": "High",
+      "low": "Scăzută",
+      "high": "Ridicată",
       "original": "Original"
     },
     "contextManagement": {
-      "title": "Context management",
-      "description": "Configure how the Responses API should compact earlier context during a request.",
-      "empty": "No context management entries configured yet.",
-      "add": "Add context rule",
-      "type": "Type",
-      "compactThreshold": "Compact threshold",
-      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
-      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
-      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "title": "Gestionarea contextului",
+      "description": "Configurează modul în care Responses API comprimă contextul anterior în timpul unei solicitări.",
+      "empty": "Nu este configurată încă nicio regulă de gestionare a contextului.",
+      "add": "Adaugă regulă de context",
+      "type": "Tip",
+      "compactThreshold": "Prag de comprimare",
+      "compactThresholdHelp": "Comprimarea se declanșează când contextul solicitării atinge acest prag de tokeni.",
+      "compactThresholdInvalid": "Pragul de comprimare trebuie să fie cel puțin {{min}}.",
+      "entrySummary": "Comprimă contextul la {{threshold}} tokeni.",
       "types": {
-        "compaction": "Compaction"
+        "compaction": "Comprimare"
       }
     },
     "max_num_results": "Număr maxim de rezultate",
@@ -86,7 +311,215 @@
     "knownSpeakersNameExists": "Acest nume există deja.",
     "knownSpeakersMax": "Poți adăuga până la 4 vorbitori.",
     "knownSpeakersDeleteConfirm": "Acest vorbitor are o mostră salvată. Ștergi vorbitorul și mostra?",
-    "knownSpeakersSampleDuration": "Înregistrarea trebuie să aibă între 2 și 10 secunde."
+    "knownSpeakersSampleDuration": "Înregistrarea trebuie să aibă între 2 și 10 secunde.",
+    "promptCacheOptions": {
+      "mode": "Mod",
+      "24h": "24 de ore",
+      "in-memory": "În memorie",
+      "title": "Cache pentru prompturi",
+      "ttl": "Durata de păstrare în cache",
+      "modes": {
+        "implicit": "Implicit",
+        "explicit": "Explicit"
+      },
+      "ttls": {
+        "30m": "30 de minute",
+        "12h": "12 ore"
+      }
+    },
+    "moderation": {
+      "title": "Moderare",
+      "modes": {
+        "score": "Scor",
+        "block": "Blochează"
+      },
+      "model": "Model de moderare",
+      "inputMode": "Politica pentru intrare",
+      "outputMode": "Politica pentru ieșire"
+    },
+    "sessionAgent": {
+      "title": "Agent",
+      "model": "Model",
+      "instructions": "Instrucțiuni",
+      "effort": "Nivelul de raționament",
+      "serviceTier": "Nivelul serviciului",
+      "schema": "Schemă JSON",
+      "web_search": "Căutare web",
+      "tool_search": "Căutare de instrumente",
+      "city": "Oraș",
+      "country": "Țară",
+      "region": "Regiune",
+      "timezone": "Fus orar",
+      "inherit": "Nespecificat",
+      "summary": "Rezumatul raționamentului",
+      "verbosity": "Detalierea textului",
+      "format": "Formatul textului",
+      "invalidSchema": "Introdu un obiect de schemă JSON valid.",
+      "multiAgent": "Activează agenții secundari",
+      "maxSubagents": "Număr maxim de agenți secundari simultani",
+      "tools": "Instrumentele agentului",
+      "computer_use": "Utilizarea computerului",
+      "programmatic_tool_calling": "Apelarea programatică a instrumentelor",
+      "screenshots": "Include capturi de ecran",
+      "programmaticEnabled": "Permite apeluri din codul generat",
+      "searchMode": "Modul de căutare web",
+      "searchContext": "Dimensiunea contextului de căutare",
+      "allowedDomains": "Domenii permise pentru căutare (unul pe linie)"
+    },
+    "sessionEnvironment": {
+      "enabled": "Activat",
+      "disabled": "Dezactivat",
+      "title": "Mediu (agent)",
+      "type": "Tipul mediului",
+      "none": "Niciunul",
+      "openai_hosted": "Găzduit de OpenAI",
+      "self_hosted": "Găzduit local",
+      "templateId": "ID-ul șablonului de mediu",
+      "containerSize": "Dimensiunea containerului",
+      "inherit": "Nespecificat",
+      "small": "Mic",
+      "medium": "Mediu",
+      "large": "Mare",
+      "desktop": "Configurează un desktop și un proxy de browser",
+      "network": "Acces la rețea",
+      "restricted": "Restricționat",
+      "domainHelp": "Folosește fie domenii permise, fie domenii blocate, nu ambele. Nu sunt acceptate caractere wildcard.",
+      "allowedDomains": "Domenii permise (unul pe linie)",
+      "blockedDomains": "Domenii blocate (unul pe linie)",
+      "workspaceDirectory": "Calea absolută a directorului de lucru"
+    },
+    "truncation": {
+      "auto": "Automat",
+      "disabled": "Dezactivat",
+      "title": "Trunchiere"
+    },
+    "serviceTier": {
+      "title": "Nivelul serviciului",
+      "auto": "Automat",
+      "priority": "Prioritate",
+      "fast": "Rapid",
+      "default": "Implicit",
+      "flex": "Flexibil",
+      "scale": "Scalabil",
+      "ultrafast": "Foarte rapid"
+    },
+    "output_compression": "Compresie la ieșire",
+    "edit": "Editează",
+    "prompt": "Prompt",
+    "transcriptionKeywords": "Cuvinte-cheie",
+    "transcriptionResponseFormat": "Formatul răspunsului",
+    "transcriptionTemperature": "Temperatură",
+    "timestampGranularitiesWord": "Word",
+    "programmaticToolCalling": {
+      "allowedCallers": "Apelanți autorizați",
+      "allowedCallersOptions": {
+        "programmatic": "Cod",
+        "direct": "Direct"
+      },
+      "title": "Instrumente apelate prin cod"
+    },
+    "toolSearch": {
+      "title": "Căutare de instrumente",
+      "client": "Client",
+      "executionMode": "Modul de execuție",
+      "hosted": "Găzduit"
+    },
+    "shellNetworkPolicyDisabled": "Dezactivat",
+    "shell": "Terminal",
+    "promptCacheRetention": "Perioada de păstrare a cache-ului de prompturi",
+    "promptCacheKey": "ID-ul cache-ului de prompturi",
+    "betaHeader": "Beta",
+    "multiAgent": {
+      "title": "Multi-agent",
+      "description": "Permite modelului principal să coordoneze agenți secundari în paralel pentru sarcini complexe Responses API. Activarea adaugă și antetul beta OpenAI necesar.",
+      "maxConcurrentSubagents": "Număr maxim de agenți secundari simultani",
+      "maxConcurrentSubagentsHelp": "Limitează numărul de agenți secundari activi în întregul arbore de agenți. Valoarea implicită recomandată de OpenAI este 3."
+    },
+    "promptCache": "Cache pentru prompturi",
+    "customVoice": "Voce personalizată",
+    "action": "Acțiune",
+    "generate": "Generează",
+    "allowedDomains": "Domenii permise",
+    "searchContentTypes": {
+      "text": "Rezultate de căutare text",
+      "image": "Rezultate de căutare imagini"
+    },
+    "imageSettings": {
+      "maxResults": "Număr maxim de imagini",
+      "caption": "Include legende"
+    },
+    "topP": "Top-p",
+    "transcriptionLanguagePlaceholder": "Limba fișierului audio de intrare în format ISO 639-1 (de ex. ro)",
+    "transcriptionLanguages": "Limbi posibile",
+    "transcriptionLanguagesPlaceholder": "Coduri ISO 639-1 separate prin virgulă, de ex. ro, en",
+    "transcriptionKeywordsPlaceholder": "Un cuvânt sau o expresie pe linie pentru a ghida transcrierea",
+    "speechPromptPlaceholder": "Text opțional pentru a ghida stilul modelului sau a continua un segment audio anterior",
+    "timestampGranularities": "Nivelul de detaliu al marcajelor temporale",
+    "timestampGranularitiesSegment": "Segment",
+    "returnTokenBudget": "Bugetul de tokeni returnați",
+    "returnTokenBudgetOptions": {
+      "default": "Implicit",
+      "unlimited": "Nelimitat"
+    },
+    "externalWebAccess": "Acces la internet în timp real",
+    "responsesIncludeTitle": "Include",
+    "responsesIncludeImageUrls": "Include URL-urile imaginilor din rezultatul computerului",
+    "responsesIncludeInputImageUrls": "Include URL-urile imaginilor din mesajele de intrare",
+    "responsesIncludeOutputLogprobs": "Include log-probabilitățile rezultatului",
+    "responsesIncludeDescriptions": {
+      "webSearchSources": "Include sursele returnate de apelul instrumentului de căutare web.",
+      "codeInterpreterOutputs": "Include rezultatele executării codului Python prin instrumentul de interpretare a codului.",
+      "computerCallImageUrls": "Include URL-urile imaginilor returnate de rezultatele apelurilor computerului.",
+      "fileSearchResults": "Include rezultatele returnate de instrumentul de căutare a fișierelor.",
+      "inputImageUrls": "Include URL-urile imaginilor din mesajele de intrare.",
+      "outputTextLogprobs": "Include log-probabilitățile pentru răspunsurile text ale asistentului.",
+      "reasoningEncryptedContent": "Include tokenii de raționament criptați pentru a putea reutiliza elementele de raționament în conversații Responses API cu mai multe runde fără stare."
+    },
+    "shellEnvironment": "Mediu",
+    "shellEnvironmentContainerAuto": "Container găzduit (automat)",
+    "shellEnvironmentContainerReference": "Container găzduit (referință)",
+    "shellEnvironmentLocal": "Mediu local de execuție",
+    "shellFileIds": "ID-urile fișierelor",
+    "shellMemoryLimit": "Limită de memorie",
+    "shellNoMemoryLimit": "Memorie implicită",
+    "shellNetworkPolicy": "Politica de rețea",
+    "shellNetworkPolicyAllowlist": "Listă de permisiuni",
+    "shellAllowedDomains": "Domenii permise",
+    "shellSecretDomain": "Domeniul secretului",
+    "shellSecretName": "Numele secretului",
+    "shellSecretValue": "Valoarea secretului",
+    "shellAddDomainSecret": "Adaugă secret de domeniu",
+    "shellSkillType": "Tipul competenței",
+    "shellSkillReference": "Referință la competență",
+    "shellInlineSkill": "Competență încorporată",
+    "shellSkillId": "Competență",
+    "shellSelectSkill": "Selectează o competență",
+    "shellNoSkillsAvailable": "Nu sunt disponibile competențe OpenAI Shell în catalogul comun.",
+    "shellAddSkillReference": "Adaugă referință la competență",
+    "shellAddInlineSkill": "Adaugă competență încorporată",
+    "shellInlineUploadHelp": "Plasează aici o arhivă ZIP sau alege una pentru a o atașa ca sursă a competenței încorporate.",
+    "shellUploadArchive": "Încarcă arhivă ZIP",
+    "shellReplaceArchive": "Înlocuiește arhiva ZIP",
+    "shellRemoveArchive": "Elimină arhiva",
+    "shellArchiveSelected": "Arhivă selectată: {{fileName}}",
+    "shellNoArchiveSelected": "Nu este selectată nicio arhivă ZIP",
+    "realtimeTranscriptionTitle": "Transcriere în timp real",
+    "realtimeSessionType": "Tipul sesiunii",
+    "realtimeAudioInputFormat": "Formatul audio de intrare",
+    "realtimeNoiseReduction": "Reducerea zgomotului",
+    "realtimeInputTranscription": "Transcriere audio de intrare",
+    "realtimeTranscriptionPrompt": "Prompt pentru transcriere",
+    "realtimeTurnDetection": "Detectarea rândului de vorbire",
+    "realtimeTurnDetectionType": "Tipul detectării rândului",
+    "realtimeTurnCreateResponse": "Creează automat un răspuns la oprirea vorbirii",
+    "realtimeTurnInterruptResponse": "Întrerupe răspunsul în curs la începerea vorbirii",
+    "realtimeVadThreshold": "Prag VAD (0,0–1,0)",
+    "realtimeVadPrefixPaddingMs": "Timp de prelungire la început (ms)",
+    "realtimeVadSilenceDurationMs": "Durata tăcerii (ms)",
+    "realtimeVadIdleTimeoutMs": "Timp de expirare în repaus (ms)",
+    "realtimeSemanticEagerness": "Promptitudine",
+    "realtimeIncludeLogprobs": "Include log-probabilitățile transcrierii de intrare",
+    "realtimeTokenTtlSeconds": "Durata de valabilitate a tokenului (secunde)"
   },
   "google": {
     "enableEnhancedCivicAnswers": "Răspunsuri civice îmbunătățite",
@@ -107,7 +540,190 @@
       "higherAndAbove": "Blochează nivel foarte ridicat și peste",
       "veryHighAndAbove": "Blochează nivel extrem de ridicat și peste",
       "onlyExtremelyHigh": "Blochează doar nivel extrem de ridicat"
-    }
+    },
+    "web_search": "Căutare web",
+    "modalities": {
+      "text": "Text",
+      "image": "Imagine",
+      "audio": "Audio",
+      "video": "Video",
+      "document": "Document"
+    },
+    "interactions": {
+      "speech": {
+        "title": "Vorbire",
+        "language": "Limbă",
+        "voice": "Voce",
+        "speaker": "Numele vorbitorului",
+        "addSpeaker": "Adaugă vorbitor"
+      },
+      "transcription": {
+        "title": "Transcriere",
+        "languageCodes": "Sugestii de limbă",
+        "customVocabulary": "Vocabular personalizat",
+        "speakerDiarization": "Identifică vorbitorii",
+        "wordTimestamps": "Include marcaje temporale pentru cuvinte"
+      },
+      "responseFormat": {
+        "title": "Formatul răspunsului",
+        "aspectRatio": "Raport de aspect",
+        "imageSize": "Dimensiunea imaginii",
+        "resolution": "Rezoluție",
+        "types": {
+          "text": "Text",
+          "audio": "Audio",
+          "image": "Imagine",
+          "video": "Video"
+        },
+        "mimeType": "Tip MIME",
+        "sampleRate": "Frecvență de eșantionare (Hz)",
+        "bitRate": "Rată de biți (bps)",
+        "duration": "Durată"
+      },
+      "retrieval": {
+        "apiKey": "Cheie API",
+        "parallel": {
+          "title": "Căutare paralelă"
+        },
+        "exa": {
+          "title": "Căutare Exa"
+        }
+      },
+      "other": {
+        "seed": "Valoare inițială"
+      }
+    },
+    "speech": {
+      "title": "Vorbire",
+      "seed": "Valoare inițială",
+      "multiSpeaker": "Mai mulți vorbitori",
+      "speakers": "Vorbitori",
+      "addSpeaker": "Adaugă vorbitor",
+      "speakerNamePlaceholder": "de ex. Alice"
+    },
+    "image": {
+      "title": "Imagine",
+      "aspect_ratio": "Raport de aspect",
+      "image_size": "Dimensiunea imaginii"
+    },
+    "videoConfig": {
+      "title": "Video",
+      "tasks": {
+        "edit": "Editează",
+        "text_to_video": "Text în videoclip",
+        "image_to_video": "Imagine în videoclip",
+        "reference_to_video": "Referință în videoclip",
+        "extend": "Extinde"
+      },
+      "task": "Sarcină",
+      "providerDefault": "Implicit pentru furnizor (dedus din prompt)"
+    },
+    "environment": {
+      "sources": "Surse",
+      "source": "Sursă",
+      "networkModes": {
+        "disabled": "Dezactivat",
+        "default": "Acces nerestricționat implicit",
+        "allowlist": "Listă de permisiuni"
+      },
+      "title": "Mediu (agenți)",
+      "description": "Configurează un mediu Linux izolat și gestionat pentru agenții Google. Dacă nu sunt configurate surse sau setări de rețea, se folosește un mediu remote nou.",
+      "environmentId": "ID-ul mediului",
+      "environmentIdHelp": "Dacă setezi un ID de mediu, sursele și setările de rețea sunt dezactivate, iar mediul izolat existent este reutilizat.",
+      "sourceType": "Tipul sursei",
+      "target": "Calea destinației",
+      "inlineContent": "Conținut încorporat",
+      "addSource": "Adaugă sursă",
+      "noSources": "Nu este configurată nicio sursă. Adaugă depozite, căi Cloud Storage sau fișiere încorporate pentru a le monta într-un mediu izolat nou.",
+      "network": "Rețea",
+      "networkMode": "Modul de rețea",
+      "allowlistHelp": "Dacă selectezi lista de permisiuni, sunt autorizate doar domeniile enumerate. Adaugă * ca regulă generală pentru a permite și restul traficului.",
+      "domain": "Domeniu",
+      "transform": "Transformare antete JSON",
+      "addAllowlistRule": "Adaugă regulă",
+      "sourceTypes": {
+        "repository": "Depozit Git",
+        "gcs": "Cloud Storage",
+        "inline": "Conținut încorporat"
+      }
+    },
+    "service_tier": "Nivelul serviciului",
+    "serviceTiers": {
+      "flex": "Flexibil",
+      "standard": "Standard",
+      "priority": "Prioritate",
+      "providerDefault": "Implicit pentru furnizor"
+    },
+    "safetySettings": {
+      "type": "Categorie",
+      "methods": {
+        "probability": "Probabilitate",
+        "severity": "Probabilitate și severitate"
+      },
+      "title": "Setări de siguranță",
+      "add": "Adaugă setare de siguranță",
+      "method": "Metodă",
+      "threshold": "Prag",
+      "thresholds": {
+        "block_low_and_above": "Blochează nivelul scăzut și valorile superioare",
+        "block_medium_and_above": "Blochează nivelul mediu și valorile superioare",
+        "block_only_high": "Blochează doar nivelul ridicat",
+        "block_none": "Nu bloca nimic",
+        "off": "Dezactivează filtrul de siguranță"
+      },
+      "categories": {
+        "hate_speech": "Discurs instigator la ură",
+        "dangerous_content": "Conținut periculos",
+        "harassment": "Hărțuire",
+        "sexually_explicit": "Conținut sexual explicit",
+        "civic_integrity": "Integritate civică (învechit)",
+        "image_hate": "Discurs instigator la ură în imagini",
+        "image_dangerous_content": "Conținut periculos în imagini",
+        "image_harassment": "Hărțuire în imagini",
+        "image_sexually_explicit": "Conținut sexual explicit în imagini",
+        "jailbreak": "Ocolirea măsurilor de siguranță"
+      }
+    },
+    "voice": "Voce",
+    "language": "Limbă",
+    "responseModalities": "Modalități de răspuns",
+    "image_search": "Căutare de imagini",
+    "enterprise_web_search": "Căutare web pentru companii",
+    "realtimeTranscription": {
+      "title": "Transcriere live",
+      "hint": "Aceste opțiuni se aplică doar transcrierii Gemini Live și sunt separate de setările de transcriere a fișierelor. Detectarea automată a activității vocale este activată.",
+      "languageCodes": "Sugestii de limbă (câte una pe linie sau separate prin virgulă)",
+      "customVocabulary": "Vocabular personalizat (câte un termen pe linie sau separate prin virgulă)",
+      "mode": "Modul de transcriere",
+      "modes": {
+        "verbatim": "Literală",
+        "smart": "Inteligentă"
+      }
+    },
+    "realtimeConversation": {
+      "title": "Conversație Gemini Live",
+      "hint": "Audio transmis direct din browser către Gemini Live folosind un token temporar emis de backend. Gemini Live este o API în previzualizare.",
+      "inputTranscription": "Transcrie audio de la microfon",
+      "outputTranscription": "Transcrie audio Gemini",
+      "googleSearch": "Ancorare în Căutarea Google",
+      "turnDetection": "Detectarea activității vocale",
+      "automaticVad": "Detectare automată a activității vocale",
+      "prefixPaddingMs": "Timp de prelungire la început (ms)",
+      "silenceDurationMs": "Durata tăcerii (ms)",
+      "sessionManagement": "Gestionarea sesiunii",
+      "contextCompression": "Comprimarea ferestrei de context",
+      "triggerTokens": "Tokeni declanșatori pentru comprimare",
+      "sessionResumption": "Reluare între conexiuni WebSocket",
+      "tokenExpiry": "Expirarea tokenului temporar",
+      "camera": "Intrare de la cameră",
+      "cameraHint": "Camera este oprită inițial. După activare în timpul unei sesiuni, cadrele JPEG sunt trimise cu o frecvență de cel mult 1 FPS. Sesiunile audio-video au o limită de durată mai scurtă.",
+      "cameraFps": "Cadre pe secundă ale camerei",
+      "jpegQuality": "Calitate JPEG",
+      "startCamera": "Pornește camera",
+      "stopCamera": "Oprește camera"
+    },
+    "enable_widget": "Activează widgetul",
+    "speaker": "Vorbitor"
   },
   "jina": {
     "max_returned_urls": "Număr maxim de URL-uri returnate",
@@ -115,17 +731,39 @@
     "team_size": "Dimensiunea echipei de agenți",
     "goodDomains": "Domenii promovate",
     "badDomains": "Domenii nefavorabile",
-    "onlyDomains": "Restricționează căutarea la aceste domenii"
+    "onlyDomains": "Restricționează căutarea la aceste domenii",
+    "reranking": {
+      "maxDocLength": "Lungimea maximă a documentului",
+      "returnDocuments": "Returnează documente",
+      "returnEmbeddings": "Returnează vectorii de reprezentare",
+      "truncation": "Trunchiere"
+    }
   },
   "together": {
     "guidanceScale": "Scală de ghidare",
     "steps": "Pași",
     "negativePrompt": "Prompt negativ",
-    "disableSafetyChecker": "Dezactivează verificarea de siguranță"
+    "disableSafetyChecker": "Dezactivează verificarea de siguranță",
+    "reranking": {
+      "addRankField": "Adaugă câmp de clasare",
+      "rankFields": "Câmpuri de clasare",
+      "returnDocuments": "Returnează documente"
+    },
+    "speech": {
+      "encoding": "Codificare"
+    }
   },
   "runway": {
     "contentModeration": "Moderare conținut",
-    "publicFigureThreshold": "Prag pentru persoane publice"
+    "publicFigureThreshold": "Prag pentru persoane publice",
+    "speech": {
+      "soundEffects": {
+        "duration": "Durată (secunde)",
+        "durationHint": "Opțional. Dacă nu este specificată, Runway alege o durată potrivită.",
+        "loop": "Repetare în buclă",
+        "title": "Efecte sonore"
+      }
+    }
   },
   "stabilityai": {
     "style_presetLabel": "Preset de stil",
@@ -150,6 +788,929 @@
       "photographic": "Fotografic",
       "pixel-art": "Pixel art",
       "tile-texture": "Textură de plăci"
+    },
+    "speech": {
+      "duration": "Durată (secunde)",
+      "cfgScale": "Factor de ghidare fără clasificator",
+      "cfgScaleHint": "Cât de strict urmează procesul de difuzie textul promptului. Valorile mai mari apropie audio-ul de prompt.",
+      "durationHint": "Controlează durata în secunde a audio-ului generat.",
+      "seed": "Valoare inițială",
+      "seedHint": "Valoare specifică folosită pentru a controla caracterul aleatoriu al generării. Omite parametrul sau trimite 0 pentru o valoare aleatorie.",
+      "stepsHint": "Controlează numărul de pași de eșantionare."
+    }
+  },
+  "akumi": {
+    "other": "Altele",
+    "tags": "Etichete",
+    "cache": "Cache",
+    "tag": "Etichetă nouă",
+    "firewall": "Firewall",
+    "sendFirewall": "Trimite setările firewallului",
+    "firewallEnabled": "Direcționare prin UE",
+    "firewallLanguage": "Limba de analiză",
+    "languages": {
+      "auto": "Detectare automată",
+      "nl": "Neerlandeză",
+      "en": "Engleză",
+      "fr": "Franceză",
+      "de": "Germană"
+    }
+  },
+  "apertis": {
+    "reasoning": "Raționament",
+    "effort": "Nivel de efort",
+    "summary": "Rezumat",
+    "summaries": {
+      "concise": "Concis",
+      "detailed": "Detaliat",
+      "auto": "Automat"
+    },
+    "strategies": {
+      "on": "Echilibrată",
+      "aggressive": "Agresivă",
+      "conservative": "Conservatoare",
+      "default": "Implicită (echilibrată)"
+    },
+    "compression": "Comprimarea contextului",
+    "efforts": {
+      "high": "Ridicat",
+      "low": "Scăzut",
+      "medium": "Mediu"
+    },
+    "keepTurns": "Runde recente de păstrat",
+    "model": "Model de comprimare",
+    "notSet": "Nesetat",
+    "strategy": "Strategie",
+    "threshold": "Prag de tokeni"
+  },
+  "upstage": {
+    "reasoning": {
+      "title": "Raționament",
+      "effort": "Nivelul de raționament",
+      "efforts": {
+        "xhigh": "Foarte ridicat",
+        "max": "Maxim",
+        "high": "Ridicat",
+        "low": "Scăzut",
+        "medium": "Mediu",
+        "minimal": "Minim",
+        "none": "Fără"
+      }
+    }
+  },
+  "interfaze": {
+    "reasoning": {
+      "title": "Raționament",
+      "effort": "Nivelul de raționament",
+      "efforts": {
+        "high": "Ridicat",
+        "low": "Scăzut",
+        "medium": "Mediu"
+      }
+    },
+    "other": {
+      "title": "Altele",
+      "headers": {
+        "x-interfaze-bypass-cache": "Ocolește cache-ul verificat",
+        "x-interfaze-bypass-moa": "Ocolește MoA",
+        "x-interfaze-zdr": "Fără păstrarea datelor",
+        "x-show-additional-info": "Include context preliminar suplimentar în răspunsurile transmise în flux"
+      }
+    }
+  },
+  "inworld": {
+    "webSearch": {
+      "title": "Căutare web",
+      "engine": "Motor de căutare",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      },
+      "maxResults": "Rezultate per căutare",
+      "maxSteps": "Număr maxim de runde de căutare"
+    },
+    "modalities": {
+      "text": "Text",
+      "image": "Imagine",
+      "title": "Modalități de ieșire"
+    },
+    "imageConfig": {
+      "aspectRatio": "Raport de aspect",
+      "imageSize": "Dimensiunea imaginii",
+      "count": "Număr de imagini",
+      "partialImages": "Previzualizări parțiale ale imaginilor",
+      "title": "Configurarea imaginilor"
+    },
+    "reasoning": {
+      "title": "Raționament",
+      "effort": "Nivelul de raționament",
+      "efforts": {
+        "high": "Ridicat",
+        "low": "Scăzut",
+        "medium": "Mediu",
+        "minimal": "Minim",
+        "none": "Fără"
+      }
+    }
+  },
+  "webcrawlerapi": {
+    "costs": "Prețuri",
+    "sources": "Surse",
+    "maxSpendUsd": "Cheltuială maximă (USD)",
+    "seedUrlsOnly": "Folosește doar URL-urile specificate",
+    "urls": "URL-uri"
+  },
+  "ninjachat": {
+    "group": "Sursă",
+    "groupOptions": {
+      "web": "Web",
+      "academic": "Academic",
+      "news": "Știri"
+    },
+    "topicOptions": {
+      "general": "General",
+      "finance": "Finanțe",
+      "news": "Știri"
+    },
+    "includeImages": "Include imagini",
+    "maxResults": "Număr maxim de rezultate",
+    "search": "Căutare",
+    "searchDepth": "Nivelul de detaliu al căutării",
+    "searchDepthOptions": {
+      "advanced": "Avansată",
+      "basic": "De bază"
+    },
+    "topic": "Subiect"
+  },
+  "venice": {
+    "webSearchModes": {
+      "auto": "Automat",
+      "off": "Oprit",
+      "on": "Activat"
+    },
+    "characterSlug": "Personaj",
+    "disableThinking": "Dezactivează raționamentul",
+    "enableE2EE": "Criptare de la un capăt la altul",
+    "includeSearchResultsInStream": "Rezultatele căutării",
+    "includeSystemPrompt": "Prompt de sistem Venice",
+    "returnSearchResultsAsDocuments": "Returnează rezultatele căutării ca documente",
+    "seedPlaceholder": "Valoare inițială opțională pentru rezultate reproductibile",
+    "stripThinking": "Elimină raționamentul",
+    "webCitations": "Citări web",
+    "webScraping": "Extragere de date de pe web",
+    "xSearch": "Căutare pe X"
+  },
+  "browseruse": {
+    "proxyCountryCode": "Locație",
+    "browserSettings": "Setări browser",
+    "enableJudge": "Activează evaluatorul",
+    "judge": "Evaluator",
+    "judgeContext": "Contextul evaluatorului",
+    "maxCostUsd": "Cost maxim (USD)",
+    "noProxy": "Fără proxy",
+    "profileId": "ID-ul profilului",
+    "record": "Înregistrează sesiunea browserului",
+    "run": "Rulează",
+    "screenHeight": "Înălțimea ecranului",
+    "screenWidth": "Lățimea ecranului"
+  },
+  "tembo": {
+    "description": "Descriere",
+    "addRepository": "Adaugă URL-ul unui depozit",
+    "branchName": "Ramură de lucru",
+    "descriptionPlaceholder": "Descriere detaliată a lucrării pe care trebuie să o efectueze Tembo",
+    "noRepositories": "Nu a fost adăugat încă niciun depozit.",
+    "queueRightAway": "Adaugă imediat în coadă",
+    "repositories": "Depozite",
+    "repositoriesHint": "Adaugă URL-urile depozitelor GitHub sau Git pe care trebuie să lucreze Tembo.",
+    "session": "Sesiune",
+    "targetBranch": "Ramură țintă"
+  },
+  "mireye": {
+    "latitude": "Latitudine",
+    "longitude": "Longitudine",
+    "address": "Adresă",
+    "addressHint": "Folosește o adresă completă din SUA. Dacă alegi această opțiune, coordonatele vor fi eliminate.",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "addressTitle": "Adresă",
+    "coordinatesHint": "Introdu ambele coordonate. Dacă alegi această opțiune, adresa va fi eliminată.",
+    "coordinatesTitle": "Latitudine și longitudine",
+    "geolocationDenied": "Accesul la locație a fost refuzat.",
+    "geolocationTimeout": "A expirat timpul pentru obținerea locației curente.",
+    "geolocationUnavailable": "Locația curentă nu a putut fi determinată.",
+    "geolocationUnsupported": "Acest browser nu acceptă locația curentă.",
+    "getCurrent": "Obține locația curentă",
+    "gettingCurrent": "Se obține locația curentă..."
+  },
+  "brave": {
+    "safesearchOptions": {
+      "off": "Oprit",
+      "moderate": "Moderată",
+      "strict": "Strictă"
+    },
+    "answerEnrichment": "Îmbogățirea răspunsului",
+    "enableCitations": "Activează citările",
+    "enableEntities": "Activează entitățile",
+    "notSet": "Nesetat",
+    "research": "Cercetare",
+    "researchAllowThinking": "Permite raționamentul",
+    "researchMaximumNumberOfIterations": "Număr maxim de iterații",
+    "researchMaximumNumberOfQueries": "Număr maxim de interogări",
+    "researchMaximumNumberOfResultsPerQuery": "Număr maxim de rezultate per interogare",
+    "researchMaximumNumberOfSeconds": "Durată maximă (secunde)",
+    "researchMaximumNumberOfTokensPerQuery": "Număr maxim de tokeni per interogare",
+    "safesearch": "Căutare sigură"
+  },
+  "copilot": {
+    "latitude": "Latitudine",
+    "longitude": "Longitudine",
+    "webContext": "Căutare web",
+    "webContextEnabled": "Activat",
+    "webContextDisabled": "Dezactivat",
+    "addAdditionalContext": "Adaugă context",
+    "addFile": "Adaugă link către fișier",
+    "additionalContextDescription": "Adaugă fragmente de text care vor fi trimise ca informații suplimentare de context.",
+    "additionalContextEntry": "Contextul {{index}}",
+    "additionalContextTitle": "Context suplimentar",
+    "contextualResourcesTitle": "Resurse contextuale",
+    "countryOrRegion": "Țară sau regiune",
+    "countryOrRegionConfidence": "Nivelul de încredere pentru țară sau regiune",
+    "fileUri": "Link către fișierul {{index}}",
+    "filesDescription": "Adaugă linkuri OneDrive sau SharePoint pentru a le trimite ca resurse contextuale.",
+    "locationTitle": "Indiciu privind locația",
+    "timeZone": "Fus orar (IANA)",
+    "webContextUnset": "Nesetat"
+  },
+  "openrouter": {
+    "webSearchServerTool": "Căutare web",
+    "webFetchServerTool": "Preluare web",
+    "imageGenerationServerTool": "Generare de imagini",
+    "userCity": "Oraș",
+    "userCountry": "Țară",
+    "userRegion": "Regiune",
+    "userTimezone": "Fus orar",
+    "timezone": "Fus orar",
+    "imageModel": "Model",
+    "quality": "Calitate",
+    "size": "Dimensiune",
+    "aspectRatio": "Raport de aspect",
+    "background": "Fundal",
+    "outputFormat": "Format de ieșire",
+    "outputCompression": "Compresie la ieșire",
+    "moderation": "Moderare",
+    "notSet": "Nesetat",
+    "appAttribution": "Atribuirea aplicației",
+    "zdr": "Fără păstrarea datelor",
+    "datetimeServerTool": "Data și ora curentă",
+    "responseHealingPlugin": "Repararea răspunsurilor",
+    "responseHealingDescription": "Validează și repară automat răspunsurile JSON nevalide ale modelelor AI.",
+    "pdfInputsPlugin": "Intrări PDF",
+    "engine": "Motor",
+    "contextCompressionPlugin": "Comprimarea contextului",
+    "searchContextSize": "Dimensiunea contextului de căutare",
+    "maxResults": "Număr maxim de rezultate",
+    "maxTotalResults": "Număr maxim total de rezultate",
+    "maxUses": "Număr maxim de utilizări",
+    "maxContentTokens": "Număr maxim de tokeni în conținut",
+    "allowedDomains": "Domenii permise",
+    "excludedDomains": "Domenii excluse",
+    "blockedDomains": "Domenii blocate",
+    "pdfEngine": "Motor PDF"
+  },
+  "abliteration": {
+    "reasoning": {
+      "title": "Raționament",
+      "effort": "Nivel de efort",
+      "maxTokens": "Număr maxim de tokeni pentru raționament",
+      "efforts": {
+        "xhigh": "Foarte ridicat",
+        "max": "Maxim",
+        "high": "Ridicat",
+        "low": "Scăzut",
+        "medium": "Mediu",
+        "minimal": "Minim",
+        "none": "Fără",
+        "ultracode": "UltraCode"
+      },
+      "enabled": "Activează raționamentul",
+      "exclude": "Exclude raționamentul din răspuns"
+    },
+    "policy": {
+      "title": "Politică",
+      "allowlist": "Intrare în lista de permisiuni",
+      "denylist": "Intrare în lista de blocare",
+      "flaggedCategories": "Categorii semnalate",
+      "id": "ID-ul politicii",
+      "noneSelected": "Nu este selectată nicio categorie",
+      "redactPii": "Elimină datele personale"
+    },
+    "categories": {
+      "harassment": "Hărțuire",
+      "harassment/threatening": "Hărțuire – amenințări",
+      "hate": "Ură",
+      "hate/threatening": "Ură – amenințări",
+      "illicit": "Activitate ilegală",
+      "illicit/violent": "Activitate ilegală – violență",
+      "self-harm": "Autovătămare",
+      "self-harm/instructions": "Autovătămare – instrucțiuni",
+      "self-harm/intent": "Autovătămare – intenție",
+      "sexual": "Conținut sexual",
+      "sexual/minors": "Conținut sexual – minori",
+      "violence": "Violență",
+      "violence/graphic": "Violență – reprezentări explicite"
+    }
+  },
+  "blackbox": {
+    "reasoning": "Raționament",
+    "effort": "Nivel de efort",
+    "summary": "Rezumat",
+    "enabled": "Activează setările implicite pentru raționament",
+    "exclude": "Exclude raționamentul din răspuns",
+    "maxTokens": "Număr maxim de tokeni pentru raționament",
+    "notSet": "Nesetat",
+    "zdr": "Fără păstrarea datelor"
+  },
+  "deepinfra": {
+    "transcription": {
+      "chunkLevelWord": "Word",
+      "task": "Sarcină",
+      "taskTranscribe": "Transcrie",
+      "taskTranslate": "Tradu",
+      "initialPrompt": "Prompt inițial",
+      "chunkingTitle": "Împărțire în fragmente",
+      "chunkLevel": "Nivelul fragmentului",
+      "chunkLevelSegment": "Segment",
+      "chunkLengthSeconds": "Durata fragmentului (secunde)"
+    },
+    "reranking": {
+      "serviceTier": "Nivelul serviciului",
+      "instruction": "Instrucțiune"
+    },
+    "speech": {
+      "serviceTier": "Nivelul serviciului",
+      "voiceId": "Voce",
+      "languageId": "Limbă",
+      "speed": "Viteză",
+      "voiceIdPlaceholder": "de ex. deepinfra-voice-123",
+      "maxTokens": "Număr maxim de tokeni",
+      "speakerAudio": "Audio pentru vorbitor",
+      "speakerTranscript": "Transcrierea vorbitorului",
+      "maxAudioLengthMs": "Durata maximă a fișierului audio (ms)",
+      "languageIdPlaceholder": "de ex. ro",
+      "presetVoicePlaceholder": "de ex. af_bella",
+      "returnTimestamps": "Returnează marcajele temporale",
+      "targetMinTokens": "Număr minim țintă de tokeni",
+      "targetMaxTokens": "Număr maxim țintă de tokeni",
+      "absoluteMaxTokens": "Număr maxim absolut de tokeni",
+      "advanced": "Avansat",
+      "speakerRate": "Ritmul vorbitorului",
+      "exaggeration": "Exagerare",
+      "cfg": "Factor de ghidare fără clasificator",
+      "seed": "Valoare inițială",
+      "minP": "Prag minim P",
+      "repetitionPenalty": "Penalizare pentru repetiție",
+      "topK": "Top K"
+    }
+  },
+  "zai": {
+    "searchQuery": "Interogare de căutare",
+    "thinkingTypes": {
+      "enabled": "Activat",
+      "disabled": "Dezactivat"
+    },
+    "clearThinking": "Șterge raționamentul anterior",
+    "generalTranslation": "Agent de traducere generală",
+    "popularSpecialEffectsVideos": "Agent pentru videoclipuri cu efecte speciale populare",
+    "videoTemplate": "Șablon de efect",
+    "sourceLanguage": "Limba sursă",
+    "targetLanguage": "Limba țintă",
+    "translationStrategy": "Strategia de traducere",
+    "glossary": "ID-ul glosarului",
+    "glossaryPlaceholder": "ID opțional al glosarului",
+    "translationSuggestion": "Sugestii de traducere",
+    "translationSuggestionPlaceholder": "Mapare terminologică, reguli de stil sau cerințe de traducere opționale",
+    "reasonLanguage": "Limba raționamentului",
+    "translationStrategies": {
+      "general": "Traducere generală",
+      "paraphrase": "Traducere prin parafrazare",
+      "two_step": "Traducere în doi pași",
+      "three_step": "Traducere în trei etape",
+      "reflection": "Traducere cu revizuire",
+      "cot": "Traducere cu lanț de raționament"
+    },
+    "reasonLanguages": {
+      "from": "Limba sursă",
+      "to": "Limba țintă"
+    },
+    "videoTemplates": {
+      "french_kiss": "Sărut franțuzesc",
+      "bodyshake": "Dans cu mișcări ale corpului",
+      "sexy_me": "Sexy Me"
+    },
+    "translationLanguages": {
+      "auto": "Detectare automată",
+      "zh-CN": "Chineză simplificată",
+      "zh-TW": "Chineză tradițională",
+      "wyw": "Chineză clasică",
+      "yue": "Cantoneză",
+      "en": "Engleză",
+      "en-GB": "Engleză (Regatul Unit)",
+      "en-US": "Engleză (Statele Unite)",
+      "ja": "Japoneză",
+      "ko": "Coreeană",
+      "fr": "Franceză",
+      "de": "Germană",
+      "es": "Spaniolă",
+      "ru": "Rusă",
+      "pt": "Portugheză",
+      "it": "Italiană",
+      "ar": "Arabă",
+      "hi": "Hindi",
+      "bg": "Bulgară",
+      "cs": "Cehă",
+      "da": "Daneză",
+      "el": "Greacă",
+      "et": "Estonă",
+      "fi": "Finlandeză",
+      "hu": "Maghiară",
+      "id": "Indoneziană",
+      "lt": "Lituaniană",
+      "lv": "Letonă",
+      "nl": "Neerlandeză",
+      "no": "Norvegiană Bokmål",
+      "pl": "Poloneză",
+      "ro": "Română",
+      "sk": "Slovacă",
+      "sl": "Slovenă",
+      "sv": "Suedeză",
+      "th": "Thailandeză",
+      "tr": "Turcă",
+      "uk": "Ucraineană",
+      "vi": "Vietnameză",
+      "my": "Birmaneză",
+      "ms": "Malaeză",
+      "Pinyin": "Pinyin",
+      "IPA": "Alfabet fonetic internațional"
+    },
+    "searchQueryPlaceholder": "Interogare care forțează căutarea web",
+    "searchEngine": "Motor de căutare",
+    "resultCount": "Număr de rezultate",
+    "recencyFilter": "Filtru de recență",
+    "contentSize": "Dimensiunea conținutului",
+    "resultSequence": "Ordinea rezultatelor",
+    "domainFilter": "Filtru de domenii",
+    "returnSearchResults": "Returnează rezultatele căutării",
+    "requireSearchGrounding": "Solicită fundamentarea căutării",
+    "searchPrompt": "Prompt de căutare",
+    "searchPromptPlaceholder": "Prompt opțional pentru prelucrarea rezultatelor căutării",
+    "toolStream": "Fluxul instrumentului",
+    "searchEngines": {
+      "search_pro_jina": "Search Pro (Jina)"
+    },
+    "recencyFilters": {
+      "oneDay": "Ultima zi",
+      "oneWeek": "Ultima săptămână",
+      "oneMonth": "Ultima lună",
+      "oneYear": "Ultimul an",
+      "noLimit": "Fără limită"
+    },
+    "contentSizes": {
+      "medium": "Mediu",
+      "high": "Ridicat"
+    },
+    "resultSequences": {
+      "before": "Înaintea răspunsului",
+      "after": "După răspuns"
+    }
+  },
+  "nebius": {
+    "responseExtension": "Format de ieșire"
+  },
+  "novita": {
+    "transcriptionPrompt": "Prompt",
+    "addHotword": "Adaugă cuvânt de activare",
+    "addHotwordPlaceholder": "de ex. numele produsului",
+    "hotwords": "Cuvinte de activare",
+    "hotwordsHint": "Listă de cuvinte pentru a îmbunătăți recunoașterea termenilor de specialitate.",
+    "pitch": "Înălțimea tonului ({{pitch}})",
+    "transcriptionPromptPlaceholder": "Pentru textele lungi, poți adăuga rezultatele transcrierii anterioare drept context. Se recomandă mai puțin de 8.000 de caractere."
+  },
+  "elevenlabs": {
+    "dialogueText": "Text",
+    "enableLogging": "Activează jurnalizarea",
+    "realtimeToken": "Token",
+    "realtimeTokenPlaceholder": "Token cu o singură utilizare (opțional)",
+    "realtimeIncludeTimestamps": "Include marcaje temporale",
+    "realtimeIncludeLanguageDetection": "Include detectarea limbii",
+    "realtimeAudioFormat": "Format audio",
+    "realtimeCommitStrategy": "Strategia de confirmare",
+    "realtimeVadSilenceThresholdSecs": "Pragul de tăcere VAD (secunde)",
+    "realtimeVadThreshold": "Prag VAD",
+    "realtimeMinSpeechDurationMs": "Durata minimă a vorbirii (ms)",
+    "realtimeMinSilenceDurationMs": "Durata minimă a tăcerii (ms)",
+    "seed": "Valoare inițială",
+    "voiceSettings": "Setări de voce",
+    "stability": "Stabilitate ({{value}})",
+    "similarityBoost": "Creșterea similarității ({{value}})",
+    "style": "Stil ({{value}})",
+    "useSpeakerBoost": "Folosește amplificarea vocii",
+    "continuity": "Continuitate",
+    "previousText": "Text anterior",
+    "nextText": "Text următor",
+    "textNormalization": "Normalizarea textului",
+    "applyTextNormalization": "Aplică normalizarea textului",
+    "applyLanguageTextNormalization": "Aplică normalizarea textului în funcție de limbă",
+    "music": "Muzică",
+    "musicLengthMs": "Durata muzicii (ms)",
+    "forceInstrumental": "Doar instrumental",
+    "respectSectionsDurations": "Respectă durata secțiunilor",
+    "storeForInpainting": "Salvează pentru editare prin completare",
+    "signWithC2pa": "Semnează cu C2PA",
+    "fileFormat": "Formatul fișierului",
+    "tagAudioEvents": "Etichetează evenimentele audio",
+    "useMultiChannel": "Folosește mai multe canale",
+    "timestamps": "Marcaje temporale",
+    "timestampsGranularity": "Nivelul de detaliu al marcajelor temporale",
+    "diarization": "Identificarea vorbitorilor",
+    "numSpeakers": "Număr de vorbitori",
+    "diarizationThreshold": "Prag pentru identificarea vorbitorilor ({{value}})",
+    "dialogue": "Dialog",
+    "dialogueHint": "Adaugă mai multe replici pentru modelele de dialog.",
+    "dialogueAddLine": "Adaugă replică",
+    "dialogueVoiceIdPlaceholder": "de ex. JBFqnCBsd6RMkjVDRZzb",
+    "dialogueStability": "Stabilitatea dialogului ({{value}})",
+    "dialogueStabilityReset": "Folosește valoarea implicită a furnizorului"
+  },
+  "async": {
+    "speech": {
+      "experimental": "Experimental",
+      "bitRateMp3Only": "Rată de biți (doar MP3)",
+      "encoding": "Codificare",
+      "overrideSpeedControl": "Suprascrie controlul vitezei",
+      "overrideStability": "Suprascrie stabilitatea",
+      "speedControl": "Controlul vitezei",
+      "stability": "Stabilitate"
+    }
+  },
+  "deepgram": {
+    "language": "Limbă",
+    "tags": "Etichete",
+    "addTag": "Adaugă etichetă",
+    "addTagPlaceholder": "de ex. client-123",
+    "detectEntities": "Detectează entitățile",
+    "detectLanguage": "Detectează limba",
+    "diarize": "Identifică vorbitorii",
+    "intents": "Intenții",
+    "mipOptOut": "Renunță la Programul de îmbunătățire a modelului",
+    "multichannel": "Multicanal",
+    "paragraphs": "Paragrafe",
+    "punctuate": "Adaugă punctuație",
+    "sentiment": "Sentiment",
+    "smartFormat": "Formatare inteligentă",
+    "speech": {
+      "bitRate": "Rată de biți (bps)",
+      "callback": "URL de callback",
+      "callbackMethod": "Metodă de callback",
+      "container": "Container",
+      "encoding": "Codificare",
+      "mipOptOut": "Renunță la Programul de îmbunătățire a modelului",
+      "singleTagDetected": "A fost detectată o etichetă unică: {{tag}}. Adaugă sau elimină etichete pentru a o transforma într-o listă."
+    },
+    "topics": "Subiecte",
+    "utterances": "Enunțuri"
+  },
+  "resembleai": {
+    "speech": {
+      "voiceUuid": "Voce",
+      "title": "Titlu",
+      "precision": "Precizie (WAV)",
+      "projectUuid": "Proiect",
+      "projectUuidHint": "ID opțional al proiectului în care se salvează clipul generat.",
+      "projectUuidPlaceholder": "de ex. 7df0c0c2-5b9c-4f3d-9b6c-7d4b3f5d1a2b",
+      "titleHint": "Titlu opțional pentru clipul generat.",
+      "titlePlaceholder": "de ex. Mesaj de bun venit",
+      "useHd": "Folosește HD",
+      "voiceUuidPlaceholder": "de ex. 55592656"
+    },
+    "queryHint": "Întrebare opțională de analiză, evaluată după transcriere.",
+    "queryLabel": "Interogare",
+    "queryPlaceholder": "de ex. Ce acțiuni au fost discutate?"
+  },
+  "gladia": {
+    "customVocabularyItemTypeString": "Șir de caractere",
+    "customVocabularyItemTypeObject": "Obiect",
+    "customVocabularyValue": "Valoare",
+    "customVocabularyLanguage": "Limbă",
+    "translationContext": "Context",
+    "summarizationType": "Tipul rezumatului",
+    "summarizationType.general": "General",
+    "summarizationType.concise": "Concis",
+    "summarizationType.bullet_points": "Listă cu marcatori",
+    "moderation": "Moderare",
+    "audioToLlmPrompts": "Prompturi",
+    "customVocabulary": "Vocabular personalizat",
+    "customVocabularyHint": "Adaugă termeni de specialitate pentru a îmbunătăți recunoașterea.",
+    "customVocabularyMode": "Modul vocabularului",
+    "customVocabularyModeConfig": "Configurare (custom_vocabulary_config)",
+    "customVocabularyModeInline": "Listă încorporată (matrice custom_vocabulary)",
+    "customVocabularyDefaultIntensity": "Intensitate implicită",
+    "customVocabularyList": "Listă de vocabular",
+    "customVocabularyAddItem": "Adaugă termen în vocabular",
+    "customVocabularyEmpty": "Nu există încă termeni în vocabular.",
+    "customVocabularyItemType": "Tipul elementului",
+    "customVocabularyIntensity": "Intensitate",
+    "customVocabularyPronunciations": "Pronunții",
+    "subtitles": "Subtitrări",
+    "subtitlesHint": "Generează fișiere de subtitrare pentru această transcriere.",
+    "subtitlesMinDuration": "Durata minimă (secunde)",
+    "subtitlesMaxDuration": "Durata maximă (secunde)",
+    "subtitlesMaxCharsPerRow": "Numărul maxim de caractere pe rând",
+    "subtitlesMaxRowsPerCaption": "Numărul maxim de rânduri per subtitrare",
+    "subtitlesStyle": "Stil",
+    "subtitlesStyle.default": "Implicit",
+    "subtitlesStyle.compliance": "Conformitate",
+    "diarization": "Identificarea vorbitorilor",
+    "diarizationHint": "Identifică vorbitorii din înregistrarea audio.",
+    "diarizationNumberOfSpeakers": "Numărul exact de vorbitori",
+    "diarizationMinSpeakers": "Numărul minim de vorbitori",
+    "diarizationMaxSpeakers": "Numărul maxim de vorbitori",
+    "translation": "Traducere",
+    "translationHint": "Tradu transcrierea în una sau mai multe limbi țintă.",
+    "translationTargetLanguages": "Limbi țintă",
+    "translationModel": "Model de traducere",
+    "translationModel.base": "De bază",
+    "translationModel.enhanced": "Îmbunătățit",
+    "translationMatchOriginalUtterances": "Păstrează corespondența cu replicile originale",
+    "translationLipsync": "Activează sincronizarea buzelor",
+    "translationContextAdaptation": "Adaptare la context",
+    "translationContextPlaceholder": "Context opțional pentru a îmbunătăți acuratețea traducerii",
+    "translationInformal": "Folosește un limbaj informal",
+    "summarization": "Rezumare",
+    "summarizationHint": "Generează un rezumat al transcrierii.",
+    "analysis": "Analiză",
+    "namedEntityRecognition": "Recunoașterea entităților numite",
+    "chapterization": "Împărțire în capitole",
+    "nameConsistency": "Consecvența numelor",
+    "sentimentAnalysis": "Analiza sentimentelor",
+    "customSpelling": "Ortografie personalizată",
+    "customSpellingHint": "Adaugă corecturi ortografice pentru termeni de specialitate.",
+    "customSpellingTerm": "Termen",
+    "customSpellingVariants": "Variante de scriere",
+    "customSpellingAddEntry": "Adaugă termen",
+    "customSpellingEmpty": "Nu există încă reguli ortografice personalizate.",
+    "structuredDataExtraction": "Extragerea datelor structurate",
+    "structuredDataHint": "Extrage clase structurate din transcriere.",
+    "structuredDataClasses": "Clase de extras",
+    "structuredDataClassesPlaceholder": "de ex. Persoane",
+    "audioToLlm": "Audio către LLM",
+    "audioToLlmHint": "Rulează prompturi LLM pe transcriere.",
+    "audioToLlmAddPrompt": "Adaugă prompt",
+    "audioToLlmEmpty": "Nu există încă prompturi.",
+    "audioToLlmPromptLabel": "Promptul {{index}}",
+    "output": "Rezultat",
+    "sentences": "Propoziții",
+    "displayMode": "Mod de afișare",
+    "punctuationEnhanced": "Punctuație îmbunătățită",
+    "languageConfig": "Configurarea limbii",
+    "languageConfigHint": "Specifică limbile sau activează detectarea schimbării limbii.",
+    "languageConfigLanguages": "Limbi",
+    "languageConfigCodeSwitching": "Schimbarea limbii"
+  },
+  "minimax": {
+    "voiceId": "Voce",
+    "addTone": "Adaugă ton",
+    "addTonePlaceholder": "de ex. omg/oh my god",
+    "audioFormat": "Format audio",
+    "audioSetting": "Setări audio",
+    "bitrate": "Rată de biți",
+    "channel": "Canal",
+    "emotion": "Emoție",
+    "forceCbr": "Forțează rata de biți constantă",
+    "languageBoost": "Optimizare pentru limbă",
+    "latexRead": "Citirea formulelor LaTeX",
+    "lyrics": "Versuri",
+    "music": "Muzică",
+    "pitchWithValue": "Înălțimea tonului ({{value}})",
+    "promptOptimizer": "Optimizator de prompturi",
+    "promptOptimizerHint": "Optimizează automat promptul înainte de generarea imaginilor.",
+    "pronunciationDict": "Pronunție",
+    "soundEffects": "Efecte sonore",
+    "speedWithValue": "Viteză ({{value}}x)",
+    "subtitleEnable": "Activează subtitrările",
+    "textNormalization": "Normalizarea textului",
+    "toneHint": "Adaugă mapări de ton în formatul: token/înlocuire",
+    "voiceModify": "Efecte vocale",
+    "voiceModifyIntensityWithValue": "Intensitate ({{value}})",
+    "voiceModifyPitchWithValue": "Înălțimea tonului ({{value}})",
+    "voiceModifyTimbreWithValue": "Timbru ({{value}})",
+    "voiceSetting": "Setări de voce",
+    "volumeWithValue": "Volum ({{value}}x)",
+    "weight": "Pondere"
+  },
+  "stepfun": {
+    "volume": "Volum",
+    "addTone": "Adaugă regulă de pronunție",
+    "addTonePlaceholder": "de ex. LOL/râs zgomotos",
+    "audioSettings": "Setări audio",
+    "pronunciationMap": "Dicționar de pronunție",
+    "sampleRate": "Frecvență de eșantionare (Hz)",
+    "sampleRateHint": "Valori acceptate: 8000, 16000, 22050, 24000 și 48000.",
+    "sampleRatePlaceholder": "Implicit pentru furnizor (24000)",
+    "toneHint": "Adaugă reguli de pronunție în formatul text/pronunție. Tonurile chinezești folosesc numerele 1–5.",
+    "volumePlaceholder": "Implicit pentru furnizor (1,0; interval 0,1–2,0)"
+  },
+  "freepik": {
+    "image": {
+      "upscalerCreative": {
+        "prompt": "Prompt",
+        "creativity": "Creativitate",
+        "engine": "Motor",
+        "fractality": "Fractalitate",
+        "hdr": "HDR",
+        "optimizedFor": "Optimizat pentru",
+        "resemblance": "Asemănare",
+        "scaleFactor": "Factor de scalare",
+        "title": "Mărire rezoluție (creativă)"
+      },
+      "imageExpand": {
+        "bottom": "Jos (px)",
+        "left": "Stânga (px)",
+        "right": "Dreapta (px)",
+        "title": "Extinde imaginea",
+        "top": "Sus (px)"
+      },
+      "shared": {
+        "sharpen": "Accentuează",
+        "smartGrain": "Granulație inteligentă",
+        "ultraDetail": "Detalii ultra-fine"
+      },
+      "skinEnhancerCreative": {
+        "title": "Îmbunătățirea pielii (creativă)"
+      },
+      "skinEnhancerFaithful": {
+        "skinDetail": "Detalii ale pielii",
+        "title": "Îmbunătățirea pielii (fidelă)"
+      },
+      "skinEnhancerFlexible": {
+        "optimizedFor": "Optimizat pentru",
+        "title": "Îmbunătățirea pielii (flexibilă)"
+      },
+      "upscalerPrecision": {
+        "title": "Mărire rezoluție (precizie)"
+      },
+      "upscalerPrecisionV2": {
+        "flavor": "Variantă",
+        "scaleFactor": "Factor de scalare",
+        "title": "Mărire rezoluție (precizie V2)"
+      }
+    },
+    "speech": {
+      "soundEffects": {
+        "durationSeconds": "Durata în secunde",
+        "durationSecondsHint": "Durata audio-ului generat.",
+        "loop": "Repetare în buclă",
+        "loopHint": "Dacă efectul sonor trebuie creat astfel încât să se repete cursiv.",
+        "promptInfluence": "Influența promptului",
+        "promptInfluenceHint": "Gradul în care promptul influențează audio-ul generat.",
+        "title": "Efecte sonore"
+      }
+    }
+  },
+  "assemblyai": {
+    "realtimeSampleRate": "Frecvență de eșantionare",
+    "language": "Limbă",
+    "realtime": "Timp real",
+    "realtimeHint": "Setări de streaming (WebSocket) pentru AssemblyAI.",
+    "realtimeEncoding": "Codificare",
+    "realtimeVadThreshold": "Prag VAD (0,0–1,0)",
+    "realtimeEndOfTurnConfidenceThreshold": "Prag de încredere pentru sfârșitul rundei (0,0–1,0)",
+    "realtimeMinEndOfTurnSilence": "Durata minimă de tăcere la sfârșitul rundei (șir în ms)",
+    "realtimeMaxTurnSilence": "Durata maximă de tăcere în rundă (șir în ms)",
+    "realtimeFormatTurns": "Formatează rundele",
+    "realtimeInactivityTimeout": "Timp de expirare pentru inactivitate (secunde)",
+    "realtimeLanguageDetection": "Detectarea limbii",
+    "realtimeKeytermsPrompt": "Prompt pentru termenii-cheie",
+    "mediaTrimming": "Decuparea conținutului media",
+    "audioStartFrom": "Începutul fișierului audio (ms)",
+    "audioEndAt": "Sfârșitul fișierului audio (ms)",
+    "languageHint": "Selectează limba fișierului audio sau folosește valoarea implicită.",
+    "languageCode": "Codul limbii",
+    "languageDetection": "Detectarea automată a limbii",
+    "languageConfidenceThreshold": "Pragul de încredere pentru limbă",
+    "outputFormatting": "Formatarea rezultatului",
+    "punctuate": "Adaugă punctuație",
+    "formatText": "Formatează textul",
+    "disfluencies": "Ezitări",
+    "channelsAndDiarization": "Canale și identificarea vorbitorilor",
+    "channelsAndDiarizationHint": "Setări pentru transcrierea multicanal și identificarea vorbitorilor.",
+    "multichannel": "Multicanal",
+    "speakerLabels": "Etichetele vorbitorilor",
+    "speakersExpected": "Numărul estimat de vorbitori",
+    "enrichments": "Analize suplimentare",
+    "enrichmentsHint": "Activează informații și analize suplimentare.",
+    "autoChapters": "Capitole automate",
+    "autoHighlights": "Idei principale automate",
+    "entityDetection": "Detectarea entităților",
+    "sentimentAnalysis": "Analiza sentimentelor",
+    "iabCategories": "Categorii IAB",
+    "safetyAndPii": "Siguranță și date personale",
+    "safetyAndPiiHint": "Filtrarea limbajului vulgar, moderarea conținutului și eliminarea datelor personale identificabile.",
+    "filterProfanity": "Filtrează limbajul vulgar",
+    "contentSafety": "Siguranța conținutului",
+    "contentSafetyConfidence": "Nivelul de încredere pentru siguranța conținutului (25–100)",
+    "redactPii": "Elimină datele personale identificabile",
+    "redactPiiSub": "Înlocuirea datelor personale identificabile",
+    "redactPiiPolicies": "Politici pentru date personale",
+    "redactPiiPoliciesHint": "Selectează una sau mai multe politici de eliminare.",
+    "addPolicy": "Adaugă politică",
+    "redactPiiAudio": "Elimină datele personale din audio",
+    "redactPiiAudioQuality": "Calitatea audio după eliminare",
+    "summarization": "Rezumare",
+    "summaryModel": "Model de rezumare",
+    "summaryType": "Tipul rezumatului",
+    "accuracy": "Acuratețe",
+    "accuracyHint": "Îmbunătățește acuratețea recunoașterii cu praguri, termeni-cheie și excepții ortografice.",
+    "speechThreshold": "Prag de vorbire (0,0–1,0)",
+    "keytermsPrompt": "Prompt pentru termenii-cheie",
+    "keytermsPromptPlaceholder": "de ex. numele produsului",
+    "customSpelling": "Ortografie personalizată",
+    "customSpellingTo": "Înlocuiește cu",
+    "customSpellingFrom": "Înlocuiește aceste forme",
+    "customSpellingFromPlaceholder": "de ex. Sequel",
+    "customSpellingAdd": "Adaugă înlocuire",
+    "customSpellingEmpty": "Nu există încă reguli ortografice personalizate."
+  },
+  "audixa": {
+    "speech": {
+      "advanceVoices": "Voci avansate",
+      "baseVoices": "Voci de bază",
+      "customVoiceId": "Voce personalizată",
+      "customVoicePlaceholder": "de ex. af_bella",
+      "emotion": "Emoție"
+    }
+  },
+  "baseten": {
+    "advancedSearchTool": "Căutare avansată",
+    "enableThinking": "Activează raționamentul",
+    "enableThinkingValue": "Trimite enable_thinking",
+    "fetchTool": "Preluare pagini",
+    "limitIterations": "Setează limita de iterații",
+    "maxReactIterations": "Numărul maxim de iterații pentru raționament și instrumente",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You.com"
+    },
+    "searchProvider": "Furnizor de căutare",
+    "searchTool": "Căutare"
+  },
+  "fireworks": {
+    "alignmentModel": "Model de aliniere",
+    "audioProcessing": "Procesare audio",
+    "diarization": "Identificarea vorbitorilor",
+    "maxSpeakers": "Număr maxim de vorbitori",
+    "minSpeakers": "Număr minim de vorbitori",
+    "preprocessing": "Preprocesare",
+    "promptUpsampling": "Extinderea promptului",
+    "promptUpsamplingHint": "Când este activată, modifică promptul pentru a genera rezultate mai creative.",
+    "reranking": {
+      "returnDocuments": "Returnează documente",
+      "task": "Sarcină",
+      "taskHint": "Descriere opțională a sarcinii pentru a ghida procesul de rerangare.",
+      "taskPlaceholder": "Exemplu: Având o interogare de căutare web, găsește fragmente relevante care să răspundă la întrebare."
+    },
+    "safetyTolerance": "Nivel de toleranță pentru siguranță",
+    "safetyToleranceHint": "Nivelul de toleranță pentru moderarea intrărilor și ieșirilor. Între 0 (strict) și 6 (permisiv). Pentru imagine-la-imagine, limita este 2.",
+    "vadModel": "Model de detectare a activității vocale",
+    "webhookUrl": "Webhook",
+    "webhookUrlHint": "URL la care se trimit notificările webhook."
+  },
+  "requesty": {
+    "appAttribution": "Atribuirea aplicației",
+    "autoCache": "Cache automat",
+    "autoCacheDescription": "Trimite explicit indicatorul Requesty requesty.auto_cache. Când este activat, furnizorii compatibili, precum Anthropic și Gemini, pot reutiliza prompturi lungi și conținut repetat pentru a reduce costurile."
+  },
+  "sambanova": {
+    "chat_template_kwargs": "Parametri suplimentari ai șablonului de chat",
+    "chat_template_kwargs_placeholder": "{\n  \"enable_thinking\": true\n}",
+    "invalid_json": "JSON nevalid"
+  },
+  "speechify": {
+    "speech": {
+      "audioFormat": "Format audio",
+      "loudnessNormalization": "Normalizarea volumului",
+      "loudnessNormalizationHint": "Normalizează volumul audio la un nivel standard (-14 LUFS / -2 dBTP). Poate crește latența.",
+      "options": "Opțiuni",
+      "textNormalization": "Normalizarea textului",
+      "textNormalizationHint": "Normalizează textul (numere, date etc.) în cuvinte. Poate crește latența.",
+      "voiceIdPlaceholder": "de ex. 2e19b1e2-..."
+    }
+  },
+  "voyageai": {
+    "reranking": {
+      "returnDocuments": "Returnează documente",
+      "truncation": "Trunchiere"
     }
   }
 }
