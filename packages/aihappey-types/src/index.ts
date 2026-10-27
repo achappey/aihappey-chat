@@ -1,13 +1,13 @@
 import type { Icon } from "@modelcontextprotocol/sdk/types";
 
-export * from "./chat";
-export * from "./theme";
-export * from "./mcp";
-export * from "./agents";
-export * from "./agentModels";
-export * from "./models";
-export * from "./modelIdentity";
-export * from "./providerFiles";
+export * from "./chat.js";
+export type * from "./theme/index.js";
+export * from "./mcp.js";
+export * from "./agents.js";
+export * from "./agentModels.js";
+export * from "./models.js";
+export * from "./modelIdentity.js";
+export * from "./providerFiles.js";
 
 /**
  * Primary provider category used for UI filtering and catalog grouping.

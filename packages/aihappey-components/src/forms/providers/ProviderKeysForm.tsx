@@ -145,7 +145,7 @@ export const ProviderKeysForm: React.FC<ProviderKeysFormProps> = ({
                   onChange={(value: any) => setSelectedHeader(value?.target?.value ?? value)}
                 >
                   {availableItems.map((item) => (
-                    <option key={item.header} value={item.header}>{item.name}</option>
+                    <option key={item.header} value={item.header} data-search-text={item.id}>{item.name}</option>
                   ))}
                 </theme.Select>
             ) : <strong>{selectedItem?.name}</strong>}

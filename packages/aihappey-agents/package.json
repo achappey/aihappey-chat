@@ -1,12 +1,13 @@
 {
   "name": "aihappey-agents",
   "version": "0.1.0",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test tests/*.test.mjs"
+    "test": "npm run build --workspace=aihappey-types && npm run build && node --test tests/*.test.mjs"
   },
   "peerDependencies": {
     "aihappey-ai": "*",

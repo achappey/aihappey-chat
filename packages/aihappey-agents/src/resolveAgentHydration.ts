@@ -1,6 +1,6 @@
 import type { Agent } from "aihappey-types";
-import type { LocalAgentHydrationResult } from "./types";
-import { normalizeAgent } from "./normalizeAgent";
+import type { LocalAgentHydrationResult } from "./types.js";
+import { normalizeAgent } from "./normalizeAgent.js";
 
 function normalizeAgents(items?: Agent[]): Agent[] {
   if (!Array.isArray(items)) return [];

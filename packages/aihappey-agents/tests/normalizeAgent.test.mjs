@@ -5,7 +5,7 @@ import {
   normalizeAgent,
   setAgentElicitationEnabled,
   setAgentElicitationFormEnabled,
-} from "../dist/index.js";
+} from "aihappey-agents";
 
 const agent = (mcpClient) => ({
   name: "compatibility-test",

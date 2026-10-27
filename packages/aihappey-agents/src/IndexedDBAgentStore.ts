@@ -1,7 +1,7 @@
 import { del, get, set } from "idb-keyval";
 import type { Agent } from "aihappey-types";
-import type { LocalAgentStore } from "./types";
-import { normalizeAgent } from "./normalizeAgent";
+import type { LocalAgentStore } from "./types.js";
+import { normalizeAgent } from "./normalizeAgent.js";
 
 const DB_KEY = "aihappey_agents_v1";
 

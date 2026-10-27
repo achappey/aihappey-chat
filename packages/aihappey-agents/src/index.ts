@@ -1,6 +1,6 @@
-export * from "./types";
-export * from "./IndexedDBAgentStore";
-export * from "./resolveAgentHydration";
-export * from "./localAgentStore";
-export * from "./normalizeAgent";
-export * from "./agentElicitation";
+export type * from "./types.js";
+export * from "./IndexedDBAgentStore.js";
+export * from "./resolveAgentHydration.js";
+export * from "./localAgentStore.js";
+export * from "./normalizeAgent.js";
+export * from "./agentElicitation.js";

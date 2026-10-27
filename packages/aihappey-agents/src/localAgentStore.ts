@@ -1,3 +1,3 @@
-import { IndexedDBAgentStore } from "./IndexedDBAgentStore";
+import { IndexedDBAgentStore } from "./IndexedDBAgentStore.js";
 
 export const localAgentStore = new IndexedDBAgentStore();
