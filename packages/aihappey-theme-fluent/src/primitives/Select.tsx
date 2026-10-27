@@ -21,6 +21,9 @@ interface SelectProps
   multiselect?: boolean
   required?: boolean;
   freeform?: boolean;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  noResultsText?: string;
   onChange: (e: any) => void;
   disabled?: boolean;
   icon?: IconToken;
@@ -30,29 +33,38 @@ interface SelectProps
   "aria-label"?: string;
 }
 
-// Recursively render Option/OptionGroup for Fluent
-function renderFluentOptions(children: React.ReactNode): React.ReactNode {
-  return React.Children.map(children, (child) => {
-    if (!React.isValidElement(child)) return null;
+const optionText = (children: React.ReactNode): string => React.Children.toArray(children)
+  .map(child => React.isValidElement(child) ? optionText((child.props as any).children) : String(child))
+  .join("");
+
+// Filter recursively so empty groups disappear without losing selection state.
+function renderFluentOptions(children: React.ReactNode, query = ""): React.ReactNode[] {
+  return React.Children.toArray(children).flatMap((child): React.ReactNode[] => {
+    if (!React.isValidElement(child)) return [];
     const el = child as React.ReactElement<any>;
 
     if (el.type === Fragment) {
-      return renderFluentOptions(el.props.children);
+      return renderFluentOptions(el.props.children, query);
     }
     if (el.type === "option") {
-      return (
-        <Option key={el.props.value} value={el.props.value}>
+      const text = optionText(el.props.children);
+      const searchText = `${text} ${el.props["data-search-text"] ?? el.props.value}`.toLowerCase();
+      if (query && !searchText.includes(query)) return [];
+      return [
+        <Option key={el.props.value} value={el.props.value} text={text} disabled={el.props.disabled}>
           {el.props.children}
-        </Option>
-      );
+        </Option>,
+      ];
     } else if (el.type === "optgroup") {
-      return (
+      const options = renderFluentOptions(el.props.children, query);
+      if (!options.length) return [];
+      return [
         <OptionGroup key={el.props.label} label={el.props.label}>
-          {renderFluentOptions(el.props.children)}
-        </OptionGroup>
-      );
+          {options}
+        </OptionGroup>,
+      ];
     }
-    return null;
+    return [];
   });
 }
 
@@ -67,7 +79,11 @@ export const Select: React.FC<SelectProps> = ({
   hint,
   required,
   freeform = false,
+  searchable = false,
+  searchPlaceholder,
+  noResultsText = "No results",
   onFilter,
+  onOpenChange,
   icon,
   children,
   style,
@@ -77,9 +93,12 @@ export const Select: React.FC<SelectProps> = ({
   const { isDarkMode } = useDarkMode();
   const IconElement = icon ? iconMap[icon as IconToken] : undefined;
   const [inputValue, setInputValue] = useState("");
+  const [query, setQuery] = useState<string | undefined>();
+  const localSearch = searchable && !freeform;
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    setInputValue(val);
+    if (localSearch) setQuery(val);
+    else setInputValue(val);
   };
 
   React.useEffect(() => {
@@ -90,14 +109,18 @@ export const Select: React.FC<SelectProps> = ({
     if (data?.optionValue !== undefined) {
       onChange(data.optionValue);
       if (freeform) setInputValue(data.optionText ?? data.optionValue);
+      if (localSearch) setQuery(undefined);
     }
   };
 
+  const options = renderFluentOptions(children, localSearch ? (query ?? "").trim().toLowerCase() : "");
+  const selectedText = valueTitle ?? values?.join(", ") ?? "";
   const dropDownElement = (
     <Combobox
       {...(rest as any)}
       selectedOptions={values}
-      value={freeform ? inputValue : valueTitle ?? values?.join(", ") ?? ""}
+      value={freeform ? inputValue : localSearch ? query ?? selectedText : selectedText}
+      placeholder={searchable ? searchPlaceholder ?? rest.placeholder : rest.placeholder}
       size={size}
       multiselect={multiselect}
       freeform={freeform}
@@ -107,10 +130,14 @@ export const Select: React.FC<SelectProps> = ({
       onOptionSelect={handleOptionSelect}
       disabled={disabled}
       onInput={handleInputChange}
+      onOpenChange={(event, data) => {
+        if (!data.open) setQuery(undefined);
+        onOpenChange?.(event, data);
+      }}
       style={{ backgroundColor: isDarkMode ? "#141414" : undefined, ...(label ? {} : style) }}
       aria-label={ariaLabel}
     >
-      {renderFluentOptions(children)}
+      {options.length ? options : searchable ? <div role="status">{noResultsText}</div> : null}
     </Combobox>
   );
 
