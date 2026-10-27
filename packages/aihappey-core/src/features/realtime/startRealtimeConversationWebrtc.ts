@@ -71,6 +71,7 @@ export async function startOpenAiRealtimeConversationWebrtcSession(args: {
   }
 
   const pc = new RTCPeerConnection();
+  let stopped = false;
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   for (const track of stream.getAudioTracks()) {
     pc.addTrack(track, stream);
@@ -82,14 +83,14 @@ export async function startOpenAiRealtimeConversationWebrtcSession(args: {
   };
 
   pc.addEventListener("connectionstatechange", () => {
-    if (pc.connectionState === "failed") {
+    if (!stopped && pc.connectionState === "failed") {
       events?.onError?.("Realtime WebRTC connection failed");
     }
   });
 
   const dc = pc.createDataChannel("oai-events");
   dc.addEventListener("open", () => events?.onOpen?.());
-  dc.addEventListener("error", (e) => events?.onError?.("Realtime data channel error", e));
+  dc.addEventListener("error", (e) => { if (!stopped) events?.onError?.("Realtime data channel error", e); });
   dc.addEventListener("message", (e) => {
     try {
       const event = JSON.parse(String(e.data));
@@ -135,6 +136,8 @@ export async function startOpenAiRealtimeConversationWebrtcSession(args: {
   };
 
   const stop = async () => {
+    if (stopped) return;
+    stopped = true;
     try {
       try {
         dc.close();

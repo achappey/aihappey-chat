@@ -8,6 +8,7 @@ export async function completeLiveToolCalls(args: {
   executed: Map<string, unknown>; signal: AbortSignal;
   execute: (item: any, signal: AbortSignal) => Promise<unknown>;
   review: (tool: RealtimeToolReview, signal: AbortSignal) => Promise<RealtimeToolDecision>;
+  changed?: () => Promise<void>;
 }) {
   const { chat, signal } = args;
   const message = chat.messages.at(-1);
@@ -31,6 +32,7 @@ export async function completeLiveToolCalls(args: {
     chat.messages = chat.messages.map(value => value.id !== message.id ? value : { ...value,
       parts: value.parts.map((candidate: any) => candidate.toolCallId === part.toolCallId ? { ...candidate, output } : candidate),
     });
+    await args.changed?.();
     const decision = await args.review({ toolCallId: part.toolCallId, toolName, input: part.input, output }, signal);
     signal.throwIfAborted();
     const released = decision.approved ? output : { isError: true, content: [{ type: 'text', text: decision.reason ?? 'Tool result was not approved.' }] };
@@ -44,6 +46,7 @@ export async function completeLiveToolCalls(args: {
         output: released,
       });
     }
+    await args.changed?.();
   }
   return pending.length > 0;
 }

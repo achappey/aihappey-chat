@@ -675,8 +675,6 @@ export function useRealtimeConversationController(args: {
             if (!tools.some(tool => tool.name === item.name)) throw new Error(`Tool '${item.name}' is not enabled in this client.`);
             const result = await (toolUse.onToolCall as any)({ toolCall: { toolCallId: item.call_id, toolName: item.name, input: item.type === 'function_call' ? JSON.parse(item.arguments) : item.input }, signal });
             signal.throwIfAborted();
-            const message = newUiMessage('assistant', [{ type: `tool-${item.name}`, toolCallId: item.call_id, state: 'output-available', input: item.arguments ?? item.input, output: result }], { realtime: true, model });
-            await persistMessage(message);
             return result;
           };
           const execute = async (item: any, signal: AbortSignal) => {
@@ -685,15 +683,21 @@ export function useRealtimeConversationController(args: {
               return { type: 'mcp_approval_response', approval_request_id: item.id, approve: decision.approved, ...(decision.reason ? { reason: decision.reason } : {}) };
             }
             const result = await executeTool(item, signal);
-            const decision = await approvals.review({ toolCallId: item.call_id, toolName: item.name, input: item.type === 'function_call' ? JSON.parse(item.arguments) : item.input, output: result }, signal);
+            const input = item.type === 'function_call' ? JSON.parse(item.arguments) : item.input;
+            const message = newUiMessage('assistant', [{ type: `tool-${item.name}`, toolCallId: item.call_id, state: 'approval-requested', input, output: result, approval: { id: crypto.randomUUID() } }], { realtime: true, model });
+            await persistMessage(message);
+            const decision = await approvals.review({ toolCallId: item.call_id, toolName: item.name, input, output: result }, signal);
             signal.throwIfAborted();
+            await persistMessage({ ...message, parts: message.parts.map((part: any) => ({ ...part, state: 'approval-responded', approval: { ...part.approval, ...decision } })) });
             return { type: item.type === 'function_call' ? 'function_call_output' : 'custom_tool_call_output', call_id: item.call_id,
               output: JSON.stringify(decision.approved ? result : { isError: true, content: [{ type: 'text', text: decision.reason ?? 'Tool result was not approved.' }] }), ...(item.caller ? { caller: item.caller } : {}) };
           };
           liveRef.current = new LiveConversationRuntime({ send: sendEvent,
             message: message => { void persistMessage({ ...message, metadata: { ...message.metadata, model, realtime: true } }); },
             error: message => { if (!stoppingRef.current) addChatError(new Error(message)); }, execute,
-            runClient: (messages, signal) => runLiveClientDelegation({ config, state: { ...store.getState(), tools }, messages, signal, execute: executeTool, review: approvals.review }),
+            runClient: (messages, signal) => runLiveClientDelegation({ config, state: { ...store.getState(), tools }, messages, signal, execute: executeTool, review: approvals.review,
+              onMessage: message => persistMessage({ ...message, metadata: { ...message.metadata, realtime: true, backend: true } }),
+            }),
             closed: event => {
               const last = historyRef.current!.lastAssistant();
               if (last) void persistMessage({ ...last, metadata: { ...last.metadata, liveSession: event.session?.id, liveUsage: event.usage, closeReason: event.reason } });

@@ -13,6 +13,7 @@ export async function runLiveClientDelegation(args: {
   config: ChatConfig; state: any; messages: UIMessage[]; signal: AbortSignal;
   execute: (item: any, signal: AbortSignal) => Promise<any>;
   review: (tool: RealtimeToolReview, signal: AbortSignal) => Promise<RealtimeToolDecision>;
+  onMessage?: (message: UIMessage) => Promise<void>;
 }) {
   const { config, state, signal } = args;
   const target = state.liveClientTarget;
@@ -43,7 +44,10 @@ export async function runLiveClientDelegation(args: {
       signal.throwIfAborted();
       if (chat.error) throw chat.error;
       const last = chat.messages.at(-1);
-      if (!await completeLiveToolCalls({ chat, executed, signal, execute: args.execute, review: args.review }))
+      if (last?.role === 'assistant') await args.onMessage?.(last);
+      if (!await completeLiveToolCalls({ chat, executed, signal, execute: args.execute, review: args.review,
+        changed: async () => { const message = chat.messages.at(-1); if (message?.role === 'assistant') await args.onMessage?.(message); },
+      }))
         return (last?.parts ?? []).filter((part: any) => part.type === 'text').map((part: any) => part.text).join('\n');
     }
     throw new Error('Client delegation tool limit reached.');
