@@ -7,6 +7,7 @@ const { buildSync } = require("esbuild");
 const React = require("react");
 const ts = require("typescript");
 const fs = require("node:fs");
+const { renderer, nodes } = require("./react-test-renderer.cjs");
 
 function load(relativePath, mocks = {}) {
     const filename = path.resolve(relativePath);
@@ -97,7 +98,7 @@ function providerKeysHarness(initialValues = { "X-OpenAI-Key": "configured-key" 
     return { props, calls, render };
 }
 
-test("provider keys lists only configured keys, masks by default, and searches unconfigured providers", async () => {
+test("provider keys lists only configured keys, masks by default, and offers searchable unconfigured providers", async () => {
     const { render, calls } = providerKeysHarness({
         "X-OpenAI-Key": "configured-key", "X-Google-Key": "   ",
     });
@@ -113,10 +114,9 @@ test("provider keys lists only configured keys, masks by default, and searches u
     tree = render();
     let select = find(tree, (node) => node.type === "Select");
     assert.deepEqual(children(select).map((option) => option.props.children), ["Anthropic", "Google"]);
-    find(tree, (node) => node.type === "SearchBox").props.onChange(" CLAUDE ");
-    tree = render();
-    select = find(tree, (node) => node.type === "Select");
-    assert.deepEqual(children(select).map((option) => option.props.children), ["Anthropic"]);
+    assert.equal(select.props.searchable, true);
+    assert.equal(select.props.searchPlaceholder, "searchPlaceholder");
+    assert.equal(select.props.noResultsText, "noResults");
     select.props.onChange("X-Anthropic-Key");
     tree = render();
     input = find(tree, (node) => node.type === "Input" && !node.props.readOnly);
@@ -179,11 +179,11 @@ test("provider key editor handles empty lists, unavailable providers, save failu
     assert.equal(find(tree, (node) => node.type === "Input"), undefined);
     find(tree, (node) => node.props.icon === "add").props.onClick();
     tree = render();
-    find(tree, (node) => node.type === "SearchBox").props.onChange("not-a-provider");
+    props.items = [];
     tree = render();
     assert.deepEqual(children(find(tree, (node) => node.type === "Select")), []);
-    assert.ok(find(tree, (node) => node.props.children === "noResults"));
-    find(tree, (node) => node.type === "SearchBox").props.onChange("");
+    assert.equal(find(tree, (node) => node.type === "Select").props.noResultsText, "noResults");
+    props.items = [{ id: "openai", name: "OpenAI", header: "X-OpenAI-Key" }];
     tree = render();
     find(tree, (node) => node.type === "Select").props.onChange({ target: { value: "X-OpenAI-Key" } });
     find(tree, (node) => node.type === "Input").props.onChange({ target: { value: "draft-key" } });
@@ -208,8 +208,9 @@ test("provider key editor handles empty lists, unavailable providers, save failu
 });
 
 test("provider keys modal preserves encrypted persistence and provider enablement, and unmounts keys on close", async () => {
-    const h = hooks();
+    const h = renderer();
     const encrypted = [];
+    const verified = [];
     const state = {
         customHeaders: { "X-OpenAI-Key": "old-key", "X-Other": "untouched" },
         encryptedApiKeys: { ciphertext: "existing" },
@@ -222,7 +223,7 @@ test("provider keys modal preserves encrypted persistence and provider enablemen
         setEnabledProvidersForType: (type, names) => { state.enabledProvidersByType[type] = names; },
     };
     const { ProviderKeysModal } = load("packages/aihappey-core/src/features/provider-credentials/ProviderKeysModal.tsx", {
-        react: { ...h.react, useRef: (value) => h.react.useMemo(() => ({ current: value }), []) },
+        react: h.react,
         "aihappey-components": components, "aihappey-i18n": i18n,
         "aihappey-state": { useAppStore: (selector) => selector(state), PROVIDER_CAPABILITIES: ["language", "image"] },
         "usehooks-ts": { useDarkMode: () => ({ isDarkMode: false }) },
@@ -230,7 +231,11 @@ test("provider keys modal preserves encrypted persistence and provider enablemen
         "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => ({ openai: { name: "OpenAI" } }) },
         "./ApiKeyPasswordModal": { ApiKeyPasswordModal: "ApiKeyPasswordModal" },
         "./apiKeyEncryption": {
-            decryptApiKeys: async () => state.customHeaders,
+            decryptApiKeys: async (payload, password) => {
+                verified.push({ payload, password });
+                assert.equal(password, "fresh-password");
+                return state.customHeaders;
+            },
             encryptApiKeys: async (headers, password) => {
                 encrypted.push({ headers, password });
                 return { ciphertext: `encrypted-${encrypted.length}` };
@@ -238,25 +243,31 @@ test("provider keys modal preserves encrypted persistence and provider enablemen
         },
     });
     const render = (open = true) => {
-        const tree = h.render(ProviderKeysModal, { open, onClose() {} });
-        h.flush();
-        return tree;
+        return h.render(ProviderKeysModal, { open, onClose() {} });
     };
-    let form = find(render(), (node) => node.type === "ProviderKeysForm");
+    let tree = render();
+    assert.equal(nodes(tree, "ProviderKeysForm").length, 0);
+    assert.equal(nodes(tree, "SettingsActionButtons").length, 0);
+    await nodes(tree, "ApiKeyPasswordModal")[0].props.onSubmit({ password: "fresh-password" });
+    assert.deepEqual(verified, [{ payload: { ciphertext: "existing" }, password: "fresh-password" }]);
+    let form = nodes(render(), "ProviderKeysForm")[0];
     await form.props.onChange("X-OpenAI-Key", "updated-key");
     assert.deepEqual(encrypted[0], {
         headers: { "X-OpenAI-Key": "updated-key", "X-Other": "untouched" }, password: "session-password",
     });
     assert.deepEqual(state.encryptedApiKeys, { ciphertext: "encrypted-1" });
     assert.deepEqual(state.enabledProvidersByType, { language: ["OpenAI"], image: ["OpenAI"] });
-    form = find(render(), (node) => node.type === "ProviderKeysForm");
+    form = nodes(render(), "ProviderKeysForm")[0];
     await form.props.onRemove("X-OpenAI-Key");
     assert.deepEqual(encrypted[1].headers, { "X-Other": "untouched" });
     assert.deepEqual(state.customHeaders, { "X-Other": "untouched" });
     assert.deepEqual(state.enabledProvidersByType, { language: [], image: [] });
-    assert.equal(find(render(false), (node) => node.type === "ProviderKeysForm"), undefined);
+    assert.equal(render(false), null);
+    tree = render();
+    assert.equal(nodes(tree, "ProviderKeysForm").length, 0);
+    await nodes(tree, "ApiKeyPasswordModal")[0].props.onSubmit({ password: "fresh-password" });
     state.apiKeyEncryptionStatus = "locked";
-    form = find(render(), (node) => node.type === "ProviderKeysForm");
+    form = nodes(render(), "ProviderKeysForm")[0];
     assert.equal(form.props.disabled, true);
     await form.props.onChange("X-OpenAI-Key", "blocked-key");
     assert.equal(encrypted.length, 2);
@@ -344,6 +355,10 @@ function chatSettingsHarness(overrides = {}, defaults = { openai: [{ id: "image"
     const calls = {};
     const setters = new Proxy(state, { get: (target, key) => target[key] ?? (String(key).startsWith("set") ? (value) => { calls[key] = value; } : undefined) });
     setters.setProviderFileMetadata = (value) => { state.providerFileMetadata = value; };
+    setters.setProviderRealtimeConversationMetadata = (value) => {
+        calls.setProviderRealtimeConversationMetadata = value;
+        state.providerRealtimeConversationMetadata = value;
+    };
     const store = (selector) => selector(setters);
     const local = new Proxy({}, { get: (_, name) => name });
     const realtimeSettings = load("packages/aihappey-components/src/modals/RealtimeSettingsModal.tsx", {
@@ -371,15 +386,16 @@ function chatSettingsHarness(overrides = {}, defaults = { openai: [{ id: "image"
         "../realtime/LiveClientTargetSelect": local,
     });
     let savedChat, savedHeaders;
-    const props = { open: true, providerMetadata: {}, providerHeaders: {}, setProviderMetadata: (value) => { savedChat = value; }, setProviderHeaders: (value) => { savedHeaders = value; }, resetDefaults: true, onClose() {} };
+    const props = { open: true, providerMetadata: {}, providerHeaders: {}, setProviderMetadata: (value) => { savedChat = value; props.providerMetadata = value; }, setProviderHeaders: (value) => { savedHeaders = value; props.providerHeaders = value; }, resetDefaults: true, onClose() { props.open = false; } };
     const render = () => { h.render(ChatSettingsModal, props); h.flush(); return h.render(ChatSettingsModal, props); };
+    const reopen = () => { props.open = false; render(); props.open = true; return render(); };
     const tabs = (modal) => children(find(modal, (node) => node.type === "Tabs")).filter((node) => node.props.eventKey.startsWith("provider:"));
     const rail = (modal) => {
         const content = find(modal, (node) => node.props.providerKey && typeof node.type === "function");
         return content?.type(content.props);
     };
     const select = (key) => { find(render(), (node) => node.type === "Tabs").props.onSelect(`provider:${key}`); return render(); };
-    return { state, calls, props, defaults, render, tabs, rail, select, get savedChat() { return savedChat; }, get savedHeaders() { return savedHeaders; } };
+    return { state, calls, props, defaults, render, reopen, tabs, rail, select, get savedChat() { return savedChat; }, get savedHeaders() { return savedHeaders; } };
 }
 
 test("main chat settings stages file edits, preserves other draft edits, saves on close, and restores defaults in draft only", () => {
@@ -401,6 +417,7 @@ test("main chat settings stages file edits, preserves other draft edits, saves o
     assert.equal(h.calls.setMaxOutputTokens, 123);
 
     // Restore only mutates the draft until the next close, including file options.
+    modal = h.reopen();
     modal.props.actions.props.onRestoreDefaults();
     modal = h.render();
     assert.equal(h.state.providerFileMetadata.openai[0].config.detail, "high");
@@ -486,6 +503,7 @@ test("switching provider tabs preserves isolated chat, header and file drafts an
     assert.equal(h.state.providerFileMetadata.anthropic[0].config.test, "anthropic");
     assert.deepEqual(h.state.providerFileMetadata.openai[1], defaults.openai[1]);
     assert.deepEqual(h.state.providerFileMetadata.google, defaults.google);
+    modal = h.reopen();
     modal.props.actions.props.onRestoreDefaults();
     modal = h.render();
     assert.equal(h.savedChat.mistral.safe_prompt, true);
@@ -551,6 +569,7 @@ test("realtime settings stages edits and restores only the active provider witho
     assert.equal(h.savedChat, undefined);
     assert.equal(h.savedHeaders, undefined);
     const fileOptions = structuredClone(h.state.providerFileMetadata);
+    modal = h.reopen();
     modal.props.actions.props.onRestoreDefaults();
     modal = h.render();
     assert.equal(h.calls.setProviderRealtimeConversationMetadata.google.cameraFrameRate, 3);
@@ -575,6 +594,7 @@ test("SpaceX AI settings accepts legacy xAI identity and restores defaults under
     assert.equal(h.calls.setProviderRealtimeConversationMetadata.spacexai.session.voice, "eve");
     assert.equal(Object.hasOwn(h.calls.setProviderRealtimeConversationMetadata, "xai"), false);
     assert.equal(h.calls.setProviderRealtimeConversationMetadata.google.keep, true);
+    modal = h.reopen();
     modal.props.actions.props.onRestoreDefaults();
     h.render().props.onHide();
     const defaults = load("packages/aihappey-state/src/slices/defaultProviderRealtimeMetadata.ts").defaultProviderRealtimeConversationMetadata;

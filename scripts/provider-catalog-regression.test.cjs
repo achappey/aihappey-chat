@@ -5,11 +5,31 @@ const os = require("node:os");
 const path = require("node:path");
 const ts = require("typescript");
 const { readCatalog, generate, validateMetadata, parseJson } = require("../packages/aihappey-core/scripts/generate-provider-catalog.cjs");
-const { moduleLoader } = require("./migrate-provider-catalog.cjs");
 
 const root = path.resolve(__dirname, "..");
 const base = "packages/aihappey-core/src/runtime/providers";
-const load = moduleLoader((file) => fs.readFileSync(path.join(root, file), "utf8"));
+// Cache the real modules: registry/handler identity is part of these assertions.
+const modules = new Map();
+function load(file) {
+  if (modules.has(file)) return modules.get(file).exports;
+  const module = { exports: {} };
+  modules.set(file, module);
+  const source = fs.readFileSync(path.join(root, file), "utf8");
+  if (file.endsWith(".json")) {
+    module.exports = JSON.parse(source);
+  } else {
+    const output = ts.transpileModule(source, {
+      fileName: file,
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
+    }).outputText;
+    new Function("require", "module", "exports", output)((id) => {
+      assert.ok(id.startsWith("."), `Unexpected catalog dependency ${id}`);
+      const dependency = path.posix.normalize(path.posix.join(path.posix.dirname(file), id));
+      return load(/\.(ts|json)$/.test(dependency) ? dependency : `${dependency}.ts`);
+    }, module, module.exports);
+  }
+  return module.exports;
+}
 const entries = readCatalog();
 const { PROVIDER_CATALOG } = load(`${base}/catalog.generated.ts`);
 const { PROVIDERS } = load(`${base}/providers.ts`);

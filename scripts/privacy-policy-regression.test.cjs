@@ -221,9 +221,9 @@ function sampleConfig(sample, env = {}) {
 
 test("only chathappey and Fluent inject privacy settings, with the requested sample defaults", () => {
   const chat = sampleConfig("chathappey");
-  assert.match(chat.markdown, /# aihappey Privacy Policy/);
+  assert.match(chat.markdown, /^## /m);
   assert.match(chat.markdown, /HeaderAuth/);
-  assert.match(chat.markdown, /OPERATOR TO COMPLETE/);
+  assert.doesNotMatch(chat.markdown, /OPERATOR TO COMPLETE/);
   assert.equal(chat.url, "");
   assert.equal(chat.markdown, read("samples/chathappey/PRIVACY.md"));
   assert.deepEqual(sampleConfig("fluent-sample"), { markdown: "", url: "https://example.com/privacy" });

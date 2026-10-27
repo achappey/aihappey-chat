@@ -30,7 +30,7 @@ function nodes(node, type) {
 const theme = new Proxy({}, { get: (_, key) => key });
 const i18n = { useTranslation: () => ({ t: key => key }) };
 
-test("agent tag editor lives exclusively in its own tab immediately after General", () => {
+test("agent tag editor lives exclusively in Details immediately after General", () => {
     const filename = "packages/aihappey-core/src/features/agents/AgentForm.tsx";
     const source = ts.createSourceFile(filename, fs.readFileSync(path.join(root, filename), "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
     const tabs = [];
@@ -42,11 +42,14 @@ test("agent tag editor lives exclusively in its own tab immediately after Genera
         ts.forEachChild(node, visit);
     }
     visit(source);
-    assert.deepEqual(tabs.slice(0, 2).map(tab => tab.key), ["general", "tags"]);
-    assert.equal(tabs.filter(tab => tab.key === "tags").length, 1);
+    assert.deepEqual(tabs.slice(0, 2).map(tab => tab.key), ["general", "details"]);
+    assert.equal(tabs.filter(tab => tab.key === "details").length, 1);
+    assert.equal(tabs.filter(tab => tab.key === "tags").length, 0);
     assert.doesNotMatch(tabs[0].node.getText(source), /tagInput|agentEdit\.tags|<Tags/);
     const editor = tabs[1].node.getText(source);
-    assert.match(editor, /title=\{t\("agentEdit.tags"\)\}/);
+    assert.match(editor, /title=\{t\("details"\)\}/);
+    assert.match(editor, /agentEdit\.ownedBy/);
+    assert.ok(editor.indexOf("agentEdit.ownedBy") < editor.indexOf("value={tagInput}"));
     assert.match(editor, /value=\{tagInput\}/);
     assert.match(editor, /addTag\(tagInput\)/);
     assert.match(editor, /availableTags\.filter/);
