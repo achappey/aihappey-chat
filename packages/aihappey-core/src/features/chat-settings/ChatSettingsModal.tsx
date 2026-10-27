@@ -98,7 +98,10 @@ export interface ProviderSettingsModalProps {
   onClose: () => void;
 }
 
+import { LiveClientTargetSelect } from '../realtime/LiveClientTargetSelect';
+
 type ChatSettingsDraft = {
+  liveClientTarget?: { kind: 'agent' | 'model'; id: string };
   temperature?: number;
   maxOutputTokens?: number;
   structuredOutputs?: any;
@@ -159,6 +162,8 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const selectedChatModelIds = useAppStore((a) => a.selectedChatModelIds);
   const providerRealtimeConversationMetadata = useAppStore((s) => s.providerRealtimeConversationMetadata);
   const setProviderRealtimeConversationMetadata = useAppStore((s) => s.setProviderRealtimeConversationMetadata);
+  const liveClientTarget = useAppStore(s => s.liveClientTarget);
+  const setLiveClientTarget = useAppStore(s => s.setLiveClientTarget);
   const isRealtime = realtimeModel !== undefined;
   const realtimeProviderKey = normalizeRealtimeSettingsProviderKey(
     getModelProviderKey(realtimeModel, models?.find((model) => model.id === realtimeModel)) ?? ""
@@ -201,6 +206,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
   const createDraft = useCallback(
     (): ChatSettingsDraft => ({
+      liveClientTarget: liveClientTarget ? { ...liveClientTarget } : undefined,
       temperature,
       maxOutputTokens,
       structuredOutputs,
@@ -232,6 +238,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       providerHeaders,
       providerMetadata,
       providerRealtimeConversationMetadata,
+      liveClientTarget,
       providerFileMetadata,
       stopTools,
       structuredOutputs,
@@ -372,6 +379,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     if (isRealtime) {
       return hasRealtimeProviderConfig(providerKey) ? (
         <RealtimeProviderConfigForm
+          liveClientSelector={<LiveClientTargetSelect value={draft.liveClientTarget} onChange={liveClientTarget => setDraft(current => ({ ...current, liveClientTarget }))} />}
           providerKey={providerKey}
           providerMetadata={draft.providerRealtimeConversationMetadata}
           setProviderMetadata={(metadata) => setDraft((current) => ({
@@ -481,6 +489,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
   }, [
     isRealtime,
     draft.providerRealtimeConversationMetadata,
+    draft.liveClientTarget,
     chatConfig?.appName,
     draft.providerHeaders,
     draft.providerMetadata,
@@ -544,6 +553,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     setUseToolNamespaces(draft.useToolNamespaces);
     setEnabledSkillIds(draft.enabledSkillIds);
     if (isRealtime) {
+      setLiveClientTarget(draft.liveClientTarget);
       if (hasRealtimeProviderConfig(realtimeProviderKey)) {
         setProviderRealtimeConversationMetadata({
           ...(providerRealtimeConversationMetadata ?? {}),
@@ -563,6 +573,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
     realtimeProviderKey,
     providerRealtimeConversationMetadata,
     setProviderRealtimeConversationMetadata,
+    setLiveClientTarget,
     setActivePlugins,
     setEnabledAgentPluginIds,
     setEnabledLocalTools,
@@ -590,6 +601,7 @@ export const ChatSettingsModal: React.FC<ProviderSettingsModalProps> = ({
       verbosity: DEFAULT_CHAT_VERBOSITY,
       toolAnnotations: { ...DEFAULT_CHAT_TOOL_ANNOTATIONS },
       ...(isRealtime ? {
+        liveClientTarget: undefined,
         providerRealtimeConversationMetadata: {
           ...current.providerRealtimeConversationMetadata,
           [realtimeProviderKey]: structuredClone(

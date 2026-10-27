@@ -5,6 +5,9 @@ import {
 } from "./defaultProviderRealtimeMetadata";
 
 export type RealtimeSlice = {
+  /** Application-only execution reference. Never belongs in provider options. */
+  liveClientTarget?: { kind: 'agent' | 'model'; id: string };
+  setLiveClientTarget: (target?: { kind: 'agent' | 'model'; id: string }) => void;
   /** Realtime transcription provider metadata. Kept for backwards compatibility. */
   providerRealtimeMetadata?: any
   setProviderRealtimeMetadata: (metadata: any) => void;
@@ -36,6 +39,8 @@ export const createRealtimeSlice: StateCreator<
   [],
   RealtimeSlice
 > = (set, get) => ({
+  liveClientTarget: undefined,
+  setLiveClientTarget: liveClientTarget => set({ liveClientTarget }),
   providerRealtimeMetadata: defaultProviderRealtimeMetadata,
   providerRealtimeConversationMetadata: defaultProviderRealtimeConversationMetadata,
 

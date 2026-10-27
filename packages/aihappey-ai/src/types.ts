@@ -164,6 +164,7 @@ export const defaultEndpoints = {
   oaiImageEdits: "/v1/images/edits",
   oaiEmbeddings: "/v1/embeddings",
   realtime: "/v1/realtime/client_secrets",
+  realtimeSession: "/api/realtime/session",
   oaiDecisions: "/v1/decisions",
   decisions: "/api/decisions",
 }

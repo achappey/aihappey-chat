@@ -44,6 +44,7 @@ export const withPersist = (
       maxToolCalls: s.maxToolCalls,
       providerRealtimeMetadata: s.providerRealtimeMetadata,
       providerRealtimeConversationMetadata: s.providerRealtimeConversationMetadata,
+      liveClientTarget: s.liveClientTarget,
       userPreferredModel: s.userPreferredModel,
       userPreferredImageModel: s.userPreferredImageModel,
       userPreferredAudioModel: s.userPreferredAudioModel,

@@ -1,4 +1,4 @@
-export { useChat } from "@ai-sdk/react";
+export { useChat, Chat } from "@ai-sdk/react";
 export {
         DefaultChatTransport, stepCountIs, lastAssistantMessageIsCompleteWithApprovalResponses,
         UIMessage, generateText, createAgentUIStream, jsonSchema,
@@ -34,4 +34,5 @@ export * from './createDecisionProvider'
 export * from './decisionApi'
 export * from './universalDecisionApi'
 export * from './getRealtimeToken'
+export * from './createRealtimeProvider'
 export * from './openAIAudioStreaming'

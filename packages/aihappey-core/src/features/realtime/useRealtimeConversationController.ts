@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useConversations } from "aihappey-conversations";
-import { useAppStore } from "aihappey-state";
+import { store, useAppStore } from "aihappey-state";
+import { usesOpenAiLiveProtocol } from './liveSessionConfig';
+import { LiveConversationRuntime } from './liveConversationRuntime';
+import { runLiveClientDelegation } from './runLiveClientDelegation';
+import { useRealtimeToolApprovals } from './useRealtimeToolApprovals';
 import type { UIMessage } from "aihappey-types";
 import type { ChatConfig } from "../chat/context/ChatContext";
 import { useChatErrors } from "../chat/layout/useChatErrors";
@@ -58,6 +62,10 @@ export function useRealtimeConversationController(args: {
   const toolChoice = useAppStore((s) => s.toolChoice);
   const callTool = useAppStore((s) => s.callTool);
   const { tools } = useTools();
+  const approvals = useRealtimeToolApprovals();
+  const models = useAppStore(s => s.models);
+  const modelTags = useMemo(() => models?.find(m => m.id === model)?.tags ?? [], [models, model]);
+  const isLive = model.startsWith('openai/') && usesOpenAiLiveProtocol(modelTags);
   const toolUse = useOnToolCall({
     api: config.baseUrl,
     getAccessToken: config.getAccessToken,
@@ -65,6 +73,7 @@ export function useRealtimeConversationController(args: {
     headers: config.headers,
     customFetch: config.fetch,
     callTool,
+    tools,
     send: async () => {
       throw new Error("Realtime UI generation is not available during a live voice session.");
     },
@@ -79,6 +88,9 @@ export function useRealtimeConversationController(args: {
   const [events, setEvents] = useState<any[]>([]);
 
   const sessionRef = useRef<RealtimeConversationSession | null>(null);
+  const liveRef = useRef<LiveConversationRuntime | null>(null);
+  const startupRef = useRef<AbortController | null>(null);
+  const liveSaveRef = useRef(Promise.resolve());
   const startedRef = useRef(false);
   const pendingQueueRef = useRef<UIMessage[]>([]);
   const persistedIdsRef = useRef<Set<string>>(new Set((initialMessages ?? []).map((m) => m.id)));
@@ -330,6 +342,7 @@ export function useRealtimeConversationController(args: {
   const configureSession = useCallback(() => {
     const event = buildRealtimeConversationSessionUpdateEvent({
       model,
+      modelTags,
       providerMetadata,
       providerRealtimeConversationMetadata,
       instructions,
@@ -338,12 +351,13 @@ export function useRealtimeConversationController(args: {
       toolChoice,
     });
     if (event) sendEvent(event);
-  }, [instructions, maxOutputTokens, model, providerMetadata, providerRealtimeConversationMetadata, sendEvent, toolChoice, tools]);
+  }, [instructions, maxOutputTokens, model, modelTags, providerMetadata, providerRealtimeConversationMetadata, sendEvent, toolChoice, tools]);
 
   const flushPendingQueue = useCallback(() => {
     if (isCartesiaRealtime) { pendingQueueRef.current = []; return; }
     const pending = pendingQueueRef.current.splice(0);
     for (const message of pending) {
+      if (liveRef.current) { liveRef.current.sendMessage(message); continue; }
       const content = uiMessageToRealtimeContent(message);
       if (content.length === 0) continue;
       sendEvent({
@@ -362,6 +376,7 @@ export function useRealtimeConversationController(args: {
     (event: any) => {
       setEvents((prev) => [event, ...prev].slice(0, 60));
       const type = String(event?.type ?? "");
+      if (liveRef.current) { liveRef.current.handle(event); return; }
 
       if (isCartesiaRealtime) {
         if (type === "error") {
@@ -653,10 +668,43 @@ export function useRealtimeConversationController(args: {
       }
 
       try {
+        const startup = new AbortController(); startupRef.current = startup;
+        if (isLive) {
+          const executeTool = async (item: any, signal: AbortSignal) => {
+            signal.throwIfAborted();
+            if (!['function_call', 'custom_tool_call'].includes(item.type)) throw new Error(`No authorized client executor for ${item.type}.`);
+            if (!tools.some(tool => tool.name === item.name)) throw new Error(`Tool '${item.name}' is not enabled in this client.`);
+            const result = await (toolUse.onToolCall as any)({ toolCall: { toolCallId: item.call_id, toolName: item.name, input: item.type === 'function_call' ? JSON.parse(item.arguments) : item.input }, signal });
+            signal.throwIfAborted();
+            const message = newUiMessage('assistant', [{ type: `tool-${item.name}`, toolCallId: item.call_id, state: 'output-available', input: item.arguments ?? item.input, output: result }], { realtime: true, model });
+            await persistMessage(message);
+            return result;
+          };
+          const execute = async (item: any, signal: AbortSignal) => {
+            if (item.type === 'mcp_approval_request') {
+              const decision = await approvals.review({ toolCallId: item.id, toolName: item.name ?? item.server_label ?? 'MCP', input: item.arguments }, signal);
+              return { type: 'mcp_approval_response', approval_request_id: item.id, approve: decision.approved, ...(decision.reason ? { reason: decision.reason } : {}) };
+            }
+            const result = await executeTool(item, signal);
+            const decision = await approvals.review({ toolCallId: item.call_id, toolName: item.name, input: item.type === 'function_call' ? JSON.parse(item.arguments) : item.input, output: result }, signal);
+            signal.throwIfAborted();
+            return { type: item.type === 'function_call' ? 'function_call_output' : 'custom_tool_call_output', call_id: item.call_id,
+              output: JSON.stringify(decision.approved ? result : { isError: true, content: [{ type: 'text', text: decision.reason ?? 'Tool result was not approved.' }] }), ...(item.caller ? { caller: item.caller } : {}) };
+          };
+          liveRef.current = new LiveConversationRuntime({ send: sendEvent,
+            message: message => { upsertLocalDraft(message); liveSaveRef.current = liveSaveRef.current.then(() => persistMessage(message)); },
+            error: message => addChatError(new Error(message)), execute,
+            runClient: (messages, signal) => runLiveClientDelegation({ config, state: { ...store.getState(), tools }, messages, signal, execute: executeTool, review: approvals.review }),
+            closed: event => { setStatus('idle'); startupRef.current?.abort(); void sessionRef.current?.stop(); sessionRef.current = null; startedRef.current = false;
+              void persistMessage(newUiMessage('assistant', [], { realtime: true, model, liveSession: event.session?.id, usage: event.usage, closeReason: event.reason })); },
+          }, providerRealtimeConversationMetadata?.openai?.session?.delegation?.type === 'responses' ? 'responses' : 'client', initialMessages);
+        }
         const session = await startRealtimeConversationProviderSession({
           config,
           customHeaders,
           model,
+          modelTags,
+          abortSignal: startup.signal,
           providerMetadata,
           providerRealtimeConversationMetadata,
           instructions,
@@ -686,8 +734,10 @@ export function useRealtimeConversationController(args: {
         });
 
         sessionRef.current = session;
+        if (startup.signal.aborted) { await session.stop(); sessionRef.current = null; return; }
         session.setMicrophoneEnabled(!muted);
       } catch (e) {
+        liveRef.current?.stop(); liveRef.current = null;
         const full = describeError(e);
         setStatus("error");
         setError(full);
@@ -699,10 +749,14 @@ export function useRealtimeConversationController(args: {
     },
     [addChatError, audioRef, config, configureSession, customHeaders, isCartesiaRealtime,
       flushPendingQueue, handleRealtimeEvent, maxOutputTokens, model,
-      muted, providerMetadata, providerRealtimeConversationMetadata, status, toolChoice, tools, instructions]
+      muted, providerMetadata, providerRealtimeConversationMetadata, status, toolChoice, tools, instructions,
+      isLive, modelTags, initialMessages, persistMessage, sendEvent, toolUse.onToolCall, upsertLocalDraft, approvals.review]
   );
 
   const stop = useCallback(async () => {
+    approvals.cancel();
+    liveRef.current?.stop();
+    if (!sessionRef.current) startupRef.current?.abort();
     if (!sessionRef.current) {
       setCameraEnabledState(false);
       setCameraStream(null);
@@ -717,11 +771,13 @@ export function useRealtimeConversationController(args: {
     setCameraStream(null);
     try {
       await session.stop();
+      liveRef.current = null;
+      await liveSaveRef.current;
     } finally {
       startedRef.current = false;
       setStatus("idle");
     }
-  }, []);
+  }, [approvals.cancel]);
 
   const setMicrophoneMuted = useCallback((nextMuted: boolean) => {
     setMuted(nextMuted);
@@ -774,6 +830,7 @@ export function useRealtimeConversationController(args: {
         return;
       }
 
+      if (liveRef.current) { liveRef.current.sendMessage(persisted); return; }
       sendEvent({
         type: "conversation.item.create",
         item: {
@@ -801,6 +858,8 @@ export function useRealtimeConversationController(args: {
   return useMemo(
     () => ({
       status,
+      approvalMessages: approvals.messages,
+      respondToToolApproval: approvals.respond,
       sendDtmf,
       error,
       muted,
@@ -816,7 +875,7 @@ export function useRealtimeConversationController(args: {
       setCameraEnabled,
       sendMessage,
     }),
-    [cameraEnabled, cameraStream, error, events, messages, model, muted, sendDtmf, sendMessage, setCameraEnabled, setMicrophoneMuted, start, status, stop, tools]
+    [cameraEnabled, cameraStream, error, events, messages, model, muted, sendDtmf, sendMessage, setCameraEnabled, setMicrophoneMuted, start, status, stop, tools, approvals.messages, approvals.respond]
   );
 }
 

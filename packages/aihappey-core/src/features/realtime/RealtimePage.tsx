@@ -17,6 +17,7 @@ import { WelcomeMessage } from "../chat/messages/WelcomeMessage";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { ElicitationModalHost } from "../elicitation/ElicitationModalHost";
+import { ToolApprovalModalHost } from '../tools/ToolApprovalModalHost';
 import { fileAttachmentRuntime } from "../../runtime/files/fileAttachmentRuntime";
 import { urlAttachmentRuntime } from "../../runtime/files/urlAttachmentRuntime";
 import { mcpResourceRuntime } from "../../runtime/mcp/mcpResourceRuntime";
@@ -341,6 +342,7 @@ function RealtimeConversationPage() {
       </div>
       <DisclaimerBar />
       <ElicitationModalHost />
+      <ToolApprovalModalHost messages={controller.approvalMessages} tools={controller.tools} status="ready" addToolApprovalResponse={controller.respondToToolApproval} />
     </div>
   );
 }

@@ -28,11 +28,16 @@ class ElicitRuntime {
     this.listeners.forEach(l => l());
   }
 
-  onElicit(_server: string, request: ElicitRequest): Promise<ElicitResult> {
+  onElicit(_server: string, request: ElicitRequest, signal?: AbortSignal): Promise<ElicitResult> {
     const id = crypto.randomUUID();
 
     return new Promise(resolve => {
-      this.pending.set(id, { createdAt: Date.now(), request, resolve });
+      const abort = () => this.respond(id, { action: 'cancel' } as ElicitResult);
+      this.pending.set(id, { createdAt: Date.now(), request, resolve: result => {
+        signal?.removeEventListener('abort', abort); resolve(result);
+      } });
+      signal?.addEventListener('abort', abort, { once: true });
+      if (signal?.aborted) abort();
       this.notify();
     });
   }

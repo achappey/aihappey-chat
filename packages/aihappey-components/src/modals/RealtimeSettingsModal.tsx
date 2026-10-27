@@ -14,7 +14,9 @@ export const RealtimeProviderConfigForm: React.FC<{
   providerKey: string;
   providerMetadata: Record<string, any>;
   setProviderMetadata: (metadata: Record<string, any>) => void;
-}> = ({ providerKey, providerMetadata, setProviderMetadata }) => {
+  liveClientSelector?: React.ReactNode;
+  liveResponsesModelSelector?: React.ReactNode;
+}> = ({ providerKey, providerMetadata, setProviderMetadata, liveClientSelector, liveResponsesModelSelector }) => {
   const theme = useTheme();
   switch (normalizeRealtimeSettingsProviderKey(providerKey)) {
     case "cartesia":
@@ -34,6 +36,8 @@ export const RealtimeProviderConfigForm: React.FC<{
     case "openai":
       return (
         <OpenAIRealtimeConversationConfigForm
+          liveClientSelector={liveClientSelector}
+          liveResponsesModelSelector={liveResponsesModelSelector}
           config={providerMetadata.openai ?? {}}
           updateConfig={(openai) => setProviderMetadata({
             ...providerMetadata,

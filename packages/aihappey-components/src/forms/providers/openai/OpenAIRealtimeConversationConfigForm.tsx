@@ -11,6 +11,8 @@ export type OpenAIRealtimeConversationConfig = {
     seconds?: number;
   };
   session?: {
+    [key: string]: any;
+    delegation?: { type: 'client' | 'responses'; acknowledgement_delay_ms?: number; responses?: Record<string, any> } | null;
     type?: "realtime";
     output_modalities?: string[];
     max_output_tokens?: number | "inf";
@@ -49,6 +51,8 @@ export type OpenAIRealtimeConversationConfig = {
 };
 
 export type OpenAIRealtimeConversationConfigFormProps = {
+  liveClientSelector?: React.ReactNode;
+  liveResponsesModelSelector?: React.ReactNode;
   config: OpenAIRealtimeConversationConfig;
   updateConfig: (val: OpenAIRealtimeConversationConfig) => void;
 };
@@ -118,6 +122,8 @@ const selectValueLabel = (value: string, t: (key: string) => string) => {
 export const OpenAIRealtimeConversationConfigForm: React.FC<OpenAIRealtimeConversationConfigFormProps> = ({
   config,
   updateConfig,
+  liveClientSelector,
+  liveResponsesModelSelector,
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -129,6 +135,10 @@ export const OpenAIRealtimeConversationConfigForm: React.FC<OpenAIRealtimeConver
   const turnDetection = audioInput.turn_detection;
   const reasoning = session.reasoning;
   const expiresAfter = config?.expires_after ?? {};
+  const delegation = session.delegation;
+  const responses = delegation?.responses ?? {};
+  const updateDelegation = (patch: Record<string, any>) => updateSession({ delegation: { ...(delegation ?? { type: 'client' }), ...patch } });
+  const updateResponses = (patch: Record<string, any>) => updateDelegation({ responses: { ...responses, ...patch } });
 
   const updateSession = (patch: Partial<NonNullable<OpenAIRealtimeConversationConfig["session"]>>) => {
     updateConfig({
@@ -193,6 +203,28 @@ export const OpenAIRealtimeConversationConfigForm: React.FC<OpenAIRealtimeConver
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      <theme.Card size="small" title="Live">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <theme.Select label="Delegation" values={[delegation?.type ?? 'client']} valueTitle={delegation?.type ?? 'client'}
+            options={[{ value: 'responses', label: 'Responses' }, { value: 'client', label: 'Client' }]}
+            onChange={(value: string) => updateSession({ delegation: { type: value as 'client' | 'responses', ...(delegation?.acknowledgement_delay_ms !== undefined ? { acknowledgement_delay_ms: delegation.acknowledgement_delay_ms } : {}), ...(value === 'responses' ? { responses } : {}) } })}>
+            <option value="responses">Responses</option><option value="client">Client</option>
+          </theme.Select>
+          <theme.Input id="openai-live-acknowledgement-delay" label="Acknowledgement delay (ms)" type="number" min={0} value={delegation?.acknowledgement_delay_ms ?? ''}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => updateDelegation({ acknowledgement_delay_ms: parseOptionalNumber(e.target.value) })} />
+          {delegation?.type === 'responses' ? <>
+            {liveResponsesModelSelector ?? <theme.Input id="openai-live-responses-model" label="Responses model" value={responses.model ?? ''} onChange={(e: ChangeEvent<HTMLInputElement>) => updateResponses({ model: e.target.value })} />}
+            <theme.TextArea label="Backend instructions" rows={3} value={responses.instructions ?? ''} onChange={instructions => updateResponses({ instructions })} />
+            <theme.Input id="openai-live-max-output-tokens" label="Backend maximum output tokens" type="number" min={16} value={responses.max_output_tokens ?? ''} onChange={(e: ChangeEvent<HTMLInputElement>) => updateResponses({ max_output_tokens: parseOptionalNumber(e.target.value) })} />
+            <theme.Switch id="openai-live-parallel-tools" label="Parallel backend tool calls" checked={responses.parallel_tool_calls ?? true} onChange={parallel_tool_calls => updateResponses({ parallel_tool_calls })} />
+            <theme.Select label="Backend tool choice" values={[typeof responses.tool_choice === 'string' ? responses.tool_choice : '__native__']} valueTitle={typeof responses.tool_choice === 'string' ? responses.tool_choice : 'Native / default'}
+              options={['auto', 'none', 'required', '__native__'].map(value => ({ value, label: value === '__native__' ? 'Native / default' : value }))} onChange={(value: string) => { if (value !== '__native__') updateResponses({ tool_choice: value }); }}>
+              {['auto', 'none', 'required', '__native__'].map(value => <option key={value} value={value}>{value === '__native__' ? 'Native / default' : value}</option>)}
+            </theme.Select>
+            {['web_search', 'code_interpreter', 'file_search'].map(type => <theme.Switch key={type} id={`openai-live-tool-${type}`} label={type} checked={(responses.tools ?? []).some((tool: any) => tool.type === type)} onChange={enabled => updateResponses({ tools: [...(responses.tools ?? []).filter((tool: any) => tool.type !== type), ...(enabled ? [{ type }] : [])] })} />)}
+          </> : liveClientSelector}
+        </div>
+      </theme.Card>
       <theme.Card size="small" title={t("general") ?? "General"}>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <theme.Select

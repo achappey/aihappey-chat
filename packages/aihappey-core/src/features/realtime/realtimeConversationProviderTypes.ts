@@ -11,6 +11,8 @@ export type RealtimeConversationProviderRuntime = {
 
 export type RealtimeConversationProviderSessionConfigArgs = {
   model: string;
+  modelTags?: readonly string[];
+  abortSignal?: AbortSignal;
   instructions?: string;
   maxOutputTokens?: number;
   toolChoice?: string;
