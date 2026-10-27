@@ -1,10 +1,10 @@
-{
+﻿{
   "perplexity": {
     "academic": "Học thuật",
     "web": "Web",
-    "improveImageRelevance": "Cải thiện mức độ liên quan của hình ảnh",
+    "improveImageRelevance": "Cải thiện mức độ phù hợp của hình ảnh",
     "enableSearchClassifier": "Bộ phân loại tìm kiếm",
-    "dateSearchSettings": "Bộ lọc ngày",
+    "dateSearchSettings": "Bộ lọc ngày tháng",
     "searchRecencyFilter": "Bộ lọc độ mới",
     "searchAfterDateFilter": "Xuất bản sau ngày",
     "searchBeforeDateFilter": "Xuất bản trước ngày",
@@ -13,29 +13,236 @@
     "sonarDeepResearch": "Nghiên cứu chuyên sâu Sonar",
     "returnImages": "Trả về hình ảnh",
     "returnVideos": "Trả về video",
-    "returnRelatedQuestions": "Trả về câu hỏi liên quan"
+    "returnRelatedQuestions": "Trả về câu hỏi liên quan",
+    "agent": "Tác nhân",
+    "fast": "Nhanh",
+    "pro": "Pro",
+    "media": "Phương tiện",
+    "responsesWebSearch": "Tìm kiếm trên web",
+    "fetchUrl": "Đọc trang web",
+    "financeSearch": "Tìm kiếm tài chính",
+    "peopleSearch": "Tìm kiếm người",
+    "searchType": "Loại tìm kiếm",
+    "searchDomainFilter": "Bộ lọc tên miền",
+    "enableMediaClassifier": "Bộ phân loại phương tiện",
+    "instructions": "Hướng dẫn",
+    "languagePreference": "Ngôn ngữ ưu tiên",
+    "languagePreferencePlaceholder": "ví dụ: en",
+    "maxOutputTokens": "Số token đầu ra tối đa",
+    "maxSteps": "Số bước tối đa",
+    "models": "Mô hình (tối đa 5)",
+    "noModelsAvailable": "Không có mô hình Perplexity nào.",
+    "maxTokens": "Số token tối đa",
+    "maxTokensPerPage": "Số token tối đa mỗi trang",
+    "maxResultsPerQuery": "Số kết quả tối đa mỗi truy vấn",
+    "maxResultsPerRequest": "Số kết quả tối đa mỗi yêu cầu",
+    "maxUrls": "Số trang tối đa",
+    "recency": {
+      "hour": "Giờ",
+      "day": "Ngày",
+      "week": "Tuần",
+      "month": "Tháng",
+      "year": "Năm"
+    }
   },
   "pollinations": {
     "enhance": "Cải thiện",
-    "enhanceHint": "Cho phép AI cải thiện prompt để có kết quả tốt hơn",
+    "enhanceHint": "Cho phép AI cải thiện lời nhắc để có kết quả tốt hơn",
     "private": "Riêng tư",
     "privateHint": "Ẩn hình ảnh khỏi nguồn cấp công khai"
   },
   "mistral": {
     "webSearchPremium": "Cao cấp",
     "transcriptionTimestampsLanguageIncompatibleTitle": "Lưu ý",
-    "transcriptionTimestampsLanguageIncompatible": "Mistral: dấu thời gian (timestamp_granularities) không tương thích với ngôn ngữ. Hãy dùng dấu thời gian HOẶC ngôn ngữ.",
-    "transcriptionTimestampsEnabledHint": "Đã bật dấu thời gian (chỉ segment). Ngôn ngữ đã được xoá tự động.",
+    "transcriptionTimestampsLanguageIncompatible": "Mistral: dấu thời gian (timestamp_granularities) không tương thích với ngôn ngữ. Hãy dùng dấu thời gian hoặc ngôn ngữ.",
+    "transcriptionTimestampsEnabledHint": "Đã bật dấu thời gian (chỉ theo đoạn). Ngôn ngữ đã được tự động xóa.",
     "transcriptionLanguageEnabledHint": "Đã đặt ngôn ngữ. Nếu bật dấu thời gian, ngôn ngữ sẽ được xoá tự động."
   },
   "anthropic": {
     "maxUses": "Số lần sử dụng tối đa",
     "customSkills": "Kỹ năng tùy chỉnh",
     "allowedDomains": "Tên miền được phép",
-    "blockedDomains": "Tên miền bị chặn"
+    "blockedDomains": "Tên miền bị chặn",
+    "betaHeader": "Beta",
+    "other": {
+      "serviceTier": {
+        "title": "Cấp dịch vụ",
+        "options": {
+          "auto": "Ưu tiên khi khả dụng",
+          "standard_only": "Chỉ tiêu chuẩn"
+        }
+      },
+      "speed": {
+        "title": "Tốc độ",
+        "options": {
+          "standard": "Tiêu chuẩn",
+          "fast": "Nhanh"
+        }
+      },
+      "inferenceGeo": {
+        "title": "Khu vực",
+        "options": {
+          "global": "Toàn cầu",
+          "us": "Hoa Kỳ"
+        }
+      }
+    },
+    "memory": "Bộ nhớ",
+    "shell": "Shell",
+    "textEditor": "Trình chỉnh sửa văn bản",
+    "toolSearchBm25": "Công cụ tìm kiếm (BM25)",
+    "toolSearchRegex": "Công cụ tìm kiếm (Regex)",
+    "version": "Phiên bản",
+    "allowedCallers": "Được phép bên gọi",
+    "none": "Không",
+    "cacheControl": "Lời nhắc bộ nhớ đệm",
+    "cache": {
+      "title": "Bộ nhớ đệm",
+      "ttl": "Thời lượng",
+      "ttlOptions": {
+        "5m": "5 phút",
+        "1h": "1 giờ"
+      }
+    },
+    "compaction": {
+      "title": "Rút gọn ngữ cảnh"
+    },
+    "deferLoading": "Trì hoãn tải",
+    "strictValidation": "Nghiêm ngặt",
+    "cacheControlType": "Loại bộ nhớ đệm",
+    "cacheDuration": "Bộ nhớ đệm thời lượng",
+    "defaultOption": "Mặc định",
+    "ephemeral": "Tạm thời",
+    "outputConfig": {
+      "title": "Cấu hình đầu ra",
+      "effort": "Mức độ suy luận ({{effort}})",
+      "taskBudget": "Ngân sách tác vụ"
+    },
+    "advisor": {
+      "title": "Cố vấn",
+      "toolName": "Tên công cụ",
+      "model": "Mô hình",
+      "maxTokens": "Số token tối đa",
+      "caching": "Bộ nhớ đệm lời nhắc tư vấn"
+    },
+    "inputExamples": "Ví dụ đầu vào",
+    "maxCharacters": "Số ký tự tối đa",
+    "maxContentTokens": "Số token nội dung tối đa",
+    "citations": "Trích dẫn",
+    "useCache": "Dùng bộ nhớ đệm",
+    "responseInclusion": "Phản hồi bao gồm",
+    "container": "Vùng chứa",
+    "containerPlaceholder": "ID vùng chứa (không bắt buộc)",
+    "containerSettings": {
+      "title": "Vùng chứa",
+      "id": "ID vùng chứa",
+      "idPlaceholder": "ID vùng chứa (không bắt buộc)",
+      "customSkillIds": "ID kỹ năng tùy chỉnh",
+      "customSkillIdsPlaceholder": "skill_custom_a, skill_custom_b",
+      "skills": {
+        "pptx": "PowerPoint",
+        "xlsx": "Excel",
+        "docx": "Word",
+        "pdf": "PDF"
+      }
+    },
+    "session": {
+      "title": "Ngân sách (tác nhân được quản lý)",
+      "maxListCostUsd": "Ngân sách tối đa (USD)"
+    },
+    "userLocation": "Vị trí",
+    "locationType": "Loại vị trí",
+    "locationApproximate": "Xấp xỉ",
+    "thinkingDisplay": "Suy nghĩ chi tiết",
+    "prefixMismatchBehavior": "Suy nghĩ không khớp",
+    "prefixMismatchBehaviorOptions": {
+      "error": "Lỗi",
+      "drop_block": "Thả"
+    },
+    "thinkingModes": {
+      "enabled": "Bật",
+      "disabled": "Đã tắt",
+      "between_tools": "Giữa công cụ",
+      "adaptive": "Thích ứng"
+    },
+    "thinkingDisplayModes": {
+      "summarized": "Đã tóm tắt",
+      "omitted": "Bỏ qua",
+      "updates": "Cập nhật"
+    },
+    "contextManagement": {
+      "title": "Quản lý ngữ cảnh",
+      "empty": "Chưa cấu hình quy tắc quản lý ngữ cảnh nào.",
+      "add": "Thêm quy tắc ngữ cảnh",
+      "type": "Loại quy tắc",
+      "trigger": "Ngưỡng kích hoạt",
+      "triggerValue": "Giá trị ngưỡng kích hoạt",
+      "keep": "Giữ",
+      "keepValue": "Giữ giá trị",
+      "clearAtLeast": "Xóa tối thiểu",
+      "clearAtLeastValue": "Số token tối thiểu cần xóa",
+      "clearToolInputs": "Xóa dữ liệu đầu vào của công cụ",
+      "clearToolInputsValue": "Giá trị Boolean",
+      "clearToolInputsList": "Danh sách dữ liệu đầu vào cụ thể của công cụ",
+      "clearToolInputsPlaceholder": "input_a, input_b",
+      "excludeTools": "Loại trừ công cụ",
+      "excludeToolsPlaceholder": "tool_a, tool_b",
+      "instructions": "Hướng dẫn",
+      "instructionsPlaceholder": "Hướng dẫn bổ sung tùy chọn để tóm tắt khi rút gọn ngữ cảnh.",
+      "pauseAfterCompaction": "Tạm dừng sau khi rút gọn ngữ cảnh",
+      "types": {
+        "clear_tool_uses_20250919": "Xóa lượt sử dụng công cụ (2025-09-19)",
+        "clear_thinking_20251015": "Xóa suy nghĩ (2025-10-15)",
+        "compact_20260112": "Rút gọn ngữ cảnh (2026-01-12)"
+      },
+      "modes": {
+        "none": "Chưa đặt",
+        "boolean": "Đúng / sai",
+        "list": "Danh sách dữ liệu đầu vào công cụ cụ thể",
+        "input_tokens": "Token đầu vào",
+        "tool_uses": "Lượt sử dụng công cụ",
+        "thinking_turns": "Lượt suy nghĩ",
+        "all_object": "{ type: \"all\" }",
+        "all_literal": "Nguyên văn: \"all\""
+      },
+      "booleanValues": {
+        "true": "Đúng",
+        "false": "Sai"
+      },
+      "booleanModes": {
+        "none": "Chưa đặt",
+        "true": "Đúng",
+        "false": "Sai"
+      },
+      "validation": {
+        "invalid": "Hãy điền đầy đủ các trường số bắt buộc trước khi lưu chỉnh sửa ngữ cảnh này."
+      },
+      "summaries": {
+        "noOptionalFields": "Chưa cấu hình trường tùy chọn nào.",
+        "triggerInputTokens": "Điều kiện kích hoạt: {{value}} token đầu vào",
+        "triggerToolUses": "Điều kiện kích hoạt: {{value}} lượt sử dụng công cụ",
+        "keepToolUses": "Giữ lại {{value}} lượt sử dụng công cụ",
+        "clearAtLeast": "Xóa tối thiểu {{value}} token đầu vào",
+        "clearToolInputsTrue": "Xóa dữ liệu đầu vào của công cụ: đúng",
+        "clearToolInputsFalse": "Xóa dữ liệu đầu vào của công cụ: sai",
+        "clearToolInputsList": "Xóa dữ liệu đầu vào của công cụ: {{value}}",
+        "excludeTools": "Loại trừ công cụ: {{value}}",
+        "keepThinkingTurns": "Giữ nội dung suy nghĩ trong {{value}} lượt",
+        "keepAllObject": "Giữ nội dung suy nghĩ: đối tượng { type: \"all\" }",
+        "keepAllLiteral": "Giữ nội dung suy nghĩ: giá trị nguyên văn \"all\"",
+        "compactDefaultTrigger": "Điều kiện kích hoạt mặc định: {{value}} token đầu vào",
+        "pauseAfterCompactionTrue": "Tạm dừng sau khi rút gọn ngữ cảnh: đúng",
+        "pauseAfterCompactionFalse": "Tạm dừng sau khi rút gọn ngữ cảnh: sai",
+        "instructions": "Tập hợp hướng dẫn"
+      }
+    }
   },
   "cohere": {
-    "citationOptions": "Trích dẫn"
+    "citationOptions": "Trích dẫn",
+    "reranking": {
+      "priority": "Mức độ ưu tiên",
+      "maxTokensPerDoc": "Số token tối đa mỗi tài liệu"
+    }
   },
   "xSearch": "Tìm kiếm trên X",
   "spacexai": {
@@ -44,35 +251,53 @@
     "allowedDomains": "Tên miền được phép",
     "excludedDomains": "Tên miền bị loại trừ",
     "allowed_x_handles": "Tài khoản X được phép",
-    "excluded_x_handles": "Tài khoản X bị loại trừ"
+    "excluded_x_handles": "Tài khoản X bị loại trừ",
+    "imageSearch": "Tìm kiếm hình ảnh",
+    "transcriptionFormat": "Định dạng văn bản",
+    "transcriptionDiarize": "Nhận diện người nói",
+    "audioInput": "Âm thanh đầu vào",
+    "audioFormat": "Định dạng âm thanh",
+    "sampleRate": "Tần số lấy mẫu",
+    "channels": "Kênh",
+    "transcriptionMultichannel": "Nhiều kênh",
+    "channelCount": "Số kênh",
+    "transcriptionFillerWords": "Bao gồm từ đệm",
+    "transcriptionVadThreshold": "Ngưỡng phát hiện hoạt động giọng nói ({{value}})",
+    "transcriptionKeyterm": "Từ khóa chuyên ngành",
+    "transcriptionKeytermPlaceholder": "Nhập danh sách từ khóa, phân tách bằng dấu phẩy",
+    "toolSearch": {
+      "title": "Công cụ tìm kiếm",
+      "executionMode": "Thực thi chế độ",
+      "server": "Máy chủ"
+    }
   },
   "openai": {
     "container": "Vùng chứa",
     "includeOutputs": "Bao gồm đầu ra",
     "includeSources": "Bao gồm nguồn",
     "includeSearchResults": "Bao gồm kết quả tìm kiếm",
-    "encryptedContent": "Bao gồm mã hóa",
+    "encryptedContent": "Bao gồm nội dung được mã hóa",
     "instructions": "Hướng dẫn",
     "instructionsPlaceholder": "Thông điệp hệ thống (hoặc nhà phát triển) được chèn vào ngữ cảnh của mô hình.",
     "imageInputDetail": {
-      "title": "Input image detail",
-      "auto": "Auto",
-      "low": "Low",
-      "high": "High",
-      "original": "Original"
+      "title": "Chi tiết hình ảnh đầu vào",
+      "auto": "Tự động",
+      "low": "Thấp",
+      "high": "Cao",
+      "original": "Gốc"
     },
     "contextManagement": {
-      "title": "Context management",
-      "description": "Configure how the Responses API should compact earlier context during a request.",
-      "empty": "No context management entries configured yet.",
-      "add": "Add context rule",
-      "type": "Type",
-      "compactThreshold": "Compact threshold",
-      "compactThresholdHelp": "Triggers compaction when the request context reaches this token threshold.",
-      "compactThresholdInvalid": "Compact threshold must be {{min}} or higher.",
-      "entrySummary": "Compacts context at {{threshold}} tokens.",
+      "title": "Quản lý ngữ cảnh",
+      "description": "Cấu hình cách Responses API rút gọn ngữ cảnh trước đó trong quá trình gửi yêu cầu.",
+      "empty": "Chưa cấu hình quy tắc quản lý ngữ cảnh nào.",
+      "add": "Thêm quy tắc ngữ cảnh",
+      "type": "Loại",
+      "compactThreshold": "Ngưỡng rút gọn",
+      "compactThresholdHelp": "Bắt đầu rút gọn khi ngữ cảnh yêu cầu đạt đến ngưỡng token này.",
+      "compactThresholdInvalid": "Ngưỡng rút gọn phải từ {{min}} trở lên.",
+      "entrySummary": "Rút gọn ngữ cảnh ở mức {{threshold}} token.",
       "types": {
-        "compaction": "Compaction"
+        "compaction": "Rút gọn ngữ cảnh"
       }
     },
     "max_num_results": "Số kết quả tối đa",
@@ -86,7 +311,215 @@
     "knownSpeakersNameExists": "Tên này đã tồn tại.",
     "knownSpeakersMax": "Bạn có thể thêm tối đa 4 người nói.",
     "knownSpeakersDeleteConfirm": "Người nói này có mẫu đã lưu. Xóa người nói và mẫu?",
-    "knownSpeakersSampleDuration": "Bản ghi phải dài từ 2 đến 10 giây."
+    "knownSpeakersSampleDuration": "Bản ghi phải dài từ 2 đến 10 giây.",
+    "shell": "Shell",
+    "promptCacheRetention": "Lời nhắc bộ nhớ đệm lưu giữ",
+    "promptCacheKey": "ID bộ nhớ đệm lời nhắc",
+    "promptCacheOptions": {
+      "24h": "24 giờ",
+      "in-memory": "Trong bộ nhớ",
+      "title": "Lời nhắc bộ nhớ đệm",
+      "mode": "Chế độ",
+      "ttl": "Bộ nhớ đệm thời hạn",
+      "modes": {
+        "implicit": "Ngầm định",
+        "explicit": "Rõ ràng"
+      },
+      "ttls": {
+        "30m": "30 phút",
+        "12h": "12 giờ"
+      }
+    },
+    "moderation": {
+      "title": "Kiểm duyệt",
+      "model": "Kiểm duyệt mô hình",
+      "inputMode": "Đầu vào chính sách",
+      "outputMode": "Đầu ra chính sách",
+      "modes": {
+        "score": "Score",
+        "block": "Chặn"
+      }
+    },
+    "betaHeader": "Beta",
+    "multiAgent": {
+      "title": "Đa tác nhân",
+      "description": "Cho phép mô hình gốc điều phối các tác nhân phụ song song khi xử lý tác vụ Responses API phức tạp. Bật tùy chọn này cũng thêm tiêu đề beta OpenAI bắt buộc.",
+      "maxConcurrentSubagents": "Số tác nhân phụ tối đa chạy đồng thời",
+      "maxConcurrentSubagentsHelp": "Giới hạn số tác nhân phụ đang hoạt động trong toàn bộ cây tác nhân. Giá trị mặc định OpenAI đề xuất là 3."
+    },
+    "sessionAgent": {
+      "title": "Tác nhân",
+      "inherit": "Chưa chỉ định",
+      "model": "Mô hình",
+      "instructions": "Hướng dẫn",
+      "effort": "Mức độ suy luận",
+      "summary": "Tóm tắt suy luận",
+      "serviceTier": "Cấp dịch vụ",
+      "verbosity": "Độ chi tiết văn bản",
+      "format": "Định dạng văn bản",
+      "schema": "Lược đồ JSON",
+      "invalidSchema": "Nhập đối tượng JSON Schema hợp lệ.",
+      "multiAgent": "Bật tác nhân phụ",
+      "maxSubagents": "Số tác nhân phụ tối đa chạy đồng thời",
+      "tools": "Tác nhân công cụ",
+      "computer_use": "Sử dụng máy tính",
+      "web_search": "Tìm kiếm web",
+      "programmatic_tool_calling": "Gọi công cụ bằng mã",
+      "tool_search": "Công cụ tìm kiếm",
+      "screenshots": "Bao gồm ảnh chụp màn hình",
+      "programmaticEnabled": "Bật lời gọi từ mã được tạo",
+      "searchMode": "Chế độ tìm kiếm web",
+      "searchContext": "Kích thước ngữ cảnh tìm kiếm",
+      "allowedDomains": "Tìm kiếm trong các tên miền được phép (mỗi dòng một tên miền)",
+      "city": "Thành phố",
+      "country": "Quốc gia",
+      "region": "Khu vực",
+      "timezone": "Múi giờ"
+    },
+    "sessionEnvironment": {
+      "title": "Môi trường (Tác nhân)",
+      "type": "Loại môi trường",
+      "none": "Không",
+      "openai_hosted": "OpenAI được lưu trữ",
+      "self_hosted": "Tự được lưu trữ",
+      "templateId": "ID mẫu môi trường",
+      "containerSize": "Kích thước vùng chứa",
+      "inherit": "Chưa chỉ định",
+      "small": "Nhỏ",
+      "medium": "Trung bình",
+      "large": "Lớn",
+      "desktop": "Cấu hình proxy cho máy tính và trình duyệt",
+      "network": "Mạng truy cập",
+      "enabled": "Bật",
+      "disabled": "Đã tắt",
+      "restricted": "Bị hạn chế",
+      "domainHelp": "Chỉ dùng danh sách tên miền cho phép hoặc danh sách chặn, không dùng cả hai. Không hỗ trợ ký tự đại diện.",
+      "allowedDomains": "Tên miền được phép (mỗi dòng một tên miền)",
+      "blockedDomains": "Tên miền bị chặn (mỗi dòng một tên miền)",
+      "workspaceDirectory": "Thư mục không gian làm việc tuyệt đối"
+    },
+    "promptCache": "Lời nhắc bộ nhớ đệm",
+    "truncation": {
+      "title": "Cắt bớt",
+      "auto": "Tự động",
+      "disabled": "Đã tắt"
+    },
+    "serviceTier": {
+      "title": "Cấp dịch vụ",
+      "auto": "Tự động",
+      "default": "Mặc định",
+      "flex": "Linh hoạt",
+      "scale": "Có thể mở rộng",
+      "priority": "Ưu tiên",
+      "fast": "Nhanh",
+      "ultrafast": "Cực nhanh"
+    },
+    "customVoice": "Tùy chỉnh giọng nói",
+    "output_compression": "Nén đầu ra",
+    "action": "Hành động",
+    "generate": "Tạo",
+    "edit": "Chỉnh sửa",
+    "prompt": "Lời nhắc",
+    "allowedDomains": "Tên miền được phép",
+    "searchContentTypes": {
+      "text": "Kết quả tìm kiếm văn bản",
+      "image": "Kết quả tìm kiếm hình ảnh"
+    },
+    "imageSettings": {
+      "maxResults": "Số kết quả hình ảnh tối đa",
+      "caption": "Bao gồm phụ đề"
+    },
+    "topP": "Top-p",
+    "transcriptionLanguagePlaceholder": "Ngôn ngữ âm thanh đầu vào theo ISO-639-1 (ví dụ: en)",
+    "transcriptionLanguages": "Ngôn ngữ khả dụng",
+    "transcriptionLanguagesPlaceholder": "Mã ISO-639-1, phân tách bằng dấu phẩy, ví dụ: en, nl",
+    "transcriptionKeywords": "Từ khóa",
+    "transcriptionKeywordsPlaceholder": "Mỗi dòng một từ hoặc cụm từ để định hướng phiên âm",
+    "transcriptionResponseFormat": "Phản hồi định dạng",
+    "speechPromptPlaceholder": "Văn bản tùy chọn để định hướng phong cách của mô hình hoặc tiếp nối đoạn âm thanh trước đó",
+    "transcriptionTemperature": "Nhiệt độ",
+    "timestampGranularities": "Mức độ chi tiết dấu thời gian",
+    "timestampGranularitiesSegment": "Phân đoạn",
+    "timestampGranularitiesWord": "Từ",
+    "returnTokenBudget": "Trả về hạn mức token",
+    "returnTokenBudgetOptions": {
+      "default": "Mặc định",
+      "unlimited": "Không giới hạn"
+    },
+    "externalWebAccess": "Truy cập Internet trực tiếp",
+    "responsesIncludeTitle": "Bao gồm",
+    "responsesIncludeImageUrls": "Bao gồm URL hình ảnh từ đầu ra máy tính",
+    "responsesIncludeInputImageUrls": "Bao gồm URL hình ảnh từ tin nhắn đầu vào",
+    "responsesIncludeOutputLogprobs": "Bao gồm đầu ra logprobs",
+    "responsesIncludeDescriptions": {
+      "webSearchSources": "Bao gồm các nguồn do công cụ tìm kiếm web trả về.",
+      "codeInterpreterOutputs": "Bao gồm đầu ra từ các lần gọi công cụ thông dịch mã Python.",
+      "computerCallImageUrls": "Bao gồm URL hình ảnh được trả về từ đầu ra của lệnh gọi máy tính.",
+      "fileSearchResults": "Bao gồm kết quả do công cụ tìm kiếm tệp trả về.",
+      "inputImageUrls": "Bao gồm URL hình ảnh từ tin nhắn đầu vào.",
+      "outputTextLogprobs": "Bao gồm log xác suất cho phản hồi văn bản của trợ lý.",
+      "reasoningEncryptedContent": "Bao gồm token suy luận đã mã hóa để có thể dùng lại nội dung suy luận trong các cuộc trò chuyện Responses API nhiều lượt không lưu trạng thái."
+    },
+    "programmaticToolCalling": {
+      "title": "Công cụ có mã",
+      "allowedCallers": "Được phép bên gọi",
+      "allowedCallersOptions": {
+        "direct": "Trực tiếp",
+        "programmatic": "Mã"
+      }
+    },
+    "toolSearch": {
+      "title": "Công cụ tìm kiếm",
+      "executionMode": "Thực thi chế độ",
+      "hosted": "Được lưu trữ",
+      "client": "Máy khách"
+    },
+    "shellEnvironment": "Môi trường",
+    "shellEnvironmentContainerAuto": "Vùng chứa được lưu trữ (tự động)",
+    "shellEnvironmentContainerReference": "Vùng chứa được lưu trữ (tham chiếu)",
+    "shellEnvironmentLocal": "Môi trường chạy cục bộ",
+    "shellFileIds": "ID của tệp",
+    "shellMemoryLimit": "Giới hạn bộ nhớ",
+    "shellNoMemoryLimit": "Bộ nhớ mặc định",
+    "shellNetworkPolicy": "Chính sách mạng",
+    "shellNetworkPolicyDisabled": "Đã tắt",
+    "shellNetworkPolicyAllowlist": "Danh sách cho phép",
+    "shellAllowedDomains": "Tên miền được phép",
+    "shellSecretDomain": "Tên miền của thông tin bí mật",
+    "shellSecretName": "Tên thông tin bí mật",
+    "shellSecretValue": "Giá trị bí mật",
+    "shellAddDomainSecret": "Thêm thông tin bí mật của tên miền",
+    "shellSkillType": "Loại kỹ năng",
+    "shellSkillReference": "Kỹ năng tham chiếu",
+    "shellInlineSkill": "Nhúng kỹ năng",
+    "shellSkillId": "Kỹ năng",
+    "shellSelectSkill": "Chọn kỹ năng",
+    "shellNoSkillsAvailable": "Không có kỹ năng shell OpenAI nào trong danh mục kỹ năng dùng chung.",
+    "shellAddSkillReference": "Thêm tham chiếu kỹ năng",
+    "shellAddInlineSkill": "Thêm kỹ năng nhúng",
+    "shellInlineUploadHelp": "Thả tệp ZIP vào đây hoặc chọn tệp để đính kèm làm nguồn kỹ năng nhúng.",
+    "shellUploadArchive": "Tải tệp ZIP lên",
+    "shellReplaceArchive": "Thay thế tệp ZIP",
+    "shellRemoveArchive": "Xóa tệp lưu trữ",
+    "shellArchiveSelected": "Tệp lưu trữ đã chọn: {{fileName}}",
+    "shellNoArchiveSelected": "Chưa chọn tệp ZIP nào.",
+    "realtimeTranscriptionTitle": "Phiên âm thời gian thực",
+    "realtimeSessionType": "Loại phiên",
+    "realtimeAudioInputFormat": "Định dạng âm thanh đầu vào",
+    "realtimeNoiseReduction": "Giảm nhiễu",
+    "realtimeInputTranscription": "Phiên âm âm thanh đầu vào",
+    "realtimeTranscriptionPrompt": "Lời nhắc phiên âm",
+    "realtimeTurnDetection": "Phát hiện lượt nói",
+    "realtimeTurnDetectionType": "Loại phát hiện lượt nói",
+    "realtimeTurnCreateResponse": "Tự động tạo phản hồi khi kết thúc giọng nói",
+    "realtimeTurnInterruptResponse": "Ngắt phản hồi đang diễn ra khi bắt đầu giọng nói",
+    "realtimeVadThreshold": "Ngưỡng VAD (0.0–1.0)",
+    "realtimeVadPrefixPaddingMs": "Khoảng đệm đầu (ms)",
+    "realtimeVadSilenceDurationMs": "Thời lượng im lặng (ms)",
+    "realtimeVadIdleTimeoutMs": "Thời gian chờ khi không hoạt động (ms)",
+    "realtimeSemanticEagerness": "Mức độ phản hồi nhanh",
+    "realtimeIncludeLogprobs": "Bao gồm log xác suất phiên âm đầu vào",
+    "realtimeTokenTtlSeconds": "Thời hạn token (giây)"
   },
   "google": {
     "enableEnhancedCivicAnswers": "Câu trả lời công dân nâng cao",
@@ -107,25 +540,230 @@
       "higherAndAbove": "Chặn từ mức rất cao trở lên",
       "veryHighAndAbove": "Chặn từ mức cực cao trở lên",
       "onlyExtremelyHigh": "Chỉ chặn mức cực kỳ cao"
-    }
+    },
+    "responseModalities": "Phản hồi phương thức",
+    "web_search": "Tìm kiếm web",
+    "image_search": "Hình ảnh tìm kiếm",
+    "enterprise_web_search": "Tìm kiếm web doanh nghiệp",
+    "modalities": {
+      "text": "Văn bản",
+      "image": "Hình ảnh",
+      "audio": "Âm thanh",
+      "video": "Video",
+      "document": "Tài liệu"
+    },
+    "interactions": {
+      "speech": {
+        "title": "Giọng nói",
+        "language": "Ngôn ngữ",
+        "speaker": "Người nói tên",
+        "voice": "Giọng nói",
+        "addSpeaker": "Thêm người nói"
+      },
+      "transcription": {
+        "title": "Phiên âm",
+        "languageCodes": "Ngôn ngữ gợi ý",
+        "customVocabulary": "Tùy chỉnh từ vựng",
+        "speakerDiarization": "Nhận diện người nói",
+        "wordTimestamps": "Bao gồm dấu thời gian từng từ"
+      },
+      "responseFormat": {
+        "title": "Định dạng phản hồi",
+        "mimeType": "Loại MIME",
+        "sampleRate": "Tần số lấy mẫu (Hz)",
+        "bitRate": "Tốc độ bit (bps)",
+        "aspectRatio": "Tỷ lệ khung hình",
+        "imageSize": "Kích thước hình ảnh",
+        "resolution": "Độ phân giải",
+        "duration": "Thời lượng",
+        "types": {
+          "text": "Văn bản",
+          "audio": "Âm thanh",
+          "image": "Hình ảnh",
+          "video": "Video"
+        }
+      },
+      "retrieval": {
+        "apiKey": "Khóa API",
+        "parallel": {
+          "title": "Tìm kiếm song song"
+        },
+        "exa": {
+          "title": "Tìm kiếm Exa"
+        }
+      },
+      "other": {
+        "seed": "Seed"
+      }
+    },
+    "realtimeTranscription": {
+      "title": "Phiên âm trực tiếp",
+      "hint": "Các tùy chọn này chỉ áp dụng cho phiên âm Gemini Live và độc lập với cài đặt phiên âm tệp. Tính năng tự động phát hiện hoạt động giọng nói đang bật.",
+      "languageCodes": "Gợi ý ngôn ngữ (mỗi dòng một mục hoặc phân tách bằng dấu phẩy)",
+      "customVocabulary": "Từ vựng tùy chỉnh (mỗi dòng một thuật ngữ hoặc phân tách bằng dấu phẩy)",
+      "mode": "Chế độ phiên âm",
+      "modes": {
+        "verbatim": "Nguyên văn",
+        "smart": "Thông minh"
+      }
+    },
+    "realtimeConversation": {
+      "title": "Trò chuyện trực tiếp với Gemini",
+      "hint": "Truyền âm thanh trực tiếp từ trình duyệt đến Gemini Live bằng token tạm thời do backend cấp. Gemini Live là API xem trước.",
+      "inputTranscription": "Phiên âm âm thanh từ micrô",
+      "outputTranscription": "Phiên âm âm thanh Gemini",
+      "googleSearch": "Tìm kiếm có căn cứ trên Google",
+      "turnDetection": "Phát hiện hoạt động giọng nói",
+      "automaticVad": "Tự động phát hiện hoạt động giọng nói",
+      "prefixPaddingMs": "Khoảng đệm đầu (ms)",
+      "silenceDurationMs": "Thời lượng im lặng (ms)",
+      "sessionManagement": "Quản lý phiên",
+      "contextCompression": "Nén cửa sổ ngữ cảnh",
+      "triggerTokens": "Ngưỡng token kích hoạt nén",
+      "sessionResumption": "Tiếp tục trong WebSocket kết nối",
+      "tokenExpiry": "Thời hạn token tạm thời",
+      "camera": "Máy ảnh đầu vào",
+      "cameraHint": "Máy ảnh mặc định tắt. Khi bật trong phiên, hình ảnh JPEG được gửi tối đa 1 khung hình mỗi giây. Phiên âm thanh và video có giới hạn thời lượng ngắn hơn.",
+      "cameraFps": "Số khung hình camera mỗi giây",
+      "jpegQuality": "Chất lượng JPEG",
+      "startCamera": "Bật máy ảnh",
+      "stopCamera": "Tắt máy ảnh"
+    },
+    "enable_widget": "Bật tiện ích",
+    "speech": {
+      "title": "Giọng nói",
+      "seed": "Seed",
+      "multiSpeaker": "Nhiều người nói",
+      "speakers": "Người nói",
+      "addSpeaker": "Thêm người nói",
+      "speakerNamePlaceholder": "ví dụ: Alice"
+    },
+    "image": {
+      "title": "Hình ảnh",
+      "aspect_ratio": "Tỷ lệ khung hình",
+      "image_size": "Kích thước hình ảnh"
+    },
+    "videoConfig": {
+      "title": "Video",
+      "task": "Tác vụ",
+      "providerDefault": "Mặc định của nhà cung cấp (suy ra từ lời nhắc)",
+      "tasks": {
+        "text_to_video": "Văn bản thành video",
+        "image_to_video": "Hình ảnh thành video",
+        "reference_to_video": "Tham chiếu thành video",
+        "edit": "Chỉnh sửa",
+        "extend": "Mở rộng"
+      }
+    },
+    "environment": {
+      "title": "Môi trường (Tác nhân)",
+      "description": "Cấu hình môi trường sandbox Linux được quản lý cho tác nhân Google. Nếu không thiết lập nguồn hoặc mạng, một môi trường từ xa mới sẽ được sử dụng.",
+      "environmentId": "ID môi trường",
+      "environmentIdHelp": "Khi đặt ID môi trường, cài đặt nguồn và mạng sẽ bị tắt, đồng thời môi trường sandbox hiện có sẽ được dùng lại.",
+      "sources": "Nguồn",
+      "sourceType": "Loại nguồn",
+      "source": "Nguồn",
+      "target": "Đường dẫn đích",
+      "inlineContent": "Nhúng nội dung",
+      "addSource": "Thêm nguồn",
+      "noSources": "Chưa cấu hình nguồn nào. Thêm kho lưu trữ, đường dẫn Cloud Storage hoặc tệp nhúng để gắn vào môi trường sandbox mới.",
+      "network": "Mạng",
+      "networkMode": "Chế độ mạng",
+      "allowlistHelp": "Khi chọn danh sách cho phép, chỉ các tên miền được liệt kê mới được phép truy cập. Thêm * để cho phép lưu lượng còn lại.",
+      "domain": "Tên miền",
+      "transform": "Tiêu đề chuyển đổi JSON",
+      "addAllowlistRule": "Thêm quy tắc",
+      "sourceTypes": {
+        "repository": "Git kho lưu trữ",
+        "gcs": "Cloud Storage",
+        "inline": "Nhúng nội dung"
+      },
+      "networkModes": {
+        "default": "Quyền truy cập không hạn chế mặc định",
+        "disabled": "Đã tắt",
+        "allowlist": "Danh sách cho phép"
+      }
+    },
+    "service_tier": "Cấp dịch vụ",
+    "serviceTiers": {
+      "providerDefault": "Mặc định của nhà cung cấp",
+      "flex": "Linh hoạt",
+      "standard": "Tiêu chuẩn",
+      "priority": "Ưu tiên"
+    },
+    "safetySettings": {
+      "title": "Cài đặt an toàn",
+      "add": "Thêm cài đặt an toàn",
+      "type": "Danh mục",
+      "method": "Phương thức",
+      "threshold": "Ngưỡng",
+      "methods": {
+        "severity": "Xác suất và mức độ nghiêm trọng",
+        "probability": "Xác suất"
+      },
+      "thresholds": {
+        "block_low_and_above": "Chặn từ mức thấp trở lên",
+        "block_medium_and_above": "Chặn từ mức trung bình trở lên",
+        "block_only_high": "Chặn chỉ cao",
+        "block_none": "Chặn không",
+        "off": "Tắt bộ lọc an toàn"
+      },
+      "categories": {
+        "hate_speech": "Thù ghét giọng nói",
+        "dangerous_content": "Nội dung nguy hiểm",
+        "harassment": "Quấy rối",
+        "sexually_explicit": "Tình dục rõ ràng",
+        "civic_integrity": "Tính toàn vẹn công dân (không còn dùng)",
+        "image_hate": "Hình ảnh thù ghét giọng nói",
+        "image_dangerous_content": "Nội dung hình ảnh nguy hiểm",
+        "image_harassment": "Hình ảnh quấy rối",
+        "image_sexually_explicit": "Hình ảnh tình dục rõ ràng",
+        "jailbreak": "Vượt rào"
+      }
+    },
+    "voice": "Giọng nói",
+    "language": "Ngôn ngữ",
+    "speaker": "Người nói"
   },
   "jina": {
     "max_returned_urls": "Số URL trả về tối đa",
     "search_provider": "Tìm kiếm Arxiv tối ưu",
-    "team_size": "Quy mô nhóm agent",
+    "team_size": "Quy mô nhóm tác nhân",
     "goodDomains": "Tên miền được ưu tiên",
     "badDomains": "Tên miền xấu",
-    "onlyDomains": "Giới hạn tìm kiếm trong các tên miền này"
+    "onlyDomains": "Giới hạn tìm kiếm trong các tên miền này",
+    "reranking": {
+      "returnDocuments": "Trả về tài liệu",
+      "truncation": "Cắt bớt",
+      "maxDocLength": "Độ dài tài liệu tối đa",
+      "returnEmbeddings": "Trả về vector nhúng"
+    }
   },
   "together": {
     "guidanceScale": "Thang hướng dẫn",
     "steps": "Số bước",
     "negativePrompt": "Prompt phủ định",
-    "disableSafetyChecker": "Tắt kiểm tra an toàn"
+    "disableSafetyChecker": "Tắt kiểm tra an toàn",
+    "reranking": {
+      "returnDocuments": "Trả về tài liệu",
+      "rankFields": "Xếp hạng trường",
+      "addRankField": "Thêm trường xếp hạng"
+    },
+    "speech": {
+      "encoding": "Mã hóa"
+    }
   },
   "runway": {
     "contentModeration": "Kiểm duyệt nội dung",
-    "publicFigureThreshold": "Ngưỡng nhân vật công chúng"
+    "publicFigureThreshold": "Ngưỡng nhân vật công chúng",
+    "speech": {
+      "soundEffects": {
+        "title": "Âm thanh Hiệu ứng",
+        "duration": "Thời lượng (giây)",
+        "durationHint": "Không bắt buộc. Nếu bỏ qua, Runway sẽ chọn thời lượng phù hợp.",
+        "loop": "Lặp"
+      }
+    }
   },
   "stabilityai": {
     "style_presetLabel": "Preset kiểu",
@@ -143,13 +781,939 @@
       "fantasy-art": "Nghệ thuật giả tưởng",
       "isometric": "Đẳng phối",
       "line-art": "Nét vẽ",
-      "low-poly": "Low poly",
+      "low-poly": "Đồ họa low-poly",
       "modeling-compound": "Đất nặn",
       "neon-punk": "Neon punk",
       "origami": "Origami",
       "photographic": "Chụp ảnh",
       "pixel-art": "Nghệ thuật pixel",
       "tile-texture": "Kết cấu gạch"
+    },
+    "speech": {
+      "duration": "Thời lượng (giây)",
+      "durationHint": "Điều chỉnh thời lượng âm thanh được tạo, tính bằng giây.",
+      "seed": "Seed",
+      "seedHint": "Giá trị cụ thể dùng để điều chỉnh tính ngẫu nhiên khi tạo nội dung. Bỏ qua tham số này hoặc nhập 0 để dùng seed ngẫu nhiên.",
+      "stepsHint": "Điều chỉnh số bước lấy mẫu.",
+      "cfgScale": "Thang hướng dẫn không cần bộ phân loại",
+      "cfgScaleHint": "Mức độ quy trình khuếch tán tuân theo lời nhắc (giá trị cao hơn giúp âm thanh gần với lời nhắc hơn)."
     }
+  },
+  "deepseek": {},
+  "akumi": {
+    "other": "Khác",
+    "cache": "Bộ nhớ đệm",
+    "tags": "Thẻ",
+    "tag": "Thẻ mới",
+    "firewall": "Tường lửa",
+    "sendFirewall": "Gửi cài đặt tường lửa",
+    "firewallEnabled": "EU định tuyến",
+    "firewallLanguage": "Phân tích ngôn ngữ",
+    "languages": {
+      "auto": "Tự động phát hiện",
+      "nl": "Tiếng Hà Lan",
+      "en": "Tiếng Anh",
+      "fr": "Tiếng Pháp",
+      "de": "Tiếng Đức"
+    }
+  },
+  "baseten": {
+    "enableThinking": "Bật suy nghĩ",
+    "enableThinkingValue": "Send bật_suy nghĩ",
+    "searchProvider": "Nhà cung cấp dịch vụ tìm kiếm",
+    "searchTool": "Tìm kiếm",
+    "fetchTool": "Truy xuất trang",
+    "advancedSearchTool": "Công cụ tìm kiếm nâng cao",
+    "limitIterations": "Giới hạn số vòng lặp",
+    "maxReactIterations": "Số vòng suy luận và gọi công cụ tối đa",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You. com"
+    }
+  },
+  "apertis": {
+    "notSet": "Chưa đặt",
+    "reasoning": "Suy luận",
+    "effort": "Mức độ suy luận",
+    "efforts": {
+      "low": "Thấp",
+      "medium": "Trung bình",
+      "high": "Cao"
+    },
+    "summary": "Bản tóm tắt",
+    "summaries": {
+      "auto": "Tự động",
+      "concise": "Ngắn gọn",
+      "detailed": "Chi tiết"
+    },
+    "compression": "Nén ngữ cảnh",
+    "strategy": "Chiến lược",
+    "strategies": {
+      "default": "Mặc định (cân bằng)",
+      "on": "Cân bằng",
+      "conservative": "Thận trọng",
+      "aggressive": "Mạnh"
+    },
+    "threshold": "Ngưỡng token",
+    "keepTurns": "Số lượt gần đây cần giữ lại",
+    "model": "Nén mô hình"
+  },
+  "upstage": {
+    "reasoning": {
+      "title": "Suy luận",
+      "effort": "Mức độ suy luận",
+      "efforts": {
+        "none": "Không",
+        "minimal": "Tối thiểu",
+        "low": "Thấp",
+        "medium": "Trung bình",
+        "high": "Cao",
+        "xhigh": "Bổ sung cao",
+        "max": "Tối đa"
+      }
+    }
+  },
+  "interfaze": {
+    "reasoning": {
+      "title": "Suy luận",
+      "effort": "Mức độ suy luận",
+      "efforts": {
+        "low": "Thấp",
+        "medium": "Trung bình",
+        "high": "Cao"
+      }
+    },
+    "other": {
+      "title": "Khác",
+      "headers": {
+        "x-show-additional-info": "Bao gồm bổ sung precontext in truyền phát responses",
+        "x-interfaze-zdr": "Không lưu giữ dữ liệu",
+        "x-interfaze-bypass-cache": "Bỏ qua đã xác minh bộ nhớ đệm",
+        "x-interfaze-bypass-moa": "Bỏ qua MoA"
+      }
+    }
+  },
+  "inworld": {
+    "webSearch": {
+      "title": "Tìm kiếm web",
+      "engine": "Tìm kiếm công cụ",
+      "maxResults": "Số kết quả mỗi lần tìm kiếm",
+      "maxSteps": "Số lượt tìm kiếm tối đa",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      }
+    },
+    "modalities": {
+      "title": "Phương thức đầu ra",
+      "text": "Văn bản",
+      "image": "Hình ảnh"
+    },
+    "imageConfig": {
+      "title": "Cấu hình hình ảnh",
+      "aspectRatio": "Tỷ lệ khung hình",
+      "imageSize": "Kích thước hình ảnh",
+      "partialImages": "Bản xem trước hình ảnh từng phần",
+      "count": "Số lượng hình ảnh"
+    },
+    "reasoning": {
+      "title": "Suy luận",
+      "effort": "Mức độ suy luận",
+      "efforts": {
+        "none": "Không",
+        "low": "Thấp",
+        "minimal": "Tối thiểu",
+        "medium": "Trung bình",
+        "high": "Cao"
+      }
+    }
+  },
+  "webcrawlerapi": {
+    "urls": "URL",
+    "costs": "Chi phí",
+    "sources": "Nguồn",
+    "maxSpendUsd": "Mức chi tiêu tối đa (USD)",
+    "seedUrlsOnly": "Chỉ dùng URL đã chỉ định"
+  },
+  "ninjachat": {
+    "search": "Tìm kiếm",
+    "group": "Nguồn",
+    "maxResults": "Tối đa kết quả",
+    "searchDepth": "Tìm kiếm depth",
+    "includeImages": "Bao gồm hình ảnh",
+    "topic": "Chủ đề",
+    "groupOptions": {
+      "web": "Web",
+      "academic": "Học thuật",
+      "news": "Tin tức"
+    },
+    "searchDepthOptions": {
+      "basic": "Cơ bản",
+      "advanced": "Nâng cao"
+    },
+    "topicOptions": {
+      "general": "Chung",
+      "news": "Tin tức",
+      "finance": "Tài chính"
+    }
+  },
+  "venice": {
+    "webSearchModes": {
+      "auto": "Tự động",
+      "on": "Bật",
+      "off": "Tắt"
+    },
+    "includeSystemPrompt": "Bao gồm lời nhắc hệ thống",
+    "webCitations": "Trích dẫn web",
+    "webScraping": "Thu thập dữ liệu web",
+    "xSearch": "Tìm kiếm X",
+    "stripThinking": "Loại bỏ suy nghĩ",
+    "seedPlaceholder": "Seed tùy chọn để có thể tái tạo kết quả",
+    "enableE2EE": "Mã hóa đầu cuối",
+    "returnSearchResultsAsDocuments": "Trả về kết quả tìm kiếm dưới dạng tài liệu",
+    "characterSlug": "Tên định danh nhân vật",
+    "disableThinking": "Tắt chế độ suy nghĩ",
+    "includeSearchResultsInStream": "Tìm kiếm kết quả"
+  },
+  "browseruse": {
+    "run": "Chạy",
+    "browserSettings": "Cài đặt trình duyệt",
+    "maxCostUsd": "Chi phí tối đa (USD)",
+    "profileId": "ID hồ sơ",
+    "proxyCountryCode": "Vị trí",
+    "noProxy": "Không dùng proxy",
+    "screenWidth": "Chiều rộng màn hình",
+    "screenHeight": "Chiều cao màn hình",
+    "record": "Ghi lại phiên trình duyệt",
+    "judge": "Đánh giá",
+    "enableJudge": "Bật đánh giá",
+    "judgeContext": "Đánh giá ngữ cảnh"
+  },
+  "tembo": {
+    "session": "Phiên",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Mô tả chi tiết công việc Tembo cần thực hiện",
+    "targetBranch": "Nhánh đích",
+    "branchName": "Tên nhánh công việc",
+    "queueRightAway": "Đưa vào hàng đợi ngay",
+    "repositories": "Kho lưu trữ",
+    "repositoriesHint": "Thêm URL kho GitHub hoặc Git mà Tembo sẽ làm việc.",
+    "addRepository": "Thêm URL kho lưu trữ",
+    "noRepositories": "Chưa thêm kho lưu trữ nào."
+  },
+  "mireye": {
+    "addressTitle": "Địa chỉ",
+    "addressHint": "Nhập địa chỉ đường phố đầy đủ tại Hoa Kỳ. Chọn tùy chọn này sẽ xóa tọa độ.",
+    "address": "Địa chỉ",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "coordinatesTitle": "Vĩ độ và kinh độ",
+    "coordinatesHint": "Cung cấp cả hai tọa độ. Chọn tùy chọn này sẽ xóa địa chỉ.",
+    "latitude": "Vĩ độ",
+    "longitude": "Kinh độ",
+    "getCurrent": "Lấy hiện tại",
+    "gettingCurrent": "Đang lấy vị trí hiện tại...",
+    "geolocationUnsupported": "Trình duyệt này không hỗ trợ xác định vị trí hiện tại.",
+    "geolocationDenied": "Quyền truy cập vị trí đã bị từ chối.",
+    "geolocationUnavailable": "Không thể xác định vị trí hiện tại của bạn.",
+    "geolocationTimeout": "Hết thời gian chờ khi lấy vị trí hiện tại."
+  },
+  "brave": {
+    "notSet": "Chưa đặt",
+    "safesearch": "Tìm kiếm an toàn",
+    "safesearchOptions": {
+      "off": "Tắt",
+      "moderate": "Trung bình",
+      "strict": "Nghiêm ngặt"
+    },
+    "answerEnrichment": "Bổ sung thông tin cho câu trả lời",
+    "enableEntities": "Bật thực thể",
+    "enableCitations": "Bật trích dẫn",
+    "research": "Nghiên cứu",
+    "researchAllowThinking": "Cho phép suy nghĩ",
+    "researchMaximumNumberOfTokensPerQuery": "Số token tối đa mỗi truy vấn",
+    "researchMaximumNumberOfQueries": "Số truy vấn tối đa",
+    "researchMaximumNumberOfIterations": "Số vòng lặp tối đa",
+    "researchMaximumNumberOfSeconds": "Số giây tối đa",
+    "researchMaximumNumberOfResultsPerQuery": "Số kết quả tối đa mỗi truy vấn"
+  },
+  "copilot": {
+    "locationTitle": "Vị trí hint",
+    "timeZone": "Múi giờ (IANA)",
+    "countryOrRegion": "Quốc gia hoặc khu vực",
+    "countryOrRegionConfidence": "Độ tin cậy về quốc gia hoặc khu vực",
+    "latitude": "Vĩ độ",
+    "longitude": "Kinh độ",
+    "contextualResourcesTitle": "Tài nguyên theo ngữ cảnh",
+    "webContext": "Ngữ cảnh web",
+    "webContextUnset": "Chưa đặt",
+    "webContextEnabled": "Bật",
+    "webContextDisabled": "Đã tắt",
+    "filesDescription": "Thêm liên kết tệp OneDrive hoặc SharePoint để gửi dưới dạng tài nguyên ngữ cảnh",
+    "fileUri": "Liên kết tệp {{index}}",
+    "addFile": "Thêm liên kết tệp",
+    "additionalContextTitle": "Bổ sung ngữ cảnh",
+    "additionalContextDescription": "Thêm các đoạn văn bản sẽ được gửi làm ngữ cảnh bổ sung.",
+    "additionalContextEntry": "Ngữ cảnh {{index}}",
+    "addAdditionalContext": "Thêm ngữ cảnh"
+  },
+  "openrouter": {
+    "notSet": "Chưa đặt",
+    "appAttribution": "Ghi nhận ứng dụng",
+    "zdr": "Không lưu giữ dữ liệu",
+    "webSearchServerTool": "Tìm kiếm web",
+    "webFetchServerTool": "Tải nội dung web",
+    "datetimeServerTool": "Ngày/giờ hiện tại",
+    "imageGenerationServerTool": "Tạo hình ảnh",
+    "responseHealingPlugin": "Phản hồi tự sửa",
+    "responseHealingDescription": "Tự động xác thực và sửa phản hồi JSON sai định dạng từ các mô hình AI.",
+    "pdfInputsPlugin": "Đầu vào PDF",
+    "engine": "Công cụ",
+    "contextCompressionPlugin": "Nén ngữ cảnh",
+    "searchContextSize": "Kích thước ngữ cảnh tìm kiếm",
+    "maxResults": "Số kết quả tối đa",
+    "maxTotalResults": "Tổng số kết quả tối đa",
+    "maxUses": "Số lần sử dụng tối đa",
+    "maxContentTokens": "Số token nội dung tối đa",
+    "allowedDomains": "Tên miền được phép",
+    "excludedDomains": "Tên miền bị loại trừ",
+    "blockedDomains": "Tên miền bị chặn",
+    "userCity": "Thành phố",
+    "userCountry": "Quốc gia",
+    "userRegion": "Khu vực",
+    "userTimezone": "Múi giờ người dùng",
+    "timezone": "Múi giờ",
+    "imageModel": "Mô hình",
+    "quality": "Chất lượng",
+    "size": "Kích thước",
+    "aspectRatio": "Tỷ lệ khung hình",
+    "background": "Nền",
+    "outputFormat": "Định dạng đầu ra",
+    "outputCompression": "Nén đầu ra",
+    "moderation": "Kiểm duyệt",
+    "pdfEngine": "Công cụ PDF"
+  },
+  "requesty": {
+    "appAttribution": "Ghi nhận ứng dụng",
+    "autoCache": "Tự động lưu bộ nhớ đệm",
+    "autoCacheDescription": "Gửi rõ cờ requesty.auto_cache của Requesty. Khi bật, các nhà cung cấp được hỗ trợ như Anthropic và Gemini có thể dùng lại lời nhắc dài và nội dung lặp lại để giảm chi phí."
+  },
+  "abliteration": {
+    "reasoning": {
+      "title": "Suy luận",
+      "enabled": "Bật suy luận",
+      "effort": "Mức độ suy luận",
+      "maxTokens": "Số token suy luận tối đa",
+      "exclude": "Ẩn phần suy luận khỏi phản hồi",
+      "efforts": {
+        "none": "Không",
+        "minimal": "Tối thiểu",
+        "low": "Thấp",
+        "medium": "Trung bình",
+        "high": "Cao",
+        "xhigh": "Bổ sung cao",
+        "max": "Tối đa",
+        "ultracode": "Mã cực cao"
+      }
+    },
+    "policy": {
+      "title": "Chính sách",
+      "id": "Chính sách ID",
+      "allowlist": "Mục trong danh sách cho phép",
+      "denylist": "Mục trong danh sách chặn",
+      "flaggedCategories": "Danh mục bị gắn cờ",
+      "noneSelected": "Chưa chọn danh mục nào.",
+      "redactPii": "Ẩn thông tin cá nhân"
+    },
+    "categories": {
+      "harassment": "Quấy rối",
+      "harassment/threatening": "Quấy rối - đe dọa",
+      "hate": "Thù ghét",
+      "hate/threatening": "Thù ghét - đe dọa",
+      "illicit": "Hoạt động bất hợp pháp",
+      "illicit/violent": "Hoạt động bất hợp pháp - bạo lực",
+      "self-harm": "Tự làm hại bản thân",
+      "self-harm/intent": "Tự làm hại bản thân - ý định",
+      "self-harm/instructions": "Tự làm hại bản thân - hướng dẫn",
+      "sexual": "Nội dung tình dục",
+      "sexual/minors": "Nội dung tình dục liên quan đến trẻ vị thành niên",
+      "violence": "Bạo lực",
+      "violence/graphic": "Bạo lực - ghê rợn"
+    }
+  },
+  "blackbox": {
+    "notSet": "Chưa đặt",
+    "zdr": "Không lưu giữ dữ liệu",
+    "reasoning": "Suy luận",
+    "enabled": "Bật suy luận defaults",
+    "effort": "Mức độ suy luận",
+    "maxTokens": "Số token suy luận tối đa",
+    "exclude": "Ẩn phần suy luận khỏi phản hồi",
+    "summary": "Bản tóm tắt"
+  },
+  "deepinfra": {
+    "transcription": {
+      "task": "Tác vụ",
+      "taskTranscribe": "Chép lời",
+      "taskTranslate": "Dịch",
+      "initialPrompt": "Lời nhắc ban đầu",
+      "chunkingTitle": "Chia đoạn",
+      "chunkLevel": "Cấp độ đoạn",
+      "chunkLevelSegment": "Phân đoạn",
+      "chunkLevelWord": "Từ",
+      "chunkLengthSeconds": "Độ dài đoạn (giây)"
+    },
+    "reranking": {
+      "instruction": "Hướng dẫn",
+      "serviceTier": "Cấp dịch vụ"
+    },
+    "speech": {
+      "serviceTier": "Cấp dịch vụ",
+      "voiceId": "Giọng nói",
+      "voiceIdPlaceholder": "ví dụ: deepinfra-voice-123",
+      "maxTokens": "Số token tối đa",
+      "languageId": "Ngôn ngữ",
+      "speakerAudio": "Âm thanh người nói",
+      "speakerTranscript": "Bản chép lời người nói",
+      "maxAudioLengthMs": "Độ dài âm thanh tối đa (ms)",
+      "languageIdPlaceholder": "ví dụ: en",
+      "presetVoicePlaceholder": "ví dụ: af_bella",
+      "speed": "Tốc độ",
+      "returnTimestamps": "Trả về dấu thời gian",
+      "targetMinTokens": "Số token tối thiểu mục tiêu",
+      "targetMaxTokens": "Số token tối đa mục tiêu",
+      "absoluteMaxTokens": "Số token tối đa tuyệt đối",
+      "advanced": "Nâng cao",
+      "speakerRate": "Tốc độ người nói",
+      "exaggeration": "Mức độ nhấn mạnh",
+      "cfg": "Thang hướng dẫn không dùng bộ phân loại",
+      "seed": "Seed",
+      "minP": "Tối thiểu P",
+      "repetitionPenalty": "Mức phạt lặp lại",
+      "topK": "Top K"
+    }
+  },
+  "zai": {
+    "clearThinking": "Xóa nội dung suy nghĩ trước đó",
+    "generalTranslation": "Tác nhân dịch thuật tổng quát",
+    "popularSpecialEffectsVideos": "Tác nhân tạo video hiệu ứng đặc biệt phổ biến",
+    "videoTemplate": "Mẫu hiệu ứng",
+    "sourceLanguage": "Ngôn ngữ nguồn",
+    "targetLanguage": "Ngôn ngữ đích",
+    "translationStrategy": "Chiến lược dịch",
+    "glossary": "Bảng thuật ngữ ID",
+    "glossaryPlaceholder": "Tùy chọn bảng thuật ngữ ID",
+    "translationSuggestion": "Bản dịch gợi ý",
+    "translationSuggestionPlaceholder": "Bảng thuật ngữ, hướng dẫn văn phong hoặc yêu cầu dịch tùy chọn",
+    "reasonLanguage": "Suy luận ngôn ngữ",
+    "translationStrategies": {
+      "general": "Dịch thuật tổng quát",
+      "paraphrase": "Diễn giải bản dịch",
+      "two_step": "Dịch hai bước",
+      "three_step": "Dịch ba bước",
+      "reflection": "Dịch có phản tư",
+      "cot": "Dịch theo chuỗi suy nghĩ (CoT)"
+    },
+    "reasonLanguages": {
+      "from": "Ngôn ngữ nguồn",
+      "to": "Ngôn ngữ đích"
+    },
+    "videoTemplates": {
+      "french_kiss": "Nụ hôn kiểu Pháp",
+      "bodyshake": "Điệu nhảy rung lắc",
+      "sexy_me": "Quyến rũ"
+    },
+    "translationLanguages": {
+      "auto": "Tự động phát hiện",
+      "zh-CN": "Tiếng Trung giản thể",
+      "zh-TW": "Tiếng Trung phồn thể",
+      "wyw": "Tiếng Trung cổ điển",
+      "yue": "Tiếng Quảng Đông",
+      "en": "Tiếng Anh",
+      "en-GB": "Tiếng Anh (Anh)",
+      "en-US": "Tiếng Anh (Mỹ)",
+      "ja": "Tiếng Nhật",
+      "ko": "Tiếng Hàn",
+      "fr": "Tiếng Pháp",
+      "de": "Tiếng Đức",
+      "es": "Tiếng Tây Ban Nha",
+      "ru": "Tiếng Nga",
+      "pt": "Tiếng Bồ Đào Nha",
+      "it": "Tiếng Ý",
+      "ar": "Tiếng Ả Rập",
+      "hi": "Tiếng Hindi",
+      "bg": "Tiếng Bulgaria",
+      "cs": "Tiếng Séc",
+      "da": "Tiếng Đan Mạch",
+      "el": "Tiếng Hy Lạp",
+      "et": "Tiếng Estonia",
+      "fi": "Tiếng Phần Lan",
+      "hu": "Tiếng Hungary",
+      "id": "Tiếng Indonesia",
+      "lt": "Tiếng Litva",
+      "lv": "Tiếng Latvia",
+      "nl": "Tiếng Hà Lan",
+      "no": "Tiếng Na Uy Bokmål",
+      "pl": "Tiếng Ba Lan",
+      "ro": "Tiếng Romania",
+      "sk": "Tiếng Slovak",
+      "sl": "Tiếng Slovenia",
+      "sv": "Tiếng Thụy Điển",
+      "th": "Tiếng Thái",
+      "tr": "Tiếng Thổ Nhĩ Kỳ",
+      "uk": "Tiếng Ukraina",
+      "vi": "Tiếng Việt",
+      "my": "Tiếng Miến Điện",
+      "ms": "Tiếng Mã Lai",
+      "Pinyin": "Pinyin",
+      "IPA": "Quốc tế Ngữ âm Bảng chữ cái"
+    },
+    "searchQuery": "Truy vấn tìm kiếm",
+    "searchQueryPlaceholder": "Truy vấn bắt buộc để tìm kiếm trên web",
+    "searchEngine": "Công cụ tìm kiếm",
+    "resultCount": "Số lượng kết quả",
+    "recencyFilter": "Bộ lọc độ mới",
+    "contentSize": "Kích thước nội dung",
+    "resultSequence": "Thứ tự kết quả",
+    "domainFilter": "Bộ lọc tên miền",
+    "returnSearchResults": "Trả về kết quả tìm kiếm",
+    "requireSearchGrounding": "Yêu cầu tìm kiếm có căn cứ",
+    "searchPrompt": "Lời nhắc tìm kiếm",
+    "searchPromptPlaceholder": "Lời nhắc tùy chọn để xử lý kết quả tìm kiếm",
+    "toolStream": "Truyền dữ liệu công cụ",
+    "thinkingTypes": {
+      "enabled": "Bật",
+      "disabled": "Đã tắt"
+    },
+    "searchEngines": {
+      "search_pro_jina": "Tìm kiếm Pro (Jina)"
+    },
+    "recencyFilters": {
+      "oneDay": "24 giờ qua",
+      "oneWeek": "Tuần trước",
+      "oneMonth": "Tháng trước",
+      "oneYear": "Năm trước",
+      "noLimit": "Không giới hạn"
+    },
+    "contentSizes": {
+      "medium": "Trung bình",
+      "high": "Cao"
+    },
+    "resultSequences": {
+      "before": "Trước câu trả lời",
+      "after": "Sau câu trả lời"
+    }
+  },
+  "voyageai": {
+    "reranking": {
+      "returnDocuments": "Trả về tài liệu",
+      "truncation": "Cắt bớt"
+    }
+  },
+  "hyperbolic": {},
+  "nebius": {
+    "responseExtension": "Định dạng đầu ra"
+  },
+  "sambanova": {
+    "chat_template_kwargs": "Tham số mẫu trò chuyện",
+    "chat_template_kwargs_placeholder": "{\n  \"enable_thinking\": true\n}",
+    "invalid_json": "JSON không hợp lệ"
+  },
+  "novita": {
+    "pitch": "Cao độ ({{pitch}})",
+    "transcriptionPrompt": "Lời nhắc",
+    "transcriptionPromptPlaceholder": "Với văn bản dài, bạn có thể dùng kết quả phiên âm trước đó làm ngữ cảnh. Nên giới hạn dưới 8.000 ký tự.",
+    "hotwords": "Từ khóa",
+    "hotwordsHint": "Danh sách từ khóa giúp cải thiện độ chính xác nhận dạng thuật ngữ chuyên ngành.",
+    "addHotword": "Thêm từ khóa",
+    "addHotwordPlaceholder": "ví dụ: tên sản phẩm"
+  },
+  "fireworks": {
+    "audioProcessing": "Xử lý âm thanh",
+    "alignmentModel": "Căn chỉnh mô hình",
+    "preprocessing": "Tiền xử lý",
+    "diarization": "Phân tách người nói",
+    "vadModel": "Mô hình phát hiện hoạt động giọng nói",
+    "minSpeakers": "Số người nói tối thiểu",
+    "maxSpeakers": "Số người nói tối đa",
+    "webhookUrl": "Webhook",
+    "webhookUrlHint": "URL nhận thông báo webhook.",
+    "promptUpsampling": "Tăng độ chi tiết của lời nhắc",
+    "promptUpsamplingHint": "Khi bật, điều chỉnh lời nhắc để tạo kết quả sáng tạo hơn.",
+    "safetyTolerance": "Mức dung sai an toàn",
+    "safetyToleranceHint": "Mức dung sai kiểm duyệt đầu vào và đầu ra: từ 0 (nghiêm ngặt) đến 6 (linh hoạt). Giới hạn là 2 đối với tính năng chuyển ảnh thành ảnh.",
+    "reranking": {
+      "task": "Tác vụ",
+      "taskPlaceholder": "Ví dụ: 'Dựa trên truy vấn tìm kiếm web, truy xuất các đoạn liên quan để trả lời truy vấn'",
+      "taskHint": "Mô tả tác vụ tùy chọn để định hướng quá trình xếp hạng lại.",
+      "returnDocuments": "Trả về tài liệu"
+    }
+  },
+  "elevenlabs": {
+    "enableLogging": "Bật ghi nhật ký",
+    "realtimeToken": "Token",
+    "realtimeTokenPlaceholder": "Token dùng một lần (tùy chọn)",
+    "realtimeIncludeTimestamps": "Bao gồm dấu thời gian",
+    "realtimeIncludeLanguageDetection": "Bao gồm tính năng phát hiện ngôn ngữ",
+    "realtimeAudioFormat": "Định dạng âm thanh",
+    "realtimeCommitStrategy": "Chiến lược xác nhận",
+    "realtimeVadSilenceThresholdSecs": "Ngưỡng khoảng lặng VAD (giây)",
+    "realtimeVadThreshold": "VAD ngưỡng",
+    "realtimeMinSpeechDurationMs": "Thời lượng giọng nói tối thiểu (ms)",
+    "realtimeMinSilenceDurationMs": "Thời lượng khoảng lặng tối thiểu (ms)",
+    "seed": "Seed",
+    "voiceSettings": "Cài đặt giọng nói",
+    "stability": "Độ ổn định ({{value}})",
+    "similarityBoost": "Tăng độ tương đồng ({{value}})",
+    "style": "Phong cách ({{value}})",
+    "useSpeakerBoost": "Tăng cường giọng người nói",
+    "continuity": "Liên tục",
+    "previousText": "Văn bản trước",
+    "nextText": "Văn bản tiếp theo",
+    "textNormalization": "Văn bản chuẩn hóa",
+    "applyTextNormalization": "Áp dụng văn bản chuẩn hóa",
+    "applyLanguageTextNormalization": "Áp dụng ngôn ngữ văn bản chuẩn hóa",
+    "music": "Âm nhạc",
+    "musicLengthMs": "Âm nhạc độ dài (ms)",
+    "forceInstrumental": "Bắt buộc nhạc không lời",
+    "respectSectionsDurations": "Tuân theo thời lượng từng phần",
+    "storeForInpainting": "Lưu để tô lại vùng ảnh",
+    "signWithC2pa": "Ký bằng C2PA",
+    "fileFormat": "Tệp định dạng",
+    "tagAudioEvents": "Gắn thẻ sự kiện âm thanh",
+    "useMultiChannel": "Dùng đa kênh",
+    "timestamps": "Dấu thời gian",
+    "timestampsGranularity": "Mức độ chi tiết của dấu thời gian",
+    "diarization": "Phân tách người nói",
+    "numSpeakers": "Số lượng người nói",
+    "diarizationThreshold": "Ngưỡng phân tách người nói ({{value}})",
+    "dialogue": "Hội thoại",
+    "dialogueHint": "Thêm nhiều dòng hội thoại cho các mô hình Dialogue.",
+    "dialogueAddLine": "Thêm dòng",
+    "dialogueVoiceIdPlaceholder": "ví dụ: JBFqnCBsd6RMkjVDRZzb",
+    "dialogueText": "Văn bản",
+    "dialogueStability": "Độ ổn định hội thoại ({{value}})",
+    "dialogueStabilityReset": "Dùng mặc định của nhà cung cấp"
+  },
+  "async": {
+    "speech": {
+      "encoding": "Mã hóa",
+      "bitRateMp3Only": "Tốc độ bit (chỉ áp dụng với MP3)",
+      "experimental": "Thử nghiệm",
+      "overrideSpeedControl": "Ghi đè điều khiển tốc độ",
+      "speedControl": "Điều khiển tốc độ",
+      "overrideStability": "Ghi đè độ ổn định",
+      "stability": "Độ ổn định"
+    }
+  },
+  "deepgram": {
+    "language": "Ngôn ngữ",
+    "punctuate": "Thêm dấu câu",
+    "smartFormat": "Thông minh định dạng",
+    "paragraphs": "Đoạn văn",
+    "utterances": "Lời nói",
+    "diarize": "Phân tách người nói",
+    "multichannel": "Đa kênh",
+    "detectEntities": "Phát hiện thực thể",
+    "topics": "Chủ đề",
+    "intents": "Ý định",
+    "sentiment": "Cảm xúc",
+    "mipOptOut": "Mô hình Cải thiện Chương trình opt-out",
+    "detectLanguage": "Phát hiện ngôn ngữ",
+    "tags": "Thẻ",
+    "addTag": "Thêm thẻ",
+    "addTagPlaceholder": "ví dụ: customer-123",
+    "speech": {
+      "encoding": "Mã hóa",
+      "container": "Vùng chứa",
+      "bitRate": "Tốc độ bit (bps)",
+      "mipOptOut": "Mô hình Cải thiện Chương trình opt-out",
+      "callback": "URL gọi lại",
+      "callbackMethod": "Phương thức gọi lại",
+      "singleTagDetected": "Đã phát hiện thẻ đơn {{tag}}. Thêm hoặc xóa thẻ để chuyển thành danh sách."
+    }
+  },
+  "resembleai": {
+    "queryLabel": "Truy vấn",
+    "queryHint": "Câu hỏi phân tích tùy chọn để đánh giá sau khi phiên âm.",
+    "queryPlaceholder": "ví dụ: Những việc cần làm nào đã được thảo luận?",
+    "speech": {
+      "voiceUuid": "Giọng nói",
+      "voiceUuidPlaceholder": "ví dụ: 55592656",
+      "projectUuid": "Dự án",
+      "projectUuidHint": "ID dự án tùy chọn để lưu đoạn âm thanh được tạo.",
+      "projectUuidPlaceholder": "ví dụ: 7df0c0c2-5b9c-4f3d-9b6c-7d4b3f5d1a2b",
+      "title": "Tiêu đề",
+      "titleHint": "Tiêu đề tùy chọn cho đoạn âm thanh được tạo.",
+      "titlePlaceholder": "ví dụ: Lời chào",
+      "precision": "Chính xác (WAV)",
+      "useHd": "Dùng HD"
+    }
+  },
+  "gladia": {
+    "customVocabulary": "Tùy chỉnh từ vựng",
+    "customVocabularyHint": "Cung cấp từ vựng để cải thiện khả năng nhận dạng thuật ngữ chuyên ngành.",
+    "customVocabularyMode": "Từ vựng chế độ",
+    "customVocabularyModeConfig": "Cấu hình (custom_vocabulary_config)",
+    "customVocabularyModeInline": "Danh sách nhúng (mảng từ vựng tùy chỉnh)",
+    "customVocabularyDefaultIntensity": "Mặc định cường độ",
+    "customVocabularyList": "Danh sách từ vựng",
+    "customVocabularyAddItem": "Thêm mục từ vựng",
+    "customVocabularyEmpty": "Chưa có mục từ vựng nào.",
+    "customVocabularyItemType": "Loại mục từ vựng",
+    "customVocabularyItemTypeString": "Chuỗi",
+    "customVocabularyItemTypeObject": "Đối tượng",
+    "customVocabularyValue": "Giá trị",
+    "customVocabularyIntensity": "Cường độ",
+    "customVocabularyPronunciations": "Cách phát âm",
+    "customVocabularyLanguage": "Ngôn ngữ",
+    "subtitles": "Phụ đề",
+    "subtitlesHint": "Tạo tệp phụ đề cho bản phiên âm này.",
+    "subtitlesMinDuration": "Tối thiểu thời lượng (giây)",
+    "subtitlesMaxDuration": "Thời lượng tối đa (giây)",
+    "subtitlesMaxCharsPerRow": "Số ký tự tối đa mỗi dòng",
+    "subtitlesMaxRowsPerCaption": "Số dòng tối đa mỗi phụ đề",
+    "subtitlesStyle": "Phong cách",
+    "subtitlesStyle.default": "Mặc định",
+    "subtitlesStyle.compliance": "Tuân thủ",
+    "diarization": "Phân tách người nói",
+    "diarizationHint": "Nhận diện người nói trong âm thanh.",
+    "diarizationNumberOfSpeakers": "Số lượng người nói chính xác",
+    "diarizationMinSpeakers": "Tối thiểu người nói",
+    "diarizationMaxSpeakers": "Tối đa người nói",
+    "translation": "Bản dịch",
+    "translationHint": "Dịch bản phiên âm sang một hoặc nhiều ngôn ngữ đích.",
+    "translationTargetLanguages": "Ngôn ngữ đích",
+    "translationModel": "Bản dịch mô hình",
+    "translationModel.base": "Cơ bản",
+    "translationModel.enhanced": "Nâng cao",
+    "translationMatchOriginalUtterances": "Khớp ban đầu lời nói",
+    "translationLipsync": "Bật đồng bộ khẩu hình",
+    "translationContextAdaptation": "Ngữ cảnh adaptation",
+    "translationContext": "Ngữ cảnh",
+    "translationContextPlaceholder": "Ngữ cảnh tùy chọn để cải thiện độ chính xác bản dịch",
+    "translationInformal": "Dùng ngôn ngữ thân mật",
+    "summarization": "Tóm tắt",
+    "summarizationHint": "Tạo bản tóm tắt nội dung phiên âm.",
+    "summarizationType": "Loại tóm tắt",
+    "summarizationType.general": "Chung",
+    "summarizationType.bullet_points": "Bullet điểm",
+    "summarizationType.concise": "Ngắn gọn",
+    "analysis": "Phân tích",
+    "moderation": "Kiểm duyệt",
+    "namedEntityRecognition": "Nhận dạng thực thể có tên",
+    "chapterization": "Chia chương",
+    "nameConsistency": "Tên nhất quán",
+    "sentimentAnalysis": "Phân tích cảm xúc",
+    "customSpelling": "Tùy chỉnh chính tả",
+    "customSpellingHint": "Cung cấp cách sửa chính tả cho các thuật ngữ chuyên ngành.",
+    "customSpellingTerm": "Thuật ngữ",
+    "customSpellingVariants": "Chính tả biến thể",
+    "customSpellingAddEntry": "Thêm thuật ngữ",
+    "customSpellingEmpty": "Chưa có mục chính tả tùy chỉnh nào.",
+    "structuredDataExtraction": "Trích xuất dữ liệu có cấu trúc",
+    "structuredDataHint": "Trích xuất các lớp dữ liệu có cấu trúc từ bản phiên âm.",
+    "structuredDataClasses": "Các lớp cần trích xuất",
+    "structuredDataClassesPlaceholder": "ví dụ: Người",
+    "audioToLlm": "Âm thanh sang LLM",
+    "audioToLlmHint": "Chạy lời nhắc LLM trên bản phiên âm.",
+    "audioToLlmPrompts": "Lời nhắc",
+    "audioToLlmAddPrompt": "Thêm lời nhắc",
+    "audioToLlmEmpty": "Chưa có lời nhắc nào.",
+    "audioToLlmPromptLabel": "Lời nhắc {{index}}",
+    "output": "Đầu ra",
+    "sentences": "Câu",
+    "displayMode": "Hiển thị chế độ",
+    "punctuationEnhanced": "Cải thiện dấu câu",
+    "languageConfig": "Ngôn ngữ configuration",
+    "languageConfigHint": "Chọn ngôn ngữ hoặc bật tính năng phát hiện chuyển đổi ngôn ngữ.",
+    "languageConfigLanguages": "Ngôn ngữ",
+    "languageConfigCodeSwitching": "Mã switching"
+  },
+  "speechify": {
+    "speech": {
+      "voiceIdPlaceholder": "ví dụ: 2e19b1e2-...",
+      "audioFormat": "Âm thanh định dạng",
+      "options": "Tùy chọn",
+      "loudnessNormalization": "Âm lượng chuẩn hóa",
+      "loudnessNormalizationHint": "Chuẩn hóa âm lượng về mức tiêu chuẩn (-14 LUFS / -2 dBTP). Có thể làm tăng độ trễ.",
+      "textNormalization": "Văn bản chuẩn hóa",
+      "textNormalizationHint": "Chuyển số, ngày tháng và nội dung tương tự thành từ. Có thể làm tăng độ trễ."
+    }
+  },
+  "minimax": {
+    "promptOptimizer": "Lời nhắc optimizer",
+    "promptOptimizerHint": "Tự động tối ưu hóa lời nhắc trước khi tạo hình ảnh.",
+    "languageBoost": "Ngôn ngữ tăng cường",
+    "subtitleEnable": "Bật phụ đề",
+    "voiceSetting": "Giọng nói cài đặt",
+    "voiceId": "Giọng nói",
+    "speedWithValue": "Tốc độ ({{value}}x)",
+    "volumeWithValue": "Âm lượng ({{value}}x)",
+    "pitchWithValue": "Cao độ ({{value}})",
+    "emotion": "Cảm xúc",
+    "textNormalization": "Văn bản chuẩn hóa",
+    "latexRead": "LaTeX đọc",
+    "audioSetting": "Cài đặt âm thanh",
+    "audioFormat": "Âm thanh định dạng",
+    "bitrate": "Tốc độ bit",
+    "channel": "Kênh",
+    "forceCbr": "Bắt buộc giữ nguyên tốc độ bit",
+    "pronunciationDict": "Phát âm",
+    "toneHint": "Thêm quy tắc ánh xạ giọng điệu theo định dạng: token/văn bản thay thế",
+    "addTone": "Thêm giọng điệu",
+    "addTonePlaceholder": "ví dụ: omg/ôi trời ơi",
+    "weight": "Trọng số",
+    "voiceModify": "Giọng nói hiệu ứng",
+    "voiceModifyPitchWithValue": "Cao độ ({{value}})",
+    "voiceModifyIntensityWithValue": "Cường độ ({{value}})",
+    "voiceModifyTimbreWithValue": "Âm sắc ({{value}})",
+    "soundEffects": "Hiệu ứng âm thanh",
+    "music": "Âm nhạc",
+    "lyrics": "Lời bài hát"
+  },
+  "stepfun": {
+    "audioSettings": "Cài đặt âm thanh",
+    "volume": "Âm lượng",
+    "volumePlaceholder": "Mặc định của nhà cung cấp (1.0; phạm vi 0.1–2.0)",
+    "sampleRate": "Tần số lấy mẫu (Hz)",
+    "sampleRatePlaceholder": "Mặc định của nhà cung cấp (24000)",
+    "sampleRateHint": "Các giá trị được hỗ trợ: 8000, 16000, 22050, 24000 và 48000.",
+    "pronunciationMap": "Bảng quy tắc phát âm",
+    "toneHint": "Thêm quy tắc phát âm theo định dạng văn bản/cách phát âm. Thanh điệu tiếng Trung dùng số từ 1–5.",
+    "addTone": "Thêm quy tắc phát âm",
+    "addTonePlaceholder": "ví dụ: LOL/cười lớn"
+  },
+  "audixa": {
+    "speech": {
+      "baseVoices": "Giọng cơ bản",
+      "advanceVoices": "Giọng nâng cao",
+      "customVoiceId": "Tùy chỉnh giọng nói",
+      "customVoicePlaceholder": "ví dụ: af_bella",
+      "emotion": "Cảm xúc"
+    }
+  },
+  "freepik": {
+    "speech": {
+      "soundEffects": {
+        "title": "Hiệu ứng âm thanh",
+        "durationSeconds": "Thời lượng (giây)",
+        "promptInfluence": "Lời nhắc ảnh hưởng",
+        "loop": "Lặp",
+        "durationSecondsHint": "Thời lượng âm thanh được tạo.",
+        "promptInfluenceHint": "Mức độ ảnh hưởng của lời nhắc đến âm thanh được tạo.",
+        "loopHint": "Có tạo hiệu ứng âm thanh lặp lại liền mạch hay không."
+      }
+    },
+    "image": {
+      "shared": {
+        "sharpen": "Làm sắc nét",
+        "smartGrain": "Hạt thông minh",
+        "ultraDetail": "Siêu chi tiết"
+      },
+      "imageExpand": {
+        "title": "Mở rộng hình ảnh",
+        "left": "Trái (px)",
+        "right": "Phải (px)",
+        "top": "Trên (px)",
+        "bottom": "Dưới (px)"
+      },
+      "skinEnhancerCreative": {
+        "title": "Tăng cường da (sáng tạo)"
+      },
+      "skinEnhancerFaithful": {
+        "title": "Tăng cường chi tiết da (giữ nguyên)",
+        "skinDetail": "Chi tiết da"
+      },
+      "skinEnhancerFlexible": {
+        "title": "Tăng cường da (linh hoạt)",
+        "optimizedFor": "Tối ưu hóa cho"
+      },
+      "upscalerCreative": {
+        "title": "Nâng cấp độ phân giải (Sáng tạo)",
+        "scaleFactor": "Hệ số phóng đại",
+        "optimizedFor": "Tối ưu hóa cho",
+        "prompt": "Lời nhắc",
+        "creativity": "Độ sáng tạo",
+        "hdr": "HDR",
+        "resemblance": "Độ tương đồng",
+        "fractality": "Độ phức tạp chi tiết",
+        "engine": "Công cụ",
+        "promptHint": "Lời nhắc định hướng quá trình nâng cấp độ phân giải."
+      },
+      "upscalerPrecision": {
+        "title": "Nâng cấp độ phân giải (Chính xác)"
+      },
+      "upscalerPrecisionV2": {
+        "title": "Nâng cấp độ phân giải (Chính xác V2)",
+        "flavor": "Phong cách",
+        "scaleFactor": "Hệ số phóng đại"
+      }
+    }
+  },
+  "assemblyai": {
+    "realtime": "Thời gian thực",
+    "realtimeHint": "Cài đặt truyền phát (WebSocket) cho AssemblyAI.",
+    "realtimeSampleRate": "Mẫu tốc độ",
+    "realtimeEncoding": "Mã hóa",
+    "realtimeVadThreshold": "Ngưỡng VAD (0.0–1.0)",
+    "realtimeEndOfTurnConfidenceThreshold": "Ngưỡng tin cậy kết thúc lượt (0.0–1.0)",
+    "realtimeMinEndOfTurnSilence": "Khoảng lặng tối thiểu cuối lượt (ms)",
+    "realtimeMaxTurnSilence": "Thời lượng khoảng lặng tối đa mỗi lượt (ms)",
+    "realtimeFormatTurns": "Định dạng lượt",
+    "realtimeInactivityTimeout": "Thời gian chờ khi không hoạt động (giây)",
+    "realtimeLanguageDetection": "Phát hiện ngôn ngữ",
+    "realtimeKeytermsPrompt": "Từ khóa lời nhắc",
+    "mediaTrimming": "Phương tiện cắt",
+    "audioStartFrom": "Âm thanh bắt đầu (ms)",
+    "audioEndAt": "Âm thanh kết thúc (ms)",
+    "language": "Ngôn ngữ",
+    "languageHint": "Chọn ngôn ngữ của tệp âm thanh (hoặc giữ mặc định).",
+    "languageCode": "Mã ngôn ngữ",
+    "languageDetection": "Tự động phát hiện ngôn ngữ",
+    "languageConfidenceThreshold": "Ngưỡng độ tin cậy ngôn ngữ",
+    "outputFormatting": "Định dạng đầu ra",
+    "punctuate": "Thêm dấu câu",
+    "formatText": "Định dạng văn bản",
+    "disfluencies": "Từ đệm",
+    "channelsAndDiarization": "Kênh và phân tách người nói",
+    "channelsAndDiarizationHint": "Cài đặt phiên âm đa kênh và phân tách người nói.",
+    "multichannel": "Đa kênh",
+    "speakerLabels": "Nhãn người nói",
+    "speakersExpected": "Số người nói dự kiến",
+    "enrichments": "Tính năng bổ sung",
+    "enrichmentsHint": "Bật thông tin chuyên sâu và phân tích bổ sung.",
+    "autoChapters": "Tự động chia chương",
+    "autoHighlights": "Tự động trích xuất điểm nổi bật",
+    "entityDetection": "Nhận diện thực thể",
+    "sentimentAnalysis": "Phân tích cảm xúc",
+    "iabCategories": "Danh mục IAB",
+    "safetyAndPii": "An toàn và thông tin cá nhân",
+    "safetyAndPiiHint": "Lọc ngôn từ thô tục, kiểm duyệt nội dung và ẩn thông tin nhận dạng cá nhân.",
+    "filterProfanity": "Lọc ngôn từ thô tục",
+    "contentSafety": "An toàn nội dung",
+    "contentSafetyConfidence": "Độ tin cậy về an toàn nội dung (25–100)",
+    "redactPii": "Ẩn PII",
+    "redactPiiSub": "Nội dung thay thế thông tin cá nhân",
+    "redactPiiPolicies": "Chính sách ẩn thông tin cá nhân",
+    "redactPiiPoliciesHint": "Chọn một hoặc nhiều chính sách để ẩn thông tin.",
+    "addPolicy": "Thêm chính sách",
+    "redactPiiAudio": "Ẩn PII âm thanh",
+    "redactPiiAudioQuality": "Chất lượng âm thanh sau khi ẩn thông tin",
+    "summarization": "Tóm tắt",
+    "summaryModel": "Bản tóm tắt mô hình",
+    "summaryType": "Loại tóm tắt",
+    "accuracy": "Độ chính xác",
+    "accuracyHint": "Cải thiện độ chính xác nhận dạng bằng ngưỡng, từ khóa và tùy chỉnh chính tả.",
+    "speechThreshold": "Giọng nói ngưỡng (0. 0–1. 0)",
+    "keytermsPrompt": "Từ khóa lời nhắc",
+    "keytermsPromptPlaceholder": "ví dụ: tên sản phẩm",
+    "customSpelling": "Tùy chỉnh chính tả",
+    "customSpellingTo": "Thay bằng",
+    "customSpellingFrom": "Thay thế từ",
+    "customSpellingFromPlaceholder": "ví dụ: Phần tiếp theo",
+    "customSpellingAdd": "Thêm nội dung thay thế",
+    "customSpellingEmpty": "Chưa có mục chính tả tùy chỉnh nào."
   }
 }
