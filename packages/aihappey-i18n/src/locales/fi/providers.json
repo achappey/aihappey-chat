@@ -1,4 +1,5 @@
 {
+  "deepseek": {},
   "webcrawlerapi": {
     "urls": "URL-osoitteet",
     "costs": "Kustannukset",
@@ -80,7 +81,16 @@
     "enableRecording": "Ota tallennus käyttöön",
     "skills": "Ota taidot käyttöön",
     "agentmail": "Ota AgentMail käyttöön",
-    "cacheScript": "Välimuistikomentosarja"
+    "cacheScript": "Välimuistikomentosarja",
+    "run": "Suorita",
+    "browserSettings": "Selainasetukset",
+    "noProxy": "Ei välityspalvelinta",
+    "screenWidth": "Näytön leveys",
+    "screenHeight": "Näytön korkeus",
+    "record": "Tallenna selainistunto",
+    "judge": "Arvioija",
+    "enableJudge": "Ota arvioija käyttöön",
+    "judgeContext": "Arvioijan konteksti"
   },
   "tembo": {
     "session": "Istunto",
@@ -244,11 +254,13 @@
     "thinkingModes": {
       "enabled": "Käytössä",
       "disabled": "Ei käytössä",
-      "adaptive": "Mukautuva"
+      "adaptive": "Mukautuva",
+      "between_tools": "Työkalujen välillä"
     },
     "thinkingDisplayModes": {
       "summarized": "Tiivistetty",
-      "omitted": "Jätetty pois"
+      "omitted": "Jätetty pois",
+      "updates": "Päivitykset"
     },
     "contextManagement": {
       "title": "Kontekstinhallinta",
@@ -316,6 +328,63 @@
         "pauseAfterCompactionFalse": "Keskeytä pakkauksen jälkeen: epätosi",
         "instructions": "Ohjeet asetettu"
       }
+    },
+    "other": {
+      "serviceTier": {
+        "title": "Palvelutaso",
+        "options": {
+          "auto": "Etusija, kun saatavilla",
+          "standard_only": "Vain vakio"
+        }
+      },
+      "speed": {
+        "title": "Nopeus",
+        "options": {
+          "standard": "Vakio",
+          "fast": "Nopea"
+        }
+      },
+      "inferenceGeo": {
+        "title": "Maantieteellinen sijainti",
+        "options": {
+          "global": "Maailmanlaajuinen",
+          "us": "Yhdysvallat"
+        }
+      }
+    },
+    "memory": "Muisti",
+    "cache": {
+      "title": "Välimuisti",
+      "ttl": "Kesto",
+      "ttlOptions": {
+        "5m": "5 minuuttia",
+        "1h": "1 tunti"
+      }
+    },
+    "compaction": {
+      "title": "Pakkaa konteksti"
+    },
+    "outputConfig": {
+      "title": "Tulostusasetukset",
+      "effort": "Taso ({{effort}})",
+      "taskBudget": "Tehtävän tokenbudjetti"
+    },
+    "advisor": {
+      "title": "Neuvonantaja",
+      "toolName": "Työkalun nimi",
+      "model": "Malli",
+      "maxTokens": "Tokenien enimmäismäärä",
+      "caching": "Neuvonantajakehotteen välimuisti"
+    },
+    "responseInclusion": "Vastauksen sisällyttäminen",
+    "session": {
+      "title": "Budjetti (Managed Agents)",
+      "maxListCostUsd": "Enimmäisbudjetti (USD)"
+    },
+    "prefixMismatchBehavior": "Päättelylohkojen ristiriita",
+    "prefixMismatchBehaviorOptions": {
+      "error": "Virhe",
+      "drop_block": "Poista"
     }
   },
   "cohere": {
@@ -496,7 +565,17 @@
     "channels": "Kanavat",
     "channelsHint": "Säilömuodoissa kanavien määrä tunnistetaan automaattisesti. Monikanavaiselle raakaaänelle määritä 2-8 kanavaa.",
     "transcriptionMultichannel": "Monikanava",
-    "channelCount": "Kanavien määrä"
+    "channelCount": "Kanavien määrä",
+    "imageSearch": "Kuvahaku",
+    "transcriptionFillerWords": "Sisällytä täytesanat",
+    "transcriptionVadThreshold": "Puheentunnistuksen kynnysarvo ({{value}})",
+    "transcriptionKeyterm": "Avaintermit",
+    "transcriptionKeytermPlaceholder": "Kirjoita pilkuilla eroteltu luettelo avaintermeistä",
+    "toolSearch": {
+      "title": "Työkaluhaku",
+      "executionMode": "Suoritustapa",
+      "server": "Palvelin"
+    }
   },
   "openai": {
     "shell": "Komentotulkki",
@@ -504,7 +583,18 @@
     "promptCacheKey": "Kehotevälimuistin tunnus",
     "promptCacheOptions": {
       "24h": "24 tuntia",
-      "in-memory": "Muistissa"
+      "in-memory": "Muistissa",
+      "title": "Kehotevälimuisti",
+      "mode": "Tila",
+      "ttl": "Välimuistin kesto",
+      "modes": {
+        "implicit": "Implisiittinen",
+        "explicit": "Eksplisiittinen"
+      },
+      "ttls": {
+        "30m": "30 minuuttia",
+        "12h": "12 tuntia"
+      }
     },
     "promptCache": "Kehotevälimuisti",
     "truncation": {
@@ -518,7 +608,9 @@
       "default": "Oletus",
       "flex": "Joustava",
       "scale": "Skaalautuva",
-      "priority": "Prioriteetti"
+      "priority": "Prioriteetti",
+      "fast": "Nopea",
+      "ultrafast": "Erittäin nopea"
     },
     "container": "Säilö",
     "customVoice": "Mukautettu ääni",
@@ -638,7 +730,102 @@
     "realtimeVadIdleTimeoutMs": "Tyhjäkäynnin aikakatkaisu (ms)",
     "realtimeSemanticEagerness": "Innokkuus",
     "realtimeIncludeLogprobs": "Sisällytä syötteen litterointilohkot",
-    "realtimeTokenTtlSeconds": "Tokenin elinaika (sekuntia)"
+    "realtimeTokenTtlSeconds": "Tokenin elinaika (sekuntia)",
+    "moderation": {
+      "title": "Sisällön moderointi",
+      "model": "Moderointimalli",
+      "inputMode": "Syötteen käytäntö",
+      "outputMode": "Tulosteen käytäntö",
+      "modes": {
+        "score": "Pisteytys",
+        "block": "Estä"
+      }
+    },
+    "betaHeader": "Beta",
+    "multiAgent": {
+      "title": "Moniagenttitila",
+      "description": "Salli päämallin koordinoida aliagentteja rinnakkain monimutkaisissa Responses API -tehtävissä. Käyttöönotto lisää myös vaaditun OpenAI-betaotsakkeen.",
+      "maxConcurrentSubagents": "Rinnakkaisten aliagenttien enimmäismäärä",
+      "maxConcurrentSubagentsHelp": "Rajoittaa aktiivisten aliagenttien määrää koko agenttipuussa. OpenAI:n suosittelema oletusarvo on 3."
+    },
+    "sessionAgent": {
+      "title": "Agentti",
+      "inherit": "Ei määritetty",
+      "model": "Malli",
+      "instructions": "Ohjeet",
+      "effort": "Päättelyn taso",
+      "summary": "Päättelyn yhteenveto",
+      "serviceTier": "Palvelutaso",
+      "verbosity": "Tekstin yksityiskohtaisuus",
+      "format": "Tekstin muoto",
+      "schema": "JSON-skeema",
+      "invalidSchema": "Anna kelvollinen JSON-skeemaobjekti.",
+      "multiAgent": "Ota aliagentit käyttöön",
+      "maxSubagents": "Rinnakkaisten aliagenttien enimmäismäärä",
+      "tools": "Agentin työkalut",
+      "computer_use": "Tietokoneen käyttö",
+      "web_search": "Verkkohaku",
+      "programmatic_tool_calling": "Ohjelmalliset työkalukutsut",
+      "tool_search": "Työkaluhaku",
+      "screenshots": "Sisällytä kuvakaappaukset",
+      "programmaticEnabled": "Salli generoidun koodin tekemät kutsut",
+      "searchMode": "Verkkohaun tila",
+      "searchContext": "Hakukontekstin koko",
+      "allowedDomains": "Sallitut verkkotunnukset (yksi rivillä)",
+      "city": "Kaupunki",
+      "country": "Maa",
+      "region": "Alue",
+      "timezone": "Aikavyöhyke"
+    },
+    "sessionEnvironment": {
+      "title": "Ympäristö (agentti)",
+      "type": "Ympäristön tyyppi",
+      "none": "Ei mitään",
+      "openai_hosted": "OpenAI:n ylläpitämä",
+      "self_hosted": "Itse ylläpidetty",
+      "templateId": "Ympäristön mallipohjan tunnus",
+      "containerSize": "Kontin koko",
+      "inherit": "Ei määritetty",
+      "small": "Pieni",
+      "medium": "Keskikokoinen",
+      "large": "Suuri",
+      "desktop": "Ota käyttöön työpöytä ja selaimen välityspalvelin",
+      "network": "Verkkoyhteys",
+      "enabled": "Käytössä",
+      "disabled": "Ei käytössä",
+      "restricted": "Rajoitettu",
+      "domainHelp": "Käytä joko sallittuja tai estettyjä verkkotunnuksia, älä molempia. Jokerimerkkejä ei tueta.",
+      "allowedDomains": "Sallitut verkkotunnukset (yksi rivillä)",
+      "blockedDomains": "Estetyt verkkotunnukset (yksi rivillä)",
+      "workspaceDirectory": "Työtilan absoluuttinen hakemistopolku"
+    },
+    "searchContentTypes": {
+      "text": "Tekstihaun tulokset",
+      "image": "Kuvahaun tulokset"
+    },
+    "imageSettings": {
+      "maxResults": "Kuvatulosten enimmäismäärä",
+      "caption": "Sisällytä kuvatekstit"
+    },
+    "transcriptionLanguages": "Mahdolliset kielet",
+    "transcriptionLanguagesPlaceholder": "Pilkuilla erotellut ISO-639-1-kielikoodit, esim. fi, en",
+    "transcriptionKeywords": "Avainsanat",
+    "transcriptionKeywordsPlaceholder": "Yksi sana tai ilmaus rivillä ohjaamaan litterointia",
+    "transcriptionResponseFormat": "Vastausmuoto",
+    "programmaticToolCalling": {
+      "title": "Työkalut koodilla",
+      "allowedCallers": "Sallitut kutsujat",
+      "allowedCallersOptions": {
+        "direct": "Suora",
+        "programmatic": "Ohjelmallinen"
+      }
+    },
+    "toolSearch": {
+      "title": "Työkaluhaku",
+      "executionMode": "Suoritustapa",
+      "hosted": "Ylläpidetty",
+      "client": "Asiakas"
+    }
   },
   "google": {
     "enableEnhancedCivicAnswers": "Parannetut kansalaisvastaukset",
@@ -717,7 +904,132 @@
     "service_tier": "Palvelutaso",
     "voice": "Ääni",
     "language": "Kieli",
-    "speaker": "Puhuja"
+    "speaker": "Puhuja",
+    "interactions": {
+      "speech": {
+        "title": "Puhe",
+        "language": "Kieli",
+        "speaker": "Puhujan nimi",
+        "voice": "Ääni",
+        "addSpeaker": "Lisää puhuja"
+      },
+      "transcription": {
+        "title": "Litterointi",
+        "languageCodes": "Kielivihjeet",
+        "customVocabulary": "Oma sanasto",
+        "speakerDiarization": "Tunnista puhujat",
+        "wordTimestamps": "Sisällytä sanojen aikaleimat"
+      },
+      "responseFormat": {
+        "title": "Vastausmuoto",
+        "mimeType": "MIME-tyyppi",
+        "sampleRate": "Näytteenottotaajuus (Hz)",
+        "bitRate": "Bittinopeus (bps)",
+        "aspectRatio": "Kuvasuhde",
+        "imageSize": "Kuvan koko",
+        "resolution": "Tarkkuus",
+        "duration": "Kesto",
+        "types": {
+          "text": "Teksti",
+          "audio": "Ääni",
+          "image": "Kuva",
+          "video": "Video"
+        }
+      },
+      "retrieval": {
+        "apiKey": "API-avain",
+        "parallel": {
+          "title": "Parallel-haku"
+        },
+        "exa": {
+          "title": "Exa-haku"
+        }
+      },
+      "other": {
+        "seed": "Siemen"
+      }
+    },
+    "realtimeTranscription": {
+      "title": "Reaaliaikainen litterointi",
+      "hint": "Nämä asetukset koskevat vain Gemini Live -litterointia, ja ne ovat erillään tiedostojen litterointiasetuksista. Automaattinen puheentunnistus on käytössä.",
+      "languageCodes": "Kielivihjeet (yksi rivillä tai pilkuilla eroteltuna)",
+      "customVocabulary": "Oma sanasto (yksi termi rivillä tai pilkuilla eroteltuna)",
+      "mode": "Litterointitila",
+      "modes": {
+        "verbatim": "Sanatarkka",
+        "smart": "Älykäs"
+      }
+    },
+    "realtimeConversation": {
+      "title": "Gemini Live -keskustelu",
+      "hint": "Suora äänensiirto selaimesta Gemini Liveen taustapalvelun myöntämällä kertakäyttöisellä tunnisteella. Gemini Live on esikatseluvaiheen rajapinta.",
+      "inputTranscription": "Litteroi mikrofonin ääni",
+      "outputTranscription": "Litteroi Geminin ääni",
+      "googleSearch": "Google Search -maadoitus",
+      "turnDetection": "Puheentunnistus",
+      "automaticVad": "Automaattinen puheentunnistus",
+      "prefixPaddingMs": "Alkutyhje (ms)",
+      "silenceDurationMs": "Hiljaisuuden kesto (ms)",
+      "sessionManagement": "Istunnon hallinta",
+      "contextCompression": "Konteksti-ikkunan pakkaus",
+      "triggerTokens": "Pakkauksen käynnistävät tokenit",
+      "sessionResumption": "Jatka WebSocket-yhteyksien välillä",
+      "tokenExpiry": "Kertakäyttöisen tunnisteen vanheneminen",
+      "camera": "Kameran kuva",
+      "cameraHint": "Kamera on aluksi pois käytöstä. Kun se otetaan käyttöön istunnon aikana, JPEG-kuvia lähetetään enintään yksi sekunnissa. Ääni- ja videoyhdistelmäistuntojen palveluraja on lyhyempi.",
+      "cameraFps": "Kamerakuvia sekunnissa",
+      "jpegQuality": "JPEG-laatu",
+      "startCamera": "Käynnistä kamera",
+      "stopCamera": "Pysäytä kamera"
+    },
+    "videoConfig": {
+      "title": "Video",
+      "task": "Tehtävä",
+      "providerDefault": "Palveluntarjoajan oletus (päätellään kehotteesta)",
+      "tasks": {
+        "text_to_video": "Tekstistä videoksi",
+        "image_to_video": "Kuvasta videoksi",
+        "reference_to_video": "Viitteestä videoksi",
+        "edit": "Muokkaa",
+        "extend": "Jatka"
+      }
+    },
+    "serviceTiers": {
+      "providerDefault": "Palveluntarjoajan oletus",
+      "flex": "Joustava",
+      "standard": "Vakio",
+      "priority": "Ensisijainen"
+    },
+    "safetySettings": {
+      "title": "Turvallisuusasetukset",
+      "add": "Lisää turvallisuusasetus",
+      "type": "Luokka",
+      "method": "Menetelmä",
+      "threshold": "Kynnysarvo",
+      "methods": {
+        "severity": "Todennäköisyys ja vakavuus",
+        "probability": "Todennäköisyys"
+      },
+      "thresholds": {
+        "block_low_and_above": "Estä matala taso ja sitä vakavammat",
+        "block_medium_and_above": "Estä keskitaso ja sitä vakavammat",
+        "block_only_high": "Estä vain korkea taso",
+        "block_none": "Älä estä mitään",
+        "off": "Poista turvallisuussuodatin käytöstä"
+      },
+      "categories": {
+        "hate_speech": "Vihapuhe",
+        "dangerous_content": "Vaarallinen sisältö",
+        "harassment": "Häirintä",
+        "sexually_explicit": "Seksuaalinen sisältö",
+        "civic_integrity": "Kansalaisyhteiskunnan eheys (vanhentunut)",
+        "image_hate": "Kuvaan liittyvä vihapuhe",
+        "image_dangerous_content": "Vaarallinen kuvasisältö",
+        "image_harassment": "Kuvaan liittyvä häirintä",
+        "image_sexually_explicit": "Seksuaalinen kuvasisältö",
+        "jailbreak": "Suojauksen ohitus"
+      }
+    }
   },
   "jina": {
     "max_returned_urls": "Enimmäispalautettujen URL-osoitteiden määrä",
@@ -1053,7 +1365,9 @@
     "voiceModifyTimbreWithValue": "Sointi ({{value}})",
     "soundEffects": "Äänitehosteet",
     "music": "Musiikki",
-    "lyrics": "Sanoitukset"
+    "lyrics": "Sanoitukset",
+    "promptOptimizer": "Kehotteen optimointi",
+    "promptOptimizerHint": "Optimoi kehote automaattisesti ennen kuvien luontia."
   },
   "audixa": {
     "speech": {
@@ -1184,5 +1498,228 @@
     "customSpellingFromPlaceholder": "esim. Sequel",
     "customSpellingAdd": "Lisää korvaus",
     "customSpellingEmpty": "Ei mukautettuja oikeinkirjoitusmerkintöjä vielä."
+  },
+  "akumi": {
+    "other": "Muu",
+    "cache": "Välimuisti",
+    "tags": "Tunnisteet",
+    "tag": "Uusi tunniste",
+    "firewall": "Palomuuri",
+    "sendFirewall": "Lähetä palomuuriasetukset",
+    "firewallEnabled": "EU-reititys",
+    "firewallLanguage": "Analyysin kieli",
+    "languages": {
+      "auto": "Tunnista automaattisesti",
+      "nl": "Hollanti",
+      "en": "Englanti",
+      "fr": "Ranska",
+      "de": "Saksa"
+    }
+  },
+  "baseten": {
+    "enableThinking": "Ota päättely käyttöön",
+    "enableThinkingValue": "Lähetä enable_thinking",
+    "searchProvider": "Hakupalvelu",
+    "searchTool": "Haku",
+    "fetchTool": "Hae sivut",
+    "advancedSearchTool": "Tarkennettu haku",
+    "limitIterations": "Aseta iteraatioraja",
+    "maxReactIterations": "Päättely- ja työkaluiteraatioiden enimmäismäärä",
+    "providers": {
+      "exa": "Exa",
+      "keenable": "Keenable",
+      "parallel": "Parallel",
+      "youcom": "You.com"
+    }
+  },
+  "apertis": {
+    "notSet": "Ei asetettu",
+    "reasoning": "Päättely",
+    "effort": "Taso",
+    "efforts": {
+      "low": "Matala",
+      "medium": "Keskitaso",
+      "high": "Korkea"
+    },
+    "summary": "Yhteenveto",
+    "summaries": {
+      "auto": "Automaattinen",
+      "concise": "Tiivis",
+      "detailed": "Yksityiskohtainen"
+    },
+    "compression": "Kontekstin pakkaus",
+    "strategy": "Strategia",
+    "strategies": {
+      "default": "Oletus (tasapainoinen)",
+      "on": "Tasapainoinen",
+      "conservative": "Varovainen",
+      "aggressive": "Voimakas"
+    },
+    "threshold": "Tokenraja",
+    "keepTurns": "Säilytettävien viimeaikaisten vuorojen määrä",
+    "model": "Pakkausmalli"
+  },
+  "upstage": {
+    "reasoning": {
+      "title": "Päättely",
+      "effort": "Päättelyn taso",
+      "efforts": {
+        "none": "Ei mitään",
+        "minimal": "Vähäinen",
+        "low": "Matala",
+        "medium": "Keskitaso",
+        "high": "Korkea",
+        "xhigh": "Erittäin korkea",
+        "max": "Enimmäistaso"
+      }
+    }
+  },
+  "interfaze": {
+    "reasoning": {
+      "title": "Päättely",
+      "effort": "Päättelyn taso",
+      "efforts": {
+        "low": "Matala",
+        "medium": "Keskitaso",
+        "high": "Korkea"
+      }
+    },
+    "other": {
+      "title": "Muu",
+      "headers": {
+        "x-show-additional-info": "Sisällytä lisäkonteksti suoratoistettuihin vastauksiin",
+        "x-interfaze-zdr": "Tietoja ei säilytetä",
+        "x-interfaze-bypass-cache": "Ohita varmennettu välimuisti",
+        "x-interfaze-bypass-moa": "Ohita MoA"
+      }
+    }
+  },
+  "inworld": {
+    "webSearch": {
+      "title": "Verkkohaku",
+      "engine": "Hakukone",
+      "maxResults": "Tuloksia hakua kohden",
+      "maxSteps": "Hakukierrosten enimmäismäärä",
+      "engines": {
+        "exa": "Exa",
+        "google": "Google"
+      }
+    },
+    "modalities": {
+      "title": "Tulostusmuodot",
+      "text": "Teksti",
+      "image": "Kuva"
+    },
+    "imageConfig": {
+      "title": "Kuva-asetukset",
+      "aspectRatio": "Kuvasuhde",
+      "imageSize": "Kuvan koko",
+      "partialImages": "Kuvan osittaiset esikatselut",
+      "count": "Kuvien määrä"
+    },
+    "reasoning": {
+      "title": "Päättely",
+      "effort": "Päättelyn taso",
+      "efforts": {
+        "none": "Ei mitään",
+        "low": "Matala",
+        "minimal": "Vähäinen",
+        "medium": "Keskitaso",
+        "high": "Korkea"
+      }
+    }
+  },
+  "ninjachat": {
+    "search": "Haku",
+    "group": "Lähde",
+    "maxResults": "Tulosten enimmäismäärä",
+    "searchDepth": "Haun laajuus",
+    "includeImages": "Sisällytä kuvat",
+    "topic": "Aihe",
+    "groupOptions": {
+      "web": "Verkko",
+      "academic": "Akateeminen",
+      "news": "Uutiset"
+    },
+    "searchDepthOptions": {
+      "basic": "Perus",
+      "advanced": "Tarkennettu"
+    },
+    "topicOptions": {
+      "general": "Yleinen",
+      "news": "Uutiset",
+      "finance": "Talous"
+    }
+  },
+  "mireye": {
+    "addressTitle": "Osoite",
+    "addressHint": "Käytä täydellistä yhdysvaltalaista katuosoitetta. Osoitteen valitseminen poistaa koordinaatit.",
+    "address": "Osoite",
+    "addressPlaceholder": "350 5th Ave, New York, NY 10118",
+    "coordinatesTitle": "Leveys- ja pituusaste",
+    "coordinatesHint": "Anna molemmat koordinaatit. Koordinaattien valitseminen poistaa osoitteen.",
+    "latitude": "Leveysaste",
+    "longitude": "Pituusaste",
+    "getCurrent": "Hae nykyinen sijainti",
+    "gettingCurrent": "Haetaan nykyistä sijaintia…",
+    "geolocationUnsupported": "Tämä selain ei tue nykyisen sijainnin hakemista.",
+    "geolocationDenied": "Sijainnin käyttöoikeus evättiin.",
+    "geolocationUnavailable": "Nykyistä sijaintiasi ei voitu määrittää.",
+    "geolocationTimeout": "Nykyisen sijainnin hakeminen aikakatkaistiin."
+  },
+  "abliteration": {
+    "reasoning": {
+      "title": "Päättely",
+      "enabled": "Ota päättely käyttöön",
+      "effort": "Taso",
+      "maxTokens": "Päättelytokenien enimmäismäärä",
+      "exclude": "Jätä päättely pois vastauksesta",
+      "efforts": {
+        "none": "Ei mitään",
+        "minimal": "Vähäinen",
+        "low": "Matala",
+        "medium": "Keskitaso",
+        "high": "Korkea",
+        "xhigh": "Erittäin korkea",
+        "max": "Enimmäistaso",
+        "ultracode": "Ultracode"
+      }
+    },
+    "policy": {
+      "title": "Käytäntö",
+      "id": "Käytännön tunnus",
+      "allowlist": "Sallittujen luettelon merkintä",
+      "denylist": "Estolistamerkintä",
+      "flaggedCategories": "Merkityt luokat",
+      "noneSelected": "Luokkia ei ole valittu",
+      "redactPii": "Peitä henkilötiedot"
+    },
+    "categories": {
+      "harassment": "Häirintä",
+      "harassment/threatening": "Häirintä – uhkaava",
+      "hate": "Vihapuhe",
+      "hate/threatening": "Vihapuhe – uhkaava",
+      "illicit": "Laiton toiminta",
+      "illicit/violent": "Laiton toiminta – väkivaltainen",
+      "self-harm": "Itsensä vahingoittaminen",
+      "self-harm/intent": "Itsensä vahingoittaminen – aikomus",
+      "self-harm/instructions": "Itsensä vahingoittaminen – ohjeet",
+      "sexual": "Seksuaalinen sisältö",
+      "sexual/minors": "Seksuaalinen sisältö – alaikäiset",
+      "violence": "Väkivalta",
+      "violence/graphic": "Väkivalta – graafinen"
+    }
+  },
+  "stepfun": {
+    "audioSettings": "Ääniasetukset",
+    "volume": "Äänenvoimakkuus",
+    "volumePlaceholder": "Palveluntarjoajan oletus (1,0; vaihteluväli 0,1–2,0)",
+    "sampleRate": "Näytteenottotaajuus (Hz)",
+    "sampleRatePlaceholder": "Palveluntarjoajan oletus (24000)",
+    "sampleRateHint": "Tuetut arvot: 8000, 16000, 22050, 24000 ja 48000.",
+    "pronunciationMap": "Ääntämisohjeet",
+    "toneHint": "Lisää ääntämisohjeet muodossa teksti/ääntämys. Kiinan sävelkorkeudet merkitään numeroilla 1–5.",
+    "addTone": "Lisää ääntämisohje",
+    "addTonePlaceholder": "esim. LOL/laugh out loudly"
   }
 }
