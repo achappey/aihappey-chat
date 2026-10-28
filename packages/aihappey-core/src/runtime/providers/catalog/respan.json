@@ -1,0 +1,13 @@
+{
+  "name": "Respan",
+  "description": "The AI router with built-in observability &amp; automated evals.",
+  "urls": {
+    "homepage": "https://www.respan.ai",
+    "docs": "https://www.respan.ai/docs",
+    "pricing": "https://www.respan.ai/pricing",
+    "termsOfService": "https://www.respan.ai/legal/terms-of-use",
+    "privacyPolicy": "https://www.respan.ai/legal/privacy-policy"
+  },
+  "providerCountry": "US",
+  "category": "gateway_router"
+}
