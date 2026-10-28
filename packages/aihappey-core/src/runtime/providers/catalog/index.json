@@ -2504,6 +2504,10 @@
     "file": "astria.json"
   },
   {
+    "id": "meragpt",
+    "file": "meragpt.json"
+  },
+  {
     "id": "zoom",
     "file": "zoom.json"
   },

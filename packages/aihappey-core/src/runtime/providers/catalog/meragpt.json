@@ -1,0 +1,14 @@
+
+{
+  "name": "MeraGPT",
+  "description": "Small models trained to do one job each, and better at that job than a frontier model. Restyler 1 rewrites machine-written prose to read human; Fanout 1 shows the searches an AI assistant runs before it answers. OpenAI-compatible, billed per token from prepaid credit.",
+  "urls": {
+    "homepage": "https://meragpt.com",
+    "docs": "https://meragpt.com/docs",
+    "pricing": "https://meragpt.com/docs/models",
+    "termsOfService": "https://meragpt.com/terms",
+    "privacyPolicy": "https://meragpt.com/privacy"
+  },
+  "providerCountry": "SG",
+  "category": "model_provider"
+}
