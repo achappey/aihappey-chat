@@ -2512,6 +2512,10 @@
     "file": "elevenlabs.json"
   },
   {
+    "id": "subq",
+    "file": "subq.json"
+  },
+  {
     "id": "naceai",
     "file": "naceai.json"
   },

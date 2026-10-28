@@ -1,0 +1,13 @@
+{
+  "name": "SubQ",
+  "description": "Snap is a long-context decision model that handles the context-heavy, structured decisions in your agentic workflows.",
+  "urls": {
+    "homepage": "https://subq.ai",
+    "docs": "https://docs.subq.ai",
+    "pricing": "https://docs.subq.ai/using-the-api/models/",
+    "termsOfService": "https://subq.ai/terms",
+    "privacyPolicy": "https://subq.ai/privacy-policy"
+  },
+  "providerCountry": "US",
+  "category": "model_provider"
+}
