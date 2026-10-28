@@ -2492,6 +2492,10 @@
     "file": "astria.json"
   },
   {
+    "id": "zoom",
+    "file": "zoom.json"
+  },
+  {
     "id": "elevenlabs",
     "file": "elevenlabs.json"
   },

@@ -1,0 +1,16 @@
+{
+  "name": "Zoom",
+  "description": "Build voice agents that hear with precision, decide with confidence, and get work done. Scribe and Decision APIs take you from conversation to context to completed work.",
+  "urls": {
+    "homepage": "https://www.zoom.ai",
+    "docs": "https://developers.zoom.us/docs/ai-services/",
+    "pricing": "https://zoom.us/pricing/developer",
+    "termsOfService": "https://www.zoom.com/en/trust/terms/",
+    "privacyPolicy": "https://www.zoom.com/en/trust/privacy/privacy-statement/"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}
