@@ -1,0 +1,14 @@
+
+{
+  "name": "SurplusIntelligence",
+  "description": "Buy the cheapest inference. Sell your credits. The open order book for AI models. Up to 90% off Claude Opus 5.5, Abliteration Abliterated Model Large V2, and more.",
+  "urls": {
+    "homepage": "https://www.surplusintelligence.ai",
+    "docs": "https://www.surplusintelligence.ai/docs",
+    "pricing": "https://www.surplusintelligence.ai/markets",
+    "termsOfService": "https://www.surplusintelligence.ai/terms-of-service",
+    "privacyPolicy": "https://www.surplusintelligence.ai/privacy-policy"
+  },
+  "providerCountry": "US",
+  "category": "gateway_router"
+}

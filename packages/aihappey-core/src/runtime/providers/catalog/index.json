@@ -2516,6 +2516,10 @@
     "file": "strikeai.json"
   },
   {
+    "id": "surplusintelligence",
+    "file": "surplusintelligence.json"
+  },
+  {
     "id": "dust",
     "file": "dust.json"
   },
