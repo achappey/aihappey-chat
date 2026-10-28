@@ -2512,6 +2512,10 @@
     "file": "elevenlabs.json"
   },
   {
+    "id": "munito",
+    "file": "munito.json"
+  },
+  {
     "id": "kumorouter",
     "file": "kumorouter.json"
   },

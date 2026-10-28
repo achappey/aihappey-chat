@@ -1,0 +1,17 @@
+{
+  "name": "Munito",
+  "description": "Munito is an open-model inference provider for Europe, private by default. Its API lets businesses choose their models and keep inference and storage in the EU.",
+  "urls": {
+    "homepage": "https://munito.ai",
+    "docs": "https://docs.munito.ai",
+    "pricing": "https://docs.munito.ai/models",
+    "termsOfService": "https://legal.munito.ai/terms",
+    "privacyPolicy": "https://legal.munito.ai/privacy"
+  },
+  "providerCountry": "FR",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "Europe",
+    "Americas"
+  ]
+}
