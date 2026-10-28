@@ -1,0 +1,13 @@
+{
+  "name": "MachineFi",
+  "description": "MachineFi Labs builds Situated World Models: focused intelligence for the world at hand, ready to help an agent choose its next move.",
+  "urls": {
+    "homepage": "https://machinefi.com",
+    "docs": "https://platform.machinefi.com/spark/docs",
+    "pricing": "https://machinefi.com/trio-spark",
+    "termsOfService": "https://machinefi.com/terms-of-service",
+    "privacyPolicy": "https://machinefi.com/privacy-policy"
+  },
+  "providerCountry": "VG",
+  "category": "model_provider"
+}

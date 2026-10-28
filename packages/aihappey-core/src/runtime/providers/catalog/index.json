@@ -2492,6 +2492,10 @@
     "file": "abacusai.json"
   },
   {
+    "id": "machinefi",
+    "file": "machinefi.json"
+  },
+  {
     "id": "serenityedge",
     "file": "serenityedge.json"
   },
