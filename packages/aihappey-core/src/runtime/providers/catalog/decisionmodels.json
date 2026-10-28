@@ -1,0 +1,17 @@
+
+{
+  "name": "DecisionModels",
+  "description": "EU-only inference on contracted EU operators, a DPA at signup and no storage of prompts or answers. Jev-compatible decision API hosted in the EU.",
+  "urls": {
+    "homepage": "https://decisionmodels.io",
+    "docs": "https://decisionmodels.io/docs",
+    "pricing": "https://decisionmodels.io/pricing",
+    "termsOfService": "https://decisionmodels.io/legal/terms",
+    "privacyPolicy": "https://decisionmodels.io/legal/privacy"
+  },
+  "providerCountry": "DE",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "Europe"
+  ]
+}
