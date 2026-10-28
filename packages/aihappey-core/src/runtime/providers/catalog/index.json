@@ -2512,6 +2512,10 @@
     "file": "elevenlabs.json"
   },
   {
+    "id": "strikeai",
+    "file": "strikeai.json"
+  },
+  {
     "id": "dust",
     "file": "dust.json"
   },

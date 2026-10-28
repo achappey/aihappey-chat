@@ -1,0 +1,16 @@
+{
+  "name": "StrikeAI",
+  "description": "Typed decisions with a probability on every answer, hosted in the EU. An independent European Jev AI alternative with the same /v1/systemone request shape.",
+  "urls": {
+    "homepage": "https://strike-ai.eu",
+    "docs": "https://strike-ai.eu/docs/quickstart",
+    "pricing": "https://strike-ai.eu/pricing",
+    "termsOfService": "https://strike-ai.eu/terms",
+    "privacyPolicy": "https://strike-ai.eu/privacy"
+  },
+  "providerCountry": "FR",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "Europe"
+  ]
+}
