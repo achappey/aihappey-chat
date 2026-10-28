@@ -10,7 +10,7 @@
     "privacyPolicy": "https://api.abacus.ai/privacy-policy"
   },
   "providerCountry": "US",
-  "category": "model_provider",
+  "category": "gateway_router",
   "inferenceRegions": [
     "World"
   ]

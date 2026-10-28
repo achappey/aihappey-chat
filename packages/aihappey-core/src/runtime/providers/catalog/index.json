@@ -2492,6 +2492,10 @@
     "file": "abacusai.json"
   },
   {
+    "id": "serenityedge",
+    "file": "serenityedge.json"
+  },
+  {
     "id": "astria",
     "file": "astria.json"
   },

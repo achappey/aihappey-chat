@@ -1,0 +1,17 @@
+
+{
+  "name": "SerenityEdge",
+  "description": "OpenAI-compatible API on our own infrastructure in Spain: chat and vision, OCR, decisions, embeddings, rerank and redaction. EU data, zero retention.",
+  "urls": {
+    "homepage": "https://serenityedge.ai",
+    "docs": "https://docs.serenityedge.ai",
+    "pricing": "https://docs.serenityedge.ai/docs/pricing-and-limits/",
+    "termsOfService": "https://docs.serenityedge.ai/terms/terms-of-service/",
+    "privacyPolicy": "https://docs.serenityedge.ai/terms/privacy-policy/"
+  },
+  "providerCountry": "ES",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "Europe"
+  ]
+}
