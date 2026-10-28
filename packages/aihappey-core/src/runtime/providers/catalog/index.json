@@ -2488,6 +2488,10 @@
     "file": "predictionguard.json"
   },
   {
+    "id": "abacusai",
+    "file": "abacusai.json"
+  },
+  {
     "id": "astria",
     "file": "astria.json"
   },

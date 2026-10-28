@@ -1,0 +1,17 @@
+
+{
+  "name": "AbacusAI",
+  "description": "The AI super assistant for professionals and enterprises. GPT-6 Astra, Opus 5.5, Fable 5.1, Gemini 4 Argon and more — 100+ AI models in one place. Or hand a task to the agent and get back a finished app, deck or report.",
+  "urls": {
+    "homepage": "https://abacus.ai",
+    "docs": "https://api.abacus.ai/help/route-llm/",
+    "pricing": "https://api.abacus.ai/teams/routellm-apis",
+    "termsOfService": "https://office.abacus.ai/terms",
+    "privacyPolicy": "https://api.abacus.ai/privacy-policy"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}
