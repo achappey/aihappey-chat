@@ -1,0 +1,14 @@
+
+{
+  "name": "Levanto",
+  "description": "#1 of 27 on JevBench's official score (October 2026). Sage reads text and images (beta) and reasons when you turn it on.",
+  "urls": {
+    "homepage": "https://levanto.ai",
+    "docs": "https://docs.levanto.ai",
+    "pricing": "https://levanto.ai/pricing",
+    "termsOfService": "https://levanto.ai/terms",
+    "privacyPolicy": "https://levanto.ai/privacy"
+  },
+  "providerCountry": "US",
+  "category": "model_provider"
+}

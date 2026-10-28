@@ -627,49 +627,50 @@ import provider622 from "./catalog/routerplus.json";
 import provider623 from "./catalog/abacusai.json";
 import provider624 from "./catalog/serenityedge.json";
 import provider625 from "./catalog/astria.json";
-import provider626 from "./catalog/meragpt.json";
-import provider627 from "./catalog/zoom.json";
-import provider628 from "./catalog/sference.json";
-import provider629 from "./catalog/bespokelabs.json";
-import provider630 from "./catalog/elevenlabs.json";
-import provider631 from "./catalog/decisionmodels.json";
-import provider632 from "./catalog/subq.json";
-import provider633 from "./catalog/naceai.json";
-import provider634 from "./catalog/munito.json";
-import provider635 from "./catalog/kumorouter.json";
-import provider636 from "./catalog/respan.json";
-import provider637 from "./catalog/strikeai.json";
-import provider638 from "./catalog/surplusintelligence.json";
-import provider639 from "./catalog/dust.json";
-import provider640 from "./catalog/keln.json";
-import provider641 from "./catalog/volink.json";
-import provider642 from "./catalog/celeris.json";
-import provider643 from "./catalog/hedra.json";
-import provider644 from "./catalog/getimg.json";
-import provider645 from "./catalog/vercel.json";
-import provider646 from "./catalog/cloudflare.json";
-import provider647 from "./catalog/nomic.json";
-import provider648 from "./catalog/wavespeed.json";
-import provider649 from "./catalog/lightcone.json";
-import provider650 from "./catalog/lighton.json";
-import provider651 from "./catalog/clarifai.json";
-import provider652 from "./catalog/mangoboost.json";
-import provider653 from "./catalog/modelscope.json";
-import provider654 from "./catalog/leonardo.json";
-import provider655 from "./catalog/sutra.json";
-import provider656 from "./catalog/wellsaid.json";
-import provider657 from "./catalog/respeecher.json";
-import provider658 from "./catalog/yandex.json";
-import provider659 from "./catalog/krutrim.json";
-import provider660 from "./catalog/plamo.json";
-import provider661 from "./catalog/mammouth.json";
-import provider662 from "./catalog/narakeet.json";
-import provider663 from "./catalog/neuphonic.json";
-import provider664 from "./catalog/gwdg.json";
-import provider665 from "./catalog/twelvelabs.json";
-import provider666 from "./catalog/isaacus.json";
-import provider667 from "./catalog/infermatic.json";
-import provider668 from "./catalog/gigachat.json";
+import provider626 from "./catalog/levanto.json";
+import provider627 from "./catalog/meragpt.json";
+import provider628 from "./catalog/zoom.json";
+import provider629 from "./catalog/sference.json";
+import provider630 from "./catalog/bespokelabs.json";
+import provider631 from "./catalog/elevenlabs.json";
+import provider632 from "./catalog/decisionmodels.json";
+import provider633 from "./catalog/subq.json";
+import provider634 from "./catalog/naceai.json";
+import provider635 from "./catalog/munito.json";
+import provider636 from "./catalog/kumorouter.json";
+import provider637 from "./catalog/respan.json";
+import provider638 from "./catalog/strikeai.json";
+import provider639 from "./catalog/surplusintelligence.json";
+import provider640 from "./catalog/dust.json";
+import provider641 from "./catalog/keln.json";
+import provider642 from "./catalog/volink.json";
+import provider643 from "./catalog/celeris.json";
+import provider644 from "./catalog/hedra.json";
+import provider645 from "./catalog/getimg.json";
+import provider646 from "./catalog/vercel.json";
+import provider647 from "./catalog/cloudflare.json";
+import provider648 from "./catalog/nomic.json";
+import provider649 from "./catalog/wavespeed.json";
+import provider650 from "./catalog/lightcone.json";
+import provider651 from "./catalog/lighton.json";
+import provider652 from "./catalog/clarifai.json";
+import provider653 from "./catalog/mangoboost.json";
+import provider654 from "./catalog/modelscope.json";
+import provider655 from "./catalog/leonardo.json";
+import provider656 from "./catalog/sutra.json";
+import provider657 from "./catalog/wellsaid.json";
+import provider658 from "./catalog/respeecher.json";
+import provider659 from "./catalog/yandex.json";
+import provider660 from "./catalog/krutrim.json";
+import provider661 from "./catalog/plamo.json";
+import provider662 from "./catalog/mammouth.json";
+import provider663 from "./catalog/narakeet.json";
+import provider664 from "./catalog/neuphonic.json";
+import provider665 from "./catalog/gwdg.json";
+import provider666 from "./catalog/twelvelabs.json";
+import provider667 from "./catalog/isaacus.json";
+import provider668 from "./catalog/infermatic.json";
+import provider669 from "./catalog/gigachat.json";
 
 export const PROVIDER_CATALOG = {
   "openai": provider0,
@@ -1298,47 +1299,48 @@ export const PROVIDER_CATALOG = {
   "abacusai": provider623,
   "serenityedge": provider624,
   "astria": provider625,
-  "meragpt": provider626,
-  "zoom": provider627,
-  "sference": provider628,
-  "bespokelabs": provider629,
-  "elevenlabs": provider630,
-  "decisionmodels": provider631,
-  "subq": provider632,
-  "naceai": provider633,
-  "munito": provider634,
-  "kumorouter": provider635,
-  "respan": provider636,
-  "strikeai": provider637,
-  "surplusintelligence": provider638,
-  "dust": provider639,
-  "keln": provider640,
-  "volink": provider641,
-  "celeris": provider642,
-  "hedra": provider643,
-  "getimg": provider644,
-  "vercel": provider645,
-  "cloudflare": provider646,
-  "nomic": provider647,
-  "wavespeed": provider648,
-  "lightcone": provider649,
-  "lighton": provider650,
-  "clarifai": provider651,
-  "mangoboost": provider652,
-  "modelscope": provider653,
-  "leonardo": provider654,
-  "sutra": provider655,
-  "wellsaid": provider656,
-  "respeecher": provider657,
-  "yandex": provider658,
-  "krutrim": provider659,
-  "plamo": provider660,
-  "mammouth": provider661,
-  "narakeet": provider662,
-  "neuphonic": provider663,
-  "gwdg": provider664,
-  "twelvelabs": provider665,
-  "isaacus": provider666,
-  "infermatic": provider667,
-  "gigachat": provider668,
+  "levanto": provider626,
+  "meragpt": provider627,
+  "zoom": provider628,
+  "sference": provider629,
+  "bespokelabs": provider630,
+  "elevenlabs": provider631,
+  "decisionmodels": provider632,
+  "subq": provider633,
+  "naceai": provider634,
+  "munito": provider635,
+  "kumorouter": provider636,
+  "respan": provider637,
+  "strikeai": provider638,
+  "surplusintelligence": provider639,
+  "dust": provider640,
+  "keln": provider641,
+  "volink": provider642,
+  "celeris": provider643,
+  "hedra": provider644,
+  "getimg": provider645,
+  "vercel": provider646,
+  "cloudflare": provider647,
+  "nomic": provider648,
+  "wavespeed": provider649,
+  "lightcone": provider650,
+  "lighton": provider651,
+  "clarifai": provider652,
+  "mangoboost": provider653,
+  "modelscope": provider654,
+  "leonardo": provider655,
+  "sutra": provider656,
+  "wellsaid": provider657,
+  "respeecher": provider658,
+  "yandex": provider659,
+  "krutrim": provider660,
+  "plamo": provider661,
+  "mammouth": provider662,
+  "narakeet": provider663,
+  "neuphonic": provider664,
+  "gwdg": provider665,
+  "twelvelabs": provider666,
+  "isaacus": provider667,
+  "infermatic": provider668,
+  "gigachat": provider669,
 } as Record<string, Omit<Provider, "createGatewayMetadata">>;
