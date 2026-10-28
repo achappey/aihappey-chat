@@ -1,0 +1,13 @@
+{
+  "name": "KumoRouter",
+  "description": "KumoRouter is an AI inference gateway providing unified access to multiple model providers through native Chat Completions, Responses, Anthropic Messages, and probabilistic Decisions APIs.",
+  "urls": {
+    "homepage": "https://kumorouter.com",
+    "docs": "https://documentation.kumorouter.com/en/api-reference",
+    "pricing": "https://kumorouter.com/en/pricing",
+    "termsOfService": "https://kumorouter.com/en/legal/offer",
+    "privacyPolicy": "https://kumorouter.com/en/legal/privacy"
+  },
+  "providerCountry": "RU",
+  "category": "gateway_router"
+}

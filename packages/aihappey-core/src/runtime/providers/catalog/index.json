@@ -2512,6 +2512,10 @@
     "file": "elevenlabs.json"
   },
   {
+    "id": "kumorouter",
+    "file": "kumorouter.json"
+  },
+  {
     "id": "respan",
     "file": "respan.json"
   },
