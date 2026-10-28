@@ -23,10 +23,12 @@ const describeError = (e: unknown) => {
 
 const debounce = <T extends (...args: any[]) => void>(fn: T, waitMs: number) => {
   let t: any;
-  return (...args: Parameters<T>) => {
+  const debounced = (...args: Parameters<T>) => {
     clearTimeout(t);
     t = setTimeout(() => fn(...args), waitMs);
   };
+  debounced.cancel = () => clearTimeout(t);
+  return debounced;
 };
 
 export function useRealtimeTranscriptionController(args: {
@@ -50,6 +52,8 @@ export function useRealtimeTranscriptionController(args: {
   const bufferRef = useRef<string>("");
   const stopInFlightRef = useRef<Promise<void> | null>(null);
   const smallestAiWritesRef = useRef<Promise<void>>(Promise.resolve());
+  // A fatal-error checkpoint must run after any already-started preview writes.
+  const persistenceWritesRef = useRef<Promise<unknown>>(Promise.resolve());
 
   // Used to prevent double-handling of fatal errors (e.g. multiple error events)
   // which could otherwise trigger double-stop / double-delete races.
@@ -103,8 +107,8 @@ export function useRealtimeTranscriptionController(args: {
 
   const persistUpdate = useMemo(
     () => debounce(async (id: string, next: { text: string; segments: Array<{ text: string; startSecond: number; endSecond: number }>; durationInSeconds?: number; session?: any }) => {
-      if (!selectedModel) return;
-      await transcriptions.update(id, {
+      if (!selectedModel || fatalErrorHandledRef.current) return;
+      const write = persistenceWritesRef.current.catch(() => {}).then(() => transcriptions.update(id, {
         transcription: {
           text: next.text,
           segments: next.segments,
@@ -117,7 +121,9 @@ export function useRealtimeTranscriptionController(args: {
             body: { kind: "realtime", session: next.session },
           },
         },
-      });
+      }));
+      persistenceWritesRef.current = write;
+      try { await write; } catch (error) { onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: t("storageQuotaMessage") })); }
     }, 400),
     [selectedModel, transcriptions]
   );
@@ -131,10 +137,11 @@ export function useRealtimeTranscriptionController(args: {
         segments: Array<{ text: string; startSecond: number; endSecond: number }>;
         durationInSeconds?: number;
         session?: any;
+        status?: "error";
       }
     ) => {
       if (!selectedModel) return;
-      await transcriptions.update(id, {
+      const write = persistenceWritesRef.current.catch(() => {}).then(() => transcriptions.update(id, {
         transcription: {
           text: next.text,
           segments: next.segments,
@@ -144,10 +151,12 @@ export function useRealtimeTranscriptionController(args: {
           response: {
             timestamp: new Date(),
             modelId: selectedModel.id,
-            body: { kind: "realtime", session: next.session },
+            body: { kind: "realtime", session: next.session, ...(next.status ? { status: next.status } : {}) },
           },
         },
-      });
+      }));
+      persistenceWritesRef.current = write;
+      await write;
     },
     [selectedModel, transcriptions]
   );
@@ -165,7 +174,11 @@ export function useRealtimeTranscriptionController(args: {
         endSecond: Math.max(0, (s.endMs ?? s.startMs ?? 0) / 1000),
       }));
 
-      const textFromSegments = segments.map((s) => s.text).filter(Boolean).join(" ").trim();
+      // A completed transcript remains confirmed even if timing events were absent.
+      const textFromSegments = items
+        .filter((s) => typeof s.text === "string")
+        .sort((a, b) => (a.startMs ?? Number.MAX_SAFE_INTEGER) - (b.startMs ?? Number.MAX_SAFE_INTEGER))
+        .map((s) => s.text?.trim()).filter(Boolean).join(" ").trim();
       const preferred = String(opts?.preferText ?? "").trim();
       const text = preferred || textFromSegments;
       const durationInSeconds = segments.length ? Math.max(...segments.map((s) => s.endSecond)) : undefined;
@@ -479,6 +492,7 @@ export function useRealtimeTranscriptionController(args: {
           events: {
           // Parse raw events to build segments (start/end from speech events, text from completed transcript)
           onEvent: (event: any) => {
+            if (fatalErrorHandledRef.current) return;
             try {
               if (providerId === "smallestai") {
                 if (event?.type === "smallestai.transcript.final") {
@@ -764,6 +778,7 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onTranscriptText: (deltaText: string) => {
+            if (fatalErrorHandledRef.current) return;
              // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
              const next =
                providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia" || providerId === "smallestai"
@@ -778,6 +793,7 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onSessionCreated: (session: any) => {
+            if (fatalErrorHandledRef.current) return;
             if (providerId === "google" && !googleSessionStartedAtRef.current) {
               googleSessionStartedAtRef.current = Date.now();
             }
@@ -785,9 +801,11 @@ export function useRealtimeTranscriptionController(args: {
             if (created.id && providerId !== "smallestai") void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
           },
           onError: (message: string, err?: unknown) => {
-            // Fatal: stop mic + close WS. We also discard the transient transcription item.
+            // Fatal: retain confirmed text, never promote an interim preview to a final.
             if (fatalErrorHandledRef.current) return;
             fatalErrorHandledRef.current = true;
+            persistUpdate.cancel();
+            const confirmed = computeSnapshot();
 
             const full = `${message}${err ? ": " + describeError(err) : ""}`;
             setRealtimeSessionState({
@@ -796,19 +814,20 @@ export function useRealtimeTranscriptionController(args: {
             });
             onErrorAlert?.(full);
 
-            // Stop the underlying session and remove the item we created for this session.
-            // We intentionally do NOT await here to keep the callback non-blocking.
+            // Snapshot before stop clears segment state. Serialized persistence prevents
+            // an older in-flight preview from overwriting this authoritative checkpoint.
             void (async () => {
               try {
-                await stop();
-              } finally {
-                if (created.id && providerId !== "smallestai") {
-                  try {
-                    await transcriptions.delete(created.id);
-                  } catch {
-                    // ignore
-                  }
+                if (confirmed.text.trim()) {
+                  await persistUpdateNow(created.id, { ...confirmed, status: "error" });
+                } else {
+                  await persistenceWritesRef.current.catch(() => {});
+                  await transcriptions.delete(created.id);
                 }
+              } catch (error) {
+                onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: t("storageQuotaMessage") }));
+              } finally {
+                await stop();
               }
             })();
           },
