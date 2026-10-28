@@ -77,7 +77,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
         </>
       }
       actions={
-        <>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, paddingBlock: 4 }}>
           {isCompleted
             && onShowOutput
             && <ViewButton
@@ -102,7 +102,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
             ></Button>
           )}
 
-        </>
+        </div>
       }>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
