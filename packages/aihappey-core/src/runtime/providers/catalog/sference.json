@@ -1,0 +1,17 @@
+
+{
+  "name": "Sference",
+  "description": "The managed inference platform for open-weight models, fine-tunes, and distilled models. Low-latency realtime inference on European GPUs behind a single OpenAI-compatible API, independently measured as the fastest route on the models we serve, with priority, flex, and 24h batch tiers on the same endpoints. Serverless per-token to dedicated deployments. Full logging and audit trail, pinned model versions. Built and run in Europe.",
+  "urls": {
+    "homepage": "https://sference.com",
+    "docs": "https://sference.com/docs",
+    "pricing": "https://sference.com/docs/pricing",
+    "termsOfService": "https://sference.com/terms",
+    "privacyPolicy": "https://sference.com/privacy"
+  },
+  "providerCountry": "GB",
+  "category": "inference_compute",
+  "inferenceRegions": [
+    "Europe"
+  ]
+}
