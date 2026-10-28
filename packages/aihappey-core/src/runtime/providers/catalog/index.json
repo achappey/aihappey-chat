@@ -2512,6 +2512,10 @@
     "file": "elevenlabs.json"
   },
   {
+    "id": "naceai",
+    "file": "naceai.json"
+  },
+  {
     "id": "munito",
     "file": "munito.json"
   },

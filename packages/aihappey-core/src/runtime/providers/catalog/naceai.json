@@ -1,0 +1,14 @@
+
+{
+  "name": "NaceAI",
+  "description": "Specialized small models with exceptional precision at one-tenth the cost of large LLMs. Automate audit, accounting and billing, or build your own.",
+  "urls": {
+    "homepage": "https://www.nace.ai",
+    "docs": "https://console.nace.ai/docs",
+    "pricing": "https://console.nace.ai/docs/drex/reference/pricing",
+    "termsOfService": "https://www.nace.ai/policies/terms-of-service",
+    "privacyPolicy": "https://www.nace.ai/policies/privacy-policy"
+  },
+  "providerCountry": "US",
+  "category": "model_provider"
+}
