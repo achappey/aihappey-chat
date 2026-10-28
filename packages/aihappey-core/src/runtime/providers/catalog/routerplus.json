@@ -1,0 +1,15 @@
+{
+  "name": "RouterPlus",
+  "description": "AI inference and LLM routing on your own evals and production traffic. Every model worth running behind one key, plus the capacity you need next.",
+  "urls": {
+    "homepage": "https://routerplus.com",
+    "docs": "https://app.routerplus.com/docs/overview",
+    "pricing": "https://app.routerplus.com/docs/pricing",
+    "privacyPolicy": "https://app.routerplus.com/docs/data-policy"
+  },
+  "providerCountry": "IN",
+  "category": "gateway_router",
+  "inferenceRegions": [
+    "World"
+  ]
+}

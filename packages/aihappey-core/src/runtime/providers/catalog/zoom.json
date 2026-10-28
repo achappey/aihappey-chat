@@ -9,7 +9,7 @@
     "privacyPolicy": "https://www.zoom.com/en/trust/privacy/privacy-statement/"
   },
   "providerCountry": "US",
-  "category": "model_provider",
+  "category": "app_tools",
   "inferenceRegions": [
     "World"
   ]
