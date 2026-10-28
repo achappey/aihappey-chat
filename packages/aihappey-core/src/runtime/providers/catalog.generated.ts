@@ -627,7 +627,7 @@ import provider622 from "./catalog/abacusai.json";
 import provider623 from "./catalog/serenityedge.json";
 import provider624 from "./catalog/astria.json";
 import provider625 from "./catalog/mindshub.json";
-import provider626 from "./catalog/levanto.json";
+import provider626 from "./catalog/levantolabs.json";
 import provider627 from "./catalog/meragpt.json";
 import provider628 from "./catalog/zoom.json";
 import provider629 from "./catalog/sference.json";
@@ -1299,7 +1299,7 @@ export const PROVIDER_CATALOG = {
   "serenityedge": provider623,
   "astria": provider624,
   "mindshub": provider625,
-  "levanto": provider626,
+  "levantolabs": provider626,
   "meragpt": provider627,
   "zoom": provider628,
   "sference": provider629,
