@@ -216,7 +216,7 @@ function RealtimeConversationPage() {
   const remoteLoaded = useAppStore(state => state.remoteAgentModelsLoaded);
   const key = new URLSearchParams(location.search).get("agent");
   if (!key) return <RealtimeConversationView key="native" />;
-  if (!modelsLoaded || (key.startsWith("remote:") && !remoteLoaded)) return <Spinner />;
+  if (!modelsLoaded || (key.startsWith("remote:") && !remoteLoaded)) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}><Spinner /></div>;
   const entry = getRealtimeAgentEntries(agents, remote, models ?? []).find(entry => entry.key === key);
   if (!entry) return <Text>{t("agentRealtime.unavailable")}</Text>;
   return <RealtimeConversationView key={key} agentEntry={entry} useController={useAgentRealtimeConversationController} />;
@@ -363,7 +363,7 @@ function RealtimeConversationView({ agentEntry, useController = useRealtimeConve
             sendMessage={async (msg: any) => handleSend(msg.prompt ?? "")}
           />
         )}
-        {busy ? <Spinner label={controller.status} /> : null}
+        {busy ? <div style={{ display: "flex", justifyContent: "center", padding: 16 }}><Spinner label={controller.status} /></div> : null}
         {cartesiaAudioOnly && <div style={{ padding: 8 }}>Cartesia agents accept microphone audio only. Text, files and session instructions are not supported over this connection.</div>}
         {cartesiaAudioOnly && connected && <div style={{ padding: 8, display: "flex", flexWrap: "wrap", gap: 4 }} aria-label="Cartesia DTMF keypad">
           {"123456789*0#".split("").map((digit) => <button key={digit} type="button" onClick={() => controller.sendDtmf(digit)} aria-label={`Send DTMF ${digit}`}>{digit}</button>)}

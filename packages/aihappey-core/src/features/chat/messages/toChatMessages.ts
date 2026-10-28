@@ -164,13 +164,16 @@ function resolveProviderKeyFromMetadata(
   providers?: Record<string, Provider>
 ): string | undefined {
   const providerMetadata = metadata?.providerMetadata;
-  if (!providerMetadata || typeof providerMetadata !== "object") return undefined;
-
   const registeredProviders = providers ?? {};
-  return Object.keys(providerMetadata).find((key) => {
+  const metadataProvider = Object.keys(providerMetadata && typeof providerMetadata === "object" ? providerMetadata : {}).find((key) => {
     const normalizedKey = key.toLowerCase();
     return normalizedKey !== "gateway" && !!registeredProviders[key];
   });
+  if (metadataProvider) return metadataProvider;
+  // Realtime transcripts often have only a model slug, without provider metadata.
+  const model = metadata?.model;
+  const prefix = typeof model === "string" && model.includes("/") ? model.split("/")[0].toLowerCase() : undefined;
+  return prefix ? Object.keys(registeredProviders).find(key => key.toLowerCase() === prefix) : undefined;
 }
 
 export function toChatMessages(
@@ -195,7 +198,7 @@ export function toChatMessages(
       ? resolveProviderKeyFromMetadata(meta, providers)
       : undefined;
     const createdAtRaw = meta?.timestamp;
-    const author = meta?.author ?? meta?.model;
+    const author = z.role === "assistant" ? meta?.author ?? meta?.model : meta?.author;
     const temperature = meta?.temperature;
     const usage = meta?.usage;
     const totalTokens = usage?.totalTokens ?? meta?.totalTokens;
