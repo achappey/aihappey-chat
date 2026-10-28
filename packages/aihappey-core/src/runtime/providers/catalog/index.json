@@ -2508,6 +2508,10 @@
     "file": "zoom.json"
   },
   {
+    "id": "bespokelabs",
+    "file": "bespokelabs.json"
+  },
+  {
     "id": "elevenlabs",
     "file": "elevenlabs.json"
   },

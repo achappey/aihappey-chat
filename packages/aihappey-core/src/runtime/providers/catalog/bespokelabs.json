@@ -1,0 +1,16 @@
+{
+  "name": "BespokeLabs",
+  "description": "Bespoke Labs optimizes AI agents using cutting-edge research on data curation and evolutionary algorithms. Trusted by Fortune 500 enterprises and frontier labs.",
+  "urls": {
+    "homepage": "https://bespokelabs.ai",
+    "docs": "https://docs.bespokelabs.ai",
+    "pricing": "https://docs.bespokelabs.ai/nimble/pricing",
+    "termsOfService": "https://console.bespokelabs.ai/legal/terms-of-use",
+    "privacyPolicy": "https://console.bespokelabs.ai/legal/privacy-policy"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "Americas"
+  ]
+}
