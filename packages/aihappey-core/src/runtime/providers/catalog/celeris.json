@@ -1,0 +1,16 @@
+{
+  "name": "Celeris",
+  "description": "Celeris is an AI research lab building frontier language models with ultra-low latency for voice, agents, and real-time AI applications.",
+  "urls": {
+    "homepage": "https://celeris.ai",
+    "docs": "https://docs.celeris.ai",
+    "pricing": "https://celeris.ai/pricing",
+    "termsOfService": "https://celeris.ai/terms",
+    "privacyPolicy": "https://celeris.ai/privacy"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}

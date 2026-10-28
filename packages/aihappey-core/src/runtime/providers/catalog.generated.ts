@@ -626,32 +626,33 @@ import provider621 from "./catalog/predictionguard.json";
 import provider622 from "./catalog/astria.json";
 import provider623 from "./catalog/elevenlabs.json";
 import provider624 from "./catalog/dust.json";
-import provider625 from "./catalog/hedra.json";
-import provider626 from "./catalog/getimg.json";
-import provider627 from "./catalog/vercel.json";
-import provider628 from "./catalog/cloudflare.json";
-import provider629 from "./catalog/nomic.json";
-import provider630 from "./catalog/wavespeed.json";
-import provider631 from "./catalog/lightcone.json";
-import provider632 from "./catalog/lighton.json";
-import provider633 from "./catalog/clarifai.json";
-import provider634 from "./catalog/mangoboost.json";
-import provider635 from "./catalog/modelscope.json";
-import provider636 from "./catalog/leonardo.json";
-import provider637 from "./catalog/sutra.json";
-import provider638 from "./catalog/wellsaid.json";
-import provider639 from "./catalog/respeecher.json";
-import provider640 from "./catalog/yandex.json";
-import provider641 from "./catalog/krutrim.json";
-import provider642 from "./catalog/plamo.json";
-import provider643 from "./catalog/mammouth.json";
-import provider644 from "./catalog/narakeet.json";
-import provider645 from "./catalog/neuphonic.json";
-import provider646 from "./catalog/gwdg.json";
-import provider647 from "./catalog/twelvelabs.json";
-import provider648 from "./catalog/isaacus.json";
-import provider649 from "./catalog/infermatic.json";
-import provider650 from "./catalog/gigachat.json";
+import provider625 from "./catalog/celeris.json";
+import provider626 from "./catalog/hedra.json";
+import provider627 from "./catalog/getimg.json";
+import provider628 from "./catalog/vercel.json";
+import provider629 from "./catalog/cloudflare.json";
+import provider630 from "./catalog/nomic.json";
+import provider631 from "./catalog/wavespeed.json";
+import provider632 from "./catalog/lightcone.json";
+import provider633 from "./catalog/lighton.json";
+import provider634 from "./catalog/clarifai.json";
+import provider635 from "./catalog/mangoboost.json";
+import provider636 from "./catalog/modelscope.json";
+import provider637 from "./catalog/leonardo.json";
+import provider638 from "./catalog/sutra.json";
+import provider639 from "./catalog/wellsaid.json";
+import provider640 from "./catalog/respeecher.json";
+import provider641 from "./catalog/yandex.json";
+import provider642 from "./catalog/krutrim.json";
+import provider643 from "./catalog/plamo.json";
+import provider644 from "./catalog/mammouth.json";
+import provider645 from "./catalog/narakeet.json";
+import provider646 from "./catalog/neuphonic.json";
+import provider647 from "./catalog/gwdg.json";
+import provider648 from "./catalog/twelvelabs.json";
+import provider649 from "./catalog/isaacus.json";
+import provider650 from "./catalog/infermatic.json";
+import provider651 from "./catalog/gigachat.json";
 
 export const PROVIDER_CATALOG = {
   "openai": provider0,
@@ -1279,30 +1280,31 @@ export const PROVIDER_CATALOG = {
   "astria": provider622,
   "elevenlabs": provider623,
   "dust": provider624,
-  "hedra": provider625,
-  "getimg": provider626,
-  "vercel": provider627,
-  "cloudflare": provider628,
-  "nomic": provider629,
-  "wavespeed": provider630,
-  "lightcone": provider631,
-  "lighton": provider632,
-  "clarifai": provider633,
-  "mangoboost": provider634,
-  "modelscope": provider635,
-  "leonardo": provider636,
-  "sutra": provider637,
-  "wellsaid": provider638,
-  "respeecher": provider639,
-  "yandex": provider640,
-  "krutrim": provider641,
-  "plamo": provider642,
-  "mammouth": provider643,
-  "narakeet": provider644,
-  "neuphonic": provider645,
-  "gwdg": provider646,
-  "twelvelabs": provider647,
-  "isaacus": provider648,
-  "infermatic": provider649,
-  "gigachat": provider650,
+  "celeris": provider625,
+  "hedra": provider626,
+  "getimg": provider627,
+  "vercel": provider628,
+  "cloudflare": provider629,
+  "nomic": provider630,
+  "wavespeed": provider631,
+  "lightcone": provider632,
+  "lighton": provider633,
+  "clarifai": provider634,
+  "mangoboost": provider635,
+  "modelscope": provider636,
+  "leonardo": provider637,
+  "sutra": provider638,
+  "wellsaid": provider639,
+  "respeecher": provider640,
+  "yandex": provider641,
+  "krutrim": provider642,
+  "plamo": provider643,
+  "mammouth": provider644,
+  "narakeet": provider645,
+  "neuphonic": provider646,
+  "gwdg": provider647,
+  "twelvelabs": provider648,
+  "isaacus": provider649,
+  "infermatic": provider650,
+  "gigachat": provider651,
 } as Record<string, Omit<Provider, "createGatewayMetadata">>;

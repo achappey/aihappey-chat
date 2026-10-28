@@ -2500,6 +2500,10 @@
     "file": "dust.json"
   },
   {
+    "id": "celeris",
+    "file": "celeris.json"
+  },
+  {
     "id": "hedra",
     "file": "hedra.json"
   },
