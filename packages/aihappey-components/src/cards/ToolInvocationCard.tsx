@@ -5,6 +5,7 @@ import type { Tool } from "aihappey-mcp";
 import { ViewButton } from "../buttons/ViewButton";
 import { ToolInvocationStateBadge } from "../badges/ToolInvocationStateBadge";
 import { SizeBadge } from "../badges/SizeBadge";
+import { useTranslation } from "aihappey-i18n";
 
 export interface ToolInvocationCardProps {
   invocation: {
@@ -40,6 +41,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   renderToolExplanation,
   getToolExplanation,
 }) => {
+  const { t } = useTranslation();
   const [explanation, setExplanation] = useState<string | undefined>(undefined);
   const { Card, Button, Spinner, JsonViewer, Badge } = useTheme();
   const [loadingExplanation, setLoadingExplanation] = useState(false);
@@ -81,6 +83,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
           {isCompleted
             && onShowOutput
             && <ViewButton
+              title={t("showToolOutput")}
               disabled={loadingExplanation}
               size="small"
               onClick={() => onShowOutput(invocation?.output)}
@@ -88,6 +91,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
           {getToolExplanation && renderToolExplanation && (
             <Button
               icon="explainTool"
+              title={t("explainToolCall")}
               disabled={loadingExplanation}
               size="small"
               onClick={async () => {

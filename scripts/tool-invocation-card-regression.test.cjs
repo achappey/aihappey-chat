@@ -5,13 +5,14 @@ const path = require("node:path");
 const ts = require("typescript");
 const React = require("react");
 
-function render(props, { loading = false } = {}) {
+function render(props, { loading = false, locale = "en" } = {}) {
     const filename = "packages/aihappey-components/src/cards/ToolInvocationCard.tsx";
     const output = ts.transpileModule(fs.readFileSync(path.join(__dirname, "..", filename), "utf8"), {
         fileName: filename,
         compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
     }).outputText;
     let state = 0;
+    const translations = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "packages/aihappey-i18n/src/locales", locale, `${locale}.json`), "utf8").replace(/^\uFEFF/, ""));
     const mocks = {
         react: { ...React, useState: initial => [state++ === 1 ? loading : initial, () => {}] },
         "../theme/ThemeContext": { useTheme: () => ({ Card: "Card", Button: "Button", Spinner: "Spinner", JsonViewer: "JsonViewer", Badge: "Badge" }) },
@@ -19,6 +20,7 @@ function render(props, { loading = false } = {}) {
         "../buttons/ViewButton": { ViewButton: "ViewButton" },
         "../badges/ToolInvocationStateBadge": { ToolInvocationStateBadge: "ToolInvocationStateBadge" },
         "../badges/SizeBadge": { SizeBadge: "SizeBadge" },
+        "aihappey-i18n": { useTranslation: () => ({ t: key => translations[key] }) },
     };
     const module = { exports: {} };
     new Function("require", "module", "exports", output)(id => {
@@ -65,4 +67,18 @@ test("optional actions and provider artwork keep their existing conditions", () 
     assert.equal(children(card.props.actions).length, 0);
     assert.equal(card.props.image.props.icons, icons);
     assert.equal(children(render({ invocation, onShowOutput() {} }).props.actions).length, 1);
+});
+
+test("footer action tooltips describe their actions in English and Dutch, including busy buttons", () => {
+    const props = { invocation, onShowOutput() {}, getToolExplanation() {}, renderToolExplanation() {} };
+    for (const [locale, expected] of [
+        ["en", ["Show tool output", "Explain tool call"]],
+        ["nl", ["Tooluitvoer tonen", "Toolaanroep uitleggen"]],
+    ]) {
+        for (const loading of [false, true]) {
+            const actions = children(render(props, { locale, loading }).props.actions);
+            assert.deepEqual(actions.map(node => node.props.title), expected);
+            assert.ok(actions.every(node => node.props.disabled === loading));
+        }
+    }
 });

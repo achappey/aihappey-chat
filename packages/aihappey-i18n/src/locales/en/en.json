@@ -929,6 +929,8 @@
     "deny": "Deny",
     "reason": "Reason",
     "toolApproval": "Tool review",
+    "showToolOutput": "Show tool output",
+    "explainToolCall": "Explain tool call",
     "approved": "Approved",
     "error": "Error",
     "contextWindow": "Context size",

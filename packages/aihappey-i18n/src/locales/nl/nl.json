@@ -935,6 +935,8 @@
     "deny": "Afkeuren",
     "reason": "Reden",
     "toolApproval": "Tool beoordeling",
+    "showToolOutput": "Tooluitvoer tonen",
+    "explainToolCall": "Toolaanroep uitleggen",
     "input-available": "Invoer verwerken",
     "input-streaming": "Invoer ontvangen",
     "output-available": "Uitvoer beschikbaar",
