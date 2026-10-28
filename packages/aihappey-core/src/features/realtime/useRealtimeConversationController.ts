@@ -483,6 +483,24 @@ export function useRealtimeConversationController(args: {
         return;
       }
 
+      if (type === "transcript.agent.delta") {
+        // Atoms deltas are cumulative snapshots, not incremental strings.
+        assistantTextRef.current = String(event?.text ?? "");
+        const draft = assistantDraftRef.current ?? newUiMessage("assistant", [], { realtime: true, model });
+        assistantDraftRef.current = { ...draft, parts: [{ type: "text", text: assistantTextRef.current }] };
+        upsertLocalDraft(assistantDraftRef.current);
+        return;
+      }
+
+      if (type === "smallestai.session.closed") {
+        const session = sessionRef.current; sessionRef.current = null;
+        void session?.stop();
+        startedRef.current = false;
+        setStatus("idle");
+        void historyRef.current!.flush().then(() => refresh()).catch(error => addChatError(error));
+        return;
+      }
+
       if (type === "tool.call") {
         const callId = String(event?.call_id ?? "");
         if (callId) {
@@ -748,6 +766,11 @@ export function useRealtimeConversationController(args: {
         sessionRef.current = session;
         if (startup.signal.aborted) { await session.stop(); sessionRef.current = null; return; }
         session.setMicrophoneEnabled(!muted);
+        if (model.startsWith("smallestai/")) {
+          // Atoms session.created arrives before its startup promise returns.
+          setStatus("connected");
+          flushPendingQueue();
+        }
       } catch (e) {
         liveRef.current?.stop(); liveRef.current = null;
         const full = describeError(e);

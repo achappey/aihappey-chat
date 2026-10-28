@@ -5,6 +5,7 @@ import { agentPhoneRealtimeConversationProvider } from "./agentPhoneRealtimeConv
 import { googleRealtimeConversationProvider } from "./googleRealtimeConversationProvider";
 import { cartesiaRealtimeConversationProvider } from "./cartesiaRealtimeConversationProvider";
 import { opperAiRealtimeConversationProvider } from "./opperAiRealtimeConversationProvider";
+import { smallestAiRealtimeConversationProvider } from "./smallestAiRealtimeConversationProvider";
 import type { RealtimeConversationSession } from "./startRealtimeConversationWebrtc";
 import type {
   RealtimeConversationProviderId,
@@ -44,6 +45,7 @@ const providers: Record<string, RealtimeConversationProviderRuntime> = {
   google: googleRealtimeConversationProvider,
   cartesia: cartesiaRealtimeConversationProvider,
   opperai: opperAiRealtimeConversationProvider,
+  smallestai: smallestAiRealtimeConversationProvider,
 };
 
 export const getRealtimeConversationProvider = (providerId: string) => providers[normalizeRealtimeProviderId(providerId)];

@@ -8,6 +8,7 @@ import { startAssemblyAiRealtimeWsSession } from "./startAssemblyAiRealtimeWsSes
 import { startSonioxRealtimeWsSession } from "./startSonioxRealtimeWsSession";
 import { startGoogleRealtimeWsSession } from "./startGoogleRealtimeWsSession";
 import { startCartesiaRealtimeWsSession } from "./startCartesiaRealtimeWsSession";
+import { startSmallestAiRealtimeWsSession } from "./startSmallestAiRealtimeWsSession";
 
 export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
@@ -154,6 +155,12 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
       config: providerRealtimeMetadata?.cartesia ?? {}, events,
     });
     return { kind: "ws", stop: session.stop };
+  }
+
+  if (providerId === "smallestai") {
+    const session = await startSmallestAiRealtimeWsSession({ ...capture, getEphemeralToken,
+      modelId: selectedModel, config: providerRealtimeMetadata?.smallestai ?? {}, events });
+    return { kind: "ws", stop: session.stop, commitAudio: session.commitAudio };
   }
 
   throw new Error(`Realtime transcription is not supported for provider '${providerId}'.`);

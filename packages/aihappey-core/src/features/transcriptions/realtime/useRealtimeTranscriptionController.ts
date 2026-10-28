@@ -49,6 +49,7 @@ export function useRealtimeTranscriptionController(args: {
   const sessionRef = useRef<Awaited<ReturnType<typeof startRealtimeWebrtcSession>> | null>(null);
   const bufferRef = useRef<string>("");
   const stopInFlightRef = useRef<Promise<void> | null>(null);
+  const smallestAiWritesRef = useRef<Promise<void>>(Promise.resolve());
 
   // Used to prevent double-handling of fatal errors (e.g. multiple error events)
   // which could otherwise trigger double-stop / double-delete races.
@@ -373,6 +374,7 @@ export function useRealtimeTranscriptionController(args: {
     const p = (async () => {
       try {
         await session.stop();
+        await smallestAiWritesRef.current;
       } finally {
         bufferRef.current = "";
         segmentsRef.current = new Map();
@@ -478,6 +480,19 @@ export function useRealtimeTranscriptionController(args: {
           // Parse raw events to build segments (start/end from speech events, text from completed transcript)
           onEvent: (event: any) => {
             try {
+              if (providerId === "smallestai") {
+                if (event?.type === "smallestai.transcript.final") {
+                  const key = String(event.item_id);
+                  segmentsRef.current.set(key, { itemId: key, text: event.text,
+                    startMs: event.start * 1000, endMs: event.end * 1000 });
+                  const snapshot = computeSnapshot();
+                  // Serialize final writes. Preview debounces must never overwrite a newer final.
+                  smallestAiWritesRef.current = smallestAiWritesRef.current
+                    .then(() => persistUpdateNow(created.id, snapshot))
+                    .catch(error => { onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: t("storageQuotaMessage") })); });
+                }
+                return;
+              }
               if (providerId === "elevenlabs") {
                 const mt = event?.message_type;
                 if (mt === "committed_transcript_with_timestamps") {
@@ -751,13 +766,13 @@ export function useRealtimeTranscriptionController(args: {
           onTranscriptText: (deltaText: string) => {
              // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
              const next =
-               providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia"
+               providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia" || providerId === "smallestai"
                 ? deltaText
                 : (bufferRef.current + deltaText).trimStart();
             bufferRef.current = next;
             setRealtimeSessionState({ realtimeText: next, realtimeStatus: "connected" });
 
-            if (created.id) {
+            if (created.id && providerId !== "smallestai") {
               // For previews, debounce writes; but ensure ElevenLabs doesn't overwrite with empty text.
               void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
             }
@@ -767,7 +782,7 @@ export function useRealtimeTranscriptionController(args: {
               googleSessionStartedAtRef.current = Date.now();
             }
             sessionInfoRef.current = session;
-            if (created.id) void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
+            if (created.id && providerId !== "smallestai") void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
           },
           onError: (message: string, err?: unknown) => {
             // Fatal: stop mic + close WS. We also discard the transient transcription item.
@@ -787,7 +802,7 @@ export function useRealtimeTranscriptionController(args: {
               try {
                 await stop();
               } finally {
-                if (created.id) {
+                if (created.id && providerId !== "smallestai") {
                   try {
                     await transcriptions.delete(created.id);
                   } catch {
