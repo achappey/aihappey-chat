@@ -1,0 +1,14 @@
+
+{
+  "name": "Keln",
+  "description": "OpenAI- and Anthropic-compatible endpoints for open-weight models. Keln routes every request across a verified fleet, fails over mid-stream, and normalizes outputs — at one flat price per model.",
+  "urls": {
+    "homepage": "https://keln.ai",
+    "docs": "https://docs.keln.ai",
+    "pricing": "https://keln.ai/models",
+    "termsOfService": "https://keln.ai/terms",
+    "privacyPolicy": "https://keln.ai/privacy"
+  },
+  "providerCountry": "US",
+  "category": "gateway_router"
+}
