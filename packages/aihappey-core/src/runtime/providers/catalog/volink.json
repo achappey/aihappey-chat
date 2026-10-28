@@ -1,0 +1,12 @@
+
+{
+  "name": "Volink",
+  "description": "Volink is a unified AI API platform for text and voice models. Access 300+ models from 60+ providers with one OpenAI-compatible API for chat, agents, speech synthesis, voice cloning, and multimodal apps.",
+  "urls": {
+    "homepage": "https://volink.org",
+    "termsOfService":"https://volink.org/app/index.html#/terms",
+    "privacyPolicy":"https://volink.org/app/index.html#/privacy",
+    "docs": "https://docs.volink.org/en/docs/api-reference/overview"
+  },
+  "category": "gateway_router"
+}
