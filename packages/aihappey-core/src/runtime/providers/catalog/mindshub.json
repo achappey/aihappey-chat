@@ -1,0 +1,14 @@
+
+{
+  "name": "MindsHub",
+  "description": "Manage AI access, usage, and budgets in one console. Use MindsHub models in your own apps and agents, or get work done with Cowork and Code.",
+  "urls": {
+    "homepage": "https://mindshub.ai",
+    "docs": "https://docs.mindshub.ai/inference/",
+    "pricing": "https://mindshub.ai/pricing",
+    "termsOfService": "https://mindshub.ai/terms",
+    "privacyPolicy": "https://mindshub.ai/privacy-policy"
+  },
+  "providerCountry": "US",
+  "category": "gateway_router"
+}

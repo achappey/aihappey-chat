@@ -2504,6 +2504,10 @@
     "file": "astria.json"
   },
   {
+    "id": "mindshub",
+    "file": "mindshub.json"
+  },
+  {
     "id": "levanto",
     "file": "levanto.json"
   },
