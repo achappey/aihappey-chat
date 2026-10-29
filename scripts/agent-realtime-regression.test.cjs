@@ -5,7 +5,7 @@ const { load } = require('./credential-test-loader.cjs');
 const root = 'packages/aihappey-core/src/features/';
 const { AgentTranscriptionTurns } = load(root + 'realtime/agentTranscriptionTurns.ts');
 const { AgentSpeechQueue, CompletedAgentText } = load(root + 'realtime/agentSpeechQueue.ts');
-const { streamSpeech } = load('packages/aihappey-ai/src/speechStreaming.ts');
+const { streamSpeech, SpeechStreamingUnsupportedError } = load('packages/aihappey-ai/src/speechStreaming.ts');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function turns(provider) {
@@ -273,6 +273,7 @@ test('new speech stream sends ordered text parts and receives typed audio/finish
         }, onAudio: part => audio.push(part),
     });
     assert.deepEqual(body.text, [{ type: 'text', text: 'Hello' }]);
+    assert.equal(Object.hasOwn(body, 'outputFormat'), false, 'provider-default output must not be overridden');
     assert.equal(body.providerOptions.openai.voice, 'cedar'); assert.equal(audio[0].audioFormat.rate, 16000);
 });
 
@@ -282,11 +283,14 @@ test('truncated streams and SSE errors fail even with HTTP 200', async () => {
     await assert.rejects(streamSpeech({ ...args, fetch: async () => sse([{ type: 'error', error: 'unsupported' }]) }), /unsupported/);
 });
 
-test('speech fallback is silent on streaming failure, preserves model options, and is abort-aware', async () => {
+test('speech fallback is silent only for unsupported streaming, preserves model options, and is abort-aware', async t => {
     const calls = [];
     const { AgentAudioOutput } = load(root + 'realtime/agentSpeechPlayback.ts', {
-        'aihappey-ai': { streamSpeech: async () => { throw new Error('unsupported'); }, base64ToUint8Array: () => new Uint8Array([1, 2]) },
+        'aihappey-ai': { SpeechStreamingUnsupportedError, streamSpeech: async () => { throw new SpeechStreamingUnsupportedError(); }, base64ToUint8Array: () => new Uint8Array([1, 2]) },
     });
+    const originalAudio = globalThis.Audio;
+    globalThis.Audio = class { pause() {} removeAttribute() {} load() {} };
+    t.after(() => { if (originalAudio === undefined) delete globalThis.Audio; else globalThis.Audio = originalAudio; });
     const output = new AgentAudioOutput(); output.playBytes = async (...args) => calls.push(args);
     await output.speak({ baseUrl: 'https://api.example', endpoints: { speech: '/api/speech' }, fetch: async (url, init) => {
         calls.push([url, JSON.parse(init.body)]); return Response.json({ audio: { base64: 'AQI=', mimeType: 'audio/mpeg' } });
@@ -297,6 +301,271 @@ test('speech fallback is silent on streaming failure, preserves model options, a
     const abort = new AbortController(); abort.abort();
     await assert.rejects(output.speak({}, {}, { id: 'openai/tts' }, 'Hello', abort.signal), { name: 'AbortError' });
     assert.equal(calls.length, 2);
+});
+
+test('only explicit streaming capability failures are eligible for non-streaming fallback', async () => {
+    const args = { url: '/api/speech/stream', model: 'google/tts', text: 'Hi', signal: new AbortController().signal, onAudio() {} };
+    for (const status of [404, 405, 501]) {
+        await assert.rejects(streamSpeech({ ...args, fetch: async () => new Response('unavailable', { status }) }), SpeechStreamingUnsupportedError);
+    }
+    for (const status of [400, 401, 403, 429, 500, 503]) {
+        await assert.rejects(streamSpeech({ ...args, fetch: async () => new Response('failed', { status }) }),
+            error => !(error instanceof SpeechStreamingUnsupportedError));
+    }
+    const unsupported = { type: 'error', error: "Provider 'example' does not support Vercel speech streaming yet." };
+    await assert.rejects(streamSpeech({ ...args, fetch: async () => sse([unsupported]) }), SpeechStreamingUnsupportedError);
+    const audio = { type: 'audio', audio: 'AQI=', audioFormat: { type: 'audio/mp3', rate: 44100 } };
+    await assert.rejects(streamSpeech({ ...args, fetch: async () => sse([audio, unsupported]) }),
+        error => !(error instanceof SpeechStreamingUnsupportedError));
+    await assert.rejects(streamSpeech({ ...args, fetch: async () => sse([{ type: 'error', error: "Google speech output format 'bad' is not supported." }]) }),
+        error => !(error instanceof SpeechStreamingUnsupportedError));
+    const failure = new Error('decoder failed');
+    await assert.rejects(streamSpeech({ ...args, fetch: async () => sse([audio, { type: 'finish' }]), onAudio() { throw failure; } }),
+        error => error === failure);
+});
+
+// Exercise the actual SSE reader and playback state machine without native codecs.
+// These mocks test ordering/capability decisions, not the decodability of Google's real audio bytes.
+function speechPlaybackHarness(t, options = {}) {
+    const state = { calls: [], supportedTypes: [], bufferTypes: [], appended: [], plays: 0, revoked: [], warnings: [], pcmBuffers: [], pcmSources: [] };
+    const originalAudio = globalThis.Audio, originalSource = globalThis.MediaSource;
+    class Audio {
+        ended = false; error = null;
+        constructor() { state.audio = this; }
+        pause() { state.paused = true; }
+        removeAttribute() {}
+        load() {}
+        async play() {
+            state.plays++;
+            if (options.playError) throw options.playError;
+        }
+    }
+    class SourceBuffer extends EventTarget {
+        updating = false;
+        appendBuffer(value) {
+            if (options.appendError) throw options.appendError;
+            state.appended.push([...new Uint8Array(value)]);
+            this.updating = true;
+            queueMicrotask(() => { this.updating = false; this.dispatchEvent(new Event('updateend')); });
+        }
+    }
+    class MediaSource extends EventTarget {
+        readyState = 'closed';
+        static isTypeSupported(type) { state.supportedTypes.push(type); return options.supported !== false && type === 'audio/mpeg'; }
+        constructor() {
+            super();
+            queueMicrotask(() => { this.readyState = 'open'; this.dispatchEvent(new Event('sourceopen')); });
+        }
+        addSourceBuffer(type) { state.bufferTypes.push(type); return new SourceBuffer(); }
+        endOfStream() { this.readyState = 'ended'; if (!options.playError) state.audio.ended = true; }
+    }
+    globalThis.Audio = Audio; globalThis.MediaSource = MediaSource;
+    t.after(() => {
+        if (originalAudio === undefined) delete globalThis.Audio; else globalThis.Audio = originalAudio;
+        if (originalSource === undefined) delete globalThis.MediaSource; else globalThis.MediaSource = originalSource;
+    });
+    t.mock.method(URL, 'createObjectURL', () => 'blob:speech-test');
+    t.mock.method(URL, 'revokeObjectURL', value => state.revoked.push(value));
+    t.mock.method(console, 'warn', (...args) => state.warnings.push(args));
+    const { AgentAudioOutput } = load(root + 'realtime/agentSpeechPlayback.ts', {
+        'aihappey-ai': { streamSpeech, SpeechStreamingUnsupportedError,
+            base64ToUint8Array: value => new Uint8Array(Buffer.from(value, 'base64')),
+            concatUint8Arrays: chunks => new Uint8Array(Buffer.concat(chunks)),
+        },
+    });
+    state.output = new AgentAudioOutput();
+    state.context = { currentTime: 0, state: 'running', destination: {}, resume: async () => {},
+        createBuffer(channels, count, sampleRate) {
+            const samples = new Float32Array(count);
+            const buffer = { channels, sampleRate, duration: count / sampleRate, getChannelData: () => samples };
+            state.pcmBuffers.push(buffer); return buffer;
+        },
+        createBufferSource() {
+            const source = { connect() {}, disconnect() { this.disconnected = true; },
+                start(at) { this.at = at; if (options.autoEndPcm !== false) queueMicrotask(() => this.onended?.()); },
+                stop() { this.stopped = true; },
+            };
+            state.pcmSources.push(source); return source;
+        },
+        decodeAudioData() { assert.fail('Raw PCM must not reach the encoded-audio decoder'); },
+    };
+    Object.defineProperty(state.output, 'audioContext', { get: () => state.context });
+    state.signal = new AbortController();
+    state.speak = () => state.output.speak({ baseUrl: 'https://api.example', endpoints: { speech: '/api/speech' }, fetch: async (url, init) => {
+        state.calls.push([url, JSON.parse(init.body)]);
+        return options.response ?? sse([
+            { type: 'audio', audio: 'AQI=', audioFormat: { type: 'audio/mp3', rate: 24000 } },
+            { type: 'audio', audio: 'AwQ=', audioFormat: { type: 'audio/mpeg', rate: 44100 } },
+            { type: 'finish' }, '[DONE]',
+        ]);
+    } }, {}, { id: options.model ?? 'google/tts' }, 'Private speech text', state.signal.signal);
+    return state;
+}
+
+test('Google MP3 aliases and corrected encoded sample rates use incremental browser playback without re-synthesis', async t => {
+    const state = speechPlaybackHarness(t);
+    await state.speak();
+    assert.equal(state.calls.length, 1);
+    assert.equal(state.calls[0][0], 'https://api.example/api/speech/stream');
+    assert.equal(Object.hasOwn(state.calls[0][1], 'outputFormat'), false);
+    assert.deepEqual(state.supportedTypes, ['audio/mpeg']);
+    assert.deepEqual(state.bufferTypes, ['audio/mpeg']);
+    assert.deepEqual(state.appended, [[1, 2], [3, 4]]);
+    assert.equal(state.plays, 1);
+    assert.deepEqual(state.revoked, ['blob:speech-test']);
+    assert.equal(state.warnings.length, 0);
+});
+
+test('MP3 playback starts while the SSE response is still waiting for its finish event', async t => {
+    let finish;
+    const response = new Response(new ReadableStream({ start(controller) {
+        const encoder = new TextEncoder();
+        controller.enqueue(encoder.encode('data: {"type":"audio","audio":"AQI=","audioFormat":{"type":"audio/mp3","rate":44100}}\n\n'));
+        finish = () => { controller.enqueue(encoder.encode('data: {"type":"finish"}\n\ndata: [DONE]\n\n')); controller.close(); };
+    } }), { headers: { 'content-type': 'text/event-stream' } });
+    const state = speechPlaybackHarness(t, { response });
+    const speaking = state.speak();
+    try {
+        await sleep(0);
+        assert.equal(state.plays, 1);
+    } finally { finish(); await speaking; }
+    assert.equal(state.calls.length, 1);
+});
+
+for (const kind of ['playError', 'appendError']) test(`${kind} preserves its cause and diagnostics without requesting speech again`, async t => {
+    const failure = new DOMException('Browser playback failed', kind === 'playError' ? 'NotAllowedError' : 'EncodingError');
+    const state = speechPlaybackHarness(t, { [kind]: failure });
+    await assert.rejects(state.speak(), error => error.cause === failure &&
+        error.message.includes(kind === 'playError' ? 'media-element-play' : 'media-source-append'));
+    assert.equal(state.calls.length, 1);
+    assert.equal(state.warnings.length, 1);
+    const diagnostic = state.warnings[0][1];
+    assert.equal(diagnostic.receivedAudio, true);
+    assert.equal(diagnostic.bytes, 4);
+    assert.equal(diagnostic.errorName, failure.name);
+    assert.equal(JSON.stringify(state.warnings).includes('Private speech text'), false);
+    assert.deepEqual(state.revoked, ['blob:speech-test']);
+});
+
+test('browsers without MPEG MediaSource support decode the received bytes instead of re-synthesizing', async t => {
+    const state = speechPlaybackHarness(t, { supported: false });
+    const decoded = [];
+    state.output.playBytes = async (bytes, format) => decoded.push({ bytes: [...bytes], format });
+    await state.speak();
+    assert.equal(state.calls.length, 1);
+    assert.deepEqual(decoded, [{ bytes: [1, 2, 3, 4], format: { type: 'audio/mpeg', rate: 24000 } }]);
+    assert.equal(state.plays, 0);
+});
+
+test('buffered decode failure is surfaced, not silently replaced by a new synthesis', async t => {
+    const state = speechPlaybackHarness(t, { supported: false });
+    const failure = new DOMException('Unable to decode audio data', 'EncodingError');
+    state.output.playBytes = async () => { throw failure; };
+    await assert.rejects(state.speak(), error => error.cause === failure && /buffered-decode\/playback/.test(error.message));
+    assert.equal(state.calls.length, 1);
+});
+
+test('aborting streamed playback cleans up without diagnostics or non-streaming fallback', async t => {
+    const state = speechPlaybackHarness(t, { supported: false });
+    state.output.playBytes = async () => { state.signal.abort(); state.signal.signal.throwIfAborted(); };
+    await assert.rejects(state.speak(), { name: 'AbortError' });
+    assert.equal(state.calls.length, 1);
+    assert.equal(state.warnings.length, 0);
+    assert.equal(state.paused, true);
+});
+
+const pcmPart = (bytes, format = { type: 'audio/l16', rate: 24000 }, channels = 1) => ({
+    type: 'audio', audio: Buffer.from(bytes).toString('base64'), audioFormat: format,
+    providerMetadata: { google: { mime_type: format.type, channels, sample_rate: format.rate } },
+});
+
+for (const rate of [16000, 24000, 48000]) test(`Google L16 plays little-endian samples at the reported ${rate} Hz across split chunks`, async t => {
+    const format = { type: 'audio/l16', rate };
+    const state = speechPlaybackHarness(t, { response: sse([
+        pcmPart([0], format), pcmPart([128, 255, 127], format), pcmPart([0, 0, 0, 64], format), { type: 'finish' }, '[DONE]',
+    ]) });
+    await state.speak();
+    assert.equal(state.calls.length, 1);
+    assert.deepEqual(state.supportedTypes, [], 'raw PCM must bypass MediaSource');
+    assert.equal(state.plays, 0);
+    assert.deepEqual(state.pcmBuffers.map(buffer => buffer.sampleRate), [rate, rate]);
+    assert.deepEqual([...state.pcmBuffers[0].getChannelData()], [-1, 32767 / 32768]);
+    assert.deepEqual([...state.pcmBuffers[1].getChannelData()], [0, 0.5]);
+    assert.equal(state.pcmSources[0].at, 0.08, 'startup buffer absorbs delivery jitter');
+    assert.equal(state.pcmSources[1].at, state.pcmSources[0].at + state.pcmBuffers[0].duration);
+    assert.equal(state.warnings.length, 0);
+});
+
+test('PCM is scheduled before the stream finishes, and speech waits until scheduled audio ends', async t => {
+    let finish;
+    const response = new Response(new ReadableStream({ start(controller) {
+        const encoder = new TextEncoder();
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(pcmPart([0, 128, 255, 127]))}\n\n`));
+        finish = () => { controller.enqueue(encoder.encode('data: {"type":"finish"}\n\ndata: [DONE]\n\n')); controller.close(); };
+    } }), { headers: { 'content-type': 'text/event-stream' } });
+    const state = speechPlaybackHarness(t, { response, autoEndPcm: false });
+    let completed = false;
+    const speaking = state.speak().then(() => { completed = true; });
+    try {
+        await sleep(0);
+        assert.equal(state.pcmSources.length, 1, 'PCM schedules while more SSE audio may still arrive');
+        assert.equal(completed, false);
+        finish(); finish = undefined;
+        await sleep(0);
+        assert.equal(completed, false, 'a finish event is not the end of audible playback');
+        for (const source of state.pcmSources) source.onended?.();
+        await speaking;
+        assert.equal(completed, true);
+        assert.equal(state.calls.length, 1);
+    } finally {
+        if (finish) finish();
+        state.signal.abort(); await speaking.catch(() => {});
+    }
+});
+
+test('standard non-Google L16 retains big-endian byte order instead of inheriting Google semantics', async t => {
+    const state = speechPlaybackHarness(t, { model: 'example/tts', response: sse([
+        pcmPart([128, 0, 127, 255]), { type: 'finish' }, '[DONE]',
+    ]) });
+    await state.speak();
+    assert.deepEqual([...state.pcmBuffers[0].getChannelData()], [-1, 32767 / 32768]);
+});
+
+for (const type of ['audio/pcm', 'audio/pcm_s16le', 'audio/L16;rate=16000;channels=1']) test(`${type} uses the PCM scheduler`, async t => {
+    const state = speechPlaybackHarness(t, { response: sse([
+        pcmPart([0, 128], type.includes(';') ? { type } : { type, rate: 16000 }), { type: 'finish' }, '[DONE]',
+    ]) });
+    await state.speak();
+    assert.equal(state.pcmBuffers[0].sampleRate, 16000);
+    assert.deepEqual([...state.pcmBuffers[0].getChannelData()], [-1]);
+});
+
+for (const [name, parts, message] of [
+    ['missing rate', [pcmPart([0, 0], { type: 'audio/l16' })], /positive sample rate/],
+    ['invalid rate', [pcmPart([0, 0], { type: 'audio/l16', rate: 0 })], /positive sample rate/],
+    ['stereo', [pcmPart([0, 0], undefined, 2)], /mono audio/],
+    ['incomplete sample', [pcmPart([0])], /incomplete PCM sample/],
+    ['changed rate', [pcmPart([0, 0]), pcmPart([0, 0], { type: 'audio/l16', rate: 16000 })], /format changed/],
+]) test(`invalid PCM ${name} reports a failure without a new synthesis request`, async t => {
+    const state = speechPlaybackHarness(t, { response: sse([...parts, { type: 'finish' }, '[DONE]']) });
+    await assert.rejects(state.speak(), message);
+    assert.equal(state.calls.length, 1);
+    assert.equal(state.warnings.length, 1);
+    assert.equal(state.pcmSources.every(source => source.disconnected), true);
+});
+
+test('cancelling while PCM drains stops every scheduled source without fallback', async t => {
+    const state = speechPlaybackHarness(t, { autoEndPcm: false, response: sse([
+        pcmPart([0, 0]), pcmPart([1, 0]), { type: 'finish' }, '[DONE]',
+    ]) });
+    const speaking = state.speak();
+    await sleep(0);
+    assert.equal(state.pcmSources.length, 2);
+    state.signal.abort();
+    await assert.rejects(speaking, { name: 'AbortError' });
+    assert.equal(state.pcmSources.every(source => source.stopped && source.disconnected), true);
+    assert.equal(state.calls.length, 1);
+    assert.equal(state.warnings.length, 0);
 });
 
 test('editor uses draft-only settings and the page retains the native controller and explicit agent target', () => {
