@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { languageNames, useTranslation } from "aihappey-i18n";
 import { useAccount } from "aihappey-auth";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { useMultiTheme, useTheme } from "aihappey-components";
 import { fetchWelcomeMessage } from "../../../runtime/chat-app/welcomeMessage";
-import { useAppStore } from "aihappey-state";
+import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, useAppStore } from "aihappey-state";
+import type { Agent } from "aihappey-types";
 import { useChatContext } from "../context/ChatContext";
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 
-interface WelcomeMessageProps { }
+interface WelcomeMessageProps {
+  /** Opt-in notification for the real-time start page only. The signal identifies this generation. */
+  onGenerated?: (text: string, agent: Agent | undefined, generation: AbortSignal) => void;
+}
 
 type WelcomeThemeId = "bootstrap" | "shadcn" | "fluent" | "default";
 
@@ -115,7 +119,7 @@ const getWelcomeSlotStyle = (
   marginBlockEnd: isDesktop ? sizing.desktopGap : sizing.mobileGap,
 });
 
-export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
+export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onGenerated }) => {
   const { Skeleton } = useTheme();
   const multiTheme = useMultiTheme();
   const { i18n } = useTranslation();
@@ -128,6 +132,8 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
   const customHeaders = useAppStore((s) => s.customHeaders);
   const gatewayEnabled = useAppStore((s: any) => s.gatewayEnabled);
   const providers = useProviderRegistry();
+  const generated = useRef(onGenerated);
+  generated.current = onGenerated; // Callback identity changes must not regenerate/replay a welcome.
   const [welcomeMessage, setWelcomeMessage] = useState<string | undefined>(
     undefined
   );
@@ -137,6 +143,7 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
 
   useEffect(() => {
     let active = true;
+    const generation = new AbortController();
     const fallback = t("sideInference.fallbackWelcome") ?? "Welcome";
     setWelcomeMessage(fallback);
     if (agentName !== "" && models && models?.length > 0)
@@ -154,9 +161,16 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ }) => {
           providers,
           fallback,
         })
-        .then(a => { if (active) setWelcomeMessage(a ?? fallback); });
+        .then(a => {
+          if (!active) return;
+          const text = a ?? fallback;
+          setWelcomeMessage(text);
+          const selectedAgent = agents.find(agent => agent.name === (agentName
+            ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION.welcomeMessageAgent));
+          generated.current?.(text, selectedAgent, generation.signal);
+        });
 
-    return () => { active = false; };
+    return () => { active = false; generation.abort(); };
   }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, customHeaders, gatewayEnabled, i18n.language, models, agents, agentName, providers, t]);
 
   return (

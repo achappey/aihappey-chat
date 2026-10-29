@@ -29,6 +29,7 @@ import { useRealtimeConversationController } from "./useRealtimeConversationCont
 import { RealtimeInput } from "./RealtimeInput";
 import { LocalCameraPreview } from "./LocalCameraPreview";
 import { useTranslation } from "aihappey-i18n";
+import { playRealtimeWelcomeSpeech, WelcomeSpeechPlayback } from "./welcomeSpeechPlayback";
 
 const addAttachmentWithTranscription = async (file: File) => {
   fileAttachmentRuntime.add(file);
@@ -65,6 +66,10 @@ export function RealtimePage() {
 
 function RealtimeStartPage() {
   const navigate = useNavigate();
+  const { config } = useChatContext();
+  const customHeaders = useAppStore(s => s.customHeaders);
+  const welcomeSpeech = useRef(new WelcomeSpeechPlayback());
+  useEffect(() => () => welcomeSpeech.current.cancel(), []);
   const { create } = useConversations();
   const { addChatError } = useChatErrors();
   const { models, model, setModel } = useRealtimeModelSelection();
@@ -97,6 +102,7 @@ function RealtimeStartPage() {
   const startConversation = useCallback(
     async (pendingMessage?: UIMessage) => {
       if (creating) return false;
+      welcomeSpeech.current.stop();
       setCreating(true);
       try {
         if (customAgents && !selectedRealtimeAgent) throw new Error(t("agentRealtime.selectAgent"));
@@ -179,7 +185,11 @@ function RealtimeStartPage() {
       >
         <ChatErrors />
         <div style={{ width: "95%" }}>
-          <WelcomeMessage />
+          <WelcomeMessage onGenerated={(text, agent, generation) => {
+            if (agent?.speech) void welcomeSpeech.current.play(generation, signal => playRealtimeWelcomeSpeech({
+              config, customHeaders, models: models ?? [], speech: agent.speech!, text, signal,
+            }));
+          }} />
           <RealtimeInput
             model={customAgents ? getPrimaryAgentModel(selectedRealtimeAgent?.localAgent ?? selectedRealtimeAgent?.remoteAgentModel?.agent)?.id ?? "" : model}
             customAgent={customAgents}

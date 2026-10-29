@@ -34,12 +34,13 @@ const pcmFormat = (format: SpeechAudioFormat, model: string, metadata?: Record<s
 /** Uses the format reported by the new API; PCM rates are never assumed to be 24 kHz. */
 export class AgentAudioOutput {
     private context?: AudioContext;
+    constructor(context?: AudioContext) { this.context = context; }
     unlock() {
         const Ctor = window.AudioContext || (window as any).webkitAudioContext;
         this.context ??= Ctor ? new Ctor() : undefined;
         void this.context?.resume();
     }
-    dispose() { void this.context?.close(); this.context = undefined; }
+    dispose() { void this.context?.close().catch(() => {}); this.context = undefined; }
     get audioContext() { this.unlock(); if (!this.context) throw new Error("Audio playback is unavailable in this browser."); return this.context; }
     async speak(config: ChatConfig, customHeaders: Record<string, string> | undefined, speech: AiSpeech, text: string, signal: AbortSignal) {
         signal.throwIfAborted();
