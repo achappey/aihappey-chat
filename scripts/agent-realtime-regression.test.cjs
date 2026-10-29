@@ -19,8 +19,8 @@ function turns(provider) {
 test('eligibility includes local and catalog definitions, not batch-only or hidden definitions', () => {
     const { getRealtimeAgentEntries, selectAgentAudioModel } = load(root + 'agents/agentAudioModels.ts');
     const audio = { id: 'openai/stt', type: 'transcription', tags: ['real-time'] };
-    const agent = { name: 'Local', model: { id: 'openai/chat' }, transcriptionModel: { id: audio.id } };
-    const result = getRealtimeAgentEntries([agent, { ...agent, name: 'Batch', transcriptionModel: { id: 'openai/batch' } }],
+    const agent = { name: 'Local', model: { id: 'openai/chat' }, transcription: { id: audio.id } };
+    const result = getRealtimeAgentEntries([agent, { ...agent, name: 'Batch', transcription: { id: 'openai/batch' } }],
         [{ id: 'remote/one', agent }, { id: 'remote/no-definition' }], [audio]);
     assert.deepEqual(result.map(entry => entry.key), ['local:Local', 'remote:remote/one']);
     const saved = { id: audio.id, providerMetadata: { openai: { custom: true } }, providerHeaders: { custom: 'value' } };
@@ -36,8 +36,11 @@ test('audio configuration round-trips without entering answer model routing', ()
         transcriptionModel: { id: 'deepgram/stt', providerMetadata: { deepgram: { endpointing: 500, opaque: [1, 2] } }, providerHeaders: { deepgram: { test: '1' } } },
         speechModel: { id: 'openai/speech', providerMetadata: { openai: { voice: 'cedar' } } } };
     const normalized = normalizeAgent(JSON.parse(JSON.stringify(agent)));
-    assert.deepEqual(normalized.transcriptionModel.providerMetadata, agent.transcriptionModel.providerMetadata);
-    assert.deepEqual(normalized.transcriptionModel.providerHeaders, { test: '1' });
+    assert.deepEqual(normalized.transcription.providerMetadata, agent.transcriptionModel.providerMetadata);
+    assert.deepEqual(normalized.transcription.providerHeaders, { test: '1' });
+    assert.deepEqual(normalized.speech.model, agent.speechModel);
+    assert.equal(Object.hasOwn(normalized, 'speechModel'), false);
+    assert.equal(Object.hasOwn(normalized, 'transcriptionModel'), false);
     assert.deepEqual(types.getAgentModels(normalized).map(model => model.id), ['openai/chat']);
 });
 
@@ -294,12 +297,12 @@ test('speech fallback is silent only for unsupported streaming, preserves model 
     const output = new AgentAudioOutput(); output.playBytes = async (...args) => calls.push(args);
     await output.speak({ baseUrl: 'https://api.example', endpoints: { speech: '/api/speech' }, fetch: async (url, init) => {
         calls.push([url, JSON.parse(init.body)]); return Response.json({ audio: { base64: 'AQI=', mimeType: 'audio/mpeg' } });
-    } }, {}, { id: 'openai/tts', providerMetadata: { openai: { voice: 'cedar' }, unrelated: { secret: true } } }, 'Hello', new AbortController().signal);
+    } }, {}, { model: { id: 'openai/tts', providerMetadata: { openai: { voice: 'cedar' }, unrelated: { secret: true } } } }, 'Hello', new AbortController().signal);
     assert.equal(calls[0][0], 'https://api.example/api/speech');
     assert.deepEqual(calls[0][1].providerOptions, { openai: { voice: 'cedar' } });
     assert.equal(calls.length, 2);
     const abort = new AbortController(); abort.abort();
-    await assert.rejects(output.speak({}, {}, { id: 'openai/tts' }, 'Hello', abort.signal), { name: 'AbortError' });
+    await assert.rejects(output.speak({}, {}, { model: { id: 'openai/tts' } }, 'Hello', abort.signal), { name: 'AbortError' });
     assert.equal(calls.length, 2);
 });
 
@@ -398,7 +401,7 @@ function speechPlaybackHarness(t, options = {}) {
             { type: 'audio', audio: 'AwQ=', audioFormat: { type: 'audio/mpeg', rate: 44100 } },
             { type: 'finish' }, '[DONE]',
         ]);
-    } }, {}, { id: options.model ?? 'google/tts' }, 'Private speech text', state.signal.signal);
+    } }, {}, options.speech ?? { model: { id: options.model ?? 'google/tts' } }, 'Private speech text', state.signal.signal);
     return state;
 }
 

@@ -141,7 +141,7 @@ test('agent entry point scopes credential headers, sends GA session config, and 
         createBufferSource() { const source = { connect() {}, disconnect() {}, start() {}, stop() {} }; sources.push(source); return source; } };
     const opening = openAgentSpeech({ config: { baseUrl: 'https://gateway', endpoints: { realtime: '/api/realtime' },
         fetch: async (url, init) => { captured = { url, headers: new Headers(init.headers), body: JSON.parse(init.body) }; return Response.json({ value: 'ek_fixture', expires_at: Date.now() / 1000 + 60 }); } },
-        model: { id: model, type: 'speech', providerMetadata: { openai: { voice: 'cedar', response_format: 'mp3' } } },
+        speech: { model: { id: model, type: 'speech', providerMetadata: { openai: { voice: 'cedar', response_format: 'mp3' } } } },
         customHeaders: { 'X-OpenAI-Key': 'sk_private', 'X-Google-Key': 'other-private', 'X-AIHappey-Debug': 'true' }, signal: new AbortController().signal, context, started() {} });
     while (!captured || !Socket.instances.at(-1)?.messages.length || Socket.instances.at(-1)?.readyState !== 1) await tick();
     // Wait until the async credential request has constructed this operation's socket.

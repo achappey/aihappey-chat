@@ -72,10 +72,10 @@ function harness(fetcher, { speechEnabled = true, streamingSpeech = false, initi
     const errors = [], spoken = [], saved = new Map(initialMessages.map(message => [message.id, message])), localCalls = [];
     let stopped = 0;
     const agent = { name: 'Voice', description: 'Voice test', instructions: 'Be helpful', model: { id: 'openai/chat' },
-        transcriptionModel: { id: 'openai/stt' }, ...(speechEnabled ? { speechModel: { id: streamingSpeech ? 'deepgram/aura-2-asteria-en' : 'openai/tts' } } : {}) };
+        transcription: { id: 'openai/stt' }, ...(speechEnabled ? { speech: { model: { id: streamingSpeech ? 'deepgram/aura-2-asteria-en' : 'openai/tts' } } } : {}) };
     const state = { agents: [agent], remoteAgentModels: [], customHeaders: {}, mcpServers: {}, mcpServerContent: {}, toolAnnotations: {}, maxToolCalls: 5, callTool() {},
         approveAll, allowedToolList, addAllowedTool(name) { state.allowedToolList.push(name); }, toggleApproveAll() { state.approveAll = !state.approveAll; } };
-    state.models = streamingSpeech ? [{ id: agent.speechModel.id, type: 'speech', tags: ['real-time', 'realtime-token'] }] : [];
+    state.models = streamingSpeech ? [{ id: agent.speech.model.id, type: 'speech', tags: ['real-time', 'realtime-token'] }] : [];
     const { useAgentRealtimeConversationController } = isolated(root + 'realtime/useAgentRealtimeConversationController.ts', {
         react: runtime.hooks, 'aihappey-ai': { Chat }, 'aihappey-types': types,
         'aihappey-conversations': { useConversations: () => ({
@@ -96,8 +96,9 @@ function harness(fetcher, { speechEnabled = true, streamingSpeech = false, initi
         './agentSpeechPlayback': { AgentAudioOutput: class { unlock() {} dispose() {} get audioContext() { return {}; } async speak(config, headers, model, value, signal) { spoken.push({ value, signal, model }); } } },
         './streamingAgentSpeech': load(root + 'realtime/streamingAgentSpeech.ts'),
         '../speech/realtime/speechProtocol': load(root + 'speech/realtime/speechProtocol.ts'),
+        '../speech/realtime/openAiSpeechConfig': load(root + 'speech/realtime/openAiSpeechConfig.ts'),
         './openAgentSpeech': { openAgentSpeech: async options => ({
-            append(value) { spoken.push({ value, signal: options.signal, model: options.model }); options.started(); },
+            append(value) { spoken.push({ value, signal: options.signal, model: options.speech }); options.started(); },
             flush() {}, finish: async () => {}, cancel() {}, dispose() {},
         }) },
         './agentSpeechQueue': turnText,

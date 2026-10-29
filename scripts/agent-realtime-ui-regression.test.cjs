@@ -31,7 +31,7 @@ test('Real-time editor has concise titles, labelled model pickers, and None inst
         '../models/ModelSelect': { ModelSelect: 'ModelSelect' },
         './agentAudioModels': load(root + 'agents/agentAudioModels.ts'),
     });
-    const agent = { name: 'Voice', transcriptionModel: { id: 'openai/stt' } };
+    const agent = { name: 'Voice', transcription: { id: 'openai/stt' } };
     const tree = AgentRealtimeSettings({ agent, models: [], onChange: next => { changed = next; } });
     const cards = find(tree, element => element.type === 'Card');
     assert.deepEqual(cards.map(card => card.props.title), ['agentRealtime.transcription', 'agentRealtime.speech']);
@@ -41,9 +41,9 @@ test('Real-time editor has concise titles, labelled model pickers, and None inst
     assert.ok(cards.every(card => card.props.headerActions === undefined));
     const pickers = find(tree, element => element.type === 'ModelSelect');
     assert.ok(pickers.every(picker => picker.props.allowNone === true));
-    pickers[0].props.onChange(''); assert.equal(changed.transcriptionModel, undefined);
-    assert.equal(Object.hasOwn(JSON.parse(JSON.stringify(changed)), 'transcriptionModel'), false);
-    pickers[1].props.onChange(''); assert.equal(changed.speechModel, undefined);
+    pickers[0].props.onChange(''); assert.equal(changed.transcription, undefined);
+    assert.equal(Object.hasOwn(JSON.parse(JSON.stringify(changed)), 'transcription'), false);
+    pickers[1].props.onChange(''); assert.equal(changed.speech.model, undefined);
 });
 
 test('shared model picker exposes a localized None option and never saves its sentinel or selects a fallback', () => {
