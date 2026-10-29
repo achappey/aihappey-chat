@@ -1,5 +1,6 @@
 import { base64ToUint8Array, concatUint8Arrays, streamSpeech, SpeechStreamingUnsupportedError, type SpeechAudioFormat } from "aihappey-ai";
-import type { AiModel } from "aihappey-types";
+import type { AiSpeech } from "aihappey-types";
+import { agentSpeechFormatName, agentSpeechProviderOptions, agentSpeechSettings } from "../agents/agentSpeechSettings";
 import type { ChatConfig } from "../chat/context/ChatContext";
 import { buildOperationHeaders, createCredentialScopedFetch } from "../provider-credentials/scopedRequest";
 import { PcmSpeechOutput } from "../speech/realtime/pcmSpeechOutput";
@@ -40,26 +41,29 @@ export class AgentAudioOutput {
     }
     dispose() { void this.context?.close(); this.context = undefined; }
     get audioContext() { this.unlock(); if (!this.context) throw new Error("Audio playback is unavailable in this browser."); return this.context; }
-    async speak(config: ChatConfig, customHeaders: Record<string, string> | undefined, model: AiModel, text: string, signal: AbortSignal) {
+    async speak(config: ChatConfig, customHeaders: Record<string, string> | undefined, speech: AiSpeech, text: string, signal: AbortSignal) {
         signal.throwIfAborted();
+        const model = speech.model;
+        if (!model?.id) throw new Error("Speech requires a model.");
+        const settings = agentSpeechSettings(speech);
         // A stale/missing capability must not send a Realtime-only model to HTTP speech.
         if (isOpenAiSpeechModelId(model.id)) throw new Error("OpenAI Realtime speech is unavailable; refresh the model catalog.");
         const provider = model.id.split("/")[0];
         const providerOptions = model.providerMetadata?.[provider] === undefined ? undefined
-            : { [provider]: model.providerMetadata[provider] };
+            : { [provider]: agentSpeechProviderOptions(speech) };
         const headers = await buildOperationHeaders(config, { ...customHeaders, ...model.providerHeaders }, model.id);
         signal.throwIfAborted();
         const fetcher = createCredentialScopedFetch(config.fetch);
         const speechUrl = config.baseUrl.replace(/\/$/, "") + config.endpoints.speech;
         try {
-            await this.streaming({ url: speechUrl + "/stream", model: model.id, text, headers, providerOptions, fetch: fetcher, signal });
+            await this.streaming({ url: speechUrl + "/stream", model: model.id, text, headers, providerOptions, ...settings, fetch: fetcher, signal });
             return;
         } catch (error) {
             if (signal.aborted || !(error instanceof SpeechStreamingUnsupportedError)) throw error;
         }
         // An unsupported streaming endpoint/provider is not a user-facing error.
         const response = await fetcher(speechUrl, { method: "POST", headers: { ...headers, "Content-Type": "application/json" }, signal,
-            body: JSON.stringify({ model: model.id, text, providerOptions }) });
+            body: JSON.stringify({ model: model.id, text, providerOptions, ...settings, outputFormat: agentSpeechFormatName(settings.outputFormat?.type) }) });
         if (!response.ok) throw new Error(await response.text() || `Speech failed (${response.status})`);
         const result = await response.json();
         if (!result.audio?.base64 || !result.audio?.mimeType) throw new Error("Speech returned no playable audio.");

@@ -171,7 +171,7 @@ export const createAgentSlice: StateCreator<
     },
     setRemoteAgentModels: (models) => {
         set(() => ({
-            remoteAgentModels: models,
+            remoteAgentModels: models.map(model => model.agent ? { ...model, agent: normalizeAgent(model.agent) } : model),
             remoteAgentModelsLoaded: true,
         }));
     },

@@ -60,17 +60,25 @@ const normalizeMcpClient = (value: Agent["mcpClient"]): Agent["mcpClient"] => {
     : mcpClient;
 };
 
-export const normalizeAgent = (agent: Agent): Agent => {
+export const normalizeAgent = (agent: Agent & { transcriptionModel?: AiModel; speechModel?: AiModel }): Agent => {
   const normalizeModel = (model: AiModel): AiModel => ({
     ...model,
     providerHeaders: normalizeAgentProviderHeaders(model.id, model.providerHeaders),
   });
 
+  // Explicit new fields (including null) win. Never resurrect a cleared configuration.
+  const { transcriptionModel, speechModel, ...canonical } = agent;
+  const transcription = Object.prototype.hasOwnProperty.call(agent, "transcription")
+    ? agent.transcription : transcriptionModel;
+  const speech = Object.prototype.hasOwnProperty.call(agent, "speech")
+    ? agent.speech : speechModel ? { model: speechModel } : undefined;
   return {
-    ...agent,
+    ...canonical,
     model: agent.model ? normalizeModel(agent.model) : undefined,
-    ...(agent.transcriptionModel ? { transcriptionModel: normalizeModel(agent.transcriptionModel) } : {}),
-    ...(agent.speechModel ? { speechModel: normalizeModel(agent.speechModel) } : {}),
+    ...(transcription !== undefined ? { transcription: transcription ? normalizeModel(transcription) : null } : {}),
+    ...(speech !== undefined ? { speech: speech ? { ...speech,
+      ...(speech.model ? { model: normalizeModel(speech.model) } : {}),
+    } : null } : {}),
     ...(agent.models ? { models: getAgentModels({ models: agent.models }).map(normalizeModel) } : {}),
     mcpClient: normalizeMcpClient(agent.mcpClient),
   };

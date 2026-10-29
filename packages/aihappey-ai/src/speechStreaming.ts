@@ -20,6 +20,7 @@ export class SpeechStreamingUnsupportedError extends Error {
 /** POST /api/speech/stream, not the OpenAI /v1/audio/speech protocol. */
 export async function streamSpeech(args: {
     url: string; model: string; text: string; providerOptions?: Record<string, unknown>;
+    voice?: string; instructions?: string; speed?: number; language?: string; outputFormat?: SpeechAudioFormat;
     headers?: HeadersInit; fetch?: typeof fetch; signal: AbortSignal;
     onAudio: (part: Extract<SpeechStreamPart, { type: "audio" }>) => void | Promise<void>;
 }) {
@@ -37,6 +38,7 @@ export async function streamSpeech(args: {
             }, signal: args.signal,
             init: { method: "POST", headers: { ...Object.fromEntries(new Headers(args.headers).entries()), "Content-Type": "application/json" },
                 body: JSON.stringify({ model: args.model, text: [{ type: "text", text: args.text }],
+                    voice: args.voice, instructions: args.instructions, speed: args.speed, language: args.language, outputFormat: args.outputFormat,
                     providerOptions: args.providerOptions }) },
             onEvent: async part => {
                 args.signal.throwIfAborted();

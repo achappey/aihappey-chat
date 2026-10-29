@@ -1,6 +1,6 @@
 import { base64ToUint8Array } from "aihappey-ai";
 import type { StreamingSpeechSession } from "./streamingSpeechSession";
-import { buildOpenAiSpeechSession, openAiSpeechInstructions, openAiSpeechRate } from "./openAiSpeechConfig";
+import { buildOpenAiSpeechSession, openAiSpeechRate } from "./openAiSpeechConfig";
 
 /** Preserve every character; batch at sentence/word boundaries, never one response per LLM token. */
 export function openAiSpeechBatchLength(text: string, final: boolean) {
@@ -15,10 +15,10 @@ export function openAiSpeechBatchLength(text: string, final: boolean) {
 
 /** A block-owned, output-only GA session. No microphone, conversation history, tools or API-key fallback. */
 export async function openOpenAiSpeechSession(args: {
-    model: string; options?: Record<string, unknown>; token: string; signal: AbortSignal;
+    model: string; options?: Record<string, unknown>; instructions?: string | null; token: string; signal: AbortSignal;
     audio: (bytes: Uint8Array) => void; failed?: () => void;
 }): Promise<StreamingSpeechSession> {
-    const session = buildOpenAiSpeechSession(args.model, args.options);
+    const session = buildOpenAiSpeechSession(args.model, args.options, args.instructions);
     args.signal.throwIfAborted();
     if (!/^ek_[A-Za-z0-9_-]+$/.test(args.token)) throw new Error("OpenAI speech requires a short-lived Realtime client secret.");
     const url = new URL("wss://api.openai.com/v1/realtime"); url.searchParams.set("model", session.model);
@@ -64,7 +64,7 @@ export async function openOpenAiSpeechSession(args: {
         active = { request: crypto.randomUUID(), bytes: 0 };
         // Out-of-band responses cannot repeat earlier batches or accumulate instructions/history.
         send({ type: "response.create", response: { conversation: "none", output_modalities: ["audio"],
-            instructions: openAiSpeechInstructions, tools: [], tool_choice: "none",
+            instructions: session.instructions, tools: [], tool_choice: "none",
             metadata: { speech_request: active.request },
             input: [{ type: "message", role: "user", content: [{ type: "input_text", text }] }] } });
         responseTimeout = setTimeout(() => fail("OpenAI speech response timed out."), 60_000);

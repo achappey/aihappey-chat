@@ -7,6 +7,8 @@ import { hasValidAgentEditorModels } from "./agentEditorModels";
 import { AgentForm } from "./AgentForm";
 import { prepareAgentIconsForSave } from "./agentIcons";
 import { CancelButton } from "../../ui/buttons/CancelButton";
+import { normalizeAgent } from "aihappey-agents";
+import { hasValidAgentSpeech } from "./agentSpeechSettings";
 
 export interface AgentEditModalProps {
     open: boolean;
@@ -19,17 +21,18 @@ export interface AgentEditModalProps {
 export const AgentEditModal = ({ open, onClose, agent, isEditing, onSave }: AgentEditModalProps) => {
     const { Modal, Button } = useTheme();
     const { t } = useTranslation();
-    const [draft, setDraft] = useState<Agent>(agent);
+    const [draft, setDraft] = useState<Agent>(() => normalizeAgent(agent));
     const [busy, setBusy] = useState(false);
     const models = useAppStore(s => s.models);
 
     const isValid = draft?.name
         && draft?.description
         && hasValidAgentEditorModels(draft, models)
+        && hasValidAgentSpeech(draft.speech)
         && draft?.instructions;
 
     useEffect(() => {
-        setDraft(agent)
+        setDraft(normalizeAgent(agent))
     }, [open, agent])
 
     useEffect(() => {

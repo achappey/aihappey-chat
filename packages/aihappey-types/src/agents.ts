@@ -4,8 +4,8 @@ export type Agent = {
     name: string;
     model?: AiModel;
     models?: AiModel[];
-    transcriptionModel?: AiModel;
-    speechModel?: AiModel;
+    transcription?: AiModel | null;
+    speech?: AiSpeech | null;
     description: string;
     instructions: string;
     tags?: string[];
@@ -20,6 +20,18 @@ export type Agent = {
     icons?: Icon[];
     evaluations?: AgentEvaluations;
 };
+
+/** Agent-scoped speech configuration; model metadata remains available for advanced options. */
+export type AiSpeech = {
+    model?: AiModel | null;
+    voice?: string | null;
+    outputFormat?: AgentAudioFormat | null;
+    instructions?: string | null;
+    speed?: number | null;
+    language?: string | null;
+};
+
+export type AgentAudioFormat = { type: string; rate?: number | null };
 
 /** Optional runtime checks evaluated after an agent response completes. */
 export type AgentEvaluations = {

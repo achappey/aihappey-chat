@@ -1,5 +1,12 @@
 ﻿{
   "agentRealtime": {
+    "voice": "Voice or custom voice ID",
+    "instructions": "Speech instructions",
+    "language": "Speech language",
+    "speed": "Speech speed",
+    "outputFormat": "Audio format (MIME type)",
+    "sampleRate": "Sample rate (Hz)",
+    "speechOptionsHint": "Blank settings use provider defaults or advanced options. Explicit settings override equivalent provider options. Support varies by model: voice-bound models retain their voice, and some providers do not support instructions or language. Direct WebSocket playback uses raw PCM (OpenAI: 24,000 Hz); the requested encoding applies to HTTP speech. Sample rate applies to streaming where supported; non-streaming fallback may use the provider's rate.",
     "description": "Give this agent a real-time transcription model to use it on the Real-time page. Speech output is optional.",
     "transcriptionModel": "Transcription model",
     "speechModel": "Speech model",

@@ -14,12 +14,12 @@ export const getRealtimeAgentEntries = (agents: Agent[], remote: RemoteAgentMode
         ...agents.map(agent => `local:${agent.name}`), ...remote.map(agent => `remote:${agent.id}`),
     ], agents, remote).filter(entry => {
         const agent = entry.localAgent ?? entry.remoteAgentModel?.agent;
-        return !!agent?.transcriptionModel?.id && models.some(model =>
-            model.id === agent.transcriptionModel!.id && isRealtimeTranscriptionModel(model));
+        return !!agent?.transcription?.id && models.some(model =>
+            model.id === agent.transcription!.id && isRealtimeTranscriptionModel(model));
     });
 
 /** Preserve opaque configuration on re-selection; never copy another provider's settings. */
-export const selectAgentAudioModel = (previous: AiModel | undefined, id: string, type: string): AiModel | undefined =>
+export const selectAgentAudioModel = (previous: AiModel | null | undefined, id: string, type: string): AiModel | undefined =>
     !id ? undefined : previous?.id === id ? previous : {
         id, type,
         ...(previous?.id.split("/")[0] === id.split("/")[0]

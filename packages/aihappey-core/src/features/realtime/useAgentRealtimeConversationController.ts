@@ -106,14 +106,14 @@ export function useAgentRealtimeConversationController(args: {
         let responseIndex = 0;
         try {
             const state = store.getState();
-            const speechModel = current.agent.speechModel;
-            const catalogSpeech = state.models?.find(model => model.id === speechModel?.id);
-            const streamedSpeech = speechModel && (supportsRealtimeSpeech(catalogSpeech) || supportsOpenAiSpeech(catalogSpeech))
+            const speechModel = current.agent.speech;
+            const catalogSpeech = state.models?.find(model => model.id === speechModel?.model?.id);
+            const streamedSpeech = speechModel?.model && (supportsRealtimeSpeech(catalogSpeech) || supportsOpenAiSpeech(catalogSpeech))
                 ? new StreamingAgentSpeech({ signal,
-                    open: (started, token) => openAgentSpeech({ config: current.config, model: speechModel, customHeaders: state.customHeaders,
+                    open: (started, token) => openAgentSpeech({ config: current.config, speech: speechModel, customHeaders: state.customHeaders,
                         signal: token, context: output.current!.audioContext, started }),
                     legacy: (text, token) => output.current!.speak(current.config, state.customHeaders, speechModel, text, token),
-                    allowLegacyFallback: !isOpenAiSpeechModelId(speechModel.id),
+                    allowLegacyFallback: !isOpenAiSpeechModelId(speechModel.model.id),
                     error: error => current.addChatError(new Error(`${current.t("agentRealtime.speechFailed")} ${error instanceof Error ? error.message : String(error)}`)),
                 }) : undefined;
             const selected = buildSelectedAgentRequest([current.agentKey], state.agents, state.remoteAgentModels);
@@ -236,11 +236,11 @@ export function useAgentRealtimeConversationController(args: {
         const controller = new AbortController(); lifetime.current = controller;
         started.current = true; stopping.current = null; setStatus("starting");
         output.current ??= new AgentAudioOutput(); output.current.unlock();
-        if (current.agent.speechModel?.id) speech.current = new AgentSpeechQueue(
-            (text, signal) => output.current!.speak(current.config, store.getState().customHeaders, current.agent.speechModel!, text, signal),
+        if (current.agent.speech?.model?.id) speech.current = new AgentSpeechQueue(
+            (text, signal) => output.current!.speak(current.config, store.getState().customHeaders, current.agent.speech!, text, signal),
             error => current.addChatError(new Error(`${current.t("agentRealtime.speechFailed")} ${error instanceof Error ? error.message : String(error)}`)));
         try {
-            const session = await startAgentTranscription({ config: current.config, model: current.agent.transcriptionModel!,
+            const session = await startAgentTranscription({ config: current.config, model: current.agent.transcription!,
                 customHeaders: store.getState().customHeaders, signal: controller.signal,
                 onStart: () => { if (!controller.signal.aborted) cancelRun(); },
                 onPreview: text => {

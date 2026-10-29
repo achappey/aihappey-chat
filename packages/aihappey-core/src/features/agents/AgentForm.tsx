@@ -966,15 +966,16 @@ export const AgentForm = ({
                     <AgentRealtimeSettings agent={agent} models={models ?? []} onChange={onChange} />
                 </Tab>
                 {(["transcription", "speech"] as const).map(type => {
-                    const field = type === "transcription" ? "transcriptionModel" : "speechModel";
-                    const audioModel = agent[field];
+                    const audioModel = type === "transcription" ? agent.transcription : agent.speech?.model;
                     const key = getAgentModelProviderKey(audioModel?.id);
                     return audioModel && hasProviderTypeSettings(key, type) ? <Tab key={type} eventKey={`audio-${type}`} title={t(`agentRealtime.${type}`)}>
                         <AudioProviderSettings key={audioModel.id} providerKey={key} type={type}
                             modelId={audioModel.id}
                             metadata={audioModel.providerMetadata ?? {}}
                             onChange={providerMetadata => onChange(current => ({ ...current,
-                                [field]: { ...current[field]!, providerMetadata },
+                                ...(type === "transcription"
+                                    ? { transcription: { ...current.transcription!, providerMetadata } }
+                                    : { speech: { ...current.speech, model: { ...current.speech!.model!, providerMetadata } } }),
                             }))} />
                     </Tab> : null;
                 })}
