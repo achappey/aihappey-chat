@@ -91,7 +91,7 @@ test('browser authenticates by ephemeral subprotocol, waits for configuration, a
     h.socket.audio(wave().subarray(0, 45)); assert.deepEqual(h.audio, [{ bytes: [0], rate: 24000 }]);
     const finished = session.finish(); h.socket.audio(wave().subarray(45));
     h.socket.event({ type: 'speech.audio.done' });
-    let done = false; finished.then(() => { done = true; }); await tick(); assert.equal(done, false, 'audio.done is not server closure or playback drain');
+    let done = false; finished.then(() => { done = true; }); await tick(); assert.equal(done, true, 'validated final audio completes generation without waiting for transport cleanup');
     assert.deepEqual(h.socket.messages.at(-1), { type: 'input_text.end' });
     h.socket.serverClose(); await finished;
     assert.deepEqual(h.audio.flatMap(value => value.bytes), [0, 128, 255, 127]);
@@ -109,6 +109,31 @@ test('flush retains the socket, separates WAV generations, and earlier done cann
     assert.deepEqual(audio.flatMap(value => value.bytes), [1, 2, 3, 4, 5, 6]);
     assert.equal(socket.messages.filter(value => value.type === 'input_text.end').length, 1);
     await session.finish();
+});
+
+for (const code of [undefined, 1000, 1005, 1006, 1011]) test(`final audio survives ${code ?? 'missing'} close handshake and disposal does not report a failure`, async t => {
+    const h = await harness(t); h.session.append('Complete reply.');
+    let completed = false; const finish = h.session.finish().then(() => { completed = true; });
+    h.socket.audio(wave()); h.socket.event({ type: 'speech.audio.done' });
+    if (code !== undefined) h.socket.serverClose(code);
+    await tick(); assert.equal(completed, true); await finish;
+    h.socket.onerror?.(); h.socket.audio(wave());
+    h.session.dispose(); h.session.dispose();
+    assert.equal(h.failures.length, 0, 'cleanup must not invoke the playback-stop failure callback');
+    assert.deepEqual(h.audio.flatMap(value => value.bytes), [0, 128, 255, 127]);
+});
+
+test('an earlier flush acknowledgement cannot hide missing final speech on abnormal close', async t => {
+    const h = await harness(t); h.session.append('First.'); h.session.flush();
+    h.socket.audio(wave()); h.socket.event({ type: 'speech.audio.done' });
+    h.session.append('Second.'); const finish = h.session.finish(); h.socket.serverClose(1006);
+    await assert.rejects(finish, /final speech/); assert.equal(h.failures.length, 1);
+});
+
+for (const bytes of [undefined, wave().subarray(0, 45)]) test(`final done rejects ${bytes ? 'truncated' : 'missing'} audio`, async t => {
+    const h = await harness(t); h.session.append('Pending.'); const finish = h.session.finish();
+    if (bytes) h.socket.audio(bytes); h.socket.event({ type: 'speech.audio.done' });
+    await assert.rejects(finish, /invalid speech audio/); assert.equal(h.failures.length, 1);
 });
 
 test('end after flushed input does not expect an extra generation, and empty sessions can finish', async t => {
@@ -142,4 +167,34 @@ test('startup timeout and send backlog are bounded', async t => {
     const h = await harness(t, {}, false); t.mock.timers.tick(15001); await assert.rejects(h.opening, /timed out/);
     const current = await harness(t); current.socket.bufferedAmount = 512 * 1024 + 1;
     assert.throws(() => current.session.append('Hello'), /backlog/);
+});
+
+for (const cancel of [false, true]) test(`agent entry point ${cancel ? 'cancels' : 'drains'} queued PCM after generation completes and transport fails`, { timeout: 5000 }, async t => {
+    const previous = globalThis.WebSocket; globalThis.WebSocket = Socket;
+    const abort = new AbortController(); t.after(() => { abort.abort(); globalThis.WebSocket = previous; });
+    const { openAgentSpeech } = load(root + 'realtime/openAgentSpeech.ts', {
+        'aihappey-ai': { base64ToUint8Array: value => new Uint8Array(Buffer.from(value, 'base64')) },
+    });
+    const sources = []; let stops = 0;
+    const context = { state: 'running', currentTime: 0, destination: {}, async resume() {},
+        createBuffer(channels, count, rate) { return { duration: count / rate, getChannelData: () => new Float32Array(count) }; },
+        createBufferSource() { const source = { connect() {}, disconnect() {}, start() {}, stop() { stops++; } }; sources.push(source); return source; } };
+    const count = Socket.instances.length;
+    const opening = openAgentSpeech({ config: { baseUrl: 'https://gateway', endpoints: { realtime: '/api/realtime' },
+        fetch: async () => Response.json({ value: 'rt_fixture', expires_at: Date.now() / 1000 + 60 }) },
+        speech: { model: { id: model, type: 'speech' } }, signal: abort.signal, context, started() {} });
+    while (Socket.instances.length === count) await tick();
+    const socket = Socket.instances.at(-1);
+    socket.event({ type: 'session.created' }); socket.event({ type: 'session.updated', session: buildMistralSpeechSession(model).session });
+    const session = await opening; t.after(() => session.dispose()); session.append('Hello.');
+    let completed = false; const finished = session.finish().then(() => { completed = true; });
+    socket.audio(wave()); socket.event({ type: 'speech.audio.done' }); socket.serverClose(1006); socket.onerror?.();
+    await tick(); assert.equal(completed, false, 'generation completion must still wait for playback drain');
+    assert.equal(stops, 0, 'transport cleanup must not stop queued audio'); assert.equal(sources.length, 1);
+    if (cancel) {
+        abort.abort(); await assert.rejects(finished); assert.equal(stops, 1);
+    } else {
+        context.currentTime = 1; sources[0].onended(); await finished; assert.equal(stops, 0);
+    }
+    session.dispose();
 });

@@ -22,7 +22,7 @@ export function buildMistralSpeechSession(model: string, options: any = {}) {
     } };
 }
 
-/** One block owns one socket; generation audio is ordered and normal end waits for server close. */
+/** One block owns one socket; validated generation completion is independent of transport cleanup. */
 export async function openMistralSpeechSession(args: {
     model: string; options?: any; token: string; signal: AbortSignal;
     audio: (bytes: Uint8Array, sampleRate: number) => void; failed?: () => void;
@@ -31,7 +31,7 @@ export async function openMistralSpeechSession(args: {
     args.signal.throwIfAborted();
     if (!/^rt_[!#$%&'*+.^_`|~A-Za-z0-9-]+$/.test(args.token)) throw new Error("Mistral requires a short-lived realtime token.");
     const ws = new WebSocket("wss://api.mistral.ai/v1/audio/speech/realtime?model=voxtral-mini-tts-3-0", ["realtime", args.token]);
-    let created = false, configured = false, disposed = false, ending = false, dirty = false;
+    let created = false, configured = false, disposed = false, ending = false, inputEnded = false, succeeded = false, dirty = false;
     let submitted = 0, completed = 0, sampleRate = 0, bytesReceived = 0;
     let decoder: StreamingWaveDecoder | undefined, failure: Error | undefined, finishPromise: Promise<void> | undefined;
     let resolveReady!: () => void, rejectReady!: (error: Error) => void, resolveDone!: () => void, rejectDone!: (error: Error) => void;
@@ -39,7 +39,7 @@ export async function openMistralSpeechSession(args: {
     const done = new Promise<void>((resolve, reject) => { resolveDone = resolve; rejectDone = reject; });
     void done.catch(() => {});
     const fail = (message = "Mistral speech connection failed.") => {
-        if (failure || disposed) return;
+        if (failure || disposed || succeeded) return;
         failure = new Error(message); clearTimeout(startup);
         args.failed?.(); rejectReady(failure); rejectDone(failure); ws.close();
     };
@@ -52,14 +52,20 @@ export async function openMistralSpeechSession(args: {
         if (ws.bufferedAmount > 512 * 1024) { fail("Mistral speech send backlog exceeded."); throw failure; }
         ws.send(JSON.stringify(message));
     };
+    const complete = () => {
+        if (!inputEnded || dirty || completed !== submitted || decoder || failure || disposed || succeeded) return;
+        // audio.done acknowledges each submitted generation, not local playback. The caller
+        // still drains PCM; a later close/error must never invoke its playback-stop callback.
+        succeeded = true; resolveDone(); ws.close();
+    };
     ws.onerror = () => fail();
     ws.onclose = event => {
-        if (failure || disposed) return;
-        if (ending && event.code === 1000 && completed === submitted && !decoder) resolveDone();
-        else fail("Mistral disconnected before confirming the final speech.");
+        if (failure || disposed || succeeded) return;
+        // State only: never expose provider reasons, text, credentials or audio payloads.
+        fail(`Mistral disconnected before confirming the final speech. (Close code ${event.code}; input ended ${inputEnded}; generations ${completed}/${submitted}; pending audio ${!!decoder}.)`);
     };
     ws.onmessage = event => {
-        if (failure || disposed || args.signal.aborted) return;
+        if (failure || disposed || succeeded || args.signal.aborted) return;
         try {
             if (typeof event.data !== "string" || event.data.length > 1024 * 1024) throw new Error();
             const message = JSON.parse(event.data);
@@ -83,8 +89,8 @@ export async function openMistralSpeechSession(args: {
                 });
                 decoder.push(bytes);
             } else if (message.type === "speech.audio.done") {
-                if (!configured || completed >= submitted) throw new Error();
-                decoder?.finish(); decoder = undefined; completed++;
+                if (!configured || completed >= submitted || !decoder) throw new Error();
+                decoder.finish(); decoder = undefined; completed++; complete();
             }
         } catch { fail("Mistral returned invalid speech audio or incompatible session settings."); }
     };
@@ -112,7 +118,7 @@ export async function openMistralSpeechSession(args: {
             return finishPromise ??= (async () => {
                 ending = true; if (dirty) { submitted++; dirty = false; }
                 const timeout = setTimeout(() => fail("Mistral speech completion timed out."), 60000);
-                try { send({ type: "input_text.end" }); await done; args.signal.throwIfAborted(); }
+                try { send({ type: "input_text.end" }); inputEnded = true; complete(); await done; args.signal.throwIfAborted(); }
                 finally { clearTimeout(timeout); }
             })();
         },
