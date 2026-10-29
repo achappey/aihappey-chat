@@ -19,6 +19,9 @@ import { AgentSpeechQueue, CompletedAgentText } from "./agentSpeechQueue";
 import { startAgentTranscription } from "./startAgentTranscription";
 import { RealtimeHistoryWriter } from "./realtimeHistoryWriter";
 import { newUiMessage } from "./realtimeMessageParts";
+import { StreamingAgentSpeech } from "./streamingAgentSpeech";
+import { openAgentSpeech } from "./openAgentSpeech";
+import { supportsRealtimeSpeech } from "../speech/realtime/speechProtocol";
 
 type Status = "idle" | "starting" | "connected" | "stopping" | "error";
 type Run = { abort: AbortController; userId: string; chat?: Chat<any>; unsubscribe?: () => void; completed?: boolean };
@@ -98,10 +101,18 @@ export function useAgentRealtimeConversationController(args: {
         draft.current = null;
         publish(user, true);
         setStreaming(true);
-        let observer: CompletedAgentText | undefined;
+        let observer: Pick<CompletedAgentText, "handle" | "finish"> | undefined;
         let responseIndex = 0;
         try {
             const state = store.getState();
+            const speechModel = current.agent.speechModel;
+            const streamedSpeech = speechModel && supportsRealtimeSpeech(state.models?.find(model => model.id === speechModel.id))
+                ? new StreamingAgentSpeech({ signal,
+                    open: started => openAgentSpeech({ config: current.config, model: speechModel, customHeaders: state.customHeaders,
+                        signal, context: output.current!.audioContext, started }),
+                    legacy: (text, token) => output.current!.speak(current.config, state.customHeaders, speechModel, text, token),
+                    error: error => current.addChatError(new Error(`${current.t("agentRealtime.speechFailed")} ${error instanceof Error ? error.message : String(error)}`)),
+                }) : undefined;
             const selected = buildSelectedAgentRequest([current.agentKey], state.agents, state.remoteAgentModels);
             if (!selected.entries.length) throw new Error(current.t("agentRealtime.unavailable"));
             const catalog = buildManagedAgentMcpCatalog(state, mcpRuntime, current.selectedLocalTools);
@@ -153,7 +164,7 @@ export function useAgentRealtimeConversationController(args: {
                         if (++responseCount > (state.maxToolCalls ?? 50) + 1) throw new Error("Agent tool limit reached.");
                         continuation.submitted(options.messages);
                         const index = responseIndex++;
-                        observer = new CompletedAgentText((id, text) => {
+                        observer = streamedSpeech?.response(`${user.id}:${index}`) ?? new CompletedAgentText((id, text) => {
                             if (active()) speech.current?.enqueue(`${user.id}:${index}:${id}`, text);
                         });
                         request.completed = false; setStreaming(true);

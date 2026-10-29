@@ -14,6 +14,7 @@ export class AgentAudioOutput {
         void this.context?.resume();
     }
     dispose() { void this.context?.close(); this.context = undefined; }
+    get audioContext() { this.unlock(); if (!this.context) throw new Error("Audio playback is unavailable in this browser."); return this.context; }
     async speak(config: ChatConfig, customHeaders: Record<string, string> | undefined, model: AiModel, text: string, signal: AbortSignal) {
         signal.throwIfAborted();
         const provider = model.id.split("/")[0];
