@@ -8,6 +8,8 @@ const { openOpenAiSpeechSession, openAiSpeechBatchLength } = load(root + 'speech
 const { agentSpeechModelOptions } = load(root + 'agents/agentAudioModels.ts');
 const { StreamingAgentSpeech } = load(root + 'realtime/streamingAgentSpeech.ts');
 const model = 'openai/gpt-realtime-2.1-mini';
+const speechModels = ['openai/gpt-realtime-2.1', model, 'openai/gpt-realtime-2', 'openai/gpt-realtime-1.5']
+    .flatMap(id => [id, id + '-2026-10-01']);
 const tick = () => new Promise(resolve => setImmediate(resolve));
 class Socket {
     static OPEN = 1; static instances = [];
@@ -34,12 +36,24 @@ async function opened(t, extra = {}) {
 
 test('agent-only capability preserves global audio classification and requires explicit current tags', () => {
     const target = { id: model, type: 'audio', tags: ['real-time', 'realtime-token', 'realtime-session', 'realtime-speech'] };
-    assert.equal(supportsOpenAiSpeech(target), true);
-    for (const tag of ['real-time', 'realtime-token', 'realtime-speech']) assert.equal(supportsOpenAiSpeech({ ...target, tags: target.tags.filter(value => value !== tag) }), false);
-    assert.equal(supportsOpenAiSpeech({ ...target, id: 'openai/gpt-realtime-2.1' }), false);
-    const options = agentSpeechModelOptions([target, { id: 'google/tts', type: 'speech' }, { id: 'other/audio', type: 'audio' }]);
-    assert.deepEqual(options.map(value => value.id), [model, 'google/tts']); assert.equal(options[0].type, 'speech'); assert.equal(target.type, 'audio');
-    assert.equal(isOpenAiSpeechModelId(model + '-2026-10-01'), true); assert.equal(isOpenAiSpeechModelId(model + '-unexpected'), false);
+    const targets = speechModels.map(id => ({ ...target, id }));
+    for (const current of targets) {
+        assert.equal(isOpenAiSpeechModelId(current.id), true);
+        assert.equal(supportsOpenAiSpeech(current), true);
+        assert.equal(buildOpenAiSpeechSession(current.id).model, current.id.slice('openai/'.length));
+        for (const tag of ['real-time', 'realtime-token', 'realtime-speech']) assert.equal(supportsOpenAiSpeech({ ...current, tags: current.tags.filter(value => value !== tag) }), false);
+        assert.equal(supportsOpenAiSpeech({ ...current, tags: [] }), false);
+        assert.equal(supportsOpenAiSpeech({ ...current, type: 'language' }), false);
+    }
+    for (const id of ['openai/gpt-realtime', 'openai/gpt-realtime-2-mini', 'openai/gpt-realtime-2.10', 'openai/gpt-realtime-1.5-mini', model + '-unexpected', model + '-2026-10', model + '-2026-10-01-extra', 'other/gpt-realtime-2.1', 'gpt-realtime-2.1']) {
+        assert.equal(isOpenAiSpeechModelId(id), false);
+        assert.equal(supportsOpenAiSpeech({ ...target, id }), false);
+        assert.throws(() => buildOpenAiSpeechSession(id), /Unsupported/);
+    }
+    const options = agentSpeechModelOptions([...targets, { id: 'google/tts', type: 'speech' }, { id: 'other/audio', type: 'audio' }]);
+    assert.deepEqual(options.map(value => value.id), [...speechModels, 'google/tts']);
+    assert.ok(options.every(value => value.type === 'speech')); assert.ok(targets.every(value => value.type === 'audio'));
+    assert.deepEqual(agentSpeechModelOptions([target]).map(value => value.id), [model]);
 });
 
 test('GA speech configuration allowlists voice/speed, disables VAD and tools, and never copies HTTP or credential settings', () => {

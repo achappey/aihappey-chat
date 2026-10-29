@@ -1,5 +1,5 @@
 /** Agent-only capability: keep Realtime models classified as audio in the shared catalog. */
-export const isOpenAiSpeechModelId = (id: string) => /^openai\/gpt-realtime-2\.1-mini(?:-\d{4}-\d{2}-\d{2})?$/.test(id);
+export const isOpenAiSpeechModelId = (id: string) => /^openai\/gpt-realtime-(?:2\.1(?:-mini)?|2|1\.5)(?:-[0-9]{4}-[0-9]{2}-[0-9]{2})?$/.test(id);
 export const supportsOpenAiSpeech = (model?: { id: string; type?: string; tags?: string[] }) =>
     !!model && model.type === "audio" && isOpenAiSpeechModelId(model.id)
     && ["real-time", "realtime-token", "realtime-speech"].every(tag => model.tags?.includes(tag));
