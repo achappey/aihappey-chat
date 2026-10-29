@@ -1,12 +1,12 @@
 /** Shared Smallest AI browser plumbing. Only short-lived credentials reach these sockets. */
 export const smallestAiConnectionError =
-  "Smallest AI WebSocket connection failed. The browser does not expose the handshake HTTP status. Check token expiry, permissions, and possible region-bound token rejection on api.smallest.ai. No API-key fallback was attempted.";
+  "Smallest AI WebSocket connection failed. The browser does not expose the handshake HTTP status. Check token expiry and permissions. No API-key fallback was attempted.";
 
 export function smallestAiProviderError(event: any): string {
   const code = String(event?.error_code ?? event?.code ?? event?.status_code ?? "unknown");
   const message = String(event?.message ?? event?.error ?? "Provider error");
   return `Smallest AI (${code}): ${message}${code === "401" || /unauthori[sz]ed|region|token/i.test(code + " " + message)
-    ? " Authentication failed; tokens are region-bound and must be minted and used on api.smallest.ai. No API-key fallback was attempted." : ""}`;
+    ? " Authentication failed; request a fresh short-lived token from the gateway. No API-key fallback was attempted." : ""}`;
 }
 
 export function waitForSmallestAiSocket(ws: WebSocket, signal?: AbortSignal): Promise<void> {

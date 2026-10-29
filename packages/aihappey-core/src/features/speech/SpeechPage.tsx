@@ -18,6 +18,8 @@ import { useTranslation } from "aihappey-i18n";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { useQueryModelId } from "../models/queryModelSelection";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
+import { supportsRealtimeSpeech } from "./realtime/speechProtocol";
+import { canStreamSmallestSpeech, generateSmallestSpeech } from "./realtime/generateSmallestSpeech";
 
 const getProviderOptionsForSelectedModel = (
   selectedModel: string | undefined,
@@ -131,7 +133,12 @@ export const SpeechPage = () => {
         providerSpeechMetadata
       );
 
-      const result = await model.doGenerate({
+      const liveOptions = { ...scopedProviderOptions?.smallestai,
+        ...(voice ? { voice } : {}), ...(speed !== undefined ? { speed } : {}), ...(language ? { language } : {}),
+        ...(outputFormat ? { outputFormat } : {}), instructions };
+      const result = modelId.startsWith("smallestai/") && supportsRealtimeSpeech(models?.find(item => item.id === modelId)) && canStreamSmallestSpeech(liveOptions)
+        ? await generateSmallestSpeech({ config, model: modelId, text, options: liveOptions, headers: merged, signal: abortSignal })
+        : await model.doGenerate({
         abortSignal,
         text,
         voice,

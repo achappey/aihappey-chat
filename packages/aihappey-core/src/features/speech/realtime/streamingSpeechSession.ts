@@ -11,10 +11,16 @@ export async function openStreamingSpeechSession(args: {
     signal.throwIfAborted();
     const url = new URL(protocol.url);
     if (protocol.provider === "cartesia") url.searchParams.set("access_token", args.token);
+    if (protocol.provider === "smallestai") {
+        if (!args.token.startsWith("wat_")) throw new Error("Smallest AI speech requires a short-lived Waves token.");
+        url.searchParams.set("api_key", args.token);
+    }
     const ws = protocol.provider === "deepgram" ? new WebSocket(url, ["bearer", args.token]) : new WebSocket(url);
     ws.binaryType = "arraybuffer";
     let closed = false, finishing = false, dirty = false, failure: Error | undefined;
     let sent = 0, acknowledged = 0, finalInputSent = false;
+    let lastActivity = Date.now(), lastPing = Date.now(), segmentCompleted = false, hasInput = false;
+    const pendingSegments = new Set<string>();
     let flushes: number[] = [];
     let resolveOpen!: () => void, rejectOpen!: (error: Error) => void, resolveDone!: () => void, rejectDone!: (error: Error) => void;
     const opened = new Promise<void>((resolve, reject) => { resolveOpen = resolve; rejectOpen = reject; });
@@ -37,7 +43,13 @@ export async function openStreamingSpeechSession(args: {
         if (flushes.length >= 20 || flushes.length && Date.now() - flushes.at(-1)! < 3200) return;
         sent++; send(protocol.flush()); flushes.push(Date.now()); dirty = false;
     };
-    const interval = setInterval(() => { try { flush(); } catch { fail(); } }, 200);
+    const interval = setInterval(() => { try {
+        flush();
+        if (protocol.quietPeriodMs && !closed && !failure && ws.readyState === WebSocket.OPEN) {
+            if (Date.now() - lastPing >= 10000) { send({ type: "ping" }); lastPing = Date.now(); }
+            if (finalInputSent && segmentCompleted && pendingSegments.size === 0 && Date.now() - lastActivity >= protocol.quietPeriodMs) resolveDone();
+        }
+    } catch { fail(); } }, 200);
     const startup = setTimeout(() => { fail(); ws.close(); }, 15_000);
     const abort = () => { closed = true; fail(); ws.close(); };
     signal.addEventListener("abort", abort, { once: true });
@@ -49,7 +61,12 @@ export async function openStreamingSpeechSession(args: {
         try {
             if (event.data instanceof ArrayBuffer) { args.audio(new Uint8Array(event.data)); return; }
             const message = JSON.parse(String(event.data));
-            if (message.type === "error" || message.type === "Error" || message.type === "Warning") { fail(); return; }
+            if (message.type === "error" || message.type === "Error" || message.type === "Warning" || message.status === "error") { fail(); return; }
+            if (protocol.quietPeriodMs && ["chunk", "complete", "word_timestamp"].includes(message.status)) {
+                lastActivity = Date.now();
+                if (message.status === "chunk") pendingSegments.add(String(message.request_id ?? "segment"));
+                if (message.status === "complete") { pendingSegments.delete(String(message.request_id ?? "segment")); segmentCompleted = true; }
+            }
             const audio = protocol.audio(message);
             if (audio) args.audio(base64ToUint8Array(audio));
             if (protocol.done(message)) {
@@ -57,7 +74,7 @@ export async function openStreamingSpeechSession(args: {
                     if (!Number.isInteger(message.sequence_id) || message.sequence_id < 0) throw new Error("Invalid speech acknowledgment.");
                     acknowledged = Math.max(acknowledged, message.sequence_id + 1);
                 }
-                if (finalInputSent && (protocol.provider !== "deepgram" || acknowledged >= sent)) resolveDone();
+                if (!protocol.quietPeriodMs && finalInputSent && (protocol.provider !== "deepgram" || acknowledged >= sent)) resolveDone();
             }
         } catch { fail(); }
     };
@@ -67,17 +84,17 @@ export async function openStreamingSpeechSession(args: {
     return {
         append(text) { if (finishing) throw new Error("Speech input is complete.");
             // Deepgram limits each text message; splitting does not add or remove whitespace.
-            for (let i = 0; i < text.length;) { let end = Math.min(i + 1000, text.length); if (end < text.length && /[\uD800-\uDBFF]/.test(text[end - 1])) end--; send(protocol.append(text.slice(i, end))); i = end; dirty = true; }
+            for (let i = 0; i < text.length;) { let end = Math.min(i + 1000, text.length); if (end < text.length && /[\uD800-\uDBFF]/.test(text[end - 1])) end--; send(protocol.append(text.slice(i, end))); i = end; dirty = true; hasInput = true; }
         }, flush,
         async finish() {
-            clearInterval(interval); finishing = true;
+            if (!protocol.quietPeriodMs) clearInterval(interval); finishing = true;
             const timeout = setTimeout(fail, 60_000);
             try {
                 if (protocol.flush) {
                     while (dirty) { flush(); if (dirty) { signal.throwIfAborted(); if (failure) throw failure; await new Promise(resolve => setTimeout(resolve, 100)); } }
                     finalInputSent = true;
                     if (acknowledged >= sent) resolveDone();
-                } else { finalInputSent = true; send(protocol.finish()); }
+                } else { finalInputSent = true; lastActivity = Date.now(); send(protocol.finish()); if (protocol.quietPeriodMs && !hasInput) resolveDone(); }
                 await done; signal.throwIfAborted();
             } finally { clearTimeout(timeout); }
         },

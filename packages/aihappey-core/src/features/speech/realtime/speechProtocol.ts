@@ -5,6 +5,8 @@ export type SpeechProtocol = {
     finish: () => object;
     cancel: () => object;
     flush?: () => object;
+    /** Continuations have segment acknowledgements, but no terminal context acknowledgement. */
+    quietPeriodMs?: number;
     audio: (message: any) => string | undefined;
     done: (message: any) => boolean;
 };
@@ -22,6 +24,34 @@ const bounded = (value: unknown, min: number, max: number) => {
 };
 
 export const speechProtocolFactories: Record<string, (id: string, options: any, version?: string) => SpeechProtocol> = {
+    smallestai: (id, options = {}) => {
+        const match = /^(lightning_v3\.1(?:_pro)?)(?:\/([^/]+))?$/.exec(id.replace(/^lightning-v3\.1(-pro)?/, (_, pro) => `lightning_v3.1${pro ? "_pro" : ""}`));
+        const voice = match?.[2] ?? options.voice ?? options.voiceId ?? options.voice_id;
+        if (!match || typeof voice !== "string" || !voice.trim()) throw new Error("Smallest AI streaming speech requires a supported model and voice.");
+        const sampleRate = rate(options.sampleRate ?? options.sample_rate, [8000, 16000, 24000, 44100], 24000);
+        const context = crypto.randomUUID();
+        const payload: Record<string, unknown> = { model: match[1], voice_id: voice.trim(), sample_rate: sampleRate,
+            output_format: "pcm", speed: bounded(options.speed, 0.5, 2) ?? 1,
+            context_id: context, max_buffer_delay_ms: 200, complete_backoff_ms: 0 };
+        const languages = ["auto", "en", "hi", "mr", "kn", "ta", "bn", "gu", "te", "ml", "pa", "or", "es", "de", "fr", "it", "nl", "sv", "pt", "ru", "el", "fi", "no", "pl", "ar", "zh", "id", "ja", "ko", "ms", "tr", "vi"];
+        for (const [source, target] of [["language", "language"], ["numberPronunciationLanguage", "number_pronunciation_language"], ["dateFormat", "date_format"]]) {
+            const value = options[source] ?? options[target];
+            if (value === undefined || value === "") continue;
+            if (!(target === "date_format" ? ["EU", "US"] : languages).includes(value)) throw new Error("Unsupported Smallest AI speech language or date format.");
+            payload[target] = value;
+        }
+        for (const [source, target] of [["wordTimestamps", "word_timestamps"], ["mathNotation", "math_notation"]]) {
+            const value = options[source] ?? options[target];
+            if (value !== undefined) { if (typeof value !== "boolean") throw new Error("Invalid Smallest AI speech flag."); payload[target] = value; }
+        }
+        return { provider: "smallestai", sampleRate, url: "wss://api.smallest.ai/waves/v1/tts/live", quietPeriodMs: 5000,
+            append: text => ({ ...payload, text, continue: true }),
+            finish: () => ({ context_id: context, voice_id: voice.trim(), continue: false }),
+            // Closing the block-owned socket discards every context without flushing it.
+            cancel: () => ({ context_id: context, cancel_request: true }),
+            audio: message => message.status === "chunk" ? message.data?.audio : undefined,
+            done: message => message.status === "complete" };
+    },
     deepgram: (id, options = {}) => {
         if (!/^aura-(?:2-)?[a-z]+-[a-z]{2}$/.test(id)) throw new Error("Unsupported Deepgram speech model.");
         const sampleRate = rate(options.sampleRate ?? options.sample_rate, [8000, 16000, 24000, 32000, 48000], 24000);
