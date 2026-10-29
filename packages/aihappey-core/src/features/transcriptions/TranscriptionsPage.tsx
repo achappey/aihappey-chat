@@ -130,14 +130,6 @@ export const TranscriptionsPage = () => {
     if (queryModelId) setSelectedModel(queryModelId);
   }, [queryModelId]);
 
-  // Ensure we stop the realtime session when leaving the page.
-  useEffect(() => {
-    return () => {
-      void realtimeController.stop();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const {
     errors,
     warnings,

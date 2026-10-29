@@ -86,7 +86,12 @@ export async function startAgentTranscription(args: {
                 if (provider === "openai" && input && Object.hasOwn(input, "turn_detection")) manualOpenAiTurns = input.turn_detection == null;
                 return token;
             }, events: {
-                onEvent: event => { if (!signal.aborted && !stopped) { args.onEvent(event); if (!muted) turns.event(event); } },
+                onEvent: event => { if (!signal.aborted && !stopped) {
+                    args.onEvent(event);
+                    // Mistral's cumulative final includes discarded/muted input.
+                    // Its turn handler must keep the stream cursor even while muted.
+                    if (!muted || provider === "mistral") turns.event(event);
+                } },
                 onError: (message, error) => { if (!signal.aborted && !stopped) args.onError(new Error(`${message}${error instanceof Error ? `: ${error.message}` : ""}`)); },
             },
         });
@@ -95,7 +100,8 @@ export async function startAgentTranscription(args: {
         poll = setInterval(pollActivity, 40);
         return { stop, setMuted(value: boolean) {
             muted = value; stream!.getAudioTracks().forEach(track => { track.enabled = !value; });
-            if (value) { speaking = false; loudAt = 0; candidateAt = 0; turns.reset(); args.onPreview(""); }
+            turns.setMuted(value);
+            if (value) { speaking = false; loudAt = 0; candidateAt = 0; args.onPreview(""); }
         } };
     } catch (error) {
         const reason = signal.reason;

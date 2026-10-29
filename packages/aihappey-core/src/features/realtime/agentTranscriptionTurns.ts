@@ -15,12 +15,18 @@ export class AgentTranscriptionTurns {
     private turnAudioThrough = -1;
     private timer?: ReturnType<typeof setTimeout>;
     private disposed = false;
+    private muted = false;
+    // Mistral deltas are append-only, but its final covers the entire connection.
+    // Keep a cursor across utterances/reset so that final cannot replay old turns.
+    private mistralText = "";
+    private mistralThrough = 0;
+    private mistralDone = false;
     constructor(private provider: string, private callbacks: {
         // start means confirmed, non-empty NEW transcription, never acoustic activity.
         start: () => void; preview: (text: string) => void; turn: (text: string) => void;
     }) {}
     activity(speaking: boolean) {
-        if (this.disposed) return;
+        if (this.disposed || this.muted) return;
         if (speaking && !this.speaking) this.generation++;
         this.speaking = speaking;
         if (speaking) clearTimeout(this.timer);
@@ -72,6 +78,11 @@ export class AgentTranscriptionTurns {
     }
     private schedule() {
         clearTimeout(this.timer);
+        if (this.provider === "mistral") {
+            if (!this.speaking && !this.muted && this.mistralText.slice(this.mistralThrough).trim())
+                this.timer = setTimeout(() => this.finishMistral(), 900);
+            return;
+        }
         // Native endpointing is authoritative. Final fragments alone are not a turn end.
         if (["openai", "deepgram", "assemblyai", "elevenlabs", "gladia"].includes(this.provider)) return;
         if (!this.speaking && this.finals.length) this.timer = setTimeout(() => this.finish(), 900);
@@ -88,6 +99,36 @@ export class AgentTranscriptionTurns {
         if (text) this.lastUnkeyedTurn = { text, generation: this.generation };
         if (text && !this.disposed) this.callbacks.turn(text);
     }
+    private finishMistral() {
+        clearTimeout(this.timer);
+        const text = this.mistralText.slice(this.mistralThrough).trim();
+        this.mistralThrough = this.mistralText.length;
+        this.partial = ""; this.active = false;
+        if (text && !this.disposed && !this.muted) this.callbacks.turn(text);
+    }
+    private mistral(event: any) {
+        if (this.mistralDone || typeof event.text !== "string") return;
+        if (event.type === "transcription.text.delta") {
+            this.mistralText += event.text;
+            if (this.muted) { this.mistralThrough = this.mistralText.length; return; }
+            if (event.text.trim()) {
+                this.start();
+                this.callbacks.preview(this.mistralText.slice(this.mistralThrough).trim());
+                this.schedule();
+            }
+        } else if (event.type === "transcription.done") {
+            this.mistralDone = true;
+            // Corrections to an already-submitted/discarded prefix cannot be
+            // replayed as a new utterance. Only accept a safely attributable tail.
+            if (event.text.startsWith(this.mistralText.slice(0, this.mistralThrough)))
+                this.mistralText = event.text;
+            if (this.muted) this.mistralThrough = this.mistralText.length;
+            const tail = this.mistralText.slice(this.mistralThrough).trim();
+            if (tail && !this.muted) { this.start(); this.callbacks.preview(tail); }
+            this.finishMistral();
+        }
+    }
+    setMuted(muted: boolean) { this.muted = muted; if (muted) this.reset(); }
     reset() {
         clearTimeout(this.timer);
         // Discarded drafts must not reappear after mute/unmute through late events.
@@ -95,16 +136,21 @@ export class AgentTranscriptionTurns {
         this.utterances.clear(); this.itemPartials.clear();
         this.audioThrough = Math.max(this.audioThrough, this.turnAudioThrough); this.turnAudioThrough = -1;
         this.finals = []; this.partial = ""; this.active = false; this.speaking = false;
+        this.mistralThrough = this.mistralText.length;
     }
     dispose() { this.disposed = true; this.reset(); }
     event(event: any) {
         if (this.disposed || event?.__synthetic) return;
+        if (this.muted && this.provider !== "mistral") return;
         if (event?.event_id) {
             if (this.seenEvents.has(event.event_id)) return;
             this.seenEvents.add(event.event_id);
         }
         const type = event?.type ?? event?.message_type;
         switch (this.provider) {
+            case "mistral":
+                this.mistral(event);
+                break;
             case "openai": {
                 const key = event.item_id == null ? undefined : `openai:${event.item_id}`;
                 if (key && this.completed.has(key)) break;

@@ -39,6 +39,9 @@ export function useRealtimeTranscriptionController(args: {
 }) {
   const { config, selectedModel, transcriptions, onErrorAlert } = args;
   const { t } = useTranslation();
+  // Storage context identity changes on every write. It is not a session lifetime.
+  const persistence = useRef({ transcriptions, onErrorAlert, t });
+  persistence.current = { transcriptions, onErrorAlert, t };
 
   const customHeaders = useAppStore((a) => a.customHeaders);
   const providerRealtimeMetadata = useAppStore((a) => a.providerRealtimeMetadata);
@@ -49,6 +52,7 @@ export function useRealtimeTranscriptionController(args: {
   const realtimeActiveTranscriptionId = useAppStore((a) => a.realtimeActiveTranscriptionId);
 
   const sessionRef = useRef<Awaited<ReturnType<typeof startRealtimeWebrtcSession>> | null>(null);
+  const startupRef = useRef<AbortController | null>(null);
   const bufferRef = useRef<string>("");
   const stopInFlightRef = useRef<Promise<void> | null>(null);
   const smallestAiWritesRef = useRef<Promise<void>>(Promise.resolve());
@@ -108,7 +112,7 @@ export function useRealtimeTranscriptionController(args: {
   const persistUpdate = useMemo(
     () => debounce(async (id: string, next: { text: string; segments: Array<{ text: string; startSecond: number; endSecond: number }>; durationInSeconds?: number; session?: any }) => {
       if (!selectedModel || fatalErrorHandledRef.current) return;
-      const write = persistenceWritesRef.current.catch(() => {}).then(() => transcriptions.update(id, {
+      const write = persistenceWritesRef.current.catch(() => {}).then(() => persistence.current.transcriptions.update(id, {
         transcription: {
           text: next.text,
           segments: next.segments,
@@ -123,9 +127,9 @@ export function useRealtimeTranscriptionController(args: {
         },
       }));
       persistenceWritesRef.current = write;
-      try { await write; } catch (error) { onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: t("storageQuotaMessage") })); }
+      try { await write; } catch (error) { persistence.current.onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") })); }
     }, 400),
-    [selectedModel, transcriptions]
+    [selectedModel?.id]
   );
 
   // For committed chunks we want to persist immediately (no debounce) to avoid losing text on refresh/crash.
@@ -141,7 +145,7 @@ export function useRealtimeTranscriptionController(args: {
       }
     ) => {
       if (!selectedModel) return;
-      const write = persistenceWritesRef.current.catch(() => {}).then(() => transcriptions.update(id, {
+      const write = persistenceWritesRef.current.catch(() => {}).then(() => persistence.current.transcriptions.update(id, {
         transcription: {
           text: next.text,
           segments: next.segments,
@@ -158,7 +162,7 @@ export function useRealtimeTranscriptionController(args: {
       persistenceWritesRef.current = write;
       await write;
     },
-    [selectedModel, transcriptions]
+    [selectedModel?.id]
   );
 
   const computeSnapshot = useCallback(
@@ -371,12 +375,15 @@ export function useRealtimeTranscriptionController(args: {
   }, []);
 
   const stop = useCallback(async () => {
+    // A pending transport must not resurrect capture after Stop or unmount.
+    startupRef.current?.abort();
     if (stopInFlightRef.current) {
       await stopInFlightRef.current;
       return;
     }
 
     if (!sessionRef.current) {
+      persistUpdate.cancel();
       resetRealtimeSessionState();
       return;
     }
@@ -418,8 +425,11 @@ export function useRealtimeTranscriptionController(args: {
 
   const start = useCallback(async () => {
     if (!canStart) return;
-    if (sessionRef.current) return;
+    if (sessionRef.current || startupRef.current || stopInFlightRef.current) return;
     if (!selectedModel) return;
+    const startup = new AbortController();
+    startupRef.current = startup;
+    let createdId: string | undefined;
     fatalErrorHandledRef.current = false;
     setRealtimeSessionState({
       realtimeStatus: "starting",
@@ -434,6 +444,7 @@ export function useRealtimeTranscriptionController(args: {
         baseUrl: config.baseUrl + config.endpoints.realtime,
         headers: merged,
       });
+      startup.signal.throwIfAborted();
 
       const created = await transcriptions.add(
         `realtime-${new Date().toISOString()}`,
@@ -451,6 +462,8 @@ export function useRealtimeTranscriptionController(args: {
           },
         }
       );
+      createdId = created.id;
+      startup.signal.throwIfAborted();
 
       setRealtimeSessionState({
         realtimeActiveTranscriptionId: created.id,
@@ -459,6 +472,7 @@ export function useRealtimeTranscriptionController(args: {
         const session = await startRealtimeWebrtcSession({
           providerId: providerId ?? "",
           selectedModel: selectedModel.id,
+          signal: startup.signal,
           // NOTE: ElevenLabs backend does NOT need providerOptions; OpenAI does.
           getEphemeralToken: () =>
              tokenClientFactory(
@@ -495,7 +509,7 @@ export function useRealtimeTranscriptionController(args: {
           events: {
           // Parse raw events to build segments (start/end from speech events, text from completed transcript)
           onEvent: (event: any) => {
-              if (fatalErrorHandledRef.current) return;
+              if (startup.signal.aborted || fatalErrorHandledRef.current) return;
             try {
               if (providerId === "mistral") {
                 if (event?.type === "transcription.text.delta" || event?.type === "transcription.done") {
@@ -793,7 +807,7 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onTranscriptText: (deltaText: string) => {
-            if (fatalErrorHandledRef.current) return;
+            if (startup.signal.aborted || fatalErrorHandledRef.current) return;
              // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
              const next =
                providerId === "mistral" || providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia" || providerId === "smallestai"
@@ -808,7 +822,7 @@ export function useRealtimeTranscriptionController(args: {
             }
           },
           onSessionCreated: (session: any) => {
-            if (fatalErrorHandledRef.current) return;
+            if (startup.signal.aborted || fatalErrorHandledRef.current) return;
             if (providerId === "google" && !googleSessionStartedAtRef.current) {
               googleSessionStartedAtRef.current = Date.now();
             }
@@ -817,7 +831,7 @@ export function useRealtimeTranscriptionController(args: {
           },
           onError: (message: string, err?: unknown) => {
             // Fatal: retain confirmed text, never promote an interim preview to a final.
-            if (fatalErrorHandledRef.current) return;
+            if (startup.signal.aborted || fatalErrorHandledRef.current) return;
             fatalErrorHandledRef.current = true;
             persistUpdate.cancel();
             const confirmed = computeSnapshot();
@@ -851,7 +865,7 @@ export function useRealtimeTranscriptionController(args: {
 
       // If a fatal error arrived during startup (common with ElevenLabs invalid_request),
       // ensure we do NOT keep a live session around that would block subsequent starts.
-      if (fatalErrorHandledRef.current) {
+      if (startup.signal.aborted || fatalErrorHandledRef.current) {
         try {
           await session.stop();
         } catch {
@@ -869,12 +883,24 @@ export function useRealtimeTranscriptionController(args: {
         setRealtimeSessionState({ realtimeStatus: "connected" });
       }
     } catch (e) {
+      if (startup.signal.aborted) return;
       const message = getTranscriptionErrorMessage(e, { quotaMessage: t("storageQuotaMessage") });
       setRealtimeSessionState({ realtimeStatus: "error", realtimeError: message });
 
       // Also bubble to page-level alerts when provided.
       onErrorAlert?.(message);
       await stop();
+    } finally {
+      if (startupRef.current === startup) startupRef.current = null;
+      if (startup.signal.aborted && createdId && !sessionRef.current && !fatalErrorHandledRef.current) {
+        persistUpdate.cancel();
+        try {
+          await persistenceWritesRef.current.catch(() => {});
+          await persistence.current.transcriptions.delete(createdId);
+        } catch (error) {
+          persistence.current.onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: persistence.current.t("storageQuotaMessage") }));
+        }
+      }
     }
   }, [
     canStart,
@@ -893,12 +919,15 @@ export function useRealtimeTranscriptionController(args: {
     persistUpdateNow,
   ]);
 
-  // Stop when leaving the page / unmounting.
+  // Cleanup is tied to unmount, NOT to changing model/storage callbacks. Always
+  // use the latest stop owner so final writes still use current dependencies.
+  const stopOnUnmount = useRef(stop);
+  stopOnUnmount.current = stop;
   useEffect(() => {
     return () => {
-      void stop();
+      void stopOnUnmount.current();
     };
-  }, [stop]);
+  }, []);
 
   return {
     start,
