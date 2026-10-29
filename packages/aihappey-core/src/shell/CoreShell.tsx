@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Outlet, useSearchParams } from "react-router";
 import { McpConnectionsProvider } from "../runtime/mcp/McpConnectionsProvider";
 import { I18nProvider } from "aihappey-i18n";
@@ -73,6 +73,7 @@ export const CoreShell: React.FC<Props> = ({
   const remoteStorageConnected = useRemoteStorageConnected();
   const [, token, error, refresh] = useAccessToken(conversationScopes ?? []);
   const [, , , refreshAgentToken] = useAccessToken(agentScopes ?? []);
+  const getAgentAccessToken = useCallback(async () => (await refreshAgentToken()) ?? "", [refreshAgentToken]);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
   const setAgents = useAppStore((s) => s.setAgents);
@@ -121,10 +122,10 @@ export const CoreShell: React.FC<Props> = ({
       baseUrl: effectiveBaseUrl,
       gatewayEnabled: effectiveGatewayEnabled,
       getAgentAccessToken: agentScopes?.length
-        ? async () => (await refreshAgentToken()) ?? ""
+        ? getAgentAccessToken
         : undefined,
     }),
-    [agentScopes?.length, chatConfig, effectiveBaseUrl, effectiveGatewayEnabled, refreshAgentToken],
+    [agentScopes?.length, chatConfig, effectiveBaseUrl, effectiveGatewayEnabled, getAgentAccessToken],
   );
 
   useDefaultModel(chatConfig?.getAccessToken != undefined)
@@ -305,9 +306,7 @@ export const CoreShell: React.FC<Props> = ({
 
   useRemoteAgentModels(
     remoteAgentModelsApi,
-    agentScopes?.length
-      ? async () => (await refreshAgentToken()) ?? ""
-      : undefined
+    effectiveChatConfig.getAgentAccessToken
   );
 
   useEffect(() => {
