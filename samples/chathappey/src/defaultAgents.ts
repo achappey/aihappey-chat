@@ -37,6 +37,11 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
 
             },
         },
+        speech: {
+            model: {
+                id: "openai/gpt-realtime-2.1-mini"
+            }
+        },
         mcpClient: {
             capabilities: {},
             policy: {
@@ -53,7 +58,7 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
         instructions:
             "Analyze the user message very well. Come up with a name for this conversation. Max 3-6 words. The name should be in the conversation locale. Answer with the name of the conversation only. Don't include quotes.",
         model: {
-            id: "openai/gpt-5.4-mini",
+            id: "openai/gpt-6-luna",
             providerMetadata: {
 
             },
@@ -74,11 +79,11 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
         instructions:
             "Explain in clear, factual terms what this tool call did and what the result means. Focus only on what happened and what the outcome is, without unnecessary context or friendly language. Use short, concise sentences or bullet points if that improves clarity. The explanation must be straightforward, objective, and easy to understand for any end user. Avoid fluff and stick to the core facts.",
         model: {
-            id: "openai/gpt-5.4-mini",
+            id: "openai/gpt-6-luna",
             providerMetadata: {
 
             },
-        },
+        },      
         mcpClient: {
             capabilities: {},
             policy: {
