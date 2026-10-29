@@ -37,6 +37,11 @@ Do not use em-dashes (—) or similar punctuation in the output.`,
 
             },
         },
+        speech: {
+            model: {
+                id: "openai/gpt-realtime-2.1-mini"
+            }
+        },
         mcpClient: {
             capabilities: {},
             policy: {
