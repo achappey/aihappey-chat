@@ -90,4 +90,5 @@ export const speechProtocolFactories: Record<string, (id: string, options: any, 
 
 export const supportsRealtimeSpeech = (model: { id: string; type?: string; tags?: string[] } | undefined) =>
     model?.type === "speech" && model.tags?.includes("real-time") === true
-    && model.tags.includes("realtime-token") && !!speechProtocolFactories[model.id.split("/")[0]];
+    && model.tags.includes("realtime-token")
+    && (model.id === "mistral/voxtral-mini-tts-3-0" || !!speechProtocolFactories[model.id.split("/")[0]]);
