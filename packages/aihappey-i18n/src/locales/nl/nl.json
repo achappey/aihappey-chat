@@ -6,10 +6,10 @@
     "delay": "Streamingvertraging (ms): 80–1200 of 2400; standaard 480"
   },
   "agentRealtime": {
-    "voice": "Stem of aangepaste stem-ID",
-    "instructions": "Spraakinstructies",
-    "language": "Spraaktaal",
-    "speed": "Spraaksnelheid",
+    "voice": "Stem",
+    "instructions": "Instructies",
+    "language": "Taal",
+    "speed": "Snelheid",
     "outputFormat": "Audioformaat (MIME-type)",
     "sampleRate": "Samplefrequentie (Hz)",
     "speechOptionsHint": "Lege instellingen gebruiken providerstandaarden of geavanceerde opties. Expliciete instellingen gaan voor overeenkomstige provideropties. Ondersteuning verschilt per model: stemgebonden modellen behouden hun stem en sommige providers ondersteunen geen instructies of taal. Directe WebSocket-weergave gebruikt ruwe PCM (OpenAI: 24.000 Hz); de gekozen codering geldt voor HTTP-spraak. De samplefrequentie geldt waar ondersteund voor streaming; niet-streamende terugval kan de providerfrequentie gebruiken.",

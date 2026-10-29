@@ -46,6 +46,29 @@ test('Real-time editor has concise titles, labelled model pickers, and None inst
     pickers[1].props.onChange(''); assert.equal(changed.speech.model, undefined);
 });
 
+test('real-time speech fields have concise English/Dutch labels and end at sample rate without a description', () => {
+    for (const [language, expected] of [
+        ['en', ['Voice', 'Instructions', 'Language', 'Speed', 'Audio format (MIME type)', 'Sample rate (Hz)']],
+        ['nl', ['Stem', 'Instructies', 'Taal', 'Snelheid', 'Audioformaat (MIME-type)', 'Samplefrequentie (Hz)']],
+    ]) {
+        const strings = JSON.parse(fs.readFileSync(`packages/aihappey-i18n/src/locales/${language}/${language}.json`, 'utf8').replace(/^\uFEFF/, ''));
+        const { AgentRealtimeSettings } = isolated(root + 'agents/AgentRealtimeSettings.tsx', {
+            'aihappey-components': { useTheme: () => theme },
+            'aihappey-i18n': { useTranslation: () => ({ t: key => key.split('.').reduce((value, part) => value?.[part], strings) ?? key }) },
+            '../models/ModelSelect': { ModelSelect: 'ModelSelect' },
+            './agentAudioModels': load(root + 'agents/agentAudioModels.ts'),
+        });
+        const tree = AgentRealtimeSettings({ agent: { name: 'Voice' }, models: [], onChange() {} });
+        const speech = find(tree, element => element.type === 'Card')[1];
+        const fields = find(speech, element => element.type === 'Input' || element.type === 'TextArea');
+        assert.deepEqual(fields.map(field => field.props.label), expected, language);
+        assert.equal(find(speech, element => element.props.role === 'note').length, 0, language);
+        const form = find(speech, element => element.type === 'div')[0];
+        assert.equal(React.Children.count(form.props.children), fields.length, language);
+        assert.equal(React.Children.toArray(form.props.children).at(-1).props.label, expected.at(-1), language);
+    }
+});
+
 test('shared model picker exposes a localized None option and never saves its sentinel or selects a fallback', () => {
     const effects = [], changes = [];
     const { ModelSelect } = isolated(root + 'models/ModelSelect.tsx', {

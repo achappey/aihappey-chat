@@ -40,7 +40,6 @@ export function AgentRealtimeSettings({ agent, models, onChange }: {
                             ...agent.speech?.outputFormat, type: agent.speech?.outputFormat?.type ?? "",
                             rate: event.target.value === "" ? undefined : Number(event.target.value),
                         })} />
-                    <div role="note">{t("agentRealtime.speechOptionsHint")}</div>
                 </div>}
             </Card>;
         })}
