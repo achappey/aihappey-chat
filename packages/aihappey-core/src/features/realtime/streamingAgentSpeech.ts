@@ -16,6 +16,7 @@ export class StreamingAgentSpeech {
         signal: AbortSignal;
         open: (started: () => void, signal: AbortSignal) => Promise<StreamingSpeechSession>;
         legacy: (text: string, signal: AbortSignal) => Promise<void>;
+        allowLegacyFallback?: boolean;
         error: (error: unknown) => void;
     }) {
         this.signal = AbortSignal.any([options.signal, this.overflow.signal]);
@@ -85,7 +86,7 @@ export class StreamingAgentSpeech {
             session?.cancel(); this.failed = true;
             while (!block.ended && !signal.aborted) await this.wait(block);
             if (!signal.aborted) {
-                if (!this.played) {
+                if (!this.played && this.options.allowLegacyFallback !== false) {
                     try { await this.options.legacy(block.text, signal); }
                     catch (legacyError) { if (!signal.aborted) this.options.error(legacyError); }
                 } else if (!this.reported) { this.reported = true; this.options.error(error); }

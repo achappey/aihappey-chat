@@ -22,6 +22,7 @@ import { newUiMessage } from "./realtimeMessageParts";
 import { StreamingAgentSpeech } from "./streamingAgentSpeech";
 import { openAgentSpeech } from "./openAgentSpeech";
 import { supportsRealtimeSpeech } from "../speech/realtime/speechProtocol";
+import { isOpenAiSpeechModelId, supportsOpenAiSpeech } from "../speech/realtime/openAiSpeechConfig";
 
 type Status = "idle" | "starting" | "connected" | "stopping" | "error";
 type Run = { abort: AbortController; userId: string; chat?: Chat<any>; unsubscribe?: () => void; completed?: boolean };
@@ -106,11 +107,13 @@ export function useAgentRealtimeConversationController(args: {
         try {
             const state = store.getState();
             const speechModel = current.agent.speechModel;
-            const streamedSpeech = speechModel && supportsRealtimeSpeech(state.models?.find(model => model.id === speechModel.id))
+            const catalogSpeech = state.models?.find(model => model.id === speechModel?.id);
+            const streamedSpeech = speechModel && (supportsRealtimeSpeech(catalogSpeech) || supportsOpenAiSpeech(catalogSpeech))
                 ? new StreamingAgentSpeech({ signal,
                     open: (started, token) => openAgentSpeech({ config: current.config, model: speechModel, customHeaders: state.customHeaders,
                         signal: token, context: output.current!.audioContext, started }),
                     legacy: (text, token) => output.current!.speak(current.config, state.customHeaders, speechModel, text, token),
+                    allowLegacyFallback: !isOpenAiSpeechModelId(speechModel.id),
                     error: error => current.addChatError(new Error(`${current.t("agentRealtime.speechFailed")} ${error instanceof Error ? error.message : String(error)}`)),
                 }) : undefined;
             const selected = buildSelectedAgentRequest([current.agentKey], state.agents, state.remoteAgentModels);

@@ -2,7 +2,7 @@ import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import type { Agent, ModelOption } from "aihappey-types";
 import { ModelSelect } from "../models/ModelSelect";
-import { isRealtimeTranscriptionModel, selectAgentAudioModel } from "./agentAudioModels";
+import { agentSpeechModelOptions, isRealtimeTranscriptionModel, selectAgentAudioModel } from "./agentAudioModels";
 
 export function AgentRealtimeSettings({ agent, models, onChange }: {
     agent: Agent; models: ModelOption[]; onChange: (agent: Agent) => void;
@@ -14,7 +14,7 @@ export function AgentRealtimeSettings({ agent, models, onChange }: {
             const field = type === "transcription" ? "transcriptionModel" : "speechModel";
             const selected = agent[field];
             return <Card key={type} title={t(`agentRealtime.${type}`)}>
-                <ModelSelect label={t("model")} models={type === "transcription" ? models.filter(isRealtimeTranscriptionModel) : models}
+                <ModelSelect label={t("model")} models={type === "transcription" ? models.filter(isRealtimeTranscriptionModel) : agentSpeechModelOptions(models)}
                     modelTypes={[type]} value={selected?.id ?? ""} autoSelectFallback={false}
                     allowNone
                     selectedOptions={selected ? [{ id: selected.id, name: selected.id, type, owned_by: "", tags: [] }] : []}

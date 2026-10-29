@@ -1,5 +1,10 @@
 import type { Agent, AiModel, ModelOption, RemoteAgentModel } from "aihappey-types";
 import { resolveSelectedAgentEntries } from "./agentSelection";
+import { supportsOpenAiSpeech } from "../speech/realtime/openAiSpeechConfig";
+
+/** Project capable audio models into this picker only, not the global Speech catalog. */
+export const agentSpeechModelOptions = (models: ModelOption[]) => models.flatMap(model =>
+    model.type === "speech" ? [model] : supportsOpenAiSpeech(model) ? [{ ...model, type: "speech" }] : []);
 
 export const isRealtimeTranscriptionModel = (model?: ModelOption) =>
     model?.type === "transcription" && model.tags?.includes("real-time") === true;

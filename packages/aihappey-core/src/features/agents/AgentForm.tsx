@@ -971,6 +971,7 @@ export const AgentForm = ({
                     const key = getAgentModelProviderKey(audioModel?.id);
                     return audioModel && hasProviderTypeSettings(key, type) ? <Tab key={type} eventKey={`audio-${type}`} title={t(`agentRealtime.${type}`)}>
                         <AudioProviderSettings key={audioModel.id} providerKey={key} type={type}
+                            modelId={audioModel.id}
                             metadata={audioModel.providerMetadata ?? {}}
                             onChange={providerMetadata => onChange(current => ({ ...current,
                                 [field]: { ...current[field]!, providerMetadata },

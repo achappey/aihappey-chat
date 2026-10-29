@@ -3,6 +3,8 @@ import * as forms from "aihappey-components";
 import { store, useAppStore } from "aihappey-state";
 import { useChatContext } from "../chat/context/ChatContext";
 import { GoogleChatConfig } from "../provider-config/google/GoogleChatConfig";
+import { OpenAiRealtimeSpeechSettings } from "../agents/OpenAiRealtimeSpeechSettings";
+import { isOpenAiSpeechModelId } from "../speech/realtime/openAiSpeechConfig";
 
 // Keep this list aligned with the provider forms already exposed in the feature settings pages.
 // Providers without a form for a model type do not get a settings switch.
@@ -72,8 +74,9 @@ const providerForms: Record<string, Record<string, React.ComponentType<any>>> = 
 const normalizeProviderKey = (key: string) => key.toLowerCase() === "xai" ? "spacexai" : key.toLowerCase();
 
 /** Controlled version for portable agent settings: never reads or writes global preferences. */
-export const AudioProviderSettings = ({ providerKey, type, metadata, onChange }: {
+export const AudioProviderSettings = ({ providerKey, type, metadata, onChange, modelId }: {
     providerKey: string; type: "speech" | "transcription";
+    modelId?: string;
     metadata: Record<string, any>; onChange: (metadata: Record<string, any>) => void;
 }) => {
     const key = normalizeProviderKey(providerKey);
@@ -85,6 +88,9 @@ export const AudioProviderSettings = ({ providerKey, type, metadata, onChange }:
         if (key === "spacexai") delete next.xai;
         onChange(next);
     };
+    if (type === "speech" && key === "openai" && isOpenAiSpeechModelId(modelId ?? "")) {
+        return <OpenAiRealtimeSpeechSettings config={config} updateConfig={update} />;
+    }
     return <Form config={config} updateConfig={update}
         realtimeOnly={type === "transcription"}
         realtimeConfig={config} updateRealtimeConfig={update} />;

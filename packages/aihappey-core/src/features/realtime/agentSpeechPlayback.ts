@@ -3,6 +3,7 @@ import type { AiModel } from "aihappey-types";
 import type { ChatConfig } from "../chat/context/ChatContext";
 import { buildOperationHeaders, createCredentialScopedFetch } from "../provider-credentials/scopedRequest";
 import { PcmSpeechOutput } from "../speech/realtime/pcmSpeechOutput";
+import { isOpenAiSpeechModelId } from "../speech/realtime/openAiSpeechConfig";
 
 const abortError = () => new DOMException("Speech cancelled", "AbortError");
 
@@ -41,6 +42,8 @@ export class AgentAudioOutput {
     get audioContext() { this.unlock(); if (!this.context) throw new Error("Audio playback is unavailable in this browser."); return this.context; }
     async speak(config: ChatConfig, customHeaders: Record<string, string> | undefined, model: AiModel, text: string, signal: AbortSignal) {
         signal.throwIfAborted();
+        // A stale/missing capability must not send a Realtime-only model to HTTP speech.
+        if (isOpenAiSpeechModelId(model.id)) throw new Error("OpenAI Realtime speech is unavailable; refresh the model catalog.");
         const provider = model.id.split("/")[0];
         const providerOptions = model.providerMetadata?.[provider] === undefined ? undefined
             : { [provider]: model.providerMetadata[provider] };
