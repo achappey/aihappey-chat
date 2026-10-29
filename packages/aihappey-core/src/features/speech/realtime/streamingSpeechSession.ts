@@ -5,7 +5,7 @@ export type StreamingSpeechSession = { append(text: string): void; flush(): void
 
 /** One socket per text block: no audio or acknowledgements can leak into a later block/turn. */
 export async function openStreamingSpeechSession(args: {
-    protocol: SpeechProtocol; token: string; signal: AbortSignal; audio: (bytes: Uint8Array) => void;
+    protocol: SpeechProtocol; token: string; signal: AbortSignal; audio: (bytes: Uint8Array) => void; failed?: () => void;
 }): Promise<StreamingSpeechSession> {
     const { protocol, signal } = args;
     signal.throwIfAborted();
@@ -14,7 +14,7 @@ export async function openStreamingSpeechSession(args: {
     const ws = protocol.provider === "deepgram" ? new WebSocket(url, ["bearer", args.token]) : new WebSocket(url);
     ws.binaryType = "arraybuffer";
     let closed = false, finishing = false, dirty = false, failure: Error | undefined;
-    let sent = 0, acknowledged = 0;
+    let sent = 0, acknowledged = 0, finalInputSent = false;
     let flushes: number[] = [];
     let resolveOpen!: () => void, rejectOpen!: (error: Error) => void, resolveDone!: () => void, rejectDone!: (error: Error) => void;
     const opened = new Promise<void>((resolve, reject) => { resolveOpen = resolve; rejectOpen = reject; });
@@ -22,6 +22,7 @@ export async function openStreamingSpeechSession(args: {
     void done.catch(() => undefined);
     const fail = () => {
         failure ??= new Error("Streaming speech connection failed.");
+        args.failed?.();
         rejectOpen(failure); rejectDone(failure);
     };
     const send = (message: object) => {
@@ -34,7 +35,7 @@ export async function openStreamingSpeechSession(args: {
         if (!protocol.flush || !dirty || failure || closed) return;
         flushes = flushes.filter(time => Date.now() - time < 60_000);
         if (flushes.length >= 20 || flushes.length && Date.now() - flushes.at(-1)! < 3200) return;
-        send(protocol.flush()); flushes.push(Date.now()); sent++; dirty = false;
+        sent++; send(protocol.flush()); flushes.push(Date.now()); dirty = false;
     };
     const interval = setInterval(() => { try { flush(); } catch { fail(); } }, 200);
     const startup = setTimeout(() => { fail(); ws.close(); }, 15_000);
@@ -52,8 +53,11 @@ export async function openStreamingSpeechSession(args: {
             const audio = protocol.audio(message);
             if (audio) args.audio(base64ToUint8Array(audio));
             if (protocol.done(message)) {
-                if (protocol.provider === "deepgram") acknowledged++;
-                if (finishing && (protocol.provider !== "deepgram" || acknowledged >= sent)) resolveDone();
+                if (protocol.provider === "deepgram") {
+                    if (!Number.isInteger(message.sequence_id) || message.sequence_id < 0) throw new Error("Invalid speech acknowledgment.");
+                    acknowledged = Math.max(acknowledged, message.sequence_id + 1);
+                }
+                if (finalInputSent && (protocol.provider !== "deepgram" || acknowledged >= sent)) resolveDone();
             }
         } catch { fail(); }
     };
@@ -71,8 +75,9 @@ export async function openStreamingSpeechSession(args: {
             try {
                 if (protocol.flush) {
                     while (dirty) { flush(); if (dirty) { signal.throwIfAborted(); if (failure) throw failure; await new Promise(resolve => setTimeout(resolve, 100)); } }
+                    finalInputSent = true;
                     if (acknowledged >= sent) resolveDone();
-                } else send(protocol.finish());
+                } else { finalInputSent = true; send(protocol.finish()); }
                 await done; signal.throwIfAborted();
             } finally { clearTimeout(timeout); }
         },

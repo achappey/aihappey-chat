@@ -27,7 +27,7 @@ export async function openAgentSpeech(args: {
         token.providerMetadata?.cartesia?.cartesia_version);
     const output = new PcmSpeechOutput(protocol.sampleRate, args.signal, args.started, args.context);
     let session: StreamingSpeechSession;
-    try { session = await openStreamingSpeechSession({ protocol, token: token.value, signal: args.signal, audio: bytes => output.push(bytes) }); }
+    try { session = await openStreamingSpeechSession({ protocol, token: token.value, signal: args.signal, audio: bytes => output.push(bytes), failed: output.stop }); }
     catch (error) { output.stop(); throw error; }
     return { append: text => session.append(text), flush: () => session.flush(),
         async finish() { await session.finish(); await output.drain(); },

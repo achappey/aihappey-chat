@@ -108,8 +108,8 @@ export function useAgentRealtimeConversationController(args: {
             const speechModel = current.agent.speechModel;
             const streamedSpeech = speechModel && supportsRealtimeSpeech(state.models?.find(model => model.id === speechModel.id))
                 ? new StreamingAgentSpeech({ signal,
-                    open: started => openAgentSpeech({ config: current.config, model: speechModel, customHeaders: state.customHeaders,
-                        signal, context: output.current!.audioContext, started }),
+                    open: (started, token) => openAgentSpeech({ config: current.config, model: speechModel, customHeaders: state.customHeaders,
+                        signal: token, context: output.current!.audioContext, started }),
                     legacy: (text, token) => output.current!.speak(current.config, state.customHeaders, speechModel, text, token),
                     error: error => current.addChatError(new Error(`${current.t("agentRealtime.speechFailed")} ${error instanceof Error ? error.message : String(error)}`)),
                 }) : undefined;
@@ -147,7 +147,7 @@ export function useAgentRealtimeConversationController(args: {
                     sync(true);
                     const pending = pendingToolApprovals(chat.messages);
                     request.completed = !pending.length && !managedAgentMcpCallsPending(chat.messages);
-                    if (request.completed) observer?.finish(chat.messages.at(-1));
+                    if (request.completed || streamedSpeech) observer?.finish(chat.messages.at(-1));
                     // Dispatch only the same unresolved client inputs ordinary Agent Chat dispatches.
                     // Backend-provided output and approval parts never reach this executor.
                     void executeReadyCalls();
