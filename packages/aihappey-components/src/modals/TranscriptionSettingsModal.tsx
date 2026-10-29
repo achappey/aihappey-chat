@@ -23,6 +23,7 @@ import {
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
 import { AzureTranscriptionConfigForm } from "../forms/providers/azure/AzureTranscriptionConfigForm";
+import { MistralRealtimeTranscriptionConfigForm } from "../forms/providers/mistral/MistralRealtimeTranscriptionConfigForm";
 
 const getDefaultProviderTab = (enabledProviders?: string[]): string => {
     const firstProvider = enabledProviders?.[0];
@@ -272,6 +273,8 @@ export const TranscriptionSettingsModal: React.FC<
 
                     {enabledProviders.includes("Mistral") && (
                         <theme.Tab eventKey="mistral" title="Mistral">
+                            <MistralRealtimeTranscriptionConfigForm config={realtimeProviderMetadata.mistral ?? {}}
+                                updateConfig={mistral => setRealtimeProviderMetadata({ ...realtimeProviderMetadata, mistral })} />
                             <MistralTranscriptionConfigForm
                                 config={providerMetadata.mistral ?? {}}
                                 updateConfig={(mistral) =>

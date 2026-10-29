@@ -1,4 +1,10 @@
 ﻿{
+  "mistralRealtime": {
+    "title": "Real-time transcription",
+    "hint": "Live speech to text, not translation. Language is optional (two-letter code); leave blank for detection. Settings apply before audio starts and are separate from file transcription.",
+    "terms": "Vocabulary hints (comma-separated)",
+    "delay": "Streaming delay (ms): 80–1200 or 2400; default 480"
+  },
   "agentRealtime": {
     "voice": "Voice or custom voice ID",
     "instructions": "Speech instructions",

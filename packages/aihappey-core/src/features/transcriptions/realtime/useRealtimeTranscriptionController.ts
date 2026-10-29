@@ -180,7 +180,9 @@ export function useRealtimeTranscriptionController(args: {
         .sort((a, b) => (a.startMs ?? Number.MAX_SAFE_INTEGER) - (b.startMs ?? Number.MAX_SAFE_INTEGER))
         .map((s) => s.text?.trim()).filter(Boolean).join(" ").trim();
       const preferred = String(opts?.preferText ?? "").trim();
-      const text = preferred || textFromSegments;
+      const text = providerId === "mistral"
+        ? (opts?.preferText !== undefined ? opts.preferText : items.map(s => s.text ?? "").join(""))
+        : preferred || textFromSegments;
       const durationInSeconds = segments.length ? Math.max(...segments.map((s) => s.endSecond)) : undefined;
 
       return {
@@ -190,7 +192,7 @@ export function useRealtimeTranscriptionController(args: {
         session: sessionInfoRef.current ?? undefined,
       };
     },
-    []
+    [providerId]
   );
 
   const parseElevenLabsTimestampSegments = useCallback((event: any) => {
@@ -388,6 +390,7 @@ export function useRealtimeTranscriptionController(args: {
       try {
         await session.stop();
         await smallestAiWritesRef.current;
+        if (providerId === "mistral") { persistUpdate.cancel(); await persistenceWritesRef.current; }
       } finally {
         bufferRef.current = "";
         segmentsRef.current = new Map();
@@ -411,7 +414,7 @@ export function useRealtimeTranscriptionController(args: {
     })();
     stopInFlightRef.current = p;
     await p;
-  }, [resetRealtimeSessionState, setRealtimeSessionState]);
+  }, [resetRealtimeSessionState, setRealtimeSessionState, providerId, persistUpdate]);
 
   const start = useCallback(async () => {
     if (!canStart) return;
@@ -492,8 +495,20 @@ export function useRealtimeTranscriptionController(args: {
           events: {
           // Parse raw events to build segments (start/end from speech events, text from completed transcript)
           onEvent: (event: any) => {
-            if (fatalErrorHandledRef.current) return;
+              if (fatalErrorHandledRef.current) return;
             try {
+              if (providerId === "mistral") {
+                if (event?.type === "transcription.text.delta" || event?.type === "transcription.done") {
+                  const key = "mistral-session";
+                  const previous = segmentsRef.current.get(key)?.text ?? "";
+                  const text = event.type === "transcription.done" ? event.text : previous + event.text;
+                  segmentsRef.current.set(key, { itemId: key, text });
+                  persistUpdate.cancel();
+                  void persistUpdateNow(created.id, computeSnapshot()).catch(error =>
+                    onErrorAlert?.(getTranscriptionErrorMessage(error, { quotaMessage: t("storageQuotaMessage") })));
+                }
+                return;
+              }
               if (providerId === "smallestai") {
                 if (event?.type === "smallestai.transcript.final") {
                   const key = String(event.item_id);
@@ -781,13 +796,13 @@ export function useRealtimeTranscriptionController(args: {
             if (fatalErrorHandledRef.current) return;
              // OpenAI emits deltas; WebSocket providers emit full-text snapshots.
              const next =
-               providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia" || providerId === "smallestai"
+               providerId === "mistral" || providerId === "elevenlabs" || providerId === "deepgram" || providerId === "gladia" || providerId === "assemblyai" || providerId === "soniox" || providerId === "google" || providerId === "cartesia" || providerId === "smallestai"
                 ? deltaText
                 : (bufferRef.current + deltaText).trimStart();
             bufferRef.current = next;
             setRealtimeSessionState({ realtimeText: next, realtimeStatus: "connected" });
 
-            if (created.id && providerId !== "smallestai") {
+            if (created.id && providerId !== "smallestai" && providerId !== "mistral") {
               // For previews, debounce writes; but ensure ElevenLabs doesn't overwrite with empty text.
               void persistUpdate(created.id, computeSnapshot({ preferText: bufferRef.current }));
             }

@@ -1,4 +1,10 @@
 ﻿{
+  "mistralRealtime": {
+    "title": "Realtime transcriptie",
+    "hint": "Live spraak naar tekst, geen vertaling. Taal is optioneel (tweelettercode); laat leeg voor detectie. Instellingen gelden voordat audio start en staan los van bestandstranscriptie.",
+    "terms": "Woordenlijsthints (kommagescheiden)",
+    "delay": "Streamingvertraging (ms): 80–1200 of 2400; standaard 480"
+  },
   "agentRealtime": {
     "voice": "Stem of aangepaste stem-ID",
     "instructions": "Spraakinstructies",

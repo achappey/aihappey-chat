@@ -9,6 +9,7 @@ import { startSonioxRealtimeWsSession } from "./startSonioxRealtimeWsSession";
 import { startGoogleRealtimeWsSession } from "./startGoogleRealtimeWsSession";
 import { startCartesiaRealtimeWsSession } from "./startCartesiaRealtimeWsSession";
 import { startSmallestAiRealtimeWsSession } from "./startSmallestAiRealtimeWsSession";
+import { startMistralRealtimeWsSession } from "./startMistralRealtimeWsSession";
 
 export type RealtimeTranscriptionSession = {
   /** Provider-specific implementation detail (WebRTC / WebSocket). */
@@ -41,6 +42,11 @@ export async function startRealtimeWebrtcSession(args: StartRealtimeSessionArgs)
   const { providerId, getEphemeralToken, events, selectedModel, providerRealtimeMetadata } = args;
 
   const capture = { microphoneStream: args.microphoneStream, signal: args.signal };
+  if (providerId === "mistral") {
+    const session = await startMistralRealtimeWsSession({ ...capture, getEphemeralToken,
+      modelId: selectedModel, config: providerRealtimeMetadata?.mistral ?? {}, events });
+    return { kind: "ws", stop: session.stop };
+  }
   // Today only OpenAI is implemented.
   // Adding other providers later should happen here (or via a provider registry).
   if (providerId === "openai") {
