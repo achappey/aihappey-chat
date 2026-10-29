@@ -67,14 +67,15 @@ function hookRuntime() {
         unmount() { for (const slot of slots) slot?.cleanup?.(); },
     };
 }
-function harness(fetcher, { speechEnabled = true, initialMessages = [], approveAll = false, allowedToolList = [] } = {}) {
+function harness(fetcher, { speechEnabled = true, streamingSpeech = false, initialMessages = [], approveAll = false, allowedToolList = [] } = {}) {
     const runtime = hookRuntime(), modalRuntime = hookRuntime(); let transcriptionOptions, transcriptionTurns;
     const errors = [], spoken = [], saved = new Map(initialMessages.map(message => [message.id, message])), localCalls = [];
     let stopped = 0;
     const agent = { name: 'Voice', description: 'Voice test', instructions: 'Be helpful', model: { id: 'openai/chat' },
-        transcriptionModel: { id: 'openai/stt' }, ...(speechEnabled ? { speechModel: { id: 'openai/tts' } } : {}) };
+        transcriptionModel: { id: 'openai/stt' }, ...(speechEnabled ? { speechModel: { id: streamingSpeech ? 'deepgram/aura-2-asteria-en' : 'openai/tts' } } : {}) };
     const state = { agents: [agent], remoteAgentModels: [], customHeaders: {}, mcpServers: {}, mcpServerContent: {}, toolAnnotations: {}, maxToolCalls: 5, callTool() {},
         approveAll, allowedToolList, addAllowedTool(name) { state.allowedToolList.push(name); }, toggleApproveAll() { state.approveAll = !state.approveAll; } };
+    state.models = streamingSpeech ? [{ id: agent.speechModel.id, type: 'speech', tags: ['real-time', 'realtime-token'] }] : [];
     const { useAgentRealtimeConversationController } = isolated(root + 'realtime/useAgentRealtimeConversationController.ts', {
         react: runtime.hooks, 'aihappey-ai': { Chat }, 'aihappey-types': types,
         'aihappey-conversations': { useConversations: () => ({
@@ -92,7 +93,13 @@ function harness(fetcher, { speechEnabled = true, initialMessages = [], approveA
         '../chat/engine/toolApprovalState': approvalState,
         '../provider-credentials/scopedRequest': { buildOperationHeaders: async () => ({}), createCredentialScopedFetch: f => f },
         './AgentRealtimeChatTransport': transport,
-        './agentSpeechPlayback': { AgentAudioOutput: class { unlock() {} dispose() {} async speak(config, headers, model, value, signal) { spoken.push({ value, signal, model }); } } },
+        './agentSpeechPlayback': { AgentAudioOutput: class { unlock() {} dispose() {} get audioContext() { return {}; } async speak(config, headers, model, value, signal) { spoken.push({ value, signal, model }); } } },
+        './streamingAgentSpeech': load(root + 'realtime/streamingAgentSpeech.ts'),
+        '../speech/realtime/speechProtocol': load(root + 'speech/realtime/speechProtocol.ts'),
+        './openAgentSpeech': { openAgentSpeech: async options => ({
+            append(value) { spoken.push({ value, signal: options.signal, model: options.model }); options.started(); },
+            flush() {}, finish: async () => {}, cancel() {}, dispose() {},
+        }) },
         './agentSpeechQueue': turnText,
         './startAgentTranscription': { startAgentTranscription: async options => {
             transcriptionOptions = options;
@@ -129,6 +136,23 @@ function harness(fetcher, { speechEnabled = true, initialMessages = [], approveA
         get transcription() { return transcriptionOptions; }, get stopped() { return stopped; },
     };
 }
+
+test('eligible agent streams partial assistant text before text-end through the ordinary SDK controller', async () => {
+    let stream;
+    const h = harness(async () => new Response(new ReadableStream({ start(controller) {
+        stream = controller;
+        controller.enqueue(encode([{ type: 'start', messageId: 'answer' }, { type: 'start-step' },
+            { type: 'text-start', id: 'text' }, { type: 'text-delta', id: 'text', delta: 'Hel' }]));
+    } }), { headers: { 'content-type': 'text/event-stream' } }), { streamingSpeech: true });
+    await h.controller.start();
+    const pending = h.controller.sendMessage({ id: 'user', role: 'user', parts: [{ type: 'text', text: 'Hi' }] });
+    await until(() => h.spoken.length === 1);
+    assert.equal(h.spoken[0].value, 'Hel'); assert.equal(h.render().streaming, true);
+    stream.enqueue(encode([{ type: 'text-delta', id: 'text', delta: 'lo.' }, { type: 'text-end', id: 'text' }, ...finish])); stream.close();
+    await pending; await until(() => h.spoken.length === 2);
+    assert.deepEqual(h.spoken.map(value => value.value), ['Hel', 'lo.']); assert.deepEqual(h.errors, []);
+    await h.controller.stop();
+});
 
 test('real SDK agent controller speaks completed intermediate text while tools/turn remain unfinished', async () => {
     let stream; const requests = [];
