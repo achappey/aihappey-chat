@@ -7,6 +7,7 @@ import {
     ElevenLabsTranscriptionConfigForm,
     AssemblyAITranscriptionConfigForm,
     MistralTranscriptionConfigForm,
+    MistralRealtimeTranscriptionConfigForm,
     NovitaTranscriptionConfigForm,
     OpenAIITranscriptionConfigForm,
     SambanovaTranscriptionConfigForm,
@@ -23,7 +24,6 @@ import {
 import { SettingsActionButtons } from "../buttons";
 import { useTheme } from "../theme/ThemeContext";
 import { AzureTranscriptionConfigForm } from "../forms/providers/azure/AzureTranscriptionConfigForm";
-import { MistralRealtimeTranscriptionConfigForm } from "../forms/providers/mistral/MistralRealtimeTranscriptionConfigForm";
 
 const getDefaultProviderTab = (enabledProviders?: string[]): string => {
     const firstProvider = enabledProviders?.[0];

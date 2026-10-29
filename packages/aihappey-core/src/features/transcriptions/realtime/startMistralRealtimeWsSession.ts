@@ -49,8 +49,11 @@ export async function startMistralRealtimeWsSession(args: {
   const releaseAudio = async () => {
     if (processor) processor.onaudioprocess = null;
     processor?.disconnect(); source?.disconnect(); silent?.disconnect();
-    if (!args.microphoneStream) stream?.getTracks().forEach(track => track.stop());
-    if (context && context.state !== "closed") await context.close();
+    processor = undefined; source = undefined; silent = undefined;
+    const captured = stream, capturedContext = context;
+    stream = undefined; context = undefined;
+    if (!args.microphoneStream) captured?.getTracks().forEach(track => track.stop());
+    if (capturedContext && capturedContext.state !== "closed") await capturedContext.close();
   };
   const fail = (message: string) => {
     if (failed || finished) return;
