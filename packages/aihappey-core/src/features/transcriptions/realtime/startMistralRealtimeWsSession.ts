@@ -34,7 +34,7 @@ export async function startMistralRealtimeWsSession(args: {
   args.signal?.throwIfAborted();
   const token = await args.getEphemeralToken();
   args.signal?.throwIfAborted();
-  if (!/^rt_[A-Za-z0-9_-]+$/.test(token.value) || token.expires_at * 1000 <= Date.now())
+  if (!/^rt_[!#$%&'*+.^_`|~A-Za-z0-9-]+$/.test(token.value) || !Number.isFinite(token.expires_at) || token.expires_at * 1000 <= Date.now())
     throw new Error("Mistral returned an invalid or expired ephemeral token.");
   const ws = new WebSocket(url, ["realtime", token.value]);
   let stream: MediaStream | undefined, context: AudioContext | undefined;
@@ -55,6 +55,7 @@ export async function startMistralRealtimeWsSession(args: {
   const fail = (message: string) => {
     if (failed || finished) return;
     failed = true;
+    clearTimeout(timeout); args.signal?.removeEventListener("abort", abort);
     const error = new Error(message);
     rejectReady(error); rejectDone(error);
     args.events?.onError?.(message);

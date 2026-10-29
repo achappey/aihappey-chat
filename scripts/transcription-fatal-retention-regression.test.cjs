@@ -28,7 +28,7 @@ async function harness(provider = 'openai', delayPreview = false) {
     selectedModel: { id: `${provider}/transcribe`, tags: ['real-time'] }, onErrorAlert: e => alerts.push(e),
     transcriptions: { add: async () => ({ id: 'item' }), update: async (id, value) => { if (delayPreview && writes.length === 0) await pending; writes.push(structuredClone(value.transcription)); }, delete: async id => deleted.push(id) } });
   await controller.start();
-  return { events, writes, deleted, alerts, release, stopped: () => stopped };
+  return { events, writes, deleted, alerts, release, controller, stopped: () => stopped };
 }
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function settled(h) { for (let n = 0; n < 100 && !h.stopped(); n++) await pause(5); assert.equal(h.stopped(), 1); }
@@ -66,4 +66,26 @@ test('Gladia fatal error retains timed final utterances but excludes partial tex
   h.events.onEvent({ type: 'transcript', data: { is_final: true, utterance: { text: 'Gladia final', start: 1, end: 2 } } });
   h.events.onTranscriptText('Gladia final partial'); h.events.onError('Disconnected');
   await settled(h); assert.equal(h.writes.at(-1).text, 'Gladia final'); assert.equal(h.writes.at(-1).segments[0].startSecond, 1);
+});
+
+test('Mistral append-only deltas are confirmed and preserved verbatim after failure', async () => {
+  const h = await harness('mistral');
+  for (const text of ['  Hello', ' world', '.', '\n']) h.events.onEvent({ type: 'transcription.text.delta', text });
+  h.events.onError('Disconnected');
+  await settled(h);
+  assert.equal(h.writes.at(-1).text, '  Hello world.\n');
+  assert.deepEqual(h.writes.at(-1).segments, []);
+  assert.deepEqual(h.deleted, []);
+});
+
+test('Mistral final transcript replaces deltas and stop awaits the final persistence write', async () => {
+  const h = await harness('mistral', true);
+  h.events.onEvent({ type: 'transcription.text.delta', text: 'draft' });
+  h.events.onEvent({ type: 'transcription.done', text: '  Authoritative\nfinal.  ' });
+  let stopped = false;
+  const stop = h.controller.stop().then(() => { stopped = true; });
+  await pause(20); assert.equal(stopped, false);
+  h.release(); await stop;
+  assert.equal(h.writes.at(-1).text, '  Authoritative\nfinal.  ');
+  assert.deepEqual(h.writes.at(-1).segments, []);
 });
