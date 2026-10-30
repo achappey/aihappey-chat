@@ -27,6 +27,7 @@ test('SpaceX AI and xAI aliases share lookup, startup and session updates withou
   const providers = [
     ['openAi', 'openai'], ['xAi', 'spacexai'], ['assemblyAi', 'assemblyai'],
     ['agentPhone', 'agentphone'], ['google', 'google'], ['cartesia', 'cartesia'], ['opperAi', 'opperai'],
+    ['smallestAi', 'smallestai'], ['fishAudio', 'fishaudio'],
   ];
   for (const [name, id] of providers) {
     mocks[`./${name}RealtimeConversationProvider`] = {

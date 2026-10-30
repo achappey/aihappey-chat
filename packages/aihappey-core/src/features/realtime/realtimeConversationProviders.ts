@@ -6,6 +6,7 @@ import { googleRealtimeConversationProvider } from "./googleRealtimeConversation
 import { cartesiaRealtimeConversationProvider } from "./cartesiaRealtimeConversationProvider";
 import { opperAiRealtimeConversationProvider } from "./opperAiRealtimeConversationProvider";
 import { smallestAiRealtimeConversationProvider } from "./smallestAiRealtimeConversationProvider";
+import { fishAudioRealtimeConversationProvider } from "./fishAudioRealtimeConversationProvider";
 import type { RealtimeConversationSession } from "./startRealtimeConversationWebrtc";
 import type {
   RealtimeConversationProviderId,
@@ -46,6 +47,7 @@ const providers: Record<string, RealtimeConversationProviderRuntime> = {
   cartesia: cartesiaRealtimeConversationProvider,
   opperai: opperAiRealtimeConversationProvider,
   smallestai: smallestAiRealtimeConversationProvider,
+  fishaudio: fishAudioRealtimeConversationProvider,
 };
 
 export const getRealtimeConversationProvider = (providerId: string) => providers[normalizeRealtimeProviderId(providerId)];

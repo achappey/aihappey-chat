@@ -121,6 +121,7 @@ export function useRealtimeConversationController(args: {
   const isCartesiaRealtime = model.toLowerCase().startsWith("cartesia/agents/");
   const cartesiaTurnsRef = useRef<Map<number, UIMessage>>(new Map());
   const cartesiaToolExpectsResponseRef = useRef<Map<string, boolean>>(new Map());
+  const fishSegmentsRef = useRef<Map<string, UIMessage>>(new Map());
 
   useEffect(() => {
     historyRef.current!.seed(initialMessages ?? []);
@@ -286,6 +287,12 @@ export function useRealtimeConversationController(args: {
       functionCallsInFlightRef.current.add(callId);
 
       const input = safeJsonParse(functionCall.arguments ?? functionCallArgsRef.current[callId]?.arguments ?? {});
+      const fish = model.startsWith("fishaudio/");
+      if (fish && !tools.some(tool => tool.name === name)) {
+        submitFunctionCallOutput(callId, { isError: true });
+        functionCallsInFlightRef.current.delete(callId);
+        return;
+      }
       const toolMessage = newUiMessage("assistant", [
         {
           type: `tool-${name}`,
@@ -308,7 +315,15 @@ export function useRealtimeConversationController(args: {
             },
           })
         );
+        if (fish) {
+          startupRef.current?.signal.throwIfAborted();
+          await persistMessage({ ...toolMessage, parts: [{ ...toolMessage.parts[0], state: "approval-requested", output: result, approval: { id: callId } }] as any });
+          const decision = await approvals.review({ toolCallId: callId, toolName: name, input, output: result }, startupRef.current!.signal);
+          startupRef.current?.signal.throwIfAborted();
+          if (!decision.approved) result = { isError: true, content: [{ type: "text", text: "Tool result was not approved." }] };
+        }
       } catch (e) {
+        if (fish && startupRef.current?.signal.aborted) return;
         const message = describeError(e);
         addChatError(new Error(`Realtime tool call failed: ${message}`));
         result = {
@@ -334,7 +349,7 @@ export function useRealtimeConversationController(args: {
 
       submitFunctionCallOutput(callId, result);
     },
-    [addChatError, model, persistMessage, registerFunctionCallForResponse, runToolCallSequentially, submitFunctionCallOutput, toolUse.onToolCall, upsertLocalDraft]
+    [addChatError, model, persistMessage, registerFunctionCallForResponse, runToolCallSequentially, submitFunctionCallOutput, toolUse.onToolCall, upsertLocalDraft, tools, approvals.review]
   );
 
   const configureSession = useCallback(() => {
@@ -429,6 +444,27 @@ export function useRealtimeConversationController(args: {
         return;
       }
 
+      if (model.startsWith("fishaudio/") && (type === "session.reconnecting" || type === "session.resumed")) {
+        setStatus(type === "session.reconnecting" ? "starting" : "connected");
+        if (type === "session.resumed" && sessionRef.current) flushPendingQueue();
+        return;
+      }
+
+      if (model.startsWith("fishaudio/") && ["transcript.user", "transcript.user.delta", "transcript.agent", "transcript.agent.delta"].includes(type)) {
+        const role = type.startsWith("transcript.user") ? "user" : "assistant";
+        const id = String(event.item_id ?? "");
+        if (!id) return;
+        const key = role + ":" + id;
+        const previous = fishSegmentsRef.current.get(key);
+        if (!previous && fishSegmentsRef.current.size >= 4096) { setError("Fish Audio transcript segment limit exceeded."); return; }
+        const final = !type.endsWith(".delta");
+        const message = previous ?? newUiMessage(role, [], { realtime: true, model, item_id: id });
+        const updated: UIMessage = { ...message, parts: [{ type: "text", text: String(event.text ?? "") }], metadata: { ...message.metadata, final } };
+        fishSegmentsRef.current.set(key, updated);
+        if (final) void persistMessage(updated); else upsertLocalDraft(updated);
+        return;
+      }
+
       if (type === "transcript.user.delta") {
         const itemId = String(event?.item_id ?? "assemblyai-user-voice");
         const next = String(event?.text ?? "");
@@ -492,9 +528,13 @@ export function useRealtimeConversationController(args: {
         return;
       }
 
-      if (type === "smallestai.session.closed") {
+      if (type === "smallestai.session.closed" || type === "fishaudio.session.closed") {
         const session = sessionRef.current; sessionRef.current = null;
         void session?.stop();
+        if (type === "fishaudio.session.closed") {
+          startupRef.current?.abort(); approvals.cancel();
+          for (const message of fishSegmentsRef.current.values()) void persistMessage({ ...message, metadata: { ...message.metadata, endReason: event.reason } });
+        }
         startedRef.current = false;
         setStatus("idle");
         void historyRef.current!.flush().then(() => refresh()).catch(error => addChatError(error));
@@ -660,7 +700,7 @@ export function useRealtimeConversationController(args: {
         }
       }
     },
-    [addChatError, executeFunctionCall, getFunctionCallResponseId, maybeCreateContinuationForResponse, isCartesiaRealtime, model, persistMessage, registerFunctionCallForResponse, submitAssemblyAiPendingToolResults, upsertLocalDraft]
+    [addChatError, executeFunctionCall, getFunctionCallResponseId, maybeCreateContinuationForResponse, isCartesiaRealtime, model, persistMessage, registerFunctionCallForResponse, submitAssemblyAiPendingToolResults, upsertLocalDraft, flushPendingQueue, approvals.cancel]
   );
 
   const start = useCallback(
@@ -668,6 +708,7 @@ export function useRealtimeConversationController(args: {
       if (startedRef.current || sessionRef.current || status === "starting" || !model) return;
       if (isCartesiaRealtime && initialMessage) throw new Error("Cartesia agents accept audio only; remove the initial text message.");
       startedRef.current = true;
+      fishSegmentsRef.current.clear();
       stoppingRef.current = false; stopPromiseRef.current = null;
       setStatus("starting");
       setError(null);
@@ -792,6 +833,7 @@ export function useRealtimeConversationController(args: {
     if (stopPromiseRef.current) return stopPromiseRef.current;
     stoppingRef.current = true; approvals.cancel(); liveRef.current?.beginClose();
     const session = sessionRef.current; sessionRef.current = null;
+    if (model.startsWith("fishaudio/")) startupRef.current?.abort();
     if (!session) startupRef.current?.abort();
     setStatus('stopping'); setCameraEnabledState(false); setCameraStream(null);
     const stopping = (async () => {
@@ -800,6 +842,7 @@ export function useRealtimeConversationController(args: {
         liveRef.current?.stop(); liveRef.current = null;
         if (assistantDraftRef.current) await persistMessage(assistantDraftRef.current);
         if (userAudioDraftRef.current) await persistMessage(userAudioDraftRef.current);
+        for (const message of fishSegmentsRef.current.values()) await persistMessage(message);
         await historyRef.current!.flush();
         await refresh();
         if (audioRef.current) { audioRef.current.pause(); audioRef.current.srcObject = null; }
