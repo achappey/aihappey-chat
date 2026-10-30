@@ -50,6 +50,6 @@ export const ToolContent: React.FC<ToolContentProps> = ({
     <JsonViewer title={t('input')} value={argsPreview} />
 
     {progress && <ProgressBar label={progress.message}
-      value={progress?.total ? progress.progress / progress.total : progress.progress} />}
+      value={progress?.total ? (progress.progress / progress.total) * 100 : progress.progress} />}
   </>
 };

@@ -11,7 +11,7 @@ export const ProgressBar: ProgressBarComponent = ({
   className,
   tooltipContent,
 }) => {
-  const normalizedValue = value > 1 ? value / 100 : value;
+  const normalizedValue = Number.isFinite(value) ? Math.max(0, Math.min(100, value)) / 100 : 0;
 
   const content = (
     <Field
