@@ -7,4 +7,5 @@ export const createBackendProvider = (
   baseURL: string,
   customHeaders?: Record<string, string>,
   getAccessToken?: () => Promise<string>,
-) => createProvider(name, baseURL, customHeaders, getAccessToken, createCredentialScopedFetch());
+  customFetch?: typeof fetch,
+) => createProvider(name, baseURL, customHeaders, getAccessToken, createCredentialScopedFetch(customFetch));

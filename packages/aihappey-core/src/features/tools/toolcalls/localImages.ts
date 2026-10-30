@@ -7,6 +7,7 @@ import type { ImageStore } from "aihappey-images";
 import type { ChatConfig } from "../../chat/context/ChatContext";
 import { buildOperationHeaders, createCredentialScopedFetch } from "../../provider-credentials/scopedRequest";
 import { getImageFileExtension } from "../../images/imageContentUtils";
+import { createToolGatewayCostCollector } from "../toolGatewayCost";
 
 const imageReferenceSchema = {
     type: "object" as const,
@@ -257,62 +258,69 @@ export async function executeLocalImagesTool(
     if (!/^[^/\s]+\/.+/.test(model))
         throw new Error("Use an exact provider-qualified model ID from local_ai_models_search, e.g. openai/gpt-image-1, not a bare model name.");
     const { config, settings } = deps;
-    const fetch = createCredentialScopedFetch(config.fetch);
+    const costs = createToolGatewayCostCollector();
+    const fetch = createCredentialScopedFetch(costs.wrapFetch(config.fetch));
 
-    if (toolCall.toolName === "local_images_ask") {
-        const question = requiredText(input.question, "question");
-        const refs = referenceList(input.images, true);
-        const images = await Promise.all(refs.map(ref => resolveImage(ref, deps)));
+    try {
+        if (toolCall.toolName === "local_images_ask") {
+            const question = requiredText(input.question, "question");
+            const refs = referenceList(input.images, true);
+            const images = await Promise.all(refs.map(ref => resolveImage(ref, deps)));
+            const headers = await buildOperationHeaders(config, settings.customHeaders, model);
+            signal?.throwIfAborted();
+            // Deliberately use the normal endpoint/token, never the agent endpoint or image generation tools.
+            const client = createResponsesProvider({ baseUrl: config.baseUrl + config.endpoints.responses, headers, fetch });
+            const response = await client.create({
+                model, background: false, store: false, stream: false, tools: [],
+                input: [{ role: "user", content: [
+                    { type: "input_text", text: question },
+                    ...images.map(image => ({ type: "input_image" as const, image_url: `data:${image.mimeType};base64,${image.data}` })),
+                ] }],
+            }, { signal });
+            signal?.throwIfAborted();
+            if (response.error || (response.status && response.status !== "completed"))
+                throw new Error(`Image question did not complete (${response.status ?? "error"}).`);
+            const answer = (response.output ?? [])
+                .filter(item => item.type === "message" && item.role === "assistant")
+                .flatMap(item => item.content ?? [])
+                .filter(part => part.type === "output_text" && typeof part.text === "string")
+                .map(part => part.text).join("\n").trim();
+            if (!answer) throw new Error("Image question returned no text answer.");
+            return costs.withCost({ isError: false, content: [{ type: "text", text: answer }] });
+        }
+
+        const prompt = requiredText(input.prompt, "prompt");
+        const refs = referenceList(input.inputImages, false);
+        const maskRef = input.mask == null ? undefined : imageReference(input.mask);
+        if (maskRef && !refs.length) throw new Error("A mask requires at least one input image. For NEW image generation, set mask to null and inputImages to []. Do not invent a mask reference.");
+        const n = integer(input.n ?? settings.n ?? 1, "n", 1, 100);
+        const max = settings.maxImagesPerCall == null ? undefined : integer(settings.maxImagesPerCall, "maxImagesPerCall", 1);
+        const size = input.size ?? settings.size;
+        const aspectRatio = input.aspectRatio ?? settings.aspectRatio;
+        if (size != null && (typeof size !== "string" || !/^[1-9]\d*x[1-9]\d*$/.test(size))) throw new Error("Invalid image size.");
+        if (aspectRatio != null && (typeof aspectRatio !== "string" || !/^[1-9]\d*:[1-9]\d*$/.test(aspectRatio))) throw new Error("Invalid aspect ratio.");
+        const seed = input.seed ?? settings.seed;
+        if (seed != null) integer(seed, "seed", Number.MIN_SAFE_INTEGER);
+        const sourceImages = await Promise.all(refs.map(ref => resolveImage(ref, deps)));
+        const mask = maskRef ? await resolveImage(maskRef, deps) : undefined;
+        if (mask && mask.mimeType !== "image/png") throw new Error("Mask must be a PNG image.");
         const headers = await buildOperationHeaders(config, settings.customHeaders, model);
         signal?.throwIfAborted();
-        // Deliberately use the normal endpoint/token, never the agent endpoint or image generation tools.
-        const client = createResponsesProvider({ baseUrl: config.baseUrl + config.endpoints.responses, headers, fetch });
-        const response = await client.create({
-            model, background: false, store: false, stream: false, tools: [],
-            input: [{ role: "user", content: [
-                { type: "input_text", text: question },
-                ...images.map(image => ({ type: "input_image" as const, image_url: `data:${image.mimeType};base64,${image.data}` })),
-            ] }],
-        }, { signal });
+        const provider = createImageProvider({ baseUrl: config.baseUrl + config.endpoints.images, headers, fetch });
+        const result = await provider.imageModel(model, max).doGenerate({
+            prompt, n, size: size as ImageModelV4CallOptions["size"],
+            aspectRatio: aspectRatio as ImageModelV4CallOptions["aspectRatio"], seed,
+            files: sourceImages.map(toModelFile), mask: mask ? toModelFile(mask) : undefined,
+            providerOptions: settings.providerImageMetadata ?? {}, abortSignal: signal,
+        });
         signal?.throwIfAborted();
-        if (response.error || (response.status && response.status !== "completed"))
-            throw new Error(`Image question did not complete (${response.status ?? "error"}).`);
-        const answer = (response.output ?? [])
-            .filter(item => item.type === "message" && item.role === "assistant")
-            .flatMap(item => item.content ?? [])
-            .filter(part => part.type === "output_text" && typeof part.text === "string")
-            .map(part => part.text).join("\n").trim();
-        if (!answer) throw new Error("Image question returned no text answer.");
-        return { isError: false, content: [{ type: "text", text: answer }] };
+        if (!result.images.length) throw new Error("Image generation returned no images.");
+        const generated = result.images.map(image => imageContent(image));
+        // Normalize binary/raw output for the existing Images library renderer as well as future reads.
+        return costs.withCost(await persistImages({ ...result, images: generated.map(image => `data:${image.mimeType};base64,${image.data}`) }, generated, deps));
+    } catch (error) {
+        signal?.throwIfAborted();
+        if (!costs.hasCost) throw error;
+        return costs.withCost({ isError: true, content: [{ type: "text", text: error instanceof Error ? error.message : String(error) }] });
     }
-
-    const prompt = requiredText(input.prompt, "prompt");
-    const refs = referenceList(input.inputImages, false);
-    const maskRef = input.mask == null ? undefined : imageReference(input.mask);
-    if (maskRef && !refs.length) throw new Error("A mask requires at least one input image. For NEW image generation, set mask to null and inputImages to []. Do not invent a mask reference.");
-    const n = integer(input.n ?? settings.n ?? 1, "n", 1, 100);
-    const max = settings.maxImagesPerCall == null ? undefined : integer(settings.maxImagesPerCall, "maxImagesPerCall", 1);
-    const size = input.size ?? settings.size;
-    const aspectRatio = input.aspectRatio ?? settings.aspectRatio;
-    if (size != null && (typeof size !== "string" || !/^[1-9]\d*x[1-9]\d*$/.test(size))) throw new Error("Invalid image size.");
-    if (aspectRatio != null && (typeof aspectRatio !== "string" || !/^[1-9]\d*:[1-9]\d*$/.test(aspectRatio))) throw new Error("Invalid aspect ratio.");
-    const seed = input.seed ?? settings.seed;
-    if (seed != null) integer(seed, "seed", Number.MIN_SAFE_INTEGER);
-    const sourceImages = await Promise.all(refs.map(ref => resolveImage(ref, deps)));
-    const mask = maskRef ? await resolveImage(maskRef, deps) : undefined;
-    if (mask && mask.mimeType !== "image/png") throw new Error("Mask must be a PNG image.");
-    const headers = await buildOperationHeaders(config, settings.customHeaders, model);
-    signal?.throwIfAborted();
-    const provider = createImageProvider({ baseUrl: config.baseUrl + config.endpoints.images, headers, fetch });
-    const result = await provider.imageModel(model, max).doGenerate({
-        prompt, n, size: size as ImageModelV4CallOptions["size"],
-        aspectRatio: aspectRatio as ImageModelV4CallOptions["aspectRatio"], seed,
-        files: sourceImages.map(toModelFile), mask: mask ? toModelFile(mask) : undefined,
-        providerOptions: settings.providerImageMetadata ?? {}, abortSignal: signal,
-    });
-    signal?.throwIfAborted();
-    if (!result.images.length) throw new Error("Image generation returned no images.");
-    const generated = result.images.map(image => imageContent(image));
-    // Normalize binary/raw output for the existing Images library renderer as well as future reads.
-    return persistImages({ ...result, images: generated.map(image => `data:${image.mimeType};base64,${image.data}`) }, generated, deps);
 }

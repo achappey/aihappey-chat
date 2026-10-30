@@ -31,6 +31,8 @@ export type SideInferenceAgentCallOptions = {
   fallbackModelId?: string;
   /** Instructions used by the plain Responses fallback when the configured app agent is absent. */
   fallbackInstructions?: string;
+  /** Observe the raw response before text extraction discards optional gateway metadata. */
+  onResponse?: (response: unknown) => void;
 };
 
 type InvokeSideInferenceAgentArgs = SideInferenceAgentCallOptions & {
@@ -190,6 +192,7 @@ export const invokeSideInferenceAgent = async ({
   fallback,
   fallbackModelId,
   fallbackInstructions,
+  onResponse,
 }: InvokeSideInferenceAgentArgs): Promise<string | undefined> => {
   // An explicit None is not a missing definition: never use the chat-model fallback.
   if (agentName?.trim() === "") return fallback;
@@ -277,6 +280,7 @@ export const invokeSideInferenceAgent = async ({
     });
 
     const responseBody = await parseResponseBody(response);
+    onResponse?.(responseBody);
     if (!response.ok) {
       throw new Error(
         typeof responseBody === "string"

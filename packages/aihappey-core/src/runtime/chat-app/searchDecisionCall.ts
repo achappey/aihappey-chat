@@ -20,7 +20,7 @@ type SearchDecisionCallOptions = SideInferenceAgentCallOptions & {
 /** Undefined means the existing LLM path; an empty result is a handled decision failure, never a retry. */
 export async function invokeSearchDecision({
   agents = [], models = [], agentName, gatewayEnabled = true,
-  baseUrl, getAccessToken, customHeaders, fetch: customFetch, input, groups, signal,
+  baseUrl, getAccessToken, customHeaders, fetch: customFetch, input, groups, signal, onResponse,
 }: SearchDecisionCallOptions): Promise<Record<string, string[]> | undefined> {
   if (agentName?.trim() === "") return {};
   const helper = agents.find(agent => agent.name === agentName);
@@ -66,6 +66,7 @@ export async function invokeSearchDecision({
         ? { [providerKey]: model.providerMetadata } : undefined,
       abortSignal: signal,
     });
+    onResponse?.(response);
     signal?.throwIfAborted();
     if (!isValidDecisionResponse(response, questions)) throw new Error("Search decision returned an invalid response.");
     return Object.fromEntries(offered.map(group => {

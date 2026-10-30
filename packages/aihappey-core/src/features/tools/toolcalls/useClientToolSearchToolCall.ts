@@ -3,6 +3,7 @@ import type { Tool } from "@modelcontextprotocol/sdk/types";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, store, useAppStore } from "aihappey-state";
 import { invokeSideInferenceAgent } from "../../../runtime/chat-app/sideInferenceAgentCall";
 import { invokeSearchDecision } from "../../../runtime/chat-app/searchDecisionCall";
+import { createToolGatewayCostCollector } from "../toolGatewayCost";
 import {
   CLIENT_TOOL_SEARCH_NAME,
   CLIENT_TOOL_SEARCH_PLUGIN_ID,
@@ -82,6 +83,7 @@ export const useClientToolSearchRuntime = ({
     const goal = clientToolSearchGoal(toolCall?.input);
     if (!goal || catalog.length === 0) return toCallToolResult(EMPTY_CLIENT_TOOL_SEARCH_RESULT);
 
+    const costs = createToolGatewayCostCollector();
     const decision = await invokeSearchDecision({
       input: { goal },
       groups: [{
@@ -93,11 +95,12 @@ export const useClientToolSearchRuntime = ({
       baseUrl: api, getAccessToken,
       customHeaders: Object.keys(customHeaders ?? {}).length ? customHeaders : headers,
       gatewayEnabled, fetch: customFetch, agents, models, agentName, signal,
+      onResponse: costs.recordResponse,
     });
     if (decision !== undefined) {
-      return toCallToolResult(store.getState().sideInferenceAgentNames?.toolSearchAgent === ""
+      return costs.withCost(toCallToolResult(store.getState().sideInferenceAgentNames?.toolSearchAgent === ""
         ? EMPTY_CLIENT_TOOL_SEARCH_RESULT
-        : parseClientToolSearchSelection(JSON.stringify({ selectedToolNames: decision.tools ?? [] }), catalog));
+        : parseClientToolSearchSelection(JSON.stringify({ selectedToolNames: decision.tools ?? [] }), catalog)));
     }
 
     const output = await invokeSideInferenceAgent({
@@ -113,10 +116,11 @@ export const useClientToolSearchRuntime = ({
       agentName,
       fallbackModelId: selectedModel,
       fallbackInstructions: CLIENT_TOOL_SEARCH_INSTRUCTIONS,
+      onResponse: costs.recordResponse,
     });
 
-    return toCallToolResult(store.getState().sideInferenceAgentNames?.toolSearchAgent === ""
-      ? EMPTY_CLIENT_TOOL_SEARCH_RESULT : parseClientToolSearchSelection(output, catalog));
+    return costs.withCost(toCallToolResult(store.getState().sideInferenceAgentNames?.toolSearchAgent === ""
+      ? EMPTY_CLIENT_TOOL_SEARCH_RESULT : parseClientToolSearchSelection(output, catalog)));
   }, [agentName, agents, api, catalog, customFetch, customHeaders, gatewayEnabled, getAccessToken, headers, models, selectedModel]);
 
   return useMemo(() => ({

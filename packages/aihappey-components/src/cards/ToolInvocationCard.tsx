@@ -5,6 +5,7 @@ import type { Tool } from "aihappey-mcp";
 import { ViewButton } from "../buttons/ViewButton";
 import { ToolInvocationStateBadge } from "../badges/ToolInvocationStateBadge";
 import { SizeBadge } from "../badges/SizeBadge";
+import { CostBadge } from "../badges/CostBadge";
 import { useTranslation } from "aihappey-i18n";
 
 export interface ToolInvocationCardProps {
@@ -47,6 +48,10 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   const [loadingExplanation, setLoadingExplanation] = useState(false);
   const toolName = invocation.type.replace("tool-", "");
   const task = invocation?.output?.task as any;
+  const rawCost = invocation.output?._meta?.gateway?.cost;
+  const parsedCost = typeof rawCost === "number" || (typeof rawCost === "string" && rawCost.trim())
+    ? Number(rawCost) : undefined;
+  const cost = typeof parsedCost === "number" && Number.isFinite(parsedCost) ? parsedCost : undefined;
 
   const toolTitle = invocation?.title ?? tool?.title ?? tool?.name ?? toolName;
   const imageIcons = tool?.icons ?? (invocation.providerExecuted ? providerIcons : undefined);
@@ -54,7 +59,7 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
   const isCompleted = invocation.state === 'approval-responded'
     || invocation.state === 'output-available';
 
-  const cardDescription = <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+  const cardDescription = <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
     <ToolInvocationStateBadge
       state={invocation.state!}
       toolName={toolName}
@@ -64,6 +69,8 @@ export const ToolInvocationCard: React.FC<ToolInvocationCardProps> = ({
 
     {isCompleted && !invocation.output?.isError
       && <SizeBadge bytes={byteSize(invocation.output)} />}
+
+    {cost !== undefined && <CostBadge cost={cost} size="small" />}
 
     {task && <Badge size={"small"} bg="warning">task: {task.status}</Badge>}
   </div>;

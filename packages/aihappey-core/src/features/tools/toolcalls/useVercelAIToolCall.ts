@@ -14,6 +14,7 @@ import {
 import { z } from "zod";
 import { jsonSchemaToZod } from "json-schema-to-zod";
 import { useLocalTools } from "aihappey-tools";
+import { createToolGatewayCostCollector } from "../toolGatewayCost";
 
 /* ============================================================
    Result helpers
@@ -211,6 +212,7 @@ export function useVercelAIToolCall(
 
   const handle = useCallback(
     async (toolCall: VercelAIToolCall): Promise<any> => {
+      const costs = createToolGatewayCostCollector();
       try {
         if (!api) throw new Error("api is required.");
 
@@ -218,7 +220,8 @@ export function useVercelAIToolCall(
           new URL(api).hostname,
           api,
           { ...(headers ?? {}), ...(customHeaders ?? {}) },
-          getAccessToken
+          getAccessToken,
+          costs.wrapFetch(customFetch)
         );
 
         const modelId = toolCall?.input?.model;
@@ -248,7 +251,7 @@ export function useVercelAIToolCall(
               maxStepCount
             );
 
-            return toJsonResource("https://ai-sdk.dev/docs/agents", result);
+            return costs.withCost(toJsonResource("https://ai-sdk.dev/docs/agents", result));
           }
 
           case "vercel_ai_generate_text": {
@@ -260,10 +263,10 @@ export function useVercelAIToolCall(
               tools: {},
             });
 
-            return toJsonResource(
+            return costs.withCost(toJsonResource(
               "https://ai-sdk.dev/docs/ai-sdk-core/generating-text",
               result
-            );
+            ));
           }
 
           case "vercel_ai_generate_lasagna_recipe": {
@@ -315,17 +318,17 @@ export function useVercelAIToolCall(
 
             console.log(result.output)
 
-            return {
+            return costs.withCost({
               isError: false,
               structuredContent: result.output
-            }
+            });
           }
 
           default:
             throw new Error(`Unsupported tool: ${toolCall.toolName}`);
         }
       } catch (e) {
-        return fail(e);
+        return costs.withCost(fail(e));
       }
     },
     [api, headers, customHeaders, getAccessToken, customFetch, localTools]

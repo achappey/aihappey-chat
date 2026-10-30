@@ -3,6 +3,7 @@ import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, store, useAppStore } from "aihappey-state";
 import { invokeSideInferenceAgent } from "../../../runtime/chat-app/sideInferenceAgentCall";
 import { invokeSearchDecision } from "../../../runtime/chat-app/searchDecisionCall";
+import { createToolGatewayCostCollector } from "../toolGatewayCost";
 import {
   CLIENT_RESOURCE_SEARCH_NAME,
   CLIENT_RESOURCE_SEARCH_PLUGIN_ID,
@@ -111,6 +112,7 @@ export const useClientResourceSearchRuntime = ({
       return toCallToolResult(EMPTY_CLIENT_RESOURCE_SEARCH_RESULT);
     }
 
+    const costs = createToolGatewayCostCollector();
     const decision = await invokeSearchDecision({
       input: {
         query, serverUrl,
@@ -128,14 +130,15 @@ export const useClientResourceSearchRuntime = ({
       baseUrl: api, getAccessToken,
       customHeaders: Object.keys(customHeaders ?? {}).length ? customHeaders : headers,
       gatewayEnabled, fetch: customFetch, agents, models, agentName, signal,
+      onResponse: costs.recordResponse,
     });
     if (decision !== undefined) {
-      return toCallToolResult(store.getState().sideInferenceAgentNames?.resourceSearchAgent === ""
+      return costs.withCost(toCallToolResult(store.getState().sideInferenceAgentNames?.resourceSearchAgent === ""
         ? EMPTY_CLIENT_RESOURCE_SEARCH_RESULT
         : parseClientResourceSearchSelection(JSON.stringify({
           selectedResourceUris: decision.resources ?? [],
           selectedResourceTemplateUriTemplates: decision.resourceTemplates ?? [],
-        }), catalog));
+        }), catalog)));
     }
 
     const output = await invokeSideInferenceAgent({
@@ -159,10 +162,11 @@ export const useClientResourceSearchRuntime = ({
       agentName,
       fallbackModelId: selectedModel,
       fallbackInstructions: CLIENT_RESOURCE_SEARCH_INSTRUCTIONS,
+      onResponse: costs.recordResponse,
     });
 
-    return toCallToolResult(store.getState().sideInferenceAgentNames?.resourceSearchAgent === ""
-      ? EMPTY_CLIENT_RESOURCE_SEARCH_RESULT : parseClientResourceSearchSelection(output, catalog));
+    return costs.withCost(toCallToolResult(store.getState().sideInferenceAgentNames?.resourceSearchAgent === ""
+      ? EMPTY_CLIENT_RESOURCE_SEARCH_RESULT : parseClientResourceSearchSelection(output, catalog)));
   }, [agentName, agents, api, customFetch, customHeaders, gatewayEnabled, getAccessToken, headers, mcpServerContent, mcpServers, models, selectedModel]);
 
   return useMemo(() => ({

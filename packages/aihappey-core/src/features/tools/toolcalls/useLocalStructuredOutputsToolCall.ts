@@ -9,6 +9,7 @@ import {
 import { useAppStore } from "aihappey-state";
 import type { FilesContextType } from "aihappey-files";
 import { useStructuredOutputs } from "aihappey-structured-outputs";
+import { createToolGatewayCostCollector } from "../toolGatewayCost";
 
 /* ============================================================
    Result helpers
@@ -205,14 +206,16 @@ async function validateSchema(
     api: string,
     headers: Record<string, string>,
     getAccessToken: any,
-    schemaString: string
+    schemaString: string,
+    customFetch: typeof fetch,
 ) {
     if (!api) throw new Error("api is required.");
     const provider = createBackendProvider(
         new URL(api).hostname,
         api,
         headers,
-        getAccessToken
+        getAccessToken,
+        customFetch,
     );
     const model = provider("openai/gpt-5-mini");
     const parsed = parseSchemaString(schemaString);
@@ -243,6 +246,7 @@ export function useLocalStructuredOutputsRuntime(
 
     const handle = useCallback(
         async (toolCall: LocalStructuredOutputsToolCall): Promise<CallToolResult> => {
+            const costs = createToolGatewayCostCollector();
             try {
                 switch (toolCall.toolName) {
                     case "local_structured_outputs_execute": {
@@ -262,7 +266,8 @@ export function useLocalStructuredOutputsRuntime(
                             new URL(api).hostname,
                             api,
                             { ...(headers ?? {}), ...(customHeaders ?? {}) },
-                            getAccessToken
+                            getAccessToken,
+                            costs.wrapFetch(),
                         );
 
                         const model = provider(modelId);
@@ -300,7 +305,7 @@ export function useLocalStructuredOutputsRuntime(
                             tools: {},
                         });
 
-                        return okStructured(response.output ?? response);
+                        return costs.withCost(okStructured(response.output ?? response));
                     }
 
 
@@ -324,11 +329,12 @@ export function useLocalStructuredOutputsRuntime(
                             api,
                             { ...(headers ?? {}), ...(customHeaders ?? {}) },
                             getAccessToken,
-                            schema
+                            schema,
+                            costs.wrapFetch(),
                         );
 
                         const created = await store.add(name, schema);
-                        return ok(JSON.stringify(created));
+                        return costs.withCost(ok(JSON.stringify(created)));
                     }
 
                     case "local_structured_outputs_update": {
@@ -344,11 +350,12 @@ export function useLocalStructuredOutputsRuntime(
                             api,
                             { ...(headers ?? {}), ...(customHeaders ?? {}) },
                             getAccessToken,
-                            schema
+                            schema,
+                            costs.wrapFetch(),
                         );
 
                         const updated = await store.update(id, name, schema);
-                        return ok(JSON.stringify(updated));
+                        return costs.withCost(ok(JSON.stringify(updated)));
                     }
 
                     case "local_structured_outputs_delete": {
@@ -362,7 +369,7 @@ export function useLocalStructuredOutputsRuntime(
                         throw new Error(`Unsupported tool: ${toolCall.toolName}`);
                 }
             } catch (e) {
-                return fail(e);
+                return costs.withCost(fail(e));
             }
         },
         [api, customHeaders, files, getAccessToken, headers, store]
