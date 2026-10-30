@@ -119,7 +119,7 @@ test('native bridge validates nonce, version, monotonic IDs, command allowlist a
 test('bundled Windows runtime matches shared sources and has no embedded web presentation or script bridge', () => {
   const assets = path.resolve(root, '../aihappey-desktop/Core/AIHappey.Desktop.Core/Assets/FishAudio');
   const manifest = JSON.parse(fs.readFileSync(path.join(assets, 'manifest.json')));
-  const sha = data => crypto.createHash('sha256').update(data).digest('hex');
+  const sha = data => crypto.createHash('sha256').update(data.toString('utf8').replace(/\r\n/g, '\n')).digest('hex');
   assert.equal(manifest.sdk, '0.3.0');
   for (const [name, hash] of Object.entries(manifest.sources)) assert.equal(sha(fs.readFileSync(path.join(root, feature, name))), hash, 'Rebuild the shared Windows transport bundle.');
   assert.equal(sha(fs.readFileSync(path.join(assets, 'runtime.js'))), manifest.bundle);
