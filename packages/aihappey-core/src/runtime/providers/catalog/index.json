@@ -1386,11 +1386,7 @@
   {
     "id": "libertai",
     "file": "libertai.json"
-  },
-  {
-    "id": "jules",
-    "file": "jules.json"
-  },
+  }, 
   {
     "id": "antbase",
     "file": "antbase.json"
