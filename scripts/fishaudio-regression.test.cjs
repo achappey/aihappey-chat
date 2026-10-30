@@ -128,3 +128,76 @@ test('bundled Windows runtime matches shared sources and has no embedded web pre
   assert.match(native, /controller.IsVisible = false/); assert.match(native, /AreHostObjectsAllowed = false/);
   assert.doesNotMatch(native, /ExecuteScriptAsync|AddHostObjectToScript|new WebView2\(/);
 });
+
+test('provider provisioning scopes headers/options and passes the exact SDK token, never the server key', async () => {
+  const requests = [], connections = []; const abort = new AbortController();
+  const sessionToken = token();
+  const { fishAudioRealtimeConversationProvider: provider } = load('fishAudioRealtimeConversationProvider.ts', {
+    'aihappey-ai': { getRealtimeToken: async config => async request => { requests.push({ config, request }); return { value: sessionToken.token, providerMetadata: { fishaudio: sessionToken } }; } },
+    './realtimeConversationConfig': { buildRealtimeBackendHeaders: async () => ({ Authorization: 'Bearer backend-auth', 'X-FishAudio-Key': 'server-fixture', 'X-AIHappey-Debug': 'true' }) },
+    './fishAudioSession': { startFishAudioSession: async args => { connections.push(args); return { send() {}, setMuted: async () => {}, stop: async () => {} }; } },
+  });
+  await provider.start({ model: 'fishaudio/agents/fixture', config: { baseUrl: 'https://backend.test', endpoints: { realtime: '/v1/realtime/client_secrets' } },
+    abortSignal: abort.signal, providerRealtimeConversationMetadata: { fishaudio: { tool_events: false }, openai: { private: 'not-sent' } }, tools: [{ name: 'lookup' }] });
+  assert.equal(requests[0].config.signal, abort.signal);
+  assert.equal(new Headers(requests[0].config.headers).has('X-AIHappey-Debug'), false);
+  assert.equal(new Headers(requests[0].config.headers).get('X-FishAudio-Key'), 'server-fixture');
+  assert.deepEqual(Object.keys(requests[0].request.providerOptions), ['fishaudio']);
+  assert.equal(requests[0].request.providerOptions.fishaudio.tool_events, false);
+  assert.equal(connections[0].sessionToken, sessionToken); assert.deepEqual(connections[0].toolNames, ['lookup']);
+  assert(!JSON.stringify(connections).includes('server-fixture')); assert.equal(provider.createSessionUpdateEvent, undefined);
+});
+
+function controllerHarness() {
+  const slots = []; let index = 0, number = 0, events, controller;
+  const saved = new Map(), sent = [], errors = [], reviewed = [], tools = [{ name: 'lookup' }];
+  const hooks = {
+    useRef: value => slots[index++] ??= { current: value },
+    useState: value => { const at = index++; slots[at] ??= value; return [slots[at], next => slots[at] = typeof next === 'function' ? next(slots[at]) : next]; },
+    useCallback: fn => fn, useMemo: fn => fn(), useEffect() {},
+  };
+  const state = { models: [], customHeaders: {}, toolChoice: 'auto', providerRealtimeConversationMetadata: {}, providerMetadata: {} };
+  const { RealtimeHistoryWriter } = load('realtimeHistoryWriter.ts', {});
+  const { useRealtimeConversationController } = load('useRealtimeConversationController.ts', {
+    react: hooks, 'aihappey-state': { useAppStore: select => select(state) },
+    'aihappey-conversations': { useConversations: () => ({ addMessage: async (_, message) => saved.set(message.id, structuredClone(message)), updateMessage: async (_, id, message) => saved.set(id, structuredClone(message)), refresh: async () => {} }) },
+    '../chat/layout/useChatErrors': { useChatErrors: () => ({ addChatError: error => errors.push(error) }) },
+    '../tools/useTools': { useTools: () => ({ tools }) },
+    '../tools/toolcalls/useOnToolCall': { useOnToolCall: () => ({ onToolCall: async () => ({ ok: true }) }) },
+    './useRealtimeToolApprovals': { useRealtimeToolApprovals: () => ({ review: async review => { reviewed.push(review); return { approved: true }; }, cancel() {} }) },
+    './liveSessionConfig': { usesOpenAiLiveProtocol: () => false }, './liveConversationRuntime': {}, './runLiveClientDelegation': {},
+    './realtimeHistoryWriter': { RealtimeHistoryWriter },
+    './realtimeConversationProviders': { buildRealtimeConversationSessionUpdateEvent: () => undefined,
+      startRealtimeConversationProviderSession: async args => { events = args.events; return { kind: 'sdk', send: event => sent.push(event), setMicrophoneEnabled() {}, stop: async () => {} }; } },
+    './realtimeMessageParts': { newUiMessage: (role, parts, metadata) => ({ id: 'm' + (++number), role, parts, metadata }),
+      uiMessageToRealtimeContent: message => message.parts, realtimeContentToText: parts => parts.map(p => p.text ?? '').join(''),
+      extractFunctionCallsFromRealtimeResponse: () => [], extractTextFromRealtimeResponse: () => '' },
+  });
+  const args = { model: 'fishaudio/agents/fixture', conversationId: 'local-conversation', initialMessages: [], config: {}, audioRef: { current: null } };
+  const render = () => { index = 0; controller = useRealtimeConversationController(args); return controller; };
+  render();
+  return { render, saved, sent, errors, reviewed, get controller() { return controller; }, get events() { return events; } };
+}
+
+test('browser controller stores segment snapshots once and retains partial Fish Audio history on Stop', async () => {
+  const h = controllerHarness(); await h.controller.start(); h.events.onOpen();
+  for (const event of [
+    { type: 'transcript.user.delta', item_id: 'u', text: 'Hel' }, { type: 'transcript.user', item_id: 'u', text: 'Hello' },
+    { type: 'transcript.user', item_id: 'u', text: 'Hello' }, { type: 'transcript.agent.delta', item_id: 'a', text: 'First' },
+    { type: 'transcript.agent.delta', item_id: 'a', text: 'Final spoken words' },
+  ]) h.events.onEvent(event);
+  await h.render().stop();
+  assert.equal(h.saved.size, 2); assert.deepEqual([...h.saved.values()].map(message => message.parts[0].text), ['Hello', 'Final spoken words']);
+  assert.deepEqual(h.errors, []); assert(!JSON.stringify([...h.saved.values()]).includes('ephemeral'));
+});
+
+test('browser controller reconnects without new provisioning and reviews Fish Audio client-tool outputs', async () => {
+  const h = controllerHarness(); await h.controller.start(); h.events.onOpen();
+  h.events.onEvent({ type: 'session.reconnecting' }); assert.equal(h.render().status, 'starting');
+  h.events.onEvent({ type: 'session.resumed' }); assert.equal(h.render().status, 'connected');
+  h.events.onEvent({ type: 'response.output_item.done', item: { type: 'function_call', call_id: 'call', name: 'lookup', arguments: '{}' } });
+  await tick(); await tick();
+  assert.equal(h.reviewed.length, 1); assert.deepEqual(h.reviewed[0].output, { ok: true });
+  assert(h.sent.some(event => event.item?.type === 'function_call_output' && event.item.call_id === 'call'));
+  await h.render().stop(); assert.deepEqual(h.errors, []);
+});

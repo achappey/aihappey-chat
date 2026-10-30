@@ -853,7 +853,7 @@ export function useRealtimeConversationController(args: {
     // Retain failed snapshots and allow another Stop to retry storage, not inference.
     void stopping.catch(() => { stopPromiseRef.current = null; });
     return stopping;
-  }, [approvals.cancel, audioRef, persistMessage, refresh]);
+  }, [approvals.cancel, audioRef, persistMessage, refresh, model]);
 
   const setMicrophoneMuted = useCallback((nextMuted: boolean) => {
     setMuted(nextMuted);
