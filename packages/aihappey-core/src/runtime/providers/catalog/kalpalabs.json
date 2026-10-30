@@ -1,0 +1,16 @@
+
+{
+  "name": "KalpaLabs",
+  "description": "Kalpa Labs is building one model for all of audio. Today: kalpa-tts-1, text-to-speech in English and Hindi, about 300 ms to first audio when streaming.",
+  "urls": {
+    "homepage": "https://kalpalabs.ai",
+    "docs": "https://docs.kalpalabs.ai",
+    "termsOfService": "https://kalpalabs.ai/terms",
+    "privacyPolicy": "https://kalpalabs.ai/privacy"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}

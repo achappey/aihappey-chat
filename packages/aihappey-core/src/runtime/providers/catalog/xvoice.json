@@ -1,0 +1,17 @@
+
+{
+  "name": "xVoice",
+  "description": "Low-latency speech-to-text and text-to-speech APIs with transcripts you can rely on. HIPAA compliant, SOC 2 Type II, and proven in clinical, contact-center and voice-agent workflows.",
+  "urls": {
+    "homepage": "https://xvoice.dev",
+    "docs": "https://docs.xvoice.dev",
+    "pricing": "https://xvoice.dev/#pricing",
+    "termsOfService": "https://xvoice.dev/legal/terms/",
+    "privacyPolicy": "https://xvoice.dev/legal/privacy/"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}

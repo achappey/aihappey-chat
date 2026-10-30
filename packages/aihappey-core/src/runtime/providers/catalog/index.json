@@ -1386,7 +1386,15 @@
   {
     "id": "libertai",
     "file": "libertai.json"
-  }, 
+  },
+  {
+    "id": "kalpalabs",
+    "file": "kalpalabs.json"
+  },
+  {
+    "id": "xvoice",
+    "file": "xvoice.json"
+  },
   {
     "id": "antbase",
     "file": "antbase.json"
