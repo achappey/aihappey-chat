@@ -6,7 +6,10 @@ import type { RealtimeConversationProviderRuntime } from "./realtimeConversation
 export const fishAudioRealtimeConversationProvider: RealtimeConversationProviderRuntime = {
   start: async args => {
     const headers = await buildRealtimeBackendHeaders(args.config, args.customHeaders, args.model);
-    const create = await getRealtimeToken({ baseUrl: args.config.baseUrl + args.config.endpoints.realtime, headers });
+    const safeHeaders = new Headers(headers);
+    safeHeaders.delete("X-AIHappey-Debug"); // Ephemeral session tokens must not enter backend API-debug storage.
+    const create = await getRealtimeToken({ baseUrl: args.config.baseUrl + args.config.endpoints.realtime,
+      headers: Object.fromEntries(safeHeaders), signal: args.abortSignal });
     args.abortSignal?.throwIfAborted();
     const options = { ...(args.providerRealtimeConversationMetadata?.fishaudio ?? {}) };
     // The published agent owns its prompt/voice/tools unless the caller explicitly requests an override.
