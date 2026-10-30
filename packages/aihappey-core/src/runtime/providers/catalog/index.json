@@ -1384,6 +1384,10 @@
     "file": "payperq.json"
   },
   {
+    "id": "edgespeak",
+    "file": "edgespeak.json"
+  },
+  {
     "id": "libertai",
     "file": "libertai.json"
   },

@@ -1,0 +1,16 @@
+
+{
+  "name": "EdgeSpeak",
+  "description": "EdgeSpeak is a desktop speech app for local audio and video transcription, local-first workflows, CLI automation, and an OpenAI-compatible speech gateway.",
+  "urls": {
+    "homepage": "https://edgespeak.com",
+    "docs": "https://edgespeak.com/docs",
+    "pricing": "https://edgespeak.com/pricing",
+    "termsOfService": "https://edgespeak.com/terms",
+    "privacyPolicy": "https://edgespeak.com/privacy"
+  },
+  "category": "model_provider",
+  "inferenceRegions": [
+    "Local"
+  ]
+}
