@@ -26,6 +26,7 @@ const search = load(root + "runtime/chat-app/searchDecisionCall.ts", {
 });
 const toolCatalog = load(root + "features/tools/clientToolSearch.ts");
 const resourceCatalog = load(root + "features/tools/clientResourceSearch.ts");
+const gatewayCosts = load(root + "features/tools/toolGatewayCost.ts");
 const model = { id: "openai/router", type: "decision", name: "Router" };
 const tools = Array.from({ length: 12 }, (_, i) => ({ name: `tool_${i}`, description: `Capability ${i}`, inputSchema: { type: "object" } }));
 
@@ -47,6 +48,7 @@ function harness(options = {}) {
         ...options.state,
     };
     const mocks = {
+        "../toolGatewayCost": gatewayCosts,
         react: { useMemo: factory => factory(), useCallback: callback => callback },
         "aihappey-state": {
             store: { getState: () => state }, useAppStore: select => select(state),
@@ -55,6 +57,7 @@ function harness(options = {}) {
         "../../../runtime/chat-app/searchDecisionCall": search,
         "../../../runtime/chat-app/sideInferenceAgentCall": { async invokeSideInferenceAgent(args) {
             llm.push(args);
+            args.onResponse?.(options.llmResponse);
             return args.feature === "toolSearch" ? '{"selectedToolNames":["tool_0"]}'
                 : '{"selectedResourceUris":["mail://0"],"selectedResourceTemplateUriTemplates":[]}';
         } },
@@ -208,4 +211,43 @@ test("decision cancellation propagates and late disabling discards the selection
     const inFlightController = new AbortController();
     await assert.rejects(inflight.toolRuntime.handle({ input: { goal: "tools" } }, inFlightController.signal), { name: "AbortError" });
     assert.equal(inflight.llm.length, 0);
+});
+
+test("decision search costs are persisted once at the MCP result level, not on catalog entries", async () => {
+    for (const cost of [0, 0.000267, "0.12"]) {
+        const h = harness({ response: body => ({ ...rankedResponse(body), providerMetadata: { gateway: { cost } } }) });
+        for (const [runtime, input] of [[h.toolRuntime, { goal: "tools" }], [h.resourceRuntime, { serverUrl: "https://mcp/mail", query: "mail" }]]) {
+            const result = await runtime.handle({ input });
+            assert.equal(result._meta.gateway.cost, Number(cost));
+            assert.equal(result.structuredContent._meta, undefined);
+        }
+    }
+});
+
+test("text search paths preserve raw Responses costs, including late-disabled and malformed selections", async () => {
+    const h = harness({ state: { agents: [] }, llmResponse: { metadata: { gateway: { cost: 0.000267 } } } });
+    for (const [runtime, input] of [[h.toolRuntime, { goal: "tools" }], [h.resourceRuntime, { serverUrl: "https://mcp/mail", query: "mail" }]]) {
+        const result = await runtime.handle({ input });
+        assert.equal(result._meta.gateway.cost, 0.000267);
+    }
+    const invalid = harness({ response: () => ({ answers: {}, providerMetadata: { gateway: { cost: 0.1 } } }) });
+    const result = await invalid.toolRuntime.handle({ input: { goal: "tools" } });
+    assert.deepEqual(result.structuredContent.selectedTools, []);
+    assert.equal(result._meta.gateway.cost, 0.1);
+    assert.equal(invalid.llm.length, 0);
+    const late = harness({ response: body => ({ ...rankedResponse(body), providerMetadata: { gateway: { cost: 0.2 } } }),
+        onRequest: (_body, state) => { state.sideInferenceAgentNames.resourceSearchAgent = ""; } });
+    const empty = await late.resourceRuntime.handle({ input: { serverUrl: "https://mcp/mail", query: "mail" } });
+    assert.deepEqual(empty.structuredContent.resources, []);
+    assert.equal(empty._meta.gateway.cost, 0.2);
+});
+
+test("searches with missing/invalid gateway costs remain unpriced and disabled searches make no request", async () => {
+    for (const cost of [undefined, null, "", "wrong", false, {}, []]) {
+        const h = harness({ response: body => ({ ...rankedResponse(body), providerMetadata: { gateway: { cost } } }) });
+        assert.equal((await h.toolRuntime.handle({ input: { goal: "tools" } }))._meta, undefined);
+    }
+    const h = harness({ state: { sideInferenceAgentNames: { toolSearchAgent: "", resourceSearchAgent: "" } } });
+    assert.equal((await h.toolRuntime.handle({ input: { goal: "tools" } }))._meta, undefined);
+    assert.equal(h.requests.length, 0);
 });

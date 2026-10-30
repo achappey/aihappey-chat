@@ -311,6 +311,35 @@ test("API failures, empty generations, incomplete responses and non-text respons
     await assert.rejects(failing.run("local_images_ask", { model: "openai/vision", question: "Check", images: [fileRef(file.id)] }), /Responses API failed/);
 });
 
+test("image batches persist their summed gateway cost once, while saved reads and lists stay unpriced", async () => {
+    const f = fixture();
+    f.settings.maxImagesPerCall = 1;
+    const result = await f.run("local_images_generate", { ...generation, n: 3 });
+    assert.ok(Math.abs(result._meta.gateway.cost - 0.3) < 1e-12);
+    assert.equal(f.calls.length, 3);
+    assert.equal((await f.run("local_images_read", { image: savedRef("library-1") }))._meta, undefined);
+    assert.equal((await f.run("local_images_list", {}))._meta, undefined);
+});
+
+test("image question and generation costs survive storage fallback, partial failures and unusable priced responses", async () => {
+    const question = fixture({ fetch: async () => Response.json({ ...answer, metadata: { gateway: { cost: 0.000267 } } }) });
+    const file = addFile(question);
+    const inspected = await question.run("local_images_ask", { model: "openai/vision", question: "Check", images: [fileRef(file.id)] });
+    assert.equal(inspected._meta.gateway.cost, 0.000267);
+    assert.equal(inspected.content[0].text, "There is a house and a tree.");
+    for (const options of [{ libraryFailure: true }, { libraryFailure: true, fileFailure: true }]) {
+        const f = fixture(options);
+        const result = await f.run("local_images_generate", generation);
+        assert.equal(result._meta.gateway.cost, 0.1);
+        assert.equal(result.isError, Boolean(options.fileFailure));
+    }
+    const empty = fixture({ fetch: async () => Response.json({ images: [], providerMetadata: { gateway: { cost: 0 } } }) });
+    const failed = await empty.run("local_images_generate", generation);
+    assert.equal(failed.isError, true);
+    assert.equal(failed._meta.gateway.cost, 0);
+    assert.match(failed.content[0].text, /no images/);
+});
+
 test("abort signals cancel images and Responses network calls and prevent late image persistence", async () => {
     for (const name of ["local_images_generate", "local_images_ask"]) {
         const controller = new AbortController();

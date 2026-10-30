@@ -20,6 +20,7 @@ function render(props, { loading = false, locale = "en" } = {}) {
         "../buttons/ViewButton": { ViewButton: "ViewButton" },
         "../badges/ToolInvocationStateBadge": { ToolInvocationStateBadge: "ToolInvocationStateBadge" },
         "../badges/SizeBadge": { SizeBadge: "SizeBadge" },
+        "../badges/CostBadge": { CostBadge: "CostBadge" },
         "aihappey-i18n": { useTranslation: () => ({ t: key => translations[key] }) },
     };
     const module = { exports: {} };
@@ -80,5 +81,30 @@ test("footer action tooltips describe their actions in English and Dutch, includ
             assert.deepEqual(actions.map(node => node.props.title), expected);
             assert.ok(actions.every(node => node.props.disabled === loading));
         }
+    }
+});
+
+test("tool cards show the standard small cost badge for local and custom MCP results, including priced errors", () => {
+    for (const cost of [0, 0.000267, 1.25, "0.12"]) {
+        for (const isError of [false, true]) {
+            const output = { content: [], isError, _meta: { gateway: { cost }, ui: { resourceUri: "ui://test" } } };
+            const before = JSON.stringify(output);
+            const card = render({ invocation: { ...invocation, output } });
+            const badges = children(card.props.description);
+            const badge = badges.find(node => node.type === "CostBadge");
+            assert.equal(badge.props.cost, Number(cost));
+            assert.equal(badge.props.size, "small");
+            assert.equal(badges.some(node => node.type === "SizeBadge"), !isError);
+            assert.equal(JSON.stringify(output), before);
+            assert.equal(card.props.description.props.style.flexWrap, "wrap");
+        }
+    }
+});
+
+test("unpriced, arbitrary and malformed tool outputs do not produce cost badges", () => {
+    for (const output of ["text", 42, {}, [], { result: "arbitrary" },
+        ...[undefined, null, "", " ", "invalid", false, {}, [], NaN, Infinity, -Infinity].map(cost => ({ content: [], _meta: { gateway: { cost } } }))]) {
+        const card = render({ invocation: { ...invocation, output } });
+        assert.equal(children(card.props.description).some(node => node.type === "CostBadge"), false);
     }
 });
