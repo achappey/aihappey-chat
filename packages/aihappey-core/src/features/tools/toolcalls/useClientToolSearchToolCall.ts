@@ -2,10 +2,12 @@ import { useCallback, useMemo } from "react";
 import type { Tool } from "@modelcontextprotocol/sdk/types";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, store, useAppStore } from "aihappey-state";
 import { invokeSideInferenceAgent } from "../../../runtime/chat-app/sideInferenceAgentCall";
+import { invokeSearchDecision } from "../../../runtime/chat-app/searchDecisionCall";
 import {
   CLIENT_TOOL_SEARCH_NAME,
   CLIENT_TOOL_SEARCH_PLUGIN_ID,
   EMPTY_CLIENT_TOOL_SEARCH_RESULT,
+  MAX_CLIENT_TOOL_SEARCH_RESULTS,
   OPENAI_CLIENT_TOOL_SEARCH_NAME,
   clientToolSearchGoal,
   parseClientToolSearchSelection,
@@ -74,11 +76,29 @@ export const useClientToolSearchRuntime = ({
 
   const catalog = useMemo(() => toCanonicalToolCatalog(tools), [tools]);
 
-  const handle = useCallback(async (toolCall: any, _signal?: AbortSignal) => {
+  const handle = useCallback(async (toolCall: any, signal?: AbortSignal) => {
     if (store.getState().sideInferenceAgentNames?.toolSearchAgent === "")
       return toCallToolResult(EMPTY_CLIENT_TOOL_SEARCH_RESULT);
     const goal = clientToolSearchGoal(toolCall?.input);
     if (!goal || catalog.length === 0) return toCallToolResult(EMPTY_CLIENT_TOOL_SEARCH_RESULT);
+
+    const decision = await invokeSearchDecision({
+      input: { goal },
+      groups: [{
+        id: "tools",
+        instructions: "Select the tools that best satisfy the supplied search goal from the supplied tool catalog.",
+        candidates: catalog.map(tool => ({ key: tool.name, value: tool })),
+        limit: MAX_CLIENT_TOOL_SEARCH_RESULTS,
+      }],
+      baseUrl: api, getAccessToken,
+      customHeaders: Object.keys(customHeaders ?? {}).length ? customHeaders : headers,
+      gatewayEnabled, fetch: customFetch, agents, models, agentName, signal,
+    });
+    if (decision !== undefined) {
+      return toCallToolResult(store.getState().sideInferenceAgentNames?.toolSearchAgent === ""
+        ? EMPTY_CLIENT_TOOL_SEARCH_RESULT
+        : parseClientToolSearchSelection(JSON.stringify({ selectedToolNames: decision.tools ?? [] }), catalog));
+    }
 
     const output = await invokeSideInferenceAgent({
       feature: "toolSearch",

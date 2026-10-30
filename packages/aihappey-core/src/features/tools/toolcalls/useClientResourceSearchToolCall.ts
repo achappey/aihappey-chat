@@ -2,10 +2,12 @@ import { useCallback, useMemo } from "react";
 import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, store, useAppStore } from "aihappey-state";
 import { invokeSideInferenceAgent } from "../../../runtime/chat-app/sideInferenceAgentCall";
+import { invokeSearchDecision } from "../../../runtime/chat-app/searchDecisionCall";
 import {
   CLIENT_RESOURCE_SEARCH_NAME,
   CLIENT_RESOURCE_SEARCH_PLUGIN_ID,
   EMPTY_CLIENT_RESOURCE_SEARCH_RESULT,
+  MAX_CLIENT_RESOURCE_SEARCH_RESULTS,
   clientResourceSearchQuery,
   parseClientResourceSearchSelection,
   toResourceSearchCatalog,
@@ -83,7 +85,7 @@ export const useClientResourceSearchRuntime = ({
   const agentName = useAppStore((state) => state.sideInferenceAgentNames?.resourceSearchAgent)
     ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION.resourceSearchAgent;
 
-  const handle = useCallback(async (toolCall: any, _signal?: AbortSignal): Promise<CallToolResult> => {
+  const handle = useCallback(async (toolCall: any, signal?: AbortSignal): Promise<CallToolResult> => {
     if (store.getState().sideInferenceAgentNames?.resourceSearchAgent === "")
       return toCallToolResult(EMPTY_CLIENT_RESOURCE_SEARCH_RESULT);
     const serverUrl = typeof toolCall?.input?.serverUrl === "string"
@@ -107,6 +109,33 @@ export const useClientResourceSearchRuntime = ({
     const catalog = toResourceSearchCatalog(mcpServerContent[serverName]);
     if (!query || (catalog.resources.length === 0 && catalog.resourceTemplates.length === 0)) {
       return toCallToolResult(EMPTY_CLIENT_RESOURCE_SEARCH_RESULT);
+    }
+
+    const decision = await invokeSearchDecision({
+      input: {
+        query, serverUrl,
+        mcpServerInstructions: typeof mcpServerContent[serverName]?.instructions === "string"
+          ? mcpServerContent[serverName].instructions.trim() : null,
+      },
+      groups: [
+        { id: "resources", instructions: "Select the MCP resources relevant to the supplied query, using the MCP server instructions as additional context.",
+          candidates: catalog.resources.filter(resource => typeof resource?.uri === "string")
+            .map(resource => ({ key: resource.uri, value: resource })), limit: MAX_CLIENT_RESOURCE_SEARCH_RESULTS },
+        { id: "resourceTemplates", instructions: "Select the MCP resource templates relevant to the supplied query, using the MCP server instructions as additional context.",
+          candidates: catalog.resourceTemplates.filter(template => typeof template?.uriTemplate === "string")
+            .map(template => ({ key: template.uriTemplate, value: template })), limit: MAX_CLIENT_RESOURCE_SEARCH_RESULTS },
+      ],
+      baseUrl: api, getAccessToken,
+      customHeaders: Object.keys(customHeaders ?? {}).length ? customHeaders : headers,
+      gatewayEnabled, fetch: customFetch, agents, models, agentName, signal,
+    });
+    if (decision !== undefined) {
+      return toCallToolResult(store.getState().sideInferenceAgentNames?.resourceSearchAgent === ""
+        ? EMPTY_CLIENT_RESOURCE_SEARCH_RESULT
+        : parseClientResourceSearchSelection(JSON.stringify({
+          selectedResourceUris: decision.resources ?? [],
+          selectedResourceTemplateUriTemplates: decision.resourceTemplates ?? [],
+        }), catalog));
     }
 
     const output = await invokeSideInferenceAgent({
