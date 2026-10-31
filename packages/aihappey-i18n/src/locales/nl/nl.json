@@ -30,6 +30,7 @@
         "title": "Privacy",
         "externalLink": "Bekijk het externe privacybeleid"
     },
+    "edit": "Bewerken",
     "decision": "Beslissen",
     "decisions": "Beslissen",
     "decisionsPage": {
@@ -375,15 +376,14 @@
     },
     "skillsPage": {
         "github": {
-            "fromGitHub": "Van GitHub",
+            "fromGitHub": "GitHub",
             "url": "GitHub-URL",
             "discover": "Zoeken",
             "discovering": "Zoeken…",
             "import": "Importeren",
             "importing": "Importeren…",
             "invalidUrl": "Voer een openbare HTTPS GitHub-URL in van een repository, skillmap of SKILL.md.",
-            "invalidSkill": "De geselecteerde map is geen geldige Agent Skill.",
-            "hint": "Selecteer mappen om te importeren. Kandidaten worden pas gecontroleerd bij Importeren. Volledige skillmappen worden gedownload; meegeleverde scripts worden nooit uitgevoerd."
+            "invalidSkill": "De geselecteerde map is geen geldige Agent Skill."
         },
         "modelContext": "Modelcontext",
         "actions": {

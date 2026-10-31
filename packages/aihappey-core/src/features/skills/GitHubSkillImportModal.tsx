@@ -67,7 +67,7 @@ export function GitHubSkillImportModal({ open, onClose, onImport }: {
     lifetime.current?.abort(); setPhase(null); setUrl(value); setDiscovery(undefined); setSelected([]); setErrors([]); setImported(0); setComplete(false);
   };
   const close = () => { if (phase === "import") return; lifetime.current?.abort(); onClose(); };
-  return <Modal show={open} onHide={close} title={tx("fromGitHub", "From GitHub")} size="small" actions={<div style={{ display: "flex", gap: 8 }}>
+  return <Modal show={open} onHide={close} title={tx("fromGitHub", "GitHub")} size="small" actions={<div style={{ display: "flex", gap: 8 }}>
     <Button variant="subtle" disabled={phase === "import"} onClick={close}>{t("cancel")}</Button>
     <Button variant="primary" disabled={!!phase || !complete || !selected.length} onClick={() => void importSelected()}>
       {phase === "import" ? tx("importing", "Importing…") : tx("import", "Import")}
@@ -81,7 +81,6 @@ export function GitHubSkillImportModal({ open, onClose, onImport }: {
       <Button variant="secondary" disabled={!valid || !!phase} onClick={() => void discover()}>
         {phase === "discover" ? tx("discovering", "Discovering…") : tx("discover", "Discover")}
       </Button>
-      <div>{tx("hint", "Select folders to import. Candidates are checked only when you click Import. Complete skill folders are downloaded; bundled scripts are never run.")}</div>
       {!!discovery?.candidates.length && <div style={{ maxHeight: 240, overflowY: "auto", display: "grid", gap: 8 }}>
         {discovery.candidates.map(candidate => <label key={candidate.path} style={{ display: "flex", alignItems: "start", gap: 8, overflowWrap: "anywhere" }}>
           <input type="checkbox" disabled={phase === "import"} checked={selected.includes(candidate.path)} onChange={event => setSelected(current => event.target.checked ? [...current, candidate.path] : current.filter(path => path !== candidate.path))} />

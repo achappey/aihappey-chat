@@ -468,8 +468,8 @@ export const SkillsPage = () => {
     },
     {
       key: "import-github-skill",
-      label: t("skillsPage.github.fromGitHub", { defaultValue: "From GitHub" }),
-      icon: "attachment" as IconToken,
+      label: t("skillsPage.github.fromGitHub", { defaultValue: "GitHub" }),
+      icon: "link" as IconToken,
       onClick: () => setGithubImportOpen(true),
     }
   ];

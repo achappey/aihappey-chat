@@ -54,7 +54,7 @@ export function useMcpHeadersEditor(initial: Record<string, string> = {}, item?:
       {t("mcpHeaders.add", { defaultValue: "Add header" })}
     </Button>
   </div>;
-  const content = <>
+  const content = <div style={{ paddingTop: 12 }}>
     {oauth && <p>{t("mcpHeaders.oauth", { defaultValue: "OAuth credentials are managed automatically when you connect." })}</p>}
     <Tabs activeKey={tab} onSelect={changeTab}>
       {hasForm && <Tab eventKey="form" title={t("mcpHeaders.form", { defaultValue: "Form" })}>
@@ -95,6 +95,6 @@ export function useMcpHeadersEditor(initial: Record<string, string> = {}, item?:
     {(result.error || result.connectionError) && <div role={result.error ? "alert" : "status"} style={{ marginTop: 8, color: result.error ? "#c00" : undefined }}>
       {t(`mcpHeaders.errors.${result.error ?? result.connectionError}`, { defaultValue: errors[result.error ?? result.connectionError!] ?? errors.headers })}
     </div>}
-  </>;
+  </div>;
   return { ...result, content };
 }
