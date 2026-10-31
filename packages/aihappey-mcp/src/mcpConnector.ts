@@ -66,7 +66,9 @@ async function _connectMcpBase(
     } = {}
 ): Promise<Client> {
     const headers: Record<string, string> = { ...opts.headers };
-    let token: string | null = opts.token || getMcpAccessToken(url);
+    // A caller-supplied credential (including a provider key) must not be replaced by a cached OAuth token.
+    const hasAuthorization = Object.entries(headers).some(([name, value]) => name.toLowerCase() === "authorization" && value.trim());
+    let token: string | null = hasAuthorization ? null : opts.token || getMcpAccessToken(url);
 
     if (token && isTokenExpired(token)) {
         clearMcpAccessToken(url);

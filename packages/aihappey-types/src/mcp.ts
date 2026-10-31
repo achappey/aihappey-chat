@@ -1,7 +1,7 @@
 
 export type McpRegistryServerResponse = {
   server: McpRegistryServer;
-  _meta: Record<string, Record<string, any>>
+  _meta?: Record<string, Record<string, any>> | null
 };
 
 export type McpRegistryServer = {
@@ -17,9 +17,26 @@ export type McpRegistryServer = {
   remotes?: McpServerRemote[]
 };
 
-type McpServerRemote = {
+export type McpRegistryInput = {
+  choices?: string[] | null;
+  default?: string;
+  description?: string;
+  placeholder?: string;
+  value?: string;
+  isRequired?: boolean;
+  isSecret?: boolean;
+  format?: "string" | "number" | "boolean" | "filepath";
+};
+
+export type McpRegistryHeader = McpRegistryInput & {
+  name: string;
+  variables?: Record<string, McpRegistryInput> | null;
+};
+
+export type McpServerRemote = {
   type: "streamable-http" | "sse";
   url: string;
+  headers?: McpRegistryHeader[] | null;
 };
 
 

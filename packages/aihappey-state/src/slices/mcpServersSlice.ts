@@ -49,9 +49,7 @@ export const createMcpServersSlice: StateCreator<
         mcpServers: {
           ...state.mcpServers,
           [name.toLowerCase()]: {
-            registry: {
-              ...current.registry,
-            },
+            ...current,
             config: {
               ...current.config,
               ...patch
@@ -69,9 +67,7 @@ export const createMcpServersSlice: StateCreator<
         const current = updated[name.toLowerCase()];
         if (!current) continue;
         updated[name.toLowerCase()] = {
-          registry: {
-            ...current.registry!,
-          },
+          ...current,
           config: {
             ...current.config,
             ...patch
