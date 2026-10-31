@@ -41,6 +41,9 @@ export const AgentsOverviewPage = ({ activePath, appTitle, apiBaseUrl }: AgentsO
         <ApiSection title={content.responsesTitle}>
           <p style={{ margin: 0 }}>{content.responses}</p>
         </ApiSection>
+        <ApiSection title={content.decisionsTitle}>
+          <p style={{ margin: 0 }}>{content.decisions}</p>
+        </ApiSection>
       </article>
     </ApiReferenceLayout>
   );

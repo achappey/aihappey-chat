@@ -44,6 +44,7 @@ export const GatewayOverviewPage = ({ activePath, appTitle, apiBaseUrl }: Gatewa
         </ApiSection>
         <ApiSection title="Compatibility surfaces">
           <p style={{ margin: 0 }}>Choose the request and response shape expected by your client: OpenAI compatible, Anthropic compatible, or AI SDK. Provider-qualified model IDs and provider-key headers use the same routing rules on every surface.</p>
+          <p style={{ margin: 0 }}>Decisions expose distinct OpenAI and AI SDK question/answer contracts. Realtime token and SDP session routes provision direct provider connections; Live sessions use an explicit transport. AI SDK streaming speech emits audio parts over SSE rather than returning a buffered audio file.</p>
         </ApiSection>
         <ApiSection title="Errors">
           <div id="errors" style={{ display: "grid", gap: 16 }}>

@@ -55,7 +55,7 @@ export type DocsEndpointResponse = {
   example?: DocsCodeExample;
 };
 
-export type DocsEndpointTestResponseType = "auto" | "json" | "text" | "blob" | "audio";
+export type DocsEndpointTestResponseType = "auto" | "json" | "text" | "blob" | "audio" | "stream";
 
 export type DocsEndpointTestHeader = {
   name: string;

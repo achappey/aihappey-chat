@@ -24,6 +24,8 @@ import { StreamingTranscriptionsEndpointPage } from "./pages/StreamingTranscript
 import { AgentEndpointPage } from "./pages/AgentEndpointPage";
 import { ChatDocsPage } from "./pages/ChatDocsPage";
 import { DocsAuthProvider, type DocsAuthMode } from "./DocsAuthContext";
+import { DecisionsEndpointPage } from "./pages/DecisionsEndpointPage";
+import { StreamingSpeechEndpointPage } from "./pages/StreamingSpeechEndpointPage";
 
 export type DocsRootProps = {
   appTitle?: string;
@@ -58,6 +60,8 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentAp
         { path: "/agents/openai/responses/delete", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="delete-response" />) },
         ...(authMode === "azure-ad" ? [{ path: "/agents/openai/responses/list", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="list-responses" />) }] : []),
         { path: "/agents/ai/chat", element: withLocation((activePath) => <AgentEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} endpoint="chat" />) },
+        { path: "/agents/openai/decisions", element: withLocation((activePath) => <DecisionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} service="agents" surface="openai" />) },
+        { path: "/agents/ai/decisions", element: withLocation((activePath) => <DecisionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={agentApiBaseUrl} service="agents" surface="ai-sdk" />) },
         { path: "/chat", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="overview" />) },
         { path: "/chat/agents", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="agents" />) },
         { path: "/chat/conversations", element: withLocation((activePath) => <ChatDocsPage activePath={activePath} appTitle={appTitle} topic="conversations" />) },
@@ -70,6 +74,8 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentAp
         { path: "/gateway/openai/embeddings", element: withLocation((activePath) => <EmbeddingsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="openai" />) },
         { path: "/gateway/openai/chat-completions", element: withLocation((activePath) => <ChatCompletionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/openai/realtime", element: withLocation((activePath) => <RealtimeEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
+        { path: "/gateway/openai/live/sessions", element: withLocation((activePath) => <RealtimeEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="live" />) },
+        { path: "/gateway/openai/decisions", element: withLocation((activePath) => <DecisionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} service="gateway" surface="openai" />) },
         { path: "/gateway/openai/responses", element: withLocation((activePath) => <ResponsesEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/openai/speech", element: withLocation((activePath) => <SpeechEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="openai" />) },
         { path: "/gateway/openai/transcriptions", element: withLocation((activePath) => <TranscriptionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="openai" />) },
@@ -86,6 +92,10 @@ export const DocsRoot = ({ appTitle = "aihappey Developers", apiBaseUrl, agentAp
         { path: "/gateway/ai/ui", element: withLocation((activePath) => <UiEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/rerank", element: withLocation((activePath) => <RerankEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/speech", element: withLocation((activePath) => <SpeechEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="ai-sdk" />) },
+        { path: "/gateway/ai/speech/stream", element: withLocation((activePath) => <StreamingSpeechEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
+        { path: "/gateway/ai/realtime/token", element: withLocation((activePath) => <RealtimeEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="token" />) },
+        { path: "/gateway/ai/realtime/session", element: withLocation((activePath) => <RealtimeEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="session" />) },
+        { path: "/gateway/ai/decisions", element: withLocation((activePath) => <DecisionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} service="gateway" surface="ai-sdk" />) },
         { path: "/gateway/ai/transcriptions", element: withLocation((activePath) => <TranscriptionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} surface="ai-sdk" />) },
         { path: "/gateway/ai/transcriptions/stream", element: withLocation((activePath) => <StreamingTranscriptionsEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} />) },
         { path: "/gateway/ai/videos/create", element: withLocation((activePath) => <VideoEndpointPage activePath={activePath} appTitle={appTitle} apiBaseUrl={apiBaseUrl} endpoint="create" />) },

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 import type { DocsEndpointDoc, DocsEndpointTestConfig, DocsEndpointTestField, DocsEndpointTestHeader, DocsEndpointTestResponseType } from "../navigation/types";
 import { docsBorderStyle, docsCodeStyle, docsMutedTextStyle, docsSubtleSurfaceStyle } from "../theme/docsThemeStyles";
@@ -126,14 +126,30 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TestResult | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [streamState, setStreamState] = useState<"streaming" | "ended" | "cancelled" | null>(null);
+  const activeRequest = useRef<AbortController | null>(null);
+  const activeReader = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null);
 
   const responseType = config.responseType ?? "auto";
   const bodyType = config.bodyType ?? "json";
   const canSendBody = !noBodyMethods.has(method.trim().toUpperCase());
   const usesFormData = bodyType === "form-data";
 
+  const abortRequest = useCallback(() => {
+    const controller = activeRequest.current;
+    activeRequest.current = null;
+    controller?.abort();
+    const reader = activeReader.current;
+    activeReader.current = null;
+    void reader?.cancel().catch(() => undefined);
+  }, []);
+
   useEffect(() => {
-    if (!show) return;
+    if (!show) {
+      abortRequest();
+      setIsSending(false);
+      return;
+    }
     setMethod(config.method ?? endpoint.method);
     setUrl(config.url ?? endpoint.url ?? endpoint.path);
     setHeaders(createInitialHeaders(config.headers));
@@ -142,7 +158,10 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     setFileValues({});
     setError(null);
     setResult(null);
-  }, [config.body, config.fields, config.headers, config.method, config.url, endpoint.method, endpoint.path, endpoint.url, show]);
+    setIsSending(false);
+    setStreamState(null);
+    return abortRequest;
+  }, [abortRequest, config.body, config.fields, config.headers, config.method, config.url, endpoint.method, endpoint.path, endpoint.url, show]);
 
   useEffect(() => () => {
     if (result?.blobUrl) URL.revokeObjectURL(result.blobUrl);
@@ -190,7 +209,20 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     setFileValues({});
     setError(null);
     setResult(null);
+    setStreamState(null);
   }, [config.body, config.fields, config.headers, config.method, config.url, endpoint.method, endpoint.path, endpoint.url, result?.blobUrl]);
+
+  const cancelRequest = useCallback(() => {
+    abortRequest();
+    setIsSending(false);
+    setStreamState("cancelled");
+  }, [abortRequest]);
+
+  const hideModal = useCallback(() => {
+    abortRequest();
+    setIsSending(false);
+    onHide();
+  }, [abortRequest, onHide]);
 
   const formatRequestBody = useCallback(() => {
     if (!body.trim()) return;
@@ -204,9 +236,11 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
 
   const sendRequest = useCallback(async (event?: FormEvent) => {
     event?.preventDefault();
+    if (activeRequest.current) return;
     setError(null);
     if (result?.blobUrl) URL.revokeObjectURL(result.blobUrl);
     setResult(null);
+    setStreamState(null);
 
     const trimmedMethod = method.trim().toUpperCase() || "GET";
     const trimmedUrl = url.trim();
@@ -226,6 +260,9 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
       }
     }
 
+    const controller = new AbortController();
+    activeRequest.current = controller;
+    const isCurrentRequest = () => activeRequest.current === controller && !controller.signal.aborted;
     setIsSending(true);
     const startedAt = performance.now();
     try {
@@ -266,19 +303,61 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
         const accessToken = await requestConfig.getAccessToken();
         if (accessToken) injectedHeaders.Authorization = `Bearer ${accessToken}`;
       }
+      if (!isCurrentRequest()) return;
 
       const requestFetch = requestConfig.fetch ?? globalThis.fetch;
       const response = await requestFetch(trimmedUrl, {
         method: trimmedMethod,
         headers: { ...requestHeadersRecord, ...injectedHeaders },
         body: requestBody,
+        signal: controller.signal,
       });
+      if (!isCurrentRequest()) {
+        await response.body?.cancel().catch(() => undefined);
+        return;
+      }
       const elapsedMs = Math.round(performance.now() - startedAt);
       const responseContentType = response.headers.get("content-type") ?? "";
       const readAsBlob = shouldReadBlob(responseType, responseContentType);
 
+      // Opt in only: existing JSON, text and binary testers retain their response handling.
+      // Display raw SSE without interpreting network chunks as complete events or audio files.
+      if (responseType === "stream" && response.ok && responseContentType.toLowerCase().includes("text/event-stream")) {
+        if (!response.body) throw new Error("The server returned no response stream.");
+        const reader = response.body.getReader();
+        activeReader.current = reader;
+        const decoder = new TextDecoder();
+        let bodyText = "";
+        const responseInfo = {
+          status: response.status, statusText: response.statusText, ok: response.ok,
+          contentType: responseContentType, headers: formatHeaderValue(response.headers),
+        };
+        setStreamState("streaming");
+        setResult({ ...responseInfo, elapsedMs, bodyText });
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (!isCurrentRequest()) return;
+            if (done) break;
+            bodyText += decoder.decode(value, { stream: true });
+            setResult({ ...responseInfo, elapsedMs: Math.round(performance.now() - startedAt), bodyText });
+          }
+          bodyText += decoder.decode();
+          if (isCurrentRequest()) {
+            setResult({ ...responseInfo, elapsedMs: Math.round(performance.now() - startedAt), bodyText });
+            setStreamState("ended");
+          }
+        } finally {
+          await reader.cancel().catch(() => undefined);
+          reader.releaseLock();
+          if (activeReader.current === reader) activeReader.current = null;
+        }
+        return;
+      }
+
       if (readAsBlob) {
         const blob = await response.blob();
+        if (!isCurrentRequest()) return;
         const blobUrl = URL.createObjectURL(blob);
         const blobType = blob.type || responseContentType || "application/octet-stream";
         const isAudio = responseType === "audio" || blobType.toLowerCase().startsWith("audio/");
@@ -299,6 +378,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
       }
 
       const text = await response.text();
+      if (!isCurrentRequest()) return;
       setResult({
         status: response.status,
         statusText: response.statusText,
@@ -309,9 +389,15 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
         bodyText: formatResponseText(text, responseContentType),
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "The request failed before a response was returned.");
+      if (isCurrentRequest()) {
+        setError(err instanceof Error ? err.message : "The request failed before a response was returned.");
+        setStreamState((current) => current === "streaming" ? "ended" : current);
+      }
     } finally {
-      setIsSending(false);
+      if (activeRequest.current === controller) {
+        activeRequest.current = null;
+        setIsSending(false);
+      }
     }
   }, [body, canSendBody, fields, fileValues, headersRecord, method, requestConfig, requestHeadersRecord, responseType, result?.blobUrl, url, usesFormData]);
 
@@ -322,13 +408,14 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
     <Modal
       title={modalTitle}
       show={show}
-      onHide={onHide}
+      onHide={hideModal}
       centered
       size="large"
       actions={(
         <>
           <Button variant="secondary" type="button" onClick={resetForm} disabled={isSending}>Reset</Button>
-          <Button variant="secondary" type="button" onClick={onHide} disabled={isSending}>Close</Button>
+          {responseType === "stream" && isSending ? <Button variant="secondary" type="button" onClick={cancelRequest}>Cancel</Button> : null}
+          <Button variant="secondary" type="button" onClick={hideModal} disabled={isSending && responseType !== "stream"}>Close</Button>
           <Button type="submit" form="endpoint-test-form" disabled={isSending}>{isSending ? "Sending…" : "Send request"}</Button>
         </>
       )}
@@ -340,6 +427,7 @@ export const EndpointTestModal = ({ endpoint, show, onHide }: EndpointTestModalP
             <Badge appearance="primary">{method || endpoint.method}</Badge>
             <Badge appearance="secondary">Response: {responseType}</Badge>
             {usesFormData ? <Badge appearance="secondary">multipart/form-data</Badge> : null}
+            {streamState ? <Badge appearance="secondary">{streamState === "streaming" ? "Streaming…" : streamState === "cancelled" ? "Cancelled — partial output retained" : "Stream closed — inspect finish/error events"}</Badge> : null}
           </div>
         </div>
 

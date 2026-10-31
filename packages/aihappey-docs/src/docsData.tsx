@@ -58,6 +58,8 @@ export const gatewayNavSections: DocsNavSection[] = [
             { id: "openai-chat", label: "Chat completions", href: "/gateway/openai/chat-completions", badge: { label: "POST", method: "POST" } },
             { id: "openai-responses", label: "Responses", href: "/gateway/openai/responses", badge: { label: "POST", method: "POST" } },
             { id: "openai-realtime", label: "Realtime", href: "/gateway/openai/realtime", badge: { label: "POST", method: "POST" } },
+            { id: "openai-live-sessions", label: "Live sessions", href: "/gateway/openai/live/sessions", badge: { label: "POST", method: "POST" } },
+            { id: "openai-decisions", label: "Decisions", href: "/gateway/openai/decisions", badge: { label: "POST", method: "POST" } },
             { id: "openai-speech", label: "Speech", href: "/gateway/openai/speech", badge: { label: "POST", method: "POST" } },
             { id: "openai-transcriptions", label: "Transcriptions", href: "/gateway/openai/transcriptions", badge: { label: "POST", method: "POST" } },
             { id: "openai-create-image", label: "Create image", href: "/gateway/openai/create-image", badge: { label: "POST", method: "POST" } },
@@ -84,6 +86,10 @@ export const gatewayNavSections: DocsNavSection[] = [
             { id: "ai-images", label: "Images", href: "/gateway/ai/images", badge: { label: "POST", method: "POST" } },
             { id: "ai-rerank", label: "Rerank", href: "/gateway/ai/rerank", badge: { label: "POST", method: "POST" } },
             { id: "ai-speech", label: "Speech", href: "/gateway/ai/speech", badge: { label: "POST", method: "POST" } },
+            { id: "ai-streaming-speech", label: "Streaming speech", href: "/gateway/ai/speech/stream", badge: { label: "POST", method: "POST" } },
+            { id: "ai-realtime-token", label: "Realtime token", href: "/gateway/ai/realtime/token", badge: { label: "POST", method: "POST" } },
+            { id: "ai-realtime-session", label: "Realtime session", href: "/gateway/ai/realtime/session", badge: { label: "POST", method: "POST" } },
+            { id: "ai-decisions", label: "Decisions", href: "/gateway/ai/decisions", badge: { label: "POST", method: "POST" } },
             { id: "ai-transcriptions", label: "Transcriptions", href: "/gateway/ai/transcriptions", badge: { label: "POST", method: "POST" } },
             { id: "ai-streaming-transcriptions", label: "Streaming transcriptions", href: "/gateway/ai/transcriptions/stream", badge: { label: "POST", method: "POST" } },
             { id: "ai-ui", label: "UI", href: "/gateway/ai/ui", badge: { label: "POST", method: "POST" } },
@@ -107,6 +113,7 @@ export const agentNavSections: DocsNavSection[] = [
         title: "OpenAI compatible",
         items: [
             { id: "agents-openai-models", label: "Models", href: "/agents/openai/models", badge: { label: "GET", method: "GET" } },
+            { id: "agents-openai-decisions", label: "Decisions", href: "/agents/openai/decisions", badge: { label: "POST", method: "POST" } },
             { id: "agents-openai-create-response", label: "Create response", href: "/agents/openai/responses/create", badge: { label: "POST", method: "POST" } },
             { id: "agents-openai-retrieve-response", label: "Retrieve response", href: "/agents/openai/responses/retrieve", badge: { label: "GET", method: "GET" } },
             { id: "agents-openai-delete-response", label: "Delete response", href: "/agents/openai/responses/delete", badge: { label: "DELETE", method: "DELETE" } },
@@ -117,7 +124,8 @@ export const agentNavSections: DocsNavSection[] = [
         id: "agent-ai-sdk",
         title: "AI SDK",
         items: [
-            { id: "agents-ai-sdk-chat", label: "Chat", href: "/agents/ai/chat", badge: { label: "POST", method: "POST" } }
+            { id: "agents-ai-sdk-chat", label: "Chat", href: "/agents/ai/chat", badge: { label: "POST", method: "POST" } },
+            { id: "agents-ai-sdk-decisions", label: "Decisions", href: "/agents/ai/decisions", badge: { label: "POST", method: "POST" } },
         ],
     },
 ];
@@ -2644,6 +2652,342 @@ export const createSkillEndpointDoc = (endpoint: SkillEndpoint, options: CreateA
         responses: [{ status: "200", description: t(`skills.${endpoint}.responses.success`), example: isDownload ? { id: `skills-${endpoint}-zip`, label: "ZIP", language: "http", code: "HTTP/1.1 200 OK\nContent-Type: application/zip\nContent-Disposition: attachment; filename=example-skill.zip\n\n<binary ZIP bytes>" } : { id: `skills-${endpoint}-json`, label: "JSON", language: "json", code: jsonExample } }],
         errors: [{ status: "401", description: t("skills.common.errors.unauthorized") }, ...(!isList ? [{ status: "404", description: t("skills.common.errors.notFound") }] : []), { status: "500", description: t("skills.common.errors.providerFailed") }],
         related: endpoint === "list" ? [{ id: "skill-versions", label: t("skills.common.relatedVersions"), href: "/gateway/openai/list-skill-versions" }] : [{ id: "skills-list", label: t("skills.common.relatedList"), href: "/gateway/openai/list-skills" }],
+    };
+};
+
+export type GenericRealtimeEndpoint = "token" | "session";
+
+export const createGenericRealtimeEndpointDoc = (endpoint: GenericRealtimeEndpoint, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const path = `/api/realtime/${endpoint}/{model}`;
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl);
+    const testUrl = createApiUrl(apiBaseUrl, `/api/realtime/${endpoint}/openai/gpt-realtime`);
+    const identityAuth = options.authMode === "azure-ad";
+    const body = {
+        ...(endpoint === "session" ? { sdp: "REPLACE_WITH_A_COMPLETE_CURRENT_SDP_OFFER" } : {}),
+        sessionConfig: { instructions: "Be concise and helpful." },
+    };
+    const headers = {
+        "Content-Type": "application/json",
+        ...(identityAuth ? { Authorization: "Bearer YOUR_ACCESS_TOKEN" } : { "X-OpenAI-Key": "YOUR_OPENAI_API_KEY" }),
+    };
+    const response = endpoint === "token"
+        ? { token: "ek_example", url: "wss://api.openai.com/v1/realtime?model=gpt-realtime", expiresAt: 1793427000 }
+        : { sessionId: "rtc_example", sdp: "SDP_ANSWER_FROM_THE_PROVIDER" };
+
+    return {
+        id: `realtime-${endpoint}-ai-sdk`, title: t(`realtime.${endpoint}.title`), surface: t("realtime.common.surface"),
+        method: "POST", path, url: createApiUrl(apiBaseUrl, path),
+        summary: t(`realtime.${endpoint}.summary`),
+        description: <p style={{ margin: 0 }}>{t(`realtime.${endpoint}.description`)}</p>,
+        auth: identityAuth ? <p style={{ margin: 0 }}>{t("gateway.common.identityAuth")}</p> : createGatewayAuth(t),
+        parametersTitle: t("api.sections.parameters"),
+        parameters: [
+            { name: "model", type: "path", required: true, description: t("realtime.common.model") },
+            ...(endpoint === "session" ? [{ name: "sdp", type: "string", required: true, description: t("realtime.session.sdp") }] : []),
+            { name: "sessionConfig", type: "object", required: false, description: t("realtime.common.sessionConfig") },
+            { name: "sessionConfig.instructions", type: "string", required: false, description: t("realtime.common.instructions") },
+            { name: "sessionConfig.voice", type: "string", required: false, description: t("realtime.common.voice") },
+            { name: "sessionConfig.outputModalities", type: "array", required: false, description: t("realtime.common.outputModalities") },
+            { name: "sessionConfig.inputAudioFormat", type: "object", required: false, description: t("realtime.common.audioFormat") },
+            { name: "sessionConfig.outputAudioFormat", type: "object", required: false, description: t("realtime.common.audioFormat") },
+            { name: "sessionConfig.inputAudioTranscription", type: "object", required: false, description: t("realtime.common.transcription") },
+            { name: "sessionConfig.outputAudioTranscription", type: "object", required: false, description: t("realtime.common.transcription") },
+            { name: "sessionConfig.turnDetection", type: "object | null", required: false, description: t("realtime.common.turnDetection") },
+            { name: "sessionConfig.tools", type: "array", required: false, description: t("realtime.common.tools") },
+            { name: "sessionConfig.providerOptions", type: "object", required: false, description: t("realtime.common.providerOptions") },
+        ],
+        test: {
+            label: t("realtime.common.testLabel"), modalTitle: t(`realtime.${endpoint}.testModalTitle`),
+            description: <p style={{ margin: 0 }}>{t(`realtime.${endpoint}.testDescription`)}</p>,
+            url: testUrl, responseType: "json", body,
+            headers: [{ name: "Content-Type", value: "application/json" }, ...(!identityAuth ? gatewayHeaders : [])],
+        },
+        requestExamples: [
+            { id: `typescript-realtime-${endpoint}`, label: "TypeScript", language: "ts", code: `const response = await fetch("${testUrl}", {
+  method: "POST",
+  headers: ${JSON.stringify(headers, null, 2)},
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+if (!response.ok) throw new Error(await response.text());
+const result = await response.json();` },
+            { id: `curl-realtime-${endpoint}`, label: "cURL", language: "bash", code: `curl -X POST ${testUrl} \\
+  -H "${identityAuth ? "Authorization: Bearer $ACCESS_TOKEN" : "X-OpenAI-Key: $OPENAI_API_KEY"}" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'` },
+        ],
+        responses: [{ status: "200", description: t(`realtime.${endpoint}.response`), example: { id: `realtime-${endpoint}-response`, label: "JSON", language: "json", code: JSON.stringify(response, null, 2) } }],
+        errors: [
+            { status: "400", description: t("realtime.common.badRequest") },
+            { status: "401", description: t("realtime.common.unauthorized") },
+            { status: "501", description: t("realtime.common.unsupported") },
+            { status: "500", description: t("realtime.common.providerFailed") },
+        ],
+        related: [
+            { id: `realtime-${endpoint === "token" ? "session" : "token"}`, label: t(`realtime.${endpoint === "token" ? "session" : "token"}.title`), href: `/gateway/ai/realtime/${endpoint === "token" ? "session" : "token"}` },
+            { id: "live-sessions", label: t("realtime.live.title"), href: "/gateway/openai/live/sessions" },
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+        ],
+    };
+};
+
+export const createLiveSessionEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const path = "/v1/live/sessions";
+    const url = createApiUrl(normalizeApiBaseUrl(options.apiBaseUrl), path);
+    const identityAuth = options.authMode === "azure-ad";
+    const body = {
+        session: { model: "openai/gpt-live-1", instructions: "Be concise and helpful." },
+        transport: { type: "webrtc", sdp: "REPLACE_WITH_A_COMPLETE_CURRENT_SDP_OFFER" },
+    };
+    const headers = {
+        "Content-Type": "application/json",
+        ...(identityAuth ? { Authorization: "Bearer YOUR_ACCESS_TOKEN" } : { "X-OpenAI-Key": "YOUR_OPENAI_API_KEY" }),
+    };
+    return {
+        id: "live-sessions-openai", title: t("realtime.live.title"), surface: t("realtime.live.surface"), method: "POST", path, url,
+        summary: t("realtime.live.summary"), description: <p style={{ margin: 0 }}>{t("realtime.live.description")}</p>,
+        auth: identityAuth ? <p style={{ margin: 0 }}>{t("gateway.common.identityAuth")}</p> : createGatewayAuth(t),
+        parameters: [
+            { name: "session", type: "object", required: true, description: t("realtime.live.parameters.session") },
+            { name: "session.model", type: "string", required: true, description: t("realtime.live.parameters.model") },
+            { name: "session.instructions", type: "string", required: false, description: t("realtime.live.parameters.instructions") },
+            { name: "session.audio", type: "object", required: false, description: t("realtime.live.parameters.audio") },
+            { name: "session.client", type: "object", required: false, description: t("realtime.live.parameters.client") },
+            { name: "session.input", type: "array", required: false, description: t("realtime.live.parameters.input") },
+            { name: "session.store", type: "boolean", required: false, description: t("realtime.live.parameters.store") },
+            { name: "session.delegation", type: "object", required: false, description: t("realtime.live.parameters.delegation") },
+            { name: "session.triggers", type: "array", required: false, description: t("realtime.live.parameters.triggers") },
+            { name: "transport", type: "object", required: true, description: t("realtime.live.parameters.transport") },
+            { name: "transport.type", type: "string", required: true, description: t("realtime.live.parameters.type") },
+            { name: "transport.sdp", type: "string", required: false, description: t("realtime.live.parameters.sdp") },
+            { name: "transport.destination", type: "string", required: false, description: t("realtime.live.parameters.destination") },
+            { name: "transport.trunk", type: "object", required: false, description: t("realtime.live.parameters.trunk") },
+        ],
+        test: {
+            label: t("realtime.common.testLabel"), modalTitle: t("realtime.live.testModalTitle"),
+            description: <p style={{ margin: 0 }}>{t("realtime.live.testDescription")}</p>, responseType: "json", body,
+            headers: [{ name: "Content-Type", value: "application/json" }, ...(!identityAuth ? gatewayHeaders : [])],
+        },
+        requestExamples: [
+            { id: "typescript-live-sessions", label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {
+  method: "POST",
+  headers: ${JSON.stringify(headers, null, 2)},
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+if (!response.ok) throw new Error(await response.text());
+const result = await response.json();` },
+            { id: "curl-live-sessions", label: "cURL", language: "bash", code: `curl -X POST ${url} \\
+  -H "${identityAuth ? "Authorization: Bearer $ACCESS_TOKEN" : "X-OpenAI-Key: $OPENAI_API_KEY"}" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'` },
+        ],
+        responses: [{ status: "201", description: t("realtime.live.response"), example: { id: "live-sessions-response", label: "JSON", language: "json", code: JSON.stringify({ session: { id: "live_example" }, transport: { type: "webrtc", sdp: "SDP_ANSWER_FROM_THE_PROVIDER" } }, null, 2) } }],
+        errors: [
+            { status: "400", description: t("realtime.common.badRequest") },
+            { status: "401", description: t("realtime.common.unauthorized") },
+            { status: "501", description: t("realtime.common.unsupported") },
+            { status: "500", description: t("realtime.common.providerFailed") },
+        ],
+        related: [
+            { id: "ai-realtime-session", label: t("realtime.session.title"), href: "/gateway/ai/realtime/session" },
+            { id: "openai-realtime", label: t("realtime.openai.title"), href: "/gateway/openai/realtime" },
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+        ],
+    };
+};
+
+export type DecisionsSurface = "openai" | "ai-sdk";
+export type DecisionsService = "gateway" | "agents";
+
+export const createDecisionsEndpointDoc = (surface: DecisionsSurface, service: DecisionsService, options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const isOpenAi = surface === "openai";
+    const isAgent = service === "agents";
+    const identityAuth = options.authMode === "azure-ad";
+    const key = isOpenAi ? "openai" : "aiSdk";
+    const path = isOpenAi ? "/v1/decisions" : "/api/decisions";
+    const apiBaseUrl = normalizeApiBaseUrl(options.apiBaseUrl?.trim() || (isAgent ? "http://localhost:3036" : fallbackApiBaseUrl));
+    const url = createApiUrl(apiBaseUrl, path);
+    const model = isAgent ? agentModelId : "openai/gpt-6-luna-decisions";
+    const evidence = "The customer requests a refund for a duplicate charge.";
+    const body = isOpenAi ? {
+        model, input: evidence,
+        questions: [
+            { name: "needsRefund", type: "predicate", instructions: "Does the customer request a refund?" },
+            { name: "category", type: "choice", instructions: "Classify the request.", choices: [{ value: "billing" }, { value: "other" }] },
+        ],
+    } : {
+        model, state: evidence,
+        questions: {
+            needsRefund: { type: "boolean", instructions: "Does the customer request a refund?" },
+            category: { type: "choice", instructions: "Classify the request.", criteria: { billing: "Payments and refunds", other: "Other requests" } },
+        },
+    };
+    const headers = {
+        "Content-Type": "application/json",
+        ...(identityAuth ? { Authorization: "Bearer YOUR_ACCESS_TOKEN" } : { "X-OpenAI-Key": "YOUR_OPENAI_API_KEY" }),
+    };
+    const response = isOpenAi ? {
+        answers: [
+            { type: "predicate", name: "needsRefund", probability: 0.98 },
+            { type: "choice", name: "category", choice: "billing", confidence: 0.95, probabilities: [{ value: "billing", probability: 0.95 }, { value: "other", probability: 0.05 }] },
+        ],
+        model, usage: { input_tokens: 80, input_tokens_details: { cached_tokens: 0, cache_write_tokens: 0 }, output_tokens: 20, output_tokens_details: { reasoning_tokens: 0 }, total_tokens: 100 },
+    } : {
+        answers: { needsRefund: { type: "boolean", probability: 0.98 }, category: { type: "choice", choice: "billing", probabilities: { billing: 0.95, other: 0.05 } } },
+        warnings: [], usage: { inputTokens: 80, outputTokens: 20 },
+    };
+    return {
+        id: `${service}-decisions-${surface}`, title: t("decisions.common.title"), surface: t(`decisions.${key}.surface`), method: "POST", path, url,
+        summary: t(`decisions.${key}.summary`),
+        description: <div style={{ display: "grid", gap: 16 }}>
+            <p style={{ margin: 0 }}>{t(`decisions.${key}.description`)}</p>
+            {isAgent ? <><p style={{ margin: 0 }}>{t("decisions.common.agentDescription")}</p><p style={{ margin: 0 }}>{t(`decisions.${key}.agentRestrictions`)}</p></> : null}
+        </div>,
+        auth: identityAuth ? <p style={{ margin: 0 }}>{t("gateway.common.identityAuth")}</p>
+            : isAgent ? <p style={{ margin: 0 }}>{t("decisions.common.agentAuth")}</p> : createGatewayAuth(t),
+        parameters: [
+            { name: "model", type: "string", required: true, description: t(`decisions.common.${isAgent ? "agentModel" : "model"}`) },
+            ...(isOpenAi ? [
+                { name: "input", type: "string | array", required: true, description: t("decisions.openai.parameters.input") },
+                { name: "questions", type: "array", required: true, description: t("decisions.openai.parameters.questions") },
+                { name: "questions[].type", type: "string", required: true, description: t("decisions.openai.parameters.type") },
+                { name: "questions[].instructions", type: "string", required: true, description: t("decisions.openai.parameters.instructions") },
+                { name: "questions[].name", type: "string", required: false, description: t("decisions.openai.parameters.name") },
+                { name: "questions[].choices", type: "array", required: false, description: t("decisions.openai.parameters.choices") },
+                { name: "questions[].levels", type: "array", required: false, description: t("decisions.openai.parameters.levels") },
+                { name: "safety_identifier", type: "string", required: false, description: t("decisions.openai.parameters.safetyIdentifier") },
+            ] : [
+                { name: "state", type: "string | object | array", required: true, description: t("decisions.aiSdk.parameters.state") },
+                { name: "stateFormat", type: "string", required: false, description: t("decisions.aiSdk.parameters.stateFormat") },
+                { name: "questions", type: "object", required: true, description: t("decisions.aiSdk.parameters.questions") },
+                { name: "questions.<id>.type", type: "string", required: true, description: t("decisions.aiSdk.parameters.type") },
+                { name: "questions.<id>.instructions", type: "string | object | array", required: false, description: t("decisions.aiSdk.parameters.instructions") },
+                { name: "questions.<id>.criteria", type: "object | array", required: false, description: t("decisions.aiSdk.parameters.criteria") },
+                { name: "maxOutputTokens", type: "integer", required: false, description: t("decisions.aiSdk.parameters.maxOutputTokens") },
+                ...(!isAgent ? [
+                    { name: "reasoning", type: "JSON", required: false, description: t("decisions.aiSdk.parameters.reasoning") },
+                    { name: "providerOptions", type: "object", required: false, description: t("decisions.aiSdk.parameters.providerOptions") },
+                    { name: "headers", type: "object", required: false, description: t("decisions.aiSdk.parameters.headers") },
+                ] : []),
+            ]),
+        ],
+        test: {
+            label: t("decisions.common.testLabel"), modalTitle: `${isAgent ? "Agents: " : ""}${t(`decisions.${key}.testModalTitle`)}`,
+            description: <p style={{ margin: 0 }}>{t(`decisions.${key}.testDescription`)}</p>, responseType: "json", body,
+            headers: [{ name: "Content-Type", value: "application/json" }, ...(!identityAuth ? gatewayHeaders : [])],
+        },
+        requestExamples: [
+            { id: `typescript-${service}-decisions-${surface}`, label: "TypeScript", language: "ts", code: `const response = await fetch("${url}", {
+  method: "POST",
+  headers: ${JSON.stringify(headers, null, 2)},
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+if (!response.ok) throw new Error(await response.text());
+const decision = await response.json();` },
+            { id: `curl-${service}-decisions-${surface}`, label: "cURL", language: "bash", code: `curl -X POST ${url} \\
+  -H "${identityAuth ? "Authorization: Bearer $ACCESS_TOKEN" : "X-OpenAI-Key: $OPENAI_API_KEY"}" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'` },
+        ],
+        responses: [{ status: "200", description: t(`decisions.${key}.response`), example: { id: `${service}-decisions-${surface}-response`, label: "JSON", language: "json", code: JSON.stringify(response, null, 2) } }],
+        errors: [
+            { status: "400", description: t(isAgent ? "decisions.common.agentBadRequest" : `decisions.${key}.badRequest`) },
+            { status: "401", description: t("decisions.common.unauthorized") },
+            ...(isAgent ? [{ status: "502", description: t("decisions.common.agentErrors") }] : isOpenAi ? [{ status: "500", description: t("decisions.openai.serverError") }] : []),
+        ],
+        related: [
+            { id: `${service}-decisions-other`, label: t("decisions.common.relatedOther"), href: `/${service}/${isOpenAi ? "ai" : "openai"}/decisions` },
+            { id: `${service}-models`, label: t("decisions.common.relatedModels"), href: `/${service}/openai/models` },
+            { id: `${service}-overview`, label: t(isAgent ? "agents.common.relatedOverview" : "gateway.common.relatedGatewayOverview"), href: `/${service}` },
+        ],
+    };
+};
+
+const streamingSpeechResponseExample = `data: {"type":"stream-start","warnings":[]}
+
+data: {"type":"response-metadata","modelId":"coda"}
+
+data: {"type":"audio","audio":"AQID","audioFormat":{"type":"audio/mpeg"}}
+
+data: {"type":"finish","usage":{"inputCharacters":23}}
+
+data: [DONE]`;
+
+export const createStreamingSpeechEndpointDoc = (options: CreateSpeechEndpointDocOptions = {}): DocsEndpointDoc => {
+    const path = "/api/speech/stream";
+    const url = createApiUrl(normalizeApiBaseUrl(options.apiBaseUrl), path);
+    const identityAuth = options.authMode === "azure-ad";
+    const body = { model: "rime/coda", text: [{ type: "text", text: "Hello, " }, { type: "text", text: "streaming world!" }], voice: "astra", includeRawChunks: false };
+    const headers = {
+        "Content-Type": "application/json", Accept: "text/event-stream",
+        ...(identityAuth ? { Authorization: "Bearer YOUR_ACCESS_TOKEN" } : { "X-Rime-Key": "YOUR_RIME_API_KEY" }),
+    };
+    return {
+        id: "streaming-speech-ai-sdk", title: t("speech.streaming.title"), surface: t("speech.streaming.surface"), method: "POST", path, url,
+        summary: t("speech.streaming.summary"), description: <p style={{ margin: 0 }}>{t("speech.streaming.description")}</p>,
+        auth: identityAuth ? <p style={{ margin: 0 }}>{t("gateway.common.identityAuth")}</p> : createGatewayAuth(t),
+        parameters: [
+            { name: "model", type: "string", required: true, description: t("speech.streaming.parameters.model") },
+            { name: "text", type: "array", required: true, description: t("speech.streaming.parameters.text") },
+            { name: "text[].type", type: "string", required: true, description: t("speech.streaming.parameters.partType") },
+            { name: "text[].text", type: "string", required: true, description: t("speech.streaming.parameters.partText") },
+            { name: "text[].voice", type: "string", required: false, description: t("speech.streaming.parameters.partVoice") },
+            { name: "text[].providerOptions", type: "object", required: false, description: t("speech.streaming.parameters.partOptions") },
+            { name: "voice", type: "string", required: false, description: t("speech.streaming.parameters.voice") },
+            { name: "outputFormat", type: "object", required: false, description: t("speech.streaming.parameters.outputFormat") },
+            { name: "outputFormat.type", type: "string", required: true, description: t("speech.streaming.parameters.formatType") },
+            { name: "outputFormat.rate", type: "number", required: false, description: t("speech.streaming.parameters.rate") },
+            { name: "instructions", type: "string", required: false, description: t("speech.streaming.parameters.instructions") },
+            { name: "speed", type: "number", required: false, description: t("speech.streaming.parameters.speed") },
+            { name: "language", type: "string", required: false, description: t("speech.streaming.parameters.language") },
+            { name: "providerOptions", type: "object", required: false, description: t("speech.streaming.parameters.providerOptions") },
+            { name: "includeRawChunks", type: "boolean", required: false, description: t("speech.streaming.parameters.includeRawChunks") },
+        ],
+        test: {
+            label: t("speech.streaming.testLabel"), modalTitle: t("speech.streaming.testModalTitle"),
+            description: <p style={{ margin: 0 }}>{t("speech.streaming.testDescription")}</p>, responseType: "stream", body,
+            headers: [{ name: "Content-Type", value: "application/json" }, { name: "Accept", value: "text/event-stream" }, ...(!identityAuth ? [{ name: "X-Rime-Key", value: "", placeholder: "Rime provider API key" }] : [])],
+        },
+        requestExamples: [
+            { id: "typescript-streaming-speech", label: "TypeScript", language: "ts", code: `const controller = new AbortController(); // controller.abort() cancels the request.
+const response = await fetch("${url}", {
+  method: "POST",
+  headers: ${JSON.stringify(headers, null, 2)},
+  signal: controller.signal,
+  body: JSON.stringify(${JSON.stringify(body, null, 2)})
+});
+if (!response.ok) throw new Error(await response.text());
+if (!response.body) throw new Error("Missing response stream.");
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+try {
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    console.log(decoder.decode(value, { stream: true }));
+  }
+  console.log(decoder.decode());
+} finally {
+  await reader.cancel();
+  reader.releaseLock();
+}
+// Raw display only: network chunks do not necessarily align with SSE frames.
+// A synthesis client must parse frames and require finish, not just HTTP 200 or [DONE].` },
+            { id: "curl-streaming-speech", label: "cURL streaming", language: "bash", code: `curl -N -X POST ${url} \\
+  -H "${identityAuth ? "Authorization: Bearer $ACCESS_TOKEN" : "X-Rime-Key: $RIME_API_KEY"}" \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: text/event-stream" \\
+  -d '${JSON.stringify(body, null, 2)}'` },
+        ],
+        responses: [{ status: "200", description: t("speech.streaming.response"), example: { id: "streaming-speech-response", label: "SSE", language: "text", code: streamingSpeechResponseExample } }],
+        errors: [
+            { status: "400", description: t("speech.streaming.badRequest") },
+            { status: "401", description: t("speech.streaming.unauthorized") },
+            { status: "200", description: t("speech.streaming.streamError"), example: { id: "streaming-speech-error", label: "SSE error", language: "text", code: 'data: {"type":"error","error":"Speech streaming is not supported."}\n\n' } },
+        ],
+        related: [
+            { id: "ai-speech", label: t("speech.streaming.relatedSpeech"), href: "/gateway/ai/speech" },
+            { id: "gateway-overview", label: t("gateway.common.relatedGatewayOverview"), href: "/gateway" },
+        ],
     };
 };
 
