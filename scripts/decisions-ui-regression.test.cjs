@@ -23,6 +23,7 @@ function load(filename, mocks = {}) {
 
 function hooks() {
     const slots = [];
+    const cleanups = [];
     let index = 0, pending = [];
     const changed = (a, b) => !a || !b || a.length !== b.length || a.some((value, i) => value !== b[i]);
     const react = {
@@ -51,7 +52,8 @@ function hooks() {
     return {
         react,
         render(Component, props) { index = 0; return Component(props); },
-        flush() { const effects = pending; pending = []; effects.forEach(effect => effect()); },
+        flush() { const effects = pending; pending = []; effects.forEach(effect => { const cleanup = effect(); if (typeof cleanup === "function") cleanups.push(cleanup); }); },
+        unmount() { cleanups.splice(0).forEach(cleanup => cleanup()); },
     };
 }
 
@@ -70,6 +72,11 @@ const decisions = {
     ...load("packages/aihappey-decisions/src/types.ts"),
     ...load("packages/aihappey-decisions/src/validation.ts"),
 };
+const agentTypes = {
+    ...load("packages/aihappey-types/src/agents.ts"),
+    ...load("packages/aihappey-types/src/agentModels.ts"),
+};
+const agentSelection = load("packages/aihappey-core/src/features/agents/agentSelection.ts", { "aihappey-types": agentTypes });
 const providerCards = load("packages/aihappey-components/src/modals/ProviderResultCards.tsx", {
     react: React, "aihappey-i18n": i18n, "../theme/ThemeContext": themeContext,
 });
@@ -390,13 +397,14 @@ test("saved decision details retain gateway costs alongside token usage only in 
     assert.ok(byType(raw, providerCards.ProviderResultCards));
 });
 
-function pageHarness(overrides = {}) {
+function pageHarness(overrides = {}, savedStore = { items: [], questionSets: [] }) {
     const h = hooks();
-    const controller = { models: [{ id: "openai/model", type: "decision" }], selectedModel: "openai/model", questions: [question], images: [], documents: [], attachmentWarnings: [], result: response, gatewayAvailable: true, canSend: true, errors: [], ...overrides };
+    const controller = { models: [{ id: "openai/model", type: "decision" }], selectedModel: "openai/model", customAgents: false, agentKey: "", remoteAgentModels: [], agentBackendAvailable: true, questions: [question], images: [], documents: [], attachmentWarnings: [], result: response, gatewayAvailable: true, canSend: true, errors: [], ...overrides };
     const components = new Proxy({ useTheme: () => theme }, { get: (target, name) => target[name] ?? name });
     const { DecisionsPage } = load("packages/aihappey-core/src/features/decisions/DecisionsPage.tsx", {
-        react: h.react, "aihappey-components": components, "aihappey-decisions": { useDecisions: () => ({ items: [], questionSets: [] }) },
-        "aihappey-state": { useAppStore: selector => selector({ favoriteModelsByType: { decision: [] } }) }, "aihappey-i18n": i18n,
+        react: h.react, "aihappey-components": components, "aihappey-decisions": { useDecisions: () => savedStore },
+        "aihappey-state": { useAppStore: selector => selector({ favoriteModelsByType: { decision: [] }, favoriteAgentIds: ["remote:review"] }) }, "aihappey-i18n": i18n,
+        "../agents/AgentSelect": { AgentSelect: "AgentSelect" },
         "../models/ModelSelect": { ModelSelect: "ModelSelect" }, "../user-settings/UserMenuInline": { UserMenuInline: "UserMenuInline" },
         "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => providers },
         "../storage/storageErrorMessage": { useStorageErrorMessage: () => String }, "./useDecisionsController": { useDecisionsController: () => controller },
@@ -457,6 +465,79 @@ test("question editing remains available before execution and disabled while bus
         assert.equal(buttons.length, 2);
         assert.ok(buttons.every(button => button.props.disabled));
     }
+});
+
+test("Decisions reuses the real-time brain/robot toggles before its existing model selector", () => {
+    let mode;
+    const h = pageHarness({ setCustomAgents: value => { mode = value; } });
+    const node = h.render(h.DecisionsPage);
+    const header = React.Children.toArray(node.props.children)[0];
+    const controls = React.Children.toArray(header.props.children);
+    assert.deepEqual(controls.slice(0, 2).map(control => [control.type, control.props.icon, control.props.checked, control.props.title]), [
+        ["ToggleButton", "brain", true, t("aiChat")], ["ToggleButton", "robot", false, t("aiAgents")],
+    ]);
+    controls[1].props.onClick(); assert.equal(mode, true);
+    controls[0].props.onClick(); assert.equal(mode, false);
+    assert.ok(byType(controls[2], "ModelSelect"));
+    assert.ok(byType(header, "ModelFavoriteToggleButton"));
+    assert.equal(byType(header, "AgentSelect"), undefined);
+});
+
+test("agent mode uses a remote-only single-select picker with favorites and no model controls", () => {
+    let selected;
+    const remote = [{ id: "review", name: "Review", source: "remote" }];
+    const h = pageHarness({ customAgents: true, agentKey: "remote:review", remoteAgentModels: remote, setAgentKey: value => { selected = value; } });
+    const node = h.render(h.DecisionsPage);
+    const picker = byType(node, "AgentSelect");
+    assert.deepEqual(picker.props.localAgents, []);
+    assert.equal(picker.props.remoteAgentModels, remote);
+    assert.deepEqual(picker.props.values, ["remote:review"]);
+    assert.equal(picker.props.multiselect, false);
+    assert.notEqual(picker.props.allowFavoriteRouter, true);
+    assert.deepEqual(picker.props.favoriteAgentIds, ["remote:review"]);
+    picker.props.onChange("remote:another"); assert.equal(selected, "remote:another");
+    assert.equal(byType(node, "ModelSelect"), undefined);
+    assert.equal(byType(node, "ModelFavoriteToggleButton"), undefined);
+    assert.deepEqual(findAll(node, child => child.type === "ToggleButton").map(control => control.props.checked), [false, true]);
+    assert.equal(byType(node, "DecisionResultDetails").props.decision, response);
+});
+
+test("both target modes lock their controls while executing or preparing attachments", () => {
+    for (const busy of [{ processing: true }, { readingAttachments: true }]) {
+        for (const customAgents of [false, true]) {
+            const h = pageHarness({ ...busy, customAgents });
+            const node = h.render(h.DecisionsPage);
+            assert.ok(findAll(node, child => child.type === "ToggleButton").every(control => control.props.disabled));
+            assert.equal(byType(node, customAgents ? "AgentSelect" : "fieldset").props.disabled, true);
+        }
+    }
+});
+
+test("availability messages describe only the active target mode", () => {
+    const h = pageHarness({ gatewayAvailable: false, models: [], agentBackendAvailable: false });
+    let node = h.render(h.DecisionsPage);
+    assert.deepEqual(findAll(node, child => child.type === "Alert").map(alert => alert.props.children), [t("decisionsPage.gatewayRequired"), t("decisionsPage.noModels")]);
+    h.controller.customAgents = true;
+    node = h.render(h.DecisionsPage);
+    assert.deepEqual(findAll(node, child => child.type === "Alert").map(alert => alert.props.children), [t("decisionsPage.agentBackendRequired"), t("decisionsPage.noRemoteAgents")]);
+    h.controller.agentBackendAvailable = true;
+    h.controller.remoteAgentModels = [{ id: "review" }];
+    node = h.render(h.DecisionsPage);
+    assert.equal(byType(node, "Alert"), undefined);
+});
+
+test("agent mode keeps reusable question-set loading and saved decision cards unchanged", () => {
+    let loaded;
+    const set = { id: "set1", name: "Review questions", questions: [question] };
+    const h = pageHarness({ customAgents: true, setQuestions: value => { loaded = value; } }, { items: [item], questionSets: [set] });
+    let node = h.render(h.DecisionsPage);
+    assert.equal(byType(node, "DecisionCard").props.item, item);
+    byType(node, "Tabs").props.onSelect("sets");
+    node = h.render(h.DecisionsPage);
+    byType(node, "QuestionSetCard").props.onLoad();
+    node = h.render(h.DecisionsPage);
+    assert.equal(loaded, set.questions);
+    assert.equal(byType(node, "Tabs").props.activeKey, "current");
 });
 
 test("decision forms and Edit menus use clean English and Dutch labels", () => {
@@ -536,6 +617,7 @@ test("decision submission requires only valid evidence/questions and sends no pr
     const ai = load("packages/aihappey-ai/src/createDecisionProvider.ts");
     const { useDecisionsController } = load("packages/aihappey-core/src/features/decisions/useDecisionsController.ts", {
         react: h.react, "aihappey-ai": { ...ai, defaultEndpoints: { decisions: "/decisions" } },
+        "aihappey-types": agentTypes, "../agents/agentSelection": agentSelection,
         "aihappey-decisions": { ...decisions, useDecisions: () => store }, "aihappey-state": { useAppStore: selector => selector(state) },
         "aihappey-i18n": i18n, "../chat/context/ChatContext": { useChatContext: () => ({ config }) },
         "../models/queryModelSelection": { useQueryModelId: () => undefined }, "../storage/storageErrorMessage": { useStorageErrorMessage: () => String },
@@ -563,6 +645,217 @@ test("decision submission requires only valid evidence/questions and sends no pr
     assert.deepEqual(c.errors, []);
     c.setPrompt(""); c = h.render(useDecisionsController);
     assert.equal(c.canSend, false);
+});
+
+const reviewAgent = { id: "openai/review", name: "Review", source: "remote", agent: { name: "Review", models: [{ id: "anthropic/claude", type: "language" }, { id: "google/router", type: "decision" }] } };
+function controllerHarness(options = {}) {
+    const h = hooks();
+    const sent = [], saved = [];
+    const state = {
+        models: [{ id: "openai/model", type: "decision" }], userPreferredDecisionModel: "openai/model",
+        chatMode: "agent", selectedAgentNames: ["remote:unrelated"],
+        agents: [{ name: "Local" }], remoteAgentModels: [reviewAgent, { id: "another", source: "remote" }],
+        customHeaders: { "X-OpenAI-Key": "unrelated", "X-Anthropic-Key": "claude-key", "X-Google-Key": "router-key", "x-custom": "yes" },
+        ...options.state,
+    };
+    const config = { baseUrl: "https://gateway.example/", agentEndpoint: "https://agents.example///", endpoints: {},
+        getAccessToken: async () => "gateway-token", fetch: async (url, init) => {
+            sent.push({ url, headers: new Headers(init.headers), body: JSON.parse(init.body), signal: init.signal });
+            return options.respond ? options.respond(url, init) : Response.json(response);
+        }, ...options.config };
+    const store = { add: async (...args) => { saved.push(args); if (options.save) await options.save(...args); } };
+    const attachments = load("packages/aihappey-core/src/features/decisions/decisionAttachments.ts", {
+        "aihappey-decisions": decisions,
+        "../chat/files/file": { extractTextFromFile: async file => file.text() },
+        "../chat/files/fileConverters": { extractTextFromZip: async () => [] },
+    });
+    const { useDecisionsController } = load("packages/aihappey-core/src/features/decisions/useDecisionsController.ts", {
+        react: h.react, "aihappey-ai": { ...load("packages/aihappey-ai/src/createDecisionProvider.ts"), defaultEndpoints: { decisions: "/api/decisions" } },
+        "aihappey-types": agentTypes, "../agents/agentSelection": agentSelection,
+        "aihappey-decisions": { ...decisions, useDecisions: () => store }, "aihappey-state": { useAppStore: selector => selector(state) },
+        "aihappey-i18n": i18n, "../chat/context/ChatContext": { useChatContext: () => ({ config }) },
+        "../models/queryModelSelection": { useQueryModelId: () => options.queryModel }, "../storage/storageErrorMessage": { useStorageErrorMessage: () => String },
+        "./decisionAttachments": { ...attachments, ...(options.prepareAttachments ? { prepareDecisionAttachments: options.prepareAttachments } : {}) },
+    });
+    const render = () => h.render(useDecisionsController);
+    render(); h.flush();
+    const c = render();
+    c.setPrompt("Shared evidence"); c.setQuestions([question]);
+    return { ...h, state, config, sent, saved, render };
+}
+
+test("Decisions target state defaults to model mode and stays isolated from normal chat", () => {
+    const h = controllerHarness();
+    const previous = structuredClone(h.state);
+    let c = h.render();
+    assert.equal(c.customAgents, false);
+    assert.equal(c.agentKey, "");
+    assert.equal(c.selectedModel, "openai/model");
+    c.setCustomAgents(true); c.setAgentKey("remote:openai/review");
+    c = h.render();
+    assert.equal(c.customAgents, true);
+    assert.equal(c.agentKey, "remote:openai/review");
+    c.setCustomAgents(false);
+    c = h.render();
+    assert.equal(c.selectedModel, "openai/model");
+    assert.equal(c.agentKey, "remote:openai/review");
+    assert.deepEqual(h.state, previous);
+    assert.equal(controllerHarness().render().agentKey, "");
+    assert.equal(controllerHarness({ queryModel: "openai/query" }).render().selectedModel, "openai/query");
+});
+
+test("only the active target is required and local, missing, or removed agents cannot execute", async () => {
+    const h = controllerHarness({ state: { models: [] }, config: { baseUrl: "", gatewayEnabled: false } });
+    let c = h.render();
+    assert.equal(c.canSend, false);
+    c.setCustomAgents(true);
+    c = h.render(); assert.equal(c.canSend, false);
+    for (const key of ["local:Local", "remote:missing", ""]) {
+        c.setAgentKey(key); c = h.render(); assert.equal(c.canSend, false); await c.onSend();
+    }
+    assert.equal(h.sent.length, 0);
+    c.setAgentKey("remote:openai/review"); c = h.render(); assert.equal(c.canSend, true);
+    h.config.agentEndpoint = " "; c = h.render(); assert.equal(c.canSend, false); await c.onSend();
+    assert.equal(h.sent.length, 0);
+    h.config.agentEndpoint = "https://agents.example/";
+    h.state.remoteAgentModels = []; c = h.render(); assert.equal(c.canSend, false);
+    const model = controllerHarness({ config: { agentEndpoint: undefined } });
+    c = model.render(); assert.equal(c.canSend, true);
+    c.setCustomAgents(true); c.setAgentKey("remote:openai/review"); c = model.render(); assert.equal(c.canSend, false);
+    await c.onSend(); assert.equal(model.sent.length, 0);
+});
+
+test("remote Decisions sends the backend ID, uses agent OAuth, and saves the same result shape without a gateway", async () => {
+    let gatewayTokenCalls = 0, agentTokenCalls = 0;
+    const h = controllerHarness({ state: { models: [] }, config: {
+        baseUrl: "", gatewayEnabled: false, endpoints: { decisions: "/custom-gateway-decisions" },
+        agentScopes: ["agents/.default"], getAgentAccessToken: async () => { agentTokenCalls++; return "agent-token"; },
+        getAccessToken: async () => { gatewayTokenCalls++; throw new Error("Wrong audience"); },
+        headers: { "X-OpenAI-Key": "static-key", "x-static": "yes" },
+    } });
+    let c = h.render(); c.setCustomAgents(true); c.setAgentKey("remote:openai/review");
+    c = h.render(); await c.onSend(); c = h.render();
+    assert.equal(h.sent.length, 1);
+    assert.equal(h.sent[0].url, "https://agents.example/api/decisions");
+    assert.deepEqual(h.sent[0].body, { model: "openai/review", state: "Shared evidence", questions: { q1: { type: "boolean", instructions: question.instructions } } });
+    assert.equal(h.sent[0].headers.get("Authorization"), "Bearer agent-token");
+    assert.equal(h.sent[0].headers.get("x-static"), "yes");
+    assert.ok([...h.sent[0].headers.keys()].every(key => !/^x-.+-key$/.test(key)));
+    assert.equal(h.sent[0].headers.get("x-custom"), null);
+    assert.equal(gatewayTokenCalls, 0); assert.equal(agentTokenCalls, 1);
+    assert.deepEqual(c.result, response);
+    assert.deepEqual(h.saved, [["Shared evidence", [question], response]]);
+    assert.deepEqual(c.errors, []);
+});
+
+test("header-auth agent Decisions scopes credentials to actual agent models, never its provider-looking ID", async () => {
+    const h = controllerHarness({ config: { headers: { "X-OpenAI-Key": "static-unrelated", "X-Mistral-Key": "also-unrelated" } } });
+    let c = h.render(); c.setCustomAgents(true); c.setAgentKey("remote:openai/review");
+    c = h.render(); await c.onSend();
+    const headers = h.sent[0].headers;
+    assert.equal(headers.get("X-Anthropic-Key"), "claude-key");
+    assert.equal(headers.get("X-Google-Key"), "router-key");
+    assert.equal(headers.get("X-OpenAI-Key"), null);
+    assert.equal(headers.get("X-Mistral-Key"), null);
+    assert.equal(headers.get("Authorization"), null);
+    assert.equal(headers.get("x-custom"), "yes");
+    h.state.remoteAgentModels = [{ id: "openai/review", source: "remote" }];
+    c = h.render(); await c.onSend();
+    assert.ok([...h.sent[1].headers.keys()].every(key => !/^x-.+-key$/.test(key)));
+});
+
+test("agent authentication errors, missing authenticators, and empty tokens never send fallback requests", async () => {
+    for (const config of [
+        { getAgentAccessToken: async () => { throw new Error("Agent token failed"); } },
+        { getAgentAccessToken: async () => "" },
+        { agentScopes: ["agents/.default"], getAgentAccessToken: undefined },
+    ]) {
+        const h = controllerHarness({ config });
+        let c = h.render(); c.setCustomAgents(true); c.setAgentKey("remote:openai/review");
+        c = h.render(); await c.onSend(); c = h.render();
+        assert.equal(h.sent.length, 0); assert.equal(h.saved.length, 0);
+        assert.equal(c.result, undefined); assert.equal(c.processing, false);
+        assert.equal(c.errors.length, 1);
+    }
+});
+
+test("model requests retain their configured endpoint and token after switching back from agents", async () => {
+    const h = controllerHarness({ config: { endpoints: { decisions: "/custom-decisions" }, getAgentAccessToken: async () => { throw new Error("Wrong target"); } } });
+    let c = h.render(); c.setCustomAgents(true); c = h.render(); c.setCustomAgents(false);
+    c = h.render(); await c.onSend();
+    assert.equal(h.sent[0].url, "https://gateway.example/custom-decisions");
+    assert.equal(h.sent[0].body.model, "openai/model");
+    assert.equal(h.sent[0].headers.get("Authorization"), "Bearer gateway-token");
+    assert.equal(h.sent[0].headers.get("X-OpenAI-Key"), "unrelated");
+    assert.equal(h.sent[0].headers.get("X-Anthropic-Key"), null);
+});
+
+test("changing mode or remote agent clears only the current result and preserves evidence and questions", async () => {
+    const h = controllerHarness({ prepareAttachments: async () => ({ images: [{ id: "img", name: "evidence.png", image_url: image }], documents: [{ id: "doc", name: "evidence.txt", text: "Document evidence" }], failures: [] }) });
+    let c = h.render(); await c.addAttachments([{}]); c = h.render(); await c.onSend(); c = h.render();
+    assert.deepEqual(c.result, response);
+    const evidence = { images: c.images, documents: c.documents, prompt: c.prompt, questions: c.questions };
+    c.setCustomAgents(true); c = h.render(); assert.equal(c.result, undefined);
+    c.setAgentKey("remote:openai/review"); c = h.render(); await c.onSend(); c = h.render();
+    assert.deepEqual(c.result, response);
+    assert.deepEqual(h.sent[1].body.state, h.sent[0].body.state);
+    assert.deepEqual(h.saved[1][0], h.sent[1].body.state);
+    c.setAgentKey("remote:another"); c = h.render(); assert.equal(c.result, undefined);
+    assert.deepEqual({ images: c.images, documents: c.documents, prompt: c.prompt, questions: c.questions }, evidence);
+    assert.equal(c.selectedModel, "openai/model");
+});
+
+test("agent execution guards duplicate sends and target changes while busy and aborts on unmount", async () => {
+    let finish;
+    const h = controllerHarness({ respond: () => new Promise(resolve => { finish = resolve; }) });
+    let c = h.render(); c.setCustomAgents(true); c.setAgentKey("remote:openai/review"); c = h.render();
+    const pending = c.onSend(); await Promise.resolve();
+    await c.onSend(); c.setCustomAgents(false); c.setAgentKey("remote:another");
+    c = h.render();
+    assert.equal(c.processing, true); assert.equal(c.canSend, false);
+    assert.equal(c.customAgents, true); assert.equal(c.agentKey, "remote:openai/review");
+    assert.equal(h.sent.length, 1);
+    h.unmount(); assert.equal(h.sent[0].signal.aborted, true);
+    finish(Response.json(response)); await pending;
+    assert.equal(h.saved.length, 0);
+});
+
+test("attachment preparation also guards mode and agent selection changes", async () => {
+    let finish;
+    const h = controllerHarness({ prepareAttachments: () => new Promise(resolve => { finish = resolve; }) });
+    let c = h.render();
+    const pending = c.addAttachments([{}]);
+    c.setCustomAgents(true); c.setAgentKey("remote:openai/review");
+    c = h.render();
+    assert.equal(c.customAgents, false); assert.equal(c.agentKey, ""); assert.equal(c.canSend, false);
+    finish({ images: [], documents: [], failures: [] }); await pending;
+    assert.equal(h.render().readingAttachments, false);
+});
+
+test("agent Decisions validates responses and reports execution and storage failures without losing inputs", async () => {
+    for (const options of [
+        { respond: () => Response.json({ ...response, answers: {} }) },
+        { respond: () => Response.json({ error: { message: "Agent unavailable" } }, { status: 502 }) },
+        { save: async () => { throw new Error("Storage failed"); } },
+    ]) {
+        const h = controllerHarness(options);
+        let c = h.render(); c.setCustomAgents(true); c.setAgentKey("remote:openai/review"); c = h.render();
+        await c.onSend(); c = h.render();
+        assert.equal(c.errors.length, 1); assert.equal(c.processing, false);
+        assert.equal(c.prompt, "Shared evidence"); assert.deepEqual(c.questions, [question]);
+        assert.equal(h.saved.length, options.save ? 1 : 0);
+        assert.deepEqual(c.result, options.save ? response : undefined);
+    }
+});
+
+test("remote-agent Decisions availability and authentication messages are localized in English and Dutch", () => {
+    for (const language of ["en", "nl"]) {
+        const locale = readLocale(language);
+        for (const key of ["agentBackendRequired", "noRemoteAgents", "agentAuthUnavailable"]) {
+            assert.equal(typeof locale.decisionsPage[key], "string");
+            assert.ok(locale.decisionsPage[key].trim());
+        }
+    }
 });
 
 test("underlying decision API still accepts provider options for future form-based configuration", async () => {
