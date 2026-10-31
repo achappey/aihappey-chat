@@ -11,6 +11,7 @@ import { logRuntime } from "./logRuntime";
 import { useConversations } from "aihappey-conversations";
 import { progressRuntime } from "./progressRuntime";
 import { ModelOption } from "aihappey-types";
+import { canConnectServer } from "../../features/mcp-servers/headerConfiguration";
 
 const getUrlHost = (url: string | undefined): string | undefined => {
     if (!url) return undefined;
@@ -130,7 +131,7 @@ export function useMcpRuntimeBinding({
 
         const configuredNames = new Set(
             Object.entries(mcpServers)
-                .filter(([, cfg]) => cfg.config.disabled !== true)
+                .filter(([, cfg]) => cfg.config.disabled !== true && canConnectServer(cfg.config.headers, cfg.registry, cfg.config.url))
                 .map(([name]) => name),
         );
         for (const [name, client] of mcpRuntime.entries()) {
@@ -142,7 +143,7 @@ export function useMcpRuntimeBinding({
 
         // Loop through all configured servers
         Object.entries(mcpServers).forEach(([name, cfg]) => {
-            const isDisabled = cfg.config.disabled === true;
+            const isDisabled = cfg.config.disabled === true || !canConnectServer(cfg.config.headers, cfg.registry, cfg.config.url);
 
             if (isDisabled) {
                 // If disabled → ensure client is removed

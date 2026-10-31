@@ -422,7 +422,7 @@ export const AgentForm = ({
         );
     };
 
-    const installFromCatalog = (item: McpRegistryServerResponse) => {
+    const installFromCatalog = (item: McpRegistryServerResponse, headers?: Record<string, string>) => {
         const remote = item.server.remotes?.find(r => r.type === "streamable-http")
         if (!remote) return
 
@@ -438,6 +438,7 @@ export const AgentForm = ({
                 [key]: {
                     type: "http",
                     url: remote.url,
+                    headers,
                     disabled: true // catalog installs disabled by default
                 }
             }

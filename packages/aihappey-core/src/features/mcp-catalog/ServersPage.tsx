@@ -4,6 +4,8 @@ import { RegistryServerCard, StickyHeaderActionBar, useTheme } from "aihappey-co
 import { useTranslation } from "aihappey-i18n";
 import { AddServerModal } from "../mcp-servers/AddServerModal";
 import { EditServerModal } from "../mcp-servers/EditServerModal";
+import { initialRegistryHeaders, requiresHeaderConfiguration } from "../mcp-servers/headerConfiguration";
+import type { McpRegistryServerResponse } from "aihappey-types";
 import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { useDefaultRegistries } from "../../shell/connectors/useDefaultRegistries";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
@@ -43,6 +45,7 @@ export const ServersPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
   const [editingName, setEditingName] = useState<string | null>(null);
+  const [configuring, setConfiguring] = useState<McpRegistryServerResponse>();
   const [activeTab, setActiveTab] = useState<string>("all");
   const handleEdit = (name: string) => setEditingName(name);
   const handleHideEdit = () => setEditingName(null);
@@ -138,17 +141,21 @@ export const ServersPage = () => {
             //   (cfg as McpRegistryServerResponse).server.name
             const remote = cfg.server.remotes?.find((a: any) => a.type == "streamable-http");
 
-            const onInstall = mcpServers[cfg.server.name.toLowerCase()] ?
-              undefined : () => {
+            const install = (headers: Record<string, string>) => {
                 addMcpServer(cfg.server.name.toLowerCase(), {
                   config: {
                     type: "http",
                     url: cfg.server.remotes?.find((a: any) => a.type == "streamable-http")?.url!,
-                    disabled: true
+                    disabled: true,
+                    headers
                   },
                   registry: cfg
                 })
-              }
+              };
+            const onInstall = mcpServers[cfg.server.name.toLowerCase()] ? undefined : () => {
+              if (requiresHeaderConfiguration(cfg)) setConfiguring(cfg);
+              else install(initialRegistryHeaders(cfg));
+            };
 
             return (
               <div key={displayName}
@@ -157,9 +164,10 @@ export const ServersPage = () => {
                 }}>
 
                 <RegistryServerCard serverItem={cfg}
+                  onConfigure={mcpServers[cfg.server.name.toLowerCase()] ? () => handleEdit(cfg.server.name.toLowerCase()) : undefined}
                   onInstall={onInstall}
                   onRemove={mcpServers[cfg.server.name.toLowerCase()]
-                    ? () => removeMcpServer(cfg.server.name)
+                    ? () => removeMcpServer(cfg.server.name.toLowerCase())
                     : undefined} />
               </div>
             )
@@ -238,6 +246,11 @@ export const ServersPage = () => {
           </Tabs>
 
           <AddServerModal show={showModal} onHide={() => setShowModal(false)} />
+          {configuring && <EditServerModal show name={configuring.server.name.toLowerCase()} registry={configuring}
+            onHide={() => setConfiguring(undefined)} onSaveHeaders={headers => addMcpServer(configuring.server.name.toLowerCase(), {
+              config: { type: "http", url: configuring.server.remotes!.find(remote => remote.type === "streamable-http")!.url, disabled: true, headers },
+              registry: configuring,
+            })} />}
           {editingName && (
             <EditServerModal
               show={!!editingName}

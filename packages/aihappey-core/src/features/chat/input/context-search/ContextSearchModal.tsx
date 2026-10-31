@@ -11,6 +11,8 @@ import { useDarkMode } from "usehooks-ts";
 import { useDefaultRegistries } from "../../../../shell/connectors/useDefaultRegistries";
 import { PROVIDERS } from "../../../../runtime/providers/providerMetadata";
 import { ContextSearchGrid, contextTabTitle } from "./ContextSearchGrid";
+import { EditServerModal } from "../../../mcp-servers/EditServerModal";
+import { initialRegistryHeaders, requiresHeaderConfiguration } from "../../../mcp-servers/headerConfiguration";
 import {
   allBuiltInPluginDefs,
   normalizeCatalogText,
@@ -68,6 +70,8 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
   const [activeTab, setActiveTab] = useState<ContextSearchTab>("tools");
   const [catalogInstallHappened, setCatalogInstallHappened] = useState(false);
   const [catalogVisibleCount, setCatalogVisibleCount] = useState(CATALOG_PAGE_SIZE);
+  const [configuring, setConfiguring] = useState<McpRegistryServerResponse>();
+  const [editingName, setEditingName] = useState<string>();
 
   const activePlugins = useAppStore((s) => s.activePlugins);
   const setActivePlugins = useAppStore((s) => s.setActivePlugins);
@@ -234,16 +238,18 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
       .some((k) => k === server.server.name.toLowerCase() || (!!url && k === url.toLowerCase()));
   }, [installedServerKeys]);
 
-  const onInstall = (item: McpRegistryServerResponse) => {
+  const onInstall = (item: McpRegistryServerResponse, headers?: Record<string, string>) => {
     const key = keyOf(item.server.name);
     if (mcpServers[key]) return;
     const remote = item.server.remotes?.find((a) => a.type === "streamable-http");
     if (!remote?.url) return;
+    if (!headers && requiresHeaderConfiguration(item)) { setConfiguring(item); return; }
     addMcpServer(key, {
       config: {
         type: "http",
         url: remote.url,
         disabled: true,
+        headers: headers ?? initialRegistryHeaders(item),
       },
       registry: item,
     });
@@ -257,6 +263,10 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
 
   const visiblePagedCatalogServers = visibleCatalogServers.slice(0, catalogVisibleCount);
   const toolCount = visibleToolToggles.length;
+
+  if (configuring) return <EditServerModal show={open} name={keyOf(configuring.server.name)} registry={configuring}
+    onHide={() => setConfiguring(undefined)} onSaveHeaders={headers => onInstall(configuring, headers)} />;
+  if (editingName) return <EditServerModal show={open} name={editingName} onHide={() => setEditingName(undefined)} />;
 
   return (
     <Modal
@@ -368,6 +378,7 @@ export const ContextSearchModal = ({ open, onClose }: Props) => {
                     renderDescription={() => <AuthorBadges authors={ownerNames(server)} />}
                     onRemove={exists ? () => onUninstall(server) : undefined}
                     onInstall={!exists ? () => onInstall(server) : undefined}
+                    onConfigure={exists && mcpServers[keyOf(server.server.name)] ? () => setEditingName(keyOf(server.server.name)) : undefined}
                   />
                 );
               })}

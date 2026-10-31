@@ -13,11 +13,13 @@ import { useAccount } from "aihappey-auth";
 import { McpRegistryServerResponse } from "aihappey-types";
 import { useDefaultRegistries } from "../../shell/connectors/useDefaultRegistries";
 import { useChatContext } from "../chat/context/ChatContext";
+import { EditServerModal } from "../mcp-servers/EditServerModal";
+import { initialRegistryHeaders, requiresHeaderConfiguration } from "../mcp-servers/headerConfiguration";
 
 type Props = {
   show: boolean;
   onHide: () => void;
-  addMcpServer: (item: McpRegistryServerResponse) => void;
+  addMcpServer: (item: McpRegistryServerResponse, headers?: Record<string, string>) => void;
   removeMcpServer: (item: McpRegistryServerResponse) => void;
   installedServerKeys: string[];
 };
@@ -45,6 +47,9 @@ export const ServerCatalogModal = ({
   const [showBaseDomain, setShowBaseDomain] = useState(!!chat.config.getAccessToken);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<ServerCatalogTabKey>("all");
+  const [configuring, setConfiguring] = useState<McpRegistryServerResponse>();
+  const [editingName, setEditingName] = useState<string>();
+  const mcpServers = useAppStore(s => s.mcpServers);
   const [registryLoadProgress, setRegistryLoadProgress] = useState<{ completed: number; total: number }>();
 
   const recently = useRecentlyUsed();
@@ -88,9 +93,13 @@ export const ServerCatalogModal = ({
     : 0;
   const showInitialCatalogLoading = show && servers.length === 0 && registryLoadProgress !== undefined;
 
-  return (
+  const install = (item: McpRegistryServerResponse) => {
+    if (requiresHeaderConfiguration(item)) setConfiguring(item);
+    else addMcpServer(item, initialRegistryHeaders(item));
+  };
+  return (<>
     <Modal
-      show={show}
+      show={show && !configuring && !editingName}
       onHide={handleClose}
       actions={
         <Button onClick={handleClose}
@@ -133,12 +142,17 @@ export const ServerCatalogModal = ({
               serverItem={server}
               renderDescription={() => <AuthorBadges authors={ownerNames} />}
               onRemove={exists ? () => removeMcpServer(server) : undefined}
-              onInstall={!exists ? () => addMcpServer(server) : undefined}
+              onInstall={!exists ? () => install(server) : undefined}
+              onConfigure={exists && mcpServers[server.server.name.toLowerCase()] ? () => setEditingName(server.server.name.toLowerCase()) : undefined}
             />
           )}
         />
       )}
     </Modal>
+    {configuring && <EditServerModal show name={configuring.server.name.toLowerCase()} registry={configuring}
+      onHide={() => setConfiguring(undefined)} onSaveHeaders={headers => addMcpServer(configuring, headers)} />}
+    {editingName && <EditServerModal show name={editingName} onHide={() => setEditingName(undefined)} />}
+    </>
   );
 };
 

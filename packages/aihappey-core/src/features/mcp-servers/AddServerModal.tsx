@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useAppStore } from "aihappey-state";
 import { useTheme } from "aihappey-components";
 
 import { useTranslation } from "aihappey-i18n";
+import { useMcpHeadersEditor } from "./useMcpHeadersEditor";
 
 type Props = {
   show: boolean;
@@ -25,69 +26,38 @@ export function transformUrl(url: string): string {
 }
 
 
-export const AddServerModal = ({ show, onHide }: Props) => {
-  const { Modal, Button, Input, TextArea } = useTheme();
+export const AddServerModal = (props: Props) => props.show ? <AddServerForm {...props} /> : null;
+
+const AddServerForm = ({ show, onHide }: Props) => {
+  const { Modal, Button, Input } = useTheme();
   const { t } = useTranslation();
   const addMcpServer = useAppStore((s) => s.addMcpServer);
   const mcpServers = useAppStore((s) => s.mcpServers);
   const [url, setUrl] = useState("");
-  const [headers, setHeaders] = useState("");
-  const nameExists = url && Object.keys(mcpServers).includes(transformUrl(url))
-
-  // Memoised header validation (avoids state updates during render)
-  const { error: headersError, parsedHeaders } = useMemo(() => {
-    if (headers.trim() === "") {
-      return { error: null, parsedHeaders: undefined };
-    }
-    try {
-      const parsed = JSON.parse(headers);
-      if (
-        typeof parsed === "object" &&
-        parsed !== null &&
-        !Array.isArray(parsed) &&
-        Object.values(parsed).every((v) => typeof v === "string")
-      ) {
-        return {
-          error: null,
-          parsedHeaders: parsed as Record<string, string>,
-        };
-      }
-      return {
-        error: 'Invalid JSON object: must be { "Header": "Value" }',
-        parsedHeaders: undefined,
-      };
-    } catch {
-      return {
-        error: "Invalid JSON: must be a valid object",
-        parsedHeaders: undefined,
-      };
-    }
-  }, [headers]);
-
+  const editor = useMcpHeadersEditor();
+  const nameExists = Object.keys(mcpServers).includes(transformUrl(url).toLowerCase());
+  let validUrl = false;
+  try { validUrl = ["https:", "http:"].includes(new URL(url).protocol); } catch { /* Incomplete URL. */ }
 
   const handleAdd = () => {
+    if (!validUrl || nameExists || editor.error) return;
     const withoutProtocol = transformUrl(url);
     const cfg: any = {
       url,
       disabled: true,
       type: "http",
-      headers: {},
+      headers: editor.headers,
     };
 
-    if (parsedHeaders) {
-      cfg.headers = parsedHeaders;
-    }
     addMcpServer(withoutProtocol, {
       config: cfg
     });
     setUrl("");
-    setHeaders("");
     onHide();
   };
 
   const hide = () => {
     setUrl("");
-    setHeaders("");
     onHide();
   };
 
@@ -101,7 +71,7 @@ export const AddServerModal = ({ show, onHide }: Props) => {
           <Button onClick={hide} variant="subtle" type="button">
             {t("cancel")}
           </Button>
-          <Button onClick={handleAdd} type="button">
+          <Button onClick={handleAdd} disabled={!validUrl || nameExists || !!editor.error} type="button">
             {t("ok")}
           </Button>
         </>
@@ -118,29 +88,7 @@ export const AddServerModal = ({ show, onHide }: Props) => {
           }}
           style={{ flex: 2 }}
         />
-        <div style={{ marginBottom: 8 }}>
-          <TextArea
-            rows={3}
-            label={t("manageServersModal.headers")}
-            placeholder='{ "X-My-Header": "value" }'
-            value={headers}
-            style={{ width: "100%" }}
-            onChange={(v: any) => {
-              setHeaders(typeof v === "string" ? v : v?.target?.value ?? "");
-            }}
-          />
-          {headersError && (
-            <div style={{ color: "#c00", fontSize: 12, marginTop: 2 }}>
-              {headersError}
-            </div>
-          )}
-          {!headersError && headers.trim() !== "" && (
-            <div style={{ color: "#888", fontSize: 12, marginTop: 2 }}>
-              {t("manageServersModal.headersInfo") ||
-                "JSON object of extra headers"}
-            </div>
-          )}
-        </div>
+        {editor.content}
 
         {nameExists && (
           <div style={{ color: "#c00", fontSize: 12, marginBottom: 8 }}>

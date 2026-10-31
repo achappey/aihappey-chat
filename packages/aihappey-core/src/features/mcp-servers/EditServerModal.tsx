@@ -1,113 +1,45 @@
-import { useState, useMemo } from "react";
 import { useAppStore } from "aihappey-state";
 import { useTheme } from "aihappey-components";
-
 import { useTranslation } from "aihappey-i18n";
+import type { McpRegistryServerResponse } from "aihappey-types";
+import { useMcpHeadersEditor } from "./useMcpHeadersEditor";
 
 type Props = {
   show: boolean;
   onHide: () => void;
   name: string;
+  registry?: McpRegistryServerResponse;
+  onSaveHeaders?: (headers: Record<string, string>) => void;
 };
 
-export const EditServerModal = ({ show, onHide, name }: Props) => {
-  const { Modal, Button, Input, TextArea } = useTheme();
+export const EditServerModal = (props: Props) => props.show ? <EditServerForm key={props.name} {...props} /> : null;
+
+const EditServerForm = ({ show, onHide, name, registry: suppliedRegistry, onSaveHeaders }: Props) => {
+  const { Modal, Button, Input } = useTheme();
   const { t } = useTranslation();
-  const addMcpServer = useAppStore((s) => s.addMcpServer);
-  const updateMcpServer = useAppStore((s) => s.updateMcpServer);
-  const mcpServers = useAppStore((s) => s.mcpServers);
-  const server = mcpServers[name].config;
-  const [headers, setHeaders] = useState(
-    server?.headers ? JSON.stringify(server.headers, null, 2) : ""
-  );
-
-  const { error: headersError, parsedHeaders } = useMemo(() => {
-    if (headers.trim() === "") return { error: null, parsedHeaders: undefined };
-    try {
-      const parsed = JSON.parse(headers);
-      if (
-        typeof parsed === "object" &&
-        parsed !== null &&
-        !Array.isArray(parsed) &&
-        Object.values(parsed).every((v) => typeof v === "string")
-      ) {
-        return { error: null, parsedHeaders: parsed as Record<string, string> };
-      }
-      
-      return {
-        error: 'Invalid JSON object: must be { "Header": "Value" }',
-        parsedHeaders: undefined,
-      };
-    } catch {
-      return {
-        error: "Invalid JSON: must be a valid object",
-        parsedHeaders: undefined,
-      };
-    }
-  }, [headers]);
-
-  const handleSave = () => {
-    if (headersError) return;
-    updateMcpServer(name, {
-      ...server,
-      headers: headers.trim() === "" ? undefined : parsedHeaders,
-    });
+  const updateMcpServer = useAppStore(s => s.updateMcpServer);
+  const addMcpServer = useAppStore(s => s.addMcpServer);
+  const item = useAppStore(s => s.mcpServers[name]);
+  const registries = useAppStore(s => s.mcpRegistries);
+  const freshRegistry = item && Object.values(registries ?? {}).flat().find(entry => entry?.server?.name?.toLowerCase() === name
+    && entry.server.remotes?.some(remote => remote?.url === item.config.url));
+  const registry = suppliedRegistry ?? freshRegistry ?? item?.registry;
+  const url = item?.config.url ?? registry?.server?.remotes?.find(remote => remote?.type === "streamable-http")?.url;
+  const editor = useMcpHeadersEditor(item?.config.headers, registry, url);
+  const save = () => {
+    if (!editor.headers || editor.error) return;
+    if (onSaveHeaders) onSaveHeaders(editor.headers);
+    else if (item && freshRegistry) addMcpServer(name, { ...item, registry: freshRegistry, config: { ...item.config, headers: editor.headers } });
+    else if (item) updateMcpServer(name, { ...item.config, headers: editor.headers });
     onHide();
   };
- // const remote = server.remotes?.find(a => a.type == "streamable-http");
-
-  if (!server) return null;
-
-  return (
-    <Modal
-      show={show}
-      onHide={onHide}
-      title={t("edit")}
-      actions={
-        <>
-          <Button onClick={onHide} variant="subtle" type="button">
-            {t("cancel")}
-          </Button>
-          <Button onClick={handleSave} disabled={!!headersError} type="button">
-            {t("ok")}
-          </Button>
-        </>
-      }
-    >
-      <div>
-        <Input
-          label={t("manageServersModal.name")}
-          value={name}
-          disabled
-          style={{ flex: 1 }}
-        />
-        <Input
-          label={t("manageServersModal.url")}
-          value={server?.url}
-          disabled
-          style={{ flex: 2 }}
-        />
-        <div style={{ marginBottom: 8 }}>
-          <TextArea
-            rows={3}
-            label={t("manageServersModal.headers")}
-            placeholder='{ "X-My-Header": "value" }'
-            value={headers}
-            style={{ width: "100%" }}
-            onChange={(v: any) => setHeaders(typeof v === "string" ? v : v?.target?.value ?? "")}
-          />
-          {headersError && (
-            <div style={{ color: "#c00", fontSize: 12, marginTop: 2 }}>
-              {headersError}
-            </div>
-          )}
-          {!headersError && headers.trim() !== "" && (
-            <div style={{ color: "#888", fontSize: 12, marginTop: 2 }}>
-              {t("manageServersModal.headersInfo") || "JSON object of extra headers"}
-            </div>
-          )}
-        </div>
-      </div>
-    </Modal>
-  );
+  if (!url) return null;
+  return <Modal show={show} onHide={onHide} title={t("edit")} actions={<>
+    <Button onClick={onHide} variant="subtle" type="button">{t("cancel")}</Button>
+    <Button onClick={save} disabled={!!editor.error} type="button">{t("ok")}</Button>
+  </>}>
+    <Input label={t("manageServersModal.name")} value={registry?.server?.title ?? name} disabled />
+    <Input label={t("manageServersModal.url")} value={url} disabled />
+    {editor.content}
+  </Modal>;
 };

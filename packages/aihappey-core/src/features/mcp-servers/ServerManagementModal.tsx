@@ -4,6 +4,8 @@ import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { CancelButton } from "../../ui/buttons/CancelButton";
 import { AddServerModal } from "./AddServerModal";
+import { EditServerModal } from "./EditServerModal";
+import { canConnectServer } from "./headerConfiguration";
 import { ServerCatalogModal } from "../mcp-catalog/ServerCatalogModal";
 import { McpRegistryServerResponse } from "aihappey-types";
 import { ServerManagement } from "aihappey-components";
@@ -26,7 +28,7 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
   const serverUrls = Object.keys(mcpServers);
 
   const onInstall = useCallback(
-    (item: McpRegistryServerResponse) => {
+    (item: McpRegistryServerResponse, headers?: Record<string, string>) => {
       const key = keyOf(item.server.name);
       if (mcpServers[key]) return;
 
@@ -36,6 +38,7 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
           url:
             item.server.remotes?.find((a) => a.type === "streamable-http")?.url!,
           disabled: true,
+          headers,
         },
         registry: item,
       });
@@ -104,15 +107,18 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
 
   const [showAdd, setShowAdd] = useState(false);
   const [showCatalog, setShowCatalog] = useState(false);
+  const [editingName, setEditingName] = useState<string>();
 
   const toggle = useCallback((key: string) => {
     const k = keyOf(key);
     setEnabled((prev) => {
+      const server = mcpServers[k];
+      if (!prev.has(k) && server && !canConnectServer(server.config.headers, server.registry, server.config.url)) return prev;
       const next = new Set(prev);
       next.has(k) ? next.delete(k) : next.add(k);
       return next;
     });
-  }, []);
+  }, [mcpServers]);
 
   const handleOk = () => {
     setSearch("");
@@ -126,7 +132,7 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
   return (
     <>
       <Modal
-        show={show && !showCatalog}
+        show={show && !showCatalog && !showAdd && !editingName}
         onHide={handleCancel}
         title={t("serverSelectModal.title", {
           enabled: enabled.size,
@@ -156,6 +162,8 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
           onToggle={toggle}
           mcpServers={mcpServers}
           onRemove={(name: any) => removeMcpServer(keyOf(name))}
+          onConfigure={setEditingName}
+          canConnect={name => canConnectServer(mcpServers[name].config.headers, mcpServers[name].registry, mcpServers[name].config.url)}
           search={search}
           onSearchChange={setSearch}
           searchAutoFocus
@@ -171,6 +179,7 @@ export const ServerManagementModal = ({ show, onHide }: Props) => {
       />
 
       <AddServerModal show={showAdd} onHide={() => setShowAdd(false)} />
+      {editingName && <EditServerModal show name={editingName} onHide={() => setEditingName(undefined)} />}
     </>
   );
 };

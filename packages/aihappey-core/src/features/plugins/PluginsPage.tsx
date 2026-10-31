@@ -622,14 +622,14 @@ export const PluginsPage = () => {
           show={showMcpCatalog}
           onHide={() => setShowMcpCatalog(false)}
           installedServerKeys={draftMcpOptions.map((item) => item.id)}
-          addMcpServer={(item) => {
+          addMcpServer={(item, headers) => {
             const remote = item.server.remotes?.find((entry) => entry.type === "streamable-http") ?? item.server.remotes?.find((entry) => entry.type === "sse");
             if (!remote) return;
             const id = item.server.name.toLowerCase();
             setDraftMcpOptions((current) => current.some((entry) => entry.id === id) ? current : [...current, {
               id,
               label: item.server.title || item.server.name,
-              config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url },
+              config: { type: remote.type === "sse" ? "sse" : "http", url: remote.url, headers },
               registry: item,
             }]);
           }}
