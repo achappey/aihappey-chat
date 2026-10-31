@@ -14,6 +14,8 @@ type McpServerCardProps = {
   renderSettings?: () => React.ReactNode
   onToggle?: () => void;
   onRemove?: () => void;
+  onConfigure?: () => void;
+  canConnect?: boolean;
 };
 
 export const McpServerCard = ({ serverConfig,
@@ -23,6 +25,8 @@ export const McpServerCard = ({ serverConfig,
   onToggle,
   renderDescription,
   renderSettings,
+  onConfigure,
+  canConnect = true,
   onRemove }: McpServerCardProps) => {
   const url = serverConfig.url;
   const { Card, Switch } = useTheme();
@@ -32,6 +36,7 @@ export const McpServerCard = ({ serverConfig,
   const headerActions = onToggle ? <Switch
     id={`switch-${url}`}
     checked={checked}
+    disabled={!checked && !canConnect}
     onChange={onToggle}
   /> : undefined
 
@@ -47,6 +52,7 @@ export const McpServerCard = ({ serverConfig,
       headerActions={headerActions}
       actions={
         <McpServerCardButtons url={url}
+          onConfigure={onConfigure}
           onDelete={onRemove}
           websiteUrl={registryItem?.server?.websiteUrl}
           respositoryUrl={getRepositoryUrl(registryItem?.server)}

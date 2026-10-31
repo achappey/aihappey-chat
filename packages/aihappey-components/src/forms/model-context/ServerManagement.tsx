@@ -16,6 +16,8 @@ type Props = {
     }
   >;
   onRemove?: (name: string) => void;
+  onConfigure?: (name: string) => void;
+  canConnect?: (name: string) => boolean;
   search?: string;
   onSearchChange?: (value: string) => void;
   searchAutoFocus?: boolean;
@@ -26,6 +28,8 @@ export const ServerManagement = ({
   enabled,
   mcpServers,
   onRemove,
+  onConfigure,
+  canConnect,
   onToggle,
   search,
   onSearchChange,
@@ -95,6 +99,8 @@ export const ServerManagement = ({
               registryItem={server.registry}
               onToggle={onToggle ? () => onToggle(key) : undefined}
               onRemove={onRemove ? () => onRemove(key) : undefined}
+              onConfigure={onConfigure ? () => onConfigure(key) : undefined}
+              canConnect={canConnect?.(key)}
             />
           </div>
         );

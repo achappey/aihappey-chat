@@ -12,10 +12,12 @@ type RegistryServerCardProps = {
   renderDescription?: () => React.ReactElement
   onInstall?: () => void;
   onRemove?: () => void;
+  onConfigure?: () => void;
 };
 
 export const RegistryServerCard = ({ serverItem,
   onRemove,
+  onConfigure,
   renderDescription,
   onInstall }: RegistryServerCardProps) => {
   const { name, websiteUrl, remotes,
@@ -52,6 +54,7 @@ export const RegistryServerCard = ({ serverItem,
       headerActions={headerActions}
       actions={
         <McpServerCardButtons url={url!}
+          onConfigure={onConfigure}
           websiteUrl={websiteUrl}
           respositoryUrl={getRepositoryUrl(serverItem.server)}
         />

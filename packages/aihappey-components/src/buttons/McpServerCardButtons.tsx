@@ -8,12 +8,14 @@ type McpServerCardButtonsProps = {
   websiteUrl?: string;
   respositoryUrl?: string;
   onDelete?: () => void
+  onConfigure?: () => void;
 };
 
 export const McpServerCardButtons = ({ websiteUrl,
   url,
   respositoryUrl,
-  onDelete
+  onDelete,
+  onConfigure
 }: McpServerCardButtonsProps) => {
   const { Button } = useTheme();
   const { t } = useTranslation();
@@ -22,6 +24,8 @@ export const McpServerCardButtons = ({ websiteUrl,
   }, [url]);
 
   return <>
+    {onConfigure && <Button onClick={onConfigure} variant="transparent" icon="edit"
+      title={t("edit")} aria-label={t("edit")} size="small" />}
     <Button
       onClick={copyToClipboard}
       variant="transparent"
