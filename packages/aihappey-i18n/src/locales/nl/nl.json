@@ -117,6 +117,9 @@
         "noSavedHint": "Geslaagde beslissingen worden hier automatisch opgeslagen met hun invoer, vragen en antwoorden.",
         "noSets": "Nog geen vragensets",
         "noSetsHint": "Maak een herbruikbare geordende vragenset of sla je huidige vragen op als set.",
+        "agentBackendRequired": "Configureer een agentbackend om beslissingen met een externe agent uit te voeren.",
+        "agentAuthUnavailable": "Agentverificatie is niet beschikbaar.",
+        "noRemoteAgents": "Er zijn geen externe agents beschikbaar. Configureer een agentbackend met externe agents.",
         "gatewayRequired": "Configureer een ingeschakelde gateway om beslissingen uit te voeren.",
         "noModels": "Er zijn geen beslissingsmodellen op de gateway beschikbaar. Schakel een aanbieder met beslissingsmodellen in."
     },

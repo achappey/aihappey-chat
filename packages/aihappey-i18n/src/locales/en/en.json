@@ -117,6 +117,9 @@
     "noSavedHint": "Successful decisions are saved here automatically with their input, questions, and answers.",
     "noSets": "No question sets yet",
     "noSetsHint": "Create a reusable ordered set of questions, or save your current questions as a set.",
+    "agentBackendRequired": "Configure an agent backend to execute decisions with a remote agent.",
+    "agentAuthUnavailable": "Agent authentication is unavailable.",
+    "noRemoteAgents": "No remote agents are available. Configure an agent backend with remote agents.",
     "gatewayRequired": "Configure an enabled gateway to execute decisions.",
     "noModels": "No gateway decision models are available. Enable a provider with decision models."
   },

@@ -3,6 +3,7 @@ import { DecisionCard, DecisionResultDetails, DecisionQuestionCard, DecisionQues
 import { useDecisions, type QuestionSet } from "aihappey-decisions";
 import { useAppStore } from "aihappey-state";
 import { useTranslation } from "aihappey-i18n";
+import { AgentSelect } from "../agents/AgentSelect";
 import { ModelSelect } from "../models/ModelSelect";
 import { UserMenuInline } from "../user-settings/UserMenuInline";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
@@ -12,13 +13,14 @@ import { useDecisionsController } from "./useDecisionsController";
 const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 16, marginTop: 16 };
 
 export function DecisionsPage() {
-  const { Tabs, Tab, TextArea, Button, Card, Alert, Tags } = useTheme();
+  const { Tabs, Tab, TextArea, Button, Card, Alert, Tags, ToggleButton } = useTheme();
   const { t } = useTranslation();
   const c = useDecisionsController();
   const store = useDecisions();
   const providers = useProviderRegistry();
   const storageError = useStorageErrorMessage();
   const favorites = useAppStore(s => s.favoriteModelsByType.decision);
+  const favoriteAgentIds = useAppStore(s => s.favoriteAgentIds);
   const toggleFavorite = useAppStore(s => s.toggleFavoriteModelForType);
   const [activeTab, setActiveTab] = useState("current");
   const [editingQuestion, setEditingQuestion] = useState<number>();
@@ -44,19 +46,35 @@ export function DecisionsPage() {
   </div>;
   return <div style={{ background: "transparent", width: "100%", minHeight: "100vh" }}>
     <div style={{ padding: "0 12px", display: "flex", alignItems: "center", gap: 8 }}>
-      <fieldset disabled={locked} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-        <ModelSelect models={(c.models ?? []).filter(m => m.route !== "direct")} modelTypes={["decision"]} value={c.selectedModel} onChange={c.setSelectedModel} />
-      </fieldset>
-      <ModelFavoriteToggleButton size="small" variant="subtle" isFavorite={(favorites ?? []).includes(c.selectedModel)} modelName={model?.name ?? c.selectedModel}
-        disabled={!c.selectedModel} onToggleFavorite={() => toggleFavorite("decision", c.selectedModel)} />
+      <ToggleButton icon="brain" variant="subtle" title={t("aiChat")}
+        checked={!c.customAgents} disabled={locked} onClick={() => c.setCustomAgents(false)} />
+      <ToggleButton icon="robot" variant="subtle" title={t("aiAgents")}
+        checked={c.customAgents} disabled={locked} onClick={() => c.setCustomAgents(true)} />
+      {c.customAgents ? <div style={{ width: "clamp(170px, 24vw, 260px)", maxWidth: "100%", minWidth: 0 }}>
+        <AgentSelect localAgents={[]} remoteAgentModels={c.remoteAgentModels ?? []}
+          values={c.agentKey ? [c.agentKey] : []} onChange={c.setAgentKey} multiselect={false}
+          favoriteAgentIds={favoriteAgentIds ?? []} favoritesLabel={t("favorites")}
+          disabled={locked} style={{ width: "100%", minWidth: 0 }} />
+      </div> : <>
+        <fieldset disabled={locked} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+          <ModelSelect models={(c.models ?? []).filter(m => m.route !== "direct")} modelTypes={["decision"]} value={c.selectedModel} onChange={c.setSelectedModel} />
+        </fieldset>
+        <ModelFavoriteToggleButton size="small" variant="subtle" isFavorite={(favorites ?? []).includes(c.selectedModel)} modelName={model?.name ?? c.selectedModel}
+          disabled={!c.selectedModel} onToggleFavorite={() => toggleFavorite("decision", c.selectedModel)} />
+      </>}
       <div style={{ flex: 1 }} /><UserMenuInline />
     </div>
     <ErrorAlerts errors={c.errors} dismissError={c.dismissError} />
     <div style={{ maxWidth: 1056, margin: "44px auto 0", padding: "0 12px" }}>
       <form onSubmit={e => { e.preventDefault(); void c.onSend(); }}>
         <h1>{t("decisions")}</h1>
-        {!c.gatewayAvailable && <Alert variant="warning">{t("decisionsPage.gatewayRequired")}</Alert>}
-        {!c.models?.some(m => m.type === "decision" && m.route !== "direct") && <Alert variant="info">{t("decisionsPage.noModels")}</Alert>}
+        {c.customAgents ? <>
+          {!c.agentBackendAvailable && <Alert variant="warning">{t("decisionsPage.agentBackendRequired")}</Alert>}
+          {!c.remoteAgentModels?.length && <Alert variant="info">{t("decisionsPage.noRemoteAgents")}</Alert>}
+        </> : <>
+          {!c.gatewayAvailable && <Alert variant="warning">{t("decisionsPage.gatewayRequired")}</Alert>}
+          {!c.models?.some(m => m.type === "decision" && m.route !== "direct") && <Alert variant="info">{t("decisionsPage.noModels")}</Alert>}
+        </>}
         <div onDragOver={e => { if (e.dataTransfer.types.includes("Files")) { e.preventDefault(); if (!locked) setDragging(true); } }} onDragLeave={() => setDragging(false)}
           onDrop={e => { e.preventDefault(); setDragging(false); if (!locked) void c.addAttachments(Array.from(e.dataTransfer.files)); }}
           style={{ outline: dragging ? "2px dashed currentColor" : undefined }}>
