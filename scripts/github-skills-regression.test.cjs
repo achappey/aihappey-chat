@@ -1,7 +1,10 @@
 const assert = require("node:assert/strict");
 const { test } = require("node:test");
+const fs = require("node:fs");
+const path = require("node:path");
 const JSZip = require("jszip");
 const { load } = require("./credential-test-loader.cjs");
+const { renderer, nodes } = require("./react-test-renderer.cjs");
 
 // Node has Blob but no FileReader; adapt only JSZip's browser input boundary.
 function BrowserZip() { return new JSZip(); }
@@ -144,4 +147,48 @@ test("strict GitHub archives use existing storage and duplicate versioning", asy
     assert.equal(second.imported[0].skillId, first.imported[0].skillId); assert.equal(second.imported[0].version, "2");
     assert.equal(second.imported[0].description, "Use this sample when testing.");
     assert.deepEqual(Buffer.from(await second.imported[0].files.find(f => f.path === "assets/logo.bin").data.arrayBuffer()), data["assets/logo.bin"]);
+});
+
+test("GitHub import menu has a link icon and a GitHub label without From", () => {
+    const source = fs.readFileSync(path.resolve(__dirname, "../packages/aihappey-core/src/features/skills/SkillsPage.tsx"), "utf8");
+    const entry = source.match(/key: "import-github-skill",([\s\S]*?)\n    }/)[1];
+    assert.match(entry, /label: t\("skillsPage\.github\.fromGitHub", \{ defaultValue: "GitHub" \}\)/);
+    assert.match(entry, /icon: "link"/);
+    assert.doesNotMatch(entry, /attachment|From GitHub/);
+});
+
+test("GitHub modal localizes its title without static help and retains validation and discovery results", async () => {
+    for (const language of ["en", "nl", "fallback"]) {
+        const translations = language === "fallback" ? {} : JSON.parse(fs.readFileSync(path.resolve(__dirname,
+            `../packages/aihappey-i18n/src/locales/${language}/${language}.json`), "utf8").replace(/^\uFEFF/, ""));
+        if (language !== "fallback") assert.equal(translations.skillsPage.github.fromGitHub, "GitHub");
+        const h = renderer(); const requested = []; const calls = [];
+        const { GitHubSkillImportModal } = load("packages/aihappey-core/src/features/skills/GitHubSkillImportModal.tsx", {
+            react: h.react,
+            "aihappey-components": { useTheme: () => ({ Modal: "Modal", Input: "Input", Button: "Button" }) },
+            "aihappey-i18n": { useTranslation: () => ({ t: key => {
+                requested.push(key);
+                return key.split(".").reduce((value, part) => value?.[part], translations) ?? key;
+            } }) },
+            "aihappey-skills": { parseGitHubSkillUrl, GitHubSkillsClient: class {
+                async discover(url) { calls.push(url); return { candidates: [{ path: "skills/sample", name: "sample" }] }; }
+            } },
+        });
+        const render = () => h.render(GitHubSkillImportModal, { open: true, onClose() {}, onImport() {} });
+        let tree = render();
+        assert.equal(nodes(tree, "Modal")[0].props.title, "GitHub");
+        assert.deepEqual(nodes(tree, "div")[0].props.children.filter(Boolean).map(child => child.type), ["Input", "Button", "div"]);
+        nodes(tree, "Input")[0].props.onChange("not a GitHub URL"); tree = render();
+        assert.ok(nodes(tree, "div").some(node => node.props.role === "alert"));
+        assert.equal(nodes(tree, "Button").find(node => node.props.variant === "secondary").props.disabled, true);
+        nodes(tree, "Input")[0].props.onChange("https://github.com/owner/repo"); tree = render();
+        const discover = nodes(tree, "Button").find(node => node.props.variant === "secondary");
+        assert.equal(discover.props.disabled, false); discover.props.onClick();
+        await new Promise(resolve => setImmediate(resolve)); tree = render();
+        assert.deepEqual(calls, ["https://github.com/owner/repo"]);
+        assert.equal(nodes(tree, "span")[0].props.children, "skills/sample");
+        assert.equal(nodes(tree, "input")[0].props.checked, true);
+        assert.equal(nodes(tree, "Button").find(node => node.props.variant === "primary").props.disabled, false);
+        assert.ok(!requested.includes("skillsPage.github.hint"));
+    }
 });

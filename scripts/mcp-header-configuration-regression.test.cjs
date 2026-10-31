@@ -96,6 +96,26 @@ function harness() {
 }
 const tabs = editor => all(editor.content, node => node.type === "Tabs")[0];
 
+test("Add and Edit dialogs separate URL fields from header tabs and localize the Edit title", () => {
+  for (const [language, title] of [["en", "Edit"], ["nl", "Bewerken"]]) {
+    const translations = JSON.parse(fs.readFileSync(path.resolve(__dirname,
+      `../packages/aihappey-i18n/src/locales/${language}/${language}.json`), "utf8").replace(/^\uFEFF/, ""));
+    assert.equal(translations.edit, title);
+    for (const filename of ["AddServerModal.tsx", "EditServerModal.tsx"]) {
+      const h = harness();
+      h.mocks["aihappey-i18n"] = { useTranslation: () => ({ t: (key, options) =>
+        key.split(".").reduce((value, part) => value?.[part], translations) ?? options?.defaultValue ?? key }) };
+      h.mocks["aihappey-state"] = { useAppStore: selector => selector({ mcpServers: {}, mcpRegistries: {} }) };
+      const tree = h.component(filename, { show: true, name: "pending", registry: item(), onHide() {} });
+      const editor = all(tree, node => node.type === "div" && React.Children.toArray(node.props.children)
+        .some(child => React.isValidElement(child) && child.type === "Tabs"))[0];
+      assert.equal(editor.props.style.paddingTop, 12);
+      assert.ok(all(tree, node => node.type === "Input" && node.props.label === translations.manageServersModal.url).length);
+      if (filename.startsWith("Edit")) assert.equal(tree.props.title, title);
+    }
+  }
+});
+
 test("form-first UI masks credentials, round-trips JSON, and retains incomplete drafts without saving templates", () => {
   const h = harness(); const server = item();
   let editor = h.render({}, server);
