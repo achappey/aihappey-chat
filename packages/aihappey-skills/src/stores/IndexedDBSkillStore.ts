@@ -417,7 +417,7 @@ export class IndexedDBSkillStore implements SkillStore {
     options?: SkillImportOptions
   ): Promise<SkillImportResult> => {
     await this.ensureLoaded();
-    const { parsedSkills, diagnostics } = await extractSkillsFromArchive(file);
+    const { parsedSkills, diagnostics } = await extractSkillsFromArchive(file, options?.strict);
     const imported: StoredSkill[] = [];
 
     for (const parsed of parsedSkills) {

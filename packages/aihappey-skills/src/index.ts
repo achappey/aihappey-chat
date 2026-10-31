@@ -5,6 +5,8 @@ export {
 } from "./SkillsProvider";
 export { IndexedDBSkillStore } from "./stores/IndexedDBSkillStore";
 export { extractSkillsFromArchive } from "./importSkillsFromZip";
+export { GitHubSkillsClient, GitHubSkillError, parseGitHubSkillUrl } from "./githubSkills";
+export type { GitHubSkillCandidate, GitHubSkillDiscovery } from "./githubSkills";
 export { reconcileSkillCatalogItems, reconcileSkillList } from "./skillCatalogReconciliation";
 export {
   buildDefaultSkillInstructions,

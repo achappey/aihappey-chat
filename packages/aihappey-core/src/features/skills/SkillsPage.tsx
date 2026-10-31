@@ -26,6 +26,7 @@ import { useChatContext } from "../chat/context/ChatContext";
 import { useIsDesktop } from "../../shell/responsive/useIsDesktop";
 import { connectedMcpSkills, archiveConnectedSkill, connectedSkillLabel, readConnectedSkillFile } from "./connectedMcpSkills";
 import type { ConnectedMcpSkill } from "aihappey-mcp";
+import { GitHubSkillImportModal } from "./GitHubSkillImportModal";
 
 function normalizeText(v: unknown) {
   return String(v ?? "").trim().toLowerCase();
@@ -86,6 +87,7 @@ export const SkillsPage = () => {
   const setFavoriteSkillIds = useAppStore((s: any) => s.setFavoriteSkillIds as (skillIds: string[]) => void);
   const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [githubImportOpen, setGithubImportOpen] = useState(false);
   const [detailsSkillId, setDetailsSkillId] = useState<string | null>(null);
   const [detailVersions, setDetailVersions] = useState<SkillVersion[]>([]);
   const [detailLocalSkill, setDetailLocalSkill] = useState<StoredSkill | undefined>(undefined);
@@ -100,7 +102,6 @@ export const SkillsPage = () => {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const q = normalizeText(search);
-
   const remoteSkillsHost = useMemo(
     () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
     [chatConfig.baseUrl, chatConfig.endpoints.skills]
@@ -464,6 +465,12 @@ export const SkillsPage = () => {
       label: t("skillsPage.actions.import") ?? "Import skill package",
       icon: "attachment" as IconToken,
       onClick: () => fileInputRef.current?.click(),
+    },
+    {
+      key: "import-github-skill",
+      label: t("skillsPage.github.fromGitHub", { defaultValue: "From GitHub" }),
+      icon: "attachment" as IconToken,
+      onClick: () => setGithubImportOpen(true),
     }
   ];
 
@@ -700,6 +707,16 @@ export const SkillsPage = () => {
             onClose={handleCloseEditor}
             onSave={handleSaveEditor}
           />
+          <GitHubSkillImportModal open={githubImportOpen} onClose={() => setGithubImportOpen(false)}
+            onImport={async (archive, signal) => {
+              signal.throwIfAborted();
+              const result = await skills.importArchive(archive, "local-zip", { strict: true });
+              if (result.imported.length) {
+                setEnabledSkillIds(Array.from(new Set([...enabledSkillIds, ...result.imported.map(item => item.skillId)])));
+                setFeedback(t("skillsPage.imported", { count: result.imported.length }));
+              }
+              return result;
+            }} />
         </div>
       </div>
     </div>

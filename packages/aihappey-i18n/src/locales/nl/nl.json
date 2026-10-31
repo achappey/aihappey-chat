@@ -374,6 +374,17 @@
         }
     },
     "skillsPage": {
+        "github": {
+            "fromGitHub": "Van GitHub",
+            "url": "GitHub-URL",
+            "discover": "Zoeken",
+            "discovering": "Zoeken…",
+            "import": "Importeren",
+            "importing": "Importeren…",
+            "invalidUrl": "Voer een openbare HTTPS GitHub-URL in van een repository, skillmap of SKILL.md.",
+            "invalidSkill": "De geselecteerde map is geen geldige Agent Skill.",
+            "hint": "Selecteer mappen om te importeren. Kandidaten worden pas gecontroleerd bij Importeren. Volledige skillmappen worden gedownload; meegeleverde scripts worden nooit uitgevoerd."
+        },
         "modelContext": "Modelcontext",
         "actions": {
             "import": "Skill importeren",

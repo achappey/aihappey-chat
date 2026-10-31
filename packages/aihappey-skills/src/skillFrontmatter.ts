@@ -1,4 +1,5 @@
 import type { SkillDiagnostic, SkillFrontmatter, SkillWriteDefinition } from "./types";
+import { parseDocument } from "yaml";
 
 const FRONTMATTER_RE = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?([\s\S]*)$/;
 export const SKILL_NAME_RE = /^(?!-)(?!.*--)[a-z0-9-]{1,64}(?<!-)$/;
@@ -169,14 +170,15 @@ function parseYamlLikeFrontmatter(source: string) {
 
 export function parseSkillMarkdown(
   text: string,
-  expectedDirectoryName: string
+  expectedDirectoryName: string,
+  strict = false
 ): {
   frontmatter?: SkillFrontmatter;
   body: string;
   diagnostics: SkillDiagnostic[];
 } {
   const diagnostics: SkillDiagnostic[] = [];
-  const match = text.match(FRONTMATTER_RE);
+  const match = (strict ? text.replace(/^\uFEFF/, "") : text).match(FRONTMATTER_RE);
 
   if (!match) {
     diagnostics.push({
@@ -189,7 +191,27 @@ export function parseSkillMarkdown(
 
   const [, yamlSource, bodySource] = match;
   const body = bodySource.trim();
-  const parsed = parseYamlLikeFrontmatter(yamlSource);
+  let parsed: Record<string, any>;
+  try {
+    if (strict) {
+      const document = parseDocument(yamlSource, { uniqueKeys: true });
+      if (document.errors.length) throw new Error("SKILL.md contains invalid YAML frontmatter.");
+      parsed = document.toJS({ maxAliasCount: 50 });
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Skill frontmatter must be a YAML mapping.");
+      if (typeof parsed.name !== "string" || !SKILL_NAME_RE.test(parsed.name)) throw new Error("Skill name must be 1–64 lowercase letters, numbers, and single hyphens.");
+      if (expectedDirectoryName && parsed.name !== expectedDirectoryName) throw new Error("Skill name does not match its directory.");
+      if (typeof parsed.description !== "string") throw new Error("Skill description must be a string.");
+      validateSkillDescription(parsed.description);
+      for (const key of ["license", "compatibility", "allowed-tools"]) {
+        if (key in parsed && typeof parsed[key] !== "string") throw new Error(`${key} must be a string.`);
+      }
+      if ("compatibility" in parsed && (!parsed.compatibility.trim() || parsed.compatibility.length > 500)) throw new Error("compatibility must be 1–500 characters.");
+      if ("metadata" in parsed && (!parsed.metadata || typeof parsed.metadata !== "object" || Array.isArray(parsed.metadata)
+        || Object.values(parsed.metadata).some(v => typeof v !== "string"))) throw new Error("metadata must map string keys to string values.");
+    } else parsed = parseYamlLikeFrontmatter(yamlSource);
+  } catch (error) {
+    return { body, diagnostics: [{ severity: "error", code: "skill-invalid-frontmatter", message: error instanceof Error ? error.message : "Invalid skill frontmatter." }] };
+  }
 
   const name = typeof parsed.name === "string" ? parsed.name : "";
   const id = typeof parsed.id === "string" ? parsed.id.trim() : "";

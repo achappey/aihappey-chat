@@ -49,7 +49,7 @@ function basename(path: string) {
   return idx === -1 ? normalized : normalized.slice(idx + 1);
 }
 
-async function parseArchive(blob: Blob): Promise<ParsedSkill[]> {
+async function parseArchive(blob: Blob, strict = false): Promise<ParsedSkill[]> {
   const zip = await JSZip.loadAsync(blob);
   const fileEntries = Object.values(zip.files).filter((entry) => !entry.dir);
   const diagnostics: SkillDiagnostic[] = [];
@@ -99,7 +99,7 @@ async function parseArchive(blob: Blob): Promise<ParsedSkill[]> {
 
       const skillFile = files.find((file) => file.path === "SKILL.md");
       const text = skillFile ? await skillFile.data.text() : "";
-      const parsed = parseSkillMarkdown(text, directoryName);
+      const parsed = parseSkillMarkdown(text, directoryName, strict);
 
       return {
         id: parsed.frontmatter?.id,
@@ -121,12 +121,12 @@ async function parseArchive(blob: Blob): Promise<ParsedSkill[]> {
   return parsedSkills;
 }
 
-export async function extractSkillsFromArchive(blob: Blob): Promise<{
+export async function extractSkillsFromArchive(blob: Blob, strict = false): Promise<{
   parsedSkills: ParsedSkill[];
   diagnostics: SkillDiagnostic[];
 }> {
   try {
-    const parsedSkills = await parseArchive(blob);
+    const parsedSkills = await parseArchive(blob, strict);
     const diagnostics = parsedSkills.flatMap((skill) => skill.diagnostics);
     return { parsedSkills, diagnostics };
   } catch (error) {

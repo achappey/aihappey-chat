@@ -167,6 +167,8 @@ export interface SkillImportResult {
 }
 
 export interface SkillImportOptions {
+  /** Strict Agent Skills validation for externally fetched packages; legacy ZIP imports remain lenient. */
+  strict?: boolean;
   skillId?: string;
   version?: string;
   defaultVersion?: string;
