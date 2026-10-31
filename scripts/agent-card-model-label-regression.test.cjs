@@ -201,3 +201,18 @@ test("exports retain full model IDs and contain no UI-only provider identity met
         else global.document = previousDocument;
     }
 });
+
+test("absent plugin actions disappear from the menu without removing other actions", () => {
+    const original = agent(["openai/model"]);
+    const onDelete = () => {}, onEdit = () => {}, onToggleFavorite = () => {}, onSaveAsPlugin = () => {};
+    const card = AgentCard({ agent: original, onDelete, onEdit, onToggleFavorite });
+    assert.deepEqual(card.props.headerActions.props.items.map(item => item.key), ["delete"]);
+    assert.equal(card.props.headerActions.props.items[0].onClick, onDelete);
+    assert.deepEqual(nodes(card.props.actions, "Button").map(button => button.props.icon), ["download", "edit"]);
+    assert.equal(AgentCard({ agent: original }).props.headerActions, undefined, "no empty context menu on remote cards");
+    const eligible = AgentCard({ agent: original, onSaveAsPlugin, saveAsPluginDisabled: true });
+    const [save] = eligible.props.headerActions.props.items;
+    assert.equal(save.key, "save-as-plugin");
+    assert.equal(save.onClick, onSaveAsPlugin);
+    assert.equal(save.disabled, true);
+});

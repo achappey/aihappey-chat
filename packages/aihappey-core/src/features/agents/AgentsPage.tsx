@@ -391,6 +391,7 @@ export const AgentsPage = () => {
           {
             const hasEnabledMcpServers = Object.entries(card.agent.mcpServers ?? {})
               .some(([name, server]) => name.trim().length > 0 && server.disabled !== true);
+            const canSaveAsPlugin = (card.agent.skills?.length ?? 0) > 0 || hasEnabledMcpServers;
 
             return (
               <div
@@ -407,7 +408,7 @@ export const AgentsPage = () => {
                   onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
                   onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
                   onConnectMcp={hasEnabledMcpServers ? () => handleConnectMcp(card.agent) : undefined}
-                  onSaveAsPlugin={() => handleSaveAsPlugin(card.key, card.agent)}
+                  onSaveAsPlugin={canSaveAsPlugin ? () => handleSaveAsPlugin(card.key, card.agent) : undefined}
                   saveAsPluginDisabled={convertingCardKey !== null}
                   isFavorite={favoriteAgentSet.has(card.key)}
                   onToggleFavorite={() => toggleFavoriteAgent(card.key)}

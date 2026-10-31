@@ -135,7 +135,7 @@ test("selector groups agents under every tag and reserves hosts for untagged age
     assert.equal(selected, "remote:remote-writer");
 });
 
-function overview(desktop = true, overrides = {}) {
+function overview(desktop = true, overrides = {}, mocks = {}) {
     const slots = [];
     let index, tree, saved, dirty, effects;
     const hooks = {
@@ -174,6 +174,7 @@ function overview(desktop = true, overrides = {}) {
         "aihappey-plugins": { usePlugins: () => ({ items: [] }) },
         "aihappey-skills": { useSkills: () => ({ items: [] }) },
         "./agentPluginConversion": {},
+        ...mocks,
     });
     const render = () => {
         let passes = 0;
@@ -259,7 +260,7 @@ test("one flat tab per nonblank tag and owner reuses existing cards and actions"
     assert.equal(nodes(page.tab("tag:b"), "AgentCard").length, 1);
     const owned = nodes(page.tab("owner:Team"), "AgentCard");
     assert.equal(owned.length, 2, "tagged agents also belong to their owner tab");
-    assert.ok(owned.every(card => typeof card.props.onEdit === "function" && typeof card.props.onSaveAsPlugin === "function"));
+    assert.ok(owned.every(card => typeof card.props.onEdit === "function" && card.props.onSaveAsPlugin === undefined));
     assert.equal(page.tab("tag:a").props.title, "a (1)");
     assert.equal(page.tab("owner:Team").props.title, "Team (2)");
     assert.equal(page.tab("tags"), undefined); assert.equal(page.tab("owners"), undefined);
@@ -296,4 +297,66 @@ test("metadata values cannot collide with the All option or tab identities", () 
     assert.equal(page.tab("tag:all").props.title, "all (0)");
     assert.equal(nodes(page.tab("tag:all"), "AgentCard").length, 0);
     assert.equal(page.allCards().length, 0);
+});
+
+test("plugin action requires direct skills or enabled MCP servers on local and remote cards", () => {
+    const skill = { type: "skill_reference", skill_id: "provider/example" };
+    const server = { url: "https://example.org/mcp" };
+    const cases = [
+        ["Neither", {}, false],
+        ["Empty", { skills: [], mcpServers: {} }, false],
+        ["Skills", { skills: [skill] }, true],
+        ["Inline", { skills: [{ type: "inline", name: "example", source: { type: "base64", data: "archive" } }] }, true],
+        ["Mcp", { mcpServers: { example: server } }, true],
+        ["ExplicitlyEnabled", { mcpServers: { example: { ...server, disabled: false } } }, true],
+        ["Both", { skills: [skill], mcpServers: { example: server } }, true],
+        ["Disabled", { mcpServers: { example: { ...server, disabled: true } } }, false],
+        ["Mixed", { mcpServers: { disabled: { ...server, disabled: true }, enabled: server } }, true],
+        ["SkillsAndDisabled", { skills: [skill], mcpServers: { example: { ...server, disabled: true } } }, true],
+        ["BlankServerName", { mcpServers: { " ": server } }, false],
+        ["EmbeddedPluginOnly", { plugins: [{ type: "base64", data: "archive" }] }, false],
+    ];
+    for (const desktop of [true, false]) {
+        const page = overview(desktop, {
+            agents: cases.map(([name, fields]) => ({ ...local(name), ...fields })),
+            remoteAgentModels: [...cases.map(([name, fields]) => ({ id: name, agent: { ...local(name), ...fields } })), { id: "Opaque" }],
+        });
+        for (const tab of ["local", "remote:agents.example"]) {
+            const cards = nodes(page.tab(tab), "AgentCard");
+            for (const [name, , expected] of [...cases, ["Opaque", {}, false]].filter(([name]) => tab !== "local" || name !== "Opaque")) {
+                const card = cards.find(card => card.props.agent.name === name);
+                assert.equal(typeof card.props.onSaveAsPlugin === "function", expected, `${desktop}/${tab}/${name}`);
+                assert.equal(typeof card.props.onEdit === "function", tab === "local");
+                assert.equal(typeof card.props.onDelete === "function", tab === "local");
+                assert.equal(typeof card.props.onToggleFavorite, "function");
+                assert.equal(card.props.saveAsPluginDisabled, false);
+            }
+        }
+        page.state.agents = [local("Skills")]; page.render();
+        assert.equal(nodes(page.tab("local"), "AgentCard")[0].props.onSaveAsPlugin, undefined, "refresh removes action after the last skill is removed");
+    }
+});
+
+test("eligible plugin action retains conversion and disables other saves while busy", async () => {
+    const original = { ...local("Skills"), skills: [{ type: "skill_reference", skill_id: "provider/example" }] };
+    const draft = { manifest: { name: "example-plugin" }, files: [] };
+    const skills = { items: [] };
+    const conversions = [], creations = [];
+    let finish;
+    const pending = new Promise(resolve => { finish = resolve; });
+    const page = overview(true, { agents: [original], remoteAgentModels: [{ id: "remote", agent: original }] }, {
+        "aihappey-skills": { useSkills: () => skills },
+        "aihappey-plugins": { usePlugins: () => ({ items: [{ name: "existing" }], extensionNamespace: "com.example",
+            create: async value => { creations.push(value); return pending; } }) },
+        "./agentPluginConversion": { convertAgentToPluginDraft: async (...args) => { conversions.push(args); return draft; } },
+    });
+    const saving = page.allCards()[0].props.onSaveAsPlugin();
+    await new Promise(resolve => setImmediate(resolve));
+    page.render();
+    assert.ok(page.allCards().every(card => card.props.saveAsPluginDisabled));
+    await page.allCards()[1].props.onSaveAsPlugin();
+    assert.deepEqual(conversions, [[original, { existingPluginNames: ["existing"], extensionNamespace: "com.example", skills }]]);
+    assert.deepEqual(creations, [draft]);
+    finish({ name: "example-plugin" }); await saving; page.render();
+    assert.ok(page.allCards().every(card => !card.props.saveAsPluginDisabled));
 });
