@@ -13,7 +13,10 @@ import { useReadResourceToolCall } from "./useReadResourceToolCall";
 import {
   getAnthropicTextEditorConfig,
   useAnthropicTextEditorToolCall,
+  inferMimeType,
+  isAllowedTextFile,
 } from "./useAnthropicTextEditorToolCall";
+import { executeBrowserPatch, getOpenAIApplyPatchConfig } from "../applyPatch/browserApplyPatch";
 
 import { useLocalFilesRuntime } from "./useLocalFileToolCall";
 import { useLocalAgentsEditorRuntime, useLocalAgentsRuntime } from "./useLocalAgentsToolCall";
@@ -344,6 +347,14 @@ export function useOnToolCall({
           return { content: [], structuredContent: result };
         }
 
+        // Native provider tool: runtime only, never an ordinary advertised function
+        // and never allowed to fall through to a stored tool, plugin, or MCP route.
+        if (!source && toolCall.toolName === "apply_patch") {
+          const enabled = typeof selectedModel === "string" && selectedModel.startsWith("openai/")
+            && !!getOpenAIApplyPatchConfig(activeProviderMetadata?.openai);
+          return await executeBrowserPatch(files, toolCall.input, enabled, isAllowedTextFile, inferMimeType, signal);
+        }
+
         // 0) user-defined stored local tools (enabled by user)
         const enabled = Array.isArray(enabledLocalTools) ? enabledLocalTools : [];
         if (enabled.includes(toolCall.toolName)) {
@@ -407,6 +418,9 @@ export function useOnToolCall({
       }
     },
     [
+      selectedModel,
+      activeProviderMetadata,
+      files,
       enabledLocalTools,
       localToolsStore.items,
       plugins,

@@ -142,7 +142,7 @@ const getFileExtension = (name: string) => {
 
 const isFlatWorkspaceName = (name: string) => !/[\\/]/.test(name);
 
-const isAllowedTextFile = (name: string, mimeType?: string | null) => {
+export const isAllowedTextFile = (name: string, mimeType?: string | null) => {
   const extension = getFileExtension(name);
   if (TEXT_FILE_EXTENSIONS.has(extension)) return true;
 
@@ -150,7 +150,7 @@ const isAllowedTextFile = (name: string, mimeType?: string | null) => {
   return normalizedMimeType.startsWith("text/") || TEXT_MIME_TYPES.has(normalizedMimeType);
 };
 
-const inferMimeType = (name: string) => MIME_TYPE_BY_EXTENSION[getFileExtension(name)] ?? "text/plain";
+export const inferMimeType = (name: string) => MIME_TYPE_BY_EXTENSION[getFileExtension(name)] ?? "text/plain";
 
 const normalizePath = (value: unknown) => {
   const rawPath = String(value ?? "").trim();

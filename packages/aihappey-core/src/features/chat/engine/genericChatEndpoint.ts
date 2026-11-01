@@ -495,6 +495,7 @@ const createUiMessageChunkStream = ({
   );
 
   const responsesToolInput = (item: any) => {
+    if (item?.type === "apply_patch_call") return { operation: item.operation };
     if (item?.type === "web_search_call") {
       return compactToolInput({
         action: item?.action?.type,
@@ -520,7 +521,7 @@ const createUiMessageChunkStream = ({
     return item?.output ?? item?.result ?? item;
   };
 
-  const isClientExecutableResponsesTool = (item: any) => item?.type === "function_call";
+  const isClientExecutableResponsesTool = (item: any) => item?.type === "function_call" || item?.type === "apply_patch_call";
 
   const isImageGenerationItemType = (type: unknown) => {
     const normalizedType = String(type ?? "");
@@ -754,12 +755,17 @@ const createUiMessageChunkStream = ({
     item: any,
     includeOutput: boolean,
   ) => {
-    const toolCallId = item?.id ?? item?.call_id;
+    const isPatch = item?.type === "apply_patch_call";
+    if (isPatch && (!includeOutput || item.status !== "completed" || !item.operation)) return;
+    const toolCallId = isPatch ? item?.call_id : item?.id ?? item?.call_id;
     if (!toolCallId) return;
+    if (isPatch && startedToolCalls.has(toolCallId)) return;
 
     const toolName = responsesToolName(item);
     const providerExecuted = !isClientExecutableResponsesTool(item);
-    const toolProviderMetadata = item?.caller || item?.namespace
+    const toolProviderMetadata = isPatch
+      ? { openai: compactObject({ type: item.type, id: item.id, call_id: item.call_id, status: item.status, caller: item.caller, created_by: item.created_by }) }
+      : item?.caller || item?.namespace
       ? { openai: compactObject({ caller: item?.caller, namespace: item?.namespace }) }
       : undefined;
     ensureStepStarted(controller);

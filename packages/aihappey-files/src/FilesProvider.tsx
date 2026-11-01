@@ -59,9 +59,15 @@ export const FilesProvider = ({
       return created;
     };
 
-    ctx.delete = async (id: string) => {
-      await store.delete(id);
+    ctx.delete = async (id: string, expectedData?: Blob) => {
+      await store.delete(id, expectedData);
       setItems((prev) => prev.filter((f) => f.id !== id));
+    };
+
+    ctx.replace = async (id: string, data: Blob, expectedData?: Blob) => {
+      const updated = await store.replace(id, data, expectedData);
+      setItems((prev) => prev.map((f) => f.id === id ? updated : f));
+      return updated;
     };
 
     ctx.rename = async (id: string, newName: string) => {

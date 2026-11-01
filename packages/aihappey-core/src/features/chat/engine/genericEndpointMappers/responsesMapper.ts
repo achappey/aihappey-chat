@@ -192,6 +192,34 @@ const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolPa
   const isClientToolSearch = toolName === OPENAI_CLIENT_TOOL_SEARCH_NAME
     && (providerMetadata?.type === "tool_search_call" || providerMetadata?.execution === "client");
 
+  if (toolName === "apply_patch" && providerMetadata?.type === "apply_patch_call") {
+    if (!isOutputOnlyToolPart(part)) {
+      entries.push(compactObject({
+        type: "apply_patch_call",
+        id: providerMetadata.id,
+        call_id: providerMetadata.call_id ?? callId,
+        status: "completed",
+        operation: toolPartInput(part)?.operation,
+        caller: providerMetadata.caller,
+        created_by: providerMetadata.created_by,
+      }));
+    }
+    const output = toolPartOutput(part);
+    const denied = part?.approval?.approved === false || part?.state === "output-denied";
+    if (output !== undefined || denied || part?.state === "output-error") {
+      const result = output?.structuredContent ?? output;
+      entries.push({
+        type: "apply_patch_call_output",
+        call_id: providerMetadata.call_id ?? callId,
+        status: denied || part?.state === "output-error" || output?.isError || result?.status === "failed" ? "failed" : "completed",
+        output: denied ? (part?.approval?.reason || "The user denied release of this tool result. File changes were not rolled back.")
+          : result?.output ?? part?.errorText ?? stringifyToolValue(output),
+        ...(providerMetadata.caller ? { caller: providerMetadata.caller } : {}),
+      });
+    }
+    return entries;
+  }
+
   if (isClientToolSearch) {
     if (!isOutputOnlyToolPart(part)) {
       entries.push(compactObject({

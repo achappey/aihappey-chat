@@ -18,5 +18,6 @@ export interface FileStore {
     data: Blob;
   }): Promise<StoredFile>;
   rename(id: string, newName: string): Promise<StoredFile>;
-  delete(id: string): Promise<void>;
+  replace(id: string, data: Blob, expectedData?: Blob): Promise<StoredFile>;
+  delete(id: string, expectedData?: Blob): Promise<void>;
 }

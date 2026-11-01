@@ -7,11 +7,9 @@ type InternalFile = StoredFile;
 
 async function load(): Promise<InternalFile[]> {
   if (typeof window === "undefined") return [];
-  try {
-    return (await get(DB_KEY)) ?? [];
-  } catch {
-    return [];
-  }
+  // A failed read is not an empty workspace: never allow a subsequent mutation
+  // to overwrite existing files merely because loading IndexedDB failed.
+  return (await get(DB_KEY)) ?? [];
 }
 
 async function save(list: InternalFile[]) {
@@ -24,26 +22,36 @@ export class IndexedDBFileStore implements FileStore {
   readonly kind = "indexeddb" as const;
 
   private data: InternalFile[] = [];
-  private loaded = false;
+  private loading?: Promise<void>;
+  private mutations: Promise<unknown> = Promise.resolve();
 
   private async ensureLoaded() {
-    if (!this.loaded) {
-      this.data = await load();
-      this.loaded = true;
-    }
+    await (this.loading ??= load().then(data => { this.data = data; }));
   }
 
-  private async commit() {
-    await save(this.data);
+  private mutate<T>(change: (data: InternalFile[]) => { data: InternalFile[]; value: T }): Promise<T> {
+    const run = async () => {
+      await this.ensureLoaded();
+      const next = change(this.data);
+      // Publish in-memory state only after the single IndexedDB write succeeds.
+      await save(next.data);
+      this.data = next.data;
+      return next.value;
+    };
+    const result = this.mutations.then(run, run);
+    this.mutations = result.catch(() => undefined);
+    return result;
   }
 
   list = async (): Promise<StoredFile[]> => {
     await this.ensureLoaded();
-    return this.data//.map(({ data, ...meta }) => meta);
+    await this.mutations;
+    return [...this.data];
   };
 
   read = async (id: string): Promise<StoredFile | undefined> => {
     await this.ensureLoaded();
+    await this.mutations;
     return this.data.find((f) => f.id === id);
   };
 
@@ -68,10 +76,7 @@ export class IndexedDBFileStore implements FileStore {
       data: normalizedData,
     };
 
-    this.data = [item, ...this.data];
-    await this.commit();
-
-    return item;
+    return this.mutate(data => ({ data: [item, ...data], value: item }));
   };
 
   rename = async (id: string, newName: string): Promise<StoredFile> => {
@@ -80,23 +85,25 @@ export class IndexedDBFileStore implements FileStore {
     const normalizedNewName = String(newName ?? "").trim();
     if (!normalizedNewName) throw new Error("File name is required.");
 
-    const idx = this.data.findIndex((f) => f.id === id);
-    if (idx < 0) throw new Error("File not found.");
-
-    const updated: InternalFile = { ...this.data[idx], name: normalizedNewName };
-    this.data = [
-      ...this.data.slice(0, idx),
-      updated,
-      ...this.data.slice(idx + 1),
-    ];
-    await this.commit();
-
-    return updated;
+    return this.mutate(data => {
+      const current = data.find(f => f.id === id);
+      if (!current) throw new Error("File not found.");
+      const updated = { ...current, name: normalizedNewName };
+      return { data: data.map(f => f.id === id ? updated : f), value: updated };
+    });
   };
 
-  delete = async (id: string): Promise<void> => {
-    await this.ensureLoaded();
-    this.data = this.data.filter((f) => f.id !== id);
-    await this.commit();
-  };
+  replace = (id: string, blob: Blob, expectedData?: Blob): Promise<StoredFile> => this.mutate(data => {
+    const current = data.find(f => f.id === id);
+    if (!current) throw new Error("File not found.");
+    if (expectedData && current.data !== expectedData) throw new Error("File changed while applying patch. Read it again.");
+    const updated = { ...current, data: blob };
+    return { data: data.map(f => f.id === id ? updated : f), value: updated };
+  });
+
+  delete = (id: string, expectedData?: Blob): Promise<void> => this.mutate(data => {
+    const current = data.find(f => f.id === id);
+    if (expectedData && current?.data !== expectedData) throw new Error("File changed while applying patch. Read it again.");
+    return { data: data.filter(f => f.id !== id), value: undefined };
+  });
 }

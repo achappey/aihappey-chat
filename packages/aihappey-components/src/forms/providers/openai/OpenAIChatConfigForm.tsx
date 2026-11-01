@@ -26,6 +26,7 @@ const OPENAI_TOOL_TYPES = [
   "code_interpreter",
   "file_search",
   "shell",
+  "apply_patch",
   "programmatic_tool_calling",
   "tool_search",
 ];
@@ -364,6 +365,20 @@ export const OpenAIChatConfigForm = ({
         programmaticToolCallingEnabled={programmaticToolCallingEnabled}
         openAISkillOptions={openAISkillOptions}
         resolveOpenAIShellSkill={resolveOpenAIShellSkill}
+      />
+      <theme.Card
+        size="small"
+        title={t("providers:openai.applyPatch")}
+        headerActions={
+          <theme.Switch
+            id="openai-apply-patch-enabled"
+            checked={!!resolvedConfig?.apply_patch}
+            onChange={(enabled: boolean) => submitConfig({
+              ...resolvedConfig,
+              apply_patch: enabled ? { type: "apply_patch" } : undefined,
+            })}
+          />
+        }
       />
       <OpenAIFileSearchForm
         config={resolvedConfig}
