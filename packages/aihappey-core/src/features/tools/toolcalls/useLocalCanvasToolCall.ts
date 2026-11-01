@@ -293,7 +293,7 @@ export function useLocalCanvasRuntime(files?: FilesContextType | null) {
             if (!original.includes(oldText))
               throw new Error("old_str not found.");
 
-            const updated = original.replace(oldText, String(new_str ?? ""));
+            const updated = original.replace(oldText, () => String(new_str ?? ""));
 
             await canvasReplace(files, file.id, file.name, updated);
 

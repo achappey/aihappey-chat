@@ -8,7 +8,8 @@ import { copyMarkdownToClipboard } from "../../files/file";
 function getFileName(uri: string): string {
   try {
     const path = new URL(uri).pathname;
-    const file = path.substring(path.lastIndexOf("/") + 1);
+    const raw = path.substring(path.lastIndexOf("/") + 1);
+    const file = uri.startsWith("localcanvas:") ? decodeURIComponent(raw) : raw;
     return file.replace(/\.[^/.]+$/, ""); // strip extension
   } catch {
     const file = (uri.split("/").pop() || uri).trim();
@@ -52,17 +53,22 @@ export const CanvasCard = ({ uri, versions }: { uri: string; versions: any[] }) 
             icon="copyClipboard"
             size="small"
             variant="transparent"
-            onClick={async () => await copyMarkdownToClipboard(current.text)}
+            onClick={async () => current.mimeType === "text/plain"
+              ? await navigator.clipboard.writeText(current.text)
+              : await copyMarkdownToClipboard(current.text)}
           />
           <OpenLinkButton
             size="small"
             url={uri}
+            disabled={!!current?._localDocument}
             variant="transparent"
           />
         </>
         }
       >
-        <Markdown text={current.text} />
+        {current.mimeType === "text/plain"
+          ? <div style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{current.text}</div>
+          : <Markdown text={current.text} safeDocument={!!current?._localDocument} />}
       </Card >
     </>
   );

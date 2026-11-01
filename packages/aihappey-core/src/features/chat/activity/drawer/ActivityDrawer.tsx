@@ -8,6 +8,7 @@ import { CanvasActivity } from "../tabs/CanvasActivity";
 import { AttachmentsActivity } from "../tabs/AttachmentsActivity";
 import { DataActivity } from "../content/DataActivity";
 import { useIsDesktop } from "../../../../shell/responsive/useIsDesktop";
+import { extractLocalCanvasHistory } from "../content/localCanvasHistory";
 
 /**
  * Returns a flat array of all tool invocation activities from the current message stream.
@@ -74,7 +75,6 @@ const useToolInvocations = (messages?: UIMessage[], currentModel?: string) => {
       );
 
       return (m.parts || [])
-        .filter((p: any) => p.type?.startsWith("tool-") && p.type != "tool-call")
         .map((p: any, idx: number) => ({
           ...p,
           msgId: m.id,
@@ -82,7 +82,8 @@ const useToolInvocations = (messages?: UIMessage[], currentModel?: string) => {
           metadata: m.metadata,           // 👈 carries metadata.timestamp
           partIndex: idx,                 // 👈 order within the message
           providerId: p.providerId ?? providerId,
-        }));
+        }))
+        .filter((p: any) => p.type === "dynamic-tool" || p.type?.startsWith("tool-") && p.type != "tool-call");
     }
     ) ?? []
   );
@@ -93,106 +94,6 @@ const parseIso = (ts?: string) => {
   const safe = ts.replace(/(\.\d{3})\d+Z$/, "$1Z"); // trim to ms
   const d = new Date(safe);
   return isNaN(d.getTime()) ? 0 : d.getTime();
-};
-
-const getToolName = (toolInvocation: any) =>
-  String(toolInvocation?.toolName ?? toolInvocation?.type ?? "")
-    .replace(/^tool-/, "");
-
-const normalizeLocalCanvasPath = (path?: string) => {
-  const trimmed = String(path ?? "").replace(/\\/g, "/").trim();
-  if (!trimmed) return undefined;
-
-  const withRoot = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-  return withRoot.toLowerCase().endsWith(".md") ? withRoot : `${withRoot}.md`;
-};
-
-const localCanvasUri = (path?: string) => {
-  const normalized = normalizeLocalCanvasPath(path);
-  return normalized ? `localcanvas://${normalized}` : undefined;
-};
-
-const parseToolInput = (input: any) => {
-  if (typeof input !== "string") return input ?? {};
-
-  try {
-    return JSON.parse(input);
-  } catch {
-    return {};
-  }
-};
-
-const getToolTextOutput = (toolInvocation: any) => {
-  const textItem = toArray(toolInvocation?.output?.content).find(
-    (item: any) => item?.type === "text" && typeof item?.text === "string"
-  );
-
-  return textItem?.text;
-};
-
-const insertLocalCanvasText = (previous: string, line: any, insertText: string) => {
-  const lines = previous.split("\n");
-  const index = Math.max(1, Number(line ?? 1));
-
-  if (index > lines.length + 1) lines.push(insertText);
-  else lines.splice(index - 1, 0, insertText);
-
-  return lines.join("\n");
-};
-
-const getLocalCanvasText = (
-  toolName: string,
-  input: any,
-  toolInvocation: any,
-  previousText?: string
-) => {
-  switch (toolName) {
-    case "local_canvas_read":
-      return getToolTextOutput(toolInvocation);
-    case "local_canvas_create":
-      return String(input?.file_text ?? "");
-    case "local_canvas_insert": {
-      const insertText = String(input?.insert_text ?? "");
-      return previousText !== undefined
-        ? insertLocalCanvasText(previousText, input?.insert_line, insertText)
-        : insertText;
-    }
-    case "local_canvas_replace": {
-      const newText = String(input?.new_str ?? "");
-      return previousText !== undefined
-        ? previousText.replace(String(input?.old_str ?? ""), newText)
-        : newText;
-    }
-    default:
-      return undefined;
-  }
-};
-
-const extractLocalCanvasResources = (toolInvocations: any[]) => {
-  const latestTextByUri = new Map<string, string>();
-
-  return toolInvocations.flatMap((z: any) => {
-    const toolName = getToolName(z);
-    if (!toolName.startsWith("local_canvas_")) return [];
-
-    const input = parseToolInput(z?.input);
-    const uri = localCanvasUri(input?.path);
-    if (!uri) return [];
-
-    const text = getLocalCanvasText(toolName, input, z, latestTextByUri.get(uri));
-    if (text === undefined) return [];
-
-    latestTextByUri.set(uri, text);
-
-    return [{
-      uri,
-      mimeType: "text/markdown",
-      text,
-      _msgId: z.msgId,
-      _partIndex: z.partIndex,
-      _ts: z?.metadata?.timestamp ?? "",
-    }];
-  });
 };
 
 export const toArray = (val: any) =>
@@ -239,7 +140,7 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], transientDataPar
     "text/markdown"
   );
 
-  const localCanvasResources = extractLocalCanvasResources(toolInvocations);
+  const localCanvasResources = extractLocalCanvasHistory(toolInvocations);
 
   const htmlFlatResources = extractResources(
     toolInvocations,
@@ -300,7 +201,9 @@ export const ActivityDrawer = (props: { messages?: UIMessage[], transientDataPar
     }
 
     const versions = Array.from(byMsg.values()).sort(
-      (a, b) => parseIso(b._ts) - parseIso(a._ts) // DESC
+      (a, b) => parseIso(b._ts) - parseIso(a._ts)
+        || toolInvocations.findIndex(z => z.msgId === b._msgId) - toolInvocations.findIndex(z => z.msgId === a._msgId)
+        || b._partIndex - a._partIndex // DESC, deterministic when timestamps are equal/missing
     );
 
     return { uri, versions };

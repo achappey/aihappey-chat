@@ -346,7 +346,7 @@ export function useAnthropicTextEditorToolCall(opts: {
               );
             }
 
-            const updatedContent = content.replace(oldStr, newStr);
+            const updatedContent = content.replace(oldStr, () => newStr);
             await files.delete(file.id);
             await files.create({
               name: file.name,

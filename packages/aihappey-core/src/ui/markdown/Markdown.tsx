@@ -78,19 +78,30 @@ export const Markdown = ({
   text,
   status,
   streaming,
+  safeDocument = false,
 }: {
   text: string;
   status?: string;
   streaming?: boolean;
+  safeDocument?: boolean;
 }) => {
   const { Image } = useTheme();
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw, [rehypeSanitize, schema], rehypeHighlight]}
-      urlTransform={(uri) => uri}
+      rehypePlugins={safeDocument
+        ? [[rehypeSanitize, defaultSchema], rehypeHighlight]
+        : [rehypeRaw, [rehypeSanitize, schema], rehypeHighlight]}
+      skipHtml={safeDocument}
+      urlTransform={(uri) => {
+        if (!safeDocument) return uri;
+        try {
+          const parsed = new URL(uri);
+          return ["https:", "http:"].includes(parsed.protocol) && !parsed.username && !parsed.password ? uri : "";
+        } catch { return ""; }
+      }}
       components={{
-        ...(streaming
+        ...(streaming || safeDocument
           ? {}
           : {
             code: ({ node, className = "", children, ...props }) => {
@@ -114,7 +125,7 @@ export const Markdown = ({
         p: ({ node, ...props }) => (
           <p style={{ margin: "0.5em 0" }} {...props} />
         ),
-        img: ({ node, ...props }) => <Image {...props} fit="contain" />,
+        img: ({ node, ...props }) => safeDocument ? <span>{props.alt}</span> : <Image {...props} fit="contain" />,
         a: ({ node, ...props }) => (
           <a
             {...props}
