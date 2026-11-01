@@ -181,7 +181,7 @@ test("return-content toggle removes every image payload but preserves completion
     const output = await f.run("local_images_generate", generation);
     const messages = [{ parts: [{ type: "tool-local_images_generate", providerExecuted: false, output }] }];
     const before = JSON.stringify(messages);
-    const settings = { text: true, images: false, audio: true, video: true, documents: true };
+    const settings = { text: true, links: true, images: false, audio: true, video: true, documents: true };
     const filtered = mapToolOutputContentForRequest(messages, settings);
     assert.equal(JSON.stringify(filtered).includes(png), false);
     assert.match(filtered[0].parts[0].output.content[0].text, /Done/);

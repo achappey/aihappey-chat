@@ -62,7 +62,8 @@ function settings(authenticated) {
     const state = {
         enableUserLocation: true, remoteStorageConnected: false, extractExif: false,
         convertAttachmentsToText: true, sendRawAttachments: false, maxAttachmentsSize: 2 * 1024 * 1024,
-        toolOutputContentSettings: {},
+        toolOutputContentSettings: { text: true, links: true, images: false, audio: false, video: false, documents: false },
+        setToolOutputContentSettings: value => calls.push(["tool-output", value]),
         setEnableUserLocation: value => calls.push(["location", value]),
         setRemoteStorageConnected: value => calls.push(["cloud", value]),
         setExtractExif: value => calls.push(["exif", value]),
@@ -107,6 +108,19 @@ test("attachment EXIF toggle is inside an Images card and attachment handlers ar
     assert.equal(slider.props.value, 2);
     slider.props.onChange(5);
     assert.deepEqual(calls, [["convert", false], ["raw", true], ["size", 5 * 1024 * 1024]]);
+});
+
+test("tool output settings place default-on Links between Text and Images with an independent handler", () => {
+    const { tree, calls } = settings(false);
+    const tab = nodes(tree, "Tab").find(tab => tab.props.eventKey === "chat");
+    const card = nodes(tab, "Card").find(card => card.props.title === "settingsModal.toolOutputContent");
+    const switches = nodes(card, "Switch");
+    assert.deepEqual(switches.map(node => node.props.id), ["text", "links", "images", "audio", "video", "documents"].map(key => `tool-output-${key}-toggle`));
+    assert.deepEqual(switches.map(node => node.props.checked), [true, true, false, false, false, false]);
+    assert.equal(switches[1].props.label, "settingsModal.links");
+    switches[1].props.onChange(false);
+    switches[1].props.onChange(true);
+    assert.deepEqual(calls, [["tool-output", { links: false }], ["tool-output", { links: true }]]);
 });
 
 for (const authenticated of [false, true]) {
