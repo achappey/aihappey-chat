@@ -9,7 +9,7 @@
     "termsOfService": "https://inferexai.in/terms"
   },
   "providerCountry": "IN",
-  "category": "model_provider",
+  "category": "gateway_router",
   "inferenceRegions": [
     "World"
   ]
