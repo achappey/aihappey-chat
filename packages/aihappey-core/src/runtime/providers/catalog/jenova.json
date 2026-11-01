@@ -1,0 +1,16 @@
+{
+  "name": "Jenova",
+  "description": "The AI agent platform for creativity, entertainment, and life. Hundreds of specialized agents — from immersive games and character roleplay to creative studios and everyday advisors — plus the tools to build your own.",
+  "urls": {
+    "homepage": "https://www.jenova.ai",
+    "docs": "https://www.jenova.ai/platform/docs",
+    "pricing": "https://www.jenova.ai/platform",
+    "privacyPolicy": "https://www.jenova.ai/privacy-policy",
+    "termsOfService": "https://www.jenova.ai/terms-of-use"
+  },
+  "providerCountry": "US",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}
