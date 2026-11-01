@@ -507,6 +507,7 @@
         "dictate": "Dikte",
         "debug": "Debug",
         "toolOutputContent": "Jenis output alat",
+        "links": "Tautan",
         "documents": "Dokumen",
         "convertAttachmentsToText": "Konversi lampiran menjadi teks",
         "sendRawAttachments": "Kirim lampiran mentah",

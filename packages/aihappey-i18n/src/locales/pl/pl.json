@@ -500,6 +500,7 @@
         "dictate": "Dyktowanie",
         "debug": "Debugowanie",
         "toolOutputContent": "Typy danych wyjściowych narzędzi",
+        "links": "Łącza",
         "documents": "Dokumenty",
         "convertAttachmentsToText": "Konwertuj załączniki na tekst",
         "sendRawAttachments": "Wysyłaj załączniki w oryginalnej postaci",

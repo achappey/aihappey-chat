@@ -836,6 +836,7 @@
         "tabEndpoints": "Τελικά σημεία",
         "tabExport": "Εξαγωγή",
         "toolOutputContent": "Τύποι εξόδου εργαλείων",
+        "links": "Σύνδεσμοι",
         "videoPollingIntervalSeconds": "Διάστημα ελέγχου κατάστασης εργασίας βίντεο"
     },
     "chatWithSpeechModels": "Συνομιλία με μοντέλα ομιλίας",

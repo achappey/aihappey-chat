@@ -564,6 +564,7 @@
         "tabExport": "Esportazione",
         "tabTheme": "Tema",
         "toolOutputContent": "Tipi di output degli strumenti",
+        "links": "Link",
         "transcriptionFileSplitEnabled": "Dividi i file di trascrizione di grandi dimensioni",
         "transcriptionFileSplitMaxSizeMb": "Dimensione massima dei segmenti di trascrizione",
         "transcriptionFileSplitOverlapSeconds": "Sovrapposizione dei segmenti di trascrizione",

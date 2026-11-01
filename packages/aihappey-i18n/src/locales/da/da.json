@@ -1300,6 +1300,7 @@
         "dictate": "Dikter",
         "debug": "Fejlsøgning",
         "toolOutputContent": "Værktøjsoutputtyper",
+        "links": "Links",
         "documents": "Dokumenter",
         "agentImport": "Agenter",
         "defaultModel": "Standardmodel",

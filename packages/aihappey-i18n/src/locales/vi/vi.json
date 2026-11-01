@@ -522,6 +522,7 @@
         "dictate": "Đọc chính tả",
         "debug": "Gỡ lỗi",
         "toolOutputContent": "Loại nội dung đầu ra của công cụ",
+        "links": "Liên kết",
         "documents": "Tài liệu",
         "convertAttachmentsToText": "Chuyển tệp đính kèm thành văn bản",
         "sendRawAttachments": "Gửi tệp đính kèm ở dạng thô",

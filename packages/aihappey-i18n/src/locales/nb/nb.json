@@ -836,6 +836,7 @@
         "tabEndpoints": "Endepunkter",
         "tabExport": "Eksport",
         "toolOutputContent": "Innholdstyper for verktøyutdata",
+        "links": "Lenker",
         "videoPollingIntervalSeconds": "Intervall for kontroll av videostatus"
     },
     "chatWithSpeechModels": "Chat med talemodeller",

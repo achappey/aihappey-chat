@@ -516,6 +516,7 @@
         "dictate": "Diktieren",
         "debug": "Debug",
         "toolOutputContent": "Ausgabetypen der Werkzeuge",
+        "links": "Links",
         "documents": "Dokumente",
         "convertAttachmentsToText": "Anhänge in Text umwandeln",
         "sendRawAttachments": "Anhänge im Originalformat senden",

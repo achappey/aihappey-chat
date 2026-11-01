@@ -836,6 +836,7 @@
         "tabEndpoints": "Rajapinnat",
         "tabExport": "Vienti",
         "toolOutputContent": "Työkalujen tulostetyypit",
+        "links": "Linkit",
         "videoPollingIntervalSeconds": "Videotehtävän kyselyväli"
     },
     "chatWithSpeechModels": "Keskustele puhemalleilla",

@@ -229,6 +229,7 @@
         "description": "Model Context Protocol は、プロンプト・リソース・ツールを一貫した構造で扱うための仕組みです。情報源に関係なく、常に明確かつ透明に、同じ方法で作業できます。"
     },
     "settingsModal": {
+        "links": "リンク",
         "title": "設定",
         "agentImport": "エージェント",
         "defaultModel": "デフォルトモデル",

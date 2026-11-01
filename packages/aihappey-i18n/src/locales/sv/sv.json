@@ -788,6 +788,7 @@
     "dictate": "Diktera",
     "debug": "Felsökning",
     "toolOutputContent": "Verktygsutdatatyper",
+    "links": "Länkar",
     "documents": "Dokument",
     "videoPollingIntervalSeconds": "Intervall för avläsning av videouppgifter (sekunder)",
     "tabEndpoints": "Slutpunkter",

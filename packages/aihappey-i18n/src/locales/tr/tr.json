@@ -508,6 +508,7 @@
         "dictate": "Dikte",
         "debug": "Hata ayıklama",
         "toolOutputContent": "Araç çıktı türleri",
+        "links": "Bağlantılar",
         "documents": "Belgeler",
         "convertAttachmentsToText": "Ekleri metne dönüştür",
         "sendRawAttachments": "Ekleri özgün biçimde gönder",

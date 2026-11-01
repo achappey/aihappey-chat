@@ -1351,6 +1351,7 @@
         "dictate": "Dictate",
         "debug": "Debug",
         "toolOutputContent": "Tool output types",
+        "links": "Links",
         "documents": "Documents",
         "agentImport": "Agents",
         "defaultModel": "Default model",

@@ -496,6 +496,7 @@
         "dictate": "Dicter",
         "debug": "Débogage",
         "toolOutputContent": "Types de sortie des outils",
+        "links": "Liens",
         "documents": "Documents",
         "convertAttachmentsToText": "Convertir les pièces jointes en texte",
         "sendRawAttachments": "Envoyer les pièces jointes brutes",
