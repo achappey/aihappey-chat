@@ -114,7 +114,7 @@ test('fragmented native Responses stream executes only completed calls and dedup
   assert.equal(chunks.filter(chunk => chunk.type === 'tool-output-available').length, 0);
 });
 
-test('both forms put the toggle between Shell and File search and retain minimal canonical config', () => {
+test('browser form puts the toggle between Shell and File search and retains minimal canonical config', () => {
   const source = fs.readFileSync('packages/aihappey-components/src/forms/providers/openai/OpenAIChatConfigForm.tsx', 'utf8');
   assert.ok(source.indexOf('<OpenAIShellForm') < source.indexOf('id="openai-apply-patch-enabled"'));
   assert.ok(source.indexOf('id="openai-apply-patch-enabled"') < source.indexOf('<OpenAIFileSearchForm'));
