@@ -125,3 +125,58 @@ test('both forms put the toggle between Shell and File search and retain minimal
   const disabled = buildCanonicalProviderToolsConfig({ ...enabled, apply_patch: undefined }, types);
   assert.ok(!disabled.tools?.some(tool => tool.type === 'apply_patch'));
 });
+
+test('browser native stream-to-files-to-native-continuation completes create/update/delete', async () => {
+  global.window = {};
+  const { IndexedDBFileStore } = load('packages/aihappey-files/src/stores/IndexedDBFileStore.ts', {
+    'idb-keyval': { get: async () => [], set: async () => {} },
+  });
+  const files = new IndexedDBFileStore();
+  const { buildResponsesBody } = load(base + 'chat/engine/genericEndpointMappers/responsesMapper.ts');
+  const { wrapGenericChatFetch } = load(base + 'chat/engine/genericChatEndpoint.ts', {
+    'aihappey-ai': { DefaultChatTransport: class {} },
+    './genericEndpointMappers': { buildGenericChatEndpointBody: (_, body) => buildResponsesBody(body) },
+    '../../playground/playgroundChat': { extractPlaygroundStreamText: () => '' },
+  });
+  const parts = [], requests = [];
+  const operations = [
+    { type: 'create_file', path: 'flow.txt', diff: '+first' },
+    { type: 'update_file', path: 'flow.txt', diff: '@@\n-first\n+second' },
+    { type: 'delete_file', path: 'flow.txt' },
+  ];
+  let turn = 0;
+  const fetcher = wrapGenericChatFetch({ endpoint: '/v1/responses', providerKey: 'openai', fetcher: async (_, init) => {
+    const request = JSON.parse(init.body); requests.push(request);
+    const current = turn++;
+    if (current > 0) {
+      const outputs = request.input.filter(item => item.type === 'apply_patch_call_output');
+      assert.equal(outputs.length, current);
+      assert.ok(outputs.every(output => output.status === 'completed'));
+      assert.ok(!request.input.some(item => item.type === 'function_call_output'));
+    }
+    const item = current < operations.length ? { type: 'apply_patch_call', id: 'apc_' + current, call_id: 'call_' + current, status: 'completed', operation: operations[current] } : null;
+    const events = item ? [{ type: 'response.output_item.done', output_index: 0, item }] : [{ type: 'response.output_text.delta', item_id: 'final', delta: 'Done.' }];
+    events.push({ type: 'response.completed', response: { id: 'resp_' + current, status: 'completed', output: item ? [item] : [] } });
+    return new Response(events.map(event => 'data: ' + JSON.stringify(event) + '\n\n').join('') + 'data: [DONE]\n\n');
+  } });
+  for (let round = 0; round < 4; round++) {
+    const response = await fetcher('https://example.test/v1/responses', { body: JSON.stringify({ model: 'openai/gpt-5.1',
+      messages: [{ role: 'user', parts: [{ type: 'text', text: 'Edit files.' }] }, { role: 'assistant', parts }],
+      tools: [], providerRequestConfig: { tools: [{ type: 'apply_patch' }] } }) });
+    const chunks = (await response.text()).split('\n').filter(line => line.startsWith('data: {')).map(line => JSON.parse(line.slice(6)));
+    for (const call of chunks.filter(chunk => chunk.type === 'tool-input-available')) {
+      const output = await executeBrowserPatch(files, call.input, true, () => true, () => 'text/plain');
+      assert.equal(output.structuredContent.status, 'completed');
+      // The application reviews input/output after execution; the persisted SDK part
+      // supplied on continuation carries the answered approval and unchanged result.
+      parts.push({ type: 'tool-apply_patch', toolCallId: call.toolCallId, input: call.input, output,
+        providerExecuted: false, callProviderMetadata: call.providerMetadata,
+        state: 'approval-responded', approval: { id: call.toolCallId, approved: true } });
+    }
+    if (round === 0) assert.equal(await (await files.list())[0].data.text(), 'first');
+    if (round === 1) assert.equal(await (await files.list())[0].data.text(), 'second');
+    if (round === 3) assert.ok(chunks.some(chunk => chunk.type === 'text-delta' && chunk.delta === 'Done.'));
+  }
+  assert.equal(requests.length, 4); assert.equal(parts.length, 3); assert.equal((await files.list()).length, 0);
+  delete global.window;
+});
