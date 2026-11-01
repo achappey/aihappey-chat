@@ -77,6 +77,8 @@
     },
     "max_num_results": "Numero massimo di risultati",
     "vector_store_ids": "ID degli archivi vettoriali",
+    "applyPatch": "Applica patch",
+
     "file_search": "Ricerca file",
     "knownSpeakersTitle": "Speaker noti",
     "knownSpeakersDescription": "Aggiungi fino a 4 nomi di speaker e, facoltativamente, carica un breve campione vocale per ogni speaker per migliorare la diarizzazione.",

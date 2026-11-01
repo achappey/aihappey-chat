@@ -77,6 +77,8 @@
     },
     "max_num_results": "Jumlah hasil maksimum",
     "vector_store_ids": "ID penyimpanan vektor",
+    "applyPatch": "Terapkan patch",
+
     "file_search": "Pencarian file",
     "knownSpeakersTitle": "Pembicara dikenal",
     "knownSpeakersDescription": "Tambahkan hingga 4 nama pembicara dan, opsional, unggah sampel suara singkat untuk tiap pembicara untuk meningkatkan diarization.",

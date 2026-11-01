@@ -674,6 +674,8 @@
     },
     "max_num_results": "Μέγιστος αριθμός αποτελεσμάτων",
     "vector_store_ids": "Αναγνωριστικά διανυσματικής αποθήκης",
+    "applyPatch": "Εφαρμογή ενημέρωσης",
+
     "file_search": "Αναζήτηση αρχείων",
     "shellEnvironment": "Περιβάλλον",
     "shellEnvironmentContainerAuto": "Φιλοξενούμενο κοντέινερ (αυτόματο)",

@@ -71,6 +71,8 @@
     },
     "max_num_results": "Maximale Anzahl an Ergebnissen",
     "vector_store_ids": "IDs der Vektorspeicher",
+    "applyPatch": "Patch anwenden",
+
     "file_search": "Dateisuche",
     "knownSpeakersTitle": "Bekannte Sprecher",
     "knownSpeakersDescription": "Füge bis zu 4 Sprechernamen hinzu und lade optional pro Sprecher eine kurze Sprachprobe hoch, um die Sprechertrennung zu verbessern.",

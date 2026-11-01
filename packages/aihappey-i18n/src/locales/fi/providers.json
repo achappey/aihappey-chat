@@ -675,6 +675,8 @@
     },
     "max_num_results": "Enimmäistulosten määrä",
     "vector_store_ids": "Vektorivaraston tunnukset",
+    "applyPatch": "Ota korjaus käyttöön",
+
     "file_search": "Tiedostohaku",
     "shellEnvironment": "Ympäristö",
     "shellEnvironmentContainerAuto": "Isännöity säilö (automaattinen)",

@@ -77,6 +77,8 @@
     },
     "max_num_results": "Maksymalna liczba wyników",
     "vector_store_ids": "Identyfikatory magazynów wektorowych",
+    "applyPatch": "Zastosuj poprawkę",
+
     "file_search": "Wyszukiwanie plików",
     "knownSpeakersTitle": "Znani mówcy",
     "knownSpeakersDescription": "Dodaj maksymalnie 4 nazwy mówców i opcjonalnie prześlij krótką próbkę głosu dla każdego, aby poprawić diarizację.",

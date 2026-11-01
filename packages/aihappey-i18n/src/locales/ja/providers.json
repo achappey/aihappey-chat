@@ -77,6 +77,8 @@
     },
     "max_num_results": "最大結果数",
     "vector_store_ids": "ベクターストア ID",
+    "applyPatch": "パッチを適用",
+
     "file_search": "ファイル検索",
     "knownSpeakersTitle": "既知の話者",
     "knownSpeakersDescription": "最大4人まで話者名を追加し、必要に応じて各話者の短い音声サンプルをアップロードして話者分離の精度を向上させます。",

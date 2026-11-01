@@ -302,6 +302,8 @@
     },
     "max_num_results": "Număr maxim de rezultate",
     "vector_store_ids": "ID-uri ale stocărilor vectoriale",
+    "applyPatch": "Aplică patch",
+
     "file_search": "Căutare fișiere",
     "knownSpeakersTitle": "Vorbitori cunoscuți",
     "knownSpeakersDescription": "Adaugă până la 4 nume de vorbitor și, opțional, încarcă o mostră scurtă de voce pentru fiecare vorbitor pentru a îmbunătăți diarizarea.",

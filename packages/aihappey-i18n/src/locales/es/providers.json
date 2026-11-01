@@ -296,6 +296,8 @@
     },
     "max_num_results": "Número máximo de resultados",
     "vector_store_ids": "IDs de los almacenes vectoriales",
+    "applyPatch": "Aplicar parche",
+
     "file_search": "Búsqueda de archivos",
     "knownSpeakersTitle": "Oradores conocidos",
     "knownSpeakersDescription": "Añade hasta 4 nombres de orador y, opcionalmente, sube una muestra de voz corta por orador para mejorar la diarización.",

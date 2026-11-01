@@ -302,6 +302,8 @@
     },
     "max_num_results": "Eredmények maximális száma",
     "vector_store_ids": "Vektortárak azonosítói",
+    "applyPatch": "Javítás alkalmazása",
+
     "file_search": "Fájlkeresés",
     "knownSpeakersTitle": "Ismert beszélők",
     "knownSpeakersDescription": "Adj hozzá legfeljebb 4 beszélőnevet, és opcionálisan tölts fel rövid hangmintát minden beszélőhöz a diarizáció javításához.",

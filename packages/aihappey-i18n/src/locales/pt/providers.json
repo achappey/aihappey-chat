@@ -71,6 +71,8 @@
     },
     "max_num_results": "Número máximo de resultados",
     "vector_store_ids": "IDs dos armazenamentos vetoriais",
+    "applyPatch": "Aplicar patch",
+
     "file_search": "Pesquisa de ficheiros",
     "knownSpeakersTitle": "Locutores conhecidos",
     "knownSpeakersDescription": "Adicione até 4 nomes de locutor e, opcionalmente, carregue uma amostra de voz curta por locutor para melhorar a diarização.",

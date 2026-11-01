@@ -697,6 +697,8 @@
     },
     "max_num_results": "Maximalt antal resultat",
     "vector_store_ids": "ID:n för vektorlager",
+    "applyPatch": "Tillämpa patch",
+
     "file_search": "Filsökning",
     "shellEnvironment": "Miljö",
     "shellEnvironmentContainerAuto": "OpenAI-hanterad container (auto)",

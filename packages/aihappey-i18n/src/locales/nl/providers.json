@@ -607,6 +607,8 @@
     },
     "max_num_results": "Maximaal aantal resultaten",
     "vector_store_ids": "Ids van de documentenhubs",
+    "applyPatch": "Patch toepassen",
+
     "file_search": "Documentenhub",
     "shellEnvironment": "Omgeving",
     "shellEnvironmentContainerAuto": "Gehoste container (automatisch)",

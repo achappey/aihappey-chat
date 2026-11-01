@@ -662,6 +662,8 @@
     },
     "max_num_results": "Maksimalt antal resultater",
     "vector_store_ids": "Id'er på vektordatalagre",
+    "applyPatch": "Anvend patch",
+
     "file_search": "Filsøgning",
     "shellEnvironment": "Miljø",
     "shellEnvironmentContainerAuto": "Hostet container (auto)",
