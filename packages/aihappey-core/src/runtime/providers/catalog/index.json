@@ -1364,6 +1364,10 @@
     "file": "docsrouter.json"
   },
   {
+    "id": "inferexai",
+    "file": "inferexai.json"
+  },
+  {
     "id": "tokenflux",
     "file": "tokenflux.json"
   },

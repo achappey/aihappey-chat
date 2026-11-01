@@ -1,0 +1,16 @@
+{
+  "name": "InferexAI",
+  "description": "InferexAI is a provider-agnostic enterprise AI platform — route LLM, text-to-speech, and speech-to-text across best-in-class models under one API key. Native INR billing, MCP server, Python & Node SDKs. Built for developers and businesses in India.",
+  "urls": {
+    "homepage": "https://inferexai.in",
+    "docs": "https://docs.inferexai.in",
+    "pricing": "https://inferexai.in/#pricing",
+    "privacyPolicy": "https://inferexai.in/privacy-policy",
+    "termsOfService": "https://inferexai.in/terms"
+  },
+  "providerCountry": "IN",
+  "category": "model_provider",
+  "inferenceRegions": [
+    "World"
+  ]
+}
