@@ -3,6 +3,8 @@ const { test } = require("node:test");
 const fs = require("node:fs");
 const ts = require("typescript");
 const React = require("react");
+const { load: loadSource } = require("./credential-test-loader.cjs");
+const { renderer } = require("./react-test-renderer.cjs");
 
 function load(filename, mocks = {}) {
     const output = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
@@ -96,20 +98,25 @@ test("icon form uses themed controls with add, URL editing, optional theme selec
 
 test("Save normalizes icon rows through the actual modal without mutating the original agent", () => {
     const original = { ...base(), icons: [{ src: " " }, { src: " https://example.com/a.svg ", sizes: ["32x32"] }] };
-    const before = JSON.stringify(original), saved = [];
+    const before = structuredClone(original), saved = [], view = renderer();
     const { AgentEditModal } = load(feature + "AgentEditModal.tsx", {
-        react: { useState: initial => [initial, () => {}], useEffect() {} },
+        react: view.react,
         "aihappey-components": { useTheme: () => ({ Modal: "Modal", Button: "Button" }) },
         "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
         "aihappey-state": { useAppStore: selector => selector({ models: [] }) },
-        "./agentEditorModels": { hasValidAgentEditorModels: () => true },
+        "aihappey-agents": loadSource("packages/aihappey-agents/src/normalizeAgent.ts"),
+        "./agentSpeechSettings": loadSource(feature + "agentSpeechSettings.ts"),
+        "./agentEditorModels": loadSource(feature + "agentEditorModels.ts"),
         "./AgentForm": { AgentForm: "AgentForm" }, "./agentIcons": helpers,
         "../../ui/buttons/CancelButton": { CancelButton: "CancelButton" },
     });
-    const tree = AgentEditModal({ open: true, agent: original, isEditing: true, onClose() {}, onSave: value => saved.push(value) });
-    nodes(tree.props.actions, "Button")[0].props.onClick();
+    const tree = view.render(AgentEditModal, { open: true, agent: original, isEditing: true, onClose() {}, onSave: value => saved.push(value) });
+    const save = nodes(tree.props.actions, "Button")[0];
+    assert.equal(save.props.disabled, false);
+    save.props.onClick();
+    assert.equal(saved.length, 1);
     assert.deepEqual(saved[0].icons, [{ src: "https://example.com/a.svg", sizes: ["32x32"] }]);
-    assert.equal(JSON.stringify(original), before);
+    assert.deepEqual(original, before);
 });
 
 test("agent and model filter headings share translated Tags labels in English, Dutch, and Hungarian", () => {

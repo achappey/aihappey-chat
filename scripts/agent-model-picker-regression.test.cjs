@@ -3,6 +3,9 @@ const { test } = require("node:test");
 const fs = require("node:fs");
 const ts = require("typescript");
 const React = require("react");
+const { load: loadSource } = require("./credential-test-loader.cjs");
+const agentNormalization = loadSource("packages/aihappey-agents/src/normalizeAgent.ts");
+const speechSettings = loadSource("packages/aihappey-core/src/features/agents/agentSpeechSettings.ts");
 
 function load(filename, mocks = {}) {
     const output = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
@@ -406,31 +409,53 @@ test("Shadcn single- and multiselect use available screen height and constrain s
 });
 
 function modalHarness(agent, models = catalog) {
-    const slots = [];
-    let index = 0;
+    const slots = [], effects = [];
+    let index = 0, dirty = false;
     const saved = [];
+    let props = { open: true, agent, isEditing: false, onClose() {}, onSave: value => saved.push(value) };
     const { AgentEditModal } = load("packages/aihappey-core/src/features/agents/AgentEditModal.tsx", {
         react: {
             useState(initial) {
                 const slot = index++;
-                if (!(slot in slots)) slots[slot] = initial;
-                return [slots[slot], value => { slots[slot] = typeof value === "function" ? value(slots[slot]) : value; }];
+                if (!(slot in slots)) slots[slot] = typeof initial === "function" ? initial() : initial;
+                return [slots[slot], value => {
+                    const next = typeof value === "function" ? value(slots[slot]) : value;
+                    dirty ||= !Object.is(next, slots[slot]);
+                    slots[slot] = next;
+                }];
             },
-            useEffect() {},
+            useEffect(effect, deps) {
+                const slot = index++, previous = slots[slot];
+                if (!previous || previous.deps.length !== deps.length || deps.some((value, i) => !Object.is(value, previous.deps[i]))) {
+                    effects.push(() => {
+                        previous?.cleanup?.();
+                        slots[slot] = { deps, cleanup: effect() };
+                    });
+                }
+            },
         },
         "aihappey-components": { useTheme: () => components },
         "aihappey-i18n": { useTranslation: () => ({ t: key => key }) },
         "aihappey-types": agentModels,
+        "aihappey-agents": agentNormalization,
         "aihappey-state": { useAppStore: selector => selector({ models }) },
         "./agentEditorModels": editorModels,
+        "./agentSpeechSettings": speechSettings,
         "./AgentForm": { AgentForm: "AgentForm" },
         "../../ui/buttons/CancelButton": { CancelButton: "CancelButton" },
     });
     return {
         saved,
-        render() {
-            index = 0;
-            return AgentEditModal({ open: true, agent, isEditing: false, onClose() {}, onSave: value => saved.push(value) });
+        render(overrides = {}) {
+            props = { ...props, ...overrides };
+            let tree, passes = 0;
+            do {
+                index = 0; dirty = false; effects.length = 0;
+                tree = AgentEditModal(props);
+                effects.forEach(effect => effect());
+                assert.ok(++passes < 10, "modal effects settle without a render loop");
+            } while (dirty);
+            return tree;
         },
     };
 }
@@ -480,6 +505,70 @@ test("agent-save remains disabled while form work is busy and re-enables when it
     assert.equal(saveButton(modal.render()).props.disabled, false);
 });
 
+test("modal speech validation blocks invalid saves and accepts corrected explicit or cleared settings", () => {
+    const base = { name: "Voice", description: "Description", instructions: "Help", models: [{ id: "openai/first" }] };
+    for (const speech of [
+        { speed: 0 }, { speed: -1 }, { speed: Infinity }, { speed: NaN },
+        { outputFormat: { rate: 24000 } },
+        { outputFormat: { type: "audio/pcm", rate: 0 } },
+        { outputFormat: { type: "audio/pcm", rate: 1.5 } },
+    ]) {
+        const agent = { ...base, speech }, before = structuredClone(agent), modal = modalHarness(agent);
+        const tree = modal.render(), save = saveButton(tree);
+        assert.equal(save.props.disabled, true);
+        save.props.onClick();
+        assert.deepEqual(modal.saved, [], "a direct callback must not bypass speech validation");
+        find(tree, node => node.type === "AgentForm").props.onChange({ ...base, speech: { speed: 1, outputFormat: { type: "audio/pcm", rate: 24000 } } });
+        const corrected = saveButton(modal.render());
+        assert.equal(corrected.props.disabled, false);
+        corrected.props.onClick();
+        assert.equal(modal.saved.length, 1);
+        assert.deepEqual(modal.saved[0].speech, { speed: 1, outputFormat: { type: "audio/pcm", rate: 24000 } });
+        assert.deepEqual(agent, before, "validation and editing must not mutate the imported agent");
+    }
+    for (const speech of [undefined, null, {}, { voice: "custom", speed: 1 }]) {
+        const modal = modalHarness({ ...base, speech });
+        const save = saveButton(modal.render());
+        assert.equal(save.props.disabled, false);
+        save.props.onClick();
+        assert.equal(modal.saved.length, 1);
+        assert.deepEqual(modal.saved[0].speech, speech);
+    }
+});
+
+test("modal effects normalize a replacement agent and reopening discards stale drafts and busy state", () => {
+    const first = { name: "First", description: "Description", instructions: "Help", model: { id: "openai/first" } };
+    const replacement = { name: "Replacement", description: "Replacement description", instructions: "Help",
+        models: [{ id: "other/second", providerHeaders: { other: { " X-Answer ": " answer " } } }],
+        transcriptionModel: { id: "deepgram/stt", providerHeaders: { deepgram: { "X-STT": "stt" } } },
+        speechModel: { id: "openai/speech", providerMetadata: { openai: { voice: "cedar", opaque: [1, 2] } } },
+    };
+    const before = structuredClone(replacement), modal = modalHarness(first);
+    let tree = modal.render();
+    find(tree, node => node.type === "AgentForm").props.onChange({ ...first, name: "Unsaved first" });
+    tree = modal.render({ agent: replacement });
+    let form = find(tree, node => node.type === "AgentForm");
+    assert.equal(form.props.agent.name, replacement.name);
+    assert.deepEqual(form.props.agent.models[0].providerHeaders, { "X-Answer": "answer" });
+    assert.deepEqual(form.props.agent.transcription.providerHeaders, { "X-STT": "stt" });
+    assert.deepEqual(form.props.agent.speech.model.providerMetadata, replacement.speechModel.providerMetadata);
+    assert.equal(Object.hasOwn(form.props.agent, "speechModel"), false);
+    assert.equal(Object.hasOwn(form.props.agent, "transcriptionModel"), false);
+    form.props.onChange({ ...form.props.agent, name: "Unsaved replacement" });
+    form.props.onBusyChange(true);
+    assert.equal(saveButton(modal.render()).props.disabled, true);
+    assert.equal(modal.render({ open: false }), null);
+    tree = modal.render({ open: true });
+    form = find(tree, node => node.type === "AgentForm");
+    assert.equal(form.props.agent.name, replacement.name);
+    const save = saveButton(tree);
+    assert.equal(save.props.disabled, false);
+    save.props.onClick();
+    assert.equal(modal.saved.length, 1);
+    assert.deepEqual(modal.saved[0], agentNormalization.normalizeAgent(replacement));
+    assert.deepEqual(replacement, before);
+});
+
 test("decision replacement preserves answer and retained router metadata and never creates a new contract field", () => {
     const answer = { id: "openai/first", providerMetadata: { future: true }, providerHeaders: { "x-keep": "yes" } };
     const router = { id: "router/decision", type: "decision", providerMetadata: { route: true }, providerHeaders: { "x-router": "yes" }, future: 7 };
@@ -514,7 +603,9 @@ test("existing multi-answer agents need exactly one router and disabled Save can
     const valid = modalHarness({ ...base, models: [...answers, router] });
     assert.equal(saveButton(valid.render()).props.disabled, false);
     saveButton(valid.render()).props.onClick();
-    assert.deepEqual(valid.saved[0].models, [...answers, router]);
+    // Normalized models carry an undefined optional header map in memory only.
+    assert.deepEqual(valid.saved[0].models, [...answers, router].map(model => ({ ...model, providerHeaders: undefined })));
+    assert.deepEqual(JSON.parse(JSON.stringify(valid.saved[0].models)), [...answers, router]);
     const h = harness({ models: [...answers, router, { id: "router/extra", type: "decision" }] });
     toggle(picker(h.render(), "agentEdit.decisionModel"), router.id);
     assert.deepEqual(h.agent.models, [...answers, router]);

@@ -82,23 +82,35 @@ test("owners are free text, trimmed, unique suggestions and only group agents wi
 });
 
 test("remote discovery preserves provided tags without manufacturing categories for untagged agents", async () => {
-    let discovered;
-    const state = { setRemoteAgentModels: value => { discovered = value; } };
+    let discovered, requests = 0, writes = 0;
+    const effects = [];
+    const data = [
+        { id: "untagged" },
+        { id: "tagged", tags: ["writing", 3], agent: local("Nested", ["shared"]) },
+        { id: "empty", tags: [] },
+        { id: "malformed", tags: "not-an-array" },
+    ];
+    const before = structuredClone(data);
+    const state = { remoteAgentModelsLoaded: false, customHeaders: {}, setRemoteAgentModels: value => { discovered = value; writes++; } };
     const { useRemoteAgentModels } = load(feature + "useRemoteAgentModels.ts", {
-        react: { useEffect: effect => effect() },
+        react: { useEffect: effect => effects.push(effect), useRef: initial => ({ current: initial }) },
         "aihappey-state": { useAppStore: selector => selector(state) },
         "aihappey-http": { createHttpClient: () => ({
-            get: async () => ({ data: [
-                { id: "untagged" },
-                { id: "tagged", tags: ["writing", 3], agent: local("Nested", ["shared"]) },
-            ] }),
+            get: async () => { requests++; return { data }; },
         }) },
     });
     useRemoteAgentModels("https://agents.example/models");
+    const cleanups = effects.map(effect => effect());
     await new Promise(resolve => setImmediate(resolve));
+    assert.equal(requests, 1);
+    assert.equal(writes, 1);
     assert.equal(discovered[0].tags, undefined);
     assert.deepEqual(tags.getAgentTags(discovered[0]), []);
     assert.deepEqual(tags.getAgentTags(discovered[1], discovered[1].agent), ["writing", "shared"]);
+    assert.deepEqual(discovered[2].tags, []);
+    assert.equal(discovered[3].tags, undefined);
+    assert.deepEqual(data, before);
+    cleanups.forEach(cleanup => cleanup?.());
 });
 
 test("selector groups agents under every tag and reserves hosts for untagged agents", () => {

@@ -38,10 +38,38 @@ test('audio configuration round-trips without entering answer model routing', ()
     const normalized = normalizeAgent(JSON.parse(JSON.stringify(agent)));
     assert.deepEqual(normalized.transcription.providerMetadata, agent.transcriptionModel.providerMetadata);
     assert.deepEqual(normalized.transcription.providerHeaders, { test: '1' });
-    assert.deepEqual(normalized.speech.model, agent.speechModel);
+    assert.deepEqual(normalized.speech.model, { ...agent.speechModel, providerHeaders: undefined });
+    assert.deepEqual(JSON.parse(JSON.stringify(normalized.speech.model)), agent.speechModel);
     assert.equal(Object.hasOwn(normalized, 'speechModel'), false);
     assert.equal(Object.hasOwn(normalized, 'transcriptionModel'), false);
     assert.deepEqual(types.getAgentModels(normalized).map(model => model.id), ['openai/chat']);
+});
+
+test('answer and audio normalization retain optional header semantics, opaque metadata, and JSON round-trip stability', () => {
+    const types = load('packages/aihappey-types/src/index.ts');
+    const { normalizeAgent } = load('packages/aihappey-agents/src/normalizeAgent.ts', { 'aihappey-types': types });
+    for (const [label, fields, expectedHeaders] of [
+        ['absent', {}, undefined],
+        ['undefined', { providerHeaders: undefined }, undefined],
+        ['canonical', { providerHeaders: { ' X-Test ': ' keep ' } }, { 'X-Test': 'keep' }],
+        ['legacy', { providerHeaders: { openai: { ' X-Test ': ' keep ' } } }, { 'X-Test': 'keep' }],
+        ['empty', { providerHeaders: {} }, undefined],
+        ['malformed', { providerHeaders: { 'X-Empty': ' ', 'X-Null': null, openai: [] } }, undefined],
+    ]) {
+        const model = { id: 'openai/model', providerMetadata: { openai: { opaque: [1, { future: true }] } }, future: 7, ...fields };
+        const agent = { name: 'Voice', model, models: [model], transcription: model, speech: { model, voice: 'custom' } };
+        const before = structuredClone(agent), normalized = normalizeAgent(agent);
+        for (const actual of [normalized.model, normalized.models[0], normalized.transcription, normalized.speech.model]) {
+            assert.deepEqual(actual, { ...model, providerHeaders: expectedHeaders }, label);
+            const serialized = JSON.parse(JSON.stringify(actual));
+            assert.deepEqual(serialized, JSON.parse(JSON.stringify({ ...model, providerHeaders: expectedHeaders })), label);
+            if (expectedHeaders === undefined) assert.equal(Object.hasOwn(serialized, 'providerHeaders'), false, label);
+        }
+        assert.deepEqual(agent, before, label + ': input is immutable');
+        assert.deepEqual(normalizeAgent(normalized), normalized, label + ': normalization is idempotent');
+        assert.deepEqual(normalizeAgent(JSON.parse(JSON.stringify(normalized))), normalized, label + ': JSON reload is stable');
+        assert.deepEqual(types.getAgentModels(normalized).map(value => value.id), ['openai/model'], label + ': audio does not enter routing');
+    }
 });
 
 test('Deepgram final fragments wait for endpointing and synthetic duplicates are ignored', async () => {

@@ -10,12 +10,18 @@ function load(file, mocks = {}, globals = {}) {
   const source = fs.readFileSync(path.resolve(__dirname, '..', file), 'utf8');
   const code = ts.transpileModule(source, {
     fileName: file,
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React, esModuleInterop: true },
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   }).outputText;
   const module = { exports: {} };
   new Function('require', 'module', 'exports', ...Object.keys(globals), code)(id => {
     if (id in mocks) return mocks[id];
-    if (id.startsWith('.')) return load(path.join(path.dirname(file), id + '.ts'), mocks, globals);
+    if (id === 'react/jsx-runtime') return require(id);
+    if (id.startsWith('.')) {
+      const base = path.join(path.dirname(file), id);
+      const resolved = [base + '.ts', base + '.tsx'].find(candidate => fs.existsSync(path.resolve(__dirname, '..', candidate)));
+      assert.ok(resolved, `Unresolved local import ${id} from ${file}`);
+      return load(resolved, mocks, globals);
+    }
     throw new Error('Unmocked import: ' + id);
   }, module, module.exports, ...Object.values(globals));
   return module.exports;
@@ -236,7 +242,7 @@ test('agent and global provider transcription settings consistently read/write t
   const state = { providerTranscriptionMetadata: { xai: { language: 'en' }, google: { keep: true } } };
   state.setProviderTranscriptionMetadata = value => { saved = value; };
   const settings = load(root + '../providers/ProviderTypeSettings.tsx', {
-    react: React, 'aihappey-components': components,
+    react: React, 'aihappey-components': components, 'aihappey-i18n': i18n,
     'aihappey-state': { useAppStore: selector => selector(state), store: { getState: () => state } },
     '../chat/context/ChatContext': { useChatContext: () => ({ config: {} }) },
     '../provider-config/google/GoogleChatConfig': components,
@@ -252,6 +258,32 @@ test('agent and global provider transcription settings consistently read/write t
     globalForm.props.updateConfig({ language: 'de' });
     assert.deepEqual(saved, { spacexai: { language: 'de' }, google: { keep: true } });
   }
+});
+
+test('controlled provider settings render the real OpenAI realtime speech form without accessing global preferences', () => {
+  let saved;
+  const unexpectedGlobalRead = () => { throw new Error('Controlled settings must not read global preferences'); };
+  const settings = load(root + '../providers/ProviderTypeSettings.tsx', {
+    react: React, 'aihappey-components': components, 'aihappey-i18n': i18n,
+    'aihappey-state': { useAppStore: unexpectedGlobalRead, store: { getState: unexpectedGlobalRead } },
+    '../chat/context/ChatContext': { useChatContext: unexpectedGlobalRead },
+    '../provider-config/google/GoogleChatConfig': components,
+  });
+  const metadata = { openai: { voice: 'cedar', speed: 1.1, opaque: [1, 2] }, google: { keep: true } };
+  const before = structuredClone(metadata);
+  const form = settings.AudioProviderSettings({ providerKey: 'openai', type: 'speech', modelId: 'openai/gpt-realtime-2.1-mini',
+    metadata, onChange: value => { saved = value; } });
+  assert.equal(typeof form.type, 'function', 'exercise the actual JSX-bearing speech settings dependency');
+  const tree = form.type(form.props);
+  const voice = find(tree, node => node.type === 'Select');
+  assert.deepEqual(voice.props.values, ['cedar']);
+  voice.props.onChange('marin');
+  assert.deepEqual(saved, { ...metadata, openai: { ...metadata.openai, voice: 'marin' } });
+  const speed = find(tree, node => node.type === 'Slider');
+  assert.equal(speed.props.value, 1.1);
+  speed.props.onChange(1.25);
+  assert.deepEqual(saved, { ...metadata, openai: { ...metadata.openai, speed: 1.25 } });
+  assert.deepEqual(metadata, before);
 });
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
