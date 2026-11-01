@@ -36,6 +36,7 @@ export const DEFAULT_CHAT_VERBOSITY: ChatVerbosity = "medium";
 
 export type ToolOutputContentSettings = {
   text: boolean;
+  links: boolean;
   images: boolean;
   audio: boolean;
   video: boolean;
@@ -44,6 +45,7 @@ export type ToolOutputContentSettings = {
 
 export const DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS: ToolOutputContentSettings = {
   text: true,
+  links: true,
   images: false,
   audio: false,
   video: false,

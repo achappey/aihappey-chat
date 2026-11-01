@@ -4,6 +4,7 @@ type ToolOutputCategory = keyof ToolOutputContentSettings;
 
 const OMITTED_TEXT: Record<ToolOutputCategory, string> = {
   text: "Text content omitted by user settings.",
+  links: "Link content omitted by user settings.",
   images: "Image content omitted by user settings.",
   audio: "Audio content omitted by user settings.",
   video: "Video content omitted by user settings.",
@@ -13,6 +14,8 @@ const OMITTED_TEXT: Record<ToolOutputCategory, string> = {
 const contentCategory = (content: any): ToolOutputCategory | undefined => {
   if (!content || typeof content !== "object" || Array.isArray(content)) return undefined;
   if (content.type === "text") return "text";
+  // A resource link describes content; its MIME type is not an inline payload.
+  if (content.type === "resource_link") return "links";
 
   const mimeType = content.type === "resource"
     ? content.resource?.mimeType

@@ -230,6 +230,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {([
                       ["text", t("text") ?? "Text"],
+                      ["links", t("settingsModal.links") ?? "Links"],
                       ["images", t("images") ?? "Images"],
                       ["audio", t("audio") ?? "Audio"],
                       ["video", t("video") ?? "Video"],

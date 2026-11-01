@@ -35,7 +35,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 36,
+    version: 37,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
