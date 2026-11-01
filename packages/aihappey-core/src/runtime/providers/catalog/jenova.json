@@ -9,7 +9,7 @@
     "termsOfService": "https://www.jenova.ai/terms-of-use"
   },
   "providerCountry": "US",
-  "category": "model_provider",
+  "category": "app_tools",
   "inferenceRegions": [
     "World"
   ]

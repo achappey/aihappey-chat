@@ -1,6 +1,6 @@
 {
   "name": "BaguetteBot",
-  "description": "Baguette Bot provides autonomous AI agents with their own cloud computer, browser, terminal, and file system. Build conversational and computer-use agents through a REST API with real-time SSE events, persistent conversations, 300+ AI models, and embeddable live screens. Self-service, prepaid pay-as-you-go pricing.",
+  "description": "AI agents that work on their own computer, hosted in France: they browse, code, sort your emails, and run your routines, 24/7. Your bots stay yours.",
   "urls": {
     "homepage": "https://baguettebot.com/en",
     "docs": "https://baguettebot.com/en/api/docs",
@@ -8,8 +8,8 @@
     "privacyPolicy": "https://baguettebot.com/confidentialite",
     "termsOfService": "https://baguettebot.com/cgu"
   },
-  "providerCountry": "AE",
-  "category": "model_provider",
+  "providerCountry": "FR",
+  "category": "app_tools",
   "inferenceRegions": [
     "World"
   ]
