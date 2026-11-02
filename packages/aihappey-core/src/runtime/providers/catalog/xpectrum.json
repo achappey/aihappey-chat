@@ -1,0 +1,16 @@
+{
+  "name": "Xpectrum",
+  "description": "Xpectrum is a multi-agent orchestration platform for building, deploying, and monitoring production-grade agentic applications. Supports autonomous agents, multi-step workflows, OpenAI-compatible chat completions, real-time voice, persistent memory, MCP integrations, human-in-the-loop approvals, and observability. Provides REST APIs and a JavaScript SDK.",
+  "urls": {
+    "homepage": "https://xpectrum.dev",
+    "docs": "https://xpectrum.dev/docs",
+    "pricing": "https://xpectrum.dev/pricing",
+    "privacyPolicy": "https://xpectrum.dev/privacy",
+    "termsOfService": "https://xpectrum.dev/terms"
+  },
+  "providerCountry": "US",
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

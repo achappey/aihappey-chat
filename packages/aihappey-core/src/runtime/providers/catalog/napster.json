@@ -1,0 +1,16 @@
+{
+  "name": "Napster",
+  "description": "Napster provides a multimodal AI agent platform for building and deploying intelligent agents with real-time video avatars, natural voice conversations, telephony, persistent memory, knowledge bases, and MCP tool integrations. Supports WebRTC, WebSocket, SIP, and bring-your-own-model deployments.",
+  "urls": {
+    "homepage": "https://www.napster.com",
+    "docs": "https://developers.napster.com/docs",
+    "pricing": "https://help.napster.com/hc/en-us/articles/47536060444685-API-Billing-and-Pricing",
+    "privacyPolicy": "https://www.napster.com/privacy-policy",
+    "termsOfService": "https://www.napster.com/terms-of-service"
+  },
+  "providerCountry": "US",
+  "category": "media_voice",
+  "inferenceRegions": [
+    "World"
+  ]
+}

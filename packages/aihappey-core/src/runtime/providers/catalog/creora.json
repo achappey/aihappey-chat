@@ -1,0 +1,15 @@
+{
+  "name": "Creora",
+  "description": "Creora is a privacy-focused multimodal AI platform offering OpenAI-compatible APIs for chat completions, image generation, video generation, and autonomous agent execution. Features AI-powered application building, knowledge and tool integrations, cryptocurrency-based credit billing, and Python and JavaScript SDK compatibility.",
+  "urls": {
+    "homepage": "https://creora.ai",
+    "docs": "https://creora.ai/docs/api",
+    "pricing": "https://creora.ai/docs/api_errors",
+    "privacyPolicy": "https://creora.ai/privacy",
+    "termsOfService": "https://creora.ai/terms"
+  },
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}
