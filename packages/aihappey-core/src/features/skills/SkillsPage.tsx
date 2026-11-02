@@ -488,16 +488,16 @@ export const SkillsPage = () => {
       disabled: importing,
       children: [
         { key: "import-zip-skill", label: "ZIP", icon: "attachment", onClick: () => fileInputRef.current?.click() },
+        { key: "import-folder-skill", label: t("skillsPage.actions.folder"), icon: "folder", onClick: () => {
+          if (folderInputRef.current && "webkitdirectory" in folderInputRef.current) folderInputRef.current.click();
+          else setFeedback(t("skillsPage.folderUnsupported"));
+        } },
         {
           key: "import-github-skill",
           label: t("skillsPage.github.fromGitHub", { defaultValue: "GitHub" }),
           icon: "link" as IconToken,
           onClick: () => setGithubImportOpen(true),
         },
-        { key: "import-folder-skill", label: t("skillsPage.actions.folder"), icon: "folder", onClick: () => {
-          if (folderInputRef.current && "webkitdirectory" in folderInputRef.current) folderInputRef.current.click();
-          else setFeedback(t("skillsPage.folderUnsupported"));
-        } },
       ],
     }
   ];
