@@ -383,8 +383,20 @@
         "modelContext": "Model Context",
         "description": "An overview of all available skills for tasks and workflows. For each skill, you see what it does, when to use it, and how it differs from others. This helps you quickly choose the right option. Skills combine instructions, logic, and execution in a consistent structure for clarity, repeatability, and control.",
         "actions": {
-            "import": "Import skill",
-            "create": "Create new skill"
+            "import": "Import",
+            "create": "New",
+            "folder": "Folder"
+        },
+        "importing": "Importing skills…",
+        "importFailed": "The skills could not be imported. Please try again.",
+        "folderUnsupported": "This browser does not support folder selection. Import a ZIP archive instead.",
+        "folder": {
+            "folder-empty": "No SKILL.md files were found in the selected folder.",
+            "folder-limit": "A folder scan or size limit was exceeded. Select a smaller folder; incomplete skills are not imported.",
+            "folder-invalid-path": "The folder contains an unsafe or duplicate file path.",
+            "folder-overlap": "Nested skill roots overlap. Import each skill from a separate folder.",
+            "folder-duplicate-name": "A skill with this name was already found. The first valid skill in path order is used.",
+            "folder-read-failed": "The skill files could not be read. Nothing was imported for this skill."
         },
         "fileCountBadge": "Files: {{count}}",
         "versionBadge": "Version {{version}}",
@@ -392,7 +404,7 @@
         "importZipOnly": "Only ZIP archives can be imported as skills.",
         "importedWithDiagnostics": "Imported {{count}} skill(s) with {{diagnostics}} diagnostic message(s).",
         "imported": "Imported {{count}} skill(s).",
-        "importNoValidSkills": "No valid skills were found in the uploaded ZIP archive.",
+        "importNoValidSkills": "No valid skills were found in the selected files or folder.",
         "downloadFailed": "Could not prepare the skill download.",
         "remoteDownloadToInspect": "Download a version to inspect its SKILL.md content.",
         "details": {

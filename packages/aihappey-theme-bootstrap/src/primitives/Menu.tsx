@@ -3,6 +3,7 @@ import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import { ThreeDotsVertical } from "react-bootstrap-icons"; // or your own icon
 import type { MenuItemProps } from "aihappey-types";
+import { getIcon } from "./IconMap";
 
 const BootstrapMenuTrigger = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement> & { trigger: React.ReactElement }>(function BootstrapMenuTrigger(
   { trigger, ...props },
@@ -30,16 +31,47 @@ type BootstrapMenuProps = {
   buttonProps?: React.ComponentProps<"button">;
 };
 
-const renderItems = (items: MenuAction[]) => items.map(({ key, label, onClick, disabled, danger }) => (
+const renderItems = (items: MenuItemProps[], close: () => void) => items.map((item) => item.children?.length ? (
+  <Submenu key={item.key} item={item} close={close} />
+) : (
   <Dropdown.Item
-    key={key}
-    disabled={disabled}
-    onClick={onClick}
-    style={danger ? { color: "#dc3545" } : undefined}
+    key={item.key}
+    disabled={item.disabled}
+    onClick={() => { close(); void item.onClick?.(); }}
+    style={item.danger ? { color: "#dc3545" } : undefined}
   >
-    {label}
+    {item.icon ? <span className="me-2">{getIcon(item.icon)}</span> : null}{item.label}
   </Dropdown.Item>
 ));
+
+function Submenu({ item, close }: { item: MenuItemProps; close: () => void }) {
+  const [open, setOpen] = React.useState(false);
+  const [left, setLeft] = React.useState(false);
+  const trigger = React.useRef<HTMLButtonElement>(null);
+  const menu = React.useRef<HTMLDivElement>(null);
+  const show = () => {
+    if (item.disabled) return;
+    setLeft((trigger.current?.getBoundingClientRect().right ?? 0) + 220 > window.innerWidth);
+    setOpen(true);
+  };
+  return <Dropdown drop={left ? "start" : "end"} show={open} onToggle={value => value ? show() : setOpen(false)}
+    onMouseEnter={show} onMouseLeave={() => setOpen(false)}>
+    <Dropdown.Toggle as="button" ref={trigger} disabled={item.disabled} className="dropdown-item d-flex align-items-center"
+      onKeyDown={event => {
+        if (event.key === "ArrowRight") {
+          event.preventDefault(); event.stopPropagation(); show();
+          requestAnimationFrame(() => menu.current?.querySelector<HTMLElement>(".dropdown-item:not(.disabled)")?.focus());
+        }
+      }}>
+      {item.icon ? <span className="me-2">{getIcon(item.icon)}</span> : null}{item.label}
+    </Dropdown.Toggle>
+    <Dropdown.Menu ref={menu} renderOnMount={false} onKeyDown={event => {
+      if (event.key === "ArrowLeft" || event.key === "Escape") {
+        event.preventDefault(); event.stopPropagation(); setOpen(false); trigger.current?.focus();
+      }
+    }}>{renderItems(item.children ?? [], close)}</Dropdown.Menu>
+  </Dropdown>;
+}
 
 export const Menu: React.FC<BootstrapMenuProps> = ({
   actions,
@@ -50,8 +82,9 @@ export const Menu: React.FC<BootstrapMenuProps> = ({
   className,
   icon = <ThreeDotsVertical />,
   buttonProps,
-}) => (
-  <Dropdown align={align === "left" ? "start" : "end"} drop={direction === "top" ? "up" : "down"}>
+}) => {
+  const [open, setOpen] = React.useState(false);
+  return <Dropdown show={open} onToggle={setOpen} align={align === "left" ? "start" : "end"} drop={direction === "top" ? "up" : "down"}>
     {trigger ? (
       <Dropdown.Toggle as={BootstrapMenuTrigger} trigger={trigger} className={className} />
     ) : (
@@ -68,7 +101,7 @@ export const Menu: React.FC<BootstrapMenuProps> = ({
       </Dropdown.Toggle>
     )}
     <Dropdown.Menu>
-      {renderItems((items ?? actions ?? []) as MenuAction[])}
+      {open ? renderItems(items ?? actions ?? [], () => setOpen(false)) : null}
     </Dropdown.Menu>
-  </Dropdown>
-);
+  </Dropdown>;
+};

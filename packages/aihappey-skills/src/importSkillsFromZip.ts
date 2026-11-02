@@ -153,7 +153,7 @@ export function toStoredSkill(
   const version =
     overrides?.version?.trim() ||
     parsed.frontmatter.version?.trim() ||
-    (source === "local-zip" && previous ? incrementVersion(previous.latestVersion) : undefined) ||
+    ((source === "local-zip" || source === "local-folder") && previous ? incrementVersion(previous.latestVersion) : undefined) ||
     previous?.latestVersion ||
     "1";
   const normalizedVersion = normalizeVersion(version, "1");

@@ -387,8 +387,20 @@
         },
         "modelContext": "Modelcontext",
         "actions": {
-            "import": "Skill importeren",
-            "create": "Nieuwe skill maken"
+            "import": "Importeren",
+            "create": "Nieuw",
+            "folder": "Map"
+        },
+        "importing": "Skills importeren…",
+        "importFailed": "De skills konden niet worden geïmporteerd. Probeer het opnieuw.",
+        "folderUnsupported": "Deze browser ondersteunt geen mapselectie. Importeer in plaats daarvan een ZIP-archief.",
+        "folder": {
+            "folder-empty": "Er zijn geen SKILL.md-bestanden gevonden in de geselecteerde map.",
+            "folder-limit": "Een scan- of groottelimiet is overschreden. Selecteer een kleinere map; onvolledige skills worden niet geïmporteerd.",
+            "folder-invalid-path": "De map bevat een onveilig of dubbel bestandspad.",
+            "folder-overlap": "Geneste skillmappen overlappen. Importeer elke skill vanuit een afzonderlijke map.",
+            "folder-duplicate-name": "Er is al een skill met deze naam gevonden. De eerste geldige skill op padvolgorde wordt gebruikt.",
+            "folder-read-failed": "De skillbestanden konden niet worden gelezen. Voor deze skill is niets geïmporteerd."
         },
         "editor": {
             "newTitle": "Skill toevoegen",
@@ -410,7 +422,7 @@
         "importZipOnly": "Alleen ZIP-archieven kunnen als skills worden geïmporteerd.",
         "importedWithDiagnostics": "{{count}} skill(s) geÃ¯mporteerd met {{diagnostics}} diagnostische melding(en).",
         "imported": "{{count}} skill(s) geïmporteerd.",
-        "importNoValidSkills": "Er zijn geen geldige skills gevonden in het geÃ¼ploade ZIP-archief.",
+        "importNoValidSkills": "Er zijn geen geldige skills gevonden in de geselecteerde bestanden of map.",
         "downloadFailed": "Het skillarchief kon niet worden voorbereid voor download.",
         "remoteDownloadToInspect": "Download eerst een versie om de inhoud van SKILL.md te bekijken.",
         "details": {

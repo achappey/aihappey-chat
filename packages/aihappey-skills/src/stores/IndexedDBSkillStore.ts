@@ -1,6 +1,7 @@
 import { get, set } from "idb-keyval";
 import { combineImportResult, extractSkillsFromArchive, toStoredSkill } from "../importSkillsFromZip";
 import { exportSkillToArchive } from "../exportSkillToArchive";
+import { extractSkillsFromDirectory } from "../importSkillsFromDirectory";
 import {
   normalizeSkillWriteDefinition,
   renderSkillMarkdown,
@@ -8,6 +9,8 @@ import {
 } from "../skillFrontmatter";
 import type {
   DataList,
+  ParsedSkill,
+  SkillDiagnostic,
   SkillArchiveExport,
   SkillCatalogItem,
   SkillDraftDefinition,
@@ -418,6 +421,17 @@ export class IndexedDBSkillStore implements SkillStore {
   ): Promise<SkillImportResult> => {
     await this.ensureLoaded();
     const { parsedSkills, diagnostics } = await extractSkillsFromArchive(file, options?.strict);
+    return this.importParsed(parsedSkills, diagnostics, source, options);
+  };
+
+  importDirectory = async (files: readonly SkillFileWriteDefinition[]): Promise<SkillImportResult> => {
+    await this.ensureLoaded();
+    const { parsedSkills, diagnostics } = await extractSkillsFromDirectory(files);
+    return this.importParsed(parsedSkills, diagnostics, "local-folder");
+  };
+
+  private importParsed = async (parsedSkills: ParsedSkill[], diagnostics: SkillDiagnostic[], source: SkillImportSource,
+    options?: SkillImportOptions): Promise<SkillImportResult> => {
     const imported: StoredSkill[] = [];
 
     for (const parsed of parsedSkills) {

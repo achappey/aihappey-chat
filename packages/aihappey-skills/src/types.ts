@@ -1,6 +1,6 @@
 export type SkillStorageKind = "indexeddb";
 
-export type SkillImportSource = "local-zip" | "remote-archive";
+export type SkillImportSource = "local-zip" | "local-folder" | "remote-archive";
 
 export type SkillOrigin = "local" | "remote";
 
@@ -23,7 +23,13 @@ export interface SkillDiagnostic {
     | "skill-invalid-name"
     | "skill-empty"
     | "skill-no-markdown-body"
-    | "skill-file-outside-root";
+    | "skill-file-outside-root"
+    | "folder-empty"
+    | "folder-limit"
+    | "folder-invalid-path"
+    | "folder-overlap"
+    | "folder-duplicate-name"
+    | "folder-read-failed";
   message: string;
   skillName?: string;
   path?: string;
@@ -240,6 +246,7 @@ export interface SkillStore {
     source?: SkillImportSource,
     options?: SkillImportOptions
   ): Promise<SkillImportResult>;
+  importDirectory(files: readonly SkillFileWriteDefinition[]): Promise<SkillImportResult>;
   createSkill(definition: SkillWriteDefinition): Promise<StoredSkill>;
   saveSkillDraft(skillId: string | undefined, definition: SkillDraftDefinition): Promise<StoredSkill>;
   inspectSkill(skillId: string, version?: string): Promise<SkillInspectionResult>;

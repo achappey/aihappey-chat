@@ -458,11 +458,58 @@ export const Drawer = ({ open, isOpen, onOpenChange, onClose, title, children, a
   return <dialog ref={ref}>{title ? <header><strong>{title}</strong> <form method="dialog"><button aria-label="Close">×</button></form></header> : null}<div>{children}</div>{actions}</dialog>;
 };
 
-function renderMenuItems(items: any[] = []) {
-  return <ul>{items.map((item, index) => <li key={item.key ?? index}>{item.children?.length ? <details><summary aria-disabled={item.disabled} onClick={(event) => { if (item.disabled) event.preventDefault(); }}>{icon(item.icon)} {item.label}</summary>{renderMenuItems(item.children)}</details> : <button type="button" disabled={item.disabled} onClick={() => void item.onClick?.()}>{icon(item.icon)}{item.icon ? " " : null}{item.label}</button>}</li>)}</ul>;
+const menuSurface: React.CSSProperties = { listStyle: "none", margin: 0, padding: 4, minWidth: 180,
+  width: "max-content", maxWidth: "calc(100vw - 16px)", background: "Canvas", color: "CanvasText",
+  border: "1px solid GrayText", borderRadius: 4, boxShadow: "0 4px 12px #0003", zIndex: 1000 };
+
+function HtmlSubmenu({ item, close }: any) {
+  const [left, setLeft] = React.useState(false);
+  const details = React.useRef<HTMLDetailsElement>(null);
+  return <details ref={details} onToggle={event => {
+    if (event.currentTarget.open) setLeft(event.currentTarget.getBoundingClientRect().right + 200 > window.innerWidth);
+  }} onKeyDown={event => {
+    if (event.key === "ArrowLeft" || event.key === "Escape") {
+      event.preventDefault(); event.stopPropagation();
+      if (details.current) { details.current.open = false; details.current.querySelector("summary")?.focus(); }
+    }
+  }}>
+    <summary aria-disabled={item.disabled} style={{ cursor: item.disabled ? "default" : "pointer", padding: 6 }}
+      onClick={event => { if (item.disabled) event.preventDefault(); }}>
+      {icon(item.icon)} {item.label} {icon("chevronRight")}
+    </summary>
+    <div style={{ position: "absolute", top: 0, ...(left ? { right: "100%" } : { left: "100%" }) }}>
+      {renderMenuItems(item.children, close)}
+    </div>
+  </details>;
 }
 
-export const Menu = ({ items = [], trigger, direction = "bottom", ...rest }: any) => <details {...rest} style={{ position: "relative", ...(rest.style ?? {}) }}><summary>{trigger ?? <span>Menu</span>}</summary><div style={direction === "top" ? { position: "absolute", bottom: "100%" } : undefined}>{renderMenuItems(items)}</div></details>;
+function renderMenuItems(items: any[] = [], close: () => void = () => {}) {
+  return <ul style={menuSurface}>{items.map((item, index) => <li key={item.key ?? index} style={{ position: "relative" }}>
+    {item.children?.length ? <HtmlSubmenu item={item} close={close} /> : <button type="button" disabled={item.disabled}
+      style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: 6, border: 0, background: "transparent", color: item.danger ? "red" : "inherit", textAlign: "start" }}
+      onClick={() => { close(); void item.onClick?.(); }}>{icon(item.icon)}{item.label}</button>}
+  </li>)}</ul>;
+}
+
+export const Menu = ({ items = [], trigger, direction = "bottom", align = "right", className, style }: any) => {
+  const [open, setOpen] = React.useState(false);
+  const root = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!open) return;
+    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [open]);
+  return <div ref={root} className={className} style={{ position: "relative", display: "inline-block", ...style }} onKeyDown={event => {
+    if (event.key === "Escape") { setOpen(false); root.current?.querySelector<HTMLElement>("button")?.focus(); }
+  }}>
+    {React.cloneElement((trigger ?? <button type="button">Menu</button>) as React.ReactElement<any>, {
+      "aria-expanded": open, onClick: () => setOpen(value => !value),
+    })}
+    {open && <div style={{ position: "absolute", zIndex: 1000, ...(align === "right" ? { right: 0 } : { left: 0 }),
+      ...(direction === "top" ? { bottom: "100%" } : { top: "100%" }) }}>{renderMenuItems(items, () => setOpen(false))}</div>}
+  </div>;
+};
 
 const UserMenuCheckbox = ({ capability, provider, checked, disabled, onToggleProviderForType }: { capability: ProviderCapability; provider: string; checked: boolean; disabled?: boolean; onToggleProviderForType?: UserMenuProps["onToggleProviderForType"] }) => (
   <label><input type="checkbox" checked={checked} disabled={disabled} onChange={() => onToggleProviderForType?.(capability, provider)} /> {provider}</label>

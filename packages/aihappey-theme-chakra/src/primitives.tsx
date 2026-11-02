@@ -659,7 +659,16 @@ export const ToolbarButton = (props: any) => <Button variant={props.variant ?? "
 export const ToolbarDivider = () => <Separator orientation="vertical" height="6" />;
 
 function renderMenuItems(items: MenuItemProps[] | SplitButtonMenuItem[]) {
-  return items.map((item: any) => item.children?.length ? <React.Fragment key={item.key}><Chakra.Menu.Item value={item.key} disabled={item.disabled}>{renderIcon(item.icon)}{item.label}</Chakra.Menu.Item>{renderMenuItems(item.children)}</React.Fragment> : <Chakra.Menu.Item key={item.key} value={item.key} disabled={item.disabled} color={item.danger ? "red.600" : undefined} onClick={item.onClick}>{renderIcon(item.icon)}{item.label}</Chakra.Menu.Item>);
+  return items.map((item: any) => item.children?.length && !item.disabled ? (
+    <Chakra.Menu.Root key={item.key} positioning={{ placement: "right-start", flip: true }}>
+      <Chakra.Menu.TriggerItem>
+        {renderIcon(item.icon)}{item.label}{renderIcon("chevronRight")}
+      </Chakra.Menu.TriggerItem>
+      <Chakra.Portal><Chakra.Menu.Positioner><Chakra.Menu.Content>
+        {renderMenuItems(item.children)}
+      </Chakra.Menu.Content></Chakra.Menu.Positioner></Chakra.Portal>
+    </Chakra.Menu.Root>
+  ) : <Chakra.Menu.Item key={item.key} value={item.key} disabled={item.disabled} color={item.danger ? "red.600" : undefined} onClick={item.onClick}>{renderIcon(item.icon)}{item.label}</Chakra.Menu.Item>);
 }
 
 export const Menu = ({ items, trigger, align = "right", direction = "bottom", className }: MenuProps) => (

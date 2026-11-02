@@ -61,6 +61,7 @@ export type SkillsContextType = {
     source?: SkillImportSource,
     options?: SkillImportOptions
   ) => Promise<SkillImportResult>;
+  importDirectory: (files: readonly SkillFileWriteDefinition[]) => Promise<SkillImportResult>;
   createSkill: (definition: SkillWriteDefinition) => Promise<StoredSkill>;
   saveSkillDraft: (skillId: string | undefined, definition: SkillDraftDefinition) => Promise<StoredSkill>;
   inspectSkill: (skillId: string, version?: string) => Promise<SkillInspectionResult>;
@@ -413,6 +414,11 @@ export const SkillsProvider = ({
       options?: SkillImportOptions
     ): Promise<SkillImportResult> => {
       const result = await store.importArchive(file, source, options);
+      setLocalItems(await store.listCatalogItems());
+      return result;
+    },
+    importDirectory: async (files: readonly SkillFileWriteDefinition[]) => {
+      const result = await store.importDirectory(files);
       setLocalItems(await store.listCatalogItems());
       return result;
     },

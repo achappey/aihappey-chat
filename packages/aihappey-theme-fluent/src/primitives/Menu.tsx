@@ -39,7 +39,7 @@ export const Menu: React.FC<MenuProps> = ({
       return item.children && item.children.length > 0 ? (
         <FMenu key={item.key}>
           <MenuTrigger disableButtonEnhancement>
-            <MenuItem disabled={(item as any).disabled}>{item.label}</MenuItem>
+            <MenuItem icon={IconElem && <IconElem />} disabled={item.disabled}>{item.label}</MenuItem>
           </MenuTrigger>
           <MenuPopover>
             <MenuList>{renderItems(item.children)}</MenuList>

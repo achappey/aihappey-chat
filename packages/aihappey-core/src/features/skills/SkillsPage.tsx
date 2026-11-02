@@ -87,6 +87,9 @@ export const SkillsPage = () => {
   const setFavoriteSkillIds = useAppStore((s: any) => s.setFavoriteSkillIds as (skillIds: string[]) => void);
   const [search, setSearch] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [importDiagnostics, setImportDiagnostics] = useState<SkillDiagnostic[]>([]);
+  const [importing, setImporting] = useState(false);
+  const importInFlight = useRef(false);
   const [githubImportOpen, setGithubImportOpen] = useState(false);
   const [detailsSkillId, setDetailsSkillId] = useState<string | null>(null);
   const [detailVersions, setDetailVersions] = useState<SkillVersion[]>([]);
@@ -101,6 +104,7 @@ export const SkillsPage = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const q = normalizeText(search);
   const remoteSkillsHost = useMemo(
     () => hostnameOf(`${chatConfig.baseUrl}${chatConfig.endpoints.skills}`),
@@ -191,19 +195,11 @@ export const SkillsPage = () => {
     [skills, t]
   );
 
-  const onImportFiles = useCallback(
-    async (files: File[]) => {
-      const archives = files.filter((file) => file.name.toLowerCase().endsWith(".zip"));
-      if (archives.length === 0) {
-        setFeedback(
-          t("skillsPage.importZipOnly") ?? "Only ZIP archives can be imported as skills."
-        );
-        return;
-      }
-
-      const results = await Promise.all(
-        archives.map((file) => skills.importArchive(file, "local-zip"))
-      );
+  const runLocalImport = useCallback(async (work: () => Promise<SkillImportResult[]>) => {
+    if (importInFlight.current || githubImportOpen || editorMode) return;
+    importInFlight.current = true; setImporting(true); setFeedback(null); setImportDiagnostics([]);
+    try {
+      const results = await work();
       const importedCount = results.reduce(
         (sum: number, item: SkillImportResult) => sum + item.imported.length,
         0
@@ -211,6 +207,7 @@ export const SkillsPage = () => {
       const diagnostics = results.flatMap(
         (item: SkillImportResult): SkillDiagnostic[] => item.diagnostics
       );
+      setImportDiagnostics(diagnostics);
 
       if (importedCount > 0) {
         const importedSkillIds = results.flatMap((item) => item.imported.map((skill) => skill.skillId));
@@ -227,14 +224,36 @@ export const SkillsPage = () => {
         );
       } else {
         setFeedback(
-          diagnostics[0]?.message ??
-          (t("skillsPage.importNoValidSkills") ??
-            "No valid skills were found in the uploaded ZIP archive.")
+          t("skillsPage.importNoValidSkills")
         );
       }
-    },
-    [enabledSkillIds, setEnabledSkillIds, skills, t]
-  );
+    } catch {
+      setFeedback(t("skillsPage.importFailed"));
+    } finally {
+      importInFlight.current = false; setImporting(false);
+    }
+  }, [editorMode, githubImportOpen, setEnabledSkillIds, t]);
+
+  const onImportFiles = useCallback(async (files: File[]) => {
+    if (files.some(file => !file.name.toLowerCase().endsWith(".zip"))) {
+      setFeedback(t("skillsPage.importZipOnly")); return;
+    }
+    await runLocalImport(async () => {
+      const results: SkillImportResult[] = [];
+      // Serial imports retain deterministic versioning when archives contain the same skill.
+      for (const file of files) results.push(await skills.importArchive(file, "local-zip"));
+      return results;
+    });
+  }, [runLocalImport, skills, t]);
+
+  const handleFolderSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    if (!files.length) return; // Picker cancellation must not clear the previous result.
+    await runLocalImport(async () => [await skills.importDirectory(files.map(file => ({
+      relativePath: file.webkitRelativePath, data: file,
+    })))]);
+  }, [runLocalImport, skills]);
 
   const handleDownloadSkill = useCallback(
     async (item: SkillCatalogItem) => {
@@ -436,8 +455,9 @@ export const SkillsPage = () => {
   );
 
   const handleFileDrop = useCallback(
-    async (item: any) => {
-      const list: FileList | undefined = item?.dataTransfer?.files;
+    async (item: React.DragEvent<HTMLDivElement>) => {
+      item.preventDefault(); item.stopPropagation();
+      const list = item.dataTransfer.files;
       if (!list || list.length === 0) return;
       await onImportFiles(Array.from(list));
     },
@@ -456,21 +476,29 @@ export const SkillsPage = () => {
   const actionMenuItems: MenuItemProps[] = [
     {
       key: "create-skill",
-      label: t("skillsPage.actions.create") ?? "Create new skill",
+      label: t("new"),
       icon: "add" as IconToken,
+      disabled: importing,
       onClick: handleNewSkill,
     },
     {
       key: "import-skill",
-      label: t("skillsPage.actions.import") ?? "Import skill package",
+      label: t("skillsPage.actions.import"),
       icon: "attachment" as IconToken,
-      onClick: () => fileInputRef.current?.click(),
-    },
-    {
-      key: "import-github-skill",
-      label: t("skillsPage.github.fromGitHub", { defaultValue: "GitHub" }),
-      icon: "link" as IconToken,
-      onClick: () => setGithubImportOpen(true),
+      disabled: importing,
+      children: [
+        { key: "import-zip-skill", label: "ZIP", icon: "attachment", onClick: () => fileInputRef.current?.click() },
+        {
+          key: "import-github-skill",
+          label: t("skillsPage.github.fromGitHub", { defaultValue: "GitHub" }),
+          icon: "link" as IconToken,
+          onClick: () => setGithubImportOpen(true),
+        },
+        { key: "import-folder-skill", label: t("skillsPage.actions.folder"), icon: "folder", onClick: () => {
+          if (folderInputRef.current && "webkitdirectory" in folderInputRef.current) folderInputRef.current.click();
+          else setFeedback(t("skillsPage.folderUnsupported"));
+        } },
+      ],
     }
   ];
 
@@ -584,6 +612,8 @@ export const SkillsPage = () => {
         hidden
         onChange={handleFileSelect}
       />
+      <input ref={node => { folderInputRef.current = node; node?.setAttribute("webkitdirectory", ""); }}
+        type="file" multiple hidden onChange={handleFolderSelect} />
       <div style={{ background: "transparent" }}>
         <div
           style={{
@@ -606,6 +636,14 @@ export const SkillsPage = () => {
             {t("skillsPage.description") ??
               "Import local ZIP archives containing Agent Skills, review stored skills, and toggle them on or off for future use."}
           </theme.Text>
+          <div role="status" aria-live="polite" aria-busy={importing} style={{ width: "100%", overflowWrap: "anywhere" }}>
+            {importing ? <theme.Text>{t("skillsPage.importing")}</theme.Text> : feedback ? <theme.Text>{feedback}</theme.Text> : null}
+            {!importing && importDiagnostics.length > 0 && <ul>{importDiagnostics.map((item, index) => (
+              <li key={`${item.path}-${item.code}-${index}`}>
+                {item.path ? `${item.path}: ` : ""}{item.code.startsWith("folder-") ? t(`skillsPage.folder.${item.code}`) : item.message}
+              </li>
+            ))}</ul>}
+          </div>
 
           <div
             style={{
