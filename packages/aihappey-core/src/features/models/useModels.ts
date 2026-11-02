@@ -58,7 +58,6 @@ export const useModels = (
   const models = useAppStore(a => a.models);
   const modelsLoaded = useAppStore(a => a.modelsLoaded);
   const setModels = useAppStore(a => a.setModels)
-  const resetModels = useAppStore(a => a.resetModels)
   const customHeaders = useAppStore(a => a.customHeaders)
   const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
   const gatewayEnabled = options?.gatewayEnabled !== false;
@@ -147,7 +146,8 @@ export const useModels = (
       .catch((err) => {
         if (cancelled) return;
 
-        resetModels()
+        // A failed attempt is settled, not pending discovery. A later explicit reset can retry.
+        setModels([])
         setModelsLoadingProgress?.(undefined)
         console.error("Failed to load models:", err);
       })
@@ -156,7 +156,7 @@ export const useModels = (
       cancelled = true;
     };
 
-  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, modelsLoaded, effectiveChatEndpointMode, providers, setModels, resetModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
+  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, modelsLoaded, effectiveChatEndpointMode, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;

@@ -23,6 +23,7 @@ export type SideInferenceAgentCallOptions = {
   gatewayEnabled?: boolean;
   providers?: Record<string, Provider>;
   fetch?: typeof fetch;
+  signal?: AbortSignal;
   agents?: Agent[];
   models?: ModelOption[];
   agentName?: string;
@@ -186,6 +187,7 @@ export const invokeSideInferenceAgent = async ({
   gatewayEnabled = true,
   providers,
   fetch: customFetch,
+  signal,
   agents = [],
   models = [],
   agentName,
@@ -277,6 +279,7 @@ export const invokeSideInferenceAgent = async ({
         ...apiKeyHeaders,
       },
       body: JSON.stringify(body),
+      signal,
     });
 
     const responseBody = await parseResponseBody(response);

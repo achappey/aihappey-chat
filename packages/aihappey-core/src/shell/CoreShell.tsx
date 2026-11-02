@@ -77,6 +77,7 @@ export const CoreShell: React.FC<Props> = ({
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
   const setSafeHosts = useAppStore((s) => s.setSafeHosts);
   const setAgents = useAppStore((s) => s.setAgents);
+  const setAgentsLoaded = useAppStore((s) => s.setAgentsLoaded);
   const setProviderMetadata = useAppStore((s) => s.setProviderMetadata);
   const setProviderHeaders = useAppStore((s) => s.setProviderHeaders);
   const setConfiguredChatEndpoint = useAppStore((s) => s.setConfiguredChatEndpoint);
@@ -265,6 +266,7 @@ export const CoreShell: React.FC<Props> = ({
 
     let unsubscribeLocalAgentPersist: (() => void) | undefined;
 
+    setAgentsLoaded(false);
     void hydrateLocalAgents().then((unsubscribe) => {
       if (cancelled) {
         unsubscribe?.();
@@ -272,13 +274,17 @@ export const CoreShell: React.FC<Props> = ({
       }
 
       unsubscribeLocalAgentPersist = unsubscribe;
+    }, (error) => {
+      console.error("Failed to load local agents:", error);
+    }).finally(() => {
+      if (!cancelled) setAgentsLoaded(true);
     });
 
     return () => {
       cancelled = true;
       unsubscribeLocalAgentPersist?.();
     };
-  }, [setAgents]);
+  }, [setAgents, setAgentsLoaded]);
 
   useEffect(() => {
     setSidebarOpen(isDesktop);

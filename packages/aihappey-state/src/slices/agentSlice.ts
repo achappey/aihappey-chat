@@ -22,6 +22,9 @@ export type MagenticWorkflowSettings = {
 
 export type AgentSlice = {
     agents: Agent[];
+    /** Local agent discovery has settled, including storage failures. Never persisted. */
+    agentsLoaded: boolean;
+    setAgentsLoaded: (loaded: boolean) => void;
     remoteAgentModels: RemoteAgentModel[];
     remoteAgentModelsLoaded: boolean;
     selectedAgentNames: string[];
@@ -61,6 +64,8 @@ export const createAgentSlice: StateCreator<
     AgentSlice
 > = (set, get, store) => ({
     agents: getConfiguredDefaultAgents().map(normalizeAgent),
+    agentsLoaded: false,
+    setAgentsLoaded: (agentsLoaded) => set(() => ({ agentsLoaded })),
     remoteAgentModels: [],
     remoteAgentModelsLoaded: false,
     selectedAgentNames: [],

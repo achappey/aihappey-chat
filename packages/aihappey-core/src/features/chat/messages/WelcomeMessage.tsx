@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { languageNames, useTranslation } from "aihappey-i18n";
 import { useAccount } from "aihappey-auth";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
@@ -127,26 +127,48 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onGenerated }) =
   const account = useAccount()
   const { config } = useChatContext();
   const models = useAppStore((s) => s.models);
+  const modelsLoaded = useAppStore((s) => s.modelsLoaded);
   const agents = useAppStore((s) => s.agents);
+  const agentsLoaded = useAppStore((s) => s.agentsLoaded);
   const agentName = useAppStore((s) => s.sideInferenceAgentNames?.welcomeMessageAgent);
   const customHeaders = useAppStore((s) => s.customHeaders);
   const gatewayEnabled = useAppStore((s: any) => s.gatewayEnabled);
   const providers = useProviderRegistry();
   const generated = useRef(onGenerated);
   generated.current = onGenerated; // Callback identity changes must not regenerate/replay a welcome.
-  const [welcomeMessage, setWelcomeMessage] = useState<string | undefined>(
-    undefined
-  );
+  const fallback = t("sideInference.fallbackWelcome") || "Welcome";
+  // Associate text with its inputs so even the first render after a change cannot flash stale text.
+  const requestKey = useMemo(() => ({}), [account?.name, config.baseUrl, config.fetch, config.getAccessToken,
+    customHeaders, gatewayEnabled, i18n.language, models, modelsLoaded, agents, agentsLoaded, agentName,
+    providers, fallback, (config as any)?.gatewayEnabled]);
+  const [result, setResult] = useState<{ key: object; text: string }>();
+  const welcomeMessage = agentName === "" ? fallback : result?.key === requestKey ? result.text : undefined;
 
   const isDesktop = useIsDesktop();
   const sizing = welcomeSizing[resolveWelcomeThemeId(multiTheme?.selectedThemeId)];
 
   useEffect(() => {
     let active = true;
+    let settled = false;
     const generation = new AbortController();
-    const fallback = t("sideInference.fallbackWelcome") ?? "Welcome";
-    setWelcomeMessage(fallback);
-    if (agentName !== "" && models && models?.length > 0)
+    const finish = (value?: string, notify = false) => {
+      if (!active || settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      const text = value?.trim() || fallback;
+      setResult({ key: requestKey, text });
+      if (notify) {
+        const selectedAgent = agents.find(agent => agent.name === (agentName
+          ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION.welcomeMessageAgent));
+        generated.current?.(text, selectedAgent, generation.signal);
+      }
+    };
+    // Bound both discovery and generation; a stalled optional helper must never hide the greeting forever.
+    const timeout = setTimeout(() => { generation.abort(); finish(fallback); }, 30_000);
+    if (agentName === "") finish(fallback);
+    else if (!modelsLoaded || !agentsLoaded) { /* Keep the shimmer through discovery. */ }
+    else if (!models?.length) finish(fallback);
+    else
       fetchWelcomeMessage((languageNames as any)[i18n.language as any],
         account?.name,
         {
@@ -160,26 +182,21 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ onGenerated }) =
           gatewayEnabled: (config as any)?.gatewayEnabled !== false && gatewayEnabled !== false,
           providers,
           fallback,
+          signal: generation.signal,
         })
-        .then(a => {
-          if (!active) return;
-          const text = a ?? fallback;
-          setWelcomeMessage(text);
-          const selectedAgent = agents.find(agent => agent.name === (agentName
-            ?? DEFAULT_SIDE_INFERENCE_AGENT_SELECTION.welcomeMessageAgent));
-          generated.current?.(text, selectedAgent, generation.signal);
-        });
+        .then(text => finish(text, true))
+        .catch(() => finish(fallback));
 
-    return () => { active = false; generation.abort(); };
-  }, [account?.name, config.baseUrl, config.fetch, config.getAccessToken, customHeaders, gatewayEnabled, i18n.language, models, agents, agentName, providers, t]);
+    return () => { active = false; clearTimeout(timeout); generation.abort(); };
+  }, [requestKey]);
 
   return (
-    <div style={getWelcomeSlotStyle(isDesktop, sizing)}>
-      {agentName === "" || welcomeMessage ? (
+    <div style={getWelcomeSlotStyle(isDesktop, sizing)} aria-busy={!welcomeMessage}>
+      {welcomeMessage ? (
         isDesktop ? (
-          <h1 style={{ ...welcomeTextStyle, fontSize: sizing.desktopFontSize }}>{agentName === "" ? t("sideInference.fallbackWelcome") : welcomeMessage}</h1>
+          <h1 style={{ ...welcomeTextStyle, fontSize: sizing.desktopFontSize }}>{welcomeMessage}</h1>
         ) : (
-          <h2 style={{ ...mobileWelcomeTextStyle, fontSize: sizing.mobileFontSize }}>{agentName === "" ? t("sideInference.fallbackWelcome") : welcomeMessage}</h2>
+          <h2 style={{ ...mobileWelcomeTextStyle, fontSize: sizing.mobileFontSize }}>{welcomeMessage}</h2>
         )
       ) : (
         <Skeleton

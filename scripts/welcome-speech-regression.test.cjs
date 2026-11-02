@@ -181,24 +181,101 @@ test('cancellation while opening a socket never appends text, falls back or leav
     assert.equal(h.spoken.length, 0); assert.equal(h.contexts[0].state, 'closed');
 });
 
-function welcomeHarness() {
+function welcomeHarness(options = {}) {
     const view = renderer(), requests = [], notifications = [];
     const state = { models: [speechModel], agents: [{ name: 'WelcomeMessageAgent', speech: { model: { id: speechModel.id } } }],
+        modelsLoaded: true, agentsLoaded: true,
         sideInferenceAgentNames: { welcomeMessageAgent: 'WelcomeMessageAgent' } };
     const config = { baseUrl: 'https://fixture' }, i18n = { language: 'en' }, t = () => 'Fallback';
     const providers = {}, account = { name: 'Fixture' };
     const { WelcomeMessage } = isolated('features/chat/messages/WelcomeMessage.tsx', {
         react: view.react, 'aihappey-i18n': { languageNames: { en: 'English', nl: 'Dutch' }, useTranslation: () => ({ t, i18n }) },
-        'aihappey-auth': { useAccount: () => account }, '../../../shell/responsive/useIsDesktop': { useIsDesktop: () => true },
-        'aihappey-components': { useTheme: () => ({ Skeleton: 'skeleton' }), useMultiTheme: () => null },
-        '../../../runtime/chat-app/welcomeMessage': { fetchWelcomeMessage: (...args) => new Promise(resolve => { requests.push({ args, resolve }); }) },
+        'aihappey-auth': { useAccount: () => account }, '../../../shell/responsive/useIsDesktop': { useIsDesktop: () => options.desktop !== false },
+        'aihappey-components': { useTheme: () => ({ Skeleton: 'skeleton' }), useMultiTheme: () => ({ selectedThemeId: options.theme }) },
+        '../../../runtime/chat-app/welcomeMessage': { fetchWelcomeMessage: (...args) => new Promise((resolve, reject) => { requests.push({ args, resolve, reject }); }) },
         'aihappey-state': { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: { welcomeMessageAgent: 'WelcomeMessageAgent' }, useAppStore: selector => selector(state) },
         '../context/ChatContext': { useChatContext: () => ({ config }) },
         '../../../runtime/providers/useProviderRegistry': { useProviderRegistry: () => providers },
     });
     const render = (notify = true) => view.render(WelcomeMessage, notify ? { onGenerated: (...args) => notifications.push(args) } : {});
-    return { view, state, i18n, render, requests, notifications };
+    return { view, state, i18n, render, requests, notifications, dispose: () => view.render(() => null, {}) };
 }
+
+test('welcome shimmers through model and agent discovery and generation, without a fallback flash', async t => {
+    const h = welcomeHarness(); t.after(h.dispose);
+    h.state.modelsLoaded = false; h.state.agentsLoaded = false;
+    const initial = h.render();
+    assert.equal(initial.props['aria-busy'], true);
+    assert.equal(nodes(initial, 'skeleton').length, 1); assert.equal(nodes(initial, 'h1').length, 0);
+    assert.equal(h.requests.length, 0);
+    h.state.modelsLoaded = true;
+    assert.equal(nodes(h.render(), 'skeleton').length, 1); assert.equal(h.requests.length, 0);
+    h.state.agentsLoaded = true;
+    assert.equal(nodes(h.render(), 'skeleton').length, 1); assert.equal(h.requests.length, 1);
+    assert.equal(nodes(h.render(), 'h1').length, 0);
+    h.requests[0].resolve('Generated welcome'); await tick();
+    const complete = h.render();
+    assert.equal(complete.props['aria-busy'], false);
+    assert.equal(nodes(complete, 'skeleton').length, 0);
+    assert.equal(nodes(complete, 'h1')[0].props.children, 'Generated welcome');
+});
+
+test('disabled or unavailable welcome uses localized fallback rather than an indefinite shimmer', t => {
+    for (const disabled of [true, false]) {
+        const h = welcomeHarness(); t.after(h.dispose);
+        if (disabled) {
+            h.state.sideInferenceAgentNames.welcomeMessageAgent = '';
+            h.state.modelsLoaded = false; h.state.agentsLoaded = false;
+        } else h.state.models = [];
+        h.render();
+        assert.equal(nodes(h.render(), 'h1')[0].props.children, 'Fallback');
+        assert.equal(h.requests.length, 0); assert.equal(h.notifications.length, 0);
+    }
+});
+
+test('empty, missing and rejected welcome results all reveal localized fallback', async t => {
+    for (const value of ['', '   ', undefined, null, new Error('failed')]) {
+        const h = welcomeHarness(); t.after(h.dispose); h.render();
+        if (value instanceof Error) h.requests[0].reject(value); else h.requests[0].resolve(value);
+        await tick();
+        assert.equal(nodes(h.render(), 'h1')[0].props.children, 'Fallback');
+        assert.equal(nodes(h.render(), 'skeleton').length, 0);
+    }
+});
+
+test('stalled discovery or generation times out; a late response cannot replace fallback or speak', async t => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    for (const discovering of [true, false]) {
+        const h = welcomeHarness(); t.after(h.dispose); h.state.modelsLoaded = !discovering;
+        h.render(); t.mock.timers.tick(30_001);
+        assert.equal(nodes(h.render(), 'h1')[0].props.children, 'Fallback');
+        if (!discovering) {
+            assert.equal(h.requests[0].args[2].signal.aborted, true);
+            h.requests[0].resolve('Too late'); await tick();
+            assert.equal(nodes(h.render(), 'h1')[0].props.children, 'Fallback');
+        }
+        assert.equal(h.notifications.length, 0); h.dispose();
+    }
+});
+
+test('new welcome inputs show shimmer immediately, including before the new effect runs', async t => {
+    const h = welcomeHarness(); t.after(h.dispose); h.render(); h.requests[0].resolve('Old'); await tick();
+    assert.equal(nodes(h.render(), 'h1')[0].props.children, 'Old');
+    h.i18n.language = 'nl';
+    const changed = h.render();
+    assert.equal(nodes(changed, 'skeleton').length, 1); assert.equal(nodes(changed, 'h1').length, 0);
+    assert.equal(h.requests[0].args[2].signal.aborted, true);
+});
+
+test('welcome keeps themed desktop/mobile skeleton sizing and heading levels', async t => {
+    for (const theme of ['bootstrap', 'shadcn', 'fluent', 'default']) for (const desktop of [true, false]) {
+        const h = welcomeHarness({ theme, desktop }); t.after(h.dispose);
+        const skeleton = nodes(h.render(), 'skeleton')[0];
+        assert.ok(skeleton.props.width.startsWith('clamp(')); assert.ok(skeleton.props.height > 0);
+        h.requests[0].resolve('Hello'); await tick();
+        assert.equal(nodes(h.render(), desktop ? 'h1' : 'h2')[0].props.children, 'Hello');
+    }
+});
 
 test('rendered welcome notifies once per generation, not callback/rerender, and language changes cancel old audio', async () => {
     const h = welcomeHarness(); h.render(); assert.equal(h.requests.length, 1);
