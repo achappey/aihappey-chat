@@ -4,8 +4,10 @@ import { PROVIDER_PRICING_CATALOGS as RAW_PROVIDER_PRICING_CATALOGS } from "./pr
 type PriceValue = string | number;
 
 export type ProviderModelPricing = {
-  input: PriceValue;
-  output: PriceValue;
+  // Shared catalogs also contain output-only media pricing. Missing prices stay
+  // absent; calculation already skips unpriced dimensions rather than inventing zeroes.
+  input?: PriceValue;
+  output?: PriceValue;
   input_cache_read?: PriceValue;
   input_cache_write?: PriceValue;
   [key: string]: PriceValue | undefined;
@@ -18,6 +20,11 @@ type ProviderPricingCatalogEntry = {
 type ProviderPricingCatalog = Record<string, ProviderPricingCatalogEntry>;
 
 const PROVIDER_PRICING_CATALOGS = RAW_PROVIDER_PRICING_CATALOGS as Record<string, ProviderPricingCatalog>;
+
+const hasInputOutputPricing = (pricing: ProviderModelPricing): pricing is ProviderModelPricing & {
+  input: PriceValue;
+  output: PriceValue;
+} => pricing.input !== undefined && pricing.output !== undefined;
 
 const normalizeProviderKey = (value?: string) => String(value ?? "").trim().toLowerCase();
 
@@ -72,7 +79,9 @@ export const enrichDirectModelsWithProviderPricing = (
       if ((model as any)?.pricing) return model;
 
       const pricing = getProviderPricingForModel(normalizedProviderKey, model?.id);
-      if (!pricing) return model;
+      // ModelOption's display contract requires a complete input/output pair.
+      // Keep partial/media pricing available to lookups without fabricating fields.
+      if (!pricing || !hasInputOutputPricing(pricing)) return model;
 
       return {
         ...model,

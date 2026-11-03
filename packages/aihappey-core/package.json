@@ -92,7 +92,8 @@
   },
   "scripts": {
     "generate:providers": "node scripts/generate-provider-catalog.cjs",
-    "check:providers": "node scripts/generate-provider-catalog.cjs --check",
+    "check:providers": "node scripts/generate-provider-catalog.cjs --check && node scripts/generate-provider-pricing-index.cjs --check",
+    "prepack": "node scripts/generate-provider-catalog.cjs --check --require-source && node scripts/generate-provider-pricing-index.cjs --check --require-source && tsc",
     "build": "node scripts/generate-provider-catalog.cjs && node scripts/generate-provider-pricing-index.cjs && tsc",
     "watch": "node scripts/generate-provider-catalog.cjs && node scripts/generate-provider-pricing-index.cjs && tsc --watch"
   },

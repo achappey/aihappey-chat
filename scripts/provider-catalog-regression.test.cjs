@@ -155,6 +155,19 @@ test("custom providers still override defaults without changing the built-in reg
   assert.deepEqual(getProviderRegistry(), PROVIDERS);
 });
 
+test("shared output-only pricing remains absent for input and is consumed without invented defaults", () => {
+  const catalogs = load(`${base}/catalog/pricing.generated.ts`).PROVIDER_PRICING_CATALOGS;
+  const [model, entry] = Object.entries(catalogs.async).find(([, entry]) => entry.pricing?.output && !Object.hasOwn(entry.pricing, "input"));
+  const { getProviderPricingForModel, calculateProviderPricingCost, enrichDirectModelsWithProviderPricing } = load(`${base}/catalog/providerPricing.ts`);
+  const pricing = getProviderPricingForModel("async", model);
+  assert.deepEqual(pricing, entry.pricing);
+  assert.equal(Object.hasOwn(pricing, "input"), false);
+  assert.equal(calculateProviderPricingCost({ providerKey: "async", modelId: model, usage: { input_tokens: 1000, output_tokens: 2 } }), 2 * Number(pricing.output));
+  assert.equal(calculateProviderPricingCost({ providerKey: "async", modelId: model, usage: { input_tokens: 1000 } }), undefined);
+  const option = { id: model, name: model, type: "speech" };
+  assert.equal(enrichDirectModelsWithProviderPricing({ data: [option] }, "async").data[0], option);
+});
+
 function withFixture(t, index, metadata = { name: "Example" }) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "aihappey-provider-catalog-"));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
