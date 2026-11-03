@@ -33,7 +33,7 @@ export const registerResponseProviderStreamOverride = (
 
 const normalizeProviderKey = (value?: string) => String(value ?? "").trim().toLowerCase() || undefined;
 
-const providerKeyFromModel = (modelId?: string) => normalizeProviderKey(String(modelId ?? "").split("/")[0]);
+const providerKeyFromModel = (modelId?: string) => modelId?.includes("/") ? normalizeProviderKey(modelId.split("/")[0]) : undefined;
 
 export const isGenericChatEndpoint = (endpoint: ChatEndpointId | string | undefined): endpoint is GenericEndpointId =>
   (GENERIC_CHAT_ENDPOINT_IDS as readonly string[]).includes(String(endpoint ?? ""));
@@ -228,8 +228,8 @@ const createUiMessageChunkStream = ({
 }): ReadableStream<Uint8Array> => {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
-  const textPartId = "text-1";
-  const messageId = `generic-${endpoint.replace(/[^a-z0-9]+/gi, "-")}-${Date.now()}`;
+  let textPartId = "text-1";
+  const messageId = `generic-${crypto.randomUUID()}`;
   let buffer = "";
   let startedMessage = false;
   let startedStep = false;
@@ -257,6 +257,14 @@ const createUiMessageChunkStream = ({
   const imageGenerationFinalFiles = new Set<string>();
   const messagesContentBlocksByIndex = new Map<number, any>();
   const messagesReasoningIdsByIndex = new Map<number, string>();
+  const responsesTextById = new Map<string, string>();
+  const responsesMessageItems = new Map<string, any>();
+  const responsesTextMetadataById = new Map<string, Record<string, any>>();
+  type ResponsesFunctionState = { item: any; argumentsText: string; emitted: boolean; started: boolean };
+  const responsesFunctionItems = new Map<string, ResponsesFunctionState>();
+  const responsesFunctionStates = new Set<ResponsesFunctionState>();
+  let sourceReader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+  let cancelled = false;
   let emittedClientToolInput = false;
   let zaiAgentReasoningOrdinal = 0;
   let activeZaiAgentReasoningId: string | undefined;
@@ -297,17 +305,23 @@ const createUiMessageChunkStream = ({
   });
 
   const resolveProvider = () => {
-    const resolvedProviderKey = normalizeProviderKey(providerKey) ?? providerKeyFromModel(latestModel ?? requestModel);
+    const resolvedProviderKey = resolveProviderKey();
     return resolvedProviderKey ? providers?.[resolvedProviderKey] : undefined;
   };
 
-  const resolveProviderKey = () => normalizeProviderKey(providerKey) ?? providerKeyFromModel(latestModel ?? requestModel);
+  const resolveProviderKey = () => normalizeProviderKey(providerKey) ?? providerKeyFromModel(latestModel) ?? providerKeyFromModel(requestModel);
 
   const createReasoningProviderMetadata = (item?: any) => {
     const resolvedProviderKey = resolveProviderKey();
     if (!resolvedProviderKey) return undefined;
 
     const providerEntry = compactObject({
+      ...(endpoint === "/v1/responses" ? compactObject({
+        id: item?.id,
+        item_id: item?.id,
+        summary: item?.summary,
+        output_index: item?.output_index,
+      }) : {}),
       encrypted_content: typeof item?.encrypted_content === "string" && item.encrypted_content
         ? item.encrypted_content
         : undefined,
@@ -349,7 +363,9 @@ const createUiMessageChunkStream = ({
     if (startedMessage) return;
     enqueueChunk(controller, {
       type: "start",
-      messageId,
+      // The SDK continues the existing assistant message across client-tool
+      // steps. Replacing its id would append a copy of all previous parts.
+      ...(endpoint === "/v1/responses" ? {} : { messageId }),
       messageMetadata: messageMetadata(),
     });
     startedMessage = true;
@@ -372,7 +388,7 @@ const createUiMessageChunkStream = ({
 
   const closeText = (controller: ReadableStreamDefaultController<Uint8Array>) => {
     if (!startedText || endedText) return;
-    enqueueChunk(controller, { type: "text-end", id: textPartId });
+    enqueueChunk(controller, { type: "text-end", id: textPartId, providerMetadata: responsesTextMetadataById.get(textPartId) });
     endedText = true;
     startedText = false;
   };
@@ -801,6 +817,71 @@ const createUiMessageChunkStream = ({
       });
       emittedToolOutputs.add(toolCallId);
     }
+  };
+
+  // Native output-item ids identify stream items; call_id identifies the
+  // executable invocation and its result. Persist both using the same metadata
+  // shape as Gateway API chat, so no session or process-local map is replay state.
+  const responsesFunctionMetadata = (state: ResponsesFunctionState) => ({
+    [resolveProviderKey() ?? "openai"]: compactObject({
+      type: "function_call",
+      id: state.item.id,
+      item_id: state.item.id,
+      call_id: state.item.call_id,
+      status: state.item.status,
+      output_index: state.item.output_index,
+      namespace: state.item.namespace,
+      caller: state.item.caller,
+      created_by: state.item.created_by,
+    }),
+  });
+
+  const rememberResponsesFunction = (item: any, event?: any) => {
+    const keys = [
+      item?.id ?? event?.item_id,
+      item?.call_id ? `call:${item.call_id}` : undefined,
+      typeof event?.output_index === "number" ? `index:${event.output_index}` : undefined,
+    ].filter((key): key is string => typeof key === "string" && !!key);
+    if (!keys.length) throw new Error("Responses function call is missing its item identifier.");
+    const state = keys.map(key => responsesFunctionItems.get(key)).find(Boolean)
+      ?? { item: {}, argumentsText: "", emitted: false, started: false };
+    state.item = { ...state.item, ...compactObject(item ?? {}), ...compactObject({ output_index: event?.output_index }) };
+    if (typeof item?.arguments === "string" && item.arguments) state.argumentsText = item.arguments;
+    keys.forEach(key => responsesFunctionItems.set(key, state));
+    responsesFunctionStates.add(state);
+    return state;
+  };
+
+  const startResponsesFunction = (controller: ReadableStreamDefaultController<Uint8Array>, state: ResponsesFunctionState) => {
+    if (state.started || !state.item.call_id || !state.item.name) return;
+    closeText(controller);
+    ensureStepStarted(controller);
+    enqueueChunk(controller, {
+      type: "tool-input-start", toolCallId: state.item.call_id, toolName: state.item.name,
+      providerExecuted: false, providerMetadata: responsesFunctionMetadata(state),
+    });
+    state.started = true;
+  };
+
+  const completeResponsesFunction = (controller: ReadableStreamDefaultController<Uint8Array>, state: ResponsesFunctionState) => {
+    if (state.emitted) return;
+    const { call_id: toolCallId, name: toolName, status } = state.item;
+    if (!toolCallId || !toolName) throw new Error("Completed Responses function call is missing its call_id or name.");
+    if (status && status !== "completed") throw new Error(`Responses function call ${toolName} did not complete.`);
+    let input: unknown;
+    try {
+      input = JSON.parse(state.argumentsText);
+      if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Expected an object.");
+    } catch {
+      throw new Error(`Responses function call ${toolName} has invalid or incomplete JSON arguments.`);
+    }
+    startResponsesFunction(controller, state);
+    state.emitted = true;
+    emittedClientToolInput = true;
+    enqueueChunk(controller, {
+      type: "tool-input-available", toolCallId, toolName, input, providerExecuted: false,
+      providerMetadata: responsesFunctionMetadata(state),
+    });
   };
 
   const zaiAgentProviderMetadata = (event: any, extra?: Record<string, any>) => ({
@@ -1583,28 +1664,62 @@ const createUiMessageChunkStream = ({
     return false;
   };
 
-  const emitResponsesTextSnapshot = (controller: ReadableStreamDefaultController<Uint8Array>, value: any) => {
-    const text = extractTextFromValue(value);
-    if (!text) return false;
-
-    if (!finalTextBuffer) {
-      ensureStarted(controller);
-      finalTextBuffer = text;
-      enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: text });
-      return true;
-    }
-
-    if (text.startsWith(finalTextBuffer)) {
-      const delta = text.slice(finalTextBuffer.length);
-      if (!delta) return false;
-      ensureStarted(controller);
-      finalTextBuffer = text;
-      enqueueChunk(controller, { type: "text-delta", id: textPartId, delta });
-      return true;
-    }
-
-    return false;
+  const responsesTextMetadata = (itemId?: string) => {
+    const item = itemId ? responsesMessageItems.get(itemId) : undefined;
+    return providerMetadataFor({ id: itemId, item_id: itemId, phase: item?.phase, output_index: item?.output_index }, "openai");
   };
+
+  const rememberResponsesMessage = (item: any, outputIndex?: number) => {
+    responsesMessageItems.set(item.id, { ...responsesMessageItems.get(item.id), ...item,
+      ...(outputIndex !== undefined ? { output_index: outputIndex } : {}) });
+    for (const id of responsesTextById.keys()) {
+      if (id.startsWith(`responses-text-${item.id}-`)) responsesTextMetadataById.set(id, responsesTextMetadata(item.id)!);
+    }
+  };
+
+  const emitResponsesTextDelta = (controller: ReadableStreamDefaultController<Uint8Array>, delta: string, itemId?: string, contentIndex = 0) => {
+    if (!delta) return false;
+    const id = `responses-text-${itemId ?? "message"}-${contentIndex}`;
+    if (id !== textPartId) {
+      closeText(controller);
+      textPartId = id;
+    }
+    ensureStarted(controller);
+    const providerMetadata = responsesTextMetadata(itemId);
+    if (providerMetadata) responsesTextMetadataById.set(id, providerMetadata);
+    responsesTextById.set(id, `${responsesTextById.get(id) ?? ""}${delta}`);
+    finalTextBuffer += delta;
+    enqueueChunk(controller, { type: "text-delta", id, delta, providerMetadata });
+    return true;
+  };
+
+  const emitResponsesTextSnapshot = (controller: ReadableStreamDefaultController<Uint8Array>, value: any, itemId?: string, contentIndex = 0): boolean => {
+    if (Array.isArray(value)) {
+      let emitted = false;
+      value.forEach((part, index) => { emitted = emitResponsesTextSnapshot(controller, part, itemId, index) || emitted; });
+      return emitted;
+    }
+    const text = typeof value?.refusal === "string" ? value.refusal : extractTextFromValue(value);
+    const previous = responsesTextById.get(`responses-text-${itemId ?? "message"}-${contentIndex}`) ?? "";
+    return text.startsWith(previous) && text.length > previous.length
+      ? emitResponsesTextDelta(controller, text.slice(previous.length), itemId, contentIndex) : false;
+  };
+
+  const emitResponsesReasoningSnapshot = (controller: ReadableStreamDefaultController<Uint8Array>, item: any, outputIndex?: number) => {
+    const summaries = Array.isArray(item.summary) && item.summary.length ? item.summary : [{ text: "" }];
+    summaries.forEach((summary: any, index: number) => {
+      const id = responseReasoningId({ item_id: item.id, summary_index: index });
+      const metadata = rememberReasoningMetadata(id, { ...item, output_index: outputIndex });
+      if (closedReasoningIds.has(id)) return;
+      ensureReasoning(controller, id, metadata);
+      const text = getTextFromResponseSummary(summary);
+      const previous = reasoningTextById.get(id) ?? "";
+      if (text.startsWith(previous) && text.length > previous.length) emitReasoningDelta(controller, id, text.slice(previous.length));
+      closeReasoning(controller, id);
+    });
+  };
+
+  const getTextFromResponseSummary = (summary: any) => typeof summary?.text === "string" ? summary.text : "";
 
   const applyProviderResponseOverride = (event: any, eventName?: string) => {
     const resolvedProviderKey = resolveProviderKey();
@@ -1615,7 +1730,12 @@ const createUiMessageChunkStream = ({
   const handleResponsesPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
     if (applyProviderResponseOverride(event, eventName)) return;
 
-    const type = event?.type;
+    const type = event?.type ?? eventName;
+
+    if (type === "error" || type === "response.failed" || type === "response.incomplete" || type === "response.cancelled") {
+      throw new Error(event?.error?.message ?? event?.response?.error?.message ?? event?.message
+        ?? `Responses request ${type.replace("response.", "")}: ${event?.response?.incomplete_details?.reason ?? "generation did not complete"}.`);
+    }
 
     if (type === "response.created" || type === "response.in_progress") {
       ensureMessageStarted(controller);
@@ -1649,20 +1769,41 @@ const createUiMessageChunkStream = ({
 
     if (type === "response.output_item.added" && event?.item?.type === "reasoning") {
       const id = responseReasoningId({ item_id: event.item.id, content_index: 0 });
-      ensureReasoning(controller, id, rememberReasoningMetadata(id, event.item));
+      ensureReasoning(controller, id, rememberReasoningMetadata(id, { ...event.item, output_index: event.output_index }));
       return;
     }
 
     if (type === "response.output_item.done" && event?.item?.type === "reasoning") {
-      for (const reasoningId of Array.from(activeReasoningIds).filter((id) => id.startsWith(`reasoning-${event.item.id}-`))) {
-        rememberReasoningMetadata(reasoningId, event.item);
-        closeReasoning(controller, reasoningId);
+      emitResponsesReasoningSnapshot(controller, event.item, event.output_index);
+      return;
+    }
+
+    if ((type === "response.output_item.added" || type === "response.output_item.done") && event?.item?.type === "message") {
+      rememberResponsesMessage(event.item, event.output_index);
+      if (type === "response.output_item.done") {
+        emitResponsesTextSnapshot(controller, event.item?.content, event.item.id);
+        if (textPartId.startsWith(`responses-text-${event.item.id}-`)) closeText(controller);
       }
       return;
     }
 
-    if (type === "response.output_item.done" && event?.item?.type === "message") {
-      emitResponsesTextSnapshot(controller, event.item?.content);
+    if ((type === "response.output_item.added" || type === "response.output_item.done") && event?.item?.type === "function_call") {
+      const state = rememberResponsesFunction(event.item, event);
+      if (type === "response.output_item.done") completeResponsesFunction(controller, state);
+      else startResponsesFunction(controller, state);
+      return;
+    }
+
+    if (type === "response.function_call_arguments.delta" || type === "response.function_call_arguments.done") {
+      const state = rememberResponsesFunction(undefined, event);
+      if (state.emitted) return;
+      startResponsesFunction(controller, state);
+      if (type.endsWith(".done")) {
+        if (typeof event.arguments === "string") state.argumentsText = event.arguments;
+      } else if (typeof event.delta === "string") {
+        state.argumentsText += event.delta;
+        if (state.started) enqueueChunk(controller, { type: "tool-input-delta", toolCallId: state.item.call_id, inputTextDelta: event.delta });
+      }
       return;
     }
 
@@ -1714,10 +1855,8 @@ const createUiMessageChunkStream = ({
       return;
     }
 
-    if (type === "response.output_text.delta" && typeof event?.delta === "string") {
-      ensureStarted(controller);
-      finalTextBuffer += event.delta;
-      enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: event.delta });
+    if ((type === "response.output_text.delta" || type === "response.refusal.delta") && typeof event?.delta === "string") {
+      emitResponsesTextDelta(controller, event.delta, event.item_id, event.content_index);
       return;
     }
 
@@ -1726,18 +1865,14 @@ const createUiMessageChunkStream = ({
       return;
     }
 
-    if (type === "response.output_text.done") {
-      if (!finalTextBuffer && typeof event?.text === "string" && event.text) {
-        ensureStarted(controller);
-        finalTextBuffer = event.text;
-        enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: event.text });
-      }
+    if (type === "response.output_text.done" || type === "response.refusal.done") {
+      emitResponsesTextSnapshot(controller, event.text ?? event.refusal, event.item_id, event.content_index);
       return;
     }
 
     if (type === "response.content_part.done") {
       if (event?.part?.type === "output_text" || event?.part?.type === "refusal") {
-        emitResponsesTextSnapshot(controller, event.part);
+        emitResponsesTextSnapshot(controller, event.part, event.item_id, event.content_index);
       }
       (event?.part?.annotations ?? []).forEach((annotation: any, index: number) => emitSource(controller, annotation, index));
       return;
@@ -1745,8 +1880,17 @@ const createUiMessageChunkStream = ({
 
     if (type === "response.completed") {
       rememberMetadata(event);
-      emitResponsesTextSnapshot(controller, event?.response?.output);
-      finish(controller);
+      if (event?.response?.status && event.response.status !== "completed") throw new Error("Responses generation did not complete.");
+      for (const [index, item] of (event?.response?.output ?? []).entries()) {
+        if (item.type === "function_call") completeResponsesFunction(controller, rememberResponsesFunction(item, { output_index: index }));
+        else if (item.type === "reasoning") emitResponsesReasoningSnapshot(controller, item, index);
+        else if (item.type === "message") {
+          rememberResponsesMessage(item, index);
+          emitResponsesTextSnapshot(controller, item.content, item.id);
+        }
+      }
+      if (Array.from(responsesFunctionStates).some(state => !state.emitted)) throw new Error("Responses ended with an incomplete function call.");
+      finish(controller, emittedClientToolInput ? "tool-calls" : "stop");
     }
   };
 
@@ -2116,9 +2260,11 @@ const createUiMessageChunkStream = ({
   };
 
   const handlePayload = (rawPayload: string, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
+    if (closed) return;
     const payload = normalizeProviderPayload(rawPayload);
     if (!payload) return;
     if (payload === "[DONE]") {
+      if (endpoint === "/v1/responses") throw new Error("Responses stream ended before response.completed.");
       finish(controller);
       return;
     }
@@ -2185,9 +2331,11 @@ const createUiMessageChunkStream = ({
   return new ReadableStream<Uint8Array>({
     async start(controller) {
       const reader = source.getReader();
+      sourceReader = reader;
       try {
-        while (true) {
+        while (!cancelled && !closed) {
           const { done, value } = await reader.read();
+          if (cancelled) break;
           buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
 
           let boundaryIndex = buffer.search(/\r?\n\r?\n/);
@@ -2211,16 +2359,27 @@ const createUiMessageChunkStream = ({
           if (done) break;
         }
 
-        if (buffer.trim()) {
+        if (!cancelled && !closed && buffer.trim()) {
           flushEvent(buffer, controller);
         }
 
-        finish(controller);
+        if (!cancelled) {
+          if (endpoint === "/v1/responses" && !closed) throw new Error("Responses stream ended before response.completed.");
+          finish(controller);
+        }
       } catch (err: any) {
-        enqueueChunk(controller, { type: "error", errorText: err?.message ?? "Generic chat stream failed." });
+        if (!cancelled) enqueueChunk(controller, { type: "error", errorText: err?.message ?? "Generic chat stream failed." });
+        closed = true;
       } finally {
-        controller.close();
+        await reader.cancel().catch(() => undefined);
+        reader.releaseLock();
+        if (!cancelled) controller.close();
       }
+    },
+    cancel(reason) {
+      cancelled = true;
+      closed = true;
+      return sourceReader?.cancel(reason);
     },
   });
 };
@@ -2231,6 +2390,7 @@ export class GenericChatEndpointTransport extends DefaultChatTransport<any> {
     private readonly providerKey?: string,
     private readonly providers?: Record<string, Provider>,
     options: ConstructorParameters<typeof DefaultChatTransport<any>>[0] = {},
+    private readonly requestModel?: string,
   ) {
     super(options);
   }
@@ -2241,6 +2401,7 @@ export class GenericChatEndpointTransport extends DefaultChatTransport<any> {
       providerKey: this.providerKey,
       source: stream,
       providers: this.providers,
+      requestModel: this.requestModel,
     }));
   }
 }
@@ -2300,15 +2461,17 @@ export function wrapGenericChatFetch({
     }
 
     const response = await fetcher(input, nextInit);
-    if (!response.body) return response;
+    if (!response.ok || !response.body) return response;
 
+    const responseHeaders = new Headers(response.headers);
+    responseHeaders.set("Content-Type", "text/event-stream");
+    responseHeaders.set("Cache-Control", "no-cache");
+    responseHeaders.delete("Content-Length");
+    responseHeaders.delete("Content-Encoding");
     return new Response(createUiMessageChunkStream({ endpoint: requestEndpoint, providerKey, source: response.body, requestModel, providers }), {
       status: response.status,
       statusText: response.statusText,
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-      },
+      headers: responseHeaders,
     });
   };
 }

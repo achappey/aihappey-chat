@@ -39,6 +39,7 @@ import { useAbortRun } from "./useAbortRun";
 import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
 import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
+import { createResponsesContinuation } from "./responsesContinuation";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsLastAssistant";
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
@@ -481,6 +482,7 @@ export function VercelChatInner({
   );
   const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
   const agentContinuationRef = useRef(createAgentChatContinuation());
+  const responsesContinuationRef = useRef(createResponsesContinuation());
   const agentToolSignalRef = useRef<AbortSignal | undefined>(undefined);
   const agentToolMessageRef = useRef<string | undefined>(undefined);
   const agentToolRunActiveRef = useRef(false);
@@ -775,12 +777,13 @@ export function VercelChatInner({
           isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined,
           providers,
           transportOptions,
+          model,
         )
         : chatMode === "agent"
           ? new ManagedAgentChatTransport(transportOptions)
           : new DefaultChatTransport(transportOptions);
     },
-    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings, managedAgentMcpCatalog, config, customHeaders, selectedAgentNames, agents, remoteAgentModels, workflowType, magenticManagerAgentKey, providers]
+    [authFetch, chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings, managedAgentMcpCatalog, config, customHeaders, selectedAgentNames, agents, remoteAgentModels, workflowType, magenticManagerAgentKey, providers, model]
   );
 
   const routedTransport = useFavoriteRouterTransport(transport, baseBody, applyOverrides, files);
@@ -819,7 +822,9 @@ export function VercelChatInner({
     },
     sendAutomaticallyWhen: (options) => chatMode === "agent"
       ? !agentToolSignalRef.current?.aborted && agentContinuationRef.current.shouldSend(options)
-      : sendAutomaticallyWhen(options),
+      : requestEndpoint === "/v1/responses"
+        ? responsesContinuationRef.current.shouldSend(options)
+        : sendAutomaticallyWhen(options),
     messages: seededMessages,
     onFinish: async ({ message, messages: finishedMessages, isDisconnect, isAbort }) => {
       if (chatMode === "agent") {

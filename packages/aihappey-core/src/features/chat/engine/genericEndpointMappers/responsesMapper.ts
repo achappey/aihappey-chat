@@ -14,22 +14,37 @@ import {
   type GenericChatEndpointRequestBody,
   type GenericMappedMessage,
 } from "./types";
-import { getSystemText, getTextFromPart, mapUiMessages, toInlineFileData } from "./uiMessageParts";
+import { getSystemText, getTextFromPart, isReasoningPart, isToolPart, mapUiMessages, toInlineFileData } from "./uiMessageParts";
+
+const responsesPartMetadata = (part: any, providerKey?: string) => {
+  const key = providerKey ?? "openai";
+  return {
+    ...(part?.resultProviderMetadata?.[key] ?? {}),
+    ...(part?.providerMetadata?.[key] ?? {}),
+    ...(part?.callProviderMetadata?.[key] ?? {}),
+  };
+};
 
 const responsesReasoningFromPart = (part: any, providerKey?: string) => {
   if (!providerKey) return undefined;
 
-  const encryptedContent = part?.providerMetadata?.[providerKey]?.encrypted_content;
+  const metadata = responsesPartMetadata(part, providerKey);
+  const encryptedContent = metadata.encrypted_content;
   if (typeof encryptedContent !== "string" || !encryptedContent) return undefined;
 
+  // Older saved browser parts used this decorated UI id. Recover the native id;
+  // never truncate an opaque provider identifier or send the UI decoration back.
+  const legacyId = typeof part?.id === "string" ? /^reasoning-(.+)-\d+$/.exec(part.id)?.[1] : undefined;
+  const id = metadata.id ?? metadata.item_id ?? legacyId ?? part?.id;
   const summaryText = getTextFromPart(part);
   return {
     ...compactObject({
       type: "reasoning" as const,
-      id: part?.id,
+      id,
       encrypted_content: encryptedContent,
     }),
-    summary: summaryText ? [{ type: "summary_text" as const, text: summaryText }] : [],
+    summary: Array.isArray(metadata.summary) ? metadata.summary
+      : summaryText ? [{ type: "summary_text" as const, text: summaryText }] : [],
   };
 };
 
@@ -178,17 +193,17 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
   return [...ungrouped, ...namespaces];
 };
 
-const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolParts.flatMap((part: any) => {
+const toResponsesToolEntries = (part: any, providerKey?: string): any[] => {
   if (part?.providerExecuted === true) return [];
+  // Input deltas and pending approvals are not replayable completed calls.
+  if (part?.state === "input-streaming" || part?.state === "input-error" || part?.state === "approval-requested") return [];
 
-  const callId = String(part?.toolCallId ?? part?.id ?? part?.call_id ?? "").trim();
+  const providerMetadata = responsesPartMetadata(part, providerKey);
+  const callId = String(providerMetadata.call_id ?? part?.call_id ?? part?.toolCallId ?? part?.id ?? "").trim();
   if (!callId) return [];
 
   const entries: any[] = [];
   const toolName = toolPartName(part);
-  const providerMetadata = part?.callProviderMetadata?.openai
-    ?? part?.providerMetadata?.openai
-    ?? part?.resultProviderMetadata?.openai;
   const isClientToolSearch = toolName === OPENAI_CLIENT_TOOL_SEARCH_NAME
     && (providerMetadata?.type === "tool_search_call" || providerMetadata?.execution === "client");
 
@@ -253,30 +268,36 @@ const toResponsesToolEntries = (message: GenericMappedMessage) => message.toolPa
   if (!isOutputOnlyToolPart(part)) {
     entries.push(compactObject({
       type: "function_call" as const,
+      id: providerMetadata.id ?? providerMetadata.item_id,
       call_id: callId,
       name: toolName,
-      namespace: part?.namespace ?? part?.providerMetadata?.openai?.namespace,
+      namespace: part?.namespace ?? providerMetadata.namespace,
       arguments: stringifyToolValue(toolPartInput(part)),
-      caller: part?.caller ?? part?.providerMetadata?.openai?.caller,
+      caller: part?.caller ?? providerMetadata.caller,
     }));
   }
 
   const output = toolPartOutput(part);
-  if (output !== undefined) {
-    entries.push({
+  const denied = part?.approval?.approved === false || part?.state === "output-denied";
+  if (output !== undefined || denied || part?.state === "output-error") {
+    entries.push(compactObject({
       type: "function_call_output" as const,
       call_id: callId,
-      output: stringifyToolValue(output),
-      caller: part?.caller ?? part?.providerMetadata?.openai?.caller,
-    });
+      output: denied ? (part?.approval?.reason || "The user denied this tool result.")
+        : part?.state === "output-error" ? (part?.errorText || stringifyToolValue(output) || "Tool execution failed.")
+        : stringifyToolValue(output),
+      caller: part?.caller ?? providerMetadata.caller,
+    }));
   }
 
   return entries;
-});
+};
 
 export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
-  const providerKey = getProviderKeyFromRequestBody(body);
+  const providerKey = String(body.providerRequestConfigProviderKey ?? "").trim().toLowerCase()
+    || (body.model?.includes("/") ? body.model.split("/")[0].toLowerCase() : undefined)
+    || getProviderKeyFromRequestBody(body);
   const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
     ...body,
     endpoint: "/v1/responses",
@@ -286,27 +307,35 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     ? mergeNativeTools(providerRequestConfig?.tools, mappedTools)
     : mappedTools;
   const hasTools = Boolean(activeTools?.length);
+  const reasoningById = new Map<string, any>();
   const input = messages.flatMap((message) => {
     if (message.role === "system") return [];
 
-    const reasoningItems = message.role === "assistant"
-      ? message.reasoningParts
-        .map((part) => responsesReasoningFromPart(part, providerKey))
-        .filter(Boolean)
-      : [];
+    if (message.role !== "assistant") {
+      const content = toResponsesContent(message);
+      return content.length ? [{ type: "message", role: message.role, content }] : [];
+    }
 
-    const messageItem = compactObject({
-      type: "message" as const,
-      role: message.role as "user" | "assistant",
-      content: toResponsesContent(message),
+    // UI messages can contain several steps. Grouping all reasoning/text ahead
+    // of all tools changes the conversation and breaks stateless continuation.
+    return (message.raw.parts ?? []).flatMap((part: any): any[] => {
+      if (isReasoningPart(part)) {
+        const item = responsesReasoningFromPart(part, providerKey);
+        if (!item) return [];
+        const previous = item.id ? reasoningById.get(item.id) : undefined;
+        if (previous) {
+          if (!Array.isArray(responsesPartMetadata(part, providerKey).summary)) previous.summary.push(...item.summary);
+          return [];
+        }
+        if (item.id) reasoningById.set(item.id, item);
+        return [item];
+      }
+      if (isToolPart(part)) return toResponsesToolEntries(part, providerKey);
+      const text = part.type === "text" ? getTextFromPart(part) : "";
+      const metadata = responsesPartMetadata(part, providerKey);
+      return text ? [compactObject({ type: "message", role: "assistant", id: metadata.id ?? metadata.item_id,
+        phase: metadata.phase, content: [{ type: "output_text", text }] })] : [];
     });
-    const toolItems = message.role === "assistant" ? toResponsesToolEntries(message) : [];
-
-    return [
-      ...reasoningItems,
-      ...(Array.isArray(messageItem.content) && messageItem.content.length > 0 ? [messageItem] : []),
-      ...toolItems,
-    ];
   });
 
   return compactObject({
