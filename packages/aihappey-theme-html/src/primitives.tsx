@@ -515,7 +515,7 @@ const UserMenuCheckbox = ({ capability, provider, checked, disabled, onTogglePro
   <label><input type="checkbox" checked={checked} disabled={disabled} onChange={() => onToggleProviderForType?.(capability, provider)} /> {provider}</label>
 );
 
-export const UserMenu: React.FC<UserMenuProps> = ({ email, onCustomize, onSettings, onLogout, showApiKeysItem, onApiKeys, showChatEndpointsItem, chatEndpointOptions = [], selectedChatEndpoint, chatEndpointsDisabled, onSelectChatEndpoint, providers = [], providerGroups = {}, enabledProvidersByType = {}, onToggleProviderForType, providersDisabled, disabledProviders = [], labels = {}, ...rest }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ email, onCustomize, onSettings, onLogout, showApiKeysItem, onApiKeys, showChatEndpointsItem, chatEndpointGroups = [], selectedChatEndpoint, chatEndpointsDisabled, onSelectChatEndpoint, providers = [], providerGroups = {}, enabledProvidersByType = {}, onToggleProviderForType, providersDisabled, disabledProviders = [], labels = {}, ...rest }) => {
   const disabledProviderSet = React.useMemo(() => new Set(disabledProviders), [disabledProviders]);
   const capabilityDefinitions: Array<{ key: ProviderCapability; label: string; providers: string[] }> = [
     { key: "language", label: labels.language ?? "Language", providers: providerGroups.language ?? providers },
@@ -536,7 +536,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({ email, onCustomize, onSettin
       {onCustomize ? <button type="button" onClick={onCustomize}>{labels.customize ?? "Customize"}</button> : null}
       <button type="button" onClick={onSettings}>{labels.settings ?? "Settings"}</button>
       {showApiKeysItem && onApiKeys ? <button type="button" onClick={onApiKeys}>{labels.apiKeys ?? "API keys"}</button> : null}
-      {showChatEndpointsItem ? <details><summary>{labels.chatEndpoint ?? "Chat endpoint"}{selectedChatEndpoint ? ` (${selectedChatEndpoint})` : ""}</summary>{chatEndpointOptions.length > 0 && !chatEndpointsDisabled ? <ul>{chatEndpointOptions.map((option) => <li key={option.value}><button type="button" disabled={option.disabled} onClick={() => onSelectChatEndpoint?.(option.value)}>{option.value === selectedChatEndpoint ? "✓ " : ""}{option.label}</button></li>)}</ul> : <p>{labels.noChatEndpoints ?? "No chat endpoints available"}</p>}</details> : null}
+      {showChatEndpointsItem ? chatEndpointGroups.map(group => group.disabled || chatEndpointsDisabled || !group.options.length
+        ? <button key={group.value} type="button" disabled>{group.label}</button>
+        : <details key={group.value}>
+          <summary>{group.label}{group.options.some(option => option.value === selectedChatEndpoint)
+            ? ` (${group.options.find(option => option.value === selectedChatEndpoint)?.label})` : ""}</summary>
+          <ul>{group.options.map(option => <li key={option.value}>
+            <button type="button" disabled={option.disabled} onClick={() => onSelectChatEndpoint?.(option.value)}>
+              {option.value === selectedChatEndpoint ? "✓ " : ""}{option.label}
+            </button>
+          </li>)}</ul>
+        </details>) : null}
       {capabilities.length > 0 && onToggleProviderForType ? <details><summary>{labels.providers ?? "Providers"}</summary>{capabilities.map((capability) => <details key={capability.key}><summary>{capability.label}</summary>{capability.providers.map((provider) => <UserMenuCheckbox key={`${capability.key}:${provider}`} capability={capability.key} provider={provider} checked={(enabledProvidersByType[capability.key] ?? []).includes(provider)} disabled={!!providersDisabled || disabledProviderSet.has(provider)} onToggleProviderForType={onToggleProviderForType} />)}</details>)}</details> : null}
       <button type="button" onClick={onLogout}>{labels.logout ?? "Log out"}</button>
     </details>

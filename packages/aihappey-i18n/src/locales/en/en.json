@@ -1399,6 +1399,8 @@
         "endpointProfile": "Endpoint profile",
         "endpointProfileHint": "Choose the configured app gateway, a provider catalog endpoint profile, or a custom override.",
         "endpointMode": "Endpoint mode",
+        "gateway": "Gateway",
+        "direct": "Direct",
         "endpointModeHint": "Use the app gateway or connect directly to the provider selected by the model prefix.",
         "endpointModeDefaultGateway": "Default gateway",
         "endpointModeDirectProvider": "Direct provider",

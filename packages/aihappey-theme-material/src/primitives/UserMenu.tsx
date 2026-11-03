@@ -11,7 +11,7 @@ export const UserMenu = ({
   showApiKeysItem,
   onApiKeys,
   showChatEndpointsItem,
-  chatEndpointOptions = [],
+  chatEndpointGroups = [],
   selectedChatEndpoint,
   chatEndpointsDisabled,
   onSelectChatEndpoint,
@@ -21,32 +21,25 @@ export const UserMenu = ({
   labels,
 }: UserMenuProps) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+  const [endpointMenu, setEndpointMenu] = React.useState<{ group: string; anchor: HTMLElement } | null>(null);
+  const close = () => { setEndpointMenu(null); setAnchorEl(null); };
   return (
     <>
       <IconButton aria-label="User menu" className={className} onClick={(event) => setAnchorEl(event.currentTarget)}>
         {renderIcon("customize")}
       </IconButton>
-      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
+      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={close}>
         {email ? <ListSubheader>{email}</ListSubheader> : null}
         {onCustomize ? <MenuItem onClick={onCustomize}>{renderIcon("personalization")} {labels?.customize ?? "Customize"}</MenuItem> : null}
         <MenuItem onClick={onSettings}>{renderIcon("settings")} {labels?.settings ?? "Settings"}</MenuItem>
         {showApiKeysItem ? <MenuItem onClick={onApiKeys}>{renderIcon("settings")} {labels?.apiKeys ?? "API keys"}</MenuItem> : null}
-        {showChatEndpointsItem ? <ListSubheader>{labels?.chatEndpoint ?? "Chat endpoint"}</ListSubheader> : null}
-        {showChatEndpointsItem && chatEndpointOptions.length > 0
-          ? chatEndpointOptions.map((option) => (
-            <MenuItem
-              key={option.value}
-              selected={option.value === selectedChatEndpoint}
-              disabled={!!chatEndpointsDisabled || !!option.disabled}
-              onClick={() => onSelectChatEndpoint?.(option.value)}
-            >
-              {option.label}
-            </MenuItem>
-          ))
-          : null}
-        {showChatEndpointsItem && chatEndpointOptions.length === 0 ? (
-          <MenuItem disabled>{labels?.noChatEndpoints ?? "No chat endpoints available"}</MenuItem>
-        ) : null}
+        {showChatEndpointsItem ? chatEndpointGroups.map(group => (
+          <MenuItem key={group.value} disabled={!!chatEndpointsDisabled || !!group.disabled || !group.options.length}
+            onClick={event => setEndpointMenu({ group: group.value, anchor: event.currentTarget })}>
+            {group.label}{group.options.some(option => option.value === selectedChatEndpoint)
+              ? ` (${group.options.find(option => option.value === selectedChatEndpoint)?.label})` : ""} ▸
+          </MenuItem>
+        )) : null}
         {providers.length ? <ListSubheader>Providers</ListSubheader> : null}
         {providers.map((provider) => <MenuItem key={provider} disabled={providersDisabled}>{provider}</MenuItem>)}
         <Divider />
@@ -54,6 +47,18 @@ export const UserMenu = ({
           {renderIcon("logout")} {labels?.logout ?? "Logout"}
         </MenuItem>
       </Menu>
+      {showChatEndpointsItem ? chatEndpointGroups.map(group => (
+        <Menu key={group.value} anchorEl={endpointMenu?.group === group.value ? endpointMenu.anchor : null}
+          open={!!anchorEl && endpointMenu?.group === group.value} onClose={() => setEndpointMenu(null)}
+          anchorOrigin={{ vertical: "top", horizontal: "left" }} transformOrigin={{ vertical: "top", horizontal: "right" }}>
+          {group.options.map(option => (
+            <MenuItem key={option.value} selected={option.value === selectedChatEndpoint}
+              disabled={!!group.disabled || !!option.disabled} onClick={() => { onSelectChatEndpoint?.(option.value); close(); }}>
+              {option.value === selectedChatEndpoint ? "✓ " : ""}{option.label}
+            </MenuItem>
+          ))}
+        </Menu>
+      )) : null}
     </>
   );
 };

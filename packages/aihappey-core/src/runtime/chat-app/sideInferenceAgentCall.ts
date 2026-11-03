@@ -119,14 +119,14 @@ const toGenericChatEndpointIds = (values?: string[]) =>
   (values ?? []).filter(isGenericChatEndpoint);
 
 const hasDirectProviderSupport = (provider?: Provider) =>
-  !!provider?.apiBaseUrl?.trim() && toGenericChatEndpointIds(provider.chatEndpoints).length > 0;
+  !!provider?.apiBaseUrl?.trim() && toGenericChatEndpointIds(provider.chatEndpoints).includes("/v1/responses");
 
 const findGatewayModelOption = (models: ModelOption[], modelId: string) =>
   models.find((model) => model.id === modelId && (model as any).route !== "direct");
 
 const findDirectModelOption = (models: ModelOption[], modelId: string, providerKey?: string) =>
   models.find((model) =>
-    (model as any).route === "direct"
+    !!model.sourceProviderKey
     && (
       model.id === modelId
       || (model as any).displayId === modelId
@@ -227,10 +227,13 @@ export const invokeSideInferenceAgent = async ({
         providers,
         customHeaders,
       });
+    if (!shouldUseGateway && (!endpoint.directProviderRequest || getAccessToken)) {
+      throw new Error("The helper model has no available direct Responses endpoint.");
+    }
     const url = endpointUrl(endpoint.baseUrl);
     if (!url) throw new Error("Inference endpoint is not configured");
 
-    const accessToken = await getAccessToken?.().catch(() => undefined);
+    const accessToken = endpoint.directProviderRequest ? undefined : await getAccessToken?.().catch(() => undefined);
     const doFetch = customFetch ?? globalThis.fetch;
 
     const isDirectProviderRequest = endpoint.directProviderRequest;

@@ -33,7 +33,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   showApiKeysItem,
   onApiKeys,
   showChatEndpointsItem,
-  chatEndpointOptions,
+  chatEndpointGroups,
   selectedChatEndpoint,
   chatEndpointsDisabled,
   onSelectChatEndpoint,
@@ -121,21 +121,15 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   const chatEndpointMenu = React.useMemo(() => {
     if (!showChatEndpointsItem) return null;
 
-    const label = selectedChatEndpoint
-      ? `${labels.chatEndpoint ?? "Chat endpoint"} (${selectedChatEndpoint})`
-      : (labels.chatEndpoint ?? "Chat endpoint");
-    const options = chatEndpointOptions ?? [];
-
-    if (chatEndpointsDisabled || options.length === 0) {
+    return (chatEndpointGroups ?? []).map(group => {
+      const selected = group.options.find(option => option.value === selectedChatEndpoint);
+      const label = selected ? `${group.label} (${selected.label})` : group.label;
+      if (chatEndpointsDisabled || group.disabled || group.options.length === 0) {
+        return <MenuItem key={group.value} disabled icon={<PlugConnectedRegular />}>{label}</MenuItem>;
+      }
       return (
-        <MenuItem disabled icon={<PlugConnectedRegular />}>
-          {labels.noChatEndpoints ?? label}
-        </MenuItem>
-      );
-    }
-
-    return (
       <Menu
+        key={group.value}
         checkedValues={{ chatEndpoints: selectedChatEndpoint ? [selectedChatEndpoint] : [] }}
         onCheckedValueChange={(_event, data) => {
           const nextValue = data.checkedItems?.[0];
@@ -149,7 +143,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
         </MenuTrigger>
         <MenuPopover>
           <MenuList hasCheckmarks>
-            {options.map((option) => (
+            {group.options.map((option) => (
               <MenuItemRadio
                 key={option.value}
                 name="chatEndpoints"
@@ -162,9 +156,10 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           </MenuList>
         </MenuPopover>
       </Menu>
-    );
+      );
+    });
   }, [
-    chatEndpointOptions,
+    chatEndpointGroups,
     chatEndpointsDisabled,
     labels.chatEndpoint,
     labels.noChatEndpoints,

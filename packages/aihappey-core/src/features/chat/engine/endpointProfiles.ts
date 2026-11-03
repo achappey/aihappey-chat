@@ -10,6 +10,11 @@ import { PROVIDERS } from "../../../runtime/providers/providerMetadata";
 import { sanitizeProviderRequestConfigForProvider } from "../../../runtime/providers/providerRequestConfig";
 import { getProviderHeadersForKey } from "aihappey-state";
 import { isGenericChatEndpoint } from "./genericChatEndpoint";
+import { getExactProviderApiKeyHeaderEntry } from "../../provider-credentials/providerAuthHeaders";
+
+export const GATEWAY_CHAT_ENDPOINT_IDS: ChatEndpointId[] = [
+  "/api/chat", "/v1/responses", "/v1/messages", "/v1/chat/completions",
+];
 
 export const DEFAULT_ENDPOINT_PROFILE_ID = "default";
 export const CUSTOM_ENDPOINT_PROFILE_ID = "custom";
@@ -60,8 +65,6 @@ export const validateEndpointProfileForModel = ({
   model?: ModelOption | null;
 }) => {
   const modelProviderKey = getModelProviderKey(modelId, model);
-  if (endpointProfile?.kind === "provider" && !isDirectModelRoute(model)) return undefined;
-
   return isEndpointProfileCompatibleWithModelProvider(endpointProfile, modelProviderKey)
     ? endpointProfile
     : undefined;
@@ -149,7 +152,8 @@ export const getEndpointProfiles = ({
       id: DEFAULT_ENDPOINT_PROFILE_ID,
       kind: "default",
       label: "Default gateway",
-      chatEndpoints: [defaultEndpoint],
+      chatEndpoints: [...GATEWAY_CHAT_ENDPOINT_IDS],
+      selectedChatEndpoint: GATEWAY_CHAT_ENDPOINT_IDS.includes(defaultEndpoint) ? defaultEndpoint : "/api/chat",
     },
     ...Object.entries(providerRegistry)
       .filter(hasProviderEndpointProfile)
@@ -248,7 +252,8 @@ export const resolveEndpointProfileChatEndpoint = ({
   }
 
   if (endpointProfile.kind === "default") {
-    return endpointProfile.chatEndpoints[0];
+    return selectedChatEndpoint && endpointProfile.chatEndpoints.includes(selectedChatEndpoint)
+      ? selectedChatEndpoint : endpointProfile.selectedChatEndpoint ?? "/api/chat";
   }
 
   return selectedChatEndpoint ?? endpointProfile.chatEndpoints[0];
@@ -277,12 +282,14 @@ export const resolveChatEndpointModeProfile = ({
 };
 
 export const resolveEndpointProfileForSelectedModel = ({
+  mode,
   modelId,
   model,
   selectedChatEndpoint,
   configuredChatEndpoint,
   providers,
 }: {
+  mode?: ChatEndpointMode;
   modelId?: string;
   model?: ModelOption | null;
   selectedEndpointProfileId?: string;
@@ -291,11 +298,47 @@ export const resolveEndpointProfileForSelectedModel = ({
   configuredChatEndpoint?: ChatEndpointId;
   providers?: Record<string, Provider>;
 }) => {
-  if (getModelRoute(model) === "direct") {
+  if (mode === "direct") {
     return resolveDirectEndpointProfileForModel({ modelId, model, selectedChatEndpoint, providers });
   }
 
   return getEndpointProfiles({ configuredChatEndpoint, providers })[0];
+};
+
+/** One decision owns the destination, protocol and model ID; never infer transport from a model's discovery source. */
+export const resolveChatRoute = ({
+  mode, selectedChatEndpoint, modelId, model, providers, customHeaders,
+  gatewayEnabled = true, authenticated = false,
+}: {
+  mode?: ChatEndpointMode;
+  selectedChatEndpoint?: ChatEndpointId;
+  modelId?: string;
+  model?: ModelOption | null;
+  providers?: Record<string, Provider>;
+  customHeaders?: Record<string, string>;
+  gatewayEnabled?: boolean;
+  authenticated?: boolean;
+}) => {
+  const directProfile = authenticated ? undefined
+    : resolveDirectEndpointProfileForModel({ modelId, model, providers, selectedChatEndpoint });
+  const directAvailable = !!directProfile?.selectedChatEndpoint
+    && !!getExactProviderApiKeyHeaderEntry(customHeaders, directProfile.providerKey, providers)?.[1]?.trim();
+  const useDirect = !authenticated && (mode === "direct" || !gatewayEnabled) && directAvailable;
+  const resolvedMode: ChatEndpointMode = useDirect || (!gatewayEnabled && !authenticated) ? "direct" : "default";
+  const endpoint = useDirect ? directProfile!.selectedChatEndpoint!
+    : resolvedMode === "default" && mode !== "direct" && selectedChatEndpoint && GATEWAY_CHAT_ENDPOINT_IDS.includes(selectedChatEndpoint)
+      ? selectedChatEndpoint : "/api/chat";
+  const profile = useDirect ? directProfile : getEndpointProfiles({ configuredChatEndpoint: "/api/chat", providers })[0];
+  return {
+    mode: resolvedMode,
+    endpoint: endpoint as ChatEndpointId,
+    endpointProfile: profile,
+    directProfile,
+    directAvailable,
+    available: useDirect || gatewayEnabled,
+    error: useDirect || gatewayEnabled ? undefined
+      : "Direct access is unavailable for this model. Configure a provider API key or enable the gateway in settings.",
+  };
 };
 
 export const stripProviderPrefix = (modelId?: string, providerKey?: string) => {

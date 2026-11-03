@@ -154,10 +154,13 @@ test("model discovery forwards configured header-auth credentials and preserves 
         "aihappey-state": { store: { getState: () => state }, useAppStore: selector => selector(state) },
         "react-router": { useSearchParams: () => [new URLSearchParams()] },
         "../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => ({}) },
-        "../provider-credentials/providerAuthHeaders": { listModelsWithSplitProviderHeaders: async request => { options = request; return { data: [] }; } },
+        "../provider-credentials/providerAuthHeaders": {
+            mergeCredentialHeaders: require("./credential-test-loader.cjs").auth.mergeCredentialHeaders,
+            listModelsWithSplitProviderHeaders: async request => { options = request; return { data: [] }; },
+        },
     });
     useModels("https://gateway/api/models", undefined, { headers: { "X-Api-Key": "configured-auth", "X-OpenAI-Key": "router-key", "X-Tenant": "base" } });
-    assert.deepEqual(options.customHeaders, { "X-Api-Key": "configured-auth", "X-OpenAI-Key": "router-key", "X-Tenant": "override" });
+    assert.deepEqual(options.customHeaders, { "x-api-key": "configured-auth", "x-openai-key": "router-key", "x-tenant": "override" });
     await new Promise(setImmediate);
 });
 

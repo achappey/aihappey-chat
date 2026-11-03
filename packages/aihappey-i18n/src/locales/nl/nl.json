@@ -1364,6 +1364,8 @@
         "chatEndpointHint": "Kies de chat-API-vorm die wordt gebruikt bij het versturen van berichten.",
         "effectiveChatEndpoint": "Effectief chatendpoint",
         "endpointMode": "Endpointmodus",
+        "gateway": "Gateway",
+        "direct": "Direct",
         "endpointModeHint": "Gebruik de app-gateway of verbind direct met de provider die door de modelprefix wordt gekozen.",
         "endpointModeDefaultGateway": "Standaardgateway",
         "endpointModeDirectProvider": "Directe provider",

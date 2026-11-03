@@ -1,28 +1,26 @@
 import { useCallback, useMemo } from "react";
 import { UIMessage } from "aihappey-types";
 import { useAppStore, type UiAttachment } from "aihappey-state";
-import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 
 // Helpers, importeer in dit bestand of elders:
 import { useUserMessageBuilder } from "../messages/useUserMessageBuilder";
 import { PromptWithSource } from "../../mcp-prompts/PromptSelectButton";
 import { useActiveProviderMetadata } from "./useActiveProviderMetadata";
 import { useChatErrors } from "../layout/useChatErrors";
+import { useChatContext } from "../context/ChatContext";
+import { useChatRoute } from "./useChatRoute";
 import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { mcpResourceRuntime } from "../../../runtime/mcp/mcpResourceRuntime";
 import { fileAttachmentRuntime } from "../../../runtime/files/fileAttachmentRuntime";
 import { urlAttachmentRuntime } from "../../../runtime/files/urlAttachmentRuntime";
 import { buildSelectedAgentRequest, buildWorkflowMetadata } from "../../agents/agentSelection";
 import {
-  resolveEndpointProfileForSelectedModel,
-  resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileRequestMetadata,
   resolveEndpointProfileRequestProviderHeaders,
   resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
-  validateEndpointProfileForModel,
 } from "./endpointProfiles";
 import { decorateToolsWithRequestConfig } from "../../tools/toolRequestConfig";
 import { isGenericChatEndpoint } from "./genericChatEndpoint";
@@ -75,52 +73,21 @@ export function useChatActions({
     remoteAgentModels,
     { workflowType, managerAgentKey: magenticManagerAgentKey },
   )
-  const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
-  const selectedEndpointProfileId = useAppStore(a => a.selectedEndpointProfileId)
-  const selectedBaseUrl = useAppStore(a => a.selectedBaseUrl)
-  const configuredChatEndpoint = useAppStore(a => a.configuredChatEndpoint)
-  const effectiveChatEndpoint = useAppStore(a => a.effectiveChatEndpoint)
   const endpointRawModelIds = useAppStore(a => a.endpointRawModelIds)
   const endpointProviderMetadataEnabled = useAppStore(a => a.endpointProviderMetadataEnabled)
   const activeProviderMetadata = useActiveProviderMetadata();
   const allProviderMetadata = useAppStore(a => a.providerMetadata)
   const allProviderHeaders = useAppStore(a => a.providerHeaders)
-  const providers = useProviderRegistry()
   const models = useAppStore(a => a.models)
   const selectedModelOption = useMemo(
     () => models?.find((model: any) => model.id === selectedModel),
     [models, selectedModel],
   );
-  const endpointProfile = useMemo(
-    () => resolveEndpointProfileForSelectedModel({
-        modelId: selectedModel,
-        model: selectedModelOption,
-        selectedEndpointProfileId,
-        selectedBaseUrl,
-        selectedChatEndpoint: effectiveChatEndpoint,
-        configuredChatEndpoint,
-        providers,
-      }),
-    [
-      configuredChatEndpoint,
-      effectiveChatEndpoint,
-      providers,
-      selectedBaseUrl,
-      selectedEndpointProfileId,
-      selectedModel,
-      selectedModelOption,
-    ],
-  );
-  const requestEndpointProfile = validateEndpointProfileForModel({
-    endpointProfile,
-    modelId: selectedModel,
-    model: selectedModelOption,
-  });
+  const { config } = useChatContext();
+  const route = useChatRoute(config);
+  const requestEndpointProfile = route.endpointProfile;
   const isProviderEndpointProfile = requestEndpointProfile?.kind === "provider";
-  const requestEndpoint = resolveEndpointProfileChatEndpoint({
-    endpointProfile: requestEndpointProfile,
-    selectedChatEndpoint: effectiveChatEndpoint,
-  }) ?? effectiveChatEndpoint;
+  const requestEndpoint = route.endpoint;
   const requestModel = isProviderEndpointProfile
     ? resolveProviderRequestModelId({
       modelId: selectedModel,
@@ -176,6 +143,7 @@ export function useChatActions({
 
       if (userMsg) {
         try {
+          if (chatMode === "chat" && !route.available) throw new Error(route.error);
           if (selectedAgentRequest.error && !(chatMode === "agent" && favoriteAgentRouter)) throw new Error(selectedAgentRequest.error);
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
@@ -225,6 +193,8 @@ export function useChatActions({
       requestEndpointProfile,
       addChatError,
       chatMode,
+      route.available,
+      route.error,
       favoriteAgentRouter,
       selectedAgentRequest.requestAgents,
       selectedAgentRequest.models,
@@ -249,6 +219,7 @@ export function useChatActions({
       const userMsg = await buildFromText(text);
       if (userMsg) {
         try {
+          if (chatMode === "chat" && !route.available) throw new Error(route.error);
           if (selectedAgentRequest.error && !(chatMode === "agent" && favoriteAgentRouter)) throw new Error(selectedAgentRequest.error);
           await addMessage(conversationId!, userMsg);
           await sendMessage(userMsg, {
@@ -289,6 +260,8 @@ export function useChatActions({
       addMessage,
       sendMessage,
       chatMode,
+      route.available,
+      route.error,
       favoriteAgentRouter,
       temperature,
       selectedAgentRequest.requestAgents,

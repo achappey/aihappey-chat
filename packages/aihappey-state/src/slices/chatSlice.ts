@@ -12,11 +12,9 @@ import {
   normalizeBaseUrl,
   normalizeChatEndpointId,
   normalizeChatEndpointMode,
-  readStoredChatEndpointMode,
   resolveEffectiveBaseUrl,
   resolveEffectiveChatEndpointId,
   resolveEffectiveChatEndpointMode,
-  writeStoredChatEndpointMode,
   type ChatEndpointMode,
   type ChatEndpointId,
 } from "./chatEndpoint";
@@ -227,9 +225,9 @@ export const createChatSlice: StateCreator<
   modelsLoaded: false,
   modelsLoadingProgress: undefined,
   chatMode: "chat",
-  configuredChatEndpointMode: readStoredChatEndpointMode() ?? DEFAULT_CHAT_ENDPOINT_MODE,
-  selectedChatEndpointMode: readStoredChatEndpointMode() === "direct" ? "direct" : undefined,
-  effectiveChatEndpointMode: readStoredChatEndpointMode() ?? DEFAULT_CHAT_ENDPOINT_MODE,
+  configuredChatEndpointMode: DEFAULT_CHAT_ENDPOINT_MODE,
+  selectedChatEndpointMode: undefined,
+  effectiveChatEndpointMode: DEFAULT_CHAT_ENDPOINT_MODE,
   configuredChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
   selectedEndpointProfileId: undefined,
   selectedChatEndpoint: undefined,
@@ -366,7 +364,6 @@ export const createChatSlice: StateCreator<
   },
   setConfiguredChatEndpointMode: (value) => {
     const configuredChatEndpointMode = normalizeChatEndpointMode(value) ?? DEFAULT_CHAT_ENDPOINT_MODE;
-    writeStoredChatEndpointMode(configuredChatEndpointMode);
     set((state: ChatSlice) => ({
       configuredChatEndpointMode,
       effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(configuredChatEndpointMode, state.selectedChatEndpointMode),
@@ -374,7 +371,6 @@ export const createChatSlice: StateCreator<
   },
   setSelectedChatEndpointMode: (value) => {
     const selectedChatEndpointMode = normalizeChatEndpointMode(value);
-    writeStoredChatEndpointMode(selectedChatEndpointMode ?? DEFAULT_CHAT_ENDPOINT_MODE);
     set((state: ChatSlice) => ({
       selectedChatEndpointMode,
       effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(state.configuredChatEndpointMode, selectedChatEndpointMode),

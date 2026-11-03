@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { store as appStore, useAppStore } from "aihappey-state";
 import { useSearchParams } from "react-router";
-import { listModelsWithSplitProviderHeaders } from "../provider-credentials/providerAuthHeaders";
+import { listModelsWithSplitProviderHeaders, mergeCredentialHeaders } from "../provider-credentials/providerAuthHeaders";
 import type { ModelOption } from "aihappey-types";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
-
-const modelRouteOf = (model: ModelOption): "gateway" | "direct" =>
-  (model as any)?.route === "direct" ? "direct" : "gateway";
 
 const equivalentModelIds = (model: ModelOption) => [
   model.id,
@@ -17,7 +14,6 @@ const equivalentModelIds = (model: ModelOption) => [
 const resolveSelectableModelId = (
   models: ModelOption[],
   value?: string | null,
-  preferredRoute?: "gateway" | "direct",
 ) => {
   const requested = String(value ?? "").trim();
   if (!requested) return undefined;
@@ -27,14 +23,6 @@ const resolveSelectableModelId = (
 
   const matches = models.filter((item) => equivalentModelIds(item).includes(requested));
   if (matches.length === 0) return undefined;
-
-  const routeMatch = preferredRoute
-    ? matches.find((item) => modelRouteOf(item) === preferredRoute)
-    : undefined;
-  if (routeMatch) return routeMatch.id;
-
-  const gatewayMatch = matches.find((item) => modelRouteOf(item) === "gateway");
-  if (gatewayMatch) return gatewayMatch.id;
 
   return matches.length === 1 ? matches[0].id : undefined;
 };
@@ -59,7 +47,6 @@ export const useModels = (
   const modelsLoaded = useAppStore(a => a.modelsLoaded);
   const setModels = useAppStore(a => a.setModels)
   const customHeaders = useAppStore(a => a.customHeaders)
-  const effectiveChatEndpointMode = useAppStore(a => a.effectiveChatEndpointMode)
   const gatewayEnabled = options?.gatewayEnabled !== false;
   const configuredHeaders = options?.headers;
   const setModelsLoadingProgress = useAppStore((a: any) => a.setModelsLoadingProgress)
@@ -108,7 +95,7 @@ export const useModels = (
     listModelsWithSplitProviderHeaders({
       modelsApi,
       getAccessToken,
-      customHeaders: configuredHeaders ? { ...configuredHeaders, ...customHeaders } : customHeaders,
+      customHeaders: mergeCredentialHeaders(configuredHeaders, customHeaders),
       directProviderModels: true,
       includeGatewayModels: gatewayEnabled,
       providers,
@@ -130,7 +117,7 @@ export const useModels = (
           userPreferredModel: latestUserPreferredModel,
         } = selectionRef.current;
         const preferredModel = latestUrlModel ?? latestUserPreferredModel ?? latestSelectedModel;
-        const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel, latestUrlModel ? undefined : "gateway");
+        const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel);
         if (resolvedPreferredModel) {
           setSelectedModel(resolvedPreferredModel);
           return;
@@ -156,7 +143,7 @@ export const useModels = (
       cancelled = true;
     };
 
-  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, modelsLoaded, effectiveChatEndpointMode, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
+  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, modelsLoaded, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;

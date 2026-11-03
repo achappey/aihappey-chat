@@ -18,7 +18,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   showApiKeysItem,
   onApiKeys,
   showChatEndpointsItem,
-  chatEndpointOptions = [],
+  chatEndpointGroups = [],
   selectedChatEndpoint,
   chatEndpointsDisabled,
   onSelectChatEndpoint,
@@ -80,19 +80,23 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           </Dropdown.Item>
         )}
         {showChatEndpointsItem ? (
-          <>
-            <Dropdown.Header>{labels.chatEndpoint ?? "Chat endpoint"}</Dropdown.Header>
-            {chatEndpointOptions.length > 0 ? chatEndpointOptions.map((option) => (
-              <Dropdown.Item
-                key={option.value}
-                active={option.value === selectedChatEndpoint}
-                disabled={!!chatEndpointsDisabled || !!option.disabled}
-                onClick={() => onSelectChatEndpoint?.(option.value)}
-              >
-                {option.label}
-              </Dropdown.Item>
-            )) : <Dropdown.ItemText>{labels.noChatEndpoints ?? "No chat endpoints available"}</Dropdown.ItemText>}
-          </>
+          chatEndpointGroups.map(group => (
+            <Dropdown key={group.value} drop="start">
+              <Dropdown.Toggle className="dropdown-item" variant="link"
+                disabled={!!chatEndpointsDisabled || !!group.disabled || !group.options.length}>
+                {group.label}{group.options.some(option => option.value === selectedChatEndpoint)
+                  ? ` (${group.options.find(option => option.value === selectedChatEndpoint)?.label})` : ""}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {group.options.map(option => (
+                  <Dropdown.Item key={option.value} active={option.value === selectedChatEndpoint}
+                    disabled={!!option.disabled} onClick={() => onSelectChatEndpoint?.(option.value)}>
+                    {option.label}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          ))
         ) : null}
         <Dropdown.Item onClick={onSettings}>
           <Gear className="me-2" /> {labels.settings ?? "Settings"}

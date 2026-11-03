@@ -49,19 +49,14 @@ export function normalizeChatEndpointMode(value: unknown): ChatEndpointMode | un
 }
 
 export function readStoredChatEndpointMode(): ChatEndpointMode | undefined {
-  try {
-    if (typeof window === "undefined") return undefined;
-    return normalizeChatEndpointMode(window.localStorage.getItem(CHAT_ENDPOINT_MODE_STORAGE_KEY));
-  } catch {
-    return undefined;
-  }
+  // Transport selection is session-only. Old standalone preferences are ignored.
+  return undefined;
 }
 
 export function writeStoredChatEndpointMode(value?: unknown): void {
   try {
     if (typeof window === "undefined") return;
-    const mode = normalizeChatEndpointMode(value) ?? DEFAULT_CHAT_ENDPOINT_MODE;
-    window.localStorage.setItem(CHAT_ENDPOINT_MODE_STORAGE_KEY, mode);
+    window.localStorage.removeItem(CHAT_ENDPOINT_MODE_STORAGE_KEY);
   } catch {
     // Ignore storage failures. Zustand persistence remains the primary store.
   }

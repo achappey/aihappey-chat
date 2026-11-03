@@ -36,7 +36,7 @@ export interface ModelOption {
   owned_by: string;
   tags: string[];
   pricing?: ModelPricing
-  /** Runtime route used by the chat app. Omitted means legacy/gateway. */
+  /** Discovery availability, not selected transport. Gateway also covers merged gateway/direct entries. */
   route?: "gateway" | "direct";
   /** Provider key that owns this model, independent from route-specific display ids. */
   providerKey?: string;

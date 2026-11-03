@@ -16,7 +16,7 @@ import { RerankingSlice } from "./slices/rerankingSlice";
 import { RealtimeSlice } from "./slices/realtimeSlice";
 import { JsonRenderSlice } from "./slices/jsonRenderSlice";
 import { DEFAULT_CHAT_VERBOSITY, DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, DEFAULT_TOOL_OUTPUT_CONTENT_SETTINGS } from "./slices/chatSlice";
-import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, readStoredChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId, resolveEffectiveChatEndpointMode } from "./slices/chatEndpoint";
+import { DEFAULT_CHAT_ENDPOINT_ID, DEFAULT_CHAT_ENDPOINT_MODE, normalizeBaseUrl, normalizeChatEndpointId, normalizeChatEndpointMode, resolveEffectiveBaseUrl, resolveEffectiveChatEndpointId } from "./slices/chatEndpoint";
 import { normalizeCustomProviders } from "./slices/uiSlice";
 import { resolveApiKeyEncryptionStatus } from "./slices/apiKeyEncryption";
 import { normalizeProviderHeaders, splitLegacyProviderHeadersFromMetadata } from "./slices/providerHeaders";
@@ -35,7 +35,7 @@ export const withPersist = (
 ) =>
     persist(creator, {
     name: "aihappey_store_v8",
-    version: 37,
+    version: 38,
     partialize: (s) => ({
       mcpServers: s.mcpServers,
       debugMode: s.debugMode,
@@ -129,12 +129,6 @@ export const withPersist = (
       customProviders: (s as any).customProviders,
       selectedThemeId: (s as any).selectedThemeId,
       sideInferenceAgentNames: (s as any).sideInferenceAgentNames,
-      configuredChatEndpointMode: (s as any).configuredChatEndpointMode,
-      selectedChatEndpointMode: (s as any).selectedChatEndpointMode,
-      configuredChatEndpoint: (s as any).configuredChatEndpoint,
-      selectedEndpointProfileId: (s as any).selectedEndpointProfileId,
-      selectedChatEndpoint: (s as any).selectedChatEndpoint,
-      selectedBaseUrl: (s as any).selectedBaseUrl,
       gatewayEnabled: (s as any).gatewayEnabled,
       endpointRawModelIds: (s as any).endpointRawModelIds,
       endpointProviderMetadataEnabled: (s as any).endpointProviderMetadataEnabled,
@@ -423,40 +417,23 @@ export const withPersist = (
         };
       }
 
-      const storedChatEndpointMode = readStoredChatEndpointMode();
-      const configuredChatEndpointMode = storedChatEndpointMode
-        ?? normalizeChatEndpointMode(safeState.configuredChatEndpointMode)
-        ?? DEFAULT_CHAT_ENDPOINT_MODE;
-      const selectedChatEndpointMode = storedChatEndpointMode === "direct"
-        ? "direct"
-        : normalizeChatEndpointMode(safeState.selectedChatEndpointMode);
-
       return {
         ...safeState,
         verbosity: safeState.verbosity === "low" || safeState.verbosity === "high"
           ? safeState.verbosity
           : DEFAULT_CHAT_VERBOSITY,
-        configuredChatEndpointMode,
-        selectedChatEndpointMode,
-        effectiveChatEndpointMode: resolveEffectiveChatEndpointMode(
-          configuredChatEndpointMode,
-          selectedChatEndpointMode,
-        ),
-        configuredChatEndpoint: normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
-        selectedEndpointProfileId: typeof safeState.selectedEndpointProfileId === "string"
-          && safeState.selectedEndpointProfileId.trim().length
-          ? safeState.selectedEndpointProfileId.trim()
-          : undefined,
-        selectedChatEndpoint: normalizeChatEndpointId(safeState.selectedChatEndpoint),
-        effectiveChatEndpoint: resolveEffectiveChatEndpointId(
-          normalizeChatEndpointId(safeState.configuredChatEndpoint) ?? DEFAULT_CHAT_ENDPOINT_ID,
-          normalizeChatEndpointId(safeState.selectedChatEndpoint),
-        ),
+        configuredChatEndpointMode: DEFAULT_CHAT_ENDPOINT_MODE,
+        selectedChatEndpointMode: undefined,
+        effectiveChatEndpointMode: DEFAULT_CHAT_ENDPOINT_MODE,
+        configuredChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
+        selectedEndpointProfileId: undefined,
+        selectedChatEndpoint: undefined,
+        effectiveChatEndpoint: DEFAULT_CHAT_ENDPOINT_ID,
         configuredBaseUrl: normalizeBaseUrl(safeState.configuredBaseUrl) ?? "",
-        selectedBaseUrl: normalizeBaseUrl(safeState.selectedBaseUrl),
+        selectedBaseUrl: undefined,
         effectiveBaseUrl: resolveEffectiveBaseUrl(
           normalizeBaseUrl(safeState.configuredBaseUrl) ?? "",
-          normalizeBaseUrl(safeState.selectedBaseUrl),
+          undefined,
         ),
         gatewayEnabled: safeState.gatewayEnabled !== false,
         enableMcpElicitation: safeState.enableMcpElicitation !== false,

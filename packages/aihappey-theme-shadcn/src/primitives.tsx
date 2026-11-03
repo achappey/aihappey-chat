@@ -1449,7 +1449,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   showApiKeysItem,
   onApiKeys,
   showChatEndpointsItem,
-  chatEndpointOptions = [],
+  chatEndpointGroups = [],
   selectedChatEndpoint,
   chatEndpointsDisabled,
   onSelectChatEndpoint,
@@ -1499,19 +1499,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({
     [disabledProviderSet, enabledProvidersByType, onToggleProviderForType, providersDisabled]
   );
 
-  const chatEndpointMenu = showChatEndpointsItem ? (
-    chatEndpointOptions.length > 0 && !chatEndpointsDisabled ? (
-      <DropdownMenuPrimitive.Sub>
-        <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item">
+  const chatEndpointMenu = showChatEndpointsItem ? chatEndpointGroups.map(group => (
+      <DropdownMenuPrimitive.Sub key={group.value}>
+        <DropdownMenuPrimitive.SubTrigger className="aih-shadcn-menu-item" disabled={!!chatEndpointsDisabled || !!group.disabled || !group.options.length}>
           <PlugZap size={14} />
-          {selectedChatEndpoint
-            ? `${labels.chatEndpoint ?? "Chat endpoint"} (${selectedChatEndpoint})`
-            : (labels.chatEndpoint ?? "Chat endpoint")}
+          {group.label}{group.options.some(option => option.value === selectedChatEndpoint)
+            ? ` (${group.options.find(option => option.value === selectedChatEndpoint)?.label})` : ""}
         </DropdownMenuPrimitive.SubTrigger>
         <DropdownMenuPrimitive.Portal>
           <PortalThemeScope>
             <DropdownMenuPrimitive.SubContent className="aih-shadcn-popover aih-shadcn-menu-sub-content" sideOffset={4} collisionPadding={8}>
-              {chatEndpointOptions.map((option) => (
+              {group.options.map((option) => (
                 <DropdownMenuPrimitive.Item
                   key={option.value}
                   className="aih-shadcn-menu-item"
@@ -1526,13 +1524,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           </PortalThemeScope>
         </DropdownMenuPrimitive.Portal>
       </DropdownMenuPrimitive.Sub>
-    ) : (
-      <DropdownMenuPrimitive.Item className="aih-shadcn-menu-item" disabled>
-        <PlugZap size={14} />
-        {labels.noChatEndpoints ?? "No chat endpoints available"}
-      </DropdownMenuPrimitive.Item>
-    )
-  ) : null;
+  )) : null;
 
   return (
     <DropdownMenuPrimitive.Root>

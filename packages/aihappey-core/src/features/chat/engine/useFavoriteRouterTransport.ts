@@ -76,7 +76,7 @@ export function useFavoriteRouterTransport(
                 candidates: kind === "model" ? modelRouterCandidates(latest) : favoriteRouterCandidates(latest, kind),
                 instructions: favoriteRouterInstructions(latest, kind),
                 selectedModel: latest.selectedModel, selectedAgents: latest.selectedAgentNames,
-                endpoint: [latest.selectedEndpointProfileId, latest.selectedBaseUrl, latest.effectiveChatEndpoint],
+                endpoint: [latest.effectiveChatEndpointMode, latest.selectedEndpointProfileId, latest.selectedBaseUrl, latest.effectiveChatEndpoint],
                 customHeaders: latest.customHeaders,
                 context: favoriteRouterContext(decisionMessages()),
               });
@@ -121,7 +121,12 @@ export function useFavoriteRouterTransport(
               store.setState({ favoriteRouterDeciding: false });
             }
           }
-          if (!enabled) pinned = manualFallback ? { ...current.current, routed: true } : undefined;
+          if (!enabled) pinned = { ...current.current, routed: manualFallback };
+        }
+        // Regeneration is an explicit new manual dispatch. Tool continuations,
+        // unlike regeneration, must retain the original provider and credentials.
+        if (options.trigger === "regenerate-message" && pinned && !pinned.routed) {
+          pinned = { ...current.current, routed: false };
         }
         const target = pinned ?? { ...current.current, routed: false };
         return target.transport.sendMessages({

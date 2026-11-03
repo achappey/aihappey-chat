@@ -22,6 +22,13 @@ export type UserMenuChatEndpointOption = {
   disabled?: boolean;
 };
 
+export type UserMenuChatEndpointGroup = {
+  value: string;
+  label: string;
+  disabled?: boolean;
+  options: UserMenuChatEndpointOption[];
+};
+
 export type UserMenuProps = {
   email?: string;
   onCustomize?: () => void;
@@ -37,7 +44,7 @@ export type UserMenuProps = {
   onApiKeys?: () => void;
 
   showChatEndpointsItem?: boolean;
-  chatEndpointOptions?: UserMenuChatEndpointOption[];
+  chatEndpointGroups?: UserMenuChatEndpointGroup[];
   selectedChatEndpoint?: string;
   chatEndpointsDisabled?: boolean;
   onSelectChatEndpoint?: (endpoint: string) => void;

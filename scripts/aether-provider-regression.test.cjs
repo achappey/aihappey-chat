@@ -21,7 +21,6 @@ function load(relativePath, mocks = {}) {
 }
 
 const aether = require("../packages/aihappey-core/src/runtime/providers/catalog/aether.json");
-const { HIDDEN_DIRECT_MODEL_ID_SUFFIX } = load("packages/aihappey-types/src/modelIdentity.ts");
 const { createHttpClient } = load("packages/aihappey-http/src/index.ts");
 const modelTypes = load("packages/aihappey-core/src/features/models/modelTypeEnrichment.ts");
 const { resolvePreferredProviderChatEndpoint } = load("packages/aihappey-state/src/slices/chatEndpoint.ts");
@@ -40,7 +39,6 @@ function modelLoader(data) {
         },
         "../../runtime/providers/providerMetadata": { PROVIDERS: { aether } },
         "../models/modelTypeEnrichment": modelTypes,
-        "aihappey-types": { HIDDEN_DIRECT_MODEL_ID_SUFFIX },
         "../../runtime/providers/catalog/models/zai.json": { data: [] },
         // Aether has no static pricing catalogue; preserve the response as production does.
         "../../runtime/providers/catalog/providerPricing": {
@@ -79,7 +77,7 @@ test("a configured Aether key fetches direct models with isolated bearer authent
     for (const model of response.data) {
         assert.equal(model.route, "direct");
         assert.equal(model.providerKey, "aether");
-        assert.equal(model.id, `aether/${model.providerModelId}${HIDDEN_DIRECT_MODEL_ID_SUFFIX}`);
+        assert.equal(model.id, `aether/${model.providerModelId}`);
     }
     assert.equal(response.data[0].providerModelId, "example-chat");
     assert.equal(response.data[0].context, "128000");
@@ -110,6 +108,6 @@ test("Aether preserves already-prefixed model IDs and avoids a duplicated bearer
         providers: { aether },
     });
     assert.equal(api.calls[0].headers.authorization, "Bearer test-aether-key");
-    assert.equal(response.data[0].id, `aether/example-chat${HIDDEN_DIRECT_MODEL_ID_SUFFIX}`);
+    assert.equal(response.data[0].id, "aether/example-chat");
     assert.equal(response.data[0].providerModelId, "aether/example-chat");
 });

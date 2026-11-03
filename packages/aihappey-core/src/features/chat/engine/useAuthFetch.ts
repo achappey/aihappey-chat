@@ -33,6 +33,8 @@ type UseAuthFetchArgs = {
     customFetch?: typeof fetch;
     getDebugEnabled?: () => boolean;
     agentConfig?: AgentDetailConfig;
+    requestError?: string;
+    directBaseUrl?: string;
 };
 
 export function useAuthFetch({
@@ -44,6 +46,8 @@ export function useAuthFetch({
     customFetch,
     getDebugEnabled,
     agentConfig,
+    requestError,
+    directBaseUrl,
 }: UseAuthFetchArgs) {
     // A transport pins this credential snapshot for its entire run, including tool continuations.
     return useMemo(() => {
@@ -53,10 +57,22 @@ export function useAuthFetch({
             !headers &&
             !customHeaders &&
             !customFetch &&
-            !getDebugEnabled
+            !getDebugEnabled &&
+            !requestError &&
+            !directBaseUrl
         ) return undefined;
 
         return async (input: RequestInfo | URL, init?: RequestInit) => {
+            if (requestError) throw new Error(requestError);
+            if (directBaseUrl) {
+                const origin = globalThis.location?.origin ?? "http://localhost";
+                const target = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url, origin);
+                const provider = new URL(directBaseUrl, origin);
+                const prefix = provider.pathname.replace(/\/+$/, "");
+                if (target.origin !== provider.origin || (prefix && !target.pathname.startsWith(`${prefix}/`))) {
+                    throw new Error("Direct provider credentials cannot be sent to a different endpoint.");
+                }
+            }
             const mode = chatMode;
 
             const h = new Headers();
@@ -64,18 +80,22 @@ export function useAuthFetch({
             Object.entries(base).forEach(([k, v]) => { if (v != null) h.set(k, String(v)); });
 
             if (init?.headers) {
-                new Headers(init.headers as any).forEach((v, k) => h.set(k, v));
+                new Headers(init.headers as any).forEach((v, k) => {
+                    // A per-call header override must not replace the pinned provider key.
+                    if (!directBaseUrl || !/^(authorization|proxy-authorization|api-key|x-api-key|x-goog-api-key|x-.+-key|cookie)$/i.test(k)) h.set(k, v);
+                });
             }
 
             try {
-                if (mode === "chat" && getAccessToken && !h.has("Authorization") && !h.has("x-api-key")) {
+                if (mode === "chat" && getAccessToken) {
                     const token = await getAccessToken();
                     if (token) h.set("Authorization", `Bearer ${token}`);
                 } else if (mode === "agent" && refreshToken && !h.has("Authorization")) {
                     const token = await refreshToken();
                     if (token) h.set("Authorization", `Bearer ${token}`);
                 }
-            } catch {
+            } catch (error) {
+                if (mode === "chat" && getAccessToken) throw error;
                 // keep existing Authorization
             }
 
@@ -84,11 +104,11 @@ export function useAuthFetch({
 
             const f = customFetch ?? fetch;
             if (typeof Request !== "undefined" && input instanceof Request) {
-                const request = new Request(input, { ...init, headers: h });
+                const request = new Request(input, { ...init, headers: h, ...(directBaseUrl ? { credentials: "omit" } : {}) });
                 return createCredentialScopedFetch(f, mode === "agent" ? agentConfig : undefined)(request);
             }
 
-            return createCredentialScopedFetch(f, mode === "agent" ? agentConfig : undefined)(input, { ...init, headers: h });
+            return createCredentialScopedFetch(f, mode === "agent" ? agentConfig : undefined)(input, { ...init, headers: h, ...(directBaseUrl ? { credentials: "omit" } : {}) });
         };
-    }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch, getDebugEnabled, agentConfig]);
+    }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch, getDebugEnabled, agentConfig, requestError, directBaseUrl]);
 }

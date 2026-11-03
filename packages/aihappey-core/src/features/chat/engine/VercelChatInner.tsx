@@ -16,6 +16,8 @@ import { conversationGatewayCostTotal } from "../messages/toChatMessages";
 import { SYSTEM_ROLE, getAgentCredentialModels, type UIMessage } from "aihappey-types";
 import { prepareSelectedAgentRequest } from "../../agents/remoteAgentDetails";
 import { useChatActions } from "./useChatActions";
+import { useChatRoute } from "./useChatRoute";
+import { createChatRouteHeaders } from "./chatRouteHeaders";
 import { useSystemMessage } from "../messages/useSystemMessage";
 import { useChatContext } from "../context/ChatContext";
 import { useChatErrors } from "../layout/useChatErrors";
@@ -54,12 +56,9 @@ import { useStorageErrorMessage } from "../../storage/storageErrorMessage";
 import { useChatAttachmentAdmission } from "../input/useChatAttachmentAdmission";
 import { buildSelectedAgentRequest, buildWorkflowMetadata } from "../../agents/agentSelection";
 import {
-  createChatAuthHeadersForModel,
-  createMessagesEndpointAuthHeadersForModel,
-  createMessagesEndpointHeadersForProviderKey,
-  createProviderBearerHeadersForProviderKey,
   getProviderApiKeyHeaderEntries,
   getProviderKeyFromModelId,
+  mergeCredentialHeaders,
 } from "../../provider-credentials/providerAuthHeaders";
 import {
   GenericChatEndpointTransport,
@@ -69,8 +68,6 @@ import {
 } from "./genericChatEndpoint";
 import { buildGenericChatEndpointBody } from "./genericEndpointMappers";
 import {
-  resolveEndpointProfileForSelectedModel,
-  resolveEndpointProfileChatEndpoint,
   resolveEndpointProfileProviderConfig,
   resolveEndpointProfileProviderHeaders,
   resolveEndpointProfileRequestMetadata,
@@ -78,7 +75,6 @@ import {
   resolveProviderRequestModelId,
   splitEndpointProfileProviderConfig,
   stripProviderPrefix,
-  validateEndpointProfileForModel,
 } from "./endpointProfiles";
 import { useProviderRegistry } from "../../../runtime/providers/useProviderRegistry";
 import { useChatScrollToBottom } from "../layout/useChatScrollToBottom";
@@ -138,11 +134,6 @@ export function VercelChatInner({
   const maxOutputTokens = useAppStore((a) => a.maxOutputTokens);
   const toolRequestConfig = useAppStore((a) => (a as any).toolRequestConfig);
   const useToolNamespaces = useAppStore((a) => !!(a as any).useToolNamespaces);
-  const effectiveChatEndpoint = useAppStore((a) => a.effectiveChatEndpoint);
-  const effectiveChatEndpointMode = useAppStore((a) => a.effectiveChatEndpointMode);
-  const selectedEndpointProfileId = useAppStore((a) => a.selectedEndpointProfileId);
-  const selectedBaseUrl = useAppStore((a) => a.selectedBaseUrl);
-  const configuredChatEndpoint = useAppStore((a) => a.configuredChatEndpoint);
   const endpointRawModelIds = useAppStore((a) => a.endpointRawModelIds);
   const endpointProviderMetadataEnabled = useAppStore((a) => a.endpointProviderMetadataEnabled);
   const callTool = useAppStore((a) => a.callTool);
@@ -167,34 +158,16 @@ export function VercelChatInner({
   const includeSystem = chatMode !== "agent";
   const { Spinner, JsonViewer, Toast, Button } = useTheme();
   const { config } = useChatContext();
+  const route = useChatRoute(config);
   const { t, i18n } = useTranslation();
   const { hasContentBelow, scrollContainerRef, scrollToBottom } = useChatScrollToBottom();
   const language = languageNames[i18n.language as keyof typeof languageNames] ?? i18n.language;
   const jsonRenderRegistry = useJsonRenderRegistry();
   const jsonRenderCatalog = useJsonRenderCatalog();
   const defaultCatalogs = useAppStore((s) => s.defaultCatalogs);
-  const endpointProfile = useMemo(
-    () => resolveEndpointProfileForSelectedModel({
-        modelId: model,
-        model: selectedModelOption,
-        selectedEndpointProfileId,
-        selectedBaseUrl,
-        selectedChatEndpoint: effectiveChatEndpoint,
-        configuredChatEndpoint,
-        providers,
-      }),
-    [model, selectedModelOption, selectedEndpointProfileId, selectedBaseUrl, effectiveChatEndpoint, configuredChatEndpoint, providers],
-  );
-  const requestEndpointProfile = validateEndpointProfileForModel({
-    endpointProfile,
-    modelId: model,
-    model: selectedModelOption,
-  });
+  const requestEndpointProfile = route.endpointProfile;
   const isProviderEndpointProfile = requestEndpointProfile?.kind === "provider";
-  const requestEndpoint = resolveEndpointProfileChatEndpoint({
-    endpointProfile: requestEndpointProfile,
-    selectedChatEndpoint: effectiveChatEndpoint,
-  }) ?? effectiveChatEndpoint;
+  const requestEndpoint = route.endpoint;
   const requestBaseUrl = isProviderEndpointProfile
     ? requestEndpointProfile.apiBaseUrl ?? config.baseUrl
     : config.baseUrl;
@@ -307,27 +280,19 @@ export function VercelChatInner({
   const [, , , refreshToken] = useAccessToken(config.agentScopes ?? []);
 
   const apiKeyHeaders: any = useMemo(
-    () => createChatAuthHeadersForModel(customHeaders, model, Boolean(getAccessToken), providers),
-    [customHeaders, getAccessToken, model, providers],
+    () => createChatRouteHeaders({ configuredHeaders: headers, customHeaders, modelId: model,
+      endpoint: requestEndpoint, authenticated: !!getAccessToken, providers }),
+    [headers, customHeaders, getAccessToken, model, providers, requestEndpoint],
   );
 
   const providerProfileAuthHeaders: any = useMemo(() => {
     const providerKey = isProviderEndpointProfile ? requestEndpointProfile.providerKey : undefined;
-
-    if (requestEndpoint === "/v1/messages") {
-      return {
-        ...createMessagesEndpointHeadersForProviderKey(customHeaders, providerKey, providers),
-        ...(endpointProfileProviderHeaders ?? {}),
-        ...(providerRequestHeaders ?? {}),
-      };
-    }
-
-    return {
-      ...createProviderBearerHeadersForProviderKey(customHeaders, providerKey, providers),
-      ...(endpointProfileProviderHeaders ?? {}),
-      ...(providerRequestHeaders ?? {}),
-    };
-  }, [customHeaders, requestEndpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint, endpointProfileProviderHeaders]);
+    return createChatRouteHeaders({
+      configuredHeaders: headers, customHeaders, modelId: model, directProviderKey: providerKey,
+      endpoint: requestEndpoint, authenticated: !!getAccessToken, providers,
+      providerHeaders: endpointProfileProviderHeaders, providerRequestHeaders,
+    });
+  }, [headers, model, getAccessToken, customHeaders, requestEndpointProfile, isProviderEndpointProfile, providerRequestHeaders, providers, requestEndpoint, endpointProfileProviderHeaders]);
 
   const createConversationName = useCallback(
     (text: string) => generateConversationName(text, language, {
@@ -335,14 +300,14 @@ export function VercelChatInner({
       fetch: config.fetch ?? customFetch,
       ...(isProviderEndpointProfile
         ? {
-          customHeaders,
+          customHeaders: mergeCredentialHeaders(headers, customHeaders),
           endpointProviderKey: requestEndpointProfile.providerKey,
           gatewayEnabled: false,
           providers,
         }
         : {
           getAccessToken,
-          customHeaders,
+          customHeaders: mergeCredentialHeaders(headers, customHeaders),
           gatewayEnabled: (config as any)?.gatewayEnabled !== false && gatewayEnabled !== false,
           providers,
         }),
@@ -354,6 +319,7 @@ export function VercelChatInner({
       customFetch,
       isProviderEndpointProfile,
       customHeaders,
+      headers,
       requestEndpointProfile,
       providers,
       getAccessToken,
@@ -394,19 +360,19 @@ export function VercelChatInner({
     ? undefined
     : isProviderEndpointProfile
       ? providerProfileAuthHeaders
-      : requestEndpoint === "/v1/messages"
-        ? createMessagesEndpointAuthHeadersForModel(customHeaders, model, Boolean(getAccessToken), providers)
       : apiKeyHeaders;
 
   const authFetch = useAuthFetch({
     chatMode,
-    getAccessToken,
+    getAccessToken: isProviderEndpointProfile && chatMode === "chat" ? undefined : getAccessToken,
     refreshToken,
-    headers,
+    headers: chatMode === "agent" ? headers : undefined,
     customHeaders: authFetchCustomHeaders,
     customFetch,
     getDebugEnabled: getApiDebugEnabled,
     agentConfig: config,
+    requestError: chatMode === "chat" ? route.error : undefined,
+    directBaseUrl: chatMode === "chat" && isProviderEndpointProfile ? requestBaseUrl : undefined,
   });
 
   const chatFetch = useMemo(() => {

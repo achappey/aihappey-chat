@@ -4,12 +4,9 @@ import { useTheme } from "aihappey-components";
 import { useTranslation } from "aihappey-i18n";
 import { PROVIDER_CAPABILITIES, useAppStore, type ProviderCapability } from "aihappey-state";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
-import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
 import { useChatContext } from "../chat/context/ChatContext";
-import {
-  getProviderEndpointProfileId,
-  resolveDirectEndpointProfileForModel,
-} from "../chat/engine/endpointProfiles";
+import { GATEWAY_CHAT_ENDPOINT_IDS } from "../chat/engine/endpointProfiles";
+import { useChatRoute } from "../chat/engine/useChatRoute";
 import { ProviderKeysModal } from "../provider-credentials/ProviderKeysModal";
 
 interface UserMenuButtonProps {
@@ -38,11 +35,9 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
   const toggleEnabledProviderForType = useAppStore((s) => s.toggleEnabledProviderForType);
   const models = useAppStore((s) => s.models ?? []);
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
-  const selectedModel = useAppStore((s) => s.selectedModel);
-  const effectiveChatEndpoint = useAppStore((s) => s.effectiveChatEndpoint);
   const setSelectedChatEndpoint = useAppStore((s) => s.setSelectedChatEndpoint);
-  const setSelectedEndpointProfileId = useAppStore((s) => s.setSelectedEndpointProfileId);
-  const providersByKey = useProviderRegistry();
+  const setSelectedChatEndpointMode = useAppStore((s) => s.setSelectedChatEndpointMode);
+  const route = useChatRoute(chat.config);
 
   // Today enabledProviders in state is stored as *display names* (e.g. "OpenAI").
   const providers = React.useMemo(
@@ -145,33 +140,29 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
     return result;
   }, [models]);
 
-  const directEndpointProfile = React.useMemo(
-    () => resolveDirectEndpointProfileForModel({
-      modelId: selectedModel,
-      selectedChatEndpoint: effectiveChatEndpoint,
-      providers: providersByKey,
-    }),
-    [effectiveChatEndpoint, providersByKey, selectedModel]
-  );
-
-  const chatEndpointOptions = React.useMemo(
-    () => (directEndpointProfile?.chatEndpoints ?? []).map((endpoint) => ({
-      value: endpoint,
-      label: endpoint,
-    })),
-    [directEndpointProfile]
-  );
+  const chatEndpointGroups = [
+    {
+      value: "default",
+      label: t("settingsModal.gateway", "Gateway"),
+      disabled: !route.gatewayAvailable,
+      options: GATEWAY_CHAT_ENDPOINT_IDS.map(endpoint => ({ value: `default:${endpoint}`, label: endpoint })),
+    },
+    ...(!isEntraAuth ? [{
+      value: "direct",
+      label: t("settingsModal.direct", "Direct"),
+      disabled: !route.directAvailable,
+      options: (route.directProfile?.chatEndpoints ?? []).map(endpoint => ({ value: `direct:${endpoint}`, label: endpoint })),
+    }] : []),
+  ];
 
   const handleSelectChatEndpoint = React.useCallback(
     (endpoint: string) => {
-      setSelectedEndpointProfileId(
-        directEndpointProfile?.providerKey
-          ? getProviderEndpointProfileId(directEndpointProfile.providerKey)
-          : undefined,
-      );
-      setSelectedChatEndpoint(endpoint);
+      const group = chatEndpointGroups.find(group => !group.disabled && group.options.some(option => option.value === endpoint));
+      if (!group) return;
+      setSelectedChatEndpointMode(group.value);
+      setSelectedChatEndpoint(endpoint.slice(endpoint.indexOf(":") + 1));
     },
-    [directEndpointProfile, setSelectedChatEndpoint, setSelectedEndpointProfileId]
+    [chatEndpointGroups, setSelectedChatEndpoint, setSelectedChatEndpointMode]
   );
 
   return (
@@ -182,10 +173,9 @@ export const UserMenuButton: React.FC<UserMenuButtonProps> = ({
         onLogout={onLogout}
         showApiKeysItem={!isEntraAuth}
         onApiKeys={() => setProviderKeysOpen(true)}
-        showChatEndpointsItem={!isEntraAuth}
-        chatEndpointOptions={chatEndpointOptions}
-        selectedChatEndpoint={directEndpointProfile?.selectedChatEndpoint}
-        chatEndpointsDisabled={chatEndpointOptions.length === 0}
+        showChatEndpointsItem={true}
+        chatEndpointGroups={chatEndpointGroups}
+        selectedChatEndpoint={route.available ? `${route.mode}:${route.endpoint}` : undefined}
         onSelectChatEndpoint={handleSelectChatEndpoint}
         providers={visibleProviders}
         providerGroups={providerGroups}

@@ -3,11 +3,8 @@ import type { ModelResponse } from "aihappey-types";
 import { PROVIDERS } from "../../runtime/providers/providerMetadata";
 import { enrichModelTypes } from "../models/modelTypeEnrichment";
 import type { Provider } from "aihappey-types";
-import { HIDDEN_DIRECT_MODEL_ID_SUFFIX } from "aihappey-types";
 import zaiModels from "../../runtime/providers/catalog/models/zai.json";
 import { enrichDirectModelsWithProviderPricing } from "../../runtime/providers/catalog/providerPricing";
-
-export const DIRECT_MODEL_ID_SUFFIX = HIDDEN_DIRECT_MODEL_ID_SUFFIX;
 
 export type ModelsListProgress = {
   completed: number;
@@ -94,6 +91,14 @@ export const getEndpointHeaderEntries = (customHeaders?: Record<string, string>,
 
 export const createEndpointHeaders = (customHeaders?: Record<string, string>, providers?: Record<string, ProviderLike>) =>
   Object.fromEntries(getEndpointHeaderEntries(customHeaders, providers));
+
+export const mergeCredentialHeaders = (
+  configured?: Record<string, string>, custom?: Record<string, string>,
+): Record<string, string> => {
+  const headers = new Headers(configured);
+  new Headers(custom).forEach((value, name) => headers.set(name, value));
+  return Object.fromEntries(headers.entries());
+};
 
 export const getProviderApiKeyHeaderEntries = (
   customHeaders: Record<string, string> | undefined,
@@ -317,21 +322,33 @@ const modelRouteOf = (model: any): "gateway" | "direct" =>
   model?.route === "direct" ? "direct" : "gateway";
 
 const mergeModelResponses = (responses: ModelResponse[]) => {
-  const seen = new Set<string>();
+  const merged = new Map<string, ModelResponse["data"][number]>();
   const enriched = enrichModelTypes(responses.flatMap((response) => response?.data ?? []));
-  const data = enriched.filter((model) => {
-    if (!model?.id) return false;
-
-    const normalizedId = model.id.trim().toLowerCase();
+  for (const model of enriched) {
+    if (!model?.id) continue;
+    const normalizedId = model.id.trim();
     const normalizedType = String(model.type ?? "").trim().toLowerCase();
     const identity = JSON.stringify([normalizedId, normalizedType]);
-    if (seen.has(identity)) return false;
+    const previous = merged.get(identity);
+    if (!previous) {
+      merged.set(identity, model);
+      continue;
+    }
+    // Discovery source is not the selected transport. Gateway metadata wins,
+    // but direct discovery owns the exact upstream request ID.
+    const gateway = modelRouteOf(previous) === "gateway" ? previous
+      : modelRouteOf(model) === "gateway" ? model : undefined;
+    const direct = model.sourceProviderKey ? model : previous.sourceProviderKey ? previous : undefined;
+    merged.set(identity, {
+      ...previous,
+      ...model,
+      ...(gateway ?? {}),
+      ...(direct ? { sourceProviderKey: direct.sourceProviderKey, providerModelId: direct.providerModelId } : {}),
+      route: gateway ? "gateway" : "direct",
+    });
+  }
 
-    seen.add(identity);
-    return true;
-  });
-
-  return { data } satisfies ModelResponse;
+  return { data: [...merged.values()] } satisfies ModelResponse;
 };
 
 const enrichModelResponse = (response: ModelResponse) => ({
@@ -381,7 +398,8 @@ const annotateGatewayModelIds = (response: ModelResponse) => ({
       ...model,
       route: modelRouteOf(model),
       providerKey: (model as any).providerKey ?? providerKey,
-      providerModelId: (model as any).providerModelId ?? model.id,
+      providerModelId: model.providerModelId ?? (providerKey && model.id.startsWith(`${providerKey}/`)
+        ? model.id.slice(providerKey.length + 1) : model.id),
     };
   }),
 }) satisfies ModelResponse;
@@ -406,7 +424,7 @@ const prefixProviderModelIds = (response: ModelResponse, providerKey?: string) =
         providerModelId,
         displayId,
         type: model.type || "",
-        id: `${displayId}${DIRECT_MODEL_ID_SUFFIX}`,
+        id: displayId,
       };
     }),
   } satisfies ModelResponse;
@@ -449,7 +467,7 @@ export const listModelsWithSplitProviderHeaders = async ({
 }) => {
   const shouldIncludeGatewayModels = includeGatewayModels ?? !directProviderModels;
 
-  const directProviderRequests = directProviderModels
+  const directProviderRequests = directProviderModels && !getAccessToken
     ? providerKey
       ? (() => {
         const apiKey = getExactProviderApiKeyHeaderEntry(customHeaders, providerKey, providers)?.[1]?.trim();
