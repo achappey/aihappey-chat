@@ -1,4 +1,5 @@
 import { createCredentialScopedFetch } from "../../provider-credentials/scopedRequest";
+import type { AgentDetailConfig } from "../../agents/remoteAgentDetails";
 // useAuthFetch.ts
 import { useMemo } from "react";
 import { setApiDebugHeader } from "./apiDebug";
@@ -31,6 +32,7 @@ type UseAuthFetchArgs = {
     customHeaders?: Record<string, string>;
     customFetch?: typeof fetch;
     getDebugEnabled?: () => boolean;
+    agentConfig?: AgentDetailConfig;
 };
 
 export function useAuthFetch({
@@ -41,6 +43,7 @@ export function useAuthFetch({
     customHeaders,
     customFetch,
     getDebugEnabled,
+    agentConfig,
 }: UseAuthFetchArgs) {
     // A transport pins this credential snapshot for its entire run, including tool continuations.
     return useMemo(() => {
@@ -82,10 +85,10 @@ export function useAuthFetch({
             const f = customFetch ?? fetch;
             if (typeof Request !== "undefined" && input instanceof Request) {
                 const request = new Request(input, { ...init, headers: h });
-                return createCredentialScopedFetch(f)(request);
+                return createCredentialScopedFetch(f, mode === "agent" ? agentConfig : undefined)(request);
             }
 
-            return createCredentialScopedFetch(f)(input, { ...init, headers: h });
+            return createCredentialScopedFetch(f, mode === "agent" ? agentConfig : undefined)(input, { ...init, headers: h });
         };
-    }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch, getDebugEnabled]);
+    }, [chatMode, getAccessToken, refreshToken, headers, customHeaders, customFetch, getDebugEnabled, agentConfig]);
 }

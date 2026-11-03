@@ -326,7 +326,7 @@ export function useLocalAgentsRuntime(files?: FilesContextType | null) {
       const client = createResponsesProvider({
         baseUrl: (config.agentEndpoint ?? config.baseUrl) + config.endpoints.responses,
         headers,
-        fetch: createCredentialScopedFetch(config.fetch),
+        fetch: createCredentialScopedFetch(config.fetch, config),
       });
       const response = await client.create(request);
       return { isError: false, content: [], structuredContent: response };

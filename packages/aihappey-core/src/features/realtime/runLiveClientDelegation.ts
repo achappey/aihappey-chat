@@ -32,7 +32,7 @@ export async function runLiveClientDelegation(args: {
     providerMetadata: state.providerMetadata, providerHeaders: state.providerHeaders,
   };
   const chat = new Chat<any>({ id: crypto.randomUUID(), messages: args.messages as any,
-    transport: new ManagedAgentChatTransport({ api: (agent ? config.agentEndpoint ?? config.baseUrl : config.baseUrl) + config.endpoints.chat, headers, body, fetch: createCredentialScopedFetch(config.fetch) }),
+    transport: new ManagedAgentChatTransport({ api: (agent ? config.agentEndpoint ?? config.baseUrl : config.baseUrl) + config.endpoints.chat, headers, body, fetch: createCredentialScopedFetch(config.fetch, agent ? config : undefined) }),
   });
   const abort = () => { void chat.stop(); };
   signal.addEventListener('abort', abort, { once: true });

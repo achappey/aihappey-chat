@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useConversations } from "aihappey-conversations";
 import { useAppStore } from "aihappey-state";
-import { getPrimaryAgentModel, type UIMessage } from "aihappey-types";
+import { getPrimaryAgentModel, type Agent, type UIMessage } from "aihappey-types";
+import { getRemoteAgentDefinition } from "../agents/remoteAgentDetails";
 import { ModelFavoriteToggleButton, useTheme } from "aihappey-components";
 import { useChatContext } from "../chat/context/ChatContext";
 import { DisclaimerBar } from "../chat/layout/DisclaimerBar";
@@ -191,7 +192,7 @@ function RealtimeStartPage() {
             }));
           }} />
           <RealtimeInput
-            model={customAgents ? getPrimaryAgentModel(selectedRealtimeAgent?.localAgent ?? selectedRealtimeAgent?.remoteAgentModel?.agent)?.id ?? "" : model}
+            model={customAgents ? getPrimaryAgentModel(selectedRealtimeAgent?.localAgent ?? selectedRealtimeAgent?.remoteAgentModel?.agent)?.id ?? selectedRealtimeAgent?.backendId ?? "" : model}
             customAgent={customAgents}
             audioOnly={!customAgents && cartesiaAudioOnly}
             temperature={temperature}
@@ -229,7 +230,31 @@ function RealtimeConversationPage() {
   if (!modelsLoaded || (key.startsWith("remote:") && !remoteLoaded)) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}><Spinner /></div>;
   const entry = getRealtimeAgentEntries(agents, remote, models ?? []).find(entry => entry.key === key);
   if (!entry) return <Text>{t("agentRealtime.unavailable")}</Text>;
-  return <RealtimeConversationView key={key} agentEntry={entry} useController={useAgentRealtimeConversationController} />;
+  return <AgentRealtimeDetails key={key} entry={entry} />;
+}
+
+function AgentRealtimeDetails({ entry }: { entry: AgentSelectionEntry }) {
+  const { config } = useChatContext();
+  const catalog = useAppStore(state => state.remoteAgentModels);
+  const models = useAppStore(state => state.models);
+  const customHeaders = useAppStore(state => state.customHeaders);
+  const { Spinner, Text } = useTheme();
+  const [loaded, setLoaded] = useState<{ source: AgentSelectionEntry; agent: Agent }>();
+  const [error, setError] = useState<string>();
+  useEffect(() => {
+    if (entry.localAgent || entry.remoteAgentModel?.agent) return;
+    const controller = new AbortController();
+    setError(undefined);
+    void getRemoteAgentDefinition(config, customHeaders, catalog, entry.backendId, { signal: controller.signal })
+      .then(agent => { if (!controller.signal.aborted) setLoaded({ source: entry, agent }); })
+      .catch(error => { if (!controller.signal.aborted) setError(error instanceof Error ? error.message : String(error)); });
+    return () => controller.abort();
+  }, [entry, config, customHeaders, catalog]);
+  const agent = entry.localAgent ?? entry.remoteAgentModel?.agent ?? (loaded?.source === entry ? loaded.agent : undefined);
+  if (!agent) return error ? <Text>{error}</Text> : <Spinner />;
+  if (!getRealtimeAgentEntries([agent], [], models ?? []).length) return <Text>{"The selected agent has no supported realtime transcription model."}</Text>;
+  const hydrated = entry.kind === "remote" ? { ...entry, remoteAgentModel: { ...entry.remoteAgentModel!, agent } } : entry;
+  return <RealtimeConversationView agentEntry={hydrated} useController={useAgentRealtimeConversationController} />;
 }
 
 // Only one controller is mounted. The component key pins its hook implementation for the entire session.

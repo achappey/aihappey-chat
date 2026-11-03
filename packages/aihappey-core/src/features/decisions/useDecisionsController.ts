@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createDecisionProvider, defaultEndpoints } from "aihappey-ai";
 import { isValidDecisionInput, isValidDecisionQuestions, isValidDecisionResponse, toWireQuestions, useDecisions, type DecisionQuestion, type DecisionResponse } from "aihappey-decisions";
 import { useAppStore } from "aihappey-state";
+import { getRemoteAgentDefinition } from "../agents/remoteAgentDetails";
 import { useTranslation } from "aihappey-i18n";
 import { getAgentCredentialModels } from "aihappey-types";
 import { resolveSelectedAgentEntries } from "../agents/agentSelection";
@@ -101,10 +102,12 @@ export function useDecisionsController() {
       let headers: Headers;
       if (customAgents) {
         const authenticated = !!config.getAgentAccessToken || !!config.agentScopes?.length;
+        const definition = authenticated ? undefined : await getRemoteAgentDefinition(config, customHeaders,
+          remoteAgentModels ?? [], selectedAgent!.backendId, { signal: controller.signal });
         // Remote IDs identify agents, not providers. Scope keys to their exposed model configuration only.
         headers = new Headers(scopeHeadersForModels(
           authenticated ? config.headers : { ...config.headers, ...customHeaders },
-          authenticated ? [] : getAgentCredentialModels(selectedAgent?.remoteAgentModel?.agent).map(model => model.id),
+          authenticated ? [] : getAgentCredentialModels(definition).map(model => model.id),
         ));
         if (authenticated) {
           const token = await config.getAgentAccessToken?.();
@@ -136,7 +139,7 @@ export function useDecisionsController() {
       busy.current = false;
       if (mounted.current) setProcessing(false);
     }
-  }, [canSend, customAgents, selectedAgent, selectedModel, input, questions, config, customHeaders, store, addError, storageError, t]);
+  }, [canSend, customAgents, selectedAgent, selectedModel, input, questions, config, customHeaders, remoteAgentModels, store, addError, storageError, t]);
   return { models, selectedModel, setSelectedModel, customAgents, setCustomAgents, agentKey, setAgentKey,
     remoteAgentModels, agentBackendAvailable, prompt, setPrompt, questions, setQuestions, images, documents,
     addAttachments, removeImage, removeDocument, result, processing, readingAttachments, canSend, gatewayAvailable,

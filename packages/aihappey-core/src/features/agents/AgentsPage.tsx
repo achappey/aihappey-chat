@@ -6,6 +6,7 @@ import { OverviewPageHeader } from "../../ui/layout/OverviewPageHeader";
 import { AgentEditModal } from "./AgentEditModal";
 import type { Agent, IconToken, MenuItemProps, RemoteAgentModel } from "aihappey-types";
 import { getAgentModels } from "aihappey-types";
+import { getRemoteAgentDefinition } from "./remoteAgentDetails";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { useDrop } from "react-dnd";
 import React from "react";
@@ -53,7 +54,7 @@ const buildRemoteAgentCardAgent = (remoteAgentModel: RemoteAgentModel): Agent =>
     name: remoteAgentModel.name ?? remoteAgent?.name ?? remoteAgentModel.id,
     description: remoteAgentModel.description ?? remoteAgent?.description ?? "",
     instructions: remoteAgent?.instructions ?? "",
-    model: remoteAgent?.model ?? { id: remoteAgentModel.id },
+    model: remoteAgent?.model,
   };
 };
 
@@ -81,6 +82,7 @@ export const AgentsPage = () => {
   //const agents = useAppStore((s) => s.agents as Record<string, AgentCardType>);
   const agents = useAppStore((s) => s.agents);
   const remoteAgentModels = useAppStore((s) => s.remoteAgentModels);
+  const customHeaders = useAppStore((s) => s.customHeaders);
   const createAgent = useAppStore((s) => s.createAgent);
   const updateAgent = useAppStore((s) => s.updateAgent);
   const deleteAgent = useAppStore((s) => s.deleteAgent);
@@ -392,6 +394,13 @@ export const AgentsPage = () => {
             const hasEnabledMcpServers = Object.entries(card.agent.mcpServers ?? {})
               .some(([name, server]) => name.trim().length > 0 && server.disabled !== true);
             const canSaveAsPlugin = (card.agent.skills?.length ?? 0) > 0 || hasEnabledMcpServers;
+            const getDefinition = (refresh = false) => card.kind === "remote"
+              ? getRemoteAgentDefinition(chatConfig, customHeaders, remoteAgentModels, card.remoteAgentModel.id, { refresh })
+              : Promise.resolve(card.agent);
+            const withDefinition = async (action: (agent: Agent) => void | Promise<void>) => {
+              try { await action(await getDefinition()); }
+              catch (error) { setPluginFeedback(error instanceof Error ? error.message : String(error)); }
+            };
 
             return (
               <div
@@ -405,10 +414,20 @@ export const AgentsPage = () => {
                 <AgentCard
                   agent={card.agent}
                   providerIcons={card.providerIcons}
+                  getExportAgent={card.kind === "remote" ? () => getDefinition(true) : undefined}
+                  loadMenuItems={card.kind === "remote" ? async () => {
+                    const definition = await getDefinition();
+                    const hasMcp = Object.entries(definition.mcpServers ?? {}).some(([name, server]) => name.trim() && !server.disabled);
+                    const items: MenuItemProps[] = [];
+                    if (hasMcp) items.push({ key: "connect-mcp", label: t("agents.connectMcp"), onClick: () => withDefinition(handleConnectMcp) });
+                    if (hasMcp || definition.skills?.length) items.push({ key: "save-as-plugin", label: t("agents.saveAsPlugin"),
+                      onClick: () => withDefinition(agent => handleSaveAsPlugin(card.key, agent)), disabled: convertingCardKey !== null });
+                    return items;
+                  } : undefined}
                   onDelete={card.kind === "local" ? () => deleteAgent(card.agent.name) : undefined}
                   onEdit={card.kind === "local" ? () => handleEdit(card.agent.name) : undefined}
-                  onConnectMcp={hasEnabledMcpServers ? () => handleConnectMcp(card.agent) : undefined}
-                  onSaveAsPlugin={canSaveAsPlugin ? () => handleSaveAsPlugin(card.key, card.agent) : undefined}
+                  onConnectMcp={hasEnabledMcpServers ? () => withDefinition(handleConnectMcp) : undefined}
+                  onSaveAsPlugin={canSaveAsPlugin ? () => withDefinition(agent => handleSaveAsPlugin(card.key, agent)) : undefined}
                   saveAsPluginDisabled={convertingCardKey !== null}
                   isFavorite={favoriteAgentSet.has(card.key)}
                   onToggleFavorite={() => toggleFavoriteAgent(card.key)}

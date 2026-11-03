@@ -64,6 +64,7 @@ const createRemoteEntry = (remoteAgentModel: RemoteAgentModel): AgentSelectionEn
         remoteAgentModel.description,
     modelId: remoteAgentModel.id,
     remoteAgentModel,
+    argumentHint: remoteAgentModel.agent?.argumentHint,
 });
 
 export const normalizeSelectedAgentKeys = (
@@ -165,12 +166,9 @@ export const buildSelectedAgentRequest = (
     const isMixedMagentic = options?.workflowType === "magentic"
         && localRequestAgents.length > 0
         && selectedRemoteModels.length > 0;
-    const missingRemoteAgent = isMixedMagentic
-        ? selectedRemoteModels.find((entry) => !entry.remoteAgentModel?.agent)
-        : undefined;
-    const requestError = missingRemoteAgent
-        ? `Remote agent '${missingRemoteAgent.label}' does not expose the full agent configuration required for a mixed Magentic workflow.`
-        : undefined;
+    // Discovery no longer carries definitions. The async send boundary resolves mixed
+    // workflow definitions before dispatch, rather than rejecting a lightweight listing.
+    const requestError: string | undefined = undefined;
     const requestAgents = isMixedMagentic && !requestError
         ? entries.map((entry) => entry.kind === "local"
             ? entry.localAgent

@@ -13,7 +13,8 @@ export const getRealtimeAgentEntries = (agents: Agent[], remote: RemoteAgentMode
     resolveSelectedAgentEntries([
         ...agents.map(agent => `local:${agent.name}`), ...remote.map(agent => `remote:${agent.id}`),
     ], agents, remote).filter(entry => {
-        const agent = entry.localAgent ?? entry.remoteAgentModel?.agent;
+        if (entry.kind === "remote") return entry.remoteAgentModel?.tags?.includes("real-time") === true;
+        const agent = entry.localAgent;
         return !!agent?.transcription?.id && models.some(model =>
             model.id === agent.transcription!.id && isRealtimeTranscriptionModel(model));
     });

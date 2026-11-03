@@ -1,12 +1,11 @@
 import { useTheme } from "../theme/ThemeContext";
-import { Agent, MenuItemProps, getAgentModels } from "aihappey-types";
+import { Agent, MenuItemProps } from "aihappey-types";
 import { LimitedTextField } from "../fields/LimitedTextField";
 import { useTranslation } from "aihappey-i18n";
 import { CapabilityIcon } from "../images/CapabilityIcon";
 import { AgentFavoriteToggleButton } from "../buttons/AgentFavoriteToggleButton";
-import { getModelDisplayId } from "./getModelDisplayId";
-import { useDarkMode } from "usehooks-ts";
-import { selectCapabilityIcon } from "../images/selectCapabilityIcon";
+import { useEffect, useState } from "react";
+import { AuthorBadge } from "../badges/AuthorBadge";
 
 type AgentCardProps = {
   agent: Agent;
@@ -17,6 +16,8 @@ type AgentCardProps = {
   onSaveAsPlugin?: () => void | Promise<void>;
   saveAsPluginDisabled?: boolean;
   showExport?: boolean;
+  getExportAgent?: () => Promise<Agent>;
+  loadMenuItems?: () => Promise<MenuItemProps[]>;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
 };
@@ -30,12 +31,18 @@ export const AgentCard = ({
   onSaveAsPlugin,
   saveAsPluginDisabled = false,
   showExport = true,
+  getExportAgent,
+  loadMenuItems,
   isFavorite = false,
   onToggleFavorite,
 }: AgentCardProps) => {
-  const { Card, Button, Menu, Badge } = useTheme();
+  const { Card, Button, Menu } = useTheme();
   const { t } = useTranslation();
-  const { isDarkMode } = useDarkMode();
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string>();
+  const [remoteItems, setRemoteItems] = useState<MenuItemProps[]>();
+  const [loadingActions, setLoadingActions] = useState(false);
+  useEffect(() => { setRemoteItems(undefined); }, [agent]);
   const menuItems: MenuItemProps[] = [
     ...(onConnectMcp ? [{
       key: "connect-mcp",
@@ -58,8 +65,13 @@ export const AgentCard = ({
 
 
   const handleExport = async () => {
+    if (exporting) return;
+    setExporting(true);
+    setExportError(undefined);
+    try {
     // Full object (metadata + messages + anything else)
-    const json = JSON.stringify(agent, null, 2);
+    const definition = getExportAgent ? await getExportAgent() : agent;
+    const json = JSON.stringify(definition, null, 2);
 
     // Create blob
     const blob = new Blob([json], { type: "application/json" });
@@ -70,24 +82,36 @@ export const AgentCard = ({
     a.href = url;
 
     // Filename from conversation name
-    const safeName = (agent?.name)
+    const safeName = (definition.name)
       .replace(/[^a-z0-9\-]+/gi, "_");
 
     a.download = `${safeName}.json`;
     a.click();
 
     URL.revokeObjectURL(url);
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : String(error));
+    } finally { setExporting(false); }
   };
 
   const exportButton = showExport
     ? <Button icon="download"
       size="small"
       title={t('download')}
+      disabled={exporting}
       variant="transparent"
       onClick={handleExport} />
     : null;
 
-  const headerActions = menuItems.length ? <Menu items={menuItems} /> : undefined;
+  const headerActions = loadMenuItems ? <span onClickCapture={() => {
+    if (remoteItems || loadingActions) return;
+    setLoadingActions(true);
+    void loadMenuItems().then(items => setRemoteItems(items.length ? items : [
+      { key: "no-actions", label: t("noResults"), disabled: true },
+    ])).catch(error => setExportError(error instanceof Error ? error.message : String(error)))
+      .finally(() => setLoadingActions(false));
+  }}><Menu items={remoteItems ?? [{ key: "loading", label: t("loading"), disabled: true }]} /></span>
+    : menuItems.length ? <Menu items={menuItems} /> : undefined;
   const editButton = onEdit
     ? <Button icon="edit"
       size="small"
@@ -105,10 +129,7 @@ export const AgentCard = ({
 
   const imageIcons = agent?.icons?.length ? agent.icons : providerIcons;
   const image = imageIcons?.length ? <CapabilityIcon icons={imageIcons} /> : undefined;
-  // Custom agent artwork is not evidence of a provider identity.
-  const providerIcon = !agent?.icons?.length ? selectCapabilityIcon(providerIcons, isDarkMode) : undefined;
-  const displayedProviderId = providerIcon?.src ? providerIcon.providerId : undefined;
-  const modelIds = getAgentModels(agent).map(model => model.id);
+  const owner = agent.owned_by?.trim();
 
   const actions = exportButton || editButton || favoriteButton ? <>{exportButton}{editButton}{favoriteButton}</> : undefined
 
@@ -118,14 +139,11 @@ export const AgentCard = ({
       image={image}
       actions={actions}
       headerActions={headerActions}
-      description={modelIds.length ? <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-        {modelIds.map(modelId => <Badge key={modelId} title={modelId} icon="brain" size="small" appearance="tint">
-          {getModelDisplayId(modelId, !!displayedProviderId && modelId.startsWith(`${displayedProviderId}/`))}
-        </Badge>)}
-      </div> : undefined}
+      description={owner ? <AuthorBadge author={owner} /> : undefined}
       size="small"
     >
       <LimitedTextField text={agent?.description} />
+      {exportError ? <div role="alert">{exportError}</div> : null}
     </Card>
   );
 };

@@ -64,6 +64,8 @@ export function useFavoriteRouterTransport(
               return latest.baseUrl === requestConfig.baseUrl && latest.gatewayEnabled === requestConfig.gatewayEnabled
                 && latest.endpoints.decisions === requestConfig.endpoints.decisions
                 && latest.getAccessToken === requestConfig.getAccessToken && latest.fetch === requestConfig.fetch
+                && latest.agentEndpoint === requestConfig.agentEndpoint && latest.getAgentAccessToken === requestConfig.getAgentAccessToken
+                && latest.endpoints.models === requestConfig.endpoints.models
                 && JSON.stringify(latest.headers) === JSON.stringify(requestConfig.headers);
             };
             const signature = () => {

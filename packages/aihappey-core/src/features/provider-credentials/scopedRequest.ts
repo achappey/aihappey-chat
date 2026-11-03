@@ -1,7 +1,8 @@
 import { store } from "aihappey-state";
 import { getAgentCredentialModels } from "aihappey-types";
 import { getProviderRegistry } from "../../runtime/providers/useProviderRegistry";
-import { buildOperationHeaders as buildHeaders, scopeHeadersForModels } from "./providerAuthHeaders";
+import { buildOperationHeaders as buildHeaders, getProviderApiKeyHeaderEntries, scopeHeadersForModels } from "./providerAuthHeaders";
+import { loadRemoteAgentModels, type AgentDetailConfig } from "../agents/remoteAgentDetails";
 
 export const buildOperationHeaders = (
   config: Parameters<typeof buildHeaders>[0],
@@ -36,7 +37,7 @@ export const requestCredentialModels = (body: any, remoteModels: any[] = []): st
 };
 
 /** Final-boundary filtering also catches credentials in static or SDK headers. */
-export const createCredentialScopedFetch = (fetcher: typeof fetch = fetch): typeof fetch =>
+export const createCredentialScopedFetch = (fetcher: typeof fetch = fetch, agentConfig?: AgentDetailConfig): typeof fetch =>
   async (input, init) => {
     const state = store.getState();
     const headers = new Headers(typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined);
@@ -47,9 +48,27 @@ export const createCredentialScopedFetch = (fetcher: typeof fetch = fetch): type
       if (typeof source === "string") body = JSON.parse(source);
       else if (typeof FormData !== "undefined" && source instanceof FormData) body = { model: source.get("model") };
     } catch { /* Unresolved routing fails closed, without changing the payload. */ }
+    let remoteModels = state.remoteAgentModels;
+    if (agentConfig?.agentEndpoint && !agentConfig.getAgentAccessToken && !agentConfig.agentScopes?.length) {
+      const ids = [body?.model, ...(Array.isArray(body?.models) ? body.models : [])].filter((id): id is string => typeof id === "string");
+      remoteModels = await loadRemoteAgentModels(agentConfig, state.customHeaders, remoteModels, ids, init?.signal ?? undefined);
+      if (store.getState().remoteAgentModels !== state.remoteAgentModels || store.getState().customHeaders !== state.customHeaders) {
+        throw new Error("The agent account or credentials changed. Retry the operation.");
+      }
+      const registry = getProviderRegistry(state.customProviders);
+      for (const model of remoteModels.filter(model => ids.includes(model.id))) {
+        for (const configuration of getAgentCredentialModels(model.agent)) {
+          const provider = configuration.id.split("/")[0]?.toLowerCase();
+          if (!provider || !registry[provider]) continue;
+          for (const [name, value] of getProviderApiKeyHeaderEntries(state.customHeaders, provider, registry)) {
+            if (!headers.has(name)) headers.set(name, value);
+          }
+        }
+      }
+    }
     const scoped = scopeHeadersForModels(
       Object.fromEntries(headers.entries()),
-      requestCredentialModels(body, state.remoteAgentModels),
+      requestCredentialModels(body, remoteModels),
       getProviderRegistry(state.customProviders),
     );
     return fetcher(input, { ...init, headers: scoped });

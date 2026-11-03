@@ -2,6 +2,7 @@ import { scopeOperationHeaders as scopeHeadersForModels } from "../../provider-c
 import { createDecisionProvider, defaultEndpoints } from "aihappey-ai";
 import { isValidDecisionResponse, toWireQuestions, type DecisionQuestion } from "aihappey-decisions";
 import type { Agent, ModelOption, RemoteAgentModel } from "aihappey-types";
+import { loadRemoteAgentModels } from "../../agents/remoteAgentDetails";
 import { getAgentModels } from "aihappey-types";
 import { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION, type SideInferenceAgentNames } from "aihappey-state";
 import { resolveSelectedAgentEntries } from "../../agents/agentSelection";
@@ -138,7 +139,8 @@ export async function decideFavorite({
   kind: "model" | "agent";
   messages: any[];
   config: {
-    baseUrl: string; gatewayEnabled?: boolean; endpoints: { decisions?: string };
+    baseUrl: string; gatewayEnabled?: boolean; endpoints: { decisions?: string; models?: string };
+    agentEndpoint?: string; getAgentAccessToken?: () => Promise<string>;
     headers?: Record<string, string>; getAccessToken?: () => Promise<string>; fetch?: typeof fetch;
   };
   customHeaders: Record<string, string>;
@@ -146,6 +148,12 @@ export async function decideFavorite({
   /** Explicit primitive scope; omitted by chat to preserve its configured mixed-model scope. */
   modelTypes?: string[];
 }) {
+  if (kind === "agent") {
+    const ids = resolveSelectedAgentEntries(state.favoriteAgentIds, state.agents, state.remoteAgentModels)
+      .filter(entry => entry.kind === "remote").map(entry => entry.backendId);
+    state = { ...state, remoteAgentModels: await loadRemoteAgentModels(config, customHeaders, state.remoteAgentModels, ids, abortSignal) };
+    abortSignal.throwIfAborted();
+  }
   const candidates = kind === "model" && modelTypes
     ? chatModelCandidateIds(state).flatMap(id => {
       const candidate = state.models?.find(item => item.id === id && modelTypes.includes(item.type));

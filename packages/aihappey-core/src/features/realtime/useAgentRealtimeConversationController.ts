@@ -157,7 +157,7 @@ export function useAgentRealtimeConversationController(args: {
                 },
                 transport: new AgentRealtimeChatTransport({
                     api: (current.config.agentEndpoint ?? current.config.baseUrl).replace(/\/$/, "") + "/api/chat",
-                    headers, fetch: createCredentialScopedFetch(current.config.fetch),
+                    headers, fetch: createCredentialScopedFetch(current.config.fetch, current.config),
                     body: { agents: selected.requestAgents, models: selected.models, tools: catalog.tools,
                         temperature: state.temperature, maxOutputTokens: state.maxOutputTokens, maxToolCalls: state.maxToolCalls,
                         toolChoice: state.toolChoice, workflowType: "sequential",

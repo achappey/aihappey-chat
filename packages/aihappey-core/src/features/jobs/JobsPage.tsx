@@ -103,7 +103,7 @@ export const JobsPage = () => {
     return createResponsesProvider({
       baseUrl: (config.agentEndpoint ?? config.baseUrl) + config.endpoints.responses,
       headers,
-      fetch: createCredentialScopedFetch(config.fetch),
+      fetch: createCredentialScopedFetch(config.fetch, config),
     });
   };
 

@@ -14,6 +14,7 @@ import { findLatestLocalJsonRenderTree } from "../../tools/toolcalls/useLocalJso
 import { MessageList } from "../messages/MessageList";
 import { conversationGatewayCostTotal } from "../messages/toChatMessages";
 import { SYSTEM_ROLE, getAgentCredentialModels, type UIMessage } from "aihappey-types";
+import { prepareSelectedAgentRequest } from "../../agents/remoteAgentDetails";
 import { useChatActions } from "./useChatActions";
 import { useSystemMessage } from "../messages/useSystemMessage";
 import { useChatContext } from "../context/ChatContext";
@@ -405,6 +406,7 @@ export function VercelChatInner({
     customHeaders: authFetchCustomHeaders,
     customFetch,
     getDebugEnabled: getApiDebugEnabled,
+    agentConfig: config,
   });
 
   const chatFetch = useMemo(() => {
@@ -646,7 +648,7 @@ export function VercelChatInner({
       const transportOptions = {
         api: "/api/chat", // just a fallback; we override per-request below
         fetch: isGenericChatEndpoint(requestEndpoint) && chatMode !== "agent" ? authFetch : chatFetch,
-        prepareSendMessagesRequest: (opts: any) => {
+        prepareSendMessagesRequest: async (opts: any) => {
           const patchedMessages = applyOverrides(opts.messages as any);
           const requestMessages = mapToolOutputContentForRequest(chatMode === "agent" ? agentRequestMessages(patchedMessages) : patchedMessages, toolOutputContentSettings);
 
@@ -658,6 +660,14 @@ export function VercelChatInner({
             trigger: opts.trigger,
             messageId: opts.messageId,
           };
+          const resolvedAgents = chatMode === "agent"
+            ? await prepareSelectedAgentRequest(config, customHeaders, selectedAgentNames, agents,
+              remoteAgentModels, { workflowType, managerAgentKey: magenticManagerAgentKey }, abortRef.current?.signal)
+            : undefined;
+          if (resolvedAgents && workflowType === "magentic") {
+            mergedBody.agents = resolvedAgents.requestAgents;
+            mergedBody.models = resolvedAgents.models;
+          }
           // `opts.body` can replace the memoized base tools. Decorate at the
           // final transport boundary so `/api/chat` always receives the two
           // request-only properties directly on each tool definition.
@@ -752,6 +762,14 @@ export function VercelChatInner({
             Object.entries(agentApiKeyHeaders).forEach(([key, value]) => {
               if (value != null) requestHeaders.set(key, String(value));
             });
+            if (!config.agentScopes?.length && !config.getAgentAccessToken) {
+              const providerKeys = new Set(resolvedAgents?.entries.flatMap(entry =>
+                getAgentCredentialModels(entry.localAgent ?? entry.remoteAgentModel?.agent))
+                .map(model => getProviderKeyFromModelId(model.id)).filter(Boolean));
+              for (const key of providerKeys) {
+                for (const [name, value] of getProviderApiKeyHeaderEntries(customHeaders, key!, providers)) requestHeaders.set(name, value);
+              }
+            }
           }
 
           if (!isGenericChatEndpoint(requestEndpoint)) {
@@ -796,7 +814,7 @@ export function VercelChatInner({
           ? new ManagedAgentChatTransport(transportOptions)
           : new DefaultChatTransport(transportOptions);
     },
-    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings, managedAgentMcpCatalog]
+    [chatFetch, applyOverrides, baseBody, chatMode, headers, agentApiKeyHeaders, getGatewayProviderHeaders, maxToolCalls, stopTools, requestEndpoint, api, toolOutputContentSettings, managedAgentMcpCatalog, config, customHeaders, selectedAgentNames, agents, remoteAgentModels, workflowType, magenticManagerAgentKey, providers]
   );
 
   const routedTransport = useFavoriteRouterTransport(transport, baseBody, applyOverrides, files);
