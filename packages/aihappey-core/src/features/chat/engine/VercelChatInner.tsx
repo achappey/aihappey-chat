@@ -40,6 +40,7 @@ import { ElicitationModalHost } from "../../elicitation/ElicitationModalHost";
 import { ToolApprovalModalHost } from "../../tools/ToolApprovalModalHost";
 import { sendAutomaticallyWhen } from "./sendAutomaticallyWhen";
 import { createResponsesContinuation } from "./responsesContinuation";
+import { createClientToolContinuation } from "./clientToolContinuation";
 import { useIsDesktop } from "../../../shell/responsive/useIsDesktop";
 import { countCompletedToolCallsLastAssistant } from "./countCompletedToolCallsLastAssistant";
 import { shouldForceToolChoiceNone } from "./shouldForceToolChoiceNone";
@@ -483,6 +484,7 @@ export function VercelChatInner({
   const agentToolCatalogRef = useRef(managedAgentMcpCatalog);
   const agentContinuationRef = useRef(createAgentChatContinuation());
   const responsesContinuationRef = useRef(createResponsesContinuation());
+  const messagesContinuationRef = useRef(createClientToolContinuation());
   const agentToolSignalRef = useRef<AbortSignal | undefined>(undefined);
   const agentToolMessageRef = useRef<string | undefined>(undefined);
   const agentToolRunActiveRef = useRef(false);
@@ -811,7 +813,7 @@ export function VercelChatInner({
         signal,
       });
 
-      if (chatMode === "agent" && signal?.aborted) return;
+      if ((chatMode === "agent" || requestEndpoint === "/v1/messages") && signal?.aborted) return;
       addToolOutput({
         tool: toolCall.toolName,
         toolCallId: toolCall.toolCallId,
@@ -824,7 +826,9 @@ export function VercelChatInner({
       ? !agentToolSignalRef.current?.aborted && agentContinuationRef.current.shouldSend(options)
       : requestEndpoint === "/v1/responses"
         ? responsesContinuationRef.current.shouldSend(options)
-        : sendAutomaticallyWhen(options),
+        : requestEndpoint === "/v1/messages"
+          ? !abortRef.current?.signal.aborted && messagesContinuationRef.current.shouldSend(options)
+          : sendAutomaticallyWhen(options),
     messages: seededMessages,
     onFinish: async ({ message, messages: finishedMessages, isDisconnect, isAbort }) => {
       if (chatMode === "agent") {

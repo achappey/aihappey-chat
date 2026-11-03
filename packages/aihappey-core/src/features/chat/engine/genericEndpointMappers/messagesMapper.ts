@@ -22,7 +22,7 @@ import {
   toolPartName,
   toolPartOutput,
 } from "./toolParts";
-import { getSystemText, getTextFromPart, mapUiMessages, parseDataUrl } from "./uiMessageParts";
+import { getSystemText, getTextFromPart, isReasoningPart, isToolPart, mapUiMessages, parseDataUrl } from "./uiMessageParts";
 import {
   CLIENT_TOOL_SEARCH_NAME,
   selectedToolsFromClientToolSearchResult,
@@ -77,8 +77,9 @@ const messagesReasoningFromPart = (part: any, providerKey?: string) => {
   if (!providerMetadata || typeof providerMetadata !== "object") return undefined;
 
   const metadataType = providerMetadata.type;
-  const redactedData = providerMetadata.data;
-  if (metadataType === ANTHROPIC_THINKING_METADATA_TYPES.redactedThinking && typeof redactedData === "string" && redactedData) {
+  const redactedData = providerMetadata.data ?? providerMetadata.encrypted_content;
+  if ((metadataType === ANTHROPIC_THINKING_METADATA_TYPES.redactedThinking
+    || (providerKey === "anthropic" && !providerMetadata.signature)) && typeof redactedData === "string" && redactedData) {
     return {
       type: "redacted_thinking" as const,
       data: redactedData,
@@ -95,19 +96,8 @@ const messagesReasoningFromPart = (part: any, providerKey?: string) => {
   };
 };
 
-const toAnthropicContentBlocks = (message: GenericMappedMessage, providerKey?: string) => {
+const toAnthropicContentBlocks = (message: GenericMappedMessage) => {
   const blocks: any[] = [];
-
-  if (message.role === "assistant") {
-    blocks.push(
-      ...message.reasoningParts
-        .map((part) => messagesReasoningFromPart(part, providerKey))
-        .filter(Boolean),
-    );
-    message.nonReasoningTextParts.forEach((text) => blocks.push({ type: "text", text }));
-    return blocks;
-  }
-
   if (message.text) blocks.push({ type: "text", text: message.text });
 
   if (message.role === "user") {
@@ -117,77 +107,88 @@ const toAnthropicContentBlocks = (message: GenericMappedMessage, providerKey?: s
   return blocks;
 };
 
-const toAnthropicToolUseBlocks = (message: GenericMappedMessage): any[] => message.toolParts
-  .filter(isClientExecutableToolPart)
-  .filter((part: any) => !isOutputOnlyToolPart(part))
-  .map((part: any) => {
-    const toolUseId = toolPartCallId(part);
-    if (!toolUseId) return undefined;
-
-    return {
-      type: "tool_use" as const,
-      id: toolUseId,
-      name: toolPartName(part, "tool"),
-      input: toolPartInput(part),
-    };
-  })
-  .filter(Boolean);
-
-const toAnthropicToolResultMessages = (message: GenericMappedMessage): any[] => message.toolParts
-  .filter(isClientExecutableToolPart)
-  .filter(hasToolPartOutput)
-  .map((part: any) => {
-    const toolUseId = toolPartCallId(part);
-    if (!toolUseId) return undefined;
-
-    const output = toolPartOutput(part);
-    const isClientToolSearch = toolPartName(part, "tool") === CLIENT_TOOL_SEARCH_NAME;
-    const selectedTools = isClientToolSearch
-      ? selectedToolsFromClientToolSearchResult(output)
-      : undefined;
-
-    return compactObject({
-      role: "user" as const,
-      content: [compactObject({
-        type: "tool_result" as const,
-        tool_use_id: toolUseId,
-        content: selectedTools
-          ? selectedTools.map((tool: any) => ({
-            type: "tool_reference",
-            tool_name: tool.name,
-          }))
-          : stringifyToolValue(output),
-        is_error: String(part?.state ?? "").toLowerCase() === "output-error" ? true : undefined,
-      })],
-    });
-  })
-  .filter(Boolean);
+const toAnthropicToolResult = (part: any, toolUseId: string) => {
+  const denied = part.state === "output-denied" || part.approval?.approved === false;
+  const failed = part.state === "output-error";
+  if (!hasToolPartOutput(part) && part.state !== "output-available" && !denied && !failed) return undefined;
+  const output = denied ? (part.approval?.reason || "The user denied this tool request.")
+    : failed ? (part.errorText ?? toolPartOutput(part) ?? "Tool execution failed.") : toolPartOutput(part);
+  const isError = denied || failed || output?.isError === true;
+  const selectedTools = !isError && toolPartName(part) === CLIENT_TOOL_SEARCH_NAME
+    ? selectedToolsFromClientToolSearchResult(output) : undefined;
+  return compactObject({
+    type: "tool_result",
+    tool_use_id: toolUseId,
+    content: selectedTools ? selectedTools.map((tool: any) => ({ type: "tool_reference", tool_name: tool.name }))
+      : stringifyToolValue(output),
+    is_error: isError ? true : undefined,
+  });
+};
 
 const toAnthropicMessages = (messages: GenericMappedMessage[], providerKey?: string): any[] => messages
   .filter((message) => message.role !== "system")
   .flatMap((message): any[] => {
     if (message.role !== "assistant") {
-      const content = toAnthropicContentBlocks(message, providerKey);
+      const content = toAnthropicContentBlocks(message);
       return content.length > 0
         ? [compactObject({ role: message.role as "user", content })]
         : [];
     }
 
-    const content = [
-      ...toAnthropicContentBlocks(message, providerKey),
-      ...toAnthropicToolUseBlocks(message),
-    ];
-    const toolResults = toAnthropicToolResultMessages(message);
-
-    return [
-      ...(content.length > 0 ? [compactObject({ role: "assistant" as const, content })] : []),
-      ...toolResults,
-    ];
+    const result: any[] = [];
+    let content: any[] = [];
+    let toolResults: any[] = [];
+    const seenCalls = new Set<string>();
+    const seenResults = new Set<string>();
+    const parts = (message.raw.parts ?? []) as any[];
+    const hasSteps = parts.some(part => part.type === "step-start");
+    const flush = () => {
+      if (content.length) result.push({ role: "assistant", content });
+      if (toolResults.length) result.push({ role: "user", content: toolResults });
+      content = [];
+      toolResults = [];
+    };
+    for (const part of parts) {
+      if (part.type === "step-start") {
+        flush();
+      } else if (isToolPart(part)) {
+        if (!isClientExecutableToolPart(part)
+          || ["input-streaming", "input-error", "approval-requested"].includes(part.state)) continue;
+        const id = toolPartCallId(part);
+        if (!id) continue;
+        const output = toAnthropicToolResult(part, id);
+        // Never send dangling calls (for example after cancellation) as history.
+        if (!output) continue;
+        if (!isOutputOnlyToolPart(part) && !seenCalls.has(id)) {
+          content.push({ type: "tool_use", id, name: toolPartName(part), input: toolPartInput(part) });
+          seenCalls.add(id);
+        }
+        if (seenCalls.has(id) && !seenResults.has(id)) {
+          toolResults.push(output);
+          seenResults.add(id);
+        }
+      } else if (isReasoningPart(part)) {
+        const block = messagesReasoningFromPart(part, providerKey);
+        if (!block) continue;
+        if (!hasSteps && toolResults.length) flush();
+        content.push(block);
+      } else if (part.type === "text" && getTextFromPart(part)) {
+        if (!hasSteps && toolResults.length) flush();
+        content.push({ type: "text", text: getTextFromPart(part) });
+      }
+    }
+    flush();
+    return result;
   });
 
 export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
   const messages = mapUiMessages(body.messages);
-  const providerKey = getProviderKeyFromRequestBody(body);
+  // A provider need not have any request settings. Its identity still comes
+  // from the selected route (or canonical gateway model), not an arbitrary
+  // first key in a possibly empty metadata map.
+  const providerKey = String(body.providerRequestConfigProviderKey ?? "").trim().toLowerCase()
+    || (body.model?.includes("/") ? body.model.split("/")[0].trim().toLowerCase() : undefined)
+    || getProviderKeyFromRequestBody(body);
   const providerRequestConfig = sanitizeGenericEndpointProviderRequestConfig({
     ...body,
     endpoint: "/v1/messages",
@@ -202,7 +203,7 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
     model: body.model,
     system: getSystemText(messages),
     temperature: body.temperature,
-    max_tokens: body.maxOutputTokens ?? 1024,
+    max_tokens: body.maxOutputTokens ?? providerRequestConfig?.max_tokens ?? 1024,
     metadata: resolveNativeRequestMetadata({
       ...body,
       extraMetadata: compactObject({

@@ -257,6 +257,9 @@ const createUiMessageChunkStream = ({
   const imageGenerationFinalFiles = new Set<string>();
   const messagesContentBlocksByIndex = new Map<number, any>();
   const messagesReasoningIdsByIndex = new Map<number, string>();
+  const messagesStoppedBlocks = new Set<number>();
+  const messagesCompletedToolIds = new Set<string>();
+  let messagesStopReason: string | undefined;
   const responsesTextById = new Map<string, string>();
   const responsesMessageItems = new Map<string, any>();
   const responsesTextMetadataById = new Map<string, Record<string, any>>();
@@ -324,7 +327,7 @@ const createUiMessageChunkStream = ({
       }) : {}),
       encrypted_content: typeof item?.encrypted_content === "string" && item.encrypted_content
         ? item.encrypted_content
-        : undefined,
+        : item?.type === ANTHROPIC_THINKING_METADATA_TYPES.redactedThinking ? item.data : undefined,
       signature: typeof item?.signature === "string" && item.signature
         ? item.signature
         : undefined,
@@ -365,7 +368,7 @@ const createUiMessageChunkStream = ({
       type: "start",
       // The SDK continues the existing assistant message across client-tool
       // steps. Replacing its id would append a copy of all previous parts.
-      ...(endpoint === "/v1/responses" ? {} : { messageId }),
+      ...(endpoint === "/v1/responses" || endpoint === "/v1/messages" ? {} : { messageId }),
       messageMetadata: messageMetadata(),
     });
     startedMessage = true;
@@ -408,7 +411,7 @@ const createUiMessageChunkStream = ({
 
   const finish = (controller: ReadableStreamDefaultController<Uint8Array>, finishReason = "stop") => {
     if (closed) return;
-    if (endpoint === "/v1/responses") {
+    if (endpoint === "/v1/responses" || endpoint === "/v1/messages") {
       ensureMessageStarted(controller);
       closeActiveReasoning(controller);
       closeText(controller);
@@ -460,8 +463,17 @@ const createUiMessageChunkStream = ({
       ?? event.metadata?.total_usage
       ?? getChatCompletionChoiceUsage(event);
     if (usage) {
-      latestRawUsage = usage;
-      latestUsage = normalizeUsage(usage) ?? latestUsage;
+      // Messages usage updates are cumulative, partial snapshots. In particular,
+      // message_delta normally omits the input count from message_start.
+      latestRawUsage = endpoint === "/v1/messages"
+        ? { ...latestRawUsage, ...Object.fromEntries(Object.entries(usage).filter(([, value]) => value != null)) }
+        : usage;
+      const normalizedUsage = endpoint === "/v1/messages" ? {
+        ...latestRawUsage,
+        input_tokens: (latestRawUsage.input_tokens ?? 0)
+          + (latestRawUsage.cache_creation_input_tokens ?? 0) + (latestRawUsage.cache_read_input_tokens ?? 0),
+      } : latestRawUsage;
+      latestUsage = normalizeUsage(normalizedUsage) ?? latestUsage;
     }
     const responseGateway = event.metadata?.gateway ?? event.response?.metadata?.gateway;
     const currentGateway = responseGateway ?? latestGateway;
@@ -1587,7 +1599,7 @@ const createUiMessageChunkStream = ({
     }
   };
 
-  const messagesReasoningId = (index: number) => `reasoning-messages-${index}`;
+  const messagesReasoningId = (index: number) => `reasoning-messages-${messageId}-${index}`;
 
   const isMessagesReasoningBlock = (block: any) =>
     block?.type === ANTHROPIC_THINKING_METADATA_TYPES.thinking
@@ -1662,6 +1674,90 @@ const createUiMessageChunkStream = ({
     }
 
     return false;
+  };
+
+  const handleMessagesPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
+    const type = event?.type ?? eventName;
+    const index = typeof event?.index === "number" ? event.index : undefined;
+    if (type === "error") throw new Error(event.error?.message ?? event.message ?? "Messages request failed.");
+    if (type === "message_start") {
+      ensureStepStarted(controller);
+      return;
+    }
+    if (type === "message_delta") {
+      messagesStopReason = event.delta?.stop_reason ?? messagesStopReason;
+      return;
+    }
+    if (type === "message_stop") {
+      if ([...messagesContentBlocksByIndex.keys()].some(key => !messagesStoppedBlocks.has(key))) {
+        throw new Error("Messages ended with an incomplete content block.");
+      }
+      if (!messagesStopReason) throw new Error("Messages ended without a stop reason.");
+      if (messagesStopReason === "max_tokens" && !finalTextBuffer && !emittedClientToolInput) {
+        throw new Error("Messages reached max_tokens before producing an answer. Increase the maximum output tokens in the model or provider settings.");
+      }
+      finish(controller, messagesStopReason === "tool_use" ? "tool-calls"
+        : ["max_tokens", "model_context_window_exceeded"].includes(messagesStopReason) ? "length" : "stop");
+      return;
+    }
+    if (type === "content_block_start" && index !== undefined) {
+      const block = event.content_block;
+      if (!block || messagesContentBlocksByIndex.has(index)) return;
+      ensureStepStarted(controller);
+      closeText(controller);
+      closeActiveReasoning(controller);
+      messagesContentBlocksByIndex.set(index, { ...block });
+      if (handleMessagesReasoningPayload(event, controller, type)) return;
+      if (block.type === "tool_use") {
+        if (!block.id || !block.name) throw new Error("Messages tool call requires an id and name.");
+        if (!messagesCompletedToolIds.has(block.id)) emitToolInput(controller, block.id, block.name, undefined);
+      } else if (block.type === "text") {
+        textPartId = `messages-text-${messageId}-${index}`;
+        ensureStarted(controller);
+        if (block.text) {
+          finalTextBuffer += block.text;
+          enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: block.text });
+        }
+      }
+      return;
+    }
+    if ((type === "content_block_delta" || type === "content_block_stop") && index !== undefined) {
+      const block = messagesContentBlocksByIndex.get(index);
+      if (!block) throw new Error("Messages received an unknown content block index.");
+      if (messagesStoppedBlocks.has(index)) return;
+      if (type === "content_block_stop") {
+        messagesStoppedBlocks.add(index);
+        if (handleMessagesReasoningPayload(event, controller, type)) return;
+        if (block.type === "text") closeText(controller);
+        if (block.type === "tool_use" && !messagesCompletedToolIds.has(block.id)) {
+          // Parameterless tools may send an input_json_delta with an empty
+          // partial_json. Only a non-empty JSON document replaces the initial
+          // input snapshot; malformed non-empty documents must still fail.
+          const inputText = toolInputTextById.get(block.id) ?? "";
+          const input = inputText.trim() ? JSON.parse(inputText) : block.input ?? {};
+          if (!input || typeof input !== "object" || Array.isArray(input)) {
+            throw new Error("Messages tool input must be a JSON object.");
+          }
+          messagesCompletedToolIds.add(block.id);
+          emitToolInput(controller, block.id, block.name, undefined, input);
+        }
+        return;
+      }
+      if (handleMessagesReasoningPayload(event, controller, type)) return;
+      if (block.type === "tool_use" && event.delta?.type === "input_json_delta" && !messagesCompletedToolIds.has(block.id)) {
+        // An initial input snapshot is not a JSON prefix. Streamed JSON replaces
+        // it, and is parsed strictly only when this particular block stops.
+        const partial = event.delta.partial_json;
+        if (typeof partial === "string") {
+          if (!toolInputTextById.has(block.id)) toolInputTextById.set(block.id, "");
+          emitToolInput(controller, block.id, block.name, partial);
+        }
+      } else if (block.type === "text" && event.delta?.type === "text_delta" && typeof event.delta.text === "string") {
+        ensureStarted(controller);
+        finalTextBuffer += event.delta.text;
+        enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: event.delta.text });
+      }
+    }
   };
 
   const responsesTextMetadata = (itemId?: string) => {
@@ -2189,36 +2285,6 @@ const createUiMessageChunkStream = ({
       return;
     }
 
-    if (endpoint === "/v1/messages") {
-      const contentBlock = event?.content_block;
-      const index = typeof event?.index === "number" ? event.index : undefined;
-      if (contentBlock?.type === "tool_use") {
-        if (index !== undefined) messagesContentBlocksByIndex.set(index, { ...contentBlock });
-        emitToolInput(controller, contentBlock.id, contentBlock.name, undefined);
-        if (contentBlock?.input && typeof contentBlock.input === "object" && Object.keys(contentBlock.input).length > 0) {
-          toolInputTextById.set(contentBlock.id, JSON.stringify(contentBlock.input));
-        }
-        return;
-      }
-
-      if (eventName === "content_block_delta" || event?.type === "content_block_delta") {
-        const delta = event?.delta;
-        if (delta?.type === "input_json_delta") {
-          const contentBlockForIndex = index !== undefined ? messagesContentBlocksByIndex.get(index) : undefined;
-          const toolCallId = event?.content_block_id ?? contentBlockForIndex?.id ?? `tool-${event?.index ?? startedToolCalls.size}`;
-          emitToolInput(
-            controller,
-            toolCallId,
-            event?.name ?? contentBlockForIndex?.name ?? toolNameById.get(toolCallId) ?? "unknown_tool",
-            typeof delta.partial_json === "string" ? delta.partial_json : undefined,
-          );
-        }
-      }
-
-      if (eventName === "content_block_stop" || event?.type === "content_block_stop") {
-        finalizePendingClientToolInputs(controller);
-      }
-    }
   };
 
   const getTextDelta = (eventName: string | undefined, event: any) => {
@@ -2265,6 +2331,7 @@ const createUiMessageChunkStream = ({
     if (!payload) return;
     if (payload === "[DONE]") {
       if (endpoint === "/v1/responses") throw new Error("Responses stream ended before response.completed.");
+      if (endpoint === "/v1/messages") throw new Error("Messages stream ended before message_stop.");
       finish(controller);
       return;
     }
@@ -2272,9 +2339,16 @@ const createUiMessageChunkStream = ({
     if (payload.startsWith("[")) return;
 
     const parsed = parseJsonPayload(payload);
-    if (!parsed || typeof parsed !== "object") return;
+    if (!parsed || typeof parsed !== "object") {
+      if (endpoint === "/v1/messages") throw new Error("Invalid Messages stream event.");
+      return;
+    }
 
     rememberMetadata(parsed);
+    if (endpoint === "/v1/messages") {
+      handleMessagesPayload(parsed, controller, eventName);
+      return;
+    }
     if (endpoint === "/v1/responses") {
       handleResponsesPayload(parsed, controller, eventName);
       return;
@@ -2365,6 +2439,7 @@ const createUiMessageChunkStream = ({
 
         if (!cancelled) {
           if (endpoint === "/v1/responses" && !closed) throw new Error("Responses stream ended before response.completed.");
+          if (endpoint === "/v1/messages" && !closed) throw new Error("Messages stream ended before message_stop.");
           finish(controller);
         }
       } catch (err: any) {
