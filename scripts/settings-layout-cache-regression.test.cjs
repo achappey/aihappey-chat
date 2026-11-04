@@ -192,7 +192,7 @@ test("Responses request preserves the nested 12-hour cache TTL without changing 
     form.select(".ttl").props.onChange("12h");
     const { responsesEndpoint } = load("packages/aihappey-clients/src/endpoints/responses.ts", {
         "../shared/messages": { toResponsesConversationInput: () => ({ input: [], instructions: undefined }) },
-        "../shared/nativeMetadata": { resolveNativeRequestMetadata: () => undefined },
+        "../shared/nativeMetadata": load("packages/aihappey-clients/src/shared/nativeMetadata.ts"),
         "../shared/providerRequestConfig": load("packages/aihappey-clients/src/shared/providerRequestConfig.ts"),
         "../shared/response-parsers": { extractResponsesText: () => "" },
     });

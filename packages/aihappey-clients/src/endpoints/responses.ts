@@ -5,8 +5,8 @@ import type {
   ResponsesEndpointConfig,
 } from "../shared/types";
 import { toResponsesConversationInput } from "../shared/messages";
-import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
-import { getProviderKeyFromRequest, sanitizeProviderRequestConfigForProvider } from "../shared/providerRequestConfig";
+import { resolveNativeRequestMetadata, mergeNativeRequestBody } from "../shared/nativeMetadata";
+import { resolveNativeProviderRequestConfig } from "../shared/providerRequestConfig";
 import { extractResponsesText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -22,19 +22,14 @@ const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEn
 const buildResponsesBody = (request: NormalizedInvokeRequest) => {
   const { instructions, input } = toResponsesConversationInput(request.messages);
   const endpointConfig = (request.endpointConfig ?? {}) as ResponsesEndpointConfig;
-  const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
-    request.providerRequestConfig,
-    getProviderKeyFromRequest(request),
-    { endpointId: "/v1/responses" },
-  );
+  const providerRequestConfig = resolveNativeProviderRequestConfig(request, "/v1/responses");
 
-  return compactObject({
-    ...(providerRequestConfig ?? {}),
+  return mergeNativeRequestBody(providerRequestConfig, compactObject({
     model: request.model,
     temperature: request.temperature,
     include: endpointConfig.include,
     max_output_tokens: request.maxOutputTokens,
-    metadata: resolveNativeRequestMetadata(request),
+    metadata: resolveNativeRequestMetadata({ ...request, providerRequestConfig }),
     instructions,
     input,
     stream: endpointConfig.stream,
@@ -59,7 +54,7 @@ const buildResponsesBody = (request: NormalizedInvokeRequest) => {
     text: compactObject({
       verbosity: endpointConfig.text?.verbosity,
     }),
-  });
+  }));
 };
 
 const parseResponsesResponse = (raw: unknown): InvokePlaygroundResult => ({

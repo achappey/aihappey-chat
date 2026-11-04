@@ -12,7 +12,7 @@ import { PROVIDERS } from "../providers/providerMetadata";
 
 type SideInferenceFeature = "welcomeMessage" | "conversationName" | "explainToolCall" | "toolSearch" | "resourceSearch";
 
-const supportsAgentProviderMetadata = (feature: SideInferenceFeature) =>
+const supportsAgentProviderOptions = (feature: SideInferenceFeature) =>
   feature !== "toolSearch" && feature !== "resourceSearch";
 
 export type SideInferenceAgentCallOptions = {
@@ -248,15 +248,8 @@ export const invokeSideInferenceAgent = async ({
         endpointId: "/v1/responses",
       },
     );
-    const directProviderRequestConfig = isDirectProviderRequest
-      ? (agentProviderRequestConfig ?? {})
-      : {};
-    const gatewayProviderMetadata = !isDirectProviderRequest
-      && supportsAgentProviderMetadata(feature)
-      && providerKey
-      && agentProviderRequestConfig
-      ? { [providerKey]: agentProviderRequestConfig }
-      : undefined;
+    const nativeRequestConfig = isDirectProviderRequest || supportsAgentProviderOptions(feature)
+      ? (agentProviderRequestConfig ?? {}) : {};
     const requestModel = isDirectProviderRequest
       ? resolveProviderRequestModelId({
         modelId,
@@ -265,14 +258,15 @@ export const invokeSideInferenceAgent = async ({
       })
       : modelId;
 
-    const body = compactObject({
-      ...directProviderRequestConfig,
+    const body = {
+      ...nativeRequestConfig,
+      ...compactObject({
       model: requestModel,
       instructions: selectedAgent?.instructions ?? fallbackInstructions,
       input: toInputText(input),
       stream: false,
-      metadata: gatewayProviderMetadata,
-    });
+      }),
+    };
 
     const response = await doFetch(url, {
       method: "POST",

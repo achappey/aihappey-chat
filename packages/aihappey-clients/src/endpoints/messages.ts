@@ -5,8 +5,8 @@ import type {
   NormalizedInvokeRequest,
 } from "../shared/types";
 import { getSystemPrompt, toAnthropicMessages } from "../shared/messages";
-import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
-import { getProviderKeyFromRequest, sanitizeProviderRequestConfigForProvider } from "../shared/providerRequestConfig";
+import { resolveNativeRequestMetadata, mergeNativeRequestBody } from "../shared/nativeMetadata";
+import { resolveNativeProviderRequestConfig } from "../shared/providerRequestConfig";
 import { extractAnthropicMessagesText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -20,14 +20,9 @@ const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEn
 
 const buildMessagesBody = (request: NormalizedInvokeRequest) => {
   const endpointConfig = (request.endpointConfig ?? {}) as MessagesEndpointConfig;
-  const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
-    request.providerRequestConfig,
-    getProviderKeyFromRequest(request),
-    { endpointId: "/v1/messages" },
-  );
+  const providerRequestConfig = resolveNativeProviderRequestConfig(request, "/v1/messages");
 
-  return compactObject({
-    ...(providerRequestConfig ?? {}),
+  return mergeNativeRequestBody(providerRequestConfig, compactObject({
     model: request.model,
     system: getSystemPrompt(request.messages),
     temperature: request.temperature,
@@ -42,6 +37,7 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
     stop_sequences: endpointConfig.stop_sequences,
     metadata: resolveNativeRequestMetadata({
       ...request,
+      providerRequestConfig,
       extraMetadata: compactObject({
         user_id: endpointConfig.metadata?.user_id,
       }),
@@ -54,7 +50,7 @@ const buildMessagesBody = (request: NormalizedInvokeRequest) => {
       budget_tokens: endpointConfig.thinking?.budget_tokens,
       display: endpointConfig.thinking?.display,
     }),
-  });
+  }));
 };
 
 const parseMessagesResponse = (raw: unknown): InvokePlaygroundResult => ({

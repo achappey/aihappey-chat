@@ -8,7 +8,8 @@ import {
   hasConfiguredNativeTools,
   mergeNativeTools,
   normalizeToolChoice,
-  resolveNativeRequestMetadata,
+  resolveNativeEndpointMetadata,
+  mergeNativeRequestBody,
   resolveOpenAiToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
@@ -338,17 +339,16 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
     });
   });
 
-  return compactObject({
-    ...(providerRequestConfig ?? {}),
+  return mergeNativeRequestBody(providerRequestConfig, compactObject({
     model: body.model,
     temperature: body.temperature,
     max_output_tokens: body.maxOutputTokens,
-    metadata: resolveNativeRequestMetadata(body),
+    metadata: resolveNativeEndpointMetadata({ providerRequestConfig }),
     instructions: getSystemText(messages),
     tools: activeTools,
     tool_choice: resolveOpenAiToolChoice(body, providerRequestConfig, hasTools),
     store: false,
     input,
     stream: true,
-  });
+  }));
 };

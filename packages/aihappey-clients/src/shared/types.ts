@@ -120,7 +120,6 @@ export type InvokePlaygroundRequest = {
   maxOutputTokens?: number;
   providerMetadata?: any;
   providerRequestConfig?: Record<string, any>;
-  omitProviderMetadataInNativeMetadata?: boolean;
   endpointConfig?: unknown;
   headers?: Record<string, string>;
   getAccessToken?: () => Promise<string>;

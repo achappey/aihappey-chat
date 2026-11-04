@@ -5,8 +5,8 @@ import type {
   NormalizedInvokeRequest,
 } from "../shared/types";
 import { toChatCompletionsMessages } from "../shared/messages";
-import { resolveNativeRequestMetadata } from "../shared/nativeMetadata";
-import { getProviderKeyFromRequest, sanitizeProviderRequestConfigForProvider } from "../shared/providerRequestConfig";
+import { resolveNativeRequestMetadata, mergeNativeRequestBody } from "../shared/nativeMetadata";
+import { resolveNativeProviderRequestConfig } from "../shared/providerRequestConfig";
 import { extractChatCompletionsText } from "../shared/response-parsers";
 
 const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEntries(
@@ -15,18 +15,13 @@ const compactObject = <T extends Record<string, any>>(value: T) => Object.fromEn
 
 const buildChatCompletionsBody = (request: NormalizedInvokeRequest) => {
   const endpointConfig = (request.endpointConfig ?? {}) as ChatCompletionsEndpointConfig;
-  const providerRequestConfig = sanitizeProviderRequestConfigForProvider(
-    request.providerRequestConfig,
-    getProviderKeyFromRequest(request),
-    { endpointId: "/v1/chat/completions" },
-  );
+  const providerRequestConfig = resolveNativeProviderRequestConfig(request, "/v1/chat/completions");
 
-  return compactObject({
-    ...(providerRequestConfig ?? {}),
+  return mergeNativeRequestBody(providerRequestConfig, compactObject({
     model: request.model,
     temperature: request.temperature,
     max_tokens: request.maxOutputTokens,
-    metadata: resolveNativeRequestMetadata(request),
+    metadata: resolveNativeRequestMetadata({ ...request, providerRequestConfig }),
     messages: toChatCompletionsMessages(request.messages),
     stream: endpointConfig.stream,
     n: endpointConfig.n,
@@ -39,7 +34,7 @@ const buildChatCompletionsBody = (request: NormalizedInvokeRequest) => {
     service_tier: endpointConfig.service_tier,
     reasoning_effort: endpointConfig.reasoning_effort,
     verbosity: endpointConfig.verbosity,
-  });
+  }));
 };
 
 const parseChatCompletionsResponse = (raw: unknown): InvokePlaygroundResult => ({

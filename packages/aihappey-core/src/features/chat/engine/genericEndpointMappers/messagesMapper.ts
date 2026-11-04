@@ -5,7 +5,8 @@ import {
   hasConfiguredNativeTools,
   mapAnthropicMessagesTools,
   mergeNativeTools,
-  resolveNativeRequestMetadata,
+  resolveNativeEndpointMetadata,
+  mergeNativeRequestBody,
   resolveAnthropicToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
@@ -198,14 +199,13 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
     : mapAnthropicMessagesTools(body);
   const hasTools = Boolean(activeTools?.length);
 
-  return compactObject({
-    ...(providerRequestConfig ?? {}),
+  return mergeNativeRequestBody(providerRequestConfig, compactObject({
     model: body.model,
     system: getSystemText(messages),
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens ?? providerRequestConfig?.max_tokens ?? 1024,
-    metadata: resolveNativeRequestMetadata({
-      ...body,
+    metadata: resolveNativeEndpointMetadata({
+      providerRequestConfig,
       extraMetadata: compactObject({
         user_id: body.metadata?.user_id,
       }),
@@ -214,5 +214,5 @@ export const buildMessagesBody = (body: GenericChatEndpointRequestBody) => {
     tools: activeTools,
     tool_choice: resolveAnthropicToolChoice(body, providerRequestConfig, hasTools),
     stream: true,
-  });
+  }));
 };

@@ -233,6 +233,16 @@ export const resolveNativeRequestMetadata = ({
 };
 
 export const sanitizeGenericEndpointProviderRequestConfig = (body: GenericChatEndpointRequestBody) => {
+  if (["/v1/chat/completions", "/v1/responses", "/v1/messages"].includes(body.endpoint)) {
+    const modelProvider = body.model?.split("/")[0]?.toLowerCase();
+    const providerKey = body.providerRequestConfigProviderKey
+      ?? (modelProvider && Object.hasOwn(body.providerMetadata ?? {}, modelProvider)
+        ? modelProvider : getProviderKeyFromRequestBody(body));
+    return sanitizeProviderRequestConfigForProvider({
+      ...(asRecord(providerKey ? body.providerMetadata?.[providerKey] : undefined) ?? {}),
+      ...(body.providerRequestConfig ?? {}),
+    }, providerKey, { endpointId: body.endpoint });
+  }
   if (!body.providerRequestConfig || body.omitProviderMetadataInNativeMetadata !== true) return undefined;
 
   const providerKey = String(body.providerRequestConfigProviderKey ?? "").trim().toLowerCase()
@@ -244,3 +254,22 @@ export const sanitizeGenericEndpointProviderRequestConfig = (body: GenericChatEn
 
 export const getProviderKeyFromRequestBody = (body: Pick<GenericChatEndpointRequestBody, "providerMetadata">) =>
   Object.keys(body.providerMetadata ?? {})[0]?.trim().toLowerCase() || undefined;
+
+export const resolveNativeEndpointMetadata = ({ providerRequestConfig, extraMetadata }: {
+  providerRequestConfig?: Record<string, any>;
+  extraMetadata?: Record<string, any>;
+}) => extraMetadata === undefined ? providerRequestConfig?.metadata : {
+  ...(asRecord(providerRequestConfig?.metadata) ?? {}),
+  ...extraMetadata,
+};
+
+export const mergeNativeRequestBody = (config: Record<string, any> | undefined, body: Record<string, any>) => {
+  const result = { ...(config ?? {}) };
+  for (const [key, value] of Object.entries(body)) {
+    if (value === undefined) continue;
+    result[key] = ["reasoning", "text", "thinking", "output_config"].includes(key) && asRecord(value)
+      ? { ...(asRecord(result[key]) ?? {}), ...value }
+      : value;
+  }
+  return result;
+};

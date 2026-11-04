@@ -14,6 +14,21 @@ const ENDPOINT_RESTRICTED_REQUEST_KEYS: Record<string, readonly string[]> = {
 export const getProviderKeyFromRequest = (request: { providerMetadata?: Record<string, any> }) =>
   Object.keys(request.providerMetadata ?? {})[0]?.trim().toLowerCase() || undefined;
 
+export const resolveNativeProviderRequestConfig = (request: {
+  model?: string;
+  providerMetadata?: Record<string, any>;
+  providerRequestConfig?: Record<string, any>;
+}, endpointId: string) => {
+  const modelProvider = request.model?.split("/")[0]?.toLowerCase();
+  const providerKey = modelProvider && Object.hasOwn(request.providerMetadata ?? {}, modelProvider)
+    ? modelProvider : getProviderKeyFromRequest(request);
+  const scoped = providerKey ? request.providerMetadata?.[providerKey] : undefined;
+  return sanitizeProviderRequestConfigForProvider({
+    ...(scoped && typeof scoped === "object" && !Array.isArray(scoped) ? scoped : {}),
+    ...(request.providerRequestConfig ?? {}),
+  }, providerKey, { endpointId });
+};
+
 export const sanitizeProviderRequestConfigForProvider = (
   config?: Record<string, any>,
   providerKey?: string,

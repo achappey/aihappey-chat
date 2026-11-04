@@ -214,7 +214,7 @@ export const docsContent = {
             toolChoice: "Optional tool choice policy.",
             responseFormat: "Optional response format request, for example JSON object or JSON schema mode when supported.",
             reasoningEffort: "Optional reasoning effort for reasoning-capable models.",
-            metadata: "Optional metadata key-value pairs for tracing or downstream provider support.",
+            metadata: "Optional application metadata. Provider-specific request fields belong at the JSON root, not inside metadata.",
           },
           responses: {
             json: "A completed chat.completion object is returned when stream is omitted or false.",
@@ -277,7 +277,7 @@ export const docsContent = {
             tools: "Optional Anthropic-compatible tool definitions.",
             toolChoice: "Optional tool choice configuration.",
             thinking: "Optional extended-thinking configuration for supported models.",
-            metadata: "Optional request metadata, including supported user identifiers.",
+            metadata: "Optional native request metadata, including supported user identifiers. Provider-specific request fields belong at the JSON root.",
           },
           responses: {
             json: "A completed Anthropic-compatible message object is returned when stream is omitted or false.",
@@ -628,7 +628,7 @@ export const docsContent = {
             tools: "Optional Responses API tool definitions such as function tools or provider-supported built-in tools.",
             tool_choice: "Optional tool choice policy as a string or object.",
             reasoning: "Optional reasoning configuration for reasoning-capable models.",
-            metadata: "Optional metadata key-value pairs for tracing or downstream provider support.",
+            metadata: "Optional application metadata. Provider-specific request fields belong at the JSON root, not inside metadata.",
           },
           responses: {
             json: "A completed response object is returned when stream is omitted or false.",

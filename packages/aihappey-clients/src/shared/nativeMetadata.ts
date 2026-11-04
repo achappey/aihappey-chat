@@ -4,21 +4,29 @@ const asRecord = (value: unknown): Record<string, any> | undefined =>
     : undefined;
 
 export const resolveNativeRequestMetadata = ({
-  providerMetadata,
   providerRequestConfig,
-  omitProviderMetadataInNativeMetadata,
   extraMetadata,
 }: {
-  providerMetadata?: unknown;
   providerRequestConfig?: Record<string, any>;
-  omitProviderMetadataInNativeMetadata?: boolean;
   extraMetadata?: Record<string, any>;
 }) => {
   const merged = {
-    ...(!omitProviderMetadataInNativeMetadata ? (asRecord(providerMetadata) ?? {}) : {}),
     ...(asRecord(providerRequestConfig?.metadata) ?? {}),
     ...(extraMetadata ?? {}),
   };
 
-  return Object.keys(merged).length ? merged : undefined;
+  return extraMetadata === undefined
+    ? providerRequestConfig?.metadata
+    : Object.keys(merged).length ? merged : providerRequestConfig?.metadata;
+};
+
+export const mergeNativeRequestBody = (config: Record<string, any> | undefined, body: Record<string, any>) => {
+  const result = { ...(config ?? {}) };
+  for (const [key, value] of Object.entries(body)) {
+    if (value === undefined) continue;
+    result[key] = ["reasoning", "text", "thinking", "output_config"].includes(key) && asRecord(value)
+      ? { ...(asRecord(result[key]) ?? {}), ...value }
+      : value;
+  }
+  return result;
 };

@@ -3,7 +3,8 @@ import {
   hasConfiguredNativeTools,
   mapOpenAiChatCompletionTools,
   mergeNativeTools,
-  resolveNativeRequestMetadata,
+  resolveNativeEndpointMetadata,
+  mergeNativeRequestBody,
   resolveOpenAiToolChoice,
   sanitizeGenericEndpointProviderRequestConfig,
   type GenericChatEndpointRequestBody,
@@ -115,15 +116,14 @@ export const buildChatCompletionsBody = (body: GenericChatEndpointRequestBody) =
     : mapOpenAiChatCompletionTools(body);
   const hasTools = Boolean(activeTools?.length);
 
-  return compactObject({
-    ...(providerRequestConfig ?? {}),
+  return mergeNativeRequestBody(providerRequestConfig, compactObject({
     model: body.model,
     temperature: body.temperature,
     max_tokens: body.maxOutputTokens,
     tools: activeTools,
     tool_choice: resolveOpenAiToolChoice(body, providerRequestConfig, hasTools),
-    metadata: resolveNativeRequestMetadata(body),
+    metadata: resolveNativeEndpointMetadata({ providerRequestConfig }),
     messages: toChatCompletionMessages(messages),
     stream: true,
-  });
+  }));
 };
