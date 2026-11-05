@@ -40,7 +40,7 @@ const findElement = (node, type) => {
 const approvalChunks = (id, name = id) => [
     { type: 'tool-input-available', toolCallId: id, toolName: name, input: { query: id }, providerExecuted: true },
     { type: 'tool-output-available', toolCallId: id, output: { content: [{ type: 'text', text: `result:${id}` }] }, providerExecuted: false },
-    { type: 'tool-approval-request', toolCallId: id, approvalId: `approval:${id}` },
+    { type: 'tool-approval-request', toolCallId: id, approvalId: `approval:${id}`, signature: `v1.fixture:${id}` },
 ];
 const finish = [{ type: 'finish-step' }, { type: 'finish', finishReason: 'stop' }];
 
@@ -91,6 +91,7 @@ function harness(fetcher, { speechEnabled = true, streamingSpeech = false, initi
         '../chat/engine/managedAgentMcpTools': managedTools,
         '../chat/engine/agentChatContinuation': continuation,
         '../chat/engine/toolApprovalState': approvalState,
+        '../chat/engine/toolApprovalMetadata': load(root + 'chat/engine/toolApprovalMetadata.ts'),
         '../provider-credentials/scopedRequest': { buildOperationHeaders: async () => ({}), createCredentialScopedFetch: f => f },
         './AgentRealtimeChatTransport': transport,
         './agentSpeechPlayback': { AgentAudioOutput: class { unlock() {} dispose() {} get audioContext() { return {}; } async speak(config, headers, model, value, signal) { spoken.push({ value, signal, model }); } } },
@@ -403,6 +404,9 @@ for (const mode of ['manual', 'BRRR', 'allowlist', 'allowThisTool', 'allowAllToo
         assert.equal(parts.length, 2);
         for (const part of parts) {
             assert.equal(part.approval.approved, mode !== 'reject');
+            assert.equal(part.approval.signature, `v1.fixture:${part.toolCallId}`);
+            assert.equal(part.approval.isAutomatic, ['BRRR', 'allowlist'].includes(mode)
+                || part.toolCallId === 'two' && ['allowThisTool', 'allowAllTools'].includes(mode));
             assert.ok(part.output.content[0].text.startsWith('result:'));
         }
         await h.controller.stop();
@@ -428,6 +432,9 @@ test('an approval is shown before the stream finishes; an early decision survive
     stream.enqueue(encode([{ type: 'tool-approval-request', toolCallId: 'one', approvalId: 'approval:one' }, ...finish])); stream.close();
     await pending; await until(() => requests.length === 2 && !h.render().streaming);
     assert.equal(h.renderApproval(), null); assert.equal(h.localCalls.length, 0); assert.deepEqual(h.errors, []);
+    const decided = requests[1].messages.flatMap(message => message.parts).find(part => part.toolCallId === 'one');
+    assert.equal(decided.approval.signature, 'v1.fixture:one');
+    assert.equal(decided.approval.isAutomatic, false);
     await h.controller.stop();
 });
 
