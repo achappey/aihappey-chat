@@ -970,7 +970,7 @@
     },
     "max_num_results": "Maximum number of results",
     "vector_store_ids": "Ids of the vector stores",
-    "applyPatch": "Apply patch",
+    "applyPatch": "Text editor",
 
     "file_search": "File search",
     "shellEnvironment": "Environment",

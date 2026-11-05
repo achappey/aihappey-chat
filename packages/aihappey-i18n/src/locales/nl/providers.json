@@ -1,7 +1,5 @@
 {
-  "deepseek": {
-    
-  },
+  "deepseek": {},
   "akumi": {
     "other": "Overig",
     "cache": "Cache",
@@ -607,8 +605,7 @@
     },
     "max_num_results": "Maximaal aantal resultaten",
     "vector_store_ids": "Ids van de documentenhubs",
-    "applyPatch": "Patch toepassen",
-
+    "applyPatch": "Tekstbewerker",
     "file_search": "Documentenhub",
     "shellEnvironment": "Omgeving",
     "shellEnvironmentContainerAuto": "Gehoste container (automatisch)",
