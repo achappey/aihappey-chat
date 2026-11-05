@@ -280,7 +280,8 @@ test("the final text card owns the summary even with adjacent text, intervening 
     ]) {
         const messages = toChatMessages([summaryMessage(parts)]);
         const lastText = messages.filter(msg => msg.content[0].type === "text").at(-1);
-        assert.equal(lastText.content[0].text, "Last");
+        const adjacent = parts.indexOf(last) === parts.indexOf(first) + 1;
+        assert.equal(lastText.content[0].text, adjacent ? "FirstLast" : "Last");
         const cards = renderedCards(renderList(messages));
         for (const msg of messages) {
             assert.equal(msg.hideMessageSummaryActions, msg !== lastText, msg.id);
@@ -302,8 +303,8 @@ test("summary placement is scoped to each original assistant message, not the la
     assertSummaryCount(renderList(assistants), 3);
     for (const original of originals.filter(msg => msg.role === "assistant")) {
         const cards = renderedCards(renderList(assistants));
-        assertSummaryCount(cards.get(`${original.id}:text:0`), 0);
-        assertSummaryCount(cards.get(`${original.id}:text:1`), 1);
+        assertSummaryCount(cards.get(`${original.id}:text:0`), 1);
+        assert.equal(cards.has(`${original.id}:text:1`), false, "adjacent text shares one answer card");
     }
     const users = messages.filter(msg => msg.role === "user");
     assert.ok(users.every(msg => msg.hideMessageSummaryActions === undefined));
@@ -366,7 +367,11 @@ test("media-only, tool-only, and reasoning-only responses retain their existing 
 });
 
 test("earlier text card copy, edit, and speech callbacks still receive their own display message", async () => {
-    const [message] = toChatMessages([summaryMessage([{ type: "text", text: "First" }, { type: "text", text: "Last" }])]);
+    const [message] = toChatMessages([summaryMessage([
+        { type: "text", text: "First" },
+        { type: "tool-example", toolCallId: "between", output: { content: [] } },
+        { type: "text", text: "Last" },
+    ])]);
     assert.equal(message.hideMessageSummaryActions, true);
     const calls = [];
     const actions = React.Children.toArray(MessageActions({

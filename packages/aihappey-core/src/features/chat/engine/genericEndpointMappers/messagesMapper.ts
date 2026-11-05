@@ -28,6 +28,7 @@ import {
   CLIENT_TOOL_SEARCH_NAME,
   selectedToolsFromClientToolSearchResult,
 } from "../../../tools/clientToolSearch";
+import { messagesProviderReplay, orderMessagesReplayBlocks, type MessagesReplayBlock } from "../messagesNativeTools";
 
 const toAnthropicFileBlocks = (file: GenericMappedFilePart) => {
   if (file.mimeType.startsWith("image/") && file.dataUrl) {
@@ -137,14 +138,14 @@ const toAnthropicMessages = (messages: GenericMappedMessage[], providerKey?: str
     }
 
     const result: any[] = [];
-    let content: any[] = [];
+    let content: MessagesReplayBlock[] = [];
     let toolResults: any[] = [];
     const seenCalls = new Set<string>();
     const seenResults = new Set<string>();
     const parts = (message.raw.parts ?? []) as any[];
     const hasSteps = parts.some(part => part.type === "step-start");
     const flush = () => {
-      if (content.length) result.push({ role: "assistant", content });
+      if (content.length) result.push({ role: "assistant", content: orderMessagesReplayBlocks(content) });
       if (toolResults.length) result.push({ role: "user", content: toolResults });
       content = [];
       toolResults = [];
@@ -153,6 +154,20 @@ const toAnthropicMessages = (messages: GenericMappedMessage[], providerKey?: str
       if (part.type === "step-start") {
         flush();
       } else if (isToolPart(part)) {
+        if (part.providerExecuted === true) {
+          const blocks = messagesProviderReplay(part, providerKey).filter(({ block }) => {
+            const calls = block.tool_use_id ? seenResults : seenCalls;
+            const id = block.tool_use_id ?? block.id;
+            if (calls.has(id)) return false;
+            calls.add(id);
+            return true;
+          });
+          if (blocks.length) {
+            if (!hasSteps && toolResults.length) flush();
+            content.push(...blocks);
+          }
+          continue;
+        }
         if (!isClientExecutableToolPart(part)
           || ["input-streaming", "input-error", "approval-requested"].includes(part.state)) continue;
         const id = toolPartCallId(part);
@@ -161,7 +176,8 @@ const toAnthropicMessages = (messages: GenericMappedMessage[], providerKey?: str
         // Never send dangling calls (for example after cancellation) as history.
         if (!output) continue;
         if (!isOutputOnlyToolPart(part) && !seenCalls.has(id)) {
-          content.push({ type: "tool_use", id, name: toolPartName(part), input: toolPartInput(part) });
+          const metadata = providerKey ? part.callProviderMetadata?.[providerKey] ?? part.providerMetadata?.[providerKey] : undefined;
+          content.push({ block: compactObject({ type: "tool_use", id, name: toolPartName(part), input: toolPartInput(part), caller: metadata?.caller }), metadata });
           seenCalls.add(id);
         }
         if (seenCalls.has(id) && !seenResults.has(id)) {
@@ -172,10 +188,12 @@ const toAnthropicMessages = (messages: GenericMappedMessage[], providerKey?: str
         const block = messagesReasoningFromPart(part, providerKey);
         if (!block) continue;
         if (!hasSteps && toolResults.length) flush();
-        content.push(block);
+        content.push({ block, metadata: providerKey ? part.providerMetadata?.[providerKey] : undefined });
       } else if (part.type === "text" && getTextFromPart(part)) {
         if (!hasSteps && toolResults.length) flush();
-        content.push({ type: "text", text: getTextFromPart(part) });
+        const metadata = providerKey ? part.providerMetadata?.[providerKey] : undefined;
+        content.push({ block: compactObject({ type: "text", text: getTextFromPart(part),
+          citations: metadata?.type === "text" ? metadata.citations : undefined }), metadata });
       }
     }
     flush();

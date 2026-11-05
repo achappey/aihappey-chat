@@ -245,6 +245,10 @@ export function toChatMessages(
     const ts = (offsetMs: number) => new Date(baseTime + offsetMs).toISOString();
 
     // --- Buffers ---
+    let textRun: UIMessagePart<any, any>[] = [];
+    let textRunStartIndex = 0;
+    let textRunEndIndex = 0;
+    let summaryMessageId: string | undefined;
     let activityRun: UIMessagePart<any, any>[] = [];
     let activityRunStartIndex: number | null = null;
 
@@ -256,6 +260,25 @@ export function toChatMessages(
 
     let embeddedAudioRun: FileUIPart[] = [];
     let embeddedAudioRunStartIndex: number | null = null;
+
+    const flushText = () => {
+      if (!textRun.length) return;
+      const id = `${baseId}:text:${textRunStartIndex}`;
+      // Display projection only. Keep the original UI parts and their native
+      // citation/block metadata intact in live and persisted conversation state.
+      const content = textRun.length === 1 ? textRun : [{
+        ...textRun[0], text: textRun.map((part: any) => part.text ?? "").join(""),
+        state: (textRun.at(-1) as any).state,
+      }];
+      out.push({
+        id, role: z.role, content, attachments: nonInlineMediaFiles, sources,
+        createdAt: ts(textRunStartIndex), author, temperature, totalTokens, usage,
+        cost: effectiveCost, ...performanceMetrics, providerKey,
+        ...(textRunEndIndex === lastTextPartIndex && evaluations && evaluationSummary ? { evaluations, evaluationSummary } : {}),
+      } as any);
+      summaryMessageId = id;
+      textRun = [];
+    };
 
     const flushActivity = () => {
       if (!activityRun.length) return;
@@ -383,6 +406,12 @@ export function toChatMessages(
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i];
       const t = p?.type;
+      // Sources and non-inline attachments decorate the answer; they do not
+      // split Markdown spans. Visible activity and inline media remain ordered.
+      const decoration = t === "source-url" || t === "source-document"
+        || (t === "file" && !isImageFilePart(p) && !isVideoFilePart(p) && !isAudioFilePart(p))
+        || (typeof t === "string" && t.startsWith("data-"));
+      if (t !== "text" && !decoration) flushText();
 
       // 1) Images: buffer consecutive image files
       if (isImageFilePart(p)) {
@@ -452,30 +481,16 @@ export function toChatMessages(
       // Any non-image part breaks the image run
       flushImages();
 
-      // 2) Text: flush activity, then push text message
+      // 2) Adjacent assistant text blocks share one display card.
       if (t === "text") {
         flushActivity();
         flushEmbeddedVideos();
         flushEmbeddedAudio();
 
-        out.push({
-          id: `${baseId}:text:${i}`,
-          role: z.role,
-          content: [p as any],
-          attachments: nonInlineMediaFiles,
-          sources,
-          createdAt: ts(i),
-          author,
-          temperature,
-          totalTokens,
-          usage,
-          cost: effectiveCost,
-          ...performanceMetrics,
-          providerKey,
-          ...(i === lastTextPartIndex && evaluations && evaluationSummary
-            ? { evaluations, evaluationSummary }
-            : {}),
-        } as any);
+        if (!textRun.length) textRunStartIndex = i;
+        textRunEndIndex = i;
+        textRun.push(p);
+        if (z.role !== "assistant") flushText();
 
         continue;
       }
@@ -564,6 +579,7 @@ export function toChatMessages(
     }
 
     // Flush any trailing buffers
+    flushText();
     flushActivity();
     flushEmbeddedVideos();
     flushEmbeddedAudio();
@@ -572,7 +588,6 @@ export function toChatMessages(
     // Keep metadata on every card, but display message-level controls only once.
     // Media-only responses retain their existing summary behavior.
     if (z.role === "assistant" && lastTextPartIndex >= 0) {
-      const summaryMessageId = `${baseId}:text:${lastTextPartIndex}`;
       for (let i = messageStartIndex; i < out.length; i++) {
         out[i].hideMessageSummaryActions = out[i].id !== summaryMessageId;
       }

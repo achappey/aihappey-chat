@@ -6,6 +6,10 @@ import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericE
 import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
 import { createResponsesShellToolMapper } from "./responsesShellTools";
 import { isGatewayResponsesTool, gatewayResponsesResult, gatewayResponsesMetadata } from "./responsesSyntheticTools";
+import {
+  isMessagesProviderCall, isMessagesProviderResult, isMessagesToolCall,
+  messagesBlockMetadata, messagesToolError, messagesToolOutput,
+} from "./messagesNativeTools";
 
 type ResponseProviderStreamContext = {
   event: any;
@@ -265,6 +269,8 @@ const createUiMessageChunkStream = ({
   const messagesReasoningIdsByIndex = new Map<number, string>();
   const messagesStoppedBlocks = new Set<number>();
   const messagesCompletedToolIds = new Set<string>();
+  const messagesProviderToolIds = new Set<string>();
+  let messagesNativeId: string | undefined;
   let messagesStopReason: string | undefined;
   const responsesTextById = new Map<string, string>();
   const responsesMessageItems = new Map<string, any>();
@@ -296,22 +302,25 @@ const createUiMessageChunkStream = ({
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
   };
 
-  const messageMetadata = () => ({
-    model: latestModel,
-    usage: latestUsage,
-    providerMetadata: {
-      gateway: latestGateway,
-      ...(providerKey
-        ? {
-          [providerKey]: compactObject({
-            ...(latestProviderStreamMetadata ?? {}),
-            usage: latestRawUsage,
-          }),
-        }
-        : {}),
-    },
-    timestamp: new Date().toISOString(),
-  });
+  const messageMetadata = () => {
+    const metadataProviderKey = endpoint === "/v1/messages" ? resolveProviderKey() : providerKey;
+    return {
+      model: latestModel,
+      usage: latestUsage,
+      providerMetadata: {
+        gateway: latestGateway,
+        ...(metadataProviderKey
+          ? {
+            [metadataProviderKey]: compactObject({
+              ...(latestProviderStreamMetadata ?? {}),
+              usage: latestRawUsage,
+            }),
+          }
+          : {}),
+      },
+      timestamp: new Date().toISOString(),
+    };
+  };
 
   const resolveProvider = () => {
     const resolvedProviderKey = resolveProviderKey();
@@ -346,6 +355,7 @@ const createUiMessageChunkStream = ({
         && item.data
         ? item.data
         : undefined,
+      ...(endpoint === "/v1/messages" ? compactObject({ block_index: item?.block_index, message_id: item?.message_id }) : {}),
     });
 
     return Object.keys(providerEntry).length
@@ -491,6 +501,16 @@ const createUiMessageChunkStream = ({
       currentGateway,
     });
     latestGateway = providerGateway ?? currentGateway;
+
+    if (endpoint === "/v1/messages") {
+      latestProviderStreamMetadata = compactObject({
+        ...(latestProviderStreamMetadata ?? {}),
+        id: event.message?.id ?? latestProviderStreamMetadata?.id,
+        container: event.container ?? event.message?.container ?? latestProviderStreamMetadata?.container,
+        stop_reason: event.delta?.stop_reason ?? latestProviderStreamMetadata?.stop_reason,
+        stop_sequence: event.delta?.stop_sequence ?? latestProviderStreamMetadata?.stop_sequence,
+      });
+    }
 
     if (isConversationsEndpoint(endpoint)) {
       const conversationMetadata = compactObject({
@@ -1686,7 +1706,7 @@ const createUiMessageChunkStream = ({
 
     const id = messagesReasoningIdsByIndex.get(index) ?? messagesReasoningId(index);
     messagesReasoningIdsByIndex.set(index, id);
-    return rememberReasoningMetadata(id, block);
+    return rememberReasoningMetadata(id, { ...block, block_index: index, message_id: messagesNativeId });
   };
 
   const ensureMessagesReasoning = (controller: ReadableStreamDefaultController<Uint8Array>, index: number) => {
@@ -1747,11 +1767,41 @@ const createUiMessageChunkStream = ({
     return false;
   };
 
+  const messagesPartMetadata = (block: any, index: number) =>
+    providerMetadataFor(messagesBlockMetadata(block, index, messagesNativeId));
+
+  const emitMessagesCitation = (controller: ReadableStreamDefaultController<Uint8Array>, citation: any) => {
+    if (citation?.type !== "web_search_result_location" || typeof citation.url !== "string" || !citation.url) return;
+    const sourceId = citation.encrypted_index || citation.url;
+    if (emittedSourceKeys.has(sourceId)) return;
+    emittedSourceKeys.add(sourceId);
+    ensureStepStarted(controller);
+    enqueueChunk(controller, {
+      type: "source-url", sourceId, url: citation.url, title: citation.title ?? citation.url,
+      providerMetadata: providerMetadataFor({ ...citation }),
+    });
+  };
+
+  const emitMessagesToolResult = (controller: ReadableStreamDefaultController<Uint8Array>, block: any, index: number) => {
+    const id = block.tool_use_id;
+    if (typeof id !== "string" || !id) throw new Error("Messages tool result requires a tool_use_id.");
+    if (emittedToolOutputs.has(id) || !messagesCompletedToolIds.has(id)) return;
+    if (!messagesProviderToolIds.has(id)) throw new Error("Messages provider result cannot complete a client tool call.");
+    const errorText = messagesToolError(block);
+    enqueueChunk(controller, {
+      type: errorText ? "tool-output-error" : "tool-output-available",
+      toolCallId: id, providerExecuted: true, providerMetadata: messagesPartMetadata(block, index),
+      ...(errorText ? { errorText } : { output: messagesToolOutput(block) }),
+    });
+    emittedToolOutputs.add(id);
+  };
+
   const handleMessagesPayload = (event: any, controller: ReadableStreamDefaultController<Uint8Array>, eventName?: string) => {
     const type = event?.type ?? eventName;
     const index = typeof event?.index === "number" ? event.index : undefined;
     if (type === "error") throw new Error(event.error?.message ?? event.message ?? "Messages request failed.");
     if (type === "message_start") {
+      messagesNativeId = event.message?.id;
       ensureStepStarted(controller);
       return;
     }
@@ -1764,11 +1814,17 @@ const createUiMessageChunkStream = ({
         throw new Error("Messages ended with an incomplete content block.");
       }
       if (!messagesStopReason) throw new Error("Messages ended without a stop reason.");
+      for (const block of messagesContentBlocksByIndex.values()) {
+        if (isMessagesProviderResult(block) && !emittedToolOutputs.has(block.tool_use_id)) {
+          throw new Error("Messages tool result has no completed provider tool call.");
+        }
+      }
       if (messagesStopReason === "max_tokens" && !finalTextBuffer && !emittedClientToolInput) {
         throw new Error("Messages reached max_tokens before producing an answer. Increase the maximum output tokens in the model or provider settings.");
       }
       finish(controller, messagesStopReason === "tool_use" ? "tool-calls"
-        : ["max_tokens", "model_context_window_exceeded"].includes(messagesStopReason) ? "length" : "stop");
+        : ["max_tokens", "model_context_window_exceeded"].includes(messagesStopReason) ? "length"
+        : messagesStopReason === "pause_turn" ? "other" : messagesStopReason === "refusal" ? "content-filter" : "stop");
       return;
     }
     if (type === "content_block_start" && index !== undefined) {
@@ -1779,16 +1835,30 @@ const createUiMessageChunkStream = ({
       closeActiveReasoning(controller);
       messagesContentBlocksByIndex.set(index, { ...block });
       if (handleMessagesReasoningPayload(event, controller, type)) return;
-      if (block.type === "tool_use") {
-        if (!block.id || !block.name) throw new Error("Messages tool call requires an id and name.");
-        if (!messagesCompletedToolIds.has(block.id)) emitToolInput(controller, block.id, block.name, undefined);
+      if (isMessagesToolCall(block)) {
+        if (typeof block.id !== "string" || !block.id || typeof block.name !== "string" || !block.name) {
+          throw new Error("Messages tool call requires an id and name.");
+        }
+        if (isMessagesProviderCall(block)) messagesProviderToolIds.add(block.id);
+        if (!startedToolCalls.has(block.id)) {
+          startedToolCalls.add(block.id);
+          toolNameById.set(block.id, block.name);
+          enqueueChunk(controller, {
+            type: "tool-input-start", toolCallId: block.id, toolName: block.name,
+            providerExecuted: isMessagesProviderCall(block), providerMetadata: messagesPartMetadata(block, index),
+            title: block.title ?? block.name,
+          });
+        }
       } else if (block.type === "text") {
         textPartId = `messages-text-${messageId}-${index}`;
+        responsesTextMetadataById.set(textPartId, messagesPartMetadata(block, index) ?? {});
         ensureStarted(controller);
         if (block.text) {
           finalTextBuffer += block.text;
-          enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: block.text });
+          enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: block.text,
+            providerMetadata: messagesPartMetadata(block, index) });
         }
+        for (const citation of block.citations ?? []) emitMessagesCitation(controller, citation);
       }
       return;
     }
@@ -1800,7 +1870,8 @@ const createUiMessageChunkStream = ({
         messagesStoppedBlocks.add(index);
         if (handleMessagesReasoningPayload(event, controller, type)) return;
         if (block.type === "text") closeText(controller);
-        if (block.type === "tool_use" && !messagesCompletedToolIds.has(block.id)) {
+        if (isMessagesProviderResult(block)) emitMessagesToolResult(controller, block, index);
+        if (isMessagesToolCall(block) && !messagesCompletedToolIds.has(block.id)) {
           // Parameterless tools may send an input_json_delta with an empty
           // partial_json. Only a non-empty JSON document replaces the initial
           // input snapshot; malformed non-empty documents must still fail.
@@ -1810,23 +1881,41 @@ const createUiMessageChunkStream = ({
             throw new Error("Messages tool input must be a JSON object.");
           }
           messagesCompletedToolIds.add(block.id);
-          emitToolInput(controller, block.id, block.name, undefined, input);
+          if (!isMessagesProviderCall(block)) emittedClientToolInput = true;
+          enqueueChunk(controller, {
+            type: "tool-input-available", toolCallId: block.id, toolName: block.name, input,
+            providerExecuted: isMessagesProviderCall(block), providerMetadata: messagesPartMetadata(block, index),
+            title: block.title ?? block.name,
+          });
+          toolInputTextById.delete(block.id);
+          for (const [resultIndex, result] of messagesContentBlocksByIndex) {
+            if (isMessagesProviderResult(result) && result.tool_use_id === block.id && messagesStoppedBlocks.has(resultIndex)) {
+              emitMessagesToolResult(controller, result, resultIndex);
+            }
+          }
         }
         return;
       }
       if (handleMessagesReasoningPayload(event, controller, type)) return;
-      if (block.type === "tool_use" && event.delta?.type === "input_json_delta" && !messagesCompletedToolIds.has(block.id)) {
+      if (isMessagesToolCall(block) && event.delta?.type === "input_json_delta" && !messagesCompletedToolIds.has(block.id)) {
         // An initial input snapshot is not a JSON prefix. Streamed JSON replaces
         // it, and is parsed strictly only when this particular block stops.
         const partial = event.delta.partial_json;
         if (typeof partial === "string") {
-          if (!toolInputTextById.has(block.id)) toolInputTextById.set(block.id, "");
-          emitToolInput(controller, block.id, block.name, partial);
+          toolInputTextById.set(block.id, `${toolInputTextById.get(block.id) ?? ""}${partial}`);
+          if (partial) enqueueChunk(controller, { type: "tool-input-delta", toolCallId: block.id, inputTextDelta: partial });
         }
       } else if (block.type === "text" && event.delta?.type === "text_delta" && typeof event.delta.text === "string") {
+        const id = `messages-text-${messageId}-${index}`;
+        if (textPartId !== id) { closeText(controller); textPartId = id; }
         ensureStarted(controller);
         finalTextBuffer += event.delta.text;
-        enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: event.delta.text });
+        enqueueChunk(controller, { type: "text-delta", id: textPartId, delta: event.delta.text,
+          providerMetadata: messagesPartMetadata(block, index) });
+      } else if (block.type === "text" && event.delta?.type === "citations_delta" && event.delta.citation) {
+        block.citations = [...(block.citations ?? []), event.delta.citation];
+        responsesTextMetadataById.set(`messages-text-${messageId}-${index}`, messagesPartMetadata(block, index) ?? {});
+        emitMessagesCitation(controller, event.delta.citation);
       }
     }
   };
