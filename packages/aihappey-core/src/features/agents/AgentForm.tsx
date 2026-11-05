@@ -83,7 +83,7 @@ export const AgentForm = ({
     const { t } = useTranslation();
     const { config: chatConfig } = useChatContext();
     const [activeTab, setActiveTab] = useState("general");
-    const [settingsModelId, setSettingsModelId] = useState("");
+    const [settingsModelIds, setSettingsModelIds] = useState<Record<string, string>>({});
     const [skillFeedback, setSkillFeedback] = useState<string | null>(null);
     const [skillSyncPending, setSkillSyncPending] = useState(false);
     const [hasHydratedSkillSelection, setHasHydratedSkillSelection] = useState(false);
@@ -647,20 +647,19 @@ export const AgentForm = ({
     const mainModels = answerModels.length > 1 && decisionModels.length === 1 ? answerModels : selectedModels;
     const routingIds = new Set(selectedModels.filter(model => !mainModels.includes(model)).map(model => model.id));
     const availableModels = useMemo(() => (models ?? []).filter(model => model.route !== "direct"), [models]);
-    const settingsModel = selectedModels.find(model => model.id === settingsModelId) ?? selectedModels[0];
     const setModelConfigurations = (current: Agent, configurations: AiModel[]): Agent =>
         setAgentEditorModels(current, configurations, models);
-    const updateSettingsModel = (patch: Partial<AiModel>) => onChange(current =>
-        setModelConfigurations(current, getAgentModels(current).map(model =>
-            model.id === settingsModel?.id ? { ...model, ...patch } : model)));
-    const providerKey = getAgentModelProviderKey(settingsModel?.id);
-    const providerTitle = (PROVIDERS as Record<string, { name?: string }>)[providerKey]?.name ?? providerKey;
-    const providerMeta = settingsModel?.providerMetadata ?? {};
-    const providerHeaders = settingsModel?.providerHeaders ?? {};
-    const updateProviderMetadata = (providerMetadata: any) =>
-        updateSettingsModel({ providerMetadata });
-    const updateProviderHeaders = (headers: Record<string, string> | undefined) =>
-        updateSettingsModel({ providerHeaders: headers && Object.keys(headers).length ? headers : undefined });
+    const providerGroups = Array.from(selectedModels.reduce((groups, model) => {
+        const key = getAgentModelProviderKey(model.id).toLowerCase();
+        groups.set(key, [...(groups.get(key) ?? []), model]);
+        return groups;
+    }, new Map<string, AiModel[]>()));
+
+    useEffect(() => {
+        if (activeTab.startsWith("provider:") && !providerGroups.some(([key]) => activeTab === `provider:${key}`)) {
+            setActiveTab("general");
+        }
+    }, [activeTab, selectedModels]);
 
     const enabled = new Set(Object.entries(agent.mcpServers ?? {})
         .filter(a => a[1].disabled !== true)
@@ -764,7 +763,8 @@ export const AgentForm = ({
             <Tabs
                 activeKey={activeTab}
                 onSelect={setActiveTab}
-                style={{ minHeight: 320 }}
+                navigationOnly={activeTab.startsWith("provider:")}
+                style={{ minHeight: activeTab.startsWith("provider:") ? undefined : 320 }}
             >
                 <Tab eventKey="general" title={t("general")}>
                     <Input label={t('agentEdit.name')}
@@ -1157,16 +1157,33 @@ export const AgentForm = ({
                     />
                 </Tab>
 
-                {/* ---------------- Provider Settings ---------------- */}
-                <Tab eventKey="providers"
-                    title={providerTitle}>
-                    <Select label={t("model")} values={settingsModel ? [settingsModel.id] : []}
-                        valueTitle={settingsModel?.id}
-                        options={selectedModels.map(model => ({ value: model.id, label: model.id }))}
-                        onChange={setSettingsModelId}>
-                        {selectedModels.map(model => <option key={model.id} value={model.id}>{model.id}</option>)}
-                    </Select>
-                    <div key={settingsModel?.id}>
+                {providerGroups.map(([key]) => <Tab key={key} eventKey={`provider:${key}`}
+                    title={(PROVIDERS as Record<string, { name?: string }>)[key]?.name ?? key} ><span></span></Tab>)}
+            </Tabs>
+            {/* Keep forms outside the active-only theme panels. Each model can own
+                unfinished input that has not yet produced a metadata update. */}
+            {providerGroups.map(([providerKey, providerModels]) => {
+                const activeModelId = providerModels.some(model => model.id === settingsModelIds[providerKey])
+                    ? settingsModelIds[providerKey] : providerModels[0].id;
+                return <div key={providerKey} data-agent-provider={providerKey} hidden={activeTab !== `provider:${providerKey}`}>
+                    <div style={{ display: "flex", gap: 12, minWidth: 0 }}>
+                        {providerModels.length > 1 && <Tabs vertical navigationOnly activeKey={activeModelId}
+                            onSelect={id => setSettingsModelIds(current => ({ ...current, [providerKey]: id }))}
+                            style={{ flexShrink: 0, width: "clamp(7rem, 24%, 12rem)", maxWidth: "32%", overflowWrap: "anywhere" }}>
+                            {providerModels.map(model => <Tab key={model.id} eventKey={model.id}
+                                title={model.id.slice(model.id.indexOf("/") + 1)}><span></span></Tab>)}
+                        </Tabs>}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                        {providerModels.map(settingsModel => {
+                            const providerMeta = settingsModel.providerMetadata ?? {};
+                            const providerHeaders = settingsModel.providerHeaders ?? {};
+                            const updateSettingsModel = (patch: Partial<AiModel>) => onChange(current =>
+                                setModelConfigurations(current, getAgentModels(current).map(model =>
+                                    model.id === settingsModel.id ? { ...model, ...patch } : model)));
+                            const updateProviderMetadata = (providerMetadata: any) => updateSettingsModel({ providerMetadata });
+                            const updateProviderHeaders = (headers: Record<string, string> | undefined) =>
+                                updateSettingsModel({ providerHeaders: headers && Object.keys(headers).length ? headers : undefined });
+                            return <div key={settingsModel.id} data-agent-model={settingsModel.id} hidden={settingsModel.id !== activeModelId}>
                     {providerKey === "abliteration" && (
                         <AbliterationChatConfigForm
                             config={providerMeta}
@@ -1463,10 +1480,12 @@ export const AgentForm = ({
                             updateConfig={updateProviderMetadata}
                         />
                     )}
+                            </div>;
+                        })}
+                        </div>
                     </div>
-                </Tab>
-
-            </Tabs>
+                </div>;
+            })}
             <ServerCatalogModal
                 show={showCatalog}
                 onHide={() => setShowCatalog(false)}
