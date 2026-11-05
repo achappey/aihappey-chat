@@ -56,6 +56,70 @@ const toolPart = (item, extra = {}) => ({ type: 'tool-' + item.name, toolCallId:
   input: JSON.parse(item.arguments), output: { ok: true }, providerExecuted: false,
   callProviderMetadata: { openai: { type: item.type, id: item.id, item_id: item.id, call_id: item.call_id } }, ...extra });
 
+const gatewayResult = (provider = 'openai') => ({
+  content: [{ type: 'resource', resource: { uri: 'file:///report.docx', mimeType: 'application/octet-stream', blob: 'AAEC/w==' } }],
+  structuredContent: { filename: 'report.docx', file_id: 'file_1', media_type: 'application/octet-stream', data_url: 'data:application/octet-stream;base64,AAEC/w==' },
+  isError: false, future: { keep: true }, _meta: { existing: true,
+    'aihappey/gateway': { provider, providerMetadata: { [provider]: { container_id: 'cntr_1', session_id: 'session_saved' } } } },
+});
+const gatewayCall = (name = 'download_file', result = gatewayResult()) => ({
+  type: 'mcp_call', id: 'synthetic_' + name, name, server_label: 'aihappey', status: 'completed',
+  arguments: '{"file_id":"file_1"}', output: JSON.stringify(result),
+});
+
+test('gateway MCP downloads preserve names and full results, emit one file, and never execute or continue in the real SDK', async () => {
+  for (const snapshotsOnly of [false, true]) {
+    const result = gatewayResult(), item = gatewayCall('download_file', result), errors = [];
+    let requests = 0, executions = 0;
+    const { createResponsesContinuation } = load(base + 'responsesContinuation.ts');
+    const guard = createResponsesContinuation();
+    const events = snapshotsOnly ? [done([item])] : [
+      { type: 'response.output_item.added', output_index: 0, item: { ...item, status: 'in_progress', output: null } },
+      { type: 'response.mcp_call_arguments.done', item_id: item.id, output_index: 0, arguments: item.arguments },
+      { type: 'response.output_item.done', output_index: 0, item },
+      { type: 'response.output_item.done', output_index: 0, item }, done([item]),
+    ];
+    const chat = new Chat({ transport: new GenericChatEndpointTransport('/v1/responses', 'openai', undefined, {
+      fetch: async () => { requests++; assert.ok(requests <= 1); return nativeResponse(events); },
+    }), onToolCall: () => { executions++; }, onError: error => errors.push(error),
+      sendAutomaticallyWhen: options => guard.shouldSend(options) });
+    await chat.sendMessage({ text: 'Create the document.' });
+    assert.deepEqual(errors, []); assert.equal(requests, 1); assert.equal(executions, 0);
+    const parts = chat.messages.at(-1).parts;
+    const tool = parts.find(part => part.type === 'tool-download_file');
+    assert.ok(tool); assert.equal(tool.providerExecuted, true); assert.equal(tool.state, 'output-available');
+    assert.deepEqual(tool.output, result); assert.deepEqual(tool.input, { file_id: 'file_1' });
+    assert.equal(tool.resultProviderMetadata.openai.container_id, 'cntr_1');
+    assert.equal(parts.filter(part => part.type === 'file').length, 1);
+    assert.equal(parts.find(part => part.type === 'file').url, result.structuredContent.data_url);
+    assert.equal(replay(clone(parts)).filter(part => part.type === 'mcp_call' || part.type === 'function_call_output').length, 0);
+  }
+});
+
+test('gateway session tools survive saved history reload and replay only to their owning provider', async () => {
+  const result = gatewayResult('agent37'), item = gatewayCall('create_agent37_session', result);
+  const chunks = await chunksFor([done([item])], { providerKey: 'agent37' });
+  const input = chunks.find(chunk => chunk.type === 'tool-input-available');
+  const output = chunks.find(chunk => chunk.type === 'tool-output-available');
+  const part = clone({ type: 'tool-create_agent37_session', toolCallId: item.id, state: 'output-available',
+    providerExecuted: true, input: input.input, output: output.output,
+    callProviderMetadata: input.providerMetadata, resultProviderMetadata: output.providerMetadata });
+  const args = { model: 'agent37/model', providerRequestConfigProviderKey: 'agent37', messages: [{ id: 'a', role: 'assistant', parts: [part] }] };
+  const history = buildResponsesBody(args).input;
+  assert.equal(history.length, 1); assert.equal(history[0].type, 'mcp_call'); assert.equal(history[0].server_label, 'aihappey');
+  assert.deepEqual(JSON.parse(history[0].output), result); assert.equal(history[0].name, item.name);
+  assert.deepEqual(buildResponsesBody({ ...args, model: 'other/model', providerRequestConfigProviderKey: 'other' }).input ?? [], []);
+});
+
+test('gateway MCP tool errors retain their result envelope and do not produce successful attachments', async () => {
+  const result = { ...gatewayResult(), isError: true };
+  const item = { ...gatewayCall('download_file', result), status: 'failed' };
+  const chunks = await chunksFor([done([item])]);
+  assert.deepEqual(chunks.find(chunk => chunk.type === 'tool-output-available').output, result);
+  assert.equal(chunks.filter(chunk => chunk.type === 'file').length, 0);
+  assert.equal(chunks.filter(chunk => chunk.type === 'error').length, 0);
+});
+
 test('reasoning replay uses provider-native IDs, preserves encrypted metadata, and groups summary parts', () => {
   const metadata = { openai: { id: reasoningId, item_id: reasoningId, encrypted_content: reasoning.encrypted_content } };
   const parts = [0, 1].map(index => ({ type: 'reasoning', id: `reasoning-${reasoningId}-${index}`, text: 'Summary ' + index,

@@ -2,6 +2,7 @@ import {
   OPENAI_CLIENT_TOOL_SEARCH_NAME,
   selectedToolsFromClientToolSearchResult,
 } from "../../../tools/clientToolSearch";
+import { gatewayResponsesReplay } from "../responsesSyntheticTools";
 import {
   compactObject,
   getProviderKeyFromRequestBody,
@@ -225,6 +226,8 @@ const toHostedShellEntries = (part: any, providerKey?: string): any[] => {
 };
 
 const toResponsesToolEntries = (part: any, providerKey?: string): any[] => {
+  const gatewayReplay = gatewayResponsesReplay(part, providerKey);
+  if (gatewayReplay !== undefined) return gatewayReplay;
   if (part?.providerExecuted === true) return toHostedShellEntries(part, providerKey);
   // Input deltas and pending approvals are not replayable completed calls.
   if (part?.state === "input-streaming" || part?.state === "input-error" || part?.state === "approval-requested") return [];

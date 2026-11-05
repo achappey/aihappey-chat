@@ -5,6 +5,7 @@ import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
 import { createResponsesShellToolMapper } from "./responsesShellTools";
+import { isGatewayResponsesTool, gatewayResponsesResult, gatewayResponsesMetadata } from "./responsesSyntheticTools";
 
 type ResponseProviderStreamContext = {
   event: any;
@@ -515,6 +516,7 @@ const createUiMessageChunkStream = ({
   };
 
   const responsesToolName = (item: any) => {
+    if (isGatewayResponsesTool(item)) return item.name;
     const type = String(item?.type ?? "");
     if (type === "web_search_call") return "web_search";
     if (type === "image_generation_call") return "image_generation";
@@ -552,6 +554,7 @@ const createUiMessageChunkStream = ({
   };
 
   const responsesToolOutput = (item: any) => {
+    if (isGatewayResponsesTool(item)) return gatewayResponsesResult(item);
     if (item?.type === "web_search_call") {
       return compactToolInput({
         status: item?.status,
@@ -816,11 +819,12 @@ const createUiMessageChunkStream = ({
 
     const toolName = responsesToolName(item);
     const providerExecuted = !isClientExecutableResponsesTool(item);
-    const toolProviderMetadata = { [resolveProviderKey() ?? "openai"]: compactObject({
+    const toolProviderMetadata = isGatewayResponsesTool(item) ? gatewayResponsesMetadata(item, resolveProviderKey() ?? "openai") : { [resolveProviderKey() ?? "openai"]: compactObject({
       type: item.type, id: item.id, item_id: item.id, call_id: item.call_id, status: item.status,
       caller: item.caller, namespace: item.namespace, created_by: item.created_by, output_index: item.output_index,
     }) };
-    const title = item?.type === "web_search_call" ? "Web search"
+    const title = isGatewayResponsesTool(item) ? toolProviderMetadata[resolveProviderKey() ?? "openai"].title
+      : item?.type === "web_search_call" ? "Web search"
       : typeof item?.title === "string" ? item.title : typeof item?.name === "string" ? item.name : undefined;
     ensureStepStarted(controller);
 
@@ -858,7 +862,7 @@ const createUiMessageChunkStream = ({
         type: result.type, id: result.id, output_item_id: result.id, call_id: result.call_id,
         tool_use_id: toolCallId, status: result.status, created_by: result.created_by,
       }) } : toolProviderMetadata;
-      const failed = resultItem?.error != null || (resultItem?.status && resultItem.status !== "completed");
+      const failed = !isGatewayResponsesTool(item) && (resultItem?.error != null || (resultItem?.status && resultItem.status !== "completed"));
       enqueueChunk(controller, failed ? {
         type: "tool-output-error", toolCallId, providerExecuted: true, providerMetadata: resultProviderMetadata,
         errorText: typeof resultItem.error === "string" ? resultItem.error
@@ -871,6 +875,17 @@ const createUiMessageChunkStream = ({
         providerMetadata: resultProviderMetadata,
       });
       emittedToolOutputs.add(toolCallId);
+      if (isGatewayResponsesTool(item) && item.name === "download_file") {
+        const output = gatewayResponsesResult(item);
+        const file = output.structuredContent;
+        const url = file?.data_url ?? file?.dataUrl ?? file?.url;
+        if (output.isError !== true && typeof url === "string" && url) enqueueChunk(controller, {
+          type: "file", url, mediaType: file.media_type ?? file.mediaType ?? "application/octet-stream",
+          providerMetadata: { [resolveProviderKey() ?? "openai"]: {
+            ...toolProviderMetadata[resolveProviderKey() ?? "openai"], filename: file.filename, file_id: file.file_id,
+          } },
+        });
+      }
     }
   };
 
