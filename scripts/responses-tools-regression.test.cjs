@@ -315,3 +315,359 @@ test('real SDK terminal stream errors stop automatic continuation even with an o
     assert.equal(requests, 1); assert.equal(executions, 0); assert.equal(errors.length, 1); assert.equal(chat.status, 'error');
   }
 });
+
+// Sanitized examples of the backend's native shell fixture: the invocation item,
+// API call ID, and output item are three different identities.
+const shellCall = n => ({ type: 'shell_call', id: `sh_${n}`, call_id: `call_shell_${n}`, name: null,
+  status: 'completed', action: { commands: ['echo "héllo"'], timeout_ms: null, max_output_length: null },
+  environment: { type: 'container_reference', container_id: 'cntr_test' } });
+const shellOutput = n => ({ type: 'shell_call_output', id: `sho_${n}`, call_id: `call_shell_${n}`,
+  status: 'completed', max_output_length: 1000,
+  output: [{ stdout: 'héllo\n', stderr: '', outcome: { type: 'exit', exit_code: 0 } }] });
+const shellEvents = n => {
+  const item = shellCall(n), output = shellOutput(n);
+  return [
+    { type: 'response.output_item.added', output_index: 0, item: { ...item, status: 'in_progress', action: { ...item.action, commands: [] } } },
+    { type: 'response.shell_call_command.added', output_index: 0, command_index: 0, command: '' },
+    { type: 'response.shell_call_command.delta', output_index: 0, command_index: 0, delta: 'echo "hé' },
+    { type: 'response.shell_call_command.delta', output_index: 0, command_index: 0, delta: 'llo"' },
+    { type: 'response.shell_call_command.done', output_index: 0, command_index: 0, command: item.action.commands[0] },
+    { type: 'response.output_item.done', output_index: 0, item },
+    { type: 'response.output_item.added', output_index: 1, item: { ...output, status: 'in_progress', output: [] } },
+    { type: 'response.shell_call_output_content.delta', item_id: output.id, output_index: 1, command_index: 0, delta: { stdout: 'hé', stderr: '' } },
+    { type: 'response.shell_call_output_content.delta', item_id: output.id, output_index: 1, command_index: 0, delta: { stdout: 'llo\n', stderr: '' } },
+    { type: 'response.shell_call_output_content.done', item_id: output.id, output_index: 1, command_index: 0, output: output.output },
+    { type: 'response.output_item.done', output_index: 1, item: output },
+  ];
+};
+async function sdkFor(events, options = {}) {
+  const { createResponsesContinuation } = load(base + 'responsesContinuation.ts');
+  const errors = [], executions = [], requests = [], guard = createResponsesContinuation();
+  const chat = new Chat({ transport: new GenericChatEndpointTransport('/v1/responses', options.providerKey ?? 'openai', undefined, {
+    api: 'https://provider.test/v1/responses', fetch: async (_, init) => {
+      requests.push(JSON.parse(init.body));
+      assert.equal(requests.length, 1, 'hosted tools must not cause client-tool continuation');
+      return nativeResponse(events, options);
+    },
+  }, `${options.providerKey ?? 'openai'}/model`), onError: error => errors.push(error),
+    onToolCall: ({ toolCall }) => executions.push(toolCall), sendAutomaticallyWhen: args => guard.shouldSend(args) });
+  await chat.sendMessage({ text: 'Run the provider tool.' });
+  return { chat, errors, executions, requests, parts: chat.messages.at(-1)?.parts ?? [] };
+}
+
+test('real SDK accepts null and non-string native hosted tool names without nullable UI titles', async () => {
+  for (const type of ['shell_call', 'web_search_call', 'file_search_call', 'code_interpreter_call', 'mcp_call']) {
+    for (const name of [null, undefined, 42]) {
+      const item = type === 'shell_call' ? { ...shellCall('nullable'), name }
+        : { type, id: 'hosted_nullable', name, status: 'completed', arguments: '{}', output: { ok: true } };
+      const items = type === 'shell_call' ? [item, shellOutput('nullable')] : [item];
+      const events = items.flatMap((item, output_index) => [
+        { type: 'response.output_item.added', item, output_index }, { type: 'response.output_item.done', item, output_index },
+      ]).concat(done(items));
+      const { errors, executions, parts } = await sdkFor(events);
+      assert.deepEqual(errors, [], `${type}, name=${name}: ${errors.map(error => error.message)}`);
+      assert.deepEqual(executions, []);
+      assert.equal(parts.filter(part => part.type.startsWith('tool-')).length, 1);
+    }
+  }
+});
+
+test('shell commands and separate streamed output form one SDK invocation with preliminary then one final result', async () => {
+  const item = shellCall(1), output = shellOutput(1);
+  const events = [...shellEvents(1), { type: 'response.output_item.done', output_index: 1, item: output },
+    { type: 'response.output_item.done', output_index: 0, item }, done([item, output])];
+  const chunks = await chunksFor(events);
+  const inputs = chunks.filter(chunk => chunk.type === 'tool-input-available');
+  const results = chunks.filter(chunk => chunk.type === 'tool-output-available');
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-start').length, 1);
+  assert.equal(inputs.length, 1);
+  assert.equal(inputs[0].toolCallId, item.id);
+  assert.deepEqual(inputs[0].input, { commands: item.action.commands });
+  assert.equal(inputs[0].providerMetadata.openai.call_id, item.call_id);
+  assert.equal(inputs[0].providerMetadata.openai.action.timeout_ms, null, 'native nulls are not recursively deleted');
+  assert.ok(results.some(chunk => chunk.preliminary === true));
+  assert.equal(results.filter(chunk => chunk.preliminary !== true).length, 1);
+  assert.ok(results.every(chunk => chunk.toolCallId === item.id && chunk.providerExecuted === true));
+  assert.deepEqual(results.at(-1).output.structuredContent.output, output.output);
+  assert.equal(results.at(-1).providerMetadata.openai.output_item_id, output.id);
+  const { errors, executions, parts } = await sdkFor(events);
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+  const tools = parts.filter(part => part.type.startsWith('tool-'));
+  assert.equal(tools.length, 1); assert.equal(tools[0].type, 'tool-shell');
+  assert.equal(tools[0].state, 'output-available'); assert.equal(tools[0].preliminary, false);
+  assert.equal(tools[0].callProviderMetadata.openai.id, item.id);
+  assert.equal(tools[0].resultProviderMetadata.openai.id, output.id);
+});
+
+test('snapshot-only recovery correlates out-of-order shell outputs and scopes metadata to the resolved provider', async () => {
+  const items = [shellOutput(2), shellCall(1), shellOutput(1), shellCall(2),
+    { type: 'compaction', id: 'compact_1', encrypted_content: 'opaque' },
+    { type: 'message', role: 'assistant', id: 'msg_final', content: [{ type: 'output_text', text: 'Done.' }] }];
+  const { errors, executions, parts } = await sdkFor([done(items)], { providerKey: 'compatible' });
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+  const tools = parts.filter(part => part.type.startsWith('tool-'));
+  assert.equal(tools.length, 2);
+  for (const part of tools) {
+    assert.equal(part.state, 'output-available');
+    assert.ok(part.callProviderMetadata.compatible);
+    assert.ok(part.resultProviderMetadata.compatible);
+    assert.equal(part.callProviderMetadata.openai, undefined);
+    assert.equal(part.callProviderMetadata.compatible.call_id, part.resultProviderMetadata.compatible.call_id);
+  }
+  assert.equal(parts.filter(part => part.type === 'text').map(part => part.text).join(''), 'Done.');
+});
+
+test('completed snapshots recover hosted search, interpreter, MCP and image tools without phantom non-tool items', async () => {
+  const items = ['web_search_call', 'file_search_call', 'code_interpreter_call', 'mcp_call'].map((type, index) => ({
+    type, id: 'hosted_' + index, name: null, status: 'completed', arguments: '{}', output: { ok: true },
+  }));
+  items.push({ type: 'image_generation_call', id: 'img_snapshot', status: 'completed', result: 'aGVsbG8=', output_format: 'png' },
+    { type: 'compaction', id: 'compact_1', encrypted_content: 'opaque' });
+  const { errors, executions, parts } = await sdkFor([done(items)]);
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+  const tools = parts.filter(part => part.type.startsWith('tool-'));
+  assert.equal(tools.length, 5);
+  assert.ok(tools.every(part => part.providerExecuted === true && part.state === 'output-available'));
+  assert.equal(parts.filter(part => part.type === 'file').length, 1);
+});
+
+test('persisted hosted shell parts replay complete native pairs, not client function outputs', async () => {
+  const { errors, parts } = await sdkFor([...shellEvents(1), done([shellCall(1), shellOutput(1)])]);
+  assert.deepEqual(errors, []);
+  const saved = clone(parts), input = replay(saved);
+  assert.deepEqual(input.map(item => item.type), ['shell_call', 'shell_call_output']);
+  assert.equal(input[0].id, 'sh_1'); assert.equal(input[1].id, 'sho_1');
+  assert.equal(input[0].call_id, input[1].call_id);
+  assert.deepEqual(input[0].action, shellCall(1).action);
+  assert.deepEqual(input[0].environment, shellCall(1).environment);
+  assert.deepEqual(input[1].output, shellOutput(1).output);
+  assert.deepEqual(replay(saved, { model: 'other/model', providerMetadata: { other: {} } }), []);
+  for (const mutate of [
+    part => { delete part.resultProviderMetadata; },
+    part => { part.resultProviderMetadata.openai.call_id = 'unrelated'; },
+    part => { part.state = 'input-streaming'; },
+    part => { part.preliminary = true; },
+  ]) {
+    const incomplete = clone(saved); mutate(incomplete.find(part => part.type === 'tool-shell'));
+    assert.deepEqual(replay(incomplete), []);
+  }
+});
+
+test('parallel shells keep per-command outputs and outcomes separate when results finish out of order', async () => {
+  const first = { ...shellCall(1), action: { commands: ['first', 'second'] } }, second = shellCall(2);
+  const firstOutput = { ...shellOutput(1), output: [
+    { stdout: '', stderr: 'permission denied', outcome: { type: 'exit', exit_code: 2 } },
+    { stdout: 'partial', stderr: '', outcome: { type: 'timeout' } },
+  ] };
+  const events = [
+    { type: 'response.output_item.added', item: first, output_index: 0 },
+    { type: 'response.output_item.added', item: second, output_index: 1 },
+    { type: 'response.output_item.done', item: second, output_index: 1 },
+    { type: 'response.output_item.done', item: first, output_index: 0 },
+    { type: 'response.output_item.added', item: { ...firstOutput, status: 'in_progress', output: [] }, output_index: 2 },
+    { type: 'response.shell_call_output_content.delta', item_id: firstOutput.id, output_index: 2, command_index: 1, delta: { stdout: 'par' } },
+    { type: 'response.shell_call_output_content.delta', item_id: firstOutput.id, output_index: 2, command_index: 0, delta: { stderr: 'permission ' } },
+    { type: 'response.shell_call_output_content.done', item_id: firstOutput.id, output_index: 2, command_index: 1, output: [firstOutput.output[1]] },
+    { type: 'response.output_item.done', item: shellOutput(2), output_index: 3 },
+    { type: 'response.output_item.done', item: firstOutput, output_index: 2 },
+    { type: 'response.shell_call_output_content.delta', item_id: firstOutput.id, output_index: 2, command_index: 0, delta: { stdout: 'late' } },
+    done([first, second, firstOutput, shellOutput(2)]),
+  ];
+  const { errors, parts, executions } = await sdkFor(events);
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+  const tools = parts.filter(part => part.type === 'tool-shell');
+  assert.equal(tools.length, 2);
+  assert.deepEqual(tools.find(part => part.toolCallId === first.id).output.structuredContent.output, firstOutput.output);
+  assert.deepEqual(tools.find(part => part.toolCallId === second.id).output.structuredContent.output, shellOutput(2).output);
+});
+
+test('shell result items can arrive before their call, and command deltas recover missing final command text', async () => {
+  const item = shellCall(1), output = shellOutput(1);
+  const events = [
+    { type: 'response.output_item.done', item: output, output_index: 3 },
+    ...shellEvents(1).slice(0, 5),
+    { type: 'response.output_item.done', item: { ...item, action: { commands: [] } }, output_index: 0 },
+    done([]),
+  ];
+  const { errors, parts } = await sdkFor(events);
+  assert.deepEqual(errors, []);
+  const tool = parts.find(part => part.type === 'tool-shell');
+  assert.deepEqual(tool.input.commands, item.action.commands);
+  assert.deepEqual(tool.output.structuredContent.output, output.output);
+  const chunks = await chunksFor(events);
+  assert.deepEqual(JSON.parse(chunks.filter(chunk => chunk.type === 'tool-input-delta').map(chunk => chunk.inputTextDelta).join('')),
+    { commands: item.action.commands }, 'input deltas remain valid JSON after escaping and Unicode fragmentation');
+});
+
+test('snapshot recovery preserves text/tool chronology and repairs a missing live final output', async () => {
+  const message = (id, text) => ({ type: 'message', id, role: 'assistant', content: [{ type: 'output_text', text }] });
+  const item = shellCall(1), output = shellOutput(1);
+  const { errors, parts } = await sdkFor([done([message('msg_before', 'Before.'), item, output, message('msg_after', 'After.')])]);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(parts.filter(part => part.type !== 'step-start').map(part => part.type), ['text', 'tool-shell', 'text']);
+  const chunks = await chunksFor([...shellEvents(1).slice(0, -1), done([item, output])]);
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-start').length, 1);
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-available').length, 1);
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-output-available' && chunk.preliminary === false).length, 1);
+});
+
+test('generic hosted tools deduplicate completion snapshots and ignore late status and non-tool items', async () => {
+  const item = { type: 'web_search_call', id: 'ws_dedup', name: null, title: null, status: 'completed', action: { query: 'test' } };
+  const events = [
+    { type: 'response.output_item.added', item: { ...item, status: 'in_progress' } },
+    { type: 'response.web_search_call.searching', item_id: item.id },
+    { type: 'response.output_item.done', item }, { type: 'response.output_item.done', item },
+    { type: 'response.web_search_call.searching', item_id: item.id },
+    { type: 'response.output_item.added', item: { type: 'compaction', id: 'compact_live' } },
+    { type: 'response.output_item.done', item: { type: 'compaction', id: 'compact_live' } }, done([item]),
+  ];
+  const chunks = await chunksFor(events);
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-available').length, 1);
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-output-available').length, 1);
+  const { errors, parts } = await sdkFor(events);
+  assert.deepEqual(errors, []);
+  assert.equal(parts.filter(part => part.type.startsWith('tool-')).length, 1);
+  assert.equal(parts.find(part => part.type === 'tool-web_search').state, 'output-available');
+});
+
+test('image completion snapshots and late partial-image events cannot regress a finalized tool or duplicate its file', async () => {
+  const item = { type: 'image_generation_call', id: 'img_live', status: 'completed', result: 'aGVsbG8=', output_format: 'png' };
+  const events = [
+    { type: 'response.output_item.added', item: { ...item, status: 'in_progress', result: undefined } },
+    { type: 'response.output_item.done', item }, { type: 'response.output_item.done', item },
+    { type: 'response.image_generation_call.partial_image', item_id: item.id, partial_image_b64: 'bGF0ZQ==' }, done([item]),
+  ];
+  const { errors, parts } = await sdkFor(events);
+  assert.deepEqual(errors, []);
+  const tools = parts.filter(part => part.type.startsWith('tool-'));
+  assert.equal(tools.length, 1); assert.equal(tools[0].state, 'output-available');
+  assert.equal(parts.filter(part => part.type === 'file').length, 1);
+  const chunks = await chunksFor(events);
+  const lastOutputIndex = chunks.findIndex(chunk => chunk.type === 'tool-output-available');
+  assert.ok(!chunks.slice(lastOutputIndex + 1).some(chunk => chunk.type === 'tool-input-available'));
+});
+
+test('provider-hosted tool errors remain tool errors and cannot be replayed as successful shell results', async () => {
+  for (const items of [
+    [{ type: 'mcp_call', id: 'mcp_failed', name: null, status: 'failed', arguments: '{}', error: { message: 'Permission denied' } }],
+    [shellCall(1), { ...shellOutput(1), status: 'failed', error: { message: 'Container unavailable' } }],
+  ]) {
+    const { errors, parts, executions } = await sdkFor([done(items)]);
+    assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+    const tool = parts.find(part => part.type.startsWith('tool-'));
+    assert.equal(tool.state, 'output-error'); assert.equal(tool.providerExecuted, true);
+    assert.deepEqual(replay(clone(parts)), []);
+  }
+});
+
+test('native program and tool-search results correlate to one hosted invocation, including snapshot-only results first', async () => {
+  for (const [type, resultType] of [['program', 'program_output'], ['tool_search_call', 'tool_search_output']]) {
+    const item = { type, id: 'native_call_item', call_id: 'native_call_id', name: null, status: 'completed', arguments: {} };
+    const result = { type: resultType, id: 'native_result_item', call_id: item.call_id, status: 'completed', output: { found: true } };
+    for (const events of [[done([result, item])], [
+      { type: 'response.output_item.added', item }, { type: 'response.output_item.done', item },
+      { type: 'response.output_item.done', item: result }, done([item, result]),
+    ]]) {
+      const { errors, executions, parts } = await sdkFor(events);
+      assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+      const tools = parts.filter(part => part.type.startsWith('tool-'));
+      assert.equal(tools.length, 1); assert.deepEqual(tools[0].output, { found: true });
+      assert.equal(tools[0].resultProviderMetadata.openai.id, result.id);
+    }
+  }
+});
+
+test('unfinished shell requests and terminal failures never manufacture final tool results or continue', async () => {
+  for (const events of [
+    [...shellEvents(1).slice(0, 6), done([])],
+    [...shellEvents(1).slice(0, -1), { type: 'response.failed', response: { error: { message: 'Provider failed' } } }],
+    [...shellEvents(1).slice(0, -1), { type: 'response.incomplete', response: { incomplete_details: { reason: 'max_output_tokens' } } }],
+    shellEvents(1).slice(0, -1),
+  ]) {
+    const chunks = await chunksFor(events, { appendDone: false });
+    assert.ok(chunks.some(chunk => chunk.type === 'error'));
+    assert.equal(chunks.filter(chunk => chunk.type === 'tool-output-available' && chunk.preliminary !== true).length, 0);
+    assert.equal(chunks.filter(chunk => chunk.type === 'finish').length, 0);
+    const { errors, executions, requests, chat } = await sdkFor(events, { appendDone: false });
+    assert.equal(errors.length, 1); assert.deepEqual(executions, []);
+    assert.equal(requests.length, 1); assert.equal(chat.status, 'error');
+  }
+});
+
+test('malformed or local shell calls fail safely without executing tools or inventing results', async () => {
+  for (const items of [
+    [{ ...shellCall(1), id: 42 }, shellOutput(1)],
+    [{ ...shellCall(1), call_id: null }, shellOutput(1)],
+    [{ ...shellCall(1), action: { commands: [42] } }, shellOutput(1)],
+    [shellCall(1), { ...shellOutput(1), call_id: 'unmatched' }],
+    [shellCall(1), { ...shellOutput(1), output: undefined }],
+    [{ ...shellCall(1), environment: { type: 'local' } }],
+  ]) {
+    const { errors, executions, chat } = await sdkFor([done(items)]);
+    assert.equal(errors.length, 1); assert.equal(chat.status, 'error'); assert.deepEqual(executions, []);
+  }
+});
+
+test('shell correlation is isolated across concurrent streams using identical native IDs', async () => {
+  const results = await Promise.all(['first private output', 'second private output'].map(stdout => sdkFor([
+    done([shellCall(1), { ...shellOutput(1), output: [{ stdout, stderr: '', outcome: { type: 'exit', exit_code: 0 } }] }]),
+  ])));
+  results.forEach(({ errors, parts }, index) => {
+    assert.deepEqual(errors, []);
+    assert.equal(parts.find(part => part.type === 'tool-shell').output.structuredContent.output[0].stdout,
+      index === 0 ? 'first private output' : 'second private output');
+  });
+  const orphan = await sdkFor([done([shellOutput(1)])]);
+  assert.equal(orphan.errors.length, 1);
+  assert.equal(orphan.parts.filter(part => part.type.startsWith('tool-')).length, 0);
+});
+
+test('cancelling preliminary shell output cancels the upstream reader without a fabricated final result', async () => {
+  let upstreamCancelled = false;
+  const source = new ReadableStream({ start(controller) {
+    controller.enqueue(new TextEncoder().encode(shellEvents(1).slice(0, -1).map(event => 'data: ' + JSON.stringify(event) + '\n\n').join('')));
+  }, cancel() { upstreamCancelled = true; } });
+  const fetcher = wrapGenericChatFetch({ endpoint: '/v1/responses', providerKey: 'openai', fetcher: async () => new Response(source) });
+  const reader = (await fetcher('https://provider.test/v1/responses')).body.getReader();
+  let streamed = '';
+  while (!streamed.includes('"preliminary":true')) streamed += new TextDecoder().decode((await reader.read()).value);
+  await reader.cancel('stopped');
+  assert.equal(upstreamCancelled, true);
+  assert.ok(!streamed.includes('"preliminary":false'));
+});
+
+for (const route of ['direct', 'gateway']) test(`real SDK ${route} mixed hosted/client continuation and reloaded follow-up replay shell pairs natively`, async () => {
+  const { createResponsesContinuation } = load(base + 'responsesContinuation.ts');
+  const requests = [], errors = [], executions = [], item = call('mixed');
+  const transport = new GenericChatEndpointTransport('/v1/responses', route === 'direct' ? 'openai' : undefined, undefined, {
+    api: `https://${route}.test/v1/responses`,
+    prepareSendMessagesRequest: ({ messages }) => ({ body: buildResponsesBody({ model: route === 'direct' ? 'model' : 'openai/model',
+      providerRequestConfigProviderKey: 'openai', messages }) }),
+    fetch: async (_, init) => {
+      const request = JSON.parse(init.body); requests.push(request);
+      assert.ok(requests.length <= 3);
+      if (requests.length === 1) return nativeResponse([...shellEvents(1), { type: 'response.output_item.done', item },
+        done([shellCall(1), shellOutput(1), item])]);
+      assert.deepEqual(request.input.filter(item => item.type.startsWith('shell_')).map(item => item.type), ['shell_call', 'shell_call_output']);
+      assert.equal(request.input.filter(item => item.type === 'function_call_output').length, 1);
+      assert.equal(request.input.find(item => item.type === 'function_call_output').call_id, 'call_mixed');
+      assert.equal(request.previous_response_id, undefined);
+      return nativeResponse(finalEvents(requests.length === 2 ? 'Finished.' : 'I remember the shell output.'));
+    },
+  }, 'openai/model');
+  const guard = createResponsesContinuation();
+  let chat;
+  chat = new Chat({ transport, onError: error => errors.push(error), sendAutomaticallyWhen: args => guard.shouldSend(args),
+    onToolCall: ({ toolCall }) => {
+      executions.push(toolCall.toolCallId);
+      chat.addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output: { ok: true } });
+    } });
+  await chat.sendMessage({ text: 'Run shell and the client tool.' });
+  assert.deepEqual(errors, []); assert.deepEqual(executions, ['call_mixed']); assert.equal(requests.length, 2);
+  const restoredGuard = createResponsesContinuation();
+  const restored = new Chat({ transport, messages: clone(chat.messages), onError: error => errors.push(error),
+    sendAutomaticallyWhen: args => restoredGuard.shouldSend(args) });
+  await restored.sendMessage({ text: 'What did the shell print?' });
+  assert.deepEqual(errors, []); assert.equal(requests.length, 3);
+  assert.equal(restored.messages.at(-1).parts.find(part => part.type === 'text').text, 'I remember the shell output.');
+});

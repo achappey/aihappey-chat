@@ -4,6 +4,7 @@ import { DefaultChatTransport } from "aihappey-ai";
 import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
+import { createResponsesShellToolMapper } from "./responsesShellTools";
 
 type ResponseProviderStreamContext = {
   event: any;
@@ -251,6 +252,10 @@ const createUiMessageChunkStream = ({
   const toolInputTextById = new Map<string, string>();
   const toolNameById = new Map<string, string>();
   const toolProviderMetadataById = new Map<string, Record<string, any>>();
+  const completedResponsesToolInputs = new Set<string>();
+  const responsesProviderToolItems = new Map<string, any>();
+  const responsesProviderToolsByCallId = new Map<string, any>();
+  const responsesProviderResultsByCallId = new Map<string, any>();
   const interactionsStepsByIndex = new Map<number, any>();
   const emittedSourceKeys = new Set<string>();
   const imageGenerationItems = new Map<string, any>();
@@ -513,10 +518,19 @@ const createUiMessageChunkStream = ({
     const type = String(item?.type ?? "");
     if (type === "web_search_call") return "web_search";
     if (type === "image_generation_call") return "image_generation";
-    if (type === "function_call") return item?.name ?? "function_call";
+    if (type === "function_call") return typeof item?.name === "string" && item.name.trim() ? item.name : "function_call";
     if (type.endsWith("_call")) return type.replace(/_call$/, "");
-    return item?.name ?? type ?? "provider_tool";
+    return typeof item?.name === "string" && item.name.trim() ? item.name : type || "provider_tool";
   };
+
+  const isResponsesToolCall = (item: any) => typeof item?.type === "string"
+    && (item.type.endsWith("_call") || item.type === "mcp_list_tools" || item.type === "program"
+      || /:(datetime|web_fetch|experimental__search_models)$/.test(item.type));
+
+  const isResponsesToolResult = (item: any) => typeof item?.type === "string"
+    && (item.type.endsWith("_call_output") || item.type === "tool_search_output" || item.type === "program_output");
+
+  const expectsSeparateResponsesResult = (item: any) => item?.type === "program" || item?.type === "tool_search_call";
 
   const compactToolInput = (value: Record<string, any>) => Object.fromEntries(
     Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null),
@@ -580,7 +594,7 @@ const createUiMessageChunkStream = ({
 
   const rememberImageGenerationItem = (item?: any) => {
     const itemId = item?.id ?? item?.item_id;
-    if (!itemId) return undefined;
+    if (typeof itemId !== "string" || !itemId.trim()) throw new Error("Responses image generation item is missing its native identifier.");
     const previous = imageGenerationItems.get(itemId) ?? {};
     const next = compactObject({ ...previous, ...(item ?? {}) });
     imageGenerationItems.set(itemId, next);
@@ -637,6 +651,7 @@ const createUiMessageChunkStream = ({
   ) => {
     const toolCallId = itemOrEvent?.id ?? itemOrEvent?.item_id;
     if (!toolCallId) return;
+    if (emittedToolOutputs.has(toolCallId)) return;
 
     ensureStepStarted(controller);
     if (!startedToolCalls.has(toolCallId)) {
@@ -740,6 +755,7 @@ const createUiMessageChunkStream = ({
     }
 
     if (type?.startsWith("response.image_generation_call.") && typeof event?.item_id === "string") {
+      if (emittedToolOutputs.has(event.item_id)) return true;
       const eventStatus = type.replace("response.image_generation_call.", "");
       const item = rememberImageGenerationItem(compactObject({
         ...(getImageGenerationItem(event.item_id) ?? {}),
@@ -768,8 +784,7 @@ const createUiMessageChunkStream = ({
       }
 
       if (item?.id && !imageGenerationFinalFiles.has(item.id)) {
-        emitImageGenerationFile(controller, item, item?.result, false);
-        imageGenerationFinalFiles.add(item.id);
+        if (emitImageGenerationFile(controller, item, item?.result, false)) imageGenerationFinalFiles.add(item.id);
       }
 
       return true;
@@ -786,16 +801,27 @@ const createUiMessageChunkStream = ({
     const isPatch = item?.type === "apply_patch_call";
     if (isPatch && (!includeOutput || item.status !== "completed" || !item.operation)) return;
     const toolCallId = isPatch ? item?.call_id : item?.id ?? item?.call_id;
-    if (!toolCallId) return;
+    if (typeof toolCallId !== "string" || !toolCallId.trim()) throw new Error("Responses tool is missing its native identifier.");
     if (isPatch && startedToolCalls.has(toolCallId)) return;
+    if (!isPatch && emittedToolOutputs.has(toolCallId)) return;
+    if (["custom_tool_call", "computer_call", "local_shell_call"].includes(item?.type)
+      || (item?.type === "tool_search_call" && item.execution === "client")) {
+      throw new Error(`Client-executed Responses ${item.type} is not supported by this adapter.`);
+    }
+    if (!isPatch) {
+      item = { ...responsesProviderToolItems.get(toolCallId), ...item };
+      responsesProviderToolItems.set(toolCallId, item);
+      if (typeof item.call_id === "string" && item.call_id) responsesProviderToolsByCallId.set(item.call_id, item);
+    }
 
     const toolName = responsesToolName(item);
     const providerExecuted = !isClientExecutableResponsesTool(item);
-    const toolProviderMetadata = isPatch
-      ? { openai: compactObject({ type: item.type, id: item.id, call_id: item.call_id, status: item.status, caller: item.caller, created_by: item.created_by }) }
-      : item?.caller || item?.namespace
-      ? { openai: compactObject({ caller: item?.caller, namespace: item?.namespace }) }
-      : undefined;
+    const toolProviderMetadata = { [resolveProviderKey() ?? "openai"]: compactObject({
+      type: item.type, id: item.id, item_id: item.id, call_id: item.call_id, status: item.status,
+      caller: item.caller, namespace: item.namespace, created_by: item.created_by, output_index: item.output_index,
+    }) };
+    const title = item?.type === "web_search_call" ? "Web search"
+      : typeof item?.title === "string" ? item.title : typeof item?.name === "string" ? item.name : undefined;
     ensureStepStarted(controller);
 
     if (!startedToolCalls.has(toolCallId)) {
@@ -805,31 +831,61 @@ const createUiMessageChunkStream = ({
         toolName,
         providerExecuted,
         providerMetadata: toolProviderMetadata,
-        title: item?.type === "web_search_call" ? "Web search" : item?.name,
+        title,
       });
       startedToolCalls.add(toolCallId);
     }
 
-    enqueueChunk(controller, {
-      type: "tool-input-available",
-      toolCallId,
-      toolName,
-      input: responsesToolInput(item),
-      providerExecuted,
-      providerMetadata: toolProviderMetadata,
-      title: item?.type === "web_search_call" ? "Web search" : item?.name,
-    });
+    if (!includeOutput) return;
+    if (!completedResponsesToolInputs.has(toolCallId)) {
+      completedResponsesToolInputs.add(toolCallId);
+      enqueueChunk(controller, {
+        type: "tool-input-available",
+        toolCallId,
+        toolName,
+        input: responsesToolInput(item),
+        providerExecuted,
+        providerMetadata: toolProviderMetadata,
+        title,
+      });
+    }
 
     if (includeOutput && providerExecuted && !emittedToolOutputs.has(toolCallId)) {
-      enqueueChunk(controller, {
+      const result = responsesProviderResultsByCallId.get(item.call_id);
+      if (expectsSeparateResponsesResult(item) && !result) return;
+      const resultItem = result ?? item;
+      const resultProviderMetadata = result ? { [resolveProviderKey() ?? "openai"]: compactObject({
+        type: result.type, id: result.id, output_item_id: result.id, call_id: result.call_id,
+        tool_use_id: toolCallId, status: result.status, created_by: result.created_by,
+      }) } : toolProviderMetadata;
+      const failed = resultItem?.error != null || (resultItem?.status && resultItem.status !== "completed");
+      enqueueChunk(controller, failed ? {
+        type: "tool-output-error", toolCallId, providerExecuted: true, providerMetadata: resultProviderMetadata,
+        errorText: typeof resultItem.error === "string" ? resultItem.error
+          : typeof resultItem.error?.message === "string" ? resultItem.error.message : `Responses tool ${resultItem.status ?? "failed"}.`,
+      } : {
         type: "tool-output-available",
         toolCallId,
-        output: responsesToolOutput(item),
+        output: responsesToolOutput(resultItem),
         providerExecuted: true,
+        providerMetadata: resultProviderMetadata,
       });
       emittedToolOutputs.add(toolCallId);
     }
   };
+
+  const emitProviderToolResult = (controller: ReadableStreamDefaultController<Uint8Array>, item: any) => {
+    if (typeof item?.call_id !== "string" || !item.call_id.trim()) return;
+    if (!responsesProviderResultsByCallId.has(item.call_id)) responsesProviderResultsByCallId.set(item.call_id, item);
+    const call = responsesProviderToolsByCallId.get(item.call_id);
+    if (call && completedResponsesToolInputs.has(call.id ?? call.call_id)) emitProviderTool(controller, call, true);
+  };
+
+  const responsesShellTools = createResponsesShellToolMapper({
+    emit: enqueueChunk,
+    startStep: controller => { closeText(controller); ensureStepStarted(controller); },
+    providerKey: () => resolveProviderKey() ?? "openai",
+  });
 
   // Native output-item ids identify stream items; call_id identifies the
   // executable invocation and its result. Persist both using the same metadata
@@ -1916,38 +1972,20 @@ const createUiMessageChunkStream = ({
       return;
     }
 
-    if (type === "response.output_item.added" && event?.item?.type && event.item.type !== "message" && event.item.type !== "reasoning") {
-      emitProviderTool(controller, event.item, false);
-      return;
-    }
+    if (responsesShellTools.handleEvent(controller, { ...event, type })) return;
 
-    if (type === "response.output_item.done" && event?.item?.type && event.item.type !== "message" && event.item.type !== "reasoning") {
-      emitProviderTool(controller, event.item, true);
+    if (type === "response.output_item.added" || type === "response.output_item.done") {
+      const completed = type === "response.output_item.done";
+      if (responsesShellTools.handleItem(controller, event.item, event.output_index, completed)) return;
+      if (isResponsesToolResult(event.item)) {
+        if (completed) emitProviderToolResult(controller, event.item);
+      } else if (isResponsesToolCall(event.item)) emitProviderTool(controller, { ...event.item, output_index: event.output_index }, completed);
       return;
     }
 
     if (type?.startsWith("response.web_search_call.") && typeof event?.item_id === "string") {
-      ensureStepStarted(controller);
-      if (!startedToolCalls.has(event.item_id)) {
-        enqueueChunk(controller, {
-          type: "tool-input-start",
-          toolCallId: event.item_id,
-          toolName: "web_search",
-          providerExecuted: true,
-          title: "Web search",
-        });
-        startedToolCalls.add(event.item_id);
-      }
-      if (type === "response.web_search_call.in_progress" || type === "response.web_search_call.searching") {
-        enqueueChunk(controller, {
-          type: "tool-input-available",
-          toolCallId: event.item_id,
-          toolName: "web_search",
-          input: { status: type.replace("response.web_search_call.", "") },
-          providerExecuted: true,
-          title: "Web search",
-        });
-      }
+      emitProviderTool(controller, { type: "web_search_call", id: event.item_id,
+        status: type.replace("response.web_search_call.", "") }, false);
       return;
     }
 
@@ -1977,6 +2015,11 @@ const createUiMessageChunkStream = ({
     if (type === "response.completed") {
       rememberMetadata(event);
       if (event?.response?.status && event.response.status !== "completed") throw new Error("Responses generation did not complete.");
+      // Register calls before outputs so snapshots can recover missing live
+      // events even when a compatible provider lists a result before its call.
+      for (const [index, item] of (event?.response?.output ?? []).entries()) {
+        if (item?.type === "shell_call") responsesShellTools.handleItem(controller, item, index, false, true);
+      }
       for (const [index, item] of (event?.response?.output ?? []).entries()) {
         if (item.type === "function_call") completeResponsesFunction(controller, rememberResponsesFunction(item, { output_index: index }));
         else if (item.type === "reasoning") emitResponsesReasoningSnapshot(controller, item, index);
@@ -1984,8 +2027,18 @@ const createUiMessageChunkStream = ({
           rememberResponsesMessage(item, index);
           emitResponsesTextSnapshot(controller, item.content, item.id);
         }
+        else if (responsesShellTools.handleItem(controller, item, index, true)) continue;
+        else if (isImageGenerationItemType(item?.type)) {
+          handleImageGenerationPayload({ type: "response.output_item.done", item, output_index: index }, controller);
+        }
+        else if (isResponsesToolResult(item)) emitProviderToolResult(controller, item);
+        else if (isResponsesToolCall(item)) emitProviderTool(controller, { ...item, output_index: index }, true);
       }
       if (Array.from(responsesFunctionStates).some(state => !state.emitted)) throw new Error("Responses ended with an incomplete function call.");
+      responsesShellTools.assertComplete();
+      if ([...responsesProviderToolItems.keys()].some(id => !emittedToolOutputs.has(id))) {
+        throw new Error("Responses ended with an incomplete provider-hosted tool call/output.");
+      }
       finish(controller, emittedClientToolInput ? "tool-calls" : "stop");
     }
   };

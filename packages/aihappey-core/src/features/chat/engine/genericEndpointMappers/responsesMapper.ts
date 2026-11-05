@@ -194,8 +194,38 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
   return [...ungrouped, ...namespaces];
 };
 
+const toHostedShellEntries = (part: any, providerKey?: string): any[] => {
+  if (!providerKey || part?.state !== "output-available" || part?.preliminary === true
+    || part?.approval?.approved === false || part?.output?.isError === true) return [];
+
+  // Do not merge these channels: both contain an id and type, but refer to
+  // different native items. Only a complete pair from the active provider is
+  // replayable; never invent a function_call_output for a hosted invocation.
+  const call = part?.callProviderMetadata?.[providerKey];
+  const result = part?.resultProviderMetadata?.[providerKey];
+  const nonempty = (value: unknown): value is string => typeof value === "string" && !!value.trim();
+  const itemId = call?.id ?? call?.item_id;
+  const outputId = result?.id ?? result?.output_item_id;
+  if (call?.type !== "shell_call" || result?.type !== "shell_call_output"
+    || !nonempty(call.call_id) || call.call_id !== result.call_id
+    || !nonempty(itemId) || !nonempty(outputId)
+    || (call.status && call.status !== "completed") || (result.status && result.status !== "completed")
+    || call.environment?.type === "local"
+    || !Array.isArray(call.action?.commands) || !call.action.commands.length
+    || call.action.commands.some((command: unknown) => typeof command !== "string")
+    || !Array.isArray(result.output)) return [];
+
+  return [compactObject({
+    type: "shell_call", id: itemId, call_id: call.call_id, status: call.status ?? "completed",
+    action: call.action, environment: call.environment, created_by: call.created_by,
+  }), compactObject({
+    type: "shell_call_output", id: outputId, call_id: result.call_id, status: result.status ?? "completed",
+    output: result.output, max_output_length: result.max_output_length, created_by: result.created_by,
+  })];
+};
+
 const toResponsesToolEntries = (part: any, providerKey?: string): any[] => {
-  if (part?.providerExecuted === true) return [];
+  if (part?.providerExecuted === true) return toHostedShellEntries(part, providerKey);
   // Input deltas and pending approvals are not replayable completed calls.
   if (part?.state === "input-streaming" || part?.state === "input-error" || part?.state === "approval-requested") return [];
 
