@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { UIMessage } from 'aihappey-types';
 
-export type RealtimeToolReview = { toolCallId: string; toolName: string; input: unknown; output?: unknown };
-export type RealtimeToolDecision = { approved: boolean; reason?: string };
+export type RealtimeToolReview = { toolCallId: string; toolName: string; input: unknown; output?: unknown; signature?: string };
+export type RealtimeToolDecision = { approved: boolean; reason?: string; signature?: string; isAutomatic?: boolean };
 type Pending = { id: string; message: UIMessage; settle: (decision?: RealtimeToolDecision) => void };
 
 /** A session-owned queue feeding the ordinary ToolApprovalModalHost, not a new approval UI. */
@@ -25,7 +25,7 @@ export function useRealtimeToolApprovals() {
       };
       pending.current.push({ id, settle, message: { id, role: 'assistant', parts: [{
         type: `tool-${tool.toolName}`, toolCallId: tool.toolCallId, input: tool.input,
-        ...(tool.output !== undefined ? { output } : {}), state: 'approval-requested', approval: { id },
+        ...(tool.output !== undefined ? { output } : {}), state: 'approval-requested', approval: { id, signature: tool.signature },
       }] } });
       signal.addEventListener('abort', abort, { once: true }); notify();
     });

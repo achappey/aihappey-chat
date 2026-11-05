@@ -1,4 +1,5 @@
 import type { RealtimeToolDecision, RealtimeToolReview } from './useRealtimeToolApprovals';
+import { withToolApprovalMetadata } from '../chat/engine/toolApprovalMetadata';
 
 /** Execute -> retain full result -> use the shared review UI -> submit result/denial.
  * Output that already arrived from the backend is reviewed, never executed again.
@@ -33,14 +34,16 @@ export async function completeLiveToolCalls(args: {
       parts: value.parts.map((candidate: any) => candidate.toolCallId === part.toolCallId ? { ...candidate, output } : candidate),
     });
     await args.changed?.();
-    const decision = await args.review({ toolCallId: part.toolCallId, toolName, input: part.input, output }, signal);
+    const decision = await args.review({ toolCallId: part.toolCallId, toolName, input: part.input, output, signature: part.approval?.signature }, signal);
     signal.throwIfAborted();
     const released = decision.approved ? output : { isError: true, content: [{ type: 'text', text: decision.reason ?? 'Tool result was not approved.' }] };
     if (part.state === 'approval-requested' && part.approval?.id) {
       if (!decision.approved) chat.messages = chat.messages.map(value => value.id !== message.id ? value : { ...value,
         parts: value.parts.map((candidate: any) => candidate.toolCallId === part.toolCallId ? { ...candidate, output: released } : candidate),
       });
-      await chat.addToolApprovalResponse({ id: part.approval.id, ...decision });
+      const response = { ...decision, id: part.approval.id, signature: part.approval.signature };
+      chat.messages = withToolApprovalMetadata(chat.messages, response);
+      await chat.addToolApprovalResponse(response);
     } else {
       await chat.addToolOutput({ tool: toolName, toolCallId: part.toolCallId,
         output: released,

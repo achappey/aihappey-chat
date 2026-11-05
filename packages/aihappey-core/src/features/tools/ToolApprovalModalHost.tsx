@@ -6,12 +6,13 @@ import { useTranslation } from "aihappey-i18n";
 import { ContentBlockView } from "../chat/activity/content/ContentBlockView";
 import { StructuredOutputView } from "../chat/activity/content/StructuredOutputView";
 import { approvalToolName, pendingToolApprovals } from "../chat/engine/toolApprovalState";
+import type { ToolApprovalDecision } from "../chat/engine/toolApprovalMetadata";
 
 type ApprovalToolPart = {
     type: string;
     toolCallId: string;
     state?: string;
-    approval?: { id: string };
+    approval?: { id: string; signature?: string; isAutomatic?: boolean };
     input?: any;
     output?: any;
     errorText?: string;
@@ -42,11 +43,7 @@ export function ToolApprovalModalHost({
     messages: UIMessage[];
     status?: string
     tools: { name: string; annotations?: { title?: string } }[];
-    addToolApprovalResponse: (x: {
-        id: string;
-        approved: boolean;
-        reason?: string;
-    }) => void;
+    addToolApprovalResponse: (x: ToolApprovalDecision) => void | PromiseLike<void>;
 }) {
     const { Modal, Tabs, Tab } = useTheme();
     const { t } = useTranslation();
@@ -99,6 +96,8 @@ export function ToolApprovalModalHost({
             id: active.approvalId,
             approved: true,
             reason: approveAll ? "BRRR" : toolName,
+            signature: active.tool.approval?.signature,
+            isAutomatic: true,
         });
     }, [active, autoApprove, approveAll, addToolApprovalResponse]);
 
@@ -111,6 +110,8 @@ export function ToolApprovalModalHost({
         addToolApprovalResponse({
             id: active.approvalId,
             approved: true,
+            signature: active.tool.approval?.signature,
+            isAutomatic: false,
         });
     };
 
@@ -129,6 +130,8 @@ export function ToolApprovalModalHost({
             id: active.approvalId,
             approved: true,
             reason: toolName,
+            signature: active.tool.approval?.signature,
+            isAutomatic: false,
         });
 
         // voeg tool toe aan allowlist
@@ -144,6 +147,8 @@ export function ToolApprovalModalHost({
             id: active.approvalId,
             approved: true,
             reason: "BRRR",
+            signature: active.tool.approval?.signature,
+            isAutomatic: false,
         });
 
         // zet approveAll aan
@@ -225,6 +230,8 @@ export function ToolApprovalModalHost({
                         id: active.approvalId,
                         approved: false,
                         reason,
+                        signature: active.tool.approval?.signature,
+                        isAutomatic: false,
                     });
                     setShowDenyReason(false);
                 }}

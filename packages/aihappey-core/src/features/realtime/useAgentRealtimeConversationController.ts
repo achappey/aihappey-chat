@@ -12,6 +12,7 @@ import { buildSelectedAgentRequest } from "../agents/agentSelection";
 import { buildManagedAgentMcpCatalog, executeManagedAgentMcpTool, pendingManagedAgentMcpCalls, managedAgentMcpCallsPending } from "../chat/engine/managedAgentMcpTools";
 import { createAgentChatContinuation } from "../chat/engine/agentChatContinuation";
 import { activeAssistantMessages, agentRequestMessages, pendingToolApprovals } from "../chat/engine/toolApprovalState";
+import { createToolApprovalMetadata, type ToolApprovalDecision } from "../chat/engine/toolApprovalMetadata";
 import { buildOperationHeaders, createCredentialScopedFetch } from "../provider-credentials/scopedRequest";
 import { AgentRealtimeChatTransport } from "./AgentRealtimeChatTransport";
 import { AgentAudioOutput } from "./agentSpeechPlayback";
@@ -25,7 +26,8 @@ import { supportsRealtimeSpeech } from "../speech/realtime/speechProtocol";
 import { isOpenAiSpeechModelId, supportsOpenAiSpeech } from "../speech/realtime/openAiSpeechConfig";
 
 type Status = "idle" | "starting" | "connected" | "stopping" | "error";
-type Run = { abort: AbortController; userId: string; chat?: Chat<any>; unsubscribe?: () => void; completed?: boolean };
+type Run = { abort: AbortController; userId: string; chat?: Chat<any>; unsubscribe?: () => void; completed?: boolean;
+    approvalMetadata: ReturnType<typeof createToolApprovalMetadata> };
 
 export function useAgentRealtimeConversationController(args: {
     config: ChatConfig; conversationId: string; initialMessages: UIMessage[]; agent: Agent; agentKey: string;
@@ -82,7 +84,7 @@ export function useAgentRealtimeConversationController(args: {
         const previous = run.current; run.current = null;
         if (!previous) return;
         previous.abort.abort(); previous.unsubscribe?.();
-        const previousMessages = previous.chat?.messages ?? [];
+        const previousMessages = previous.approvalMetadata.apply(previous.chat?.messages ?? []);
         const userIndex = previousMessages.findIndex(message => message.id === previous.userId);
         for (const message of previousMessages.slice(userIndex < 0 ? previousMessages.length : userIndex + 1)) {
             if (message.role === "assistant") publish({ ...message, metadata: { ...message.metadata,
@@ -96,7 +98,7 @@ export function useAgentRealtimeConversationController(args: {
         const current = latest.current;
         if (!lifetime.current || lifetime.current.signal.aborted) return;
         cancelRun();
-        const request: Run = { abort: new AbortController(), userId: message.id }; run.current = request;
+        const request: Run = { abort: new AbortController(), userId: message.id, approvalMetadata: createToolApprovalMetadata() }; run.current = request;
         const signal = AbortSignal.any([request.abort.signal, lifetime.current.signal]);
         const user = { ...message, metadata: { ...message.metadata, realtime: true, realtimeAgent: current.agentKey, inputDraft: false } };
         draft.current = null;
@@ -172,7 +174,7 @@ export function useAgentRealtimeConversationController(args: {
                         });
                         request.completed = false; setStreaming(true);
                         return { api: options.api, headers: options.headers, credentials: options.credentials,
-                            body: { ...options.body, id: options.id, messages: agentRequestMessages(options.messages),
+                            body: { ...options.body, id: options.id, messages: agentRequestMessages(request.approvalMetadata.apply(options.messages)),
                                 trigger: options.trigger, messageId: options.messageId },
                         };
                     },
@@ -181,10 +183,11 @@ export function useAgentRealtimeConversationController(args: {
             request.chat = chat;
             const sync = (persist = false) => {
                 if (signal.aborted) return;
-                setApprovalMessages(activeAssistantMessages(chat.messages));
-                const userIndex = chat.messages.findIndex(item => item.id === user.id);
+                const projected = request.approvalMetadata.apply(chat.messages);
+                setApprovalMessages(activeAssistantMessages(projected));
+                const userIndex = projected.findIndex(item => item.id === user.id);
                 if (userIndex < 0) return;
-                for (const assistant of chat.messages.slice(userIndex + 1).filter(item => item.role === "assistant")) {
+                for (const assistant of projected.slice(userIndex + 1).filter(item => item.role === "assistant")) {
                     publish({ ...assistant, metadata: { ...assistant.metadata, realtime: true, realtimeAgent: current.agentKey } }, persist);
                 }
             };
@@ -218,16 +221,18 @@ export function useAgentRealtimeConversationController(args: {
         }
     }, [cancelRun, publish]);
 
-    const respondToToolApproval = useCallback(async (decision: { id: string; approved: boolean; reason?: string }) => {
+    const respondToToolApproval = useCallback(async (decision: ToolApprovalDecision) => {
         const request = run.current;
         if (!request?.chat || request.abort.signal.aborted) return;
         if (!pendingToolApprovals(request.chat.messages).some(entry => entry.approvalId === decision.id)) return;
+        request.approvalMetadata.remember(request.chat.messages, decision);
+        request.chat.messages = request.approvalMetadata.apply(request.chat.messages);
         await request.chat.addToolApprovalResponse(decision);
         if (run.current !== request || request.abort.signal.aborted) return;
-        for (const message of activeAssistantMessages(request.chat.messages)) publish({ ...message,
+        for (const message of activeAssistantMessages(request.approvalMetadata.apply(request.chat.messages))) publish({ ...message,
             metadata: { ...message.metadata, realtime: true, realtimeAgent: latest.current.agentKey },
         }, true);
-        setApprovalMessages(activeAssistantMessages(request.chat.messages));
+        setApprovalMessages(activeAssistantMessages(request.approvalMetadata.apply(request.chat.messages)));
     }, [publish]);
 
     const start = useCallback(async (initialMessage?: UIMessage) => {

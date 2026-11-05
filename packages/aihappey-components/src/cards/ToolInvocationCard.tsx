@@ -20,7 +20,9 @@ export interface ToolInvocationCardProps {
     approval?: {
       id: string,
       approved?: boolean,
-      reason?: string
+      reason?: string,
+      signature?: string,
+      isAutomatic?: boolean
     }
   };
   tool?: Tool;

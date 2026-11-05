@@ -91,6 +91,7 @@ import { ManagedAgentChatTransport } from "./ManagedAgentChatTransport";
 import { useTransientDataParts } from "./useTransientDataParts";
 import { createAgentChatContinuation } from "./agentChatContinuation";
 import { activeAssistantMessages, agentRequestMessages } from "./toolApprovalState";
+import { createToolApprovalMetadata, type ToolApprovalDecision } from "./toolApprovalMetadata";
 
 const getApiDebugEnabled = () => store.getState().apiDebugEnabled;
 
@@ -511,19 +512,20 @@ export function VercelChatInner({
   // are NOT sent to the backend on subsequent turns.
   const [uiMessageOverrides, setUiMessageOverrides] = useState<Record<string, UIMessage | null>>({});
   const uiMessageOverridesRef = useRef<Record<string, UIMessage | null>>({});
+  const approvalMetadata = useMemo(() => createToolApprovalMetadata(), [conversationId]);
   useEffect(() => {
     uiMessageOverridesRef.current = uiMessageOverrides;
   }, [uiMessageOverrides]);
 
   const applyOverrides = useCallback((list: any[]) => {
     const ov = uiMessageOverridesRef.current;
-    return (list ?? [])
+    return approvalMetadata.apply((list ?? [])
       .map((m: any) => {
         const x = ov[m?.id];
         return x === undefined ? m : x;
       })
-      .filter((m: any) => !!m);
-  }, []);
+      .filter((m: any) => !!m));
+  }, [approvalMetadata]);
   const getGatewayProviderHeaders = useCallback((body: any) => {
     const getAgentHeaders = (agent: any): Record<string, any> | undefined => {
       // Multi-model headers belong to each configuration in the payload, never to a merged outer header map.
@@ -790,12 +792,13 @@ export function VercelChatInner({
 
   const routedTransport = useFavoriteRouterTransport(transport, baseBody, applyOverrides, files);
   const {
-    messages,
+    messages: sdkMessages,
     sendMessage,
     status,
     addToolOutput,
     stop,
-    addToolApprovalResponse,
+    setMessages,
+    addToolApprovalResponse: sdkAddToolApprovalResponse,
   } = useChat({
     id: conversationId,
     transport: routedTransport,
@@ -830,7 +833,9 @@ export function VercelChatInner({
           ? !abortRef.current?.signal.aborted && messagesContinuationRef.current.shouldSend(options)
           : sendAutomaticallyWhen(options),
     messages: seededMessages,
-    onFinish: async ({ message, messages: finishedMessages, isDisconnect, isAbort }) => {
+    onFinish: async ({ message: rawMessage, messages: rawFinishedMessages, isDisconnect, isAbort }) => {
+      const message = approvalMetadata.apply([rawMessage])[0];
+      const finishedMessages = approvalMetadata.apply(rawFinishedMessages);
       if (chatMode === "agent") {
         agentToolMessageRef.current = !isAbort && !isDisconnect && agentToolRunActiveRef.current
           ? message.id : undefined;
@@ -868,6 +873,7 @@ export function VercelChatInner({
       }
     },
   });
+  const messages = approvalMetadata.apply(sdkMessages);
 
   const managedMcpExecuting = useManagedAgentMcpToolCalls({
     enabled: chatMode === "agent",
@@ -1137,7 +1143,11 @@ export function VercelChatInner({
         messages={chatMode === "agent" && agentToolSignalRef.current?.aborted ? [] : uiMessages}
         tools={tools}
         status={status}
-        addToolApprovalResponse={addToolApprovalResponse}
+        addToolApprovalResponse={(decision: ToolApprovalDecision) => {
+          approvalMetadata.remember(sdkMessages, decision);
+          setMessages(current => approvalMetadata.apply(current));
+          return sdkAddToolApprovalResponse(decision);
+        }}
 
       />
 
