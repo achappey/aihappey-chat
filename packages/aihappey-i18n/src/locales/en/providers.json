@@ -778,6 +778,15 @@
     }
   },
   "openai": {
+    "imageOutputFormat": "Output format",
+    "imageComplexity": "Complexity",
+    "imageFrameCount": "Frame count",
+    "imageFrameDuration": "Frame duration (ms)",
+    "imageSvgModel": "SVG author model",
+    "imageSvg": "SVG",
+    "imageMarkup": "Markup",
+    "imageMarkupFailed": "Could not load or save image markup.",
+    "imageMarkupLoading": "Wait for the image markup upload to finish.",
     "shell": "Shell",
     "promptCacheRetention": "Prompt cache retention",
     "promptCacheKey": "Prompt cache id",

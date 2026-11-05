@@ -417,6 +417,15 @@
     "researchMaximumNumberOfResultsPerQuery": "Max resultaten per zoekopdracht"
   },
   "openai": {
+    "imageOutputFormat": "Uitvoerformaat",
+    "imageComplexity": "Complexiteit",
+    "imageFrameCount": "Aantal frames",
+    "imageFrameDuration": "Frameduur (ms)",
+    "imageSvgModel": "Model voor SVG-opmaak",
+    "imageSvg": "SVG",
+    "imageMarkup": "Markeringen",
+    "imageMarkupFailed": "De afbeeldingsmarkeringen konden niet worden geladen of opgeslagen.",
+    "imageMarkupLoading": "Wacht tot de afbeeldingsmarkeringen zijn geladen.",
     "shell": "Shell",
     "output_compression": "Uitvoer compressie",
     "action": "Actie",
