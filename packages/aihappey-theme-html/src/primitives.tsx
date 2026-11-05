@@ -580,12 +580,12 @@ export const Navigation = ({ items = [], appTitle, activeKey, onSelect, onClose,
 };
 
 export const Tab = ({ children }: any) => <>{children}</>;
-export const Tabs = ({ activeKey, onSelect, children, vertical, iconOnly, fill, style, ...rest }: any) => {
+export const Tabs = ({ activeKey, onSelect, children, vertical, iconOnly, navigationOnly, fill, style, ...rest }: any) => {
   const tabs = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
   const selectedKey = activeKey ?? tabs[0]?.props.eventKey;
   const id = React.useId();
   return <div {...rest} style={{ display: vertical ? "flex" : undefined, gap: 12, minWidth: 0, ...style }}>
-    <div role="tablist" aria-orientation={vertical ? "vertical" : "horizontal"} style={{ display: "flex", flexDirection: vertical ? "column" : "row", flexShrink: 0, alignSelf: "flex-start", overflowX: vertical ? undefined : "auto" }}>
+    <div role="tablist" aria-orientation={vertical ? "vertical" : "horizontal"} style={{ display: "flex", flexDirection: vertical ? "column" : "row", flexShrink: 0, width: vertical && navigationOnly ? "100%" : undefined, alignSelf: "flex-start", overflowX: vertical ? undefined : "auto" }}>
       {tabs.map((tab, index) => <button key={tab.props.eventKey} id={`${id}-tab-${index}`} aria-controls={`${id}-panel-${index}`} type="button" role="tab"
         aria-selected={tab.props.eventKey === selectedKey} tabIndex={tab.props.eventKey === selectedKey ? 0 : -1}
         title={vertical && iconOnly && typeof tab.props.title === "string" ? tab.props.title : undefined}
@@ -604,7 +604,7 @@ export const Tabs = ({ activeKey, onSelect, children, vertical, iconOnly, fill, 
         }}
       >{icon(tab.props.icon)}{vertical && iconOnly && tab.props.icon ? null : tab.props.title}</button>)}
     </div>
-    {tabs.map((tab, index) => <section key={tab.props.eventKey} id={`${id}-panel-${index}`} role="tabpanel" aria-labelledby={`${id}-tab-${index}`} hidden={tab.props.eventKey !== selectedKey} style={{ flex: 1, minWidth: 0 }}>{tab.props.children}</section>)}
+    {!navigationOnly && tabs.map((tab, index) => <section key={tab.props.eventKey} id={`${id}-panel-${index}`} role="tabpanel" aria-labelledby={`${id}-tab-${index}`} hidden={tab.props.eventKey !== selectedKey} style={{ flex: 1, minWidth: 0 }}>{tab.props.children}</section>)}
   </div>;
 };
 

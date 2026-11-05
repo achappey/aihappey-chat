@@ -1862,10 +1862,11 @@ export const Navigation = ({ items = [], appTitle, activeKey, onSelect, classNam
 };
 
 export const Tab = ({ children }: any) => <>{children}</>;
-export const Tabs = ({ activeKey, onSelect, vertical, iconOnly, fill, children, className, style }: any) => {
+export const Tabs = ({ activeKey, onSelect, vertical, iconOnly, navigationOnly, fill, children, className, style }: any) => {
   const tabs = React.Children.toArray(children).filter(React.isValidElement) as React.ReactElement<any>[];
   const tabsList = (
     <TabsPrimitive.List
+      style={vertical && navigationOnly ? { flex: "0 0 100%", width: "100%", maxWidth: "100%" } : undefined}
       className={cn(
         "aih-shadcn-tabs-list",
         vertical ? "aih-shadcn-tabs-list-vertical" : "aih-shadcn-tabs-list-horizontal",
@@ -1896,7 +1897,7 @@ export const Tabs = ({ activeKey, onSelect, vertical, iconOnly, fill, children, 
       style={{ display: vertical ? "flex" : undefined, gap: vertical ? 12 : undefined, maxWidth: "100%", minWidth: 0, minHeight: 0, ...style }}
     >
       {vertical ? tabsList : <div className="aih-shadcn-tabs-scroll">{tabsList}</div>}
-      {tabs.map((tab) => (
+      {!navigationOnly && tabs.map((tab) => (
         <TabsPrimitive.Content key={tab.props.eventKey} value={tab.props.eventKey} className="aih-shadcn-tabs-content">
           {tab.props.children}
         </TabsPrimitive.Content>

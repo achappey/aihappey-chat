@@ -7,6 +7,8 @@ export type TabsProps = {
   vertical?: boolean;
   /** Use a compact navigation rail when vertical tabs contain only icons. */
   iconOnly?: boolean;
+  /** Render only navigation; the caller owns persistent form panels. */
+  navigationOnly?: boolean;
   fill?: any
   size?: "small" | "medium" | "large";
   onSelect: (k: string) => void;

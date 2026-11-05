@@ -24,6 +24,7 @@ interface TabsProps {
   style?: React.CSSProperties;
   vertical?: boolean;
   iconOnly?: boolean;
+  navigationOnly?: boolean;
   size?: "small" | "medium" | "large"
   minimumVisible?: number;
   fill?: boolean;
@@ -97,6 +98,7 @@ export const Tabs: React.FC<TabsProps> = ({
   onSelect,
   vertical,
   iconOnly,
+  navigationOnly,
   style,
   size,
   className,
@@ -172,13 +174,13 @@ export const Tabs: React.FC<TabsProps> = ({
           vertical={vertical}
           size={size}
           onTabSelect={(_, data) => onSelect(data.value as string)}
-          style={vertical ? {} : undefined}
+          style={vertical && navigationOnly ? { width: "100%", minWidth: 0 } : undefined}
         >
           {headers}
           <OverflowMenu tabs={tabMeta} onTabSelect={onSelect} />
         </TabList>
       </Overflow>
-      {activePanel}
+      {!navigationOnly && activePanel}
     </div>
   );
 };
