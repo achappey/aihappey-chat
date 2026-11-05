@@ -31,6 +31,14 @@ export const Populated: Story = {
   ),
 };
 
+export const GIF: Story = {
+  render: () => <Wrapper config={{ output_format: "gif", complexity: "high", frame_count: 9, frame_duration_ms: 200 }} />,
+};
+
+export const SVG: Story = {
+  render: () => <Wrapper config={{ output_format: "svg", svg: { model: "gpt-5.5", reasoning: { effort: "high" } } }} />,
+};
+
 export const WithTranslations: Story = {
   render: () => (
     <Wrapper
