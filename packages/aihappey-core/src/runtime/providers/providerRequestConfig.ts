@@ -23,5 +23,19 @@ export const sanitizeProviderRequestConfigForProvider = (
     return Object.keys(sanitized).length ? canonicalizeAnthropicTools(sanitized) : undefined;
   }
 
+  if (providerKey?.trim().toLowerCase() === "openai") {
+    const withoutInputFidelity = (tool: Record<string, any>) => {
+      const { input_fidelity: _removed, ...rest } = tool;
+      return rest;
+    };
+    if (sanitized.image_generation && typeof sanitized.image_generation === "object") {
+      sanitized.image_generation = withoutInputFidelity(sanitized.image_generation);
+    }
+    if (Array.isArray(sanitized.tools)) {
+      sanitized.tools = sanitized.tools.map(tool =>
+        tool?.type === "image_generation" ? withoutInputFidelity(tool) : tool);
+    }
+  }
+
   return Object.keys(sanitized).length ? sanitized : undefined;
 };

@@ -137,12 +137,16 @@ export const OpenAIChatConfigForm = ({
     const { instructions: _instructions, ...configWithoutInstructions } =
       nextConfig ?? {};
 
-    updateConfig(
-      buildCanonicalProviderToolsConfig(
+    const canonical = buildCanonicalProviderToolsConfig(
         configWithoutInstructions,
         OPENAI_TOOL_TYPES
-      )
-    );
+      );
+    canonical.tools = canonical.tools?.map((tool: any) => {
+      if (tool.type !== "image_generation") return tool;
+      const { input_fidelity: _removed, ...rest } = tool;
+      return rest;
+    });
+    updateConfig(canonical);
   };
   const serviceTierOptions = ["auto", "default", "flex", "scale", "fast", "ultrafast"];
   const serviceTierValue = resolvedConfig?.service_tier ?? "auto";

@@ -1,11 +1,14 @@
 import React from "react";
 import { useTheme } from "../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
+import { OpenAIImageOptionsCards, OpenAIImageOutputFields, type OpenAIImageOptions } from "./cards/OpenAIImageOptionsCards";
+import { OpenAIImageMarkupField, type OpenAIImageMarkup } from "./cards/OpenAIImageMarkupField";
 
-export type OpenAIImageConfig = {
+export type OpenAIImageConfig = OpenAIImageOptions & {
   quality?: string;
   background?: string;
   moderation?: string;
+  markup?: OpenAIImageMarkup;
 };
 
 export const OpenAIImageConfigForm: React.FC<{
@@ -20,6 +23,8 @@ export const OpenAIImageConfigForm: React.FC<{
     { value: "low", label: t("low") },
     { value: "medium", label: t("medium") },
     { value: "high", label: t("high") },
+    { value: "xhigh", label: t("xhigh") },
+    { value: "max", label: t("max") },
   ];
 
   const backgroundOptions = [
@@ -37,6 +42,7 @@ export const OpenAIImageConfigForm: React.FC<{
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <theme.Card size="small" title={t("general")}>
         <div>
+          <OpenAIImageOutputFields config={config} updateConfig={updateConfig} />
           <theme.Select
             label={t("quality")}
             values={[config?.quality ?? "auto"]}
@@ -108,8 +114,10 @@ export const OpenAIImageConfigForm: React.FC<{
               </option>
             ))}
           </theme.Select>
+          <OpenAIImageMarkupField value={config.markup} onChange={markup => updateConfig({ ...config, markup })} />
         </div>
       </theme.Card>
+      <OpenAIImageOptionsCards config={config} updateConfig={updateConfig} />
     </div>
   );
 };

@@ -1,12 +1,12 @@
 import { useTheme } from "../../../../theme/ThemeContext";
 import { useTranslation } from "aihappey-i18n";
+import { OpenAIImageFrameFields, OpenAIImageSvgCard, OpenAIImageOutputFields } from "./OpenAIImageOptionsCards";
 
 const DEFAULT_IMAGE_GENERATION = {
-  model: "gpt-image-1.5",
+  model: "gpt-image-2.5-sunburst",
   action: "auto",
   size: "auto",
   quality: "auto",
-  input_fidelity: "low",
   background: "auto",
   moderation: "auto",
   output_compression: 100,
@@ -24,15 +24,17 @@ export const OpenAIImageGenerationForm = ({
   const { t } = useTranslation();
 
   const imageGenerationOn = !!config?.image_generation;
+  const updateImageOptions = (value: any) => {
+    const { input_fidelity: _removed, ...image_generation } = value;
+    updateConfig({ ...config, image_generation });
+  };
 
   const modelOptions = [
-    { value: "chatgpt-image-latest", label: "chatgpt-image-latest" },
+    { value: "gpt-image-2.6-sunburst", label: "gpt-image-2.6 Sunburst" },
+    { value: "gpt-image-2.6-flare", label: "gpt-image-2.6 Flare" },
     { value: "gpt-image-2.5-sunburst", label: "gpt-image-2.5 Sunburst" },
     { value: "gpt-image-2.5-flare", label: "gpt-image-2.5 Flare" },
-    { value: "gpt-image-2", label: "gpt-image-2" },
-    { value: "gpt-image-1.5", label: "gpt-image-1.5" },
-    { value: "gpt-image-1", label: "gpt-image-1" },
-    { value: "gpt-image-1-mini", label: "gpt-image-1-mini" },
+    { value: "gpt-image-2", label: "gpt-image-2" }
   ];
 
   const actionOptions = [
@@ -64,17 +66,13 @@ export const OpenAIImageGenerationForm = ({
     { value: "1536x1024", label: t("1536x1024") },
   ];
 
-  const fidelityOptions = [
-    { value: "low", label: t("low") },
-    { value: "high", label: t("high") },
-  ];
-
   const moderationOptions = [
     { value: "auto", label: t("auto") },
     { value: "low", label: t("low") },
   ];
 
   return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
     <theme.Card
       size="small"
       title={t("image_generation")}
@@ -98,19 +96,14 @@ export const OpenAIImageGenerationForm = ({
           <theme.Select
             label={t("model")}
             style={{ flex: "1 1 0" }}
-            values={[config?.image_generation?.model ?? "gpt-image-1.5"]}
+            values={[config?.image_generation?.model ?? DEFAULT_IMAGE_GENERATION.model]}
             disabled={!imageGenerationOn}
-            valueTitle={config?.image_generation?.model ?? "gpt-image-1.5"}
+            valueTitle={config?.image_generation?.model ?? DEFAULT_IMAGE_GENERATION.model}
             options={modelOptions}
             onChange={(val: string) =>
-              updateConfig({
-                ...config,
-                image_generation: {
+              updateImageOptions({
                   ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
                   model: val,
-                  input_fidelity: val.startsWith("gpt-image-2") ? undefined :
-                    config.image_generation?.input_fidelity
-                },
               })
             }
           >
@@ -171,34 +164,10 @@ export const OpenAIImageGenerationForm = ({
             ))}
           </theme.Select>
 
-          <theme.Select
-            label={t("input_fidelity")}
-            style={{ flex: "1 1 0" }}
-            values={[config?.image_generation?.input_fidelity || ""]}
-            disabled={!imageGenerationOn || config?.image_generation?.model?.startsWith("gpt-image-2")}
-            valueTitle={
-              fidelityOptions.find(
-                (a) => a.value === config?.image_generation?.input_fidelity
-              )?.label
-            }
-            options={fidelityOptions}
-            onChange={(val: string) =>
-              updateConfig({
-                ...config,
-                image_generation: {
-                  ...(config.image_generation ?? { ...DEFAULT_IMAGE_GENERATION }),
-                  input_fidelity: val,
-                },
-              })
-            }
-          >
-            {fidelityOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </theme.Select>
+        </div>
 
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <OpenAIImageOutputFields config={config?.image_generation ?? {}} updateConfig={updateImageOptions} disabled={!imageGenerationOn} />
         </div>
 
         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -335,8 +304,14 @@ export const OpenAIImageGenerationForm = ({
             }
           />
         </div>
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <OpenAIImageFrameFields config={config?.image_generation ?? {}} updateConfig={updateImageOptions} disabled={!imageGenerationOn} />
+        </div>
       </div>
     </theme.Card>
+    <OpenAIImageSvgCard config={config?.image_generation ?? {}} updateConfig={updateImageOptions}
+      disabled={!imageGenerationOn} idPrefix="openai-chat-image" />
+    </div>
   );
 };
 
