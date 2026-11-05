@@ -303,21 +303,52 @@ test("saved selections remain in the dropdown for explicit removal without chang
     assert.equal(h.agent.model, undefined);
 });
 
-test("new agents can select models and the provider settings picker renders and switches between selected models", () => {
+test("new agents get horizontal provider tabs without a settings model dropdown", () => {
     const h = harness();
     assert.ok(options(picker(h.render())).length > 0);
     toggle(picker(h.render()), "openai/first");
     toggle(picker(h.render()), "other/second");
     assert.equal(h.agent.model, undefined);
-    let node = h.render();
-    let settings = find(node, child => child.type === "Select" && child.props.label === "model");
-    assert.deepEqual(options(settings).map(option => option.value), ["openai/first", "other/second"]);
-    settings.props.onChange("other/second");
-    node = h.render();
-    settings = find(node, child => child.type === "Select" && child.props.label === "model");
-    assert.deepEqual(settings.props.values, ["other/second"]);
-    const providerTab = find(node, child => child.type === "Tab" && child.props.eventKey === "providers");
-    assert.equal(providerTab.props.title, "other");
+    const node = h.render();
+    assert.equal(find(node, child => child.type === "Select" && child.props.label === "model"), undefined);
+    for (const key of ["openai", "other"]) {
+        assert.ok(find(node, child => child.type === "Tab" && child.props.eventKey === `provider:${key}`));
+    }
+    assert.equal(find(node, child => child.type === "Tabs" && child.props.vertical), undefined);
+});
+
+test("same-provider models have conditional vertical tabs and independent persistent forms", () => {
+    const selected = [
+        { id: "openai/first", providerMetadata: { reasoning: { effort: "low" }, first: true }, providerHeaders: { "X-One": "one" } },
+        { id: "openai/second", providerMetadata: { reasoning: { effort: "high" }, second: true }, providerHeaders: { "X-Two": "two" }, future: 7 },
+        { id: "anthropic/answer", providerMetadata: { thinking: { type: "adaptive" } } },
+        { id: "router/decision", type: "decision", providerMetadata: { opaque: true } },
+    ];
+    const original = structuredClone(selected);
+    const h = harness({ models: selected });
+    const panel = id => find(h.render(), node => node.props["data-agent-model"] === id);
+    const form = id => find(panel(id), node => node.type === "OpenAIChatConfigForm");
+    const modelTabs = () => find(h.render(), node => node.type === "Tabs" && node.props.vertical);
+    assert.ok(modelTabs());
+    assert.deepEqual(React.Children.toArray(modelTabs().props.children).map(node => node.props.eventKey), ["openai/first", "openai/second"]);
+    form("openai/first").props.updateConfig({ ...form("openai/first").props.config, reasoning: { effort: "medium" } });
+    modelTabs().props.onSelect("openai/second");
+    form("openai/second").props.updateHeaders({ "X-Two": "changed" });
+    const outer = () => find(h.render(), node => node.type === "Tabs" && !node.props.vertical);
+    outer().props.onSelect("provider:anthropic");
+    outer().props.onSelect("general");
+    outer().props.onSelect("provider:openai");
+    assert.equal(modelTabs().props.activeKey, "openai/second");
+    assert.equal(form("openai/first").props.config.reasoning.effort, "medium");
+    assert.deepEqual(form("openai/second").props.config, original[1].providerMetadata);
+    assert.deepEqual(h.agent.models[0].providerHeaders, original[0].providerHeaders);
+    assert.deepEqual(h.agent.models[1].providerHeaders, { "X-Two": "changed" });
+    assert.deepEqual(h.agent.models.slice(2), original.slice(2));
+    assert.deepEqual(selected, original, "the caller's original document is never mutated");
+    for (const id of selected.map(model => model.id)) assert.ok(panel(id), "all forms stay in the tree even when hidden");
+    toggle(picker(h.render()), "openai/second");
+    assert.equal(modelTabs(), undefined, "removing the second model removes the vertical navigation");
+    assert.equal(form("openai/first").props.config.reasoning.effort, "medium");
 });
 
 test("a large local catalogue renders only enabled-provider models and reacts to local provider settings", () => {
@@ -671,8 +702,8 @@ test("decision-only create, edit, clear, and language transitions never replace 
     assert.equal(decision.type, "decision");
     assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), true);
     assert.equal(picker(h.render(), "agentEdit.decisionModel"), undefined);
-    const settings = find(h.render(), node => node.type === "Select" && node.props.label === "model");
-    assert.deepEqual(settings.props.values, [decision.id]);
+    assert.ok(find(h.render(), node => node.type === "Tab" && node.props.eventKey === "provider:router"));
+    assert.equal(find(h.render(), node => node.type === "Select" && node.props.label === "model"), undefined);
     toggle(picker(h.render()), "openai/first");
     assert.deepEqual(h.agent.models[0], decision);
     assert.equal(editorModels.hasValidAgentEditorModels(h.agent, catalog), false);
