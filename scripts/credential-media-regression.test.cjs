@@ -96,15 +96,37 @@ test("media pages and shared callers remain connected to operation/final-boundar
         ["chat/messages/useMessageSpeechPlayback.ts", "buildStreamingHeaders(config, customHeaders, model)"],
         ["transcriptions/realtime/useRealtimeTranscriptionController.ts", "buildOperationHeaders(config, customHeaders, selectedModel.id"],
         ["videos/VideoPage.tsx", "createRequestHeaders(String(pending.operation).split(\"/\")[0])"],
-        ["jobs/JobsPage.tsx", "createCredentialScopedFetch(config.fetch)"],
-        ["tools/toolcalls/useLocalAgentsToolCall.ts", "createCredentialScopedFetch(config.fetch)"],
-        ["chat/engine/useAuthFetch.ts", "createCredentialScopedFetch(f)"],
+        ["jobs/JobsPage.tsx", "createCredentialScopedFetch(config.fetch, config)"],
+        ["tools/toolcalls/useLocalAgentsToolCall.ts", "createCredentialScopedFetch(config.fetch, config)"],
+        ["chat/engine/useAuthFetch.ts", "createCredentialScopedFetch(f, mode === \"agent\" ? agentConfig : undefined)"],
         ["playground/playgroundChat.ts", "createCredentialScopedFetch(customFetch ?? fetch)"],
         ["json-render/useUIStream.ts", "makeHeaders(getAccessToken, customHeaders, model)"],
     ]) assert.ok(fs.readFileSync(path.join(root, base + file), "utf8").includes(expected), file);
     for (const file of ["StreamingSpeechPage.tsx", "StreamingImagePage.tsx", "StreamingTranscriptionsPage.tsx"]) {
         assert.ok(fs.readFileSync(path.join(root, base + "streaming/" + file), "utf8").includes("buildStreamingHeaders(config, customHeaders, selectedModel)"));
     }
+});
+
+test("configuration-aware fetch resolves remote summaries before scoping provider credentials", async () => {
+    const state = { remoteAgentModels: [{ id: "openai/review", source: "remote" }], customHeaders: keys, customProviders: {} };
+    const { createCredentialScopedFetch } = load("packages/aihappey-core/src/features/provider-credentials/scopedRequest.ts", {
+        "aihappey-state": { store: { getState: () => state } },
+    });
+    const detailRequests = [], sent = [];
+    const config = { agentEndpoint: "https://agents.example", endpoints: {}, fetch: async (url, init) => {
+        detailRequests.push({ url, headers: snapshot(init) });
+        return Response.json({ id: "openai/review", agent: { name: "Review", instructions: "Review evidence", models: [{ id: "anthropic/claude" }] } });
+    } };
+    const fetcher = createCredentialScopedFetch(async (url, init) => { sent.push({ url, init, headers: snapshot(init) }); return Response.json({}); }, config);
+    const body = JSON.stringify({ models: ["openai/review"], messages: [] });
+    await fetcher("https://agents.example/api/chat", { method: "POST", body, headers: { ...keys, "X-Tenant": "tenant" } });
+    assert.equal(detailRequests.length, 1);
+    assert.equal(detailRequests[0].url, "https://agents.example/v1/models/openai%2Freview");
+    assert.ok(Object.keys(detailRequests[0].headers).every(key => !/^x-.+-key$/.test(key)));
+    assert.equal(sent.length, 1);
+    assert.equal(sent[0].init.body, body);
+    assert.deepEqual(sent[0].headers, { "x-anthropic-key": "anthropic-SECRET", "x-tenant": "tenant" });
+    assert.equal(state.remoteAgentModels[0].agent, undefined, "downloaded definitions are not persisted in the catalog");
 });
 
 test("existing media token-error fallback is preserved without reintroducing unrelated keys", async () => {

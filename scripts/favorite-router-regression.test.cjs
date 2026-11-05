@@ -73,6 +73,7 @@ function helpers(doDecide) {
         "aihappey-types": agentModels,
         "aihappey-state": chatSlice,
         "../../agents/agentSelection": agentSelection,
+        "../../agents/remoteAgentDetails": require("./credential-test-loader.cjs").load(root + "agents/remoteAgentDetails.ts"),
     });
     return { ...router, calls };
 }
@@ -80,7 +81,13 @@ function helpers(doDecide) {
 function harness(decide, createTransport, getDecisionMessages, files) {
     const helper = helpers(decide);
     let state = initialState(), slots = [], index = 0, cleanups = [], transport, rendered;
-    let config = { baseUrl: "https://gateway/", endpoints: {}, headers: { "x-base": "base" }, getAccessToken: async () => "decision-token", fetch: async () => {} };
+    const detailRequests = [];
+    let config = { baseUrl: "https://gateway/", agentEndpoint: "https://agents.example", endpoints: {},
+        headers: { "x-base": "base" }, getAccessToken: async () => "decision-token", fetch: async (url, init) => {
+            detailRequests.push({ url, headers: new Headers(init?.headers) });
+            assert.equal(url, "https://agents.example/v1/models/Remote");
+            return Response.json({ id: "Remote", agent: { name: "Research", instructions: "Research carefully" } });
+        } };
     const generation = [];
     const store = {
         getState: () => state,
@@ -129,7 +136,7 @@ function harness(decide, createTransport, getDecisionMessages, files) {
         body: { model: "stale", agents: ["stale"], models: ["stale"], providerRequestConfig: { stale: true }, temperature: 0.5 },
         ...opts,
     });
-    return { helper, state, generation, render, send, get transport() { return rendered; },
+    return { helper, state, generation, detailRequests, render, send, get transport() { return rendered; },
         setConfig(next) { config = { ...config, ...next }; render(); },
         unmount() { cleanups.forEach(cleanup => cleanup?.()); } };
 }
@@ -377,7 +384,7 @@ test("manual sends bypass decisions and retain their existing request overrides"
     assert.deepEqual(h.generation[0].options.body.agents, ["stale"]);
 });
 
-test("manual regeneration uses the latest selected transport instead of pinning the previous manual turn", async () => {
+test("manual regeneration uses the latest transport while subsequent tool continuations remain pinned", async () => {
     const h = harness();
     h.state.selectedChatModelIds = undefined;
     await h.send();
@@ -391,7 +398,10 @@ test("manual regeneration uses the latest selected transport instead of pinning 
     h.state.setSelectedModel("b/model");
     h.render();
     await h.transport.sendMessages({ trigger: "submit-message", messages: [{ role: "assistant", parts: [] }] });
-    assert.equal(h.generation[2].snapshot.model, "b/model");
+    assert.equal(h.generation[2].snapshot.model, "a/model", "tool continuations retain the regenerated run's transport");
+    await h.transport.sendMessages({ trigger: "regenerate-message", messages: [message("Help")] });
+    assert.equal(h.generation[3].snapshot.model, "b/model", "the next explicit regeneration uses the latest selection");
+    assert.equal(h.helper.calls.length, 0);
 });
 
 test("disabling routing retains the routed run for regeneration but a new manual turn releases its pin", async () => {
@@ -471,6 +481,8 @@ test("typed and expanded-prompt submission hooks both persist the user message a
     const { useChatActions } = load(root + "chat/engine/useChatActions.ts", {
         react: { useMemo: factory => factory(), useCallback: callback => callback },
         "aihappey-state": { useAppStore: selector => selector(h.state) },
+        "../context/ChatContext": { useChatContext: () => ({ config: {} }) },
+        "./useChatRoute": { useChatRoute: () => ({ available: true, endpoint: "/api/chat", endpointProfile: undefined }) },
         "../../../runtime/providers/useProviderRegistry": { useProviderRegistry: () => ({}) },
         "../messages/useUserMessageBuilder": { useUserMessageBuilder: () => ({
             buildFromText: async text => message(text),

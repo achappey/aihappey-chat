@@ -43,6 +43,7 @@ function harness(type, decide = () => response("b/" + type), azure = false) {
         "aihappey-decisions": { ...decisionTypes, ...validation }, "aihappey-types": agentModels,
         "aihappey-state": { DEFAULT_SIDE_INFERENCE_AGENT_SELECTION: { selectModelAgent: "SelectModelAgent" } },
         "../../agents/agentSelection": {},
+        "../../agents/remoteAgentDetails": require("./credential-test-loader.cjs").load(base + "agents/remoteAgentDetails.ts"),
         "../../provider-credentials/scopedRequest": require("./credential-test-loader.cjs").scoped,
     });
     let slots = [], index, effects, dirty;

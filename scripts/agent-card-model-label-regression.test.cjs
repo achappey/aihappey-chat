@@ -25,6 +25,7 @@ const feature = "packages/aihappey-core/src/features/agents/";
 const agentModels = load("packages/aihappey-types/src/agentModels.ts");
 const iconSelection = load(components + "images/selectCapabilityIcon.ts");
 const theme = new Proxy({}, { get: (_, name) => name });
+const cardRenderer = require("./react-test-renderer.cjs").renderer();
 let darkMode = false;
 const shared = {
     react: React,
@@ -36,75 +37,88 @@ const shared = {
 const capabilityIcon = load(components + "images/CapabilityIcon.tsx", {
     ...shared, "./selectCapabilityIcon": iconSelection,
 });
-const { AgentCard } = load(components + "cards/AgentCard.tsx", {
+const { AgentCard: AgentCardComponent } = load(components + "cards/AgentCard.tsx", {
     ...shared,
+    react: cardRenderer.react,
     "../images/CapabilityIcon": capabilityIcon,
     "../images/selectCapabilityIcon": iconSelection,
     "../fields/LimitedTextField": { LimitedTextField: "LimitedTextField" },
+    "../badges/AuthorBadge": { AuthorBadge: "AuthorBadge" },
     "../buttons/AgentFavoriteToggleButton": { AgentFavoriteToggleButton: "AgentFavoriteToggleButton" },
-    "./getModelDisplayId": load(components + "cards/getModelDisplayId.ts"),
 });
+const AgentCard = props => cardRenderer.render(AgentCardComponent, props);
 const agent = ids => ({ name: "Example", description: "Example agent", instructions: "Help", models: ids.map(id => ({ id })) });
 const openaiIcons = [
     { src: "openai-light.svg", theme: "light", providerId: "openai" },
     { src: "openai-dark.svg", theme: "dark", providerId: "openai" },
 ];
 function nodes(node, type) {
+    if (Array.isArray(node)) return node.flatMap(child => nodes(child, type));
     if (!React.isValidElement(node)) return [];
     return [
         ...(node.type === type ? [node] : []),
         ...React.Children.toArray(node.props.children).flatMap(child => nodes(child, type)),
     ];
 }
-const badges = card => nodes(card.props.description, "Badge");
-const labels = card => badges(card).map(badge => badge.props.children);
+function assertCompactCard(card, original) {
+    assert.equal(card.type, "Card");
+    assert.equal(card.props.title, original.name);
+    assert.equal(nodes(card.props.children, "LimitedTextField")[0].props.text, original.description);
+    assert.deepEqual(nodes(card.props.children, "Badge"), []);
+    if (original.owned_by?.trim()) {
+        assert.equal(card.props.description.type, "AuthorBadge");
+        assert.equal(card.props.description.props.author, original.owned_by.trim());
+    } else assert.equal(card.props.description, undefined, "model badges do not occupy the compact description");
+}
 const imageSrc = card => card.props.image?.type(card.props.image.props)?.props.src;
 
-test("single and multiple models matching the displayed provider omit only their display prefixes", () => {
+test("single and multiple model configurations keep compact cards free of model badges", () => {
     for (const ids of [["openai/chat-latest"], ["openai/chat-latest", "openai/gpt-6.1-sol", "openai/gpt-6-luna"]]) {
         const original = agent(ids);
         const before = JSON.stringify(original);
         const card = AgentCard({ agent: original, providerIcons: openaiIcons });
-        assert.deepEqual(labels(card), ids.map(id => id.slice("openai/".length)));
-        assert.deepEqual(badges(card).map(badge => badge.props.title), ids);
-        assert.deepEqual(badges(card).map(badge => badge.key), ids.map(id => `.$${id.replace(/:/g, "=2").replace(/=/g, "=0")}`));
+        assertCompactCard(card, original);
         assert.equal(imageSrc(card), "openai-light.svg");
         assert.equal(JSON.stringify(original), before);
     }
 });
 
-test("mixed providers are compared independently, including identical model names and overlapping provider IDs", () => {
+test("mixed-provider model names do not replace the compact owner badge or mutate configuration", () => {
     const ids = ["openai/shared", "other/shared", "openai-compatible/shared", "openai/another"];
-    const card = AgentCard({ agent: agent(ids), providerIcons: [...openaiIcons, { src: "other.svg", providerId: "other" }] });
-    assert.deepEqual(labels(card), ["shared", "other/shared", "openai-compatible/shared", "another"]);
-    assert.deepEqual(badges(card).map(badge => badge.props.title), ids);
+    const original = { ...agent(ids), owned_by: " Team " };
+    const before = structuredClone(original);
+    const card = AgentCard({ agent: original, providerIcons: [...openaiIcons, { src: "other.svg", providerId: "other" }] });
+    assertCompactCard(card, original);
+    assert.equal(imageSrc(card), "openai-light.svg");
+    assert.deepEqual(original, before);
 });
 
-test("labels follow the exact light/dark logo, even when the chosen logo is not from the first model", () => {
+test("cards follow the exact light/dark logo, even when it is not from the first model", () => {
     const providerIcons = [
         { src: "openai-light.svg", theme: "light", providerId: "openai" },
         { src: "other-dark.svg", theme: "dark", providerId: "other" },
     ];
     try {
-        for (const [isDarkMode, expectedImage, expectedLabels] of [
-            [false, "openai-light.svg", ["shared", "other/shared"]],
-            [true, "other-dark.svg", ["openai/shared", "shared"]],
+        for (const [isDarkMode, expectedImage] of [
+            [false, "openai-light.svg"],
+            [true, "other-dark.svg"],
         ]) {
             darkMode = isDarkMode;
-            const card = AgentCard({ agent: agent(["openai/shared", "other/shared"]), providerIcons });
+            const original = agent(["openai/shared", "other/shared"]);
+            const card = AgentCard({ agent: original, providerIcons });
             assert.equal(imageSrc(card), expectedImage);
-            assert.deepEqual(labels(card), expectedLabels);
+            assertCompactCard(card, original);
         }
     } finally { darkMode = false; }
 });
 
-test("theme fallback uses the first icon, and empty or missing logos never hide prefixes", () => {
+test("theme fallback uses the first icon and empty or missing logos preserve compact card content", () => {
     const original = agent(["openai/model", "other/model"]);
     const fallback = AgentCard({ agent: original, providerIcons: [{ src: "other.svg", providerId: "other" }] });
     assert.equal(imageSrc(fallback), "other.svg");
-    assert.deepEqual(labels(fallback), ["openai/model", "model"]);
+    assertCompactCard(fallback, original);
     for (const providerIcons of [undefined, [], [{ src: "", providerId: "openai" }], [{ src: "unknown.svg" }]]) {
-        assert.deepEqual(labels(AgentCard({ agent: original, providerIcons })), original.models.map(model => model.id));
+        assertCompactCard(AgentCard({ agent: original, providerIcons }), original);
     }
 });
 
@@ -112,11 +126,11 @@ test("custom agent logos override provider artwork and never establish provider 
     for (const icons of [[{ src: "custom.svg" }], openaiIcons]) {
         const original = { ...agent(["openai/first", "openai/second"]), icons };
         const card = AgentCard({ agent: original, providerIcons: openaiIcons });
-        assert.deepEqual(labels(card), ["openai/first", "openai/second"]);
+        assertCompactCard(card, original);
         assert.equal(imageSrc(card), icons[0].src);
     }
     const empty = { ...agent(["openai/first"]), icons: [] };
-    assert.deepEqual(labels(AgentCard({ agent: empty, providerIcons: openaiIcons })), ["first"]);
+    assert.equal(imageSrc(AgentCard({ agent: empty, providerIcons: openaiIcons })), "openai-light.svg");
 });
 
 test("legacy, models-only, and combined agents preserve model selection, order, and nested paths", () => {
@@ -127,10 +141,13 @@ test("legacy, models-only, and combined agents preserve model selection, order, 
         { ...base, models: [{ id: "openai/org/model" }] },
         { ...base, model: { id: "other/legacy" }, models: [{ id: "openai/org/model" }] },
     ]) {
-        assert.deepEqual(labels(AgentCard({ agent: original, providerIcons: openaiIcons })), ["org/model"]);
+        const before = structuredClone(original);
+        assertCompactCard(AgentCard({ agent: original, providerIcons: openaiIcons }), original);
+        assert.deepEqual(original, before);
     }
-    assert.deepEqual(labels(AgentCard({ agent: base, providerIcons: openaiIcons })), []);
-    assert.deepEqual(labels(AgentCard({ agent: agent(["unprefixed", "openai/"]), providerIcons: openaiIcons })), ["unprefixed", "openai/"]);
+    for (const original of [base, agent(["unprefixed", "openai/"])]) {
+        assertCompactCard(AgentCard({ agent: original, providerIcons: openaiIcons }), original);
+    }
 });
 
 function overview(agents, remoteAgentModels, providers) {
@@ -153,6 +170,7 @@ function overview(agents, remoteAgentModels, providers) {
         "aihappey-plugins": { usePlugins: () => ({ items: [] }) },
         "aihappey-skills": { useSkills: () => ({ items: [] }) },
         "./agentTags": load(feature + "agentTags.ts"),
+        "./remoteAgentDetails": require("./credential-test-loader.cjs").load(feature + "remoteAgentDetails.ts"),
         "./agentPluginConversion": {},
         "../chat/context/ChatContext": { useChatContext: () => ({ config: { endpoints: { models: "/models" } } }) },
     });
@@ -172,7 +190,7 @@ test("local and remote cards retain per-icon provider identity without modifying
     for (const node of cards) {
         assert.deepEqual(node.props.providerIcons, [...openaiIcons, { src: "other.svg", providerId: "other" }]);
         const card = AgentCard(node.props);
-        assert.deepEqual(labels(card), ["first", "second", "other/third"]);
+        assertCompactCard(card, node.props.agent);
     }
     assert.equal(JSON.stringify({ original, providers }), before);
 });
@@ -182,7 +200,7 @@ test("ambiguous shared logo URLs remain unknown after deduplication, even if a p
     const providers = { openai: { icons: [{ src: "shared.svg" }] }, other: { icons: [{ src: "shared.svg" }] } };
     const [node] = overview([original], [], providers);
     assert.deepEqual(node.props.providerIcons, [{ src: "shared.svg", providerId: undefined }]);
-    assert.deepEqual(labels(AgentCard(node.props)), original.models.map(model => model.id));
+    assertCompactCard(AgentCard(node.props), original);
 });
 
 test("exports retain full model IDs and contain no UI-only provider identity metadata", async t => {

@@ -48,6 +48,7 @@ const common = {
     "aihappey-i18n": { useTranslation: () => ({ t }) },
     "../chat/context/ChatContext": { useChatContext: () => ({ config: { agentEndpoint: "https://agents.example", endpoints: { models: "/models" } } }) },
     "./agentTags": tags,
+    "./remoteAgentDetails": require("./credential-test-loader.cjs").load(feature + "remoteAgentDetails.ts"),
 };
 function nodes(node, type) {
     if (!React.isValidElement(node)) return [];

@@ -16,13 +16,18 @@ function turns(provider) {
     return result;
 }
 
-test('eligibility includes local and catalog definitions, not batch-only or hidden definitions', () => {
+test('realtime eligibility uses local transcription capability and remote catalog tags, not embedded definitions', () => {
     const { getRealtimeAgentEntries, selectAgentAudioModel } = load(root + 'agents/agentAudioModels.ts');
     const audio = { id: 'openai/stt', type: 'transcription', tags: ['real-time'] };
     const agent = { name: 'Local', model: { id: 'openai/chat' }, transcription: { id: audio.id } };
     const result = getRealtimeAgentEntries([agent, { ...agent, name: 'Batch', transcription: { id: 'openai/batch' } }],
-        [{ id: 'remote/one', agent }, { id: 'remote/no-definition' }], [audio]);
-    assert.deepEqual(result.map(entry => entry.key), ['local:Local', 'remote:remote/one']);
+        [{ id: 'remote/one', tags: ['real-time'], agent }, { id: 'remote/summary', tags: ['real-time'] },
+            { id: 'remote/untagged', agent }, { id: 'remote/batch', tags: ['batch'], agent },
+            { id: 'remote/no-definition' }], [audio]);
+    assert.deepEqual(result.map(entry => entry.key), ['local:Local', 'remote:remote/one', 'remote:remote/summary']);
+    assert.equal(result[2].remoteAgentModel.agent, undefined, 'catalog summaries need no downloaded definition');
+    assert.deepEqual(getRealtimeAgentEntries([agent], [], []).map(entry => entry.key), []);
+    assert.deepEqual(getRealtimeAgentEntries([agent], [], [{ ...audio, tags: [] }]).map(entry => entry.key), []);
     const saved = { id: audio.id, providerMetadata: { openai: { custom: true } }, providerHeaders: { custom: 'value' } };
     assert.equal(selectAgentAudioModel(saved, audio.id, 'transcription'), saved);
     assert.equal(selectAgentAudioModel(saved, '', 'transcription'), undefined);

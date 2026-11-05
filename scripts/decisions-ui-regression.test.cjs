@@ -77,6 +77,7 @@ const agentTypes = {
     ...load("packages/aihappey-types/src/agentModels.ts"),
 };
 const agentSelection = load("packages/aihappey-core/src/features/agents/agentSelection.ts", { "aihappey-types": agentTypes });
+const remoteAgentDetails = require("./credential-test-loader.cjs").load("packages/aihappey-core/src/features/agents/remoteAgentDetails.ts");
 const providerCards = load("packages/aihappey-components/src/modals/ProviderResultCards.tsx", {
     react: React, "aihappey-i18n": i18n, "../theme/ThemeContext": themeContext,
 });
@@ -618,6 +619,7 @@ test("decision submission requires only valid evidence/questions and sends no pr
     const { useDecisionsController } = load("packages/aihappey-core/src/features/decisions/useDecisionsController.ts", {
         react: h.react, "aihappey-ai": { ...ai, defaultEndpoints: { decisions: "/decisions" } },
         "aihappey-types": agentTypes, "../agents/agentSelection": agentSelection,
+        "../agents/remoteAgentDetails": remoteAgentDetails,
         "aihappey-decisions": { ...decisions, useDecisions: () => store }, "aihappey-state": { useAppStore: selector => selector(state) },
         "aihappey-i18n": i18n, "../chat/context/ChatContext": { useChatContext: () => ({ config }) },
         "../models/queryModelSelection": { useQueryModelId: () => undefined }, "../storage/storageErrorMessage": { useStorageErrorMessage: () => String },
@@ -647,10 +649,10 @@ test("decision submission requires only valid evidence/questions and sends no pr
     assert.equal(c.canSend, false);
 });
 
-const reviewAgent = { id: "openai/review", name: "Review", source: "remote", agent: { name: "Review", models: [{ id: "anthropic/claude", type: "language" }, { id: "google/router", type: "decision" }] } };
+const reviewAgent = { id: "openai/review", name: "Review", source: "remote", agent: { name: "Review", instructions: "Review the evidence", models: [{ id: "anthropic/claude", type: "language" }, { id: "google/router", type: "decision" }] } };
 function controllerHarness(options = {}) {
     const h = hooks();
-    const sent = [], saved = [];
+    const sent = [], saved = [], detailRequests = [];
     const state = {
         models: [{ id: "openai/model", type: "decision" }], userPreferredDecisionModel: "openai/model",
         chatMode: "agent", selectedAgentNames: ["remote:unrelated"],
@@ -660,6 +662,13 @@ function controllerHarness(options = {}) {
     };
     const config = { baseUrl: "https://gateway.example/", agentEndpoint: "https://agents.example///", endpoints: {},
         getAccessToken: async () => "gateway-token", fetch: async (url, init) => {
+            if (!init.method || init.method === "GET") {
+                detailRequests.push({ url, headers: new Headers(init.headers) });
+                const id = decodeURIComponent(new URL(url).pathname.split("/").at(-1));
+                const model = state.remoteAgentModels.find(model => model.id === id);
+                assert.ok(model, `Unexpected agent detail request: ${url}`);
+                return Response.json({ id, agent: model.agent ?? { name: model.name ?? id, instructions: "" } });
+            }
             sent.push({ url, headers: new Headers(init.headers), body: JSON.parse(init.body), signal: init.signal });
             return options.respond ? options.respond(url, init) : Response.json(response);
         }, ...options.config };
@@ -672,6 +681,7 @@ function controllerHarness(options = {}) {
     const { useDecisionsController } = load("packages/aihappey-core/src/features/decisions/useDecisionsController.ts", {
         react: h.react, "aihappey-ai": { ...load("packages/aihappey-ai/src/createDecisionProvider.ts"), defaultEndpoints: { decisions: "/api/decisions" } },
         "aihappey-types": agentTypes, "../agents/agentSelection": agentSelection,
+        "../agents/remoteAgentDetails": remoteAgentDetails,
         "aihappey-decisions": { ...decisions, useDecisions: () => store }, "aihappey-state": { useAppStore: selector => selector(state) },
         "aihappey-i18n": i18n, "../chat/context/ChatContext": { useChatContext: () => ({ config }) },
         "../models/queryModelSelection": { useQueryModelId: () => options.queryModel }, "../storage/storageErrorMessage": { useStorageErrorMessage: () => String },
@@ -681,7 +691,7 @@ function controllerHarness(options = {}) {
     render(); h.flush();
     const c = render();
     c.setPrompt("Shared evidence"); c.setQuestions([question]);
-    return { ...h, state, config, sent, saved, render };
+    return { ...h, state, config, sent, saved, detailRequests, render };
 }
 
 test("Decisions target state defaults to model mode and stays isolated from normal chat", () => {
@@ -806,10 +816,11 @@ test("changing mode or remote agent clears only the current result and preserves
 });
 
 test("agent execution guards duplicate sends and target changes while busy and aborts on unmount", async () => {
-    let finish;
-    const h = controllerHarness({ respond: () => new Promise(resolve => { finish = resolve; }) });
+    let finish, started;
+    const requestStarted = new Promise(resolve => { started = resolve; });
+    const h = controllerHarness({ respond: () => new Promise(resolve => { finish = resolve; started(); }) });
     let c = h.render(); c.setCustomAgents(true); c.setAgentKey("remote:openai/review"); c = h.render();
-    const pending = c.onSend(); await Promise.resolve();
+    const pending = c.onSend(); await requestStarted;
     await c.onSend(); c.setCustomAgents(false); c.setAgentKey("remote:another");
     c = h.render();
     assert.equal(c.processing, true); assert.equal(c.canSend, false);

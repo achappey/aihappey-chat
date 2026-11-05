@@ -164,9 +164,17 @@ function engineCallback(name, bindings) {
     });
 }
 function prepareRequest(h, chatMode = "agent") {
+    const credentials = require("./credential-test-loader.cjs");
+    const agents = [{ name: "Managed", tools: [{ name: "server_tool" }] }];
     return engineCallback("prepareSendMessagesRequest", {
         applyOverrides: messages => messages, mapToolOutputContentForRequest: messages => messages,
-        toolOutputContentSettings: {}, baseBody: { agents: [{ name: "Managed", tools: [{ name: "server_tool" }] }], tools: h.catalog.tools },
+        toolOutputContentSettings: {}, baseBody: { agents, tools: h.catalog.tools },
+        config: {}, customHeaders: {}, selectedAgentNames: ["local:Managed"], agents, remoteAgentModels: [],
+        workflowType: undefined, magenticManagerAgentKey: undefined, providers: {},
+        prepareSelectedAgentRequest: credentials.load(root + "agents/remoteAgentDetails.ts").prepareSelectedAgentRequest,
+        getAgentCredentialModels: credentials.load("packages/aihappey-types/src/index.ts").getAgentCredentialModels,
+        getProviderKeyFromModelId: credentials.auth.getProviderKeyFromModelId,
+        getProviderApiKeyHeaderEntries: credentials.auth.getProviderApiKeyHeaderEntries,
         conversationId: "conversation", useToolNamespaces: true, hasSourceNamespaces: true,
         tools: h.catalog.tools, toolRequestConfig: {}, chatMode, managedAgentMcpCatalog: h.catalog, agentToolCatalogRef: h.ref,
         agentToolSignalRef: { current: undefined }, abortRef: { current: undefined },
@@ -227,21 +235,21 @@ function managedHookHarness() {
     };
 }
 
-test("agent transport keeps tools top-level despite namespace settings/overrides and never changes agent configuration", () => {
+test("agent transport keeps tools top-level despite namespace settings/overrides and never changes agent configuration", async () => {
     const h = runtimeHarness();
     h.ref = { current: undefined };
     const opts = { messages: [], body: { tools: [tool("unrelated-local-tool")], useToolNamespaces: true } };
-    const body = prepareRequest(h)(opts).body;
+    const body = (await prepareRequest(h)(opts)).body;
     assert.equal(body.tools, h.catalog.tools);
     assert.deepEqual(body.agents, [{ name: "Managed", tools: [{ name: "server_tool" }] }]);
     assert.equal(body.providerMetadata, undefined);
     assert.equal(h.ref.current, h.catalog);
     const completed = [{ role: "assistant", parts: [{ type: `tool-${h.catalog.tools[0].name}`, state: "output-available" }] }];
-    assert.equal(prepareRequest(h)({ messages: completed }).body.toolChoice, "none");
+    assert.equal((await prepareRequest(h)({ messages: completed })).body.toolChoice, "none");
     const original = h.catalog;
     h.catalog = buildManagedAgentMcpCatalog({ ...h.state, mcpServerContent: {} }, h.runtime);
-    assert.equal(prepareRequest(h)({ messages: completed }).body.tools, original.tools);
-    const regular = prepareRequest(h, "chat")(opts).body;
+    assert.equal((await prepareRequest(h)({ messages: completed })).body.tools, original.tools);
+    const regular = (await prepareRequest(h, "chat")(opts)).body;
     assert.ok(regular.providerMetadata.openai.tools.some(t => t.type === "namespace"));
 });
 

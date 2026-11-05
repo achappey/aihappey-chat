@@ -160,7 +160,19 @@ test("both realtime pages explicitly pass their own selected/effective model to 
         ts.forEachChild(node, visit);
     }
     visit(source);
-    assert.deepEqual(models, ['customAgents ? getPrimaryAgentModel(selectedRealtimeAgent?.localAgent ?? selectedRealtimeAgent?.remoteAgentModel?.agent)?.id ?? "" : model', "effectiveModel"]);
+    assert.equal(models.length, 2);
+    assert.equal(models[1], "effectiveModel");
+    // Evaluate the actual prop expression so harmless formatting changes cannot break the test.
+    const selectedModel = new Function("customAgents", "selectedRealtimeAgent", "model", "getPrimaryAgentModel", `return (${models[0]});`);
+    const { getPrimaryAgentModel } = require("./credential-test-loader.cjs").load("packages/aihappey-types/src/index.ts");
+    for (const [customAgents, entry, expected] of [
+        [false, undefined, "google/live"],
+        [false, { backendId: "remote/voice" }, "google/live"],
+        [true, { localAgent: { model: { id: "openai/answer" } }, backendId: "Local" }, "openai/answer"],
+        [true, { remoteAgentModel: { agent: { models: [{ id: "anthropic/answer" }] } }, backendId: "remote/voice" }, "anthropic/answer"],
+        [true, { remoteAgentModel: { id: "remote/voice" }, backendId: "remote/voice" }, "remote/voice"],
+        [true, undefined, ""],
+    ]) assert.equal(selectedModel(customAgents, entry, "google/live", getPrimaryAgentModel), expected);
 });
 
 test("disabled auto-prompt execution does not consume pending prompts for audio-only realtime", () => {

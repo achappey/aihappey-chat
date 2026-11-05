@@ -263,6 +263,7 @@ test("Data tab combines message data and all transient events once without mutat
         "../tabs/CanvasActivity": { CanvasActivity: () => null },
         "../tabs/AttachmentsActivity": { AttachmentsActivity: () => null },
         "../content/DataActivity": { DataActivity },
+        "../content/localCanvasHistory": require("./credential-test-loader.cjs").load("packages/aihappey-core/src/features/chat/activity/content/localCanvasHistory.ts"),
         "../../../../shell/responsive/useIsDesktop": { useIsDesktop: () => true },
     });
     const persistent = { type: "data-metadata", data: { value: 2 } };
