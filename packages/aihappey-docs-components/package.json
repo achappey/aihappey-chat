@@ -10,7 +10,7 @@
   "dependencies": {
     "aihappey-components": "*",
     "aihappey-types": "*",
-    "timeago.js": "^4.0.2",
+    "timeago.js": "4.0.2",
     "usehooks-ts": "^3.1.1"
   },
   "scripts": {
