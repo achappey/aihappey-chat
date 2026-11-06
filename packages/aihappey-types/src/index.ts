@@ -86,6 +86,7 @@ export type Provider = {
     category?: ProviderCategory
     apiBaseUrl?: string
     chatEndpoints?: string[]
+    imageEndpoints?: string[]
     createGatewayMetadata?: ProviderGatewayMetadataFactory
 };
 
