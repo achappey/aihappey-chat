@@ -662,7 +662,9 @@ test('provider-hosted tool errors remain tool errors and cannot be replayed as s
 test('native program and tool-search results correlate to one hosted invocation, including snapshot-only results first', async () => {
   for (const [type, resultType] of [['program', 'program_output'], ['tool_search_call', 'tool_search_output']]) {
     const item = { type, id: 'native_call_item', call_id: 'native_call_id', name: null, status: 'completed', arguments: {} };
-    const result = { type: resultType, id: 'native_result_item', call_id: item.call_id, status: 'completed', output: { found: true } };
+    const value = type === 'program' ? { found: true } : [{ type: 'function', name: 'lookup', parameters: { type: 'object' } }];
+    const result = { type: resultType, id: 'native_result_item', call_id: item.call_id, status: 'completed',
+      ...(type === 'program' ? { output: value } : { tools: value }) };
     for (const events of [[done([result, item])], [
       { type: 'response.output_item.added', item }, { type: 'response.output_item.done', item },
       { type: 'response.output_item.done', item: result }, done([item, result]),
@@ -670,7 +672,7 @@ test('native program and tool-search results correlate to one hosted invocation,
       const { errors, executions, parts } = await sdkFor(events);
       assert.deepEqual(errors, []); assert.deepEqual(executions, []);
       const tools = parts.filter(part => part.type.startsWith('tool-'));
-      assert.equal(tools.length, 1); assert.deepEqual(tools[0].output, { found: true });
+      assert.equal(tools.length, 1); assert.deepEqual(tools[0].output, value);
       assert.equal(tools[0].resultProviderMetadata.openai.id, result.id);
     }
   }
@@ -769,4 +771,354 @@ for (const route of ['direct', 'gateway']) test(`real SDK ${route} mixed hosted/
   await restored.sendMessage({ text: 'What did the shell print?' });
   assert.deepEqual(errors, []); assert.equal(requests.length, 3);
   assert.equal(restored.messages.at(-1).parts.find(part => part.type === 'text').text, 'I remember the shell output.');
+});
+
+// Sanitized from a real hosted search: no call_id on either native item. The
+// descriptors (including strict schemas, namespaces and unknown fields) are data,
+// not executable client calls and not the local selectedTools search format.
+const searchCall = (n, callId = null) => ({ type: 'tool_search_call', id: `tsc_${n}`, call_id: callId,
+  execution: 'server', status: 'completed', arguments: { paths: ['local_conversations_get_conversation'] } });
+const searchOutput = (n, callId = null) => ({ type: 'tool_search_output', id: `tso_${n}`, call_id: callId,
+  execution: 'server', status: 'completed', tools: [{ type: 'function', name: `lookup_${n}`, defer_loading: true,
+    description: 'Get a local conversation by id.', output_schema: null, strict: true,
+    parameters: { type: 'object', properties: { conversationId: { type: 'string', description: 'Conversation id' } },
+      required: ['conversationId'], additionalProperties: false }, future: { preserve: true } }] });
+const searchEvents = (n, callId = null, offset = 0) => {
+  const item = searchCall(n, callId), output = searchOutput(n, callId);
+  return [
+    { type: 'response.output_item.added', output_index: offset, item: { ...item, status: 'in_progress', arguments: {} } },
+    { type: 'response.output_item.done', output_index: offset, item },
+    { type: 'response.output_item.added', output_index: offset + 1, item: { ...output, status: 'in_progress', tools: [] } },
+    { type: 'response.output_item.done', output_index: offset + 1, item: output },
+  ];
+};
+
+for (const route of ['direct', 'gateway']) test(`real SDK ${route} hosted search matches gateway output and survives reloaded follow-ups`, async () => {
+  for (const live of [false, true]) for (const callId of [null, undefined, 'call_search']) {
+    const item = { ...searchCall('native'), call_id: callId }, output = { ...searchOutput('native'), call_id: callId };
+    const finalMessage = { type: 'message', role: 'assistant', id: 'msg_search_final', status: 'completed',
+      phase: 'final_answer', content: [{ type: 'output_text', text: 'Available tools found.' }] };
+    const afterSearch = { ...reasoning, id: 'rs_after_search', encrypted_content: 'after-search', summary: [] };
+    const snapshot = [reasoning, item, output, afterSearch, finalMessage];
+    const events = live ? [
+      { type: 'response.output_item.done', item: reasoning, output_index: 0 },
+      ...searchEvents('native', callId, 1),
+      { type: 'response.output_item.done', item: output, output_index: 2 },
+      { type: 'response.output_item.done', item: item, output_index: 1 },
+      { type: 'response.output_item.done', item: afterSearch, output_index: 3 },
+      { type: 'response.output_text.delta', item_id: finalMessage.id, delta: 'Available ' },
+      { type: 'response.output_text.delta', item_id: finalMessage.id, delta: 'tools found.' }, done(snapshot),
+    ] : [done(snapshot)];
+    const errors = [], executions = [], requests = [];
+    const { createResponsesContinuation } = load(base + 'responsesContinuation.ts');
+    const transport = new GenericChatEndpointTransport('/v1/responses', route === 'direct' ? 'openai' : undefined, undefined, {
+      api: `https://${route}.test/v1/responses`,
+      prepareSendMessagesRequest: ({ messages }) => ({ body: buildResponsesBody({ model: route === 'direct' ? 'model' : 'openai/model',
+        providerRequestConfigProviderKey: 'openai', messages }) }),
+      fetch: async (_, init) => {
+        requests.push(JSON.parse(init.body)); assert.ok(requests.length <= 2);
+        if (requests.length === 1) return nativeResponse(events, { fragment: 1 });
+        const history = requests[1].input.filter(entry => entry.role === 'assistant' || ['reasoning', 'tool_search_call', 'tool_search_output'].includes(entry.type));
+        assert.deepEqual(history.map(entry => entry.type), ['reasoning', 'tool_search_call', 'tool_search_output', 'reasoning', 'message']);
+        const pair = history.slice(1, 3);
+        assert.deepEqual(pair, [{ ...item, call_id: callId ?? null }, { ...output, call_id: callId ?? null }]);
+        assert.equal(history[0].encrypted_content, reasoning.encrypted_content);
+        assert.equal(history.at(-1).phase, 'final_answer');
+        assert.equal(requests[1].previous_response_id, undefined);
+        assert.ok(!requests[1].input.some(entry => entry.type.startsWith('function_call')));
+        return nativeResponse(finalEvents('I remember the available tools.'));
+      },
+    }, 'openai/model');
+    const guard = createResponsesContinuation();
+    const chat = new Chat({ transport, onError: error => errors.push(error), onToolCall: call => executions.push(call),
+      sendAutomaticallyWhen: args => guard.shouldSend(args) });
+    await chat.sendMessage({ text: 'Find available conversation tools.' });
+    assert.deepEqual(errors, []); assert.deepEqual(executions, []); assert.equal(requests.length, 1); assert.equal(chat.status, 'ready');
+    const parts = chat.messages.at(-1).parts, tool = parts.find(part => part.type === 'tool-tool_search');
+    assert.equal(parts.filter(part => part.type.startsWith('tool-')).length, 1);
+    assert.equal(tool.toolCallId, callId ?? item.id); assert.equal(tool.title, 'tool_search');
+    assert.equal(tool.providerExecuted, true); assert.equal(tool.state, 'output-available');
+    assert.deepEqual(tool.input, item.arguments); assert.deepEqual(tool.output, output.tools);
+    assert.equal(tool.callProviderMetadata.openai.id, item.id); assert.equal(tool.callProviderMetadata.openai.execution, 'server');
+    assert.equal(tool.resultProviderMetadata.openai.id, output.id); assert.deepEqual(tool.resultProviderMetadata.openai.tools, output.tools);
+    assert.equal(parts.filter(part => part.type === 'text').map(part => part.text).join(''), 'Available tools found.');
+    const restoredGuard = createResponsesContinuation();
+    const restored = new Chat({ transport, messages: clone(chat.messages), onError: error => errors.push(error),
+      sendAutomaticallyWhen: args => restoredGuard.shouldSend(args) });
+    await restored.sendMessage({ text: 'What tools were found?' });
+    assert.deepEqual(errors, []); assert.equal(requests.length, 2); assert.equal(restored.status, 'ready');
+  }
+});
+
+test('anonymous hosted searches pair once in response order despite duplicate added/done/snapshot items', async () => {
+  const events = [
+    ...searchEvents(1).slice(0, 2), ...searchEvents(2, null, 2).slice(0, 2),
+    ...searchEvents(1).slice(2), ...searchEvents(1).slice(2),
+    ...searchEvents(2, null, 2).slice(2), ...searchEvents(2, null, 2).slice(0, 2),
+    done([searchCall(1), searchCall(2), searchOutput(1), searchOutput(2)]),
+  ];
+  const chunks = await chunksFor(events);
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-start').length, 2);
+  assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-available').length, 2);
+  assert.deepEqual(chunks.filter(chunk => chunk.type === 'tool-output-available').map(chunk => [chunk.toolCallId, chunk.output]),
+    [['tsc_1', searchOutput(1).tools], ['tsc_2', searchOutput(2).tools]]);
+  const { errors, parts } = await sdkFor(events);
+  assert.deepEqual(errors, []); assert.equal(parts.filter(part => part.type.startsWith('tool-')).length, 2);
+});
+
+test('hosted search explicit identities take precedence over anonymous pairing and support result-first snapshots', async () => {
+  for (const items of [
+    [searchOutput(1), searchCall(1), searchOutput(2), searchCall(2)],
+    [searchCall(1), searchCall(2, 'explicit'), searchOutput(2, 'explicit'), searchOutput(1)],
+    [searchOutput(2, 'second'), searchCall(1, 'first'), searchOutput(1, 'first'), searchCall(2, 'second')],
+  ]) {
+    const { errors, parts } = await sdkFor([done(items)]);
+    assert.deepEqual(errors, []);
+    const tools = parts.filter(part => part.type === 'tool-tool_search');
+    assert.equal(tools.length, 2);
+    for (const tool of tools) {
+      const n = tool.callProviderMetadata.openai.id.slice(4);
+      assert.deepEqual(tool.output, searchOutput(n).tools);
+      assert.equal(tool.resultProviderMetadata.openai.id, `tso_${n}`);
+    }
+  }
+});
+
+test('hosted search snapshot registration does not reorder future searches ahead of intervening reasoning and text', async () => {
+  const middle = { type: 'message', role: 'assistant', id: 'middle', phase: 'commentary', content: [{ type: 'output_text', text: 'Searching again.' }] };
+  const { errors, parts } = await sdkFor([done([searchCall(1), searchOutput(1), reasoning, middle, searchCall(2), searchOutput(2)])]);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(replay(clone(parts)).map(item => item.type),
+    ['tool_search_call', 'tool_search_output', 'reasoning', 'message', 'tool_search_call', 'tool_search_output']);
+});
+
+test('hosted search final snapshots recover missing live call/output completions without retaining provisional results', async () => {
+  for (const count of [1, 2, 3]) {
+    const events = [...searchEvents(1).slice(0, count), done([searchCall(1), searchOutput(1)])];
+    const chunks = await chunksFor(events);
+    assert.equal(chunks.filter(chunk => chunk.type === 'tool-input-available').length, 1);
+    assert.equal(chunks.filter(chunk => chunk.type === 'tool-output-available').length, 1);
+    const { errors, parts } = await sdkFor(events);
+    assert.deepEqual(errors, []); assert.deepEqual(replay(clone(parts)), [searchCall(1), searchOutput(1)]);
+  }
+});
+
+test('hosted search preserves empty results and nested native descriptors without projecting away schemas or future fields', async () => {
+  for (const tools of [[], [{ type: 'namespace', name: 'crm', description: null, tools: searchOutput('nested').tools,
+    future: { nested: true } }]]) {
+    const output = { ...searchOutput('nested'), tools };
+    const { errors, parts } = await sdkFor([done([searchCall('nested'), output])]);
+    assert.deepEqual(errors, []);
+    const tool = parts.find(part => part.type === 'tool-tool_search');
+    assert.deepEqual(tool.output, tools); assert.deepEqual(replay(clone(parts)).at(-1), output);
+  }
+});
+
+test('hosted search native replay is provider-scoped and excludes incomplete, denied, and malformed pairs', async () => {
+  const { parts } = await sdkFor([done([searchCall(1), searchOutput(1)])]);
+  const original = clone(parts.find(part => part.type === 'tool-tool_search'));
+  const args = { model: 'other/model', providerRequestConfigProviderKey: 'other' };
+  assert.deepEqual(replay([original], args), []);
+  for (const mutate of [
+    part => { part.state = 'input-available'; }, part => { part.preliminary = true; },
+    part => { part.approval = { approved: false }; }, part => { part.output = { tools: part.output }; },
+    part => { delete part.resultProviderMetadata; }, part => { part.resultProviderMetadata.openai.id = ''; },
+    part => { part.resultProviderMetadata.openai.call_id = 'unrelated'; },
+    part => { part.resultProviderMetadata.openai.execution = 'client'; },
+    part => { part.resultProviderMetadata.openai.status = 'failed'; },
+  ]) {
+    const part = clone(original); mutate(part); assert.deepEqual(replay([part]), []);
+  }
+  // The gateway's unified chat mapper uses empty strings for a missing native
+  // call_id; do not turn the UI toolCallId into a native API call_id on reload.
+  const gatewayPart = clone(original);
+  gatewayPart.callProviderMetadata.openai.call_id = '';
+  gatewayPart.resultProviderMetadata.openai.call_id = '';
+  assert.deepEqual(replay([gatewayPart]), [searchCall(1), searchOutput(1)]);
+});
+
+test('hosted search errors stay tool errors and cannot be replayed as successful searches', async () => {
+  const output = { ...searchOutput(1), status: 'failed', error: { message: 'Search unavailable' }, tools: undefined };
+  const { errors, executions, parts } = await sdkFor([done([searchCall(1), output])]);
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+  const tool = parts.find(part => part.type === 'tool-tool_search');
+  assert.equal(tool.state, 'output-error'); assert.equal(tool.errorText, 'Search unavailable');
+  assert.deepEqual(replay(clone(parts)), []);
+});
+
+test('incomplete, orphaned and conflicting hosted search items fail safely without fabricating success or continuing', async () => {
+  for (const events of [
+    [done([searchCall(1)])], [done([searchOutput(1)])],
+    [done([searchCall(1), { ...searchOutput(1), tools: undefined }])],
+    [done([searchCall(1, 'expected'), searchOutput(1, 'unrelated')])],
+    [done([searchCall(1), searchOutput(1, 'explicit')])],
+    [done([searchCall(1, 'explicit'), searchOutput(1)])],
+    [done([{ ...searchCall(1), id: null }, searchOutput(1)])],
+    [done([{ ...searchCall(1), arguments: '{invalid' }, searchOutput(1)])],
+    [done([{ ...searchCall(1), execution: 'client', call_id: 'client' }])],
+    [done([searchCall(1, 'same'), searchCall(2, 'same'), searchOutput(1, 'same')])],
+    [done([searchCall(1), { ...searchOutput(1), id: 'tsc_1' }])],
+    [...searchEvents(1).slice(0, 2), { type: 'response.failed', response: { error: { message: 'Failed' } } }],
+    [...searchEvents(1).slice(0, 2), { type: 'response.incomplete', response: { incomplete_details: { reason: 'max_output_tokens' } } }],
+    searchEvents(1).slice(0, 2),
+  ]) {
+    const { errors, executions, requests, chat, parts } = await sdkFor(events, { appendDone: false });
+    assert.equal(errors.length, 1, JSON.stringify(events)); assert.deepEqual(executions, []);
+    assert.equal(requests.length, 1); assert.equal(chat.status, 'error');
+    assert.ok(!parts.some(part => part.type === 'tool-tool_search' && part.state === 'output-available'));
+  }
+});
+
+test('hosted search correlation is isolated across concurrent responses using identical item IDs', async () => {
+  const results = await Promise.all(['private first', 'private second'].map(description => sdkFor([
+    done([searchCall(1), { ...searchOutput(1), tools: [{ ...searchOutput(1).tools[0], description }] }]),
+  ])));
+  results.forEach(({ errors, parts }, index) => {
+    assert.deepEqual(errors, []);
+    assert.equal(parts.find(part => part.type === 'tool-tool_search').output[0].description, index ? 'private second' : 'private first');
+  });
+});
+
+test('cancelling an unfinished hosted search cancels upstream without inventing its result', async () => {
+  let cancelled = false;
+  const source = new ReadableStream({ start(controller) {
+    controller.enqueue(new TextEncoder().encode(searchEvents(1).slice(0, 2).map(event => 'data: ' + JSON.stringify(event) + '\n\n').join('')));
+  }, cancel() { cancelled = true; } });
+  const fetcher = wrapGenericChatFetch({ endpoint: '/v1/responses', providerKey: 'openai', fetcher: async () => new Response(source) });
+  const reader = (await fetcher('https://provider.test/v1/responses')).body.getReader();
+  let text = '';
+  while (!text.includes('tool-input-available')) text += new TextDecoder().decode((await reader.read()).value);
+  await reader.cancel('stopped');
+  assert.equal(cancelled, true); assert.ok(!text.includes('tool-output-available'));
+});
+
+for (const route of ['direct', 'gateway']) test(`real SDK ${route} hosted search and deferred client tools continue once and replay after reload`, async () => {
+  const { createResponsesContinuation } = load(base + 'responsesContinuation.ts');
+  const item = call('discovered', 'lookup_1', '{"conversationId":"local-1"}');
+  const errors = [], executions = [], requests = [], guard = createResponsesContinuation();
+  const transport = new GenericChatEndpointTransport('/v1/responses', route === 'direct' ? 'openai' : undefined, undefined, {
+    api: `https://${route}.test/v1/responses`,
+    prepareSendMessagesRequest: ({ messages }) => ({ body: buildResponsesBody({ model: route === 'direct' ? 'model' : 'openai/model',
+      providerRequestConfigProviderKey: 'openai', messages }) }),
+    fetch: async (_, init) => {
+      const request = JSON.parse(init.body); requests.push(request); assert.ok(requests.length <= 3);
+      if (requests.length === 1) return nativeResponse([...searchEvents(1),
+        { type: 'response.output_item.done', item }, done([searchCall(1), searchOutput(1), item])]);
+      assert.deepEqual(request.input.filter(entry => entry.type.startsWith('tool_search')), [searchCall(1), searchOutput(1)]);
+      assert.equal(request.input.filter(entry => entry.type === 'function_call').length, 1);
+      const outputs = request.input.filter(entry => entry.type === 'function_call_output');
+      assert.equal(outputs.length, 1); assert.equal(outputs[0].call_id, item.call_id);
+      assert.deepEqual(JSON.parse(outputs[0].output), { conversationId: 'local-1', title: 'Private conversation' });
+      return nativeResponse(finalEvents(requests.length === 2 ? 'Conversation found.' : 'I remember that conversation.'));
+    },
+  }, 'openai/model');
+  let chat;
+  chat = new Chat({ transport, onError: error => errors.push(error), sendAutomaticallyWhen: args => guard.shouldSend(args),
+    onToolCall: ({ toolCall }) => {
+      executions.push(toolCall.toolCallId);
+      chat.addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId,
+        output: { conversationId: 'local-1', title: 'Private conversation' } });
+    } });
+  await chat.sendMessage({ text: 'Find and open the local conversation.' });
+  assert.deepEqual(errors, []); assert.deepEqual(executions, [item.call_id]); assert.equal(requests.length, 2);
+  const tools = chat.messages.at(-1).parts.filter(part => part.type.startsWith('tool-'));
+  assert.deepEqual(tools.map(tool => tool.providerExecuted), [true, false]);
+  const restoredGuard = createResponsesContinuation();
+  const restored = new Chat({ transport, messages: clone(chat.messages), onError: error => errors.push(error),
+    sendAutomaticallyWhen: args => restoredGuard.shouldSend(args) });
+  await restored.sendMessage({ text: 'What conversation did you open?' });
+  assert.deepEqual(errors, []); assert.equal(requests.length, 3); assert.equal(restored.status, 'ready');
+});
+
+test('saved hosted searches remain gateway-compatible and do not leak native search items into other endpoints', async () => {
+  const { buildGenericChatEndpointBody } = load(base + 'genericEndpointMappers/index.ts');
+  const { chat, errors } = await sdkFor([done([searchCall(1), searchOutput(1), {
+    type: 'message', id: 'answer', role: 'assistant', content: [{ type: 'output_text', text: 'The tools are available.' }],
+  }])]);
+  assert.deepEqual(errors, []);
+  const messages = clone(chat.messages), before = JSON.stringify(messages);
+  // These are the same SDK channels consumed by the gateway's unified mapper.
+  const saved = messages.at(-1).parts.find(part => part.type === 'tool-tool_search');
+  assert.equal(saved.providerExecuted, true); assert.equal(saved.callProviderMetadata.openai.type, 'tool_search_call');
+  assert.equal(saved.resultProviderMetadata.openai.type, 'tool_search_output'); assert.ok(Array.isArray(saved.output));
+  for (const endpoint of ['/v1/chat/completions', '/paas/v4/chat/completions', '/chat/completions', '/v1/openai/chat/completions',
+    '/v1/messages', '/v1/conversations', '/v1beta/interactions', '/v1/agents']) {
+    const request = buildGenericChatEndpointBody(endpoint, { model: 'other/model', providerRequestConfigProviderKey: 'other', messages });
+    const json = JSON.stringify(request);
+    assert.ok(json.includes(endpoint === '/v1/agents' ? 'Run the provider tool.' : 'The tools are available.'), endpoint);
+    assert.ok(!json.includes('tool_search_call') && !json.includes('tool_search_output'), endpoint);
+    assert.ok(!json.includes('tool-tool_search') && !json.includes('lookup_1') && !json.includes('tsc_1'), endpoint);
+  }
+  assert.equal(JSON.stringify(messages), before, 'mapping must not mutate the saved gateway/UI history');
+  assert.deepEqual(buildResponsesBody({ model: 'model', providerRequestConfigProviderKey: 'openai', messages }).input
+    .filter(item => item.type.startsWith('tool_search')), [searchCall(1), searchOutput(1)]);
+});
+
+test('real SDK saved hosted-search history switches Responses to Gateway API chat to Messages and back intact', async () => {
+  const { buildMessagesBody } = load(base + 'genericEndpointMappers/messagesMapper.ts');
+  const { createResponsesContinuation } = load(base + 'responsesContinuation.ts');
+  const guard = createResponsesContinuation(), errors = [], executions = [], requests = [];
+  let route = 'responses', responseCount = 0;
+  const transports = {
+    responses: new GenericChatEndpointTransport('/v1/responses', 'openai', undefined, {
+      api: 'https://direct.test/v1/responses',
+      prepareSendMessagesRequest: ({ messages }) => ({ body: buildResponsesBody({ model: 'model', providerRequestConfigProviderKey: 'openai', messages }) }),
+      fetch: async (_, init) => {
+        const request = JSON.parse(init.body); requests.push(route); responseCount++;
+        if (responseCount === 1) return nativeResponse([...searchEvents(1), done([searchCall(1), searchOutput(1), {
+          type: 'message', id: 'search_answer', role: 'assistant', content: [{ type: 'output_text', text: 'Search answer.' }],
+        }])]);
+        assert.deepEqual(request.input.filter(item => item.type.startsWith('tool_search')), [searchCall(1), searchOutput(1)]);
+        assert.ok(!request.input.some(item => item.type.startsWith('function_call')));
+        assert.deepEqual(request.input.filter(item => item.type === 'message').flatMap(item => item.content).map(part => part.text),
+          ['Find tools.', 'Search answer.', 'Continue via Gateway.', 'Gateway answer.', 'Continue via Messages.', 'Messages answer.', 'Back to Responses.']);
+        return nativeResponse(finalEvents('Responses follow-up.'));
+      },
+    }),
+    gateway: new DefaultChatTransport({ api: 'https://gateway.test/api/chat',
+      prepareSendMessagesRequest: ({ messages }) => ({ body: { model: 'openai/model', messages } }),
+      fetch: async (_, init) => {
+        requests.push(route);
+        const parts = JSON.parse(init.body).messages.flatMap(message => message.parts);
+        const searches = parts.filter(part => part.type === 'tool-tool_search');
+        assert.equal(searches.length, 1); assert.deepEqual(searches[0].output, searchOutput(1).tools);
+        assert.equal(searches[0].callProviderMetadata.openai.id, 'tsc_1');
+        assert.equal(searches[0].resultProviderMetadata.openai.id, 'tso_1');
+        assert.equal(searches[0].providerExecuted, true);
+        const chunks = [{ type: 'start' }, { type: 'start-step' }, { type: 'text-start', id: 'gateway' },
+          { type: 'text-delta', id: 'gateway', delta: 'Gateway answer.' }, { type: 'text-end', id: 'gateway' },
+          { type: 'finish-step' }, { type: 'finish', finishReason: 'stop' }];
+        return new Response(chunks.map(chunk => 'data: ' + JSON.stringify(chunk) + '\n\n').join('') + 'data: [DONE]\n\n',
+          { headers: { 'Content-Type': 'text/event-stream' } });
+      },
+    }),
+    messages: new GenericChatEndpointTransport('/v1/messages', 'anthropic', undefined, {
+      api: 'https://direct.test/v1/messages',
+      prepareSendMessagesRequest: ({ messages }) => ({ body: buildMessagesBody({ model: 'claude', providerRequestConfigProviderKey: 'anthropic', messages }) }),
+      fetch: async (_, init) => {
+        requests.push(route);
+        const request = JSON.parse(init.body), json = JSON.stringify(request);
+        assert.ok(json.includes('Search answer.') && json.includes('Gateway answer.'));
+        assert.ok(!json.includes('tool_search') && !json.includes('tsc_1') && !json.includes('lookup_1'));
+        return nativeResponse([
+          { type: 'message_start', message: { id: 'msg', role: 'assistant', content: [] } },
+          { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+          { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Messages answer.' } },
+          { type: 'content_block_stop', index: 0 }, { type: 'message_delta', delta: { stop_reason: 'end_turn' } }, { type: 'message_stop' },
+        ]);
+      },
+    }),
+  };
+  const options = { transport: { sendMessages: args => transports[route].sendMessages(args), reconnectToStream: async () => null },
+    onError: error => errors.push(error), onToolCall: call => executions.push(call), sendAutomaticallyWhen: args => guard.shouldSend(args) };
+  let chat = new Chat(options);
+  await chat.sendMessage({ text: 'Find tools.' });
+  const saved = clone(chat.messages);
+  chat = new Chat({ ...options, messages: clone(saved) });
+  route = 'gateway'; await chat.sendMessage({ text: 'Continue via Gateway.' });
+  route = 'messages'; await chat.sendMessage({ text: 'Continue via Messages.' });
+  route = 'responses'; await chat.sendMessage({ text: 'Back to Responses.' });
+  assert.deepEqual(errors, []); assert.deepEqual(executions, []);
+  assert.deepEqual(requests, ['responses', 'gateway', 'messages', 'responses']);
+  assert.deepEqual(chat.messages[1], saved[1]); assert.equal(chat.status, 'ready');
 });
