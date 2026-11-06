@@ -4,6 +4,7 @@ import { DefaultChatTransport } from "aihappey-ai";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
 import { createResponsesShellToolMapper } from "./responsesShellTools";
+import { createResponsesToolSearchMapper } from "./responsesToolSearch";
 import { createDirectChatPerformance, type DirectChatPerformance } from "./directChatPerformance";
 import { isGatewayResponsesTool, gatewayResponsesResult, gatewayResponsesMetadata } from "./responsesSyntheticTools";
 import {
@@ -563,9 +564,9 @@ const createUiMessageChunkStream = ({
       || /:(datetime|web_fetch|experimental__search_models)$/.test(item.type));
 
   const isResponsesToolResult = (item: any) => typeof item?.type === "string"
-    && (item.type.endsWith("_call_output") || item.type === "tool_search_output" || item.type === "program_output");
+    && (item.type.endsWith("_call_output") || item.type === "program_output");
 
-  const expectsSeparateResponsesResult = (item: any) => item?.type === "program" || item?.type === "tool_search_call";
+  const expectsSeparateResponsesResult = (item: any) => item?.type === "program";
 
   const compactToolInput = (value: Record<string, any>) => Object.fromEntries(
     Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null),
@@ -840,8 +841,7 @@ const createUiMessageChunkStream = ({
     if (typeof toolCallId !== "string" || !toolCallId.trim()) throw new Error("Responses tool is missing its native identifier.");
     if (isPatch && startedToolCalls.has(toolCallId)) return;
     if (!isPatch && emittedToolOutputs.has(toolCallId)) return;
-    if (["custom_tool_call", "computer_call", "local_shell_call"].includes(item?.type)
-      || (item?.type === "tool_search_call" && item.execution === "client")) {
+    if (["custom_tool_call", "computer_call", "local_shell_call"].includes(item?.type)) {
       throw new Error(`Client-executed Responses ${item.type} is not supported by this adapter.`);
     }
     if (!isPatch) {
@@ -930,6 +930,11 @@ const createUiMessageChunkStream = ({
   };
 
   const responsesShellTools = createResponsesShellToolMapper({
+    emit: enqueueChunk,
+    startStep: controller => { closeText(controller); ensureStepStarted(controller); },
+    providerKey: () => resolveProviderKey() ?? "openai",
+  });
+  const responsesToolSearch = createResponsesToolSearchMapper({
     emit: enqueueChunk,
     startStep: controller => { closeText(controller); ensureStepStarted(controller); },
     providerKey: () => resolveProviderKey() ?? "openai",
@@ -2097,6 +2102,7 @@ const createUiMessageChunkStream = ({
     if (type === "response.output_item.added" || type === "response.output_item.done") {
       const completed = type === "response.output_item.done";
       if (responsesShellTools.handleItem(controller, event.item, event.output_index, completed)) return;
+      if (responsesToolSearch.handleItem(controller, event.item, event.output_index, completed)) return;
       if (isResponsesToolResult(event.item)) {
         if (completed) emitProviderToolResult(controller, event.item);
       } else if (isResponsesToolCall(event.item)) emitProviderTool(controller, { ...event.item, output_index: event.output_index }, completed);
@@ -2135,10 +2141,11 @@ const createUiMessageChunkStream = ({
     if (type === "response.completed") {
       rememberMetadata(event);
       if (event?.response?.status && event.response.status !== "completed") throw new Error("Responses generation did not complete.");
-      // Register calls before outputs so snapshots can recover missing live
-      // events even when a compatible provider lists a result before its call.
+      // Register native identities before emitting so snapshots can recover
+      // missing live events, even when a provider lists a result before its call.
       for (const [index, item] of (event?.response?.output ?? []).entries()) {
         if (item?.type === "shell_call") responsesShellTools.handleItem(controller, item, index, false, true);
+        responsesToolSearch.handleItem(controller, item, index, false, true);
       }
       for (const [index, item] of (event?.response?.output ?? []).entries()) {
         if (item.type === "function_call") completeResponsesFunction(controller, rememberResponsesFunction(item, { output_index: index }));
@@ -2148,6 +2155,7 @@ const createUiMessageChunkStream = ({
           emitResponsesTextSnapshot(controller, item.content, item.id);
         }
         else if (responsesShellTools.handleItem(controller, item, index, true)) continue;
+        else if (responsesToolSearch.handleItem(controller, item, index, true)) continue;
         else if (isImageGenerationItemType(item?.type)) {
           handleImageGenerationPayload({ type: "response.output_item.done", item, output_index: index }, controller);
         }
@@ -2156,6 +2164,7 @@ const createUiMessageChunkStream = ({
       }
       if (Array.from(responsesFunctionStates).some(state => !state.emitted)) throw new Error("Responses ended with an incomplete function call.");
       responsesShellTools.assertComplete();
+      responsesToolSearch.assertComplete();
       if ([...responsesProviderToolItems.keys()].some(id => !emittedToolOutputs.has(id))) {
         throw new Error("Responses ended with an incomplete provider-hosted tool call/output.");
       }

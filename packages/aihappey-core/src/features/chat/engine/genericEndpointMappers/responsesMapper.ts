@@ -3,6 +3,7 @@ import {
   selectedToolsFromClientToolSearchResult,
 } from "../../../tools/clientToolSearch";
 import { gatewayResponsesReplay } from "../responsesSyntheticTools";
+import { responsesToolSearchReplay } from "../responsesToolSearch";
 import {
   compactObject,
   getProviderKeyFromRequestBody,
@@ -228,7 +229,10 @@ const toHostedShellEntries = (part: any, providerKey?: string): any[] => {
 const toResponsesToolEntries = (part: any, providerKey?: string): any[] => {
   const gatewayReplay = gatewayResponsesReplay(part, providerKey);
   if (gatewayReplay !== undefined) return gatewayReplay;
-  if (part?.providerExecuted === true) return toHostedShellEntries(part, providerKey);
+  if (part?.providerExecuted === true) {
+    const search = responsesToolSearchReplay(part, providerKey);
+    return search.length ? search : toHostedShellEntries(part, providerKey);
+  }
   // Input deltas and pending approvals are not replayable completed calls.
   if (part?.state === "input-streaming" || part?.state === "input-error" || part?.state === "approval-requested") return [];
 
