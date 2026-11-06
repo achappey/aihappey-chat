@@ -5,6 +5,7 @@ import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
 import { createResponsesShellToolMapper } from "./responsesShellTools";
+import { createDirectChatPerformance, type DirectChatPerformance } from "./directChatPerformance";
 import { isGatewayResponsesTool, gatewayResponsesResult, gatewayResponsesMetadata } from "./responsesSyntheticTools";
 import {
   isMessagesProviderCall, isMessagesProviderResult, isMessagesToolCall,
@@ -225,12 +226,14 @@ const createUiMessageChunkStream = ({
   source,
   requestModel,
   providers,
+  performance,
 }: {
   endpoint: GenericEndpointId;
   providerKey?: string;
   source: ReadableStream<Uint8Array>;
   requestModel?: string;
   providers?: Record<string, Provider>;
+  performance?: DirectChatPerformance;
 }): ReadableStream<Uint8Array> => {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
@@ -298,7 +301,8 @@ const createUiMessageChunkStream = ({
     lastObjectPart?: any;
   } | undefined;
 
-  const enqueueChunk = (controller: ReadableStreamDefaultController<Uint8Array>, chunk: any) => {
+  const enqueueChunk = (controller: ReadableStreamDefaultController<Uint8Array>, chunk: any, generatedOutput = true) => {
+    if (generatedOutput) performance?.observe(chunk);
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
   };
 
@@ -308,7 +312,7 @@ const createUiMessageChunkStream = ({
       model: latestModel,
       usage: latestUsage,
       providerMetadata: {
-        gateway: latestGateway,
+        gateway: performance?.gatewayMetadata(latestGateway) ?? latestGateway,
         ...(metadataProviderKey
           ? {
             [metadataProviderKey]: compactObject({
@@ -427,6 +431,9 @@ const createUiMessageChunkStream = ({
 
   const finish = (controller: ReadableStreamDefaultController<Uint8Array>, finishReason = "stop") => {
     if (closed) return;
+    if (!["error", "failed", "cancelled", "incomplete"].includes(finishReason)) {
+      performance?.complete(latestUsage?.completionTokens);
+    }
     if (endpoint === "/v1/responses" || endpoint === "/v1/messages") {
       ensureMessageStarted(controller);
       closeActiveReasoning(controller);
@@ -1221,6 +1228,7 @@ const createUiMessageChunkStream = ({
     event: any,
     text?: string,
     phase?: string,
+    generatedOutput = true,
   ) => {
     const delta = String(text ?? "");
     if (!delta) return false;
@@ -1238,7 +1246,7 @@ const createUiMessageChunkStream = ({
       id: textPartId,
       delta,
       providerMetadata: zaiAgentProviderMetadata(event, { phase }),
-    });
+    }, generatedOutput);
     return true;
   };
 
@@ -1330,6 +1338,8 @@ const createUiMessageChunkStream = ({
         controller,
         event,
         [`Z.AI agent status: ${event.status ?? "created"}.`, event.async_id ? `Async ID: ${event.async_id}.` : ""].filter(Boolean).join(" "),
+        undefined,
+        false,
       );
     }
 
@@ -2617,6 +2627,8 @@ const createUiMessageChunkStream = ({
 };
 
 export class GenericChatEndpointTransport extends DefaultChatTransport<any> {
+  private readonly requestPerformance: WeakMap<ReadableStream<Uint8Array>, DirectChatPerformance>;
+
   constructor(
     private readonly genericEndpoint: GenericEndpointId,
     private readonly providerKey?: string,
@@ -2624,7 +2636,18 @@ export class GenericChatEndpointTransport extends DefaultChatTransport<any> {
     options: ConstructorParameters<typeof DefaultChatTransport<any>>[0] = {},
     private readonly requestModel?: string,
   ) {
-    super(options);
+    const requestPerformance = new WeakMap<ReadableStream<Uint8Array>, DirectChatPerformance>();
+    const fetcher = options.fetch ?? globalThis.fetch;
+    super(providerKey ? {
+      ...options,
+      fetch: async (input, init) => {
+        const performance = createDirectChatPerformance();
+        const response = await fetcher(input, init);
+        if (response.ok && response.body) requestPerformance.set(response.body, performance);
+        return response;
+      },
+    } : options);
+    this.requestPerformance = requestPerformance;
   }
 
   protected processResponseStream(stream: ReadableStream<Uint8Array>): any {
@@ -2634,6 +2657,7 @@ export class GenericChatEndpointTransport extends DefaultChatTransport<any> {
       source: stream,
       providers: this.providers,
       requestModel: this.requestModel,
+      performance: this.requestPerformance.get(stream),
     }));
   }
 }
@@ -2692,6 +2716,7 @@ export function wrapGenericChatFetch({
       requestModel = undefined;
     }
 
+    const performance = providerKey ? createDirectChatPerformance() : undefined;
     const response = await fetcher(input, nextInit);
     if (!response.ok || !response.body) return response;
 
@@ -2700,7 +2725,7 @@ export function wrapGenericChatFetch({
     responseHeaders.set("Cache-Control", "no-cache");
     responseHeaders.delete("Content-Length");
     responseHeaders.delete("Content-Encoding");
-    return new Response(createUiMessageChunkStream({ endpoint: requestEndpoint, providerKey, source: response.body, requestModel, providers }), {
+    return new Response(createUiMessageChunkStream({ endpoint: requestEndpoint, providerKey, source: response.body, requestModel, providers, performance }), {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders,
