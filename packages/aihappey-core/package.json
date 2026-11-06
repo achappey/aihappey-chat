@@ -26,7 +26,6 @@
     "aihappey-ai-components-default": "*",
     "aihappey-ai-components-openapi": "*",
     "aihappey-auth": "*",
-    "aihappey-clients": "^0.1.0",
     "aihappey-components": "*",
     "aihappey-conversations": "*",
     "aihappey-decisions": "*",
