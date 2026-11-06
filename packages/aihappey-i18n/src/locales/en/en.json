@@ -984,7 +984,7 @@
     "tokensAvailable": "Available space: {{availableSpace}}",
     "toolDeny": "Deny tool",
     "automatic": "Automatic",
-    "toolApprovalSignatureAttached": "Gateway signature attached",
+    "toolApprovalSignatureAttached": "Signature",
     "thisTool": "This tool",
     "editMessage": "Edit message",
     "allTools": "All tools",
