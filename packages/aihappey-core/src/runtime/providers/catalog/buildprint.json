@@ -1,0 +1,9 @@
+{
+  "name": "Buildprint",
+  "description": "AI agents for Bubble apps and Buildprint projects.",
+  "urls": {
+    "homepage": "https://buildprint.ai"
+  },
+  "category": "app_tools",
+  "apiBaseUrl": "https://api.buildprint.ai/api/v1"
+}

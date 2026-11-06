@@ -1,0 +1,9 @@
+{
+  "name": "Allternit",
+  "description": "Hosted agents with account-scoped conversations, tools, and streaming replies.",
+  "urls": {
+    "homepage": "https://allternit.com"
+  },
+  "category": "app_tools",
+  "apiBaseUrl": "https://api.allternit.com/v1"
+}

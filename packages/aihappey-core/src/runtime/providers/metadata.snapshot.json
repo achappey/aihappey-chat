@@ -38,6 +38,11 @@
       "sha256": "a6bab5bd3ffefd14b093f4edeea1db3354e6656ca7d0304b5a4f3ce3f88c449e"
     },
     {
+      "source": "providers/agencyosx.json",
+      "file": "catalog/agencyosx.json",
+      "sha256": "8c303c161dd71321b2a506b8807b81173701cc9f83dce7683e549f86cfb75f18"
+    },
+    {
       "source": "providers/agent37.json",
       "file": "catalog/agent37.json",
       "sha256": "6f059d7c7aa866c39fc632c1e5c9547ab1cfcc0587146d75bc728eeba891ec6c"
@@ -186,6 +191,11 @@
       "source": "providers/alibaba.json",
       "file": "catalog/alibaba.json",
       "sha256": "8357972ab1df9ac59758d439eee20da56017b6ed571471336510f041918bc5d7"
+    },
+    {
+      "source": "providers/allternit.json",
+      "file": "catalog/allternit.json",
+      "sha256": "68bf1a41f19544a86f0d675d490acef36ff45e253edace6b3d49ca633c5ad37e"
     },
     {
       "source": "providers/alltoken.json",
@@ -476,6 +486,11 @@
       "source": "providers/browseruse.json",
       "file": "catalog/browseruse.json",
       "sha256": "e33cf8db3216d3555e9d7df99b57da67c792d25f79ec0a7052c97e21ede076f5"
+    },
+    {
+      "source": "providers/buildprint.json",
+      "file": "catalog/buildprint.json",
+      "sha256": "7db5b23002544fbf8bed4b072a1c29709f2d7d58dfa25809db235215adc0e78b"
     },
     {
       "source": "providers/byteplus.json",
@@ -1315,7 +1330,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "85b729b1680a449989bd9e91c832f1bd95606d536b0fab909fee5f6277b02ee5"
+      "sha256": "1b9d4f41d9679f58499025db1c563b3085acbb546360b304f2ffd1cf440678be"
     },
     {
       "source": "providers/infercom.json",
@@ -3566,6 +3581,11 @@
       "source": "providers/writer.json",
       "file": "catalog/writer.json",
       "sha256": "8d3bc571e41f5398b32b5c494650ef4c88706ddb67cf540eaf9b438257a0081b"
+    },
+    {
+      "source": "providers/xalen.json",
+      "file": "catalog/xalen.json",
+      "sha256": "644cebbce041ea01f002d36fa8c477ab22134f9b39d74a2a5668ad2e594d853d"
     },
     {
       "source": "providers/xiaomimimo.json",
