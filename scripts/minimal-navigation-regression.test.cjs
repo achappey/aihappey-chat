@@ -63,6 +63,22 @@ const firstCategory = h => {
     return items.slice(0, items.findIndex(item => item.key === "divider"));
 };
 
+test("playground is absent from navigation and routes without a redirect", () => {
+    const flatten = items => items.flatMap(item => [item, ...flatten(item.children ?? [])]);
+    for (const hidden of [[], ["playground"]]) {
+        const items = flatten(harness(hidden).expanded().items);
+        assert.ok(items.every(item => item.key !== "playground" && item.href !== "/playground"));
+        for (const href of ["/models", "/providers", "/mesh", "/usage"])
+            assert.ok(items.some(item => item.href === href), href);
+    }
+    const routes = fs.readFileSync("packages/aihappey-core/src/shell/CoreRoot.tsx", "utf8");
+    assert.doesNotMatch(routes, /playground/i);
+    const manifest = JSON.parse(fs.readFileSync("packages/aihappey-core/package.json", "utf8"));
+    assert.equal(Object.hasOwn(manifest.dependencies, "aihappey-clients"), false);
+    const forms = fs.readFileSync("packages/aihappey-components/src/forms/index.ts", "utf8");
+    assert.doesNotMatch(forms, /endpoint-config/);
+});
+
 test("minimal navigation matches only the expanded first category's order, icons, labels, and routes", async () => {
     const h = harness([]);
     const expected = firstCategory(h);

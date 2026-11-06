@@ -15,6 +15,12 @@ function load(filename, mocks = {}) {
     new Function("require", "module", "exports", output)(id => {
         if (id in mocks) return mocks[id];
         if (id === "react/jsx-runtime") return require(id);
+        if (id.startsWith(".")) {
+            const target = path.resolve(root, path.dirname(filename), id);
+            const resolved = [".ts", ".tsx", "/index.ts"].map(extension => target + extension)
+                .find(candidate => fs.existsSync(candidate));
+            if (resolved) return load(path.relative(root, resolved), mocks);
+        }
         throw new Error(`Unmocked import ${id}`);
     }, module, module.exports);
     return module.exports;
@@ -190,17 +196,14 @@ test("OpenAI prompt-cache defaults, disable behavior, and localized labels remai
 test("Responses request preserves the nested 12-hour cache TTL without changing legacy retention", () => {
     const form = cacheForm({ prompt_cache_options: { mode: "implicit", ttl: "30m" } });
     form.select(".ttl").props.onChange("12h");
-    const { responsesEndpoint } = load("packages/aihappey-clients/src/endpoints/responses.ts", {
-        "../shared/messages": { toResponsesConversationInput: () => ({ input: [], instructions: undefined }) },
-        "../shared/nativeMetadata": load("packages/aihappey-clients/src/shared/nativeMetadata.ts"),
-        "../shared/providerRequestConfig": load("packages/aihappey-clients/src/shared/providerRequestConfig.ts"),
-        "../shared/response-parsers": { extractResponsesText: () => "" },
+    const { buildResponsesBody } = load("packages/aihappey-core/src/features/chat/engine/genericEndpointMappers/responsesMapper.ts", {
+        "aihappey-components": { canonicalizeAnthropicTools: value => value },
     });
-    const request = responsesEndpoint.buildRequest({
+    const body = buildResponsesBody({
         model: "gpt-5.6", messages: [], providerMetadata: { openai: form.config() },
-        providerRequestConfig: form.config(), endpointConfig: { prompt_cache_retention: "24h" },
+        providerRequestConfig: { ...form.config(), prompt_cache_retention: "24h" },
     });
-    assert.deepEqual(request.body.prompt_cache_options, { mode: "implicit", ttl: "12h" });
-    assert.equal(request.body.prompt_cache_retention, "24h");
-    assert.equal(request.body.ttl, undefined);
+    assert.deepEqual(body.prompt_cache_options, { mode: "implicit", ttl: "12h" });
+    assert.equal(body.prompt_cache_retention, "24h");
+    assert.equal(body.ttl, undefined);
 });

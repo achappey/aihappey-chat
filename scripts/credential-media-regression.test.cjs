@@ -99,7 +99,6 @@ test("media pages and shared callers remain connected to operation/final-boundar
         ["jobs/JobsPage.tsx", "createCredentialScopedFetch(config.fetch, config)"],
         ["tools/toolcalls/useLocalAgentsToolCall.ts", "createCredentialScopedFetch(config.fetch, config)"],
         ["chat/engine/useAuthFetch.ts", "createCredentialScopedFetch(f, mode === \"agent\" ? agentConfig : undefined)"],
-        ["playground/playgroundChat.ts", "createCredentialScopedFetch(customFetch ?? fetch)"],
         ["json-render/useUIStream.ts", "makeHeaders(getAccessToken, customHeaders, model)"],
     ]) assert.ok(fs.readFileSync(path.join(root, base + file), "utf8").includes(expected), file);
     for (const file of ["StreamingSpeechPage.tsx", "StreamingImagePage.tsx", "StreamingTranscriptionsPage.tsx"]) {

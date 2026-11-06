@@ -17,7 +17,6 @@ function load(file, cache = new Map()) {
   new Function('require', 'module', 'exports', code)(id => {
     if (id === 'aihappey-ai') return { DefaultChatTransport };
     if (id === 'aihappey-components') return { canonicalizeAnthropicTools: value => value };
-    if (id === '../../playground/playgroundChat') return { extractPlaygroundStreamText: () => '' };
     if (!id.startsWith('.')) return require(id);
     const target = path.resolve(path.dirname(file), id);
     const resolved = ['', '.ts', '.tsx', '/index.ts'].map(ext => target + ext).find(p => fs.existsSync(p) && fs.statSync(p).isFile());
@@ -55,6 +54,42 @@ const replay = (parts, extra = {}) => buildResponsesBody({ model: 'openai/model'
 const toolPart = (item, extra = {}) => ({ type: 'tool-' + item.name, toolCallId: item.call_id, state: 'output-available',
   input: JSON.parse(item.arguments), output: { ok: true }, providerExecuted: false,
   callProviderMetadata: { openai: { type: item.type, id: item.id, item_id: item.id, call_id: item.call_id } }, ...extra });
+
+test('main chat keeps fragmented text streaming for Chat Completions, Messages and Responses without playground helpers', async () => {
+  const cases = [
+    ['/v1/chat/completions', [
+      { choices: [{ delta: { role: 'assistant', content: '' } }] },
+      { choices: [{ delta: { content: 'Hello' } }, { delta: { content: ' ' } }] },
+      { choices: [{ delta: { content: 'world' } }] },
+      { choices: [{ delta: {}, finish_reason: 'stop' }] },
+    ]],
+    ['/v1/messages', [
+      { type: 'message_start', message: { id: 'msg', role: 'assistant', content: [] } },
+      { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+      { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Hello ' } },
+      { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'world' } },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'message_delta', delta: { stop_reason: 'end_turn' } },
+      { type: 'message_stop' },
+    ]],
+    ['/v1/responses', [
+      { type: 'response.created', response: { id: 'resp' } },
+      { type: 'response.output_text.delta', item_id: 'msg', delta: 'Hello ' },
+      { type: 'response.output_text.delta', item_id: 'msg', delta: 'world' }, done([]),
+    ]],
+  ];
+  for (const [endpoint, events] of cases) {
+    const fetcher = wrapGenericChatFetch({ endpoint, fetcher: async () => nativeResponse(events, { fragment: 1 }) });
+    const response = await fetcher('https://provider.test' + endpoint);
+    const chunks = (await response.text()).split('\n').filter(line => line.startsWith('data: {'))
+      .map(line => JSON.parse(line.slice(6)));
+    assert.equal(chunks.filter(chunk => chunk.type === 'text-delta').map(chunk => chunk.delta).join(''), 'Hello world', endpoint);
+    assert.equal(chunks.filter(chunk => chunk.type === 'text-start').length, 1, endpoint);
+    assert.equal(chunks.filter(chunk => chunk.type === 'text-end').length, 1, endpoint);
+    assert.equal(chunks.filter(chunk => chunk.type === 'finish').length, 1, endpoint);
+    assert.equal(chunks.filter(chunk => chunk.type === 'error').length, 0, endpoint);
+  }
+});
 
 const gatewayResult = (provider = 'openai') => ({
   content: [{ type: 'resource', resource: { uri: 'file:///report.docx', mimeType: 'application/octet-stream', blob: 'AAEC/w==' } }],

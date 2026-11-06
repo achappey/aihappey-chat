@@ -25,59 +25,50 @@ function load(file, cache = new Map()) {
 }
 
 const endpoints = [
-  ['chat-completions', 'chatCompletions', '/v1/chat/completions', 'chatCompletionsEndpoint', 'buildChatCompletionsBody'],
-  ['messages', 'messages', '/v1/messages', 'messagesEndpoint', 'buildMessagesBody'],
-  ['responses', 'responses', '/v1/responses', 'responsesEndpoint', 'buildResponsesBody'],
+  ['chatCompletions', '/v1/chat/completions', 'buildChatCompletionsBody'],
+  ['messages', '/v1/messages', 'buildMessagesBody'],
+  ['responses', '/v1/responses', 'buildResponsesBody'],
 ];
 const extensions = { future_null: null, future_object: { nested: [1, false, null] },
   future_empty: {}, future_array: [], future_false: false, future_zero: 0, future_string: 'literal' };
 
-for (const [clientName, coreName, endpoint, adapterName, buildName] of endpoints) {
-  const adapter = load(`packages/aihappey-clients/src/endpoints/${clientName}.ts`)[adapterName];
+for (const [coreName, endpoint, buildName] of endpoints) {
   const build = load(`packages/aihappey-core/src/features/chat/engine/genericEndpointMappers/${coreName}Mapper.ts`)[buildName];
-  for (const [surface, invoke] of [
-    ['playground', request => adapter.buildRequest({ ...request, messages: [{ role: 'user', content: 'hello', attachments: [] }] }).body],
-    ['chat', request => build({ ...request, messages: [{ id: 'user', role: 'user', parts: [{ type: 'text', text: 'hello' }] }] })],
-  ]) {
-    test(`${surface} ${endpoint}: selected-provider root fields, native metadata and unknown JSON survive`, () => {
-      const provider = endpoint === '/v1/messages' ? 'anthropic' : 'openai';
-      const config = { ...extensions, service_tier: 'priority', metadata: { user_id: 'user', tag: 'application' } };
-      const request = { endpoint, model: `${provider}/model`, providerMetadata: { ignored: { leak: true }, [provider]: config } };
-      const before = structuredClone(request);
-      const body = JSON.parse(JSON.stringify(invoke(request)));
-      for (const [key, value] of Object.entries(extensions)) assert.deepEqual(body[key], value, key);
-      assert.equal(body.service_tier, 'priority');
-      assert.deepEqual(body.metadata, config.metadata);
-      for (const key of ['openai', 'anthropic', 'providerOptions', 'providerMetadata', 'leak'])
-        assert.equal(Object.hasOwn(body, key), false, key);
-      assert.deepEqual(request, before, 'building a request must not mutate settings');
-    });
+  const invoke = request => build({ ...request, messages: [{ id: 'user', role: 'user', parts: [{ type: 'text', text: 'hello' }] }] });
+  test(`chat ${endpoint}: selected-provider root fields, native metadata and unknown JSON survive`, () => {
+    const provider = endpoint === '/v1/messages' ? 'anthropic' : 'openai';
+    const config = { ...extensions, service_tier: 'priority', metadata: { user_id: 'user', tag: 'application' } };
+    const request = { endpoint, model: `${provider}/model`, providerMetadata: { ignored: { leak: true }, [provider]: config } };
+    const before = structuredClone(request);
+    const body = JSON.parse(JSON.stringify(invoke(request)));
+    for (const [key, value] of Object.entries(extensions)) assert.deepEqual(body[key], value, key);
+    assert.equal(body.service_tier, 'priority');
+    assert.deepEqual(body.metadata, config.metadata);
+    for (const key of ['openai', 'anthropic', 'providerOptions', 'providerMetadata', 'leak'])
+      assert.equal(Object.hasOwn(body, key), false, key);
+    assert.deepEqual(request, before, 'building a request must not mutate settings');
+  });
 
-    test(`${surface} ${endpoint}: provider settings do not create metadata; explicit null metadata survives`, () => {
-      const provider = endpoint === '/v1/messages' ? 'anthropic' : 'openai';
-      const request = { endpoint, model: `${provider}/model`, providerMetadata: { [provider]: { service_tier: 'auto' } } };
-      assert.equal(Object.hasOwn(invoke(request), 'metadata'), false);
-      const body = invoke({ ...request, providerRequestConfig: { metadata: null, future_null: null } });
-      assert.equal(body.metadata, null);
-      assert.equal(body.future_null, null);
-    });
-  }
+  test(`chat ${endpoint}: provider settings do not create metadata; explicit null metadata survives`, () => {
+    const provider = endpoint === '/v1/messages' ? 'anthropic' : 'openai';
+    const request = { endpoint, model: `${provider}/model`, providerMetadata: { [provider]: { service_tier: 'auto' } } };
+    assert.equal(Object.hasOwn(invoke(request), 'metadata'), false);
+    const body = invoke({ ...request, providerRequestConfig: { metadata: null, future_null: null } });
+    assert.equal(body.metadata, null);
+    assert.equal(body.future_null, null);
+  });
 }
 
 test('Responses-to-Responses keeps native reasoning, tools and text at the root', () => {
-  const { responsesEndpoint } = load('packages/aihappey-clients/src/endpoints/responses.ts');
   const { buildResponsesBody } = load('packages/aihappey-core/src/features/chat/engine/genericEndpointMappers/responsesMapper.ts');
   const native = { reasoning: { effort: 'high', summary: 'auto', future: null }, text: { verbosity: 'low' },
     tools: [{ type: 'web_search' }], ...extensions };
   const request = { model: 'openai/model', providerMetadata: { openai: native }, messages: [] };
-  const client = responsesEndpoint.buildRequest(request).body;
-  const chat = buildResponsesBody(request);
-  for (const body of [client, chat]) {
-    assert.deepEqual(body.reasoning, native.reasoning);
-    assert.deepEqual(body.text, native.text);
-    assert.deepEqual(body.tools, native.tools);
-    assert.equal(Object.hasOwn(body, 'metadata'), false);
-  }
+  const body = buildResponsesBody(request);
+  assert.deepEqual(body.reasoning, native.reasoning);
+  assert.deepEqual(body.text, native.text);
+  assert.deepEqual(body.tools, native.tools);
+  assert.equal(Object.hasOwn(body, 'metadata'), false);
 });
 
 for (const direct of [false, true]) {

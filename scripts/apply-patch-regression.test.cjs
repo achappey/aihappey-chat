@@ -93,7 +93,6 @@ test('fragmented native Responses stream executes only completed calls and dedup
   const { wrapGenericChatFetch } = load(base + 'chat/engine/genericChatEndpoint.ts', {
     'aihappey-ai': { DefaultChatTransport: class {} },
     './genericEndpointMappers': { buildGenericChatEndpointBody: (_, body) => body },
-    '../../playground/playgroundChat': { extractPlaygroundStreamText: () => '' },
   });
   const item = { type: 'apply_patch_call', id: 'apc_item', call_id: 'call_1', status: 'completed', operation: { type: 'create_file', path: 'test.txt', diff: '+hello' } };
   const events = [
@@ -136,7 +135,6 @@ test('browser native stream-to-files-to-native-continuation completes create/upd
   const { wrapGenericChatFetch } = load(base + 'chat/engine/genericChatEndpoint.ts', {
     'aihappey-ai': { DefaultChatTransport: class {} },
     './genericEndpointMappers': { buildGenericChatEndpointBody: (_, body) => buildResponsesBody(body) },
-    '../../playground/playgroundChat': { extractPlaygroundStreamText: () => '' },
   });
   const parts = [], requests = [];
   const operations = [

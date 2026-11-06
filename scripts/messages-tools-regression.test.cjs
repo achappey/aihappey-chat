@@ -18,7 +18,6 @@ function load(file, cache = new Map()) {
     if (id === 'aihappey-ai') return { DefaultChatTransport };
     if (id === 'aihappey-types') return { SYSTEM_ROLE: 'system' };
     if (id === 'aihappey-components') return { canonicalizeAnthropicTools: value => value };
-    if (id === '../../playground/playgroundChat') return { extractPlaygroundStreamText: () => '' };
     if (!id.startsWith('.')) return require(id);
     const target = path.resolve(path.dirname(file), id);
     const resolved = ['', '.ts', '.tsx', '/index.ts'].map(ext => target + ext).find(p => fs.existsSync(p) && fs.statSync(p).isFile());
