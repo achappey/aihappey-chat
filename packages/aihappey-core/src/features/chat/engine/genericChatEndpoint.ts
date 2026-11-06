@@ -5,6 +5,7 @@ import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericE
 import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
 import { createResponsesShellToolMapper } from "./responsesShellTools";
 import { createResponsesToolSearchMapper } from "./responsesToolSearch";
+import { createResponsesProgramMapper } from "./responsesPrograms";
 import { createDirectChatPerformance, type DirectChatPerformance } from "./directChatPerformance";
 import { isGatewayResponsesTool, gatewayResponsesResult, gatewayResponsesMetadata } from "./responsesSyntheticTools";
 import {
@@ -257,6 +258,7 @@ const createUiMessageChunkStream = ({
   let latestRawUsage: any | undefined;
   let latestGateway: any | undefined;
   let latestProviderStreamMetadata: Record<string, any> | undefined;
+  let responsesContinuation: Record<string, any> | undefined;
   let finalTextBuffer = "";
   const startedToolCalls = new Set<string>();
   const emittedToolOutputs = new Set<string>();
@@ -318,6 +320,7 @@ const createUiMessageChunkStream = ({
     return {
       model: latestModel,
       usage: latestUsage,
+      ...(responsesContinuation ? { responsesContinuation } : {}),
       providerMetadata: {
         gateway: performance?.gatewayMetadata(latestGateway) ?? latestGateway,
         ...(metadataProviderKey
@@ -939,6 +942,11 @@ const createUiMessageChunkStream = ({
     startStep: controller => { closeText(controller); ensureStepStarted(controller); },
     providerKey: () => resolveProviderKey() ?? "openai",
   });
+  const responsesPrograms = createResponsesProgramMapper({
+    emit: enqueueChunk,
+    startStep: controller => { closeText(controller); ensureStepStarted(controller); },
+    providerKey: () => resolveProviderKey() ?? "openai",
+  });
 
   // Native output-item ids identify stream items; call_id identifies the
   // executable invocation and its result. Persist both using the same metadata
@@ -988,7 +996,13 @@ const createUiMessageChunkStream = ({
     if (state.emitted) return;
     const { call_id: toolCallId, name: toolName, status } = state.item;
     if (!toolCallId || !toolName) throw new Error("Completed Responses function call is missing its call_id or name.");
-    if (status && status !== "completed") throw new Error(`Responses function call ${toolName} did not complete.`);
+    // A program-owned call can remain in_progress while the runtime waits for
+    // our result. output_item.done completes its invocation, not its execution.
+    const programOwned = state.item.caller?.type === "program"
+      && typeof state.item.caller.caller_id === "string" && !!state.item.caller.caller_id.trim();
+    if (status && status !== "completed" && !(programOwned && status === "in_progress")) {
+      throw new Error(`Responses function call ${toolName} did not complete.`);
+    }
     let input: unknown;
     try {
       input = JSON.parse(state.argumentsText);
@@ -2103,6 +2117,7 @@ const createUiMessageChunkStream = ({
       const completed = type === "response.output_item.done";
       if (responsesShellTools.handleItem(controller, event.item, event.output_index, completed)) return;
       if (responsesToolSearch.handleItem(controller, event.item, event.output_index, completed)) return;
+      if (responsesPrograms.handleItem(controller, event.item, event.output_index, completed)) return;
       if (isResponsesToolResult(event.item)) {
         if (completed) emitProviderToolResult(controller, event.item);
       } else if (isResponsesToolCall(event.item)) emitProviderTool(controller, { ...event.item, output_index: event.output_index }, completed);
@@ -2146,6 +2161,7 @@ const createUiMessageChunkStream = ({
       for (const [index, item] of (event?.response?.output ?? []).entries()) {
         if (item?.type === "shell_call") responsesShellTools.handleItem(controller, item, index, false, true);
         responsesToolSearch.handleItem(controller, item, index, false, true);
+        responsesPrograms.handleItem(controller, item, index, false, true);
       }
       for (const [index, item] of (event?.response?.output ?? []).entries()) {
         if (item.type === "function_call") completeResponsesFunction(controller, rememberResponsesFunction(item, { output_index: index }));
@@ -2156,6 +2172,7 @@ const createUiMessageChunkStream = ({
         }
         else if (responsesShellTools.handleItem(controller, item, index, true)) continue;
         else if (responsesToolSearch.handleItem(controller, item, index, true)) continue;
+        else if (responsesPrograms.handleItem(controller, item, index, true)) continue;
         else if (isImageGenerationItemType(item?.type)) {
           handleImageGenerationPayload({ type: "response.output_item.done", item, output_index: index }, controller);
         }
@@ -2165,8 +2182,22 @@ const createUiMessageChunkStream = ({
       if (Array.from(responsesFunctionStates).some(state => !state.emitted)) throw new Error("Responses ended with an incomplete function call.");
       responsesShellTools.assertComplete();
       responsesToolSearch.assertComplete();
+      responsesPrograms.complete(controller);
       if ([...responsesProviderToolItems.keys()].some(id => !emittedToolOutputs.has(id))) {
         throw new Error("Responses ended with an incomplete provider-hosted tool call/output.");
+      }
+      const output = event?.response?.output ?? [];
+      const hasProgram = responsesPrograms.hasItems() || [...responsesFunctionStates].some(state => state.item.caller?.type === "program");
+      if (hasProgram) {
+        // Scheduling only. Replay state remains in provider-scoped UI parts.
+        // Commentary is not a final assistant message.
+        const finalMessage = output.some((item: any) => item.type === "message" && item.role === "assistant"
+          && item.phase !== "commentary");
+        responsesContinuation = { provider: resolveProviderKey() ?? "openai", responseId: event.response.id,
+          continue: !finalMessage, progress: JSON.stringify(output.map((item: any) => [item.type, item.id, item.call_id, item.fingerprint, item.result])) };
+      } else {
+        // Clear an older step's marker when this response completes with text.
+        responsesContinuation = { continue: emittedClientToolInput };
       }
       finish(controller, emittedClientToolInput ? "tool-calls" : "stop");
     }

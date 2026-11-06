@@ -4,6 +4,7 @@ import {
 } from "../../../tools/clientToolSearch";
 import { gatewayResponsesReplay } from "../responsesSyntheticTools";
 import { responsesToolSearchReplay } from "../responsesToolSearch";
+import { responsesProgramReplay, orderResponsesProgramReplay } from "../responsesPrograms";
 import {
   compactObject,
   getProviderKeyFromRequestBody,
@@ -137,9 +138,12 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
     const configured = Object.prototype.hasOwnProperty.call(requestConfig, name)
       ? requestConfig[name]
       : sourceConfigured;
-    const allowedCallers = Array.isArray(configured.allowed_callers)
-      ? configured.allowed_callers.filter((caller: unknown) => caller === "direct" || caller === "programmatic")
+    const callers = configured.allowed_callers ?? tool.allowed_callers;
+    const allowedCallers = Array.isArray(callers)
+      ? callers.filter((caller: unknown) => caller === "direct" || caller === "programmatic")
       : [];
+    const outputSchema = configured.output_schema ?? tool.outputSchema ?? tool.output_schema;
+    const strict = configured.strict ?? tool.strict;
     return [{
       type: "function" as const,
       name,
@@ -152,6 +156,8 @@ export const mapConfiguredOpenAiResponseTools = (body: GenericChatEndpointReques
           ? tool.parameters
           : { type: "object", properties: {} },
       ...(allowedCallers.length ? { allowed_callers: allowedCallers } : {}),
+      ...(outputSchema && typeof outputSchema === "object" && !Array.isArray(outputSchema) ? { output_schema: outputSchema } : {}),
+      ...(typeof strict === "boolean" ? { strict } : {}),
       ...(configured.defer_loading ? { defer_loading: true } : {}),
       source: tool.source,
     }];
@@ -230,6 +236,8 @@ const toResponsesToolEntries = (part: any, providerKey?: string): any[] => {
   const gatewayReplay = gatewayResponsesReplay(part, providerKey);
   if (gatewayReplay !== undefined) return gatewayReplay;
   if (part?.providerExecuted === true) {
+    const program = responsesProgramReplay(part, providerKey);
+    if (program.length) return program;
     const search = responsesToolSearchReplay(part, providerKey);
     return search.length ? search : toHostedShellEntries(part, providerKey);
   }
@@ -356,7 +364,7 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
 
     // UI messages can contain several steps. Grouping all reasoning/text ahead
     // of all tools changes the conversation and breaks stateless continuation.
-    return (message.raw.parts ?? []).flatMap((part: any): any[] => {
+    const mapPart = (part: any): any[] => {
       if (isReasoningPart(part)) {
         const item = responsesReasoningFromPart(part, providerKey);
         if (!item) return [];
@@ -373,7 +381,24 @@ export const buildResponsesBody = (body: GenericChatEndpointRequestBody) => {
       const metadata = responsesPartMetadata(part, providerKey);
       return text ? [compactObject({ type: "message", role: "assistant", id: metadata.id ?? metadata.item_id,
         phase: metadata.phase, content: [{ type: "output_text", text }] })] : [];
-    });
+    };
+    // A program card can hold both call and result even though native reasoning,
+    // messages and linked calls occurred between them. Restore response order
+    // within each step; output_index restarts at zero in the next response.
+    const steps: any[][] = [[]];
+    for (const part of message.raw.parts ?? []) {
+      if (part.type === "step-start") steps.push([]);
+      else steps.at(-1)!.push(part);
+    }
+    return steps.flatMap(parts => orderResponsesProgramReplay(parts.flatMap((part, ordinal) => {
+      const metadata = responsesPartMetadata(part, providerKey);
+      const call = part.callProviderMetadata?.[providerKey ?? "openai"];
+      const result = part.resultProviderMetadata?.[providerKey ?? "openai"];
+      return mapPart(part).map(item => ({ item,
+        index: item.type === "program_output" ? result?.output_index ?? parts.length
+          : call?.output_index ?? metadata.output_index ?? ordinal,
+      }));
+    })));
   });
 
   return mergeNativeRequestBody(providerRequestConfig, compactObject({
