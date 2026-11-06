@@ -102,15 +102,15 @@
   {
     "id": "routera",
     "file": "routera.json"
-  }, 
-    {
+  },
+  {
     "id": "allternit",
     "file": "allternit.json"
-  }, 
-    {
+  },
+  {
     "id": "buildprint",
     "file": "buildprint.json"
-  }, 
+  },
   {
     "id": "mycoai",
     "file": "mycoai.json"

@@ -1330,7 +1330,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "1b9d4f41d9679f58499025db1c563b3085acbb546360b304f2ffd1cf440678be"
+      "sha256": "6ce2e636fa18db8add79c13819542c181b39c10ec6b65a5654df642629d5ca7a"
     },
     {
       "source": "providers/infercom.json",
