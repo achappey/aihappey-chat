@@ -2480,7 +2480,7 @@
     {
       "source": "pricing/providers/cohere.json",
       "file": "catalog/pricing/cohere.json",
-      "sha256": "97ef4681ee503eb3c66a6da9c4f5c1b1cd4c10310980584ef6840219893af0cf"
+      "sha256": "e0e843021024b520ff16eb2d1fafcfdf2bab6cd2bc0f5203dd229cef6079b613"
     },
     {
       "source": "pricing/providers/deepbricks.json",

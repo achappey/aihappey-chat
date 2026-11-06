@@ -88,5 +88,15 @@
     "pricing": {
       "input": "0.0025"
     }
+  },
+  "cohere/rerank-v5.0-fast": {
+    "pricing": {
+      "input": "0.00000002"
+    }
+  },
+  "cohere/rerank-v5.0-pro": {
+    "pricing": {
+      "input": "0.00000005"
+    }
   }
 }
