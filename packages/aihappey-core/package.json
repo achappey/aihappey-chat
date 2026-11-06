@@ -30,6 +30,7 @@
     "aihappey-components": "*",
     "aihappey-conversations": "*",
     "aihappey-decisions": "*",
+    "aihappey-models": "*",
     "aihappey-embeddings": "*",
     "aihappey-files": "*",
     "aihappey-http": "*",
