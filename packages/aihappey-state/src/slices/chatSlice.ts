@@ -157,8 +157,9 @@ export type ChatSlice = ApiKeyEncryptionState & {
   setUseToolNamespaces: (enabled: boolean) => void;
   setStructuredOutputs: (structuredOutputs?: any) => void;
   models?: ModelOption[]
-  /** True once we have attempted to load models from the backend (even if the list is empty). */
+  /** True once a local catalog is available or discovery has settled (even if empty). */
   modelsLoaded: boolean;
+  modelsRefreshVersion: number;
   modelsLoadingProgress?: { completed: number; total: number; active: boolean };
   setModelsLoadingProgress: (progress?: { completed: number; total: number; active: boolean }) => void;
   setModels: (models: ModelOption[]) => void;
@@ -223,6 +224,7 @@ export const createChatSlice: StateCreator<
   experimentalThrottle: 500,
   models: [],
   modelsLoaded: false,
+  modelsRefreshVersion: 0,
   modelsLoadingProgress: undefined,
   chatMode: "chat",
   configuredChatEndpointMode: DEFAULT_CHAT_ENDPOINT_MODE,
@@ -509,9 +511,10 @@ export const createChatSlice: StateCreator<
     }));
   },
   resetModels: (options) => {
-    set(() => ({
+    set((state: any) => ({
       models: [],
       modelsLoaded: false,
+      modelsRefreshVersion: (state.modelsRefreshVersion ?? 0) + 1,
       modelsLoadingProgress: undefined,
       ...(options?.keepSelectedModel ? {} : { selectedModel: undefined, selectedChatModelIds: undefined }),
     }));

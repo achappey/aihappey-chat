@@ -15,6 +15,8 @@ export interface AiChatConfig {
 }
 
 export interface ChatConfig extends AiChatConfig {
+  /** Stable account/tenant identity for non-MSAL authenticated catalog caching. Not an access token. */
+  modelCacheIdentity?: string;
   modelsApi?: string;
   transcriptionApi?: string;
   samplingApi?: string;

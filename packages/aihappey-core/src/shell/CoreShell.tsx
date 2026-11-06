@@ -14,6 +14,7 @@ import {
   useAppStore,
 } from "aihappey-state";
 import { useAccessToken } from "aihappey-auth/src/msal/useAccessToken";
+import { useAccount } from "aihappey-auth/src/msal/useAccount";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { McpServerBootstrap } from "./bootstrap/McpServerBootstrap";
@@ -104,6 +105,9 @@ export const CoreShell: React.FC<Props> = ({
   const isDesktop = useIsDesktop();
   const [] = useSearchParams()
   const authenticated = chatConfig?.getAccessToken != null;
+  const account = useAccount();
+  const modelCacheIdentity = chatConfig.modelCacheIdentity
+    ?? (account ? `${account.homeAccountId}:${account.tenantId}:${account.localAccountId}` : undefined);
   const configuredGatewayBaseUrl = typeof chatConfig?.baseUrl === "string" && chatConfig.baseUrl.trim().length > 0
     ? chatConfig.baseUrl
     : "";
@@ -304,12 +308,12 @@ export const CoreShell: React.FC<Props> = ({
 
   useEffect(() => {
     (resetModels as any)({ keepSelectedModel: true });
-  }, [customHeaders, effectiveChatConfig?.headers, effectiveGatewayEnabled, modelsApi, providers, resetModels]);
+  }, [customHeaders, effectiveChatConfig?.headers, effectiveChatConfig?.getAccessToken, effectiveGatewayEnabled, modelCacheIdentity, modelsApi, providers, resetModels]);
 
   useModels(
     modelsApi,
     effectiveChatConfig?.getAccessToken,
-    { gatewayEnabled: effectiveGatewayEnabled, headers: effectiveChatConfig?.headers }
+    { gatewayEnabled: effectiveGatewayEnabled, headers: effectiveChatConfig?.headers, cacheIdentity: modelCacheIdentity }
   );
 
   useRemoteAgentModels(

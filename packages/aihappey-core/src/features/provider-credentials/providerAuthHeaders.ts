@@ -5,6 +5,7 @@ import { enrichModelTypes } from "../models/modelTypeEnrichment";
 import type { Provider } from "aihappey-types";
 import zaiModels from "../../runtime/providers/catalog/models/zai.json";
 import { enrichDirectModelsWithProviderPricing } from "../../runtime/providers/catalog/providerPricing";
+import { isCatalogResponse } from "aihappey-models";
 
 export type ModelsListProgress = {
   completed: number;
@@ -321,7 +322,7 @@ export const buildOperationHeaders = async (
 const modelRouteOf = (model: any): "gateway" | "direct" =>
   model?.route === "direct" ? "direct" : "gateway";
 
-const mergeModelResponses = (responses: ModelResponse[]) => {
+export const mergeModelResponses = (responses: ModelResponse[]) => {
   const merged = new Map<string, ModelResponse["data"][number]>();
   const enriched = enrichModelTypes(responses.flatMap((response) => response?.data ?? []));
   for (const model of enriched) {
@@ -455,6 +456,8 @@ export const listModelsWithSplitProviderHeaders = async ({
   includeGatewayModels,
   providers,
   onProgress,
+  cachedSources,
+  onSource,
 }: {
   modelsApi: string;
   getAccessToken?: () => Promise<string>;
@@ -464,6 +467,9 @@ export const listModelsWithSplitProviderHeaders = async ({
   includeGatewayModels?: boolean;
   providers?: Record<string, Provider>;
   onProgress?: (progress: ModelsListProgress) => void;
+  /** Internal discovery snapshots; failed sources keep their last good response. */
+  cachedSources?: Record<string, ModelResponse>;
+  onSource?: (source: string, response: ModelResponse) => void;
 }) => {
   const shouldIncludeGatewayModels = includeGatewayModels ?? !directProviderModels;
 
@@ -489,7 +495,8 @@ export const listModelsWithSplitProviderHeaders = async ({
       : providerKey ? 1 : (includeAnonymousRequest ? 1 : 0) + providerHeaderEntries.length
     : 0;
   const total = gatewayRequestTotal + directProviderRequests.length;
-  const responses: ModelResponse[] = [];
+  const responses = new Map<string, ModelResponse>(Object.entries(cachedSources ?? {}));
+  let succeeded = 0;
   let completed = 0;
   let lastError: unknown;
 
@@ -497,7 +504,12 @@ export const listModelsWithSplitProviderHeaders = async ({
     onProgress?.({ completed, total, active: completed < total });
   };
 
-  const requestModels = async (headers?: Record<string, string>, requestProviderKey?: string, route: "gateway" | "direct" = "gateway") => {
+  const requestModels = async (source: string, headers?: Record<string, string>, requestProviderKey?: string, route: "gateway" | "direct" = "gateway") => {
+    const accept = (response: ModelResponse) => {
+      responses.set(source, response);
+      succeeded++;
+      onSource?.(source, response);
+    };
     try {
       const staticDirectResponse = route === "direct" && requestProviderKey
         ? STATIC_DIRECT_MODEL_RESPONSES[requestProviderKey]
@@ -507,7 +519,7 @@ export const listModelsWithSplitProviderHeaders = async ({
           stripStaticProviderPrefix(staticDirectResponse, requestProviderKey),
           requestProviderKey,
         ));
-        responses.push(prefixProviderModelIds(response, requestProviderKey ?? providerKey));
+        accept(prefixProviderModelIds(response, requestProviderKey ?? providerKey));
         return;
       }
 
@@ -516,6 +528,10 @@ export const listModelsWithSplitProviderHeaders = async ({
         ? getProviderModelApiForKey(getProvider(requestProviderKey, providers), requestProviderKey, modelsApi)
         : modelsApi;
       const rawResponse = await client.get<any>(requestModelsApi);
+      if (route === "direct" && normalizeLookupValue(requestProviderKey ?? providerKey) === "google"
+        ? !Array.isArray(rawResponse?.models) : !isCatalogResponse(rawResponse)) {
+        throw new Error("Invalid model catalog response");
+      }
       const normalizedResponse = route === "direct"
         ? enrichDirectModelsWithProviderPricing(
           normalizeDirectProviderModelResponse(rawResponse, requestProviderKey ?? providerKey),
@@ -523,7 +539,7 @@ export const listModelsWithSplitProviderHeaders = async ({
         )
         : rawResponse as ModelResponse;
       const response = enrichModelResponse(normalizedResponse);
-      responses.push(route === "direct"
+      accept(route === "direct"
         ? prefixProviderModelIds(response, requestProviderKey ?? providerKey)
         : annotateGatewayModelIds(response));
     } catch (err) {
@@ -539,31 +555,31 @@ export const listModelsWithSplitProviderHeaders = async ({
 
   if (shouldIncludeGatewayModels) {
     if (getAccessToken) {
-      await requestModels(createEndpointHeaders(customHeaders, providers), undefined, "gateway");
+      await requestModels("gateway:authenticated", createEndpointHeaders(customHeaders, providers), undefined, "gateway");
     } else if (includeAnonymousRequest) {
-      await requestModels(endpointHeaders, undefined, "gateway");
+      await requestModels("gateway:anonymous", endpointHeaders, undefined, "gateway");
     }
 
     if (!getAccessToken) {
       if (providerKey) {
-        await requestModels({ ...endpointHeaders, ...createProviderHeaderSubsetForModel(customHeaders, providerKey, providers) }, undefined, "gateway");
+        await requestModels("gateway:provider:" + providerKey, { ...endpointHeaders, ...createProviderHeaderSubsetForModel(customHeaders, providerKey, providers) }, undefined, "gateway");
       } else {
         for (const [header, value] of providerHeaderEntries) {
-          await requestModels({ ...endpointHeaders, [header]: value }, undefined, "gateway");
+          await requestModels("gateway:header:" + header.toLowerCase(), { ...endpointHeaders, [header]: value }, undefined, "gateway");
         }
       }
     }
   }
 
   for (const request of directProviderRequests) {
-    await requestModels(createDirectProviderModelHeadersFromApiKey(request.apiKey, request.providerKey), request.providerKey, "direct");
+    await requestModels("direct:" + request.providerKey, createDirectProviderModelHeadersFromApiKey(request.apiKey, request.providerKey), request.providerKey, "direct");
   }
 
   onProgress?.({ completed: total, total, active: false });
 
-  if (responses.length === 0 && lastError) {
+  if (succeeded === 0 && lastError) {
     throw lastError;
   }
 
-  return mergeModelResponses(responses);
+  return mergeModelResponses([...responses.values()]);
 };

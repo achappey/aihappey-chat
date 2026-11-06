@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { store as appStore, useAppStore } from "aihappey-state";
 import { useSearchParams } from "react-router";
-import { listModelsWithSplitProviderHeaders, mergeCredentialHeaders } from "../provider-credentials/providerAuthHeaders";
+import { listModelsWithSplitProviderHeaders, mergeCredentialHeaders, mergeModelResponses } from "../provider-credentials/providerAuthHeaders";
 import type { ModelOption } from "aihappey-types";
 import { useProviderRegistry } from "../../runtime/providers/useProviderRegistry";
+import { localModelStore, modelCacheScope, type ModelCatalogSnapshot } from "aihappey-models";
 
 const equivalentModelIds = (model: ModelOption) => [
   model.id,
@@ -41,14 +42,16 @@ const modelTypeFor = (models: ModelOption[] | undefined, modelId?: string) =>
 export const useModels = (
   modelsApi: string,
   getAccessToken?: () => Promise<string>,
-  options?: { gatewayEnabled?: boolean; headers?: Record<string, string> }
+  options?: { gatewayEnabled?: boolean; headers?: Record<string, string>; cacheIdentity?: string }
 ) => {
   const models = useAppStore(a => a.models);
   const modelsLoaded = useAppStore(a => a.modelsLoaded);
+  const refreshVersion = useAppStore(a => a.modelsRefreshVersion);
   const setModels = useAppStore(a => a.setModels)
   const customHeaders = useAppStore(a => a.customHeaders)
   const gatewayEnabled = options?.gatewayEnabled !== false;
   const configuredHeaders = options?.headers;
+  const cacheIdentity = options?.cacheIdentity;
   const setModelsLoadingProgress = useAppStore((a: any) => a.setModelsLoadingProgress)
   const setSelectedModel = useAppStore(a => a.setSelectedModel)
   const userPreferredModel = useAppStore(a => a.userPreferredModel)
@@ -88,25 +91,17 @@ export const useModels = (
   }, [models, selectedModel]);
 
   useEffect(() => {
-    if (!storeHydrated || modelsLoaded) return;
+    if (!storeHydrated) return;
 
     let cancelled = false;
+    let published = false;
 
-    listModelsWithSplitProviderHeaders({
-      modelsApi,
-      getAccessToken,
-      customHeaders: mergeCredentialHeaders(configuredHeaders, customHeaders),
-      directProviderModels: true,
-      includeGatewayModels: gatewayEnabled,
-      providers,
-      onProgress: setModelsLoadingProgress,
-    })
-      .then((a) => {
+    const publish = (loadedModels: ModelOption[]) => {
         if (cancelled) return;
 
-        const loadedModels = a.data ?? [];
+        const background = published;
+        published = true;
         setModels(loadedModels)
-        setModelsLoadingProgress?.(undefined)
 
         // Refreshing credentials/catalogs must not replace an explicit chat candidate selection.
         if (!selectionRef.current.model && appStore.getState().selectedChatModelIds !== undefined) return;
@@ -116,7 +111,8 @@ export const useModels = (
           selectedModel: latestSelectedModel,
           userPreferredModel: latestUserPreferredModel,
         } = selectionRef.current;
-        const preferredModel = latestUrlModel ?? latestUserPreferredModel ?? latestSelectedModel;
+        const preferredModel = latestUrlModel
+          ?? (background ? latestSelectedModel ?? latestUserPreferredModel : latestUserPreferredModel ?? latestSelectedModel);
         const resolvedPreferredModel = resolveSelectableModelId(loadedModels, preferredModel);
         if (resolvedPreferredModel) {
           setSelectedModel(resolvedPreferredModel);
@@ -129,21 +125,46 @@ export const useModels = (
           ?? "language";
         const fallbackModel = newestModelOfType(loadedModels, previousType);
         setSelectedModel(fallbackModel?.id);
-      })
-      .catch((err) => {
+    };
+
+    const load = async () => {
+      const headers = mergeCredentialHeaders(configuredHeaders, customHeaders);
+      const scope = await modelCacheScope({ endpoint: modelsApi, authenticated: !!getAccessToken,
+        identity: cacheIdentity, gatewayEnabled, headers, providers }).catch(() => undefined);
+      if (cancelled) return;
+      const saved = scope ? await localModelStore.load<ModelOption>(scope) : undefined;
+      if (cancelled) return;
+      const snapshot: ModelCatalogSnapshot<ModelOption> = saved ?? { version: 1, sources: {} };
+      if (saved) publish(mergeModelResponses(Object.values(saved.sources).map(source => source.response)).data);
+      const response = await listModelsWithSplitProviderHeaders({
+        modelsApi, getAccessToken, customHeaders: headers, directProviderModels: true,
+        includeGatewayModels: gatewayEnabled, providers,
+        cachedSources: Object.fromEntries(Object.entries(snapshot.sources).map(([key, value]) => [key, value.response])),
+        onSource: (source, response) => {
+          snapshot.sources[source] = { updatedAt: Date.now(), response };
+        },
+        onProgress: progress => { if (!cancelled) setModelsLoadingProgress?.(progress); },
+      });
+      if (cancelled) return;
+      publish(response.data ?? []);
+      setModelsLoadingProgress?.(undefined);
+      if (scope) await localModelStore.replace(scope, snapshot);
+    };
+
+    void load().catch((err) => {
         if (cancelled) return;
 
-        // A failed attempt is settled, not pending discovery. A later explicit reset can retry.
-        setModels([])
+        // Never replace a usable cached catalog with a failed refresh.
+        if (!published) setModels([])
         setModelsLoadingProgress?.(undefined)
         console.error("Failed to load models:", err);
-      })
+    });
 
     return () => {
       cancelled = true;
     };
 
-  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, modelsLoaded, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
+  }, [modelsApi, getAccessToken, configuredHeaders, customHeaders, cacheIdentity, refreshVersion, providers, setModels, setSelectedModel, setModelsLoadingProgress, storeHydrated, gatewayEnabled]);
 
   useEffect(() => {
     if (!modelsLoaded || !model) return;
