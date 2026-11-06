@@ -253,12 +253,6 @@ export const ConversationSidebar = ({
           href: "/usage",
           icon: "databaseGear",
         },
-        {
-          key: "playground",
-          label: "Playground",
-          href: "/playground",
-          icon: "brain",
-        },
       ],
     },
     {

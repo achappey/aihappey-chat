@@ -1,7 +1,6 @@
 import type { ChatEndpointId } from "aihappey-state";
 import type { Provider } from "aihappey-types";
 import { DefaultChatTransport } from "aihappey-ai";
-import { extractPlaygroundStreamText } from "../../playground/playgroundChat";
 import { buildGenericChatEndpointBody, type GenericEndpointId } from "./genericEndpointMappers";
 import { ANTHROPIC_THINKING_METADATA_TYPES, GENERIC_CHAT_ENDPOINT_IDS, compactObject } from "./genericEndpointMappers/types";
 import { createResponsesShellToolMapper } from "./responsesShellTools";
@@ -165,7 +164,14 @@ const extractGenericStreamText = (endpoint: GenericEndpointId, event: any): stri
     return extractTextFromValue(event?.content ?? event?.message?.content ?? event?.output?.content);
   }
 
-  return extractPlaygroundStreamText(endpoint, event);
+  if (endpoint === "/v1/chat/completions") {
+    return event?.choices
+      ?.map((choice: any) => extractTextFromValue(choice?.delta?.content))
+      .filter(Boolean)
+      .join("") ?? "";
+  }
+
+  return "";
 };
 
   const textToDataUrl = (text: string, mediaType: string) =>

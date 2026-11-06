@@ -35,7 +35,6 @@ import { SkillsPage } from "../features/skills/SkillsPage";
 import { WebAppsPage, WebAppDetailPage } from "../features/web-apps";
 import { CatalogsPage } from "../features/catalogs";
 import { RegistriesPage } from "../features/registries";
-import { PlaygroundPage } from "../features/playground/PlaygroundPage";
 import { defaultEndpoints } from "aihappey-ai";
 import { RealtimePage } from "../features/realtime";
 import { normalizeChatEndpointId } from "aihappey-state";
@@ -85,7 +84,7 @@ export const CoreRoot = ({
   }, [authConfig]);
 
   useEffect(() => {
-    document.title = appName ?? "AIHappey";
+    document.title = appName ?? "aihappey";
   }, []);
 
   // 2. merge chatConfig with auth if msal present
@@ -136,7 +135,6 @@ export const CoreRoot = ({
             { path: "providers", element: <ProvidersPage /> },
             { path: "mesh", element: <MeshPage /> },
             { path: "usage", element: <UsagePage /> },
-            { path: "playground", element: <PlaygroundPage /> },
             { path: "tools", element: <ToolsPage /> },
             { path: "arena", element: <ChatArenaPage /> },
             { path: "agents", element: <AgentsPage /> },
