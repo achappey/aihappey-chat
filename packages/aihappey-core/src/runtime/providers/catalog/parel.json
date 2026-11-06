@@ -1,0 +1,11 @@
+{
+  "name": "PAREL",
+  "description": "Deploy and run stateful AI agents with sessions and plugins.",
+  "urls": {
+    "homepage": "https://parel.sh",
+    "docs": "https://parel.sh/docs",
+    "console": "https://parel.sh"
+  },
+  "category": "app_tools",
+  "apiBaseUrl": "https://api.parel.sh"
+}

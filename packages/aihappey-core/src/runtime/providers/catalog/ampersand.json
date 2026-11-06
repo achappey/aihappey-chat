@@ -1,0 +1,10 @@
+{
+  "name": "Ampersand",
+  "description": "Ampersand runs stateful agent sessions with function tools and optional multi-agent collaboration.",
+  "urls": {
+    "homepage": "https://ampersand.humansand.ai",
+    "docs": "https://ampersand.humansand.ai/docs/"
+  },
+  "category": "app_tools",
+  "apiBaseUrl": "https://ampersand.humansand.ai/v1"
+}

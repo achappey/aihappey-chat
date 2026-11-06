@@ -1,0 +1,14 @@
+{
+  "name": "Wren AI",
+  "description": "Wren AI is an agentic GenBI platform that plans, queries your data, runs SQL, draws charts and answers business questions over a semantic layer.",
+  "urls": {
+    "homepage": "https://www.getwren.ai",
+    "docs": "https://wrenai.readme.io/reference/cloud-getting-started",
+    "console": "https://cloud.getwren.ai"
+  },
+  "providerCountry": "TW",
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

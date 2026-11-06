@@ -11,6 +11,6 @@
   },
   "category": "model_provider",
   "inferenceRegions": [
-    "Local"
+    "World"
   ]
 }

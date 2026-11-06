@@ -53,6 +53,11 @@
       "sha256": "0f8a785e01394ad0ebcd9705bb0e99f0c19d1f500d74394752f539c6bbf5b7f2"
     },
     {
+      "source": "providers/agentcommons.json",
+      "file": "catalog/agentcommons.json",
+      "sha256": "2bc92f9e28d539ac6b3c1db6a1e9426d1cb98a439e91e6db8b12bc7ac7bf3b81"
+    },
+    {
       "source": "providers/agentcontainer.json",
       "file": "catalog/agentcontainer.json",
       "sha256": "322f9c841567ebebcf9f26e8d915b636145845ed83b8ca5317cf054d999afa70"
@@ -66,6 +71,11 @@
       "source": "providers/agentics.json",
       "file": "catalog/agentics.json",
       "sha256": "b4aca2655d2696737b0fc554c479eb52e5d2e4aae431c3de6685242835d95e0c"
+    },
+    {
+      "source": "providers/agenticworkforceme.json",
+      "file": "catalog/agenticworkforceme.json",
+      "sha256": "6e7a36e33f9d57d5cd15bb282e4322354ac1420a418361c21bae6d5b428713c6"
     },
     {
       "source": "providers/agentphone.json",
@@ -221,6 +231,11 @@
       "source": "providers/amnt.json",
       "file": "catalog/amnt.json",
       "sha256": "732b60f3ba83b2e3266fdb1f6e9a3773bb9b0279d9b2886a106f66bb8d14630f"
+    },
+    {
+      "source": "providers/ampersand.json",
+      "file": "catalog/ampersand.json",
+      "sha256": "b1d46d26a52565e081c133e840d3d4aa6f57b24b6037d565f7005a2850cb96e3"
     },
     {
       "source": "providers/andyapi.json",
@@ -890,7 +905,7 @@
     {
       "source": "providers/edgespeak.json",
       "file": "catalog/edgespeak.json",
-      "sha256": "836acc6f46c92c46920c7f05abe354a0bc18b562710c4bcc68b06b5562c4da64"
+      "sha256": "56d0b4ac1b729c640fe3f33521d1dfd8e438f017dfbe962c62b7674c128ccd5d"
     },
     {
       "source": "providers/electronhub.json",
@@ -1330,7 +1345,7 @@
     {
       "source": "providers/index.json",
       "file": "catalog/index.json",
-      "sha256": "6ce2e636fa18db8add79c13819542c181b39c10ec6b65a5654df642629d5ca7a"
+      "sha256": "398e61dd8775be56a445b2fcf0c99b46afb95a06bcab7f117603b02055f5ff19"
     },
     {
       "source": "providers/infercom.json",
@@ -1466,6 +1481,11 @@
       "source": "providers/kimrel.json",
       "file": "catalog/kimrel.json",
       "sha256": "a90cb652483001f7cf3223df88a6b78bacd63d4facac6637bd2fa97e2bd9efa1"
+    },
+    {
+      "source": "providers/kiosapi.json",
+      "file": "catalog/kiosapi.json",
+      "sha256": "541602433a89d71f3da1865654443ed3d7daa206ae65a504c689f4ceb8b4dd4d"
     },
     {
       "source": "providers/kirha.json",
@@ -2326,6 +2346,11 @@
       "source": "providers/parasail.json",
       "file": "catalog/parasail.json",
       "sha256": "f18c07568564663005183f9b2a7d737c6808c81613be64fa35967f841f18865a"
+    },
+    {
+      "source": "providers/parel.json",
+      "file": "catalog/parel.json",
+      "sha256": "c6485e601fa4030916ea5a5f6c4fa250d27358065a0f66d7fabc472e1fd58402"
     },
     {
       "source": "providers/paul.json",
@@ -3493,6 +3518,11 @@
       "sha256": "8f275b70d0918e5923ce206a39fbdb78373168da661f5ac59606b1be974c054d"
     },
     {
+      "source": "providers/viktor.json",
+      "file": "catalog/viktor.json",
+      "sha256": "5b7ce13332292863a478e44068712cd86ba764ad29c6f1487f714899b51c35db"
+    },
+    {
       "source": "providers/vivgrid.json",
       "file": "catalog/vivgrid.json",
       "sha256": "eabf2ad038c342dd9c056933764d79284cb68be404b1b5bd6d9437774d5ecbc9"
@@ -3576,6 +3606,11 @@
       "source": "providers/wiserouter.json",
       "file": "catalog/wiserouter.json",
       "sha256": "1170d58e5fb5b37499cbfff7ff9a6a5ee07873fb6496e32569ce6ddbe1eeb555"
+    },
+    {
+      "source": "providers/wrenai.json",
+      "file": "catalog/wrenai.json",
+      "sha256": "6107a19f5341eb2eae9060cda12becaa01e443ee89c670c466f4fa259e973223"
     },
     {
       "source": "providers/writer.json",

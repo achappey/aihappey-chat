@@ -1,0 +1,12 @@
+{
+  "name": "AgentCommons",
+  "description": "AgentCommons runs persistent AI agents with sessions, tools, memory, knowledge, and managed runtimes.",
+  "urls": {
+    "homepage": "https://agentcommons.io",
+    "docs": "https://agentcommons.io/docs"
+  },
+  "category": "app_tools",
+  "inferenceRegions": [
+    "World"
+  ]
+}

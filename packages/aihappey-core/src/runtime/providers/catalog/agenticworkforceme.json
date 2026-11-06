@@ -1,0 +1,11 @@
+{
+  "name": "AgenticWorkforceME",
+  "description": "Governed AI agents with conversation threads, one-off runs and human approvals.",
+  "urls": {
+    "homepage": "https://agenticworkforce.me",
+    "docs": "https://developer.agenticworkforce.me",
+    "console": "https://console.agenticworkforce.me"
+  },
+  "category": "app_tools",
+  "apiBaseUrl": "https://console.agenticworkforce.me/v1"
+}

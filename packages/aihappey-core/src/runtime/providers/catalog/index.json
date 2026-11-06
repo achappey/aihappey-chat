@@ -1,5 +1,21 @@
 [
   {
+    "id": "parel",
+    "file": "parel.json"
+  },
+  {
+    "id": "ampersand",
+    "file": "ampersand.json"
+  },
+  {
+    "id": "viktor",
+    "file": "viktor.json"
+  },
+  {
+    "id": "agenticworkforceme",
+    "file": "agenticworkforceme.json"
+  },
+  {
     "id": "agencyosx",
     "file": "agencyosx.json"
   },
@@ -894,6 +910,10 @@
   {
     "id": "agentcontainer",
     "file": "agentcontainer.json"
+  },
+  {
+    "id": "agentcommons",
+    "file": "agentcommons.json"
   },
   {
     "id": "interfaze",
@@ -2724,7 +2744,15 @@
     "file": "infermatic.json"
   },
   {
+    "id": "kiosapi",
+    "file": "kiosapi.json"
+  },
+  {
     "id": "gigachat",
     "file": "gigachat.json"
+  },
+  {
+    "id": "wrenai",
+    "file": "wrenai.json"
   }
 ]
