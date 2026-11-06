@@ -61,7 +61,7 @@ async function chunksFor(events, options = {}) {
 for (const route of ['gateway', 'direct']) test(`real SDK ${route} Messages runs local and MCP tools through signed thinking to a final answer without duplicating history`, async () => {
   const { createClientToolContinuation } = load(base + 'clientToolContinuation.ts');
   const guard = createClientToolContinuation();
-  const a = call('toolu_local'), b = call('toolu_mcp', 'mcp_lookup', { query: 'chosen' });
+  const a = { ...call('toolu_local'), caller: { type: 'direct' } }, b = call('toolu_mcp', 'mcp_lookup', { query: 'chosen' });
   const requests = [], executions = [], errors = [];
   const url = `https://${route}.test/v1/messages`;
   const transport = new GenericChatEndpointTransport('/v1/messages', route === 'direct' ? 'anthropic' : undefined, undefined, {
@@ -78,8 +78,12 @@ for (const route of ['gateway', 'direct']) test(`real SDK ${route} Messages runs
       assert.ok(requests.length <= 3, 'must not continue after the final answer');
       if (requests.length === 1) return nativeResponse([start, ...thinking(0, ''), { type: 'ping' },
         blockStart(1, a), delta(1, { type: 'input_json_delta', partial_json: '' }), stop(1), ...end('tool_use')]);
-      if (requests.length === 2) return nativeResponse([start, ...thinking(0, 'Next step.'), ...text(1, 'Checking next.'), ...tool(2, b), ...end('tool_use')]);
       const blocks = request.messages.flatMap(message => message.content);
+      assert.deepEqual(blocks.filter(block => block.type === 'tool_use'), requests.length === 2 ? [a] : [a, b],
+        'serialized follow-up calls must retain required input objects, including empty input and caller metadata');
+      assert.deepEqual(blocks.filter(block => block.type === 'tool_result'), (requests.length === 2 ? [a] : [a, b])
+        .map(item => ({ type: 'tool_result', tool_use_id: item.id, content: '{"ok":true}' })));
+      if (requests.length === 2) return nativeResponse([start, ...thinking(0, 'Next step.'), ...text(1, 'Checking next.'), ...tool(2, b), ...end('tool_use')]);
       assert.deepEqual(blocks.filter(block => block.type === 'tool_use').map(block => block.id), [a.id, b.id]);
       assert.deepEqual(blocks.filter(block => block.type === 'tool_result').map(block => block.tool_use_id), [a.id, b.id]);
       assert.equal(blocks.find(block => block.type === 'thinking').signature, 'signed-thinking');
@@ -196,6 +200,31 @@ const replay = (parts, extra = {}) => buildMessagesBody({ model: 'anthropic/clau
   messages: [{ id: 'assistant', role: 'assistant', parts: clone(parts) }], ...extra }).messages ?? [];
 const signed = (value, signature = 'opaque-signature') => ({ type: 'reasoning', text: value, state: 'done', providerMetadata: { anthropic: { signature } } });
 
+test('Messages serialized replay retains required empty tool input for saved static, dynamic, and legacy UI parts without mutation', () => {
+  const inputs = [
+    { input: {} }, {}, { input: null }, { input: undefined, args: {} },
+    { input: undefined, arguments: {} }, { input: undefined, function: { arguments: {} } },
+    { input: { nested: {}, items: [], enabled: false, count: 0, text: '', nullable: null } },
+  ];
+  for (const dynamic of [false, true]) for (const fields of inputs) {
+    const part = uiTool('toolu_saved_empty', { input: undefined, ...fields,
+      ...(dynamic ? { type: 'dynamic-tool', toolName: 'local_lookup' } : {}),
+      callProviderMetadata: { anthropic: { type: 'tool_use', caller: { type: 'direct' } } },
+    });
+    const parts = [{ type: 'step-start' }, signed(''), part];
+    const saved = clone(parts), expectedInput = fields.input ?? fields.args ?? fields.arguments ?? fields.function?.arguments ?? {};
+    const messages = clone(buildMessagesBody({ model: 'anthropic/claude-test',
+      messages: [{ id: 'saved-assistant', role: 'assistant', parts }],
+    }).messages);
+    assert.deepEqual(messages, [
+      { role: 'assistant', content: [{ type: 'thinking', thinking: '', signature: 'opaque-signature' },
+        { type: 'tool_use', id: part.toolCallId, name: 'local_lookup', input: expectedInput, caller: { type: 'direct' } }] },
+      { role: 'user', content: [{ type: 'tool_result', tool_use_id: part.toolCallId, content: '{"ok":true}' }] },
+    ]);
+    assert.deepEqual(clone(parts), saved, 'mapping must not repair or rewrite persisted UI state');
+  }
+});
+
 test('Messages replay preserves step order, signed thinking order, parallel result batches, and terminal failures', () => {
   const messages = replay([
     { type: 'step-start' }, signed('  First.\n'), { type: 'text', text: 'Checking.' }, uiTool('a'),
@@ -205,6 +234,8 @@ test('Messages replay preserves step order, signed thinking order, parallel resu
   ]);
   assert.deepEqual(messages.map(message => message.role), ['assistant', 'user', 'assistant', 'user', 'assistant']);
   assert.deepEqual(messages[0].content.map(block => block.type), ['thinking', 'text', 'tool_use', 'thinking', 'tool_use']);
+  assert.deepEqual(messages.flatMap(message => message.content).filter(block => block.type === 'tool_use').map(block => block.input), [{}, {}, {}],
+    'successful, failed, and denied parameterless calls must all retain required input');
   assert.equal(messages[0].content[0].thinking, '  First.\n');
   assert.equal(messages[0].content[0].signature, 'opaque-signature');
   assert.deepEqual(messages[1].content.map(block => block.tool_use_id), ['a', 'b']);
@@ -290,6 +321,7 @@ test('real SDK Messages waits for delayed parallel client results and submits on
       assert.ok(requests.length <= 2);
       if (requests.length === 1) return nativeResponse([start, ...tool(0, a), ...tool(1, b), ...end('tool_use')]);
       assert.deepEqual(completed, [b.id, a.id]);
+      assert.deepEqual(request.messages.flatMap(message => message.content).filter(block => block.type === 'tool_use'), [a, b]);
       assert.deepEqual(request.messages.at(-1).content.map(block => block.tool_use_id), [a.id, b.id]);
       return nativeResponse([start, ...text(0, 'Done.'), ...end()]);
     },
@@ -349,7 +381,11 @@ test('real SDK saved UI history switches Messages to Responses to Gateway API ch
         if (messagesRequests === 1) return nativeResponse([start, ...thinking(0, 'Original plan.'), ...tool(1, item), ...end('tool_use')]);
         const blocks = request.messages.flatMap(message => message.content);
         assert.equal(blocks.filter(block => block.type === 'tool_use').length, 1);
+        assert.deepEqual(blocks.filter(block => block.type === 'tool_use'), [item], 'empty input must survive continuation and route-switch replay');
         assert.equal(blocks.filter(block => block.type === 'tool_result').length, 1);
+        assert.deepEqual(blocks.find(block => block.type === 'tool_result'), {
+          type: 'tool_result', tool_use_id: item.id, content: '{"conversations":["chosen"]}',
+        });
         assert.equal(blocks.find(block => block.type === 'thinking').signature, 'signed-thinking');
         if (messagesRequests === 3) {
           assert.deepEqual(blocks.filter(block => block.type === 'text').map(block => block.text), [
@@ -366,6 +402,7 @@ test('real SDK saved UI history switches Messages to Responses to Gateway API ch
       fetch: async (_, init) => {
         const request = JSON.parse(init.body); responsesRequests++;
         assert.equal(request.input.filter(entry => entry.type === 'function_call').length, 1);
+        assert.equal(request.input.find(entry => entry.type === 'function_call').arguments, '{}');
         assert.equal(request.input.filter(entry => entry.type === 'function_call_output').length, 1);
         return nativeResponse([{ type: 'response.output_text.delta', item_id: 'msg_responses', delta: 'Responses answer.' },
           { type: 'response.completed', response: { status: 'completed', output: [] } }]);
@@ -376,6 +413,9 @@ test('real SDK saved UI history switches Messages to Responses to Gateway API ch
       fetch: async (_, init) => {
         const request = JSON.parse(init.body); gatewayRequests.push(request);
         assert.equal(request.messages.flatMap(message => message.parts).filter(part => part.toolCallId === item.id).length, 1);
+        const savedTool = request.messages.flatMap(message => message.parts).find(part => part.toolCallId === item.id);
+        assert.deepEqual(savedTool.input, {});
+        assert.deepEqual(savedTool.output, { conversations: ['chosen'] });
         assert.equal(request.messages.flatMap(message => message.parts).find(part => part.type === 'reasoning').providerMetadata.anthropic.signature, 'signed-thinking');
         const chunks = [{ type: 'start' }, { type: 'start-step' }, { type: 'text-start', id: 'gateway-text' },
           { type: 'text-delta', id: 'gateway-text', delta: 'Gateway answer.' }, { type: 'text-end', id: 'gateway-text' },
@@ -628,8 +668,10 @@ for (const route of ['direct', 'gateway']) test(`real SDK ${route} mixed server/
           ...result(2, 'web_search_tool_result', hosted.id, hostedFixtures[0][2]), ...tool(3, client), ...end('tool_use')]);
         const blocks = request.messages.flatMap(message => message.content);
         assert.equal(blocks.filter(block => block.type === 'server_tool_use').length, 1);
+        assert.deepEqual(blocks.find(block => block.type === 'server_tool_use'), hosted);
         assert.equal(blocks.filter(block => block.type === 'web_search_tool_result').length, 1);
         assert.equal(blocks.filter(block => block.type === 'tool_use').length, 1);
+        assert.deepEqual(blocks.find(block => block.type === 'tool_use'), client);
         assert.equal(blocks.filter(block => block.type === 'tool_result').length, 1);
         return nativeResponse([start, ...text(0, requests.length === 2 ? 'Messages answer.' : 'Back again.'), ...end()]);
       },
