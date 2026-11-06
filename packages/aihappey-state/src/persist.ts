@@ -98,6 +98,7 @@ export const withPersist = (
       chatWithImageModels: s.chatWithImageModels,
       chatWithVideoModels: (s as any).chatWithVideoModels,
       chatWithSpeechModels: s.chatWithSpeechModels,
+      showVoiceModels: s.showVoiceModels,
       chatWithTranscriptionModels: s.chatWithTranscriptionModels,
       transcriptionFileSplitEnabled: (s as any).transcriptionFileSplitEnabled,
       transcriptionFileSplitOverlapSeconds: (s as any).transcriptionFileSplitOverlapSeconds,

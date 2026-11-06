@@ -207,6 +207,8 @@ export type UiSlice = {
   chatWithVideoModels?: boolean
   chatWithTranscriptionModels?: boolean
   chatWithSpeechModels?: boolean
+  showVoiceModels: boolean
+  setShowVoiceModels: (enabled: boolean) => void;
   chatWithRerankModels?: boolean
   transcriptionFileSplitEnabled?: boolean
   transcriptionFileSplitOverlapSeconds?: number
@@ -374,6 +376,8 @@ export const createUiSlice: StateCreator<
   chatWithVideoModels: false,
   chatWithRerankModels: false,
   chatWithSpeechModels: false,
+  showVoiceModels: true,
+  setShowVoiceModels: (enabled: boolean) => set({ showVoiceModels: enabled }),
   chatWithTranscriptionModels: false,
   transcriptionFileSplitEnabled: false,
   transcriptionFileSplitOverlapSeconds: 5,

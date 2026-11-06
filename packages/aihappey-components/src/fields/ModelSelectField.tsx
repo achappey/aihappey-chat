@@ -21,6 +21,8 @@ export type ModelSelectFieldProps = {
   enabledProviderKeys?: string[]; // optional filter
   enabledProviderKeysByType?: Record<string, string[]>;
   modelTypes?: string[];          // default ["language"]
+  /** Choice visibility only: selected values and their display names remain intact. */
+  showVoiceModels?: boolean;
   favoriteModelIds?: string[];
   favoritesLabel?: string;
   virtualOptions?: { id: string; label: string }[];
@@ -60,6 +62,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   enabledProviderKeys,
   enabledProviderKeysByType,
   modelTypes = ["language"],
+  showVoiceModels = true,
   favoriteModelIds,
   favoritesLabel = "Favorites",
   virtualOptions = [],
@@ -91,8 +94,11 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
 
   const favoriteSet = new Set((favoriteModelIds ?? []).filter(Boolean));
   const selectedIds = multiselect ? values ?? [] : [value];
+  const choiceVisible = (model: ModelOption) => showVoiceModels !== false
+    || !Array.isArray(model.tags) || !model.tags.some(tag => typeof tag === "string" && tag.trim().toLowerCase() === "voice");
 
   const visibleModels = (models ?? []).filter((m) => {
+    if (!choiceVisible(m)) return false;
     if (!modelTypes.includes(m.type)) return false;
 
     // Favorites must always remain visible even if provider is currently disabled.
@@ -105,7 +111,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
   // Agent editors need to uncheck saved models even when their provider is disabled
   // or the model is no longer in the catalog. Other pickers keep their normal filters.
   for (const model of selectedOptions) {
-    if (selectedIds.includes(model.id) && !visibleModels.some(option => option.id === model.id)) {
+    if (choiceVisible(model) && selectedIds.includes(model.id) && !visibleModels.some(option => option.id === model.id)) {
       visibleModels.push(model);
     }
   }
@@ -130,7 +136,7 @@ export const ModelSelectField: React.FC<ModelSelectFieldProps> = ({
     visibleModels.map((model) => [getModelOptionValue(model), model.id]),
   );
   const visibleModelById = new Map(visibleModels.map(model => [model.id, model]));
-  const modelById = new Map((models ?? []).map(model => [model.id, model]));
+  const modelById = new Map([...(models ?? []), ...selectedOptions].map(model => [model.id, model]));
   const selectedOptionValues = selectedIds.map(id => {
     const model = visibleModelById.get(id);
     return model ? getModelOptionValue(model) : id;

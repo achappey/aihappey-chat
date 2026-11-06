@@ -51,6 +51,8 @@ export const AiDefaultSettings: React.FC = () => {
 
   const toggleChatWithSpeechModels = useAppStore((s: any) => s.toggleChatWithSpeechModels);
   const chatWithSpeechModels = useAppStore((s) => s.chatWithSpeechModels);
+  const showVoiceModels = useAppStore((s) => s.showVoiceModels);
+  const setShowVoiceModels = useAppStore((s) => s.setShowVoiceModels);
 
   const toggleChatWithTranscriptionModels = useAppStore((s: any) => s.toggleChatWithTranscriptionModels);
   const chatWithTranscriptionModels = useAppStore((s) => s.chatWithTranscriptionModels);
@@ -210,6 +212,12 @@ export const AiDefaultSettings: React.FC = () => {
               label={t("chatWithSpeechModels")}
               checked={chatWithSpeechModels ?? false}
               onChange={toggleChatWithSpeechModels}
+            />
+            <Switch
+              id="showVoiceModels"
+              label={t("voiceModels")}
+              checked={showVoiceModels ?? true}
+              onChange={() => setShowVoiceModels(!(showVoiceModels ?? true))}
             />
           </div>
         </theme.Tab>

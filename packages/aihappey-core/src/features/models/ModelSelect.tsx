@@ -55,11 +55,15 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
 
   const enabledProvidersByType = useAppStore((s) => s.enabledProvidersByType);
   const modelsLoaded = useAppStore((s) => s.modelsLoaded);
+  const showVoiceModels = useAppStore((s) => s.showVoiceModels);
+  const choiceModels = React.useMemo(() => showVoiceModels !== false ? props.models : props.models.filter(model =>
+    !Array.isArray(model.tags) || !model.tags.some(tag => typeof tag === "string" && tag.trim().toLowerCase() === "voice")),
+    [props.models, showVoiceModels]);
   const favoriteModelsByType = useAppStore((s: any) => s.favoriteModelsByType as Record<string, string[]> | undefined);
   const routingDecisionModel = useAppStore(s => favoriteRouterModel(s, "model"));
   const deciding = useAppStore(s => s.favoriteRouterDeciding);
   const modelTypes = React.useMemo(() => props.modelTypes ?? ["language"], [props.modelTypes]);
-  const currentFavoriteIds = Array.from(new Set(props.models.filter(model => modelTypes.includes(model.type)
+  const currentFavoriteIds = Array.from(new Set(choiceModels.filter(model => modelTypes.includes(model.type)
     && favoriteModelsByType?.[model.type]?.includes(model.id)).map(model => model.id)));
   const favoritesShortcutAvailable = allowFavoriteRouter && props.multiselect && !!routingDecisionModel
     && !!onValuesChange && currentFavoriteIds.length > 0;
@@ -104,12 +108,12 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
 
     if (currentExists) return;
 
-    const fallbackModel = newestModelOfTypes(props.models, modelTypes);
+    const fallbackModel = newestModelOfTypes(choiceModels, modelTypes);
     const nextValue = fallbackModel?.id ?? "";
     if (currentValue !== nextValue) {
       props.onChange(nextValue);
     }
-  }, [autoSelectFallback, allowNone, modelTypes, modelsLoaded, props.models, props.onChange, props.value, props.multiselect]);
+  }, [autoSelectFallback, allowNone, modelTypes, modelsLoaded, props.models, choiceModels, props.onChange, props.value, props.multiselect]);
 
   return (
     <ModelSelectField
@@ -130,6 +134,7 @@ export const ModelSelect: React.FC<ModelSelectProps> = (props) => {
         props.onChange(id);
       }}
       models={(props.models ?? [])}
+      showVoiceModels={showVoiceModels ?? true}
       providers={providerOptions}
       enabledProviderKeys={enabledProviderKeys}
       enabledProviderKeysByType={enabledProviderKeysByType}
