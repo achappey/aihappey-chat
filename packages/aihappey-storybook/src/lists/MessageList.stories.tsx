@@ -179,7 +179,7 @@ export const StreamingAssistant: Story = {
           content: [
             {
               type: "text",
-              text: "This assistant message demonstrates the same text-part shape used while playground streaming is progressively updating the UI.",
+              text: "This assistant message demonstrates the same text-part shape used while chat streaming is progressively updating the UI.",
             } as TextUIPart,
           ],
         },
